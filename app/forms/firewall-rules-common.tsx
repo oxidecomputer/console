@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
+import { useEffect } from 'react'
 import {
   useController,
   useForm,
@@ -27,7 +28,7 @@ import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
-import { NameField } from '~/components/form/fields/NameField'
+import { NameField, validateName } from '~/components/form/fields/NameField'
 import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
@@ -40,6 +41,7 @@ import * as MiniTable from '~/ui/lib/MiniTable'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
 import { ALL_ISH } from '~/util/consts'
+import { validateIp, validateIpNet } from '~/util/ip'
 import { links } from '~/util/links'
 import { capitalize } from '~/util/str'
 
@@ -63,7 +65,6 @@ type TargetAndHostFilterType =
 type TargetAndHostFormValues = {
   type: TargetAndHostFilterType
   value: string
-  subnetVpc?: string
 }
 
 // these are part of the target and host filter form;
@@ -133,8 +134,13 @@ const DynamicTypeAndValueFields = ({
           items={items}
           allowArbitraryValues
           hideOptionalTag
-          // TODO: validate here, but it's complicated because it's conditional
-          // on which type is selected
+          validate={(value) =>
+            // required: false arg is desirable because otherwise if you put in
+            // a bad name and submit, causing it to revalidate onChange, then
+            // clear the field you're left with a BS "Target name is required"
+            // error message
+            validateName(value, `${capitalize(sectionType)} name`, false)
+          }
         />
       ) : (
         <TextField
@@ -147,8 +153,11 @@ const DynamicTypeAndValueFields = ({
               onSubmitTextField(e)
             }
           }}
-          // TODO: validate here, but it's complicated because it's conditional
-          // on which type is selected
+          validate={(value) =>
+            (valueType === 'ip' && validateIp(value)) ||
+            (valueType === 'ip_net' && validateIpNet(value)) ||
+            undefined
+          }
         />
       )}
     </>
@@ -232,14 +241,14 @@ type CommonFieldsProps = {
   error: ApiError | null
 }
 
+const targetAndHostDefaultValues: TargetAndHostFormValues = {
+  type: 'vpc',
+  value: '',
+}
+
 export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) => {
   const { project, vpc } = useVpcSelector()
-  const targetAndHostDefaultValues: TargetAndHostFormValues = {
-    type: 'vpc',
-    value: '',
-    // only becomes relevant when the type is 'VPC subnet'; ignored otherwise
-    subnetVpc: vpc,
-  }
+
   // prefetchedApiQueries below are prefetched in firewall-rules-create and -edit
   const {
     data: { items: instances },
@@ -254,8 +263,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
   // Targets
   const targetForm = useForm({ defaultValues: targetAndHostDefaultValues })
   const targets = useController({ name: 'targets', control }).field
-  const targetType = targetForm.watch('type')
-  const targetValue = targetForm.watch('value')
+  const [targetType, targetValue] = targetForm.watch(['type', 'value'])
   // get the list of items that are not already in the list of targets
   const targetItems = {
     vpc: availableItems(targets.value, 'vpc', vpcs),
@@ -271,8 +279,20 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
     if (!type || !value) return
     if (targets.value.some((t) => t.value === value && t.type === type)) return
     targets.onChange([...targets.value, { type, value }])
-    targetForm.reset()
+    targetForm.reset(targetAndHostDefaultValues)
   })
+  // HACK: we need to reset the target form completely after a successful submit,
+  // including especially `isSubmitted`, because that governs whether we're in
+  // the validate regime (which doesn't validate until submit) or the reValidate
+  // regime (which validate on every keypress). The reset inside `handleSubmit`
+  // doesn't do that for us because `handleSubmit` set `isSubmitted: true` after
+  // running the callback. So we have to watch for a successful submit and call
+  // the reset again here.
+  // https://github.com/react-hook-form/react-hook-form/blob/9a497a70a/src/logic/createFormControl.ts#L1194-L1203
+  const { isSubmitSuccessful: targetSubmitSuccessful } = targetForm.formState
+  useEffect(() => {
+    if (targetSubmitSuccessful) targetForm.reset(targetAndHostDefaultValues)
+  }, [targetSubmitSuccessful, targetForm])
 
   // Ports
   const portRangeForm = useForm({ defaultValues: { portRange: '' } })
@@ -289,8 +309,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
   // Host Filters
   const hostForm = useForm({ defaultValues: targetAndHostDefaultValues })
   const hosts = useController({ name: 'hosts', control }).field
-  const hostType = hostForm.watch('type')
-  const hostValue = hostForm.watch('value')
+  const [hostType, hostValue] = hostForm.watch(['type', 'value'])
   // get the list of items that are not already in the list of host filters
   const hostFilterItems = {
     vpc: availableItems(hosts.value, 'vpc', vpcs),
@@ -305,8 +324,13 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
     if (!type || !value) return
     if (hosts.value.some((t) => t.value === value && t.type === type)) return
     hosts.onChange([...hosts.value, { type, value }])
-    hostForm.reset()
+    hostForm.reset(targetAndHostDefaultValues)
   })
+  // HACK: see comment above about doing the same for target form
+  const { isSubmitSuccessful: hostSubmitSuccessful } = hostForm.formState
+  useEffect(() => {
+    if (hostSubmitSuccessful) hostForm.reset(targetAndHostDefaultValues)
+  }, [hostSubmitSuccessful, hostForm])
 
   return (
     <>
@@ -410,7 +434,12 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           control={targetForm.control}
           valueType={targetType}
           items={toComboboxItems(targetItems[targetType])}
-          onTypeChange={() => targetForm.setValue('value', '')}
+          // HACK: reset the whole subform, keeping type (because we just set
+          // it). most importantly, this resets isSubmitted so the form can go
+          // back to validating on submit instead of change
+          onTypeChange={() =>
+            targetForm.reset({ type: targetForm.getValues('type'), value: '' })
+          }
           onInputChange={(value) => targetForm.setValue('value', value)}
           onSubmitTextField={submitTarget}
         />
@@ -468,7 +497,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
         <MiniTable.ClearAndAddButtons
           addButtonCopy="Add port filter"
           disableClear={!portValue}
-          onClear={portRangeForm.reset}
+          onClear={() => portRangeForm.reset()}
           onSubmit={submitPortRange}
         />
       </div>
@@ -517,7 +546,12 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           control={hostForm.control}
           valueType={hostType}
           items={toComboboxItems(hostFilterItems[hostType])}
-          onTypeChange={() => hostForm.setValue('value', '')}
+          // HACK: reset the whole subform, keeping type (because we just set
+          // it). most importantly, this resets isSubmitted so the form can go
+          // back to validating on submit instead of change
+          onTypeChange={() =>
+            hostForm.reset({ type: hostForm.getValues('type'), value: '' })
+          }
           onInputChange={(value) => hostForm.setValue('value', value)}
           onSubmitTextField={submitHost}
         />

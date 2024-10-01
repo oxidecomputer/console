@@ -15,15 +15,13 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { useIpPoolSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Message } from '~/ui/lib/Message'
+import { parseIp } from '~/util/ip'
 import { pb } from '~/util/path-builder'
-import { validateIp } from '~/util/str'
 
 const defaultValues: IpRange = {
   first: '',
   last: '',
 }
-
-const invalidAddressError = { type: 'pattern', message: 'Not a valid IP address' }
 
 const ipv6Error = { type: 'pattern', message: 'IPv6 ranges are not yet supported' }
 
@@ -35,20 +33,20 @@ const ipv6Error = { type: 'pattern', message: 'IPv6 ranges are not yet supported
  * regex twice, though.
  */
 function resolver(values: IpRange) {
-  const first = validateIp(values.first)
-  const last = validateIp(values.last)
+  const first = parseIp(values.first)
+  const last = parseIp(values.last)
 
   const errors: FieldErrors<IpRange> = {}
 
-  if (!first.valid) {
-    errors.first = invalidAddressError
-  } else if (first.isv6) {
+  if (first.type === 'error') {
+    errors.first = { type: 'pattern', message: first.message }
+  } else if (first.type === 'v6') {
     errors.first = ipv6Error
   }
 
-  if (!last.valid) {
-    errors.last = invalidAddressError
-  } else if (last.isv6) {
+  if (last.type === 'error') {
+    errors.last = { type: 'pattern', message: last.message }
+  } else if (last.type === 'v6') {
     errors.last = ipv6Error
   }
 
