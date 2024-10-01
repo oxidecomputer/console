@@ -600,6 +600,13 @@ export const handlers = makeHandlers({
         project: isUuid(body.boot_disk) ? undefined : query.project,
       })
 
+      // disk must of course be attached to this instance already to be set as the boot disk
+      // TODO: update with better link once PR is merged
+      // https://github.com/oxidecomputer/omicron/pull/6585/files#diff-a234811eb5ee38fdcf626cd6514deb7dbfc8b9e2067cfa3b4a6f111d72a07e53R1079-R1081
+      if (!(disk.state.state === 'attached' && disk.state.instance === instance.id)) {
+        throw 'Boot disk must be attached'
+      }
+
       instance.boot_disk_id = disk.id
     } else {
       // we're clearing the boot disk!
