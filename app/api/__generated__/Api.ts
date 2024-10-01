@@ -1755,6 +1755,12 @@ export type InstanceState =
  * View of an Instance
  */
 export type Instance = {
+  /** The time at which the auto-restart cooldown period for this instance completes, permitting it to be automatically restarted again. If the instance enters the `Failed` state, it will not be restarted until after this time.
+
+If this is not present, then either the instance has never been automatically restarted, or the cooldown period has already expired, allowing the instance to be restarted immediately if it fails. */
+  autoRestartCooldownExpiration?: Date
+  /** `true` if this instance's auto-restart policy will permit the control plane to automatically restart it if it enters the `Failed` state. */
+  autoRestartEnabled: boolean
   /** the ID of the disk used to boot this Instance, if a specific one is assigned. */
   bootDiskId?: string
   /** human-readable free-form text about a resource */
@@ -1774,10 +1780,24 @@ export type Instance = {
   runState: InstanceState
   /** timestamp when this resource was created */
   timeCreated: Date
+  /** The timestamp of the most recent time this instance was automatically restarted by the control plane.
+
+If this is not present, then this instance has not been automatically restarted. */
+  timeLastAutoRestarted?: Date
   /** timestamp when this resource was last modified */
   timeModified: Date
   timeRunStateUpdated: Date
 }
+
+/**
+ * A policy determining when an instance should be automatically restarted by the control plane.
+ */
+export type InstanceAutoRestartPolicy =
+  /** The instance should not be automatically restarted by the control plane if it fails. */
+  | 'never'
+
+  /** If this instance is running and unexpectedly fails (e.g. due to a host software crash or unexpected host reboot), the control plane will make a best-effort attempt to restart it. The control plane may choose not to restart the instance to preserve the overall availability of the system. */
+  | 'best_effort'
 
 /**
  * Describe the instance's disks at creation time
@@ -1831,8 +1851,16 @@ If more than one interface is provided, then the first will be designated the pr
  * Create-time parameters for an `Instance`
  */
 export type InstanceCreate = {
-  /** Choice of which disk this instance should boot from. */
-  bootDisk?: NameOrId
+  /** The auto-restart policy for this instance.
+
+This indicates whether the instance should be automatically restarted by the control plane on failure. If this is `null`, no auto-restart policy has been configured for this instance by the user. */
+  autoRestartPolicy?: InstanceAutoRestartPolicy
+  /** The disk this instance should boot into. This disk can either be attached if it already exists, or created, if it should be a new disk.
+
+It is strongly recommended to either provide a boot disk at instance creation, or update the instance after creation to set a boot disk.
+
+An instance without an explicit boot disk can be booted: the options are as managed by UEFI, and as controlled by the guest OS, but with some risk.  If this instance later has a disk attached or detached, it is possible that boot options can end up reordered, with the intended boot disk moved after the EFI shell in boot priority. This may result in an instance that only boots to the EFI shell until the desired disk is set as an explicit boot disk and the instance rebooted. */
+  bootDisk?: InstanceDiskAttachment
   description: string
   /** The disks to be created or attached for this instance. */
   disks?: InstanceDiskAttachment[]
@@ -1944,7 +1972,12 @@ export type InstanceSerialConsoleData = {
 /**
  * Parameters of an `Instance` that can be reconfigured after creation.
  */
-export type InstanceUpdate = { bootDisk?: NameOrId }
+export type InstanceUpdate = {
+  /** Name or ID of the disk the instance should be instructed to boot from.
+
+If not provided, unset the instance's boot disk. */
+  bootDisk?: NameOrId
+}
 
 /**
  * A collection of IP ranges. If a pool is linked to a silo, IP addresses from the pool can be allocated within that silo
@@ -2588,18 +2621,18 @@ export type RouteConfig = {
 }
 
 /**
- * A `RouteDestination` is used to match traffic with a routing rule, on the destination of that traffic.
+ * A `RouteDestination` is used to match traffic with a routing rule based on the destination of that traffic.
  *
  * When traffic is to be sent to a destination that is within a given `RouteDestination`, the corresponding `RouterRoute` applies, and traffic will be forward to the `RouteTarget` for that rule.
  */
 export type RouteDestination =
-  /** Route applies to traffic destined for a specific IP address */
+  /** Route applies to traffic destined for the specified IP address */
   | { type: 'ip'; value: string }
-  /** Route applies to traffic destined for a specific IP subnet */
+  /** Route applies to traffic destined for the specified IP subnet */
   | { type: 'ip_net'; value: IpNet }
-  /** Route applies to traffic destined for the given VPC. */
+  /** Route applies to traffic destined for the specified VPC */
   | { type: 'vpc'; value: Name }
-  /** Route applies to traffic */
+  /** Route applies to traffic destined for the specified VPC subnet */
   | { type: 'subnet'; value: Name }
 
 /**

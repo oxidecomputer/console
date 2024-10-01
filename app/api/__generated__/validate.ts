@@ -1680,6 +1680,8 @@ export const InstanceState = z.preprocess(
 export const Instance = z.preprocess(
   processResponseBody,
   z.object({
+    autoRestartCooldownExpiration: z.coerce.date().optional(),
+    autoRestartEnabled: SafeBoolean,
     bootDiskId: z.string().uuid().optional(),
     description: z.string(),
     hostname: z.string(),
@@ -1690,9 +1692,18 @@ export const Instance = z.preprocess(
     projectId: z.string().uuid(),
     runState: InstanceState,
     timeCreated: z.coerce.date(),
+    timeLastAutoRestarted: z.coerce.date().optional(),
     timeModified: z.coerce.date(),
     timeRunStateUpdated: z.coerce.date(),
   })
+)
+
+/**
+ * A policy determining when an instance should be automatically restarted by the control plane.
+ */
+export const InstanceAutoRestartPolicy = z.preprocess(
+  processResponseBody,
+  z.enum(['never', 'best_effort'])
 )
 
 /**
@@ -1744,7 +1755,8 @@ export const InstanceNetworkInterfaceAttachment = z.preprocess(
 export const InstanceCreate = z.preprocess(
   processResponseBody,
   z.object({
-    bootDisk: NameOrId.default(null).optional(),
+    autoRestartPolicy: InstanceAutoRestartPolicy.default(null).optional(),
+    bootDisk: InstanceDiskAttachment.default(null).optional(),
     description: z.string(),
     disks: InstanceDiskAttachment.array().default([]).optional(),
     externalIps: ExternalIpCreate.array().default([]).optional(),
@@ -2485,7 +2497,7 @@ export const RouteConfig = z.preprocess(
 )
 
 /**
- * A `RouteDestination` is used to match traffic with a routing rule, on the destination of that traffic.
+ * A `RouteDestination` is used to match traffic with a routing rule based on the destination of that traffic.
  *
  * When traffic is to be sent to a destination that is within a given `RouteDestination`, the corresponding `RouterRoute` applies, and traffic will be forward to the `RouteTarget` for that rule.
  */
