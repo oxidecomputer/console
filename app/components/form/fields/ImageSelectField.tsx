@@ -54,26 +54,18 @@ export function BootDiskImageSelectField({
 }
 
 export function toImageComboboxItem(
-  i: Image,
+  image: Image,
   includeProjectSiloIndicator = false
 ): ComboboxItem {
-  const { name, os, projectId, size, version } = i
-  const formattedSize = `${bytesToGiB(size, 1)} GiB`
-
-  // filter out any undefined metadata and create a comma-separated list
-  // for the selected listbox item (shown in selectedLabel)
-  const condensedImageMetadata = [os, version, formattedSize].filter((i) => !!i).join(', ')
-  const metadataForSelectedLabel = condensedImageMetadata.length
-    ? ` (${condensedImageMetadata})`
-    : ''
+  const { id, name, os, projectId, size, version } = image
 
   // for metadata showing in the dropdown's options, include the project / silo indicator if requested
   const projectSiloIndicator = includeProjectSiloIndicator
     ? `${projectId ? 'Project' : 'Silo'} image`
     : null
   // filter out undefined metadata here, as well, and create a `<Slash />`-separated list
-  // for the listbox item (shown for each item in the dropdown)
-  const metadataForLabel = [os, version, formattedSize, projectSiloIndicator]
+  // for the comboboxitem (shown for each item in the dropdown)
+  const itemMetadata = [os, version, `${bytesToGiB(size, 1)} GiB`, projectSiloIndicator]
     .filter((i) => !!i)
     .map((i, index) => (
       <span key={`${i}`}>
@@ -82,14 +74,12 @@ export function toImageComboboxItem(
       </span>
     ))
   return {
-    value: i.id,
-    selectedLabel: `${name}${metadataForSelectedLabel}`,
+    value: id,
+    selectedLabel: name,
     label: (
       <>
         <div>{name}</div>
-        <div className="text-tertiary selected:text-accent-secondary">
-          {metadataForLabel}
-        </div>
+        <div className="text-tertiary selected:text-accent-secondary">{itemMetadata}</div>
       </>
     ),
   }
