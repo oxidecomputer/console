@@ -35,31 +35,11 @@ import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { Button } from '~/ui/lib/Button'
 import { CreateButton } from '~/ui/lib/CreateButton'
-import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { EMBody, EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableControls, TableEmptyBox, TableTitle } from '~/ui/lib/Table'
+import { links } from '~/util/links'
 
 import { fancifyStates } from './common'
-
-const BootDiskEmptyState = () => (
-  <TableEmptyBox>
-    <EmptyMessage
-      icon={<Storage24Icon />}
-      title="No boot disk set"
-      // TODO: boot order docs link
-      body="Read about boot order LINK HERE"
-    />
-  </TableEmptyBox>
-)
-
-const OtherDisksEmptyState = () => (
-  <TableEmptyBox>
-    <EmptyMessage
-      icon={<Storage24Icon />}
-      title="No other disks"
-      body="Attach a disk to see it here"
-    />
-  </TableEmptyBox>
-)
 
 StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, instance } = getInstanceSelector(params)
@@ -291,7 +271,7 @@ export function StorageTab() {
       {bootDisks.length > 0 ? (
         <Table aria-labelledby="boot-disks-label" table={bootDisksTable} />
       ) : (
-        <BootDiskEmptyState />
+        <BootDiskEmptyState otherDisks={otherDisks} />
       )}
 
       <TableControls className="mt-10">
@@ -354,5 +334,57 @@ export function StorageTab() {
         />
       )}
     </>
+  )
+}
+
+function BootDiskEmptyState({ otherDisks }: { otherDisks: Disk[] }) {
+  return (
+    <TableEmptyBox>
+      <EmptyMessage
+        icon={<Storage24Icon />}
+        title="No boot disk set"
+        body={
+          <>
+            {otherDisks.length > 1 ? (
+              <EMBody>
+                With multiple disks attached and no boot disk, the instance should boot from
+                the first disk unless this is overridden by the guest.
+              </EMBody>
+            ) : otherDisks.length === 1 ? (
+              <EMBody>
+                Instance will boot from <HL>{otherDisks[0].name}</HL> because it is the only
+                disk.
+              </EMBody>
+            ) : (
+              <EMBody>Attach a disk to be able to set a boot disk.</EMBody>
+            )}
+            <EMBody>
+              See the{' '}
+              <a
+                href={links.instanceBootDiskDocs}
+                rel="noreferrer"
+                target="_blank"
+                className="underline"
+              >
+                Instances
+              </a>{' '}
+              guide to learn about boot order.
+            </EMBody>
+          </>
+        }
+      />
+    </TableEmptyBox>
+  )
+}
+
+function OtherDisksEmptyState() {
+  return (
+    <TableEmptyBox>
+      <EmptyMessage
+        icon={<Storage24Icon />}
+        title="No other disks"
+        body="Attach a disk to see it here"
+      />
+    </TableEmptyBox>
   )
 }

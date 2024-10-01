@@ -20,6 +20,8 @@ export const links = {
   preparingImagesDocs:
     'https://docs.oxide.computer/guides/creating-and-sharing-images#_preparing_images_for_import',
   instanceActionsDocs: 'https://docs.oxide.computer/guides/managing-instances',
+  // TODO: link to section
+  instanceBootDiskDocs: 'https://docs.oxide.computer/guides/deploying-workloads',
   keyConceptsIamPolicyDocs:
     'https://docs.oxide.computer/guides/key-entities-and-concepts#iam-policy',
   keyConceptsProjectsDocs:
