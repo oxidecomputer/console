@@ -161,4 +161,59 @@ test('Snapshot disk', async ({ page }) => {
   })
 })
 
-// TODO: tests for different combinations of boot and other disks
+test('Change boot disk', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1')
+
+  // assert disk-1 is boot disk, disk-2 also there
+  const bootDiskTable = page.getByRole('table', { name: 'Boot disk' })
+  const otherDisksTable = page.getByRole('table', { name: 'Other disks' })
+  const confirm = page.getByRole('button', { name: 'Confirm' })
+  const noBootDisk = page.getByText('No boot disk set')
+  const noOtherDisks = page.getByText('No other disks')
+
+  const disk1 = { Disk: 'disk-1', size: '2 GiB' }
+  const disk2 = { Disk: 'disk-2', size: '4 GiB' }
+
+  await expectRowVisible(bootDiskTable, disk1)
+  await expectRowVisible(otherDisksTable, disk2)
+
+  await stopInstance(page)
+
+  // Set disk-2 as boot disk
+  await clickRowAction(page, 'disk-2', 'Set as boot disk')
+  await confirm.click()
+
+  await expectRowVisible(bootDiskTable, disk2)
+  await expectRowVisible(otherDisksTable, disk1)
+
+  // Unset boot disk
+  await expect(noBootDisk).toBeHidden()
+
+  await clickRowAction(page, 'disk-2', 'Unset as boot disk')
+  await confirm.click()
+
+  await expect(noBootDisk).toBeVisible()
+  await expectRowVisible(otherDisksTable, disk1)
+  await expectRowVisible(otherDisksTable, disk2)
+
+  // set disk-1 back as boot disk
+  await clickRowAction(page, 'disk-1', 'Set as boot disk')
+  await confirm.click()
+
+  await expect(noBootDisk).toBeHidden()
+  await expect(noOtherDisks).toBeHidden()
+
+  // detach disk-2
+  await clickRowAction(page, 'disk-2', 'Detach')
+  await expect(noOtherDisks).toBeVisible()
+
+  // Remove disk-1 altogether, no disks left
+  await clickRowAction(page, 'disk-1', 'Unset as boot disk')
+  await confirm.click()
+
+  await expectRowVisible(otherDisksTable, disk1)
+
+  await clickRowAction(page, 'disk-1', 'Detach')
+  await expect(noBootDisk).toBeVisible()
+  await expect(noOtherDisks).toBeVisible()
+})
