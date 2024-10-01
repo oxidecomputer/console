@@ -215,6 +215,9 @@ test('Edit network interface - Transit IPs', async ({ page }) => {
   // Assert the transit IP is in the NICs table
   const nicTable = page.getByRole('table', { name: 'Network interfaces' })
   await expectRowVisible(nicTable, { 'Transit IPs': '172.30.0.0/22+1' })
-  // TODO: now hover over the +1 to see the one we just added
-  // await page.getByText('Other IPs 192.168.0.0/16')
+
+  await page.getByText('+1').hover()
+  await expect(
+    page.getByRole('tooltip', { name: 'Other transit IPs 192.168.0.0/16' })
+  ).toBeVisible()
 })

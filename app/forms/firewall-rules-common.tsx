@@ -134,7 +134,10 @@ const DynamicTypeAndValueFields = ({
           allowArbitraryValues
           hideOptionalTag
           validate={(value) =>
-            // TODO: is required false correct here? should this function even have that argument?
+            // required: false arg is desirable because otherwise if you put in
+            // a bad name and submit, causing it to revalidate onChange, then
+            // clear the field you're left with a BS "Target name is required"
+            // error message
             validateName(value, `${capitalize(sectionType)} name`, false)
           }
         />
