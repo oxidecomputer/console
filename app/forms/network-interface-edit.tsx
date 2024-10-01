@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import * as R from 'remeda'
 
@@ -57,13 +58,18 @@ export function EditNetworkInterfaceForm({
   const transitIps = form.watch('transitIps') || []
 
   const transitIpsForm = useForm({ defaultValues: { transitIp: '' } })
-  const transitIpValue = transitIpsForm.watch('transitIp').trim()
+  const transitIpValue = transitIpsForm.watch('transitIp')
+  const { isSubmitSuccessful: transitIpSubmitSuccessful } = transitIpsForm.formState
 
   const submitTransitIp = transitIpsForm.handleSubmit(({ transitIp }) => {
     // validate has already checked to make sure it's not in the list
     form.setValue('transitIps', [...transitIps, transitIp])
     transitIpsForm.reset()
   })
+
+  useEffect(() => {
+    if (transitIpSubmitSuccessful) transitIpsForm.reset()
+  }, [transitIpSubmitSuccessful, transitIpsForm])
 
   return (
     <SideModalForm
