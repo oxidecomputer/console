@@ -218,51 +218,103 @@ test('can’t create or delete Routes on system routers', async ({ page }) => {
   await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeDisabled()
 })
 
-test('can create, update, and delete Route', async ({ page }) => {
-  // go to the custom-router-2 page
+test('create router route', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc/routers/mock-custom-router')
-  const table = page.getByRole('table')
-  const routeRows = table.locator('tbody >> tr')
-  await expectRowVisible(table, { Name: 'drop-local' })
+
+  // Selectors
+  const form = page.getByRole('dialog', { name: 'Create route' })
+  const nameInput = page.getByRole('textbox', { name: 'Name' })
+  const destinationValueInput = page.getByRole('textbox', { name: 'Destination value' })
+  const targetValueInput = page.getByRole('textbox', { name: 'Target value' })
+  const submitButton = page.getByRole('button', { name: 'Create route' })
+
+  const invalidIpError = form.getByText('Not a valid IP address')
+  const invalidIpNetError = form.getByText(
+    'Must contain an IP address and a width, separated by a /'
+  )
 
   // create a new route
-  await page.click('text=New route')
-  await page.getByRole('textbox', { name: 'name' }).fill('new-route')
-  await page.getByRole('textbox', { name: 'Destination value' }).fill('0.0.0.0')
+  await page.getByRole('link', { name: 'New route' }).click()
+  await nameInput.fill('new-route')
 
-  // we'll set the target in a second, but first verify that selecting internet gateway disables the value
-  await page.getByRole('button', { name: 'Target type' }).click()
-  await page.getByRole('option', { name: 'Internet gateway' }).click()
-  await expect(page.getByRole('textbox', { name: 'Target value' })).toBeDisabled()
-  await expect(page.getByRole('textbox', { name: 'Target value' })).toHaveValue('outbound')
-  await page.getByRole('button', { name: 'Target type' }).click()
-  await page.getByRole('option', { name: 'IP' }).click()
-  await page.getByRole('textbox', { name: 'Target value' }).fill('1.1.1.1')
-  await page.getByRole('button', { name: 'Create route' }).click()
-  await expect(routeRows).toHaveCount(2)
-  await expectRowVisible(table, {
+  // Test IP validation for destination
+  await selectOption(page, 'Destination type', 'IP')
+  await destinationValueInput.fill('invalid-ip')
+  await expect(invalidIpError).toBeHidden()
+  await submitButton.click()
+  // other field was left empty, so is also invalid
+  await expect(invalidIpError).toHaveCount(2)
+
+  // change target to valid, error disappear
+  await targetValueInput.fill('192.168.0.2')
+  await expect(invalidIpError).toHaveCount(1)
+
+  // Test IP net validation for destination
+  await selectOption(page, 'Destination type', 'IP network')
+  // error on dest value clears on type change
+  await expect(invalidIpError).toBeHidden()
+  await destinationValueInput.fill('invalid-ip-net')
+  await expect(invalidIpError).toBeHidden()
+  await submitButton.click()
+  await expect(invalidIpNetError).toBeVisible()
+
+  // revalidates on change
+  await destinationValueInput.fill('192.168.0.0/24')
+  await expect(invalidIpNetError).toBeHidden()
+
+  // Set target
+  await selectOption(page, 'Target type', 'IP')
+  await targetValueInput.fill('10.0.0.1')
+
+  await submitButton.click()
+  await expect(form).toBeHidden()
+  await expectRowVisible(page.getByRole('table'), {
     Name: 'new-route',
-    Destination: 'IP0.0.0.0',
-    Target: 'IP1.1.1.1',
+    Destination: 'IP network192.168.0.0/24',
+    Target: 'IP10.0.0.1',
   })
+})
 
-  // update the route by clicking the edit button
-  await clickRowAction(page, 'new-route', 'Edit')
-  // change the destination type to VPC subnet: `mock-subnet`
+test('edit and delete router route', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs/mock-vpc/routers/mock-custom-router')
+
+  const form = page.getByRole('dialog', { name: 'Edit route' })
+  await expect(form).toBeHidden()
+
+  await clickRowAction(page, 'drop-local', 'Edit')
+  await expect(form).toBeVisible()
+
+  const targetValueInput = page.getByRole('textbox', { name: 'Target value' })
+  const submitButton = page.getByRole('button', { name: 'Update route' })
+
+  await form.getByRole('textbox', { name: 'Name' }).fill('new-name')
+
+  // Test IP validation for target
+  await selectOption(page, 'Target type', 'IP')
+  await targetValueInput.fill('invalid-ip')
+  await submitButton.click()
+  await expect(form.getByText('Not a valid IP address')).toBeVisible()
+
+  await targetValueInput.fill('10.0.0.2')
+  await expect(form.getByText('Not a valid IP address')).toBeHidden()
+
+  // Change destination to subnet
   await selectOption(page, 'Destination type', 'Subnet')
   await selectOption(page, 'Destination value', 'mock-subnet')
-  await page.getByRole('textbox', { name: 'Target value' }).fill('0.0.0.1')
-  await page.getByRole('button', { name: 'Update route' }).click()
-  await expect(routeRows).toHaveCount(2)
+
+  await submitButton.click()
+  await expect(form).toBeHidden()
+
+  const table = page.getByRole('table')
   await expectRowVisible(table, {
-    Name: 'new-route',
+    Name: 'new-name',
     Destination: 'VPC subnetmock-subnet',
-    Target: 'IP0.0.0.1',
+    Target: 'IP10.0.0.2',
   })
 
   // delete the route
-  await clickRowAction(page, 'new-route', 'Delete')
+  await clickRowAction(page, 'new-name', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
-  await expect(routeRows).toHaveCount(1)
-  await expect(page.getByRole('row', { name: 'new-route' })).toBeHidden()
+  await expect(table).toBeHidden()
+  await expect(page.getByText('No routes')).toBeVisible()
 })
