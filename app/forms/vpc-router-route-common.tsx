@@ -24,6 +24,7 @@ import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { useVpcRouterSelector } from '~/hooks/use-params'
 import { Message } from '~/ui/lib/Message'
+import { validateIp, validateIpNet } from '~/util/ip'
 
 export type RouteFormValues = RouterRouteCreate | Required<RouterRouteUpdate>
 
@@ -122,6 +123,9 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
     required: true,
     disabled,
     description: destinationValueDescription[destinationType],
+    // need a default to prevent the text field validation function from
+    // sticking around when we switch to the combobox
+    validate: () => undefined,
   }
   const targetValueProps = {
     name: 'target.value' as const,
@@ -132,6 +136,9 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
     // 'internet_gateway' targetTypes can only have the value 'outbound', so we disable the field
     disabled: disabled || targetType === 'internet_gateway',
     description: targetValueDescription[targetType],
+    // need a default to prevent the text field validation function from
+    // sticking around when we switch to the combobox
+    validate: () => undefined,
   }
   return (
     <>
@@ -149,13 +156,22 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
         required
         onChange={() => {
           form.setValue('destination.value', '')
+          form.clearErrors('destination.value')
         }}
         disabled={disabled}
       />
       {destinationType === 'subnet' ? (
         <ComboboxField {...destinationValueProps} items={toComboboxItems(vpcSubnets)} />
       ) : (
-        <TextField {...destinationValueProps} />
+        <TextField
+          {...destinationValueProps}
+          validate={(value, { destination }) =>
+            (destination.type === 'ip_net' && validateIpNet(value)) ||
+            (destination.type === 'ip' && validateIp(value)) ||
+            // false is invalid but true and undefined are valid so we need this
+            undefined
+          }
+        />
       )}
       <ListboxField
         name="target.type"
@@ -166,13 +182,19 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
         required
         onChange={(value) => {
           form.setValue('target.value', value === 'internet_gateway' ? 'outbound' : '')
+          form.clearErrors('target.value')
         }}
         disabled={disabled}
       />
       {targetType === 'drop' ? null : targetType === 'instance' ? (
         <ComboboxField {...targetValueProps} items={toComboboxItems(instances)} />
       ) : (
-        <TextField {...targetValueProps} />
+        <TextField
+          {...targetValueProps}
+          validate={(value, { target }) =>
+            (target.type === 'ip' && validateIp(value)) || undefined
+          }
+        />
       )}
     </>
   )

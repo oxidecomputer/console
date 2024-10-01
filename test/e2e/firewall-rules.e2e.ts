@@ -67,6 +67,10 @@ test('can create firewall rule', async ({ page }) => {
   await addPortButton.click()
   await expect(invalidPort).toBeVisible()
 
+  // test clear button
+  await page.getByRole('button', { name: 'Clear' }).nth(1).click()
+  await expect(portRangeField).toHaveValue('')
+
   await portRangeField.fill('123-456')
   await addPortButton.click()
   await expect(invalidPort).toBeHidden()
@@ -156,7 +160,8 @@ test('firewall rule form targets table', async ({ page }) => {
   await page.getByRole('link', { name: 'New rule' }).click()
 
   const targets = page.getByRole('table', { name: 'Targets' })
-  const targetVpcNameField = page.getByRole('combobox', { name: 'VPC name' }).nth(0)
+  const targetVpcNameField = page.getByRole('combobox', { name: 'VPC name' }).first()
+
   const addButton = page.getByRole('button', { name: 'Add target' })
 
   // add targets with overlapping names and types to test delete
@@ -202,6 +207,133 @@ test('firewall rule form targets table', async ({ page }) => {
 
   // we still have the IP target
   await expectRowVisible(targets, { Type: 'ip', Value: '192.168.0.1' })
+})
+
+test('firewall rule form target validation', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules-new')
+
+  const addButton = page.getByRole('button', { name: 'Add target' })
+  const targets = page.getByRole('table', { name: 'Targets' })
+
+  const formModal = page.getByRole('dialog', { name: 'Add firewall rule' })
+  const nameError = formModal.getByText('Must end with a letter or number')
+
+  // Enter invalid VPC name
+  const vpcNameField = page.getByRole('combobox', { name: 'VPC name' }).first()
+  await vpcNameField.fill('ab-')
+  await addButton.click()
+  await expect(nameError).toBeVisible()
+
+  // Change to IP, error should disappear and value field should be empty
+  await selectOption(page, 'Target type', 'IP')
+  await expect(nameError).toBeHidden()
+  const ipField = page.getByRole('textbox', { name: 'IP address' })
+  await expect(ipField).toHaveValue('')
+
+  // Type '1', error should not appear immediately (back to validating onSubmit)
+  await ipField.fill('1')
+  const ipError = formModal.getByText('Not a valid IP address')
+  await expect(ipError).toBeHidden()
+  await addButton.click()
+  await expect(ipError).toBeVisible()
+
+  // test clear button
+  await page.getByRole('button', { name: 'Clear' }).first().click()
+  await expect(ipField).toHaveValue('')
+
+  // Change back to VPC, enter valid value
+  await selectOption(page, 'Target type', 'VPC')
+  await expect(ipError).toBeHidden()
+  await expect(nameError).toBeHidden()
+  await vpcNameField.fill('abc')
+  await addButton.click()
+  await expectRowVisible(targets, { Type: 'vpc', Value: 'abc' })
+
+  // Switch to IP again
+  await selectOption(page, 'Target type', 'IP')
+  await ipField.fill('1')
+
+  // No error means we're back to validating on submit
+  await expect(ipError).toBeHidden()
+
+  // Hit submit to get error
+  await addButton.click()
+  await expect(ipError).toBeVisible()
+
+  // Fill out valid IP and submit
+  await ipField.fill('1.1.1.1')
+  await addButton.click()
+  await expect(ipError).toBeHidden()
+  await expectRowVisible(targets, { Type: 'ip', Value: '1.1.1.1' })
+})
+
+// This test may appear redundant because host and target share their logic, but
+// testing them separately is still valuable because we want to make sure we're
+// hooking up the shared code correctly and we don't break them if we refactor
+// that code.
+
+test('firewall rule form host validation', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules-new')
+
+  const addButton = page.getByRole('button', { name: 'Add host filter' })
+  const hosts = page.getByRole('table', { name: 'Host filters' })
+
+  const formModal = page.getByRole('dialog', { name: 'Add firewall rule' })
+  const nameError = formModal.getByText('Must end with a letter or number')
+
+  // Enter invalid VPC name
+  const vpcNameField = page.getByRole('combobox', { name: 'VPC name' }).nth(1)
+  await vpcNameField.fill('ab-')
+  await addButton.click()
+  await expect(nameError).toBeVisible()
+
+  // Change to IP, error should disappear and value field should be empty
+  await selectOption(page, 'Host type', 'IP')
+  await expect(nameError).toBeHidden()
+  const ipField = page.getByRole('textbox', { name: 'IP address' })
+  await expect(ipField).toHaveValue('')
+
+  // Type '1', error should not appear immediately (back to validating onSubmit)
+  await ipField.fill('1')
+  const ipError = formModal.getByText('Not a valid IP address')
+  await expect(ipError).toBeHidden()
+  await addButton.click()
+  await expect(ipError).toBeVisible()
+
+  // test clear button
+  await page.getByRole('button', { name: 'Clear' }).nth(2).click()
+  await expect(ipField).toHaveValue('')
+
+  // Change back to VPC, enter valid value
+  await selectOption(page, 'Host type', 'VPC')
+  await expect(ipError).toBeHidden()
+  await expect(nameError).toBeHidden()
+  await vpcNameField.fill('abc')
+  await addButton.click()
+  await expectRowVisible(hosts, { Type: 'vpc', Value: 'abc' })
+
+  // use subnet to be slightly different from the target validation test
+
+  // Switch to IP subnet
+  await selectOption(page, 'Host type', 'IP subnet')
+  const ipSubnetField = page.getByRole('textbox', { name: 'IP network' })
+  await ipSubnetField.fill('1')
+
+  // No error means we're back to validating on submit
+  const ipNetError = formModal.getByText(
+    'Must contain an IP address and a width, separated by a /'
+  )
+  await expect(ipNetError).toBeHidden()
+
+  // Hit submit to get error
+  await addButton.click()
+  await expect(ipNetError).toBeVisible()
+
+  // Fill out valid IP and submit
+  await ipSubnetField.fill('1.1.1.1/1')
+  await addButton.click()
+  await expect(ipNetError).toBeHidden()
+  await expectRowVisible(hosts, { Type: 'ip_net', Value: '1.1.1.1/1' })
 })
 
 test('firewall rule form hosts table', async ({ page }) => {

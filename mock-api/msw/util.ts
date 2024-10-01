@@ -25,7 +25,7 @@ import {
 } from '@oxide/api'
 
 import { json, type Json } from '~/api/__generated__/msw-handlers'
-import { validateIp } from '~/util/str'
+import { parseIp } from '~/util/ip'
 import { GiB, TiB } from '~/util/units'
 
 import type { DbRoleAssignmentResourceType } from '..'
@@ -384,14 +384,14 @@ export function requireRole(
 }
 
 const ipToBigInt = (ip: string): bigint =>
-  validateIp(ip).isv4 ? new IPv4(ip).value : new IPv6(ip).value
+  parseIp(ip).type === 'v4' ? new IPv4(ip).value : new IPv6(ip).value
 
 export const ipRangeLen = ({ first, last }: IpRange) =>
   ipToBigInt(last) - ipToBigInt(first) + 1n
 
 function ipInRange(ip: string, { first, last }: IpRange): boolean {
-  const ipIsV4 = validateIp(ip).isv4
-  const rangeIsV4 = validateIp(first).isv4
+  const ipIsV4 = parseIp(ip).type === 'v4'
+  const rangeIsV4 = parseIp(first).type === 'v4'
 
   // if they're not the same version then definitely false
   if (ipIsV4 !== rangeIsV4) return false

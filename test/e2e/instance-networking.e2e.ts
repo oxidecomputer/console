@@ -153,3 +153,71 @@ test('Instance networking tab — floating IPs', async ({ page }) => {
   // And that button should be enabled again
   await expect(attachFloatingIpButton).toBeEnabled()
 })
+
+test('Edit network interface - Transit IPs', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1/networking')
+
+  // Stop the instance to enable editing
+  await stopInstance(page)
+
+  await clickRowAction(page, 'my-nic', 'Edit')
+
+  const modal = page.getByRole('dialog', { name: 'Edit network interface' })
+  const transitIpField = modal.getByRole('textbox', { name: 'Transit IPs' })
+  const addTransitIpButton = modal.getByRole('button', { name: 'Add Transit IP' })
+  const clearButton = modal.getByRole('button', { name: 'Clear' })
+  const errorMessage = modal.getByText(
+    'Must contain an IP address and a width, separated by a /'
+  )
+  const transitIpsTable = modal.getByRole('table', { name: 'Transit IPs' })
+
+  // Type invalid value
+  await transitIpField.fill('invalid-ip')
+  await expect(errorMessage).toBeHidden()
+
+  // Hit add transit IP button
+  await addTransitIpButton.click()
+  await expect(errorMessage).toBeVisible()
+
+  // Clear the value and error
+  await clearButton.click()
+  await expect(errorMessage).toBeHidden()
+  await expect(transitIpField).toHaveValue('')
+
+  // Type bad value again
+  await transitIpField.fill('invalid-ip')
+  await expect(errorMessage).toBeHidden()
+
+  // Hit add again to get the error
+  await addTransitIpButton.click()
+  await expect(errorMessage).toBeVisible()
+
+  // Change to valid IP network
+  await transitIpField.fill('192.168.0.0/16')
+  await expect(errorMessage).toBeHidden()
+
+  // Submit and assert it's in the table
+  await addTransitIpButton.click()
+  await expect(transitIpField).toHaveValue('')
+  await expectRowVisible(transitIpsTable, { 'Transit IPs': '192.168.0.0/16' })
+
+  const dupeError = modal.getByText('Transit IP already in list')
+
+  // try to add the same one again to see the dupe message
+  await transitIpField.fill('192.168.0.0/16')
+  await expect(dupeError).toBeHidden()
+  await addTransitIpButton.click()
+  await expect(dupeError).toBeVisible()
+
+  // Submit the form
+  await modal.getByRole('button', { name: 'Update network interface' }).click()
+
+  // Assert the transit IP is in the NICs table
+  const nicTable = page.getByRole('table', { name: 'Network interfaces' })
+  await expectRowVisible(nicTable, { 'Transit IPs': '172.30.0.0/22+1' })
+
+  await page.getByText('+1').hover()
+  await expect(
+    page.getByRole('tooltip', { name: 'Other transit IPs 192.168.0.0/16' })
+  ).toBeVisible()
+})
