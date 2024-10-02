@@ -89,6 +89,7 @@ export const Combobox = ({
   allowArbitraryValues = false,
   ariaLabel,
   hideOptionalTag,
+  ...props
 }: ComboboxProps) => {
   const [query, setQuery] = useState(selectedItemValue || '')
   const q = query.toLowerCase()
@@ -107,6 +108,7 @@ export const Combobox = ({
         onClose={() => setQuery('')}
         disabled={disabled || isLoading}
         immediate
+        {...props}
       >
         {label && (
           // TODO: FieldLabel needs a real ID

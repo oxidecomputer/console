@@ -14,6 +14,7 @@ import {
   expectNotVisible,
   expectVisible,
   getPageAsUser,
+  selectOption,
 } from './utils'
 
 test('can promote an image from silo', async ({ page }) => {
@@ -25,27 +26,27 @@ test('can promote an image from silo', async ({ page }) => {
 
   // Listboxes are visible
   await expect(page.getByPlaceholder('Select a project')).toBeVisible()
-  await expect(page.locator(`text="Select an image"`)).toBeVisible()
+  // have to use a locator here because the disabled button needs to be handled differently
+  await expect(page.locator(`text="Select an image"`)).toBeDisabled()
 
   // Notice is visible
   await expect(page.getByText('visible to all projects')).toBeVisible()
 
   // Select a project
-  await page.locator('role=button[name*="Project"]').click()
-  await page.locator('role=option[name="other-project"]').click()
+  await selectOption(page, 'Project', 'other-project')
 
-  // Should have no items
-  // and buttons should be disabled
-  await expect(page.locator(`text="No items"`)).toBeVisible()
-  await expect(page.locator('role=button[name*="Image"]')).toBeDisabled()
+  // Should have no items and dropdown should be disabled
+  await expect(page.locator(`text="No items"`)).toBeDisabled()
 
   // Select the other project
-  await page.locator('role=button[name*="Project"]').click()
-  await page.locator('role=option[name="mock-project"]').click()
+  // this blurring should not be necessary, but it's blocking the test otherwise
+  await page.getByRole('combobox', { name: 'Project' }).blur()
+  await page.getByRole('combobox', { name: 'Project' }).click()
+  await page.getByRole('option', { name: 'mock-project' }).click()
 
   // Select an image in that project
   const imageListbox = page.locator('role=button[name*="Image"]')
-  await expect(imageListbox).toBeEnabled({ timeout: 5000 })
+  await expect(imageListbox).toBeEnabled()
   await imageListbox.click()
   await page.locator('role=option >> text="image-1"').click()
   await page.locator('role=button[name="Promote"]').click()

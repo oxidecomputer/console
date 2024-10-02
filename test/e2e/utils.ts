@@ -151,7 +151,7 @@ export async function selectOption(
   optionLocator: string | Locator
 ) {
   if (typeof labelLocator === 'string') {
-    await page.getByLabel(labelLocator).click()
+    await page.getByLabel(labelLocator, { exact: true }).click()
   } else {
     await labelLocator.click()
   }
