@@ -138,6 +138,13 @@ export function StorageTab() {
     [createSnapshot, project]
   )
 
+  const { data: disks } = usePrefetchedApiQuery('instanceDiskList', instancePathQuery)
+
+  const [bootDisks, otherDisks] = useMemo(
+    () => R.partition(disks.items, (d) => d.id === instance.bootDiskId),
+    [disks.items, instance.bootDiskId]
+  )
+
   const makeBootDiskActions = useCallback(
     (disk: InstanceDisk): MenuAction[] => [
       getSnapshotAction(disk),
@@ -160,12 +167,20 @@ export function StorageTab() {
             modalTitle: 'Confirm unset boot disk',
             // TODO: copy + link to docs
             modalContent: (
-              <p>
-                Are you sure you want to unset <HL>{disk.name}</HL> as the boot disk? This
-                will TODO COPY RE: WHAT HAPPENS HERE
-              </p>
+              <div className="space-y-2">
+                <p>
+                  Are you sure you want to unset <HL>{disk.name}</HL> as the boot disk? It
+                  will remain attached to the instance.
+                </p>
+                <p>
+                  Setting a boot disk is recommended unless you intend to manage boot order
+                  within the instance.
+                </p>
+              </div>
             ),
             actionType: 'primary',
+            // TODO: add docs link to modal footer similar to LearnMore from
+            // SettingsGroup.
           }),
       },
       {
@@ -188,23 +203,34 @@ export function StorageTab() {
             can be changed
           </>
         ),
-        onActivate: () =>
-          confirmAction({
+        onActivate: () => {
+          const bootDiskName = bootDisks.length > 0 ? bootDisks[0].name : undefined
+          const verb = bootDiskName ? 'change' : 'set'
+          return confirmAction({
             doAction: () =>
               instanceUpdate({
                 path: { instance: instance.id },
                 body: { bootDisk: disk.id },
               }),
-            errorTitle: 'Could not set boot disk',
-            modalTitle: 'Confirm set boot disk',
-            // TODO: copy + link to docs
-            modalContent: (
+            errorTitle: `Could not ${verb} boot disk`,
+            modalTitle: `Confirm ${verb} boot disk`,
+            modalContent: bootDiskName ? (
+              <p>
+                Are you sure you want to change the boot disk to <HL>{disk.name}</HL>?
+                Current boot disk <HL>{bootDiskName}</HL> will remain attached to the
+                instance.
+              </p>
+            ) : (
               <p>
                 Are you sure you want to set <HL>{disk.name}</HL> as the boot disk?
               </p>
             ),
             actionType: 'primary',
-          }),
+            // TODO: add docs link to modal footer similar to LearnMore
+            // from SettingsGroup. This probably requires a change to
+            // `confirmAction`.
+          })
+        },
       },
       {
         label: 'Detach',
@@ -219,7 +245,7 @@ export function StorageTab() {
         },
       },
     ],
-    [detachDisk, instanceUpdate, instance.id, getSnapshotAction]
+    [detachDisk, instanceUpdate, instance.id, getSnapshotAction, bootDisks]
   )
 
   const attachDisk = useApiMutation('instanceDiskAttach', {
@@ -237,13 +263,6 @@ export function StorageTab() {
       })
     },
   })
-
-  const { data: disks } = usePrefetchedApiQuery('instanceDiskList', instancePathQuery)
-
-  const [bootDisks, otherDisks] = useMemo(
-    () => R.partition(disks.items, (d) => d.id === instance.bootDiskId),
-    [disks.items, instance.bootDiskId]
-  )
 
   const bootDisksTable = useReactTable({
     columns: useColsWithActions(staticCols, makeBootDiskActions),
