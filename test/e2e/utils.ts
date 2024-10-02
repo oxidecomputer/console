@@ -150,16 +150,16 @@ export async function selectOption(
   labelLocator: string | Locator,
   optionLocator: string | Locator
 ) {
-  if (typeof labelLocator === 'string') {
-    await page.getByLabel(labelLocator, { exact: true }).click()
-  } else {
-    await labelLocator.click()
-  }
-  if (typeof optionLocator === 'string') {
-    await page.getByRole('option', { name: optionLocator, exact: true }).click()
-  } else {
-    await optionLocator.click()
-  }
+  const label =
+    typeof labelLocator === 'string'
+      ? page.getByLabel(labelLocator, { exact: true })
+      : labelLocator
+  await label.first().click()
+  const option =
+    typeof optionLocator === 'string'
+      ? page.getByRole('option', { name: optionLocator, exact: true })
+      : optionLocator
+  await option.click()
 }
 
 export async function getPageAsUser(
