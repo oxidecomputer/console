@@ -106,6 +106,7 @@ export const Combobox = ({
         onChange={(val) => onChange(val || '')}
         onClose={() => setQuery('')}
         disabled={disabled || isLoading}
+        immediate
       >
         {label && (
           // TODO: FieldLabel needs a real ID
@@ -116,7 +117,7 @@ export const Combobox = ({
             {description && <TextInputHint id="TextInputHint">{description}</TextInputHint>}
           </div>
         )}
-        <div className="flex rounded border border-default ring-accent-secondary hover:border-hover data-[open]:ring-2">
+        <div className="flex rounded border border-default ring-accent-secondary focus-within:ring-2 hover:border-hover">
           <ComboboxInput
             aria-label={ariaLabel}
             // displayValue controls what's displayed in the input field.
@@ -152,7 +153,7 @@ export const Combobox = ({
           <ComboboxOptions
             anchor="bottom start"
             // 14px gap is presumably because it's measured from inside the outline or something
-            className={`ox-menu pointer-events-auto ${zIndex} relative w-[var(--input-width)] overflow-y-auto border !outline-none border-secondary [--anchor-gap:14px] empty:hidden`}
+            className={`ox-menu pointer-events-auto ${zIndex} relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border !outline-none border-secondary [--anchor-gap:14px] empty:hidden`}
             modal={false}
           >
             {!allowArbitraryValues && filteredItems.length === 0 && (
