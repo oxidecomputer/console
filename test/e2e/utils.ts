@@ -154,7 +154,7 @@ export async function selectOption(
     typeof labelLocator === 'string'
       ? page.getByLabel(labelLocator, { exact: true })
       : labelLocator
-  await label.first().click()
+  await label.click()
   const option =
     typeof optionLocator === 'string'
       ? page.getByRole('option', { name: optionLocator, exact: true })

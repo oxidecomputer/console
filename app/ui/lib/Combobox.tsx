@@ -12,11 +12,10 @@ import {
   ComboboxOption,
   ComboboxOptions,
   Combobox as HCombobox,
-  Label,
 } from '@headlessui/react'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
-import { useState, type ReactNode } from 'react'
+import { useId, useState, type ReactNode } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
@@ -51,7 +50,6 @@ export type ComboboxBaseProps = {
   label: string
   placeholder?: string
   required?: boolean
-  ariaLabel?: string
   hideOptionalTag?: boolean
   /**
    * Pass in `allowArbitraryValues` as `true` when the user should be able to
@@ -87,7 +85,6 @@ export const Combobox = ({
   onChange,
   onInputChange,
   allowArbitraryValues = false,
-  ariaLabel,
   hideOptionalTag,
   ...props
 }: ComboboxProps) => {
@@ -98,6 +95,7 @@ export const Combobox = ({
     sorter: (items) => items, // preserve original order, don't sort by match
   })
   const zIndex = usePopoverZIndex()
+  const id = useId()
   return (
     <>
       <HCombobox
@@ -113,15 +111,19 @@ export const Combobox = ({
         {label && (
           // TODO: FieldLabel needs a real ID
           <div className="mb-2">
-            <FieldLabel id="FieldLabel" as="div" optional={!required && !hideOptionalTag}>
-              <Label>{label}</Label>
+            <FieldLabel
+              id={`${id}-label`}
+              htmlFor={`${id}-combobox`}
+              optional={!required && !hideOptionalTag}
+            >
+              {label}
             </FieldLabel>
             {description && <TextInputHint id="TextInputHint">{description}</TextInputHint>}
           </div>
         )}
         <div className="flex rounded border border-default ring-accent-secondary focus-within:ring-2 hover:border-hover">
           <ComboboxInput
-            aria-label={ariaLabel}
+            id={`${id}-combobox`}
             // displayValue controls what's displayed in the input field.
             // selectedItemValue is displayed when the user can type in a new value.
             // Otherwise, use the provided selectedItemLabel
