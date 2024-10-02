@@ -474,7 +474,7 @@ test('attaching additional disks allows for combobox filtering', async ({ page }
 
   // now options hidden and only the selected one is visible in the button/input
   await expect(page.getByRole('option')).toBeHidden()
-  await expect(page.getByRole('button', { name: 'disk-0102' })).toBeVisible()
+  await expect(page.getByRole('combobox', { name: 'Disk name' })).toHaveValue('disk-0102')
 
   // a random string should give a disabled option
   await selectADisk.click()
