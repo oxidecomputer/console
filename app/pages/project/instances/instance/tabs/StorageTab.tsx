@@ -347,8 +347,8 @@ function BootDiskEmptyState({ otherDisks }: { otherDisks: Disk[] }) {
           <>
             {otherDisks.length > 1 ? (
               <EMBody>
-                With multiple disks attached and no boot disk, the instance should boot from
-                the first disk unless this is overridden by the guest.
+                Setting a boot disk is recommended unless you intend to manage boot order
+                within the instance.
               </EMBody>
             ) : otherDisks.length === 1 ? (
               <EMBody>
@@ -359,7 +359,7 @@ function BootDiskEmptyState({ otherDisks }: { otherDisks: Disk[] }) {
               <EMBody>Attach a disk to be able to set a boot disk.</EMBody>
             )}
             <EMBody>
-              See the{' '}
+              Learn more in the{' '}
               <a
                 href={links.instanceBootDiskDocs}
                 rel="noreferrer"
@@ -368,7 +368,7 @@ function BootDiskEmptyState({ otherDisks }: { otherDisks: Disk[] }) {
               >
                 Instances
               </a>{' '}
-              guide to learn about boot order.
+              guide.
             </EMBody>
           </>
         }

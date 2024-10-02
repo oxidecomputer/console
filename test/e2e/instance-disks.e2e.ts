@@ -196,15 +196,18 @@ test('Change boot disk', async ({ page }) => {
   await expectRowVisible(otherDisksTable, disk1)
   await expectRowVisible(otherDisksTable, disk2)
 
+  await expect(page.getByText('Setting a boot disk is recommended')).toBeVisible()
+
+  // detach disk so there's only one
+  await clickRowAction(page, 'disk-2', 'Detach')
+
+  await expect(page.getByText('Instance will boot from disk-1')).toBeVisible()
+
   // set disk-1 back as boot disk
   await clickRowAction(page, 'disk-1', 'Set as boot disk')
   await confirm.click()
 
   await expect(noBootDisk).toBeHidden()
-  await expect(noOtherDisks).toBeHidden()
-
-  // detach disk-2
-  await clickRowAction(page, 'disk-2', 'Detach')
   await expect(noOtherDisks).toBeVisible()
 
   // Remove disk-1 altogether, no disks left
@@ -216,4 +219,6 @@ test('Change boot disk', async ({ page }) => {
   await clickRowAction(page, 'disk-1', 'Detach')
   await expect(noBootDisk).toBeVisible()
   await expect(noOtherDisks).toBeVisible()
+
+  await expect(page.getByText('Attach a disk to be able to set a boot disk')).toBeVisible()
 })
