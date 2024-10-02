@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import {
+  Field,
   Listbox as HListbox,
   Label,
   ListboxButton,
@@ -70,7 +71,15 @@ export const Listbox = <Value extends string = string>({
   const zIndex = usePopoverZIndex()
 
   return (
-    <div className={cn('relative', className)}>
+    <Field className={cn('relative', className)}>
+      {label && (
+        <div className="mb-2">
+          <FieldLabel id={``} as="div" optional={!required && !hideOptionalTag}>
+            <Label>{label}</Label>
+          </FieldLabel>
+          {description && <TextInputHint id={``}>{description}</TextInputHint>}
+        </div>
+      )}
       <HListbox
         value={selected}
         // you shouldn't ever be able to select null, but we check here anyway
@@ -79,86 +88,72 @@ export const Listbox = <Value extends string = string>({
         onChange={(val) => val !== null && onChange(val)}
         disabled={isDisabled || isLoading}
       >
-        {({ open }) => (
-          <>
-            {label && (
-              <div className="mb-2">
-                <FieldLabel id={``} as="div" optional={!required && !hideOptionalTag}>
-                  <Label>{label}</Label>
-                </FieldLabel>
-                {description && <TextInputHint id={``}>{description}</TextInputHint>}
-              </div>
+        <ListboxButton
+          name={name}
+          className={cn(
+            `flex h-10 w-full items-center justify-between rounded border text-sans-md focus-within:ring-2 focus-within:ring-accent-secondary`,
+            hasError
+              ? 'focus-error border-error-secondary ring-error-secondary hover:border-error'
+              : 'border-default hover:border-hover',
+            isDisabled
+              ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
+              : 'bg-default',
+            isDisabled && hasError && '!border-error-secondary'
+          )}
+          ref={buttonRef}
+          {...props}
+        >
+          <div className="w-full overflow-hidden overflow-ellipsis whitespace-pre px-3 text-left">
+            {selectedItem ? (
+              // selectedLabel is one line, which is what we need when label is a ReactNode
+              selectedItem.selectedLabel || selectedItem.label
+            ) : (
+              <span className="text-quaternary">
+                {noItems ? noItemsPlaceholder : placeholder}
+              </span>
             )}
-            <ListboxButton
-              name={name}
-              className={cn(
-                `flex h-10 w-full items-center justify-between rounded border text-sans-md`,
-                hasError
-                  ? 'focus-error border-error-secondary hover:border-error'
-                  : 'border-default hover:border-hover',
-                open && 'ring-2 ring-accent-secondary',
-                open && hasError && 'ring-error-secondary',
-                isDisabled
-                  ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
-                  : 'bg-default',
-                isDisabled && hasError && '!border-error-secondary'
-              )}
-              ref={buttonRef}
-              {...props}
+          </div>
+          {!isDisabled && <SpinnerLoader isLoading={isLoading} />}
+          <div
+            className="flex h-[calc(100%-12px)] items-center border-l px-3 border-secondary"
+            aria-hidden
+          >
+            <SelectArrows6Icon title="Select" className="w-2 text-tertiary" />
+          </div>
+        </ListboxButton>
+        <ListboxOptions
+          anchor={{ gap: 12 }}
+          className={`ox-menu pointer-events-auto ${zIndex} w-[var(--button-width)] overflow-y-auto !outline-none`}
+          // This is to prevent the `useOthersInert` call in ListboxOptions.
+          // Without this, when the listbox options box scrolls under the
+          // top bar (for example) you can click through the top bar to the
+          // options because the topbar (and all other elements) has been
+          // marked "inert", which means it does not catch mouse events.
+          // This would not be necessary if useScrollLock in ListboxOptions
+          // worked, but we suspect it doesn't work because the page as a
+          // whole is not the scroll container.
+          modal={false}
+        >
+          {items.map((item) => (
+            <ListboxOption
+              key={item.value}
+              value={item.value}
+              className="relative border-b border-secondary last:border-0"
             >
-              <div className="w-full overflow-hidden overflow-ellipsis whitespace-pre px-3 text-left">
-                {selectedItem ? (
-                  // selectedLabel is one line, which is what we need when label is a ReactNode
-                  selectedItem.selectedLabel || selectedItem.label
-                ) : (
-                  <span className="text-quaternary">
-                    {noItems ? noItemsPlaceholder : placeholder}
-                  </span>
-                )}
-              </div>
-              {!isDisabled && <SpinnerLoader isLoading={isLoading} />}
-              <div
-                className="flex h-[calc(100%-12px)] items-center border-l px-3 border-secondary"
-                aria-hidden
-              >
-                <SelectArrows6Icon title="Select" className="w-2 text-tertiary" />
-              </div>
-            </ListboxButton>
-            <ListboxOptions
-              anchor={{ gap: 12 }}
-              className={`ox-menu pointer-events-auto ${zIndex} w-[var(--button-width)] overflow-y-auto !outline-none`}
-              // This is to prevent the `useOthersInert` call in ListboxOptions.
-              // Without this, when the listbox options box scrolls under the
-              // top bar (for example) you can click through the top bar to the
-              // options because the topbar (and all other elements) has been
-              // marked "inert", which means it does not catch mouse events.
-              // This would not be necessary if useScrollLock in ListboxOptions
-              // worked, but we suspect it doesn't work because the page as a
-              // whole is not the scroll container.
-              modal={false}
-            >
-              {items.map((item) => (
-                <ListboxOption
-                  key={item.value}
-                  value={item.value}
-                  className="relative border-b border-secondary last:border-0"
+              {({ focus, selected }) => (
+                <div
+                  className={cn('ox-menu-item', {
+                    'is-selected': selected,
+                    'is-highlighted': focus,
+                  })}
                 >
-                  {({ focus, selected }) => (
-                    <div
-                      className={cn('ox-menu-item', {
-                        'is-selected': selected,
-                        'is-highlighted': focus,
-                      })}
-                    >
-                      {item.label}
-                    </div>
-                  )}
-                </ListboxOption>
-              ))}
-            </ListboxOptions>
-          </>
-        )}
+                  {item.label}
+                </div>
+              )}
+            </ListboxOption>
+          ))}
+        </ListboxOptions>
       </HListbox>
-    </div>
+    </Field>
   )
 }
