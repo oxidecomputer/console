@@ -359,7 +359,7 @@ test('firewall rule form hosts table', async ({ page }) => {
 
   await selectOption(page, 'Host type', 'VPC subnet')
   // because there are multiple `Subnet name`s at this moment in time, we have to pass in a full Locator
-  await selectOption(page, page.getByLabel('Subnet name').nth(1), 'mock-subnet')
+  await selectOption(page, 'Subnet name', 'mock-subnet')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'subnet', Value: 'mock-subnet' })
 
