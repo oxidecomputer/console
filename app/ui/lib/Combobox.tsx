@@ -116,19 +116,7 @@ export const Combobox = ({
             {description && <TextInputHint id="TextInputHint">{description}</TextInputHint>}
           </div>
         )}
-        <ComboboxButton
-          className={cn(
-            `flex h-10 w-full grow items-center justify-between rounded border text-sans-md ring-accent-secondary data-[open]:ring-2`,
-            hasError
-              ? 'focus-error border-error-secondary hover:border-error'
-              : 'border-default hover:border-hover',
-            hasError && 'data-[open]:ring-error-secondary',
-            disabled
-              ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
-              : 'bg-default',
-            disabled && hasError && '!border-error-secondary'
-          )}
-        >
+        <div className="flex rounded border border-default ring-accent-secondary hover:border-hover data-[open]:ring-2">
           <ComboboxInput
             aria-label={ariaLabel}
             // displayValue controls what's displayed in the input field.
@@ -144,7 +132,7 @@ export const Combobox = ({
             placeholder={placeholder}
             disabled={disabled || isLoading}
             className={cn(
-              `w-full rounded !border-none px-3 py-[0.5rem] !outline-none text-sans-md text-default placeholder:text-quaternary`,
+              `h-10 w-full !border-none px-3 py-[0.5rem] !outline-none text-sans-md text-default placeholder:text-quaternary`,
               disabled
                 ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
                 : 'bg-default',
@@ -152,16 +140,19 @@ export const Combobox = ({
             )}
           />
           {items.length > 0 && (
-            <div className="flex items-center border-l px-3 border-secondary" aria-hidden>
+            <ComboboxButton
+              className="flex items-center border-l px-3 bg-default border-secondary"
+              aria-hidden
+            >
               <SelectArrows6Icon title="Select" className="w-2 text-tertiary" />
-            </div>
+            </ComboboxButton>
           )}
-        </ComboboxButton>
+        </div>
         {items.length > 0 && (
           <ComboboxOptions
             anchor="bottom start"
             // 14px gap is presumably because it's measured from inside the outline or something
-            className={`ox-menu pointer-events-auto ${zIndex} relative w-[var(--button-width)] overflow-y-auto border !outline-none border-secondary [--anchor-gap:14px] empty:hidden`}
+            className={`ox-menu pointer-events-auto ${zIndex} relative w-[var(--input-width)] overflow-y-auto border !outline-none border-secondary [--anchor-gap:14px] empty:hidden`}
             modal={false}
           >
             {!allowArbitraryValues && filteredItems.length === 0 && (
