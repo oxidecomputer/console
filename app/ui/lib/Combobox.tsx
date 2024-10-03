@@ -15,7 +15,7 @@ import {
 } from '@headlessui/react'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
-import { useId, useState, type ReactNode } from 'react'
+import { useId, useState, type ReactNode, type Ref } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
@@ -69,6 +69,8 @@ type ComboboxProps = {
   selectedItemLabel: string
   hasError?: boolean
   onChange: (value: string) => void
+  /** Necessary if you want RHF to be able to focus it on error */
+  inputRef?: Ref<HTMLInputElement>
 } & ComboboxBaseProps
 
 export const Combobox = ({
@@ -86,6 +88,7 @@ export const Combobox = ({
   onInputChange,
   allowArbitraryValues = false,
   hideOptionalTag,
+  inputRef,
   ...props
 }: ComboboxProps) => {
   const [query, setQuery] = useState(selectedItemValue || '')
@@ -147,6 +150,7 @@ export const Combobox = ({
                 : 'bg-default',
               hasError && 'focus-error'
             )}
+            ref={inputRef}
           />
           {items.length > 0 && (
             <ComboboxButton

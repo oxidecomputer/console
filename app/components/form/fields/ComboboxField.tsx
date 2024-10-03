@@ -88,6 +88,7 @@ export function ComboboxField<
           setSelectedItemLabel(getSelectedLabelFromValue(items, value))
         }}
         allowArbitraryValues={allowArbitraryValues}
+        inputRef={field.ref}
         {...props}
       />
       <ErrorMessage error={fieldState.error} label={label} />
