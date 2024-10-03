@@ -43,7 +43,11 @@ export function BootDiskImageSelectField({
       items={images.map((i) => toImageComboboxItem(i))}
       required
       onChange={(id) => {
-        const image = images.find((i) => i.id === id)! // if it's selected, it must be present
+        const image = images.find((i) => i.id === id)
+        // the most likely scenario where image would be undefined is if the user has
+        // manually cleared the ComboboxField; they will need to pick a boot disk image
+        // in order to submit the form, so we don't need to do anything here
+        if (!image) return
         const imageSizeGiB = image.size / GiB
         if (diskSizeField.value < imageSizeGiB) {
           diskSizeField.onChange(nearest10(imageSizeGiB))
