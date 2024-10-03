@@ -1680,6 +1680,9 @@ export const InstanceState = z.preprocess(
 export const Instance = z.preprocess(
   processResponseBody,
   z.object({
+    autoRestartCooldownExpiration: z.coerce.date().optional(),
+    autoRestartEnabled: SafeBoolean,
+    bootDiskId: z.string().uuid().optional(),
     description: z.string(),
     hostname: z.string(),
     id: z.string().uuid(),
@@ -1689,9 +1692,18 @@ export const Instance = z.preprocess(
     projectId: z.string().uuid(),
     runState: InstanceState,
     timeCreated: z.coerce.date(),
+    timeLastAutoRestarted: z.coerce.date().optional(),
     timeModified: z.coerce.date(),
     timeRunStateUpdated: z.coerce.date(),
   })
+)
+
+/**
+ * A policy determining when an instance should be automatically restarted by the control plane.
+ */
+export const InstanceAutoRestartPolicy = z.preprocess(
+  processResponseBody,
+  z.enum(['never', 'best_effort'])
 )
 
 /**
@@ -1743,6 +1755,8 @@ export const InstanceNetworkInterfaceAttachment = z.preprocess(
 export const InstanceCreate = z.preprocess(
   processResponseBody,
   z.object({
+    autoRestartPolicy: InstanceAutoRestartPolicy.default(null).optional(),
+    bootDisk: InstanceDiskAttachment.default(null).optional(),
     description: z.string(),
     disks: InstanceDiskAttachment.array().default([]).optional(),
     externalIps: ExternalIpCreate.array().default([]).optional(),
@@ -1831,6 +1845,14 @@ export const InstanceResultsPage = z.preprocess(
 export const InstanceSerialConsoleData = z.preprocess(
   processResponseBody,
   z.object({ data: z.number().min(0).max(255).array(), lastByteOffset: z.number().min(0) })
+)
+
+/**
+ * Parameters of an `Instance` that can be reconfigured after creation.
+ */
+export const InstanceUpdate = z.preprocess(
+  processResponseBody,
+  z.object({ bootDisk: NameOrId.optional() })
 )
 
 /**
@@ -4137,6 +4159,18 @@ export const InstanceCreateParams = z.preprocess(
 )
 
 export const InstanceViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      instance: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InstanceUpdateParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
