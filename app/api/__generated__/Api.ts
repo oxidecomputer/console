@@ -1320,10 +1320,10 @@ export type DiskSource =
  */
 export type DiskCreate = {
   description: string
-  /** initial source for this disk */
+  /** The initial source for this disk */
   diskSource: DiskSource
   name: Name
-  /** total size of the Disk in bytes */
+  /** The total size of the Disk (in bytes) */
   size: ByteCount
 }
 
@@ -1806,10 +1806,10 @@ export type InstanceDiskAttachment =
   /** During instance creation, create and attach disks */
   | {
       description: string
-      /** initial source for this disk */
+      /** The initial source for this disk */
       diskSource: DiskSource
       name: Name
-      /** total size of the Disk in bytes */
+      /** The total size of the Disk (in bytes) */
       size: ByteCount
       type: 'create'
     }
@@ -1868,9 +1868,12 @@ An instance without an explicit boot disk can be booted: the options are as mana
 
 By default, all instances have outbound connectivity, but no inbound connectivity. These external addresses can be used to provide a fixed, known IP address for making inbound connections to the instance. */
   externalIps?: ExternalIpCreate[]
+  /** The hostname to be assigned to the instance */
   hostname: Hostname
+  /** The amount of RAM (in bytes) to be allocated to the instance */
   memory: ByteCount
   name: Name
+  /** The number of vCPUs to be allocated to the instance */
   ncpus: InstanceCpuCount
   /** The network interfaces to be created for this instance. */
   networkInterfaces?: InstanceNetworkInterfaceAttachment
