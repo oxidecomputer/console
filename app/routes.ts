@@ -8,4 +8,4 @@
 
 import { route } from '@react-router/dev/routes'
 
-export const routes = [route('abc', './some/file.tsx')]
+export const routes = [route('abc', './tmp-page.tsx')]

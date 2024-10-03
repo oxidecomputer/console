@@ -117,7 +117,6 @@ export default defineConfig(({ mode }) => ({
         tags: process.env.VERCEL ? [previewAnalyticsTag, ...previewMetaTag] : [],
       },
     }),
-    react(),
     reactRouter({ ssr: false }),
     apiMode === 'dogfood' && basicSsl(),
   ],

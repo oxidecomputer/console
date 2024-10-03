@@ -110,6 +110,7 @@
     "husky": "^9.1.6",
     "identity-obj-proxy": "^3.0.0",
     "ip-num": "^1.5.1",
+    "isbot": "^5.1.17",
     "jsdom": "^25.0.0",
     "lint-staged": "^15.2.10",
     "msw": "^2.4.5",
