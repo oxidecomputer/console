@@ -83,11 +83,15 @@ export const useMakeInstanceActions = (
                 }),
               modalTitle: 'Confirm stop instance',
               modalContent: (
-                <p>
-                  Are you sure you want to stop <HL>{instance.name}</HL>? Stopped instances
-                  retain attached disks and IP addresses, but allocated CPU and memory are
-                  freed.
-                </p>
+                <div className="space-y-2">
+                  <p>
+                    Are you sure you want to stop <HL>{instance.name}</HL>?
+                  </p>
+                  <p>
+                    Stopped instances retain attached disks and IP addresses, but allocated
+                    CPU and memory are freed.
+                  </p>
+                </div>
               ),
               errorTitle: `Error stopping ${instance.name}`,
             })
