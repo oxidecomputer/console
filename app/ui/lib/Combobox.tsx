@@ -137,6 +137,12 @@ export const Combobox = ({
               : 'bg-default',
             disabled && hasError && '!border-error-secondary'
           )}
+          // Putting the inputRef on the div makes it so the div can be focused by RHF when there's an error.
+          // We want to focus on the div (rather than the input) so the combobox doesn't open automatically
+          // and obscure the error message.
+          ref={inputRef}
+          // tabIndex=-1 is necessary to make the div focusable
+          tabIndex={-1}
         >
           <ComboboxInput
             id={`${id}-input`}
@@ -161,7 +167,6 @@ export const Combobox = ({
                 : 'bg-default',
               hasError && 'focus-error'
             )}
-            ref={inputRef}
           />
           {items.length > 0 && (
             <ComboboxButton
