@@ -126,7 +126,18 @@ export const Combobox = ({
             )}
           </div>
         )}
-        <div className="flex rounded border border-default ring-accent-secondary focus-within:ring-2 hover:border-hover">
+        <div
+          className={cn(
+            `flex rounded border focus-within:ring-2`,
+            hasError
+              ? 'focus-error border-error-secondary focus-within:ring-error-secondary hover:border-error'
+              : 'border-default focus-within:ring-accent-secondary hover:border-hover',
+            disabled
+              ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
+              : 'bg-default',
+            disabled && hasError && '!border-error-secondary'
+          )}
+        >
           <ComboboxInput
             id={`${id}-input`}
             // displayValue controls what's displayed in the input field.
@@ -144,7 +155,7 @@ export const Combobox = ({
             placeholder={placeholder}
             disabled={disabled || isLoading}
             className={cn(
-              `h-10 w-full !border-none px-3 py-[0.5rem] !outline-none text-sans-md text-default placeholder:text-quaternary`,
+              `h-10 w-full rounded !border-none px-3 py-[0.5rem] !outline-none text-sans-md text-default placeholder:text-quaternary`,
               disabled
                 ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
                 : 'bg-default',
