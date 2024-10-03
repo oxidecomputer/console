@@ -448,9 +448,33 @@ export const handlers = makeHandlers({
       })
     }
 
-    /////////////////////////////////////////////////////////////
-    // DB write stuff starts here
-    /////////////////////////////////////////////////////////////
+    // validate floating IP attachments before we actually do anything
+    body.external_ips?.forEach((ip) => {
+      if (ip.type === 'floating') {
+        // throw if floating IP doesn't exist
+        const floatingIp = lookup.floatingIp({
+          project: project.id,
+          floatingIp: ip.floating_ip,
+        })
+        if (floatingIp.instance_id) {
+          throw 'floating IP cannot be attached to one instance while still attached to another'
+        }
+      } else {
+        // just make sure we can get one. technically this will only throw
+        // if there are no ranges in the pool or if the pool doesn't exist,
+        // which aren't quite as good as checking that there are actually IPs
+        // available, but they are good things to check
+        getIpFromPool(ip.pool)
+      }
+    })
+
+    //////////////////////////////////////////////////////////////////////////
+    // DB WRITES START HERE
+    //
+    // We don't have transactions or sagas, so we need to make sure we do all
+    // our validation and throw any errors about bad input before we make any
+    // changes to the DB that would have to be undone on failure.
+    //////////////////////////////////////////////////////////////////////////
 
     for (const diskParams of allDisks) {
       if (diskParams.type === 'create') {
@@ -515,26 +539,15 @@ export const handlers = makeHandlers({
       )
     }
 
-    const newInstance: Json<Api.Instance> = {
-      id: instanceId,
-      project_id: project.id,
-      ...R.pick(body, ['name', 'description', 'hostname', 'memory', 'ncpus']),
-      ...getTimestamps(),
-      run_state: 'creating',
-      time_run_state_updated: new Date().toISOString(),
-      boot_disk_id: bootDiskId,
-      auto_restart_enabled: true,
-    }
-
+    // actually set up IPs. looks very similar to validation step but this time
+    // we are writing to the DB
     body.external_ips?.forEach((ip) => {
       if (ip.type === 'floating') {
         const floatingIp = lookup.floatingIp({
           project: project.id,
           floatingIp: ip.floating_ip,
         })
-        if (floatingIp.instance_id) {
-          throw 'floating IP cannot be attached to one instance while still attached to another'
-        }
+        // we've already validated that the IP isn't attached
         floatingIp.instance_id = instanceId
       } else if (ip.type === 'ephemeral') {
         const firstAvailableAddress = getIpFromPool(ip.pool)
@@ -547,6 +560,17 @@ export const handlers = makeHandlers({
         })
       }
     })
+
+    const newInstance: Json<Api.Instance> = {
+      id: instanceId,
+      project_id: project.id,
+      ...R.pick(body, ['name', 'description', 'hostname', 'memory', 'ncpus']),
+      ...getTimestamps(),
+      run_state: 'creating',
+      time_run_state_updated: new Date().toISOString(),
+      boot_disk_id: bootDiskId,
+      auto_restart_enabled: true,
+    }
 
     setTimeout(() => {
       newInstance.run_state = 'starting'
