@@ -45,9 +45,9 @@ test('can promote an image from silo', async ({ page }) => {
   await page.getByRole('option', { name: 'mock-project' }).click()
 
   // Select an image in that project
-  const projectListbox = page.locator('role=button[name*="Image"]')
-  await expect(projectListbox).toBeEnabled()
-  await projectListbox.click()
+  const imageListbox = page.locator('role=button[name*="Image"]')
+  await expect(imageListbox).toBeEnabled()
+  await imageListbox.click()
   await page.locator('role=option >> text="image-1"').click()
   await page.locator('role=button[name="Promote"]').click()
 
@@ -108,8 +108,7 @@ test('can demote an image from silo', async ({ page }) => {
     page.getByRole('dialog', { name: 'Demote' }).getByText('Project is required')
   ).toBeVisible()
 
-  await page.getByRole('combobox', { name: 'Project' }).click()
-  await page.getByRole('option', { name: 'mock-project' }).click()
+  await selectOption(page, 'Project', 'mock-project')
   await page.getByRole('button', { name: 'Demote' }).click()
 
   // Promote image and check it was successful

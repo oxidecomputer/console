@@ -31,15 +31,15 @@ export function BootDiskImageSelectField({
   name,
 }: ImageSelectFieldProps) {
   const diskSizeField = useController({ control, name: 'bootDiskSize' }).field
-  const placeholder =
-    name === 'siloImageSource' ? 'Select a silo image' : 'Select a project image'
   return (
     <ComboboxField
       disabled={disabled}
       control={control}
       name={name}
       label="Image"
-      placeholder={placeholder}
+      placeholder={
+        name === 'siloImageSource' ? 'Select a silo image' : 'Select a project image'
+      }
       items={images.map((i) => toImageComboboxItem(i))}
       required
       onChange={(id) => {
@@ -63,8 +63,7 @@ export function toImageComboboxItem(
   const projectSiloIndicator = includeProjectSiloIndicator
     ? `${projectId ? 'Project' : 'Silo'} image`
     : null
-  // filter out undefined metadata here, as well, and create a `<Slash />`-separated list
-  // for the comboboxitem (shown for each item in the dropdown)
+  // filter out undefined metadata and create a `<Slash />`-separated list for each comboboxitem
   const itemMetadata = [os, version, `${bytesToGiB(size, 1)} GiB`, projectSiloIndicator]
     .filter((i) => !!i)
     .map((i, index) => (

@@ -113,17 +113,19 @@ export const Combobox = ({
           <div className="mb-2">
             <FieldLabel
               id={`${id}-label`}
-              htmlFor={`${id}-combobox`}
+              htmlFor={`${id}-input`}
               optional={!required && !hideOptionalTag}
             >
               {label}
             </FieldLabel>
-            {description && <TextInputHint id="TextInputHint">{description}</TextInputHint>}
+            {description && (
+              <TextInputHint id={`${id}-help-text`}>{description}</TextInputHint>
+            )}
           </div>
         )}
         <div className="flex rounded border border-default ring-accent-secondary focus-within:ring-2 hover:border-hover">
           <ComboboxInput
-            id={`${id}-combobox`}
+            id={`${id}-input`}
             // displayValue controls what's displayed in the input field.
             // selectedItemValue is displayed when the user can type in a new value.
             // Otherwise, use the provided selectedItemLabel
@@ -131,7 +133,9 @@ export const Combobox = ({
               allowArbitraryValues ? selectedItemValue : selectedItemLabel
             }
             onChange={(event) => {
+              // updates the query state as the user types, in order to filter the list of items
               setQuery(event.target.value)
+              // if the parent component wants to know about input changes, call the callback
               onInputChange?.(event.target.value)
             }}
             placeholder={placeholder}
