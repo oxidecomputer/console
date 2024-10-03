@@ -140,7 +140,7 @@ export const handlers = makeHandlers({
       state:
         disk_source.type === 'importing_blocks'
           ? { state: 'import_ready' }
-          : { state: 'creating' },
+          : { state: 'detached' },
       device_path: '/mnt/disk',
       name,
       description,
