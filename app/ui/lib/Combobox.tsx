@@ -89,7 +89,7 @@ export const Combobox = ({
   ...props
 }: ComboboxProps) => {
   const [query, setQuery] = useState(selectedItemValue || '')
-  const q = query.toLowerCase()
+  const q = query.toLowerCase().replace(/\s*/g, '')
   const filteredItems = matchSorter(items, q, {
     keys: ['selectedLabel', 'label'],
     sorter: (items) => items, // preserve original order, don't sort by match
