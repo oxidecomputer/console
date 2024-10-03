@@ -1,4 +1,4 @@
-#! /usr/bin/env -S deno run --allow-run --allow-net --allow-read --allow-write --allow-env
+#! /usr/bin/env -S deno run --allow-run=gh,git --allow-net --allow-read --allow-write --allow-env
 
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
