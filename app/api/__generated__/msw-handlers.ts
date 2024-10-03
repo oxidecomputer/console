@@ -305,6 +305,14 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.Instance>>
+  /** `PUT /v1/instances/:instance` */
+  instanceUpdate: (params: {
+    path: Api.InstanceUpdatePathParams
+    query: Api.InstanceUpdateQueryParams
+    body: Json<Api.InstanceUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.Instance>>
   /** `DELETE /v1/instances/:instance` */
   instanceDelete: (params: {
     path: Api.InstanceDeletePathParams
@@ -1592,6 +1600,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.get(
       '/v1/instances/:instance',
       handler(handlers['instanceView'], schema.InstanceViewParams, null)
+    ),
+    http.put(
+      '/v1/instances/:instance',
+      handler(
+        handlers['instanceUpdate'],
+        schema.InstanceUpdateParams,
+        schema.InstanceUpdate
+      )
     ),
     http.delete(
       '/v1/instances/:instance',

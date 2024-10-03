@@ -1320,10 +1320,10 @@ export type DiskSource =
  */
 export type DiskCreate = {
   description: string
-  /** initial source for this disk */
+  /** The initial source for this disk */
   diskSource: DiskSource
   name: Name
-  /** total size of the Disk in bytes */
+  /** The total size of the Disk (in bytes) */
   size: ByteCount
 }
 
@@ -1755,6 +1755,14 @@ export type InstanceState =
  * View of an Instance
  */
 export type Instance = {
+  /** The time at which the auto-restart cooldown period for this instance completes, permitting it to be automatically restarted again. If the instance enters the `Failed` state, it will not be restarted until after this time.
+
+If this is not present, then either the instance has never been automatically restarted, or the cooldown period has already expired, allowing the instance to be restarted immediately if it fails. */
+  autoRestartCooldownExpiration?: Date
+  /** `true` if this instance's auto-restart policy will permit the control plane to automatically restart it if it enters the `Failed` state. */
+  autoRestartEnabled: boolean
+  /** the ID of the disk used to boot this Instance, if a specific one is assigned. */
+  bootDiskId?: string
   /** human-readable free-form text about a resource */
   description: string
   /** RFC1035-compliant hostname for the Instance. */
@@ -1772,10 +1780,24 @@ export type Instance = {
   runState: InstanceState
   /** timestamp when this resource was created */
   timeCreated: Date
+  /** The timestamp of the most recent time this instance was automatically restarted by the control plane.
+
+If this is not present, then this instance has not been automatically restarted. */
+  timeLastAutoRestarted?: Date
   /** timestamp when this resource was last modified */
   timeModified: Date
   timeRunStateUpdated: Date
 }
+
+/**
+ * A policy determining when an instance should be automatically restarted by the control plane.
+ */
+export type InstanceAutoRestartPolicy =
+  /** The instance should not be automatically restarted by the control plane if it fails. */
+  | 'never'
+
+  /** If this instance is running and unexpectedly fails (e.g. due to a host software crash or unexpected host reboot), the control plane will make a best-effort attempt to restart it. The control plane may choose not to restart the instance to preserve the overall availability of the system. */
+  | 'best_effort'
 
 /**
  * Describe the instance's disks at creation time
@@ -1784,10 +1806,10 @@ export type InstanceDiskAttachment =
   /** During instance creation, create and attach disks */
   | {
       description: string
-      /** initial source for this disk */
+      /** The initial source for this disk */
       diskSource: DiskSource
       name: Name
-      /** total size of the Disk in bytes */
+      /** The total size of the Disk (in bytes) */
       size: ByteCount
       type: 'create'
     }
@@ -1829,6 +1851,16 @@ If more than one interface is provided, then the first will be designated the pr
  * Create-time parameters for an `Instance`
  */
 export type InstanceCreate = {
+  /** The auto-restart policy for this instance.
+
+This indicates whether the instance should be automatically restarted by the control plane on failure. If this is `null`, no auto-restart policy has been configured for this instance by the user. */
+  autoRestartPolicy?: InstanceAutoRestartPolicy
+  /** The disk this instance should boot into. This disk can either be attached if it already exists, or created, if it should be a new disk.
+
+It is strongly recommended to either provide a boot disk at instance creation, or update the instance after creation to set a boot disk.
+
+An instance without an explicit boot disk can be booted: the options are as managed by UEFI, and as controlled by the guest OS, but with some risk.  If this instance later has a disk attached or detached, it is possible that boot options can end up reordered, with the intended boot disk moved after the EFI shell in boot priority. This may result in an instance that only boots to the EFI shell until the desired disk is set as an explicit boot disk and the instance rebooted. */
+  bootDisk?: InstanceDiskAttachment
   description: string
   /** The disks to be created or attached for this instance. */
   disks?: InstanceDiskAttachment[]
@@ -1836,9 +1868,12 @@ export type InstanceCreate = {
 
 By default, all instances have outbound connectivity, but no inbound connectivity. These external addresses can be used to provide a fixed, known IP address for making inbound connections to the instance. */
   externalIps?: ExternalIpCreate[]
+  /** The hostname to be assigned to the instance */
   hostname: Hostname
+  /** The amount of RAM (in bytes) to be allocated to the instance */
   memory: ByteCount
   name: Name
+  /** The number of vCPUs to be allocated to the instance */
   ncpus: InstanceCpuCount
   /** The network interfaces to be created for this instance. */
   networkInterfaces?: InstanceNetworkInterfaceAttachment
@@ -1935,6 +1970,16 @@ export type InstanceSerialConsoleData = {
   data: number[]
   /** The absolute offset since boot (suitable for use as `byte_offset` in a subsequent request) of the last byte returned in `data`. */
   lastByteOffset: number
+}
+
+/**
+ * Parameters of an `Instance` that can be reconfigured after creation.
+ */
+export type InstanceUpdate = {
+  /** Name or ID of the disk the instance should be instructed to boot from.
+
+If not provided, unset the instance's boot disk. */
+  bootDisk?: NameOrId
 }
 
 /**
@@ -4196,6 +4241,14 @@ export interface InstanceViewQueryParams {
   project?: NameOrId
 }
 
+export interface InstanceUpdatePathParams {
+  instance: NameOrId
+}
+
+export interface InstanceUpdateQueryParams {
+  project?: NameOrId
+}
+
 export interface InstanceDeletePathParams {
   instance: NameOrId
 }
@@ -5684,6 +5737,29 @@ export class Api extends HttpClient {
       return this.request<Instance>({
         path: `/v1/instances/${path.instance}`,
         method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Update instance
+     */
+    instanceUpdate: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: InstanceUpdatePathParams
+        query?: InstanceUpdateQueryParams
+        body: InstanceUpdate
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Instance>({
+        path: `/v1/instances/${path.instance}`,
+        method: 'PUT',
+        body,
         query,
         ...params,
       })

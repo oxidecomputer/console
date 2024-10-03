@@ -111,6 +111,22 @@ test('can create an instance', async ({ page }) => {
     'text=from space',
   ])
 
+  // instance goes from creating to starting to running as we poll
+  const pollingSpinner = page.getByLabel('Spinner')
+  await expect(pollingSpinner).toBeVisible()
+  await expect(page.getByText('Creating')).toBeVisible()
+  await expect(page.getByText('Starting')).toBeVisible()
+  await expect(page.getByText('Running')).toBeVisible()
+  await expect(pollingSpinner).toBeHidden()
+
+  // boot disk visible, no other disks attached
+  await expect(
+    page
+      .getByRole('table', { name: 'Boot disk' })
+      .getByRole('cell', { name: 'my-boot-disk' })
+  ).toBeVisible()
+  await expect(page.getByText('No other disk')).toBeVisible()
+
   // network tab works
   await page.getByRole('tab', { name: 'Networking' }).click()
   const table = page.getByRole('table', { name: 'Network interfaces' })
@@ -277,7 +293,11 @@ test('create instance with existing disk', async ({ page }) => {
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
   await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=8 GiB'])
-  await expectRowVisible(page.getByRole('table'), { Disk: 'disk-3' })
+
+  const bootDisks = page.getByRole('table', { name: 'Boot disk' })
+  await expectRowVisible(bootDisks, { Disk: 'disk-3' })
+
+  await expect(page.getByText('No other disks')).toBeVisible()
 })
 
 test('create instance with a silo image', async ({ page }) => {
@@ -480,4 +500,46 @@ test('attaching additional disks allows for combobox filtering', async ({ page }
   await selectADisk.click()
   await selectADisk.fill('asdf')
   await expect(page.getByRole('option', { name: 'No items match' })).toBeVisible()
+})
+
+test('create instance with additional disks', async ({ page }) => {
+  const instanceName = 'more-disks'
+  await page.goto('/projects/mock-project/instances-new')
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await selectAProjectImage(page, 'image-1')
+
+  // Create a new disk
+  await page.getByRole('button', { name: 'Create new disk' }).click()
+
+  const createForm = page.getByRole('dialog', { name: 'Create disk' })
+  await createForm.getByRole('textbox', { name: 'Name', exact: true }).fill('new-disk-1')
+  await createForm.getByRole('textbox', { name: 'Size (GiB)' }).fill('5')
+  await createForm.getByRole('button', { name: 'Create disk' }).click()
+
+  const disksTable = page.getByRole('table', { name: 'Disks' })
+  await expectRowVisible(disksTable, { Name: 'new-disk-1', Type: 'create', Size: '5GiB' })
+
+  // Attach an existing disk
+  await page.getByRole('button', { name: 'Attach existing disk' }).click()
+  await page.getByRole('button', { name: 'Disk name' }).click()
+  await page.getByRole('option', { name: 'disk-3' }).click()
+  await page.getByRole('button', { name: 'Attach disk' }).click()
+
+  await expectRowVisible(disksTable, { Name: 'disk-3', Type: 'attach', Size: '—' })
+
+  // Create the instance
+  await page.getByRole('button', { name: 'Create instance' }).click()
+
+  // Assert we're on the new instance's storage page
+  await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
+
+  // Check for the boot disk
+  const bootDiskTable = page.getByRole('table', { name: 'Boot disk' })
+  // name is generated so it's gnarly
+  await expect(bootDiskTable.getByRole('cell', { name: /^more-disks-/ })).toBeVisible()
+
+  // Check for the additional disks
+  const otherDisksTable = page.getByRole('table', { name: 'Other disks' })
+  await expectRowVisible(otherDisksTable, { Disk: 'new-disk-1', size: '5 GiB' })
+  await expectRowVisible(otherDisksTable, { Disk: 'disk-3', size: '6 GiB' })
 })

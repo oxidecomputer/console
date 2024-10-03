@@ -90,11 +90,17 @@ export const genName = (...parts: [string, ...string[]]) => {
 }
 
 const instanceActions: Record<string, InstanceState[]> = {
+  // NoVmm maps to to Stopped:
+  // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-model/src/instance_state.rs#L55
+
   // https://github.com/oxidecomputer/omicron/blob/0496637/nexus/src/app/instance.rs#L2064
   start: ['stopped', 'failed'],
 
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/instance.rs#L865
   delete: ['stopped', 'failed'],
+
+  // https://github.com/oxidecomputer/omicron/blob/3093818/nexus/db-queries/src/db/datastore/instance.rs#L1030-L1043
+  update: ['stopped', 'failed', 'creating'],
 
   // reboot and stop are kind of weird!
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/src/app/instance.rs#L790-L798
@@ -103,9 +109,6 @@ const instanceActions: Record<string, InstanceState[]> = {
   reboot: ['running'], // technically rebooting allowed but too weird to say it
   // stopping a failed disk: https://github.com/oxidecomputer/omicron/blob/f0b804818b898bebdb317ac2b000618944c02457/nexus/src/app/instance.rs#L818-L830
   stop: ['running', 'starting', 'rebooting', 'failed'],
-
-  // NoVmm maps to to Stopped:
-  // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-model/src/instance_state.rs#L55
 
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/disk.rs#L323-L327
   detachDisk: ['creating', 'stopped', 'failed'],
@@ -149,6 +152,8 @@ const diskActions: Record<string, DiskState['state'][]> = {
   attach: ['creating', 'detached'],
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/disk.rs#L313-L314
   detach: ['attached'],
+  // https://github.com/oxidecomputer/omicron/blob/3093818/nexus/db-queries/src/db/datastore/instance.rs#L1077-L1081
+  setAsBootDisk: ['attached'],
 }
 
 export const diskCan = R.mapValues(diskActions, (states) => {

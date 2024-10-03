@@ -17,6 +17,7 @@ import {
   INSTANCE_MIN_RAM_GiB,
   MAX_NICS_PER_INSTANCE,
   type ApiTypes as Api,
+  type InstanceDiskAttachment,
   type SamlIdentityProvider,
 } from '@oxide/api'
 
@@ -418,12 +419,18 @@ export const handlers = makeHandlers({
      * Eagerly check for disk errors. Execution will stop early and prevent orphaned disks from
      * being created if there's a failure. In omicron this is done automatically via an undo on the saga.
      */
-    for (const diskParams of body.disks || []) {
+    const allDisks: Json<InstanceDiskAttachment>[] = []
+    if (body.disks) allDisks.push(...body.disks)
+    if (body.boot_disk) allDisks.push(body.boot_disk)
+
+    for (const diskParams of allDisks) {
       if (diskParams.type === 'create') {
         errIfExists(db.disks, { name: diskParams.name, project_id: project.id }, 'disk')
         errIfInvalidDiskSize(diskParams)
       } else {
-        lookup.disk({ ...query, disk: diskParams.name })
+        const disk = lookup.disk({ ...query, disk: diskParams.name })
+        if (disk.state.state !== 'detached')
+          throw `Disk '${diskParams.name}' is already attached to an instance`
       }
     }
 
@@ -441,7 +448,11 @@ export const handlers = makeHandlers({
       })
     }
 
-    for (const diskParams of body.disks || []) {
+    /////////////////////////////////////////////////////////////
+    // DB write stuff starts here
+    /////////////////////////////////////////////////////////////
+
+    for (const diskParams of allDisks) {
       if (diskParams.type === 'create') {
         const { size, name, description, disk_source } = diskParams
         const newDisk: Json<Api.Disk> = {
@@ -461,6 +472,11 @@ export const handlers = makeHandlers({
         disk.state = { state: 'attached', instance: instanceId }
       }
     }
+
+    // at this point, the boot disk has been created, so just retrieve it again
+    const bootDiskId = body.boot_disk?.name
+      ? lookup.disk({ disk: body.boot_disk.name, project: project.id }).id
+      : undefined
 
     // just use the first VPC in the project and first subnet in the VPC. bit of
     // a hack but not very important
@@ -506,6 +522,8 @@ export const handlers = makeHandlers({
       ...getTimestamps(),
       run_state: 'creating',
       time_run_state_updated: new Date().toISOString(),
+      boot_disk_id: bootDiskId,
+      auto_restart_enabled: true,
     }
 
     body.external_ips?.forEach((ip) => {
@@ -543,6 +561,36 @@ export const handlers = makeHandlers({
     return json(newInstance, { status: 201 })
   },
   instanceView: ({ path, query }) => lookup.instance({ ...path, ...query }),
+  instanceUpdate({ path, query, body }) {
+    const instance = lookup.instance({ ...path, ...query })
+
+    if (!instanceCan.update({ runState: instance.run_state })) {
+      const states = instanceCan.update.states
+      throw `Instance can only be updated if ${commaSeries(states, 'or')}`
+    }
+
+    if (body.boot_disk) {
+      // Only include project if it's a name, otherwise lookup will error.
+      // This will 404 if the disk doesn't exist, which I think is right.
+      const disk = lookup.disk({
+        disk: body.boot_disk,
+        project: isUuid(body.boot_disk) ? undefined : query.project,
+      })
+
+      const isAttached =
+        disk.state.state === 'attached' && disk.state.instance === instance.id
+      if (!(diskCan.setAsBootDisk(disk) && isAttached)) {
+        throw 'Boot disk must be attached to the instance'
+      }
+
+      instance.boot_disk_id = disk.id
+    } else {
+      // we're clearing the boot disk!
+      instance.boot_disk_id = undefined
+    }
+
+    return instance
+  },
   instanceDelete({ path, query }) {
     const instance = lookup.instance({ ...path, ...query })
     db.instances = db.instances.filter((i) => i.id !== instance.id)
@@ -574,7 +622,11 @@ export const handlers = makeHandlers({
       const states = commaSeries(instanceCan.detachDisk.states, 'or')
       throw `Can only detach disk from instance that is ${states}`
     }
-    const disk = lookup.disk({ ...projectParams, disk: body.disk })
+    const disk = lookup.disk({
+      disk: body.disk,
+      // use instance project ID because project may not be specified in params
+      project: isUuid(body.disk) ? undefined : instance.project_id,
+    })
     if (!diskCan.detach(disk)) {
       const states = commaSeries(diskCan.detach.states, 'or')
       throw `Can only detach disk that is ${states}`
