@@ -12,6 +12,7 @@ import {
   expectNotVisible,
   expectRowVisible,
   expectVisible,
+  selectOption,
   test,
   type Page,
 } from './utils'
@@ -521,8 +522,7 @@ test('create instance with additional disks', async ({ page }) => {
 
   // Attach an existing disk
   await page.getByRole('button', { name: 'Attach existing disk' }).click()
-  await page.getByRole('button', { name: 'Disk name' }).click()
-  await page.getByRole('option', { name: 'disk-3' }).click()
+  await selectOption(page, 'Disk name', 'disk-3')
   await page.getByRole('button', { name: 'Attach disk' }).click()
 
   await expectRowVisible(disksTable, { Name: 'disk-3', Type: 'attach', Size: '—' })
