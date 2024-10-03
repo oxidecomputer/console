@@ -103,7 +103,7 @@ export type InstanceCreateInput = Assign<
   SetRequired<InstanceCreate, 'networkInterfaces'>,
   {
     presetId: (typeof PRESETS)[number]['id']
-    disks: DiskTableItem[]
+    otherDisks: DiskTableItem[]
     bootDiskName: string
     bootDiskSize: number
 
@@ -139,7 +139,7 @@ const baseDefaultValues: InstanceCreateInput = {
   projectImageSource: '',
   diskSource: '',
 
-  disks: [],
+  otherDisks: [],
   networkInterfaces: { type: 'default' },
 
   sshPublicKeys: [],
@@ -317,7 +317,7 @@ export function CreateInstanceForm() {
               description: values.description,
               memory: instance.memory * GiB,
               ncpus: instance.ncpus,
-              disks: values.disks,
+              disks: values.otherDisks,
               bootDisk,
               externalIps: values.externalIps,
               start: values.start,

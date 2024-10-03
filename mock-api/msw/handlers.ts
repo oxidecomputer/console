@@ -17,6 +17,7 @@ import {
   INSTANCE_MIN_RAM_GiB,
   MAX_NICS_PER_INSTANCE,
   type ApiTypes as Api,
+  type InstanceDiskAttachment,
   type SamlIdentityProvider,
 } from '@oxide/api'
 
@@ -417,8 +418,10 @@ export const handlers = makeHandlers({
      * Eagerly check for disk errors. Execution will stop early and prevent orphaned disks from
      * being created if there's a failure. In omicron this is done automatically via an undo on the saga.
      */
-    const otherDisks = body.disks || []
-    const allDisks = body.boot_disk ? [body.boot_disk, ...otherDisks] : otherDisks
+    const allDisks: Json<InstanceDiskAttachment>[] = []
+    if (body.disks) allDisks.push(...body.disks)
+    if (body.boot_disk) allDisks.push(body.boot_disk)
+
     for (const diskParams of allDisks) {
       if (diskParams.type === 'create') {
         errIfExists(db.disks, { name: diskParams.name, project_id: project.id }, 'disk')

@@ -38,7 +38,7 @@ export function DisksTableField({
 
   const {
     field: { value: items, onChange },
-  } = useController({ control, name: 'disks' })
+  } = useController({ control, name: 'otherDisks' })
 
   return (
     <>

@@ -296,7 +296,11 @@ test('create instance with existing disk', async ({ page }) => {
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
   await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=8 GiB'])
-  await expectRowVisible(page.getByRole('table'), { Disk: 'disk-3' })
+
+  const bootDisks = page.getByRole('table', { name: 'Boot disk' })
+  await expectRowVisible(bootDisks, { Disk: 'disk-3' })
+
+  await expect(page.getByText('No other disks')).toBeVisible()
 })
 
 test('create instance with a silo image', async ({ page }) => {
