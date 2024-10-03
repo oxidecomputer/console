@@ -16,7 +16,7 @@
     "start:mock-api": "tsx ./tools/start_mock_api.ts",
     "build": "vite build",
     "ci": "npm run tsc && npm run lint && npm run test run && npm run e2ec",
-    "tsc": "tsc",
+    "tsc": "react-router typegen && tsc",
     "test": "NODE_OPTIONS='--no-deprecation' vitest",
     "e2e": "playwright test",
     "e2ec": "playwright test --project=chrome",

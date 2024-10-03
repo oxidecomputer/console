@@ -18,12 +18,13 @@
       "@oxide/api-mocks": ["mock-api/index.ts"]
     },
     "resolveJsonModule": true,
-    "rootDir": ".",
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
     "target": "es2020",
-    "types": ["node", "vite/client", "vitest/importMeta"]
+    "types": ["node", "vite/client", "vitest/importMeta"],
+    "rootDirs": [".", "./.react-router/types"],
+    "plugins": [{ "name": "@react-router/dev" }]
   },
   "exclude": ["tools/deno"]
 }

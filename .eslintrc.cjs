@@ -67,7 +67,7 @@ module.exports = {
     '@typescript-eslint/unbound-method': 'off',
 
     eqeqeq: ['error', 'always', { null: 'ignore' }],
-    'import/no-default-export': 'error',
+    // 'import/no-default-export': 'error',
     'import/no-unresolved': 'off', // plugin doesn't know anything
     'jsx-a11y/label-has-associated-control': [2, { controlComponents: ['button'] }],
     'no-param-reassign': 'error',
