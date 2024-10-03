@@ -18,7 +18,7 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 import { ReduceMotion } from './hooks/use-reduce-motion'
 // stripped out by rollup in production
 import { startMockAPI } from './msw-mock-api'
-import { routes } from './routes'
+import { routes } from './routes-old'
 // this is the only allowed css import
 // eslint-disable-next-line no-restricted-imports
 import '~/ui/styles/index.css'

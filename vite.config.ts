@@ -7,6 +7,7 @@
  */
 import { randomBytes } from 'crypto'
 import { resolve } from 'path'
+import { reactRouter } from '@react-router/dev/vite'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 import react from '@vitejs/plugin-react-swc'
 import { defineConfig } from 'vite'
@@ -117,6 +118,7 @@ export default defineConfig(({ mode }) => ({
       },
     }),
     react(),
+    reactRouter({ ssr: false }),
     apiMode === 'dogfood' && basicSsl(),
   ],
   html: {
