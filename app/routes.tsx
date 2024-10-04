@@ -68,6 +68,7 @@ import { InstancesPage } from './pages/project/instances/InstancesPage'
 import { SnapshotsPage } from './pages/project/snapshots/SnapshotsPage'
 import { RouterPage } from './pages/project/vpcs/RouterPage'
 import { VpcFirewallRulesTab } from './pages/project/vpcs/VpcPage/tabs/VpcFirewallRulesTab'
+import { VpcInternetGatewaysTab } from './pages/project/vpcs/VpcPage/tabs/VpcGatewaysTab'
 import { VpcRoutersTab } from './pages/project/vpcs/VpcPage/tabs/VpcRoutersTab'
 import { VpcSubnetsTab } from './pages/project/vpcs/VpcPage/tabs/VpcSubnetsTab'
 import { VpcPage } from './pages/project/vpcs/VpcPage/VpcPage'
@@ -410,6 +411,16 @@ export const routes = createRoutesFromElements(
                   path="routers-new"
                   element={<CreateRouterSideModalForm />}
                   handle={{ crumb: 'New Router' }}
+                />
+              </Route>
+              <Route
+                element={<VpcInternetGatewaysTab />}
+                loader={VpcInternetGatewaysTab.loader}
+              >
+                <Route
+                  path="internet-gateways"
+                  handle={{ crumb: 'Internet gateways' }}
+                  element={null}
                 />
               </Route>
             </Route>

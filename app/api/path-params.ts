@@ -19,6 +19,7 @@ export type VpcRouter = Merge<Vpc, { router?: string }>
 export type VpcRouterRoute = Merge<VpcRouter, { route?: string }>
 export type VpcSubnet = Merge<Vpc, { subnet?: string }>
 export type FirewallRule = Merge<Vpc, { rule?: string }>
+export type InternetGateway = Merge<Vpc, { gateway?: string }>
 export type Silo = { silo?: string }
 export type IdentityProvider = Merge<Silo, { provider: string }>
 export type SystemUpdate = { version: string }

@@ -1155,6 +1155,11 @@ export const handlers = makeHandlers({
 
     return { rules: R.sortBy(rules, (r) => r.name) }
   },
+  internetGatewayList({ query }) {
+    const vpc = lookup.vpc(query)
+    const gateways = db.internetGateways.filter((g) => g.vpc_id === vpc.id)
+    return paginated(query, gateways)
+  },
   vpcRouterList({ query }) {
     const vpc = lookup.vpc(query)
     const routers = db.vpcRouters.filter((r) => r.vpc_id === vpc.id)
@@ -1527,7 +1532,6 @@ export const handlers = makeHandlers({
   internetGatewayIpPoolList: NotImplemented,
   internetGatewayCreate: NotImplemented,
   internetGatewayDelete: NotImplemented,
-  internetGatewayList: NotImplemented,
   internetGatewayView: NotImplemented,
   ipPoolServiceRangeAdd: NotImplemented,
   ipPoolServiceRangeList: NotImplemented,

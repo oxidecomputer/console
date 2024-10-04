@@ -25,6 +25,7 @@ type FirewallRule = Required<PP.FirewallRule>
 type VpcRouter = Required<PP.VpcRouter>
 type VpcRouterRoute = Required<PP.VpcRouterRoute>
 type VpcSubnet = Required<PP.VpcSubnet>
+type VpcInternetGateway = Required<PP.InternetGateway>
 
 // these are used as the basis for many routes but are not themselves routes we
 // ever want to link to. so we use this to build the routes but pb.project() is
@@ -96,6 +97,11 @@ export const pb = {
   vpcSubnets: (params: Vpc) => `${vpcBase(params)}/subnets`,
   vpcSubnetsNew: (params: Vpc) => `${vpcBase(params)}/subnets-new`,
   vpcSubnetsEdit: (params: VpcSubnet) => `${pb.vpcSubnets(params)}/${params.subnet}/edit`,
+
+  vpcInternetGateways: (params: Vpc) => `${vpcBase(params)}/internet-gateways`,
+  vpcInternetGateway: (params: VpcInternetGateway) =>
+    `${pb.vpcInternetGateways(params)}/${params.gateway}`,
+  vpcInternetGatewaysNew: (params: Vpc) => `${vpcBase(params)}/internet-gateways-new`,
 
   floatingIps: (params: Project) => `${projectBase(params)}/floating-ips`,
   floatingIpsNew: (params: Project) => `${projectBase(params)}/floating-ips-new`,
