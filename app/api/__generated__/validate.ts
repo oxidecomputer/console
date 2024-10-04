@@ -1646,6 +1646,14 @@ export const ImportBlocksBulkWrite = z.preprocess(
 )
 
 /**
+ * A policy determining when an instance should be automatically restarted by the control plane.
+ */
+export const InstanceAutoRestartPolicy = z.preprocess(
+  processResponseBody,
+  z.enum(['never', 'best_effort'])
+)
+
+/**
  * The number of CPUs in an Instance
  */
 export const InstanceCpuCount = z.preprocess(
@@ -1682,6 +1690,7 @@ export const Instance = z.preprocess(
   z.object({
     autoRestartCooldownExpiration: z.coerce.date().optional(),
     autoRestartEnabled: SafeBoolean,
+    autoRestartPolicy: InstanceAutoRestartPolicy.optional(),
     bootDiskId: z.string().uuid().optional(),
     description: z.string(),
     hostname: z.string(),
@@ -1696,14 +1705,6 @@ export const Instance = z.preprocess(
     timeModified: z.coerce.date(),
     timeRunStateUpdated: z.coerce.date(),
   })
-)
-
-/**
- * A policy determining when an instance should be automatically restarted by the control plane.
- */
-export const InstanceAutoRestartPolicy = z.preprocess(
-  processResponseBody,
-  z.enum(['never', 'best_effort'])
 )
 
 /**
@@ -1852,7 +1853,12 @@ export const InstanceSerialConsoleData = z.preprocess(
  */
 export const InstanceUpdate = z.preprocess(
   processResponseBody,
-  z.object({ bootDisk: NameOrId.optional() })
+  z.object({
+    autoRestartPolicy: InstanceAutoRestartPolicy.optional(),
+    bootDisk: NameOrId.optional(),
+    memory: ByteCount,
+    ncpus: InstanceCpuCount,
+  })
 )
 
 /**

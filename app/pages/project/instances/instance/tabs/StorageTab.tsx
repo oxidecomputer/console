@@ -145,6 +145,10 @@ export function StorageTab() {
     [disks.items, instance.bootDiskId]
   )
 
+  // Needed to keep them the same while setting boot disk.
+  // Extracted to keep dep array appropriately zealous.
+  const { ncpus, memory } = instance
+
   const makeBootDiskActions = useCallback(
     (disk: InstanceDisk): MenuAction[] => [
       getSnapshotAction(disk),
@@ -161,7 +165,7 @@ export function StorageTab() {
             doAction: () =>
               instanceUpdate({
                 path: { instance: instance.id },
-                body: { bootDisk: undefined },
+                body: { bootDisk: undefined, ncpus, memory },
               }),
             errorTitle: 'Could not unset boot disk',
             modalTitle: 'Confirm unset boot disk',
@@ -189,7 +193,7 @@ export function StorageTab() {
         onActivate() {}, // it's always disabled, so noop is ok
       },
     ],
-    [instanceUpdate, instance.id, getSnapshotAction]
+    [instanceUpdate, instance.id, getSnapshotAction, ncpus, memory]
   )
 
   const makeOtherDiskActions = useCallback(
@@ -210,7 +214,7 @@ export function StorageTab() {
             doAction: () =>
               instanceUpdate({
                 path: { instance: instance.id },
-                body: { bootDisk: disk.id },
+                body: { bootDisk: disk.id, ncpus, memory },
               }),
             errorTitle: `Could not ${verb} boot disk`,
             modalTitle: `Confirm ${verb} boot disk`,
@@ -245,7 +249,7 @@ export function StorageTab() {
         },
       },
     ],
-    [detachDisk, instanceUpdate, instance.id, getSnapshotAction, bootDisks]
+    [detachDisk, instanceUpdate, instance.id, getSnapshotAction, bootDisks, ncpus, memory]
   )
 
   const attachDisk = useApiMutation('instanceDiskAttach', {
