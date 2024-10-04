@@ -44,11 +44,29 @@
 
 :root {
   --content-gutter: 2.5rem;
+  --sidebar-width: 14.25rem;
+  --navigation-height: 3.75rem;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --content-gutter: 1.5rem;
+  }
 }
 
 @layer base {
+  html,
+  body,
+  #root {
+    @apply min-h-screen;
+  }
+
+  .msw-banner #content_pane {
+    @apply pb-10;
+  }
+
   body {
-    @apply overflow-y-hidden text-default bg-default;
+    @apply text-default bg-default;
     font-family:
       SuisseIntl,
       -apple-system,
