@@ -44,6 +44,7 @@ test('path builder', () => {
         "instanceConnect": "/projects/p/instances/i/connect",
         "instanceMetrics": "/projects/p/instances/i/metrics",
         "instanceNetworking": "/projects/p/instances/i/networking",
+        "instanceResize": "/projects/p/instances/i/resize",
         "instanceStorage": "/projects/p/instances/i/storage",
         "instances": "/projects/p/instances",
         "instancesNew": "/projects/p/instances-new",

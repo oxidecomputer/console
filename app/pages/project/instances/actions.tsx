@@ -118,10 +118,13 @@ export const useMakeInstanceActions = (
           ),
         },
         {
-          label: 'View serial console',
+          label: 'Resize',
           onActivate() {
-            navigate(pb.serialConsole(instanceSelector))
+            navigate(pb.instanceResize(instanceSelector))
           },
+          disabled: !instanceCan.update(instance) && (
+            <>Only {fancifyStates(instanceCan.update.states)} instances can be resized</>
+          ),
         },
         {
           label: 'Delete',
