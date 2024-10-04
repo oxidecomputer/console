@@ -1711,6 +1711,16 @@ export type ImageResultsPage = {
 export type ImportBlocksBulkWrite = { base64EncodedData: string; offset: number }
 
 /**
+ * A policy determining when an instance should be automatically restarted by the control plane.
+ */
+export type InstanceAutoRestartPolicy =
+  /** The instance should not be automatically restarted by the control plane if it fails. */
+  | 'never'
+
+  /** If this instance is running and unexpectedly fails (e.g. due to a host software crash or unexpected host reboot), the control plane will make a best-effort attempt to restart it. The control plane may choose not to restart the instance to preserve the overall availability of the system. */
+  | 'best_effort'
+
+/**
  * The number of CPUs in an Instance
  */
 export type InstanceCpuCount = number
@@ -1761,6 +1771,10 @@ If this is not present, then either the instance has never been automatically re
   autoRestartCooldownExpiration?: Date
   /** `true` if this instance's auto-restart policy will permit the control plane to automatically restart it if it enters the `Failed` state. */
   autoRestartEnabled: boolean
+  /** The auto-restart policy configured for this instance, or `None` if no explicit policy is configured.
+
+If this is not present, then this instance uses the default auto-restart policy, which may or may not allow it to be restarted. The `auto_restart_enabled` field indicates whether the instance will be automatically restarted. */
+  autoRestartPolicy?: InstanceAutoRestartPolicy
   /** the ID of the disk used to boot this Instance, if a specific one is assigned. */
   bootDiskId?: string
   /** human-readable free-form text about a resource */
@@ -1788,16 +1802,6 @@ If this is not present, then this instance has not been automatically restarted.
   timeModified: Date
   timeRunStateUpdated: Date
 }
-
-/**
- * A policy determining when an instance should be automatically restarted by the control plane.
- */
-export type InstanceAutoRestartPolicy =
-  /** The instance should not be automatically restarted by the control plane if it fails. */
-  | 'never'
-
-  /** If this instance is running and unexpectedly fails (e.g. due to a host software crash or unexpected host reboot), the control plane will make a best-effort attempt to restart it. The control plane may choose not to restart the instance to preserve the overall availability of the system. */
-  | 'best_effort'
 
 /**
  * Describe the instance's disks at creation time
@@ -1976,10 +1980,126 @@ export type InstanceSerialConsoleData = {
  * Parameters of an `Instance` that can be reconfigured after creation.
  */
 export type InstanceUpdate = {
+  /** The auto-restart policy for this instance.
+
+If not provided, unset the instance's auto-restart policy. */
+  autoRestartPolicy?: InstanceAutoRestartPolicy
   /** Name or ID of the disk the instance should be instructed to boot from.
 
 If not provided, unset the instance's boot disk. */
   bootDisk?: NameOrId
+}
+
+/**
+ * An internet gateway provides a path between VPC networks and external networks.
+ */
+export type InternetGateway = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  /** The VPC to which the gateway belongs. */
+  vpcId: string
+}
+
+/**
+ * Create-time parameters for an `InternetGateway`
+ */
+export type InternetGatewayCreate = { description: string; name: Name }
+
+/**
+ * An IP address that is attached to an internet gateway
+ */
+export type InternetGatewayIpAddress = {
+  /** The associated IP address, */
+  address: string
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** The associated internet gateway. */
+  internetGatewayId: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Create-time identity-related parameters
+ */
+export type InternetGatewayIpAddressCreate = {
+  address: string
+  description: string
+  gateway: NameOrId
+  name: Name
+}
+
+/**
+ * A single page of results
+ */
+export type InternetGatewayIpAddressResultsPage = {
+  /** list of items on this page of results */
+  items: InternetGatewayIpAddress[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * An IP pool that is attached to an internet gateway
+ */
+export type InternetGatewayIpPool = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** The associated internet gateway. */
+  internetGatewayId: string
+  /** The associated IP pool. */
+  ipPoolId: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Create-time identity-related parameters
+ */
+export type InternetGatewayIpPoolCreate = {
+  description: string
+  ipPool: NameOrId
+  name: Name
+}
+
+/**
+ * A single page of results
+ */
+export type InternetGatewayIpPoolResultsPage = {
+  /** list of items on this page of results */
+  items: InternetGatewayIpPool[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * A single page of results
+ */
+export type InternetGatewayResultsPage = {
+  /** list of items on this page of results */
+  items: InternetGateway[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
 }
 
 /**
@@ -4363,6 +4483,90 @@ export interface InstanceStopQueryParams {
   project?: NameOrId
 }
 
+export interface InternetGatewayIpAddressListQueryParams {
+  gateway?: NameOrId
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+  vpc?: NameOrId
+}
+
+export interface InternetGatewayIpAddressCreateQueryParams {
+  gateway: NameOrId
+  project?: NameOrId
+  vpc?: NameOrId
+}
+
+export interface InternetGatewayIpAddressDeletePathParams {
+  address: NameOrId
+}
+
+export interface InternetGatewayIpAddressDeleteQueryParams {
+  cascade?: boolean
+  gateway?: NameOrId
+  project?: NameOrId
+  vpc?: NameOrId
+}
+
+export interface InternetGatewayIpPoolListQueryParams {
+  gateway?: NameOrId
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+  vpc?: NameOrId
+}
+
+export interface InternetGatewayIpPoolCreateQueryParams {
+  gateway: NameOrId
+  project?: NameOrId
+  vpc?: NameOrId
+}
+
+export interface InternetGatewayIpPoolDeletePathParams {
+  pool: NameOrId
+}
+
+export interface InternetGatewayIpPoolDeleteQueryParams {
+  cascade?: boolean
+  gateway?: NameOrId
+  project?: NameOrId
+  vpc?: NameOrId
+}
+
+export interface InternetGatewayListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+  vpc?: NameOrId
+}
+
+export interface InternetGatewayCreateQueryParams {
+  project?: NameOrId
+  vpc: NameOrId
+}
+
+export interface InternetGatewayViewPathParams {
+  gateway: NameOrId
+}
+
+export interface InternetGatewayViewQueryParams {
+  project?: NameOrId
+  vpc?: NameOrId
+}
+
+export interface InternetGatewayDeletePathParams {
+  gateway: NameOrId
+}
+
+export interface InternetGatewayDeleteQueryParams {
+  cascade?: boolean
+  project?: NameOrId
+  vpc?: NameOrId
+}
+
 export interface ProjectIpPoolListQueryParams {
   limit?: number
   pageToken?: string
@@ -5103,6 +5307,9 @@ export type ApiListMethods = Pick<
   | 'instanceDiskList'
   | 'instanceExternalIpList'
   | 'instanceSshPublicKeyList'
+  | 'internetGatewayIpAddressList'
+  | 'internetGatewayIpPoolList'
+  | 'internetGatewayList'
   | 'projectIpPoolList'
   | 'currentUserSshKeyList'
   | 'instanceNetworkInterfaceList'
@@ -5994,6 +6201,185 @@ export class Api extends HttpClient {
       return this.request<Instance>({
         path: `/v1/instances/${path.instance}/stop`,
         method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List addresses attached to an internet gateway.
+     */
+    internetGatewayIpAddressList: (
+      { query = {} }: { query?: InternetGatewayIpAddressListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<InternetGatewayIpAddressResultsPage>({
+        path: `/v1/internet-gateway-ip-addresses`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Attach ip pool to internet gateway
+     */
+    internetGatewayIpAddressCreate: (
+      {
+        query,
+        body,
+      }: {
+        query: InternetGatewayIpAddressCreateQueryParams
+        body: InternetGatewayIpAddressCreate
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<InternetGatewayIpAddress>({
+        path: `/v1/internet-gateway-ip-addresses`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Detach ip pool from internet gateway
+     */
+    internetGatewayIpAddressDelete: (
+      {
+        path,
+        query = {},
+      }: {
+        path: InternetGatewayIpAddressDeletePathParams
+        query?: InternetGatewayIpAddressDeleteQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/internet-gateway-ip-addresses/${path.address}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List IP pools attached to an internet gateway.
+     */
+    internetGatewayIpPoolList: (
+      { query = {} }: { query?: InternetGatewayIpPoolListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<InternetGatewayIpPoolResultsPage>({
+        path: `/v1/internet-gateway-ip-pools`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Attach ip pool to internet gateway
+     */
+    internetGatewayIpPoolCreate: (
+      {
+        query,
+        body,
+      }: {
+        query: InternetGatewayIpPoolCreateQueryParams
+        body: InternetGatewayIpPoolCreate
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<InternetGatewayIpPool>({
+        path: `/v1/internet-gateway-ip-pools`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Detach ip pool from internet gateway
+     */
+    internetGatewayIpPoolDelete: (
+      {
+        path,
+        query = {},
+      }: {
+        path: InternetGatewayIpPoolDeletePathParams
+        query?: InternetGatewayIpPoolDeleteQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/internet-gateway-ip-pools/${path.pool}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List internet gateways
+     */
+    internetGatewayList: (
+      { query = {} }: { query?: InternetGatewayListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<InternetGatewayResultsPage>({
+        path: `/v1/internet-gateways`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create VPC internet gateway
+     */
+    internetGatewayCreate: (
+      {
+        query,
+        body,
+      }: { query: InternetGatewayCreateQueryParams; body: InternetGatewayCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<InternetGateway>({
+        path: `/v1/internet-gateways`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch internet gateway
+     */
+    internetGatewayView: (
+      {
+        path,
+        query = {},
+      }: { path: InternetGatewayViewPathParams; query?: InternetGatewayViewQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<InternetGateway>({
+        path: `/v1/internet-gateways/${path.gateway}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete internet gateway
+     */
+    internetGatewayDelete: (
+      {
+        path,
+        query = {},
+      }: {
+        path: InternetGatewayDeletePathParams
+        query?: InternetGatewayDeleteQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/internet-gateways/${path.gateway}`,
+        method: 'DELETE',
         query,
         ...params,
       })
