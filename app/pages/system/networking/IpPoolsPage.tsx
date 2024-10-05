@@ -13,19 +13,17 @@ import { Outlet, useNavigate } from 'react-router-dom'
 import {
   apiQueryClient,
   useApiMutation,
-  useApiQuery,
   usePrefetchedApiQuery,
   type IpPool,
 } from '@oxide/api'
 import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
-import { IpUtilCell } from '~/components/IpPoolUtilization'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
+import { UtilizationCell } from '~/table/cells/UtilizationCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
@@ -45,13 +43,6 @@ const EmptyState = () => (
     buttonTo={pb.ipPoolsNew()}
   />
 )
-
-function UtilizationCell({ pool }: { pool: string }) {
-  const { data } = useApiQuery('ipPoolUtilizationView', { path: { pool } })
-
-  if (!data) return <SkeletonCell />
-  return <IpUtilCell {...data} />
-}
 
 const colHelper = createColumnHelper<IpPool>()
 

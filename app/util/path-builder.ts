@@ -102,6 +102,10 @@ export const pb = {
   vpcInternetGateway: (params: VpcInternetGateway) =>
     `${pb.vpcInternetGateways(params)}/${params.gateway}`,
   vpcInternetGatewaysNew: (params: Vpc) => `${vpcBase(params)}/internet-gateways-new`,
+  vpcInternetGatewayIpPools: (params: VpcInternetGateway) =>
+    `${pb.vpcInternetGateway(params)}/ip-pools`,
+  vpcInternetGatewayIpAddresses: (params: VpcInternetGateway) =>
+    `${pb.vpcInternetGateway(params)}/ip-addresses`,
 
   floatingIps: (params: Project) => `${projectBase(params)}/floating-ips`,
   floatingIpsNew: (params: Project) => `${projectBase(params)}/floating-ips-new`,
