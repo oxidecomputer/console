@@ -6,10 +6,17 @@
  * Copyright Oxide Computer Company
  */
 
+import { createColumnHelper } from '@tanstack/react-table'
+import { useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient } from '~/api'
+import { apiQueryClient, type InternetGatewayIpAddress } from '~/api'
 import { getInternetGatewaySelector, useInternetGatewaySelector } from '~/hooks/use-params'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { Columns } from '~/table/columns/common'
+import { useQueryTable } from '~/table/QueryTable'
+import { CopyableIp } from '~/ui/lib/CopyableIp'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { ALL_ISH } from '~/util/consts'
 
 InternetGatewayIpAddressesTab.loader = async function ({ params }: LoaderFunctionArgs) {
@@ -22,10 +29,35 @@ InternetGatewayIpAddressesTab.loader = async function ({ params }: LoaderFunctio
   return null
 }
 
+const colHelper = createColumnHelper<InternetGatewayIpAddress>()
+
 export function InternetGatewayIpAddressesTab() {
-  const gatewaySelector = useInternetGatewaySelector()
-  const { project, vpc, gateway } = gatewaySelector
-  // const query = { project, vpc, limit: ALL_ISH }
-  console.log({ project, vpc, gateway })
-  return <>IP Addresses stuff will go here</>
+  const { project, vpc, gateway } = useInternetGatewaySelector()
+  const { Table } = useQueryTable('internetGatewayIpAddressList', {
+    query: { project, vpc, gateway, limit: ALL_ISH },
+  })
+
+  const emptyState = (
+    <EmptyMessage
+      title="No Internet Gateway IP Pools"
+      body="Use the CLI to add an IP pool to this internet gateway to see it here."
+    />
+  )
+
+  const staticColumns = useMemo(
+    () => [
+      colHelper.accessor('name', {}),
+      colHelper.accessor('description', Columns.description),
+      colHelper.accessor('address', {
+        header: 'Address',
+        cell: (info) => <CopyableIp ip={info.getValue()} isLinked={false} />,
+      }),
+    ],
+    []
+  )
+
+  const makeActions = (): MenuAction[] => []
+
+  const columns = useColsWithActions(staticColumns, makeActions)
+  return <Table columns={columns} emptyState={emptyState} />
 }

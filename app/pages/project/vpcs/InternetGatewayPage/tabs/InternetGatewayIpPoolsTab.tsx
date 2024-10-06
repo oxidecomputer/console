@@ -94,9 +94,5 @@ export function InternetGatewayIpPoolsTab() {
   )
 
   const columns = useColsWithActions(staticColumns, makeActions)
-  return (
-    <>
-      <Table columns={columns} emptyState={emptyState} />
-    </>
-  )
+  return <Table columns={columns} emptyState={emptyState} />
 }
