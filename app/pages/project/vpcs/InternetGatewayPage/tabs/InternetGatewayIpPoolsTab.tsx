@@ -7,7 +7,7 @@
  */
 
 import { createColumnHelper } from '@tanstack/react-table'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery, type InternetGatewayIpPool } from '~/api'
@@ -15,6 +15,7 @@ import { getInternetGatewaySelector, useInternetGatewaySelector } from '~/hooks/
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { UtilizationCell } from '~/table/cells/UtilizationCell'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -79,15 +80,23 @@ export function InternetGatewayIpPoolsTab() {
     [ipPools]
   )
 
-  //   const makeActions = (info) => {
-  //     return [
-  //         <RowActions id={silo.siloId} copyIdLabel="Copy silo ID" />
-  //     ]
-  //   }
+  // The user can copy the ID of the IP Pool attached to this internet gateway
+  const makeActions = useCallback(
+    (internetGatewayIpPool: InternetGatewayIpPool): MenuAction[] => [
+      {
+        label: 'Copy IP pool ID',
+        onActivate() {
+          window.navigator.clipboard.writeText(internetGatewayIpPool.ipPoolId)
+        },
+      },
+    ],
+    []
+  )
 
+  const columns = useColsWithActions(staticColumns, makeActions)
   return (
     <>
-      <Table columns={staticColumns} emptyState={emptyState} />
+      <Table columns={columns} emptyState={emptyState} />
     </>
   )
 }
