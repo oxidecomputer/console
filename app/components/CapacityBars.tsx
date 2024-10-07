@@ -9,7 +9,7 @@
 import type { VirtualResourceCounts } from '@oxide/api'
 import { Cpu16Icon, Ram16Icon, Ssd16Icon } from '@oxide/design-system/icons/react'
 
-import { bytesToSpecificUnit, getUnits } from '~/util/units'
+import { bytesToSpecificUnit, getUnit } from '~/util/units'
 
 import { CapacityBar } from './CapacityBar'
 
@@ -23,14 +23,14 @@ export const CapacityBars = ({
   allocatedLabel: string
 }) => {
   // These will most likely be GiB, but calculating dynamically to handle larger configurations in the future
-  const memoryUnits = getUnits(Math.max(provisioned.memory, allocated.memory))
-  const provisionedMemory = bytesToSpecificUnit(provisioned.memory, memoryUnits)
-  const allocatedMemory = bytesToSpecificUnit(allocated.memory, memoryUnits)
+  const memoryUnit = getUnit(Math.max(provisioned.memory, allocated.memory))
+  const provisionedMemory = bytesToSpecificUnit(provisioned.memory, memoryUnit)
+  const allocatedMemory = bytesToSpecificUnit(allocated.memory, memoryUnit)
 
   // These will most likely be TiB, but calculating dynamically for the same reason as above
-  const storageUnits = getUnits(Math.max(provisioned.storage, allocated.storage))
-  const provisionedStorage = bytesToSpecificUnit(provisioned.storage, storageUnits)
-  const allocatedStorage = bytesToSpecificUnit(allocated.storage, storageUnits)
+  const storageUnit = getUnit(Math.max(provisioned.storage, allocated.storage))
+  const provisionedStorage = bytesToSpecificUnit(provisioned.storage, storageUnit)
+  const allocatedStorage = bytesToSpecificUnit(allocated.storage, storageUnit)
 
   return (
     <div className="mb-12 flex min-w-min flex-col gap-3 lg+:flex-row">
@@ -46,7 +46,7 @@ export const CapacityBars = ({
       <CapacityBar
         icon={<Ram16Icon />}
         title="MEMORY"
-        unit={memoryUnits}
+        unit={memoryUnit}
         provisioned={provisionedMemory}
         capacity={allocatedMemory}
         capacityLabel={allocatedLabel}
@@ -54,7 +54,7 @@ export const CapacityBars = ({
       <CapacityBar
         icon={<Ssd16Icon />}
         title="STORAGE"
-        unit={storageUnits}
+        unit={storageUnit}
         provisioned={provisionedStorage}
         capacity={allocatedStorage}
         capacityLabel={allocatedLabel}

@@ -14,6 +14,7 @@ import {
   FLEET_ID,
   totalUtilization,
   usePrefetchedApiQuery,
+  type SiloUtilization,
 } from '@oxide/api'
 import { Metrics16Icon, Metrics24Icon } from '@oxide/design-system/icons/react'
 
@@ -33,7 +34,7 @@ import { Tabs } from '~/ui/lib/Tabs'
 import { docLinks } from '~/util/links'
 import { round } from '~/util/math'
 import { pb } from '~/util/path-builder'
-import { bytesToGiB, bytesToTiB } from '~/util/units'
+import { bytesToGiB, bytesToSpecificUnit, bytesToTiB, getUnit } from '~/util/units'
 
 SystemUtilizationPage.loader = async () => {
   await Promise.all([
@@ -189,44 +190,22 @@ function UsageTab() {
               <LinkCell to={pb.silo({ silo: silo.siloName })}>{silo.siloName}</LinkCell>
             </Table.Cell>
             <Table.Cell width="14%" height="large">
-              <UsageCell
-                provisioned={silo.provisioned.cpus}
-                allocated={silo.allocated.cpus}
-              />
+              {getUsageCellForSilo(silo, 'cpus')}
             </Table.Cell>
             <Table.Cell width="14%" height="large">
-              <UsageCell
-                provisioned={bytesToGiB(silo.provisioned.memory)}
-                allocated={bytesToGiB(silo.allocated.memory)}
-                unit="GiB"
-              />
+              {getUsageCellForSilo(silo, 'memory')}
             </Table.Cell>
             <Table.Cell width="14%" height="large">
-              <UsageCell
-                provisioned={bytesToTiB(silo.provisioned.storage)}
-                allocated={bytesToTiB(silo.allocated.storage)}
-                unit="TiB"
-              />
+              {getUsageCellForSilo(silo, 'storage')}
             </Table.Cell>
             <Table.Cell width="14%" className="relative" height="large">
-              <AvailableCell
-                provisioned={silo.provisioned.cpus}
-                allocated={silo.allocated.cpus}
-              />
+              {getAvailableCellForSilo(silo, 'cpus')}
             </Table.Cell>
             <Table.Cell width="14%" className="relative" height="large">
-              <AvailableCell
-                provisioned={bytesToGiB(silo.provisioned.memory)}
-                allocated={bytesToGiB(silo.allocated.memory)}
-                unit="GiB"
-              />
+              {getAvailableCellForSilo(silo, 'memory')}
             </Table.Cell>
             <Table.Cell width="14%" className="relative" height="large">
-              <AvailableCell
-                provisioned={bytesToTiB(silo.provisioned.storage)}
-                allocated={bytesToTiB(silo.allocated.storage)}
-                unit="TiB"
-              />
+              {getAvailableCellForSilo(silo, 'storage')}
             </Table.Cell>
             <Table.Cell className="action-col w-10 children:p-0" height="large">
               <RowActions id={silo.siloId} copyIdLabel="Copy silo ID" />
@@ -257,6 +236,28 @@ const UsageCell = ({
   </div>
 )
 
+const getUsageCellForSilo = (
+  silo: SiloUtilization,
+  resource: 'cpus' | 'memory' | 'storage'
+) => {
+  if (resource === 'cpus') {
+    return (
+      <UsageCell
+        provisioned={silo.provisioned[resource]}
+        allocated={silo.allocated[resource]}
+      />
+    )
+  }
+  const unit = getUnit(Math.max(silo.provisioned[resource], silo.allocated[resource]))
+  return (
+    <UsageCell
+      provisioned={bytesToSpecificUnit(silo.provisioned[resource], unit)}
+      allocated={bytesToSpecificUnit(silo.allocated[resource], unit)}
+      unit={unit}
+    />
+  )
+}
+
 const AvailableCell = ({
   provisioned,
   allocated,
@@ -280,5 +281,28 @@ const AvailableCell = ({
         </div>
       )}
     </div>
+  )
+}
+
+const getAvailableCellForSilo = (
+  silo: SiloUtilization,
+  resource: 'cpus' | 'memory' | 'storage'
+) => {
+  if (resource === 'cpus') {
+    return (
+      <AvailableCell
+        provisioned={silo.provisioned[resource]}
+        allocated={silo.allocated[resource]}
+      />
+    )
+  }
+  // These will most likely be GiB, but calculating dynamically to handle larger configurations in the future
+  const unit = getUnit(Math.max(silo.provisioned[resource], silo.allocated[resource]))
+  return (
+    <AvailableCell
+      provisioned={bytesToSpecificUnit(silo.provisioned[resource], unit)}
+      allocated={bytesToSpecificUnit(silo.allocated[resource], unit)}
+      unit={unit}
+    />
   )
 }

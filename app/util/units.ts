@@ -7,6 +7,9 @@
  */
 import { round } from './math'
 
+// We only need to support up to TiB for now, but we can add more if needed
+type BinaryUnit = 'B' | 'KiB' | 'MiB' | 'GiB' | 'TiB' // | 'PiB' | 'EiB' | 'ZiB' | 'YiB'
+
 export const KiB = 1024
 export const MiB = 1024 * KiB
 export const GiB = 1024 * MiB
@@ -17,14 +20,9 @@ export const bytesToMiB = (b: number, digits = 2) => round(b / MiB, digits)
 export const bytesToGiB = (b: number, digits = 2) => round(b / GiB, digits)
 export const bytesToTiB = (b: number, digits = 2) => round(b / TiB, digits)
 
-type Unit = 'B' | 'KiB' | 'MiB' | 'GiB' | 'TiB'
-
-export type BytesToRationalNumber = {
-  number: number
-  unit: Unit
-}
-
-export const bytesToRationalNumber = (b: number, digits = 2) => {
+type BytesToReadableNumber = { number: number; unit: BinaryUnit }
+/** Takes a raw byte count and determines the appropriate unit to use in formatting it */
+export const bytesToReadableNumber = (b: number, digits = 2): BytesToReadableNumber => {
   if (b < 1024) {
     return { number: round(b, digits), unit: 'B' }
   }
@@ -45,19 +43,13 @@ export const bytesToRationalNumber = (b: number, digits = 2) => {
 
 // Used when we have multiple related numbers that might normally round to different units.
 // Once the proper "unified" unit base is established, all numbers can be converted to a specific unit.
-export const bytesToSpecificUnit = (b: number, unit: Unit, digits = 2) => {
-  if (unit === 'KiB') {
-    return bytesToKiB(b, digits)
-  }
-  if (unit === 'MiB') {
-    return bytesToMiB(b, digits)
-  }
-  if (unit === 'GiB') {
-    return bytesToGiB(b, digits)
-  }
-  if (unit === 'TiB') {
-    return bytesToTiB(b, digits)
-  }
-}
+export const bytesToSpecificUnit = (b: number, unit: BinaryUnit, digits = 2): number =>
+  ({
+    B: round(b, digits),
+    KiB: bytesToKiB(b, digits),
+    MiB: bytesToMiB(b, digits),
+    GiB: bytesToGiB(b, digits),
+    TiB: bytesToTiB(b, digits),
+  })[unit]
 
-export const getUnits = (number: number) => bytesToRationalNumber(number).unit
+export const getUnit = (bytes: number): BinaryUnit => bytesToReadableNumber(bytes).unit
