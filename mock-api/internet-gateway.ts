@@ -90,13 +90,33 @@ export const internetGatewayIpAddresses: Json<InternetGatewayIpAddress>[] = [
   internetGatewayIpAddress3,
 ]
 
-const [ipPool1, ipPool2, ipPool3] = ipPools
+const [defaultIpPool, ipPool1, ipPool2, ipPool3] = ipPools
+
+const defaultInternetGatewayIpPool1: Json<InternetGatewayIpPool> = {
+  id: '1d5e5a1f-0b2b-4d5b-8b9d-2d4b3e0c6gb9',
+  name: 'default',
+  description: 'Default internet gateway IP pool',
+  internet_gateway_id: internetGateway1.id,
+  ip_pool_id: defaultIpPool.id,
+  time_created,
+  time_modified,
+}
+
+const defaultInternetGatewayIpPool2: Json<InternetGatewayIpPool> = {
+  id: 'd5e5a1f1-0b2b-4d5b-8b9d-2d4b3e0c6b9c',
+  name: 'default',
+  description: 'Default internet gateway IP pool',
+  internet_gateway_id: internetGateway2.id,
+  ip_pool_id: defaultIpPool.id,
+  time_created,
+  time_modified,
+}
 
 const internetGatewayIpPool1: Json<InternetGatewayIpPool> = {
   id: 'f1d5e5a1-0b2b-4d5b-8b9d-2d4b3e0c6b9g',
   name: 'internet-gateway-ip-pool-1',
   description: 'an IP pool for an internet gateway',
-  internet_gateway_id: internetGateway1.id,
+  internet_gateway_id: internetGateway2.id,
   ip_pool_id: ipPool1.id,
   time_created,
   time_modified,
@@ -106,7 +126,7 @@ const internetGatewayIpPool2: Json<InternetGatewayIpPool> = {
   id: 'f1d5e5a1-0b2b-4d5b-8b9d-2d4b3e0c6b9h',
   name: 'internet-gateway-ip-pool-2',
   description: 'a set of VPN IPs in an IP pool for an internet gateway',
-  internet_gateway_id: internetGateway1.id,
+  internet_gateway_id: internetGateway2.id,
   ip_pool_id: ipPool2.id,
   time_created,
   time_modified,
@@ -123,6 +143,8 @@ const internetGatewayIpPool3: Json<InternetGatewayIpPool> = {
 }
 
 export const internetGatewayIpPools: Json<InternetGatewayIpPool>[] = [
+  defaultInternetGatewayIpPool1,
+  defaultInternetGatewayIpPool2,
   internetGatewayIpPool1,
   internetGatewayIpPool2,
   internetGatewayIpPool3,

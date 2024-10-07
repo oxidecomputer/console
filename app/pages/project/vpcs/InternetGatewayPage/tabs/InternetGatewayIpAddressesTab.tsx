@@ -39,8 +39,8 @@ export function InternetGatewayIpAddressesTab() {
 
   const emptyState = (
     <EmptyMessage
-      title="No Internet Gateway IP Pools"
-      body="Use the CLI to add an IP pool to this internet gateway to see it here."
+      title="No Internet Gateway IP Addresses"
+      body="Use the CLI to add an IP address to this internet gateway to see it here."
     />
   )
 
