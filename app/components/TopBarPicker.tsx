@@ -17,6 +17,7 @@ import {
 
 import {
   useInstanceSelector,
+  useInternetGatewaySelector,
   useIpPoolSelector,
   useSiloSelector,
   useVpcRouterSelector,
@@ -291,6 +292,29 @@ export function VpcRouterPicker() {
       current={router}
       items={items}
       noItemsText="No routers found"
+    />
+  )
+}
+
+/** Used when drilling down into a VPC Internet Gateway from the Silo view. */
+export function VpcGatewayPicker() {
+  // picker only shows up when an internet gateway is in scope
+  const { project, vpc, gateway } = useInternetGatewaySelector()
+  const { data } = useApiQuery('internetGatewayList', {
+    query: { project, vpc, limit: PAGE_SIZE },
+  })
+  const items = (data?.items || []).map((g) => ({
+    label: g.name,
+    to: pb.vpcInternetGateway({ vpc, project, gateway: g.name }),
+  }))
+
+  return (
+    <TopBarPicker
+      aria-label="Switch internet gateway"
+      category="internet gateway"
+      current={gateway}
+      items={items}
+      noItemsText="No internet gateways found"
     />
   )
 }
