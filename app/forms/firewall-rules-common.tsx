@@ -34,6 +34,7 @@ import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
 import { useVpcSelector } from '~/hooks/use-params'
 import { Badge } from '~/ui/lib/Badge'
+import { toComboboxItems, type ComboboxItem } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
 import * as MiniTable from '~/ui/lib/MiniTable'
@@ -99,7 +100,7 @@ const DynamicTypeAndValueFields = ({
   sectionType: 'target' | 'host'
   control: Control<TargetAndHostFormValues>
   valueType: TargetAndHostFilterType
-  items: Array<{ value: string; label: string }>
+  items: Array<ComboboxItem>
   disabled?: boolean
   onInputChange?: (value: string) => void
   onTypeChange: () => void
@@ -204,8 +205,8 @@ const TypeAndValueTable = ({ sectionType, items }: TypeAndValueTableProps) => (
   </MiniTable.Table>
 )
 
-// Given an array of committed items (VPCs, Subnets, Instances) and
-// a list of all items, return the items that are available
+/** Given an array of *committed* items (VPCs, Subnets, Instances) and a list of *all* items,
+ *  return the items that are available */
 const availableItems = (
   committedItems: Array<VpcFirewallRuleTarget | VpcFirewallRuleHostFilter>,
   itemType: 'vpc' | 'subnet' | 'instance',
@@ -214,13 +215,11 @@ const availableItems = (
   if (!items) return []
   return (
     items
-      .map((item) => item.name)
       // remove any items that match the committed items on both type and value
       .filter(
-        (name) =>
+        ({ name }) =>
           !committedItems.filter((ci) => ci.type === itemType && ci.value === name).length
       )
-      .map((name) => ({ label: name, value: name }))
   )
 }
 
@@ -434,7 +433,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           sectionType="target"
           control={targetForm.control}
           valueType={targetType}
-          items={targetItems[targetType]}
+          items={toComboboxItems(targetItems[targetType])}
           // HACK: reset the whole subform, keeping type (because we just set
           // it). most importantly, this resets isSubmitted so the form can go
           // back to validating on submit instead of change
@@ -546,7 +545,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           sectionType="host"
           control={hostForm.control}
           valueType={hostType}
-          items={hostFilterItems[hostType]}
+          items={toComboboxItems(hostFilterItems[hostType])}
           // HACK: reset the whole subform, keeping type (because we just set
           // it). most importantly, this resets isSubmitted so the form can go
           // back to validating on submit instead of change

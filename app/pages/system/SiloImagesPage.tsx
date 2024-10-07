@@ -21,7 +21,7 @@ import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
-import { toListboxItem } from '~/components/form/fields/ImageSelectField'
+import { toImageComboboxItem } from '~/components/form/fields/ImageSelectField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -30,6 +30,7 @@ import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { Button } from '~/ui/lib/Button'
+import { toComboboxItems } from '~/ui/lib/Combobox'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
@@ -140,10 +141,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
   })
 
   const projects = useApiQuery('projectList', {})
-  const projectItems = useMemo(
-    () => (projects.data?.items || []).map(({ name }) => ({ value: name, label: name })),
-    [projects.data]
-  )
+  const projectItems = useMemo(() => toComboboxItems(projects.data?.items), [projects.data])
   const selectedProject = watch('project')
 
   // can only fetch images if a project is selected
@@ -153,7 +151,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
     { enabled: !!selectedProject }
   )
   const imageItems = useMemo(
-    () => (images.data?.items || []).map((i) => toListboxItem(i)),
+    () => (images.data?.items || []).map((i) => toImageComboboxItem(i)),
     [images.data]
   )
 
@@ -242,10 +240,7 @@ const DemoteImageModal = ({
   }
 
   const projects = useApiQuery('projectList', {})
-  const projectItems = useMemo(
-    () => (projects.data?.items || []).map(({ name }) => ({ value: name, label: name })),
-    [projects.data]
-  )
+  const projectItems = useMemo(() => toComboboxItems(projects.data?.items), [projects.data])
 
   return (
     <Modal isOpen onDismiss={onDismiss} title="Demote image">

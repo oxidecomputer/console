@@ -12,19 +12,20 @@ import {
   expectNotVisible,
   expectRowVisible,
   expectVisible,
+  selectOption,
   test,
   type Page,
 } from './utils'
 
 const selectASiloImage = async (page: Page, name: string) => {
   await page.getByRole('tab', { name: 'Silo images' }).click()
-  await page.getByLabel('Image', { exact: true }).click()
+  await page.getByPlaceholder('Select a silo image', { exact: true }).click()
   await page.getByRole('option', { name }).click()
 }
 
 const selectAProjectImage = async (page: Page, name: string) => {
   await page.getByRole('tab', { name: 'Project images' }).click()
-  await page.getByLabel('Image', { exact: true }).click()
+  await page.getByPlaceholder('Select a project image', { exact: true }).click()
   await page.getByRole('option', { name }).click()
 }
 
@@ -356,21 +357,24 @@ test('additional disks do not list committed disks as available', async ({ page 
 
 test('maintains selected values even when changing tabs', async ({ page }) => {
   const instanceName = 'arch-based-instance'
+  const arch = 'arch-2022-06-01'
   await page.goto('/projects/mock-project/instances-new')
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-  await page.getByRole('button', { name: 'Image' }).click()
-  // select the arch option
-  await page.getByRole('option', { name: 'arch-2022-06-01' }).click()
+  const imageSelectCombobox = page.getByRole('combobox', { name: 'Image' })
+  // Filter the combobox for a particular silo image
+  await imageSelectCombobox.fill('arch')
+  // select the image
+  await page.getByRole('option', { name: arch }).click()
   // expect to find name of the image on page
-  await expect(page.getByText('arch-2022-06-01')).toBeVisible()
+  await expect(imageSelectCombobox).toHaveValue(arch)
   // change to a different tab
   await page.getByRole('tab', { name: 'Existing disks' }).click()
   // the image should no longer be visible
-  await expect(page.getByText('arch-2022-06-01')).toBeHidden()
+  await expect(imageSelectCombobox).toBeHidden()
   // change back to the tab with the image
   await page.getByRole('tab', { name: 'Silo images' }).click()
   // arch should still be selected
-  await expect(page.getByText('arch-2022-06-01')).toBeVisible()
+  await expect(imageSelectCombobox).toHaveValue(arch)
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
   await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=8 GiB'])
@@ -491,7 +495,7 @@ test('attaching additional disks allows for combobox filtering', async ({ page }
 
   // now options hidden and only the selected one is visible in the button/input
   await expect(page.getByRole('option')).toBeHidden()
-  await expect(page.getByRole('button', { name: 'disk-0102' })).toBeVisible()
+  await expect(page.getByRole('combobox', { name: 'Disk name' })).toHaveValue('disk-0102')
 
   // a random string should give a disabled option
   await selectADisk.click()
@@ -518,8 +522,7 @@ test('create instance with additional disks', async ({ page }) => {
 
   // Attach an existing disk
   await page.getByRole('button', { name: 'Attach existing disk' }).click()
-  await page.getByRole('button', { name: 'Disk name' }).click()
-  await page.getByRole('option', { name: 'disk-3' }).click()
+  await selectOption(page, 'Disk name', 'disk-3')
   await page.getByRole('button', { name: 'Attach disk' }).click()
 
   await expectRowVisible(disksTable, { Name: 'disk-3', Type: 'attach', Size: '—' })
