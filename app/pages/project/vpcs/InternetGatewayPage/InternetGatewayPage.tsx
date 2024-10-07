@@ -77,10 +77,13 @@ export function InternetGatewayPage() {
           <MoreActionsMenu label="VPC actions" actions={actions} />
         </div>
       </PageHeader>
-      <PropertiesTable.Group className="mb-16">
+      <PropertiesTable.Group className="mb-8">
         <PropertiesTable>
           <PropertiesTable.Row label="Description">
             <DescriptionCell text={description} />
+          </PropertiesTable.Row>
+          <PropertiesTable.Row label="ID">
+            <DescriptionCell text={id} />
           </PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
@@ -94,13 +97,14 @@ export function InternetGatewayPage() {
       </PropertiesTable.Group>
 
       <Message
-        variant="notice"
-        className="mt-4"
+        variant="info"
+        className="mb-4 text-balance"
         content={
           <>
-            This is a read-only copy of this internet gateway. Use the CLI to create and
-            update internet gateways. More functionality for internet gateways will be
-            included in future releases of the Oxide console.
+            This is a read-only copy of this internet gateway and its IP pools and
+            addresses. Use the CLI to create and update internet gateways. More
+            functionality for internet gateways will be included in future releases of the
+            Oxide console.
           </>
         }
       />
