@@ -21,6 +21,7 @@ import { DateTime } from '~/ui/lib/DateTime'
 import { Message } from '~/ui/lib/Message'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { Truncate } from '~/ui/lib/Truncate'
 import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
@@ -83,7 +84,7 @@ export function InternetGatewayPage() {
             <DescriptionCell text={description} />
           </PropertiesTable.Row>
           <PropertiesTable.Row label="ID">
-            <DescriptionCell text={id} />
+            <Truncate text={id} maxLength={32} hasCopyButton />
           </PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
