@@ -398,9 +398,10 @@ test('does not attach an ephemeral IP when the checkbox is unchecked', async ({ 
 
 test('attaches a floating IP; disables button when no IPs available', async ({ page }) => {
   const attachFloatingIpButton = page.getByRole('button', { name: 'Attach floating IP' })
-  const selectFloatingIpButton = page.getByRole('button', { name: 'Select a floating ip' })
+  const dialog = page.getByRole('dialog')
+  const selectFloatingIpButton = dialog.getByRole('button', { name: 'Floating IP' })
   const rootbeerFloatOption = page.getByRole('option', { name: 'rootbeer-float' })
-  const attachButton = page.getByRole('button', { name: 'Attach', exact: true })
+  const attachButton = dialog.getByRole('button', { name: 'Attach', exact: true })
 
   const instanceName = 'with-floating-ip'
   await page.goto('/projects/mock-project/instances-new')
