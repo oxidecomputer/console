@@ -81,7 +81,6 @@ export const Listbox = <Value extends string = string>({
       >
         {({ open }) => (
           <>
-            {/* {label && <DropdownLabelAndDescription label={label} description={description} id={id} />} */}
             {label && (
               <div className="mb-2">
                 <FieldLabel
