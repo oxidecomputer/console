@@ -23,7 +23,7 @@ import { Message } from '~/ui/lib/Message'
 import { Table } from '~/ui/lib/Table'
 import { classed } from '~/util/classed'
 import { links } from '~/util/links'
-import { bytesToGiB, GiB } from '~/util/units'
+import { bytesToGiB, GiB, useConvertBytesToSpecificUnit, useGetUnit } from '~/util/units'
 
 const Unit = classed.span`ml-1 text-tertiary`
 
@@ -34,6 +34,16 @@ export function SiloQuotasTab() {
   })
 
   const { allocated: quotas, provisioned } = utilization
+  const memoryUnits = useGetUnit(provisioned.memory, quotas.memory)
+  const provisionedMemory = useConvertBytesToSpecificUnit(provisioned.memory, memoryUnits)
+  const quotasMemory = useConvertBytesToSpecificUnit(quotas.memory, memoryUnits)
+
+  const storageUnits = useGetUnit(provisioned.storage, quotas.storage)
+  const provisionedStorage = useConvertBytesToSpecificUnit(
+    provisioned.storage,
+    storageUnits
+  )
+  const quotasStorage = useConvertBytesToSpecificUnit(quotas.storage, storageUnits)
 
   const [editing, setEditing] = useState(false)
 
@@ -60,19 +70,19 @@ export function SiloQuotasTab() {
           <Table.Row>
             <Table.Cell>Memory</Table.Cell>
             <Table.Cell>
-              {bytesToGiB(provisioned.memory)} <Unit>GiB</Unit>
+              {provisionedMemory} <Unit>{memoryUnits}</Unit>
             </Table.Cell>
             <Table.Cell>
-              {bytesToGiB(quotas.memory)} <Unit>GiB</Unit>
+              {quotasMemory} <Unit>{memoryUnits}</Unit>
             </Table.Cell>
           </Table.Row>
           <Table.Row>
             <Table.Cell>Storage</Table.Cell>
             <Table.Cell>
-              {bytesToGiB(provisioned.storage)} <Unit>GiB</Unit>
+              {provisionedStorage} <Unit>{storageUnits}</Unit>
             </Table.Cell>
             <Table.Cell>
-              {bytesToGiB(quotas.storage)} <Unit>GiB</Unit>
+              {quotasStorage} <Unit>{storageUnits}</Unit>
             </Table.Cell>
           </Table.Row>
         </Table.Body>

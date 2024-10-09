@@ -116,6 +116,37 @@ test.describe('Silo utilization', () => {
   })
 })
 
+test('Utilization shows correct units for CPU, memory, and storage', async ({ page }) => {
+  await page.goto('/system/utilization')
+
+  // Verify the original values for the Memory tile
+  await expect(page.getByText('Memory(GIB)')).toBeVisible()
+  await expect(page.getByText('Provisioned384 GiB')).toBeVisible()
+  await expect(page.getByText('Quota (Total)800 GiB')).toBeVisible()
+
+  // Navigate to the quotas tab
+  await page.goto('system/silos/maze-war?tab=quotas')
+
+  // Verify that there's a row for memory with the correct units
+  await expect(page.getByText('Memory234 GiB300 GiB')).toBeVisible()
+
+  // Edit the quota and verify the new value
+  await page.getByRole('button', { name: 'Edit quotas' }).click()
+  await page.getByRole('textbox', { name: 'Memory (GiB)' }).fill('3000')
+  await page.getByRole('button', { name: 'Update quotas' }).click()
+  // The table has been updated
+  await expect(page.getByText('Memory0.23 TiB2.93 TiB')).toBeVisible()
+
+  // Navigate back to the utilization page without refreshing
+  await page.getByRole('link', { name: 'Utilization' }).click()
+  await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
+
+  // Verify the updated values for the Memory tile
+  await expect(page.getByText('Memory(TiB)')).toBeVisible()
+  await expect(page.getByText('Provisioned0.38 TiB')).toBeVisible()
+  await expect(page.getByText('Quota (Total)3.42 TiB')).toBeVisible()
+})
+
 // TODO: it would be nice to test that actual data shows up in the graphs and
 // the date range picker works as expected, but it's hard to do asserts about
 // the graphs because they're big SVGs, the data coming from MSW is randomized,
