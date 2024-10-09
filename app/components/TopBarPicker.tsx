@@ -19,6 +19,7 @@ import {
   useInstanceSelector,
   useIpPoolSelector,
   useSiloSelector,
+  useSledParams,
   useVpcRouterSelector,
   useVpcSelector,
 } from '~/hooks/use-params'
@@ -340,6 +341,28 @@ export function InstancePicker() {
       to={pb.instance({ project, instance })}
       items={items}
       noItemsText="No instances found"
+    />
+  )
+}
+
+export function SledPicker() {
+  // picker only shows up when a sled is in scope
+  const { sledId } = useSledParams()
+  const { data: sleds } = useApiQuery('sledList', {
+    query: { limit: PAGE_SIZE },
+  })
+  const items = (sleds?.items || []).map(({ id }) => ({
+    label: id,
+    to: pb.sled({ sledId: id }),
+  }))
+  return (
+    <TopBarPicker
+      aria-label="Switch sled"
+      category="Sled"
+      current={sledId}
+      to={pb.sled({ sledId })}
+      items={items}
+      noItemsText="No sleds found"
     />
   )
 }
