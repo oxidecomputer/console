@@ -12,11 +12,10 @@ import { EmptyCell } from './EmptyCell'
 
 export const IpPoolCell = ({ ipPoolId }: { ipPoolId: string }) => {
   const pool = useApiQuery('projectIpPoolView', { path: { pool: ipPoolId } }).data
-  return pool ? (
+  if (!pool) return <EmptyCell />
+  return (
     <Tooltip content={pool.description} placement="right">
       <span>{pool.name}</span>
     </Tooltip>
-  ) : (
-    <EmptyCell />
   )
 }
