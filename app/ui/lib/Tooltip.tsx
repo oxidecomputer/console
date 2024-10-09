@@ -39,7 +39,7 @@ export interface TooltipProps {
   /** The target the tooltip hovers near; can not be a raw string. */
   children?: ReactElement
   /** The text to appear on hover/focus */
-  content: string | React.ReactNode
+  content?: string | React.ReactNode
   /**
    * `undefined` means automatic, which means the tooltip will be placed in the
    * best position based on the available space. When any other placement is
@@ -85,6 +85,8 @@ export const Tooltip = forwardRef(
     })
 
     const zIndex = usePopoverZIndex()
+
+    if (!content) return child
 
     return (
       <>
