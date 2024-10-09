@@ -314,8 +314,8 @@ test('Quotas tab', async ({ page }) => {
   })
   await expectRowVisible(table, {
     Resource: 'Storage',
-    Provisioned: '4403.2 GiB',
-    Quota: '7168 GiB',
+    Provisioned: '4.3 TiB',
+    Quota: '7 TiB',
   })
 
   const sideModal = page.getByRole('dialog', { name: 'Edit quotas' })
