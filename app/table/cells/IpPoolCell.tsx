@@ -5,25 +5,17 @@
  *
  * Copyright Oxide Computer Company
  */
-import { type IpPool } from '~/api'
+import { useApiQuery } from '~/api'
 import { Tooltip } from '~/ui/lib/Tooltip'
 
 import { EmptyCell } from './EmptyCell'
 
-export const IpPoolCell = ({
-  ipPoolId,
-  ipPools,
-}: {
-  ipPoolId: string
-  ipPools: IpPool[]
-}) => {
-  const pool = ipPools.find((item) => item.id === ipPoolId)
+export const IpPoolCell = ({ ipPoolId }: { ipPoolId: string }) => {
+  const pool = useApiQuery('projectIpPoolView', { path: { pool: ipPoolId } }).data
   if (!pool) return <EmptyCell />
-  return pool.description ? (
+  return (
     <Tooltip content={pool.description} placement="right">
       <span>{pool.name}</span>
     </Tooltip>
-  ) : (
-    <>{pool.name}</>
   )
 }

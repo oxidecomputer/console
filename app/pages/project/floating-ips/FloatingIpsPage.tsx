@@ -61,6 +61,9 @@ FloatingIpsPage.loader = async ({ params }: LoaderFunctionArgs) => {
     apiQueryClient.prefetchQuery('instanceList', {
       query: { project },
     }),
+    // fetch IP Pools and preload into RQ cache so fetches by ID in
+    // IpPoolCell can be mostly instant yet gracefully fall back to
+    // fetching individually if we don't fetch them all here
     apiQueryClient
       .fetchQuery('projectIpPoolList', { query: { limit: ALL_ISH } })
       .then((pools) => {
@@ -77,6 +80,21 @@ FloatingIpsPage.loader = async ({ params }: LoaderFunctionArgs) => {
 }
 
 const colHelper = createColumnHelper<FloatingIp>()
+const staticCols = [
+  colHelper.accessor('name', {}),
+  colHelper.accessor('description', Columns.description),
+  colHelper.accessor('ip', {
+    header: 'IP address',
+  }),
+  colHelper.accessor('ipPoolId', {
+    header: 'IP pool',
+    cell: (info) => <IpPoolCell ipPoolId={info.getValue()} />,
+  }),
+  colHelper.accessor('instanceId', {
+    header: 'Attached to instance',
+    cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,
+  }),
+]
 
 export function FloatingIpsPage() {
   const [floatingIpToModify, setFloatingIpToModify] = useState<FloatingIp | null>(null)
@@ -85,26 +103,7 @@ export function FloatingIpsPage() {
   const { data: instances } = usePrefetchedApiQuery('instanceList', {
     query: { project },
   })
-  const { data: ipPools } = usePrefetchedApiQuery('projectIpPoolList', {
-    query: { limit: ALL_ISH },
-  })
   const navigate = useNavigate()
-
-  const staticCols = [
-    colHelper.accessor('name', {}),
-    colHelper.accessor('description', Columns.description),
-    colHelper.accessor('ip', {
-      header: 'IP address',
-    }),
-    colHelper.accessor('ipPoolId', {
-      cell: (info) => <IpPoolCell ipPoolId={info.getValue()} ipPools={ipPools.items} />,
-      header: 'IP pool',
-    }),
-    colHelper.accessor('instanceId', {
-      cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,
-      header: 'Attached to instance',
-    }),
-  ]
 
   const { mutateAsync: floatingIpDetach } = useApiMutation('floatingIpDetach', {
     onSuccess() {

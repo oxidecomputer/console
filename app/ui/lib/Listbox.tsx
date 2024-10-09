@@ -7,13 +7,12 @@
  */
 import {
   Listbox as HListbox,
-  Label,
   ListboxButton,
   ListboxOption,
   ListboxOptions,
 } from '@headlessui/react'
 import cn from 'classnames'
-import { type ReactNode, type Ref } from 'react'
+import { useId, type ReactNode, type Ref } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
@@ -68,6 +67,7 @@ export const Listbox = <Value extends string = string>({
   const noItems = !isLoading && items.length === 0
   const isDisabled = disabled || noItems
   const zIndex = usePopoverZIndex()
+  const id = useId()
 
   return (
     <div className={cn('relative', className)}>
@@ -83,13 +83,20 @@ export const Listbox = <Value extends string = string>({
           <>
             {label && (
               <div className="mb-2">
-                <FieldLabel id={``} as="div" optional={!required && !hideOptionalTag}>
-                  <Label>{label}</Label>
+                <FieldLabel
+                  id={`${id}-label`}
+                  htmlFor={id}
+                  optional={!required && !hideOptionalTag}
+                >
+                  {label}
                 </FieldLabel>
-                {description && <TextInputHint id={``}>{description}</TextInputHint>}
+                {description && (
+                  <TextInputHint id={`${id}-help-text`}>{description}</TextInputHint>
+                )}
               </div>
             )}
             <ListboxButton
+              id={id}
               name={name}
               className={cn(
                 `flex h-10 w-full items-center justify-between rounded border text-sans-md`,
