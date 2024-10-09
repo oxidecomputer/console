@@ -93,8 +93,8 @@ export function InstanceResizeForm() {
               variant="info"
               content={
                 <>
-                  <span>Currently using:</span> {instance.ncpus} vCPUs /{' '}
-                  {instance.memory / GiB} GiB
+                  <span className="text-sans-semi-md text-info">Currently using:</span>{' '}
+                  {instance.ncpus} vCPUs / {instance.memory / GiB} GiB
                 </>
               }
             />
