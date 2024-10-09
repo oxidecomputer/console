@@ -93,8 +93,8 @@ test.describe('System utilization', () => {
     await expectRowVisible(page.getByRole('table'), {
       Silo: 'all-zeros',
       CPU: '0',
-      Memory: '0 B',
-      Storage: '0 B',
+      Memory: '0 KiB',
+      Storage: '0 KiB',
     })
   })
 })
