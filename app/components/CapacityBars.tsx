@@ -9,7 +9,7 @@
 import type { VirtualResourceCounts } from '@oxide/api'
 import { Cpu16Icon, Ram16Icon, Ssd16Icon } from '@oxide/design-system/icons/react'
 
-import { bytesToSpecificUnit, getUnit } from '~/util/units'
+import { useConvertBytesToSpecificUnit, useGetUnit } from '~/util/units'
 
 import { CapacityBar } from './CapacityBar'
 
@@ -23,14 +23,14 @@ export const CapacityBars = ({
   allocatedLabel: string
 }) => {
   // These will most likely be GiB, but calculating dynamically to handle larger configurations in the future
-  const memoryUnit = getUnit(Math.max(provisioned.memory, allocated.memory))
-  const provisionedMemory = bytesToSpecificUnit(provisioned.memory, memoryUnit)
-  const allocatedMemory = bytesToSpecificUnit(allocated.memory, memoryUnit)
+  const memoryUnit = useGetUnit(provisioned.memory, allocated.memory)
+  const provisionedMemory = useConvertBytesToSpecificUnit(provisioned.memory, memoryUnit)
+  const allocatedMemory = useConvertBytesToSpecificUnit(allocated.memory, memoryUnit)
 
   // These will most likely be TiB, but calculating dynamically for the same reason as above
-  const storageUnit = getUnit(Math.max(provisioned.storage, allocated.storage))
-  const provisionedStorage = bytesToSpecificUnit(provisioned.storage, storageUnit)
-  const allocatedStorage = bytesToSpecificUnit(allocated.storage, storageUnit)
+  const storageUnit = useGetUnit(provisioned.storage, allocated.storage)
+  const provisionedStorage = useConvertBytesToSpecificUnit(provisioned.storage, storageUnit)
+  const allocatedStorage = useConvertBytesToSpecificUnit(allocated.storage, storageUnit)
 
   return (
     <div className="mb-12 flex min-w-min flex-col gap-3 lg+:flex-row">

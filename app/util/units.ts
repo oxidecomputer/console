@@ -5,10 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useMemo } from 'react'
+
 import { round } from './math'
 
 // We only need to support up to TiB for now, but we can add more if needed
-type BinaryUnit = 'B' | 'KiB' | 'MiB' | 'GiB' | 'TiB' // | 'PiB' | 'EiB' | 'ZiB' | 'YiB'
+export type BinaryUnit = 'B' | 'KiB' | 'MiB' | 'GiB' | 'TiB' // | 'PiB' | 'EiB' | 'ZiB' | 'YiB'
 
 export const KiB = 1024
 export const MiB = 1024 * KiB
@@ -43,13 +45,22 @@ export const bytesToReadableNumber = (b: number, digits = 2): BytesToReadableNum
 
 // Used when we have multiple related numbers that might normally round to different units.
 // Once the proper "unified" unit base is established, all numbers can be converted to a specific unit.
-export const bytesToSpecificUnit = (b: number, unit: BinaryUnit, digits = 2): number =>
-  ({
-    B: round(b, digits),
-    KiB: bytesToKiB(b, digits),
-    MiB: bytesToMiB(b, digits),
-    GiB: bytesToGiB(b, digits),
-    TiB: bytesToTiB(b, digits),
-  })[unit]
+export const useConvertBytesToSpecificUnit = (
+  bytes: number,
+  unit: BinaryUnit,
+  digits = 2
+): number =>
+  useMemo(
+    () =>
+      ({
+        B: round(bytes, digits),
+        KiB: bytesToKiB(bytes, digits),
+        MiB: bytesToMiB(bytes, digits),
+        GiB: bytesToGiB(bytes, digits),
+        TiB: bytesToTiB(bytes, digits),
+      })[unit],
+    [bytes, digits, unit]
+  )
 
-export const getUnit = (bytes: number): BinaryUnit => bytesToReadableNumber(bytes).unit
+export const useGetUnit = (n1: number, n2: number): BinaryUnit =>
+  useMemo(() => bytesToReadableNumber(Math.max(n1, n2)).unit, [n1, n2])
