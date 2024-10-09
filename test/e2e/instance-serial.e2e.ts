@@ -11,7 +11,7 @@ test('serial console can connect while starting', async ({ page }) => {
   // create an instance
   await page.goto('/projects/mock-project/instances-new')
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('abc')
-  await page.getByLabel('Image', { exact: true }).click()
+  await page.getByPlaceholder('Select a silo image').click()
   await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
 
   await page.getByRole('button', { name: 'Create instance' }).click()
