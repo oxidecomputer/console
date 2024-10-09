@@ -344,5 +344,5 @@ test('Quotas tab', async ({ page }) => {
   // only one changes, the others stay the same
   await expectRowVisible(table, { Resource: 'CPU', Quota: '50 vCPUs' })
   await expectRowVisible(table, { Resource: 'Memory', Quota: '50 GiB' })
-  await expectRowVisible(table, { Resource: 'Storage', Quota: '7168 GiB' })
+  await expectRowVisible(table, { Resource: 'Storage', Quota: '7 TiB' })
 })

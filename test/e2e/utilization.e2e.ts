@@ -128,14 +128,17 @@ test('Utilization shows correct units for CPU, memory, and storage', async ({ pa
   await page.goto('system/silos/maze-war?tab=quotas')
 
   // Verify that there's a row for memory with the correct units
-  await expect(page.getByText('Memory234 GiB300 GiB')).toBeVisible()
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { Provisioned: '234 GiB', Quota: '300 GiB' })
+  await expect(page.getByText('2.93 TiB')).toBeHidden()
 
   // Edit the quota and verify the new value
   await page.getByRole('button', { name: 'Edit quotas' }).click()
   await page.getByRole('textbox', { name: 'Memory (GiB)' }).fill('3000')
   await page.getByRole('button', { name: 'Update quotas' }).click()
-  // The table has been updated
-  await expect(page.getByText('Memory0.23 TiB2.93 TiB')).toBeVisible()
+  // Verify that the table has been updated
+  await expectRowVisible(table, { Provisioned: '0.23 TiB', Quota: '2.93 TiB' })
+  await expect(page.getByText('300 GiB')).toBeHidden()
 
   // Navigate back to the utilization page without refreshing
   await page.getByRole('link', { name: 'Utilization' }).click()
