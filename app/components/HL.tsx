@@ -7,4 +7,4 @@
  */
 import { classed } from '~/util/classed'
 
-export const HL = classed.span`text-sans-md text-default`
+export const HL = classed.span`text-sans-semi-md text-default`
