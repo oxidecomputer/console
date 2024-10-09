@@ -83,7 +83,7 @@ test('can detach and attach a floating IP', async ({ page }) => {
   // Now click back to floating IPs and reattach it to db1
   await page.getByRole('link', { name: 'Floating IPs' }).click()
   await clickRowAction(page, 'cola-float', 'Attach')
-  await page.getByRole('button', { name: 'Select an instance' }).click()
+  await page.getByLabel('Instance').click()
   await page.getByRole('option', { name: 'db1' }).click()
 
   await page.getByRole('button', { name: 'Attach' }).click()
