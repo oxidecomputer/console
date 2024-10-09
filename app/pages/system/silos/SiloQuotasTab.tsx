@@ -23,7 +23,7 @@ import { Message } from '~/ui/lib/Message'
 import { Table } from '~/ui/lib/Table'
 import { classed } from '~/util/classed'
 import { links } from '~/util/links'
-import { bytesToGiB, GiB, useConvertBytesToSpecificUnit, useGetUnit } from '~/util/units'
+import { bytesToGiB, formatBytesAs, getUnit, GiB } from '~/util/units'
 
 const Unit = classed.span`ml-1 text-tertiary`
 
@@ -34,16 +34,13 @@ export function SiloQuotasTab() {
   })
 
   const { allocated: quotas, provisioned } = utilization
-  const memoryUnits = useGetUnit(provisioned.memory, quotas.memory)
-  const provisionedMemory = useConvertBytesToSpecificUnit(provisioned.memory, memoryUnits)
-  const quotasMemory = useConvertBytesToSpecificUnit(quotas.memory, memoryUnits)
+  const memoryUnits = getUnit(Math.max(provisioned.memory, quotas.memory))
+  const provisionedMemory = formatBytesAs(provisioned.memory, memoryUnits)
+  const quotasMemory = formatBytesAs(quotas.memory, memoryUnits)
 
-  const storageUnits = useGetUnit(provisioned.storage, quotas.storage)
-  const provisionedStorage = useConvertBytesToSpecificUnit(
-    provisioned.storage,
-    storageUnits
-  )
-  const quotasStorage = useConvertBytesToSpecificUnit(quotas.storage, storageUnits)
+  const storageUnits = getUnit(Math.max(provisioned.storage, quotas.storage))
+  const provisionedStorage = formatBytesAs(provisioned.storage, storageUnits)
+  const quotasStorage = formatBytesAs(quotas.storage, storageUnits)
 
   const [editing, setEditing] = useState(false)
 

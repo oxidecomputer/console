@@ -37,8 +37,8 @@ import { pb } from '~/util/path-builder'
 import {
   bytesToGiB,
   bytesToTiB,
-  useConvertBytesToSpecificUnit,
-  useGetUnit,
+  formatBytesAs,
+  getUnit,
   type BinaryUnit,
 } from '~/util/units'
 
@@ -273,9 +273,9 @@ const SiloCell = ({ silo, resource, cellType }: SiloCellProps) => {
   const provisionedRaw = silo.provisioned[resource]
   const allocatedRaw = silo.allocated[resource]
   // Use those to get the standardized unit
-  const unit = useGetUnit(provisionedRaw, allocatedRaw)
-  const provisioned = useConvertBytesToSpecificUnit(provisionedRaw, unit)
-  const allocated = useConvertBytesToSpecificUnit(allocatedRaw, unit)
+  const unit = getUnit(Math.max(provisionedRaw, allocatedRaw))
+  const provisioned = formatBytesAs(provisionedRaw, unit)
+  const allocated = formatBytesAs(allocatedRaw, unit)
   return cellType === 'usage' ? (
     <UsageCell provisioned={provisioned} allocated={allocated} unit={unit} />
   ) : (
