@@ -12,9 +12,7 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery, type InternetGatewayIpPool } from '~/api'
 import { getInternetGatewaySelector, useInternetGatewaySelector } from '~/hooks/use-params'
-import { DescriptionCell } from '~/table/cells/DescriptionCell'
-import { EmptyCell } from '~/table/cells/EmptyCell'
-import { UtilizationCell } from '~/table/cells/UtilizationCell'
+import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -56,25 +54,8 @@ export function InternetGatewayIpPoolsTab() {
       colHelper.accessor('name', {}),
       colHelper.accessor('description', Columns.description),
       colHelper.accessor('ipPoolId', {
-        header: 'IP Pool Name',
-        cell: (info) => {
-          const ipPool = ipPools.items.find((item) => item.id === info.getValue())
-          return ipPool?.name || <EmptyCell />
-        },
-      }),
-      colHelper.accessor('ipPoolId', {
-        header: 'IP Pool Description',
-        cell: (info) => {
-          const ipPool = ipPools.items.find((item) => item.id === info.getValue())
-          return <DescriptionCell text={ipPool?.description} />
-        },
-      }),
-      colHelper.accessor('ipPoolId', {
-        header: 'IP Pool Utilization',
-        cell: (info) => {
-          const ipPool = ipPools.items.find((item) => item.id === info.getValue())
-          return <UtilizationCell pool={ipPool?.name || ''} />
-        },
+        header: 'IP Pool',
+        cell: (info) => <IpPoolCell ipPoolId={info.getValue()} ipPools={ipPools.items} />,
       }),
     ],
     [ipPools]
