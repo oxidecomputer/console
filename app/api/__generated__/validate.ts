@@ -1903,12 +1903,7 @@ export const InternetGatewayIpAddress = z.preprocess(
  */
 export const InternetGatewayIpAddressCreate = z.preprocess(
   processResponseBody,
-  z.object({
-    address: z.string().ip(),
-    description: z.string(),
-    gateway: NameOrId,
-    name: Name,
-  })
+  z.object({ address: z.string().ip(), description: z.string(), name: Name })
 )
 
 /**
@@ -2587,7 +2582,7 @@ export const Route = z.preprocess(
   z.object({
     dst: IpNet,
     gw: z.string().ip(),
-    localPref: z.number().min(0).max(4294967295).optional(),
+    ribPriority: z.number().min(0).max(255).optional(),
     vid: z.number().min(0).max(65535).optional(),
   })
 )
@@ -3242,8 +3237,8 @@ export const SwitchPortRouteConfig = z.preprocess(
     dst: IpNet,
     gw: IpNet,
     interfaceName: z.string(),
-    localPref: z.number().min(0).max(4294967295).optional(),
     portSettingsId: z.string().uuid(),
+    ribPriority: z.number().min(0).max(255).optional(),
     vlanId: z.number().min(0).max(65535).optional(),
   })
 )

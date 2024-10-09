@@ -2039,7 +2039,6 @@ export type InternetGatewayIpAddress = {
 export type InternetGatewayIpAddressCreate = {
   address: string
   description: string
-  gateway: NameOrId
   name: Name
 }
 
@@ -2730,7 +2729,7 @@ export type Route = {
   /** The route gateway. */
   gw: string
   /** Local preference for route. Higher preference indictes precedence within and across protocols. */
-  localPref?: number
+  ribPriority?: number
   /** VLAN id the gateway is reachable over. */
   vid?: number
 }
@@ -2807,7 +2806,7 @@ export type RouterRouteKind =
 export type RouterRoute = {
   /** human-readable free-form text about a resource */
   description: string
-  /** Selects which traffic this routing rule will apply to. */
+  /** Selects which traffic this routing rule will apply to */
   destination: RouteDestination
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
@@ -2815,7 +2814,7 @@ export type RouterRoute = {
   kind: RouterRouteKind
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** The location that matched packets should be forwarded to. */
+  /** The location that matched packets should be forwarded to */
   target: RouteTarget
   /** timestamp when this resource was created */
   timeCreated: Date
@@ -3517,10 +3516,10 @@ export type SwitchPortRouteConfig = {
   gw: IpNet
   /** The interface name this route configuration is assigned to. */
   interfaceName: string
-  /** Local preference indicating priority within and across protocols. */
-  localPref?: number
   /** The port settings object this route configuration belongs to. */
   portSettingsId: string
+  /** RIB Priority indicating priority within and across protocols. */
+  ribPriority?: number
   /** The VLAN identifier for the route. Use this if the gateway is reachable over an 802.1Q tagged L2 segment. */
   vlanId?: number
 }
@@ -6206,7 +6205,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List addresses attached to an internet gateway.
+     * List IP addresses attached to internet gateway
      */
     internetGatewayIpAddressList: (
       { query = {} }: { query?: InternetGatewayIpAddressListQueryParams },
@@ -6220,7 +6219,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Attach ip pool to internet gateway
+     * Attach IP address to internet gateway
      */
     internetGatewayIpAddressCreate: (
       {
@@ -6241,7 +6240,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Detach ip pool from internet gateway
+     * Detach IP address from internet gateway
      */
     internetGatewayIpAddressDelete: (
       {
@@ -6261,7 +6260,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List IP pools attached to an internet gateway.
+     * List IP pools attached to internet gateway
      */
     internetGatewayIpPoolList: (
       { query = {} }: { query?: InternetGatewayIpPoolListQueryParams },
@@ -6275,7 +6274,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Attach ip pool to internet gateway
+     * Attach IP pool to internet gateway
      */
     internetGatewayIpPoolCreate: (
       {
@@ -6296,7 +6295,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Detach ip pool from internet gateway
+     * Detach IP pool from internet gateway
      */
     internetGatewayIpPoolDelete: (
       {
