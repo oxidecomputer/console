@@ -223,7 +223,7 @@ export function InstancesPage() {
           instance={resizeInstance}
           project={project}
           onDismiss={() => setResizeInstance(null)}
-          onSuccess={() => apiQueryClient.invalidateQueries('instanceList')}
+          onListView
         />
       )}
     </>

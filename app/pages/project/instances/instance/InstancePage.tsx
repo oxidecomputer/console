@@ -237,7 +237,6 @@ export function InstancePage() {
           instance={instance}
           project={instanceSelector.project}
           onDismiss={() => setResizeInstance(false)}
-          onSuccess={() => apiQueryClient.invalidateQueries('instanceView')}
         />
       )}
     </>
@@ -248,18 +247,30 @@ export function ResizeInstanceModal({
   instance,
   project,
   onDismiss,
-  onSuccess,
+  onListView = false,
 }: {
   instance: Instance
   project: string
   onDismiss: () => void
-  onSuccess: () => void
+  onListView?: boolean
 }) {
   const instanceUpdate = useApiMutation('instanceUpdate', {
     onSuccess(_updatedInstance) {
-      onSuccess()
+      if (onListView) {
+        apiQueryClient.invalidateQueries('instanceList')
+      } else {
+        apiQueryClient.invalidateQueries('instanceView')
+      }
       onDismiss()
-      addToast({ title: 'Instance resized' })
+      addToast({
+        content: `${instance.name} has been resized`,
+        cta: onListView
+          ? {
+              text: `View instance`,
+              link: pb.instance({ project, instance: instance.name }),
+            }
+          : undefined, // Only link to the instance if we're not already on that page
+      })
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
