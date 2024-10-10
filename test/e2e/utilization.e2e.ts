@@ -23,21 +23,21 @@ test.describe('System utilization', () => {
     await page.goto('/system/utilization')
 
     await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
-    await expect(page.getByText('Provisioned384 GiB')).toBeVisible()
+    await expect(page.getByText('Provisioned384.84 GiB')).toBeVisible()
 
     await expect(page.getByText('Provisioned / Quota')).toBeVisible()
 
     const table = page.getByRole('table')
     await expectRowVisible(table, {
       CPU: '20',
-      Storage: '2.7 TiB',
-      Memory: '66 GiB',
+      Storage: '3.57 TiB',
+      Memory: '72.24 GiB',
       Silo: 'maze-war',
     })
     await expectRowVisible(table, {
       CPU: '26',
-      Storage: '7 TiB',
-      Memory: '350 GiB',
+      Storage: '6.61 TiB',
+      Memory: '349.49 GiB',
       Silo: 'myriad',
     })
 
@@ -104,7 +104,7 @@ test.describe('Silo utilization', () => {
     await page.goto('/utilization')
     await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
     // Capacity bars are showing up
-    await expect(page.getByText('Provisioned234 GiB')).toBeVisible()
+    await expect(page.getByText('Provisioned234.31 GiB')).toBeVisible()
   })
 
   test('works for dev user', async ({ browser }) => {
@@ -112,7 +112,7 @@ test.describe('Silo utilization', () => {
     await page.goto('/utilization')
     await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
     // Capacity bars are showing up
-    await expect(page.getByText('Provisioned234 GiB')).toBeVisible()
+    await expect(page.getByText('Provisioned234.31 GiB')).toBeVisible()
   })
 })
 
@@ -121,15 +121,15 @@ test('Utilization shows correct units for CPU, memory, and storage', async ({ pa
 
   // Verify the original values for the Memory tile
   await expect(page.getByText('Memory(GIB)')).toBeVisible()
-  await expect(page.getByText('Provisioned384 GiB')).toBeVisible()
-  await expect(page.getByText('Quota (Total)800 GiB')).toBeVisible()
+  await expect(page.getByText('Provisioned384.84 GiB')).toBeVisible()
+  await expect(page.getByText('Quota (Total)806.57 GiB')).toBeVisible()
 
   // Navigate to the quotas tab
   await page.goto('system/silos/maze-war?tab=quotas')
 
   // Verify that there's a row for memory with the correct units
   const table = page.getByRole('table')
-  await expectRowVisible(table, { Provisioned: '234 GiB', Quota: '300 GiB' })
+  await expectRowVisible(table, { Provisioned: '234.31 GiB', Quota: '306.55 GiB' })
   await expect(page.getByText('2.93 TiB')).toBeHidden()
 
   // Edit the quota and verify the new value
@@ -138,7 +138,7 @@ test('Utilization shows correct units for CPU, memory, and storage', async ({ pa
   await page.getByRole('button', { name: 'Update quotas' }).click()
   // Verify that the table has been updated
   await expectRowVisible(table, { Provisioned: '0.23 TiB', Quota: '2.93 TiB' })
-  await expect(page.getByText('300 GiB')).toBeHidden()
+  await expect(page.getByText('306.55 GiB')).toBeHidden()
 
   // Navigate back to the utilization page without refreshing
   await page.getByRole('link', { name: 'Utilization' }).click()
