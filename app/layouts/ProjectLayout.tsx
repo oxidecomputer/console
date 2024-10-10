@@ -30,6 +30,7 @@ import {
   InstancePicker,
   ProjectPicker,
   SiloSystemPicker,
+  VpcGatewayPicker,
   VpcPicker,
   VpcRouterPicker,
 } from '~/components/TopBarPicker'
@@ -61,7 +62,7 @@ export function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
   const projectSelector = useProjectSelector()
   const { data: project } = usePrefetchedApiQuery('projectView', { path: projectSelector })
 
-  const { instance, router, vpc } = useParams()
+  const { gateway, instance, router, vpc } = useParams()
   const { pathname } = useLocation()
   useQuickActions(
     useMemo(
@@ -94,6 +95,7 @@ export function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
         {instance && <InstancePicker />}
         {vpc && <VpcPicker />}
         {router && <VpcRouterPicker />}
+        {gateway && <VpcGatewayPicker />}
       </TopBar>
       <Sidebar>
         <Sidebar.Nav>
