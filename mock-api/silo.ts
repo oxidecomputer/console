@@ -44,14 +44,14 @@ export const siloQuotas: Json<SiloQuotas[]> = [
   {
     silo_id: silos[0].id,
     cpus: 50,
-    memory: 300 * GiB,
-    storage: 7 * TiB,
+    memory: 306.55 * GiB,
+    storage: 7.91 * TiB,
   },
   {
     silo_id: silos[1].id,
     cpus: 34,
-    memory: 500 * GiB,
-    storage: 9 * TiB,
+    memory: 500.02 * GiB,
+    storage: 9.36 * TiB,
   },
 ]
 
@@ -62,14 +62,14 @@ export const siloProvisioned: Json<SiloQuotas[]> = [
   {
     silo_id: silos[0].id,
     cpus: 30,
-    memory: 234 * GiB,
-    storage: 4.3 * TiB,
+    memory: 234.31 * GiB,
+    storage: 4.339 * TiB,
   },
   {
     silo_id: silos[1].id,
     cpus: 8,
-    memory: 150 * GiB,
-    storage: 2 * TiB,
+    memory: 150.529 * GiB,
+    storage: 2.75 * TiB,
   },
 ]
 
