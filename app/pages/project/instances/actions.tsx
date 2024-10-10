@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import { useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import { instanceCan, useApiMutation, type Instance } from '@oxide/api'
 
@@ -15,7 +14,6 @@ import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import type { MakeActions } from '~/table/columns/action-col'
-import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './instance/tabs/common'
 
@@ -26,14 +24,13 @@ type Options = {
   // hook has to expand to encompass the sum of all the APIs of these hooks it
   // call internally, the abstraction is not good
   onDelete?: () => void
+  onResizeClick?: (instance: Instance) => void
 }
 
 export const useMakeInstanceActions = (
   { project }: { project: string },
   options: Options = {}
 ): MakeActions<Instance> => {
-  const navigate = useNavigate()
-
   // if you also pass onSuccess to mutate(), this one is not overridden — this
   // one runs first, then the one passed to mutate().
   //
@@ -51,7 +48,6 @@ export const useMakeInstanceActions = (
 
   return useCallback(
     (instance) => {
-      const instanceSelector = { project, instance: instance.name }
       const instanceParams = { path: { instance: instance.name }, query: { project } }
       return [
         {
@@ -119,8 +115,10 @@ export const useMakeInstanceActions = (
         },
         {
           label: 'Resize',
-          onActivate() {
-            navigate(pb.instanceResize(instanceSelector))
+          onActivate: () => {
+            if (options.onResizeClick) {
+              options.onResizeClick(instance)
+            }
           },
           disabled: !instanceCan.update(instance) && (
             <>Only {fancifyStates(instanceCan.update.states)} instances can be resized</>
@@ -147,11 +145,11 @@ export const useMakeInstanceActions = (
     },
     [
       project,
-      navigate,
       deleteInstanceAsync,
       rebootInstance,
       startInstance,
       stopInstanceAsync,
+      options,
     ]
   )
 }

@@ -23,7 +23,6 @@ import {
 import { CreateImageFromSnapshotSideModalForm } from './forms/image-from-snapshot'
 import { CreateImageSideModalForm } from './forms/image-upload'
 import { CreateInstanceForm } from './forms/instance-create'
-import { InstanceResizeForm } from './forms/instance-resize'
 import { CreateIpPoolSideModalForm } from './forms/ip-pool-create'
 import { EditIpPoolSideModalForm } from './forms/ip-pool-edit'
 import { IpPoolAddRangeSideModalForm } from './forms/ip-pool-range-add'
@@ -319,17 +318,6 @@ export const routes = createRoutesFromElements(
                 element={<StorageTab />}
                 loader={StorageTab.loader}
                 handle={{ crumb: 'Storage' }}
-              />
-              <Route
-                path="resize"
-                element={
-                  <>
-                    <StorageTab />
-                    <InstanceResizeForm />
-                  </>
-                }
-                loader={StorageTab.loader}
-                handle={{ crumb: 'Resize' }}
               />
               <Route
                 path="networking"
