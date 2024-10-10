@@ -62,7 +62,6 @@ export const pb = {
   instanceStorage: (params: Instance) => `${instanceBase(params)}/storage`,
   instanceConnect: (params: Instance) => `${instanceBase(params)}/connect`,
   instanceNetworking: (params: Instance) => `${instanceBase(params)}/networking`,
-  instanceResize: (params: Instance) => `${instanceBase(params)}/resize`,
   serialConsole: (params: Instance) => `${instanceBase(params)}/serial-console`,
 
   disksNew: (params: Project) => `${projectBase(params)}/disks-new`,
