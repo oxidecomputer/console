@@ -211,6 +211,7 @@ function UsageTab() {
               <AvailableCell
                 provisioned={silo.provisioned.cpus}
                 allocated={silo.allocated.cpus}
+                usagePercent={(silo.provisioned.cpus / silo.allocated.cpus) * 100}
               />
             </Table.Cell>
             <Table.Cell width="14%" className="relative" height="large">
@@ -242,8 +243,12 @@ const UsageCell = ({ provisioned, allocated, unit }: CellProps) => (
   </div>
 )
 
-const AvailableCell = ({ provisioned, allocated, unit }: CellProps) => {
-  const usagePercent = (provisioned / allocated) * 100
+const AvailableCell = ({
+  provisioned,
+  allocated,
+  unit,
+  usagePercent,
+}: CellProps & { usagePercent: number }) => {
   return (
     <div className="flex w-full items-center justify-between">
       <div>
@@ -262,12 +267,13 @@ const AvailableCell = ({ provisioned, allocated, unit }: CellProps) => {
 
 type SiloCellProps = {
   silo: SiloUtilization
+  // CPUs have simpler data representations, so we don't use SiloCell for them
   resource: 'memory' | 'storage'
   cellType: 'usage' | 'available'
 }
 
-// Used as a wrapper around the UsageCell and AvailableCell components,
-// for rendering the silo's memory and storage resources
+/** A wrapper around the UsageCell and AvailableCell components,
+    for rendering the silo's memory and storage resources */
 const SiloCell = ({ silo, resource, cellType }: SiloCellProps) => {
   // Get the raw values from the silo object
   const provisionedRaw = silo.provisioned[resource]
@@ -276,9 +282,17 @@ const SiloCell = ({ silo, resource, cellType }: SiloCellProps) => {
   const unit = getUnit(Math.max(provisionedRaw, allocatedRaw))
   const provisioned = formatBytesAs(provisionedRaw, unit)
   const allocated = formatBytesAs(allocatedRaw, unit)
-  return cellType === 'usage' ? (
-    <UsageCell provisioned={provisioned} allocated={allocated} unit={unit} />
-  ) : (
-    <AvailableCell provisioned={provisioned} allocated={allocated} unit={unit} />
+  if (cellType === 'usage')
+    return <UsageCell provisioned={provisioned} allocated={allocated} unit={unit} />
+
+  // Use the original values to calculate the usage percentage
+  const usagePercent = (provisionedRaw / allocatedRaw) * 100
+  return (
+    <AvailableCell
+      provisioned={provisioned}
+      allocated={allocated}
+      unit={unit}
+      usagePercent={usagePercent}
+    />
   )
 }
