@@ -55,9 +55,14 @@ export const ipPools: Json<IpPool>[] = [defaultIpPool, ipPool1, ipPool2, ipPool3
 
 export const ipPoolSilos: Json<IpPoolSiloLink>[] = [
   {
-    ip_pool_id: ipPool1.id,
+    ip_pool_id: defaultIpPool.id,
     silo_id: defaultSilo.id,
     is_default: true,
+  },
+  {
+    ip_pool_id: ipPool1.id,
+    silo_id: defaultSilo.id,
+    is_default: false,
   },
   {
     ip_pool_id: ipPool2.id,
