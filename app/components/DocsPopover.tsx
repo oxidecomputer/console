@@ -44,7 +44,7 @@ type DocsPopoverProps = {
 export const DocsPopover = ({ heading, icon, summary, links }: DocsPopoverProps) => {
   return (
     <Popover>
-      <PopoverButton className={cn(buttonStyle({ size: 'sm', variant: 'ghost' }), 'w-9')}>
+      <PopoverButton className={cn(buttonStyle({ size: 'sm', variant: 'ghost' }), 'w-8')}>
         <Question12Icon aria-label="Links to docs" className="shrink-0" />
       </PopoverButton>
       <PopoverPanel
