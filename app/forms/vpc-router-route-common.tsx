@@ -30,8 +30,6 @@ export type RouteFormValues = RouterRouteCreate | Required<RouterRouteUpdate>
 export const routeFormMessage = {
   vpcSubnetNotModifiable:
     'Routes of type VPC Subnet within the system router are not modifiable',
-  internetGatewayTargetValue:
-    'For ‘Internet gateway’ targets, the value must be ‘outbound’',
   // https://github.com/oxidecomputer/omicron/blob/914f5fd7d51f9b060dcc0382a30b607e25df49b2/nexus/src/app/vpc_router.rs#L201-L204
   noNewRoutesOnSystemRouter: 'User-provided routes cannot be added to a system router',
   // https://github.com/oxidecomputer/omicron/blob/914f5fd7d51f9b060dcc0382a30b607e25df49b2/nexus/src/app/vpc_router.rs#L300-L304
@@ -84,7 +82,7 @@ const targetValuePlaceholder: Record<RouteTarget['type'], string | undefined> = 
 const targetValueDescription: Record<RouteTarget['type'], string | undefined> = {
   ip: 'An IP address, like 10.0.1.5',
   instance: undefined,
-  internet_gateway: routeFormMessage.internetGatewayTargetValue,
+  internet_gateway: undefined,
   drop: undefined,
   subnet: undefined,
   vpc: undefined,
@@ -130,7 +128,7 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
     placeholder: targetValuePlaceholder[targetType],
     required: true,
     // 'internet_gateway' targetTypes can only have the value 'outbound', so we disable the field
-    disabled: disabled || targetType === 'internet_gateway',
+    disabled,
     description: targetValueDescription[targetType],
     // need a default to prevent the text field validation function from
     // sticking around when we switch to the combobox
@@ -176,8 +174,8 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
         items={toListboxItems(targetTypes)}
         placeholder="Select a target type"
         required
-        onChange={(value) => {
-          form.setValue('target.value', value === 'internet_gateway' ? 'outbound' : '')
+        onChange={() => {
+          form.setValue('target.value', '')
           form.clearErrors('target.value')
         }}
         disabled={disabled}
