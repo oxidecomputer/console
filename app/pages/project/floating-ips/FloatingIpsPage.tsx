@@ -32,6 +32,7 @@ import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
@@ -85,6 +86,7 @@ const staticCols = [
   colHelper.accessor('description', Columns.description),
   colHelper.accessor('ip', {
     header: 'IP address',
+    cell: (info) => <CopyableIp ip={info.getValue()} isLinked={false} />,
   }),
   colHelper.accessor('ipPoolId', {
     header: 'IP pool',
