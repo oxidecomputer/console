@@ -27,7 +27,7 @@ test('Dropdown content can scroll off page and doesn’t hide TopBar', async ({ 
 
   // scroll the page down just enough that the button and the top item are off
   // screen, but the bottom item is not
-  await page.mouse.wheel(0, 480)
+  await page.mouse.wheel(0, 500)
 
   // if we don't do this, the test doesn't wait long enough for the following
   // assertions to become true

@@ -56,7 +56,7 @@ const JumpToButton = () => {
 
 export function Sidebar({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col border-r text-sans-md text-default border-secondary">
+    <div className="fixed z-sideModal flex h-full w-[14.25rem] flex-col border-r text-sans-md text-default border-secondary">
       <div className="mx-3 mt-4">
         <JumpToButton />
       </div>
