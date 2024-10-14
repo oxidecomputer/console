@@ -99,8 +99,9 @@ export function DisksPage() {
   const { Table } = useQueryTable('diskList', { query: { project } })
 
   const { mutateAsync: deleteDisk } = useApiMutation('diskDelete', {
-    onSuccess() {
+    onSuccess(_data, variables) {
       queryClient.invalidateQueries('diskList')
+      addToast({ content: `${variables.path.disk} deleted` })
     },
   })
 
