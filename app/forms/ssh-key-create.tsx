@@ -35,10 +35,10 @@ export function CreateSSHKeySideModalForm({ onDismiss, message }: Props) {
   const handleDismiss = onDismiss ? onDismiss : () => navigate(pb.sshKeys())
 
   const createSshKey = useApiMutation('currentUserSshKeyCreate', {
-    onSuccess() {
+    onSuccess(sshKey) {
       queryClient.invalidateQueries('currentUserSshKeyList')
       handleDismiss()
-      addToast({ content: 'Your SSH key has been created' })
+      addToast({ content: `${sshKey.name} created` })
     },
   })
   const form = useForm({ defaultValues })

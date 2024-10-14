@@ -44,9 +44,9 @@ export function CreateRouterRouteSideModalForm() {
   const form = useForm({ defaultValues })
 
   const createRouterRoute = useApiMutation('vpcRouterRouteCreate', {
-    onSuccess() {
+    onSuccess(route) {
       queryClient.invalidateQueries('vpcRouterRouteList')
-      addToast({ content: 'Your route has been created' })
+      addToast({ content: `${route.name} created` })
       navigate(pb.vpcRouter(routerSelector))
     },
   })

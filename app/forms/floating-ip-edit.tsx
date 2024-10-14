@@ -47,7 +47,7 @@ export function EditFloatingIpSideModalForm() {
   const editFloatingIp = useApiMutation('floatingIpUpdate', {
     onSuccess(_floatingIp) {
       queryClient.invalidateQueries('floatingIpList')
-      addToast({ content: 'Your floating IP has been updated' })
+      addToast({ content: `${_floatingIp.name} updated` })
       onDismiss()
     },
   })

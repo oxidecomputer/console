@@ -105,9 +105,9 @@ export function DisksPage() {
   })
 
   const { mutate: createSnapshot } = useApiMutation('snapshotCreate', {
-    onSuccess() {
+    onSuccess(_data, variables) {
       queryClient.invalidateQueries('snapshotList')
-      addToast({ content: 'Snapshot successfully created' })
+      addToast({ content: `Snapshot ${variables.body.name} created` })
     },
     onError(err) {
       addToast({

@@ -38,7 +38,7 @@ export function CreateVpcSideModalForm() {
         { path: { vpc: vpc.name }, query: projectSelector },
         vpc
       )
-      addToast({ content: 'Your VPC has been created' })
+      addToast({ content: `${vpc.name} created` })
       navigate(pb.vpc({ vpc: vpc.name, ...projectSelector }))
     },
   })

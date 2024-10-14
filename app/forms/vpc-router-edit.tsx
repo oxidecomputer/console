@@ -51,9 +51,9 @@ export function EditRouterSideModalForm() {
   }
 
   const editRouter = useApiMutation('vpcRouterUpdate', {
-    onSuccess() {
+    onSuccess(updatedRouter) {
       queryClient.invalidateQueries('vpcRouterList')
-      addToast({ content: 'Your router has been updated' })
+      addToast({ content: `${updatedRouter.name} updated` })
       navigate(pb.vpcRouters({ project, vpc }))
     },
   })

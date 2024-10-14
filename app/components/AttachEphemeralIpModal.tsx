@@ -28,9 +28,9 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
     [siloPools]
   )
   const instanceEphemeralIpAttach = useApiMutation('instanceEphemeralIpAttach', {
-    onSuccess() {
+    onSuccess(ephemeralIp) {
       queryClient.invalidateQueries('instanceExternalIpList')
-      addToast({ content: 'Your ephemeral IP has been attached' })
+      addToast({ content: `${ephemeralIp.ip} attached` })
       onDismiss()
     },
     onError: (err) => {

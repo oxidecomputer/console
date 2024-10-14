@@ -30,9 +30,9 @@ export function CreateRouterSideModalForm() {
   const onDismiss = () => navigate(pb.vpcRouters(vpcSelector))
 
   const createRouter = useApiMutation('vpcRouterCreate', {
-    onSuccess() {
+    onSuccess(router) {
       queryClient.invalidateQueries('vpcRouterList')
-      addToast({ content: 'Your router has been created' })
+      addToast({ content: `${router.name} created` })
       onDismiss()
     },
   })

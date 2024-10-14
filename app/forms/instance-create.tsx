@@ -183,7 +183,7 @@ export function CreateInstanceForm() {
         { path: { instance: instance.name }, query: { project } },
         instance
       )
-      addToast({ content: 'Your instance has been created' })
+      addToast({ content: `${instance.name} created` })
       navigate(pb.instance({ project, instance: instance.name }))
     },
   })

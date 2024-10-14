@@ -30,7 +30,7 @@ export function CreateIpPoolSideModalForm() {
   const createPool = useApiMutation('ipPoolCreate', {
     onSuccess(_pool) {
       queryClient.invalidateQueries('ipPoolList')
-      addToast({ content: 'Your IP pool has been created' })
+      addToast({ content: `${_pool.name} created` })
       navigate(pb.ipPools())
     },
   })

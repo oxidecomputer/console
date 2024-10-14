@@ -54,9 +54,9 @@ export function CreateImageFromSnapshotSideModalForm() {
   const onDismiss = () => navigate(pb.snapshots({ project }))
 
   const createImage = useApiMutation('imageCreate', {
-    onSuccess() {
+    onSuccess(image) {
       queryClient.invalidateQueries('imageList')
-      addToast({ content: 'Your image has been created' })
+      addToast({ content: `${image.name} created` })
       onDismiss()
     },
   })

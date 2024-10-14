@@ -29,7 +29,8 @@ test('List disks and snapshot', async ({ page }) => {
 
   await clickRowAction(page, 'disk-1 db1', 'Snapshot')
   await expect(page.getByText("Creating snapshot of disk 'disk-1'").nth(0)).toBeVisible()
-  await expect(page.getByText('Snapshot successfully created').nth(0)).toBeVisible()
+  // Next line is a little awkward, but we don't actually know what the snapshot name will be
+  await expect(page.getByText('Successsnapshot disk-1-')).toBeVisible()
 })
 
 test('Disk snapshot error', async ({ page }) => {
@@ -53,7 +54,7 @@ test.describe('Disk create', () => {
   test.afterEach(async ({ page }) => {
     await page.getByRole('button', { name: 'Create disk' }).click()
 
-    await expectVisible(page, ['text="Your disk has been created"'])
+    await expectVisible(page, ['text="a-new-disk created"'])
     await expectVisible(page, ['role=cell[name="a-new-disk"]'])
   })
 

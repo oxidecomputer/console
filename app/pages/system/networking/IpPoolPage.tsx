@@ -82,10 +82,10 @@ export function IpPoolPage() {
   })
   const navigate = useNavigate()
   const { mutateAsync: deletePool } = useApiMutation('ipPoolDelete', {
-    onSuccess() {
+    onSuccess(_data, variables) {
       apiQueryClient.invalidateQueries('ipPoolList')
       navigate(pb.ipPools())
-      addToast({ content: 'IP pool deleted' })
+      addToast({ content: `${variables.path.pool} deleted` })
     },
   })
 

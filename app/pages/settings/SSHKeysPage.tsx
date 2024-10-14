@@ -46,9 +46,9 @@ export function SSHKeysPage() {
   const queryClient = useApiQueryClient()
 
   const { mutateAsync: deleteSshKey } = useApiMutation('currentUserSshKeyDelete', {
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries('currentUserSshKeyList')
-      addToast({ content: 'Your SSH key has been deleted' })
+      addToast({ content: `${variables.path.sshKey} deleted` })
     },
   })
 

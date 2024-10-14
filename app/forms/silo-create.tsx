@@ -57,7 +57,7 @@ export function CreateSiloSideModalForm() {
     onSuccess(silo) {
       queryClient.invalidateQueries('siloList')
       queryClient.setQueryData('siloView', { path: { silo: silo.name } }, silo)
-      addToast({ content: 'Your silo has been created' })
+      addToast({ content: `${silo.name} created` })
       onDismiss()
     },
   })

@@ -62,9 +62,9 @@ export function VpcRoutersTab() {
   )
 
   const { mutateAsync: deleteRouter } = useApiMutation('vpcRouterDelete', {
-    onSuccess() {
+    onSuccess(_data, variables) {
       apiQueryClient.invalidateQueries('vpcRouterList')
-      addToast({ content: 'Your router has been deleted' })
+      addToast({ content: `${variables.path.router} deleted` })
     },
   })
 

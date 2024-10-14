@@ -130,7 +130,7 @@ test('Detach disk', async ({ page }) => {
   // Have to stop instance to edit disks
   await stopInstance(page)
 
-  const successMsg = page.getByText('Disk detached').nth(0)
+  const successMsg = page.getByText('Successdisk-2 detached')
   const row = page.getByRole('row', { name: 'disk-2' })
   await expect(row).toBeVisible()
   await expect(successMsg).toBeHidden()
@@ -143,8 +143,8 @@ test('Detach disk', async ({ page }) => {
 test('Snapshot disk', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
 
-  // have to use nth with toasts because the text shows up in multiple spots
-  const successMsg = page.getByText('Snapshot created').nth(0)
+  // we don't know the full name of the disk, but this will work to find the toast
+  const successMsg = page.getByText('Successdisk-1-')
   await expect(successMsg).toBeHidden()
 
   await clickRowAction(page, 'disk-1', 'Snapshot')

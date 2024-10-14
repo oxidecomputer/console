@@ -45,7 +45,7 @@ export function EditProjectSideModalForm() {
       queryClient.invalidateQueries('projectList')
       // avoid the project fetch when the project page loads since we have the data
       queryClient.setQueryData('projectView', { path: { project: project.name } }, project)
-      addToast({ content: 'Your project has been updated' })
+      addToast({ content: `${project.name} updated` })
       onDismiss()
     },
   })

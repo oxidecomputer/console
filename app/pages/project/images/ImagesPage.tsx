@@ -58,7 +58,7 @@ export function ImagesPage() {
 
   const { mutateAsync: deleteImage } = useApiMutation('imageDelete', {
     onSuccess(_data, variables) {
-      addToast({ content: `${variables.path.image} has been deleted` })
+      addToast({ content: `${variables.path.image} deleted` })
       queryClient.invalidateQueries('imageList')
     },
   })
@@ -131,7 +131,7 @@ const PromoteImageModal = ({ onDismiss, imageName }: PromoteModalProps) => {
   const promoteImage = useApiMutation('imagePromote', {
     onSuccess(data) {
       addToast({
-        content: `${data.name} has been promoted`,
+        content: `${data.name} promoted`,
         cta: {
           text: 'View silo images',
           link: '/images',

@@ -52,7 +52,7 @@ test('can promote an image from silo', async ({ page }) => {
   await page.locator('role=button[name="Promote"]').click()
 
   // Check it was promoted successfully
-  await expectVisible(page, ['text="image-1 has been promoted"'])
+  await expectVisible(page, ['text="image-1 promoted"'])
   await expectVisible(page, ['role=cell[name="image-1"]'])
 })
 
@@ -68,7 +68,7 @@ test('can promote an image from project', async ({ page }) => {
 
   // Promote image and check it was successful
   await page.locator('role=button[name="Promote"]').click()
-  await expectVisible(page, ['text="image-2 has been promoted"'])
+  await expectVisible(page, ['text="image-2 promoted"'])
   await expectNotVisible(page, ['role=cell[name="image-2"]'])
 
   await page.click('role=link[name="View silo images"]')
@@ -112,7 +112,7 @@ test('can demote an image from silo', async ({ page }) => {
   await page.getByRole('button', { name: 'Demote' }).click()
 
   // Promote image and check it was successful
-  await expectVisible(page, ['text="arch-2022-06-01 has been demoted"'])
+  await expectVisible(page, ['text="arch-2022-06-01 demoted"'])
   await expectNotVisible(page, ['role=cell[name="arch-2022-06-01"]'])
 
   await page.click('role=link[name="View images in mock-project"]')
@@ -132,7 +132,7 @@ test('can delete an image from a project', async ({ page }) => {
   await expect(spinner).toBeVisible()
 
   // Check deletion was successful
-  await expect(page.getByText('image-3 has been deleted', { exact: true })).toBeVisible()
+  await expect(page.getByText('image-3 deleted', { exact: true })).toBeVisible()
   await expect(cell).toBeHidden()
   await expect(spinner).toBeHidden()
 })
@@ -150,9 +150,7 @@ test('can delete an image from a silo', async ({ page }) => {
   await expect(spinner).toBeVisible()
 
   // Check deletion was successful
-  await expect(
-    page.getByText('ubuntu-20-04 has been deleted', { exact: true })
-  ).toBeVisible()
+  await expect(page.getByText('ubuntu-20-04 deleted', { exact: true })).toBeVisible()
   await expect(cell).toBeHidden()
   await expect(spinner).toBeHidden()
 })

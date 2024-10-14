@@ -72,7 +72,7 @@ export function SiloImagesPage() {
   const queryClient = useApiQueryClient()
   const { mutateAsync: deleteImage } = useApiMutation('imageDelete', {
     onSuccess(_data, variables) {
-      addToast({ content: `${variables.path.image} has been deleted` })
+      addToast({ content: `${variables.path.image} deleted` })
       queryClient.invalidateQueries('imageList')
     },
   })
@@ -131,7 +131,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
 
   const promoteImage = useApiMutation('imagePromote', {
     onSuccess(data) {
-      addToast({ content: `${data.name} has been promoted` })
+      addToast({ content: `${data.name} promoted` })
       queryClient.invalidateQueries('imageList')
     },
     onError: (err) => {
@@ -218,7 +218,7 @@ const DemoteImageModal = ({
   const demoteImage = useApiMutation('imageDemote', {
     onSuccess(data) {
       addToast({
-        content: `${data.name} has been demoted`,
+        content: `${data.name} demoted`,
         cta: selectedProject
           ? {
               text: `View images in ${selectedProject}`,

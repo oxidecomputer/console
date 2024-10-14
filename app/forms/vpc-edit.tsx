@@ -42,7 +42,7 @@ export function EditVpcSideModalForm() {
     onSuccess(updatedVpc) {
       queryClient.invalidateQueries('vpcList')
       navigate(pb.vpc({ project, vpc: updatedVpc.name }))
-      addToast({ content: 'Your VPC has been updated' })
+      addToast({ content: `${updatedVpc.name} updated` })
 
       // Only invalidate if we're staying on the same page. If the name
       // _has_ changed, invalidating vpcView causes an error page to flash

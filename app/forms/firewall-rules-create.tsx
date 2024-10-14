@@ -74,9 +74,10 @@ export function CreateFirewallRuleForm() {
   const onDismiss = () => navigate(pb.vpcFirewallRules(vpcSelector))
 
   const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
-    onSuccess() {
+    onSuccess(updatedRules) {
+      const newRule = updatedRules.rules[updatedRules.rules.length - 1]
       queryClient.invalidateQueries('vpcFirewallRulesView')
-      addToast({ content: 'Your firewall rule has been created' })
+      addToast({ content: `${newRule.name} created` })
       navigate(pb.vpcFirewallRules(vpcSelector))
     },
   })

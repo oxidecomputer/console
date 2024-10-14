@@ -87,9 +87,9 @@ export function StorageTab() {
   )
 
   const { mutate: detachDisk } = useApiMutation('instanceDiskDetach', {
-    onSuccess() {
+    onSuccess(disk) {
       queryClient.invalidateQueries('instanceDiskList')
-      addToast({ content: 'Disk detached' })
+      addToast({ content: `${disk.name} detached` })
     },
     onError(err) {
       addToast({
@@ -100,9 +100,9 @@ export function StorageTab() {
     },
   })
   const { mutate: createSnapshot } = useApiMutation('snapshotCreate', {
-    onSuccess() {
+    onSuccess(snapshot) {
       queryClient.invalidateQueries('snapshotList')
-      addToast({ content: 'Snapshot created' })
+      addToast({ content: `${snapshot.name} created` })
     },
     onError(err) {
       addToast({

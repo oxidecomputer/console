@@ -83,9 +83,9 @@ export function VpcsPage() {
   const navigate = useNavigate()
 
   const { mutateAsync: deleteVpc } = useApiMutation('vpcDelete', {
-    onSuccess() {
+    onSuccess(_data, variables) {
       queryClient.invalidateQueries('vpcList')
-      addToast({ content: 'Your VPC has been deleted' })
+      addToast({ content: `${variables.path.vpc} deleted` })
     },
   })
 
