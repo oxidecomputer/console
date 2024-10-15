@@ -89,53 +89,47 @@ export const genName = (...parts: [string, ...string[]]) => {
   )
 }
 
-// setting .states is a cute way to make it ergonomic to call the test function
-// while also making the states available directly
-
-function makeInstanceTest(states: InstanceState[]) {
-  const test = (i: { runState: InstanceState }) => states.includes(i.runState)
-  test.states = states
-  return test
-}
-
-// we used to define this by mapping actions directly to states and then running
-// a mapValues on it, but that resulted in TS allowing any string as a key on
-// instanceKey
-
-export const instanceCan = {
+const instanceActions = {
   // NoVmm maps to to Stopped:
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-model/src/instance_state.rs#L55
 
   // https://github.com/oxidecomputer/omicron/blob/0496637/nexus/src/app/instance.rs#L2064
-  start: makeInstanceTest(['stopped', 'failed']),
+  start: ['stopped', 'failed'],
 
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/instance.rs#L865
-  delete: makeInstanceTest(['stopped', 'failed']),
+  delete: ['stopped', 'failed'],
 
   // https://github.com/oxidecomputer/omicron/blob/3093818/nexus/db-queries/src/db/datastore/instance.rs#L1030-L1043
-  update: makeInstanceTest(['stopped', 'failed', 'creating']),
+  update: ['stopped', 'failed', 'creating'],
 
   // reboot and stop are kind of weird!
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/src/app/instance.rs#L790-L798
   // https://github.com/oxidecomputer/propolis/blob/b278193/bin/propolis-server/src/lib/vm/request_queue.rs
   // https://github.com/oxidecomputer/console/pull/2387#discussion_r1722368236
-  reboot: makeInstanceTest(['running']), // technically rebooting allowed but too weird to say i)t
+  reboot: ['running'], // technically rebooting allowed but too weird to say it
   // stopping a failed disk: https://github.com/oxidecomputer/omicron/blob/f0b804818b898bebdb317ac2b000618944c02457/nexus/src/app/instance.rs#L818-L830
-  stop: makeInstanceTest(['running', 'starting', 'rebooting', 'failed']),
+  stop: ['running', 'starting', 'rebooting', 'failed'],
 
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/disk.rs#L323-L327
-  detachDisk: makeInstanceTest(['creating', 'stopped', 'failed']),
+  detachDisk: ['creating', 'stopped', 'failed'],
   // only Creating and NoVmm
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/disk.rs#L185-L188
-  attachDisk: makeInstanceTest(['creating', 'stopped']),
-
+  attachDisk: ['creating', 'stopped'],
   // primary nic: https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/network_interface.rs#L761-L765
   // non-primary: https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/network_interface.rs#L806-L810
-  updateNic: makeInstanceTest(['stopped']),
+  updateNic: ['stopped'],
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/src/app/instance.rs#L1520-L1522
+  serialConsole: ['running', 'rebooting', 'migrating', 'repairing'],
+} satisfies Record<string, InstanceState[]>
 
-  serialConsole: makeInstanceTest(['running', 'rebooting', 'migrating', 'repairing']),
-}
+// setting .states is a cute way to make it ergonomic to call the test function
+// while also making the states available directly
+
+export const instanceCan = R.mapValues(instanceActions, (states: InstanceState[]) => {
+  const test = (i: { runState: InstanceState }) => states.includes(i.runState)
+  test.states = states
+  return test
+})
 
 export function instanceTransitioning({ runState }: Instance) {
   return (
@@ -146,29 +140,29 @@ export function instanceTransitioning({ runState }: Instance) {
   )
 }
 
-function makeDiskTest(states: DiskState['state'][]) {
+const diskActions = {
+  // this is a weird one because the list of states is dynamic and it includes
+  // 'creating' in the unwind of the disk create saga, but does not include
+  // 'creating' in the disk delete saga, which is what we care about
+  // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/src/app/sagas/disk_delete.rs?plain=1#L110
+  delete: ['detached', 'faulted'],
+  // TODO: link to API source. It's hard to determine from the saga code what the rule is here.
+  snapshot: ['attached', 'detached'],
+  // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/disk.rs#L173-L176
+  attach: ['creating', 'detached'],
+  // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/disk.rs#L313-L314
+  detach: ['attached'],
+  // https://github.com/oxidecomputer/omicron/blob/3093818/nexus/db-queries/src/db/datastore/instance.rs#L1077-L1081
+  setAsBootDisk: ['attached'],
+} satisfies Record<string, DiskState['state'][]>
+
+export const diskCan = R.mapValues(diskActions, (states: DiskState['state'][]) => {
   // only have to Pick because we want this to work for both Disk and
   // Json<Disk>, which we pass to it in the MSW handlers
   const test = (d: Pick<Disk, 'state'>) => states.includes(d.state.state)
   test.states = states
   return test
-}
-
-export const diskCan = {
-  // this is a weird one because the list of states is dynamic and it includes
-  // 'creating' in the unwind of the disk create saga, but does not include
-  // 'creating' in the disk delete saga, which is what we care about
-  // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/src/app/sagas/disk_delete.rs?plain=1#L110
-  delete: makeDiskTest(['detached', 'faulted']),
-  // TODO: link to API source. It's hard to determine from the saga code what the rule is here.
-  snapshot: makeDiskTest(['attached', 'detached']),
-  // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/disk.rs#L173-L176
-  attach: makeDiskTest(['creating', 'detached']),
-  // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/disk.rs#L313-L314
-  detach: makeDiskTest(['attached']),
-  // https://github.com/oxidecomputer/omicron/blob/3093818/nexus/db-queries/src/db/datastore/instance.rs#L1077-L1081
-  setAsBootDisk: makeDiskTest(['attached']),
-}
+})
 
 /** Hard coded in the API, so we can hard code it here. */
 export const FLEET_ID = '001de000-1334-4000-8000-000000000000'
