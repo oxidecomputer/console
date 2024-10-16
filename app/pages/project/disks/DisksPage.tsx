@@ -32,6 +32,7 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { ToastContent } from '~/ui/lib/Toast'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -101,7 +102,9 @@ export function DisksPage() {
   const { mutateAsync: deleteDisk } = useApiMutation('diskDelete', {
     onSuccess(_data, variables) {
       queryClient.invalidateQueries('diskList')
-      addToast({ content: `${variables.path.disk} deleted` })
+      addToast({
+        content: <ToastContent kind="Disk" name={variables.path.disk} verb="deleted" />,
+      })
     },
   })
 
