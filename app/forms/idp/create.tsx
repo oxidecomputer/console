@@ -57,7 +57,7 @@ export function CreateIdpSideModalForm() {
       addToast({
         content: (
           <>
-            IDP <HLs>{idp.name}</HLs> created
+            IdP <HLs>{idp.name}</HLs> created
           </>
         ),
       })

@@ -46,8 +46,10 @@ export function VpcSubnetsTab() {
   const { Table } = useQueryTable('vpcSubnetList', { query: vpcSelector })
 
   const { mutateAsync: deleteSubnet } = useApiMutation('vpcSubnetDelete', {
-    onSuccess() {
+    onSuccess(a, b) {
+      console.log(a, b)
       queryClient.invalidateQueries('vpcSubnetList')
+      // We only have the ID, so will show a generic confirmation message
       addToast({ content: 'Subnet deleted' })
     },
   })
