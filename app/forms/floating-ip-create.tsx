@@ -23,6 +23,7 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { HLs } from '~/components/HL'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Badge } from '~/ui/lib/Badge'
@@ -68,7 +69,13 @@ export function CreateFloatingIpSideModalForm() {
     onSuccess(floatingIp) {
       queryClient.invalidateQueries('floatingIpList')
       queryClient.invalidateQueries('ipPoolUtilizationView')
-      addToast({ content: `${floatingIp.name} created` })
+      addToast({
+        content: (
+          <>
+            Floating IP <HLs>{floatingIp.name}</HLs> created
+          </>
+        ),
+      })
       navigate(pb.floatingIps(projectSelector))
     },
   })

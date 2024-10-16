@@ -15,6 +15,8 @@ import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { Slash } from '~/ui/lib/Slash'
 
+import { HLs } from './HL'
+
 function FloatingIpLabel({ fip }: { fip: FloatingIp }) {
   return (
     <div className="text-tertiary selected:text-accent-secondary">
@@ -48,7 +50,13 @@ export const AttachFloatingIpModal = ({
     onSuccess(floatingIp) {
       queryClient.invalidateQueries('floatingIpList')
       queryClient.invalidateQueries('instanceExternalIpList')
-      addToast({ content: `${floatingIp.name} attached` })
+      addToast({
+        content: (
+          <>
+            IP <HLs>{floatingIp.name}</HLs> attached
+          </>
+        ),
+      })
       onDismiss()
     },
     onError: (err) => {

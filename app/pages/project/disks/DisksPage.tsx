@@ -20,6 +20,7 @@ import {
 import { Storage16Icon, Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
+import { HLs } from '~/components/HL'
 import { DiskStateBadge } from '~/components/StateBadge'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -32,7 +33,6 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
-import { ToastContent } from '~/ui/lib/Toast'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -103,7 +103,11 @@ export function DisksPage() {
     onSuccess(_data, variables) {
       queryClient.invalidateQueries('diskList')
       addToast({
-        content: <ToastContent kind="Disk" name={variables.path.disk} verb="deleted" />,
+        content: (
+          <>
+            Disk <HLs>{variables.path.disk}</HLs> deleted
+          </>
+        ),
       })
     },
   })
@@ -112,7 +116,11 @@ export function DisksPage() {
     onSuccess(_data, variables) {
       queryClient.invalidateQueries('snapshotList')
       addToast({
-        content: <ToastContent kind="Snapshot" name={variables.body.name} verb="created" />,
+        content: (
+          <>
+            Snapshot <HLs>{variables.body.name}</HLs> created
+          </>
+        ),
       })
     },
     onError(err) {

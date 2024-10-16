@@ -28,6 +28,7 @@ import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { HLs } from '~/components/HL'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
@@ -35,7 +36,6 @@ import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Radio } from '~/ui/lib/Radio'
 import { RadioGroup } from '~/ui/lib/RadioGroup'
 import { Slash } from '~/ui/lib/Slash'
-import { ToastContent } from '~/ui/lib/Toast'
 import { toLocaleDateString } from '~/util/date'
 import { bytesToGiB, GiB } from '~/util/units'
 
@@ -77,7 +77,13 @@ export function CreateDiskSideModalForm({
   const createDisk = useApiMutation('diskCreate', {
     onSuccess(data) {
       queryClient.invalidateQueries('diskList')
-      addToast({ content: <ToastContent kind="Disk" name={data.name} verb="created" /> })
+      addToast({
+        content: (
+          <>
+            Disk <HLs>{data.name}</HLs>created
+          </>
+        ),
+      })
       onSuccess?.(data)
       onDismiss(navigate)
     },

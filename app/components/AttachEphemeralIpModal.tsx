@@ -17,6 +17,8 @@ import { Badge } from '~/ui/lib/Badge'
 import { Modal } from '~/ui/lib/Modal'
 import { ALL_ISH } from '~/util/consts'
 
+import { HLs } from './HL'
+
 export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void }) => {
   const queryClient = useApiQueryClient()
   const { project, instance } = useInstanceSelector()
@@ -30,7 +32,13 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
   const instanceEphemeralIpAttach = useApiMutation('instanceEphemeralIpAttach', {
     onSuccess(ephemeralIp) {
       queryClient.invalidateQueries('instanceExternalIpList')
-      addToast({ content: `${ephemeralIp.ip} attached` })
+      addToast({
+        content: (
+          <>
+            IP <HLs>{ephemeralIp.ip}</HLs> attached
+          </>
+        ),
+      })
       onDismiss()
     },
     onError: (err) => {

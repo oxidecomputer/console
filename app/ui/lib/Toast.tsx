@@ -17,7 +17,6 @@ import {
   Warning12Icon,
 } from '@oxide/design-system/icons/react'
 
-import { HL } from '~/components/HL'
 import { extractText } from '~/util/str'
 
 import { TimeoutIndicator } from './TimeoutIndicator'
@@ -131,24 +130,3 @@ export const Toast = ({
     </div>
   )
 }
-
-type kind = 'Disk' | 'Pool' | 'Snapshot' // more to come, or we can just make this `string`
-type ToastVerb =
-  | 'created'
-  | 'updated'
-  | 'deleted'
-  | 'promoted'
-  | 'demoted'
-  | 'attached'
-  | 'detached'
-type ToastContentProps = { kind: kind; name: string; verb: ToastVerb; variant?: Variant }
-export const ToastContent = ({
-  kind,
-  name,
-  verb,
-  variant = 'success',
-}: ToastContentProps) => (
-  <>
-    {kind} <HL className={cn('text-sans-semi-md', textColor[variant])}>{name}</HL> {verb}
-  </>
-)

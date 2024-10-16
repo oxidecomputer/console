@@ -21,6 +21,7 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { HLs } from '~/components/HL'
 import { getProjectSnapshotSelector, useProjectSnapshotSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
@@ -56,7 +57,13 @@ export function CreateImageFromSnapshotSideModalForm() {
   const createImage = useApiMutation('imageCreate', {
     onSuccess(image) {
       queryClient.invalidateQueries('imageList')
-      addToast({ content: `${image.name} created` })
+      addToast({
+        content: (
+          <>
+            Image <HLs>{image.name}</HLs> created
+          </>
+        ),
+      })
       onDismiss()
     },
   })
