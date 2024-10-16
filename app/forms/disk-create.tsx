@@ -35,6 +35,7 @@ import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Radio } from '~/ui/lib/Radio'
 import { RadioGroup } from '~/ui/lib/RadioGroup'
 import { Slash } from '~/ui/lib/Slash'
+import { ToastContent } from '~/ui/lib/Toast'
 import { toLocaleDateString } from '~/util/date'
 import { bytesToGiB, GiB } from '~/util/units'
 
@@ -76,7 +77,7 @@ export function CreateDiskSideModalForm({
   const createDisk = useApiMutation('diskCreate', {
     onSuccess(data) {
       queryClient.invalidateQueries('diskList')
-      addToast({ content: `${data.name} created` })
+      addToast({ content: <ToastContent kind="Disk" name={data.name} verb="created" /> })
       onSuccess?.(data)
       onDismiss(navigate)
     },

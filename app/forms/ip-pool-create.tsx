@@ -14,6 +14,7 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { addToast } from '~/stores/toast'
+import { ToastContent } from '~/ui/lib/Toast'
 import { pb } from '~/util/path-builder'
 
 const defaultValues: IpPoolCreate = {
@@ -30,7 +31,7 @@ export function CreateIpPoolSideModalForm() {
   const createPool = useApiMutation('ipPoolCreate', {
     onSuccess(_pool) {
       queryClient.invalidateQueries('ipPoolList')
-      addToast({ content: `${_pool.name} created` })
+      addToast({ content: <ToastContent kind="Pool" name={_pool.name} verb="created" /> })
       navigate(pb.ipPools())
     },
   })

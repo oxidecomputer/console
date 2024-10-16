@@ -37,6 +37,7 @@ import { Button } from '~/ui/lib/Button'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { EMBody, EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableControls, TableEmptyBox, TableTitle } from '~/ui/lib/Table'
+import { ToastContent } from '~/ui/lib/Toast'
 import { links } from '~/util/links'
 
 import { fancifyStates } from './common'
@@ -89,7 +90,7 @@ export function StorageTab() {
   const { mutate: detachDisk } = useApiMutation('instanceDiskDetach', {
     onSuccess(disk) {
       queryClient.invalidateQueries('instanceDiskList')
-      addToast({ content: `${disk.name} detached` })
+      addToast({ content: <ToastContent kind="Disk" name={disk.name} verb="detached" /> })
     },
     onError(err) {
       addToast({
@@ -102,7 +103,9 @@ export function StorageTab() {
   const { mutate: createSnapshot } = useApiMutation('snapshotCreate', {
     onSuccess(snapshot) {
       queryClient.invalidateQueries('snapshotList')
-      addToast({ content: `${snapshot.name} created` })
+      addToast({
+        content: <ToastContent kind="Snapshot" name={snapshot.name} verb="created" />,
+      })
     },
     onError(err) {
       addToast({

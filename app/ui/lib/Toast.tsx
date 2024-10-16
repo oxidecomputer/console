@@ -27,7 +27,7 @@ type Variant = 'success' | 'error' | 'info'
 
 export interface ToastProps {
   title?: string
-  content?: string | ReactNode
+  content?: ReactNode
   onClose: () => void
   variant?: Variant
   timeout?: number | null
@@ -132,8 +132,15 @@ export const Toast = ({
   )
 }
 
-type kind = 'Disk' // more to come, or we can just make this `string`
-type ToastVerb = 'created' | 'updated' | 'deleted' | 'promoted' | 'demoted'
+type kind = 'Disk' | 'Pool' | 'Snapshot' // more to come, or we can just make this `string`
+type ToastVerb =
+  | 'created'
+  | 'updated'
+  | 'deleted'
+  | 'promoted'
+  | 'demoted'
+  | 'attached'
+  | 'detached'
 type ToastContentProps = { kind: kind; name: string; verb: ToastVerb; variant?: Variant }
 export const ToastContent = ({
   kind,
