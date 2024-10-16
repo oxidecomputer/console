@@ -130,7 +130,7 @@ test('Detach disk', async ({ page }) => {
   // Have to stop instance to edit disks
   await stopInstance(page)
 
-  const successMsg = page.getByText('Disk disk-2 detached')
+  const successMsg = page.getByText('Disk disk-2 detached').first()
   const row = page.getByRole('row', { name: 'disk-2' })
   await expect(row).toBeVisible()
   await expect(successMsg).toBeHidden()
@@ -144,7 +144,7 @@ test('Snapshot disk', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
 
   // we don't know the full name of the disk, but this will work to find the toast
-  const successMsg = page.getByText('Snapshot disk-1-')
+  const successMsg = page.getByText('Snapshot disk-1-').first()
   await expect(successMsg).toBeHidden()
 
   await clickRowAction(page, 'disk-1', 'Snapshot')
