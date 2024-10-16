@@ -150,7 +150,7 @@ test('can delete an image from a silo', async ({ page }) => {
   await expect(spinner).toBeVisible()
 
   // Check deletion was successful
-  await expect(page.getByText('ubuntu-20-04 deleted', { exact: true })).toBeVisible()
+  await expect(page.getByText('Image ubuntu-20-04 deleted', { exact: true })).toBeVisible()
   await expect(cell).toBeHidden()
   await expect(spinner).toBeHidden()
 })

@@ -30,7 +30,9 @@ test('List disks and snapshot', async ({ page }) => {
   await clickRowAction(page, 'disk-1 db1', 'Snapshot')
   await expect(page.getByText("Creating snapshot of disk 'disk-1'").nth(0)).toBeVisible()
   // Next line is a little awkward, but we don't actually know what the snapshot name will be
-  await expect(page.getByText('Snapshot disk-1-')).toBeVisible()
+  await expect(
+    page.getByText(/Snapshot disk-1-.*created/, { exact: false }).nth(0)
+  ).toBeVisible()
 })
 
 test('Disk snapshot error', async ({ page }) => {
