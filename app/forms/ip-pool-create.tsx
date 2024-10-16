@@ -34,7 +34,7 @@ export function CreateIpPoolSideModalForm() {
       addToast({
         content: (
           <>
-            Pool <HLs>{_pool.name}</HLs> created
+            IP pool <HLs>{_pool.name}</HLs> created
           </>
         ),
       })

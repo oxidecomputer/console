@@ -81,7 +81,7 @@ export function CreateFirewallRuleForm() {
       addToast({
         content: (
           <>
-            Rule <HLs>{newRule.name}</HLs> created
+            Firewall rule <HLs>{newRule.name}</HLs> created
           </>
         ),
       })

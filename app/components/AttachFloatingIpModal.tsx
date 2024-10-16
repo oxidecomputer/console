@@ -10,12 +10,11 @@ import { useForm } from 'react-hook-form'
 
 import { useApiMutation, useApiQueryClient, type FloatingIp, type Instance } from '~/api'
 import { ListboxField } from '~/components/form/fields/ListboxField'
+import { HLs } from '~/components/HL'
 import { addToast } from '~/stores/toast'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { Slash } from '~/ui/lib/Slash'
-
-import { HLs } from './HL'
 
 function FloatingIpLabel({ fip }: { fip: FloatingIp }) {
   return (

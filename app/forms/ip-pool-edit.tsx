@@ -45,7 +45,7 @@ export function EditIpPoolSideModalForm() {
       addToast({
         content: (
           <>
-            IP Pool <HLs>{updatedPool.name}</HLs> updated
+            IP pool <HLs>{updatedPool.name}</HLs> updated
           </>
         ),
       })
