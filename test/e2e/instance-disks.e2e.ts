@@ -144,7 +144,9 @@ test('Snapshot disk', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
 
   // we don't know the full name of the disk, but this will work to find the toast
-  const successMsg = page.getByText('Snapshot disk-1-').first()
+  const successMsg = page
+    .getByText(/Snapshot disk-1-[a-z0-9]{6} created/, { exact: true })
+    .first()
   await expect(successMsg).toBeHidden()
 
   await clickRowAction(page, 'disk-1', 'Snapshot')

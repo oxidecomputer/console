@@ -31,7 +31,7 @@ test('List disks and snapshot', async ({ page }) => {
   await expect(page.getByText("Creating snapshot of disk 'disk-1'").nth(0)).toBeVisible()
   // Next line is a little awkward, but we don't actually know what the snapshot name will be
   await expect(
-    page.getByText(/Snapshot disk-1-.*created/, { exact: false }).nth(0)
+    page.getByText(/Snapshot disk-1-[a-z0-9]{6} created/, { exact: true }).first()
   ).toBeVisible()
 })
 
@@ -41,10 +41,12 @@ test('Disk snapshot error', async ({ page }) => {
   // special disk that triggers snapshot error
   await clickRowAction(page, 'disk-snapshot-error', 'Snapshot')
   await expect(
-    page.getByText("Creating snapshot of disk 'disk-snapshot-error'").nth(0)
+    page
+      .getByText("Creating snapshot of disk 'disk-snapshot-error'", { exact: true })
+      .first()
   ).toBeVisible()
-  await expect(page.getByText('Failed to create snapshot').nth(0)).toBeVisible()
-  await expect(page.getByText('Cannot snapshot disk').nth(0)).toBeVisible()
+  await expect(page.getByText('Failed to create snapshot', { exact: true })).toBeVisible()
+  await expect(page.getByText('Cannot snapshot disk', { exact: true })).toBeVisible()
 })
 
 test.describe('Disk create', () => {
