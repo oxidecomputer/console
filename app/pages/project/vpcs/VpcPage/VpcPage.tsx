@@ -16,6 +16,7 @@ import {
 } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 
+import { HLs } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
@@ -49,7 +50,13 @@ export function VpcPage() {
     onSuccess(_data, variables) {
       queryClient.invalidateQueries('vpcList')
       navigate(pb.vpcs({ project }))
-      addToast({ content: `${variables.path.vpc} deleted` })
+      addToast({
+        content: (
+          <>
+            VPC <HLs>{variables.path.vpc}</HLs> deleted
+          </>
+        ),
+      })
     },
   })
 

@@ -22,7 +22,7 @@ import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { ListboxField } from '~/components/form/fields/ListboxField'
-import { HL } from '~/components/HL'
+import { HL, HLs } from '~/components/HL'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -110,7 +110,13 @@ export function FloatingIpsPage() {
   const { mutateAsync: floatingIpDetach } = useApiMutation('floatingIpDetach', {
     onSuccess(floatingIp) {
       queryClient.invalidateQueries('floatingIpList')
-      addToast({ content: `${floatingIp.name} detached` })
+      addToast({
+        content: (
+          <>
+            Floating IP <HLs>{floatingIp.name}</HLs> detached
+          </>
+        ),
+      })
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
@@ -120,7 +126,13 @@ export function FloatingIpsPage() {
     onSuccess(_data, variables) {
       queryClient.invalidateQueries('floatingIpList')
       queryClient.invalidateQueries('ipPoolUtilizationView')
-      addToast({ content: `${variables.path.floatingIp} deleted` })
+      addToast({
+        content: (
+          <>
+            Floating IP <HLs>{variables.path.floatingIp}</HLs> deleted
+          </>
+        ),
+      })
     },
   })
 
@@ -252,7 +264,13 @@ const AttachFloatingIpModal = ({
   const floatingIpAttach = useApiMutation('floatingIpAttach', {
     onSuccess(floatingIp) {
       queryClient.invalidateQueries('floatingIpList')
-      addToast({ content: `${floatingIp.name} attached` })
+      addToast({
+        content: (
+          <>
+            Floating IP <HLs>{floatingIp.name}</HLs> attached
+          </>
+        ),
+      })
       onDismiss()
     },
     onError: (err) => {

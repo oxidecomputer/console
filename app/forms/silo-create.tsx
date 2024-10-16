@@ -19,6 +19,7 @@ import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField } from '~/components/form/fields/TextField'
 import { TlsCertsField } from '~/components/form/fields/TlsCertsField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { HLs } from '~/components/HL'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
@@ -57,7 +58,13 @@ export function CreateSiloSideModalForm() {
     onSuccess(silo) {
       queryClient.invalidateQueries('siloList')
       queryClient.setQueryData('siloView', { path: { silo: silo.name } }, silo)
-      addToast({ content: `${silo.name} created` })
+      addToast({
+        content: (
+          <>
+            Silo <HLs>{silo.name}</HLs> created
+          </>
+        ),
+      })
       onDismiss()
     },
   })

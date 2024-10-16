@@ -15,6 +15,7 @@ import { FileField } from '~/components/form/fields/FileField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { HLs } from '~/components/HL'
 import { useSiloSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { readBlobAsBase64 } from '~/util/file'
@@ -53,7 +54,13 @@ export function CreateIdpSideModalForm() {
   const createIdp = useApiMutation('samlIdentityProviderCreate', {
     onSuccess(idp) {
       queryClient.invalidateQueries('siloIdentityProviderList')
-      addToast({ content: `${idp.name} created` })
+      addToast({
+        content: (
+          <>
+            IDP <HLs>{idp.name}</HLs> created
+          </>
+        ),
+      })
       onDismiss()
     },
   })

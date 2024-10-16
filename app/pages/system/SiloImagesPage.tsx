@@ -23,6 +23,7 @@ import { DocsPopover } from '~/components/DocsPopover'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { toImageComboboxItem } from '~/components/form/fields/ImageSelectField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
+import { HLs } from '~/components/HL'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
@@ -72,7 +73,13 @@ export function SiloImagesPage() {
   const queryClient = useApiQueryClient()
   const { mutateAsync: deleteImage } = useApiMutation('imageDelete', {
     onSuccess(_data, variables) {
-      addToast({ content: `${variables.path.image} deleted` })
+      addToast({
+        content: (
+          <>
+            Image <HLs>{variables.path.image}</HLs> deleted
+          </>
+        ),
+      })
       queryClient.invalidateQueries('imageList')
     },
   })
@@ -131,7 +138,13 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
 
   const promoteImage = useApiMutation('imagePromote', {
     onSuccess(data) {
-      addToast({ content: `${data.name} promoted` })
+      addToast({
+        content: (
+          <>
+            Image <HLs>{data.name}</HLs> promoted
+          </>
+        ),
+      })
       queryClient.invalidateQueries('imageList')
     },
     onError: (err) => {
@@ -218,7 +231,11 @@ const DemoteImageModal = ({
   const demoteImage = useApiMutation('imageDemote', {
     onSuccess(data) {
       addToast({
-        content: `${data.name} demoted`,
+        content: (
+          <>
+            Image <HLs>{data.name}</HLs> demoted
+          </>
+        ),
         cta: selectedProject
           ? {
               text: `View images in ${selectedProject}`,

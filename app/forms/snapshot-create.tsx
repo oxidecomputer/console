@@ -22,6 +22,7 @@ import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { HLs } from '~/components/HL'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { toComboboxItems } from '~/ui/lib/Combobox'
@@ -54,7 +55,13 @@ export function CreateSnapshotSideModalForm() {
   const createSnapshot = useApiMutation('snapshotCreate', {
     onSuccess(snapshot) {
       queryClient.invalidateQueries('snapshotList')
-      addToast({ content: `${snapshot.name} created` })
+      addToast({
+        content: (
+          <>
+            Snapshot <HLs>{snapshot.name}</HLs> created
+          </>
+        ),
+      })
       onDismiss()
     },
   })

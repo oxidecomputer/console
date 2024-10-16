@@ -11,6 +11,7 @@ import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import { apiQueryClient, useApiMutation, useApiQueryClient } from '@oxide/api'
 
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { HLs } from '~/components/HL'
 import { RouteFormFields, type RouteFormValues } from '~/forms/vpc-router-route-common'
 import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
@@ -46,7 +47,13 @@ export function CreateRouterRouteSideModalForm() {
   const createRouterRoute = useApiMutation('vpcRouterRouteCreate', {
     onSuccess(route) {
       queryClient.invalidateQueries('vpcRouterRouteList')
-      addToast({ content: `${route.name} created` })
+      addToast({
+        content: (
+          <>
+            Route <HLs>{route.name}</HLs> created
+          </>
+        ),
+      })
       navigate(pb.vpcRouter(routerSelector))
     },
   })

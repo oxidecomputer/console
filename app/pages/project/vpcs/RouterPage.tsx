@@ -21,7 +21,7 @@ import {
   type RouteTarget,
 } from '~/api'
 import { DocsPopover } from '~/components/DocsPopover'
-import { HL } from '~/components/HL'
+import { HL, HLs } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { routeFormMessage } from '~/forms/vpc-router-route-common'
 import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
@@ -90,7 +90,13 @@ export function RouterPage() {
   const { mutateAsync: deleteRouterRoute } = useApiMutation('vpcRouterRouteDelete', {
     onSuccess(_data, variables) {
       apiQueryClient.invalidateQueries('vpcRouterRouteList')
-      addToast({ content: `${variables.path.route} deleted` })
+      addToast({
+        content: (
+          <>
+            Route <HLs>{variables.path.route}</HLs> deleted
+          </>
+        ),
+      })
     },
   })
 

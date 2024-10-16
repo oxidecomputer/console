@@ -24,7 +24,7 @@ import { IpGlobal24Icon, Networking24Icon } from '@oxide/design-system/icons/rea
 
 import { AttachEphemeralIpModal } from '~/components/AttachEphemeralIpModal'
 import { AttachFloatingIpModal } from '~/components/AttachFloatingIpModal'
-import { HL } from '~/components/HL'
+import { HL, HLs } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
 import { EditNetworkInterfaceForm } from '~/forms/network-interface-edit'
@@ -204,7 +204,13 @@ export function NetworkingTab() {
   const { mutateAsync: deleteNic } = useApiMutation('instanceNetworkInterfaceDelete', {
     onSuccess(_data, variables) {
       queryClient.invalidateQueries('instanceNetworkInterfaceList')
-      addToast({ content: `${variables.path.interface} deleted` })
+      addToast({
+        content: (
+          <>
+            Network interface <HLs>{variables.path.interface}</HLs> deleted
+          </>
+        ),
+      })
     },
   })
   const { mutate: editNic } = useApiMutation('instanceNetworkInterfaceUpdate', {
@@ -308,7 +314,13 @@ export function NetworkingTab() {
     onSuccess(_data, variables) {
       queryClient.invalidateQueries('floatingIpList')
       queryClient.invalidateQueries('instanceExternalIpList')
-      addToast({ content: `${variables.path.floatingIp} detached` })
+      addToast({
+        content: (
+          <>
+            Floating IP <HLs>{variables.path.floatingIp}</HLs> detached
+          </>
+        ),
+      })
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })

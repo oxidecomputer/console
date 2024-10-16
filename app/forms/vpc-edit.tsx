@@ -18,6 +18,7 @@ import {
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { HLs } from '~/components/HL'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
@@ -42,7 +43,13 @@ export function EditVpcSideModalForm() {
     onSuccess(updatedVpc) {
       queryClient.invalidateQueries('vpcList')
       navigate(pb.vpc({ project, vpc: updatedVpc.name }))
-      addToast({ content: `${updatedVpc.name} updated` })
+      addToast({
+        content: (
+          <>
+            VPC <HLs>{updatedVpc.name}</HLs> updated
+          </>
+        ),
+      })
 
       // Only invalidate if we're staying on the same page. If the name
       // _has_ changed, invalidating vpcView causes an error page to flash

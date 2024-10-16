@@ -54,7 +54,7 @@ import { SshKeysField } from '~/components/form/fields/SshKeysField'
 import { TextField } from '~/components/form/fields/TextField'
 import { Form } from '~/components/form/Form'
 import { FullPageForm } from '~/components/form/FullPageForm'
-import { HL } from '~/components/HL'
+import { HL, HLs } from '~/components/HL'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Badge } from '~/ui/lib/Badge'
@@ -183,7 +183,13 @@ export function CreateInstanceForm() {
         { path: { instance: instance.name }, query: { project } },
         instance
       )
-      addToast({ content: `${instance.name} created` })
+      addToast({
+        content: (
+          <>
+            Instance <HLs>{instance.name}</HLs> created
+          </>
+        ),
+      })
       navigate(pb.instance({ project, instance: instance.name }))
     },
   })

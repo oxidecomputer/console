@@ -18,6 +18,7 @@ import {
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { HLs } from '~/components/HL'
 import { getIpPoolSelector, useIpPoolSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
@@ -41,7 +42,13 @@ export function EditIpPoolSideModalForm() {
     onSuccess(updatedPool) {
       queryClient.invalidateQueries('ipPoolList')
       navigate(pb.ipPool({ pool: updatedPool.name }))
-      addToast({ content: `${updatedPool.name} updated` })
+      addToast({
+        content: (
+          <>
+            IP Pool <HLs>{updatedPool.name}</HLs> updated
+          </>
+        ),
+      })
 
       // Only invalidate if we're staying on the same page. If the name
       // _has_ changed, invalidating ipPoolView causes an error page to flash
