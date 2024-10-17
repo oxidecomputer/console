@@ -165,7 +165,6 @@ export function InstancePage() {
                 size="sm"
                 onClick={action.onActivate}
                 disabled={!!action.disabled}
-                className="text-sm bg-gray-200 rounded px-2 py-1"
               >
                 {action.label}
               </Button>
