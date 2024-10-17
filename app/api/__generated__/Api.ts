@@ -1711,6 +1711,16 @@ export type ImageResultsPage = {
 export type ImportBlocksBulkWrite = { base64EncodedData: string; offset: number }
 
 /**
+ * A policy determining when an instance should be automatically restarted by the control plane.
+ */
+export type InstanceAutoRestartPolicy =
+  /** The instance should not be automatically restarted by the control plane if it fails. */
+  | 'never'
+
+  /** If this instance is running and unexpectedly fails (e.g. due to a host software crash or unexpected host reboot), the control plane will make a best-effort attempt to restart it. The control plane may choose not to restart the instance to preserve the overall availability of the system. */
+  | 'best_effort'
+
+/**
  * The number of CPUs in an Instance
  */
 export type InstanceCpuCount = number
@@ -1761,6 +1771,10 @@ If this is not present, then either the instance has never been automatically re
   autoRestartCooldownExpiration?: Date
   /** `true` if this instance's auto-restart policy will permit the control plane to automatically restart it if it enters the `Failed` state. */
   autoRestartEnabled: boolean
+  /** The auto-restart policy configured for this instance, or `None` if no explicit policy is configured.
+
+If this is not present, then this instance uses the default auto-restart policy, which may or may not allow it to be restarted. The `auto_restart_enabled` field indicates whether the instance will be automatically restarted. */
+  autoRestartPolicy?: InstanceAutoRestartPolicy
   /** the ID of the disk used to boot this Instance, if a specific one is assigned. */
   bootDiskId?: string
   /** human-readable free-form text about a resource */
@@ -1788,16 +1802,6 @@ If this is not present, then this instance has not been automatically restarted.
   timeModified: Date
   timeRunStateUpdated: Date
 }
-
-/**
- * A policy determining when an instance should be automatically restarted by the control plane.
- */
-export type InstanceAutoRestartPolicy =
-  /** The instance should not be automatically restarted by the control plane if it fails. */
-  | 'never'
-
-  /** If this instance is running and unexpectedly fails (e.g. due to a host software crash or unexpected host reboot), the control plane will make a best-effort attempt to restart it. The control plane may choose not to restart the instance to preserve the overall availability of the system. */
-  | 'best_effort'
 
 /**
  * Describe the instance's disks at creation time
@@ -1976,10 +1980,18 @@ export type InstanceSerialConsoleData = {
  * Parameters of an `Instance` that can be reconfigured after creation.
  */
 export type InstanceUpdate = {
+  /** The auto-restart policy for this instance.
+
+If not provided, unset the instance's auto-restart policy. */
+  autoRestartPolicy?: InstanceAutoRestartPolicy
   /** Name or ID of the disk the instance should be instructed to boot from.
 
 If not provided, unset the instance's boot disk. */
   bootDisk?: NameOrId
+  /** The amount of memory to assign to this instance. */
+  memory: ByteCount
+  /** The number of CPUs to assign to this instance. */
+  ncpus: InstanceCpuCount
 }
 
 /**
