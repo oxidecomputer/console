@@ -48,6 +48,7 @@ export interface TextFieldProps<
   control: Control<TFieldValues>
   /** Alters the value of the input during the field's onChange event. */
   transform?: (value: string) => FieldPathValue<TFieldValues, TName>
+  /** shortens input field and places a click-to-copy button on the input */
 }
 
 export function TextField<
