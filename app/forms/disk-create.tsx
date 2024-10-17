@@ -80,7 +80,7 @@ export function CreateDiskSideModalForm({
       addToast({
         content: (
           <>
-            Disk <HLs>{data.name}</HLs>created
+            Disk <HLs>{data.name}</HLs> created
           </>
         ),
       })

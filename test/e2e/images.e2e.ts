@@ -12,6 +12,7 @@ import {
   clipboardText,
   expect,
   expectNotVisible,
+  expectToast,
   expectVisible,
   getPageAsUser,
   selectOption,
@@ -134,7 +135,7 @@ test('can delete an image from a project', async ({ page }) => {
   await expect(spinner).toBeVisible()
 
   // Check deletion was successful
-  await expect(page.getByText('Image image-3 deleted', { exact: true })).toBeVisible()
+  await expectToast(page, 'Image image-3 deleted')
   await expect(cell).toBeHidden()
   await expect(spinner).toBeHidden()
 })
@@ -152,7 +153,7 @@ test('can delete an image from a silo', async ({ page }) => {
   await expect(spinner).toBeVisible()
 
   // Check deletion was successful
-  await expect(page.getByText('Image ubuntu-20-04 deleted', { exact: true })).toBeVisible()
+  await expectToast(page, 'Image ubuntu-20-04 deleted')
   await expect(cell).toBeHidden()
   await expect(spinner).toBeHidden()
 })

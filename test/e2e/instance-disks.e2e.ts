@@ -8,8 +8,10 @@
 import {
   clickRowAction,
   expect,
+  expectNoToast,
   expectNotVisible,
   expectRowVisible,
+  expectToast,
   expectVisible,
   stopInstance,
   test,
@@ -144,14 +146,12 @@ test('Snapshot disk', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
 
   // we don't know the full name of the disk, but this will work to find the toast
-  const successMsg = page
-    .getByText(/Snapshot disk-1-[a-z0-9]{6} created/, { exact: true })
-    .first()
-  await expect(successMsg).toBeHidden()
+  const toastMessage = /Snapshot disk-1-[a-z0-9]{6} created/
+  await expectNoToast(page, toastMessage)
 
   await clickRowAction(page, 'disk-1', 'Snapshot')
 
-  await expect(successMsg).toBeVisible() // we see the toast!
+  await expectToast(page, toastMessage) // we see the toast!
 
   // now go see the snapshot on the snapshots page
   await page.getByRole('link', { name: 'Snapshots' }).click()

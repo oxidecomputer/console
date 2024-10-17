@@ -5,7 +5,15 @@
  *
  * Copyright Oxide Computer Company
  */
-import { clickRowAction, expect, expectRowVisible, expectVisible, test } from './utils'
+import {
+  clickRowAction,
+  expect,
+  expectNoToast,
+  expectRowVisible,
+  expectToast,
+  expectVisible,
+  test,
+} from './utils'
 
 test('List disks and snapshot', async ({ page }) => {
   await page.goto('/projects/mock-project/disks')
@@ -28,11 +36,9 @@ test('List disks and snapshot', async ({ page }) => {
   })
 
   await clickRowAction(page, 'disk-1 db1', 'Snapshot')
-  await expect(page.getByText("Creating snapshot of disk 'disk-1'").nth(0)).toBeVisible()
+  await expectToast(page, "Creating snapshot of disk 'disk-1'")
   // Next line is a little awkward, but we don't actually know what the snapshot name will be
-  await expect(
-    page.getByText(/Snapshot disk-1-[a-z0-9]{6} created/, { exact: true }).first()
-  ).toBeVisible()
+  await expectToast(page, /Snapshot disk-1-[a-z0-9]{6} created/)
 })
 
 test('Disk snapshot error', async ({ page }) => {
@@ -40,13 +46,13 @@ test('Disk snapshot error', async ({ page }) => {
 
   // special disk that triggers snapshot error
   await clickRowAction(page, 'disk-snapshot-error', 'Snapshot')
-  await expect(
-    page
-      .getByText("Creating snapshot of disk 'disk-snapshot-error'", { exact: true })
-      .first()
-  ).toBeVisible()
-  await expect(page.getByText('Failed to create snapshot', { exact: true })).toBeVisible()
-  await expect(page.getByText('Cannot snapshot disk', { exact: true })).toBeVisible()
+  await expectToast(page, "Creating snapshot of disk 'disk-snapshot-error'")
+  // we have to force it to wait until the toast is gone …
+  await expectNoToast(page, "Creating snapshot of disk 'disk-snapshot-error'")
+  // … before we can check for the error message
+  await expectToast(page, 'Failed to create snapshotCannot snapshot disk')
+  // just including an actual expect to satisfy the linter
+  await expect(page.getByRole('cell', { name: 'disk-snapshot-error' })).toBeVisible()
 })
 
 test.describe('Disk create', () => {
@@ -58,7 +64,7 @@ test.describe('Disk create', () => {
   test.afterEach(async ({ page }) => {
     await page.getByRole('button', { name: 'Create disk' }).click()
 
-    await expect(page.getByText('Disk a-new-disk created').first()).toBeVisible()
+    await expectToast(page, 'Disk a-new-disk created')
     await expectVisible(page, ['role=cell[name="a-new-disk"]'])
   })
 
