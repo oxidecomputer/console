@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useCallback, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { instanceCan, useApiMutation, type Instance } from '@oxide/api'
 
@@ -13,6 +14,7 @@ import { HL } from '~/components/HL'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './instance/tabs/common'
 
@@ -29,6 +31,7 @@ export const useMakeInstanceActions = (
   { project }: { project: string },
   options: Options = {}
 ) => {
+  const navigate = useNavigate()
   // if you also pass onSuccess to mutate(), this one is not overridden — this
   // one runs first, then the one passed to mutate().
   //
@@ -46,6 +49,7 @@ export const useMakeInstanceActions = (
 
   const makeActions = useCallback(
     (instance: Instance) => {
+      const instanceSelector = { project, instance: instance.name }
       const instanceParams = { path: { instance: instance.name }, query: { project } }
       return [
         {
@@ -112,6 +116,12 @@ export const useMakeInstanceActions = (
           ),
         },
         {
+          label: 'View serial console',
+          onActivate() {
+            navigate(pb.serialConsole(instanceSelector))
+          },
+        },
+        {
           label: 'Delete',
           onActivate: confirmDelete({
             doDelete: () =>
@@ -130,7 +140,14 @@ export const useMakeInstanceActions = (
         },
       ]
     },
-    [project, deleteInstanceAsync, rebootInstance, startInstance, stopInstanceAsync]
+    [
+      project,
+      deleteInstanceAsync,
+      navigate,
+      rebootInstance,
+      startInstance,
+      stopInstanceAsync,
+    ]
   )
 
   const useInstanceActions = (instance: Instance) => {
