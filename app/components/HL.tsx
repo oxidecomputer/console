@@ -7,13 +7,13 @@
  */
 import { classed } from '~/util/classed'
 
-export const HL = classed.span`text-sans-semi-md text-default`
+export const HL = classed.span`text-sans-md text-default`
 
 /** HL with "success"-colored text */
-export const HLs = classed.span`text-sans-semi-md text-accent children:text-accent`
+export const HLs = classed.span`text-sans-md text-accent children:text-accent`
 
 // HL with "error"-colored text
-export const HLe = classed.span`text-sans-semi-md text-error children:text-error`
+export const HLe = classed.span`text-sans-md text-error children:text-error`
 
 // HL with "info"-colored text
-export const HLi = classed.span`text-sans-semi-md text-notice children:text-notice`
+export const HLi = classed.span`text-sans-md text-notice children:text-notice`
