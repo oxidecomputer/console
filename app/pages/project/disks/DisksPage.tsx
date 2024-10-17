@@ -20,6 +20,7 @@ import {
 import { Storage16Icon, Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
+import { HLs } from '~/components/HL'
 import { DiskStateBadge } from '~/components/StateBadge'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -99,15 +100,28 @@ export function DisksPage() {
   const { Table } = useQueryTable('diskList', { query: { project } })
 
   const { mutateAsync: deleteDisk } = useApiMutation('diskDelete', {
-    onSuccess() {
+    onSuccess(_data, variables) {
       queryClient.invalidateQueries('diskList')
+      addToast({
+        content: (
+          <>
+            Disk <HLs>{variables.path.disk}</HLs> deleted
+          </>
+        ),
+      })
     },
   })
 
   const { mutate: createSnapshot } = useApiMutation('snapshotCreate', {
-    onSuccess() {
+    onSuccess(_data, variables) {
       queryClient.invalidateQueries('snapshotList')
-      addToast({ content: 'Snapshot successfully created' })
+      addToast({
+        content: (
+          <>
+            Snapshot <HLs>{variables.body.name}</HLs> created
+          </>
+        ),
+      })
     },
     onError(err) {
       addToast({

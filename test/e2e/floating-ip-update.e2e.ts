@@ -6,7 +6,14 @@
  * Copyright Oxide Computer Company
  */
 
-import { clickRowAction, expect, expectRowVisible, expectVisible, test } from './utils'
+import {
+  clickRowAction,
+  expect,
+  expectRowVisible,
+  expectToast,
+  expectVisible,
+  test,
+} from './utils'
 
 const floatingIpsPage = '/projects/mock-project/floating-ips'
 const originalName = 'cola-float'
@@ -32,6 +39,7 @@ test('can update a floating IP', async ({ page }) => {
     name: updatedName,
     description: updatedDescription,
   })
+  await expectToast(page, `Floating IP ${updatedName} updated`)
 })
 
 // Make sure that it still works even if the name doesn't change
@@ -47,4 +55,5 @@ test('can update *just* the floating IP description', async ({ page }) => {
     name: originalName,
     description: updatedDescription,
   })
+  await expectToast(page, `Floating IP ${originalName} updated`)
 })
