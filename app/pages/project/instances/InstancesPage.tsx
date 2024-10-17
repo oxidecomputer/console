@@ -65,7 +65,7 @@ const POLL_INTERVAL_SLOW = 60 * sec
 export function InstancesPage() {
   const { project } = useProjectSelector()
 
-  const makeActions = useMakeInstanceActions(
+  const { makeActions } = useMakeInstanceActions(
     { project },
     { onSuccess: refetchInstances, onDelete: refetchInstances }
   )

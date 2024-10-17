@@ -5,8 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useCallback, useMemo } from 'react'
 
 import { instanceCan, useApiMutation, type Instance } from '@oxide/api'
 
@@ -14,8 +13,6 @@ import { HL } from '~/components/HL'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import type { MakeActions } from '~/table/columns/action-col'
-import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './instance/tabs/common'
 
@@ -31,9 +28,7 @@ type Options = {
 export const useMakeInstanceActions = (
   { project }: { project: string },
   options: Options = {}
-): MakeActions<Instance> => {
-  const navigate = useNavigate()
-
+) => {
   // if you also pass onSuccess to mutate(), this one is not overridden — this
   // one runs first, then the one passed to mutate().
   //
@@ -49,9 +44,8 @@ export const useMakeInstanceActions = (
     onSuccess: options.onDelete,
   })
 
-  return useCallback(
-    (instance) => {
-      const instanceSelector = { project, instance: instance.name }
+  const makeActions = useCallback(
+    (instance: Instance) => {
       const instanceParams = { path: { instance: instance.name }, query: { project } }
       return [
         {
@@ -118,12 +112,6 @@ export const useMakeInstanceActions = (
           ),
         },
         {
-          label: 'View serial console',
-          onActivate() {
-            navigate(pb.serialConsole(instanceSelector))
-          },
-        },
-        {
           label: 'Delete',
           onActivate: confirmDelete({
             doDelete: () =>
@@ -142,13 +130,24 @@ export const useMakeInstanceActions = (
         },
       ]
     },
-    [
-      project,
-      navigate,
-      deleteInstanceAsync,
-      rebootInstance,
-      startInstance,
-      stopInstanceAsync,
-    ]
+    [project, deleteInstanceAsync, rebootInstance, startInstance, stopInstanceAsync]
   )
+
+  const useInstanceActions = (instance: Instance) => {
+    const allActions = useMemo(() => makeActions(instance), [instance])
+
+    const buttonActions = useMemo(
+      () => allActions.filter((a) => a.label === 'Start' || a.label === 'Stop'),
+      [allActions]
+    )
+
+    const menuActions = useMemo(
+      () => allActions.filter((a) => a.label !== 'Start' && a.label !== 'Stop'),
+      [allActions]
+    )
+
+    return { allActions, buttonActions, menuActions }
+  }
+
+  return { useInstanceActions, makeActions }
 }
