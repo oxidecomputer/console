@@ -117,11 +117,10 @@ export async function stopInstance(page: Page) {
 
 /**
  * Assert that a toast with text matching `expectedText` is visible.
- * If testing multiple toasts, interleave the `expectToast` with `expectNoToast`
- * so the toasts don't overlap.
  */
 export async function expectToast(page: Page, expectedText: string | RegExp) {
   await expect(page.getByTestId('Toasts')).toHaveText(expectedText)
+  await closeToast(page)
 }
 
 /**

@@ -37,6 +37,8 @@ test('List disks and snapshot', async ({ page }) => {
 
   await clickRowAction(page, 'disk-1 db1', 'Snapshot')
   await expectToast(page, "Creating snapshot of disk 'disk-1'")
+  // expectToast should have closed the toast already, but verify
+  await expectNoToast(page, "Creating snapshot of disk 'disk-1'")
   // Next line is a little awkward, but we don't actually know what the snapshot name will be
   await expectToast(page, /Snapshot disk-1-[a-z0-9]{6} created/)
 })
@@ -47,12 +49,12 @@ test('Disk snapshot error', async ({ page }) => {
   // special disk that triggers snapshot error
   await clickRowAction(page, 'disk-snapshot-error', 'Snapshot')
   await expectToast(page, "Creating snapshot of disk 'disk-snapshot-error'")
-  // we have to force it to wait until the toast is gone …
-  await expectNoToast(page, "Creating snapshot of disk 'disk-snapshot-error'")
-  // … before we can check for the error message
-  await expectToast(page, 'Failed to create snapshotCannot snapshot disk')
   // just including an actual expect to satisfy the linter
   await expect(page.getByRole('cell', { name: 'disk-snapshot-error' })).toBeVisible()
+  // expectToast should have closed the toast already, but let's just verify …
+  await expectNoToast(page, "Creating snapshot of disk 'disk-snapshot-error'")
+  // … before we can check for the error toast
+  await expectToast(page, 'Failed to create snapshotCannot snapshot disk')
 })
 
 test.describe('Disk create', () => {
