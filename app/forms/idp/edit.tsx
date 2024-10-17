@@ -79,6 +79,7 @@ export function EditIdpSideModalForm() {
         required
         control={form.control}
         disabled
+        copyable
       />
       {/* TODO: help text */}
       <TextField

@@ -9,6 +9,8 @@ import { announce } from '@react-aria/live-announcer'
 import cn from 'classnames'
 import React, { useEffect } from 'react'
 
+import { CopyToClipboard } from './CopyToClipboard'
+
 /**
  * This is a little complicated. We only want to allow the `rows` prop if
  * `as="textarea"`. But the derivatives of `TextField`, like `NameField`, etc.,
@@ -38,6 +40,7 @@ export type TextInputBaseProps = React.ComponentPropsWithRef<'input'> & {
   disabled?: boolean
   className?: string
   fieldClassName?: string
+  copyable?: boolean
 }
 
 export const TextInput = React.forwardRef<
@@ -51,6 +54,7 @@ export const TextInput = React.forwardRef<
       className,
       disabled,
       fieldClassName,
+      copyable,
       as: asProp,
       ...fieldProps
     },
@@ -60,7 +64,7 @@ export const TextInput = React.forwardRef<
     return (
       <div
         className={cn(
-          'flex rounded border',
+          'flex items-center rounded border',
           error
             ? 'border-error-secondary hover:border-error'
             : 'border-default hover:border-hover',
@@ -82,6 +86,12 @@ export const TextInput = React.forwardRef<
           disabled={disabled}
           {...fieldProps}
         />
+        {copyable && (
+          <CopyToClipboard
+            text={fieldProps.value as string}
+            className="flex h-full items-stretch border-l border-solid px-3 border-default hover:border-hover"
+          />
+        )}
       </div>
     )
   }
