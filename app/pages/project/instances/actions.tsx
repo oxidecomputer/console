@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { instanceCan, useApiMutation, type Instance } from '@oxide/api'
@@ -47,9 +47,8 @@ export const useMakeInstanceActions = (
     onSuccess: options.onDelete,
   })
 
-  const makeActions = useCallback(
+  const makeButtonActions = useCallback(
     (instance: Instance) => {
-      const instanceSelector = { project, instance: instance.name }
       const instanceParams = { path: { instance: instance.name }, query: { project } }
       return [
         {
@@ -98,6 +97,16 @@ export const useMakeInstanceActions = (
             <>Only {fancifyStates(instanceCan.stop.states)} instances can be stopped</>
           ),
         },
+      ]
+    },
+    [project, startInstance, stopInstanceAsync]
+  )
+
+  const makeMenuActions = useCallback(
+    (instance: Instance) => {
+      const instanceSelector = { project, instance: instance.name }
+      const instanceParams = { path: { instance: instance.name }, query: { project } }
+      return [
         {
           label: 'Reboot',
           onActivate() {
@@ -140,31 +149,8 @@ export const useMakeInstanceActions = (
         },
       ]
     },
-    [
-      project,
-      deleteInstanceAsync,
-      navigate,
-      rebootInstance,
-      startInstance,
-      stopInstanceAsync,
-    ]
+    [project, deleteInstanceAsync, navigate, rebootInstance]
   )
 
-  const useInstanceActions = (instance: Instance) => {
-    const allActions = useMemo(() => makeActions(instance), [instance])
-
-    const buttonActions = useMemo(
-      () => allActions.filter((a) => a.label === 'Start' || a.label === 'Stop'),
-      [allActions]
-    )
-
-    const menuActions = useMemo(
-      () => allActions.filter((a) => a.label !== 'Start' && a.label !== 'Stop'),
-      [allActions]
-    )
-
-    return { allActions, buttonActions, menuActions }
-  }
-
-  return { useInstanceActions, makeActions }
+  return { makeButtonActions, makeMenuActions }
 }

@@ -94,7 +94,7 @@ export function InstancePage() {
 
   const navigate = useNavigate()
 
-  const { useInstanceActions } = useMakeInstanceActions(instanceSelector, {
+  const { makeButtonActions, makeMenuActions } = useMakeInstanceActions(instanceSelector, {
     onSuccess: refreshData,
     // go to project instances list since there's no more instance
     onDelete: () => {
@@ -134,7 +134,6 @@ export function InstancePage() {
     { enabled: !!primaryVpcId }
   )
 
-  const { buttonActions, menuActions } = useInstanceActions(instance)
   const allMenuActions = useMemo(
     () => [
       {
@@ -143,9 +142,9 @@ export function InstancePage() {
           window.navigator.clipboard.writeText(instance.id || '')
         },
       },
-      ...menuActions,
+      ...makeMenuActions(instance),
     ],
-    [instance.id, menuActions]
+    [instance, makeMenuActions]
   )
 
   const memory = filesize(instance.memory, { output: 'object', base: 2 })
@@ -158,13 +157,14 @@ export function InstancePage() {
           <RefreshButton onClick={refreshData} />
           <InstanceDocsPopover />
           <div className="flex space-x-2 border-l pl-2 border-default">
-            {buttonActions.map((action) => (
+            {makeButtonActions(instance).map((action) => (
               <Button
                 key={action.label}
                 variant="ghost"
                 size="sm"
                 onClick={action.onActivate}
                 disabled={!!action.disabled}
+                disabledReason={action.disabled}
               >
                 {action.label}
               </Button>
