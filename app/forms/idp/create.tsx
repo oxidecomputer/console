@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
@@ -67,15 +66,6 @@ export function CreateIdpSideModalForm() {
   const form = useForm({ defaultValues })
   const name = form.watch('name')
 
-  useEffect(() => {
-    // When creating a SAML identity provider connection, the ACS URL that the user enters
-    // should always be of the form: http(s)://<silo>.sys.<subdomain>/login/<silo>/saml/<name>
-    // where <silo> is the Silo name, <subdomain> is the subdomain assigned to the rack,
-    // and <name> is the name of the IdP connection
-    const acsUrl = `https://${silo}.sys.${subdomain}/login/${silo}/saml/${name}`
-    form.setValue('acsUrl', acsUrl)
-  }, [form, name, silo])
-
   return (
     <SideModalForm
       form={form}
@@ -127,6 +117,11 @@ export function CreateIdpSideModalForm() {
         name="acsUrl"
         label="ACS URL"
         description="Service provider endpoint for the IdP to send the SAML response"
+        // When creating a SAML identity provider connection, the ACS URL that the user enters
+        // should always be of the form: http(s)://<silo>.sys.<subdomain>/login/<silo>/saml/<name>
+        // where <silo> is the Silo name, <subdomain> is the subdomain assigned to the rack,
+        // and <name> is the name of the IdP connection
+        value={`https://${silo}.sys.${subdomain}/login/${silo}/saml/${name}`}
         required
         disabled
         control={form.control}
