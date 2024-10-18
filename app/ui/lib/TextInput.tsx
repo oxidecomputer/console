@@ -9,6 +9,9 @@ import { announce } from '@react-aria/live-announcer'
 import cn from 'classnames'
 import React, { useEffect } from 'react'
 
+import { CopyToClipboard } from './CopyToClipboard'
+import { Tooltip } from './Tooltip'
+
 /**
  * This is a little complicated. We only want to allow the `rows` prop if
  * `as="textarea"`. But the derivatives of `TextField`, like `NameField`, etc.,
@@ -38,6 +41,7 @@ export type TextInputBaseProps = React.ComponentPropsWithRef<'input'> & {
   disabled?: boolean
   className?: string
   fieldClassName?: string
+  copyable?: boolean
 }
 
 export const TextInput = React.forwardRef<
@@ -47,20 +51,40 @@ export const TextInput = React.forwardRef<
   (
     {
       type = 'text',
+      value,
       error,
       className,
       disabled,
       fieldClassName,
+      copyable,
       as: asProp,
       ...fieldProps
     },
     ref
   ) => {
     const Component = asProp || 'input'
+    const component = (
+      <Component
+        // @ts-expect-error this is fine, it's just mad because Component is a variable
+        ref={ref}
+        type={type}
+        value={value}
+        className={cn(
+          `w-full rounded border-none px-3 py-[0.6875rem] !outline-offset-1 text-sans-md text-default bg-default placeholder:text-quaternary focus:outline-none disabled:cursor-not-allowed disabled:text-tertiary disabled:bg-disabled`,
+          error && 'focus-error',
+          fieldClassName,
+          disabled && 'text-disabled bg-disabled'
+        )}
+        aria-invalid={error}
+        disabled={disabled}
+        {...fieldProps}
+      />
+    )
+    const copyableValue = value?.toString() || ''
     return (
       <div
         className={cn(
-          'flex rounded border',
+          'flex items-center rounded border',
           error
             ? 'border-error-secondary hover:border-error'
             : 'border-default hover:border-hover',
@@ -68,20 +92,20 @@ export const TextInput = React.forwardRef<
           className
         )}
       >
-        <Component
-          // @ts-expect-error this is fine, it's just mad because Component is a variable
-          ref={ref}
-          type={type}
-          className={cn(
-            `w-full rounded border-none px-3 py-[0.6875rem] !outline-offset-1 text-sans-md text-default bg-default placeholder:text-quaternary focus:outline-none disabled:cursor-not-allowed disabled:text-tertiary disabled:bg-disabled`,
-            error && 'focus-error',
-            fieldClassName,
-            disabled && 'text-disabled bg-disabled'
-          )}
-          aria-invalid={error}
-          disabled={disabled}
-          {...fieldProps}
-        />
+        {/* don't bother with the tooltip if the string is short */}
+        {copyable && copyableValue.length > 50 ? (
+          <Tooltip content={copyableValue} placement="top">
+            {component}
+          </Tooltip>
+        ) : (
+          component
+        )}
+        {copyable && (
+          <CopyToClipboard
+            text={copyableValue}
+            className="flex h-full items-stretch border-l border-solid px-3 border-default hover:border-hover"
+          />
+        )}
       </div>
     )
   }
