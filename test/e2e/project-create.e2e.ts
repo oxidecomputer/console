@@ -30,13 +30,13 @@ test.describe('Project create', () => {
   })
 
   test('shows field-level validation error and does not POST', async ({ page }) => {
-    await page.fill('role=textbox[name="Name"]', 'Invalid name')
+    await page.fill('role=textbox[name="Name"]', 'no-ending-dash-')
 
     // submit to trigger validation
     await page.getByRole('button', { name: 'Create project' }).click()
 
     await expect(
-      page.getByText('Can only contain lower-case letters, numbers, and dashes').nth(0)
+      page.getByText('Must end with a letter or number', { exact: true }).nth(0)
     ).toBeVisible()
   })
 
