@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
+import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { FileField } from '~/components/form/fields/FileField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -17,6 +18,7 @@ import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useSiloSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { FormDivider } from '~/ui/lib/Divider'
 import { readBlobAsBase64 } from '~/util/file'
 import { pb } from '~/util/path-builder'
 
@@ -59,6 +61,8 @@ export function CreateIdpSideModalForm() {
   })
 
   const form = useForm({ defaultValues })
+  const signedRequestsForm = useForm({ defaultValues: { signedRequests: false } })
+  const signedRequests = signedRequestsForm.watch('signedRequests')
 
   return (
     <SideModalForm
@@ -105,24 +109,19 @@ export function CreateIdpSideModalForm() {
       submitError={createIdp.error}
       submitLabel="Create provider"
     >
+      <h3 className="text-sans-2xl">General</h3>
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} required />
       <TextField
-        name="acsUrl"
-        label="ACS URL"
-        description="Service provider endpoint for the IdP to send the SAML response"
+        name="technicalContactEmail"
+        label="Technical contact email"
         required
         control={form.control}
       />
-      {/* TODO: help text */}
-      <TextField name="idpEntityId" label="Entity ID" required control={form.control} />
-      <TextField
-        name="sloUrl"
-        label="Single Logout (SLO) URL"
-        description="Service provider endpoint for log out requests"
-        required
-        control={form.control}
-      />
+
+      <FormDivider />
+
+      <h3 className="text-sans-2xl">Service provider</h3>
       {/* TODO: help text */}
       <TextField
         name="spClientId"
@@ -131,36 +130,56 @@ export function CreateIdpSideModalForm() {
         control={form.control}
       />
       <TextField
+        name="acsUrl"
+        label="ACS URL"
+        description="Service provider endpoint for the IdP to send the SAML response"
+        required
+        control={form.control}
+      />
+      <TextField
+        name="sloUrl"
+        label="Single Logout (SLO) URL"
+        description="Service provider endpoint for log out requests"
+        required
+        control={form.control}
+      />
+      <CheckboxField name="signedRequests" control={signedRequestsForm.control}>
+        Signed requests (optional)
+      </CheckboxField>
+      {signedRequests && (
+        <>
+          {/* We don't bother validating that you have both of these or neither even
+              though the API requires that because we are going to change the API to
+              always require both, at which point these become simple `required` fields */}
+          <FileField
+            id="public-cert-file-input"
+            name="signingKeypair.publicCert"
+            description="DER-encoded X.509 certificate"
+            label="Public cert"
+            control={form.control}
+          />
+          <FileField
+            id="private-key-file-input"
+            name="signingKeypair.privateKey"
+            description="DER-encoded private key"
+            label="Private key"
+            control={form.control}
+          />
+        </>
+      )}
+
+      <FormDivider />
+
+      <h3 className="text-sans-2xl">Identity Provider</h3>
+      {/* TODO: help text */}
+      <TextField name="idpEntityId" label="Entity ID" required control={form.control} />
+      <TextField
         name="groupAttributeName"
         label="Group attribute name"
         description="Name of SAML attribute where we can find a comma-separated list of names of groups the user belongs to"
         control={form.control}
       />
-      {/* TODO: Email field, probably */}
-      <TextField
-        name="technicalContactEmail"
-        label="Technical contact email"
-        required
-        control={form.control}
-      />
       <MetadataSourceField control={form.control} />
-      {/* We don't bother validating that you have both of these or neither even
-              though the API requires that because we are going to change the API to
-              always require both, at which point these become simple `required` fields */}
-      <FileField
-        id="public-cert-file-input"
-        name="signingKeypair.publicCert"
-        description="DER-encoded X.509 certificate"
-        label="Public cert"
-        control={form.control}
-      />
-      <FileField
-        id="private-key-file-input"
-        name="signingKeypair.privateKey"
-        description="DER-encoded private key"
-        label="Private key"
-        control={form.control}
-      />
     </SideModalForm>
   )
 }
