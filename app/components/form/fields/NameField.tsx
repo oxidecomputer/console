@@ -30,6 +30,12 @@ export function NameField<
       required={required}
       label={label}
       name={name}
+      transform={(value) =>
+        value
+          .toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^a-z0-9-]/g, '')
+      }
       {...textFieldProps}
     />
   )
