@@ -28,6 +28,7 @@ import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { HLs } from '~/components/HL'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
@@ -76,7 +77,13 @@ export function CreateDiskSideModalForm({
   const createDisk = useApiMutation('diskCreate', {
     onSuccess(data) {
       queryClient.invalidateQueries('diskList')
-      addToast({ content: 'Your disk has been created' })
+      addToast({
+        content: (
+          <>
+            Disk <HLs>{data.name}</HLs> created
+          </>
+        ),
+      })
       onSuccess?.(data)
       onDismiss(navigate)
     },

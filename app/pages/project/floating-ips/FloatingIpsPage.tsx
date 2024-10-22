@@ -22,7 +22,7 @@ import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { ListboxField } from '~/components/form/fields/ListboxField'
-import { HL } from '~/components/HL'
+import { HL, HLs } from '~/components/HL'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -108,19 +108,31 @@ export function FloatingIpsPage() {
   const navigate = useNavigate()
 
   const { mutateAsync: floatingIpDetach } = useApiMutation('floatingIpDetach', {
-    onSuccess() {
+    onSuccess(floatingIp) {
       queryClient.invalidateQueries('floatingIpList')
-      addToast({ content: 'Your floating IP has been detached' })
+      addToast({
+        content: (
+          <>
+            Floating IP <HLs>{floatingIp.name}</HLs> detached
+          </>
+        ),
+      })
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
   })
   const { mutateAsync: deleteFloatingIp } = useApiMutation('floatingIpDelete', {
-    onSuccess() {
+    onSuccess(_data, variables) {
       queryClient.invalidateQueries('floatingIpList')
       queryClient.invalidateQueries('ipPoolUtilizationView')
-      addToast({ content: 'Your floating IP has been deleted' })
+      addToast({
+        content: (
+          <>
+            Floating IP <HLs>{variables.path.floatingIp}</HLs> deleted
+          </>
+        ),
+      })
     },
   })
 
@@ -250,9 +262,15 @@ const AttachFloatingIpModal = ({
 }) => {
   const queryClient = useApiQueryClient()
   const floatingIpAttach = useApiMutation('floatingIpAttach', {
-    onSuccess() {
+    onSuccess(floatingIp) {
       queryClient.invalidateQueries('floatingIpList')
-      addToast({ content: 'Your floating IP has been attached' })
+      addToast({
+        content: (
+          <>
+            Floating IP <HLs>{floatingIp.name}</HLs> attached
+          </>
+        ),
+      })
       onDismiss()
     },
     onError: (err) => {

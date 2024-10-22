@@ -8,7 +8,7 @@
 
 import { expect, test } from '@playwright/test'
 
-import { clickRowAction, expectRowVisible } from './utils'
+import { clickRowAction, expectRowVisible, expectToast } from './utils'
 
 test('IP pool list', async ({ page }) => {
   await page.goto('/system/networking/ip-pools')
@@ -118,10 +118,10 @@ test('IP pool delete from IP Pools list page', async ({ page }) => {
   await expect(page.getByRole('dialog', { name: 'Confirm delete' })).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
 
-  await expect(page.getByText('Could not delete resource').first()).toBeVisible()
-  await expect(
-    page.getByText('IP pool cannot be deleted while it contains IP ranges').first()
-  ).toBeVisible()
+  await expectToast(
+    page,
+    'Could not delete resourceIP pool cannot be deleted while it contains IP ranges'
+  )
 
   await expect(page.getByRole('cell', { name: 'ip-pool-3' })).toBeVisible()
 

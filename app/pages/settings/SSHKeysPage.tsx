@@ -13,6 +13,7 @@ import { apiQueryClient, useApiMutation, useApiQueryClient, type SshKey } from '
 import { Key16Icon, Key24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
+import { HLs } from '~/components/HL'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -46,9 +47,15 @@ export function SSHKeysPage() {
   const queryClient = useApiQueryClient()
 
   const { mutateAsync: deleteSshKey } = useApiMutation('currentUserSshKeyDelete', {
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries('currentUserSshKeyList')
-      addToast({ content: 'Your SSH key has been deleted' })
+      addToast({
+        content: (
+          <>
+            SSH key <HLs>{variables.path.sshKey}</HLs> deleted
+          </>
+        ),
+      })
     },
   })
 

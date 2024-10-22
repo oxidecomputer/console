@@ -13,6 +13,7 @@ import { useApiMutation, useApiQueryClient, type IpPoolCreate } from '@oxide/api
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { HLs } from '~/components/HL'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 
@@ -30,7 +31,13 @@ export function CreateIpPoolSideModalForm() {
   const createPool = useApiMutation('ipPoolCreate', {
     onSuccess(_pool) {
       queryClient.invalidateQueries('ipPoolList')
-      addToast({ content: 'Your IP pool has been created' })
+      addToast({
+        content: (
+          <>
+            IP pool <HLs>{_pool.name}</HLs> created
+          </>
+        ),
+      })
       navigate(pb.ipPools())
     },
   })

@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { instanceCan, useApiMutation, type Instance } from '@oxide/api'
 
-import { HL } from '~/components/HL'
+import { HL, HLs } from '~/components/HL'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -79,7 +79,13 @@ export const useMakeInstanceActions = (
               doAction: () =>
                 stopInstanceAsync(instanceParams, {
                   onSuccess: () =>
-                    addToast({ title: `Stopping instance '${instance.name}'` }),
+                    addToast({
+                      content: (
+                        <>
+                          Stopping instance <HLs>{instance.name}</HLs>
+                        </>
+                      ),
+                    }),
                 }),
               modalTitle: 'Confirm stop instance',
               modalContent: (

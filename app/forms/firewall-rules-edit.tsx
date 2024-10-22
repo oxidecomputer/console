@@ -18,11 +18,13 @@ import {
 
 import { trigger404 } from '~/components/ErrorBoundary'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { HLs } from '~/components/HL'
 import {
   getFirewallRuleSelector,
   useFirewallRuleSelector,
   useVpcSelector,
 } from '~/hooks/use-params'
+import { addToast } from '~/stores/toast'
 import { ALL_ISH } from '~/util/consts'
 import { invariant } from '~/util/invariant'
 import { pb } from '~/util/path-builder'
@@ -64,13 +66,21 @@ export function EditFirewallRuleForm() {
   const onDismiss = () => navigate(pb.vpcFirewallRules(vpcSelector))
 
   const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
-    onSuccess() {
+    onSuccess(updatedRules, { body }) {
       // Nav before the invalidate because I once saw the above invariant fail
       // briefly after successful edit (error page flashed but then we land
       // on the rules list ok) and I think it was a race condition where the
       // invalidate managed to complete while the modal was still open.
       onDismiss()
       queryClient.invalidateQueries('vpcFirewallRulesView')
+      const updatedRule = body.rules[body.rules.length - 1]
+      addToast({
+        content: (
+          <>
+            Firewall rule <HLs>{updatedRule.name}</HLs> updated
+          </>
+        ),
+      })
     },
   })
 
