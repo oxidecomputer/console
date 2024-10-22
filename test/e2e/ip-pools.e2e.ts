@@ -19,7 +19,7 @@ test('IP pool list', async ({ page }) => {
 
   const table = page.getByRole('table')
 
-  await expect(table.getByRole('row')).toHaveCount(5) // header + 4 rows
+  await expect(table.getByRole('row')).toHaveCount(6) // header + 5 rows
 
   await expectRowVisible(table, { name: 'ip-pool-1', Utilization: '6 / 24' })
   await expectRowVisible(table, {

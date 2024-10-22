@@ -214,6 +214,44 @@ export const lookup = {
 
     return subnet
   },
+  internetGateway({
+    gateway: id,
+    ...vpcSelector
+  }: PP.InternetGateway): Json<Api.InternetGateway> {
+    if (!id) throw notFoundErr('no internet gateway specified')
+
+    if (isUuid(id)) {
+      ensureNoParentSelectors('internet gateway', vpcSelector)
+      return lookupById(db.internetGateways, id)
+    }
+
+    const vpc = lookup.vpc(vpcSelector)
+    const internetGateway = db.internetGateways.find(
+      (ig) => ig.vpc_id === vpc.id && ig.name === id
+    )
+    if (!internetGateway) throw notFoundErr(`internet gateway '${id}'`)
+
+    return internetGateway
+  },
+  internetGatewayIpAddress({
+    address: id,
+    ...gatewaySelector
+  }: PP.InternetGatewayIpAddress): Json<Api.InternetGatewayIpAddress> {
+    if (!id) throw notFoundErr('no IP address specified')
+
+    if (isUuid(id)) {
+      ensureNoParentSelectors('IP address', gatewaySelector)
+      return lookupById(db.internetGatewayIpAddresses, id)
+    }
+
+    const gateway = lookup.internetGateway(gatewaySelector)
+    const ip = db.internetGatewayIpAddresses.find(
+      (i) => i.internet_gateway_id === gateway.id && i.name === id
+    )
+    if (!ip) throw notFoundErr(`IP address '${id}'`)
+
+    return ip
+  },
   image({ image: id, project: projectId }: PP.Image): Json<Api.Image> {
     if (!id) throw notFoundErr('no image specified')
 
@@ -404,6 +442,9 @@ const initDb = {
   images: [...mock.images],
   ephemeralIps: [...mock.ephemeralIps],
   instances: [...mock.instances],
+  internetGatewayIpAddresses: [...mock.internetGatewayIpAddresses],
+  internetGatewayIpPools: [...mock.internetGatewayIpPools],
+  internetGateways: [...mock.internetGateways],
   ipPools: [...mock.ipPools],
   ipPoolSilos: [...mock.ipPoolSilos],
   ipPoolRanges: [...mock.ipPoolRanges],
