@@ -20,6 +20,7 @@ import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { getIpPoolSelector, useIpPoolSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { Message } from '~/ui/lib/Message'
 import { pb } from '~/util/path-builder'
 
 EditIpPoolSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -68,6 +69,10 @@ export function EditIpPoolSideModalForm() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
+      <Message
+        variant="info"
+        content="IP pool names and descriptions are visible to end users in linked silos."
+      />
     </SideModalForm>
   )
 }
