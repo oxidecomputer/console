@@ -47,7 +47,7 @@ export interface TextFieldProps<
   validate?: Validate<FieldPathValue<TFieldValues, TName>, TFieldValues>
   control: Control<TFieldValues>
   /** Alters the value of the input during the field's onChange event. */
-  transform?: (value: string) => FieldPathValue<TFieldValues, TName>
+  transform?: (value: string) => string
 }
 
 export function TextField<
