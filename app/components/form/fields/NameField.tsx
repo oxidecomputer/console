@@ -33,7 +33,7 @@ export function NameField<
       transform={(value) =>
         value
           .toLowerCase()
-          .replace(/\s+/g, '-')
+          .replace(/[\s_]+/g, '-')
           .replace(/[^a-z0-9-]/g, '')
       }
       {...textFieldProps}
