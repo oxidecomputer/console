@@ -26,11 +26,12 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Badge } from '~/ui/lib/Badge'
+import type { ComboboxItem } from '~/ui/lib/Combobox'
 import { Message } from '~/ui/lib/Message'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
-const toComboboxItem = (p: SiloIpPool) => {
+const toComboboxItem = (p: SiloIpPool): ComboboxItem => {
   const value = p.name
   const selectedLabel = p.name
   const label = (
