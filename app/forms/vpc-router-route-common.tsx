@@ -23,6 +23,7 @@ import { TextField } from '~/components/form/fields/TextField'
 import { useVpcRouterSelector } from '~/hooks/use-params'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { Message } from '~/ui/lib/Message'
+import { ALL_ISH } from '~/util/consts'
 import { validateIp, validateIpNet } from '~/util/ip'
 
 export type RouteFormValues = RouterRouteCreate | Required<RouterRouteUpdate>
@@ -101,13 +102,15 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
   // usePrefetchedApiQuery items below are initially fetched in the loaders in vpc-router-route-create and -edit
   const {
     data: { items: vpcSubnets },
-  } = usePrefetchedApiQuery('vpcSubnetList', { query: { project, vpc, limit: 1000 } })
+  } = usePrefetchedApiQuery('vpcSubnetList', { query: { project, vpc, limit: ALL_ISH } })
   const {
     data: { items: instances },
-  } = usePrefetchedApiQuery('instanceList', { query: { project, limit: 1000 } })
+  } = usePrefetchedApiQuery('instanceList', { query: { project, limit: ALL_ISH } })
   const {
     data: { items: internetGateways },
-  } = usePrefetchedApiQuery('internetGatewayList', { query: { project, vpc, limit: 1000 } })
+  } = usePrefetchedApiQuery('internetGatewayList', {
+    query: { project, vpc, limit: ALL_ISH },
+  })
 
   const { control } = form
   const destinationType = form.watch('destination.type')
