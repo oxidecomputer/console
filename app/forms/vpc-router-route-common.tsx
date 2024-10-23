@@ -105,6 +105,9 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
   const {
     data: { items: instances },
   } = usePrefetchedApiQuery('instanceList', { query: { project, limit: 1000 } })
+  const {
+    data: { items: internetGateways },
+  } = usePrefetchedApiQuery('internetGatewayList', { query: { project, vpc, limit: 1000 } })
 
   const { control } = form
   const destinationType = form.watch('destination.type')
@@ -180,14 +183,17 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
         }}
         disabled={disabled}
       />
-      {targetType === 'drop' ? null : targetType === 'instance' ? (
+      {/* Four kinds of targetType: Instance, IP, InternetGateway, Drop */}
+      {targetType === 'instance' && (
         <ComboboxField {...targetValueProps} items={toComboboxItems(instances)} />
-      ) : (
+      )}
+      {targetType === 'internet_gateway' && (
+        <ComboboxField {...targetValueProps} items={toComboboxItems(internetGateways)} />
+      )}
+      {targetType === 'ip' && (
         <TextField
           {...targetValueProps}
-          validate={(value, { target }) =>
-            (target.type === 'ip' && validateIp(value)) || undefined
-          }
+          validate={(value) => validateIp(value) || undefined}
         />
       )}
     </>

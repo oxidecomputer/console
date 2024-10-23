@@ -1155,6 +1155,26 @@ export const handlers = makeHandlers({
 
     return { rules: R.sortBy(rules, (r) => r.name) }
   },
+  internetGatewayList({ query }) {
+    const vpc = lookup.vpc(query)
+    const gateways = db.internetGateways.filter((g) => g.vpc_id === vpc.id)
+    return paginated(query, gateways)
+  },
+  internetGatewayView: ({ path, query }) => lookup.internetGateway({ ...path, ...query }),
+  internetGatewayIpPoolList({ query }) {
+    const gateway = lookup.internetGateway(query)
+    const pools = db.internetGatewayIpPools.filter(
+      (p) => p.internet_gateway_id === gateway.id
+    )
+    return paginated(query, pools)
+  },
+  internetGatewayIpAddressList({ query }) {
+    const gateway = lookup.internetGateway(query)
+    const addresses = db.internetGatewayIpAddresses.filter(
+      (a) => a.internet_gateway_id === gateway.id
+    )
+    return paginated(query, addresses)
+  },
   vpcRouterList({ query }) {
     const vpc = lookup.vpc(query)
     const routers = db.vpcRouters.filter((r) => r.vpc_id === vpc.id)
@@ -1519,6 +1539,12 @@ export const handlers = makeHandlers({
   certificateView: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
   instanceSshPublicKeyList: NotImplemented,
+  internetGatewayIpAddressCreate: NotImplemented,
+  internetGatewayIpAddressDelete: NotImplemented,
+  internetGatewayIpPoolCreate: NotImplemented,
+  internetGatewayIpPoolDelete: NotImplemented,
+  internetGatewayCreate: NotImplemented,
+  internetGatewayDelete: NotImplemented,
   ipPoolServiceRangeAdd: NotImplemented,
   ipPoolServiceRangeList: NotImplemented,
   ipPoolServiceRangeRemove: NotImplemented,

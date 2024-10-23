@@ -39,6 +39,9 @@ EditRouterRouteSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => 
     apiQueryClient.prefetchQuery('instanceList', {
       query: { project, limit: 1000 },
     }),
+    apiQueryClient.prefetchQuery('internetGatewayList', {
+      query: { project, vpc, limit: 1000 },
+    }),
   ])
   return null
 }
