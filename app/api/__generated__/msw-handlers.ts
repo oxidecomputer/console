@@ -407,6 +407,73 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.Instance>>
+  /** `GET /v1/internet-gateway-ip-addresses` */
+  internetGatewayIpAddressList: (params: {
+    query: Api.InternetGatewayIpAddressListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.InternetGatewayIpAddressResultsPage>>
+  /** `POST /v1/internet-gateway-ip-addresses` */
+  internetGatewayIpAddressCreate: (params: {
+    query: Api.InternetGatewayIpAddressCreateQueryParams
+    body: Json<Api.InternetGatewayIpAddressCreate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.InternetGatewayIpAddress>>
+  /** `DELETE /v1/internet-gateway-ip-addresses/:address` */
+  internetGatewayIpAddressDelete: (params: {
+    path: Api.InternetGatewayIpAddressDeletePathParams
+    query: Api.InternetGatewayIpAddressDeleteQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/internet-gateway-ip-pools` */
+  internetGatewayIpPoolList: (params: {
+    query: Api.InternetGatewayIpPoolListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.InternetGatewayIpPoolResultsPage>>
+  /** `POST /v1/internet-gateway-ip-pools` */
+  internetGatewayIpPoolCreate: (params: {
+    query: Api.InternetGatewayIpPoolCreateQueryParams
+    body: Json<Api.InternetGatewayIpPoolCreate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.InternetGatewayIpPool>>
+  /** `DELETE /v1/internet-gateway-ip-pools/:pool` */
+  internetGatewayIpPoolDelete: (params: {
+    path: Api.InternetGatewayIpPoolDeletePathParams
+    query: Api.InternetGatewayIpPoolDeleteQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/internet-gateways` */
+  internetGatewayList: (params: {
+    query: Api.InternetGatewayListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.InternetGatewayResultsPage>>
+  /** `POST /v1/internet-gateways` */
+  internetGatewayCreate: (params: {
+    query: Api.InternetGatewayCreateQueryParams
+    body: Json<Api.InternetGatewayCreate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.InternetGateway>>
+  /** `GET /v1/internet-gateways/:gateway` */
+  internetGatewayView: (params: {
+    path: Api.InternetGatewayViewPathParams
+    query: Api.InternetGatewayViewQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.InternetGateway>>
+  /** `DELETE /v1/internet-gateways/:gateway` */
+  internetGatewayDelete: (params: {
+    path: Api.InternetGatewayDeletePathParams
+    query: Api.InternetGatewayDeleteQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `GET /v1/ip-pools` */
   projectIpPoolList: (params: {
     query: Api.ProjectIpPoolListQueryParams
@@ -1684,6 +1751,74 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.post(
       '/v1/instances/:instance/stop',
       handler(handlers['instanceStop'], schema.InstanceStopParams, null)
+    ),
+    http.get(
+      '/v1/internet-gateway-ip-addresses',
+      handler(
+        handlers['internetGatewayIpAddressList'],
+        schema.InternetGatewayIpAddressListParams,
+        null
+      )
+    ),
+    http.post(
+      '/v1/internet-gateway-ip-addresses',
+      handler(
+        handlers['internetGatewayIpAddressCreate'],
+        schema.InternetGatewayIpAddressCreateParams,
+        schema.InternetGatewayIpAddressCreate
+      )
+    ),
+    http.delete(
+      '/v1/internet-gateway-ip-addresses/:address',
+      handler(
+        handlers['internetGatewayIpAddressDelete'],
+        schema.InternetGatewayIpAddressDeleteParams,
+        null
+      )
+    ),
+    http.get(
+      '/v1/internet-gateway-ip-pools',
+      handler(
+        handlers['internetGatewayIpPoolList'],
+        schema.InternetGatewayIpPoolListParams,
+        null
+      )
+    ),
+    http.post(
+      '/v1/internet-gateway-ip-pools',
+      handler(
+        handlers['internetGatewayIpPoolCreate'],
+        schema.InternetGatewayIpPoolCreateParams,
+        schema.InternetGatewayIpPoolCreate
+      )
+    ),
+    http.delete(
+      '/v1/internet-gateway-ip-pools/:pool',
+      handler(
+        handlers['internetGatewayIpPoolDelete'],
+        schema.InternetGatewayIpPoolDeleteParams,
+        null
+      )
+    ),
+    http.get(
+      '/v1/internet-gateways',
+      handler(handlers['internetGatewayList'], schema.InternetGatewayListParams, null)
+    ),
+    http.post(
+      '/v1/internet-gateways',
+      handler(
+        handlers['internetGatewayCreate'],
+        schema.InternetGatewayCreateParams,
+        schema.InternetGatewayCreate
+      )
+    ),
+    http.get(
+      '/v1/internet-gateways/:gateway',
+      handler(handlers['internetGatewayView'], schema.InternetGatewayViewParams, null)
+    ),
+    http.delete(
+      '/v1/internet-gateways/:gateway',
+      handler(handlers['internetGatewayDelete'], schema.InternetGatewayDeleteParams, null)
     ),
     http.get(
       '/v1/ip-pools',
