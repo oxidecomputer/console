@@ -181,7 +181,7 @@ export const Combobox = ({
           <ComboboxOptions
             anchor="bottom start"
             // 14px gap is presumably because it's measured from inside the outline or something
-            className={`ox-menu pointer-events-auto ${zIndex} relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border !outline-none border-secondary [--anchor-gap:14px] empty:hidden`}
+            className={`ox-menu pointer-events-auto ${zIndex} relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border !outline-none border-secondary [--anchor-gap:13px] empty:hidden`}
             modal={false}
           >
             {allowArbitraryValues && filteredItems.length === 0 && (
