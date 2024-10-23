@@ -16,7 +16,18 @@ export function DescriptionField<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
 >(props: Omit<TextFieldProps<TFieldValues, TName>, 'validate'>) {
-  return <TextField as="textarea" validate={validateDescription} {...props} />
+  return (
+    <TextField
+      as="textarea"
+      validate={validateDescription}
+      onBlur={(event) => {
+        const trimmedDescription = event.target.value.trim()
+        event.target.value = trimmedDescription
+        props.control._formValues.description = trimmedDescription
+      }}
+      {...props}
+    />
+  )
 }
 
 // TODO Update JSON schema to match this, add fuzz testing between this and name pattern
