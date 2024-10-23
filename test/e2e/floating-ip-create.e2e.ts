@@ -24,9 +24,8 @@ test('can create a floating IP', async ({ page }) => {
 
   const floatingIpName = 'my-floating-ip'
   await page.fill('input[name=name]', floatingIpName)
-  await page
-    .getByRole('textbox', { name: 'Description' })
-    .fill('A description for this Floating IP')
+  const description = page.getByRole('textbox', { name: 'Description' })
+  await description.fill('A description for this Floating IP')
 
   const poolListbox = page.getByRole('button', { name: 'IP pool' })
 
@@ -49,6 +48,20 @@ test('can create a floating IP', async ({ page }) => {
   await expectRowVisible(page.getByRole('table'), {
     name: floatingIpName,
     description: 'A description for this Floating IP',
+    'IP pool': 'ip-pool-1',
+  })
+
+  // Make sure that descriptions with only whitespace get trimmed
+  await page.locator('text="New Floating IP"').click()
+  await page.fill('input[name=name]', 'no-description')
+  await description.fill('    ')
+  await description.blur()
+  await expect(description).toContainText('')
+  await page.getByRole('button', { name: 'Create floating IP' }).click()
+
+  await expectRowVisible(page.getByRole('table'), {
+    name: 'no-description',
+    description: '—',
     'IP pool': 'ip-pool-1',
   })
 })
