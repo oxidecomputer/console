@@ -177,13 +177,21 @@ export const Combobox = ({
             </ComboboxButton>
           )}
         </div>
-        {items.length > 0 && (
+        {(items.length > 0 || allowArbitraryValues) && (
           <ComboboxOptions
             anchor="bottom start"
             // 14px gap is presumably because it's measured from inside the outline or something
             className={`ox-menu pointer-events-auto ${zIndex} relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border !outline-none border-secondary [--anchor-gap:14px] empty:hidden`}
             modal={false}
           >
+            {allowArbitraryValues && filteredItems.length === 0 && (
+              <ComboboxOption value={query} className="relative">
+                <div className="ox-menu-item is-highlighted">
+                  <span className="text-secondary">Use </span>
+                  {query}
+                </div>
+              </ComboboxOption>
+            )}
             {!allowArbitraryValues && filteredItems.length === 0 && (
               <ComboboxOption disabled value="no-matches" className="relative">
                 <div className="ox-menu-item !text-disabled">No items match</div>
