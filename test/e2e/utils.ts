@@ -107,8 +107,7 @@ export async function expectRowVisible(
 }
 
 export async function stopInstance(page: Page) {
-  await page.getByRole('button', { name: 'Instance actions' }).click()
-  await page.getByRole('menuitem', { name: 'Stop' }).click()
+  await page.getByRole('button', { name: 'Stop' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await closeToast(page)
   // don't need to manually refresh because of polling

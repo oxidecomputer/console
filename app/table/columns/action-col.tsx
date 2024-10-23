@@ -16,7 +16,7 @@ import { Tooltip } from '~/ui/lib/Tooltip'
 import { Wrap } from '~/ui/util/wrap'
 import { kebabCase } from '~/util/str'
 
-export type MakeActions<Item> = (item: Item) => Array<MenuAction>
+type MakeActions<Item> = (item: Item) => Array<MenuAction>
 
 export type MenuAction = {
   label: string
