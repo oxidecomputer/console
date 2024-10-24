@@ -53,6 +53,7 @@ test('can create firewall rule', async ({ page }) => {
   // add host filter instance "host-filter-instance"
   await selectOption(page, 'Host type', 'Instance')
   await page.getByRole('combobox', { name: 'Instance name' }).fill('host-filter-instance')
+  await page.getByText('Use host-filter-instance').click()
   await page.getByRole('button', { name: 'Add host filter' }).click()
 
   // host is added to hosts table
@@ -167,11 +168,13 @@ test('firewall rule form targets table', async ({ page }) => {
   // add targets with overlapping names and types to test delete
 
   await targetVpcNameField.fill('abc')
+  await targetVpcNameField.press('Enter')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'vpc', Value: 'abc' })
 
   // enter a VPC called 'mock-subnet', even if that doesn't make sense here, to test dropdown later
   await targetVpcNameField.fill('mock-subnet')
+  await targetVpcNameField.press('Enter')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'vpc', Value: 'mock-subnet' })
 
@@ -188,6 +191,7 @@ test('firewall rule form targets table', async ({ page }) => {
   // now add a subnet by entering text
   await selectOption(page, 'Target type', 'VPC subnet')
   await subnetNameField.fill('abc')
+  await page.getByText('Use abc').click()
   await addButton.click()
   await expectRowVisible(targets, { Type: 'subnet', Value: 'abc' })
 
@@ -221,6 +225,7 @@ test('firewall rule form target validation', async ({ page }) => {
   // Enter invalid VPC name
   const vpcNameField = page.getByRole('combobox', { name: 'VPC name' }).first()
   await vpcNameField.fill('ab-')
+  await vpcNameField.press('Enter')
   await addButton.click()
   await expect(nameError).toBeVisible()
 
@@ -246,6 +251,7 @@ test('firewall rule form target validation', async ({ page }) => {
   await expect(ipError).toBeHidden()
   await expect(nameError).toBeHidden()
   await vpcNameField.fill('abc')
+  await page.getByText('Use abc').click()
   await addButton.click()
   await expectRowVisible(targets, { Type: 'vpc', Value: 'abc' })
 
@@ -284,6 +290,7 @@ test('firewall rule form host validation', async ({ page }) => {
   // Enter invalid VPC name
   const vpcNameField = page.getByRole('combobox', { name: 'VPC name' }).nth(1)
   await vpcNameField.fill('ab-')
+  await vpcNameField.press('Enter')
   await addButton.click()
   await expect(nameError).toBeVisible()
 
@@ -309,6 +316,7 @@ test('firewall rule form host validation', async ({ page }) => {
   await expect(ipError).toBeHidden()
   await expect(nameError).toBeHidden()
   await vpcNameField.fill('abc')
+  await page.getByText('Use abc').click()
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'vpc', Value: 'abc' })
 
@@ -350,10 +358,12 @@ test('firewall rule form hosts table', async ({ page }) => {
   // add hosts with overlapping names and types to test delete
 
   await hostFiltersVpcNameField.fill('abc')
+  await hostFiltersVpcNameField.press('Enter')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'vpc', Value: 'abc' })
 
   await hostFiltersVpcNameField.fill('def')
+  await hostFiltersVpcNameField.press('Enter')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'vpc', Value: 'def' })
 
@@ -364,6 +374,7 @@ test('firewall rule form hosts table', async ({ page }) => {
 
   await selectOption(page, 'Host type', 'VPC subnet')
   await page.getByRole('combobox', { name: 'Subnet name' }).fill('abc')
+  await page.getByRole('combobox', { name: 'Subnet name' }).press('Enter')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'subnet', Value: 'abc' })
 
@@ -427,6 +438,7 @@ test('can update firewall rule', async ({ page }) => {
   // add host filter
   await selectOption(page, 'Host type', 'VPC subnet')
   await page.getByRole('combobox', { name: 'Subnet name' }).fill('edit-filter-subnet')
+  await page.getByText('Use edit-filter-subnet').click()
   await page.getByRole('button', { name: 'Add host filter' }).click()
 
   // new host is added to hosts table
