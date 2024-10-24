@@ -168,13 +168,13 @@ test('firewall rule form targets table', async ({ page }) => {
   // add targets with overlapping names and types to test delete
 
   await targetVpcNameField.fill('abc')
-  await page.getByText('Use abc').click()
+  await targetVpcNameField.press('Enter')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'vpc', Value: 'abc' })
 
   // enter a VPC called 'mock-subnet', even if that doesn't make sense here, to test dropdown later
   await targetVpcNameField.fill('mock-subnet')
-  await page.getByText('Use mock-subnet').click()
+  await targetVpcNameField.press('Enter')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'vpc', Value: 'mock-subnet' })
 
@@ -225,7 +225,7 @@ test('firewall rule form target validation', async ({ page }) => {
   // Enter invalid VPC name
   const vpcNameField = page.getByRole('combobox', { name: 'VPC name' }).first()
   await vpcNameField.fill('ab-')
-  await page.getByText('Use ab-').click()
+  await vpcNameField.press('Enter')
   await addButton.click()
   await expect(nameError).toBeVisible()
 
@@ -290,7 +290,7 @@ test('firewall rule form host validation', async ({ page }) => {
   // Enter invalid VPC name
   const vpcNameField = page.getByRole('combobox', { name: 'VPC name' }).nth(1)
   await vpcNameField.fill('ab-')
-  await page.getByText('Use ab-').click()
+  await vpcNameField.press('Enter')
   await addButton.click()
   await expect(nameError).toBeVisible()
 
