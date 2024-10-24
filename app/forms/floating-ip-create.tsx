@@ -39,12 +39,9 @@ const toComboboxItem = (p: SiloIpPool): ComboboxItem => {
       <div>
         {p.name}
         {p.isDefault && (
-          <>
-            {' '}
-            <Badge className="ml-1" color="neutral">
-              default
-            </Badge>
-          </>
+          <Badge className="ml-1" color="neutral">
+            default
+          </Badge>
         )}
       </div>
       {p.description.length && (
