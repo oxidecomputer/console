@@ -10,7 +10,6 @@ import cn from 'classnames'
 import React, { useEffect } from 'react'
 
 import { CopyToClipboard } from './CopyToClipboard'
-import { Tooltip } from './Tooltip'
 
 /**
  * This is a little complicated. We only want to allow the `rows` prop if
@@ -92,19 +91,16 @@ export const TextInput = React.forwardRef<
           className
         )}
       >
-        {/* don't bother with the tooltip if the string is short */}
-        {copyable && copyableValue.length > 50 ? (
-          <Tooltip content={copyableValue} placement="top">
-            {component}
-          </Tooltip>
-        ) : (
-          component
-        )}
+        {component}
         {copyable && (
-          <CopyToClipboard
-            text={copyableValue}
-            className="flex h-full items-stretch border-l border-solid px-3 border-default hover:border-hover"
-          />
+          <div className="flex h-full grow items-center py-2 bg-disabled">
+            <div className="flex h-6 items-center border-l border-solid px-1 border-default">
+              <CopyToClipboard
+                text={copyableValue}
+                className="rounded py-2 hover:text-tertiary hover:bg-default focus:text-tertiary focus:bg-default"
+              />
+            </div>
+          </div>
         )}
       </div>
     )
