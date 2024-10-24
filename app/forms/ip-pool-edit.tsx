@@ -71,7 +71,7 @@ export function EditIpPoolSideModalForm() {
       <DescriptionField name="description" control={form.control} />
       <Message
         variant="info"
-        content="IP pool names and descriptions are visible to end users in linked silos."
+        content="Users in linked silos will use IP pool names and descriptions to help them choose a pool when allocating IPs."
       />
     </SideModalForm>
   )
