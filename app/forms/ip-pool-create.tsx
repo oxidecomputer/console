@@ -52,10 +52,14 @@ export function CreateIpPoolSideModalForm() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <Message
-        variant="info"
-        content="Users in linked silos will use IP pool names and descriptions to help them choose a pool when allocating IPs."
-      />
+      <IpPoolVisibilityMessage />
     </SideModalForm>
   )
 }
+
+export const IpPoolVisibilityMessage = () => (
+  <Message
+    variant="info"
+    content="Users in linked silos will use IP pool names and descriptions to help them choose a pool when allocating IPs."
+  />
+)
