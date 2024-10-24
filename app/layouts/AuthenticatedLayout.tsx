@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Outlet } from 'react-router-dom'
+import { Outlet, ScrollRestoration } from 'react-router-dom'
 
 import { apiQueryClient, useApiQueryErrorsAllowed, usePrefetchedApiQuery } from '@oxide/api'
 
@@ -43,6 +43,7 @@ export function AuthenticatedLayout() {
     <>
       <QuickActions />
       <Outlet />
+      <ScrollRestoration />
     </>
   )
 }

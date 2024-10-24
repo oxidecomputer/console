@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useRef } from 'react'
 import { Outlet } from 'react-router-dom'
 
 import { PageActionsTarget } from '~/components/PageActions'
@@ -14,20 +13,21 @@ import { useScrollRestoration } from '~/hooks/use-scroll-restoration'
 import { SkipLinkTarget } from '~/ui/lib/SkipLink'
 import { classed } from '~/util/classed'
 
-export const PageContainer = classed.div`grid h-screen grid-cols-[14.25rem,1fr] grid-rows-[60px,1fr]`
+export const PageContainer = classed.div`min-h-screen pt-[var(--navigation-height)] [overscroll-behavior-y:none]`
 
+// TODO: this doesn't go tall enough on a tall screen to get the pagination bar to the bottom
+// http://localhost:4000/projects/mock-project/disks
 export function ContentPane() {
-  const ref = useRef<HTMLDivElement>(null)
-  useScrollRestoration(ref)
+  useScrollRestoration()
   return (
-    <div ref={ref} className="flex flex-col overflow-auto" data-testid="scroll-container">
-      <div className="flex grow flex-col pb-8">
+    <div className="ml-[var(--sidebar-width)] flex min-h-full flex-col" id="content_pane">
+      <div className="flex grow flex-col pb-8 md-:pb-16">
         <SkipLinkTarget />
         <main className="[&>*]:gutter">
           <Outlet />
         </main>
       </div>
-      <div className="sticky bottom-0 z-topBar shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
+      <div className="sticky bottom-0 z-topBar flex-shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
         <Pagination.Target />
         <PageActionsTarget />
       </div>
@@ -42,7 +42,10 @@ export function ContentPane() {
  * `<div>` because we don't need it.
  */
 export const SerialConsoleContentPane = () => (
-  <div className="flex flex-col overflow-auto">
+  <div
+    className="ml-[var(--sidebar-width)] flex min-h-full flex-col overflow-auto"
+    id="content_pane"
+  >
     <div className="flex grow flex-col">
       <SkipLinkTarget />
       <main className="[&>*]:gutter h-full">
