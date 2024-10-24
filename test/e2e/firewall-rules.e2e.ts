@@ -358,12 +358,12 @@ test('firewall rule form hosts table', async ({ page }) => {
   // add hosts with overlapping names and types to test delete
 
   await hostFiltersVpcNameField.fill('abc')
-  await page.getByText('Use abc').click()
+  await hostFiltersVpcNameField.press('Enter')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'vpc', Value: 'abc' })
 
   await hostFiltersVpcNameField.fill('def')
-  await page.getByText('Use def').click()
+  await hostFiltersVpcNameField.press('Enter')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'vpc', Value: 'def' })
 
@@ -374,7 +374,7 @@ test('firewall rule form hosts table', async ({ page }) => {
 
   await selectOption(page, 'Host type', 'VPC subnet')
   await page.getByRole('combobox', { name: 'Subnet name' }).fill('abc')
-  await page.getByText('Use abc').click()
+  await page.getByRole('combobox', { name: 'Subnet name' }).press('Enter')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'subnet', Value: 'abc' })
 
