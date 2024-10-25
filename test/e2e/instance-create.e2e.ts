@@ -86,8 +86,7 @@ test('can create an instance', async ({ page }) => {
 
   // re-checking the box should re-enable the selector, and other options should be selectable
   await checkbox.check()
-  await page.getByRole('combobox', { name: 'IP pool for ephemeral IP' }).clear()
-  await page.getByRole('option', { name: 'ip-pool-2 VPN IPs' }).click()
+  await selectOption(page, 'IP pool for ephemeral IP', 'ip-pool-2 VPN IPs')
 
   // should be visible in accordion
   await expect(page.getByRole('radiogroup', { name: 'Network interface' })).toBeVisible()
