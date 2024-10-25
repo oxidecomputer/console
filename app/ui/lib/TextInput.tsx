@@ -72,7 +72,8 @@ export const TextInput = React.forwardRef<
           `w-full rounded border-none px-3 py-[0.6875rem] !outline-offset-1 text-sans-md text-default bg-default placeholder:text-quaternary focus:outline-none disabled:cursor-not-allowed disabled:text-tertiary disabled:bg-disabled`,
           error && 'focus-error',
           fieldClassName,
-          disabled && 'text-disabled bg-disabled'
+          disabled && 'text-disabled bg-disabled',
+          copyable && 'pr-0'
         )}
         aria-invalid={error}
         disabled={disabled}
