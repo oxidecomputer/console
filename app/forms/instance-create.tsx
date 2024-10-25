@@ -25,6 +25,7 @@ import {
   type InstanceCreate,
   type InstanceDiskAttachment,
   type NameOrId,
+  type SiloIpPool,
 } from '@oxide/api'
 import {
   Images16Icon,
@@ -60,7 +61,7 @@ import { addToast } from '~/stores/toast'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { Checkbox } from '~/ui/lib/Checkbox'
-import { toComboboxItems } from '~/ui/lib/Combobox'
+import { Combobox, toComboboxItems } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
@@ -609,7 +610,7 @@ const AdvancedAccordion = ({
 }: {
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
-  siloPools: Array<{ name: string; isDefault: boolean }>
+  siloPools: Array<SiloIpPool>
 }) => {
   // we track this state manually for the sole reason that we need to be able to
   // tell, inside AccordionItem, when an accordion is opened so we can scroll its
@@ -728,19 +729,31 @@ const AdvancedAccordion = ({
             </label>
           </div>
           {assignEphemeralIp && (
-            <Listbox
-              name="pools"
+            <Combobox
               label="IP pool for ephemeral IP"
               placeholder={defaultPool ? `${defaultPool} (default)` : 'Select a pool'}
-              selected={`${siloPools.find((pool) => pool.name === selectedPool)?.name}`}
+              selectedItemLabel={selectedPool || ''}
+              selectedItemValue={selectedPool || ''}
               items={
                 siloPools.map((pool) => ({
                   label: (
-                    <div className="flex items-center gap-2">
-                      {pool.name}
-                      {pool.isDefault && <Badge>default</Badge>}
+                    <div className="flex flex-col gap-1">
+                      <div>
+                        {pool.name}
+                        {pool.isDefault && (
+                          <Badge className="ml-1" color="neutral">
+                            default
+                          </Badge>
+                        )}
+                      </div>
+                      {pool.description.length && (
+                        <div className="text-tertiary selected:text-accent-secondary">
+                          {pool.description}
+                        </div>
+                      )}
                     </div>
                   ),
+                  selectedLabel: pool.name,
                   value: pool.name,
                 })) || []
               }
