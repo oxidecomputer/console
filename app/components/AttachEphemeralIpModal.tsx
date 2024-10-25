@@ -10,7 +10,7 @@ import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { useApiMutation, useApiQueryClient, usePrefetchedApiQuery } from '~/api'
-import { ComboboxField } from '~/components/form/fields/ComboboxField'
+import { ListboxField } from '~/components/form/fields/ListboxField'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Badge } from '~/ui/lib/Badge'
@@ -45,7 +45,7 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
       <Modal.Body>
         <Modal.Section>
           <form>
-            <ComboboxField
+            <ListboxField
               control={form.control}
               name="pool"
               label="IP pool"
