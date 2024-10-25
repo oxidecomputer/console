@@ -10,7 +10,7 @@ import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { useApiMutation, useApiQueryClient, usePrefetchedApiQuery } from '~/api'
-import { ListboxField } from '~/components/form/fields/ListboxField'
+import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Badge } from '~/ui/lib/Badge'
@@ -45,7 +45,7 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
       <Modal.Body>
         <Modal.Section>
           <form>
-            <ListboxField
+            <ComboboxField
               control={form.control}
               name="pool"
               label="IP pool"
@@ -57,11 +57,23 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
               items={
                 siloPools?.items.map((pool) => ({
                   label: (
-                    <div className="flex items-center gap-2">
-                      {pool.name}
-                      {pool.isDefault && <Badge>default</Badge>}
+                    <div className="flex flex-col gap-1">
+                      <div>
+                        {pool.name}
+                        {pool.isDefault && (
+                          <Badge className="ml-1" color="neutral">
+                            default
+                          </Badge>
+                        )}
+                      </div>
+                      {pool.description.length && (
+                        <div className="text-tertiary selected:text-accent-secondary">
+                          {pool.description}
+                        </div>
+                      )}
                     </div>
                   ),
+                  selectedLabel: pool.name,
                   value: pool.name,
                 })) || []
               }
