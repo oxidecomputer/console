@@ -70,27 +70,24 @@ test('can create an instance', async ({ page }) => {
   await page.getByRole('button', { name: 'Networking' }).click()
   await page.getByRole('button', { name: 'Configuration' }).click()
 
-  const assignEphemeralIpCheckbox = page.getByRole('checkbox', {
+  const checkbox = page.getByRole('checkbox', {
     name: 'Allocate and attach an ephemeral IP address',
   })
-  const assignEphemeralIpButton = page.getByRole('button', {
-    name: 'IP pool for ephemeral IP',
-  })
+  const label = page.getByLabel('IP pool for ephemeral IP')
 
   // verify that the ip pool selector is visible and default is selected
-  await expect(assignEphemeralIpCheckbox).toBeChecked()
-  await assignEphemeralIpButton.click()
+  await expect(checkbox).toBeChecked()
+  await label.click()
   await expect(page.getByRole('option', { name: 'ip-pool-1' })).toBeEnabled()
-  await assignEphemeralIpButton.click() // click closes the listbox so we can do more stuff
 
   // unchecking the box should disable the selector
-  await assignEphemeralIpCheckbox.uncheck()
-  await expect(assignEphemeralIpButton).toBeHidden()
+  await checkbox.uncheck()
+  await expect(label).toBeHidden()
 
   // re-checking the box should re-enable the selector, and other options should be selectable
-  await assignEphemeralIpCheckbox.check()
-  await assignEphemeralIpButton.click()
-  await page.getByRole('option', { name: 'ip-pool-2' }).click()
+  await checkbox.check()
+  await page.getByRole('combobox', { name: 'IP pool for ephemeral IP' }).clear()
+  await page.getByRole('option', { name: 'ip-pool-2 VPN IPs' }).click()
 
   // should be visible in accordion
   await expect(page.getByRole('radiogroup', { name: 'Network interface' })).toBeVisible()
