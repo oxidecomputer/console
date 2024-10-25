@@ -61,7 +61,7 @@ import { addToast } from '~/stores/toast'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { Checkbox } from '~/ui/lib/Checkbox'
-import { toComboboxItems } from '~/ui/lib/Combobox'
+import { Combobox, toComboboxItems } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
@@ -729,11 +729,11 @@ const AdvancedAccordion = ({
             </label>
           </div>
           {assignEphemeralIp && (
-            <Listbox
-              name="pools"
+            <Combobox
               label="IP pool for ephemeral IP"
               placeholder={defaultPool ? `${defaultPool} (default)` : 'Select a pool'}
-              selected={`${siloPools.find((pool) => pool.name === selectedPool)?.name}`}
+              selectedItemLabel={selectedPool || ''}
+              selectedItemValue={selectedPool || ''}
               items={
                 siloPools.map((pool) => ({
                   label: (
