@@ -161,7 +161,7 @@ export const Combobox = ({
             placeholder={placeholder}
             disabled={disabled || isLoading}
             className={cn(
-              `h-10 w-full rounded !border-none px-3 py-[0.5rem] !outline-none text-sans-md text-default placeholder:text-quaternary`,
+              `h-10 w-full rounded !border-none px-3 py-2 !outline-none text-sans-md text-default placeholder:text-quaternary`,
               disabled
                 ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
                 : 'bg-default',
@@ -170,7 +170,7 @@ export const Combobox = ({
           />
           {items.length > 0 && (
             <ComboboxButton
-              className="flex items-center border-l px-3 bg-default border-secondary"
+              className="my-1.5 flex items-center border-l px-3 bg-default border-secondary"
               aria-hidden
             >
               <SelectArrows6Icon title="Select" className="w-2 text-tertiary" />
@@ -180,8 +180,8 @@ export const Combobox = ({
         {items.length > 0 && (
           <ComboboxOptions
             anchor="bottom start"
-            // 14px gap is presumably because it's measured from inside the outline or something
-            className={`ox-menu pointer-events-auto ${zIndex} relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border !outline-none border-secondary [--anchor-gap:14px] empty:hidden`}
+            // 12px gap is presumably because it's measured from inside the outline or something
+            className={`ox-menu pointer-events-auto ${zIndex} relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border !outline-none border-secondary [--anchor-gap:12px] empty:hidden`}
             modal={false}
           >
             {!allowArbitraryValues && filteredItems.length === 0 && (
