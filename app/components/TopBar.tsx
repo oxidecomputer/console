@@ -55,7 +55,7 @@ export function TopBar({ children }: { children: React.ReactNode }) {
                 </span>
                 <DirectionDownIcon className="!w-2.5" />
               </DropdownMenu.Trigger>
-              <DropdownMenu.Content gap={8} className="!z-topBarDropdown">
+              <DropdownMenu.Content gap={8}>
                 <DropdownMenu.LinkItem to={pb.profile()}>Settings</DropdownMenu.LinkItem>
                 <DropdownMenu.Item onSelect={() => logout.mutate({})}>
                   Sign out
