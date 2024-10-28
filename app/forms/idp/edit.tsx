@@ -108,6 +108,7 @@ export function EditIdpSideModalForm() {
         name="groupAttributeName"
         label="Group attribute name"
         description="Name of the SAML attribute sent by the IdP containing a comma-separated list of groups for the authenticated user"
+        required
         control={form.control}
         disabled
       />
