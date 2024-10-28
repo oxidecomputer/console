@@ -93,7 +93,7 @@ export const TextInput = React.forwardRef<
         {copyable && (
           <CopyToClipboard
             text={copyableValue}
-            className="!h-10 rounded-none border-l border-solid px-3.5 bg-disabled border-default"
+            className="!h-10 rounded-none border-l border-solid px-4 bg-disabled border-default"
           />
         )}
       </div>
