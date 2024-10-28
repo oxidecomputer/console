@@ -101,7 +101,7 @@ export const TextInputHint = ({ id, children, className }: HintProps) => (
   <div
     id={id}
     className={cn(
-      'mt-1 text-balance text-sans-sm text-tertiary [&_>_a]:underline hover:[&_>_a]:text-default',
+      'mt-1 text-sans-sm text-tertiary [&_>_a]:underline hover:[&_>_a]:text-default',
       className
     )}
   >
