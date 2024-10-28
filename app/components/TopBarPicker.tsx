@@ -112,7 +112,7 @@ const TopBarPicker = (props: TopBarPickerProps) => {
       {/* TODO: popover position should be further right */}
       {props.items && (
         <DropdownMenu.Content
-          className="!z-topBarPopover mt-2 max-h-80 min-w-[12.8125rem] overflow-y-auto"
+          className="!z-topBarDropdown mt-2 max-h-80 min-w-[12.8125rem] overflow-y-auto"
           anchor="bottom start"
         >
           {props.items.length > 0 ? (
