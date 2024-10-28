@@ -13,9 +13,10 @@ import { useApiMutation, useApiQueryClient, usePrefetchedApiQuery } from '~/api'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { Badge } from '~/ui/lib/Badge'
 import { Modal } from '~/ui/lib/Modal'
 import { ALL_ISH } from '~/util/consts'
+
+import { toIpPoolItem } from './form/fields/ip-pool-item'
 
 export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void }) => {
   const queryClient = useApiQueryClient()
@@ -54,29 +55,7 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
                   ? 'Select a pool'
                   : 'No pools available'
               }
-              items={
-                siloPools?.items.map((pool) => ({
-                  label: (
-                    <div className="flex flex-col gap-1">
-                      <div>
-                        {pool.name}
-                        {pool.isDefault && (
-                          <Badge className="ml-1" color="neutral">
-                            default
-                          </Badge>
-                        )}
-                      </div>
-                      {pool.description.length && (
-                        <div className="text-tertiary selected:text-accent-secondary">
-                          {pool.description}
-                        </div>
-                      )}
-                    </div>
-                  ),
-                  selectedLabel: pool.name,
-                  value: pool.name,
-                })) || []
-              }
+              items={siloPools.items.map(toIpPoolItem)}
               required
             />
           </form>

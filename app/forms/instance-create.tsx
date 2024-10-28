@@ -47,6 +47,7 @@ import {
 } from '~/components/form/fields/DisksTableField'
 import { FileField } from '~/components/form/fields/FileField'
 import { BootDiskImageSelectField as ImageSelectField } from '~/components/form/fields/ImageSelectField'
+import { toIpPoolItem } from '~/components/form/fields/ip-pool-item'
 import { NameField } from '~/components/form/fields/NameField'
 import { NetworkInterfaceField } from '~/components/form/fields/NetworkInterfaceField'
 import { NumberField } from '~/components/form/fields/NumberField'
@@ -58,7 +59,6 @@ import { FullPageForm } from '~/components/form/FullPageForm'
 import { HL } from '~/components/HL'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { Checkbox } from '~/ui/lib/Checkbox'
 import { toComboboxItems } from '~/ui/lib/Combobox'
@@ -734,29 +734,7 @@ const AdvancedAccordion = ({
               label="IP pool for ephemeral IP"
               placeholder={defaultPool ? `${defaultPool} (default)` : 'Select a pool'}
               selected={`${siloPools.find((pool) => pool.name === selectedPool)?.name}`}
-              items={
-                siloPools.map((pool) => ({
-                  label: (
-                    <div className="flex flex-col gap-1">
-                      <div>
-                        {pool.name}
-                        {pool.isDefault && (
-                          <Badge className="ml-1" color="neutral">
-                            default
-                          </Badge>
-                        )}
-                      </div>
-                      {pool.description.length && (
-                        <div className="text-tertiary selected:text-accent-secondary">
-                          {pool.description}
-                        </div>
-                      )}
-                    </div>
-                  ),
-                  selectedLabel: pool.name,
-                  value: pool.name,
-                })) || []
-              }
+              items={siloPools.map(toIpPoolItem)}
               disabled={!assignEphemeralIp || isSubmitting}
               required
               onChange={(value) => {
