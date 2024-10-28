@@ -125,8 +125,8 @@ export function CreateIdpSideModalForm() {
         label="ACS URL"
         description="Service provider endpoint for the IdP to send the SAML response"
         required
-        disabled
         control={form.control}
+        disabled
         copyable
       />
       {/* TODO: help text */}
