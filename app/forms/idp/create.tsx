@@ -133,7 +133,7 @@ export function CreateIdpSideModalForm() {
       <TextField
         name="groupAttributeName"
         label="Group attribute name"
-        description="Name of SAML attribute where we can find a comma-separated list of names of groups the user belongs to"
+        description="Name of the SAML attribute in the IdP response listing the user’s groups"
         control={form.control}
       />
       {/* TODO: Email field, probably */}
