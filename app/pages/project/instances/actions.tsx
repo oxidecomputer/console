@@ -39,7 +39,7 @@ export const useMakeInstanceActions = (
   // while the whole useMutation result object is not. The async ones are used
   // when we need to confirm because the confirm modals want that.
   const opts = { onSuccess: options.onSuccess }
-  const { mutate: startInstance } = useApiMutation('instanceStart', opts)
+  const { mutateAsync: startInstanceAsync } = useApiMutation('instanceStart', opts)
   const { mutateAsync: stopInstanceAsync } = useApiMutation('instanceStop', opts)
   const { mutate: rebootInstance } = useApiMutation('instanceReboot', opts)
   // delete has its own
@@ -54,14 +54,28 @@ export const useMakeInstanceActions = (
         {
           label: 'Start',
           onActivate() {
-            startInstance(instanceParams, {
-              onSuccess: () => addToast({ title: `Starting instance '${instance.name}'` }),
-              onError: (error) =>
-                addToast({
-                  variant: 'error',
-                  title: `Error starting instance '${instance.name}'`,
-                  content: error.message,
+            confirmAction({
+              actionType: 'primary',
+              doAction: () =>
+                startInstanceAsync(instanceParams, {
+                  onSuccess: () =>
+                    addToast({ title: `Starting instance '${instance.name}'` }),
+                  onError: (error) =>
+                    addToast({
+                      variant: 'error',
+                      title: `Error starting instance '${instance.name}'`,
+                      content: error.message,
+                    }),
                 }),
+              modalTitle: 'Confirm start instance',
+              modalContent: (
+                <div className="space-y-2">
+                  <p>
+                    Are you sure you want to start <HL>{instance.name}</HL>?
+                  </p>
+                </div>
+              ),
+              errorTitle: `Error starting ${instance.name}`,
             })
           },
           disabled: !instanceCan.start(instance) && (
@@ -99,7 +113,7 @@ export const useMakeInstanceActions = (
         },
       ]
     },
-    [project, startInstance, stopInstanceAsync]
+    [project, startInstanceAsync, stopInstanceAsync]
   )
 
   const makeMenuActions = useCallback(
