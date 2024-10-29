@@ -50,13 +50,7 @@ export function VpcPage() {
     onSuccess(_data, variables) {
       queryClient.invalidateQueries('vpcList')
       navigate(pb.vpcs({ project }))
-      addToast({
-        content: (
-          <>
-            VPC <HLs>{variables.path.vpc}</HLs> deleted
-          </>
-        ),
-      })
+      addToast(<>VPC <HLs>{variables.path.vpc}</HLs> deleted</>) // prettier-ignore
     },
   })
 

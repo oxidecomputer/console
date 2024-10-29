@@ -74,13 +74,7 @@ export function EditFirewallRuleForm() {
       onDismiss()
       queryClient.invalidateQueries('vpcFirewallRulesView')
       const updatedRule = body.rules[body.rules.length - 1]
-      addToast({
-        content: (
-          <>
-            Firewall rule <HLs>{updatedRule.name}</HLs> updated
-          </>
-        ),
-      })
+      addToast(<>Firewall rule <HLs>{updatedRule.name}</HLs> updated</>) // prettier-ignore
     },
   })
 

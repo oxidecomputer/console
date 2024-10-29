@@ -47,13 +47,7 @@ export function CreateSubnetForm() {
     onSuccess(subnet) {
       queryClient.invalidateQueries('vpcSubnetList')
       onDismiss()
-      addToast({
-        content: (
-          <>
-            Subnet <HLs>{subnet.name}</HLs> created
-          </>
-        ),
-      })
+      addToast(<>Subnet <HLs>{subnet.name}</HLs> created</>) // prettier-ignore
     },
   })
 

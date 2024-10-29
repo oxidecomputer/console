@@ -39,13 +39,7 @@ export function CreateVpcSideModalForm() {
         { path: { vpc: vpc.name }, query: projectSelector },
         vpc
       )
-      addToast({
-        content: (
-          <>
-            VPC <HLs>{vpc.name}</HLs> created
-          </>
-        ),
-      })
+      addToast(<>VPC <HLs>{vpc.name}</HLs> created</>) // prettier-ignore
       navigate(pb.vpc({ vpc: vpc.name, ...projectSelector }))
     },
   })

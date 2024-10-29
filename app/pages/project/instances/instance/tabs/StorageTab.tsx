@@ -89,13 +89,7 @@ export function StorageTab() {
   const { mutate: detachDisk } = useApiMutation('instanceDiskDetach', {
     onSuccess(disk) {
       queryClient.invalidateQueries('instanceDiskList')
-      addToast({
-        content: (
-          <>
-            Disk <HLs>{disk.name}</HLs> detached
-          </>
-        ),
-      })
+      addToast(<>Disk <HLs>{disk.name}</HLs> detached</>) // prettier-ignore
     },
     onError(err) {
       addToast({
@@ -108,13 +102,7 @@ export function StorageTab() {
   const { mutate: createSnapshot } = useApiMutation('snapshotCreate', {
     onSuccess(snapshot) {
       queryClient.invalidateQueries('snapshotList')
-      addToast({
-        content: (
-          <>
-            Snapshot <HLs>{snapshot.name}</HLs> created
-          </>
-        ),
-      })
+      addToast(<>Snapshot <HLs>{snapshot.name}</HLs> created</>) // prettier-ignore
     },
     onError(err) {
       addToast({

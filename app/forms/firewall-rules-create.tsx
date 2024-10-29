@@ -78,13 +78,7 @@ export function CreateFirewallRuleForm() {
     onSuccess(updatedRules) {
       const newRule = updatedRules.rules[updatedRules.rules.length - 1]
       queryClient.invalidateQueries('vpcFirewallRulesView')
-      addToast({
-        content: (
-          <>
-            Firewall rule <HLs>{newRule.name}</HLs> created
-          </>
-        ),
-      })
+      addToast(<>Firewall rule <HLs>{newRule.name}</HLs> created</>) // prettier-ignore
       navigate(pb.vpcFirewallRules(vpcSelector))
     },
   })

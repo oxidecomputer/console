@@ -73,13 +73,7 @@ export function SiloImagesPage() {
   const queryClient = useApiQueryClient()
   const { mutateAsync: deleteImage } = useApiMutation('imageDelete', {
     onSuccess(_data, variables) {
-      addToast({
-        content: (
-          <>
-            Image <HLs>{variables.path.image}</HLs> deleted
-          </>
-        ),
-      })
+      addToast(<>Image <HLs>{variables.path.image}</HLs> deleted</>) // prettier-ignore
       queryClient.invalidateQueries('imageList')
     },
   })
@@ -138,13 +132,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
 
   const promoteImage = useApiMutation('imagePromote', {
     onSuccess(data) {
-      addToast({
-        content: (
-          <>
-            Image <HLs>{data.name}</HLs> promoted
-          </>
-        ),
-      })
+      addToast(<>Image <HLs>{data.name}</HLs> promoted</>) // prettier-ignore
       queryClient.invalidateQueries('imageList')
     },
     onError: (err) => {

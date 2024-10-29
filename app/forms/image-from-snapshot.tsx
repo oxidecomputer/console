@@ -57,13 +57,7 @@ export function CreateImageFromSnapshotSideModalForm() {
   const createImage = useApiMutation('imageCreate', {
     onSuccess(image) {
       queryClient.invalidateQueries('imageList')
-      addToast({
-        content: (
-          <>
-            Image <HLs>{image.name}</HLs> created
-          </>
-        ),
-      })
+      addToast(<>Image <HLs>{image.name}</HLs> created</>) // prettier-ignore
       onDismiss()
     },
   })

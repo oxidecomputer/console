@@ -79,13 +79,7 @@ export const useMakeInstanceActions = (
               doAction: () =>
                 stopInstanceAsync(instanceParams, {
                   onSuccess: () =>
-                    addToast({
-                      content: (
-                        <>
-                          Stopping instance <HLs>{instance.name}</HLs>
-                        </>
-                      ),
-                    }),
+                    addToast(<>Stopping instance <HLs>{instance.name}</HLs></>), // prettier-ignore
                 }),
               modalTitle: 'Confirm stop instance',
               modalContent: (

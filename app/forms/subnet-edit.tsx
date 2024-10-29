@@ -55,13 +55,7 @@ export function EditSubnetForm() {
   const updateSubnet = useApiMutation('vpcSubnetUpdate', {
     onSuccess(subnet) {
       queryClient.invalidateQueries('vpcSubnetList')
-      addToast({
-        content: (
-          <>
-            Subnet <HLs>{subnet.name}</HLs> updated
-          </>
-        ),
-      })
+      addToast(<>Subnet <HLs>{subnet.name}</HLs> updated</>) // prettier-ignore
       onDismiss()
     },
   })

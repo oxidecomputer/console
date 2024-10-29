@@ -102,26 +102,14 @@ export function DisksPage() {
   const { mutateAsync: deleteDisk } = useApiMutation('diskDelete', {
     onSuccess(_data, variables) {
       queryClient.invalidateQueries('diskList')
-      addToast({
-        content: (
-          <>
-            Disk <HLs>{variables.path.disk}</HLs> deleted
-          </>
-        ),
-      })
+      addToast(<>Disk <HLs>{variables.path.disk}</HLs> deleted</>) // prettier-ignore
     },
   })
 
   const { mutate: createSnapshot } = useApiMutation('snapshotCreate', {
     onSuccess(_data, variables) {
       queryClient.invalidateQueries('snapshotList')
-      addToast({
-        content: (
-          <>
-            Snapshot <HLs>{variables.body.name}</HLs> created
-          </>
-        ),
-      })
+      addToast(<>Snapshot <HLs>{variables.body.name}</HLs> created</>) // prettier-ignore
     },
     onError(err) {
       addToast({

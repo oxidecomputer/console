@@ -46,13 +46,7 @@ export function EditNetworkInterfaceForm({
   const editNetworkInterface = useApiMutation('instanceNetworkInterfaceUpdate', {
     onSuccess(nic) {
       queryClient.invalidateQueries('instanceNetworkInterfaceList')
-      addToast({
-        content: (
-          <>
-            Network interface <HLs>{nic.name}</HLs> updated
-          </>
-        ),
-      })
+      addToast(<>Network interface <HLs>{nic.name}</HLs> updated</>) // prettier-ignore
       onDismiss()
     },
   })

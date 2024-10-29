@@ -184,13 +184,7 @@ export function CreateInstanceForm() {
         { path: { instance: instance.name }, query: { project } },
         instance
       )
-      addToast({
-        content: (
-          <>
-            Instance <HLs>{instance.name}</HLs> created
-          </>
-        ),
-      })
+      addToast(<>Instance <HLs>{instance.name}</HLs> created</>) // prettier-ignore
       navigate(pb.instance({ project, instance: instance.name }))
     },
   })

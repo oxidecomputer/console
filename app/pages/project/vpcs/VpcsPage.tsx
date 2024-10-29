@@ -86,13 +86,7 @@ export function VpcsPage() {
   const { mutateAsync: deleteVpc } = useApiMutation('vpcDelete', {
     onSuccess(_data, variables) {
       queryClient.invalidateQueries('vpcList')
-      addToast({
-        content: (
-          <>
-            VPC <HLs>{variables.path.vpc}</HLs> deleted
-          </>
-        ),
-      })
+      addToast(<>VPC <HLs>{variables.path.vpc}</HLs> deleted</>) // prettier-ignore
     },
   })
 

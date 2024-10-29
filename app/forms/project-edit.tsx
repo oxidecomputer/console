@@ -46,13 +46,7 @@ export function EditProjectSideModalForm() {
       queryClient.invalidateQueries('projectList')
       // avoid the project fetch when the project page loads since we have the data
       queryClient.setQueryData('projectView', { path: { project: project.name } }, project)
-      addToast({
-        content: (
-          <>
-            Project <HLs>{project.name}</HLs> updated
-          </>
-        ),
-      })
+      addToast(<>Project <HLs>{project.name}</HLs> updated</>) // prettier-ignore
       onDismiss()
     },
   })

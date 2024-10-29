@@ -59,13 +59,7 @@ export function ImagesPage() {
 
   const { mutateAsync: deleteImage } = useApiMutation('imageDelete', {
     onSuccess(_data, variables) {
-      addToast({
-        content: (
-          <>
-            Image <HLs>{variables.path.image}</HLs> deleted
-          </>
-        ),
-      })
+      addToast(<>Image <HLs>{variables.path.image}</HLs> deleted</>) // prettier-ignore
       queryClient.invalidateQueries('imageList')
     },
   })

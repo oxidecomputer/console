@@ -49,13 +49,7 @@ export function SSHKeysPage() {
   const { mutateAsync: deleteSshKey } = useApiMutation('currentUserSshKeyDelete', {
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries('currentUserSshKeyList')
-      addToast({
-        content: (
-          <>
-            SSH key <HLs>{variables.path.sshKey}</HLs> deleted
-          </>
-        ),
-      })
+      addToast(<>SSH key <HLs>{variables.path.sshKey}</HLs> deleted</>) // prettier-ignore
     },
   })
 

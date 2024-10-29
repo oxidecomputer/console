@@ -85,13 +85,7 @@ export function IpPoolPage() {
     onSuccess(_data, variables) {
       apiQueryClient.invalidateQueries('ipPoolList')
       navigate(pb.ipPools())
-      addToast({
-        content: (
-          <>
-            Pool <HLs>{variables.path.pool}</HLs> deleted
-          </>
-        ),
-      })
+      addToast(<>Pool <HLs>{variables.path.pool}</HLs> deleted</>) // prettier-ignore
     },
   })
 

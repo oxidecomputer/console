@@ -58,13 +58,7 @@ export function CreateSiloSideModalForm() {
     onSuccess(silo) {
       queryClient.invalidateQueries('siloList')
       queryClient.setQueryData('siloView', { path: { silo: silo.name } }, silo)
-      addToast({
-        content: (
-          <>
-            Silo <HLs>{silo.name}</HLs> created
-          </>
-        ),
-      })
+      addToast(<>Silo <HLs>{silo.name}</HLs> created</>) // prettier-ignore
       onDismiss()
     },
   })

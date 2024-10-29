@@ -49,13 +49,7 @@ export function CreateFloatingIpSideModalForm() {
     onSuccess(floatingIp) {
       queryClient.invalidateQueries('floatingIpList')
       queryClient.invalidateQueries('ipPoolUtilizationView')
-      addToast({
-        content: (
-          <>
-            Floating IP <HLs>{floatingIp.name}</HLs> created
-          </>
-        ),
-      })
+      addToast(<>Floating IP <HLs>{floatingIp.name}</HLs> created</>) // prettier-ignore
       navigate(pb.floatingIps(projectSelector))
     },
   })

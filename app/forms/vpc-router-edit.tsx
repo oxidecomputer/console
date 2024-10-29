@@ -54,13 +54,7 @@ export function EditRouterSideModalForm() {
   const editRouter = useApiMutation('vpcRouterUpdate', {
     onSuccess(updatedRouter) {
       queryClient.invalidateQueries('vpcRouterList')
-      addToast({
-        content: (
-          <>
-            Router <HLs>{updatedRouter.name}</HLs> updated
-          </>
-        ),
-      })
+      addToast(<>Router <HLs>{updatedRouter.name}</HLs> updated</>) // prettier-ignore
       navigate(pb.vpcRouters({ project, vpc }))
     },
   })

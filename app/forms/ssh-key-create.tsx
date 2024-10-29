@@ -39,13 +39,7 @@ export function CreateSSHKeySideModalForm({ onDismiss, message }: Props) {
     onSuccess(sshKey) {
       queryClient.invalidateQueries('currentUserSshKeyList')
       handleDismiss()
-      addToast({
-        content: (
-          <>
-            SSH key <HLs>{sshKey.name}</HLs> created
-          </>
-        ),
-      })
+      addToast(<>SSH key <HLs>{sshKey.name}</HLs> created</>) // prettier-ignore
     },
   })
   const form = useForm({ defaultValues })

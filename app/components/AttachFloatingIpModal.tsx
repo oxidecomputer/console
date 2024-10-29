@@ -49,13 +49,7 @@ export const AttachFloatingIpModal = ({
     onSuccess(floatingIp) {
       queryClient.invalidateQueries('floatingIpList')
       queryClient.invalidateQueries('instanceExternalIpList')
-      addToast({
-        content: (
-          <>
-            IP <HLs>{floatingIp.name}</HLs> attached
-          </>
-        ),
-      })
+      addToast(<>IP <HLs>{floatingIp.name}</HLs> attached</>) // prettier-ignore
       onDismiss()
     },
     onError: (err) => {

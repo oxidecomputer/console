@@ -32,13 +32,7 @@ export function CreateIpPoolSideModalForm() {
   const createPool = useApiMutation('ipPoolCreate', {
     onSuccess(_pool) {
       queryClient.invalidateQueries('ipPoolList')
-      addToast({
-        content: (
-          <>
-            IP pool <HLs>{_pool.name}</HLs> created
-          </>
-        ),
-      })
+      addToast(<>IP pool <HLs>{_pool.name}</HLs> created</>) // prettier-ignore
       navigate(pb.ipPools())
     },
   })

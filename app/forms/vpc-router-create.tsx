@@ -33,13 +33,7 @@ export function CreateRouterSideModalForm() {
   const createRouter = useApiMutation('vpcRouterCreate', {
     onSuccess(router) {
       queryClient.invalidateQueries('vpcRouterList')
-      addToast({
-        content: (
-          <>
-            Router <HLs>{router.name}</HLs> created
-          </>
-        ),
-      })
+      addToast(<>Router <HLs>{router.name}</HLs> created</>) // prettier-ignore
       onDismiss()
     },
   })

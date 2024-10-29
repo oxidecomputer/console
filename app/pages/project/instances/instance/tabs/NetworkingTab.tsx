@@ -204,13 +204,7 @@ export function NetworkingTab() {
   const { mutateAsync: deleteNic } = useApiMutation('instanceNetworkInterfaceDelete', {
     onSuccess(_data, variables) {
       queryClient.invalidateQueries('instanceNetworkInterfaceList')
-      addToast({
-        content: (
-          <>
-            Network interface <HLs>{variables.path.interface}</HLs> deleted
-          </>
-        ),
-      })
+      addToast(<>Network interface <HLs>{variables.path.interface}</HLs> deleted</>) // prettier-ignore
     },
   })
   const { mutate: editNic } = useApiMutation('instanceNetworkInterfaceUpdate', {
@@ -314,13 +308,7 @@ export function NetworkingTab() {
     onSuccess(_data, variables) {
       queryClient.invalidateQueries('floatingIpList')
       queryClient.invalidateQueries('instanceExternalIpList')
-      addToast({
-        content: (
-          <>
-            Floating IP <HLs>{variables.path.floatingIp}</HLs> detached
-          </>
-        ),
-      })
+      addToast(<>Floating IP <HLs>{variables.path.floatingIp}</HLs> detached</>) // prettier-ignore
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })

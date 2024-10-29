@@ -110,13 +110,7 @@ export function FloatingIpsPage() {
   const { mutateAsync: floatingIpDetach } = useApiMutation('floatingIpDetach', {
     onSuccess(floatingIp) {
       queryClient.invalidateQueries('floatingIpList')
-      addToast({
-        content: (
-          <>
-            Floating IP <HLs>{floatingIp.name}</HLs> detached
-          </>
-        ),
-      })
+      addToast(<>Floating IP <HLs>{floatingIp.name}</HLs> detached</>) // prettier-ignore
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
@@ -126,13 +120,7 @@ export function FloatingIpsPage() {
     onSuccess(_data, variables) {
       queryClient.invalidateQueries('floatingIpList')
       queryClient.invalidateQueries('ipPoolUtilizationView')
-      addToast({
-        content: (
-          <>
-            Floating IP <HLs>{variables.path.floatingIp}</HLs> deleted
-          </>
-        ),
-      })
+      addToast(<>Floating IP <HLs>{variables.path.floatingIp}</HLs> deleted</>) // prettier-ignore
     },
   })
 
@@ -264,13 +252,7 @@ const AttachFloatingIpModal = ({
   const floatingIpAttach = useApiMutation('floatingIpAttach', {
     onSuccess(floatingIp) {
       queryClient.invalidateQueries('floatingIpList')
-      addToast({
-        content: (
-          <>
-            Floating IP <HLs>{floatingIp.name}</HLs> attached
-          </>
-        ),
-      })
+      addToast(<>Floating IP <HLs>{floatingIp.name}</HLs> attached</>) // prettier-ignore
       onDismiss()
     },
     onError: (err) => {

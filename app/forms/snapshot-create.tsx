@@ -55,13 +55,7 @@ export function CreateSnapshotSideModalForm() {
   const createSnapshot = useApiMutation('snapshotCreate', {
     onSuccess(snapshot) {
       queryClient.invalidateQueries('snapshotList')
-      addToast({
-        content: (
-          <>
-            Snapshot <HLs>{snapshot.name}</HLs> created
-          </>
-        ),
-      })
+      addToast(<>Snapshot <HLs>{snapshot.name}</HLs> created</>) // prettier-ignore
       onDismiss()
     },
   })

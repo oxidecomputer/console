@@ -80,13 +80,7 @@ export function SilosPage() {
   const { mutateAsync: deleteSilo } = useApiMutation('siloDelete', {
     onSuccess(silo, { path }) {
       queryClient.invalidateQueries('siloList')
-      addToast({
-        content: (
-          <>
-            Silo <HLs>{path.silo}</HLs> deleted
-          </>
-        ),
-      })
+      addToast(<>Silo <HLs>{path.silo}</HLs> deleted</>) // prettier-ignore
     },
   })
 
