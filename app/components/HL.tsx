@@ -7,5 +7,11 @@
  */
 import { classed } from '~/util/classed'
 
-// ox-highlight needed for CSS ensuring the HL color matches the container
-export const HL = classed.span`ox-highlight text-sans-md text-default`
+// note parent with secondary text color must have 'group' on it for
+// this to work. see Toast for an example
+export const HL = classed.span`
+  text-sans-md text-default 
+  group-[.text-accent-secondary]:text-accent
+  group-[.text-error-secondary]:text-error
+  group-[.text-info-secondary]:text-info
+`

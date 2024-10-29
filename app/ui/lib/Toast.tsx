@@ -100,7 +100,10 @@ export const Toast = ({
         {(title || variant !== 'success') && (
           <div className="text-sans-semi-md">{title || defaultTitle[variant]}</div>
         )}
-        <div className={cn('text-sans-md', secondaryTextColor[variant])}>{content}</div>
+        {/* 'group' is necessary for HL color trick to work. see HL.tsx */}
+        <div className={cn('group text-sans-md', secondaryTextColor[variant])}>
+          {content}
+        </div>
 
         {cta && (
           <Link
