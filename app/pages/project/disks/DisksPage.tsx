@@ -137,7 +137,7 @@ export function DisksPage() {
       {
         label: 'Snapshot',
         onActivate() {
-          addToast({ title: `Creating snapshot of disk '${disk.name}'` })
+          addToast(<>Creating snapshot of disk <HLs>{disk.name}</HLs></>) // prettier-ignore
           createSnapshot({
             query: { project },
             body: {

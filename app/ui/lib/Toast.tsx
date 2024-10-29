@@ -26,7 +26,7 @@ type Variant = 'success' | 'error' | 'info'
 
 export interface ToastProps {
   title?: string
-  content?: ReactNode
+  content: ReactNode
   onClose: () => void
   variant?: Variant
   timeout?: number | null
