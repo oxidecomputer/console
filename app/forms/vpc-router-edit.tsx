@@ -23,7 +23,7 @@ import {
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { HLs } from '~/components/HL'
+import { HL } from '~/components/HL'
 import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
@@ -54,7 +54,7 @@ export function EditRouterSideModalForm() {
   const editRouter = useApiMutation('vpcRouterUpdate', {
     onSuccess(updatedRouter) {
       queryClient.invalidateQueries('vpcRouterList')
-      addToast(<>Router <HLs>{updatedRouter.name}</HLs> updated</>) // prettier-ignore
+      addToast(<>Router <HL>{updatedRouter.name}</HL> updated</>) // prettier-ignore
       navigate(pb.vpcRouters({ project, vpc }))
     },
   })

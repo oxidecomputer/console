@@ -23,7 +23,7 @@ import { toIpPoolItem } from '~/components/form/fields/ip-pool-item'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { HLs } from '~/components/HL'
+import { HL } from '~/components/HL'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Message } from '~/ui/lib/Message'
@@ -49,7 +49,7 @@ export function CreateFloatingIpSideModalForm() {
     onSuccess(floatingIp) {
       queryClient.invalidateQueries('floatingIpList')
       queryClient.invalidateQueries('ipPoolUtilizationView')
-      addToast(<>Floating IP <HLs>{floatingIp.name}</HLs> created</>) // prettier-ignore
+      addToast(<>Floating IP <HL>{floatingIp.name}</HL> created</>) // prettier-ignore
       navigate(pb.floatingIps(projectSelector))
     },
   })

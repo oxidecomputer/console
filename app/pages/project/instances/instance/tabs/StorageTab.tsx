@@ -23,7 +23,7 @@ import {
 } from '@oxide/api'
 import { Storage24Icon } from '@oxide/design-system/icons/react'
 
-import { HL, HLs } from '~/components/HL'
+import { HL } from '~/components/HL'
 import { DiskStateBadge } from '~/components/StateBadge'
 import { AttachDiskSideModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
@@ -89,7 +89,7 @@ export function StorageTab() {
   const { mutate: detachDisk } = useApiMutation('instanceDiskDetach', {
     onSuccess(disk) {
       queryClient.invalidateQueries('instanceDiskList')
-      addToast(<>Disk <HLs>{disk.name}</HLs> detached</>) // prettier-ignore
+      addToast(<>Disk <HL>{disk.name}</HL> detached</>) // prettier-ignore
     },
     onError(err) {
       addToast({
@@ -102,7 +102,7 @@ export function StorageTab() {
   const { mutate: createSnapshot } = useApiMutation('snapshotCreate', {
     onSuccess(snapshot) {
       queryClient.invalidateQueries('snapshotList')
-      addToast(<>Snapshot <HLs>{snapshot.name}</HLs> created</>) // prettier-ignore
+      addToast(<>Snapshot <HL>{snapshot.name}</HL> created</>) // prettier-ignore
     },
     onError(err) {
       addToast({

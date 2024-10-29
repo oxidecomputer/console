@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { instanceCan, useApiMutation, type Instance } from '@oxide/api'
 
-import { HL, HLs } from '~/components/HL'
+import { HL } from '~/components/HL'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -58,7 +58,7 @@ export const useMakeInstanceActions = (
           label: 'Start',
           onActivate() {
             startInstance(instanceParams, {
-              onSuccess: () => addToast(<>Starting instance <HLs>{instance.name}</HLs></>), // prettier-ignore
+              onSuccess: () => addToast(<>Starting instance <HL>{instance.name}</HL></>), // prettier-ignore
               onError: (error) =>
                 addToast({
                   variant: 'error',
@@ -79,7 +79,7 @@ export const useMakeInstanceActions = (
               doAction: () =>
                 stopInstanceAsync(instanceParams, {
                   onSuccess: () =>
-                    addToast(<>Stopping instance <HLs>{instance.name}</HLs></>), // prettier-ignore
+                    addToast(<>Stopping instance <HL>{instance.name}</HL></>), // prettier-ignore
                 }),
               modalTitle: 'Confirm stop instance',
               modalContent: (
@@ -105,7 +105,7 @@ export const useMakeInstanceActions = (
           onActivate() {
             rebootInstance(instanceParams, {
               onSuccess: () =>
-                addToast(<>Rebooting instance <HLs>{instance.name}</HLs></>), // prettier-ignore
+                addToast(<>Rebooting instance <HL>{instance.name}</HL></>), // prettier-ignore
               onError: (error) =>
                 addToast({
                   variant: 'error',
@@ -130,7 +130,7 @@ export const useMakeInstanceActions = (
             doDelete: () =>
               deleteInstanceAsync(instanceParams, {
                 onSuccess: () =>
-                  addToast(<>Deleting instance <HLs>{instance.name}</HLs></>), // prettier-ignore
+                  addToast(<>Deleting instance <HL>{instance.name}</HL></>), // prettier-ignore
               }),
             label: instance.name,
             resourceKind: 'instance',

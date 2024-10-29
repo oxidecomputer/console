@@ -18,7 +18,7 @@ import {
 } from '@oxide/api'
 
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { HLs } from '~/components/HL'
+import { HL } from '~/components/HL'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { ALL_ISH } from '~/util/consts'
@@ -78,7 +78,7 @@ export function CreateFirewallRuleForm() {
     onSuccess(updatedRules) {
       const newRule = updatedRules.rules[updatedRules.rules.length - 1]
       queryClient.invalidateQueries('vpcFirewallRulesView')
-      addToast(<>Firewall rule <HLs>{newRule.name}</HLs> created</>) // prettier-ignore
+      addToast(<>Firewall rule <HL>{newRule.name}</HL> created</>) // prettier-ignore
       navigate(pb.vpcFirewallRules(vpcSelector))
     },
   })

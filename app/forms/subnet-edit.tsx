@@ -25,7 +25,7 @@ import {
   useCustomRouterItems,
 } from '~/components/form/fields/useItemsList'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { HLs } from '~/components/HL'
+import { HL } from '~/components/HL'
 import { getVpcSubnetSelector, useVpcSubnetSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
@@ -55,7 +55,7 @@ export function EditSubnetForm() {
   const updateSubnet = useApiMutation('vpcSubnetUpdate', {
     onSuccess(subnet) {
       queryClient.invalidateQueries('vpcSubnetList')
-      addToast(<>Subnet <HLs>{subnet.name}</HLs> updated</>) // prettier-ignore
+      addToast(<>Subnet <HL>{subnet.name}</HL> updated</>) // prettier-ignore
       onDismiss()
     },
   })

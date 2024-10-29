@@ -11,7 +11,7 @@ import { useForm } from 'react-hook-form'
 
 import { useApiMutation, useApiQueryClient, usePrefetchedApiQuery } from '~/api'
 import { ListboxField } from '~/components/form/fields/ListboxField'
-import { HLs } from '~/components/HL'
+import { HL } from '~/components/HL'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Modal } from '~/ui/lib/Modal'
@@ -32,7 +32,7 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
   const instanceEphemeralIpAttach = useApiMutation('instanceEphemeralIpAttach', {
     onSuccess(ephemeralIp) {
       queryClient.invalidateQueries('instanceExternalIpList')
-      addToast(<>IP <HLs>{ephemeralIp.ip}</HLs> attached</>) // prettier-ignore
+      addToast(<>IP <HL>{ephemeralIp.ip}</HL> attached</>) // prettier-ignore
       onDismiss()
     },
     onError: (err) => {

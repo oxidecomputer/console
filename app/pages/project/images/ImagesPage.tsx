@@ -13,7 +13,7 @@ import { apiQueryClient, useApiMutation, useApiQueryClient, type Image } from '@
 import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
-import { HLs } from '~/components/HL'
+import { HL } from '~/components/HL'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -59,7 +59,7 @@ export function ImagesPage() {
 
   const { mutateAsync: deleteImage } = useApiMutation('imageDelete', {
     onSuccess(_data, variables) {
-      addToast(<>Image <HLs>{variables.path.image}</HLs> deleted</>) // prettier-ignore
+      addToast(<>Image <HL>{variables.path.image}</HL> deleted</>) // prettier-ignore
       queryClient.invalidateQueries('imageList')
     },
   })
@@ -134,7 +134,7 @@ const PromoteImageModal = ({ onDismiss, imageName }: PromoteModalProps) => {
       addToast({
         content: (
           <>
-            Image <HLs>{data.name}</HLs> promoted
+            Image <HL>{data.name}</HL> promoted
           </>
         ),
         cta: {

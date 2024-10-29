@@ -22,7 +22,7 @@ import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { ListboxField } from '~/components/form/fields/ListboxField'
-import { HL, HLs } from '~/components/HL'
+import { HL } from '~/components/HL'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -110,7 +110,7 @@ export function FloatingIpsPage() {
   const { mutateAsync: floatingIpDetach } = useApiMutation('floatingIpDetach', {
     onSuccess(floatingIp) {
       queryClient.invalidateQueries('floatingIpList')
-      addToast(<>Floating IP <HLs>{floatingIp.name}</HLs> detached</>) // prettier-ignore
+      addToast(<>Floating IP <HL>{floatingIp.name}</HL> detached</>) // prettier-ignore
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
@@ -120,7 +120,7 @@ export function FloatingIpsPage() {
     onSuccess(_data, variables) {
       queryClient.invalidateQueries('floatingIpList')
       queryClient.invalidateQueries('ipPoolUtilizationView')
-      addToast(<>Floating IP <HLs>{variables.path.floatingIp}</HLs> deleted</>) // prettier-ignore
+      addToast(<>Floating IP <HL>{variables.path.floatingIp}</HL> deleted</>) // prettier-ignore
     },
   })
 
@@ -252,7 +252,7 @@ const AttachFloatingIpModal = ({
   const floatingIpAttach = useApiMutation('floatingIpAttach', {
     onSuccess(floatingIp) {
       queryClient.invalidateQueries('floatingIpList')
-      addToast(<>Floating IP <HLs>{floatingIp.name}</HLs> attached</>) // prettier-ignore
+      addToast(<>Floating IP <HL>{floatingIp.name}</HL> attached</>) // prettier-ignore
       onDismiss()
     },
     onError: (err) => {

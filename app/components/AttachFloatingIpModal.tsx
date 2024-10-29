@@ -10,7 +10,7 @@ import { useForm } from 'react-hook-form'
 
 import { useApiMutation, useApiQueryClient, type FloatingIp, type Instance } from '~/api'
 import { ListboxField } from '~/components/form/fields/ListboxField'
-import { HLs } from '~/components/HL'
+import { HL } from '~/components/HL'
 import { addToast } from '~/stores/toast'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
@@ -49,7 +49,7 @@ export const AttachFloatingIpModal = ({
     onSuccess(floatingIp) {
       queryClient.invalidateQueries('floatingIpList')
       queryClient.invalidateQueries('instanceExternalIpList')
-      addToast(<>IP <HLs>{floatingIp.name}</HLs> attached</>) // prettier-ignore
+      addToast(<>IP <HL>{floatingIp.name}</HL> attached</>) // prettier-ignore
       onDismiss()
     },
     onError: (err) => {

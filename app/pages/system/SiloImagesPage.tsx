@@ -23,7 +23,7 @@ import { DocsPopover } from '~/components/DocsPopover'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { toImageComboboxItem } from '~/components/form/fields/ImageSelectField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
-import { HLs } from '~/components/HL'
+import { HL } from '~/components/HL'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
@@ -73,7 +73,7 @@ export function SiloImagesPage() {
   const queryClient = useApiQueryClient()
   const { mutateAsync: deleteImage } = useApiMutation('imageDelete', {
     onSuccess(_data, variables) {
-      addToast(<>Image <HLs>{variables.path.image}</HLs> deleted</>) // prettier-ignore
+      addToast(<>Image <HL>{variables.path.image}</HL> deleted</>) // prettier-ignore
       queryClient.invalidateQueries('imageList')
     },
   })
@@ -132,7 +132,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
 
   const promoteImage = useApiMutation('imagePromote', {
     onSuccess(data) {
-      addToast(<>Image <HLs>{data.name}</HLs> promoted</>) // prettier-ignore
+      addToast(<>Image <HL>{data.name}</HL> promoted</>) // prettier-ignore
       queryClient.invalidateQueries('imageList')
     },
     onError: (err) => {
@@ -221,7 +221,7 @@ const DemoteImageModal = ({
       addToast({
         content: (
           <>
-            Image <HLs>{data.name}</HLs> demoted
+            Image <HL>{data.name}</HL> demoted
           </>
         ),
         cta: selectedProject

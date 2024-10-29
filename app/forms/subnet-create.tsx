@@ -20,7 +20,7 @@ import {
   useCustomRouterItems,
 } from '~/components/form/fields/useItemsList'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { HLs } from '~/components/HL'
+import { HL } from '~/components/HL'
 import { useVpcSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
@@ -47,7 +47,7 @@ export function CreateSubnetForm() {
     onSuccess(subnet) {
       queryClient.invalidateQueries('vpcSubnetList')
       onDismiss()
-      addToast(<>Subnet <HLs>{subnet.name}</HLs> created</>) // prettier-ignore
+      addToast(<>Subnet <HL>{subnet.name}</HL> created</>) // prettier-ignore
     },
   })
 

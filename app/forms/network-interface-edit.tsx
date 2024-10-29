@@ -20,7 +20,7 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextFieldInner } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { HLs } from '~/components/HL'
+import { HL } from '~/components/HL'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
@@ -46,7 +46,7 @@ export function EditNetworkInterfaceForm({
   const editNetworkInterface = useApiMutation('instanceNetworkInterfaceUpdate', {
     onSuccess(nic) {
       queryClient.invalidateQueries('instanceNetworkInterfaceList')
-      addToast(<>Network interface <HLs>{nic.name}</HLs> updated</>) // prettier-ignore
+      addToast(<>Network interface <HL>{nic.name}</HL> updated</>) // prettier-ignore
       onDismiss()
     },
   })

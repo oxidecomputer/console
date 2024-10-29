@@ -56,7 +56,7 @@ import { SshKeysField } from '~/components/form/fields/SshKeysField'
 import { TextField } from '~/components/form/fields/TextField'
 import { Form } from '~/components/form/Form'
 import { FullPageForm } from '~/components/form/FullPageForm'
-import { HL, HLs } from '~/components/HL'
+import { HL } from '~/components/HL'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Button } from '~/ui/lib/Button'
@@ -184,7 +184,7 @@ export function CreateInstanceForm() {
         { path: { instance: instance.name }, query: { project } },
         instance
       )
-      addToast(<>Instance <HLs>{instance.name}</HLs> created</>) // prettier-ignore
+      addToast(<>Instance <HL>{instance.name}</HL> created</>) // prettier-ignore
       navigate(pb.instance({ project, instance: instance.name }))
     },
   })

@@ -24,7 +24,7 @@ import { IpGlobal24Icon, Networking24Icon } from '@oxide/design-system/icons/rea
 
 import { AttachEphemeralIpModal } from '~/components/AttachEphemeralIpModal'
 import { AttachFloatingIpModal } from '~/components/AttachFloatingIpModal'
-import { HL, HLs } from '~/components/HL'
+import { HL } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
 import { EditNetworkInterfaceForm } from '~/forms/network-interface-edit'
@@ -204,7 +204,7 @@ export function NetworkingTab() {
   const { mutateAsync: deleteNic } = useApiMutation('instanceNetworkInterfaceDelete', {
     onSuccess(_data, variables) {
       queryClient.invalidateQueries('instanceNetworkInterfaceList')
-      addToast(<>Network interface <HLs>{variables.path.interface}</HLs> deleted</>) // prettier-ignore
+      addToast(<>Network interface <HL>{variables.path.interface}</HL> deleted</>) // prettier-ignore
     },
   })
   const { mutate: editNic } = useApiMutation('instanceNetworkInterfaceUpdate', {
@@ -308,7 +308,7 @@ export function NetworkingTab() {
     onSuccess(_data, variables) {
       queryClient.invalidateQueries('floatingIpList')
       queryClient.invalidateQueries('instanceExternalIpList')
-      addToast(<>Floating IP <HLs>{variables.path.floatingIp}</HLs> detached</>) // prettier-ignore
+      addToast(<>Floating IP <HL>{variables.path.floatingIp}</HL> detached</>) // prettier-ignore
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })

@@ -17,7 +17,7 @@ import {
 } from '@oxide/api'
 
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { HLs } from '~/components/HL'
+import { HL } from '~/components/HL'
 import {
   RouteFormFields,
   routeFormMessage,
@@ -65,7 +65,7 @@ export function EditRouterRouteSideModalForm() {
   const updateRouterRoute = useApiMutation('vpcRouterRouteUpdate', {
     onSuccess(updatedRoute) {
       queryClient.invalidateQueries('vpcRouterRouteList')
-      addToast(<>Route <HLs>{updatedRoute.name}</HLs> updated</>) // prettier-ignore
+      addToast(<>Route <HL>{updatedRoute.name}</HL> updated</>) // prettier-ignore
       navigate(pb.vpcRouter(routerSelector))
     },
   })

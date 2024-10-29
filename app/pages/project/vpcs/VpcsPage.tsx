@@ -20,7 +20,7 @@ import {
 import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
-import { HLs } from '~/components/HL'
+import { HL } from '~/components/HL'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -86,7 +86,7 @@ export function VpcsPage() {
   const { mutateAsync: deleteVpc } = useApiMutation('vpcDelete', {
     onSuccess(_data, variables) {
       queryClient.invalidateQueries('vpcList')
-      addToast(<>VPC <HLs>{variables.path.vpc}</HLs> deleted</>) // prettier-ignore
+      addToast(<>VPC <HL>{variables.path.vpc}</HL> deleted</>) // prettier-ignore
     },
   })
 

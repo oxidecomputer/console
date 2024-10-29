@@ -18,7 +18,7 @@ import {
 
 import { trigger404 } from '~/components/ErrorBoundary'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { HLs } from '~/components/HL'
+import { HL } from '~/components/HL'
 import {
   getFirewallRuleSelector,
   useFirewallRuleSelector,
@@ -74,7 +74,7 @@ export function EditFirewallRuleForm() {
       onDismiss()
       queryClient.invalidateQueries('vpcFirewallRulesView')
       const updatedRule = body.rules[body.rules.length - 1]
-      addToast(<>Firewall rule <HLs>{updatedRule.name}</HLs> updated</>) // prettier-ignore
+      addToast(<>Firewall rule <HL>{updatedRule.name}</HL> updated</>) // prettier-ignore
     },
   })
 

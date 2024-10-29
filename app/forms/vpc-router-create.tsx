@@ -13,7 +13,7 @@ import { useApiMutation, useApiQueryClient, type VpcRouterCreate } from '@oxide/
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { HLs } from '~/components/HL'
+import { HL } from '~/components/HL'
 import { useVpcSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
@@ -33,7 +33,7 @@ export function CreateRouterSideModalForm() {
   const createRouter = useApiMutation('vpcRouterCreate', {
     onSuccess(router) {
       queryClient.invalidateQueries('vpcRouterList')
-      addToast(<>Router <HLs>{router.name}</HLs> created</>) // prettier-ignore
+      addToast(<>Router <HL>{router.name}</HL> created</>) // prettier-ignore
       onDismiss()
     },
   })

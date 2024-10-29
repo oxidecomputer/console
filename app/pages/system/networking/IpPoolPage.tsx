@@ -26,7 +26,7 @@ import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react
 import { CapacityBar } from '~/components/CapacityBar'
 import { DocsPopover } from '~/components/DocsPopover'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
-import { HL, HLs } from '~/components/HL'
+import { HL } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { getIpPoolSelector, useIpPoolSelector } from '~/hooks/use-params'
@@ -85,7 +85,7 @@ export function IpPoolPage() {
     onSuccess(_data, variables) {
       apiQueryClient.invalidateQueries('ipPoolList')
       navigate(pb.ipPools())
-      addToast(<>Pool <HLs>{variables.path.pool}</HLs> deleted</>) // prettier-ignore
+      addToast(<>Pool <HL>{variables.path.pool}</HL> deleted</>) // prettier-ignore
     },
   })
 

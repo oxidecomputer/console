@@ -18,7 +18,7 @@ import {
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { HLs } from '~/components/HL'
+import { HL } from '~/components/HL'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
@@ -46,7 +46,7 @@ export function EditProjectSideModalForm() {
       queryClient.invalidateQueries('projectList')
       // avoid the project fetch when the project page loads since we have the data
       queryClient.setQueryData('projectView', { path: { project: project.name } }, project)
-      addToast(<>Project <HLs>{project.name}</HLs> updated</>) // prettier-ignore
+      addToast(<>Project <HL>{project.name}</HL> updated</>) // prettier-ignore
       onDismiss()
     },
   })

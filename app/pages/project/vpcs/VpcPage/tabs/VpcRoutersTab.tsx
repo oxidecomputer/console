@@ -11,7 +11,7 @@ import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, type VpcRouter } from '@oxide/api'
 
-import { HLs } from '~/components/HL'
+import { HL } from '~/components/HL'
 import { routeFormMessage } from '~/forms/vpc-router-route-common'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -65,7 +65,7 @@ export function VpcRoutersTab() {
   const { mutateAsync: deleteRouter } = useApiMutation('vpcRouterDelete', {
     onSuccess(_data, variables) {
       apiQueryClient.invalidateQueries('vpcRouterList')
-      addToast(<>Router <HLs>{variables.path.router}</HLs> deleted</>) // prettier-ignore
+      addToast(<>Router <HL>{variables.path.router}</HL> deleted</>) // prettier-ignore
     },
   })
 

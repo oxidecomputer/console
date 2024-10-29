@@ -14,7 +14,7 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { HLs } from '~/components/HL'
+import { HL } from '~/components/HL'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
@@ -39,7 +39,7 @@ export function CreateVpcSideModalForm() {
         { path: { vpc: vpc.name }, query: projectSelector },
         vpc
       )
-      addToast(<>VPC <HLs>{vpc.name}</HLs> created</>) // prettier-ignore
+      addToast(<>VPC <HL>{vpc.name}</HL> created</>) // prettier-ignore
       navigate(pb.vpc({ vpc: vpc.name, ...projectSelector }))
     },
   })
