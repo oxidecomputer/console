@@ -22,6 +22,8 @@ import { getIpPoolSelector, useIpPoolSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 
+import { IpPoolVisibilityMessage } from './ip-pool-create'
+
 EditIpPoolSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { pool } = getIpPoolSelector(params)
   await apiQueryClient.prefetchQuery('ipPoolView', { path: { pool } })
@@ -68,6 +70,7 @@ export function EditIpPoolSideModalForm() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
+      <IpPoolVisibilityMessage />
     </SideModalForm>
   )
 }

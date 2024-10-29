@@ -15,39 +15,19 @@ import {
   useApiQuery,
   useApiQueryClient,
   type FloatingIpCreate,
-  type SiloIpPool,
 } from '@oxide/api'
 
 import { AccordionItem } from '~/components/AccordionItem'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { toIpPoolItem } from '~/components/form/fields/ip-pool-item'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { Badge } from '~/ui/lib/Badge'
 import { Message } from '~/ui/lib/Message'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
-
-const toListboxItem = (p: SiloIpPool) => {
-  if (!p.isDefault) {
-    return { value: p.name, label: p.name }
-  }
-  // For the default pool, add a label to the dropdown
-  return {
-    value: p.name,
-    selectedLabel: p.name,
-    label: (
-      <>
-        {p.name}{' '}
-        <Badge className="ml-1" color="neutral">
-          default
-        </Badge>
-      </>
-    ),
-  }
-}
 
 const defaultValues: Omit<FloatingIpCreate, 'ip'> = {
   name: '',
@@ -108,7 +88,7 @@ export function CreateFloatingIpSideModalForm() {
 
           <ListboxField
             name="pool"
-            items={(allPools?.items || []).map((p) => toListboxItem(p))}
+            items={(allPools?.items || []).map(toIpPoolItem)}
             label="IP pool"
             control={form.control}
             placeholder="Select a pool"

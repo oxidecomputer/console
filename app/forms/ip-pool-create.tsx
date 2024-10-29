@@ -14,6 +14,7 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { addToast } from '~/stores/toast'
+import { Message } from '~/ui/lib/Message'
 import { pb } from '~/util/path-builder'
 
 const defaultValues: IpPoolCreate = {
@@ -51,6 +52,14 @@ export function CreateIpPoolSideModalForm() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
+      <IpPoolVisibilityMessage />
     </SideModalForm>
   )
 }
+
+export const IpPoolVisibilityMessage = () => (
+  <Message
+    variant="info"
+    content="Users in linked silos will use IP pool names and descriptions to help them choose a pool when allocating IPs."
+  />
+)

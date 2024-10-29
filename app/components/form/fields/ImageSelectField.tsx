@@ -80,10 +80,10 @@ export function toImageComboboxItem(
     value: id,
     selectedLabel: name,
     label: (
-      <>
+      <div className="flex flex-col gap-1">
         <div>{name}</div>
         <div className="text-tertiary selected:text-accent-secondary">{itemMetadata}</div>
-      </>
+      </div>
     ),
   }
 }
