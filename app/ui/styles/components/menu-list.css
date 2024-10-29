@@ -12,6 +12,10 @@
 
 .ox-menu-item {
   @apply relative cursor-pointer px-3 py-2 text-sans-md text-default;
+  .ox-badge {
+    @apply bg-transparent;
+  }
+
 }
 
 .ox-menu-item.is-highlighted {
@@ -28,6 +32,10 @@
 
 .ox-menu-item.is-selected {
   @apply border-0 text-accent bg-accent-secondary hover:bg-accent-secondary-hover;
+
+  .ox-badge {
+    @apply text-accent ring-[rgba(var(--base-green-800-rgb),0.15)]
+  }
 }
 
 /* beautiful ring */
