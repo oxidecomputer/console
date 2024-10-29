@@ -16,7 +16,7 @@ export function toIpPoolItem(p: SiloIpPool) {
       <div>
         {p.name}
         {p.isDefault && (
-          <Badge className="ml-1" color="neutral">
+          <Badge className="ml-1.5" color="neutral">
             default
           </Badge>
         )}
