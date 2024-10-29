@@ -104,14 +104,14 @@ export function EditIdpSideModalForm() {
         control={form.control}
         disabled
       />
-      {/* TODO: add group attribute name when it is added to the API
-          <TextField
-            name="groupAttributeName"
-            label="Group attribute name"
-            description="Name of SAML attribute where we can find a comma-separated list of names of groups the user belongs to"
-            control={form.control}
-            disabled
-          /> */}
+      <TextField
+        name="groupAttributeName"
+        label="Group attribute name"
+        description="Name of the SAML attribute in the IdP response listing the user’s groups"
+        required
+        control={form.control}
+        disabled
+      />
       {/* TODO: Email field, probably */}
       <TextField
         name="technicalContactEmail"

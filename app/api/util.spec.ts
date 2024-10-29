@@ -7,7 +7,7 @@
  */
 import { describe, expect, it, test } from 'vitest'
 
-import { genName, parsePortRange, synthesizeData } from './util'
+import { diskCan, genName, instanceCan, parsePortRange, synthesizeData } from './util'
 
 describe('parsePortRange', () => {
   describe('parses', () => {
@@ -135,4 +135,23 @@ describe('synthesizeData', () => {
       { timestamp: end.getTime(), value: 5 },
     ])
   })
+})
+
+test('instanceCan', () => {
+  expect(instanceCan.start({ runState: 'running' })).toBe(false)
+  expect(instanceCan.start({ runState: 'stopped' })).toBe(true)
+
+  // @ts-expect-error typechecker rejects actions that don't exist
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+  instanceCan.abc
+})
+
+test('diskCan', () => {
+  expect(diskCan.delete({ state: { state: 'creating' } })).toBe(false)
+  expect(diskCan.delete({ state: { state: 'attached', instance: 'xyz' } })).toBe(false)
+  expect(diskCan.delete({ state: { state: 'detached' } })).toBe(true)
+
+  // @ts-expect-error typechecker rejects actions that don't exist
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+  diskCan.abc
 })
