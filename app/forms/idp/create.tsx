@@ -18,13 +18,11 @@ import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useSiloSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { getSubdomain } from '~/util/browser'
 import { readBlobAsBase64 } from '~/util/file'
 import { pb } from '~/util/path-builder'
 
 import { MetadataSourceField, type IdpCreateFormValues } from './shared'
-
-const subdomain = getSubdomain()
+import { getDelegatedDomain } from './util'
 
 const defaultValues: IdpCreateFormValues = {
   type: 'saml',
@@ -67,10 +65,11 @@ export function CreateIdpSideModalForm() {
 
   useEffect(() => {
     // When creating a SAML identity provider connection, the ACS URL that the user enters
-    // should always be of the form: http(s)://<silo>.sys.<subdomain>/login/<silo>/saml/<name>
-    // where <silo> is the Silo name, <subdomain> is the subdomain assigned to the rack,
+    // should always be of the form: http(s)://<silo>.sys.<suffix>/login/<silo>/saml/<name>
+    // where <silo> is the Silo name, <suffix> is the delegated domain assigned to the rack,
     // and <name> is the name of the IdP connection
-    form.setValue('acsUrl', `https://${silo}.sys.${subdomain}/login/${silo}/saml/${name}`)
+    const suffix = getDelegatedDomain(window.location)
+    form.setValue('acsUrl', `https://${silo}.sys.${suffix}/login/${silo}/saml/${name}`)
   }, [form, name, silo])
 
   return (
