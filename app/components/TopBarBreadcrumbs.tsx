@@ -17,7 +17,10 @@ export const TopBarBreadcrumbs = () => {
     window.location.pathname.split('/')
   const { project } = useParams()
   return (
-    <nav className="flex items-baseline gap-1" aria-label="Breadcrumb navigation">
+    <nav
+      className="flex items-center gap-1 overflow-clip pr-4"
+      aria-label="Breadcrumb navigation"
+    >
       <PrevArrow12Icon className="mx-1.5 text-quinary" />
 
       {/* Silo page breadcrumbs */}

@@ -38,7 +38,7 @@ export function TopBar({ children }: { children: React.ReactNode }) {
       {/* Height is governed by PageContainer grid */}
       {/* shrink-0 is needed to prevent getting squished by body content */}
       <div className="z-topBar border-b bg-default border-secondary">
-        <div className="mx-3 flex h-[60px] shrink-0 items-center justify-between">
+        <div className="mx-3 flex h-[54px] shrink-0 items-center justify-between">
           <div className="flex items-center">{otherPickers}</div>
           <div className="flex items-center gap-2">
             <DropdownMenu.Root>
