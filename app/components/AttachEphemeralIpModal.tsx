@@ -11,6 +11,7 @@ import { useForm } from 'react-hook-form'
 
 import { useApiMutation, useApiQueryClient, usePrefetchedApiQuery } from '~/api'
 import { ListboxField } from '~/components/form/fields/ListboxField'
+import { HL } from '~/components/HL'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Modal } from '~/ui/lib/Modal'
@@ -29,9 +30,9 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
     [siloPools]
   )
   const instanceEphemeralIpAttach = useApiMutation('instanceEphemeralIpAttach', {
-    onSuccess() {
+    onSuccess(ephemeralIp) {
       queryClient.invalidateQueries('instanceExternalIpList')
-      addToast({ content: 'Your ephemeral IP has been attached' })
+      addToast(<>IP <HL>{ephemeralIp.ip}</HL> attached</>) // prettier-ignore
       onDismiss()
     },
     onError: (err) => {

@@ -23,6 +23,7 @@ import { toIpPoolItem } from '~/components/form/fields/ip-pool-item'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { HL } from '~/components/HL'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Message } from '~/ui/lib/Message'
@@ -45,10 +46,10 @@ export function CreateFloatingIpSideModalForm() {
   const navigate = useNavigate()
 
   const createFloatingIp = useApiMutation('floatingIpCreate', {
-    onSuccess() {
+    onSuccess(floatingIp) {
       queryClient.invalidateQueries('floatingIpList')
       queryClient.invalidateQueries('ipPoolUtilizationView')
-      addToast({ content: 'Your Floating IP has been created' })
+      addToast(<>Floating IP <HL>{floatingIp.name}</HL> created</>) // prettier-ignore
       navigate(pb.floatingIps(projectSelector))
     },
   })

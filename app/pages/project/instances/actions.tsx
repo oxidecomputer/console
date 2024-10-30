@@ -58,7 +58,7 @@ export const useMakeInstanceActions = (
           label: 'Start',
           onActivate() {
             startInstance(instanceParams, {
-              onSuccess: () => addToast({ title: `Starting instance '${instance.name}'` }),
+              onSuccess: () => addToast(<>Starting instance <HL>{instance.name}</HL></>), // prettier-ignore
               onError: (error) =>
                 addToast({
                   variant: 'error',
@@ -79,7 +79,7 @@ export const useMakeInstanceActions = (
               doAction: () =>
                 stopInstanceAsync(instanceParams, {
                   onSuccess: () =>
-                    addToast({ title: `Stopping instance '${instance.name}'` }),
+                    addToast(<>Stopping instance <HL>{instance.name}</HL></>), // prettier-ignore
                 }),
               modalTitle: 'Confirm stop instance',
               modalContent: (
@@ -104,7 +104,8 @@ export const useMakeInstanceActions = (
           label: 'Reboot',
           onActivate() {
             rebootInstance(instanceParams, {
-              onSuccess: () => addToast({ title: `Rebooting instance '${instance.name}'` }),
+              onSuccess: () =>
+                addToast(<>Rebooting instance <HL>{instance.name}</HL></>), // prettier-ignore
               onError: (error) =>
                 addToast({
                   variant: 'error',
@@ -129,7 +130,7 @@ export const useMakeInstanceActions = (
             doDelete: () =>
               deleteInstanceAsync(instanceParams, {
                 onSuccess: () =>
-                  addToast({ title: `Deleting instance '${instance.name}'` }),
+                  addToast(<>Deleting instance <HL>{instance.name}</HL></>), // prettier-ignore
               }),
             label: instance.name,
             resourceKind: 'instance',

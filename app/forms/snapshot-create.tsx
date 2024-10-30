@@ -22,6 +22,7 @@ import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { HL } from '~/components/HL'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { toComboboxItems } from '~/ui/lib/Combobox'
@@ -52,9 +53,9 @@ export function CreateSnapshotSideModalForm() {
   const onDismiss = () => navigate(pb.snapshots(projectSelector))
 
   const createSnapshot = useApiMutation('snapshotCreate', {
-    onSuccess() {
+    onSuccess(snapshot) {
       queryClient.invalidateQueries('snapshotList')
-      addToast({ content: 'Your snapshot has been created' })
+      addToast(<>Snapshot <HL>{snapshot.name}</HL> created</>) // prettier-ignore
       onDismiss()
     },
   })

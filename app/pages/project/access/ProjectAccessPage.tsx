@@ -34,6 +34,7 @@ import {
 } from '~/forms/project-access'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
@@ -119,7 +120,10 @@ export function ProjectAccessPage() {
 
   const queryClient = useApiQueryClient()
   const { mutateAsync: updatePolicy } = useApiMutation('projectPolicyUpdate', {
-    onSuccess: () => queryClient.invalidateQueries('projectPolicyView'),
+    onSuccess: () => {
+      queryClient.invalidateQueries('projectPolicyView')
+      addToast({ content: 'Access removed' })
+    },
     // TODO: handle 403
   })
 

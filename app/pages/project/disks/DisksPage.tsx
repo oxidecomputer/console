@@ -20,6 +20,7 @@ import {
 import { Storage16Icon, Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
+import { HL } from '~/components/HL'
 import { DiskStateBadge } from '~/components/StateBadge'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -99,15 +100,16 @@ export function DisksPage() {
   const { Table } = useQueryTable('diskList', { query: { project } })
 
   const { mutateAsync: deleteDisk } = useApiMutation('diskDelete', {
-    onSuccess() {
+    onSuccess(_data, variables) {
       queryClient.invalidateQueries('diskList')
+      addToast(<>Disk <HL>{variables.path.disk}</HL> deleted</>) // prettier-ignore
     },
   })
 
   const { mutate: createSnapshot } = useApiMutation('snapshotCreate', {
-    onSuccess() {
+    onSuccess(_data, variables) {
       queryClient.invalidateQueries('snapshotList')
-      addToast({ content: 'Snapshot successfully created' })
+      addToast(<>Snapshot <HL>{variables.body.name}</HL> created</>) // prettier-ignore
     },
     onError(err) {
       addToast({
@@ -123,7 +125,7 @@ export function DisksPage() {
       {
         label: 'Snapshot',
         onActivate() {
-          addToast({ title: `Creating snapshot of disk '${disk.name}'` })
+          addToast(<>Creating snapshot of disk <HL>{disk.name}</HL></>) // prettier-ignore
           createSnapshot({
             query: { project },
             body: {

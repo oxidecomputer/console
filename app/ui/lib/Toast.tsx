@@ -7,7 +7,7 @@
  */
 import { announce } from '@react-aria/live-announcer'
 import cn from 'classnames'
-import { useEffect, type ReactElement } from 'react'
+import { useEffect, type ReactElement, type ReactNode } from 'react'
 import { Link, type To } from 'react-router-dom'
 
 import {
@@ -17,6 +17,8 @@ import {
   Warning12Icon,
 } from '@oxide/design-system/icons/react'
 
+import { extractText } from '~/util/str'
+
 import { TimeoutIndicator } from './TimeoutIndicator'
 import { Truncate } from './Truncate'
 
@@ -24,7 +26,7 @@ type Variant = 'success' | 'error' | 'info'
 
 export interface ToastProps {
   title?: string
-  content?: string
+  content: ReactNode
   onClose: () => void
   variant?: Variant
   timeout?: number | null
@@ -82,7 +84,7 @@ export const Toast = ({
   const timeout = timeoutArg === undefined ? defaultTimeout : timeoutArg
   // TODO: consider assertive announce for error toasts
   useEffect(
-    () => announce((title || defaultTitle[variant]) + ' ' + content, 'polite'),
+    () => announce((title || defaultTitle[variant]) + ' ' + extractText(content), 'polite'),
     [title, content, variant]
   )
   return (
@@ -95,8 +97,13 @@ export const Toast = ({
     >
       <div className="mt-[2px] flex [&>svg]:h-3 [&>svg]:w-3">{icon[variant]}</div>
       <div className="flex-1 pl-2.5">
-        <div className="text-sans-semi-md">{title || defaultTitle[variant]}</div>
-        <div className={cn('text-sans-md', secondaryTextColor[variant])}>{content}</div>
+        {(title || variant !== 'success') && (
+          <div className="text-sans-semi-md">{title || defaultTitle[variant]}</div>
+        )}
+        {/* 'group' is necessary for HL color trick to work. see HL.tsx */}
+        <div className={cn('group text-sans-md', secondaryTextColor[variant])}>
+          {content}
+        </div>
 
         {cta && (
           <Link

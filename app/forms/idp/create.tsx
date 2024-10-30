@@ -15,6 +15,7 @@ import { FileField } from '~/components/form/fields/FileField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { HL } from '~/components/HL'
 import { useSiloSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { readBlobAsBase64 } from '~/util/file'
@@ -51,9 +52,9 @@ export function CreateIdpSideModalForm() {
   const onDismiss = () => navigate(pb.silo({ silo }))
 
   const createIdp = useApiMutation('samlIdentityProviderCreate', {
-    onSuccess() {
+    onSuccess(idp) {
       queryClient.invalidateQueries('siloIdentityProviderList')
-      addToast({ content: 'Your identity provider has been created' })
+      addToast(<>IdP <HL>{idp.name}</HL> created</>) // prettier-ignore
       onDismiss()
     },
   })
