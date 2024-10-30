@@ -7,6 +7,8 @@
  */
 import { Link, useParams } from 'react-router-dom'
 
+import { PrevArrow12Icon } from '@oxide/design-system/icons/react'
+
 import { Slash } from '~/ui/lib/Slash'
 import { pb } from '~/util/path-builder'
 
@@ -16,7 +18,7 @@ export const TopBarBreadcrumbs = () => {
   const { project } = useParams()
   return (
     <nav className="flex items-baseline gap-1" aria-label="Breadcrumb navigation">
-      <span className="mx-1 text-quinary selected:text-accent-disabled">&lt;</span>
+      <PrevArrow12Icon className="mx-1.5 text-quinary" />
 
       {/* Silo page breadcrumbs */}
       {firstPathItem === 'projects' && (
@@ -97,19 +99,17 @@ type BreadcrumbProps = {
   label: string
   includeSeparator?: boolean
 }
-export const Breadcrumb = ({ to, label, includeSeparator = true }: BreadcrumbProps) => {
-  return (
-    <>
-      {includeSeparator && <Slash />}
-      <Link
-        to={to}
-        className="ox-breadcrumb whitespace-nowrap text-sans-sm text-secondary hover:text-default"
-      >
-        {label}
-      </Link>
-    </>
-  )
-}
+export const Breadcrumb = ({ to, label, includeSeparator = true }: BreadcrumbProps) => (
+  <>
+    {includeSeparator && <Slash />}
+    <Link
+      to={to}
+      className="ox-breadcrumb whitespace-nowrap text-sans-md text-secondary hover:text-default"
+    >
+      {label}
+    </Link>
+  </>
+)
 
 const InstanceBreadcrumb = ({ project }: { project: string }) => {
   const { instance } = useParams()
