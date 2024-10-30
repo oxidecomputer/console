@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useMemo } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { apiQueryClient } from '@oxide/api'
 import {
@@ -20,7 +20,7 @@ import { trigger404 } from '~/components/ErrorBoundary'
 import { DocsLinkItem, NavLinkItem, Sidebar } from '~/components/Sidebar'
 import { TopBar } from '~/components/TopBar'
 import { TopBarBreadcrumbs } from '~/components/TopBarBreadcrumbs'
-import { IpPoolPicker, SiloSystemPicker, SledPicker } from '~/components/TopBarPicker'
+import { SiloSystemPicker } from '~/components/TopBarPicker'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
@@ -56,7 +56,6 @@ export function SystemLayout() {
   // robust way of doing this would be to make a separate layout for the
   // silo-specific routes in the route config, but it's overkill considering
   // this is a one-liner. Switch to that approach at the first sign of trouble.
-  const { pool, sledId } = useParams()
   const navigate = useNavigate()
   const { pathname } = useLocation()
 
@@ -92,8 +91,6 @@ export function SystemLayout() {
       <TopBar>
         <SiloSystemPicker value="system" />
         <TopBarBreadcrumbs />
-        {pool && <IpPoolPicker />}
-        {sledId && <SledPicker />}
       </TopBar>
       <Sidebar>
         <Sidebar.Nav>
