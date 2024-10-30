@@ -14,7 +14,6 @@ import { HL } from '~/components/HL'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import type { MakeActions } from '~/table/columns/action-col'
 import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './instance/tabs/common'
@@ -31,9 +30,8 @@ type Options = {
 export const useMakeInstanceActions = (
   { project }: { project: string },
   options: Options = {}
-): MakeActions<Instance> => {
+) => {
   const navigate = useNavigate()
-
   // if you also pass onSuccess to mutate(), this one is not overridden — this
   // one runs first, then the one passed to mutate().
   //
@@ -41,7 +39,7 @@ export const useMakeInstanceActions = (
   // while the whole useMutation result object is not. The async ones are used
   // when we need to confirm because the confirm modals want that.
   const opts = { onSuccess: options.onSuccess }
-  const { mutate: startInstance } = useApiMutation('instanceStart', opts)
+  const { mutateAsync: startInstanceAsync } = useApiMutation('instanceStart', opts)
   const { mutateAsync: stopInstanceAsync } = useApiMutation('instanceStop', opts)
   const { mutate: rebootInstance } = useApiMutation('instanceReboot', opts)
   // delete has its own
@@ -49,22 +47,32 @@ export const useMakeInstanceActions = (
     onSuccess: options.onDelete,
   })
 
-  return useCallback(
-    (instance) => {
-      const instanceSelector = { project, instance: instance.name }
+  const makeButtonActions = useCallback(
+    (instance: Instance) => {
       const instanceParams = { path: { instance: instance.name }, query: { project } }
       return [
         {
           label: 'Start',
           onActivate() {
-            startInstance(instanceParams, {
-              onSuccess: () => addToast(<>Starting instance <HL>{instance.name}</HL></>), // prettier-ignore
-              onError: (error) =>
-                addToast({
-                  variant: 'error',
-                  title: `Error starting instance '${instance.name}'`,
-                  content: error.message,
+            confirmAction({
+              actionType: 'primary',
+              doAction: () =>
+                startInstanceAsync(instanceParams, {
+                  onSuccess: () => addToast(<>Starting instance <HL>{instance.name}</HL></>), // prettier-ignore
+                  onError: (error) =>
+                    addToast({
+                      variant: 'error',
+                      title: `Error starting instance '${instance.name}'`,
+                      content: error.message,
+                    }),
                 }),
+              modalTitle: 'Confirm start instance',
+              modalContent: (
+                <p>
+                  Are you sure you want to start <HL>{instance.name}</HL>?
+                </p>
+              ),
+              errorTitle: `Error starting ${instance.name}`,
             })
           },
           disabled: !instanceCan.start(instance) && (
@@ -97,9 +105,20 @@ export const useMakeInstanceActions = (
             })
           },
           disabled: !instanceCan.stop(instance) && (
-            <>Only {fancifyStates(instanceCan.stop.states)} instances can be stopped</>
+            // don't list all the states, it's overwhelming
+            <>Only {fancifyStates(['running'])} instances can be stopped</>
           ),
         },
+      ]
+    },
+    [project, startInstanceAsync, stopInstanceAsync]
+  )
+
+  const makeMenuActions = useCallback(
+    (instance: Instance) => {
+      const instanceSelector = { project, instance: instance.name }
+      const instanceParams = { path: { instance: instance.name }, query: { project } }
+      return [
         {
           label: 'Reboot',
           onActivate() {
@@ -143,13 +162,8 @@ export const useMakeInstanceActions = (
         },
       ]
     },
-    [
-      project,
-      navigate,
-      deleteInstanceAsync,
-      rebootInstance,
-      startInstance,
-      stopInstanceAsync,
-    ]
+    [project, deleteInstanceAsync, navigate, rebootInstance]
   )
+
+  return { makeButtonActions, makeMenuActions }
 }

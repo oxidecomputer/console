@@ -13,6 +13,7 @@ import {
   FloatingArrow,
   FloatingPortal,
   offset,
+  shift,
   useDismiss,
   useFloating,
   useFocus,
@@ -68,6 +69,7 @@ export const Tooltip = forwardRef(
          */
         placement ? flip() : autoPlacement(),
         offset(12),
+        shift({ padding: 16 }),
         arrow({ element: arrowRef, padding: 12 }),
       ],
     })

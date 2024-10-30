@@ -46,6 +46,7 @@ test('can start a failed instance', async ({ page }) => {
   // now start the failed one
   await expectInstanceState(page, 'you-fail', 'failed')
   await clickRowAction(page, 'you-fail', 'Start')
+  await page.getByRole('button', { name: 'Confirm' }).click()
   await expectInstanceState(page, 'you-fail', 'starting')
 })
 
@@ -93,6 +94,7 @@ test('can stop a starting instance, then start it again', async ({ page }) => {
   await expectInstanceState(page, 'not-there-yet', 'stopped')
 
   await clickRowAction(page, 'not-there-yet', 'Start')
+  await page.getByRole('button', { name: 'Confirm' }).click()
   await expectInstanceState(page, 'not-there-yet', 'starting')
   await expectInstanceState(page, 'not-there-yet', 'running')
 })
