@@ -6,12 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useMemo, type ReactElement } from 'react'
-import {
-  useLocation,
-  useNavigate,
-  useParams,
-  type LoaderFunctionArgs,
-} from 'react-router-dom'
+import { useLocation, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import {
@@ -26,13 +21,8 @@ import {
 } from '@oxide/design-system/icons/react'
 
 import { TopBar } from '~/components/TopBar'
-import {
-  InstancePicker,
-  ProjectPicker,
-  SiloSystemPicker,
-  VpcPicker,
-  VpcRouterPicker,
-} from '~/components/TopBarPicker'
+import { TopBarBreadcrumbs } from '~/components/TopBarBreadcrumbs'
+import { SiloSystemPicker } from '~/components/TopBarPicker'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
@@ -61,7 +51,6 @@ export function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
   const projectSelector = useProjectSelector()
   const { data: project } = usePrefetchedApiQuery('projectView', { path: projectSelector })
 
-  const { instance, router, vpc } = useParams()
   const { pathname } = useLocation()
   useQuickActions(
     useMemo(
@@ -90,10 +79,7 @@ export function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
     <PageContainer>
       <TopBar>
         <SiloSystemPicker value="silo" />
-        <ProjectPicker project={project} />
-        {instance && <InstancePicker />}
-        {vpc && <VpcPicker />}
-        {router && <VpcRouterPicker />}
+        <TopBarBreadcrumbs />
       </TopBar>
       <Sidebar>
         <Sidebar.Nav>

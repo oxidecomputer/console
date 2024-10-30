@@ -19,12 +19,8 @@ import {
 import { trigger404 } from '~/components/ErrorBoundary'
 import { DocsLinkItem, NavLinkItem, Sidebar } from '~/components/Sidebar'
 import { TopBar } from '~/components/TopBar'
-import {
-  IpPoolPicker,
-  SiloPicker,
-  SiloSystemPicker,
-  SledPicker,
-} from '~/components/TopBarPicker'
+import { TopBarBreadcrumbs } from '~/components/TopBarBreadcrumbs'
+import { IpPoolPicker, SiloSystemPicker, SledPicker } from '~/components/TopBarPicker'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
@@ -60,7 +56,7 @@ export function SystemLayout() {
   // robust way of doing this would be to make a separate layout for the
   // silo-specific routes in the route config, but it's overkill considering
   // this is a one-liner. Switch to that approach at the first sign of trouble.
-  const { silo, pool, sledId } = useParams()
+  const { pool, sledId } = useParams()
   const navigate = useNavigate()
   const { pathname } = useLocation()
 
@@ -95,7 +91,7 @@ export function SystemLayout() {
     <PageContainer>
       <TopBar>
         <SiloSystemPicker value="system" />
-        {silo && <SiloPicker />}
+        <TopBarBreadcrumbs />
         {pool && <IpPoolPicker />}
         {sledId && <SledPicker />}
       </TopBar>
