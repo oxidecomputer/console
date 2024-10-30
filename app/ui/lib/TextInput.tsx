@@ -8,6 +8,7 @@
 import { announce } from '@react-aria/live-announcer'
 import cn from 'classnames'
 import React, { useEffect } from 'react'
+import type { Merge } from 'type-fest'
 
 import { CopyToClipboard } from './CopyToClipboard'
 
@@ -34,14 +35,19 @@ export type TextAreaProps =
 // it makes a bunch of props required that should be optional. Instead we simply
 // take the props of an input field (which are part of the Field props) and
 // manually tack on validate.
-export type TextInputBaseProps = React.ComponentPropsWithRef<'input'> & {
-  // error is used to style the wrapper, also to put aria-invalid on the input
-  error?: boolean
-  disabled?: boolean
-  className?: string
-  fieldClassName?: string
-  copyable?: boolean
-}
+export type TextInputBaseProps = Merge<
+  React.ComponentPropsWithRef<'input'>,
+  {
+    // error is used to style the wrapper, also to put aria-invalid on the input
+    error?: boolean
+    disabled?: boolean
+    className?: string
+    fieldClassName?: string
+    copyable?: boolean
+    // by default, number and string[] are allowed, but we want to be simple
+    value?: string
+  }
+>
 
 export const TextInput = React.forwardRef<
   HTMLInputElement,
@@ -62,7 +68,6 @@ export const TextInput = React.forwardRef<
     ref
   ) => {
     const Component = asProp || 'input'
-    const copyableValue = value?.toString() || ''
     return (
       <div
         className={cn(
@@ -92,7 +97,7 @@ export const TextInput = React.forwardRef<
         />
         {copyable && (
           <CopyToClipboard
-            text={copyableValue}
+            text={value || ''}
             className="!h-10 rounded-none border-l border-solid px-4 bg-disabled border-default"
           />
         )}
