@@ -68,11 +68,9 @@ export const useMakeInstanceActions = (
                 }),
               modalTitle: 'Confirm start instance',
               modalContent: (
-                <div className="space-y-2">
-                  <p>
-                    Are you sure you want to start <HL>{instance.name}</HL>?
-                  </p>
-                </div>
+                <p>
+                  Are you sure you want to start <HL>{instance.name}</HL>?
+                </p>
               ),
               errorTitle: `Error starting ${instance.name}`,
             })
