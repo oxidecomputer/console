@@ -115,6 +115,21 @@ export async function stopInstance(page: Page) {
 }
 
 /**
+ * Assert that a toast with text matching `expectedText` is visible.
+ */
+export async function expectToast(page: Page, expectedText: string | RegExp) {
+  await expect(page.getByTestId('Toasts')).toHaveText(expectedText)
+  await closeToast(page)
+}
+
+/**
+ * Assert that a toast with text matching `expectedText` is not visible.
+ */
+export async function expectNoToast(page: Page, expectedText: string | RegExp) {
+  await expect(page.getByTestId('Toasts')).not.toHaveText(expectedText)
+}
+
+/**
  * Close toast and wait for it to fade out. For some reason it prevents things
  * from working, but only in tests as far as we can tell.
  */

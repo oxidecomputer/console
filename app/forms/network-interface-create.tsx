@@ -7,6 +7,7 @@
  */
 import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
+import type { SetRequired } from 'type-fest'
 
 import { useApiQuery, type ApiError, type InstanceNetworkInterfaceCreate } from '@oxide/api'
 
@@ -19,10 +20,10 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
 import { FormDivider } from '~/ui/lib/Divider'
 
-const defaultValues: InstanceNetworkInterfaceCreate = {
+const defaultValues: SetRequired<InstanceNetworkInterfaceCreate, 'ip'> = {
   name: '',
   description: '',
-  ip: undefined,
+  ip: '',
   subnetName: '',
   vpcName: '',
 }
@@ -58,7 +59,7 @@ export function CreateNetworkInterfaceForm({
       resourceName="network interface"
       title="Add network interface"
       onDismiss={onDismiss}
-      onSubmit={onSubmit}
+      onSubmit={({ ip, ...rest }) => onSubmit({ ip: ip.trim() || undefined, ...rest })}
       loading={loading}
       submitError={submitError}
     >
@@ -81,12 +82,7 @@ export function CreateNetworkInterfaceForm({
         required
         control={form.control}
       />
-      <TextField
-        name="ip"
-        label="IP Address"
-        control={form.control}
-        transform={(ip) => (ip.trim() === '' ? undefined : ip)}
-      />
+      <TextField name="ip" label="IP Address" control={form.control} />
     </SideModalForm>
   )
 }

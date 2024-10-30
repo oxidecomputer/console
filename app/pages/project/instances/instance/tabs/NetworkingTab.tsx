@@ -202,9 +202,9 @@ export function NetworkingTab() {
     },
   })
   const { mutateAsync: deleteNic } = useApiMutation('instanceNetworkInterfaceDelete', {
-    onSuccess() {
+    onSuccess(_data, variables) {
       queryClient.invalidateQueries('instanceNetworkInterfaceList')
-      addToast({ content: 'Network interface deleted' })
+      addToast(<>Network interface <HL>{variables.path.interface}</HL> deleted</>) // prettier-ignore
     },
   })
   const { mutate: editNic } = useApiMutation('instanceNetworkInterfaceUpdate', {
@@ -297,7 +297,7 @@ export function NetworkingTab() {
   const { mutateAsync: ephemeralIpDetach } = useApiMutation('instanceEphemeralIpDetach', {
     onSuccess() {
       queryClient.invalidateQueries('instanceExternalIpList')
-      addToast({ content: 'Your ephemeral IP has been detached' })
+      addToast({ content: 'Ephemeral IP detached' })
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
@@ -305,10 +305,10 @@ export function NetworkingTab() {
   })
 
   const { mutateAsync: floatingIpDetach } = useApiMutation('floatingIpDetach', {
-    onSuccess() {
+    onSuccess(_data, variables) {
       queryClient.invalidateQueries('floatingIpList')
       queryClient.invalidateQueries('instanceExternalIpList')
-      addToast({ content: 'Your floating IP has been detached' })
+      addToast(<>Floating IP <HL>{variables.path.floatingIp}</HL> detached</>) // prettier-ignore
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })

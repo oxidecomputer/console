@@ -5,7 +5,15 @@
  *
  * Copyright Oxide Computer Company
  */
-import { clickRowAction, expect, expectRowVisible, expectVisible, test } from './utils'
+import {
+  clickRowAction,
+  expect,
+  expectNoToast,
+  expectRowVisible,
+  expectToast,
+  expectVisible,
+  test,
+} from './utils'
 
 test('List disks and snapshot', async ({ page }) => {
   await page.goto('/projects/mock-project/disks')
@@ -28,8 +36,11 @@ test('List disks and snapshot', async ({ page }) => {
   })
 
   await clickRowAction(page, 'disk-1 db1', 'Snapshot')
-  await expect(page.getByText("Creating snapshot of disk 'disk-1'").nth(0)).toBeVisible()
-  await expect(page.getByText('Snapshot successfully created').nth(0)).toBeVisible()
+  await expectToast(page, 'Creating snapshot of disk disk-1')
+  // expectToast should have closed the toast already, but verify
+  await expectNoToast(page, 'Creating snapshot of disk disk-1')
+  // Next line is a little awkward, but we don't actually know what the snapshot name will be
+  await expectToast(page, /Snapshot disk-1-[a-z0-9]{6} created/)
 })
 
 test('Disk snapshot error', async ({ page }) => {
@@ -37,11 +48,13 @@ test('Disk snapshot error', async ({ page }) => {
 
   // special disk that triggers snapshot error
   await clickRowAction(page, 'disk-snapshot-error', 'Snapshot')
-  await expect(
-    page.getByText("Creating snapshot of disk 'disk-snapshot-error'").nth(0)
-  ).toBeVisible()
-  await expect(page.getByText('Failed to create snapshot').nth(0)).toBeVisible()
-  await expect(page.getByText('Cannot snapshot disk').nth(0)).toBeVisible()
+  await expectToast(page, 'Creating snapshot of disk disk-snapshot-error')
+  // just including an actual expect to satisfy the linter
+  await expect(page.getByRole('cell', { name: 'disk-snapshot-error' })).toBeVisible()
+  // expectToast should have closed the toast already, but let's just verify …
+  await expectNoToast(page, 'Creating snapshot of disk disk-snapshot-error')
+  // … before we can check for the error toast
+  await expectToast(page, 'Failed to create snapshotCannot snapshot disk')
 })
 
 test.describe('Disk create', () => {
@@ -53,7 +66,7 @@ test.describe('Disk create', () => {
   test.afterEach(async ({ page }) => {
     await page.getByRole('button', { name: 'Create disk' }).click()
 
-    await expectVisible(page, ['text="Your disk has been created"'])
+    await expectToast(page, 'Disk a-new-disk created')
     await expectVisible(page, ['role=cell[name="a-new-disk"]'])
   })
 
