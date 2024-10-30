@@ -8,8 +8,10 @@
 import {
   clickRowAction,
   expect,
+  expectNoToast,
   expectNotVisible,
   expectRowVisible,
+  expectToast,
   expectVisible,
   stopInstance,
   test,
@@ -130,7 +132,7 @@ test('Detach disk', async ({ page }) => {
   // Have to stop instance to edit disks
   await stopInstance(page)
 
-  const successMsg = page.getByText('Disk detached').nth(0)
+  const successMsg = page.getByText('Disk disk-2 detached').first()
   const row = page.getByRole('row', { name: 'disk-2' })
   await expect(row).toBeVisible()
   await expect(successMsg).toBeHidden()
@@ -143,13 +145,13 @@ test('Detach disk', async ({ page }) => {
 test('Snapshot disk', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
 
-  // have to use nth with toasts because the text shows up in multiple spots
-  const successMsg = page.getByText('Snapshot created').nth(0)
-  await expect(successMsg).toBeHidden()
+  // we don't know the full name of the disk, but this will work to find the toast
+  const toastMessage = /Snapshot disk-1-[a-z0-9]{6} created/
+  await expectNoToast(page, toastMessage)
 
   await clickRowAction(page, 'disk-1', 'Snapshot')
 
-  await expect(successMsg).toBeVisible() // we see the toast!
+  await expectToast(page, toastMessage) // we see the toast!
 
   // now go see the snapshot on the snapshots page
   await page.getByRole('link', { name: 'Snapshots' }).click()

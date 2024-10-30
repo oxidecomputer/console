@@ -18,6 +18,7 @@ import {
 
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { RouterLinkCell } from '~/table/cells/RouterLinkCell'
 import { TwoLineCell } from '~/table/cells/TwoLineCell'
@@ -47,6 +48,8 @@ export function VpcSubnetsTab() {
   const { mutateAsync: deleteSubnet } = useApiMutation('vpcSubnetDelete', {
     onSuccess() {
       queryClient.invalidateQueries('vpcSubnetList')
+      // We only have the ID, so will show a generic confirmation message
+      addToast({ content: 'Subnet deleted' })
     },
   })
 
