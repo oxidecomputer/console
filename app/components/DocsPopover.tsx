@@ -9,7 +9,7 @@
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react'
 import cn from 'classnames'
 
-import { OpenLink12Icon, Question12Icon } from '@oxide/design-system/icons/react'
+import { Info16Icon, OpenLink12Icon } from '@oxide/design-system/icons/react'
 
 import { buttonStyle } from '~/ui/lib/Button'
 
@@ -44,8 +44,8 @@ type DocsPopoverProps = {
 export const DocsPopover = ({ heading, icon, summary, links }: DocsPopoverProps) => {
   return (
     <Popover>
-      <PopoverButton className={cn(buttonStyle({ size: 'sm', variant: 'ghost' }), 'w-9')}>
-        <Question12Icon aria-label="Links to docs" className="shrink-0" />
+      <PopoverButton className={cn(buttonStyle({ size: 'sm', variant: 'ghost' }), 'w-8')}>
+        <Info16Icon aria-label="Links to docs" className="shrink-0" />
       </PopoverButton>
       <PopoverPanel
         // DocsPopoverPanel needed for enter animation

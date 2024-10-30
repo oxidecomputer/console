@@ -13,6 +13,7 @@ import { apiQueryClient, useApiMutation, useApiQueryClient, type Image } from '@
 import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
+import { HL } from '~/components/HL'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -58,7 +59,7 @@ export function ImagesPage() {
 
   const { mutateAsync: deleteImage } = useApiMutation('imageDelete', {
     onSuccess(_data, variables) {
-      addToast({ content: `${variables.path.image} has been deleted` })
+      addToast(<>Image <HL>{variables.path.image}</HL> deleted</>) // prettier-ignore
       queryClient.invalidateQueries('imageList')
     },
   })
@@ -131,7 +132,11 @@ const PromoteImageModal = ({ onDismiss, imageName }: PromoteModalProps) => {
   const promoteImage = useApiMutation('imagePromote', {
     onSuccess(data) {
       addToast({
-        content: `${data.name} has been promoted`,
+        content: (
+          <>
+            Image <HL>{data.name}</HL> promoted
+          </>
+        ),
         cta: {
           text: 'View silo images',
           link: '/images',

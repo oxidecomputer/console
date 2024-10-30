@@ -20,6 +20,7 @@ import {
 import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
+import { HL } from '~/components/HL'
 import { IpUtilCell } from '~/components/IpPoolUtilization'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -78,9 +79,9 @@ export function IpPoolsPage() {
   })
 
   const { mutateAsync: deletePool } = useApiMutation('ipPoolDelete', {
-    onSuccess() {
+    onSuccess(_data, variables) {
       apiQueryClient.invalidateQueries('ipPoolList')
-      addToast({ content: 'IP pool deleted' })
+      addToast(<>Pool <HL>{variables.path.pool}</HL> deleted</>) // prettier-ignore
     },
   })
 

@@ -20,7 +20,9 @@ import {
   useCustomRouterItems,
 } from '~/components/form/fields/useItemsList'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { HL } from '~/components/HL'
 import { useVpcSelector } from '~/hooks/use-params'
+import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
 
@@ -42,9 +44,10 @@ export function CreateSubnetForm() {
   const onDismiss = () => navigate(pb.vpcSubnets(vpcSelector))
 
   const createSubnet = useApiMutation('vpcSubnetCreate', {
-    onSuccess() {
+    onSuccess(subnet) {
       queryClient.invalidateQueries('vpcSubnetList')
       onDismiss()
+      addToast(<>Subnet <HL>{subnet.name}</HL> created</>) // prettier-ignore
     },
   })
 

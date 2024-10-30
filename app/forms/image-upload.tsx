@@ -215,7 +215,13 @@ export function CreateImageSideModalForm() {
 
   const createDisk = useApiMutation('diskCreate')
   const startImport = useApiMutation('diskBulkWriteImportStart')
-  const uploadChunk = useApiMutation('diskBulkWriteImport')
+
+  // gcTime: 0 prevents the mutation cache from holding onto all the chunks for
+  // 5 minutes. It can be a ton of memory. To be honest, I don't even understand
+  // why the mutation cache exists. It's not like the query cache, which dedupes
+  // identical queries made around the same time.
+  // https://tanstack.com/query/v5/docs/reference/MutationCache
+  const uploadChunk = useApiMutation('diskBulkWriteImport', { gcTime: 0 })
 
   // synthetic state for upload step because it consists of multiple requests
   const [syntheticUploadState, setSyntheticUploadState] =

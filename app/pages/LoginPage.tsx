@@ -35,7 +35,7 @@ export function LoginPage() {
 
   useEffect(() => {
     if (loginPost.isSuccess) {
-      addToast({ title: 'Logged in' })
+      addToast('Logged in')
       navigate(searchParams.get('redirect_uri') || pb.projects())
     }
   }, [loginPost.isSuccess, navigate, searchParams])

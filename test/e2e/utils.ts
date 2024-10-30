@@ -107,12 +107,26 @@ export async function expectRowVisible(
 }
 
 export async function stopInstance(page: Page) {
-  await page.getByRole('button', { name: 'Instance actions' }).click()
-  await page.getByRole('menuitem', { name: 'Stop' }).click()
+  await page.getByRole('button', { name: 'Stop' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await closeToast(page)
   // don't need to manually refresh because of polling
   await expect(page.getByText('statestopped')).toBeVisible()
+}
+
+/**
+ * Assert that a toast with text matching `expectedText` is visible.
+ */
+export async function expectToast(page: Page, expectedText: string | RegExp) {
+  await expect(page.getByTestId('Toasts')).toHaveText(expectedText)
+  await closeToast(page)
+}
+
+/**
+ * Assert that a toast with text matching `expectedText` is not visible.
+ */
+export async function expectNoToast(page: Page, expectedText: string | RegExp) {
+  await expect(page.getByTestId('Toasts')).not.toHaveText(expectedText)
 }
 
 /**
