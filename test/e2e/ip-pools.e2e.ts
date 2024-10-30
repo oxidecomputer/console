@@ -251,7 +251,9 @@ test('IP range validation and add', async ({ page }) => {
   await expect(page.getByText('Capacity32')).toBeVisible()
 
   // go back to the pool and verify the utilization column changed
-  await page.getByRole('link', { name: 'IP Pools' }).click()
+  // use the sidebar nav to get there
+  const sidebar = page.getByRole('navigation', { name: 'Sidebar navigation' })
+  await sidebar.getByRole('link', { name: 'IP Pools' }).click()
   await expectRowVisible(table, {
     name: 'ip-pool-2',
     Utilization: 'v4' + '0 / 1' + 'v6' + '0 / 32',
@@ -285,7 +287,9 @@ test('remove range', async ({ page }) => {
   await expect(page.getByText('Capacity21')).toBeVisible()
 
   // go back to the pool and verify the utilization column changed
-  await page.getByRole('link', { name: 'IP Pools' }).click()
+  // use the topbar breadcrumb to get there
+  const breadcrumbs = page.getByRole('navigation', { name: 'Breadcrumb navigation' })
+  await breadcrumbs.getByRole('link', { name: 'IP Pools' }).click()
   await expectRowVisible(table, {
     name: 'ip-pool-1',
     Utilization: '6 / 21',

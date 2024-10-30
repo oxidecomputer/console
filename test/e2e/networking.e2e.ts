@@ -47,7 +47,8 @@ test('Create and edit VPC', async ({ page }) => {
   }
 
   // now go back up a level to vpcs table
-  await page.getByRole('link', { name: 'VPCs' }).click()
+  const breadcrumbs = page.getByRole('navigation', { name: 'Breadcrumb navigation' })
+  await breadcrumbs.getByRole('link', { name: 'VPCs' }).click()
   await expect(table.getByRole('row')).toHaveCount(3) // header plus two rows
   await expectRowVisible(table, {
     name: 'another-vpc',
