@@ -105,9 +105,8 @@ export const useMakeInstanceActions = (
             })
           },
           disabled: !instanceCan.stop(instance) && (
-            <>
-              Only <span className="text-default">running</span> instances can be stopped
-            </>
+            // don't list all the states, it's overwhelming
+            <>Only {fancifyStates(['running'])} instances can be stopped</>
           ),
         },
       ]
