@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import cn from 'classnames'
 import { Link, useParams } from 'react-router-dom'
 
 import { PrevArrow12Icon } from '@oxide/design-system/icons/react'
@@ -16,12 +17,14 @@ export const TopBarBreadcrumbs = () => {
   const [, firstPathItem, secondPathItem, thirdPathItem, , fifthPathItem] =
     window.location.pathname.split('/')
   const { project } = useParams()
+  // if there's no secondPathItem, there's no page to go "back" to
+  const showBackArrow = !!secondPathItem
   return (
     <nav
-      className="flex items-center gap-1 overflow-clip pr-4"
+      className={cn('flex items-center gap-1 overflow-clip pr-4', !showBackArrow && 'pl-7')}
       aria-label="Breadcrumb navigation"
     >
-      <PrevArrow12Icon className="mx-1.5 text-quinary" />
+      {showBackArrow && <PrevArrow12Icon className="mx-1.5 text-quinary" />}
 
       {/* Silo page breadcrumbs */}
       {firstPathItem === 'projects' && (

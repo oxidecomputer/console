@@ -6,7 +6,11 @@
  * Copyright Oxide Computer Company
  */
 
-/* the last .ox-breadcrumb in the list should have text-default applied */
-.ox-breadcrumb:last-child {
+/*
+ * The last .ox-breadcrumb in the list should have text-default applied, but
+ * if there's only a single breadcrumb, it should be the regular text color
+ * (single breadcrumbs don't have a span in front of them).
+ */
+span + .ox-breadcrumb:last-child {
   @apply text-default;
 }
