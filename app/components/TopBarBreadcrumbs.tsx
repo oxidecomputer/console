@@ -17,7 +17,6 @@ export const TopBarBreadcrumbs = () => {
   const [, firstPathItem, secondPathItem, thirdPathItem, , fifthPathItem] =
     window.location.pathname.split('/')
 
-  // console.log(paths, paths.slice(0, -1).join('/'))
   const { project } = useParams()
   // if there's no secondPathItem on the silo section, there's no page to go "back" to
   // the secondPathItem is top-level within the system section and therefore we check for thirdPathItem
