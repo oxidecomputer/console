@@ -191,7 +191,7 @@ test('firewall rule form targets table', async ({ page }) => {
   // now add a subnet by entering text
   await selectOption(page, 'Target type', 'VPC subnet')
   await subnetNameField.fill('abc')
-  await page.getByText('abc').click()
+  await page.getByText('abc').first().click()
   await addButton.click()
   await expectRowVisible(targets, { Type: 'subnet', Value: 'abc' })
 
