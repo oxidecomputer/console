@@ -53,7 +53,7 @@ test('can create firewall rule', async ({ page }) => {
   // add host filter instance "host-filter-instance"
   await selectOption(page, 'Host type', 'Instance')
   await page.getByRole('combobox', { name: 'Instance name' }).fill('host-filter-instance')
-  await page.getByText('Use host-filter-instance').click()
+  await page.getByText('host-filter-instance').click()
   await page.getByRole('button', { name: 'Add host filter' }).click()
 
   // host is added to hosts table
@@ -191,7 +191,7 @@ test('firewall rule form targets table', async ({ page }) => {
   // now add a subnet by entering text
   await selectOption(page, 'Target type', 'VPC subnet')
   await subnetNameField.fill('abc')
-  await page.getByText('Use abc').click()
+  await page.getByText('abc').click()
   await addButton.click()
   await expectRowVisible(targets, { Type: 'subnet', Value: 'abc' })
 
@@ -251,7 +251,7 @@ test('firewall rule form target validation', async ({ page }) => {
   await expect(ipError).toBeHidden()
   await expect(nameError).toBeHidden()
   await vpcNameField.fill('abc')
-  await page.getByText('Use abc').click()
+  await page.getByText('abc').click()
   await addButton.click()
   await expectRowVisible(targets, { Type: 'vpc', Value: 'abc' })
 
@@ -316,7 +316,7 @@ test('firewall rule form host validation', async ({ page }) => {
   await expect(ipError).toBeHidden()
   await expect(nameError).toBeHidden()
   await vpcNameField.fill('abc')
-  await page.getByText('Use abc').click()
+  await page.getByText('abc').click()
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'vpc', Value: 'abc' })
 
@@ -438,7 +438,7 @@ test('can update firewall rule', async ({ page }) => {
   // add host filter
   await selectOption(page, 'Host type', 'VPC subnet')
   await page.getByRole('combobox', { name: 'Subnet name' }).fill('edit-filter-subnet')
-  await page.getByText('Use edit-filter-subnet').click()
+  await page.getByText('edit-filter-subnet').click()
   await page.getByRole('button', { name: 'Add host filter' }).click()
 
   // new host is added to hosts table
