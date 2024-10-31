@@ -16,15 +16,20 @@ import { pb } from '~/util/path-builder'
 export const TopBarBreadcrumbs = () => {
   const [, firstPathItem, secondPathItem, thirdPathItem, , fifthPathItem] =
     window.location.pathname.split('/')
+
+  // console.log(paths, paths.slice(0, -1).join('/'))
   const { project } = useParams()
-  // if there's no secondPathItem, there's no page to go "back" to
-  const showBackArrow = !!secondPathItem
+  // if there's no secondPathItem on the silo section, there's no page to go "back" to
+  // the secondPathItem is top-level within the system section and therefore we check for thirdPathItem
+  const isTopLevel = (firstPathItem === 'system' && !thirdPathItem) || !secondPathItem
   return (
     <nav
-      className={cn('flex items-center gap-1 overflow-clip pr-4', !showBackArrow && 'pl-7')}
+      className="flex items-center gap-0.5 overflow-clip pr-4 text-sans-md"
       aria-label="Breadcrumb navigation"
     >
-      {showBackArrow && <PrevArrow12Icon className="mx-1.5 text-quinary" />}
+      <PrevArrow12Icon
+        className={cn('mx-1.5 flex-shrink-0 text-quinary', isTopLevel && 'opacity-40')}
+      />
 
       {/* Silo page breadcrumbs */}
       {firstPathItem === 'projects' && (
@@ -110,7 +115,7 @@ export const Breadcrumb = ({ to, label, includeSeparator = true }: BreadcrumbPro
     {includeSeparator && <Slash />}
     <Link
       to={to}
-      className="ox-breadcrumb whitespace-nowrap text-sans-md text-secondary hover:text-default"
+      className="ox-breadcrumb whitespace-nowrap text-sans-md text-tertiary hover:text-secondary"
     >
       {label}
     </Link>

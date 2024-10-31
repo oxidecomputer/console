@@ -12,5 +12,5 @@
  * (single breadcrumbs don't have a span in front of them).
  */
 span + .ox-breadcrumb:last-child {
-  @apply text-default;
+  @apply text-secondary;
 }
