@@ -110,10 +110,10 @@ const TopBarPicker = (props: TopBarPickerProps) => {
                   to={to}
                   className={cn({ 'is-selected': isSelected })}
                 >
-                  <span className="flex w-full items-center gap-2">
-                    {label}
+                  <div className="flex w-full items-center gap-2">
+                    <div className="flex-grow">{label}</div>
                     {isSelected && <Success12Icon className="-mr-3 block" />}
-                  </span>
+                  </div>
                 </DropdownMenu.LinkItem>
               )
             })
