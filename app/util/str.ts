@@ -6,6 +6,8 @@
  * Copyright Oxide Computer Company
  */
 
+import React from 'react'
+
 export const capitalize = (s: string) => s && s.charAt(0).toUpperCase() + s.slice(1)
 
 export const pluralize = (s: string, n: number) => `${n} ${s}${n === 1 ? '' : 's'}`
@@ -55,3 +57,19 @@ export const titleCase = (text: string): string => {
  * it look like `AAAAAAAAAAAAAAAA==`?
  */
 export const isAllZeros = (base64Data: string) => /^A*=*$/.test(base64Data)
+
+/**
+ * Extract the string contents of a ReactNode, so <>This <HL>highlighted</HL> text</> becomes "This highlighted text"
+ */
+export const extractText = (children: React.ReactNode): string =>
+  React.Children.toArray(children)
+    .map((child) =>
+      typeof child === 'string'
+        ? child
+        : React.isValidElement(child)
+          ? extractText(child.props.children)
+          : ''
+    )
+    .join(' ')
+    .trim()
+    .replace(/\s+/g, ' ')

@@ -11,11 +11,13 @@ import { useForm } from 'react-hook-form'
 
 import { useApiMutation, useApiQueryClient, usePrefetchedApiQuery } from '~/api'
 import { ListboxField } from '~/components/form/fields/ListboxField'
+import { HL } from '~/components/HL'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { Badge } from '~/ui/lib/Badge'
 import { Modal } from '~/ui/lib/Modal'
 import { ALL_ISH } from '~/util/consts'
+
+import { toIpPoolItem } from './form/fields/ip-pool-item'
 
 export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void }) => {
   const queryClient = useApiQueryClient()
@@ -28,9 +30,9 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
     [siloPools]
   )
   const instanceEphemeralIpAttach = useApiMutation('instanceEphemeralIpAttach', {
-    onSuccess() {
+    onSuccess(ephemeralIp) {
       queryClient.invalidateQueries('instanceExternalIpList')
-      addToast({ content: 'Your ephemeral IP has been attached' })
+      addToast(<>IP <HL>{ephemeralIp.ip}</HL> attached</>) // prettier-ignore
       onDismiss()
     },
     onError: (err) => {
@@ -54,17 +56,7 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
                   ? 'Select a pool'
                   : 'No pools available'
               }
-              items={
-                siloPools?.items.map((pool) => ({
-                  label: (
-                    <div className="flex items-center gap-2">
-                      {pool.name}
-                      {pool.isDefault && <Badge>default</Badge>}
-                    </div>
-                  ),
-                  value: pool.name,
-                })) || []
-              }
+              items={siloPools.items.map(toIpPoolItem)}
               required
             />
           </form>

@@ -81,6 +81,8 @@ export function SiloIpPoolsTab() {
   const { mutateAsync: unlinkPool } = useApiMutation('ipPoolSiloUnlink', {
     onSuccess() {
       queryClient.invalidateQueries('siloIpPoolList')
+      // We only have the ID, so will show a generic confirmation message
+      addToast({ content: 'IP pool unlinked' })
     },
   })
 

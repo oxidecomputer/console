@@ -7,7 +7,14 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import { camelCase, capitalize, commaSeries, kebabCase, titleCase } from './str'
+import {
+  camelCase,
+  capitalize,
+  commaSeries,
+  extractText,
+  kebabCase,
+  titleCase,
+} from './str'
 
 describe('capitalize', () => {
   it('capitalizes the first letter', () => {
@@ -74,5 +81,32 @@ describe('titleCase', () => {
 
   it('doesn’t modify non-letter characters', () => {
     expect(titleCase('123 abc')).toBe('123 Abc')
+  })
+})
+
+describe('extractText', () => {
+  it('extracts strings from React components', () => {
+    expect(
+      extractText(
+        <>
+          This is my <strong>text</strong>
+        </>
+      )
+    ).toBe('This is my text')
+  })
+  it('extracts strings from nested elements', () => {
+    expect(
+      extractText(
+        <p>
+          This is my{' '}
+          <strong>
+            <em>nested</em> text
+          </strong>
+        </p>
+      )
+    ).toBe('This is my nested text')
+  })
+  it('can handle regular strings', () => {
+    expect(extractText('Some more text')).toBe('Some more text')
   })
 })
