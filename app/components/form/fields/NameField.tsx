@@ -36,6 +36,11 @@ export function NameField<
           .replace(/[\s_]+/g, '-')
           .replace(/[^a-z0-9-]/g, '')
       }
+      // https://www.stefanjudis.com/snippets/turn-off-password-managers/
+      data-1p-ignore
+      data-bwignore
+      data-lpignore="true"
+      data-form-type="other"
       {...textFieldProps}
     />
   )
