@@ -97,6 +97,15 @@ export const Combobox = ({
     keys: ['selectedLabel', 'label'],
     sorter: (items) => items, // preserve original order, don't sort by match
   })
+  // If the user has typed in a value that isn't in the list,
+  // add it as an option if `allowArbitraryValues` is true
+  if (
+    allowArbitraryValues &&
+    query.length > 0 &&
+    !filteredItems.some((i) => i.selectedLabel === query)
+  ) {
+    filteredItems.push({ value: query, label: query, selectedLabel: query })
+  }
   const zIndex = usePopoverZIndex()
   const id = useId()
   return (
@@ -184,19 +193,6 @@ export const Combobox = ({
             className={`ox-menu pointer-events-auto ${zIndex} relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border !outline-none border-secondary [--anchor-gap:13px] empty:hidden`}
             modal={false}
           >
-            {allowArbitraryValues && filteredItems.length === 0 && (
-              <ComboboxOption value={query} className="relative">
-                <div className="ox-menu-item is-highlighted">
-                  <span className="text-secondary">Use </span>
-                  {query}
-                </div>
-              </ComboboxOption>
-            )}
-            {!allowArbitraryValues && filteredItems.length === 0 && (
-              <ComboboxOption disabled value="no-matches" className="relative">
-                <div className="ox-menu-item !text-disabled">No items match</div>
-              </ComboboxOption>
-            )}
             {filteredItems.map((item) => (
               <ComboboxOption
                 key={item.value}
@@ -210,7 +206,7 @@ export const Combobox = ({
                   // of those rules one by one. Better to rely on the shared classes.
                   <div
                     className={cn('ox-menu-item', {
-                      'is-selected': selected,
+                      'is-selected': selected && query !== item.value,
                       'is-highlighted': focus,
                     })}
                   >
@@ -219,6 +215,11 @@ export const Combobox = ({
                 )}
               </ComboboxOption>
             ))}
+            {!allowArbitraryValues && filteredItems.length === 0 && (
+              <ComboboxOption disabled value="no-matches" className="relative">
+                <div className="ox-menu-item !text-disabled">No items match</div>
+              </ComboboxOption>
+            )}
           </ComboboxOptions>
         )}
       </HCombobox>
