@@ -29,7 +29,7 @@ test('can nav to VpcPage from /', async ({ page }) => {
   await expect(page.getByRole('cell', { name: 'allow-icmp' })).toBeVisible()
   await expect(page).toHaveURL('/projects/mock-project/vpcs/mock-vpc/firewall-rules')
   await expect(page).toHaveTitle(
-    'Firewall Rules / mock-vpc / VPCs / mock-project / Oxide Console'
+    'Firewall Rules / mock-vpc / VPCs / mock-project / Projects / Oxide Console'
   )
 
   // we can also click the firewall rules cell to get to the VPC detail
