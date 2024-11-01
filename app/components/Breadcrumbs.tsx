@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom'
 
 import { PrevArrow12Icon } from '@oxide/design-system/icons/react'
 
-import { useCrumbs } from '~/hooks/use-title'
+import { useCrumbs } from '~/hooks/use-crumbs'
 import { Slash } from '~/ui/lib/Slash'
 import { intersperse } from '~/util/array'
 
