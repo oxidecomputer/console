@@ -19,7 +19,7 @@ test('serial console can connect while starting', async ({ page }) => {
   // now go starting to its serial console page while it's starting up
   await expect(page).toHaveURL('/projects/mock-project/instances/abc/storage')
   await page.getByRole('tab', { name: 'Connect' }).click()
-  await page.getByRole('link', { name: 'Connect' }).click()
+  await page.getByRole('link', { name: 'Connect' }).nth(1).click()
 
   // The message goes from creating to starting and then disappears once
   // the instance is running. skip the check for "creating" because it can
