@@ -15,9 +15,9 @@ import {
   Metrics16Icon,
 } from '@oxide/design-system/icons/react'
 
+import { Breadcrumbs } from '~/components/Breadcrumbs'
 import { DocsLinkItem, NavLinkItem, Sidebar } from '~/components/Sidebar'
 import { TopBar } from '~/components/TopBar'
-import { TopBarBreadcrumbs } from '~/components/TopBarBreadcrumbs'
 import { SiloSystemPicker } from '~/components/TopBarPicker'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
@@ -55,7 +55,7 @@ export function SiloLayout() {
     <PageContainer>
       <TopBar>
         <SiloSystemPicker value="silo" />
-        <TopBarBreadcrumbs />
+        <Breadcrumbs />
       </TopBar>
       <Sidebar>
         <Sidebar.Nav>

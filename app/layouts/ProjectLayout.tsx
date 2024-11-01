@@ -20,8 +20,8 @@ import {
   Storage16Icon,
 } from '@oxide/design-system/icons/react'
 
+import { Breadcrumbs } from '~/components/Breadcrumbs'
 import { TopBar } from '~/components/TopBar'
-import { TopBarBreadcrumbs } from '~/components/TopBarBreadcrumbs'
 import { SiloSystemPicker } from '~/components/TopBarPicker'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
@@ -79,7 +79,7 @@ export function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
     <PageContainer>
       <TopBar>
         <SiloSystemPicker value="silo" />
-        <TopBarBreadcrumbs />
+        <Breadcrumbs />
       </TopBar>
       <Sidebar>
         <Sidebar.Nav>

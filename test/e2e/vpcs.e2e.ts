@@ -62,7 +62,7 @@ test('can edit VPC', async ({ page }) => {
   await expect(page.getByText('descriptionupdated description')).toBeVisible()
 
   // go to the VPCs list page and verify the name and description change
-  const breadcrumbs = page.getByRole('navigation', { name: 'Breadcrumb navigation' })
+  const breadcrumbs = page.getByRole('navigation', { name: 'Breadcrumbs' })
   await breadcrumbs.getByRole('link', { name: 'VPCs' }).click()
   await expect(page.getByRole('table').locator('tbody >> tr')).toHaveCount(1)
   await expectRowVisible(page.getByRole('table'), {
