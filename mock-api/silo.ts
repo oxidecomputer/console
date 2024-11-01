@@ -85,6 +85,7 @@ export const samlIdp: Json<SamlIdentityProvider> = {
   slo_url: '',
   sp_client_id: '',
   technical_contact_email: '',
+  group_attribute_name: 'groups',
 }
 
 // This works differently from Nexus, but the result is the same. In Nexus,

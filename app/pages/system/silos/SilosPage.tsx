@@ -19,8 +19,10 @@ import {
 import { Cloud16Icon, Cloud24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
+import { HL } from '~/components/HL'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { BooleanCell } from '~/table/cells/BooleanCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -76,8 +78,9 @@ export function SilosPage() {
   })
 
   const { mutateAsync: deleteSilo } = useApiMutation('siloDelete', {
-    onSuccess() {
+    onSuccess(silo, { path }) {
       queryClient.invalidateQueries('siloList')
+      addToast(<>Silo <HL>{path.silo}</HL> deleted</>) // prettier-ignore
     },
   })
 

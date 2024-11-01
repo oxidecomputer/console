@@ -7,7 +7,8 @@
  */
 
 .DropdownMenuContent {
-  @apply z-popover min-w-36 rounded border p-0 bg-raise border-secondary;
+  /* we want menu popover to be on top of top bar and pagination bar too */
+  @apply z-topBarDropdown min-w-36 rounded border p-0 bg-raise border-secondary;
 
   & .DropdownMenuItem {
     @apply block w-full cursor-pointer select-none border-b py-2 pl-3 pr-6 text-left text-sans-md text-secondary border-secondary last:border-b-0;
