@@ -45,14 +45,3 @@ export const useCrumbs = () =>
         typeof m.handle.crumb === 'function' ? m.handle.crumb(m) : m.handle.crumb
       return { label, path: m.pathname }
     })
-
-/**
- * non top-level route: Instances / mock-project / Projects / maze-war / Oxide Console
- * top-level route: Oxide Console
- */
-export const useTitle = () =>
-  useCrumbs()
-    .map((c) => c.label)
-    .reverse()
-    .concat('Oxide Console') // if there are no crumbs, we're still Oxide Console
-    .join(' / ')
