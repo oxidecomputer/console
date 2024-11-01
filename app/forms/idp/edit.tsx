@@ -17,6 +17,7 @@ import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { getIdpSelector, useIdpSelector } from '~/hooks/use-params'
 import { DateTime } from '~/ui/lib/DateTime'
+import { FormDivider } from '~/ui/lib/Divider'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
 import { Truncate } from '~/ui/lib/Truncate'
@@ -70,20 +71,32 @@ export function EditIdpSideModalForm() {
         </PropertiesTable.Row>
       </PropertiesTable>
 
+      <h3 className="text-sans-2xl">General</h3>
       <NameField name="name" control={form.control} disabled />
       <DescriptionField name="description" control={form.control} required disabled />
       <TextField
-        name="acsUrl"
-        label="ACS URL"
-        description="Service provider endpoint for the IdP to send the SAML response"
+        name="technicalContactEmail"
+        label="Technical contact email"
         required
         control={form.control}
         disabled
       />
+
+      <FormDivider />
+
+      <h3 className="text-sans-2xl">Service provider</h3>
       {/* TODO: help text */}
       <TextField
-        name="idpEntityId"
-        label="Entity ID"
+        name="spClientId"
+        label="Service provider client ID"
+        required
+        control={form.control}
+        disabled
+      />
+      <TextField
+        name="acsUrl"
+        label="ACS URL"
+        description="Service provider endpoint for the IdP to send the SAML response"
         required
         control={form.control}
         disabled
@@ -96,10 +109,14 @@ export function EditIdpSideModalForm() {
         control={form.control}
         disabled
       />
+
+      <FormDivider />
+
+      <h3 className="text-sans-2xl">Identity Provider</h3>
       {/* TODO: help text */}
       <TextField
-        name="spClientId"
-        label="Service provider client ID"
+        name="idpEntityId"
+        label="Entity ID"
         required
         control={form.control}
         disabled
@@ -108,14 +125,6 @@ export function EditIdpSideModalForm() {
         name="groupAttributeName"
         label="Group attribute name"
         description="Name of the SAML attribute in the IdP response listing the user’s groups"
-        required
-        control={form.control}
-        disabled
-      />
-      {/* TODO: Email field, probably */}
-      <TextField
-        name="technicalContactEmail"
-        label="Technical contact email"
         required
         control={form.control}
         disabled
