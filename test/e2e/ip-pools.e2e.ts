@@ -288,7 +288,7 @@ test('remove range', async ({ page }) => {
 
   // go back to the pool and verify the utilization column changed
   // use the topbar breadcrumb to get there
-  const breadcrumbs = page.getByRole('navigation', { name: 'Breadcrumb navigation' })
+  const breadcrumbs = page.getByRole('navigation', { name: 'Breadcrumbs' })
   await breadcrumbs.getByRole('link', { name: 'IP Pools' }).click()
   await expectRowVisible(table, {
     name: 'ip-pool-1',

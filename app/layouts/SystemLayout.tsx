@@ -16,10 +16,10 @@ import {
   Servers16Icon,
 } from '@oxide/design-system/icons/react'
 
+import { Breadcrumbs } from '~/components/Breadcrumbs'
 import { trigger404 } from '~/components/ErrorBoundary'
 import { DocsLinkItem, NavLinkItem, Sidebar } from '~/components/Sidebar'
 import { TopBar } from '~/components/TopBar'
-import { TopBarBreadcrumbs } from '~/components/TopBarBreadcrumbs'
 import { SiloSystemPicker } from '~/components/TopBarPicker'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
@@ -90,7 +90,7 @@ export function SystemLayout() {
     <PageContainer>
       <TopBar>
         <SiloSystemPicker value="system" />
-        <TopBarBreadcrumbs />
+        <Breadcrumbs />
       </TopBar>
       <Sidebar>
         <Sidebar.Nav>
