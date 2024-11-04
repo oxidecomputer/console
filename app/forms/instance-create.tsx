@@ -25,6 +25,7 @@ import {
   type InstanceCreate,
   type InstanceDiskAttachment,
   type NameOrId,
+  type SiloIpPool,
 } from '@oxide/api'
 import {
   Images16Icon,
@@ -46,6 +47,7 @@ import {
 } from '~/components/form/fields/DisksTableField'
 import { FileField } from '~/components/form/fields/FileField'
 import { BootDiskImageSelectField as ImageSelectField } from '~/components/form/fields/ImageSelectField'
+import { toIpPoolItem } from '~/components/form/fields/ip-pool-item'
 import { NameField } from '~/components/form/fields/NameField'
 import { NetworkInterfaceField } from '~/components/form/fields/NetworkInterfaceField'
 import { NumberField } from '~/components/form/fields/NumberField'
@@ -57,9 +59,9 @@ import { FullPageForm } from '~/components/form/FullPageForm'
 import { HL } from '~/components/HL'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { Checkbox } from '~/ui/lib/Checkbox'
+import { toComboboxItems } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
@@ -182,7 +184,7 @@ export function CreateInstanceForm() {
         { path: { instance: instance.name }, query: { project } },
         instance
       )
-      addToast({ content: 'Your instance has been created' })
+      addToast(<>Instance <HL>{instance.name}</HL> created</>) // prettier-ignore
       navigate(pb.instance({ project, instance: instance.name }))
     },
   })
@@ -197,10 +199,7 @@ export function CreateInstanceForm() {
   const allDisks = usePrefetchedApiQuery('diskList', {
     query: { project, limit: ALL_ISH },
   }).data.items
-  const disks = useMemo(
-    () => allDisks.filter(diskCan.attach).map(({ name }) => ({ value: name, label: name })),
-    [allDisks]
-  )
+  const disks = useMemo(() => toComboboxItems(allDisks.filter(diskCan.attach)), [allDisks])
 
   const { data: sshKeys } = usePrefetchedApiQuery('currentUserSshKeyList', {})
   const allKeys = useMemo(() => sshKeys.items.map((key) => key.id), [sshKeys])
@@ -611,7 +610,7 @@ const AdvancedAccordion = ({
 }: {
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
-  siloPools: Array<{ name: string; isDefault: boolean }>
+  siloPools: Array<SiloIpPool>
 }) => {
   // we track this state manually for the sole reason that we need to be able to
   // tell, inside AccordionItem, when an accordion is opened so we can scroll its
@@ -735,17 +734,7 @@ const AdvancedAccordion = ({
               label="IP pool for ephemeral IP"
               placeholder={defaultPool ? `${defaultPool} (default)` : 'Select a pool'}
               selected={`${siloPools.find((pool) => pool.name === selectedPool)?.name}`}
-              items={
-                siloPools.map((pool) => ({
-                  label: (
-                    <div className="flex items-center gap-2">
-                      {pool.name}
-                      {pool.isDefault && <Badge>default</Badge>}
-                    </div>
-                  ),
-                  value: pool.name,
-                })) || []
-              }
+              items={siloPools.map(toIpPoolItem)}
               disabled={!assignEphemeralIp || isSubmitting}
               required
               onChange={(value) => {

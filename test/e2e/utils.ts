@@ -107,12 +107,26 @@ export async function expectRowVisible(
 }
 
 export async function stopInstance(page: Page) {
-  await page.getByRole('button', { name: 'Instance actions' }).click()
-  await page.getByRole('menuitem', { name: 'Stop' }).click()
+  await page.getByRole('button', { name: 'Stop' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await closeToast(page)
   // don't need to manually refresh because of polling
   await expect(page.getByText('statestopped')).toBeVisible()
+}
+
+/**
+ * Assert that a toast with text matching `expectedText` is visible.
+ */
+export async function expectToast(page: Page, expectedText: string | RegExp) {
+  await expect(page.getByTestId('Toasts')).toHaveText(expectedText)
+  await closeToast(page)
+}
+
+/**
+ * Assert that a toast with text matching `expectedText` is not visible.
+ */
+export async function expectNoToast(page: Page, expectedText: string | RegExp) {
+  await expect(page.getByTestId('Toasts')).not.toHaveText(expectedText)
 }
 
 /**
@@ -142,18 +156,18 @@ export async function clickRowAction(page: Page, rowText: string, actionName: st
 
 /**
  * Select an option from a dropdown
- * buttonLocator can either be the drodown's label text or a more elaborate Locator
- * optionLocator can either be the drodown's label text or a more elaborate Locator
+ * labelLocator can either be the dropdown's label text or a more elaborate Locator
+ * optionLocator can either be the dropdown's option text or a more elaborate Locator
  * */
 export async function selectOption(
   page: Page,
-  buttonLocator: string | Locator,
+  labelLocator: string | Locator,
   optionLocator: string | Locator
 ) {
-  if (typeof buttonLocator === 'string') {
-    await page.getByRole('button', { name: buttonLocator }).click()
+  if (typeof labelLocator === 'string') {
+    await page.getByLabel(labelLocator, { exact: true }).click()
   } else {
-    await buttonLocator.click()
+    await labelLocator.click()
   }
   if (typeof optionLocator === 'string') {
     await page.getByRole('option', { name: optionLocator, exact: true }).click()

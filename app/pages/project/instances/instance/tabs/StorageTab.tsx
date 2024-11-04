@@ -87,9 +87,9 @@ export function StorageTab() {
   )
 
   const { mutate: detachDisk } = useApiMutation('instanceDiskDetach', {
-    onSuccess() {
+    onSuccess(disk) {
       queryClient.invalidateQueries('instanceDiskList')
-      addToast({ content: 'Disk detached' })
+      addToast(<>Disk <HL>{disk.name}</HL> detached</>) // prettier-ignore
     },
     onError(err) {
       addToast({
@@ -100,9 +100,9 @@ export function StorageTab() {
     },
   })
   const { mutate: createSnapshot } = useApiMutation('snapshotCreate', {
-    onSuccess() {
+    onSuccess(snapshot) {
       queryClient.invalidateQueries('snapshotList')
-      addToast({ content: 'Snapshot created' })
+      addToast(<>Snapshot <HL>{snapshot.name}</HL> created</>) // prettier-ignore
     },
     onError(err) {
       addToast({
@@ -165,7 +165,13 @@ export function StorageTab() {
             doAction: () =>
               instanceUpdate({
                 path: { instance: instance.id },
-                body: { bootDisk: undefined, ncpus, memory },
+                body: {
+                  bootDisk: undefined,
+                  ncpus,
+                  memory,
+                  // this would get unset if we left it out
+                  autoRestartPolicy: instance.autoRestartPolicy,
+                },
               }),
             errorTitle: 'Could not unset boot disk',
             modalTitle: 'Confirm unset boot disk',
@@ -193,7 +199,7 @@ export function StorageTab() {
         onActivate() {}, // it's always disabled, so noop is ok
       },
     ],
-    [instanceUpdate, instance.id, getSnapshotAction, ncpus, memory]
+    [instanceUpdate, instance, getSnapshotAction, ncpus, memory]
   )
 
   const makeOtherDiskActions = useCallback(
@@ -214,7 +220,13 @@ export function StorageTab() {
             doAction: () =>
               instanceUpdate({
                 path: { instance: instance.id },
-                body: { bootDisk: disk.id, ncpus, memory },
+                body: {
+                  bootDisk: disk.id,
+                  ncpus,
+                  memory,
+                  // this would get unset if we left it out
+                  autoRestartPolicy: instance.autoRestartPolicy,
+                },
               }),
             errorTitle: `Could not ${verb} boot disk`,
             modalTitle: `Confirm ${verb} boot disk`,
@@ -249,7 +261,7 @@ export function StorageTab() {
         },
       },
     ],
-    [detachDisk, instanceUpdate, instance.id, getSnapshotAction, bootDisks, ncpus, memory]
+    [detachDisk, instanceUpdate, instance, getSnapshotAction, bootDisks, ncpus, memory]
   )
 
   const attachDisk = useApiMutation('instanceDiskAttach', {

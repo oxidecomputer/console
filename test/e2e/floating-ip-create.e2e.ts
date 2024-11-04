@@ -28,19 +28,19 @@ test('can create a floating IP', async ({ page }) => {
     .getByRole('textbox', { name: 'Description' })
     .fill('A description for this Floating IP')
 
-  const poolListbox = page.getByRole('button', { name: 'IP pool' })
+  const label = page.getByLabel('IP pool')
 
   // accordion content should be hidden
-  await expect(poolListbox).toBeHidden()
+  await expect(label).toBeHidden()
 
   // open accordion
   await page.getByRole('button', { name: 'Advanced' }).click()
 
   // accordion content should be visible
-  await expect(poolListbox).toBeVisible()
+  await expect(label).toBeVisible()
 
   // choose pool and submit
-  await poolListbox.click()
+  await label.click()
   await page.getByRole('option', { name: 'ip-pool-1' }).click()
   await page.getByRole('button', { name: 'Create floating IP' }).click()
 
@@ -83,7 +83,7 @@ test('can detach and attach a floating IP', async ({ page }) => {
   // Now click back to floating IPs and reattach it to db1
   await page.getByRole('link', { name: 'Floating IPs' }).click()
   await clickRowAction(page, 'cola-float', 'Attach')
-  await page.getByRole('button', { name: 'Select an instance' }).click()
+  await page.getByLabel('Instance').click()
   await page.getByRole('option', { name: 'db1' }).click()
 
   await page.getByRole('button', { name: 'Attach' }).click()

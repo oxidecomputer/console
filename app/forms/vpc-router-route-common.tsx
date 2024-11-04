@@ -10,12 +10,10 @@ import type { UseFormReturn } from 'react-hook-form'
 
 import {
   usePrefetchedApiQuery,
-  type Instance,
   type RouteDestination,
   type RouterRouteCreate,
   type RouterRouteUpdate,
   type RouteTarget,
-  type VpcSubnet,
 } from '~/api'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -23,6 +21,7 @@ import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { useVpcRouterSelector } from '~/hooks/use-params'
+import { toComboboxItems } from '~/ui/lib/Combobox'
 import { Message } from '~/ui/lib/Message'
 import { validateIp, validateIpNet } from '~/util/ip'
 
@@ -93,9 +92,6 @@ const targetValueDescription: Record<RouteTarget['type'], string | undefined> = 
 
 const toListboxItems = (mapping: Record<string, string>) =>
   Object.entries(mapping).map(([value, label]) => ({ value, label }))
-
-const toComboboxItems = (items: Array<Instance | VpcSubnet>) =>
-  items.map(({ name }) => ({ value: name, label: name }))
 
 type RouteFormFieldsProps = {
   form: UseFormReturn<RouteFormValues>

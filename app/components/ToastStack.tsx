@@ -22,7 +22,10 @@ export function ToastStack() {
   })
 
   return (
-    <div className="pointer-events-auto fixed bottom-4 left-4 z-toast flex flex-col items-end space-y-2">
+    <div
+      className="pointer-events-auto fixed bottom-4 left-4 z-toast flex flex-col items-end space-y-2"
+      data-testid="Toasts"
+    >
       {transition((style, item) => (
         <animated.div
           style={{

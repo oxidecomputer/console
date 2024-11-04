@@ -67,7 +67,7 @@ export function InstancesPage() {
   const { project } = useProjectSelector()
   const [resizeInstance, setResizeInstance] = useState<Instance | null>(null)
 
-  const makeActions = useMakeInstanceActions(
+  const { makeButtonActions, makeMenuActions } = useMakeInstanceActions(
     { project },
     {
       onSuccess: refetchInstances,
@@ -188,9 +188,12 @@ export function InstancesPage() {
         }
       ),
       colHelper.accessor('timeCreated', Columns.timeCreated),
-      getActionsCol(makeActions),
+      getActionsCol((instance: Instance) => [
+        ...makeButtonActions(instance),
+        ...makeMenuActions(instance),
+      ]),
     ],
-    [project, makeActions]
+    [project, makeButtonActions, makeMenuActions]
   )
 
   if (!instances) return null

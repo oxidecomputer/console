@@ -20,7 +20,9 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextFieldInner } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { HL } from '~/components/HL'
 import { useInstanceSelector } from '~/hooks/use-params'
+import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import * as MiniTable from '~/ui/lib/MiniTable'
@@ -42,8 +44,9 @@ export function EditNetworkInterfaceForm({
   const instanceSelector = useInstanceSelector()
 
   const editNetworkInterface = useApiMutation('instanceNetworkInterfaceUpdate', {
-    onSuccess() {
+    onSuccess(nic) {
       queryClient.invalidateQueries('instanceNetworkInterfaceList')
+      addToast(<>Network interface <HL>{nic.name}</HL> updated</>) // prettier-ignore
       onDismiss()
     },
   })

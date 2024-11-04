@@ -28,6 +28,9 @@
 
 .ox-menu-item.is-selected {
   @apply border-0 text-accent bg-accent-secondary hover:bg-accent-secondary-hover;
+  .ox-badge {
+    @apply ring-0 text-inverse bg-accent;
+  }
 }
 
 /* beautiful ring */
