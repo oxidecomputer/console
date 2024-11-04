@@ -18,7 +18,7 @@ import { buttonStyle } from '~/ui/lib/Button'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 import { pb } from '~/util/path-builder'
 
-export function TopBar({ value }: { value: 'silo' | 'system' }) {
+export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
   const logout = useApiMutation('logout', {
     onSuccess: () => navToLogin({ includeCurrent: false }),
   })
@@ -31,7 +31,7 @@ export function TopBar({ value }: { value: 'silo' | 'system' }) {
   return (
     <>
       <div className="flex items-center border-b border-r px-3 border-secondary">
-        <SiloSystemPicker value={value} />
+        <SiloSystemPicker value={systemOrSilo} />
       </div>
       {/* Height is governed by PageContainer grid */}
       {/* shrink-0 is needed to prevent getting squished by body content */}

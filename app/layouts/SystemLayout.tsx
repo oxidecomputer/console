@@ -86,7 +86,7 @@ export function SystemLayout() {
 
   return (
     <PageContainer>
-      <TopBar value="system" />
+      <TopBar systemOrSilo="system" />
       <Sidebar>
         <Sidebar.Nav>
           <DocsLinkItem />

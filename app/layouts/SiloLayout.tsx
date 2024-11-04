@@ -51,7 +51,7 @@ export function SiloLayout() {
 
   return (
     <PageContainer>
-      <TopBar value="silo" />
+      <TopBar systemOrSilo="silo" />
       <Sidebar>
         <Sidebar.Nav>
           <DocsLinkItem />
