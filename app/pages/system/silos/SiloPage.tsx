@@ -62,7 +62,12 @@ export function SiloPage() {
           heading="silos"
           icon={<Cloud16Icon />}
           summary="Silos provide strict tenancy separation between groups of users. Each silo has its own resource limits and access policies as well as its own subdomain for the web console and API."
-          links={[docLinks.systemSilo, docLinks.systemIpPools, docLinks.access]}
+          links={[
+            docLinks.systemSilo,
+            docLinks.identityProviders,
+            docLinks.systemIpPools,
+            docLinks.access,
+          ]}
         />
       </PageHeader>
 
