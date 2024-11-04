@@ -104,7 +104,11 @@ export const Combobox = ({
     query.length > 0 &&
     !filteredItems.some((i) => i.selectedLabel === query)
   ) {
-    filteredItems.push({ value: query, label: query, selectedLabel: query })
+    filteredItems.push({
+      value: query,
+      label: `Use custom value: ${query}`,
+      selectedLabel: query,
+    })
   }
   const zIndex = usePopoverZIndex()
   const id = useId()
