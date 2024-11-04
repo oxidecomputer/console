@@ -11,21 +11,19 @@ import React from 'react'
 import { navToLogin, useApiMutation } from '@oxide/api'
 import { DirectionDownIcon, Profile16Icon } from '@oxide/design-system/icons/react'
 
+import { Breadcrumbs } from '~/components/Breadcrumbs'
+import { SiloSystemPicker } from '~/components/TopBarPicker'
 import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
 import { buttonStyle } from '~/ui/lib/Button'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 import { pb } from '~/util/path-builder'
 
-export function TopBar({ children }: { children: React.ReactNode }) {
+export function TopBar({ value }: { value: 'silo' | 'system' }) {
   const logout = useApiMutation('logout', {
     onSuccess: () => navToLogin({ includeCurrent: false }),
   })
   // fetch happens in loader wrapping all authed pages
   const { me } = useCurrentUser()
-
-  // toArray filters out nulls, which is essential because the silo/system
-  // picker is going to come in null when the user isn't supposed to see it
-  const [cornerPicker, ...otherPickers] = React.Children.toArray(children)
 
   // The height of this component is governed by the `PageContainer`
   // It's important that this component returns two distinct elements (wrapped in a fragment).
@@ -33,13 +31,13 @@ export function TopBar({ children }: { children: React.ReactNode }) {
   return (
     <>
       <div className="flex items-center border-b border-r px-3 border-secondary">
-        {cornerPicker}
+        <SiloSystemPicker value={value} />
       </div>
       {/* Height is governed by PageContainer grid */}
       {/* shrink-0 is needed to prevent getting squished by body content */}
       <div className="z-topBar border-b bg-default border-secondary">
         <div className="mx-3 flex h-[54px] shrink-0 items-center justify-between">
-          <div className="flex items-center">{otherPickers}</div>
+          <Breadcrumbs />
           <div className="flex items-center gap-2">
             <DropdownMenu.Root>
               <DropdownMenu.Trigger

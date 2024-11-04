@@ -20,9 +20,7 @@ import {
   Storage16Icon,
 } from '@oxide/design-system/icons/react'
 
-import { Breadcrumbs } from '~/components/Breadcrumbs'
 import { TopBar } from '~/components/TopBar'
-import { SiloSystemPicker } from '~/components/TopBarPicker'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
@@ -77,10 +75,7 @@ export function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
 
   return (
     <PageContainer>
-      <TopBar>
-        <SiloSystemPicker value="silo" />
-        <Breadcrumbs />
-      </TopBar>
+      <TopBar value="silo" />
       <Sidebar>
         <Sidebar.Nav>
           <NavLinkItem to={pb.projects()} end>
