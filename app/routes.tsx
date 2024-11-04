@@ -131,12 +131,8 @@ export const routes = createRoutesFromElements(
       </Route>
 
       <Route path="system" element={<SystemLayout />} loader={SystemLayout.loader}>
-        <Route
-          element={<SilosPage />}
-          loader={SilosPage.loader}
-          handle={{ crumb: 'Silos' }}
-        >
-          <Route path="silos" element={null} />
+        <Route element={<SilosPage />} loader={SilosPage.loader}>
+          <Route path="silos" element={null} handle={{ crumb: 'Silos' }} />
           <Route path="silos-new" element={<CreateSiloSideModalForm />} />
         </Route>
         <Route path="silos" handle={{ crumb: 'Silos' }}>
