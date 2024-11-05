@@ -10,7 +10,6 @@ import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
-import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { FileField } from '~/components/form/fields/FileField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -62,8 +61,6 @@ export function CreateIdpSideModalForm() {
   })
 
   const form = useForm({ defaultValues })
-  const signedRequestsForm = useForm({ defaultValues: { signedRequests: false } })
-  const signedRequests = signedRequestsForm.watch('signedRequests')
 
   return (
     <SideModalForm
@@ -144,30 +141,24 @@ export function CreateIdpSideModalForm() {
         required
         control={form.control}
       />
-      <CheckboxField name="signedRequests" control={signedRequestsForm.control}>
-        Signed requests (optional)
-      </CheckboxField>
-      {signedRequests && (
-        <>
-          {/* We don't bother validating that you have both of these or neither even
-              though the API requires that because we are going to change the API to
-              always require both, at which point these become simple `required` fields */}
-          <FileField
-            id="public-cert-file-input"
-            name="signingKeypair.publicCert"
-            description="DER-encoded X.509 certificate"
-            label="Public cert"
-            control={form.control}
-          />
-          <FileField
-            id="private-key-file-input"
-            name="signingKeypair.privateKey"
-            description="DER-encoded private key"
-            label="Private key"
-            control={form.control}
-          />
-        </>
-      )}
+
+      {/* We don't bother validating that you have both of these or neither even
+          though the API requires that because we are going to change the API to
+          always require both, at which point these become simple `required` fields */}
+      <FileField
+        id="public-cert-file-input"
+        name="signingKeypair.publicCert"
+        description="DER-encoded X.509 certificate"
+        label="Public cert"
+        control={form.control}
+      />
+      <FileField
+        id="private-key-file-input"
+        name="signingKeypair.privateKey"
+        description="DER-encoded private key"
+        label="Private key"
+        control={form.control}
+      />
 
       <FormDivider />
 
