@@ -2140,6 +2140,20 @@ export const LinkSpeed = z.preprocess(
 )
 
 /**
+ * Per-port tx-eq overrides.  This can be used to fine-tune the transceiver equalization settings to improve signal integrity.
+ */
+export const TxEqConfig = z.preprocess(
+  processResponseBody,
+  z.object({
+    main: z.number().min(-2147483647).max(2147483647).optional(),
+    post1: z.number().min(-2147483647).max(2147483647).optional(),
+    post2: z.number().min(-2147483647).max(2147483647).optional(),
+    pre1: z.number().min(-2147483647).max(2147483647).optional(),
+    pre2: z.number().min(-2147483647).max(2147483647).optional(),
+  })
+)
+
+/**
  * Switch link configuration.
  */
 export const LinkConfigCreate = z.preprocess(
@@ -2150,6 +2164,7 @@ export const LinkConfigCreate = z.preprocess(
     lldp: LldpLinkConfigCreate,
     mtu: z.number().min(0).max(65535),
     speed: LinkSpeed,
+    txEq: TxEqConfig.optional(),
   })
 )
 
@@ -3217,6 +3232,7 @@ export const SwitchPortLinkConfig = z.preprocess(
     mtu: z.number().min(0).max(65535),
     portSettingsId: z.string().uuid(),
     speed: LinkSpeed,
+    txEqConfigId: z.string().uuid().optional(),
   })
 )
 
@@ -3314,6 +3330,7 @@ export const SwitchPortSettingsView = z.preprocess(
     port: SwitchPortConfig,
     routes: SwitchPortRouteConfig.array(),
     settings: SwitchPortSettings,
+    txEq: TxEqConfig.array(),
     vlanInterfaces: SwitchVlanInterfaceConfig.array(),
   })
 )
