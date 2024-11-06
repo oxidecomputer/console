@@ -425,8 +425,8 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           <>
             <p>
               Targets determine the instances to which this rule applies. You can target
-              instances directly by name, or specify a VPC, VPC subnet, IP, or IP subnet,
-              which will apply the rule to traffic going to all matching instances.
+              instances directly or specify a VPC, VPC subnet, IP, or IP subnet, which will
+              apply the rule to traffic going to all matching instances.
             </p>
             <p className="mt-2">
               Targets are additive: the rule applies to instances matching{' '}
