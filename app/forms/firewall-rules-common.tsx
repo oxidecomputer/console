@@ -428,7 +428,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
               instances directly by name, or specify a VPC, VPC subnet, IP, or IP subnet,
               which will apply the rule to traffic going to all matching instances.
             </p>
-            <p>
+            <p className="mt-2">
               Targets are additive: the rule applies to instances matching{' '}
               <span className="underline">any</span> target.
             </p>
@@ -474,7 +474,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
       />
 
       <div className="flex flex-col gap-3">
-        {/* We have to blow this up instead of using TextField to get better 
+        {/* We have to blow this up instead of using TextField to get better
             text styling on the label */}
         <div className="mt-2">
           <FieldLabel id="portRange-label" htmlFor="portRange">
