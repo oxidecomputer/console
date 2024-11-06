@@ -19,7 +19,7 @@ import { getIdpSelector, useIdpSelector } from '~/hooks/use-params'
 import { DateTime } from '~/ui/lib/DateTime'
 import { FormDivider } from '~/ui/lib/Divider'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
-import { ResourceLabel } from '~/ui/lib/SideModal'
+import { ResourceLabel, SideModal } from '~/ui/lib/SideModal'
 import { Truncate } from '~/ui/lib/Truncate'
 import { pb } from '~/util/path-builder'
 
@@ -71,7 +71,6 @@ export function EditIdpSideModalForm() {
         </PropertiesTable.Row>
       </PropertiesTable>
 
-      <h3 className="text-sans-2xl">General</h3>
       <NameField name="name" control={form.control} disabled />
       <DescriptionField name="description" control={form.control} required disabled />
       <TextField
@@ -84,7 +83,7 @@ export function EditIdpSideModalForm() {
 
       <FormDivider />
 
-      <h3 className="text-sans-2xl">Service provider</h3>
+      <SideModal.Heading>Service provider</SideModal.Heading>
       {/* TODO: help text */}
       <TextField
         name="spClientId"
@@ -112,7 +111,7 @@ export function EditIdpSideModalForm() {
 
       <FormDivider />
 
-      <h3 className="text-sans-2xl">Identity Provider</h3>
+      <SideModal.Heading>Identity Provider</SideModal.Heading>
       {/* TODO: help text */}
       <TextField
         name="idpEntityId"

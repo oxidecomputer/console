@@ -19,6 +19,7 @@ import { HL } from '~/components/HL'
 import { useSiloSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
+import { SideModal } from '~/ui/lib/SideModal'
 import { readBlobAsBase64 } from '~/util/file'
 import { pb } from '~/util/path-builder'
 
@@ -107,7 +108,6 @@ export function CreateIdpSideModalForm() {
       submitError={createIdp.error}
       submitLabel="Create provider"
     >
-      <h3 className="text-sans-2xl">General</h3>
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} required />
       <TextField
@@ -119,7 +119,7 @@ export function CreateIdpSideModalForm() {
 
       <FormDivider />
 
-      <h3 className="text-sans-2xl">Service provider</h3>
+      <SideModal.Heading>Service provider</SideModal.Heading>
       {/* TODO: help text */}
       <TextField
         name="spClientId"
@@ -162,7 +162,7 @@ export function CreateIdpSideModalForm() {
 
       <FormDivider />
 
-      <h3 className="text-sans-2xl">Identity Provider</h3>
+      <SideModal.Heading>Identity Provider</SideModal.Heading>
       {/* TODO: help text */}
       <TextField name="idpEntityId" label="Entity ID" required control={form.control} />
       <TextField
