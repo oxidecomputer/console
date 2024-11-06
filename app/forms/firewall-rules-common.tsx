@@ -125,6 +125,10 @@ const DynamicTypeAndValueFields = ({
       {/* In the firewall rules form, a few types get comboboxes instead of text fields */}
       {valueType === 'vpc' || valueType === 'subnet' || valueType === 'instance' ? (
         <ComboboxField
+          // key means we nuke the entire field when we change types. this fixes
+          // a bug where the firewall rule host filter combobox would keep an
+          // custom value query around when you change types
+          key={valueType}
           disabled={disabled}
           name="value"
           {...getFilterValueProps(valueType)}
@@ -468,7 +472,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
       />
 
       <div className="flex flex-col gap-3">
-        {/* We have to blow this up instead of using TextField to get better 
+        {/* We have to blow this up instead of using TextField to get better
             text styling on the label */}
         <div className="mt-2">
           <label id="portRange-label" htmlFor="portRange" className="text-sans-lg">
