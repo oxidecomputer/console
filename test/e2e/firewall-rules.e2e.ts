@@ -6,14 +6,9 @@
  * Copyright Oxide Computer Company
  */
 
-import {
-  clickRowAction,
-  expect,
-  expectRowVisible,
-  selectOption,
-  test,
-  type Locator,
-} from './utils'
+import { expect, test, type Locator, type Page } from '@playwright/test'
+
+import { clickRowAction, expectRowVisible, selectOption } from './utils'
 
 const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp']
 
@@ -572,4 +567,34 @@ test('name conflict error on edit', async ({ page }) => {
   await nameField.fill('allow-icmp2')
   await page.getByRole('button', { name: 'Update rule' }).click()
   await expectRowVisible(page.getByRole('table'), { Name: 'allow-icmp2', Priority: '37' })
+})
+
+async function expectOptions(page: Page, options: string[]) {
+  const selector = page.getByRole('option')
+  await expect(selector).toHaveCount(options.length)
+  for (const option of options) {
+    await expect(page.getByRole('option', { name: option })).toBeVisible()
+  }
+}
+
+test('arbitrary values combobox', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules-new')
+
+  await selectOption(page, 'Target type', 'Instance')
+  const input = page.getByRole('combobox', { name: 'Instance name' })
+
+  await input.focus()
+  await expectOptions(page, ['db1', 'you-fail', 'not-there-yet'])
+
+  await input.fill('d')
+  await expectOptions(page, ['db1', 'Custom: d'])
+
+  await input.blur()
+  await expect(page.getByRole('option')).toBeHidden()
+
+  await expect(input).toHaveValue('d')
+  await input.focus()
+
+  // same options show up after blur (there was a bug around this)
+  await expectOptions(page, ['db1', 'Custom: d'])
 })
