@@ -533,7 +533,6 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
         <FieldLabel id="portRange-label" htmlFor="portRange" className="mb-2">
           Protocol filters
         </FieldLabel>
-        {/* <legend className="mb-2 mt-4 text-sans-lg">Protocol filters</legend> */}
         <ProtocolField control={control} protocol="TCP" />
         <ProtocolField control={control} protocol="UDP" />
         <ProtocolField control={control} protocol="ICMP" />
