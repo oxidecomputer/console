@@ -16,6 +16,7 @@ import {
 } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 
+import { HL } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
@@ -46,10 +47,10 @@ export function VpcPage() {
   })
 
   const { mutateAsync: deleteVpc } = useApiMutation('vpcDelete', {
-    onSuccess() {
+    onSuccess(_data, variables) {
       queryClient.invalidateQueries('vpcList')
       navigate(pb.vpcs({ project }))
-      addToast({ content: 'Your VPC has been deleted' })
+      addToast(<>VPC <HL>{variables.path.vpc}</HL> deleted</>) // prettier-ignore
     },
   })
 

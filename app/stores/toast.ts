@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { type ReactElement } from 'react'
 import { v4 as uuid } from 'uuid'
 import { create } from 'zustand'
 
@@ -17,9 +18,18 @@ type Toast = {
 
 export const useToastStore = create<{ toasts: Toast[] }>(() => ({ toasts: [] }))
 
-export function addToast(options: Toast['options']) {
+/**
+ * If argument is `ReactElement | string`, use it directly as `{ content }`.
+ * Otherwise it's a config object.
+ */
+export function addToast(optionsOrContent: Toast['options'] | ReactElement | string) {
+  const options =
+    typeof optionsOrContent === 'object' && 'content' in optionsOrContent
+      ? optionsOrContent
+      : { content: optionsOrContent }
   useToastStore.setState(({ toasts }) => ({ toasts: [...toasts, { id: uuid(), options }] }))
 }
+
 export function removeToast(id: Toast['id']) {
   useToastStore.setState(({ toasts }) => ({ toasts: toasts.filter((t) => t.id !== id) }))
 }

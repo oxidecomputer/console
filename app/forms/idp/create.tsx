@@ -16,8 +16,11 @@ import { FileField } from '~/components/form/fields/FileField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { HL } from '~/components/HL'
 import { useSiloSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { FormDivider } from '~/ui/lib/Divider'
+import { SideModal } from '~/ui/lib/SideModal'
 import { readBlobAsBase64 } from '~/util/file'
 import { pb } from '~/util/path-builder'
 
@@ -53,9 +56,9 @@ export function CreateIdpSideModalForm() {
   const onDismiss = () => navigate(pb.silo({ silo }))
 
   const createIdp = useApiMutation('samlIdentityProviderCreate', {
-    onSuccess() {
+    onSuccess(idp) {
       queryClient.invalidateQueries('siloIdentityProviderList')
-      addToast({ content: 'Your identity provider has been created' })
+      addToast(<>IdP <HL>{idp.name}</HL> created</>) // prettier-ignore
       onDismiss()
     },
   })
@@ -120,23 +123,15 @@ export function CreateIdpSideModalForm() {
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} required />
       <TextField
-        name="acsUrl"
-        label="ACS URL"
-        description="Service provider endpoint for the IdP to send the SAML response"
-        required
-        control={form.control}
-        disabled
-        copyable
-      />
-      {/* TODO: help text */}
-      <TextField name="idpEntityId" label="Entity ID" required control={form.control} />
-      <TextField
-        name="sloUrl"
-        label="Single Logout (SLO) URL"
-        description="Service provider endpoint for log out requests"
+        name="technicalContactEmail"
+        label="Technical contact email"
         required
         control={form.control}
       />
+
+      <FormDivider />
+
+      <SideModal.Heading>Service provider</SideModal.Heading>
       {/* TODO: help text */}
       <TextField
         name="spClientId"
@@ -145,22 +140,25 @@ export function CreateIdpSideModalForm() {
         control={form.control}
       />
       <TextField
-        name="groupAttributeName"
-        label="Group attribute name"
-        description="Name of SAML attribute where we can find a comma-separated list of names of groups the user belongs to"
+        name="acsUrl"
+        label="ACS URL"
+        description="Service provider endpoint for the IdP to send the SAML response"
+        required
         control={form.control}
+        disabled
+        copyable
       />
-      {/* TODO: Email field, probably */}
       <TextField
-        name="technicalContactEmail"
-        label="Technical contact email"
+        name="sloUrl"
+        label="Single Logout (SLO) URL"
+        description="Service provider endpoint for log out requests"
         required
         control={form.control}
       />
-      <MetadataSourceField control={form.control} />
+
       {/* We don't bother validating that you have both of these or neither even
-              though the API requires that because we are going to change the API to
-              always require both, at which point these become simple `required` fields */}
+          though the API requires that because we are going to change the API to
+          always require both, at which point these become simple `required` fields */}
       <FileField
         id="public-cert-file-input"
         name="signingKeypair.publicCert"
@@ -175,6 +173,19 @@ export function CreateIdpSideModalForm() {
         label="Private key"
         control={form.control}
       />
+
+      <FormDivider />
+
+      <SideModal.Heading>Identity Provider</SideModal.Heading>
+      {/* TODO: help text */}
+      <TextField name="idpEntityId" label="Entity ID" required control={form.control} />
+      <TextField
+        name="groupAttributeName"
+        label="Group attribute name"
+        description="Name of the SAML attribute in the IdP response listing the user’s groups"
+        control={form.control}
+      />
+      <MetadataSourceField control={form.control} />
     </SideModalForm>
   )
 }

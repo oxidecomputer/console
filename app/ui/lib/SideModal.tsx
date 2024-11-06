@@ -170,6 +170,8 @@ function SideModalBody({ children }: { children?: ReactNode }) {
 
 SideModal.Body = SideModalBody
 
+SideModal.Heading = classed.div`text-sans-semi-xl`
+
 SideModal.Section = classed.div`p-8 space-y-6 border-secondary`
 
 SideModal.Footer = ({ children, error }: { children: ReactNode; error?: boolean }) => (

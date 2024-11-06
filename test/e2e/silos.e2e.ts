@@ -186,6 +186,10 @@ test('Identity providers', async ({ page }) => {
   await expect(page.getByText('Entity ID')).toBeVisible()
   await expect(page.getByText('Single Logout (SLO) URL')).toBeVisible()
 
+  await expect(page.getByRole('textbox', { name: 'Group attribute name' })).toHaveValue(
+    'groups'
+  )
+
   await page.getByRole('button', { name: 'Cancel' }).click()
 
   await expect(dialog).toBeHidden()
