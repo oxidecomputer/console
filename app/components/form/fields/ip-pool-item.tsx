@@ -21,7 +21,7 @@ export function toIpPoolItem(p: SiloIpPool) {
           </Badge>
         )}
       </div>
-      {p.description.length && (
+      {!!p.description && (
         <div className="text-tertiary selected:text-accent-secondary">{p.description}</div>
       )}
     </div>
