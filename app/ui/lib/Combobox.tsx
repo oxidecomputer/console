@@ -15,7 +15,7 @@ import {
 } from '@headlessui/react'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
-import { useId, useState, type ReactNode, type Ref } from 'react'
+import { useEffect, useId, useState, type ReactNode, type Ref } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
@@ -97,6 +97,26 @@ export const Combobox = ({
     keys: ['selectedLabel', 'label'],
     sorter: (items) => items, // preserve original order, don't sort by match
   })
+
+  // In the arbitraryValues case, clear the query whenever the value is cleared.
+  // this is necessary, e.g., for the firewall rules form when you submit the
+  // targets subform and clear the field. Two possible changes we might want to make
+  // here if we run into issues:
+  //
+  //   1. do it all the time, not just in the arbitraryValues case
+  //   2. do it on all value changes, not just on clear
+  //
+  // Currently, I don't think there are any arbitraryValues=false cases where we
+  // set the value from outside. There is an arbitraryvalues=true case where we
+  // setValue to something other than empty string, but we don't need the
+  // sync because that setValue is done in onInputChange and we already are
+  // doing setQuery in here along with it.
+  useEffect(() => {
+    if (allowArbitraryValues && !selectedItemValue) {
+      setQuery('')
+    }
+  }, [allowArbitraryValues, selectedItemValue])
+
   // If the user has typed in a value that isn't in the list,
   // add it as an option if `allowArbitraryValues` is true
   if (

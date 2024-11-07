@@ -580,6 +580,22 @@ async function expectOptions(page: Page, options: string[]) {
 test('arbitrary values combobox', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules-new')
 
+  // test for bug where we'd persist the d after add and only show 'Custom: d'
+  const vpcInput = page.getByRole('combobox', { name: 'VPC name' }).first()
+  await vpcInput.focus()
+  await expectOptions(page, ['mock-vpc'])
+
+  await vpcInput.fill('d')
+  await expectOptions(page, ['Custom: d'])
+
+  await vpcInput.blur()
+  page.getByRole('button', { name: 'Add target' }).click()
+  await expect(vpcInput).toHaveValue('')
+
+  await vpcInput.focus()
+  await expectOptions(page, ['mock-vpc']) // bug cause failure here
+
+  // test keeping query around on blur
   await selectOption(page, 'Target type', 'Instance')
   const input = page.getByRole('combobox', { name: 'Instance name' })
 
