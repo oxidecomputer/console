@@ -21,8 +21,10 @@ import { useSiloSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Checkbox } from '~/ui/lib/Checkbox'
 import { FormDivider } from '~/ui/lib/Divider'
+import { Message } from '~/ui/lib/Message'
 import { SideModal } from '~/ui/lib/SideModal'
 import { readBlobAsBase64 } from '~/util/file'
+import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 import { MetadataSourceField, type IdpCreateFormValues } from './shared'
@@ -128,7 +130,36 @@ export function CreateIdpSideModalForm() {
       submitError={createIdp.error}
       submitLabel="Create provider"
     >
-      <NameField name="name" control={form.control} />
+      <Message
+        content={
+          <>
+            Read the{' '}
+            <a
+              href={links.identityProvidersDocs}
+              className="underline"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Rack Configuration
+            </a>{' '}
+            guide to learn more about setting up an identity provider.
+          </>
+        }
+      />
+      <NameField
+        name="name"
+        control={form.control}
+        description={
+          <>
+            A short name for the provider in our system. Users will see it in the path to
+            the login page:{' '}
+            <code>
+              /login/{silo}/saml/{name.trim() || 'idp-name'}
+            </code>
+            .
+          </>
+        }
+      />
       <DescriptionField name="description" control={form.control} required />
       <TextField
         name="technicalContactEmail"
