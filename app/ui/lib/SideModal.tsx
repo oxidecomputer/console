@@ -30,7 +30,7 @@ export function usePopoverZIndex() {
 }
 
 export type SideModalProps = {
-  title?: string
+  title: string
   subtitle?: ReactNode
   onDismiss: () => void
   isOpen: boolean
@@ -53,7 +53,6 @@ export function SideModal({
   animate = true,
   errors,
 }: SideModalProps) {
-  const titleId = 'side-modal-title'
   const AnimatedDialogContent = animated(Dialog.Content)
 
   const config = { tension: 650, mass: 0.125 }
@@ -81,40 +80,39 @@ export function SideModal({
                 <DialogOverlay />
                 <AnimatedDialogContent
                   className="DialogContent ox-side-modal pointer-events-auto fixed bottom-0 right-0 top-0 z-sideModal m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-raise border-secondary elevation-2"
-                  aria-labelledby={titleId}
                   style={{
                     transform: x.to((value) => `translate3d(${value}%, 0px, 0px)`),
                   }}
+                  // shuts off a warning from radix about dialog content needing a description
+                  aria-describedby={undefined}
                 >
-                  {title && (
-                    <Dialog.Title asChild>
-                      <>
-                        <SideModal.Title id={titleId} title={title} subtitle={subtitle} />
-
-                        {errors && errors.length > 0 && (
-                          <div className="mb-6">
-                            <Message
-                              variant="error"
-                              content={
-                                errors.length === 1 ? (
-                                  errors[0]
-                                ) : (
-                                  <>
-                                    <div>{errors.length} issues:</div>
-                                    <ul className="ml-4 list-disc">
-                                      {errors.map((error, idx) => (
-                                        <li key={idx}>{error}</li>
-                                      ))}
-                                    </ul>
-                                  </>
-                                )
-                              }
-                              title={errors.length > 1 ? 'Errors' : 'Error'}
-                            />
-                          </div>
-                        )}
-                      </>
+                  <div className="items-top mb-4 mt-8">
+                    <Dialog.Title className="flex w-full items-center justify-between break-words pr-8 text-sans-2xl">
+                      {title}
                     </Dialog.Title>
+                    {subtitle}
+                  </div>
+                  {errors && errors.length > 0 && (
+                    <div className="mb-6">
+                      <Message
+                        variant="error"
+                        content={
+                          errors.length === 1 ? (
+                            errors[0]
+                          ) : (
+                            <>
+                              <div>{errors.length} issues:</div>
+                              <ul className="ml-4 list-disc">
+                                {errors.map((error, idx) => (
+                                  <li key={idx}>{error}</li>
+                                ))}
+                              </ul>
+                            </>
+                          )
+                        }
+                        title={errors.length > 1 ? 'Errors' : 'Error'}
+                      />
+                    </div>
                   )}
                   {children}
                 </AnimatedDialogContent>
@@ -127,26 +125,6 @@ export function SideModal({
 }
 
 export const ResourceLabel = classed.h3`mt-2 flex items-center gap-1.5 text-sans-md text-accent`
-
-SideModal.Title = ({
-  title,
-  id,
-  subtitle,
-}: {
-  title: string
-  id?: string
-  subtitle?: ReactNode
-}) => (
-  <div className="items-top mb-4 mt-8">
-    <h2
-      className="flex w-full items-center justify-between break-words pr-8 text-sans-2xl"
-      id={id}
-    >
-      {title}
-    </h2>
-    {subtitle}
-  </div>
-)
 
 // separate component because otherwise eslint thinks it's not a component and
 // gets mad about the use of hooks
