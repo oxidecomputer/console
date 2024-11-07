@@ -200,11 +200,20 @@ test('Identity providers', async ({ page }) => {
   await expect(dialog).toBeVisible()
 
   const nameField = dialog.getByLabel('Name', { exact: true })
-  const acsUrlField = dialog.getByLabel('ACS URL')
+  const acsUrlField = dialog.getByLabel('ACS URL', { exact: true })
 
   await nameField.fill('test-provider')
   // ACS URL should be populated with generated value
   const acsUrl = 'https://maze-war.sys.placeholder/login/maze-war/saml/test-provider'
+  await expect(acsUrlField).toHaveValue(acsUrl)
+
+  // uncheck the box and change the value
+  await dialog.getByRole('checkbox', { name: 'Use standard ACS URL' }).click()
+  await acsUrlField.fill('https://example.com')
+  await expect(acsUrlField).toHaveValue('https://example.com')
+
+  // re-check the box and verify that the value is regenerated
+  await dialog.getByRole('checkbox', { name: 'Use standard ACS URL' }).click()
   await expect(acsUrlField).toHaveValue(acsUrl)
 
   await page.getByRole('button', { name: 'Create provider' }).click()
