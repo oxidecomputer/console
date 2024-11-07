@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
+import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { FileField } from '~/components/form/fields/FileField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -66,14 +67,22 @@ export function CreateIdpSideModalForm() {
   const form = useForm({ defaultValues })
   const name = form.watch('name')
 
+  const acsUrlForm = useForm({ defaultValues: { generateUrl: true } })
+  const generateUrl = acsUrlForm.watch('generateUrl')
+
   useEffect(() => {
     // When creating a SAML identity provider connection, the ACS URL that the user enters
     // should always be of the form: http(s)://<silo>.sys.<suffix>/login/<silo>/saml/<name>
     // where <silo> is the Silo name, <suffix> is the delegated domain assigned to the rack,
     // and <name> is the name of the IdP connection
+    // The user can override this by unchecking the "Automatically generate ACS URL" checkbox
+    // and entering a custom ACS URL, though if they check the box again, we will regenerate
+    // the ACS URL.
     const suffix = getDelegatedDomain(window.location)
-    form.setValue('acsUrl', `https://${silo}.sys.${suffix}/login/${silo}/saml/${name}`)
-  }, [form, name, silo])
+    if (generateUrl) {
+      form.setValue('acsUrl', `https://${silo}.sys.${suffix}/login/${silo}/saml/${name}`)
+    }
+  }, [form, name, silo, generateUrl])
 
   return (
     <SideModalForm
@@ -139,15 +148,25 @@ export function CreateIdpSideModalForm() {
         required
         control={form.control}
       />
-      <TextField
-        name="acsUrl"
-        label="ACS URL"
-        description="Service provider endpoint for the IdP to send the SAML response"
-        required
-        control={form.control}
-        disabled
-        copyable
-      />
+      <div className="flex flex-col gap-2">
+        <TextField
+          name="acsUrl"
+          label="ACS URL"
+          description="Service provider endpoint for the IdP to send the SAML response. Most silos will use the standard URL."
+          required
+          control={form.control}
+          disabled={generateUrl}
+          copyable
+        />
+        <CheckboxField
+          name="generateUrl"
+          checked={generateUrl}
+          control={acsUrlForm.control}
+          onChange={(e) => acsUrlForm.setValue('generateUrl', e.target.checked)}
+        >
+          Use standard ACS URL
+        </CheckboxField>
+      </div>
       <TextField
         name="sloUrl"
         label="Single Logout (SLO) URL"
