@@ -12,6 +12,6 @@ export const DialogOverlay = forwardRef<HTMLDivElement>((_, ref) => (
   <div
     ref={ref}
     aria-hidden
-    className="z-modalOverlay fixed inset-0 overflow-auto bg-scrim"
+    className="fixed inset-0 z-modalOverlay overflow-auto bg-scrim"
   />
 ))
