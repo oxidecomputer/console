@@ -118,14 +118,15 @@ export const routes = createRoutesFromElements(
       // very important. see `currentUserLoader` and `useCurrentUser`
       shouldRevalidate={() => true}
     >
-      <Route path="settings" handle={{ crumb: 'settings' }} element={<SettingsLayout />}>
+      <Route path="settings" handle={{ crumb: 'Settings' }} element={<SettingsLayout />}>
+        <Route index element={<Navigate to="profile" replace />} />
         <Route path="profile" element={<ProfilePage />} handle={{ crumb: 'Profile' }} />
         <Route element={<SSHKeysPage />} loader={SSHKeysPage.loader}>
           <Route path="ssh-keys" handle={{ crumb: 'SSH Keys' }} element={null} />
           <Route
             path="ssh-keys-new"
             element={<CreateSSHKeySideModalForm />}
-            handle={{ crumb: 'New SSH key' }}
+            handle={{ crumb: 'New SSH key', titleOnly: true }}
           />
         </Route>
       </Route>
@@ -147,6 +148,7 @@ export const routes = createRoutesFromElements(
               path="idps/saml/:provider"
               element={<EditIdpSideModalForm />}
               loader={EditIdpSideModalForm.loader}
+              handle={{ crumb: 'Edit Identity Provider', titleOnly: true }}
             />
           </Route>
         </Route>
@@ -164,25 +166,40 @@ export const routes = createRoutesFromElements(
           handle={{ crumb: 'Inventory' }}
         >
           <Route index element={<Navigate to="sleds" replace />} loader={SledsTab.loader} />
-          <Route path="sleds" element={<SledsTab />} loader={SledsTab.loader} />
-          <Route path="disks" element={<DisksTab />} loader={DisksTab.loader} />
+          <Route
+            path="sleds"
+            element={<SledsTab />}
+            handle={{ crumb: 'Sleds' }}
+            loader={SledsTab.loader}
+          />
+          <Route
+            path="disks"
+            element={<DisksTab />}
+            handle={{ crumb: 'Disks' }}
+            loader={DisksTab.loader}
+          />
         </Route>
-        <Route
-          path="inventory/sleds/:sledId"
-          element={<SledPage />}
-          loader={SledPage.loader}
-          handle={{ crumb: 'Sleds' }}
-        >
-          <Route
-            index
-            element={<Navigate to="instances" replace />}
-            loader={SledInstancesTab.loader}
-          />
-          <Route
-            path="instances"
-            element={<SledInstancesTab />}
-            loader={SledInstancesTab.loader}
-          />
+        <Route path="inventory" handle={{ crumb: 'Inventory' }}>
+          <Route path="sleds" handle={{ crumb: 'Sleds' }}>
+            <Route
+              path=":sledId"
+              element={<SledPage />}
+              loader={SledPage.loader}
+              // a crumb for the sled ID looks ridiculous, unfortunately
+            >
+              <Route
+                index
+                element={<Navigate to="instances" replace />}
+                loader={SledInstancesTab.loader}
+              />
+              <Route
+                path="instances"
+                handle={{ crumb: 'Instances' }}
+                element={<SledInstancesTab />}
+                loader={SledInstancesTab.loader}
+              />
+            </Route>
+          </Route>
         </Route>
         <Route path="health" element={null} handle={{ crumb: 'Health' }} />
         <Route path="update" element={null} handle={{ crumb: 'Update' }} />
@@ -210,7 +227,11 @@ export const routes = createRoutesFromElements(
               loader={EditIpPoolSideModalForm.loader}
               handle={{ crumb: 'Edit IP pool' }}
             />
-            <Route path="ranges-add" element={<IpPoolAddRangeSideModalForm />} />
+            <Route
+              path="ranges-add"
+              element={<IpPoolAddRangeSideModalForm />}
+              handle={{ crumb: 'Add Range', titleOnly: true }}
+            />
           </Route>
         </Route>
       </Route>
@@ -231,7 +252,7 @@ export const routes = createRoutesFromElements(
             path=":image/edit"
             element={<EditSiloImageSideModalForm />}
             loader={EditSiloImageSideModalForm.loader}
-            handle={{ crumb: 'Edit Image' }}
+            handle={{ crumb: 'Edit Image', titleOnly: true }}
           />
         </Route>
         <Route
@@ -259,13 +280,13 @@ export const routes = createRoutesFromElements(
           <Route
             path="projects-new"
             element={<CreateProjectSideModalForm />}
-            handle={{ crumb: 'New project' }}
+            handle={{ crumb: 'New project', titleOnly: true }}
           />
           <Route
             path="projects/:project/edit"
             element={<EditProjectSideModalForm />}
             loader={EditProjectSideModalForm.loader}
-            handle={{ crumb: 'Edit project' }}
+            handle={{ crumb: 'Edit project', titleOnly: true }}
           />
         </Route>
 
@@ -345,12 +366,12 @@ export const routes = createRoutesFromElements(
             </Route>
           </Route>
 
-          <Route loader={VpcsPage.loader} element={<VpcsPage />}>
-            <Route path="vpcs" handle={{ crumb: 'VPCs' }} element={null} />
+          <Route loader={VpcsPage.loader} handle={{ crumb: 'VPCs' }} element={<VpcsPage />}>
+            <Route path="vpcs" element={null} />
             <Route
               path="vpcs-new"
               element={<CreateVpcSideModalForm />}
-              handle={{ crumb: 'New VPC' }}
+              handle={{ crumb: 'New VPC', titleOnly: true }}
             />
           </Route>
 
@@ -377,35 +398,45 @@ export const routes = createRoutesFromElements(
                     handle={{ crumb: 'Firewall Rules' }}
                     element={null}
                   />
-                  <Route
-                    path="firewall-rules-new/:rule?"
-                    element={<CreateFirewallRuleForm />}
-                    loader={CreateFirewallRuleForm.loader}
-                    handle={{ crumb: 'New Firewall Rule' }}
-                  />
-                  <Route
-                    path="firewall-rules/:rule/edit"
-                    element={<EditFirewallRuleForm />}
-                    loader={EditFirewallRuleForm.loader}
-                    handle={{ crumb: 'Edit Firewall Rule' }}
-                  />
+                  <Route handle={{ crumb: 'Firewall Rules' }} element={null}>
+                    <Route
+                      path="firewall-rules-new/:rule?"
+                      element={<CreateFirewallRuleForm />}
+                      loader={CreateFirewallRuleForm.loader}
+                      handle={{ crumb: 'New Rule', titleOnly: true }}
+                    />
+                    <Route
+                      path="firewall-rules/:rule/edit"
+                      element={<EditFirewallRuleForm />}
+                      loader={EditFirewallRuleForm.loader}
+                      handle={{ crumb: 'Edit Rule', titleOnly: true }}
+                    />
+                  </Route>
                 </Route>
-                <Route element={<VpcSubnetsTab />} loader={VpcSubnetsTab.loader}>
-                  <Route path="subnets" handle={{ crumb: 'Subnets' }} />
+                <Route
+                  element={<VpcSubnetsTab />}
+                  loader={VpcSubnetsTab.loader}
+                  handle={{ crumb: 'Subnets' }}
+                >
+                  <Route path="subnets" />
                   <Route
                     path="subnets-new"
                     element={<CreateSubnetForm />}
-                    handle={{ crumb: 'New Subnet' }}
+                    handle={{ crumb: 'New Subnet', titleOnly: true }}
                   />
                   <Route
                     path="subnets/:subnet/edit"
                     element={<EditSubnetForm />}
                     loader={EditSubnetForm.loader}
-                    handle={{ crumb: 'Edit Subnet' }}
+                    handle={{ crumb: 'Edit Subnet', titleOnly: true }}
                   />
                 </Route>
-                <Route element={<VpcRoutersTab />} loader={VpcRoutersTab.loader}>
-                  <Route path="routers" handle={{ crumb: 'Routers' }} element={null}>
+                <Route
+                  element={<VpcRoutersTab />}
+                  handle={{ crumb: 'Routers' }}
+                  loader={VpcRoutersTab.loader}
+                >
+                  <Route path="routers" element={null}>
                     <Route
                       path=":router/edit"
                       element={<EditRouterSideModalForm />}
@@ -416,7 +447,7 @@ export const routes = createRoutesFromElements(
                   <Route
                     path="routers-new"
                     element={<CreateRouterSideModalForm />}
-                    handle={{ crumb: 'New Router' }}
+                    handle={{ crumb: 'New Router', titleOnly: true }}
                   />
                 </Route>
               </Route>
@@ -431,34 +462,35 @@ export const routes = createRoutesFromElements(
                   loader={RouterPage.loader}
                   handle={{ crumb: routerCrumb }}
                 >
-                  <Route
-                    element={<RouterPage />}
-                    loader={RouterPage.loader}
-                    handle={{ crumb: 'Routes' }}
-                  >
+                  <Route handle={{ crumb: 'Routes' }}>
+                    <Route index />
                     <Route
                       path="routes-new"
                       element={<CreateRouterRouteSideModalForm />}
                       loader={CreateRouterRouteSideModalForm.loader}
-                      handle={{ crumb: 'New Route' }}
+                      handle={{ crumb: 'New Route', titleOnly: true }}
                     />
                     <Route
                       path="routes/:route/edit"
                       element={<EditRouterRouteSideModalForm />}
                       loader={EditRouterRouteSideModalForm.loader}
-                      handle={{ crumb: 'Edit Route' }}
+                      handle={{ crumb: 'Edit Route', titleOnly: true }}
                     />
                   </Route>
                 </Route>
               </Route>
             </Route>
           </Route>
-          <Route element={<FloatingIpsPage />} loader={FloatingIpsPage.loader}>
-            <Route path="floating-ips" handle={{ crumb: 'Floating IPs' }} element={null} />
+          <Route
+            element={<FloatingIpsPage />}
+            loader={FloatingIpsPage.loader}
+            handle={{ crumb: 'Floating IPs' }}
+          >
+            <Route path="floating-ips" element={null} />
             <Route
               path="floating-ips-new"
               element={<CreateFloatingIpSideModalForm />}
-              handle={{ crumb: 'New Floating IP' }}
+              handle={{ crumb: 'New Floating IP', titleOnly: true }}
             />
             <Route
               path="floating-ips/:floatingIp/edit"
@@ -468,7 +500,12 @@ export const routes = createRoutesFromElements(
             />
           </Route>
 
-          <Route element={<DisksPage />} loader={DisksPage.loader}>
+          <Route
+            element={<DisksPage />}
+            handle={{ crumb: 'Disks' }}
+            loader={DisksPage.loader}
+          >
+            <Route path="disks" element={null} />
             <Route
               path="disks-new"
               element={
@@ -476,39 +513,45 @@ export const routes = createRoutesFromElements(
                 // literally right there
                 <CreateDiskSideModalForm onDismiss={(navigate) => navigate('../disks')} />
               }
-              handle={{ crumb: 'New disk' }}
+              handle={{ crumb: 'New disk', titleOnly: true }}
             />
-
-            <Route path="disks" handle={{ crumb: 'Disks' }} element={null} />
           </Route>
 
-          <Route element={<SnapshotsPage />} loader={SnapshotsPage.loader}>
-            <Route path="snapshots" handle={{ crumb: 'Snapshots' }} element={null} />
+          <Route
+            element={<SnapshotsPage />}
+            handle={{ crumb: 'Snapshots' }}
+            loader={SnapshotsPage.loader}
+          >
+            <Route path="snapshots" element={null} />
             <Route
               path="snapshots-new"
               element={<CreateSnapshotSideModalForm />}
-              handle={{ crumb: 'New snapshot' }}
+              handle={{ crumb: 'New snapshot', titleOnly: true }}
             />
             <Route
               path="snapshots/:snapshot/images-new"
               element={<CreateImageFromSnapshotSideModalForm />}
               loader={CreateImageFromSnapshotSideModalForm.loader}
-              handle={{ crumb: 'Create image from snapshot' }}
+              handle={{ crumb: 'Create image from snapshot', titleOnly: true }}
             />
           </Route>
 
-          <Route element={<ImagesPage />} loader={ImagesPage.loader}>
-            <Route path="images" handle={{ crumb: 'Images' }} element={null} />
+          <Route
+            element={<ImagesPage />}
+            handle={{ crumb: 'Images' }}
+            loader={ImagesPage.loader}
+          >
+            <Route path="images" element={null} />
             <Route
               path="images-new"
-              handle={{ crumb: 'Upload image' }}
+              handle={{ crumb: 'Upload image', titleOnly: true }}
               element={<CreateImageSideModalForm />}
             />
             <Route
               path="images/:image/edit"
               element={<EditProjectImageSideModalForm />}
               loader={EditProjectImageSideModalForm.loader}
-              handle={{ crumb: 'Edit Image' }}
+              handle={{ crumb: 'Edit Image', titleOnly: true }}
             />
           </Route>
           <Route

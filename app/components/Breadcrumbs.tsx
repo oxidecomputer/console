@@ -15,7 +15,7 @@ import { Slash } from '~/ui/lib/Slash'
 import { intersperse } from '~/util/array'
 
 export function Breadcrumbs() {
-  const crumbs = useCrumbs()
+  const crumbs = useCrumbs().filter((c) => !c.titleOnly)
   const isTopLevel = crumbs.length <= 1
   return (
     <nav
