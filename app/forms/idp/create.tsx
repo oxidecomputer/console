@@ -179,6 +179,9 @@ export function CreateIdpSideModalForm() {
         control={form.control}
       />
 
+      <FormDivider />
+
+      <SideModal.Heading>Request signing</SideModal.Heading>
       {/* We don't bother validating that you have both of these or neither even
           though the API requires that because we are going to change the API to
           always require both, at which point these become simple `required` fields */}
@@ -186,7 +189,7 @@ export function CreateIdpSideModalForm() {
         id="public-cert-file-input"
         name="signingKeypair.publicCert"
         description="DER-encoded X.509 certificate"
-        label="Public cert"
+        label="Public certificate"
         control={form.control}
       />
       <FileField
