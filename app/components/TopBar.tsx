@@ -36,7 +36,7 @@ export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
       {/* Height is governed by PageContainer grid */}
       {/* shrink-0 is needed to prevent getting squished by body content */}
       <div className="z-topBar border-b bg-default border-secondary">
-        <div className="mx-3 flex h-[54px] shrink-0 items-center justify-between">
+        <div className="mx-3 flex h-[--top-bar-height] shrink-0 items-center justify-between">
           <Breadcrumbs />
           <div className="flex items-center gap-2">
             <DropdownMenu.Root>

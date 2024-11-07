@@ -44,6 +44,7 @@
 
 :root {
   --content-gutter: 2.5rem;
+  --top-bar-height: 54px;
 }
 
 @layer base {

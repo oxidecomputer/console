@@ -135,7 +135,7 @@ export function SerialConsolePage() {
   }, [canConnect])
 
   return (
-    <div className="!mx-0 flex h-full max-h-[calc(100vh-54px)] !w-full flex-col">
+    <div className="!mx-0 flex h-full max-h-[calc(100vh-var(--top-bar-height))] !w-full flex-col">
       <Link
         to={pb.instance(instanceSelector)}
         className="mx-3 mb-6 mt-3 flex h-10 shrink-0 items-center rounded px-3 bg-accent-secondary"
