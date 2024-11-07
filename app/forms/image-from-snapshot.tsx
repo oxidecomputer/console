@@ -84,6 +84,7 @@ export function CreateImageFromSnapshotSideModalForm() {
         })
       }
       submitError={createImage.error}
+      loading={createImage.isPending}
     >
       <PropertiesTable>
         <PropertiesTable.Row label="Snapshot">{data.name}</PropertiesTable.Row>
