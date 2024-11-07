@@ -152,7 +152,17 @@ export function CreateIdpSideModalForm() {
         <TextField
           name="acsUrl"
           label="ACS URL"
-          description="Service provider endpoint for the IdP to send the SAML response. Most silos will use the standard URL."
+          description={
+            <div className="children:inline-block">
+              <span>
+                Oxide endpoint for the identity provider to send the SAML response.{' '}
+              </span>
+              <span>
+                URL is generated from the current hostname, silo name, and provider name
+                according to a standard format.
+              </span>
+            </div>
+          }
           required
           control={form.control}
           disabled={generateUrl}
