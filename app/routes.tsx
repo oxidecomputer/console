@@ -121,8 +121,12 @@ export const routes = createRoutesFromElements(
       <Route path="settings" handle={{ crumb: 'Settings' }} element={<SettingsLayout />}>
         <Route index element={<Navigate to="profile" replace />} />
         <Route path="profile" element={<ProfilePage />} handle={{ crumb: 'Profile' }} />
-        <Route element={<SSHKeysPage />} loader={SSHKeysPage.loader}>
-          <Route path="ssh-keys" handle={{ crumb: 'SSH Keys' }} element={null} />
+        <Route
+          element={<SSHKeysPage />}
+          loader={SSHKeysPage.loader}
+          handle={{ crumb: 'SSH Keys' }}
+        >
+          <Route path="ssh-keys" element={null} />
           <Route
             path="ssh-keys-new"
             element={<CreateSSHKeySideModalForm />}
@@ -496,7 +500,7 @@ export const routes = createRoutesFromElements(
               path="floating-ips/:floatingIp/edit"
               element={<EditFloatingIpSideModalForm />}
               loader={EditFloatingIpSideModalForm.loader}
-              handle={{ crumb: 'Edit Floating IP' }}
+              handle={{ crumb: 'Edit Floating IP', titleOnly: true }}
             />
           </Route>
 
