@@ -9,5 +9,9 @@
 import { forwardRef } from 'react'
 
 export const DialogOverlay = forwardRef<HTMLDivElement>((_, ref) => (
-  <div ref={ref} aria-hidden className="fixed inset-0 z-10 overflow-auto bg-scrim" />
+  <div
+    ref={ref}
+    aria-hidden
+    className="z-modalOverlay fixed inset-0 overflow-auto bg-scrim"
+  />
 ))
