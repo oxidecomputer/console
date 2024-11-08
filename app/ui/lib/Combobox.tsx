@@ -69,6 +69,7 @@ type ComboboxProps = {
   selectedItemLabel: string
   hasError?: boolean
   onChange: (value: string) => void
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void
   /** Necessary if you want RHF to be able to focus it on error */
   inputRef?: Ref<HTMLInputElement>
 } & ComboboxBaseProps
@@ -85,6 +86,7 @@ export const Combobox = ({
   disabled,
   isLoading,
   onChange,
+  onKeyDown,
   onInputChange,
   allowArbitraryValues = false,
   hideOptionalTag,
@@ -196,6 +198,7 @@ export const Combobox = ({
               // if the parent component wants to know about input changes, call the callback
               onInputChange?.(event.target.value)
             }}
+            onKeyDown={onKeyDown}
             placeholder={placeholder}
             disabled={disabled || isLoading}
             className={cn(

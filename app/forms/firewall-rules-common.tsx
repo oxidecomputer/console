@@ -6,12 +6,13 @@
  * Copyright Oxide Computer Company
  */
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import {
   useController,
   useForm,
   type Control,
   type ControllerRenderProps,
+  type UseFormReturn,
 } from 'react-hook-form'
 
 import {
@@ -91,23 +92,28 @@ const getFilterValueProps = (targetOrHostType: TargetAndHostFilterType) => {
 
 const DynamicTypeAndValueFields = ({
   sectionType,
-  control,
   valueType,
+  form,
   items,
   disabled,
-  onInputChange,
-  onTypeChange,
+  disableClear,
   onSubmitTextField,
 }: {
   sectionType: 'target' | 'host'
-  control: Control<TargetAndHostFormValues>
   valueType: TargetAndHostFilterType
+  form: UseFormReturn<TargetAndHostFormValues>
   items: Array<ComboboxItem>
   disabled?: boolean
-  onInputChange?: (value: string) => void
-  onTypeChange: () => void
-  onSubmitTextField: (e: React.KeyboardEvent<HTMLInputElement>) => void
+  disableClear: boolean
+  onSubmitTextField: (e?: React.KeyboardEvent<HTMLInputElement>) => void
 }) => {
+  const control = form.control
+  // HACK: reset the whole subform, keeping type (because we just set
+  // it). most importantly, this resets isSubmitted so the form can go
+  // back to validating on submit instead of change
+  const onTypeChange = () => form.reset({ type: form.getValues('type'), value: '' })
+  const onInputChange = (value: string) => form.setValue('value', value)
+  const addButtonRef = useRef<HTMLButtonElement>(null)
   return (
     <>
       <ListboxField
@@ -132,6 +138,12 @@ const DynamicTypeAndValueFields = ({
           {...getFilterValueProps(valueType)}
           description="Select an option or enter a custom value"
           control={control}
+          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+            if (e.key === KEYS.enter) {
+              // e.preventDefault() // prevent full form submission
+              addButtonRef.current?.focus() // focus on the mini form's add button
+            }
+          }}
           onInputChange={onInputChange}
           items={items}
           allowArbitraryValues
@@ -162,6 +174,13 @@ const DynamicTypeAndValueFields = ({
           }
         />
       )}
+      <MiniTable.ClearAndAddButtons
+        addButtonCopy={`Add ${sectionType === 'host' ? 'host filter' : 'target'}`}
+        addButtonRef={addButtonRef}
+        disableClear={disableClear}
+        onClear={() => form.reset()}
+        onSubmit={onSubmitTextField}
+      />
     </>
   )
 }
@@ -438,23 +457,11 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
 
       <DynamicTypeAndValueFields
         sectionType="target"
-        control={targetForm.control}
         valueType={targetType}
+        form={targetForm}
         items={toComboboxItems(targetItems[targetType])}
-        // HACK: reset the whole subform, keeping type (because we just set
-        // it). most importantly, this resets isSubmitted so the form can go
-        // back to validating on submit instead of change
-        onTypeChange={() =>
-          targetForm.reset({ type: targetForm.getValues('type'), value: '' })
-        }
-        onInputChange={(value) => targetForm.setValue('value', value)}
-        onSubmitTextField={submitTarget}
-      />
-      <MiniTable.ClearAndAddButtons
-        addButtonCopy="Add target"
         disableClear={!targetValue}
-        onClear={() => targetForm.reset()}
-        onSubmit={submitTarget}
+        onSubmitTextField={submitTarget}
       />
       {!!targets.value.length && <TypeAndValueTable sectionType="target" items={targets} />}
 
@@ -554,21 +561,11 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
       />
       <DynamicTypeAndValueFields
         sectionType="host"
-        control={hostForm.control}
         valueType={hostType}
+        form={hostForm}
         items={toComboboxItems(hostFilterItems[hostType])}
-        // HACK: reset the whole subform, keeping type (because we just set
-        // it). most importantly, this resets isSubmitted so the form can go
-        // back to validating on submit instead of change
-        onTypeChange={() => hostForm.reset({ type: hostForm.getValues('type'), value: '' })}
-        onInputChange={(value) => hostForm.setValue('value', value)}
-        onSubmitTextField={submitHost}
-      />
-      <MiniTable.ClearAndAddButtons
-        addButtonCopy="Add host filter"
         disableClear={!hostValue}
-        onClear={() => hostForm.reset()}
-        onSubmit={submitHost}
+        onSubmitTextField={submitHost}
       />
       {!!hosts.value.length && <TypeAndValueTable sectionType="host" items={hosts} />}
 

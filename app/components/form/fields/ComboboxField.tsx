@@ -32,6 +32,7 @@ export type ComboboxFieldProps<
   name: TName
   control: Control<TFieldValues>
   onChange?: (value: string | null | undefined) => void
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void
   validate?: Validate<FieldPathValue<TFieldValues, TName>, TFieldValues>
 } & ComboboxBaseProps
 
@@ -45,6 +46,7 @@ export function ComboboxField<
   label = capitalize(name),
   required,
   onChange,
+  onKeyDown,
   allowArbitraryValues,
   placeholder,
   // Intent is to not show both a placeholder and a description, while still having good defaults; prefer a description to a placeholder
@@ -87,6 +89,7 @@ export function ComboboxField<
           onChange?.(value)
           setSelectedItemLabel(getSelectedLabelFromValue(items, value))
         }}
+        onKeyDown={onKeyDown}
         allowArbitraryValues={allowArbitraryValues}
         inputRef={field.ref}
         {...props}
