@@ -277,9 +277,8 @@ export function CreateInstanceForm() {
     </>
   )
 
-  const existingDiskNames = allDisks.map((disk) => disk.name)
-  const otherDisks = useWatch({ control, name: 'otherDisks' }).map((disk) => disk.name)
-  const unavailableDiskNames = [...existingDiskNames, ...otherDisks]
+  const otherDisks = useWatch({ control, name: 'otherDisks' })
+  const unavailableDiskNames = otherDisks.map((disk) => disk.name)
 
   return (
     <>

@@ -36,6 +36,7 @@ import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Radio } from '~/ui/lib/Radio'
 import { RadioGroup } from '~/ui/lib/RadioGroup'
 import { Slash } from '~/ui/lib/Slash'
+import { ALL_ISH } from '~/util/consts'
 import { toLocaleDateString } from '~/util/date'
 import { bytesToGiB, GiB } from '~/util/units'
 
@@ -64,17 +65,25 @@ type CreateSideModalFormProps = {
    */
   onDismiss: (navigate: NavigateFunction) => void
   onSuccess?: (disk: Disk) => void
-  unavailableDiskNames: string[]
+  unavailableDiskNames?: string[]
 }
 
 export function CreateDiskSideModalForm({
   onSubmit,
   onSuccess,
   onDismiss,
-  unavailableDiskNames,
+  unavailableDiskNames = [],
 }: CreateSideModalFormProps) {
   const queryClient = useApiQueryClient()
   const navigate = useNavigate()
+
+  const { project } = useProjectSelector()
+  const { data: allDisks } = useApiQuery('diskList', { query: { project, limit: ALL_ISH } })
+  // There might be duplicates here, but that's fine; inclides() will early return on the first match
+  const allUnavailableDiskNames = [
+    ...(allDisks?.items.map((d) => d.name) || []),
+    ...unavailableDiskNames,
+  ]
 
   const createDisk = useApiMutation('diskCreate', {
     onSuccess(data) {
@@ -86,7 +95,6 @@ export function CreateDiskSideModalForm({
   })
 
   const form = useForm({ defaultValues })
-  const { project } = useProjectSelector()
   const projectImages = useApiQuery('imageList', { query: { project } })
   const siloImages = useApiQuery('imageList', {})
 
@@ -138,7 +146,7 @@ export function CreateDiskSideModalForm({
         name="name"
         control={form.control}
         validate={(name: string) => {
-          if (unavailableDiskNames.includes(name)) {
+          if (allUnavailableDiskNames.includes(name)) {
             return 'Name is already in use'
           }
         }}
