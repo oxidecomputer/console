@@ -156,7 +156,6 @@ export function CreateIdpSideModalForm() {
             <code>
               /login/{silo}/saml/{name.trim() || 'idp-name'}
             </code>
-            .
           </>
         }
       />
