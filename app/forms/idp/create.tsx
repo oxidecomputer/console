@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
@@ -18,12 +19,16 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { useSiloSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { Checkbox } from '~/ui/lib/Checkbox'
 import { FormDivider } from '~/ui/lib/Divider'
+import { Message } from '~/ui/lib/Message'
 import { SideModal } from '~/ui/lib/SideModal'
 import { readBlobAsBase64 } from '~/util/file'
+import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 import { MetadataSourceField, type IdpCreateFormValues } from './shared'
+import { getDelegatedDomain } from './util'
 
 const defaultValues: IdpCreateFormValues = {
   type: 'saml',
@@ -62,6 +67,23 @@ export function CreateIdpSideModalForm() {
   })
 
   const form = useForm({ defaultValues })
+  const name = form.watch('name')
+
+  const [generateUrl, setGenerateUrl] = useState(true)
+
+  useEffect(() => {
+    // When creating a SAML identity provider connection, the ACS URL that the user enters
+    // should always be of the form: http(s)://<silo>.sys.<suffix>/login/<silo>/saml/<name>
+    // where <silo> is the Silo name, <suffix> is the delegated domain assigned to the rack,
+    // and <name> is the name of the IdP connection
+    // The user can override this by unchecking the "Automatically generate ACS URL" checkbox
+    // and entering a custom ACS URL, though if they check the box again, we will regenerate
+    // the ACS URL.
+    const suffix = getDelegatedDomain(window.location)
+    if (generateUrl) {
+      form.setValue('acsUrl', `https://${silo}.sys.${suffix}/login/${silo}/saml/${name}`)
+    }
+  }, [form, name, silo, generateUrl])
 
   return (
     <SideModalForm
@@ -108,7 +130,35 @@ export function CreateIdpSideModalForm() {
       submitError={createIdp.error}
       submitLabel="Create provider"
     >
-      <NameField name="name" control={form.control} />
+      <Message
+        content={
+          <>
+            Read the{' '}
+            <a
+              href={links.identityProvidersDocs}
+              className="underline"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Rack Configuration
+            </a>{' '}
+            guide to learn more about setting up an identity provider.
+          </>
+        }
+      />
+      <NameField
+        name="name"
+        control={form.control}
+        description={
+          <>
+            A short name for the provider in our system. Users will see it in the path to
+            the login page:{' '}
+            <code>
+              /login/{silo}/saml/{name.trim() || 'idp-name'}
+            </code>
+          </>
+        }
+      />
       <DescriptionField name="description" control={form.control} required />
       <TextField
         name="technicalContactEmail"
@@ -127,13 +177,30 @@ export function CreateIdpSideModalForm() {
         required
         control={form.control}
       />
-      <TextField
-        name="acsUrl"
-        label="ACS URL"
-        description="Service provider endpoint for the IdP to send the SAML response"
-        required
-        control={form.control}
-      />
+      <div className="flex flex-col gap-2">
+        <TextField
+          name="acsUrl"
+          label="ACS URL"
+          description={
+            <div className="children:inline-block">
+              <span>
+                Oxide endpoint for the identity provider to send the SAML response.{' '}
+              </span>
+              <span>
+                URL is generated from the current hostname, silo name, and provider name
+                according to a standard format.
+              </span>
+            </div>
+          }
+          required
+          control={form.control}
+          disabled={generateUrl}
+          copyable
+        />
+        <Checkbox checked={generateUrl} onChange={(e) => setGenerateUrl(e.target.checked)}>
+          Use standard ACS URL
+        </Checkbox>
+      </div>
       <TextField
         name="sloUrl"
         label="Single Logout (SLO) URL"
@@ -142,6 +209,9 @@ export function CreateIdpSideModalForm() {
         control={form.control}
       />
 
+      <FormDivider />
+
+      <SideModal.Heading>Request signing</SideModal.Heading>
       {/* We don't bother validating that you have both of these or neither even
           though the API requires that because we are going to change the API to
           always require both, at which point these become simple `required` fields */}
@@ -149,7 +219,7 @@ export function CreateIdpSideModalForm() {
         id="public-cert-file-input"
         name="signingKeypair.publicCert"
         description="DER-encoded X.509 certificate"
-        label="Public cert"
+        label="Public certificate"
         control={form.control}
       />
       <FileField

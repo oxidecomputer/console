@@ -58,6 +58,7 @@ export function EditIdpSideModalForm() {
       }
       // TODO: pass actual error when this form is hooked up
       submitError={null}
+      loading={false}
     >
       <PropertiesTable>
         <PropertiesTable.Row label="ID">
@@ -79,6 +80,7 @@ export function EditIdpSideModalForm() {
         required
         control={form.control}
         disabled
+        copyable
       />
 
       <FormDivider />

@@ -17,7 +17,11 @@ export function Default() {
   return (
     <>
       <Button onClick={() => setIsOpen(true)}>Open menu</Button>
-      <SideModal isOpen={isOpen} onDismiss={() => setIsOpen(false)}>
+      <SideModal
+        title="Create something"
+        isOpen={isOpen}
+        onDismiss={() => setIsOpen(false)}
+      >
         <SideModal.Body>
           <SideModal.Section>Section content</SideModal.Section>
           <SideModal.Section>

@@ -86,6 +86,7 @@ export function EditImageSideModalForm({
       }
       // TODO: pass actual error when this form is hooked up
       submitError={null}
+      loading={false}
     >
       <PropertiesTable>
         <PropertiesTable.Row label="Shared with">{type}</PropertiesTable.Row>

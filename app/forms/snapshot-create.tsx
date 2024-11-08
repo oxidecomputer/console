@@ -72,6 +72,7 @@ export function CreateSnapshotSideModalForm() {
         createSnapshot.mutate({ query: projectSelector, body: values })
       }}
       submitError={createSnapshot.error}
+      loading={createSnapshot.isPending}
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
