@@ -6,13 +6,8 @@
  * Copyright Oxide Computer Company
  */
 
-import { useEffect, useRef } from 'react'
-import {
-  useController,
-  useForm,
-  type Control,
-  type ControllerRenderProps,
-} from 'react-hook-form'
+import { useEffect, useRef, type ReactNode } from 'react'
+import { useController, useForm, type Control } from 'react-hook-form'
 
 import {
   usePrefetchedApiQuery,
@@ -55,7 +50,7 @@ import { type FirewallRuleValues } from './firewall-rules-util'
  * a few sub-sections (Ports, Protocols, and Hosts).
  *
  * The Targets section and the Filters:Hosts section are very similar, so we've
- * pulled common code to the DynamicTypeAndValueFields components.
+ * pulled common code to the TargetAndHostFilterSubform components.
  * We also then set up the Targets / Ports / Hosts variables at the top of the
  * CommonFields component.
  */
@@ -89,12 +84,14 @@ const getFilterValueProps = (targetOrHostType: TargetAndHostFilterType) => {
   }
 }
 
-const DynamicTypeAndValueFields = ({
+const TargetAndHostFilterSubform = ({
   sectionType,
   control,
+  messageContent,
 }: {
   sectionType: 'target' | 'host'
   control: Control<FirewallRuleValues>
+  messageContent: ReactNode
 }) => {
   const { project, vpc } = useVpcSelector()
   // prefetchedApiQueries below are prefetched in firewall-rules-create and -edit
@@ -134,8 +131,7 @@ const DynamicTypeAndValueFields = ({
     if (subformSubmitSuccessful) subform.reset(targetAndHostDefaultValues)
   }, [subformSubmitSuccessful, subform])
 
-  const valueType = subform.watch('type')
-  const value = subform.watch('value')
+  const [valueType, value] = subform.watch(['type', 'value'])
   const sectionItems = {
     vpc: availableItems(field.value, 'vpc', vpcs),
     subnet: availableItems(field.value, 'subnet', vpcSubnets),
@@ -153,6 +149,11 @@ const DynamicTypeAndValueFields = ({
   const addButtonRef = useRef<HTMLButtonElement>(null)
   return (
     <>
+      <SideModal.Heading>
+        {sectionType === 'target' ? 'Targets' : 'Host filters'}
+      </SideModal.Heading>
+
+      <Message variant="info" content={messageContent} />
       <ListboxField
         name="type"
         label={`${capitalize(sectionType)} type`}
@@ -220,52 +221,44 @@ const DynamicTypeAndValueFields = ({
         onSubmit={submitSubform}
       />
       {!!field.value.length && (
-        <TypeAndValueTable sectionType={sectionType} items={field} />
+        <MiniTable.Table
+          className="mb-4"
+          aria-label={sectionType === 'target' ? 'Targets' : 'Host filters'}
+        >
+          <MiniTable.Header>
+            <MiniTable.HeadCell>Type</MiniTable.HeadCell>
+            <MiniTable.HeadCell>Value</MiniTable.HeadCell>
+            {/* For remove button */}
+            <MiniTable.HeadCell className="w-12" />
+          </MiniTable.Header>
+          <MiniTable.Body>
+            {field.value.map(({ type, value }, index) => (
+              <MiniTable.Row
+                tabIndex={0}
+                aria-rowindex={index + 1}
+                aria-label={`Name: ${value}, Type: ${type}`}
+                key={`${type}|${value}`}
+              >
+                <MiniTable.Cell>
+                  <Badge variant="solid">{type}</Badge>
+                </MiniTable.Cell>
+                <MiniTable.Cell>{value}</MiniTable.Cell>
+                <MiniTable.RemoveCell
+                  onClick={() =>
+                    field.onChange(
+                      field.value.filter((i) => !(i.value === value && i.type === type))
+                    )
+                  }
+                  label={`remove ${sectionType} ${value}`}
+                />
+              </MiniTable.Row>
+            ))}
+          </MiniTable.Body>
+        </MiniTable.Table>
       )}
     </>
   )
 }
-
-type TypeAndValueTableProps = {
-  sectionType: 'target' | 'host'
-  items: ControllerRenderProps<FirewallRuleValues, 'targets' | 'hosts'>
-}
-const TypeAndValueTable = ({ sectionType, items }: TypeAndValueTableProps) => (
-  <MiniTable.Table
-    className="mb-4"
-    aria-label={sectionType === 'target' ? 'Targets' : 'Host filters'}
-  >
-    <MiniTable.Header>
-      <MiniTable.HeadCell>Type</MiniTable.HeadCell>
-      <MiniTable.HeadCell>Value</MiniTable.HeadCell>
-      {/* For remove button */}
-      <MiniTable.HeadCell className="w-12" />
-    </MiniTable.Header>
-    <MiniTable.Body>
-      {items.value.map(({ type, value }, index) => (
-        <MiniTable.Row
-          tabIndex={0}
-          aria-rowindex={index + 1}
-          aria-label={`Name: ${value}, Type: ${type}`}
-          key={`${type}|${value}`}
-        >
-          <MiniTable.Cell>
-            <Badge variant="solid">{type}</Badge>
-          </MiniTable.Cell>
-          <MiniTable.Cell>{value}</MiniTable.Cell>
-          <MiniTable.RemoveCell
-            onClick={() =>
-              items.onChange(
-                items.value.filter((i) => !(i.value === value && i.type === type))
-              )
-            }
-            label={`remove ${sectionType} ${value}`}
-          />
-        </MiniTable.Row>
-      ))}
-    </MiniTable.Body>
-  </MiniTable.Table>
-)
 
 /** Given an array of *committed* items (VPCs, Subnets, Instances) and a list of *all* items,
  *  return the items that are available */
@@ -402,13 +395,10 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
 
       <FormDivider />
 
-      {/* Really this should be its own <form>, but you can't have a form inside a form,
-          so we just stick the submit handler in a button onClick */}
-      <SideModal.Heading>Targets</SideModal.Heading>
-
-      <Message
-        variant="info"
-        content={
+      <TargetAndHostFilterSubform
+        sectionType="target"
+        control={control}
+        messageContent={
           <>
             <p>
               Targets determine the instances to which this rule applies. You can target
@@ -422,7 +412,6 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           </>
         }
       />
-      <DynamicTypeAndValueFields sectionType="target" control={control} />
 
       <FormDivider />
 
@@ -506,11 +495,10 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
 
       <FormDivider />
 
-      <SideModal.Heading>Host filters</SideModal.Heading>
-
-      <Message
-        variant="info"
-        content={
+      <TargetAndHostFilterSubform
+        sectionType="host"
+        control={control}
+        messageContent={
           <>
             Host filters match the &ldquo;other end&rdquo; of traffic from the
             target&rsquo;s perspective: for an inbound rule, they match the source of
@@ -518,7 +506,6 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           </>
         }
       />
-      <DynamicTypeAndValueFields sectionType="host" control={control} />
 
       {error && (
         <>
