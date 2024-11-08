@@ -5,13 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
-import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { FileField } from '~/components/form/fields/FileField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -20,6 +19,7 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { useSiloSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { Checkbox } from '~/ui/lib/Checkbox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { SideModal } from '~/ui/lib/SideModal'
 import { readBlobAsBase64 } from '~/util/file'
@@ -67,8 +67,7 @@ export function CreateIdpSideModalForm() {
   const form = useForm({ defaultValues })
   const name = form.watch('name')
 
-  const acsUrlForm = useForm({ defaultValues: { generateUrl: true } })
-  const generateUrl = acsUrlForm.watch('generateUrl')
+  const [generateUrl, setGenerateUrl] = useState(true)
 
   useEffect(() => {
     // When creating a SAML identity provider connection, the ACS URL that the user enters
@@ -168,14 +167,9 @@ export function CreateIdpSideModalForm() {
           disabled={generateUrl}
           copyable
         />
-        <CheckboxField
-          name="generateUrl"
-          checked={generateUrl}
-          control={acsUrlForm.control}
-          onChange={(e) => acsUrlForm.setValue('generateUrl', e.target.checked)}
-        >
+        <Checkbox checked={generateUrl} onChange={(e) => setGenerateUrl(e.target.checked)}>
           Use standard ACS URL
-        </CheckboxField>
+        </Checkbox>
       </div>
       <TextField
         name="sloUrl"
