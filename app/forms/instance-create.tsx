@@ -277,6 +277,10 @@ export function CreateInstanceForm() {
     </>
   )
 
+  const existingDiskNames = allDisks.map((disk) => disk.name)
+  const otherDisks = useWatch({ control, name: 'otherDisks' }).map((disk) => disk.name)
+  const unavailableDiskNames = [...existingDiskNames, ...otherDisks]
+
   return (
     <>
       <PageHeader>
@@ -561,7 +565,11 @@ export function CreateInstanceForm() {
         </Tabs.Root>
         <FormDivider />
         <Form.Heading id="additional-disks">Additional disks</Form.Heading>
-        <DisksTableField control={control} disabled={isSubmitting} />
+        <DisksTableField
+          control={control}
+          disabled={isSubmitting}
+          unavailableDiskNames={unavailableDiskNames}
+        />
         <FormDivider />
         <Form.Heading id="authentication">Authentication</Form.Heading>
         <SshKeysField control={control} isSubmitting={isSubmitting} />

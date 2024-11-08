@@ -510,11 +510,19 @@ test('create instance with additional disks', async ({ page }) => {
   await page.getByRole('button', { name: 'Create new disk' }).click()
 
   const createForm = page.getByRole('dialog', { name: 'Create disk' })
-  await createForm.getByRole('textbox', { name: 'Name', exact: true }).fill('new-disk-1')
+
+  // verify that an existing name can't be used
+  await createForm.getByRole('textbox', { name: 'Name', exact: true }).fill('disk-6')
   await createForm.getByRole('textbox', { name: 'Size (GiB)' }).fill('5')
+  await createForm.getByRole('button', { name: 'Create disk' }).click()
+  await expect(createForm.getByText('Name is already in use')).toBeVisible()
+
+  // rename that failed disk
+  await createForm.getByRole('textbox', { name: 'Name', exact: true }).fill('new-disk-1')
   await createForm.getByRole('button', { name: 'Create disk' }).click()
 
   const disksTable = page.getByRole('table', { name: 'Disks' })
+  await expect(disksTable.getByText('disk-6')).toBeHidden()
   await expectRowVisible(disksTable, { Name: 'new-disk-1', Type: 'create', Size: '5GiB' })
 
   // Attach an existing disk

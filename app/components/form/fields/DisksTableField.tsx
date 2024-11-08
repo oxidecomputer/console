@@ -30,9 +30,11 @@ export type DiskTableItem =
 export function DisksTableField({
   control,
   disabled,
+  unavailableDiskNames,
 }: {
   control: Control<InstanceCreateInput>
   disabled: boolean
+  unavailableDiskNames: string[]
 }) {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
   const [showDiskAttach, setShowDiskAttach] = useState(false)
@@ -108,6 +110,7 @@ export function DisksTableField({
             onChange([...items, { type: 'create', ...values }])
             setShowDiskCreate(false)
           }}
+          unavailableDiskNames={unavailableDiskNames}
           onDismiss={() => setShowDiskCreate(false)}
         />
       )}
