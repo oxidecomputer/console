@@ -89,7 +89,7 @@ export const genName = (...parts: [string, ...string[]]) => {
   )
 }
 
-const instanceActions: Record<string, InstanceState[]> = {
+const instanceActions = {
   // NoVmm maps to to Stopped:
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-model/src/instance_state.rs#L55
 
@@ -120,12 +120,12 @@ const instanceActions: Record<string, InstanceState[]> = {
   updateNic: ['stopped'],
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/src/app/instance.rs#L1520-L1522
   serialConsole: ['running', 'rebooting', 'migrating', 'repairing'],
-}
+} satisfies Record<string, InstanceState[]>
 
 // setting .states is a cute way to make it ergonomic to call the test function
 // while also making the states available directly
 
-export const instanceCan = R.mapValues(instanceActions, (states) => {
+export const instanceCan = R.mapValues(instanceActions, (states: InstanceState[]) => {
   const test = (i: { runState: InstanceState }) => states.includes(i.runState)
   test.states = states
   return test
@@ -140,7 +140,7 @@ export function instanceTransitioning({ runState }: Instance) {
   )
 }
 
-const diskActions: Record<string, DiskState['state'][]> = {
+const diskActions = {
   // this is a weird one because the list of states is dynamic and it includes
   // 'creating' in the unwind of the disk create saga, but does not include
   // 'creating' in the disk delete saga, which is what we care about
@@ -154,9 +154,9 @@ const diskActions: Record<string, DiskState['state'][]> = {
   detach: ['attached'],
   // https://github.com/oxidecomputer/omicron/blob/3093818/nexus/db-queries/src/db/datastore/instance.rs#L1077-L1081
   setAsBootDisk: ['attached'],
-}
+} satisfies Record<string, DiskState['state'][]>
 
-export const diskCan = R.mapValues(diskActions, (states) => {
+export const diskCan = R.mapValues(diskActions, (states: DiskState['state'][]) => {
   // only have to Pick because we want this to work for both Disk and
   // Json<Disk>, which we pass to it in the MSW handlers
   const test = (d: Pick<Disk, 'state'>) => states.includes(d.state.state)

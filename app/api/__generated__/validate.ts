@@ -1646,6 +1646,14 @@ export const ImportBlocksBulkWrite = z.preprocess(
 )
 
 /**
+ * A policy determining when an instance should be automatically restarted by the control plane.
+ */
+export const InstanceAutoRestartPolicy = z.preprocess(
+  processResponseBody,
+  z.enum(['never', 'best_effort'])
+)
+
+/**
  * The number of CPUs in an Instance
  */
 export const InstanceCpuCount = z.preprocess(
@@ -1682,6 +1690,7 @@ export const Instance = z.preprocess(
   z.object({
     autoRestartCooldownExpiration: z.coerce.date().optional(),
     autoRestartEnabled: SafeBoolean,
+    autoRestartPolicy: InstanceAutoRestartPolicy.optional(),
     bootDiskId: z.string().uuid().optional(),
     description: z.string(),
     hostname: z.string(),
@@ -1696,14 +1705,6 @@ export const Instance = z.preprocess(
     timeModified: z.coerce.date(),
     timeRunStateUpdated: z.coerce.date(),
   })
-)
-
-/**
- * A policy determining when an instance should be automatically restarted by the control plane.
- */
-export const InstanceAutoRestartPolicy = z.preprocess(
-  processResponseBody,
-  z.enum(['never', 'best_effort'])
 )
 
 /**
@@ -1852,7 +1853,105 @@ export const InstanceSerialConsoleData = z.preprocess(
  */
 export const InstanceUpdate = z.preprocess(
   processResponseBody,
-  z.object({ bootDisk: NameOrId.optional() })
+  z.object({
+    autoRestartPolicy: InstanceAutoRestartPolicy.optional(),
+    bootDisk: NameOrId.optional(),
+  })
+)
+
+/**
+ * An internet gateway provides a path between VPC networks and external networks.
+ */
+export const InternetGateway = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    id: z.string().uuid(),
+    name: Name,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+    vpcId: z.string().uuid(),
+  })
+)
+
+/**
+ * Create-time parameters for an `InternetGateway`
+ */
+export const InternetGatewayCreate = z.preprocess(
+  processResponseBody,
+  z.object({ description: z.string(), name: Name })
+)
+
+/**
+ * An IP address that is attached to an internet gateway
+ */
+export const InternetGatewayIpAddress = z.preprocess(
+  processResponseBody,
+  z.object({
+    address: z.string().ip(),
+    description: z.string(),
+    id: z.string().uuid(),
+    internetGatewayId: z.string().uuid(),
+    name: Name,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
+)
+
+/**
+ * Create-time identity-related parameters
+ */
+export const InternetGatewayIpAddressCreate = z.preprocess(
+  processResponseBody,
+  z.object({ address: z.string().ip(), description: z.string(), name: Name })
+)
+
+/**
+ * A single page of results
+ */
+export const InternetGatewayIpAddressResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: InternetGatewayIpAddress.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * An IP pool that is attached to an internet gateway
+ */
+export const InternetGatewayIpPool = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    id: z.string().uuid(),
+    internetGatewayId: z.string().uuid(),
+    ipPoolId: z.string().uuid(),
+    name: Name,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
+)
+
+/**
+ * Create-time identity-related parameters
+ */
+export const InternetGatewayIpPoolCreate = z.preprocess(
+  processResponseBody,
+  z.object({ description: z.string(), ipPool: NameOrId, name: Name })
+)
+
+/**
+ * A single page of results
+ */
+export const InternetGatewayIpPoolResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: InternetGatewayIpPool.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * A single page of results
+ */
+export const InternetGatewayResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: InternetGateway.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -2041,6 +2140,20 @@ export const LinkSpeed = z.preprocess(
 )
 
 /**
+ * Per-port tx-eq overrides.  This can be used to fine-tune the transceiver equalization settings to improve signal integrity.
+ */
+export const TxEqConfig = z.preprocess(
+  processResponseBody,
+  z.object({
+    main: z.number().min(-2147483647).max(2147483647).optional(),
+    post1: z.number().min(-2147483647).max(2147483647).optional(),
+    post2: z.number().min(-2147483647).max(2147483647).optional(),
+    pre1: z.number().min(-2147483647).max(2147483647).optional(),
+    pre2: z.number().min(-2147483647).max(2147483647).optional(),
+  })
+)
+
+/**
  * Switch link configuration.
  */
 export const LinkConfigCreate = z.preprocess(
@@ -2051,6 +2164,7 @@ export const LinkConfigCreate = z.preprocess(
     lldp: LldpLinkConfigCreate,
     mtu: z.number().min(0).max(65535),
     speed: LinkSpeed,
+    txEq: TxEqConfig.optional(),
   })
 )
 
@@ -2483,7 +2597,7 @@ export const Route = z.preprocess(
   z.object({
     dst: IpNet,
     gw: z.string().ip(),
-    localPref: z.number().min(0).max(4294967295).optional(),
+    ribPriority: z.number().min(0).max(255).optional(),
     vid: z.number().min(0).max(65535).optional(),
   })
 )
@@ -3118,6 +3232,7 @@ export const SwitchPortLinkConfig = z.preprocess(
     mtu: z.number().min(0).max(65535),
     portSettingsId: z.string().uuid(),
     speed: LinkSpeed,
+    txEqConfigId: z.string().uuid().optional(),
   })
 )
 
@@ -3138,8 +3253,8 @@ export const SwitchPortRouteConfig = z.preprocess(
     dst: IpNet,
     gw: IpNet,
     interfaceName: z.string(),
-    localPref: z.number().min(0).max(4294967295).optional(),
     portSettingsId: z.string().uuid(),
+    ribPriority: z.number().min(0).max(255).optional(),
     vlanId: z.number().min(0).max(65535).optional(),
   })
 )
@@ -3215,6 +3330,7 @@ export const SwitchPortSettingsView = z.preprocess(
     port: SwitchPortConfig,
     routes: SwitchPortRouteConfig.array(),
     settings: SwitchPortSettings,
+    txEq: TxEqConfig.array(),
     vlanInterfaces: SwitchVlanInterfaceConfig.array(),
   })
 )
@@ -4344,6 +4460,142 @@ export const InstanceStopParams = z.preprocess(
     }),
     query: z.object({
       project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InternetGatewayIpAddressListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      gateway: NameOrId.optional(),
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InternetGatewayIpAddressCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      gateway: NameOrId,
+      project: NameOrId.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InternetGatewayIpAddressDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      address: NameOrId,
+    }),
+    query: z.object({
+      cascade: SafeBoolean.optional(),
+      gateway: NameOrId.optional(),
+      project: NameOrId.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InternetGatewayIpPoolListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      gateway: NameOrId.optional(),
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InternetGatewayIpPoolCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      gateway: NameOrId,
+      project: NameOrId.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InternetGatewayIpPoolDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+    }),
+    query: z.object({
+      cascade: SafeBoolean.optional(),
+      gateway: NameOrId.optional(),
+      project: NameOrId.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InternetGatewayListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InternetGatewayCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      project: NameOrId.optional(),
+      vpc: NameOrId,
+    }),
+  })
+)
+
+export const InternetGatewayViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      gateway: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InternetGatewayDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      gateway: NameOrId,
+    }),
+    query: z.object({
+      cascade: SafeBoolean.optional(),
+      project: NameOrId.optional(),
+      vpc: NameOrId.optional(),
     }),
   })
 )

@@ -186,6 +186,10 @@ test('Identity providers', async ({ page }) => {
     'text="Single Logout (SLO) URL"',
   ])
 
+  await expect(page.getByRole('textbox', { name: 'Group attribute name' })).toHaveValue(
+    'groups'
+  )
+
   await page.getByRole('button', { name: 'Cancel' }).click()
   await expectNotVisible(page, ['role=dialog[name="Identity provider"]'])
 })

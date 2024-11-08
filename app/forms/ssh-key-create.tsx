@@ -14,6 +14,7 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { HL } from '~/components/HL'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 
@@ -35,10 +36,10 @@ export function CreateSSHKeySideModalForm({ onDismiss, message }: Props) {
   const handleDismiss = onDismiss ? onDismiss : () => navigate(pb.sshKeys())
 
   const createSshKey = useApiMutation('currentUserSshKeyCreate', {
-    onSuccess() {
+    onSuccess(sshKey) {
       queryClient.invalidateQueries('currentUserSshKeyList')
       handleDismiss()
-      addToast({ content: 'Your SSH key has been created' })
+      addToast(<>SSH key <HL>{sshKey.name}</HL> created</>) // prettier-ignore
     },
   })
   const form = useForm({ defaultValues })

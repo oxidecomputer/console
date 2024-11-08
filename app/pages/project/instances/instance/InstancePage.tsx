@@ -26,6 +26,7 @@ import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { InstanceStateBadge } from '~/components/StateBadge'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { EmptyCell } from '~/table/cells/EmptyCell'
+import { Button } from '~/ui/lib/Button'
 import { DateTime } from '~/ui/lib/DateTime'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
@@ -92,7 +93,8 @@ export function InstancePage() {
   const instanceSelector = useInstanceSelector()
 
   const navigate = useNavigate()
-  const makeActions = useMakeInstanceActions(instanceSelector, {
+
+  const { makeButtonActions, makeMenuActions } = useMakeInstanceActions(instanceSelector, {
     onSuccess: refreshData,
     // go to project instances list since there's no more instance
     onDelete: () => {
@@ -132,7 +134,7 @@ export function InstancePage() {
     { enabled: !!primaryVpcId }
   )
 
-  const actions = useMemo(
+  const allMenuActions = useMemo(
     () => [
       {
         label: 'Copy ID',
@@ -140,9 +142,9 @@ export function InstancePage() {
           window.navigator.clipboard.writeText(instance.id || '')
         },
       },
-      ...makeActions(instance),
+      ...makeMenuActions(instance),
     ],
-    [instance, makeActions]
+    [instance, makeMenuActions]
   )
 
   const memory = filesize(instance.memory, { output: 'object', base: 2 })
@@ -152,9 +154,23 @@ export function InstancePage() {
       <PageHeader>
         <PageTitle icon={<Instances24Icon />}>{instance.name}</PageTitle>
         <div className="inline-flex gap-2">
-          <InstanceDocsPopover />
           <RefreshButton onClick={refreshData} />
-          <MoreActionsMenu label="Instance actions" actions={actions} />
+          <InstanceDocsPopover />
+          <div className="flex space-x-2 border-l pl-2 border-default">
+            {makeButtonActions(instance).map((action) => (
+              <Button
+                key={action.label}
+                variant="ghost"
+                size="sm"
+                onClick={action.onActivate}
+                disabled={!!action.disabled}
+                disabledReason={action.disabled}
+              >
+                {action.label}
+              </Button>
+            ))}
+          </div>
+          <MoreActionsMenu label="Instance actions" actions={allMenuActions} />
         </div>
       </PageHeader>
       <PropertiesTable.Group className="-mt-8 mb-16">
@@ -182,7 +198,7 @@ export function InstancePage() {
           <PropertiesTable.Row label="vpc">
             {vpc ? (
               <Link
-                className="link-with-underline group text-sans-semi-md"
+                className="link-with-underline group text-sans-md"
                 to={pb.vpc({ project: instanceSelector.project, vpc: vpc.name })}
               >
                 {vpc.name}

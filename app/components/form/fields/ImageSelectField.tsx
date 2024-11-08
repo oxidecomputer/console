@@ -10,12 +10,12 @@ import { useController, type Control } from 'react-hook-form'
 import type { Image } from '@oxide/api'
 
 import type { InstanceCreateInput } from '~/forms/instance-create'
-import type { ListboxItem } from '~/ui/lib/Listbox'
+import type { ComboboxItem } from '~/ui/lib/Combobox'
 import { Slash } from '~/ui/lib/Slash'
 import { nearest10 } from '~/util/math'
 import { bytesToGiB, GiB } from '~/util/units'
 
-import { ListboxField } from './ListboxField'
+import { ComboboxField } from './ComboboxField'
 
 type ImageSelectFieldProps = {
   images: Image[]
@@ -32,18 +32,22 @@ export function BootDiskImageSelectField({
 }: ImageSelectFieldProps) {
   const diskSizeField = useController({ control, name: 'bootDiskSize' }).field
   return (
-    // This should be migrated to a `ComboboxField` (and with a `toComboboxItem`), once
-    // we have a combobox that supports more elaborate labels (beyond just strings).
-    <ListboxField
+    <ComboboxField
       disabled={disabled}
       control={control}
       name={name}
       label="Image"
-      placeholder="Select an image"
-      items={images.map((i) => toListboxItem(i))}
+      placeholder={
+        name === 'siloImageSource' ? 'Select a silo image' : 'Select a project image'
+      }
+      items={images.map((i) => toImageComboboxItem(i))}
       required
       onChange={(id) => {
-        const image = images.find((i) => i.id === id)! // if it's selected, it must be present
+        const image = images.find((i) => i.id === id)
+        // the most likely scenario where image would be undefined is if the user has
+        // manually cleared the ComboboxField; they will need to pick a boot disk image
+        // in order to submit the form, so we don't need to do anything here
+        if (!image) return
         const imageSizeGiB = image.size / GiB
         if (diskSizeField.value < imageSizeGiB) {
           diskSizeField.onChange(nearest10(imageSizeGiB))
@@ -53,24 +57,18 @@ export function BootDiskImageSelectField({
   )
 }
 
-export function toListboxItem(i: Image, includeProjectSiloIndicator = false): ListboxItem {
-  const { name, os, projectId, size, version } = i
-  const formattedSize = `${bytesToGiB(size, 1)} GiB`
-
-  // filter out any undefined metadata and create a comma-separated list
-  // for the selected listbox item (shown in selectedLabel)
-  const condensedImageMetadata = [os, version, formattedSize].filter((i) => !!i).join(', ')
-  const metadataForSelectedLabel = condensedImageMetadata.length
-    ? ` (${condensedImageMetadata})`
-    : ''
+export function toImageComboboxItem(
+  image: Image,
+  includeProjectSiloIndicator = false
+): ComboboxItem {
+  const { id, name, os, projectId, size, version } = image
 
   // for metadata showing in the dropdown's options, include the project / silo indicator if requested
   const projectSiloIndicator = includeProjectSiloIndicator
     ? `${projectId ? 'Project' : 'Silo'} image`
     : null
-  // filter out undefined metadata here, as well, and create a `<Slash />`-separated list
-  // for the listbox item (shown for each item in the dropdown)
-  const metadataForLabel = [os, version, formattedSize, projectSiloIndicator]
+  // filter out undefined metadata and create a `<Slash />`-separated list for each comboboxitem
+  const itemMetadata = [os, version, `${bytesToGiB(size, 1)} GiB`, projectSiloIndicator]
     .filter((i) => !!i)
     .map((i, index) => (
       <span key={`${i}`}>
@@ -79,15 +77,13 @@ export function toListboxItem(i: Image, includeProjectSiloIndicator = false): Li
       </span>
     ))
   return {
-    value: i.id,
-    selectedLabel: `${name}${metadataForSelectedLabel}`,
+    value: id,
+    selectedLabel: name,
     label: (
-      <>
+      <div className="flex flex-col gap-1">
         <div>{name}</div>
-        <div className="text-tertiary selected:text-accent-secondary">
-          {metadataForLabel}
-        </div>
-      </>
+        <div className="text-tertiary selected:text-accent-secondary">{itemMetadata}</div>
+      </div>
     ),
   }
 }

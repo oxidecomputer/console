@@ -18,6 +18,7 @@ import {
 import { NumberField } from '~/components/form/fields/NumberField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useSiloSelector } from '~/hooks/use-params'
+import { addToast } from '~/stores/toast'
 import { Button } from '~/ui/lib/Button'
 import { Message } from '~/ui/lib/Message'
 import { Table } from '~/ui/lib/Table'
@@ -113,6 +114,7 @@ function EditQuotasForm({ onDismiss }: { onDismiss: () => void }) {
   const updateQuotas = useApiMutation('siloQuotasUpdate', {
     onSuccess() {
       apiQueryClient.invalidateQueries('siloUtilizationView')
+      addToast({ content: 'Quotas updated' })
       onDismiss()
     },
   })

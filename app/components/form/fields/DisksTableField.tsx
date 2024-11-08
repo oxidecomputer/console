@@ -16,6 +16,7 @@ import type { InstanceCreateInput } from '~/forms/instance-create'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import * as MiniTable from '~/ui/lib/MiniTable'
+import { Truncate } from '~/ui/lib/Truncate'
 import { bytesToGiB } from '~/util/units'
 
 export type DiskTableItem =
@@ -60,7 +61,9 @@ export function DisksTableField({
                   aria-label={`Name: ${item.name}, Type: ${item.type}`}
                   key={item.name}
                 >
-                  <MiniTable.Cell>{item.name}</MiniTable.Cell>
+                  <MiniTable.Cell>
+                    <Truncate text={item.name} maxLength={35} />
+                  </MiniTable.Cell>
                   <MiniTable.Cell>
                     <Badge variant="solid">{item.type}</Badge>
                   </MiniTable.Cell>

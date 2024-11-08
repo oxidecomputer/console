@@ -34,9 +34,12 @@ import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
 import { useVpcSelector } from '~/hooks/use-params'
 import { Badge } from '~/ui/lib/Badge'
+import { toComboboxItems, type ComboboxItem } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
+import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Message } from '~/ui/lib/Message'
 import * as MiniTable from '~/ui/lib/MiniTable'
+import { SideModal } from '~/ui/lib/SideModal'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
 import { ALL_ISH } from '~/util/consts'
@@ -99,7 +102,7 @@ const DynamicTypeAndValueFields = ({
   sectionType: 'target' | 'host'
   control: Control<TargetAndHostFormValues>
   valueType: TargetAndHostFilterType
-  items: Array<{ value: string; label: string }>
+  items: Array<ComboboxItem>
   disabled?: boolean
   onInputChange?: (value: string) => void
   onTypeChange: () => void
@@ -204,8 +207,8 @@ const TypeAndValueTable = ({ sectionType, items }: TypeAndValueTableProps) => (
   </MiniTable.Table>
 )
 
-// Given an array of committed items (VPCs, Subnets, Instances) and
-// a list of all items, return the items that are available
+/** Given an array of *committed* items (VPCs, Subnets, Instances) and a list of *all* items,
+ *  return the items that are available */
 const availableItems = (
   committedItems: Array<VpcFirewallRuleTarget | VpcFirewallRuleHostFilter>,
   itemType: 'vpc' | 'subnet' | 'instance',
@@ -214,13 +217,11 @@ const availableItems = (
   if (!items) return []
   return (
     items
-      .map((item) => item.name)
       // remove any items that match the committed items on both type and value
       .filter(
-        (name) =>
+        ({ name }) =>
           !committedItems.filter((ci) => ci.type === itemType && ci.value === name).length
       )
-      .map((name) => ({ label: name, value: name }))
   )
 }
 
@@ -416,46 +417,50 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
 
       {/* Really this should be its own <form>, but you can't have a form inside a form,
           so we just stick the submit handler in a button onClick */}
-      <div className="flex flex-col gap-3">
-        <h3 className="mb-4 text-sans-2xl">Targets</h3>
-        <Message
-          variant="info"
-          content={
-            <>
+      <SideModal.Heading>Targets</SideModal.Heading>
+
+      <Message
+        variant="info"
+        content={
+          <>
+            <p>
               Targets determine the instances to which this rule applies. You can target
-              instances directly by name, or specify a VPC, VPC subnet, IP, or IP subnet,
-              which will apply the rule to traffic going to all matching instances. Targets
-              are additive: the rule applies to instances matching{' '}
+              instances directly or specify a VPC, VPC subnet, IP, or IP subnet, which will
+              apply the rule to traffic going to all matching instances.
+            </p>
+            <p className="mt-2">
+              Targets are additive: the rule applies to instances matching{' '}
               <span className="underline">any</span> target.
-            </>
-          }
-        />
-        <DynamicTypeAndValueFields
-          sectionType="target"
-          control={targetForm.control}
-          valueType={targetType}
-          items={targetItems[targetType]}
-          // HACK: reset the whole subform, keeping type (because we just set
-          // it). most importantly, this resets isSubmitted so the form can go
-          // back to validating on submit instead of change
-          onTypeChange={() =>
-            targetForm.reset({ type: targetForm.getValues('type'), value: '' })
-          }
-          onInputChange={(value) => targetForm.setValue('value', value)}
-          onSubmitTextField={submitTarget}
-        />
-        <MiniTable.ClearAndAddButtons
-          addButtonCopy="Add target"
-          disableClear={!targetValue}
-          onClear={() => targetForm.reset()}
-          onSubmit={submitTarget}
-        />
-      </div>
+            </p>
+          </>
+        }
+      />
+
+      <DynamicTypeAndValueFields
+        sectionType="target"
+        control={targetForm.control}
+        valueType={targetType}
+        items={toComboboxItems(targetItems[targetType])}
+        // HACK: reset the whole subform, keeping type (because we just set
+        // it). most importantly, this resets isSubmitted so the form can go
+        // back to validating on submit instead of change
+        onTypeChange={() =>
+          targetForm.reset({ type: targetForm.getValues('type'), value: '' })
+        }
+        onInputChange={(value) => targetForm.setValue('value', value)}
+        onSubmitTextField={submitTarget}
+      />
+      <MiniTable.ClearAndAddButtons
+        addButtonCopy="Add target"
+        disableClear={!targetValue}
+        onClear={() => targetForm.reset()}
+        onSubmit={submitTarget}
+      />
       {!!targets.value.length && <TypeAndValueTable sectionType="target" items={targets} />}
 
       <FormDivider />
 
-      <h3 className="mb-4 text-sans-2xl">Filters</h3>
+      <SideModal.Heading>Filters</SideModal.Heading>
       <Message
         variant="info"
         content={
@@ -469,12 +474,12 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
       />
 
       <div className="flex flex-col gap-3">
-        {/* We have to blow this up instead of using TextField to get better 
+        {/* We have to blow this up instead of using TextField to get better
             text styling on the label */}
         <div className="mt-2">
-          <label id="portRange-label" htmlFor="portRange" className="text-sans-lg">
+          <FieldLabel id="portRange-label" htmlFor="portRange">
             Port filters
-          </label>
+          </FieldLabel>
           <TextInputHint id="portRange-help-text" className="mb-2">
             A single destination port (1234) or a range (1234&ndash;2345)
           </TextInputHint>
@@ -524,45 +529,47 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
       )}
 
       <fieldset className="space-y-0.5">
-        <legend className="mb-2 mt-4 text-sans-lg">Protocol filters</legend>
+        {/* todo: abstract this label and checkbox pattern */}
+        <FieldLabel id="portRange-label" htmlFor="portRange" className="mb-2">
+          Protocol filters
+        </FieldLabel>
         <ProtocolField control={control} protocol="TCP" />
         <ProtocolField control={control} protocol="UDP" />
         <ProtocolField control={control} protocol="ICMP" />
       </fieldset>
 
-      <div className="flex flex-col gap-3">
-        <h3 className="mt-4 text-sans-lg">Host filters</h3>
-        <Message
-          variant="info"
-          content={
-            <>
-              Host filters match the &ldquo;other end&rdquo; of traffic from the
-              target&rsquo;s perspective: for an inbound rule, they match the source of
-              traffic. For an outbound rule, they match the destination.
-            </>
-          }
-        />
-        <DynamicTypeAndValueFields
-          sectionType="host"
-          control={hostForm.control}
-          valueType={hostType}
-          items={hostFilterItems[hostType]}
-          // HACK: reset the whole subform, keeping type (because we just set
-          // it). most importantly, this resets isSubmitted so the form can go
-          // back to validating on submit instead of change
-          onTypeChange={() =>
-            hostForm.reset({ type: hostForm.getValues('type'), value: '' })
-          }
-          onInputChange={(value) => hostForm.setValue('value', value)}
-          onSubmitTextField={submitHost}
-        />
-        <MiniTable.ClearAndAddButtons
-          addButtonCopy="Add host filter"
-          disableClear={!hostValue}
-          onClear={() => hostForm.reset()}
-          onSubmit={submitHost}
-        />
-      </div>
+      <FormDivider />
+
+      <SideModal.Heading>Host filters</SideModal.Heading>
+
+      <Message
+        variant="info"
+        content={
+          <>
+            Host filters match the &ldquo;other end&rdquo; of traffic from the
+            target&rsquo;s perspective: for an inbound rule, they match the source of
+            traffic. For an outbound rule, they match the destination.
+          </>
+        }
+      />
+      <DynamicTypeAndValueFields
+        sectionType="host"
+        control={hostForm.control}
+        valueType={hostType}
+        items={toComboboxItems(hostFilterItems[hostType])}
+        // HACK: reset the whole subform, keeping type (because we just set
+        // it). most importantly, this resets isSubmitted so the form can go
+        // back to validating on submit instead of change
+        onTypeChange={() => hostForm.reset({ type: hostForm.getValues('type'), value: '' })}
+        onInputChange={(value) => hostForm.setValue('value', value)}
+        onSubmitTextField={submitHost}
+      />
+      <MiniTable.ClearAndAddButtons
+        addButtonCopy="Add host filter"
+        disableClear={!hostValue}
+        onClear={() => hostForm.reset()}
+        onSubmit={submitHost}
+      />
       {!!hosts.value.length && <TypeAndValueTable sectionType="host" items={hosts} />}
 
       {error && (

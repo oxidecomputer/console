@@ -41,9 +41,14 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
   resourceName: string
   /** Must be provided with a reason describing why it's disabled */
   submitDisabled?: string
+
+  // require loading and error so we can't forget to hook them up. there are a
+  // few forms that don't need them, so we'll use dummy values
+
   /** Error from the API call */
   submitError: ApiError | null
-  loading?: boolean
+  loading: boolean
+
   /** Only needed if you need to override the default title (Create/Edit ${resourceName}) */
   title?: string
   subtitle?: ReactNode
