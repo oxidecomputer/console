@@ -178,8 +178,7 @@ const TargetAndHostFilterSubform = ({
           control={subformControl}
           onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
             if (e.key === KEYS.enter) {
-              // e.preventDefault() // prevent full form submission
-              addButtonRef.current?.focus() // focus on the mini form's add button
+              addButtonRef.current?.focus() // focus on the subform's `add _____` button
             }
           }}
           onInputChange={onInputChange}

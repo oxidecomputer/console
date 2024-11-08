@@ -164,6 +164,8 @@ test('firewall rule form targets table', async ({ page }) => {
 
   await targetVpcNameField.fill('abc')
   await targetVpcNameField.press('Enter')
+  // expect that the addButton has focus
+  await expect(addButton).toBeFocused()
   await addButton.click()
   await expectRowVisible(targets, { Type: 'vpc', Value: 'abc' })
 
@@ -187,6 +189,8 @@ test('firewall rule form targets table', async ({ page }) => {
   await selectOption(page, 'Target type', 'VPC subnet')
   await subnetNameField.fill('abc')
   await page.getByText('abc').first().click()
+  // hit enter to move focus to the add button
+  await subnetNameField.press('Enter')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'subnet', Value: 'abc' })
 
