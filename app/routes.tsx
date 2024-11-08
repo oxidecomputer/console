@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { createRoutesFromElements, Navigate, Route } from 'react-router-dom'
+import { createRoutesFromElements, Navigate, Route, type UIMatch } from 'react-router-dom'
 
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { NotFound } from './components/ErrorPage'
@@ -118,7 +118,11 @@ export const routes = createRoutesFromElements(
       // very important. see `currentUserLoader` and `useCurrentUser`
       shouldRevalidate={() => true}
     >
-      <Route path="settings" handle={{ crumb: 'Settings' }} element={<SettingsLayout />}>
+      <Route
+        path="settings"
+        handle={{ crumb: 'Settings', crumbPath: pb.profile() }}
+        element={<SettingsLayout />}
+      >
         <Route index element={<Navigate to="profile" replace />} />
         <Route path="profile" element={<ProfilePage />} handle={{ crumb: 'Profile' }} />
         <Route
@@ -136,8 +140,12 @@ export const routes = createRoutesFromElements(
       </Route>
 
       <Route path="system" element={<SystemLayout />} loader={SystemLayout.loader}>
-        <Route element={<SilosPage />} loader={SilosPage.loader}>
-          <Route path="silos" element={null} handle={{ crumb: 'Silos' }} />
+        <Route
+          element={<SilosPage />}
+          loader={SilosPage.loader}
+          handle={{ crumb: 'Silos', crumbPath: pb.silos() }}
+        >
+          <Route path="silos" element={null} />
           <Route path="silos-new" element={<CreateSiloSideModalForm />} />
         </Route>
         <Route path="silos" handle={{ crumb: 'Silos' }}>
@@ -167,7 +175,7 @@ export const routes = createRoutesFromElements(
           path="inventory"
           element={<InventoryPage />}
           loader={InventoryPage.loader}
-          handle={{ crumb: 'Inventory' }}
+          handle={{ crumb: 'Inventory', crumbPath: pb.sledInventory() }}
         >
           <Route index element={<Navigate to="sleds" replace />} loader={SledsTab.loader} />
           <Route
@@ -242,9 +250,6 @@ export const routes = createRoutesFromElements(
 
       <Route index element={<Navigate to={pb.projects()} replace />} />
 
-      {/* These are done here instead of nested so we don't flash a layout on 404s */}
-      <Route path="projects/:project" element={<Navigate to="instances" replace />} />
-
       <Route element={<SiloLayout />}>
         <Route
           path="images"
@@ -311,7 +316,10 @@ export const routes = createRoutesFromElements(
           path=":project"
           element={<ProjectLayout overrideContentPane={<SerialConsoleContentPane />} />}
           loader={ProjectLayout.loader}
-          handle={{ crumb: projectCrumb }}
+          handle={{
+            crumb: projectCrumb,
+            crumbPath: ({ params }: UIMatch) => pb.project({ project: params.project! }),
+          }}
         >
           <Route path="instances" handle={{ crumb: 'Instances' }}>
             <Route path=":instance" handle={{ crumb: instanceCrumb }}>
@@ -329,8 +337,12 @@ export const routes = createRoutesFromElements(
           path=":project"
           element={<ProjectLayout />}
           loader={ProjectLayout.loader}
-          handle={{ crumb: projectCrumb }}
+          handle={{
+            crumb: projectCrumb,
+            crumbPath: ({ params }: UIMatch) => pb.project({ project: params.project! }),
+          }}
         >
+          <Route index element={<Navigate to="instances" replace />} />
           <Route
             path="instances-new"
             element={<CreateInstanceForm />}
@@ -339,7 +351,14 @@ export const routes = createRoutesFromElements(
           />
           <Route path="instances" handle={{ crumb: 'Instances' }}>
             <Route index element={<InstancesPage />} loader={InstancesPage.loader} />
-            <Route path=":instance" handle={{ crumb: instanceCrumb }}>
+            <Route
+              path=":instance"
+              handle={{
+                crumb: instanceCrumb,
+                crumbPath: ({ params }: UIMatch) =>
+                  pb.instance({ project: params.project!, instance: params.instance! }),
+              }}
+            >
               <Route index element={<Navigate to="storage" replace />} />
               <Route element={<InstancePage />} loader={InstancePage.loader}>
                 <Route
@@ -370,7 +389,14 @@ export const routes = createRoutesFromElements(
             </Route>
           </Route>
 
-          <Route loader={VpcsPage.loader} handle={{ crumb: 'VPCs' }} element={<VpcsPage />}>
+          <Route
+            loader={VpcsPage.loader}
+            handle={{
+              crumb: 'VPCs',
+              crumbPath: (m: UIMatch) => pb.vpcs({ project: m.params.project! }),
+            }}
+            element={<VpcsPage />}
+          >
             <Route path="vpcs" element={null} />
             <Route
               path="vpcs-new"
@@ -380,7 +406,14 @@ export const routes = createRoutesFromElements(
           </Route>
 
           <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
-            <Route path=":vpc" handle={{ crumb: vpcCrumb }}>
+            <Route
+              path=":vpc"
+              handle={{
+                crumb: vpcCrumb,
+                crumbPath: ({ params }: UIMatch) =>
+                  pb.vpc({ project: params.project!, vpc: params.vpc! }),
+              }}
+            >
               <Route element={<VpcPage />} loader={VpcPage.loader}>
                 <Route
                   index
@@ -422,7 +455,7 @@ export const routes = createRoutesFromElements(
                   loader={VpcSubnetsTab.loader}
                   handle={{ crumb: 'Subnets' }}
                 >
-                  <Route path="subnets" />
+                  <Route path="subnets" element={null} />
                   <Route
                     path="subnets-new"
                     element={<CreateSubnetForm />}
@@ -445,7 +478,7 @@ export const routes = createRoutesFromElements(
                       path=":router/edit"
                       element={<EditRouterSideModalForm />}
                       loader={EditRouterSideModalForm.loader}
-                      handle={{ crumb: 'Edit Router' }}
+                      handle={{ crumb: 'Edit Router', titleOnly: true }}
                     />
                   </Route>
                   <Route
@@ -488,7 +521,10 @@ export const routes = createRoutesFromElements(
           <Route
             element={<FloatingIpsPage />}
             loader={FloatingIpsPage.loader}
-            handle={{ crumb: 'Floating IPs' }}
+            handle={{
+              crumb: 'Floating IPs',
+              crumbPath: (m: UIMatch) => pb.floatingIps({ project: m.params.project! }),
+            }}
           >
             <Route path="floating-ips" element={null} />
             <Route
@@ -506,7 +542,10 @@ export const routes = createRoutesFromElements(
 
           <Route
             element={<DisksPage />}
-            handle={{ crumb: 'Disks' }}
+            handle={{
+              crumb: 'Disks',
+              crumbPath: (m: UIMatch) => pb.disks({ project: m.params.project! }),
+            }}
             loader={DisksPage.loader}
           >
             <Route path="disks" element={null} />
@@ -523,7 +562,10 @@ export const routes = createRoutesFromElements(
 
           <Route
             element={<SnapshotsPage />}
-            handle={{ crumb: 'Snapshots' }}
+            handle={{
+              crumb: 'Snapshots',
+              crumbPath: (m: UIMatch) => pb.snapshots({ project: m.params.project! }),
+            }}
             loader={SnapshotsPage.loader}
           >
             <Route path="snapshots" element={null} />
@@ -542,7 +584,10 @@ export const routes = createRoutesFromElements(
 
           <Route
             element={<ImagesPage />}
-            handle={{ crumb: 'Images' }}
+            handle={{
+              crumb: 'Images',
+              crumbPath: (m: UIMatch) => pb.projectImages({ project: m.params.project! }),
+            }}
             loader={ImagesPage.loader}
           >
             <Route path="images" element={null} />

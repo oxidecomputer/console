@@ -5,34 +5,35 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMatches } from 'react-router-dom'
-import type { Merge } from 'type-fest'
+import { useMatches, type UIMatch } from 'react-router-dom'
 
 import { invariant } from '~/util/invariant'
 
-type UseMatchesMatch = ReturnType<typeof useMatches>[number]
+type Handle = {
+  crumb: string | CrumbFunc
+  /**
+   * Side modal forms have their own routes and their own crumbs that we want
+   * in the page title, but it's weird for them to affect the nav breadcrumbs
+   * because the side modal form opens on top of the page with an overlay
+   * covering the background and not interactive. It feels weird for the
+   * breadcrumbs to change in the background when you open a form. So we use
+   * `titleOnly` to mark the form crumbs as not part of the nav breadcrumbs.
+   */
+  titleOnly?: true
+  /**
+   * Some route nodes don't have their own pages, but rather just redirect immediately
+   * to their first child node. In this case, we need the crumb to link directly to
+   * that child, otherwise we get a weird flash due to linking to the parent node and waiting
+   * for the redirect.
+   */
+  crumbPath?: string | CrumbFunc
+}
 
-type MatchWithCrumb = Merge<
-  UseMatchesMatch,
-  {
-    handle: {
-      crumb: string | CrumbFunc
-      /**
-       * Side modal forms have their own routes and their own crumbs that we want
-       * in the page title, but it's weird for them to affect the nav breadcrumbs
-       * because the side modal form opens on top of the page with an overlay
-       * covering the background and not interactive. It feels weird for the
-       * breadcrumbs to change in the background when you open a form. So we use
-       * `titleOnly` to mark the form crumbs as not part of the nav breadcrumbs.
-       */
-      titleOnly?: true
-    }
-  }
->
+type MatchWithCrumb = UIMatch<unknown, Handle>
 
 export type CrumbFunc = (m: MatchWithCrumb) => string
 
-function hasCrumb(m: UseMatchesMatch): m is MatchWithCrumb {
+function hasCrumb(m: UIMatch): m is MatchWithCrumb {
   return !!(m.handle && typeof m.handle === 'object' && 'crumb' in m.handle)
 }
 
@@ -51,16 +52,17 @@ function checkCrumbType(m: MatchWithCrumb): MatchWithCrumb {
   return m
 }
 
-export const useCrumbs = () =>
-  useMatches()
+export const matchesToCrumbs = (matches: UIMatch[]) =>
+  matches
     .filter(hasCrumb)
     .map(checkCrumbType)
-    .map((m) => {
-      const label =
-        typeof m.handle.crumb === 'function' ? m.handle.crumb(m) : m.handle.crumb
-      return {
-        label,
-        path: m.pathname,
-        titleOnly: !!m.handle.titleOnly,
-      }
-    })
+    .map((m: MatchWithCrumb) => ({
+      label: typeof m.handle.crumb === 'function' ? m.handle.crumb(m) : m.handle.crumb,
+      path:
+        typeof m.handle.crumbPath === 'function'
+          ? m.handle.crumbPath(m)
+          : m.handle.crumbPath || m.pathname,
+      titleOnly: !!m.handle.titleOnly,
+    }))
+
+export const useCrumbs = () => matchesToCrumbs(useMatches())

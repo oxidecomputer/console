@@ -63,7 +63,7 @@ export function SystemLayout() {
     const systemLinks = [
       { value: 'Silos', path: pb.silos() },
       { value: 'Utilization', path: pb.systemUtilization() },
-      { value: 'Inventory', path: pb.inventory() },
+      { value: 'Inventory', path: pb.sledInventory() },
       { value: 'IP Pools', path: pb.ipPools() },
     ]
       // filter out the entry for the path we're currently on
@@ -102,7 +102,7 @@ export function SystemLayout() {
           <NavLinkItem to={pb.systemUtilization()}>
             <Metrics16Icon /> Utilization
           </NavLinkItem>
-          <NavLinkItem to={pb.inventory()}>
+          <NavLinkItem to={pb.sledInventory()}>
             <Servers16Icon /> Inventory
           </NavLinkItem>
           <NavLinkItem to={pb.ipPools()}>
