@@ -35,7 +35,7 @@ import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
 import { useVpcSelector } from '~/hooks/use-params'
 import { Badge } from '~/ui/lib/Badge'
-import { toComboboxItems, type ComboboxItem } from '~/ui/lib/Combobox'
+import { toComboboxItems } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Message } from '~/ui/lib/Message'
@@ -92,21 +92,39 @@ const getFilterValueProps = (targetOrHostType: TargetAndHostFilterType) => {
 
 const DynamicTypeAndValueFields = ({
   sectionType,
-  valueType,
   form,
-  items,
+  field,
   disabled,
-  disableClear,
   onSubmitTextField,
 }: {
   sectionType: 'target' | 'host'
-  valueType: TargetAndHostFilterType
   form: UseFormReturn<TargetAndHostFormValues>
-  items: Array<ComboboxItem>
+  field: ControllerRenderProps<FirewallRuleValues, 'targets' | 'hosts'>
   disabled?: boolean
-  disableClear: boolean
   onSubmitTextField: (e?: React.KeyboardEvent<HTMLInputElement>) => void
 }) => {
+  const { project, vpc } = useVpcSelector()
+  // prefetchedApiQueries below are prefetched in firewall-rules-create and -edit
+  const {
+    data: { items: instances },
+  } = usePrefetchedApiQuery('instanceList', { query: { project, limit: ALL_ISH } })
+  const {
+    data: { items: vpcs },
+  } = usePrefetchedApiQuery('vpcList', { query: { project, limit: ALL_ISH } })
+  const {
+    data: { items: vpcSubnets },
+  } = usePrefetchedApiQuery('vpcSubnetList', { query: { project, vpc } })
+
+  const valueType = form.watch('type')
+  const value = form.watch('value')
+  const sectionItems = {
+    vpc: availableItems(field.value, 'vpc', vpcs),
+    subnet: availableItems(field.value, 'subnet', vpcSubnets),
+    instance: availableItems(field.value, 'instance', instances),
+    ip: [],
+    ip_net: [],
+  }
+  const items = toComboboxItems(sectionItems[valueType])
   const control = form.control
   // HACK: reset the whole subform, keeping type (because we just set
   // it). most importantly, this resets isSubmitted so the form can go
@@ -177,7 +195,7 @@ const DynamicTypeAndValueFields = ({
       <MiniTable.ClearAndAddButtons
         addButtonCopy={`Add ${sectionType === 'host' ? 'host filter' : 'target'}`}
         addButtonRef={addButtonRef}
-        disableClear={disableClear}
+        disableClear={!value}
         onClear={() => form.reset()}
         onSubmit={onSubmitTextField}
       />
@@ -268,31 +286,9 @@ const targetAndHostDefaultValues: TargetAndHostFormValues = {
 }
 
 export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) => {
-  const { project, vpc } = useVpcSelector()
-
-  // prefetchedApiQueries below are prefetched in firewall-rules-create and -edit
-  const {
-    data: { items: instances },
-  } = usePrefetchedApiQuery('instanceList', { query: { project, limit: ALL_ISH } })
-  const {
-    data: { items: vpcs },
-  } = usePrefetchedApiQuery('vpcList', { query: { project, limit: ALL_ISH } })
-  const {
-    data: { items: vpcSubnets },
-  } = usePrefetchedApiQuery('vpcSubnetList', { query: { project, vpc } })
-
   // Targets
   const targetForm = useForm({ defaultValues: targetAndHostDefaultValues })
   const targets = useController({ name: 'targets', control }).field
-  const [targetType, targetValue] = targetForm.watch(['type', 'value'])
-  // get the list of items that are not already in the list of targets
-  const targetItems = {
-    vpc: availableItems(targets.value, 'vpc', vpcs),
-    subnet: availableItems(targets.value, 'subnet', vpcSubnets),
-    instance: availableItems(targets.value, 'instance', instances),
-    ip: [],
-    ip_net: [],
-  }
   const submitTarget = targetForm.handleSubmit(({ type, value }) => {
     // TODO: do this with a normal validation
     // ignore click if empty or a duplicate
@@ -330,15 +326,6 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
   // Host Filters
   const hostForm = useForm({ defaultValues: targetAndHostDefaultValues })
   const hosts = useController({ name: 'hosts', control }).field
-  const [hostType, hostValue] = hostForm.watch(['type', 'value'])
-  // get the list of items that are not already in the list of host filters
-  const hostFilterItems = {
-    vpc: availableItems(hosts.value, 'vpc', vpcs),
-    subnet: availableItems(hosts.value, 'subnet', vpcSubnets),
-    instance: availableItems(hosts.value, 'instance', instances),
-    ip: [],
-    ip_net: [],
-  }
   const submitHost = hostForm.handleSubmit(({ type, value }) => {
     // ignore click if empty or a duplicate
     // TODO: show error instead of ignoring click
@@ -457,10 +444,8 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
 
       <DynamicTypeAndValueFields
         sectionType="target"
-        valueType={targetType}
         form={targetForm}
-        items={toComboboxItems(targetItems[targetType])}
-        disableClear={!targetValue}
+        field={targets}
         onSubmitTextField={submitTarget}
       />
       {!!targets.value.length && <TypeAndValueTable sectionType="target" items={targets} />}
@@ -561,10 +546,8 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
       />
       <DynamicTypeAndValueFields
         sectionType="host"
-        valueType={hostType}
         form={hostForm}
-        items={toComboboxItems(hostFilterItems[hostType])}
-        disableClear={!hostValue}
+        field={hosts}
         onSubmitTextField={submitHost}
       />
       {!!hosts.value.length && <TypeAndValueTable sectionType="host" items={hosts} />}
