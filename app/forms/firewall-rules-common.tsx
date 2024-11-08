@@ -12,7 +12,6 @@ import {
   useForm,
   type Control,
   type ControllerRenderProps,
-  type UseFormReturn,
 } from 'react-hook-form'
 
 import {
@@ -92,16 +91,10 @@ const getFilterValueProps = (targetOrHostType: TargetAndHostFilterType) => {
 
 const DynamicTypeAndValueFields = ({
   sectionType,
-  form,
-  field,
-  disabled,
-  onSubmitTextField,
+  control,
 }: {
   sectionType: 'target' | 'host'
-  form: UseFormReturn<TargetAndHostFormValues>
-  field: ControllerRenderProps<FirewallRuleValues, 'targets' | 'hosts'>
-  disabled?: boolean
-  onSubmitTextField: (e?: React.KeyboardEvent<HTMLInputElement>) => void
+  control: Control<FirewallRuleValues>
 }) => {
   const { project, vpc } = useVpcSelector()
   // prefetchedApiQueries below are prefetched in firewall-rules-create and -edit
@@ -115,8 +108,34 @@ const DynamicTypeAndValueFields = ({
     data: { items: vpcSubnets },
   } = usePrefetchedApiQuery('vpcSubnetList', { query: { project, vpc } })
 
-  const valueType = form.watch('type')
-  const value = form.watch('value')
+  const subform = useForm({ defaultValues: targetAndHostDefaultValues })
+  const field = useController({ name: `${sectionType}s`, control }).field
+
+  const submitSubform = subform.handleSubmit(({ type, value }) => {
+    // TODO: do this with a normal validation
+    // ignore click if empty or a duplicate
+    // TODO: show error instead of ignoring click
+    if (!type || !value) return
+    if (field.value.some((f) => f.value === value && f.type === type)) return
+    field.onChange([...field.value, { type, value }])
+    subform.reset(targetAndHostDefaultValues)
+  })
+
+  // HACK: we need to reset the target form completely after a successful submit,
+  // including especially `isSubmitted`, because that governs whether we're in
+  // the validate regime (which doesn't validate until submit) or the reValidate
+  // regime (which validate on every keypress). The reset inside `handleSubmit`
+  // doesn't do that for us because `handleSubmit` set `isSubmitted: true` after
+  // running the callback. So we have to watch for a successful submit and call
+  // the reset again here.
+  // https://github.com/react-hook-form/react-hook-form/blob/9a497a70a/src/logic/createFormControl.ts#L1194-L1203
+  const { isSubmitSuccessful: subformSubmitSuccessful } = subform.formState
+  useEffect(() => {
+    if (subformSubmitSuccessful) subform.reset(targetAndHostDefaultValues)
+  }, [subformSubmitSuccessful, subform])
+
+  const valueType = subform.watch('type')
+  const value = subform.watch('value')
   const sectionItems = {
     vpc: availableItems(field.value, 'vpc', vpcs),
     subnet: availableItems(field.value, 'subnet', vpcSubnets),
@@ -125,19 +144,19 @@ const DynamicTypeAndValueFields = ({
     ip_net: [],
   }
   const items = toComboboxItems(sectionItems[valueType])
-  const control = form.control
+  const subformControl = subform.control
   // HACK: reset the whole subform, keeping type (because we just set
   // it). most importantly, this resets isSubmitted so the form can go
   // back to validating on submit instead of change
-  const onTypeChange = () => form.reset({ type: form.getValues('type'), value: '' })
-  const onInputChange = (value: string) => form.setValue('value', value)
+  const onTypeChange = () => subform.reset({ type: subform.getValues('type'), value: '' })
+  const onInputChange = (value: string) => subform.setValue('value', value)
   const addButtonRef = useRef<HTMLButtonElement>(null)
   return (
     <>
       <ListboxField
         name="type"
         label={`${capitalize(sectionType)} type`}
-        control={control}
+        control={subformControl}
         items={[
           { value: 'vpc', label: 'VPC' },
           { value: 'subnet', label: 'VPC subnet' },
@@ -151,11 +170,11 @@ const DynamicTypeAndValueFields = ({
       {/* In the firewall rules form, a few types get comboboxes instead of text fields */}
       {valueType === 'vpc' || valueType === 'subnet' || valueType === 'instance' ? (
         <ComboboxField
-          disabled={disabled}
+          disabled={subform.formState.isSubmitting}
           name="value"
           {...getFilterValueProps(valueType)}
           description="Select an option or enter a custom value"
-          control={control}
+          control={subformControl}
           onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
             if (e.key === KEYS.enter) {
               // e.preventDefault() // prevent full form submission
@@ -178,11 +197,12 @@ const DynamicTypeAndValueFields = ({
         <TextField
           name="value"
           {...getFilterValueProps(valueType)}
-          control={control}
+          control={subformControl}
+          disabled={subform.formState.isSubmitting}
           onKeyDown={(e) => {
             if (e.key === KEYS.enter) {
               e.preventDefault() // prevent full form submission
-              onSubmitTextField(e)
+              submitSubform(e)
             }
           }}
           validate={(value) =>
@@ -196,9 +216,12 @@ const DynamicTypeAndValueFields = ({
         addButtonCopy={`Add ${sectionType === 'host' ? 'host filter' : 'target'}`}
         addButtonRef={addButtonRef}
         disableClear={!value}
-        onClear={() => form.reset()}
-        onSubmit={onSubmitTextField}
+        onClear={() => subform.reset()}
+        onSubmit={submitSubform}
       />
+      {!!field.value.length && (
+        <TypeAndValueTable sectionType={sectionType} items={field} />
+      )}
     </>
   )
 }
@@ -286,31 +309,6 @@ const targetAndHostDefaultValues: TargetAndHostFormValues = {
 }
 
 export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) => {
-  // Targets
-  const targetForm = useForm({ defaultValues: targetAndHostDefaultValues })
-  const targets = useController({ name: 'targets', control }).field
-  const submitTarget = targetForm.handleSubmit(({ type, value }) => {
-    // TODO: do this with a normal validation
-    // ignore click if empty or a duplicate
-    // TODO: show error instead of ignoring click
-    if (!type || !value) return
-    if (targets.value.some((t) => t.value === value && t.type === type)) return
-    targets.onChange([...targets.value, { type, value }])
-    targetForm.reset(targetAndHostDefaultValues)
-  })
-  // HACK: we need to reset the target form completely after a successful submit,
-  // including especially `isSubmitted`, because that governs whether we're in
-  // the validate regime (which doesn't validate until submit) or the reValidate
-  // regime (which validate on every keypress). The reset inside `handleSubmit`
-  // doesn't do that for us because `handleSubmit` set `isSubmitted: true` after
-  // running the callback. So we have to watch for a successful submit and call
-  // the reset again here.
-  // https://github.com/react-hook-form/react-hook-form/blob/9a497a70a/src/logic/createFormControl.ts#L1194-L1203
-  const { isSubmitSuccessful: targetSubmitSuccessful } = targetForm.formState
-  useEffect(() => {
-    if (targetSubmitSuccessful) targetForm.reset(targetAndHostDefaultValues)
-  }, [targetSubmitSuccessful, targetForm])
-
   // Ports
   const portRangeForm = useForm({ defaultValues: { portRange: '' } })
   const ports = useController({ name: 'ports', control }).field
@@ -322,23 +320,6 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
     ports.onChange([...ports.value, portRangeValue])
     portRangeForm.reset()
   })
-
-  // Host Filters
-  const hostForm = useForm({ defaultValues: targetAndHostDefaultValues })
-  const hosts = useController({ name: 'hosts', control }).field
-  const submitHost = hostForm.handleSubmit(({ type, value }) => {
-    // ignore click if empty or a duplicate
-    // TODO: show error instead of ignoring click
-    if (!type || !value) return
-    if (hosts.value.some((t) => t.value === value && t.type === type)) return
-    hosts.onChange([...hosts.value, { type, value }])
-    hostForm.reset(targetAndHostDefaultValues)
-  })
-  // HACK: see comment above about doing the same for target form
-  const { isSubmitSuccessful: hostSubmitSuccessful } = hostForm.formState
-  useEffect(() => {
-    if (hostSubmitSuccessful) hostForm.reset(targetAndHostDefaultValues)
-  }, [hostSubmitSuccessful, hostForm])
 
   return (
     <>
@@ -441,14 +422,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           </>
         }
       />
-
-      <DynamicTypeAndValueFields
-        sectionType="target"
-        form={targetForm}
-        field={targets}
-        onSubmitTextField={submitTarget}
-      />
-      {!!targets.value.length && <TypeAndValueTable sectionType="target" items={targets} />}
+      <DynamicTypeAndValueFields sectionType="target" control={control} />
 
       <FormDivider />
 
@@ -544,13 +518,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           </>
         }
       />
-      <DynamicTypeAndValueFields
-        sectionType="host"
-        form={hostForm}
-        field={hosts}
-        onSubmitTextField={submitHost}
-      />
-      {!!hosts.value.length && <TypeAndValueTable sectionType="host" items={hosts} />}
+      <DynamicTypeAndValueFields sectionType="host" control={control} />
 
       {error && (
         <>
