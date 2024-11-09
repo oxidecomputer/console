@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { createRoutesFromElements, Navigate, Route, type UIMatch } from 'react-router-dom'
+import { createRoutesFromElements, Navigate, Route } from 'react-router-dom'
 
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { NotFound } from './components/ErrorPage'
@@ -39,7 +39,8 @@ import { CreateRouterSideModalForm } from './forms/vpc-router-create'
 import { EditRouterSideModalForm } from './forms/vpc-router-edit'
 import { CreateRouterRouteSideModalForm } from './forms/vpc-router-route-create'
 import { EditRouterRouteSideModalForm } from './forms/vpc-router-route-edit'
-import type { CrumbFunc } from './hooks/use-crumbs'
+import { makeCrumb } from './hooks/use-crumbs'
+import { getInstanceSelector, getProjectSelector, getVpcSelector } from './hooks/use-params'
 import { AuthenticatedLayout } from './layouts/AuthenticatedLayout'
 import { AuthLayout } from './layouts/AuthLayout'
 import { SerialConsoleContentPane } from './layouts/helpers'
@@ -90,13 +91,6 @@ import { SilosPage } from './pages/system/silos/SilosPage'
 import { SystemUtilizationPage } from './pages/system/UtilizationPage'
 import { pb } from './util/path-builder'
 
-const projectCrumb: CrumbFunc = (m) => m.params.project!
-const instanceCrumb: CrumbFunc = (m) => m.params.instance!
-const vpcCrumb: CrumbFunc = (m) => m.params.vpc!
-const routerCrumb: CrumbFunc = (m) => m.params.router!
-const siloCrumb: CrumbFunc = (m) => m.params.silo!
-const poolCrumb: CrumbFunc = (m) => m.params.pool!
-
 export const routes = createRoutesFromElements(
   <Route element={<RootLayout />}>
     <Route path="*" element={<NotFound />} />
@@ -120,7 +114,7 @@ export const routes = createRoutesFromElements(
     >
       <Route
         path="settings"
-        handle={{ crumb: 'Settings', crumbPath: pb.profile() }}
+        handle={makeCrumb('Settings', pb.profile())}
         element={<SettingsLayout />}
       >
         <Route index element={<Navigate to="profile" replace />} />
@@ -143,7 +137,7 @@ export const routes = createRoutesFromElements(
         <Route
           element={<SilosPage />}
           loader={SilosPage.loader}
-          handle={{ crumb: 'Silos', crumbPath: pb.silos() }}
+          handle={makeCrumb('Silos', pb.silos())}
         >
           <Route path="silos" element={null} />
           <Route path="silos-new" element={<CreateSiloSideModalForm />} />
@@ -153,7 +147,7 @@ export const routes = createRoutesFromElements(
             path=":silo"
             element={<SiloPage />}
             loader={SiloPage.loader}
-            handle={{ crumb: siloCrumb }}
+            handle={makeCrumb((p) => p.silo!)}
           >
             <Route path="idps-new" element={<CreateIdpSideModalForm />} />
             <Route
@@ -175,7 +169,7 @@ export const routes = createRoutesFromElements(
           path="inventory"
           element={<InventoryPage />}
           loader={InventoryPage.loader}
-          handle={{ crumb: 'Inventory', crumbPath: pb.sledInventory() }}
+          handle={makeCrumb('Inventory', pb.sledInventory())}
         >
           <Route index element={<Navigate to="sleds" replace />} loader={SledsTab.loader} />
           <Route
@@ -231,7 +225,7 @@ export const routes = createRoutesFromElements(
             path=":pool"
             element={<IpPoolPage />}
             loader={IpPoolPage.loader}
-            handle={{ crumb: poolCrumb }}
+            handle={makeCrumb((p) => p.pool!)}
           >
             <Route
               path="edit"
@@ -316,13 +310,13 @@ export const routes = createRoutesFromElements(
           path=":project"
           element={<ProjectLayout overrideContentPane={<SerialConsoleContentPane />} />}
           loader={ProjectLayout.loader}
-          handle={{
-            crumb: projectCrumb,
-            crumbPath: ({ params }: UIMatch) => pb.project({ project: params.project! }),
-          }}
+          handle={makeCrumb(
+            (p) => p.project!,
+            (p) => pb.project(getProjectSelector(p))
+          )}
         >
           <Route path="instances" handle={{ crumb: 'Instances' }}>
-            <Route path=":instance" handle={{ crumb: instanceCrumb }}>
+            <Route path=":instance" handle={makeCrumb((p) => p.instance!)}>
               <Route
                 path="serial-console"
                 loader={SerialConsolePage.loader}
@@ -337,10 +331,10 @@ export const routes = createRoutesFromElements(
           path=":project"
           element={<ProjectLayout />}
           loader={ProjectLayout.loader}
-          handle={{
-            crumb: projectCrumb,
-            crumbPath: ({ params }: UIMatch) => pb.project({ project: params.project! }),
-          }}
+          handle={makeCrumb(
+            (p) => p.project!,
+            (p) => pb.project(getProjectSelector(p))
+          )}
         >
           <Route index element={<Navigate to="instances" replace />} />
           <Route
@@ -353,11 +347,10 @@ export const routes = createRoutesFromElements(
             <Route index element={<InstancesPage />} loader={InstancesPage.loader} />
             <Route
               path=":instance"
-              handle={{
-                crumb: instanceCrumb,
-                crumbPath: ({ params }: UIMatch) =>
-                  pb.instance({ project: params.project!, instance: params.instance! }),
-              }}
+              handle={makeCrumb(
+                (p) => p.instance!,
+                (p) => pb.instance(getInstanceSelector(p))
+              )}
             >
               <Route index element={<Navigate to="storage" replace />} />
               <Route element={<InstancePage />} loader={InstancePage.loader}>
@@ -391,10 +384,7 @@ export const routes = createRoutesFromElements(
 
           <Route
             loader={VpcsPage.loader}
-            handle={{
-              crumb: 'VPCs',
-              crumbPath: (m: UIMatch) => pb.vpcs({ project: m.params.project! }),
-            }}
+            handle={makeCrumb('VPCs', (p) => pb.vpcs(getProjectSelector(p)))}
             element={<VpcsPage />}
           >
             <Route path="vpcs" element={null} />
@@ -408,11 +398,10 @@ export const routes = createRoutesFromElements(
           <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
             <Route
               path=":vpc"
-              handle={{
-                crumb: vpcCrumb,
-                crumbPath: ({ params }: UIMatch) =>
-                  pb.vpc({ project: params.project!, vpc: params.vpc! }),
-              }}
+              handle={makeCrumb(
+                (p) => p.vpc!,
+                (p) => pb.vpc(getVpcSelector(p))
+              )}
             >
               <Route element={<VpcPage />} loader={VpcPage.loader}>
                 <Route
@@ -491,13 +480,13 @@ export const routes = createRoutesFromElements(
             </Route>
           </Route>
           <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
-            <Route path=":vpc" handle={{ crumb: vpcCrumb }}>
+            <Route path=":vpc" handle={makeCrumb((p) => p.vpc!)}>
               <Route path="routers" handle={{ crumb: 'Routers' }}>
                 <Route
                   path=":router"
                   element={<RouterPage />}
                   loader={RouterPage.loader}
-                  handle={{ crumb: routerCrumb }}
+                  handle={makeCrumb((p) => p.router!)}
                 >
                   <Route handle={{ crumb: 'Routes' }}>
                     <Route index />
@@ -521,10 +510,7 @@ export const routes = createRoutesFromElements(
           <Route
             element={<FloatingIpsPage />}
             loader={FloatingIpsPage.loader}
-            handle={{
-              crumb: 'Floating IPs',
-              crumbPath: (m: UIMatch) => pb.floatingIps({ project: m.params.project! }),
-            }}
+            handle={makeCrumb('Floating IPs', (p) => pb.floatingIps(getProjectSelector(p)))}
           >
             <Route path="floating-ips" element={null} />
             <Route
@@ -542,10 +528,7 @@ export const routes = createRoutesFromElements(
 
           <Route
             element={<DisksPage />}
-            handle={{
-              crumb: 'Disks',
-              crumbPath: (m: UIMatch) => pb.disks({ project: m.params.project! }),
-            }}
+            handle={makeCrumb('Disks', (p) => pb.disks(getProjectSelector(p)))}
             loader={DisksPage.loader}
           >
             <Route path="disks" element={null} />
@@ -562,10 +545,7 @@ export const routes = createRoutesFromElements(
 
           <Route
             element={<SnapshotsPage />}
-            handle={{
-              crumb: 'Snapshots',
-              crumbPath: (m: UIMatch) => pb.snapshots({ project: m.params.project! }),
-            }}
+            handle={makeCrumb('Snapshots', (p) => pb.snapshots(getProjectSelector(p)))}
             loader={SnapshotsPage.loader}
           >
             <Route path="snapshots" element={null} />
@@ -584,10 +564,7 @@ export const routes = createRoutesFromElements(
 
           <Route
             element={<ImagesPage />}
-            handle={{
-              crumb: 'Images',
-              crumbPath: (m: UIMatch) => pb.projectImages({ project: m.params.project! }),
-            }}
+            handle={makeCrumb('Images', (p) => pb.projectImages(getProjectSelector(p)))}
             loader={ImagesPage.loader}
           >
             <Route path="images" element={null} />
