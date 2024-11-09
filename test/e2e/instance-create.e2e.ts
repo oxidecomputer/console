@@ -376,7 +376,7 @@ test('maintains selected values even when changing tabs', async ({ page }) => {
   await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=8 GiB'])
   // when a disk name isn’t assigned, the generated one uses the ID of the image,
   // so this checks to make sure that the arch-based image — with ID `bd6aa051…` — was used
-  await expectVisible(page, [`text=${instanceName}-bd6aa051`])
+  await expectVisible(page, [`text=${instanceName}-${arch}`])
 })
 
 test('does not attach an ephemeral IP when the checkbox is unchecked', async ({ page }) => {
