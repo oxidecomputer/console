@@ -13,7 +13,7 @@ import { clickRowAction, expectRowVisible, expectToast } from './utils'
 test('IP pool list', async ({ page }) => {
   await page.goto('/system/networking/ip-pools')
 
-  await expect(page).toHaveTitle('IP pools / Oxide Console')
+  await expect(page).toHaveTitle('IP Pools / Oxide Console')
 
   await expect(page.getByRole('heading', { name: 'IP Pools' })).toBeVisible()
 
@@ -55,7 +55,7 @@ test('IP pool silo list', async ({ page }) => {
   await page.goto('/system/networking/ip-pools')
 
   await page.getByRole('link', { name: 'ip-pool-1' }).click()
-  await expect(page).toHaveTitle('ip-pool-1 / IP pools / Oxide Console')
+  await expect(page).toHaveTitle('ip-pool-1 / IP Pools / Oxide Console')
 
   await page.getByRole('tab', { name: 'Linked silos' }).click()
   // this is here because waiting for the `tab` query param to show up avoids

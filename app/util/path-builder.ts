@@ -107,7 +107,6 @@ export const pb = {
   siloImageEdit: (params: SiloImage) => `${pb.siloImages()}/${params.image}/edit`,
 
   systemUtilization: () => '/system/utilization',
-  systemHealth: () => '/system/health',
 
   ipPools: () => '/system/networking/ip-pools',
   ipPoolsNew: () => '/system/networking/ip-pools-new',

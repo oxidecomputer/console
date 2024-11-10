@@ -84,7 +84,6 @@ test('path builder', () => {
         "snapshotsNew": "/projects/p/snapshots-new",
         "sshKeys": "/settings/ssh-keys",
         "sshKeysNew": "/settings/ssh-keys-new",
-        "systemHealth": "/system/health",
         "systemUtilization": "/system/utilization",
         "vpc": "/projects/p/vpcs/v/firewall-rules",
         "vpcEdit": "/projects/p/vpcs/v/edit",

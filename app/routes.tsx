@@ -122,7 +122,7 @@ export const routes = createRoutesFromElements(
         <Route
           element={<SSHKeysPage />}
           loader={SSHKeysPage.loader}
-          handle={{ crumb: 'SSH Keys' }}
+          handle={makeCrumb('SSH Keys', pb.sshKeys)}
         >
           <Route path="ssh-keys" element={null} />
           <Route
@@ -207,20 +207,18 @@ export const routes = createRoutesFromElements(
             </Route>
           </Route>
         </Route>
-        <Route path="health" element={null} handle={{ crumb: 'Health' }} />
-        <Route path="update" element={null} handle={{ crumb: 'Update' }} />
         <Route path="networking">
           <Route index element={<Navigate to="ip-pools" replace />} />
           <Route
             element={<IpPoolsPage />}
             loader={IpPoolsPage.loader}
-            handle={{ crumb: 'IP pools' }}
+            handle={{ crumb: 'IP Pools' }}
           >
             <Route path="ip-pools" element={null} />
             <Route path="ip-pools-new" element={<CreateIpPoolSideModalForm />} />
           </Route>
         </Route>
-        <Route path="networking/ip-pools" handle={{ crumb: 'IP pools' }}>
+        <Route path="networking/ip-pools" handle={{ crumb: 'IP Pools' }}>
           <Route
             path=":pool"
             element={<IpPoolPage />}
@@ -275,7 +273,7 @@ export const routes = createRoutesFromElements(
 
         {/* these are here instead of under projects because they need to use SiloLayout */}
         <Route
-          handle={{ crumb: 'Projects' }}
+          handle={makeCrumb('Projects', pb.projects())}
           loader={ProjectsPage.loader}
           element={<ProjectsPage />}
         >

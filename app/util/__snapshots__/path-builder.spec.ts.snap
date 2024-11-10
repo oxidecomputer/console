@@ -223,7 +223,7 @@ exports[`breadcrumbs 2`] = `
   ],
   "ipPool (/system/networking/ip-pools/pl)": [
     {
-      "label": "IP pools",
+      "label": "IP Pools",
       "path": "/system/networking/ip-pools",
     },
     {
@@ -233,7 +233,7 @@ exports[`breadcrumbs 2`] = `
   ],
   "ipPoolEdit (/system/networking/ip-pools/pl/edit)": [
     {
-      "label": "IP pools",
+      "label": "IP Pools",
       "path": "/system/networking/ip-pools",
     },
     {
@@ -247,7 +247,7 @@ exports[`breadcrumbs 2`] = `
   ],
   "ipPoolRangeAdd (/system/networking/ip-pools/pl/ranges-add)": [
     {
-      "label": "IP pools",
+      "label": "IP Pools",
       "path": "/system/networking/ip-pools",
     },
     {
@@ -257,13 +257,13 @@ exports[`breadcrumbs 2`] = `
   ],
   "ipPools (/system/networking/ip-pools)": [
     {
-      "label": "IP pools",
+      "label": "IP Pools",
       "path": "/system/networking/",
     },
   ],
   "ipPoolsNew (/system/networking/ip-pools-new)": [
     {
-      "label": "IP pools",
+      "label": "IP Pools",
       "path": "/system/networking/",
     },
   ],
@@ -308,7 +308,7 @@ exports[`breadcrumbs 2`] = `
   "projectEdit (/projects/p/edit)": [
     {
       "label": "Projects",
-      "path": "/",
+      "path": "/projects",
     },
   ],
   "projectImageEdit (/projects/p/images/im/edit)": [
@@ -356,13 +356,13 @@ exports[`breadcrumbs 2`] = `
   "projects (/projects)": [
     {
       "label": "Projects",
-      "path": "/",
+      "path": "/projects",
     },
   ],
   "projectsNew (/projects-new)": [
     {
       "label": "Projects",
-      "path": "/",
+      "path": "/projects",
     },
   ],
   "samlIdp (/system/silos/s/idps/saml/pr)": [
@@ -546,7 +546,7 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "SSH Keys",
-      "path": "/settings/",
+      "path": "/settings/ssh-keys",
     },
   ],
   "sshKeysNew (/settings/ssh-keys-new)": [
@@ -556,13 +556,7 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "SSH Keys",
-      "path": "/settings/",
-    },
-  ],
-  "systemHealth (/system/health)": [
-    {
-      "label": "Health",
-      "path": "/system/health",
+      "path": "/settings/ssh-keys",
     },
   ],
   "systemUtilization (/system/utilization)": [
