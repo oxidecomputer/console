@@ -6,16 +6,22 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import React from 'react'
+import { Link } from 'react-router-dom'
 
 import { navToLogin, useApiMutation } from '@oxide/api'
-import { DirectionDownIcon, Profile16Icon } from '@oxide/design-system/icons/react'
+import {
+  DirectionDownIcon,
+  PrevArrow12Icon,
+  Profile16Icon,
+} from '@oxide/design-system/icons/react'
 
-import { Breadcrumbs } from '~/components/Breadcrumbs'
 import { SiloSystemPicker } from '~/components/TopBarPicker'
+import { useCrumbs } from '~/hooks/use-crumbs'
 import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
 import { buttonStyle } from '~/ui/lib/Button'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
+import { Slash } from '~/ui/lib/Slash'
+import { intersperse } from '~/util/array'
 import { pb } from '~/util/path-builder'
 
 export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
@@ -38,6 +44,38 @@ export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
         </div>
       </div>
     </>
+  )
+}
+
+function Breadcrumbs() {
+  const crumbs = useCrumbs().filter((c) => !c.titleOnly)
+  const isTopLevel = crumbs.length <= 1
+  return (
+    <nav
+      className="flex items-center gap-0.5 overflow-clip pr-4 text-sans-md"
+      aria-label="Breadcrumbs"
+    >
+      <PrevArrow12Icon
+        className={cn('mx-1.5 flex-shrink-0 text-quinary', isTopLevel && 'opacity-40')}
+      />
+
+      {intersperse(
+        crumbs.map(({ label, path }, i) => (
+          <Link
+            to={path}
+            className={cn(
+              'whitespace-nowrap text-sans-md hover:text-secondary',
+              // make the last breadcrumb brighter, but only if we're below the top level
+              !isTopLevel && i === crumbs.length - 1 ? 'text-secondary' : 'text-tertiary'
+            )}
+            key={`${label}|${path}`}
+          >
+            {label}
+          </Link>
+        )),
+        <Slash />
+      )}
+    </nav>
   )
 }
 
