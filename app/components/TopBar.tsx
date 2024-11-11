@@ -9,17 +9,14 @@ import cn from 'classnames'
 import { Link } from 'react-router-dom'
 
 import { navToLogin, useApiMutation } from '@oxide/api'
-import {
-  DirectionDownIcon,
-  PrevArrow12Icon,
-  Profile16Icon,
-} from '@oxide/design-system/icons/react'
+import { DirectionDownIcon, Profile16Icon } from '@oxide/design-system/icons/react'
 
-import { SiloSystemPicker } from '~/components/TopBarPicker'
+import { SiloSystemPicker } from '~/components/SystemSiloPicker'
 import { useCrumbs } from '~/hooks/use-crumbs'
 import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
 import { buttonStyle } from '~/ui/lib/Button'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
+import { Identicon } from '~/ui/lib/Identicon'
 import { Slash } from '~/ui/lib/Slash'
 import { intersperse } from '~/util/array'
 import { pb } from '~/util/path-builder'
@@ -31,19 +28,45 @@ export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
   return (
     <>
       <div className="flex items-center border-b border-r px-3 border-secondary">
-        <SiloSystemPicker value={systemOrSilo} />
+        <HomeButton />
       </div>
       {/* Height is governed by PageContainer grid */}
-      {/* shrink-0 is needed to prevent getting squished by body content */}
-      <div className="z-topBar border-b bg-default border-secondary">
-        <div className="mx-3 flex h-[--top-bar-height] shrink-0 items-center justify-between">
+      <div className="flex items-center justify-between gap-4 border-b px-3 bg-default border-secondary">
+        <div className="flex flex-1 gap-2.5">
+          <SiloSystemPicker value={systemOrSilo} />
           <Breadcrumbs />
-          <div className="flex items-center gap-2">
-            <UserMenu />
-          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <UserMenu />
         </div>
       </div>
     </>
+  )
+}
+
+const BigIdenticon = ({ name }: { name: string }) => (
+  <Identicon
+    className="flex h-[34px] w-[34px] items-center justify-center rounded text-accent bg-accent-secondary-hover"
+    name={name}
+  />
+)
+
+function HomeButton() {
+  const { me } = useCurrentUser()
+  return (
+    <Link to={pb.projects()} className="-m-1 grow rounded-lg p-1 hover:bg-hover">
+      <div className="flex min-w-[120px] max-w-[185px] items-center pr-2">
+        <div className="mr-2 flex items-center">
+          <BigIdenticon name={me.siloName} />
+        </div>
+        <div className="overflow-hidden">
+          <div className="text-mono-xs text-quaternary">Silo</div>
+          <div className="w-full overflow-hidden text-ellipsis whitespace-nowrap text-sans-md text-secondary">
+            {me.siloName}
+          </div>
+        </div>
+      </div>
+    </Link>
   )
 }
 
@@ -52,13 +75,9 @@ function Breadcrumbs() {
   const isTopLevel = crumbs.length <= 1
   return (
     <nav
-      className="flex items-center gap-0.5 overflow-clip pr-4 text-sans-md"
+      className="flex items-center gap-0.5 overflow-clip text-sans-md"
       aria-label="Breadcrumbs"
     >
-      <PrevArrow12Icon
-        className={cn('mx-1.5 flex-shrink-0 text-quinary', isTopLevel && 'opacity-40')}
-      />
-
       {intersperse(
         crumbs.map(({ label, path }, i) => (
           <Link
