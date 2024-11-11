@@ -24,7 +24,7 @@ import { CreateImageFromSnapshotSideModalForm } from './forms/image-from-snapsho
 import { CreateImageSideModalForm } from './forms/image-upload'
 import { CreateInstanceForm } from './forms/instance-create'
 import { CreateIpPoolSideModalForm } from './forms/ip-pool-create'
-import { EditIpPoolSideModalForm } from './forms/ip-pool-edit'
+import * as IpPoolEdit from './forms/ip-pool-edit'
 import { IpPoolAddRangeSideModalForm } from './forms/ip-pool-range-add'
 import { CreateProjectSideModalForm } from './forms/project-create'
 import { EditProjectSideModalForm } from './forms/project-edit'
@@ -55,39 +55,39 @@ import { DeviceAuthVerifyPage } from './pages/DeviceAuthVerifyPage'
 import { LoginPage } from './pages/LoginPage'
 import { LoginPageSaml } from './pages/LoginPageSaml'
 import { instanceLookupLoader } from './pages/lookups'
-import { ProjectAccessPage } from './pages/project/access/ProjectAccessPage'
+import * as ProjectAccess from './pages/project/access/ProjectAccessPage'
 import { DisksPage } from './pages/project/disks/DisksPage'
 import { FloatingIpsPage } from './pages/project/floating-ips/FloatingIpsPage'
 import { ImagesPage } from './pages/project/images/ImagesPage'
 import { InstancePage } from './pages/project/instances/instance/InstancePage'
 import { SerialConsolePage } from './pages/project/instances/instance/SerialConsolePage'
-import { ConnectTab } from './pages/project/instances/instance/tabs/ConnectTab'
-import { MetricsTab } from './pages/project/instances/instance/tabs/MetricsTab'
-import { NetworkingTab } from './pages/project/instances/instance/tabs/NetworkingTab'
-import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
+import * as ConnectTab from './pages/project/instances/instance/tabs/ConnectTab'
+import * as MetricsTab from './pages/project/instances/instance/tabs/MetricsTab'
+import * as NetworkingTab from './pages/project/instances/instance/tabs/NetworkingTab'
+import * as StorageTab from './pages/project/instances/instance/tabs/StorageTab'
 import { InstancesPage } from './pages/project/instances/InstancesPage'
 import { SnapshotsPage } from './pages/project/snapshots/SnapshotsPage'
-import { RouterPage } from './pages/project/vpcs/RouterPage'
+import * as RouterPage from './pages/project/vpcs/RouterPage'
 import { VpcFirewallRulesTab } from './pages/project/vpcs/VpcPage/tabs/VpcFirewallRulesTab'
 import { VpcRoutersTab } from './pages/project/vpcs/VpcPage/tabs/VpcRoutersTab'
 import { VpcSubnetsTab } from './pages/project/vpcs/VpcPage/tabs/VpcSubnetsTab'
 import { VpcPage } from './pages/project/vpcs/VpcPage/VpcPage'
 import { VpcsPage } from './pages/project/vpcs/VpcsPage'
-import { ProjectsPage } from './pages/ProjectsPage'
+import * as Projects from './pages/ProjectsPage'
 import { ProfilePage } from './pages/settings/ProfilePage'
-import { SSHKeysPage } from './pages/settings/SSHKeysPage'
-import { SiloAccessPage } from './pages/SiloAccessPage'
+import * as SSHKeysPage from './pages/settings/SSHKeysPage'
+import * as SiloAccess from './pages/SiloAccessPage'
 import { SiloUtilizationPage } from './pages/SiloUtilizationPage'
-import { DisksTab } from './pages/system/inventory/DisksTab'
+import * as DisksTab from './pages/system/inventory/DisksTab'
 import { InventoryPage } from './pages/system/inventory/InventoryPage'
 import { SledInstancesTab } from './pages/system/inventory/sled/SledInstancesTab'
 import { SledPage } from './pages/system/inventory/sled/SledPage'
-import { SledsTab } from './pages/system/inventory/SledsTab'
-import { IpPoolPage } from './pages/system/networking/IpPoolPage'
-import { IpPoolsPage } from './pages/system/networking/IpPoolsPage'
+import * as SledsTab from './pages/system/inventory/SledsTab'
+import * as IpPool from './pages/system/networking/IpPoolPage'
+import * as IpPools from './pages/system/networking/IpPoolsPage'
 import { SiloImagesPage } from './pages/system/SiloImagesPage'
-import { SiloPage } from './pages/system/silos/SiloPage'
-import { SilosPage } from './pages/system/silos/SilosPage'
+import * as SiloPage from './pages/system/silos/SiloPage'
+import * as SilosPage from './pages/system/silos/SilosPage'
 import { SystemUtilizationPage } from './pages/system/UtilizationPage'
 import { pb } from './util/path-builder'
 
@@ -119,11 +119,7 @@ export const routes = createRoutesFromElements(
       >
         <Route index element={<Navigate to="profile" replace />} />
         <Route path="profile" element={<ProfilePage />} handle={{ crumb: 'Profile' }} />
-        <Route
-          element={<SSHKeysPage />}
-          loader={SSHKeysPage.loader}
-          handle={makeCrumb('SSH Keys', pb.sshKeys)}
-        >
+        <Route {...SSHKeysPage} handle={makeCrumb('SSH Keys', pb.sshKeys)}>
           <Route path="ssh-keys" element={null} />
           <Route
             path="ssh-keys-new"
@@ -134,21 +130,12 @@ export const routes = createRoutesFromElements(
       </Route>
 
       <Route path="system" element={<SystemLayout />} loader={SystemLayout.loader}>
-        <Route
-          element={<SilosPage />}
-          loader={SilosPage.loader}
-          handle={makeCrumb('Silos', pb.silos())}
-        >
+        <Route {...SilosPage} handle={makeCrumb('Silos', pb.silos())}>
           <Route path="silos" element={null} />
           <Route path="silos-new" element={<CreateSiloSideModalForm />} />
         </Route>
         <Route path="silos" handle={{ crumb: 'Silos' }}>
-          <Route
-            path=":silo"
-            element={<SiloPage />}
-            loader={SiloPage.loader}
-            handle={makeCrumb((p) => p.silo!)}
-          >
+          <Route path=":silo" {...SiloPage} handle={makeCrumb((p) => p.silo!)}>
             <Route path="idps-new" element={<CreateIdpSideModalForm />} />
             <Route
               path="idps/saml/:provider"
@@ -172,27 +159,13 @@ export const routes = createRoutesFromElements(
           handle={makeCrumb('Inventory', pb.sledInventory())}
         >
           <Route index element={<Navigate to="sleds" replace />} loader={SledsTab.loader} />
-          <Route
-            path="sleds"
-            element={<SledsTab />}
-            handle={{ crumb: 'Sleds' }}
-            loader={SledsTab.loader}
-          />
-          <Route
-            path="disks"
-            element={<DisksTab />}
-            handle={{ crumb: 'Disks' }}
-            loader={DisksTab.loader}
-          />
+          <Route path="sleds" {...SledsTab} handle={{ crumb: 'Sleds' }} />
+          <Route path="disks" {...DisksTab} handle={{ crumb: 'Disks' }} />
         </Route>
         <Route path="inventory" handle={{ crumb: 'Inventory' }}>
           <Route path="sleds" handle={{ crumb: 'Sleds' }}>
-            <Route
-              path=":sledId"
-              element={<SledPage />}
-              loader={SledPage.loader}
-              // a crumb for the sled ID looks ridiculous, unfortunately
-            >
+            {/* a crumb for the sled ID looks ridiculous, unfortunately */}
+            <Route path=":sledId" element={<SledPage />} loader={SledPage.loader}>
               <Route
                 index
                 element={<Navigate to="instances" replace />}
@@ -209,28 +182,14 @@ export const routes = createRoutesFromElements(
         </Route>
         <Route path="networking">
           <Route index element={<Navigate to="ip-pools" replace />} />
-          <Route
-            element={<IpPoolsPage />}
-            loader={IpPoolsPage.loader}
-            handle={{ crumb: 'IP Pools' }}
-          >
+          <Route {...IpPools} handle={{ crumb: 'IP Pools' }}>
             <Route path="ip-pools" element={null} />
             <Route path="ip-pools-new" element={<CreateIpPoolSideModalForm />} />
           </Route>
         </Route>
         <Route path="networking/ip-pools" handle={{ crumb: 'IP Pools' }}>
-          <Route
-            path=":pool"
-            element={<IpPoolPage />}
-            loader={IpPoolPage.loader}
-            handle={makeCrumb((p) => p.pool!)}
-          >
-            <Route
-              path="edit"
-              element={<EditIpPoolSideModalForm />}
-              loader={EditIpPoolSideModalForm.loader}
-              handle={{ crumb: 'Edit IP pool' }}
-            />
+          <Route path=":pool" {...IpPool} handle={makeCrumb((p) => p.pool!)}>
+            <Route path="edit" {...IpPoolEdit} handle={{ crumb: 'Edit IP pool' }} />
             <Route
               path="ranges-add"
               element={<IpPoolAddRangeSideModalForm />}
@@ -272,11 +231,7 @@ export const routes = createRoutesFromElements(
         <Route path="lookup/i/:instance" element={null} loader={instanceLookupLoader} />
 
         {/* these are here instead of under projects because they need to use SiloLayout */}
-        <Route
-          handle={makeCrumb('Projects', pb.projects())}
-          loader={ProjectsPage.loader}
-          element={<ProjectsPage />}
-        >
+        <Route {...Projects} handle={makeCrumb('Projects', pb.projects())}>
           <Route path="projects" element={null} />
           <Route
             path="projects-new"
@@ -291,12 +246,7 @@ export const routes = createRoutesFromElements(
           />
         </Route>
 
-        <Route
-          path="access"
-          element={<SiloAccessPage />}
-          loader={SiloAccessPage.loader}
-          handle={{ crumb: 'Access' }}
-        />
+        <Route path="access" {...SiloAccess} handle={{ crumb: 'Access' }} />
       </Route>
 
       {/* PROJECT */}
@@ -352,30 +302,14 @@ export const routes = createRoutesFromElements(
             >
               <Route index element={<Navigate to="storage" replace />} />
               <Route element={<InstancePage />} loader={InstancePage.loader}>
+                <Route {...StorageTab} path="storage" handle={{ crumb: 'Storage' }} />
                 <Route
-                  path="storage"
-                  element={<StorageTab />}
-                  loader={StorageTab.loader}
-                  handle={{ crumb: 'Storage' }}
-                />
-                <Route
+                  {...NetworkingTab}
                   path="networking"
-                  element={<NetworkingTab />}
-                  loader={NetworkingTab.loader}
                   handle={{ crumb: 'Networking' }}
                 />
-                <Route
-                  path="metrics"
-                  element={<MetricsTab />}
-                  loader={MetricsTab.loader}
-                  handle={{ crumb: 'Metrics' }}
-                />
-                <Route
-                  path="connect"
-                  element={<ConnectTab />}
-                  loader={ConnectTab.loader}
-                  handle={{ crumb: 'Connect' }}
-                />
+                <Route {...MetricsTab} path="metrics" handle={{ crumb: 'Metrics' }} />
+                <Route {...ConnectTab} path="connect" handle={{ crumb: 'Connect' }} />
               </Route>
             </Route>
           </Route>
@@ -480,12 +414,7 @@ export const routes = createRoutesFromElements(
           <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
             <Route path=":vpc" handle={makeCrumb((p) => p.vpc!)}>
               <Route path="routers" handle={{ crumb: 'Routers' }}>
-                <Route
-                  path=":router"
-                  element={<RouterPage />}
-                  loader={RouterPage.loader}
-                  handle={makeCrumb((p) => p.router!)}
-                >
+                <Route path=":router" {...RouterPage} handle={makeCrumb((p) => p.router!)}>
                   <Route handle={{ crumb: 'Routes' }}>
                     <Route index />
                     <Route
@@ -578,12 +507,7 @@ export const routes = createRoutesFromElements(
               handle={{ crumb: 'Edit Image', titleOnly: true }}
             />
           </Route>
-          <Route
-            path="access"
-            element={<ProjectAccessPage />}
-            loader={ProjectAccessPage.loader}
-            handle={{ crumb: 'Access' }}
-          />
+          <Route path="access" {...ProjectAccess} handle={{ crumb: 'Access' }} />
         </Route>
       </Route>
     </Route>

@@ -41,7 +41,7 @@ import { TableControls, TableTitle } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-RouterPage.loader = async function ({ params }: LoaderFunctionArgs) {
+export async function loader({ params }: LoaderFunctionArgs) {
   const { project, vpc, router } = getVpcRouterSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('vpcRouterView', {
@@ -80,7 +80,8 @@ const RouterRouteTypeValueBadge = ({
   )
 }
 
-export function RouterPage() {
+Component.displayName = 'RouterPage'
+export function Component() {
   const { project, vpc, router } = useVpcRouterSelector()
   const { data: routerData } = usePrefetchedApiQuery('vpcRouterView', {
     path: { router },
