@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { delay } from 'msw'
+import { delay, ws } from 'msw'
 import * as R from 'remeda'
 import { validate as isUuid, v4 as uuid } from 'uuid'
 
@@ -63,7 +63,7 @@ import {
 // client camel-cases the keys and parses date fields. Inside the mock API everything
 // is *JSON type.
 
-export const handlers = makeHandlers({
+const httpHandlers = makeHandlers({
   logout: () => 204,
   ping: () => ({ status: 'ok' }),
   deviceAuthRequest: () => 200,
@@ -1592,3 +1592,16 @@ export const handlers = makeHandlers({
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
 })
+
+const serialWs = ws.link(
+  `ws://${window.location.host}/v1/instances/:instance/serial-console/stream`
+)
+
+export const handlers = [
+  ...httpHandlers,
+  serialWs.addEventListener('connection', ({ client }) => {
+    client.addEventListener('message', (_event) => {
+      client.send('hello from server!')
+    })
+  }),
+]
