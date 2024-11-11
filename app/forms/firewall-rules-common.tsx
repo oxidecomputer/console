@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { useController, useForm, type Control } from 'react-hook-form'
 
 import {
@@ -105,6 +105,8 @@ const TargetAndHostFilterSubform = ({
     data: { items: vpcSubnets },
   } = usePrefetchedApiQuery('vpcSubnetList', { query: { project, vpc } })
 
+  const [readyToSubmit, setReadyToSubmit] = useState(false)
+
   const subform = useForm({ defaultValues: targetAndHostDefaultValues })
   const field = useController({ name: `${sectionType}s`, control }).field
 
@@ -116,6 +118,7 @@ const TargetAndHostFilterSubform = ({
     if (field.value.some((f) => f.value === value && f.type === type)) return
     field.onChange([...field.value, { type, value }])
     subform.reset(targetAndHostDefaultValues)
+    setReadyToSubmit(false)
   })
 
   // HACK: we need to reset the target form completely after a successful submit,
@@ -143,10 +146,16 @@ const TargetAndHostFilterSubform = ({
   const subformControl = subform.control
   // HACK: reset the whole subform, keeping type (because we just set
   // it). most importantly, this resets isSubmitted so the form can go
-  // back to validating on submit instead of change
-  const onTypeChange = () => subform.reset({ type: subform.getValues('type'), value: '' })
-  const onInputChange = (value: string) => subform.setValue('value', value)
-  const addButtonRef = useRef<HTMLButtonElement>(null)
+  // back to validating on submit instead of change. Also resets readyToSubmit.
+  const onTypeChange = () => {
+    subform.reset({ type: subform.getValues('type'), value: '' })
+    setReadyToSubmit(false)
+  }
+  const onInputChange = (value: string) => {
+    subform.setValue('value', value)
+    setReadyToSubmit(false)
+  }
+
   return (
     <>
       <SideModal.Heading>
@@ -177,10 +186,20 @@ const TargetAndHostFilterSubform = ({
           description="Select an option or enter a custom value"
           control={subformControl}
           onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-            if (e.key === KEYS.enter) {
-              addButtonRef.current?.focus() // focus on the subform's `add _____` button
+            if (e.key === KEYS.down || e.key === KEYS.up) {
+              setReadyToSubmit(false)
+            }
+            if (e.key === KEYS.enter && value.length) {
+              // the first time they hit the enter key, set readyToSubmit to true,
+              // so that the second time they hit enter, it submits the subform
+              if (!readyToSubmit) {
+                setReadyToSubmit(true)
+              } else {
+                submitSubform(e)
+              }
             }
           }}
+          onChange={() => setReadyToSubmit(true)}
           onInputChange={onInputChange}
           items={items}
           allowArbitraryValues
@@ -214,7 +233,6 @@ const TargetAndHostFilterSubform = ({
       )}
       <MiniTable.ClearAndAddButtons
         addButtonCopy={`Add ${sectionType === 'host' ? 'host filter' : 'target'}`}
-        addButtonRef={addButtonRef}
         disableClear={!value}
         onClear={() => subform.reset()}
         onSubmit={submitSubform}

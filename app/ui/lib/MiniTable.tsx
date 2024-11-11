@@ -48,7 +48,6 @@ export const RemoveCell = ({ onClick, label }: { onClick: () => void; label: str
 
 type ClearAndAddButtonsProps = {
   addButtonCopy: string
-  addButtonRef?: React.RefObject<HTMLButtonElement>
   disableClear: boolean
   onClear: () => void
   onSubmit: () => void
@@ -60,7 +59,6 @@ type ClearAndAddButtonsProps = {
  */
 export const ClearAndAddButtons = ({
   addButtonCopy,
-  addButtonRef,
   disableClear,
   onClear,
   onSubmit,
@@ -69,7 +67,7 @@ export const ClearAndAddButtons = ({
     <Button variant="ghost" size="sm" disabled={disableClear} onClick={onClear}>
       Clear
     </Button>
-    <Button size="sm" onClick={onSubmit} ref={addButtonRef}>
+    <Button size="sm" onClick={onSubmit}>
       {addButtonCopy}
     </Button>
   </div>
