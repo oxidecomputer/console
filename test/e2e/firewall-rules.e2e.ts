@@ -163,8 +163,10 @@ test('firewall rule form targets table', async ({ page }) => {
   // add targets with overlapping names and types to test delete
 
   await targetVpcNameField.fill('abc')
+  // hit enter one time to choose the custom value
   await targetVpcNameField.press('Enter')
-  await addButton.click()
+  // hit enter a second time to submit the subform
+  await targetVpcNameField.press('Enter')
   await expectRowVisible(targets, { Type: 'vpc', Value: 'abc' })
 
   // enter a VPC called 'mock-subnet', even if that doesn't make sense here, to test dropdown later
@@ -186,8 +188,9 @@ test('firewall rule form targets table', async ({ page }) => {
   // now add a subnet by entering text
   await selectOption(page, 'Target type', 'VPC subnet')
   await subnetNameField.fill('abc')
-  await page.getByText('abc').first().click()
-  await addButton.click()
+  // hit enter to submit the subform
+  await subnetNameField.press('Enter')
+  await subnetNameField.press('Enter')
   await expectRowVisible(targets, { Type: 'subnet', Value: 'abc' })
 
   // add IP target
