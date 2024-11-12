@@ -115,7 +115,7 @@ const MetricsTab = () => {
 
   return (
     <>
-      <div className="mt-8 mb-3 flex justify-between gap-3">
+      <div className="mb-3 mt-8 flex justify-between gap-3">
         <Listbox
           selected={filterId}
           className="w-64"
@@ -229,7 +229,7 @@ function UsageTab() {
                 unit="TiB"
               />
             </Table.Cell>
-            <Table.Cell className="action-col children:p-0 w-10" height="large">
+            <Table.Cell className="action-col w-10 children:p-0" height="large">
               <RowActions id={silo.siloId} copyIdLabel="Copy silo ID" />
             </Table.Cell>
           </Table.Row>
@@ -248,7 +248,7 @@ const UsageCell = ({
   allocated: number
   unit?: string
 }) => (
-  <div className="text-tertiary flex flex-col">
+  <div className="flex flex-col text-tertiary">
     <div>
       <span className="text-default">{provisioned}</span> /
     </div>
