@@ -79,9 +79,7 @@ export function CreateDiskSideModalForm({
 
   const { project } = useProjectSelector()
   const { data: allDisks } = useApiQuery('diskList', { query: { project, limit: ALL_ISH } })
-  // There might be duplicates in allUnavailableDiskNames — as a disk from the allDisks list
-  // might be showing up in the unavailableDiskNames list (e.g. in the instance create flow) — but
-  // that's fine; includes() will early return on the first match
+  // duplicates in allDisks and unavailableDiskNames is fine; includes() will early return on the first match
   const allUnavailableDiskNames = [
     ...(allDisks?.items.map((d) => d.name) || []),
     ...unavailableDiskNames,

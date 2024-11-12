@@ -261,10 +261,10 @@ test('can’t create a disk with a name that collides with the boot disk name', 
   await dialog.getByRole('textbox', { name: 'name' }).fill('disk-11')
   await dialog.getByRole('button', { name: 'Create disk' }).click()
   // Expect to see an error message
-  await expect(page.getByText('Name is already in use').first()).toBeVisible()
+  await expect(dialog.getByText('Name is already in use')).toBeVisible()
   // Change the disk name to something else
   await dialog.getByRole('textbox', { name: 'name' }).fill('disk-12')
-  await page.getByRole('button', { name: 'Create disk' }).click()
+  await dialog.getByRole('button', { name: 'Create disk' }).click()
   // The disk has been "created" (is in the list of Additional Disks)
   await expectVisible(page, ['text=disk-12'])
   // Create the instance
