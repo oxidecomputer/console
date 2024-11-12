@@ -180,16 +180,8 @@ const TargetAndHostFilterSubform = ({
           {...getFilterValueProps(valueType)}
           description="Select an option or enter a custom value"
           control={subformControl}
-          onKeyDown={(e, open) => {
-            // When the combobox is closed, enter should submit
-            // the subform if there's some value in the field.
-            // Enter should not submit the overall form.
-            if (!open && e.key === KEYS.enter) {
-              e.preventDefault() // prevent full form submission
-              if (value.length > 0) {
-                submitSubform(e)
-              }
-            }
+          onEnter={(e) => {
+            if (value.length > 0) submitSubform(e)
           }}
           onInputChange={onInputChange}
           items={items}

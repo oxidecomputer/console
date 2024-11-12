@@ -62,13 +62,17 @@ export type ComboboxBaseProps = {
    * For example, if a form value should be set when the user types, use `onInputChange`.
    */
   onInputChange?: (value: string) => void
-  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>, open?: boolean) => void
+  /** Fires with any keypress in the Combobox input */
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void
+  /** Fires whenever the Enter key is pressed while Combobox input has focus */
+  onEnter?: (event: React.KeyboardEvent<HTMLInputElement>) => void
 }
 
 type ComboboxProps = {
   selectedItemValue: string
   selectedItemLabel: string
   hasError?: boolean
+  /** Fires when the user *selects* an item from the list */
   onChange: (value: string) => void
   /** Necessary if you want RHF to be able to focus it on error */
   inputRef?: Ref<HTMLInputElement>
@@ -87,6 +91,7 @@ export const Combobox = ({
   isLoading,
   onChange,
   onKeyDown,
+  onEnter,
   onInputChange,
   allowArbitraryValues = false,
   hideOptionalTag,
@@ -138,6 +143,17 @@ export const Combobox = ({
   }
   const zIndex = usePopoverZIndex()
   const id = useId()
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, open: boolean) => {
+    // Prevent form submission when the user presses Enter inside a combobox.
+    // The combobox component already handles Enter keypresses to select items,
+    // so we only preventDefault when the combobox is closed.
+    if (e.key === 'Enter' && !open) {
+      e.preventDefault()
+      onEnter?.(e)
+    }
+    onKeyDown?.(e)
+  }
+
   return (
     <>
       <HCombobox
@@ -200,7 +216,7 @@ export const Combobox = ({
                   // if the parent component wants to know about input changes, call the callback
                   onInputChange?.(event.target.value)
                 }}
-                onKeyDown={(e) => onKeyDown && onKeyDown(e, open)}
+                onKeyDown={(e) => handleKeyDown(e, open)}
                 placeholder={placeholder}
                 disabled={disabled || isLoading}
                 className={cn(
@@ -244,7 +260,7 @@ export const Combobox = ({
                           'is-highlighted': focus,
                         })}
                       >
-                        {item.label} {open}
+                        {item.label}
                       </div>
                     )}
                   </ComboboxOption>
