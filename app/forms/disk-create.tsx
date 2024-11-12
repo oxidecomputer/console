@@ -79,7 +79,7 @@ export function CreateDiskSideModalForm({
 
   const { project } = useProjectSelector()
   const { data: allDisks } = useApiQuery('diskList', { query: { project, limit: ALL_ISH } })
-  // There might be duplicates here, but that's fine; inclides() will early return on the first match
+  // There might be duplicates here, but that's fine; includes() will early return on the first match
   const allUnavailableDiskNames = [
     ...(allDisks?.items.map((d) => d.name) || []),
     ...unavailableDiskNames,
