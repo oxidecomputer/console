@@ -185,10 +185,9 @@ const TargetAndHostFilterSubform = ({
             // the subform if there's some value in the field.
             // Enter should not submit the overall form.
             if (!open && e.key === KEYS.enter) {
-              if (value.length) {
+              e.preventDefault() // prevent full form submission
+              if (value.length > 0) {
                 submitSubform(e)
-              } else {
-                e.preventDefault()
               }
             }
           }}
@@ -229,7 +228,7 @@ const TargetAndHostFilterSubform = ({
         onClear={() => subform.reset()}
         onSubmit={submitSubform}
       />
-      {!!field.value.length && (
+      {field.value.length > 0 && (
         <MiniTable.Table
           className="mb-4"
           aria-label={sectionType === 'target' ? 'Targets' : 'Host filters'}
@@ -471,7 +470,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           onSubmit={submitPortRange}
         />
       </div>
-      {!!ports.value.length && (
+      {ports.value.length > 0 && (
         <MiniTable.Table className="mb-4" aria-label="Port filters">
           <MiniTable.Header>
             <MiniTable.HeadCell>Port ranges</MiniTable.HeadCell>
