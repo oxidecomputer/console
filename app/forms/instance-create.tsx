@@ -247,6 +247,12 @@ export function CreateInstanceForm() {
     }
   }, [createInstance.error])
 
+  const existingDiskNames = allDisks.map((disk) => disk.name)
+  const otherDisks = useWatch({ control, name: 'otherDisks' })
+  const namesOfDisksToBeCreated = otherDisks
+    .filter((disk) => disk.type === 'create')
+    .map((disk) => disk.name)
+
   // additional form elements for projectImage and siloImage tabs
   const bootDiskSizeAndName = (
     <>
@@ -273,12 +279,17 @@ export function CreateInstanceForm() {
         required={false}
         control={control}
         disabled={isSubmitting}
+        validate={(name) => {
+          // don't allow the user to use an existing disk name for the boot disk's name
+          if ([...namesOfDisksToBeCreated, ...existingDiskNames].includes(name)) {
+            return 'Name is already in use'
+          }
+        }}
       />
     </>
   )
 
-  const otherDisks = useWatch({ control, name: 'otherDisks' })
-  const unavailableDiskNames = otherDisks.map((disk) => disk.name)
+  const bootDiskName = useWatch({ control, name: 'bootDiskName' })
 
   return (
     <>
@@ -567,7 +578,10 @@ export function CreateInstanceForm() {
         <DisksTableField
           control={control}
           disabled={isSubmitting}
-          unavailableDiskNames={unavailableDiskNames}
+          // Don't allow the user to create a new disk with a name that matches either the boot disk
+          // or the names of disks that are already committed (will be created and attached) to the instance.
+          // An additional check in DisksTableField ensures that the user can't use the name of an existing disk.
+          unavailableDiskNames={[bootDiskName, ...namesOfDisksToBeCreated]}
         />
         <FormDivider />
         <Form.Heading id="authentication">Authentication</Form.Heading>
