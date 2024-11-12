@@ -62,6 +62,7 @@ export type ComboboxBaseProps = {
    * For example, if a form value should be set when the user types, use `onInputChange`.
    */
   onInputChange?: (value: string) => void
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>, open?: boolean) => void
 }
 
 type ComboboxProps = {
@@ -69,7 +70,6 @@ type ComboboxProps = {
   selectedItemLabel: string
   hasError?: boolean
   onChange: (value: string) => void
-  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void
   /** Necessary if you want RHF to be able to focus it on error */
   inputRef?: Ref<HTMLInputElement>
 } & ComboboxBaseProps
@@ -151,108 +151,112 @@ export const Combobox = ({
         immediate
         {...props}
       >
-        {label && (
-          // TODO: FieldLabel needs a real ID
-          <div className="mb-2">
-            <FieldLabel
-              id={`${id}-label`}
-              htmlFor={`${id}-input`}
-              optional={!required && !hideOptionalTag}
-            >
-              {label}
-            </FieldLabel>
-            {description && (
-              <TextInputHint id={`${id}-help-text`}>{description}</TextInputHint>
-            )}
-          </div>
-        )}
-        <div
-          className={cn(
-            `flex rounded border focus-within:ring-2`,
-            hasError
-              ? 'focus-error border-error-secondary focus-within:ring-error-secondary hover:border-error'
-              : 'border-default focus-within:ring-accent-secondary hover:border-hover',
-            disabled
-              ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
-              : 'bg-default',
-            disabled && hasError && '!border-error-secondary'
-          )}
-          // Putting the inputRef on the div makes it so the div can be focused by RHF when there's an error.
-          // We want to focus on the div (rather than the input) so the combobox doesn't open automatically
-          // and obscure the error message.
-          ref={inputRef}
-          // tabIndex=-1 is necessary to make the div focusable
-          tabIndex={-1}
-        >
-          <ComboboxInput
-            id={`${id}-input`}
-            // displayValue controls what's displayed in the input field.
-            // selectedItemValue is displayed when the user can type in a new value.
-            // Otherwise, use the provided selectedItemLabel
-            displayValue={() =>
-              allowArbitraryValues ? selectedItemValue : selectedItemLabel
-            }
-            onChange={(event) => {
-              // updates the query state as the user types, in order to filter the list of items
-              setQuery(event.target.value)
-              // if the parent component wants to know about input changes, call the callback
-              onInputChange?.(event.target.value)
-            }}
-            onKeyDown={onKeyDown}
-            placeholder={placeholder}
-            disabled={disabled || isLoading}
-            className={cn(
-              `h-10 w-full rounded !border-none px-3 py-2 !outline-none text-sans-md text-default placeholder:text-quaternary`,
-              disabled
-                ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
-                : 'bg-default',
-              hasError && 'focus-error'
-            )}
-          />
-          {items.length > 0 && (
-            <ComboboxButton
-              className="my-1.5 flex items-center border-l px-3 bg-default border-secondary"
-              aria-hidden
-            >
-              <SelectArrows6Icon title="Select" className="w-2 text-tertiary" />
-            </ComboboxButton>
-          )}
-        </div>
-        {(items.length > 0 || allowArbitraryValues) && (
-          <ComboboxOptions
-            anchor="bottom start"
-            // 13px gap is presumably because it's measured from inside the outline or something
-            className={`ox-menu pointer-events-auto ${zIndex} relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border !outline-none border-secondary [--anchor-gap:13px] empty:hidden`}
-            modal={false}
-          >
-            {filteredItems.map((item) => (
-              <ComboboxOption
-                key={item.value}
-                value={item.value}
-                className="relative border-b border-secondary last:border-0"
-              >
-                {({ focus, selected }) => (
-                  // This *could* be done with data-[focus] and data-[selected] instead, but
-                  // it would be a lot more verbose. those can only be used with TW classes,
-                  // not our .is-selected and .is-highlighted, so we'd have to copy the pieces
-                  // of those rules one by one. Better to rely on the shared classes.
-                  <div
-                    className={cn('ox-menu-item', {
-                      'is-selected': selected && query !== item.value,
-                      'is-highlighted': focus,
-                    })}
-                  >
-                    {item.label}
-                  </div>
+        {({ open }) => (
+          <>
+            {label && (
+              // TODO: FieldLabel needs a real ID
+              <div className="mb-2">
+                <FieldLabel
+                  id={`${id}-label`}
+                  htmlFor={`${id}-input`}
+                  optional={!required && !hideOptionalTag}
+                >
+                  {label}
+                </FieldLabel>
+                {description && (
+                  <TextInputHint id={`${id}-help-text`}>{description}</TextInputHint>
                 )}
-              </ComboboxOption>
-            ))}
-            {!allowArbitraryValues && filteredItems.length === 0 && (
-              <ComboboxOption disabled value="no-matches" className="relative">
-                <div className="ox-menu-item !text-disabled">No items match</div>
-              </ComboboxOption>
+              </div>
             )}
-          </ComboboxOptions>
+            <div
+              className={cn(
+                `flex rounded border focus-within:ring-2`,
+                hasError
+                  ? 'focus-error border-error-secondary focus-within:ring-error-secondary hover:border-error'
+                  : 'border-default focus-within:ring-accent-secondary hover:border-hover',
+                disabled
+                  ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
+                  : 'bg-default',
+                disabled && hasError && '!border-error-secondary'
+              )}
+              // Putting the inputRef on the div makes it so the div can be focused by RHF when there's an error.
+              // We want to focus on the div (rather than the input) so the combobox doesn't open automatically
+              // and obscure the error message.
+              ref={inputRef}
+              // tabIndex=-1 is necessary to make the div focusable
+              tabIndex={-1}
+            >
+              <ComboboxInput
+                id={`${id}-input`}
+                // displayValue controls what's displayed in the input field.
+                // selectedItemValue is displayed when the user can type in a new value.
+                // Otherwise, use the provided selectedItemLabel
+                displayValue={() =>
+                  allowArbitraryValues ? selectedItemValue : selectedItemLabel
+                }
+                onChange={(event) => {
+                  // updates the query state as the user types, in order to filter the list of items
+                  setQuery(event.target.value)
+                  // if the parent component wants to know about input changes, call the callback
+                  onInputChange?.(event.target.value)
+                }}
+                onKeyDown={(e) => onKeyDown && onKeyDown(e, open)}
+                placeholder={placeholder}
+                disabled={disabled || isLoading}
+                className={cn(
+                  `h-10 w-full rounded !border-none px-3 py-2 !outline-none text-sans-md text-default placeholder:text-quaternary`,
+                  disabled
+                    ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
+                    : 'bg-default',
+                  hasError && 'focus-error'
+                )}
+              />
+              {items.length > 0 && (
+                <ComboboxButton
+                  className="my-1.5 flex items-center border-l px-3 bg-default border-secondary"
+                  aria-hidden
+                >
+                  <SelectArrows6Icon title="Select" className="w-2 text-tertiary" />
+                </ComboboxButton>
+              )}
+            </div>
+            {(items.length > 0 || allowArbitraryValues) && (
+              <ComboboxOptions
+                anchor="bottom start"
+                // 13px gap is presumably because it's measured from inside the outline or something
+                className={`ox-menu pointer-events-auto ${zIndex} relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border !outline-none border-secondary [--anchor-gap:13px] empty:hidden`}
+                modal={false}
+              >
+                {filteredItems.map((item) => (
+                  <ComboboxOption
+                    key={item.value}
+                    value={item.value}
+                    className="relative border-b border-secondary last:border-0"
+                  >
+                    {({ focus, selected }) => (
+                      // This *could* be done with data-[focus] and data-[selected] instead, but
+                      // it would be a lot more verbose. those can only be used with TW classes,
+                      // not our .is-selected and .is-highlighted, so we'd have to copy the pieces
+                      // of those rules one by one. Better to rely on the shared classes.
+                      <div
+                        className={cn('ox-menu-item', {
+                          'is-selected': selected && query !== item.value,
+                          'is-highlighted': focus,
+                        })}
+                      >
+                        {item.label} {open}
+                      </div>
+                    )}
+                  </ComboboxOption>
+                ))}
+                {!allowArbitraryValues && filteredItems.length === 0 && (
+                  <ComboboxOption disabled value="no-matches" className="relative">
+                    <div className="ox-menu-item !text-disabled">No items match</div>
+                  </ComboboxOption>
+                )}
+              </ComboboxOptions>
+            )}
+          </>
         )}
       </HCombobox>
     </>
