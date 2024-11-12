@@ -103,7 +103,7 @@ const TargetAndHostFilterSubform = ({
   } = usePrefetchedApiQuery('vpcList', { query: { project, limit: ALL_ISH } })
   const {
     data: { items: vpcSubnets },
-  } = usePrefetchedApiQuery('vpcSubnetList', { query: { project, vpc } })
+  } = usePrefetchedApiQuery('vpcSubnetList', { query: { project, vpc, limit: ALL_ISH } })
 
   const subform = useForm({ defaultValues: targetAndHostDefaultValues })
   const field = useController({ name: `${sectionType}s`, control }).field
