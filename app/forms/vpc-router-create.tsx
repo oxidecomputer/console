@@ -23,7 +23,8 @@ const defaultValues: VpcRouterCreate = {
   description: '',
 }
 
-export function CreateRouterSideModalForm() {
+Component.displayName = 'RouterCreate'
+export function Component() {
   const queryClient = useApiQueryClient()
   const vpcSelector = useVpcSelector()
   const navigate = useNavigate()

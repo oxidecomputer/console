@@ -42,7 +42,8 @@ const defaultValues: SnapshotCreate = {
   name: '',
 }
 
-export function CreateSnapshotSideModalForm() {
+Component.displayName = 'SnapshotCreate'
+export function Component() {
   const queryClient = useApiQueryClient()
   const projectSelector = useProjectSelector()
   const navigate = useNavigate()

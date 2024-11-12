@@ -35,7 +35,7 @@ import { round } from '~/util/math'
 import { pb } from '~/util/path-builder'
 import { bytesToGiB, bytesToTiB } from '~/util/units'
 
-SystemUtilizationPage.loader = async () => {
+export async function loader() {
   await Promise.all([
     apiQueryClient.prefetchQuery('siloList', {}),
     apiQueryClient.prefetchQuery('siloUtilizationList', {}),
@@ -43,7 +43,8 @@ SystemUtilizationPage.loader = async () => {
   return null
 }
 
-export function SystemUtilizationPage() {
+Component.displayName = 'SystemUtilizationPage'
+export function Component() {
   const { data: siloUtilizationList } = usePrefetchedApiQuery('siloUtilizationList', {})
 
   const { totalAllocated, totalProvisioned } = totalUtilization(siloUtilizationList.items)
@@ -114,7 +115,7 @@ const MetricsTab = () => {
 
   return (
     <>
-      <div className="mb-3 mt-8 flex justify-between gap-3">
+      <div className="mt-8 mb-3 flex justify-between gap-3">
         <Listbox
           selected={filterId}
           className="w-64"
@@ -228,7 +229,7 @@ function UsageTab() {
                 unit="TiB"
               />
             </Table.Cell>
-            <Table.Cell className="action-col w-10 children:p-0" height="large">
+            <Table.Cell className="action-col children:p-0 w-10" height="large">
               <RowActions id={silo.siloId} copyIdLabel="Copy silo ID" />
             </Table.Cell>
           </Table.Row>
@@ -247,7 +248,7 @@ const UsageCell = ({
   allocated: number
   unit?: string
 }) => (
-  <div className="flex flex-col text-tertiary">
+  <div className="text-tertiary flex flex-col">
     <div>
       <span className="text-default">{provisioned}</span> /
     </div>
