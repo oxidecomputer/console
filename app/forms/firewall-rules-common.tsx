@@ -109,11 +109,8 @@ const TargetAndHostFilterSubform = ({
   const field = useController({ name: `${sectionType}s`, control }).field
 
   const submitSubform = subform.handleSubmit(({ type, value }) => {
-    // TODO: do this with a normal validation
-    // ignore click if empty or a duplicate
-    // TODO: show error instead of ignoring click
     if (!type || !value) return
-    if (field.value.some((f) => f.value === value && f.type === type)) return
+    if (field.value.some((f) => f.type === type && f.value === value)) return
     field.onChange([...field.value, { type, value }])
     subform.reset(targetAndHostDefaultValues)
   })
