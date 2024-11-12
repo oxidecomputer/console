@@ -243,7 +243,7 @@ test('with disk name already taken', async ({ page }) => {
   await page.fill('input[name=bootDiskName]', 'disk-1')
 
   await page.getByRole('button', { name: 'Create instance' }).click()
-  await expectVisible(page, ['text=Disk name already exists'])
+  await expect(page.getByText('Name is already in use').first()).toBeVisible()
 })
 
 test('can’t create a disk with a name that collides with the boot disk name', async ({
