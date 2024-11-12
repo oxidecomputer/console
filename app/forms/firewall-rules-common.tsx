@@ -180,9 +180,7 @@ const TargetAndHostFilterSubform = ({
           {...getFilterValueProps(valueType)}
           description="Select an option or enter a custom value"
           control={subformControl}
-          onEnter={(e) => {
-            if (value.length > 0) submitSubform(e)
-          }}
+          onEnter={submitSubform}
           onInputChange={onInputChange}
           items={items}
           allowArbitraryValues
