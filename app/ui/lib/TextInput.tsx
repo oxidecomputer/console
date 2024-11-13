@@ -93,6 +93,7 @@ export const TextInput = React.forwardRef<
           )}
           aria-invalid={error}
           disabled={disabled}
+          spellCheck={false}
           {...fieldProps}
         />
         {copyable && (
