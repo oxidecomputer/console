@@ -211,7 +211,7 @@ const TargetAndHostFilterSubform = ({
       )}
       <MiniTable.ClearAndAddButtons
         addButtonCopy={`Add ${sectionType === 'host' ? 'host filter' : 'target'}`}
-        disableClear={!value}
+        disabled={!value}
         onClear={() => subform.reset()}
         onSubmit={submitSubform}
       />
@@ -452,7 +452,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
         </div>
         <MiniTable.ClearAndAddButtons
           addButtonCopy="Add port filter"
-          disableClear={!portValue}
+          disabled={!portValue}
           onClear={() => portRangeForm.reset()}
           onSubmit={submitPortRange}
         />
