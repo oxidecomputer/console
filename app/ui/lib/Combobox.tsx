@@ -19,8 +19,6 @@ import { useEffect, useId, useState, type ReactNode, type Ref } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
-import { nameSyntax } from '~/util/str'
-
 import { FieldLabel } from './FieldLabel'
 import { usePopoverZIndex } from './SideModal'
 import { TextInputHint } from './TextInput'
@@ -121,9 +119,6 @@ export const Combobox = ({
     if (allowArbitraryValues && !selectedItemValue) {
       setQuery('')
     }
-    if (selectedItemValue) {
-      setQuery(selectedItemValue)
-    }
   }, [allowArbitraryValues, selectedItemValue])
 
   // If the user has typed in a value that isn't in the list,
@@ -198,18 +193,13 @@ export const Combobox = ({
               // selectedItemValue is displayed when the user can type in a new value.
               // Otherwise, use the provided selectedItemLabel
               displayValue={() =>
-                selectedItemValue
-                  ? allowArbitraryValues
-                    ? selectedItemValue
-                    : selectedItemLabel
-                  : query
+                allowArbitraryValues ? selectedItemValue : selectedItemLabel
               }
               onChange={(event) => {
-                const value = nameSyntax(event.target.value, false)
                 // updates the query state as the user types, in order to filter the list of items
-                setQuery(value)
+                setQuery(event.target.value)
                 // if the parent component wants to know about input changes, call the callback
-                onInputChange?.(value)
+                onInputChange?.(event.target.value)
               }}
               onKeyDown={(e) => {
                 // Prevent form submission when the user presses Enter inside a combobox.
