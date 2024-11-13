@@ -66,7 +66,7 @@ export const isAllZeros = (base64Data: string) => /^A*=*$/.test(base64Data)
  *  By default, it must start with a letter; this can be overriden with the second argument,
  *  for contexts where we want to allow numbers at the start, like searching in comboboxes.
  */
-export const nameSyntax = (text: string, allowNonLetterStart = false): string => {
+export const normalizeName = (text: string, allowNonLetterStart = false): string => {
   const cleanedText = text
     .toLowerCase()
     .replace(/[\s_]+/g, '-') // Replace spaces and underscores with dashes

@@ -7,7 +7,7 @@
  */
 import type { FieldPath, FieldValues } from 'react-hook-form'
 
-import { capitalize, nameSyntax } from '~/util/str'
+import { capitalize, normalizeName } from '~/util/str'
 
 import { TextField, type TextFieldProps } from './TextField'
 
@@ -30,7 +30,7 @@ export function NameField<
       required={required}
       label={label}
       name={name}
-      transform={(value) => nameSyntax(value)}
+      transform={(value) => normalizeName(value)}
       // https://www.stefanjudis.com/snippets/turn-off-password-managers/
       data-1p-ignore
       data-bwignore
