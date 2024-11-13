@@ -58,6 +58,26 @@ export const titleCase = (text: string): string => {
  */
 export const isAllZeros = (base64Data: string) => /^A*=*$/.test(base64Data)
 
+/** Clean up text so that it conforms to Name field syntax rules:
+ *   - lowercase only
+ *   - no spaces
+ *   - only letters/numbers/dashes allowed
+ *   - capped at 63 characters
+ *  By default, it must start with a letter; this can be overriden with the second argument,
+ *  for contexts where we want to allow numbers at the start, like searching in comboboxes.
+ */
+export const nameSyntax = (text: string, allowNonLetterStart = false): string => {
+  const cleanedText = text
+    .toLowerCase()
+    .replace(/[\s_]+/g, '-') // Replace spaces and underscores with dashes
+    .replace(/[^a-z0-9-]/g, '') // Remove non-alphanumeric (or dash) characters
+    .slice(0, 63) // Limit string to 63 characters
+  if (allowNonLetterStart) {
+    return cleanedText
+  }
+  return cleanedText.replace(/^[^a-z]+/, '') // Remove any non-letter characters from the start
+}
+
 /**
  * Extract the string contents of a ReactNode, so <>This <HL>highlighted</HL> text</> becomes "This highlighted text"
  */

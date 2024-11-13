@@ -13,6 +13,7 @@ import {
   commaSeries,
   extractText,
   kebabCase,
+  nameSyntax,
   titleCase,
 } from './str'
 
@@ -108,5 +109,42 @@ describe('extractText', () => {
   })
   it('can handle regular strings', () => {
     expect(extractText('Some more text')).toBe('Some more text')
+  })
+})
+
+describe('nameSyntax', () => {
+  it('converts to lowercase', () => {
+    expect(nameSyntax('Hello')).toBe('hello')
+  })
+
+  it('replaces spaces with dashes', () => {
+    expect(nameSyntax('Hello World')).toBe('hello-world')
+  })
+
+  it('removes non-alphanumeric characters', () => {
+    expect(nameSyntax('Hello, World!')).toBe('hello-world')
+  })
+
+  it('caps at 63 characters', () => {
+    expect(nameSyntax('aaa')).toBe('aaa')
+    expect(nameSyntax('aaaaaaaaa')).toBe('aaaaaaaaa')
+    expect(nameSyntax('a'.repeat(63))).toBe('a'.repeat(63))
+    expect(nameSyntax('a'.repeat(64))).toBe('a'.repeat(63))
+  })
+
+  it('can optionally start with numbers', () => {
+    expect(nameSyntax('123abc')).toBe('abc')
+    expect(nameSyntax('123abc', false)).toBe('abc')
+    expect(nameSyntax('123abc', true)).toBe('123abc')
+  })
+
+  it('can optionally start with a dash', () => {
+    expect(nameSyntax('-abc')).toBe('abc')
+    expect(nameSyntax('-abc', false)).toBe('abc')
+    expect(nameSyntax('-abc', true)).toBe('-abc')
+  })
+
+  it('does not complain when multiple dashes are present', () => {
+    expect(nameSyntax('a--b')).toBe('a--b')
   })
 })
