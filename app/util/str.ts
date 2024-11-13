@@ -67,15 +67,15 @@ export const isAllZeros = (base64Data: string) => /^A*=*$/.test(base64Data)
  *  for contexts where we want to allow numbers at the start, like searching in comboboxes.
  */
 export const normalizeName = (text: string, allowNonLetterStart = false): string => {
-  const cleanedText = text
+  const normalizedName = text
     .toLowerCase()
     .replace(/[\s_]+/g, '-') // Replace spaces and underscores with dashes
     .replace(/[^a-z0-9-]/g, '') // Remove non-alphanumeric (or dash) characters
     .slice(0, 63) // Limit string to 63 characters
   if (allowNonLetterStart) {
-    return cleanedText
+    return normalizedName
   }
-  return cleanedText.replace(/^[^a-z]+/, '') // Remove any non-letter characters from the start
+  return normalizedName.replace(/^[^a-z]+/, '') // Remove any non-letter characters from the start
 }
 
 /**
