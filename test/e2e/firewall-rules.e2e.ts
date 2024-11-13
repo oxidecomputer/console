@@ -160,6 +160,9 @@ test('firewall rule form targets table', async ({ page }) => {
 
   const addButton = page.getByRole('button', { name: 'Add target' })
 
+  // addButton should be disabled until a value is added
+  await expect(addButton).toBeDisabled()
+
   // add targets with overlapping names and types to test delete
 
   await targetVpcNameField.fill('abc')
@@ -181,7 +184,10 @@ test('firewall rule form targets table', async ({ page }) => {
   // add a subnet by selecting from a dropdown; make sure 'mock-subnet' is present in the dropdown,
   // even though VPC:'mock-subnet' has already been added
   await selectOption(page, 'Target type', 'VPC subnet')
+  // addButton should be disabled again, as type has changed but no value has been entered
+  await expect(addButton).toBeDisabled()
   await selectOption(page, subnetNameField, 'mock-subnet')
+  await expect(addButton).toBeEnabled()
   await addButton.click()
   await expectRowVisible(targets, { Type: 'subnet', Value: 'mock-subnet' })
 
