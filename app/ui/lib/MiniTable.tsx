@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import Error16Icon from '@oxide/design-system/icons/react/Error16Icon'
+import { Error16Icon } from '@oxide/design-system/icons/react'
 
 import { classed } from '~/util/classed'
 
