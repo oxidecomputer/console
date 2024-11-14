@@ -207,8 +207,6 @@ export const Combobox = ({
                   : query
               }
               onChange={(event) => {
-                // Pass in true for the second prop so that the user can start their filtering query with a number.
-                // A validation will still prevent them from submitting the form with a number at the beginning.
                 const value = transform ? transform(event.target.value) : event.target.value
                 // updates the query state as the user types, in order to filter the list of items
                 setQuery(value)
