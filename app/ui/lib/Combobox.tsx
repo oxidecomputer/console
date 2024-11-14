@@ -64,6 +64,11 @@ export type ComboboxBaseProps = {
   onInputChange?: (value: string) => void
   /** Fires whenever the Enter key is pressed while Combobox input has focus */
   onEnter?: (event: React.KeyboardEvent<HTMLInputElement>) => void
+  /**
+   * Optional function to transform the value entered into the input as the user types.
+   * Defaults in ComboboxField to running the `normalizeName` function on the input value.
+   */
+  transform?: (value: string) => string
 }
 
 type ComboboxProps = {
@@ -93,6 +98,7 @@ export const Combobox = ({
   allowArbitraryValues = false,
   hideOptionalTag,
   inputRef,
+  transform,
   ...props
 }: ComboboxProps) => {
   const [query, setQuery] = useState(selectedItemValue || '')
@@ -189,17 +195,23 @@ export const Combobox = ({
           >
             <ComboboxInput
               id={`${id}-input`}
-              // displayValue controls what's displayed in the input field.
-              // selectedItemValue is displayed when the user can type in a new value.
-              // Otherwise, use the provided selectedItemLabel
-              displayValue={() =>
-                allowArbitraryValues ? selectedItemValue : selectedItemLabel
+              // If an option has been selected, display either the selected item's label or value.
+              // If no option has been selected yet, or the user has started editing the input, display the query.
+              // We are using value here, as opposed to Headless UI's displayValue, so we can normalize
+              // the value entered into the input (via the onChange event).
+              value={
+                selectedItemValue
+                  ? allowArbitraryValues
+                    ? selectedItemValue
+                    : selectedItemLabel
+                  : query
               }
               onChange={(event) => {
+                const value = transform ? transform(event.target.value) : event.target.value
                 // updates the query state as the user types, in order to filter the list of items
-                setQuery(event.target.value)
+                setQuery(value)
                 // if the parent component wants to know about input changes, call the callback
-                onInputChange?.(event.target.value)
+                onInputChange?.(value)
               }}
               onKeyDown={(e) => {
                 // Prevent form submission when the user presses Enter inside a combobox.
