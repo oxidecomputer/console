@@ -243,7 +243,41 @@ test('with disk name already taken', async ({ page }) => {
   await page.fill('input[name=bootDiskName]', 'disk-1')
 
   await page.getByRole('button', { name: 'Create instance' }).click()
-  await expectVisible(page, ['text=Disk name already exists'])
+  await expect(page.getByText('Name is already in use').first()).toBeVisible()
+})
+
+test('can’t create a disk with a name that collides with the boot disk name', async ({
+  page,
+}) => {
+  // Set up the instance and name the boot disk "disk-11"
+  await page.goto('/projects/mock-project/instances-new')
+  await page.fill('input[name=name]', 'another-instance')
+  await selectAProjectImage(page, 'image-1')
+  await page.fill('input[name=bootDiskName]', 'disk-11')
+
+  // Attempt to create a disk with the same name
+  await page.getByRole('button', { name: 'Create new disk' }).click()
+  const dialog = page.getByRole('dialog')
+  await dialog.getByRole('textbox', { name: 'name' }).fill('disk-11')
+  await dialog.getByRole('button', { name: 'Create disk' }).click()
+  // Expect to see an error message
+  await expect(dialog.getByText('Name is already in use')).toBeVisible()
+  // Change the disk name to something else
+  await dialog.getByRole('textbox', { name: 'name' }).fill('disk-12')
+  await dialog.getByRole('button', { name: 'Create disk' }).click()
+  // The disk has been "created" (is in the list of Additional Disks)
+  await expectVisible(page, ['text=disk-12'])
+  // Create the instance
+  await page.getByRole('button', { name: 'Create instance' }).click()
+  await expect(page).toHaveURL('/projects/mock-project/instances/another-instance/storage')
+
+  // Find the Boot Disk table and verify that disk-11 is there
+  const bootDiskTable = page.getByRole('table', { name: 'Boot disk' })
+  await expect(bootDiskTable.getByRole('cell', { name: 'disk-11' })).toBeVisible()
+
+  // Find the Other Disks table and verify that disk-12 is there
+  const otherDisksTable = page.getByRole('table', { name: 'Other disks' })
+  await expect(otherDisksTable.getByRole('cell', { name: 'disk-12' })).toBeVisible()
 })
 
 test('add ssh key from instance create form', async ({ page }) => {
@@ -510,12 +544,27 @@ test('create instance with additional disks', async ({ page }) => {
   await page.getByRole('button', { name: 'Create new disk' }).click()
 
   const createForm = page.getByRole('dialog', { name: 'Create disk' })
-  await createForm.getByRole('textbox', { name: 'Name', exact: true }).fill('new-disk-1')
+
+  // verify that an existing name can't be used
+  await createForm.getByRole('textbox', { name: 'Name', exact: true }).fill('disk-6')
   await createForm.getByRole('textbox', { name: 'Size (GiB)' }).fill('5')
+  await createForm.getByRole('button', { name: 'Create disk' }).click()
+  await expect(createForm.getByText('Name is already in use')).toBeVisible()
+
+  // rename the disk to one that's allowed
+  await createForm.getByRole('textbox', { name: 'Name', exact: true }).fill('new-disk-1')
   await createForm.getByRole('button', { name: 'Create disk' }).click()
 
   const disksTable = page.getByRole('table', { name: 'Disks' })
+  await expect(disksTable.getByText('disk-6')).toBeHidden()
   await expectRowVisible(disksTable, { Name: 'new-disk-1', Type: 'create', Size: '5GiB' })
+
+  // now that name is taken too, so disk create disallows it
+  await page.getByRole('button', { name: 'Create new disk' }).click()
+  await createForm.getByRole('textbox', { name: 'Name', exact: true }).fill('new-disk-1')
+  await createForm.getByRole('button', { name: 'Create disk' }).click()
+  await expect(createForm.getByText('Name is already in use')).toBeVisible()
+  await createForm.getByRole('button', { name: 'Cancel' }).click()
 
   // Attach an existing disk
   await page.getByRole('button', { name: 'Attach existing disk' }).click()
