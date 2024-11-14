@@ -76,8 +76,6 @@ export function CreateDiskSideModalForm({
   const queryClient = useApiQueryClient()
   const navigate = useNavigate()
 
-  const { project } = useProjectSelector()
-
   const createDisk = useApiMutation('diskCreate', {
     onSuccess(data) {
       queryClient.invalidateQueries('diskList')
@@ -88,6 +86,7 @@ export function CreateDiskSideModalForm({
   })
 
   const form = useForm({ defaultValues })
+  const { project } = useProjectSelector()
   const projectImages = useApiQuery('imageList', { query: { project } })
   const siloImages = useApiQuery('imageList', {})
 
