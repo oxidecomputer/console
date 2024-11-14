@@ -86,6 +86,7 @@ import * as SiloImages from './pages/system/SiloImagesPage'
 import * as SiloPage from './pages/system/silos/SiloPage'
 import * as SilosPage from './pages/system/silos/SilosPage'
 import * as SystemUtilization from './pages/system/UtilizationPage'
+import { truncate } from './ui/lib/Truncate'
 import { pb } from './util/path-builder'
 
 export const routes = createRoutesFromElements(
@@ -157,7 +158,14 @@ export const routes = createRoutesFromElements(
         <Route path="inventory" handle={{ crumb: 'Inventory' }}>
           <Route path="sleds" handle={{ crumb: 'Sleds' }}>
             {/* a crumb for the sled ID looks ridiculous, unfortunately */}
-            <Route path=":sledId" {...SledPage}>
+            <Route
+              path=":sledId"
+              {...SledPage}
+              handle={makeCrumb(
+                (p) => truncate(p.sledId!, 12, 'middle'),
+                (p) => pb.sled({ sledId: p.sledId! })
+              )}
+            >
               <Route
                 index
                 element={<Navigate to="instances" replace />}
