@@ -11,10 +11,9 @@ import { NavigationType, useNavigationType } from 'react-router-dom'
 
 import type { ApiError } from '@oxide/api'
 
+import { NavGuardModal } from '~/components/form/NavGuardModal'
 import { Button } from '~/ui/lib/Button'
 import { SideModal } from '~/ui/lib/SideModal'
-
-import { NavGuardModal } from './NavGuardModal'
 
 type CreateFormProps = {
   formType: 'create'

@@ -7,13 +7,8 @@
  */
 import { Modal } from '~/ui/lib/Modal'
 
-const NavGuardModal = ({
-  onAction,
-  onDismiss,
-}: {
-  onAction: () => void
-  onDismiss: () => void
-}) => (
+type NavGuardModalProps = { onAction: () => void; onDismiss: () => void }
+const NavGuardModal = ({ onAction, onDismiss }: NavGuardModalProps) => (
   <Modal isOpen onDismiss={onDismiss} title="Confirm navigation">
     <Modal.Section>
       Are you sure you want to leave this form? Your progress will be lost.
