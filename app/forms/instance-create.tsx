@@ -252,11 +252,11 @@ export function CreateInstanceForm() {
     }
   }, [createInstance.error])
 
-  const existingDiskNames = allDisks.map((disk) => disk.name)
   const otherDisks = useWatch({ control, name: 'otherDisks' })
-  const namesOfDisksToBeCreated = otherDisks
-    .filter((disk) => disk.type === 'create')
-    .map((disk) => disk.name)
+  const unavailableDiskNames = [
+    ...allDisks, // existing disks from the API
+    ...otherDisks.filter((disk) => disk.type === 'create'), // disks being created here
+  ].map((d) => d.name)
 
   // additional form elements for projectImage and siloImage tabs
   const bootDiskSizeAndName = (
@@ -286,7 +286,7 @@ export function CreateInstanceForm() {
         disabled={isSubmitting}
         validate={(name) => {
           // don't allow the user to use an existing disk name for the boot disk's name
-          if ([...namesOfDisksToBeCreated, ...existingDiskNames].includes(name)) {
+          if (unavailableDiskNames.includes(name)) {
             return 'Name is already in use'
           }
         }}
@@ -585,11 +585,7 @@ export function CreateInstanceForm() {
           disabled={isSubmitting}
           // Don't allow the user to create a new disk with a name that matches other disk names (either the boot disk,
           // the names of disks that will be created and attached to this instance, or disks that already exist).
-          unavailableDiskNames={[
-            bootDiskName,
-            ...namesOfDisksToBeCreated,
-            ...existingDiskNames,
-          ]}
+          unavailableDiskNames={[bootDiskName, ...unavailableDiskNames]}
         />
         <FormDivider />
         <Form.Heading id="authentication">Authentication</Form.Heading>
