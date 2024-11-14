@@ -463,7 +463,7 @@ exports[`breadcrumbs 2`] = `
       "path": "/system/silos",
     },
   ],
-  "sled (/system/inventory/sleds/sl)": [
+  "sled (/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances)": [
     {
       "label": "Inventory",
       "path": "/system/inventory",
@@ -472,19 +472,31 @@ exports[`breadcrumbs 2`] = `
       "label": "Sleds",
       "path": "/system/inventory/sleds",
     },
-  ],
-  "sledInstances (/system/inventory/sleds/sl/instances)": [
     {
-      "label": "Inventory",
-      "path": "/system/inventory",
-    },
-    {
-      "label": "Sleds",
-      "path": "/system/inventory/sleds",
+      "label": "5c56b…ec3e0",
+      "path": "/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances",
     },
     {
       "label": "Instances",
-      "path": "/system/inventory/sleds/sl/instances",
+      "path": "/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances",
+    },
+  ],
+  "sledInstances (/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances)": [
+    {
+      "label": "Inventory",
+      "path": "/system/inventory",
+    },
+    {
+      "label": "Sleds",
+      "path": "/system/inventory/sleds",
+    },
+    {
+      "label": "5c56b…ec3e0",
+      "path": "/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances",
+    },
+    {
+      "label": "Instances",
+      "path": "/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances",
     },
   ],
   "sledInventory (/system/inventory/sleds)": [

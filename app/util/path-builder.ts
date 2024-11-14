@@ -116,7 +116,7 @@ export const pb = {
 
   sledInventory: () => '/system/inventory/sleds',
   diskInventory: () => '/system/inventory/disks',
-  sled: ({ sledId }: Sled) => `/system/inventory/sleds/${sledId}`,
+  sled: ({ sledId }: Sled) => `/system/inventory/sleds/${sledId}/instances`,
   sledInstances: ({ sledId }: Sled) => `/system/inventory/sleds/${sledId}/instances`,
 
   silos: () => '/system/silos',
