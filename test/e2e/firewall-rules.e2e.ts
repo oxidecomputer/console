@@ -160,11 +160,16 @@ test('firewall rule form targets table', async ({ page }) => {
 
   const addButton = page.getByRole('button', { name: 'Add target' })
 
+  // addButton should be disabled until a value is added
+  await expect(addButton).toBeDisabled()
+
   // add targets with overlapping names and types to test delete
 
   await targetVpcNameField.fill('abc')
+  // hit enter one time to choose the custom value
   await targetVpcNameField.press('Enter')
-  await addButton.click()
+  // hit enter a second time to submit the subform
+  await targetVpcNameField.press('Enter')
   await expectRowVisible(targets, { Type: 'vpc', Value: 'abc' })
 
   // enter a VPC called 'mock-subnet', even if that doesn't make sense here, to test dropdown later
@@ -179,16 +184,22 @@ test('firewall rule form targets table', async ({ page }) => {
   // add a subnet by selecting from a dropdown; make sure 'mock-subnet' is present in the dropdown,
   // even though VPC:'mock-subnet' has already been added
   await selectOption(page, 'Target type', 'VPC subnet')
+  // addButton should be disabled again, as type has changed but no value has been entered
+  await expect(addButton).toBeDisabled()
   await selectOption(page, subnetNameField, 'mock-subnet')
+  await expect(addButton).toBeEnabled()
   await addButton.click()
   await expectRowVisible(targets, { Type: 'subnet', Value: 'mock-subnet' })
 
   // now add a subnet by entering text
   await selectOption(page, 'Target type', 'VPC subnet')
-  await subnetNameField.fill('abc')
-  await page.getByText('abc').first().click()
-  await addButton.click()
-  await expectRowVisible(targets, { Type: 'subnet', Value: 'abc' })
+  // test that the name typed in is normalized
+  await subnetNameField.fill('ABC 123')
+  await expect(subnetNameField).toHaveValue('abc-123')
+  // hit enter to submit the subform
+  await subnetNameField.press('Enter')
+  await subnetNameField.press('Enter')
+  await expectRowVisible(targets, { Type: 'subnet', Value: 'abc-123' })
 
   // add IP target
   await selectOption(page, 'Target type', 'IP')

@@ -62,12 +62,13 @@ const staticCols = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-SilosPage.loader = async () => {
+export async function loader() {
   await apiQueryClient.prefetchQuery('siloList', { query: { limit: PAGE_SIZE } })
   return null
 }
 
-export function SilosPage() {
+Component.displayName = 'SilosPage'
+export function Component() {
   const navigate = useNavigate()
 
   const { Table } = useQueryTable('siloList', {})

@@ -17,7 +17,7 @@ const expectInstanceState = async (page: Page, instance: string, state: string) 
 test('can delete a failed instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
 
-  await expect(page).toHaveTitle('Instances / mock-project / Oxide Console')
+  await expect(page).toHaveTitle('Instances / mock-project / Projects / Oxide Console')
 
   const cell = page.getByRole('cell', { name: 'you-fail' })
   await expect(cell).toBeVisible() // just to match hidden check at the end
@@ -52,7 +52,7 @@ test('can start a failed instance', async ({ page }) => {
 
 test('can stop a failed instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
-  await expect(page).toHaveTitle('Instances / mock-project / Oxide Console')
+  await expect(page).toHaveTitle('Instances / mock-project / Projects / Oxide Console')
   await expectInstanceState(page, 'you-fail', 'failed')
   await clickRowAction(page, 'you-fail', 'Stop')
   await page.getByRole('button', { name: 'Confirm' }).click()
@@ -85,7 +85,7 @@ test('can stop and delete a running instance', async ({ page }) => {
 
 test('can stop a starting instance, then start it again', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
-  await expect(page).toHaveTitle('Instances / mock-project / Oxide Console')
+  await expect(page).toHaveTitle('Instances / mock-project / Projects / Oxide Console')
 
   await expectInstanceState(page, 'not-there-yet', 'starting')
   await clickRowAction(page, 'not-there-yet', 'Stop')

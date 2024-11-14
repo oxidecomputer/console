@@ -12,7 +12,7 @@ import { usePrefetchedApiQuery } from '@oxide/api'
 import { Key16Icon } from '@oxide/design-system/icons/react'
 
 import type { InstanceCreateInput } from '~/forms/instance-create'
-import { CreateSSHKeySideModalForm } from '~/forms/ssh-key-create'
+import { Component as CreateSSHKeySideModalForm } from '~/forms/ssh-key-create'
 import { Button } from '~/ui/lib/Button'
 import { Checkbox } from '~/ui/lib/Checkbox'
 import { Divider } from '~/ui/lib/Divider'

@@ -150,7 +150,7 @@ function DiskMetric({
 // Considering the data is going to be swapped out as soon as they change the
 // date range, I'm inclined to punt.
 
-MetricsTab.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await apiQueryClient.prefetchQuery('instanceDiskList', {
     path: { instance },
@@ -159,7 +159,8 @@ MetricsTab.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-export function MetricsTab() {
+Component.displayName = 'MetricsTab'
+export function Component() {
   const { project, instance } = useInstanceSelector()
   const { data } = usePrefetchedApiQuery('instanceDiskList', {
     path: { instance },

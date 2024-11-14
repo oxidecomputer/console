@@ -177,10 +177,11 @@ const CHUNK_SIZE_BYTES = 512 * KiB
 // TODO: make sure cleanup, cancelEverything, and resetMainFlow are called in
 // the right places
 
+Component.displayName = 'ImageCreate'
 /**
  * Upload an image. Opens a second modal to show upload progress.
  */
-export function CreateImageSideModalForm() {
+export function Component() {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()

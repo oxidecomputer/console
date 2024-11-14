@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useMemo } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { apiQueryClient } from '@oxide/api'
 import {
@@ -19,12 +19,6 @@ import {
 import { trigger404 } from '~/components/ErrorBoundary'
 import { DocsLinkItem, NavLinkItem, Sidebar } from '~/components/Sidebar'
 import { TopBar } from '~/components/TopBar'
-import {
-  IpPoolPicker,
-  SiloPicker,
-  SiloSystemPicker,
-  SledPicker,
-} from '~/components/TopBarPicker'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
@@ -40,7 +34,7 @@ import { ContentPane, PageContainer } from './helpers'
  * error. We're being a little cavalier here with the error. If it's something
  * other than a 403, that would be strange and we would want to know.
  */
-SystemLayout.loader = async () => {
+export async function loader() {
   // we don't need to use the ErrorsAllowed version here because we're 404ing
   // immediately on error, so we don't need to pick the result up from the cache
   const isFleetViewer = await apiQueryClient
@@ -55,12 +49,12 @@ SystemLayout.loader = async () => {
   return null
 }
 
-export function SystemLayout() {
+Component.displayName = 'SystemLayout'
+export function Component() {
   // Only show silo picker if we are looking at a particular silo. The more
   // robust way of doing this would be to make a separate layout for the
   // silo-specific routes in the route config, but it's overkill considering
   // this is a one-liner. Switch to that approach at the first sign of trouble.
-  const { silo, pool, sledId } = useParams()
   const navigate = useNavigate()
   const { pathname } = useLocation()
 
@@ -70,7 +64,7 @@ export function SystemLayout() {
     const systemLinks = [
       { value: 'Silos', path: pb.silos() },
       { value: 'Utilization', path: pb.systemUtilization() },
-      { value: 'Inventory', path: pb.inventory() },
+      { value: 'Inventory', path: pb.sledInventory() },
       { value: 'IP Pools', path: pb.ipPools() },
     ]
       // filter out the entry for the path we're currently on
@@ -93,12 +87,7 @@ export function SystemLayout() {
 
   return (
     <PageContainer>
-      <TopBar>
-        <SiloSystemPicker value="system" />
-        {silo && <SiloPicker />}
-        {pool && <IpPoolPicker />}
-        {sledId && <SledPicker />}
-      </TopBar>
+      <TopBar systemOrSilo="system" />
       <Sidebar>
         <Sidebar.Nav>
           <DocsLinkItem />
@@ -114,7 +103,7 @@ export function SystemLayout() {
           <NavLinkItem to={pb.systemUtilization()}>
             <Metrics16Icon /> Utilization
           </NavLinkItem>
-          <NavLinkItem to={pb.inventory()}>
+          <NavLinkItem to={pb.sledInventory()}>
             <Servers16Icon /> Inventory
           </NavLinkItem>
           <NavLinkItem to={pb.ipPools()}>

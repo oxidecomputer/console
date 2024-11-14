@@ -59,7 +59,8 @@ function resolver(values: IpRange) {
   return Object.keys(errors).length > 0 ? { values: {}, errors } : { values, errors: {} }
 }
 
-export function IpPoolAddRangeSideModalForm() {
+Component.displayName = 'IpPoolAddRange'
+export function Component() {
   const { pool } = useIpPoolSelector()
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
