@@ -12,6 +12,8 @@ import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { apiQueryClient, useApiMutation, useApiQueryClient, type SshKey } from '@oxide/api'
 import { Key16Icon, Key24Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
+import { HL } from '~/components/HL'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -21,9 +23,10 @@ import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-SSHKeysPage.loader = async () => {
+export async function loader() {
   await apiQueryClient.prefetchQuery('currentUserSshKeyList', {
     query: { limit: PAGE_SIZE },
   })
@@ -37,16 +40,17 @@ const staticCols = [
   colHelper.accessor('timeModified', Columns.timeModified),
 ]
 
-export function SSHKeysPage() {
+Component.displayName = 'SSHKeysPage'
+export function Component() {
   const navigate = useNavigate()
 
   const { Table } = useQueryTable('currentUserSshKeyList', {})
   const queryClient = useApiQueryClient()
 
-  const deleteSshKey = useApiMutation('currentUserSshKeyDelete', {
-    onSuccess: () => {
+  const { mutateAsync: deleteSshKey } = useApiMutation('currentUserSshKeyDelete', {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries('currentUserSshKeyList')
-      addToast({ content: 'Your SSH key has been deleted' })
+      addToast(<>SSH key <HL>{variables.path.sshKey}</HL> deleted</>) // prettier-ignore
     },
   })
 
@@ -55,7 +59,7 @@ export function SSHKeysPage() {
       {
         label: 'Delete',
         onActivate: confirmDelete({
-          doDelete: () => deleteSshKey.mutateAsync({ path: { sshKey: sshKey.name } }),
+          doDelete: () => deleteSshKey({ path: { sshKey: sshKey.name } }),
           label: sshKey.name,
         }),
       },
@@ -79,6 +83,12 @@ export function SSHKeysPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Key24Icon />}>SSH Keys</PageTitle>
+        <DocsPopover
+          heading="SSH keys"
+          icon={<Key16Icon />}
+          summary="SSH keys are used to securely access VM instances."
+          links={[docLinks.sshKeys]}
+        />
       </PageHeader>
       <TableActions>
         <Link className={buttonStyle({ size: 'sm' })} to={pb.sshKeysNew()}>

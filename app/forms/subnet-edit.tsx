@@ -5,8 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
-import * as R from 'remeda'
 
 import {
   apiQueryClient,
@@ -17,9 +17,18 @@ import {
 } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
+import {
+  customRouterDataToForm,
+  customRouterFormToData,
+  useCustomRouterItems,
+} from '~/components/form/fields/useItemsList'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { getVpcSubnetSelector, useForm, useVpcSubnetSelector } from '~/hooks'
+import { HL } from '~/components/HL'
+import { getVpcSubnetSelector, useVpcSubnetSelector } from '~/hooks/use-params'
+import { addToast } from '~/stores/toast'
+import { FormDivider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
 
 EditSubnetForm.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -44,15 +53,21 @@ export function EditSubnetForm() {
   })
 
   const updateSubnet = useApiMutation('vpcSubnetUpdate', {
-    onSuccess() {
+    onSuccess(subnet) {
       queryClient.invalidateQueries('vpcSubnetList')
+      addToast(<>Subnet <HL>{subnet.name}</HL> updated</>) // prettier-ignore
       onDismiss()
     },
   })
 
-  const defaultValues = R.pick(subnet, ['name', 'description']) satisfies VpcSubnetUpdate
+  const defaultValues: Required<VpcSubnetUpdate> = {
+    name: subnet.name,
+    description: subnet.description,
+    customRouter: customRouterDataToForm(subnet.customRouterId),
+  }
 
   const form = useForm({ defaultValues })
+  const { isLoading, items } = useCustomRouterItems()
 
   return (
     <SideModalForm
@@ -64,7 +79,11 @@ export function EditSubnetForm() {
         updateSubnet.mutate({
           path: { subnet: subnet.name },
           query: { project, vpc },
-          body,
+          body: {
+            name: body.name,
+            description: body.description,
+            customRouter: customRouterFormToData(body.customRouter),
+          },
         })
       }}
       loading={updateSubnet.isPending}
@@ -72,6 +91,16 @@ export function EditSubnetForm() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
+      <FormDivider />
+      <ListboxField
+        label="Custom router"
+        name="customRouter"
+        placeholder="Select a custom router"
+        isLoading={isLoading}
+        items={items}
+        control={form.control}
+        required
+      />
     </SideModalForm>
   )
 }

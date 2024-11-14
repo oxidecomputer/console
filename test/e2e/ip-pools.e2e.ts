@@ -8,12 +8,12 @@
 
 import { expect, test } from '@playwright/test'
 
-import { clickRowAction, expectRowVisible } from './utils'
+import { clickRowAction, expectRowVisible, expectToast } from './utils'
 
 test('IP pool list', async ({ page }) => {
   await page.goto('/system/networking/ip-pools')
 
-  await expect(page).toHaveTitle('IP pools / Oxide Console')
+  await expect(page).toHaveTitle('IP Pools / Oxide Console')
 
   await expect(page.getByRole('heading', { name: 'IP Pools' })).toBeVisible()
 
@@ -55,7 +55,7 @@ test('IP pool silo list', async ({ page }) => {
   await page.goto('/system/networking/ip-pools')
 
   await page.getByRole('link', { name: 'ip-pool-1' }).click()
-  await expect(page).toHaveTitle('ip-pool-1 / IP pools / Oxide Console')
+  await expect(page).toHaveTitle('ip-pool-1 / IP Pools / Oxide Console')
 
   await page.getByRole('tab', { name: 'Linked silos' }).click()
   // this is here because waiting for the `tab` query param to show up avoids
@@ -110,7 +110,7 @@ test('IP pool link silo', async ({ page }) => {
   await expectRowVisible(table, { Silo: 'myriad', 'Pool is silo default': '' })
 })
 
-test('IP pool delete', async ({ page }) => {
+test('IP pool delete from IP Pools list page', async ({ page }) => {
   await page.goto('/system/networking/ip-pools')
 
   // can't delete a pool containing ranges
@@ -118,10 +118,10 @@ test('IP pool delete', async ({ page }) => {
   await expect(page.getByRole('dialog', { name: 'Confirm delete' })).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
 
-  await expect(page.getByText('Could not delete resource').first()).toBeVisible()
-  await expect(
-    page.getByText('IP pool cannot be deleted while it contains IP ranges').first()
-  ).toBeVisible()
+  await expectToast(
+    page,
+    'Could not delete resourceIP pool cannot be deleted while it contains IP ranges'
+  )
 
   await expect(page.getByRole('cell', { name: 'ip-pool-3' })).toBeVisible()
 
@@ -130,6 +130,24 @@ test('IP pool delete', async ({ page }) => {
   await expect(page.getByRole('dialog', { name: 'Confirm delete' })).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
 
+  await expect(page.getByRole('cell', { name: 'ip-pool-3' })).toBeHidden()
+})
+
+test('IP pool delete from IP Pool view page', async ({ page }) => {
+  // can't delete a pool containing ranges
+  await page.goto('/system/networking/ip-pools/ip-pool-1')
+  await page.getByRole('button', { name: 'IP pool actions' }).click()
+  await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeDisabled()
+
+  // can delete a pool with no ranges
+  await page.goto('/system/networking/ip-pools/ip-pool-3')
+  await page.getByRole('button', { name: 'IP pool actions' }).click()
+  await page.getByRole('menuitem', { name: 'Delete' }).click()
+  await expect(page.getByRole('dialog', { name: 'Confirm delete' })).toBeVisible()
+  await page.getByRole('button', { name: 'Confirm' }).click()
+
+  // get redirected back to the list after successful delete
+  await expect(page).toHaveURL('/system/networking/ip-pools')
   await expect(page.getByRole('cell', { name: 'ip-pool-3' })).toBeHidden()
 })
 
@@ -153,6 +171,23 @@ test('IP pool create', async ({ page }) => {
     name: 'another-pool',
     description: 'whatever',
   })
+})
+
+test('IP pool edit', async ({ page }) => {
+  await page.goto('/system/networking/ip-pools/ip-pool-3')
+  await page.getByRole('button', { name: 'IP pool actions' }).click()
+  await page.getByRole('menuitem', { name: 'Edit' }).click()
+
+  const modal = page.getByRole('dialog', { name: 'Edit IP pool' })
+  await expect(modal).toBeVisible()
+
+  await page.getByRole('textbox', { name: 'Name' }).fill('updated-pool')
+  await page.getByRole('textbox', { name: 'Description' }).fill('an updated description')
+  await page.getByRole('button', { name: 'Update IP pool' }).click()
+
+  await expect(modal).toBeHidden()
+  await expect(page).toHaveURL('/system/networking/ip-pools/updated-pool')
+  await expect(page.getByRole('heading', { name: 'updated-pool' })).toBeVisible()
 })
 
 test('IP range validation and add', async ({ page }) => {
@@ -216,7 +251,9 @@ test('IP range validation and add', async ({ page }) => {
   await expect(page.getByText('Capacity32')).toBeVisible()
 
   // go back to the pool and verify the utilization column changed
-  await page.getByRole('link', { name: 'IP Pools' }).click()
+  // use the sidebar nav to get there
+  const sidebar = page.getByRole('navigation', { name: 'Sidebar navigation' })
+  await sidebar.getByRole('link', { name: 'IP Pools' }).click()
   await expectRowVisible(table, {
     name: 'ip-pool-2',
     Utilization: 'v4' + '0 / 1' + 'v6' + '0 / 32',
@@ -250,7 +287,9 @@ test('remove range', async ({ page }) => {
   await expect(page.getByText('Capacity21')).toBeVisible()
 
   // go back to the pool and verify the utilization column changed
-  await page.getByRole('link', { name: 'IP Pools' }).click()
+  // use the topbar breadcrumb to get there
+  const breadcrumbs = page.getByRole('navigation', { name: 'Breadcrumbs' })
+  await breadcrumbs.getByRole('link', { name: 'IP Pools' }).click()
   await expectRowVisible(table, {
     name: 'ip-pool-1',
     Utilization: '6 / 21',

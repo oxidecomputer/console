@@ -305,6 +305,14 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.Instance>>
+  /** `PUT /v1/instances/:instance` */
+  instanceUpdate: (params: {
+    path: Api.InstanceUpdatePathParams
+    query: Api.InstanceUpdateQueryParams
+    body: Json<Api.InstanceUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.Instance>>
   /** `DELETE /v1/instances/:instance` */
   instanceDelete: (params: {
     path: Api.InstanceDeletePathParams
@@ -357,14 +365,6 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
-  /** `POST /v1/instances/:instance/migrate` */
-  instanceMigrate: (params: {
-    path: Api.InstanceMigratePathParams
-    query: Api.InstanceMigrateQueryParams
-    body: Json<Api.InstanceMigrate>
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.Instance>>
   /** `POST /v1/instances/:instance/reboot` */
   instanceReboot: (params: {
     path: Api.InstanceRebootPathParams
@@ -407,6 +407,73 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.Instance>>
+  /** `GET /v1/internet-gateway-ip-addresses` */
+  internetGatewayIpAddressList: (params: {
+    query: Api.InternetGatewayIpAddressListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.InternetGatewayIpAddressResultsPage>>
+  /** `POST /v1/internet-gateway-ip-addresses` */
+  internetGatewayIpAddressCreate: (params: {
+    query: Api.InternetGatewayIpAddressCreateQueryParams
+    body: Json<Api.InternetGatewayIpAddressCreate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.InternetGatewayIpAddress>>
+  /** `DELETE /v1/internet-gateway-ip-addresses/:address` */
+  internetGatewayIpAddressDelete: (params: {
+    path: Api.InternetGatewayIpAddressDeletePathParams
+    query: Api.InternetGatewayIpAddressDeleteQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/internet-gateway-ip-pools` */
+  internetGatewayIpPoolList: (params: {
+    query: Api.InternetGatewayIpPoolListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.InternetGatewayIpPoolResultsPage>>
+  /** `POST /v1/internet-gateway-ip-pools` */
+  internetGatewayIpPoolCreate: (params: {
+    query: Api.InternetGatewayIpPoolCreateQueryParams
+    body: Json<Api.InternetGatewayIpPoolCreate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.InternetGatewayIpPool>>
+  /** `DELETE /v1/internet-gateway-ip-pools/:pool` */
+  internetGatewayIpPoolDelete: (params: {
+    path: Api.InternetGatewayIpPoolDeletePathParams
+    query: Api.InternetGatewayIpPoolDeleteQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/internet-gateways` */
+  internetGatewayList: (params: {
+    query: Api.InternetGatewayListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.InternetGatewayResultsPage>>
+  /** `POST /v1/internet-gateways` */
+  internetGatewayCreate: (params: {
+    query: Api.InternetGatewayCreateQueryParams
+    body: Json<Api.InternetGatewayCreate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.InternetGateway>>
+  /** `GET /v1/internet-gateways/:gateway` */
+  internetGatewayView: (params: {
+    path: Api.InternetGatewayViewPathParams
+    query: Api.InternetGatewayViewQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.InternetGateway>>
+  /** `DELETE /v1/internet-gateways/:gateway` */
+  internetGatewayDelete: (params: {
+    path: Api.InternetGatewayDeletePathParams
+    query: Api.InternetGatewayDeleteQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `GET /v1/ip-pools` */
   projectIpPoolList: (params: {
     query: Api.ProjectIpPoolListQueryParams
@@ -932,24 +999,35 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
-  /** `GET /v1/system/networking/bgp-announce` */
+  /** `GET /v1/system/networking/bgp-announce-set` */
   networkingBgpAnnounceSetList: (params: {
     query: Api.NetworkingBgpAnnounceSetListQueryParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.BgpAnnouncement[]>>
-  /** `POST /v1/system/networking/bgp-announce` */
-  networkingBgpAnnounceSetCreate: (params: {
+  }) => Promisable<HandlerResult<Api.BgpAnnounceSet[]>>
+  /** `PUT /v1/system/networking/bgp-announce-set` */
+  networkingBgpAnnounceSetUpdate: (params: {
     body: Json<Api.BgpAnnounceSetCreate>
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.BgpAnnounceSet>>
-  /** `DELETE /v1/system/networking/bgp-announce` */
+  /** `DELETE /v1/system/networking/bgp-announce-set/:announceSet` */
   networkingBgpAnnounceSetDelete: (params: {
-    query: Api.NetworkingBgpAnnounceSetDeleteQueryParams
+    path: Api.NetworkingBgpAnnounceSetDeletePathParams
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/system/networking/bgp-announce-set/:announceSet/announcement` */
+  networkingBgpAnnouncementList: (params: {
+    path: Api.NetworkingBgpAnnouncementListPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.BgpAnnouncement[]>>
+  /** `GET /v1/system/networking/bgp-exported` */
+  networkingBgpExported: (params: {
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.BgpExported>>
   /** `GET /v1/system/networking/bgp-message-history` */
   networkingBgpMessageHistory: (params: {
     query: Api.NetworkingBgpMessageHistoryQueryParams
@@ -1095,6 +1173,18 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.SiloQuotas>>
+  /** `POST /v1/system/timeseries/query` */
+  systemTimeseriesQuery: (params: {
+    body: Json<Api.TimeseriesQuery>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.OxqlQueryResult>>
+  /** `GET /v1/system/timeseries/schemas` */
+  systemTimeseriesSchemaList: (params: {
+    query: Api.SystemTimeseriesSchemaListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.TimeseriesSchemaResultsPage>>
   /** `GET /v1/system/users` */
   siloUserList: (params: {
     query: Api.SiloUserListQueryParams
@@ -1132,18 +1222,6 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.SiloUtilization>>
-  /** `POST /v1/timeseries/query` */
-  timeseriesQuery: (params: {
-    body: Json<Api.TimeseriesQuery>
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.Table[]>>
-  /** `GET /v1/timeseries/schema` */
-  timeseriesSchemaList: (params: {
-    query: Api.TimeseriesSchemaListQueryParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.TimeseriesSchemaResultsPage>>
   /** `GET /v1/users` */
   userList: (params: {
     query: Api.UserListQueryParams
@@ -1590,6 +1668,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       '/v1/instances/:instance',
       handler(handlers['instanceView'], schema.InstanceViewParams, null)
     ),
+    http.put(
+      '/v1/instances/:instance',
+      handler(
+        handlers['instanceUpdate'],
+        schema.InstanceUpdateParams,
+        schema.InstanceUpdate
+      )
+    ),
     http.delete(
       '/v1/instances/:instance',
       handler(handlers['instanceDelete'], schema.InstanceDeleteParams, null)
@@ -1635,14 +1721,6 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       )
     ),
     http.post(
-      '/v1/instances/:instance/migrate',
-      handler(
-        handlers['instanceMigrate'],
-        schema.InstanceMigrateParams,
-        schema.InstanceMigrate
-      )
-    ),
-    http.post(
       '/v1/instances/:instance/reboot',
       handler(handlers['instanceReboot'], schema.InstanceRebootParams, null)
     ),
@@ -1673,6 +1751,74 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.post(
       '/v1/instances/:instance/stop',
       handler(handlers['instanceStop'], schema.InstanceStopParams, null)
+    ),
+    http.get(
+      '/v1/internet-gateway-ip-addresses',
+      handler(
+        handlers['internetGatewayIpAddressList'],
+        schema.InternetGatewayIpAddressListParams,
+        null
+      )
+    ),
+    http.post(
+      '/v1/internet-gateway-ip-addresses',
+      handler(
+        handlers['internetGatewayIpAddressCreate'],
+        schema.InternetGatewayIpAddressCreateParams,
+        schema.InternetGatewayIpAddressCreate
+      )
+    ),
+    http.delete(
+      '/v1/internet-gateway-ip-addresses/:address',
+      handler(
+        handlers['internetGatewayIpAddressDelete'],
+        schema.InternetGatewayIpAddressDeleteParams,
+        null
+      )
+    ),
+    http.get(
+      '/v1/internet-gateway-ip-pools',
+      handler(
+        handlers['internetGatewayIpPoolList'],
+        schema.InternetGatewayIpPoolListParams,
+        null
+      )
+    ),
+    http.post(
+      '/v1/internet-gateway-ip-pools',
+      handler(
+        handlers['internetGatewayIpPoolCreate'],
+        schema.InternetGatewayIpPoolCreateParams,
+        schema.InternetGatewayIpPoolCreate
+      )
+    ),
+    http.delete(
+      '/v1/internet-gateway-ip-pools/:pool',
+      handler(
+        handlers['internetGatewayIpPoolDelete'],
+        schema.InternetGatewayIpPoolDeleteParams,
+        null
+      )
+    ),
+    http.get(
+      '/v1/internet-gateways',
+      handler(handlers['internetGatewayList'], schema.InternetGatewayListParams, null)
+    ),
+    http.post(
+      '/v1/internet-gateways',
+      handler(
+        handlers['internetGatewayCreate'],
+        schema.InternetGatewayCreateParams,
+        schema.InternetGatewayCreate
+      )
+    ),
+    http.get(
+      '/v1/internet-gateways/:gateway',
+      handler(handlers['internetGatewayView'], schema.InternetGatewayViewParams, null)
+    ),
+    http.delete(
+      '/v1/internet-gateways/:gateway',
+      handler(handlers['internetGatewayDelete'], schema.InternetGatewayDeleteParams, null)
     ),
     http.get(
       '/v1/ip-pools',
@@ -2096,24 +2242,36 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       )
     ),
     http.get(
-      '/v1/system/networking/bgp-announce',
+      '/v1/system/networking/bgp-announce-set',
       handler(
         handlers['networkingBgpAnnounceSetList'],
         schema.NetworkingBgpAnnounceSetListParams,
         null
       )
     ),
-    http.post(
-      '/v1/system/networking/bgp-announce',
-      handler(handlers['networkingBgpAnnounceSetCreate'], null, schema.BgpAnnounceSetCreate)
+    http.put(
+      '/v1/system/networking/bgp-announce-set',
+      handler(handlers['networkingBgpAnnounceSetUpdate'], null, schema.BgpAnnounceSetCreate)
     ),
     http.delete(
-      '/v1/system/networking/bgp-announce',
+      '/v1/system/networking/bgp-announce-set/:announceSet',
       handler(
         handlers['networkingBgpAnnounceSetDelete'],
         schema.NetworkingBgpAnnounceSetDeleteParams,
         null
       )
+    ),
+    http.get(
+      '/v1/system/networking/bgp-announce-set/:announceSet/announcement',
+      handler(
+        handlers['networkingBgpAnnouncementList'],
+        schema.NetworkingBgpAnnouncementListParams,
+        null
+      )
+    ),
+    http.get(
+      '/v1/system/networking/bgp-exported',
+      handler(handlers['networkingBgpExported'], null, null)
     ),
     http.get(
       '/v1/system/networking/bgp-message-history',
@@ -2249,6 +2407,18 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         schema.SiloQuotasUpdate
       )
     ),
+    http.post(
+      '/v1/system/timeseries/query',
+      handler(handlers['systemTimeseriesQuery'], null, schema.TimeseriesQuery)
+    ),
+    http.get(
+      '/v1/system/timeseries/schemas',
+      handler(
+        handlers['systemTimeseriesSchemaList'],
+        schema.SystemTimeseriesSchemaListParams,
+        null
+      )
+    ),
     http.get(
       '/v1/system/users',
       handler(handlers['siloUserList'], schema.SiloUserListParams, null)
@@ -2272,14 +2442,6 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.get(
       '/v1/system/utilization/silos/:silo',
       handler(handlers['siloUtilizationView'], schema.SiloUtilizationViewParams, null)
-    ),
-    http.post(
-      '/v1/timeseries/query',
-      handler(handlers['timeseriesQuery'], null, schema.TimeseriesQuery)
-    ),
-    http.get(
-      '/v1/timeseries/schema',
-      handler(handlers['timeseriesSchemaList'], schema.TimeseriesSchemaListParams, null)
     ),
     http.get('/v1/users', handler(handlers['userList'], schema.UserListParams, null)),
     http.get('/v1/utilization', handler(handlers['utilizationView'], null, null)),

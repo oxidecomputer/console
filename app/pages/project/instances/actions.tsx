@@ -14,7 +14,6 @@ import { HL } from '~/components/HL'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import type { MakeActions } from '~/table/columns/action-col'
 import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './instance/tabs/common'
@@ -29,36 +28,51 @@ type Options = {
 }
 
 export const useMakeInstanceActions = (
-  projectSelector: { project: string },
+  { project }: { project: string },
   options: Options = {}
-): MakeActions<Instance> => {
+) => {
   const navigate = useNavigate()
-
   // if you also pass onSuccess to mutate(), this one is not overridden — this
-  // one runs first, then the one passed to mutate()
+  // one runs first, then the one passed to mutate().
+  //
+  // We pull out the mutate functions because they are referentially stable,
+  // while the whole useMutation result object is not. The async ones are used
+  // when we need to confirm because the confirm modals want that.
   const opts = { onSuccess: options.onSuccess }
-  const startInstance = useApiMutation('instanceStart', opts)
-  const stopInstance = useApiMutation('instanceStop', opts)
-  const rebootInstance = useApiMutation('instanceReboot', opts)
+  const { mutateAsync: startInstanceAsync } = useApiMutation('instanceStart', opts)
+  const { mutateAsync: stopInstanceAsync } = useApiMutation('instanceStop', opts)
+  const { mutate: rebootInstance } = useApiMutation('instanceReboot', opts)
   // delete has its own
-  const deleteInstance = useApiMutation('instanceDelete', { onSuccess: options.onDelete })
+  const { mutateAsync: deleteInstanceAsync } = useApiMutation('instanceDelete', {
+    onSuccess: options.onDelete,
+  })
 
-  return useCallback(
-    (instance) => {
-      const instanceSelector = { ...projectSelector, instance: instance.name }
-      const instanceParams = { path: { instance: instance.name }, query: projectSelector }
+  const makeButtonActions = useCallback(
+    (instance: Instance) => {
+      const instanceParams = { path: { instance: instance.name }, query: { project } }
       return [
         {
           label: 'Start',
           onActivate() {
-            startInstance.mutate(instanceParams, {
-              onSuccess: () => addToast({ title: `Starting instance '${instance.name}'` }),
-              onError: (error) =>
-                addToast({
-                  variant: 'error',
-                  title: `Error starting instance '${instance.name}'`,
-                  content: error.message,
+            confirmAction({
+              actionType: 'primary',
+              doAction: () =>
+                startInstanceAsync(instanceParams, {
+                  onSuccess: () => addToast(<>Starting instance <HL>{instance.name}</HL></>), // prettier-ignore
+                  onError: (error) =>
+                    addToast({
+                      variant: 'error',
+                      title: `Error starting instance '${instance.name}'`,
+                      content: error.message,
+                    }),
                 }),
+              modalTitle: 'Confirm start instance',
+              modalContent: (
+                <p>
+                  Are you sure you want to start <HL>{instance.name}</HL>?
+                </p>
+              ),
+              errorTitle: `Error starting ${instance.name}`,
             })
           },
           disabled: !instanceCan.start(instance) && (
@@ -71,30 +85,46 @@ export const useMakeInstanceActions = (
             confirmAction({
               actionType: 'danger',
               doAction: () =>
-                stopInstance.mutateAsync(instanceParams, {
+                stopInstanceAsync(instanceParams, {
                   onSuccess: () =>
-                    addToast({ title: `Stopping instance '${instance.name}'` }),
+                    addToast(<>Stopping instance <HL>{instance.name}</HL></>), // prettier-ignore
                 }),
               modalTitle: 'Confirm stop instance',
               modalContent: (
-                <p>
-                  Are you sure you want to stop <HL>{instance.name}</HL>? Stopped instances
-                  retain attached disks and IP addresses, but allocated CPU and memory are
-                  freed.
-                </p>
+                <div className="space-y-2">
+                  <p>
+                    Are you sure you want to stop <HL>{instance.name}</HL>?
+                  </p>
+                  <p>
+                    Stopped instances retain attached disks and IP addresses, but allocated
+                    CPU and memory are freed.
+                  </p>
+                </div>
               ),
               errorTitle: `Error stopping ${instance.name}`,
             })
           },
           disabled: !instanceCan.stop(instance) && (
-            <>Only {fancifyStates(instanceCan.stop.states)} instances can be stopped</>
+            // don't list all the states, it's overwhelming
+            <>Only {fancifyStates(['running'])} instances can be stopped</>
           ),
         },
+      ]
+    },
+    [project, startInstanceAsync, stopInstanceAsync]
+  )
+
+  const makeMenuActions = useCallback(
+    (instance: Instance) => {
+      const instanceSelector = { project, instance: instance.name }
+      const instanceParams = { path: { instance: instance.name }, query: { project } }
+      return [
         {
           label: 'Reboot',
           onActivate() {
-            rebootInstance.mutate(instanceParams, {
-              onSuccess: () => addToast({ title: `Rebooting instance '${instance.name}'` }),
+            rebootInstance(instanceParams, {
+              onSuccess: () =>
+                addToast(<>Rebooting instance <HL>{instance.name}</HL></>), // prettier-ignore
               onError: (error) =>
                 addToast({
                   variant: 'error',
@@ -117,9 +147,9 @@ export const useMakeInstanceActions = (
           label: 'Delete',
           onActivate: confirmDelete({
             doDelete: () =>
-              deleteInstance.mutateAsync(instanceParams, {
+              deleteInstanceAsync(instanceParams, {
                 onSuccess: () =>
-                  addToast({ title: `Deleting instance '${instance.name}'` }),
+                  addToast(<>Deleting instance <HL>{instance.name}</HL></>), // prettier-ignore
               }),
             label: instance.name,
             resourceKind: 'instance',
@@ -132,6 +162,8 @@ export const useMakeInstanceActions = (
         },
       ]
     },
-    [projectSelector, deleteInstance, navigate, rebootInstance, startInstance, stopInstance]
+    [project, deleteInstanceAsync, navigate, rebootInstance]
   )
+
+  return { makeButtonActions, makeMenuActions }
 }

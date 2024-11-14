@@ -7,6 +7,7 @@
  */
 import * as Accordion from '@radix-ui/react-accordion'
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import {
@@ -14,38 +15,20 @@ import {
   useApiQuery,
   useApiQueryClient,
   type FloatingIpCreate,
-  type SiloIpPool,
 } from '@oxide/api'
 
 import { AccordionItem } from '~/components/AccordionItem'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { toIpPoolItem } from '~/components/form/fields/ip-pool-item'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useProjectSelector } from '~/hooks'
+import { HL } from '~/components/HL'
+import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { Badge } from '~/ui/lib/Badge'
 import { Message } from '~/ui/lib/Message'
+import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
-
-const toListboxItem = (p: SiloIpPool) => {
-  if (!p.isDefault) {
-    return { value: p.name, label: p.name }
-  }
-  // For the default pool, add a label to the dropdown
-  return {
-    value: p.name,
-    selectedLabel: p.name,
-    label: (
-      <>
-        {p.name}{' '}
-        <Badge className="ml-1" color="neutral">
-          default
-        </Badge>
-      </>
-    ),
-  }
-}
 
 const defaultValues: Omit<FloatingIpCreate, 'ip'> = {
   name: '',
@@ -56,19 +39,17 @@ const defaultValues: Omit<FloatingIpCreate, 'ip'> = {
 export function CreateFloatingIpSideModalForm() {
   // Fetch 1000 to we can be sure to get them all. Don't bother prefetching
   // because the list is hidden under the Advanced accordion.
-  const { data: allPools } = useApiQuery('projectIpPoolList', {
-    query: { limit: 1000 },
-  })
+  const { data: allPools } = useApiQuery('projectIpPoolList', { query: { limit: ALL_ISH } })
 
   const queryClient = useApiQueryClient()
   const projectSelector = useProjectSelector()
   const navigate = useNavigate()
 
   const createFloatingIp = useApiMutation('floatingIpCreate', {
-    onSuccess() {
+    onSuccess(floatingIp) {
       queryClient.invalidateQueries('floatingIpList')
       queryClient.invalidateQueries('ipPoolUtilizationView')
-      addToast({ content: 'Your Floating IP has been created' })
+      addToast(<>Floating IP <HL>{floatingIp.name}</HL> created</>) // prettier-ignore
       navigate(pb.floatingIps(projectSelector))
     },
   })
@@ -108,7 +89,7 @@ export function CreateFloatingIpSideModalForm() {
 
           <ListboxField
             name="pool"
-            items={(allPools?.items || []).map((p) => toListboxItem(p))}
+            items={(allPools?.items || []).map(toIpPoolItem)}
             label="IP pool"
             control={form.control}
             placeholder="Select a pool"

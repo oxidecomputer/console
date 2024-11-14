@@ -7,35 +7,58 @@
  */
 import { expect, test } from '@playwright/test'
 
-import { closeToast, expectNotVisible, expectVisible } from './utils'
+import {
+  clickRowAction,
+  closeToast,
+  expectNotVisible,
+  expectRowVisible,
+  expectVisible,
+} from './utils'
 
 test('Create and edit VPC', async ({ page }) => {
   await page.goto('/projects/mock-project')
 
-  await page.click('role=link[name*="VPCs"]')
-  await expectVisible(page, [
-    'role=heading[name*="VPCs"]',
-    'role=cell[name="mock-vpc"] >> nth=0',
-  ])
+  await page.getByRole('link', { name: 'VPCs' }).click()
+  await expect(page.getByRole('heading', { name: 'VPCs' })).toBeVisible()
+
+  const table = page.getByRole('table')
+  await expectRowVisible(table, {
+    name: 'mock-vpc',
+    'DNS name': 'mock-vpc',
+    description: 'a fake vpc',
+    'Firewall Rules': '3',
+  })
+  await expect(table.getByRole('row')).toHaveCount(2) // header plus row
 
   // New VPC form
-  await page.click('role=link[name="New Vpc"]')
-  await expectVisible(page, [
-    'role=textbox[name="Name"]',
-    'role=textbox[name="Description"]',
-    'role=textbox[name="DNS name"]',
-    'role=textbox[name="IPV6 prefix"]',
-    'role=button[name="Create VPC"]',
-  ])
-  await page.goBack()
+  await page.getByRole('link', { name: 'New Vpc' }).click()
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill('another-vpc')
+  await page.getByRole('textbox', { name: 'DNS name' }).fill('another-vpc')
+  await page.getByRole('button', { name: 'Create VPC' }).click()
+
+  // now we're on the VPC detail, on the firewall rules tab
+  await expect(page.getByRole('heading', { name: 'another-vpc' })).toBeVisible()
+  await expect(page.getByRole('tab', { name: 'Firewall Rules' })).toBeVisible()
+
+  // we have the three default rules
+  await expect(table.getByRole('row')).toHaveCount(4) // header plus three rows
+  for (const name of ['allow-icmp', 'allow-internal-inbound', 'allow-ssh']) {
+    await expect(page.getByRole('cell', { name })).toBeVisible()
+  }
+
+  // now go back up a level to vpcs table
+  const breadcrumbs = page.getByRole('navigation', { name: 'Breadcrumbs' })
+  await breadcrumbs.getByRole('link', { name: 'VPCs' }).click()
+  await expect(table.getByRole('row')).toHaveCount(3) // header plus two rows
+  await expectRowVisible(table, {
+    name: 'another-vpc',
+    'DNS name': 'another-vpc',
+    description: '—',
+    'Firewall Rules': '3',
+  })
 
   // Edit VPC form
-  await expectVisible(page, ['role=link[name="mock-vpc"]'])
-  await page
-    .locator('role=row', { hasText: 'mock-vpc' })
-    .locator('role=button[name="Row actions"]')
-    .click()
-  await page.click('role=menuitem[name="Edit"]')
+  await clickRowAction(page, 'mock-vpc', 'Edit')
   await expectVisible(page, [
     'role=textbox[name="Name"]',
     'role=textbox[name="Description"]',
@@ -97,7 +120,6 @@ test('Create and edit subnet', async ({ page }) => {
   await expectVisible(page, [
     'role=cell[name="allow-icmp"]',
     'role=cell[name="allow-internal-inbound"]',
-    'role=cell[name="allow-rdp"]',
     'role=cell[name="allow-ssh"]',
   ])
 })

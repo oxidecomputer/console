@@ -19,8 +19,8 @@ import {
 import { Snapshots16Icon, Snapshots24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
-import { SnapshotStatusBadge } from '~/components/StatusBadge'
-import { getProjectSelector, useProjectSelector } from '~/hooks'
+import { SnapshotStateBadge } from '~/components/StateBadge'
+import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -91,7 +91,7 @@ const staticCols = [
     cell: (info) => <DiskNameFromId value={info.getValue()} />,
   }),
   colHelper.accessor('state', {
-    cell: (info) => <SnapshotStatusBadge status={info.getValue()} />,
+    cell: (info) => <SnapshotStateBadge state={info.getValue()} />,
   }),
   colHelper.accessor('size', Columns.size),
   colHelper.accessor('timeCreated', Columns.timeCreated),
@@ -103,7 +103,7 @@ export function SnapshotsPage() {
   const { Table } = useQueryTable('snapshotList', { query: { project } })
   const navigate = useNavigate()
 
-  const deleteSnapshot = useApiMutation('snapshotDelete', {
+  const { mutateAsync: deleteSnapshot } = useApiMutation('snapshotDelete', {
     onSuccess() {
       queryClient.invalidateQueries('snapshotList')
     },
@@ -121,7 +121,7 @@ export function SnapshotsPage() {
         label: 'Delete',
         onActivate: confirmDelete({
           doDelete: () =>
-            deleteSnapshot.mutateAsync({
+            deleteSnapshot({
               path: { snapshot: snapshot.name },
               query: { project },
             }),

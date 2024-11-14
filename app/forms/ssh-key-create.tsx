@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient, type SshKeyCreate } from '@oxide/api'
@@ -13,7 +14,7 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm } from '~/hooks'
+import { HL } from '~/components/HL'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 
@@ -28,17 +29,18 @@ type Props = {
   message?: React.ReactNode
 }
 
-export function CreateSSHKeySideModalForm({ onDismiss, message }: Props) {
+Component.displayName = 'SSHKeyCreate'
+export function Component({ onDismiss, message }: Props) {
   const queryClient = useApiQueryClient()
   const navigate = useNavigate()
 
   const handleDismiss = onDismiss ? onDismiss : () => navigate(pb.sshKeys())
 
   const createSshKey = useApiMutation('currentUserSshKeyCreate', {
-    onSuccess() {
+    onSuccess(sshKey) {
       queryClient.invalidateQueries('currentUserSshKeyList')
       handleDismiss()
-      addToast({ content: 'Your SSH key has been created' })
+      addToast(<>SSH key <HL>{sshKey.name}</HL> created</>) // prettier-ignore
     },
   })
   const form = useForm({ defaultValues })

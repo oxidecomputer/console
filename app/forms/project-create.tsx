@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient, type ProjectCreate } from '@oxide/api'
@@ -12,7 +13,7 @@ import { useApiMutation, useApiQueryClient, type ProjectCreate } from '@oxide/ap
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm } from '~/hooks'
+import { HL } from '~/components/HL'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 
@@ -21,7 +22,8 @@ const defaultValues: ProjectCreate = {
   description: '',
 }
 
-export function CreateProjectSideModalForm() {
+Component.displayName = 'ProjectCreateSideModalForm'
+export function Component() {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
 
@@ -33,7 +35,7 @@ export function CreateProjectSideModalForm() {
       queryClient.invalidateQueries('projectList')
       // avoid the project fetch when the project page loads since we have the data
       queryClient.setQueryData('projectView', { path: { project: project.name } }, project)
-      addToast({ content: 'Your project has been created' })
+      addToast(<>Project <HL>{project.name}</HL> created</>) // prettier-ignore
       navigate(pb.project({ project: project.name }))
     },
   })

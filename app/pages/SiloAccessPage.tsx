@@ -52,7 +52,7 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
   </TableEmptyBox>
 )
 
-SiloAccessPage.loader = async () => {
+export async function loader() {
   await Promise.all([
     apiQueryClient.prefetchQuery('policyView', {}),
     // used to resolve user names
@@ -72,7 +72,8 @@ type UserRow = {
 
 const colHelper = createColumnHelper<UserRow>()
 
-export function SiloAccessPage() {
+Component.displayName = 'SiloAccessPage'
+export function Component() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
 
@@ -103,7 +104,7 @@ export function SiloAccessPage() {
   }, [siloRows])
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('policyUpdate', {
+  const { mutateAsync: updatePolicy } = useApiMutation('policyUpdate', {
     onSuccess: () => queryClient.invalidateQueries('policyView'),
     // TODO: handle 403
   })
@@ -137,7 +138,7 @@ export function SiloAccessPage() {
           label: 'Delete',
           onActivate: confirmDelete({
             doDelete: () =>
-              updatePolicy.mutateAsync({
+              updatePolicy({
                 // we know policy is there, otherwise there's no row to display
                 body: deleteRole(row.id, siloPolicy),
               }),

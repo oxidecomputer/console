@@ -9,7 +9,7 @@ import { useWatch, type FieldPath, type FieldValues } from 'react-hook-form'
 
 import { useApiQuery } from '@oxide/api'
 
-import { useProjectSelector } from '~/hooks'
+import { useProjectSelector } from '~/hooks/use-params'
 
 import { ListboxField, type ListboxFieldProps } from './ListboxField'
 

@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
@@ -14,10 +15,11 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { getIdpSelector, useForm, useIdpSelector } from '~/hooks'
+import { getIdpSelector, useIdpSelector } from '~/hooks/use-params'
 import { DateTime } from '~/ui/lib/DateTime'
+import { FormDivider } from '~/ui/lib/Divider'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
-import { ResourceLabel } from '~/ui/lib/SideModal'
+import { ResourceLabel, SideModal } from '~/ui/lib/SideModal'
 import { Truncate } from '~/ui/lib/Truncate'
 import { pb } from '~/util/path-builder'
 
@@ -56,6 +58,7 @@ export function EditIdpSideModalForm() {
       }
       // TODO: pass actual error when this form is hooked up
       submitError={null}
+      loading={false}
     >
       <PropertiesTable>
         <PropertiesTable.Row label="ID">
@@ -72,17 +75,29 @@ export function EditIdpSideModalForm() {
       <NameField name="name" control={form.control} disabled />
       <DescriptionField name="description" control={form.control} required disabled />
       <TextField
-        name="acsUrl"
-        label="ACS URL"
-        description="Service provider endpoint for the IdP to send the SAML response"
+        name="technicalContactEmail"
+        label="Technical contact email"
+        required
+        control={form.control}
+        disabled
+        copyable
+      />
+
+      <FormDivider />
+
+      <SideModal.Heading>Service provider</SideModal.Heading>
+      {/* TODO: help text */}
+      <TextField
+        name="spClientId"
+        label="Service provider client ID"
         required
         control={form.control}
         disabled
       />
-      {/* TODO: help text */}
       <TextField
-        name="idpEntityId"
-        label="Entity ID"
+        name="acsUrl"
+        label="ACS URL"
+        description="Service provider endpoint for the IdP to send the SAML response"
         required
         control={form.control}
         disabled
@@ -95,26 +110,22 @@ export function EditIdpSideModalForm() {
         control={form.control}
         disabled
       />
+
+      <FormDivider />
+
+      <SideModal.Heading>Identity Provider</SideModal.Heading>
       {/* TODO: help text */}
       <TextField
-        name="spClientId"
-        label="Service provider client ID"
+        name="idpEntityId"
+        label="Entity ID"
         required
         control={form.control}
         disabled
       />
-      {/* TODO: add group attribute name when it is added to the API
-          <TextField
-            name="groupAttributeName"
-            label="Group attribute name"
-            description="Name of SAML attribute where we can find a comma-separated list of names of groups the user belongs to"
-            control={form.control}
-            disabled
-          /> */}
-      {/* TODO: Email field, probably */}
       <TextField
-        name="technicalContactEmail"
-        label="Technical contact email"
+        name="groupAttributeName"
+        label="Group attribute name"
+        description="Name of the SAML attribute in the IdP response listing the user’s groups"
         required
         control={form.control}
         disabled

@@ -19,8 +19,10 @@ import {
 import { Cloud16Icon, Cloud24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
+import { HL } from '~/components/HL'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { BooleanCell } from '~/table/cells/BooleanCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -60,12 +62,13 @@ const staticCols = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-SilosPage.loader = async () => {
+export async function loader() {
   await apiQueryClient.prefetchQuery('siloList', { query: { limit: PAGE_SIZE } })
   return null
 }
 
-export function SilosPage() {
+Component.displayName = 'SilosPage'
+export function Component() {
   const navigate = useNavigate()
 
   const { Table } = useQueryTable('siloList', {})
@@ -75,9 +78,10 @@ export function SilosPage() {
     query: { limit: PAGE_SIZE },
   })
 
-  const deleteSilo = useApiMutation('siloDelete', {
-    onSuccess() {
+  const { mutateAsync: deleteSilo } = useApiMutation('siloDelete', {
+    onSuccess(silo, { path }) {
       queryClient.invalidateQueries('siloList')
+      addToast(<>Silo <HL>{path.silo}</HL> deleted</>) // prettier-ignore
     },
   })
 
@@ -86,7 +90,7 @@ export function SilosPage() {
       {
         label: 'Delete',
         onActivate: confirmDelete({
-          doDelete: () => deleteSilo.mutateAsync({ path: { silo: silo.name } }),
+          doDelete: () => deleteSilo({ path: { silo: silo.name } }),
           label: silo.name,
         }),
       },

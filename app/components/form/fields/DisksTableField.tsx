@@ -15,8 +15,8 @@ import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import type { InstanceCreateInput } from '~/forms/instance-create'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
-import { FieldLabel } from '~/ui/lib/FieldLabel'
 import * as MiniTable from '~/ui/lib/MiniTable'
+import { Truncate } from '~/ui/lib/Truncate'
 import { bytesToGiB } from '~/util/units'
 
 export type DiskTableItem =
@@ -39,14 +39,13 @@ export function DisksTableField({
 
   const {
     field: { value: items, onChange },
-  } = useController({ control, name: 'disks' })
+  } = useController({ control, name: 'otherDisks' })
 
   return (
     <>
       <div className="max-w-lg">
-        <FieldLabel id="new-disks-label">{/* this was empty */}</FieldLabel>
         {!!items.length && (
-          <MiniTable.Table className="mb-4">
+          <MiniTable.Table className="mb-4" aria-label="Disks">
             <MiniTable.Header>
               <MiniTable.HeadCell>Name</MiniTable.HeadCell>
               <MiniTable.HeadCell>Type</MiniTable.HeadCell>
@@ -62,13 +61,15 @@ export function DisksTableField({
                   aria-label={`Name: ${item.name}, Type: ${item.type}`}
                   key={item.name}
                 >
-                  <MiniTable.Cell>{item.name}</MiniTable.Cell>
+                  <MiniTable.Cell>
+                    <Truncate text={item.name} maxLength={35} />
+                  </MiniTable.Cell>
                   <MiniTable.Cell>
                     <Badge variant="solid">{item.type}</Badge>
                   </MiniTable.Cell>
                   <MiniTable.Cell>
                     {item.type === 'attach' ? (
-                      '-'
+                      '—'
                     ) : (
                       <>
                         <span>{bytesToGiB(item.size)}</span>

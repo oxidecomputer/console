@@ -25,7 +25,6 @@ export function FileField<
   id,
   name,
   label,
-  tooltipText,
   control,
   required = false,
   accept,
@@ -49,7 +48,7 @@ export function FileField<
   return (
     <div>
       <div className="mb-2">
-        <FieldLabel id={`${id}-label`} htmlFor={id} tip={tooltipText} optional={!required}>
+        <FieldLabel id={`${id}-label`} htmlFor={id} optional={!required}>
           {label}
         </FieldLabel>
         {description && <TextInputHint id={`${id}-help-text`}>{description}</TextInputHint>}

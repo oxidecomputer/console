@@ -14,12 +14,12 @@ import {
   apiQueryClient,
   instanceCan,
   usePrefetchedApiQuery,
-  type InstanceState,
+  type Instance,
 } from '@oxide/api'
 import { PrevArrow12Icon } from '@oxide/design-system/icons/react'
 
 import { EquivalentCliCommand } from '~/components/EquivalentCliCommand'
-import { InstanceStatusBadge } from '~/components/StatusBadge'
+import { InstanceStateBadge } from '~/components/StateBadge'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { Badge, type BadgeColor } from '~/ui/lib/Badge'
 import { Spinner } from '~/ui/lib/Spinner'
@@ -44,7 +44,7 @@ const statusMessage: Record<WsState, string> = {
   error: 'error',
 }
 
-SerialConsolePage.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await apiQueryClient.prefetchQuery('instanceView', {
     path: { instance },
@@ -53,14 +53,25 @@ SerialConsolePage.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-export function SerialConsolePage() {
+function isStarting(i: Instance | undefined) {
+  return i?.runState === 'creating' || i?.runState === 'starting'
+}
+
+Component.displayName = 'SerialConsolePage'
+export function Component() {
   const instanceSelector = useInstanceSelector()
   const { project, instance } = instanceSelector
 
-  const { data: instanceData } = usePrefetchedApiQuery('instanceView', {
-    query: { project },
-    path: { instance },
-  })
+  const { data: instanceData } = usePrefetchedApiQuery(
+    'instanceView',
+    {
+      query: { project },
+      path: { instance },
+    },
+    // if we land here and the instance is starting, we will not be able to
+    // connect, so we poll and connect as soon as it's running.
+    { refetchInterval: (q) => (isStarting(q.state.data) ? 1000 : false) }
+  )
 
   const ws = useRef<WebSocket | null>(null)
 
@@ -125,7 +136,7 @@ export function SerialConsolePage() {
   }, [canConnect])
 
   return (
-    <div className="!mx-0 flex h-full max-h-[calc(100vh-60px)] !w-full flex-col">
+    <div className="!mx-0 flex h-full max-h-[calc(100vh-var(--top-bar-height))] !w-full flex-col">
       <Link
         to={pb.instance(instanceSelector)}
         className="mx-3 mb-6 mt-3 flex h-10 shrink-0 items-center rounded px-3 bg-accent-secondary"
@@ -135,12 +146,11 @@ export function SerialConsolePage() {
           <span className="text-accent-tertiary">Back to</span> instance
         </div>
       </Link>
-
       <div className="gutter relative w-full shrink grow overflow-hidden">
         {connectionStatus === 'connecting' && <ConnectingSkeleton />}
         {connectionStatus === 'error' && <ErrorSkeleton />}
         {connectionStatus === 'closed' && !canConnect && (
-          <CannotConnect instanceState={instanceData.runState} />
+          <CannotConnect instance={instanceData} />
         )}
         {/* closed && canConnect shouldn't be possible because there's no way to
          * close an open connection other than leaving the page */}
@@ -161,13 +171,12 @@ export function SerialConsolePage() {
   )
 }
 
-function SerialSkeleton({
-  children,
-  connecting,
-}: {
+type SkeletonProps = {
   children: React.ReactNode
-  connecting?: boolean
-}) {
+  animate?: boolean
+}
+
+function SerialSkeleton({ children, animate }: SkeletonProps) {
   return (
     <div className="relative h-full shrink grow overflow-hidden">
       <div className="h-full space-y-2 overflow-hidden">
@@ -175,7 +184,7 @@ function SerialSkeleton({
           <div
             key={i}
             className={cn('h-4 rounded bg-tertiary', {
-              'motion-safe:animate-pulse': connecting,
+              'motion-safe:animate-pulse': animate,
             })}
             style={{
               width: `${Math.sin(Math.sin(i)) * 20 + 40}%`,
@@ -198,7 +207,7 @@ function SerialSkeleton({
 }
 
 const ConnectingSkeleton = () => (
-  <SerialSkeleton connecting>
+  <SerialSkeleton animate>
     <Spinner size="lg" />
     <div className="mt-4 text-center">
       <p className="text-sans-xl">Connecting to serial console</p>
@@ -206,14 +215,16 @@ const ConnectingSkeleton = () => (
   </SerialSkeleton>
 )
 
-const CannotConnect = ({ instanceState }: { instanceState: InstanceState }) => (
-  <SerialSkeleton>
+const CannotConnect = ({ instance }: { instance: Instance }) => (
+  <SerialSkeleton animate={isStarting(instance)}>
     <p className="flex items-center justify-center text-sans-xl">
-      <span>The instance is</span>
-      <InstanceStatusBadge className="ml-1" status={instanceState} />
+      <span>The instance is </span>
+      <InstanceStateBadge className="ml-1.5" state={instance.runState} />
     </p>
-    <p className="mt-2 text-center text-secondary">
-      You can only connect to the serial console on a running instance.
+    <p className="mt-2 text-balance text-center text-secondary">
+      {isStarting(instance)
+        ? 'Waiting for the instance to start before connecting.'
+        : 'You can only connect to the serial console on a running instance.'}
     </p>
   </SerialSkeleton>
 )

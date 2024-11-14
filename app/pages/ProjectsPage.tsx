@@ -19,6 +19,7 @@ import {
 import { Folder16Icon, Folder24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -31,19 +32,17 @@ import { TableActions } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-import { useQuickActions } from '../hooks'
-
 const EmptyState = () => (
   <EmptyMessage
     icon={<Folder24Icon />}
     title="No projects"
-    body="Create a project to see it here"
+    body="Create a project to start working with instances, disks, and more"
     buttonText="New project"
     buttonTo={pb.projectsNew()}
   />
 )
 
-ProjectsPage.loader = async () => {
+export async function loader() {
   await apiQueryClient.prefetchQuery('projectList', { query: { limit: PAGE_SIZE } })
   return null
 }
@@ -57,7 +56,8 @@ const staticCols = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-export function ProjectsPage() {
+Component.displayName = 'ProjectsPage'
+export function Component() {
   const navigate = useNavigate()
 
   const queryClient = useApiQueryClient()
@@ -66,7 +66,7 @@ export function ProjectsPage() {
     query: { limit: PAGE_SIZE },
   })
 
-  const deleteProject = useApiMutation('projectDelete', {
+  const { mutateAsync: deleteProject } = useApiMutation('projectDelete', {
     onSuccess() {
       // TODO: figure out if this is invalidating as expected, can we leave out the query
       // altogether, etc. Look at whether limit param matters.
@@ -92,7 +92,7 @@ export function ProjectsPage() {
       {
         label: 'Delete',
         onActivate: confirmDelete({
-          doDelete: () => deleteProject.mutateAsync({ path: { project: project.name } }),
+          doDelete: () => deleteProject({ path: { project: project.name } }),
           label: project.name,
         }),
       },

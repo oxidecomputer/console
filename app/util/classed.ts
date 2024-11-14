@@ -31,6 +31,7 @@ const make =
 
 export const classed = {
   button: make('button'),
+  code: make('code'),
   div: make('div'),
   footer: make('footer'),
   h1: make('h1'),

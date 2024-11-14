@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -17,44 +18,48 @@ import {
 
 import { trigger404 } from '~/components/ErrorBoundary'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { HL } from '~/components/HL'
 import {
   getFirewallRuleSelector,
   useFirewallRuleSelector,
-  useForm,
   useVpcSelector,
-} from '~/hooks'
+} from '~/hooks/use-params'
+import { addToast } from '~/stores/toast'
+import { ALL_ISH } from '~/util/consts'
 import { invariant } from '~/util/invariant'
 import { pb } from '~/util/path-builder'
 
-import {
-  CommonFields,
-  valuesToRuleUpdate,
-  type FirewallRuleValues,
-} from './firewall-rules-create'
+import { CommonFields } from './firewall-rules-common'
+import { valuesToRuleUpdate, type FirewallRuleValues } from './firewall-rules-util'
 
 EditFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, vpc, rule } = getFirewallRuleSelector(params)
 
-  const data = await apiQueryClient.fetchQuery('vpcFirewallRulesView', {
-    query: { project, vpc },
-  })
+  const [firewallRules] = await Promise.all([
+    apiQueryClient.fetchQuery('vpcFirewallRulesView', { query: { project, vpc } }),
+    apiQueryClient.prefetchQuery('instanceList', { query: { project, limit: ALL_ISH } }),
+    apiQueryClient.prefetchQuery('vpcList', { query: { project, limit: ALL_ISH } }),
+    apiQueryClient.prefetchQuery('vpcSubnetList', {
+      query: { project, vpc, limit: ALL_ISH },
+    }),
+  ])
 
-  const originalRule = data.rules.find((r) => r.name === rule)
+  const originalRule = firewallRules.rules.find((r) => r.name === rule)
   if (!originalRule) throw trigger404
 
   return null
 }
 
 export function EditFirewallRuleForm() {
-  const { vpc, project, rule } = useFirewallRuleSelector()
+  const { project, vpc, rule } = useFirewallRuleSelector()
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 
-  const { data } = usePrefetchedApiQuery('vpcFirewallRulesView', {
+  const { data: firewallRules } = usePrefetchedApiQuery('vpcFirewallRulesView', {
     query: { project, vpc },
   })
 
-  const originalRule = data.rules.find((r) => r.name === rule)
+  const originalRule = firewallRules.rules.find((r) => r.name === rule)
 
   // we shouldn't hit this because of the trigger404 in the loader
   invariant(originalRule, 'Firewall rule must exist')
@@ -63,9 +68,15 @@ export function EditFirewallRuleForm() {
   const onDismiss = () => navigate(pb.vpcFirewallRules(vpcSelector))
 
   const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
-    onSuccess() {
-      queryClient.invalidateQueries('vpcFirewallRulesView')
+    onSuccess(updatedRules, { body }) {
+      // Nav before the invalidate because I once saw the above invariant fail
+      // briefly after successful edit (error page flashed but then we land
+      // on the rules list ok) and I think it was a race condition where the
+      // invalidate managed to complete while the modal was still open.
       onDismiss()
+      queryClient.invalidateQueries('vpcFirewallRulesView')
+      const updatedRule = body.rules[body.rules.length - 1]
+      addToast(<>Firewall rule <HL>{updatedRule.name}</HL> updated</>) // prettier-ignore
     },
   })
 
@@ -90,32 +101,35 @@ export function EditFirewallRuleForm() {
   // TODO: uhhhh how can this happen
   if (Object.keys(originalRule).length === 0) return null
 
+  // note different filter logic from create: filter out the rule with the
+  // *original* name because we need to overwrite that rule
+  const otherRules = firewallRules.rules.filter((r) => r.name !== originalRule.name)
+
   return (
     <SideModalForm
       form={form}
       formType="edit"
       resourceName="rule"
       onDismiss={onDismiss}
-      onSubmit={(values) => {
-        // note different filter logic from create: filter out the rule with the
-        // *original* name because we need to overwrite that rule
-        const otherRules = data.rules
-          .filter((r) => r.name !== originalRule.name)
-          .map(firewallRuleGetToPut)
-
+      onSubmit={(values) =>
         updateRules.mutate({
           query: vpcSelector,
           body: {
-            rules: [...otherRules, valuesToRuleUpdate(values)],
+            rules: [...otherRules.map(firewallRuleGetToPut), valuesToRuleUpdate(values)],
           },
         })
-      }}
+      }
       // validationSchema={validationSchema}
       // validateOnBlur
       loading={updateRules.isPending}
       submitError={updateRules.error}
     >
-      <CommonFields error={updateRules.error} control={form.control} />
+      <CommonFields
+        control={form.control}
+        // error if name is being changed to something that conflicts with some other rule
+        nameTaken={(name) => !!otherRules.find((r) => r.name === name)}
+        error={updateRules.error}
+      />
     </SideModalForm>
   )
 }

@@ -12,8 +12,8 @@ import { Cloud16Icon, Cloud24Icon, NextArrow12Icon } from '@oxide/design-system/
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
-import { getSiloSelector, useSiloSelector } from '~/hooks'
-import { EmptyCell } from '~/table/cells/EmptyCell'
+import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
+import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { PAGE_SIZE } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { DateTime } from '~/ui/lib/DateTime'
@@ -26,11 +26,13 @@ import { docLinks } from '~/util/links'
 
 import { SiloIdpsTab } from './SiloIdpsTab'
 import { SiloIpPoolsTab } from './SiloIpPoolsTab'
+import { SiloQuotasTab } from './SiloQuotasTab'
 
-SiloPage.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function loader({ params }: LoaderFunctionArgs) {
   const { silo } = getSiloSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('siloView', { path: { silo } }),
+    apiQueryClient.prefetchQuery('siloUtilizationView', { path: { silo } }),
     apiQueryClient.prefetchQuery('siloIdentityProviderList', {
       query: { silo, limit: PAGE_SIZE },
     }),
@@ -42,7 +44,8 @@ SiloPage.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-export function SiloPage() {
+Component.displayName = 'SiloPage'
+export function Component() {
   const siloSelector = useSiloSelector()
 
   const { data: silo } = usePrefetchedApiQuery('siloView', { path: siloSelector })
@@ -60,7 +63,12 @@ export function SiloPage() {
           heading="silos"
           icon={<Cloud16Icon />}
           summary="Silos provide strict tenancy separation between groups of users. Each silo has its own resource limits and access policies as well as its own subdomain for the web console and API."
-          links={[docLinks.systemSilo, docLinks.systemIpPools, docLinks.access]}
+          links={[
+            docLinks.systemSilo,
+            docLinks.identityProviders,
+            docLinks.systemIpPools,
+            docLinks.access,
+          ]}
         />
       </PageHeader>
 
@@ -68,7 +76,7 @@ export function SiloPage() {
         <PropertiesTable>
           <PropertiesTable.Row label="ID">{silo.id}</PropertiesTable.Row>
           <PropertiesTable.Row label="Description">
-            {silo.description || <EmptyCell />}
+            <DescriptionCell text={silo.description} />
           </PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
@@ -85,6 +93,7 @@ export function SiloPage() {
         <Tabs.List>
           <Tabs.Trigger value="idps">Identity Providers</Tabs.Trigger>
           <Tabs.Trigger value="ip-pools">IP Pools</Tabs.Trigger>
+          <Tabs.Trigger value="quotas">Quotas</Tabs.Trigger>
           <Tabs.Trigger value="fleet-roles">Fleet roles</Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="idps">
@@ -92,6 +101,9 @@ export function SiloPage() {
         </Tabs.Content>
         <Tabs.Content value="ip-pools">
           <SiloIpPoolsTab />
+        </Tabs.Content>
+        <Tabs.Content value="quotas">
+          <SiloQuotasTab />
         </Tabs.Content>
         <Tabs.Content value="fleet-roles">
           {/* TODO: better empty state explaining that no roles are mapped so nothing will happen */}

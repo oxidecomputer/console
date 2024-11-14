@@ -11,8 +11,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Folder16Icon, Key16Icon, Profile16Icon } from '@oxide/design-system/icons/react'
 
 import { TopBar } from '~/components/TopBar'
-import { SiloSystemPicker } from '~/components/TopBarPicker'
-import { useQuickActions } from '~/hooks'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
 
@@ -43,9 +42,7 @@ export function SettingsLayout() {
 
   return (
     <PageContainer>
-      <TopBar>
-        <SiloSystemPicker value="silo" />
-      </TopBar>
+      <TopBar systemOrSilo="silo" />
       <Sidebar>
         <Sidebar.Nav>
           <NavLinkItem to={pb.projects()}>

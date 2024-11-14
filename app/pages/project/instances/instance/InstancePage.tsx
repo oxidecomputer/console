@@ -15,21 +15,24 @@ import {
   usePrefetchedApiQuery,
   type InstanceNetworkInterface,
 } from '@oxide/api'
-import { Instances16Icon, Instances24Icon } from '@oxide/design-system/icons/react'
+import { Instances24Icon } from '@oxide/design-system/icons/react'
 
-import { DocsPopover } from '~/components/DocsPopover'
+import { instanceTransitioning } from '~/api/util'
 import { ExternalIps } from '~/components/ExternalIps'
+import { InstanceDocsPopover } from '~/components/InstanceDocsPopover'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { RefreshButton } from '~/components/RefreshButton'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
-import { InstanceStatusBadge } from '~/components/StatusBadge'
-import { getInstanceSelector, useInstanceSelector } from '~/hooks'
+import { InstanceStateBadge } from '~/components/StateBadge'
+import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { EmptyCell } from '~/table/cells/EmptyCell'
+import { Button } from '~/ui/lib/Button'
 import { DateTime } from '~/ui/lib/DateTime'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { Spinner } from '~/ui/lib/Spinner'
+import { Tooltip } from '~/ui/lib/Tooltip'
 import { Truncate } from '~/ui/lib/Truncate'
-import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 import { useMakeInstanceActions } from '../actions'
@@ -84,20 +87,35 @@ InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
+const POLL_INTERVAL = 1000
+
 export function InstancePage() {
   const instanceSelector = useInstanceSelector()
 
   const navigate = useNavigate()
-  const makeActions = useMakeInstanceActions(instanceSelector, {
+
+  const { makeButtonActions, makeMenuActions } = useMakeInstanceActions(instanceSelector, {
     onSuccess: refreshData,
     // go to project instances list since there's no more instance
-    onDelete: () => navigate(pb.instances(instanceSelector)),
+    onDelete: () => {
+      apiQueryClient.invalidateQueries('instanceList')
+      navigate(pb.instances(instanceSelector))
+    },
   })
 
-  const { data: instance } = usePrefetchedApiQuery('instanceView', {
-    path: { instance: instanceSelector.instance },
-    query: { project: instanceSelector.project },
-  })
+  const { data: instance } = usePrefetchedApiQuery(
+    'instanceView',
+    {
+      path: { instance: instanceSelector.instance },
+      query: { project: instanceSelector.project },
+    },
+    {
+      refetchInterval: ({ state: { data: instance } }) =>
+        instance && instanceTransitioning(instance) ? POLL_INTERVAL : false,
+    }
+  )
+
+  const polling = instanceTransitioning(instance)
 
   const { data: nics } = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
     query: {
@@ -116,7 +134,7 @@ export function InstancePage() {
     { enabled: !!primaryVpcId }
   )
 
-  const actions = useMemo(
+  const allMenuActions = useMemo(
     () => [
       {
         label: 'Copy ID',
@@ -124,9 +142,9 @@ export function InstancePage() {
           window.navigator.clipboard.writeText(instance.id || '')
         },
       },
-      ...makeActions(instance),
+      ...makeMenuActions(instance),
     ],
-    [instance, makeActions]
+    [instance, makeMenuActions]
   )
 
   const memory = filesize(instance.memory, { output: 'object', base: 2 })
@@ -136,14 +154,23 @@ export function InstancePage() {
       <PageHeader>
         <PageTitle icon={<Instances24Icon />}>{instance.name}</PageTitle>
         <div className="inline-flex gap-2">
-          <DocsPopover
-            heading="instances"
-            icon={<Instances16Icon />}
-            summary="Instances are virtual machines that run on the Oxide platform."
-            links={[docLinks.instances, docLinks.instanceActions]}
-          />
           <RefreshButton onClick={refreshData} />
-          <MoreActionsMenu label="Instance actions" actions={actions} />
+          <InstanceDocsPopover />
+          <div className="flex space-x-2 border-l pl-2 border-default">
+            {makeButtonActions(instance).map((action) => (
+              <Button
+                key={action.label}
+                variant="ghost"
+                size="sm"
+                onClick={action.onActivate}
+                disabled={!!action.disabled}
+                disabledReason={action.disabled}
+              >
+                {action.label}
+              </Button>
+            ))}
+          </div>
+          <MoreActionsMenu label="Instance actions" actions={allMenuActions} />
         </div>
       </PageHeader>
       <PropertiesTable.Group className="-mt-8 mb-16">
@@ -156,13 +183,22 @@ export function InstancePage() {
             <span className="text-secondary">{memory.value}</span>
             <span className="ml-1 text-quaternary"> {memory.unit}</span>
           </PropertiesTable.Row>
-          <PropertiesTable.Row label="status">
-            <InstanceStatusBadge status={instance.runState} />
+          <PropertiesTable.Row label="state">
+            <div className="flex">
+              <InstanceStateBadge state={instance.runState} />
+              {polling && (
+                <Tooltip content="Auto-refreshing while state changes" delay={150}>
+                  <button type="button">
+                    <Spinner className="ml-2" />
+                  </button>
+                </Tooltip>
+              )}
+            </div>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="vpc">
             {vpc ? (
               <Link
-                className="link-with-underline group text-sans-semi-md"
+                className="link-with-underline group text-sans-md"
                 to={pb.vpc({ project: instanceSelector.project, vpc: vpc.name })}
               >
                 {vpc.name}

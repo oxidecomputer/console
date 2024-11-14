@@ -7,7 +7,7 @@
  */
 import { filesize } from 'filesize'
 import { useMemo } from 'react'
-import { useController, type Control } from 'react-hook-form'
+import { useController, useForm, type Control } from 'react-hook-form'
 import { useNavigate, type NavigateFunction } from 'react-router-dom'
 
 import {
@@ -23,12 +23,13 @@ import {
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { DiskSizeField } from '~/components/form/fields/DiskSizeField'
-import { toListboxItem } from '~/components/form/fields/ImageSelectField'
+import { toImageComboboxItem } from '~/components/form/fields/ImageSelectField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useProjectSelector } from '~/hooks'
+import { HL } from '~/components/HL'
+import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
@@ -76,7 +77,7 @@ export function CreateDiskSideModalForm({
   const createDisk = useApiMutation('diskCreate', {
     onSuccess(data) {
       queryClient.invalidateQueries('diskList')
-      addToast({ content: 'Your disk has been created' })
+      addToast(<>Disk <HL>{data.name}</HL> created</>) // prettier-ignore
       onSuccess?.(data)
       onDismiss(navigate)
     },
@@ -122,7 +123,11 @@ export function CreateDiskSideModalForm({
       onDismiss={() => onDismiss(navigate)}
       onSubmit={({ size, ...rest }) => {
         const body = { size: size * GiB, ...rest }
-        onSubmit ? onSubmit(body) : createDisk.mutate({ query: { project }, body })
+        if (onSubmit) {
+          onSubmit(body)
+        } else {
+          createDisk.mutate({ query: { project }, body })
+        }
       }}
       loading={createDisk.isPending}
       submitError={createDisk.error}
@@ -206,7 +211,7 @@ const DiskSourceField = ({
             label="Source image"
             placeholder="Select an image"
             isLoading={areImagesLoading}
-            items={images.map((i) => toListboxItem(i, true))}
+            items={images.map((i) => toImageComboboxItem(i, true))}
             required
             onChange={(id) => {
               const image = images.find((i) => i.id === id)! // if it's selected, it must be present

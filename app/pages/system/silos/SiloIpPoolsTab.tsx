@@ -8,13 +8,14 @@
 
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
+import { useForm } from 'react-hook-form'
 
 import { useApiMutation, useApiQuery, useApiQueryClient, type SiloIpPool } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
-import { useForm, useSiloSelector } from '~/hooks'
+import { useSiloSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
 import { DefaultPoolCell } from '~/table/cells/DefaultPoolCell'
@@ -22,10 +23,12 @@ import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
+import { toComboboxItems } from '~/ui/lib/Combobox'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
+import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -61,7 +64,7 @@ export function SiloIpPoolsTab() {
   // default that fast anyway.
   const { data: allPools } = useApiQuery('siloIpPoolList', {
     path: { silo },
-    query: { limit: 1000 },
+    query: { limit: ALL_ISH },
   })
 
   // used in change default confirm modal
@@ -70,14 +73,16 @@ export function SiloIpPoolsTab() {
     [allPools]
   )
 
-  const updatePoolLink = useApiMutation('ipPoolSiloUpdate', {
+  const { mutateAsync: updatePoolLink } = useApiMutation('ipPoolSiloUpdate', {
     onSuccess() {
       queryClient.invalidateQueries('siloIpPoolList')
     },
   })
-  const unlinkPool = useApiMutation('ipPoolSiloUnlink', {
+  const { mutateAsync: unlinkPool } = useApiMutation('ipPoolSiloUnlink', {
     onSuccess() {
       queryClient.invalidateQueries('siloIpPoolList')
+      // We only have the ID, so will show a generic confirmation message
+      addToast({ content: 'IP pool unlinked' })
     },
   })
 
@@ -91,7 +96,7 @@ export function SiloIpPoolsTab() {
           if (pool.isDefault) {
             confirmAction({
               doAction: () =>
-                updatePoolLink.mutateAsync({
+                updatePoolLink({
                   path: { silo, pool: pool.id },
                   body: { isDefault: false },
                 }),
@@ -121,7 +126,7 @@ export function SiloIpPoolsTab() {
             const verb = defaultPool ? 'change' : 'make'
             confirmAction({
               doAction: () =>
-                updatePoolLink.mutateAsync({
+                updatePoolLink({
                   path: { silo, pool: pool.id },
                   body: { isDefault: true },
                 }),
@@ -138,7 +143,7 @@ export function SiloIpPoolsTab() {
         className: 'destructive',
         onActivate() {
           confirmAction({
-            doAction: () => unlinkPool.mutateAsync({ path: { silo, pool: pool.id } }),
+            doAction: () => unlinkPool({ path: { silo, pool: pool.id } }),
             modalTitle: `Confirm unlink pool`,
             modalContent: (
               <p>
@@ -197,9 +202,9 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
 
   const linkedPools = useApiQuery('siloIpPoolList', {
     path: { silo },
-    query: { limit: 1000 },
+    query: { limit: ALL_ISH },
   })
-  const allPools = useApiQuery('ipPoolList', { query: { limit: 1000 } })
+  const allPools = useApiQuery('ipPoolList', { query: { limit: ALL_ISH } })
 
   // in order to get the list of remaining unlinked pools, we have to get the
   // list of all pools and remove the already linked ones
@@ -211,9 +216,7 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
   const unlinkedPoolItems = useMemo(
     () =>
       allPools.data && linkedPoolIds
-        ? allPools.data.items
-            .filter((p) => !linkedPoolIds.has(p.id))
-            .map((p) => ({ value: p.name, label: p.name }))
+        ? toComboboxItems(allPools.data.items.filter((p) => !linkedPoolIds.has(p.id)))
         : [],
     [allPools, linkedPoolIds]
   )

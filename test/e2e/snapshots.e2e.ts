@@ -30,6 +30,10 @@ test('Confirm delete snapshot', async ({ page }) => {
 
   const row = page.getByRole('row', { name: 'disk-1-snapshot-6' })
 
+  // scroll a little so the dropdown menu isn't behind the pagination bar
+  await page.getByRole('table').click() // focus the content pane
+  await page.mouse.wheel(0, 200)
+
   async function clickDelete() {
     await row.getByRole('button', { name: 'Row actions' }).click()
     await page.getByRole('menuitem', { name: 'Delete' }).click()

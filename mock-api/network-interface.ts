@@ -22,5 +22,6 @@ export const networkInterface: Json<InstanceNetworkInterface> = {
   subnet_id: vpcSubnet.id,
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
+  transit_ips: ['172.30.0.0/22'],
   vpc_id: vpc.id,
 }

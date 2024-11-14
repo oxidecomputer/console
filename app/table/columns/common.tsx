@@ -8,10 +8,8 @@
 
 import { filesize } from 'filesize'
 
+import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { DateTime } from '~/ui/lib/DateTime'
-import { Truncate } from '~/ui/lib/Truncate'
-
-import { EmptyCell } from '../cells/EmptyCell'
 
 // the full type of the info arg is CellContext<Row, Item> from RT, but in these
 // cells we only care about the return value of getValue
@@ -29,9 +27,6 @@ function sizeCell(info: Info<number>) {
     </span>
   )
 }
-
-export const DescriptionCell = ({ text }: { text?: string }) =>
-  text ? <Truncate text={text} maxLength={48} /> : <EmptyCell />
 
 /** Columns used in a bunch of tables */
 export const Columns = {

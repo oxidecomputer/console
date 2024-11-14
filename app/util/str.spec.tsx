@@ -5,9 +5,17 @@
  *
  * Copyright Oxide Computer Company
  */
-import { describe, expect, it, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
-import { camelCase, capitalize, commaSeries, kebabCase, titleCase, validateIp } from './str'
+import {
+  camelCase,
+  capitalize,
+  commaSeries,
+  extractText,
+  kebabCase,
+  normalizeName,
+  titleCase,
+} from './str'
 
 describe('capitalize', () => {
   it('capitalizes the first letter', () => {
@@ -77,66 +85,66 @@ describe('titleCase', () => {
   })
 })
 
-// Rust playground comparing results with std::net::{Ipv4Addr, Ipv6Addr}
-// https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=493b3345b9f6c0b1c8ee91834e99ef7b
-
-test.each(['123.4.56.7', '1.2.3.4'])(
-  'validateIp catches valid IPV4 / invalid IPV6: %s',
-  (s) => {
-    expect(validateIp(s)).toStrictEqual({ isv4: true, isv6: false, valid: true })
-  }
-)
-
-test.each([
-  '2001:db8:3333:4444:5555:6666:7777:8888',
-  '2001:db8:3333:4444:CCCC:DDDD:EEEE:FFFF',
-  '::',
-  '2001:db8::',
-  '::1234:5678',
-  '2001:db8::1234:5678',
-  '2001:0db8:85a3:0000:0000:8a2e:0370:7334',
-  '::ffff:192.0.2.128',
-  '1:2:3:4:5:6:7:8',
-  '::ffff:10.0.0.1',
-  '::ffff:1.2.3.4',
-  '::ffff:0.0.0.0',
-  '1:2:3:4:5:6:77:88',
-  '::ffff:255.255.255.255',
-  'fe08::7:8',
-  'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
-])('validateIp catches invalid IPV4 / valid IPV6: %s', (s) => {
-  expect(validateIp(s)).toStrictEqual({ isv4: false, isv6: true, valid: true })
+describe('extractText', () => {
+  it('extracts strings from React components', () => {
+    expect(
+      extractText(
+        <>
+          This is my <strong>text</strong>
+        </>
+      )
+    ).toBe('This is my text')
+  })
+  it('extracts strings from nested elements', () => {
+    expect(
+      extractText(
+        <p>
+          This is my{' '}
+          <strong>
+            <em>nested</em> text
+          </strong>
+        </p>
+      )
+    ).toBe('This is my nested text')
+  })
+  it('can handle regular strings', () => {
+    expect(extractText('Some more text')).toBe('Some more text')
+  })
 })
 
-test.each([
-  '',
-  '1',
-  'abc',
-  'a.b.c.d',
-  // some implementations (I think incorrectly) allow leading zeros but nexus does not
-  '01.102.103.104',
-  '127.0.0',
-  '127.0.0.1.',
-  '127.0.0.1 ',
-  ' 127.0.0.1',
-  '10002.3.4',
-  '1.2.3.4.5',
-  '256.0.0.0',
-  '260.0.0.0',
-  '256.1.1.1',
-  '2001:0db8:85a3:0000:0000:8a2e:0370:7334 ',
-  ' 2001:db8::',
-  '1:2:3:4:5:6:7:8:9',
-  '1:2:3:4:5:6::7:8',
-  ':1:2:3:4:5:6:7:8',
-  '1:2:3:4:5:6:7:8:',
-  '::1:2:3:4:5:6:7:8',
-  '1:2:3:4:5:6:7:8::',
-  '1:2:3:4:5:6:7:88888',
-  '2001:db8:3:4:5::192.0.2.33', // std::new::Ipv6Net allows this one
-  'fe08::7:8%',
-  'fe08::7:8i',
-  'fe08::7:8interface',
-])('validateIp catches invalid IP: %s', (s) => {
-  expect(validateIp(s)).toStrictEqual({ isv4: false, isv6: false, valid: false })
+describe('normalizeName', () => {
+  it('converts to lowercase', () => {
+    expect(normalizeName('Hello')).toBe('hello')
+  })
+
+  it('replaces spaces with dashes', () => {
+    expect(normalizeName('Hello World')).toBe('hello-world')
+  })
+
+  it('removes non-alphanumeric characters', () => {
+    expect(normalizeName('Hello, World!')).toBe('hello-world')
+  })
+
+  it('caps at 63 characters', () => {
+    expect(normalizeName('aaa')).toBe('aaa')
+    expect(normalizeName('aaaaaaaaa')).toBe('aaaaaaaaa')
+    expect(normalizeName('a'.repeat(63))).toBe('a'.repeat(63))
+    expect(normalizeName('a'.repeat(64))).toBe('a'.repeat(63))
+  })
+
+  it('can optionally start with numbers', () => {
+    expect(normalizeName('123abc')).toBe('abc')
+    expect(normalizeName('123abc', false)).toBe('abc')
+    expect(normalizeName('123abc', true)).toBe('123abc')
+  })
+
+  it('can optionally start with a dash', () => {
+    expect(normalizeName('-abc')).toBe('abc')
+    expect(normalizeName('-abc', false)).toBe('abc')
+    expect(normalizeName('-abc', true)).toBe('-abc')
+  })
+
+  it('does not complain when multiple dashes are present', () => {
+    expect(normalizeName('a--b')).toBe('a--b')
+  })
 })

@@ -66,7 +66,7 @@ export const Form = {
         })}
         {childArray}
         {error && (
-          <div className="flex !shrink grow items-start justify-end text-mono-sm text-error">
+          <div className="flex !shrink grow items-start justify-end text-mono-sm text-error 2xl+:justify-start">
             <Error12Icon className="mx-2 mt-0.5 shrink-0" />
             <span>{error.message}</span>
           </div>

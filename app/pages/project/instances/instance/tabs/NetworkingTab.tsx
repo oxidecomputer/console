@@ -18,22 +18,29 @@ import {
   usePrefetchedApiQuery,
   type ExternalIp,
   type InstanceNetworkInterface,
+  type InstanceState,
 } from '@oxide/api'
 import { IpGlobal24Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { AttachEphemeralIpModal } from '~/components/AttachEphemeralIpModal'
 import { AttachFloatingIpModal } from '~/components/AttachFloatingIpModal'
 import { HL } from '~/components/HL'
+import { ListPlusCell } from '~/components/ListPlusCell'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
 import { EditNetworkInterfaceForm } from '~/forms/network-interface-edit'
-import { getInstanceSelector, useInstanceSelector, useProjectSelector } from '~/hooks'
+import {
+  getInstanceSelector,
+  useInstanceSelector,
+  useProjectSelector,
+} from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { Columns, DescriptionCell } from '~/table/columns/common'
+import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
@@ -41,6 +48,7 @@ import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableControls, TableEmptyBox, TableTitle } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
+import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './common'
@@ -75,16 +83,14 @@ const SubnetNameFromId = ({ value }: { value: string }) => {
   return <span className="text-secondary">{subnet.name}</span>
 }
 
-NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('instanceNetworkInterfaceList', {
       // we want this to cover all NICs; TODO: determine actual limit?
-      query: { project, instance, limit: 1000 },
+      query: { project, instance, limit: ALL_ISH },
     }),
-    apiQueryClient.prefetchQuery('floatingIpList', {
-      query: { project, limit: 1000 },
-    }),
+    apiQueryClient.prefetchQuery('floatingIpList', { query: { project, limit: ALL_ISH } }),
     // dupe of page-level fetch but that's fine, RQ dedupes
     apiQueryClient.prefetchQuery('instanceExternalIpList', {
       path: { instance },
@@ -97,14 +103,20 @@ NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
       query: { project },
     }),
     // This is used in AttachEphemeralIpModal
-    apiQueryClient.prefetchQuery('projectIpPoolList', {
-      query: { limit: 1000 },
-    }),
+    apiQueryClient.prefetchQuery('projectIpPoolList', { query: { limit: ALL_ISH } }),
   ])
   return null
 }
 
-const colHelper = createColumnHelper<InstanceNetworkInterface>()
+// Bit of a hack: by putting the instance state in the row data, we can avoid
+// remaking the row actions callback whenever the instance state changes, which
+// causes the whole table to get re-rendered, which jarringly closes any open
+// row actions menus
+type NicRow = InstanceNetworkInterface & {
+  instanceState: InstanceState
+}
+
+const colHelper = createColumnHelper<NicRow>()
 const staticCols = [
   colHelper.accessor('name', {
     header: 'name',
@@ -128,11 +140,45 @@ const staticCols = [
     header: 'subnet',
     cell: (info) => <SubnetNameFromId value={info.getValue()} />,
   }),
+  colHelper.accessor('transitIps', {
+    header: 'Transit IPs',
+    cell: (info) => (
+      <ListPlusCell tooltipTitle="Other transit IPs">
+        {info.getValue()?.map((ip) => <div key={ip}>{ip}</div>)}
+      </ListPlusCell>
+    ),
+  }),
 ]
 
 const updateNicStates = fancifyStates(instanceCan.updateNic.states)
 
-export function NetworkingTab() {
+const ipColHelper = createColumnHelper<ExternalIp>()
+const staticIpCols = [
+  ipColHelper.accessor('ip', {
+    cell: (info) => <CopyableIp ip={info.getValue()} />,
+  }),
+  ipColHelper.accessor('kind', {
+    header: () => (
+      <>
+        Kind
+        <TipIcon className="ml-2">
+          Floating IPs can be detached from this instance and attached to another.
+        </TipIcon>
+      </>
+    ),
+    cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
+  }),
+  ipColHelper.accessor('name', {
+    cell: (info) => (info.getValue() ? info.getValue() : <EmptyCell />),
+  }),
+  ipColHelper.accessor((row) => ('description' in row ? row.description : undefined), {
+    header: 'description',
+    cell: (info) => <DescriptionCell text={info.getValue()} />,
+  }),
+]
+
+Component.displayName = 'NetworkingTab'
+export function Component() {
   const instanceSelector = useInstanceSelector()
   const { instance: instanceName, project } = instanceSelector
 
@@ -145,7 +191,7 @@ export function NetworkingTab() {
 
   // Fetch the floating IPs to show in the "Attach floating IP" modal
   const { data: ips } = usePrefetchedApiQuery('floatingIpList', {
-    query: { project, limit: 1000 },
+    query: { project, limit: ALL_ISH },
   })
   // Filter out the IPs that are already attached to an instance
   const availableIps = useMemo(() => ips.items.filter((ip) => !ip.instanceId), [ips])
@@ -156,13 +202,13 @@ export function NetworkingTab() {
       setCreateModalOpen(false)
     },
   })
-  const deleteNic = useApiMutation('instanceNetworkInterfaceDelete', {
-    onSuccess() {
+  const { mutateAsync: deleteNic } = useApiMutation('instanceNetworkInterfaceDelete', {
+    onSuccess(_data, variables) {
       queryClient.invalidateQueries('instanceNetworkInterfaceList')
-      addToast({ content: 'Network interface deleted' })
+      addToast(<>Network interface <HL>{variables.path.interface}</HL> deleted</>) // prettier-ignore
     },
   })
-  const editNic = useApiMutation('instanceNetworkInterfaceUpdate', {
+  const { mutate: editNic } = useApiMutation('instanceNetworkInterfaceUpdate', {
     onSuccess() {
       queryClient.invalidateQueries('instanceNetworkInterfaceList')
     },
@@ -172,67 +218,74 @@ export function NetworkingTab() {
     path: { instance: instanceName },
     query: { project },
   })
-  const canUpdateNic = instanceCan.updateNic(instance)
 
   const makeActions = useCallback(
-    (nic: InstanceNetworkInterface): MenuAction[] => [
-      {
-        label: 'Make primary',
-        onActivate() {
-          editNic.mutate({
-            path: { interface: nic.name },
-            query: instanceSelector,
-            body: { ...nic, primary: true },
-          })
-        },
-        disabled: nic.primary
-          ? 'This network interface is already set as primary'
-          : !canUpdateNic && (
-              <>
-                The instance must be {updateNicStates} to change its primary network
-                interface
-              </>
-            ),
-      },
-      {
-        label: 'Edit',
-        onActivate() {
-          setEditing(nic)
-        },
-        disabled: !canUpdateNic && (
-          <>
-            The instance must be {updateNicStates} before editing a network interface&apos;s
-            settings
-          </>
-        ),
-      },
-      {
-        label: 'Delete',
-        onActivate: confirmDelete({
-          doDelete: () =>
-            deleteNic.mutateAsync({
+    (nic: NicRow): MenuAction[] => {
+      const canUpdateNic = instanceCan.updateNic({ runState: nic.instanceState })
+      return [
+        {
+          label: 'Make primary',
+          onActivate() {
+            editNic({
               path: { interface: nic.name },
               query: instanceSelector,
-            }),
-          label: nic.name,
-        }),
-        disabled: !canUpdateNic && (
-          <>The instance must be {updateNicStates} to delete a network interface</>
-        ),
-      },
-    ],
-    [canUpdateNic, deleteNic, editNic, instanceSelector]
+              body: { ...nic, primary: true },
+            })
+          },
+          disabled: nic.primary
+            ? 'This network interface is already set as primary'
+            : !canUpdateNic && (
+                <>
+                  The instance must be {updateNicStates} to change its primary network
+                  interface
+                </>
+              ),
+        },
+        {
+          label: 'Edit',
+          onActivate() {
+            setEditing(nic)
+          },
+          disabled: !canUpdateNic && (
+            <>
+              The instance must be {updateNicStates} before editing a network
+              interface&apos;s settings
+            </>
+          ),
+        },
+        {
+          label: 'Delete',
+          onActivate: confirmDelete({
+            doDelete: () =>
+              deleteNic({
+                path: { interface: nic.name },
+                query: instanceSelector,
+              }),
+            label: nic.name,
+          }),
+          disabled: !canUpdateNic && (
+            <>The instance must be {updateNicStates} to delete a network interface</>
+          ),
+        },
+      ]
+    },
+    [deleteNic, editNic, instanceSelector]
   )
 
   const columns = useColsWithActions(staticCols, makeActions)
 
   const nics = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
-    query: { ...instanceSelector, limit: 1000 },
+    query: { ...instanceSelector, limit: ALL_ISH },
   }).data.items
+
+  const nicRows = useMemo(
+    () => nics.map((nic) => ({ ...nic, instanceState: instance.runState })),
+    [nics, instance]
+  )
 
   const tableInstance = useReactTable({
     columns,
-    data: nics || [],
+    data: nicRows,
     getCoreRowModel: getCoreRowModel(),
   })
 
@@ -242,46 +295,21 @@ export function NetworkingTab() {
     query: { project },
   })
 
-  const ipColHelper = createColumnHelper<ExternalIp>()
-  const staticIpCols = [
-    ipColHelper.accessor('ip', {
-      cell: (info) => <CopyableIp ip={info.getValue()} />,
-    }),
-    ipColHelper.accessor('kind', {
-      header: () => (
-        <>
-          Kind
-          <TipIcon className="ml-2">
-            Floating IPs can be detached from this instance and attached to another.
-          </TipIcon>
-        </>
-      ),
-      cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
-    }),
-    ipColHelper.accessor('name', {
-      cell: (info) => (info.getValue() ? info.getValue() : <EmptyCell />),
-    }),
-    ipColHelper.accessor((row) => ('description' in row ? row.description : undefined), {
-      header: 'description',
-      cell: (info) => <DescriptionCell text={info.getValue()} />,
-    }),
-  ]
-
-  const ephemeralIpDetach = useApiMutation('instanceEphemeralIpDetach', {
+  const { mutateAsync: ephemeralIpDetach } = useApiMutation('instanceEphemeralIpDetach', {
     onSuccess() {
       queryClient.invalidateQueries('instanceExternalIpList')
-      addToast({ content: 'Your ephemeral IP has been detached' })
+      addToast({ content: 'Ephemeral IP detached' })
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
   })
 
-  const floatingIpDetach = useApiMutation('floatingIpDetach', {
-    onSuccess() {
+  const { mutateAsync: floatingIpDetach } = useApiMutation('floatingIpDetach', {
+    onSuccess(_data, variables) {
       queryClient.invalidateQueries('floatingIpList')
       queryClient.invalidateQueries('instanceExternalIpList')
-      addToast({ content: 'Your floating IP has been detached' })
+      addToast(<>Floating IP <HL>{variables.path.floatingIp}</HL> detached</>) // prettier-ignore
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
@@ -300,12 +328,12 @@ export function NetworkingTab() {
       const doAction =
         externalIp.kind === 'floating'
           ? () =>
-              floatingIpDetach.mutateAsync({
+              floatingIpDetach({
                 path: { floatingIp: externalIp.name },
                 query: { project },
               })
           : () =>
-              ephemeralIpDetach.mutateAsync({
+              ephemeralIpDetach({
                 path: { instance: instanceName },
                 query: { project },
               })
@@ -337,8 +365,6 @@ export function NetworkingTab() {
             }),
         },
       ]
-
-      return [copyAction]
     },
     [ephemeralIpDetach, floatingIpDetach, instanceName, project]
   )
@@ -411,7 +437,7 @@ export function NetworkingTab() {
         <TableTitle id="nics-label">Network interfaces</TableTitle>
         <CreateButton
           onClick={() => setCreateModalOpen(true)}
-          disabled={!canUpdateNic}
+          disabled={!instanceCan.updateNic(instance)}
           disabledReason={
             <>
               A network interface cannot be created or edited unless the instance is{' '}

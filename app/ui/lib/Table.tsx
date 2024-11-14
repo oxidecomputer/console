@@ -9,7 +9,7 @@ import cn from 'classnames'
 import React, { useRef, type ReactElement } from 'react'
 import SimpleBar from 'simplebar-react'
 
-import { useIsOverflow } from '~/hooks'
+import { useIsOverflow } from '~/hooks/use-is-overflow'
 import { classed } from '~/util/classed'
 
 export type TableProps = JSX.IntrinsicElements['table']
@@ -115,7 +115,7 @@ Table.Cell = ({ height = 'small', className, children, ...props }: TableCellProp
  * Used _outside_ of the `Table`, this element wraps buttons that sit on top
  * of the table.
  */
-export const TableActions = classed.div`-mt-11 mb-3 flex justify-end space-x-2`
+export const TableActions = classed.div`-mt-11 mb-3 flex justify-end gap-2`
 
 export const TableEmptyBox = classed.div`flex h-full max-h-[480px] items-center justify-center rounded-lg border border-secondary p-4`
 

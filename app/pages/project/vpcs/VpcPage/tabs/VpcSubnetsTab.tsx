@@ -16,9 +16,11 @@ import {
   type VpcSubnet,
 } from '@oxide/api'
 
-import { getVpcSelector, useVpcSelector } from '~/hooks'
+import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
+import { RouterLinkCell } from '~/table/cells/RouterLinkCell'
 import { TwoLineCell } from '~/table/cells/TwoLineCell'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -29,7 +31,7 @@ import { pb } from '~/util/path-builder'
 
 const colHelper = createColumnHelper<VpcSubnet>()
 
-VpcSubnetsTab.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function loader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcSelector(params)
   await apiQueryClient.prefetchQuery('vpcSubnetList', {
     query: { project, vpc, limit: PAGE_SIZE },
@@ -37,15 +39,18 @@ VpcSubnetsTab.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-export function VpcSubnetsTab() {
+Component.displayName = 'VpcSubnetsTab'
+export function Component() {
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 
   const { Table } = useQueryTable('vpcSubnetList', { query: vpcSelector })
 
-  const deleteSubnet = useApiMutation('vpcSubnetDelete', {
+  const { mutateAsync: deleteSubnet } = useApiMutation('vpcSubnetDelete', {
     onSuccess() {
       queryClient.invalidateQueries('vpcSubnetList')
+      // We only have the ID, so will show a generic confirmation message
+      addToast({ content: 'Subnet deleted' })
     },
   })
 
@@ -62,7 +67,7 @@ export function VpcSubnetsTab() {
       {
         label: 'Delete',
         onActivate: confirmDelete({
-          doDelete: () => deleteSubnet.mutateAsync({ path: { subnet: subnet.id } }),
+          doDelete: () => deleteSubnet({ path: { subnet: subnet.id } }),
           label: subnet.name,
         }),
       },
@@ -75,9 +80,15 @@ export function VpcSubnetsTab() {
       colHelper.accessor('name', {
         cell: makeLinkCell((subnet) => pb.vpcSubnetsEdit({ ...vpcSelector, subnet })),
       }),
+      colHelper.accessor('description', Columns.description),
       colHelper.accessor((vpc) => [vpc.ipv4Block, vpc.ipv6Block] as const, {
         header: 'IP Block',
         cell: (info) => <TwoLineCell value={[...info.getValue()]} />,
+      }),
+      colHelper.accessor('customRouterId', {
+        header: 'Custom Router',
+        // RouterLinkCell needed, as we need to convert the customRouterId to the custom router's name
+        cell: (info) => <RouterLinkCell routerId={info.getValue()} />,
       }),
       colHelper.accessor('timeCreated', Columns.timeCreated),
       getActionsCol(makeActions),

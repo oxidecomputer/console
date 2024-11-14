@@ -6,8 +6,10 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import type { ReactElement } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+
+import { classed } from '~/util/classed'
 
 import { Button, buttonStyle } from './Button'
 
@@ -16,7 +18,7 @@ const buttonStyleProps = { variant: 'ghost', size: 'sm', color: 'secondary' } as
 type Props = {
   icon?: ReactElement
   title: string
-  body?: string
+  body?: ReactNode
 } & ( // only require buttonTo or onClick if buttonText is present
   | { buttonText: string; buttonTo: string }
   | { buttonText: string; onClick: () => void }
@@ -39,17 +41,17 @@ export function EmptyMessage(props: Props) {
     )
   }
   return (
-    <div className="m-4 flex max-w-[14rem] flex-col items-center text-center">
+    <div className="m-4 flex max-w-[18rem] flex-col items-center text-center">
       {props.icon && (
         <div className="mb-4 rounded p-1 leading-[0] text-accent bg-accent-secondary">
           {props.icon}
         </div>
       )}
       <h3 className="text-sans-semi-lg">{props.title}</h3>
-      {props.body && (
-        <p className="mt-1 text-balance text-sans-md text-secondary">{props.body}</p>
-      )}
+      {typeof props.body === 'string' ? <EMBody>{props.body}</EMBody> : props.body}
       {button}
     </div>
   )
 }
+
+export const EMBody = classed.p`mt-1 text-balance text-sans-md text-secondary`

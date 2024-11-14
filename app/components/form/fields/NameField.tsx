@@ -7,7 +7,7 @@
  */
 import type { FieldPath, FieldValues } from 'react-hook-form'
 
-import { capitalize } from '~/util/str'
+import { capitalize, normalizeName } from '~/util/str'
 
 import { TextField, type TextFieldProps } from './TextField'
 
@@ -18,14 +18,24 @@ export function NameField<
   required = true,
   name,
   label = capitalize(name),
+  validate,
   ...textFieldProps
-}: Omit<TextFieldProps<TFieldValues, TName>, 'validate'> & { label?: string }) {
+}: TextFieldProps<TFieldValues, TName> & { label?: string }) {
   return (
     <TextField
-      validate={(name) => validateName(name, label, required)}
+      // always check the name rules first, then the other checks if present
+      validate={(name, formValues) =>
+        validateName(name, label, required) || validate?.(name, formValues)
+      }
       required={required}
       label={label}
       name={name}
+      transform={(value) => normalizeName(value)}
+      // https://www.stefanjudis.com/snippets/turn-off-password-managers/
+      data-1p-ignore
+      data-bwignore
+      data-lpignore="true"
+      data-form-type="other"
       {...textFieldProps}
     />
   )

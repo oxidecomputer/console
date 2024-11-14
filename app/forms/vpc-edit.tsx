@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -17,7 +18,8 @@ import {
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { getVpcSelector, useForm, useVpcSelector } from '~/hooks'
+import { HL } from '~/components/HL'
+import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 
@@ -37,18 +39,20 @@ export function EditVpcSideModalForm() {
     query: { project },
   })
 
-  const onDismiss = () => navigate(pb.vpcs({ project }))
-
   const editVpc = useApiMutation('vpcUpdate', {
-    onSuccess(vpc) {
+    onSuccess(updatedVpc) {
       queryClient.invalidateQueries('vpcList')
-      queryClient.setQueryData(
-        'vpcView',
-        { path: { vpc: vpc.name }, query: { project } },
-        vpc
-      )
-      addToast({ content: 'Your VPC has been created' })
-      onDismiss()
+      navigate(pb.vpc({ project, vpc: updatedVpc.name }))
+      addToast(<>VPC <HL>{updatedVpc.name}</HL> updated</>) // prettier-ignore
+
+      // Only invalidate if we're staying on the same page. If the name
+      // _has_ changed, invalidating vpcView causes an error page to flash
+      // while the loader for the target page is running because the current
+      // page's VPC gets cleared out while we're still on the page. If we're
+      // navigating to a different page, its query will fetch anew regardless.
+      if (vpc.name === updatedVpc.name) {
+        queryClient.invalidateQueries('vpcView')
+      }
     },
   })
 
@@ -59,7 +63,7 @@ export function EditVpcSideModalForm() {
       form={form}
       formType="edit"
       resourceName="VPC"
-      onDismiss={onDismiss}
+      onDismiss={() => navigate(pb.vpc({ project, vpc: vpcName }))}
       onSubmit={({ name, description, dnsName }) => {
         editVpc.mutate({
           path: { vpc: vpcName },

@@ -7,7 +7,7 @@
  */
 import { delay } from 'msw'
 import * as R from 'remeda'
-import { v4 as uuid } from 'uuid'
+import { validate as isUuid, v4 as uuid } from 'uuid'
 
 import {
   diskCan,
@@ -17,16 +17,21 @@ import {
   INSTANCE_MIN_RAM_GiB,
   MAX_NICS_PER_INSTANCE,
   type ApiTypes as Api,
+  type InstanceDiskAttachment,
   type SamlIdentityProvider,
 } from '@oxide/api'
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
-import { validateIp } from '~/util/str'
+import { instanceCan } from '~/api/util'
+import { parseIp } from '~/util/ip'
+import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
 
 import { genCumulativeI64Data } from '../metrics'
 import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
+import { getTimestamps } from '../util'
+import { defaultFirewallRules } from '../vpc'
 import {
   db,
   getIpFromPool,
@@ -41,15 +46,16 @@ import {
   errIfInvalidDiskSize,
   forbiddenErr,
   getStartAndEndTime,
-  getTimestamps,
   handleMetrics,
   ipInAnyRange,
   ipRangeLen,
   NotImplemented,
   paginated,
+  requireFleetCollab,
   requireFleetViewer,
   requireRole,
   unavailableErr,
+  updateDesc,
 } from './util'
 
 // Note the *JSON types. Those represent actual API request and response bodies,
@@ -98,7 +104,7 @@ export const handlers = makeHandlers({
       }
       project.name = body.name
     }
-    project.description = body.description || ''
+    updateDesc(project, body)
 
     return project
   },
@@ -134,7 +140,7 @@ export const handlers = makeHandlers({
       state:
         disk_source.type === 'importing_blocks'
           ? { state: 'import_ready' }
-          : { state: 'creating' },
+          : { state: 'detached' },
       device_path: '/mnt/disk',
       name,
       description,
@@ -202,10 +208,11 @@ export const handlers = makeHandlers({
     disk.state = { state: 'import_ready' }
     return 204
   },
-  diskBulkWriteImport: ({ path, query, body }) => {
+  async diskBulkWriteImport({ path, query, body }) {
     const disk = lookup.disk({ ...path, ...query })
     const diskImport = db.diskBulkImportState.get(disk.id)
     if (!diskImport) throw notFoundErr(`disk import for disk '${disk.id}'`)
+    await delay(1000) // slow it down for the tests
     // if (Math.random() < 0.01) throw 400
     diskImport.blocks[body.offset] = true
     return 204
@@ -241,7 +248,7 @@ export const handlers = makeHandlers({
   },
   floatingIpCreate({ body, query }) {
     const project = lookup.project(query)
-    errIfExists(db.floatingIps, { name: body.name })
+    errIfExists(db.floatingIps, { name: body.name, project_id: project.id })
 
     // TODO: when IP is specified, use ipInAnyRange to check that it is in the pool
     const pool = body.pool
@@ -275,7 +282,7 @@ export const handlers = makeHandlers({
       }
       floatingIp.name = body.name
     }
-    floatingIp.description = body.description || ''
+    updateDesc(floatingIp, body)
     return floatingIp
   },
   floatingIpDelete({ path, query }) {
@@ -284,15 +291,22 @@ export const handlers = makeHandlers({
 
     return 204
   },
-  floatingIpAttach({ path, query, body }) {
-    const floatingIp = lookup.floatingIp({ ...path, ...query })
-    if (floatingIp.instance_id) {
+  floatingIpAttach({ path: { floatingIp }, query: { project }, body }) {
+    const dbFloatingIp = lookup.floatingIp({ floatingIp, project })
+    if (dbFloatingIp.instance_id) {
       throw 'floating IP cannot be attached to one instance while still attached to another'
     }
-    const instance = lookup.instance({ ...path, ...query, instance: body.parent })
-    floatingIp.instance_id = instance.id
+    // Following the API logic here, which says that when the instance is passed
+    // by name, we pull the project ID off the floating IP.
+    //
+    // https://github.com/oxidecomputer/omicron/blob/e434307/nexus/src/app/external_ip.rs#L171-L201
+    const dbInstance = lookup.instance({
+      instance: body.parent,
+      project: isUuid(body.parent) ? undefined : project,
+    })
+    dbFloatingIp.instance_id = dbInstance.id
 
-    return floatingIp
+    return dbFloatingIp
   },
   floatingIpDetach({ path, query }) {
     const floatingIp = lookup.floatingIp({ ...path, ...query })
@@ -355,13 +369,16 @@ export const handlers = makeHandlers({
 
     return json(image, { status: 202 })
   },
-  imageDemote({ path, query }) {
-    const image = lookup.image({ ...path, ...query })
-    const project = lookup.project({ ...path, ...query })
+  imageDemote({ path: { image }, query: { project } }) {
+    // unusual case because the project is never used to resolve the image. you
+    // can only demote silo images, and whether we have an image name or ID, if
+    // there is no project specified, the lookup assumes it's a silo image
+    const dbImage = lookup.image({ image })
+    const dbProject = lookup.project({ project })
 
-    image.project_id = project.id
+    dbImage.project_id = dbProject.id
 
-    return json(image, { status: 202 })
+    return json(dbImage, { status: 202 })
   },
   instanceList({ query }) {
     const project = lookup.project(query)
@@ -402,12 +419,18 @@ export const handlers = makeHandlers({
      * Eagerly check for disk errors. Execution will stop early and prevent orphaned disks from
      * being created if there's a failure. In omicron this is done automatically via an undo on the saga.
      */
-    for (const diskParams of body.disks || []) {
+    const allDisks: Json<InstanceDiskAttachment>[] = []
+    if (body.disks) allDisks.push(...body.disks)
+    if (body.boot_disk) allDisks.push(body.boot_disk)
+
+    for (const diskParams of allDisks) {
       if (diskParams.type === 'create') {
         errIfExists(db.disks, { name: diskParams.name, project_id: project.id }, 'disk')
         errIfInvalidDiskSize(diskParams)
       } else {
-        lookup.disk({ ...query, disk: diskParams.name })
+        const disk = lookup.disk({ ...query, disk: diskParams.name })
+        if (disk.state.state !== 'detached')
+          throw `Disk '${diskParams.name}' is already attached to an instance`
       }
     }
 
@@ -425,7 +448,35 @@ export const handlers = makeHandlers({
       })
     }
 
-    for (const diskParams of body.disks || []) {
+    // validate floating IP attachments before we actually do anything
+    body.external_ips?.forEach((ip) => {
+      if (ip.type === 'floating') {
+        // throw if floating IP doesn't exist
+        const floatingIp = lookup.floatingIp({
+          project: project.id,
+          floatingIp: ip.floating_ip,
+        })
+        if (floatingIp.instance_id) {
+          throw 'floating IP cannot be attached to one instance while still attached to another'
+        }
+      } else {
+        // just make sure we can get one. technically this will only throw
+        // if there are no ranges in the pool or if the pool doesn't exist,
+        // which aren't quite as good as checking that there are actually IPs
+        // available, but they are good things to check
+        getIpFromPool(ip.pool)
+      }
+    })
+
+    //////////////////////////////////////////////////////////////////////////
+    // DB WRITES START HERE
+    //
+    // We don't have transactions or sagas, so we need to make sure we do all
+    // our validation and throw any errors about bad input before we make any
+    // changes to the DB that would have to be undone on failure.
+    //////////////////////////////////////////////////////////////////////////
+
+    for (const diskParams of allDisks) {
       if (diskParams.type === 'create') {
         const { size, name, description, disk_source } = diskParams
         const newDisk: Json<Api.Disk> = {
@@ -445,6 +496,11 @@ export const handlers = makeHandlers({
         disk.state = { state: 'attached', instance: instanceId }
       }
     }
+
+    // at this point, the boot disk has been created, so just retrieve it again
+    const bootDiskId = body.boot_disk?.name
+      ? lookup.disk({ disk: body.boot_disk.name, project: project.id }).id
+      : undefined
 
     // just use the first VPC in the project and first subnet in the VPC. bit of
     // a hack but not very important
@@ -483,24 +539,15 @@ export const handlers = makeHandlers({
       )
     }
 
-    const newInstance: Json<Api.Instance> = {
-      id: instanceId,
-      project_id: project.id,
-      ...R.pick(body, ['name', 'description', 'hostname', 'memory', 'ncpus']),
-      ...getTimestamps(),
-      run_state: 'creating',
-      time_run_state_updated: new Date().toISOString(),
-    }
-
+    // actually set up IPs. looks very similar to validation step but this time
+    // we are writing to the DB
     body.external_ips?.forEach((ip) => {
       if (ip.type === 'floating') {
         const floatingIp = lookup.floatingIp({
           project: project.id,
           floatingIp: ip.floating_ip,
         })
-        if (floatingIp.instance_id) {
-          throw 'floating IP cannot be attached to one instance while still attached to another'
-        }
+        // we've already validated that the IP isn't attached
         floatingIp.instance_id = instanceId
       } else if (ip.type === 'ephemeral') {
         const firstAvailableAddress = getIpFromPool(ip.pool)
@@ -514,19 +561,60 @@ export const handlers = makeHandlers({
       }
     })
 
+    const newInstance: Json<Api.Instance> = {
+      id: instanceId,
+      project_id: project.id,
+      ...R.pick(body, ['name', 'description', 'hostname', 'memory', 'ncpus']),
+      ...getTimestamps(),
+      run_state: 'creating',
+      time_run_state_updated: new Date().toISOString(),
+      boot_disk_id: bootDiskId,
+      auto_restart_enabled: true,
+    }
+
     setTimeout(() => {
       newInstance.run_state = 'starting'
-    }, 1000)
+    }, 500)
 
     setTimeout(() => {
       newInstance.run_state = 'running'
-    }, 5000)
+    }, 4000)
 
     db.instances.push(newInstance)
 
     return json(newInstance, { status: 201 })
   },
   instanceView: ({ path, query }) => lookup.instance({ ...path, ...query }),
+  instanceUpdate({ path, query, body }) {
+    const instance = lookup.instance({ ...path, ...query })
+
+    if (!instanceCan.update({ runState: instance.run_state })) {
+      const states = instanceCan.update.states
+      throw `Instance can only be updated if ${commaSeries(states, 'or')}`
+    }
+
+    if (body.boot_disk) {
+      // Only include project if it's a name, otherwise lookup will error.
+      // This will 404 if the disk doesn't exist, which I think is right.
+      const disk = lookup.disk({
+        disk: body.boot_disk,
+        project: isUuid(body.boot_disk) ? undefined : query.project,
+      })
+
+      const isAttached =
+        disk.state.state === 'attached' && disk.state.instance === instance.id
+      if (!(diskCan.setAsBootDisk(disk) && isAttached)) {
+        throw 'Boot disk must be attached to the instance'
+      }
+
+      instance.boot_disk_id = disk.id
+    } else {
+      // we're clearing the boot disk!
+      instance.boot_disk_id = undefined
+    }
+
+    return instance
+  },
   instanceDelete({ path, query }) {
     const instance = lookup.instance({ ...path, ...query })
     db.instances = db.instances.filter((i) => i.id !== instance.id)
@@ -554,10 +642,19 @@ export const handlers = makeHandlers({
   },
   instanceDiskDetach({ body, path, query: projectParams }) {
     const instance = lookup.instance({ ...path, ...projectParams })
-    if (instance.run_state !== 'stopped') {
-      throw 'Cannot detach disk from instance that is not stopped'
+    if (!instanceCan.detachDisk({ runState: instance.run_state })) {
+      const states = commaSeries(instanceCan.detachDisk.states, 'or')
+      throw `Can only detach disk from instance that is ${states}`
     }
-    const disk = lookup.disk({ ...projectParams, disk: body.disk })
+    const disk = lookup.disk({
+      disk: body.disk,
+      // use instance project ID because project may not be specified in params
+      project: isUuid(body.disk) ? undefined : instance.project_id,
+    })
+    if (!diskCan.detach(disk)) {
+      const states = commaSeries(diskCan.detach.states, 'or')
+      throw `Can only detach disk that is ${states}`
+    }
     disk.state = { state: 'detached' }
     return disk
   },
@@ -643,7 +740,7 @@ export const handlers = makeHandlers({
     if (body.name) {
       nic.name = body.name
     }
-    nic.description = body.description || ''
+    updateDesc(nic, body)
 
     if (typeof body.primary === 'boolean' && body.primary !== nic.primary) {
       if (nic.primary) {
@@ -655,6 +752,10 @@ export const handlers = makeHandlers({
           n.primary = false
         })
       nic.primary = !!body.primary
+    }
+
+    if (body.transit_ips) {
+      nic.transit_ips = body.transit_ips
     }
 
     return nic
@@ -670,7 +771,7 @@ export const handlers = makeHandlers({
 
     setTimeout(() => {
       instance.run_state = 'running'
-    }, 1000)
+    }, 3000)
 
     return json(instance, { status: 202 })
   },
@@ -684,7 +785,7 @@ export const handlers = makeHandlers({
 
     setTimeout(() => {
       instance.run_state = 'running'
-    }, 1000)
+    }, 3000)
 
     return json(instance, { status: 202 })
   },
@@ -694,7 +795,7 @@ export const handlers = makeHandlers({
 
     setTimeout(() => {
       instance.run_state = 'stopped'
-    }, 1000)
+    }, 3000)
 
     return json(instance, { status: 202 })
   },
@@ -704,7 +805,10 @@ export const handlers = makeHandlers({
     const ranges = db.ipPoolRanges
       .filter((r) => r.ip_pool_id === pool.id)
       .map((r) => r.range)
-    const [ipv4Ranges, ipv6Ranges] = R.partition(ranges, (r) => validateIp(r.first).isv4)
+    const [ipv4Ranges, ipv6Ranges] = R.partition(
+      ranges,
+      (r) => parseIp(r.first).type === 'v4'
+    )
 
     // in the real backend there are also SNAT IPs, but we don't currently
     // represent those because they are not exposed through the API (except
@@ -879,7 +983,8 @@ export const handlers = makeHandlers({
       }
       pool.name = body.name
     }
-    pool.description = body.description || ''
+
+    updateDesc(pool, body)
 
     return pool
   },
@@ -922,7 +1027,7 @@ export const handlers = makeHandlers({
       throw 'Cannot snapshot disk'
     }
 
-    errIfExists(db.snapshots, { name: body.name })
+    errIfExists(db.snapshots, { name: body.name, project_id: project.id })
 
     const disk = lookup.disk({ ...query, disk: body.disk })
     if (!diskCan.snapshot(disk)) {
@@ -972,7 +1077,7 @@ export const handlers = makeHandlers({
   },
   vpcCreate({ body, query }) {
     const project = lookup.project(query)
-    errIfExists(db.vpcs, { name: body.name })
+    errIfExists(db.vpcs, { name: body.name, project_id: project.id })
 
     const newVpc: Json<Api.Vpc> = {
       id: uuid(),
@@ -997,6 +1102,9 @@ export const handlers = makeHandlers({
     }
     db.vpcSubnets.push(newSubnet)
 
+    // populate default firewall rules
+    db.vpcFirewallRules.push(...defaultFirewallRules(newVpc.id))
+
     return json(newVpc, { status: 201 })
   },
   vpcView: ({ path, query }) => lookup.vpc({ ...path, ...query }),
@@ -1007,9 +1115,7 @@ export const handlers = makeHandlers({
       vpc.name = body.name
     }
 
-    if (typeof body.description === 'string') {
-      vpc.description = body.description
-    }
+    updateDesc(vpc, body)
 
     if (body.dns_name) {
       vpc.dns_name = body.dns_name
@@ -1049,11 +1155,98 @@ export const handlers = makeHandlers({
 
     return { rules: R.sortBy(rules, (r) => r.name) }
   },
+  vpcRouterList({ query }) {
+    const vpc = lookup.vpc(query)
+    const routers = db.vpcRouters.filter((r) => r.vpc_id === vpc.id)
+    return paginated(query, routers)
+  },
+  vpcRouterCreate({ body, query }) {
+    const vpc = lookup.vpc(query)
+    errIfExists(db.vpcRouters, { vpc_id: vpc.id, name: body.name })
+
+    const newRouter: Json<Api.VpcRouter> = {
+      id: uuid(),
+      vpc_id: vpc.id,
+      kind: 'custom',
+      ...body,
+      ...getTimestamps(),
+    }
+    db.vpcRouters.push(newRouter)
+    return json(newRouter, { status: 201 })
+  },
+  vpcRouterView: ({ path, query }) => lookup.vpcRouter({ ...path, ...query }),
+  vpcRouterUpdate({ body, path, query }) {
+    const router = lookup.vpcRouter({ ...path, ...query })
+    if (body.name) {
+      // Error if changing the router name and that router name already exists
+      if (body.name !== router.name) {
+        errIfExists(db.vpcRouters, {
+          vpc_id: router.vpc_id,
+          name: body.name,
+        })
+      }
+      router.name = body.name
+    }
+    updateDesc(router, body)
+    return router
+  },
+  vpcRouterDelete({ path, query }) {
+    const router = lookup.vpcRouter({ ...path, ...query })
+    db.vpcRouters = db.vpcRouters.filter((r) => r.id !== router.id)
+    return 204
+  },
+  vpcRouterRouteList: ({ query }) => {
+    const { project, router, vpc } = query
+    const vpcRouter = lookup.vpcRouter({ project, router, vpc })
+    const routes = db.vpcRouterRoutes.filter((r) => r.vpc_router_id === vpcRouter.id)
+    return paginated(query, routes)
+  },
+  vpcRouterRouteCreate({ body, query }) {
+    const vpcRouter = lookup.vpcRouter(query)
+    errIfExists(db.vpcRouterRoutes, { vpc_router_id: vpcRouter.id, name: body.name })
+    const newRoute: Json<Api.RouterRoute> = {
+      id: uuid(),
+      vpc_router_id: vpcRouter.id,
+      kind: 'custom',
+      ...body,
+      ...getTimestamps(),
+    }
+    db.vpcRouterRoutes.push(newRoute)
+    return json(newRoute, { status: 201 })
+  },
+  vpcRouterRouteView: ({ path, query }) => lookup.vpcRouterRoute({ ...path, ...query }),
+  vpcRouterRouteUpdate({ body, path, query }) {
+    const route = lookup.vpcRouterRoute({ ...path, ...query })
+    if (body.name) {
+      // Error if changing the route name and that route name already exists
+      if (body.name !== route.name) {
+        errIfExists(db.vpcRouterRoutes, {
+          vpc_router_id: route.vpc_router_id,
+          name: body.name,
+        })
+      }
+      route.name = body.name
+    }
+    updateDesc(route, body)
+    if (body.destination) {
+      route.destination = body.destination
+    }
+    if (body.target) {
+      route.target = body.target
+    }
+    return route
+  },
+  vpcRouterRouteDelete: ({ path, query }) => {
+    const route = lookup.vpcRouterRoute({ ...path, ...query })
+    db.vpcRouterRoutes = db.vpcRouterRoutes.filter((r) => r.id !== route.id)
+    return 204
+  },
   vpcSubnetList({ query }) {
     const vpc = lookup.vpc(query)
     const subnets = db.vpcSubnets.filter((s) => s.vpc_id === vpc.id)
     return paginated(query, subnets)
   },
+
   vpcSubnetCreate({ body, query }) {
     const vpc = lookup.vpc(query)
     errIfExists(db.vpcSubnets, { vpc_id: vpc.id, name: body.name })
@@ -1062,7 +1255,10 @@ export const handlers = makeHandlers({
     const newSubnet: Json<Api.VpcSubnet> = {
       id: uuid(),
       vpc_id: vpc.id,
-      ...body,
+      name: body.name,
+      description: body.description,
+      ipv4_block: body.ipv4_block,
+      custom_router_id: body.custom_router,
       // required in subnet create but not in update, so we need a fallback.
       // API says "A random `/64` block will be assigned if one is not
       // provided." Our fallback is not random, but it should be good enough.
@@ -1079,9 +1275,11 @@ export const handlers = makeHandlers({
     if (body.name) {
       subnet.name = body.name
     }
-    if (typeof body.description === 'string') {
-      subnet.description = body.description
-    }
+    updateDesc(subnet, body)
+
+    // match the API's arguably undesirable behavior -- key
+    // not present and value of null are treated the same
+    subnet.custom_router_id = body.custom_router
 
     return subnet
   },
@@ -1229,7 +1427,20 @@ export const handlers = makeHandlers({
     const idps = db.identityProviders.filter(({ siloId }) => siloId === silo.id).map(toIdp)
     return { items: idps }
   },
+  siloQuotasUpdate({ body, path, cookies }) {
+    requireFleetCollab(cookies)
+    const quotas = lookup.siloQuotas(path)
 
+    if (body.cpus !== undefined) quotas.cpus = body.cpus
+    if (body.memory !== undefined) quotas.memory = body.memory
+    if (body.storage !== undefined) quotas.storage = body.storage
+
+    return quotas
+  },
+  siloQuotasView({ path, cookies }) {
+    requireFleetViewer(cookies)
+    return lookup.siloQuotas(path)
+  },
   samlIdentityProviderCreate({ query, body, cookies }) {
     requireFleetViewer(cookies)
     const silo = lookup.silo(query)
@@ -1306,9 +1517,18 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
-  instanceMigrate: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
   instanceSshPublicKeyList: NotImplemented,
+  internetGatewayCreate: NotImplemented,
+  internetGatewayDelete: NotImplemented,
+  internetGatewayIpAddressCreate: NotImplemented,
+  internetGatewayIpAddressDelete: NotImplemented,
+  internetGatewayIpAddressList: NotImplemented,
+  internetGatewayIpPoolCreate: NotImplemented,
+  internetGatewayIpPoolDelete: NotImplemented,
+  internetGatewayIpPoolList: NotImplemented,
+  internetGatewayList: NotImplemented,
+  internetGatewayView: NotImplemented,
   ipPoolServiceRangeAdd: NotImplemented,
   ipPoolServiceRangeList: NotImplemented,
   ipPoolServiceRangeRemove: NotImplemented,
@@ -1326,12 +1546,14 @@ export const handlers = makeHandlers({
   networkingBfdDisable: NotImplemented,
   networkingBfdEnable: NotImplemented,
   networkingBfdStatus: NotImplemented,
-  networkingBgpAnnounceSetCreate: NotImplemented,
+  networkingBgpAnnouncementList: NotImplemented,
+  networkingBgpAnnounceSetUpdate: NotImplemented,
   networkingBgpAnnounceSetDelete: NotImplemented,
   networkingBgpAnnounceSetList: NotImplemented,
   networkingBgpConfigCreate: NotImplemented,
   networkingBgpConfigDelete: NotImplemented,
   networkingBgpConfigList: NotImplemented,
+  networkingBgpExported: NotImplemented,
   networkingBgpImportedRoutesIpv4: NotImplemented,
   networkingBgpMessageHistory: NotImplemented,
   networkingBgpStatus: NotImplemented,
@@ -1356,8 +1578,6 @@ export const handlers = makeHandlers({
   roleView: NotImplemented,
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
-  siloQuotasUpdate: NotImplemented,
-  siloQuotasView: NotImplemented,
   siloUserList: NotImplemented,
   siloUserView: NotImplemented,
   sledAdd: NotImplemented,
@@ -1367,18 +1587,8 @@ export const handlers = makeHandlers({
   switchView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
   systemQuotasList: NotImplemented,
-  timeseriesQuery: NotImplemented,
-  timeseriesSchemaList: NotImplemented,
+  systemTimeseriesQuery: NotImplemented,
+  systemTimeseriesSchemaList: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
-  vpcRouterCreate: NotImplemented,
-  vpcRouterDelete: NotImplemented,
-  vpcRouterList: NotImplemented,
-  vpcRouterRouteCreate: NotImplemented,
-  vpcRouterRouteDelete: NotImplemented,
-  vpcRouterRouteList: NotImplemented,
-  vpcRouterRouteUpdate: NotImplemented,
-  vpcRouterRouteView: NotImplemented,
-  vpcRouterUpdate: NotImplemented,
-  vpcRouterView: NotImplemented,
 })

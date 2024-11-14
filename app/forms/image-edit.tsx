@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery, type Image } from '@oxide/api'
@@ -17,10 +18,9 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import {
   getProjectImageSelector,
   getSiloImageSelector,
-  useForm,
   useProjectImageSelector,
   useSiloImageSelector,
-} from '~/hooks'
+} from '~/hooks/use-params'
 import { DateTime } from '~/ui/lib/DateTime'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
@@ -29,13 +29,25 @@ import { pb } from '~/util/path-builder'
 import { capitalize } from '~/util/str'
 import { bytesToGiB } from '~/util/units'
 
-EditProjectImageSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  const { project, image } = getProjectImageSelector(params)
-  await apiQueryClient.prefetchQuery('imageView', { path: { image }, query: { project } })
-  return null
+export const ProjectImageEdit = {
+  loader: async ({ params }: LoaderFunctionArgs) => {
+    const { project, image } = getProjectImageSelector(params)
+    await apiQueryClient.prefetchQuery('imageView', { path: { image }, query: { project } })
+    return null
+  },
+  Component: EditProjectImageSideModalForm,
 }
 
-export function EditProjectImageSideModalForm() {
+export const SiloImageEdit = {
+  loader: async ({ params }: LoaderFunctionArgs) => {
+    const { image } = getSiloImageSelector(params)
+    await apiQueryClient.prefetchQuery('imageView', { path: { image } })
+    return null
+  },
+  Component: EditSiloImageSideModalForm,
+}
+
+function EditProjectImageSideModalForm() {
   const { project, image } = useProjectImageSelector()
   const { data } = usePrefetchedApiQuery('imageView', {
     path: { image },
@@ -46,20 +58,14 @@ export function EditProjectImageSideModalForm() {
   return <EditImageSideModalForm image={data} dismissLink={dismissLink} type="Project" />
 }
 
-EditSiloImageSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  const { image } = getSiloImageSelector(params)
-  await apiQueryClient.prefetchQuery('imageView', { path: { image } })
-  return null
-}
-
-export function EditSiloImageSideModalForm() {
+function EditSiloImageSideModalForm() {
   const { image } = useSiloImageSelector()
   const { data } = usePrefetchedApiQuery('imageView', { path: { image } })
 
   return <EditImageSideModalForm image={data} dismissLink={pb.siloImages()} type="Silo" />
 }
 
-export function EditImageSideModalForm({
+function EditImageSideModalForm({
   image,
   dismissLink,
   type,
@@ -86,6 +92,7 @@ export function EditImageSideModalForm({
       }
       // TODO: pass actual error when this form is hooked up
       submitError={null}
+      loading={false}
     >
       <PropertiesTable>
         <PropertiesTable.Row label="Shared with">{type}</PropertiesTable.Row>

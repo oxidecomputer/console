@@ -11,6 +11,7 @@ import { filesize } from 'filesize'
 import pMap from 'p-map'
 import pRetry from 'p-retry'
 import { useRef, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import {
@@ -34,7 +35,7 @@ import { NameField } from '~/components/form/fields/NameField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useProjectSelector } from '~/hooks'
+import { useProjectSelector } from '~/hooks/use-params'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { Progress } from '~/ui/lib/Progress'
@@ -44,6 +45,7 @@ import { readBlobAsBase64 } from '~/util/file'
 import { invariant } from '~/util/invariant'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
+import { isAllZeros } from '~/util/str'
 import { GiB, KiB } from '~/util/units'
 
 /** Format file size with two decimal points */
@@ -100,7 +102,11 @@ function Step({ children, state, label, className }: StepProps) {
   /* eslint-enable react/jsx-key */
   return (
     // data-status used only for e2e testing
-    <div className={cn('items-top flex gap-2 px-4 py-3', className)} data-status={status}>
+    <div
+      className={cn('upload-step items-top flex gap-2 px-4 py-3', className)}
+      data-testid={`upload-step: ${label}`}
+      data-status={status}
+    >
       {/* padding on icon to align it with text since everything is aligned to top */}
       <div className="pt-px">{icon}</div>
       <div
@@ -112,12 +118,6 @@ function Step({ children, state, label, className }: StepProps) {
     </div>
   )
 }
-
-/**
- * Does a base64 string represent underlying data that's all zeros, i.e., does
- * it look like `AAAAAAAAAAAAAAAA==`?
- */
-export const isAllZeros = (base64Data: string) => /^A*=*$/.test(base64Data)
 
 const randInt = () => Math.floor(Math.random() * 100000000)
 
@@ -177,10 +177,11 @@ const CHUNK_SIZE_BYTES = 512 * KiB
 // TODO: make sure cleanup, cancelEverything, and resetMainFlow are called in
 // the right places
 
+Component.displayName = 'ImageCreate'
 /**
  * Upload an image. Opens a second modal to show upload progress.
  */
-export function CreateImageSideModalForm() {
+export function Component() {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
@@ -215,7 +216,13 @@ export function CreateImageSideModalForm() {
 
   const createDisk = useApiMutation('diskCreate')
   const startImport = useApiMutation('diskBulkWriteImportStart')
-  const uploadChunk = useApiMutation('diskBulkWriteImport')
+
+  // gcTime: 0 prevents the mutation cache from holding onto all the chunks for
+  // 5 minutes. It can be a ton of memory. To be honest, I don't even understand
+  // why the mutation cache exists. It's not like the query cache, which dedupes
+  // identical queries made around the same time.
+  // https://tanstack.com/query/v5/docs/reference/MutationCache
+  const uploadChunk = useApiMutation('diskBulkWriteImport', { gcTime: 0 })
 
   // synthetic state for upload step because it consists of multiple requests
   const [syntheticUploadState, setSyntheticUploadState] =
@@ -775,8 +782,9 @@ async function readAtOffset(file: File, offset: number, length: number) {
     }
 
     reader.onerror = (error) => {
-      console.error(`Error reading file at offset ${offset}:`, error)
-      reject(error)
+      const msg = `Error reading file at offset ${offset}:`
+      console.error(msg, error)
+      reject(new Error(msg))
     }
   })
 

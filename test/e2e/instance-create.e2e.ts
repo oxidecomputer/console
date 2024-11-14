@@ -12,25 +12,26 @@ import {
   expectNotVisible,
   expectRowVisible,
   expectVisible,
+  selectOption,
   test,
   type Page,
 } from './utils'
 
 const selectASiloImage = async (page: Page, name: string) => {
   await page.getByRole('tab', { name: 'Silo images' }).click()
-  await page.getByLabel('Image', { exact: true }).click()
+  await page.getByPlaceholder('Select a silo image', { exact: true }).click()
   await page.getByRole('option', { name }).click()
 }
 
 const selectAProjectImage = async (page: Page, name: string) => {
   await page.getByRole('tab', { name: 'Project images' }).click()
-  await page.getByLabel('Image', { exact: true }).click()
+  await page.getByPlaceholder('Select a project image', { exact: true }).click()
   await page.getByRole('option', { name }).click()
 }
 
 const selectAnExistingDisk = async (page: Page, name: string) => {
   await page.getByRole('tab', { name: 'Existing disks' }).click()
-  await page.getByRole('button', { name: 'Select a disk' }).click()
+  await page.getByRole('combobox', { name: 'Disk' }).click()
   await page.getByRole('option', { name }).click()
 }
 
@@ -38,21 +39,16 @@ test('can create an instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
   await page.locator('text="New Instance"').click()
 
-  await expectVisible(page, [
-    'role=heading[name*="Create instance"]',
-    'role=heading[name="Hardware"]',
-    'role=heading[name="Boot disk"]',
-    'role=heading[name="Additional disks"]',
-    'role=heading[name="Networking"]',
-    'role=textbox[name="Name"]',
-    'role=textbox[name="Description"]',
-    'role=textbox[name="Disk name"]',
-    'role=textbox[name="Disk size (GiB)"]',
-    'role=button[name="Create instance"]',
-  ])
+  await expect(page.getByRole('heading', { name: /Create instance/ })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Hardware' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Boot disk' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Additional disks' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Networking' })).toBeVisible()
+  await expect(page.getByRole('textbox', { name: 'Description' })).toBeVisible()
+  await expect(page.getByRole('textbox', { name: 'Disk size (GiB)' })).toBeVisible()
 
   const instanceName = 'my-instance'
-  await page.fill('input[name=name]', instanceName)
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   await page.fill('textarea[name=description]', 'An instance... from space!')
   await page.locator('.ox-radio-card').nth(3).click()
 
@@ -74,34 +70,32 @@ test('can create an instance', async ({ page }) => {
   await page.getByRole('button', { name: 'Networking' }).click()
   await page.getByRole('button', { name: 'Configuration' }).click()
 
-  const assignEphemeralIpCheckbox = page.getByRole('checkbox', {
+  const checkbox = page.getByRole('checkbox', {
     name: 'Allocate and attach an ephemeral IP address',
   })
-  const assignEphemeralIpButton = page.getByRole('button', {
-    name: 'IP pool for ephemeral IP',
-  })
+  const label = page.getByLabel('IP pool for ephemeral IP')
 
   // verify that the ip pool selector is visible and default is selected
-  await expect(assignEphemeralIpCheckbox).toBeChecked()
-  await assignEphemeralIpButton.click()
+  await expect(checkbox).toBeChecked()
+  await label.click()
   await expect(page.getByRole('option', { name: 'ip-pool-1' })).toBeEnabled()
-  await assignEphemeralIpButton.click() // click closes the listbox so we can do more stuff
 
   // unchecking the box should disable the selector
-  await assignEphemeralIpCheckbox.uncheck()
-  await expect(assignEphemeralIpButton).toBeHidden()
+  await checkbox.uncheck()
+  await expect(label).toBeHidden()
 
   // re-checking the box should re-enable the selector, and other options should be selectable
-  await assignEphemeralIpCheckbox.check()
-  await assignEphemeralIpButton.click()
-  await page.getByRole('option', { name: 'ip-pool-2' }).click()
+  await checkbox.check()
+  await selectOption(page, 'IP pool for ephemeral IP', 'ip-pool-2 VPN IPs')
 
   // should be visible in accordion
-  await expectVisible(page, [
-    'role=radiogroup[name="Network interface"]',
-    'role=textbox[name="Hostname"]',
-    'text="User Data"',
-  ])
+  await expect(page.getByRole('radiogroup', { name: 'Network interface' })).toBeVisible()
+  // we show the default hostname, instance name, as placeholder
+  await expect(page.getByRole('textbox', { name: 'Hostname' })).toHaveAttribute(
+    'placeholder',
+    instanceName
+  )
+  await expect(page.getByLabel('User data')).toBeVisible()
 
   await page.getByRole('button', { name: 'Create instance' }).click()
 
@@ -113,6 +107,22 @@ test('can create an instance', async ({ page }) => {
     'text=64 GiB',
     'text=from space',
   ])
+
+  // instance goes from creating to starting to running as we poll
+  const pollingSpinner = page.getByLabel('Spinner')
+  await expect(pollingSpinner).toBeVisible()
+  await expect(page.getByText('Creating')).toBeVisible()
+  await expect(page.getByText('Starting')).toBeVisible()
+  await expect(page.getByText('Running')).toBeVisible()
+  await expect(pollingSpinner).toBeHidden()
+
+  // boot disk visible, no other disks attached
+  await expect(
+    page
+      .getByRole('table', { name: 'Boot disk' })
+      .getByRole('cell', { name: 'my-boot-disk' })
+  ).toBeVisible()
+  await expect(page.getByText('No other disk')).toBeVisible()
 
   // network tab works
   await page.getByRole('tab', { name: 'Networking' }).click()
@@ -128,7 +138,7 @@ test('duplicate instance name produces visible error', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
   await page.fill('input[name=name]', 'db1')
   await selectAProjectImage(page, 'image-1')
-  await page.locator('button:has-text("Create instance")').click()
+  await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page.getByText('Instance name already exists')).toBeVisible()
 })
 
@@ -280,7 +290,11 @@ test('create instance with existing disk', async ({ page }) => {
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
   await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=8 GiB'])
-  await expectRowVisible(page.getByRole('table'), { Disk: 'disk-3' })
+
+  const bootDisks = page.getByRole('table', { name: 'Boot disk' })
+  await expectRowVisible(bootDisks, { Disk: 'disk-3' })
+
+  await expect(page.getByText('No other disks')).toBeVisible()
 })
 
 test('create instance with a silo image', async ({ page }) => {
@@ -339,27 +353,30 @@ test('additional disks do not list committed disks as available', async ({ page 
 
 test('maintains selected values even when changing tabs', async ({ page }) => {
   const instanceName = 'arch-based-instance'
+  const arch = 'arch-2022-06-01'
   await page.goto('/projects/mock-project/instances-new')
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-  await page.getByRole('button', { name: 'Image' }).click()
-  // select the arch option
-  await page.getByRole('option', { name: 'arch-2022-06-01' }).click()
+  const imageSelectCombobox = page.getByRole('combobox', { name: 'Image' })
+  // Filter the combobox for a particular silo image
+  await imageSelectCombobox.fill('arch')
+  // select the image
+  await page.getByRole('option', { name: arch }).click()
   // expect to find name of the image on page
-  await expect(page.getByText('arch-2022-06-01')).toBeVisible()
+  await expect(imageSelectCombobox).toHaveValue(arch)
   // change to a different tab
   await page.getByRole('tab', { name: 'Existing disks' }).click()
   // the image should no longer be visible
-  await expect(page.getByText('arch-2022-06-01')).toBeHidden()
+  await expect(imageSelectCombobox).toBeHidden()
   // change back to the tab with the image
   await page.getByRole('tab', { name: 'Silo images' }).click()
   // arch should still be selected
-  await expect(page.getByText('arch-2022-06-01')).toBeVisible()
+  await expect(imageSelectCombobox).toHaveValue(arch)
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
   await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=8 GiB'])
-  // when a disk name isn’t assigned, the generated one uses the ID of the image,
-  // so this checks to make sure that the arch-based image — with ID `bd6aa051…` — was used
-  await expectVisible(page, [`text=${instanceName}-bd6aa051`])
+  // when a disk name isn’t assigned, the generated one uses the name of the image,
+  // so this checks to make sure that the arch-based image — with name `arch-2022-06-01` — was used
+  await expectVisible(page, [`text=${instanceName}-${arch}`])
 })
 
 test('does not attach an ephemeral IP when the checkbox is unchecked', async ({ page }) => {
@@ -377,9 +394,10 @@ test('does not attach an ephemeral IP when the checkbox is unchecked', async ({ 
 
 test('attaches a floating IP; disables button when no IPs available', async ({ page }) => {
   const attachFloatingIpButton = page.getByRole('button', { name: 'Attach floating IP' })
-  const selectFloatingIpButton = page.getByRole('button', { name: 'Select a floating ip' })
+  const dialog = page.getByRole('dialog')
+  const selectFloatingIpButton = dialog.getByRole('button', { name: 'Floating IP' })
   const rootbeerFloatOption = page.getByRole('option', { name: 'rootbeer-float' })
-  const attachButton = page.getByRole('button', { name: 'Attach', exact: true })
+  const attachButton = dialog.getByRole('button', { name: 'Attach', exact: true })
 
   const instanceName = 'with-floating-ip'
   await page.goto('/projects/mock-project/instances-new')
@@ -474,10 +492,51 @@ test('attaching additional disks allows for combobox filtering', async ({ page }
 
   // now options hidden and only the selected one is visible in the button/input
   await expect(page.getByRole('option')).toBeHidden()
-  await expect(page.getByRole('button', { name: 'disk-0102' })).toBeVisible()
+  await expect(page.getByRole('combobox', { name: 'Disk name' })).toHaveValue('disk-0102')
 
   // a random string should give a disabled option
   await selectADisk.click()
   await selectADisk.fill('asdf')
   await expect(page.getByRole('option', { name: 'No items match' })).toBeVisible()
+})
+
+test('create instance with additional disks', async ({ page }) => {
+  const instanceName = 'more-disks'
+  await page.goto('/projects/mock-project/instances-new')
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await selectAProjectImage(page, 'image-1')
+
+  // Create a new disk
+  await page.getByRole('button', { name: 'Create new disk' }).click()
+
+  const createForm = page.getByRole('dialog', { name: 'Create disk' })
+  await createForm.getByRole('textbox', { name: 'Name', exact: true }).fill('new-disk-1')
+  await createForm.getByRole('textbox', { name: 'Size (GiB)' }).fill('5')
+  await createForm.getByRole('button', { name: 'Create disk' }).click()
+
+  const disksTable = page.getByRole('table', { name: 'Disks' })
+  await expectRowVisible(disksTable, { Name: 'new-disk-1', Type: 'create', Size: '5GiB' })
+
+  // Attach an existing disk
+  await page.getByRole('button', { name: 'Attach existing disk' }).click()
+  await selectOption(page, 'Disk name', 'disk-3')
+  await page.getByRole('button', { name: 'Attach disk' }).click()
+
+  await expectRowVisible(disksTable, { Name: 'disk-3', Type: 'attach', Size: '—' })
+
+  // Create the instance
+  await page.getByRole('button', { name: 'Create instance' }).click()
+
+  // Assert we're on the new instance's storage page
+  await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
+
+  // Check for the boot disk
+  const bootDiskTable = page.getByRole('table', { name: 'Boot disk' })
+  // name is generated so it's gnarly
+  await expect(bootDiskTable.getByRole('cell', { name: /^more-disks-/ })).toBeVisible()
+
+  // Check for the additional disks
+  const otherDisksTable = page.getByRole('table', { name: 'Other disks' })
+  await expectRowVisible(otherDisksTable, { Disk: 'new-disk-1', size: '5 GiB' })
+  await expectRowVisible(otherDisksTable, { Disk: 'disk-3', size: '6 GiB' })
 })

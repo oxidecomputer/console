@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { filesize } from 'filesize'
+import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -20,7 +21,8 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { getProjectSnapshotSelector, useForm, useProjectSnapshotSelector } from '~/hooks'
+import { HL } from '~/components/HL'
+import { getProjectSnapshotSelector, useProjectSnapshotSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { pb } from '~/util/path-builder'
@@ -53,9 +55,9 @@ export function CreateImageFromSnapshotSideModalForm() {
   const onDismiss = () => navigate(pb.snapshots({ project }))
 
   const createImage = useApiMutation('imageCreate', {
-    onSuccess() {
+    onSuccess(image) {
       queryClient.invalidateQueries('imageList')
-      addToast({ content: 'Your image has been created' })
+      addToast(<>Image <HL>{image.name}</HL> created</>) // prettier-ignore
       onDismiss()
     },
   })
@@ -82,6 +84,7 @@ export function CreateImageFromSnapshotSideModalForm() {
         })
       }
       submitError={createImage.error}
+      loading={createImage.isPending}
     >
       <PropertiesTable>
         <PropertiesTable.Row label="Snapshot">{data.name}</PropertiesTable.Row>

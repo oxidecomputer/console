@@ -20,9 +20,11 @@ import {
 import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
+import { HL } from '~/components/HL'
 import { IpUtilCell } from '~/components/IpPoolUtilization'
-import { useQuickActions } from '~/hooks'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -64,21 +66,23 @@ const staticColumns = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-IpPoolsPage.loader = async function () {
+export async function loader() {
   await apiQueryClient.prefetchQuery('ipPoolList', { query: { limit: PAGE_SIZE } })
   return null
 }
 
-export function IpPoolsPage() {
+Component.displayName = 'IpPoolsPage'
+export function Component() {
   const navigate = useNavigate()
   const { Table } = useQueryTable('ipPoolList', {})
   const { data: pools } = usePrefetchedApiQuery('ipPoolList', {
     query: { limit: PAGE_SIZE },
   })
 
-  const deletePool = useApiMutation('ipPoolDelete', {
-    onSuccess() {
+  const { mutateAsync: deletePool } = useApiMutation('ipPoolDelete', {
+    onSuccess(_data, variables) {
       apiQueryClient.invalidateQueries('ipPoolList')
+      addToast(<>Pool <HL>{variables.path.pool}</HL> deleted</>) // prettier-ignore
     },
   })
 
@@ -96,7 +100,7 @@ export function IpPoolsPage() {
       {
         label: 'Delete',
         onActivate: confirmDelete({
-          doDelete: () => deletePool.mutateAsync({ path: { pool: pool.name } }),
+          doDelete: () => deletePool({ path: { pool: pool.name } }),
           label: pool.name,
         }),
       },

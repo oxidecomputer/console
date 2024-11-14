@@ -36,9 +36,10 @@ export const confirmDelete =
       actionConfig: {
         doAction: doDelete,
         modalContent: (
-          <p>
-            Are you sure you want to delete {displayLabel}? {extraContent}
-          </p>
+          <div className="space-y-2">
+            <p>Are you sure you want to delete {displayLabel}?</p>
+            {extraContent ? <p>{extraContent}</p> : null}
+          </div>
         ),
         errorTitle: 'Could not delete resource',
         modalTitle,

@@ -32,9 +32,12 @@ export const Truncate = ({
 
   // Only use the tooltip if the text is longer than maxLength
   return (
-    <div className="flex items-center space-x-2">
+    // overflow-hidden required to make inner truncate work
+    <div className="flex items-center space-x-2 overflow-hidden">
       <Tooltip content={text} delay={tooltipDelay}>
-        <div aria-label={text}>{truncate(text, maxLength, position)}</div>
+        <div aria-label={text} className="truncate">
+          {truncate(text, maxLength, position)}
+        </div>
       </Tooltip>
       {hasCopyButton && <CopyToClipboard text={text} />}
     </div>

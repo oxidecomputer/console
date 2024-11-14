@@ -5,9 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
-import { createColumnHelper } from '@tanstack/react-table'
+import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
+import * as R from 'remeda'
 
 import {
   apiQueryClient,
@@ -18,51 +19,64 @@ import {
   useApiQueryClient,
   usePrefetchedApiQuery,
   type Disk,
+  type InstanceState,
 } from '@oxide/api'
 import { Storage24Icon } from '@oxide/design-system/icons/react'
 
-import { DiskStatusBadge } from '~/components/StatusBadge'
+import { HL } from '~/components/HL'
+import { DiskStateBadge } from '~/components/StateBadge'
 import { AttachDiskSideModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
-import { getInstanceSelector, useInstanceSelector } from '~/hooks'
+import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
+import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { Table } from '~/table/Table'
 import { Button } from '~/ui/lib/Button'
-import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { CreateButton } from '~/ui/lib/CreateButton'
+import { EMBody, EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { TableControls, TableEmptyBox, TableTitle } from '~/ui/lib/Table'
+import { links } from '~/util/links'
 
 import { fancifyStates } from './common'
 
-StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
+  const selector = { path: { instance }, query: { project } }
   await Promise.all([
-    apiQueryClient.prefetchQuery('instanceDiskList', {
-      path: { instance },
-      query: { project, limit: PAGE_SIZE },
-    }),
+    // don't bother with page size because this will never paginate. max disks
+    // per instance is 8
+    // https://github.com/oxidecomputer/omicron/blob/40fc3835/nexus/db-queries/src/db/queries/disk.rs#L16-L21
+    apiQueryClient.prefetchQuery('instanceDiskList', selector),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
-    apiQueryClient.prefetchQuery('instanceView', {
-      path: { instance },
-      query: { project },
-    }),
+    apiQueryClient.prefetchQuery('instanceView', selector),
   ])
   return null
 }
 
-const colHelper = createColumnHelper<Disk>()
+// Bit of a hack: by putting the instance state in the row data, we can avoid
+// remaking the row actions callback whenever the instance state changes, which
+// causes the whole table to get re-rendered, which jarringly closes any open
+// row actions menus
+type InstanceDisk = Disk & {
+  instanceState: InstanceState
+}
+
+const colHelper = createColumnHelper<InstanceDisk>()
 const staticCols = [
   colHelper.accessor('name', { header: 'Disk' }),
   colHelper.accessor('size', Columns.size),
   colHelper.accessor((row) => row.state.state, {
-    header: 'status',
-    cell: (info) => <DiskStatusBadge status={info.getValue()} />,
+    header: 'state',
+    cell: (info) => <DiskStateBadge state={info.getValue()} />,
   }),
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-export function StorageTab() {
+Component.displayName = 'StorageTab'
+export function Component() {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
   const [showDiskAttach, setShowDiskAttach] = useState(false)
 
@@ -73,10 +87,10 @@ export function StorageTab() {
     [instanceName, project]
   )
 
-  const detachDisk = useApiMutation('instanceDiskDetach', {
-    onSuccess() {
+  const { mutate: detachDisk } = useApiMutation('instanceDiskDetach', {
+    onSuccess(disk) {
       queryClient.invalidateQueries('instanceDiskList')
-      addToast({ content: 'Disk detached' })
+      addToast(<>Disk <HL>{disk.name}</HL> detached</>) // prettier-ignore
     },
     onError(err) {
       addToast({
@@ -86,10 +100,10 @@ export function StorageTab() {
       })
     },
   })
-  const createSnapshot = useApiMutation('snapshotCreate', {
-    onSuccess() {
+  const { mutate: createSnapshot } = useApiMutation('snapshotCreate', {
+    onSuccess(snapshot) {
       queryClient.invalidateQueries('snapshotList')
-      addToast({ content: 'Snapshot created' })
+      addToast(<>Snapshot <HL>{snapshot.name}</HL> created</>) // prettier-ignore
     },
     onError(err) {
       addToast({
@@ -102,40 +116,145 @@ export function StorageTab() {
 
   const { data: instance } = usePrefetchedApiQuery('instanceView', instancePathQuery)
 
-  const makeActions = useCallback(
-    (disk: Disk): MenuAction[] => [
+  const { mutateAsync: instanceUpdate } = useApiMutation('instanceUpdate', {
+    onSuccess() {
+      apiQueryClient.invalidateQueries('instanceView')
+    },
+  })
+
+  // shared between boot and other disks
+  const getSnapshotAction = useCallback(
+    (disk: InstanceDisk) => ({
+      label: 'Snapshot',
+      disabled: !diskCan.snapshot(disk) && (
+        <>Only disks in state {fancifyStates(diskCan.snapshot.states)} can be snapshotted</>
+      ),
+      onActivate() {
+        createSnapshot({
+          query: { project },
+          body: { name: genName(disk.name), disk: disk.name, description: '' },
+        })
+      },
+    }),
+    [createSnapshot, project]
+  )
+
+  const { data: disks } = usePrefetchedApiQuery('instanceDiskList', instancePathQuery)
+
+  const [bootDisks, otherDisks] = useMemo(
+    () => R.partition(disks.items, (d) => d.id === instance.bootDiskId),
+    [disks.items, instance.bootDiskId]
+  )
+
+  const makeBootDiskActions = useCallback(
+    (disk: InstanceDisk): MenuAction[] => [
+      getSnapshotAction(disk),
       {
-        label: 'Snapshot',
-        disabled: !diskCan.snapshot(disk) && (
+        label: 'Unset as boot disk',
+        disabled: !instanceCan.update({ runState: disk.instanceState }) && (
           <>
-            Only disks in state {fancifyStates(diskCan.snapshot.states)} can be snapshotted
+            Instance must be <span className="text-default">stopped</span> before boot disk
+            can be changed
           </>
         ),
-        onActivate() {
-          createSnapshot.mutate({
-            query: { project },
-            body: {
-              name: genName(disk.name),
-              disk: disk.name,
-              description: '',
-            },
+        onActivate: () =>
+          confirmAction({
+            doAction: () =>
+              instanceUpdate({
+                path: { instance: instance.id },
+                body: {
+                  bootDisk: undefined,
+                  // this would get unset if we left it out
+                  autoRestartPolicy: instance.autoRestartPolicy,
+                },
+              }),
+            errorTitle: 'Could not unset boot disk',
+            modalTitle: 'Confirm unset boot disk',
+            // TODO: copy + link to docs
+            modalContent: (
+              <div className="space-y-2">
+                <p>
+                  Are you sure you want to unset <HL>{disk.name}</HL> as the boot disk? It
+                  will remain attached to the instance.
+                </p>
+                <p>
+                  Setting a boot disk is recommended unless you intend to manage boot order
+                  within the instance.
+                </p>
+              </div>
+            ),
+            actionType: 'primary',
+            // TODO: add docs link to modal footer similar to LearnMore from
+            // SettingsGroup.
+          }),
+      },
+      {
+        label: 'Detach',
+        disabled: 'Boot disk must be unset before it can be detached',
+        onActivate() {}, // it's always disabled, so noop is ok
+      },
+    ],
+    [instanceUpdate, instance, getSnapshotAction]
+  )
+
+  const makeOtherDiskActions = useCallback(
+    (disk: InstanceDisk): MenuAction[] => [
+      getSnapshotAction(disk),
+      {
+        label: 'Set as boot disk',
+        disabled: !instanceCan.update({ runState: disk.instanceState }) && (
+          <>
+            Instance must be <span className="text-default">stopped</span> before boot disk
+            can be changed
+          </>
+        ),
+        onActivate: () => {
+          const bootDiskName = bootDisks.length > 0 ? bootDisks[0].name : undefined
+          const verb = bootDiskName ? 'change' : 'set'
+          return confirmAction({
+            doAction: () =>
+              instanceUpdate({
+                path: { instance: instance.id },
+                body: {
+                  bootDisk: disk.id,
+                  // this would get unset if we left it out
+                  autoRestartPolicy: instance.autoRestartPolicy,
+                },
+              }),
+            errorTitle: `Could not ${verb} boot disk`,
+            modalTitle: `Confirm ${verb} boot disk`,
+            modalContent: bootDiskName ? (
+              <p>
+                Are you sure you want to change the boot disk to <HL>{disk.name}</HL>?
+                Current boot disk <HL>{bootDiskName}</HL> will remain attached to the
+                instance.
+              </p>
+            ) : (
+              <p>
+                Are you sure you want to set <HL>{disk.name}</HL> as the boot disk?
+              </p>
+            ),
+            actionType: 'primary',
+            // TODO: add docs link to modal footer similar to LearnMore
+            // from SettingsGroup. This probably requires a change to
+            // `confirmAction`.
           })
         },
       },
       {
         label: 'Detach',
-        disabled: !instanceCan.detachDisk(instance) && (
+        disabled: !instanceCan.detachDisk({ runState: disk.instanceState }) && (
           <>
             Instance must be <span className="text-default">stopped</span> before disk can
             be detached
           </>
         ),
         onActivate() {
-          detachDisk.mutate({ body: { disk: disk.name }, ...instancePathQuery })
+          detachDisk({ body: { disk: disk.name }, path: { instance: instance.id } })
         },
       },
     ],
-    [detachDisk, instance, instancePathQuery, createSnapshot, project]
+    [detachDisk, instanceUpdate, instance, getSnapshotAction, bootDisks]
   )
 
   const attachDisk = useApiMutation('instanceDiskAttach', {
@@ -154,58 +273,74 @@ export function StorageTab() {
     },
   })
 
-  const { Table } = useQueryTable('instanceDiskList', instancePathQuery)
+  const bootDisksTable = useReactTable({
+    columns: useColsWithActions(staticCols, makeBootDiskActions),
+    data: useMemo(
+      () => bootDisks.map((disk) => ({ ...disk, instanceState: instance.runState })),
+      [bootDisks, instance.runState]
+    ),
+    getCoreRowModel: getCoreRowModel(),
+  })
 
-  const emptyState = (
-    <EmptyMessage
-      icon={<Storage24Icon />}
-      title="No disks"
-      body="Attach a disk to this instance to see it here"
-    />
-  )
-
-  const columns = useColsWithActions(staticCols, makeActions)
+  const otherDisksTable = useReactTable({
+    columns: useColsWithActions(staticCols, makeOtherDiskActions),
+    data: useMemo(
+      () => otherDisks.map((disk) => ({ ...disk, instanceState: instance.runState })),
+      [otherDisks, instance.runState]
+    ),
+    getCoreRowModel: getCoreRowModel(),
+  })
 
   return (
     <>
-      <Table emptyState={emptyState} columns={columns} />
-      <div className="mt-4 flex flex-col gap-3">
-        <div className="flex gap-3">
-          <Button
-            size="sm"
-            onClick={() => setShowDiskCreate(true)}
-            disabledReason={
-              <>
-                Instance must be <span className="text-default">stopped</span> to create and
-                attach a disk
-              </>
-            }
-            disabled={!instanceCan.attachDisk(instance)}
-          >
-            Create new disk
-          </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setShowDiskAttach(true)}
-            disabledReason={
-              <>
-                Instance must be <span className="text-default">stopped</span> to attach a
-                disk
-              </>
-            }
-            disabled={!instanceCan.attachDisk(instance)}
-          >
-            Attach existing disk
-          </Button>
-        </div>
-        {!instanceCan.attachDisk(instance) && (
-          <span className="max-w-xs text-sans-md text-tertiary">
-            The instance must be <span className="text-default">stopped</span> to add or
-            attach a disk.
-          </span>
-        )}
+      <TableControls>
+        <TableTitle id="boot-disks-label">Boot disk</TableTitle>
+      </TableControls>
+      {bootDisks.length > 0 ? (
+        <Table aria-labelledby="boot-disks-label" table={bootDisksTable} />
+      ) : (
+        <BootDiskEmptyState otherDisks={otherDisks} />
+      )}
+
+      <TableControls className="mt-10">
+        <TableTitle id="other-disks-label">Other disks</TableTitle>
+      </TableControls>
+
+      {otherDisks.length > 0 ? (
+        <Table aria-labelledby="other-disks-label" table={otherDisksTable} />
+      ) : (
+        <OtherDisksEmptyState />
+      )}
+
+      <div className="mt-4 flex gap-3">
+        <CreateButton
+          onClick={() => setShowDiskCreate(true)}
+          disabledReason={
+            <>
+              Instance must be <span className="text-default">stopped</span> to create and
+              attach a disk
+            </>
+          }
+          disabled={!instanceCan.attachDisk(instance)}
+        >
+          Create disk
+        </CreateButton>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => setShowDiskAttach(true)}
+          disabledReason={
+            <>
+              Instance must be <span className="text-default">stopped</span> to attach a
+              disk
+            </>
+          }
+          disabled={!instanceCan.attachDisk(instance)}
+        >
+          Attach existing disk
+        </Button>
       </div>
+
       {showDiskCreate && (
         <CreateDiskSideModalForm
           onDismiss={() => setShowDiskCreate(false)}
@@ -227,5 +362,57 @@ export function StorageTab() {
         />
       )}
     </>
+  )
+}
+
+function BootDiskEmptyState({ otherDisks }: { otherDisks: Disk[] }) {
+  return (
+    <TableEmptyBox>
+      <EmptyMessage
+        icon={<Storage24Icon />}
+        title="No boot disk set"
+        body={
+          <>
+            {otherDisks.length > 1 ? (
+              <EMBody>
+                Setting a boot disk is recommended unless you intend to manage boot order
+                within the instance.
+              </EMBody>
+            ) : otherDisks.length === 1 ? (
+              <EMBody>
+                Instance will boot from <HL>{otherDisks[0].name}</HL> because it is the only
+                disk.
+              </EMBody>
+            ) : (
+              <EMBody>Attach a disk to be able to set a boot disk.</EMBody>
+            )}
+            <EMBody>
+              Learn more in the{' '}
+              <a
+                href={links.instanceBootDiskDocs}
+                rel="noreferrer"
+                target="_blank"
+                className="underline"
+              >
+                Instances
+              </a>{' '}
+              guide.
+            </EMBody>
+          </>
+        }
+      />
+    </TableEmptyBox>
+  )
+}
+
+function OtherDisksEmptyState() {
+  return (
+    <TableEmptyBox>
+      <EmptyMessage
+        icon={<Storage24Icon />}
+        title="No other disks"
+        body="Attach a disk to see it here"
+      />
+    </TableEmptyBox>
   )
 }

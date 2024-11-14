@@ -8,6 +8,7 @@
 
 import React from 'react'
 
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { Tooltip } from '~/ui/lib/Tooltip'
 
 type ListPlusCellProps = {
@@ -18,7 +19,10 @@ type ListPlusCellProps = {
 }
 
 /**
- * Gives a count with a tooltip that expands to show details when the user hovers over it
+ * Gives a count with a tooltip that expands to show details when the user hovers over it.
+ * The ReactNode children are split into two groups: the first `numInCell` are shown in the cell,
+ * and the rest are shown in the tooltip. If the number of children is less than or equal to
+ * `numInCell`, no tooltip (or `+N` target) is shown.
  */
 export const ListPlusCell = ({
   tooltipTitle,
@@ -26,11 +30,14 @@ export const ListPlusCell = ({
   numInCell = 1,
 }: ListPlusCellProps) => {
   const array = React.Children.toArray(children)
+  if (array.length === 0) {
+    return <EmptyCell />
+  }
   const inCell = array.slice(0, numInCell)
   const rest = array.slice(numInCell)
   const content = (
     <div>
-      <div className="mb-2">{tooltipTitle}</div>
+      <div className="mb-2 text-sans-semi-md text-default">{tooltipTitle}</div>
       <div className="flex flex-col items-start gap-2">{...rest}</div>
     </div>
   )

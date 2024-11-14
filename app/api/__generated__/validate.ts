@@ -248,7 +248,11 @@ export const AuthzScope = z.preprocess(
  */
 export const Baseboard = z.preprocess(
   processResponseBody,
-  z.object({ part: z.string(), revision: z.number(), serial: z.string() })
+  z.object({
+    part: z.string(),
+    revision: z.number().min(0).max(4294967295),
+    serial: z.string(),
+  })
 )
 
 /**
@@ -382,6 +386,14 @@ export const BgpConfigCreate = z.preprocess(
 export const BgpConfigResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: BgpConfig.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * The current status of a BGP peer.
+ */
+export const BgpExported = z.preprocess(
+  processResponseBody,
+  z.object({ exports: z.record(z.string().min(1), Ipv4Net.array()) })
 )
 
 /**
@@ -1634,6 +1646,14 @@ export const ImportBlocksBulkWrite = z.preprocess(
 )
 
 /**
+ * A policy determining when an instance should be automatically restarted by the control plane.
+ */
+export const InstanceAutoRestartPolicy = z.preprocess(
+  processResponseBody,
+  z.enum(['never', 'best_effort'])
+)
+
+/**
  * The number of CPUs in an Instance
  */
 export const InstanceCpuCount = z.preprocess(
@@ -1668,6 +1688,10 @@ export const InstanceState = z.preprocess(
 export const Instance = z.preprocess(
   processResponseBody,
   z.object({
+    autoRestartCooldownExpiration: z.coerce.date().optional(),
+    autoRestartEnabled: SafeBoolean,
+    autoRestartPolicy: InstanceAutoRestartPolicy.optional(),
+    bootDiskId: z.string().uuid().optional(),
     description: z.string(),
     hostname: z.string(),
     id: z.string().uuid(),
@@ -1677,6 +1701,7 @@ export const Instance = z.preprocess(
     projectId: z.string().uuid(),
     runState: InstanceState,
     timeCreated: z.coerce.date(),
+    timeLastAutoRestarted: z.coerce.date().optional(),
     timeModified: z.coerce.date(),
     timeRunStateUpdated: z.coerce.date(),
   })
@@ -1731,6 +1756,8 @@ export const InstanceNetworkInterfaceAttachment = z.preprocess(
 export const InstanceCreate = z.preprocess(
   processResponseBody,
   z.object({
+    autoRestartPolicy: InstanceAutoRestartPolicy.default(null).optional(),
+    bootDisk: InstanceDiskAttachment.default(null).optional(),
     description: z.string(),
     disks: InstanceDiskAttachment.array().default([]).optional(),
     externalIps: ExternalIpCreate.array().default([]).optional(),
@@ -1745,14 +1772,6 @@ export const InstanceCreate = z.preprocess(
     start: SafeBoolean.default(true).optional(),
     userData: z.string().default('').optional(),
   })
-)
-
-/**
- * Migration parameters for an `Instance`
- */
-export const InstanceMigrate = z.preprocess(
-  processResponseBody,
-  z.object({ dstSledId: z.string().uuid() })
 )
 
 /**
@@ -1829,9 +1848,110 @@ export const InstanceSerialConsoleData = z.preprocess(
   z.object({ data: z.number().min(0).max(255).array(), lastByteOffset: z.number().min(0) })
 )
 
-export const IpKind = z.preprocess(
+/**
+ * Parameters of an `Instance` that can be reconfigured after creation.
+ */
+export const InstanceUpdate = z.preprocess(
   processResponseBody,
-  z.enum(['snat', 'floating', 'ephemeral'])
+  z.object({
+    autoRestartPolicy: InstanceAutoRestartPolicy.optional(),
+    bootDisk: NameOrId.optional(),
+  })
+)
+
+/**
+ * An internet gateway provides a path between VPC networks and external networks.
+ */
+export const InternetGateway = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    id: z.string().uuid(),
+    name: Name,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+    vpcId: z.string().uuid(),
+  })
+)
+
+/**
+ * Create-time parameters for an `InternetGateway`
+ */
+export const InternetGatewayCreate = z.preprocess(
+  processResponseBody,
+  z.object({ description: z.string(), name: Name })
+)
+
+/**
+ * An IP address that is attached to an internet gateway
+ */
+export const InternetGatewayIpAddress = z.preprocess(
+  processResponseBody,
+  z.object({
+    address: z.string().ip(),
+    description: z.string(),
+    id: z.string().uuid(),
+    internetGatewayId: z.string().uuid(),
+    name: Name,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
+)
+
+/**
+ * Create-time identity-related parameters
+ */
+export const InternetGatewayIpAddressCreate = z.preprocess(
+  processResponseBody,
+  z.object({ address: z.string().ip(), description: z.string(), name: Name })
+)
+
+/**
+ * A single page of results
+ */
+export const InternetGatewayIpAddressResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: InternetGatewayIpAddress.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * An IP pool that is attached to an internet gateway
+ */
+export const InternetGatewayIpPool = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    id: z.string().uuid(),
+    internetGatewayId: z.string().uuid(),
+    ipPoolId: z.string().uuid(),
+    name: Name,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
+)
+
+/**
+ * Create-time identity-related parameters
+ */
+export const InternetGatewayIpPoolCreate = z.preprocess(
+  processResponseBody,
+  z.object({ description: z.string(), ipPool: NameOrId, name: Name })
+)
+
+/**
+ * A single page of results
+ */
+export const InternetGatewayIpPoolResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: InternetGatewayIpPool.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * A single page of results
+ */
+export const InternetGatewayResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: InternetGateway.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -1969,7 +2089,7 @@ export const IpPoolUtilization = z.preprocess(
 /**
  * A range of IP ports
  *
- * An inclusive-inclusive range of IP ports. The second port may be omitted to represent a single port
+ * An inclusive-inclusive range of IP ports. The second port may be omitted to represent a single port.
  */
 export const L4PortRange = z.preprocess(
   processResponseBody,
@@ -1986,11 +2106,19 @@ export const L4PortRange = z.preprocess(
 export const LinkFec = z.preprocess(processResponseBody, z.enum(['firecode', 'none', 'rs']))
 
 /**
- * The LLDP configuration associated with a port. LLDP may be either enabled or disabled, if enabled, an LLDP configuration must be provided by name or id.
+ * The LLDP configuration associated with a port.
  */
-export const LldpServiceConfigCreate = z.preprocess(
+export const LldpLinkConfigCreate = z.preprocess(
   processResponseBody,
-  z.object({ enabled: SafeBoolean, lldpConfig: NameOrId.optional() })
+  z.object({
+    chassisId: z.string().optional(),
+    enabled: SafeBoolean,
+    linkDescription: z.string().optional(),
+    linkName: z.string().optional(),
+    managementIp: z.string().ip().optional(),
+    systemDescription: z.string().optional(),
+    systemName: z.string().optional(),
+  })
 )
 
 /**
@@ -2012,28 +2140,48 @@ export const LinkSpeed = z.preprocess(
 )
 
 /**
+ * Per-port tx-eq overrides.  This can be used to fine-tune the transceiver equalization settings to improve signal integrity.
+ */
+export const TxEqConfig = z.preprocess(
+  processResponseBody,
+  z.object({
+    main: z.number().min(-2147483647).max(2147483647).optional(),
+    post1: z.number().min(-2147483647).max(2147483647).optional(),
+    post2: z.number().min(-2147483647).max(2147483647).optional(),
+    pre1: z.number().min(-2147483647).max(2147483647).optional(),
+    pre2: z.number().min(-2147483647).max(2147483647).optional(),
+  })
+)
+
+/**
  * Switch link configuration.
  */
 export const LinkConfigCreate = z.preprocess(
   processResponseBody,
   z.object({
     autoneg: SafeBoolean,
-    fec: LinkFec,
-    lldp: LldpServiceConfigCreate,
+    fec: LinkFec.optional(),
+    lldp: LldpLinkConfigCreate,
     mtu: z.number().min(0).max(65535),
     speed: LinkSpeed,
+    txEq: TxEqConfig.optional(),
   })
 )
 
 /**
  * A link layer discovery protocol (LLDP) service configuration.
  */
-export const LldpServiceConfig = z.preprocess(
+export const LldpLinkConfig = z.preprocess(
   processResponseBody,
   z.object({
+    chassisId: z.string().optional(),
     enabled: SafeBoolean,
     id: z.string().uuid(),
-    lldpConfigId: z.string().uuid().optional(),
+    linkDescription: z.string().optional(),
+    linkName: z.string().optional(),
+    managementIp: IpNet.optional(),
+    systemDescription: z.string().optional(),
+    systemName: z.string().optional(),
   })
 )
 
@@ -2135,6 +2283,71 @@ export const NetworkInterface = z.preprocess(
 )
 
 /**
+ * List of data values for one timeseries.
+ *
+ * Each element is an option, where `None` represents a missing sample.
+ */
+export const ValueArray = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ type: z.enum(['integer']), values: z.number().array() }),
+    z.object({ type: z.enum(['double']), values: z.number().array() }),
+    z.object({ type: z.enum(['boolean']), values: SafeBoolean.array() }),
+    z.object({ type: z.enum(['string']), values: z.string().array() }),
+    z.object({ type: z.enum(['integer_distribution']), values: Distributionint64.array() }),
+    z.object({ type: z.enum(['double_distribution']), values: Distributiondouble.array() }),
+  ])
+)
+
+/**
+ * A single list of values, for one dimension of a timeseries.
+ */
+export const Values = z.preprocess(
+  processResponseBody,
+  z.object({ metricType: MetricType, values: ValueArray })
+)
+
+/**
+ * Timepoints and values for one timeseries.
+ */
+export const Points = z.preprocess(
+  processResponseBody,
+  z.object({
+    startTimes: z.coerce.date().array().optional(),
+    timestamps: z.coerce.date().array(),
+    values: Values.array(),
+  })
+)
+
+/**
+ * A timeseries contains a timestamped set of values from one source.
+ *
+ * This includes the typed key-value pairs that uniquely identify it, and the set of timestamps and data values from it.
+ */
+export const Timeseries = z.preprocess(
+  processResponseBody,
+  z.object({ fields: z.record(z.string().min(1), FieldValue), points: Points })
+)
+
+/**
+ * A table represents one or more timeseries with the same schema.
+ *
+ * A table is the result of an OxQL query. It contains a name, usually the name of the timeseries schema from which the data is derived, and any number of timeseries, which contain the actual data.
+ */
+export const Table = z.preprocess(
+  processResponseBody,
+  z.object({ name: z.string(), timeseries: z.record(z.string().min(1), Timeseries) })
+)
+
+/**
+ * The result of a successful OxQL query.
+ */
+export const OxqlQueryResult = z.preprocess(
+  processResponseBody,
+  z.object({ tables: Table.array() })
+)
+
+/**
  * A password used to authenticate a user
  *
  * Passwords may be subject to additional constraints.
@@ -2199,43 +2412,6 @@ export const PingStatus = z.preprocess(processResponseBody, z.enum(['ok']))
 export const Ping = z.preprocess(processResponseBody, z.object({ status: PingStatus }))
 
 /**
- * List of data values for one timeseries.
- *
- * Each element is an option, where `None` represents a missing sample.
- */
-export const ValueArray = z.preprocess(
-  processResponseBody,
-  z.union([
-    z.object({ type: z.enum(['integer']), values: z.number().array() }),
-    z.object({ type: z.enum(['double']), values: z.number().array() }),
-    z.object({ type: z.enum(['boolean']), values: SafeBoolean.array() }),
-    z.object({ type: z.enum(['string']), values: z.string().array() }),
-    z.object({ type: z.enum(['integer_distribution']), values: Distributionint64.array() }),
-    z.object({ type: z.enum(['double_distribution']), values: Distributiondouble.array() }),
-  ])
-)
-
-/**
- * A single list of values, for one dimension of a timeseries.
- */
-export const Values = z.preprocess(
-  processResponseBody,
-  z.object({ metricType: MetricType, values: ValueArray })
-)
-
-/**
- * Timepoints and values for one timeseries.
- */
-export const Points = z.preprocess(
-  processResponseBody,
-  z.object({
-    startTimes: z.coerce.date().array().optional(),
-    timestamps: z.coerce.date().array(),
-    values: Values.array(),
-  })
-)
-
-/**
  * Identity-related metadata that's included in nearly all public API objects
  */
 export const Probe = z.preprocess(
@@ -2263,12 +2439,17 @@ export const ProbeCreate = z.preprocess(
   })
 )
 
+export const ProbeExternalIpKind = z.preprocess(
+  processResponseBody,
+  z.enum(['snat', 'floating', 'ephemeral'])
+)
+
 export const ProbeExternalIp = z.preprocess(
   processResponseBody,
   z.object({
     firstPort: z.number().min(0).max(65535),
     ip: z.string().ip(),
-    kind: IpKind,
+    kind: ProbeExternalIpKind,
     lastPort: z.number().min(0).max(65535),
   })
 )
@@ -2416,6 +2597,7 @@ export const Route = z.preprocess(
   z.object({
     dst: IpNet,
     gw: z.string().ip(),
+    ribPriority: z.number().min(0).max(255).optional(),
     vid: z.number().min(0).max(65535).optional(),
   })
 )
@@ -2429,7 +2611,7 @@ export const RouteConfig = z.preprocess(
 )
 
 /**
- * A `RouteDestination` is used to match traffic with a routing rule, on the destination of that traffic.
+ * A `RouteDestination` is used to match traffic with a routing rule based on the destination of that traffic.
  *
  * When traffic is to be sent to a destination that is within a given `RouteDestination`, the corresponding `RouterRoute` applies, and traffic will be forward to the `RouteTarget` for that rule.
  */
@@ -3044,12 +3226,13 @@ export const SwitchPortLinkConfig = z.preprocess(
   processResponseBody,
   z.object({
     autoneg: SafeBoolean,
-    fec: LinkFec,
+    fec: LinkFec.optional(),
     linkName: z.string(),
-    lldpServiceConfigId: z.string().uuid(),
+    lldpLinkConfigId: z.string().uuid().optional(),
     mtu: z.number().min(0).max(65535),
     portSettingsId: z.string().uuid(),
     speed: LinkSpeed,
+    txEqConfigId: z.string().uuid().optional(),
   })
 )
 
@@ -3071,6 +3254,7 @@ export const SwitchPortRouteConfig = z.preprocess(
     gw: IpNet,
     interfaceName: z.string(),
     portSettingsId: z.string().uuid(),
+    ribPriority: z.number().min(0).max(255).optional(),
     vlanId: z.number().min(0).max(65535).optional(),
   })
 )
@@ -3141,11 +3325,12 @@ export const SwitchPortSettingsView = z.preprocess(
     bgpPeers: BgpPeer.array(),
     groups: SwitchPortSettingsGroups.array(),
     interfaces: SwitchInterfaceConfig.array(),
-    linkLldp: LldpServiceConfig.array(),
+    linkLldp: LldpLinkConfig.array(),
     links: SwitchPortLinkConfig.array(),
     port: SwitchPortConfig,
     routes: SwitchPortRouteConfig.array(),
     settings: SwitchPortSettings,
+    txEq: TxEqConfig.array(),
     vlanInterfaces: SwitchVlanInterfaceConfig.array(),
   })
 )
@@ -3156,26 +3341,6 @@ export const SwitchPortSettingsView = z.preprocess(
 export const SwitchResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: Switch.array(), nextPage: z.string().optional() })
-)
-
-/**
- * A timeseries contains a timestamped set of values from one source.
- *
- * This includes the typed key-value pairs that uniquely identify it, and the set of timestamps and data values from it.
- */
-export const Timeseries = z.preprocess(
-  processResponseBody,
-  z.object({ fields: z.record(z.string().min(1), FieldValue), points: Points })
-)
-
-/**
- * A table represents one or more timeseries with the same schema.
- *
- * A table is the result of an OxQL query. It contains a name, usually the name of the timeseries schema from which the data is derived, and any number of timeseries, which contain the actual data.
- */
-export const Table = z.preprocess(
-  processResponseBody,
-  z.object({ name: z.string(), timeseries: z.record(z.string().min(1), Timeseries) })
 )
 
 /**
@@ -3209,7 +3374,23 @@ export const TimeseriesQuery = z.preprocess(
 /**
  * Measurement units for timeseries samples.
  */
-export const Units = z.preprocess(processResponseBody, z.enum(['count', 'bytes']))
+export const Units = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.enum([
+      'count',
+      'bytes',
+      'seconds',
+      'nanoseconds',
+      'volts',
+      'amps',
+      'watts',
+      'degrees_celsius',
+    ]),
+    z.enum(['none']),
+    z.enum(['rpm']),
+  ])
+)
 
 /**
  * The schema for a timeseries.
@@ -3277,7 +3458,7 @@ export const User = z.preprocess(
 /**
  * View of a Built-in User
  *
- * A Built-in User is explicitly created as opposed to being derived from an Identify Provider.
+ * Built-in users are identities internal to the system, used when the control plane performs actions autonomously
  */
 export const UserBuiltin = z.preprocess(
   processResponseBody,
@@ -3299,9 +3480,9 @@ export const UserBuiltinResultsPage = z.preprocess(
 )
 
 /**
- * A name unique within the parent collection
+ * A username for a local-only user
  *
- * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID, but they may contain a UUID. They can be at most 63 characters long.
+ * Usernames must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Usernames cannot be a UUID, but they may contain a UUID. They can be at most 63 characters long.
  */
 export const UserId = z.preprocess(
   processResponseBody,
@@ -3421,7 +3602,7 @@ export const VpcFirewallRuleProtocol = z.preprocess(
 )
 
 /**
- * Filter for a firewall rule. A given packet must match every field that is present for the rule to apply to it. A packet matches a field if any entry in that field matches the packet.
+ * Filters reduce the scope of a firewall rule. Without filters, the rule applies to all packets to the targets (or from the targets, if it's an outbound rule). With multiple filters, the rule applies only to packets matching ALL filters. The maximum number of each type of filter is 256.
  */
 export const VpcFirewallRuleFilter = z.preprocess(
   processResponseBody,
@@ -3438,7 +3619,7 @@ export const VpcFirewallRuleStatus = z.preprocess(
 )
 
 /**
- * A `VpcFirewallRuleTarget` is used to specify the set of `Instance`s to which a firewall rule applies.
+ * A `VpcFirewallRuleTarget` is used to specify the set of instances to which a firewall rule applies. You can target instances directly by name, or specify a VPC, VPC subnet, IP, or IP subnet, which will apply the rule to traffic going to all matching instances. Targets are additive: the rule applies to instances matching ANY target.
  */
 export const VpcFirewallRuleTarget = z.preprocess(
   processResponseBody,
@@ -3490,7 +3671,7 @@ export const VpcFirewallRuleUpdate = z.preprocess(
 )
 
 /**
- * Updateable properties of a `Vpc`'s firewall Note that VpcFirewallRules are implicitly created along with a Vpc, so there is no explicit creation.
+ * Updated list of firewall rules. Will replace all existing rules.
  */
 export const VpcFirewallRuleUpdateParams = z.preprocess(
   processResponseBody,
@@ -4105,6 +4286,18 @@ export const InstanceViewParams = z.preprocess(
   })
 )
 
+export const InstanceUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      instance: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
 export const InstanceDeleteParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -4192,18 +4385,6 @@ export const InstanceEphemeralIpDetachParams = z.preprocess(
   })
 )
 
-export const InstanceMigrateParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      instance: NameOrId,
-    }),
-    query: z.object({
-      project: NameOrId.optional(),
-    }),
-  })
-)
-
 export const InstanceRebootParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -4279,6 +4460,142 @@ export const InstanceStopParams = z.preprocess(
     }),
     query: z.object({
       project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InternetGatewayIpAddressListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      gateway: NameOrId.optional(),
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InternetGatewayIpAddressCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      gateway: NameOrId,
+      project: NameOrId.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InternetGatewayIpAddressDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      address: NameOrId,
+    }),
+    query: z.object({
+      cascade: SafeBoolean.optional(),
+      gateway: NameOrId.optional(),
+      project: NameOrId.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InternetGatewayIpPoolListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      gateway: NameOrId.optional(),
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InternetGatewayIpPoolCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      gateway: NameOrId,
+      project: NameOrId.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InternetGatewayIpPoolDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+    }),
+    query: z.object({
+      cascade: SafeBoolean.optional(),
+      gateway: NameOrId.optional(),
+      project: NameOrId.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InternetGatewayListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InternetGatewayCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      project: NameOrId.optional(),
+      vpc: NameOrId,
+    }),
+  })
+)
+
+export const InternetGatewayViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      gateway: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InternetGatewayDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      gateway: NameOrId,
+    }),
+    query: z.object({
+      cascade: SafeBoolean.optional(),
+      project: NameOrId.optional(),
+      vpc: NameOrId.optional(),
     }),
   })
 )
@@ -5152,7 +5469,6 @@ export const NetworkingBgpConfigListParams = z.preprocess(
     path: z.object({}),
     query: z.object({
       limit: z.number().min(1).max(4294967295).optional(),
-      nameOrId: NameOrId.optional(),
       pageToken: z.string().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -5182,12 +5498,14 @@ export const NetworkingBgpAnnounceSetListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      nameOrId: NameOrId,
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: NameOrIdSortMode.optional(),
     }),
   })
 )
 
-export const NetworkingBgpAnnounceSetCreateParams = z.preprocess(
+export const NetworkingBgpAnnounceSetUpdateParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
@@ -5198,10 +5516,28 @@ export const NetworkingBgpAnnounceSetCreateParams = z.preprocess(
 export const NetworkingBgpAnnounceSetDeleteParams = z.preprocess(
   processResponseBody,
   z.object({
-    path: z.object({}),
-    query: z.object({
-      nameOrId: NameOrId,
+    path: z.object({
+      announceSet: NameOrId,
     }),
+    query: z.object({}),
+  })
+)
+
+export const NetworkingBgpAnnouncementListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      announceSet: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const NetworkingBgpExportedParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
   })
 )
 
@@ -5450,6 +5786,25 @@ export const SiloQuotasUpdateParams = z.preprocess(
   })
 )
 
+export const SystemTimeseriesQueryParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const SystemTimeseriesSchemaListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+    }),
+  })
+)
+
 export const SiloUserListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -5516,25 +5871,6 @@ export const SiloUtilizationViewParams = z.preprocess(
       silo: NameOrId,
     }),
     query: z.object({}),
-  })
-)
-
-export const TimeseriesQueryParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({}),
-  })
-)
-
-export const TimeseriesSchemaListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
-    }),
   })
 )
 

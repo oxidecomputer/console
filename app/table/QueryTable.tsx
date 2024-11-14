@@ -53,8 +53,6 @@ export const useQueryTable = <A extends ApiListMethods, M extends keyof A>(
 type QueryTableProps<Item> = {
   /** Prints table data in the console when enabled */
   debug?: boolean
-  /** Function that produces a list of actions from a row item */
-  pagination?: 'inline' | 'page'
   pageSize?: number
   rowHeight?: 'small' | 'large'
   emptyState: React.ReactElement
@@ -71,7 +69,6 @@ const makeQueryTable = <Item extends Record<string, unknown>>(
 ): ComponentType<QueryTableProps<Item>> =>
   function QueryTable({
     debug,
-    pagination = 'page',
     pageSize = PAGE_SIZE,
     rowHeight = 'small',
     emptyState,
@@ -115,7 +112,6 @@ const makeQueryTable = <Item extends Record<string, unknown>>(
       <>
         <Table table={table} rowHeight={rowHeight} />
         <Pagination
-          inline={pagination === 'inline'}
           pageSize={pageSize}
           hasNext={tableData.length === pageSize}
           hasPrev={hasPrev}

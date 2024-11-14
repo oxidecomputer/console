@@ -7,11 +7,10 @@
  */
 import { expect, test } from '@playwright/test'
 
-import { MiB } from '~/util/units'
-
 import {
   chooseFile,
   clickRowAction,
+  closeToast,
   expectNotVisible,
   expectRowVisible,
   expectVisible,
@@ -38,14 +37,41 @@ test('Create silo', async ({ page }) => {
   const discoverable = page.getByRole('checkbox', { name: 'Discoverable' })
   await expect(discoverable).toBeChecked()
   await discoverable.click()
-  await page.getByRole('radio', { name: 'Local only' }).click()
+  await expect(page.getByRole('textbox', { name: 'Admin group name' })).toBeVisible()
   await page.getByRole('textbox', { name: 'Admin group name' }).fill('admins')
   await page.getByRole('checkbox', { name: 'Grant fleet admin' }).click()
+  await expect(page.getByRole('textbox', { name: 'Admin group name' })).toHaveValue(
+    'admins'
+  )
+  await expect(page.getByRole('checkbox', { name: 'Grant fleet admin' })).toBeChecked()
+  await page.getByRole('radio', { name: 'Local only' }).click()
+  await expect(page.getByRole('textbox', { name: 'Admin group name' })).toBeHidden()
+  await page.getByRole('radio', { name: 'SAML' }).click()
+  await expect(page.getByRole('textbox', { name: 'Admin group name' })).toHaveValue('')
+  await expect(page.getByRole('checkbox', { name: 'Grant fleet admin' })).toBeChecked()
+  await page.getByRole('textbox', { name: 'Admin group name' }).fill('admins')
+
+  ////////////////////////////
+  // QUOTAS
+  ////////////////////////////
+
+  const cpuQuota = page.getByRole('textbox', { name: 'CPU quota' })
+  const decreaseCpuQuota = page.getByRole('button', { name: 'Decrease CPU quota' })
+
+  // can't go below zero
+  await expect(cpuQuota).toHaveValue('0')
+  await expect(decreaseCpuQuota).toBeDisabled()
+
   await page.getByRole('textbox', { name: 'CPU quota' }).fill('30')
+  await expect(decreaseCpuQuota).toBeEnabled() // now you can decrease it
+
   await page.getByRole('textbox', { name: 'Memory quota' }).fill('58')
   await page.getByRole('textbox', { name: 'Storage quota' }).fill('735')
 
-  // Add a TLS cert
+  ////////////////////////////
+  // TLS CERT
+  ////////////////////////////
+
   const openCertModalButton = page.getByRole('button', { name: 'Add TLS certificate' })
   await openCertModalButton.click()
 
@@ -62,8 +88,8 @@ test('Create silo', async ({ page }) => {
   // Validation error for missing name + key and cert files
   await expectVisible(page, [certRequired, keyRequired, nameRequired])
 
-  await chooseFile(page, page.getByLabel('Cert', { exact: true }), 0.1 * MiB)
-  await chooseFile(page, page.getByLabel('Key'), 0.1 * MiB)
+  await chooseFile(page, page.getByLabel('Cert', { exact: true }), 'small')
+  await chooseFile(page, page.getByLabel('Key'), 'small')
   const certName = certDialog.getByRole('textbox', { name: 'Name' })
   await certName.fill('test-cert')
 
@@ -83,8 +109,8 @@ test('Create silo', async ({ page }) => {
 
   // Change the name so it's unique
   await certName.fill('test-cert-2')
-  await chooseFile(page, page.getByLabel('Cert', { exact: true }), 0.1 * MiB)
-  await chooseFile(page, page.getByLabel('Key'), 0.1 * MiB)
+  await chooseFile(page, page.getByLabel('Cert', { exact: true }), 'small')
+  await chooseFile(page, page.getByLabel('Key'), 'small')
   await certSubmit.click()
   await expect(page.getByRole('cell', { name: 'test-cert-2', exact: true })).toBeVisible()
 
@@ -99,7 +125,7 @@ test('Create silo', async ({ page }) => {
   await expectRowVisible(table, {
     name: 'other-silo',
     description: 'definitely a silo',
-    'Identity mode': 'local only',
+    'Identity mode': 'saml jit',
     // discoverable: 'false',
   })
   const otherSiloCell = page.getByRole('cell', { name: 'other-silo' })
@@ -114,22 +140,16 @@ test('Create silo', async ({ page }) => {
   ])
   await expect(page.getByText('Silo viewerFleet viewer')).toBeHidden()
 
-  await page.goBack()
-
   // now go check the quotas in its entry in the utilization table
-  await page.getByRole('link', { name: 'Utilization' }).click()
-  await expectRowVisible(page.getByRole('table'), {
-    Silo: 'other-silo',
-    CPU: '30',
-    Memory: '58 GiB',
-    Storage: '0.72 TiB',
-  })
+  await page.getByRole('tab', { name: 'Quotas' }).click()
+  await expectRowVisible(table, { Resource: 'CPU', Quota: '30 vCPUs' })
+  await expectRowVisible(table, { Resource: 'Memory', Quota: '58 GiB' })
+  await expectRowVisible(table, { Resource: 'Storage', Quota: '735 GiB' })
 
   await page.goBack()
 
   // now delete it
-  await page.locator('role=button[name="Row actions"]').nth(2).click()
-  await page.click('role=menuitem[name="Delete"]')
+  await clickRowAction(page, 'other-silo', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
 
   await expect(otherSiloCell).toBeHidden()
@@ -159,16 +179,72 @@ test('Identity providers', async ({ page }) => {
 
   await page.getByRole('link', { name: 'mock-idp' }).click()
 
-  await expectVisible(page, [
-    'role=dialog[name="Identity provider"]',
-    'role=heading[name="mock-idp"]',
-    // random stuff that's not in the table
-    'text="Entity ID"',
-    'text="Single Logout (SLO) URL"',
-  ])
+  const dialog = page.getByRole('dialog', { name: 'Identity provider' })
+
+  await expect(dialog).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'mock-idp' })).toBeVisible()
+  // random stuff that's not in the table
+  await expect(page.getByText('Entity ID')).toBeVisible()
+  await expect(page.getByText('Single Logout (SLO) URL')).toBeVisible()
+
+  await expect(page.getByRole('textbox', { name: 'Group attribute name' })).toHaveValue(
+    'groups'
+  )
 
   await page.getByRole('button', { name: 'Cancel' }).click()
-  await expectNotVisible(page, ['role=dialog[name="Identity provider"]'])
+
+  await expect(dialog).toBeHidden()
+
+  // test creating identity provider
+  await page.getByRole('link', { name: 'New provider' }).click()
+
+  await expect(dialog).toBeVisible()
+
+  // test login URL preview in name field description
+  await expect(page.getByText('login page: /login/maze-war/saml/idp-name')).toBeVisible()
+
+  const nameField = dialog.getByLabel('Name', { exact: true })
+  await nameField.fill('test-provider')
+
+  // preview updates as you type
+  await expect(
+    page.getByText('login page: /login/maze-war/saml/test-provider')
+  ).toBeVisible()
+
+  // ACS URL should be populated with generated value
+  const acsUrlField = dialog.getByLabel('ACS URL', { exact: true })
+  const acsUrl = 'https://maze-war.sys.placeholder/login/maze-war/saml/test-provider'
+  await expect(acsUrlField).toHaveValue(acsUrl)
+
+  const acsUrlCheckbox = dialog.getByRole('checkbox', { name: 'Use standard ACS URL' })
+  await expect(acsUrlCheckbox).toBeChecked()
+
+  // uncheck the box and change the value
+  await acsUrlCheckbox.click()
+  await acsUrlField.fill('https://example.com')
+  await expect(acsUrlField).toHaveValue('https://example.com')
+
+  // re-check the box and verify that the value is regenerated
+  await acsUrlCheckbox.click()
+  await expect(acsUrlField).toHaveValue(acsUrl)
+
+  await page.getByRole('button', { name: 'Create provider' }).click()
+
+  await closeToast(page)
+  await expect(dialog).toBeHidden()
+
+  // new provider should appear in table
+  await expectRowVisible(page.getByRole('table'), {
+    name: 'test-provider',
+    Type: 'saml',
+    description: '—',
+  })
+
+  await page.getByRole('link', { name: 'test-provider' }).click()
+  await expect(nameField).toHaveValue('test-provider')
+  await expect(nameField).toBeDisabled()
+  await expect(acsUrlField).toHaveValue(acsUrl)
+  await expect(acsUrlField).toBeDisabled()
 })
 
 test('Silo IP pools', async ({ page }) => {
@@ -242,6 +318,10 @@ test('Silo IP pools link pool', async ({ page }) => {
   await page.getByRole('button', { name: 'Link pool' }).click()
   await expect(modal).toBeVisible()
 
+  // verify that combobox's "no items match" appears when addNewItems prop is false or missing
+  await page.getByPlaceholder('Select a pool').fill('x')
+  await expect(page.getByText('No items match')).toBeVisible()
+
   // select silo in combobox and click link
   await page.getByPlaceholder('Select a pool').fill('ip-pool')
   await page.getByRole('option', { name: 'ip-pool-3' }).click()
@@ -250,4 +330,76 @@ test('Silo IP pools link pool', async ({ page }) => {
   // modal closes and we see the thing in the table
   await expect(modal).toBeHidden()
   await expectRowVisible(table, { name: 'ip-pool-3', Default: '' })
+})
+
+// just a convenient form to test this with because it's tall
+test('form scrolls to name field on already exists error', async ({ page }) => {
+  await page.setViewportSize({ width: 800, height: 400 })
+  await page.goto('/system/silos-new')
+
+  const nameField = page.getByRole('textbox', { name: 'Name', exact: true })
+  await expect(nameField).toBeInViewport()
+
+  await nameField.fill('maze-war')
+
+  // scroll all the way down so the name field is not visible
+  await page
+    .getByTestId('sidemodal-scroll-container')
+    .evaluate((el: HTMLElement, to) => el.scrollTo(0, to), 800)
+  await expect(nameField).not.toBeInViewport()
+
+  await page.getByRole('button', { name: 'Create silo' }).click()
+
+  await expect(nameField).toBeInViewport()
+  await expect(page.getByText('name already exists').nth(0)).toBeVisible()
+})
+
+test('Quotas tab', async ({ page }) => {
+  await page.goto('/system/silos/maze-war')
+  await page.getByRole('tab', { name: 'Quotas' }).click()
+
+  const table = page.getByRole('table')
+  await expectRowVisible(table, {
+    Resource: 'CPU',
+    Provisioned: '30 vCPUs',
+    Quota: '50 vCPUs',
+  })
+  await expectRowVisible(table, {
+    Resource: 'Memory',
+    Provisioned: '234 GiB',
+    Quota: '300 GiB',
+  })
+  await expectRowVisible(table, {
+    Resource: 'Storage',
+    Provisioned: '4403.2 GiB',
+    Quota: '7168 GiB',
+  })
+
+  const sideModal = page.getByRole('dialog', { name: 'Edit quotas' })
+  const edit = page.getByRole('button', { name: 'Edit quotas' })
+  const submit = sideModal.getByRole('button', { name: 'Update quotas' })
+
+  await edit.click()
+  await expect(sideModal).toBeVisible()
+
+  // test validation on empty field
+  const memory = page.getByRole('textbox', { name: 'Memory' })
+  await memory.clear()
+  await submit.click()
+  await expect(sideModal.getByText('Memory is required')).toBeVisible()
+
+  // try to type in a negative number HAHA YOU CAN'T
+  await memory.fill('-5')
+  await expect(memory).toHaveValue('')
+
+  // only change one
+  await memory.fill('50')
+  await submit.click()
+
+  await expect(sideModal).toBeHidden()
+
+  // only one changes, the others stay the same
+  await expectRowVisible(table, { Resource: 'CPU', Quota: '50 vCPUs' })
+  await expectRowVisible(table, { Resource: 'Memory', Quota: '50 GiB' })
+  await expectRowVisible(table, { Resource: 'Storage', Quota: '7168 GiB' })
 })

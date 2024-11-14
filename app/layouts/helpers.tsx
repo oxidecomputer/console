@@ -14,7 +14,7 @@ import { useScrollRestoration } from '~/hooks/use-scroll-restoration'
 import { SkipLinkTarget } from '~/ui/lib/SkipLink'
 import { classed } from '~/util/classed'
 
-export const PageContainer = classed.div`grid h-screen grid-cols-[14.25rem,1fr] grid-rows-[60px,1fr]`
+export const PageContainer = classed.div`grid h-screen grid-cols-[14.25rem,1fr] grid-rows-[--top-bar-height,1fr]`
 
 export function ContentPane() {
   const ref = useRef<HTMLDivElement>(null)
@@ -27,7 +27,7 @@ export function ContentPane() {
           <Outlet />
         </main>
       </div>
-      <div className="sticky bottom-0 shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
+      <div className="sticky bottom-0 z-topBar shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
         <Pagination.Target />
         <PageActionsTarget />
       </div>

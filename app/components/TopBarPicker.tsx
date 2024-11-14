@@ -8,18 +8,11 @@
 import cn from 'classnames'
 import { Link } from 'react-router-dom'
 
-import { useApiQuery, type Project } from '@oxide/api'
-import {
-  Folder16Icon,
-  SelectArrows6Icon,
-  Success12Icon,
-} from '@oxide/design-system/icons/react'
+import { SelectArrows6Icon, Success12Icon } from '@oxide/design-system/icons/react'
 
-import { useInstanceSelector, useIpPoolSelector, useSiloSelector } from '~/hooks'
 import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
-import { PAGE_SIZE } from '~/table/QueryTable'
-import { Button } from '~/ui/lib/Button'
-import { DropdownMenu } from '~/ui/lib/DropdownMenu'
+import { buttonStyle } from '~/ui/lib/Button'
+import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 import { Identicon } from '~/ui/lib/Identicon'
 import { Wrap } from '~/ui/util/wrap'
 import { pb } from '~/util/path-builder'
@@ -89,14 +82,14 @@ const TopBarPicker = (props: TopBarPickerProps) => {
         {props.items && (
           <div className="ml-2 shrink-0">
             <DropdownMenu.Trigger
-              className="group"
+              className={cn(
+                'group h-[2rem] w-[1.125rem]',
+                buttonStyle({ size: 'icon', variant: 'ghost' })
+              )}
               aria-label={props['aria-label']}
-              asChild
             >
-              <Button size="icon" variant="ghost" className="h-[2rem] w-[1.125rem]">
-                {/* aria-hidden is a tip from the Reach docs */}
-                <SelectArrows6Icon className="text-secondary" aria-hidden />
-              </Button>
+              {/* aria-hidden is a tip from the Reach docs */}
+              <SelectArrows6Icon className="text-secondary" aria-hidden />
             </DropdownMenu.Trigger>
           </div>
         )}
@@ -104,38 +97,36 @@ const TopBarPicker = (props: TopBarPickerProps) => {
       {/* TODO: item size and focus highlight */}
       {/* TODO: popover position should be further right */}
       {props.items && (
-        // portal is necessary to avoid the menu popover getting its own after:
-        // separator thing
-        <DropdownMenu.Portal>
-          <DropdownMenu.Content
-            className="mt-2 max-h-80 min-w-[12.8125rem] overflow-y-auto"
-            align="start"
-          >
-            {props.items.length > 0 ? (
-              props.items.map(({ label, to }) => {
-                const isSelected = props.current === label
-                return (
-                  <DropdownMenu.Item asChild key={label}>
-                    <Link to={to} className={cn({ 'is-selected': isSelected })}>
-                      <span className="flex w-full items-center gap-2">
-                        {label}
-                        {isSelected && <Success12Icon className="-mr-3 block" />}
-                      </span>
-                    </Link>
-                  </DropdownMenu.Item>
-                )
-              })
-            ) : (
-              <DropdownMenu.Item
-                className="!pr-3 !text-center !text-secondary hover:cursor-default"
-                onSelect={() => {}}
-                disabled
-              >
-                {props.noItemsText || 'No items found'}
-              </DropdownMenu.Item>
-            )}
-          </DropdownMenu.Content>
-        </DropdownMenu.Portal>
+        <DropdownMenu.Content
+          className="mt-2 max-h-80 min-w-[12.8125rem] overflow-y-auto"
+          anchor="bottom start"
+        >
+          {props.items.length > 0 ? (
+            props.items.map(({ label, to }) => {
+              const isSelected = props.current === label
+              return (
+                <DropdownMenu.LinkItem
+                  key={label}
+                  to={to}
+                  className={cn({ 'is-selected': isSelected })}
+                >
+                  <div className="flex w-full items-center gap-2">
+                    <div className="flex-grow">{label}</div>
+                    {isSelected && <Success12Icon className="-mr-3 block" />}
+                  </div>
+                </DropdownMenu.LinkItem>
+              )
+            })
+          ) : (
+            <DropdownMenu.Item
+              className="!pr-3 !text-center !text-secondary hover:cursor-default"
+              onSelect={() => {}}
+              disabled
+            >
+              {props.noItemsText || 'No items found'}
+            </DropdownMenu.Item>
+          )}
+        </DropdownMenu.Content>
       )}
     </DropdownMenu.Root>
   )
@@ -199,91 +190,6 @@ export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
       current="Silo"
       display={me.siloName}
       to={pb.projects()}
-    />
-  )
-}
-
-/** Used when drilling down into a silo from the System view. */
-export function SiloPicker() {
-  // picker only shows up when a silo is in scope
-  const { silo: siloName } = useSiloSelector()
-  const { data } = useApiQuery('siloList', { query: { limit: PAGE_SIZE } })
-  const items = (data?.items || []).map((silo) => ({
-    label: silo.name,
-    to: pb.silo({ silo: silo.name }),
-  }))
-
-  return (
-    <TopBarPicker
-      aria-label="Switch silo"
-      category="Silo"
-      icon={<BigIdenticon name={siloName} />}
-      current={siloName}
-      items={items}
-      noItemsText="No silos found"
-    />
-  )
-}
-
-/** Used when drilling down into a pool from the System/Networking view. */
-export function IpPoolPicker() {
-  // picker only shows up when a pool is in scope
-  const { pool: poolName } = useIpPoolSelector()
-  const { data } = useApiQuery('ipPoolList', { query: { limit: 10 } })
-  const items = (data?.items || []).map((pool) => ({
-    label: pool.name,
-    to: pb.ipPool({ pool: pool.name }),
-  }))
-
-  return (
-    <TopBarPicker
-      aria-label="Switch pool"
-      category="IP Pools"
-      current={poolName}
-      items={items}
-      noItemsText="No IP pools found"
-    />
-  )
-}
-
-const NoProjectLogo = () => (
-  <div className="flex h-[34px] w-[34px] items-center justify-center rounded text-secondary bg-secondary">
-    <Folder16Icon />
-  </div>
-)
-
-export function ProjectPicker({ project }: { project?: Project }) {
-  const { data: projects } = useApiQuery('projectList', { query: { limit: 200 } })
-  const items = (projects?.items || []).map(({ name }) => ({
-    label: name,
-    to: pb.project({ project: name }),
-  }))
-
-  return (
-    <TopBarPicker
-      aria-label="Switch project"
-      icon={project ? undefined : <NoProjectLogo />}
-      category="Project"
-      current={project?.name}
-      to={project ? pb.project({ project: project.name }) : undefined}
-      items={items}
-      noItemsText="No projects found"
-    />
-  )
-}
-
-export function InstancePicker() {
-  // picker only shows up when an instance is in scope
-  const instanceSelector = useInstanceSelector()
-  const { instance } = instanceSelector
-
-  return (
-    <TopBarPicker
-      aria-label="Switch instance"
-      category="Instance"
-      current={instance}
-      to={pb.instanceStorage(instanceSelector)}
-      noItemsText="No instances found"
     />
   )
 }

@@ -7,13 +7,12 @@
  */
 import {
   Listbox as HListbox,
-  Label,
   ListboxButton,
   ListboxOption,
   ListboxOptions,
 } from '@headlessui/react'
 import cn from 'classnames'
-import type { ReactNode } from 'react'
+import { useId, type ReactNode, type Ref } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
@@ -38,10 +37,12 @@ export interface ListboxProps<Value extends string = string> {
   hasError?: boolean
   name?: string
   label?: React.ReactNode
-  tooltipText?: string
   description?: React.ReactNode
   required?: boolean
   isLoading?: boolean
+  /** Necessary if you want RHF to be able to focus it on error */
+  buttonRef?: Ref<HTMLButtonElement>
+  hideOptionalTag?: boolean
 }
 
 export const Listbox = <Value extends string = string>({
@@ -54,17 +55,19 @@ export const Listbox = <Value extends string = string>({
   onChange,
   hasError = false,
   label,
-  tooltipText,
   description,
   required,
   disabled,
   isLoading = false,
+  buttonRef,
+  hideOptionalTag,
   ...props
 }: ListboxProps<Value>) => {
   const selectedItem = selected && items.find((i) => i.value === selected)
   const noItems = !isLoading && items.length === 0
   const isDisabled = disabled || noItems
   const zIndex = usePopoverZIndex()
+  const id = useId()
 
   return (
     <div className={cn('relative', className)}>
@@ -80,16 +83,23 @@ export const Listbox = <Value extends string = string>({
           <>
             {label && (
               <div className="mb-2">
-                <FieldLabel id={``} as="div" tip={tooltipText} optional={!required}>
-                  <Label>{label}</Label>
+                <FieldLabel
+                  id={`${id}-label`}
+                  htmlFor={id}
+                  optional={!required && !hideOptionalTag}
+                >
+                  {label}
                 </FieldLabel>
-                {description && <TextInputHint id={``}>{description}</TextInputHint>}
+                {description && (
+                  <TextInputHint id={`${id}-help-text`}>{description}</TextInputHint>
+                )}
               </div>
             )}
             <ListboxButton
+              id={id}
               name={name}
               className={cn(
-                `flex h-10 w-full items-center justify-between rounded border text-sans-md`,
+                `flex h-11 w-full items-center justify-between rounded border text-sans-md`,
                 hasError
                   ? 'focus-error border-error-secondary hover:border-error'
                   : 'border-default hover:border-hover',
@@ -100,6 +110,7 @@ export const Listbox = <Value extends string = string>({
                   : 'bg-default',
                 isDisabled && hasError && '!border-error-secondary'
               )}
+              ref={buttonRef}
               {...props}
             >
               <div className="w-full overflow-hidden overflow-ellipsis whitespace-pre px-3 text-left">

@@ -25,7 +25,7 @@ import {
 } from '@oxide/api'
 
 import { json, type Json } from '~/api/__generated__/msw-handlers'
-import { validateIp } from '~/util/str'
+import { parseIp } from '~/util/ip'
 import { GiB, TiB } from '~/util/units'
 
 import type { DbRoleAssignmentResourceType } from '..'
@@ -84,11 +84,6 @@ export function getStartAndEndTime(params: { startTime?: Date; endTime?: Date })
   const { endTime = now, startTime = subHours(endTime, 24) } = params
 
   return { startTime, endTime }
-}
-
-export function getTimestamps() {
-  const now = new Date().toISOString()
-  return { time_created: now, time_modified: now }
 }
 
 export const forbiddenErr = () =>
@@ -368,6 +363,10 @@ export function requireFleetViewer(cookies: Record<string, string>) {
   requireRole(cookies, 'fleet', FLEET_ID, 'viewer')
 }
 
+export function requireFleetCollab(cookies: Record<string, string>) {
+  requireRole(cookies, 'fleet', FLEET_ID, 'collaborator')
+}
+
 /**
  * Determine whether current user has a role on a resource by looking roles
  * for the user as well as for the user's groups. Do nothing if yes, throw 403
@@ -385,14 +384,14 @@ export function requireRole(
 }
 
 const ipToBigInt = (ip: string): bigint =>
-  validateIp(ip).isv4 ? new IPv4(ip).value : new IPv6(ip).value
+  parseIp(ip).type === 'v4' ? new IPv4(ip).value : new IPv6(ip).value
 
 export const ipRangeLen = ({ first, last }: IpRange) =>
   ipToBigInt(last) - ipToBigInt(first) + 1n
 
 function ipInRange(ip: string, { first, last }: IpRange): boolean {
-  const ipIsV4 = validateIp(ip).isv4
-  const rangeIsV4 = validateIp(first).isv4
+  const ipIsV4 = parseIp(ip).type === 'v4'
+  const rangeIsV4 = parseIp(first).type === 'v4'
 
   // if they're not the same version then definitely false
   if (ipIsV4 !== rangeIsV4) return false
@@ -404,3 +403,13 @@ function ipInRange(ip: string, { first, last }: IpRange): boolean {
 
 export const ipInAnyRange = (ip: string, ranges: IpRange[]) =>
   ranges.some((range) => ipInRange(ip, range))
+
+export function updateDesc(
+  resource: { description: string },
+  update: { description?: string }
+) {
+  // Can't be `if (update.description)` because you could never set it to ''
+  if (update.description !== undefined) {
+    resource.description = update.description
+  }
+}

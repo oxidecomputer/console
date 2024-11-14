@@ -6,6 +6,8 @@
  * Copyright Oxide Computer Company
  */
 
+import React from 'react'
+
 export const capitalize = (s: string) => s && s.charAt(0).toUpperCase() + s.slice(1)
 
 export const pluralize = (s: string, n: number) => `${n} ${s}${n === 1 ? '' : 's'}`
@@ -50,18 +52,44 @@ export const titleCase = (text: string): string => {
   )
 }
 
-// Borrowed from Valibot. I tried some from Zod and an O'Reilly regex cookbook
-// but they didn't match results with std::new on simple test cases
-// https://github.com/fabian-hiller/valibot/blob/2554aea5/library/src/regex.ts#L43-L54
+/**
+ * Does a base64 string represent underlying data that's all zeros, i.e., does
+ * it look like `AAAAAAAAAAAAAAAA==`?
+ */
+export const isAllZeros = (base64Data: string) => /^A*=*$/.test(base64Data)
 
-const IPV4_REGEX =
-  /^(?:(?:[1-9]|1\d|2[0-4])?\d|25[0-5])(?:\.(?:(?:[1-9]|1\d|2[0-4])?\d|25[0-5])){3}$/u
-
-const IPV6_REGEX =
-  /^(?:(?:[\da-f]{1,4}:){7}[\da-f]{1,4}|(?:[\da-f]{1,4}:){1,7}:|(?:[\da-f]{1,4}:){1,6}:[\da-f]{1,4}|(?:[\da-f]{1,4}:){1,5}(?::[\da-f]{1,4}){1,2}|(?:[\da-f]{1,4}:){1,4}(?::[\da-f]{1,4}){1,3}|(?:[\da-f]{1,4}:){1,3}(?::[\da-f]{1,4}){1,4}|(?:[\da-f]{1,4}:){1,2}(?::[\da-f]{1,4}){1,5}|[\da-f]{1,4}:(?::[\da-f]{1,4}){1,6}|:(?:(?::[\da-f]{1,4}){1,7}|:)|fe80:(?::[\da-f]{0,4}){0,4}%[\da-z]+|::(?:f{4}(?::0{1,4})?:)?(?:(?:25[0-5]|(?:2[0-4]|1?\d)?\d)\.){3}(?:25[0-5]|(?:2[0-4]|1?\d)?\d)|(?:[\da-f]{1,4}:){1,4}:(?:(?:25[0-5]|(?:2[0-4]|1?\d)?\d)\.){3}(?:25[0-5]|(?:2[0-4]|1?\d)?\d))$/iu
-
-export const validateIp = (ip: string) => {
-  const isv4 = IPV4_REGEX.test(ip)
-  const isv6 = !isv4 && IPV6_REGEX.test(ip)
-  return { isv4, isv6, valid: isv4 || isv6 }
+/** Clean up text so that it conforms to Name field syntax rules:
+ *   - lowercase only
+ *   - no spaces
+ *   - only letters/numbers/dashes allowed
+ *   - capped at 63 characters
+ *  By default, it must start with a letter; this can be overriden with the second argument,
+ *  for contexts where we want to allow numbers at the start, like searching in comboboxes.
+ */
+export const normalizeName = (text: string, allowNonLetterStart = false): string => {
+  const normalizedName = text
+    .toLowerCase()
+    .replace(/[\s_]+/g, '-') // Replace spaces and underscores with dashes
+    .replace(/[^a-z0-9-]/g, '') // Remove non-alphanumeric (or dash) characters
+    .slice(0, 63) // Limit string to 63 characters
+  if (allowNonLetterStart) {
+    return normalizedName
+  }
+  return normalizedName.replace(/^[^a-z]+/, '') // Remove any non-letter characters from the start
 }
+
+/**
+ * Extract the string contents of a ReactNode, so <>This <HL>highlighted</HL> text</> becomes "This highlighted text"
+ */
+export const extractText = (children: React.ReactNode): string =>
+  React.Children.toArray(children)
+    .map((child) =>
+      typeof child === 'string'
+        ? child
+        : React.isValidElement(child)
+          ? extractText(child.props.children)
+          : ''
+    )
+    .join(' ')
+    .trim()
+    .replace(/\s+/g, ' ')

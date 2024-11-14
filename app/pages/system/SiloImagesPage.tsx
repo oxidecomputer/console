@@ -7,7 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import { type FieldValues } from 'react-hook-form'
+import { useForm, type FieldValues } from 'react-hook-form'
 import { Outlet } from 'react-router-dom'
 
 import {
@@ -21,9 +21,9 @@ import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
-import { toListboxItem } from '~/components/form/fields/ImageSelectField'
+import { toImageComboboxItem } from '~/components/form/fields/ImageSelectField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
-import { useForm } from '~/hooks'
+import { HL } from '~/components/HL'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
@@ -31,6 +31,7 @@ import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { Button } from '~/ui/lib/Button'
+import { toComboboxItems } from '~/ui/lib/Combobox'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
@@ -47,7 +48,7 @@ const EmptyState = () => (
   />
 )
 
-SiloImagesPage.loader = async () => {
+export async function loader() {
   await apiQueryClient.prefetchQuery('imageList', {
     query: { limit: PAGE_SIZE },
   })
@@ -64,15 +65,16 @@ const staticCols = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-export function SiloImagesPage() {
+Component.displayName = 'SiloImagesPage'
+export function Component() {
   const { Table } = useQueryTable('imageList', {})
   const [showModal, setShowModal] = useState(false)
   const [demoteImage, setDemoteImage] = useState<Image | null>(null)
 
   const queryClient = useApiQueryClient()
-  const deleteImage = useApiMutation('imageDelete', {
+  const { mutateAsync: deleteImage } = useApiMutation('imageDelete', {
     onSuccess(_data, variables) {
-      addToast({ content: `${variables.path.image} has been deleted` })
+      addToast(<>Image <HL>{variables.path.image}</HL> deleted</>) // prettier-ignore
       queryClient.invalidateQueries('imageList')
     },
   })
@@ -86,7 +88,7 @@ export function SiloImagesPage() {
       {
         label: 'Delete',
         onActivate: confirmDelete({
-          doDelete: () => deleteImage.mutateAsync({ path: { image: image.name } }),
+          doDelete: () => deleteImage({ path: { image: image.name } }),
           label: image.name,
         }),
       },
@@ -131,7 +133,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
 
   const promoteImage = useApiMutation('imagePromote', {
     onSuccess(data) {
-      addToast({ content: `${data.name} has been promoted` })
+      addToast(<>Image <HL>{data.name}</HL> promoted</>) // prettier-ignore
       queryClient.invalidateQueries('imageList')
     },
     onError: (err) => {
@@ -141,10 +143,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
   })
 
   const projects = useApiQuery('projectList', {})
-  const projectItems = useMemo(
-    () => (projects.data?.items || []).map(({ name }) => ({ value: name, label: name })),
-    [projects.data]
-  )
+  const projectItems = useMemo(() => toComboboxItems(projects.data?.items), [projects.data])
   const selectedProject = watch('project')
 
   // can only fetch images if a project is selected
@@ -154,7 +153,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
     { enabled: !!selectedProject }
   )
   const imageItems = useMemo(
-    () => (images.data?.items || []).map((i) => toListboxItem(i)),
+    () => (images.data?.items || []).map((i) => toImageComboboxItem(i)),
     [images.data]
   )
 
@@ -221,7 +220,11 @@ const DemoteImageModal = ({
   const demoteImage = useApiMutation('imageDemote', {
     onSuccess(data) {
       addToast({
-        content: `${data.name} has been demoted`,
+        content: (
+          <>
+            Image <HL>{data.name}</HL> demoted
+          </>
+        ),
         cta: selectedProject
           ? {
               text: `View images in ${selectedProject}`,
@@ -243,10 +246,7 @@ const DemoteImageModal = ({
   }
 
   const projects = useApiQuery('projectList', {})
-  const projectItems = useMemo(
-    () => (projects.data?.items || []).map(({ name }) => ({ value: name, label: name })),
-    [projects.data]
-  )
+  const projectItems = useMemo(() => toComboboxItems(projects.data?.items), [projects.data])
 
   return (
     <Modal isOpen onDismiss={onDismiss} title="Demote image">

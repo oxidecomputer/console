@@ -12,8 +12,10 @@ import {
   clipboardText,
   expect,
   expectNotVisible,
+  expectToast,
   expectVisible,
   getPageAsUser,
+  selectOption,
 } from './utils'
 
 test('can promote an image from silo', async ({ page }) => {
@@ -25,33 +27,33 @@ test('can promote an image from silo', async ({ page }) => {
 
   // Listboxes are visible
   await expect(page.getByPlaceholder('Select a project')).toBeVisible()
-  await expect(page.locator(`text="Select an image"`)).toBeVisible()
+  // have to use a locator here because the disabled button needs to be handled differently
+  await expect(page.locator(`text="Select an image"`)).toBeDisabled()
 
   // Notice is visible
   await expect(page.getByText('visible to all projects')).toBeVisible()
 
   // Select a project
-  await page.locator('role=button[name*="Project"]').click()
-  await page.locator('role=option[name="other-project"]').click()
+  await selectOption(page, 'Project', 'other-project')
 
-  // Should have no items
-  // and buttons should be disabled
-  await expect(page.locator(`text="No items"`)).toBeVisible()
-  await expect(page.locator('role=button[name*="Image"]')).toBeDisabled()
+  // Should have no items and dropdown should be disabled
+  await expect(page.locator(`text="No items"`)).toBeDisabled()
 
   // Select the other project
-  await page.locator('role=button[name*="Project"]').click()
-  await page.locator('role=option[name="mock-project"]').click()
+  // this blurring should not be necessary, but it's blocking the test otherwise
+  await page.getByRole('combobox', { name: 'Project' }).blur()
+  await page.getByRole('combobox', { name: 'Project' }).click()
+  await page.getByRole('option', { name: 'mock-project' }).click()
 
   // Select an image in that project
   const imageListbox = page.locator('role=button[name*="Image"]')
-  await expect(imageListbox).toBeEnabled({ timeout: 5000 })
+  await expect(imageListbox).toBeEnabled()
   await imageListbox.click()
   await page.locator('role=option >> text="image-1"').click()
   await page.locator('role=button[name="Promote"]').click()
 
   // Check it was promoted successfully
-  await expectVisible(page, ['text="image-1 has been promoted"'])
+  await expect(page.getByText('Image image-1 promoted', { exact: true })).toBeVisible()
   await expectVisible(page, ['role=cell[name="image-1"]'])
 })
 
@@ -67,7 +69,7 @@ test('can promote an image from project', async ({ page }) => {
 
   // Promote image and check it was successful
   await page.locator('role=button[name="Promote"]').click()
-  await expectVisible(page, ['text="image-2 has been promoted"'])
+  await expect(page.getByText('Image image-2 promoted', { exact: true })).toBeVisible()
   await expectNotVisible(page, ['role=cell[name="image-2"]'])
 
   await page.click('role=link[name="View silo images"]')
@@ -77,8 +79,8 @@ test('can promote an image from project', async ({ page }) => {
 test('can copy an image ID to clipboard', async ({ page, browserName }) => {
   // eslint-disable-next-line playwright/no-skipped-test
   test.skip(
-    browserName === 'firefox' || browserName === 'webkit',
-    'navigator.clipboard.readText() not supported in FF. Works locally in Safari but not in CI.'
+    browserName === 'webkit',
+    'navigator.clipboard.readText() works locally in Safari but not in CI.'
   )
 
   await page.goto('/images')
@@ -102,20 +104,18 @@ test('can demote an image from silo', async ({ page }) => {
   await expect(page.getByText('Demoting: arch-2022-06-01')).toBeVisible()
 
   // Cannot demote without first selecting a project
-  await page.locator('role=button[name="Demote"]').click()
+  await page.getByRole('button', { name: 'Demote' }).click()
   await expect(
     page.getByRole('dialog', { name: 'Demote' }).getByText('Project is required')
   ).toBeVisible()
 
-  // Select an project to demote it
-  const imageListbox = page.locator('role=button[name*="Project"]')
-  await expect(imageListbox).toBeEnabled({ timeout: 5000 })
-  await imageListbox.click()
-  await page.locator('role=option >> text="mock-project"').click()
-  await page.locator('role=button[name="Demote"]').click()
+  await selectOption(page, 'Project', 'mock-project')
+  await page.getByRole('button', { name: 'Demote' }).click()
 
-  // Promote image and check it was successful
-  await expectVisible(page, ['text="arch-2022-06-01 has been demoted"'])
+  // Demote image and check it was successful
+  await expect(
+    page.getByText('Image arch-2022-06-01 demoted', { exact: true })
+  ).toBeVisible()
   await expectNotVisible(page, ['role=cell[name="arch-2022-06-01"]'])
 
   await page.click('role=link[name="View images in mock-project"]')
@@ -135,7 +135,7 @@ test('can delete an image from a project', async ({ page }) => {
   await expect(spinner).toBeVisible()
 
   // Check deletion was successful
-  await expect(page.getByText('image-3 has been deleted', { exact: true })).toBeVisible()
+  await expectToast(page, 'Image image-3 deleted')
   await expect(cell).toBeHidden()
   await expect(spinner).toBeHidden()
 })
@@ -153,9 +153,7 @@ test('can delete an image from a silo', async ({ page }) => {
   await expect(spinner).toBeVisible()
 
   // Check deletion was successful
-  await expect(
-    page.getByText('ubuntu-20-04 has been deleted', { exact: true })
-  ).toBeVisible()
+  await expectToast(page, 'Image ubuntu-20-04 deleted')
   await expect(cell).toBeHidden()
   await expect(spinner).toBeHidden()
 })

@@ -28,13 +28,13 @@ export type ListboxFieldProps<
   label?: string
   required?: boolean
   description?: string | React.ReactNode
-  tooltipText?: string
   control: Control<TFieldValues>
   disabled?: boolean
   items: ListboxItem[]
   onChange?: (value: string | null | undefined) => void
   isLoading?: boolean
   noItemsPlaceholder?: string
+  hideOptionalTag?: boolean
 }
 
 export function ListboxField<
@@ -47,13 +47,13 @@ export function ListboxField<
   label = capitalize(name),
   disabled,
   required,
-  tooltipText,
   description,
   className,
   control,
   onChange,
   isLoading,
   noItemsPlaceholder,
+  hideOptionalTag,
 }: ListboxFieldProps<TFieldValues, TName>) {
   // TODO: recreate this logic
   //   validate: (v) => (required && !v ? `${name} is required` : undefined),
@@ -63,7 +63,6 @@ export function ListboxField<
       <Listbox
         description={description}
         label={label}
-        tooltipText={tooltipText}
         required={required}
         placeholder={placeholder}
         noItemsPlaceholder={noItemsPlaceholder}
@@ -79,6 +78,8 @@ export function ListboxField<
         name={name}
         hasError={fieldState.error !== undefined}
         isLoading={isLoading}
+        buttonRef={field.ref}
+        hideOptionalTag={hideOptionalTag}
       />
       <ErrorMessage error={fieldState.error} label={label} />
     </div>

@@ -25,7 +25,6 @@ export function NumberField<
   name,
   label = capitalize(name),
   units,
-  tooltipText,
   description,
   required,
   ...props
@@ -35,7 +34,7 @@ export function NumberField<
   return (
     <div className="max-w-lg">
       <div className="mb-2">
-        <FieldLabel htmlFor={id} id={`${id}-label`} tip={tooltipText} optional={!required}>
+        <FieldLabel htmlFor={id} id={`${id}-label`} optional={!required}>
           {label} {units && <span className="ml-1 text-secondary">({units})</span>}
         </FieldLabel>
         {description && (
@@ -45,7 +44,7 @@ export function NumberField<
         )}
       </div>
       {/* passing the generated id is very important for a11y */}
-      <NumberFieldInner name={name} {...props} id={id} />
+      <NumberFieldInner name={name} id={id} label={label} required={required} {...props} />
     </div>
   )
 }
@@ -67,7 +66,6 @@ export const NumberFieldInner = <
   label = capitalize(name),
   validate,
   control,
-  tooltipText,
   required,
   id: idProp,
   disabled,
@@ -80,15 +78,25 @@ export const NumberFieldInner = <
   const {
     field,
     fieldState: { error },
-  } = useController({ name, control, rules: { required, validate } })
+  } = useController({
+    name,
+    control,
+    rules: {
+      required,
+      // it seems we need special logic to enforce required on NaN
+      validate(value, values) {
+        if (required && Number.isNaN(value)) return `${label} is required`
+        return validate?.(value, values)
+      },
+    },
+  })
 
   return (
     <>
       <NumberInput
         id={id}
         error={!!error}
-        aria-labelledby={cn(`${id}-label`, !!tooltipText && `${id}-help-text`)}
-        aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
+        aria-labelledby={cn(`${id}-label`)}
         isDisabled={disabled}
         maxValue={max ? Number(max) : undefined}
         minValue={min !== undefined ? Number(min) : undefined}

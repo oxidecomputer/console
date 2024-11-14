@@ -32,8 +32,9 @@ import {
   ProjectAccessAddUserSideModal,
   ProjectAccessEditUserSideModal,
 } from '~/forms/project-access'
-import { getProjectSelector, useProjectSelector } from '~/hooks'
+import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
@@ -58,7 +59,7 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
   </TableEmptyBox>
 )
 
-ProjectAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function loader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('policyView', {}),
@@ -80,7 +81,8 @@ type UserRow = {
 
 const colHelper = createColumnHelper<UserRow>()
 
-export function ProjectAccessPage() {
+Component.displayName = 'ProjectAccessPage'
+export function Component() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
   const { project } = useProjectSelector()
@@ -118,8 +120,11 @@ export function ProjectAccessPage() {
   }, [siloRows, projectRows])
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('projectPolicyUpdate', {
-    onSuccess: () => queryClient.invalidateQueries('projectPolicyView'),
+  const { mutateAsync: updatePolicy } = useApiMutation('projectPolicyUpdate', {
+    onSuccess: () => {
+      queryClient.invalidateQueries('projectPolicyView')
+      addToast({ content: 'Access removed' })
+    },
     // TODO: handle 403
   })
 
@@ -167,7 +172,7 @@ export function ProjectAccessPage() {
           label: 'Delete',
           onActivate: confirmDelete({
             doDelete: () =>
-              updatePolicy.mutateAsync({
+              updatePolicy({
                 path: { project },
                 // we know policy is there, otherwise there's no row to display
                 body: deleteRole(row.id, projectPolicy),

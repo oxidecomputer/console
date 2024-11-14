@@ -7,7 +7,7 @@
  */
 import { expect, test } from 'vitest'
 
-import { isAllZeros } from './image-upload'
+import { isAllZeros } from '~/util/str'
 
 function numberToUint8Array(num: number) {
   const bytes = []

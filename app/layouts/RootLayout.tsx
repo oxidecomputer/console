@@ -10,7 +10,18 @@ import { Outlet, useNavigation } from 'react-router-dom'
 
 import { MswBanner } from '~/components/MswBanner'
 import { ToastStack } from '~/components/ToastStack'
-import { useTitle } from '~/hooks/use-title'
+import { useCrumbs } from '~/hooks/use-crumbs'
+
+/**
+ * non top-level route: Instances / mock-project / Projects / maze-war / Oxide Console
+ * top-level route: Oxide Console
+ */
+export const useTitle = () =>
+  useCrumbs()
+    .map((c) => c.label)
+    .reverse()
+    .concat('Oxide Console') // if there are no crumbs, we're still Oxide Console
+    .join(' / ')
 
 /**
  * Root layout that applies to the entire app. Modify sparingly. It's rare for
@@ -88,6 +99,7 @@ function LoadingBar() {
             // condition, we'd immediately kill an in-progress loading animation
             // that was about to finish on its own anyway.
             barRef.current?.classList.remove('loading', 'done')
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
             barRef.current?.scrollTop
 
             // Kick off the animation

@@ -5,6 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useForm } from 'react-hook-form'
+
 import {
   updateRole,
   useActorsNotInPolicy,
@@ -14,7 +16,8 @@ import {
 
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useProjectSelector } from '~/hooks'
+import { useProjectSelector } from '~/hooks/use-params'
+import { addToast } from '~/stores/toast'
 
 import {
   actorToItem,
@@ -33,6 +36,8 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
   const updatePolicy = useApiMutation('projectPolicyUpdate', {
     onSuccess: () => {
       queryClient.invalidateQueries('projectPolicyView')
+      // We don't have the name of the user or group, so we'll just have a generic message
+      addToast({ content: 'Role assigned' })
       onDismiss()
     },
   })
@@ -95,6 +100,7 @@ export function ProjectAccessEditUserSideModal({
   const updatePolicy = useApiMutation('projectPolicyUpdate', {
     onSuccess: () => {
       queryClient.invalidateQueries('projectPolicyView')
+      addToast({ content: 'Role updated' })
       onDismiss()
     },
   })

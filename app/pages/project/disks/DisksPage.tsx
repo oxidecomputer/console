@@ -20,8 +20,9 @@ import {
 import { Storage16Icon, Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
-import { DiskStatusBadge } from '~/components/StatusBadge'
-import { getProjectSelector, useProjectSelector } from '~/hooks'
+import { HL } from '~/components/HL'
+import { DiskStateBadge } from '~/components/StateBadge'
+import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
@@ -87,8 +88,8 @@ const staticCols = [
   ),
   colHelper.accessor('size', Columns.size),
   colHelper.accessor('state.state', {
-    header: 'Status',
-    cell: (info) => <DiskStatusBadge status={info.getValue()} />,
+    header: 'state',
+    cell: (info) => <DiskStateBadge state={info.getValue()} />,
   }),
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
@@ -98,16 +99,17 @@ export function DisksPage() {
   const { project } = useProjectSelector()
   const { Table } = useQueryTable('diskList', { query: { project } })
 
-  const deleteDisk = useApiMutation('diskDelete', {
-    onSuccess() {
+  const { mutateAsync: deleteDisk } = useApiMutation('diskDelete', {
+    onSuccess(_data, variables) {
       queryClient.invalidateQueries('diskList')
+      addToast(<>Disk <HL>{variables.path.disk}</HL> deleted</>) // prettier-ignore
     },
   })
 
-  const createSnapshot = useApiMutation('snapshotCreate', {
-    onSuccess() {
+  const { mutate: createSnapshot } = useApiMutation('snapshotCreate', {
+    onSuccess(_data, variables) {
       queryClient.invalidateQueries('snapshotList')
-      addToast({ content: 'Snapshot successfully created' })
+      addToast(<>Snapshot <HL>{variables.body.name}</HL> created</>) // prettier-ignore
     },
     onError(err) {
       addToast({
@@ -123,8 +125,8 @@ export function DisksPage() {
       {
         label: 'Snapshot',
         onActivate() {
-          addToast({ title: `Creating snapshot of disk '${disk.name}'` })
-          createSnapshot.mutate({
+          addToast(<>Creating snapshot of disk <HL>{disk.name}</HL></>) // prettier-ignore
+          createSnapshot({
             query: { project },
             body: {
               name: genName(disk.name),
@@ -142,8 +144,7 @@ export function DisksPage() {
       {
         label: 'Delete',
         onActivate: confirmDelete({
-          doDelete: () =>
-            deleteDisk.mutateAsync({ path: { disk: disk.name }, query: { project } }),
+          doDelete: () => deleteDisk({ path: { disk: disk.name }, query: { project } }),
           label: disk.name,
         }),
         disabled:

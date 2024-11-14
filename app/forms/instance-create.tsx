@@ -7,7 +7,7 @@
  */
 import * as Accordion from '@radix-ui/react-accordion'
 import { useEffect, useMemo, useState } from 'react'
-import { useController, useWatch, type Control } from 'react-hook-form'
+import { useController, useForm, useWatch, type Control } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import type { SetRequired } from 'type-fest'
 
@@ -22,9 +22,11 @@ import {
   usePrefetchedApiQuery,
   type ExternalIpCreate,
   type FloatingIp,
+  type Image,
   type InstanceCreate,
   type InstanceDiskAttachment,
   type NameOrId,
+  type SiloIpPool,
 } from '@oxide/api'
 import {
   Images16Icon,
@@ -37,6 +39,7 @@ import {
 import { AccordionItem } from '~/components/AccordionItem'
 import { DocsPopover } from '~/components/DocsPopover'
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
+import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { DiskSizeField } from '~/components/form/fields/DiskSizeField'
 import {
@@ -45,7 +48,7 @@ import {
 } from '~/components/form/fields/DisksTableField'
 import { FileField } from '~/components/form/fields/FileField'
 import { BootDiskImageSelectField as ImageSelectField } from '~/components/form/fields/ImageSelectField'
-import { ListboxField } from '~/components/form/fields/ListboxField'
+import { toIpPoolItem } from '~/components/form/fields/ip-pool-item'
 import { NameField } from '~/components/form/fields/NameField'
 import { NetworkInterfaceField } from '~/components/form/fields/NetworkInterfaceField'
 import { NumberField } from '~/components/form/fields/NumberField'
@@ -55,11 +58,11 @@ import { TextField } from '~/components/form/fields/TextField'
 import { Form } from '~/components/form/Form'
 import { FullPageForm } from '~/components/form/FullPageForm'
 import { HL } from '~/components/HL'
-import { getProjectSelector, useForm, useProjectSelector } from '~/hooks'
+import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { Checkbox } from '~/ui/lib/Checkbox'
+import { toComboboxItems } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
@@ -72,13 +75,17 @@ import { Slash } from '~/ui/lib/Slash'
 import { Tabs } from '~/ui/lib/Tabs'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { TipIcon } from '~/ui/lib/TipIcon'
+import { ALL_ISH } from '~/util/consts'
 import { readBlobAsBase64 } from '~/util/file'
 import { docLinks, links } from '~/util/links'
 import { nearest10 } from '~/util/math'
 import { pb } from '~/util/path-builder'
 import { GiB } from '~/util/units'
 
-const getBootDiskAttachment = (values: InstanceCreateInput): InstanceDiskAttachment => {
+const getBootDiskAttachment = (
+  values: InstanceCreateInput,
+  images: Array<Image>
+): InstanceDiskAttachment => {
   if (values.bootDiskSourceType === 'disk') {
     return { type: 'attach', name: values.diskSource }
   }
@@ -86,9 +93,10 @@ const getBootDiskAttachment = (values: InstanceCreateInput): InstanceDiskAttachm
     values.bootDiskSourceType === 'siloImage'
       ? values.siloImageSource
       : values.projectImageSource
+  const sourceName = images.find((image) => image.id === source)?.name
   return {
     type: 'create',
-    name: values.bootDiskName || genName(values.name, source),
+    name: values.bootDiskName || genName(values.name, sourceName || source),
     description: `Created as a boot disk for ${values.name}`,
     size: values.bootDiskSize * GiB,
     diskSource: { type: 'image', imageId: source },
@@ -102,7 +110,7 @@ export type InstanceCreateInput = Assign<
   SetRequired<InstanceCreate, 'networkInterfaces'>,
   {
     presetId: (typeof PRESETS)[number]['id']
-    disks: DiskTableItem[]
+    otherDisks: DiskTableItem[]
     bootDiskName: string
     bootDiskSize: number
 
@@ -138,7 +146,7 @@ const baseDefaultValues: InstanceCreateInput = {
   projectImageSource: '',
   diskSource: '',
 
-  disks: [],
+  otherDisks: [],
   networkInterfaces: { type: 'default' },
 
   sshPublicKeys: [],
@@ -149,8 +157,6 @@ const baseDefaultValues: InstanceCreateInput = {
   externalIps: [{ type: 'ephemeral' }],
 }
 
-const DISK_FETCH_LIMIT = 1000
-
 CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
   await Promise.all([
@@ -158,11 +164,11 @@ CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
     apiQueryClient.prefetchQuery('imageList', { query: { project } }),
     apiQueryClient.prefetchQuery('imageList', {}),
     apiQueryClient.prefetchQuery('diskList', {
-      query: { project, limit: DISK_FETCH_LIMIT },
+      query: { project, limit: ALL_ISH },
     }),
     apiQueryClient.prefetchQuery('currentUserSshKeyList', {}),
-    apiQueryClient.prefetchQuery('projectIpPoolList', { query: { limit: 1000 } }),
-    apiQueryClient.prefetchQuery('floatingIpList', { query: { project, limit: 1000 } }),
+    apiQueryClient.prefetchQuery('projectIpPoolList', { query: { limit: ALL_ISH } }),
+    apiQueryClient.prefetchQuery('floatingIpList', { query: { project, limit: ALL_ISH } }),
   ])
   return null
 }
@@ -183,7 +189,7 @@ export function CreateInstanceForm() {
         { path: { instance: instance.name }, query: { project } },
         instance
       )
-      addToast({ content: 'Your instance has been created' })
+      addToast(<>Instance <HL>{instance.name}</HL> created</>) // prettier-ignore
       navigate(pb.instance({ project, instance: instance.name }))
     },
   })
@@ -196,19 +202,16 @@ export function CreateInstanceForm() {
   const defaultImage = allImages[0]
 
   const allDisks = usePrefetchedApiQuery('diskList', {
-    query: { project, limit: DISK_FETCH_LIMIT },
+    query: { project, limit: ALL_ISH },
   }).data.items
-  const disks = useMemo(
-    () => allDisks.filter(diskCan.attach).map(({ name }) => ({ value: name, label: name })),
-    [allDisks]
-  )
+  const disks = useMemo(() => toComboboxItems(allDisks.filter(diskCan.attach)), [allDisks])
 
   const { data: sshKeys } = usePrefetchedApiQuery('currentUserSshKeyList', {})
   const allKeys = useMemo(() => sshKeys.items.map((key) => key.id), [sshKeys])
 
   // projectIpPoolList fetches the pools linked to the current silo
   const { data: siloPools } = usePrefetchedApiQuery('projectIpPoolList', {
-    query: { limit: 1000 },
+    query: { limit: ALL_ISH },
   })
   const defaultPool = useMemo(
     () => (siloPools ? siloPools.items.find((p) => p.isDefault)?.name : undefined),
@@ -270,7 +273,8 @@ export function CreateInstanceForm() {
         key="bootDiskName"
         name="bootDiskName"
         label="Disk name"
-        tooltipText="Will be autogenerated if name not provided"
+        // TODO: would be cool to generate the name already and use it as a placeholder
+        description="A name will be generated if left blank"
         required={false}
         control={control}
         disabled={isSubmitting}
@@ -302,7 +306,7 @@ export function CreateInstanceForm() {
               ? { memory: values.memory, ncpus: values.ncpus }
               : { memory: preset.memory, ncpus: preset.ncpus }
 
-          const bootDisk = getBootDiskAttachment(values)
+          const bootDisk = getBootDiskAttachment(values, allImages)
 
           const userData = values.userData
             ? await readBlobAsBase64(values.userData)
@@ -316,7 +320,8 @@ export function CreateInstanceForm() {
               description: values.description,
               memory: instance.memory * GiB,
               ncpus: instance.ncpus,
-              disks: [bootDisk, ...values.disks],
+              disks: values.otherDisks,
+              bootDisk,
               externalIps: values.externalIps,
               start: values.start,
               networkInterfaces: values.networkInterfaces,
@@ -547,7 +552,7 @@ export function CreateInstanceForm() {
                 />
               </div>
             ) : (
-              <ListboxField
+              <ComboboxField
                 label="Disk"
                 name="diskSource"
                 description="Existing disks that are not attached to an instance"
@@ -610,7 +615,7 @@ const AdvancedAccordion = ({
 }: {
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
-  siloPools: Array<{ name: string; isDefault: boolean }>
+  siloPools: Array<SiloIpPool>
 }) => {
   // we track this state manually for the sole reason that we need to be able to
   // tell, inside AccordionItem, when an accordion is opened so we can scroll its
@@ -625,9 +630,11 @@ const AdvancedAccordion = ({
   const defaultPool = siloPools.find((pool) => pool.isDefault)?.name
   const attachedFloatingIps = (externalIps.field.value || []).filter(isFloating)
 
+  const instanceName = useWatch({ control, name: 'name' })
+
   const { project } = useProjectSelector()
   const { data: floatingIpList } = usePrefetchedApiQuery('floatingIpList', {
-    query: { project, limit: 1000 },
+    query: { project, limit: ALL_ISH },
   })
 
   // Filter out the IPs that are already attached to an instance
@@ -693,9 +700,10 @@ const AdvancedAccordion = ({
         <div className="py-2">
           <TextField
             name="hostname"
-            tooltipText="Will be generated if not provided"
+            description="Will be set to instance name if left blank"
             control={control}
             disabled={isSubmitting}
+            placeholder={instanceName}
           />
         </div>
 
@@ -731,17 +739,7 @@ const AdvancedAccordion = ({
               label="IP pool for ephemeral IP"
               placeholder={defaultPool ? `${defaultPool} (default)` : 'Select a pool'}
               selected={`${siloPools.find((pool) => pool.name === selectedPool)?.name}`}
-              items={
-                siloPools.map((pool) => ({
-                  label: (
-                    <div className="flex items-center gap-2">
-                      {pool.name}
-                      {pool.isDefault && <Badge>default</Badge>}
-                    </div>
-                  ),
-                  value: pool.name,
-                })) || []
-              }
+              items={siloPools.map(toIpPoolItem)}
               disabled={!assignEphemeralIp || isSubmitting}
               required
               onChange={(value) => {
