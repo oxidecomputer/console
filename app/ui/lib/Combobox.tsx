@@ -19,6 +19,8 @@ import { useEffect, useId, useState, type ReactNode, type Ref } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
+import { normalizeName } from '~/util/str'
+
 import { FieldLabel } from './FieldLabel'
 import { usePopoverZIndex } from './SideModal'
 import { TextInputHint } from './TextInput'
@@ -189,17 +191,25 @@ export const Combobox = ({
           >
             <ComboboxInput
               id={`${id}-input`}
-              // displayValue controls what's displayed in the input field.
-              // selectedItemValue is displayed when the user can type in a new value.
-              // Otherwise, use the provided selectedItemLabel
-              displayValue={() =>
-                allowArbitraryValues ? selectedItemValue : selectedItemLabel
+              // If an option has been selected, display either the selected item's label or value.
+              // If no option has been selected yet, or the user has started editing the input, display the query.
+              // We are using value here, as opposed to Headless UI's displayValue, so we can normalize
+              // the value entered into the input (via the onChange event).
+              value={
+                selectedItemValue
+                  ? allowArbitraryValues
+                    ? selectedItemValue
+                    : selectedItemLabel
+                  : query
               }
               onChange={(event) => {
+                // Pass in true for the second prop so that the user can start their filtering query with a number.
+                // A validation will still prevent them from submitting the form with a number at the beginning.
+                const value = normalizeName(event.target.value, true)
                 // updates the query state as the user types, in order to filter the list of items
-                setQuery(event.target.value)
+                setQuery(value)
                 // if the parent component wants to know about input changes, call the callback
-                onInputChange?.(event.target.value)
+                onInputChange?.(value)
               }}
               onKeyDown={(e) => {
                 // Prevent form submission when the user presses Enter inside a combobox.
