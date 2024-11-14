@@ -19,8 +19,6 @@ import { useEffect, useId, useState, type ReactNode, type Ref } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
-import { normalizeName } from '~/util/str'
-
 import { FieldLabel } from './FieldLabel'
 import { usePopoverZIndex } from './SideModal'
 import { TextInputHint } from './TextInput'
@@ -66,6 +64,11 @@ export type ComboboxBaseProps = {
   onInputChange?: (value: string) => void
   /** Fires whenever the Enter key is pressed while Combobox input has focus */
   onEnter?: (event: React.KeyboardEvent<HTMLInputElement>) => void
+  /**
+   * Optional function to transform the value entered into the input as the user types.
+   * Defaults in ComboboxField to running the `normalizeName` function on the input value.
+   */
+  transform?: (value: string) => string
 }
 
 type ComboboxProps = {
@@ -95,6 +98,7 @@ export const Combobox = ({
   allowArbitraryValues = false,
   hideOptionalTag,
   inputRef,
+  transform,
   ...props
 }: ComboboxProps) => {
   const [query, setQuery] = useState(selectedItemValue || '')
@@ -205,7 +209,7 @@ export const Combobox = ({
               onChange={(event) => {
                 // Pass in true for the second prop so that the user can start their filtering query with a number.
                 // A validation will still prevent them from submitting the form with a number at the beginning.
-                const value = normalizeName(event.target.value, true)
+                const value = transform ? transform(event.target.value) : event.target.value
                 // updates the query state as the user types, in order to filter the list of items
                 setQuery(value)
                 // if the parent component wants to know about input changes, call the callback
