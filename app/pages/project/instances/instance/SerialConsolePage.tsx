@@ -44,7 +44,7 @@ const statusMessage: Record<WsState, string> = {
   error: 'error',
 }
 
-SerialConsolePage.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await apiQueryClient.prefetchQuery('instanceView', {
     path: { instance },
@@ -57,7 +57,8 @@ function isStarting(i: Instance | undefined) {
   return i?.runState === 'creating' || i?.runState === 'starting'
 }
 
-export function SerialConsolePage() {
+Component.displayName = 'SerialConsolePage'
+export function Component() {
   const instanceSelector = useInstanceSelector()
   const { project, instance } = instanceSelector
 

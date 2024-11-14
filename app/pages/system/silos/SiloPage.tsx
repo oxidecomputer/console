@@ -28,7 +28,7 @@ import { SiloIdpsTab } from './SiloIdpsTab'
 import { SiloIpPoolsTab } from './SiloIpPoolsTab'
 import { SiloQuotasTab } from './SiloQuotasTab'
 
-SiloPage.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function loader({ params }: LoaderFunctionArgs) {
   const { silo } = getSiloSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('siloView', { path: { silo } }),
@@ -44,7 +44,8 @@ SiloPage.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-export function SiloPage() {
+Component.displayName = 'SiloPage'
+export function Component() {
   const siloSelector = useSiloSelector()
 
   const { data: silo } = usePrefetchedApiQuery('siloView', { path: siloSelector })

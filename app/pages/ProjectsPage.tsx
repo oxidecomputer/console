@@ -42,7 +42,7 @@ const EmptyState = () => (
   />
 )
 
-ProjectsPage.loader = async () => {
+export async function loader() {
   await apiQueryClient.prefetchQuery('projectList', { query: { limit: PAGE_SIZE } })
   return null
 }
@@ -56,7 +56,8 @@ const staticCols = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-export function ProjectsPage() {
+Component.displayName = 'ProjectsPage'
+export function Component() {
   const navigate = useNavigate()
 
   const queryClient = useApiQueryClient()

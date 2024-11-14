@@ -18,7 +18,7 @@ import { cliCmd } from '~/util/cli-cmd'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-ConnectTab.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await apiQueryClient.prefetchQuery('instanceExternalIpList', {
     path: { instance },
@@ -27,7 +27,8 @@ ConnectTab.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-export function ConnectTab() {
+Component.displayName = 'ConnectTab'
+export function Component() {
   const { project, instance } = useInstanceSelector()
   const { data: externalIps } = usePrefetchedApiQuery('instanceExternalIpList', {
     path: { instance },

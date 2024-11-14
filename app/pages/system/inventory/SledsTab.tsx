@@ -36,7 +36,7 @@ const EmptyState = () => {
   )
 }
 
-SledsTab.loader = async () => {
+export async function loader() {
   await apiQueryClient.prefetchQuery('sledList', {
     query: { limit: PAGE_SIZE },
   })
@@ -67,7 +67,8 @@ const staticCols = [
   }),
 ]
 
-export function SledsTab() {
+Component.displayName = 'SledsTab'
+export function Component() {
   const { Table } = useQueryTable('sledList', {}, { placeholderData: (x) => x })
   return <Table emptyState={<EmptyState />} columns={staticCols} />
 }

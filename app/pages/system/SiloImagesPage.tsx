@@ -48,7 +48,7 @@ const EmptyState = () => (
   />
 )
 
-SiloImagesPage.loader = async () => {
+export async function loader() {
   await apiQueryClient.prefetchQuery('imageList', {
     query: { limit: PAGE_SIZE },
   })
@@ -65,7 +65,8 @@ const staticCols = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-export function SiloImagesPage() {
+Component.displayName = 'SiloImagesPage'
+export function Component() {
   const { Table } = useQueryTable('imageList', {})
   const [showModal, setShowModal] = useState(false)
   const [demoteImage, setDemoteImage] = useState<Image | null>(null)

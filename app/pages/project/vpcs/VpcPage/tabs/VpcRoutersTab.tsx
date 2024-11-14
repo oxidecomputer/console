@@ -26,7 +26,7 @@ import { pb } from '~/util/path-builder'
 
 const colHelper = createColumnHelper<VpcRouter>()
 
-VpcRoutersTab.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function loader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcSelector(params)
   await apiQueryClient.prefetchQuery('vpcRouterList', {
     query: { project, vpc, limit: PAGE_SIZE },
@@ -34,7 +34,8 @@ VpcRoutersTab.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-export function VpcRoutersTab() {
+Component.displayName = 'VpcRoutersTab'
+export function Component() {
   const vpcSelector = useVpcSelector()
   const navigate = useNavigate()
   const { project, vpc } = vpcSelector
