@@ -34,7 +34,8 @@ type MatchWithCrumb = UIMatch<unknown, Crumb>
 type MakeStr = string | ((p: Params) => string)
 
 /** Helper to make crumb definitions less verbose */
-export const makeCrumb = (crumb: MakeStr, path?: MakeStr) => ({ crumb, path })
+export const makeCrumb = (crumb: MakeStr, path?: MakeStr): Crumb => ({ crumb, path })
+export const titleCrumb = (crumb: string): Crumb => ({ crumb, titleOnly: true })
 
 function hasCrumb(m: UIMatch): m is MatchWithCrumb {
   return !!(m.handle && typeof m.handle === 'object' && 'crumb' in m.handle)

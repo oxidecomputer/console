@@ -22,7 +22,8 @@ const defaultValues: ProjectCreate = {
   description: '',
 }
 
-export function CreateProjectSideModalForm() {
+Component.displayName = 'ProjectCreateSideModalForm'
+export function Component() {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
 

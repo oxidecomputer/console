@@ -2320,7 +2320,7 @@ export type LinkConfigCreate = {
   /** Whether or not to set autonegotiation */
   autoneg: boolean
   /** The forward error correction mode of the link. */
-  fec: LinkFec
+  fec?: LinkFec
   /** The link-layer discovery protocol (LLDP) configuration for the link. */
   lldp: LldpLinkConfigCreate
   /** Maximum transmission unit for the link. */
@@ -3505,7 +3505,7 @@ export type SwitchPortLinkConfig = {
   /** Whether or not the link has autonegotiation enabled. */
   autoneg: boolean
   /** The forward error correction mode of the link. */
-  fec: LinkFec
+  fec?: LinkFec
   /** The name of this link. */
   linkName: string
   /** The link-layer discovery protocol service configuration id for this link. */
@@ -5090,6 +5090,11 @@ export interface SiloQuotasUpdatePathParams {
   silo: NameOrId
 }
 
+export interface SystemTimeseriesSchemaListQueryParams {
+  limit?: number
+  pageToken?: string
+}
+
 export interface SiloUserListQueryParams {
   limit?: number
   pageToken?: string
@@ -5123,11 +5128,6 @@ export interface SiloUtilizationListQueryParams {
 
 export interface SiloUtilizationViewPathParams {
   silo: NameOrId
-}
-
-export interface TimeseriesSchemaListQueryParams {
-  limit?: number
-  pageToken?: string
 }
 
 export interface UserListQueryParams {
@@ -5363,10 +5363,10 @@ export type ApiListMethods = Pick<
   | 'systemQuotasList'
   | 'siloList'
   | 'siloIpPoolList'
+  | 'systemTimeseriesSchemaList'
   | 'siloUserList'
   | 'userBuiltinList'
   | 'siloUtilizationList'
-  | 'timeseriesSchemaList'
   | 'userList'
   | 'vpcRouterRouteList'
   | 'vpcRouterList'
@@ -7972,6 +7972,34 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Run timeseries query
+     */
+    systemTimeseriesQuery: (
+      { body }: { body: TimeseriesQuery },
+      params: FetchParams = {}
+    ) => {
+      return this.request<OxqlQueryResult>({
+        path: `/v1/system/timeseries/query`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * List timeseries schemas
+     */
+    systemTimeseriesSchemaList: (
+      { query = {} }: { query?: SystemTimeseriesSchemaListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<TimeseriesSchemaResultsPage>({
+        path: `/v1/system/timeseries/schemas`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
      * List built-in (system) users in silo
      */
     siloUserList: (
@@ -8050,31 +8078,6 @@ export class Api extends HttpClient {
       return this.request<SiloUtilization>({
         path: `/v1/system/utilization/silos/${path.silo}`,
         method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Run timeseries query
-     */
-    timeseriesQuery: ({ body }: { body: TimeseriesQuery }, params: FetchParams = {}) => {
-      return this.request<OxqlQueryResult>({
-        path: `/v1/timeseries/query`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * List timeseries schemas
-     */
-    timeseriesSchemaList: (
-      { query = {} }: { query?: TimeseriesSchemaListQueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<TimeseriesSchemaResultsPage>({
-        path: `/v1/timeseries/schema`,
-        method: 'GET',
-        query,
         ...params,
       })
     },

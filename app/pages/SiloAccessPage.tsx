@@ -52,7 +52,7 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
   </TableEmptyBox>
 )
 
-SiloAccessPage.loader = async () => {
+export async function loader() {
   await Promise.all([
     apiQueryClient.prefetchQuery('policyView', {}),
     // used to resolve user names
@@ -72,7 +72,8 @@ type UserRow = {
 
 const colHelper = createColumnHelper<UserRow>()
 
-export function SiloAccessPage() {
+Component.displayName = 'SiloAccessPage'
+export function Component() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
 

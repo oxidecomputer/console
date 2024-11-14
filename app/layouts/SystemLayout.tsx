@@ -34,7 +34,7 @@ import { ContentPane, PageContainer } from './helpers'
  * error. We're being a little cavalier here with the error. If it's something
  * other than a 403, that would be strange and we would want to know.
  */
-SystemLayout.loader = async () => {
+export async function loader() {
   // we don't need to use the ErrorsAllowed version here because we're 404ing
   // immediately on error, so we don't need to pick the result up from the cache
   const isFleetViewer = await apiQueryClient
@@ -49,7 +49,8 @@ SystemLayout.loader = async () => {
   return null
 }
 
-export function SystemLayout() {
+Component.displayName = 'SystemLayout'
+export function Component() {
   // Only show silo picker if we are looking at a particular silo. The more
   // robust way of doing this would be to make a separate layout for the
   // silo-specific routes in the route config, but it's overkill considering
