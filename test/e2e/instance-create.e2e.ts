@@ -374,9 +374,9 @@ test('maintains selected values even when changing tabs', async ({ page }) => {
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
   await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=8 GiB'])
-  // when a disk name isn’t assigned, the generated one uses the ID of the image,
-  // so this checks to make sure that the arch-based image — with ID `bd6aa051…` — was used
-  await expectVisible(page, [`text=${instanceName}-bd6aa051`])
+  // when a disk name isn’t assigned, the generated one uses the name of the image,
+  // so this checks to make sure that the arch-based image — with name `arch-2022-06-01` — was used
+  await expectVisible(page, [`text=${instanceName}-${arch}`])
 })
 
 test('does not attach an ephemeral IP when the checkbox is unchecked', async ({ page }) => {

@@ -22,6 +22,7 @@ import {
   usePrefetchedApiQuery,
   type ExternalIpCreate,
   type FloatingIp,
+  type Image,
   type InstanceCreate,
   type InstanceDiskAttachment,
   type NameOrId,
@@ -81,7 +82,10 @@ import { nearest10 } from '~/util/math'
 import { pb } from '~/util/path-builder'
 import { GiB } from '~/util/units'
 
-const getBootDiskAttachment = (values: InstanceCreateInput): InstanceDiskAttachment => {
+const getBootDiskAttachment = (
+  values: InstanceCreateInput,
+  images: Array<Image>
+): InstanceDiskAttachment => {
   if (values.bootDiskSourceType === 'disk') {
     return { type: 'attach', name: values.diskSource }
   }
@@ -89,9 +93,10 @@ const getBootDiskAttachment = (values: InstanceCreateInput): InstanceDiskAttachm
     values.bootDiskSourceType === 'siloImage'
       ? values.siloImageSource
       : values.projectImageSource
+  const sourceName = images.find((image) => image.id === source)?.name
   return {
     type: 'create',
-    name: values.bootDiskName || genName(values.name, source),
+    name: values.bootDiskName || genName(values.name, sourceName || source),
     description: `Created as a boot disk for ${values.name}`,
     size: values.bootDiskSize * GiB,
     diskSource: { type: 'image', imageId: source },
@@ -301,7 +306,7 @@ export function CreateInstanceForm() {
               ? { memory: values.memory, ncpus: values.ncpus }
               : { memory: preset.memory, ncpus: preset.ncpus }
 
-          const bootDisk = getBootDiskAttachment(values)
+          const bootDisk = getBootDiskAttachment(values, allImages)
 
           const userData = values.userData
             ? await readBlobAsBase64(values.userData)
