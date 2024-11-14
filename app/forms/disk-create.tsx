@@ -36,7 +36,6 @@ import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Radio } from '~/ui/lib/Radio'
 import { RadioGroup } from '~/ui/lib/RadioGroup'
 import { Slash } from '~/ui/lib/Slash'
-import { ALL_ISH } from '~/util/consts'
 import { toLocaleDateString } from '~/util/date'
 import { bytesToGiB, GiB } from '~/util/units'
 
@@ -78,12 +77,6 @@ export function CreateDiskSideModalForm({
   const navigate = useNavigate()
 
   const { project } = useProjectSelector()
-  const { data: allDisks } = useApiQuery('diskList', { query: { project, limit: ALL_ISH } })
-  // duplicates in allDisks and unavailableDiskNames is fine; includes() will early return on the first match
-  const allUnavailableDiskNames = [
-    ...(allDisks?.items.map((d) => d.name) || []),
-    ...unavailableDiskNames,
-  ]
 
   const createDisk = useApiMutation('diskCreate', {
     onSuccess(data) {
@@ -146,7 +139,7 @@ export function CreateDiskSideModalForm({
         name="name"
         control={form.control}
         validate={(name: string) => {
-          if (allUnavailableDiskNames.includes(name)) {
+          if (unavailableDiskNames.includes(name)) {
             return 'Name is already in use'
           }
         }}

@@ -583,10 +583,13 @@ export function CreateInstanceForm() {
         <DisksTableField
           control={control}
           disabled={isSubmitting}
-          // Don't allow the user to create a new disk with a name that matches either the boot disk
-          // or the names of disks that are already committed (will be created and attached) to the instance.
-          // An additional check in DisksTableField ensures that the user can't use the name of an existing disk.
-          unavailableDiskNames={[bootDiskName, ...namesOfDisksToBeCreated]}
+          // Don't allow the user to create a new disk with a name that matches other disk names (either the boot disk,
+          // the names of disks that will be created and attached to this instance, or disks that already exist).
+          unavailableDiskNames={[
+            bootDiskName,
+            ...namesOfDisksToBeCreated,
+            ...existingDiskNames,
+          ]}
         />
         <FormDivider />
         <Form.Heading id="authentication">Authentication</Form.Heading>
