@@ -2160,7 +2160,7 @@ export const LinkConfigCreate = z.preprocess(
   processResponseBody,
   z.object({
     autoneg: SafeBoolean,
-    fec: LinkFec,
+    fec: LinkFec.optional(),
     lldp: LldpLinkConfigCreate,
     mtu: z.number().min(0).max(65535),
     speed: LinkSpeed,
@@ -3226,7 +3226,7 @@ export const SwitchPortLinkConfig = z.preprocess(
   processResponseBody,
   z.object({
     autoneg: SafeBoolean,
-    fec: LinkFec,
+    fec: LinkFec.optional(),
     linkName: z.string(),
     lldpLinkConfigId: z.string().uuid().optional(),
     mtu: z.number().min(0).max(65535),
@@ -5786,6 +5786,25 @@ export const SiloQuotasUpdateParams = z.preprocess(
   })
 )
 
+export const SystemTimeseriesQueryParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const SystemTimeseriesSchemaListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+    }),
+  })
+)
+
 export const SiloUserListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -5852,25 +5871,6 @@ export const SiloUtilizationViewParams = z.preprocess(
       silo: NameOrId,
     }),
     query: z.object({}),
-  })
-)
-
-export const TimeseriesQueryParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({}),
-  })
-)
-
-export const TimeseriesSchemaListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
-    }),
   })
 )
 

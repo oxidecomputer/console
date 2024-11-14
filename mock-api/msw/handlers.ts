@@ -1587,8 +1587,8 @@ export const handlers = makeHandlers({
   switchView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
   systemQuotasList: NotImplemented,
-  timeseriesQuery: NotImplemented,
-  timeseriesSchemaList: NotImplemented,
+  systemTimeseriesQuery: NotImplemented,
+  systemTimeseriesSchemaList: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
 })
