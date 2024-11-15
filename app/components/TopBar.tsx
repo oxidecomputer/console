@@ -22,6 +22,7 @@ import { intersperse } from '~/util/array'
 import { pb } from '~/util/path-builder'
 
 export function TopBar({ level }: { level: 'system' | 'silo' }) {
+  const { isFleetViewer } = useCurrentUser()
   // The height of this component is governed by the `PageContainer`
   // It's important that this component returns two distinct elements (wrapped in a fragment).
   // Each element will occupy one of the top column slots provided by `PageContainer`.
@@ -36,7 +37,7 @@ export function TopBar({ level }: { level: 'system' | 'silo' }) {
           <Breadcrumbs />
         </div>
         <div className="flex items-center gap-2">
-          <SiloSystemPicker level={level} />
+          {isFleetViewer && <SiloSystemPicker level={level} />}
           <UserMenu />
         </div>
       </div>

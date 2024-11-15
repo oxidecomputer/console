@@ -14,7 +14,6 @@ import {
   Success12Icon,
 } from '@oxide/design-system/icons/react'
 
-import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 import { pb } from '~/util/path-builder'
 
@@ -24,19 +23,6 @@ import { pb } from '~/util/path-builder'
  * current silo.
  */
 export function SiloSystemPicker({ level }: { level: 'silo' | 'system' }) {
-  const { isFleetViewer } = useCurrentUser()
-
-  // if the user can't see the picker, show a placeholder control with their
-  // silo name that links to root/home
-  if (!isFleetViewer) {
-    // TODO: is this supposed to be a link button? feels weird if not
-    return (
-      <div className="flex items-center rounded border p-1.5 text-quaternary border-secondary">
-        <Organization16Icon />
-      </div>
-    )
-  }
-
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger
