@@ -9,9 +9,14 @@ import cn from 'classnames'
 import { Link } from 'react-router-dom'
 
 import { navToLogin, useApiMutation } from '@oxide/api'
-import { Profile16Icon, Servers16Icon } from '@oxide/design-system/icons/react'
+import {
+  Organization16Icon,
+  Profile16Icon,
+  SelectArrows6Icon,
+  Servers16Icon,
+  Success12Icon,
+} from '@oxide/design-system/icons/react'
 
-import { SiloSystemPicker } from '~/components/SystemSiloPicker'
 import { useCrumbs } from '~/hooks/use-crumbs'
 import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
 import { buttonStyle } from '~/ui/lib/Button'
@@ -144,5 +149,50 @@ function UserMenu() {
         <DropdownMenu.Item onSelect={() => logout.mutate({})}>Sign out</DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu.Root>
+  )
+}
+
+/**
+ * Choose between System and Silo-scoped route trees, or if the user doesn't
+ * have access to system routes (i.e., if systemPolicyView 403s) show the
+ * current silo.
+ */
+function SiloSystemPicker({ level }: { level: 'silo' | 'system' }) {
+  return (
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger
+        className="flex items-center rounded border px-2 py-1.5 text-sans-md text-secondary border-secondary hover:bg-hover"
+        aria-label="Switch between system and silo"
+      >
+        <div className="flex items-center text-quaternary">
+          {level === 'system' ? <Servers16Icon /> : <Organization16Icon />}
+        </div>
+        <div className="ml-1.5 mr-3">{level === 'system' ? 'System' : 'Silo'}</div>
+        {/* aria-hidden is a tip from the Reach docs */}
+        <SelectArrows6Icon className="text-quinary" aria-hidden />
+      </DropdownMenu.Trigger>
+      {/* TODO: popover position should be further right */}
+      <DropdownMenu.Content
+        className="mt-2 max-h-80 min-w-[12.8125rem] overflow-y-auto"
+        anchor="bottom start"
+      >
+        <SystemSiloItem to={pb.silos()} label="System" isSelected={level === 'system'} />
+        <SystemSiloItem to={pb.projects()} label="Silo" isSelected={level === 'silo'} />
+      </DropdownMenu.Content>
+    </DropdownMenu.Root>
+  )
+}
+
+function SystemSiloItem(props: { label: string; to: string; isSelected: boolean }) {
+  return (
+    <DropdownMenu.LinkItem
+      to={props.to}
+      className={cn({ 'is-selected': props.isSelected })}
+    >
+      <div className="flex w-full items-center gap-2">
+        <div className="flex-grow">{props.label}</div>
+        {props.isSelected && <Success12Icon className="-mr-3 block" />}
+      </div>
+    </DropdownMenu.LinkItem>
   )
 }
