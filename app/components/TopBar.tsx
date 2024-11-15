@@ -27,7 +27,7 @@ export function TopBar({ level }: { level: 'system' | 'silo' }) {
   // Each element will occupy one of the top column slots provided by `PageContainer`.
   return (
     <>
-      <div className="flex items-center border-b border-r px-3 border-secondary">
+      <div className="flex items-center border-b border-r px-2 border-secondary">
         <HomeButton level={level} />
       </div>
       {/* Height is governed by PageContainer grid */}
@@ -53,6 +53,12 @@ const BigIdenticon = ({ name }: { name: string }) => (
   />
 )
 
+const SystemIcon = () => (
+  <div className={cn(bigIconBox, 'text-quinary bg-tertiary')}>
+    <Servers16Icon />
+  </div>
+)
+
 function HomeButton({ level }: { level: 'system' | 'silo' }) {
   const { me } = useCurrentUser()
 
@@ -66,22 +72,18 @@ function HomeButton({ level }: { level: 'system' | 'silo' }) {
         }
       : {
           to: pb.silos(),
-          icon: (
-            <div className={cn(bigIconBox, 'text-quinary bg-tertiary')}>
-              <Servers16Icon />
-            </div>
-          ),
+          icon: <SystemIcon />,
           heading: 'Oxide',
           label: 'System',
         }
 
   return (
-    <Link to={config.to} className="-m-1 grow rounded-lg p-1 hover:bg-hover">
-      <div className="flex min-w-[120px] max-w-[185px] items-center pr-2">
-        <div className="mr-2 flex items-center">{config.icon}</div>
-        <div className="overflow-hidden">
+    <Link to={config.to} className="w-full grow rounded-lg p-1 hover:bg-hover">
+      <div className="flex w-full items-center">
+        <div className="mr-2">{config.icon}</div>
+        <div className="min-w-0 flex-1">
           <div className="text-mono-xs text-quaternary">{config.heading}</div>
-          <div className="w-full overflow-hidden text-ellipsis whitespace-nowrap text-sans-md text-secondary">
+          <div className="overflow-hidden text-ellipsis whitespace-nowrap text-sans-md text-secondary">
             {config.label}
           </div>
         </div>
