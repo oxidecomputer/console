@@ -42,7 +42,7 @@ export function SettingsLayout() {
 
   return (
     <PageContainer>
-      <TopBar level="silo" />
+      <TopBar systemOrSilo="silo" />
       <Sidebar>
         <Sidebar.Nav>
           <NavLinkItem to={pb.projects()}>

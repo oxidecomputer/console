@@ -87,7 +87,7 @@ export function Component() {
 
   return (
     <PageContainer>
-      <TopBar level="system" />
+      <TopBar systemOrSilo="system" />
       <Sidebar>
         <Sidebar.Nav>
           <DocsLinkItem />

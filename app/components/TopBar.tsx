@@ -26,7 +26,7 @@ import { Slash } from '~/ui/lib/Slash'
 import { intersperse } from '~/util/array'
 import { pb } from '~/util/path-builder'
 
-export function TopBar({ level }: { level: 'system' | 'silo' }) {
+export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
   const { isFleetViewer } = useCurrentUser()
   // The height of this component is governed by the `PageContainer`
   // It's important that this component returns two distinct elements (wrapped in a fragment).
@@ -34,7 +34,7 @@ export function TopBar({ level }: { level: 'system' | 'silo' }) {
   return (
     <>
       <div className="flex items-center border-b border-r px-2 border-secondary">
-        <HomeButton level={level} />
+        <HomeButton level={systemOrSilo} />
       </div>
       {/* Height is governed by PageContainer grid */}
       <div className="flex items-center justify-between gap-4 border-b px-3 bg-default border-secondary">
@@ -42,7 +42,7 @@ export function TopBar({ level }: { level: 'system' | 'silo' }) {
           <Breadcrumbs />
         </div>
         <div className="flex items-center gap-2">
-          {isFleetViewer && <SiloSystemPicker level={level} />}
+          {isFleetViewer && <SiloSystemPicker level={systemOrSilo} />}
           <UserMenu />
         </div>
       </div>
