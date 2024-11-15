@@ -23,7 +23,7 @@ import { pb } from '~/util/path-builder'
  * have access to system routes (i.e., if systemPolicyView 403s) show the
  * current silo.
  */
-export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
+export function SiloSystemPicker({ level }: { level: 'silo' | 'system' }) {
   const { isFleetViewer } = useCurrentUser()
 
   // if the user can't see the picker, show a placeholder control with their
@@ -40,13 +40,13 @@ export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger
-        className="flex items-center rounded border py-1.5 pl-1.5 pr-2 text-sans-md text-tertiary border-secondary hover:bg-hover"
+        className="flex items-center rounded border px-2 py-1.5 text-sans-md text-secondary border-secondary hover:bg-hover"
         aria-label="Switch between system and silo"
       >
         <div className="flex items-center text-quaternary">
-          {value === 'system' ? <Servers16Icon /> : <Organization16Icon />}
+          {level === 'system' ? <Servers16Icon /> : <Organization16Icon />}
         </div>
-        <div className="ml-1.5 mr-3">{value === 'system' ? 'System' : 'Silo'}</div>
+        <div className="ml-1.5 mr-3">{level === 'system' ? 'System' : 'Silo'}</div>
         {/* aria-hidden is a tip from the Reach docs */}
         <SelectArrows6Icon className="text-quinary" aria-hidden />
       </DropdownMenu.Trigger>
@@ -55,8 +55,8 @@ export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
         className="mt-2 max-h-80 min-w-[12.8125rem] overflow-y-auto"
         anchor="bottom start"
       >
-        <Item to={pb.silos()} label="System" isSelected={value === 'system'} />
-        <Item to={pb.projects()} label="Silo" isSelected={value === 'silo'} />
+        <Item to={pb.silos()} label="System" isSelected={level === 'system'} />
+        <Item to={pb.projects()} label="Silo" isSelected={level === 'silo'} />
       </DropdownMenu.Content>
     </DropdownMenu.Root>
   )

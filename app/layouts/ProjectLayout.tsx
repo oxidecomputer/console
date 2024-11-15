@@ -75,7 +75,7 @@ export function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
 
   return (
     <PageContainer>
-      <TopBar systemOrSilo="silo" />
+      <TopBar level="silo" />
       <Sidebar>
         <Sidebar.Nav>
           <NavLinkItem to={pb.projects()} end>

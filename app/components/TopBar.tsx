@@ -9,7 +9,7 @@ import cn from 'classnames'
 import { Link } from 'react-router-dom'
 
 import { navToLogin, useApiMutation } from '@oxide/api'
-import { DirectionDownIcon, Profile16Icon } from '@oxide/design-system/icons/react'
+import { Profile16Icon, Servers16Icon } from '@oxide/design-system/icons/react'
 
 import { SiloSystemPicker } from '~/components/SystemSiloPicker'
 import { useCrumbs } from '~/hooks/use-crumbs'
@@ -21,22 +21,22 @@ import { Slash } from '~/ui/lib/Slash'
 import { intersperse } from '~/util/array'
 import { pb } from '~/util/path-builder'
 
-export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
+export function TopBar({ level }: { level: 'system' | 'silo' }) {
   // The height of this component is governed by the `PageContainer`
   // It's important that this component returns two distinct elements (wrapped in a fragment).
   // Each element will occupy one of the top column slots provided by `PageContainer`.
   return (
     <>
       <div className="flex items-center border-b border-r px-3 border-secondary">
-        <HomeButton />
+        <HomeButton level={level} />
       </div>
       {/* Height is governed by PageContainer grid */}
       <div className="flex items-center justify-between gap-4 border-b px-3 bg-default border-secondary">
         <div className="flex flex-1 gap-2.5">
-          <SiloSystemPicker value={systemOrSilo} />
           <Breadcrumbs />
         </div>
         <div className="flex items-center gap-2">
+          <SiloSystemPicker level={level} />
           <UserMenu />
         </div>
       </div>
@@ -44,25 +44,45 @@ export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
   )
 }
 
+const bigIconBox = 'flex h-[34px] w-[34px] items-center justify-center rounded'
+
 const BigIdenticon = ({ name }: { name: string }) => (
   <Identicon
-    className="flex h-[34px] w-[34px] items-center justify-center rounded text-accent bg-accent-secondary-hover"
+    className={cn(bigIconBox, 'text-accent bg-accent-secondary-hover')}
     name={name}
   />
 )
 
-function HomeButton() {
+function HomeButton({ level }: { level: 'system' | 'silo' }) {
   const { me } = useCurrentUser()
+
+  const config =
+    level === 'silo'
+      ? {
+          to: pb.projects(),
+          icon: <BigIdenticon name={me.siloName} />,
+          heading: 'Silo',
+          label: me.siloName,
+        }
+      : {
+          to: pb.silos(),
+          icon: (
+            <div className={cn(bigIconBox, 'text-quinary bg-tertiary')}>
+              <Servers16Icon />
+            </div>
+          ),
+          heading: 'Oxide',
+          label: 'System',
+        }
+
   return (
-    <Link to={pb.projects()} className="-m-1 grow rounded-lg p-1 hover:bg-hover">
+    <Link to={config.to} className="-m-1 grow rounded-lg p-1 hover:bg-hover">
       <div className="flex min-w-[120px] max-w-[185px] items-center pr-2">
-        <div className="mr-2 flex items-center">
-          <BigIdenticon name={me.siloName} />
-        </div>
+        <div className="mr-2 flex items-center">{config.icon}</div>
         <div className="overflow-hidden">
-          <div className="text-mono-xs text-quaternary">Silo</div>
+          <div className="text-mono-xs text-quaternary">{config.heading}</div>
           <div className="w-full overflow-hidden text-ellipsis whitespace-nowrap text-sans-md text-secondary">
-            {me.siloName}
+            {config.label}
           </div>
         </div>
       </div>
@@ -72,7 +92,6 @@ function HomeButton() {
 
 function Breadcrumbs() {
   const crumbs = useCrumbs().filter((c) => !c.titleOnly)
-  const isTopLevel = crumbs.length <= 1
   return (
     <nav
       className="flex items-center gap-0.5 overflow-clip text-sans-md"
@@ -84,8 +103,7 @@ function Breadcrumbs() {
             to={path}
             className={cn(
               'whitespace-nowrap text-sans-md hover:text-secondary',
-              // make the last breadcrumb brighter, but only if we're below the top level
-              !isTopLevel && i === crumbs.length - 1 ? 'text-secondary' : 'text-tertiary'
+              i === crumbs.length - 1 ? 'text-secondary' : 'text-tertiary'
             )}
             key={`${label}|${path}`}
           >
@@ -108,8 +126,8 @@ function UserMenu() {
     <DropdownMenu.Root>
       <DropdownMenu.Trigger
         className={cn(
-          buttonStyle({ size: 'sm', variant: 'secondary' }),
-          'flex items-center gap-2'
+          buttonStyle({ size: 'sm', variant: 'ghost' }),
+          'flex items-center gap-1.5 !px-2 !border-secondary'
         )}
         aria-label="User menu"
       >
@@ -117,7 +135,6 @@ function UserMenu() {
         <span className="normal-case text-sans-md text-secondary">
           {me.displayName || 'User'}
         </span>
-        <DirectionDownIcon className="!w-2.5" />
       </DropdownMenu.Trigger>
       <DropdownMenu.Content gap={8}>
         <DropdownMenu.LinkItem to={pb.profile()}>Settings</DropdownMenu.LinkItem>
