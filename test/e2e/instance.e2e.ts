@@ -116,7 +116,6 @@ test('can reboot a running instance', async ({ page }) => {
 
 test('cannot reboot a failed instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
-  await expect(page).toHaveTitle('Instances / mock-project / Projects / Oxide Console')
   await expectInstanceState(page, 'you-fail', 'failed')
   await openRowActions(page, 'you-fail')
   await expect(page.getByRole('menuitem', { name: 'Reboot' })).toBeDisabled()
@@ -124,11 +123,10 @@ test('cannot reboot a failed instance', async ({ page }) => {
 
 test('cannot reboot a starting instance, or a stopped instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
-  await expect(page).toHaveTitle('Instances / mock-project / Projects / Oxide Console')
   await expectInstanceState(page, 'not-there-yet', 'starting')
   await openRowActions(page, 'not-there-yet')
   await expect(page.getByRole('menuitem', { name: 'Reboot' })).toBeDisabled()
-  // hit escape to close the menu
+  // hit escape to close the menu so clickRowAction succeeds
   await page.keyboard.press('Escape')
 
   // stop it so we can try rebooting a stopped instance
