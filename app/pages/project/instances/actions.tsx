@@ -41,7 +41,7 @@ export const useMakeInstanceActions = (
   const opts = { onSuccess: options.onSuccess }
   const { mutateAsync: startInstanceAsync } = useApiMutation('instanceStart', opts)
   const { mutateAsync: stopInstanceAsync } = useApiMutation('instanceStop', opts)
-  const { mutate: rebootInstance } = useApiMutation('instanceReboot', opts)
+  const { mutateAsync: rebootInstanceAsync } = useApiMutation('instanceReboot', opts)
   // delete has its own
   const { mutateAsync: deleteInstanceAsync } = useApiMutation('instanceDelete', {
     onSuccess: options.onDelete,
@@ -122,15 +122,27 @@ export const useMakeInstanceActions = (
         {
           label: 'Reboot',
           onActivate() {
-            rebootInstance(instanceParams, {
-              onSuccess: () =>
-                addToast(<>Rebooting instance <HL>{instance.name}</HL></>), // prettier-ignore
-              onError: (error) =>
-                addToast({
-                  variant: 'error',
-                  title: `Error rebooting instance '${instance.name}'`,
-                  content: error.message,
+            confirmAction({
+              actionType: 'danger',
+              doAction: () =>
+                rebootInstanceAsync(instanceParams, {
+                  onSuccess: () =>
+                    addToast(<>Rebooting instance <HL>{instance.name}</HL></>), // prettier-ignore
                 }),
+              modalTitle: 'Confirm reboot instance',
+              modalContent: (
+                <div className="space-y-2">
+                  <p>
+                    Are you sure you want to reboot <HL>{instance.name}</HL>?
+                  </p>
+                  <p>
+                    Rebooted instances are reset to their cold-boot state and then
+                    restarted. They retain attached disks and IP addresses; allocated CPU
+                    and memory are freed.
+                  </p>
+                </div>
+              ),
+              errorTitle: `Error rebooting ${instance.name}`,
             })
           },
           disabled: !instanceCan.reboot(instance) && (
@@ -162,7 +174,7 @@ export const useMakeInstanceActions = (
         },
       ]
     },
-    [project, deleteInstanceAsync, navigate, rebootInstance]
+    [project, deleteInstanceAsync, navigate, rebootInstanceAsync]
   )
 
   return { makeButtonActions, makeMenuActions }
