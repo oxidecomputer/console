@@ -171,11 +171,7 @@ function SiloSystemPicker({ level }: { level: 'silo' | 'system' }) {
         {/* aria-hidden is a tip from the Reach docs */}
         <SelectArrows6Icon className="text-quinary" aria-hidden />
       </DropdownMenu.Trigger>
-      {/* TODO: popover position should be further right */}
-      <DropdownMenu.Content
-        className="mt-2 max-h-80 min-w-[12.8125rem] overflow-y-auto"
-        anchor="bottom start"
-      >
+      <DropdownMenu.Content className="mt-2 max-h-80 overflow-y-auto" anchor="bottom start">
         <SystemSiloItem to={pb.silos()} label="System" isSelected={level === 'system'} />
         <SystemSiloItem to={pb.projects()} label="Silo" isSelected={level === 'silo'} />
       </DropdownMenu.Content>
@@ -187,11 +183,11 @@ function SystemSiloItem(props: { label: string; to: string; isSelected: boolean 
   return (
     <DropdownMenu.LinkItem
       to={props.to}
-      className={cn({ 'is-selected': props.isSelected })}
+      className={cn('!pr-3', { 'is-selected': props.isSelected })}
     >
       <div className="flex w-full items-center gap-2">
         <div className="flex-grow">{props.label}</div>
-        {props.isSelected && <Success12Icon className="-mr-3 block" />}
+        {props.isSelected && <Success12Icon className="block" />}
       </div>
     </DropdownMenu.LinkItem>
   )
