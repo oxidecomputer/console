@@ -11,8 +11,8 @@ import { NavigationType, useNavigationType } from 'react-router-dom'
 
 import type { ApiError } from '@oxide/api'
 
-import { NavGuardModal } from '~/components/form/NavGuardModal'
 import { Button } from '~/ui/lib/Button'
+import { Modal } from '~/ui/lib/Modal'
 import { SideModal } from '~/ui/lib/SideModal'
 
 type CreateFormProps = {
@@ -144,8 +144,20 @@ export function SideModalForm<TFieldValues extends FieldValues>({
           </Button>
         )}
       </SideModal.Footer>
+
       {showNavGuard && (
-        <NavGuardModal onDismiss={() => setShowNavGuard(false)} onAction={onDismiss} />
+        <Modal isOpen onDismiss={() => setShowNavGuard(false)} title="Confirm navigation">
+          <Modal.Section>
+            Are you sure you want to leave this form? Your progress will be lost.
+          </Modal.Section>
+          <Modal.Footer
+            onAction={onDismiss}
+            onDismiss={() => setShowNavGuard(false)}
+            cancelText="Keep editing"
+            actionText="Leave form"
+            actionType="danger"
+          />
+        </Modal>
       )}
     </SideModal>
   )
