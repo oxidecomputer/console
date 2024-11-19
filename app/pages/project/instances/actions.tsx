@@ -131,16 +131,9 @@ export const useMakeInstanceActions = (
                 }),
               modalTitle: 'Confirm reboot instance',
               modalContent: (
-                <div className="space-y-2">
-                  <p>
-                    Are you sure you want to reboot <HL>{instance.name}</HL>?
-                  </p>
-                  <p>
-                    Rebooted instances are reset to their cold-boot state and then
-                    restarted. They retain attached disks and IP addresses; allocated CPU
-                    and memory are freed.
-                  </p>
-                </div>
+                <p>
+                  Are you sure you want to reboot <HL>{instance.name}</HL>?
+                </p>
               ),
               errorTitle: `Error rebooting ${instance.name}`,
             })
