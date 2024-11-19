@@ -118,6 +118,7 @@ module.exports = {
           'warn',
           { assertFunctionNames: ['expectVisible', 'expectRowVisible', 'expectOptions'] },
         ],
+        'playwright/no-force-option': 'off',
       },
     },
   ],

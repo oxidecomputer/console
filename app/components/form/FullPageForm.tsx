@@ -101,7 +101,7 @@ export function FullPageForm<TFieldValues extends FieldValues>({
       </form>
 
       {/* rendering of the modal must be gated on isSubmitSuccessful because
-          there is a brief moment where isSubmitSuccessful is true but the proceed() 
+          there is a brief moment where isSubmitSuccessful is true but the proceed()
           hasn't fired yet, which means we get a brief flash of this modal */}
       {!isSubmitSuccessful && <ConfirmNavigation blocker={blocker} />}
 
@@ -126,10 +126,12 @@ const ConfirmNavigation = ({ blocker }: { blocker: Blocker }) => (
     isOpen={blocker.state === 'blocked'}
     onDismiss={() => blocker.reset?.()}
     title="Confirm navigation"
+    narrow
   >
     <Modal.Section>
-      Are you sure you want to leave this page? <br /> You will lose all progress on this
-      form.
+      Are you sure you want to leave this page?
+      <br />
+      All progress will be lost.
     </Modal.Section>
     <Modal.Footer
       onDismiss={() => blocker.reset?.()}
