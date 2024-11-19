@@ -19,18 +19,28 @@ import { DialogOverlay } from './DialogOverlay'
 import { ModalContext } from './modal-context'
 
 export type ModalProps = {
-  title?: string
+  title: string
   isOpen: boolean
   children?: React.ReactNode
   onDismiss: () => void
-  narrow?: boolean
+  /** Default false. Only needed in a couple of spots. */
+  narrow?: true
+  /** Default true. We only need to hide it for the rare case of modal on top of modal. */
+  overlay?: boolean
 }
 
 // Note that the overlay has z-index 30 and content has 40. This is to make sure
 // both land on top of a side modal in the regrettable case where we have both
 // on screen at once.
 
-export function Modal({ children, onDismiss, title, isOpen, narrow }: ModalProps) {
+export function Modal({
+  children,
+  onDismiss,
+  title,
+  isOpen,
+  narrow,
+  overlay = true,
+}: ModalProps) {
   const titleId = useId()
   const AnimatedDialogContent = animated(Dialog.Content)
 
@@ -56,7 +66,8 @@ export function Modal({ children, onDismiss, title, isOpen, narrow }: ModalProps
               modal={false}
             >
               <Dialog.Portal>
-                <DialogOverlay />
+                {overlay && <DialogOverlay />}
+
                 <AnimatedDialogContent
                   className={cn(
                     'pointer-events-auto fixed left-1/2 top-1/2 z-modal m-0 flex max-h-[min(800px,80vh)] w-auto min-w-[24rem] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2',
@@ -73,11 +84,9 @@ export function Modal({ children, onDismiss, title, isOpen, narrow }: ModalProps
                   // https://github.com/oxidecomputer/console/issues/1745
                   onFocusOutside={(e) => e.preventDefault()}
                 >
-                  {title && (
-                    <Dialog.Title asChild>
-                      <ModalTitle id={titleId}>{title}</ModalTitle>
-                    </Dialog.Title>
-                  )}
+                  <Dialog.Title asChild>
+                    <ModalTitle id={titleId}>{title}</ModalTitle>
+                  </Dialog.Title>
                   {children}
                   <Dialog.Close
                     className="absolute right-2 top-3 flex rounded p-2 hover:bg-hover"
