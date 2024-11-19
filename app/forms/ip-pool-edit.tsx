@@ -25,13 +25,14 @@ import { pb } from '~/util/path-builder'
 
 import { IpPoolVisibilityMessage } from './ip-pool-create'
 
-EditIpPoolSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function loader({ params }: LoaderFunctionArgs) {
   const { pool } = getIpPoolSelector(params)
   await apiQueryClient.prefetchQuery('ipPoolView', { path: { pool } })
   return null
 }
 
-export function EditIpPoolSideModalForm() {
+Component.displayName = 'EditIpPoolSideModalForm'
+export function Component() {
   const queryClient = useApiQueryClient()
   const navigate = useNavigate()
   const poolSelector = useIpPoolSelector()

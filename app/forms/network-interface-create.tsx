@@ -42,7 +42,7 @@ type CreateNetworkInterfaceFormProps = {
 export function CreateNetworkInterfaceForm({
   onSubmit,
   onDismiss,
-  loading,
+  loading = false,
   submitError = null,
 }: CreateNetworkInterfaceFormProps) {
   const projectSelector = useProjectSelector()

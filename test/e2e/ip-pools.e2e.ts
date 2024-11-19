@@ -13,7 +13,7 @@ import { clickRowAction, expectRowVisible, expectToast } from './utils'
 test('IP pool list', async ({ page }) => {
   await page.goto('/system/networking/ip-pools')
 
-  await expect(page).toHaveTitle('IP pools / Oxide Console')
+  await expect(page).toHaveTitle('IP Pools / Oxide Console')
 
   await expect(page.getByRole('heading', { name: 'IP Pools' })).toBeVisible()
 
@@ -55,7 +55,7 @@ test('IP pool silo list', async ({ page }) => {
   await page.goto('/system/networking/ip-pools')
 
   await page.getByRole('link', { name: 'ip-pool-1' }).click()
-  await expect(page).toHaveTitle('ip-pool-1 / IP pools / Oxide Console')
+  await expect(page).toHaveTitle('ip-pool-1 / IP Pools / Oxide Console')
 
   await page.getByRole('tab', { name: 'Linked silos' }).click()
   // this is here because waiting for the `tab` query param to show up avoids
@@ -251,7 +251,9 @@ test('IP range validation and add', async ({ page }) => {
   await expect(page.getByText('Capacity32')).toBeVisible()
 
   // go back to the pool and verify the utilization column changed
-  await page.getByRole('link', { name: 'IP Pools' }).click()
+  // use the sidebar nav to get there
+  const sidebar = page.getByRole('navigation', { name: 'Sidebar navigation' })
+  await sidebar.getByRole('link', { name: 'IP Pools' }).click()
   await expectRowVisible(table, {
     name: 'ip-pool-2',
     Utilization: 'v4' + '0 / 1' + 'v6' + '0 / 32',
@@ -285,7 +287,9 @@ test('remove range', async ({ page }) => {
   await expect(page.getByText('Capacity21')).toBeVisible()
 
   // go back to the pool and verify the utilization column changed
-  await page.getByRole('link', { name: 'IP Pools' }).click()
+  // use the topbar breadcrumb to get there
+  const breadcrumbs = page.getByRole('navigation', { name: 'Breadcrumbs' })
+  await breadcrumbs.getByRole('link', { name: 'IP Pools' }).click()
   await expectRowVisible(table, {
     name: 'ip-pool-1',
     Utilization: '6 / 21',

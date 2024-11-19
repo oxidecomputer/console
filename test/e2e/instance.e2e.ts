@@ -5,7 +5,14 @@
  *
  * Copyright Oxide Computer Company
  */
-import { clickRowAction, expect, expectRowVisible, test, type Page } from './utils'
+import {
+  clickRowAction,
+  expect,
+  expectRowVisible,
+  openRowActions,
+  test,
+  type Page,
+} from './utils'
 
 const expectInstanceState = async (page: Page, instance: string, state: string) => {
   await expectRowVisible(page.getByRole('table'), {
@@ -17,7 +24,7 @@ const expectInstanceState = async (page: Page, instance: string, state: string) 
 test('can delete a failed instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
 
-  await expect(page).toHaveTitle('Instances / mock-project / Oxide Console')
+  await expect(page).toHaveTitle('Instances / mock-project / Projects / Oxide Console')
 
   const cell = page.getByRole('cell', { name: 'you-fail' })
   await expect(cell).toBeVisible() // just to match hidden check at the end
@@ -33,10 +40,7 @@ test('can start a failed instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
 
   // check the start button disabled message on a running instance
-  await page
-    .getByRole('row', { name: 'db1', exact: false })
-    .getByRole('button', { name: 'Row actions' })
-    .click()
+  await openRowActions(page, 'db1')
   await page.getByRole('menuitem', { name: 'Start' }).hover()
   await expect(
     page.getByText('Only stopped or failed instances can be started')
@@ -52,7 +56,7 @@ test('can start a failed instance', async ({ page }) => {
 
 test('can stop a failed instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
-  await expect(page).toHaveTitle('Instances / mock-project / Oxide Console')
+  await expect(page).toHaveTitle('Instances / mock-project / Projects / Oxide Console')
   await expectInstanceState(page, 'you-fail', 'failed')
   await clickRowAction(page, 'you-fail', 'Stop')
   await page.getByRole('button', { name: 'Confirm' }).click()
@@ -85,7 +89,7 @@ test('can stop and delete a running instance', async ({ page }) => {
 
 test('can stop a starting instance, then start it again', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
-  await expect(page).toHaveTitle('Instances / mock-project / Oxide Console')
+  await expect(page).toHaveTitle('Instances / mock-project / Projects / Oxide Console')
 
   await expectInstanceState(page, 'not-there-yet', 'starting')
   await clickRowAction(page, 'not-there-yet', 'Stop')
@@ -97,6 +101,42 @@ test('can stop a starting instance, then start it again', async ({ page }) => {
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expectInstanceState(page, 'not-there-yet', 'starting')
   await expectInstanceState(page, 'not-there-yet', 'running')
+})
+
+test('can reboot a running instance', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances')
+  await expect(page).toHaveTitle('Instances / mock-project / Projects / Oxide Console')
+
+  await expectInstanceState(page, 'db1', 'running')
+  await clickRowAction(page, 'db1', 'Reboot')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expectInstanceState(page, 'db1', 'rebooting')
+  await expectInstanceState(page, 'db1', 'running')
+})
+
+test('cannot reboot a failed instance', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances')
+  await expectInstanceState(page, 'you-fail', 'failed')
+  await openRowActions(page, 'you-fail')
+  await expect(page.getByRole('menuitem', { name: 'Reboot' })).toBeDisabled()
+})
+
+test('cannot reboot a starting instance, or a stopped instance', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances')
+  await expectInstanceState(page, 'not-there-yet', 'starting')
+  await openRowActions(page, 'not-there-yet')
+  await expect(page.getByRole('menuitem', { name: 'Reboot' })).toBeDisabled()
+  // hit escape to close the menu so clickRowAction succeeds
+  await page.keyboard.press('Escape')
+
+  // stop it so we can try rebooting a stopped instance
+  await clickRowAction(page, 'not-there-yet', 'Stop')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expectInstanceState(page, 'not-there-yet', 'stopping')
+  await expectInstanceState(page, 'not-there-yet', 'stopped')
+  // reboot is still disabled for a stopped instance
+  await openRowActions(page, 'not-there-yet')
+  await expect(page.getByRole('menuitem', { name: 'Reboot' })).toBeDisabled()
 })
 
 test('delete from instance detail', async ({ page }) => {

@@ -17,7 +17,7 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { pb } from '~/util/path-builder'
 
-SledPage.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function loader({ params }: LoaderFunctionArgs) {
   const { sledId } = requireSledParams(params)
   await apiQueryClient.prefetchQuery('sledView', {
     path: { sledId },
@@ -25,7 +25,8 @@ SledPage.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-export function SledPage() {
+Component.displayName = 'SledPage'
+export function Component() {
   const { sledId } = useSledParams()
   const { data: sled } = usePrefetchedApiQuery('sledView', { path: { sledId } })
 

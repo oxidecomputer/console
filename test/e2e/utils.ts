@@ -145,12 +145,16 @@ export async function closeToast(page: Page) {
 export const clipboardText = async (page: Page) =>
   page.evaluate(() => navigator.clipboard.readText())
 
-/** Select row by `rowText`, click the row actions button, and click `actionName` */
-export async function clickRowAction(page: Page, rowText: string, actionName: string) {
+export const openRowActions = async (page: Page, name: string) => {
   await page
-    .getByRole('row', { name: rowText, exact: false })
+    .getByRole('row', { name, exact: false })
     .getByRole('button', { name: 'Row actions' })
     .click()
+}
+
+/** Select row by `rowName`, click the row actions button, and click `actionName` */
+export async function clickRowAction(page: Page, rowName: string, actionName: string) {
+  await openRowActions(page, rowName)
   await page.getByRole('menuitem', { name: actionName }).click()
 }
 

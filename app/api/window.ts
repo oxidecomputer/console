@@ -43,7 +43,7 @@ if (typeof window !== 'undefined') {
   // @ts-expect-error
   window.oxql = {
     query: async (q: string) => {
-      const result = await api.methods.timeseriesQuery({ body: { query: q } })
+      const result = await api.methods.systemTimeseriesQuery({ body: { query: q } })
       const data = handleResult(result).tables
       logHeading(data.length + ' timeseries returned')
       for (const table of data) {
@@ -60,7 +60,9 @@ if (typeof window !== 'undefined') {
       return data
     },
     schemas: async (search?: string) => {
-      const result = await api.methods.timeseriesSchemaList({ query: { limit: ALL_ISH } })
+      const result = await api.methods.systemTimeseriesSchemaList({
+        query: { limit: ALL_ISH },
+      })
       const data = handleResult(result)
 
       let filtered = data.items

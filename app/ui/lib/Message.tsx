@@ -71,7 +71,7 @@ export const Message = ({
   // TODO: convert content to a children prop
   content,
   className,
-  variant = 'success',
+  variant = 'info',
   cta,
   icon,
 }: MessageProps) => {
