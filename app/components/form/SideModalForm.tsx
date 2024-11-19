@@ -146,9 +146,16 @@ export function SideModalForm<TFieldValues extends FieldValues>({
       </SideModal.Footer>
 
       {showNavGuard && (
-        <Modal isOpen onDismiss={() => setShowNavGuard(false)} title="Confirm navigation">
+        <Modal
+          isOpen
+          onDismiss={() => setShowNavGuard(false)}
+          title="Confirm navigation"
+          narrow
+        >
           <Modal.Section>
-            Are you sure you want to leave this form? Your progress will be lost.
+            Are you sure you want to leave this form?
+            <br />
+            All progress will be lost.
           </Modal.Section>
           <Modal.Footer
             onAction={onDismiss}

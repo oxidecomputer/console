@@ -7,6 +7,7 @@
  */
 import * as Dialog from '@radix-ui/react-dialog'
 import { animated, useTransition } from '@react-spring/web'
+import cn from 'classnames'
 import React, { forwardRef, useId } from 'react'
 
 import { Close12Icon } from '@oxide/design-system/icons/react'
@@ -22,13 +23,14 @@ export type ModalProps = {
   isOpen: boolean
   children?: React.ReactNode
   onDismiss: () => void
+  narrow?: boolean
 }
 
 // Note that the overlay has z-index 30 and content has 40. This is to make sure
 // both land on top of a side modal in the regrettable case where we have both
 // on screen at once.
 
-export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
+export function Modal({ children, onDismiss, title, isOpen, narrow }: ModalProps) {
   const titleId = useId()
   const AnimatedDialogContent = animated(Dialog.Content)
 
@@ -56,7 +58,10 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
               <Dialog.Portal>
                 <DialogOverlay />
                 <AnimatedDialogContent
-                  className="pointer-events-auto fixed left-1/2 top-1/2 z-modal m-0 flex max-h-[min(800px,80vh)] w-auto min-w-[28rem] max-w-[32rem] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2"
+                  className={cn(
+                    'pointer-events-auto fixed left-1/2 top-1/2 z-modal m-0 flex max-h-[min(800px,80vh)] w-auto min-w-[24rem] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2',
+                    narrow ? 'max-w-[24rem]' : 'max-w-[32rem]'
+                  )}
                   aria-labelledby={titleId}
                   style={{
                     transform: y.to((value) => `translate3d(-50%, ${-50 + value}%, 0px)`),
