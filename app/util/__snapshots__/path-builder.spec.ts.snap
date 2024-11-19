@@ -709,6 +709,115 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/vpcs/v/",
     },
   ],
+  "vpcInternetGateway (/projects/p/vpcs/v/internet-gateways/g)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v",
+    },
+    {
+      "label": "Internet Gateways",
+      "path": "/projects/p/vpcs/v/internet-gateways",
+    },
+    {
+      "label": "g",
+      "path": "/projects/p/vpcs/v/internet-gateways/g",
+    },
+  ],
+  "vpcInternetGatewayIpAddresses (/projects/p/vpcs/v/internet-gateways/g/ip-addresses)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v",
+    },
+    {
+      "label": "Internet Gateways",
+      "path": "/projects/p/vpcs/v/internet-gateways",
+    },
+    {
+      "label": "g",
+      "path": "/projects/p/vpcs/v/internet-gateways/g",
+    },
+    {
+      "label": "IP Addresses",
+      "path": "/projects/p/vpcs/v/internet-gateways/g/ip-addresses",
+    },
+  ],
+  "vpcInternetGatewayIpPools (/projects/p/vpcs/v/internet-gateways/g/ip-pools)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v",
+    },
+    {
+      "label": "Internet Gateways",
+      "path": "/projects/p/vpcs/v/internet-gateways",
+    },
+    {
+      "label": "g",
+      "path": "/projects/p/vpcs/v/internet-gateways/g",
+    },
+    {
+      "label": "IP Pools",
+      "path": "/projects/p/vpcs/v/internet-gateways/g/ip-pools",
+    },
+  ],
+  "vpcInternetGateways (/projects/p/vpcs/v/internet-gateways)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v/firewall-rules",
+    },
+    {
+      "label": "Internet gateways",
+      "path": "/projects/p/vpcs/v/internet-gateways",
+    },
+  ],
+  "vpcInternetGatewaysNew (/projects/p/vpcs/v/internet-gateways-new)": [],
   "vpcRouter (/projects/p/vpcs/v/routers/r)": [
     {
       "label": "Projects",

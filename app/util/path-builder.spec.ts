@@ -141,6 +141,7 @@ test('breadcrumbs', () => {
     .map(([key]) => key)
   expect(zeroCrumbKeys).toMatchInlineSnapshot(`
     [
+      "vpcInternetGatewaysNew (/projects/p/vpcs/v/internet-gateways-new)",
       "deviceSuccess (/device/success)",
     ]
   `)
