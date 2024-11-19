@@ -6,30 +6,31 @@
  * Copyright Oxide Computer Company
  */
 
-import { expect, expectVisible, test } from './utils'
+import { expect, expectObscured, test } from './utils'
 
 test('navigating away from SideModal form triggers nav guard', async ({ page }) => {
   const floatingIpsPage = '/projects/mock-project/floating-ips'
-  const floatingIpName = 'my-floating-ip'
   const formModal = page.getByRole('dialog', { name: 'Create floating IP' })
   const confirmModal = page.getByRole('dialog', { name: 'Confirm navigation' })
 
   await page.goto(floatingIpsPage)
-  await page.locator('text="New Floating IP"').click()
 
-  await expectVisible(page, [
-    'role=heading[name*="Create floating IP"]',
-    'role=textbox[name="Name"]',
-    'role=textbox[name="Description"]',
-    'role=button[name="Advanced"]',
-    'role=button[name="Create floating IP"]',
-  ])
+  // we don't have to force click here because it's not covered by the modal overlay yet
+  await expect(formModal).toBeHidden()
+  const somethingOnPage = page.getByRole('heading', { name: 'Floating IPs' })
+  await somethingOnPage.click({ trial: true }) // test that it's not obscured
 
-  await page.fill('input[name=name]', floatingIpName)
+  // now open the modal
+  await page.getByRole('link', { name: 'New Floating IP' }).click()
+  await expectObscured(somethingOnPage) // it's covered by overlay
+  await expect(formModal).toBeVisible()
+  await formModal.getByRole('textbox', { name: 'Name' }).fill('my-floating-ip')
 
   // form is now dirty, so clicking away should trigger the nav guard
-  // force: true allows us to click even though the "Instances" link is inactive
-  await page.getByRole('link', { name: 'Instances' }).click({ force: true })
+  // force: true allows us to click in that spot even though the thing is obscured
+  await expect(confirmModal).toBeHidden()
+  await somethingOnPage.click({ force: true })
+  await expect(formModal).toBeVisible()
   await expect(confirmModal).toBeVisible()
 
   // go back to the form
