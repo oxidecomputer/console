@@ -7,6 +7,7 @@
  */
 import * as Dialog from '@radix-ui/react-dialog'
 import { animated, useTransition } from '@react-spring/web'
+import cn from 'classnames'
 import React, { forwardRef, useId } from 'react'
 
 import { Close12Icon } from '@oxide/design-system/icons/react'
@@ -18,17 +19,28 @@ import { DialogOverlay } from './DialogOverlay'
 import { ModalContext } from './modal-context'
 
 export type ModalProps = {
-  title?: string
+  title: string
   isOpen: boolean
   children?: React.ReactNode
   onDismiss: () => void
+  /** Default false. Only needed in a couple of spots. */
+  narrow?: true
+  /** Default true. We only need to hide it for the rare case of modal on top of modal. */
+  overlay?: boolean
 }
 
 // Note that the overlay has z-index 30 and content has 40. This is to make sure
 // both land on top of a side modal in the regrettable case where we have both
 // on screen at once.
 
-export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
+export function Modal({
+  children,
+  onDismiss,
+  title,
+  isOpen,
+  narrow,
+  overlay = true,
+}: ModalProps) {
   const titleId = useId()
   const AnimatedDialogContent = animated(Dialog.Content)
 
@@ -54,9 +66,13 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
               modal={false}
             >
               <Dialog.Portal>
-                <DialogOverlay />
+                {overlay && <DialogOverlay />}
+
                 <AnimatedDialogContent
-                  className="pointer-events-auto fixed left-1/2 top-1/2 z-modal m-0 flex max-h-[min(800px,80vh)] w-auto min-w-[28rem] max-w-[32rem] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2"
+                  className={cn(
+                    'pointer-events-auto fixed left-1/2 top-1/2 z-modal m-0 flex max-h-[min(800px,80vh)] w-auto min-w-[24rem] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2',
+                    narrow ? 'max-w-[24rem]' : 'max-w-[32rem]'
+                  )}
                   aria-labelledby={titleId}
                   style={{
                     transform: y.to((value) => `translate3d(-50%, ${-50 + value}%, 0px)`),
@@ -68,11 +84,9 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
                   // https://github.com/oxidecomputer/console/issues/1745
                   onFocusOutside={(e) => e.preventDefault()}
                 >
-                  {title && (
-                    <Dialog.Title asChild>
-                      <ModalTitle id={titleId}>{title}</ModalTitle>
-                    </Dialog.Title>
-                  )}
+                  <Dialog.Title asChild>
+                    <ModalTitle id={titleId}>{title}</ModalTitle>
+                  </Dialog.Title>
                   {children}
                   <Dialog.Close
                     className="absolute right-2 top-4 flex items-center justify-center rounded p-2 hover:bg-hover"
