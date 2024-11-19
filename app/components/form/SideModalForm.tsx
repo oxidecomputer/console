@@ -81,7 +81,6 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   subtitle,
 }: SideModalFormProps<TFieldValues>) {
   const id = useId()
-  const { isSubmitting } = form.formState
 
   useEffect(() => {
     if (submitError?.errorCode === 'ObjectAlreadyExists' && 'name' in form.getValues()) {
@@ -95,13 +94,14 @@ export function SideModalForm<TFieldValues extends FieldValues>({
       ? `Update ${resourceName}`
       : submitLabel || title || `Create ${resourceName}`
 
-  const { isDirty } = form.formState
+  // must be destructured up here to subscribe to changes. inlining
+  // form.formState.isDirty does not work
+  const { isDirty, isSubmitting } = form.formState
   const [showNavGuard, setShowNavGuard] = useState(false)
-  const guardedDismiss = () => (isDirty ? setShowNavGuard(true) : onDismiss())
 
   return (
     <SideModal
-      onDismiss={guardedDismiss}
+      onDismiss={() => (isDirty ? setShowNavGuard(true) : onDismiss())}
       isOpen
       title={title || `${formType === 'edit' ? 'Edit' : 'Create'} ${resourceName}`}
       animate={useShouldAnimateModal()}
