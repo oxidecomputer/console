@@ -146,6 +146,10 @@ export function Component() {
     [disks.items, instance.bootDiskId]
   )
 
+  // Needed to keep them the same while setting boot disk.
+  // Extracted to keep dep array appropriately zealous.
+  const { ncpus, memory } = instance
+
   const makeBootDiskActions = useCallback(
     (disk: InstanceDisk): MenuAction[] => [
       getSnapshotAction(disk),
@@ -164,6 +168,8 @@ export function Component() {
                 path: { instance: instance.id },
                 body: {
                   bootDisk: undefined,
+                  ncpus,
+                  memory,
                   // this would get unset if we left it out
                   autoRestartPolicy: instance.autoRestartPolicy,
                 },
@@ -194,7 +200,7 @@ export function Component() {
         onActivate() {}, // it's always disabled, so noop is ok
       },
     ],
-    [instanceUpdate, instance, getSnapshotAction]
+    [instanceUpdate, instance, getSnapshotAction, ncpus, memory]
   )
 
   const makeOtherDiskActions = useCallback(
@@ -217,6 +223,8 @@ export function Component() {
                 path: { instance: instance.id },
                 body: {
                   bootDisk: disk.id,
+                  ncpus,
+                  memory,
                   // this would get unset if we left it out
                   autoRestartPolicy: instance.autoRestartPolicy,
                 },
@@ -254,7 +262,7 @@ export function Component() {
         },
       },
     ],
-    [detachDisk, instanceUpdate, instance, getSnapshotAction, bootDisks]
+    [detachDisk, instanceUpdate, instance, getSnapshotAction, bootDisks, ncpus, memory]
   )
 
   const attachDisk = useApiMutation('instanceDiskAttach', {

@@ -1992,6 +1992,10 @@ Currently, the global default auto-restart policy is "best-effort", so instances
 
 If not provided, unset the instance's boot disk. */
   bootDisk?: NameOrId
+  /** The amount of memory to assign to this instance. */
+  memory: ByteCount
+  /** The number of CPUs to assign to this instance. */
+  ncpus: InstanceCpuCount
 }
 
 /**
@@ -2319,7 +2323,7 @@ export type TxEqConfig = {
 export type LinkConfigCreate = {
   /** Whether or not to set autonegotiation */
   autoneg: boolean
-  /** The forward error correction mode of the link. */
+  /** The requested forward-error correction method.  If this is not specified, the standard FEC for the underlying media will be applied if it can be determined. */
   fec?: LinkFec
   /** The link-layer discovery protocol (LLDP) configuration for the link. */
   lldp: LldpLinkConfigCreate
@@ -3504,7 +3508,7 @@ export type SwitchPortConfigCreate = {
 export type SwitchPortLinkConfig = {
   /** Whether or not the link has autonegotiation enabled. */
   autoneg: boolean
-  /** The forward error correction mode of the link. */
+  /** The requested forward-error correction method.  If this is not specified, the standard FEC for the underlying media will be applied if it can be determined. */
   fec?: LinkFec
   /** The name of this link. */
   linkName: string
