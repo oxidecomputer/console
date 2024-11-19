@@ -1856,6 +1856,8 @@ export const InstanceUpdate = z.preprocess(
   z.object({
     autoRestartPolicy: InstanceAutoRestartPolicy.optional(),
     bootDisk: NameOrId.optional(),
+    memory: ByteCount,
+    ncpus: InstanceCpuCount,
   })
 )
 
