@@ -613,6 +613,10 @@ export const handlers = makeHandlers({
       instance.boot_disk_id = undefined
     }
 
+    // always present on the body, always set them
+    instance.ncpus = body.ncpus
+    instance.memory = body.memory
+
     return instance
   },
   instanceDelete({ path, query }) {
@@ -1603,8 +1607,8 @@ export const handlers = makeHandlers({
   switchView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
   systemQuotasList: NotImplemented,
-  timeseriesQuery: NotImplemented,
-  timeseriesSchemaList: NotImplemented,
+  systemTimeseriesQuery: NotImplemented,
+  systemTimeseriesSchemaList: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
 })

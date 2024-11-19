@@ -1771,9 +1771,9 @@ If this is not present, then either the instance has never been automatically re
   autoRestartCooldownExpiration?: Date
   /** `true` if this instance's auto-restart policy will permit the control plane to automatically restart it if it enters the `Failed` state. */
   autoRestartEnabled: boolean
-  /** The auto-restart policy configured for this instance, or `None` if no explicit policy is configured.
+  /** The auto-restart policy configured for this instance, or `null` if no explicit policy has been configured.
 
-If this is not present, then this instance uses the default auto-restart policy, which may or may not allow it to be restarted. The `auto_restart_enabled` field indicates whether the instance will be automatically restarted. */
+This policy determines whether the instance should be automatically restarted by the control plane on failure. If this is `null`, the control plane will use the default policy when determining whether or not to automatically restart this instance, which may or may not allow it to be restarted. The value of the `auto_restart_enabled` field indicates whether the instance will be auto-restarted, based on its current policy or the default if it has no configured policy. */
   autoRestartPolicy?: InstanceAutoRestartPolicy
   /** the ID of the disk used to boot this Instance, if a specific one is assigned. */
   bootDiskId?: string
@@ -1857,7 +1857,9 @@ If more than one interface is provided, then the first will be designated the pr
 export type InstanceCreate = {
   /** The auto-restart policy for this instance.
 
-This indicates whether the instance should be automatically restarted by the control plane on failure. If this is `null`, no auto-restart policy has been configured for this instance by the user. */
+This policy determines whether the instance should be automatically restarted by the control plane on failure. If this is `null`, no auto-restart policy will be explicitly configured for this instance, and the control plane will select the default policy when determining whether the instance can be automatically restarted.
+
+Currently, the global default auto-restart policy is "best-effort", so instances with `null` auto-restart policies will be automatically restarted. However, in the future, the default policy may be configurable through other mechanisms, such as on a per-project basis. In that case, any configured default policy will be used if this is `null`. */
   autoRestartPolicy?: InstanceAutoRestartPolicy
   /** The disk this instance should boot into. This disk can either be attached if it already exists, or created, if it should be a new disk.
 
@@ -1980,14 +1982,20 @@ export type InstanceSerialConsoleData = {
  * Parameters of an `Instance` that can be reconfigured after creation.
  */
 export type InstanceUpdate = {
-  /** The auto-restart policy for this instance.
+  /** Sets the auto-restart policy for this instance.
 
-If not provided, unset the instance's auto-restart policy. */
+This policy determines whether the instance should be automatically restarted by the control plane on failure. If this is `null`, any explicitly configured auto-restart policy will be unset, and the control plane will select the default policy when determining whether the instance can be automatically restarted.
+
+Currently, the global default auto-restart policy is "best-effort", so instances with `null` auto-restart policies will be automatically restarted. However, in the future, the default policy may be configurable through other mechanisms, such as on a per-project basis. In that case, any configured default policy will be used if this is `null`. */
   autoRestartPolicy?: InstanceAutoRestartPolicy
   /** Name or ID of the disk the instance should be instructed to boot from.
 
 If not provided, unset the instance's boot disk. */
   bootDisk?: NameOrId
+  /** The amount of memory to assign to this instance. */
+  memory: ByteCount
+  /** The number of CPUs to assign to this instance. */
+  ncpus: InstanceCpuCount
 }
 
 /**
@@ -2294,19 +2302,37 @@ export type LinkSpeed =
   | 'speed400_g'
 
 /**
+ * Per-port tx-eq overrides.  This can be used to fine-tune the transceiver equalization settings to improve signal integrity.
+ */
+export type TxEqConfig = {
+  /** Main tap */
+  main?: number
+  /** Post-cursor tap1 */
+  post1?: number
+  /** Post-cursor tap2 */
+  post2?: number
+  /** Pre-cursor tap1 */
+  pre1?: number
+  /** Pre-cursor tap2 */
+  pre2?: number
+}
+
+/**
  * Switch link configuration.
  */
 export type LinkConfigCreate = {
   /** Whether or not to set autonegotiation */
   autoneg: boolean
-  /** The forward error correction mode of the link. */
-  fec: LinkFec
+  /** The requested forward-error correction method.  If this is not specified, the standard FEC for the underlying media will be applied if it can be determined. */
+  fec?: LinkFec
   /** The link-layer discovery protocol (LLDP) configuration for the link. */
   lldp: LldpLinkConfigCreate
   /** Maximum transmission unit for the link. */
   mtu: number
   /** The speed of the link. */
   speed: LinkSpeed
+  /** Optional tx_eq settings */
+  txEq?: TxEqConfig
 }
 
 /**
@@ -3482,8 +3508,8 @@ export type SwitchPortConfigCreate = {
 export type SwitchPortLinkConfig = {
   /** Whether or not the link has autonegotiation enabled. */
   autoneg: boolean
-  /** The forward error correction mode of the link. */
-  fec: LinkFec
+  /** The requested forward-error correction method.  If this is not specified, the standard FEC for the underlying media will be applied if it can be determined. */
+  fec?: LinkFec
   /** The name of this link. */
   linkName: string
   /** The link-layer discovery protocol service configuration id for this link. */
@@ -3494,6 +3520,8 @@ export type SwitchPortLinkConfig = {
   portSettingsId: string
   /** The configured speed of the link. */
   speed: LinkSpeed
+  /** The tx_eq configuration id for this link. */
+  txEqConfigId?: string
 }
 
 /**
@@ -3612,6 +3640,8 @@ export type SwitchPortSettingsView = {
   routes: SwitchPortRouteConfig[]
   /** The primary switch port settings handle. */
   settings: SwitchPortSettings
+  /** TX equalization settings.  These are optional, and most links will not need them. */
+  txEq: TxEqConfig[]
   /** Vlan interface settings. */
   vlanInterfaces: SwitchVlanInterfaceConfig[]
 }
@@ -5064,6 +5094,11 @@ export interface SiloQuotasUpdatePathParams {
   silo: NameOrId
 }
 
+export interface SystemTimeseriesSchemaListQueryParams {
+  limit?: number
+  pageToken?: string
+}
+
 export interface SiloUserListQueryParams {
   limit?: number
   pageToken?: string
@@ -5097,11 +5132,6 @@ export interface SiloUtilizationListQueryParams {
 
 export interface SiloUtilizationViewPathParams {
   silo: NameOrId
-}
-
-export interface TimeseriesSchemaListQueryParams {
-  limit?: number
-  pageToken?: string
 }
 
 export interface UserListQueryParams {
@@ -5337,10 +5367,10 @@ export type ApiListMethods = Pick<
   | 'systemQuotasList'
   | 'siloList'
   | 'siloIpPoolList'
+  | 'systemTimeseriesSchemaList'
   | 'siloUserList'
   | 'userBuiltinList'
   | 'siloUtilizationList'
-  | 'timeseriesSchemaList'
   | 'userList'
   | 'vpcRouterRouteList'
   | 'vpcRouterList'
@@ -7946,6 +7976,34 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Run timeseries query
+     */
+    systemTimeseriesQuery: (
+      { body }: { body: TimeseriesQuery },
+      params: FetchParams = {}
+    ) => {
+      return this.request<OxqlQueryResult>({
+        path: `/v1/system/timeseries/query`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * List timeseries schemas
+     */
+    systemTimeseriesSchemaList: (
+      { query = {} }: { query?: SystemTimeseriesSchemaListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<TimeseriesSchemaResultsPage>({
+        path: `/v1/system/timeseries/schemas`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
      * List built-in (system) users in silo
      */
     siloUserList: (
@@ -8024,31 +8082,6 @@ export class Api extends HttpClient {
       return this.request<SiloUtilization>({
         path: `/v1/system/utilization/silos/${path.silo}`,
         method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Run timeseries query
-     */
-    timeseriesQuery: ({ body }: { body: TimeseriesQuery }, params: FetchParams = {}) => {
-      return this.request<OxqlQueryResult>({
-        path: `/v1/timeseries/query`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * List timeseries schemas
-     */
-    timeseriesSchemaList: (
-      { query = {} }: { query?: TimeseriesSchemaListQueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<TimeseriesSchemaResultsPage>({
-        path: `/v1/timeseries/schema`,
-        method: 'GET',
-        query,
         ...params,
       })
     },

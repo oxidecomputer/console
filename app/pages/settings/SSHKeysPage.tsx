@@ -26,7 +26,7 @@ import { TableActions } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-SSHKeysPage.loader = async () => {
+export async function loader() {
   await apiQueryClient.prefetchQuery('currentUserSshKeyList', {
     query: { limit: PAGE_SIZE },
   })
@@ -40,7 +40,8 @@ const staticCols = [
   colHelper.accessor('timeModified', Columns.timeModified),
 ]
 
-export function SSHKeysPage() {
+Component.displayName = 'SSHKeysPage'
+export function Component() {
   const navigate = useNavigate()
 
   const { Table } = useQueryTable('currentUserSshKeyList', {})

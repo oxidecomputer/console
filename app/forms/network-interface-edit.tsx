@@ -128,7 +128,7 @@ export function EditNetworkInterfaceForm({
         </div>
         <MiniTable.ClearAndAddButtons
           addButtonCopy="Add Transit IP"
-          disableClear={!transitIpValue}
+          disabled={!transitIpValue}
           onClear={() => transitIpsForm.reset()}
           onSubmit={submitTransitIp}
         />

@@ -41,7 +41,7 @@ import { links } from '~/util/links'
 
 import { fancifyStates } from './common'
 
-StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   const selector = { path: { instance }, query: { project } }
   await Promise.all([
@@ -75,7 +75,8 @@ const staticCols = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-export function StorageTab() {
+Component.displayName = 'StorageTab'
+export function Component() {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
   const [showDiskAttach, setShowDiskAttach] = useState(false)
 
@@ -145,6 +146,10 @@ export function StorageTab() {
     [disks.items, instance.bootDiskId]
   )
 
+  // Needed to keep them the same while setting boot disk.
+  // Extracted to keep dep array appropriately zealous.
+  const { ncpus, memory } = instance
+
   const makeBootDiskActions = useCallback(
     (disk: InstanceDisk): MenuAction[] => [
       getSnapshotAction(disk),
@@ -163,6 +168,8 @@ export function StorageTab() {
                 path: { instance: instance.id },
                 body: {
                   bootDisk: undefined,
+                  ncpus,
+                  memory,
                   // this would get unset if we left it out
                   autoRestartPolicy: instance.autoRestartPolicy,
                 },
@@ -193,7 +200,7 @@ export function StorageTab() {
         onActivate() {}, // it's always disabled, so noop is ok
       },
     ],
-    [instanceUpdate, instance, getSnapshotAction]
+    [instanceUpdate, instance, getSnapshotAction, ncpus, memory]
   )
 
   const makeOtherDiskActions = useCallback(
@@ -216,6 +223,8 @@ export function StorageTab() {
                 path: { instance: instance.id },
                 body: {
                   bootDisk: disk.id,
+                  ncpus,
+                  memory,
                   // this would get unset if we left it out
                   autoRestartPolicy: instance.autoRestartPolicy,
                 },
@@ -253,7 +262,7 @@ export function StorageTab() {
         },
       },
     ],
-    [detachDisk, instanceUpdate, instance, getSnapshotAction, bootDisks]
+    [detachDisk, instanceUpdate, instance, getSnapshotAction, bootDisks, ncpus, memory]
   )
 
   const attachDisk = useApiMutation('instanceDiskAttach', {

@@ -35,7 +35,7 @@ export function AttachDiskSideModalForm({
   onSubmit,
   onDismiss,
   diskNamesToExclude = [],
-  loading,
+  loading = false,
   submitError = null,
 }: AttachDiskProps) {
   const { project } = useProjectSelector()

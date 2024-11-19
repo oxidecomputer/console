@@ -64,12 +64,14 @@ type CreateSideModalFormProps = {
    */
   onDismiss: (navigate: NavigateFunction) => void
   onSuccess?: (disk: Disk) => void
+  unavailableDiskNames?: string[]
 }
 
 export function CreateDiskSideModalForm({
   onSubmit,
   onSuccess,
   onDismiss,
+  unavailableDiskNames = [],
 }: CreateSideModalFormProps) {
   const queryClient = useApiQueryClient()
   const navigate = useNavigate()
@@ -132,7 +134,15 @@ export function CreateDiskSideModalForm({
       loading={createDisk.isPending}
       submitError={createDisk.error}
     >
-      <NameField name="name" control={form.control} />
+      <NameField
+        name="name"
+        control={form.control}
+        validate={(name: string) => {
+          if (unavailableDiskNames.includes(name)) {
+            return 'Name is already in use'
+          }
+        }}
+      />
       <DescriptionField name="description" control={form.control} />
       <FormDivider />
       <DiskSourceField

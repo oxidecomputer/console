@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import Error16Icon from '@oxide/design-system/icons/react/Error16Icon'
+import { Error16Icon } from '@oxide/design-system/icons/react'
 
 import { classed } from '~/util/classed'
 
@@ -48,7 +48,7 @@ export const RemoveCell = ({ onClick, label }: { onClick: () => void; label: str
 
 type ClearAndAddButtonsProps = {
   addButtonCopy: string
-  disableClear: boolean
+  disabled: boolean
   onClear: () => void
   onSubmit: () => void
 }
@@ -59,15 +59,15 @@ type ClearAndAddButtonsProps = {
  */
 export const ClearAndAddButtons = ({
   addButtonCopy,
-  disableClear,
+  disabled,
   onClear,
   onSubmit,
 }: ClearAndAddButtonsProps) => (
   <div className="flex justify-end gap-2.5">
-    <Button variant="ghost" size="sm" disabled={disableClear} onClick={onClear}>
+    <Button variant="ghost" size="sm" onClick={onClear} disabled={disabled}>
       Clear
     </Button>
-    <Button size="sm" onClick={onSubmit}>
+    <Button size="sm" onClick={onSubmit} disabled={disabled}>
       {addButtonCopy}
     </Button>
   </div>

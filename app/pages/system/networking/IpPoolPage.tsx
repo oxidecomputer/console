@@ -53,7 +53,7 @@ import { pb } from '~/util/path-builder'
 
 const query = { limit: PAGE_SIZE }
 
-IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
+export async function loader({ params }: LoaderFunctionArgs) {
   const { pool } = getIpPoolSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('ipPoolView', { path: { pool } }),
@@ -73,7 +73,8 @@ IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
   return null
 }
 
-export function IpPoolPage() {
+Component.displayName = 'IpPoolPage'
+export function Component() {
   const poolSelector = useIpPoolSelector()
   const { data: pool } = usePrefetchedApiQuery('ipPoolView', { path: poolSelector })
   const { data: ranges } = usePrefetchedApiQuery('ipPoolRangeList', {

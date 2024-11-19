@@ -44,8 +44,7 @@ export const pb = {
   projectAccess: (params: Project) => `${projectBase(params)}/access`,
   projectImages: (params: Project) => `${projectBase(params)}/images`,
   projectImagesNew: (params: Project) => `${projectBase(params)}/images-new`,
-  projectImage: (params: Image) => `${pb.projectImages(params)}/${params.image}`,
-  projectImageEdit: (params: Image) => `${pb.projectImage(params)}/edit`,
+  projectImageEdit: (params: Image) => `${pb.projectImages(params)}/${params.image}/edit`,
 
   instances: (params: Project) => `${projectBase(params)}/instances`,
   instancesNew: (params: Project) => `${projectBase(params)}/instances-new`,
@@ -109,19 +108,15 @@ export const pb = {
 
   floatingIps: (params: Project) => `${projectBase(params)}/floating-ips`,
   floatingIpsNew: (params: Project) => `${projectBase(params)}/floating-ips-new`,
-  floatingIp: (params: FloatingIp) => `${pb.floatingIps(params)}/${params.floatingIp}`,
-  floatingIpEdit: (params: FloatingIp) => `${pb.floatingIp(params)}/edit`,
+  floatingIpEdit: (params: FloatingIp) =>
+    `${pb.floatingIps(params)}/${params.floatingIp}/edit`,
 
   siloUtilization: () => '/utilization',
   siloAccess: () => '/access',
   siloImages: () => '/images',
-  siloImage: (params: SiloImage) => `${pb.siloImages()}/${params.image}`,
-  siloImageEdit: (params: SiloImage) => `${pb.siloImage(params)}/edit`,
+  siloImageEdit: (params: SiloImage) => `${pb.siloImages()}/${params.image}/edit`,
 
-  system: () => '/system',
-  systemIssues: () => '/system/issues',
   systemUtilization: () => '/system/utilization',
-  systemHealth: () => '/system/health',
 
   ipPools: () => '/system/networking/ip-pools',
   ipPoolsNew: () => '/system/networking/ip-pools-new',
@@ -129,11 +124,9 @@ export const pb = {
   ipPoolEdit: (params: IpPool) => `${pb.ipPool(params)}/edit`,
   ipPoolRangeAdd: (params: IpPool) => `${pb.ipPool(params)}/ranges-add`,
 
-  inventory: () => '/system/inventory',
-  rackInventory: () => '/system/inventory/racks',
   sledInventory: () => '/system/inventory/sleds',
   diskInventory: () => '/system/inventory/disks',
-  sled: ({ sledId }: Sled) => `/system/inventory/sleds/${sledId}`,
+  sled: ({ sledId }: Sled) => `/system/inventory/sleds/${sledId}/instances`,
   sledInstances: ({ sledId }: Sled) => `/system/inventory/sleds/${sledId}/instances`,
 
   silos: () => '/system/silos',

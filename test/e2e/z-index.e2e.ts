@@ -9,38 +9,6 @@ import { expect, test } from '@playwright/test'
 
 import { expectObscured, stopInstance } from './utils'
 
-test('Dropdown content can scroll off page and doesn’t hide TopBar', async ({ page }) => {
-  // load the page
-  await page.goto('/utilization')
-  await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
-
-  const button = page.getByRole('button', { name: 'All projects' })
-
-  // click on the 'All projects' dropdown
-  await button.click()
-  const options = ['All projects', 'mock-project', 'other-project']
-  for (const name of options) {
-    const option = page.getByRole('option', { name })
-    await expect(option).toBeVisible()
-    await expect(option).toBeInViewport()
-  }
-
-  // scroll the page down just enough that the button and the top item are off
-  // screen, but the bottom item is not
-  await page.mouse.wheel(0, 480)
-
-  // if we don't do this, the test doesn't wait long enough for the following
-  // assertions to become true
-  await expect(button).not.toBeInViewport()
-
-  // now the top the listbox option is obscured by the topbar
-  await expectObscured(page.getByRole('option', { name: 'All projects' }))
-
-  // but we can still click the bottom one
-  await page.getByRole('option', { name: 'other-project' }).click()
-  await expect(page.getByRole('button', { name: 'other-project' })).toBeVisible()
-})
-
 test('Dropdown content in SidebarModal shows on screen', async ({ page }) => {
   // go to an instance’s Network Interfaces page
   await page.goto('/projects/mock-project/instances/db1/networking')

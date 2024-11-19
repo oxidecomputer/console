@@ -7,7 +7,7 @@
  */
 import type { FieldPath, FieldValues } from 'react-hook-form'
 
-import { capitalize } from '~/util/str'
+import { capitalize, normalizeName } from '~/util/str'
 
 import { TextField, type TextFieldProps } from './TextField'
 
@@ -30,12 +30,12 @@ export function NameField<
       required={required}
       label={label}
       name={name}
-      transform={(value) =>
-        value
-          .toLowerCase()
-          .replace(/[\s_]+/g, '-')
-          .replace(/[^a-z0-9-]/g, '')
-      }
+      transform={(value) => normalizeName(value)}
+      // https://www.stefanjudis.com/snippets/turn-off-password-managers/
+      data-1p-ignore
+      data-bwignore
+      data-lpignore="true"
+      data-form-type="other"
       {...textFieldProps}
     />
   )

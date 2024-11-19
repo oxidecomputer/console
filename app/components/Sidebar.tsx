@@ -77,7 +77,7 @@ Sidebar.Nav = ({ children, heading }: SidebarNav) => (
         <Truncate text={heading} maxLength={24} />
       </div>
     )}
-    <nav>
+    <nav aria-label="Sidebar navigation">
       <ul className="space-y-0.5">{children}</ul>
     </nav>
   </div>

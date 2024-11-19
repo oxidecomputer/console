@@ -6,14 +6,9 @@
  * Copyright Oxide Computer Company
  */
 
-import {
-  clickRowAction,
-  expect,
-  expectRowVisible,
-  selectOption,
-  test,
-  type Locator,
-} from './utils'
+import { expect, test, type Locator, type Page } from '@playwright/test'
+
+import { clickRowAction, expectRowVisible, selectOption } from './utils'
 
 const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp']
 
@@ -53,6 +48,7 @@ test('can create firewall rule', async ({ page }) => {
   // add host filter instance "host-filter-instance"
   await selectOption(page, 'Host type', 'Instance')
   await page.getByRole('combobox', { name: 'Instance name' }).fill('host-filter-instance')
+  await page.getByText('host-filter-instance').click()
   await page.getByRole('button', { name: 'Add host filter' }).click()
 
   // host is added to hosts table
@@ -164,14 +160,21 @@ test('firewall rule form targets table', async ({ page }) => {
 
   const addButton = page.getByRole('button', { name: 'Add target' })
 
+  // addButton should be disabled until a value is added
+  await expect(addButton).toBeDisabled()
+
   // add targets with overlapping names and types to test delete
 
   await targetVpcNameField.fill('abc')
-  await addButton.click()
+  // hit enter one time to choose the custom value
+  await targetVpcNameField.press('Enter')
+  // hit enter a second time to submit the subform
+  await targetVpcNameField.press('Enter')
   await expectRowVisible(targets, { Type: 'vpc', Value: 'abc' })
 
   // enter a VPC called 'mock-subnet', even if that doesn't make sense here, to test dropdown later
   await targetVpcNameField.fill('mock-subnet')
+  await targetVpcNameField.press('Enter')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'vpc', Value: 'mock-subnet' })
 
@@ -181,15 +184,22 @@ test('firewall rule form targets table', async ({ page }) => {
   // add a subnet by selecting from a dropdown; make sure 'mock-subnet' is present in the dropdown,
   // even though VPC:'mock-subnet' has already been added
   await selectOption(page, 'Target type', 'VPC subnet')
+  // addButton should be disabled again, as type has changed but no value has been entered
+  await expect(addButton).toBeDisabled()
   await selectOption(page, subnetNameField, 'mock-subnet')
+  await expect(addButton).toBeEnabled()
   await addButton.click()
   await expectRowVisible(targets, { Type: 'subnet', Value: 'mock-subnet' })
 
   // now add a subnet by entering text
   await selectOption(page, 'Target type', 'VPC subnet')
-  await subnetNameField.fill('abc')
-  await addButton.click()
-  await expectRowVisible(targets, { Type: 'subnet', Value: 'abc' })
+  // test that the name typed in is normalized
+  await subnetNameField.fill('ABC 123')
+  await expect(subnetNameField).toHaveValue('abc-123')
+  // hit enter to submit the subform
+  await subnetNameField.press('Enter')
+  await subnetNameField.press('Enter')
+  await expectRowVisible(targets, { Type: 'subnet', Value: 'abc-123' })
 
   // add IP target
   await selectOption(page, 'Target type', 'IP')
@@ -221,6 +231,7 @@ test('firewall rule form target validation', async ({ page }) => {
   // Enter invalid VPC name
   const vpcNameField = page.getByRole('combobox', { name: 'VPC name' }).first()
   await vpcNameField.fill('ab-')
+  await vpcNameField.press('Enter')
   await addButton.click()
   await expect(nameError).toBeVisible()
 
@@ -246,6 +257,7 @@ test('firewall rule form target validation', async ({ page }) => {
   await expect(ipError).toBeHidden()
   await expect(nameError).toBeHidden()
   await vpcNameField.fill('abc')
+  await page.getByText('abc').click()
   await addButton.click()
   await expectRowVisible(targets, { Type: 'vpc', Value: 'abc' })
 
@@ -284,6 +296,7 @@ test('firewall rule form host validation', async ({ page }) => {
   // Enter invalid VPC name
   const vpcNameField = page.getByRole('combobox', { name: 'VPC name' }).nth(1)
   await vpcNameField.fill('ab-')
+  await vpcNameField.press('Enter')
   await addButton.click()
   await expect(nameError).toBeVisible()
 
@@ -309,6 +322,7 @@ test('firewall rule form host validation', async ({ page }) => {
   await expect(ipError).toBeHidden()
   await expect(nameError).toBeHidden()
   await vpcNameField.fill('abc')
+  await page.getByText('abc').click()
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'vpc', Value: 'abc' })
 
@@ -350,10 +364,12 @@ test('firewall rule form hosts table', async ({ page }) => {
   // add hosts with overlapping names and types to test delete
 
   await hostFiltersVpcNameField.fill('abc')
+  await hostFiltersVpcNameField.press('Enter')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'vpc', Value: 'abc' })
 
   await hostFiltersVpcNameField.fill('def')
+  await hostFiltersVpcNameField.press('Enter')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'vpc', Value: 'def' })
 
@@ -364,6 +380,7 @@ test('firewall rule form hosts table', async ({ page }) => {
 
   await selectOption(page, 'Host type', 'VPC subnet')
   await page.getByRole('combobox', { name: 'Subnet name' }).fill('abc')
+  await page.getByRole('combobox', { name: 'Subnet name' }).press('Enter')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'subnet', Value: 'abc' })
 
@@ -427,6 +444,7 @@ test('can update firewall rule', async ({ page }) => {
   // add host filter
   await selectOption(page, 'Host type', 'VPC subnet')
   await page.getByRole('combobox', { name: 'Subnet name' }).fill('edit-filter-subnet')
+  await page.getByText('edit-filter-subnet').click()
   await page.getByRole('button', { name: 'Add host filter' }).click()
 
   // new host is added to hosts table
@@ -560,4 +578,50 @@ test('name conflict error on edit', async ({ page }) => {
   await nameField.fill('allow-icmp2')
   await page.getByRole('button', { name: 'Update rule' }).click()
   await expectRowVisible(page.getByRole('table'), { Name: 'allow-icmp2', Priority: '37' })
+})
+
+async function expectOptions(page: Page, options: string[]) {
+  const selector = page.getByRole('option')
+  await expect(selector).toHaveCount(options.length)
+  for (const option of options) {
+    await expect(page.getByRole('option', { name: option })).toBeVisible()
+  }
+}
+
+test('arbitrary values combobox', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules-new')
+
+  // test for bug where we'd persist the d after add and only show 'Custom: d'
+  const vpcInput = page.getByRole('combobox', { name: 'VPC name' }).first()
+  await vpcInput.focus()
+  await expectOptions(page, ['mock-vpc'])
+
+  await vpcInput.fill('d')
+  await expectOptions(page, ['Custom: d'])
+
+  await vpcInput.blur()
+  page.getByRole('button', { name: 'Add target' }).click()
+  await expect(vpcInput).toHaveValue('')
+
+  await vpcInput.focus()
+  await expectOptions(page, ['mock-vpc']) // bug cause failure here
+
+  // test keeping query around on blur
+  await selectOption(page, 'Target type', 'Instance')
+  const input = page.getByRole('combobox', { name: 'Instance name' })
+
+  await input.focus()
+  await expectOptions(page, ['db1', 'you-fail', 'not-there-yet'])
+
+  await input.fill('d')
+  await expectOptions(page, ['db1', 'Custom: d'])
+
+  await input.blur()
+  await expect(page.getByRole('option')).toBeHidden()
+
+  await expect(input).toHaveValue('d')
+  await input.focus()
+
+  // same options show up after blur (there was a bug around this)
+  await expectOptions(page, ['db1', 'Custom: d'])
 })

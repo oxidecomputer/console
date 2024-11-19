@@ -19,6 +19,8 @@ export const links = {
   imagesDocs: 'https://docs.oxide.computer/guides/creating-and-sharing-images',
   preparingImagesDocs:
     'https://docs.oxide.computer/guides/creating-and-sharing-images#_preparing_images_for_import',
+  identityProvidersDocs:
+    'https://docs.oxide.computer/guides/system/completing-rack-config#_configure_silo_identity_provider',
   instanceActionsDocs: 'https://docs.oxide.computer/guides/managing-instances',
   // TODO: link to section
   instanceBootDiskDocs: 'https://docs.oxide.computer/guides/deploying-workloads',
@@ -71,6 +73,10 @@ export const docLinks = {
   keyConceptsIam: {
     href: links.keyConceptsIamPolicyDocs,
     linkText: 'Key Concepts',
+  },
+  identityProviders: {
+    href: links.identityProvidersDocs,
+    linkText: 'Identity Providers',
   },
   images: {
     href: links.imagesDocs,

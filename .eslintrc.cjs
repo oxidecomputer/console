@@ -116,8 +116,9 @@ module.exports = {
       rules: {
         'playwright/expect-expect': [
           'warn',
-          { assertFunctionNames: ['expectVisible', 'expectRowVisible'] },
+          { assertFunctionNames: ['expectVisible', 'expectRowVisible', 'expectOptions'] },
         ],
+        'playwright/no-force-option': 'off',
       },
     },
   ],

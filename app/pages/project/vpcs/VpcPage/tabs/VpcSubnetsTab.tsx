@@ -31,7 +31,7 @@ import { pb } from '~/util/path-builder'
 
 const colHelper = createColumnHelper<VpcSubnet>()
 
-VpcSubnetsTab.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function loader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcSelector(params)
   await apiQueryClient.prefetchQuery('vpcSubnetList', {
     query: { project, vpc, limit: PAGE_SIZE },
@@ -39,7 +39,8 @@ VpcSubnetsTab.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-export function VpcSubnetsTab() {
+Component.displayName = 'VpcSubnetsTab'
+export function Component() {
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 
