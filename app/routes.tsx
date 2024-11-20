@@ -386,7 +386,7 @@ export const routes = createRoutesFromElements(
                   path="internet-gateways"
                   element={<VpcInternetGatewaysTab />}
                   loader={VpcInternetGatewaysTab.loader}
-                  handle={{ crumb: 'Internet gateways' }}
+                  handle={{ crumb: 'Internet Gateways' }}
                 />
               </Route>
             </Route>
