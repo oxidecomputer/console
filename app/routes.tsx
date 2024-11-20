@@ -413,31 +413,33 @@ export const routes = createRoutesFromElements(
                 </Route>
               </Route>
               <Route
-                path="internet-gateways/:gateway"
-                element={<InternetGatewayPage />}
+                path="internet-gateways"
+                handle={{ crumb: 'Internet Gateways' }}
                 loader={InternetGatewayPage.loader}
-                handle={makeCrumb(
-                  (p) => p.gateway!,
-                  (p) => pb.vpcInternetGateway(getInternetGatewaySelector(p))
-                )}
               >
                 <Route
-                  index
-                  element={<Navigate to="ip-pools" replace />}
-                  // loader={InternetGatewayIpPoolsTab.loader}
-                />
-                <Route
-                  path="ip-pools"
-                  element={<InternetGatewayIpPoolsTab />}
-                  loader={InternetGatewayIpPoolsTab.loader}
-                  handle={{ crumb: 'IP Pools' }}
-                />
-                <Route
-                  path="ip-addresses"
-                  element={<InternetGatewayIpAddressesTab />}
-                  loader={InternetGatewayIpAddressesTab.loader}
-                  handle={{ crumb: 'IP Addresses' }}
-                />
+                  path=":gateway"
+                  element={<InternetGatewayPage />}
+                  loader={InternetGatewayPage.loader}
+                  handle={makeCrumb(
+                    (p) => p.gateway!,
+                    (p) => pb.vpcInternetGateway(getInternetGatewaySelector(p))
+                  )}
+                >
+                  <Route index element={<Navigate to="ip-pools" replace />} />
+                  <Route
+                    path="ip-pools"
+                    element={<InternetGatewayIpPoolsTab />}
+                    loader={InternetGatewayIpPoolsTab.loader}
+                    handle={{ crumb: 'IP Pools' }}
+                  />
+                  <Route
+                    path="ip-addresses"
+                    element={<InternetGatewayIpAddressesTab />}
+                    loader={InternetGatewayIpAddressesTab.loader}
+                    handle={{ crumb: 'IP Addresses' }}
+                  />
+                </Route>
               </Route>
             </Route>
           </Route>

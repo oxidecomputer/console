@@ -727,6 +727,10 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/vpcs/v",
     },
     {
+      "label": "Internet Gateways",
+      "path": "/projects/p/vpcs/v/internet-gateways",
+    },
+    {
       "label": "g",
       "path": "/projects/p/vpcs/v/internet-gateways/g",
     },
@@ -747,6 +751,10 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "v",
       "path": "/projects/p/vpcs/v",
+    },
+    {
+      "label": "Internet Gateways",
+      "path": "/projects/p/vpcs/v/internet-gateways",
     },
     {
       "label": "g",
@@ -773,6 +781,10 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "v",
       "path": "/projects/p/vpcs/v",
+    },
+    {
+      "label": "Internet Gateways",
+      "path": "/projects/p/vpcs/v/internet-gateways",
     },
     {
       "label": "g",
