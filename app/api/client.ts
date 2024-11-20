@@ -12,7 +12,6 @@ import {
   getUseApiMutation,
   getUseApiQueries,
   getUseApiQuery,
-  getUseApiQueryClient,
   getUseApiQueryErrorsAllowed,
   getUsePrefetchedApiQuery,
   wrapQueryClient,
@@ -53,5 +52,6 @@ export const queryClient = new QueryClient({
 // don't have access to context
 export const apiQueryClient = wrapQueryClient(api.methods, queryClient)
 
-// to be used to retrieve the typed query client in components
-export const useApiQueryClient = getUseApiQueryClient(api.methods)
+// used to retrieve the typed query client in components. doesn't need to exist:
+// we could import apiQueryClient directly everywhere, but the change is noisy
+export const useApiQueryClient = () => apiQueryClient

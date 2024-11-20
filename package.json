@@ -18,6 +18,7 @@
     "ci": "npm run tsc && npm run lint && npm run test run && npm run e2ec",
     "tsc": "tsc",
     "test": "NODE_OPTIONS='--no-deprecation' vitest",
+    "update-snapshots": "npm test run -- -u",
     "e2e": "playwright test",
     "e2ec": "playwright test --project=chrome",
     "lint": "eslint --ext .js,.ts,.tsx app test mock-api",
