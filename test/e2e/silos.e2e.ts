@@ -251,9 +251,10 @@ test('Silo IP pools', async ({ page }) => {
   await page.goto('/system/silos/maze-war?tab=ip-pools')
 
   const table = page.getByRole('table')
-  await expectRowVisible(table, { name: 'ip-pool-1', Default: 'default' })
+  await expectRowVisible(table, { name: 'default', Default: 'default' })
+  await expectRowVisible(table, { name: 'ip-pool-1', Default: '' })
   await expectRowVisible(table, { name: 'ip-pool-2', Default: '' })
-  await expect(table.getByRole('row')).toHaveCount(3) // header + 2
+  await expect(table.getByRole('row')).toHaveCount(4) // header + 3
 
   // clicking on pool goes to pool detail
   await page.getByRole('link', { name: 'ip-pool-1' }).click()
@@ -266,7 +267,7 @@ test('Silo IP pools', async ({ page }) => {
     page
       .getByRole('dialog', { name: 'Confirm change default' })
       .getByText(
-        'Are you sure you want to change the default pool from ip-pool-1 to ip-pool-2?'
+        'Are you sure you want to change the default pool from default to ip-pool-2?'
       )
   ).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
@@ -299,9 +300,10 @@ test('Silo IP pools link pool', async ({ page }) => {
   await page.goto('/system/silos/maze-war?tab=ip-pools')
 
   const table = page.getByRole('table')
-  await expectRowVisible(table, { name: 'ip-pool-1', Default: 'default' })
+  await expectRowVisible(table, { name: 'default', Default: 'default' })
+  await expectRowVisible(table, { name: 'ip-pool-1', Default: '' })
   await expectRowVisible(table, { name: 'ip-pool-2', Default: '' })
-  await expect(table.getByRole('row')).toHaveCount(3) // header + 2
+  await expect(table.getByRole('row')).toHaveCount(4) // header + 3
 
   const modal = page.getByRole('dialog', { name: 'Link pool' })
   await expect(modal).toBeHidden()

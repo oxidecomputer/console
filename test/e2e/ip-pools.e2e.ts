@@ -54,13 +54,13 @@ test.describe('german locale', () => {
 test('IP pool silo list', async ({ page }) => {
   await page.goto('/system/networking/ip-pools')
 
-  await page.getByRole('link', { name: 'ip-pool-1' }).click()
-  await expect(page).toHaveTitle('ip-pool-1 / IP Pools / Oxide Console')
+  await page.getByRole('link', { name: 'default' }).click()
+  await expect(page).toHaveTitle('default / IP Pools / Oxide Console')
 
   await page.getByRole('tab', { name: 'Linked silos' }).click()
   // this is here because waiting for the `tab` query param to show up avoids
   // flake after the goBack bit below
-  await expect(page).toHaveURL('/system/networking/ip-pools/ip-pool-1?tab=silos')
+  await expect(page).toHaveURL('/system/networking/ip-pools/default?tab=silos')
 
   const table = page.getByRole('table')
   await expectRowVisible(table, { Silo: 'maze-war', 'Pool is silo default': 'default' })
@@ -79,7 +79,7 @@ test('IP pool silo list', async ({ page }) => {
 })
 
 test('IP pool link silo', async ({ page }) => {
-  await page.goto('/system/networking/ip-pools/ip-pool-1?tab=silos')
+  await page.goto('/system/networking/ip-pools/default?tab=silos')
 
   const table = page.getByRole('table')
   await expectRowVisible(table, { Silo: 'maze-war', 'Pool is silo default': 'default' })
