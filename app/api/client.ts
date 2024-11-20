@@ -9,6 +9,7 @@ import { QueryClient } from '@tanstack/react-query'
 
 import { Api } from './__generated__/Api'
 import {
+  getApiQueryOptions,
   getUseApiMutation,
   getUseApiQueries,
   getUseApiQuery,
@@ -17,6 +18,8 @@ import {
   wrapQueryClient,
 } from './hooks'
 
+export { ensure } from './hooks'
+
 export const api = new Api({
   // unit tests run in Node, whose fetch implementation requires a full URL
   host: process.env.NODE_ENV === 'test' ? 'http://testhost' : '',
@@ -24,6 +27,7 @@ export const api = new Api({
 
 export type ApiMethods = typeof api.methods
 
+export const apiq = getApiQueryOptions(api.methods)
 export const useApiQuery = getUseApiQuery(api.methods)
 export const useApiQueries = getUseApiQueries(api.methods)
 /**

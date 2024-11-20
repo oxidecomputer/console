@@ -10,7 +10,9 @@ import { useCallback } from 'react'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
+  apiq,
   apiQueryClient,
+  queryClient,
   useApiMutation,
   useApiQueryClient,
   useApiQueryErrorsAllowed,
@@ -25,7 +27,7 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable2'
 import { Badge } from '~/ui/lib/Badge'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -51,13 +53,14 @@ const EmptyState = () => (
     buttonTo={pb.snapshotsNew(useProjectSelector())}
   />
 )
+// clearly we need to shorten this
+const snapshotListOptions = (project: string) => (limit: number, pageToken?: string) =>
+  apiq('snapshotList', { query: { project, pageToken, limit } })
 
 SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('snapshotList', {
-      query: { project, limit: PAGE_SIZE },
-    }),
+    queryClient.prefetchQuery(snapshotListOptions(project)(PAGE_SIZE)),
 
     // Fetch disks and preload into RQ cache so fetches by ID in DiskNameFromId
     // can be mostly instant yet gracefully fall back to fetching individually
@@ -100,7 +103,6 @@ const staticCols = [
 export function SnapshotsPage() {
   const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
-  const { Table } = useQueryTable('snapshotList', { query: { project } })
   const navigate = useNavigate()
 
   const { mutateAsync: deleteSnapshot } = useApiMutation('snapshotDelete', {
@@ -132,6 +134,11 @@ export function SnapshotsPage() {
     [deleteSnapshot, navigate, project]
   )
   const columns = useColsWithActions(staticCols, makeActions)
+  const { table } = useQueryTable({
+    optionsFn: snapshotListOptions(project),
+    columns,
+    emptyState: <EmptyState />,
+  })
   return (
     <>
       <PageHeader>
@@ -146,7 +153,7 @@ export function SnapshotsPage() {
       <TableActions>
         <CreateLink to={pb.snapshotsNew({ project })}>New snapshot</CreateLink>
       </TableActions>
-      <Table columns={columns} emptyState={<EmptyState />} />
+      {table}
       <Outlet />
     </>
   )
