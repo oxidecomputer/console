@@ -383,22 +383,11 @@ export const routes = createRoutesFromElements(
                   />
                 </Route>
                 <Route
+                  path="internet-gateways"
                   element={<VpcInternetGatewaysTab />}
                   loader={VpcInternetGatewaysTab.loader}
-                >
-                  <Route
-                    path="internet-gateways"
-                    handle={{ crumb: 'Internet gateways' }}
-                    element={null}
-                  >
-                    <Route
-                      path="internet-gateways/:gateway"
-                      handle={makeCrumb('Internet Gateways', (p) =>
-                        pb.vpcInternetGateways(getVpcSelector(p))
-                      )}
-                    />
-                  </Route>
-                </Route>
+                  handle={{ crumb: 'Internet gateways' }}
+                />
               </Route>
             </Route>
           </Route>
@@ -425,40 +414,33 @@ export const routes = createRoutesFromElements(
               </Route>
               <Route
                 path="internet-gateways/:gateway"
-                handle={makeCrumb('Internet Gateways', (p) =>
-                  pb.vpcInternetGateways(getVpcSelector(p))
+                element={<InternetGatewayPage />}
+                loader={InternetGatewayPage.loader}
+                handle={makeCrumb(
+                  (p) => p.gateway!,
+                  (p) => pb.vpcInternetGateway(getInternetGatewaySelector(p))
                 )}
               >
                 <Route
-                  element={<InternetGatewayPage />}
-                  loader={InternetGatewayPage.loader}
-                  handle={makeCrumb(
-                    (p) => p.gateway!,
-                    (p) => pb.vpcInternetGateway(getInternetGatewaySelector(p))
-                  )}
-                >
-                  <Route
-                    index
-                    element={<Navigate to="ip-pools" replace />}
-                    loader={InternetGatewayIpPoolsTab.loader}
-                  />
-                  <Route
-                    path="ip-pools"
-                    element={<InternetGatewayIpPoolsTab />}
-                    loader={InternetGatewayIpPoolsTab.loader}
-                    handle={{ crumb: 'IP Pools' }}
-                  />
-                  <Route
-                    path="ip-addresses"
-                    element={<InternetGatewayIpAddressesTab />}
-                    loader={InternetGatewayIpAddressesTab.loader}
-                    handle={{ crumb: 'IP Addresses' }}
-                  />
-                </Route>
+                  index
+                  element={<Navigate to="ip-pools" replace />}
+                  // loader={InternetGatewayIpPoolsTab.loader}
+                />
+                <Route
+                  path="ip-pools"
+                  element={<InternetGatewayIpPoolsTab />}
+                  loader={InternetGatewayIpPoolsTab.loader}
+                  handle={{ crumb: 'IP Pools' }}
+                />
+                <Route
+                  path="ip-addresses"
+                  element={<InternetGatewayIpAddressesTab />}
+                  loader={InternetGatewayIpAddressesTab.loader}
+                  handle={{ crumb: 'IP Addresses' }}
+                />
               </Route>
             </Route>
           </Route>
-
           <Route
             element={<FloatingIpsPage />}
             loader={FloatingIpsPage.loader}
