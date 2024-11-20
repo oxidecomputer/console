@@ -7,7 +7,7 @@
  */
 import { useQuery, type QueryKey, type QueryOptions } from '@tanstack/react-query'
 import { getCoreRowModel, useReactTable, type ColumnDef } from '@tanstack/react-table'
-import React, { useCallback, useMemo } from 'react'
+import React, { useMemo } from 'react'
 
 import { ensure, type ApiError } from '@oxide/api'
 
@@ -35,7 +35,8 @@ type QueryTableProps<TItem> = {
   columns: ColumnDef<TItem, any>[]
 }
 
-export function useQueryTable<TItem>({
+// require ID only so we can use it in getRowId
+export function useQueryTable<TItem extends { id: string }>({
   optionsFn,
   pageSize = PAGE_SIZE,
   rowHeight = 'small',
@@ -49,15 +50,10 @@ export function useQueryTable<TItem>({
   const { data, isLoading } = queryResult
   const tableData = useMemo(() => data?.items || [], [data])
 
-  // TODO: need a better function that takes name or ID. sleds in the sleds
-  // table have no name, for example
-  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  const getRowId = useCallback((row: any) => row.name, [])
-
   const table = useReactTable({
     columns,
     data: tableData,
-    getRowId,
+    getRowId: (row) => row.id,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
   })
