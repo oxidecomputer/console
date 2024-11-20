@@ -69,6 +69,52 @@ export function InstancesPage() {
     { onSuccess: refetchInstances, onDelete: refetchInstances }
   )
 
+  const columns = useMemo(
+    () => [
+      colHelper.accessor('name', {
+        cell: makeLinkCell((instance) => pb.instance({ project, instance })),
+      }),
+      colHelper.accessor('ncpus', {
+        header: 'CPU',
+        cell: (info) => (
+          <>
+            {info.getValue()} <span className="ml-1 text-quaternary">vCPU</span>
+          </>
+        ),
+      }),
+      colHelper.accessor('memory', {
+        header: 'Memory',
+        cell: (info) => {
+          const memory = filesize(info.getValue(), { output: 'object', base: 2 })
+          return (
+            <>
+              {memory.value} <span className="ml-1 text-quaternary">{memory.unit}</span>
+            </>
+          )
+        },
+      }),
+      colHelper.accessor(
+        (i) => ({ runState: i.runState, timeRunStateUpdated: i.timeRunStateUpdated }),
+        {
+          header: 'state',
+          cell: (info) => <InstanceStateCell value={info.getValue()} />,
+        }
+      ),
+      colHelper.accessor('timeCreated', Columns.timeCreated),
+      getActionsCol((instance: Instance) => [
+        ...makeButtonActions(instance),
+        ...makeMenuActions(instance),
+      ]),
+    ],
+    [project, makeButtonActions, makeMenuActions]
+  )
+
+  const { Table } = useQueryTable(
+    'instanceList',
+    { query: { project } },
+    { placeholderData: (x) => x }
+  )
+
   // this is a whole thing. sit down.
 
   // We initialize this set as empty because we don't have the instances on hand
@@ -142,54 +188,6 @@ export function InstancesPage() {
       [project, instances, navigate]
     )
   )
-
-  const { Table } = useQueryTable(
-    'instanceList',
-    { query: { project } },
-    { placeholderData: (x) => x }
-  )
-
-  const columns = useMemo(
-    () => [
-      colHelper.accessor('name', {
-        cell: makeLinkCell((instance) => pb.instance({ project, instance })),
-      }),
-      colHelper.accessor('ncpus', {
-        header: 'CPU',
-        cell: (info) => (
-          <>
-            {info.getValue()} <span className="ml-1 text-quaternary">vCPU</span>
-          </>
-        ),
-      }),
-      colHelper.accessor('memory', {
-        header: 'Memory',
-        cell: (info) => {
-          const memory = filesize(info.getValue(), { output: 'object', base: 2 })
-          return (
-            <>
-              {memory.value} <span className="ml-1 text-quaternary">{memory.unit}</span>
-            </>
-          )
-        },
-      }),
-      colHelper.accessor(
-        (i) => ({ runState: i.runState, timeRunStateUpdated: i.timeRunStateUpdated }),
-        {
-          header: 'state',
-          cell: (info) => <InstanceStateCell value={info.getValue()} />,
-        }
-      ),
-      colHelper.accessor('timeCreated', Columns.timeCreated),
-      getActionsCol((instance: Instance) => [
-        ...makeButtonActions(instance),
-        ...makeMenuActions(instance),
-      ]),
-    ],
-    [project, makeButtonActions, makeMenuActions]
-  )
-
-  if (!instances) return null
 
   return (
     <>
