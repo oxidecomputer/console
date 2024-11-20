@@ -9,7 +9,6 @@ import {
   useMutation,
   useQueries,
   useQuery,
-  useQueryClient,
   type DefaultError,
   type FetchQueryOptions,
   type InvalidateQueryFilters,
@@ -314,12 +313,7 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
     }),
 })
 
-export const getUseApiQueryClient =
-  <A extends ApiClient>(api: A) =>
-  () =>
-    wrapQueryClient(api, useQueryClient())
-
-/* 
+/*
 1. what's up with [method, params]?
 
 https://react-query.tanstack.com/guides/queries
