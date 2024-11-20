@@ -5,12 +5,20 @@
  *
  * Copyright Oxide Computer Company
  */
+import { type UseQueryOptions } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { filesize } from 'filesize'
 import { useMemo, useRef } from 'react'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient, usePrefetchedApiQuery, type Instance } from '@oxide/api'
+import {
+  apiQueryClient,
+  getListQFn,
+  queryClient,
+  type ApiError,
+  type Instance,
+  type InstanceResultsPage,
+} from '@oxide/api'
 import { Instances24Icon } from '@oxide/design-system/icons/react'
 
 import { instanceTransitioning } from '~/api/util'
@@ -22,7 +30,7 @@ import { InstanceStateCell } from '~/table/cells/InstanceStateCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { useQueryTable } from '~/table/QueryTable2'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -46,11 +54,16 @@ const EmptyState = () => (
 
 const colHelper = createColumnHelper<Instance>()
 
+const instanceList = (
+  project: string,
+  // kinda gnarly, but we need refetchInterval in the component but not in the loader.
+  // pick refetchInterval to avoid annoying type conflicts on the full object
+  options?: Pick<UseQueryOptions<InstanceResultsPage, ApiError>, 'refetchInterval'>
+) => getListQFn('instanceList', { query: { project } }, options)
+
 InstancesPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
-  await apiQueryClient.prefetchQuery('instanceList', {
-    query: { project, limit: PAGE_SIZE },
-  })
+  await queryClient.prefetchQuery(instanceList(project).optionsFn())
   return null
 }
 
@@ -109,12 +122,6 @@ export function InstancesPage() {
     [project, makeButtonActions, makeMenuActions]
   )
 
-  const { Table } = useQueryTable(
-    'instanceList',
-    { query: { project } },
-    { placeholderData: (x) => x }
-  )
-
   // this is a whole thing. sit down.
 
   // We initialize this set as empty because we don't have the instances on hand
@@ -123,10 +130,8 @@ export function InstancesPage() {
   const transitioningInstances = useRef<Set<string>>(new Set())
   const pollingStartTime = useRef<number>(Date.now())
 
-  const { data: instances, dataUpdatedAt } = usePrefetchedApiQuery(
-    'instanceList',
-    { query: { project, limit: PAGE_SIZE } },
-    {
+  const { table, query } = useQueryTable({
+    query: instanceList(project, {
       // The point of all this is to poll quickly for a certain amount of time
       // after some instance in the current page enters a transitional state
       // like starting or stopping. After that, it will keep polling, but more
@@ -168,8 +173,12 @@ export function InstancesPage() {
           ? POLL_INTERVAL_FAST
           : POLL_INTERVAL_SLOW
       },
-    }
-  )
+    }),
+    columns,
+    emptyState: <EmptyState />,
+  })
+
+  const { data: instances, dataUpdatedAt } = query
 
   const navigate = useNavigate()
   useQuickActions(
@@ -211,7 +220,7 @@ export function InstancesPage() {
         </div>
         <CreateLink to={pb.instancesNew({ project })}>New Instance</CreateLink>
       </TableActions>
-      <Table columns={columns} emptyState={<EmptyState />} />
+      {table}
     </>
   )
 }
