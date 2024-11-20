@@ -6,6 +6,8 @@
  * Copyright Oxide Computer Company
  */
 import {
+  hashKey,
+  queryOptions,
   useMutation,
   useQueries,
   useQuery,
@@ -13,9 +15,11 @@ import {
   type FetchQueryOptions,
   type InvalidateQueryFilters,
   type QueryClient,
+  type QueryKey,
   type UndefinedInitialDataOptions,
   type UseMutationOptions,
   type UseQueryOptions,
+  type UseQueryResult,
 } from '@tanstack/react-query'
 import { type SetNonNullable } from 'type-fest'
 
@@ -100,14 +104,14 @@ type FetchQueryOtherOptions<T, E = DefaultError> = Omit<
   'queryKey' | 'queryFn'
 >
 
-export const getUseApiQuery =
+export const getApiQueryOptions =
   <A extends ApiClient>(api: A) =>
   <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
     options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {}
-  ) => {
-    return useQuery({
+  ) =>
+    queryOptions({
       queryKey: [method, params],
       // no catch, let unexpected errors bubble up
       queryFn: ({ signal }) => api[method](params, { signal }).then(handleResult(method)),
@@ -118,7 +122,15 @@ export const getUseApiQuery =
       throwOnError: (err) => err.statusCode === 404,
       ...options,
     })
-  }
+
+export const getUseApiQuery =
+  <A extends ApiClient>(api: A) =>
+  <M extends string & keyof A>(
+    method: M,
+    params: Params<A[M]>,
+    options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {}
+  ) =>
+    useQuery(getApiQueryOptions(api)(method, params, options))
 
 export const getUsePrefetchedApiQuery =
   <A extends ApiClient>(api: A) =>
@@ -127,33 +139,32 @@ export const getUsePrefetchedApiQuery =
     params: Params<A[M]>,
     options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {}
   ) => {
-    const queryKey = [method, params]
-    const result = useQuery({
-      queryKey,
-      // no catch, let unexpected errors bubble up
-      queryFn: ({ signal }) => api[method](params, { signal }).then(handleResult(method)),
+    const qOptions = getApiQueryOptions(api)(method, params, options)
+    return ensure(useQuery(qOptions), qOptions.queryKey)
+  }
 
-      // we can say Not Found. If you need to allow a 404 and want it to show
-      // up as `error` state instead, pass `useErrorBoundary: false` as an
-      // option from the calling component and it will override this
-      throwOnError: (err) => err.statusCode === 404,
-      ...options,
-    })
-    invariant(
-      result.data,
-      `Expected query to be prefetched.
-Key: ${JSON.stringify(queryKey)}
+const prefetchError = (key?: QueryKey) =>
+  `Expected query to be prefetched.
+Key: ${key ? hashKey(key) : '<unknown>'}
 Ensure the following:
 • loader is called in routes.tsx and is running
 • query matches in both the loader and the component
 • request isn't erroring-out server-side (check the Networking tab)
-• mock API endpoint is implemented in handlers.ts
-`
-    )
-    // TS infers non-nullable on a freestanding variable, but doesn't like to do
-    // it on a property. So we give it a hint
-    return result as SetNonNullable<typeof result, 'data'>
-  }
+• mock API endpoint is implemented in handlers.ts`
+
+export function ensure<TData, TError>(
+  result: UseQueryResult<TData, TError>,
+  /**
+   * Optional because if we call this manually from a component like
+   * `ensure(useQuery(...))`, * we don't necessarily have access to the key.
+   */
+  key?: QueryKey
+) {
+  invariant(result.data, prefetchError(key))
+  // TS infers non-nullable on a freestanding variable, but doesn't like to do
+  // it on a property. So we give it a hint
+  return result as SetNonNullable<typeof result, 'data'>
+}
 
 const ERRORS_ALLOWED = 'errors-allowed'
 
