@@ -171,7 +171,11 @@ export const getListQueryOptionsFn =
     return {
       optionsFn: (pageToken?: string) => {
         const newParams = { ...params, query: { ...params.query, limit, pageToken } }
-        return getApiQueryOptions(api)(method, newParams, options)
+        return getApiQueryOptions(api)(method, newParams, {
+          ...options,
+          // identity function so current page sticks around while next loads
+          placeholderData: (x) => x,
+        })
       },
       pageSize: limit,
     }

@@ -42,7 +42,7 @@ const EmptyState = () => {
   )
 }
 
-const sledList = getListQFn('sledList', {}, { placeholderData: (x) => x })
+const sledList = getListQFn('sledList', {})
 
 export async function loader() {
   await queryClient.prefetchQuery(sledList.optionsFn())
