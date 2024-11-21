@@ -475,7 +475,7 @@ test('attaches a floating IP; disables button when no IPs available', async ({ p
 
   // ensure External IPs table has rows for the Ephemeral IP and the Floating IP
   await expectRowVisible(page.getByRole('table'), {
-    ip: '170.20.26.11',
+    ip: '123.4.56.0',
     Kind: 'ephemeral',
     name: '—',
   })
