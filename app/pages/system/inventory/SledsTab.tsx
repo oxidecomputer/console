@@ -45,7 +45,7 @@ const EmptyState = () => {
 const sledList = getListQFn('sledList', {}, { placeholderData: (x) => x })
 
 export async function loader() {
-  await queryClient.prefetchQuery(sledList())
+  await queryClient.prefetchQuery(sledList.optionsFn())
   return null
 }
 
@@ -75,10 +75,7 @@ const staticCols = [
 
 Component.displayName = 'SledsTab'
 export function Component() {
-  const { table } = useQueryTable({
-    optionsFn: sledList,
-    columns: staticCols,
-    emptyState: <EmptyState />,
-  })
+  const emptyState = <EmptyState />
+  const { table } = useQueryTable({ query: sledList, columns: staticCols, emptyState })
   return table
 }

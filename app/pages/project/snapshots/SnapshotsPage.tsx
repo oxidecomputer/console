@@ -59,7 +59,7 @@ const snapshotList = (project: string) => getListQFn('snapshotList', { query: { 
 SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
   await Promise.all([
-    queryClient.prefetchQuery(snapshotList(project)()),
+    queryClient.prefetchQuery(snapshotList(project).optionsFn()),
 
     // Fetch disks and preload into RQ cache so fetches by ID in DiskNameFromId
     // can be mostly instant yet gracefully fall back to fetching individually
@@ -134,7 +134,7 @@ export function SnapshotsPage() {
   )
   const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({
-    optionsFn: snapshotList(project),
+    query: snapshotList(project),
     columns,
     emptyState: <EmptyState />,
   })

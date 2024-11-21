@@ -21,6 +21,7 @@ import {
   type UseQueryOptions,
   type UseQueryResult,
 } from '@tanstack/react-query'
+import * as R from 'remeda'
 import { type SetNonNullable } from 'type-fest'
 
 import { invariant } from '~/util/invariant'
@@ -124,16 +125,32 @@ export const getApiQueryOptions =
       ...options,
     })
 
+// Managed here instead of at the display layer so it can be built into the
+// query options and shared between loader prefetch and QueryTable
 export const PAGE_SIZE = 25
+
+/**
+ * This primarily exists so we can have an object that encapsulates everything
+ * useQueryTable needs to know about a query. In particular, it needs the page
+ * size, and you can't pull that out of the query options object unless you
+ * stick it in `meta`, and then we don't have type safety.
+ */
+export type PaginatedQuery<TData> = {
+  optionsFn: (
+    pageToken?: string
+  ) => UseQueryOptions<TData, ApiError> & { queryKey: QueryKey }
+  pageSize: number
+}
 
 /**
  * This is the same as getApiQueryOptions except for two things:
  *
  *   1. We use a type constraint on the method key to ensure it can
  *      only be used with endpoints that return a `ResultsPage`.
- *   2. Instead of returning the options directly, it returns a function that
- *      takes `limit` and `pageToken` and merges them into the query params so
- *      that these can be passed in by `QueryTable`.
+ *   2. Instead of returning the options directly, it returns a paginated
+ *      query config object containing the page size and a function that
+ *      takes `limit` and `pageToken` and merges them into the query params
+ *      so that these can be passed in by `QueryTable`.
  */
 export const getListQueryOptionsFn =
   <A extends ApiClient>(api: A) =>
@@ -147,13 +164,18 @@ export const getListQueryOptionsFn =
     method: M,
     params: Params<A[M]>,
     options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {}
-  ) =>
-  (limit: number = PAGE_SIZE, pageToken?: string) =>
-    getApiQueryOptions(api)(
-      method,
-      { ...params, query: { ...params.query, limit, pageToken } },
-      options
-    )
+  ): PaginatedQuery<Result<A[M]>> => {
+    // pathOr plays nice when the properties don't exist
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const limit = R.pathOr(params as any, ['query', 'limit'], PAGE_SIZE)
+    return {
+      optionsFn: (pageToken?: string) => {
+        const newParams = { ...params, query: { ...params.query, limit, pageToken } }
+        return getApiQueryOptions(api)(method, newParams, options)
+      },
+      pageSize: limit,
+    }
+  }
 
 export const getUseApiQuery =
   <A extends ApiClient>(api: A) =>

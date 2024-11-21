@@ -5,11 +5,11 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useQuery, type QueryKey, type QueryOptions } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { getCoreRowModel, useReactTable, type ColumnDef } from '@tanstack/react-table'
 import React, { useMemo } from 'react'
 
-import { ensurePrefetched, PAGE_SIZE, type ApiError, type ResultsPage } from '@oxide/api'
+import { ensurePrefetched, type PaginatedQuery, type ResultsPage } from '@oxide/api'
 
 import { Pagination } from '~/components/Pagination'
 import { usePagination } from '~/hooks/use-pagination'
@@ -19,13 +19,7 @@ import { TableEmptyBox } from '~/ui/lib/Table'
 import { Table } from './Table'
 
 type QueryTableProps<TItem> = {
-  optionsFn: (
-    limit: number,
-    page_token?: string
-  ) => QueryOptions<ResultsPage<TItem>, ApiError> & {
-    queryKey: QueryKey
-  }
-  pageSize?: number
+  query: PaginatedQuery<ResultsPage<TItem>>
   rowHeight?: 'small' | 'large'
   emptyState: React.ReactElement
   // React Table does the same in the type of `columns` on `useReactTable`
@@ -35,14 +29,13 @@ type QueryTableProps<TItem> = {
 
 // require ID only so we can use it in getRowId
 export function useQueryTable<TItem extends { id: string }>({
-  optionsFn,
-  pageSize = PAGE_SIZE,
+  query,
   rowHeight = 'small',
   emptyState,
   columns,
 }: QueryTableProps<TItem>) {
   const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
-  const queryOptions = optionsFn(pageSize, currentPage)
+  const queryOptions = query.optionsFn(currentPage)
   const queryResult = useQuery(queryOptions)
   // only ensure prefetched if we're on the first page
   if (currentPage === undefined) ensurePrefetched(queryResult, queryOptions.queryKey)
@@ -65,8 +58,8 @@ export function useQueryTable<TItem extends { id: string }>({
     <>
       <Table table={table} rowHeight={rowHeight} />
       <Pagination
-        pageSize={pageSize}
-        hasNext={tableData.length === pageSize}
+        pageSize={query.pageSize}
+        hasNext={tableData.length === query.pageSize}
         hasPrev={hasPrev}
         nextPage={data?.nextPage}
         onNext={goToNextPage}
