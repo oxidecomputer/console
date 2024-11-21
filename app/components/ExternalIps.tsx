@@ -10,6 +10,7 @@ import { useApiQuery } from '@oxide/api'
 
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
+import { Slash } from '~/ui/lib/Slash'
 import { intersperse } from '~/util/array'
 
 type InstanceSelector = { project: string; instance: string }
@@ -23,11 +24,13 @@ export function ExternalIps({ project, instance }: InstanceSelector) {
 
   const ips = data?.items
   if (!ips || ips.length === 0) return <EmptyCell />
+  // create a copy of ips so we don't mutate the original; move ephemeral ip to the end
+  const orderedIps = [...ips].sort((a) => (a.kind === 'ephemeral' ? 1 : -1))
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex max-w-full items-center gap-1 overflow-x-scroll">
       {intersperse(
-        ips.map((eip) => <CopyableIp ip={eip.ip} key={eip.ip} />),
-        <span className="text-quinary"> / </span>
+        orderedIps.map((eip) => <CopyableIp ip={eip.ip} key={eip.ip} />),
+        <Slash />
       )}
     </div>
   )
