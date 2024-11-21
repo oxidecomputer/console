@@ -10,8 +10,8 @@ import { useCallback } from 'react'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
-  apiq,
   apiQueryClient,
+  getListQFn,
   queryClient,
   useApiMutation,
   useApiQueryClient,
@@ -27,7 +27,7 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable2'
+import { useQueryTable } from '~/table/QueryTable2'
 import { Badge } from '~/ui/lib/Badge'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -53,14 +53,13 @@ const EmptyState = () => (
     buttonTo={pb.snapshotsNew(useProjectSelector())}
   />
 )
-// clearly we need to shorten this
-const snapshotListOptions = (project: string) => (limit: number, pageToken?: string) =>
-  apiq('snapshotList', { query: { project, pageToken, limit } })
+
+const snapshotList = (project: string) => getListQFn('snapshotList', { query: { project } })
 
 SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
   await Promise.all([
-    queryClient.prefetchQuery(snapshotListOptions(project)(PAGE_SIZE)),
+    queryClient.prefetchQuery(snapshotList(project)()),
 
     // Fetch disks and preload into RQ cache so fetches by ID in DiskNameFromId
     // can be mostly instant yet gracefully fall back to fetching individually
@@ -135,7 +134,7 @@ export function SnapshotsPage() {
   )
   const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({
-    optionsFn: snapshotListOptions(project),
+    optionsFn: snapshotList(project),
     columns,
     emptyState: <EmptyState />,
   })

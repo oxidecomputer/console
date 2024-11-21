@@ -8,7 +8,7 @@
 import { createColumnHelper } from '@tanstack/react-table'
 
 import {
-  apiq,
+  getListQFn,
   queryClient,
   type PhysicalDisk,
   type PhysicalDiskPolicy,
@@ -16,7 +16,7 @@ import {
 } from '@oxide/api'
 import { Servers24Icon } from '@oxide/design-system/icons/react'
 
-import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable2'
+import { useQueryTable } from '~/table/QueryTable2'
 import { Badge, type BadgeColor } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 
@@ -38,11 +38,10 @@ const EmptyState = () => (
   />
 )
 
-const diskList = (limit: number, pageToken?: string) =>
-  apiq('physicalDiskList', { query: { limit, pageToken } }, { placeholderData: (x) => x })
+const diskList = getListQFn('physicalDiskList', {}, { placeholderData: (x) => x })
 
 export async function loader() {
-  await queryClient.prefetchQuery(diskList(PAGE_SIZE))
+  await queryClient.prefetchQuery(diskList())
   return null
 }
 

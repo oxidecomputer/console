@@ -9,7 +9,7 @@ import { useQuery, type QueryKey, type QueryOptions } from '@tanstack/react-quer
 import { getCoreRowModel, useReactTable, type ColumnDef } from '@tanstack/react-table'
 import React, { useMemo } from 'react'
 
-import { ensure, type ApiError } from '@oxide/api'
+import { ensurePrefetched, PAGE_SIZE, type ApiError, type ResultsPage } from '@oxide/api'
 
 import { Pagination } from '~/components/Pagination'
 import { usePagination } from '~/hooks/use-pagination'
@@ -18,13 +18,11 @@ import { TableEmptyBox } from '~/ui/lib/Table'
 
 import { Table } from './Table'
 
-export const PAGE_SIZE = 25
-
 type QueryTableProps<TItem> = {
   optionsFn: (
     limit: number,
     page_token?: string
-  ) => QueryOptions<{ items: TItem[]; nextPage?: string }, ApiError> & {
+  ) => QueryOptions<ResultsPage<TItem>, ApiError> & {
     queryKey: QueryKey
   }
   pageSize?: number
@@ -44,9 +42,10 @@ export function useQueryTable<TItem extends { id: string }>({
   columns,
 }: QueryTableProps<TItem>) {
   const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
-  const queryResult = useQuery(optionsFn(pageSize, currentPage))
+  const queryOptions = optionsFn(pageSize, currentPage)
+  const queryResult = useQuery(queryOptions)
   // only ensure prefetched if we're on the first page
-  if (currentPage === undefined) ensure(queryResult)
+  if (currentPage === undefined) ensurePrefetched(queryResult, queryOptions.queryKey)
   const { data, isLoading } = queryResult
   const tableData = useMemo(() => data?.items || [], [data])
 

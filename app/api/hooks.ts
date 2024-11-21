@@ -28,6 +28,7 @@ import { invariant } from '~/util/invariant'
 import type { ApiResult } from './__generated__/Api'
 import { processServerError, type ApiError } from './errors'
 import { navToLogin } from './nav-to-login'
+import { type ResultsPage } from './util'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type Params<F> = F extends (p: infer P) => any ? P : never
@@ -123,6 +124,37 @@ export const getApiQueryOptions =
       ...options,
     })
 
+export const PAGE_SIZE = 25
+
+/**
+ * This is the same as getApiQueryOptions except for two things:
+ *
+ *   1. We use a type constraint on the method key to ensure it can
+ *      only be used with endpoints that return a `ResultsPage`.
+ *   2. Instead of returning the options directly, it returns a function that
+ *      takes `limit` and `pageToken` and merges them into the query params so
+ *      that these can be passed in by `QueryTable`.
+ */
+export const getListQueryOptionsFn =
+  <A extends ApiClient>(api: A) =>
+  <
+    M extends string &
+      {
+        // this helper can only be used with endpoints that return ResultsPage
+        [K in keyof A]: Result<A[K]> extends ResultsPage<unknown> ? K : never
+      }[keyof A],
+  >(
+    method: M,
+    params: Params<A[M]>,
+    options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {}
+  ) =>
+  (limit: number = PAGE_SIZE, pageToken?: string) =>
+    getApiQueryOptions(api)(
+      method,
+      { ...params, query: { ...params.query, limit, pageToken } },
+      options
+    )
+
 export const getUseApiQuery =
   <A extends ApiClient>(api: A) =>
   <M extends string & keyof A>(
@@ -140,7 +172,7 @@ export const getUsePrefetchedApiQuery =
     options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {}
   ) => {
     const qOptions = getApiQueryOptions(api)(method, params, options)
-    return ensure(useQuery(qOptions), qOptions.queryKey)
+    return ensurePrefetched(useQuery(qOptions), qOptions.queryKey)
   }
 
 const prefetchError = (key?: QueryKey) =>
@@ -152,7 +184,11 @@ Ensure the following:
 • request isn't erroring-out server-side (check the Networking tab)
 • mock API endpoint is implemented in handlers.ts`
 
-export function ensure<TData, TError>(
+/**
+ * Ensure a query result came from the cache by blowing up if `data` comes
+ * back undefined.
+ */
+export function ensurePrefetched<TData, TError>(
   result: UseQueryResult<TData, TError>,
   /**
    * Optional because if we call this manually from a component like
