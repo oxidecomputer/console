@@ -7,7 +7,7 @@
  */
 import { useQuery } from '@tanstack/react-query'
 import { getCoreRowModel, useReactTable, type ColumnDef } from '@tanstack/react-table'
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useRef } from 'react'
 
 import { ensurePrefetched, type PaginatedQuery, type ResultsPage } from '@oxide/api'
 
@@ -27,8 +27,6 @@ type QueryTableProps<TItem> = {
   columns: ColumnDef<TItem, any>[]
 }
 
-const resetScroll = () => document.querySelector('#scroll-container')?.scrollTo(0, 0)
-
 // require ID only so we can use it in getRowId
 export function useQueryTable<TItem extends { id: string }>({
   query,
@@ -44,8 +42,20 @@ export function useQueryTable<TItem extends { id: string }>({
   const { data, isPlaceholderData } = queryResult
   const tableData = useMemo(() => data?.items || [], [data])
 
+  // this is annoying, but basically we only want this to happen when clicking
+  // next/prev to change page, not, for example, on initial pageload after
+  // browser forward/back.
+  const needScrollReset = useRef(false)
   const firstItemId = tableData?.[0].id
-  useEffect(resetScroll, [firstItemId])
+  useEffect(() => {
+    if (needScrollReset.current) {
+      document.querySelector('#scroll-container')?.scrollTo(0, 0)
+      needScrollReset.current = false
+    }
+    // trigger by first item ID and not, e.g., currentPage because currentPage changes
+    // as soon as you click Next, while the item ID doesn't change until the page
+    // actually changes.
+  }, [firstItemId])
 
   const table = useReactTable({
     columns,
@@ -67,8 +77,14 @@ export function useQueryTable<TItem extends { id: string }>({
         hasNext={tableData.length === query.pageSize}
         hasPrev={hasPrev}
         nextPage={data?.nextPage}
-        onNext={goToNextPage}
-        onPrev={goToPrevPage}
+        onNext={(p) => {
+          needScrollReset.current = true
+          goToNextPage(p)
+        }}
+        onPrev={() => {
+          needScrollReset.current = true
+          goToPrevPage()
+        }}
         // I can't believe how well this works, but it exactly matches when
         // we want to show the spinner. Cached page changes don't need it.
         loading={isPlaceholderData}
