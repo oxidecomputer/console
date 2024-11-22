@@ -27,7 +27,7 @@ const EmptyState = () => (
 
 const colHelper = createColumnHelper<IdentityProvider>()
 
-const idpList = (silo: string) =>
+export const siloIdpList = (silo: string) =>
   getListQFn('siloIdentityProviderList', { query: { silo } })
 
 export function SiloIdpsTab() {
@@ -53,7 +53,7 @@ export function SiloIdpsTab() {
   )
 
   const { table } = useQueryTable({
-    query: idpList(silo),
+    query: siloIdpList(silo),
     columns,
     emptyState: <EmptyState />,
   })

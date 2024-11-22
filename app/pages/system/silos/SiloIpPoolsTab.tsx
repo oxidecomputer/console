@@ -6,11 +6,12 @@
  * Copyright Oxide Computer Company
  */
 
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { useApiMutation, useApiQuery, useApiQueryClient, type SiloIpPool } from '@oxide/api'
+import { getListQFn, useApiMutation, useApiQueryClient, type SiloIpPool } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
@@ -22,7 +23,7 @@ import { DefaultPoolCell } from '~/table/cells/DefaultPoolCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { useQueryTable } from '~/table/QueryTable'
+import { useQueryTable } from '~/table/QueryTable2'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -52,20 +53,25 @@ const staticCols = [
   }),
 ]
 
+const allPoolsQuery = getListQFn('ipPoolList', { query: { limit: ALL_ISH } })
+
+const allSiloPoolsQuery = (silo: string) =>
+  getListQFn('siloIpPoolList', { path: { silo }, query: { limit: ALL_ISH } })
+
+// exported to call in silo page loader
+export const siloIpPoolsQuery = (silo: string) =>
+  getListQFn('siloIpPoolList', { path: { silo } })
+
 export function SiloIpPoolsTab() {
   const { silo } = useSiloSelector()
   const [showLinkModal, setShowLinkModal] = useState(false)
-  const { Table } = useQueryTable('siloIpPoolList', { path: { silo } })
   const queryClient = useApiQueryClient()
 
-  // Fetch 1000 to we can be sure to get them all. There should only be a few
-  // anyway. Not prefetched because the prefetched one only gets 25 to match the
-  // query table. This req is better to do async because they can't click make
-  // default that fast anyway.
-  const { data: allPools } = useApiQuery('siloIpPoolList', {
-    path: { silo },
-    query: { limit: ALL_ISH },
-  })
+  // Fetch all_ish, but there should only be a few anyway. Not prefetched
+  // because the prefetched one only gets 25 to match the query table. This req
+  // is better to do async because they can't click make default that fast
+  // anyway.
+  const { data: allPools } = useQuery(allSiloPoolsQuery(silo).optionsFn())
 
   // used in change default confirm modal
   const defaultPool = useMemo(
@@ -162,13 +168,18 @@ export function SiloIpPoolsTab() {
   )
 
   const columns = useColsWithActions(staticCols, makeActions)
+  const { table } = useQueryTable({
+    query: siloIpPoolsQuery(silo),
+    columns,
+    emptyState: <EmptyState />,
+  })
 
   return (
     <>
       <div className="mb-3 flex justify-end">
         <CreateButton onClick={() => setShowLinkModal(true)}>Link pool</CreateButton>
       </div>
-      <Table columns={columns} emptyState={<EmptyState />} />
+      {table}
       {showLinkModal && <LinkPoolModal onDismiss={() => setShowLinkModal(false)} />}
     </>
   )
@@ -200,18 +211,16 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
     linkPool.mutate({ path: { pool }, body: { silo, isDefault: false } })
   }
 
-  const linkedPools = useApiQuery('siloIpPoolList', {
-    path: { silo },
-    query: { limit: ALL_ISH },
-  })
-  const allPools = useApiQuery('ipPoolList', { query: { limit: ALL_ISH } })
+  const allLinkedPools = useQuery(allSiloPoolsQuery(silo).optionsFn())
+  const allPools = useQuery(allPoolsQuery.optionsFn())
 
   // in order to get the list of remaining unlinked pools, we have to get the
   // list of all pools and remove the already linked ones
 
   const linkedPoolIds = useMemo(
-    () => (linkedPools.data ? new Set(linkedPools.data.items.map((p) => p.id)) : undefined),
-    [linkedPools]
+    () =>
+      allLinkedPools.data ? new Set(allLinkedPools.data.items.map((p) => p.id)) : undefined,
+    [allLinkedPools]
   )
   const unlinkedPoolItems = useMemo(
     () =>
@@ -243,7 +252,7 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
               name="pool"
               label="IP pool"
               items={unlinkedPoolItems}
-              isLoading={linkedPools.isPending || allPools.isPending}
+              isLoading={allLinkedPools.isPending || allPools.isPending}
               required
               control={control}
             />
