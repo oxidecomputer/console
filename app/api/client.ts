@@ -9,6 +9,8 @@ import { QueryClient } from '@tanstack/react-query'
 
 import { Api } from './__generated__/Api'
 import {
+  getApiQueryOptions,
+  getListQueryOptionsFn,
   getUseApiMutation,
   getUseApiQueries,
   getUseApiQuery,
@@ -17,6 +19,8 @@ import {
   wrapQueryClient,
 } from './hooks'
 
+export { ensurePrefetched, PAGE_SIZE, type PaginatedQuery } from './hooks'
+
 export const api = new Api({
   // unit tests run in Node, whose fetch implementation requires a full URL
   host: process.env.NODE_ENV === 'test' ? 'http://testhost' : '',
@@ -24,6 +28,14 @@ export const api = new Api({
 
 export type ApiMethods = typeof api.methods
 
+/** API-specific query options helper. */
+export const apiq = getApiQueryOptions(api.methods)
+/**
+ * Query options helper that only supports list endpoints. Returns
+ * a function `(limit, pageToken) => QueryOptions` for use with
+ * `useQueryTable`.
+ */
+export const getListQFn = getListQueryOptionsFn(api.methods)
 export const useApiQuery = getUseApiQuery(api.methods)
 export const useApiQueries = getUseApiQueries(api.methods)
 /**

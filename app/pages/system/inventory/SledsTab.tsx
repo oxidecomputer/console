@@ -7,11 +7,17 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 
-import { apiQueryClient, type Sled, type SledPolicy, type SledState } from '@oxide/api'
+import {
+  getListQFn,
+  queryClient,
+  type Sled,
+  type SledPolicy,
+  type SledState,
+} from '@oxide/api'
 import { Servers24Icon } from '@oxide/design-system/icons/react'
 
 import { makeLinkCell } from '~/table/cells/LinkCell'
-import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { useQueryTable } from '~/table/QueryTable2'
 import { Badge, type BadgeColor } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pb } from '~/util/path-builder'
@@ -36,10 +42,10 @@ const EmptyState = () => {
   )
 }
 
+const sledList = getListQFn('sledList', {})
+
 export async function loader() {
-  await apiQueryClient.prefetchQuery('sledList', {
-    query: { limit: PAGE_SIZE },
-  })
+  await queryClient.prefetchQuery(sledList.optionsFn())
   return null
 }
 
@@ -69,6 +75,7 @@ const staticCols = [
 
 Component.displayName = 'SledsTab'
 export function Component() {
-  const { Table } = useQueryTable('sledList', {}, { placeholderData: (x) => x })
-  return <Table emptyState={<EmptyState />} columns={staticCols} />
+  const emptyState = <EmptyState />
+  const { table } = useQueryTable({ query: sledList, columns: staticCols, emptyState })
+  return table
 }

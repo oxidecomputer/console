@@ -21,6 +21,7 @@ import {
   type UseQueryOptions,
   type UseQueryResult,
 } from '@tanstack/react-query'
+import * as R from 'remeda'
 import { type SetNonNullable } from 'type-fest'
 
 import { invariant } from '~/util/invariant'
@@ -28,6 +29,7 @@ import { invariant } from '~/util/invariant'
 import type { ApiResult } from './__generated__/Api'
 import { processServerError, type ApiError } from './errors'
 import { navToLogin } from './nav-to-login'
+import { type ResultsPage } from './util'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type Params<F> = F extends (p: infer P) => any ? P : never
@@ -123,6 +125,66 @@ export const getApiQueryOptions =
       ...options,
     })
 
+// Managed here instead of at the display layer so it can be built into the
+// query options and shared between loader prefetch and QueryTable
+export const PAGE_SIZE = 25
+
+/**
+ * This primarily exists so we can have an object that encapsulates everything
+ * useQueryTable needs to know about a query. In particular, it needs the page
+ * size, and you can't pull that out of the query options object unless you
+ * stick it in `meta`, and then we don't have type safety.
+ */
+export type PaginatedQuery<TData> = {
+  optionsFn: (
+    pageToken?: string
+  ) => UseQueryOptions<TData, ApiError> & { queryKey: QueryKey }
+  pageSize: number
+}
+
+/**
+ * This is the same as getApiQueryOptions except for two things:
+ *
+ *   1. We use a type constraint on the method key to ensure it can
+ *      only be used with endpoints that return a `ResultsPage`.
+ *   2. Instead of returning the options directly, it returns a paginated
+ *      query config object containing the page size and a function that
+ *      takes `limit` and `pageToken` and merges them into the query params
+ *      so that these can be passed in by `QueryTable`.
+ */
+export const getListQueryOptionsFn =
+  <A extends ApiClient>(api: A) =>
+  <
+    M extends string &
+      {
+        // this helper can only be used with endpoints that return ResultsPage
+        [K in keyof A]: Result<A[K]> extends ResultsPage<unknown> ? K : never
+      }[keyof A],
+  >(
+    method: M,
+    params: Params<A[M]>,
+    options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {}
+  ): PaginatedQuery<Result<A[M]>> => {
+    // We pull limit out of the query params rather than passing it in some
+    // other way so that there is exactly one way of specifying it. If we had
+    // some other way of doing it, and then you also passed it in as a query
+    // param, it would be hard to guess which takes precedence. (pathOr plays
+    // nice when the properties don't exist.)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const limit = R.pathOr(params as any, ['query', 'limit'], PAGE_SIZE)
+    return {
+      optionsFn: (pageToken?: string) => {
+        const newParams = { ...params, query: { ...params.query, limit, pageToken } }
+        return getApiQueryOptions(api)(method, newParams, {
+          ...options,
+          // identity function so current page sticks around while next loads
+          placeholderData: (x) => x,
+        })
+      },
+      pageSize: limit,
+    }
+  }
+
 export const getUseApiQuery =
   <A extends ApiClient>(api: A) =>
   <M extends string & keyof A>(
@@ -140,7 +202,7 @@ export const getUsePrefetchedApiQuery =
     options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {}
   ) => {
     const qOptions = getApiQueryOptions(api)(method, params, options)
-    return ensure(useQuery(qOptions), qOptions.queryKey)
+    return ensurePrefetched(useQuery(qOptions), qOptions.queryKey)
   }
 
 const prefetchError = (key?: QueryKey) =>
@@ -152,7 +214,11 @@ Ensure the following:
 • request isn't erroring-out server-side (check the Networking tab)
 • mock API endpoint is implemented in handlers.ts`
 
-export function ensure<TData, TError>(
+/**
+ * Ensure a query result came from the cache by blowing up if `data` comes
+ * back undefined.
+ */
+export function ensurePrefetched<TData, TError>(
   result: UseQueryResult<TData, TError>,
   /**
    * Optional because if we call this manually from a component like

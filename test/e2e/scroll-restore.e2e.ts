@@ -5,18 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, test, type Page } from './utils'
+import { expect, test } from '@playwright/test'
 
-async function expectScrollTop(page: Page, expected: number) {
-  const container = page.getByTestId('scroll-container')
-  const getScrollTop = () => container.evaluate((el: HTMLElement) => el.scrollTop)
-  await expect.poll(getScrollTop).toBe(expected)
-}
-
-async function scrollTo(page: Page, to: number) {
-  const container = page.getByTestId('scroll-container')
-  await container.evaluate((el: HTMLElement, to) => el.scrollTo(0, to), to)
-}
+import { expectScrollTop, scrollTo } from './utils'
 
 test('scroll restore', async ({ page }) => {
   // open small window to make scrolling easier

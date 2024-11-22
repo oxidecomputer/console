@@ -12,6 +12,7 @@ import { getCoreRowModel, useReactTable, type ColumnDef } from '@tanstack/react-
 import React, { useCallback, useMemo, type ComponentType } from 'react'
 
 import {
+  PAGE_SIZE,
   useApiQuery,
   type ApiError,
   type ApiListMethods,
@@ -26,6 +27,8 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 
 import { Table } from './Table'
+
+export { PAGE_SIZE }
 
 interface UseQueryTableResult<Item extends Record<string, unknown>> {
   Table: ComponentType<QueryTableProps<Item>>
@@ -58,8 +61,6 @@ type QueryTableProps<Item> = {
   emptyState: React.ReactElement
   columns: ColumnDef<Item, any>[]
 }
-
-export const PAGE_SIZE = 25
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const makeQueryTable = <Item extends Record<string, unknown>>(
