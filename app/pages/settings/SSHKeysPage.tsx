@@ -9,7 +9,13 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
-import { apiQueryClient, useApiMutation, useApiQueryClient, type SshKey } from '@oxide/api'
+import {
+  getListQFn,
+  queryClient,
+  useApiMutation,
+  useApiQueryClient,
+  type SshKey,
+} from '@oxide/api'
 import { Key16Icon, Key24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -18,7 +24,7 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { useQueryTable } from '~/table/QueryTable2'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -26,10 +32,9 @@ import { TableActions } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
+const sshKeyList = () => getListQFn('currentUserSshKeyList', {})
 export async function loader() {
-  await apiQueryClient.prefetchQuery('currentUserSshKeyList', {
-    query: { limit: PAGE_SIZE },
-  })
+  await queryClient.prefetchQuery(sshKeyList().optionsFn())
   return null
 }
 
@@ -44,7 +49,6 @@ Component.displayName = 'SSHKeysPage'
 export function Component() {
   const navigate = useNavigate()
 
-  const { Table } = useQueryTable('currentUserSshKeyList', {})
   const queryClient = useApiQueryClient()
 
   const { mutateAsync: deleteSshKey } = useApiMutation('currentUserSshKeyDelete', {
@@ -76,8 +80,8 @@ export function Component() {
       onClick={() => navigate(pb.sshKeysNew())}
     />
   )
-
   const columns = useColsWithActions(staticCols, makeActions)
+  const { table } = useQueryTable({ query: sshKeyList(), columns, emptyState })
 
   return (
     <>
@@ -95,7 +99,7 @@ export function Component() {
           Add SSH key
         </Link>
       </TableActions>
-      <Table columns={columns} emptyState={emptyState} />
+      {table}
       <Outlet />
     </>
   )

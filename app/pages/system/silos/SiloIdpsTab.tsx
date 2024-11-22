@@ -11,11 +11,11 @@ import { Outlet } from 'react-router-dom'
 
 import { Cloud24Icon } from '@oxide/design-system/icons/react'
 
-import type { IdentityProvider } from '~/api'
+import { getListQFn, type IdentityProvider } from '~/api'
 import { useSiloSelector } from '~/hooks/use-params'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { Columns } from '~/table/columns/common'
-import { useQueryTable } from '~/table/QueryTable'
+import { useQueryTable } from '~/table/QueryTable2'
 import { Badge } from '~/ui/lib/Badge'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -27,14 +27,13 @@ const EmptyState = () => (
 
 const colHelper = createColumnHelper<IdentityProvider>()
 
+const idpList = (silo: string) =>
+  getListQFn('siloIdentityProviderList', { query: { silo } })
+
 export function SiloIdpsTab() {
   const { silo } = useSiloSelector()
 
-  const { Table } = useQueryTable('siloIdentityProviderList', {
-    query: { silo },
-  })
-
-  const staticCols = useMemo(
+  const columns = useMemo(
     () => [
       colHelper.accessor('name', {
         cell: (info) => {
@@ -53,12 +52,18 @@ export function SiloIdpsTab() {
     [silo]
   )
 
+  const { table } = useQueryTable({
+    query: idpList(silo),
+    columns,
+    emptyState: <EmptyState />,
+  })
+
   return (
     <>
       <div className="mb-3 flex justify-end space-x-2">
         <CreateLink to={pb.siloIdpsNew({ silo })}>New provider</CreateLink>
       </div>
-      <Table emptyState={<EmptyState />} columns={staticCols} />
+      {table}
       <Outlet />
     </>
   )

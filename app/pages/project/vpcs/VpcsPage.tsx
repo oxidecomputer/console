@@ -11,10 +11,11 @@ import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
+  getListQFn,
+  queryClient,
   useApiMutation,
   useApiQuery,
   useApiQueryClient,
-  usePrefetchedApiQuery,
   type Vpc,
 } from '@oxide/api'
 import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
@@ -29,13 +30,15 @@ import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell, makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { useQueryTable } from '~/table/QueryTable2'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
+
+const vpcList = (project: string) => getListQFn('vpcList', { query: { project } })
 
 const EmptyState = () => (
   <EmptyMessage
@@ -70,17 +73,13 @@ const colHelper = createColumnHelper<Vpc>()
 // sure it matches the call in the QueryTable
 VpcsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
-  await apiQueryClient.prefetchQuery('vpcList', { query: { project, limit: PAGE_SIZE } })
+  await queryClient.prefetchQuery(vpcList(project).optionsFn())
   return null
 }
 
 export function VpcsPage() {
   const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
-  // to have same params as QueryTable
-  const { data: vpcs } = usePrefetchedApiQuery('vpcList', {
-    query: { project, limit: PAGE_SIZE },
-  })
   const navigate = useNavigate()
 
   const { mutateAsync: deleteVpc } = useApiMutation('vpcDelete', {
@@ -114,18 +113,6 @@ export function VpcsPage() {
     [deleteVpc, navigate, project]
   )
 
-  useQuickActions(
-    useMemo(
-      () =>
-        vpcs.items.map((v) => ({
-          value: v.name,
-          onSelect: () => navigate(pb.vpc({ project, vpc: v.name })),
-          navGroup: 'Go to VPC',
-        })),
-      [project, vpcs, navigate]
-    )
-  )
-
   const columns = useMemo(
     () => [
       colHelper.accessor('name', {
@@ -145,7 +132,26 @@ export function VpcsPage() {
     [project, makeActions]
   )
 
-  const { Table } = useQueryTable('vpcList', { query: { project } })
+  const { table, query } = useQueryTable({
+    query: vpcList(project),
+    columns,
+    emptyState: <EmptyState />,
+  })
+
+  const { data: vpcs } = query
+
+  useQuickActions(
+    useMemo(
+      () =>
+        (vpcs?.items || []).map((v) => ({
+          value: v.name,
+          onSelect: () => navigate(pb.vpc({ project, vpc: v.name })),
+          navGroup: 'Go to VPC',
+        })),
+      [project, vpcs, navigate]
+    )
+  )
+
   return (
     <>
       <PageHeader>
@@ -155,7 +161,7 @@ export function VpcsPage() {
       <TableActions>
         <CreateLink to={pb.vpcsNew({ project })}>New Vpc</CreateLink>
       </TableActions>
-      <Table columns={columns} emptyState={<EmptyState />} />
+      {table}
       <Outlet />
     </>
   )
