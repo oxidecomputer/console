@@ -165,7 +165,11 @@ export const getListQueryOptionsFn =
     params: Params<A[M]>,
     options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {}
   ): PaginatedQuery<Result<A[M]>> => {
-    // pathOr plays nice when the properties don't exist
+    // We pull limit out of the query params rather than passing it in some
+    // other way so that there is exactly one way of specifying it. If we had
+    // some other way of doing it, and then you also passed it in as a query
+    // param, it would be hard to guess which takes precedence. (pathOr plays
+    // nice when the properties don't exist.)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const limit = R.pathOr(params as any, ['query', 'limit'], PAGE_SIZE)
     return {

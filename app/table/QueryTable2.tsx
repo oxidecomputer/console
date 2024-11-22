@@ -27,6 +27,23 @@ type QueryTableProps<TItem> = {
   columns: ColumnDef<TItem, any>[]
 }
 
+/**
+ * Reset scroll to top when clicking * next/prev to change page but not,
+ * for example, on initial pageload after browser forward/back.
+ */
+function useScrollReset(triggerDep: string | undefined) {
+  const resetRequested = useRef(false)
+  useEffect(() => {
+    if (resetRequested.current) {
+      document.querySelector('#scroll-container')?.scrollTo(0, 0)
+      resetRequested.current = false
+    }
+  }, [triggerDep])
+  return () => {
+    resetRequested.current = true
+  }
+}
+
 // require ID only so we can use it in getRowId
 export function useQueryTable<TItem extends { id: string }>({
   query,
@@ -42,20 +59,10 @@ export function useQueryTable<TItem extends { id: string }>({
   const { data, isPlaceholderData } = queryResult
   const tableData = useMemo(() => data?.items || [], [data])
 
-  // this is annoying, but basically we only want this to happen when clicking
-  // next/prev to change page, not, for example, on initial pageload after
-  // browser forward/back.
-  const needScrollReset = useRef(false)
-  const firstItemId = tableData?.[0].id
-  useEffect(() => {
-    if (needScrollReset.current) {
-      document.querySelector('#scroll-container')?.scrollTo(0, 0)
-      needScrollReset.current = false
-    }
-    // trigger by first item ID and not, e.g., currentPage because currentPage changes
-    // as soon as you click Next, while the item ID doesn't change until the page
-    // actually changes.
-  }, [firstItemId])
+  // trigger by first item ID and not, e.g., currentPage because currentPage
+  // changes as soon as you click Next, while the item ID doesn't change until
+  // the page actually changes.
+  const requestScrollReset = useScrollReset(tableData.at(0)?.id)
 
   const table = useReactTable({
     columns,
@@ -78,11 +85,11 @@ export function useQueryTable<TItem extends { id: string }>({
         hasPrev={hasPrev}
         nextPage={data?.nextPage}
         onNext={(p) => {
-          needScrollReset.current = true
+          requestScrollReset()
           goToNextPage(p)
         }}
         onPrev={() => {
-          needScrollReset.current = true
+          requestScrollReset()
           goToPrevPage()
         }}
         // I can't believe how well this works, but it exactly matches when
