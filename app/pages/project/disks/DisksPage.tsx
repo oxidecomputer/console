@@ -13,6 +13,8 @@ import {
   apiQueryClient,
   diskCan,
   genName,
+  getListQFn,
+  queryClient,
   useApiMutation,
   useApiQueryClient,
   type Disk,
@@ -28,7 +30,7 @@ import { addToast } from '~/stores/toast'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { useQueryTable } from '~/table/QueryTable2'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -48,12 +50,12 @@ const EmptyState = () => (
   />
 )
 
+const diskList = (project: string) => getListQFn('diskList', { query: { project } })
+
 DisksPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('diskList', {
-      query: { project, limit: PAGE_SIZE },
-    }),
+    queryClient.prefetchQuery(diskList(project).optionsFn()),
 
     // fetch instances and preload into RQ cache so fetches by ID in
     // InstanceLinkCell can be mostly instant yet gracefully fall back to
@@ -97,7 +99,6 @@ const staticCols = [
 export function DisksPage() {
   const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
-  const { Table } = useQueryTable('diskList', { query: { project } })
 
   const { mutateAsync: deleteDisk } = useApiMutation('diskDelete', {
     onSuccess(_data, variables) {
@@ -160,6 +161,11 @@ export function DisksPage() {
   )
 
   const columns = useColsWithActions(staticCols, makeActions)
+  const { table } = useQueryTable({
+    query: diskList(project),
+    columns,
+    emptyState: <EmptyState />,
+  })
 
   return (
     <>
@@ -175,7 +181,7 @@ export function DisksPage() {
       <TableActions>
         <CreateLink to={pb.disksNew({ project })}>New Disk</CreateLink>
       </TableActions>
-      <Table columns={columns} emptyState={<EmptyState />} />
+      {table}
       <Outlet />
     </>
   )

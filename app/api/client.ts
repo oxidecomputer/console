@@ -19,7 +19,12 @@ import {
   wrapQueryClient,
 } from './hooks'
 
-export { ensurePrefetched, PAGE_SIZE, type PaginatedQuery } from './hooks'
+export {
+  ensurePrefetched,
+  usePrefetchedQuery,
+  PAGE_SIZE,
+  type PaginatedQuery,
+} from './hooks'
 
 export const api = new Api({
   // unit tests run in Node, whose fetch implementation requires a full URL
