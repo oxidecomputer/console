@@ -25,7 +25,18 @@ type QueryTableProps<TItem> = {
   // React Table does the same in the type of `columns` on `useReactTable`
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   columns: ColumnDef<TItem, any>[]
-}
+  // Require getId if and only if TItem does not have an id field. Something
+  // to keep in mind for the future: if instead we used the `select` transform
+  // function on the query to add an ID to every row, we could just require TItem
+  // to extend `{ id: string }`, and we wouldn't need this `getId` function. The
+  // difficulty I ran into was propagating the result of `select` through the API
+  // query options helpers. But I think it can be done.
+} & (TItem extends { id: string }
+  ? { getId?: never }
+  : {
+      /** Needed if and only if `TItem` has no `id` field */
+      getId: (row: TItem) => string
+    })
 
 /**
  * Reset scroll to top when clicking * next/prev to change page but not,
@@ -45,11 +56,12 @@ function useScrollReset(triggerDep: string | undefined) {
 }
 
 // require ID only so we can use it in getRowId
-export function useQueryTable<TItem extends { id: string }>({
+export function useQueryTable<TItem>({
   query,
   rowHeight = 'small',
   emptyState,
   columns,
+  getId,
 }: QueryTableProps<TItem>) {
   const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
   const queryOptions = query.optionsFn(currentPage)
@@ -59,15 +71,21 @@ export function useQueryTable<TItem extends { id: string }>({
   const { data, isPlaceholderData } = queryResult
   const tableData = useMemo(() => data?.items || [], [data])
 
+  const getRowId = getId
+    ? getId
+    : // @ts-expect-error we know from the types that getId is only defined when there is no ID
+      (row: TItem) => row.id as string
+
   // trigger by first item ID and not, e.g., currentPage because currentPage
   // changes as soon as you click Next, while the item ID doesn't change until
   // the page actually changes.
-  const requestScrollReset = useScrollReset(tableData.at(0)?.id)
+  const first = tableData.at(0)
+  const requestScrollReset = useScrollReset(first ? getRowId(first) : undefined)
 
   const table = useReactTable({
     columns,
     data: tableData,
-    getRowId: (row) => row.id,
+    getRowId,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
   })

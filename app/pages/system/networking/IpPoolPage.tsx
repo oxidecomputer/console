@@ -12,12 +12,16 @@ import { useForm } from 'react-hook-form'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
+  apiq,
   apiQueryClient,
+  getListQFn,
   parseIpUtilization,
+  queryClient,
   useApiMutation,
   useApiQuery,
   useApiQueryClient,
   usePrefetchedApiQuery,
+  usePrefetchedQuery,
   type IpPoolRange,
   type IpPoolSiloLink,
 } from '@oxide/api'
@@ -38,7 +42,7 @@ import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { useQueryTable } from '~/table/QueryTable2'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { CreateButton, CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -51,14 +55,16 @@ import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-const query = { limit: PAGE_SIZE }
+const ipPoolView = (pool: string) => apiq('ipPoolView', { path: { pool } })
+const ipPoolSiloList = (pool: string) => getListQFn('ipPoolSiloList', { path: { pool } })
+const ipPoolRangeList = (pool: string) => getListQFn('ipPoolRangeList', { path: { pool } })
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { pool } = getIpPoolSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('ipPoolView', { path: { pool } }),
-    apiQueryClient.prefetchQuery('ipPoolSiloList', { path: { pool }, query }),
-    apiQueryClient.prefetchQuery('ipPoolRangeList', { path: { pool }, query }),
+    queryClient.prefetchQuery(ipPoolView(pool)),
+    queryClient.prefetchQuery(ipPoolSiloList(pool).optionsFn()),
+    queryClient.prefetchQuery(ipPoolRangeList(pool).optionsFn()),
     apiQueryClient.prefetchQuery('ipPoolUtilizationView', { path: { pool } }),
 
     // fetch silos and preload into RQ cache so fetches by ID in SiloNameFromId
@@ -76,11 +82,10 @@ export async function loader({ params }: LoaderFunctionArgs) {
 Component.displayName = 'IpPoolPage'
 export function Component() {
   const poolSelector = useIpPoolSelector()
-  const { data: pool } = usePrefetchedApiQuery('ipPoolView', { path: poolSelector })
-  const { data: ranges } = usePrefetchedApiQuery('ipPoolRangeList', {
-    path: poolSelector,
-    query,
-  })
+  const { data: pool } = usePrefetchedQuery(ipPoolView(poolSelector.pool))
+  const { data: ranges } = usePrefetchedQuery(
+    ipPoolRangeList(poolSelector.pool).optionsFn()
+  )
   const navigate = useNavigate()
   const { mutateAsync: deletePool } = useApiMutation('ipPoolDelete', {
     onSuccess(_data, variables) {
@@ -190,7 +195,6 @@ const ipRangesStaticCols = [
 
 function IpRangesTable() {
   const { pool } = useIpPoolSelector()
-  const { Table } = useQueryTable('ipPoolRangeList', { path: { pool } })
   const queryClient = useApiQueryClient()
 
   const { mutateAsync: removeRange } = useApiMutation('ipPoolRangeRemove', {
@@ -239,13 +243,14 @@ function IpRangesTable() {
     [pool, removeRange]
   )
   const columns = useColsWithActions(ipRangesStaticCols, makeRangeActions)
+  const { table } = useQueryTable({ query: ipPoolRangeList(pool), columns, emptyState })
 
   return (
     <>
       <div className="mb-3 flex justify-end">
         <CreateLink to={pb.ipPoolRangeAdd({ pool })}>Add range</CreateLink>
       </div>
-      <Table columns={columns} emptyState={emptyState} />
+      {table}
     </>
   )
 }
@@ -283,7 +288,6 @@ const silosStaticCols = [
 function LinkedSilosTable() {
   const poolSelector = useIpPoolSelector()
   const queryClient = useApiQueryClient()
-  const { Table } = useQueryTable('ipPoolSiloList', { path: poolSelector })
 
   const { mutateAsync: unlinkSilo } = useApiMutation('ipPoolSiloUnlink', {
     onSuccess() {
@@ -335,12 +339,19 @@ function LinkedSilosTable() {
   )
 
   const columns = useColsWithActions(silosStaticCols, makeActions)
+  const { table } = useQueryTable({
+    query: ipPoolSiloList(poolSelector.pool),
+    columns,
+    emptyState,
+    getId: (link) => link.siloId,
+  })
+
   return (
     <>
       <div className="mb-3 flex justify-end">
         <CreateButton onClick={() => setShowLinkModal(true)}>Link silo</CreateButton>
       </div>
-      <Table columns={columns} emptyState={emptyState} />
+      {table}
       {showLinkModal && <LinkSiloModal onDismiss={() => setShowLinkModal(false)} />}
     </>
   )
