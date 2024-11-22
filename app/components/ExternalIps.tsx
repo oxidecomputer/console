@@ -39,7 +39,7 @@ export function ExternalIps({ project, instance }: InstanceSelector) {
         <Slash />
       )}
       {overflowCount > 0 && (
-        <Link to={pb.instanceNetworking({ project, instance })}>
+        <Link to={pb.instanceNetworking({ project, instance })} className="ml-1">
           <Badge>+{overflowCount}</Badge>
         </Link>
       )}
