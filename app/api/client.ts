@@ -5,25 +5,19 @@
  *
  * Copyright Oxide Computer Company
  */
-import { QueryClient } from '@tanstack/react-query'
+import { QueryClient, useQuery, type UseQueryOptions } from '@tanstack/react-query'
 
 import { Api } from './__generated__/Api'
+import { type ApiError } from './errors'
 import {
+  ensurePrefetched,
   getApiQueryOptions,
   getListQueryOptionsFn,
   getUseApiMutation,
-  getUseApiQueries,
   getUseApiQuery,
   getUseApiQueryErrorsAllowed,
   getUsePrefetchedApiQuery,
   wrapQueryClient,
-} from './hooks'
-
-export {
-  ensurePrefetched,
-  usePrefetchedQuery,
-  PAGE_SIZE,
-  type PaginatedQuery,
 } from './hooks'
 
 export const api = new Api({
@@ -42,7 +36,6 @@ export const apiq = getApiQueryOptions(api.methods)
  */
 export const getListQFn = getListQueryOptionsFn(api.methods)
 export const useApiQuery = getUseApiQuery(api.methods)
-export const useApiQueries = getUseApiQueries(api.methods)
 /**
  * Same as `useApiQuery`, except we use `invariant(data)` to ensure the data is
  * already there in the cache at request time, which means it has been
@@ -52,6 +45,9 @@ export const useApiQueries = getUseApiQueries(api.methods)
 export const usePrefetchedApiQuery = getUsePrefetchedApiQuery(api.methods)
 export const useApiQueryErrorsAllowed = getUseApiQueryErrorsAllowed(api.methods)
 export const useApiMutation = getUseApiMutation(api.methods)
+
+export const usePrefetchedQuery = <TData>(options: UseQueryOptions<TData, ApiError>) =>
+  ensurePrefetched(useQuery(options), options.queryKey)
 
 // Needs to be defined here instead of in app so we can use it to define
 // `apiQueryClient`, which provides API-typed versions of QueryClient methods

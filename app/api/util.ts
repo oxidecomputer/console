@@ -23,8 +23,6 @@ import type {
   VpcFirewallRuleUpdate,
 } from './__generated__/Api'
 
-export type ResultsPage<TItem> = { items: TItem[]; nextPage?: string }
-
 // API limits encoded in https://github.com/oxidecomputer/omicron/blob/main/nexus/src/app/mod.rs
 
 export const MAX_NICS_PER_INSTANCE = 8
