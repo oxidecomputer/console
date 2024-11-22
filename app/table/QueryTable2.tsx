@@ -7,7 +7,7 @@
  */
 import { useQuery } from '@tanstack/react-query'
 import { getCoreRowModel, useReactTable, type ColumnDef } from '@tanstack/react-table'
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 
 import { ensurePrefetched, type PaginatedQuery, type ResultsPage } from '@oxide/api'
 
@@ -39,8 +39,13 @@ export function useQueryTable<TItem extends { id: string }>({
   const queryResult = useQuery(queryOptions)
   // only ensure prefetched if we're on the first page
   if (currentPage === undefined) ensurePrefetched(queryResult, queryOptions.queryKey)
-  const { data, isLoading } = queryResult
+  const { data } = queryResult
   const tableData = useMemo(() => data?.items || [], [data])
+
+  const firstItemId = tableData?.[0].id
+  useEffect(() => {
+    document.querySelector('#scroll-container')?.scrollTo(0, 0)
+  }, [firstItemId])
 
   const table = useReactTable({
     columns,
@@ -52,7 +57,7 @@ export function useQueryTable<TItem extends { id: string }>({
 
   const isEmpty = tableData.length === 0 && !hasPrev
 
-  const tableElement = isLoading ? null : isEmpty ? (
+  const tableElement = isEmpty ? (
     <TableEmptyBox>{emptyState || <EmptyMessage title="No results" />}</TableEmptyBox>
   ) : (
     <>

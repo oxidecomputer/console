@@ -34,3 +34,5 @@ test('pagination', async ({ page }) => {
   await nextButton.click()
   await expect(nextButton).toBeDisabled() // no more pages
 })
+
+// TODO: test scroll to top on page change
