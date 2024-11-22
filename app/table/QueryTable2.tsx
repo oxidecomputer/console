@@ -39,7 +39,7 @@ export function useQueryTable<TItem extends { id: string }>({
   const queryResult = useQuery(queryOptions)
   // only ensure prefetched if we're on the first page
   if (currentPage === undefined) ensurePrefetched(queryResult, queryOptions.queryKey)
-  const { data } = queryResult
+  const { data, isPlaceholderData } = queryResult
   const tableData = useMemo(() => data?.items || [], [data])
 
   const firstItemId = tableData?.[0].id
@@ -69,6 +69,9 @@ export function useQueryTable<TItem extends { id: string }>({
         nextPage={data?.nextPage}
         onNext={goToNextPage}
         onPrev={goToPrevPage}
+        // I can't believe how well this works, but it exactly matches when
+        // we want to show the spinner. Cached page changes don't need it.
+        loading={isPlaceholderData}
       />
     </>
   )
