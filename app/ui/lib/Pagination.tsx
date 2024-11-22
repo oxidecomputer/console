@@ -50,7 +50,8 @@ export const Pagination = ({
 }: PaginationProps) => {
   return (
     <>
-      <div
+      <nav
+        aria-label="Pagination"
         className={cn(
           'flex items-center justify-between text-mono-sm text-default bg-default',
           className
@@ -91,7 +92,7 @@ export const Pagination = ({
             />
           </button>
         </span>
-      </div>
+      </nav>
     </>
   )
 }

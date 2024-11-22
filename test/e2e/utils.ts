@@ -232,3 +232,14 @@ export async function chooseFile(
     buffer: size === 'large' ? bigFile : smallFile,
   })
 }
+
+export async function expectScrollTop(page: Page, expected: number) {
+  const container = page.getByTestId('scroll-container')
+  const getScrollTop = () => container.evaluate((el: HTMLElement) => el.scrollTop)
+  await expect.poll(getScrollTop).toBe(expected)
+}
+
+export async function scrollTo(page: Page, to: number) {
+  const container = page.getByTestId('scroll-container')
+  await container.evaluate((el: HTMLElement, to) => el.scrollTo(0, to), to)
+}

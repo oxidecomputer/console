@@ -27,6 +27,8 @@ type QueryTableProps<TItem> = {
   columns: ColumnDef<TItem, any>[]
 }
 
+const resetScroll = () => document.querySelector('#scroll-container')?.scrollTo(0, 0)
+
 // require ID only so we can use it in getRowId
 export function useQueryTable<TItem extends { id: string }>({
   query,
@@ -43,9 +45,7 @@ export function useQueryTable<TItem extends { id: string }>({
   const tableData = useMemo(() => data?.items || [], [data])
 
   const firstItemId = tableData?.[0].id
-  useEffect(() => {
-    document.querySelector('#scroll-container')?.scrollTo(0, 0)
-  }, [firstItemId])
+  useEffect(resetScroll, [firstItemId])
 
   const table = useReactTable({
     columns,
