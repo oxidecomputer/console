@@ -11,7 +11,8 @@ import { useForm, type FieldValues } from 'react-hook-form'
 import { Outlet } from 'react-router-dom'
 
 import {
-  apiQueryClient,
+  getListQFn,
+  queryClient,
   useApiMutation,
   useApiQuery,
   useApiQueryClient,
@@ -29,7 +30,7 @@ import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { useQueryTable } from '~/table/QueryTable2'
 import { Button } from '~/ui/lib/Button'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -48,10 +49,10 @@ const EmptyState = () => (
   />
 )
 
+const imageList = getListQFn('imageList', {})
+
 export async function loader() {
-  await apiQueryClient.prefetchQuery('imageList', {
-    query: { limit: PAGE_SIZE },
-  })
+  await queryClient.prefetchQuery(imageList.optionsFn())
   return null
 }
 
@@ -67,7 +68,6 @@ const staticCols = [
 
 Component.displayName = 'SiloImagesPage'
 export function Component() {
-  const { Table } = useQueryTable('imageList', {})
   const [showModal, setShowModal] = useState(false)
   const [demoteImage, setDemoteImage] = useState<Image | null>(null)
 
@@ -97,6 +97,7 @@ export function Component() {
   )
 
   const columns = useColsWithActions(staticCols, makeActions)
+  const { table } = useQueryTable({ query: imageList, columns, emptyState: <EmptyState /> })
   return (
     <>
       <PageHeader>
@@ -113,7 +114,7 @@ export function Component() {
           Promote image
         </Button>
       </TableActions>
-      <Table columns={columns} emptyState={<EmptyState />} />
+      {table}
       {showModal && <PromoteImageModal onDismiss={() => setShowModal(false)} />}
       {demoteImage && (
         <DemoteImageModal onDismiss={() => setDemoteImage(null)} image={demoteImage} />
