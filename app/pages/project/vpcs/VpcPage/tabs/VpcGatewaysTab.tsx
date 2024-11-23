@@ -8,47 +8,41 @@
 
 import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo } from 'react'
-import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
+import { type LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient, type InternetGateway } from '~/api'
+import { getListQFn, queryClient, type InternetGateway } from '~/api'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
 const colHelper = createColumnHelper<InternetGateway>()
 
+type VpcParams = { project: string; vpc: string }
+
+const gatewayList = (query: VpcParams) => getListQFn('internetGatewayList', { query })
+
 VpcInternetGatewaysTab.loader = async ({ params }: LoaderFunctionArgs) => {
-  const { project, vpc } = getVpcSelector(params)
-  const query = { project, vpc, limit: ALL_ISH }
-  await Promise.all([
-    apiQueryClient.prefetchQuery('internetGatewayList', { query }),
-    apiQueryClient.prefetchQuery('internetGatewayIpAddressList', { query }),
-    apiQueryClient.prefetchQuery('internetGatewayIpPoolList', { query }),
-  ])
+  const vpcSelector = getVpcSelector(params)
+  await queryClient.prefetchQuery(gatewayList(vpcSelector).optionsFn())
   return null
 }
 
 export function VpcInternetGatewaysTab() {
   const vpcSelector = useVpcSelector()
-  const { project, vpc } = vpcSelector
-  const { Table } = useQueryTable('internetGatewayList', {
-    query: { project, vpc, limit: ALL_ISH },
-  })
 
   const emptyState = (
     <EmptyMessage
       title="No internet gateways"
       body="Create an internet gateway to see it here"
       buttonText="New internet gateway"
-      buttonTo={pb.vpcInternetGatewaysNew({ project, vpc })}
+      buttonTo={pb.vpcInternetGatewaysNew(vpcSelector)}
     />
   )
 
-  const staticColumns = useMemo(
+  const columns = useMemo(
     () => [
       colHelper.accessor('name', {
         cell: makeLinkCell((gateway) => pb.vpcInternetGateway({ ...vpcSelector, gateway })),
@@ -59,10 +53,7 @@ export function VpcInternetGatewaysTab() {
     [vpcSelector]
   )
 
-  return (
-    <>
-      <Table columns={staticColumns} emptyState={emptyState} />
-      <Outlet />
-    </>
-  )
+  const { table } = useQueryTable({ query: gatewayList(vpcSelector), columns, emptyState })
+
+  return <>{table}</>
 }

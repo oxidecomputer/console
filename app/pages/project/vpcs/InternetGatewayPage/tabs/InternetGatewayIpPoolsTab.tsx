@@ -10,7 +10,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient, type InternetGatewayIpPool } from '~/api'
+import { apiQueryClient, getListQFn, queryClient, type InternetGatewayIpPool } from '~/api'
 import { getInternetGatewaySelector, useInternetGatewaySelector } from '~/hooks/use-params'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -19,12 +19,15 @@ import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { ALL_ISH } from '~/util/consts'
 
+type GatewayParams = { project: string; vpc: string; gateway: string }
+
+const gatewayIpPoolList = (query: GatewayParams) =>
+  getListQFn('internetGatewayIpPoolList', { query })
+
 InternetGatewayIpPoolsTab.loader = async function ({ params }: LoaderFunctionArgs) {
   const { project, vpc, gateway } = getInternetGatewaySelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('internetGatewayIpPoolList', {
-      query: { project, vpc, gateway, limit: ALL_ISH },
-    }),
+    queryClient.prefetchQuery(gatewayIpPoolList({ project, vpc, gateway }).optionsFn()),
     // fetch IP Pools and preload into RQ cache so fetches by ID in
     // IpPoolCell can be mostly instant yet gracefully fall back to
     // fetching individually if we don't fetch them all here
@@ -46,11 +49,17 @@ InternetGatewayIpPoolsTab.loader = async function ({ params }: LoaderFunctionArg
 
 const colHelper = createColumnHelper<InternetGatewayIpPool>()
 
+const staticColumns = [
+  colHelper.accessor('name', {}),
+  colHelper.accessor('description', Columns.description),
+  colHelper.accessor('ipPoolId', {
+    header: 'IP Pool',
+    cell: (info) => <IpPoolCell ipPoolId={info.getValue()} />,
+  }),
+]
+
 export function InternetGatewayIpPoolsTab() {
-  const { project, vpc, gateway } = useInternetGatewaySelector()
-  const { Table } = useQueryTable('internetGatewayIpPoolList', {
-    query: { project, vpc, gateway, limit: ALL_ISH },
-  })
+  const gatewaySelector = useInternetGatewaySelector()
 
   const emptyState = (
     <EmptyMessage
@@ -58,15 +67,6 @@ export function InternetGatewayIpPoolsTab() {
       body="Use the CLI to add an IP pool to this internet gateway to see it here."
     />
   )
-
-  const staticColumns = [
-    colHelper.accessor('name', {}),
-    colHelper.accessor('description', Columns.description),
-    colHelper.accessor('ipPoolId', {
-      header: 'IP Pool',
-      cell: (info) => <IpPoolCell ipPoolId={info.getValue()} />,
-    }),
-  ]
 
   // The user can copy the ID of the IP Pool attached to this internet gateway
   const makeActions = useCallback(
@@ -82,5 +82,10 @@ export function InternetGatewayIpPoolsTab() {
   )
 
   const columns = useColsWithActions(staticColumns, makeActions)
-  return <Table columns={columns} emptyState={emptyState} />
+  const { table } = useQueryTable({
+    query: gatewayIpPoolList(gatewaySelector),
+    columns,
+    emptyState,
+  })
+  return table
 }
