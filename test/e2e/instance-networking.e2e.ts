@@ -152,7 +152,7 @@ test('Instance networking tab — floating IPs', async ({ page }) => {
   await clickRowAction(page, 'cola-float', 'Detach')
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(page.getByText('external IPs123.4.56.5/123.4.56.4+1')).toBeHidden()
-  await expect(page.getByText('external IPs123.4.56.5/123.4.56.0')).toBeVisible()
+  await expect(page.getByText('external IPs123.4.56.4/123.4.56.0')).toBeVisible()
 
   // Since we detached it, we don't expect to see the row any longer
   await expect(externalIpTable.getByRole('cell', { name: 'cola-float' })).toBeHidden()
