@@ -12,9 +12,11 @@ import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
+  getListQFn,
+  queryClient,
   useApiMutation,
   useApiQueryClient,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
   type FloatingIp,
   type Instance,
 } from '@oxide/api'
@@ -31,7 +33,7 @@ import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { useQueryTable } from '~/table/QueryTable'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -53,15 +55,15 @@ const EmptyState = () => (
   />
 )
 
+const fipList = (project: string) => getListQFn('floatingIpList', { query: { project } })
+const instanceList = (project: string) =>
+  getListQFn('instanceList', { query: { project, limit: ALL_ISH } })
+
 FloatingIpsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('floatingIpList', {
-      query: { project, limit: PAGE_SIZE },
-    }),
-    apiQueryClient.prefetchQuery('instanceList', {
-      query: { project },
-    }),
+    queryClient.prefetchQuery(fipList(project).optionsFn()),
+    queryClient.prefetchQuery(instanceList(project).optionsFn()),
     // fetch IP Pools and preload into RQ cache so fetches by ID in
     // IpPoolCell can be mostly instant yet gracefully fall back to
     // fetching individually if we don't fetch them all here
@@ -102,9 +104,7 @@ export function FloatingIpsPage() {
   const [floatingIpToModify, setFloatingIpToModify] = useState<FloatingIp | null>(null)
   const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
-  const { data: instances } = usePrefetchedApiQuery('instanceList', {
-    query: { project },
-  })
+  const { data: instances } = usePrefetchedQuery(instanceList(project).optionsFn())
   const navigate = useNavigate()
 
   const { mutateAsync: floatingIpDetach } = useApiMutation('floatingIpDetach', {
@@ -202,9 +202,12 @@ export function FloatingIpsPage() {
     [deleteFloatingIp, floatingIpDetach, navigate, project, instances]
   )
 
-  const { Table } = useQueryTable('floatingIpList', { query: { project } })
-
   const columns = useColsWithActions(staticCols, makeActions)
+  const { table } = useQueryTable({
+    query: fipList(project),
+    columns,
+    emptyState: <EmptyState />,
+  })
 
   return (
     <>
@@ -220,7 +223,7 @@ export function FloatingIpsPage() {
       <TableActions>
         <CreateLink to={pb.floatingIpsNew({ project })}>New Floating IP</CreateLink>
       </TableActions>
-      <Table columns={columns} emptyState={<EmptyState />} />
+      {table}
       <Outlet />
       {floatingIpToModify && (
         <AttachFloatingIpModal

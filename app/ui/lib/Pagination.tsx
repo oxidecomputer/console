@@ -9,6 +9,8 @@ import cn from 'classnames'
 
 import { DirectionLeftIcon, DirectionRightIcon } from '@oxide/design-system/icons/react'
 
+import { Spinner } from './Spinner'
+
 interface PageInputProps {
   number: number
   className?: string
@@ -34,6 +36,7 @@ export interface PaginationProps {
   onNext: (nextPage: string) => void
   onPrev: () => void
   className?: string
+  loading?: boolean
 }
 export const Pagination = ({
   pageSize,
@@ -43,10 +46,12 @@ export const Pagination = ({
   onNext,
   onPrev,
   className,
+  loading,
 }: PaginationProps) => {
   return (
     <>
-      <div
+      <nav
+        aria-label="Pagination"
         className={cn(
           'flex items-center justify-between text-mono-sm text-default bg-default',
           className
@@ -55,7 +60,8 @@ export const Pagination = ({
         <span className="flex-inline grow text-tertiary">
           rows per page <PageInput number={pageSize} />
         </span>
-        <span className="flex space-x-3">
+        <span className="flex items-center space-x-3">
+          {loading && <Spinner />}
           <button
             type="button"
             className={cn(
@@ -86,7 +92,7 @@ export const Pagination = ({
             />
           </button>
         </span>
-      </div>
+      </nav>
     </>
   )
 }

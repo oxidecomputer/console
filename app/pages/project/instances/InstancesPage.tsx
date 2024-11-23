@@ -5,12 +5,20 @@
  *
  * Copyright Oxide Computer Company
  */
+import { type UseQueryOptions } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { filesize } from 'filesize'
 import { useMemo, useRef } from 'react'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient, usePrefetchedApiQuery, type Instance } from '@oxide/api'
+import {
+  apiQueryClient,
+  getListQFn,
+  queryClient,
+  type ApiError,
+  type Instance,
+  type InstanceResultsPage,
+} from '@oxide/api'
 import { Instances24Icon } from '@oxide/design-system/icons/react'
 
 import { instanceTransitioning } from '~/api/util'
@@ -22,7 +30,7 @@ import { InstanceStateCell } from '~/table/cells/InstanceStateCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -46,11 +54,16 @@ const EmptyState = () => (
 
 const colHelper = createColumnHelper<Instance>()
 
+const instanceList = (
+  project: string,
+  // kinda gnarly, but we need refetchInterval in the component but not in the loader.
+  // pick refetchInterval to avoid annoying type conflicts on the full object
+  options?: Pick<UseQueryOptions<InstanceResultsPage, ApiError>, 'refetchInterval'>
+) => getListQFn('instanceList', { query: { project } }, options)
+
 InstancesPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
-  await apiQueryClient.prefetchQuery('instanceList', {
-    query: { project, limit: PAGE_SIZE },
-  })
+  await queryClient.prefetchQuery(instanceList(project).optionsFn())
   return null
 }
 
@@ -67,86 +80,6 @@ export function InstancesPage() {
   const { makeButtonActions, makeMenuActions } = useMakeInstanceActions(
     { project },
     { onSuccess: refetchInstances, onDelete: refetchInstances }
-  )
-
-  // this is a whole thing. sit down.
-
-  // We initialize this set as empty because we don't have the instances on hand
-  // yet. This is fine because the first fetch will recognize the presence of
-  // any transitioning instances as a change in state and initiate polling
-  const transitioningInstances = useRef<Set<string>>(new Set())
-  const pollingStartTime = useRef<number>(Date.now())
-
-  const { data: instances, dataUpdatedAt } = usePrefetchedApiQuery(
-    'instanceList',
-    { query: { project, limit: PAGE_SIZE } },
-    {
-      // The point of all this is to poll quickly for a certain amount of time
-      // after some instance in the current page enters a transitional state
-      // like starting or stopping. After that, it will keep polling, but more
-      // slowly. For example, if you stop an instance, its state will change to
-      // `stopping`, which will cause this logic to start polling the list until
-      // it lands in `stopped`, at which point it will poll only slowly because
-      // `stopped` is not considered transitional.
-      refetchInterval({ state: { data } }) {
-        const prevTransitioning = transitioningInstances.current
-        const nextTransitioning = new Set(
-          // Data will never actually be undefined because of the prefetch but whatever
-          (data?.items || [])
-            .filter(instanceTransitioning)
-            // These are strings of instance ID + current state. This is done because
-            // of the case where an instance is stuck in starting (for example), polling
-            // times out, and then you manually stop it. Without putting the state in the
-            // the key, that stop action would not be registered as a change in the set
-            // of transitioning instances.
-            .map((i) => i.id + '|' + i.runState)
-        )
-
-        // always update the ledger to the current state
-        transitioningInstances.current = nextTransitioning
-
-        // We use this set difference logic instead of set equality because if
-        // you have two transitioning instances and one stops transitioning,
-        // then that's a change in the set, but you shouldn't start polling
-        // fast because of it! What you want to look for is *new* transitioning
-        // instances.
-        const anyTransitioning = nextTransitioning.size > 0
-        const anyNewTransitioning = setDiff(nextTransitioning, prevTransitioning).size > 0
-
-        // if there are new instances in transitioning, restart the timeout window
-        if (anyNewTransitioning) pollingStartTime.current = Date.now()
-
-        // important that elapsed is calculated *after* potentially bumping start time
-        const elapsed = Date.now() - pollingStartTime.current
-        return anyTransitioning && elapsed < POLL_FAST_TIMEOUT
-          ? POLL_INTERVAL_FAST
-          : POLL_INTERVAL_SLOW
-      },
-    }
-  )
-
-  const navigate = useNavigate()
-  useQuickActions(
-    useMemo(
-      () => [
-        {
-          value: 'New instance',
-          onSelect: () => navigate(pb.instancesNew({ project })),
-        },
-        ...(instances?.items || []).map((i) => ({
-          value: i.name,
-          onSelect: () => navigate(pb.instance({ project, instance: i.name })),
-          navGroup: 'Go to instance',
-        })),
-      ],
-      [project, instances, navigate]
-    )
-  )
-
-  const { Table } = useQueryTable(
-    'instanceList',
-    { query: { project } },
-    { placeholderData: (x) => x }
   )
 
   const columns = useMemo(
@@ -189,7 +122,81 @@ export function InstancesPage() {
     [project, makeButtonActions, makeMenuActions]
   )
 
-  if (!instances) return null
+  // this is a whole thing. sit down.
+
+  // We initialize this set as empty because we don't have the instances on hand
+  // yet. This is fine because the first fetch will recognize the presence of
+  // any transitioning instances as a change in state and initiate polling
+  const transitioningInstances = useRef<Set<string>>(new Set())
+  const pollingStartTime = useRef<number>(Date.now())
+
+  const { table, query } = useQueryTable({
+    query: instanceList(project, {
+      // The point of all this is to poll quickly for a certain amount of time
+      // after some instance in the current page enters a transitional state
+      // like starting or stopping. After that, it will keep polling, but more
+      // slowly. For example, if you stop an instance, its state will change to
+      // `stopping`, which will cause this logic to start polling the list until
+      // it lands in `stopped`, at which point it will poll only slowly because
+      // `stopped` is not considered transitional.
+      refetchInterval({ state: { data } }) {
+        const prevTransitioning = transitioningInstances.current
+        const nextTransitioning = new Set(
+          // Data will never actually be undefined because of the prefetch but whatever
+          (data?.items || [])
+            .filter(instanceTransitioning)
+            // These are strings of instance ID + current state. This is done because
+            // of the case where an instance is stuck in starting (for example), polling
+            // times out, and then you manually stop it. Without putting the state in the
+            // the key, that stop action would not be registered as a change in the set
+            // of transitioning instances.
+            .map((i) => i.id + '|' + i.runState)
+        )
+
+        // always update the ledger to the current state
+        transitioningInstances.current = nextTransitioning
+
+        // We use this set difference logic instead of set equality because if
+        // you have two transitioning instances and one stops transitioning,
+        // then that's a change in the set, but you shouldn't start polling
+        // fast because of it! What you want to look for is *new* transitioning
+        // instances.
+        const anyTransitioning = nextTransitioning.size > 0
+        const anyNewTransitioning = setDiff(nextTransitioning, prevTransitioning).size > 0
+
+        // if there are new instances in transitioning, restart the timeout window
+        if (anyNewTransitioning) pollingStartTime.current = Date.now()
+
+        // important that elapsed is calculated *after* potentially bumping start time
+        const elapsed = Date.now() - pollingStartTime.current
+        return anyTransitioning && elapsed < POLL_FAST_TIMEOUT
+          ? POLL_INTERVAL_FAST
+          : POLL_INTERVAL_SLOW
+      },
+    }),
+    columns,
+    emptyState: <EmptyState />,
+  })
+
+  const { data: instances, dataUpdatedAt } = query
+
+  const navigate = useNavigate()
+  useQuickActions(
+    useMemo(
+      () => [
+        {
+          value: 'New instance',
+          onSelect: () => navigate(pb.instancesNew({ project })),
+        },
+        ...(instances?.items || []).map((i) => ({
+          value: i.name,
+          onSelect: () => navigate(pb.instance({ project, instance: i.name })),
+          navGroup: 'Go to instance',
+        })),
+      ],
+      [project, instances, navigate]
+    )
+  )
 
   return (
     <>
@@ -213,7 +220,7 @@ export function InstancesPage() {
         </div>
         <CreateLink to={pb.instancesNew({ project })}>New Instance</CreateLink>
       </TableActions>
-      <Table columns={columns} emptyState={<EmptyState />} />
+      {table}
     </>
   )
 }
