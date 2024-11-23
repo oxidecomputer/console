@@ -5,23 +5,25 @@
  *
  * Copyright Oxide Computer Company
  */
-import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
+
+import { getListQFn, queryClient, usePrefetchedQuery } from '@oxide/api'
 import { Servers16Icon, Servers24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
-import { PAGE_SIZE } from '~/table/QueryTable'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
+const rackList = getListQFn('rackList', {})
+
 InventoryPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('rackList', { query: { limit: PAGE_SIZE } })
+  await queryClient.prefetchQuery(rackList.optionsFn())
   return null
 }
 
 export function InventoryPage() {
-  const { data: racks } = usePrefetchedApiQuery('rackList', { query: { limit: PAGE_SIZE } })
+  const { data: racks } = usePrefetchedQuery(rackList.optionsFn())
   const rack = racks?.items[0]
 
   if (!rack) return null

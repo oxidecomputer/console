@@ -11,7 +11,7 @@ import { Outlet } from 'react-router-dom'
 
 import { Cloud24Icon } from '@oxide/design-system/icons/react'
 
-import type { IdentityProvider } from '~/api'
+import { getListQFn, type IdentityProvider } from '~/api'
 import { useSiloSelector } from '~/hooks/use-params'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { Columns } from '~/table/columns/common'
@@ -27,14 +27,13 @@ const EmptyState = () => (
 
 const colHelper = createColumnHelper<IdentityProvider>()
 
+export const siloIdpList = (silo: string) =>
+  getListQFn('siloIdentityProviderList', { query: { silo } })
+
 export function SiloIdpsTab() {
   const { silo } = useSiloSelector()
 
-  const { Table } = useQueryTable('siloIdentityProviderList', {
-    query: { silo },
-  })
-
-  const staticCols = useMemo(
+  const columns = useMemo(
     () => [
       colHelper.accessor('name', {
         cell: (info) => {
@@ -53,12 +52,18 @@ export function SiloIdpsTab() {
     [silo]
   )
 
+  const { table } = useQueryTable({
+    query: siloIdpList(silo),
+    columns,
+    emptyState: <EmptyState />,
+  })
+
   return (
     <>
       <div className="mb-3 flex justify-end space-x-2">
         <CreateLink to={pb.siloIdpsNew({ silo })}>New provider</CreateLink>
       </div>
-      <Table emptyState={<EmptyState />} columns={staticCols} />
+      {table}
       <Outlet />
     </>
   )

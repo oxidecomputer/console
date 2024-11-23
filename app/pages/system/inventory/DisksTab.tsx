@@ -16,7 +16,7 @@ import {
 } from '@oxide/api'
 import { Servers24Icon } from '@oxide/design-system/icons/react'
 
-import { useQueryTable } from '~/table/QueryTable2'
+import { useQueryTable } from '~/table/QueryTable'
 import { Badge, type BadgeColor } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 

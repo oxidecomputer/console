@@ -12,9 +12,10 @@ import { Outlet, useNavigate } from 'react-router-dom'
 
 import {
   apiQueryClient,
+  getListQFn,
+  queryClient,
   useApiMutation,
   useApiQuery,
-  usePrefetchedApiQuery,
   type IpPool,
 } from '@oxide/api'
 import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
@@ -29,7 +30,7 @@ import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -66,18 +67,16 @@ const staticColumns = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
+const ipPoolList = () => getListQFn('ipPoolList', {})
+
 export async function loader() {
-  await apiQueryClient.prefetchQuery('ipPoolList', { query: { limit: PAGE_SIZE } })
+  await queryClient.prefetchQuery(ipPoolList().optionsFn())
   return null
 }
 
 Component.displayName = 'IpPoolsPage'
 export function Component() {
   const navigate = useNavigate()
-  const { Table } = useQueryTable('ipPoolList', {})
-  const { data: pools } = usePrefetchedApiQuery('ipPoolList', {
-    query: { limit: PAGE_SIZE },
-  })
 
   const { mutateAsync: deletePool } = useApiMutation('ipPoolDelete', {
     onSuccess(_data, variables) {
@@ -109,6 +108,12 @@ export function Component() {
   )
 
   const columns = useColsWithActions(staticColumns, makeActions)
+  const { table, query } = useQueryTable({
+    query: ipPoolList(),
+    columns,
+    emptyState: <EmptyState />,
+  })
+  const { data: pools } = query
 
   useQuickActions(
     useMemo(
@@ -117,7 +122,7 @@ export function Component() {
           value: 'New IP pool',
           onSelect: () => navigate(pb.projectsNew()),
         },
-        ...(pools.items || []).map((p) => ({
+        ...(pools?.items || []).map((p) => ({
           value: p.name,
           onSelect: () => navigate(pb.ipPool({ pool: p.name })),
           navGroup: 'Go to IP pool',
@@ -141,7 +146,7 @@ export function Component() {
       <TableActions>
         <CreateLink to={pb.ipPoolsNew()}>New IP Pool</CreateLink>
       </TableActions>
-      <Table columns={columns} emptyState={<EmptyState />} />
+      {table}
       <Outlet />
     </>
   )

@@ -232,6 +232,9 @@ export function ensurePrefetched<TData, TError>(
   return result as SetNonNullable<typeof result, 'data'>
 }
 
+export const usePrefetchedQuery = <TData>(options: UseQueryOptions<TData, ApiError>) =>
+  ensurePrefetched(useQuery(options), options.queryKey)
+
 const ERRORS_ALLOWED = 'errors-allowed'
 
 /** Result that includes both success and error so it can be cached by RQ */
