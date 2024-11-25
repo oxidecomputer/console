@@ -28,6 +28,7 @@ import {
 } from '~/api/util'
 import { ExternalIps } from '~/components/ExternalIps'
 import { NumberField } from '~/components/form/fields/NumberField'
+import { HL } from '~/components/HL'
 import { InstanceDocsPopover } from '~/components/InstanceDocsPopover'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { RefreshButton } from '~/components/RefreshButton'
@@ -279,7 +280,11 @@ export function ResizeInstanceModal({
       }
       onDismiss()
       addToast({
-        content: `${instance.name} has been resized`,
+        content: (
+          <>
+            Instance <HL>{instance.name}</HL> resized
+          </>
+        ),
         cta: onListView
           ? {
               text: `View instance`,
