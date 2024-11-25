@@ -1403,6 +1403,9 @@ export const handlers = makeHandlers({
   siloCreate({ body: { quotas, ...body }, cookies }) {
     requireFleetViewer(cookies)
     errIfExists(db.silos, { name: body.name })
+    if (body.tls_certificates.length === 0) {
+      throw 'A valid TLS certificate is required'
+    }
     const newSilo: Json<Api.Silo> = {
       id: uuid(),
       ...getTimestamps(),
