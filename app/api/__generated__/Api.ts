@@ -1226,7 +1226,7 @@ export type Datum =
   | { datum: MissingDatum; type: 'missing' }
 
 export type DerEncodedKeyPair = {
-  /** request signing private key (base64 encoded der file) */
+  /** request signing RSA private key in PKCS#1 format (base64 encoded der file) */
   privateKey: string
   /** request signing public certificate (base64 encoded der file) */
   publicCert: string

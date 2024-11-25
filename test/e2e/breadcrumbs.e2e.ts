@@ -41,10 +41,12 @@ test('breadcrumbs', async ({ page }) => {
   // the form route doesn't have its own crumb
   await page.getByRole('link', { name: 'New VPC' }).click()
   await expect(page).toHaveURL('/projects/mock-project/vpcs-new')
+  await expect(page.getByRole('dialog', { name: 'Create VPC' })).toBeVisible()
   await expectCrumbs(page, vpcsCrumbs)
 
   // try a nested one with a tab
   await page.goto('/projects/mock-project/instances/db1/networking')
+  await expect(page.getByRole('tab', { name: 'Networking' })).toBeVisible()
   await expectCrumbs(page, [
     ...projectCrumbs,
     ['Instances', '/projects/mock-project/instances'],
@@ -77,6 +79,8 @@ test('breadcrumbs', async ({ page }) => {
     ['ip-pool-1', '/system/networking/ip-pools/ip-pool-1'],
   ]
   await expectCrumbs(page, poolCrumbs)
-  await page.goto('/system/networking/ip-pools/ip-pool-1/ranges-add')
+  await page.getByRole('link', { name: 'Add range' }).click()
+  await expect(page).toHaveURL('/system/networking/ip-pools/ip-pool-1/ranges-add')
+  await expect(page.getByRole('dialog', { name: 'Add IP range' })).toBeVisible()
   await expectCrumbs(page, poolCrumbs)
 })

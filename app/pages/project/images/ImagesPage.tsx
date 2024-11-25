@@ -9,7 +9,14 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient, useApiMutation, useApiQueryClient, type Image } from '@oxide/api'
+import {
+  apiQueryClient,
+  getListQFn,
+  queryClient,
+  useApiMutation,
+  useApiQueryClient,
+  type Image,
+} from '@oxide/api'
 import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -20,7 +27,7 @@ import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
@@ -42,25 +49,23 @@ const EmptyState = () => (
 
 const colHelper = createColumnHelper<Image>()
 
+const imageList = (project: string) => getListQFn('imageList', { query: { project } })
+
 ImagesPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
-  await apiQueryClient.prefetchQuery('imageList', {
-    query: { project, limit: PAGE_SIZE },
-  })
+  await queryClient.prefetchQuery(imageList(project).optionsFn())
   return null
 }
 
 export function ImagesPage() {
   const { project } = useProjectSelector()
-  const { Table } = useQueryTable('imageList', { query: { project } })
-  const queryClient = useApiQueryClient()
 
   const [promoteImageName, setPromoteImageName] = useState<string | null>(null)
 
   const { mutateAsync: deleteImage } = useApiMutation('imageDelete', {
     onSuccess(_data, variables) {
       addToast(<>Image <HL>{variables.path.image}</HL> deleted</>) // prettier-ignore
-      queryClient.invalidateQueries('imageList')
+      apiQueryClient.invalidateQueries('imageList')
     },
   })
 
@@ -97,6 +102,12 @@ export function ImagesPage() {
     ]
   }, [project, makeActions])
 
+  const { table } = useQueryTable({
+    query: imageList(project),
+    columns,
+    emptyState: <EmptyState />,
+  })
+
   return (
     <>
       <PageHeader>
@@ -111,7 +122,7 @@ export function ImagesPage() {
       <TableActions>
         <CreateLink to={pb.projectImagesNew({ project })}>Upload image</CreateLink>
       </TableActions>
-      <Table columns={columns} emptyState={<EmptyState />} />
+      {table}
       {promoteImageName && (
         <PromoteImageModal
           onDismiss={() => setPromoteImageName(null)}
