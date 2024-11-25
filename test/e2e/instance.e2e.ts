@@ -139,6 +139,66 @@ test('cannot reboot a starting instance, or a stopped instance', async ({ page }
   await expect(page.getByRole('menuitem', { name: 'Reboot' })).toBeDisabled()
 })
 
+test('cannot resize a running or starting instance', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances')
+
+  await expectInstanceState(page, 'db1', 'running')
+  await openRowActions(page, 'db1')
+  await expect(page.getByRole('menuitem', { name: 'Resize' })).toBeDisabled()
+
+  await expectInstanceState(page, 'not-there-yet', 'starting')
+  await openRowActions(page, 'not-there-yet')
+  await expect(page.getByRole('menuitem', { name: 'Resize' })).toBeDisabled()
+})
+
+test('can resize a failed or stopped instance', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances')
+  const table = page.getByRole('table')
+
+  // resize 'you-fail', currently in a failed state
+  await expectRowVisible(table, {
+    name: 'you-fail',
+    CPU: '4 vCPU',
+    Memory: '6 GiB',
+    state: expect.stringMatching(/^failed\d+s$/),
+  })
+  await clickRowAction(page, 'you-fail', 'Resize')
+  const resizeModal = page.getByRole('dialog', { name: 'Resize instance' })
+  await expect(resizeModal).toBeVisible()
+  await resizeModal.getByRole('textbox', { name: 'CPU' }).fill('10')
+  await resizeModal.getByRole('textbox', { name: 'Memory' }).fill('20')
+  await resizeModal.getByRole('button', { name: 'Resize' }).click()
+  await expectRowVisible(table, {
+    name: 'you-fail',
+    CPU: '10 vCPU',
+    Memory: '20 GiB',
+    state: expect.stringMatching(/^failed\d+s$/),
+  })
+
+  // resize 'db1', which needs to be stopped first
+  await expectRowVisible(table, {
+    name: 'db1',
+    CPU: '2 vCPU',
+    Memory: '4 GiB',
+    state: expect.stringMatching(/^running\d+s$/),
+  })
+  await clickRowAction(page, 'db1', 'Stop')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expectInstanceState(page, 'db1', 'stopping')
+  await expectInstanceState(page, 'db1', 'stopped')
+  await clickRowAction(page, 'db1', 'Resize')
+  await expect(resizeModal).toBeVisible()
+  await resizeModal.getByRole('textbox', { name: 'CPU' }).fill('8')
+  await resizeModal.getByRole('textbox', { name: 'Memory' }).fill('16')
+  await resizeModal.getByRole('button', { name: 'Resize' }).click()
+  await expectRowVisible(table, {
+    name: 'db1',
+    CPU: '8 vCPU',
+    Memory: '16 GiB',
+    state: expect.stringMatching(/^stopped\d+s$/),
+  })
+})
+
 test('delete from instance detail', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/you-fail')
 
