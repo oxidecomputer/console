@@ -329,21 +329,18 @@ export function ResizeInstanceModal({
           ) : (
             <Message
               variant="info"
-              title={`Currently (${instance.name}):`}
               content={
-                <>
-                  <div>
-                    <span className="text-sans-semi-md text-info"></span> {instance.ncpus}{' '}
-                    vCPUs / {instance.memory / GiB} GiB
-                  </div>
-                </>
+                <div>
+                  Currently ({instance.name}): {instance.ncpus} vCPUs /{' '}
+                  {instance.memory / GiB} GiB
+                </div>
               }
             />
           )}
           <form autoComplete="off" className="space-y-4">
             <NumberField
               required
-              label="CPUs"
+              label="vCPUs"
               name="ncpus"
               min={1}
               control={form.control}

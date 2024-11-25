@@ -165,7 +165,7 @@ test('can resize a failed or stopped instance', async ({ page }) => {
   await clickRowAction(page, 'you-fail', 'Resize')
   const resizeModal = page.getByRole('dialog', { name: 'Resize instance' })
   await expect(resizeModal).toBeVisible()
-  await resizeModal.getByRole('textbox', { name: 'CPU' }).fill('10')
+  await resizeModal.getByRole('textbox', { name: 'vCPUs' }).fill('10')
   await resizeModal.getByRole('textbox', { name: 'Memory' }).fill('20')
   await resizeModal.getByRole('button', { name: 'Resize' }).click()
   await expectRowVisible(table, {
@@ -188,7 +188,7 @@ test('can resize a failed or stopped instance', async ({ page }) => {
   await expectInstanceState(page, 'db1', 'stopped')
   await clickRowAction(page, 'db1', 'Resize')
   await expect(resizeModal).toBeVisible()
-  await resizeModal.getByRole('textbox', { name: 'CPU' }).fill('8')
+  await resizeModal.getByRole('textbox', { name: 'vCPUs' }).fill('8')
   await resizeModal.getByRole('textbox', { name: 'Memory' }).fill('16')
   await resizeModal.getByRole('button', { name: 'Resize' }).click()
   await expectRowVisible(table, {
