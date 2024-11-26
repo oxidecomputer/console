@@ -18,6 +18,7 @@ import * as MiniTable from '~/ui/lib/MiniTable'
 import { Modal } from '~/ui/lib/Modal'
 
 import { DescriptionField } from './DescriptionField'
+import { ErrorMessage } from './ErrorMessage'
 import { FileField } from './FileField'
 import { validateName } from './NameField'
 import { TextField } from './TextField'
@@ -26,8 +27,13 @@ export function TlsCertsField({ control }: { control: Control<SiloCreateFormValu
   const [showAddCert, setShowAddCert] = useState(false)
 
   const {
-    field: { value: items, onChange },
-  } = useController({ control, name: 'tlsCertificates' })
+    field: { value: items, onChange, ref },
+    fieldState: { error },
+  } = useController({
+    control,
+    name: 'tlsCertificates',
+    rules: { required: true },
+  })
 
   return (
     <>
@@ -61,9 +67,10 @@ export function TlsCertsField({ control }: { control: Control<SiloCreateFormValu
           </MiniTable.Table>
         )}
 
-        <Button size="sm" onClick={() => setShowAddCert(true)}>
+        <Button size="sm" onClick={() => setShowAddCert(true)} ref={ref}>
           Add TLS certificate
         </Button>
+        <ErrorMessage error={error} label="A valid TLS certificate" />
       </div>
 
       {showAddCert && (
