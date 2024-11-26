@@ -49,7 +49,7 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { Spinner } from '~/ui/lib/Spinner'
 import { Tooltip } from '~/ui/lib/Tooltip'
-import { Truncate } from '~/ui/lib/Truncate'
+import { truncate, Truncate } from '~/ui/lib/Truncate'
 import { pb } from '~/util/path-builder'
 import { GiB } from '~/util/units'
 
@@ -333,8 +333,9 @@ export function ResizeInstanceModal({
               variant="info"
               content={
                 <div>
-                  Current ({instance.name}): {instance.ncpus} vCPUs /{' '}
-                  {instance.memory / GiB} GiB
+                  Current (
+                  <span className="text-sans-semi-md">{truncate(instance.name, 20)}</span>
+                  ): {instance.ncpus} vCPUs / {instance.memory / GiB} GiB
                 </div>
               }
             />
