@@ -70,7 +70,7 @@ export function TlsCertsField({ control }: { control: Control<SiloCreateFormValu
         <Button size="sm" onClick={() => setShowAddCert(true)} ref={ref}>
           Add TLS certificate
         </Button>
-        <ErrorMessage error={error} label="A valid TLS certificate" />
+        <ErrorMessage error={error} label="TLS certificate" />
       </div>
 
       {showAddCert && (

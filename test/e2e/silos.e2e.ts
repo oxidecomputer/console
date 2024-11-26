@@ -71,7 +71,7 @@ test('Create silo', async ({ page }) => {
   await page.getByRole('button', { name: 'Create silo' }).click()
 
   // expect error because no TLS cert
-  await expect(page.getByText('A valid TLS certificate is required')).toBeVisible()
+  await expect(page.getByText('TLS certificate is required')).toBeVisible()
 
   ////////////////////////////
   // TLS CERT
