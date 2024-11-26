@@ -331,7 +331,7 @@ export function ResizeInstanceModal({
               variant="info"
               content={
                 <div>
-                  Currently ({instance.name}): {instance.ncpus} vCPUs /{' '}
+                  Current ({instance.name}): {instance.ncpus} vCPUs /{' '}
                   {instance.memory / GiB} GiB
                 </div>
               }

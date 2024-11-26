@@ -182,12 +182,16 @@ test('can resize a failed or stopped instance', async ({ page }) => {
     Memory: '4 GiB',
     state: expect.stringMatching(/^running\d+s$/),
   })
+
   await clickRowAction(page, 'db1', 'Stop')
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expectInstanceState(page, 'db1', 'stopping')
   await expectInstanceState(page, 'db1', 'stopped')
+
   await clickRowAction(page, 'db1', 'Resize')
   await expect(resizeModal).toBeVisible()
+  await expect(resizeModal.getByText('Current (db1): 2 vCPUs / 4 GiB')).toBeVisible()
+
   await resizeModal.getByRole('textbox', { name: 'vCPUs' }).fill('8')
   await resizeModal.getByRole('textbox', { name: 'Memory' }).fill('16')
   await resizeModal.getByRole('button', { name: 'Resize' }).click()
