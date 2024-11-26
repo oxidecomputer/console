@@ -146,6 +146,8 @@ test('cannot resize a running or starting instance', async ({ page }) => {
   await openRowActions(page, 'db1')
   await expect(page.getByRole('menuitem', { name: 'Resize' })).toBeDisabled()
 
+  await page.keyboard.press('Escape') // get out of the menu
+
   await expectInstanceState(page, 'not-there-yet', 'starting')
   await openRowActions(page, 'not-there-yet')
   await expect(page.getByRole('menuitem', { name: 'Resize' })).toBeDisabled()
