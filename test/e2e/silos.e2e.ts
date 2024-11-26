@@ -68,6 +68,11 @@ test('Create silo', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Memory quota' }).fill('58')
   await page.getByRole('textbox', { name: 'Storage quota' }).fill('735')
 
+  await page.getByRole('button', { name: 'Create silo' }).click()
+
+  // expect error because no TLS cert
+  await expect(page.getByText('A valid TLS certificate is required')).toBeVisible()
+
   ////////////////////////////
   // TLS CERT
   ////////////////////////////

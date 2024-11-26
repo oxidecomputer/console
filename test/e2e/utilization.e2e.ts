@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import {
+  chooseFile,
   clickRowAction,
   clipboardText,
   closeToast,
@@ -70,6 +71,17 @@ test.describe('System utilization', () => {
     await page.goto('/system/silos-new')
     await page.getByRole('textbox', { name: 'Name', exact: true }).fill('all-zeros')
     // don't need to set silo values, they're zero by default
+
+    // but do need to add a tls cert
+    page.getByRole('button', { name: 'Add TLS certificate' }).click()
+    await page
+      .getByRole('dialog', { name: 'Add TLS certificate' })
+      .getByRole('textbox', { name: 'Name' })
+      .fill('test-cert')
+    await chooseFile(page, page.getByLabel('Cert', { exact: true }), 'small')
+    await chooseFile(page, page.getByLabel('Key'), 'small')
+    await page.getByRole('button', { name: 'Add Certificate' }).click()
+
     await page.getByRole('button', { name: 'Create silo' }).click()
 
     await closeToast(page)
