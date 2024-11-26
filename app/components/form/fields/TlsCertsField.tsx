@@ -67,6 +67,7 @@ export function TlsCertsField({ control }: { control: Control<SiloCreateFormValu
           </MiniTable.Table>
         )}
 
+        {/* ref on button element allows scrollTo to work when the form has a "missing TLS cert" error */}
         <Button size="sm" onClick={() => setShowAddCert(true)} ref={ref}>
           Add TLS certificate
         </Button>

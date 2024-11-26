@@ -243,3 +243,14 @@ export async function scrollTo(page: Page, to: number) {
   const container = page.getByTestId('scroll-container')
   await container.evaluate((el: HTMLElement, to) => el.scrollTo(0, to), to)
 }
+
+export async function addTlsCert(page: Page) {
+  page.getByRole('button', { name: 'Add TLS certificate' }).click()
+  await page
+    .getByRole('dialog', { name: 'Add TLS certificate' })
+    .getByRole('textbox', { name: 'Name' })
+    .fill('test-cert')
+  await chooseFile(page, page.getByLabel('Cert', { exact: true }), 'small')
+  await chooseFile(page, page.getByLabel('Key'), 'small')
+  await page.getByRole('button', { name: 'Add Certificate' }).click()
+}
