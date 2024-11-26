@@ -34,7 +34,11 @@ import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { RefreshButton } from '~/components/RefreshButton'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { InstanceStateBadge } from '~/components/StateBadge'
-import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
+import {
+  getInstanceSelector,
+  useInstanceSelector,
+  useProjectSelector,
+} from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { Button } from '~/ui/lib/Button'
@@ -252,7 +256,6 @@ export function InstancePage() {
       {resizeInstance && (
         <ResizeInstanceModal
           instance={instance}
-          project={instanceSelector.project}
           onDismiss={() => setResizeInstance(false)}
         />
       )}
@@ -262,15 +265,14 @@ export function InstancePage() {
 
 export function ResizeInstanceModal({
   instance,
-  project,
   onDismiss,
   onListView = false,
 }: {
   instance: Instance
-  project: string
   onDismiss: () => void
   onListView?: boolean
 }) {
+  const { project } = useProjectSelector()
   const instanceUpdate = useApiMutation('instanceUpdate', {
     onSuccess(_updatedInstance) {
       if (onListView) {

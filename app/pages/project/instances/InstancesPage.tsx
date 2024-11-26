@@ -85,7 +85,7 @@ export function InstancesPage() {
     {
       onSuccess: refetchInstances,
       onDelete: refetchInstances,
-      onResizeClick: (instance) => setResizeInstance(instance),
+      onResizeClick: setResizeInstance,
     }
   )
 
@@ -231,7 +231,6 @@ export function InstancesPage() {
       {resizeInstance && (
         <ResizeInstanceModal
           instance={resizeInstance}
-          project={project}
           onDismiss={() => setResizeInstance(null)}
           onListView
         />

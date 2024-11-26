@@ -45,6 +45,8 @@ export const useMakeInstanceActions = (
     onSuccess: options.onDelete,
   })
 
+  const { onResizeClick } = options
+
   const makeButtonActions = useCallback(
     (instance: Instance) => {
       const instanceParams = { path: { instance: instance.name }, query: { project } }
@@ -141,11 +143,7 @@ export const useMakeInstanceActions = (
         },
         {
           label: 'Resize',
-          onActivate: () => {
-            if (options.onResizeClick) {
-              options.onResizeClick(instance)
-            }
-          },
+          onActivate: () => onResizeClick?.(instance),
           disabled: !instanceCan.update(instance) && (
             <>Only {fancifyStates(instanceCan.update.states)} instances can be resized</>
           ),
@@ -169,7 +167,10 @@ export const useMakeInstanceActions = (
         },
       ]
     },
-    [project, deleteInstanceAsync, rebootInstanceAsync, options]
+    // Do not put `options` in here, refer to the property. options is not ref
+    // stable. Extra renders here cause the row actions menu to close when it
+    // shouldn't, like during polling on instance list.
+    [project, deleteInstanceAsync, rebootInstanceAsync, onResizeClick]
   )
 
   return { makeButtonActions, makeMenuActions }
