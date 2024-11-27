@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import { useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import { instanceCan, useApiMutation, type Instance } from '@oxide/api'
 
@@ -14,7 +13,6 @@ import { HL } from '~/components/HL'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './instance/tabs/common'
 
@@ -25,13 +23,13 @@ type Options = {
   // hook has to expand to encompass the sum of all the APIs of these hooks it
   // call internally, the abstraction is not good
   onDelete?: () => void
+  onResizeClick?: (instance: Instance) => void
 }
 
 export const useMakeInstanceActions = (
   { project }: { project: string },
   options: Options = {}
 ) => {
-  const navigate = useNavigate()
   // if you also pass onSuccess to mutate(), this one is not overridden — this
   // one runs first, then the one passed to mutate().
   //
@@ -46,6 +44,8 @@ export const useMakeInstanceActions = (
   const { mutateAsync: deleteInstanceAsync } = useApiMutation('instanceDelete', {
     onSuccess: options.onDelete,
   })
+
+  const { onResizeClick } = options
 
   const makeButtonActions = useCallback(
     (instance: Instance) => {
@@ -116,7 +116,6 @@ export const useMakeInstanceActions = (
 
   const makeMenuActions = useCallback(
     (instance: Instance) => {
-      const instanceSelector = { project, instance: instance.name }
       const instanceParams = { path: { instance: instance.name }, query: { project } }
       return [
         {
@@ -143,10 +142,11 @@ export const useMakeInstanceActions = (
           ),
         },
         {
-          label: 'View serial console',
-          onActivate() {
-            navigate(pb.serialConsole(instanceSelector))
-          },
+          label: 'Resize',
+          onActivate: () => onResizeClick?.(instance),
+          disabled: !instanceCan.update(instance) && (
+            <>Only {fancifyStates(instanceCan.update.states)} instances can be resized</>
+          ),
         },
         {
           label: 'Delete',
@@ -167,7 +167,10 @@ export const useMakeInstanceActions = (
         },
       ]
     },
-    [project, deleteInstanceAsync, navigate, rebootInstanceAsync]
+    // Do not put `options` in here, refer to the property. options is not ref
+    // stable. Extra renders here cause the row actions menu to close when it
+    // shouldn't, like during polling on instance list.
+    [project, deleteInstanceAsync, rebootInstanceAsync, onResizeClick]
   )
 
   return { makeButtonActions, makeMenuActions }

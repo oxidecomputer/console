@@ -8,7 +8,7 @@
 import { type UseQueryOptions } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { filesize } from 'filesize'
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -41,6 +41,7 @@ import { toLocaleTimeString } from '~/util/date'
 import { pb } from '~/util/path-builder'
 
 import { useMakeInstanceActions } from './actions'
+import { ResizeInstanceModal } from './instance/InstancePage'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -77,9 +78,15 @@ const POLL_INTERVAL_SLOW = 60 * sec
 
 export function InstancesPage() {
   const { project } = useProjectSelector()
+  const [resizeInstance, setResizeInstance] = useState<Instance | null>(null)
+
   const { makeButtonActions, makeMenuActions } = useMakeInstanceActions(
     { project },
-    { onSuccess: refetchInstances, onDelete: refetchInstances }
+    {
+      onSuccess: refetchInstances,
+      onDelete: refetchInstances,
+      onResizeClick: setResizeInstance,
+    }
   )
 
   const columns = useMemo(
@@ -221,6 +228,13 @@ export function InstancesPage() {
         <CreateLink to={pb.instancesNew({ project })}>New Instance</CreateLink>
       </TableActions>
       {table}
+      {resizeInstance && (
+        <ResizeInstanceModal
+          instance={resizeInstance}
+          onDismiss={() => setResizeInstance(null)}
+          onListView
+        />
+      )}
     </>
   )
 }
