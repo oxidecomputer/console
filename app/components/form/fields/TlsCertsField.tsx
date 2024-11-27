@@ -209,11 +209,12 @@ export function matchesDomain(pattern: string, domain: string): boolean {
   }
 
   if (patternParts[0] === '*') {
-    // if the pattern starts with a wildcard
+    // the domain parts and pattern parts should have the same number of items
+    // (prevents *.domain.com from matching test.test.domain.com)
+    if (domainParts.length !== patternParts.length) return false
+    // the rest should be an exact match
     const patternSuffix = patternParts.slice(1).join('.')
-    // we want wildcard domains to have same number or more parts
-    // and must match the pattern suffix exactly
-    return domainParts.length >= patternParts.length && domain.endsWith(patternSuffix)
+    return domain.endsWith(patternSuffix)
   }
 
   // parts must match exactly for non-wildcard patterns

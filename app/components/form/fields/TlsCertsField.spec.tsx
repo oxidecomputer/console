@@ -22,8 +22,8 @@ describe('matchesDomain', () => {
   })
 
   it('matches multiple subdomains', () => {
-    expect(matchesDomain('*.example.com', 'sub.sub.example.com')).toBe(true)
-    expect(matchesDomain('*.example.com', 'sub.sub.sub.example.com')).toBe(true)
+    expect(matchesDomain('*.example.com', 'sub.sub.example.com')).toBe(false)
+    expect(matchesDomain('*.example.com', 'sub.sub.sub.example.com')).toBe(false)
   })
 
   it('matches with case insensitivity', () => {
