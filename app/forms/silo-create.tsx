@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
@@ -17,7 +17,6 @@ import { NameField } from '~/components/form/fields/NameField'
 import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField } from '~/components/form/fields/TextField'
-import { TlsCertsField } from '~/components/form/fields/TlsCertsField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { addToast } from '~/stores/toast'
@@ -26,6 +25,9 @@ import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Message } from '~/ui/lib/Message'
 import { pb } from '~/util/path-builder'
 import { GiB } from '~/util/units'
+
+// Lazy loading `TlsCertsFields` to avoid adding the cert parser to the main bundle
+const TlsCertsField = lazy(() => import('~/components/form/fields/TlsCertsField'))
 
 export type SiloCreateFormValues = Omit<SiloCreate, 'mappedFleetRoles'> & {
   siloAdminGetsFleetAdmin: boolean
@@ -65,6 +67,7 @@ export function CreateSiloSideModalForm() {
 
   const form = useForm({ defaultValues })
   const identityMode = form.watch('identityMode')
+  const siloName = form.watch('name')
   // Clear the adminGroupName if the user selects the "local only" identity mode
   useEffect(() => {
     if (identityMode === 'local_only') {
@@ -170,7 +173,9 @@ export function CreateSiloSideModalForm() {
         </div>
       </div>
       <FormDivider />
-      <TlsCertsField control={form.control} />
+      <Suspense fallback={null}>
+        <TlsCertsField control={form.control} siloName={siloName} />
+      </Suspense>
     </SideModalForm>
   )
 }

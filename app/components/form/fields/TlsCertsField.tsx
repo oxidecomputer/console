@@ -5,24 +5,37 @@
  *
  * Copyright Oxide Computer Company
  */
+import { SubjectAlternativeNameExtension, X509Certificate } from '@peculiar/x509'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useController, useForm, type Control } from 'react-hook-form'
 import type { Merge } from 'type-fest'
 
 import type { CertificateCreate } from '@oxide/api'
+import { OpenLink12Icon } from '@oxide/design-system/icons/react'
 
 import type { SiloCreateFormValues } from '~/forms/silo-create'
 import { Button } from '~/ui/lib/Button'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { Message } from '~/ui/lib/Message'
 import * as MiniTable from '~/ui/lib/MiniTable'
 import { Modal } from '~/ui/lib/Modal'
+import { links } from '~/util/links'
 
 import { DescriptionField } from './DescriptionField'
 import { FileField } from './FileField'
 import { validateName } from './NameField'
 import { TextField } from './TextField'
 
-export function TlsCertsField({ control }: { control: Control<SiloCreateFormValues> }) {
+// default export is most convenient for dynamic import
+// eslint-disable-next-line import/no-default-export
+export default function TlsCertsField({
+  control,
+  siloName,
+}: {
+  control: Control<SiloCreateFormValues>
+  siloName: string
+}) {
   const [showAddCert, setShowAddCert] = useState(false)
 
   const {
@@ -80,6 +93,7 @@ export function TlsCertsField({ control }: { control: Control<SiloCreateFormValu
             setShowAddCert(false)
           }}
           allNames={items.map((item) => item.name)}
+          siloName={siloName}
         />
       )}
     </>
@@ -103,10 +117,18 @@ type AddCertModalProps = {
   onDismiss: () => void
   onSubmit: (values: CertFormValues) => void
   allNames: string[]
+  siloName: string
 }
 
-const AddCertModal = ({ onDismiss, onSubmit, allNames }: AddCertModalProps) => {
-  const { control, handleSubmit } = useForm<CertFormValues>({ defaultValues })
+const AddCertModal = ({ onDismiss, onSubmit, allNames, siloName }: AddCertModalProps) => {
+  const { watch, control, handleSubmit } = useForm<CertFormValues>({ defaultValues })
+
+  const file = watch('cert')
+
+  const { data: certValidation } = useQuery({
+    queryKey: ['validateImage', ...(file ? [file.name, file.size, file.lastModified] : [])],
+    queryFn: file ? () => validateCertificate(file) : skipToken,
+  })
 
   return (
     <Modal isOpen onDismiss={onDismiss} title="Add TLS certificate">
@@ -135,6 +157,13 @@ const AddCertModal = ({ onDismiss, onSubmit, allNames }: AddCertModalProps) => {
               required
               control={control}
             />
+            {siloName && (
+              <CertDomainNotice
+                {...certValidation}
+                siloName={siloName}
+                domain="r2.oxide-preview.com"
+              />
+            )}
             <FileField id="key-input" name="key" label="Key" required control={control} />
           </Modal.Section>
         </form>
@@ -145,5 +174,90 @@ const AddCertModal = ({ onDismiss, onSubmit, allNames }: AddCertModalProps) => {
         actionText="Add Certificate"
       />
     </Modal>
+  )
+}
+
+const validateCertificate = async (file: File) => {
+  return parseCertificate(await file.text())
+}
+
+function parseCertificate(certPem: string) {
+  try {
+    const cert = new X509Certificate(certPem)
+    const nameItems = cert.getExtension(SubjectAlternativeNameExtension)?.names.items || []
+    return {
+      commonName: cert.subjectName.getField('CN') || [],
+      subjectAltNames: nameItems.map((item) => item.value) || [],
+    }
+  } catch {
+    return null
+  }
+}
+
+function matchesDomain(pattern: string, domain: string): boolean {
+  const patternParts = pattern.split('.')
+  const domainParts = domain.split('.')
+
+  if (patternParts.length !== domainParts.length) return false
+
+  return patternParts.every(
+    (part, i) => part === '*' || part.toLowerCase() === domainParts[i].toLowerCase()
+  )
+}
+
+function CertDomainNotice({
+  commonName = [],
+  subjectAltNames = [],
+  siloName,
+  domain,
+}: {
+  commonName?: string[]
+  subjectAltNames?: string[]
+  siloName: string
+  domain: string
+}) {
+  if (commonName.length === 0 && subjectAltNames.length === 0) {
+    return null
+  }
+
+  const expectedDomain = `${siloName}.sys.${domain}`
+  const domains = [...commonName, ...subjectAltNames]
+
+  const matches = domains.some(
+    (d) => matchesDomain(d, expectedDomain) || matchesDomain(d, `*.sys.${domain}`)
+  )
+
+  if (matches) return null
+
+  return (
+    <Message
+      variant="info"
+      title="Certificate domain mismatch"
+      content={
+        <div className="mt-2 flex flex-col space-y-2">
+          Expected to match {expectedDomain} <br />
+          <div>
+            Found:
+            <ul className="ml-4 list-disc">
+              {domains.map((domain, index) => (
+                <li key={index}>{domain}</li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            Learn more about{' '}
+            <a
+              target="_blank"
+              rel="noreferrer"
+              href={links.systemSiloDocs} // would need updating
+              className="inline-flex items-center underline"
+            >
+              silo certs
+              <OpenLink12Icon className="ml-1" />
+            </a>
+          </div>
+        </div>
+      }
+    />
   )
 }
