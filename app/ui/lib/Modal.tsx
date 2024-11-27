@@ -70,7 +70,7 @@ export function Modal({
 
                 <AnimatedDialogContent
                   className={cn(
-                    'pointer-events-auto fixed left-1/2 top-1/2 z-modal m-0 flex max-h-[min(800px,80vh)] w-full flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2',
+                    'pointer-events-auto fixed left-1/2 top-[min(50%,500px)] z-modal m-0 flex max-h-[min(800px,80vh)] w-full flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2',
                     narrow ? 'max-w-[24rem]' : 'max-w-[28rem]'
                   )}
                   aria-labelledby={titleId}
