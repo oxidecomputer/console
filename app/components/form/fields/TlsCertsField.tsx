@@ -181,41 +181,89 @@ const validateCertificate = async (file: File) => {
   return parseCertificate(await file.text())
 }
 
-function parseCertificate(certPem: string) {
+export function parseCertificate(certPem: string) {
   try {
     const cert = new X509Certificate(certPem)
     const nameItems = cert.getExtension(SubjectAlternativeNameExtension)?.names.items || []
     return {
       commonName: cert.subjectName.getField('CN') || [],
       subjectAltNames: nameItems.map((item) => item.value) || [],
+      isValid: true,
     }
   } catch {
-    return null
+    return {
+      commonName: [],
+      subjectAltNames: [],
+      isValid: false,
+    }
   }
 }
 
-function matchesDomain(pattern: string, domain: string): boolean {
+export function matchesDomain(pattern: string, domain: string): boolean {
   const patternParts = pattern.split('.')
   const domainParts = domain.split('.')
 
-  if (patternParts.length !== domainParts.length) return false
+  // unsure if this would be an issue but we reject it anyway
+  if (pattern === '*') {
+    return false
+  }
 
-  return patternParts.every(
-    (part, i) => part === '*' || part.toLowerCase() === domainParts[i].toLowerCase()
+  if (patternParts[0] === '*') {
+    // if the pattern starts with a wildcard
+    const patternSuffix = patternParts.slice(1).join('.')
+    // we want wildcard domains to have same number or more parts
+    // and must match the pattern suffix exactly
+    return domainParts.length >= patternParts.length && domain.endsWith(patternSuffix)
+  }
+
+  // parts must match exactly for non-wildcard patterns
+  return (
+    patternParts.length === domainParts.length &&
+    patternParts.every((part, i) => part.toLowerCase() === domainParts[i].toLowerCase())
   )
 }
 
 function CertDomainNotice({
   commonName = [],
   subjectAltNames = [],
+  isValid = true,
   siloName,
   domain,
 }: {
   commonName?: string[]
   subjectAltNames?: string[]
+  isValid?: boolean
   siloName: string
   domain: string
 }) {
+  if (!isValid) {
+    return (
+      <Message
+        variant="info"
+        title="Could not be parsed"
+        content={
+          <div className="flex flex-col space-y-2">
+            <div>
+              Certificate may not be valid, a silo expects a X.509 cert in PEM format.
+            </div>
+            <div>
+              Learn more about{' '}
+              <a
+                target="_blank"
+                rel="noreferrer"
+                href={links.systemSiloDocs} // would need updating
+                className="inline-flex items-center underline"
+              >
+                silo certs
+                <OpenLink12Icon className="ml-1" />
+              </a>
+            </div>
+          </div>
+        }
+      />
+    )
+  }
+
   if (commonName.length === 0 && subjectAltNames.length === 0) {
     return null
   }
