@@ -42,8 +42,8 @@ describe('parseCertificate', () => {
 
   const invalidCert = 'not-a-certificate'
 
-  it('parses valid certificate', () => {
-    const result = parseCertificate(validCert)
+  it('parses valid certificate', async () => {
+    const result = await parseCertificate(validCert)
     expect(result).toEqual({
       commonName: ['test.example.com'],
       subjectAltNames: [
@@ -57,8 +57,8 @@ describe('parseCertificate', () => {
     })
   })
 
-  it('returns invalid for invalid certificate', () => {
-    const result = parseCertificate(invalidCert)
+  it('returns invalid for invalid certificate', async () => {
+    const result = await parseCertificate(invalidCert)
     expect(result).toEqual({
       commonName: [],
       subjectAltNames: [],

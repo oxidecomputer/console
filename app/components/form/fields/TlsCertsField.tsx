@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { SubjectAlternativeNameExtension, X509Certificate } from '@peculiar/x509'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useController, useForm, type Control } from 'react-hook-form'
@@ -27,9 +26,7 @@ import { FileField } from './FileField'
 import { validateName } from './NameField'
 import { TextField } from './TextField'
 
-// default export is most convenient for dynamic import
-// eslint-disable-next-line import/no-default-export
-export default function TlsCertsField({
+export function TlsCertsField({
   control,
   siloName,
 }: {
@@ -83,7 +80,7 @@ export default function TlsCertsField({
         <AddCertModal
           onDismiss={() => setShowAddCert(false)}
           onSubmit={async (values) => {
-            const certCreate: (typeof items)[number] = {
+            const certCreate: CertificateCreate = {
               ...values,
               // cert and key are required fields. they will always be present if we get here
               cert: await values.cert!.text(),
@@ -127,7 +124,7 @@ const AddCertModal = ({ onDismiss, onSubmit, allNames, siloName }: AddCertModalP
 
   const { data: certValidation } = useQuery({
     queryKey: ['validateImage', ...(file ? [file.name, file.size, file.lastModified] : [])],
-    queryFn: file ? () => validateCertificate(file) : skipToken,
+    queryFn: file ? () => file.text().then(parseCertificate) : skipToken,
   })
 
   return (
@@ -177,11 +174,11 @@ const AddCertModal = ({ onDismiss, onSubmit, allNames, siloName }: AddCertModalP
   )
 }
 
-const validateCertificate = async (file: File) => {
-  return parseCertificate(await file.text())
-}
-
-export function parseCertificate(certPem: string) {
+export async function parseCertificate(certPem: string) {
+  // dynamic import to keep 50k gzipped out of the main bundle
+  const { SubjectAlternativeNameExtension, X509Certificate } = await import(
+    '@peculiar/x509'
+  )
   try {
     const cert = new X509Certificate(certPem)
     const nameItems = cert.getExtension(SubjectAlternativeNameExtension)?.names.items || []

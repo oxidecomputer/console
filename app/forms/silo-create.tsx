@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { lazy, Suspense, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
@@ -17,6 +17,7 @@ import { NameField } from '~/components/form/fields/NameField'
 import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField } from '~/components/form/fields/TextField'
+import { TlsCertsField } from '~/components/form/fields/TlsCertsField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { addToast } from '~/stores/toast'
@@ -25,9 +26,6 @@ import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Message } from '~/ui/lib/Message'
 import { pb } from '~/util/path-builder'
 import { GiB } from '~/util/units'
-
-// Lazy loading `TlsCertsFields` to avoid adding the cert parser to the main bundle
-const TlsCertsField = lazy(() => import('~/components/form/fields/TlsCertsField'))
 
 export type SiloCreateFormValues = Omit<SiloCreate, 'mappedFleetRoles'> & {
   siloAdminGetsFleetAdmin: boolean
@@ -173,9 +171,7 @@ export function CreateSiloSideModalForm() {
         </div>
       </div>
       <FormDivider />
-      <Suspense fallback={null}>
-        <TlsCertsField control={form.control} siloName={siloName} />
-      </Suspense>
+      <TlsCertsField control={form.control} siloName={siloName} />
     </SideModalForm>
   )
 }
