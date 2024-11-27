@@ -234,7 +234,7 @@ function CertDomainNotice({
       variant="info"
       title="Certificate domain mismatch"
       content={
-        <div className="mt-2 flex flex-col space-y-2">
+        <div className="flex flex-col space-y-2">
           Expected to match {expectedDomain} <br />
           <div>
             Found:
