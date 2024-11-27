@@ -134,6 +134,7 @@ Modal.Footer = ({
   actionLoading,
   cancelText,
   disabled = false,
+  formId,
 }: {
   children?: React.ReactNode
   onDismiss: () => void
@@ -143,6 +144,11 @@ Modal.Footer = ({
   actionLoading?: boolean
   cancelText?: string
   disabled?: boolean
+  /**
+   * If passed, submit button will get `type="submit"` and `form={formId}` so
+   * that pressing enter in the associated form will be trigger a submit click.
+   */
+  formId?: string
 }) => (
   <footer className="flex items-center justify-between border-t px-3 py-3 border-secondary">
     <div className="mr-4">{children}</div>
@@ -151,6 +157,8 @@ Modal.Footer = ({
         {cancelText || 'Cancel'}
       </Button>
       <Button
+        type={formId ? 'submit' : 'button'}
+        form={formId}
         size="sm"
         variant={actionType}
         onClick={onAction}
