@@ -314,7 +314,7 @@ export function ResizeInstanceModal({
     form.watch('ncpus') !== instance.ncpus || form.watch('memory') !== instance.memory / GiB
   const isDisabled = !form.formState.isValid || !canResize || !willChange
 
-  const onAction = form.handleSubmit(({ ncpus, memory }) => {
+  const onSubmit = form.handleSubmit(({ ncpus, memory }) => {
     instanceUpdate.mutate({
       path: { instance: instance.name },
       query: { project },
@@ -341,7 +341,7 @@ export function ResizeInstanceModal({
               }
             />
           )}
-          <form id={formId} autoComplete="off" className="space-y-4">
+          <form id={formId} autoComplete="off" className="space-y-4" onSubmit={onSubmit}>
             <NumberField
               required
               label="vCPUs"
@@ -386,7 +386,6 @@ export function ResizeInstanceModal({
       <Modal.Footer
         formId={formId}
         onDismiss={onDismiss}
-        onAction={onAction}
         actionText="Resize"
         actionLoading={instanceUpdate.isPending}
         disabled={isDisabled}
