@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { filesize } from 'filesize'
-import { useMemo, useState } from 'react'
+import { useId, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
@@ -314,13 +314,14 @@ export function ResizeInstanceModal({
     form.watch('ncpus') !== instance.ncpus || form.watch('memory') !== instance.memory / GiB
   const isDisabled = !form.formState.isValid || !canResize || !willChange
 
-  const onAction = form.handleSubmit(({ ncpus, memory }) => {
+  const onSubmit = form.handleSubmit(({ ncpus, memory }) => {
     instanceUpdate.mutate({
       path: { instance: instance.name },
       query: { project },
       body: { ncpus, memory: memory * GiB, bootDisk: instance.bootDiskId },
     })
   })
+  const formId = useId()
 
   return (
     <Modal title="Resize instance" isOpen onDismiss={onDismiss}>
@@ -340,7 +341,7 @@ export function ResizeInstanceModal({
               }
             />
           )}
-          <form autoComplete="off" className="space-y-4">
+          <form id={formId} autoComplete="off" className="space-y-4" onSubmit={onSubmit}>
             <NumberField
               required
               label="vCPUs"
@@ -383,8 +384,8 @@ export function ResizeInstanceModal({
         </Modal.Section>
       </Modal.Body>
       <Modal.Footer
+        formId={formId}
         onDismiss={onDismiss}
-        onAction={onAction}
         actionText="Resize"
         actionLoading={instanceUpdate.isPending}
         disabled={isDisabled}

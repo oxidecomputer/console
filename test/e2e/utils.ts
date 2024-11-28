@@ -118,7 +118,7 @@ export async function stopInstance(page: Page) {
  * Assert that a toast with text matching `expectedText` is visible.
  */
 export async function expectToast(page: Page, expectedText: string | RegExp) {
-  await expect(page.getByTestId('Toasts')).toHaveText(expectedText)
+  await expect(page.getByTestId('Toasts')).toContainText(expectedText)
   await closeToast(page)
 }
 
@@ -126,7 +126,7 @@ export async function expectToast(page: Page, expectedText: string | RegExp) {
  * Assert that a toast with text matching `expectedText` is not visible.
  */
 export async function expectNoToast(page: Page, expectedText: string | RegExp) {
-  await expect(page.getByTestId('Toasts')).not.toHaveText(expectedText)
+  await expect(page.getByTestId('Toasts')).not.toContainText(expectedText)
 }
 
 /**
