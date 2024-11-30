@@ -6,11 +6,16 @@
  * Copyright Oxide Computer Company
  */
 
+import { Link } from 'react-router-dom'
+
 import { useApiQuery } from '@oxide/api'
 
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
+import { Badge } from '~/ui/lib/Badge'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
+import { Slash } from '~/ui/lib/Slash'
 import { intersperse } from '~/util/array'
+import { pb } from '~/util/path-builder'
 
 type InstanceSelector = { project: string; instance: string }
 
@@ -23,11 +28,20 @@ export function ExternalIps({ project, instance }: InstanceSelector) {
 
   const ips = data?.items
   if (!ips || ips.length === 0) return <EmptyCell />
+  // create a copy of ips so we don't mutate the original; move ephemeral ip to the end
+  const orderedIps = [...ips].sort((a) => (a.kind === 'ephemeral' ? 1 : -1))
+  const toShow = orderedIps.slice(0, 2)
+  const overflowCount = orderedIps.length - toShow.length
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex max-w-full items-center gap-1">
       {intersperse(
-        ips.map((eip) => <CopyableIp ip={eip.ip} key={eip.ip} />),
-        <span className="text-quinary"> / </span>
+        toShow.map((eip) => <CopyableIp ip={eip.ip} key={eip.ip} />),
+        <Slash />
+      )}
+      {overflowCount > 0 && (
+        <Link to={pb.instanceNetworking({ project, instance })} className="ml-1">
+          <Badge>+{overflowCount}</Badge>
+        </Link>
       )}
     </div>
   )
