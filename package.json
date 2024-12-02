@@ -36,7 +36,7 @@
   "dependencies": {
     "@floating-ui/react": "^0.26.23",
     "@headlessui/react": "^2.1.8",
-    "@oxide/design-system": "^1.7.0",
+    "@oxide/design-system": "^1.7.2",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-focus-guards": "1.0.1",
