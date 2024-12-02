@@ -1,0 +1,75 @@
+import { useForm } from 'react-hook-form'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+
+import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
+import { Key16Icon } from '@oxide/design-system/icons/react'
+
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { NameField } from '~/components/form/fields/NameField'
+import { TextField } from '~/components/form/fields/TextField'
+import { SideModalForm } from '~/components/form/SideModalForm'
+import { getSshKeySelector, useSshKeySelector } from '~/hooks/use-params'
+import { DateTime } from '~/ui/lib/DateTime'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { ResourceLabel } from '~/ui/lib/SideModal'
+import { Truncate } from '~/ui/lib/Truncate'
+import { pb } from '~/util/path-builder'
+
+EditSSHKeySideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
+  const { sshKey } = getSshKeySelector(params)
+  await apiQueryClient.prefetchQuery('currentUserSshKeyView', { path: { sshKey } })
+  return null
+}
+
+export function EditSSHKeySideModalForm() {
+  const navigate = useNavigate()
+  const { sshKey } = useSshKeySelector()
+
+  const onDismiss = () => navigate(pb.sshKeys())
+
+  const { data } = usePrefetchedApiQuery('currentUserSshKeyView', {
+    path: { sshKey },
+  })
+
+  const form = useForm({ defaultValues: data })
+
+  return (
+    <SideModalForm
+      form={form}
+      formType="edit"
+      resourceName="SSH key"
+      onDismiss={onDismiss}
+      subtitle={
+        <ResourceLabel>
+          <Key16Icon /> {data.name}
+        </ResourceLabel>
+      }
+      // TODO: pass actual error when this form is hooked up
+      loading={false}
+      submitError={null}
+    >
+      <PropertiesTable>
+        <PropertiesTable.Row label="ID">
+          <Truncate text={data.id} maxLength={32} hasCopyButton />
+        </PropertiesTable.Row>
+        <PropertiesTable.Row label="Created">
+          <DateTime date={data.timeCreated} />
+        </PropertiesTable.Row>
+        <PropertiesTable.Row label="Updated">
+          <DateTime date={data.timeModified} />
+        </PropertiesTable.Row>
+      </PropertiesTable>
+      <NameField name="name" control={form.control} disabled />
+      <DescriptionField name="description" control={form.control} disabled />
+      <TextField
+        as="textarea"
+        name="publicKey"
+        label="Public key"
+        required
+        rows={8}
+        control={form.control}
+        disabled
+      />
+    </SideModalForm>
+  )
+}

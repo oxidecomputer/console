@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
 import {
@@ -22,7 +22,8 @@ import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { makeLinkCell } from '~/table/cells/LinkCell'
+import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
@@ -39,11 +40,6 @@ export async function loader() {
 }
 
 const colHelper = createColumnHelper<SshKey>()
-const staticCols = [
-  colHelper.accessor('name', {}),
-  colHelper.accessor('description', Columns.description),
-  colHelper.accessor('timeModified', Columns.timeModified),
-]
 
 Component.displayName = 'SSHKeysPage'
 export function Component() {
@@ -71,6 +67,16 @@ export function Component() {
     [deleteSshKey]
   )
 
+  const columns = useMemo(() => {
+    return [
+      colHelper.accessor('name', {
+        cell: makeLinkCell((sshKey) => pb.sshKeyEdit({ sshKey: sshKey })),
+      }),
+      colHelper.accessor('description', Columns.description),
+      getActionsCol(makeActions),
+    ]
+  }, [makeActions])
+
   const emptyState = (
     <EmptyMessage
       icon={<Key16Icon />}
@@ -80,7 +86,6 @@ export function Component() {
       onClick={() => navigate(pb.sshKeysNew())}
     />
   )
-  const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({ query: sshKeyList(), columns, emptyState })
 
   return (

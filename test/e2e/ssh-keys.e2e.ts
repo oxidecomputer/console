@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 import { clickRowAction, expectNotVisible, expectRowVisible, expectVisible } from './utils'
 
@@ -18,6 +18,29 @@ test('SSH keys', async ({ page }) => {
     'role=cell[name="m1-macbook-pro"]',
     'role=cell[name="mac-mini"]',
   ])
+
+  // click name to open side modal
+  await page.getByRole('link', { name: 'm1-macbook-pro' }).click()
+
+  // verify side modal content
+  const modal = page.getByRole('dialog')
+  await expect(modal).toBeVisible()
+  await expect(modal.getByText('Edit SSH key')).toBeVisible()
+  await expect(modal.getByText('m1-macbook-pro')).toBeVisible()
+
+  const propertiesTable = modal.locator('.properties-table')
+  await expect(propertiesTable.getByText('ID')).toBeVisible()
+  await expect(propertiesTable.getByText('Created')).toBeVisible()
+  await expect(propertiesTable.getByText('Updated')).toBeVisible()
+
+  // verify form fields are present and disabled
+  await expect(modal.getByRole('textbox', { name: 'Name' })).toBeDisabled()
+  await expect(modal.getByRole('textbox', { name: 'Description' })).toBeDisabled()
+  await expect(modal.getByRole('textbox', { name: 'Public key' })).toBeDisabled()
+
+  // close modal
+  await modal.getByRole('button', { name: 'Close' }).click()
+  await expect(modal).toBeHidden()
 
   // delete the two ssh keys
   await clickRowAction(page, 'm1-macbook-pro', 'Delete')

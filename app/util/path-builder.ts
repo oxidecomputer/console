@@ -25,6 +25,7 @@ type FirewallRule = Required<PP.FirewallRule>
 type VpcRouter = Required<PP.VpcRouter>
 type VpcRouterRoute = Required<PP.VpcRouterRoute>
 type VpcSubnet = Required<PP.VpcSubnet>
+type SshKey = Required<PP.SshKey>
 
 // these are used as the basis for many routes but are not themselves routes we
 // ever want to link to. so we use this to build the routes but pb.project() is
@@ -129,6 +130,7 @@ export const pb = {
   profile: () => '/settings/profile',
   sshKeys: () => '/settings/ssh-keys',
   sshKeysNew: () => '/settings/ssh-keys-new',
+  sshKeyEdit: (params: SshKey) => `/settings/ssh-keys/${params.sshKey}/edit`,
 
   deviceSuccess: () => '/device/success',
 }
