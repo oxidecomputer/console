@@ -111,8 +111,8 @@
     "identity-obj-proxy": "^3.0.0",
     "ip-num": "^1.5.1",
     "jsdom": "^25.0.0",
-    "lint-staged": "^15.2.10",
     "msw": "^2.6.2",
+    "oxlint": "^0.14.0",
     "patch-package": "^8.0.0",
     "postcss": "^8.4.35",
     "postcss-import": "^16.1.0",
@@ -138,8 +138,5 @@
     "workerDirectory": [
       ""
     ]
-  },
-  "lint-staged": {
-    "*.{js,ts,tsx}": "eslint --cache --fix"
   }
 }
