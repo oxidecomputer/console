@@ -77,7 +77,7 @@ export function DatePicker(props: DatePickerProps) {
             )}
           </div>
           <div className="-ml-px flex h-[calc(100%-12px)] w-10 items-center justify-center rounded-r border-l outline-none border-default">
-            <Calendar16Icon className="h-4 w-4 text-tertiary" />
+            <Calendar16Icon className="h-4 w-4 text-secondary" />
           </div>
         </button>
       </div>

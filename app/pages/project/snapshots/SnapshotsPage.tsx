@@ -41,7 +41,7 @@ const DiskNameFromId = ({ value }: { value: string }) => {
 
   if (!data) return <SkeletonCell />
   if (data.type === 'error') return <Badge color="neutral">Deleted</Badge>
-  return <span className="text-secondary">{data.data.name}</span>
+  return <span className="text-default">{data.data.name}</span>
 }
 
 const EmptyState = () => (

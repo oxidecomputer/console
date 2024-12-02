@@ -50,8 +50,8 @@ const staticCols = [
       const value = info.getValue()
       return (
         <div className="space-y-0.5">
-          <div className="text-quaternary">{`${value.siloName} / ${value.projectName}`}</div>
-          <div className="text-default">{value.name}</div>
+          <div className="text-tertiary">{`${value.siloName} / ${value.projectName}`}</div>
+          <div className="text-raise">{value.name}</div>
         </div>
       )
     },

@@ -8,6 +8,6 @@
 
 import { classed } from '~/util/classed'
 
-export const EmptyCell = () => <span className="text-sans-md text-quinary">&mdash;</span>
+export const EmptyCell = () => <span className="text-sans-md text-quaternary">&mdash;</span>
 
 export const SkeletonCell = classed.div`h-4 w-12 rounded bg-tertiary motion-safe:animate-pulse`

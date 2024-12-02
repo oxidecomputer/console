@@ -84,15 +84,15 @@ function renderTooltip(props: TooltipProps<number, string>, unit?: string) {
   } = payload[0]
   if (!timestamp || typeof value !== 'number') return null
   return (
-    <div className="rounded border outline-0 text-sans-md text-tertiary bg-raise border-secondary elevation-2">
+    <div className="rounded border outline-0 text-sans-md text-secondary bg-raise border-secondary elevation-2">
       <div className="border-b px-3 py-2 pr-6 border-secondary">
         {longDateTime(timestamp)}
       </div>
       <div className="px-3 py-2">
-        <div className="text-tertiary">{name}</div>
-        <div className="text-default">
+        <div className="text-secondary">{name}</div>
+        <div className="text-raise">
           {value.toLocaleString()}
-          {unit && <span className="ml-1 text-tertiary">{unit}</span>}
+          {unit && <span className="ml-1 text-secondary">{unit}</span>}
         </div>
         {/* TODO: unit on value if relevant */}
       </div>

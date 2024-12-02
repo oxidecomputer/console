@@ -93,7 +93,7 @@ export function Modal({
                     className="absolute right-2 top-4 flex items-center justify-center rounded p-2 hover:bg-hover"
                     aria-label="Close"
                   >
-                    <Close12Icon className="text-secondary" />
+                    <Close12Icon className="text-default" />
                   </Dialog.Close>
                 </AnimatedDialogContent>
               </Dialog.Portal>
@@ -124,7 +124,7 @@ const ModalTitle = forwardRef<HTMLDivElement, ModalTitleProps>(({ children, id }
 
 Modal.Body = classed.div`py-2 overflow-y-auto`
 
-Modal.Section = classed.div`p-4 space-y-4 border-b border-secondary text-secondary last-of-type:border-none text-sans-md`
+Modal.Section = classed.div`p-4 space-y-4 border-b border-secondary text-default last-of-type:border-none text-sans-md`
 
 /**
  * `formId` and `onAction` are mutually exclusive. If there is a form associated,

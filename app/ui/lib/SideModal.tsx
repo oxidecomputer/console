@@ -87,7 +87,7 @@ export function SideModal({
                   aria-describedby={undefined}
                 >
                   <div className="items-top mb-4 mt-8">
-                    <Dialog.Title className="flex w-full items-center justify-between break-words pr-8 text-sans-2xl">
+                    <Dialog.Title className="flex w-full items-center justify-between break-words pr-8 text-sans-2xl text-raise">
                       {title}
                     </Dialog.Title>
                     {subtitle}
@@ -169,7 +169,7 @@ SideModal.Footer = ({ children, error }: { children: ReactNode; error?: boolean 
       className="absolute right-[var(--content-gutter)] top-10 -m-2 flex rounded p-2 hover:bg-hover"
       aria-label="Close"
     >
-      <Close12Icon className="text-secondary" />
+      <Close12Icon className="text-default" />
     </Dialog.Close>
   </footer>
 )

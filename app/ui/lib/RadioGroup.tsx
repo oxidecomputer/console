@@ -52,7 +52,7 @@ import React from 'react'
 
 import { classed } from '~/util/classed'
 
-export const RadioGroupHint = classed.p`text-base text-secondary text-sans-sm max-w-3xl`
+export const RadioGroupHint = classed.p`text-base text-default text-sans-sm max-w-3xl`
 
 export type RadioGroupProps = {
   // gets passed to all the radios. this is what defines them as a group
