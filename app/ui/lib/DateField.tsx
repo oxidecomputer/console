@@ -141,7 +141,7 @@ function DateSegment({
       <span
         aria-hidden="true"
         className={cn(
-          'block w-full text-center text-quinary',
+          'text-quinary block w-full text-center',
           !readOnly && 'focus:text-default'
         )}
         style={{

@@ -6,5 +6,5 @@
  * Copyright Oxide Computer Company
  */
 export const Slash = () => (
-  <span className="mx-1 text-quinary selected:text-accent-disabled">/</span>
+  <span className="text-quinary mx-1 selected:text-accent-disabled">/</span>
 )

@@ -47,7 +47,7 @@ const JumpToButton = () => {
       innerClassName="w-full justify-between text-quaternary"
     >
       <span className="flex items-center">
-        <Action16Icon className="mr-2 text-quinary" /> Jump to
+        <Action16Icon className="text-quinary mr-2" /> Jump to
       </span>
       <div className="text-mono-xs">{modKey}+K</div>
     </Button>
