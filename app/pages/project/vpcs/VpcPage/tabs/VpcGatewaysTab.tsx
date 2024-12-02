@@ -48,6 +48,8 @@ export function VpcInternetGatewaysTab() {
         cell: makeLinkCell((gateway) => pb.vpcInternetGateway({ ...vpcSelector, gateway })),
       }),
       colHelper.accessor('description', Columns.description),
+      // add a column for the IP Pool associated with this Internet Gateway
+
       colHelper.accessor('timeCreated', Columns.timeCreated),
     ],
     [vpcSelector]
