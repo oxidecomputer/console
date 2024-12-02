@@ -11,7 +11,7 @@
 }
 
 .ox-menu-item {
-  @apply text-raise relative cursor-pointer px-3 py-2 text-sans-md;
+  @apply relative cursor-pointer px-3 py-2 text-sans-md text-raise;
 }
 
 .ox-menu-item.is-highlighted {
