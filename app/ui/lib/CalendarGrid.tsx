@@ -29,14 +29,14 @@ export function CalendarGrid({ state, ...props }: CalendarGridProps) {
         <thead {...headerProps}>
           <tr>
             {weekDays.map((day, index) => (
-              <th className="h-8 w-10 text-center text-mono-md text-quaternary" key={index}>
+              <th className="h-8 w-10 text-center text-mono-md text-tertiary" key={index}>
                 {day}
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {[...new Array(weeksInMonth).keys()].map((weekIndex) => (
+          {[...Array.from({ length: weeksInMonth }).keys()].map((weekIndex) => (
             <tr key={weekIndex}>
               {state
                 .getDatesInWeek(weekIndex)

@@ -21,13 +21,13 @@ export const TimeAgo = ({
 }): JSX.Element => {
   const content = (
     <div className="flex flex-col">
-      <span className="text-tertiary">{tooltipText}</span>
+      <span className="text-secondary">{tooltipText}</span>
       <span>{toLocaleDateTimeString(datetime)}</span>
     </div>
   )
   return (
     <Tooltip content={content} placement={placement}>
-      <span className="text-sans-sm text-tertiary">{timeAgoAbbr(datetime)}</span>
+      <span className="text-sans-sm text-secondary">{timeAgoAbbr(datetime)}</span>
     </Tooltip>
   )
 }

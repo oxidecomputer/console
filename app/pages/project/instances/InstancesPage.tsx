@@ -8,7 +8,7 @@
 import { type UseQueryOptions } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { filesize } from 'filesize'
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -41,6 +41,7 @@ import { toLocaleTimeString } from '~/util/date'
 import { pb } from '~/util/path-builder'
 
 import { useMakeInstanceActions } from './actions'
+import { ResizeInstanceModal } from './instance/InstancePage'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -77,9 +78,15 @@ const POLL_INTERVAL_SLOW = 60 * sec
 
 export function InstancesPage() {
   const { project } = useProjectSelector()
+  const [resizeInstance, setResizeInstance] = useState<Instance | null>(null)
+
   const { makeButtonActions, makeMenuActions } = useMakeInstanceActions(
     { project },
-    { onSuccess: refetchInstances, onDelete: refetchInstances }
+    {
+      onSuccess: refetchInstances,
+      onDelete: refetchInstances,
+      onResizeClick: setResizeInstance,
+    }
   )
 
   const columns = useMemo(
@@ -91,7 +98,7 @@ export function InstancesPage() {
         header: 'CPU',
         cell: (info) => (
           <>
-            {info.getValue()} <span className="ml-1 text-quaternary">vCPU</span>
+            {info.getValue()} <span className="ml-1 text-tertiary">vCPU</span>
           </>
         ),
       }),
@@ -101,7 +108,7 @@ export function InstancesPage() {
           const memory = filesize(info.getValue(), { output: 'object', base: 2 })
           return (
             <>
-              {memory.value} <span className="ml-1 text-quaternary">{memory.unit}</span>
+              {memory.value} <span className="ml-1 text-tertiary">{memory.unit}</span>
             </>
           )
         },
@@ -206,14 +213,14 @@ export function InstancesPage() {
       </PageHeader>
       {/* Avoid changing justify-end on TableActions for this one case. We can
        * fix this properly when we add refresh and filtering for all tables. */}
-      <TableActions className="!-mt-6 !justify-between">
+      <TableActions className="!justify-between">
         <div className="flex items-center gap-2">
           <RefreshButton onClick={refetchInstances} />
           <Tooltip
             content="Auto-refresh is more frequent after instance actions"
             delay={150}
           >
-            <span className="text-sans-sm text-tertiary">
+            <span className="text-sans-sm text-secondary">
               Updated {toLocaleTimeString(new Date(dataUpdatedAt))}
             </span>
           </Tooltip>
@@ -221,6 +228,13 @@ export function InstancesPage() {
         <CreateLink to={pb.instancesNew({ project })}>New Instance</CreateLink>
       </TableActions>
       {table}
+      {resizeInstance && (
+        <ResizeInstanceModal
+          instance={resizeInstance}
+          onDismiss={() => setResizeInstance(null)}
+          onListView
+        />
+      )}
     </>
   )
 }

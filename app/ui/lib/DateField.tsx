@@ -130,7 +130,7 @@ function DateSegment({
       }}
       className={cn(
         'group box-content rounded px-[1px] text-right tabular-nums outline-none',
-        !readOnly && 'focus:text-default focus:bg-accent-secondary-hover',
+        !readOnly && 'focus:text-raise focus:bg-accent-secondary-hover',
         segment.type === 'timeZoneName' ? 'ml-1 text-sans-sm' : 'text-sans-md'
       )}
       // Segment props turns this into a focusable element
@@ -141,8 +141,8 @@ function DateSegment({
       <span
         aria-hidden="true"
         className={cn(
-          'block w-full text-center text-quinary',
-          !readOnly && 'focus:text-default'
+          'block w-full text-center text-quaternary',
+          !readOnly && 'focus:text-raise'
         )}
         style={{
           visibility: segment.isPlaceholder ? undefined : 'hidden',
@@ -155,8 +155,8 @@ function DateSegment({
       <span
         className={cn(
           segment.type === 'literal' || segment.type === 'timeZoneName'
-            ? 'text-quaternary'
-            : 'text-default',
+            ? 'text-tertiary'
+            : 'text-raise',
           !readOnly && 'group-focus:text-accent'
         )}
       >

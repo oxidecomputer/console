@@ -174,7 +174,7 @@ export const handlers = makeHandlers({
 
     return {
       items: genCumulativeI64Data(
-        new Array(1000).fill(0).map((_x, i) => Math.floor(Math.tanh(i / 500) * 3000)),
+        Array.from({ length: 1000 }).map((_x, i) => Math.floor(Math.tanh(i / 500) * 3000)),
         startTime,
         endTime
       ),
@@ -574,7 +574,7 @@ export const handlers = makeHandlers({
 
     setTimeout(() => {
       newInstance.run_state = 'starting'
-    }, 500)
+    }, 1000)
 
     setTimeout(() => {
       newInstance.run_state = 'running'

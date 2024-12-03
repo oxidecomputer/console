@@ -12,7 +12,7 @@ export const All = () => {
   return (
     <div className="flex flex-wrap">
       {Object.entries(badgeColors).flatMap(([variant, colors]) => (
-        <Section title={variant}>
+        <Section title={variant} key={variant}>
           {Object.keys(colors).map((color) => (
             <div key={`${variant}-${color}`}>
               <Badge variant={variant as BadgeVariant} color={color as BadgeColor}>

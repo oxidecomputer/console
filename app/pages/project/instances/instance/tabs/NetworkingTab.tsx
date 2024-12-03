@@ -80,7 +80,7 @@ const SubnetNameFromId = ({ value }: { value: string }) => {
   if (isError) return <Badge color="neutral">Deleted</Badge>
   if (!subnet) return <SkeletonCell /> // loading
 
-  return <span className="text-secondary">{subnet.name}</span>
+  return <span className="text-default">{subnet.name}</span>
 }
 
 export async function loader({ params }: LoaderFunctionArgs) {

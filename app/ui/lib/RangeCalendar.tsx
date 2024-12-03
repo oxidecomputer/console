@@ -67,7 +67,7 @@ export const CalendarButton = ({
     onClick={handleClick}
     disabled={isDisabled}
     className={cn(
-      'flex h-8 w-10 items-center justify-center rounded outline-none text-tertiary',
+      'flex h-8 w-10 items-center justify-center rounded outline-none text-secondary',
       isDisabled ? 'text-disabled' : 'hover:bg-tertiary'
     )}
   >

@@ -26,9 +26,9 @@ export const DocsPopoverLink = ({ href, linkText }: DocsPopoverLinkProps) => (
     rel="noreferrer"
   >
     <div className="mx-2 border-b py-1.5 border-secondary">
-      <div className="relative -ml-2 inline-block rounded py-1 pl-2 pr-7 text-sans-md !text-default group-hover:bg-tertiary">
+      <div className="relative -ml-2 inline-block rounded py-1 pl-2 pr-7 text-sans-md text-raise group-hover:bg-tertiary">
         <span className="inline-block max-w-[300px] truncate align-middle">{linkText}</span>
-        <OpenLink12Icon className="absolute top-1.5 ml-2 translate-y-[1px] text-tertiary" />
+        <OpenLink12Icon className="absolute top-1.5 ml-2 translate-y-[1px] text-secondary" />
       </div>
     </div>
   </a>
@@ -49,7 +49,7 @@ export const DocsPopover = ({ heading, icon, summary, links }: DocsPopoverProps)
       </PopoverButton>
       <PopoverPanel
         // DocsPopoverPanel needed for enter animation
-        className="DocsPopoverPanel z-10 w-96 rounded-lg border bg-raise border-secondary elevation-1"
+        className="DocsPopoverPanel z-10 w-96 rounded-lg border bg-raise border-secondary elevation-2"
         anchor={{ to: 'bottom end', gap: 12 }}
       >
         <div className="px-4">
@@ -57,10 +57,10 @@ export const DocsPopover = ({ heading, icon, summary, links }: DocsPopoverProps)
             <div className="mr-1 flex items-center text-accent-secondary">{icon}</div>
             Learn about {heading}
           </h2>
-          <p className="mb-3 mt-2 text-sans-md text-secondary">{summary}</p>
+          <p className="mb-3 mt-2 text-sans-md text-default">{summary}</p>
         </div>
         <div className="border-t pb-1 border-secondary">
-          <h3 className="mb-1 mt-3 px-4 text-mono-sm text-quaternary">Guides</h3>
+          <h3 className="mb-1 mt-3 px-4 text-mono-sm text-tertiary">Guides</h3>
           {links.map((link) => (
             <DocsPopoverLink key={link.href} {...link} />
           ))}

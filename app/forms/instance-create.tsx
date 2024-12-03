@@ -614,7 +614,7 @@ const isFloating = (
 const FloatingIpLabel = ({ ip }: { ip: FloatingIp }) => (
   <div>
     <div>{ip.name}</div>
-    <div className="flex gap-0.5 text-tertiary selected:text-accent-secondary">
+    <div className="flex gap-0.5 text-secondary selected:text-accent-secondary">
       <div>{ip.ip}</div>
       {ip.description && (
         <>
@@ -749,7 +749,7 @@ const AdvancedAccordion = ({
                 externalIps.field.onChange(newExternalIps)
               }}
             />
-            <label htmlFor="assignEphemeralIp" className="text-sans-md text-secondary">
+            <label htmlFor="assignEphemeralIp" className="text-sans-md text-default">
               Allocate and attach an ephemeral IP address
             </label>
           </div>

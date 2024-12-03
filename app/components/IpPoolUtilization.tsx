@@ -12,8 +12,8 @@ import { BigNum } from '~/ui/lib/BigNum'
 
 const IpUtilFrac = (props: { allocated: number | bigint; capacity: number | bigint }) => (
   <>
-    <BigNum className="text-default" num={props.allocated} /> /{' '}
-    <BigNum className="text-tertiary" num={props.capacity} />
+    <BigNum className="text-raise" num={props.allocated} /> /{' '}
+    <BigNum className="text-secondary" num={props.capacity} />
   </>
 )
 
