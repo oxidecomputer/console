@@ -148,7 +148,7 @@ function SideModalBody({ children }: { children?: ReactNode }) {
 
 SideModal.Body = SideModalBody
 
-SideModal.Heading = classed.div`text-sans-semi-xl`
+SideModal.Heading = classed.div`text-sans-semi-xl text-raise`
 
 SideModal.Section = classed.div`p-8 space-y-6 border-secondary`
 
