@@ -36,18 +36,18 @@ export async function map<T>(
 
 type Selector = string | Locator
 
-const toLocator = (page: Page, selector: Selector): Locator =>
-  typeof selector === 'string' ? page.locator(selector) : selector
-
-export async function expectVisible(page: Page, selectors: Selector[]) {
+// note if `Locator` is used instead of string, the container is ignored
+export async function expectVisible(container: Page | Locator, selectors: Selector[]) {
   for (const selector of selectors) {
-    await expect(toLocator(page, selector)).toBeVisible()
+    const locator = typeof selector === 'string' ? container.locator(selector) : selector
+    await expect(locator).toBeVisible()
   }
 }
 
-export async function expectNotVisible(page: Page, selectors: Selector[]) {
+export async function expectNotVisible(container: Page | Locator, selectors: Selector[]) {
   for (const selector of selectors) {
-    await expect(toLocator(page, selector)).toBeHidden()
+    const locator = typeof selector === 'string' ? container.locator(selector) : selector
+    await expect(locator).toBeHidden()
   }
 }
 

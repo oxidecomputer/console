@@ -25,13 +25,13 @@ test('SSH keys', async ({ page }) => {
   // verify side modal content
   const modal = page.getByRole('dialog')
   await expect(modal).toBeVisible()
-  await expect(modal.getByText('Edit SSH key')).toBeVisible()
-  await expect(modal.getByText('m1-macbook-pro')).toBeVisible()
+  await expectVisible(page, [
+    'role=heading[name="m1-macbook-pro"]',
+    'role=heading[name="Edit SSH key"]',
+  ])
 
   const propertiesTable = modal.locator('.properties-table')
-  await expect(propertiesTable.getByText('ID')).toBeVisible()
-  await expect(propertiesTable.getByText('Created')).toBeVisible()
-  await expect(propertiesTable.getByText('Updated')).toBeVisible()
+  await expectVisible(propertiesTable, ['text="ID"', 'text="Created"', 'text="Updated"'])
 
   // verify form fields are present and disabled
   await expect(modal.getByRole('textbox', { name: 'Name' })).toBeDisabled()
