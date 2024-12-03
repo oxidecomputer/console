@@ -574,7 +574,7 @@ export const handlers = makeHandlers({
 
     setTimeout(() => {
       newInstance.run_state = 'starting'
-    }, 500)
+    }, 1000)
 
     setTimeout(() => {
       newInstance.run_state = 'running'
