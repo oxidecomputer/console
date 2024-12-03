@@ -73,7 +73,7 @@ export const RowActions = ({ id, copyIdLabel = 'Copy ID', actions }: RowActionsP
         aria-label="Row actions"
         onClick={(e) => e.stopPropagation()}
       >
-        <More12Icon className="text-tertiary" />
+        <More12Icon />
       </DropdownMenu.Trigger>
       {/* offset moves menu in from the right so it doesn't align with the table border */}
       <DropdownMenu.Content anchor={{ to: 'bottom end', offset: -6 }} className="-mt-2">

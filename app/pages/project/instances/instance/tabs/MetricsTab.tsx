@@ -124,8 +124,8 @@ function DiskMetric({
 
   return (
     <div className="flex w-1/2 grow flex-col">
-      <h2 className="ml-3 flex items-center text-mono-xs text-secondary">
-        {title} <div className="ml-1 normal-case text-quaternary">{label}</div>
+      <h2 className="ml-3 flex items-center text-mono-xs text-default">
+        {title} <div className="ml-1 normal-case text-tertiary">{label}</div>
         {isLoading && <Spinner className="ml-2" />}
       </h2>
       <Suspense fallback={<div className="mt-3 h-[300px]" />}>

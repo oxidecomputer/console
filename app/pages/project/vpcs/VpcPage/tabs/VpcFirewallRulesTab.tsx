@@ -40,15 +40,15 @@ const colHelper = createColumnHelper<VpcFirewallRule>()
 const staticColumns = [
   colHelper.accessor('priority', {
     header: 'Priority',
-    cell: (info) => <div className="text-secondary">{info.getValue()}</div>,
+    cell: (info) => <div className="text-default">{info.getValue()}</div>,
   }),
   colHelper.accessor('action', {
     header: 'Action',
-    cell: (info) => <div className="text-secondary">{titleCase(info.getValue())}</div>,
+    cell: (info) => <div className="text-default">{titleCase(info.getValue())}</div>,
   }),
   colHelper.accessor('direction', {
     header: 'Direction',
-    cell: (info) => <div className="text-secondary">{titleCase(info.getValue())}</div>,
+    cell: (info) => <div className="text-default">{titleCase(info.getValue())}</div>,
   }),
   colHelper.accessor('targets', {
     header: 'Targets',

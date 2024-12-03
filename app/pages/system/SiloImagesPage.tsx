@@ -262,7 +262,7 @@ const DemoteImageModal = ({
             className="space-y-4"
           >
             <p>
-              Demoting: <span className="text-sans-semi-md text-default">{image.name}</span>
+              Demoting: <span className="text-sans-semi-md text-raise">{image.name}</span>
             </p>
 
             <Message

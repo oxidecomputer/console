@@ -2,7 +2,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at https://mozilla.org/MPL/2.0/.
- *  
+ *
  * Copyright Oxide Computer Company
  */
 
@@ -22,11 +22,11 @@
 }
 
 .btn-secondary {
-  @apply text-secondary bg-secondary hover:bg-hover disabled:text-quaternary disabled:bg-secondary;
+  @apply text-default bg-secondary hover:bg-hover disabled:text-tertiary disabled:bg-secondary;
 }
 .btn-secondary:disabled > .spinner,
 .btn-secondary.visually-disabled > .spinner {
-  @apply text-secondary;
+  @apply text-default;
 }
 
 .btn-danger {
@@ -38,7 +38,7 @@
 }
 
 .btn-ghost {
-  @apply border text-secondary border-default hover:bg-hover disabled:bg-transparent disabled:text-disabled;
+  @apply border text-default border-default hover:bg-hover disabled:bg-transparent disabled:text-disabled;
 }
 .btn-ghost:after {
   @apply hidden;

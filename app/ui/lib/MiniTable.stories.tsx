@@ -19,14 +19,14 @@ export const Default = () => (
         <MiniTable.Cell>disk-1</MiniTable.Cell>
         <MiniTable.Cell>Blank</MiniTable.Cell>
         <MiniTable.Cell>
-          128 <span className="text-secondary">GiB</span>
+          128 <span className="text-default">GiB</span>
         </MiniTable.Cell>
       </MiniTable.Row>
       <MiniTable.Row>
         <MiniTable.Cell>disk-2</MiniTable.Cell>
         <MiniTable.Cell>Blank</MiniTable.Cell>
         <MiniTable.Cell>
-          128 <span className="text-secondary">GiB</span>
+          128 <span className="text-default">GiB</span>
         </MiniTable.Cell>
       </MiniTable.Row>
     </MiniTable.Body>

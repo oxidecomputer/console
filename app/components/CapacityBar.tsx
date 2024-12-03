@@ -54,8 +54,8 @@ function TitleCell({ icon, title, unit }: TitleCellProps) {
     <div>
       <div className="flex grow items-center">
         <span className="mr-2 flex h-4 w-4 items-center text-accent">{icon}</span>
-        <span className="!normal-case text-mono-sm text-secondary">{title}</span>
-        <span className="ml-1 !normal-case text-mono-sm text-quaternary">({unit})</span>
+        <span className="!normal-case text-mono-sm text-default">{title}</span>
+        <span className="ml-1 !normal-case text-mono-sm text-tertiary">({unit})</span>
       </div>
     </div>
   )
@@ -65,8 +65,8 @@ function PctCell({ pct }: { pct: number }) {
   // NaN happens when both top and bottom are 0
   if (Number.isNaN(pct)) {
     return (
-      <div className="flex -translate-y-0.5 items-baseline text-quaternary">
-        <div className="font-light text-sans-2xl">—</div>
+      <div className="flex -translate-y-0.5 items-baseline text-tertiary">
+        <div className="font-light text-sans-2xl text-raise">—</div>
         <div className="text-sans-xl">%</div>
       </div>
     )
@@ -75,8 +75,8 @@ function PctCell({ pct }: { pct: number }) {
   const [wholeNumber, decimal] = splitDecimal(pct)
   return (
     <div className="flex -translate-y-0.5 items-baseline">
-      <div className="font-light text-sans-2xl">{wholeNumber}</div>
-      <div className="text-sans-xl text-quaternary">{decimal}%</div>
+      <div className="font-light text-sans-2xl text-raise">{wholeNumber}</div>
+      <div className="text-sans-xl text-tertiary">{decimal}%</div>
     </div>
   )
 }
@@ -102,8 +102,8 @@ type ValueCellProps = {
 function ValueCell({ label, value, unit }: ValueCellProps) {
   return (
     <div className="p-3 text-mono-sm">
-      <div className="mb-px text-quaternary">{label}</div>
-      <div className="!normal-case text-secondary">
+      <div className="mb-px text-tertiary">{label}</div>
+      <div className="!normal-case text-default">
         <BigNum num={value} />
         {unit}
       </div>

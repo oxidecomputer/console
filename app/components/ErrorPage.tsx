@@ -34,9 +34,9 @@ export function ErrorPage({ children }: Props) {
       <div className="relative flex w-full justify-between">
         <Link
           to="/"
-          className="flex items-center p-6 text-mono-sm text-secondary hover:text-default"
+          className="flex items-center p-6 text-mono-sm text-default hover:text-raise"
         >
-          <PrevArrow12Icon title="Select" className="mr-2 text-tertiary" />
+          <PrevArrow12Icon title="Select" className="mr-2 text-secondary" />
           Back to console
         </Link>
         <SignOutButton className="mr-6 mt-4" />
@@ -57,7 +57,7 @@ export function NotFound() {
   return (
     <ErrorPage>
       <h1 className="text-sans-2xl">Page not found</h1>
-      <p className="text-tertiary">
+      <p className="text-secondary">
         The page you are looking for doesn&apos;t exist or you may not have access to it.
       </p>
     </ErrorPage>

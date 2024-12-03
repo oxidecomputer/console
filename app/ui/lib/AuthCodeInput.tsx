@@ -64,7 +64,7 @@ function getPrevInputSibling(el: Element): HTMLInputElement | null {
 }
 
 const Dash = () => (
-  <span className="flex items-center px-1 text-quinary">
+  <span className="flex items-center px-1 text-quaternary">
     {/* sorry about this margin. it must be done */}
     <span className="mb-0.5">&ndash;</span>
   </span>

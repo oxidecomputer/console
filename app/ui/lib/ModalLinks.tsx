@@ -17,8 +17,8 @@ export const ModalLinks = ({
   children: ReactNode
 }) => (
   <div>
-    <h3 className="mb-2 text-sans-semi-md text-default">{heading}</h3>
-    <ul className="space-y-1 text-sans-md text-tertiary">{children}</ul>
+    <h3 className="mb-2 text-sans-semi-md text-raise">{heading}</h3>
+    <ul className="space-y-1 text-sans-md text-secondary">{children}</ul>
   </div>
 )
 
@@ -32,7 +32,7 @@ export const ModalLink = ({ to, label }: { to: string; label: string }) => (
       className="group flex items-center space-x-2"
     >
       <OpenLink12Icon className="text-accent group-hover:text-accent" />
-      <span className="group-hover:text-default">{label}</span>
+      <span className="group-hover:text-raise">{label}</span>
     </a>
   </li>
 )

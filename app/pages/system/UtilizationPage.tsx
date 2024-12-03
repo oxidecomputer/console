@@ -248,12 +248,12 @@ const UsageCell = ({
   allocated: number
   unit?: string
 }) => (
-  <div className="flex flex-col text-tertiary">
+  <div className="flex flex-col text-secondary">
     <div>
-      <span className="text-default">{provisioned}</span> /
+      <span className="text-raise">{provisioned}</span> /
     </div>
-    <div className="text-tertiary">
-      {allocated} {unit && <span className="text-quaternary">{unit}</span>}
+    <div className="text-secondary">
+      {allocated} {unit && <span className="text-tertiary">{unit}</span>}
     </div>
   </div>
 )
@@ -272,7 +272,7 @@ const AvailableCell = ({
     <div className="flex w-full items-center justify-between">
       <div>
         {round(allocated - provisioned, 2)}
-        {unit && <span className="text-tertiary"> {unit}</span>}
+        {unit && <span className="text-secondary"> {unit}</span>}
       </div>
       {/* We only show the ResourceMeter if the percent crosses the warning threshold (66%) */}
       {usagePercent > 66 && (

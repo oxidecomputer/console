@@ -60,7 +60,7 @@ const BigIdenticon = ({ name }: { name: string }) => (
 )
 
 const SystemIcon = () => (
-  <div className={cn(bigIconBox, 'text-quinary bg-tertiary')}>
+  <div className={cn(bigIconBox, 'text-quaternary bg-tertiary')}>
     <Servers16Icon />
   </div>
 )
@@ -88,8 +88,8 @@ function HomeButton({ level }: { level: 'system' | 'silo' }) {
       <div className="flex w-full items-center">
         <div className="mr-2">{config.icon}</div>
         <div className="min-w-0 flex-1">
-          <div className="text-mono-xs text-quaternary">{config.heading}</div>
-          <div className="overflow-hidden text-ellipsis whitespace-nowrap text-sans-md text-secondary">
+          <div className="text-mono-xs text-tertiary">{config.heading}</div>
+          <div className="overflow-hidden text-ellipsis whitespace-nowrap text-sans-md text-raise">
             {config.label}
           </div>
         </div>
@@ -110,8 +110,8 @@ function Breadcrumbs() {
           <Link
             to={path}
             className={cn(
-              'whitespace-nowrap text-sans-md hover:text-secondary',
-              i === crumbs.length - 1 ? 'text-secondary' : 'text-tertiary'
+              'whitespace-nowrap text-sans-md',
+              i === crumbs.length - 1 ? 'text-raise' : 'text-secondary hover:text-default'
             )}
             key={`${label}|${path}`}
           >
@@ -139,8 +139,8 @@ function UserMenu() {
         )}
         aria-label="User menu"
       >
-        <Profile16Icon className="text-quaternary" />
-        <span className="normal-case text-sans-md text-secondary">
+        <Profile16Icon className="text-tertiary" />
+        <span className="normal-case text-sans-md text-default">
           {me.displayName || 'User'}
         </span>
       </DropdownMenu.Trigger>
@@ -161,15 +161,15 @@ function SiloSystemPicker({ level }: { level: 'silo' | 'system' }) {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger
-        className="flex items-center rounded border px-2 py-1.5 text-sans-md text-secondary border-secondary hover:bg-hover"
+        className="flex items-center rounded border px-2 py-1.5 text-sans-md text-default border-secondary hover:bg-hover"
         aria-label="Switch between system and silo"
       >
-        <div className="flex items-center text-quaternary">
+        <div className="flex items-center text-tertiary">
           {level === 'system' ? <Servers16Icon /> : <Organization16Icon />}
         </div>
         <div className="ml-1.5 mr-3">{level === 'system' ? 'System' : 'Silo'}</div>
         {/* aria-hidden is a tip from the Reach docs */}
-        <SelectArrows6Icon className="text-quinary" aria-hidden />
+        <SelectArrows6Icon className="text-quaternary" aria-hidden />
       </DropdownMenu.Trigger>
       <DropdownMenu.Content className="mt-2 max-h-80 overflow-y-auto" anchor="bottom start">
         <SystemSiloItem to={pb.silos()} label="System" isSelected={level === 'system'} />
