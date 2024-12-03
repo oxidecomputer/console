@@ -72,7 +72,7 @@ export const paginated = <P extends PaginateOptions, I extends { id: string }>(
 // make a bunch of copies of an object with different names and IDs. useful for
 // testing pagination
 export const repeat = <T extends { id: string; name: string }>(obj: T, n: number): T[] =>
-  new Array(n).fill(0).map((_, i) => ({ ...obj, id: obj.id + i, name: obj.name + i }))
+  Array.from({ length: n }).map((_, i) => ({ ...obj, id: obj.id + i, name: obj.name + i }))
 
 export function getStartAndEndTime(params: { startTime?: Date; endTime?: Date }) {
   // if no start time or end time, give the last 24 hours. in this case the
@@ -209,7 +209,7 @@ export function generateUtilization(
 
   // Pick a reasonable start value
   const startVal = 500
-  const values = new Array<number>(dataCount)
+  const values = Array.from<number>({ length: dataCount })
   values[0] = startVal
 
   let x = 0

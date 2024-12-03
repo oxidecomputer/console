@@ -5,6 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
+import React from 'react'
+
 import { Section } from '../util/story-section'
 import { Button, variants } from './Button'
 
@@ -21,14 +23,14 @@ export const All = () => {
         <Section key={state} title={state}>
           <div className="mb-2 flex flex-row space-x-2">
             {variants.map((variant) => (
-              <>
+              <React.Fragment key={variant}>
                 <Button key={variant} variant={variant} className={`:${state}`}>
                   {variant}
                 </Button>
                 <Button key={variant} variant={variant} className={`:${state}`} loading>
                   {variant}
                 </Button>
-              </>
+              </React.Fragment>
             ))}
           </div>
         </Section>

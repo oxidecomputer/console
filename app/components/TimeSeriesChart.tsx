@@ -33,15 +33,14 @@ function getTicks(data: { timestamp: number }[], n: number): number[] {
   const maxIdx = data.length > 10 ? Math.floor((data.length - 1) * 0.8) : data.length - 1
   const startOffset = Math.floor((data.length - maxIdx) * 0.6)
   // if there are 4 ticks, their positions are 0/3, 1/3, 2/3, 3/3 (as fractions of maxIdx)
-  const idxs = new Array(n)
-    .fill(0)
-    .map((_, i) => Math.floor((maxIdx * i) / (n - 1) + startOffset))
+  const idxs = Array.from({ length: n }).map((_, i) =>
+    Math.floor((maxIdx * i) / (n - 1) + startOffset)
+  )
   return idxs.map((i) => data[i].timestamp)
 }
 
 function getVerticalTicks(n: number, max: number): number[] {
-  const idxs = new Array(n).fill(0)
-  return idxs.map((_, i) => Math.floor(((i + 1) / n) * max))
+  return Array.from({ length: n }).map((_, i) => Math.floor(((i + 1) / n) * max))
 }
 
 /**

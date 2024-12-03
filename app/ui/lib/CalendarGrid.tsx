@@ -36,7 +36,7 @@ export function CalendarGrid({ state, ...props }: CalendarGridProps) {
           </tr>
         </thead>
         <tbody>
-          {[...new Array(weeksInMonth).keys()].map((weekIndex) => (
+          {[...Array.from({ length: weeksInMonth }).keys()].map((weekIndex) => (
             <tr key={weekIndex}>
               {state
                 .getDatesInWeek(weekIndex)
