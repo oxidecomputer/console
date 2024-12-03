@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
@@ -9,6 +16,7 @@ import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { getSshKeySelector, useSshKeySelector } from '~/hooks/use-params'
+import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { DateTime } from '~/ui/lib/DateTime'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
@@ -61,15 +69,18 @@ export function EditSSHKeySideModalForm() {
       </PropertiesTable>
       <NameField name="name" control={form.control} disabled />
       <DescriptionField name="description" control={form.control} disabled />
-      <TextField
-        as="textarea"
-        name="publicKey"
-        label="Public key"
-        required
-        rows={8}
-        control={form.control}
-        disabled
-      />
+      <div className="relative">
+        <CopyToClipboard className="!absolute right-0 top-0" text={data.publicKey} />
+        <TextField
+          as="textarea"
+          name="publicKey"
+          label="Public key"
+          required
+          rows={8}
+          control={form.control}
+          disabled
+        />
+      </div>
     </SideModalForm>
   )
 }
