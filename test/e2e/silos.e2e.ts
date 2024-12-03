@@ -32,6 +32,9 @@ test('Create silo', async ({ page }) => {
 
   await page.click('role=link[name="New silo"]')
 
+  const modal = page.getByRole('dialog', { name: 'Create silo' })
+  await expect(modal).toBeVisible()
+
   // fill out form
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('other-silo')
   await page.getByRole('textbox', { name: 'Description' }).fill('definitely a silo')
@@ -72,7 +75,7 @@ test('Create silo', async ({ page }) => {
   await page.getByRole('button', { name: 'Create silo' }).click()
 
   // expect error because no TLS cert
-  await expect(page.getByText('TLS certificate is required').first()).toBeVisible()
+  await expect(modal.getByText('At least one certificate is required')).toBeVisible()
 
   ////////////////////////////
   // TLS CERT

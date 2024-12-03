@@ -32,7 +32,12 @@ export function TlsCertsField({ control }: { control: Control<SiloCreateFormValu
   } = useController({
     control,
     name: 'tlsCertificates',
-    rules: { required: true },
+    rules: {
+      // docs recommend validate over required for array-valued field
+      // https://react-hook-form.com/docs/useform/register
+      validate: (certs) =>
+        certs.length < 1 ? 'At least one certificate is required' : undefined,
+    },
   })
 
   return (
