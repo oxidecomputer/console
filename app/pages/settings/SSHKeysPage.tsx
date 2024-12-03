@@ -57,6 +57,12 @@ export function Component() {
   const makeActions = useCallback(
     (sshKey: SshKey): MenuAction[] => [
       {
+        label: 'Copy public key',
+        onActivate() {
+          window.navigator.clipboard.writeText(sshKey.publicKey)
+        },
+      },
+      {
         label: 'Delete',
         onActivate: confirmDelete({
           doDelete: () => deleteSshKey({ path: { sshKey: sshKey.name } }),
