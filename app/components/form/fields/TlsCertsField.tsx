@@ -78,7 +78,7 @@ export function TlsCertsField({ control }: { control: Control<SiloCreateFormValu
         <AddCertModal
           onDismiss={() => setShowAddCert(false)}
           onSubmit={async (values) => {
-            const certCreate: (typeof items)[number] = {
+            const certCreate: CertificateCreate = {
               ...values,
               // cert and key are required fields. they will always be present if we get here
               cert: await values.cert!.text(),
