@@ -24,7 +24,7 @@ export const MoreActionsMenu = ({ actions, label }: MoreActionsMenuProps) => {
         aria-label={label}
         className="flex h-8 w-8 items-center justify-center rounded border border-default hover:bg-tertiary"
       >
-        <More12Icon className="text-secondary" />
+        <More12Icon />
       </DropdownMenu.Trigger>
       <DropdownMenu.Content className="mt-2">
         {actions.map((a) => (

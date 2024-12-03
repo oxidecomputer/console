@@ -26,7 +26,7 @@ export const DocsPopoverLink = ({ href, linkText }: DocsPopoverLinkProps) => (
     rel="noreferrer"
   >
     <div className="mx-2 border-b py-1.5 border-secondary">
-      <div className="relative -ml-2 inline-block rounded py-1 pl-2 pr-7 text-sans-md !text-raise group-hover:bg-tertiary">
+      <div className="relative -ml-2 inline-block rounded py-1 pl-2 pr-7 text-sans-md text-raise group-hover:bg-tertiary">
         <span className="inline-block max-w-[300px] truncate align-middle">{linkText}</span>
         <OpenLink12Icon className="absolute top-1.5 ml-2 translate-y-[1px] text-secondary" />
       </div>
@@ -45,7 +45,7 @@ export const DocsPopover = ({ heading, icon, summary, links }: DocsPopoverProps)
   return (
     <Popover>
       <PopoverButton className={cn(buttonStyle({ size: 'sm', variant: 'ghost' }), 'w-8')}>
-        <Info16Icon aria-label="Links to docs" className="shrink-0 text-tertiary" />
+        <Info16Icon aria-label="Links to docs" className="shrink-0" />
       </PopoverButton>
       <PopoverPanel
         // DocsPopoverPanel needed for enter animation

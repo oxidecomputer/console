@@ -213,7 +213,7 @@ export function InstancesPage() {
       </PageHeader>
       {/* Avoid changing justify-end on TableActions for this one case. We can
        * fix this properly when we add refresh and filtering for all tables. */}
-      <TableActions className="!-mt-6 !justify-between">
+      <TableActions className="!justify-between">
         <div className="flex items-center gap-2">
           <RefreshButton onClick={refetchInstances} />
           <Tooltip
