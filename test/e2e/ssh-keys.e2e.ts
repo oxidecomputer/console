@@ -26,7 +26,7 @@ test('SSH keys', async ({ page }) => {
   const modal = page.getByRole('dialog')
   await expect(modal).toBeVisible()
   await expect(modal.getByText('Edit SSH key')).toBeVisible()
-  await expect(modal.getByText('m1-macbook-pro')).toBeVisible()
+  await expect(modal.getByRole('heading', { name: 'm1-macbook-pro' })).toBeVisible()
 
   const propertiesTable = modal.locator('.properties-table')
   await expect(propertiesTable.getByText('ID')).toBeVisible()
