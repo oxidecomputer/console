@@ -82,7 +82,7 @@ export function toImageComboboxItem(
     label: (
       <div className="flex flex-col gap-1">
         <div>{name}</div>
-        <div className="text-tertiary selected:text-accent-secondary">{itemMetadata}</div>
+        <div className="text-secondary selected:text-accent-secondary">{itemMetadata}</div>
       </div>
     ),
   }

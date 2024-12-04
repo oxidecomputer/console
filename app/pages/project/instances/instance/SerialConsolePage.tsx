@@ -221,7 +221,7 @@ const CannotConnect = ({ instance }: { instance: Instance }) => (
       <span>The instance is </span>
       <InstanceStateBadge className="ml-1.5" state={instance.runState} />
     </p>
-    <p className="mt-2 text-balance text-center text-secondary">
+    <p className="mt-2 text-balance text-center text-default">
       {isStarting(instance)
         ? 'Waiting for the instance to start before connecting.'
         : 'You can only connect to the serial console on a running instance.'}
@@ -236,6 +236,6 @@ const ErrorSkeleton = () => (
     <p className="flex items-center justify-center text-center text-sans-xl">
       Serial console connection failed
     </p>
-    <p className="mt-2 text-center text-secondary">Please try again.</p>
+    <p className="mt-2 text-center text-default">Please try again.</p>
   </SerialSkeleton>
 )

@@ -27,7 +27,7 @@ export function ExternalIps({ project, instance }: InstanceSelector) {
     <div className="flex items-center gap-1">
       {intersperse(
         ips.map((eip) => <CopyableIp ip={eip.ip} key={eip.ip} />),
-        <span className="text-quinary"> / </span>
+        <span className="text-quaternary"> / </span>
       )}
     </div>
   )

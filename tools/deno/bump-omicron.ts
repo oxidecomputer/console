@@ -116,29 +116,25 @@ const commitsMarkdown = commits.split('\n').map(linkifyGitLog).join('\n')
 const changesLine = `https://github.com/oxidecomputer/console/compare/${commitRange}`
 
 const branchName = 'bump-console-' + newCommit.slice(0, 8)
-const prTitle = 'Bump web console' + (args.message ? ` (${args.message})` : '')
 const prBody = `${changesLine}\n\n${commitsMarkdown}`
 
-// markdown links make the inline preview unreadable, so leave them out
-const prBodyPreview = `${changesLine}\n\n${commits}`
+console.log(`\n${changesLine}\n\n${commits}\n`)
 
-console.log(`
-New contents of <omicron>/tools/console_version:
+if (args.dryRun) Deno.exit()
 
-${newVersionFile}
+const message =
+  args.message ||
+  (await $.prompt({
+    message: 'Description? (enter to skip)',
+    noClear: true,
+  }))
 
-Branch:    ${branchName}
-PR title:  ${prTitle}
+const prTitle = 'Bump web console' + (message ? ` (${message})` : '')
 
---------
-PR body
---------
-  
-${prBodyPreview}`)
+console.log(`\nPR title: ${prTitle}\n`)
 
-if (args.dryRun || !confirm('\nMake Omicron PR with these changes?')) {
-  Deno.exit()
-}
+const go = await $.confirm({ message: 'Make Omicron PR?', noClear: true })
+if (!go) Deno.exit()
 
 if (!$.commandExistsSync('gh')) throw Error(GH_MISSING)
 

@@ -34,7 +34,11 @@ export function Content({ className, children, anchor = 'bottom end', gap }: Con
     <MenuItems
       anchor={anchor}
       // goofy gap because tailwind hates string interpolation
-      className={cn('DropdownMenuContent', gap === 8 && `[--anchor-gap:8px]`, className)}
+      className={cn(
+        'DropdownMenuContent elevation-2',
+        gap === 8 && `[--anchor-gap:8px]`,
+        className
+      )}
       // necessary to turn off scroll locking so the scrollbar doesn't pop in
       // and out as menu closes and opens
       modal={false}

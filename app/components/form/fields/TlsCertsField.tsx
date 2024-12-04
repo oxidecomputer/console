@@ -18,6 +18,7 @@ import * as MiniTable from '~/ui/lib/MiniTable'
 import { Modal } from '~/ui/lib/Modal'
 
 import { DescriptionField } from './DescriptionField'
+import { ErrorMessage } from './ErrorMessage'
 import { FileField } from './FileField'
 import { validateName } from './NameField'
 import { TextField } from './TextField'
@@ -26,8 +27,18 @@ export function TlsCertsField({ control }: { control: Control<SiloCreateFormValu
   const [showAddCert, setShowAddCert] = useState(false)
 
   const {
-    field: { value: items, onChange },
-  } = useController({ control, name: 'tlsCertificates' })
+    field: { value: items, onChange, ref },
+    fieldState: { error },
+  } = useController({
+    control,
+    name: 'tlsCertificates',
+    rules: {
+      // docs recommend validate over required for array-valued field
+      // https://react-hook-form.com/docs/useform/register
+      validate: (certs) =>
+        certs.length < 1 ? 'At least one certificate is required' : undefined,
+    },
+  })
 
   return (
     <>
@@ -61,16 +72,18 @@ export function TlsCertsField({ control }: { control: Control<SiloCreateFormValu
           </MiniTable.Table>
         )}
 
-        <Button size="sm" onClick={() => setShowAddCert(true)}>
+        {/* ref on button element allows scrollTo to work when the form has a "missing TLS cert" error */}
+        <Button size="sm" onClick={() => setShowAddCert(true)} ref={ref}>
           Add TLS certificate
         </Button>
+        <ErrorMessage error={error} label="TLS certificate" />
       </div>
 
       {showAddCert && (
         <AddCertModal
           onDismiss={() => setShowAddCert(false)}
           onSubmit={async (values) => {
-            const certCreate: (typeof items)[number] = {
+            const certCreate: CertificateCreate = {
               ...values,
               // cert and key are required fields. they will always be present if we get here
               cert: await values.cert!.text(),

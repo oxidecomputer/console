@@ -22,7 +22,7 @@ export function toIpPoolItem(p: SiloIpPool) {
         )}
       </div>
       {!!p.description && (
-        <div className="text-tertiary selected:text-accent-secondary">{p.description}</div>
+        <div className="text-secondary selected:text-accent-secondary">{p.description}</div>
       )}
     </div>
   )

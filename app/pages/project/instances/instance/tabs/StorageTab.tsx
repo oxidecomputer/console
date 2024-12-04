@@ -157,7 +157,7 @@ export function Component() {
         label: 'Unset as boot disk',
         disabled: !instanceCan.update({ runState: disk.instanceState }) && (
           <>
-            Instance must be <span className="text-default">stopped</span> before boot disk
+            Instance must be <span className="text-raise">stopped</span> before boot disk
             can be changed
           </>
         ),
@@ -210,7 +210,7 @@ export function Component() {
         label: 'Set as boot disk',
         disabled: !instanceCan.update({ runState: disk.instanceState }) && (
           <>
-            Instance must be <span className="text-default">stopped</span> before boot disk
+            Instance must be <span className="text-raise">stopped</span> before boot disk
             can be changed
           </>
         ),
@@ -253,8 +253,8 @@ export function Component() {
         label: 'Detach',
         disabled: !instanceCan.detachDisk({ runState: disk.instanceState }) && (
           <>
-            Instance must be <span className="text-default">stopped</span> before disk can
-            be detached
+            Instance must be <span className="text-raise">stopped</span> before disk can be
+            detached
           </>
         ),
         onActivate() {
@@ -325,7 +325,7 @@ export function Component() {
           onClick={() => setShowDiskCreate(true)}
           disabledReason={
             <>
-              Instance must be <span className="text-default">stopped</span> to create and
+              Instance must be <span className="text-raise">stopped</span> to create and
               attach a disk
             </>
           }
@@ -339,8 +339,7 @@ export function Component() {
           onClick={() => setShowDiskAttach(true)}
           disabledReason={
             <>
-              Instance must be <span className="text-default">stopped</span> to attach a
-              disk
+              Instance must be <span className="text-raise">stopped</span> to attach a disk
             </>
           }
           disabled={!instanceCan.attachDisk(instance)}

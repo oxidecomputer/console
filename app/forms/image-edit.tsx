@@ -101,7 +101,7 @@ function EditImageSideModalForm({
         </PropertiesTable.Row>
         <PropertiesTable.Row label="Size">
           <span>{bytesToGiB(image.size)}</span>
-          <span className="ml-1 inline-block text-quaternary">GiB</span>
+          <span className="ml-1 inline-block text-tertiary">GiB</span>
         </PropertiesTable.Row>
         <PropertiesTable.Row label="Created">
           <DateTime date={image.timeCreated} />

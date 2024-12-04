@@ -32,7 +32,7 @@ export const FieldLabel = ({
         {optional && (
           // Announcing this optional text is unnecessary as the required attribute on the
           // form will be used
-          <span className="pl-1 text-tertiary" aria-hidden="true">
+          <span className="pl-1 text-secondary" aria-hidden="true">
             (Optional)
           </span>
         )}

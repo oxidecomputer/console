@@ -43,7 +43,7 @@ PropertiesTable.Row = ({ label, children }: PropertiesTableRowProps) => (
     <span className="flex items-center">
       <Badge>{label}</Badge>
     </span>
-    <div className="flex h-11 items-center overflow-hidden whitespace-nowrap pr-4 text-sans-md text-secondary">
+    <div className="flex h-11 items-center overflow-hidden whitespace-nowrap pr-4 text-sans-md text-default">
       {children}
     </div>
   </>

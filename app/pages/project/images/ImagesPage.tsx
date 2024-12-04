@@ -171,7 +171,7 @@ const PromoteImageModal = ({ onDismiss, imageName }: PromoteModalProps) => {
         <Modal.Section>
           <p>
             Are you sure you want to promote{' '}
-            <span className="text-sans-semi-md text-default">{imageName}</span>?
+            <span className="text-sans-semi-md text-raise">{imageName}</span>?
           </p>
           <Message
             variant="info"

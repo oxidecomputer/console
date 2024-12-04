@@ -1,0 +1,17 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "react-hooks", "unicorn", "typescript", "oxc"],
+  "rules": {
+    "react-hooks/exhaustive-deps": "error",
+    // turning this off because it's more sensitive than eslint currently
+    // "react-hooks/rules-of-hooks": "error",
+    "no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }
+    ]
+  }
+}

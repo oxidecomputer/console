@@ -196,12 +196,12 @@ export function InstancePage() {
       <PropertiesTable.Group className="-mt-8 mb-16">
         <PropertiesTable>
           <PropertiesTable.Row label="cpu">
-            <span className="text-secondary">{instance.ncpus}</span>
-            <span className="ml-1 text-quaternary"> vCPUs</span>
+            <span className="text-default">{instance.ncpus}</span>
+            <span className="ml-1 text-tertiary"> vCPUs</span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="ram">
-            <span className="text-secondary">{memory.value}</span>
-            <span className="ml-1 text-quaternary"> {memory.unit}</span>
+            <span className="text-default">{memory.value}</span>
+            <span className="ml-1 text-tertiary"> {memory.unit}</span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="state">
             <div className="flex">
@@ -230,7 +230,7 @@ export function InstancePage() {
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.Row label="description">
-            <span className="text-secondary">
+            <span className="text-default">
               <Truncate text={instance.description} maxLength={40} />
             </span>
           </PropertiesTable.Row>
@@ -238,7 +238,7 @@ export function InstancePage() {
             <DateTime date={instance.timeCreated} />
           </PropertiesTable.Row>
           <PropertiesTable.Row label="id">
-            <span className="overflow-hidden text-ellipsis whitespace-nowrap text-secondary">
+            <span className="overflow-hidden text-ellipsis whitespace-nowrap text-default">
               {instance.id}
             </span>
           </PropertiesTable.Row>

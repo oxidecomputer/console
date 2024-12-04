@@ -41,31 +41,31 @@ export function Component() {
       <PropertiesTable.Group className="-mt-8 mb-16">
         <PropertiesTable>
           <PropertiesTable.Row label="sled id">
-            <span className="text-secondary">{sled.id}</span>
+            <span className="text-default">{sled.id}</span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="part">
-            <span className="text-secondary">{sled.baseboard.part}</span>
+            <span className="text-default">{sled.baseboard.part}</span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="serial">
-            <span className="text-secondary">{sled.baseboard.serial}</span>
+            <span className="text-default">{sled.baseboard.serial}</span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="revision">
-            <span className="text-secondary">{sled.baseboard.revision}</span>
+            <span className="text-default">{sled.baseboard.revision}</span>
           </PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.Row label="rack id">
-            <span className="text-secondary">{sled.rackId}</span>
+            <span className="text-default">{sled.rackId}</span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="location">
             <span className="text-disabled">Coming soon</span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="usable hardware threads">
-            <span className="text-secondary">{sled.usableHardwareThreads}</span>
+            <span className="text-default">{sled.usableHardwareThreads}</span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="usable physical ram">
-            <span className="pr-0.5 text-secondary">{ram.value}</span>
-            <span className="text-quaternary">{ram.unit}</span>
+            <span className="pr-0.5 text-default">{ram.value}</span>
+            <span className="text-tertiary">{ram.unit}</span>
           </PropertiesTable.Row>
         </PropertiesTable>
       </PropertiesTable.Group>

@@ -35,7 +35,7 @@ export function NumberField<
     <div className="max-w-lg">
       <div className="mb-2">
         <FieldLabel htmlFor={id} id={`${id}-label`} optional={!required}>
-          {label} {units && <span className="ml-1 text-secondary">({units})</span>}
+          {label} {units && <span className="ml-1 text-default">({units})</span>}
         </FieldLabel>
         {description && (
           <TextInputHint id={`${id}-help-text`} className="mb-2">
