@@ -9,14 +9,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 
-import {
-  apiq,
-  getListQFn,
-  invalidate,
-  queryClient,
-  useApiMutation,
-  type Project,
-} from '@oxide/api'
+import { apiq, getListQFn, queryClient, useApiMutation, type Project } from '@oxide/api'
 import { Folder16Icon, Folder24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -65,7 +58,7 @@ export function Component() {
 
   const { mutateAsync: deleteProject } = useApiMutation('projectDelete', {
     onSuccess() {
-      invalidate('projectList')
+      queryClient.invalidateQueries(projectList.invalidateOptions)
     },
   })
 
