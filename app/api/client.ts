@@ -65,6 +65,18 @@ export const queryClient = new QueryClient({
 // don't have access to context
 export const apiQueryClient = wrapQueryClient(api.methods, queryClient)
 
+/**
+ * Invalidate all cached queries for a given endpoint.
+ *
+ * Note that we only take a single argument, `method`, rather than allowing
+ * the full query key `[query, params]` to be specified. This is to avoid
+ * accidentally overspecifying and therefore failing to match the desired query.
+ * The params argument can be added in if we ever have a use case for it.
+ */
+export function invalidate(method: keyof typeof api.methods) {
+  queryClient.invalidateQueries({ queryKey: [method] })
+}
+
 // used to retrieve the typed query client in components. doesn't need to exist:
 // we could import apiQueryClient directly everywhere, but the change is noisy
 export const useApiQueryClient = () => apiQueryClient
