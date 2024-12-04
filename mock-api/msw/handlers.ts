@@ -1593,6 +1593,7 @@ export const handlers = makeHandlers({
   systemQuotasList: NotImplemented,
   systemTimeseriesQuery: NotImplemented,
   systemTimeseriesSchemaList: NotImplemented,
+  timeseriesQuery: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
 })

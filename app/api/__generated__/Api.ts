@@ -5134,6 +5134,10 @@ export interface SiloUtilizationViewPathParams {
   silo: NameOrId
 }
 
+export interface TimeseriesQueryQueryParams {
+  project: NameOrId
+}
+
 export interface UserListQueryParams {
   group?: string
   limit?: number
@@ -8082,6 +8086,21 @@ export class Api extends HttpClient {
       return this.request<SiloUtilization>({
         path: `/v1/system/utilization/silos/${path.silo}`,
         method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Run project-scoped timeseries query
+     */
+    timeseriesQuery: (
+      { query, body }: { query: TimeseriesQueryQueryParams; body: TimeseriesQuery },
+      params: FetchParams = {}
+    ) => {
+      return this.request<OxqlQueryResult>({
+        path: `/v1/timeseries/query`,
+        method: 'POST',
+        body,
+        query,
         ...params,
       })
     },
