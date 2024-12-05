@@ -12,7 +12,6 @@ import * as R from 'remeda'
 
 import {
   apiq,
-  invalidate,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -118,7 +117,7 @@ export function VpcFirewallRulesTab() {
 
   const { mutateAsync: updateRules } = useApiMutation('vpcFirewallRulesUpdate', {
     onSuccess() {
-      invalidate('vpcFirewallRulesView')
+      queryClient.invalidateEndpoint('vpcFirewallRulesView')
     },
   })
 

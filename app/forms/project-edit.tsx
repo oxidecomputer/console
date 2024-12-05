@@ -8,13 +8,7 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import {
-  apiq,
-  invalidate,
-  queryClient,
-  useApiMutation,
-  usePrefetchedQuery,
-} from '@oxide/api'
+import { apiq, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -45,7 +39,7 @@ export function EditProjectSideModalForm() {
   const editProject = useApiMutation('projectUpdate', {
     onSuccess(project) {
       // refetch list of projects in sidebar
-      invalidate('projectList')
+      queryClient.invalidateEndpoint('projectList')
       // avoid the project fetch when the project page loads since we have the data
       const { queryKey } = projectView({ project: project.name })
       queryClient.setQueryData(queryKey, project)

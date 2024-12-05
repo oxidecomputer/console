@@ -5,7 +5,11 @@
  *
  * Copyright Oxide Computer Company
  */
-import { QueryClient, useQuery, type UseQueryOptions } from '@tanstack/react-query'
+import {
+  QueryClient as QueryClientOrig,
+  useQuery,
+  type UseQueryOptions,
+} from '@tanstack/react-query'
 
 import { Api } from './__generated__/Api'
 import { type ApiError } from './errors'
@@ -49,6 +53,24 @@ export const useApiMutation = getUseApiMutation(api.methods)
 export const usePrefetchedQuery = <TData>(options: UseQueryOptions<TData, ApiError>) =>
   ensurePrefetched(useQuery(options), options.queryKey)
 
+/**
+ * Extends React Query's `QueryClient` with a couple of API-specific methods.
+ * Existing methods are never modified.
+ */
+class QueryClient extends QueryClientOrig {
+  /**
+   * Invalidate all cached queries for a given endpoint.
+   *
+   * Note that we only take a single argument, `method`, rather than allowing
+   * the full query key `[query, params]` to be specified. This is to avoid
+   * accidentally overspecifying and therefore failing to match the desired query.
+   * The params argument can be added in if we ever have a use case for it.
+   */
+  invalidateEndpoint(method: keyof typeof api.methods) {
+    this.invalidateQueries({ queryKey: [method] })
+  }
+}
+
 // Needs to be defined here instead of in app so we can use it to define
 // `apiQueryClient`, which provides API-typed versions of QueryClient methods
 export const queryClient = new QueryClient({
@@ -64,18 +86,6 @@ export const queryClient = new QueryClient({
 // to be used in loaders, which are outside the component tree and therefore
 // don't have access to context
 export const apiQueryClient = wrapQueryClient(api.methods, queryClient)
-
-/**
- * Invalidate all cached queries for a given endpoint.
- *
- * Note that we only take a single argument, `method`, rather than allowing
- * the full query key `[query, params]` to be specified. This is to avoid
- * accidentally overspecifying and therefore failing to match the desired query.
- * The params argument can be added in if we ever have a use case for it.
- */
-export function invalidate(method: keyof typeof api.methods) {
-  queryClient.invalidateQueries({ queryKey: [method] })
-}
 
 // used to retrieve the typed query client in components. doesn't need to exist:
 // we could import apiQueryClient directly everywhere, but the change is noisy
