@@ -60,20 +60,18 @@ export function InternetGatewayPage() {
   return (
     <SideModal title={internetGateway.name} onDismiss={onDismiss} isOpen>
       <SideModal.Body>
-        <div className="flex flex-col gap-8">
-          <div>
-            <Message
-              variant="info"
-              className="text-balance"
-              content={
-                <>
-                  This is a read-only copy of this internet gateway. Use the CLI to create
-                  and update internet gateways. More functionality for internet gateways
-                  will be included in future releases of the Oxide console.
-                </>
-              }
-            />
-          </div>
+        <div className="flex flex-col gap-6">
+          <Message
+            variant="info"
+            className="text-balance"
+            content={
+              <>
+                This is a read-only copy of this internet gateway. Use the CLI to create and
+                update internet gateways. More functionality for internet gateways will be
+                included in future releases of the Oxide console.
+              </>
+            }
+          />
           <PropertiesTable key={internetGateway.id}>
             <PropertiesTable.Row label="Name">{internetGateway.name}</PropertiesTable.Row>
             <PropertiesTable.Row label="Description">
@@ -81,6 +79,30 @@ export function InternetGatewayPage() {
             </PropertiesTable.Row>
             {/* insert routes that are associated with this gateway */}
           </PropertiesTable>
+          <div>
+            <SideModal.Heading title="Internet Gateway" className="mb-2">
+              Internet Gateway IP Address
+            </SideModal.Heading>
+            <div className="flex flex-col gap-4">
+              {gatewayIpAddresses ? (
+                gatewayIpAddresses.map((gatewayAddress) => (
+                  <PropertiesTable key={gatewayAddress.id}>
+                    <PropertiesTable.Row label="Name">
+                      {gatewayAddress.name}
+                    </PropertiesTable.Row>
+                    <PropertiesTable.Row label="Description">
+                      <DescriptionCell text={gatewayAddress.description} />
+                    </PropertiesTable.Row>
+                    <PropertiesTable.Row label="IP Address">
+                      <CopyableIp ip={gatewayAddress.address} />
+                    </PropertiesTable.Row>
+                  </PropertiesTable>
+                ))
+              ) : (
+                <EmptyCell />
+              )}
+            </div>
+          </div>
           <div>
             <SideModal.Heading title="Internet Gateway" className="mb-2">
               Internet Gateway IP Pool
@@ -98,30 +120,6 @@ export function InternetGatewayPage() {
                     </PropertiesTable.Row>
                     <PropertiesTable.Row label="IP Pool">
                       <IpPoolCell ipPoolId={gatewayPool.ipPoolId} />
-                    </PropertiesTable.Row>
-                  </PropertiesTable>
-                ))
-              ) : (
-                <EmptyCell />
-              )}
-            </div>
-          </div>
-          <div>
-            <SideModal.Heading title="Internet Gateway" className="mb-2">
-              Internet Gateway IP Address
-            </SideModal.Heading>
-            <div className="flex flex-col gap-4">
-              {gatewayIpAddresses ? (
-                gatewayIpAddresses.map((gatewayAddress) => (
-                  <PropertiesTable key={gatewayAddress.id}>
-                    <PropertiesTable.Row label="Name">
-                      {gatewayAddress.name}
-                    </PropertiesTable.Row>
-                    <PropertiesTable.Row label="Description">
-                      <DescriptionCell text={gatewayAddress.description} />
-                    </PropertiesTable.Row>
-                    <PropertiesTable.Row label="IP Address">
-                      <CopyableIp ip={gatewayAddress.address} />
                     </PropertiesTable.Row>
                   </PropertiesTable>
                 ))
