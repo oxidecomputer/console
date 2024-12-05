@@ -74,7 +74,7 @@ module.exports = {
               'grid-column': `${i}`,
             },
           }))
-          .reduce((p, c) => ({ ...p, ...c }), {}),
+          .reduce((p, c) => ({ ...p, ...c }), {})
       )
       addUtilities(textUtilities)
       addUtilities(colorUtilities)
