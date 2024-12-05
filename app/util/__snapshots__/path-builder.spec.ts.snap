@@ -757,7 +757,6 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/vpcs/v/internet-gateways",
     },
   ],
-  "vpcInternetGatewaysNew (/projects/p/vpcs/v/internet-gateways-new)": [],
   "vpcRouter (/projects/p/vpcs/v/routers/r)": [
     {
       "label": "Projects",

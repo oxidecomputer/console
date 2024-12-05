@@ -49,6 +49,10 @@ export function VpcInternetGatewaysTab() {
       }),
       colHelper.accessor('description', Columns.description),
       // add a column for the IP Pool associated with this Internet Gateway
+      colHelper.accessor('id', {
+        header: 'IP Pool',
+        cell: (info) => info.getValue(),
+      }),
 
       colHelper.accessor('timeCreated', Columns.timeCreated),
     ],

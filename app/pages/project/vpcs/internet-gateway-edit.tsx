@@ -28,7 +28,7 @@ const gatewayIpPoolList = (query: GatewayParams) =>
 const gatewayIpAddressList = (query: GatewayParams) =>
   getListQFn('internetGatewayIpAddressList', { query })
 
-InternetGatewayPage.loader = async function ({ params }: LoaderFunctionArgs) {
+EditInternetGatewayForm.loader = async function ({ params }: LoaderFunctionArgs) {
   const { project, vpc, gateway } = getInternetGatewaySelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('internetGatewayView', {
@@ -42,7 +42,7 @@ InternetGatewayPage.loader = async function ({ params }: LoaderFunctionArgs) {
   return null
 }
 
-export function InternetGatewayPage() {
+export function EditInternetGatewayForm() {
   const navigate = useNavigate()
   const { project, vpc, gateway } = useInternetGatewaySelector()
   const onDismiss = () => navigate(pb.vpcInternetGateways({ project, vpc }))

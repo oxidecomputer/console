@@ -69,7 +69,7 @@ import * as NetworkingTab from './pages/project/instances/instance/tabs/Networki
 import * as StorageTab from './pages/project/instances/instance/tabs/StorageTab'
 import { InstancesPage } from './pages/project/instances/InstancesPage'
 import { SnapshotsPage } from './pages/project/snapshots/SnapshotsPage'
-import { InternetGatewayPage } from './pages/project/vpcs/InternetGatewayPage/InternetGatewayPage'
+import { EditInternetGatewayForm } from './pages/project/vpcs/internet-gateway-edit'
 import * as RouterPage from './pages/project/vpcs/RouterPage'
 import { VpcFirewallRulesTab } from './pages/project/vpcs/VpcPage/tabs/VpcFirewallRulesTab'
 import { VpcInternetGatewaysTab } from './pages/project/vpcs/VpcPage/tabs/VpcGatewaysTab'
@@ -388,8 +388,8 @@ export const routes = createRoutesFromElements(
                 >
                   <Route
                     path=":gateway"
-                    element={<InternetGatewayPage />}
-                    loader={InternetGatewayPage.loader}
+                    element={<EditInternetGatewayForm />}
+                    loader={EditInternetGatewayForm.loader}
                     handle={makeCrumb(
                       (p) => p.gateway!,
                       (p) => pb.vpcInternetGateway(getInternetGatewaySelector(p))

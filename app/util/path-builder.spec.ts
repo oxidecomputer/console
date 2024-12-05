@@ -94,7 +94,6 @@ test('path builder', () => {
         "vpcFirewallRulesNew": "/projects/p/vpcs/v/firewall-rules-new",
         "vpcInternetGateway": "/projects/p/vpcs/v/internet-gateways/g",
         "vpcInternetGateways": "/projects/p/vpcs/v/internet-gateways",
-        "vpcInternetGatewaysNew": "/projects/p/vpcs/v/internet-gateways-new",
         "vpcRouter": "/projects/p/vpcs/v/routers/r",
         "vpcRouterEdit": "/projects/p/vpcs/v/routers/r/edit",
         "vpcRouterRouteEdit": "/projects/p/vpcs/v/routers/r/routes/rr/edit",
@@ -139,7 +138,6 @@ test('breadcrumbs', () => {
     .map(([key]) => key)
   expect(zeroCrumbKeys).toMatchInlineSnapshot(`
     [
-      "vpcInternetGatewaysNew (/projects/p/vpcs/v/internet-gateways-new)",
       "deviceSuccess (/device/success)",
     ]
   `)
