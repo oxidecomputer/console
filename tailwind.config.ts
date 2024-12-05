@@ -67,15 +67,6 @@ module.exports = {
       addVariant('children', '& > *')
       addVariant('selected', '.is-selected &')
       addVariant('disabled', ['&.visually-disabled', '&:disabled'])
-      addUtilities(
-        Array.from({ length: 12 }, (_, i) => i)
-          .map((i) => ({
-            [`.grid-col-${i}`]: {
-              'grid-column': `${i}`,
-            },
-          }))
-          .reduce((p, c) => ({ ...p, ...c }), {})
-      )
       addUtilities(textUtilities)
       addUtilities(colorUtilities)
       addUtilities(elevationUtilities)
