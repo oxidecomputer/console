@@ -57,7 +57,8 @@ export const internetGateways: Json<InternetGateway>[] = [
 const internetGatewayIpAddress1: Json<InternetGatewayIpAddress> = {
   id: 'f1d5e5a1-0b2b-4d5b-8b9d-2d4b3e0c6b9d',
   name: 'internet-gateway-address-1',
-  address: '87.114.25.166',
+  // This IP address comes from IP Pool 1; a proper IP address will come from one of the IP pools
+  address: '123.4.56.3',
   description: 'the IP address for an internet gateway',
   internet_gateway_id: internetGateway1.id,
   time_created,
@@ -69,16 +70,6 @@ const internetGatewayIpAddress2: Json<InternetGatewayIpAddress> = {
   name: 'internet-gateway-address-2',
   address: '292a:a05c:3b36:a053:9166:6510:2d6b:3322',
   description: 'an IPv6 address for an internet gateway',
-  internet_gateway_id: internetGateway1.id,
-  time_created,
-  time_modified,
-}
-
-const internetGatewayIpAddress3: Json<InternetGatewayIpAddress> = {
-  id: 'f1d5e5a1-0b2b-4d5b-8b9d-2d4b3e0c6b9f',
-  name: 'internet-gateway-address-3',
-  address: '178.125.253.126',
-  description: 'an IPv4 address for internet gateway 2',
   internet_gateway_id: internetGateway2.id,
   time_created,
   time_modified,
@@ -87,7 +78,6 @@ const internetGatewayIpAddress3: Json<InternetGatewayIpAddress> = {
 export const internetGatewayIpAddresses: Json<InternetGatewayIpAddress>[] = [
   internetGatewayIpAddress1,
   internetGatewayIpAddress2,
-  internetGatewayIpAddress3,
 ]
 
 const internetGatewayIpPool1: Json<InternetGatewayIpPool> = {
