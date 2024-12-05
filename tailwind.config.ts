@@ -54,7 +54,7 @@ export default {
       },
     },
     borderRadius: {
-      none: 0,
+      none: '0',
       ...borderRadiusTokens,
     },
     colors: {
