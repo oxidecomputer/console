@@ -6,114 +6,144 @@
  * Copyright Oxide Computer Company
  */
 
-import { useMemo } from 'react'
-import { type LoaderFunctionArgs } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
-
-import { apiQueryClient, usePrefetchedApiQuery } from '~/api'
-import { DocsPopover } from '~/components/DocsPopover'
-import { MoreActionsMenu } from '~/components/MoreActionsMenu'
-import { RouteTabs, Tab } from '~/components/RouteTabs'
+import { apiQueryClient, getListQFn, queryClient, usePrefetchedApiQuery } from '~/api'
 import { getInternetGatewaySelector, useInternetGatewaySelector } from '~/hooks/use-params'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
-import { DateTime } from '~/ui/lib/DateTime'
+import { EmptyCell } from '~/table/cells/EmptyCell'
+import { IpPoolCell } from '~/table/cells/IpPoolCell'
+import { Button } from '~/ui/lib/Button'
+import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { Message } from '~/ui/lib/Message'
-import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
-import { Truncate } from '~/ui/lib/Truncate'
-import { ALL_ISH } from '~/util/consts'
-import { docLinks } from '~/util/links'
+import { SideModal } from '~/ui/lib/SideModal'
 import { pb } from '~/util/path-builder'
 
+type GatewayParams = { project: string; vpc: string; gateway: string }
+
+const gatewayIpPoolList = (query: GatewayParams) =>
+  getListQFn('internetGatewayIpPoolList', { query })
+// const gatewayIpList = (query: GatewayParams) =>
+//   getListQFn('internetGatewayIpAddressList', { query })
+const gatewayIpAddressList = (query: GatewayParams) =>
+  getListQFn('internetGatewayIpAddressList', { query })
+
 InternetGatewayPage.loader = async function ({ params }: LoaderFunctionArgs) {
-  console.log('InternetGatewayPage.loader')
   const { project, vpc, gateway } = getInternetGatewaySelector(params)
-  console.log({ project, vpc, gateway })
-  const query = { project, vpc, gateway, limit: ALL_ISH }
+  // const query = { project, vpc, gateway, limit: ALL_ISH }
   await Promise.all([
     apiQueryClient.prefetchQuery('internetGatewayView', {
       query: { project, vpc },
       path: { gateway },
     }),
-    apiQueryClient.prefetchQuery('internetGatewayIpAddressList', { query }),
-    apiQueryClient.prefetchQuery('internetGatewayIpPoolList', { query }),
+    // apiQueryClient.prefetchQuery('internetGatewayIpAddressList', { query }),
+    queryClient.prefetchQuery(gatewayIpPoolList({ project, vpc, gateway }).optionsFn()),
+    queryClient.prefetchQuery(gatewayIpAddressList({ project, vpc, gateway }).optionsFn()),
   ])
   return null
 }
 
 export function InternetGatewayPage() {
+  const navigate = useNavigate()
   const gatewaySelector = useInternetGatewaySelector()
+  const onDismiss = () => navigate(pb.vpcInternetGateways(gatewaySelector))
   const { project, vpc, gateway } = gatewaySelector
-  const {
-    data: { id, description, name, timeCreated, timeModified },
-  } = usePrefetchedApiQuery('internetGatewayView', {
+  const { data: internetGateway } = usePrefetchedApiQuery('internetGatewayView', {
     query: { project, vpc },
     path: { gateway },
   })
-
-  const actions = useMemo(
-    () => [
-      {
-        label: 'Copy ID',
-        onActivate() {
-          window.navigator.clipboard.writeText(id || '')
-        },
-      },
-    ],
-    [id]
+  const { data: { items: gatewayIpPools } = {} } = useQuery(
+    gatewayIpPoolList({ project, vpc, gateway }).optionsFn()
   )
+  const { data: { items: gatewayIpAddresses } = {} } = useQuery(
+    gatewayIpAddressList({ project, vpc, gateway }).optionsFn()
+  )
+  // const { data: { items: projectIpPools } = {} } = usePrefetchedApiQuery(
+  //   'projectIpPoolList',
+  //   {
+  //     query: { limit: ALL_ISH },
+  //   }
+  // )
 
   return (
-    <>
-      <PageHeader>
-        <PageTitle icon={<Networking24Icon />}>{name}</PageTitle>
-        <div className="inline-flex gap-2">
-          <DocsPopover
-            heading="Internet Gateways"
-            icon={<Networking16Icon />}
-            summary="Internet gateways … 🚨🙈🚨🙉🚨🙊🚨 … just using emojis here so we spot it more easily in the PR; this copy needs eyes 👀"
-            links={[docLinks.vpcs, docLinks.firewallRules]}
-          />
-          <MoreActionsMenu label="VPC actions" actions={actions} />
+    <SideModal title={internetGateway.name} onDismiss={onDismiss} isOpen>
+      <SideModal.Body>
+        <div className="flex flex-col gap-8">
+          <div>
+            <Message
+              variant="info"
+              className="text-balance"
+              content={
+                <>
+                  This is a read-only copy of this internet gateway. Use the CLI to create
+                  and update internet gateways. More functionality for internet gateways
+                  will be included in future releases of the Oxide console.
+                </>
+              }
+            />
+          </div>
+          <PropertiesTable key={internetGateway.id}>
+            <PropertiesTable.Row label="Name">{internetGateway.name}</PropertiesTable.Row>
+            <PropertiesTable.Row label="Description">
+              <DescriptionCell text={internetGateway.description} />
+            </PropertiesTable.Row>
+          </PropertiesTable>
+          <div>
+            <SideModal.Heading title="Internet Gateway" className="mb-2">
+              Internet Gateway IP Pool
+              {gatewayIpPools && gatewayIpPools.length > 1 ? 's' : ''}
+            </SideModal.Heading>
+            <div className="flex flex-col gap-4">
+              {gatewayIpPools ? (
+                gatewayIpPools.map((gatewayPool) => (
+                  <PropertiesTable key={gatewayPool.id}>
+                    <PropertiesTable.Row label="Name">
+                      {gatewayPool.name}
+                    </PropertiesTable.Row>
+                    <PropertiesTable.Row label="Description">
+                      <DescriptionCell text={gatewayPool.description} />
+                    </PropertiesTable.Row>
+                    <PropertiesTable.Row label="IP Pool">
+                      <IpPoolCell ipPoolId={gatewayPool.ipPoolId} />
+                    </PropertiesTable.Row>
+                  </PropertiesTable>
+                ))
+              ) : (
+                <EmptyCell />
+              )}
+            </div>
+          </div>
+          <SideModal.Heading title="Internet Gateway" className="mb-2">
+            Internet Gateway IP Address
+          </SideModal.Heading>
+          <div className="flex flex-col gap-4">
+            {gatewayIpAddresses ? (
+              gatewayIpAddresses.map((gatewayAddress) => (
+                <PropertiesTable key={gatewayAddress.id}>
+                  <PropertiesTable.Row label="Name">
+                    {gatewayAddress.name}
+                  </PropertiesTable.Row>
+                  <PropertiesTable.Row label="Description">
+                    <DescriptionCell text={gatewayAddress.description} />
+                  </PropertiesTable.Row>
+                  <PropertiesTable.Row label="IP Address">
+                    <CopyableIp ip={gatewayAddress.address} />
+                  </PropertiesTable.Row>
+                </PropertiesTable>
+              ))
+            ) : (
+              <EmptyCell />
+            )}
+          </div>
         </div>
-      </PageHeader>
-      <PropertiesTable.Group className="mb-8">
-        <PropertiesTable>
-          <PropertiesTable.Row label="Description">
-            <DescriptionCell text={description} />
-          </PropertiesTable.Row>
-          <PropertiesTable.Row label="ID">
-            <Truncate text={id} maxLength={32} hasCopyButton />
-          </PropertiesTable.Row>
-        </PropertiesTable>
-        <PropertiesTable>
-          <PropertiesTable.Row label="Created">
-            <DateTime date={timeCreated} />
-          </PropertiesTable.Row>
-          <PropertiesTable.Row label="Last Modified">
-            <DateTime date={timeModified} />
-          </PropertiesTable.Row>
-        </PropertiesTable>
-      </PropertiesTable.Group>
-
-      <Message
-        variant="info"
-        className="mb-4 text-balance"
-        content={
-          <>
-            This is a read-only copy of this internet gateway and its IP pools and
-            addresses. Use the CLI to create and update internet gateways. More
-            functionality for internet gateways will be included in future releases of the
-            Oxide console.
-          </>
-        }
-      />
-
-      <RouteTabs fullWidth>
-        <Tab to={pb.vpcInternetGatewayIpPools(gatewaySelector)}>IP Pools</Tab>
-        <Tab to={pb.vpcInternetGatewayIpAddresses(gatewaySelector)}>IP Addresses</Tab>
-      </RouteTabs>
-    </>
+      </SideModal.Body>
+      <SideModal.Footer>
+        <Button variant="ghost" onClick={onDismiss}>
+          Close
+        </Button>
+      </SideModal.Footer>
+    </SideModal>
   )
 }

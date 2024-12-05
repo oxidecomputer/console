@@ -101,6 +101,7 @@ export const pb = {
   vpcInternetGateway: (params: VpcInternetGateway) =>
     `${pb.vpcInternetGateways(params)}/${params.gateway}`,
   vpcInternetGatewaysNew: (params: Vpc) => `${vpcBase(params)}/internet-gateways-new`,
+  // the next two should come off when no longer using tabs for internet gateways 👀
   vpcInternetGatewayIpPools: (params: VpcInternetGateway) =>
     `${pb.vpcInternetGateway(params)}/ip-pools`,
   vpcInternetGatewayIpAddresses: (params: VpcInternetGateway) =>
