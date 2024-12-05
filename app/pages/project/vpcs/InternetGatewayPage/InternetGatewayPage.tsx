@@ -25,14 +25,11 @@ type GatewayParams = { project: string; vpc: string; gateway: string }
 
 const gatewayIpPoolList = (query: GatewayParams) =>
   getListQFn('internetGatewayIpPoolList', { query })
-// const gatewayIpList = (query: GatewayParams) =>
-//   getListQFn('internetGatewayIpAddressList', { query })
 const gatewayIpAddressList = (query: GatewayParams) =>
   getListQFn('internetGatewayIpAddressList', { query })
 
 InternetGatewayPage.loader = async function ({ params }: LoaderFunctionArgs) {
   const { project, vpc, gateway } = getInternetGatewaySelector(params)
-  // const query = { project, vpc, gateway, limit: ALL_ISH }
   await Promise.all([
     apiQueryClient.prefetchQuery('internetGatewayView', {
       query: { project, vpc },
@@ -47,9 +44,8 @@ InternetGatewayPage.loader = async function ({ params }: LoaderFunctionArgs) {
 
 export function InternetGatewayPage() {
   const navigate = useNavigate()
-  const gatewaySelector = useInternetGatewaySelector()
-  const onDismiss = () => navigate(pb.vpcInternetGateways(gatewaySelector))
-  const { project, vpc, gateway } = gatewaySelector
+  const { project, vpc, gateway } = useInternetGatewaySelector()
+  const onDismiss = () => navigate(pb.vpcInternetGateways({ project, vpc }))
   const { data: internetGateway } = usePrefetchedApiQuery('internetGatewayView', {
     query: { project, vpc },
     path: { gateway },
@@ -60,12 +56,6 @@ export function InternetGatewayPage() {
   const { data: { items: gatewayIpAddresses } = {} } = useQuery(
     gatewayIpAddressList({ project, vpc, gateway }).optionsFn()
   )
-  // const { data: { items: projectIpPools } = {} } = usePrefetchedApiQuery(
-  //   'projectIpPoolList',
-  //   {
-  //     query: { limit: ALL_ISH },
-  //   }
-  // )
 
   return (
     <SideModal title={internetGateway.name} onDismiss={onDismiss} isOpen>
@@ -89,6 +79,7 @@ export function InternetGatewayPage() {
             <PropertiesTable.Row label="Description">
               <DescriptionCell text={internetGateway.description} />
             </PropertiesTable.Row>
+            {/* insert routes that are associated with this gateway */}
           </PropertiesTable>
           <div>
             <SideModal.Heading title="Internet Gateway" className="mb-2">
@@ -115,27 +106,29 @@ export function InternetGatewayPage() {
               )}
             </div>
           </div>
-          <SideModal.Heading title="Internet Gateway" className="mb-2">
-            Internet Gateway IP Address
-          </SideModal.Heading>
-          <div className="flex flex-col gap-4">
-            {gatewayIpAddresses ? (
-              gatewayIpAddresses.map((gatewayAddress) => (
-                <PropertiesTable key={gatewayAddress.id}>
-                  <PropertiesTable.Row label="Name">
-                    {gatewayAddress.name}
-                  </PropertiesTable.Row>
-                  <PropertiesTable.Row label="Description">
-                    <DescriptionCell text={gatewayAddress.description} />
-                  </PropertiesTable.Row>
-                  <PropertiesTable.Row label="IP Address">
-                    <CopyableIp ip={gatewayAddress.address} />
-                  </PropertiesTable.Row>
-                </PropertiesTable>
-              ))
-            ) : (
-              <EmptyCell />
-            )}
+          <div>
+            <SideModal.Heading title="Internet Gateway" className="mb-2">
+              Internet Gateway IP Address
+            </SideModal.Heading>
+            <div className="flex flex-col gap-4">
+              {gatewayIpAddresses ? (
+                gatewayIpAddresses.map((gatewayAddress) => (
+                  <PropertiesTable key={gatewayAddress.id}>
+                    <PropertiesTable.Row label="Name">
+                      {gatewayAddress.name}
+                    </PropertiesTable.Row>
+                    <PropertiesTable.Row label="Description">
+                      <DescriptionCell text={gatewayAddress.description} />
+                    </PropertiesTable.Row>
+                    <PropertiesTable.Row label="IP Address">
+                      <CopyableIp ip={gatewayAddress.address} />
+                    </PropertiesTable.Row>
+                  </PropertiesTable>
+                ))
+              ) : (
+                <EmptyCell />
+              )}
+            </div>
           </div>
         </div>
       </SideModal.Body>
