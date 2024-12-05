@@ -6,19 +6,16 @@
  * Copyright Oxide Computer Company
  */
 
-// @ts-check
+import { type Config } from 'tailwindcss'
+import plugin from 'tailwindcss/plugin'
 
-/** @type {import('tailwindcss/lib/util/createPlugin').default} */
-// @ts-expect-error
-const plugin = require('tailwindcss/plugin')
-const {
-  textUtilities,
-  colorUtilities,
+import {
   borderRadiusTokens,
+  colorUtilities,
   elevationUtilities,
-} = require('@oxide/design-system/styles/dist/tailwind-tokens.js')
+  textUtilities,
+} from '@oxide/design-system/styles/dist/tailwind-tokens.ts'
 
-/** @type {import('tailwindcss/tailwind-config').TailwindConfig} */
 module.exports = {
   corePlugins: {
     fontFamily: false,
@@ -57,7 +54,7 @@ module.exports = {
       },
     },
     borderRadius: {
-      none: 0,
+      none: '0',
       ...borderRadiusTokens,
     },
     colors: {
@@ -66,7 +63,7 @@ module.exports = {
     },
   },
   plugins: [
-    plugin(({ addVariant, addUtilities, variants }) => {
+    plugin(({ addVariant, addUtilities }) => {
       addVariant('children', '& > *')
       addVariant('selected', '.is-selected &')
       addVariant('disabled', ['&.visually-disabled', '&:disabled'])
@@ -78,11 +75,10 @@ module.exports = {
             },
           }))
           .reduce((p, c) => ({ ...p, ...c }), {}),
-        variants
       )
       addUtilities(textUtilities)
       addUtilities(colorUtilities)
       addUtilities(elevationUtilities)
     }),
   ],
-}
+} satisfies Config
