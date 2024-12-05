@@ -8,7 +8,7 @@
 
 import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo } from 'react'
-import { type LoaderFunctionArgs } from 'react-router-dom'
+import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { getListQFn, queryClient, type InternetGateway } from '~/api'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
@@ -57,5 +57,10 @@ export function VpcInternetGatewaysTab() {
 
   const { table } = useQueryTable({ query: gatewayList(vpcSelector), columns, emptyState })
 
-  return <>{table}</>
+  return (
+    <>
+      {table}
+      <Outlet />
+    </>
+  )
 }

@@ -70,8 +70,6 @@ import * as StorageTab from './pages/project/instances/instance/tabs/StorageTab'
 import { InstancesPage } from './pages/project/instances/InstancesPage'
 import { SnapshotsPage } from './pages/project/snapshots/SnapshotsPage'
 import { InternetGatewayPage } from './pages/project/vpcs/InternetGatewayPage/InternetGatewayPage'
-import { InternetGatewayIpAddressesTab } from './pages/project/vpcs/InternetGatewayPage/tabs/InternetGatewayIpAddressesTab'
-import { InternetGatewayIpPoolsTab } from './pages/project/vpcs/InternetGatewayPage/tabs/InternetGatewayIpPoolsTab'
 import * as RouterPage from './pages/project/vpcs/RouterPage'
 import { VpcFirewallRulesTab } from './pages/project/vpcs/VpcPage/tabs/VpcFirewallRulesTab'
 import { VpcInternetGatewaysTab } from './pages/project/vpcs/VpcPage/tabs/VpcGatewaysTab'
@@ -384,25 +382,19 @@ export const routes = createRoutesFromElements(
                 </Route>
                 <Route
                   path="internet-gateways"
-                  element={<VpcInternetGatewaysTab />}
-                  loader={VpcInternetGatewaysTab.loader}
                   handle={{ crumb: 'Internet Gateways' }}
+                  loader={VpcInternetGatewaysTab.loader}
+                  element={<VpcInternetGatewaysTab />}
                 >
                   <Route
-                    path="internet-gateways"
-                    handle={{ crumb: 'Internet Gateways' }}
+                    path=":gateway"
+                    element={<InternetGatewayPage />}
                     loader={InternetGatewayPage.loader}
-                  >
-                    <Route
-                      path=":gateway"
-                      element={<InternetGatewayPage />}
-                      loader={InternetGatewayPage.loader}
-                      handle={makeCrumb(
-                        (p) => p.gateway!,
-                        (p) => pb.vpcInternetGateway(getInternetGatewaySelector(p))
-                      )}
-                    />
-                  </Route>
+                    handle={makeCrumb(
+                      (p) => p.gateway!,
+                      (p) => pb.vpcInternetGateway(getInternetGatewaySelector(p))
+                    )}
+                  />
                 </Route>
               </Route>
             </Route>
@@ -426,35 +418,6 @@ export const routes = createRoutesFromElements(
                       handle={titleCrumb('Edit Route')}
                     />
                   </Route>
-                </Route>
-              </Route>
-              <Route
-                path="internet-gateways"
-                handle={{ crumb: 'Internet Gateways' }}
-                loader={InternetGatewayPage.loader}
-              >
-                <Route
-                  path=":gateway"
-                  element={<InternetGatewayPage />}
-                  loader={InternetGatewayPage.loader}
-                  handle={makeCrumb(
-                    (p) => p.gateway!,
-                    (p) => pb.vpcInternetGateway(getInternetGatewaySelector(p))
-                  )}
-                >
-                  <Route index element={<Navigate to="ip-pools" replace />} />
-                  <Route
-                    path="ip-pools"
-                    element={<InternetGatewayIpPoolsTab />}
-                    loader={InternetGatewayIpPoolsTab.loader}
-                    handle={{ crumb: 'IP Pools' }}
-                  />
-                  <Route
-                    path="ip-addresses"
-                    element={<InternetGatewayIpAddressesTab />}
-                    loader={InternetGatewayIpAddressesTab.loader}
-                    handle={{ crumb: 'IP Addresses' }}
-                  />
                 </Route>
               </Route>
             </Route>
