@@ -69,8 +69,8 @@ export function Component() {
         onActivate: () => {
           // the edit view has its own loader, but we can make the modal open
           // instantaneously by preloading the fetch result
-          const queryOptions = apiq('projectView', { path: { project: project.name } })
-          queryClient.setQueryData(queryOptions.queryKey, project)
+          const { queryKey } = apiq('projectView', { path: { project: project.name } })
+          queryClient.setQueryData(queryKey, project)
           navigate(pb.projectEdit({ project: project.name }))
         },
       },

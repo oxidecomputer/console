@@ -8,7 +8,7 @@
 import { useMemo, type ReactElement } from 'react'
 import { useLocation, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
+import { apiq, queryClient, usePrefetchedQuery } from '@oxide/api'
 import {
   Access16Icon,
   Folder16Icon,
@@ -36,10 +36,12 @@ type ProjectLayoutProps = {
   overrideContentPane?: ReactElement
 }
 
+const projectView = ({ project }: { project: string }) =>
+  apiq('projectView', { path: { project } })
+
 ProjectLayout.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('projectView', {
-    path: getProjectSelector(params),
-  })
+  const { project } = getProjectSelector(params)
+  await queryClient.prefetchQuery(projectView({ project }))
   return null
 }
 
@@ -47,7 +49,7 @@ export function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
   const navigate = useNavigate()
   // project will always be there, instance may not
   const projectSelector = useProjectSelector()
-  const { data: project } = usePrefetchedApiQuery('projectView', { path: projectSelector })
+  const { data: project } = usePrefetchedQuery(projectView(projectSelector))
 
   const { pathname } = useLocation()
   useQuickActions(

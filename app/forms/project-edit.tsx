@@ -9,10 +9,11 @@ import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
-  apiQueryClient,
+  apiq,
+  invalidate,
+  queryClient,
   useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
 } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -23,29 +24,31 @@ import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 
+const projectView = ({ project }: { project: string }) =>
+  apiq('projectView', { path: { project } })
+
 EditProjectSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
-  await apiQueryClient.prefetchQuery('projectView', { path: { project } })
+  await queryClient.prefetchQuery(projectView({ project }))
   return null
 }
 
 export function EditProjectSideModalForm() {
-  const queryClient = useApiQueryClient()
   const navigate = useNavigate()
 
   const projectSelector = useProjectSelector()
 
   const onDismiss = () => navigate(pb.projects())
 
-  const { data: project } = usePrefetchedApiQuery('projectView', { path: projectSelector })
+  const { data: project } = usePrefetchedQuery(projectView(projectSelector))
 
   const editProject = useApiMutation('projectUpdate', {
     onSuccess(project) {
       // refetch list of projects in sidebar
-      // TODO: check this invalidation
-      queryClient.invalidateQueries('projectList')
+      invalidate('projectList')
       // avoid the project fetch when the project page loads since we have the data
-      queryClient.setQueryData('projectView', { path: { project: project.name } }, project)
+      const { queryKey } = projectView({ project: project.name })
+      queryClient.setQueryData(queryKey, project)
       addToast(<>Project <HL>{project.name}</HL> updated</>) // prettier-ignore
       onDismiss()
     },
