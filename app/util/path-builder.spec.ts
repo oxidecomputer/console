@@ -93,8 +93,6 @@ test('path builder', () => {
         "vpcFirewallRules": "/projects/p/vpcs/v/firewall-rules",
         "vpcFirewallRulesNew": "/projects/p/vpcs/v/firewall-rules-new",
         "vpcInternetGateway": "/projects/p/vpcs/v/internet-gateways/g",
-        "vpcInternetGatewayIpAddresses": "/projects/p/vpcs/v/internet-gateways/g/ip-addresses",
-        "vpcInternetGatewayIpPools": "/projects/p/vpcs/v/internet-gateways/g/ip-pools",
         "vpcInternetGateways": "/projects/p/vpcs/v/internet-gateways",
         "vpcInternetGatewaysNew": "/projects/p/vpcs/v/internet-gateways-new",
         "vpcRouter": "/projects/p/vpcs/v/routers/r",
