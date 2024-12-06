@@ -36,6 +36,7 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -49,11 +50,11 @@ const EmptyState = () => (
 
 const colHelper = createColumnHelper<Image>()
 
-const imageList = (project: string) => getListQFn('imageList', { query: { project } })
+const imageList = (query: PP.Project) => getListQFn('imageList', { query })
 
 ImagesPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
-  await queryClient.prefetchQuery(imageList(project).optionsFn())
+  await queryClient.prefetchQuery(imageList({ project }).optionsFn())
   return null
 }
 
@@ -103,7 +104,7 @@ export function ImagesPage() {
   }, [project, makeActions])
 
   const { table } = useQueryTable({
-    query: imageList(project),
+    query: imageList({ project }),
     columns,
     emptyState: <EmptyState />,
   })

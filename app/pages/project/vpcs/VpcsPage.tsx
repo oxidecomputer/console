@@ -37,6 +37,7 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
 const vpcList = (project: string) => getListQFn('vpcList', { query: { project } })
 
@@ -59,7 +60,7 @@ export const VpcDocsPopover = () => (
   />
 )
 
-const FirewallRuleCount = ({ project, vpc }: { project: string; vpc: string }) => {
+const FirewallRuleCount = ({ project, vpc }: PP.Vpc) => {
   const { data } = useApiQuery('vpcFirewallRulesView', { query: { project, vpc } })
 
   if (!data) return <SkeletonCell /> // loading

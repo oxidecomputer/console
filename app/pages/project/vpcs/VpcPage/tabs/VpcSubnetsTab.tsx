@@ -29,11 +29,11 @@ import { useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
 const colHelper = createColumnHelper<VpcSubnet>()
 
-const subnetList = (params: { project: string; vpc: string }) =>
-  getListQFn('vpcSubnetList', { query: params })
+const subnetList = (params: PP.Vpc) => getListQFn('vpcSubnetList', { query: params })
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcSelector(params)

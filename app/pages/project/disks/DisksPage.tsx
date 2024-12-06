@@ -37,6 +37,7 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
 import { fancifyStates } from '../instances/instance/tabs/common'
 
@@ -50,12 +51,12 @@ const EmptyState = () => (
   />
 )
 
-const diskList = (project: string) => getListQFn('diskList', { query: { project } })
+const diskList = (query: PP.Project) => getListQFn('diskList', { query })
 
 DisksPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
   await Promise.all([
-    queryClient.prefetchQuery(diskList(project).optionsFn()),
+    queryClient.prefetchQuery(diskList({ project }).optionsFn()),
 
     // fetch instances and preload into RQ cache so fetches by ID in
     // InstanceLinkCell can be mostly instant yet gracefully fall back to
@@ -162,7 +163,7 @@ export function DisksPage() {
 
   const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({
-    query: diskList(project),
+    query: diskList({ project }),
     columns,
     emptyState: <EmptyState />,
   })
