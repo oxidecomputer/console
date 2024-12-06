@@ -10,10 +10,11 @@
 import * as R from 'remeda'
 import { validate as isUuid } from 'uuid'
 
-import type { ApiTypes as Api, PathParams as PP } from '@oxide/api'
+import type { ApiTypes as Api } from '@oxide/api'
 import * as mock from '@oxide/api-mocks'
 
 import { json } from '~/api/__generated__/msw-handlers'
+import type * as Sel from '~/api/selectors'
 import { commaSeries } from '~/util/str'
 
 import type { Json } from '../json-type'
@@ -64,7 +65,7 @@ export const getIpFromPool = (poolName: string | undefined) => {
 }
 
 export const lookup = {
-  project({ project: id }: PP.Project): Json<Api.Project> {
+  project({ project: id }: Sel.Project): Json<Api.Project> {
     if (!id) throw notFoundErr('no project specified')
 
     if (isUuid(id)) return lookupById(db.projects, id)
@@ -74,7 +75,7 @@ export const lookup = {
 
     return project
   },
-  instance({ instance: id, ...projectSelector }: PP.Instance): Json<Api.Instance> {
+  instance({ instance: id, ...projectSelector }: Sel.Instance): Json<Api.Instance> {
     if (!id) throw notFoundErr('no instance specified')
 
     if (isUuid(id)) {
@@ -91,7 +92,7 @@ export const lookup = {
   networkInterface({
     interface: id,
     ...instanceSelector
-  }: PP.NetworkInterface): Json<Api.InstanceNetworkInterface> {
+  }: Sel.NetworkInterface): Json<Api.InstanceNetworkInterface> {
     if (!id) throw notFoundErr('no NIC specified')
 
     if (isUuid(id)) {
@@ -108,7 +109,7 @@ export const lookup = {
 
     return nic
   },
-  disk({ disk: id, ...projectSelector }: PP.Disk): Json<Api.Disk> {
+  disk({ disk: id, ...projectSelector }: Sel.Disk): Json<Api.Disk> {
     if (!id) throw notFoundErr('no disk specified')
 
     if (isUuid(id)) {
@@ -123,7 +124,7 @@ export const lookup = {
 
     return disk
   },
-  floatingIp({ floatingIp: id, ...projectSelector }: PP.FloatingIp): Json<Api.FloatingIp> {
+  floatingIp({ floatingIp: id, ...projectSelector }: Sel.FloatingIp): Json<Api.FloatingIp> {
     if (!id) throw notFoundErr('no floating IP specified')
 
     if (isUuid(id)) {
@@ -139,7 +140,7 @@ export const lookup = {
 
     return floatingIp
   },
-  snapshot({ snapshot: id, ...projectSelector }: PP.Snapshot): Json<Api.Snapshot> {
+  snapshot({ snapshot: id, ...projectSelector }: Sel.Snapshot): Json<Api.Snapshot> {
     if (!id) throw notFoundErr('no snapshot specified')
 
     if (isUuid(id)) {
@@ -153,7 +154,7 @@ export const lookup = {
 
     return snapshot
   },
-  vpc({ vpc: id, ...projectSelector }: PP.Vpc): Json<Api.Vpc> {
+  vpc({ vpc: id, ...projectSelector }: Sel.Vpc): Json<Api.Vpc> {
     if (!id) throw notFoundErr('no VPC specified')
 
     if (isUuid(id)) {
@@ -167,7 +168,7 @@ export const lookup = {
 
     return vpc
   },
-  vpcRouter({ router: id, ...vpcSelector }: PP.VpcRouter): Json<Api.VpcRouter> {
+  vpcRouter({ router: id, ...vpcSelector }: Sel.VpcRouter): Json<Api.VpcRouter> {
     if (!id) throw notFoundErr('no router specified')
 
     if (isUuid(id)) {
@@ -184,7 +185,7 @@ export const lookup = {
   vpcRouterRoute({
     route: id,
     ...routerSelector
-  }: PP.VpcRouterRoute): Json<Api.RouterRoute> {
+  }: Sel.VpcRouterRoute): Json<Api.RouterRoute> {
     if (!id) throw notFoundErr('no route specified')
 
     if (isUuid(id)) {
@@ -200,7 +201,7 @@ export const lookup = {
 
     return route
   },
-  vpcSubnet({ subnet: id, ...vpcSelector }: PP.VpcSubnet): Json<Api.VpcSubnet> {
+  vpcSubnet({ subnet: id, ...vpcSelector }: Sel.VpcSubnet): Json<Api.VpcSubnet> {
     if (!id) throw notFoundErr('no subnet specified')
 
     if (isUuid(id)) {
@@ -214,7 +215,7 @@ export const lookup = {
 
     return subnet
   },
-  image({ image: id, project: projectId }: PP.Image): Json<Api.Image> {
+  image({ image: id, project: projectId }: Sel.Image): Json<Api.Image> {
     if (!id) throw notFoundErr('no image specified')
 
     // We match the API logic:
@@ -249,7 +250,7 @@ export const lookup = {
     if (!image) throw notFoundErr(`image '${id}'`)
     return image
   },
-  ipPool({ pool: id }: PP.IpPool): Json<Api.IpPool> {
+  ipPool({ pool: id }: Sel.IpPool): Json<Api.IpPool> {
     if (!id) throw notFoundErr('no pool specified')
 
     if (isUuid(id)) return lookupById(db.ipPools, id)
@@ -263,7 +264,7 @@ export const lookup = {
   ipPoolSiloLink({
     pool: poolId,
     silo: siloId,
-  }: PP.IpPool & PP.Silo): Json<Api.IpPoolSiloLink> {
+  }: Sel.IpPool & Sel.Silo): Json<Api.IpPoolSiloLink> {
     const pool = lookup.ipPool({ pool: poolId })
     const silo = lookup.silo({ silo: siloId })
 
@@ -275,7 +276,7 @@ export const lookup = {
     return ipPoolSilo
   },
   // unusual because it returns a list, but we need it for multiple endpoints
-  siloIpPools(path: PP.Silo): Json<Api.SiloIpPool>[] {
+  siloIpPools(path: Sel.Silo): Json<Api.SiloIpPool>[] {
     const silo = lookup.silo(path)
 
     // effectively join db.ipPools and db.ipPoolSilos on ip_pool_id
@@ -294,7 +295,7 @@ export const lookup = {
         return { ...pool, is_default: link.is_default }
       })
   },
-  siloIpPool(path: PP.Silo & PP.IpPool): Json<Api.SiloIpPool> {
+  siloIpPool(path: Sel.Silo & Sel.IpPool): Json<Api.SiloIpPool> {
     const silo = lookup.silo(path)
     const pool = lookup.ipPool(path)
 
@@ -308,7 +309,7 @@ export const lookup = {
 
     return { ...pool, is_default: ipPoolSilo.is_default }
   },
-  siloDefaultIpPool(path: PP.Silo): Json<Api.IpPool> {
+  siloDefaultIpPool(path: Sel.Silo): Json<Api.IpPool> {
     const silo = lookup.silo(path)
 
     const link = db.ipPoolSilos.find((ips) => ips.silo_id === silo.id && ips.is_default)
@@ -316,7 +317,7 @@ export const lookup = {
 
     return lookupById(db.ipPools, link.ip_pool_id)
   },
-  samlIdp({ provider: id, silo }: PP.IdentityProvider): Json<Api.SamlIdentityProvider> {
+  samlIdp({ provider: id, silo }: Sel.IdentityProvider): Json<Api.SamlIdentityProvider> {
     if (!id) throw notFoundErr('no IdP specified')
 
     if (isUuid(id)) {
@@ -337,7 +338,7 @@ export const lookup = {
 
     return dbIdp.provider
   },
-  silo({ silo: id }: PP.Silo): Json<Api.Silo> {
+  silo({ silo: id }: Sel.Silo): Json<Api.Silo> {
     if (!id) throw notFoundErr('silo not specified')
 
     if (isUuid(id)) return lookupById(db.silos, id)
@@ -346,17 +347,17 @@ export const lookup = {
     if (!silo) throw notFoundErr(`silo '${id}'`)
     return silo
   },
-  siloQuotas(params: PP.Silo): Json<Api.SiloQuotas> {
+  siloQuotas(params: Sel.Silo): Json<Api.SiloQuotas> {
     const silo = lookup.silo(params)
     const quotas = db.siloQuotas.find((q) => q.silo_id === silo.id)
     if (!quotas) throw internalError(`Silo ${silo.name} has no quotas`)
     return quotas
   },
-  sled({ sledId: id }: PP.Sled): Json<Api.Sled> {
+  sled({ sledId: id }: Sel.Sled): Json<Api.Sled> {
     if (!id) throw notFoundErr('sled not specified')
     return lookupById(db.sleds, id)
   },
-  sshKey({ sshKey: id }: PP.SshKey): Json<Api.SshKey> {
+  sshKey({ sshKey: id }: Sel.SshKey): Json<Api.SshKey> {
     // we don't have a concept of mock session. assume the user is user1
     const userSshKeys = db.sshKeys.filter((key) => key.silo_user_id === mock.user1.id)
 
