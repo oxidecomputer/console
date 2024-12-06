@@ -118,7 +118,9 @@ export function EditInternetGatewayForm() {
         ) : (
           <div className="mt-2">
             {'This internet gateway does not have any specific IP addresses attached. '}
-            {hasAttachedPool && 'It will use an address from the attached IP pool.'}
+            {hasAttachedPool
+              ? 'It will use an address from the attached IP pool.'
+              : 'Use the CLI to attach an IP Pool or specify an IP address to use with this gateway.'}
           </div>
         )}
       </div>
