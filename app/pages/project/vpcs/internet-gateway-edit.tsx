@@ -16,14 +16,12 @@ import { apiQueryClient, getListQFn, queryClient, usePrefetchedApiQuery } from '
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { getInternetGatewaySelector, useInternetGatewaySelector } from '~/hooks/use-params'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
-import { EmptyCell } from '~/table/cells/EmptyCell'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
+import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel, SideModal } from '~/ui/lib/SideModal'
-import { Table } from '~/ui/lib/Table'
-import { Truncate } from '~/ui/lib/Truncate'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
@@ -63,6 +61,7 @@ export function EditInternetGatewayForm() {
 
   const form = useForm({})
 
+  const hasAttachedPool = gatewayIpPools && gatewayIpPools.length > 0
   return (
     <SideModalForm
       title="Internet Gateway"
@@ -97,65 +96,58 @@ export function EditInternetGatewayForm() {
         }
       />
       <FormDivider />
-      <SideModal.Heading>Internet Gateway IP Addresses</SideModal.Heading>
+      <div className="flex flex-col gap-2">
+        <SideModal.Heading>
+          Internet Gateway IP Address
+          {gatewayIpAddresses && gatewayIpAddresses.length > 1 ? 'es' : ''}
+        </SideModal.Heading>
+        {gatewayIpAddresses && gatewayIpAddresses.length > 0 ? (
+          gatewayIpAddresses.map((gatewayIpAddress) => (
+            <PropertiesTable key={gatewayIpAddress.id}>
+              <PropertiesTable.Row label="Name">
+                {gatewayIpAddress.name}
+              </PropertiesTable.Row>
+              <PropertiesTable.Row label="Description">
+                <DescriptionCell text={gatewayIpAddress.description} />
+              </PropertiesTable.Row>
+              <PropertiesTable.Row label="IP Address">
+                <CopyableIp ip={gatewayIpAddress.address} />
+              </PropertiesTable.Row>
+            </PropertiesTable>
+          ))
+        ) : (
+          <div className="mt-2">
+            {'This internet gateway does not have any specific IP addresses attached. '}
+            {hasAttachedPool && 'It will use an address from the attached IP pool.'}
+          </div>
+        )}
+      </div>
 
-      {gatewayIpAddresses ? (
-        <Table aria-label="Port filters">
-          <Table.Header>
-            <Table.HeadCell>Name</Table.HeadCell>
-            <Table.HeadCell>Description</Table.HeadCell>
-            <Table.HeadCell>Address</Table.HeadCell>
-          </Table.Header>
-          <Table.Body>
-            {gatewayIpAddresses.map((gatewayIpAddress) => (
-              <Table.Row key={gatewayIpAddress.id}>
-                <Table.Cell className="w-1/3">
-                  <Truncate text={gatewayIpAddress.name} maxLength={24} />
-                </Table.Cell>
-                <Table.Cell className="w-1/3">
-                  <Truncate text={gatewayIpAddress.description} maxLength={24} />
-                </Table.Cell>
-                <Table.Cell className="w-1/3">
-                  <Truncate text={gatewayIpAddress.address} maxLength={24} />
-                </Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
-      ) : (
-        <EmptyCell />
-      )}
       <FormDivider />
 
-      <SideModal.Heading>Internet Gateway IP Pools</SideModal.Heading>
-
-      {gatewayIpPools ? (
-        <Table aria-label="Port filters">
-          <Table.Header>
-            <Table.HeadCell>Name</Table.HeadCell>
-            <Table.HeadCell>Description</Table.HeadCell>
-            <Table.HeadCell>IP Pool</Table.HeadCell>
-          </Table.Header>
-          <Table.Body>
-            {gatewayIpPools.map((gatewayIpPool) => (
-              <Table.Row key={gatewayIpPool.id}>
-                <Table.Cell className="w-1/3">
-                  <Truncate text={gatewayIpPool.name} maxLength={24} />
-                </Table.Cell>
-                <Table.Cell className="w-1/3">
-                  <Truncate text={gatewayIpPool.description} maxLength={24} />
-                </Table.Cell>
-                <Table.Cell className="w-1/3">
-                  <IpPoolCell ipPoolId={gatewayIpPool.ipPoolId} />
-                </Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
-      ) : (
-        <EmptyCell />
-      )}
-
+      <div className="flex flex-col gap-2">
+        <SideModal.Heading>
+          Internet Gateway IP Pool
+          {gatewayIpPools && gatewayIpPools.length > 1 ? 's' : ''}
+        </SideModal.Heading>
+        {hasAttachedPool ? (
+          gatewayIpPools.map((gatewayIpPool) => (
+            <PropertiesTable key={gatewayIpPool.id}>
+              <PropertiesTable.Row label="Name">{gatewayIpPool.name}</PropertiesTable.Row>
+              <PropertiesTable.Row label="Description">
+                <DescriptionCell text={gatewayIpPool.description} />
+              </PropertiesTable.Row>
+              <PropertiesTable.Row label="IP Address">
+                <IpPoolCell ipPoolId={gatewayIpPool.ipPoolId} />
+              </PropertiesTable.Row>
+            </PropertiesTable>
+          ))
+        ) : (
+          <div className="mt-2">
+            This internet gateway does not have any IP pools attached.
+          </div>
+        )}
+      </div>
       {/* insert routes that are associated with this gateway */}
     </SideModalForm>
   )
