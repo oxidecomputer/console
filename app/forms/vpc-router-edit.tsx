@@ -13,10 +13,10 @@ import {
 } from 'react-router-dom'
 
 import {
-  apiQueryClient,
+  apiq,
+  queryClient,
   useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
   type VpcRouterUpdate,
 } from '@oxide/api'
 
@@ -28,23 +28,20 @@ import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 
+type RouterSelector = { project: string; vpc: string; router: string }
+const routerView = ({ project, vpc, router }: RouterSelector) =>
+  apiq('vpcRouterView', { path: { router }, query: { project, vpc } })
+
 EditRouterSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  const { router, project, vpc } = getVpcRouterSelector(params)
-  await apiQueryClient.prefetchQuery('vpcRouterView', {
-    path: { router },
-    query: { project, vpc },
-  })
+  const selector = getVpcRouterSelector(params)
+  await queryClient.prefetchQuery(routerView(selector))
   return null
 }
 
 export function EditRouterSideModalForm() {
-  const queryClient = useApiQueryClient()
   const routerSelector = useVpcRouterSelector()
   const { project, vpc, router } = routerSelector
-  const { data: routerData } = usePrefetchedApiQuery('vpcRouterView', {
-    path: { router },
-    query: { project, vpc },
-  })
+  const { data: routerData } = usePrefetchedQuery(routerView(routerSelector))
   const navigate = useNavigate()
 
   const onDismiss = (navigate: NavigateFunction) => {
@@ -53,7 +50,7 @@ export function EditRouterSideModalForm() {
 
   const editRouter = useApiMutation('vpcRouterUpdate', {
     onSuccess(updatedRouter) {
-      queryClient.invalidateQueries('vpcRouterList')
+      queryClient.invalidateEndpoint('vpcRouterList')
       addToast(<>Router <HL>{updatedRouter.name}</HL> updated</>) // prettier-ignore
       navigate(pb.vpcRouters({ project, vpc }))
     },

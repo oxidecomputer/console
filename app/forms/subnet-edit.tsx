@@ -9,10 +9,10 @@ import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
-  apiQueryClient,
+  apiq,
+  queryClient,
   useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
   type VpcSubnetUpdate,
 } from '@oxide/api'
 
@@ -31,30 +31,28 @@ import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
 
+type SubnetSelector = { project: string; vpc: string; subnet: string }
+const subnetView = ({ project, vpc, subnet }: SubnetSelector) =>
+  apiq('vpcSubnetView', { query: { project, vpc }, path: { subnet } })
+
 EditSubnetForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  const { project, vpc, subnet } = getVpcSubnetSelector(params)
-  await apiQueryClient.prefetchQuery('vpcSubnetView', {
-    query: { project, vpc },
-    path: { subnet },
-  })
+  const selector = getVpcSubnetSelector(params)
+  await queryClient.prefetchQuery(subnetView(selector))
   return null
 }
 
 export function EditSubnetForm() {
-  const { project, vpc, subnet: subnetName } = useVpcSubnetSelector()
-  const queryClient = useApiQueryClient()
+  const subnetSelector = useVpcSubnetSelector()
+  const { project, vpc } = subnetSelector
 
   const navigate = useNavigate()
   const onDismiss = () => navigate(pb.vpcSubnets({ project, vpc }))
 
-  const { data: subnet } = usePrefetchedApiQuery('vpcSubnetView', {
-    query: { project, vpc },
-    path: { subnet: subnetName },
-  })
+  const { data: subnet } = usePrefetchedQuery(subnetView(subnetSelector))
 
   const updateSubnet = useApiMutation('vpcSubnetUpdate', {
     onSuccess(subnet) {
-      queryClient.invalidateQueries('vpcSubnetList')
+      queryClient.invalidateEndpoint('vpcSubnetList')
       addToast(<>Subnet <HL>{subnet.name}</HL> updated</>) // prettier-ignore
       onDismiss()
     },

@@ -8,12 +8,7 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import {
-  apiQueryClient,
-  useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
-} from '@oxide/api'
+import { apiq, queryClient, useApiMutation, usePrefetchedApiQuery } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -23,17 +18,18 @@ import { getFloatingIpSelector, useFloatingIpSelector } from '~/hooks/use-params
 import { addToast } from '~/stores/toast'
 import { pb } from 'app/util/path-builder'
 
+type FipSelector = { project: string; floatingIp: string }
+
+const floatingIpView = ({ project, floatingIp }: FipSelector) =>
+  apiq('floatingIpView', { path: { floatingIp }, query: { project } })
+
 EditFloatingIpSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  const { floatingIp, project } = getFloatingIpSelector(params)
-  await apiQueryClient.prefetchQuery('floatingIpView', {
-    path: { floatingIp },
-    query: { project },
-  })
+  const selector = getFloatingIpSelector(params)
+  await queryClient.prefetchQuery(floatingIpView(selector))
   return null
 }
 
 export function EditFloatingIpSideModalForm() {
-  const queryClient = useApiQueryClient()
   const navigate = useNavigate()
 
   const floatingIpSelector = useFloatingIpSelector()
@@ -47,7 +43,7 @@ export function EditFloatingIpSideModalForm() {
 
   const editFloatingIp = useApiMutation('floatingIpUpdate', {
     onSuccess(_floatingIp) {
-      queryClient.invalidateQueries('floatingIpList')
+      queryClient.invalidateEndpoint('floatingIpList')
       addToast(<>Floating IP <HL>{_floatingIp.name}</HL> updated</>) // prettier-ignore
       onDismiss()
     },
