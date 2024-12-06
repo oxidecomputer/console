@@ -43,13 +43,12 @@ import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { TableControls, TableTitle } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
-type RouterParams = { project: string; vpc: string; router: string }
-
-const routerView = ({ project, vpc, router }: RouterParams) =>
+const routerView = ({ project, vpc, router }: PP.VpcRouter) =>
   apiq('vpcRouterView', { path: { router }, query: { vpc, project } })
 
-const routeList = (query: RouterParams) => getListQFn('vpcRouterRouteList', { query })
+const routeList = (query: PP.VpcRouter) => getListQFn('vpcRouterRouteList', { query })
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const routerSelector = getVpcRouterSelector(params)

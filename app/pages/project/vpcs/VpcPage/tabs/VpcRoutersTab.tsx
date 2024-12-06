@@ -29,11 +29,11 @@ import { useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
 const colHelper = createColumnHelper<VpcRouter>()
 
-const vpcRouterList = (params: { project: string; vpc: string }) =>
-  getListQFn('vpcRouterList', { query: params })
+const vpcRouterList = (query: PP.Vpc) => getListQFn('vpcRouterList', { query })
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcSelector(params)
