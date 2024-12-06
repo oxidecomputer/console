@@ -25,6 +25,7 @@ import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { ContentPane, PageContainer } from './helpers'
@@ -36,8 +37,7 @@ type ProjectLayoutProps = {
   overrideContentPane?: ReactElement
 }
 
-const projectView = ({ project }: { project: string }) =>
-  apiq('projectView', { path: { project } })
+const projectView = ({ project }: PP.Project) => apiq('projectView', { path: { project } })
 
 ProjectLayout.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)

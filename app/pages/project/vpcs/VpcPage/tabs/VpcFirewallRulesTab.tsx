@@ -32,6 +32,7 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 import { titleCase } from '~/util/str'
 
 const colHelper = createColumnHelper<VpcFirewallRule>()
@@ -97,8 +98,7 @@ const staticColumns = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-const rulesView = (vpcSel: { vpc: string; project: string }) =>
-  apiq('vpcFirewallRulesView', { query: vpcSel })
+const rulesView = (query: PP.Vpc) => apiq('vpcFirewallRulesView', { query })
 
 VpcFirewallRulesTab.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, vpc } = getVpcSelector(params)

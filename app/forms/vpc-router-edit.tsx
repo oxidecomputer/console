@@ -27,9 +27,9 @@ import { HL } from '~/components/HL'
 import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
-type RouterSelector = { project: string; vpc: string; router: string }
-const routerView = ({ project, vpc, router }: RouterSelector) =>
+const routerView = ({ project, vpc, router }: PP.VpcRouter) =>
   apiq('vpcRouterView', { path: { router }, query: { project, vpc } })
 
 EditRouterSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {

@@ -16,11 +16,10 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { getFloatingIpSelector, useFloatingIpSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import type * as PP from '~/util/path-params'
 import { pb } from 'app/util/path-builder'
 
-type FipSelector = { project: string; floatingIp: string }
-
-const floatingIpView = ({ project, floatingIp }: FipSelector) =>
+const floatingIpView = ({ project, floatingIp }: PP.FloatingIp) =>
   apiq('floatingIpView', { path: { floatingIp }, query: { project } })
 
 EditFloatingIpSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {

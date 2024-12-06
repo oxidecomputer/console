@@ -30,9 +30,9 @@ import { getVpcSubnetSelector, useVpcSubnetSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
-type SubnetSelector = { project: string; vpc: string; subnet: string }
-const subnetView = ({ project, vpc, subnet }: SubnetSelector) =>
+const subnetView = ({ project, vpc, subnet }: PP.VpcSubnet) =>
   apiq('vpcSubnetView', { query: { project, vpc }, path: { subnet } })
 
 EditSubnetForm.loader = async ({ params }: LoaderFunctionArgs) => {

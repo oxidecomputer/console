@@ -17,9 +17,9 @@ import { HL } from '~/components/HL'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
-const projectView = ({ project }: { project: string }) =>
-  apiq('projectView', { path: { project } })
+const projectView = ({ project }: PP.Project) => apiq('projectView', { path: { project } })
 
 EditProjectSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
