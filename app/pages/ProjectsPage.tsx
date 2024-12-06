@@ -58,7 +58,7 @@ export function Component() {
 
   const { mutateAsync: deleteProject } = useApiMutation('projectDelete', {
     onSuccess() {
-      queryClient.invalidateQueries(projectList.invalidateOptions)
+      queryClient.invalidateEndpoint('projectList')
     },
   })
 

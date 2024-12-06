@@ -132,11 +132,6 @@ export type PaginatedQuery<TData> = {
     pageToken?: string
   ) => UseQueryOptions<TData, ApiError> & { queryKey: QueryKey }
   pageSize: number
-  /**
-   * Options to pass to `queryClient.invalidateQueries` that will invalidate all
-   * cached queries to this endpoint, regardless of parameters.
-   */
-  invalidateOptions: { queryKey: readonly [string] }
 }
 
 /**
@@ -179,7 +174,6 @@ export const getListQueryOptionsFn =
         })
       },
       pageSize: limit,
-      invalidateOptions: { queryKey: [method] },
     }
   }
 
