@@ -23,9 +23,8 @@ test('SSH keys', async ({ page }) => {
   await page.getByRole('link', { name: 'm1-macbook-pro' }).click()
 
   // verify side modal content
-  const modal = page.getByRole('dialog')
+  const modal = page.getByRole('dialog', { name: 'View SSH key' })
   await expect(modal).toBeVisible()
-  await expect(modal.getByText('Edit SSH key')).toBeVisible()
   await expect(modal.getByRole('heading', { name: 'm1-macbook-pro' })).toBeVisible()
 
   const propertiesTable = modal.locator('.properties-table')

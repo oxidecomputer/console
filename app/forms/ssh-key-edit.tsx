@@ -33,8 +33,6 @@ export function EditSSHKeySideModalForm() {
   const navigate = useNavigate()
   const { sshKey } = useSshKeySelector()
 
-  const onDismiss = () => navigate(pb.sshKeys())
-
   const { data } = usePrefetchedApiQuery('currentUserSshKeyView', {
     path: { sshKey },
   })
@@ -46,7 +44,8 @@ export function EditSSHKeySideModalForm() {
       form={form}
       formType="edit"
       resourceName="SSH key"
-      onDismiss={onDismiss}
+      title="View SSH key"
+      onDismiss={() => navigate(pb.sshKeys())}
       subtitle={
         <ResourceLabel>
           <Key16Icon /> {data.name}

@@ -124,7 +124,7 @@ export const routes = createRoutesFromElements(
               path=":sshKey/edit"
               loader={EditSSHKeySideModalForm.loader}
               element={<EditSSHKeySideModalForm />}
-              handle={titleCrumb('Edit SSH Key')}
+              handle={titleCrumb('View SSH Key')}
             />
           </Route>
           <Route path="ssh-keys-new" {...SSHKeyCreate} handle={titleCrumb('New SSH key')} />
