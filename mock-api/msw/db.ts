@@ -30,6 +30,8 @@ export const lookupById = <T extends { id: string }>(table: T[], id: string) => 
   return item
 }
 
+const paginationParams = ['limit', 'page_token', 'sort_by']
+
 /**
  * Given an object representing (potentially) parent selectors for a resource,
  * throw an error if any of the keys in that object have truthy values. For
@@ -43,7 +45,7 @@ function ensureNoParentSelectors(
   parentSelector: Record<string, string | undefined>
 ) {
   const keysWithValues = Object.entries(parentSelector)
-    .filter(([_, v]) => v)
+    .filter(([k, v]) => v && !paginationParams.includes(k))
     .map(([k]) => k)
   if (keysWithValues.length > 0) {
     const message = `when ${resourceLabel} is specified by ID, ${commaSeries(keysWithValues, 'and')} should not be specified`
