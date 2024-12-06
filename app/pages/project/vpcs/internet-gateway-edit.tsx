@@ -17,7 +17,7 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { getInternetGatewaySelector, useInternetGatewaySelector } from '~/hooks/use-params'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { EmptyCell } from '~/table/cells/EmptyCell'
-import { LinkCell } from '~/table/cells/LinkCell'
+import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
@@ -97,21 +97,25 @@ export function EditInternetGatewayForm() {
         }
       />
       <FormDivider />
-      <SideModal.Heading title="Internet Gateway">IP Addresses</SideModal.Heading>
+      <SideModal.Heading>Internet Gateway IP Addresses</SideModal.Heading>
 
       {gatewayIpAddresses ? (
         <Table aria-label="Port filters">
           <Table.Header>
             <Table.HeadCell>Name</Table.HeadCell>
+            <Table.HeadCell>Description</Table.HeadCell>
             <Table.HeadCell>Address</Table.HeadCell>
           </Table.Header>
           <Table.Body>
             {gatewayIpAddresses.map((gatewayIpAddress) => (
               <Table.Row key={gatewayIpAddress.id}>
-                <Table.Cell className="w-1/2">
+                <Table.Cell className="w-1/3">
                   <Truncate text={gatewayIpAddress.name} maxLength={24} />
                 </Table.Cell>
-                <Table.Cell className="w-1/2">
+                <Table.Cell className="w-1/3">
+                  <Truncate text={gatewayIpAddress.description} maxLength={24} />
+                </Table.Cell>
+                <Table.Cell className="w-1/3">
                   <Truncate text={gatewayIpAddress.address} maxLength={24} />
                 </Table.Cell>
               </Table.Row>
@@ -123,24 +127,26 @@ export function EditInternetGatewayForm() {
       )}
       <FormDivider />
 
-      <SideModal.Heading title="Internet Gateway">IP Pools</SideModal.Heading>
+      <SideModal.Heading>Internet Gateway IP Pools</SideModal.Heading>
 
       {gatewayIpPools ? (
         <Table aria-label="Port filters">
           <Table.Header>
             <Table.HeadCell>Name</Table.HeadCell>
             <Table.HeadCell>Description</Table.HeadCell>
+            <Table.HeadCell>IP Pool</Table.HeadCell>
           </Table.Header>
           <Table.Body>
             {gatewayIpPools.map((gatewayIpPool) => (
               <Table.Row key={gatewayIpPool.id}>
-                <Table.Cell className="w-1/2">
-                  <LinkCell to={pb.ipPool({ pool: gatewayIpPool.name })}>
-                    <Truncate text={gatewayIpPool.name} maxLength={24} />
-                  </LinkCell>
+                <Table.Cell className="w-1/3">
+                  <Truncate text={gatewayIpPool.name} maxLength={24} />
                 </Table.Cell>
-                <Table.Cell className="w-1/2">
+                <Table.Cell className="w-1/3">
                   <Truncate text={gatewayIpPool.description} maxLength={24} />
+                </Table.Cell>
+                <Table.Cell className="w-1/3">
+                  <IpPoolCell ipPoolId={gatewayIpPool.ipPoolId} />
                 </Table.Cell>
               </Table.Row>
             ))}
