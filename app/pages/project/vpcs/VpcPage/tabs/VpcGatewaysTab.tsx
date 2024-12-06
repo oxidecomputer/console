@@ -37,8 +37,8 @@ export function VpcInternetGatewaysTab() {
     <EmptyMessage
       title="No internet gateways"
       body="Create an internet gateway to see it here"
-      buttonText="New internet gateway"
-      buttonTo={pb.vpcInternetGatewaysNew(vpcSelector)}
+      // buttonText="New internet gateway"
+      // buttonTo={pb.vpcInternetGatewaysNew(vpcSelector)}
     />
   )
 

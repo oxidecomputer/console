@@ -7,18 +7,23 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
+import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
+import { Gateway16Icon } from '@oxide/design-system/icons/react'
+
 import { apiQueryClient, getListQFn, queryClient, usePrefetchedApiQuery } from '~/api'
+import { SideModalForm } from '~/components/form/SideModalForm'
 import { getInternetGatewaySelector, useInternetGatewaySelector } from '~/hooks/use-params'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { EmptyCell } from '~/table/cells/EmptyCell'
-import { IpPoolCell } from '~/table/cells/IpPoolCell'
-import { Button } from '~/ui/lib/Button'
-import { CopyableIp } from '~/ui/lib/CopyableIp'
+import { LinkCell } from '~/table/cells/LinkCell'
+import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
-import { SideModal } from '~/ui/lib/SideModal'
+import { ResourceLabel, SideModal } from '~/ui/lib/SideModal'
+import { Table } from '~/ui/lib/Table'
+import { Truncate } from '~/ui/lib/Truncate'
 import { pb } from '~/util/path-builder'
 
 type GatewayParams = { project: string; vpc: string; gateway: string }
@@ -57,84 +62,96 @@ export function EditInternetGatewayForm() {
     gatewayIpAddressList({ project, vpc, gateway }).optionsFn()
   )
 
+  const form = useForm({})
+
   return (
-    <SideModal title={internetGateway.name} onDismiss={onDismiss} isOpen>
-      <SideModal.Body>
-        <div className="flex flex-col gap-6">
-          <Message
-            variant="info"
-            className="text-balance"
-            content={
-              <>
-                This is a read-only copy of this internet gateway. Use the CLI to create and
-                update internet gateways. More functionality for internet gateways will be
-                included in future releases of the Oxide console.
-              </>
-            }
-          />
-          <PropertiesTable key={internetGateway.id}>
-            <PropertiesTable.Row label="Name">{internetGateway.name}</PropertiesTable.Row>
-            <PropertiesTable.Row label="Description">
-              <DescriptionCell text={internetGateway.description} />
-            </PropertiesTable.Row>
-            {/* insert routes that are associated with this gateway */}
-          </PropertiesTable>
-          <div>
-            <SideModal.Heading title="Internet Gateway" className="mb-2">
-              Internet Gateway IP Address
-            </SideModal.Heading>
-            <div className="flex flex-col gap-4">
-              {gatewayIpAddresses ? (
-                gatewayIpAddresses.map((gatewayAddress) => (
-                  <PropertiesTable key={gatewayAddress.id}>
-                    <PropertiesTable.Row label="Name">
-                      {gatewayAddress.name}
-                    </PropertiesTable.Row>
-                    <PropertiesTable.Row label="Description">
-                      <DescriptionCell text={gatewayAddress.description} />
-                    </PropertiesTable.Row>
-                    <PropertiesTable.Row label="IP Address">
-                      <CopyableIp ip={gatewayAddress.address} />
-                    </PropertiesTable.Row>
-                  </PropertiesTable>
-                ))
-              ) : (
-                <EmptyCell />
-              )}
-            </div>
-          </div>
-          <div>
-            <SideModal.Heading title="Internet Gateway" className="mb-2">
-              Internet Gateway IP Pool
-              {gatewayIpPools && gatewayIpPools.length > 1 ? 's' : ''}
-            </SideModal.Heading>
-            <div className="flex flex-col gap-4">
-              {gatewayIpPools ? (
-                gatewayIpPools.map((gatewayPool) => (
-                  <PropertiesTable key={gatewayPool.id}>
-                    <PropertiesTable.Row label="Name">
-                      {gatewayPool.name}
-                    </PropertiesTable.Row>
-                    <PropertiesTable.Row label="Description">
-                      <DescriptionCell text={gatewayPool.description} />
-                    </PropertiesTable.Row>
-                    <PropertiesTable.Row label="IP Pool">
-                      <IpPoolCell ipPoolId={gatewayPool.ipPoolId} />
-                    </PropertiesTable.Row>
-                  </PropertiesTable>
-                ))
-              ) : (
-                <EmptyCell />
-              )}
-            </div>
-          </div>
-        </div>
-      </SideModal.Body>
-      <SideModal.Footer>
-        <Button variant="ghost" onClick={onDismiss}>
-          Close
-        </Button>
-      </SideModal.Footer>
-    </SideModal>
+    <SideModalForm
+      title="Internet Gateway"
+      formType="edit"
+      resourceName="Internet Gateway"
+      onDismiss={onDismiss}
+      subtitle={
+        <ResourceLabel>
+          <Gateway16Icon /> {internetGateway.name}
+        </ResourceLabel>
+      }
+      form={form}
+      // TODO: pass actual error when this form is hooked up
+      submitError={null}
+      loading={false}
+    >
+      <PropertiesTable key={internetGateway.id}>
+        <PropertiesTable.Row label="Name">{internetGateway.name}</PropertiesTable.Row>
+        <PropertiesTable.Row label="Description">
+          <DescriptionCell text={internetGateway.description} />
+        </PropertiesTable.Row>
+      </PropertiesTable>
+      <Message
+        variant="info"
+        className="text-balance"
+        content={
+          <>
+            This is a read-only copy of this internet gateway. Use the CLI to create and
+            update internet gateways. More functionality for internet gateways will be
+            included in future releases of the Oxide console.
+          </>
+        }
+      />
+      <FormDivider />
+      <SideModal.Heading title="Internet Gateway">IP Addresses</SideModal.Heading>
+
+      {gatewayIpAddresses ? (
+        <Table aria-label="Port filters">
+          <Table.Header>
+            <Table.HeadCell>Name</Table.HeadCell>
+            <Table.HeadCell>Address</Table.HeadCell>
+          </Table.Header>
+          <Table.Body>
+            {gatewayIpAddresses.map((gatewayIpAddress) => (
+              <Table.Row key={gatewayIpAddress.id}>
+                <Table.Cell className="w-1/2">
+                  <Truncate text={gatewayIpAddress.name} maxLength={24} />
+                </Table.Cell>
+                <Table.Cell className="w-1/2">
+                  <Truncate text={gatewayIpAddress.address} maxLength={24} />
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
+      ) : (
+        <EmptyCell />
+      )}
+      <FormDivider />
+
+      <SideModal.Heading title="Internet Gateway">IP Pools</SideModal.Heading>
+
+      {gatewayIpPools ? (
+        <Table aria-label="Port filters">
+          <Table.Header>
+            <Table.HeadCell>Name</Table.HeadCell>
+            <Table.HeadCell>Description</Table.HeadCell>
+          </Table.Header>
+          <Table.Body>
+            {gatewayIpPools.map((gatewayIpPool) => (
+              <Table.Row key={gatewayIpPool.id}>
+                <Table.Cell className="w-1/2">
+                  <LinkCell to={pb.ipPool({ pool: gatewayIpPool.name })}>
+                    <Truncate text={gatewayIpPool.name} maxLength={24} />
+                  </LinkCell>
+                </Table.Cell>
+                <Table.Cell className="w-1/2">
+                  <Truncate text={gatewayIpPool.description} maxLength={24} />
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
+      ) : (
+        <EmptyCell />
+      )}
+
+      {/* insert routes that are associated with this gateway */}
+    </SideModalForm>
   )
 }
