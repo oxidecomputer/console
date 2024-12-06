@@ -25,12 +25,11 @@ import { ResourceLabel, SideModal } from '~/ui/lib/SideModal'
 import { Table } from '~/ui/lib/Table'
 import { Truncate } from '~/ui/lib/Truncate'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
-type GatewayParams = { project: string; vpc: string; gateway: string }
-
-const gatewayIpPoolList = (query: GatewayParams) =>
+const gatewayIpPoolList = (query: PP.VpcInternetGateway) =>
   getListQFn('internetGatewayIpPoolList', { query })
-const gatewayIpAddressList = (query: GatewayParams) =>
+const gatewayIpAddressList = (query: PP.VpcInternetGateway) =>
   getListQFn('internetGatewayIpAddressList', { query })
 
 EditInternetGatewayForm.loader = async function ({ params }: LoaderFunctionArgs) {

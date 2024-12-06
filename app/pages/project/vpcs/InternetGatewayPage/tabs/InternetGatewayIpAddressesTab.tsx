@@ -16,10 +16,9 @@ import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import type * as PP from '~/util/path-params'
 
-type GatewayParams = { project: string; vpc: string; gateway: string }
-
-const gatewayIpList = (query: GatewayParams) =>
+const gatewayIpList = (query: PP.VpcInternetGateway) =>
   getListQFn('internetGatewayIpAddressList', { query })
 
 InternetGatewayIpAddressesTab.loader = async function ({ params }: LoaderFunctionArgs) {

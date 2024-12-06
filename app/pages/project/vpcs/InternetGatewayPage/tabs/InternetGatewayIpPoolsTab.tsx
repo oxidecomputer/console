@@ -18,10 +18,9 @@ import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { ALL_ISH } from '~/util/consts'
+import type * as PP from '~/util/path-params'
 
-type GatewayParams = { project: string; vpc: string; gateway: string }
-
-const gatewayIpPoolList = (query: GatewayParams) =>
+const gatewayIpPoolList = (query: PP.VpcInternetGateway) =>
   getListQFn('internetGatewayIpPoolList', { query })
 
 InternetGatewayIpPoolsTab.loader = async function ({ params }: LoaderFunctionArgs) {
