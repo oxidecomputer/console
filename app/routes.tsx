@@ -28,6 +28,7 @@ import { EditProjectSideModalForm } from './forms/project-edit'
 import { CreateSiloSideModalForm } from './forms/silo-create'
 import * as SnapshotCreate from './forms/snapshot-create'
 import * as SSHKeyCreate from './forms/ssh-key-create'
+import { EditSSHKeySideModalForm } from './forms/ssh-key-edit'
 import { CreateSubnetForm } from './forms/subnet-create'
 import { EditSubnetForm } from './forms/subnet-edit'
 import { CreateVpcSideModalForm } from './forms/vpc-create'
@@ -118,7 +119,14 @@ export const routes = createRoutesFromElements(
         <Route index element={<Navigate to="profile" replace />} />
         <Route path="profile" element={<ProfilePage />} handle={{ crumb: 'Profile' }} />
         <Route {...SSHKeysPage} handle={makeCrumb('SSH Keys', pb.sshKeys)}>
-          <Route path="ssh-keys" element={null} />
+          <Route path="ssh-keys" element={null}>
+            <Route
+              path=":sshKey/edit"
+              loader={EditSSHKeySideModalForm.loader}
+              element={<EditSSHKeySideModalForm />}
+              handle={titleCrumb('View SSH Key')}
+            />
+          </Route>
           <Route path="ssh-keys-new" {...SSHKeyCreate} handle={titleCrumb('New SSH key')} />
         </Route>
       </Route>
