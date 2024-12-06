@@ -37,13 +37,13 @@ test('SSH keys', async ({ page }) => {
 
   // close modal
   await modal.getByRole('button', { name: 'Close' }).click()
-  await expect(modal).not.toBeVisible()
+  await expect(modal).toBeHidden()
 
   // delete the two ssh keys
   await clickRowAction(page, 'm1-macbook-pro', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
 
-  await expect(page.getByRole('cell', { name: 'm1-macbook-pro' })).not.toBeVisible()
+  await expect(page.getByRole('cell', { name: 'm1-macbook-pro' })).toBeHidden()
 
   await clickRowAction(page, 'mac-mini', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
@@ -61,7 +61,7 @@ test('SSH keys', async ({ page }) => {
   await page.getByRole('dialog').getByRole('button', { name: 'Add SSH key' }).click()
 
   // it's there in the table
-  await expect(page.getByText('No SSH keys')).not.toBeVisible()
+  await expect(page.getByText('No SSH keys')).toBeHidden()
   const table = page.getByRole('table')
   await expectRowVisible(table, { name: 'my-key', description: 'definitely a key' })
 
@@ -70,6 +70,6 @@ test('SSH keys', async ({ page }) => {
   await page.getByRole('menuitem', { name: 'Delete' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
 
-  await expect(page.getByRole('cell', { name: 'my-key' })).not.toBeVisible()
+  await expect(page.getByRole('cell', { name: 'my-key' })).toBeHidden()
   await expect(page.getByText('No SSH keys')).toBeVisible()
 })
