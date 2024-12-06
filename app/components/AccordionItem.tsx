@@ -30,8 +30,8 @@ export const AccordionItem = ({ children, isOpen, label, value }: AccordionItemP
     <Accordion.Item value={value}>
       <Accordion.Header className="max-w-lg">
         <Accordion.Trigger className="group flex w-full items-center justify-between border-t py-2 text-sans-xl border-secondary [&>svg]:data-[state=open]:rotate-90">
-          <div className="text-secondary">{label}</div>
-          <DirectionRightIcon className="transition-all text-secondary" />
+          <div className="text-raise">{label}</div>
+          <DirectionRightIcon className="transition-all text-default" />
         </Accordion.Trigger>
       </Accordion.Header>
       <Accordion.Content

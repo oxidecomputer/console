@@ -22,8 +22,8 @@ function dateCell(info: Info<Date>) {
 function sizeCell(info: Info<number>) {
   const size = filesize(info.getValue(), { base: 2, output: 'object' })
   return (
-    <span className="text-secondary">
-      {size.value} <span className="text-quaternary">{size.unit}</span>
+    <span className="text-default">
+      {size.value} <span className="text-tertiary">{size.unit}</span>
     </span>
   )
 }

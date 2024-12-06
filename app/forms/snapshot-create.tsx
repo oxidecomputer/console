@@ -14,7 +14,6 @@ import {
   useApiMutation,
   useApiQuery,
   useApiQueryClient,
-  type PathParams as PP,
   type SnapshotCreate,
 } from '@oxide/api'
 
@@ -28,10 +27,11 @@ import { addToast } from '~/stores/toast'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
-const useSnapshotDiskItems = (projectSelector: PP.Project) => {
+const useSnapshotDiskItems = ({ project }: PP.Project) => {
   const { data: disks } = useApiQuery('diskList', {
-    query: { ...projectSelector, limit: ALL_ISH },
+    query: { project, limit: ALL_ISH },
   })
   return disks?.items.filter(diskCan.snapshot)
 }

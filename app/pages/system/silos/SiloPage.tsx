@@ -111,15 +111,15 @@ export function Component() {
             </TableEmptyBox>
           ) : (
             <>
-              <p className="mb-4 text-secondary">
+              <p className="mb-4 text-default">
                 Silo roles can automatically grant a fleet role.
               </p>
               <ul className="space-y-3">
                 {roleMapPairs.map(([siloRole, fleetRole]) => (
                   <li key={siloRole + '|' + fleetRole} className="flex items-center">
                     <Badge>Silo {siloRole}</Badge>
-                    <NextArrow12Icon className="mx-3 text-secondary" aria-label="maps to" />
-                    <span className="text-sans-md text-secondary">Fleet {fleetRole}</span>
+                    <NextArrow12Icon className="mx-3 text-default" aria-label="maps to" />
+                    <span className="text-sans-md text-default">Fleet {fleetRole}</span>
                   </li>
                 ))}
               </ul>

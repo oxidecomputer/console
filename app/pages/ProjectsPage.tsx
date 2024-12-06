@@ -9,13 +9,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 
-import {
-  apiQueryClient,
-  getListQFn,
-  queryClient,
-  useApiMutation,
-  type Project,
-} from '@oxide/api'
+import { apiq, getListQFn, queryClient, useApiMutation, type Project } from '@oxide/api'
 import { Folder16Icon, Folder24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -64,9 +58,7 @@ export function Component() {
 
   const { mutateAsync: deleteProject } = useApiMutation('projectDelete', {
     onSuccess() {
-      // TODO: figure out if this is invalidating as expected, can we leave out the query
-      // altogether, etc. Look at whether limit param matters.
-      apiQueryClient.invalidateQueries('projectList')
+      queryClient.invalidateEndpoint('projectList')
     },
   })
 
@@ -77,11 +69,8 @@ export function Component() {
         onActivate: () => {
           // the edit view has its own loader, but we can make the modal open
           // instantaneously by preloading the fetch result
-          apiQueryClient.setQueryData(
-            'projectView',
-            { path: { project: project.name } },
-            project
-          )
+          const { queryKey } = apiq('projectView', { path: { project: project.name } })
+          queryClient.setQueryData(queryKey, project)
           navigate(pb.projectEdit({ project: project.name }))
         },
       },

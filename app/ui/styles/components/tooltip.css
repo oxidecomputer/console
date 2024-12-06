@@ -2,12 +2,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at https://mozilla.org/MPL/2.0/.
- *  
+ *
  * Copyright Oxide Computer Company
  */
 
 .ox-tooltip {
-  @apply rounded border p-2 text-sans-md text-secondary bg-raise border-secondary elevation-2;
+  @apply rounded border p-2 text-sans-md text-default bg-raise border-secondary elevation-2;
 }
 
 .ox-tooltip-arrow {

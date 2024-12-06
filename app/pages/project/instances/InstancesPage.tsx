@@ -98,7 +98,7 @@ export function InstancesPage() {
         header: 'CPU',
         cell: (info) => (
           <>
-            {info.getValue()} <span className="ml-1 text-quaternary">vCPU</span>
+            {info.getValue()} <span className="ml-1 text-tertiary">vCPU</span>
           </>
         ),
       }),
@@ -108,7 +108,7 @@ export function InstancesPage() {
           const memory = filesize(info.getValue(), { output: 'object', base: 2 })
           return (
             <>
-              {memory.value} <span className="ml-1 text-quaternary">{memory.unit}</span>
+              {memory.value} <span className="ml-1 text-tertiary">{memory.unit}</span>
             </>
           )
         },
@@ -213,14 +213,14 @@ export function InstancesPage() {
       </PageHeader>
       {/* Avoid changing justify-end on TableActions for this one case. We can
        * fix this properly when we add refresh and filtering for all tables. */}
-      <TableActions className="!-mt-6 !justify-between">
+      <TableActions className="!justify-between">
         <div className="flex items-center gap-2">
           <RefreshButton onClick={refetchInstances} />
           <Tooltip
             content="Auto-refresh is more frequent after instance actions"
             delay={150}
           >
-            <span className="text-sans-sm text-tertiary">
+            <span className="text-sans-sm text-secondary">
               Updated {toLocaleTimeString(new Date(dataUpdatedAt))}
             </span>
           </Tooltip>

@@ -8,7 +8,7 @@
 import { intersperse } from '~/util/array'
 
 const white = (s: string) => (
-  <span key={s} className="text-default">
+  <span key={s} className="text-raise">
     {s}
   </span>
 )

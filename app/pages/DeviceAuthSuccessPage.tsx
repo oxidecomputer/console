@@ -18,7 +18,7 @@ export function DeviceAuthSuccessPage() {
         <Success12Icon className="relative h-8 w-8 text-accent" />
       </div>
       <h1 className="mt-4 text-sans-2xl text-accent">Device logged in</h1>
-      <p className="mt-1 text-sans-lg text-tertiary">You can close this window</p>
+      <p className="mt-1 text-sans-lg text-secondary">You can close this window</p>
     </div>
   )
 }

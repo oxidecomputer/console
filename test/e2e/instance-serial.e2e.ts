@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, test } from './utils'
+import { clickRowAction, expect, test } from './utils'
 
 test('serial console can connect while starting', async ({ page }) => {
   // create an instance
@@ -17,7 +17,8 @@ test('serial console can connect while starting', async ({ page }) => {
   await page.getByRole('button', { name: 'Create instance' }).click()
 
   // now go starting to its serial console page while it's starting up
-  await expect(page).toHaveURL('/projects/mock-project/instances/abc/storage')
+  // don't check for URL before clicking because it takes too long, causing
+  // us to miss the creating state
   await page.getByRole('tab', { name: 'Connect' }).click()
   await page.getByRole('main').getByRole('link', { name: 'Connect' }).click()
 
@@ -30,4 +31,15 @@ test('serial console can connect while starting', async ({ page }) => {
 
   // Here it would be nice to test that the serial console connects, but we
   // can't mock websockets with MSW yet: https://github.com/mswjs/msw/pull/2011
+})
+
+test('links in instance actions', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances')
+  await clickRowAction(page, 'db1', 'View serial console')
+  await expect(page).toHaveURL('/projects/mock-project/instances/db1/serial-console')
+
+  await page.goto('/projects/mock-project/instances/db1')
+  await page.getByRole('button', { name: 'Instance actions' }).click()
+  await page.getByRole('menuitem', { name: 'View serial console' }).click()
+  await expect(page).toHaveURL('/projects/mock-project/instances/db1/serial-console')
 })

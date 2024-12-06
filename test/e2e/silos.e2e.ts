@@ -8,6 +8,7 @@
 import { expect, test } from '@playwright/test'
 
 import {
+  addTlsCert,
   chooseFile,
   clickRowAction,
   closeToast,
@@ -30,6 +31,9 @@ test('Create silo', async ({ page }) => {
   await expect(page.getByText('Feb 28, 202312:00 AM')).toBeVisible()
 
   await page.click('role=link[name="New silo"]')
+
+  const modal = page.getByRole('dialog', { name: 'Create silo' })
+  await expect(modal).toBeVisible()
 
   // fill out form
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('other-silo')
@@ -67,6 +71,11 @@ test('Create silo', async ({ page }) => {
 
   await page.getByRole('textbox', { name: 'Memory quota' }).fill('58')
   await page.getByRole('textbox', { name: 'Storage quota' }).fill('735')
+
+  await page.getByRole('button', { name: 'Create silo' }).click()
+
+  // expect error because no TLS cert
+  await expect(modal.getByText('At least one certificate is required')).toBeVisible()
 
   ////////////////////////////
   // TLS CERT
@@ -347,6 +356,8 @@ test('form scrolls to name field on already exists error', async ({ page }) => {
     .getByTestId('sidemodal-scroll-container')
     .evaluate((el: HTMLElement, to) => el.scrollTo(0, to), 800)
   await expect(nameField).not.toBeInViewport()
+
+  await addTlsCert(page)
 
   await page.getByRole('button', { name: 'Create silo' }).click()
 

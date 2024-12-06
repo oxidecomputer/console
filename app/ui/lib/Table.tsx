@@ -40,7 +40,7 @@ Table.HeaderRow = (props: TableHeaderRowProps) => <Table.Row {...props} />
 
 export type TableHeaderProps = JSX.IntrinsicElements['thead']
 Table.Header = ({ children, className }: TableHeaderProps) => (
-  <thead className={cn('text-left text-mono-sm text-tertiary', className)}>
+  <thead className={cn('text-left text-mono-sm text-secondary', className)}>
     {children}
   </thead>
 )
@@ -96,7 +96,7 @@ Table.Cell = ({ height = 'small', className, children, ...props }: TableCellProp
   <td
     className={cn(
       className,
-      'pl-0 text-default border-default children:first:border-l-0 children:last:-mr-[1px]'
+      'pl-0 text-raise border-default children:first:border-l-0 children:last:-mr-[1px]'
     )}
     {...props}
   >
@@ -115,7 +115,7 @@ Table.Cell = ({ height = 'small', className, children, ...props }: TableCellProp
  * Used _outside_ of the `Table`, this element wraps buttons that sit on top
  * of the table.
  */
-export const TableActions = classed.div`-mt-11 mb-3 flex justify-end gap-2`
+export const TableActions = classed.div`-mt-6 mb-3 flex justify-end gap-2`
 
 export const TableEmptyBox = classed.div`flex h-full max-h-[480px] items-center justify-center rounded-lg border border-secondary p-4`
 
@@ -124,4 +124,4 @@ export const TableEmptyBox = classed.div`flex h-full max-h-[480px] items-center 
  * along with a link to more info, and a button to take action on the resource listed in the table.
  */
 export const TableControls = classed.div`mb-4 flex items-end justify-between space-x-8`
-export const TableTitle = classed.div`text-sans-lg text-default`
+export const TableTitle = classed.div`text-sans-lg text-raise`

@@ -34,7 +34,7 @@ export const Radio = ({ children, className, ...inputProps }: RadioProps) => (
       <div className="pointer-events-none absolute left-1 top-1 hidden h-2 w-2 rounded-full bg-accent peer-checked:block" />
     </span>
 
-    {children && <span className="ml-2.5 text-sans-md text-secondary">{children}</span>}
+    {children && <span className="ml-2.5 text-sans-md text-default">{children}</span>}
   </label>
 )
 
@@ -47,12 +47,12 @@ const cardLabelStyles = `
 
   peer-checked:bg-accent-secondary
   peer-checked:border-accent-secondary peer-checked:hover:border-accent peer-checked:children:border-accent peer-checked:children:border-accent-secondary
-  peer-checked:text-accent peer-checked:[&>*_.text-secondary]:text-accent-secondary
+  peer-checked:text-accent peer-checked:[&>*_.text-default]:text-accent-secondary
 
   peer-disabled:cursor-not-allowed
   peer-disabled:bg-disabled peer-disabled:peer-checked:bg-accent-secondary
   peer-checked:peer-disabled:hover:border-accent-secondary peer-disabled:hover:border-default
-  peer-disabled:[&>*_.text-secondary]:text-disabled peer-disabled:text-disabled peer-disabled:peer-checked:text-accent-disabled peer-disabled:peer-checked:[&>*_.text-secondary]:text-accent-disabled
+  peer-disabled:[&>*_.text-default]:text-disabled peer-disabled:text-disabled peer-disabled:peer-checked:text-accent-disabled peer-disabled:peer-checked:[&>*_.text-default]:text-accent-disabled
 `
 
 export function RadioCard({ children, className, ...inputProps }: RadioProps) {
@@ -70,7 +70,7 @@ export function RadioCard({ children, className, ...inputProps }: RadioProps) {
 
 // TODO: Remove importants after tailwind variantOrder bug fixed
 RadioCard.Unit = ({ children, className, ...props }: ComponentProps<'span'>) => (
-  <span className={cn('!m-0 !p-0 text-secondary', className)} {...props}>
+  <span className={cn('!m-0 !p-0 text-default', className)} {...props}>
     {children}
   </span>
 )

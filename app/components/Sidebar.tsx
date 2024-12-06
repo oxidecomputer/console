@@ -15,7 +15,7 @@ import { Button } from '~/ui/lib/Button'
 import { Truncate } from '~/ui/lib/Truncate'
 
 const linkStyles =
-  'flex h-7 items-center rounded px-2 text-sans-md hover:bg-hover [&>svg]:mr-2 [&>svg]:text-quinary text-secondary'
+  'flex h-7 items-center rounded px-2 text-sans-md hover:bg-hover [&>svg]:mr-2 [&>svg]:text-quaternary text-default'
 
 // TODO: this probably doesn't go to the docs root. maybe it even opens a
 // menu with links to several relevant docs for the page
@@ -44,10 +44,10 @@ const JumpToButton = () => {
       onClick={openQuickActions}
       className="w-full !px-2"
       // TODO: the more I use innerClassName the wronger it feels
-      innerClassName="w-full justify-between text-quaternary"
+      innerClassName="w-full justify-between text-tertiary"
     >
       <span className="flex items-center">
-        <Action16Icon className="mr-2 text-quinary" /> Jump to
+        <Action16Icon className="mr-2 text-quaternary" /> Jump to
       </span>
       <div className="text-mono-xs">{modKey}+K</div>
     </Button>
@@ -56,7 +56,7 @@ const JumpToButton = () => {
 
 export function Sidebar({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col border-r text-sans-md text-default border-secondary">
+    <div className="flex flex-col border-r text-sans-md text-raise border-secondary">
       <div className="mx-3 mt-4">
         <JumpToButton />
       </div>
@@ -73,7 +73,7 @@ interface SidebarNav {
 Sidebar.Nav = ({ children, heading }: SidebarNav) => (
   <div className="mx-3 my-4 space-y-1">
     {heading && (
-      <div className="mb-2 text-mono-sm text-quaternary">
+      <div className="mb-2 text-mono-sm text-tertiary">
         <Truncate text={heading} maxLength={24} />
       </div>
     )}

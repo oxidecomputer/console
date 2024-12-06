@@ -37,7 +37,7 @@ export function EquivalentCliCommand({ command }: { command: string }) {
       <Modal isOpen={isOpen} onDismiss={handleDismiss} title="CLI command">
         <Modal.Section>
           <pre className="flex w-full rounded border px-4 py-3 !normal-case !tracking-normal text-mono-md bg-default border-secondary">
-            <div className="mr-2 select-none text-quaternary">$</div>
+            <div className="mr-2 select-none text-tertiary">$</div>
             {command}
           </pre>
         </Modal.Section>

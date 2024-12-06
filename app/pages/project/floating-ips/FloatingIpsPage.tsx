@@ -11,11 +11,10 @@ import { useForm } from 'react-hook-form'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
-  apiQueryClient,
+  apiq,
   getListQFn,
   queryClient,
   useApiMutation,
-  useApiQueryClient,
   usePrefetchedQuery,
   type FloatingIp,
   type Instance,
@@ -67,15 +66,12 @@ FloatingIpsPage.loader = async ({ params }: LoaderFunctionArgs) => {
     // fetch IP Pools and preload into RQ cache so fetches by ID in
     // IpPoolCell can be mostly instant yet gracefully fall back to
     // fetching individually if we don't fetch them all here
-    apiQueryClient
-      .fetchQuery('projectIpPoolList', { query: { limit: ALL_ISH } })
+    queryClient
+      .fetchQuery(apiq('projectIpPoolList', { query: { limit: ALL_ISH } }))
       .then((pools) => {
         for (const pool of pools.items) {
-          apiQueryClient.setQueryData(
-            'projectIpPoolView',
-            { path: { pool: pool.id } },
-            pool
-          )
+          const { queryKey } = apiq('projectIpPoolView', { path: { pool: pool.id } })
+          queryClient.setQueryData(queryKey, pool)
         }
       }),
   ])
@@ -102,14 +98,13 @@ const staticCols = [
 
 export function FloatingIpsPage() {
   const [floatingIpToModify, setFloatingIpToModify] = useState<FloatingIp | null>(null)
-  const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
   const { data: instances } = usePrefetchedQuery(instanceList(project).optionsFn())
   const navigate = useNavigate()
 
   const { mutateAsync: floatingIpDetach } = useApiMutation('floatingIpDetach', {
     onSuccess(floatingIp) {
-      queryClient.invalidateQueries('floatingIpList')
+      queryClient.invalidateEndpoint('floatingIpList')
       addToast(<>Floating IP <HL>{floatingIp.name}</HL> detached</>) // prettier-ignore
     },
     onError: (err) => {
@@ -118,8 +113,8 @@ export function FloatingIpsPage() {
   })
   const { mutateAsync: deleteFloatingIp } = useApiMutation('floatingIpDelete', {
     onSuccess(_data, variables) {
-      queryClient.invalidateQueries('floatingIpList')
-      queryClient.invalidateQueries('ipPoolUtilizationView')
+      queryClient.invalidateEndpoint('floatingIpList')
+      queryClient.invalidateEndpoint('ipPoolUtilizationView')
       addToast(<>Floating IP <HL>{variables.path.floatingIp}</HL> deleted</>) // prettier-ignore
     },
   })
@@ -171,14 +166,11 @@ export function FloatingIpsPage() {
         {
           label: 'Edit',
           onActivate: () => {
-            apiQueryClient.setQueryData(
-              'floatingIpView',
-              {
-                path: { floatingIp: floatingIp.name },
-                query: { project },
-              },
-              floatingIp
-            )
+            const { queryKey } = apiq('floatingIpView', {
+              path: { floatingIp: floatingIp.name },
+              query: { project },
+            })
+            queryClient.setQueryData(queryKey, floatingIp)
             navigate(pb.floatingIpEdit({ project, floatingIp: floatingIp.name }))
           },
         },
@@ -251,10 +243,9 @@ const AttachFloatingIpModal = ({
   project: string
   onDismiss: () => void
 }) => {
-  const queryClient = useApiQueryClient()
   const floatingIpAttach = useApiMutation('floatingIpAttach', {
     onSuccess(floatingIp) {
-      queryClient.invalidateQueries('floatingIpList')
+      queryClient.invalidateEndpoint('floatingIpList')
       addToast(<>Floating IP <HL>{floatingIp.name}</HL> attached</>) // prettier-ignore
       onDismiss()
     },

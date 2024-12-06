@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { instanceCan, useApiMutation, type Instance } from '@oxide/api'
 
@@ -13,6 +14,7 @@ import { HL } from '~/components/HL'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './instance/tabs/common'
 
@@ -114,6 +116,7 @@ export const useMakeInstanceActions = (
     [project, startInstanceAsync, stopInstanceAsync]
   )
 
+  const navigate = useNavigate()
   const makeMenuActions = useCallback(
     (instance: Instance) => {
       const instanceParams = { path: { instance: instance.name }, query: { project } }
@@ -149,6 +152,12 @@ export const useMakeInstanceActions = (
           ),
         },
         {
+          label: 'View serial console',
+          onActivate() {
+            navigate(pb.serialConsole({ project, instance: instance.name }))
+          },
+        },
+        {
           label: 'Delete',
           onActivate: confirmDelete({
             doDelete: () =>
@@ -170,7 +179,7 @@ export const useMakeInstanceActions = (
     // Do not put `options` in here, refer to the property. options is not ref
     // stable. Extra renders here cause the row actions menu to close when it
     // shouldn't, like during polling on instance list.
-    [project, deleteInstanceAsync, rebootInstanceAsync, onResizeClick]
+    [project, deleteInstanceAsync, rebootInstanceAsync, onResizeClick, navigate]
   )
 
   return { makeButtonActions, makeMenuActions }

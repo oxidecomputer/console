@@ -138,7 +138,7 @@ export const Combobox = ({
       value: query,
       label: (
         <>
-          <span className="text-secondary">Custom:</span> {query}
+          <span className="text-default">Custom:</span> {query}
         </>
       ),
       selectedLabel: query,
@@ -225,7 +225,7 @@ export const Combobox = ({
               placeholder={placeholder}
               disabled={disabled || isLoading}
               className={cn(
-                `h-10 w-full rounded !border-none px-3 py-2 !outline-none text-sans-md text-default placeholder:text-quaternary`,
+                `h-10 w-full rounded !border-none px-3 py-2 !outline-none text-sans-md text-raise placeholder:text-tertiary`,
                 disabled
                   ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
                   : 'bg-default',
@@ -237,7 +237,7 @@ export const Combobox = ({
                 className="my-1.5 flex items-center border-l px-3 bg-default border-secondary"
                 aria-hidden
               >
-                <SelectArrows6Icon title="Select" className="w-2 text-tertiary" />
+                <SelectArrows6Icon title="Select" className="w-2 text-secondary" />
               </ComboboxButton>
             )}
           </div>
