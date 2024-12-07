@@ -210,7 +210,7 @@ test('can’t create or delete Routes on system routers', async ({ page }) => {
   // expect to see table of routes
   const table = page.getByRole('table')
   const routeRows = table.locator('tbody >> tr')
-  await expect(routeRows).toHaveCount(3)
+  await expect(routeRows).toHaveCount(4)
   await expectRowVisible(table, { Name: 'default' })
   await expectRowVisible(table, { Name: 'default-v4' })
   await expectRowVisible(table, { Name: 'default-v6' })

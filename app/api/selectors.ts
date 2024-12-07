@@ -16,6 +16,11 @@ export type NetworkInterface = Readonly<Merge<Instance, { interface?: string }>>
 export type Snapshot = Readonly<Merge<Project, { snapshot?: string }>>
 export type Vpc = Readonly<Merge<Project, { vpc?: string }>>
 export type VpcRouter = Readonly<Merge<Vpc, { router?: string }>>
+export type InternetGateway = Readonly<Merge<Vpc, { gateway?: string }>>
+export type InternetGatewayIpAddress = Readonly<
+  Merge<InternetGateway, { address?: string }>
+>
+export type InternetGatewayIpPool = Merge<InternetGateway, { pool?: string }>
 export type VpcRouterRoute = Readonly<Merge<VpcRouter, { route?: string }>>
 export type VpcSubnet = Readonly<Merge<Vpc, { subnet?: string }>>
 export type FirewallRule = Readonly<Merge<Vpc, { rule?: string }>>
