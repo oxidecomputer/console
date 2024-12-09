@@ -319,3 +319,40 @@ test('edit and delete router route', async ({ page }) => {
   await expect(table).toBeHidden()
   await expect(page.getByText('No routes')).toBeVisible()
 })
+
+test('can view internet gateways', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs/mock-vpc')
+  await page.getByRole('tab', { name: 'Internet Gateways' }).click()
+
+  const table = page.getByRole('table')
+  const rows = table.locator('tbody >> tr')
+  await expect(rows).toHaveCount(2)
+
+  await expectRowVisible(table, {
+    name: 'internet-gateway-1',
+    description: 'internet gateway 1',
+    'IP Address': '123.4.56.3',
+    'IP Pool': 'ip-pool-1',
+  })
+  await expectRowVisible(table, {
+    name: 'internet-gateway-2',
+    description: 'internet gateway 2',
+    'IP Address': '—',
+    'IP Pool': 'ip-pool-2',
+  })
+
+  await page.getByRole('link', { name: 'internet-gateway-1' }).click()
+  await expect(page).toHaveURL(
+    '/projects/mock-project/vpcs/mock-vpc/internet-gateways/internet-gateway-1'
+  )
+  const sidemodal = page.getByLabel('Internet Gateway')
+
+  await expect(sidemodal.getByText('123.4.56.3')).toBeVisible()
+
+  // close the sidemodal
+  await sidemodal.getByRole('button', { name: 'Close' }).click()
+  await expect(sidemodal).toBeHidden()
+
+  await page.getByRole('link', { name: 'internet-gateway-2' }).click()
+  await expect(sidemodal.getByText('This internet gateway does not have any')).toBeVisible()
+})
