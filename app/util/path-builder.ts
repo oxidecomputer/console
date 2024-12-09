@@ -78,6 +78,12 @@ export const pb = {
   vpcSubnetsNew: (params: PP.Vpc) => `${vpcBase(params)}/subnets-new`,
   vpcSubnetsEdit: (params: PP.VpcSubnet) =>
     `${pb.vpcSubnets(params)}/${params.subnet}/edit`,
+
+  vpcInternetGateways: (params: PP.Vpc) => `${vpcBase(params)}/internet-gateways`,
+  vpcInternetGateway: (params: PP.VpcInternetGateway) =>
+    `${pb.vpcInternetGateways(params)}/${params.gateway}`,
+  // vpcInternetGatewaysNew: (params: Vpc) => `${vpcBase(params)}/internet-gateways-new`,
+  //
   floatingIps: (params: PP.Project) => `${projectBase(params)}/floating-ips`,
   floatingIpsNew: (params: PP.Project) => `${projectBase(params)}/floating-ips-new`,
   floatingIpEdit: (params: PP.FloatingIp) =>

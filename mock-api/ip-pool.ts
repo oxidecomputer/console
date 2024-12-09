@@ -19,7 +19,7 @@ export const ipPool1: Json<IpPool> = {
   time_modified: new Date().toISOString(),
 }
 
-const ipPool2: Json<IpPool> = {
+export const ipPool2: Json<IpPool> = {
   id: 'af2fbe06-b21d-4364-96b7-a58220bc3242',
   name: 'ip-pool-2',
   description: 'VPN IPs',
@@ -27,7 +27,7 @@ const ipPool2: Json<IpPool> = {
   time_modified: new Date().toISOString(),
 }
 
-const ipPool3: Json<IpPool> = {
+export const ipPool3: Json<IpPool> = {
   id: '8929a9ec-03d7-4027-8bf3-dda76627de07',
   name: 'ip-pool-3',
   description: '',
@@ -35,7 +35,7 @@ const ipPool3: Json<IpPool> = {
   time_modified: new Date().toISOString(),
 }
 
-const ipPool4: Json<IpPool> = {
+export const ipPool4: Json<IpPool> = {
   id: 'a5f395a8-650e-44c9-9af8-ec21d890f61c',
   name: 'ip-pool-4',
   description: '',

@@ -98,6 +98,7 @@ export function VpcPage() {
         <Tab to={pb.vpcFirewallRules(vpcSelector)}>Firewall Rules</Tab>
         <Tab to={pb.vpcSubnets(vpcSelector)}>Subnets</Tab>
         <Tab to={pb.vpcRouters(vpcSelector)}>Routers</Tab>
+        <Tab to={pb.vpcInternetGateways(vpcSelector)}>Internet Gateways</Tab>
       </RouteTabs>
     </>
   )
