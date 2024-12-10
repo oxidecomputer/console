@@ -76,9 +76,9 @@ const RouterRows = ({ project, vpc, gateway }: PP.VpcInternetGateway) => {
 }
 
 const gatewayIpPoolList = (query: PP.VpcInternetGateway) =>
-  getListQFn('internetGatewayIpPoolList', { query })
+  getListQFn('internetGatewayIpPoolList', { query: { ...query, limit: ALL_ISH } })
 const gatewayIpAddressList = (query: PP.VpcInternetGateway) =>
-  getListQFn('internetGatewayIpAddressList', { query })
+  getListQFn('internetGatewayIpAddressList', { query: { ...query, limit: ALL_ISH } })
 const routerList = (query: PP.Vpc) =>
   getListQFn('vpcRouterList', { query: { ...query, limit: ALL_ISH } })
 const routeList = (query: PP.VpcRouter) =>
@@ -91,7 +91,6 @@ EditInternetGatewayForm.loader = async function ({ params }: LoaderFunctionArgs)
       query: { project, vpc },
       path: { gateway },
     }),
-    // apiQueryClient.prefetchQuery('internetGatewayIpAddressList', { query }),
     queryClient.prefetchQuery(gatewayIpPoolList({ project, vpc, gateway }).optionsFn()),
     queryClient.prefetchQuery(gatewayIpAddressList({ project, vpc, gateway }).optionsFn()),
     (await queryClient.fetchQuery(routerList({ project, vpc }).optionsFn())).items.map(
@@ -212,7 +211,7 @@ export function EditInternetGatewayForm() {
           </div>
         )}
       </div>
-      {/* insert routes that are associated with this gateway */}
+
       <FormDivider />
 
       <div className="flex flex-col gap-3">
