@@ -69,6 +69,7 @@ export function EditRouterRouteSideModalForm() {
   const updateRouterRoute = useApiMutation('vpcRouterRouteUpdate', {
     onSuccess(updatedRoute) {
       queryClient.invalidateQueries('vpcRouterRouteList')
+      queryClient.invalidateQueries('vpcRouterRouteView')
       addToast(<>Route <HL>{updatedRoute.name}</HL> updated</>) // prettier-ignore
       navigate(pb.vpcRouter(routerSelector))
     },
