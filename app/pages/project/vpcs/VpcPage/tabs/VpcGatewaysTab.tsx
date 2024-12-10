@@ -88,7 +88,11 @@ const InternetGatewayAttachedRoutesCell = ({ project, vpc, gateway }: GatewayPar
   const matchingRoutes = routers?.items.flatMap((router) =>
     InternetGatewayIndividualRoute({ project, vpc, gateway, router: router.name })
   )
-  return matchingRoutes?.length ? <>{matchingRoutes}</> : <EmptyCell />
+  return matchingRoutes?.length ? (
+    <div className="space-x-2">{matchingRoutes}</div>
+  ) : (
+    <EmptyCell />
+  )
 }
 
 const colHelper = createColumnHelper<InternetGateway>()
@@ -158,7 +162,7 @@ export function VpcInternetGatewaysTab() {
       colHelper.accessor('name', {
         // ID needed to avoid key collision with other name column
         id: 'routes',
-        header: 'Routes targeting this gateway',
+        header: 'Routes',
         cell: (info) => (
           <InternetGatewayAttachedRoutesCell
             project={project}
