@@ -22,16 +22,13 @@ import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
-type VpcParams = { project: string; vpc: string }
-type GatewayParams = VpcParams & { gateway: string }
-type RouterParams = GatewayParams & { router: string }
-
-const gatewayList = (query: VpcParams) =>
+const gatewayList = (query: PP.Vpc) =>
   getListQFn('internetGatewayList', { query: { ...query, limit: ALL_ISH } })
-const routerList = (query: VpcParams) =>
+const routerList = (query: PP.Vpc) =>
   getListQFn('vpcRouterList', { query: { ...query, limit: ALL_ISH } })
-const routeList = (query: VpcParams & { router: string }) =>
+const routeList = (query: PP.VpcRouter) =>
   getListQFn('vpcRouterRouteList', { query: { ...query, limit: ALL_ISH } })
 const gatewayIpAddressList = (query: { gatewayId: string }) =>
   getListQFn('internetGatewayIpAddressList', { query: { gateway: query.gatewayId } })
@@ -58,7 +55,7 @@ const InternetGatewayIndividualRoute = ({
   vpc,
   gateway,
   router,
-}: RouterParams) => {
+}: PP.VpcInternetGateway & { router: string }) => {
   const matchingRoutes: JSX.Element[] = []
   const { data: routes } = useQuery(routeList({ project, vpc, router }).optionsFn())
   if (!routes || routes.items.length < 1) return
@@ -83,7 +80,11 @@ const InternetGatewayIndividualRoute = ({
   return matchingRoutes
 }
 
-const InternetGatewayAttachedRoutesCell = ({ project, vpc, gateway }: GatewayParams) => {
+const InternetGatewayAttachedRoutesCell = ({
+  project,
+  vpc,
+  gateway,
+}: PP.VpcInternetGateway) => {
   const { data: routers } = useQuery(routerList({ project, vpc }).optionsFn())
   const matchingRoutes = routers?.items.flatMap((router) =>
     InternetGatewayIndividualRoute({ project, vpc, gateway, router: router.name })

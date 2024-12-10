@@ -8,7 +8,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { Gateway16Icon } from '@oxide/design-system/icons/react'
 
@@ -22,13 +22,67 @@ import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel, SideModal } from '~/ui/lib/SideModal'
+import { Table } from '~/ui/lib/Table'
+import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
+
+const RouterRow = ({
+  project,
+  vpc,
+  gateway,
+  router,
+}: PP.VpcInternetGateway & { router: string }) => {
+  const matchingRoutes: JSX.Element[] = []
+  const { data: routes } = useQuery(routeList({ project, vpc, router }).optionsFn())
+  if (!routes || routes.items.length < 1) return
+  routes.items.forEach((route) => {
+    if (route.target.type === 'internet_gateway' && route.target.value === gateway) {
+      matchingRoutes.push(
+        <Table.Row key={`${router}-${route.name}`}>
+          <Table.Cell>{router}</Table.Cell>
+          <Table.Cell>
+            <Link
+              to={pb.vpcRouterRouteEdit({
+                project,
+                vpc,
+                router,
+                route: route.name,
+              })}
+              className="link-with-underline text-sans-md"
+            >
+              {route.name}
+            </Link>
+          </Table.Cell>
+        </Table.Row>
+      )
+    }
+  })
+  return matchingRoutes
+}
+
+const RouterRows = ({ project, vpc, gateway }: PP.VpcInternetGateway) => {
+  const { data: routers } = useQuery(routerList({ project, vpc }).optionsFn())
+  const matchingRoutes = routers?.items.flatMap((router) =>
+    RouterRow({ project, vpc, gateway, router: router.name })
+  )
+  return matchingRoutes?.length ? (
+    matchingRoutes
+  ) : (
+    <Table.Row>
+      <Table.Cell colSpan={2}>No VPC routes target this gateway.</Table.Cell>
+    </Table.Row>
+  )
+}
 
 const gatewayIpPoolList = (query: PP.VpcInternetGateway) =>
   getListQFn('internetGatewayIpPoolList', { query })
 const gatewayIpAddressList = (query: PP.VpcInternetGateway) =>
   getListQFn('internetGatewayIpAddressList', { query })
+const routerList = (query: PP.Vpc) =>
+  getListQFn('vpcRouterList', { query: { ...query, limit: ALL_ISH } })
+const routeList = (query: PP.VpcRouter) =>
+  getListQFn('vpcRouterRouteList', { query: { ...query, limit: ALL_ISH } })
 
 EditInternetGatewayForm.loader = async function ({ params }: LoaderFunctionArgs) {
   const { project, vpc, gateway } = getInternetGatewaySelector(params)
@@ -40,6 +94,13 @@ EditInternetGatewayForm.loader = async function ({ params }: LoaderFunctionArgs)
     // apiQueryClient.prefetchQuery('internetGatewayIpAddressList', { query }),
     queryClient.prefetchQuery(gatewayIpPoolList({ project, vpc, gateway }).optionsFn()),
     queryClient.prefetchQuery(gatewayIpAddressList({ project, vpc, gateway }).optionsFn()),
+    (await queryClient.fetchQuery(routerList({ project, vpc }).optionsFn())).items.map(
+      (router) => {
+        queryClient.prefetchQuery(
+          routeList({ project, vpc, router: router.name }).optionsFn()
+        )
+      }
+    ),
   ])
   return null
 }
@@ -62,6 +123,7 @@ export function EditInternetGatewayForm() {
   const form = useForm({})
 
   const hasAttachedPool = gatewayIpPools && gatewayIpPools.length > 0
+
   return (
     <SideModalForm
       title="Internet Gateway"
@@ -96,7 +158,7 @@ export function EditInternetGatewayForm() {
         }
       />
       <FormDivider />
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-3">
         <SideModal.Heading>
           Internet Gateway IP Address
           {gatewayIpAddresses && gatewayIpAddresses.length > 1 ? 'es' : ''}
@@ -127,7 +189,7 @@ export function EditInternetGatewayForm() {
 
       <FormDivider />
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-3">
         <SideModal.Heading>
           Internet Gateway IP Pool
           {gatewayIpPools && gatewayIpPools.length > 1 ? 's' : ''}
@@ -139,7 +201,7 @@ export function EditInternetGatewayForm() {
               <PropertiesTable.Row label="Description">
                 <DescriptionCell text={gatewayIpPool.description} />
               </PropertiesTable.Row>
-              <PropertiesTable.Row label="IP Address">
+              <PropertiesTable.Row label="IP Pool Name">
                 <IpPoolCell ipPoolId={gatewayIpPool.ipPoolId} />
               </PropertiesTable.Row>
             </PropertiesTable>
@@ -151,6 +213,23 @@ export function EditInternetGatewayForm() {
         )}
       </div>
       {/* insert routes that are associated with this gateway */}
+      <FormDivider />
+
+      <div className="flex flex-col gap-3">
+        <SideModal.Heading>
+          Routes targeting this gateway
+          {gatewayIpPools && gatewayIpPools.length > 1 ? 's' : ''}
+        </SideModal.Heading>
+        <Table>
+          <Table.Header>
+            <Table.HeadCell>Router</Table.HeadCell>
+            <Table.HeadCell>Route</Table.HeadCell>
+          </Table.Header>
+          <Table.Body>
+            <RouterRows project={project} vpc={vpc} gateway={gateway} />
+          </Table.Body>
+        </Table>
+      </div>
     </SideModalForm>
   )
 }
