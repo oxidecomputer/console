@@ -1,0 +1,15 @@
+diff --git a/node_modules/@radix-ui/react-use-escape-keydown/dist/index.mjs b/node_modules/@radix-ui/react-use-escape-keydown/dist/index.mjs
+index 0788d1b..3bb001c 100644
+--- a/node_modules/@radix-ui/react-use-escape-keydown/dist/index.mjs
++++ b/node_modules/@radix-ui/react-use-escape-keydown/dist/index.mjs
+@@ -9,8 +9,8 @@ function useEscapeKeydown(onEscapeKeyDownProp, ownerDocument = globalThis?.docum
+         onEscapeKeyDown(event);
+       }
+     };
+-    ownerDocument.addEventListener("keydown", handleKeyDown, { capture: true });
+-    return () => ownerDocument.removeEventListener("keydown", handleKeyDown, { capture: true });
++    ownerDocument.addEventListener("keydown", handleKeyDown);
++    return () => ownerDocument.removeEventListener("keydown", handleKeyDown);
+   }, [onEscapeKeyDown, ownerDocument]);
+ }
+ export {
