@@ -78,7 +78,7 @@
     "@ianvs/prettier-plugin-sort-imports": "^4.3.1",
     "@mswjs/http-middleware": "^0.10.2",
     "@oxide/openapi-gen-ts": "~0.5.0",
-    "@playwright/test": "^1.49.0",
+    "@playwright/test": "^1.49.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/react": "^16.0.1",
