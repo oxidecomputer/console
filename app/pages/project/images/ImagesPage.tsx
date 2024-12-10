@@ -9,14 +9,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
-import {
-  apiQueryClient,
-  getListQFn,
-  queryClient,
-  useApiMutation,
-  useApiQueryClient,
-  type Image,
-} from '@oxide/api'
+import { getListQFn, queryClient, useApiMutation, type Image } from '@oxide/api'
 import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -66,7 +59,7 @@ export function ImagesPage() {
   const { mutateAsync: deleteImage } = useApiMutation('imageDelete', {
     onSuccess(_data, variables) {
       addToast(<>Image <HL>{variables.path.image}</HL> deleted</>) // prettier-ignore
-      apiQueryClient.invalidateQueries('imageList')
+      queryClient.invalidateEndpoint('imageList')
     },
   })
 
@@ -139,7 +132,6 @@ type PromoteModalProps = { onDismiss: () => void; imageName: string }
 
 const PromoteImageModal = ({ onDismiss, imageName }: PromoteModalProps) => {
   const { project } = useProjectSelector()
-  const queryClient = useApiQueryClient()
 
   const promoteImage = useApiMutation('imagePromote', {
     onSuccess(data) {
@@ -154,7 +146,7 @@ const PromoteImageModal = ({ onDismiss, imageName }: PromoteModalProps) => {
           link: '/images',
         },
       })
-      queryClient.invalidateQueries('imageList')
+      queryClient.invalidateEndpoint('imageList')
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
