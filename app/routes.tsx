@@ -396,7 +396,7 @@ export const routes = createRoutesFromElements(
               <Route path="routers" handle={{ crumb: 'Routers' }}>
                 <Route path=":router" {...RouterPage} handle={makeCrumb((p) => p.router!)}>
                   <Route handle={{ crumb: 'Routes' }}>
-                    <Route index />
+                    <Route index element={null} />
                     <Route
                       path="routes-new"
                       element={<CreateRouterRouteSideModalForm />}
