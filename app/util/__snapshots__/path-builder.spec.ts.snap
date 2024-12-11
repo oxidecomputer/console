@@ -730,10 +730,6 @@ exports[`breadcrumbs 2`] = `
       "label": "Internet Gateways",
       "path": "/projects/p/vpcs/v/internet-gateways",
     },
-    {
-      "label": "g",
-      "path": "/projects/p/vpcs/v/internet-gateways/g",
-    },
   ],
   "vpcInternetGateways (/projects/p/vpcs/v/internet-gateways)": [
     {
