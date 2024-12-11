@@ -137,7 +137,7 @@ export const routerRoutes: Json<Array<RouterRoute>> = [
   {
     ...routeBase,
     vpc_router_id: customRouter.id,
-    id: '93g7c4a1-5b0de-4efb-8518-e0bf012a5169',
+    id: '550e8400-e29b-41d4-a716-446655440000',
     name: 'dc2',
     description: 'route to datacenter 2',
     kind: 'custom',
