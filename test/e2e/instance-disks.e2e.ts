@@ -138,6 +138,7 @@ test('Detach disk', async ({ page }) => {
   await expect(successMsg).toBeHidden()
 
   await clickRowAction(page, 'disk-2', 'Detach')
+  await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(successMsg).toBeVisible()
   await expect(row).toBeHidden() // disk row goes away
 })
