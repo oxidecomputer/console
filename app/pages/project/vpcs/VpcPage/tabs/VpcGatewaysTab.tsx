@@ -50,34 +50,25 @@ const InternetGatewayIpPoolCell = ({ gatewayId }: { gatewayId: string }) => {
 
 // called by InternetGatewayAttachedRoutesCell to get the routes per router
 // we need to have this in its own function because useQuery cannot be called inside a loop
-const InternetGatewayIndividualRoute = ({
+const InternetGatewayRoutes = ({
   project,
   vpc,
   gateway,
   router,
 }: PP.VpcInternetGateway & { router: string }) => {
-  const matchingRoutes: JSX.Element[] = []
   const { data: routes } = useQuery(routeList({ project, vpc, router }).optionsFn())
-  if (!routes || routes.items.length < 1) return
-  routes.items.forEach((route) => {
-    if (route.target.type === 'internet_gateway' && route.target.value === gateway) {
-      matchingRoutes.push(
-        <Link
-          key={route.name}
-          to={pb.vpcRouterRouteEdit({
-            project,
-            vpc,
-            router,
-            route: route.name,
-          })}
-          className="link-with-underline text-sans-md"
-        >
-          {route.name}
-        </Link>
-      )
-    }
-  })
-  return matchingRoutes
+  if (!routes || routes.items.length < 1) return null
+  return routes.items
+    .filter((r) => r.target.type === 'internet_gateway' && r.target.value === gateway)
+    .map((route) => (
+      <Link
+        key={route.name}
+        to={pb.vpcRouterRouteEdit({ project, vpc, router, route: route.name })}
+        className="link-with-underline text-sans-md"
+      >
+        {route.name}
+      </Link>
+    ))
 }
 
 const InternetGatewayAttachedRoutesCell = ({
@@ -86,14 +77,12 @@ const InternetGatewayAttachedRoutesCell = ({
   gateway,
 }: PP.VpcInternetGateway) => {
   const { data: routers } = useQuery(routerList({ project, vpc }).optionsFn())
-  const matchingRoutes = routers?.items.flatMap((router) =>
-    InternetGatewayIndividualRoute({ project, vpc, gateway, router: router.name })
-  )
-  return matchingRoutes?.length ? (
-    <div className="space-x-2">{matchingRoutes}</div>
-  ) : (
-    <EmptyCell />
-  )
+  const matchingRoutes = routers?.items.map((router) => {
+    const props = { project, vpc, gateway, router: router.name }
+    return <InternetGatewayRoutes key={router.name} {...props} />
+  })
+  if (!matchingRoutes?.length) return <EmptyCell />
+  return <div className="space-x-2">{matchingRoutes}</div>
 }
 
 const colHelper = createColumnHelper<InternetGateway>()
