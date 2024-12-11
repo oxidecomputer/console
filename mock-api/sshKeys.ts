@@ -17,7 +17,8 @@ export const sshKeys: Json<SshKey>[] = [
     description: 'For use on personal projects',
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
-    public_key: 'aslsddlfkjsdlfkjsdlfkjsdlfkjsdflkjsdlfkjsdlfkjsd',
+    public_key:
+      'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDU3w4FaSj/tEZYaoBtzijAFZanW9MakaPhSERtdC75opT6F/bs4ZXE8sjWgqDM1azoZbUKa42b4RWPPtCgqGQkbyYDZTzdssrml3/T1Avcy5GKlfTjACRHSI6PhC6r6bM1jxPUUstH7fBbw+DTHywUpdkvz7SHxTEOyZuP2sn38V9vBakYVsLFOu7C1W0+Jm4TYCRJlcsuC5LHVMVc4WbWzBcAZZlAznWx0XajMxmkyCB5tsyhTpykabfHbih4F3bwHYKXO613JZ6DurGcPz6CPkAVS5BWG6GrdBCkd+YK8Lw8k1oAAZLYIKQZbMnPJSNxirJ8+vr+iyIwP1DjBMnJ hannah@m1-macbook-pro.local',
     silo_user_id: user1.id,
   },
   {
@@ -26,7 +27,8 @@ export const sshKeys: Json<SshKey>[] = [
     description: '',
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
-    public_key: 'aslsddlfkjsdlfkjsdlfkjsdlfkjsdflkjsdlfkjsdlfkjsd',
+    public_key:
+      'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDVav/u9wm2ALv4ks18twWQB0LHlJ1Q1y7HTi91SUuv4H95EEwqj6tVDSOtHQi08PG7xp6/8gaMVC9rs1jKl7o0cy32kuWp/rXtryn3d1bEaY9wOGwR6iokx0zjocHILhrjHpAmWnXP8oWvzx8TWOg3VPhBkZsyNdqzcdxYP2UsqccaNyz5kcuNhOYbGjIskNPAk1drsHnyKvqoEVix8UzVkLHC6vVbcVjQGTaeUif29xvUN3W5QMGb/E1L66RPN3ovaDyDylgA8az8q56vrn4jSY5Mx3ANQEvjxl//Hnq31dpoDFiEvHyB4bbq8bSpypa2TyvheobmLnsnIaXEMHFT hannah@mac-mini.local',
     silo_user_id: user1.id,
   },
 ]
