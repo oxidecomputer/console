@@ -25,6 +25,7 @@ import {
 } from '~/forms/vpc-router-route-common'
 import { getVpcRouterRouteSelector, useVpcRouterRouteSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
 EditRouterRouteSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -35,10 +36,13 @@ EditRouterRouteSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => 
       query: { project, vpc, router },
     }),
     apiQueryClient.prefetchQuery('vpcSubnetList', {
-      query: { project, vpc, limit: 1000 },
+      query: { project, vpc, limit: ALL_ISH },
     }),
     apiQueryClient.prefetchQuery('instanceList', {
-      query: { project, limit: 1000 },
+      query: { project, limit: ALL_ISH },
+    }),
+    apiQueryClient.prefetchQuery('internetGatewayList', {
+      query: { project, vpc, limit: ALL_ISH },
     }),
   ])
   return null
@@ -65,6 +69,7 @@ export function EditRouterRouteSideModalForm() {
   const updateRouterRoute = useApiMutation('vpcRouterRouteUpdate', {
     onSuccess(updatedRoute) {
       queryClient.invalidateQueries('vpcRouterRouteList')
+      queryClient.invalidateQueries('vpcRouterRouteView')
       addToast(<>Route <HL>{updatedRoute.name}</HL> updated</>) // prettier-ignore
       navigate(pb.vpcRouter(routerSelector))
     },

@@ -37,7 +37,12 @@ import { EditRouterSideModalForm } from './forms/vpc-router-edit'
 import { CreateRouterRouteSideModalForm } from './forms/vpc-router-route-create'
 import { EditRouterRouteSideModalForm } from './forms/vpc-router-route-edit'
 import { makeCrumb, titleCrumb } from './hooks/use-crumbs'
-import { getInstanceSelector, getProjectSelector, getVpcSelector } from './hooks/use-params'
+import {
+  getInstanceSelector,
+  getInternetGatewaySelector,
+  getProjectSelector,
+  getVpcSelector,
+} from './hooks/use-params'
 import { AuthenticatedLayout } from './layouts/AuthenticatedLayout'
 import { AuthLayout } from './layouts/AuthLayout'
 import { SerialConsoleContentPane } from './layouts/helpers'
@@ -64,8 +69,10 @@ import * as NetworkingTab from './pages/project/instances/instance/tabs/Networki
 import * as StorageTab from './pages/project/instances/instance/tabs/StorageTab'
 import { InstancesPage } from './pages/project/instances/InstancesPage'
 import { SnapshotsPage } from './pages/project/snapshots/SnapshotsPage'
+import { EditInternetGatewayForm } from './pages/project/vpcs/internet-gateway-edit'
 import * as RouterPage from './pages/project/vpcs/RouterPage'
 import { VpcFirewallRulesTab } from './pages/project/vpcs/VpcPage/tabs/VpcFirewallRulesTab'
+import { VpcInternetGatewaysTab } from './pages/project/vpcs/VpcPage/tabs/VpcGatewaysTab'
 import * as VpcRoutersTab from './pages/project/vpcs/VpcPage/tabs/VpcRoutersTab'
 import * as VpcSubnetsTab from './pages/project/vpcs/VpcPage/tabs/VpcSubnetsTab'
 import { VpcPage } from './pages/project/vpcs/VpcPage/VpcPage'
@@ -288,7 +295,6 @@ export const routes = createRoutesFromElements(
               </Route>
             </Route>
           </Route>
-
           <Route
             loader={VpcsPage.loader}
             handle={makeCrumb('VPCs', (p) => pb.vpcs(getProjectSelector(p)))}
@@ -301,7 +307,6 @@ export const routes = createRoutesFromElements(
               handle={titleCrumb('New VPC')}
             />
           </Route>
-
           <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
             <Route
               path=":vpc"
@@ -375,6 +380,22 @@ export const routes = createRoutesFromElements(
                     handle={titleCrumb('New Router')}
                   />
                 </Route>
+                <Route
+                  path="internet-gateways"
+                  handle={{ crumb: 'Internet Gateways' }}
+                  loader={VpcInternetGatewaysTab.loader}
+                  element={<VpcInternetGatewaysTab />}
+                >
+                  <Route
+                    path=":gateway"
+                    element={<EditInternetGatewayForm />}
+                    loader={EditInternetGatewayForm.loader}
+                    handle={makeCrumb(
+                      (p) => p.gateway!,
+                      (p) => pb.vpcInternetGateway(getInternetGatewaySelector(p))
+                    )}
+                  />
+                </Route>
               </Route>
             </Route>
           </Route>
@@ -419,7 +440,6 @@ export const routes = createRoutesFromElements(
               handle={titleCrumb('Edit Floating IP')}
             />
           </Route>
-
           <Route
             element={<DisksPage />}
             handle={makeCrumb('Disks', (p) => pb.disks(getProjectSelector(p)))}
@@ -436,7 +456,6 @@ export const routes = createRoutesFromElements(
               handle={titleCrumb('New disk')}
             />
           </Route>
-
           <Route
             element={<SnapshotsPage />}
             handle={makeCrumb('Snapshots', (p) => pb.snapshots(getProjectSelector(p)))}
@@ -455,7 +474,6 @@ export const routes = createRoutesFromElements(
               handle={titleCrumb('Create image from snapshot')}
             />
           </Route>
-
           <Route
             element={<ImagesPage />}
             handle={makeCrumb('Images', (p) => pb.projectImages(getProjectSelector(p)))}
