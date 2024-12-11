@@ -37,12 +37,7 @@ import { EditRouterSideModalForm } from './forms/vpc-router-edit'
 import { CreateRouterRouteSideModalForm } from './forms/vpc-router-route-create'
 import { EditRouterRouteSideModalForm } from './forms/vpc-router-route-edit'
 import { makeCrumb, titleCrumb } from './hooks/use-crumbs'
-import {
-  getInstanceSelector,
-  getInternetGatewaySelector,
-  getProjectSelector,
-  getVpcSelector,
-} from './hooks/use-params'
+import { getInstanceSelector, getProjectSelector, getVpcSelector } from './hooks/use-params'
 import { AuthenticatedLayout } from './layouts/AuthenticatedLayout'
 import { AuthLayout } from './layouts/AuthLayout'
 import { SerialConsoleContentPane } from './layouts/helpers'
@@ -390,10 +385,7 @@ export const routes = createRoutesFromElements(
                     path=":gateway"
                     element={<EditInternetGatewayForm />}
                     loader={EditInternetGatewayForm.loader}
-                    handle={makeCrumb(
-                      (p) => p.gateway!,
-                      (p) => pb.vpcInternetGateway(getInternetGatewaySelector(p))
-                    )}
+                    handle={titleCrumb('Edit Internet Gateway')}
                   />
                 </Route>
               </Route>
