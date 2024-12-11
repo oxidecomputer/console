@@ -89,25 +89,22 @@ const colHelper = createColumnHelper<InternetGateway>()
 
 VpcInternetGatewaysTab.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, vpc } = getVpcSelector(params)
+  const [gateways, routers] = await Promise.all([
+    queryClient.fetchQuery(gatewayList({ project, vpc }).optionsFn()),
+    queryClient.fetchQuery(routerList({ project, vpc }).optionsFn()),
+  ])
+
   await Promise.all([
-    (await queryClient.fetchQuery(gatewayList({ project, vpc }).optionsFn())).items.flatMap(
-      (gateway: InternetGateway) => {
-        return [
-          queryClient.prefetchQuery(
-            gatewayIpAddressList({ gatewayId: gateway.id }).optionsFn()
-          ),
-          queryClient.prefetchQuery(
-            gatewayIpPoolList({ gatewayId: gateway.id }).optionsFn()
-          ),
-        ]
-      }
-    ),
-    (await queryClient.fetchQuery(routerList({ project, vpc }).optionsFn())).items.map(
-      (router) => {
-        queryClient.prefetchQuery(
-          routeList({ project, vpc, router: router.name }).optionsFn()
-        )
-      }
+    ...gateways.items.flatMap((gateway: InternetGateway) => [
+      queryClient.prefetchQuery(
+        gatewayIpAddressList({ gatewayId: gateway.id }).optionsFn()
+      ),
+      queryClient.prefetchQuery(gatewayIpPoolList({ gatewayId: gateway.id }).optionsFn()),
+    ]),
+    ...routers.items.map((router) =>
+      queryClient.prefetchQuery(
+        routeList({ project, vpc, router: router.name }).optionsFn()
+      )
     ),
     queryClient.fetchQuery(projectIpPoolList.optionsFn()).then((pools) => {
       for (const pool of pools.items) {
@@ -115,7 +112,8 @@ VpcInternetGatewaysTab.loader = async ({ params }: LoaderFunctionArgs) => {
         queryClient.setQueryData(queryKey, pool)
       }
     }),
-  ])
+  ] satisfies Promise<unknown>[])
+
   return null
 }
 
