@@ -210,7 +210,7 @@ test('can’t create or delete Routes on system routers', async ({ page }) => {
   // expect to see table of routes
   const table = page.getByRole('table')
   const routeRows = table.locator('tbody >> tr')
-  await expect(routeRows).toHaveCount(4)
+  await expect(routeRows).toHaveCount(3)
   await expectRowVisible(table, { Name: 'default' })
   await expectRowVisible(table, { Name: 'default-v4' })
   await expectRowVisible(table, { Name: 'default-v6' })
@@ -279,6 +279,9 @@ test('create router route', async ({ page }) => {
 test('edit and delete router route', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc/routers/mock-custom-router')
 
+  const table = page.getByRole('table')
+  await expect(table.locator('tbody >> tr')).toHaveCount(2)
+
   const form = page.getByRole('dialog', { name: 'Edit route' })
   await expect(form).toBeHidden()
 
@@ -306,7 +309,6 @@ test('edit and delete router route', async ({ page }) => {
   await submitButton.click()
   await expect(form).toBeHidden()
 
-  const table = page.getByRole('table')
   await expectRowVisible(table, {
     Name: 'new-name',
     Destination: 'VPC subnetmock-subnet',
@@ -316,8 +318,8 @@ test('edit and delete router route', async ({ page }) => {
   // delete the route
   await clickRowAction(page, 'new-name', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
-  await expect(table).toBeHidden()
-  await expect(page.getByText('No routes')).toBeVisible()
+  // expect 1 row in table
+  await expect(table.locator('tbody >> tr')).toHaveCount(1)
 })
 
 test('can view internet gateways', async ({ page }) => {
@@ -362,11 +364,11 @@ test('internet gateway shows proper list of routes targeting it', async ({ page 
   await page.goto(
     '/projects/mock-project/vpcs/mock-vpc/internet-gateways/internet-gateway-1'
   )
-  // verify that it has a table with the row showing "mock-system-router" and "dc2"
+  // verify that it has a table with the row showing "mock-custom-router" and "dc2"
   const sidemodal = page.getByRole('dialog', { name: 'Internet Gateway' })
   const table = sidemodal.getByRole('table')
-  await expectRowVisible(table, { Router: 'mock-system-router', Route: 'dc2' })
-  await expect(table.getByText('mock-custom-router')).toBeHidden()
+  await expectRowVisible(table, { Router: 'mock-custom-router', Route: 'dc2' })
+  await expect(table.locator('tbody >> tr')).toHaveCount(1)
 
   // close the sidemodal
   await sidemodal.getByRole('button', { name: 'Close' }).click()
@@ -401,7 +403,7 @@ test('internet gateway shows proper list of routes targeting it', async ({ page 
   await page.getByRole('link', { name: 'internet-gateway-1' }).click()
 
   // the new route should be visible in the table
-  await expectRowVisible(table, { Router: 'mock-system-router', Route: 'dc2' })
+  await expectRowVisible(table, { Router: 'mock-custom-router', Route: 'dc2' })
   await expectRowVisible(table, { Router: 'mock-custom-router', Route: 'new-route' })
   await expect(table.locator('tbody >> tr')).toHaveCount(2)
 
