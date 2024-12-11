@@ -24,16 +24,16 @@ import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
-const gatewayList = (query: PP.Vpc) =>
-  getListQFn('internetGatewayList', { query: { ...query, limit: ALL_ISH } })
-const routerList = (query: PP.Vpc) =>
-  getListQFn('vpcRouterList', { query: { ...query, limit: ALL_ISH } })
-const routeList = (query: PP.VpcRouter) =>
-  getListQFn('vpcRouterRouteList', { query: { ...query, limit: ALL_ISH } })
-const gatewayIpAddressList = (query: { gatewayId: string }) =>
-  getListQFn('internetGatewayIpAddressList', { query: { gateway: query.gatewayId } })
-const gatewayIpPoolList = (query: { gatewayId: string }) =>
-  getListQFn('internetGatewayIpPoolList', { query: { gateway: query.gatewayId } })
+const gatewayList = ({ project, vpc }: PP.Vpc) =>
+  getListQFn('internetGatewayList', { query: { project, vpc, limit: ALL_ISH } })
+const routerList = ({ project, vpc }: PP.Vpc) =>
+  getListQFn('vpcRouterList', { query: { project, vpc, limit: ALL_ISH } })
+const routeList = ({ project, vpc, router }: PP.VpcRouter) =>
+  getListQFn('vpcRouterRouteList', { query: { project, vpc, router, limit: ALL_ISH } })
+const gatewayIpAddressList = ({ gatewayId }: { gatewayId: string }) =>
+  getListQFn('internetGatewayIpAddressList', { query: { gateway: gatewayId } })
+const gatewayIpPoolList = ({ gatewayId }: { gatewayId: string }) =>
+  getListQFn('internetGatewayIpPoolList', { query: { gateway: gatewayId } })
 const projectIpPoolList = getListQFn('projectIpPoolList', { query: { limit: ALL_ISH } })
 
 const InternetGatewayIpAddressCell = ({ gatewayId }: { gatewayId: string }) => {

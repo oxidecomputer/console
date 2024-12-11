@@ -77,14 +77,18 @@ const RouterRows = ({ project, vpc, gateway }: PP.VpcInternetGateway) => {
   )
 }
 
-const gatewayIpPoolList = (query: PP.VpcInternetGateway) =>
-  getListQFn('internetGatewayIpPoolList', { query: { ...query, limit: ALL_ISH } })
-const gatewayIpAddressList = (query: PP.VpcInternetGateway) =>
-  getListQFn('internetGatewayIpAddressList', { query: { ...query, limit: ALL_ISH } })
-const routerList = (query: PP.Vpc) =>
-  getListQFn('vpcRouterList', { query: { ...query, limit: ALL_ISH } })
-const routeList = (query: PP.VpcRouter) =>
-  getListQFn('vpcRouterRouteList', { query: { ...query, limit: ALL_ISH } })
+const gatewayIpPoolList = ({ project, vpc, gateway }: PP.VpcInternetGateway) =>
+  getListQFn('internetGatewayIpPoolList', {
+    query: { project, vpc, gateway, limit: ALL_ISH },
+  })
+const gatewayIpAddressList = ({ project, vpc, gateway }: PP.VpcInternetGateway) =>
+  getListQFn('internetGatewayIpAddressList', {
+    query: { project, vpc, gateway, limit: ALL_ISH },
+  })
+const routerList = ({ project, vpc }: PP.Vpc) =>
+  getListQFn('vpcRouterList', { query: { project, vpc, limit: ALL_ISH } })
+const routeList = ({ project, vpc, router }: PP.VpcRouter) =>
+  getListQFn('vpcRouterRouteList', { query: { project, vpc, router, limit: ALL_ISH } })
 
 EditInternetGatewayForm.loader = async function ({ params }: LoaderFunctionArgs) {
   const { project, vpc, gateway } = getInternetGatewaySelector(params)
