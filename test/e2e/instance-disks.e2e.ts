@@ -203,6 +203,7 @@ test('Change boot disk', async ({ page }) => {
 
   // detach disk so there's only one
   await clickRowAction(page, 'disk-2', 'Detach')
+  await page.getByRole('button', { name: 'Confirm' }).click()
 
   await expect(page.getByText('Instance will boot from disk-1')).toBeVisible()
 
@@ -220,6 +221,8 @@ test('Change boot disk', async ({ page }) => {
   await expectRowVisible(otherDisksTable, disk1)
 
   await clickRowAction(page, 'disk-1', 'Detach')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+
   await expect(noBootDisk).toBeVisible()
   await expect(noOtherDisks).toBeVisible()
 
