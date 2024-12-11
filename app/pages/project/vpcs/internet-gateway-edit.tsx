@@ -40,8 +40,8 @@ const RouterRow = ({
     if (route.target.type === 'internet_gateway' && route.target.value === gateway) {
       matchingRoutes.push(
         <Table.Row key={`${router}-${route.name}`}>
-          <Table.Cell>{router}</Table.Cell>
-          <Table.Cell>
+          <Table.Cell className="!bg-raise">{router}</Table.Cell>
+          <Table.Cell className="bg-raise">
             <Link
               to={pb.vpcRouterRouteEdit({
                 project,
@@ -70,7 +70,9 @@ const RouterRows = ({ project, vpc, gateway }: PP.VpcInternetGateway) => {
     matchingRoutes
   ) : (
     <Table.Row>
-      <Table.Cell colSpan={2}>No VPC routes target this gateway.</Table.Cell>
+      <Table.Cell colSpan={2} className="bg-secondary">
+        No VPC routes target this gateway.
+      </Table.Cell>
     </Table.Row>
   )
 }
@@ -139,12 +141,6 @@ export function EditInternetGatewayForm() {
       submitError={null}
       loading={false}
     >
-      <PropertiesTable key={internetGateway.id}>
-        <PropertiesTable.Row label="Name">{internetGateway.name}</PropertiesTable.Row>
-        <PropertiesTable.Row label="Description">
-          <DescriptionCell text={internetGateway.description} />
-        </PropertiesTable.Row>
-      </PropertiesTable>
       <Message
         variant="info"
         className="text-balance"
@@ -156,6 +152,13 @@ export function EditInternetGatewayForm() {
           </>
         }
       />
+      <PropertiesTable key={internetGateway.id}>
+        <PropertiesTable.Row label="Name">{internetGateway.name}</PropertiesTable.Row>
+        <PropertiesTable.Row label="Description">
+          <DescriptionCell text={internetGateway.description} />
+        </PropertiesTable.Row>
+      </PropertiesTable>
+
       <FormDivider />
       <div className="flex flex-col gap-3">
         <SideModal.Heading>
