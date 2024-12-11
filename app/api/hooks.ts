@@ -108,7 +108,7 @@ export const getApiQueryOptions =
     queryOptions({
       queryKey: [method, params],
       // no catch, let unexpected errors bubble up
-      queryFn: ({ signal }) => api[method](params, { signal }).then(handleResult(method)),
+      queryFn: () => api[method](params).then(handleResult(method)),
       // In the case of 404s, let the error bubble up to the error boundary so
       // we can say Not Found. If you need to allow a 404 and want it to show
       // up as `error` state instead, pass `useErrorBoundary: false` as an
