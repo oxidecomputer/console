@@ -7,12 +7,14 @@
  */
 import {
   clickRowAction,
+  closeToast,
   expect,
   expectNoToast,
   expectNotVisible,
   expectRowVisible,
   expectToast,
   expectVisible,
+  openRowActions,
   stopInstance,
   test,
 } from './utils'
@@ -223,4 +225,46 @@ test('Change boot disk', async ({ page }) => {
   await expect(noOtherDisks).toBeVisible()
 
   await expect(page.getByText('Attach a disk to be able to set a boot disk')).toBeVisible()
+})
+
+// silly test but we've reintroduced this bug like 3 times
+test("polling doesn't close row actions menu", async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1')
+
+  // stop, but don't wait until the state has changed
+  await page.getByRole('button', { name: 'Stop' }).click()
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await closeToast(page)
+
+  const menu = page.getByRole('menu')
+  const stopped = page.getByText('statestopped')
+
+  await expect(menu).toBeHidden()
+  await expect(stopped).toBeHidden()
+
+  await openRowActions(page, 'disk-1')
+  await expect(stopped).toBeHidden() // still not stopped yet
+  await expect(menu).toBeVisible()
+
+  // now we're stopped, which means polling has happened, but the
+  // menu remains visible
+  await expect(stopped).toBeVisible()
+  await expect(menu).toBeVisible()
+
+  // now start it so we can check the non-boot disks table
+  await page.getByRole('button', { name: 'Start' }).click()
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await closeToast(page)
+
+  const running = page.getByText('staterunning') // not running yet
+  await expect(running).toBeHidden()
+  await expect(menu).toBeHidden()
+
+  await openRowActions(page, 'disk-2')
+  await expect(running).toBeHidden() // still not running yet
+  await expect(menu).toBeVisible()
+
+  // state change means polling has happened. menu is still visible
+  await expect(running).toBeVisible()
+  await expect(menu).toBeVisible()
 })

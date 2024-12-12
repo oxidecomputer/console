@@ -240,3 +240,7 @@ test('instance table', async ({ page }) => {
     state: expect.stringMatching(/^starting\d+s$/),
   })
 })
+
+test("polling doesn't close row actions menu", async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1')
+})
