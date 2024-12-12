@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { physicalDisks, rack, sleds, switches } from '@oxide/api-mocks'
+import { physicalDisks, sleds, switches } from '@oxide/api-mocks'
 
 import { expect, expectRowVisible, expectVisible, test } from './utils'
 
@@ -98,7 +98,6 @@ test('Switch inventory page', async ({ page }) => {
   const table = page.getByRole('table')
   await expectRowVisible(table, {
     id: switches[0].id,
-    'Rack ID': rack.id,
     'part number': '832-0431906',
     'serial number': 'BDS02141689',
     revision: '1',
