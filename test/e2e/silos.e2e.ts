@@ -200,7 +200,7 @@ test('Identity providers', async ({ page }) => {
     'groups'
   )
 
-  await page.getByRole('button', { name: 'Cancel' }).click()
+  await page.getByRole('button', { name: 'Close' }).click()
 
   await expect(dialog).toBeHidden()
 
@@ -320,7 +320,7 @@ test('Silo IP pools link pool', async ({ page }) => {
   await expect(modal).toBeVisible()
 
   // close modal works
-  await page.getByRole('button', { name: 'Cancel' }).click()
+  await page.getByRole('button', { name: 'Close' }).click()
   await expect(modal).toBeHidden()
 
   // reopen
