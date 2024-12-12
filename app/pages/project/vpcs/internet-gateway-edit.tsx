@@ -24,6 +24,7 @@ import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel, SideModal } from '~/ui/lib/SideModal'
 import { Table } from '~/ui/lib/Table'
 import { ALL_ISH } from '~/util/consts'
+import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
@@ -147,12 +148,18 @@ export function EditInternetGatewayForm() {
     >
       <Message
         variant="info"
-        className="text-balance"
         content={
           <>
-            This is a read-only copy of this internet gateway. Use the CLI to create and
-            update internet gateways. More functionality for internet gateways will be
-            included in future releases of the Oxide console.
+            For now, gateways can only be modified through the API. Learn more in the{' '}
+            <a
+              href={links.gatewaysDocs}
+              className="underline"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Networking
+            </a>{' '}
+            guide.
           </>
         }
       />
