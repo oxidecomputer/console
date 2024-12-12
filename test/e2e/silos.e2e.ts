@@ -164,6 +164,19 @@ test('Create silo', async ({ page }) => {
   await expect(otherSiloCell).toBeHidden()
 })
 
+test('Open create silo modal from ActionMenu', async ({ page }) => {
+  await page.goto('/system/silos')
+  // open the action menu
+  await page.getByRole('button', { name: 'JUMP TO' }).click()
+  // make sure the action menu modal is visible
+  await expect(page.getByRole('heading', { name: 'Actions' })).toBeVisible()
+  // New silo is the first item in the list, so we can just hit enter to open the modal
+  await page.keyboard.press('Enter')
+  await expect(page.getByRole('dialog', { name: 'Create silo' })).toBeVisible()
+  // make sure error text is not visible
+  await expectNotVisible(page, [page.getByText('Name is required')])
+})
+
 test('Default silo', async ({ page }) => {
   await page.goto('/system/silos')
   await page.getByRole('link', { name: 'myriad' }).click()
