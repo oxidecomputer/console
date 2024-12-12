@@ -31,7 +31,6 @@ export async function loader() {
 const colHelper = createColumnHelper<Switch>()
 const staticCols = [
   colHelper.accessor('id', {}),
-  colHelper.accessor('rackId', { header: 'Rack ID' }),
   colHelper.accessor('baseboard.part', { header: 'part number' }),
   colHelper.accessor('baseboard.serial', { header: 'serial number' }),
   colHelper.accessor('baseboard.revision', { header: 'revision' }),
