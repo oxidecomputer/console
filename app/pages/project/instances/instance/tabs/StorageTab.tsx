@@ -268,7 +268,7 @@ export function Component() {
                 Are you sure you want to detach <HL>{disk.name}</HL>?
               </p>
             ),
-            actionType: 'primary',
+            actionType: 'danger',
           }),
       },
     ],
