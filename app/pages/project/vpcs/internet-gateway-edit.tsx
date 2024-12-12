@@ -6,13 +6,20 @@
  * Copyright Oxide Computer Company
  */
 
-import { useQuery } from '@tanstack/react-query'
+import { useQueries, useQuery } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import * as R from 'remeda'
 
 import { Gateway16Icon } from '@oxide/design-system/icons/react'
 
-import { apiQueryClient, getListQFn, queryClient, usePrefetchedApiQuery } from '~/api'
+import {
+  apiQueryClient,
+  getListQFn,
+  queryClient,
+  usePrefetchedApiQuery,
+  usePrefetchedQuery,
+} from '~/api'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { getInternetGatewaySelector, useInternetGatewaySelector } from '~/hooks/use-params'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
@@ -28,54 +35,55 @@ import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
-const RouterRow = ({
-  project,
-  vpc,
-  gateway,
-  router,
-}: PP.VpcInternetGateway & { router: string }) => {
-  const matchingRoutes: JSX.Element[] = []
-  const { data: routes } = useQuery(routeList({ project, vpc, router }).optionsFn())
-  if (!routes || routes.items.length < 1) return
-  routes.items.forEach((route) => {
-    if (route.target.type === 'internet_gateway' && route.target.value === gateway) {
-      matchingRoutes.push(
-        <Table.Row key={`${router}-${route.name}`}>
-          <Table.Cell className="!bg-raise">{router}</Table.Cell>
-          <Table.Cell className="bg-raise">
-            <Link
-              to={pb.vpcRouterRouteEdit({
-                project,
-                vpc,
-                router,
-                route: route.name,
-              })}
-              className="link-with-underline text-sans-md"
-            >
-              {route.name}
-            </Link>
-          </Table.Cell>
-        </Table.Row>
-      )
-    }
+const RoutesEmpty = () => (
+  <Table.Row>
+    <Table.Cell colSpan={2} className="bg-secondary">
+      No VPC router routes target this gateway.
+    </Table.Cell>
+  </Table.Row>
+)
+
+/**
+ * For a given gateway, return a list of [router name, RouterRoute] pairs
+ */
+export function useGatewayRoutes({ project, vpc, gateway }: PP.VpcInternetGateway) {
+  const { data: routers } = usePrefetchedQuery(routerList({ project, vpc }).optionsFn())
+  const routerNames = routers.items.map((r) => r.name)
+
+  const routesQueries = useQueries({
+    queries: routerNames.map((router) => routeList({ project, vpc, router }).optionsFn()),
   })
-  return matchingRoutes
+  const loadedRoutesLists = routesQueries.filter((q) => !!q.data).map((q) => q.data.items)
+
+  // loading. should never happen because of prefetches
+  if (loadedRoutesLists.length < routers.items.length) return null
+
+  return R.pipe(
+    R.zip(routerNames, loadedRoutesLists),
+    R.flatMap(([router, routes]) => routes.map((route) => [router, route] as const)),
+    R.filter(([_, r]) => r.target.type === 'internet_gateway' && r.target.value === gateway)
+  )
 }
 
-const RouterRows = ({ project, vpc, gateway }: PP.VpcInternetGateway) => {
-  const { data: routers } = useQuery(routerList({ project, vpc }).optionsFn())
-  const matchingRoutes = routers?.items.flatMap((router) =>
-    RouterRow({ project, vpc, gateway, router: router.name })
-  )
-  return matchingRoutes?.length ? (
-    matchingRoutes
-  ) : (
-    <Table.Row>
-      <Table.Cell colSpan={2} className="bg-secondary">
-        No VPC routes target this gateway.
+function RouteRows({ project, vpc, gateway }: PP.VpcInternetGateway) {
+  const matchingRoutes = useGatewayRoutes({ project, vpc, gateway })
+
+  if (!matchingRoutes) return null
+  if (matchingRoutes.length === 0) return <RoutesEmpty />
+
+  return matchingRoutes.map(([router, route]) => (
+    <Table.Row key={route.id}>
+      <Table.Cell className="!bg-raise">{router}</Table.Cell>
+      <Table.Cell className="bg-raise">
+        <Link
+          to={pb.vpcRouterRouteEdit({ project, vpc, router, route: route.name })}
+          className="link-with-underline text-sans-md"
+        >
+          {route.name}
+        </Link>
       </Table.Cell>
     </Table.Row>
-  )
+  ))
 }
 
 const gatewayIpPoolList = ({ project, vpc, gateway }: PP.VpcInternetGateway) =>
@@ -100,14 +108,13 @@ EditInternetGatewayForm.loader = async function ({ params }: LoaderFunctionArgs)
     }),
     queryClient.prefetchQuery(gatewayIpPoolList({ project, vpc, gateway }).optionsFn()),
     queryClient.prefetchQuery(gatewayIpAddressList({ project, vpc, gateway }).optionsFn()),
-    (await queryClient.fetchQuery(routerList({ project, vpc }).optionsFn())).items.map(
-      (router) => {
+    ...(await queryClient.fetchQuery(routerList({ project, vpc }).optionsFn())).items.map(
+      (router) =>
         queryClient.prefetchQuery(
           routeList({ project, vpc, router: router.name }).optionsFn()
         )
-      }
     ),
-  ])
+  ] satisfies Promise<unknown>[])
   return null
 }
 
@@ -235,11 +242,13 @@ export function EditInternetGatewayForm() {
         </SideModal.Heading>
         <Table>
           <Table.Header>
-            <Table.HeadCell>Router</Table.HeadCell>
-            <Table.HeadCell>Route</Table.HeadCell>
+            <Table.HeaderRow>
+              <Table.HeadCell>Router</Table.HeadCell>
+              <Table.HeadCell>Route</Table.HeadCell>
+            </Table.HeaderRow>
           </Table.Header>
           <Table.Body>
-            <RouterRows project={project} vpc={vpc} gateway={gateway} />
+            <RouteRows project={project} vpc={vpc} gateway={gateway} />
           </Table.Body>
         </Table>
       </div>
