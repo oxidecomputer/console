@@ -13,7 +13,7 @@ const openActionMenu = async (page: Page) => {
   // open the action menu (use the sidenav button, as keyboard events aren't reliable in Playwright)
   await page.getByRole('button', { name: 'JUMP TO' }).click()
   // make sure the action menu modal is visible
-  await expect(page.getByRole('heading', { name: 'Actions' })).toBeVisible()
+  await expect(page.getByText('Enterto submit')).toBeVisible()
 }
 
 test('Ensure that the Enter key in the ActionMenu doesn’t prematurely submit a linked form', async ({
