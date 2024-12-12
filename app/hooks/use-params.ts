@@ -42,6 +42,7 @@ export const getVpcRouterRouteSelector = requireParams('project', 'vpc', 'router
 export const getVpcSubnetSelector = requireParams('project', 'vpc', 'subnet')
 export const getSiloSelector = requireParams('silo')
 export const getSiloImageSelector = requireParams('image')
+export const getSshKeySelector = requireParams('sshKey')
 export const getIdpSelector = requireParams('silo', 'provider')
 export const getProjectImageSelector = requireParams('project', 'image')
 export const getProjectSnapshotSelector = requireParams('project', 'snapshot')
@@ -77,6 +78,7 @@ function useSelectedParams<T>(getSelector: (params: AllParams) => T) {
 export const useFloatingIpSelector = () => useSelectedParams(getFloatingIpSelector)
 export const useProjectSelector = () => useSelectedParams(getProjectSelector)
 export const useProjectImageSelector = () => useSelectedParams(getProjectImageSelector)
+export const useSshKeySelector = () => useSelectedParams(getSshKeySelector)
 export const useProjectSnapshotSelector = () =>
   useSelectedParams(getProjectSnapshotSelector)
 export const useInstanceSelector = () => useSelectedParams(getInstanceSelector)

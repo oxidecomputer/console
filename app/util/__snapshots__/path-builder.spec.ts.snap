@@ -551,6 +551,16 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/snapshots",
     },
   ],
+  "sshKeyEdit (/settings/ssh-keys/ss/edit)": [
+    {
+      "label": "Settings",
+      "path": "/settings/profile",
+    },
+    {
+      "label": "SSH Keys",
+      "path": "/settings/ssh-keys",
+    },
+  ],
   "sshKeys (/settings/ssh-keys)": [
     {
       "label": "Settings",
