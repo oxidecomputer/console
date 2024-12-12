@@ -81,6 +81,7 @@ import { InventoryPage } from './pages/system/inventory/InventoryPage'
 import * as SledInstances from './pages/system/inventory/sled/SledInstancesTab'
 import * as SledPage from './pages/system/inventory/sled/SledPage'
 import * as SledsTab from './pages/system/inventory/SledsTab'
+import * as SwitchesTab from './pages/system/inventory/SwitchesTab'
 import * as IpPool from './pages/system/networking/IpPoolPage'
 import * as IpPools from './pages/system/networking/IpPoolsPage'
 import * as SiloImages from './pages/system/SiloImagesPage'
@@ -162,6 +163,7 @@ export const routes = createRoutesFromElements(
           <Route index element={<Navigate to="sleds" replace />} loader={SledsTab.loader} />
           <Route path="sleds" {...SledsTab} handle={{ crumb: 'Sleds' }} />
           <Route path="disks" {...DisksTab} handle={{ crumb: 'Disks' }} />
+          <Route path="switches" {...SwitchesTab} handle={{ crumb: 'Switches' }} />
         </Route>
         <Route path="inventory" handle={{ crumb: 'Inventory' }}>
           <Route path="sleds" handle={{ crumb: 'Sleds' }}>

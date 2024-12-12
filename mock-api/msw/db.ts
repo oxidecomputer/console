@@ -418,6 +418,7 @@ const initDb = {
   siloProvisioned: [...mock.siloProvisioned],
   identityProviders: [...mock.identityProviders],
   sleds: [...mock.sleds],
+  switches: [...mock.switches],
   snapshots: [...mock.snapshots],
   sshKeys: [...mock.sshKeys],
   users: [...mock.users],
