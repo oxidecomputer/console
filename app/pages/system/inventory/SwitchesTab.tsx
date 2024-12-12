@@ -13,16 +13,6 @@ import { Servers24Icon } from '@oxide/design-system/icons/react'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 
-// const POLICY_KIND_BADGE_COLORS: Record<PhysicalDiskPolicy['kind'], BadgeColor> = {
-//   in_service: 'default',
-//   expunged: 'neutral',
-// }
-
-// const STATE_BADGE_COLORS: Record<PhysicalDiskState, BadgeColor> = {
-//   active: 'default',
-//   decommissioned: 'neutral',
-// }
-
 const EmptyState = () => (
   <EmptyMessage
     icon={<Servers24Icon />}
