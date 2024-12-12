@@ -6,20 +6,13 @@
  * Copyright Oxide Computer Company
  */
 
-import { useQueries, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
-import * as R from 'remeda'
 
 import { Gateway16Icon } from '@oxide/design-system/icons/react'
 
-import {
-  apiQueryClient,
-  getListQFn,
-  queryClient,
-  usePrefetchedApiQuery,
-  usePrefetchedQuery,
-} from '~/api'
+import { apiQueryClient, queryClient, usePrefetchedApiQuery } from '~/api'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { getInternetGatewaySelector, useInternetGatewaySelector } from '~/hooks/use-params'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
@@ -30,10 +23,17 @@ import { Message } from '~/ui/lib/Message'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel, SideModal } from '~/ui/lib/SideModal'
 import { Table } from '~/ui/lib/Table'
-import { ALL_ISH } from '~/util/consts'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
+
+import {
+  gatewayIpAddressList,
+  gatewayIpPoolList,
+  routeList,
+  routerList,
+  useGatewayRoutes,
+} from './gateway-data'
 
 const RoutesEmpty = () => (
   <Table.Row>
@@ -42,28 +42,6 @@ const RoutesEmpty = () => (
     </Table.Cell>
   </Table.Row>
 )
-
-/**
- * For a given gateway, return a list of [router name, RouterRoute] pairs
- */
-export function useGatewayRoutes({ project, vpc, gateway }: PP.VpcInternetGateway) {
-  const { data: routers } = usePrefetchedQuery(routerList({ project, vpc }).optionsFn())
-  const routerNames = routers.items.map((r) => r.name)
-
-  const routesQueries = useQueries({
-    queries: routerNames.map((router) => routeList({ project, vpc, router }).optionsFn()),
-  })
-  const loadedRoutesLists = routesQueries.filter((q) => !!q.data).map((q) => q.data.items)
-
-  // loading. should never happen because of prefetches
-  if (loadedRoutesLists.length < routers.items.length) return null
-
-  return R.pipe(
-    R.zip(routerNames, loadedRoutesLists),
-    R.flatMap(([router, routes]) => routes.map((route) => [router, route] as const)),
-    R.filter(([_, r]) => r.target.type === 'internet_gateway' && r.target.value === gateway)
-  )
-}
 
 function RouteRows({ project, vpc, gateway }: PP.VpcInternetGateway) {
   const matchingRoutes = useGatewayRoutes({ project, vpc, gateway })
@@ -85,19 +63,6 @@ function RouteRows({ project, vpc, gateway }: PP.VpcInternetGateway) {
     </Table.Row>
   ))
 }
-
-const gatewayIpPoolList = ({ project, vpc, gateway }: PP.VpcInternetGateway) =>
-  getListQFn('internetGatewayIpPoolList', {
-    query: { project, vpc, gateway, limit: ALL_ISH },
-  })
-const gatewayIpAddressList = ({ project, vpc, gateway }: PP.VpcInternetGateway) =>
-  getListQFn('internetGatewayIpAddressList', {
-    query: { project, vpc, gateway, limit: ALL_ISH },
-  })
-const routerList = ({ project, vpc }: PP.Vpc) =>
-  getListQFn('vpcRouterList', { query: { project, vpc, limit: ALL_ISH } })
-const routeList = ({ project, vpc, router }: PP.VpcRouter) =>
-  getListQFn('vpcRouterRouteList', { query: { project, vpc, router, limit: ALL_ISH } })
 
 EditInternetGatewayForm.loader = async function ({ params }: LoaderFunctionArgs) {
   const { project, vpc, gateway } = getInternetGatewaySelector(params)
