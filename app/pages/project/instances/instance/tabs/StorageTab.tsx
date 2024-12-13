@@ -263,11 +263,7 @@ export function Component() {
               detachDisk({ body: { disk: disk.name }, path: { instance: instance.id } }),
             errorTitle: 'Could not detach disk',
             modalTitle: 'Confirm detach disk',
-            modalContent: (
-              <p>
-                Are you sure you want to detach <HL>{disk.name}</HL>?
-              </p>
-            ),
+            modalContent: <p>Are you sure you want to detach <HL>{disk.name}</HL>?</p>, // prettier-ignore
             actionType: 'danger',
           }),
       },
