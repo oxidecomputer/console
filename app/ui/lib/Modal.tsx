@@ -8,7 +8,6 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { animated, useTransition } from '@react-spring/web'
 import cn from 'classnames'
-import React, { forwardRef, useId } from 'react'
 import type { MergeExclusive } from 'type-fest'
 
 import { Close12Icon } from '@oxide/design-system/icons/react'
@@ -42,7 +41,6 @@ export function Modal({
   narrow,
   overlay = true,
 }: ModalProps) {
-  const titleId = useId()
   const AnimatedDialogContent = animated(Dialog.Content)
 
   const config = { tension: 650, mass: 0.125 }
@@ -74,7 +72,7 @@ export function Modal({
                     'pointer-events-auto fixed left-1/2 top-[min(50%,500px)] z-modal m-0 flex max-h-[min(800px,80vh)] w-full flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2',
                     narrow ? 'max-w-[24rem]' : 'max-w-[28rem]'
                   )}
-                  aria-labelledby={titleId}
+                  aria-describedby={undefined} // radix warns without this
                   style={{
                     transform: y.to((value) => `translate3d(-50%, ${-50 + value}%, 0px)`),
                   }}
@@ -85,12 +83,12 @@ export function Modal({
                   // https://github.com/oxidecomputer/console/issues/1745
                   onFocusOutside={(e) => e.preventDefault()}
                 >
-                  <Dialog.Title asChild>
-                    <ModalTitle id={titleId}>{title}</ModalTitle>
+                  <Dialog.Title className="border-b px-4 py-4 text-sans-semi-lg bg-secondary border-b-secondary">
+                    {title}
                   </Dialog.Title>
                   {children}
                   <Dialog.Close
-                    className="absolute right-2 top-4 flex items-center justify-center rounded p-2 hover:bg-hover"
+                    className="absolute right-2 top-3.5 flex items-center justify-center rounded p-2 hover:bg-hover"
                     aria-label="Close"
                   >
                     <Close12Icon className="text-default" />
@@ -103,24 +101,6 @@ export function Modal({
     </ModalContext.Provider>
   )
 }
-
-interface ModalTitleProps {
-  children?: React.ReactNode
-  id?: string
-}
-
-// not exported because we want to use the `title` prop on Modal so the aria
-// label gets hooked up properly
-const ModalTitle = forwardRef<HTMLDivElement, ModalTitleProps>(({ children, id }, ref) => (
-  <div
-    ref={ref}
-    className="flex items-center justify-between border-b px-4 py-4 bg-secondary border-b-secondary"
-  >
-    <h2 className="text-sans-semi-lg" id={id}>
-      {children}
-    </h2>
-  </div>
-))
 
 Modal.Body = classed.div`py-2 overflow-y-auto`
 

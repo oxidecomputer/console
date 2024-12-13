@@ -11,10 +11,10 @@ import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import * as R from 'remeda'
 
 import {
-  apiQueryClient,
+  apiq,
+  queryClient,
   useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
   type VpcFirewallRule,
 } from '@oxide/api'
 
@@ -32,6 +32,7 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 import { titleCase } from '~/util/str'
 
 const colHelper = createColumnHelper<VpcFirewallRule>()
@@ -97,26 +98,26 @@ const staticColumns = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
+const rulesView = (query: PP.Vpc) => apiq('vpcFirewallRulesView', { query })
+
 VpcFirewallRulesTab.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, vpc } = getVpcSelector(params)
-  await apiQueryClient.prefetchQuery('vpcFirewallRulesView', { query: { project, vpc } })
+  await queryClient.prefetchQuery(rulesView({ project, vpc }))
   return null
 }
 
 export function VpcFirewallRulesTab() {
-  const queryClient = useApiQueryClient()
   const vpcSelector = useVpcSelector()
 
-  const { data } = usePrefetchedApiQuery('vpcFirewallRulesView', {
-    query: vpcSelector,
-  })
+  const { data } = usePrefetchedQuery(rulesView(vpcSelector))
+
   const rules = useMemo(() => R.sortBy(data.rules, (r) => r.priority), [data])
 
   const navigate = useNavigate()
 
   const { mutateAsync: updateRules } = useApiMutation('vpcFirewallRulesUpdate', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcFirewallRulesView')
+      queryClient.invalidateEndpoint('vpcFirewallRulesView')
     },
   })
 

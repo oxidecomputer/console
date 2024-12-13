@@ -10,13 +10,12 @@ import { useCallback } from 'react'
 import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
-  apiQueryClient,
+  apiq,
   diskCan,
   genName,
   getListQFn,
   queryClient,
   useApiMutation,
-  useApiQueryClient,
   type Disk,
 } from '@oxide/api'
 import { Storage16Icon, Storage24Icon } from '@oxide/design-system/icons/react'
@@ -37,6 +36,7 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
 import { fancifyStates } from '../instances/instance/tabs/common'
 
@@ -50,27 +50,24 @@ const EmptyState = () => (
   />
 )
 
-const diskList = (project: string) => getListQFn('diskList', { query: { project } })
+const instanceList = ({ project }: PP.Project) =>
+  getListQFn('instanceList', { query: { project, limit: 200 } })
+const diskList = (query: PP.Project) => getListQFn('diskList', { query })
 
 DisksPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
   await Promise.all([
-    queryClient.prefetchQuery(diskList(project).optionsFn()),
+    queryClient.prefetchQuery(diskList({ project }).optionsFn()),
 
     // fetch instances and preload into RQ cache so fetches by ID in
     // InstanceLinkCell can be mostly instant yet gracefully fall back to
     // fetching individually if we don't fetch them all here
-    apiQueryClient
-      .fetchQuery('instanceList', { query: { project, limit: 200 } })
-      .then((instances) => {
-        for (const instance of instances.items) {
-          apiQueryClient.setQueryData(
-            'instanceView',
-            { path: { instance: instance.id } },
-            instance
-          )
-        }
-      }),
+    queryClient.fetchQuery(instanceList({ project }).optionsFn()).then((instances) => {
+      for (const instance of instances.items) {
+        const { queryKey } = apiq('instanceView', { path: { instance: instance.id } })
+        queryClient.setQueryData(queryKey, instance)
+      }
+    }),
   ])
   return null
 }
@@ -97,19 +94,18 @@ const staticCols = [
 ]
 
 export function DisksPage() {
-  const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
 
   const { mutateAsync: deleteDisk } = useApiMutation('diskDelete', {
     onSuccess(_data, variables) {
-      queryClient.invalidateQueries('diskList')
+      queryClient.invalidateEndpoint('diskList')
       addToast(<>Disk <HL>{variables.path.disk}</HL> deleted</>) // prettier-ignore
     },
   })
 
   const { mutate: createSnapshot } = useApiMutation('snapshotCreate', {
     onSuccess(_data, variables) {
-      queryClient.invalidateQueries('snapshotList')
+      queryClient.invalidateEndpoint('snapshotList')
       addToast(<>Snapshot <HL>{variables.body.name}</HL> created</>) // prettier-ignore
     },
     onError(err) {
@@ -162,7 +158,7 @@ export function DisksPage() {
 
   const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({
-    query: diskList(project),
+    query: diskList({ project }),
     columns,
     emptyState: <EmptyState />,
   })

@@ -19,8 +19,6 @@ export * from './__generated__/Api'
 
 export type { ApiTypes }
 
-export * as PathParams from './path-params'
-
 export { ensurePrefetched, PAGE_SIZE, type PaginatedQuery, type ResultsPage } from './hooks'
 export type { ApiError } from './errors'
 export { navToLogin } from './nav-to-login'

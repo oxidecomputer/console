@@ -11,10 +11,9 @@ import { useApiQuery } from '@oxide/api'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { intersperse } from '~/util/array'
+import type * as PP from '~/util/path-params'
 
-type InstanceSelector = { project: string; instance: string }
-
-export function ExternalIps({ project, instance }: InstanceSelector) {
+export function ExternalIps({ project, instance }: PP.Instance) {
   const { data, isPending } = useApiQuery('instanceExternalIpList', {
     path: { instance },
     query: { project },

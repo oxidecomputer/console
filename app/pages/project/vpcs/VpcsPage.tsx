@@ -5,19 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import {
-  apiQueryClient,
-  getListQFn,
-  queryClient,
-  useApiMutation,
-  useApiQuery,
-  useApiQueryClient,
-  type Vpc,
-} from '@oxide/api'
+import { apiq, getListQFn, queryClient, useApiMutation, type Vpc } from '@oxide/api'
 import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -37,6 +30,7 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
 const vpcList = (project: string) => getListQFn('vpcList', { query: { project } })
 
@@ -59,8 +53,8 @@ export const VpcDocsPopover = () => (
   />
 )
 
-const FirewallRuleCount = ({ project, vpc }: { project: string; vpc: string }) => {
-  const { data } = useApiQuery('vpcFirewallRulesView', { query: { project, vpc } })
+const FirewallRuleCount = ({ project, vpc }: PP.Vpc) => {
+  const { data } = useQuery(apiq('vpcFirewallRulesView', { query: { project, vpc } }))
 
   if (!data) return <SkeletonCell /> // loading
 
@@ -78,13 +72,12 @@ VpcsPage.loader = async ({ params }: LoaderFunctionArgs) => {
 }
 
 export function VpcsPage() {
-  const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
   const navigate = useNavigate()
 
   const { mutateAsync: deleteVpc } = useApiMutation('vpcDelete', {
     onSuccess(_data, variables) {
-      queryClient.invalidateQueries('vpcList')
+      queryClient.invalidateEndpoint('vpcList')
       addToast(<>VPC <HL>{variables.path.vpc}</HL> deleted</>) // prettier-ignore
     },
   })
@@ -94,9 +87,8 @@ export function VpcsPage() {
       {
         label: 'Edit',
         onActivate() {
-          apiQueryClient.setQueryData(
-            'vpcView',
-            { path: { vpc: vpc.name }, query: { project } },
+          queryClient.setQueryData(
+            apiq('vpcView', { path: { vpc: vpc.name }, query: { project } }).queryKey,
             vpc
           )
           navigate(pb.vpcEdit({ project, vpc: vpc.name }), { state: vpc })

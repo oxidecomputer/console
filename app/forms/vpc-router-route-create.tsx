@@ -15,6 +15,7 @@ import { HL } from '~/components/HL'
 import { RouteFormFields, type RouteFormValues } from '~/forms/vpc-router-route-common'
 import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
 const defaultValues: RouteFormValues = {
@@ -28,10 +29,13 @@ CreateRouterRouteSideModalForm.loader = async ({ params }: LoaderFunctionArgs) =
   const { project, vpc } = getVpcRouterSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('vpcSubnetList', {
-      query: { project, vpc, limit: 1000 },
+      query: { project, vpc, limit: ALL_ISH },
     }),
     apiQueryClient.prefetchQuery('instanceList', {
-      query: { project, limit: 1000 },
+      query: { project, limit: ALL_ISH },
+    }),
+    apiQueryClient.prefetchQuery('internetGatewayList', {
+      query: { project, vpc, limit: ALL_ISH },
     }),
   ])
   return null

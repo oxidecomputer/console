@@ -625,3 +625,36 @@ test('arbitrary values combobox', async ({ page }) => {
   // same options show up after blur (there was a bug around this)
   await expectOptions(page, ['db1', 'Custom: d'])
 })
+
+test("esc in combobox doesn't close form", async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules-new')
+
+  // make form dirty so we can get the confirm modal on close attempts
+  await page.getByRole('textbox', { name: 'Name' }).fill('a')
+
+  // make sure the confirm modal does pop up on esc when we're not in a combobox
+  const confirmModal = page.getByRole('dialog', { name: 'Confirm navigation' })
+  await expect(confirmModal).toBeHidden()
+  await page.keyboard.press('Escape')
+  await expect(confirmModal).toBeVisible()
+  await confirmModal.getByRole('button', { name: 'Keep editing' }).click()
+  await expect(confirmModal).toBeHidden()
+
+  const formModal = page.getByRole('dialog', { name: 'Add firewall rule' })
+  await expect(formModal).toBeVisible()
+
+  const input = page.getByRole('combobox', { name: 'VPC name' }).first()
+  await input.focus()
+
+  await expect(page.getByRole('option').first()).toBeVisible()
+  await expectOptions(page, ['mock-vpc'])
+
+  await page.keyboard.press('Escape')
+  // options are closed, but the whole form modal is not
+  await expect(confirmModal).toBeHidden()
+  await expect(page.getByRole('option')).toBeHidden()
+  await expect(formModal).toBeVisible()
+  // now press esc again to leave the form
+  await page.keyboard.press('Escape')
+  await expect(confirmModal).toBeVisible()
+})
