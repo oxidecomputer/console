@@ -323,9 +323,9 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
               target="_blank"
               rel="noreferrer"
             >
-              guest networking guide
+              Networking
             </a>{' '}
-            and{' '}
+            guide and the{' '}
             <a
               href="https://docs.oxide.computer/api/vpc_firewall_rules_update"
               // don't need color and hover color because message text is already color-info anyway
