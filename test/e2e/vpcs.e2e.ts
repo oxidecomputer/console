@@ -373,6 +373,8 @@ test('internet gateway shows proper list of routes targeting it', async ({ page 
   // close the sidemodal
   await sidemodal.getByRole('button', { name: 'Close' }).click()
   await expect(sidemodal).toBeHidden()
+  // check for the route count; which should be 1
+  await expect(page.getByRole('link', { name: '1', exact: true })).toBeVisible()
   // go to the Routers tab
   await page.getByRole('tab', { name: 'Routers' }).click()
   // click on the mock-custom-router to go to the router detail page
@@ -395,12 +397,8 @@ test('internet gateway shows proper list of routes targeting it', async ({ page 
   await page.getByRole('link', { name: 'mock-vpc' }).click()
   // click on the internet gateways tab and then the internet-gateway-1 link to go to the detail page
   await page.getByRole('tab', { name: 'Internet Gateways' }).click()
-  await page.getByRole('link', { name: 'internet-gateway-1' }).click()
-
-  // the table should now say "dc2 new-route"
-  await expect(page.getByText('dc2new-route')).toBeVisible()
-  // click on the link to go to the detail page
-  await page.getByRole('link', { name: 'internet-gateway-1' }).click()
+  // verify that the route count is now 2: click on the link to go to the edit gateway sidemodal
+  await page.getByRole('link', { name: '2', exact: true }).click()
 
   // the new route should be visible in the table
   await expectRowVisible(table, { Router: 'mock-custom-router', Route: 'dc2' })

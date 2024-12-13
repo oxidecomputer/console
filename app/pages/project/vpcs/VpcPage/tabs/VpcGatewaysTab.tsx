@@ -9,13 +9,13 @@
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo } from 'react'
-import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
+import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiq, getListQFn, queryClient, type InternetGateway } from '~/api'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
-import { makeLinkCell } from '~/table/cells/LinkCell'
+import { LinkCell, makeLinkCell } from '~/table/cells/LinkCell'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
@@ -50,18 +50,9 @@ const GatewayIpPoolCell = (gatewaySelector: PP.VpcInternetGateway) => {
 
 const GatewayRoutes = ({ project, vpc, gateway }: PP.VpcInternetGateway) => {
   const matchingRoutes = useGatewayRoutes({ project, vpc, gateway })
-
   if (!matchingRoutes?.length) return <EmptyCell />
-
-  return matchingRoutes.map(([router, route]) => {
-    const to = pb.vpcRouterRouteEdit({ project, vpc, router, route: route.name })
-    const key = `${router}-${route.name}`
-    return (
-      <Link key={key} to={to} className="link-with-underline text-sans-md">
-        {route.name}
-      </Link>
-    )
-  })
+  const to = pb.vpcInternetGateway({ project, vpc, gateway })
+  return <LinkCell to={to}>{matchingRoutes.length}</LinkCell>
 }
 
 const colHelper = createColumnHelper<InternetGateway>()
