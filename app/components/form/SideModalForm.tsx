@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useEffect, useId, useState, type ReactNode } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
 import { NavigationType, useNavigationType } from 'react-router-dom'
@@ -127,11 +128,11 @@ export function SideModalForm<TFieldValues extends FieldValues>({
           {children}
         </form>
       </SideModal.Body>
-      <SideModal.Footer error={!!submitError}>
-        <Button variant="ghost" size="sm" onClick={onDismiss}>
-          Cancel
-        </Button>
-        {onSubmit && (
+      {onSubmit && (
+        <SideModal.Footer error={!!submitError}>
+          <Button variant="ghost" size="sm" onClick={onDismiss}>
+            Cancel
+          </Button>
           <Button
             type="submit"
             size="sm"
@@ -142,8 +143,8 @@ export function SideModalForm<TFieldValues extends FieldValues>({
           >
             {label}
           </Button>
-        )}
-      </SideModal.Footer>
+        </SideModal.Footer>
+      )}
 
       {showNavGuard && (
         <Modal
