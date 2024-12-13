@@ -5,13 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
-import * as Dialog from '@radix-ui/react-dialog'
+
 import { useEffect, useId, useState, type ReactNode } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
 import { NavigationType, useNavigationType } from 'react-router-dom'
 
 import type { ApiError } from '@oxide/api'
-import { Close12Icon } from '@oxide/design-system/icons/react'
 
 import { Button } from '~/ui/lib/Button'
 import { Modal } from '~/ui/lib/Modal'
@@ -146,14 +145,6 @@ export function SideModalForm<TFieldValues extends FieldValues>({
           </Button>
         </SideModal.Footer>
       )}
-
-      {/* Close button is here at the end so we aren't automatically focusing on it when the side modal is opened. Positioned in the safe area at the top */}
-      <Dialog.Close
-        className="absolute right-[var(--content-gutter)] top-10 -m-2 flex rounded p-2 hover:bg-hover"
-        aria-label="Close"
-      >
-        <Close12Icon className="text-default" />
-      </Dialog.Close>
 
       {showNavGuard && (
         <Modal
