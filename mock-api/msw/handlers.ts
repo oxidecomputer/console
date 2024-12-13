@@ -1521,6 +1521,11 @@ export const handlers = makeHandlers({
     return paginated(query, db.users)
   },
 
+  switchList: ({ query, cookies }) => {
+    requireFleetViewer(cookies)
+    return paginated(query, db.switches)
+  },
+
   systemPolicyView({ cookies }) {
     requireFleetViewer(cookies)
 
@@ -1603,7 +1608,6 @@ export const handlers = makeHandlers({
   sledAdd: NotImplemented,
   sledListUninitialized: NotImplemented,
   sledSetProvisionPolicy: NotImplemented,
-  switchList: NotImplemented,
   switchView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
   systemQuotasList: NotImplemented,

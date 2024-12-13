@@ -87,6 +87,7 @@ test('path builder', () => {
         "sshKeyEdit": "/settings/ssh-keys/ss/edit",
         "sshKeys": "/settings/ssh-keys",
         "sshKeysNew": "/settings/ssh-keys-new",
+        "switchInventory": "/system/inventory/switches",
         "systemUtilization": "/system/utilization",
         "vpc": "/projects/p/vpcs/v/firewall-rules",
         "vpcEdit": "/projects/p/vpcs/v/edit",

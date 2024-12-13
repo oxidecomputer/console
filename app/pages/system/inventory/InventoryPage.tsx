@@ -43,6 +43,7 @@ export function InventoryPage() {
       <RouteTabs fullWidth>
         <Tab to={pb.sledInventory()}>Sleds</Tab>
         <Tab to={pb.diskInventory()}>Disks</Tab>
+        <Tab to={pb.switchInventory()}>Switches</Tab>
       </RouteTabs>
     </>
   )

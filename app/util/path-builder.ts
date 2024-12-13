@@ -104,6 +104,7 @@ export const pb = {
 
   sledInventory: () => '/system/inventory/sleds',
   diskInventory: () => '/system/inventory/disks',
+  switchInventory: () => '/system/inventory/switches',
   sled: ({ sledId }: PP.Sled) => `/system/inventory/sleds/${sledId}/instances`,
   sledInstances: ({ sledId }: PP.Sled) => `/system/inventory/sleds/${sledId}/instances`,
 
