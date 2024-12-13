@@ -581,16 +581,6 @@ exports[`breadcrumbs 2`] = `
       "path": "/settings/ssh-keys",
     },
   ],
-  "switchInventory (/system/inventory/switches)": [
-    {
-      "label": "Inventory",
-      "path": "/system/inventory/sleds",
-    },
-    {
-      "label": "Switches",
-      "path": "/system/inventory/switches",
-    },
-  ],
   "systemUtilization (/system/utilization)": [
     {
       "label": "Utilization",
