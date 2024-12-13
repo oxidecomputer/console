@@ -50,9 +50,8 @@ const GatewayIpPoolCell = (gatewaySelector: PP.VpcInternetGateway) => {
 
 const GatewayRoutes = ({ project, vpc, gateway }: PP.VpcInternetGateway) => {
   const matchingRoutes = useGatewayRoutes({ project, vpc, gateway })
-  if (!matchingRoutes?.length) return <EmptyCell />
   const to = pb.vpcInternetGateway({ project, vpc, gateway })
-  return <LinkCell to={to}>{matchingRoutes.length}</LinkCell>
+  return <LinkCell to={to}>{matchingRoutes?.length || 0}</LinkCell>
 }
 
 const colHelper = createColumnHelper<InternetGateway>()

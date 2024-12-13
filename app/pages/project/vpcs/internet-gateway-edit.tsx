@@ -37,7 +37,7 @@ import {
 
 const RoutesEmpty = () => (
   <Table.Row>
-    <Table.Cell colSpan={2} className="bg-secondary">
+    <Table.Cell colSpan={2} className="!bg-raise">
       No VPC router routes target this gateway.
     </Table.Cell>
   </Table.Row>
