@@ -87,7 +87,7 @@ export function Component() {
     [instanceName, project]
   )
 
-  const { mutate: detachDisk } = useApiMutation('instanceDiskDetach', {
+  const { mutateAsync: detachDisk } = useApiMutation('instanceDiskDetach', {
     onSuccess(disk) {
       queryClient.invalidateQueries('instanceDiskList')
       addToast(<>Disk <HL>{disk.name}</HL> detached</>) // prettier-ignore
@@ -146,10 +146,6 @@ export function Component() {
     [disks.items, instance.bootDiskId]
   )
 
-  // Needed to keep them the same while setting boot disk.
-  // Extracted to keep dep array appropriately zealous.
-  const { ncpus, memory } = instance
-
   const makeBootDiskActions = useCallback(
     (disk: InstanceDisk): MenuAction[] => [
       getSnapshotAction(disk),
@@ -168,8 +164,8 @@ export function Component() {
                 path: { instance: instance.id },
                 body: {
                   bootDisk: undefined,
-                  ncpus,
-                  memory,
+                  ncpus: instance.ncpus,
+                  memory: instance.memory,
                   // this would get unset if we left it out
                   autoRestartPolicy: instance.autoRestartPolicy,
                 },
@@ -200,7 +196,16 @@ export function Component() {
         onActivate() {}, // it's always disabled, so noop is ok
       },
     ],
-    [instanceUpdate, instance, getSnapshotAction, ncpus, memory]
+    [
+      instanceUpdate,
+      // don't put the entire instance in here. it is not referentially
+      // stable across polls, so the menus will close during polling
+      instance.id,
+      instance.autoRestartPolicy,
+      instance.ncpus,
+      instance.memory,
+      getSnapshotAction,
+    ]
   )
 
   const makeOtherDiskActions = useCallback(
@@ -223,8 +228,8 @@ export function Component() {
                 path: { instance: instance.id },
                 body: {
                   bootDisk: disk.id,
-                  ncpus,
-                  memory,
+                  ncpus: instance.ncpus,
+                  memory: instance.memory,
                   // this would get unset if we left it out
                   autoRestartPolicy: instance.autoRestartPolicy,
                 },
@@ -257,12 +262,29 @@ export function Component() {
             detached
           </>
         ),
-        onActivate() {
-          detachDisk({ body: { disk: disk.name }, path: { instance: instance.id } })
-        },
+        onActivate: () =>
+          confirmAction({
+            doAction: () =>
+              detachDisk({ body: { disk: disk.name }, path: { instance: instance.id } }),
+            errorTitle: 'Could not detach disk',
+            modalTitle: 'Confirm detach disk',
+            modalContent: <p>Are you sure you want to detach <HL>{disk.name}</HL>?</p>, // prettier-ignore
+            actionType: 'danger',
+          }),
       },
     ],
-    [detachDisk, instanceUpdate, instance, getSnapshotAction, bootDisks, ncpus, memory]
+    [
+      detachDisk,
+      instanceUpdate,
+      // don't put the entire instance in here. it is not referentially
+      // stable across polls, so the menus will close during polling
+      instance.id,
+      instance.autoRestartPolicy,
+      instance.ncpus,
+      instance.memory,
+      getSnapshotAction,
+      bootDisks,
+    ]
   )
 
   const attachDisk = useApiMutation('instanceDiskAttach', {

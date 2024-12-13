@@ -544,10 +544,17 @@ test('create instance with additional disks', async ({ page }) => {
   await page.getByRole('button', { name: 'Create new disk' }).click()
 
   const createForm = page.getByRole('dialog', { name: 'Create disk' })
+  await expect(createForm).toBeVisible() // kill time to help size field flake?
 
   // verify that an existing name can't be used
   await createForm.getByRole('textbox', { name: 'Name', exact: true }).fill('disk-6')
-  await createForm.getByRole('textbox', { name: 'Size (GiB)' }).fill('5')
+
+  // this fill fails to happen sometimes, causing test flakes. the assert here
+  // should catch it slightly sooner
+  const sizeField = createForm.getByRole('textbox', { name: 'Size (GiB)' })
+  await sizeField.fill('5')
+  await expect(sizeField).toHaveValue('5')
+
   await createForm.getByRole('button', { name: 'Create disk' }).click()
   await expect(createForm.getByText('Name is already in use')).toBeVisible()
 

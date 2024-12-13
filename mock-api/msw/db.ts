@@ -31,6 +31,8 @@ export const lookupById = <T extends { id: string }>(table: T[], id: string) => 
   return item
 }
 
+const paginationParams = ['limit', 'page_token', 'sort_by']
+
 /**
  * Given an object representing (potentially) parent selectors for a resource,
  * throw an error if any of the keys in that object have truthy values. For
@@ -44,7 +46,7 @@ function ensureNoParentSelectors(
   parentSelector: Record<string, string | undefined>
 ) {
   const keysWithValues = Object.entries(parentSelector)
-    .filter(([_, v]) => v)
+    .filter(([k, v]) => v && !paginationParams.includes(k))
     .map(([k]) => k)
   if (keysWithValues.length > 0) {
     const message = `when ${resourceLabel} is specified by ID, ${commaSeries(keysWithValues, 'and')} should not be specified`
@@ -214,6 +216,44 @@ export const lookup = {
     if (!subnet) throw notFoundErr(`subnet '${id}'`)
 
     return subnet
+  },
+  internetGateway({
+    gateway: id,
+    ...vpcSelector
+  }: Sel.InternetGateway): Json<Api.InternetGateway> {
+    if (!id) throw notFoundErr('no internet gateway specified')
+
+    if (isUuid(id)) {
+      ensureNoParentSelectors('internet gateway', vpcSelector)
+      return lookupById(db.internetGateways, id)
+    }
+
+    const vpc = lookup.vpc(vpcSelector)
+    const internetGateway = db.internetGateways.find(
+      (ig) => ig.vpc_id === vpc.id && ig.name === id
+    )
+    if (!internetGateway) throw notFoundErr(`internet gateway '${id}'`)
+
+    return internetGateway
+  },
+  internetGatewayIpAddress({
+    address: id,
+    ...gatewaySelector
+  }: Sel.InternetGatewayIpAddress): Json<Api.InternetGatewayIpAddress> {
+    if (!id) throw notFoundErr('no IP address specified')
+
+    if (isUuid(id)) {
+      ensureNoParentSelectors('IP address', gatewaySelector)
+      return lookupById(db.internetGatewayIpAddresses, id)
+    }
+
+    const gateway = lookup.internetGateway(gatewaySelector)
+    const ip = db.internetGatewayIpAddresses.find(
+      (i) => i.internet_gateway_id === gateway.id && i.name === id
+    )
+    if (!ip) throw notFoundErr(`IP address '${id}'`)
+
+    return ip
   },
   image({ image: id, project: projectId }: Sel.Image): Json<Api.Image> {
     if (!id) throw notFoundErr('no image specified')
@@ -405,6 +445,9 @@ const initDb = {
   images: [...mock.images],
   ephemeralIps: [...mock.ephemeralIps],
   instances: [...mock.instances],
+  internetGatewayIpAddresses: [...mock.internetGatewayIpAddresses],
+  internetGatewayIpPools: [...mock.internetGatewayIpPools],
+  internetGateways: [...mock.internetGateways],
   ipPools: [...mock.ipPools],
   ipPoolSilos: [...mock.ipPoolSilos],
   ipPoolRanges: [...mock.ipPoolRanges],
@@ -418,6 +461,7 @@ const initDb = {
   siloProvisioned: [...mock.siloProvisioned],
   identityProviders: [...mock.identityProviders],
   sleds: [...mock.sleds],
+  switches: [...mock.switches],
   snapshots: [...mock.snapshots],
   sshKeys: [...mock.sshKeys],
   users: [...mock.users],

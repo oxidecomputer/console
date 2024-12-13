@@ -24,4 +24,5 @@ export type FirewallRule = Required<Sel.FirewallRule>
 export type VpcRouter = Required<Sel.VpcRouter>
 export type VpcRouterRoute = Required<Sel.VpcRouterRoute>
 export type VpcSubnet = Required<Sel.VpcSubnet>
+export type VpcInternetGateway = Required<Sel.InternetGateway>
 export type SshKey = Required<Sel.SshKey>

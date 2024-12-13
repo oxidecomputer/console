@@ -232,7 +232,7 @@ export function CreateIdpSideModalForm() {
 
       <FormDivider />
 
-      <SideModal.Heading>Identity Provider</SideModal.Heading>
+      <SideModal.Heading>Identity provider</SideModal.Heading>
       {/* TODO: help text */}
       <TextField name="idpEntityId" label="Entity ID" required control={form.control} />
       <TextField

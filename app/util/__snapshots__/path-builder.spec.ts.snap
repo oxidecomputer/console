@@ -581,6 +581,16 @@ exports[`breadcrumbs 2`] = `
       "path": "/settings/ssh-keys",
     },
   ],
+  "switchInventory (/system/inventory/switches)": [
+    {
+      "label": "Inventory",
+      "path": "/system/inventory/sleds",
+    },
+    {
+      "label": "Switches",
+      "path": "/system/inventory/switches",
+    },
+  ],
   "systemUtilization (/system/utilization)": [
     {
       "label": "Utilization",
@@ -717,6 +727,50 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "Firewall Rules",
       "path": "/projects/p/vpcs/v/",
+    },
+  ],
+  "vpcInternetGateway (/projects/p/vpcs/v/internet-gateways/g)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v/firewall-rules",
+    },
+    {
+      "label": "Internet Gateways",
+      "path": "/projects/p/vpcs/v/internet-gateways",
+    },
+  ],
+  "vpcInternetGateways (/projects/p/vpcs/v/internet-gateways)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v/firewall-rules",
+    },
+    {
+      "label": "Internet Gateways",
+      "path": "/projects/p/vpcs/v/internet-gateways",
     },
   ],
   "vpcRouter (/projects/p/vpcs/v/routers/r)": [

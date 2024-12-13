@@ -17,6 +17,7 @@ import { pb } from './path-builder'
 // params can be the same for all of them because they only use what they need
 const params = {
   floatingIp: 'f',
+  gateway: 'g',
   project: 'p',
   instance: 'i',
   vpc: 'v',
@@ -86,6 +87,7 @@ test('path builder', () => {
         "sshKeyEdit": "/settings/ssh-keys/ss/edit",
         "sshKeys": "/settings/ssh-keys",
         "sshKeysNew": "/settings/ssh-keys-new",
+        "switchInventory": "/system/inventory/switches",
         "systemUtilization": "/system/utilization",
         "vpc": "/projects/p/vpcs/v/firewall-rules",
         "vpcEdit": "/projects/p/vpcs/v/edit",
@@ -93,6 +95,8 @@ test('path builder', () => {
         "vpcFirewallRuleEdit": "/projects/p/vpcs/v/firewall-rules/fr/edit",
         "vpcFirewallRules": "/projects/p/vpcs/v/firewall-rules",
         "vpcFirewallRulesNew": "/projects/p/vpcs/v/firewall-rules-new",
+        "vpcInternetGateway": "/projects/p/vpcs/v/internet-gateways/g",
+        "vpcInternetGateways": "/projects/p/vpcs/v/internet-gateways",
         "vpcRouter": "/projects/p/vpcs/v/routers/r",
         "vpcRouterEdit": "/projects/p/vpcs/v/routers/r/edit",
         "vpcRouterRouteEdit": "/projects/p/vpcs/v/routers/r/routes/rr/edit",
