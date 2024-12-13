@@ -134,6 +134,22 @@ export const routerRoutes: Json<Array<RouterRoute>> = [
       type: 'drop',
     },
   },
+  {
+    ...routeBase,
+    vpc_router_id: customRouter.id,
+    id: '550e8400-e29b-41d4-a716-446655440000',
+    name: 'dc2',
+    description: 'route to datacenter 2',
+    kind: 'custom',
+    target: {
+      type: 'internet_gateway',
+      value: 'internet-gateway-1',
+    },
+    destination: {
+      type: 'ip_net',
+      value: '45.154.216.0/24',
+    },
+  },
 ]
 
 export const vpcSubnet: Json<VpcSubnet> = {
