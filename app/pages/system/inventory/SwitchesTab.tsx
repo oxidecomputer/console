@@ -13,14 +13,6 @@ import { Servers24Icon } from '@oxide/design-system/icons/react'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 
-const EmptyState = () => (
-  <EmptyMessage
-    icon={<Servers24Icon />}
-    title="Something went wrong"
-    body="We expected some switches here, but none were found"
-  />
-)
-
 const switchList = getListQFn('switchList', {})
 
 export async function loader() {
@@ -29,7 +21,7 @@ export async function loader() {
 }
 
 const colHelper = createColumnHelper<Switch>()
-const staticCols = [
+const columns = [
   colHelper.accessor('id', {}),
   colHelper.accessor('baseboard.part', { header: 'part number' }),
   colHelper.accessor('baseboard.serial', { header: 'serial number' }),
@@ -38,7 +30,7 @@ const staticCols = [
 
 Component.displayName = 'SwitchesTab'
 export function Component() {
-  const emptyState = <EmptyState />
-  const { table } = useQueryTable({ query: switchList, columns: staticCols, emptyState })
+  const emptyState = <EmptyMessage icon={<Servers24Icon />} title="No switches found" />
+  const { table } = useQueryTable({ query: switchList, columns, emptyState })
   return table
 }
