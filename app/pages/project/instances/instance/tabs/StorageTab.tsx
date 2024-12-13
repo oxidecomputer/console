@@ -87,7 +87,7 @@ export function Component() {
     [instanceName, project]
   )
 
-  const { mutate: detachDisk } = useApiMutation('instanceDiskDetach', {
+  const { mutateAsync: detachDisk } = useApiMutation('instanceDiskDetach', {
     onSuccess(disk) {
       queryClient.invalidateQueries('instanceDiskList')
       addToast(<>Disk <HL>{disk.name}</HL> detached</>) // prettier-ignore
@@ -262,9 +262,15 @@ export function Component() {
             detached
           </>
         ),
-        onActivate() {
-          detachDisk({ body: { disk: disk.name }, path: { instance: instance.id } })
-        },
+        onActivate: () =>
+          confirmAction({
+            doAction: () =>
+              detachDisk({ body: { disk: disk.name }, path: { instance: instance.id } }),
+            errorTitle: 'Could not detach disk',
+            modalTitle: 'Confirm detach disk',
+            modalContent: <p>Are you sure you want to detach <HL>{disk.name}</HL>?</p>, // prettier-ignore
+            actionType: 'danger',
+          }),
       },
     ],
     [
