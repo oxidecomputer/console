@@ -335,12 +335,14 @@ test('can view internet gateways', async ({ page }) => {
     description: 'internet gateway 1',
     'Attached IP Address': '123.4.56.3',
     'Attached IP Pool': 'ip-pool-1',
+    Routes: '1',
   })
   await expectRowVisible(table, {
     name: 'internet-gateway-2',
     description: 'internet gateway 2',
     'Attached IP Address': '—',
     'Attached IP Pool': 'ip-pool-2',
+    Routes: '—',
   })
 
   await page.getByRole('link', { name: 'internet-gateway-1' }).click()

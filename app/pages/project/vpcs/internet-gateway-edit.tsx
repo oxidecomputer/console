@@ -104,9 +104,9 @@ export function EditInternetGatewayForm() {
 
   return (
     <SideModalForm
-      title="Internet Gateway"
+      title="Internet gateway"
       formType="edit"
-      resourceName="Internet Gateway"
+      resourceName="internet gateway"
       onDismiss={onDismiss}
       subtitle={
         <ResourceLabel>
@@ -145,7 +145,7 @@ export function EditInternetGatewayForm() {
       <FormDivider />
       <div className="flex flex-col gap-3">
         <SideModal.Heading>
-          Internet Gateway IP Address
+          Internet gateway IP address
           {gatewayIpAddresses && gatewayIpAddresses.length > 1 ? 'es' : ''}
         </SideModal.Heading>
         {gatewayIpAddresses && gatewayIpAddresses.length > 0 ? (
@@ -164,10 +164,10 @@ export function EditInternetGatewayForm() {
           ))
         ) : (
           <div className="mt-2">
-            {'This internet gateway does not have any specific IP addresses attached. '}
+            {'This internet gateway does not have any IP addresses attached. '}
             {hasAttachedPool
               ? 'It will use an address from the attached IP pool.'
-              : 'Use the CLI to attach an IP Pool or specify an IP address to use with this gateway.'}
+              : 'Use the CLI to attach an IP pool or IP address to this gateway.'}
           </div>
         )}
       </div>
@@ -176,7 +176,7 @@ export function EditInternetGatewayForm() {
 
       <div className="flex flex-col gap-3">
         <SideModal.Heading>
-          Internet Gateway IP Pool
+          Internet gateway IP pool
           {gatewayIpPools && gatewayIpPools.length > 1 ? 's' : ''}
         </SideModal.Heading>
         {hasAttachedPool ? (
