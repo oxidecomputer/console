@@ -17,6 +17,8 @@ export const trigger404 = { type: 'error', statusCode: 404 }
 type Props = { error: Error | ApiError }
 
 function ErrorFallback({ error }: Props) {
+  console.error(error)
+
   if ('statusCode' in error && error.statusCode === 404) {
     return <NotFound />
   }
@@ -24,7 +26,7 @@ function ErrorFallback({ error }: Props) {
   return (
     <ErrorPage>
       <h1 className="text-sans-2xl">Something went wrong</h1>
-      <p className="text-tertiary">
+      <p className="text-secondary">
         Please try again. If the problem persists, contact your administrator.
       </p>
     </ErrorPage>
@@ -38,6 +40,5 @@ export const ErrorBoundary = (props: { children: React.ReactNode }) => (
 export function RouterDataErrorBoundary() {
   // TODO: validate this unknown at runtime _before_ passing to ErrorFallback
   const error = useRouteError() as Props['error']
-  console.error(error)
   return <ErrorFallback error={error} />
 }

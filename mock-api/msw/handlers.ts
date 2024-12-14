@@ -174,7 +174,7 @@ export const handlers = makeHandlers({
 
     return {
       items: genCumulativeI64Data(
-        new Array(1000).fill(0).map((_x, i) => Math.floor(Math.tanh(i / 500) * 3000)),
+        Array.from({ length: 1000 }).map((_x, i) => Math.floor(Math.tanh(i / 500) * 3000)),
         startTime,
         endTime
       ),
@@ -574,7 +574,7 @@ export const handlers = makeHandlers({
 
     setTimeout(() => {
       newInstance.run_state = 'starting'
-    }, 500)
+    }, 1000)
 
     setTimeout(() => {
       newInstance.run_state = 'running'
@@ -1159,6 +1159,26 @@ export const handlers = makeHandlers({
 
     return { rules: R.sortBy(rules, (r) => r.name) }
   },
+  internetGatewayList({ query }) {
+    const vpc = lookup.vpc(query)
+    const gateways = db.internetGateways.filter((g) => g.vpc_id === vpc.id)
+    return paginated(query, gateways)
+  },
+  internetGatewayView: ({ path, query }) => lookup.internetGateway({ ...path, ...query }),
+  internetGatewayIpPoolList({ query }) {
+    const gateway = lookup.internetGateway(query)
+    const pools = db.internetGatewayIpPools.filter(
+      (p) => p.internet_gateway_id === gateway.id
+    )
+    return paginated(query, pools)
+  },
+  internetGatewayIpAddressList({ query }) {
+    const gateway = lookup.internetGateway(query)
+    const addresses = db.internetGatewayIpAddresses.filter(
+      (a) => a.internet_gateway_id === gateway.id
+    )
+    return paginated(query, addresses)
+  },
   vpcRouterList({ query }) {
     const vpc = lookup.vpc(query)
     const routers = db.vpcRouters.filter((r) => r.vpc_id === vpc.id)
@@ -1501,6 +1521,11 @@ export const handlers = makeHandlers({
     return paginated(query, db.users)
   },
 
+  switchList: ({ query, cookies }) => {
+    requireFleetViewer(cookies)
+    return paginated(query, db.switches)
+  },
+
   systemPolicyView({ cookies }) {
     requireFleetViewer(cookies)
 
@@ -1527,12 +1552,8 @@ export const handlers = makeHandlers({
   internetGatewayDelete: NotImplemented,
   internetGatewayIpAddressCreate: NotImplemented,
   internetGatewayIpAddressDelete: NotImplemented,
-  internetGatewayIpAddressList: NotImplemented,
   internetGatewayIpPoolCreate: NotImplemented,
   internetGatewayIpPoolDelete: NotImplemented,
-  internetGatewayIpPoolList: NotImplemented,
-  internetGatewayList: NotImplemented,
-  internetGatewayView: NotImplemented,
   ipPoolServiceRangeAdd: NotImplemented,
   ipPoolServiceRangeList: NotImplemented,
   ipPoolServiceRangeRemove: NotImplemented,
@@ -1587,12 +1608,12 @@ export const handlers = makeHandlers({
   sledAdd: NotImplemented,
   sledListUninitialized: NotImplemented,
   sledSetProvisionPolicy: NotImplemented,
-  switchList: NotImplemented,
   switchView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
   systemQuotasList: NotImplemented,
   systemTimeseriesQuery: NotImplemented,
   systemTimeseriesSchemaList: NotImplemented,
+  timeseriesQuery: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
 })

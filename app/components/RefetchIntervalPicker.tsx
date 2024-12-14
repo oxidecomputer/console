@@ -54,8 +54,8 @@ export function useIntervalPicker({ enabled, isLoading, fn }: Props) {
     intervalMs: (enabled && intervalPresets[intervalPreset]) || undefined,
     intervalPicker: (
       <div className="mb-12 flex items-center justify-between">
-        <div className="hidden items-center gap-2 text-right text-mono-sm text-quaternary lg+:flex">
-          <Time16Icon className="text-quinary" /> Refreshed{' '}
+        <div className="hidden items-center gap-2 text-right text-mono-sm text-tertiary lg+:flex">
+          <Time16Icon className="text-quaternary" /> Refreshed{' '}
           {toLocaleTimeString(lastFetched)}
         </div>
         <div className="flex">
@@ -70,7 +70,7 @@ export function useIntervalPicker({ enabled, isLoading, fn }: Props) {
             disabled={isLoading || !enabled}
           >
             <SpinnerLoader isLoading={isLoading}>
-              <Refresh16Icon className="text-tertiary" />
+              <Refresh16Icon className="text-secondary" />
             </SpinnerLoader>
           </button>
           <Listbox

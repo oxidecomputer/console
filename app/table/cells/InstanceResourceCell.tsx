@@ -16,10 +16,10 @@ export const InstanceResourceCell = ({ value }: Props) => {
   return (
     <div className="space-y-0.5">
       <div>
-        {value.ncpus} <span className="text-quaternary">vCPU</span>
+        {value.ncpus} <span className="text-tertiary">vCPU</span>
       </div>
       <div>
-        {memory.value} <span className="text-quaternary">{memory.unit}</span>
+        {memory.value} <span className="text-tertiary">{memory.unit}</span>
       </div>
     </div>
   )

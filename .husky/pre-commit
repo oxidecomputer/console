@@ -1,1 +1,2 @@
-npx lint-staged
+# use path directly instead of npx or npm run because it's way faster
+node_modules/.bin/oxlint --deny-warnings

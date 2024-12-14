@@ -279,6 +279,9 @@ test('create router route', async ({ page }) => {
 test('edit and delete router route', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc/routers/mock-custom-router')
 
+  const table = page.getByRole('table')
+  await expect(table.locator('tbody >> tr')).toHaveCount(2)
+
   const form = page.getByRole('dialog', { name: 'Edit route' })
   await expect(form).toBeHidden()
 
@@ -306,7 +309,6 @@ test('edit and delete router route', async ({ page }) => {
   await submitButton.click()
   await expect(form).toBeHidden()
 
-  const table = page.getByRole('table')
   await expectRowVisible(table, {
     Name: 'new-name',
     Destination: 'VPC subnetmock-subnet',
@@ -316,6 +318,99 @@ test('edit and delete router route', async ({ page }) => {
   // delete the route
   await clickRowAction(page, 'new-name', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
-  await expect(table).toBeHidden()
-  await expect(page.getByText('No routes')).toBeVisible()
+  // expect 1 row in table
+  await expect(table.locator('tbody >> tr')).toHaveCount(1)
+})
+
+test('can view internet gateways', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs/mock-vpc')
+  await page.getByRole('tab', { name: 'Internet Gateways' }).click()
+
+  const table = page.getByRole('table')
+  const rows = table.locator('tbody >> tr')
+  await expect(rows).toHaveCount(2)
+
+  await expectRowVisible(table, {
+    name: 'internet-gateway-1',
+    description: 'internet gateway 1',
+    'Attached IP Address': '123.4.56.3',
+    'Attached IP Pool': 'ip-pool-1',
+    Routes: '1',
+  })
+  await expectRowVisible(table, {
+    name: 'internet-gateway-2',
+    description: 'internet gateway 2',
+    'Attached IP Address': '—',
+    'Attached IP Pool': 'ip-pool-2',
+    Routes: '—',
+  })
+
+  await page.getByRole('link', { name: 'internet-gateway-1' }).click()
+  await expect(page).toHaveURL(
+    '/projects/mock-project/vpcs/mock-vpc/internet-gateways/internet-gateway-1'
+  )
+  const sidemodal = page.getByLabel('Internet Gateway')
+
+  await expect(sidemodal.getByText('123.4.56.3')).toBeVisible()
+
+  // close the sidemodal
+  await sidemodal.getByRole('button', { name: 'Close' }).click()
+  await expect(sidemodal).toBeHidden()
+
+  await page.getByRole('link', { name: 'internet-gateway-2' }).click()
+  await expect(sidemodal.getByText('This internet gateway does not have any')).toBeVisible()
+})
+
+test('internet gateway shows proper list of routes targeting it', async ({ page }) => {
+  // open up the internet gateway detail page for internet-gateway-1
+  await page.goto(
+    '/projects/mock-project/vpcs/mock-vpc/internet-gateways/internet-gateway-1'
+  )
+  // verify that it has a table with the row showing "mock-custom-router" and "dc2"
+  const sidemodal = page.getByRole('dialog', { name: 'Internet Gateway' })
+  const table = sidemodal.getByRole('table')
+  await expectRowVisible(table, { Router: 'mock-custom-router', Route: 'dc2' })
+  await expect(table.locator('tbody >> tr')).toHaveCount(1)
+
+  // close the sidemodal
+  await sidemodal.getByRole('button', { name: 'Close' }).click()
+  await expect(sidemodal).toBeHidden()
+  // check for the route count; which should be 1
+  await expect(page.getByRole('link', { name: '1', exact: true })).toBeVisible()
+  // go to the Routers tab
+  await page.getByRole('tab', { name: 'Routers' }).click()
+  // click on the mock-custom-router to go to the router detail page
+  await page.getByRole('link', { name: 'mock-custom-router' }).click()
+  // expect to be on the view page
+  await expect(page).toHaveURL(
+    '/projects/mock-project/vpcs/mock-vpc/routers/mock-custom-router'
+  )
+
+  await page.getByRole('link', { name: 'mock-custom-router' }).click()
+  // create a new route
+  await page.getByRole('link', { name: 'New route' }).click()
+  await page.getByRole('textbox', { name: 'Name' }).fill('new-route')
+  await page.getByRole('textbox', { name: 'Destination value' }).fill('1.2.3.4')
+  await selectOption(page, 'Target type', 'Internet gateway')
+  await selectOption(page, 'Target value', 'internet-gateway-1')
+  await page.getByRole('button', { name: 'Create route' }).click()
+
+  // go back to the mock-vpc page by clicking on the link in the header
+  await page.getByRole('link', { name: 'mock-vpc' }).click()
+  // click on the internet gateways tab and then the internet-gateway-1 link to go to the detail page
+  await page.getByRole('tab', { name: 'Internet Gateways' }).click()
+  // verify that the route count is now 2: click on the link to go to the edit gateway sidemodal
+  await page.getByRole('link', { name: '2', exact: true }).click()
+
+  // the new route should be visible in the table
+  await expectRowVisible(table, { Router: 'mock-custom-router', Route: 'dc2' })
+  await expectRowVisible(table, { Router: 'mock-custom-router', Route: 'new-route' })
+  await expect(table.locator('tbody >> tr')).toHaveCount(2)
+
+  // click on the new-route link to go to the detail page
+  await sidemodal.getByRole('link', { name: 'mock-custom-router' }).first().click()
+  // expect to be on the view page
+  await expect(page).toHaveURL(
+    '/projects/mock-project/vpcs/mock-vpc/routers/mock-custom-router'
+  )
 })

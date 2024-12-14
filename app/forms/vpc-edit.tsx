@@ -8,12 +8,7 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import {
-  apiQueryClient,
-  useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
-} from '@oxide/api'
+import { apiq, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -22,26 +17,26 @@ import { HL } from '~/components/HL'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
+
+const vpcView = ({ project, vpc }: PP.Vpc) =>
+  apiq('vpcView', { path: { vpc }, query: { project } })
 
 EditVpcSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, vpc } = getVpcSelector(params)
-  await apiQueryClient.prefetchQuery('vpcView', { path: { vpc }, query: { project } })
+  await queryClient.prefetchQuery(vpcView({ project, vpc }))
   return null
 }
 
 export function EditVpcSideModalForm() {
   const { vpc: vpcName, project } = useVpcSelector()
-  const queryClient = useApiQueryClient()
   const navigate = useNavigate()
 
-  const { data: vpc } = usePrefetchedApiQuery('vpcView', {
-    path: { vpc: vpcName },
-    query: { project },
-  })
+  const { data: vpc } = usePrefetchedQuery(vpcView({ project, vpc: vpcName }))
 
   const editVpc = useApiMutation('vpcUpdate', {
     onSuccess(updatedVpc) {
-      queryClient.invalidateQueries('vpcList')
+      queryClient.invalidateEndpoint('vpcList')
       navigate(pb.vpc({ project, vpc: updatedVpc.name }))
       addToast(<>VPC <HL>{updatedVpc.name}</HL> updated</>) // prettier-ignore
 
@@ -51,7 +46,7 @@ export function EditVpcSideModalForm() {
       // page's VPC gets cleared out while we're still on the page. If we're
       // navigating to a different page, its query will fetch anew regardless.
       if (vpc.name === updatedVpc.name) {
-        queryClient.invalidateQueries('vpcView')
+        queryClient.invalidateEndpoint('vpcView')
       }
     },
   })

@@ -8,7 +8,7 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { animated, useTransition } from '@react-spring/web'
 import cn from 'classnames'
-import React, { forwardRef, useId } from 'react'
+import type { MergeExclusive } from 'type-fest'
 
 import { Close12Icon } from '@oxide/design-system/icons/react'
 
@@ -41,7 +41,6 @@ export function Modal({
   narrow,
   overlay = true,
 }: ModalProps) {
-  const titleId = useId()
   const AnimatedDialogContent = animated(Dialog.Content)
 
   const config = { tension: 650, mass: 0.125 }
@@ -70,10 +69,10 @@ export function Modal({
 
                 <AnimatedDialogContent
                   className={cn(
-                    'pointer-events-auto fixed left-1/2 top-1/2 z-modal m-0 flex max-h-[min(800px,80vh)] w-auto min-w-[24rem] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2',
-                    narrow ? 'max-w-[24rem]' : 'max-w-[32rem]'
+                    'pointer-events-auto fixed left-1/2 top-[min(50%,500px)] z-modal m-0 flex max-h-[min(800px,80vh)] w-full flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2',
+                    narrow ? 'max-w-[24rem]' : 'max-w-[28rem]'
                   )}
-                  aria-labelledby={titleId}
+                  aria-describedby={undefined} // radix warns without this
                   style={{
                     transform: y.to((value) => `translate3d(-50%, ${-50 + value}%, 0px)`),
                   }}
@@ -84,15 +83,15 @@ export function Modal({
                   // https://github.com/oxidecomputer/console/issues/1745
                   onFocusOutside={(e) => e.preventDefault()}
                 >
-                  <Dialog.Title asChild>
-                    <ModalTitle id={titleId}>{title}</ModalTitle>
+                  <Dialog.Title className="border-b px-4 py-4 text-sans-semi-lg bg-secondary border-b-secondary">
+                    {title}
                   </Dialog.Title>
                   {children}
                   <Dialog.Close
-                    className="absolute right-2 top-3 flex rounded p-2 hover:bg-hover"
+                    className="absolute right-2 top-3.5 flex items-center justify-center rounded p-2 hover:bg-hover"
                     aria-label="Close"
                   >
-                    <Close12Icon className="text-secondary" />
+                    <Close12Icon className="text-default" />
                   </Dialog.Close>
                 </AnimatedDialogContent>
               </Dialog.Portal>
@@ -103,27 +102,24 @@ export function Modal({
   )
 }
 
-interface ModalTitleProps {
-  children?: React.ReactNode
-  id?: string
-}
-
-// not exported because we want to use the `title` prop on Modal so the aria
-// label gets hooked up properly
-const ModalTitle = forwardRef<HTMLDivElement, ModalTitleProps>(({ children, id }, ref) => (
-  <div
-    ref={ref}
-    className="flex items-center justify-between border-b px-4 py-4 bg-secondary border-b-secondary"
-  >
-    <h2 className="text-sans-semi-lg" id={id}>
-      {children}
-    </h2>
-  </div>
-))
-
 Modal.Body = classed.div`py-2 overflow-y-auto`
 
-Modal.Section = classed.div`p-4 space-y-4 border-b border-secondary text-secondary last-of-type:border-none text-sans-md`
+Modal.Section = classed.div`p-4 space-y-4 border-b border-secondary text-default last-of-type:border-none text-sans-md`
+
+/**
+ * `formId` and `onAction` are mutually exclusive. If there is a form associated,
+ * the button becomes a submit button for that form, and the action is assumed to
+ * be hooked up in the form's `onSubmit`.
+ */
+type FooterProps = {
+  children?: React.ReactNode
+  onDismiss: () => void
+  actionType?: 'primary' | 'danger'
+  actionText: React.ReactNode
+  actionLoading?: boolean
+  cancelText?: string
+  disabled?: boolean
+} & MergeExclusive<{ formId: string }, { onAction: () => void }>
 
 Modal.Footer = ({
   children,
@@ -134,16 +130,8 @@ Modal.Footer = ({
   actionLoading,
   cancelText,
   disabled = false,
-}: {
-  children?: React.ReactNode
-  onDismiss: () => void
-  onAction: () => void
-  actionType?: 'primary' | 'danger'
-  actionText: React.ReactNode
-  actionLoading?: boolean
-  cancelText?: string
-  disabled?: boolean
-}) => (
+  formId,
+}: FooterProps) => (
   <footer className="flex items-center justify-between border-t px-3 py-3 border-secondary">
     <div className="mr-4">{children}</div>
     <div className="space-x-2">
@@ -151,6 +139,8 @@ Modal.Footer = ({
         {cancelText || 'Cancel'}
       </Button>
       <Button
+        type={formId ? 'submit' : 'button'}
+        form={formId}
         size="sm"
         variant={actionType}
         onClick={onAction}

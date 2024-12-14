@@ -9,7 +9,13 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient, useApiMutation, type VpcRouter } from '@oxide/api'
+import {
+  apiQueryClient,
+  getListQFn,
+  queryClient,
+  useApiMutation,
+  type VpcRouter,
+} from '@oxide/api'
 
 import { HL } from '~/components/HL'
 import { routeFormMessage } from '~/forms/vpc-router-route-common'
@@ -19,18 +25,19 @@ import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
 const colHelper = createColumnHelper<VpcRouter>()
 
+const vpcRouterList = (query: PP.Vpc) => getListQFn('vpcRouterList', { query })
+
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcSelector(params)
-  await apiQueryClient.prefetchQuery('vpcRouterList', {
-    query: { project, vpc, limit: PAGE_SIZE },
-  })
+  await queryClient.prefetchQuery(vpcRouterList({ project, vpc }).optionsFn())
   return null
 }
 
@@ -39,9 +46,6 @@ export function Component() {
   const vpcSelector = useVpcSelector()
   const navigate = useNavigate()
   const { project, vpc } = vpcSelector
-  const { Table } = useQueryTable('vpcRouterList', {
-    query: { project, vpc, limit: PAGE_SIZE },
-  })
 
   const emptyState = (
     <EmptyMessage
@@ -104,13 +108,18 @@ export function Component() {
   )
 
   const columns = useColsWithActions(staticColumns, makeActions)
+  const { table } = useQueryTable({
+    query: vpcRouterList({ project, vpc }),
+    columns,
+    emptyState,
+  })
 
   return (
     <>
       <div className="mb-3 flex justify-end space-x-2">
         <CreateLink to={pb.vpcRoutersNew({ project, vpc })}>New router</CreateLink>
       </div>
-      <Table columns={columns} emptyState={emptyState} />
+      {table}
       <Outlet />
     </>
   )

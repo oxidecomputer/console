@@ -7,14 +7,13 @@
  */
 import { type LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
+import { apiQueryClient, queryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Cloud16Icon, Cloud24Icon, NextArrow12Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
-import { PAGE_SIZE } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { DateTime } from '~/ui/lib/DateTime'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -24,8 +23,8 @@ import { TableEmptyBox } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
 import { docLinks } from '~/util/links'
 
-import { SiloIdpsTab } from './SiloIdpsTab'
-import { SiloIpPoolsTab } from './SiloIpPoolsTab'
+import { siloIdpList, SiloIdpsTab } from './SiloIdpsTab'
+import { siloIpPoolsQuery, SiloIpPoolsTab } from './SiloIpPoolsTab'
 import { SiloQuotasTab } from './SiloQuotasTab'
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -33,13 +32,8 @@ export async function loader({ params }: LoaderFunctionArgs) {
   await Promise.all([
     apiQueryClient.prefetchQuery('siloView', { path: { silo } }),
     apiQueryClient.prefetchQuery('siloUtilizationView', { path: { silo } }),
-    apiQueryClient.prefetchQuery('siloIdentityProviderList', {
-      query: { silo, limit: PAGE_SIZE },
-    }),
-    apiQueryClient.prefetchQuery('siloIpPoolList', {
-      query: { limit: PAGE_SIZE },
-      path: { silo },
-    }),
+    queryClient.prefetchQuery(siloIdpList(silo).optionsFn()),
+    queryClient.prefetchQuery(siloIpPoolsQuery(silo).optionsFn()),
   ])
   return null
 }
@@ -117,15 +111,15 @@ export function Component() {
             </TableEmptyBox>
           ) : (
             <>
-              <p className="mb-4 text-secondary">
+              <p className="mb-4 text-default">
                 Silo roles can automatically grant a fleet role.
               </p>
               <ul className="space-y-3">
                 {roleMapPairs.map(([siloRole, fleetRole]) => (
                   <li key={siloRole + '|' + fleetRole} className="flex items-center">
                     <Badge>Silo {siloRole}</Badge>
-                    <NextArrow12Icon className="mx-3 text-secondary" aria-label="maps to" />
-                    <span className="text-sans-md text-secondary">Fleet {fleetRole}</span>
+                    <NextArrow12Icon className="mx-3 text-default" aria-label="maps to" />
+                    <span className="text-sans-md text-default">Fleet {fleetRole}</span>
                   </li>
                 ))}
               </ul>

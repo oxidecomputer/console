@@ -8,12 +8,7 @@
 import { useMemo } from 'react'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import {
-  apiQueryClient,
-  useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
-} from '@oxide/api'
+import { apiq, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { HL } from '~/components/HL'
@@ -27,28 +22,27 @@ import { DateTime } from '~/ui/lib/DateTime'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
 import { VpcDocsPopover } from '../VpcsPage'
 
+const vpcView = ({ project, vpc }: PP.Vpc) =>
+  apiq('vpcView', { path: { vpc }, query: { project } })
+
 VpcPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  const { project, vpc } = getVpcSelector(params)
-  await apiQueryClient.prefetchQuery('vpcView', { path: { vpc }, query: { project } })
+  await queryClient.prefetchQuery(vpcView(getVpcSelector(params)))
   return null
 }
 
 export function VpcPage() {
-  const queryClient = useApiQueryClient()
   const navigate = useNavigate()
   const vpcSelector = useVpcSelector()
   const { project, vpc: vpcName } = vpcSelector
-  const { data: vpc } = usePrefetchedApiQuery('vpcView', {
-    path: { vpc: vpcName },
-    query: { project },
-  })
+  const { data: vpc } = usePrefetchedQuery(vpcView(vpcSelector))
 
   const { mutateAsync: deleteVpc } = useApiMutation('vpcDelete', {
     onSuccess(_data, variables) {
-      queryClient.invalidateQueries('vpcList')
+      queryClient.invalidateEndpoint('vpcList')
       navigate(pb.vpcs({ project }))
       addToast(<>VPC <HL>{variables.path.vpc}</HL> deleted</>) // prettier-ignore
     },
@@ -104,6 +98,7 @@ export function VpcPage() {
         <Tab to={pb.vpcFirewallRules(vpcSelector)}>Firewall Rules</Tab>
         <Tab to={pb.vpcSubnets(vpcSelector)}>Subnets</Tab>
         <Tab to={pb.vpcRouters(vpcSelector)}>Routers</Tab>
+        <Tab to={pb.vpcInternetGateways(vpcSelector)}>Internet Gateways</Tab>
       </RouteTabs>
     </>
   )

@@ -9,13 +9,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 
-import {
-  apiQueryClient,
-  useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
-  type Project,
-} from '@oxide/api'
+import { apiq, getListQFn, queryClient, useApiMutation, type Project } from '@oxide/api'
 import { Folder16Icon, Folder24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -24,7 +18,7 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -42,8 +36,10 @@ const EmptyState = () => (
   />
 )
 
+const projectList = getListQFn('projectList', {})
+
 export async function loader() {
-  await apiQueryClient.prefetchQuery('projectList', { query: { limit: PAGE_SIZE } })
+  await queryClient.prefetchQuery(projectList.optionsFn())
   return null
 }
 
@@ -60,17 +56,9 @@ Component.displayName = 'ProjectsPage'
 export function Component() {
   const navigate = useNavigate()
 
-  const queryClient = useApiQueryClient()
-  const { Table } = useQueryTable('projectList', {})
-  const { data: projects } = usePrefetchedApiQuery('projectList', {
-    query: { limit: PAGE_SIZE },
-  })
-
   const { mutateAsync: deleteProject } = useApiMutation('projectDelete', {
     onSuccess() {
-      // TODO: figure out if this is invalidating as expected, can we leave out the query
-      // altogether, etc. Look at whether limit param matters.
-      queryClient.invalidateQueries('projectList')
+      queryClient.invalidateEndpoint('projectList')
     },
   })
 
@@ -81,11 +69,8 @@ export function Component() {
         onActivate: () => {
           // the edit view has its own loader, but we can make the modal open
           // instantaneously by preloading the fetch result
-          apiQueryClient.setQueryData(
-            'projectView',
-            { path: { project: project.name } },
-            project
-          )
+          const { queryKey } = apiq('projectView', { path: { project: project.name } })
+          queryClient.setQueryData(queryKey, project)
           navigate(pb.projectEdit({ project: project.name }))
         },
       },
@@ -99,6 +84,12 @@ export function Component() {
     ],
     [deleteProject, navigate]
   )
+
+  const columns = useColsWithActions(staticCols, makeActions)
+  const {
+    table,
+    query: { data: projects },
+  } = useQueryTable({ query: projectList, columns, emptyState: <EmptyState /> })
 
   useQuickActions(
     useMemo(
@@ -117,8 +108,6 @@ export function Component() {
     )
   )
 
-  const columns = useColsWithActions(staticCols, makeActions)
-
   return (
     <>
       <PageHeader>
@@ -133,7 +122,7 @@ export function Component() {
       <TableActions>
         <CreateLink to={pb.projectsNew()}>New Project</CreateLink>
       </TableActions>
-      <Table columns={columns} emptyState={<EmptyState />} />
+      {table}
       <Outlet />
     </>
   )

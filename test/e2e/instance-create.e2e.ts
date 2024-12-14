@@ -8,6 +8,7 @@
 import { floatingIp } from '@oxide/api-mocks'
 
 import {
+  closeToast,
   expect,
   expectNotVisible,
   expectRowVisible,
@@ -99,14 +100,7 @@ test('can create an instance', async ({ page }) => {
 
   await page.getByRole('button', { name: 'Create instance' }).click()
 
-  await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
-
-  await expectVisible(page, [
-    `h1:has-text("${instanceName}")`,
-    'text=16 vCPUs',
-    'text=64 GiB',
-    'text=from space',
-  ])
+  await closeToast(page)
 
   // instance goes from creating to starting to running as we poll
   const pollingSpinner = page.getByLabel('Spinner')
@@ -115,6 +109,14 @@ test('can create an instance', async ({ page }) => {
   await expect(page.getByText('Starting')).toBeVisible()
   await expect(page.getByText('Running')).toBeVisible()
   await expect(pollingSpinner).toBeHidden()
+
+  // do this after state checks because sometimes it takes too long and we miss 'creating'
+  await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
+
+  await expect(page.getByRole('heading', { name: instanceName })).toBeVisible()
+  await expect(page.getByText('16 vCPUs')).toBeVisible()
+  await expect(page.getByText('64 GiB')).toBeVisible()
+  await expect(page.getByText('from space')).toBeVisible()
 
   // boot disk visible, no other disks attached
   await expect(
@@ -194,12 +196,10 @@ test('can create an instance with custom hardware', async ({ page }) => {
 
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
 
-  await expectVisible(page, [
-    `h1:has-text("${instanceName}")`,
-    'text=29 vCPUs',
-    'text=53 GiB',
-    'text=from space',
-  ])
+  await expect(page.getByRole('heading', { name: instanceName })).toBeVisible()
+  await expect(page.getByText('29 vCPUs')).toBeVisible()
+  await expect(page.getByText('53 GiB')).toBeVisible()
+  await expect(page.getByText('from space')).toBeVisible()
 })
 
 test('automatically updates disk size when larger image selected', async ({ page }) => {
@@ -544,10 +544,17 @@ test('create instance with additional disks', async ({ page }) => {
   await page.getByRole('button', { name: 'Create new disk' }).click()
 
   const createForm = page.getByRole('dialog', { name: 'Create disk' })
+  await expect(createForm).toBeVisible() // kill time to help size field flake?
 
   // verify that an existing name can't be used
   await createForm.getByRole('textbox', { name: 'Name', exact: true }).fill('disk-6')
-  await createForm.getByRole('textbox', { name: 'Size (GiB)' }).fill('5')
+
+  // this fill fails to happen sometimes, causing test flakes. the assert here
+  // should catch it slightly sooner
+  const sizeField = createForm.getByRole('textbox', { name: 'Size (GiB)' })
+  await sizeField.fill('5')
+  await expect(sizeField).toHaveValue('5')
+
   await createForm.getByRole('button', { name: 'Create disk' }).click()
   await expect(createForm.getByText('Name is already in use')).toBeVisible()
 

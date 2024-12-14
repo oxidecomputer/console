@@ -1222,6 +1222,13 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.SiloUtilization>>
+  /** `POST /v1/timeseries/query` */
+  timeseriesQuery: (params: {
+    query: Api.TimeseriesQueryQueryParams
+    body: Json<Api.TimeseriesQuery>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.OxqlQueryResult>>
   /** `GET /v1/users` */
   userList: (params: {
     query: Api.UserListQueryParams
@@ -2442,6 +2449,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.get(
       '/v1/system/utilization/silos/:silo',
       handler(handlers['siloUtilizationView'], schema.SiloUtilizationViewParams, null)
+    ),
+    http.post(
+      '/v1/timeseries/query',
+      handler(
+        handlers['timeseriesQuery'],
+        schema.TimeseriesQueryParams,
+        schema.TimeseriesQuery
+      )
     ),
     http.get('/v1/users', handler(handlers['userList'], schema.UserListParams, null)),
     http.get('/v1/utilization', handler(handlers['utilizationView'], null, null)),

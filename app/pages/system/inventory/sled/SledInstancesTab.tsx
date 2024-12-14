@@ -9,7 +9,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import * as R from 'remeda'
 
-import { apiQueryClient, type SledInstance } from '@oxide/api'
+import { getListQFn, queryClient, type SledInstance } from '@oxide/api'
 import { Instances24Icon } from '@oxide/design-system/icons/react'
 
 import { InstanceStateBadge } from '~/components/StateBadge'
@@ -17,8 +17,11 @@ import { requireSledParams, useSledParams } from '~/hooks/use-params'
 import { InstanceResourceCell } from '~/table/cells/InstanceResourceCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+
+const sledInstanceList = (sledId: string) =>
+  getListQFn('sledInstanceList', { path: { sledId } })
 
 const EmptyState = () => {
   return (
@@ -32,10 +35,7 @@ const EmptyState = () => {
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { sledId } = requireSledParams(params)
-  await apiQueryClient.prefetchQuery('sledInstanceList', {
-    path: { sledId },
-    query: { limit: PAGE_SIZE },
-  })
+  await queryClient.prefetchQuery(sledInstanceList(sledId).optionsFn())
   return null
 }
 
@@ -50,8 +50,8 @@ const staticCols = [
       const value = info.getValue()
       return (
         <div className="space-y-0.5">
-          <div className="text-quaternary">{`${value.siloName} / ${value.projectName}`}</div>
-          <div className="text-default">{value.name}</div>
+          <div className="text-tertiary">{`${value.siloName} / ${value.projectName}`}</div>
+          <div className="text-raise">{value.name}</div>
         </div>
       )
     },
@@ -72,13 +72,12 @@ const staticCols = [
 Component.displayName = 'SledInstancesTab'
 export function Component() {
   const { sledId } = useSledParams()
-  const { Table } = useQueryTable(
-    'sledInstanceList',
-    { path: { sledId }, query: { limit: PAGE_SIZE } },
-    { placeholderData: (x) => x }
-  )
-
   const columns = useColsWithActions(staticCols, makeActions)
-
-  return <Table columns={columns} emptyState={<EmptyState />} rowHeight="large" />
+  const { table } = useQueryTable({
+    query: sledInstanceList(sledId),
+    columns,
+    emptyState: <EmptyState />,
+    rowHeight: 'large',
+  })
+  return table
 }

@@ -5876,6 +5876,16 @@ export const SiloUtilizationViewParams = z.preprocess(
   })
 )
 
+export const TimeseriesQueryParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      project: NameOrId,
+    }),
+  })
+)
+
 export const UserListParams = z.preprocess(
   processResponseBody,
   z.object({

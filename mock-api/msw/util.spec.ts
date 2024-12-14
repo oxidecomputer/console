@@ -21,7 +21,7 @@ describe('paginated', () => {
   })
 
   it('should return the first 100 items with no limit passed', () => {
-    const items = new Array(200).fill(0).map((_, i) => ({ id: 'i' + i }))
+    const items = Array.from({ length: 200 }).map((_, i) => ({ id: 'i' + i }))
     const page = paginated({}, items)
     expect(page.items.length).toBe(100)
     expect(page.items).toEqual(items.slice(0, 100))

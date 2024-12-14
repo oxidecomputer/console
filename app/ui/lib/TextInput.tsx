@@ -85,7 +85,7 @@ export const TextInput = React.forwardRef<
           type={type}
           value={value}
           className={cn(
-            `w-full rounded border-none px-3 py-[0.6875rem] !outline-offset-1 text-sans-md text-default bg-default placeholder:text-quaternary focus:outline-none disabled:cursor-not-allowed disabled:text-tertiary disabled:bg-disabled`,
+            `w-full rounded border-none px-3 py-[0.6875rem] !outline-offset-1 text-sans-md text-raise bg-default placeholder:text-tertiary focus:outline-none disabled:cursor-not-allowed disabled:text-secondary disabled:bg-disabled`,
             error && 'focus-error',
             fieldClassName,
             disabled && 'text-disabled bg-disabled',
@@ -121,7 +121,7 @@ export const TextInputHint = ({ id, children, className }: HintProps) => (
   <div
     id={id}
     className={cn(
-      'mt-1 text-sans-sm text-tertiary [&_>_a]:underline hover:[&_>_a]:text-default',
+      'mt-1 text-sans-sm text-secondary [&_>_a]:underline hover:[&_>_a]:text-raise',
       className
     )}
   >

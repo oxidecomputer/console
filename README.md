@@ -43,7 +43,6 @@ The web console has no special privileges as an API consumer. Logging in sets a 
   - [Mock Service Worker](https://mswjs.io/) for mock API server
   - [Vitest](https://vitest.dev/) for unit tests
   - [Playwright](https://playwright.dev/) for E2E browser tests
-- [Ladle](https://ladle.dev/), a lightweight Storybook clone based on Vite
 
 ## Directory structure
 
@@ -109,14 +108,6 @@ document.cookie = 'session=d9b1a96e151092eb0ea08b1a0d8c4788441f1894;domain=local
 
 Go to https://localhost:4000 again and you should be logged in.
 
-### Run [Ladle](https://ladle.dev/)
-
-```
-npm run ladle
-```
-
-This will start a preview environment for UI components at `http://localhost:61000`.
-
 ### E2E tests with [Playwright](https://playwright.dev/)
 
 Playwright tests live in [`test/e2e`](test/e2e/). `npm run e2e` runs the tests in Chrome, Firefox, and Safari, but this is rarely necessary in local dev. `npm run e2ec` is a shortcut for `playwright test --project=chrome`, which runs the tests in Chrome only (the fastest one, useful for local dev). Playwright has an excellent [UI mode](https://playwright.dev/docs/test-ui-mode) for running and debugging tests that you can get to by running `npm run e2e -- --ui`.
@@ -133,7 +124,6 @@ To debug end-to-end failures on CI, check out the branch with the failure and ru
 | `npm run lint`           | ESLint                                                                             |
 | `npx tsc`                | Check types                                                                        |
 | `npm run ci`             | Lint, tests (unit and e2e), and types                                              |
-| `npm run ladle`          | Run Ladle (Storybook)                                                              |
 | `npm run fmt`            | Format everything. Rarely necessary thanks to editor integration                   |
 | `npm run gen-api`        | Generate API client (see [`docs/update-pinned-api.md`](docs/update-pinned-api.md)) |
 | `npm run start:mock-api` | Serve mock API on port 12220                                                       |

@@ -5,12 +5,19 @@
  *
  * Copyright Oxide Computer Company
  */
-import { QueryClient } from '@tanstack/react-query'
+import {
+  QueryClient as QueryClientOrig,
+  useQuery,
+  type UseQueryOptions,
+} from '@tanstack/react-query'
 
 import { Api } from './__generated__/Api'
+import { type ApiError } from './errors'
 import {
+  ensurePrefetched,
+  getApiQueryOptions,
+  getListQueryOptionsFn,
   getUseApiMutation,
-  getUseApiQueries,
   getUseApiQuery,
   getUseApiQueryErrorsAllowed,
   getUsePrefetchedApiQuery,
@@ -24,8 +31,15 @@ export const api = new Api({
 
 export type ApiMethods = typeof api.methods
 
+/** API-specific query options helper. */
+export const apiq = getApiQueryOptions(api.methods)
+/**
+ * Query options helper that only supports list endpoints. Returns
+ * a function `(limit, pageToken) => QueryOptions` for use with
+ * `useQueryTable`.
+ */
+export const getListQFn = getListQueryOptionsFn(api.methods)
 export const useApiQuery = getUseApiQuery(api.methods)
-export const useApiQueries = getUseApiQueries(api.methods)
 /**
  * Same as `useApiQuery`, except we use `invariant(data)` to ensure the data is
  * already there in the cache at request time, which means it has been
@@ -35,6 +49,27 @@ export const useApiQueries = getUseApiQueries(api.methods)
 export const usePrefetchedApiQuery = getUsePrefetchedApiQuery(api.methods)
 export const useApiQueryErrorsAllowed = getUseApiQueryErrorsAllowed(api.methods)
 export const useApiMutation = getUseApiMutation(api.methods)
+
+export const usePrefetchedQuery = <TData>(options: UseQueryOptions<TData, ApiError>) =>
+  ensurePrefetched(useQuery(options), options.queryKey)
+
+/**
+ * Extends React Query's `QueryClient` with a couple of API-specific methods.
+ * Existing methods are never modified.
+ */
+class QueryClient extends QueryClientOrig {
+  /**
+   * Invalidate all cached queries for a given endpoint.
+   *
+   * Note that we only take a single argument, `method`, rather than allowing
+   * the full query key `[query, params]` to be specified. This is to avoid
+   * accidentally overspecifying and therefore failing to match the desired query.
+   * The params argument can be added in if we ever have a use case for it.
+   */
+  invalidateEndpoint(method: keyof typeof api.methods) {
+    this.invalidateQueries({ queryKey: [method] })
+  }
+}
 
 // Needs to be defined here instead of in app so we can use it to define
 // `apiQueryClient`, which provides API-typed versions of QueryClient methods

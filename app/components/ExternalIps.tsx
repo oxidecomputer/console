@@ -11,15 +11,13 @@ import { Link } from 'react-router-dom'
 import { useApiQuery } from '@oxide/api'
 
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
-import { Badge } from '~/ui/lib/Badge'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { Slash } from '~/ui/lib/Slash'
 import { intersperse } from '~/util/array'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
-type InstanceSelector = { project: string; instance: string }
-
-export function ExternalIps({ project, instance }: InstanceSelector) {
+export function ExternalIps({ project, instance }: PP.Instance) {
   const { data, isPending } = useApiQuery('instanceExternalIpList', {
     path: { instance },
     query: { project },
@@ -39,9 +37,15 @@ export function ExternalIps({ project, instance }: InstanceSelector) {
         <Slash />
       )}
       {overflowCount > 0 && (
-        <Link to={pb.instanceNetworking({ project, instance })} className="ml-1">
-          <Badge>+{overflowCount}</Badge>
-        </Link>
+        <>
+          <Slash />
+          <Link
+            to={pb.instanceNetworking({ project, instance })}
+            className="link-with-underline text-sans-md"
+          >
+            +{overflowCount}
+          </Link>
+        </>
       )}
     </div>
   )

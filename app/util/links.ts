@@ -16,6 +16,8 @@ export const links = {
   firewallRulesDocs:
     'https://docs.oxide.computer/guides/configuring-guest-networking#_firewall_rules',
   floatingIpsDocs: 'https://docs.oxide.computer/guides/managing-floating-ips',
+  gatewaysDocs:
+    'https://docs.oxide.computer/guides/configuring-guest-networking#internet-gateway',
   imagesDocs: 'https://docs.oxide.computer/guides/creating-and-sharing-images',
   preparingImagesDocs:
     'https://docs.oxide.computer/guides/creating-and-sharing-images#_preparing_images_for_import',

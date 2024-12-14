@@ -28,7 +28,7 @@ test('Click through snapshots', async ({ page }) => {
 test('Confirm delete snapshot', async ({ page }) => {
   await page.goto('/projects/mock-project/snapshots')
 
-  const row = page.getByRole('row', { name: 'disk-1-snapshot-6' })
+  const row = page.getByRole('row', { name: 'disk-1-snapshot-7' })
 
   // scroll a little so the dropdown menu isn't behind the pagination bar
   await page.getByRole('table').click() // focus the content pane

@@ -9,6 +9,8 @@ import cn from 'classnames'
 
 import { DirectionLeftIcon, DirectionRightIcon } from '@oxide/design-system/icons/react'
 
+import { Spinner } from './Spinner'
+
 interface PageInputProps {
   number: number
   className?: string
@@ -17,7 +19,7 @@ const PageInput = ({ number, className }: PageInputProps) => {
   return (
     <span
       className={cn(
-        'h-4 whitespace-nowrap rounded px-[3px] pb-[3px] pt-[1px] ring-1 ring-inset text-mono-sm text-secondary bg-tertiary ring-secondary',
+        'h-4 whitespace-nowrap rounded px-[3px] pb-[3px] pt-[1px] ring-1 ring-inset text-mono-sm text-default bg-tertiary ring-secondary',
         className
       )}
     >
@@ -34,6 +36,7 @@ export interface PaginationProps {
   onNext: (nextPage: string) => void
   onPrev: () => void
   className?: string
+  loading?: boolean
 }
 export const Pagination = ({
   pageSize,
@@ -43,37 +46,40 @@ export const Pagination = ({
   onNext,
   onPrev,
   className,
+  loading,
 }: PaginationProps) => {
   return (
     <>
-      <div
+      <nav
+        aria-label="Pagination"
         className={cn(
-          'flex items-center justify-between text-mono-sm text-default bg-default',
+          'flex items-center justify-between text-mono-sm text-raise bg-default',
           className
         )}
       >
-        <span className="flex-inline grow text-tertiary">
+        <span className="flex-inline grow text-secondary">
           rows per page <PageInput number={pageSize} />
         </span>
-        <span className="flex space-x-3">
+        <span className="flex items-center space-x-3">
+          {loading && <Spinner />}
           <button
             type="button"
             className={cn(
-              hasPrev ? 'text-secondary hover:text-default' : 'text-disabled',
+              hasPrev ? 'text-default hover:text-raise' : 'text-disabled',
               'flex items-center text-mono-sm'
             )}
             disabled={!hasPrev}
             onClick={onPrev}
           >
             <DirectionLeftIcon
-              className={cn('mr-1', hasPrev ? 'text-secondary' : 'text-disabled')}
+              className={cn('mr-1', hasPrev ? 'text-default' : 'text-disabled')}
             />
             prev
           </button>
           <button
             type="button"
             className={cn(
-              hasNext ? 'text-secondary hover:text-default' : 'text-disabled',
+              hasNext ? 'text-default hover:text-raise' : 'text-disabled',
               'flex items-center text-mono-sm'
             )}
             disabled={!hasNext}
@@ -82,11 +88,11 @@ export const Pagination = ({
           >
             next
             <DirectionRightIcon
-              className={cn('ml-1', hasNext ? 'text-secondary' : 'text-disabled')}
+              className={cn('ml-1', hasNext ? 'text-default' : 'text-disabled')}
             />
           </button>
         </span>
-      </div>
+      </nav>
     </>
   )
 }

@@ -118,7 +118,7 @@ export async function stopInstance(page: Page) {
  * Assert that a toast with text matching `expectedText` is visible.
  */
 export async function expectToast(page: Page, expectedText: string | RegExp) {
-  await expect(page.getByTestId('Toasts')).toHaveText(expectedText)
+  await expect(page.getByTestId('Toasts')).toContainText(expectedText)
   await closeToast(page)
 }
 
@@ -126,7 +126,7 @@ export async function expectToast(page: Page, expectedText: string | RegExp) {
  * Assert that a toast with text matching `expectedText` is not visible.
  */
 export async function expectNoToast(page: Page, expectedText: string | RegExp) {
-  await expect(page.getByTestId('Toasts')).not.toHaveText(expectedText)
+  await expect(page.getByTestId('Toasts')).not.toContainText(expectedText)
 }
 
 /**
@@ -231,4 +231,26 @@ export async function chooseFile(
     // makes the test too fast for playwright to catch anything
     buffer: size === 'large' ? bigFile : smallFile,
   })
+}
+
+export async function expectScrollTop(page: Page, expected: number) {
+  const container = page.getByTestId('scroll-container')
+  const getScrollTop = () => container.evaluate((el: HTMLElement) => el.scrollTop)
+  await expect.poll(getScrollTop).toBe(expected)
+}
+
+export async function scrollTo(page: Page, to: number) {
+  const container = page.getByTestId('scroll-container')
+  await container.evaluate((el: HTMLElement, to) => el.scrollTo(0, to), to)
+}
+
+export async function addTlsCert(page: Page) {
+  page.getByRole('button', { name: 'Add TLS certificate' }).click()
+  await page
+    .getByRole('dialog', { name: 'Add TLS certificate' })
+    .getByRole('textbox', { name: 'Name' })
+    .fill('test-cert')
+  await chooseFile(page, page.getByLabel('Cert', { exact: true }), 'small')
+  await chooseFile(page, page.getByLabel('Key'), 'small')
+  await page.getByRole('button', { name: 'Add Certificate' }).click()
 }

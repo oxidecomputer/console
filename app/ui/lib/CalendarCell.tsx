@@ -86,7 +86,7 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
             ? isInvalid
               ? 'text-error bg-error-secondary'
               : 'text-accent-secondary bg-accent-secondary'
-            : 'text-tertiary hover:bg-tertiary',
+            : 'text-secondary hover:bg-tertiary',
           isRoundedLeft && 'rounded-l',
           isRoundedRight && 'rounded-r',
           // Hover state for non-selected cells.

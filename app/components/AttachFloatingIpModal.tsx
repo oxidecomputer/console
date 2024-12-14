@@ -18,7 +18,7 @@ import { Slash } from '~/ui/lib/Slash'
 
 function FloatingIpLabel({ fip }: { fip: FloatingIp }) {
   return (
-    <div className="text-tertiary selected:text-accent-secondary">
+    <div className="text-secondary selected:text-accent-secondary">
       <div>{fip.name}</div>
       <div className="flex gap-0.5">
         <div>{fip.ip}</div>

@@ -5,12 +5,20 @@
  *
  * Copyright Oxide Computer Company
  */
+import { type UseQueryOptions } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { filesize } from 'filesize'
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient, usePrefetchedApiQuery, type Instance } from '@oxide/api'
+import {
+  apiQueryClient,
+  getListQFn,
+  queryClient,
+  type ApiError,
+  type Instance,
+  type InstanceResultsPage,
+} from '@oxide/api'
 import { Instances24Icon } from '@oxide/design-system/icons/react'
 
 import { instanceTransitioning } from '~/api/util'
@@ -22,7 +30,7 @@ import { InstanceStateCell } from '~/table/cells/InstanceStateCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -33,6 +41,7 @@ import { toLocaleTimeString } from '~/util/date'
 import { pb } from '~/util/path-builder'
 
 import { useMakeInstanceActions } from './actions'
+import { ResizeInstanceModal } from './instance/InstancePage'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -46,11 +55,16 @@ const EmptyState = () => (
 
 const colHelper = createColumnHelper<Instance>()
 
+const instanceList = (
+  project: string,
+  // kinda gnarly, but we need refetchInterval in the component but not in the loader.
+  // pick refetchInterval to avoid annoying type conflicts on the full object
+  options?: Pick<UseQueryOptions<InstanceResultsPage, ApiError>, 'refetchInterval'>
+) => getListQFn('instanceList', { query: { project } }, options)
+
 InstancesPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
-  await apiQueryClient.prefetchQuery('instanceList', {
-    query: { project, limit: PAGE_SIZE },
-  })
+  await queryClient.prefetchQuery(instanceList(project).optionsFn())
   return null
 }
 
@@ -64,9 +78,55 @@ const POLL_INTERVAL_SLOW = 60 * sec
 
 export function InstancesPage() {
   const { project } = useProjectSelector()
+  const [resizeInstance, setResizeInstance] = useState<Instance | null>(null)
+
   const { makeButtonActions, makeMenuActions } = useMakeInstanceActions(
     { project },
-    { onSuccess: refetchInstances, onDelete: refetchInstances }
+    {
+      onSuccess: refetchInstances,
+      onDelete: refetchInstances,
+      onResizeClick: setResizeInstance,
+    }
+  )
+
+  const columns = useMemo(
+    () => [
+      colHelper.accessor('name', {
+        cell: makeLinkCell((instance) => pb.instance({ project, instance })),
+      }),
+      colHelper.accessor('ncpus', {
+        header: 'CPU',
+        cell: (info) => (
+          <>
+            {info.getValue()} <span className="ml-1 text-tertiary">vCPU</span>
+          </>
+        ),
+      }),
+      colHelper.accessor('memory', {
+        header: 'Memory',
+        cell: (info) => {
+          const memory = filesize(info.getValue(), { output: 'object', base: 2 })
+          return (
+            <>
+              {memory.value} <span className="ml-1 text-tertiary">{memory.unit}</span>
+            </>
+          )
+        },
+      }),
+      colHelper.accessor(
+        (i) => ({ runState: i.runState, timeRunStateUpdated: i.timeRunStateUpdated }),
+        {
+          header: 'state',
+          cell: (info) => <InstanceStateCell value={info.getValue()} />,
+        }
+      ),
+      colHelper.accessor('timeCreated', Columns.timeCreated),
+      getActionsCol((instance: Instance) => [
+        ...makeButtonActions(instance),
+        ...makeMenuActions(instance),
+      ]),
+    ],
+    [project, makeButtonActions, makeMenuActions]
   )
 
   // this is a whole thing. sit down.
@@ -77,10 +137,8 @@ export function InstancesPage() {
   const transitioningInstances = useRef<Set<string>>(new Set())
   const pollingStartTime = useRef<number>(Date.now())
 
-  const { data: instances, dataUpdatedAt } = usePrefetchedApiQuery(
-    'instanceList',
-    { query: { project, limit: PAGE_SIZE } },
-    {
+  const { table, query } = useQueryTable({
+    query: instanceList(project, {
       // The point of all this is to poll quickly for a certain amount of time
       // after some instance in the current page enters a transitional state
       // like starting or stopping. After that, it will keep polling, but more
@@ -122,8 +180,12 @@ export function InstancesPage() {
           ? POLL_INTERVAL_FAST
           : POLL_INTERVAL_SLOW
       },
-    }
-  )
+    }),
+    columns,
+    emptyState: <EmptyState />,
+  })
+
+  const { data: instances, dataUpdatedAt } = query
 
   const navigate = useNavigate()
   useQuickActions(
@@ -143,54 +205,6 @@ export function InstancesPage() {
     )
   )
 
-  const { Table } = useQueryTable(
-    'instanceList',
-    { query: { project } },
-    { placeholderData: (x) => x }
-  )
-
-  const columns = useMemo(
-    () => [
-      colHelper.accessor('name', {
-        cell: makeLinkCell((instance) => pb.instance({ project, instance })),
-      }),
-      colHelper.accessor('ncpus', {
-        header: 'CPU',
-        cell: (info) => (
-          <>
-            {info.getValue()} <span className="ml-1 text-quaternary">vCPU</span>
-          </>
-        ),
-      }),
-      colHelper.accessor('memory', {
-        header: 'Memory',
-        cell: (info) => {
-          const memory = filesize(info.getValue(), { output: 'object', base: 2 })
-          return (
-            <>
-              {memory.value} <span className="ml-1 text-quaternary">{memory.unit}</span>
-            </>
-          )
-        },
-      }),
-      colHelper.accessor(
-        (i) => ({ runState: i.runState, timeRunStateUpdated: i.timeRunStateUpdated }),
-        {
-          header: 'state',
-          cell: (info) => <InstanceStateCell value={info.getValue()} />,
-        }
-      ),
-      colHelper.accessor('timeCreated', Columns.timeCreated),
-      getActionsCol((instance: Instance) => [
-        ...makeButtonActions(instance),
-        ...makeMenuActions(instance),
-      ]),
-    ],
-    [project, makeButtonActions, makeMenuActions]
-  )
-
-  if (!instances) return null
-
   return (
     <>
       <PageHeader>
@@ -199,21 +213,28 @@ export function InstancesPage() {
       </PageHeader>
       {/* Avoid changing justify-end on TableActions for this one case. We can
        * fix this properly when we add refresh and filtering for all tables. */}
-      <TableActions className="!-mt-6 !justify-between">
+      <TableActions className="!justify-between">
         <div className="flex items-center gap-2">
           <RefreshButton onClick={refetchInstances} />
           <Tooltip
             content="Auto-refresh is more frequent after instance actions"
             delay={150}
           >
-            <span className="text-sans-sm text-tertiary">
+            <span className="text-sans-sm text-secondary">
               Updated {toLocaleTimeString(new Date(dataUpdatedAt))}
             </span>
           </Tooltip>
         </div>
         <CreateLink to={pb.instancesNew({ project })}>New Instance</CreateLink>
       </TableActions>
-      <Table columns={columns} emptyState={<EmptyState />} />
+      {table}
+      {resizeInstance && (
+        <ResizeInstanceModal
+          instance={resizeInstance}
+          onDismiss={() => setResizeInstance(null)}
+          onListView
+        />
+      )}
     </>
   )
 }

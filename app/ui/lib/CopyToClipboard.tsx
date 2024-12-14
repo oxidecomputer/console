@@ -50,7 +50,7 @@ export const CopyToClipboard = ({
         'relative h-5 w-5 rounded',
         hasCopied
           ? 'text-accent bg-accent-secondary'
-          : 'text-quaternary hover:text-secondary hover:bg-hover',
+          : 'text-tertiary hover:text-default hover:bg-hover',
 
         className
       )}

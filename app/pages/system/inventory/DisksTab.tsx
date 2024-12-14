@@ -8,14 +8,15 @@
 import { createColumnHelper } from '@tanstack/react-table'
 
 import {
-  apiQueryClient,
+  getListQFn,
+  queryClient,
   type PhysicalDisk,
   type PhysicalDiskPolicy,
   type PhysicalDiskState,
 } from '@oxide/api'
 import { Servers24Icon } from '@oxide/design-system/icons/react'
 
-import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { useQueryTable } from '~/table/QueryTable'
 import { Badge, type BadgeColor } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 
@@ -37,8 +38,10 @@ const EmptyState = () => (
   />
 )
 
+const diskList = getListQFn('physicalDiskList', {})
+
 export async function loader() {
-  await apiQueryClient.prefetchQuery('physicalDiskList', { query: { limit: PAGE_SIZE } })
+  await queryClient.prefetchQuery(diskList.optionsFn())
   return null
 }
 
@@ -68,6 +71,7 @@ const staticCols = [
 
 Component.displayName = 'DisksTab'
 export function Component() {
-  const { Table } = useQueryTable('physicalDiskList', {})
-  return <Table emptyState={<EmptyState />} columns={staticCols} />
+  const emptyState = <EmptyState />
+  const { table } = useQueryTable({ query: diskList, columns: staticCols, emptyState })
+  return table
 }

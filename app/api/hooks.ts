@@ -9,18 +9,16 @@ import {
   hashKey,
   queryOptions,
   useMutation,
-  useQueries,
   useQuery,
-  type DefaultError,
   type FetchQueryOptions,
   type InvalidateQueryFilters,
   type QueryClient,
   type QueryKey,
-  type UndefinedInitialDataOptions,
   type UseMutationOptions,
   type UseQueryOptions,
   type UseQueryResult,
 } from '@tanstack/react-query'
+import * as R from 'remeda'
 import { type SetNonNullable } from 'type-fest'
 
 import { invariant } from '~/util/invariant'
@@ -30,14 +28,10 @@ import { processServerError, type ApiError } from './errors'
 import { navToLogin } from './nav-to-login'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export type Params<F> = F extends (p: infer P) => any ? P : never
-export type Result<F> = F extends (p: any) => Promise<ApiResult<infer R>> ? R : never
-export type ResultItem<F> =
-  Result<F> extends { items: (infer R)[] }
-    ? R extends Record<string, unknown>
-      ? R
-      : never
-    : never
+type Params<F> = F extends (p: infer P) => any ? P : never
+type Result<F> = F extends (p: any) => Promise<ApiResult<infer R>> ? R : never
+
+export type ResultsPage<TItem> = { items: TItem[]; nextPage?: string }
 
 type ApiClient = Record<string, (...args: any) => Promise<ApiResult<any>>>
 /* eslint-enable @typescript-eslint/no-explicit-any */
@@ -90,17 +84,17 @@ Error message:  ${error.message.replace(/\n/g, '\n' + ' '.repeat('Error message:
  * `queryKey` and `queryFn` are always constructed by our helper hooks, so we
  * only allow the rest of the options.
  */
-type UseQueryOtherOptions<T, E = DefaultError> = Omit<
-  UndefinedInitialDataOptions<T, E>,
-  'queryKey' | 'queryFn'
+type UseQueryOtherOptions<T> = Omit<
+  UseQueryOptions<T, ApiError>,
+  'queryKey' | 'queryFn' | 'initialData'
 >
 
 /**
  * `queryKey` and `queryFn` are always constructed by our helper hooks, so we
  * only allow the rest of the options.
  */
-type FetchQueryOtherOptions<T, E = DefaultError> = Omit<
-  FetchQueryOptions<T, E>,
+type FetchQueryOtherOptions<T> = Omit<
+  FetchQueryOptions<T, ApiError>,
   'queryKey' | 'queryFn'
 >
 
@@ -109,12 +103,12 @@ export const getApiQueryOptions =
   <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {}
+    options: UseQueryOtherOptions<Result<A[M]>> = {}
   ) =>
     queryOptions({
       queryKey: [method, params],
       // no catch, let unexpected errors bubble up
-      queryFn: ({ signal }) => api[method](params, { signal }).then(handleResult(method)),
+      queryFn: () => api[method](params).then(handleResult(method)),
       // In the case of 404s, let the error bubble up to the error boundary so
       // we can say Not Found. If you need to allow a 404 and want it to show
       // up as `error` state instead, pass `useErrorBoundary: false` as an
@@ -123,12 +117,72 @@ export const getApiQueryOptions =
       ...options,
     })
 
+// Managed here instead of at the display layer so it can be built into the
+// query options and shared between loader prefetch and QueryTable
+export const PAGE_SIZE = 25
+
+/**
+ * This primarily exists so we can have an object that encapsulates everything
+ * useQueryTable needs to know about a query. In particular, it needs the page
+ * size, and you can't pull that out of the query options object unless you
+ * stick it in `meta`, and then we don't have type safety.
+ */
+export type PaginatedQuery<TData> = {
+  optionsFn: (
+    pageToken?: string
+  ) => UseQueryOptions<TData, ApiError> & { queryKey: QueryKey }
+  pageSize: number
+}
+
+/**
+ * This is the same as getApiQueryOptions except for two things:
+ *
+ *   1. We use a type constraint on the method key to ensure it can
+ *      only be used with endpoints that return a `ResultsPage`.
+ *   2. Instead of returning the options directly, it returns a paginated
+ *      query config object containing the page size and a function that
+ *      takes `limit` and `pageToken` and merges them into the query params
+ *      so that these can be passed in by `QueryTable`.
+ */
+export const getListQueryOptionsFn =
+  <A extends ApiClient>(api: A) =>
+  <
+    M extends string &
+      {
+        // this helper can only be used with endpoints that return ResultsPage
+        [K in keyof A]: Result<A[K]> extends ResultsPage<unknown> ? K : never
+      }[keyof A],
+  >(
+    method: M,
+    params: Params<A[M]>,
+    options: UseQueryOtherOptions<Result<A[M]>> = {}
+  ): PaginatedQuery<Result<A[M]>> => {
+    // We pull limit out of the query params rather than passing it in some
+    // other way so that there is exactly one way of specifying it. If we had
+    // some other way of doing it, and then you also passed it in as a query
+    // param, it would be hard to guess which takes precedence. (pathOr plays
+    // nice when the properties don't exist.)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const limit = R.pathOr(params as any, ['query', 'limit'], PAGE_SIZE)
+    return {
+      optionsFn: (pageToken?: string) => {
+        const newParams = { ...params, query: { ...params.query, limit, pageToken } }
+        return getApiQueryOptions(api)(method, newParams, {
+          ...options,
+          // identity function so current page sticks around while next loads
+          placeholderData: (x) => x,
+        })
+      },
+      pageSize: limit,
+    }
+  }
+
 export const getUseApiQuery =
   <A extends ApiClient>(api: A) =>
   <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {}
+    options: UseQueryOtherOptions<Result<A[M]>> = {}
   ) =>
     useQuery(getApiQueryOptions(api)(method, params, options))
 
@@ -137,10 +191,10 @@ export const getUsePrefetchedApiQuery =
   <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {}
+    options: UseQueryOtherOptions<Result<A[M]>> = {}
   ) => {
     const qOptions = getApiQueryOptions(api)(method, params, options)
-    return ensure(useQuery(qOptions), qOptions.queryKey)
+    return ensurePrefetched(useQuery(qOptions), qOptions.queryKey)
   }
 
 const prefetchError = (key?: QueryKey) =>
@@ -152,7 +206,11 @@ Ensure the following:
 • request isn't erroring-out server-side (check the Networking tab)
 • mock API endpoint is implemented in handlers.ts`
 
-export function ensure<TData, TError>(
+/**
+ * Ensure a query result came from the cache by blowing up if `data` comes
+ * back undefined.
+ */
+export function ensurePrefetched<TData, TError>(
   result: UseQueryResult<TData, TError>,
   /**
    * Optional because if we call this manually from a component like
@@ -220,35 +278,6 @@ export const getUseApiMutation =
       ...options,
     })
 
-/**
- * Our version of `useQueries`, but with the key difference that all queries in
- * a given call are using the same API method, and therefore all have the same
- * request and response (`Params` and `Result`) types. Otherwise the types would
- * be (perhaps literally) impossible.
- */
-export const getUseApiQueries =
-  <A extends ApiClient>(api: A) =>
-  <M extends string & keyof A>(
-    method: M,
-    paramsArray: Params<A[M]>[],
-    options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {}
-  ) => {
-    return useQueries({
-      queries: paramsArray.map(
-        (params) =>
-          ({
-            queryKey: [method, params],
-            queryFn: ({ signal }) =>
-              api[method](params, { signal }).then(handleResult(method)),
-            throwOnError: (err: ApiError) => err.statusCode === 404,
-            ...options,
-            // Add params to the result for reassembly after the queries are returned
-            select: (data) => ({ ...data, params }),
-          }) satisfies UseQueryOptions<Result<A[M]> & { params: Params<A[M]> }, ApiError>
-      ),
-    })
-  }
-
 export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryClient) => ({
   /**
    * Note that we only take a single argument, `method`, rather than allowing
@@ -271,7 +300,7 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
   fetchQuery: <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: FetchQueryOtherOptions<Result<A[M]>, ApiError> = {}
+    options: FetchQueryOtherOptions<Result<A[M]>> = {}
   ) =>
     queryClient.fetchQuery({
       queryKey: [method, params],
@@ -281,7 +310,7 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
   prefetchQuery: <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: FetchQueryOtherOptions<Result<A[M]>, ApiError> = {}
+    options: FetchQueryOtherOptions<Result<A[M]>> = {}
   ) =>
     queryClient.prefetchQuery({
       queryKey: [method, params],

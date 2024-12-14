@@ -6,34 +6,52 @@
  * Copyright Oxide Computer Company
  */
 import { filesize } from 'filesize'
-import { useMemo } from 'react'
+import { useId, useMemo, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
+  useApiMutation,
   useApiQuery,
   usePrefetchedApiQuery,
+  type Instance,
   type InstanceNetworkInterface,
 } from '@oxide/api'
 import { Instances24Icon } from '@oxide/design-system/icons/react'
 
-import { instanceTransitioning } from '~/api/util'
+import {
+  INSTANCE_MAX_CPU,
+  INSTANCE_MAX_RAM_GiB,
+  instanceCan,
+  instanceTransitioning,
+} from '~/api/util'
 import { ExternalIps } from '~/components/ExternalIps'
+import { NumberField } from '~/components/form/fields/NumberField'
+import { HL } from '~/components/HL'
 import { InstanceDocsPopover } from '~/components/InstanceDocsPopover'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { RefreshButton } from '~/components/RefreshButton'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { InstanceStateBadge } from '~/components/StateBadge'
-import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
+import {
+  getInstanceSelector,
+  useInstanceSelector,
+  useProjectSelector,
+} from '~/hooks/use-params'
+import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { Button } from '~/ui/lib/Button'
 import { DateTime } from '~/ui/lib/DateTime'
+import { Message } from '~/ui/lib/Message'
+import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { Spinner } from '~/ui/lib/Spinner'
 import { Tooltip } from '~/ui/lib/Tooltip'
-import { Truncate } from '~/ui/lib/Truncate'
+import { truncate, Truncate } from '~/ui/lib/Truncate'
 import { pb } from '~/util/path-builder'
+import { GiB } from '~/util/units'
 
 import { useMakeInstanceActions } from '../actions'
 
@@ -91,6 +109,7 @@ const POLL_INTERVAL = 1000
 
 export function InstancePage() {
   const instanceSelector = useInstanceSelector()
+  const [resizeInstance, setResizeInstance] = useState(false)
 
   const navigate = useNavigate()
 
@@ -101,6 +120,7 @@ export function InstancePage() {
       apiQueryClient.invalidateQueries('instanceList')
       navigate(pb.instances(instanceSelector))
     },
+    onResizeClick: () => setResizeInstance(true),
   })
 
   const { data: instance } = usePrefetchedApiQuery(
@@ -176,12 +196,12 @@ export function InstancePage() {
       <PropertiesTable.Group className="-mt-8 mb-16">
         <PropertiesTable>
           <PropertiesTable.Row label="cpu">
-            <span className="text-secondary">{instance.ncpus}</span>
-            <span className="ml-1 text-quaternary"> vCPUs</span>
+            <span className="text-default">{instance.ncpus}</span>
+            <span className="ml-1 text-tertiary"> vCPUs</span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="ram">
-            <span className="text-secondary">{memory.value}</span>
-            <span className="ml-1 text-quaternary"> {memory.unit}</span>
+            <span className="text-default">{memory.value}</span>
+            <span className="ml-1 text-tertiary"> {memory.unit}</span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="state">
             <div className="flex">
@@ -210,7 +230,7 @@ export function InstancePage() {
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.Row label="description">
-            <span className="text-secondary">
+            <span className="text-default">
               <Truncate text={instance.description} maxLength={40} />
             </span>
           </PropertiesTable.Row>
@@ -218,7 +238,7 @@ export function InstancePage() {
             <DateTime date={instance.timeCreated} />
           </PropertiesTable.Row>
           <PropertiesTable.Row label="id">
-            <span className="overflow-hidden text-ellipsis whitespace-nowrap text-secondary">
+            <span className="overflow-hidden text-ellipsis whitespace-nowrap text-default">
               {instance.id}
             </span>
           </PropertiesTable.Row>
@@ -233,6 +253,143 @@ export function InstancePage() {
         <Tab to={pb.instanceNetworking(instanceSelector)}>Networking</Tab>
         <Tab to={pb.instanceConnect(instanceSelector)}>Connect</Tab>
       </RouteTabs>
+      {resizeInstance && (
+        <ResizeInstanceModal
+          instance={instance}
+          onDismiss={() => setResizeInstance(false)}
+        />
+      )}
     </>
+  )
+}
+
+export function ResizeInstanceModal({
+  instance,
+  onDismiss,
+  onListView = false,
+}: {
+  instance: Instance
+  onDismiss: () => void
+  onListView?: boolean
+}) {
+  const { project } = useProjectSelector()
+  const instanceUpdate = useApiMutation('instanceUpdate', {
+    onSuccess(_updatedInstance) {
+      if (onListView) {
+        apiQueryClient.invalidateQueries('instanceList')
+      } else {
+        apiQueryClient.invalidateQueries('instanceView')
+      }
+      onDismiss()
+      addToast({
+        content: (
+          <>
+            Instance <HL>{instance.name}</HL> resized
+          </>
+        ),
+        cta: onListView
+          ? {
+              text: `View instance`,
+              link: pb.instance({ project, instance: instance.name }),
+            }
+          : undefined, // Only link to the instance if we're not already on that page
+      })
+    },
+    onError: (err) => {
+      addToast({ title: 'Error', content: err.message, variant: 'error' })
+    },
+    onSettled: onDismiss,
+  })
+
+  const form = useForm({
+    defaultValues: {
+      ncpus: instance.ncpus,
+      memory: instance.memory / GiB, // memory is stored as bytes
+    },
+    mode: 'onChange',
+  })
+
+  const canResize = instanceCan.update(instance)
+  const willChange =
+    form.watch('ncpus') !== instance.ncpus || form.watch('memory') !== instance.memory / GiB
+  const isDisabled = !form.formState.isValid || !canResize || !willChange
+
+  const onSubmit = form.handleSubmit(({ ncpus, memory }) => {
+    instanceUpdate.mutate({
+      path: { instance: instance.name },
+      query: { project },
+      body: { ncpus, memory: memory * GiB, bootDisk: instance.bootDiskId },
+    })
+  })
+  const formId = useId()
+
+  return (
+    <Modal title="Resize instance" isOpen onDismiss={onDismiss}>
+      <Modal.Body>
+        <Modal.Section>
+          {!canResize ? (
+            <Message variant="error" content="An instance must be stopped to be resized" />
+          ) : (
+            <Message
+              variant="info"
+              content={
+                <div>
+                  Current (
+                  <span className="text-sans-semi-md">{truncate(instance.name, 20)}</span>
+                  ): {instance.ncpus} vCPUs / {instance.memory / GiB} GiB
+                </div>
+              }
+            />
+          )}
+          <form id={formId} autoComplete="off" className="space-y-4" onSubmit={onSubmit}>
+            <NumberField
+              required
+              label="vCPUs"
+              name="ncpus"
+              min={1}
+              control={form.control}
+              validate={(cpus) => {
+                if (cpus < 1) {
+                  return `Must be at least 1 vCPU`
+                }
+                if (cpus > INSTANCE_MAX_CPU) {
+                  return `CPUs capped to ${INSTANCE_MAX_CPU}`
+                }
+                // We can show this error and therefore inform the user
+                // of the limit rather than preventing it completely
+              }}
+              disabled={!canResize}
+            />
+            <NumberField
+              units="GiB"
+              required
+              label="Memory"
+              name="memory"
+              min={1}
+              control={form.control}
+              validate={(memory) => {
+                if (memory < 1) {
+                  return `Must be at least 1 GiB`
+                }
+                if (memory > INSTANCE_MAX_RAM_GiB) {
+                  return `Can be at most ${INSTANCE_MAX_RAM_GiB} GiB`
+                }
+              }}
+              disabled={!canResize}
+            />
+          </form>
+          {instanceUpdate.error && (
+            <p className="mt-4 text-error">{instanceUpdate.error.message}</p>
+          )}
+        </Modal.Section>
+      </Modal.Body>
+      <Modal.Footer
+        formId={formId}
+        onDismiss={onDismiss}
+        actionText="Resize"
+        actionLoading={instanceUpdate.isPending}
+        disabled={isDisabled}
+      />
+    </Modal>
   )
 }
