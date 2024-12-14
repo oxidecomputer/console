@@ -28,25 +28,27 @@ export function ExternalIps({ project, instance }: PP.Instance) {
   if (!ips || ips.length === 0) return <EmptyCell />
   // create a copy of ips so we don't mutate the original; move ephemeral ip to the end
   const orderedIps = [...ips].sort((a) => (a.kind === 'ephemeral' ? 1 : -1))
-  const toShow = orderedIps.slice(0, 2)
-  const overflowCount = orderedIps.length - toShow.length
+  const ipsToShow = orderedIps.slice(0, 2)
+  const overflowCount = orderedIps.length - ipsToShow.length
+
+  // create a list of CopyableIp components
+  const links = ipsToShow.map((eip) => <CopyableIp ip={eip.ip} key={eip.ip} />)
+
+  // if there are more than 2 ips, add a link to the instance networking page
+  if (overflowCount > 0) {
+    links.push(
+      <Link
+        to={pb.instanceNetworking({ project, instance })}
+        className="link-with-underline text-sans-md"
+      >
+        +{overflowCount}
+      </Link>
+    )
+  }
+
   return (
     <div className="flex max-w-full items-center gap-1">
-      {intersperse(
-        toShow.map((eip) => <CopyableIp ip={eip.ip} key={eip.ip} />),
-        <Slash />
-      )}
-      {overflowCount > 0 && (
-        <>
-          <Slash />
-          <Link
-            to={pb.instanceNetworking({ project, instance })}
-            className="link-with-underline text-sans-md"
-          >
-            +{overflowCount}
-          </Link>
-        </>
-      )}
+      {intersperse(links, <Slash />)}
     </div>
   )
 }
