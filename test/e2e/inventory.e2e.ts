@@ -21,28 +21,33 @@ test('Sled inventory page', async ({ page }) => {
 
   const sledsTable = page.getByRole('table')
   await expectRowVisible(sledsTable, {
+    id: sleds[0].id,
+    'serial number': sleds[0].baseboard.serial,
+    policy: 'In serviceProvisionable',
+    state: 'active',
+  })
+  await expectRowVisible(sledsTable, {
     id: sleds[1].id,
     'serial number': sleds[1].baseboard.serial,
-    policy: 'in service',
+    policy: 'In serviceNot provisionable',
     state: 'active',
   })
   await expectRowVisible(sledsTable, {
     id: sleds[2].id,
     'serial number': sleds[2].baseboard.serial,
-    policy: 'expunged',
+    policy: 'Expunged',
     state: 'active',
   })
   await expectRowVisible(sledsTable, {
     id: sleds[3].id,
     'serial number': sleds[3].baseboard.serial,
-    policy: 'expunged',
+    policy: 'Expunged',
     state: 'decommissioned',
   })
 
   // Visit the sled detail page of the first sled
   await sledsTable.getByRole('link').first().click()
 
-  // TODO: Once sled location is piped through this'll need to be dynamic
   await expectVisible(page, ['role=heading[name*="Sled"]'])
 
   const instancesTab = page.getByRole('tab', { name: 'Instances' })
