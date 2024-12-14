@@ -6,11 +6,15 @@
  * Copyright Oxide Computer Company
  */
 
+import { Link } from 'react-router-dom'
+
 import { useApiQuery } from '@oxide/api'
 
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
+import { Slash } from '~/ui/lib/Slash'
 import { intersperse } from '~/util/array'
+import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
 export function ExternalIps({ project, instance }: PP.Instance) {
@@ -22,12 +26,29 @@ export function ExternalIps({ project, instance }: PP.Instance) {
 
   const ips = data?.items
   if (!ips || ips.length === 0) return <EmptyCell />
+  // create a copy of ips so we don't mutate the original; move ephemeral ip to the end
+  const orderedIps = [...ips].sort((a) => (a.kind === 'ephemeral' ? 1 : -1))
+  const ipsToShow = orderedIps.slice(0, 2)
+  const overflowCount = orderedIps.length - ipsToShow.length
+
+  // create a list of CopyableIp components
+  const links = ipsToShow.map((eip) => <CopyableIp ip={eip.ip} key={eip.ip} />)
+
+  // if there are more than 2 ips, add a link to the instance networking page
+  if (overflowCount > 0) {
+    links.push(
+      <Link
+        to={pb.instanceNetworking({ project, instance })}
+        className="link-with-underline text-sans-md"
+      >
+        +{overflowCount}
+      </Link>
+    )
+  }
+
   return (
-    <div className="flex items-center gap-1">
-      {intersperse(
-        ips.map((eip) => <CopyableIp ip={eip.ip} key={eip.ip} />),
-        <span className="text-quaternary"> / </span>
-      )}
+    <div className="flex max-w-full items-center gap-1">
+      {intersperse(links, <Slash />)}
     </div>
   )
 }
