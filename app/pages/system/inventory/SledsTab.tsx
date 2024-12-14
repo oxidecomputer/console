@@ -11,7 +11,7 @@ import {
   getListQFn,
   queryClient,
   type Sled,
-  type SledPolicy,
+  type SledProvisionPolicy,
   type SledState,
 } from '@oxide/api'
 import { Servers24Icon } from '@oxide/design-system/icons/react'
@@ -22,24 +22,14 @@ import { Badge, type BadgeColor } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pb } from '~/util/path-builder'
 
-const POLICY_KIND_BADGE_COLORS: Record<SledPolicy['kind'], BadgeColor> = {
-  in_service: 'default',
-  expunged: 'neutral',
+const PROV_POLICY_DISP: Record<SledProvisionPolicy, [string, BadgeColor]> = {
+  provisionable: ['Provisionable', 'default'],
+  non_provisionable: ['Not provisionable', 'neutral'],
 }
 
 const STATE_BADGE_COLORS: Record<SledState, BadgeColor> = {
   active: 'default',
   decommissioned: 'neutral',
-}
-
-const EmptyState = () => {
-  return (
-    <EmptyMessage
-      icon={<Servers24Icon />}
-      title="Something went wrong"
-      body="We expected some racks here, but none were found"
-    />
-  )
 }
 
 const sledList = getListQFn('sledList', {})
@@ -58,13 +48,21 @@ const staticCols = [
   colHelper.accessor('baseboard.part', { header: 'part number' }),
   colHelper.accessor('baseboard.serial', { header: 'serial number' }),
   colHelper.accessor('baseboard.revision', { header: 'revision' }),
-  colHelper.accessor('policy.kind', {
+  colHelper.accessor('policy', {
     header: 'policy',
-    cell: (info) => (
-      <Badge color={POLICY_KIND_BADGE_COLORS[info.getValue()]}>
-        {info.getValue().replace(/_/g, ' ')}
-      </Badge>
-    ),
+    cell: (info) => {
+      const policy = info.getValue()
+      if (policy.kind === 'expunged') return <Badge color="neutral">Expunged</Badge>
+      const [label, color] = PROV_POLICY_DISP[policy.provisionPolicy]
+      return (
+        <div className="space-x-0.5">
+          <Badge>In service</Badge>
+          <Badge variant="solid" color={color}>
+            {label}
+          </Badge>
+        </div>
+      )
+    },
   }),
   colHelper.accessor('state', {
     cell: (info) => (
@@ -75,7 +73,7 @@ const staticCols = [
 
 Component.displayName = 'SledsTab'
 export function Component() {
-  const emptyState = <EmptyState />
+  const emptyState = <EmptyMessage icon={<Servers24Icon />} title="No sleds found" />
   const { table } = useQueryTable({ query: sledList, columns: staticCols, emptyState })
   return table
 }
