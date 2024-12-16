@@ -51,15 +51,15 @@ function RouteRows({ project, vpc, gateway }: PP.VpcInternetGateway) {
 
   return matchingRoutes.map(([router, route]) => (
     <Table.Row key={route.id}>
-      <Table.Cell className="!bg-raise">{router}</Table.Cell>
-      <Table.Cell className="bg-raise">
+      <Table.Cell className="!bg-raise">
         <Link
-          to={pb.vpcRouterRouteEdit({ project, vpc, router, route: route.name })}
+          to={pb.vpcRouter({ project, vpc, router })}
           className="link-with-underline text-sans-md"
         >
-          {route.name}
+          {router}
         </Link>
       </Table.Cell>
+      <Table.Cell className="!bg-raise">{route.name}</Table.Cell>
     </Table.Row>
   ))
 }

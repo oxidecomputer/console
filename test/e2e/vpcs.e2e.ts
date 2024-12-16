@@ -408,9 +408,9 @@ test('internet gateway shows proper list of routes targeting it', async ({ page 
   await expect(table.locator('tbody >> tr')).toHaveCount(2)
 
   // click on the new-route link to go to the detail page
-  await sidemodal.getByRole('link', { name: 'new-route' }).click()
+  await sidemodal.getByRole('link', { name: 'mock-custom-router' }).first().click()
   // expect to be on the view page
   await expect(page).toHaveURL(
-    '/projects/mock-project/vpcs/mock-vpc/routers/mock-custom-router/routes/new-route/edit'
+    '/projects/mock-project/vpcs/mock-vpc/routers/mock-custom-router'
   )
 })

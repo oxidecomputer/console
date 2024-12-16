@@ -115,6 +115,14 @@ export function SideModal({
                     </div>
                   )}
                   {children}
+
+                  {/* Close button is here at the end so we aren't automatically focusing on it when the side modal is opened. Positioned in the safe area at the top */}
+                  <Dialog.Close
+                    className="absolute right-[var(--content-gutter)] top-10 -m-2 flex rounded p-2 hover:bg-hover"
+                    aria-label="Close"
+                  >
+                    <Close12Icon className="text-default" />
+                  </Dialog.Close>
                 </AnimatedDialogContent>
               </Dialog.Portal>
             </Dialog.Root>
@@ -161,15 +169,5 @@ SideModal.Footer = ({ children, error }: { children: ReactNode; error?: boolean 
       </div>
     )}
     {children}
-    {/*
-      Close button is here at the end so we aren't automatically focusing on it
-      when the side modal is opened. Positioned in the safe area at the top
-     */}
-    <Dialog.Close
-      className="absolute right-[var(--content-gutter)] top-10 -m-2 flex rounded p-2 hover:bg-hover"
-      aria-label="Close"
-    >
-      <Close12Icon className="text-default" />
-    </Dialog.Close>
   </footer>
 )
