@@ -29,13 +29,25 @@ import { pb } from '~/util/path-builder'
 import { capitalize } from '~/util/str'
 import { bytesToGiB } from '~/util/units'
 
-EditProjectImageSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  const { project, image } = getProjectImageSelector(params)
-  await apiQueryClient.prefetchQuery('imageView', { path: { image }, query: { project } })
-  return null
+export const ProjectImageEdit = {
+  loader: async ({ params }: LoaderFunctionArgs) => {
+    const { project, image } = getProjectImageSelector(params)
+    await apiQueryClient.prefetchQuery('imageView', { path: { image }, query: { project } })
+    return null
+  },
+  Component: EditProjectImageSideModalForm,
 }
 
-export function EditProjectImageSideModalForm() {
+export const SiloImageEdit = {
+  loader: async ({ params }: LoaderFunctionArgs) => {
+    const { image } = getSiloImageSelector(params)
+    await apiQueryClient.prefetchQuery('imageView', { path: { image } })
+    return null
+  },
+  Component: EditSiloImageSideModalForm,
+}
+
+function EditProjectImageSideModalForm() {
   const { project, image } = useProjectImageSelector()
   const { data } = usePrefetchedApiQuery('imageView', {
     path: { image },
@@ -46,20 +58,14 @@ export function EditProjectImageSideModalForm() {
   return <EditImageSideModalForm image={data} dismissLink={dismissLink} type="Project" />
 }
 
-EditSiloImageSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  const { image } = getSiloImageSelector(params)
-  await apiQueryClient.prefetchQuery('imageView', { path: { image } })
-  return null
-}
-
-export function EditSiloImageSideModalForm() {
+function EditSiloImageSideModalForm() {
   const { image } = useSiloImageSelector()
   const { data } = usePrefetchedApiQuery('imageView', { path: { image } })
 
   return <EditImageSideModalForm image={data} dismissLink={pb.siloImages()} type="Silo" />
 }
 
-export function EditImageSideModalForm({
+function EditImageSideModalForm({
   image,
   dismissLink,
   type,
@@ -95,7 +101,7 @@ export function EditImageSideModalForm({
         </PropertiesTable.Row>
         <PropertiesTable.Row label="Size">
           <span>{bytesToGiB(image.size)}</span>
-          <span className="ml-1 inline-block text-quaternary">GiB</span>
+          <span className="ml-1 inline-block text-tertiary">GiB</span>
         </PropertiesTable.Row>
         <PropertiesTable.Row label="Created">
           <DateTime date={image.timeCreated} />

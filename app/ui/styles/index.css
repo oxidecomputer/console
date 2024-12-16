@@ -2,7 +2,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at https://mozilla.org/MPL/2.0/.
- *  
+ *
  * Copyright Oxide Computer Company
  */
 
@@ -44,6 +44,7 @@
 
 :root {
   --content-gutter: 2.5rem;
+  --top-bar-height: 54px;
 }
 
 @layer base {
@@ -61,7 +62,7 @@
   /* https://github.com/tailwindlabs/tailwindcss/blob/v2.2.4/src/plugins/css/preflight.css#L57 */
   input::placeholder,
   textarea::placeholder {
-    @apply text-tertiary;
+    @apply text-secondary;
   }
 
   /* https://github.com/tailwindlabs/tailwindcss/blob/v2.2.4/src/plugins/css/preflight.css#L224 */
@@ -83,9 +84,9 @@
   }
 
   .link-with-underline {
-    @apply text-secondary hover:text-default;
+    @apply text-raise;
     text-decoration: underline;
-    text-decoration-color: var(--content-quinary);
+    text-decoration-color: var(--content-quaternary);
 
     &:hover {
       text-decoration-color: var(--content-tertiary);
@@ -148,4 +149,12 @@ textarea[type='text']:focus:not(:focus-visible),
 input[type='radio']:focus:not(:focus-visible),
 input[type='checkbox']:focus:not(:focus-visible) {
   @apply outline-transparent;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  @apply text-raise;
 }

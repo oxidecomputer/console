@@ -26,7 +26,7 @@ import { classed } from '~/util/classed'
 import { links } from '~/util/links'
 import { bytesToGiB, formatBytesAs, getUnit, GiB } from '~/util/units'
 
-const Unit = classed.span`ml-1 text-tertiary`
+const Unit = classed.span`ml-1 text-secondary`
 
 export function SiloQuotasTab() {
   const { silo } = useSiloSelector()

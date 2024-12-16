@@ -56,11 +56,13 @@ export function DeviceAuthVerifyPage() {
       }}
     >
       <h1 className="mb-1 text-sans-2xl text-accent">Device Authentication</h1>
-      <p className="mb-8 text-sans-lg text-tertiary">Enter the code shown on your device</p>
+      <p className="mb-8 text-sans-lg text-secondary">
+        Enter the code shown on your device
+      </p>
       <AuthCodeInput
         onChange={(code) => setUserCode(code)}
         containerClassName="flex space-x-2 mb-6"
-        inputClassName="rounded border border-default bg-default w-full aspect-square flex items-center justify-center text-center text-secondary text-mono-md"
+        inputClassName="rounded border border-default bg-default w-full aspect-square flex items-center justify-center text-center text-default text-mono-md"
         length={8}
         dashAfterIdxs={DASH_AFTER_IDXS}
       />

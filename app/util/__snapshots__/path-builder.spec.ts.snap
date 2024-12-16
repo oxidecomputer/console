@@ -1,0 +1,1017 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`breadcrumbs 2`] = `
+{
+  "deviceSuccess (/device/success)": [],
+  "diskInventory (/system/inventory/disks)": [
+    {
+      "label": "Inventory",
+      "path": "/system/inventory/sleds",
+    },
+    {
+      "label": "Disks",
+      "path": "/system/inventory/disks",
+    },
+  ],
+  "disks (/projects/p/disks)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Disks",
+      "path": "/projects/p/disks",
+    },
+  ],
+  "disksNew (/projects/p/disks-new)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Disks",
+      "path": "/projects/p/disks",
+    },
+  ],
+  "floatingIpEdit (/projects/p/floating-ips/f/edit)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Floating IPs",
+      "path": "/projects/p/floating-ips",
+    },
+  ],
+  "floatingIps (/projects/p/floating-ips)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Floating IPs",
+      "path": "/projects/p/floating-ips",
+    },
+  ],
+  "floatingIpsNew (/projects/p/floating-ips-new)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Floating IPs",
+      "path": "/projects/p/floating-ips",
+    },
+  ],
+  "instance (/projects/p/instances/i/storage)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Instances",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "i",
+      "path": "/projects/p/instances/i/storage",
+    },
+    {
+      "label": "Storage",
+      "path": "/projects/p/instances/i/storage",
+    },
+  ],
+  "instanceConnect (/projects/p/instances/i/connect)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Instances",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "i",
+      "path": "/projects/p/instances/i/storage",
+    },
+    {
+      "label": "Connect",
+      "path": "/projects/p/instances/i/connect",
+    },
+  ],
+  "instanceMetrics (/projects/p/instances/i/metrics)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Instances",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "i",
+      "path": "/projects/p/instances/i/storage",
+    },
+    {
+      "label": "Metrics",
+      "path": "/projects/p/instances/i/metrics",
+    },
+  ],
+  "instanceNetworking (/projects/p/instances/i/networking)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Instances",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "i",
+      "path": "/projects/p/instances/i/storage",
+    },
+    {
+      "label": "Networking",
+      "path": "/projects/p/instances/i/networking",
+    },
+  ],
+  "instanceStorage (/projects/p/instances/i/storage)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Instances",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "i",
+      "path": "/projects/p/instances/i/storage",
+    },
+    {
+      "label": "Storage",
+      "path": "/projects/p/instances/i/storage",
+    },
+  ],
+  "instances (/projects/p/instances)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Instances",
+      "path": "/projects/p/instances",
+    },
+  ],
+  "instancesNew (/projects/p/instances-new)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "New instance",
+      "path": "/projects/p/instances-new",
+    },
+  ],
+  "ipPool (/system/networking/ip-pools/pl)": [
+    {
+      "label": "IP Pools",
+      "path": "/system/networking/ip-pools",
+    },
+    {
+      "label": "pl",
+      "path": "/system/networking/ip-pools/pl",
+    },
+  ],
+  "ipPoolEdit (/system/networking/ip-pools/pl/edit)": [
+    {
+      "label": "IP Pools",
+      "path": "/system/networking/ip-pools",
+    },
+    {
+      "label": "pl",
+      "path": "/system/networking/ip-pools/pl",
+    },
+    {
+      "label": "Edit IP pool",
+      "path": "/system/networking/ip-pools/pl/edit",
+    },
+  ],
+  "ipPoolRangeAdd (/system/networking/ip-pools/pl/ranges-add)": [
+    {
+      "label": "IP Pools",
+      "path": "/system/networking/ip-pools",
+    },
+    {
+      "label": "pl",
+      "path": "/system/networking/ip-pools/pl",
+    },
+  ],
+  "ipPools (/system/networking/ip-pools)": [
+    {
+      "label": "IP Pools",
+      "path": "/system/networking/",
+    },
+  ],
+  "ipPoolsNew (/system/networking/ip-pools-new)": [
+    {
+      "label": "IP Pools",
+      "path": "/system/networking/",
+    },
+  ],
+  "profile (/settings/profile)": [
+    {
+      "label": "Settings",
+      "path": "/settings/profile",
+    },
+    {
+      "label": "Profile",
+      "path": "/settings/profile",
+    },
+  ],
+  "project (/projects/p/instances)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Instances",
+      "path": "/projects/p/instances",
+    },
+  ],
+  "projectAccess (/projects/p/access)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Access",
+      "path": "/projects/p/access",
+    },
+  ],
+  "projectEdit (/projects/p/edit)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+  ],
+  "projectImageEdit (/projects/p/images/im/edit)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Images",
+      "path": "/projects/p/images",
+    },
+  ],
+  "projectImages (/projects/p/images)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Images",
+      "path": "/projects/p/images",
+    },
+  ],
+  "projectImagesNew (/projects/p/images-new)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Images",
+      "path": "/projects/p/images",
+    },
+  ],
+  "projects (/projects)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+  ],
+  "projectsNew (/projects-new)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+  ],
+  "samlIdp (/system/silos/s/idps/saml/pr)": [
+    {
+      "label": "Silos",
+      "path": "/system/silos",
+    },
+    {
+      "label": "s",
+      "path": "/system/silos/s",
+    },
+  ],
+  "serialConsole (/projects/p/instances/i/serial-console)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Instances",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "i",
+      "path": "/projects/p/instances/i",
+    },
+    {
+      "label": "Serial Console",
+      "path": "/projects/p/instances/i/serial-console",
+    },
+  ],
+  "silo (/system/silos/s)": [
+    {
+      "label": "Silos",
+      "path": "/system/silos",
+    },
+    {
+      "label": "s",
+      "path": "/system/silos/s",
+    },
+  ],
+  "siloAccess (/access)": [
+    {
+      "label": "Access",
+      "path": "/access",
+    },
+  ],
+  "siloIdpsNew (/system/silos/s/idps-new)": [
+    {
+      "label": "Silos",
+      "path": "/system/silos",
+    },
+    {
+      "label": "s",
+      "path": "/system/silos/s",
+    },
+  ],
+  "siloImageEdit (/images/im/edit)": [
+    {
+      "label": "Images",
+      "path": "/images",
+    },
+  ],
+  "siloImages (/images)": [
+    {
+      "label": "Images",
+      "path": "/images",
+    },
+  ],
+  "siloIpPools (/system/silos/s?tab=ip-pools)": [
+    {
+      "label": "Silos",
+      "path": "/system/silos",
+    },
+    {
+      "label": "s",
+      "path": "/system/silos/s",
+    },
+  ],
+  "siloUtilization (/utilization)": [
+    {
+      "label": "Utilization",
+      "path": "/utilization",
+    },
+  ],
+  "silos (/system/silos)": [
+    {
+      "label": "Silos",
+      "path": "/system/silos",
+    },
+  ],
+  "silosNew (/system/silos-new)": [
+    {
+      "label": "Silos",
+      "path": "/system/silos",
+    },
+  ],
+  "sled (/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances)": [
+    {
+      "label": "Inventory",
+      "path": "/system/inventory",
+    },
+    {
+      "label": "Sleds",
+      "path": "/system/inventory/sleds",
+    },
+    {
+      "label": "5c56b…ec3e0",
+      "path": "/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances",
+    },
+    {
+      "label": "Instances",
+      "path": "/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances",
+    },
+  ],
+  "sledInstances (/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances)": [
+    {
+      "label": "Inventory",
+      "path": "/system/inventory",
+    },
+    {
+      "label": "Sleds",
+      "path": "/system/inventory/sleds",
+    },
+    {
+      "label": "5c56b…ec3e0",
+      "path": "/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances",
+    },
+    {
+      "label": "Instances",
+      "path": "/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances",
+    },
+  ],
+  "sledInventory (/system/inventory/sleds)": [
+    {
+      "label": "Inventory",
+      "path": "/system/inventory/sleds",
+    },
+    {
+      "label": "Sleds",
+      "path": "/system/inventory/sleds",
+    },
+  ],
+  "snapshotImagesNew (/projects/p/snapshots/sn/images-new)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Snapshots",
+      "path": "/projects/p/snapshots",
+    },
+  ],
+  "snapshots (/projects/p/snapshots)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Snapshots",
+      "path": "/projects/p/snapshots",
+    },
+  ],
+  "snapshotsNew (/projects/p/snapshots-new)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Snapshots",
+      "path": "/projects/p/snapshots",
+    },
+  ],
+  "sshKeyEdit (/settings/ssh-keys/ss/edit)": [
+    {
+      "label": "Settings",
+      "path": "/settings/profile",
+    },
+    {
+      "label": "SSH Keys",
+      "path": "/settings/ssh-keys",
+    },
+  ],
+  "sshKeys (/settings/ssh-keys)": [
+    {
+      "label": "Settings",
+      "path": "/settings/profile",
+    },
+    {
+      "label": "SSH Keys",
+      "path": "/settings/ssh-keys",
+    },
+  ],
+  "sshKeysNew (/settings/ssh-keys-new)": [
+    {
+      "label": "Settings",
+      "path": "/settings/profile",
+    },
+    {
+      "label": "SSH Keys",
+      "path": "/settings/ssh-keys",
+    },
+  ],
+  "systemUtilization (/system/utilization)": [
+    {
+      "label": "Utilization",
+      "path": "/system/utilization",
+    },
+  ],
+  "vpc (/projects/p/vpcs/v/firewall-rules)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v/firewall-rules",
+    },
+    {
+      "label": "Firewall Rules",
+      "path": "/projects/p/vpcs/v/firewall-rules",
+    },
+  ],
+  "vpcEdit (/projects/p/vpcs/v/edit)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v/firewall-rules",
+    },
+    {
+      "label": "Edit VPC",
+      "path": "/projects/p/vpcs/v/edit",
+    },
+  ],
+  "vpcFirewallRuleClone (/projects/p/vpcs/v/firewall-rules-new/fr)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v/firewall-rules",
+    },
+    {
+      "label": "Firewall Rules",
+      "path": "/projects/p/vpcs/v/",
+    },
+  ],
+  "vpcFirewallRuleEdit (/projects/p/vpcs/v/firewall-rules/fr/edit)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v/firewall-rules",
+    },
+    {
+      "label": "Firewall Rules",
+      "path": "/projects/p/vpcs/v/",
+    },
+  ],
+  "vpcFirewallRules (/projects/p/vpcs/v/firewall-rules)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v/firewall-rules",
+    },
+    {
+      "label": "Firewall Rules",
+      "path": "/projects/p/vpcs/v/firewall-rules",
+    },
+  ],
+  "vpcFirewallRulesNew (/projects/p/vpcs/v/firewall-rules-new)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v/firewall-rules",
+    },
+    {
+      "label": "Firewall Rules",
+      "path": "/projects/p/vpcs/v/",
+    },
+  ],
+  "vpcInternetGateway (/projects/p/vpcs/v/internet-gateways/g)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v/firewall-rules",
+    },
+    {
+      "label": "Internet Gateways",
+      "path": "/projects/p/vpcs/v/internet-gateways",
+    },
+  ],
+  "vpcInternetGateways (/projects/p/vpcs/v/internet-gateways)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v/firewall-rules",
+    },
+    {
+      "label": "Internet Gateways",
+      "path": "/projects/p/vpcs/v/internet-gateways",
+    },
+  ],
+  "vpcRouter (/projects/p/vpcs/v/routers/r)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v",
+    },
+    {
+      "label": "Routers",
+      "path": "/projects/p/vpcs/v/routers",
+    },
+    {
+      "label": "r",
+      "path": "/projects/p/vpcs/v/routers/r",
+    },
+    {
+      "label": "Routes",
+      "path": "/projects/p/vpcs/v/routers/r/",
+    },
+  ],
+  "vpcRouterEdit (/projects/p/vpcs/v/routers/r/edit)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v/firewall-rules",
+    },
+    {
+      "label": "Routers",
+      "path": "/projects/p/vpcs/v/",
+    },
+  ],
+  "vpcRouterRouteEdit (/projects/p/vpcs/v/routers/r/routes/rr/edit)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v",
+    },
+    {
+      "label": "Routers",
+      "path": "/projects/p/vpcs/v/routers",
+    },
+    {
+      "label": "r",
+      "path": "/projects/p/vpcs/v/routers/r",
+    },
+    {
+      "label": "Routes",
+      "path": "/projects/p/vpcs/v/routers/r/",
+    },
+  ],
+  "vpcRouterRoutesNew (/projects/p/vpcs/v/routers/r/routes-new)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v",
+    },
+    {
+      "label": "Routers",
+      "path": "/projects/p/vpcs/v/routers",
+    },
+    {
+      "label": "r",
+      "path": "/projects/p/vpcs/v/routers/r",
+    },
+    {
+      "label": "Routes",
+      "path": "/projects/p/vpcs/v/routers/r/",
+    },
+  ],
+  "vpcRouters (/projects/p/vpcs/v/routers)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v/firewall-rules",
+    },
+    {
+      "label": "Routers",
+      "path": "/projects/p/vpcs/v/",
+    },
+  ],
+  "vpcRoutersNew (/projects/p/vpcs/v/routers-new)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v/firewall-rules",
+    },
+    {
+      "label": "Routers",
+      "path": "/projects/p/vpcs/v/",
+    },
+  ],
+  "vpcSubnets (/projects/p/vpcs/v/subnets)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v/firewall-rules",
+    },
+    {
+      "label": "Subnets",
+      "path": "/projects/p/vpcs/v/",
+    },
+  ],
+  "vpcSubnetsEdit (/projects/p/vpcs/v/subnets/su/edit)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v/firewall-rules",
+    },
+    {
+      "label": "Subnets",
+      "path": "/projects/p/vpcs/v/",
+    },
+  ],
+  "vpcSubnetsNew (/projects/p/vpcs/v/subnets-new)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v/firewall-rules",
+    },
+    {
+      "label": "Subnets",
+      "path": "/projects/p/vpcs/v/",
+    },
+  ],
+  "vpcs (/projects/p/vpcs)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+  ],
+  "vpcsNew (/projects/p/vpcs-new)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+  ],
+}
+`;

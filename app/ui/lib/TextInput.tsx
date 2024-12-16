@@ -8,6 +8,9 @@
 import { announce } from '@react-aria/live-announcer'
 import cn from 'classnames'
 import React, { useEffect } from 'react'
+import type { Merge } from 'type-fest'
+
+import { CopyToClipboard } from './CopyToClipboard'
 
 /**
  * This is a little complicated. We only want to allow the `rows` prop if
@@ -32,13 +35,19 @@ export type TextAreaProps =
 // it makes a bunch of props required that should be optional. Instead we simply
 // take the props of an input field (which are part of the Field props) and
 // manually tack on validate.
-export type TextInputBaseProps = React.ComponentPropsWithRef<'input'> & {
-  // error is used to style the wrapper, also to put aria-invalid on the input
-  error?: boolean
-  disabled?: boolean
-  className?: string
-  fieldClassName?: string
-}
+export type TextInputBaseProps = Merge<
+  React.ComponentPropsWithRef<'input'>,
+  {
+    // error is used to style the wrapper, also to put aria-invalid on the input
+    error?: boolean
+    disabled?: boolean
+    className?: string
+    fieldClassName?: string
+    copyable?: boolean
+    // by default, number and string[] are allowed, but we want to be simple
+    value?: string
+  }
+>
 
 export const TextInput = React.forwardRef<
   HTMLInputElement,
@@ -47,10 +56,12 @@ export const TextInput = React.forwardRef<
   (
     {
       type = 'text',
+      value,
       error,
       className,
       disabled,
       fieldClassName,
+      copyable,
       as: asProp,
       ...fieldProps
     },
@@ -60,7 +71,7 @@ export const TextInput = React.forwardRef<
     return (
       <div
         className={cn(
-          'flex rounded border',
+          'flex items-center rounded border',
           error
             ? 'border-error-secondary hover:border-error'
             : 'border-default hover:border-hover',
@@ -72,16 +83,25 @@ export const TextInput = React.forwardRef<
           // @ts-expect-error this is fine, it's just mad because Component is a variable
           ref={ref}
           type={type}
+          value={value}
           className={cn(
-            `w-full rounded border-none px-3 py-[0.6875rem] !outline-offset-1 text-sans-md text-default bg-default placeholder:text-quaternary focus:outline-none disabled:cursor-not-allowed disabled:text-tertiary disabled:bg-disabled`,
+            `w-full rounded border-none px-3 py-[0.6875rem] !outline-offset-1 text-sans-md text-raise bg-default placeholder:text-tertiary focus:outline-none disabled:cursor-not-allowed disabled:text-secondary disabled:bg-disabled`,
             error && 'focus-error',
             fieldClassName,
-            disabled && 'text-disabled bg-disabled'
+            disabled && 'text-disabled bg-disabled',
+            copyable && 'pr-0'
           )}
           aria-invalid={error}
           disabled={disabled}
+          spellCheck={false}
           {...fieldProps}
         />
+        {copyable && (
+          <CopyToClipboard
+            text={value || ''}
+            className="!h-10 rounded-none border-l border-solid px-4 bg-disabled border-default"
+          />
+        )}
       </div>
     )
   }
@@ -101,7 +121,7 @@ export const TextInputHint = ({ id, children, className }: HintProps) => (
   <div
     id={id}
     className={cn(
-      'mt-1 text-sans-sm text-tertiary [&_>_a]:underline hover:[&_>_a]:text-default',
+      'mt-1 text-sans-sm text-secondary [&_>_a]:underline hover:[&_>_a]:text-raise',
       className
     )}
   >

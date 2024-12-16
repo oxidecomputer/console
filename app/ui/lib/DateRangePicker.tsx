@@ -62,7 +62,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
           type="button"
           className={cn(
             state.isOpen && 'z-10 ring-2',
-            'relative flex h-10 items-center rounded-l rounded-r border text-sans-md border-default focus-within:ring-2 hover:border-raise focus:z-10',
+            'relative flex h-11 items-center rounded-l rounded-r border text-sans-md border-default focus-within:ring-2 hover:border-raise focus:z-10',
             state.isInvalid
               ? 'focus-error border-error ring-error-secondary'
               : 'border-default ring-accent-secondary'
@@ -77,7 +77,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
             )}
           </div>
           <div className="-ml-px flex h-[calc(100%-12px)] w-10 items-center justify-center rounded-r border-l outline-none border-default">
-            <Calendar16Icon className="h-4 w-4 text-tertiary" />
+            <Calendar16Icon className="h-4 w-4 text-secondary" />
           </div>
         </button>
       </div>
@@ -98,7 +98,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
                 hourCycle={24}
                 className="shrink-0 grow basis-0"
               />
-              <div className="text-quinary">–</div>
+              <div className="text-quaternary">–</div>
               <TimeField
                 label="End time"
                 value={state.timeRange?.end || null}

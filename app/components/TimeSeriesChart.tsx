@@ -33,15 +33,14 @@ function getTicks(data: { timestamp: number }[], n: number): number[] {
   const maxIdx = data.length > 10 ? Math.floor((data.length - 1) * 0.8) : data.length - 1
   const startOffset = Math.floor((data.length - maxIdx) * 0.6)
   // if there are 4 ticks, their positions are 0/3, 1/3, 2/3, 3/3 (as fractions of maxIdx)
-  const idxs = new Array(n)
-    .fill(0)
-    .map((_, i) => Math.floor((maxIdx * i) / (n - 1) + startOffset))
+  const idxs = Array.from({ length: n }).map((_, i) =>
+    Math.floor((maxIdx * i) / (n - 1) + startOffset)
+  )
   return idxs.map((i) => data[i].timestamp)
 }
 
 function getVerticalTicks(n: number, max: number): number[] {
-  const idxs = new Array(n).fill(0)
-  return idxs.map((_, i) => Math.floor(((i + 1) / n) * max))
+  return Array.from({ length: n }).map((_, i) => Math.floor(((i + 1) / n) * max))
 }
 
 /**
@@ -84,15 +83,15 @@ function renderTooltip(props: TooltipProps<number, string>, unit?: string) {
   } = payload[0]
   if (!timestamp || typeof value !== 'number') return null
   return (
-    <div className="rounded border outline-0 text-sans-md text-tertiary bg-raise border-secondary elevation-2">
+    <div className="rounded border outline-0 text-sans-md text-secondary bg-raise border-secondary elevation-2">
       <div className="border-b px-3 py-2 pr-6 border-secondary">
         {longDateTime(timestamp)}
       </div>
       <div className="px-3 py-2">
-        <div className="text-tertiary">{name}</div>
-        <div className="text-default">
+        <div className="text-secondary">{name}</div>
+        <div className="text-raise">
           {value.toLocaleString()}
-          {unit && <span className="ml-1 text-tertiary">{unit}</span>}
+          {unit && <span className="ml-1 text-secondary">{unit}</span>}
         </div>
         {/* TODO: unit on value if relevant */}
       </div>

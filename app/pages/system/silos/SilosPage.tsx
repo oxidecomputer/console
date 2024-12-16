@@ -10,10 +10,10 @@ import { useCallback, useMemo } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 
 import {
-  apiQueryClient,
+  getListQFn,
+  queryClient,
   useApiMutation,
   useApiQueryClient,
-  usePrefetchedApiQuery,
   type Silo,
 } from '@oxide/api'
 import { Cloud16Icon, Cloud24Icon } from '@oxide/design-system/icons/react'
@@ -27,7 +27,7 @@ import { BooleanCell } from '~/table/cells/BooleanCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -35,6 +35,8 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
+
+const siloList = () => getListQFn('siloList', {})
 
 const EmptyState = () => (
   <EmptyMessage
@@ -62,21 +64,16 @@ const staticCols = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-SilosPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('siloList', { query: { limit: PAGE_SIZE } })
+export async function loader() {
+  await queryClient.prefetchQuery(siloList().optionsFn())
   return null
 }
 
-export function SilosPage() {
+Component.displayName = 'SilosPage'
+export function Component() {
   const navigate = useNavigate()
 
-  const { Table } = useQueryTable('siloList', {})
   const queryClient = useApiQueryClient()
-
-  const { data: silos } = usePrefetchedApiQuery('siloList', {
-    query: { limit: PAGE_SIZE },
-  })
-
   const { mutateAsync: deleteSilo } = useApiMutation('siloDelete', {
     onSuccess(silo, { path }) {
       queryClient.invalidateQueries('siloList')
@@ -97,11 +94,19 @@ export function SilosPage() {
     [deleteSilo]
   )
 
+  const columns = useColsWithActions(staticCols, makeActions)
+  const { table, query } = useQueryTable({
+    query: siloList(),
+    columns,
+    emptyState: <EmptyState />,
+  })
+  const { data: silos } = query
+
   useQuickActions(
     useMemo(
       () => [
         { value: 'New silo', onSelect: () => navigate(pb.silosNew()) },
-        ...silos.items.map((o) => ({
+        ...(silos?.items || []).map((o) => ({
           value: o.name,
           onSelect: () => navigate(pb.silo({ silo: o.name })),
           navGroup: 'Silo detail',
@@ -110,8 +115,6 @@ export function SilosPage() {
       [navigate, silos]
     )
   )
-
-  const columns = useColsWithActions(staticCols, makeActions)
 
   return (
     <>
@@ -127,7 +130,7 @@ export function SilosPage() {
       <TableActions>
         <CreateLink to={pb.silosNew()}>New silo</CreateLink>
       </TableActions>
-      <Table columns={columns} emptyState={<EmptyState />} />
+      {table}
       <Outlet />
     </>
   )

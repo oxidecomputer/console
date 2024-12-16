@@ -41,7 +41,7 @@ import { links } from '~/util/links'
 
 import { fancifyStates } from './common'
 
-StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   const selector = { path: { instance }, query: { project } }
   await Promise.all([
@@ -75,7 +75,8 @@ const staticCols = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-export function StorageTab() {
+Component.displayName = 'StorageTab'
+export function Component() {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
   const [showDiskAttach, setShowDiskAttach] = useState(false)
 
@@ -86,7 +87,7 @@ export function StorageTab() {
     [instanceName, project]
   )
 
-  const { mutate: detachDisk } = useApiMutation('instanceDiskDetach', {
+  const { mutateAsync: detachDisk } = useApiMutation('instanceDiskDetach', {
     onSuccess(disk) {
       queryClient.invalidateQueries('instanceDiskList')
       addToast(<>Disk <HL>{disk.name}</HL> detached</>) // prettier-ignore
@@ -152,7 +153,7 @@ export function StorageTab() {
         label: 'Unset as boot disk',
         disabled: !instanceCan.update({ runState: disk.instanceState }) && (
           <>
-            Instance must be <span className="text-default">stopped</span> before boot disk
+            Instance must be <span className="text-raise">stopped</span> before boot disk
             can be changed
           </>
         ),
@@ -163,6 +164,8 @@ export function StorageTab() {
                 path: { instance: instance.id },
                 body: {
                   bootDisk: undefined,
+                  ncpus: instance.ncpus,
+                  memory: instance.memory,
                   // this would get unset if we left it out
                   autoRestartPolicy: instance.autoRestartPolicy,
                 },
@@ -193,7 +196,16 @@ export function StorageTab() {
         onActivate() {}, // it's always disabled, so noop is ok
       },
     ],
-    [instanceUpdate, instance, getSnapshotAction]
+    [
+      instanceUpdate,
+      // don't put the entire instance in here. it is not referentially
+      // stable across polls, so the menus will close during polling
+      instance.id,
+      instance.autoRestartPolicy,
+      instance.ncpus,
+      instance.memory,
+      getSnapshotAction,
+    ]
   )
 
   const makeOtherDiskActions = useCallback(
@@ -203,7 +215,7 @@ export function StorageTab() {
         label: 'Set as boot disk',
         disabled: !instanceCan.update({ runState: disk.instanceState }) && (
           <>
-            Instance must be <span className="text-default">stopped</span> before boot disk
+            Instance must be <span className="text-raise">stopped</span> before boot disk
             can be changed
           </>
         ),
@@ -216,6 +228,8 @@ export function StorageTab() {
                 path: { instance: instance.id },
                 body: {
                   bootDisk: disk.id,
+                  ncpus: instance.ncpus,
+                  memory: instance.memory,
                   // this would get unset if we left it out
                   autoRestartPolicy: instance.autoRestartPolicy,
                 },
@@ -244,16 +258,33 @@ export function StorageTab() {
         label: 'Detach',
         disabled: !instanceCan.detachDisk({ runState: disk.instanceState }) && (
           <>
-            Instance must be <span className="text-default">stopped</span> before disk can
-            be detached
+            Instance must be <span className="text-raise">stopped</span> before disk can be
+            detached
           </>
         ),
-        onActivate() {
-          detachDisk({ body: { disk: disk.name }, path: { instance: instance.id } })
-        },
+        onActivate: () =>
+          confirmAction({
+            doAction: () =>
+              detachDisk({ body: { disk: disk.name }, path: { instance: instance.id } }),
+            errorTitle: 'Could not detach disk',
+            modalTitle: 'Confirm detach disk',
+            modalContent: <p>Are you sure you want to detach <HL>{disk.name}</HL>?</p>, // prettier-ignore
+            actionType: 'danger',
+          }),
       },
     ],
-    [detachDisk, instanceUpdate, instance, getSnapshotAction, bootDisks]
+    [
+      detachDisk,
+      instanceUpdate,
+      // don't put the entire instance in here. it is not referentially
+      // stable across polls, so the menus will close during polling
+      instance.id,
+      instance.autoRestartPolicy,
+      instance.ncpus,
+      instance.memory,
+      getSnapshotAction,
+      bootDisks,
+    ]
   )
 
   const attachDisk = useApiMutation('instanceDiskAttach', {
@@ -316,7 +347,7 @@ export function StorageTab() {
           onClick={() => setShowDiskCreate(true)}
           disabledReason={
             <>
-              Instance must be <span className="text-default">stopped</span> to create and
+              Instance must be <span className="text-raise">stopped</span> to create and
               attach a disk
             </>
           }
@@ -330,8 +361,7 @@ export function StorageTab() {
           onClick={() => setShowDiskAttach(true)}
           disabledReason={
             <>
-              Instance must be <span className="text-default">stopped</span> to attach a
-              disk
+              Instance must be <span className="text-raise">stopped</span> to attach a disk
             </>
           }
           disabled={!instanceCan.attachDisk(instance)}

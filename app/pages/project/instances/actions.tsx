@@ -25,13 +25,13 @@ type Options = {
   // hook has to expand to encompass the sum of all the APIs of these hooks it
   // call internally, the abstraction is not good
   onDelete?: () => void
+  onResizeClick?: (instance: Instance) => void
 }
 
 export const useMakeInstanceActions = (
   { project }: { project: string },
   options: Options = {}
 ) => {
-  const navigate = useNavigate()
   // if you also pass onSuccess to mutate(), this one is not overridden — this
   // one runs first, then the one passed to mutate().
   //
@@ -41,11 +41,13 @@ export const useMakeInstanceActions = (
   const opts = { onSuccess: options.onSuccess }
   const { mutateAsync: startInstanceAsync } = useApiMutation('instanceStart', opts)
   const { mutateAsync: stopInstanceAsync } = useApiMutation('instanceStop', opts)
-  const { mutate: rebootInstance } = useApiMutation('instanceReboot', opts)
+  const { mutateAsync: rebootInstanceAsync } = useApiMutation('instanceReboot', opts)
   // delete has its own
   const { mutateAsync: deleteInstanceAsync } = useApiMutation('instanceDelete', {
     onSuccess: options.onDelete,
   })
+
+  const { onResizeClick } = options
 
   const makeButtonActions = useCallback(
     (instance: Instance) => {
@@ -114,23 +116,28 @@ export const useMakeInstanceActions = (
     [project, startInstanceAsync, stopInstanceAsync]
   )
 
+  const navigate = useNavigate()
   const makeMenuActions = useCallback(
     (instance: Instance) => {
-      const instanceSelector = { project, instance: instance.name }
       const instanceParams = { path: { instance: instance.name }, query: { project } }
       return [
         {
           label: 'Reboot',
           onActivate() {
-            rebootInstance(instanceParams, {
-              onSuccess: () =>
-                addToast(<>Rebooting instance <HL>{instance.name}</HL></>), // prettier-ignore
-              onError: (error) =>
-                addToast({
-                  variant: 'error',
-                  title: `Error rebooting instance '${instance.name}'`,
-                  content: error.message,
+            confirmAction({
+              actionType: 'danger',
+              doAction: () =>
+                rebootInstanceAsync(instanceParams, {
+                  onSuccess: () =>
+                    addToast(<>Rebooting instance <HL>{instance.name}</HL></>), // prettier-ignore
                 }),
+              modalTitle: 'Confirm reboot instance',
+              modalContent: (
+                <p>
+                  Are you sure you want to reboot <HL>{instance.name}</HL>?
+                </p>
+              ),
+              errorTitle: `Error rebooting ${instance.name}`,
             })
           },
           disabled: !instanceCan.reboot(instance) && (
@@ -138,9 +145,16 @@ export const useMakeInstanceActions = (
           ),
         },
         {
+          label: 'Resize',
+          onActivate: () => onResizeClick?.(instance),
+          disabled: !instanceCan.update(instance) && (
+            <>Only {fancifyStates(instanceCan.update.states)} instances can be resized</>
+          ),
+        },
+        {
           label: 'View serial console',
           onActivate() {
-            navigate(pb.serialConsole(instanceSelector))
+            navigate(pb.serialConsole({ project, instance: instance.name }))
           },
         },
         {
@@ -162,7 +176,10 @@ export const useMakeInstanceActions = (
         },
       ]
     },
-    [project, deleteInstanceAsync, navigate, rebootInstance]
+    // Do not put `options` in here, refer to the property. options is not ref
+    // stable. Extra renders here cause the row actions menu to close when it
+    // shouldn't, like during polling on instance list.
+    [project, deleteInstanceAsync, rebootInstanceAsync, onResizeClick, navigate]
   )
 
   return { makeButtonActions, makeMenuActions }

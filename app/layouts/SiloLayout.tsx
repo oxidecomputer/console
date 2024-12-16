@@ -17,7 +17,6 @@ import {
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '~/components/Sidebar'
 import { TopBar } from '~/components/TopBar'
-import { ProjectPicker, SiloSystemPicker } from '~/components/TopBarPicker'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
@@ -52,10 +51,7 @@ export function SiloLayout() {
 
   return (
     <PageContainer>
-      <TopBar>
-        <SiloSystemPicker value="silo" />
-        <ProjectPicker />
-      </TopBar>
+      <TopBar systemOrSilo="silo" />
       <Sidebar>
         <Sidebar.Nav>
           <DocsLinkItem />

@@ -14,13 +14,18 @@ import { useScrollRestoration } from '~/hooks/use-scroll-restoration'
 import { SkipLinkTarget } from '~/ui/lib/SkipLink'
 import { classed } from '~/util/classed'
 
-export const PageContainer = classed.div`grid h-screen grid-cols-[14.25rem,1fr] grid-rows-[60px,1fr]`
+export const PageContainer = classed.div`grid h-screen grid-cols-[14.25rem,1fr] grid-rows-[--top-bar-height,1fr]`
 
 export function ContentPane() {
   const ref = useRef<HTMLDivElement>(null)
   useScrollRestoration(ref)
   return (
-    <div ref={ref} className="flex flex-col overflow-auto" data-testid="scroll-container">
+    <div
+      ref={ref}
+      className="flex flex-col overflow-auto"
+      id="scroll-container"
+      data-testid="scroll-container"
+    >
       <div className="flex grow flex-col pb-8">
         <SkipLinkTarget />
         <main className="[&>*]:gutter">

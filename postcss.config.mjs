@@ -6,16 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-let ladlePlugins = {}
-if (process.env.IS_LADLE) {
-  // used by checkbox and radio stories to show states
-  ladlePlugins = {
-    'postcss-pseudo-classes': {
-      restrictTo: ['hover', 'disabled', 'active', 'focus', 'focus-visible'],
-    },
-  }
-}
-
 export default {
   plugins: {
     'postcss-import': {},
@@ -23,6 +13,5 @@ export default {
     'tailwindcss/nesting': 'postcss-nesting',
     tailwindcss: {},
     autoprefixer: {},
-    ...ladlePlugins,
   },
 }

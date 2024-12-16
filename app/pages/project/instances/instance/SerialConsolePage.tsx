@@ -44,7 +44,7 @@ const statusMessage: Record<WsState, string> = {
   error: 'error',
 }
 
-SerialConsolePage.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await apiQueryClient.prefetchQuery('instanceView', {
     path: { instance },
@@ -57,7 +57,8 @@ function isStarting(i: Instance | undefined) {
   return i?.runState === 'creating' || i?.runState === 'starting'
 }
 
-export function SerialConsolePage() {
+Component.displayName = 'SerialConsolePage'
+export function Component() {
   const instanceSelector = useInstanceSelector()
   const { project, instance } = instanceSelector
 
@@ -135,7 +136,7 @@ export function SerialConsolePage() {
   }, [canConnect])
 
   return (
-    <div className="!mx-0 flex h-full max-h-[calc(100vh-60px)] !w-full flex-col">
+    <div className="!mx-0 flex h-full max-h-[calc(100vh-var(--top-bar-height))] !w-full flex-col">
       <Link
         to={pb.instance(instanceSelector)}
         className="mx-3 mb-6 mt-3 flex h-10 shrink-0 items-center rounded px-3 bg-accent-secondary"
@@ -145,7 +146,6 @@ export function SerialConsolePage() {
           <span className="text-accent-tertiary">Back to</span> instance
         </div>
       </Link>
-
       <div className="gutter relative w-full shrink grow overflow-hidden">
         {connectionStatus === 'connecting' && <ConnectingSkeleton />}
         {connectionStatus === 'error' && <ErrorSkeleton />}
@@ -221,7 +221,7 @@ const CannotConnect = ({ instance }: { instance: Instance }) => (
       <span>The instance is </span>
       <InstanceStateBadge className="ml-1.5" state={instance.runState} />
     </p>
-    <p className="mt-2 text-balance text-center text-secondary">
+    <p className="mt-2 text-balance text-center text-default">
       {isStarting(instance)
         ? 'Waiting for the instance to start before connecting.'
         : 'You can only connect to the serial console on a running instance.'}
@@ -236,6 +236,6 @@ const ErrorSkeleton = () => (
     <p className="flex items-center justify-center text-center text-sans-xl">
       Serial console connection failed
     </p>
-    <p className="mt-2 text-center text-secondary">Please try again.</p>
+    <p className="mt-2 text-center text-default">Please try again.</p>
   </SerialSkeleton>
 )

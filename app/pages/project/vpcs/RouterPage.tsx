@@ -13,9 +13,12 @@ import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
 import {
+  apiq,
   apiQueryClient,
+  getListQFn,
+  queryClient,
   useApiMutation,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
   type RouteDestination,
   type RouterRoute,
   type RouteTarget,
@@ -30,7 +33,7 @@ import { addToast } from '~/stores/toast'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { TypeValueCell } from '~/table/cells/TypeValueCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { CreateButton, CreateLink } from '~/ui/lib/CreateButton'
 import { DateTime } from '~/ui/lib/DateTime'
@@ -40,17 +43,18 @@ import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { TableControls, TableTitle } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
-RouterPage.loader = async function ({ params }: LoaderFunctionArgs) {
-  const { project, vpc, router } = getVpcRouterSelector(params)
+const routerView = ({ project, vpc, router }: PP.VpcRouter) =>
+  apiq('vpcRouterView', { path: { router }, query: { vpc, project } })
+
+const routeList = (query: PP.VpcRouter) => getListQFn('vpcRouterRouteList', { query })
+
+export async function loader({ params }: LoaderFunctionArgs) {
+  const routerSelector = getVpcRouterSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('vpcRouterView', {
-      path: { router },
-      query: { project, vpc },
-    }),
-    apiQueryClient.prefetchQuery('vpcRouterRouteList', {
-      query: { project, router, vpc, limit: PAGE_SIZE },
-    }),
+    queryClient.prefetchQuery(routerView(routerSelector)),
+    queryClient.prefetchQuery(routeList(routerSelector).optionsFn()),
   ])
   return null
 }
@@ -80,12 +84,10 @@ const RouterRouteTypeValueBadge = ({
   )
 }
 
-export function RouterPage() {
+Component.displayName = 'RouterPage'
+export function Component() {
   const { project, vpc, router } = useVpcRouterSelector()
-  const { data: routerData } = usePrefetchedApiQuery('vpcRouterView', {
-    path: { router },
-    query: { project, vpc },
-  })
+  const { data: routerData } = usePrefetchedQuery(routerView({ project, vpc, router }))
 
   const { mutateAsync: deleteRouterRoute } = useApiMutation('vpcRouterRouteDelete', {
     onSuccess() {
@@ -106,7 +108,6 @@ export function RouterPage() {
     ],
     [routerData]
   )
-  const { Table } = useQueryTable('vpcRouterRouteList', { query: { project, router, vpc } })
 
   const emptyState = (
     <EmptyMessage
@@ -176,6 +177,11 @@ export function RouterPage() {
     [navigate, project, vpc, router, deleteRouterRoute, routerData]
   )
   const columns = useColsWithActions(routerRoutesStaticCols, makeRangeActions)
+  const { table } = useQueryTable({
+    query: routeList({ project, vpc, router }),
+    columns,
+    emptyState,
+  })
   // user-provided routes cannot be added to a system router
   // https://github.com/oxidecomputer/omicron/blob/914f5fd7d51f9b060dcc0382a30b607e25df49b2/nexus/src/app/vpc_router.rs#L201-L205
   const canCreateNewRoute = routerData.kind === 'custom'
@@ -227,7 +233,7 @@ export function RouterPage() {
           </CreateButton>
         )}
       </TableControls>
-      <Table columns={columns} emptyState={emptyState} />
+      {table}
       <Outlet />
     </>
   )

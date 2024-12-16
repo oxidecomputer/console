@@ -62,7 +62,7 @@ export function DatePicker(props: DatePickerProps) {
           type="button"
           className={cn(
             state.isOpen && 'z-10 ring-2',
-            'relative flex h-10 items-center rounded-l rounded-r border text-sans-md border-default focus-within:ring-2 hover:border-raise focus:z-10',
+            'relative flex h-11 items-center rounded-l rounded-r border text-sans-md border-default focus-within:ring-2 hover:border-raise focus:z-10',
             state.isInvalid
               ? 'focus-error border-error ring-error-secondary'
               : 'border-default ring-accent-secondary'
@@ -77,7 +77,7 @@ export function DatePicker(props: DatePickerProps) {
             )}
           </div>
           <div className="-ml-px flex h-[calc(100%-12px)] w-10 items-center justify-center rounded-r border-l outline-none border-default">
-            <Calendar16Icon className="h-4 w-4 text-tertiary" />
+            <Calendar16Icon className="h-4 w-4 text-secondary" />
           </div>
         </button>
       </div>

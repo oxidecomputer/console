@@ -99,7 +99,7 @@ export const Listbox = <Value extends string = string>({
               id={id}
               name={name}
               className={cn(
-                `flex h-10 w-full items-center justify-between rounded border text-sans-md`,
+                `flex h-11 w-full items-center justify-between rounded border text-sans-md`,
                 hasError
                   ? 'focus-error border-error-secondary hover:border-error'
                   : 'border-default hover:border-hover',
@@ -118,7 +118,7 @@ export const Listbox = <Value extends string = string>({
                   // selectedLabel is one line, which is what we need when label is a ReactNode
                   selectedItem.selectedLabel || selectedItem.label
                 ) : (
-                  <span className="text-quaternary">
+                  <span className="text-tertiary">
                     {noItems ? noItemsPlaceholder : placeholder}
                   </span>
                 )}
@@ -128,7 +128,7 @@ export const Listbox = <Value extends string = string>({
                 className="flex h-[calc(100%-12px)] items-center border-l px-3 border-secondary"
                 aria-hidden
               >
-                <SelectArrows6Icon title="Select" className="w-2 text-tertiary" />
+                <SelectArrows6Icon title="Select" className="w-2 text-secondary" />
               </div>
             </ListboxButton>
             <ListboxOptions

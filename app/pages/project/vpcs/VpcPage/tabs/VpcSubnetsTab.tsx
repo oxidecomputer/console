@@ -10,7 +10,8 @@ import { useCallback, useMemo } from 'react'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
-  apiQueryClient,
+  getListQFn,
+  queryClient,
   useApiMutation,
   useApiQueryClient,
   type VpcSubnet,
@@ -24,26 +25,26 @@ import { RouterLinkCell } from '~/table/cells/RouterLinkCell'
 import { TwoLineCell } from '~/table/cells/TwoLineCell'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
 const colHelper = createColumnHelper<VpcSubnet>()
 
-VpcSubnetsTab.loader = async ({ params }: LoaderFunctionArgs) => {
+const subnetList = (params: PP.Vpc) => getListQFn('vpcSubnetList', { query: params })
+
+export async function loader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcSelector(params)
-  await apiQueryClient.prefetchQuery('vpcSubnetList', {
-    query: { project, vpc, limit: PAGE_SIZE },
-  })
+  await queryClient.prefetchQuery(subnetList({ project, vpc }).optionsFn())
   return null
 }
 
-export function VpcSubnetsTab() {
+Component.displayName = 'VpcSubnetsTab'
+export function Component() {
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
-
-  const { Table } = useQueryTable('vpcSubnetList', { query: vpcSelector })
 
   const { mutateAsync: deleteSubnet } = useApiMutation('vpcSubnetDelete', {
     onSuccess() {
@@ -104,13 +105,19 @@ export function VpcSubnetsTab() {
     />
   )
 
+  const { table } = useQueryTable({
+    query: subnetList(vpcSelector),
+    columns,
+    emptyState,
+    rowHeight: 'large',
+  })
+
   return (
     <>
       <div className="mb-3 flex justify-end space-x-2">
         <CreateLink to={pb.vpcSubnetsNew(vpcSelector)}>New subnet</CreateLink>
       </div>
-
-      <Table columns={columns} emptyState={emptyState} rowHeight="large" />
+      {table}
       <Outlet />
     </>
   )

@@ -5,13 +5,15 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useEffect, useId, type ReactNode } from 'react'
+
+import { useEffect, useId, useState, type ReactNode } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
 import { NavigationType, useNavigationType } from 'react-router-dom'
 
 import type { ApiError } from '@oxide/api'
 
 import { Button } from '~/ui/lib/Button'
+import { Modal } from '~/ui/lib/Modal'
 import { SideModal } from '~/ui/lib/SideModal'
 
 type CreateFormProps = {
@@ -80,7 +82,6 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   subtitle,
 }: SideModalFormProps<TFieldValues>) {
   const id = useId()
-  const { isSubmitting } = form.formState
 
   useEffect(() => {
     if (submitError?.errorCode === 'ObjectAlreadyExists' && 'name' in form.getValues()) {
@@ -94,9 +95,14 @@ export function SideModalForm<TFieldValues extends FieldValues>({
       ? `Update ${resourceName}`
       : submitLabel || title || `Create ${resourceName}`
 
+  // must be destructured up here to subscribe to changes. inlining
+  // form.formState.isDirty does not work
+  const { isDirty, isSubmitting } = form.formState
+  const [showNavGuard, setShowNavGuard] = useState(false)
+
   return (
     <SideModal
-      onDismiss={onDismiss}
+      onDismiss={() => (isDirty ? setShowNavGuard(true) : onDismiss())}
       isOpen
       title={title || `${formType === 'edit' ? 'Edit' : 'Create'} ${resourceName}`}
       animate={useShouldAnimateModal()}
@@ -122,11 +128,11 @@ export function SideModalForm<TFieldValues extends FieldValues>({
           {children}
         </form>
       </SideModal.Body>
-      <SideModal.Footer error={!!submitError}>
-        <Button variant="ghost" size="sm" onClick={onDismiss}>
-          Cancel
-        </Button>
-        {onSubmit && (
+      {onSubmit && (
+        <SideModal.Footer error={!!submitError}>
+          <Button variant="ghost" size="sm" onClick={onDismiss}>
+            Cancel
+          </Button>
           <Button
             type="submit"
             size="sm"
@@ -137,8 +143,31 @@ export function SideModalForm<TFieldValues extends FieldValues>({
           >
             {label}
           </Button>
-        )}
-      </SideModal.Footer>
+        </SideModal.Footer>
+      )}
+
+      {showNavGuard && (
+        <Modal
+          isOpen
+          onDismiss={() => setShowNavGuard(false)}
+          title="Confirm navigation"
+          narrow
+          overlay={false}
+        >
+          <Modal.Section>
+            Are you sure you want to leave this form?
+            <br />
+            All progress will be lost.
+          </Modal.Section>
+          <Modal.Footer
+            onAction={onDismiss}
+            onDismiss={() => setShowNavGuard(false)}
+            cancelText="Keep editing"
+            actionText="Leave form"
+            actionType="danger"
+          />
+        </Modal>
+      )}
     </SideModal>
   )
 }

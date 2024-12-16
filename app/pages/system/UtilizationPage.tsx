@@ -42,7 +42,7 @@ import {
   type BinaryUnit,
 } from '~/util/units'
 
-SystemUtilizationPage.loader = async () => {
+export async function loader() {
   await Promise.all([
     apiQueryClient.prefetchQuery('siloList', {}),
     apiQueryClient.prefetchQuery('siloUtilizationList', {}),
@@ -50,7 +50,8 @@ SystemUtilizationPage.loader = async () => {
   return null
 }
 
-export function SystemUtilizationPage() {
+Component.displayName = 'SystemUtilizationPage'
+export function Component() {
   const { data: siloUtilizationList } = usePrefetchedApiQuery('siloUtilizationList', {})
 
   const { totalAllocated, totalProvisioned } = totalUtilization(siloUtilizationList.items)
@@ -233,12 +234,12 @@ function UsageTab() {
 type CellProps = { provisioned: number; allocated: number; unit?: BinaryUnit }
 
 const UsageCell = ({ provisioned, allocated, unit }: CellProps) => (
-  <div className="flex flex-col text-tertiary">
+  <div className="flex flex-col text-secondary">
     <div>
-      <span className="text-default">{provisioned}</span> /
+      <span className="text-raise">{provisioned}</span> /
     </div>
-    <div className="text-tertiary">
-      {allocated} {unit && <span className="text-quaternary">{unit}</span>}
+    <div className="text-secondary">
+      {allocated} {unit && <span className="text-tertiary">{unit}</span>}
     </div>
   </div>
 )
@@ -253,7 +254,7 @@ const AvailableCell = ({
     <div className="flex w-full items-center justify-between">
       <div>
         {round(allocated - provisioned, 2)}
-        {unit && <span className="text-tertiary"> {unit}</span>}
+        {unit && <span className="text-secondary"> {unit}</span>}
       </div>
       {/* We only show the ResourceMeter if the percent crosses the warning threshold (66%) */}
       {usagePercent > 66 && (

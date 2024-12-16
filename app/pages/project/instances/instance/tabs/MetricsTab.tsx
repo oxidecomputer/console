@@ -124,8 +124,8 @@ function DiskMetric({
 
   return (
     <div className="flex w-1/2 grow flex-col">
-      <h2 className="ml-3 flex items-center text-mono-xs text-secondary">
-        {title} <div className="ml-1 normal-case text-quaternary">{label}</div>
+      <h2 className="ml-3 flex items-center text-mono-xs text-default">
+        {title} <div className="ml-1 normal-case text-tertiary">{label}</div>
         {isLoading && <Spinner className="ml-2" />}
       </h2>
       <Suspense fallback={<div className="mt-3 h-[300px]" />}>
@@ -150,7 +150,7 @@ function DiskMetric({
 // Considering the data is going to be swapped out as soon as they change the
 // date range, I'm inclined to punt.
 
-MetricsTab.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await apiQueryClient.prefetchQuery('instanceDiskList', {
     path: { instance },
@@ -159,7 +159,8 @@ MetricsTab.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-export function MetricsTab() {
+Component.displayName = 'MetricsTab'
+export function Component() {
   const { project, instance } = useInstanceSelector()
   const { data } = usePrefetchedApiQuery('instanceDiskList', {
     path: { instance },

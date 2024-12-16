@@ -8,8 +8,10 @@
 import { expect, test } from '@playwright/test'
 
 import {
+  addTlsCert,
   chooseFile,
   clickRowAction,
+  closeToast,
   expectNotVisible,
   expectRowVisible,
   expectVisible,
@@ -29,6 +31,9 @@ test('Create silo', async ({ page }) => {
   await expect(page.getByText('Feb 28, 202312:00 AM')).toBeVisible()
 
   await page.click('role=link[name="New silo"]')
+
+  const modal = page.getByRole('dialog', { name: 'Create silo' })
+  await expect(modal).toBeVisible()
 
   // fill out form
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('other-silo')
@@ -66,6 +71,11 @@ test('Create silo', async ({ page }) => {
 
   await page.getByRole('textbox', { name: 'Memory quota' }).fill('58')
   await page.getByRole('textbox', { name: 'Storage quota' }).fill('735')
+
+  await page.getByRole('button', { name: 'Create silo' }).click()
+
+  // expect error because no TLS cert
+  await expect(modal.getByText('At least one certificate is required')).toBeVisible()
 
   ////////////////////////////
   // TLS CERT
@@ -178,20 +188,72 @@ test('Identity providers', async ({ page }) => {
 
   await page.getByRole('link', { name: 'mock-idp' }).click()
 
-  await expectVisible(page, [
-    'role=dialog[name="Identity provider"]',
-    'role=heading[name="mock-idp"]',
-    // random stuff that's not in the table
-    'text="Entity ID"',
-    'text="Single Logout (SLO) URL"',
-  ])
+  const dialog = page.getByRole('dialog', { name: 'Identity provider' })
+
+  await expect(dialog).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'mock-idp' })).toBeVisible()
+  // random stuff that's not in the table
+  await expect(page.getByText('Entity ID')).toBeVisible()
+  await expect(page.getByText('Single Logout (SLO) URL')).toBeVisible()
 
   await expect(page.getByRole('textbox', { name: 'Group attribute name' })).toHaveValue(
     'groups'
   )
 
-  await page.getByRole('button', { name: 'Cancel' }).click()
-  await expectNotVisible(page, ['role=dialog[name="Identity provider"]'])
+  await page.getByRole('button', { name: 'Close' }).click()
+
+  await expect(dialog).toBeHidden()
+
+  // test creating identity provider
+  await page.getByRole('link', { name: 'New provider' }).click()
+
+  await expect(dialog).toBeVisible()
+
+  // test login URL preview in name field description
+  await expect(page.getByText('login page: /login/maze-war/saml/idp-name')).toBeVisible()
+
+  const nameField = dialog.getByLabel('Name', { exact: true })
+  await nameField.fill('test-provider')
+
+  // preview updates as you type
+  await expect(
+    page.getByText('login page: /login/maze-war/saml/test-provider')
+  ).toBeVisible()
+
+  // ACS URL should be populated with generated value
+  const acsUrlField = dialog.getByLabel('ACS URL', { exact: true })
+  const acsUrl = 'https://maze-war.sys.placeholder/login/maze-war/saml/test-provider'
+  await expect(acsUrlField).toHaveValue(acsUrl)
+
+  const acsUrlCheckbox = dialog.getByRole('checkbox', { name: 'Use standard ACS URL' })
+  await expect(acsUrlCheckbox).toBeChecked()
+
+  // uncheck the box and change the value
+  await acsUrlCheckbox.click()
+  await acsUrlField.fill('https://example.com')
+  await expect(acsUrlField).toHaveValue('https://example.com')
+
+  // re-check the box and verify that the value is regenerated
+  await acsUrlCheckbox.click()
+  await expect(acsUrlField).toHaveValue(acsUrl)
+
+  await page.getByRole('button', { name: 'Create provider' }).click()
+
+  await closeToast(page)
+  await expect(dialog).toBeHidden()
+
+  // new provider should appear in table
+  await expectRowVisible(page.getByRole('table'), {
+    name: 'test-provider',
+    Type: 'saml',
+    description: '—',
+  })
+
+  await page.getByRole('link', { name: 'test-provider' }).click()
+  await expect(nameField).toHaveValue('test-provider')
+  await expect(nameField).toBeDisabled()
+  await expect(acsUrlField).toHaveValue(acsUrl)
+  await expect(acsUrlField).toBeDisabled()
 })
 
 test('Silo IP pools', async ({ page }) => {
@@ -258,7 +320,7 @@ test('Silo IP pools link pool', async ({ page }) => {
   await expect(modal).toBeVisible()
 
   // close modal works
-  await page.getByRole('button', { name: 'Cancel' }).click()
+  await page.getByRole('button', { name: 'Close' }).click()
   await expect(modal).toBeHidden()
 
   // reopen
@@ -294,6 +356,8 @@ test('form scrolls to name field on already exists error', async ({ page }) => {
     .getByTestId('sidemodal-scroll-container')
     .evaluate((el: HTMLElement, to) => el.scrollTo(0, to), 800)
   await expect(nameField).not.toBeInViewport()
+
+  await addTlsCert(page)
 
   await page.getByRole('button', { name: 'Create silo' }).click()
 

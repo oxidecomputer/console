@@ -22,6 +22,7 @@ import {
   usePrefetchedApiQuery,
   type ExternalIpCreate,
   type FloatingIp,
+  type Image,
   type InstanceCreate,
   type InstanceDiskAttachment,
   type NameOrId,
@@ -81,7 +82,10 @@ import { nearest10 } from '~/util/math'
 import { pb } from '~/util/path-builder'
 import { GiB } from '~/util/units'
 
-const getBootDiskAttachment = (values: InstanceCreateInput): InstanceDiskAttachment => {
+const getBootDiskAttachment = (
+  values: InstanceCreateInput,
+  images: Array<Image>
+): InstanceDiskAttachment => {
   if (values.bootDiskSourceType === 'disk') {
     return { type: 'attach', name: values.diskSource }
   }
@@ -89,9 +93,10 @@ const getBootDiskAttachment = (values: InstanceCreateInput): InstanceDiskAttachm
     values.bootDiskSourceType === 'siloImage'
       ? values.siloImageSource
       : values.projectImageSource
+  const sourceName = images.find((image) => image.id === source)?.name
   return {
     type: 'create',
-    name: values.bootDiskName || genName(values.name, source),
+    name: values.bootDiskName || genName(values.name, sourceName || source),
     description: `Created as a boot disk for ${values.name}`,
     size: values.bootDiskSize * GiB,
     diskSource: { type: 'image', imageId: source },
@@ -247,6 +252,12 @@ export function CreateInstanceForm() {
     }
   }, [createInstance.error])
 
+  const otherDisks = useWatch({ control, name: 'otherDisks' })
+  const unavailableDiskNames = [
+    ...allDisks, // existing disks from the API
+    ...otherDisks.filter((disk) => disk.type === 'create'), // disks being created here
+  ].map((d) => d.name)
+
   // additional form elements for projectImage and siloImage tabs
   const bootDiskSizeAndName = (
     <>
@@ -273,9 +284,17 @@ export function CreateInstanceForm() {
         required={false}
         control={control}
         disabled={isSubmitting}
+        validate={(name) => {
+          // don't allow the user to use an existing disk name for the boot disk's name
+          if (unavailableDiskNames.includes(name)) {
+            return 'Name is already in use'
+          }
+        }}
       />
     </>
   )
+
+  const bootDiskName = useWatch({ control, name: 'bootDiskName' })
 
   return (
     <>
@@ -301,7 +320,7 @@ export function CreateInstanceForm() {
               ? { memory: values.memory, ncpus: values.ncpus }
               : { memory: preset.memory, ncpus: preset.ncpus }
 
-          const bootDisk = getBootDiskAttachment(values)
+          const bootDisk = getBootDiskAttachment(values, allImages)
 
           const userData = values.userData
             ? await readBlobAsBase64(values.userData)
@@ -561,7 +580,13 @@ export function CreateInstanceForm() {
         </Tabs.Root>
         <FormDivider />
         <Form.Heading id="additional-disks">Additional disks</Form.Heading>
-        <DisksTableField control={control} disabled={isSubmitting} />
+        <DisksTableField
+          control={control}
+          disabled={isSubmitting}
+          // Don't allow the user to create a new disk with a name that matches other disk names (either the boot disk,
+          // the names of disks that will be created and attached to this instance, or disks that already exist).
+          unavailableDiskNames={[bootDiskName, ...unavailableDiskNames]}
+        />
         <FormDivider />
         <Form.Heading id="authentication">Authentication</Form.Heading>
         <SshKeysField control={control} isSubmitting={isSubmitting} />
@@ -589,7 +614,7 @@ const isFloating = (
 const FloatingIpLabel = ({ ip }: { ip: FloatingIp }) => (
   <div>
     <div>{ip.name}</div>
-    <div className="flex gap-0.5 text-tertiary selected:text-accent-secondary">
+    <div className="flex gap-0.5 text-secondary selected:text-accent-secondary">
       <div>{ip.ip}</div>
       {ip.description && (
         <>
@@ -724,7 +749,7 @@ const AdvancedAccordion = ({
                 externalIps.field.onChange(newExternalIps)
               }}
             />
-            <label htmlFor="assignEphemeralIp" className="text-sans-md text-secondary">
+            <label htmlFor="assignEphemeralIp" className="text-sans-md text-default">
               Allocate and attach an ephemeral IP address
             </label>
           </div>

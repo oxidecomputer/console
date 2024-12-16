@@ -94,8 +94,8 @@ export function SiloMetric({
 
   return (
     <div>
-      <h2 className="flex items-center gap-1.5 px-3 text-mono-sm text-secondary">
-        {title} {unit && <span className="text-quaternary">({unit})</span>}{' '}
+      <h2 className="flex items-center gap-1.5 px-3 text-mono-sm text-default">
+        {title} {unit && <span className="text-tertiary">({unit})</span>}{' '}
         {(inRange.isPending || beforeStart.isPending) && <Spinner />}
       </h2>
       {/* TODO: proper skeleton for empty chart */}
@@ -172,8 +172,8 @@ export function SystemMetric({
 
   return (
     <div>
-      <h2 className="flex items-center gap-1.5 px-3 text-mono-sm text-secondary">
-        {title} {unit && <span className="text-quaternary">({unit})</span>}{' '}
+      <h2 className="flex items-center gap-1.5 px-3 text-mono-sm text-default">
+        {title} {unit && <span className="text-tertiary">({unit})</span>}{' '}
         {(inRange.isPending || beforeStart.isPending) && <Spinner />}
       </h2>
       {/* TODO: proper skeleton for empty chart */}

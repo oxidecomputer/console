@@ -9,7 +9,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient, useApiMutation, useApiQueryClient, type Image } from '@oxide/api'
+import { getListQFn, queryClient, useApiMutation, type Image } from '@oxide/api'
 import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -20,7 +20,7 @@ import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
@@ -29,6 +29,7 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -42,25 +43,23 @@ const EmptyState = () => (
 
 const colHelper = createColumnHelper<Image>()
 
+const imageList = (query: PP.Project) => getListQFn('imageList', { query })
+
 ImagesPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
-  await apiQueryClient.prefetchQuery('imageList', {
-    query: { project, limit: PAGE_SIZE },
-  })
+  await queryClient.prefetchQuery(imageList({ project }).optionsFn())
   return null
 }
 
 export function ImagesPage() {
   const { project } = useProjectSelector()
-  const { Table } = useQueryTable('imageList', { query: { project } })
-  const queryClient = useApiQueryClient()
 
   const [promoteImageName, setPromoteImageName] = useState<string | null>(null)
 
   const { mutateAsync: deleteImage } = useApiMutation('imageDelete', {
     onSuccess(_data, variables) {
       addToast(<>Image <HL>{variables.path.image}</HL> deleted</>) // prettier-ignore
-      queryClient.invalidateQueries('imageList')
+      queryClient.invalidateEndpoint('imageList')
     },
   })
 
@@ -97,6 +96,12 @@ export function ImagesPage() {
     ]
   }, [project, makeActions])
 
+  const { table } = useQueryTable({
+    query: imageList({ project }),
+    columns,
+    emptyState: <EmptyState />,
+  })
+
   return (
     <>
       <PageHeader>
@@ -111,7 +116,7 @@ export function ImagesPage() {
       <TableActions>
         <CreateLink to={pb.projectImagesNew({ project })}>Upload image</CreateLink>
       </TableActions>
-      <Table columns={columns} emptyState={<EmptyState />} />
+      {table}
       {promoteImageName && (
         <PromoteImageModal
           onDismiss={() => setPromoteImageName(null)}
@@ -127,7 +132,6 @@ type PromoteModalProps = { onDismiss: () => void; imageName: string }
 
 const PromoteImageModal = ({ onDismiss, imageName }: PromoteModalProps) => {
   const { project } = useProjectSelector()
-  const queryClient = useApiQueryClient()
 
   const promoteImage = useApiMutation('imagePromote', {
     onSuccess(data) {
@@ -142,7 +146,7 @@ const PromoteImageModal = ({ onDismiss, imageName }: PromoteModalProps) => {
           link: '/images',
         },
       })
-      queryClient.invalidateQueries('imageList')
+      queryClient.invalidateEndpoint('imageList')
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
@@ -160,7 +164,7 @@ const PromoteImageModal = ({ onDismiss, imageName }: PromoteModalProps) => {
         <Modal.Section>
           <p>
             Are you sure you want to promote{' '}
-            <span className="text-sans-semi-md text-default">{imageName}</span>?
+            <span className="text-sans-semi-md text-raise">{imageName}</span>?
           </p>
           <Message
             variant="info"

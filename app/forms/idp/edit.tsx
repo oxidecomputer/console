@@ -80,6 +80,7 @@ export function EditIdpSideModalForm() {
         required
         control={form.control}
         disabled
+        copyable
       />
 
       <FormDivider />
@@ -112,7 +113,7 @@ export function EditIdpSideModalForm() {
 
       <FormDivider />
 
-      <SideModal.Heading>Identity Provider</SideModal.Heading>
+      <SideModal.Heading>Identity provider</SideModal.Heading>
       {/* TODO: help text */}
       <TextField
         name="idpEntityId"

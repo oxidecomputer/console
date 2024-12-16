@@ -47,7 +47,7 @@ export function LoginPage() {
           className="flex h-[34px] w-[34px] items-center justify-center rounded text-accent bg-accent-secondary-hover"
           name={silo}
         />
-        <div className="text-sans-2xl text-default">{silo}</div>
+        <div className="text-sans-2xl text-raise">{silo}</div>
       </div>
 
       <hr className="my-6 w-full border-0 border-b border-b-secondary" />

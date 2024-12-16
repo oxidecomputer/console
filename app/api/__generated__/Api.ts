@@ -1226,7 +1226,7 @@ export type Datum =
   | { datum: MissingDatum; type: 'missing' }
 
 export type DerEncodedKeyPair = {
-  /** request signing private key (base64 encoded der file) */
+  /** request signing RSA private key in PKCS#1 format (base64 encoded der file) */
   privateKey: string
   /** request signing public certificate (base64 encoded der file) */
   publicCert: string
@@ -1992,6 +1992,10 @@ Currently, the global default auto-restart policy is "best-effort", so instances
 
 If not provided, unset the instance's boot disk. */
   bootDisk?: NameOrId
+  /** The amount of memory to assign to this instance. */
+  memory: ByteCount
+  /** The number of CPUs to assign to this instance. */
+  ncpus: InstanceCpuCount
 }
 
 /**
@@ -2319,8 +2323,8 @@ export type TxEqConfig = {
 export type LinkConfigCreate = {
   /** Whether or not to set autonegotiation */
   autoneg: boolean
-  /** The forward error correction mode of the link. */
-  fec: LinkFec
+  /** The requested forward-error correction method.  If this is not specified, the standard FEC for the underlying media will be applied if it can be determined. */
+  fec?: LinkFec
   /** The link-layer discovery protocol (LLDP) configuration for the link. */
   lldp: LldpLinkConfigCreate
   /** Maximum transmission unit for the link. */
@@ -3504,8 +3508,8 @@ export type SwitchPortConfigCreate = {
 export type SwitchPortLinkConfig = {
   /** Whether or not the link has autonegotiation enabled. */
   autoneg: boolean
-  /** The forward error correction mode of the link. */
-  fec: LinkFec
+  /** The requested forward-error correction method.  If this is not specified, the standard FEC for the underlying media will be applied if it can be determined. */
+  fec?: LinkFec
   /** The name of this link. */
   linkName: string
   /** The link-layer discovery protocol service configuration id for this link. */
@@ -5090,6 +5094,11 @@ export interface SiloQuotasUpdatePathParams {
   silo: NameOrId
 }
 
+export interface SystemTimeseriesSchemaListQueryParams {
+  limit?: number
+  pageToken?: string
+}
+
 export interface SiloUserListQueryParams {
   limit?: number
   pageToken?: string
@@ -5125,9 +5134,8 @@ export interface SiloUtilizationViewPathParams {
   silo: NameOrId
 }
 
-export interface TimeseriesSchemaListQueryParams {
-  limit?: number
-  pageToken?: string
+export interface TimeseriesQueryQueryParams {
+  project: NameOrId
 }
 
 export interface UserListQueryParams {
@@ -5363,10 +5371,10 @@ export type ApiListMethods = Pick<
   | 'systemQuotasList'
   | 'siloList'
   | 'siloIpPoolList'
+  | 'systemTimeseriesSchemaList'
   | 'siloUserList'
   | 'userBuiltinList'
   | 'siloUtilizationList'
-  | 'timeseriesSchemaList'
   | 'userList'
   | 'vpcRouterRouteList'
   | 'vpcRouterList'
@@ -7972,6 +7980,34 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Run timeseries query
+     */
+    systemTimeseriesQuery: (
+      { body }: { body: TimeseriesQuery },
+      params: FetchParams = {}
+    ) => {
+      return this.request<OxqlQueryResult>({
+        path: `/v1/system/timeseries/query`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * List timeseries schemas
+     */
+    systemTimeseriesSchemaList: (
+      { query = {} }: { query?: SystemTimeseriesSchemaListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<TimeseriesSchemaResultsPage>({
+        path: `/v1/system/timeseries/schemas`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
      * List built-in (system) users in silo
      */
     siloUserList: (
@@ -8054,26 +8090,16 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Run timeseries query
+     * Run project-scoped timeseries query
      */
-    timeseriesQuery: ({ body }: { body: TimeseriesQuery }, params: FetchParams = {}) => {
+    timeseriesQuery: (
+      { query, body }: { query: TimeseriesQueryQueryParams; body: TimeseriesQuery },
+      params: FetchParams = {}
+    ) => {
       return this.request<OxqlQueryResult>({
         path: `/v1/timeseries/query`,
         method: 'POST',
         body,
-        ...params,
-      })
-    },
-    /**
-     * List timeseries schemas
-     */
-    timeseriesSchemaList: (
-      { query = {} }: { query?: TimeseriesSchemaListQueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<TimeseriesSchemaResultsPage>({
-        path: `/v1/timeseries/schema`,
-        method: 'GET',
         query,
         ...params,
       })

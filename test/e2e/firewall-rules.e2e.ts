@@ -160,11 +160,16 @@ test('firewall rule form targets table', async ({ page }) => {
 
   const addButton = page.getByRole('button', { name: 'Add target' })
 
+  // addButton should be disabled until a value is added
+  await expect(addButton).toBeDisabled()
+
   // add targets with overlapping names and types to test delete
 
   await targetVpcNameField.fill('abc')
+  // hit enter one time to choose the custom value
   await targetVpcNameField.press('Enter')
-  await addButton.click()
+  // hit enter a second time to submit the subform
+  await targetVpcNameField.press('Enter')
   await expectRowVisible(targets, { Type: 'vpc', Value: 'abc' })
 
   // enter a VPC called 'mock-subnet', even if that doesn't make sense here, to test dropdown later
@@ -179,16 +184,22 @@ test('firewall rule form targets table', async ({ page }) => {
   // add a subnet by selecting from a dropdown; make sure 'mock-subnet' is present in the dropdown,
   // even though VPC:'mock-subnet' has already been added
   await selectOption(page, 'Target type', 'VPC subnet')
+  // addButton should be disabled again, as type has changed but no value has been entered
+  await expect(addButton).toBeDisabled()
   await selectOption(page, subnetNameField, 'mock-subnet')
+  await expect(addButton).toBeEnabled()
   await addButton.click()
   await expectRowVisible(targets, { Type: 'subnet', Value: 'mock-subnet' })
 
   // now add a subnet by entering text
   await selectOption(page, 'Target type', 'VPC subnet')
-  await subnetNameField.fill('abc')
-  await page.getByText('abc').first().click()
-  await addButton.click()
-  await expectRowVisible(targets, { Type: 'subnet', Value: 'abc' })
+  // test that the name typed in is normalized
+  await subnetNameField.fill('ABC 123')
+  await expect(subnetNameField).toHaveValue('abc-123')
+  // hit enter to submit the subform
+  await subnetNameField.press('Enter')
+  await subnetNameField.press('Enter')
+  await expectRowVisible(targets, { Type: 'subnet', Value: 'abc-123' })
 
   // add IP target
   await selectOption(page, 'Target type', 'IP')
@@ -613,4 +624,37 @@ test('arbitrary values combobox', async ({ page }) => {
 
   // same options show up after blur (there was a bug around this)
   await expectOptions(page, ['db1', 'Custom: d'])
+})
+
+test("esc in combobox doesn't close form", async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules-new')
+
+  // make form dirty so we can get the confirm modal on close attempts
+  await page.getByRole('textbox', { name: 'Name' }).fill('a')
+
+  // make sure the confirm modal does pop up on esc when we're not in a combobox
+  const confirmModal = page.getByRole('dialog', { name: 'Confirm navigation' })
+  await expect(confirmModal).toBeHidden()
+  await page.keyboard.press('Escape')
+  await expect(confirmModal).toBeVisible()
+  await confirmModal.getByRole('button', { name: 'Keep editing' }).click()
+  await expect(confirmModal).toBeHidden()
+
+  const formModal = page.getByRole('dialog', { name: 'Add firewall rule' })
+  await expect(formModal).toBeVisible()
+
+  const input = page.getByRole('combobox', { name: 'VPC name' }).first()
+  await input.focus()
+
+  await expect(page.getByRole('option').first()).toBeVisible()
+  await expectOptions(page, ['mock-vpc'])
+
+  await page.keyboard.press('Escape')
+  // options are closed, but the whole form modal is not
+  await expect(confirmModal).toBeHidden()
+  await expect(page.getByRole('option')).toBeHidden()
+  await expect(formModal).toBeVisible()
+  // now press esc again to leave the form
+  await page.keyboard.press('Escape')
+  await expect(confirmModal).toBeVisible()
 })

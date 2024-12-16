@@ -29,7 +29,8 @@ type Props = {
   message?: React.ReactNode
 }
 
-export function CreateSSHKeySideModalForm({ onDismiss, message }: Props) {
+Component.displayName = 'SSHKeyCreate'
+export function Component({ onDismiss, message }: Props) {
   const queryClient = useApiQueryClient()
   const navigate = useNavigate()
 

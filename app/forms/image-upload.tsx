@@ -109,9 +109,7 @@ function Step({ children, state, label, className }: StepProps) {
     >
       {/* padding on icon to align it with text since everything is aligned to top */}
       <div className="pt-px">{icon}</div>
-      <div
-        className={cn('w-full space-y-2', state.isError ? 'text-error' : 'text-default')}
-      >
+      <div className={cn('w-full space-y-2', state.isError ? 'text-error' : 'text-raise')}>
         <div>{label}</div>
         {children}
       </div>
@@ -177,10 +175,11 @@ const CHUNK_SIZE_BYTES = 512 * KiB
 // TODO: make sure cleanup, cancelEverything, and resetMainFlow are called in
 // the right places
 
+Component.displayName = 'ImageCreate'
 /**
  * Upload an image. Opens a second modal to show upload progress.
  */
-export function CreateImageSideModalForm() {
+export function Component() {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
@@ -615,14 +614,14 @@ export function CreateImageSideModalForm() {
                 <Step state={syntheticUploadState} label="Upload image file">
                   <div className="rounded-lg border bg-default border-default">
                     <div className="flex justify-between border-b p-3 pb-2 border-b-secondary">
-                      <div className="text-sans-md text-default">{file.name}</div>
+                      <div className="text-sans-md text-raise">{file.name}</div>
                       {/* cancel and/or pause buttons could go here */}
                     </div>
                     <div className="p-3 pt-2">
                       <div className="flex justify-between text-mono-sm">
-                        <div className="!normal-case text-secondary">
+                        <div className="!normal-case text-default">
                           {fsize((uploadProgress / 100) * file.size)}{' '}
-                          <span className="text-quinary">/</span> {fsize(file.size)}
+                          <span className="text-quaternary">/</span> {fsize(file.size)}
                         </div>
                         <div className="text-accent">{uploadProgress}%</div>
                       </div>

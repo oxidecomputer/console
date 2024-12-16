@@ -137,7 +137,7 @@ export function ActionMenu(props: ActionMenuProps) {
               {input.length > 0 && (
                 <button
                   type="button"
-                  className="flex items-center py-6 pl-6 pr-4 text-secondary"
+                  className="flex items-center py-6 pl-6 pr-4 text-default"
                   onClick={() => {
                     setInput('')
                     inputRef.current?.focus()
@@ -150,7 +150,7 @@ export function ActionMenu(props: ActionMenuProps) {
               <button
                 type="button"
                 onClick={onDismiss}
-                className="flex h-full items-center border-l px-6 align-middle text-mono-sm text-secondary border-secondary"
+                className="flex h-full items-center border-l px-6 align-middle text-mono-sm text-default border-secondary"
               >
                 Dismiss
               </button>
@@ -166,7 +166,7 @@ export function ActionMenu(props: ActionMenuProps) {
                   <ul ref={ulRef}>
                     {allGroups.map(([label, items]) => (
                       <div key={label}>
-                        <h3 className="sticky top-0 z-20 h-[32px] px-4 py-2 text-mono-sm text-secondary bg-tertiary">
+                        <h3 className="sticky top-0 z-20 h-[32px] px-4 py-2 text-mono-sm text-default bg-tertiary">
                           {label}
                         </h3>
                         {items.map((item) => (
@@ -186,7 +186,7 @@ export function ActionMenu(props: ActionMenuProps) {
                             <li
                               role="option"
                               className={cn(
-                                'box-border block h-full w-full cursor-pointer select-none overflow-visible border p-4 text-sans-md text-secondary bg-raise border-secondary hover:bg-hover',
+                                'box-border block h-full w-full cursor-pointer select-none overflow-visible border p-4 text-sans-md text-default bg-raise border-secondary hover:bg-hover',
                                 item.value === selectedItem?.value &&
                                   'text-accent bg-accent-secondary hover:bg-accent-secondary-hover'
                               )}
@@ -204,7 +204,7 @@ export function ActionMenu(props: ActionMenuProps) {
                     ))}
                   </ul>
                 </div>
-                <div className="flex justify-between rounded-b-[3px] px-4 py-2 text-secondary bg-tertiary">
+                <div className="flex justify-between rounded-b-[3px] px-4 py-2 text-default bg-tertiary">
                   <ActionMenuHotkey keys={['Enter']} action="submit" />
                   <ActionMenuHotkey keys={['Arrow Up', 'Arrow Down']} action="select" />
                   <ActionMenuHotkey keys={['Esc']} action="close" />
@@ -229,12 +229,12 @@ export const ActionMenuHotkey = ({ keys, action }: ActionMenuHotkeyProps) => (
       {keys.map((hotkey) => (
         <kbd
           key={hotkey}
-          className="mr-1 inline-block rounded border border-[rgba(255,255,255,.15)] px-2 py-1 text-mono-xs text-default"
+          className="mr-1 inline-block rounded border border-[rgba(255,255,255,.15)] px-2 py-1 text-mono-xs text-raise"
         >
           {hotkey}
         </kbd>
       ))}
     </div>
-    <span className="text-sans-sm text-tertiary">to {action}</span>
+    <span className="text-sans-sm text-secondary">to {action}</span>
   </div>
 )

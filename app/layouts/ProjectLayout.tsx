@@ -6,14 +6,9 @@
  * Copyright Oxide Computer Company
  */
 import { useMemo, type ReactElement } from 'react'
-import {
-  useLocation,
-  useNavigate,
-  useParams,
-  type LoaderFunctionArgs,
-} from 'react-router-dom'
+import { useLocation, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
+import { apiq, queryClient, usePrefetchedQuery } from '@oxide/api'
 import {
   Access16Icon,
   Folder16Icon,
@@ -26,17 +21,11 @@ import {
 } from '@oxide/design-system/icons/react'
 
 import { TopBar } from '~/components/TopBar'
-import {
-  InstancePicker,
-  ProjectPicker,
-  SiloSystemPicker,
-  VpcPicker,
-  VpcRouterPicker,
-} from '~/components/TopBarPicker'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { ContentPane, PageContainer } from './helpers'
@@ -48,10 +37,11 @@ type ProjectLayoutProps = {
   overrideContentPane?: ReactElement
 }
 
+const projectView = ({ project }: PP.Project) => apiq('projectView', { path: { project } })
+
 ProjectLayout.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('projectView', {
-    path: getProjectSelector(params),
-  })
+  const { project } = getProjectSelector(params)
+  await queryClient.prefetchQuery(projectView({ project }))
   return null
 }
 
@@ -59,9 +49,8 @@ export function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
   const navigate = useNavigate()
   // project will always be there, instance may not
   const projectSelector = useProjectSelector()
-  const { data: project } = usePrefetchedApiQuery('projectView', { path: projectSelector })
+  const { data: project } = usePrefetchedQuery(projectView(projectSelector))
 
-  const { instance, router, vpc } = useParams()
   const { pathname } = useLocation()
   useQuickActions(
     useMemo(
@@ -88,13 +77,7 @@ export function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
 
   return (
     <PageContainer>
-      <TopBar>
-        <SiloSystemPicker value="silo" />
-        <ProjectPicker project={project} />
-        {instance && <InstancePicker />}
-        {vpc && <VpcPicker />}
-        {router && <VpcRouterPicker />}
-      </TopBar>
+      <TopBar systemOrSilo="silo" />
       <Sidebar>
         <Sidebar.Nav>
           <NavLinkItem to={pb.projects()} end>

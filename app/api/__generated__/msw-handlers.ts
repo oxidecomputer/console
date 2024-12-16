@@ -1173,6 +1173,18 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.SiloQuotas>>
+  /** `POST /v1/system/timeseries/query` */
+  systemTimeseriesQuery: (params: {
+    body: Json<Api.TimeseriesQuery>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.OxqlQueryResult>>
+  /** `GET /v1/system/timeseries/schemas` */
+  systemTimeseriesSchemaList: (params: {
+    query: Api.SystemTimeseriesSchemaListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.TimeseriesSchemaResultsPage>>
   /** `GET /v1/system/users` */
   siloUserList: (params: {
     query: Api.SiloUserListQueryParams
@@ -1212,16 +1224,11 @@ export interface MSWHandlers {
   }) => Promisable<HandlerResult<Api.SiloUtilization>>
   /** `POST /v1/timeseries/query` */
   timeseriesQuery: (params: {
+    query: Api.TimeseriesQueryQueryParams
     body: Json<Api.TimeseriesQuery>
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.OxqlQueryResult>>
-  /** `GET /v1/timeseries/schema` */
-  timeseriesSchemaList: (params: {
-    query: Api.TimeseriesSchemaListQueryParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.TimeseriesSchemaResultsPage>>
   /** `GET /v1/users` */
   userList: (params: {
     query: Api.UserListQueryParams
@@ -2407,6 +2414,18 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         schema.SiloQuotasUpdate
       )
     ),
+    http.post(
+      '/v1/system/timeseries/query',
+      handler(handlers['systemTimeseriesQuery'], null, schema.TimeseriesQuery)
+    ),
+    http.get(
+      '/v1/system/timeseries/schemas',
+      handler(
+        handlers['systemTimeseriesSchemaList'],
+        schema.SystemTimeseriesSchemaListParams,
+        null
+      )
+    ),
     http.get(
       '/v1/system/users',
       handler(handlers['siloUserList'], schema.SiloUserListParams, null)
@@ -2433,11 +2452,11 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     ),
     http.post(
       '/v1/timeseries/query',
-      handler(handlers['timeseriesQuery'], null, schema.TimeseriesQuery)
-    ),
-    http.get(
-      '/v1/timeseries/schema',
-      handler(handlers['timeseriesSchemaList'], schema.TimeseriesSchemaListParams, null)
+      handler(
+        handlers['timeseriesQuery'],
+        schema.TimeseriesQueryParams,
+        schema.TimeseriesQuery
+      )
     ),
     http.get('/v1/users', handler(handlers['userList'], schema.UserListParams, null)),
     http.get('/v1/utilization', handler(handlers['utilizationView'], null, null)),

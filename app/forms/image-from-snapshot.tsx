@@ -10,10 +10,10 @@ import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
-  apiQueryClient,
+  apiq,
+  queryClient,
   useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
   type ImageCreate,
 } from '@oxide/api'
 
@@ -26,6 +26,7 @@ import { getProjectSnapshotSelector, useProjectSnapshotSelector } from '~/hooks/
 import { addToast } from '~/stores/toast'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
 const defaultValues: Omit<ImageCreate, 'source'> = {
   name: '',
@@ -34,29 +35,25 @@ const defaultValues: Omit<ImageCreate, 'source'> = {
   version: '',
 }
 
+const snapshotView = ({ project, snapshot }: PP.Snapshot) =>
+  apiq('snapshotView', { path: { snapshot }, query: { project } })
+
 CreateImageFromSnapshotSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, snapshot } = getProjectSnapshotSelector(params)
-  await apiQueryClient.prefetchQuery('snapshotView', {
-    path: { snapshot },
-    query: { project },
-  })
+  await queryClient.prefetchQuery(snapshotView({ project, snapshot }))
   return null
 }
 
 export function CreateImageFromSnapshotSideModalForm() {
   const { snapshot, project } = useProjectSnapshotSelector()
-  const { data } = usePrefetchedApiQuery('snapshotView', {
-    path: { snapshot },
-    query: { project },
-  })
+  const { data } = usePrefetchedQuery(snapshotView({ project, snapshot }))
   const navigate = useNavigate()
-  const queryClient = useApiQueryClient()
 
   const onDismiss = () => navigate(pb.snapshots({ project }))
 
   const createImage = useApiMutation('imageCreate', {
     onSuccess(image) {
-      queryClient.invalidateQueries('imageList')
+      queryClient.invalidateEndpoint('imageList')
       addToast(<>Image <HL>{image.name}</HL> created</>) // prettier-ignore
       onDismiss()
     },
