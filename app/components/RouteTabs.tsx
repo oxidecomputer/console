@@ -7,7 +7,7 @@
  */
 import cn from 'classnames'
 import type { ReactNode } from 'react'
-import { Link, Outlet } from 'react-router-dom'
+import { Link, Outlet } from 'react-router'
 
 import { useIsActivePath } from '~/hooks/use-is-active-path'
 import { KEYS } from '~/ui/util/keys'

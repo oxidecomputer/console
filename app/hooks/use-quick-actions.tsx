@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useEffect, useMemo } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router'
 import { create } from 'zustand'
 
 import { useCurrentUser } from '~/layouts/AuthenticatedLayout'

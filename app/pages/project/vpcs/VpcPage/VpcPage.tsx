@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useMemo } from 'react'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import { apiq, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'

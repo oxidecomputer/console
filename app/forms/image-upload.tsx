@@ -12,7 +12,7 @@ import pMap from 'p-map'
 import pRetry from 'p-retry'
 import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import {
   useApiMutation,

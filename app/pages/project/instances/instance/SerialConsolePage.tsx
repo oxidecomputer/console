@@ -7,7 +7,7 @@
  */
 import cn from 'classnames'
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
-import { Link, type LoaderFunctionArgs } from 'react-router-dom'
+import { Link, type LoaderFunctionArgs } from 'react-router'
 
 import {
   api,
