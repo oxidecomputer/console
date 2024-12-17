@@ -8,7 +8,7 @@
 import { announce } from '@react-aria/live-announcer'
 import cn from 'classnames'
 import { useEffect, type ReactElement, type ReactNode } from 'react'
-import { Link, type To } from 'react-router-dom'
+import { Link, type To } from 'react-router'
 
 import {
   Close12Icon,

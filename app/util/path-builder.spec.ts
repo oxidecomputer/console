@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { matchRoutes } from 'react-router-dom'
+import { matchRoutes } from 'react-router'
 import * as R from 'remeda'
 import { expect, test } from 'vitest'
 

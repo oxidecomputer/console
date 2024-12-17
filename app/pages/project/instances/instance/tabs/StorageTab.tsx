@@ -7,7 +7,7 @@
  */
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import type { LoaderFunctionArgs } from 'react-router-dom'
+import type { LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 
 import {

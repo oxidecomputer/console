@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { redirect, type LoaderFunctionArgs } from 'react-router-dom'
+import { redirect, type LoaderFunctionArgs } from 'react-router'
 
 import { apiq, queryClient } from '@oxide/api'
 

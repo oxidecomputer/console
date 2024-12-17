@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router'
 
 import { apiQueryClient, useApiQueryErrorsAllowed, usePrefetchedApiQuery } from '@oxide/api'
 
