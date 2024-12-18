@@ -13,7 +13,6 @@ import {
   getListQFn,
   queryClient,
   useApiMutation,
-  usePrefetchedApiQuery,
   usePrefetchedQuery,
 } from '@oxide/api'
 
@@ -52,11 +51,7 @@ export function EditFloatingIpSideModalForm() {
 
   const onDismiss = () => navigate(pb.floatingIps({ project: floatingIpSelector.project }))
 
-  const { data: floatingIp } = usePrefetchedApiQuery('floatingIpView', {
-    path: { floatingIp: floatingIpSelector.floatingIp },
-    query: { project: floatingIpSelector.project },
-  })
-
+  const { data: floatingIp } = usePrefetchedQuery(floatingIpView(floatingIpSelector))
   const { data: instances } = usePrefetchedQuery(
     instanceList(floatingIpSelector.project).optionsFn()
   )
