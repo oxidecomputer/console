@@ -56,12 +56,11 @@ export function EditFloatingIpSideModalForm() {
     path: { floatingIp: floatingIpSelector.floatingIp },
     query: { project: floatingIpSelector.project },
   })
-  const { name, description, ip, ipPoolId, instanceId } = floatingIp
 
   const { data: instances } = usePrefetchedQuery(
     instanceList(floatingIpSelector.project).optionsFn()
   )
-  const instanceName = instances.items.find((i) => i.id === instanceId)?.name
+  const instanceName = instances.items.find((i) => i.id === floatingIp.instanceId)?.name
 
   const editFloatingIp = useApiMutation('floatingIpUpdate', {
     onSuccess(_floatingIp) {
@@ -71,7 +70,7 @@ export function EditFloatingIpSideModalForm() {
     },
   })
 
-  const form = useForm({ defaultValues: { name, description } })
+  const form = useForm({ defaultValues: floatingIp })
   return (
     <SideModalForm
       form={form}
@@ -90,10 +89,10 @@ export function EditFloatingIpSideModalForm() {
     >
       <PropertiesTable>
         <PropertiesTable.Row label="IP Address">
-          <CopyableIp ip={ip} isLinked={false} />
+          <CopyableIp ip={floatingIp.ip} isLinked={false} />
         </PropertiesTable.Row>
         <PropertiesTable.Row label="IP Pool">
-          <IpPoolCell ipPoolId={ipPoolId} />
+          <IpPoolCell ipPoolId={floatingIp.ipPoolId} />
         </PropertiesTable.Row>
         <PropertiesTable.Row label="Instance">
           {instanceName ? (
