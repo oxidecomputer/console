@@ -5,22 +5,18 @@
  *
  * Copyright Oxide Computer Company
  */
-import { createColumnHelper } from '@tanstack/react-table'
 
 import {
   getListQFn,
   queryClient,
-  type Sled,
+  useApiQuery,
   type SledProvisionPolicy,
   type SledState,
 } from '@oxide/api'
-import { Servers24Icon } from '@oxide/design-system/icons/react'
 
-import { makeLinkCell } from '~/table/cells/LinkCell'
-import { useQueryTable } from '~/table/QueryTable'
 import { Badge, type BadgeColor } from '~/ui/lib/Badge'
-import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { pb } from '~/util/path-builder'
+import { Table } from '~/ui/lib/Table'
+import { truncate } from '~/ui/lib/Truncate'
 
 const PROV_POLICY_DISP: Record<SledProvisionPolicy, [string, BadgeColor]> = {
   provisionable: ['Provisionable', 'default'],
@@ -39,41 +35,71 @@ export async function loader() {
   return null
 }
 
-const colHelper = createColumnHelper<Sled>()
-const staticCols = [
-  colHelper.accessor('id', {
-    cell: makeLinkCell((sledId) => pb.sled({ sledId })),
-  }),
-  // TODO: colHelper.accessor('baseboard.serviceAddress', { header: 'service address' }),
-  colHelper.accessor('baseboard.part', { header: 'part number' }),
-  colHelper.accessor('baseboard.serial', { header: 'serial number' }),
-  colHelper.accessor('baseboard.revision', { header: 'revision' }),
-  colHelper.accessor('policy', {
-    header: 'policy',
-    cell: (info) => {
-      const policy = info.getValue()
-      if (policy.kind === 'expunged') return <Badge color="neutral">Expunged</Badge>
-      const [label, color] = PROV_POLICY_DISP[policy.provisionPolicy]
-      return (
-        <div className="space-x-0.5">
-          <Badge>In service</Badge>
-          <Badge variant="solid" color={color}>
-            {label}
-          </Badge>
-        </div>
-      )
-    },
-  }),
-  colHelper.accessor('state', {
-    cell: (info) => (
-      <Badge color={STATE_BADGE_COLORS[info.getValue()]}>{info.getValue()}</Badge>
-    ),
-  }),
-]
-
+// THIS ISNT REAL ITS FOR DESIGN EXPERIMENTATION
 Component.displayName = 'SledsTab'
 export function Component() {
-  const emptyState = <EmptyMessage icon={<Servers24Icon />} title="No sleds found" />
-  const { table } = useQueryTable({ query: sledList, columns: staticCols, emptyState })
-  return table
+  // const sledList = getListQFn('sledList', {})
+
+  // const emptyState = <EmptyMessage icon={<Servers24Icon />} title="No sleds found" />
+  // const {
+  //   query: { data: sleds },
+  // } = useQueryTable({ query: sledList, emptyState: <EmptyState /> })
+  // console.log(sleds)
+
+  const { data: sleds } = useApiQuery('sledList', {})
+
+  return (
+    <Table>
+      <Table.Header>
+        <Table.HeaderRow>
+          <Table.HeadCell>ID</Table.HeadCell>
+          <Table.HeadCell colSpan={3}>Baseboard</Table.HeadCell>
+          <Table.HeadCell colSpan={2}>Policy</Table.HeadCell>
+          <Table.HeadCell>State</Table.HeadCell>
+        </Table.HeaderRow>
+        <Table.HeaderRow>
+          <Table.HeadCell data-test-ignore></Table.HeadCell>
+          <Table.HeadCell>Part No.</Table.HeadCell>
+          <Table.HeadCell>Serial No.</Table.HeadCell>
+          <Table.HeadCell>Rev</Table.HeadCell>
+          <Table.HeadCell>Kind</Table.HeadCell>
+          <Table.HeadCell>Provisionable</Table.HeadCell>
+          <Table.HeadCell data-test-ignore></Table.HeadCell>
+        </Table.HeaderRow>
+      </Table.Header>
+
+      <Table.Body>
+        {sleds?.items.map((sled) => (
+          <Table.Row key={sled.id}>
+            <Table.Cell>{truncate(sled.id, 20, 'middle')}</Table.Cell>
+            <Table.Cell>{sled.baseboard.part}</Table.Cell>
+            <Table.Cell>{sled.baseboard.serial}</Table.Cell>
+            <Table.Cell>{sled.baseboard.revision}</Table.Cell>
+            <Table.Cell>
+              <Badge color={sled.policy.kind === 'expunged' ? 'neutral' : 'default'}>
+                {sled.policy.kind}
+              </Badge>
+            </Table.Cell>
+            <Table.Cell>
+              {sled.policy.kind !== 'expunged' ? (
+                <Badge
+                  variant="default"
+                  color={PROV_POLICY_DISP[sled.policy.provisionPolicy][1]}
+                >
+                  {PROV_POLICY_DISP[sled.policy.provisionPolicy][0] === 'Provisionable'
+                    ? 'True'
+                    : 'False'}
+                </Badge>
+              ) : (
+                <span className="text-quaternary">-</span>
+              )}
+            </Table.Cell>
+            <Table.Cell>
+              <Badge color={STATE_BADGE_COLORS[sled.state]}>{sled.state}</Badge>
+            </Table.Cell>
+          </Table.Row>
+        ))}
+      </Table.Body>
+    </Table>
+  )
 }
