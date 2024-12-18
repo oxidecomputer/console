@@ -26,28 +26,28 @@ test('Sled inventory page', async ({ page }) => {
     id: sleds[0].id,
     'serial number': sleds[0].baseboard.serial,
     Kind: 'In service',
-    // Provisionable: 'Yes',
+    'Provision policy': 'Provisionable',
     state: 'active',
   })
   await expectRowVisible(sledsTable, {
     id: sleds[1].id,
     'serial number': sleds[1].baseboard.serial,
     Kind: 'In service',
-    // Provisionable: 'No',
+    'Provision policy': 'Not provisionable',
     state: 'active',
   })
   await expectRowVisible(sledsTable, {
     id: sleds[2].id,
     'serial number': sleds[2].baseboard.serial,
     Kind: 'Expunged',
-    // Provisionable: 'No',
+    'Provision policy': '—',
     state: 'active',
   })
   await expectRowVisible(sledsTable, {
     id: sleds[3].id,
     'serial number': sleds[3].baseboard.serial,
     Kind: 'Expunged',
-    // Provisionable: 'No',
+    'Provision policy': '—',
     state: 'decommissioned',
   })
 

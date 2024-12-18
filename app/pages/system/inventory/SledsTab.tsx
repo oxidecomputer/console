@@ -14,12 +14,9 @@ import {
   type SledPolicy,
   type SledState,
 } from '@oxide/api'
-import {
-  Checkmark12Icon,
-  Close12Icon,
-  Servers24Icon,
-} from '@oxide/design-system/icons/react'
+import { Servers24Icon } from '@oxide/design-system/icons/react'
 
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useQueryTable } from '~/table/QueryTable'
 import { Badge, type BadgeColor } from '~/ui/lib/Badge'
@@ -71,13 +68,15 @@ const staticCols = [
         },
       }),
       colHelper.accessor('policy', {
-        header: 'Provisionable',
+        header: 'Provision policy',
         cell: (info) => {
           const policy: SledPolicy = info.getValue()
-          const yes = <Checkmark12Icon className="text-accent" aria-label="Yes" />
-          const no = <Close12Icon aria-label="No" />
-          if (policy.kind === 'expunged') return no
-          return policy.provisionPolicy === 'provisionable' ? yes : no
+          if (policy.kind === 'expunged') return <EmptyCell />
+          return policy.provisionPolicy === 'provisionable' ? (
+            <Badge>Provisionable</Badge>
+          ) : (
+            <Badge color="neutral">Not provisionable</Badge>
+          )
         },
       }),
     ],
