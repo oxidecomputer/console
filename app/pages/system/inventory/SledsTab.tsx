@@ -74,12 +74,10 @@ const staticCols = [
         header: 'Provisionable',
         cell: (info) => {
           const policy: SledPolicy = info.getValue()
-          if (policy.kind === 'expunged') return <Close12Icon />
-          return policy.provisionPolicy === 'provisionable' ? (
-            <Checkmark12Icon className="text-accent" />
-          ) : (
-            <Close12Icon />
-          )
+          const yes = <Checkmark12Icon className="text-accent" aria-label="Yes" />
+          const no = <Close12Icon aria-label="No" />
+          if (policy.kind === 'expunged') return no
+          return policy.provisionPolicy === 'provisionable' ? yes : no
         },
       }),
     ],

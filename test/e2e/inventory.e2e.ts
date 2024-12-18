@@ -20,28 +20,34 @@ test('Sled inventory page', async ({ page }) => {
   await expect(sledsTab).toHaveClass(/is-selected/)
 
   const sledsTable = page.getByRole('table')
+  // expectRowVisible currently only looks at the last header row in case of
+  // grouping, hence the slightly weird column names
   await expectRowVisible(sledsTable, {
     id: sleds[0].id,
     'serial number': sleds[0].baseboard.serial,
-    policy: 'In serviceProvisionable',
+    Kind: 'In service',
+    // Provisionable: 'Yes',
     state: 'active',
   })
   await expectRowVisible(sledsTable, {
     id: sleds[1].id,
     'serial number': sleds[1].baseboard.serial,
-    policy: 'In serviceNot provisionable',
+    Kind: 'In service',
+    // Provisionable: 'No',
     state: 'active',
   })
   await expectRowVisible(sledsTable, {
     id: sleds[2].id,
     'serial number': sleds[2].baseboard.serial,
-    policy: 'Expunged',
+    Kind: 'Expunged',
+    // Provisionable: 'No',
     state: 'active',
   })
   await expectRowVisible(sledsTable, {
     id: sleds[3].id,
     'serial number': sleds[3].baseboard.serial,
-    policy: 'Expunged',
+    Kind: 'Expunged',
+    // Provisionable: 'No',
     state: 'decommissioned',
   })
 
