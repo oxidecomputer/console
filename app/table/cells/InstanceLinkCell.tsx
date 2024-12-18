@@ -11,7 +11,7 @@ import { useApiQuery } from '@oxide/api'
 import { useProjectSelector } from '~/hooks/use-params'
 import { pb } from '~/util/path-builder'
 
-import { EmptyCell, SkeletonCell } from './EmptyCell'
+import { SkeletonCell } from './EmptyCell'
 import { LinkCell } from './LinkCell'
 
 export const InstanceLinkCell = ({ instanceId }: { instanceId?: string }) => {
@@ -23,7 +23,7 @@ export const InstanceLinkCell = ({ instanceId }: { instanceId?: string }) => {
   )
 
   // has to be after the hooks because hooks can't be executed conditionally
-  if (!instanceId) return <EmptyCell />
+  if (!instanceId) return null
   if (!instance) return <SkeletonCell />
 
   return (
