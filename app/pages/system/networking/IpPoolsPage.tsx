@@ -8,7 +8,7 @@
 
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
-import { Outlet, useNavigate } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router'
 
 import {
   apiQueryClient,

@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMatches, type Params, type UIMatch } from 'react-router-dom'
+import { useMatches, type Params, type UIMatch } from 'react-router'
 
 import { invariant } from '~/util/invariant'
 

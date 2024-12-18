@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useRef } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router'
 
 import { PageActionsTarget } from '~/components/PageActions'
 import { Pagination } from '~/components/Pagination'

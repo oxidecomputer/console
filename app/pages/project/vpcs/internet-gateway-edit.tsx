@@ -8,7 +8,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
-import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import { Gateway16Icon } from '@oxide/design-system/icons/react'
 

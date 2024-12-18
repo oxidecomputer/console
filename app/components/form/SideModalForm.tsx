@@ -8,7 +8,7 @@
 
 import { useEffect, useId, useState, type ReactNode } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
-import { NavigationType, useNavigationType } from 'react-router-dom'
+import { NavigationType, useNavigationType } from 'react-router'
 
 import type { ApiError } from '@oxide/api'
 

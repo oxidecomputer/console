@@ -7,7 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
+import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
 import { getListQFn, queryClient, useApiMutation, type Image } from '@oxide/api'
 import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'

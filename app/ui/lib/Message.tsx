@@ -7,7 +7,7 @@
  */
 import cn from 'classnames'
 import type { ReactElement, ReactNode } from 'react'
-import { Link, type To } from 'react-router-dom'
+import { Link, type To } from 'react-router'
 
 import {
   Error12Icon,

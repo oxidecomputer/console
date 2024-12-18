@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { ErrorBoundary as BaseErrorBoundary } from 'react-error-boundary'
-import { useRouteError } from 'react-router-dom'
+import { useRouteError } from 'react-router'
 
 import { type ApiError } from '~/api/errors'
 

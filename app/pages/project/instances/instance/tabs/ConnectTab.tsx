@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { Link, type LoaderFunctionArgs } from 'react-router-dom'
+import { Link, type LoaderFunctionArgs } from 'react-router'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '~/api'
 import { EquivalentCliCommand } from '~/components/EquivalentCliCommand'

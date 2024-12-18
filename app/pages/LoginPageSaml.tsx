@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 
 import { useIdpSelector } from '~/hooks/use-params'
 import { buttonStyle } from '~/ui/lib/Button'

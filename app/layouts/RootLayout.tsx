@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useEffect, useRef } from 'react'
-import { Outlet, useNavigation } from 'react-router-dom'
+import { Outlet, useNavigation } from 'react-router'
 
 import { MswBanner } from '~/components/MswBanner'
 import { ToastStack } from '~/components/ToastStack'
