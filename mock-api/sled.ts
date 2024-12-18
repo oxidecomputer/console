@@ -35,7 +35,7 @@ export const sleds: Json<Sled[]> = [
     rack_id: '759a1c80-4bff-4d0b-97ce-b482ca936724',
     policy: {
       kind: 'in_service',
-      provision_policy: 'provisionable',
+      provision_policy: 'non_provisionable',
     },
     state: 'active',
     baseboard: {

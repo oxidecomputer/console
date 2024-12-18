@@ -69,10 +69,10 @@ export async function expectRowVisible(
 ) {
   // wait for header and rows to avoid flake town
   const headerLoc = table.locator('thead >> role=cell')
-  await headerLoc.locator('nth=0').waitFor() // nth=0 bc error if there's more than 1
+  await headerLoc.first().waitFor() // nth=0 bc error if there's more than 1
 
   const rowLoc = table.locator('tbody >> role=row')
-  await rowLoc.locator('nth=0').waitFor()
+  await rowLoc.first().waitFor()
 
   async function getRows() {
     // need to pull header keys every time because the whole page can change
@@ -81,7 +81,10 @@ export async function expectRowVisible(
     // filter out data-test-ignore is specifically for making the header cells
     // match up with the contents on the double-header utilization table
     const headerKeys = await table
-      .locator('thead >> th:not([data-test-ignore])')
+      .locator('thead')
+      .getByRole('row')
+      .last()
+      .locator('th:not([data-test-ignore])')
       .allTextContents()
 
     const rows = await map(table.locator('tbody >> role=row'), async (row) => {

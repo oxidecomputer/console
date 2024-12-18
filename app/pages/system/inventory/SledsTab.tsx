@@ -16,30 +16,16 @@ import {
 } from '@oxide/api'
 import { Servers24Icon } from '@oxide/design-system/icons/react'
 
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useQueryTable } from '~/table/QueryTable'
 import { Badge, type BadgeColor } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pb } from '~/util/path-builder'
 
-const POLICY_KIND_BADGE_COLORS: Record<SledPolicy['kind'], BadgeColor> = {
-  in_service: 'default',
-  expunged: 'neutral',
-}
-
 const STATE_BADGE_COLORS: Record<SledState, BadgeColor> = {
   active: 'default',
   decommissioned: 'neutral',
-}
-
-const EmptyState = () => {
-  return (
-    <EmptyMessage
-      icon={<Servers24Icon />}
-      title="Something went wrong"
-      body="We expected some racks here, but none were found"
-    />
-  )
 }
 
 const sledList = getListQFn('sledList', {})
@@ -55,16 +41,45 @@ const staticCols = [
     cell: makeLinkCell((sledId) => pb.sled({ sledId })),
   }),
   // TODO: colHelper.accessor('baseboard.serviceAddress', { header: 'service address' }),
-  colHelper.accessor('baseboard.part', { header: 'part number' }),
-  colHelper.accessor('baseboard.serial', { header: 'serial number' }),
-  colHelper.accessor('baseboard.revision', { header: 'revision' }),
-  colHelper.accessor('policy.kind', {
-    header: 'policy',
-    cell: (info) => (
-      <Badge color={POLICY_KIND_BADGE_COLORS[info.getValue()]}>
-        {info.getValue().replace(/_/g, ' ')}
-      </Badge>
-    ),
+  colHelper.group({
+    id: 'baseboard',
+    header: 'Baseboard',
+    columns: [
+      colHelper.accessor('baseboard.part', { header: 'part number' }),
+      colHelper.accessor('baseboard.serial', { header: 'serial number' }),
+      colHelper.accessor('baseboard.revision', { header: 'revision' }),
+    ],
+  }),
+  colHelper.group({
+    id: 'policy',
+    header: 'Policy',
+    columns: [
+      colHelper.accessor('policy', {
+        header: 'Kind',
+        cell: (info) => {
+          // need to cast because inference is broken inside groups
+          // https://github.com/TanStack/table/issues/5065
+          const policy: SledPolicy = info.getValue()
+          return policy.kind === 'expunged' ? (
+            <Badge color="neutral">Expunged</Badge>
+          ) : (
+            <Badge>In service</Badge>
+          )
+        },
+      }),
+      colHelper.accessor('policy', {
+        header: 'Provision policy',
+        cell: (info) => {
+          const policy: SledPolicy = info.getValue()
+          if (policy.kind === 'expunged') return <EmptyCell />
+          return policy.provisionPolicy === 'provisionable' ? (
+            <Badge>Provisionable</Badge>
+          ) : (
+            <Badge color="neutral">Not provisionable</Badge>
+          )
+        },
+      }),
+    ],
   }),
   colHelper.accessor('state', {
     cell: (info) => (
@@ -75,7 +90,7 @@ const staticCols = [
 
 Component.displayName = 'SledsTab'
 export function Component() {
-  const emptyState = <EmptyState />
+  const emptyState = <EmptyMessage icon={<Servers24Icon />} title="No sleds found" />
   const { table } = useQueryTable({ query: sledList, columns: staticCols, emptyState })
   return table
 }
