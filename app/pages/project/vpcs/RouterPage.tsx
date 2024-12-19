@@ -30,7 +30,6 @@ import { routeFormMessage } from '~/forms/vpc-router-route-common'
 import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
-import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { TypeValueCell } from '~/table/cells/TypeValueCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
@@ -201,9 +200,7 @@ export function Component() {
       </PageHeader>
       <PropertiesTable.Group className="-mt-8 mb-16">
         <PropertiesTable>
-          <PropertiesTable.Row label="Description">
-            <DescriptionCell text={routerData.description} />
-          </PropertiesTable.Row>
+          <PropertiesTable.DescriptionRow description={routerData.description} />
           <PropertiesTable.Row label="Kind">
             <Badge color="neutral">{routerData.kind}</Badge>
           </PropertiesTable.Row>

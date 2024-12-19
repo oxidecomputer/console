@@ -13,7 +13,6 @@ import { Cloud16Icon, Cloud24Icon, NextArrow12Icon } from '@oxide/design-system/
 import { DocsPopover } from '~/components/DocsPopover'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
-import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { Badge } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -68,9 +67,7 @@ export function Component() {
       <PropertiesTable.Group className="mb-16">
         <PropertiesTable>
           <PropertiesTable.IdRow id={silo.id} />
-          <PropertiesTable.Row label="Description">
-            <DescriptionCell text={silo.description} />
-          </PropertiesTable.Row>
+          <PropertiesTable.DescriptionRow description={silo.description} />
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.DateRow date={silo.timeCreated} label="Created" />

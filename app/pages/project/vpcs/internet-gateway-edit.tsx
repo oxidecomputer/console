@@ -15,7 +15,6 @@ import { Gateway16Icon } from '@oxide/design-system/icons/react'
 import { apiQueryClient, queryClient, usePrefetchedApiQuery } from '~/api'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { getInternetGatewaySelector, useInternetGatewaySelector } from '~/hooks/use-params'
-import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { FormDivider } from '~/ui/lib/Divider'
@@ -137,9 +136,7 @@ export function EditInternetGatewayForm() {
       />
       <PropertiesTable key={internetGateway.id}>
         <PropertiesTable.Row label="Name">{internetGateway.name}</PropertiesTable.Row>
-        <PropertiesTable.Row label="Description">
-          <DescriptionCell text={internetGateway.description} />
-        </PropertiesTable.Row>
+        <PropertiesTable.DescriptionRow description={internetGateway.description} />
       </PropertiesTable>
 
       <FormDivider />
@@ -154,9 +151,7 @@ export function EditInternetGatewayForm() {
               <PropertiesTable.Row label="Name">
                 {gatewayIpAddress.name}
               </PropertiesTable.Row>
-              <PropertiesTable.Row label="Description">
-                <DescriptionCell text={gatewayIpAddress.description} />
-              </PropertiesTable.Row>
+              <PropertiesTable.DescriptionRow description={gatewayIpAddress.description} />
               <PropertiesTable.Row label="IP Address">
                 <CopyableIp ip={gatewayIpAddress.address} />
               </PropertiesTable.Row>
@@ -183,9 +178,7 @@ export function EditInternetGatewayForm() {
           gatewayIpPools.map((gatewayIpPool) => (
             <PropertiesTable key={gatewayIpPool.id}>
               <PropertiesTable.Row label="Name">{gatewayIpPool.name}</PropertiesTable.Row>
-              <PropertiesTable.Row label="Description">
-                <DescriptionCell text={gatewayIpPool.description} />
-              </PropertiesTable.Row>
+              <PropertiesTable.DescriptionRow description={gatewayIpPool.description} />
               <PropertiesTable.Row label="IP Pool Name">
                 <IpPoolCell ipPoolId={gatewayIpPool.ipPoolId} />
               </PropertiesTable.Row>

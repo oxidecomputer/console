@@ -8,6 +8,7 @@
 import cn from 'classnames'
 import type { ReactNode } from 'react'
 
+import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { Badge } from '~/ui/lib/Badge'
 import { isOneOf } from '~/util/children'
 import { invariant } from '~/util/invariant'
@@ -25,6 +26,7 @@ export function PropertiesTable({ className, children }: PropertiesTableProps) {
     isOneOf(children, [
       PropertiesTable.Row,
       PropertiesTable.IdRow,
+      PropertiesTable.DescriptionRow,
       PropertiesTable.DateRow,
     ]),
     'PropertiesTable can only have PropertiesTable.Row as a child'
@@ -59,6 +61,12 @@ PropertiesTable.Row = ({ label, children }: PropertiesTableRowProps) => (
 PropertiesTable.IdRow = ({ id }: { id: string }) => (
   <PropertiesTable.Row label="ID">
     <Truncate text={id} maxLength={32} hasCopyButton />
+  </PropertiesTable.Row>
+)
+
+PropertiesTable.DescriptionRow = ({ description }: { description: string }) => (
+  <PropertiesTable.Row label="Description">
+    <DescriptionCell text={description} />
   </PropertiesTable.Row>
 )
 

@@ -48,7 +48,7 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { Spinner } from '~/ui/lib/Spinner'
 import { Tooltip } from '~/ui/lib/Tooltip'
-import { truncate, Truncate } from '~/ui/lib/Truncate'
+import { truncate } from '~/ui/lib/Truncate'
 import { pb } from '~/util/path-builder'
 import { GiB } from '~/util/units'
 
@@ -228,11 +228,7 @@ export function InstancePage() {
           </PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
-          <PropertiesTable.Row label="description">
-            <span className="text-default">
-              <Truncate text={instance.description} maxLength={40} />
-            </span>
-          </PropertiesTable.Row>
+          <PropertiesTable.DescriptionRow description={instance.description} />
           <PropertiesTable.DateRow date={instance.timeCreated} label="Created" />
           <PropertiesTable.IdRow id={instance.id} />
           <PropertiesTable.Row label="external IPs">
