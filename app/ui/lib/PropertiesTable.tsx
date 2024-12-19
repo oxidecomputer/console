@@ -29,7 +29,7 @@ export function PropertiesTable({ className, children }: PropertiesTableProps) {
       PropertiesTable.DescriptionRow,
       PropertiesTable.DateRow,
     ]),
-    'PropertiesTable can only contain specific Row components as a child'
+    'PropertiesTable only accepts specific Row components as children'
   )
   return (
     <div
