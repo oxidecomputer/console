@@ -30,13 +30,11 @@ import { routeFormMessage } from '~/forms/vpc-router-route-common'
 import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
-import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { TypeValueCell } from '~/table/cells/TypeValueCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { CreateButton, CreateLink } from '~/ui/lib/CreateButton'
-import { DateTime } from '~/ui/lib/DateTime'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
@@ -202,20 +200,14 @@ export function Component() {
       </PageHeader>
       <PropertiesTable.Group className="-mt-8 mb-16">
         <PropertiesTable>
-          <PropertiesTable.Row label="Description">
-            <DescriptionCell text={routerData.description} />
-          </PropertiesTable.Row>
+          <PropertiesTable.DescriptionRow description={routerData.description} />
           <PropertiesTable.Row label="Kind">
             <Badge color="neutral">{routerData.kind}</Badge>
           </PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
-          <PropertiesTable.Row label="Created">
-            <DateTime date={routerData.timeCreated} />
-          </PropertiesTable.Row>
-          <PropertiesTable.Row label="Last Modified">
-            <DateTime date={routerData.timeModified} />
-          </PropertiesTable.Row>
+          <PropertiesTable.DateRow date={routerData.timeCreated} label="Created" />
+          <PropertiesTable.DateRow date={routerData.timeModified} label="Last Modified" />
         </PropertiesTable>
       </PropertiesTable.Group>
       <TableControls className="mb-3">

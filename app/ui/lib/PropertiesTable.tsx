@@ -8,9 +8,13 @@
 import cn from 'classnames'
 import type { ReactNode } from 'react'
 
+import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { Badge } from '~/ui/lib/Badge'
 import { isOneOf } from '~/util/children'
 import { invariant } from '~/util/invariant'
+
+import { DateTime } from './DateTime'
+import { Truncate } from './Truncate'
 
 export interface PropertiesTableProps {
   className?: string
@@ -19,8 +23,13 @@ export interface PropertiesTableProps {
 
 export function PropertiesTable({ className, children }: PropertiesTableProps) {
   invariant(
-    isOneOf(children, [PropertiesTable.Row]),
-    'PropertiesTable can only have PropertiesTable.Row as a child'
+    isOneOf(children, [
+      PropertiesTable.Row,
+      PropertiesTable.IdRow,
+      PropertiesTable.DescriptionRow,
+      PropertiesTable.DateRow,
+    ]),
+    'PropertiesTable only accepts specific Row components as children'
   )
   return (
     <div
@@ -47,6 +56,30 @@ PropertiesTable.Row = ({ label, children }: PropertiesTableRowProps) => (
       {children}
     </div>
   </>
+)
+
+PropertiesTable.IdRow = ({ id }: { id: string }) => (
+  <PropertiesTable.Row label="ID">
+    <Truncate text={id} maxLength={32} hasCopyButton />
+  </PropertiesTable.Row>
+)
+
+PropertiesTable.DescriptionRow = ({ description }: { description: string }) => (
+  <PropertiesTable.Row label="Description">
+    <DescriptionCell text={description} />
+  </PropertiesTable.Row>
+)
+
+PropertiesTable.DateRow = ({
+  date,
+  label,
+}: {
+  date: Date
+  label: 'Created' | 'Updated' | 'Last Modified'
+}) => (
+  <PropertiesTable.Row label={label}>
+    <DateTime date={date} />
+  </PropertiesTable.Row>
 )
 
 interface PropertiesTableGroupProps {

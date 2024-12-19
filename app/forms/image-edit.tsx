@@ -21,10 +21,8 @@ import {
   useProjectImageSelector,
   useSiloImageSelector,
 } from '~/hooks/use-params'
-import { DateTime } from '~/ui/lib/DateTime'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
-import { Truncate } from '~/ui/lib/Truncate'
 import { pb } from '~/util/path-builder'
 import { capitalize } from '~/util/str'
 import { bytesToGiB } from '~/util/units'
@@ -96,19 +94,13 @@ function EditImageSideModalForm({
     >
       <PropertiesTable>
         <PropertiesTable.Row label="Shared with">{type}</PropertiesTable.Row>
-        <PropertiesTable.Row label="ID">
-          <Truncate text={image.id} maxLength={32} hasCopyButton />
-        </PropertiesTable.Row>
+        <PropertiesTable.IdRow id={image.id} />
         <PropertiesTable.Row label="Size">
           <span>{bytesToGiB(image.size)}</span>
           <span className="ml-1 inline-block text-tertiary">GiB</span>
         </PropertiesTable.Row>
-        <PropertiesTable.Row label="Created">
-          <DateTime date={image.timeCreated} />
-        </PropertiesTable.Row>
-        <PropertiesTable.Row label="Updated">
-          <DateTime date={image.timeModified} />
-        </PropertiesTable.Row>
+        <PropertiesTable.DateRow date={image.timeCreated} label="Created" />
+        <PropertiesTable.DateRow date={image.timeModified} label="Updated" />
       </PropertiesTable>
       <NameField name="name" control={form.control} disabled />
       <DescriptionField name="description" control={form.control} required disabled />
