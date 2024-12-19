@@ -17,10 +17,8 @@ import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { getSshKeySelector, useSshKeySelector } from '~/hooks/use-params'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
-import { DateTime } from '~/ui/lib/DateTime'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
-import { Truncate } from '~/ui/lib/Truncate'
 import { pb } from '~/util/path-builder'
 
 EditSSHKeySideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -56,15 +54,9 @@ export function EditSSHKeySideModalForm() {
       submitError={null}
     >
       <PropertiesTable>
-        <PropertiesTable.Row label="ID">
-          <Truncate text={data.id} maxLength={32} hasCopyButton />
-        </PropertiesTable.Row>
-        <PropertiesTable.Row label="Created">
-          <DateTime date={data.timeCreated} />
-        </PropertiesTable.Row>
-        <PropertiesTable.Row label="Updated">
-          <DateTime date={data.timeModified} />
-        </PropertiesTable.Row>
+        <PropertiesTable.IdRow id={data.id} />
+        <PropertiesTable.DateRow date={data.timeCreated} label="Created" />
+        <PropertiesTable.DateRow date={data.timeModified} label="Updated" />
       </PropertiesTable>
       <NameField name="name" control={form.control} disabled />
       <DescriptionField name="description" control={form.control} disabled />
