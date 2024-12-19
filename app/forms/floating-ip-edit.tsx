@@ -25,9 +25,7 @@ import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
-import { DateTime } from '~/ui/lib/DateTime'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
-import { Truncate } from '~/ui/lib/Truncate'
 import { ALL_ISH } from '~/util/consts'
 import type * as PP from '~/util/path-params'
 import { pb } from 'app/util/path-builder'
@@ -85,15 +83,9 @@ export function EditFloatingIpSideModalForm() {
       submitError={editFloatingIp.error}
     >
       <PropertiesTable>
-        <PropertiesTable.Row label="ID">
-          <Truncate text={floatingIp.id} maxLength={32} hasCopyButton />
-        </PropertiesTable.Row>
-        <PropertiesTable.Row label="Created">
-          <DateTime date={floatingIp.timeCreated} />
-        </PropertiesTable.Row>
-        <PropertiesTable.Row label="Updated">
-          <DateTime date={floatingIp.timeModified} />
-        </PropertiesTable.Row>
+        <PropertiesTable.IdRow id={floatingIp.id} />
+        <PropertiesTable.DateRow label="Created" date={floatingIp.timeCreated} />
+        <PropertiesTable.DateRow label="Updated" date={floatingIp.timeModified} />
         <PropertiesTable.Row label="IP Address">
           <CopyableIp ip={floatingIp.ip} isLinked={false} />
         </PropertiesTable.Row>
