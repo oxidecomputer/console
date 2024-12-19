@@ -36,7 +36,6 @@ import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { CreateButton, CreateLink } from '~/ui/lib/CreateButton'
-import { DateTime } from '~/ui/lib/DateTime'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
@@ -210,12 +209,8 @@ export function Component() {
           </PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
-          <PropertiesTable.Row label="Created">
-            <DateTime date={routerData.timeCreated} />
-          </PropertiesTable.Row>
-          <PropertiesTable.Row label="Last Modified">
-            <DateTime date={routerData.timeModified} />
-          </PropertiesTable.Row>
+          <PropertiesTable.DateRow date={routerData.timeCreated} label="Created" />
+          <PropertiesTable.DateRow date={routerData.timeModified} label="Last Modified" />
         </PropertiesTable>
       </PropertiesTable.Group>
       <TableControls className="mb-3">

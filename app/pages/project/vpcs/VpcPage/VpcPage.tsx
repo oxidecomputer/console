@@ -18,7 +18,6 @@ import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
-import { DateTime } from '~/ui/lib/DateTime'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { pb } from '~/util/path-builder'
@@ -85,12 +84,8 @@ export function VpcPage() {
           <PropertiesTable.Row label="DNS Name">{vpc.dnsName}</PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
-          <PropertiesTable.Row label="Created">
-            <DateTime date={vpc.timeCreated} />
-          </PropertiesTable.Row>
-          <PropertiesTable.Row label="Last Modified">
-            <DateTime date={vpc.timeModified} />
-          </PropertiesTable.Row>
+          <PropertiesTable.DateRow date={vpc.timeCreated} label="Created" />
+          <PropertiesTable.DateRow date={vpc.timeModified} label="Last Modified" />
         </PropertiesTable>
       </PropertiesTable.Group>
 

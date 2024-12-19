@@ -12,6 +12,9 @@ import { Badge } from '~/ui/lib/Badge'
 import { isOneOf } from '~/util/children'
 import { invariant } from '~/util/invariant'
 
+import { DateTime } from './DateTime'
+import { Truncate } from './Truncate'
+
 export interface PropertiesTableProps {
   className?: string
   children: ReactNode
@@ -19,7 +22,11 @@ export interface PropertiesTableProps {
 
 export function PropertiesTable({ className, children }: PropertiesTableProps) {
   invariant(
-    isOneOf(children, [PropertiesTable.Row]),
+    isOneOf(children, [
+      PropertiesTable.Row,
+      PropertiesTable.IdRow,
+      PropertiesTable.DateRow,
+    ]),
     'PropertiesTable can only have PropertiesTable.Row as a child'
   )
   return (
@@ -47,6 +54,24 @@ PropertiesTable.Row = ({ label, children }: PropertiesTableRowProps) => (
       {children}
     </div>
   </>
+)
+
+PropertiesTable.IdRow = ({ id }: { id: string }) => (
+  <PropertiesTable.Row label="ID">
+    <Truncate text={id} maxLength={32} hasCopyButton />
+  </PropertiesTable.Row>
+)
+
+PropertiesTable.DateRow = ({
+  date,
+  label,
+}: {
+  date: Date
+  label: 'Created' | 'Updated' | 'Last Modified'
+}) => (
+  <PropertiesTable.Row label={label}>
+    <DateTime date={date} />
+  </PropertiesTable.Row>
 )
 
 interface PropertiesTableGroupProps {

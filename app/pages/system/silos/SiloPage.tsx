@@ -15,7 +15,6 @@ import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { Badge } from '~/ui/lib/Badge'
-import { DateTime } from '~/ui/lib/DateTime'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
@@ -68,18 +67,14 @@ export function Component() {
 
       <PropertiesTable.Group className="mb-16">
         <PropertiesTable>
-          <PropertiesTable.Row label="ID">{silo.id}</PropertiesTable.Row>
+          <PropertiesTable.IdRow id={silo.id} />
           <PropertiesTable.Row label="Description">
             <DescriptionCell text={silo.description} />
           </PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
-          <PropertiesTable.Row label="Created">
-            <DateTime date={silo.timeCreated} />
-          </PropertiesTable.Row>
-          <PropertiesTable.Row label="Last Modified">
-            <DateTime date={silo.timeModified} />
-          </PropertiesTable.Row>
+          <PropertiesTable.DateRow date={silo.timeCreated} label="Created" />
+          <PropertiesTable.DateRow date={silo.timeModified} label="Last Modified" />
         </PropertiesTable>
       </PropertiesTable.Group>
 
