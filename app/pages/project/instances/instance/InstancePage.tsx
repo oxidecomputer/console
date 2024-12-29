@@ -8,7 +8,7 @@
 import { filesize } from 'filesize'
 import { useId, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
   apiQueryClient,

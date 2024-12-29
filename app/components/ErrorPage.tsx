@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import type { ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 
 import { Error12Icon, PrevArrow12Icon } from '@oxide/design-system/icons/react'
 

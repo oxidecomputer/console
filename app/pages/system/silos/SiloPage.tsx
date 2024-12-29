@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { type LoaderFunctionArgs } from 'react-router-dom'
+import { type LoaderFunctionArgs } from 'react-router'
 
 import { apiQueryClient, queryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Cloud16Icon, Cloud24Icon, NextArrow12Icon } from '@oxide/design-system/icons/react'

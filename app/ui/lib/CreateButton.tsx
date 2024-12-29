@@ -7,7 +7,7 @@
  */
 
 import cn from 'classnames'
-import { Link, type LinkProps } from 'react-router-dom'
+import { Link, type LinkProps } from 'react-router'
 
 import { AddRoundel12Icon } from '@oxide/design-system/icons/react'
 

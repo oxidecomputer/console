@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import { instanceCan, useApiMutation, type Instance } from '@oxide/api'
 

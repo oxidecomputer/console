@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useEffect } from 'react'
-import { useLocation, useNavigation } from 'react-router-dom'
+import { useLocation, useNavigation } from 'react-router'
 
 function getScrollPosition(key: string) {
   const pos = window.sessionStorage.getItem(key)
