@@ -8,10 +8,10 @@
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 
 export const CopyableIp = ({ ip, isLinked = true }: { ip: string; isLinked?: boolean }) => (
-  <span className="flex items-center gap-1">
+  <span className="flex max-w-full items-center gap-1">
     {isLinked ? (
       <a
-        className="link-with-underline text-sans-md"
+        className="link-with-underline truncate text-sans-md"
         href={`https://${ip}`}
         target="_blank"
         rel="noreferrer"
@@ -19,7 +19,7 @@ export const CopyableIp = ({ ip, isLinked = true }: { ip: string; isLinked?: boo
         {ip}
       </a>
     ) : (
-      ip
+      <span className="truncate">{ip}</span>
     )}
     <CopyToClipboard text={ip} />
   </span>
