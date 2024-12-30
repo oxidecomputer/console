@@ -14,6 +14,7 @@ import {
   FLEET_ID,
   totalUtilization,
   usePrefetchedApiQuery,
+  type SiloUtilization,
 } from '@oxide/api'
 import { Metrics16Icon, Metrics24Icon } from '@oxide/design-system/icons/react'
 
@@ -33,7 +34,13 @@ import { Tabs } from '~/ui/lib/Tabs'
 import { docLinks } from '~/util/links'
 import { round } from '~/util/math'
 import { pb } from '~/util/path-builder'
-import { bytesToGiB, bytesToTiB } from '~/util/units'
+import {
+  bytesToGiB,
+  bytesToTiB,
+  formatBytesAs,
+  getUnit,
+  type BinaryUnit,
+} from '~/util/units'
 
 export async function loader() {
   await Promise.all([
@@ -196,38 +203,23 @@ function UsageTab() {
               />
             </Table.Cell>
             <Table.Cell width="14%" height="large">
-              <UsageCell
-                provisioned={bytesToGiB(silo.provisioned.memory)}
-                allocated={bytesToGiB(silo.allocated.memory)}
-                unit="GiB"
-              />
+              <SiloCell cellType="usage" silo={silo} resource="memory" />
             </Table.Cell>
             <Table.Cell width="14%" height="large">
-              <UsageCell
-                provisioned={bytesToTiB(silo.provisioned.storage)}
-                allocated={bytesToTiB(silo.allocated.storage)}
-                unit="TiB"
-              />
+              <SiloCell cellType="usage" silo={silo} resource="storage" />
             </Table.Cell>
             <Table.Cell width="14%" className="relative" height="large">
               <AvailableCell
                 provisioned={silo.provisioned.cpus}
                 allocated={silo.allocated.cpus}
+                usagePercent={(silo.provisioned.cpus / silo.allocated.cpus) * 100}
               />
             </Table.Cell>
             <Table.Cell width="14%" className="relative" height="large">
-              <AvailableCell
-                provisioned={bytesToGiB(silo.provisioned.memory)}
-                allocated={bytesToGiB(silo.allocated.memory)}
-                unit="GiB"
-              />
+              <SiloCell cellType="available" silo={silo} resource="memory" />
             </Table.Cell>
             <Table.Cell width="14%" className="relative" height="large">
-              <AvailableCell
-                provisioned={bytesToTiB(silo.provisioned.storage)}
-                allocated={bytesToTiB(silo.allocated.storage)}
-                unit="TiB"
-              />
+              <SiloCell cellType="available" silo={silo} resource="storage" />
             </Table.Cell>
             <Table.Cell className="action-col w-10 children:p-0" height="large">
               <RowActions id={silo.siloId} copyIdLabel="Copy silo ID" />
@@ -239,15 +231,9 @@ function UsageTab() {
   )
 }
 
-const UsageCell = ({
-  provisioned,
-  allocated,
-  unit,
-}: {
-  provisioned: number
-  allocated: number
-  unit?: string
-}) => (
+type CellProps = { provisioned: number; allocated: number; unit?: BinaryUnit }
+
+const UsageCell = ({ provisioned, allocated, unit }: CellProps) => (
   <div className="flex flex-col text-secondary">
     <div>
       <span className="text-raise">{provisioned}</span> /
@@ -262,12 +248,8 @@ const AvailableCell = ({
   provisioned,
   allocated,
   unit,
-}: {
-  provisioned: number
-  allocated: number
-  unit?: string
-}) => {
-  const usagePercent = (provisioned / allocated) * 100
+  usagePercent,
+}: CellProps & { usagePercent: number }) => {
   return (
     <div className="flex w-full items-center justify-between">
       <div>
@@ -281,5 +263,37 @@ const AvailableCell = ({
         </div>
       )}
     </div>
+  )
+}
+
+type SiloCellProps = {
+  silo: SiloUtilization
+  // CPUs have simpler data representations, so we don't use SiloCell for them
+  resource: 'memory' | 'storage'
+  cellType: 'usage' | 'available'
+}
+
+/** A wrapper around the UsageCell and AvailableCell components,
+    for rendering the silo's memory and storage resources */
+const SiloCell = ({ silo, resource, cellType }: SiloCellProps) => {
+  // Get the raw values from the silo object
+  const provisionedRaw = silo.provisioned[resource]
+  const allocatedRaw = silo.allocated[resource]
+  // Use those to get the standardized unit
+  const unit = getUnit(Math.max(provisionedRaw, allocatedRaw))
+  const provisioned = formatBytesAs(provisionedRaw, unit)
+  const allocated = formatBytesAs(allocatedRaw, unit)
+  if (cellType === 'usage')
+    return <UsageCell provisioned={provisioned} allocated={allocated} unit={unit} />
+
+  // Use the original values to calculate the usage percentage
+  const usagePercent = (provisionedRaw / allocatedRaw) * 100
+  return (
+    <AvailableCell
+      provisioned={provisioned}
+      allocated={allocated}
+      unit={unit}
+      usagePercent={usagePercent}
+    />
   )
 }
