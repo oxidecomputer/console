@@ -42,6 +42,7 @@ import { validateIp, validateIpNet } from '~/util/ip'
 import { links } from '~/util/links'
 import { capitalize } from '~/util/str'
 
+import { type ActiveSubforms } from './firewall-rules-create'
 import { type FirewallRuleValues } from './firewall-rules-util'
 
 /**
@@ -88,10 +89,12 @@ const TargetAndHostFilterSubform = ({
   sectionType,
   control,
   messageContent,
+  updateSubformStates,
 }: {
   sectionType: 'target' | 'host'
   control: Control<FirewallRuleValues>
   messageContent: ReactNode
+  updateSubformStates: (subform: keyof ActiveSubforms, value: boolean) => void
 }) => {
   const { project, vpc } = useVpcSelector()
   // prefetchedApiQueries below are prefetched in firewall-rules-create and -edit
@@ -125,8 +128,11 @@ const TargetAndHostFilterSubform = ({
   // https://github.com/react-hook-form/react-hook-form/blob/9a497a70a/src/logic/createFormControl.ts#L1194-L1203
   const { isSubmitSuccessful: subformSubmitSuccessful } = subform.formState
   useEffect(() => {
-    if (subformSubmitSuccessful) subform.reset(targetAndHostDefaultValues)
-  }, [subformSubmitSuccessful, subform])
+    if (subformSubmitSuccessful) {
+      subform.reset(targetAndHostDefaultValues)
+      updateSubformStates(sectionType, false)
+    }
+  }, [subformSubmitSuccessful, subform, updateSubformStates, sectionType])
 
   const [valueType, value] = subform.watch(['type', 'value'])
   const sectionItems = {
@@ -143,9 +149,15 @@ const TargetAndHostFilterSubform = ({
   // back to validating on submit instead of change. Also resets readyToSubmit.
   const onTypeChange = () => {
     subform.reset({ type: subform.getValues('type'), value: '' })
+    updateSubformStates(sectionType, false)
   }
   const onInputChange = (value: string) => {
     subform.setValue('value', value)
+    updateSubformStates(sectionType, value.length > 0)
+  }
+  const onClear = () => {
+    subform.reset()
+    updateSubformStates(sectionType, false)
   }
 
   return (
@@ -178,6 +190,7 @@ const TargetAndHostFilterSubform = ({
           description="Select an option or enter a custom value"
           control={subformControl}
           onEnter={submitSubform}
+          onChange={() => updateSubformStates(sectionType, true)}
           onInputChange={onInputChange}
           items={items}
           allowArbitraryValues
@@ -212,7 +225,7 @@ const TargetAndHostFilterSubform = ({
       <MiniTable.ClearAndAddButtons
         addButtonCopy={`Add ${sectionType === 'host' ? 'host filter' : 'target'}`}
         disabled={!value}
-        onClear={() => subform.reset()}
+        onClear={onClear}
         onSubmit={submitSubform}
       />
       {field.value.length > 0 && (
@@ -289,6 +302,7 @@ type CommonFieldsProps = {
   control: Control<FirewallRuleValues>
   nameTaken: (name: string) => boolean
   error: ApiError | null
+  updateSubformStates: (subform: keyof ActiveSubforms, value: boolean) => void
 }
 
 const targetAndHostDefaultValues: TargetAndHostFormValues = {
@@ -296,7 +310,12 @@ const targetAndHostDefaultValues: TargetAndHostFormValues = {
   value: '',
 }
 
-export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) => {
+export const CommonFields = ({
+  control,
+  nameTaken,
+  error,
+  updateSubformStates,
+}: CommonFieldsProps) => {
   // Ports
   const portRangeForm = useForm({ defaultValues: { portRange: '' } })
   const ports = useController({ name: 'ports', control }).field
@@ -307,7 +326,11 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
     // that it is not already in the list
     ports.onChange([...ports.value, portRangeValue])
     portRangeForm.reset()
+    updateSubformStates('port', false)
   })
+  useEffect(() => {
+    updateSubformStates('port', portValue.length > 0)
+  }, [updateSubformStates, portValue])
 
   return (
     <>
@@ -406,6 +429,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
             </p>
           </>
         }
+        updateSubformStates={updateSubformStates}
       />
 
       <FormDivider />
@@ -453,7 +477,10 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
         <MiniTable.ClearAndAddButtons
           addButtonCopy="Add port filter"
           disabled={!portValue}
-          onClear={() => portRangeForm.reset()}
+          onClear={() => {
+            portRangeForm.reset()
+            updateSubformStates('port', false)
+          }}
           onSubmit={submitPortRange}
         />
       </div>
@@ -500,6 +527,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
             traffic. For an outbound rule, they match the destination.
           </>
         }
+        updateSubformStates={updateSubformStates}
       />
 
       {error && (

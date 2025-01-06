@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate, useParams, type LoaderFunctionArgs } from 'react-router'
 
@@ -23,6 +24,7 @@ import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
+import { commaSeries } from '~/util/str'
 
 import { CommonFields } from './firewall-rules-common'
 import { valuesToRuleUpdate, type FirewallRuleValues } from './firewall-rules-util'
@@ -69,7 +71,24 @@ CreateFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
+export type ActiveSubforms = { target: boolean; port: boolean; host: boolean }
+const defaultActiveSubforms: ActiveSubforms = { target: false, port: false, host: false }
+
 export function CreateFirewallRuleForm() {
+  const [subformStates, setSubformStates] = useState(defaultActiveSubforms)
+  const updateSubformStates = (subform: keyof ActiveSubforms, value: boolean) => {
+    setSubformStates({
+      ...subformStates,
+      [subform]: value,
+    })
+  }
+  const activeSubformList = commaSeries(
+    Object.keys(subformStates).filter((key) => subformStates[key as keyof ActiveSubforms]),
+    'and'
+  )
+    .replace('port', 'port filter')
+    .replace('host', 'host filter')
+
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 
@@ -120,12 +139,18 @@ export function CreateFirewallRuleForm() {
       loading={updateRules.isPending}
       submitError={updateRules.error}
       submitLabel="Add rule"
+      submitDisabled={
+        activeSubformList.length
+          ? `You have an unsaved ${activeSubformList} entry; save or clear ${activeSubformList.includes('and') ? 'them' : 'it'} to create this firewall rule`
+          : undefined
+      }
     >
       <CommonFields
         control={form.control}
         // error if name is already in use
         nameTaken={(name) => !!existingRules.find((r) => r.name === name)}
         error={updateRules.error}
+        updateSubformStates={updateSubformStates}
         // TODO: there should also be a form-level error so if the name is off
         // screen, it doesn't look like the submit button isn't working. Maybe
         // instead of setting a root error, it would be more robust to show a
