@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 
 import { useApiQuery } from '@oxide/api'
 
