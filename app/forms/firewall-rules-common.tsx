@@ -566,5 +566,5 @@ export const submitDisabledMessage = (subformStates: ActiveSubforms) => {
   const activeSubformList = getActiveSubformList(subformStates)
   return activeSubformList.length > 0
     ? `You have an unsaved ${activeSubformList} entry; save or clear ${activeSubformList.includes('and') ? 'them' : 'it'} to create this firewall rule`
-    : undefined
+    : ''
 }

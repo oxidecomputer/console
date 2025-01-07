@@ -125,9 +125,9 @@ export function CreateFirewallRuleForm() {
         })
       }}
       loading={updateRules.isPending}
-      submitError={updateRules.error}
       submitLabel="Add rule"
       submitDisabled={submitDisabledMessage(subformStates)}
+      submitError={updateRules.error}
     >
       <CommonFields
         control={form.control}
