@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate, useParams, type LoaderFunctionArgs } from 'react-router'
 
@@ -24,9 +23,13 @@ import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
-import { commaSeries } from '~/util/str'
 
-import { CommonFields } from './firewall-rules-common'
+import {
+  CommonFields,
+  defaultActiveSubforms,
+  submitDisabledMessage,
+  useSubformStates,
+} from './firewall-rules-common'
 import { valuesToRuleUpdate, type FirewallRuleValues } from './firewall-rules-util'
 
 /** Empty form for when we're not creating from an existing rule */
@@ -71,23 +74,8 @@ CreateFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-export type ActiveSubforms = { target: boolean; port: boolean; host: boolean }
-const defaultActiveSubforms: ActiveSubforms = { target: false, port: false, host: false }
-
 export function CreateFirewallRuleForm() {
-  const [subformStates, setSubformStates] = useState(defaultActiveSubforms)
-  const updateSubformStates = (subform: keyof ActiveSubforms, value: boolean) => {
-    setSubformStates({
-      ...subformStates,
-      [subform]: value,
-    })
-  }
-  const activeSubformList = commaSeries(
-    Object.keys(subformStates).filter((key) => subformStates[key as keyof ActiveSubforms]),
-    'and'
-  )
-    .replace('port', 'port filter')
-    .replace('host', 'host filter')
+  const { subformStates, updateSubformStates } = useSubformStates(defaultActiveSubforms)
 
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
@@ -139,11 +127,7 @@ export function CreateFirewallRuleForm() {
       loading={updateRules.isPending}
       submitError={updateRules.error}
       submitLabel="Add rule"
-      submitDisabled={
-        activeSubformList.length
-          ? `You have an unsaved ${activeSubformList} entry; save or clear ${activeSubformList.includes('and') ? 'them' : 'it'} to create this firewall rule`
-          : undefined
-      }
+      submitDisabled={submitDisabledMessage(subformStates)}
     >
       <CommonFields
         control={form.control}

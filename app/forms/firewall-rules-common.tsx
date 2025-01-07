@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { useEffect, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { useController, useForm, type Control } from 'react-hook-form'
 
 import {
@@ -40,9 +40,8 @@ import { KEYS } from '~/ui/util/keys'
 import { ALL_ISH } from '~/util/consts'
 import { validateIp, validateIpNet } from '~/util/ip'
 import { links } from '~/util/links'
-import { capitalize } from '~/util/str'
+import { capitalize, commaSeries } from '~/util/str'
 
-import { type ActiveSubforms } from './firewall-rules-create'
 import { type FirewallRuleValues } from './firewall-rules-util'
 
 /**
@@ -538,4 +537,34 @@ export const CommonFields = ({
       )}
     </>
   )
+}
+
+export type ActiveSubforms = { target: boolean; port: boolean; host: boolean }
+export const defaultActiveSubforms: ActiveSubforms = {
+  target: false,
+  port: false,
+  host: false,
+}
+
+export function useSubformStates(defaultActiveSubforms: ActiveSubforms) {
+  const [subformStates, setSubformStates] = useState(defaultActiveSubforms)
+  const updateSubformStates = (subform: keyof ActiveSubforms, value: boolean) => {
+    setSubformStates((prev) => ({ ...prev, [subform]: value }))
+  }
+  return { subformStates, updateSubformStates }
+}
+
+export const getActiveSubformList = (subformStates: ActiveSubforms) =>
+  commaSeries(
+    Object.keys(subformStates).filter((key) => subformStates[key as keyof ActiveSubforms]),
+    'and'
+  )
+    .replace('port', 'port filter')
+    .replace('host', 'host filter')
+
+export const submitDisabledMessage = (subformStates: ActiveSubforms) => {
+  const activeSubformList = getActiveSubformList(subformStates)
+  return activeSubformList.length > 0
+    ? `You have an unsaved ${activeSubformList} entry; save or clear ${activeSubformList.includes('and') ? 'them' : 'it'} to create this firewall rule`
+    : undefined
 }
