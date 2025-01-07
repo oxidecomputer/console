@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { filesize } from 'filesize'
-import type { LoaderFunctionArgs } from 'react-router-dom'
+import type { LoaderFunctionArgs } from 'react-router'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Servers24Icon } from '@oxide/design-system/icons/react'

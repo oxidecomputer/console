@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Access16Icon } from '@oxide/design-system/icons/react'
@@ -16,11 +16,9 @@ import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { getIdpSelector, useIdpSelector } from '~/hooks/use-params'
-import { DateTime } from '~/ui/lib/DateTime'
 import { FormDivider } from '~/ui/lib/Divider'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel, SideModal } from '~/ui/lib/SideModal'
-import { Truncate } from '~/ui/lib/Truncate'
 import { pb } from '~/util/path-builder'
 
 EditIdpSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -61,15 +59,9 @@ export function EditIdpSideModalForm() {
       loading={false}
     >
       <PropertiesTable>
-        <PropertiesTable.Row label="ID">
-          <Truncate text={idp.id} maxLength={32} hasCopyButton />
-        </PropertiesTable.Row>
-        <PropertiesTable.Row label="Created">
-          <DateTime date={idp.timeCreated} />
-        </PropertiesTable.Row>
-        <PropertiesTable.Row label="Updated">
-          <DateTime date={idp.timeModified} />
-        </PropertiesTable.Row>
+        <PropertiesTable.IdRow id={idp.id} />
+        <PropertiesTable.DateRow date={idp.timeCreated} label="Created" />
+        <PropertiesTable.DateRow date={idp.timeModified} label="Updated" />
       </PropertiesTable>
 
       <NameField name="name" control={form.control} disabled />

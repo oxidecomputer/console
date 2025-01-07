@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { createRoutesFromElements, Navigate, Route } from 'react-router-dom'
+import { createRoutesFromElements, Navigate, Route } from 'react-router'
 
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { NotFound } from './components/ErrorPage'

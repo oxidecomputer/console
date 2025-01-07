@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import React, { Suspense, useMemo, useState } from 'react'
-import type { LoaderFunctionArgs } from 'react-router-dom'
+import type { LoaderFunctionArgs } from 'react-router'
 
 import {
   apiQueryClient,

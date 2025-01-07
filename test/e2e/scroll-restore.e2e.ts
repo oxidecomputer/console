@@ -7,7 +7,7 @@
  */
 import { expect, test } from '@playwright/test'
 
-import { expectScrollTop, scrollTo } from './utils'
+import { expectScrollTop, scrollTo, sleep } from './utils'
 
 test('scroll restore', async ({ page }) => {
   // open small window to make scrolling easier
@@ -26,13 +26,23 @@ test('scroll restore', async ({ page }) => {
   await page.goBack()
   await expect(page).toHaveURL('/projects/mock-project/disks')
   await expectScrollTop(page, 143)
+
+  // sleep required to get the scroll position to stick
+  await sleep(1000)
   await scrollTo(page, 190)
+  await sleep(1000)
 
   // go forward to snapshots, now scroll it
   await page.goForward()
   await expect(page).toHaveURL('/projects/mock-project/snapshots')
   await expectScrollTop(page, 0)
   await scrollTo(page, 30)
+
+  // Oddly, this is required here in order for the page to have time to
+  // catch the 30 scroll position. This became necessary with RR v7's use of
+  // startTransition. Extra oddly, with a value of 500 it passes rarely, but
+  // with 1000 it passes every time.
+  await sleep(1000)
 
   // new nav to disks
   await page.getByRole('link', { name: 'Disks' }).click()
@@ -53,6 +63,7 @@ test('scroll restore', async ({ page }) => {
   // back again to disks, newer scroll value is restored
   await page.goBack()
   await expect(page).toHaveURL('/projects/mock-project/disks')
+  await sleep(1000)
   await expectScrollTop(page, 190)
 
   // forward again to newest disks history entry, scroll remains 0

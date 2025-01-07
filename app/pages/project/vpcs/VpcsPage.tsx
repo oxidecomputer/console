@@ -8,7 +8,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
-import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import { apiq, getListQFn, queryClient, useApiMutation, type Vpc } from '@oxide/api'
 import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'

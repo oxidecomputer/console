@@ -162,7 +162,7 @@ function UsageTab() {
     <Table className="w-full">
       <Table.Header>
         <Table.HeaderRow>
-          <Table.HeadCell>Silo</Table.HeadCell>
+          <Table.HeadCell data-test-ignore></Table.HeadCell>
           {/* data-test-ignore makes the row asserts work in the e2e tests */}
           <Table.HeadCell colSpan={3} data-test-ignore>
             Provisioned / Quota
@@ -173,7 +173,7 @@ function UsageTab() {
           <Table.HeadCell data-test-ignore></Table.HeadCell>
         </Table.HeaderRow>
         <Table.HeaderRow>
-          <Table.HeadCell data-test-ignore></Table.HeadCell>
+          <Table.HeadCell>Silo</Table.HeadCell>
           <Table.HeadCell>CPU</Table.HeadCell>
           <Table.HeadCell>Memory</Table.HeadCell>
           <Table.HeadCell>Storage</Table.HeadCell>

@@ -29,18 +29,30 @@ export const Table = <TData,>({
 }: TableProps<TData>) => (
   <UITable {...tableProps}>
     <UITable.Header>
-      {table.getHeaderGroups().map((headerGroup) => (
-        <UITable.HeaderRow key={headerGroup.id}>
-          {headerGroup.headers.map((header) => (
-            <UITable.HeadCell
-              key={header.id}
-              className={header.column.columnDef.meta?.thClassName}
-            >
-              {flexRender(header.column.columnDef.header, header.getContext())}
-            </UITable.HeadCell>
-          ))}
-        </UITable.HeaderRow>
-      ))}
+      {table.getHeaderGroups().map((headerGroup) => {
+        console.log(headerGroup)
+        return (
+          <UITable.HeaderRow key={headerGroup.id}>
+            {headerGroup.headers.map((header) => (
+              <UITable.HeadCell
+                key={header.id}
+                className={header.column.columnDef.meta?.thClassName}
+                colSpan={header.colSpan}
+              >
+                {
+                  // Placeholder concept is for when grouped columns are
+                  // combined with regular columns. The regular column only
+                  // needs one entry in the stack of header cells, so the others
+                  // have isPlacholder=true. See sleds table for an example.
+                  header.isPlaceholder
+                    ? null
+                    : flexRender(header.column.columnDef.header, header.getContext())
+                }
+              </UITable.HeadCell>
+            ))}
+          </UITable.HeaderRow>
+        )
+      })}
     </UITable.Header>
     <UITable.Body>
       {table.getRowModel().rows.map((row) => {

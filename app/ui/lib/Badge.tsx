@@ -36,7 +36,7 @@ export const badgeColors: Record<BadgeVariant, Record<BadgeColor, string>> = {
     default: 'bg-accent text-inverse',
     destructive: 'bg-destructive text-inverse',
     notice: 'bg-notice text-inverse',
-    neutral: 'bg-[--base-neutral-600] text-inverse',
+    neutral: 'bg-[--base-neutral-700] text-inverse',
     purple: 'bg-[--base-purple-700] text-inverse',
     blue: 'bg-info text-inverse',
   },
