@@ -119,7 +119,9 @@ export function DateTimeRangePicker({
           label="Choose a date range"
           value={range}
           onChange={(range) => {
-            setRange(range)
+            if (range) {
+              setRange(range)
+            }
             setPreset('custom')
           }}
           minValue={minValue}

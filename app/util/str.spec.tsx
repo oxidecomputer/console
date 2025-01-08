@@ -94,6 +94,13 @@ describe('extractText', () => {
         </>
       )
     ).toBe('This is my text')
+    expect(
+      extractText(
+        <>
+          Numbers like <em>9</em> are just strings
+        </>
+      )
+    ).toBe('Numbers like 9 are just strings')
   })
   it('extracts strings from nested elements', () => {
     expect(
