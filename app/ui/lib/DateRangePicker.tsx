@@ -44,6 +44,8 @@ export function DateRangePicker(props: DateRangePickerProps) {
     // because we always pass a value to this component and there is no way to
     // unset the value through the UI.
     if (!state.dateRange) return 'No range selected'
+    if (!state.dateRange.end) return 'No end date selected'
+    if (!state.dateRange.start) return 'No start date selected'
 
     return formatter.formatRange(
       state.dateRange.start.toDate(getLocalTimeZone()),
@@ -94,7 +96,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
               <TimeField
                 label="Start time"
                 value={state.timeRange?.start || null}
-                onChange={(v: TimeValue) => state.setTime('start', v)}
+                onChange={(v: TimeValue | null) => state.setTime('start', v)}
                 hourCycle={24}
                 className="shrink-0 grow basis-0"
               />
@@ -102,7 +104,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
               <TimeField
                 label="End time"
                 value={state.timeRange?.end || null}
-                onChange={(v: TimeValue) => state.setTime('end', v)}
+                onChange={(v: TimeValue | null) => state.setTime('end', v)}
                 hourCycle={24}
                 className="shrink-0 grow basis-0"
               />
