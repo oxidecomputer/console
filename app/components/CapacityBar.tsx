@@ -6,6 +6,8 @@
  * Copyright Oxide Computer Company
  */
 
+import type { JSX } from 'react'
+
 import { BigNum } from '~/ui/lib/BigNum'
 import { percentage, splitDecimal } from '~/util/math'
 

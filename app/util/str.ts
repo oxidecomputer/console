@@ -87,7 +87,7 @@ export const extractText = (children: React.ReactNode): string =>
       typeof child === 'string'
         ? child
         : React.isValidElement(child)
-          ? extractText(child.props.children)
+          ? extractText((child.props as { children?: React.ReactNode }).children)
           : ''
     )
     .join(' ')

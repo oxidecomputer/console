@@ -7,6 +7,7 @@
  */
 import { flexRender, type Table as TableInstance } from '@tanstack/react-table'
 import cn from 'classnames'
+import type { JSX } from 'react'
 
 import { Table as UITable } from '~/ui/lib/Table'
 

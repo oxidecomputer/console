@@ -8,6 +8,7 @@
 
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react'
 import cn from 'classnames'
+import type { JSX } from 'react'
 
 import { Info16Icon, OpenLink12Icon } from '@oxide/design-system/icons/react'
 
