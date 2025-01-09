@@ -613,6 +613,10 @@ export const handlers = makeHandlers({
       instance.boot_disk_id = undefined
     }
 
+    if (body.auto_restart_policy !== undefined) {
+      instance.auto_restart_policy = body.auto_restart_policy
+    }
+
     // always present on the body, always set them
     instance.ncpus = body.ncpus
     instance.memory = body.memory

@@ -82,7 +82,7 @@ export const Listbox = <Value extends string = string>({
         {({ open }) => (
           <>
             {label && (
-              <div className="mb-2">
+              <div className="mb-2 max-w-lg">
                 <FieldLabel
                   id={`${id}-label`}
                   htmlFor={id}

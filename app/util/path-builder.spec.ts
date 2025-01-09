@@ -48,6 +48,7 @@ test('path builder', () => {
         "floatingIpsNew": "/projects/p/floating-ips-new",
         "instance": "/projects/p/instances/i/storage",
         "instanceConnect": "/projects/p/instances/i/connect",
+        "instanceSettings": "/projects/p/instances/i/settings",
         "instanceMetrics": "/projects/p/instances/i/metrics",
         "instanceNetworking": "/projects/p/instances/i/networking",
         "instanceStorage": "/projects/p/instances/i/storage",

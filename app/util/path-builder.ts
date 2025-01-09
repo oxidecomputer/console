@@ -44,6 +44,7 @@ export const pb = {
   instanceConnect: (params: PP.Instance) => `${instanceBase(params)}/connect`,
   instanceNetworking: (params: PP.Instance) => `${instanceBase(params)}/networking`,
   serialConsole: (params: PP.Instance) => `${instanceBase(params)}/serial-console`,
+  instanceSettings: (params: PP.Instance) => `${instanceBase(params)}/settings`,
 
   disksNew: (params: PP.Project) => `${projectBase(params)}/disks-new`,
   disks: (params: PP.Project) => `${projectBase(params)}/disks`,
