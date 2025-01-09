@@ -24,6 +24,7 @@ import { IpGlobal24Icon, Networking24Icon } from '@oxide/design-system/icons/rea
 
 import { AttachEphemeralIpModal } from '~/components/AttachEphemeralIpModal'
 import { AttachFloatingIpModal } from '~/components/AttachFloatingIpModal'
+import { orderIps } from '~/components/ExternalIps'
 import { HL } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
@@ -371,7 +372,7 @@ export function Component() {
 
   const ipTableInstance = useReactTable({
     columns: useColsWithActions(staticIpCols, makeIpActions),
-    data: eips?.items || [],
+    data: orderIps(eips.items),
     getCoreRowModel: getCoreRowModel(),
   })
 

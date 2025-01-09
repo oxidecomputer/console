@@ -8,7 +8,7 @@
 
 import { Link } from 'react-router'
 
-import { useApiQuery } from '@oxide/api'
+import { useApiQuery, type ExternalIp } from '@oxide/api'
 
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
@@ -16,6 +16,10 @@ import { Slash } from '~/ui/lib/Slash'
 import { intersperse } from '~/util/array'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
+
+/** Move ephemeral IP (if present) to the end of the list of external IPs */
+export const orderIps = (ips: ExternalIp[]) =>
+  ips.sort((a) => (a.kind === 'ephemeral' ? 1 : -1))
 
 export function ExternalIps({ project, instance }: PP.Instance) {
   const { data, isPending } = useApiQuery('instanceExternalIpList', {
@@ -27,7 +31,7 @@ export function ExternalIps({ project, instance }: PP.Instance) {
   const ips = data?.items
   if (!ips || ips.length === 0) return <EmptyCell />
   // create a copy of ips so we don't mutate the original; move ephemeral ip to the end
-  const orderedIps = [...ips].sort((a) => (a.kind === 'ephemeral' ? 1 : -1))
+  const orderedIps = orderIps(ips)
   const ipsToShow = orderedIps.slice(0, 2)
   const overflowCount = orderedIps.length - ipsToShow.length
 
