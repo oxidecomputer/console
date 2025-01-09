@@ -70,6 +70,8 @@ module.exports = {
     'import/no-default-export': 'error',
     'import/no-unresolved': 'off', // plugin doesn't know anything
     'jsx-a11y/label-has-associated-control': [2, { controlComponents: ['button'] }],
+    // only worry about console.log
+    'no-console': ['error', { allow: ['warn', 'error', 'info', 'table'] }],
     'no-param-reassign': 'error',
     'no-restricted-imports': [
       'error',
