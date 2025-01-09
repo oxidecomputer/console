@@ -12,6 +12,7 @@ import type { MergeExclusive } from 'type-fest'
 
 import { Close12Icon } from '@oxide/design-system/icons/react'
 
+import { useReducedMotion } from '~/hooks/use-reduce-motion'
 import { classed } from '~/util/classed'
 
 import { Button } from './Button'
@@ -42,11 +43,12 @@ export function Modal({
   overlay = true,
 }: ModalProps) {
   const AnimatedDialogContent = animated(Dialog.Content)
+  const prefersReducedMotion = useReducedMotion()
 
   const config = { tension: 650, mass: 0.125 }
 
   const transitions = useTransition(isOpen, {
-    from: { y: -5 },
+    from: { y: prefersReducedMotion ? 0 : -5 },
     enter: { y: 0 },
     config: isOpen ? config : { duration: 0 },
   })

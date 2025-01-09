@@ -13,6 +13,7 @@ import React, { useRef, type ReactNode } from 'react'
 import { Close12Icon, Error12Icon } from '@oxide/design-system/icons/react'
 
 import { useIsOverflow } from '~/hooks/use-is-overflow'
+import { useReducedMotion } from '~/hooks/use-reduce-motion'
 import { Message } from '~/ui/lib/Message'
 import { classed } from '~/util/classed'
 
@@ -54,11 +55,12 @@ export function SideModal({
   errors,
 }: SideModalProps) {
   const AnimatedDialogContent = animated(Dialog.Content)
+  const prefersReducedMotion = useReducedMotion()
 
   const config = { tension: 650, mass: 0.125 }
 
   const transitions = useTransition(isOpen, {
-    from: { x: 50 },
+    from: { x: prefersReducedMotion ? 0 : 50 },
     enter: { x: 0 },
     config: isOpen && animate ? config : { duration: 0 },
   })
