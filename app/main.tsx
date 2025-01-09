@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { QueryClientProvider } from '@tanstack/react-query'
-import { domAnimation, LazyMotion } from 'motion/react'
+import { domAnimation, LazyMotion, MotionConfig } from 'motion/react'
 // import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -47,11 +47,13 @@ function render() {
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <LazyMotion strict features={domAnimation}>
-          <ErrorBoundary>
-            <ConfirmActionModal />
-            <SkipLink id="skip-nav" />
-            <RouterProvider router={router} />
-          </ErrorBoundary>
+          <MotionConfig reducedMotion="user">
+            <ErrorBoundary>
+              <ConfirmActionModal />
+              <SkipLink id="skip-nav" />
+              <RouterProvider router={router} />
+            </ErrorBoundary>
+          </MotionConfig>
         </LazyMotion>
         {/* <ReactQueryDevtools initialIsOpen={false} /> */}
       </QueryClientProvider>
