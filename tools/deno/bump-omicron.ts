@@ -65,7 +65,7 @@ const args = flags.parse(Deno.args, {
 })
 
 if (args.help) {
-  console.log(HELP)
+  console.info(HELP)
   Deno.exit()
 }
 
@@ -103,7 +103,7 @@ const oldCommit = /COMMIT="?([a-f0-9]+)"?/.exec(oldVersionFile)?.[1]
 if (!oldCommit) throw Error('Could not parse existing version file')
 
 if (oldCommit === newCommit) {
-  console.log('Nothing to update: Omicron already has the current commit pinned')
+  console.info('Nothing to update: Omicron already has the current commit pinned')
   Deno.exit()
 }
 
@@ -118,7 +118,7 @@ const changesLine = `https://github.com/oxidecomputer/console/compare/${commitRa
 const branchName = 'bump-console-' + newCommit.slice(0, 8)
 const prBody = `${changesLine}\n\n${commitsMarkdown}`
 
-console.log(`\n${changesLine}\n\n${commits}\n`)
+console.info(`\n${changesLine}\n\n${commits}\n`)
 
 if (args.dryRun) Deno.exit()
 
@@ -131,7 +131,7 @@ const message =
 
 const prTitle = 'Bump web console' + (message ? ` (${message})` : '')
 
-console.log(`\nPR title: ${prTitle}\n`)
+console.info(`\nPR title: ${prTitle}\n`)
 
 const go = await $.confirm({ message: 'Make Omicron PR?', noClear: true })
 if (!go) Deno.exit()
@@ -139,7 +139,7 @@ if (!go) Deno.exit()
 if (!$.commandExistsSync('gh')) throw Error(GH_MISSING)
 
 await Deno.writeTextFile(VERSION_FILE, newVersionFile)
-console.log('Updated ', VERSION_FILE)
+console.info('Updated ', VERSION_FILE)
 
 const consoleDir = Deno.cwd()
 
@@ -149,28 +149,28 @@ Deno.chdir(OMICRON_DIR)
 await $`git checkout main`
 await $`git pull`
 await $`git checkout -b ${branchName}`
-console.log('Created branch', branchName)
+console.info('Created branch', branchName)
 
 await $`git add tools/console_version`
 await $`git commit -m ${prTitle} -m ${prBody}`
 await $`git push --set-upstream origin ${branchName}`
-console.log('Committed changes and pushed')
+console.info('Committed changes and pushed')
 
 // create PR
 const prUrl = await $`gh pr create --title ${prTitle} --body ${prBody}`.text()
-console.log('PR created:', prUrl)
+console.info('PR created:', prUrl)
 
 // set it to auto merge
 const prNum = prUrl.match(/\d+$/)![0]
 await $`gh pr merge ${prNum} --auto --squash`
-console.log('PR set to auto-merge when CI passes')
+console.info('PR set to auto-merge when CI passes')
 
 await $`git checkout main`
 await $`git branch -D ${branchName}`
-console.log('Checked out omicron main, deleted branch', branchName)
+console.info('Checked out omicron main, deleted branch', branchName)
 
 // bump omicron tag in console to current commit
 Deno.chdir(consoleDir)
-console.log('Bumping omicron tag in console')
+console.info('Bumping omicron tag in console')
 await $`git tag -f -a omicron -m 'pinned commit on omicron main'`
 await $`git push -f origin tag omicron`
