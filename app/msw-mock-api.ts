@@ -15,7 +15,7 @@ function getChaos() {
 const chaos = getChaos()
 
 if (process.env.NODE_ENV !== 'production' && chaos) {
-  console.log(`
+  console.info(`
    ▄████████    ▄█    █▄       ▄████████  ▄██████▄     ▄████████
   ███    ███   ███    ███     ███    ███ ███    ███   ███    ███
   ███    █▀    ███    ███     ███    ███ ███    ███   ███    █▀
@@ -34,7 +34,7 @@ if (process.env.NODE_ENV !== 'production' && chaos) {
    ███   ███   ███ ███    ███ ███   ▄███   ███    ███
     ▀█   ███   █▀   ▀██████▀  ████████▀    ██████████
   `)
-  console.log(`Running MSW in CHAOS MODE with ${chaos}% likelihood of random failure`)
+  console.info(`Running MSW in CHAOS MODE with ${chaos}% likelihood of random failure`)
 }
 
 /** Return true for failure with a given likelihood */

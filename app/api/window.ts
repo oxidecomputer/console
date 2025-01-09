@@ -34,7 +34,7 @@ function handleResult<T>(result: ApiResult<T>): T {
 }
 
 function logHeading(s: string) {
-  console.log(`%c${s}`, 'font-size: 16px; font-weight: bold;')
+  console.info(`%c${s}`, 'font-size: 16px; font-weight: bold;')
 }
 
 if (typeof window !== 'undefined') {
