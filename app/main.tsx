@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { QueryClientProvider } from '@tanstack/react-query'
+import { domAnimation, LazyMotion } from 'motion/react'
 // import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -16,7 +17,6 @@ import { queryClient } from '@oxide/api'
 
 import { ConfirmActionModal } from './components/ConfirmActionModal'
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { ReduceMotion } from './hooks/use-reduce-motion'
 // stripped out by rollup in production
 import { startMockAPI } from './msw-mock-api'
 import { routes } from './routes'
@@ -46,12 +46,13 @@ function render() {
   root.render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
-        <ErrorBoundary>
-          <ConfirmActionModal />
-          <SkipLink id="skip-nav" />
-          <ReduceMotion />
-          <RouterProvider router={router} />
-        </ErrorBoundary>
+        <LazyMotion strict features={domAnimation}>
+          <ErrorBoundary>
+            <ConfirmActionModal />
+            <SkipLink id="skip-nav" />
+            <RouterProvider router={router} />
+          </ErrorBoundary>
+        </LazyMotion>
         {/* <ReactQueryDevtools initialIsOpen={false} /> */}
       </QueryClientProvider>
     </StrictMode>

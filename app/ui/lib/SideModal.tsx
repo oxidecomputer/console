@@ -6,8 +6,8 @@
  * Copyright Oxide Computer Company
  */
 import * as Dialog from '@radix-ui/react-dialog'
-import { animated, useTransition } from '@react-spring/web'
 import cn from 'classnames'
+import { m } from 'motion/react'
 import React, { useRef, type ReactNode } from 'react'
 
 import { Close12Icon, Error12Icon } from '@oxide/design-system/icons/react'
@@ -49,85 +49,69 @@ export function SideModal({
   onDismiss,
   title,
   subtitle,
-  isOpen,
   animate = true,
   errors,
 }: SideModalProps) {
-  const AnimatedDialogContent = animated(Dialog.Content)
-
-  const config = { tension: 650, mass: 0.125 }
-
-  const transitions = useTransition(isOpen, {
-    from: { x: 50 },
-    enter: { x: 0 },
-    config: isOpen && animate ? config : { duration: 0 },
-  })
-
   return (
     <SideModalContext.Provider value>
-      {transitions(
-        ({ x }, item) =>
-          item && (
-            <Dialog.Root
-              open
-              onOpenChange={(open) => {
-                if (!open) onDismiss()
-              }}
-              // https://github.com/radix-ui/primitives/issues/1159#issuecomment-1559813266
-              modal={false}
+      <Dialog.Root
+        open
+        onOpenChange={(open) => {
+          if (!open) onDismiss()
+        }}
+        // https://github.com/radix-ui/primitives/issues/1159#issuecomment-1559813266
+        modal={false}
+      >
+        <Dialog.Portal>
+          <DialogOverlay />
+          <Dialog.Content asChild>
+            <m.div
+              initial={{ x: animate ? 40 : 0 }}
+              animate={{ x: 0 }}
+              transition={{ type: 'spring', duration: 0.4, bounce: 0 }}
+              className="DialogContent ox-side-modal pointer-events-auto fixed bottom-0 right-0 top-0 z-sideModal m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-raise border-secondary elevation-2"
             >
-              <Dialog.Portal>
-                <DialogOverlay />
-                <AnimatedDialogContent
-                  className="DialogContent ox-side-modal pointer-events-auto fixed bottom-0 right-0 top-0 z-sideModal m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-raise border-secondary elevation-2"
-                  style={{
-                    transform: x.to((value) => `translate3d(${value}%, 0px, 0px)`),
-                  }}
-                  // shuts off a warning from radix about dialog content needing a description
-                  aria-describedby={undefined}
-                >
-                  <div className="items-top mb-4 mt-8">
-                    <Dialog.Title className="flex w-full items-center justify-between break-words pr-8 text-sans-2xl text-raise">
-                      {title}
-                    </Dialog.Title>
-                    {subtitle}
-                  </div>
-                  {errors && errors.length > 0 && (
-                    <div className="mb-6">
-                      <Message
-                        variant="error"
-                        content={
-                          errors.length === 1 ? (
-                            errors[0]
-                          ) : (
-                            <>
-                              <div>{errors.length} issues:</div>
-                              <ul className="ml-4 list-disc">
-                                {errors.map((error, idx) => (
-                                  <li key={idx}>{error}</li>
-                                ))}
-                              </ul>
-                            </>
-                          )
-                        }
-                        title={errors.length > 1 ? 'Errors' : 'Error'}
-                      />
-                    </div>
-                  )}
-                  {children}
+              <div className="items-top mb-4 mt-8">
+                <Dialog.Title className="flex w-full items-center justify-between break-words pr-8 text-sans-2xl text-raise">
+                  {title}
+                </Dialog.Title>
+                {subtitle}
+              </div>
+              {errors && errors.length > 0 && (
+                <div className="mb-6">
+                  <Message
+                    variant="error"
+                    content={
+                      errors.length === 1 ? (
+                        errors[0]
+                      ) : (
+                        <>
+                          <div>{errors.length} issues:</div>
+                          <ul className="ml-4 list-disc">
+                            {errors.map((error, idx) => (
+                              <li key={idx}>{error}</li>
+                            ))}
+                          </ul>
+                        </>
+                      )
+                    }
+                    title={errors.length > 1 ? 'Errors' : 'Error'}
+                  />
+                </div>
+              )}
+              {children}
 
-                  {/* Close button is here at the end so we aren't automatically focusing on it when the side modal is opened. Positioned in the safe area at the top */}
-                  <Dialog.Close
-                    className="absolute right-[var(--content-gutter)] top-10 -m-2 flex rounded p-2 hover:bg-hover"
-                    aria-label="Close"
-                  >
-                    <Close12Icon className="text-default" />
-                  </Dialog.Close>
-                </AnimatedDialogContent>
-              </Dialog.Portal>
-            </Dialog.Root>
-          )
-      )}
+              {/* Close button is here at the end so we aren't automatically focusing on it when the side modal is opened. Positioned in the safe area at the top */}
+              <Dialog.Close
+                className="absolute right-[var(--content-gutter)] top-10 -m-2 flex rounded p-2 hover:bg-hover"
+                aria-label="Close"
+              >
+                <Close12Icon className="text-default" />
+              </Dialog.Close>
+            </m.div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </SideModalContext.Provider>
   )
 }

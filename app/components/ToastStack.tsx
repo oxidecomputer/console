@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { animated, useTransition } from '@react-spring/web'
+import { AnimatePresence, m } from 'motion/react'
 
 import { removeToast, useToastStore } from '~/stores/toast'
 import { Toast } from '~/ui/lib/Toast'
@@ -13,37 +13,30 @@ import { Toast } from '~/ui/lib/Toast'
 export function ToastStack() {
   const toasts = useToastStore((state) => state.toasts)
 
-  const transition = useTransition(toasts, {
-    keys: (toast) => toast.id,
-    from: { opacity: 0, y: 10, scale: 95 },
-    enter: { opacity: 1, y: 0, scale: 100 },
-    leave: { opacity: 0, y: 10, scale: 95 },
-    config: { duration: 100 },
-  })
-
   return (
     <div
       className="pointer-events-auto fixed bottom-4 left-4 z-toast flex flex-col items-end space-y-2"
       data-testid="Toasts"
     >
-      {transition((style, item) => (
-        <animated.div
-          style={{
-            opacity: style.opacity,
-            y: style.y,
-            transform: style.scale.to((val) => `scale(${val}%, ${val}%)`),
-          }}
-        >
-          <Toast
-            key={item.id}
-            {...item.options}
-            onClose={() => {
-              removeToast(item.id)
-              item.options.onClose?.()
-            }}
-          />
-        </animated.div>
-      ))}
+      <AnimatePresence>
+        {toasts.map((toast) => (
+          <m.div
+            key={toast.id}
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ type: 'spring', duration: 0.2, bounce: 0 }}
+          >
+            <Toast
+              {...toast.options}
+              onClose={() => {
+                removeToast(toast.id)
+                toast.options.onClose?.()
+              }}
+            />
+          </m.div>
+        ))}
+      </AnimatePresence>
     </div>
   )
 }

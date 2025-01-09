@@ -66,12 +66,6 @@ const secondaryTextColor: Record<Variant, string> = {
   info: 'text-notice-secondary',
 }
 
-const progressColor: Record<Variant, string> = {
-  success: 'bg-accent-raise',
-  error: 'bg-destructive-raise',
-  info: 'bg-notice-raise',
-}
-
 export const Toast = ({
   title,
   content,
@@ -123,13 +117,7 @@ export const Toast = ({
         <Close12Icon />
       </button>
 
-      {timeout !== null && (
-        <TimeoutIndicator
-          timeout={timeout}
-          onTimeoutEnd={onClose}
-          className={progressColor[variant]}
-        />
-      )}
+      {timeout !== null && <TimeoutIndicator timeout={timeout} onTimeoutEnd={onClose} />}
     </div>
   )
 }

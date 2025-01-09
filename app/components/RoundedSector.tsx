@@ -5,9 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useReducedMotion } from 'motion/react'
 import { useEffect, useMemo, useState } from 'react'
-
-import { useReducedMotion } from '~/hooks/use-reduce-motion'
 
 export function RoundedSector({
   angle,
