@@ -34,7 +34,7 @@ Parameters:
 `.trim()
 
 function printHelpAndExit(): never {
-  console.log(HELP)
+  console.info(HELP)
   Deno.exit()
 }
 
@@ -98,7 +98,7 @@ async function genForCommit(commit: string, force: boolean) {
   if (force || !alreadyExists) {
     await $`rm -rf ${tmpDir}`
     await $`mkdir -p ${tmpDir}`
-    console.log(`Generating for ${commit}...`)
+    console.info(`Generating for ${commit}...`)
     await $`npx @oxide/openapi-gen-ts@0.4.0 ${specUrl(commit)} ${tmpDir}`
     await $`npx prettier --write --log-level error ${tmpDir}`
   }
