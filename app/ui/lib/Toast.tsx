@@ -84,7 +84,7 @@ export const Toast = ({
   return (
     <div
       className={cn(
-        'relative flex w-96 items-start overflow-hidden rounded-lg p-4',
+        'relative flex w-96 items-start overflow-hidden rounded-lg p-4 elevation-2',
         color[variant],
         textColor[variant]
       )}
@@ -108,14 +108,19 @@ export const Toast = ({
           </Link>
         )}
       </div>
-      <button
-        type="button"
-        aria-label="Dismiss notification"
-        className={cn('-m-2 flex h-auto !border-transparent p-2', textColor[variant])}
-        onClick={onClose}
-      >
-        <Close12Icon />
-      </button>
+      <div className="mr-[2px] mt-[3px] flex items-center self-baseline">
+        <button
+          type="button"
+          aria-label="Dismiss notification"
+          className={cn(
+            '-m-2 flex items-center rounded !border-transparent p-2 hover:bg-accent-secondary-hover',
+            textColor[variant]
+          )}
+          onClick={onClose}
+        >
+          <Close12Icon />
+        </button>
+      </div>
 
       {timeout !== null && <TimeoutIndicator timeout={timeout} onTimeoutEnd={onClose} />}
     </div>
