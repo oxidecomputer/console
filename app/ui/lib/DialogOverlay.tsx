@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { m } from 'motion/react'
+import * as m from 'motion/react-m'
 import { forwardRef } from 'react'
 
 export const DialogOverlay = forwardRef<HTMLDivElement>((_, ref) => (

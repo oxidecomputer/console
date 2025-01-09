@@ -7,7 +7,7 @@
  */
 import * as Dialog from '@radix-ui/react-dialog'
 import cn from 'classnames'
-import { m } from 'motion/react'
+import * as m from 'motion/react-m'
 import type { MergeExclusive } from 'type-fest'
 
 import { Close12Icon } from '@oxide/design-system/icons/react'

@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { QueryClientProvider } from '@tanstack/react-query'
-import { domAnimation, LazyMotion, MotionConfig } from 'motion/react'
+import { LazyMotion, MotionConfig } from 'motion/react'
 // import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -33,6 +33,8 @@ if (process.env.SHA) {
   )
 }
 
+const loadFeatures = () => import('./util/motion-features').then((res) => res.domAnimation)
+
 const root = createRoot(document.getElementById('root')!)
 
 function render() {
@@ -46,7 +48,7 @@ function render() {
   root.render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
-        <LazyMotion strict features={domAnimation}>
+        <LazyMotion strict features={loadFeatures}>
           <MotionConfig reducedMotion="user">
             <ErrorBoundary>
               <ConfirmActionModal />

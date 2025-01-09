@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { m } from 'motion/react'
+import * as m from 'motion/react-m'
 import { forwardRef, type MouseEventHandler, type ReactNode } from 'react'
 
 import { Spinner } from '~/ui/lib/Spinner'

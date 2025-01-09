@@ -7,7 +7,8 @@
  */
 
 import cn from 'classnames'
-import { AnimatePresence, m } from 'motion/react'
+import { AnimatePresence } from 'motion/react'
+import * as m from 'motion/react-m'
 import { useState } from 'react'
 
 import { Copy12Icon, Success12Icon } from '@oxide/design-system/icons/react'

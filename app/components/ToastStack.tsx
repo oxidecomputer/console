@@ -5,7 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import { AnimatePresence, m } from 'motion/react'
+import { AnimatePresence } from 'motion/react'
+import * as m from 'motion/react-m'
 
 import { removeToast, useToastStore } from '~/stores/toast'
 import { Toast } from '~/ui/lib/Toast'
