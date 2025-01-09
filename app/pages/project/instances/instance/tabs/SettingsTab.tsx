@@ -75,7 +75,7 @@ export function Component() {
             control={form.control}
             name="autoRestartPolicy"
             label="Policy"
-            description="If unconfigured this instance uses the default auto-restart policy, which may or may not allow it to be restarted."
+            description="If unconfigured, this instance uses the default auto-restart policy, which may or may not allow it to be restarted."
             placeholder="Default"
             items={[
               { value: '', label: 'None (Default)' },
