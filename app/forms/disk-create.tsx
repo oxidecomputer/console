@@ -228,7 +228,7 @@ const DiskSourceField = ({
               const imageSizeGiB = image.size / GiB
               if (diskSizeField.value < imageSizeGiB) {
                 const nearest10 = Math.ceil(imageSizeGiB / 10) * 10
-                diskSizeField.onChange(nearest10)
+                diskSizeField.onChange(Math.min(nearest10, MAX_DISK_SIZE_GiB))
               }
             }}
           />
@@ -289,7 +289,7 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
         const snapshotSizeGiB = snapshot.size / GiB
         if (diskSizeField.value < snapshotSizeGiB) {
           const nearest10 = Math.ceil(snapshotSizeGiB / 10) * 10
-          diskSizeField.onChange(nearest10)
+          diskSizeField.onChange(Math.min(nearest10, MAX_DISK_SIZE_GiB))
         }
       }}
     />
