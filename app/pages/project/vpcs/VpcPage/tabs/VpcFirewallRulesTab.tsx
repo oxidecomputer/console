@@ -102,7 +102,7 @@ const rulesView = (query: PP.Vpc) => apiq('vpcFirewallRulesView', { query })
 
 VpcFirewallRulesTab.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, vpc } = getVpcSelector(params)
-  await queryClient.prefetchQuery(rulesView({ project, vpc }))
+  await queryClient.fetchQuery(rulesView({ project, vpc }))
   return null
 }
 

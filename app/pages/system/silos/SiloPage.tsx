@@ -28,10 +28,10 @@ import { SiloQuotasTab } from './SiloQuotasTab'
 export async function loader({ params }: LoaderFunctionArgs) {
   const { silo } = getSiloSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('siloView', { path: { silo } }),
-    apiQueryClient.prefetchQuery('siloUtilizationView', { path: { silo } }),
-    queryClient.prefetchQuery(siloIdpList(silo).optionsFn()),
-    queryClient.prefetchQuery(siloIpPoolsQuery(silo).optionsFn()),
+    apiQueryClient.fetchQuery('siloView', { path: { silo } }),
+    apiQueryClient.fetchQuery('siloUtilizationView', { path: { silo } }),
+    queryClient.fetchQuery(siloIdpList(silo).optionsFn()),
+    queryClient.fetchQuery(siloIpPoolsQuery(silo).optionsFn()),
   ])
   return null
 }

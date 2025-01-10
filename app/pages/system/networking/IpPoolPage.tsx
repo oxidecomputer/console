@@ -62,10 +62,10 @@ const ipPoolRangeList = (pool: string) => getListQFn('ipPoolRangeList', { path: 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { pool } = getIpPoolSelector(params)
   await Promise.all([
-    queryClient.prefetchQuery(ipPoolView(pool)),
-    queryClient.prefetchQuery(ipPoolSiloList(pool).optionsFn()),
-    queryClient.prefetchQuery(ipPoolRangeList(pool).optionsFn()),
-    apiQueryClient.prefetchQuery('ipPoolUtilizationView', { path: { pool } }),
+    queryClient.fetchQuery(ipPoolView(pool)),
+    queryClient.fetchQuery(ipPoolSiloList(pool).optionsFn()),
+    queryClient.fetchQuery(ipPoolRangeList(pool).optionsFn()),
+    apiQueryClient.fetchQuery('ipPoolUtilizationView', { path: { pool } }),
 
     // fetch silos and preload into RQ cache so fetches by ID in SiloNameFromId
     // can be mostly instant yet gracefully fall back to fetching individually

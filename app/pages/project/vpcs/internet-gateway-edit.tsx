@@ -66,15 +66,15 @@ function RouteRows({ project, vpc, gateway }: PP.VpcInternetGateway) {
 EditInternetGatewayForm.loader = async function ({ params }: LoaderFunctionArgs) {
   const { project, vpc, gateway } = getInternetGatewaySelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('internetGatewayView', {
+    apiQueryClient.fetchQuery('internetGatewayView', {
       query: { project, vpc },
       path: { gateway },
     }),
-    queryClient.prefetchQuery(gatewayIpPoolList({ project, vpc, gateway }).optionsFn()),
-    queryClient.prefetchQuery(gatewayIpAddressList({ project, vpc, gateway }).optionsFn()),
+    queryClient.fetchQuery(gatewayIpPoolList({ project, vpc, gateway }).optionsFn()),
+    queryClient.fetchQuery(gatewayIpAddressList({ project, vpc, gateway }).optionsFn()),
     ...(await queryClient.fetchQuery(routerList({ project, vpc }).optionsFn())).items.map(
       (router) =>
-        queryClient.prefetchQuery(
+        queryClient.fetchQuery(
           routeList({ project, vpc, router: router.name }).optionsFn()
         )
     ),

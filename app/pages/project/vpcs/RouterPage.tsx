@@ -51,8 +51,8 @@ const routeList = (query: PP.VpcRouter) => getListQFn('vpcRouterRouteList', { qu
 export async function loader({ params }: LoaderFunctionArgs) {
   const routerSelector = getVpcRouterSelector(params)
   await Promise.all([
-    queryClient.prefetchQuery(routerView(routerSelector)),
-    queryClient.prefetchQuery(routeList(routerSelector).optionsFn()),
+    queryClient.fetchQuery(routerView(routerSelector)),
+    queryClient.fetchQuery(routeList(routerSelector).optionsFn()),
   ])
   return null
 }

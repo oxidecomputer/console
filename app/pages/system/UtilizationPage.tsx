@@ -37,8 +37,8 @@ import { bytesToGiB, bytesToTiB } from '~/util/units'
 
 export async function loader() {
   await Promise.all([
-    apiQueryClient.prefetchQuery('siloList', {}),
-    apiQueryClient.prefetchQuery('siloUtilizationList', {}),
+    apiQueryClient.fetchQuery('siloList', {}),
+    apiQueryClient.fetchQuery('siloUtilizationList', {}),
   ])
   return null
 }

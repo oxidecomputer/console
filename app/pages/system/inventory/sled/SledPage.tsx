@@ -19,7 +19,7 @@ import { pb } from '~/util/path-builder'
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { sledId } = requireSledParams(params)
-  await apiQueryClient.prefetchQuery('sledView', {
+  await apiQueryClient.fetchQuery('sledView', {
     path: { sledId },
   })
   return null

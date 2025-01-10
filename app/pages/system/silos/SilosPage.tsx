@@ -65,7 +65,7 @@ const staticCols = [
 ]
 
 export async function loader() {
-  await queryClient.prefetchQuery(siloList().optionsFn())
+  await queryClient.fetchQuery(siloList().optionsFn())
   return null
 }
 

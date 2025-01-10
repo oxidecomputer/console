@@ -58,10 +58,10 @@ const ruleToValues = (rule: VpcFirewallRule): FirewallRuleValues => ({
 CreateFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, vpc } = getVpcSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('vpcFirewallRulesView', { query: { project, vpc } }),
-    apiQueryClient.prefetchQuery('instanceList', { query: { project, limit: ALL_ISH } }),
-    apiQueryClient.prefetchQuery('vpcList', { query: { project, limit: ALL_ISH } }),
-    apiQueryClient.prefetchQuery('vpcSubnetList', {
+    apiQueryClient.fetchQuery('vpcFirewallRulesView', { query: { project, vpc } }),
+    apiQueryClient.fetchQuery('instanceList', { query: { project, limit: ALL_ISH } }),
+    apiQueryClient.fetchQuery('vpcList', { query: { project, limit: ALL_ISH } }),
+    apiQueryClient.fetchQuery('vpcSubnetList', {
       query: { project, vpc, limit: ALL_ISH },
     }),
   ])

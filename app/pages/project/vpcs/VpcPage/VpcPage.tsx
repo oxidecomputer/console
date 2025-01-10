@@ -28,7 +28,7 @@ const vpcView = ({ project, vpc }: PP.Vpc) =>
   apiq('vpcView', { path: { vpc }, query: { project } })
 
 VpcPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await queryClient.prefetchQuery(vpcView(getVpcSelector(params)))
+  await queryClient.fetchQuery(vpcView(getVpcSelector(params)))
   return null
 }
 

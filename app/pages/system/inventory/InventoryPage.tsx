@@ -18,7 +18,7 @@ import { pb } from '~/util/path-builder'
 const rackList = getListQFn('rackList', {})
 
 InventoryPage.loader = async () => {
-  await queryClient.prefetchQuery(rackList.optionsFn())
+  await queryClient.fetchQuery(rackList.optionsFn())
   return null
 }
 

@@ -28,8 +28,8 @@ const toListboxItem = (x: { name: string; id: string }) => ({ label: x.name, val
 
 export async function loader() {
   await Promise.all([
-    apiQueryClient.prefetchQuery('projectList', {}),
-    apiQueryClient.prefetchQuery('utilizationView', {}),
+    apiQueryClient.fetchQuery('projectList', {}),
+    apiQueryClient.fetchQuery('utilizationView', {}),
   ])
   return null
 }

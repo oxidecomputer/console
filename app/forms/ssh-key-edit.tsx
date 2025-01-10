@@ -23,7 +23,7 @@ import { pb } from '~/util/path-builder'
 
 EditSSHKeySideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { sshKey } = getSshKeySelector(params)
-  await apiQueryClient.prefetchQuery('currentUserSshKeyView', { path: { sshKey } })
+  await apiQueryClient.fetchQuery('currentUserSshKeyView', { path: { sshKey } })
   return null
 }
 

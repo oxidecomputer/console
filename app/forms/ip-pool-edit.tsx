@@ -27,7 +27,7 @@ import { IpPoolVisibilityMessage } from './ip-pool-create'
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { pool } = getIpPoolSelector(params)
-  await apiQueryClient.prefetchQuery('ipPoolView', { path: { pool } })
+  await apiQueryClient.fetchQuery('ipPoolView', { path: { pool } })
   return null
 }
 

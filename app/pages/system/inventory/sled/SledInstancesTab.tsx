@@ -35,7 +35,7 @@ const EmptyState = () => {
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { sledId } = requireSledParams(params)
-  await queryClient.prefetchQuery(sledInstanceList(sledId).optionsFn())
+  await queryClient.fetchQuery(sledInstanceList(sledId).optionsFn())
   return null
 }
 

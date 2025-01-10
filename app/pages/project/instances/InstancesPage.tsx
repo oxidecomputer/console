@@ -64,7 +64,7 @@ const instanceList = (
 
 InstancesPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
-  await queryClient.prefetchQuery(instanceList(project).optionsFn())
+  await queryClient.fetchQuery(instanceList(project).optionsFn())
   return null
 }
 

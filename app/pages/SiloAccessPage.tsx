@@ -54,10 +54,10 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
 
 export async function loader() {
   await Promise.all([
-    apiQueryClient.prefetchQuery('policyView', {}),
+    apiQueryClient.fetchQuery('policyView', {}),
     // used to resolve user names
-    apiQueryClient.prefetchQuery('userList', {}),
-    apiQueryClient.prefetchQuery('groupList', {}),
+    apiQueryClient.fetchQuery('userList', {}),
+    apiQueryClient.fetchQuery('groupList', {}),
   ])
   return null
 }

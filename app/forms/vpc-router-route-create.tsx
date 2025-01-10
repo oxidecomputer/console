@@ -28,13 +28,13 @@ const defaultValues: RouteFormValues = {
 CreateRouterRouteSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, vpc } = getVpcRouterSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('vpcSubnetList', {
+    apiQueryClient.fetchQuery('vpcSubnetList', {
       query: { project, vpc, limit: ALL_ISH },
     }),
-    apiQueryClient.prefetchQuery('instanceList', {
+    apiQueryClient.fetchQuery('instanceList', {
       query: { project, limit: ALL_ISH },
     }),
-    apiQueryClient.prefetchQuery('internetGatewayList', {
+    apiQueryClient.fetchQuery('internetGatewayList', {
       query: { project, vpc, limit: ALL_ISH },
     }),
   ])

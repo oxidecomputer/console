@@ -41,7 +41,7 @@ const EmptyState = () => (
 const diskList = getListQFn('physicalDiskList', {})
 
 export async function loader() {
-  await queryClient.prefetchQuery(diskList.optionsFn())
+  await queryClient.fetchQuery(diskList.optionsFn())
   return null
 }
 

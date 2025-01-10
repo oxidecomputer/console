@@ -23,7 +23,7 @@ import { pb } from '~/util/path-builder'
 
 EditIdpSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { silo, provider } = getIdpSelector(params)
-  await apiQueryClient.prefetchQuery('samlIdentityProviderView', {
+  await apiQueryClient.fetchQuery('samlIdentityProviderView', {
     path: { provider },
     query: { silo },
   })

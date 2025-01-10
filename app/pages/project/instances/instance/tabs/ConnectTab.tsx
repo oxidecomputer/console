@@ -20,7 +20,7 @@ import { pb } from '~/util/path-builder'
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
-  await apiQueryClient.prefetchQuery('instanceExternalIpList', {
+  await apiQueryClient.fetchQuery('instanceExternalIpList', {
     path: { instance },
     query: { project },
   })

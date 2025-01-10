@@ -161,14 +161,14 @@ CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
   await Promise.all([
     // fetch both project and silo images
-    apiQueryClient.prefetchQuery('imageList', { query: { project } }),
-    apiQueryClient.prefetchQuery('imageList', {}),
-    apiQueryClient.prefetchQuery('diskList', {
+    apiQueryClient.fetchQuery('imageList', { query: { project } }),
+    apiQueryClient.fetchQuery('imageList', {}),
+    apiQueryClient.fetchQuery('diskList', {
       query: { project, limit: ALL_ISH },
     }),
-    apiQueryClient.prefetchQuery('currentUserSshKeyList', {}),
-    apiQueryClient.prefetchQuery('projectIpPoolList', { query: { limit: ALL_ISH } }),
-    apiQueryClient.prefetchQuery('floatingIpList', { query: { project, limit: ALL_ISH } }),
+    apiQueryClient.fetchQuery('currentUserSshKeyList', {}),
+    apiQueryClient.fetchQuery('projectIpPoolList', { query: { limit: ALL_ISH } }),
+    apiQueryClient.fetchQuery('floatingIpList', { query: { project, limit: ALL_ISH } }),
   ])
   return null
 }

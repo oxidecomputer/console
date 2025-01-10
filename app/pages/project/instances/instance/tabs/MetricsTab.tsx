@@ -152,7 +152,7 @@ function DiskMetric({
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
-  await apiQueryClient.prefetchQuery('instanceDiskList', {
+  await apiQueryClient.fetchQuery('instanceDiskList', {
     path: { instance },
     query: { project },
   })

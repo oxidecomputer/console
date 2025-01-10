@@ -30,7 +30,7 @@ const routerView = ({ project, vpc, router }: PP.VpcRouter) =>
 
 EditRouterSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const selector = getVpcRouterSelector(params)
-  await queryClient.prefetchQuery(routerView(selector))
+  await queryClient.fetchQuery(routerView(selector))
   return null
 }
 

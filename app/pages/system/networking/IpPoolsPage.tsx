@@ -70,7 +70,7 @@ const staticColumns = [
 const ipPoolList = () => getListQFn('ipPoolList', {})
 
 export async function loader() {
-  await queryClient.prefetchQuery(ipPoolList().optionsFn())
+  await queryClient.fetchQuery(ipPoolList().optionsFn())
   return null
 }
 

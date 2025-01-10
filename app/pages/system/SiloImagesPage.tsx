@@ -52,7 +52,7 @@ const EmptyState = () => (
 const imageList = getListQFn('imageList', {})
 
 export async function loader() {
-  await queryClient.prefetchQuery(imageList.optionsFn())
+  await queryClient.fetchQuery(imageList.optionsFn())
   return null
 }
 

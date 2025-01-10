@@ -24,7 +24,7 @@ const vpcView = ({ project, vpc }: PP.Vpc) =>
 
 EditVpcSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, vpc } = getVpcSelector(params)
-  await queryClient.prefetchQuery(vpcView({ project, vpc }))
+  await queryClient.fetchQuery(vpcView({ project, vpc }))
   return null
 }
 

@@ -40,7 +40,7 @@ const snapshotView = ({ project, snapshot }: PP.Snapshot) =>
 
 CreateImageFromSnapshotSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, snapshot } = getProjectSnapshotSelector(params)
-  await queryClient.prefetchQuery(snapshotView({ project, snapshot }))
+  await queryClient.fetchQuery(snapshotView({ project, snapshot }))
   return null
 }
 

@@ -48,10 +48,10 @@ export async function loader({ params }: LoaderFunctionArgs) {
     // don't bother with page size because this will never paginate. max disks
     // per instance is 8
     // https://github.com/oxidecomputer/omicron/blob/40fc3835/nexus/db-queries/src/db/queries/disk.rs#L16-L21
-    apiQueryClient.prefetchQuery('instanceDiskList', selector),
+    apiQueryClient.fetchQuery('instanceDiskList', selector),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
-    apiQueryClient.prefetchQuery('instanceView', selector),
+    apiQueryClient.fetchQuery('instanceView', selector),
   ])
   return null
 }

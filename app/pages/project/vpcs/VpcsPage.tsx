@@ -67,7 +67,7 @@ const colHelper = createColumnHelper<Vpc>()
 // sure it matches the call in the QueryTable
 VpcsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
-  await queryClient.prefetchQuery(vpcList(project).optionsFn())
+  await queryClient.fetchQuery(vpcList(project).optionsFn())
   return null
 }
 

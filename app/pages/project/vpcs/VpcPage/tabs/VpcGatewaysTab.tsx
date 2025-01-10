@@ -66,15 +66,15 @@ VpcInternetGatewaysTab.loader = async ({ params }: LoaderFunctionArgs) => {
 
   await Promise.all([
     ...gateways.items.flatMap((gateway: InternetGateway) => [
-      queryClient.prefetchQuery(
+      queryClient.fetchQuery(
         gatewayIpAddressList({ project, vpc, gateway: gateway.name }).optionsFn()
       ),
-      queryClient.prefetchQuery(
+      queryClient.fetchQuery(
         gatewayIpPoolList({ project, vpc, gateway: gateway.name }).optionsFn()
       ),
     ]),
     ...routers.items.map((router) =>
-      queryClient.prefetchQuery(
+      queryClient.fetchQuery(
         routeList({ project, vpc, router: router.name }).optionsFn()
       )
     ),

@@ -31,17 +31,17 @@ import { pb } from '~/util/path-builder'
 EditRouterRouteSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, vpc, router, route } = getVpcRouterRouteSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('vpcRouterRouteView', {
+    apiQueryClient.fetchQuery('vpcRouterRouteView', {
       path: { route },
       query: { project, vpc, router },
     }),
-    apiQueryClient.prefetchQuery('vpcSubnetList', {
+    apiQueryClient.fetchQuery('vpcSubnetList', {
       query: { project, vpc, limit: ALL_ISH },
     }),
-    apiQueryClient.prefetchQuery('instanceList', {
+    apiQueryClient.fetchQuery('instanceList', {
       query: { project, limit: ALL_ISH },
     }),
-    apiQueryClient.prefetchQuery('internetGatewayList', {
+    apiQueryClient.fetchQuery('internetGatewayList', {
       query: { project, vpc, limit: ALL_ISH },
     }),
   ])

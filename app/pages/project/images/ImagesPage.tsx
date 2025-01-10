@@ -47,7 +47,7 @@ const imageList = (query: PP.Project) => getListQFn('imageList', { query })
 
 ImagesPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
-  await queryClient.prefetchQuery(imageList({ project }).optionsFn())
+  await queryClient.fetchQuery(imageList({ project }).optionsFn())
   return null
 }
 

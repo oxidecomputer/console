@@ -62,11 +62,11 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('policyView', {}),
-    apiQueryClient.prefetchQuery('projectPolicyView', { path: { project } }),
+    apiQueryClient.fetchQuery('policyView', {}),
+    apiQueryClient.fetchQuery('projectPolicyView', { path: { project } }),
     // used to resolve user names
-    apiQueryClient.prefetchQuery('userList', {}),
-    apiQueryClient.prefetchQuery('groupList', {}),
+    apiQueryClient.fetchQuery('userList', {}),
+    apiQueryClient.fetchQuery('groupList', {}),
   ])
   return null
 }

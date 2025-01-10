@@ -86,24 +86,24 @@ const SubnetNameFromId = ({ value }: { value: string }) => {
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('instanceNetworkInterfaceList', {
+    apiQueryClient.fetchQuery('instanceNetworkInterfaceList', {
       // we want this to cover all NICs; TODO: determine actual limit?
       query: { project, instance, limit: ALL_ISH },
     }),
-    apiQueryClient.prefetchQuery('floatingIpList', { query: { project, limit: ALL_ISH } }),
+    apiQueryClient.fetchQuery('floatingIpList', { query: { project, limit: ALL_ISH } }),
     // dupe of page-level fetch but that's fine, RQ dedupes
-    apiQueryClient.prefetchQuery('instanceExternalIpList', {
+    apiQueryClient.fetchQuery('instanceExternalIpList', {
       path: { instance },
       query: { project },
     }),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
-    apiQueryClient.prefetchQuery('instanceView', {
+    apiQueryClient.fetchQuery('instanceView', {
       path: { instance },
       query: { project },
     }),
     // This is used in AttachEphemeralIpModal
-    apiQueryClient.prefetchQuery('projectIpPoolList', { query: { limit: ALL_ISH } }),
+    apiQueryClient.fetchQuery('projectIpPoolList', { query: { limit: ALL_ISH } }),
   ])
   return null
 }

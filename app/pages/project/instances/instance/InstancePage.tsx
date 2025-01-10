@@ -73,11 +73,11 @@ async function refreshData() {
 InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, instance } = getInstanceSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('instanceView', {
+    apiQueryClient.fetchQuery('instanceView', {
       path: { instance },
       query: { project },
     }),
-    apiQueryClient.prefetchQuery('instanceExternalIpList', {
+    apiQueryClient.fetchQuery('instanceExternalIpList', {
       path: { instance },
       query: { project },
     }),
@@ -98,7 +98,7 @@ InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
       .then((nics) => {
         const vpc = getPrimaryVpcId(nics.items)
         if (!vpc) return Promise.resolve()
-        return apiQueryClient.prefetchQuery('vpcView', { path: { vpc } })
+        return apiQueryClient.fetchQuery('vpcView', { path: { vpc } })
       }),
   ])
   return null

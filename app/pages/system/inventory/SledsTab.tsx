@@ -31,7 +31,7 @@ const STATE_BADGE_COLORS: Record<SledState, BadgeColor> = {
 const sledList = getListQFn('sledList', {})
 
 export async function loader() {
-  await queryClient.prefetchQuery(sledList.optionsFn())
+  await queryClient.fetchQuery(sledList.optionsFn())
   return null
 }
 

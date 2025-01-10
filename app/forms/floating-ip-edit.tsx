@@ -24,7 +24,7 @@ const floatingIpView = ({ project, floatingIp }: PP.FloatingIp) =>
 
 EditFloatingIpSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const selector = getFloatingIpSelector(params)
-  await queryClient.prefetchQuery(floatingIpView(selector))
+  await queryClient.fetchQuery(floatingIpView(selector))
   return null
 }
 

@@ -37,7 +37,7 @@ const vpcRouterList = (query: PP.Vpc) => getListQFn('vpcRouterList', { query })
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcSelector(params)
-  await queryClient.prefetchQuery(vpcRouterList({ project, vpc }).optionsFn())
+  await queryClient.fetchQuery(vpcRouterList({ project, vpc }).optionsFn())
   return null
 }
 

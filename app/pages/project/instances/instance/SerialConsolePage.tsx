@@ -46,7 +46,7 @@ const statusMessage: Record<WsState, string> = {
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
-  await apiQueryClient.prefetchQuery('instanceView', {
+  await apiQueryClient.fetchQuery('instanceView', {
     path: { instance },
     query: { project },
   })

@@ -35,7 +35,7 @@ import { pb } from '~/util/path-builder'
 
 const sshKeyList = () => getListQFn('currentUserSshKeyList', {})
 export async function loader() {
-  await queryClient.prefetchQuery(sshKeyList().optionsFn())
+  await queryClient.fetchQuery(sshKeyList().optionsFn())
   return null
 }
 

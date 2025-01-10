@@ -37,7 +37,7 @@ const subnetList = (params: PP.Vpc) => getListQFn('vpcSubnetList', { query: para
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcSelector(params)
-  await queryClient.prefetchQuery(subnetList({ project, vpc }).optionsFn())
+  await queryClient.fetchQuery(subnetList({ project, vpc }).optionsFn())
   return null
 }
 

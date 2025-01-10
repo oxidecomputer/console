@@ -37,7 +37,7 @@ const subnetView = ({ project, vpc, subnet }: PP.VpcSubnet) =>
 
 EditSubnetForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const selector = getVpcSubnetSelector(params)
-  await queryClient.prefetchQuery(subnetView(selector))
+  await queryClient.fetchQuery(subnetView(selector))
   return null
 }
 

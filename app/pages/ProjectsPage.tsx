@@ -39,7 +39,7 @@ const EmptyState = () => (
 const projectList = getListQFn('projectList', {})
 
 export async function loader() {
-  await queryClient.prefetchQuery(projectList.optionsFn())
+  await queryClient.fetchQuery(projectList.optionsFn())
   return null
 }
 

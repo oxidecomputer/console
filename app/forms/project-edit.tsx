@@ -23,7 +23,7 @@ const projectView = ({ project }: PP.Project) => apiq('projectView', { path: { p
 
 EditProjectSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
-  await queryClient.prefetchQuery(projectView({ project }))
+  await queryClient.fetchQuery(projectView({ project }))
   return null
 }
 

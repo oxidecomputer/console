@@ -30,7 +30,7 @@ import { bytesToGiB } from '~/util/units'
 export const ProjectImageEdit = {
   loader: async ({ params }: LoaderFunctionArgs) => {
     const { project, image } = getProjectImageSelector(params)
-    await apiQueryClient.prefetchQuery('imageView', { path: { image }, query: { project } })
+    await apiQueryClient.fetchQuery('imageView', { path: { image }, query: { project } })
     return null
   },
   Component: EditProjectImageSideModalForm,
@@ -39,7 +39,7 @@ export const ProjectImageEdit = {
 export const SiloImageEdit = {
   loader: async ({ params }: LoaderFunctionArgs) => {
     const { image } = getSiloImageSelector(params)
-    await apiQueryClient.prefetchQuery('imageView', { path: { image } })
+    await apiQueryClient.fetchQuery('imageView', { path: { image } })
     return null
   },
   Component: EditSiloImageSideModalForm,

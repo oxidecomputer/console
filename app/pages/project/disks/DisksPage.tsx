@@ -57,7 +57,7 @@ const diskList = (query: PP.Project) => getListQFn('diskList', { query })
 DisksPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
   await Promise.all([
-    queryClient.prefetchQuery(diskList({ project }).optionsFn()),
+    queryClient.fetchQuery(diskList({ project }).optionsFn()),
 
     // fetch instances and preload into RQ cache so fetches by ID in
     // InstanceLinkCell can be mostly instant yet gracefully fall back to
