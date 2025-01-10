@@ -61,8 +61,8 @@ const instanceList = (project: string) =>
 FloatingIpsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
   await Promise.all([
-    queryClient.prefetchQuery(fipList(project).optionsFn()),
-    queryClient.prefetchQuery(instanceList(project).optionsFn()),
+    queryClient.fetchQuery(fipList(project).optionsFn()),
+    queryClient.fetchQuery(instanceList(project).optionsFn()),
     // fetch IP Pools and preload into RQ cache so fetches by ID in
     // IpPoolCell can be mostly instant yet gracefully fall back to
     // fetching individually if we don't fetch them all here
