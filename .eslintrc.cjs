@@ -114,11 +114,18 @@ module.exports = {
     },
     {
       files: ['*.e2e.ts'],
-      extends: ['plugin:playwright/playwright-test'],
+      extends: ['plugin:playwright/recommended'],
       rules: {
         'playwright/expect-expect': [
           'warn',
-          { assertFunctionNames: ['expectVisible', 'expectRowVisible', 'expectOptions'] },
+          {
+            assertFunctionNames: [
+              'expectVisible',
+              'expectRowVisible',
+              'expectOptions',
+              'expectRowMenuStaysOpen',
+            ],
+          },
         ],
         'playwright/no-force-option': 'off',
       },
