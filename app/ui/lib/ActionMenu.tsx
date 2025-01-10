@@ -99,6 +99,7 @@ export function ActionMenu(props: ActionMenuProps) {
               if (e.key === KEYS.enter) {
                 if (selectedItem) {
                   selectedItem.onSelect()
+                  e.preventDefault()
                   onDismiss()
                 }
               } else if (e.key === KEYS.down) {

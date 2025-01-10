@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 
 import { Tabs, type TabsRootProps } from '~/ui/lib/Tabs'
 

@@ -7,7 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
-import { Outlet, useNavigate } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router'
 
 import { apiq, getListQFn, queryClient, useApiMutation, type Project } from '@oxide/api'
 import { Folder16Icon, Folder24Icon } from '@oxide/design-system/icons/react'

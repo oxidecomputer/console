@@ -15,7 +15,7 @@ import {
 } from '@headlessui/react'
 import cn from 'classnames'
 import { forwardRef, type ForwardedRef, type ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 
 export const Root = Menu
 

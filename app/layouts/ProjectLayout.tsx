@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useMemo, type ReactElement } from 'react'
-import { useLocation, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { useLocation, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import { apiq, queryClient, usePrefetchedQuery } from '@oxide/api'
 import {

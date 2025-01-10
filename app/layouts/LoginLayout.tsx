@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router'
 
 import heroRackImg from '~/assets/oxide-hero-rack.webp'
 import { OxideLogo } from '~/components/OxideLogo'

@@ -7,6 +7,7 @@
  */
 import {
   clickRowAction,
+  closeToast,
   expect,
   expectRowVisible,
   openRowActions,
@@ -239,4 +240,72 @@ test('instance table', async ({ page }) => {
     Memory: '8 GiB',
     state: expect.stringMatching(/^starting\d+s$/),
   })
+})
+
+async function expectRowMenuStaysOpen(page: Page, rowSelector: string) {
+  // stop, but don't wait until the state has changed
+  await page.getByRole('button', { name: 'Stop' }).click()
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await closeToast(page)
+
+  const menu = page.getByRole('menu')
+  const stopped = page.getByText('statestopped')
+
+  await expect(menu).toBeHidden()
+  await expect(stopped).toBeHidden()
+
+  await openRowActions(page, rowSelector)
+  await expect(stopped).toBeHidden() // still not stopped yet
+  await expect(menu).toBeVisible()
+
+  // now we're stopped, which means polling has happened, but the
+  // menu remains visible
+  await expect(stopped).toBeVisible()
+  await expect(menu).toBeVisible()
+}
+
+// silly tests, but we've reintroduced this bug like 3 times
+
+test("polling doesn't close row actions: IPs table", async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1/networking')
+  await expectRowMenuStaysOpen(page, '123.4.56.0')
+})
+
+test("polling doesn't close row actions: NICs table", async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1/networking')
+  await expectRowMenuStaysOpen(page, 'my-nic')
+})
+
+test("polling doesn't close row actions: boot disk", async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1')
+  await expectRowMenuStaysOpen(page, 'disk-1')
+})
+
+test("polling doesn't close row actions: other disk", async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1')
+  await expectRowMenuStaysOpen(page, 'disk-2')
+})
+
+test("polling doesn't close row actions: instances", async ({ page }) => {
+  await page.goto('/projects/mock-project/instances')
+
+  // can't use the cool function because it's *slightly* different
+  await clickRowAction(page, 'db1', 'Stop')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await closeToast(page)
+
+  const menu = page.getByRole('menu')
+  const stopped = page.getByText('stopped')
+
+  await expect(menu).toBeHidden()
+  await expect(stopped).toBeHidden()
+
+  await openRowActions(page, 'db1')
+  await expect(stopped).toBeHidden() // still not stopped yet
+  await expect(menu).toBeVisible()
+
+  // now we're stopped, which means polling has happened, but the
+  // menu remains visible
+  await expect(stopped).toBeVisible()
+  await expect(menu).toBeVisible()
 })

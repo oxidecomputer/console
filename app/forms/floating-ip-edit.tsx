@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useForm } from 'react-hook-form'
-import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
   apiq,

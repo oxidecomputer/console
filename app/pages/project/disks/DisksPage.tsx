@@ -7,7 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback } from 'react'
-import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
+import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
 import {
   apiq,

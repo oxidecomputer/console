@@ -8,7 +8,7 @@
 import { filesize } from 'filesize'
 import { useMemo } from 'react'
 import { useController, useForm, type Control } from 'react-hook-form'
-import { useNavigate, type NavigateFunction } from 'react-router-dom'
+import { useNavigate, type NavigateFunction } from 'react-router'
 
 import {
   useApiMutation,

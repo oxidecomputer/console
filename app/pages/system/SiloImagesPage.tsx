@@ -8,7 +8,7 @@
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm, type FieldValues } from 'react-hook-form'
-import { Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router'
 
 import {
   getListQFn,

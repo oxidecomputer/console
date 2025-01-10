@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import { useApiMutation } from '@oxide/api'
 import { Warning12Icon } from '@oxide/design-system/icons/react'

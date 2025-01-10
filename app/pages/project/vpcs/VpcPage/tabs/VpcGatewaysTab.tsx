@@ -9,7 +9,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo } from 'react'
-import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
+import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
 import { apiq, getListQFn, queryClient, type InternetGateway } from '~/api'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'

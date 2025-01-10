@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { createColumnHelper } from '@tanstack/react-table'
-import type { LoaderFunctionArgs } from 'react-router-dom'
+import type { LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 
 import { getListQFn, queryClient, type SledInstance } from '@oxide/api'

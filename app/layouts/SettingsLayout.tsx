@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useMemo } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router'
 
 import { Folder16Icon, Key16Icon, Profile16Icon } from '@oxide/design-system/icons/react'
 

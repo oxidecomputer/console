@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 
 import { navToLogin, useApiMutation } from '@oxide/api'
 import {

@@ -8,7 +8,7 @@
 import * as Accordion from '@radix-ui/react-accordion'
 import { useEffect, useMemo, useState } from 'react'
 import { useController, useForm, useWatch, type Control } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 import type { SetRequired } from 'type-fest'
 
 import {

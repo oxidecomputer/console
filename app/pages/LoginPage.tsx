@@ -7,7 +7,7 @@
  */
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router'
 
 import { useApiMutation, type UsernamePasswordCredentials } from '@oxide/api'
 
