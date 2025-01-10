@@ -30,7 +30,6 @@ export function ExternalIps({ project, instance }: PP.Instance) {
 
   const ips = data?.items
   if (!ips || ips.length === 0) return <EmptyCell />
-  // create a copy of ips so we don't mutate the original; move ephemeral ip to the end
   const orderedIps = orderIps(ips)
   const ipsToShow = orderedIps.slice(0, 2)
   const overflowCount = orderedIps.length - ipsToShow.length
