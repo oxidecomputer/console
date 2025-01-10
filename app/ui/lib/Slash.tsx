@@ -5,6 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
-export const Slash = () => (
-  <span className="mx-1 text-quaternary selected:text-accent-disabled">/</span>
+import cn from 'classnames'
+
+export const Slash = ({ className }: { className?: string }) => (
+  <span className={cn('mx-1 text-quaternary selected:text-accent-disabled', className)}>
+    /
+  </span>
 )
