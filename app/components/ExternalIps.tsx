@@ -38,21 +38,21 @@ export function ExternalIps({ project, instance }: PP.Instance) {
   // create a list of CopyableIp components
   const links = ipsToShow.map((eip) => <CopyableIp ip={eip.ip} key={eip.ip} />)
 
-  // if there are more than 2 ips, add a link to the instance networking page
-  if (overflowCount > 0) {
-    links.push(
-      <Link
-        to={pb.instanceNetworking({ project, instance })}
-        className="link-with-underline text-sans-md"
-      >
-        +{overflowCount}
-      </Link>
-    )
-  }
-
   return (
-    <div className="flex max-w-full items-center gap-1">
-      {intersperse(links, <Slash />)}
+    <div className="flex max-w-full items-center">
+      {intersperse(links, <Slash className="ml-0.5 mr-1.5" />)}
+      {/* if there are more than 2 ips, add a link to the instance networking page */}
+      {overflowCount > 0 && (
+        <>
+          <Slash className="ml-0.5 mr-1.5" />
+          <Link
+            to={pb.instanceNetworking({ project, instance })}
+            className="hover:link-with-underline -m-2 self-center p-2 text-tertiary"
+          >
+            …
+          </Link>
+        </>
+      )}
     </div>
   )
 }
