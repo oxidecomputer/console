@@ -7,6 +7,7 @@
  */
 
 import { Link } from 'react-router'
+import * as R from 'remeda'
 
 import { useApiQuery, type ExternalIp } from '@oxide/api'
 
@@ -19,7 +20,7 @@ import type * as PP from '~/util/path-params'
 
 /** Move ephemeral IP (if present) to the end of the list of external IPs */
 export const orderIps = (ips: ExternalIp[]) =>
-  ips.sort((a) => (a.kind === 'ephemeral' ? 1 : -1))
+  R.sortBy(ips, (a) => (a.kind === 'ephemeral' ? 1 : -1))
 
 export function ExternalIps({ project, instance }: PP.Instance) {
   const { data, isPending } = useApiQuery('instanceExternalIpList', {

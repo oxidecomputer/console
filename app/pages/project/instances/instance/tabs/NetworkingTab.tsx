@@ -372,7 +372,7 @@ export function Component() {
 
   const ipTableInstance = useReactTable({
     columns: useColsWithActions(staticIpCols, makeIpActions),
-    data: orderIps(eips.items),
+    data: useMemo(() => orderIps(eips.items), [eips]),
     getCoreRowModel: getCoreRowModel(),
   })
 
