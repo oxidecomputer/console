@@ -346,7 +346,7 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
               // directly without further processing
               throw data
             }
-            console.log(options.explanation)
+            console.info(options.explanation)
             return { type: 'error' as const, data }
           }),
       ...options,
