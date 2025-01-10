@@ -145,13 +145,13 @@ test('Instance networking tab — floating IPs', async ({ page }) => {
   // Verify that the "Attach floating IP" button is disabled, since there shouldn't be any more IPs to attach
   await expect(attachFloatingIpButton).toBeDisabled()
 
-  // Verify that the External IPs table row has a +1 in it
-  await expect(page.getByText('123.4.56.5/+1')).toBeVisible()
+  // Verify that the External IPs table row has an ellipsis link in it
+  await expect(page.getByText('123.4.56.5/…')).toBeVisible()
 
   // Detach one of the external IPs
   await clickRowAction(page, 'cola-float', 'Detach')
   await page.getByRole('button', { name: 'Confirm' }).click()
-  await expect(page.getByText('123.4.56.5/+1')).toBeHidden()
+  await expect(page.getByText('123.4.56.5/…')).toBeHidden()
   await expect(page.getByText('external IPs123.4.56.4/123.4.56.0')).toBeVisible()
 
   // Since we detached it, we don't expect to see the row any longer
