@@ -154,59 +154,60 @@ export default function TimeSeriesChart({
   const data = useMemo(() => rawData || [], [rawData])
 
   return (
-    <ResponsiveContainer width="100%" height={300}>
-      <AreaChart
-        width={width}
-        height={height}
-        data={data}
-        margin={{ top: 0, right: 8, bottom: 16, left: 0 }}
-        className={cn(className, 'rounded-lg border border-default')}
-      >
-        <CartesianGrid stroke={GRID_GRAY} vertical={false} />
-        <XAxis
-          axisLine={{ stroke: GRID_GRAY }}
-          tickLine={{ stroke: GRID_GRAY }}
-          // TODO: show full given date range in the chart even if the data doesn't fill the range
-          domain={['auto', 'auto']}
-          dataKey="timestamp"
-          interval="preserveStart"
-          scale="time"
-          // TODO: use Date directly as x-axis values
-          type="number"
-          name="Time"
-          ticks={getTicks(data, 5)}
-          tickFormatter={isSameDay(startTime, endTime) ? shortTime : shortDateTime}
-          tick={textMonoMd}
-          tickMargin={8}
-        />
-        <YAxis
-          axisLine={{ stroke: GRID_GRAY }}
-          tickLine={{ stroke: GRID_GRAY }}
-          orientation="right"
-          tick={textMonoMd}
-          tickMargin={8}
-          tickFormatter={yAxisTickFormatter}
-          padding={{ top: 32 }}
-          {...yTicks}
-        />
-        {/* TODO: stop tooltip being focused by default on pageload if nothing else has been clicked */}
-        <Tooltip
-          isAnimationActive={false}
-          content={(props: TooltipProps<number, string>) => renderTooltip(props, unit)}
-          cursor={{ stroke: CURSOR_GRAY, strokeDasharray: '3,3' }}
-          wrapperStyle={{ outline: 'none' }}
-        />
-        <Area
-          dataKey="value"
-          name={title}
-          type={interpolation}
-          stroke={GREEN_600}
-          fill={GREEN_400}
-          isAnimationActive={false}
-          dot={false}
-          activeDot={{ fill: GREEN_800, r: 3, strokeWidth: 0 }}
-        />
-      </AreaChart>
-    </ResponsiveContainer>
+    <div style={{ width: '100%', height: 300 }}>
+      <ResponsiveContainer className={cn(className, 'rounded-lg border border-default')}>
+        <AreaChart
+          width={width}
+          height={height}
+          data={data}
+          margin={{ top: 0, right: 8, bottom: 16, left: 0 }}
+        >
+          <CartesianGrid stroke={GRID_GRAY} vertical={false} />
+          <XAxis
+            axisLine={{ stroke: GRID_GRAY }}
+            tickLine={{ stroke: GRID_GRAY }}
+            // TODO: show full given date range in the chart even if the data doesn't fill the range
+            domain={['auto', 'auto']}
+            dataKey="timestamp"
+            interval="preserveStart"
+            scale="time"
+            // TODO: use Date directly as x-axis values
+            type="number"
+            name="Time"
+            ticks={getTicks(data, 5)}
+            tickFormatter={isSameDay(startTime, endTime) ? shortTime : shortDateTime}
+            tick={textMonoMd}
+            tickMargin={8}
+          />
+          <YAxis
+            axisLine={{ stroke: GRID_GRAY }}
+            tickLine={{ stroke: GRID_GRAY }}
+            orientation="right"
+            tick={textMonoMd}
+            tickMargin={8}
+            tickFormatter={yAxisTickFormatter}
+            padding={{ top: 32 }}
+            {...yTicks}
+          />
+          {/* TODO: stop tooltip being focused by default on pageload if nothing else has been clicked */}
+          <Tooltip
+            isAnimationActive={false}
+            content={(props: TooltipProps<number, string>) => renderTooltip(props, unit)}
+            cursor={{ stroke: CURSOR_GRAY, strokeDasharray: '3,3' }}
+            wrapperStyle={{ outline: 'none' }}
+          />
+          <Area
+            dataKey="value"
+            name={title}
+            type={interpolation}
+            stroke={GREEN_600}
+            fill={GREEN_400}
+            isAnimationActive={false}
+            dot={false}
+            activeDot={{ fill: GREEN_800, r: 3, strokeWidth: 0 }}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
   )
 }
