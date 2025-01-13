@@ -154,7 +154,7 @@ export default function TimeSeriesChart({
   const data = useMemo(() => rawData || [], [rawData])
 
   return (
-    <div style={{ width: '100%', height: 300 }}>
+    <div className="h-[300px] w-full">
       <ResponsiveContainer className={cn(className, 'rounded-lg border border-default')}>
         <AreaChart
           width={width}
