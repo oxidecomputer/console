@@ -78,7 +78,7 @@ export function Component() {
             description="If unconfigured, this instance uses the default auto-restart policy, which may or may not allow it to be restarted."
             placeholder="Default"
             items={[
-              { value: '', label: 'None (Default)' },
+              { value: '', label: 'Default' },
               { value: 'never', label: 'Never' },
               { value: 'best_effort', label: 'Best effort' },
             ]}
