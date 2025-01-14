@@ -584,7 +584,23 @@ export const handlers = makeHandlers({
 
     return json(newInstance, { status: 201 })
   },
-  instanceView: ({ path, query }) => lookup.instance({ ...path, ...query }),
+  instanceView: ({ path, query }) => {
+    const instance = lookup.instance({ ...path, ...query })
+
+    // if empty uses default auto-restart behaviour
+    // if set, is based off of the policy
+    // https://github.com/oxidecomputer/omicron/blob/f63ed095e744fb8d2383fda6799eb0b2d6dfbd3c/nexus/db-queries/src/db/datastore/instance.rs#L228C26-L239
+    if (instance.auto_restart_policy === 'never') {
+      instance.auto_restart_enabled = false
+    } else if (
+      instance.auto_restart_policy === 'best_effort' ||
+      !instance.auto_restart_policy // included for posterity but this has to be set in the mock data anyway
+    ) {
+      instance.auto_restart_enabled = true
+    }
+
+    return instance
+  },
   instanceUpdate({ path, query, body }) {
     const instance = lookup.instance({ ...path, ...query })
 
