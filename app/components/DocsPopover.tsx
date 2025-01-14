@@ -48,8 +48,8 @@ export const DocsPopover = ({ heading, icon, summary, links }: DocsPopoverProps)
         <Info16Icon aria-label="Links to docs" className="shrink-0" />
       </PopoverButton>
       <PopoverPanel
-        // DocsPopoverPanel needed for enter animation
-        className="DocsPopoverPanel z-10 w-96 rounded-lg border bg-raise border-secondary elevation-2"
+        // popover-panel needed for enter animation
+        className="popover-panel z-10 w-96 rounded-lg border bg-raise border-secondary elevation-2"
         anchor={{ to: 'bottom end', gap: 12 }}
       >
         <div className="px-4">

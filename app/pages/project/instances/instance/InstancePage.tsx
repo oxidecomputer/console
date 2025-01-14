@@ -29,6 +29,7 @@ import {
 import { ExternalIps } from '~/components/ExternalIps'
 import { NumberField } from '~/components/form/fields/NumberField'
 import { HL } from '~/components/HL'
+import { InstanceAutoRestartPopover } from '~/components/InstanceAutoRestartPopover'
 import { InstanceDocsPopover } from '~/components/InstanceDocsPopover'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { RefreshButton } from '~/components/RefreshButton'
@@ -168,6 +169,9 @@ export function InstancePage() {
 
   const memory = filesize(instance.memory, { output: 'object', base: 2 })
 
+  // Document when this popover is showing
+  const hasAutoRestart = !!instance.autoRestartCooldownExpiration
+
   return (
     <>
       <PageHeader>
@@ -203,7 +207,7 @@ export function InstancePage() {
             <span className="ml-1 text-tertiary"> {memory.unit}</span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="state">
-            <div className="flex">
+            <div className="flex items-center gap-2">
               <InstanceStateBadge state={instance.runState} />
               {polling && (
                 <Tooltip content="Auto-refreshing while state changes" delay={150}>
@@ -211,6 +215,13 @@ export function InstancePage() {
                     <Spinner className="ml-2" />
                   </button>
                 </Tooltip>
+              )}
+              {hasAutoRestart && (
+                <InstanceAutoRestartPopover
+                  enabled={instance.autoRestartEnabled}
+                  cooldownExpiration={instance.autoRestartCooldownExpiration}
+                  policy={instance.autoRestartPolicy}
+                />
               )}
             </div>
           </PropertiesTable.Row>
@@ -241,6 +252,7 @@ export function InstancePage() {
         <Tab to={pb.instanceMetrics(instanceSelector)}>Metrics</Tab>
         <Tab to={pb.instanceNetworking(instanceSelector)}>Networking</Tab>
         <Tab to={pb.instanceConnect(instanceSelector)}>Connect</Tab>
+        <Tab to={pb.instanceSettings(instanceSelector)}>Settings</Tab>
       </RouteTabs>
       {resizeInstance && (
         <ResizeInstanceModal

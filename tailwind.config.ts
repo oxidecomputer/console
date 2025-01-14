@@ -61,6 +61,9 @@ export default {
       transparent: 'transparent',
       current: 'currentColor',
     },
+    animation: {
+      'spin-slow': 'spin 5s linear infinite',
+    },
   },
   plugins: [
     plugin(({ addVariant, addUtilities }) => {
