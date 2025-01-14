@@ -68,14 +68,10 @@ export const InstanceAutoRestartPopover = ({
 
   const isQueued = cooldownExpiration && new Date(cooldownExpiration) < now
 
-  // todo: untangle this web
-  const helpTextState = isQueued
-    ? 'starting'
-    : policy === 'never'
-      ? 'never'
-      : enabled
-        ? 'enabled'
-        : ('disabled' as const)
+  let helpTextState: keyof typeof helpText = 'disabled'
+  if (isQueued) helpTextState = 'starting' // Expiration is in the past and queued for restart
+  if (policy === 'never') helpTextState = 'never' // Will never auto-restart
+  if (enabled) helpTextState = 'enabled' // Restart enabled and cooldown as not expired
 
   return (
     <Popover>
