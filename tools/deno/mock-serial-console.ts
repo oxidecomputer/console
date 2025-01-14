@@ -27,7 +27,7 @@ async function serialConsole(req: Request) {
   const { socket, response } = Deno.upgradeWebSocket(req)
   socket.binaryType = 'arraybuffer'
 
-  console.log(`New client connected`)
+  console.info(`New client connected`)
 
   // send hello as a binary frame for xterm to display
   socket.onopen = () => {
@@ -39,7 +39,7 @@ async function serialConsole(req: Request) {
   // echo back binary data
   socket.onmessage = (m) => socket.send(m.data)
 
-  socket.onclose = () => console.log('Connection closed')
+  socket.onclose = () => console.info('Connection closed')
 
   return response
 }

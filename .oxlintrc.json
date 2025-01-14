@@ -3,6 +3,8 @@
   "plugins": ["react", "react-hooks", "unicorn", "typescript", "oxc"],
   "rules": {
     "react-hooks/exhaustive-deps": "error",
+    // only worry about console.log
+    "no-console": ["error", { "allow": ["warn", "error", "info", "table"] }],
     // turning this off because it's more sensitive than eslint currently
     // "react-hooks/rules-of-hooks": "error",
     "no-unused-vars": [
@@ -13,5 +15,6 @@
         "caughtErrorsIgnorePattern": "^_"
       }
     ]
-  }
+  },
+  "ignorePatterns": ["dist/", "node_modules/"]
 }

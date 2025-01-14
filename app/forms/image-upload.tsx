@@ -515,7 +515,7 @@ export function Component() {
           .catch((e) => {
             // eat a 404 since that's what we want. anything else should still blow up
             if (e.statusCode === 404) {
-              console.log(
+              console.info(
                 '/v1/images 404 is expected. It means the image name is not taken.'
               )
               return null
