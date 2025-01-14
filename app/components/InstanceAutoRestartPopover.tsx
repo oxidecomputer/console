@@ -103,7 +103,7 @@ export const InstanceAutoRestartPopover = ({
           </CloseButton>
         </PopoverRow>
         {cooldownExpiration && (
-          <PopoverRow label="State">
+          <PopoverRow label="Cooldown">
             {isQueued ? (
               <>
                 <Spinner /> Queued for restart…
@@ -151,7 +151,7 @@ const AutoRestartIcon12 = ({ className }: { className?: string }) => (
 const PopoverRow = ({ label, children }: { label: string; children: ReactNode }) => (
   <div className="flex h-10 items-center border-b border-b-secondary">
     <div className="w-32 pl-3 pr-2 text-mono-sm text-tertiary">{label}</div>
-    <div className="flex h-10 flex-grow items-center gap-2 pr-2 text-sans-md">
+    <div className="flex h-10 flex-grow items-center gap-1.5 pr-2 text-sans-md">
       {children}
     </div>
   </div>

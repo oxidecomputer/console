@@ -85,13 +85,19 @@ export function Component() {
             required
             className="max-w-none"
           />
-          <FormMeta label="Enabled" helpText="Help">
+          <FormMeta
+            label="Enabled"
+            helpText="If enabled this instance will automatically restart it if it enters the Failed state."
+          >
             {instance.autoRestartEnabled ? 'True' : 'False'}{' '}
             {instance.autoRestartEnabled && !instance.autoRestartPolicy && (
               <span className="text-tertiary">(Project default)</span>
             )}
           </FormMeta>
-          <FormMeta label="Cooldown expiration" helpText="Help">
+          <FormMeta
+            label="Cooldown expiration"
+            helpText="The time at which the auto-restart cooldown period for this instance completes. If n/a, then either the instance has never been automatically restarted, or the cooldown period has already expired"
+          >
             {instance.autoRestartCooldownExpiration ? (
               <>
                 {format(
@@ -103,6 +109,21 @@ export function Component() {
                     ({formatDistanceToNow(new Date(instance.autoRestartCooldownExpiration))}
                     )
                   </span>
+                )}
+              </>
+            ) : (
+              <span className="text-tertiary">n/a</span>
+            )}
+          </FormMeta>
+          <FormMeta
+            label="Last auto-restarted"
+            helpText="When this instance was last automatically restarted. Empty if never auto-restarted."
+          >
+            {instance.timeLastAutoRestarted ? (
+              <>
+                {format(
+                  new Date(instance.timeLastAutoRestarted),
+                  'MMM d, yyyy HH:mm:ss zz'
                 )}
               </>
             ) : (

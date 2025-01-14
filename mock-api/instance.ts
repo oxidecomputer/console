@@ -43,6 +43,7 @@ const failedInstance: Json<Instance> = {
   project_id: project.id,
   run_state: 'failed',
   auto_restart_cooldown_expiration: new Date(Date.now() + 5 * 60 * 1000).toISOString(), // 5 mins in the future
+  time_last_auto_restarted: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // one month ago
 }
 
 const startingInstance: Json<Instance> = {
