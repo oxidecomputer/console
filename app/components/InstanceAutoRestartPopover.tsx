@@ -27,7 +27,10 @@ import { pb } from '~/util/path-builder'
 
 const helpText = {
   enabled: (
-    <>The control plane will attempt to automatically restart instance this instance.</>
+    <>
+      The control plane will attempt to automatically restart instance this instance after
+      entering the <HL>failed</HL> state.
+    </>
   ),
   disabled: (
     <>
