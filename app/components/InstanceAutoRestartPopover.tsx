@@ -11,7 +11,11 @@ import { formatDistanceToNow } from 'date-fns'
 import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router'
 
-import { NextArrow12Icon, OpenLink12Icon } from '@oxide/design-system/icons/react'
+import {
+  AutoRestart12Icon,
+  NextArrow12Icon,
+  OpenLink12Icon,
+} from '@oxide/design-system/icons/react'
 
 import type { InstanceAutoRestartPolicy } from '~/api'
 import { HL } from '~/components/HL'
@@ -73,7 +77,7 @@ export const InstanceAutoRestartPopover = ({
   return (
     <Popover>
       <PopoverButton className="group flex h-6 w-6 items-center justify-center rounded border border-default hover:bg-hover">
-        <AutoRestartIcon12
+        <AutoRestart12Icon
           className={cn('shrink-0 transition-transform', enabled && 'animate-spin-slow')}
         />
       </PopoverButton>
@@ -136,22 +140,6 @@ export const InstanceAutoRestartPopover = ({
     </Popover>
   )
 }
-
-const AutoRestartIcon12 = ({ className }: { className?: string }) => (
-  <svg
-    width="12"
-    height="12"
-    viewBox="0 0 12 12"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className={className}
-  >
-    <path
-      d="M6 10.5C6.44357 10.5 6.87214 10.4358 7.27695 10.3162C7.59688 10.2217 7.95371 10.3259 8.13052 10.6088L8.22881 10.7661C8.43972 11.1035 8.31208 11.5527 7.9354 11.681C7.32818 11.8878 6.67719 12 6 12C2.68629 12 0 9.31371 0 6C0 2.68629 2.68629 0 6 0C9.31371 0 12 2.68629 12 6C12 7.2371 11.6119 8.42336 10.9652 9.39169C10.74 9.72899 10.2624 9.72849 9.99535 9.42325L7.9723 7.1112C7.59324 6.67799 7.90089 6 8.47652 6H10.5C10.5 3.51472 8.48528 1.5 6 1.5C3.51472 1.5 1.5 3.51472 1.5 6C1.5 8.48528 3.51472 10.5 6 10.5Z"
-      fill="currentColor"
-    />
-  </svg>
-)
 
 const PopoverRow = ({ label, children }: { label: string; children: ReactNode }) => (
   <div className="flex h-10 items-center border-b border-b-secondary">
