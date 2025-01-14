@@ -8,7 +8,7 @@
 import { CloseButton, Popover, PopoverButton, PopoverPanel } from '@headlessui/react'
 import cn from 'classnames'
 import { formatDistanceToNow } from 'date-fns'
-import { useEffect, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router'
 
 import { NextArrow12Icon, OpenLink12Icon } from '@oxide/design-system/icons/react'
@@ -18,6 +18,7 @@ import { HL } from '~/components/HL'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { Badge } from '~/ui/lib/Badge'
 import { Spinner } from '~/ui/lib/Spinner'
+import { useInterval } from '~/ui/lib/use-interval'
 import { pb } from '~/util/path-builder'
 
 const helpText = {
@@ -56,10 +57,7 @@ export const InstanceAutoRestartPopover = ({
   const instanceSelector = useInstanceSelector()
   const [now, setNow] = useState(new Date())
 
-  useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 1000)
-    return () => clearInterval(timer)
-  }, [])
+  useInterval({ fn: () => setNow(new Date()), delay: 1000 })
 
   const isQueued = cooldownExpiration && new Date(cooldownExpiration) < now
 

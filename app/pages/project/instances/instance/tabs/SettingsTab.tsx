@@ -7,7 +7,7 @@
  */
 
 import { format, formatDistanceToNow } from 'date-fns'
-import { useEffect, useId, useState, type ReactNode } from 'react'
+import { useId, useState, type ReactNode } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { apiQueryClient, useApiMutation, usePrefetchedApiQuery } from '~/api'
@@ -18,6 +18,7 @@ import { Button } from '~/ui/lib/Button'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { LearnMore, SettingsGroup } from '~/ui/lib/SettingsGroup'
 import { TipIcon } from '~/ui/lib/TipIcon'
+import { useInterval } from '~/ui/lib/use-interval'
 import { links } from '~/util/links'
 
 Component.displayName = 'SettingsTab'
@@ -26,10 +27,7 @@ export function Component() {
 
   const [now, setNow] = useState(new Date())
 
-  useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 1000)
-    return () => clearInterval(timer)
-  }, [])
+  useInterval({ fn: () => setNow(new Date()), delay: 1000 })
 
   const { data: instance } = usePrefetchedApiQuery('instanceView', {
     path: { instance: instanceSelector.instance },
