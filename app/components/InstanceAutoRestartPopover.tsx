@@ -58,7 +58,7 @@ export const InstanceAutoRestartPopover = ({
   cooldownExpiration,
 }: {
   enabled: boolean
-  policy: InstanceAutoRestartPolicy
+  policy?: InstanceAutoRestartPolicy
   cooldownExpiration: Date | undefined
 }) => {
   const instanceSelector = useInstanceSelector()
