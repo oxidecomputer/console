@@ -24,7 +24,12 @@ import { addToast } from '~/stores/toast'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
-import { CommonFields } from './firewall-rules-common'
+import {
+  CommonFields,
+  defaultActiveSubforms,
+  submitDisabledMessage,
+  useSubformStates,
+} from './firewall-rules-common'
 import { valuesToRuleUpdate, type FirewallRuleValues } from './firewall-rules-util'
 
 /** Empty form for when we're not creating from an existing rule */
@@ -70,6 +75,8 @@ CreateFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
 }
 
 export function CreateFirewallRuleForm() {
+  const { subformStates, updateSubformStates } = useSubformStates(defaultActiveSubforms)
+
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 
@@ -118,14 +125,16 @@ export function CreateFirewallRuleForm() {
         })
       }}
       loading={updateRules.isPending}
-      submitError={updateRules.error}
       submitLabel="Add rule"
+      submitDisabled={submitDisabledMessage(subformStates)}
+      submitError={updateRules.error}
     >
       <CommonFields
         control={form.control}
         // error if name is already in use
         nameTaken={(name) => !!existingRules.find((r) => r.name === name)}
         error={updateRules.error}
+        updateSubformStates={updateSubformStates}
         // TODO: there should also be a form-level error so if the name is off
         // screen, it doesn't look like the submit button isn't working. Maybe
         // instead of setting a root error, it would be more robust to show a
