@@ -238,7 +238,7 @@ export function InstancePage() {
       </PropertiesTable.Group>
       <RouteTabs fullWidth>
         <Tab to={pb.instanceStorage(instanceSelector)}>Storage</Tab>
-        <Tab to={pb.instanceMetrics(instanceSelector)}>Metrics</Tab>
+        <Tab to={pb.instanceMetrics(instanceSelector)}>Disk Metrics</Tab>
         <Tab to={pb.instanceNetworking(instanceSelector)}>Networking</Tab>
         <Tab to={pb.instanceConnect(instanceSelector)}>Connect</Tab>
       </RouteTabs>
