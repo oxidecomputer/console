@@ -41,7 +41,7 @@ import { bytesToGiB, GiB } from '~/util/units'
 
 const blankDiskSource: DiskSource = {
   type: 'blank',
-  blockSize: 512,
+  blockSize: 4096,
 }
 
 const defaultValues: DiskCreate = {

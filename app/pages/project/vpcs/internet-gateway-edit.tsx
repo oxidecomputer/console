@@ -194,10 +194,7 @@ export function EditInternetGatewayForm() {
       <FormDivider />
 
       <div className="flex flex-col gap-3">
-        <SideModal.Heading>
-          Routes targeting this gateway
-          {gatewayIpPools && gatewayIpPools.length > 1 ? 's' : ''}
-        </SideModal.Heading>
+        <SideModal.Heading>Routes targeting this gateway</SideModal.Heading>
         <Table>
           <Table.Header>
             <Table.HeaderRow>
