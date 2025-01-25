@@ -10,6 +10,7 @@ deno.lock
 *.launch
 .settings/
 *.sublime-workspace
+.helix
 
 # IDE - VSCode
 .vscode/*
