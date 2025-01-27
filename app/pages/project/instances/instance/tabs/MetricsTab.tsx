@@ -39,6 +39,22 @@ export function getCycleCount(num: number, base: number) {
   return cycleCount
 }
 
+type getOxqlQueryParams = {
+  metric: string
+  diskId: string
+  startTime: Date
+  endTime: Date
+}
+
+const getOxqlQuery = ({ metric, diskId, startTime, endTime }: getOxqlQueryParams) => {
+  const utcStartTime = new Date(startTime.toISOString())
+  const utcEndTime = new Date(endTime.toISOString())
+  const duration = getDurationMinutes({ start: utcStartTime, end: utcEndTime })
+  const query = `get virtual_disk:${metric} | filter timestamp > @now() - ${duration}m && disk_id == "${diskId}" | align mean_within(30s)`
+  // console.log('query', query)
+  return query
+}
+
 type OxqlDiskMetricParams = {
   title: string
   unit: 'Bytes' | 'Count'
@@ -61,17 +77,10 @@ function OxqlDiskMetric({
   diskSelector,
 }: OxqlDiskMetricParams) {
   // you need to update the startTime and endTime to account for the user's timezone; should still be a Date
-  const utcStartTime = new Date(startTime.toISOString())
-  const utcEndTime = new Date(endTime.toISOString())
-
   const { diskId } = diskSelector
 
-  const duration = getDurationMinutes({ start: utcStartTime, end: utcEndTime })
-  const { data: metrics } = useApiQuery('systemTimeseriesQuery', {
-    body: {
-      query: `get virtual_disk:${metric} | filter timestamp > @now() - ${duration}m && disk_id == "${diskId}" | align mean_within(30s)`,
-    },
-  })
+  const query = getOxqlQuery({ metric, diskId, startTime, endTime })
+  const { data: metrics } = useApiQuery('systemTimeseriesQuery', { body: { query } })
   const chartData: ChartDatum[] = useMemo(() => getChartData(metrics), [metrics])
 
   const isBytesChart = unit === 'Bytes'
@@ -84,7 +93,7 @@ function OxqlDiskMetric({
   // We'll need to divide each number in the set by a consistent exponent
   // of 1024 (for Bytes) or 1000 (for Counts)
   const base = isBytesChart ? 1024 : 1000
-  // Figure out what that exponent is:
+  // Figure out what that exponent is
   const cycleCount = getCycleCount(largestValue, base)
 
   // Now that we know how many cycles of "divide by 1024 || 1000" to run through
