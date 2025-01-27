@@ -38,8 +38,7 @@
   & td:last-child > div > button {
     @apply -mx-3 -my-3 flex items-center justify-center px-3 py-3;
   }
-
-  & tr:hover td > div {
+  & td:last-child > div:has(button):hover {
     @apply bg-accent-secondary-hover;
   }
 
