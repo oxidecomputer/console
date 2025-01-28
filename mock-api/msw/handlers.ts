@@ -72,8 +72,14 @@ export const handlers = makeHandlers({
   loginLocal: ({ body: { password } }) => (password === 'bad' ? 401 : 200),
   groupList: (params) => paginated(params.query, db.userGroups),
   groupView: (params) => lookupById(db.userGroups, params.path.groupId),
-
-  projectList: (params) => paginated(params.query, db.projects),
+  projectList: ({ query, cookies }) => {
+    // this is used to test for the IdP misconfig situation where the user has
+    // no role on the silo (see error-pages.e2e.ts). requireRole checks for _at
+    // least_ viewer, and viewer is the weakest role, so checking for viewer
+    // effectively means "do I have any role at all"
+    requireRole(cookies, 'silo', defaultSilo.id, 'viewer')
+    return paginated(query, db.projects)
+  },
   projectCreate({ body }) {
     errIfExists(db.projects, { name: body.name }, 'project')
 
