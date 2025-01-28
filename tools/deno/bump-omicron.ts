@@ -147,6 +147,10 @@ async function makeOmicronPR(
     const prNum = prUrl.match(/\d+$/)![0]
     await $`gh pr merge ${prNum} --auto --squash`
     console.info('PR set to auto-merge when CI passes')
+
+    // change dir back to omicron before worktree cleanup because Deno gets
+    // confused later when it tries to do anything while still in the deleted dir
+    Deno.chdir(OMICRON_DIR)
   }
 
   // worktree has been cleaned up, so branch delete is allowed
