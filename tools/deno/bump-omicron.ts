@@ -62,7 +62,7 @@ async function makeOmicronWorktree() {
   return {
     dir: tmpDir,
     [Symbol.asyncDispose]: async function () {
-      console.log('Cleaning up worktree')
+      console.info('Cleaning up worktree')
       await $`git worktree remove ${tmpDir}`.cwd(OMICRON_DIR).quiet('stdout')
     },
   }

@@ -21,7 +21,7 @@ type AllParams = Readonly<Params<string>>
 export const requireParams =
   <K extends string = never>(...requiredKeys: K[]) =>
   (params: AllParams) => {
-    const requiredParams: { [k in K]?: string } = {}
+    const requiredParams: Partial<Record<K, string>> = {}
     for (const k of requiredKeys) {
       const value = params[k]
       if (process.env.NODE_ENV !== 'production') {
@@ -29,7 +29,7 @@ export const requireParams =
       }
       requiredParams[k] = value
     }
-    return requiredParams as { readonly [k in K]: string }
+    return requiredParams as Readonly<Record<K, string>>
   }
 
 export const getProjectSelector = requireParams('project')
