@@ -24,6 +24,22 @@ import { Listbox } from '~/ui/lib/Listbox'
 import { Spinner } from '~/ui/lib/Spinner'
 import { TableEmptyBox } from '~/ui/lib/Table'
 
+type OxqlDiskMetricName =
+  | 'virtual_disk:bytes_read'
+  | 'virtual_disk:bytes_written'
+  | 'virtual_disk:failed_flushes'
+  | 'virtual_disk:failed_reads'
+  | 'virtual_disk:failed_writes'
+  | 'virtual_disk:flushes'
+  | 'virtual_disk:io_latency'
+  | 'virtual_disk:io_size'
+  | 'virtual_disk:reads'
+  | 'virtual_disk:writes'
+
+type OxqlVmMetricName = 'virtual_machine:vcpu_usage'
+
+type OxqlMetricName = OxqlDiskMetricName | OxqlVmMetricName
+
 const TimeSeriesChart = React.lazy(() => import('~/components/TimeSeriesChart'))
 
 export function getCycleCount(num: number, base: number) {
@@ -40,55 +56,54 @@ export function getCycleCount(num: number, base: number) {
 const oxqlTimestamp = (date: Date) => date.toISOString().replace('Z', '')
 
 type getOxqlQueryParams = {
-  metric: string
-  diskId: string
+  metricName: OxqlMetricName
   startTime: Date
   endTime: Date
+  // for disk metrics
+  diskId?: string
+  // for vm metrics
+  vmId?: string
 }
 
-const getOxqlQuery = ({ metric, diskId, startTime, endTime }: getOxqlQueryParams) => {
-  const start = oxqlTimestamp(startTime)
-  const end = oxqlTimestamp(endTime)
-  return `get virtual_disk:${metric} | filter timestamp >= @${start} && timestamp < @${end} && disk_id == "${diskId}" | align mean_within(30s)`
-}
-
-// Should probaby be generated in Api.ts
-type OxqlDiskMetricName =
-  | 'bytes_read'
-  | 'bytes_written'
-  | 'failed_flushes'
-  | 'failed_reads'
-  | 'failed_writes'
-  | 'flushes'
-  | 'io_latency'
-  | 'io_size'
-  | 'reads'
-  | 'writes'
-
-type OxqlDiskMetricParams = {
-  title: string
-  unit: 'Bytes' | 'Count'
-  metric: OxqlDiskMetricName
-  startTime: Date
-  endTime: Date
-  diskSelector: {
-    project: string
-    disk: string
-    diskId: string
-  }
-}
-
-function OxqlDiskMetric({
-  title,
-  unit,
-  metric,
+const getOxqlQuery = ({
+  metricName,
   startTime,
   endTime,
-  diskSelector,
-}: OxqlDiskMetricParams) {
-  const { diskId } = diskSelector
+  diskId,
+  vmId,
+}: getOxqlQueryParams) => {
+  const start = oxqlTimestamp(startTime)
+  const end = oxqlTimestamp(endTime)
+  const filters = [`timestamp >= @${start}`, `timestamp < @${end}`]
+  if (diskId) {
+    filters.push(`disk_id == "${diskId}"`)
+  }
+  if (vmId) {
+    filters.push(`vm_id == "${vmId}"`)
+  }
+  return `get ${metricName} | filter ${filters.join(' && ')} | align mean_within(30s)`
+}
 
-  const query = getOxqlQuery({ metric, diskId, startTime, endTime })
+type OxqlBaseMetricParams = {
+  title: string
+  unit: 'Bytes' | 'Count'
+  metricName: OxqlMetricName
+  startTime: Date
+  endTime: Date
+}
+
+type OxqlDiskMetricParams = OxqlBaseMetricParams & { diskId?: string; vmId?: never }
+type OxqlVmMetricParams = OxqlBaseMetricParams & { diskId?: never; vmId?: string }
+function OxqlMetric({
+  title,
+  unit,
+  metricName,
+  startTime,
+  endTime,
+  diskId,
+  vmId,
+}: OxqlDiskMetricParams | OxqlVmMetricParams) {
+  const query = getOxqlQuery({ metricName, startTime, endTime, diskId, vmId })
   const { data: metrics } = useApiQuery('systemTimeseriesQuery', { body: { query } })
   const chartData: ChartDatum[] = useMemo(() => getChartData(metrics), [metrics])
 
@@ -222,7 +237,7 @@ export function Component() {
   const commonProps = {
     startTime,
     endTime,
-    diskSelector: { project, disk: diskName, diskId },
+    diskId,
   }
 
   return (
@@ -249,22 +264,42 @@ export function Component() {
             https://github.com/oxidecomputer/crucible/blob/258f162b/upstairs/src/stats.rs#L9-L50 */}
 
         <div className="flex w-full space-x-4">
-          <OxqlDiskMetric {...commonProps} title="Reads" unit="Count" metric="reads" />
-          <OxqlDiskMetric {...commonProps} title="Read" unit="Bytes" metric="bytes_read" />
-        </div>
-
-        <div className="flex w-full space-x-4">
-          <OxqlDiskMetric {...commonProps} title="Writes" unit="Count" metric="writes" />
-          <OxqlDiskMetric
+          <OxqlMetric
             {...commonProps}
-            title="Write"
+            title="Reads"
+            unit="Count"
+            metricName="virtual_disk:reads"
+          />
+          <OxqlMetric
+            {...commonProps}
+            title="Read"
             unit="Bytes"
-            metric="bytes_written"
+            metricName="virtual_disk:bytes_read"
           />
         </div>
 
         <div className="flex w-full space-x-4">
-          <OxqlDiskMetric {...commonProps} title="Flushes" unit="Count" metric="flushes" />
+          <OxqlMetric
+            {...commonProps}
+            title="Writes"
+            unit="Count"
+            metricName="virtual_disk:writes"
+          />
+          <OxqlMetric
+            {...commonProps}
+            title="Write"
+            unit="Bytes"
+            metricName="virtual_disk:bytes_written"
+          />
+        </div>
+
+        <div className="flex w-full space-x-4">
+          <OxqlMetric
+            {...commonProps}
+            title="Flushes"
+            unit="Count"
+            metricName="virtual_disk:flushes"
+          />
         </div>
       </div>
     </>
