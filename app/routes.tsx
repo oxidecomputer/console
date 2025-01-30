@@ -60,7 +60,8 @@ import { ImagesPage } from './pages/project/images/ImagesPage'
 import { InstancePage } from './pages/project/instances/instance/InstancePage'
 import * as SerialConsole from './pages/project/instances/instance/SerialConsolePage'
 import * as ConnectTab from './pages/project/instances/instance/tabs/ConnectTab'
-import * as MetricsTab from './pages/project/instances/instance/tabs/MetricsTab'
+import { MetricsTab } from './pages/project/instances/instance/tabs/MetricsTab'
+import * as DiskMetricsTab from './pages/project/instances/instance/tabs/MetricsTab/DiskMetricsTab'
 import * as NetworkingTab from './pages/project/instances/instance/tabs/NetworkingTab'
 import * as StorageTab from './pages/project/instances/instance/tabs/StorageTab'
 import { InstancesPage } from './pages/project/instances/InstancesPage'
@@ -293,7 +294,15 @@ export const routes = createRoutesFromElements(
                   path="networking"
                   handle={{ crumb: 'Networking' }}
                 />
-                <Route {...MetricsTab} path="metrics" handle={{ crumb: 'Metrics' }} />
+                {/* <Route {...MetricsTab} path="metrics" handle={{ crumb: 'Metrics' }} /> */}
+                <Route
+                  element={<MetricsTab />}
+                  path="metrics"
+                  handle={{ crumb: 'Metrics' }}
+                >
+                  <Route index element={<Navigate to="disk" replace />} />
+                  <Route {...DiskMetricsTab} path="disk" handle={{ crumb: 'Disk' }} />
+                </Route>
                 <Route {...ConnectTab} path="connect" handle={{ crumb: 'Connect' }} />
               </Route>
             </Route>

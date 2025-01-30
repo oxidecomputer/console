@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import React, { useMemo, useState } from 'react'
-import { Link, type LoaderFunctionArgs } from 'react-router'
+import { Link, Outlet, type LoaderFunctionArgs } from 'react-router'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Storage24Icon } from '@oxide/design-system/icons/react'
@@ -19,6 +19,24 @@ import { TableEmptyBox } from '~/ui/lib/Table'
 import { pb } from '~/util/path-builder'
 
 import { OxqlMetric } from './MetricsTab/OxqlMetric'
+
+export const MetricsTab = () => {
+  const { project, instance } = useInstanceSelector()
+  return (
+    <div className="flex gap-8">
+      <div className="flex w-[160px] flex-shrink-0 flex-col gap-2">
+        <Link to={pb.instanceMetrics({ project, instance })}>CPU</Link>
+        <Link to={pb.instanceMetrics({ project, instance })}>Utilization</Link>
+        <Link to={pb.instanceMetrics({ project, instance })}>Time</Link>
+        <Link to={pb.instanceDiskMetrics({ project, instance })}>Disk</Link>
+        <Link to={pb.instanceMetrics({ project, instance })}>Network</Link>
+      </div>
+      <div className="flex-grow">
+        <Outlet />
+      </div>
+    </div>
+  )
+}
 
 // We could figure out how to prefetch the metrics data, but it would be
 // annoying because it relies on the default date range, plus there are 5 calls.
@@ -40,7 +58,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-Component.displayName = 'MetricsTab'
+Component.displayName = 'MetricsTabOld'
 export function Component() {
   const { project, instance } = useInstanceSelector()
   const { data } = usePrefetchedApiQuery('instanceDiskList', {
@@ -88,7 +106,7 @@ export function Component() {
         <Link to={pb.instanceMetrics({ project, instance })}>CPU</Link>
         <Link to={pb.instanceMetrics({ project, instance })}>Utilization</Link>
         <Link to={pb.instanceMetrics({ project, instance })}>Time</Link>
-        <Link to={pb.instanceMetrics({ project, instance })}>Disk</Link>
+        <Link to={pb.instanceDiskMetrics({ project, instance })}>Disk</Link>
         <Link to={pb.instanceMetrics({ project, instance })}>Network</Link>
       </div>
       <div className="flex-grow">
