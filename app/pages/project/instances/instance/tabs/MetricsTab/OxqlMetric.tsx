@@ -54,7 +54,9 @@ type OxqlVcpuState = 'run' | 'idle' | 'waiting' | 'emulation'
 /** determine the mean window for the given time range */
 const getMeanWindow = (start: Date, end: Date) => {
   const duration = getDurationMinutes({ start, end })
-  return `${Math.round(duration / 480)}m`
+  // the number of points in the chart
+  const points = 100
+  return `${Math.round(duration / points)}m`
 }
 
 type getOxqlQueryParams = {
@@ -96,8 +98,7 @@ const getOxqlQuery = ({
     filters.push(`state == "${state}"`)
   }
   const meanWindow = getMeanWindow(startTime, endTime)
-  const query = `get ${metricName} | filter ${filters.join(' && ')} | align mean_within(${meanWindow}) ${join ? '| group_by [], sum' : ''}`
-  // console.log(query) // 🚨🚨🚨🚨🚨
+  const query = `get ${metricName} | filter ${filters.join(' && ')} | align mean_within(${meanWindow})${join ? ' | group_by [instance_id], sum' : ''}`
   return query
 }
 
@@ -221,7 +222,6 @@ export function OxqlMetric({
           className="mt-3"
           data={data}
           title={title}
-          legend="asdasd"
           unit={unitForSet}
           width={480}
           height={240}
