@@ -124,7 +124,11 @@ if (args.help) printHelpAndExit()
 
 const { base, head } = await getCommitRange(args._)
 
-const tmpDirBase = await genForCommit(base, args.force)
-const tmpDirHead = await genForCommit(head, args.force)
+const basePath = (await genForCommit(base, args.force)) + '/Api.ts'
+const headPath = (await genForCommit(head, args.force)) + '/Api.ts'
 
-await $`${diffTool} ${tmpDirBase}/Api.ts ${tmpDirHead}/Api.ts || true`
+await $`${diffTool} ${basePath} ${headPath} || true`
+
+// useful if you want to open the file directly in an editor
+console.log('Before:', basePath)
+console.log('After: ', headPath)
