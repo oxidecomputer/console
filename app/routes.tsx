@@ -61,6 +61,7 @@ import { InstancePage } from './pages/project/instances/instance/InstancePage'
 import * as SerialConsole from './pages/project/instances/instance/SerialConsolePage'
 import * as ConnectTab from './pages/project/instances/instance/tabs/ConnectTab'
 import { MetricsTab } from './pages/project/instances/instance/tabs/MetricsTab'
+import * as CpuMetricsTab from './pages/project/instances/instance/tabs/MetricsTab/CpuMetricsTab'
 import * as DiskMetricsTab from './pages/project/instances/instance/tabs/MetricsTab/DiskMetricsTab'
 import * as NetworkingTab from './pages/project/instances/instance/tabs/NetworkingTab'
 import * as StorageTab from './pages/project/instances/instance/tabs/StorageTab'
@@ -294,7 +295,6 @@ export const routes = createRoutesFromElements(
                   path="networking"
                   handle={{ crumb: 'Networking' }}
                 />
-                {/* <Route {...MetricsTab} path="metrics" handle={{ crumb: 'Metrics' }} /> */}
                 <Route
                   element={<MetricsTab />}
                   path="metrics"
@@ -302,6 +302,7 @@ export const routes = createRoutesFromElements(
                 >
                   <Route index element={<Navigate to="disk" replace />} />
                   <Route {...DiskMetricsTab} path="disk" handle={{ crumb: 'Disk' }} />
+                  <Route {...CpuMetricsTab} path="cpu" handle={{ crumb: 'CPU' }} />
                 </Route>
                 <Route {...ConnectTab} path="connect" handle={{ crumb: 'Connect' }} />
               </Route>

@@ -13,17 +13,14 @@
  *
  * Copyright Oxide Computer Company
  */
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
-import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
-import { TableEmptyBox } from '~/ui/lib/Table'
 
 import { OxqlMetric } from './OxqlMetric'
 
@@ -47,14 +44,14 @@ export async function loader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-Component.displayName = 'DiskMetricsTab'
+Component.displayName = 'CpuMetricsTab'
 export function Component() {
   const { project, instance } = useInstanceSelector()
-  const { data } = usePrefetchedApiQuery('instanceDiskList', {
+  const { data: instanceData } = usePrefetchedApiQuery('instanceView', {
     path: { instance },
     query: { project },
   })
-  const disks = useMemo(() => data?.items || [], [data])
+  const ncpus = instanceData?.ncpus || 1
 
   const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker({
     initialPreset: 'lastDay',
@@ -63,86 +60,97 @@ export function Component() {
   // The fallback here is kind of silly — it is only invoked when there are no
   // disks, in which case we show the fallback UI and diskName is never used. We
   // only need to do it this way because hooks cannot be called conditionally.
-  const [diskName, setDiskName] = useState<string>(disks[0]?.name || '')
-  const [diskId, setDiskId] = useState<string>(disks[0]?.id || '')
-  const diskItems = disks.map(({ name }) => ({ label: name, value: name }))
+  const [cpuId, setCpuId] = useState<string>('all')
+  // Revisit this for selecting a CPU
+  // const [diskId, setDiskId] = useState<string>(disks[0]?.id || '')
 
-  if (disks.length === 0) {
-    return (
-      <TableEmptyBox>
-        <EmptyMessage
-          icon={<Storage24Icon />}
-          title="No metrics available"
-          body="Metrics are only available if there are disks attached"
-        />
-      </TableEmptyBox>
-    )
-  }
+  // an array, of label and values, with the first one being 'all' and value is undefined, then the rest of the cpus
+  // up to ncpus, with each label being a string of the number, and the value being the number; start with 0, then go up to one less than the total number of cpus
+  const cpuItems = [
+    { label: 'All', value: 'all' },
+    ...Array.from({ length: ncpus }, (_, i) => ({
+      label: i.toString(),
+      value: i.toString(),
+    })),
+  ]
 
-  const commonProps = {
-    startTime,
-    endTime,
-    diskId,
-  }
+  const vcpuId = cpuId === 'all' ? undefined : cpuId
 
   return (
     <>
       <div className="mb-4 flex justify-between">
         <Listbox
           className="w-64"
-          aria-label="Choose disk"
-          name="disk-name"
-          selected={diskName}
-          items={diskItems}
+          aria-label="Choose vCPU to profile"
+          name="vcpu-id"
+          selected={cpuId}
+          items={cpuItems}
           onChange={(val) => {
-            if (val) {
-              setDiskName(val)
-              setDiskId(disks.find((d) => d.name === val)?.id || '')
-            }
+            setCpuId(val)
           }}
         />
         {dateTimeRangePicker}
       </div>
       <div className="mt-8 space-y-12">
-        {/* see the following link for the source of truth on what these mean
-            https://github.com/oxidecomputer/crucible/blob/258f162b/upstairs/src/stats.rs#L9-L50 */}
-
         <div className="flex w-full space-x-4">
           <OxqlMetric
-            {...commonProps}
-            title="Disk Reads"
-            unit="Count"
-            metricName="virtual_disk:reads"
+            startTime={startTime}
+            endTime={endTime}
+            title="CPU Utilization"
+            unit="%"
+            metricName="virtual_machine:vcpu_usage"
+            instanceId={instanceData.id}
+            vcpuId={vcpuId}
+            join
+          />
+        </div>
+        <div className="flex w-full space-x-4">
+          <OxqlMetric
+            startTime={startTime}
+            endTime={endTime}
+            title="CPU Utilization: Running"
+            unit="%"
+            metricName="virtual_machine:vcpu_usage"
+            state="run"
+            instanceId={instanceData.id}
+            vcpuId={vcpuId}
+            join
           />
           <OxqlMetric
-            {...commonProps}
-            title="Bytes Read"
-            unit="Bytes"
-            metricName="virtual_disk:bytes_read"
+            startTime={startTime}
+            endTime={endTime}
+            title="CPU Utilization: Idling"
+            unit="%"
+            metricName="virtual_machine:vcpu_usage"
+            state="idle"
+            instanceId={instanceData.id}
+            vcpuId={vcpuId}
+            join
           />
         </div>
 
         <div className="flex w-full space-x-4">
           <OxqlMetric
-            {...commonProps}
-            title="Disk Writes"
-            unit="Count"
-            metricName="virtual_disk:writes"
+            startTime={startTime}
+            endTime={endTime}
+            title="CPU Utilization: Waiting"
+            unit="%"
+            metricName="virtual_machine:vcpu_usage"
+            state="waiting"
+            instanceId={instanceData.id}
+            vcpuId={vcpuId}
+            join
           />
           <OxqlMetric
-            {...commonProps}
-            title="Bytes Written"
-            unit="Bytes"
-            metricName="virtual_disk:bytes_written"
-          />
-        </div>
-
-        <div className="flex w-full space-x-4">
-          <OxqlMetric
-            {...commonProps}
-            title="Disk Flushes"
-            unit="Count"
-            metricName="virtual_disk:flushes"
+            startTime={startTime}
+            endTime={endTime}
+            title="CPU Utilization: Emulation"
+            unit="%"
+            metricName="virtual_machine:vcpu_usage"
+            state="emulation"
+            instanceId={instanceData.id}
+            vcpuId={vcpuId}
+            join
           />
         </div>
       </div>

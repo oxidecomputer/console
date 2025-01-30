@@ -7,7 +7,7 @@
  */
 import { expect, test } from 'vitest'
 
-import { getCycleCount } from './MetricsTab/OxqlMetric'
+import { getCycleCount } from './OxqlMetric'
 
 test('getCycleCount', () => {
   expect(getCycleCount(5, 1000)).toEqual(0)
