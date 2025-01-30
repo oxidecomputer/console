@@ -6,11 +6,17 @@
  * Copyright Oxide Computer Company
  */
 
+/*
+ * OxQL Metrics Schema:
+ * https://github.com/oxidecomputer/omicron/tree/main/oximeter/oximeter/schema
+ */
+
 import React, { Suspense, useMemo } from 'react'
 
 import { getChartData, useApiQuery, type ChartDatum } from '@oxide/api'
 
 import { Spinner } from '~/ui/lib/Spinner'
+import { getDurationMinutes } from '~/util/date'
 
 const TimeSeriesChart = React.lazy(() => import('~/components/TimeSeriesChart'))
 
@@ -43,6 +49,14 @@ type OxqlVmMetricName = 'virtual_machine:vcpu_usage'
 
 type OxqlMetricName = OxqlDiskMetricName | OxqlVmMetricName
 
+type OxqlVcpuState = 'run' | 'idle' | 'waiting' | 'emulation'
+
+/** determine the mean window for the given time range */
+const getMeanWindow = (start: Date, end: Date) => {
+  const duration = getDurationMinutes({ start, end })
+  return `${Math.round(duration / 480)}m`
+}
+
 type getOxqlQueryParams = {
   metricName: OxqlMetricName
   startTime: Date
@@ -50,7 +64,10 @@ type getOxqlQueryParams = {
   // for disk metrics
   diskId?: string
   // for vm metrics
-  vmId?: string
+  instanceId?: string
+  vcpuId?: string
+  state?: OxqlVcpuState
+  join?: boolean
 }
 
 const getOxqlQuery = ({
@@ -58,7 +75,10 @@ const getOxqlQuery = ({
   startTime,
   endTime,
   diskId,
-  vmId,
+  instanceId,
+  vcpuId,
+  state,
+  join,
 }: getOxqlQueryParams) => {
   const start = oxqlTimestamp(startTime)
   const end = oxqlTimestamp(endTime)
@@ -66,22 +86,43 @@ const getOxqlQuery = ({
   if (diskId) {
     filters.push(`disk_id == "${diskId}"`)
   }
-  if (vmId) {
-    filters.push(`vm_id == "${vmId}"`)
+  if (vcpuId) {
+    filters.push(`vcpu_id == ${vcpuId}`)
   }
-  return `get ${metricName} | filter ${filters.join(' && ')} | align mean_within(30s)`
+  if (instanceId) {
+    filters.push(`instance_id == "${instanceId}"`)
+  }
+  if (state) {
+    filters.push(`state == "${state}"`)
+  }
+  const meanWindow = getMeanWindow(startTime, endTime)
+  const query = `get ${metricName} | filter ${filters.join(' && ')} | align mean_within(${meanWindow}) ${join ? '| group_by [], sum' : ''}`
+  // console.log(query) // 🚨🚨🚨🚨🚨
+  return query
 }
 
 type OxqlBaseMetricParams = {
   title: string
-  unit: 'Bytes' | 'Count'
+  unit: 'Bytes' | 'Count' | '%'
   metricName: OxqlMetricName
   startTime: Date
   endTime: Date
 }
 
-type OxqlDiskMetricParams = OxqlBaseMetricParams & { diskId?: string; vmId?: never }
-type OxqlVmMetricParams = OxqlBaseMetricParams & { diskId?: never; vmId?: string }
+type OxqlDiskMetricParams = OxqlBaseMetricParams & {
+  diskId?: string
+  instanceId?: never
+  vcpuId?: never
+  state?: never
+  join?: never
+}
+type OxqlVmMetricParams = OxqlBaseMetricParams & {
+  diskId?: never
+  instanceId?: string
+  vcpuId?: string
+  state?: OxqlVcpuState
+  join?: boolean
+}
 export function OxqlMetric({
   title,
   unit,
@@ -89,13 +130,26 @@ export function OxqlMetric({
   startTime,
   endTime,
   diskId,
-  vmId,
+  instanceId,
+  vcpuId,
+  state,
+  join,
 }: OxqlDiskMetricParams | OxqlVmMetricParams) {
-  const query = getOxqlQuery({ metricName, startTime, endTime, diskId, vmId })
+  const query = getOxqlQuery({
+    metricName,
+    startTime,
+    endTime,
+    diskId,
+    instanceId,
+    vcpuId,
+    state,
+    join,
+  })
   const { data: metrics } = useApiQuery('systemTimeseriesQuery', { body: { query } })
   const chartData: ChartDatum[] = useMemo(() => getChartData(metrics), [metrics])
 
   const isBytesChart = unit === 'Bytes'
+  const isPercentChart = unit === '%'
 
   const largestValue = useMemo(() => {
     if (!chartData || chartData.length === 0) return 0
@@ -118,25 +172,25 @@ export function OxqlMetric({
       unitForSet = byteUnits[cycleCount]
       label = `(${unitForSet})`
     } else {
-      label = '(COUNT)'
+      label = `(${unit.toUpperCase()})`
+      unitForSet = isPercentChart ? '%' : ''
     }
   }
 
-  const divisor = base ** cycleCount
+  // We need to determine the divisor for the data set.
+  // - If the unit is Bytes, we divide by 1024 ** cycleCount
+  // - If the unit is %, we divide by the number of nanoseconds in a minute
+  // - If the unit is Count, we just return the raw value
+  const divisor = isBytesChart ? base ** cycleCount : isPercentChart ? 600000000 : 1
 
   const data = useMemo(
     () =>
       (chartData || []).map(({ timestamp, value }) => ({
         timestamp,
-        // All of these metrics are cumulative ints.
-        // The value passed in is what will render in the tooltip.
-        value: isBytesChart
-          ? // We pass a pre-divided value to the chart if the unit is Bytes
-            value / divisor
-          : // If the unit is Count, we pass the raw value
-            value,
+        // The value passed in is what will render in the tooltip
+        value: value / divisor,
       })),
-    [isBytesChart, divisor, chartData]
+    [divisor, chartData]
   )
 
   // Create a label for the y-axis ticks. "Count" charts will be
@@ -147,7 +201,10 @@ export function OxqlMetric({
     if (isBytesChart) {
       return val.toLocaleString()
     }
-    const tickValue = (val / divisor).toFixed(2)
+    if (isPercentChart) {
+      return `${val}%`
+    }
+    const tickValue = val / divisor
     const countUnits = ['', 'k', 'M', 'B', 'T']
     const unitForTick = countUnits[cycleCount]
     return `${tickValue}${unitForTick}`
@@ -163,7 +220,8 @@ export function OxqlMetric({
         <TimeSeriesChart
           className="mt-3"
           data={data}
-          title="Reads"
+          title={title}
+          legend="asdasd"
           unit={unitForSet}
           width={480}
           height={240}
