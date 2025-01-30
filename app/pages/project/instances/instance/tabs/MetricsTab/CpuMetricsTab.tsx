@@ -24,11 +24,6 @@ import { Listbox } from '~/ui/lib/Listbox'
 
 import { OxqlMetric } from './OxqlMetric'
 
-// We could figure out how to prefetch the metrics data, but it would be
-// annoying because it relies on the default date range, plus there are 5 calls.
-// Considering the data is going to be swapped out as soon as they change the
-// date range, I'm inclined to punt.
-
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await Promise.all([
@@ -57,15 +52,8 @@ export function Component() {
     initialPreset: 'lastDay',
   })
 
-  // The fallback here is kind of silly — it is only invoked when there are no
-  // disks, in which case we show the fallback UI and diskName is never used. We
-  // only need to do it this way because hooks cannot be called conditionally.
   const [cpuId, setCpuId] = useState<string>('all')
-  // Revisit this for selecting a CPU
-  // const [diskId, setDiskId] = useState<string>(disks[0]?.id || '')
 
-  // an array, of label and values, with the first one being 'all' and value is undefined, then the rest of the cpus
-  // up to ncpus, with each label being a string of the number, and the value being the number; start with 0, then go up to one less than the total number of cpus
   const cpuItems = [
     { label: 'All', value: 'all' },
     ...Array.from({ length: ncpus }, (_, i) => ({
