@@ -88,20 +88,6 @@ export function Component() {
         <MetricRow>
           <OxqlMetric
             {...commonProps}
-            title="Bytes Sent"
-            unit="Bytes"
-            metricName="instance_network_interface:bytes_sent"
-          />
-          <OxqlMetric
-            {...commonProps}
-            title="Bytes Received"
-            unit="Bytes"
-            metricName="instance_network_interface:bytes_received"
-          />
-        </MetricRow>
-        <MetricRow>
-          <OxqlMetric
-            {...commonProps}
             title="Packets Sent"
             unit="Count"
             metricName="instance_network_interface:packets_sent"
@@ -111,6 +97,20 @@ export function Component() {
             title="Packets Received"
             unit="Count"
             metricName="instance_network_interface:packets_received"
+          />
+        </MetricRow>
+        <MetricRow>
+          <OxqlMetric
+            {...commonProps}
+            title="Bytes Sent"
+            unit="Bytes"
+            metricName="instance_network_interface:bytes_sent"
+          />
+          <OxqlMetric
+            {...commonProps}
+            title="Bytes Received"
+            unit="Bytes"
+            metricName="instance_network_interface:bytes_received"
           />
         </MetricRow>
         <MetricRow>

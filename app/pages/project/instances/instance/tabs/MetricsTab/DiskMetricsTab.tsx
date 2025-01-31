@@ -116,18 +116,18 @@ export function Component() {
           />
           <OxqlMetric
             {...commonProps}
-            title="Bytes Read"
-            unit="Bytes"
-            metricName="virtual_disk:bytes_read"
+            title="Disk Writes"
+            unit="Count"
+            metricName="virtual_disk:writes"
           />
         </MetricRow>
 
         <MetricRow>
           <OxqlMetric
             {...commonProps}
-            title="Disk Writes"
-            unit="Count"
-            metricName="virtual_disk:writes"
+            title="Bytes Read"
+            unit="Bytes"
+            metricName="virtual_disk:bytes_read"
           />
           <OxqlMetric
             {...commonProps}
