@@ -130,5 +130,5 @@ const headPath = (await genForCommit(head, args.force)) + '/Api.ts'
 await $`${diffTool} ${basePath} ${headPath} || true`
 
 // useful if you want to open the file directly in an editor
-console.log('Before:', basePath)
-console.log('After: ', headPath)
+console.info('Before:', basePath)
+console.info('After: ', headPath)
