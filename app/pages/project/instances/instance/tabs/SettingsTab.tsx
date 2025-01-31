@@ -10,16 +10,41 @@ import { format, formatDistanceToNow } from 'date-fns'
 import { useId, useState, type ReactNode } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { apiQueryClient, useApiMutation, usePrefetchedApiQuery } from '~/api'
+import {
+  apiQueryClient,
+  useApiMutation,
+  usePrefetchedApiQuery,
+  type InstanceUpdate,
+} from '~/api'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Button } from '~/ui/lib/Button'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { type ListboxItem } from '~/ui/lib/Listbox'
 import { LearnMore, SettingsGroup } from '~/ui/lib/SettingsGroup'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { useInterval } from '~/ui/lib/use-interval'
 import { links } from '~/util/links'
+
+type FormPolicy = 'default' | 'never' | 'best_effort'
+type ApiPolicy = InstanceUpdate['autoRestartPolicy']
+
+const formPolicyToApiPolicy: Record<FormPolicy, ApiPolicy> = {
+  default: undefined,
+  never: 'never',
+  best_effort: 'best_effort',
+}
+
+const restartPolicyItems: ListboxItem<FormPolicy>[] = [
+  { value: 'default', label: 'Default' },
+  { value: 'never', label: 'Never' },
+  { value: 'best_effort', label: 'Best effort' },
+]
+
+type FormValues = {
+  autoRestartPolicy: FormPolicy
+}
 
 Component.displayName = 'SettingsTab'
 export function Component() {
@@ -27,6 +52,8 @@ export function Component() {
 
   const [now, setNow] = useState(new Date())
 
+  // TODO: see if we can tweak the polling condition to include
+  // failed + cooling down and just rely on polling
   useInterval({ fn: () => setNow(new Date()), delay: 1000 })
 
   const { data: instance } = usePrefetchedApiQuery('instanceView', {
@@ -41,12 +68,12 @@ export function Component() {
     },
   })
 
-  const form = useForm({
-    defaultValues: {
-      autoRestartPolicy: instance.autoRestartPolicy,
-    },
-  })
-  const { isDirty } = form.formState
+  const autoRestartPolicy = instance.autoRestartPolicy || 'default'
+  const defaultValues: FormValues = { autoRestartPolicy }
+
+  const form = useForm({ defaultValues })
+
+  const disableSubmit = form.watch('autoRestartPolicy') === autoRestartPolicy
 
   const onSubmit = form.handleSubmit((values) => {
     instanceUpdate.mutate({
@@ -56,7 +83,7 @@ export function Component() {
         ncpus: instance.ncpus,
         memory: instance.memory,
         bootDisk: instance.bootDiskId,
-        autoRestartPolicy: values.autoRestartPolicy,
+        autoRestartPolicy: formPolicyToApiPolicy[values.autoRestartPolicy],
       },
     })
   })
@@ -66,7 +93,7 @@ export function Component() {
       <SettingsGroup.Container>
         <SettingsGroup.Header>
           <SettingsGroup.Title>Auto-restart</SettingsGroup.Title>
-          <p>The auto-restart policy configured for this instance</p>
+          <p>The auto-restart policy for this instance</p>
         </SettingsGroup.Header>
         <SettingsGroup.Body>
           <ListboxField
@@ -75,11 +102,7 @@ export function Component() {
             label="Policy"
             description="If unconfigured, this instance uses the default auto-restart policy, which may or may not allow it to be restarted."
             placeholder="Default"
-            items={[
-              { value: '', label: 'Default' },
-              { value: 'never', label: 'Never' },
-              { value: 'best_effort', label: 'Best effort' },
-            ]}
+            items={restartPolicyItems}
             required
             className="max-w-none"
           />
@@ -131,9 +154,9 @@ export function Component() {
         </SettingsGroup.Body>
         <SettingsGroup.Footer>
           <div>
-            <LearnMore text="Auto-Restart" href={links.sshDocs} />
+            <LearnMore text="Auto-Restart" href={links.instanceUpdateDocs} />
           </div>
-          <Button size="sm" type="submit" disabled={!isDirty}>
+          <Button size="sm" type="submit" disabled={disableSubmit}>
             Save
           </Button>
         </SettingsGroup.Footer>

@@ -52,6 +52,24 @@ const helpText = {
   ),
 }
 
+// ts-pattern could make this less ugly
+const PolicyBadge = ({ policy }: { policy?: InstanceAutoRestartPolicy }) => {
+  if (policy === 'never') {
+    return (
+      <Badge color="neutral" variant="solid">
+        never
+      </Badge>
+    )
+  } else if (policy === 'best_effort') {
+    return <Badge>best effort</Badge>
+  } else if (policy === undefined) {
+    return <Badge color="neutral">Default</Badge>
+  } else {
+    const _exhaustiveCheck: never = policy
+    return _exhaustiveCheck
+  }
+}
+
 export const InstanceAutoRestartPopover = ({
   enabled,
   policy,
@@ -75,9 +93,13 @@ export const InstanceAutoRestartPopover = ({
 
   return (
     <Popover>
-      <PopoverButton className="group flex h-6 w-6 items-center justify-center rounded border border-default hover:bg-hover">
+      <PopoverButton
+        className="group flex h-6 w-6 items-center justify-center rounded border border-default hover:bg-hover"
+        aria-label="Auto-restart status"
+      >
         <AutoRestart12Icon
           className={cn('shrink-0 transition-transform', enabled && 'animate-spin-slow')}
+          aria-hidden
         />
       </PopoverButton>
       <PopoverPanel
@@ -94,17 +116,7 @@ export const InstanceAutoRestartPopover = ({
             to={pb.instanceSettings(instanceSelector)}
             className="group -m-1 flex w-full items-center justify-between rounded px-1"
           >
-            {policy ? (
-              policy === 'never' ? (
-                <Badge color="neutral" variant="solid">
-                  never
-                </Badge>
-              ) : (
-                <Badge>best effort</Badge>
-              )
-            ) : (
-              <Badge color="neutral">Default</Badge>
-            )}
+            <PolicyBadge policy={policy} />
             <div className="transition-transform group-hover:translate-x-1">
               <NextArrow12Icon />
             </div>
