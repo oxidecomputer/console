@@ -72,3 +72,35 @@ export const Tab = ({ to, children }: TabProps) => {
     </Link>
   )
 }
+
+export const RouteSideTabs = ({ children }: { children: ReactNode }) => (
+  <div className="ox-tabs flex gap-8">
+    {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus */}
+    <div
+      role="tablist"
+      className="ox-tabs-list flex w-[160px] flex-shrink-0 flex-col gap-8"
+      onKeyDown={selectTab}
+    >
+      {children}
+    </div>
+    {/* TODO: Add aria-describedby for active tab */}
+    <div className="ox-tabs-panel flex-grow" role="tabpanel" tabIndex={0}>
+      <Outlet />
+    </div>
+  </div>
+)
+
+export const SideTab = ({ to, children }: { to: string; children: ReactNode }) => {
+  const isActive = useIsActivePath({ to })
+  return (
+    <Link
+      role="tab"
+      to={to}
+      className={cn('ox-tab', { 'is-selected': isActive })}
+      tabIndex={isActive ? 0 : -1}
+      aria-selected={isActive}
+    >
+      <div>{children}</div>
+    </Link>
+  )
+}
