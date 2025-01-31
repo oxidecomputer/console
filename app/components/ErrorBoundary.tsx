@@ -11,23 +11,31 @@ import { useRouteError } from 'react-router'
 
 import { apiq } from '~/api'
 import { type ApiError } from '~/api/errors'
+import { Message } from '~/ui/lib/Message'
 
 import { ErrorPage, NotFound } from './ErrorPage'
 
 const IdpMisconfig = () => (
-  <p className="!mt-3 border-t pt-3 text-sans-sm border-secondary">
-    You are not in any user groups and you have no assigned role on the silo. This usually
-    means the{' '}
-    <a
-      href="https://docs.oxide.computer/guides/system/completing-rack-config#_test_user_login"
-      className="underline hover:text-raise"
-      target="_blank"
-      rel="noreferrer"
-    >
-      admin group name
-    </a>{' '}
-    is not set correctly for the silo. Contact your administrator.
-  </p>
+  <Message
+    variant="notice"
+    className="!mt-6"
+    showIcon={false}
+    content={
+      <>
+        You are not in any user groups and you have no assigned role on the silo. This
+        usually means the{' '}
+        <a
+          href="https://docs.oxide.computer/guides/system/completing-rack-config#_test_user_login"
+          className="underline"
+          target="_blank"
+          rel="noreferrer"
+        >
+          admin group name
+        </a>{' '}
+        is not set correctly for the silo.
+      </>
+    }
+  />
 )
 
 function useDetectNoSiloRole(enabled: boolean): boolean {
