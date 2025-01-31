@@ -16,8 +16,8 @@ import { ErrorPage, NotFound } from './ErrorPage'
 
 const IdpMisconfig = () => (
   <p className="!mt-3 border-t pt-3 text-sans-sm border-secondary">
-    <span className="text-sans-semi-sm">Hint:</span> You are not in any user groups and you
-    have no assigned role on the silo. This usually means the{' '}
+    You are not in any user groups and you have no assigned role on the silo. This usually
+    means the{' '}
     <a
       href="https://docs.oxide.computer/guides/system/completing-rack-config#_test_user_login"
       className="underline hover:text-raise"
