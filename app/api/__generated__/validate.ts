@@ -2188,6 +2188,32 @@ export const LldpLinkConfig = z.preprocess(
 )
 
 /**
+ * Information about LLDP advertisements from other network entities directly connected to a switch port.  This structure contains both metadata about when and where the neighbor was seen, as well as the specific information the neighbor was advertising.
+ */
+export const LldpNeighbor = z.preprocess(
+  processResponseBody,
+  z.object({
+    chassisId: z.string(),
+    firstSeen: z.coerce.date(),
+    lastSeen: z.coerce.date(),
+    linkDescription: z.string().optional(),
+    linkName: z.string(),
+    localPort: z.string(),
+    managementIp: IpNet.array(),
+    systemDescription: z.string().optional(),
+    systemName: z.string().optional(),
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const LldpNeighborResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: LldpNeighbor.array(), nextPage: z.string().optional() })
+)
+
+/**
  * A loopback address is an address that is assigned to a rack switch but is not associated with any particular port.
  */
 export const LoopbackAddress = z.preprocess(
@@ -3095,6 +3121,35 @@ export const SshKeyResultsPage = z.preprocess(
   z.object({ items: SshKey.array(), nextPage: z.string().optional() })
 )
 
+export const TypedUuidForSupportBundleKind = z.preprocess(
+  processResponseBody,
+  z.string().uuid()
+)
+
+export const SupportBundleState = z.preprocess(
+  processResponseBody,
+  z.enum(['collecting', 'destroying', 'failed', 'active'])
+)
+
+export const SupportBundleInfo = z.preprocess(
+  processResponseBody,
+  z.object({
+    id: TypedUuidForSupportBundleKind,
+    reasonForCreation: z.string(),
+    reasonForFailure: z.string().optional(),
+    state: SupportBundleState,
+    timeCreated: z.coerce.date(),
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const SupportBundleInfoResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: SupportBundleInfo.array(), nextPage: z.string().optional() })
+)
+
 /**
  * An operator's view of a Switch.
  */
@@ -3810,6 +3865,13 @@ export const NameOrIdSortMode = z.preprocess(
   z.enum(['name_ascending', 'name_descending', 'id_ascending'])
 )
 
+/**
+ * Supported set of sort modes for scanning by id only.
+ *
+ * Currently, we only support scanning in ascending order.
+ */
+export const IdSortMode = z.preprocess(processResponseBody, z.enum(['id_ascending']))
+
 export const DiskMetricName = z.preprocess(
   processResponseBody,
   z.enum(['activated', 'flush', 'read', 'read_bytes', 'write', 'write_bytes'])
@@ -3822,13 +3884,6 @@ export const PaginationOrder = z.preprocess(
   processResponseBody,
   z.enum(['ascending', 'descending'])
 )
-
-/**
- * Supported set of sort modes for scanning by id only.
- *
- * Currently, we only support scanning in ascending order.
- */
-export const IdSortMode = z.preprocess(processResponseBody, z.enum(['id_ascending']))
 
 export const SystemMetricName = z.preprocess(
   processResponseBody,
@@ -3910,6 +3965,98 @@ export const ProbeDeleteParams = z.preprocess(
     query: z.object({
       project: NameOrId,
     }),
+  })
+)
+
+export const SupportBundleListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const SupportBundleCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      supportBundle: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      supportBundle: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleDownloadParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      supportBundle: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleHeadParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      supportBundle: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleDownloadFileParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      file: z.string(),
+      supportBundle: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleHeadFileParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      file: z.string(),
+      supportBundle: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleIndexParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      supportBundle: z.string().uuid(),
+    }),
+    query: z.object({}),
   })
 )
 
@@ -4946,6 +5093,22 @@ export const PhysicalDiskViewParams = z.preprocess(
   })
 )
 
+export const NetworkingSwitchPortLldpNeighborsParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      port: Name,
+      rackId: z.string().uuid(),
+      switchLocation: Name,
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
 export const RackListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -5056,6 +5219,32 @@ export const NetworkingSwitchPortListParams = z.preprocess(
       pageToken: z.string().optional(),
       sortBy: IdSortMode.optional(),
       switchPortId: z.string().uuid().optional(),
+    }),
+  })
+)
+
+export const NetworkingSwitchPortLldpConfigViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      port: Name,
+    }),
+    query: z.object({
+      rackId: z.string().uuid(),
+      switchLocation: Name,
+    }),
+  })
+)
+
+export const NetworkingSwitchPortLldpConfigUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      port: Name,
+    }),
+    query: z.object({
+      rackId: z.string().uuid(),
+      switchLocation: Name,
     }),
   })
 )

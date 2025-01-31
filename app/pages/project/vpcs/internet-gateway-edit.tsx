@@ -137,6 +137,7 @@ export function EditInternetGatewayForm() {
       <PropertiesTable key={internetGateway.id}>
         <PropertiesTable.Row label="Name">{internetGateway.name}</PropertiesTable.Row>
         <PropertiesTable.DescriptionRow description={internetGateway.description} />
+        <PropertiesTable.IdRow id={internetGateway.id} />
       </PropertiesTable>
 
       <FormDivider />
@@ -194,10 +195,7 @@ export function EditInternetGatewayForm() {
       <FormDivider />
 
       <div className="flex flex-col gap-3">
-        <SideModal.Heading>
-          Routes targeting this gateway
-          {gatewayIpPools && gatewayIpPools.length > 1 ? 's' : ''}
-        </SideModal.Heading>
+        <SideModal.Heading>Routes targeting this gateway</SideModal.Heading>
         <Table>
           <Table.Header>
             <Table.HeaderRow>
