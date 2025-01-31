@@ -11,6 +11,7 @@ import { pb } from '~/util/path-builder'
 
 export const MetricsTab = () => {
   const { project, instance } = useInstanceSelector()
+  // Find the <Outlet> in RouteSideTabs
   return (
     <RouteSideTabs>
       <SideTab to={pb.instanceCpuMetrics({ project, instance })}>CPU</SideTab>

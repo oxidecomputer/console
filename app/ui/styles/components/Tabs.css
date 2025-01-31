@@ -65,3 +65,20 @@
 .ox-tab.is-selected > .ox-badge {
   @apply bg-accent-secondary;
 }
+
+.ox-side-tab {
+  @apply rounded space-x-2 whitespace-nowrap p-2 py-1.5 !no-underline text-sans-md text-secondary;
+}
+
+.ox-side-tab[data-state='active'],
+.ox-side-tab.is-selected {
+  @apply text-accent bg-accent-secondary;
+}
+
+.ox-side-tab:not([data-state='active'], .is-selected):hover {
+  @apply text-default bg-hover;
+}
+
+.ox-tab > * {
+  @apply rounded;
+}

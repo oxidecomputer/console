@@ -74,11 +74,11 @@ export const Tab = ({ to, children }: TabProps) => {
 }
 
 export const RouteSideTabs = ({ children }: { children: ReactNode }) => (
-  <div className="ox-tabs flex gap-8">
+  <div className="ox-side-tabs flex">
     {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus */}
     <div
       role="tablist"
-      className="ox-tabs-list flex w-[160px] flex-shrink-0 flex-col gap-8"
+      className="flex w-[160px] flex-shrink-0 flex-col gap-2"
       onKeyDown={selectTab}
     >
       {children}
@@ -96,7 +96,7 @@ export const SideTab = ({ to, children }: { to: string; children: ReactNode }) =
     <Link
       role="tab"
       to={to}
-      className={cn('ox-tab', { 'is-selected': isActive })}
+      className={cn('ox-side-tab', { 'is-selected': isActive })}
       tabIndex={isActive ? 0 : -1}
       aria-selected={isActive}
     >
