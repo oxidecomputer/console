@@ -47,7 +47,16 @@ type OxqlDiskMetricName =
 
 type OxqlVmMetricName = 'virtual_machine:vcpu_usage'
 
-type OxqlMetricName = OxqlDiskMetricName | OxqlVmMetricName
+type OxqlNetworkMetricName =
+  | 'instance_network_interface:bytes_received'
+  | 'instance_network_interface:bytes_sent'
+  | 'instance_network_interface:errors_received'
+  | 'instance_network_interface:errors_sent'
+  | 'instance_network_interface:packets_dropped'
+  | 'instance_network_interface:packets_received'
+  | 'instance_network_interface:packets_sent'
+
+type OxqlMetricName = OxqlDiskMetricName | OxqlVmMetricName | OxqlNetworkMetricName
 
 type OxqlVcpuState = 'run' | 'idle' | 'waiting' | 'emulation'
 
@@ -99,6 +108,7 @@ const getOxqlQuery = ({
   }
   const meanWindow = getMeanWindow(startTime, endTime)
   const query = `get ${metricName} | filter ${filters.join(' && ')} | align mean_within(${meanWindow})${join ? ' | group_by [instance_id], sum' : ''}`
+  // console.log(query)
   return query
 }
 
@@ -124,6 +134,13 @@ type OxqlVmMetricParams = OxqlBaseMetricParams & {
   state?: OxqlVcpuState
   join?: boolean
 }
+type OxqlNetworkMetricParams = OxqlBaseMetricParams & {
+  instanceId?: string
+  diskId?: never
+  vcpuId?: never
+  state?: never
+  join?: never
+}
 export function OxqlMetric({
   title,
   unit,
@@ -135,7 +152,7 @@ export function OxqlMetric({
   vcpuId,
   state,
   join,
-}: OxqlDiskMetricParams | OxqlVmMetricParams) {
+}: OxqlDiskMetricParams | OxqlVmMetricParams | OxqlNetworkMetricParams) {
   const query = getOxqlQuery({
     metricName,
     startTime,

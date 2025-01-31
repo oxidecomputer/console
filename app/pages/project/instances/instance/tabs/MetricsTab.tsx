@@ -20,7 +20,7 @@ export const MetricsTab = () => {
         <Link to={pb.instanceMetrics({ project, instance })}>Utilization</Link>
         <Link to={pb.instanceMetrics({ project, instance })}>Time</Link>
         <Link to={pb.instanceDiskMetrics({ project, instance })}>Disk</Link>
-        <Link to={pb.instanceMetrics({ project, instance })}>Network</Link>
+        <Link to={pb.instanceNetworkMetrics({ project, instance })}>Network</Link>
       </div>
       <div className="flex-grow">
         <Outlet />

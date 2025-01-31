@@ -13,7 +13,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import React, { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
@@ -122,7 +122,7 @@ export function Component() {
           />
         </div>
 
-        <div className="flex w-full space-x-4">
+        <div className="flex w-full gap-4">
           <OxqlMetric
             {...commonProps}
             title="Disk Writes"
@@ -137,7 +137,7 @@ export function Component() {
           />
         </div>
 
-        <div className="flex w-full space-x-4">
+        <div className="flex w-full">
           <OxqlMetric
             {...commonProps}
             title="Disk Flushes"

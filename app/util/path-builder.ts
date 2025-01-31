@@ -40,8 +40,10 @@ export const pb = {
   instance: (params: PP.Instance) => pb.instanceStorage(params),
 
   instanceMetrics: (params: PP.Instance) => `${instanceBase(params)}/metrics`,
-  instanceDiskMetrics: (params: PP.Instance) => `${instanceBase(params)}/metrics/disk`,
   instanceCpuMetrics: (params: PP.Instance) => `${instanceBase(params)}/metrics/cpu`,
+  instanceDiskMetrics: (params: PP.Instance) => `${instanceBase(params)}/metrics/disk`,
+  instanceNetworkMetrics: (params: PP.Instance) =>
+    `${instanceBase(params)}/metrics/network`,
   instanceStorage: (params: PP.Instance) => `${instanceBase(params)}/storage`,
   instanceConnect: (params: PP.Instance) => `${instanceBase(params)}/connect`,
   instanceNetworking: (params: PP.Instance) => `${instanceBase(params)}/networking`,
