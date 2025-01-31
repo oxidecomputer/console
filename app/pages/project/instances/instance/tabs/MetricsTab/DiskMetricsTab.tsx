@@ -25,7 +25,7 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
 import { TableEmptyBox } from '~/ui/lib/Table'
 
-import { OxqlMetric } from './OxqlMetric'
+import { MetricCollection, MetricHeader, MetricRow, OxqlMetric } from './OxqlMetric'
 
 // We could figure out how to prefetch the metrics data, but it would be
 // annoying because it relies on the default date range, plus there are 5 calls.
@@ -87,7 +87,7 @@ export function Component() {
 
   return (
     <>
-      <div className="mb-4 flex justify-between">
+      <MetricHeader>
         <Listbox
           className="w-64"
           aria-label="Choose disk"
@@ -102,12 +102,12 @@ export function Component() {
           }}
         />
         {dateTimeRangePicker}
-      </div>
-      <div className="mt-8 space-y-12">
+      </MetricHeader>
+      <MetricCollection>
         {/* see the following link for the source of truth on what these mean
             https://github.com/oxidecomputer/crucible/blob/258f162b/upstairs/src/stats.rs#L9-L50 */}
 
-        <div className="flex w-full space-x-4">
+        <MetricRow>
           <OxqlMetric
             {...commonProps}
             title="Disk Reads"
@@ -120,9 +120,9 @@ export function Component() {
             unit="Bytes"
             metricName="virtual_disk:bytes_read"
           />
-        </div>
+        </MetricRow>
 
-        <div className="flex w-full gap-4">
+        <MetricRow>
           <OxqlMetric
             {...commonProps}
             title="Disk Writes"
@@ -135,17 +135,17 @@ export function Component() {
             unit="Bytes"
             metricName="virtual_disk:bytes_written"
           />
-        </div>
+        </MetricRow>
 
-        <div className="flex w-full">
+        <MetricRow>
           <OxqlMetric
             {...commonProps}
             title="Disk Flushes"
             unit="Count"
             metricName="virtual_disk:flushes"
           />
-        </div>
-      </div>
+        </MetricRow>
+      </MetricCollection>
     </>
   )
 }

@@ -16,7 +16,7 @@ import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { Listbox } from '~/ui/lib/Listbox'
 import { ALL_ISH } from '~/util/consts'
 
-import { OxqlMetric } from './OxqlMetric'
+import { MetricCollection, MetricHeader, MetricRow, OxqlMetric } from './OxqlMetric'
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
@@ -69,7 +69,7 @@ export function Component() {
 
   return (
     <>
-      <div className="mb-4 flex justify-between">
+      <MetricHeader>
         <Listbox
           className="w-64"
           aria-label="Choose disk"
@@ -83,9 +83,9 @@ export function Component() {
           }}
         />
         {dateTimeRangePicker}
-      </div>
-      <div className="mt-8 gap-12">
-        <div className="flex w-full gap-4">
+      </MetricHeader>
+      <MetricCollection>
+        <MetricRow>
           <OxqlMetric
             {...commonProps}
             title="Bytes Sent"
@@ -98,8 +98,8 @@ export function Component() {
             unit="Bytes"
             metricName="instance_network_interface:bytes_received"
           />
-        </div>
-        <div className="flex w-full gap-4">
+        </MetricRow>
+        <MetricRow>
           <OxqlMetric
             {...commonProps}
             title="Packets Sent"
@@ -112,16 +112,16 @@ export function Component() {
             unit="Count"
             metricName="instance_network_interface:packets_received"
           />
-        </div>
-        <div className="flex w-full">
+        </MetricRow>
+        <MetricRow>
           <OxqlMetric
             {...commonProps}
             title="Packets Dropped"
             unit="Count"
             metricName="instance_network_interface:packets_dropped"
           />
-        </div>
-      </div>
+        </MetricRow>
+      </MetricCollection>
     </>
   )
 }

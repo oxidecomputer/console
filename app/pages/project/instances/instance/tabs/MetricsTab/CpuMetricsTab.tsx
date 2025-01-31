@@ -22,7 +22,7 @@ import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePi
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { Listbox } from '~/ui/lib/Listbox'
 
-import { OxqlMetric } from './OxqlMetric'
+import { MetricCollection, MetricHeader, MetricRow, OxqlMetric } from './OxqlMetric'
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
@@ -66,7 +66,7 @@ export function Component() {
 
   return (
     <>
-      <div className="mb-4 flex justify-between">
+      <MetricHeader>
         <Listbox
           className="w-64"
           aria-label="Choose vCPU to profile"
@@ -78,9 +78,9 @@ export function Component() {
           }}
         />
         {dateTimeRangePicker}
-      </div>
-      <div className="mt-8 space-y-12">
-        <div className="flex w-full space-x-4">
+      </MetricHeader>
+      <MetricCollection>
+        <MetricRow>
           <OxqlMetric
             startTime={startTime}
             endTime={endTime}
@@ -91,8 +91,8 @@ export function Component() {
             vcpuId={vcpuId}
             join
           />
-        </div>
-        <div className="flex w-full space-x-4">
+        </MetricRow>
+        <MetricRow>
           <OxqlMetric
             startTime={startTime}
             endTime={endTime}
@@ -115,9 +115,9 @@ export function Component() {
             vcpuId={vcpuId}
             join
           />
-        </div>
+        </MetricRow>
 
-        <div className="flex w-full space-x-4">
+        <MetricRow>
           <OxqlMetric
             startTime={startTime}
             endTime={endTime}
@@ -140,8 +140,8 @@ export function Component() {
             vcpuId={vcpuId}
             join
           />
-        </div>
-      </div>
+        </MetricRow>
+      </MetricCollection>
     </>
   )
 }

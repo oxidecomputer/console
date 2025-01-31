@@ -250,3 +250,13 @@ export function OxqlMetric({
     </div>
   )
 }
+
+export const MetricHeader = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex justify-between">{children}</div>
+)
+export const MetricCollection = ({ children }: { children: React.ReactNode }) => (
+  <div className="mt-8 flex flex-col gap-8">{children}</div>
+)
+export const MetricRow = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex w-full gap-6">{children}</div>
+)
