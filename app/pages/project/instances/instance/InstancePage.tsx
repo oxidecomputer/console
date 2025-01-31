@@ -169,9 +169,6 @@ export function InstancePage() {
 
   const memory = filesize(instance.memory, { output: 'object', base: 2 })
 
-  // Document when this popover is showing
-  const hasAutoRestart = !!instance.autoRestartCooldownExpiration
-
   return (
     <>
       <PageHeader>
@@ -216,7 +213,7 @@ export function InstancePage() {
                   </button>
                 </Tooltip>
               )}
-              {hasAutoRestart && (
+              {instance.autoRestartCooldownExpiration && (
                 <InstanceAutoRestartPopover
                   enabled={instance.autoRestartEnabled}
                   cooldownExpiration={instance.autoRestartCooldownExpiration}

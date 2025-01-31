@@ -28,8 +28,8 @@ import { pb } from '~/util/path-builder'
 const helpText = {
   enabled: (
     <>
-      The control plane will attempt to automatically restart instance this instance after
-      entering the <HL>failed</HL> state.
+      The control plane will attempt to automatically restart this instance after entering
+      the <HL>failed</HL> state.
     </>
   ),
   disabled: (
@@ -66,7 +66,7 @@ export const InstanceAutoRestartPopover = ({
 
   useInterval({ fn: () => setNow(new Date()), delay: 1000 })
 
-  const isQueued = cooldownExpiration && new Date(cooldownExpiration) < now
+  const isQueued = cooldownExpiration && cooldownExpiration < now
 
   let helpTextState: keyof typeof helpText = 'disabled'
   if (isQueued) helpTextState = 'starting' // Expiration is in the past and queued for restart

@@ -85,7 +85,7 @@ export function Component() {
           />
           <FormMeta
             label="Enabled"
-            helpText="If enabled this instance will automatically restart it if it enters the Failed state."
+            helpText="If enabled, this instance will automatically restart if it enters the Failed state."
           >
             {instance.autoRestartEnabled ? 'True' : 'False'}{' '}
             {instance.autoRestartEnabled && !instance.autoRestartPolicy && (
@@ -94,7 +94,7 @@ export function Component() {
           </FormMeta>
           <FormMeta
             label="Cooldown expiration"
-            helpText="The time at which the auto-restart cooldown period for this instance completes. If n/a, then either the instance has never been automatically restarted, or the cooldown period has already expired"
+            helpText="The time at which the auto-restart cooldown period for this instance completes. If N/A, then either the instance has never been automatically restarted, or the cooldown period has already expired"
           >
             {instance.autoRestartCooldownExpiration ? (
               <>
@@ -110,7 +110,7 @@ export function Component() {
                 )}
               </>
             ) : (
-              <span className="text-tertiary">n/a</span>
+              <span className="text-tertiary">N/A</span>
             )}
           </FormMeta>
           <FormMeta
@@ -125,7 +125,7 @@ export function Component() {
                 )}
               </>
             ) : (
-              <span className="text-tertiary">n/a</span>
+              <span className="text-tertiary">N/A</span>
             )}
           </FormMeta>
         </SettingsGroup.Body>
