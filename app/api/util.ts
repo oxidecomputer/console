@@ -140,6 +140,11 @@ export function instanceTransitioning({ runState }: Instance) {
   )
 }
 
+/** Cooling down after failed auto-restart */
+export function instanceCoolingDown(i: Instance) {
+  return i.runState === 'failed' && i.autoRestartCooldownExpiration
+}
+
 const diskActions = {
   // this is a weird one because the list of states is dynamic and it includes
   // 'creating' in the unwind of the disk create saga, but does not include

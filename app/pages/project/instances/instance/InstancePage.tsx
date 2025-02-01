@@ -9,6 +9,7 @@ import { filesize } from 'filesize'
 import { useId, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { match } from 'ts-pattern'
 
 import {
   apiQueryClient,
@@ -24,6 +25,7 @@ import {
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
   instanceCan,
+  instanceCoolingDown,
   instanceTransitioning,
 } from '~/api/util'
 import { ExternalIps } from '~/components/ExternalIps'
@@ -107,6 +109,20 @@ InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
 
 const POLL_INTERVAL = 1000
 
+function shouldPoll(instance: Instance) {
+  if (instanceTransitioning(instance)) return 'transition'
+  if (instanceCoolingDown(instance)) return 'cooldown'
+  return null
+}
+
+const PollingSpinner = () => (
+  <Tooltip content="Auto-refreshing while state changes" delay={150}>
+    <button type="button">
+      <Spinner className="ml-2" />
+    </button>
+  </Tooltip>
+)
+
 export function InstancePage() {
   const instanceSelector = useInstanceSelector()
   const [resizeInstance, setResizeInstance] = useState(false)
@@ -131,11 +147,11 @@ export function InstancePage() {
     },
     {
       refetchInterval: ({ state: { data: instance } }) =>
-        instance && instanceTransitioning(instance) ? POLL_INTERVAL : false,
+        instance && shouldPoll(instance) ? POLL_INTERVAL : false,
     }
   )
 
-  const polling = instanceTransitioning(instance)
+  const pollReason = shouldPoll(instance)
 
   const { data: nics } = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
     query: {
@@ -206,20 +222,11 @@ export function InstancePage() {
           <PropertiesTable.Row label="state">
             <div className="flex items-center gap-2">
               <InstanceStateBadge state={instance.runState} />
-              {polling && (
-                <Tooltip content="Auto-refreshing while state changes" delay={150}>
-                  <button type="button">
-                    <Spinner className="ml-2" />
-                  </button>
-                </Tooltip>
-              )}
-              {instance.autoRestartCooldownExpiration && (
-                <InstanceAutoRestartPopover
-                  enabled={instance.autoRestartEnabled}
-                  cooldownExpiration={instance.autoRestartCooldownExpiration}
-                  policy={instance.autoRestartPolicy}
-                />
-              )}
+              {match(pollReason)
+                .with('transition', () => <PollingSpinner />)
+                .with('cooldown', () => <InstanceAutoRestartPopover instance={instance} />)
+                .with(null, () => null)
+                .exhaustive()}
             </div>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="vpc">

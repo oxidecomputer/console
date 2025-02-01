@@ -7,7 +7,7 @@
  */
 import { CloseButton, Popover, PopoverButton, PopoverPanel } from '@headlessui/react'
 import { formatDistanceToNow } from 'date-fns'
-import { useState, type ReactNode } from 'react'
+import { type ReactNode } from 'react'
 import { Link } from 'react-router'
 import { match } from 'ts-pattern'
 
@@ -17,12 +17,11 @@ import {
   OpenLink12Icon,
 } from '@oxide/design-system/icons/react'
 
-import type { InstanceAutoRestartPolicy } from '~/api'
+import type { Instance } from '~/api'
 import { HL } from '~/components/HL'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { Badge } from '~/ui/lib/Badge'
 import { Spinner } from '~/ui/lib/Spinner'
-import { useInterval } from '~/ui/lib/use-interval'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -53,20 +52,15 @@ const helpText = {
   ),
 }
 
-export const InstanceAutoRestartPopover = ({
-  enabled,
-  policy,
-  cooldownExpiration,
-}: {
-  enabled: boolean
-  policy?: InstanceAutoRestartPolicy
-  cooldownExpiration: Date | undefined
-}) => {
+export const InstanceAutoRestartPopover = ({ instance }: { instance: Instance }) => {
+  const {
+    autoRestartCooldownExpiration: cooldownExpiration,
+    autoRestartPolicy: policy,
+    autoRestartEnabled: enabled,
+  } = instance
+
   const instanceSelector = useInstanceSelector()
-  const [now, setNow] = useState(new Date())
-
-  useInterval({ fn: () => setNow(new Date()), delay: 1000 })
-
+  const now = new Date()
   const isQueued = cooldownExpiration && cooldownExpiration < now
 
   let helpTextState: keyof typeof helpText = 'disabled'
