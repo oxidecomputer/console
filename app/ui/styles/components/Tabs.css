@@ -66,6 +66,10 @@
   @apply bg-accent-secondary;
 }
 
+.ox-side-tabs-list {
+  @apply flex w-[160px] flex-shrink-0 flex-col gap-2;
+}
+
 .ox-side-tab {
   @apply rounded space-x-2 whitespace-nowrap p-2 py-1.5 !no-underline text-sans-md text-secondary;
 }
@@ -77,8 +81,4 @@
 
 .ox-side-tab:not([data-state='active'], .is-selected):hover {
   @apply text-default bg-hover;
-}
-
-.ox-tab > * {
-  @apply rounded;
 }

@@ -5,7 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import { RouteSideTabs, SideTab } from '~/components/RouteTabs'
+
+import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { pb } from '~/util/path-builder'
 
@@ -13,10 +14,16 @@ export const MetricsTab = () => {
   const { project, instance } = useInstanceSelector()
   // Find the <Outlet> in RouteSideTabs
   return (
-    <RouteSideTabs>
-      <SideTab to={pb.instanceCpuMetrics({ project, instance })}>CPU</SideTab>
-      <SideTab to={pb.instanceDiskMetrics({ project, instance })}>Disk</SideTab>
-      <SideTab to={pb.instanceNetworkMetrics({ project, instance })}>Network</SideTab>
-    </RouteSideTabs>
+    <RouteTabs sideTabs>
+      <Tab to={pb.instanceCpuMetrics({ project, instance })} sideTab>
+        CPU
+      </Tab>
+      <Tab to={pb.instanceDiskMetrics({ project, instance })} sideTab>
+        Disk
+      </Tab>
+      <Tab to={pb.instanceNetworkMetrics({ project, instance })} sideTab>
+        Network
+      </Tab>
+    </RouteTabs>
   )
 }

@@ -301,7 +301,7 @@ export const routes = createRoutesFromElements(
                   path="metrics"
                   handle={{ crumb: 'Metrics' }}
                 >
-                  <Route index element={<Navigate to="disk" replace />} />
+                  <Route index element={<Navigate to="cpu" replace />} />
                   <Route {...CpuMetricsTab} path="cpu" handle={{ crumb: 'CPU' }} />
                   <Route {...DiskMetricsTab} path="disk" handle={{ crumb: 'Disk' }} />
                   <Route
