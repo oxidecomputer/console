@@ -9,13 +9,9 @@
 import { format, formatDistanceToNow } from 'date-fns'
 import { useId, useState, type ReactNode } from 'react'
 import { useForm } from 'react-hook-form'
+import { match } from 'ts-pattern'
 
-import {
-  apiQueryClient,
-  useApiMutation,
-  usePrefetchedApiQuery,
-  type InstanceUpdate,
-} from '~/api'
+import { apiQueryClient, useApiMutation, usePrefetchedApiQuery } from '~/api'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
@@ -28,13 +24,6 @@ import { useInterval } from '~/ui/lib/use-interval'
 import { links } from '~/util/links'
 
 type FormPolicy = 'default' | 'never' | 'best_effort'
-type ApiPolicy = InstanceUpdate['autoRestartPolicy']
-
-const formPolicyToApiPolicy: Record<FormPolicy, ApiPolicy> = {
-  default: undefined,
-  never: 'never',
-  best_effort: 'best_effort',
-}
 
 const restartPolicyItems: ListboxItem<FormPolicy>[] = [
   { value: 'default', label: 'Default' },
@@ -83,7 +72,11 @@ export function Component() {
         ncpus: instance.ncpus,
         memory: instance.memory,
         bootDisk: instance.bootDiskId,
-        autoRestartPolicy: formPolicyToApiPolicy[values.autoRestartPolicy],
+        autoRestartPolicy: match(values.autoRestartPolicy)
+          .with('default', () => undefined)
+          .with('never', () => 'never' as const)
+          .with('best_effort', () => 'best_effort' as const)
+          .exhaustive(),
       },
     })
   })

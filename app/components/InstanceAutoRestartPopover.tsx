@@ -10,6 +10,7 @@ import cn from 'classnames'
 import { formatDistanceToNow } from 'date-fns'
 import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router'
+import { match } from 'ts-pattern'
 
 import {
   AutoRestart12Icon,
@@ -50,24 +51,6 @@ const helpText = {
       restart process shortly.
     </>
   ),
-}
-
-// ts-pattern could make this less ugly
-const PolicyBadge = ({ policy }: { policy?: InstanceAutoRestartPolicy }) => {
-  if (policy === 'never') {
-    return (
-      <Badge color="neutral" variant="solid">
-        never
-      </Badge>
-    )
-  } else if (policy === 'best_effort') {
-    return <Badge>best effort</Badge>
-  } else if (policy === undefined) {
-    return <Badge color="neutral">Default</Badge>
-  } else {
-    const _exhaustiveCheck: never = policy
-    return _exhaustiveCheck
-  }
 }
 
 export const InstanceAutoRestartPopover = ({
@@ -116,7 +99,15 @@ export const InstanceAutoRestartPopover = ({
             to={pb.instanceSettings(instanceSelector)}
             className="group -m-1 flex w-full items-center justify-between rounded px-1"
           >
-            <PolicyBadge policy={policy} />
+            {match(policy)
+              .with('never', () => (
+                <Badge color="neutral" variant="solid">
+                  never
+                </Badge>
+              ))
+              .with('best_effort', () => <Badge>best effort</Badge>)
+              .with(undefined, () => <Badge color="neutral">Default</Badge>)
+              .exhaustive()}
             <div className="transition-transform group-hover:translate-x-1">
               <NextArrow12Icon />
             </div>
