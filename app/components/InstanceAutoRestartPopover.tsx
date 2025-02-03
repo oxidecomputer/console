@@ -23,6 +23,7 @@ import { useInstanceSelector } from '~/hooks/use-params'
 import { Badge } from '~/ui/lib/Badge'
 import { Spinner } from '~/ui/lib/Spinner'
 import { useInterval } from '~/ui/lib/use-interval'
+import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const helpText = {
@@ -127,9 +128,12 @@ export const InstanceAutoRestartPopover = ({
         )}
         <div className="p-3 text-sans-md text-default">
           <p className="mb-2 pr-4">{helpText[helpTextState]}</p>
-          <a href="/">
+          <a href={links.instanceUpdateDocs} className="group">
             <span className="inline-block max-w-[300px] truncate align-middle">
-              Learn about <span className="text-raise">Instance Auto-Restart</span>
+              Learn about{' '}
+              <span className="group-hover:link-with-underline text-raise">
+                Instance Auto-Restart
+              </span>
             </span>
             <OpenLink12Icon className="ml-1 translate-y-[1px] text-secondary" />
           </a>
