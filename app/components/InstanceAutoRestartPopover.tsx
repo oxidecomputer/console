@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import { CloseButton, Popover, PopoverButton, PopoverPanel } from '@headlessui/react'
-import cn from 'classnames'
 import { formatDistanceToNow } from 'date-fns'
 import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router'
@@ -80,10 +79,7 @@ export const InstanceAutoRestartPopover = ({
         className="group flex h-6 w-6 items-center justify-center rounded border border-default hover:bg-hover"
         aria-label="Auto-restart status"
       >
-        <AutoRestart12Icon
-          className={cn('shrink-0 transition-transform', enabled && 'animate-spin-slow')}
-          aria-hidden
-        />
+        <AutoRestart12Icon className="shrink-0" aria-hidden />
       </PopoverButton>
       <PopoverPanel
         // popover-panel needed for enter animation
