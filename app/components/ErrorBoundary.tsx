@@ -12,6 +12,7 @@ import { useRouteError } from 'react-router'
 import { apiq } from '~/api'
 import { type ApiError } from '~/api/errors'
 import { Message } from '~/ui/lib/Message'
+import { links } from '~/util/links'
 
 import { ErrorPage, NotFound } from './ErrorPage'
 
@@ -21,19 +22,19 @@ const IdpMisconfig = () => (
     className="!mt-6"
     showIcon={false}
     content={
-      <>
-        You are not in any user groups and you have no assigned role on the silo. This
-        usually means the{' '}
+      <p>
+        You are not in any groups and have no role on the silo. This usually means the
+        identity provider is not set up correctly. Read the{' '}
         <a
-          href="https://docs.oxide.computer/guides/system/completing-rack-config#_test_user_login"
+          href={links.troubleshootingAccess}
           className="underline"
           target="_blank"
           rel="noreferrer"
         >
-          admin group name
+          docs
         </a>{' '}
-        is not set correctly for the silo.
-      </>
+        for more information.
+      </p>
     }
   />
 )

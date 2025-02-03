@@ -49,5 +49,5 @@ test('error page for user with no groups or silo role', async ({ browser }) => {
   const page = await getPageAsUser(browser, 'Jacob Klein')
   await page.goto('/projects')
   await expect(page.getByText('Something went wrong')).toBeVisible()
-  await expect(page.getByText('admin group name is not set correctly')).toBeVisible()
+  await expect(page.getByText('identity provider is not set up correctly')).toBeVisible()
 })
