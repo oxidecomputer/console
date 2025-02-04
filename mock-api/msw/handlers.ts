@@ -195,7 +195,7 @@ export const handlers = makeHandlers({
       throw 'Can only enter state importing_from_bulk_write from import_ready'
     }
 
-    await delay(1000) // slow it down for the tests
+    await delay(2000) // slow it down for the tests
 
     db.diskBulkImportState.set(disk.id, { blocks: {} })
     disk.state = { state: 'importing_from_bulk_writes' }
@@ -209,7 +209,7 @@ export const handlers = makeHandlers({
     if (disk.state.state !== 'importing_from_bulk_writes') {
       throw 'Can only stop import for disk in state importing_from_bulk_write'
     }
-    await delay(1000) // slow it down for the tests
+    await delay(2000) // slow it down for the tests
 
     db.diskBulkImportState.delete(disk.id)
     disk.state = { state: 'import_ready' }
