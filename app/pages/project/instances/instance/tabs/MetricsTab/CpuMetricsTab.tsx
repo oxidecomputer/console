@@ -49,7 +49,7 @@ export function Component() {
   const ncpus = instanceData?.ncpus || 1
 
   const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker({
-    initialPreset: 'lastDay',
+    initialPreset: 'lastHour',
   })
 
   const [cpuId, setCpuId] = useState<string>('all')
@@ -63,6 +63,14 @@ export function Component() {
   ]
 
   const vcpuId = cpuId === 'all' ? undefined : cpuId
+
+  const commonProps = {
+    startTime,
+    endTime,
+    instanceId: instanceData.id,
+    vcpuId,
+    group: cpuId === 'all',
+  }
 
   return (
     <>
@@ -82,63 +90,43 @@ export function Component() {
       <MetricCollection>
         <MetricRow>
           <OxqlMetric
-            startTime={startTime}
-            endTime={endTime}
+            {...commonProps}
             title="CPU Utilization"
             unit="%"
             metricName="virtual_machine:vcpu_usage"
-            instanceId={instanceData.id}
-            vcpuId={vcpuId}
-            join
           />
         </MetricRow>
         <MetricRow>
           <OxqlMetric
-            startTime={startTime}
-            endTime={endTime}
+            {...commonProps}
             title="CPU Utilization: Running"
             unit="%"
             metricName="virtual_machine:vcpu_usage"
             state="run"
-            instanceId={instanceData.id}
-            vcpuId={vcpuId}
-            join
           />
           <OxqlMetric
-            startTime={startTime}
-            endTime={endTime}
+            {...commonProps}
             title="CPU Utilization: Idling"
             unit="%"
             metricName="virtual_machine:vcpu_usage"
             state="idle"
-            instanceId={instanceData.id}
-            vcpuId={vcpuId}
-            join
           />
         </MetricRow>
 
         <MetricRow>
           <OxqlMetric
-            startTime={startTime}
-            endTime={endTime}
+            {...commonProps}
             title="CPU Utilization: Waiting"
             unit="%"
             metricName="virtual_machine:vcpu_usage"
             state="waiting"
-            instanceId={instanceData.id}
-            vcpuId={vcpuId}
-            join
           />
           <OxqlMetric
-            startTime={startTime}
-            endTime={endTime}
+            {...commonProps}
             title="CPU Utilization: Emulation"
             unit="%"
             metricName="virtual_machine:vcpu_usage"
             state="emulation"
-            instanceId={instanceData.id}
-            vcpuId={vcpuId}
-            join
           />
         </MetricRow>
       </MetricCollection>

@@ -72,24 +72,29 @@ type getOxqlQueryParams = {
   metricName: OxqlMetricName
   startTime: Date
   endTime: Date
+  instanceId?: string
+  // for cpu metrics
+  vcpuId?: string
   // for disk metrics
   diskId?: string
-  // for vm metrics
-  instanceId?: string
-  vcpuId?: string
+  attachedInstanceId?: string
+  // for network metrics
+  interfaceId?: string
   state?: OxqlVcpuState
-  join?: boolean
+  group?: boolean
 }
 
 const getOxqlQuery = ({
   metricName,
   startTime,
   endTime,
-  diskId,
   instanceId,
+  diskId,
+  attachedInstanceId,
+  interfaceId,
   vcpuId,
   state,
-  join,
+  group,
 }: getOxqlQueryParams) => {
   const start = oxqlTimestamp(startTime)
   const end = oxqlTimestamp(endTime)
@@ -103,11 +108,23 @@ const getOxqlQuery = ({
   if (instanceId) {
     filters.push(`instance_id == "${instanceId}"`)
   }
+  if (interfaceId) {
+    filters.push(`interface_id == "${interfaceId}"`)
+  }
+  if (attachedInstanceId) {
+    filters.push(`attached_instance_id == "${attachedInstanceId}"`)
+  }
   if (state) {
     filters.push(`state == "${state}"`)
   }
   const meanWindow = getMeanWindow(startTime, endTime)
-  const query = `get ${metricName} | filter ${filters.join(' && ')} | align mean_within(${meanWindow})${join ? ' | group_by [instance_id], sum' : ''}`
+  const groupByString =
+    group && attachedInstanceId
+      ? ' | group_by [attached_instance_id], sum'
+      : group && instanceId
+        ? ' | group_by [instance_id], sum'
+        : ''
+  const query = `get ${metricName} | filter ${filters.join(' && ')} | align mean_within(${meanWindow})${groupByString}`
   // console.log(query)
   return query
 }
@@ -121,25 +138,31 @@ type OxqlBaseMetricParams = {
 }
 
 type OxqlDiskMetricParams = OxqlBaseMetricParams & {
+  attachedInstanceId?: string
   diskId?: string
   instanceId?: never
+  interfaceId?: never
   vcpuId?: never
   state?: never
-  join?: never
+  group?: boolean
 }
 type OxqlVmMetricParams = OxqlBaseMetricParams & {
+  attachedInstanceId?: never
   diskId?: never
   instanceId?: string
+  interfaceId?: never
   vcpuId?: string
   state?: OxqlVcpuState
-  join?: boolean
+  group?: boolean
 }
 type OxqlNetworkMetricParams = OxqlBaseMetricParams & {
+  attachedInstanceId?: never
   instanceId?: string
+  interfaceId?: string
   diskId?: never
   vcpuId?: never
   state?: never
-  join?: never
+  group?: never
 }
 export function OxqlMetric({
   title,
@@ -148,20 +171,24 @@ export function OxqlMetric({
   startTime,
   endTime,
   diskId,
+  attachedInstanceId,
   instanceId,
+  interfaceId,
   vcpuId,
   state,
-  join,
+  group,
 }: OxqlDiskMetricParams | OxqlVmMetricParams | OxqlNetworkMetricParams) {
   const query = getOxqlQuery({
     metricName,
     startTime,
     endTime,
+    attachedInstanceId,
     diskId,
     instanceId,
+    interfaceId,
     vcpuId,
     state,
-    join,
+    group,
   })
   const { data: metrics } = useApiQuery('systemTimeseriesQuery', { body: { query } })
   const chartData: ChartDatum[] = useMemo(() => getChartData(metrics), [metrics])

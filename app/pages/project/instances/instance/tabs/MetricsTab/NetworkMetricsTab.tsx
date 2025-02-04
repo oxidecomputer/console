@@ -47,24 +47,26 @@ export function Component() {
   })
 
   const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker({
-    initialPreset: 'lastDay',
+    initialPreset: 'lastHour',
   })
 
   const networks = useMemo(
-    () => interfaceData.items.map(({ name, id }) => ({ name, id })),
+    () => [
+      { name: 'All', id: 'all' },
+      ...interfaceData.items.map(({ name, id }) => ({ name, id })),
+    ],
     [interfaceData]
   )
 
-  const [nic, setNic] = useState({
-    name: networks[0]?.name || '',
-    id: networks[0]?.id || '',
-  })
+  const [nic, setNic] = useState({ name: 'All', id: 'all' })
   const items = networks.map(({ name }) => ({ label: name, value: name }))
 
   const commonProps = {
     startTime,
     endTime,
     instanceId: instanceData.id,
+    interfaceId: nic.id === 'all' ? undefined : nic.id,
+    group: nic.id === 'all',
   }
 
   return (
@@ -77,9 +79,7 @@ export function Component() {
           selected={nic.name}
           items={items}
           onChange={(val) => {
-            if (val) {
-              setNic({ name: val, id: networks.find((n) => n.name === val)?.id || '' })
-            }
+            setNic({ name: val, id: networks.find((n) => n.name === val)?.id || 'all' })
           }}
         />
         {dateTimeRangePicker}

@@ -54,18 +54,25 @@ export function Component() {
     path: { instance },
     query: { project },
   })
+  const { data: instanceData } = usePrefetchedApiQuery('instanceView', {
+    path: { instance },
+    query: { project },
+  })
+  const instanceId = instanceData?.id
   const disks = useMemo(() => data?.items || [], [data])
 
   const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker({
-    initialPreset: 'lastDay',
+    initialPreset: 'lastHour',
   })
 
   // The fallback here is kind of silly — it is only invoked when there are no
   // disks, in which case we show the fallback UI and diskName is never used. We
   // only need to do it this way because hooks cannot be called conditionally.
-  const [diskName, setDiskName] = useState<string>(disks[0]?.name || '')
-  const [diskId, setDiskId] = useState<string>(disks[0]?.id || '')
-  const diskItems = disks.map(({ name }) => ({ label: name, value: name }))
+  const [diskId, setDiskId] = useState<string>('all')
+  const diskItems = [
+    { label: 'All', value: 'all' },
+    ...disks.map(({ name, id }) => ({ label: name, value: id })),
+  ]
 
   if (disks.length === 0) {
     return (
@@ -82,7 +89,12 @@ export function Component() {
   const commonProps = {
     startTime,
     endTime,
-    diskId,
+    attachedInstanceId: instanceId,
+    // does this need instanceId as well?
+    // Would think so, as these are instance metrics,
+    // but maybe the key is the attachedInstanceId
+    diskId: diskId === 'all' ? undefined : diskId,
+    group: diskId === 'all',
   }
 
   return (
@@ -92,13 +104,10 @@ export function Component() {
           className="w-64"
           aria-label="Choose disk"
           name="disk-name"
-          selected={diskName}
+          selected={diskId}
           items={diskItems}
           onChange={(val) => {
-            if (val) {
-              setDiskName(val)
-              setDiskId(disks.find((d) => d.name === val)?.id || '')
-            }
+            setDiskId(val)
           }}
         />
         {dateTimeRangePicker}
