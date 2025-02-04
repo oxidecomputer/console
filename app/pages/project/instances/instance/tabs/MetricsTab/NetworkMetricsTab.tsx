@@ -16,7 +16,14 @@ import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { Listbox } from '~/ui/lib/Listbox'
 import { ALL_ISH } from '~/util/consts'
 
-import { MetricCollection, MetricHeader, MetricRow, OxqlMetric } from './OxqlMetric'
+import {
+  getOxqlQuery,
+  MetricCollection,
+  MetricHeader,
+  MetricRow,
+  OxqlMetric,
+  type OxqlNetworkMetricName,
+} from './OxqlMetric'
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
@@ -61,13 +68,15 @@ export function Component() {
   const [nic, setNic] = useState({ name: 'All', id: 'all' })
   const items = networks.map(({ name }) => ({ label: name, value: name }))
 
-  const commonProps = {
-    startTime,
-    endTime,
-    instanceId: instanceData.id,
-    interfaceId: nic.id === 'all' ? undefined : nic.id,
-    group: nic.id === 'all',
-  }
+  const getQuery = (metricName: OxqlNetworkMetricName) =>
+    getOxqlQuery({
+      metricName,
+      startTime,
+      endTime,
+      instanceId: instanceData.id,
+      interfaceId: nic.id === 'all' ? undefined : nic.id,
+      group: nic.id === 'all',
+    })
 
   return (
     <>
@@ -87,38 +96,38 @@ export function Component() {
       <MetricCollection>
         <MetricRow>
           <OxqlMetric
-            {...commonProps}
             title="Packets Sent"
-            unit="Count"
-            metricName="instance_network_interface:packets_sent"
+            query={getQuery('instance_network_interface:packets_sent')}
+            startTime={startTime}
+            endTime={endTime}
           />
           <OxqlMetric
-            {...commonProps}
             title="Packets Received"
-            unit="Count"
-            metricName="instance_network_interface:packets_received"
+            query={getQuery('instance_network_interface:packets_received')}
+            startTime={startTime}
+            endTime={endTime}
           />
         </MetricRow>
         <MetricRow>
           <OxqlMetric
-            {...commonProps}
             title="Bytes Sent"
-            unit="Bytes"
-            metricName="instance_network_interface:bytes_sent"
+            query={getQuery('instance_network_interface:bytes_sent')}
+            startTime={startTime}
+            endTime={endTime}
           />
           <OxqlMetric
-            {...commonProps}
             title="Bytes Received"
-            unit="Bytes"
-            metricName="instance_network_interface:bytes_received"
+            query={getQuery('instance_network_interface:bytes_received')}
+            startTime={startTime}
+            endTime={endTime}
           />
         </MetricRow>
         <MetricRow>
           <OxqlMetric
-            {...commonProps}
             title="Packets Dropped"
-            unit="Count"
-            metricName="instance_network_interface:packets_dropped"
+            query={getQuery('instance_network_interface:packets_dropped')}
+            startTime={startTime}
+            endTime={endTime}
           />
         </MetricRow>
       </MetricCollection>

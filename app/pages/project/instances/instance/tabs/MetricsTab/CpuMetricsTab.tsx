@@ -22,7 +22,15 @@ import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePi
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { Listbox } from '~/ui/lib/Listbox'
 
-import { MetricCollection, MetricHeader, MetricRow, OxqlMetric } from './OxqlMetric'
+import {
+  getOxqlQuery,
+  MetricCollection,
+  MetricHeader,
+  MetricRow,
+  OxqlMetric,
+  type OxqlVcpuState,
+  type OxqlVmMetricName,
+} from './OxqlMetric'
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
@@ -64,13 +72,16 @@ export function Component() {
 
   const vcpuId = cpuId === 'all' ? undefined : cpuId
 
-  const commonProps = {
-    startTime,
-    endTime,
-    instanceId: instanceData.id,
-    vcpuId,
-    group: cpuId === 'all',
-  }
+  const getQuery = (metricName: OxqlVmMetricName, state?: OxqlVcpuState) =>
+    getOxqlQuery({
+      metricName,
+      startTime,
+      endTime,
+      instanceId: instanceData.id,
+      vcpuId,
+      state,
+      group: cpuId === 'all',
+    })
 
   return (
     <>
@@ -90,43 +101,39 @@ export function Component() {
       <MetricCollection>
         <MetricRow>
           <OxqlMetric
-            {...commonProps}
             title="CPU Utilization"
-            unit="%"
-            metricName="virtual_machine:vcpu_usage"
+            query={getQuery('virtual_machine:vcpu_usage')}
+            startTime={startTime}
+            endTime={endTime}
           />
         </MetricRow>
         <MetricRow>
           <OxqlMetric
-            {...commonProps}
             title="CPU Utilization: Running"
-            unit="%"
-            metricName="virtual_machine:vcpu_usage"
-            state="run"
+            query={getQuery('virtual_machine:vcpu_usage', 'run')}
+            startTime={startTime}
+            endTime={endTime}
           />
           <OxqlMetric
-            {...commonProps}
             title="CPU Utilization: Idling"
-            unit="%"
-            metricName="virtual_machine:vcpu_usage"
-            state="idle"
+            query={getQuery('virtual_machine:vcpu_usage', 'idle')}
+            startTime={startTime}
+            endTime={endTime}
           />
         </MetricRow>
 
         <MetricRow>
           <OxqlMetric
-            {...commonProps}
             title="CPU Utilization: Waiting"
-            unit="%"
-            metricName="virtual_machine:vcpu_usage"
-            state="waiting"
+            query={getQuery('virtual_machine:vcpu_usage', 'waiting')}
+            startTime={startTime}
+            endTime={endTime}
           />
           <OxqlMetric
-            {...commonProps}
             title="CPU Utilization: Emulation"
-            unit="%"
-            metricName="virtual_machine:vcpu_usage"
-            state="emulation"
+            query={getQuery('virtual_machine:vcpu_usage', 'emulation')}
+            startTime={startTime}
+            endTime={endTime}
           />
         </MetricRow>
       </MetricCollection>

@@ -15,6 +15,7 @@ import React, { Suspense, useMemo } from 'react'
 
 import { getChartData, useApiQuery, type ChartDatum } from '@oxide/api'
 
+import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { Spinner } from '~/ui/lib/Spinner'
 import { getDurationMinutes } from '~/util/date'
 
@@ -33,7 +34,7 @@ export function getCycleCount(num: number, base: number) {
   return cycleCount
 }
 
-type OxqlDiskMetricName =
+export type OxqlDiskMetricName =
   | 'virtual_disk:bytes_read'
   | 'virtual_disk:bytes_written'
   | 'virtual_disk:failed_flushes'
@@ -45,9 +46,9 @@ type OxqlDiskMetricName =
   | 'virtual_disk:reads'
   | 'virtual_disk:writes'
 
-type OxqlVmMetricName = 'virtual_machine:vcpu_usage'
+export type OxqlVmMetricName = 'virtual_machine:vcpu_usage'
 
-type OxqlNetworkMetricName =
+export type OxqlNetworkMetricName =
   | 'instance_network_interface:bytes_received'
   | 'instance_network_interface:bytes_sent'
   | 'instance_network_interface:errors_received'
@@ -56,9 +57,9 @@ type OxqlNetworkMetricName =
   | 'instance_network_interface:packets_received'
   | 'instance_network_interface:packets_sent'
 
-type OxqlMetricName = OxqlDiskMetricName | OxqlVmMetricName | OxqlNetworkMetricName
+export type OxqlMetricName = OxqlDiskMetricName | OxqlVmMetricName | OxqlNetworkMetricName
 
-type OxqlVcpuState = 'run' | 'idle' | 'waiting' | 'emulation'
+export type OxqlVcpuState = 'run' | 'idle' | 'waiting' | 'emulation'
 
 /** determine the mean window for the given time range */
 const getMeanWindow = (start: Date, end: Date) => {
@@ -84,7 +85,7 @@ type getOxqlQueryParams = {
   group?: boolean
 }
 
-const getOxqlQuery = ({
+export const getOxqlQuery = ({
   metricName,
   startTime,
   endTime,
@@ -129,69 +130,25 @@ const getOxqlQuery = ({
   return query
 }
 
-type OxqlBaseMetricParams = {
-  title: string
-  unit: 'Bytes' | 'Count' | '%'
-  metricName: OxqlMetricName
-  startTime: Date
-  endTime: Date
-}
-
-type OxqlDiskMetricParams = OxqlBaseMetricParams & {
-  attachedInstanceId?: string
-  diskId?: string
-  instanceId?: never
-  interfaceId?: never
-  vcpuId?: never
-  state?: never
-  group?: boolean
-}
-type OxqlVmMetricParams = OxqlBaseMetricParams & {
-  attachedInstanceId?: never
-  diskId?: never
-  instanceId?: string
-  interfaceId?: never
-  vcpuId?: string
-  state?: OxqlVcpuState
-  group?: boolean
-}
-type OxqlNetworkMetricParams = OxqlBaseMetricParams & {
-  attachedInstanceId?: never
-  instanceId?: string
-  interfaceId?: string
-  diskId?: never
-  vcpuId?: never
-  state?: never
-  group?: never
-}
 export function OxqlMetric({
   title,
-  unit,
-  metricName,
+  query,
   startTime,
   endTime,
-  diskId,
-  attachedInstanceId,
-  instanceId,
-  interfaceId,
-  vcpuId,
-  state,
-  group,
-}: OxqlDiskMetricParams | OxqlVmMetricParams | OxqlNetworkMetricParams) {
-  const query = getOxqlQuery({
-    metricName,
-    startTime,
-    endTime,
-    attachedInstanceId,
-    diskId,
-    instanceId,
-    interfaceId,
-    vcpuId,
-    state,
-    group,
-  })
+}: {
+  title: string
+  query: string
+  startTime: Date
+  endTime: Date
+}) {
   const { data: metrics } = useApiQuery('systemTimeseriesQuery', { body: { query } })
   const chartData: ChartDatum[] = useMemo(() => getChartData(metrics), [metrics])
+
+  const unit = title.includes('Bytes')
+    ? 'Bytes'
+    : title.includes('Utilization')
+      ? '%'
+      : 'Count'
 
   const isBytesChart = unit === 'Bytes'
   const isPercentChart = unit === '%'
@@ -255,12 +212,28 @@ export function OxqlMetric({
     return `${tickValue}${unitForTick}`
   }
 
+  const menuActions = useMemo(
+    () => [
+      {
+        label: 'Copy query',
+        onActivate() {
+          window.navigator.clipboard.writeText(query)
+        },
+      },
+    ],
+    [query]
+  )
+
   return (
     <div className="flex w-1/2 grow flex-col">
-      <h2 className="ml-3 flex items-center text-mono-xs text-default">
-        {title} <div className="ml-1 normal-case text-tertiary">{label}</div>
-        {!metrics && <Spinner className="ml-2" />}
-      </h2>
+      <div className="flex items-center justify-between">
+        <h2 className="ml-3 flex items-center text-mono-xs text-default">
+          {title} <div className="ml-1 normal-case text-tertiary">{label}</div>
+          {!metrics && <Spinner className="ml-2" />}
+        </h2>
+        {/* TODO: show formatted string to user so they can see it before copying */}
+        <MoreActionsMenu label="Query actions" actions={menuActions} />
+      </div>
       <Suspense fallback={<div className="mt-3 h-[300px]" />}>
         <TimeSeriesChart
           className="mt-3"

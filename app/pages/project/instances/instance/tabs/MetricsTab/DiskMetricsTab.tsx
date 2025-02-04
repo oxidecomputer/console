@@ -25,7 +25,14 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
 import { TableEmptyBox } from '~/ui/lib/Table'
 
-import { MetricCollection, MetricHeader, MetricRow, OxqlMetric } from './OxqlMetric'
+import {
+  getOxqlQuery,
+  MetricCollection,
+  MetricHeader,
+  MetricRow,
+  OxqlMetric,
+  type OxqlDiskMetricName,
+} from './OxqlMetric'
 
 // We could figure out how to prefetch the metrics data, but it would be
 // annoying because it relies on the default date range, plus there are 5 calls.
@@ -86,16 +93,15 @@ export function Component() {
     )
   }
 
-  const commonProps = {
-    startTime,
-    endTime,
-    attachedInstanceId: instanceId,
-    // does this need instanceId as well?
-    // Would think so, as these are instance metrics,
-    // but maybe the key is the attachedInstanceId
-    diskId: diskId === 'all' ? undefined : diskId,
-    group: diskId === 'all',
-  }
+  const getQuery = (metricName: OxqlDiskMetricName) =>
+    getOxqlQuery({
+      metricName,
+      startTime,
+      endTime,
+      attachedInstanceId: instanceId,
+      diskId: diskId === 'all' ? undefined : diskId,
+      group: diskId === 'all',
+    })
 
   return (
     <>
@@ -118,40 +124,40 @@ export function Component() {
 
         <MetricRow>
           <OxqlMetric
-            {...commonProps}
             title="Disk Reads"
-            unit="Count"
-            metricName="virtual_disk:reads"
+            query={getQuery('virtual_disk:reads')}
+            startTime={startTime}
+            endTime={endTime}
           />
           <OxqlMetric
-            {...commonProps}
             title="Disk Writes"
-            unit="Count"
-            metricName="virtual_disk:writes"
+            query={getQuery('virtual_disk:writes')}
+            startTime={startTime}
+            endTime={endTime}
           />
         </MetricRow>
 
         <MetricRow>
           <OxqlMetric
-            {...commonProps}
             title="Bytes Read"
-            unit="Bytes"
-            metricName="virtual_disk:bytes_read"
+            query={getQuery('virtual_disk:bytes_read')}
+            startTime={startTime}
+            endTime={endTime}
           />
           <OxqlMetric
-            {...commonProps}
             title="Bytes Written"
-            unit="Bytes"
-            metricName="virtual_disk:bytes_written"
+            query={getQuery('virtual_disk:bytes_written')}
+            startTime={startTime}
+            endTime={endTime}
           />
         </MetricRow>
 
         <MetricRow>
           <OxqlMetric
-            {...commonProps}
             title="Disk Flushes"
-            unit="Count"
-            metricName="virtual_disk:flushes"
+            query={getQuery('virtual_disk:flushes')}
+            startTime={startTime}
+            endTime={endTime}
           />
         </MetricRow>
       </MetricCollection>
