@@ -186,7 +186,7 @@ export const handlers = makeHandlers({
       ),
     }
   },
-  diskBulkWriteImportStart: ({ path, query }) => {
+  async diskBulkWriteImportStart({ path, query }) {
     const disk = lookup.disk({ ...path, ...query })
 
     if (disk.name === 'import-start-500') throw 500
@@ -195,13 +195,13 @@ export const handlers = makeHandlers({
       throw 'Can only enter state importing_from_bulk_write from import_ready'
     }
 
-    // throw 400
+    await delay(1000) // slow it down for the tests
 
     db.diskBulkImportState.set(disk.id, { blocks: {} })
     disk.state = { state: 'importing_from_bulk_writes' }
     return 204
   },
-  diskBulkWriteImportStop: ({ path, query }) => {
+  async diskBulkWriteImportStop({ path, query }) {
     const disk = lookup.disk({ ...path, ...query })
 
     if (disk.name === 'import-stop-500') throw 500
@@ -209,6 +209,7 @@ export const handlers = makeHandlers({
     if (disk.state.state !== 'importing_from_bulk_writes') {
       throw 'Can only stop import for disk in state importing_from_bulk_write'
     }
+    await delay(1000) // slow it down for the tests
 
     db.diskBulkImportState.delete(disk.id)
     disk.state = { state: 'import_ready' }
