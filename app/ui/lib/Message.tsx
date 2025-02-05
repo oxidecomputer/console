@@ -27,8 +27,7 @@ export interface MessageProps {
     text: string
     link: To
   }
-  // try to use icons from the ___12Icon set, rather than forcing a 16px or 24px icon
-  icon?: ReactElement
+  showIcon?: boolean
 }
 
 const defaultIcon: Record<Variant, ReactElement> = {
@@ -73,21 +72,21 @@ export const Message = ({
   className,
   variant = 'info',
   cta,
-  icon,
+  showIcon = true,
 }: MessageProps) => {
   return (
     <div
       className={cn(
-        'relative flex items-start overflow-hidden rounded-lg p-4 elevation-1',
+        'relative flex items-start gap-2.5 overflow-hidden rounded-lg p-4 elevation-1',
         color[variant],
         textColor[variant],
         className
       )}
     >
-      <div className="mt-[2px] flex [&>svg]:h-3 [&>svg]:w-3">
-        {icon || defaultIcon[variant]}
-      </div>
-      <div className="flex-1 pl-2.5">
+      {showIcon && (
+        <div className="mt-[2px] flex [&>svg]:h-3 [&>svg]:w-3">{defaultIcon[variant]}</div>
+      )}
+      <div className="flex-1">
         {title && <div className="text-sans-semi-md">{title}</div>}
         <div
           className={cn(

@@ -539,6 +539,7 @@ export function Component() {
           await onSubmit(values)
         } catch (e) {
           if (e !== ABORT_ERROR) {
+            console.error(e)
             setModalError('Something went wrong. Please try again.')
             // abort anything in flight in case
             cancelEverything()

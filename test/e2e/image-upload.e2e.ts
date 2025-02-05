@@ -159,7 +159,8 @@ test.describe('Image upload', () => {
       await page.getByRole('button', { name: 'Cancel' }).click()
       await page.getByRole('link', { name: 'Disks' }).click()
       await expect(page.getByRole('cell', { name: 'disk-1', exact: true })).toBeVisible()
-      await expect(page.getByRole('cell', { name: 'tmp' })).toBeHidden()
+      // needs a little extra time for delete to go through
+      await expect(page.getByRole('cell', { name: 'tmp' })).toBeHidden({ timeout: 10000 })
     })
   }
 

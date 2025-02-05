@@ -72,8 +72,14 @@ export const handlers = makeHandlers({
   loginLocal: ({ body: { password } }) => (password === 'bad' ? 401 : 200),
   groupList: (params) => paginated(params.query, db.userGroups),
   groupView: (params) => lookupById(db.userGroups, params.path.groupId),
-
-  projectList: (params) => paginated(params.query, db.projects),
+  projectList: ({ query, cookies }) => {
+    // this is used to test for the IdP misconfig situation where the user has
+    // no role on the silo (see error-pages.e2e.ts). requireRole checks for _at
+    // least_ viewer, and viewer is the weakest role, so checking for viewer
+    // effectively means "do I have any role at all"
+    requireRole(cookies, 'silo', defaultSilo.id, 'viewer')
+    return paginated(query, db.projects)
+  },
   projectCreate({ body }) {
     errIfExists(db.projects, { name: body.name }, 'project')
 
@@ -189,7 +195,7 @@ export const handlers = makeHandlers({
       throw 'Can only enter state importing_from_bulk_write from import_ready'
     }
 
-    await delay(1000) // slow it down for the tests
+    await delay(2000) // slow it down for the tests
 
     db.diskBulkImportState.set(disk.id, { blocks: {} })
     disk.state = { state: 'importing_from_bulk_writes' }
@@ -203,7 +209,7 @@ export const handlers = makeHandlers({
     if (disk.state.state !== 'importing_from_bulk_writes') {
       throw 'Can only stop import for disk in state importing_from_bulk_write'
     }
-    await delay(1000) // slow it down for the tests
+    await delay(2000) // slow it down for the tests
 
     db.diskBulkImportState.delete(disk.id)
     disk.state = { state: 'import_ready' }
