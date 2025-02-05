@@ -41,7 +41,7 @@ export interface RouteTabsProps {
   sideTabs?: boolean
 }
 /** Tabbed views, controlling both the layout and functioning of tabs and the panel contents.
- *  For tabs on top of the panel, keep sideTabs as false. For tabs on the side, set sideTabs to true.
+ *  sideTabs: Whether the tabs are displayed on the side of the panel. Default is false.
  */
 export function RouteTabs({ children, fullWidth, sideTabs = false }: RouteTabsProps) {
   const wrapperClasses = sideTabs

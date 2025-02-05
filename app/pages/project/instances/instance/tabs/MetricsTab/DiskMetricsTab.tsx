@@ -19,12 +19,12 @@ import { type LoaderFunctionArgs } from 'react-router'
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Storage24Icon } from '@oxide/design-system/icons/react'
 
-import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
 import { TableEmptyBox } from '~/ui/lib/Table'
 
+import { useMetricsContext } from '../MetricsTab'
 import {
   getOxqlQuery,
   MetricCollection,
@@ -68,9 +68,7 @@ export function Component() {
   const instanceId = instanceData?.id
   const disks = useMemo(() => data?.items || [], [data])
 
-  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker({
-    initialPreset: 'lastHour',
-  })
+  const { startTime, endTime, dateTimeRangePicker } = useMetricsContext()
 
   // The fallback here is kind of silly — it is only invoked when there are no
   // disks, in which case we show the fallback UI and diskName is never used. We

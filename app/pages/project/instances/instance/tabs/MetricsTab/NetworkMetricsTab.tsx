@@ -11,11 +11,11 @@ import { type LoaderFunctionArgs } from 'react-router'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 
-import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { Listbox } from '~/ui/lib/Listbox'
 import { ALL_ISH } from '~/util/consts'
 
+import { useMetricsContext } from '../MetricsTab'
 import {
   getOxqlQuery,
   MetricCollection,
@@ -53,9 +53,7 @@ export function Component() {
     query: { project, instance, limit: ALL_ISH },
   })
 
-  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker({
-    initialPreset: 'lastHour',
-  })
+  const { startTime, endTime, dateTimeRangePicker } = useMetricsContext()
 
   const networks = useMemo(
     () => [

@@ -251,9 +251,11 @@ export function OxqlMetric({
   )
 }
 
-export const MetricHeader = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex justify-between">{children}</div>
-)
+export const MetricHeader = ({ children }: { children: React.ReactNode }) => {
+  // If header has only one child, align it to the end of the container
+  const value = React.Children.toArray(children).length === 1 ? 'end' : 'between'
+  return <div className={`flex justify-${value}`}>{children}</div>
+}
 export const MetricCollection = ({ children }: { children: React.ReactNode }) => (
   <div className="mt-8 flex flex-col gap-8">{children}</div>
 )

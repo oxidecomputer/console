@@ -13,15 +13,13 @@
  *
  * Copyright Oxide Computer Company
  */
-import React, { useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 
-import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
-import { Listbox } from '~/ui/lib/Listbox'
 
+import { useMetricsContext } from '../MetricsTab'
 import {
   getOxqlQuery,
   MetricCollection,
@@ -54,23 +52,8 @@ export function Component() {
     path: { instance },
     query: { project },
   })
-  const ncpus = instanceData?.ncpus || 1
 
-  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker({
-    initialPreset: 'lastHour',
-  })
-
-  const [cpuId, setCpuId] = useState<string>('all')
-
-  const cpuItems = [
-    { label: 'All', value: 'all' },
-    ...Array.from({ length: ncpus }, (_, i) => ({
-      label: i.toString(),
-      value: i.toString(),
-    })),
-  ]
-
-  const vcpuId = cpuId === 'all' ? undefined : cpuId
+  const { startTime, endTime, dateTimeRangePicker } = useMetricsContext()
 
   const getQuery = (metricName: OxqlVmMetricName, state?: OxqlVcpuState) =>
     getOxqlQuery({
@@ -78,26 +61,13 @@ export function Component() {
       startTime,
       endTime,
       instanceId: instanceData.id,
-      vcpuId,
       state,
-      group: cpuId === 'all',
+      group: true,
     })
 
   return (
     <>
-      <MetricHeader>
-        <Listbox
-          className="w-64"
-          aria-label="Choose vCPU to profile"
-          name="vcpu-id"
-          selected={cpuId}
-          items={cpuItems}
-          onChange={(val) => {
-            setCpuId(val)
-          }}
-        />
-        {dateTimeRangePicker}
-      </MetricHeader>
+      <MetricHeader>{dateTimeRangePicker}</MetricHeader>
       <MetricCollection>
         <MetricRow>
           <OxqlMetric
