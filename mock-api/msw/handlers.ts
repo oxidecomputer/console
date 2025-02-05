@@ -219,7 +219,7 @@ export const handlers = makeHandlers({
     const disk = lookup.disk({ ...path, ...query })
     const diskImport = db.diskBulkImportState.get(disk.id)
     if (!diskImport) throw notFoundErr(`disk import for disk '${disk.id}'`)
-    await delay(2000) // slow it down for the tests
+    await delay(1000) // slow it down for the tests
     // if (Math.random() < 0.01) throw 400
     diskImport.blocks[body.offset] = true
     return 204
