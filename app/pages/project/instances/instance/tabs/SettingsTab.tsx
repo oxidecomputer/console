@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { format, formatDistanceToNow } from 'date-fns'
+import { formatDistanceToNow } from 'date-fns'
 import { useId, type ReactNode } from 'react'
 import { useForm } from 'react-hook-form'
 import { match } from 'ts-pattern'
@@ -20,6 +20,7 @@ import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { type ListboxItem } from '~/ui/lib/Listbox'
 import { LearnMore, SettingsGroup } from '~/ui/lib/SettingsGroup'
 import { TipIcon } from '~/ui/lib/TipIcon'
+import { toLocaleDateTimeString } from '~/util/date'
 import { links } from '~/util/links'
 
 type FormPolicy = 'default' | 'never' | 'best_effort'
@@ -107,10 +108,7 @@ export function Component() {
           >
             {instance.autoRestartCooldownExpiration ? (
               <>
-                {format(
-                  new Date(instance.autoRestartCooldownExpiration),
-                  'MMM d, yyyy HH:mm:ss zz'
-                )}{' '}
+                {toLocaleDateTimeString(instance.autoRestartCooldownExpiration)}{' '}
                 {instance.autoRestartCooldownExpiration > new Date() && (
                   <span className="text-tertiary">
                     ({formatDistanceToNow(instance.autoRestartCooldownExpiration)})
@@ -126,12 +124,7 @@ export function Component() {
             helpText="When this instance was last automatically restarted. Empty if never auto-restarted."
           >
             {instance.timeLastAutoRestarted ? (
-              <>
-                {format(
-                  new Date(instance.timeLastAutoRestarted),
-                  'MMM d, yyyy HH:mm:ss zz'
-                )}
-              </>
+              <>{toLocaleDateTimeString(instance.timeLastAutoRestarted)}</>
             ) : (
               <span className="text-tertiary">N/A</span>
             )}
