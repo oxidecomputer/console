@@ -39,20 +39,30 @@ export interface RouteTabsProps {
   children: ReactNode
   fullWidth?: boolean
   sideTabs?: boolean
+  tabListClassName?: string
 }
 /** Tabbed views, controlling both the layout and functioning of tabs and the panel contents.
  *  sideTabs: Whether the tabs are displayed on the side of the panel. Default is false.
  */
-export function RouteTabs({ children, fullWidth, sideTabs = false }: RouteTabsProps) {
+export function RouteTabs({
+  children,
+  fullWidth,
+  sideTabs = false,
+  tabListClassName,
+}: RouteTabsProps) {
   const wrapperClasses = sideTabs
     ? 'ox-side-tabs flex'
     : cn('ox-tabs', { 'full-width': fullWidth })
   const tabListClasses = sideTabs ? 'ox-side-tabs-list' : 'ox-tabs-list'
-  const panelClasses = cn('ox-tabs-panel', { 'flex-grow': sideTabs })
+  const panelClasses = cn('ox-tabs-panel @container', { 'ml-5 flex-grow': sideTabs })
   return (
-    <div className={wrapperClasses}>
+    <div className={cn(wrapperClasses)}>
       {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus */}
-      <div role="tablist" className={tabListClasses} onKeyDown={selectTab}>
+      <div
+        role="tablist"
+        className={cn(tabListClasses, tabListClassName)}
+        onKeyDown={selectTab}
+      >
         {children}
       </div>
       {/* TODO: Add aria-describedby for active tab */}

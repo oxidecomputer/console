@@ -21,6 +21,8 @@ import type { TooltipProps } from 'recharts/types/component/Tooltip'
 
 import type { ChartDatum } from '@oxide/api'
 
+import { Spinner } from '~/ui/lib/Spinner'
+
 // Recharts's built-in ticks behavior is useless and probably broken
 /**
  * Split the data into n evenly spaced ticks, with one at the left end and one a
@@ -110,6 +112,7 @@ type TimeSeriesChartProps = {
   endTime: Date
   unit?: string
   yAxisTickFormatter?: (val: number) => string
+  hasBorder?: boolean
 }
 
 const TICK_COUNT = 6
@@ -132,6 +135,7 @@ export default function TimeSeriesChart({
   endTime,
   unit,
   yAxisTickFormatter = (val) => val.toLocaleString(),
+  hasBorder = true,
 }: TimeSeriesChartProps) {
   // We use the largest data point +20% for the graph scale. !rawData doesn't
   // mean it's empty (it will never be empty because we fill in artificial 0s at
@@ -153,9 +157,22 @@ export default function TimeSeriesChart({
   // re-render on every render of the parent when the data is undefined
   const data = useMemo(() => rawData || [], [rawData])
 
+  if (!data || data.length === 0) {
+    return (
+      <div className="flex h-[300px] w-full items-center justify-center">
+        <div className="m-4 flex max-w-[18rem] flex-col items-center text-center">
+          <Spinner variant="secondary" />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="h-[300px] w-full">
-      <ResponsiveContainer className={cn(className, 'rounded-lg border border-default')}>
+      {/* temporary until we migrate the old metrics to the new style */}
+      <ResponsiveContainer
+        className={cn(className, hasBorder && 'rounded-lg border border-default')}
+      >
         <AreaChart
           width={width}
           height={height}

@@ -6,9 +6,11 @@
  * Copyright Oxide Computer Company
  */
 
+import { useIsFetching } from '@tanstack/react-query'
 import { createContext, useContext, type ReactNode } from 'react'
 
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
+import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { pb } from '~/util/path-builder'
@@ -23,21 +25,33 @@ const MetricsContext = createContext<{
   startTime: Date
   endTime: Date
   dateTimeRangePicker: ReactNode
-}>({ startTime, endTime, dateTimeRangePicker: <></> })
+  intervalPicker: ReactNode
+}>({ startTime, endTime, dateTimeRangePicker: <></>, intervalPicker: <></> })
 
 export const useMetricsContext = () => useContext(MetricsContext)
 
 export const MetricsTab = () => {
   const { project, instance } = useInstanceSelector()
 
-  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker({
-    initialPreset: 'lastHour',
+  const { preset, onRangeChange, startTime, endTime, dateTimeRangePicker } =
+    useDateTimeRangePicker({
+      initialPreset: 'lastHour',
+    })
+
+  const { intervalPicker } = useIntervalPicker({
+    enabled: preset !== 'custom',
+    isLoading: useIsFetching({ queryKey: ['siloMetric'] }) > 0,
+    // sliding the range forward is sufficient to trigger a refetch
+    fn: () => onRangeChange(preset),
+    isSlim: true,
   })
 
   // Find the relevant <Outlet> in RouteTabs
   return (
-    <MetricsContext.Provider value={{ startTime, endTime, dateTimeRangePicker }}>
-      <RouteTabs sideTabs>
+    <MetricsContext.Provider
+      value={{ startTime, endTime, dateTimeRangePicker, intervalPicker }}
+    >
+      <RouteTabs sideTabs tabListClassName="mt-24">
         <Tab to={pb.instanceCpuMetrics({ project, instance })} sideTab>
           CPU
         </Tab>

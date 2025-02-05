@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
+import containerQueriesPlugin from '@tailwindcss/container-queries'
 import { type Config } from 'tailwindcss'
 import plugin from 'tailwindcss/plugin'
 
@@ -71,5 +72,6 @@ export default {
       addUtilities(colorUtilities)
       addUtilities(elevationUtilities)
     }),
+    containerQueriesPlugin,
   ],
 } satisfies Config

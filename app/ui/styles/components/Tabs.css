@@ -14,6 +14,10 @@
   @apply mx-[var(--content-gutter)];
 }
 
+.ox-tabs.full-width .ox-side-tabs .ox-tabs-panel {
+  @apply mx-0 ml-4;
+}
+
 .ox-tabs-list {
   @apply mb-8 flex bg-transparent;
 }
@@ -67,11 +71,11 @@
 }
 
 .ox-side-tabs-list {
-  @apply flex w-[160px] flex-shrink-0 flex-col gap-2;
+  @apply flex w-[180px] flex-shrink-0 flex-col gap-1;
 }
 
 .ox-side-tab {
-  @apply rounded space-x-2 whitespace-nowrap p-2 py-1.5 !no-underline text-sans-md text-secondary;
+  @apply space-x-2 whitespace-nowrap rounded p-2 py-1.5 !no-underline text-sans-md text-secondary;
 }
 
 .ox-side-tab[data-state='active'],

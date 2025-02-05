@@ -16,7 +16,6 @@ import React, { Suspense, useMemo } from 'react'
 import { getChartData, useApiQuery, type ChartDatum } from '@oxide/api'
 
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
-import { Spinner } from '~/ui/lib/Spinner'
 import { getDurationMinutes } from '~/util/date'
 
 const TimeSeriesChart = React.lazy(() => import('~/components/TimeSeriesChart'))
@@ -132,11 +131,13 @@ export const getOxqlQuery = ({
 
 export function OxqlMetric({
   title,
+  description,
   query,
   startTime,
   endTime,
 }: {
   title: string
+  description?: string
   query: string
   startTime: Date
   endTime: Date
@@ -225,28 +226,33 @@ export function OxqlMetric({
   )
 
   return (
-    <div className="flex w-1/2 grow flex-col">
-      <div className="flex items-center justify-between">
-        <h2 className="ml-3 flex items-center text-mono-xs text-default">
-          {title} <div className="ml-1 normal-case text-tertiary">{label}</div>
-          {!metrics && <Spinner className="ml-2" />}
-        </h2>
+    <div className="flex w-full grow flex-col rounded-lg border border-default">
+      <div className="flex items-baseline justify-between border-b px-6 py-5 border-secondary">
+        <div>
+          <h2 className="flex items-center">
+            {title} <div className="text-sans-semi-lg text-raise">{label}</div>
+          </h2>
+          <div className="mt-0.5 text-sans-md text-secondary">{description}</div>
+        </div>
         {/* TODO: show formatted string to user so they can see it before copying */}
-        <MoreActionsMenu label="Query actions" actions={menuActions} />
+        <MoreActionsMenu label="Query actions" actions={menuActions} isSmall />
       </div>
-      <Suspense fallback={<div className="mt-3 h-[300px]" />}>
-        <TimeSeriesChart
-          className="mt-3"
-          data={data}
-          title={title}
-          unit={unitForSet}
-          width={480}
-          height={240}
-          startTime={startTime}
-          endTime={endTime}
-          yAxisTickFormatter={yAxisTickFormatter}
-        />
-      </Suspense>
+      <div className="px-6 py-5">
+        <Suspense fallback={<div className="h-[300px]" />}>
+          <TimeSeriesChart
+            className="mt-3"
+            data={data}
+            title={title}
+            unit={unitForSet}
+            width={480}
+            height={240}
+            startTime={startTime}
+            endTime={endTime}
+            yAxisTickFormatter={yAxisTickFormatter}
+            hasBorder={false}
+          />
+        </Suspense>
+      </div>
     </div>
   )
 }
@@ -254,11 +260,15 @@ export function OxqlMetric({
 export const MetricHeader = ({ children }: { children: React.ReactNode }) => {
   // If header has only one child, align it to the end of the container
   const value = React.Children.toArray(children).length === 1 ? 'end' : 'between'
-  return <div className={`flex justify-${value}`}>{children}</div>
+  return (
+    <div className={`@[48rem]:flex-row flex flex-col gap-2 justify-${value} mt-8`}>
+      {children}
+    </div>
+  )
 }
 export const MetricCollection = ({ children }: { children: React.ReactNode }) => (
-  <div className="mt-8 flex flex-col gap-8">{children}</div>
+  <div className="mt-4 flex flex-col gap-4">{children}</div>
 )
 export const MetricRow = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex w-full gap-6">{children}</div>
+  <div className="@[48rem]:flex-row flex w-full flex-col gap-4">{children}</div>
 )
