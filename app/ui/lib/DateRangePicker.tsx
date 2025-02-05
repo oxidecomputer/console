@@ -9,10 +9,12 @@ import { getLocalTimeZone } from '@internationalized/date'
 import type { TimeValue } from '@react-types/datepicker'
 import cn from 'classnames'
 import { useMemo, useRef } from 'react'
-import { useButton, useDateFormatter, useDateRangePicker } from 'react-aria'
+import { useButton, useDateRangePicker } from 'react-aria'
 import { useDateRangePickerState, type DateRangePickerStateOptions } from 'react-stately'
 
 import { Calendar16Icon, Error12Icon } from '@oxide/design-system/icons/react'
+
+import { formatDateRange } from '~/util/format-date-range'
 
 import { TimeField } from './DateField'
 import { Dialog } from './Dialog'
@@ -33,23 +35,17 @@ export function DateRangePicker(props: DateRangePickerProps) {
   const buttonRef = useRef<HTMLButtonElement>(null)
   const { buttonProps: realButtonProps } = useButton(buttonProps, buttonRef)
 
-  const formatter = useDateFormatter({
-    dateStyle: 'short',
-    timeStyle: 'short',
-    hourCycle: 'h24',
-  })
-
   const label = useMemo(() => {
     // This is here to make TS happy. This should be impossible in practice
     // because we always pass a value to this component and there is no way to
     // unset the value through the UI.
     if (!state.dateRange) return 'No range selected'
 
-    return formatter.formatRange(
-      state.dateRange.start.toDate(getLocalTimeZone()),
-      state.dateRange.end.toDate(getLocalTimeZone())
-    )
-  }, [state.dateRange, formatter])
+    const from = state.dateRange.start.toDate(getLocalTimeZone())
+    const to = state.dateRange.end.toDate(getLocalTimeZone())
+
+    return formatDateRange(from, to)
+  }, [state.dateRange])
 
   return (
     <div
@@ -68,7 +64,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
               : 'border-default ring-accent-secondary'
           )}
         >
-          <div className={cn('relative flex w-[17rem] items-center px-3 text-sans-md')}>
+          <div className={cn('relative flex w-[16rem] items-center px-3 text-sans-md')}>
             {label}
             {state.isInvalid && (
               <div className="absolute bottom-0 right-2 top-0 flex items-center text-error">
