@@ -57,7 +57,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
 Component.displayName = 'DiskMetricsTab'
 export function Component() {
   const { project, instance } = useInstanceSelector()
-  const { data } = usePrefetchedApiQuery('instanceDiskList', {
+  const { data: diskData } = usePrefetchedApiQuery('instanceDiskList', {
     path: { instance },
     query: { project },
   })
@@ -66,18 +66,21 @@ export function Component() {
     query: { project },
   })
   const instanceId = instanceData?.id
-  const disks = useMemo(() => data?.items || [], [data])
+  const disks = useMemo(
+    () => [
+      { name: 'All disks', id: 'all' },
+      ...diskData.items.map(({ name, id }) => ({ name, id })),
+    ],
+    [diskData]
+  )
 
   const { startTime, endTime, dateTimeRangePicker } = useMetricsContext()
 
   // The fallback here is kind of silly — it is only invoked when there are no
   // disks, in which case we show the fallback UI and diskName is never used. We
   // only need to do it this way because hooks cannot be called conditionally.
-  const [diskId, setDiskId] = useState<string>('all')
-  const diskItems = [
-    { label: 'All', value: 'all' },
-    ...disks.map(({ name, id }) => ({ label: name, value: id })),
-  ]
+  const [disk, setDisk] = useState(disks[0])
+  const items = disks.map(({ name, id }) => ({ label: name, value: id }))
 
   if (disks.length === 0) {
     return (
@@ -97,8 +100,8 @@ export function Component() {
       startTime,
       endTime,
       attachedInstanceId: instanceId,
-      diskId: diskId === 'all' ? undefined : diskId,
-      group: diskId === 'all',
+      diskId: disk.id === 'all' ? undefined : disk.id,
+      group: disk.id === 'all',
     })
 
   return (
@@ -108,10 +111,13 @@ export function Component() {
           className="w-64"
           aria-label="Choose disk"
           name="disk-name"
-          selected={diskId}
-          items={diskItems}
+          selected={disk.id}
+          items={items}
           onChange={(val) => {
-            setDiskId(val)
+            setDisk({
+              name: disks.find((n) => n.id === val)?.name || 'All disks',
+              id: val,
+            })
           }}
         />
         {dateTimeRangePicker}

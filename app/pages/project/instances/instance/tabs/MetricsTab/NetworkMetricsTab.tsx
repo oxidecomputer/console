@@ -57,14 +57,14 @@ export function Component() {
 
   const networks = useMemo(
     () => [
-      { name: 'All', id: 'all' },
+      { name: 'All NICs', id: 'all' },
       ...interfaceData.items.map(({ name, id }) => ({ name, id })),
     ],
     [interfaceData]
   )
 
-  const [nic, setNic] = useState({ name: 'All', id: 'all' })
-  const items = networks.map(({ name }) => ({ label: name, value: name }))
+  const [nic, setNic] = useState(networks[0])
+  const items = networks.map(({ name, id }) => ({ label: name, value: id }))
 
   const getQuery = (metricName: OxqlNetworkMetricName) =>
     getOxqlQuery({
@@ -83,10 +83,13 @@ export function Component() {
           className="w-64"
           aria-label="Choose disk"
           name="disk-name"
-          selected={nic.name}
+          selected={nic.id}
           items={items}
           onChange={(val) => {
-            setNic({ name: val, id: networks.find((n) => n.name === val)?.id || 'all' })
+            setNic({
+              name: networks.find((n) => n.id === val)?.name || 'All NICs',
+              id: val,
+            })
           }}
         />
         {dateTimeRangePicker}
