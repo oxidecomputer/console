@@ -7,7 +7,7 @@
  */
 
 import { format, formatDistanceToNow } from 'date-fns'
-import { useId, useState, type ReactNode } from 'react'
+import { useId, type ReactNode } from 'react'
 import { useForm } from 'react-hook-form'
 import { match } from 'ts-pattern'
 
@@ -20,7 +20,6 @@ import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { type ListboxItem } from '~/ui/lib/Listbox'
 import { LearnMore, SettingsGroup } from '~/ui/lib/SettingsGroup'
 import { TipIcon } from '~/ui/lib/TipIcon'
-import { useInterval } from '~/ui/lib/use-interval'
 import { links } from '~/util/links'
 
 type FormPolicy = 'default' | 'never' | 'best_effort'
@@ -38,12 +37,6 @@ type FormValues = {
 Component.displayName = 'SettingsTab'
 export function Component() {
   const instanceSelector = useInstanceSelector()
-
-  const [now, setNow] = useState(new Date())
-
-  // TODO: see if we can tweak the polling condition to include
-  // failed + cooling down and just rely on polling
-  useInterval({ fn: () => setNow(new Date()), delay: 1000 })
 
   const { data: instance } = usePrefetchedApiQuery('instanceView', {
     path: { instance: instanceSelector.instance },
@@ -118,10 +111,9 @@ export function Component() {
                   new Date(instance.autoRestartCooldownExpiration),
                   'MMM d, yyyy HH:mm:ss zz'
                 )}{' '}
-                {new Date(instance.autoRestartCooldownExpiration) > now && (
+                {instance.autoRestartCooldownExpiration > new Date() && (
                   <span className="text-tertiary">
-                    ({formatDistanceToNow(new Date(instance.autoRestartCooldownExpiration))}
-                    )
+                    ({formatDistanceToNow(instance.autoRestartCooldownExpiration)})
                   </span>
                 )}
               </>
