@@ -34,7 +34,7 @@ export const MetricsTab = () => {
     initialPreset: 'lastHour',
   })
 
-  // Find the <Outlet> in RouteSideTabs
+  // Find the relevant <Outlet> in RouteTabs
   return (
     <MetricsContext.Provider value={{ startTime, endTime, dateTimeRangePicker }}>
       <RouteTabs sideTabs>
