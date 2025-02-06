@@ -61,6 +61,31 @@ export type OxqlMetricName = OxqlDiskMetricName | OxqlVmMetricName | OxqlNetwork
 
 export type OxqlVcpuState = 'run' | 'idle' | 'waiting' | 'emulation'
 
+// This is to avoid some TS casting, but feels a bit sketchy to me
+export const isValidOxqlMetricName = (name: string): name is OxqlMetricName => {
+  const validNames = [
+    'virtual_disk:bytes_read',
+    'virtual_disk:bytes_written',
+    'virtual_disk:failed_flushes',
+    'virtual_disk:failed_reads',
+    'virtual_disk:failed_writes',
+    'virtual_disk:flushes',
+    'virtual_disk:io_latency',
+    'virtual_disk:io_size',
+    'virtual_disk:reads',
+    'virtual_disk:writes',
+    'virtual_machine:vcpu_usage',
+    'instance_network_interface:bytes_received',
+    'instance_network_interface:bytes_sent',
+    'instance_network_interface:errors_received',
+    'instance_network_interface:errors_sent',
+    'instance_network_interface:packets_dropped',
+    'instance_network_interface:packets_received',
+    'instance_network_interface:packets_sent',
+  ]
+  return !!validNames.includes(name)
+}
+
 /** determine the mean window for the given time range */
 const getMeanWindow = (start: Date, end: Date) => {
   const duration = getDurationMinutes({ start, end })
@@ -143,7 +168,12 @@ export function OxqlMetric({
 }) {
   const { data: metrics } = useApiQuery('systemTimeseriesQuery', { body: { query } })
   const chartData: ChartDatum[] = useMemo(() => getChartData(metrics), [metrics])
-
+  // console.log('title', title, 'metrics', metrics)
+  // console.log(
+  //   Object.values(chartData)
+  //     .map((i) => i.value)
+  //     .join(', ')
+  // )
   const unit = title.includes('Bytes')
     ? 'Bytes'
     : title.includes('Utilization')

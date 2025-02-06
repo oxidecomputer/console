@@ -47,6 +47,7 @@ import {
   forbiddenErr,
   getStartAndEndTime,
   handleMetrics,
+  handleOxqlMetrics,
   ipInAnyRange,
   ipRangeLen,
   NotImplemented,
@@ -1539,6 +1540,10 @@ export const handlers = makeHandlers({
     requireFleetViewer(params.cookies)
     return handleMetrics(params)
   },
+  systemTimeseriesQuery(params) {
+    requireFleetViewer(params.cookies)
+    return handleOxqlMetrics(params.body)
+  },
   siloMetric: handleMetrics,
 
   // Misc endpoints we're not using yet in the console
@@ -1611,7 +1616,6 @@ export const handlers = makeHandlers({
   switchView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
   systemQuotasList: NotImplemented,
-  systemTimeseriesQuery: NotImplemented,
   systemTimeseriesSchemaList: NotImplemented,
   timeseriesQuery: NotImplemented,
   userBuiltinList: NotImplemented,
