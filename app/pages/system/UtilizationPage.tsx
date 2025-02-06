@@ -10,10 +10,11 @@ import { useIsFetching } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 
 import {
-  apiQueryClient,
   FLEET_ID,
+  getListQFn,
+  queryClient,
   totalUtilization,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
 } from '@oxide/api'
 import { Metrics16Icon, Metrics24Icon } from '@oxide/design-system/icons/react'
 
@@ -30,22 +31,30 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { ResourceMeter } from '~/ui/lib/ResourceMeter'
 import { Table } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { round } from '~/util/math'
 import { pb } from '~/util/path-builder'
 import { bytesToGiB, bytesToTiB } from '~/util/units'
 
+const siloList = getListQFn('siloList', {
+  query: { limit: ALL_ISH },
+})
+const siloUtilList = getListQFn('siloUtilizationList', {
+  query: { limit: ALL_ISH },
+})
+
 export async function loader() {
   await Promise.all([
-    apiQueryClient.prefetchQuery('siloList', {}),
-    apiQueryClient.prefetchQuery('siloUtilizationList', {}),
+    queryClient.prefetchQuery(siloList.optionsFn()),
+    queryClient.prefetchQuery(siloUtilList.optionsFn()),
   ])
   return null
 }
 
 Component.displayName = 'SystemUtilizationPage'
 export function Component() {
-  const { data: siloUtilizationList } = usePrefetchedApiQuery('siloUtilizationList', {})
+  const { data: siloUtilizationList } = usePrefetchedQuery(siloUtilList.optionsFn())
 
   const { totalAllocated, totalProvisioned } = totalUtilization(siloUtilizationList.items)
 
@@ -83,7 +92,7 @@ export function Component() {
 }
 
 const MetricsTab = () => {
-  const { data: silos } = usePrefetchedApiQuery('siloList', {})
+  const { data: silos } = usePrefetchedQuery(siloList.optionsFn())
 
   const siloItems = useMemo(() => {
     const items = silos?.items.map((silo) => ({ label: silo.name, value: silo.id })) || []
@@ -157,7 +166,8 @@ const MetricsTab = () => {
 }
 
 function UsageTab() {
-  const { data: siloUtilizations } = usePrefetchedApiQuery('siloUtilizationList', {})
+  const { data: siloUtilizations } = usePrefetchedQuery(siloUtilList.optionsFn())
+
   return (
     <Table className="w-full">
       <Table.Header>
