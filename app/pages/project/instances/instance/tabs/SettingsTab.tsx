@@ -87,37 +87,32 @@ export function Component() {
             control={form.control}
             name="autoRestartPolicy"
             label="Policy"
-            description="If unconfigured, this instance uses the default auto-restart policy, which may or may not allow it to be restarted."
+            description="The global default is currently best effort, but this may change in the future."
             placeholder="Default"
             items={restartPolicyItems}
             required
             className="max-w-none"
           />
           <FormMeta
-            label="Enabled"
-            helpText="If enabled, this instance will automatically restart if it enters the Failed state."
-          >
-            {instance.autoRestartEnabled ? 'True' : 'False'}{' '}
-            {instance.autoRestartEnabled && !instance.autoRestartPolicy && (
-              <span className="text-tertiary">(Project default)</span>
-            )}
-          </FormMeta>
-          <FormMeta
             label="Cooldown expiration"
-            helpText="The time at which the auto-restart cooldown period for this instance completes. If N/A, then either the instance has never been automatically restarted, or the cooldown period has already expired"
+            helpText="The time at which the auto-restart cooldown period for this instance completes. If N/A, then either the instance has never been automatically restarted, or the cooldown period has already expired."
           >
-            {instance.autoRestartCooldownExpiration ? (
-              <>
-                {toLocaleDateTimeString(instance.autoRestartCooldownExpiration)}{' '}
-                {instance.autoRestartCooldownExpiration > new Date() && (
-                  <span className="text-tertiary">
-                    ({formatDistanceToNow(instance.autoRestartCooldownExpiration)})
-                  </span>
-                )}
-              </>
-            ) : (
-              <span className="text-tertiary">N/A</span>
-            )}
+            {
+              // TODO: show preview of how the time would change on update when
+              // policy is changed?
+              instance.autoRestartCooldownExpiration ? (
+                <>
+                  {toLocaleDateTimeString(instance.autoRestartCooldownExpiration)}{' '}
+                  {instance.autoRestartCooldownExpiration > new Date() && (
+                    <span className="text-tertiary">
+                      ({formatDistanceToNow(instance.autoRestartCooldownExpiration)})
+                    </span>
+                  )}
+                </>
+              ) : (
+                <span className="text-tertiary">N/A</span>
+              )
+            }
           </FormMeta>
           <FormMeta
             label="Last auto-restarted"
