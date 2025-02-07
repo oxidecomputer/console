@@ -20,7 +20,5 @@ header:
     - 'OMICRON_VERSION'
     - '.husky'
     - 'mockServiceWorker.js'
-    - 'app/util/format-date-range.ts'
-    - 'app/util/format-date-range.test.ts'
 
   comment: never
