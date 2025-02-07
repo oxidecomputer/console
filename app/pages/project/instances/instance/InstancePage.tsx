@@ -107,8 +107,15 @@ InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-const POLL_INTERVAL = 1000
+const sec = 1000 // ms, obviously
+const POLL_INTERVAL_FAST = 1 * sec
+const POLL_INTERVAL_SLOW = 60 * sec
 
+// We're using this logic here on instance detail, but not on instance list.
+// Instance list will only poll for the transitioning case. We don't show
+// anything about cooldown on the instance list, so the only point of polling
+// would be to catch a restart when it happens. But with the cooldown period
+// being an hour, we'd be doing a _lot_ of unnecessary polling on the list page.
 function shouldPoll(instance: Instance) {
   if (instanceTransitioning(instance)) return 'transition'
   if (instanceCoolingDown(instance)) return 'cooldown'
@@ -146,8 +153,14 @@ export function InstancePage() {
       query: { project: instanceSelector.project },
     },
     {
-      refetchInterval: ({ state: { data: instance } }) =>
-        instance && shouldPoll(instance) ? POLL_INTERVAL : false,
+      refetchInterval: ({ state: { data: instance } }) => {
+        const pollReason = instance ? shouldPoll(instance) : null
+        return match(pollReason)
+          .with('transition', () => POLL_INTERVAL_FAST)
+          .with('cooldown', () => POLL_INTERVAL_SLOW)
+          .with(null, () => false as const)
+          .exhaustive()
+      },
     }
   )
 
