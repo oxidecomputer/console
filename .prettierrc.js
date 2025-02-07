@@ -24,4 +24,6 @@ export default {
     '^[./]',
   ],
   importOrderTypeScriptVersion: '5.2.2',
+  // ts and jsx are the default, last is needed for `await using` in bump-omicron.ts
+  importOrderParserPlugins: ['typescript', 'jsx', 'explicitResourceManagement'],
 }

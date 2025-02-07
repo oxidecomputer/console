@@ -39,7 +39,11 @@ const EmptyState = () => (
 const projectList = getListQFn('projectList', {})
 
 export async function loader() {
-  await queryClient.prefetchQuery(projectList.optionsFn())
+  // fetchQuery instead of prefetchQuery means errors blow up here instead of
+  // waiting to hit the invariant in the useQuery call. We may end up doing this
+  // everywhere, but here in particular it is needed to trigger the silo group
+  // misconfig detection case in ErrorBoundary.
+  await queryClient.fetchQuery(projectList.optionsFn())
   return null
 }
 

@@ -45,7 +45,7 @@ export function ProfilePage() {
         <PropertiesTable.Row label="Display name">{me.displayName}</PropertiesTable.Row>
         <PropertiesTable.Row label="User ID">
           {me.id}
-          <CopyToClipboard className="ml-2" text={me.id} />
+          <CopyToClipboard className="ml-1" text={me.id} />
         </PropertiesTable.Row>
       </PropertiesTable>
 

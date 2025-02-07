@@ -6,12 +6,21 @@
  * Copyright Oxide Computer Company
  */
 
-import { useApiQuery } from '@oxide/api'
+import { Link } from 'react-router'
+import * as R from 'remeda'
+
+import { useApiQuery, type ExternalIp } from '@oxide/api'
 
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
+import { Slash } from '~/ui/lib/Slash'
 import { intersperse } from '~/util/array'
+import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
+
+/** Move ephemeral IP (if present) to the end of the list of external IPs */
+export const orderIps = (ips: ExternalIp[]) =>
+  R.sortBy(ips, (a) => (a.kind === 'ephemeral' ? 1 : -1))
 
 export function ExternalIps({ project, instance }: PP.Instance) {
   const { data, isPending } = useApiQuery('instanceExternalIpList', {
@@ -22,11 +31,27 @@ export function ExternalIps({ project, instance }: PP.Instance) {
 
   const ips = data?.items
   if (!ips || ips.length === 0) return <EmptyCell />
+  const orderedIps = orderIps(ips)
+  const ipsToShow = orderedIps.slice(0, 2)
+  const overflowCount = orderedIps.length - ipsToShow.length
+
+  // create a list of CopyableIp components
+  const links = ipsToShow.map((eip) => <CopyableIp ip={eip.ip} key={eip.ip} />)
+
   return (
-    <div className="flex items-center gap-1">
-      {intersperse(
-        ips.map((eip) => <CopyableIp ip={eip.ip} key={eip.ip} />),
-        <span className="text-quaternary"> / </span>
+    <div className="flex max-w-full items-center">
+      {intersperse(links, <Slash className="ml-0.5 mr-1.5" />)}
+      {/* if there are more than 2 ips, add a link to the instance networking page */}
+      {overflowCount > 0 && (
+        <>
+          <Slash className="ml-0.5 mr-1.5" />
+          <Link
+            to={pb.instanceNetworking({ project, instance })}
+            className="hover:link-with-underline -m-2 self-center p-2 text-tertiary"
+          >
+            …
+          </Link>
+        </>
       )}
     </div>
   )
