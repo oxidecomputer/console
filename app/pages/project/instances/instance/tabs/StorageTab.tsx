@@ -151,7 +151,7 @@ export function Component() {
       getSnapshotAction(disk),
       {
         label: 'Unset as boot disk',
-        disabled: !instanceCan.update({ runState: disk.instanceState }) && (
+        disabled: !instanceCan.updateBootDisk({ runState: disk.instanceState }) && (
           <>
             Instance must be <span className="text-raise">stopped</span> before boot disk
             can be changed
@@ -213,7 +213,7 @@ export function Component() {
       getSnapshotAction(disk),
       {
         label: 'Set as boot disk',
-        disabled: !instanceCan.update({ runState: disk.instanceState }) && (
+        disabled: !instanceCan.updateBootDisk({ runState: disk.instanceState }) && (
           <>
             Instance must be <span className="text-raise">stopped</span> before boot disk
             can be changed

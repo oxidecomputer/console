@@ -40,3 +40,4 @@ test('Instance auto restart policy', async ({ page }) => {
 })
 
 // TODO: test that polling updates the relevant stuff
+// TODO: test updating policy on a running instance

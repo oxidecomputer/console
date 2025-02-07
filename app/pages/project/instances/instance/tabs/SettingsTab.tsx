@@ -49,6 +49,13 @@ export function Component() {
       apiQueryClient.invalidateQueries('instanceView')
       addToast({ content: 'Instance auto-restart policy updated' })
     },
+    onError(err) {
+      addToast({
+        title: 'Could not update auto-restart policy',
+        content: err.message,
+        variant: 'error',
+      })
+    },
   })
 
   const autoRestartPolicy = instance.autoRestartPolicy || 'default'
@@ -56,6 +63,9 @@ export function Component() {
 
   const form = useForm({ defaultValues })
 
+  // note there are no instance state-based restrictions on updating auto
+  // restart, so there is no instanceCan helper for it
+  // https://github.com/oxidecomputer/omicron/blob/0c6ab099e/nexus/db-queries/src/db/datastore/instance.rs#L1050-L1058
   const disableSubmit = form.watch('autoRestartPolicy') === autoRestartPolicy
 
   const onSubmit = form.handleSubmit((values) => {

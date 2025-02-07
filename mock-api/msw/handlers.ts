@@ -597,14 +597,17 @@ export const handlers = makeHandlers({
   instanceUpdate({ path, query, body }) {
     const instance = lookup.instance({ ...path, ...query })
 
-    if (!instanceCan.update({ runState: instance.run_state })) {
-      const states = instanceCan.update.states
-      throw `Instance can only be updated if ${commaSeries(states, 'or')}`
+    const resize = body.ncpus !== instance.ncpus || body.memory !== instance.memory
+    if (resize && !instanceCan.resize({ runState: instance.run_state })) {
+      const states = instanceCan.resize.states
+      throw `Instance can only be resized if ${commaSeries(states, 'or')}`
     }
 
     // always present on the body, always set them
     instance.ncpus = body.ncpus
     instance.memory = body.memory
+
+    const rejectSetBootDisk = `Boot disk can only be changed if instance is ${commaSeries(instanceCan.updateBootDisk.states, 'or')}`
 
     if (body.boot_disk) {
       // Only include project if it's a name, otherwise lookup will error.
@@ -613,6 +616,14 @@ export const handlers = makeHandlers({
         disk: body.boot_disk,
         project: isUuid(body.boot_disk) ? undefined : query.project,
       })
+
+      // blow up if we're trying to change the boot disk but instance isn't stopped
+      if (
+        disk.id !== instance.boot_disk_id &&
+        !instanceCan.updateBootDisk({ runState: instance.run_state })
+      ) {
+        throw rejectSetBootDisk
+      }
 
       const isAttached =
         disk.state.state === 'attached' && disk.state.instance === instance.id
@@ -623,6 +634,15 @@ export const handlers = makeHandlers({
       instance.boot_disk_id = disk.id
     } else {
       // we're clearing the boot disk!
+
+      // if we already have a boot disk, the request is trying to unset it, so blow
+      // up if that's not allowed
+      if (
+        instance.boot_disk_id &&
+        !instanceCan.updateBootDisk({ runState: instance.run_state })
+      ) {
+        throw rejectSetBootDisk
+      }
       instance.boot_disk_id = undefined
     }
 

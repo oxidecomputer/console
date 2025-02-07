@@ -314,7 +314,7 @@ export function ResizeInstanceModal({
     mode: 'onChange',
   })
 
-  const canResize = instanceCan.update(instance)
+  const canResize = instanceCan.resize(instance)
   const willChange =
     form.watch('ncpus') !== instance.ncpus || form.watch('memory') !== instance.memory / GiB
   const isDisabled = !form.formState.isValid || !canResize || !willChange
