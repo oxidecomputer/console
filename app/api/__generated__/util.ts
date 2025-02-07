@@ -43,8 +43,17 @@ export const mapObj =
     return newObj
   }
 
+const isoDateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,6})?Z$/
+
 export const parseIfDate = (k: string | undefined, v: unknown) => {
-  if (typeof v === 'string' && (k?.startsWith('time_') || k === 'timestamp')) {
+  if (
+    typeof v === 'string' &&
+    isoDateRegex.test(v) &&
+    (k?.startsWith('time_') ||
+      k?.endsWith('_time') ||
+      k?.endsWith('_expiration') ||
+      k === 'timestamp')
+  ) {
     const d = new Date(v)
     if (isNaN(d.getTime())) return v
     return d
