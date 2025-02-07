@@ -24,15 +24,8 @@ const TimeSeriesChart = React.lazy(() => import('~/components/TimeSeriesChart'))
 /** convert to UTC and return the timezone-free format required by OxQL */
 const oxqlTimestamp = (date: Date) => date.toISOString().replace('Z', '')
 
-export function getCycleCount(num: number, base: number) {
-  let cycleCount = 0
-  let transformedValue = num
-  while (transformedValue > base) {
-    transformedValue = transformedValue / base
-    cycleCount++
-  }
-  return cycleCount
-}
+export const getCycleCount = (num: number, base: number) =>
+  Math.floor(Math.log(num) / Math.log(base))
 
 export type OxqlDiskMetricName =
   | 'virtual_disk:bytes_read'
@@ -211,7 +204,11 @@ export function OxqlMetric({
     if (isPercentChart) {
       return `${val}%`
     }
-    const tickValue = val / divisor
+    const tickValue = val.toLocaleString(undefined, {
+      maximumSignificantDigits: 3,
+      maximumFractionDigits: 0,
+      minimumFractionDigits: 0,
+    })
     const countUnits = ['', 'k', 'M', 'B', 'T']
     const unitForTick = countUnits[cycleCount]
     return `${tickValue}${unitForTick}`
