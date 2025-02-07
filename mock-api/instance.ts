@@ -5,6 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
+import { addMinutes } from 'date-fns'
+
 import type { Instance } from '@oxide/api'
 
 import { GiB } from '~/util/units'
@@ -42,8 +44,8 @@ const failedInstance: Json<Instance> = {
   hostname: 'oxide.com',
   project_id: project.id,
   run_state: 'failed',
-  auto_restart_cooldown_expiration: new Date(Date.now() + 5 * 60 * 1000).toISOString(), // 5 mins in the future
-  time_last_auto_restarted: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // one month ago
+  auto_restart_cooldown_expiration: addMinutes(new Date(), 5).toISOString(), // 5 minutes from now
+  time_last_auto_restarted: addMinutes(new Date(), -55).toISOString(), // 55 minutes ago
 }
 
 const startingInstance: Json<Instance> = {
