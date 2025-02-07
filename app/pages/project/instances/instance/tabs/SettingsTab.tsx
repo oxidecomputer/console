@@ -98,14 +98,13 @@ export function Component() {
             name="autoRestartPolicy"
             label="Policy"
             description="The global default is currently best effort, but this may change in the future."
-            placeholder="Default"
             items={restartPolicyItems}
             required
             className="max-w-none"
           />
           <FormMeta
             label="Cooldown expiration"
-            helpText="The time at which the auto-restart cooldown period for this instance completes. If N/A, then either the instance has never been automatically restarted, or the cooldown period has already expired."
+            helpText="When this instance will next restart (if in a failed state and the policy allows it). If N/A, then either the instance has never been automatically restarted, or the cooldown period has expired."
           >
             {
               // TODO: show preview of how the time would change on update when
@@ -126,10 +125,10 @@ export function Component() {
           </FormMeta>
           <FormMeta
             label="Last auto-restarted"
-            helpText="When this instance was last automatically restarted. Empty if never auto-restarted."
+            helpText="When this instance was last automatically restarted. N/A if never auto-restarted."
           >
             {instance.timeLastAutoRestarted ? (
-              <>{toLocaleDateTimeString(instance.timeLastAutoRestarted)}</>
+              toLocaleDateTimeString(instance.timeLastAutoRestarted)
             ) : (
               <span className="text-tertiary">N/A</span>
             )}
