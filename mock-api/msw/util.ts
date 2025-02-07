@@ -18,6 +18,7 @@ import {
   totalCapacity,
   type DiskCreate,
   type IpRange,
+  type OxqlQueryResult,
   type RoleKey,
   type Sled,
   type SystemMetricName,
@@ -28,7 +29,7 @@ import {
 
 import { json, type Json } from '~/api/__generated__/msw-handlers'
 import {
-  isValidOxqlMetricName,
+  type OxqlNetworkMetricName,
   type OxqlVcpuState,
 } from '~/pages/project/instances/instance/tabs/MetricsTab/OxqlMetric'
 import { parseIp } from '~/util/ip'
@@ -431,10 +432,8 @@ const getCpuStateFromQuery = (query: string): OxqlVcpuState | undefined => {
   return match ? (match[1] as OxqlVcpuState) : undefined
 }
 
-export function handleOxqlMetrics({ query }: TimeseriesQuery) {
-  const metricName = getMetricNameFromQuery(query)
+export function handleOxqlMetrics({ query }: TimeseriesQuery): Json<OxqlQueryResult> {
+  const metricName = getMetricNameFromQuery(query) as OxqlNetworkMetricName
   const stateValue = getCpuStateFromQuery(query)
-  return isValidOxqlMetricName(metricName)
-    ? getMockOxqlInstanceData(metricName, stateValue)
-    : []
+  return getMockOxqlInstanceData(metricName, stateValue)
 }
