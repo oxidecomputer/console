@@ -7,7 +7,7 @@
  */
 
 import { formatDistanceToNow } from 'date-fns'
-import { useId, type ReactNode } from 'react'
+import { type ReactNode } from 'react'
 import { useForm } from 'react-hook-form'
 import { match } from 'ts-pattern'
 
@@ -16,7 +16,6 @@ import { ListboxField } from '~/components/form/fields/ListboxField'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Button } from '~/ui/lib/Button'
-import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { type ListboxItem } from '~/ui/lib/Listbox'
 import { LearnMore, SettingsGroup } from '~/ui/lib/SettingsGroup'
 import { TipIcon } from '~/ui/lib/TipIcon'
@@ -104,7 +103,7 @@ export function Component() {
           />
           <FormMeta
             label="Cooldown expiration"
-            helpText="When this instance will next restart (if in a failed state and the policy allows it). If N/A, then either the instance has never been automatically restarted, or the cooldown period has expired."
+            tip="When this instance will next restart (if in a failed state and the policy allows it). If N/A, then either the instance has never been automatically restarted, or the cooldown period has expired."
           >
             {
               // TODO: show preview of how the time would change on update when
@@ -125,7 +124,7 @@ export function Component() {
           </FormMeta>
           <FormMeta
             label="Last auto-restarted"
-            helpText="When this instance was last automatically restarted. N/A if never auto-restarted."
+            tip="When this instance was last automatically restarted. N/A if never auto-restarted."
           >
             {instance.timeLastAutoRestarted ? (
               toLocaleDateTimeString(instance.timeLastAutoRestarted)
@@ -147,25 +146,18 @@ export function Component() {
   )
 }
 
-const FormMeta = ({
-  label,
-  helpText,
-  children,
-}: {
+type FormMetaProps = {
   label: string
-  helpText?: string
+  tip?: string
   children: ReactNode
-}) => {
-  const id = useId()
-  return (
-    <div>
-      <div className="mb-2 flex items-center gap-1 border-b pb-2 border-secondary">
-        <FieldLabel id={`${id}-label`} htmlFor={id}>
-          {label}
-        </FieldLabel>
-        {helpText && <TipIcon>{helpText}</TipIcon>}
-      </div>
-      {children}
-    </div>
-  )
 }
+
+const FormMeta = ({ label, tip, children }: FormMetaProps) => (
+  <div>
+    <div className="mb-2 flex items-center gap-1 border-b pb-2 text-sans-md border-secondary">
+      <div>{label}</div>
+      {tip && <TipIcon>{tip}</TipIcon>}
+    </div>
+    {children}
+  </div>
+)

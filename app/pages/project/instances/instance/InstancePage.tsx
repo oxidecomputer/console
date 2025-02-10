@@ -107,9 +107,10 @@ InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
+// both a little faster than the default on the list view
 const sec = 1000 // ms, obviously
 const POLL_INTERVAL_FAST = 1 * sec
-const POLL_INTERVAL_SLOW = 60 * sec
+const POLL_INTERVAL_SLOW = 30 * sec
 
 // We're using this logic here on instance detail, but not on instance list.
 // Instance list will only poll for the transitioning case. We don't show
