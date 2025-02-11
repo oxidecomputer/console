@@ -110,7 +110,7 @@
     "ip-num": "^1.5.1",
     "jsdom": "^25.0.1",
     "msw": "^2.7.0",
-    "oxlint": "^0.15.8",
+    "oxlint": "^0.15.10",
     "patch-package": "^8.0.0",
     "postcss": "^8.4.49",
     "postcss-import": "^16.1.0",

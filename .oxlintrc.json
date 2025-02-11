@@ -1,12 +1,8 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "react-hooks", "unicorn", "typescript", "oxc"],
   "rules": {
-    "react-hooks/exhaustive-deps": "error",
     // only worry about console.log
     "no-console": ["error", { "allow": ["warn", "error", "info", "table"] }],
-    // turning this off because it's more sensitive than eslint currently
-    // "react-hooks/rules-of-hooks": "error",
     "no-unused-vars": [
       "error",
       {
@@ -14,7 +10,13 @@
         "varsIgnorePattern": "^_",
         "caughtErrorsIgnorePattern": "^_"
       }
-    ]
+    ],
+
+    "react/button-has-type": "error",
+    "react/jsx-boolean-value": "error",
+
+    "react-hooks/exhaustive-deps": "error",
+    "react-hooks/rules-of-hooks": "error"
   },
   "ignorePatterns": ["dist/", "node_modules/"]
 }
