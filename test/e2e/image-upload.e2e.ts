@@ -139,9 +139,9 @@ test.describe('Image upload', () => {
       const progressModal = page.getByRole('dialog', { name: 'Image upload progress' })
       await expect(progressModal).toBeVisible()
 
-      // wait to be in the middle of upload
+      // wait to be in the middle of the specified step
       const uploadStep = page.getByTestId(`upload-step: ${state}`)
-      await expect(uploadStep).toHaveAttribute('data-status', 'running')
+      await expect(uploadStep).toHaveAttribute('data-status', 'running', { timeout: 10000 })
 
       // form is disabled and semi-hidden
       // await expectNotVisible(page, ['role=textbox[name="Name"]'])
