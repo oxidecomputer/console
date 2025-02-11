@@ -11,7 +11,12 @@ import { type ReactNode } from 'react'
 import { useForm } from 'react-hook-form'
 import { match } from 'ts-pattern'
 
-import { apiQueryClient, useApiMutation, usePrefetchedApiQuery } from '~/api'
+import {
+  apiQueryClient,
+  instanceAutoRestartingSoon,
+  useApiMutation,
+  usePrefetchedApiQuery,
+} from '~/api'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
@@ -111,7 +116,7 @@ export function Component() {
                 {instance.runState === 'failed' && instance.autoRestartEnabled && (
                   <span className="text-tertiary">
                     (
-                    {instance.autoRestartCooldownExpiration < new Date()
+                    {instanceAutoRestartingSoon(instance)
                       ? 'restarting soon'
                       : formatDistanceToNow(instance.autoRestartCooldownExpiration)}
                     )

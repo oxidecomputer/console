@@ -18,6 +18,7 @@ import {
 } from '@oxide/design-system/icons/react'
 
 import type { Instance } from '~/api'
+import { instanceAutoRestartingSoon } from '~/api/util'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { Badge } from '~/ui/lib/Badge'
 import { Spinner } from '~/ui/lib/Spinner'
@@ -28,6 +29,7 @@ import { pb } from '~/util/path-builder'
  * Appears if and only if the instance is failed.
  */
 export const InstanceAutoRestartPopover = ({ instance }: { instance: Instance }) => {
+  const instanceSelector = useInstanceSelector()
   if (instance.runState !== 'failed') return null // important!
 
   const {
@@ -36,12 +38,7 @@ export const InstanceAutoRestartPopover = ({ instance }: { instance: Instance })
     autoRestartEnabled: enabled,
   } = instance
 
-  const instanceSelector = useInstanceSelector()
-
-  // true if either we've never restarted or we just expired and we're waiting
-  // to get restarted (should always be under a minute because that's how often
-  // the cleanup job runs)
-  const restartingSoon = enabled && (!cooldownExpiration || cooldownExpiration < new Date())
+  const restartingSoon = instanceAutoRestartingSoon(instance)
 
   return (
     <Popover>

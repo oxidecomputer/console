@@ -151,6 +151,24 @@ export function instanceTransitioning({ runState }: Instance) {
   )
 }
 
+/**
+ * True if instance is failed, auto restart enabled, and either we've never
+ * restarted or we just expired and we're waiting to get restarted.
+ *
+ * There can be a short window (up to a minute) after expiration where the
+ * instance hasn't been picked up for auto-restart yet.
+ *
+ * https://github.com/oxidecomputer/omicron/blob/b6ada022a/nexus/src/app/background/init.rs#L726-L745
+ * https://github.com/oxidecomputer/omicron/blob/b6ada022a/smf/nexus/multi-sled/config-partial.toml#L70-L71
+ */
+export function instanceAutoRestartingSoon(i: Instance) {
+  return (
+    i.runState === 'failed' &&
+    i.autoRestartEnabled &&
+    (!i.autoRestartCooldownExpiration || i.autoRestartCooldownExpiration < new Date())
+  )
+}
+
 const diskActions = {
   // this is a weird one because the list of states is dynamic and it includes
   // 'creating' in the unwind of the disk create saga, but does not include

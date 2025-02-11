@@ -23,6 +23,7 @@ import { Instances24Icon } from '@oxide/design-system/icons/react'
 import {
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
+  instanceAutoRestartingSoon,
   instanceCan,
   instanceTransitioning,
 } from '~/api/util'
@@ -152,15 +153,9 @@ export function InstancePage() {
         if (instanceTransitioning(instance)) return POLL_INTERVAL_FAST
 
         if (instance.runState === 'failed' && instance.autoRestartEnabled) {
-          // There can be a short window (up to a minute, based on the links
-          // below) after expiration where the instance hasn't been picked up
-          // for auto-restart yet, during which time we still want to poll.
-          // https://github.com/oxidecomputer/omicron/blob/b6ada022a/nexus/src/app/background/init.rs#L726-L745
-          // https://github.com/oxidecomputer/omicron/blob/b6ada022a/smf/nexus/multi-sled/config-partial.toml#L70-L71
-          const restartingSoon =
-            !instance.autoRestartCooldownExpiration ||
-            instance.autoRestartCooldownExpiration < new Date()
-          return restartingSoon ? POLL_INTERVAL_FAST : POLL_INTERVAL_SLOW
+          return instanceAutoRestartingSoon(instance)
+            ? POLL_INTERVAL_FAST
+            : POLL_INTERVAL_SLOW
         }
       },
     }
