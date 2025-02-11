@@ -28,7 +28,9 @@ export const LearnMore = ({ href, text }: { href: string; text: React.ReactNode 
 /** Use size=sm on buttons and links! */
 export const SettingsGroup = {
   Container: classed.div`w-full max-w-[660px] rounded-lg border text-sans-md text-default border-default`,
-  Body: classed.div`p-6`,
+  Header: classed.div`border-b px-6 py-5 border-default`,
+  Body: classed.div`p-6 space-y-5`,
   Title: classed.div`mb-1 text-sans-lg text-raise`,
-  Footer: classed.div`flex items-center justify-between border-t px-6 py-3 border-default h-14`,
+  Description: classed.div`text-sans-md text-default`,
+  Footer: classed.div`flex items-center justify-between border-t px-6 py-4 border-default min-h-14`,
 }
