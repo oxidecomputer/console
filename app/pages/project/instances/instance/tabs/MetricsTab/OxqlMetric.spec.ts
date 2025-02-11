@@ -63,7 +63,7 @@ describe('getOxqlQuery', () => {
       endTime,
     })
     expect(query).toBe(
-      'get virtual_disk:bytes_read | filter timestamp >= @2024-01-01T00:00:00.000 && timestamp < @2024-01-01T01:00:00.000 | align mean_within(60s)'
+      'get virtual_disk:bytes_read | filter timestamp >= @2023-12-31T23:58:00.000 && timestamp < @2024-01-01T01:00:00.000 | align mean_within(60s)'
     )
   })
 
@@ -75,7 +75,7 @@ describe('getOxqlQuery', () => {
       instanceId: 'vm-123',
     })
     expect(query).toBe(
-      'get virtual_machine:vcpu_usage | filter timestamp >= @2024-01-01T00:00:00.000 && timestamp < @2024-01-01T01:00:00.000 && instance_id == "vm-123" | align mean_within(60s)'
+      'get virtual_machine:vcpu_usage | filter timestamp >= @2023-12-31T23:58:00.000 && timestamp < @2024-01-01T01:00:00.000 && instance_id == "vm-123" | align mean_within(60s)'
     )
   })
 
@@ -87,7 +87,7 @@ describe('getOxqlQuery', () => {
       interfaceId: 'eth0',
     })
     expect(query).toBe(
-      'get instance_network_interface:bytes_sent | filter timestamp >= @2024-01-01T00:00:00.000 && timestamp < @2024-01-01T01:00:00.000 && interface_id == "eth0" | align mean_within(60s)'
+      'get instance_network_interface:bytes_sent | filter timestamp >= @2023-12-31T23:58:00.000 && timestamp < @2024-01-01T01:00:00.000 && interface_id == "eth0" | align mean_within(60s)'
     )
   })
 
@@ -99,7 +99,7 @@ describe('getOxqlQuery', () => {
       state: 'run',
     })
     expect(query).toBe(
-      'get virtual_machine:vcpu_usage | filter timestamp >= @2024-01-01T00:00:00.000 && timestamp < @2024-01-01T01:00:00.000 && state == "run" | align mean_within(60s)'
+      'get virtual_machine:vcpu_usage | filter timestamp >= @2023-12-31T23:58:00.000 && timestamp < @2024-01-01T01:00:00.000 && state == "run" | align mean_within(60s)'
     )
   })
 
@@ -112,7 +112,7 @@ describe('getOxqlQuery', () => {
       instanceId: 'vm-123',
     })
     expect(query).toBe(
-      'get virtual_disk:bytes_written | filter timestamp >= @2024-01-01T00:00:00.000 && timestamp < @2024-01-01T01:00:00.000 && instance_id == "vm-123" | align mean_within(60s) | group_by [instance_id], sum'
+      'get virtual_disk:bytes_written | filter timestamp >= @2023-12-31T23:58:00.000 && timestamp < @2024-01-01T01:00:00.000 && instance_id == "vm-123" | align mean_within(60s) | group_by [instance_id], sum'
     )
   })
 
@@ -125,7 +125,7 @@ describe('getOxqlQuery', () => {
       attachedInstanceId: 'attached-1',
     })
     expect(query).toBe(
-      'get virtual_disk:io_latency | filter timestamp >= @2024-01-01T00:00:00.000 && timestamp < @2024-01-01T01:00:00.000 && attached_instance_id == "attached-1" | align mean_within(60s) | group_by [attached_instance_id], sum'
+      'get virtual_disk:io_latency | filter timestamp >= @2023-12-31T23:58:00.000 && timestamp < @2024-01-01T01:00:00.000 && attached_instance_id == "attached-1" | align mean_within(60s) | group_by [attached_instance_id], sum'
     )
   })
 
@@ -136,7 +136,7 @@ describe('getOxqlQuery', () => {
       endTime,
     })
     expect(query).toBe(
-      'get virtual_disk:flushes | filter timestamp >= @2024-01-01T00:00:00.000 && timestamp < @2024-01-01T01:00:00.000 | align mean_within(60s)'
+      'get virtual_disk:flushes | filter timestamp >= @2023-12-31T23:58:00.000 && timestamp < @2024-01-01T01:00:00.000 | align mean_within(60s)'
     )
   })
 
@@ -148,7 +148,7 @@ describe('getOxqlQuery', () => {
       interfaceId: 'eth0',
     })
     expect(query).toBe(
-      'get instance_network_interface:bytes_received | filter timestamp >= @2024-01-01T00:00:00.000 && timestamp < @2024-01-01T01:00:00.000 && interface_id == "eth0" | align mean_within(60s)'
+      'get instance_network_interface:bytes_received | filter timestamp >= @2023-12-31T23:58:00.000 && timestamp < @2024-01-01T01:00:00.000 && interface_id == "eth0" | align mean_within(60s)'
     )
   })
 })

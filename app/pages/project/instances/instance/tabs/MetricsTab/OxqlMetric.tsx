@@ -24,14 +24,16 @@ import { getDurationMinutes } from '~/util/date'
 export const getChartData = (data: OxqlQueryResult | undefined): ChartDatum[] => {
   if (!data) return []
   const ts = Object.values(data.tables[0].timeseries)
-  return ts.flatMap((t) => {
-    const { timestamps, values } = t.points
-    const v = values[0].values.values as number[]
-    return timestamps.map((timestamp, idx) => ({
-      timestamp: new Date(timestamp).getTime(),
-      value: v[idx],
-    }))
-  })
+  return ts
+    .flatMap((t) => {
+      const { timestamps, values } = t.points
+      const v = values[0].values.values as number[]
+      return timestamps.map((timestamp, idx) => ({
+        timestamp: new Date(timestamp).getTime(),
+        value: v[idx],
+      }))
+    })
+    .slice(1) // first datapoint can be a sum of all datapoints preceding it, so we remove before displaying
 }
 
 const TimeSeriesChart = React.lazy(() => import('~/components/TimeSeriesChart'))
@@ -107,7 +109,13 @@ export const getOxqlQuery = ({
   state,
   group,
 }: getOxqlQueryParams) => {
-  const start = oxqlTimestamp(startTime)
+  const meanWindow = getMeanWindow(startTime, endTime)
+  // we adjust the start time back by 2x the mean window so that we can
+  // 1) drop the first datapoint (the cumulative sum of all previous datapoints)
+  // 2) ensure that the first datapoint we display on the chart matches the actual start time
+  const secondsToAdjust = parseInt(meanWindow, 10) * 2
+  const adjustedStart = new Date(startTime.getTime() - secondsToAdjust * 1000)
+  const start = oxqlTimestamp(adjustedStart)
   const end = oxqlTimestamp(endTime)
   const filters = [
     `timestamp >= @${start}`,
@@ -119,7 +127,7 @@ export const getOxqlQuery = ({
     attachedInstanceId && `attached_instance_id == "${attachedInstanceId}"`,
     state && `state == "${state}"`,
   ].filter(Boolean) // Removes falsy values
-  const meanWindow = getMeanWindow(startTime, endTime)
+
   const groupByString =
     group && attachedInstanceId
       ? ' | group_by [attached_instance_id], sum'
@@ -264,7 +272,7 @@ export function OxqlMetric({
 }) {
   const { data: metrics } = useApiQuery('systemTimeseriesQuery', { body: { query } })
   const chartData: ChartDatum[] = useMemo(() => getChartData(metrics), [metrics])
-  // console.log(title, chartData)
+  // console.log(title, query, chartData)
   const unit = getUnit(title)
   const { data, label, unitForSet, yAxisTickFormatter } = useMemo(
     () =>
