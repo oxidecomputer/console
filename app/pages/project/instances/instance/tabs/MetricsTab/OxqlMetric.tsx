@@ -13,16 +13,31 @@
 
 import React, { Suspense, useMemo } from 'react'
 
-import { getChartData, useApiQuery, type ChartDatum } from '@oxide/api'
+import { useApiQuery, type ChartDatum, type OxqlQueryResult } from '@oxide/api'
 
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { Spinner } from '~/ui/lib/Spinner'
 import { getDurationMinutes } from '~/util/date'
 
+// An OxQL Query Result can have multiple tables, but in the web console we only ever call
+// aligned timeseries queries, which always have exactly one table.
+export const getChartData = (data: OxqlQueryResult | undefined): ChartDatum[] => {
+  if (!data) return []
+  const ts = Object.values(data.tables[0].timeseries)
+  return ts.flatMap((t) => {
+    const { timestamps, values } = t.points
+    const v = values[0].values.values as number[]
+    return timestamps.map((timestamp, idx) => ({
+      timestamp: new Date(timestamp).getTime(),
+      value: v[idx],
+    }))
+  })
+}
+
 const TimeSeriesChart = React.lazy(() => import('~/components/TimeSeriesChart'))
 
 /** convert to UTC and return the timezone-free format required by OxQL */
-const oxqlTimestamp = (date: Date) => date.toISOString().replace('Z', '')
+export const oxqlTimestamp = (date: Date) => date.toISOString().replace('Z', '')
 
 export type OxqlDiskMetricName =
   | 'virtual_disk:bytes_read'
@@ -52,12 +67,16 @@ export type OxqlMetricName = OxqlDiskMetricName | OxqlVmMetricName | OxqlNetwork
 export type OxqlVcpuState = 'run' | 'idle' | 'waiting' | 'emulation'
 
 /** determine the mean window for the given time range;
- * returns a string representing N seconds, e.g. '60s' */
-export const getMeanWindow = (start: Date, end: Date) => {
-  const duration = getDurationMinutes({ start, end }) * 60
-  // the number of points we want to see in the chart
-  const points = 100
-  return `${Math.round(duration / points)}s`
+ * returns a string representing N seconds, e.g. '60s'
+ * points = the number of datapoints we want to see in the chart
+ *   (default is 60, to show 1 point per minute on a 1-hour chart)
+ * We could dynamically adjust this based on the duration of the range,
+ * like … for 1 week, show 1 datapoint per hour, for 1 day, show 1 datapoint per minute, etc.
+ * */
+export const getMeanWindow = (start: Date, end: Date, datapoints = 60) => {
+  const durationMinutes = getDurationMinutes({ start, end })
+  const durationSeconds = durationMinutes * 60
+  return `${Math.round(durationSeconds / datapoints)}s`
 }
 
 type getOxqlQueryParams = {
@@ -119,8 +138,9 @@ export const getUnit = (title: string): ChartUnitType => {
   return 'Count'
 }
 
+// Returns 0 if there are no data points
 export const getLargestValue = (data: ChartDatum[]) =>
-  Math.max(0, ...data.map((d) => d.value))
+  data.length ? Math.max(0, ...data.map((d) => d.value)) : 0
 
 // not sure this is the best name
 export const getOrderOfMagnitude = (largestValue: number, base: number) =>
@@ -159,12 +179,8 @@ export const getBytesChartProps = ({
   }
 }
 
-export const yAxisLabelForCountChart = (
-  val: number,
-  base: number,
-  orderOfMagnitude: number
-) => {
-  const tickValue = val / base ** orderOfMagnitude
+export const yAxisLabelForCountChart = (val: number, orderOfMagnitude: number) => {
+  const tickValue = val / 1_000 ** orderOfMagnitude
   const formattedTickValue = tickValue.toLocaleString(undefined, {
     maximumSignificantDigits: 3,
     maximumFractionDigits: 0,
@@ -181,12 +197,9 @@ export const yAxisLabelForCountChart = (
 export const getCountChartProps = ({
   chartData,
 }: OxqlMetricChartComponentsProps): OxqlMetricChartProps => {
-  // Count charts use 1000 as the base
-  const base = 1_000
   const largestValue = getLargestValue(chartData)
-  const orderOfMagnitude = getOrderOfMagnitude(largestValue, base)
-  const yAxisTickFormatter = (val: number) =>
-    yAxisLabelForCountChart(val, base, orderOfMagnitude)
+  const orderOfMagnitude = getOrderOfMagnitude(largestValue, 1_000)
+  const yAxisTickFormatter = (val: number) => yAxisLabelForCountChart(val, orderOfMagnitude)
   return { data: chartData, label: '(COUNT)', unitForSet: '', yAxisTickFormatter }
 }
 

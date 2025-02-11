@@ -107,19 +107,21 @@ export function Component() {
   return (
     <>
       <MetricHeader>
-        <Listbox
-          className="w-64"
-          aria-label="Choose disk"
-          name="disk-name"
-          selected={disk.id}
-          items={items}
-          onChange={(val) => {
-            setDisk({
-              name: disks.find((n) => n.id === val)?.name || 'All disks',
-              id: val,
-            })
-          }}
-        />
+        {disks.length > 2 && (
+          <Listbox
+            className="w-64"
+            aria-label="Choose disk"
+            name="disk-name"
+            selected={disk.id}
+            items={items}
+            onChange={(val) => {
+              setDisk({
+                name: disks.find((n) => n.id === val)?.name || 'All disks',
+                id: val,
+              })
+            }}
+          />
+        )}
         {dateTimeRangePicker}
       </MetricHeader>
       <MetricCollection>

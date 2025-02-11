@@ -79,19 +79,21 @@ export function Component() {
   return (
     <>
       <MetricHeader>
-        <Listbox
-          className="w-64"
-          aria-label="Choose disk"
-          name="disk-name"
-          selected={nic.id}
-          items={items}
-          onChange={(val) => {
-            setNic({
-              name: networks.find((n) => n.id === val)?.name || 'All NICs',
-              id: val,
-            })
-          }}
-        />
+        {networks.length > 2 && (
+          <Listbox
+            className="w-64"
+            aria-label="Choose disk"
+            name="disk-name"
+            selected={nic.id}
+            items={items}
+            onChange={(val) => {
+              setNic({
+                name: networks.find((n) => n.id === val)?.name || 'All NICs',
+                id: val,
+              })
+            }}
+          />
+        )}
         {dateTimeRangePicker}
       </MetricHeader>
       <MetricCollection>

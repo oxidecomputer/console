@@ -17,7 +17,6 @@ import type {
   InstanceState,
   IpPoolUtilization,
   Measurement,
-  OxqlQueryResult,
   SiloUtilization,
   Sled,
   VpcFirewallRule,
@@ -259,17 +258,4 @@ export function parseIpUtilization({ ipv4, ipv6 }: IpPoolUtilization) {
       capacity: BigInt(ipv6.capacity),
     },
   }
-}
-
-export const getChartData = (data: OxqlQueryResult | undefined): ChartDatum[] => {
-  if (!data) return []
-  const ts = Object.values(data.tables[0].timeseries)
-  return ts.flatMap((t) => {
-    const { timestamps, values } = t.points
-    const v = values[0].values.values as number[]
-    return timestamps.map((timestamp, idx) => ({
-      timestamp: new Date(timestamp).getTime(),
-      value: v[idx],
-    }))
-  })
 }
