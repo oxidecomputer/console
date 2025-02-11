@@ -18,41 +18,18 @@ import {
 } from '@oxide/design-system/icons/react'
 
 import type { Instance } from '~/api'
-import { HL } from '~/components/HL'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { Badge } from '~/ui/lib/Badge'
 import { Spinner } from '~/ui/lib/Spinner'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-const helpText = {
-  enabled: (
-    <>
-      The control plane will attempt to automatically restart this instance after entering
-      the <HL>failed</HL> state.
-    </>
-  ),
-  disabled: (
-    <>
-      The control plane will not attempt to automatically restart it after entering the{' '}
-      <HL>failed</HL> state.
-    </>
-  ),
-  never: (
-    <>
-      Instance auto-restart policy is set to never. The control plane will not attempt to
-      automatically restart it after entering the <HL>failed</HL> state.
-    </>
-  ),
-  starting: (
-    <>
-      Instance auto-restart policy is queued to start. The control plane will begin the
-      restart process shortly.
-    </>
-  ),
-}
-
+/**
+ * Appears if and only if the instance is failed.
+ */
 export const InstanceAutoRestartPopover = ({ instance }: { instance: Instance }) => {
+  if (instance.runState !== 'failed') return null // important!
+
   const {
     autoRestartCooldownExpiration: cooldownExpiration,
     autoRestartPolicy: policy,
@@ -60,13 +37,11 @@ export const InstanceAutoRestartPopover = ({ instance }: { instance: Instance })
   } = instance
 
   const instanceSelector = useInstanceSelector()
-  const now = new Date()
-  const isQueued = cooldownExpiration && cooldownExpiration < now
 
-  let helpTextState: keyof typeof helpText = 'disabled'
-  if (isQueued) helpTextState = 'starting' // Expiration is in the past and queued for restart
-  if (policy === 'never') helpTextState = 'never' // Will never auto-restart
-  if (enabled) helpTextState = 'enabled' // Restart enabled and cooldown as not expired
+  // true if either we've never restarted or we just expired and we're waiting
+  // to get restarted (should always be under a minute because that's how often
+  // the cleanup job runs)
+  const restartingSoon = enabled && (!cooldownExpiration || cooldownExpiration < new Date())
 
   return (
     <Popover>
@@ -104,11 +79,11 @@ export const InstanceAutoRestartPopover = ({ instance }: { instance: Instance })
             </div>
           </CloseButton>
         </PopoverRow>
-        {cooldownExpiration && (
+        {enabled && cooldownExpiration && (
           <PopoverRow label="Cooldown">
-            {isQueued ? (
+            {restartingSoon ? (
               <>
-                <Spinner /> Queued for restart…
+                <Spinner className="mr-0.5" /> Restarting soon…
               </>
             ) : (
               <div>
@@ -121,8 +96,19 @@ export const InstanceAutoRestartPopover = ({ instance }: { instance: Instance })
           </PopoverRow>
         )}
         <div className="p-3 text-sans-md text-default">
-          <p className="mb-2 pr-4">{helpText[helpTextState]}</p>
-          <a href={links.instanceUpdateDocs} className="group">
+          <p className="mb-2 pr-4">
+            {enabled
+              ? restartingSoon
+                ? 'This instance will automatically restart soon.'
+                : 'This instance will automatically restart after the cooldown period.'
+              : 'This instance will not automatically restart.'}
+          </p>
+          <a
+            href={links.instanceUpdateDocs}
+            className="group"
+            target="_blank"
+            rel="noreferrer"
+          >
             <span className="inline-block max-w-[300px] truncate align-middle">
               Learn about{' '}
               <span className="group-hover:link-with-underline text-raise">

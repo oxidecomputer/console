@@ -236,9 +236,7 @@ export function InstancePage() {
             <div className="flex items-center gap-2">
               <InstanceStateBadge state={instance.runState} />
               {instanceTransitioning(instance) && <PollingSpinner />}
-              {instance.runState === 'failed' && (
-                <InstanceAutoRestartPopover instance={instance} />
-              )}
+              <InstanceAutoRestartPopover instance={instance} />
             </div>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="vpc">

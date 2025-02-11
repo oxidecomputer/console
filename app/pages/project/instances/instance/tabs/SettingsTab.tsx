@@ -105,22 +105,22 @@ export function Component() {
             label="Cooldown expiration"
             tip="When this instance will next restart (if in a failed state and the policy allows it). If N/A, then either the instance has never been automatically restarted, or the cooldown period has expired."
           >
-            {
-              // TODO: show preview of how the time would change on update when
-              // policy is changed?
-              instance.autoRestartCooldownExpiration ? (
-                <>
-                  {toLocaleDateTimeString(instance.autoRestartCooldownExpiration)}{' '}
-                  {instance.autoRestartCooldownExpiration > new Date() && (
-                    <span className="text-tertiary">
-                      ({formatDistanceToNow(instance.autoRestartCooldownExpiration)})
-                    </span>
-                  )}
-                </>
-              ) : (
-                <span className="text-tertiary">N/A</span>
-              )
-            }
+            {instance.autoRestartCooldownExpiration ? (
+              <>
+                {toLocaleDateTimeString(instance.autoRestartCooldownExpiration)}{' '}
+                {instance.runState === 'failed' && instance.autoRestartEnabled && (
+                  <span className="text-tertiary">
+                    (
+                    {instance.autoRestartCooldownExpiration < new Date()
+                      ? 'restarting soon'
+                      : formatDistanceToNow(instance.autoRestartCooldownExpiration)}
+                    )
+                  </span>
+                )}
+              </>
+            ) : (
+              <span className="text-tertiary">N/A</span>
+            )}
           </FormMeta>
           <FormMeta
             label="Last auto-restarted"
