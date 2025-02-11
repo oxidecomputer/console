@@ -9,7 +9,6 @@ import { filesize } from 'filesize'
 import { useId, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
-import { match } from 'ts-pattern'
 
 import {
   apiQueryClient,
@@ -25,7 +24,6 @@ import {
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
   instanceCan,
-  instanceCoolingDown,
   instanceTransitioning,
 } from '~/api/util'
 import { ExternalIps } from '~/components/ExternalIps'
@@ -109,19 +107,8 @@ InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
 
 // both a little faster than the default on the list view
 const sec = 1000 // ms, obviously
-const POLL_INTERVAL_FAST = 1 * sec
+const POLL_INTERVAL_FAST = 2 * sec
 const POLL_INTERVAL_SLOW = 30 * sec
-
-// We're using this logic here on instance detail, but not on instance list.
-// Instance list will only poll for the transitioning case. We don't show
-// anything about cooldown on the instance list, so the only point of polling
-// would be to catch a restart when it happens. But with the cooldown period
-// being an hour, we'd be doing a _lot_ of unnecessary polling on the list page.
-function shouldPoll(instance: Instance) {
-  if (instanceTransitioning(instance)) return 'transition'
-  if (instanceCoolingDown(instance)) return 'cooldown'
-  return null
-}
 
 const PollingSpinner = () => (
   <Tooltip content="Auto-refreshing while state changes" delay={150}>
@@ -154,18 +141,30 @@ export function InstancePage() {
       query: { project: instanceSelector.project },
     },
     {
+      // We're using this logic here on instance detail, but not on instance
+      // list. Instance list will only poll for the transitioning case. We don't
+      // show anything about auto-restart on the instance list, so the only point
+      // of polling would be to catch a restart when it happens. But with the
+      // cooldown period being an hour, we'd be doing a _lot_ of unnecessary
+      // polling on the list page.
       refetchInterval: ({ state: { data: instance } }) => {
-        const pollReason = instance ? shouldPoll(instance) : null
-        return match(pollReason)
-          .with('transition', () => POLL_INTERVAL_FAST)
-          .with('cooldown', () => POLL_INTERVAL_SLOW)
-          .with(null, () => false as const)
-          .exhaustive()
+        if (!instance) return false
+        if (instanceTransitioning(instance)) return POLL_INTERVAL_FAST
+
+        if (instance.runState === 'failed' && instance.autoRestartEnabled) {
+          // There can be a short window (up to a minute, based on the links
+          // below) after expiration where the instance hasn't been picked up
+          // for auto-restart yet, during which time we still want to poll.
+          // https://github.com/oxidecomputer/omicron/blob/b6ada022a/nexus/src/app/background/init.rs#L726-L745
+          // https://github.com/oxidecomputer/omicron/blob/b6ada022a/smf/nexus/multi-sled/config-partial.toml#L70-L71
+          const restartingSoon =
+            !instance.autoRestartCooldownExpiration ||
+            instance.autoRestartCooldownExpiration < new Date()
+          return restartingSoon ? POLL_INTERVAL_FAST : POLL_INTERVAL_SLOW
+        }
       },
     }
   )
-
-  const pollReason = shouldPoll(instance)
 
   const { data: nics } = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
     query: {
@@ -236,11 +235,10 @@ export function InstancePage() {
           <PropertiesTable.Row label="state">
             <div className="flex items-center gap-2">
               <InstanceStateBadge state={instance.runState} />
-              {match(pollReason)
-                .with('transition', () => <PollingSpinner />)
-                .with('cooldown', () => <InstanceAutoRestartPopover instance={instance} />)
-                .with(null, () => null)
-                .exhaustive()}
+              {instanceTransitioning(instance) && <PollingSpinner />}
+              {instance.runState === 'failed' && (
+                <InstanceAutoRestartPopover instance={instance} />
+              )}
             </div>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="vpc">
