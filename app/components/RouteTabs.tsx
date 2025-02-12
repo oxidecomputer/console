@@ -56,7 +56,7 @@ export function RouteTabs({
   const tabListClasses = sideTabs ? 'ox-side-tabs-list' : 'ox-tabs-list'
   const panelClasses = cn('ox-tabs-panel @container', { 'ml-5 flex-grow': sideTabs })
   return (
-    <div className={cn(wrapperClasses)}>
+    <div className={wrapperClasses}>
       {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus */}
       <div
         role="tablist"
