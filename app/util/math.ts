@@ -8,6 +8,8 @@
 
 import * as R from 'remeda'
 
+import { MAX_DISK_SIZE_GiB } from '~/api'
+
 /**
  * Get the two parts of a number (before decimal and after-and-including
  * decimal) as strings. Round to 2 decimal points if necessary.
@@ -99,3 +101,11 @@ export function displayBigNum(
 export function nearest10(num: number): number {
   return Math.ceil(num / 10) * 10
 }
+
+/**
+ * Calculate disk size based on image or snapshot size. We round up to the
+ * nearest 10, but also cap it at the max disk size so that, for example, a 1023
+ * GiB image doesn't produce a 1030 GiB disk, which is not valid.
+ */
+export const roundUpDiskSize = (imageSizeGiB: number) =>
+  Math.min(nearest10(imageSizeGiB), MAX_DISK_SIZE_GiB)

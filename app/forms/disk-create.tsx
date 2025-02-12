@@ -37,6 +37,7 @@ import { Radio } from '~/ui/lib/Radio'
 import { RadioGroup } from '~/ui/lib/RadioGroup'
 import { Slash } from '~/ui/lib/Slash'
 import { toLocaleDateString } from '~/util/date'
+import { roundUpDiskSize } from '~/util/math'
 import { bytesToGiB, GiB } from '~/util/units'
 
 const blankDiskSource: DiskSource = {
@@ -227,8 +228,7 @@ const DiskSourceField = ({
               const image = images.find((i) => i.id === id)! // if it's selected, it must be present
               const imageSizeGiB = image.size / GiB
               if (diskSizeField.value < imageSizeGiB) {
-                const nearest10 = Math.ceil(imageSizeGiB / 10) * 10
-                diskSizeField.onChange(Math.min(nearest10, MAX_DISK_SIZE_GiB))
+                diskSizeField.onChange(roundUpDiskSize(imageSizeGiB))
               }
             }}
           />
@@ -288,8 +288,7 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
         const snapshot = snapshots.find((i) => i.id === id)! // if it's selected, it must be present
         const snapshotSizeGiB = snapshot.size / GiB
         if (diskSizeField.value < snapshotSizeGiB) {
-          const nearest10 = Math.ceil(snapshotSizeGiB / 10) * 10
-          diskSizeField.onChange(Math.min(nearest10, MAX_DISK_SIZE_GiB))
+          diskSizeField.onChange(roundUpDiskSize(snapshotSizeGiB))
         }
       }}
     />

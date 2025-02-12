@@ -10,6 +10,8 @@ import { v4 as uuid } from 'uuid'
 
 import type { Snapshot } from '@oxide/api'
 
+import { GiB } from '~/util/units'
+
 import { disks } from './disk'
 import type { Json } from './json-type'
 import { project } from './project'
@@ -81,7 +83,18 @@ export const snapshots: Json<Snapshot>[] = [
     project_id: project.id,
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
-    size: 1024 * 1024 * 1024 * 20,
+    size: 20 * GiB,
+    disk_id: disks[3].id,
+    state: 'ready',
+  },
+  {
+    id: '3b252b04-d896-49d3-bae3-0ac102eed9b4',
+    name: 'snapshot-max-size',
+    description: '',
+    project_id: project.id,
+    time_created: new Date().toISOString(),
+    time_modified: new Date().toISOString(),
+    size: 1023 * GiB, // the biggest size allowed
     disk_id: disks[3].id,
     state: 'ready',
   },
