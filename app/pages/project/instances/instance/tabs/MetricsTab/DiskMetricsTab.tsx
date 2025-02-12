@@ -74,7 +74,7 @@ export function Component() {
     [diskData]
   )
 
-  const { startTime, endTime, dateTimeRangePicker } = useMetricsContext()
+  const { startTime, endTime, dateTimeRangePicker, intervalPicker } = useMetricsContext()
 
   // The fallback here is kind of silly — it is only invoked when there are no
   // disks, in which case we show the fallback UI and diskName is never used. We
@@ -107,21 +107,25 @@ export function Component() {
   return (
     <>
       <MetricHeader>
-        {disks.length > 2 && (
-          <Listbox
-            className="w-64"
-            aria-label="Choose disk"
-            name="disk-name"
-            selected={disk.id}
-            items={items}
-            onChange={(val) => {
-              setDisk({
-                name: disks.find((n) => n.id === val)?.name || 'All disks',
-                id: val,
-              })
-            }}
-          />
-        )}
+        <div className="flex gap-2">
+          {intervalPicker}
+
+          {disks.length > 2 && (
+            <Listbox
+              className="w-52"
+              aria-label="Choose disk"
+              name="disk-name"
+              selected={disk.id}
+              items={items}
+              onChange={(val) => {
+                setDisk({
+                  name: disks.find((n) => n.id === val)?.name || 'All disks',
+                  id: val,
+                })
+              }}
+            />
+          )}
+        </div>
         {dateTimeRangePicker}
       </MetricHeader>
       <MetricCollection>
@@ -131,12 +135,14 @@ export function Component() {
         <MetricRow>
           <OxqlMetric
             title="Disk Reads"
+            description="Total number of read operations from the disk"
             query={getQuery('virtual_disk:reads')}
             startTime={startTime}
             endTime={endTime}
           />
           <OxqlMetric
             title="Disk Writes"
+            description="Total number of write operations to the disk"
             query={getQuery('virtual_disk:writes')}
             startTime={startTime}
             endTime={endTime}
@@ -146,12 +152,14 @@ export function Component() {
         <MetricRow>
           <OxqlMetric
             title="Bytes Read"
+            description="Number of bytes read from the disk"
             query={getQuery('virtual_disk:bytes_read')}
             startTime={startTime}
             endTime={endTime}
           />
           <OxqlMetric
             title="Bytes Written"
+            description="Number of bytes written to the disk"
             query={getQuery('virtual_disk:bytes_written')}
             startTime={startTime}
             endTime={endTime}
@@ -161,6 +169,7 @@ export function Component() {
         <MetricRow>
           <OxqlMetric
             title="Disk Flushes"
+            description="Total number of flush operations on the disk"
             query={getQuery('virtual_disk:flushes')}
             startTime={startTime}
             endTime={endTime}

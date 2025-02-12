@@ -16,7 +16,6 @@ import React, { Suspense, useMemo } from 'react'
 import { useApiQuery, type ChartDatum, type OxqlQueryResult } from '@oxide/api'
 
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
-import { Spinner } from '~/ui/lib/Spinner'
 import { getDurationMinutes } from '~/util/date'
 
 // An OxQL Query Result can have multiple tables, but in the web console we only ever call
@@ -170,7 +169,7 @@ export const getBytesChartProps = ({
 }: OxqlMetricChartComponentsProps): OxqlMetricChartProps => {
   // Bytes charts use 1024 as the base
   const base = 1024
-  const byteUnits = ['BYTES', 'KiB', 'MiB', 'GiB', 'TiB']
+  const byteUnits = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB']
   const largestValue = getLargestValue(chartData)
   const orderOfMagnitude = getOrderOfMagnitude(largestValue, base)
   const bytesChartDivisor = base ** orderOfMagnitude
@@ -208,7 +207,7 @@ export const getCountChartProps = ({
   const largestValue = getLargestValue(chartData)
   const orderOfMagnitude = getOrderOfMagnitude(largestValue, 1_000)
   const yAxisTickFormatter = (val: number) => yAxisLabelForCountChart(val, orderOfMagnitude)
-  return { data: chartData, label: '(COUNT)', unitForSet: '', yAxisTickFormatter }
+  return { data: chartData, label: '(Count)', unitForSet: '', yAxisTickFormatter }
 }
 
 export const getPercentDivisor = (startTime: Date, endTime: Date) => {
@@ -261,16 +260,23 @@ export const getOxqlMetricChartComponents = ({
 
 export function OxqlMetric({
   title,
+  description,
   query,
   startTime,
   endTime,
 }: {
   title: string
+  description?: string
   query: string
   startTime: Date
   endTime: Date
 }) {
-  const { data: metrics } = useApiQuery('systemTimeseriesQuery', { body: { query } })
+  const { data: metrics } = useApiQuery(
+    'systemTimeseriesQuery',
+    { body: { query } },
+    // avoid graphs flashing blank while loading when you change the time
+    { placeholderData: (x) => x }
+  )
   const chartData: ChartDatum[] = useMemo(() => getChartData(metrics), [metrics])
   // console.log(title, query, chartData)
   const unit = getUnit(title)
@@ -295,28 +301,34 @@ export function OxqlMetric({
   ]
 
   return (
-    <div className="flex w-1/2 grow flex-col">
-      <div className="flex items-center justify-between">
-        <h2 className="ml-3 flex items-center text-mono-xs text-default">
-          {title} <div className="ml-1 normal-case text-tertiary">{label}</div>
-          {!metrics && <Spinner className="ml-2" />}
-        </h2>
+    <div className="flex w-full grow flex-col rounded-lg border border-default">
+      <div className="flex items-baseline justify-between border-b px-6 py-5 border-secondary">
+        <div>
+          <h2 className="flex items-baseline gap-1.5">
+            <div className="text-sans-semi-lg">{title}</div>
+            <div className="text-sans-md text-secondary">{label}</div>
+          </h2>
+          <div className="mt-0.5 text-sans-md text-secondary">{description}</div>
+        </div>
         {/* TODO: show formatted string to user so they can see it before copying */}
-        <MoreActionsMenu label="Query actions" actions={actions} />
+        <MoreActionsMenu label="Query actions" actions={actions} isSmall />
       </div>
-      <Suspense fallback={<div className="mt-3 h-[300px]" />}>
-        <TimeSeriesChart
-          className="mt-3"
-          title={title}
-          startTime={startTime}
-          endTime={endTime}
-          unit={unitForSet}
-          data={data}
-          yAxisTickFormatter={yAxisTickFormatter}
-          width={480}
-          height={240}
-        />
-      </Suspense>
+      <div className="px-6 py-5">
+        <Suspense fallback={<div className="h-[300px]" />}>
+          <TimeSeriesChart
+            className="mt-3"
+            title={title}
+            startTime={startTime}
+            endTime={endTime}
+            unit={unitForSet}
+            data={data}
+            yAxisTickFormatter={yAxisTickFormatter}
+            width={480}
+            height={240}
+            hasBorder={false}
+          />
+        </Suspense>
+      </div>
     </div>
   )
 }
@@ -324,11 +336,18 @@ export function OxqlMetric({
 export const MetricHeader = ({ children }: { children: React.ReactNode }) => {
   // If header has only one child, align it to the end of the container
   const value = React.Children.toArray(children).length === 1 ? 'end' : 'between'
-  return <div className={`flex justify-${value}`}>{children}</div>
+  return (
+    // prettier-ignore
+    <div className={`flex flex-col gap-2 justify-${value} mt-8 @[48rem]:flex-row`}>
+      {children}
+    </div>
+  )
 }
 export const MetricCollection = ({ children }: { children: React.ReactNode }) => (
-  <div className="mt-8 flex flex-col gap-8">{children}</div>
+  <div className="mt-4 flex flex-col gap-4">{children}</div>
 )
-export const MetricRow = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex w-full gap-6">{children}</div>
-)
+export const MetricRow = ({ children }: { children: React.ReactNode }) =>
+  // prettier-ignore
+  <div className="flex w-full flex-col gap-4 @[48rem]:flex-row">
+    {children}
+  </div>

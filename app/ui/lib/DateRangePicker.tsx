@@ -36,7 +36,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
   const formatter = useDateFormatter({
     dateStyle: 'short',
     timeStyle: 'short',
-    hourCycle: 'h24',
+    hourCycle: 'h23',
   })
 
   const label = useMemo(() => {
@@ -45,10 +45,10 @@ export function DateRangePicker(props: DateRangePickerProps) {
     // unset the value through the UI.
     if (!state.dateRange) return 'No range selected'
 
-    return formatter.formatRange(
-      state.dateRange.start.toDate(getLocalTimeZone()),
-      state.dateRange.end.toDate(getLocalTimeZone())
-    )
+    const from = state.dateRange.start.toDate(getLocalTimeZone())
+    const to = state.dateRange.end.toDate(getLocalTimeZone())
+
+    return formatter.formatRange(from, to)
   }, [state.dateRange, formatter])
 
   return (
@@ -68,8 +68,8 @@ export function DateRangePicker(props: DateRangePickerProps) {
               : 'border-default ring-accent-secondary'
           )}
         >
-          <div className={cn('relative flex w-[17rem] items-center px-3 text-sans-md')}>
-            {label}
+          <div className="relative flex w-[16rem] items-center px-3 text-sans-md">
+            <div className="truncate">{label}</div>
             {state.isInvalid && (
               <div className="absolute bottom-0 right-2 top-0 flex items-center text-error">
                 <Error12Icon className="h-3 w-3" />

@@ -53,7 +53,7 @@ export function Component() {
     query: { project },
   })
 
-  const { startTime, endTime, dateTimeRangePicker } = useMetricsContext()
+  const { startTime, endTime, dateTimeRangePicker, intervalPicker } = useMetricsContext()
 
   const getQuery = (metricName: OxqlVmMetricName, state?: OxqlVcpuState) =>
     getOxqlQuery({
@@ -67,11 +67,14 @@ export function Component() {
 
   return (
     <>
-      <MetricHeader>{dateTimeRangePicker}</MetricHeader>
+      <MetricHeader>
+        {intervalPicker} {dateTimeRangePicker}
+      </MetricHeader>
       <MetricCollection>
         <MetricRow>
           <OxqlMetric
             title="CPU Utilization"
+            description="Cumulative time all vCPUs have spent in a state"
             query={getQuery('virtual_machine:vcpu_usage')}
             startTime={startTime}
             endTime={endTime}

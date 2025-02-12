@@ -53,7 +53,7 @@ export function Component() {
     query: { project, instance, limit: ALL_ISH },
   })
 
-  const { startTime, endTime, dateTimeRangePicker } = useMetricsContext()
+  const { startTime, endTime, dateTimeRangePicker, intervalPicker } = useMetricsContext()
 
   const networks = useMemo(
     () => [
@@ -79,33 +79,39 @@ export function Component() {
   return (
     <>
       <MetricHeader>
-        {networks.length > 2 && (
-          <Listbox
-            className="w-64"
-            aria-label="Choose disk"
-            name="disk-name"
-            selected={nic.id}
-            items={items}
-            onChange={(val) => {
-              setNic({
-                name: networks.find((n) => n.id === val)?.name || 'All NICs',
-                id: val,
-              })
-            }}
-          />
-        )}
+        <div className="flex gap-2">
+          {intervalPicker}
+
+          {networks.length > 2 && (
+            <Listbox
+              className="w-52"
+              aria-label="Choose disk"
+              name="disk-name"
+              selected={nic.id}
+              items={items}
+              onChange={(val) => {
+                setNic({
+                  name: networks.find((n) => n.id === val)?.name || 'All NICs',
+                  id: val,
+                })
+              }}
+            />
+          )}
+        </div>
         {dateTimeRangePicker}
       </MetricHeader>
       <MetricCollection>
         <MetricRow>
           <OxqlMetric
             title="Packets Sent"
+            description="Number of packets sent on the link"
             query={getQuery('instance_network_interface:packets_sent')}
             startTime={startTime}
             endTime={endTime}
           />
           <OxqlMetric
             title="Packets Received"
+            description="Number of packets received on the link"
             query={getQuery('instance_network_interface:packets_received')}
             startTime={startTime}
             endTime={endTime}
@@ -114,12 +120,14 @@ export function Component() {
         <MetricRow>
           <OxqlMetric
             title="Bytes Sent"
+            description="Number of bytes sent on the link"
             query={getQuery('instance_network_interface:bytes_sent')}
             startTime={startTime}
             endTime={endTime}
           />
           <OxqlMetric
             title="Bytes Received"
+            description="Number of bytes received on the link"
             query={getQuery('instance_network_interface:bytes_received')}
             startTime={startTime}
             endTime={endTime}

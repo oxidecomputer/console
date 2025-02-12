@@ -36,7 +36,7 @@ export function DatePicker(props: DatePickerProps) {
   const formatter = useDateFormatter({
     dateStyle: 'short',
     timeStyle: 'short',
-    hourCycle: 'h24',
+    hourCycle: 'h23',
   })
 
   const label = useMemo(() => {
