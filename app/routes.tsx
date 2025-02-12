@@ -65,6 +65,7 @@ import * as CpuMetricsTab from './pages/project/instances/instance/tabs/MetricsT
 import * as DiskMetricsTab from './pages/project/instances/instance/tabs/MetricsTab/DiskMetricsTab'
 import * as NetworkMetricsTab from './pages/project/instances/instance/tabs/MetricsTab/NetworkMetricsTab'
 import * as NetworkingTab from './pages/project/instances/instance/tabs/NetworkingTab'
+import * as SettingsTab from './pages/project/instances/instance/tabs/SettingsTab'
 import * as StorageTab from './pages/project/instances/instance/tabs/StorageTab'
 import { InstancesPage } from './pages/project/instances/InstancesPage'
 import { SnapshotsPage } from './pages/project/snapshots/SnapshotsPage'
@@ -311,6 +312,7 @@ export const routes = createRoutesFromElements(
                   />
                 </Route>
                 <Route {...ConnectTab} path="connect" handle={{ crumb: 'Connect' }} />
+                <Route {...SettingsTab} path="settings" handle={{ crumb: 'Settings' }} />
               </Route>
             </Route>
           </Route>

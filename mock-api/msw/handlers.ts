@@ -5,8 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
+import { addHours } from 'date-fns'
 import { delay } from 'msw'
 import * as R from 'remeda'
+import { match } from 'ts-pattern'
 import { validate as isUuid, v4 as uuid } from 'uuid'
 
 import {
@@ -596,10 +598,17 @@ export const handlers = makeHandlers({
   instanceUpdate({ path, query, body }) {
     const instance = lookup.instance({ ...path, ...query })
 
-    if (!instanceCan.update({ runState: instance.run_state })) {
-      const states = instanceCan.update.states
-      throw `Instance can only be updated if ${commaSeries(states, 'or')}`
+    const resize = body.ncpus !== instance.ncpus || body.memory !== instance.memory
+    if (resize && !instanceCan.resize({ runState: instance.run_state })) {
+      const states = instanceCan.resize.states
+      throw `Instance can only be resized if ${commaSeries(states, 'or')}`
     }
+
+    // always present on the body, always set them
+    instance.ncpus = body.ncpus
+    instance.memory = body.memory
+
+    const rejectSetBootDisk = `Boot disk can only be changed if instance is ${commaSeries(instanceCan.updateBootDisk.states, 'or')}`
 
     if (body.boot_disk) {
       // Only include project if it's a name, otherwise lookup will error.
@@ -608,6 +617,14 @@ export const handlers = makeHandlers({
         disk: body.boot_disk,
         project: isUuid(body.boot_disk) ? undefined : query.project,
       })
+
+      // blow up if we're trying to change the boot disk but instance isn't stopped
+      if (
+        disk.id !== instance.boot_disk_id &&
+        !instanceCan.updateBootDisk({ runState: instance.run_state })
+      ) {
+        throw rejectSetBootDisk
+      }
 
       const isAttached =
         disk.state.state === 'attached' && disk.state.instance === instance.id
@@ -618,12 +635,46 @@ export const handlers = makeHandlers({
       instance.boot_disk_id = disk.id
     } else {
       // we're clearing the boot disk!
+
+      // if we already have a boot disk, the request is trying to unset it, so blow
+      // up if that's not allowed
+      if (
+        instance.boot_disk_id &&
+        !instanceCan.updateBootDisk({ runState: instance.run_state })
+      ) {
+        throw rejectSetBootDisk
+      }
       instance.boot_disk_id = undefined
     }
 
-    // always present on the body, always set them
-    instance.ncpus = body.ncpus
-    instance.memory = body.memory
+    // AUTO RESTART
+
+    // Undefined or missing is meaningful: it unsets the value
+    instance.auto_restart_policy = body.auto_restart_policy
+
+    // We depart here from nexus in that nexus does both of the following
+    // calculations at view time (when converting model to view). We can't
+    // do that/don't need because our mock DB stores and returns the view
+    // representation directly.
+
+    // https://github.com/oxidecomputer/omicron/blob/0c6ab099e/nexus/db-queries/src/db/datastore/instance.rs#L228-L239
+    instance.auto_restart_enabled = match(instance.auto_restart_policy)
+      .with(undefined, () => true)
+      .with('best_effort', () => true)
+      .with('never', () => false)
+      .exhaustive()
+
+    // Nexus has something slightly more complicated because it's possible the
+    // default cooldown of one hour can be overridden at the instance level, but
+    // that is currently only used in tests, so we should assume all instances
+    // have the default of 1 hour. It's worth noting this may never come into
+    // effect unless we deliberately set time_last_auto_restarted on a mock
+    // instance because the mock API has no ability to actually auto-restart
+    // an instance.
+    // https://github.com/oxidecomputer/omicron/blob/0c6ab099e/nexus/db-queries/src/db/datastore/instance.rs#L206-L226
+    instance.auto_restart_cooldown_expiration = instance.time_last_auto_restarted
+      ? addHours(instance.time_last_auto_restarted, 1).toISOString()
+      : undefined
 
     return instance
   },

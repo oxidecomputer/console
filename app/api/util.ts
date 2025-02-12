@@ -99,8 +99,19 @@ const instanceActions = {
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/instance.rs#L865
   delete: ['stopped', 'failed'],
 
-  // https://github.com/oxidecomputer/omicron/blob/3093818/nexus/db-queries/src/db/datastore/instance.rs#L1030-L1043
-  update: ['stopped', 'failed', 'creating'],
+  // not all updates are restricted by state
+
+  // resize means changes to ncpus and memory
+  // https://github.com/oxidecomputer/omicron/blob/0c6ab099e/nexus/db-queries/src/db/datastore/instance.rs#L1282-L1288
+  // https://github.com/oxidecomputer/omicron/blob/0c6ab099e/nexus/db-model/src/instance_state.rs#L39-L42
+  resize: ['stopped', 'failed', 'creating'],
+
+  // https://github.com/oxidecomputer/omicron/blob/0c6ab099e/nexus/db-queries/src/db/datastore/instance.rs#L1209-L1215
+  updateBootDisk: ['stopped', 'failed', 'creating'],
+
+  // there are no state restrictions on setting the auto restart policy, so we
+  // don't have a helper for it
+  // https://github.com/oxidecomputer/omicron/blob/0c6ab099e/nexus/db-queries/src/db/datastore/instance.rs#L1050-L1058
 
   // reboot and stop are kind of weird!
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/src/app/instance.rs#L790-L798
@@ -137,6 +148,24 @@ export function instanceTransitioning({ runState }: Instance) {
     runState === 'starting' ||
     runState === 'stopping' ||
     runState === 'rebooting'
+  )
+}
+
+/**
+ * True if instance is failed, auto restart enabled, and either we've never
+ * restarted or we just expired and we're waiting to get restarted.
+ *
+ * There can be a short window (up to a minute) after expiration where the
+ * instance hasn't been picked up for auto-restart yet.
+ *
+ * https://github.com/oxidecomputer/omicron/blob/b6ada022a/nexus/src/app/background/init.rs#L726-L745
+ * https://github.com/oxidecomputer/omicron/blob/b6ada022a/smf/nexus/multi-sled/config-partial.toml#L70-L71
+ */
+export function instanceAutoRestartingSoon(i: Instance) {
+  return (
+    i.runState === 'failed' &&
+    i.autoRestartEnabled &&
+    (!i.autoRestartCooldownExpiration || i.autoRestartCooldownExpiration < new Date())
   )
 }
 
