@@ -140,9 +140,6 @@ export function Component() {
             startTime={startTime}
             endTime={endTime}
           />
-        </MetricRow>
-
-        <MetricRow>
           <OxqlMetric
             title="Disk Writes"
             description="Total number of write operations to the disk"

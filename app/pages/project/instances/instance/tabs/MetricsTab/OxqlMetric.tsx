@@ -169,7 +169,7 @@ export const getBytesChartProps = ({
 }: OxqlMetricChartComponentsProps): OxqlMetricChartProps => {
   // Bytes charts use 1024 as the base
   const base = 1024
-  const byteUnits = ['BYTES', 'KiB', 'MiB', 'GiB', 'TiB']
+  const byteUnits = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB']
   const largestValue = getLargestValue(chartData)
   const orderOfMagnitude = getOrderOfMagnitude(largestValue, base)
   const bytesChartDivisor = base ** orderOfMagnitude
@@ -207,7 +207,7 @@ export const getCountChartProps = ({
   const largestValue = getLargestValue(chartData)
   const orderOfMagnitude = getOrderOfMagnitude(largestValue, 1_000)
   const yAxisTickFormatter = (val: number) => yAxisLabelForCountChart(val, orderOfMagnitude)
-  return { data: chartData, label: '(COUNT)', unitForSet: '', yAxisTickFormatter }
+  return { data: chartData, label: '(Count)', unitForSet: '', yAxisTickFormatter }
 }
 
 export const getPercentDivisor = (startTime: Date, endTime: Date) => {
@@ -304,8 +304,9 @@ export function OxqlMetric({
     <div className="flex w-full grow flex-col rounded-lg border border-default">
       <div className="flex items-baseline justify-between border-b px-6 py-5 border-secondary">
         <div>
-          <h2 className="flex items-center">
-            {title} <div className="text-sans-semi-lg text-raise">{label}</div>
+          <h2 className="flex items-baseline gap-1.5">
+            <div className="text-sans-semi-lg">{title}</div>
+            <div className="text-sans-md text-secondary">{label}</div>
           </h2>
           <div className="mt-0.5 text-sans-md text-secondary">{description}</div>
         </div>
