@@ -249,6 +249,28 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/instances/i/networking",
     },
   ],
+  "instanceSettings (/projects/p/instances/i/settings)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Instances",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "i",
+      "path": "/projects/p/instances/i/storage",
+    },
+    {
+      "label": "Settings",
+      "path": "/projects/p/instances/i/settings",
+    },
+  ],
   "instanceStorage (/projects/p/instances/i/storage)": [
     {
       "label": "Projects",

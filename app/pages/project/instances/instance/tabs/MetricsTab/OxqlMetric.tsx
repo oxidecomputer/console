@@ -13,25 +13,32 @@
 
 import React, { Suspense, useMemo } from 'react'
 
-import { getChartData, useApiQuery, type ChartDatum } from '@oxide/api'
+import { useApiQuery, type ChartDatum, type OxqlQueryResult } from '@oxide/api'
 
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { getDurationMinutes } from '~/util/date'
 
+// An OxQL Query Result can have multiple tables, but in the web console we only ever call
+// aligned timeseries queries, which always have exactly one table.
+export const getChartData = (data: OxqlQueryResult | undefined): ChartDatum[] => {
+  if (!data) return []
+  const ts = Object.values(data.tables[0].timeseries)
+  return ts
+    .flatMap((t) => {
+      const { timestamps, values } = t.points
+      const v = values[0].values.values as number[]
+      return timestamps.map((timestamp, idx) => ({
+        timestamp: new Date(timestamp).getTime(),
+        value: v[idx],
+      }))
+    })
+    .slice(1) // first datapoint can be a sum of all datapoints preceding it, so we remove before displaying
+}
+
 const TimeSeriesChart = React.lazy(() => import('~/components/TimeSeriesChart'))
 
 /** convert to UTC and return the timezone-free format required by OxQL */
-const oxqlTimestamp = (date: Date) => date.toISOString().replace('Z', '')
-
-export function getCycleCount(num: number, base: number) {
-  let cycleCount = 0
-  let transformedValue = num
-  while (transformedValue > base) {
-    transformedValue = transformedValue / base
-    cycleCount++
-  }
-  return cycleCount
-}
+export const oxqlTimestamp = (date: Date) => date.toISOString().replace('Z', '')
 
 export type OxqlDiskMetricName =
   | 'virtual_disk:bytes_read'
@@ -60,12 +67,17 @@ export type OxqlMetricName = OxqlDiskMetricName | OxqlVmMetricName | OxqlNetwork
 
 export type OxqlVcpuState = 'run' | 'idle' | 'waiting' | 'emulation'
 
-/** determine the mean window for the given time range */
-const getMeanWindow = (start: Date, end: Date) => {
-  const duration = getDurationMinutes({ start, end })
-  // the number of points in the chart
-  const points = 100
-  return `${Math.round(duration / points)}m`
+/** determine the mean window for the given time range;
+ * returns a string representing N seconds, e.g. '60s'
+ * points = the number of datapoints we want to see in the chart
+ *   (default is 60, to show 1 point per minute on a 1-hour chart)
+ * We could dynamically adjust this based on the duration of the range,
+ * like … for 1 week, show 1 datapoint per hour, for 1 day, show 1 datapoint per minute, etc.
+ * */
+export const getMeanWindow = (start: Date, end: Date, datapoints = 60) => {
+  const durationMinutes = getDurationMinutes({ start, end })
+  const durationSeconds = durationMinutes * 60
+  return `${Math.round(durationSeconds / datapoints)}s`
 }
 
 type getOxqlQueryParams = {
@@ -96,28 +108,25 @@ export const getOxqlQuery = ({
   state,
   group,
 }: getOxqlQueryParams) => {
-  const start = oxqlTimestamp(startTime)
-  const end = oxqlTimestamp(endTime)
-  const filters = [`timestamp >= @${start}`, `timestamp < @${end}`]
-  if (diskId) {
-    filters.push(`disk_id == "${diskId}"`)
-  }
-  if (vcpuId) {
-    filters.push(`vcpu_id == ${vcpuId}`)
-  }
-  if (instanceId) {
-    filters.push(`instance_id == "${instanceId}"`)
-  }
-  if (interfaceId) {
-    filters.push(`interface_id == "${interfaceId}"`)
-  }
-  if (attachedInstanceId) {
-    filters.push(`attached_instance_id == "${attachedInstanceId}"`)
-  }
-  if (state) {
-    filters.push(`state == "${state}"`)
-  }
   const meanWindow = getMeanWindow(startTime, endTime)
+  // we adjust the start time back by 2x the mean window so that we can
+  // 1) drop the first datapoint (the cumulative sum of all previous datapoints)
+  // 2) ensure that the first datapoint we display on the chart matches the actual start time
+  const secondsToAdjust = parseInt(meanWindow, 10) * 2
+  const adjustedStart = new Date(startTime.getTime() - secondsToAdjust * 1000)
+  const start = oxqlTimestamp(adjustedStart)
+  const end = oxqlTimestamp(endTime)
+  const filters = [
+    `timestamp >= @${start}`,
+    `timestamp < @${end}`,
+    diskId && `disk_id == "${diskId}"`,
+    vcpuId && `vcpu_id == ${vcpuId}`,
+    instanceId && `instance_id == "${instanceId}"`,
+    interfaceId && `interface_id == "${interfaceId}"`,
+    attachedInstanceId && `attached_instance_id == "${attachedInstanceId}"`,
+    state && `state == "${state}"`,
+  ].filter(Boolean) // Removes falsy values
+
   const groupByString =
     group && attachedInstanceId
       ? ' | group_by [attached_instance_id], sum'
@@ -127,6 +136,126 @@ export const getOxqlQuery = ({
   const query = `get ${metricName} | filter ${filters.join(' && ')} | align mean_within(${meanWindow})${groupByString}`
   // console.log(query)
   return query
+}
+
+export type ChartUnitType = 'Bytes' | '%' | 'Count'
+export const getUnit = (title: string): ChartUnitType => {
+  if (title.includes('Bytes')) return 'Bytes'
+  if (title.includes('Utilization')) return '%'
+  return 'Count'
+}
+
+// Returns 0 if there are no data points
+export const getLargestValue = (data: ChartDatum[]) =>
+  data.length ? Math.max(0, ...data.map((d) => d.value)) : 0
+
+// not sure this is the best name
+export const getOrderOfMagnitude = (largestValue: number, base: number) =>
+  Math.max(Math.floor(Math.log(largestValue) / Math.log(base)), 0)
+
+// These need better names
+// What each function will receive
+type OxqlMetricChartComponentsProps = { chartData: ChartDatum[] }
+// What each function will return
+type OxqlMetricChartProps = {
+  data: ChartDatum[]
+  label: string
+  unitForSet: string
+  yAxisTickFormatter: (n: number) => string
+}
+
+export const getBytesChartProps = ({
+  chartData,
+}: OxqlMetricChartComponentsProps): OxqlMetricChartProps => {
+  // Bytes charts use 1024 as the base
+  const base = 1024
+  const byteUnits = ['BYTES', 'KiB', 'MiB', 'GiB', 'TiB']
+  const largestValue = getLargestValue(chartData)
+  const orderOfMagnitude = getOrderOfMagnitude(largestValue, base)
+  const bytesChartDivisor = base ** orderOfMagnitude
+  const data = chartData.map((d) => ({
+    ...d,
+    value: d.value / bytesChartDivisor,
+  }))
+  const unitForSet = byteUnits[orderOfMagnitude]
+  return {
+    data,
+    label: `(${unitForSet})`,
+    unitForSet,
+    yAxisTickFormatter: (n: number) => n.toLocaleString(),
+  }
+}
+
+export const yAxisLabelForCountChart = (val: number, orderOfMagnitude: number) => {
+  const tickValue = val / 1_000 ** orderOfMagnitude
+  const formattedTickValue = tickValue.toLocaleString(undefined, {
+    maximumSignificantDigits: 3,
+    maximumFractionDigits: 0,
+    minimumFractionDigits: 0,
+  })
+  return `${formattedTickValue}${['', 'k', 'M', 'B', 'T'][orderOfMagnitude]}`
+}
+
+/**
+ * The primary job of the Count chart components helper is to format the Y-axis ticks,
+ * which requires knowing the largest value in the dataset, to get a consistent scale.
+ * The data isn't modified for Count charts; the label and unitForSet are basic as well.
+ */
+export const getCountChartProps = ({
+  chartData,
+}: OxqlMetricChartComponentsProps): OxqlMetricChartProps => {
+  const largestValue = getLargestValue(chartData)
+  const orderOfMagnitude = getOrderOfMagnitude(largestValue, 1_000)
+  const yAxisTickFormatter = (val: number) => yAxisLabelForCountChart(val, orderOfMagnitude)
+  return { data: chartData, label: '(COUNT)', unitForSet: '', yAxisTickFormatter }
+}
+
+export const getPercentDivisor = (startTime: Date, endTime: Date) => {
+  const meanWindowSeconds = parseInt(getMeanWindow(startTime, endTime), 10)
+  // console.log('meanWindowSeconds', meanWindowSeconds)
+  // We actually need to know the number of nanoseconds
+  return meanWindowSeconds * 1_000_000_000
+}
+
+/**
+ * The Percent chart components helper modifies the data, as the values are some percentage
+ * of a whole. For now, all Percent charts are based on CPU utilization time. Because queries
+ * can be dynamic in terms of the `mean_within` window, we use that value to determine the
+ * divisor for the data.
+ */
+export const getPercentChartProps = ({
+  chartData,
+  startTime,
+  endTime,
+}: OxqlMetricChartComponentsProps & {
+  startTime: Date
+  endTime: Date
+}): OxqlMetricChartProps => {
+  const data = chartData.map(({ timestamp, value }) => ({
+    timestamp,
+    value: value / getPercentDivisor(startTime, endTime),
+  }))
+  return { data, label: '(%)', unitForSet: '%', yAxisTickFormatter: (n: number) => `${n}%` }
+}
+
+export const getOxqlMetricChartComponents = ({
+  unit,
+  chartData,
+  startTime,
+  endTime,
+}: {
+  unit: ChartUnitType
+  chartData: ChartDatum[]
+  startTime: Date
+  endTime: Date
+}) => {
+  if (unit === 'Bytes') {
+    return getBytesChartProps({ chartData })
+  }
+  if (unit === 'Count') {
+    return getCountChartProps({ chartData })
+  }
+  return getPercentChartProps({ chartData, startTime, endTime })
 }
 
 export function OxqlMetric({
@@ -144,86 +273,27 @@ export function OxqlMetric({
 }) {
   const { data: metrics } = useApiQuery('systemTimeseriesQuery', { body: { query } })
   const chartData: ChartDatum[] = useMemo(() => getChartData(metrics), [metrics])
-
-  const unit = title.includes('Bytes')
-    ? 'Bytes'
-    : title.includes('Utilization')
-      ? '%'
-      : 'Count'
-
-  const isBytesChart = unit === 'Bytes'
-  const isPercentChart = unit === '%'
-
-  const largestValue = useMemo(() => {
-    if (!chartData || chartData.length === 0) return 0
-    return chartData.reduce((max, i) => Math.max(max, i.value), 0)
-  }, [chartData])
-
-  // We'll need to divide each number in the set by a consistent exponent
-  // of 1024 (for Bytes) or 1000 (for Counts)
-  const base = isBytesChart ? 1024 : 1000
-  // Figure out what that exponent is
-  const cycleCount = getCycleCount(largestValue, base)
-
-  // Now that we know how many cycles of "divide by 1024 || 1000" to run through
-  // (via cycleCount), we can determine the proper unit for the set
-  let unitForSet = ''
-  let label = ''
-  if (chartData.length > 0) {
-    if (isBytesChart) {
-      const byteUnits = ['BYTES', 'KiB', 'MiB', 'GiB', 'TiB']
-      unitForSet = byteUnits[cycleCount]
-      label = `(${unitForSet})`
-    } else {
-      label = `(${unit.toUpperCase()})`
-      unitForSet = isPercentChart ? '%' : ''
-    }
-  }
-
-  // We need to determine the divisor for the data set.
-  // - If the unit is Bytes, we divide by 1024 ** cycleCount
-  // - If the unit is %, we divide by the number of nanoseconds in a minute
-  // - If the unit is Count, we just return the raw value
-  const divisor = isBytesChart ? base ** cycleCount : isPercentChart ? 600000000 : 1
-
-  const data = useMemo(
+  // console.log(title, query, chartData)
+  const unit = getUnit(title)
+  const { data, label, unitForSet, yAxisTickFormatter } = useMemo(
     () =>
-      (chartData || []).map(({ timestamp, value }) => ({
-        timestamp,
-        // The value passed in is what will render in the tooltip
-        value: value / divisor,
-      })),
-    [divisor, chartData]
+      getOxqlMetricChartComponents({
+        unit,
+        chartData,
+        startTime,
+        endTime,
+      }),
+    [unit, chartData, startTime, endTime]
   )
 
-  // Create a label for the y-axis ticks. "Count" charts will be
-  // abbreviated and will have a suffix (e.g. "k") appended. Because
-  // "Bytes" charts will have already been divided by the divisor
-  // before the yAxis is created, we can use their given value.
-  const yAxisTickFormatter = (val: number) => {
-    if (isBytesChart) {
-      return val.toLocaleString()
-    }
-    if (isPercentChart) {
-      return `${val}%`
-    }
-    const tickValue = val / divisor
-    const countUnits = ['', 'k', 'M', 'B', 'T']
-    const unitForTick = countUnits[cycleCount]
-    return `${tickValue}${unitForTick}`
-  }
-
-  const menuActions = useMemo(
-    () => [
-      {
-        label: 'Copy query',
-        onActivate() {
-          window.navigator.clipboard.writeText(query)
-        },
+  const actions = [
+    {
+      label: 'Copy query',
+      onActivate() {
+        window.navigator.clipboard.writeText(query)
       },
-    ],
-    [query]
-  )
+    },
+  ]
 
   return (
     <div className="flex w-full grow flex-col rounded-lg border border-default">
@@ -235,20 +305,20 @@ export function OxqlMetric({
           <div className="mt-0.5 text-sans-md text-secondary">{description}</div>
         </div>
         {/* TODO: show formatted string to user so they can see it before copying */}
-        <MoreActionsMenu label="Query actions" actions={menuActions} isSmall />
+        <MoreActionsMenu label="Query actions" actions={actions} isSmall />
       </div>
       <div className="px-6 py-5">
         <Suspense fallback={<div className="h-[300px]" />}>
           <TimeSeriesChart
             className="mt-3"
-            data={data}
             title={title}
-            unit={unitForSet}
-            width={480}
-            height={240}
             startTime={startTime}
             endTime={endTime}
+            unit={unitForSet}
+            data={data}
             yAxisTickFormatter={yAxisTickFormatter}
+            width={480}
+            height={240}
             hasBorder={false}
           />
         </Suspense>

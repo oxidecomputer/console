@@ -7,6 +7,8 @@
  */
 import { expect, test } from '@playwright/test'
 
+import { getPageAsUser } from './utils'
+
 test('Shows 404 page when a resource is not found', async ({ page }) => {
   await page.goto('/nonexistent')
   await expect(page.locator('text=Page not found')).toBeVisible()
@@ -41,4 +43,11 @@ test('Shows something went wrong page on other errors', async ({ page }) => {
   // without getting elaborate with middleware), so this is a 404, but we do end
   // up at the right URL
   await expect(page).toHaveURL('/login')
+})
+
+test('error page for user with no groups or silo role', async ({ browser }) => {
+  const page = await getPageAsUser(browser, 'Jacob Klein')
+  await page.goto('/projects')
+  await expect(page.getByText('Something went wrong')).toBeVisible()
+  await expect(page.getByText('identity provider is not set up correctly')).toBeVisible()
 })

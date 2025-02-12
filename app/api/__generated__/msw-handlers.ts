@@ -88,6 +88,59 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /experimental/v1/system/support-bundles` */
+  supportBundleList: (params: {
+    query: Api.SupportBundleListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SupportBundleInfoResultsPage>>
+  /** `POST /experimental/v1/system/support-bundles` */
+  supportBundleCreate: (params: {
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SupportBundleInfo>>
+  /** `GET /experimental/v1/system/support-bundles/:supportBundle` */
+  supportBundleView: (params: {
+    path: Api.SupportBundleViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SupportBundleInfo>>
+  /** `DELETE /experimental/v1/system/support-bundles/:supportBundle` */
+  supportBundleDelete: (params: {
+    path: Api.SupportBundleDeletePathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /experimental/v1/system/support-bundles/:supportBundle/download` */
+  supportBundleDownload: (params: {
+    path: Api.SupportBundleDownloadPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `HEAD /experimental/v1/system/support-bundles/:supportBundle/download` */
+  supportBundleHead: (params: {
+    path: Api.SupportBundleHeadPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /experimental/v1/system/support-bundles/:supportBundle/download/:file` */
+  supportBundleDownloadFile: (params: {
+    path: Api.SupportBundleDownloadFilePathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `HEAD /experimental/v1/system/support-bundles/:supportBundle/download/:file` */
+  supportBundleHeadFile: (params: {
+    path: Api.SupportBundleHeadFilePathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /experimental/v1/system/support-bundles/:supportBundle/index` */
+  supportBundleIndex: (params: {
+    path: Api.SupportBundleIndexPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `POST /login/:siloName/saml/:providerName` */
   loginSaml: (params: {
     path: Api.LoginSamlPathParams
@@ -674,6 +727,13 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.PhysicalDisk>>
+  /** `GET /v1/system/hardware/rack-switch-port/:rackId/:switchLocation/:port/lldp/neighbors` */
+  networkingSwitchPortLldpNeighbors: (params: {
+    path: Api.NetworkingSwitchPortLldpNeighborsPathParams
+    query: Api.NetworkingSwitchPortLldpNeighborsQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.LldpNeighborResultsPage>>
   /** `GET /v1/system/hardware/racks` */
   rackList: (params: {
     query: Api.RackListQueryParams
@@ -737,6 +797,21 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.SwitchPortResultsPage>>
+  /** `GET /v1/system/hardware/switch-port/:port/lldp/config` */
+  networkingSwitchPortLldpConfigView: (params: {
+    path: Api.NetworkingSwitchPortLldpConfigViewPathParams
+    query: Api.NetworkingSwitchPortLldpConfigViewQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.LldpLinkConfig>>
+  /** `POST /v1/system/hardware/switch-port/:port/lldp/config` */
+  networkingSwitchPortLldpConfigUpdate: (params: {
+    path: Api.NetworkingSwitchPortLldpConfigUpdatePathParams
+    query: Api.NetworkingSwitchPortLldpConfigUpdateQueryParams
+    body: Json<Api.LldpLinkConfig>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `POST /v1/system/hardware/switch-port/:port/settings` */
   networkingSwitchPortApplySettings: (params: {
     path: Api.NetworkingSwitchPortApplySettingsPathParams
@@ -1527,6 +1602,46 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       '/experimental/v1/probes/:probe',
       handler(handlers['probeDelete'], schema.ProbeDeleteParams, null)
     ),
+    http.get(
+      '/experimental/v1/system/support-bundles',
+      handler(handlers['supportBundleList'], schema.SupportBundleListParams, null)
+    ),
+    http.post(
+      '/experimental/v1/system/support-bundles',
+      handler(handlers['supportBundleCreate'], null, null)
+    ),
+    http.get(
+      '/experimental/v1/system/support-bundles/:supportBundle',
+      handler(handlers['supportBundleView'], schema.SupportBundleViewParams, null)
+    ),
+    http.delete(
+      '/experimental/v1/system/support-bundles/:supportBundle',
+      handler(handlers['supportBundleDelete'], schema.SupportBundleDeleteParams, null)
+    ),
+    http.get(
+      '/experimental/v1/system/support-bundles/:supportBundle/download',
+      handler(handlers['supportBundleDownload'], schema.SupportBundleDownloadParams, null)
+    ),
+    http.head(
+      '/experimental/v1/system/support-bundles/:supportBundle/download',
+      handler(handlers['supportBundleHead'], schema.SupportBundleHeadParams, null)
+    ),
+    http.get(
+      '/experimental/v1/system/support-bundles/:supportBundle/download/:file',
+      handler(
+        handlers['supportBundleDownloadFile'],
+        schema.SupportBundleDownloadFileParams,
+        null
+      )
+    ),
+    http.head(
+      '/experimental/v1/system/support-bundles/:supportBundle/download/:file',
+      handler(handlers['supportBundleHeadFile'], schema.SupportBundleHeadFileParams, null)
+    ),
+    http.get(
+      '/experimental/v1/system/support-bundles/:supportBundle/index',
+      handler(handlers['supportBundleIndex'], schema.SupportBundleIndexParams, null)
+    ),
     http.post(
       '/login/:siloName/saml/:providerName',
       handler(handlers['loginSaml'], schema.LoginSamlParams, null)
@@ -1977,6 +2092,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['physicalDiskView'], schema.PhysicalDiskViewParams, null)
     ),
     http.get(
+      '/v1/system/hardware/rack-switch-port/:rackId/:switchLocation/:port/lldp/neighbors',
+      handler(
+        handlers['networkingSwitchPortLldpNeighbors'],
+        schema.NetworkingSwitchPortLldpNeighborsParams,
+        null
+      )
+    ),
+    http.get(
       '/v1/system/hardware/racks',
       handler(handlers['rackList'], schema.RackListParams, null)
     ),
@@ -2022,6 +2145,22 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         handlers['networkingSwitchPortList'],
         schema.NetworkingSwitchPortListParams,
         null
+      )
+    ),
+    http.get(
+      '/v1/system/hardware/switch-port/:port/lldp/config',
+      handler(
+        handlers['networkingSwitchPortLldpConfigView'],
+        schema.NetworkingSwitchPortLldpConfigViewParams,
+        null
+      )
+    ),
+    http.post(
+      '/v1/system/hardware/switch-port/:port/lldp/config',
+      handler(
+        handlers['networkingSwitchPortLldpConfigUpdate'],
+        schema.NetworkingSwitchPortLldpConfigUpdateParams,
+        schema.LldpLinkConfig
       )
     ),
     http.post(

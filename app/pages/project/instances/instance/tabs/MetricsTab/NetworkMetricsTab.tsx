@@ -63,8 +63,8 @@ export function Component() {
     [interfaceData]
   )
 
-  const [nic, setNic] = useState({ name: 'All NICs', id: 'all' })
-  const items = networks.map(({ name }) => ({ label: name, value: name }))
+  const [nic, setNic] = useState(networks[0])
+  const items = networks.map(({ name, id }) => ({ label: name, value: id }))
 
   const getQuery = (metricName: OxqlNetworkMetricName) =>
     getOxqlQuery({
@@ -81,16 +81,22 @@ export function Component() {
       <MetricHeader>
         <div className="flex gap-2">
           {intervalPicker}
-          <Listbox
-            className="w-52"
-            aria-label="Choose disk"
-            name="disk-name"
-            selected={nic.name}
-            items={items}
-            onChange={(val) => {
-              setNic({ name: val, id: networks.find((n) => n.name === val)?.id || 'all' })
-            }}
-          />
+
+          {networks.length > 2 && (
+            <Listbox
+              className="w-52"
+              aria-label="Choose disk"
+              name="disk-name"
+              selected={nic.id}
+              items={items}
+              onChange={(val) => {
+                setNic({
+                  name: networks.find((n) => n.id === val)?.name || 'All NICs',
+                  id: val,
+                })
+              }}
+            />
+          )}
         </div>
         {dateTimeRangePicker}
       </MetricHeader>

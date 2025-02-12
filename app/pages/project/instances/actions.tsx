@@ -147,8 +147,8 @@ export const useMakeInstanceActions = (
         {
           label: 'Resize',
           onActivate: () => onResizeClick?.(instance),
-          disabled: !instanceCan.update(instance) && (
-            <>Only {fancifyStates(instanceCan.update.states)} instances can be resized</>
+          disabled: !instanceCan.resize(instance) && (
+            <>Only {fancifyStates(instanceCan.resize.states)} instances can be resized</>
           ),
         },
         {

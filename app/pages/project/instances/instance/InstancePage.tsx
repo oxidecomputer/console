@@ -23,12 +23,14 @@ import { Instances24Icon } from '@oxide/design-system/icons/react'
 import {
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
+  instanceAutoRestartingSoon,
   instanceCan,
   instanceTransitioning,
 } from '~/api/util'
 import { ExternalIps } from '~/components/ExternalIps'
 import { NumberField } from '~/components/form/fields/NumberField'
 import { HL } from '~/components/HL'
+import { InstanceAutoRestartPopover } from '~/components/InstanceAutoRestartPopover'
 import { InstanceDocsPopover } from '~/components/InstanceDocsPopover'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { RefreshButton } from '~/components/RefreshButton'
@@ -104,7 +106,18 @@ InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-const POLL_INTERVAL = 1000
+// both a little faster than the default on the list view
+const sec = 1000 // ms, obviously
+const POLL_INTERVAL_FAST = 2 * sec
+const POLL_INTERVAL_SLOW = 30 * sec
+
+const PollingSpinner = () => (
+  <Tooltip content="Auto-refreshing while state changes" delay={150}>
+    <button type="button">
+      <Spinner className="ml-2" />
+    </button>
+  </Tooltip>
+)
 
 export function InstancePage() {
   const instanceSelector = useInstanceSelector()
@@ -129,12 +142,24 @@ export function InstancePage() {
       query: { project: instanceSelector.project },
     },
     {
-      refetchInterval: ({ state: { data: instance } }) =>
-        instance && instanceTransitioning(instance) ? POLL_INTERVAL : false,
+      // We're using this logic here on instance detail, but not on instance
+      // list. Instance list will only poll for the transitioning case. We don't
+      // show anything about auto-restart on the instance list, so the only point
+      // of polling would be to catch a restart when it happens. But with the
+      // cooldown period being an hour, we'd be doing a _lot_ of unnecessary
+      // polling on the list page.
+      refetchInterval: ({ state: { data: instance } }) => {
+        if (!instance) return false
+        if (instanceTransitioning(instance)) return POLL_INTERVAL_FAST
+
+        if (instance.runState === 'failed' && instance.autoRestartEnabled) {
+          return instanceAutoRestartingSoon(instance)
+            ? POLL_INTERVAL_FAST
+            : POLL_INTERVAL_SLOW
+        }
+      },
     }
   )
-
-  const polling = instanceTransitioning(instance)
 
   const { data: nics } = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
     query: {
@@ -203,15 +228,10 @@ export function InstancePage() {
             <span className="ml-1 text-tertiary"> {memory.unit}</span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="state">
-            <div className="flex">
+            <div className="flex items-center gap-2">
               <InstanceStateBadge state={instance.runState} />
-              {polling && (
-                <Tooltip content="Auto-refreshing while state changes" delay={150}>
-                  <button type="button">
-                    <Spinner className="ml-2" />
-                  </button>
-                </Tooltip>
-              )}
+              {instanceTransitioning(instance) && <PollingSpinner />}
+              <InstanceAutoRestartPopover instance={instance} />
             </div>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="vpc">
@@ -241,6 +261,7 @@ export function InstancePage() {
         <Tab to={pb.instanceNetworking(instanceSelector)}>Networking</Tab>
         <Tab to={pb.instanceMetrics(instanceSelector)}>Metrics</Tab>
         <Tab to={pb.instanceConnect(instanceSelector)}>Connect</Tab>
+        <Tab to={pb.instanceSettings(instanceSelector)}>Settings</Tab>
       </RouteTabs>
       {resizeInstance && (
         <ResizeInstanceModal
@@ -298,7 +319,7 @@ export function ResizeInstanceModal({
     mode: 'onChange',
   })
 
-  const canResize = instanceCan.update(instance)
+  const canResize = instanceCan.resize(instance)
   const willChange =
     form.watch('ncpus') !== instance.ncpus || form.watch('memory') !== instance.memory / GiB
   const isDisabled = !form.formState.isValid || !canResize || !willChange

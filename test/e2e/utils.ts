@@ -133,11 +133,16 @@ export async function expectNoToast(page: Page, expectedText: string | RegExp) {
 }
 
 /**
- * Close toast and wait for it to fade out. For some reason it prevents things
- * from working, but only in tests as far as we can tell.
+ * Close first toast and wait for it to fade out. For some reason it prevents
+ * things from working, but only in tests as far as we can tell.
  */
 export async function closeToast(page: Page) {
-  await page.getByRole('button', { name: 'Dismiss notification' }).click()
+  // first() is a hack aimed at situations where we're testing an error
+  // response, which usually means we have an initial "creating..." toast
+  // followed by an error toast. Sometimes the error toast shows up so fast that
+  // we don't have time to close the first one. Without first(), this errors out
+  // because there are two toasts.
+  await page.getByRole('button', { name: 'Dismiss notification' }).first().click()
   await sleep(1000)
 }
 
@@ -185,7 +190,7 @@ export async function selectOption(
 
 export async function getPageAsUser(
   browser: Browser,
-  user: 'Hans Jonas' | 'Simone de Beauvoir'
+  user: 'Hans Jonas' | 'Simone de Beauvoir' | 'Jacob Klein'
 ): Promise<Page> {
   const browserContext = await browser.newContext()
   await browserContext.addCookies([
