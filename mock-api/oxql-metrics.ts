@@ -23,7 +23,7 @@ for (let i = oneHourAgo.getTime(); i < now.getTime(); i += 60000) {
   timestamps.push(new Date(i).toISOString())
 }
 
-type ValueType = { [key in OxqlMetricName]: number[] }
+type ValueType = Record<OxqlMetricName, number[]>
 
 const mockOxqlValues: ValueType = {
   'instance_network_interface:bytes_received': [
@@ -210,7 +210,7 @@ const mockOxqlValues: ValueType = {
     19999198522.691017, 19999210125.45697, 19999277909.5477, 18486165951.591064,
   ],
 }
-const mockOxqlVcpuStateValues: { [key in OxqlVcpuState]: number[] } = {
+const mockOxqlVcpuStateValues: Record<OxqlVcpuState, number[]> = {
   emulation: [
     3470554833.148136, 3794070909.515587, 7484378129.162313, 7499079902.563132,
     7338835189.397617, 5769255305.989975, 5793666851.660778, 6119828972.189391,
