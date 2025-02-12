@@ -271,7 +271,12 @@ export function OxqlMetric({
   startTime: Date
   endTime: Date
 }) {
-  const { data: metrics } = useApiQuery('systemTimeseriesQuery', { body: { query } })
+  const { data: metrics } = useApiQuery(
+    'systemTimeseriesQuery',
+    { body: { query } },
+    // avoid graphs flashing blank while loading when you change the time
+    { placeholderData: (x) => x }
+  )
   const chartData: ChartDatum[] = useMemo(() => getChartData(metrics), [metrics])
   // console.log(title, query, chartData)
   const unit = getUnit(title)
@@ -331,7 +336,7 @@ export const MetricHeader = ({ children }: { children: React.ReactNode }) => {
   // If header has only one child, align it to the end of the container
   const value = React.Children.toArray(children).length === 1 ? 'end' : 'between'
   return (
-    <div className={`flex flex-col gap-2 @[48rem]:flex-row justify-${value} mt-8`}>
+    <div className={`@[48rem]:flex-row flex flex-col gap-2 justify-${value} mt-8`}>
       {children}
     </div>
   )
@@ -340,5 +345,5 @@ export const MetricCollection = ({ children }: { children: React.ReactNode }) =>
   <div className="mt-4 flex flex-col gap-4">{children}</div>
 )
 export const MetricRow = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex w-full flex-col gap-4 @[48rem]:flex-row">{children}</div>
+  <div className="@[48rem]:flex-row flex w-full flex-col gap-4">{children}</div>
 )
