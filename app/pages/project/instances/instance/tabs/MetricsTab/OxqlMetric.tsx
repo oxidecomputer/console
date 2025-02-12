@@ -336,7 +336,8 @@ export const MetricHeader = ({ children }: { children: React.ReactNode }) => {
   // If header has only one child, align it to the end of the container
   const value = React.Children.toArray(children).length === 1 ? 'end' : 'between'
   return (
-    <div className={`@[48rem]:flex-row flex flex-col gap-2 justify-${value} mt-8`}>
+    // prettier-ignore
+    <div className={`flex flex-col gap-2 justify-${value} mt-8 @[48rem]:flex-row`}>
       {children}
     </div>
   )
@@ -344,6 +345,8 @@ export const MetricHeader = ({ children }: { children: React.ReactNode }) => {
 export const MetricCollection = ({ children }: { children: React.ReactNode }) => (
   <div className="mt-4 flex flex-col gap-4">{children}</div>
 )
-export const MetricRow = ({ children }: { children: React.ReactNode }) => (
-  <div className="@[48rem]:flex-row flex w-full flex-col gap-4">{children}</div>
-)
+export const MetricRow = ({ children }: { children: React.ReactNode }) =>
+  // prettier-ignore
+  <div className="flex w-full flex-col gap-4 @[48rem]:flex-row">
+    {children}
+  </div>
