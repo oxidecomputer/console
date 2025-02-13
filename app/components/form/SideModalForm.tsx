@@ -151,7 +151,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
           isOpen
           onDismiss={() => setShowNavGuard(false)}
           title="Confirm navigation"
-          narrow
+          width="narrow"
           overlay={false}
         >
           <Modal.Section>

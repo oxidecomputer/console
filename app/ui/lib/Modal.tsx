@@ -18,13 +18,21 @@ import { Button } from './Button'
 import { DialogOverlay } from './DialogOverlay'
 import { ModalContext } from './modal-context'
 
+type Width = 'narrow' | 'medium' | 'free'
+
+const widthClass: Record<Width, string> = {
+  narrow: 'w-full max-w-[24rem]',
+  medium: 'w-full max-w-[28rem]',
+  free: 'min-w-[24rem] max-w-[48rem]', // give it a big max just to be safe
+}
+
 export type ModalProps = {
   title: string
   isOpen: boolean
   children?: React.ReactNode
   onDismiss: () => void
-  /** Default false. Only needed in a couple of spots. */
-  narrow?: true
+  /** Default medium. Only needed in a couple of spots. */
+  width?: Width
   /** Default true. We only need to hide it for the rare case of modal on top of modal. */
   overlay?: boolean
 }
@@ -38,7 +46,7 @@ export function Modal({
   onDismiss,
   title,
   isOpen,
-  narrow,
+  width = 'medium',
   overlay = true,
 }: ModalProps) {
   return (
@@ -66,8 +74,8 @@ export function Modal({
               animate={{ x: '-50%', y: '-50%' }}
               transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
               className={cn(
-                'pointer-events-auto fixed left-1/2 top-[min(50%,500px)] z-modal m-0 flex max-h-[min(800px,80vh)] w-full flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2',
-                narrow ? 'max-w-[24rem]' : 'max-w-[28rem]'
+                'pointer-events-auto fixed left-1/2 top-[min(50%,500px)] z-modal m-0 flex max-h-[min(800px,80vh)] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2',
+                widthClass[width]
               )}
             >
               <Dialog.Title className="border-b px-4 py-4 text-sans-semi-lg bg-secondary border-b-secondary">
