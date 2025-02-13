@@ -60,9 +60,8 @@ export function Component() {
       metricName,
       startTime,
       endTime,
-      instanceId: instanceData.id,
-      state,
-      group: true,
+      eqFilters: { instance_id: instanceData.id, state },
+      groupBy: { cols: ['instance_id'], op: 'sum' },
     })
 
   return (

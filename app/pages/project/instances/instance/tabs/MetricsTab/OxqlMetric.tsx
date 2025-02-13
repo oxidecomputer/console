@@ -12,7 +12,6 @@
  */
 
 import React, { Suspense, useMemo } from 'react'
-import * as R from 'remeda'
 
 import { useApiQuery, type ChartDatum, type OxqlQueryResult } from '@oxide/api'
 
@@ -82,33 +81,33 @@ export const getMeanWindow = (start: Date, end: Date, datapoints = 60) => {
   return `${Math.round(durationSeconds / datapoints)}s`
 }
 
+type FilterKey =
+  | 'instance_id'
+  // for cpu metrics
+  | 'vcpu_id'
+  | 'state'
+  // for disk metrics
+  | 'disk_id'
+  | 'attached_instance_id'
+  // for network metrics
+  | 'interface_id'
+
+type GroupByCol = 'instance_id' | 'attached_instance_id'
+
 type GetOxqlQueryParams = {
   metricName: OxqlMetricName
   startTime: Date
   endTime: Date
-  instanceId?: string
-  // for cpu metrics
-  vcpuId?: string
-  // for disk metrics
-  diskId?: string
-  attachedInstanceId?: string
-  // for network metrics
-  interfaceId?: string
-  state?: OxqlVcpuState
-  group?: boolean
+  groupBy?: { cols: GroupByCol[]; op: 'sum' }
+  eqFilters?: Partial<Record<FilterKey, string>>
 }
 
 export const getOxqlQuery = ({
   metricName,
   startTime,
   endTime,
-  instanceId,
-  diskId,
-  attachedInstanceId,
-  interfaceId,
-  vcpuId,
-  state,
-  group,
+  groupBy,
+  eqFilters = {},
 }: GetOxqlQueryParams) => {
   const meanWindow = getMeanWindow(startTime, endTime)
   // we adjust the start time back by 2x the mean window so that we can
@@ -116,27 +115,15 @@ export const getOxqlQuery = ({
   // 2) ensure that the first datapoint we display on the chart matches the actual start time
   const secondsToAdjust = parseInt(meanWindow, 10) * 2
   const adjustedStart = new Date(startTime.getTime() - secondsToAdjust * 1000)
-  const start = oxqlTimestamp(adjustedStart)
-  const end = oxqlTimestamp(endTime)
   const filters = [
-    `timestamp >= @${start}`,
-    `timestamp < @${end}`,
-    diskId && `disk_id == "${diskId}"`,
-    vcpuId && `vcpu_id == ${vcpuId}`,
-    instanceId && `instance_id == "${instanceId}"`,
-    interfaceId && `interface_id == "${interfaceId}"`,
-    attachedInstanceId && `attached_instance_id == "${attachedInstanceId}"`,
-    state && `state == "${state}"`,
-  ].filter(R.isTruthy) // Removes falsy values
+    `timestamp >= @${oxqlTimestamp(adjustedStart)}`,
+    `timestamp < @${oxqlTimestamp(endTime)}`,
+    ...Object.entries(eqFilters).map(([k, v]) => `${k} == "${v}"`),
+  ]
 
-  let groupByString = ''
-  if (group) {
-    if (attachedInstanceId) {
-      groupByString = '| group_by [attached_instance_id], sum'
-    } else if (instanceId) {
-      groupByString = '| group_by [instance_id], sum'
-    }
-  }
+  const groupByString = groupBy
+    ? ` | group_by [${groupBy.cols.join(', ')}], ${groupBy.op}`
+    : ''
 
   const query = `get ${metricName} | filter ${filters.join(' && ')} | align mean_within(${meanWindow})${groupByString}`
   // console.log(query)

@@ -71,9 +71,11 @@ export function Component() {
       metricName,
       startTime,
       endTime,
-      instanceId: instanceData.id,
-      interfaceId: nic.id === 'all' ? undefined : nic.id,
-      group: nic.id === 'all',
+      eqFilters: {
+        instance_id: instanceData.id,
+        interface_id: nic.id === 'all' ? undefined : nic.id,
+      },
+      groupBy: nic.id === 'all' ? { cols: ['instance_id'], op: 'sum' } : undefined,
     })
 
   return (

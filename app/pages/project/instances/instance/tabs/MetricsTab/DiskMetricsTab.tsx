@@ -99,9 +99,12 @@ export function Component() {
       metricName,
       startTime,
       endTime,
-      attachedInstanceId: instanceId,
-      diskId: disk.id === 'all' ? undefined : disk.id,
-      group: disk.id === 'all',
+      eqFilters: {
+        attached_instance_id: instanceId,
+        disk_id: disk.id === 'all' ? undefined : disk.id,
+      },
+      groupBy:
+        disk.id === 'all' ? { cols: ['attached_instance_id'], op: 'sum' } : undefined,
     })
 
   return (

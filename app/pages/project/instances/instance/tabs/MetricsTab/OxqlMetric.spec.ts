@@ -72,7 +72,9 @@ describe('getOxqlQuery', () => {
       metricName: 'virtual_machine:vcpu_usage',
       startTime,
       endTime,
-      instanceId: 'vm-123',
+      eqFilters: {
+        instance_id: 'vm-123',
+      },
     })
     expect(query).toBe(
       'get virtual_machine:vcpu_usage | filter timestamp >= @2023-12-31T23:58:00.000 && timestamp < @2024-01-01T01:00:00.000 && instance_id == "vm-123" | align mean_within(60s)'
@@ -84,7 +86,9 @@ describe('getOxqlQuery', () => {
       metricName: 'instance_network_interface:bytes_sent',
       startTime,
       endTime,
-      interfaceId: 'eth0',
+      eqFilters: {
+        interface_id: 'eth0',
+      },
     })
     expect(query).toBe(
       'get instance_network_interface:bytes_sent | filter timestamp >= @2023-12-31T23:58:00.000 && timestamp < @2024-01-01T01:00:00.000 && interface_id == "eth0" | align mean_within(60s)'
@@ -96,7 +100,9 @@ describe('getOxqlQuery', () => {
       metricName: 'virtual_machine:vcpu_usage',
       startTime,
       endTime,
-      state: 'run',
+      eqFilters: {
+        state: 'run',
+      },
     })
     expect(query).toBe(
       'get virtual_machine:vcpu_usage | filter timestamp >= @2023-12-31T23:58:00.000 && timestamp < @2024-01-01T01:00:00.000 && state == "run" | align mean_within(60s)'
@@ -108,8 +114,10 @@ describe('getOxqlQuery', () => {
       metricName: 'virtual_disk:bytes_written',
       startTime,
       endTime,
-      group: true,
-      instanceId: 'vm-123',
+      eqFilters: {
+        instance_id: 'vm-123',
+      },
+      groupBy: { cols: ['instance_id'], op: 'sum' },
     })
     expect(query).toBe(
       'get virtual_disk:bytes_written | filter timestamp >= @2023-12-31T23:58:00.000 && timestamp < @2024-01-01T01:00:00.000 && instance_id == "vm-123" | align mean_within(60s) | group_by [instance_id], sum'
@@ -121,8 +129,10 @@ describe('getOxqlQuery', () => {
       metricName: 'virtual_disk:io_latency',
       startTime,
       endTime,
-      group: true,
-      attachedInstanceId: 'attached-1',
+      eqFilters: {
+        attached_instance_id: 'attached-1',
+      },
+      groupBy: { cols: ['attached_instance_id'], op: 'sum' },
     })
     expect(query).toBe(
       'get virtual_disk:io_latency | filter timestamp >= @2023-12-31T23:58:00.000 && timestamp < @2024-01-01T01:00:00.000 && attached_instance_id == "attached-1" | align mean_within(60s) | group_by [attached_instance_id], sum'
@@ -145,7 +155,9 @@ describe('getOxqlQuery', () => {
       metricName: 'instance_network_interface:bytes_received',
       startTime,
       endTime,
-      interfaceId: 'eth0',
+      eqFilters: {
+        interface_id: 'eth0',
+      },
     })
     expect(query).toBe(
       'get instance_network_interface:bytes_received | filter timestamp >= @2023-12-31T23:58:00.000 && timestamp < @2024-01-01T01:00:00.000 && interface_id == "eth0" | align mean_within(60s)'
