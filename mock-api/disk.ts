@@ -43,7 +43,8 @@ export const disks: Json<Disk>[] = [
     name: 'disk-3',
     description: "it's a third disk",
     project_id: project.id,
-    time_created: new Date().toISOString(),
+    // random hard-coded date with many digits to exercise date parsing
+    time_created: '2025-02-13T01:02:03.134789034233Z',
     time_modified: new Date().toISOString(),
     state: { state: 'detached' },
     device_path: '/ghi',
