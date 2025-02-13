@@ -12,10 +12,12 @@
  */
 
 import React, { Suspense, useMemo } from 'react'
+import * as R from 'remeda'
 
 import { useApiQuery, type ChartDatum, type OxqlQueryResult } from '@oxide/api'
 
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
+import { classed } from '~/util/classed'
 import { getDurationMinutes } from '~/util/date'
 
 // An OxQL Query Result can have multiple tables, but in the web console we only ever call
@@ -80,7 +82,7 @@ export const getMeanWindow = (start: Date, end: Date, datapoints = 60) => {
   return `${Math.round(durationSeconds / datapoints)}s`
 }
 
-type getOxqlQueryParams = {
+type GetOxqlQueryParams = {
   metricName: OxqlMetricName
   startTime: Date
   endTime: Date
@@ -107,7 +109,7 @@ export const getOxqlQuery = ({
   vcpuId,
   state,
   group,
-}: getOxqlQueryParams) => {
+}: GetOxqlQueryParams) => {
   const meanWindow = getMeanWindow(startTime, endTime)
   // we adjust the start time back by 2x the mean window so that we can
   // 1) drop the first datapoint (the cumulative sum of all previous datapoints)
@@ -125,14 +127,17 @@ export const getOxqlQuery = ({
     interfaceId && `interface_id == "${interfaceId}"`,
     attachedInstanceId && `attached_instance_id == "${attachedInstanceId}"`,
     state && `state == "${state}"`,
-  ].filter(Boolean) // Removes falsy values
+  ].filter(R.isTruthy) // Removes falsy values
 
-  const groupByString =
-    group && attachedInstanceId
-      ? ' | group_by [attached_instance_id], sum'
-      : group && instanceId
-        ? ' | group_by [instance_id], sum'
-        : ''
+  let groupByString = ''
+  if (group) {
+    if (attachedInstanceId) {
+      groupByString = '| group_by [attached_instance_id], sum'
+    } else if (instanceId) {
+      groupByString = '| group_by [instance_id], sum'
+    }
+  }
+
   const query = `get ${metricName} | filter ${filters.join(' && ')} | align mean_within(${meanWindow})${groupByString}`
   // console.log(query)
   return query
@@ -156,6 +161,7 @@ export const getOrderOfMagnitude = (largestValue: number, base: number) =>
 // These need better names
 // What each function will receive
 type OxqlMetricChartComponentsProps = { chartData: ChartDatum[] }
+
 // What each function will return
 type OxqlMetricChartProps = {
   data: ChartDatum[]
@@ -238,26 +244,6 @@ export const getPercentChartProps = ({
   return { data, label: '(%)', unitForSet: '%', yAxisTickFormatter: (n: number) => `${n}%` }
 }
 
-export const getOxqlMetricChartComponents = ({
-  unit,
-  chartData,
-  startTime,
-  endTime,
-}: {
-  unit: ChartUnitType
-  chartData: ChartDatum[]
-  startTime: Date
-  endTime: Date
-}) => {
-  if (unit === 'Bytes') {
-    return getBytesChartProps({ chartData })
-  }
-  if (unit === 'Count') {
-    return getCountChartProps({ chartData })
-  }
-  return getPercentChartProps({ chartData, startTime, endTime })
-}
-
 export function OxqlMetric({
   title,
   description,
@@ -280,16 +266,15 @@ export function OxqlMetric({
   const chartData: ChartDatum[] = useMemo(() => getChartData(metrics), [metrics])
   // console.log(title, query, chartData)
   const unit = getUnit(title)
-  const { data, label, unitForSet, yAxisTickFormatter } = useMemo(
-    () =>
-      getOxqlMetricChartComponents({
-        unit,
-        chartData,
-        startTime,
-        endTime,
-      }),
-    [unit, chartData, startTime, endTime]
-  )
+  const { data, label, unitForSet, yAxisTickFormatter } = useMemo(() => {
+    if (unit === 'Bytes') {
+      return getBytesChartProps({ chartData })
+    }
+    if (unit === 'Count') {
+      return getCountChartProps({ chartData })
+    }
+    return getPercentChartProps({ chartData, startTime, endTime })
+  }, [unit, chartData, startTime, endTime])
 
   const actions = [
     {
@@ -335,19 +320,13 @@ export function OxqlMetric({
 
 export const MetricHeader = ({ children }: { children: React.ReactNode }) => {
   // If header has only one child, align it to the end of the container
-  const value = React.Children.toArray(children).length === 1 ? 'end' : 'between'
+  const justify = React.Children.count(children) === 1 ? 'justify-end' : 'justify-between'
   return (
-    // prettier-ignore
-    <div className={`flex flex-col gap-2 justify-${value} mt-8 @[48rem]:flex-row`}>
+    <div className={`flex flex-col gap-2 ${justify} mt-8 @[48rem]:flex-row`}>
       {children}
     </div>
   )
 }
-export const MetricCollection = ({ children }: { children: React.ReactNode }) => (
-  <div className="mt-4 flex flex-col gap-4">{children}</div>
-)
-export const MetricRow = ({ children }: { children: React.ReactNode }) =>
-  // prettier-ignore
-  <div className="flex w-full flex-col gap-4 @[48rem]:flex-row">
-    {children}
-  </div>
+export const MetricCollection = classed.div`mt-4 flex flex-col gap-4`
+
+export const MetricRow = classed.div`flex w-full flex-col gap-4 @[48rem]:flex-row`
