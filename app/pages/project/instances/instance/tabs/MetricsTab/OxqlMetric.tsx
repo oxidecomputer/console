@@ -95,7 +95,7 @@ type FilterKey =
 type GroupByCol = 'instance_id' | 'attached_instance_id'
 
 type GroupBy = {
-  cols: GroupByCol[]
+  cols: NonEmptyArray<GroupByCol>
   op: 'sum'
 }
 
