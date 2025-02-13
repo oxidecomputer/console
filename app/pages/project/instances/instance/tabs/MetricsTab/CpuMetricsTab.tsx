@@ -26,6 +26,7 @@ import {
   MetricHeader,
   MetricRow,
   OxqlMetric,
+  type OxqlQuery,
   type OxqlVcpuState,
   type OxqlVmMetricName,
 } from './OxqlMetric'
@@ -55,14 +56,13 @@ export function Component() {
 
   const { startTime, endTime, dateTimeRangePicker, intervalPicker } = useMetricsContext()
 
-  const getQuery = (metricName: OxqlVmMetricName, state?: OxqlVcpuState) =>
-    getOxqlQuery({
-      metricName,
-      startTime,
-      endTime,
-      eqFilters: { instance_id: instanceData.id, state },
-      groupBy: { cols: ['instance_id'], op: 'sum' },
-    })
+  const getQuery = (metricName: OxqlVmMetricName, state?: OxqlVcpuState): OxqlQuery => ({
+    metricName,
+    startTime,
+    endTime,
+    eqFilters: { instance_id: instanceData.id, state },
+    groupBy: { cols: ['instance_id'], op: 'sum' },
+  })
 
   return (
     <>
@@ -74,7 +74,8 @@ export function Component() {
           <OxqlMetric
             title="CPU Utilization"
             description="Cumulative time all vCPUs have spent in a state"
-            query={getQuery('virtual_machine:vcpu_usage')}
+            query={getOxqlQuery(getQuery('virtual_machine:vcpu_usage'))}
+            q={getQuery('virtual_machine:vcpu_usage')}
             startTime={startTime}
             endTime={endTime}
           />
@@ -82,13 +83,13 @@ export function Component() {
         <MetricRow>
           <OxqlMetric
             title="CPU Utilization: Running"
-            query={getQuery('virtual_machine:vcpu_usage', 'run')}
+            query={getOxqlQuery(getQuery('virtual_machine:vcpu_usage', 'run'))}
             startTime={startTime}
             endTime={endTime}
           />
           <OxqlMetric
             title="CPU Utilization: Idling"
-            query={getQuery('virtual_machine:vcpu_usage', 'idle')}
+            query={getOxqlQuery(getQuery('virtual_machine:vcpu_usage', 'idle'))}
             startTime={startTime}
             endTime={endTime}
           />
@@ -97,13 +98,13 @@ export function Component() {
         <MetricRow>
           <OxqlMetric
             title="CPU Utilization: Waiting"
-            query={getQuery('virtual_machine:vcpu_usage', 'waiting')}
+            query={getOxqlQuery(getQuery('virtual_machine:vcpu_usage', 'waiting'))}
             startTime={startTime}
             endTime={endTime}
           />
           <OxqlMetric
             title="CPU Utilization: Emulation"
-            query={getQuery('virtual_machine:vcpu_usage', 'emulation')}
+            query={getOxqlQuery(getQuery('virtual_machine:vcpu_usage', 'emulation'))}
             startTime={startTime}
             endTime={endTime}
           />

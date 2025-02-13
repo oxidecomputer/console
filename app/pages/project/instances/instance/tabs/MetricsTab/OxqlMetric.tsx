@@ -16,6 +16,7 @@ import React, { Suspense, useMemo } from 'react'
 import { useApiQuery, type ChartDatum, type OxqlQueryResult } from '@oxide/api'
 
 import { CopyCode } from '~/components/CopyCode'
+import { intersperse } from '~/util/array'
 import { classed } from '~/util/classed'
 import { getDurationMinutes } from '~/util/date'
 
@@ -37,6 +38,9 @@ export const getChartData = (data: OxqlQueryResult | undefined): ChartDatum[] =>
 }
 
 const TimeSeriesChart = React.lazy(() => import('~/components/TimeSeriesChart'))
+
+// TODO: we could probably do without the fractional seconds. it would make the
+// rendered OxQL look a little nicer
 
 /** convert to UTC and return the timezone-free format required by OxQL */
 export const oxqlTimestamp = (date: Date) => date.toISOString().replace('Z', '')
@@ -99,7 +103,7 @@ type GroupBy = {
   op: 'sum'
 }
 
-type OxqlQuery = {
+export type OxqlQuery = {
   metricName: OxqlMetricName
   startTime: Date
   endTime: Date
@@ -130,13 +134,69 @@ export const getOxqlQuery = ({
       .map(([k, v]) => `${k} == "${v}"`),
   ]
 
-  const groupByString = groupBy
-    ? ` | group_by [${groupBy.cols.join(', ')}], ${groupBy.op}`
-    : ''
+  const query = [
+    `get ${metricName}`,
+    `filter ${filters.join(' && ')}`,
+    `align mean_within(${meanWindow})`,
+  ]
 
-  const query = `get ${metricName} | filter ${filters.join(' && ')} | align mean_within(${meanWindow})${groupByString}`
-  // console.log(query)
-  return query
+  if (groupBy) query.push(`group_by [${groupBy.cols.join(', ')}], ${groupBy.op}`)
+
+  return query.join(' | ')
+}
+
+const Keyword = classed.span`text-[#C6A5EA]` // purple
+// light green
+/** Includes <br>, two space indent, and pipe. no trailing space */
+const NewlinePipe = () => (
+  <>
+    <br />
+    {'  '}
+    <span className="text-[#A7E0C8]">|</span>
+  </>
+)
+const StringLit = classed.span`text-[#68D9A7]` // green
+const NumLit = classed.span`text-[#EDD5A6]` // light yellow
+
+const FilterSep = () => (
+  <>
+    <br />
+    {'      && '}
+  </>
+)
+
+export function HighlightedOxqlQuery({
+  metricName,
+  startTime,
+  endTime,
+  groupBy,
+  eqFilters = {},
+}: OxqlQuery) {
+  const meanWindow = getMeanWindow(startTime, endTime)
+  const secondsToAdjust = parseInt(meanWindow, 10) * 2
+  const adjustedStart = new Date(startTime.getTime() - secondsToAdjust * 1000)
+  // prettier-ignore
+  const filters = [
+    <>timestamp &gt;= <NumLit>@{oxqlTimestamp(adjustedStart)}</NumLit></>,
+    <>timestamp &lt; <NumLit>@{oxqlTimestamp(endTime)}</NumLit></>,
+    ...Object.entries(eqFilters)
+      .filter(([_, v]) => !!v)
+      .map(([k, v]) => <>{k} == <StringLit>"{v}"</StringLit></>),
+  ]
+
+  return (
+    <>
+      <Keyword>get</Keyword> {metricName}
+      <NewlinePipe /> <Keyword>filter</Keyword> {intersperse(filters, <FilterSep />)}
+      <NewlinePipe /> <Keyword>align</Keyword> mean_within(<NumLit>{meanWindow}</NumLit>)
+      {groupBy && (
+        <>
+          <NewlinePipe /> <Keyword>group_by</Keyword> [{groupBy.cols.join(', ')}],{' '}
+          {groupBy.op}
+        </>
+      )}
+    </>
+  )
 }
 
 export type ChartUnitType = 'Bytes' | '%' | 'Count'
@@ -246,12 +306,14 @@ export function OxqlMetric({
   query,
   startTime,
   endTime,
+  q,
 }: {
   title: string
   description?: string
   query: string
   startTime: Date
   endTime: Date
+  q?: OxqlQuery
 }) {
   const { data: metrics } = useApiQuery(
     'systemTimeseriesQuery',
@@ -288,7 +350,11 @@ export function OxqlMetric({
           copyButtonText="Copy query"
           modalTitle="OxQL query"
         >
-          {query.split(' | ').join('\n  | ').split(' && ').join('\n      && ')}
+          {q ? (
+            <HighlightedOxqlQuery {...q} />
+          ) : (
+            query.split(' | ').join('\n  | ').split(' && ').join('\n      && ')
+          )}
         </CopyCode>
       </div>
       <div className="px-6 py-5">

@@ -51,7 +51,7 @@ export function CopyCode({
       </Button>
       <Modal isOpen={isOpen} onDismiss={handleDismiss} title={modalTitle} width="free">
         <Modal.Section>
-          <pre className="flex w-full rounded border px-4 py-3 !normal-case !tracking-normal text-mono-md bg-default border-secondary">
+          <pre className="w-full rounded border px-4 py-3 !normal-case !tracking-normal text-mono-md bg-default border-secondary">
             {children}
           </pre>
         </Modal.Section>
@@ -93,7 +93,7 @@ export function EquivalentCliCommand({ project, instance }: EquivProps) {
       copyButtonText="Copy command"
       modalTitle="CLI command"
     >
-      <div className="mr-2 select-none text-tertiary">$</div>
+      <span className="mr-2 select-none text-tertiary">$</span>
       {cmdParts.join(' \\\n')}
     </CopyCode>
   )
