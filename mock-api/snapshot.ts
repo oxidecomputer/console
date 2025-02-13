@@ -104,7 +104,7 @@ export const snapshots: Json<Snapshot>[] = [
 function generateSnapshot(index: number): Json<Snapshot> {
   return {
     id: uuid(),
-    name: `disk-1-snapshot-${index + 7}`,
+    name: `disk-1-snapshot-${index + 8}`,
     description: '',
     project_id: project.id,
     time_created: new Date().toISOString(),

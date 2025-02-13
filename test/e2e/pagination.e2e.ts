@@ -52,7 +52,7 @@ test('pagination', async ({ page }) => {
   await nextButton.click()
   await expectCell(page, 'disk-1-snapshot-76')
   await expectCell(page, 'disk-1-snapshot-86')
-  await expect(rows).toHaveCount(11)
+  await expect(rows).toHaveCount(12)
   await expect(nextButton).toBeDisabled() // no more pages
 
   await scrollTo(page, 250)
