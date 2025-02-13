@@ -282,8 +282,14 @@ export function OxqlMetric({
           </h2>
           <div className="mt-0.5 text-sans-md text-secondary">{description}</div>
         </div>
-        {/* TODO: show formatted string to user so they can see it before copying */}
-        <OxqlModal query={query} />
+        <CopyCode
+          code={query}
+          modalButtonText="OxQL"
+          copyButtonText="Copy query"
+          modalTitle="OxQL query"
+        >
+          {query.split(' | ').join('\n  | ').split(' && ').join('\n      && ')}
+        </CopyCode>
       </div>
       <div className="px-6 py-5">
         <Suspense fallback={<div className="h-[300px]" />}>
@@ -317,16 +323,3 @@ export const MetricHeader = ({ children }: { children: React.ReactNode }) => {
 export const MetricCollection = classed.div`mt-4 flex flex-col gap-4`
 
 export const MetricRow = classed.div`flex w-full flex-col gap-4 @[48rem]:flex-row`
-
-export function OxqlModal({ query }: { query: string }) {
-  return (
-    <CopyCode
-      code={query}
-      modalButtonText="OxQL"
-      copyButtonText="Copy query"
-      modalTitle="OxQL query"
-    >
-      {query.split(' | ').join('\n  | ').split(' && ').join('\n      && ')}
-    </CopyCode>
-  )
-}
