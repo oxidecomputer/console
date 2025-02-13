@@ -96,16 +96,11 @@ export function displayBigNum(
 }
 
 /**
- * Gets the closest multiple of 10 larger than the passed-in number
- */
-export function nearest10(num: number): number {
-  return Math.ceil(num / 10) * 10
-}
-
-/**
  * Calculate disk size based on image or snapshot size. We round up to the
  * nearest 10, but also cap it at the max disk size so that, for example, a 1023
  * GiB image doesn't produce a 1030 GiB disk, which is not valid.
  */
-export const roundUpDiskSize = (imageSizeGiB: number) =>
-  Math.min(nearest10(imageSizeGiB), MAX_DISK_SIZE_GiB)
+export function diskSizeNearest10(imageSizeGiB: number) {
+  const nearest10 = Math.ceil(imageSizeGiB / 10) * 10
+  return Math.min(nearest10, MAX_DISK_SIZE_GiB)
+}
