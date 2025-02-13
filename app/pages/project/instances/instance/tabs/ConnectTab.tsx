@@ -9,12 +9,11 @@
 import { Link, type LoaderFunctionArgs } from 'react-router'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '~/api'
-import { EquivalentCliCommand } from '~/components/EquivalentCliCommand'
+import { EquivalentCliCommand } from '~/components/CopyCode'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { buttonStyle } from '~/ui/lib/Button'
 import { InlineCode } from '~/ui/lib/InlineCode'
 import { LearnMore, SettingsGroup } from '~/ui/lib/SettingsGroup'
-import { cliCmd } from '~/util/cli-cmd'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -51,7 +50,7 @@ export function Component() {
             <LearnMore text="Serial Console" href={links.serialConsoleDocs} />
           </div>
           <div className="flex gap-3">
-            <EquivalentCliCommand command={cliCmd.serialConsole({ project, instance })} />
+            <EquivalentCliCommand project={project} instance={instance} />
             <Link
               to={pb.serialConsole({ project, instance })}
               className={buttonStyle({ size: 'sm' })}

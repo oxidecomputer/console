@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, expectNotVisible, expectRowVisible, expectVisible, test } from './utils'
+import { expect, expectRowVisible, expectVisible, test } from './utils'
 
 test('Click through snapshots', async ({ page }) => {
   await page.goto('/projects/mock-project')
@@ -28,7 +28,7 @@ test('Click through snapshots', async ({ page }) => {
 test('Confirm delete snapshot', async ({ page }) => {
   await page.goto('/projects/mock-project/snapshots')
 
-  const row = page.getByRole('row', { name: 'disk-1-snapshot-7' })
+  const row = page.getByRole('row', { name: 'disk-1-snapshot-10' })
 
   // scroll a little so the dropdown menu isn't behind the pagination bar
   await page.getByRole('table').click() // focus the content pane
@@ -53,7 +53,8 @@ test('Confirm delete snapshot', async ({ page }) => {
   await page.getByRole('button', { name: 'Confirm' }).click()
 
   // modal closes, row is gone
-  await expectNotVisible(page, [modal, row])
+  await expect(modal).toBeHidden()
+  await expect(row).toBeHidden()
 })
 
 test('Error on delete snapshot', async ({ page }) => {

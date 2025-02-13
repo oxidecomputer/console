@@ -11,7 +11,6 @@ import {
   expectNoToast,
   expectRowVisible,
   expectToast,
-  expectVisible,
   test,
 } from './utils'
 
@@ -60,14 +59,16 @@ test('Disk snapshot error', async ({ page }) => {
 test.describe('Disk create', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/projects/mock-project/disks-new')
+    await expect(page.getByRole('dialog', { name: 'Create disk' })).toBeVisible()
     await page.getByRole('textbox', { name: 'Name' }).fill('a-new-disk')
   })
 
   test.afterEach(async ({ page }) => {
     await page.getByRole('button', { name: 'Create disk' }).click()
 
+    await expect(page.getByRole('dialog', { name: 'Create disk' })).toBeHidden()
     await expectToast(page, 'Disk a-new-disk created')
-    await expectVisible(page, ['role=cell[name="a-new-disk"]'])
+    await expect(page.getByRole('cell', { name: 'a-new-disk' })).toBeVisible()
   })
 
   // expects are in the afterEach
@@ -81,6 +82,13 @@ test.describe('Disk create', () => {
     await page.getByRole('radio', { name: 'Snapshot' }).click()
     await page.getByRole('button', { name: 'Source snapshot' }).click()
     await page.getByRole('option', { name: 'delete-500' }).click()
+  })
+
+  // max-size snapshot required a fix
+  test('from max-size snapshot', async ({ page }) => {
+    await page.getByRole('radio', { name: 'Snapshot' }).click()
+    await page.getByRole('button', { name: 'Source snapshot' }).click()
+    await page.getByRole('option', { name: 'snapshot-max' }).click()
   })
 
   test('from image', async ({ page }) => {

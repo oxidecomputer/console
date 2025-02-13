@@ -78,7 +78,7 @@ import { TipIcon } from '~/ui/lib/TipIcon'
 import { ALL_ISH } from '~/util/consts'
 import { readBlobAsBase64 } from '~/util/file'
 import { docLinks, links } from '~/util/links'
-import { nearest10 } from '~/util/math'
+import { diskSizeNearest10 } from '~/util/math'
 import { pb } from '~/util/path-builder'
 import { GiB } from '~/util/units'
 
@@ -225,7 +225,7 @@ export function CreateInstanceForm() {
     ...baseDefaultValues,
     bootDiskSourceType: defaultSource,
     sshPublicKeys: allKeys,
-    bootDiskSize: nearest10(defaultImage?.size / GiB),
+    bootDiskSize: diskSizeNearest10(defaultImage?.size / GiB),
     externalIps: [{ type: 'ephemeral', pool: defaultPool }],
   }
 
@@ -474,7 +474,7 @@ export function CreateInstanceForm() {
           onValueChange={(val) => {
             setValue('bootDiskSourceType', val as BootDiskSourceType)
             if (imageSizeGiB && imageSizeGiB > bootDiskSize) {
-              setValue('bootDiskSize', nearest10(imageSizeGiB))
+              setValue('bootDiskSize', diskSizeNearest10(imageSizeGiB))
             }
           }}
         >
