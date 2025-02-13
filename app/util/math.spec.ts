@@ -7,7 +7,7 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import { displayBigNum, nearest10, percentage, round, splitDecimal } from './math'
+import { diskSizeNearest10, displayBigNum, percentage, round, splitDecimal } from './math'
 import { GiB } from './units'
 
 function roundTest() {
@@ -207,6 +207,9 @@ it.each([
   [109, 110],
   [110, 110],
   [111, 120],
-])('nearest10 %d → %d', (input, output) => {
-  expect(nearest10(input)).toEqual(output)
+  // clamped at max disk size
+  [1021, 1023],
+  [1023, 1023],
+])('diskSizeNearest10 %d → %d', (input, output) => {
+  expect(diskSizeNearest10(input)).toEqual(output)
 })
