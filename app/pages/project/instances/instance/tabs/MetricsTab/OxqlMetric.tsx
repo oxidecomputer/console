@@ -15,7 +15,7 @@ import React, { Suspense, useMemo } from 'react'
 
 import { useApiQuery, type ChartDatum, type OxqlQueryResult } from '@oxide/api'
 
-import { MoreActionsMenu } from '~/components/MoreActionsMenu'
+import { CopyCode } from '~/components/CopyCode'
 import { classed } from '~/util/classed'
 import { getDurationMinutes } from '~/util/date'
 
@@ -94,11 +94,16 @@ type FilterKey =
 
 type GroupByCol = 'instance_id' | 'attached_instance_id'
 
-type GetOxqlQueryParams = {
+type GroupBy = {
+  cols: GroupByCol[]
+  op: 'sum'
+}
+
+type OxqlQuery = {
   metricName: OxqlMetricName
   startTime: Date
   endTime: Date
-  groupBy?: { cols: GroupByCol[]; op: 'sum' }
+  groupBy?: GroupBy
   eqFilters?: Partial<Record<FilterKey, string>>
 }
 
@@ -108,7 +113,7 @@ export const getOxqlQuery = ({
   endTime,
   groupBy,
   eqFilters = {},
-}: GetOxqlQueryParams) => {
+}: OxqlQuery) => {
   const meanWindow = getMeanWindow(startTime, endTime)
   // we adjust the start time back by 2x the mean window so that we can
   // 1) drop the first datapoint (the cumulative sum of all previous datapoints)
@@ -118,7 +123,11 @@ export const getOxqlQuery = ({
   const filters = [
     `timestamp >= @${oxqlTimestamp(adjustedStart)}`,
     `timestamp < @${oxqlTimestamp(endTime)}`,
-    ...Object.entries(eqFilters).map(([k, v]) => `${k} == "${v}"`),
+    ...Object.entries(eqFilters)
+      // filter out key present but with falsy value. note that this will also
+      // filter out empty string, meaning we can't filter by value = ""
+      .filter(([_, v]) => !!v)
+      .map(([k, v]) => `${k} == "${v}"`),
   ]
 
   const groupByString = groupBy
@@ -263,18 +272,9 @@ export function OxqlMetric({
     return getPercentChartProps({ chartData, startTime, endTime })
   }, [unit, chartData, startTime, endTime])
 
-  const actions = [
-    {
-      label: 'Copy query',
-      onActivate() {
-        window.navigator.clipboard.writeText(query)
-      },
-    },
-  ]
-
   return (
     <div className="flex w-full grow flex-col rounded-lg border border-default">
-      <div className="flex items-baseline justify-between border-b px-6 py-5 border-secondary">
+      <div className="flex items-center justify-between border-b px-6 py-5 border-secondary">
         <div>
           <h2 className="flex items-baseline gap-1.5">
             <div className="text-sans-semi-lg">{title}</div>
@@ -283,7 +283,7 @@ export function OxqlMetric({
           <div className="mt-0.5 text-sans-md text-secondary">{description}</div>
         </div>
         {/* TODO: show formatted string to user so they can see it before copying */}
-        <MoreActionsMenu label="Query actions" actions={actions} isSmall />
+        <OxqlModal query={query} />
       </div>
       <div className="px-6 py-5">
         <Suspense fallback={<div className="h-[300px]" />}>
@@ -317,3 +317,16 @@ export const MetricHeader = ({ children }: { children: React.ReactNode }) => {
 export const MetricCollection = classed.div`mt-4 flex flex-col gap-4`
 
 export const MetricRow = classed.div`flex w-full flex-col gap-4 @[48rem]:flex-row`
+
+export function OxqlModal({ query }: { query: string }) {
+  return (
+    <CopyCode
+      code={query}
+      modalButtonText="OxQL"
+      copyButtonText="Copy query"
+      modalTitle="OxQL query"
+    >
+      {query.split(' | ').join('\n  | ').split(' && ').join('\n      && ')}
+    </CopyCode>
+  )
+}

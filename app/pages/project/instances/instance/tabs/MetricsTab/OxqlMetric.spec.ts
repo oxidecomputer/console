@@ -163,6 +163,20 @@ describe('getOxqlQuery', () => {
       'get instance_network_interface:bytes_received | filter timestamp >= @2023-12-31T23:58:00.000 && timestamp < @2024-01-01T01:00:00.000 && interface_id == "eth0" | align mean_within(60s)'
     )
   })
+
+  it('leaves out filters that are present but with falsy values', () => {
+    const query = getOxqlQuery({
+      metricName: 'virtual_machine:vcpu_usage',
+      startTime,
+      endTime,
+      eqFilters: {
+        state: undefined,
+      },
+    })
+    expect(query).toBe(
+      'get virtual_machine:vcpu_usage | filter timestamp >= @2023-12-31T23:58:00.000 && timestamp < @2024-01-01T01:00:00.000 | align mean_within(60s)'
+    )
+  })
 })
 
 test('getOrderOfMagnitude', () => {
