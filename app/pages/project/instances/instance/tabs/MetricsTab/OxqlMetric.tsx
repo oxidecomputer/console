@@ -16,9 +16,11 @@ import React, { Fragment, Suspense, useMemo } from 'react'
 import { useApiQuery, type ChartDatum, type OxqlQueryResult } from '@oxide/api'
 
 import { CopyCode } from '~/components/CopyCode'
+import { LearnMore } from '~/ui/lib/SettingsGroup'
 import { intersperse } from '~/util/array'
 import { classed } from '~/util/classed'
 import { getDurationMinutes } from '~/util/date'
+import { links } from '~/util/links'
 
 // An OxQL Query Result can have multiple tables, but in the web console we only ever call
 // aligned timeseries queries, which always have exactly one table.
@@ -323,6 +325,7 @@ export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps)
           modalButtonText="OxQL"
           copyButtonText="Copy query"
           modalTitle="OxQL query"
+          footer={<LearnMore href={links.oxqlDocs} text="OxQL" />}
         >
           <HighlightedOxqlQuery {...queryObj} />
         </CopyCode>

@@ -11,15 +11,14 @@ import { Success12Icon } from '@oxide/design-system/icons/react'
 
 import { Button } from '~/ui/lib/Button'
 import { Modal } from '~/ui/lib/Modal'
-import { LearnMore } from '~/ui/lib/SettingsGroup'
 import { useTimeout } from '~/ui/lib/use-timeout'
-import { links } from '~/util/links'
 
 type CopyCodeProps = {
   code: string
   modalButtonText: string
   copyButtonText: string
   modalTitle: string
+  footer?: ReactNode
   /** rendered code */
   children?: ReactNode
 }
@@ -30,6 +29,7 @@ export function CopyCode({
   copyButtonText,
   modalTitle,
   children,
+  footer,
 }: CopyCodeProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [hasCopied, setHasCopied] = useState(false)
@@ -74,9 +74,7 @@ export function CopyCode({
             </>
           }
         >
-          <span className="ml-1.5 text-sans-md">
-            <LearnMore href={links.oxqlDocs} text="OxQL queries" />
-          </span>
+          {footer}
         </Modal.Footer>
       </Modal>
     </>

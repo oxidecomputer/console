@@ -16,13 +16,7 @@
 import { useMemo, useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router'
 
-import {
-  apiq,
-  apiQueryClient,
-  Instance,
-  usePrefetchedApiQuery,
-  type Disk,
-} from '@oxide/api'
+import { apiQueryClient, usePrefetchedApiQuery, type Disk, type Instance } from '@oxide/api'
 import { Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
