@@ -111,7 +111,7 @@ export type OxqlQuery = {
   eqFilters?: Partial<Record<FilterKey, string>>
 }
 
-export const getOxqlQuery = ({
+export const toOxqlStr = ({
   metricName,
   startTime,
   endTime,
@@ -210,10 +210,6 @@ export const getLargestValue = (data: ChartDatum[]) =>
 export const getOrderOfMagnitude = (largestValue: number, base: number) =>
   Math.max(Math.floor(Math.log(largestValue) / Math.log(base)), 0)
 
-// These need better names
-// What each function will receive
-type OxqlMetricChartComponentsProps = { chartData: ChartDatum[] }
-
 // What each function will return
 type OxqlMetricChartProps = {
   data: ChartDatum[]
@@ -222,9 +218,7 @@ type OxqlMetricChartProps = {
   yAxisTickFormatter: (n: number) => string
 }
 
-export const getBytesChartProps = ({
-  chartData,
-}: OxqlMetricChartComponentsProps): OxqlMetricChartProps => {
+const getBytesChartProps = (chartData: ChartDatum[]): OxqlMetricChartProps => {
   // Bytes charts use 1024 as the base
   const base = 1024
   const byteUnits = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB']
@@ -259,9 +253,7 @@ export const yAxisLabelForCountChart = (val: number, orderOfMagnitude: number) =
  * which requires knowing the largest value in the dataset, to get a consistent scale.
  * The data isn't modified for Count charts; the label and unitForSet are basic as well.
  */
-export const getCountChartProps = ({
-  chartData,
-}: OxqlMetricChartComponentsProps): OxqlMetricChartProps => {
+export const getCountChartProps = (chartData: ChartDatum[]): OxqlMetricChartProps => {
   const largestValue = getLargestValue(chartData)
   const orderOfMagnitude = getOrderOfMagnitude(largestValue, 1_000)
   const yAxisTickFormatter = (val: number) => yAxisLabelForCountChart(val, orderOfMagnitude)
@@ -281,14 +273,11 @@ export const getPercentDivisor = (startTime: Date, endTime: Date) => {
  * can be dynamic in terms of the `mean_within` window, we use that value to determine the
  * divisor for the data.
  */
-export const getPercentChartProps = ({
-  chartData,
-  startTime,
-  endTime,
-}: OxqlMetricChartComponentsProps & {
-  startTime: Date
+export const getPercentChartProps = (
+  chartData: ChartDatum[],
+  startTime: Date,
   endTime: Date
-}): OxqlMetricChartProps => {
+): OxqlMetricChartProps => {
   const data = chartData.map(({ timestamp, value }) => ({
     timestamp,
     value: value / getPercentDivisor(startTime, endTime),
@@ -296,38 +285,27 @@ export const getPercentChartProps = ({
   return { data, label: '(%)', unitForSet: '%', yAxisTickFormatter: (n: number) => `${n}%` }
 }
 
-export function OxqlMetric({
-  title,
-  description,
-  query,
-  startTime,
-  endTime,
-  q,
-}: {
+type OxqlMetricProps = OxqlQuery & {
   title: string
   description?: string
-  query: string
-  startTime: Date
-  endTime: Date
-  q?: OxqlQuery
-}) {
+}
+
+export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps) {
+  const query = toOxqlStr(queryObj)
   const { data: metrics } = useApiQuery(
     'systemTimeseriesQuery',
     { body: { query } },
     // avoid graphs flashing blank while loading when you change the time
     { placeholderData: (x) => x }
   )
+
+  const { startTime, endTime } = queryObj
   const chartData: ChartDatum[] = useMemo(() => getChartData(metrics), [metrics])
-  // console.log(title, query, chartData)
   const unit = getUnit(title)
   const { data, label, unitForSet, yAxisTickFormatter } = useMemo(() => {
-    if (unit === 'Bytes') {
-      return getBytesChartProps({ chartData })
-    }
-    if (unit === 'Count') {
-      return getCountChartProps({ chartData })
-    }
-    return getPercentChartProps({ chartData, startTime, endTime })
+    if (unit === 'Bytes') return getBytesChartProps(chartData)
+    if (unit === 'Count') return getCountChartProps(chartData)
+    return getPercentChartProps(chartData, startTime, endTime)
   }, [unit, chartData, startTime, endTime])
 
   return (
@@ -346,11 +324,7 @@ export function OxqlMetric({
           copyButtonText="Copy query"
           modalTitle="OxQL query"
         >
-          {q ? (
-            <HighlightedOxqlQuery {...q} />
-          ) : (
-            query.split(' | ').join('\n  | ').split(' && ').join('\n      && ')
-          )}
+          <HighlightedOxqlQuery {...queryObj} />
         </CopyCode>
       </div>
       <div className="px-6 py-5">

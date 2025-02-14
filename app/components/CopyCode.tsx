@@ -100,7 +100,7 @@ export function EquivalentCliCommand({ project, instance }: EquivProps) {
       modalTitle="CLI command"
     >
       <span className="mr-2 select-none text-tertiary">$</span>
-      {cmdParts.join(' \\\n')}
+      {cmdParts.join(' \\\n    ')}
     </CopyCode>
   )
 }

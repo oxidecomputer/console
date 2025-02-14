@@ -16,14 +16,7 @@ import { Listbox } from '~/ui/lib/Listbox'
 import { ALL_ISH } from '~/util/consts'
 
 import { useMetricsContext } from '../MetricsTab'
-import {
-  getOxqlQuery,
-  MetricCollection,
-  MetricHeader,
-  MetricRow,
-  OxqlMetric,
-  type OxqlNetworkMetricName,
-} from './OxqlMetric'
+import { MetricCollection, MetricHeader, MetricRow, OxqlMetric } from './OxqlMetric'
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
@@ -43,6 +36,8 @@ export async function loader({ params }: LoaderFunctionArgs) {
   ])
   return null
 }
+
+const groupByInstanceId = { cols: ['instance_id'], op: 'sum' } as const
 
 Component.displayName = 'NetworkMetricsTab'
 export function Component() {
@@ -66,17 +61,18 @@ export function Component() {
   const [nic, setNic] = useState(networks[0])
   const items = networks.map(({ name, id }) => ({ label: name, value: id }))
 
-  const getQuery = (metricName: OxqlNetworkMetricName) =>
-    getOxqlQuery({
-      metricName,
-      startTime,
-      endTime,
-      eqFilters: {
+  const queryBase = {
+    startTime,
+    endTime,
+    eqFilters: useMemo(
+      () => ({
         instance_id: instanceData.id,
         interface_id: nic.id === 'all' ? undefined : nic.id,
-      },
-      groupBy: nic.id === 'all' ? { cols: ['instance_id'], op: 'sum' } : undefined,
-    })
+      }),
+      [instanceData.id, nic.id]
+    ),
+    groupBy: nic.id === 'all' ? groupByInstanceId : undefined,
+  }
 
   return (
     <>
@@ -107,40 +103,35 @@ export function Component() {
           <OxqlMetric
             title="Packets Sent"
             description="Number of packets sent on the link"
-            query={getQuery('instance_network_interface:packets_sent')}
-            startTime={startTime}
-            endTime={endTime}
+            metricName="instance_network_interface:packets_sent"
+            {...queryBase}
           />
           <OxqlMetric
             title="Packets Received"
             description="Number of packets received on the link"
-            query={getQuery('instance_network_interface:packets_received')}
-            startTime={startTime}
-            endTime={endTime}
+            metricName="instance_network_interface:packets_received"
+            {...queryBase}
           />
         </MetricRow>
         <MetricRow>
           <OxqlMetric
             title="Bytes Sent"
             description="Number of bytes sent on the link"
-            query={getQuery('instance_network_interface:bytes_sent')}
-            startTime={startTime}
-            endTime={endTime}
+            metricName="instance_network_interface:bytes_sent"
+            {...queryBase}
           />
           <OxqlMetric
             title="Bytes Received"
             description="Number of bytes received on the link"
-            query={getQuery('instance_network_interface:bytes_received')}
-            startTime={startTime}
-            endTime={endTime}
+            metricName="instance_network_interface:bytes_received"
+            {...queryBase}
           />
         </MetricRow>
         <MetricRow>
           <OxqlMetric
             title="Packets Dropped"
-            query={getQuery('instance_network_interface:packets_dropped')}
-            startTime={startTime}
-            endTime={endTime}
+            metricName="instance_network_interface:packets_dropped"
+            {...queryBase}
           />
         </MetricRow>
       </MetricCollection>

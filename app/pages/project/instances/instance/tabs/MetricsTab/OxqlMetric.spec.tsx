@@ -12,10 +12,10 @@ import {
   getLargestValue,
   getMeanWindow,
   getOrderOfMagnitude,
-  getOxqlQuery,
   getUnit,
   HighlightedOxqlQuery,
   oxqlTimestamp,
+  toOxqlStr,
   yAxisLabelForCountChart,
 } from './OxqlMetric'
 
@@ -55,11 +55,11 @@ describe('getMeanWindow', () => {
   })
 })
 
-describe('getOxqlQuery', () => {
+describe('toOxqlStr', () => {
   const startTime = new Date('2024-01-01T00:00:00Z')
   const endTime = new Date('2024-01-01T01:00:00Z')
   it('generates a query for disk metrics without extra filters', () => {
-    const query = getOxqlQuery({
+    const query = toOxqlStr({
       metricName: 'virtual_disk:bytes_read',
       startTime,
       endTime,
@@ -70,7 +70,7 @@ describe('getOxqlQuery', () => {
   })
 
   it('generates a query for vm metrics with instanceId filter', () => {
-    const query = getOxqlQuery({
+    const query = toOxqlStr({
       metricName: 'virtual_machine:vcpu_usage',
       startTime,
       endTime,
@@ -84,7 +84,7 @@ describe('getOxqlQuery', () => {
   })
 
   it('generates a query for network metrics with interfaceId filter', () => {
-    const query = getOxqlQuery({
+    const query = toOxqlStr({
       metricName: 'instance_network_interface:bytes_sent',
       startTime,
       endTime,
@@ -98,7 +98,7 @@ describe('getOxqlQuery', () => {
   })
 
   it('generates a query with vcpu state filter', () => {
-    const query = getOxqlQuery({
+    const query = toOxqlStr({
       metricName: 'virtual_machine:vcpu_usage',
       startTime,
       endTime,
@@ -112,7 +112,7 @@ describe('getOxqlQuery', () => {
   })
 
   it('generates a query with group by instanceId', () => {
-    const query = getOxqlQuery({
+    const query = toOxqlStr({
       metricName: 'virtual_disk:bytes_written',
       startTime,
       endTime,
@@ -127,7 +127,7 @@ describe('getOxqlQuery', () => {
   })
 
   it('generates a query with group by attachedInstanceId', () => {
-    const query = getOxqlQuery({
+    const query = toOxqlStr({
       metricName: 'virtual_disk:io_latency',
       startTime,
       endTime,
@@ -142,7 +142,7 @@ describe('getOxqlQuery', () => {
   })
 
   it('handles missing optional parameters gracefully', () => {
-    const query = getOxqlQuery({
+    const query = toOxqlStr({
       metricName: 'virtual_disk:flushes',
       startTime,
       endTime,
@@ -153,7 +153,7 @@ describe('getOxqlQuery', () => {
   })
 
   it('correctly handles a range of disk and network metrics', () => {
-    const query = getOxqlQuery({
+    const query = toOxqlStr({
       metricName: 'instance_network_interface:bytes_received',
       startTime,
       endTime,
@@ -167,7 +167,7 @@ describe('getOxqlQuery', () => {
   })
 
   it('leaves out filters that are present but with falsy values', () => {
-    const query = getOxqlQuery({
+    const query = toOxqlStr({
       metricName: 'virtual_machine:vcpu_usage',
       startTime,
       endTime,

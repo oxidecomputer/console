@@ -16,7 +16,13 @@
 import { useMemo, useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router'
 
-import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
+import {
+  apiq,
+  apiQueryClient,
+  Instance,
+  usePrefetchedApiQuery,
+  type Disk,
+} from '@oxide/api'
 import { Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
@@ -26,18 +32,12 @@ import { TableEmptyBox } from '~/ui/lib/Table'
 
 import { useMetricsContext } from '../MetricsTab'
 import {
-  getOxqlQuery,
   MetricCollection,
   MetricHeader,
   MetricRow,
   OxqlMetric,
-  type OxqlDiskMetricName,
+  type OxqlQuery,
 } from './OxqlMetric'
-
-// We could figure out how to prefetch the metrics data, but it would be
-// annoying because it relies on the default date range, plus there are 5 calls.
-// Considering the data is going to be swapped out as soon as they change the
-// date range, I'm inclined to punt.
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
@@ -54,10 +54,13 @@ export async function loader({ params }: LoaderFunctionArgs) {
   return null
 }
 
+// out here so we don't have to memoize it
+const groupByAttachedInstanceId = { cols: ['attached_instance_id'], op: 'sum' } as const
+
 Component.displayName = 'DiskMetricsTab'
 export function Component() {
   const { project, instance } = useInstanceSelector()
-  const { data: diskData } = usePrefetchedApiQuery('instanceDiskList', {
+  const { data: disks } = usePrefetchedApiQuery('instanceDiskList', {
     path: { instance },
     query: { project },
   })
@@ -65,24 +68,7 @@ export function Component() {
     path: { instance },
     query: { project },
   })
-  const instanceId = instanceData?.id
-  const disks = useMemo(
-    () => [
-      { name: 'All disks', id: 'all' },
-      ...diskData.items.map(({ name, id }) => ({ name, id })),
-    ],
-    [diskData]
-  )
-
-  const { startTime, endTime, dateTimeRangePicker, intervalPicker } = useMetricsContext()
-
-  // The fallback here is kind of silly — it is only invoked when there are no
-  // disks, in which case we show the fallback UI and diskName is never used. We
-  // only need to do it this way because hooks cannot be called conditionally.
-  const [disk, setDisk] = useState(disks[0])
-  const items = disks.map(({ name, id }) => ({ label: name, value: id }))
-
-  if (disks.length === 0) {
+  if (disks.items.length === 0) {
     return (
       <TableEmptyBox>
         <EmptyMessage
@@ -94,40 +80,49 @@ export function Component() {
     )
   }
 
-  const getQuery = (metricName: OxqlDiskMetricName) =>
-    getOxqlQuery({
-      metricName,
-      startTime,
-      endTime,
-      eqFilters: {
-        attached_instance_id: instanceId,
-        disk_id: disk.id === 'all' ? undefined : disk.id,
-      },
-      groupBy:
-        disk.id === 'all' ? { cols: ['attached_instance_id'], op: 'sum' } : undefined,
-    })
+  return <DiskMetrics disks={disks.items} instance={instanceData} />
+}
+
+/** Only rendered if there is at least one disk in the list */
+function DiskMetrics({ disks, instance }: { disks: Disk[]; instance: Instance }) {
+  const { startTime, endTime, dateTimeRangePicker, intervalPicker } = useMetricsContext()
+
+  const diskItems = useMemo(
+    () => [
+      { label: 'All disks', value: 'all' },
+      ...disks.map(({ name, id }) => ({ label: name, value: id })),
+    ],
+    [disks]
+  )
+
+  const [selectedDisk, setSelectedDisk] = useState(diskItems.at(0)!.value)
+
+  const queryBase: Omit<OxqlQuery, 'metricName'> = {
+    startTime,
+    endTime,
+    eqFilters: useMemo(
+      () => ({
+        attached_instance_id: instance.id,
+        disk_id: selectedDisk === 'all' ? undefined : selectedDisk,
+      }),
+      [instance.id, selectedDisk]
+    ),
+    groupBy: selectedDisk === 'all' ? groupByAttachedInstanceId : undefined,
+  }
 
   return (
     <>
       <MetricHeader>
         <div className="flex gap-2">
           {intervalPicker}
-
-          {disks.length > 2 && (
-            <Listbox
-              className="w-52"
-              aria-label="Choose disk"
-              name="disk-name"
-              selected={disk.id}
-              items={items}
-              onChange={(val) => {
-                setDisk({
-                  name: disks.find((n) => n.id === val)?.name || 'All disks',
-                  id: val,
-                })
-              }}
-            />
-          )}
+          <Listbox
+            className="w-52"
+            aria-label="Choose disk"
+            name="disk-name"
+            selected={selectedDisk}
+            items={diskItems}
+            onChange={(value) => setSelectedDisk(value)}
+          />
         </div>
         {dateTimeRangePicker}
       </MetricHeader>
@@ -139,16 +134,14 @@ export function Component() {
           <OxqlMetric
             title="Disk Reads"
             description="Total number of read operations from the disk"
-            query={getQuery('virtual_disk:reads')}
-            startTime={startTime}
-            endTime={endTime}
+            metricName="virtual_disk:reads"
+            {...queryBase}
           />
           <OxqlMetric
             title="Disk Writes"
             description="Total number of write operations to the disk"
-            query={getQuery('virtual_disk:writes')}
-            startTime={startTime}
-            endTime={endTime}
+            metricName="virtual_disk:writes"
+            {...queryBase}
           />
         </MetricRow>
 
@@ -156,16 +149,14 @@ export function Component() {
           <OxqlMetric
             title="Bytes Read"
             description="Number of bytes read from the disk"
-            query={getQuery('virtual_disk:bytes_read')}
-            startTime={startTime}
-            endTime={endTime}
+            metricName="virtual_disk:bytes_read"
+            {...queryBase}
           />
           <OxqlMetric
             title="Bytes Written"
             description="Number of bytes written to the disk"
-            query={getQuery('virtual_disk:bytes_written')}
-            startTime={startTime}
-            endTime={endTime}
+            metricName="virtual_disk:bytes_written"
+            {...queryBase}
           />
         </MetricRow>
 
@@ -173,9 +164,8 @@ export function Component() {
           <OxqlMetric
             title="Disk Flushes"
             description="Total number of flush operations on the disk"
-            query={getQuery('virtual_disk:flushes')}
-            startTime={startTime}
-            endTime={endTime}
+            metricName="virtual_disk:flushes"
+            {...queryBase}
           />
         </MetricRow>
       </MetricCollection>

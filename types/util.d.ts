@@ -56,4 +56,4 @@ type NoExtraKeys<FewerKeys, MoreKeys extends FewerKeys> = FewerKeys & {
   [K in Exclude<keyof MoreKeys, keyof FewerKeys>]?: never
 }
 
-type NonEmptyArray<T> = [T, ...T[]]
+type NonEmptyArray<T> = readonly [T, ...T[]]

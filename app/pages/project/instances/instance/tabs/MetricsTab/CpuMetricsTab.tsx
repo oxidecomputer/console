@@ -13,6 +13,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useMemo } from 'react'
 import { type LoaderFunctionArgs } from 'react-router'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
@@ -20,16 +21,7 @@ import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 
 import { useMetricsContext } from '../MetricsTab'
-import {
-  getOxqlQuery,
-  MetricCollection,
-  MetricHeader,
-  MetricRow,
-  OxqlMetric,
-  type OxqlQuery,
-  type OxqlVcpuState,
-  type OxqlVmMetricName,
-} from './OxqlMetric'
+import { MetricCollection, MetricHeader, MetricRow, OxqlMetric } from './OxqlMetric'
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
@@ -56,13 +48,16 @@ export function Component() {
 
   const { startTime, endTime, dateTimeRangePicker, intervalPicker } = useMetricsContext()
 
-  const getQuery = (metricName: OxqlVmMetricName, state?: OxqlVcpuState): OxqlQuery => ({
-    metricName,
+  const queryBase = {
+    metricName: 'virtual_machine:vcpu_usage' as const,
     startTime,
     endTime,
-    eqFilters: { instance_id: instanceData.id, state },
-    groupBy: { cols: ['instance_id'], op: 'sum' },
-  })
+    groupBy: { cols: ['instance_id'], op: 'sum' } as const,
+  }
+
+  // all this memoization is ridiculous, but we need the filters referentially
+  // table or everything will re-render too much
+  const filterBase = useMemo(() => ({ instance_id: instanceData.id }), [instanceData.id])
 
   return (
     <>
@@ -74,39 +69,33 @@ export function Component() {
           <OxqlMetric
             title="CPU Utilization"
             description="Cumulative time all vCPUs have spent in a state"
-            query={getOxqlQuery(getQuery('virtual_machine:vcpu_usage'))}
-            q={getQuery('virtual_machine:vcpu_usage')}
-            startTime={startTime}
-            endTime={endTime}
+            eqFilters={filterBase}
+            {...queryBase}
           />
         </MetricRow>
         <MetricRow>
           <OxqlMetric
             title="CPU Utilization: Running"
-            query={getOxqlQuery(getQuery('virtual_machine:vcpu_usage', 'run'))}
-            startTime={startTime}
-            endTime={endTime}
+            eqFilters={useMemo(() => ({ ...filterBase, state: 'run' }), [filterBase])}
+            {...queryBase}
           />
           <OxqlMetric
             title="CPU Utilization: Idling"
-            query={getOxqlQuery(getQuery('virtual_machine:vcpu_usage', 'idle'))}
-            startTime={startTime}
-            endTime={endTime}
+            eqFilters={useMemo(() => ({ ...filterBase, state: 'idle' }), [filterBase])}
+            {...queryBase}
           />
         </MetricRow>
 
         <MetricRow>
           <OxqlMetric
             title="CPU Utilization: Waiting"
-            query={getOxqlQuery(getQuery('virtual_machine:vcpu_usage', 'waiting'))}
-            startTime={startTime}
-            endTime={endTime}
+            eqFilters={useMemo(() => ({ ...filterBase, state: 'waiting' }), [filterBase])}
+            {...queryBase}
           />
           <OxqlMetric
             title="CPU Utilization: Emulation"
-            query={getOxqlQuery(getQuery('virtual_machine:vcpu_usage', 'emulation'))}
-            startTime={startTime}
-            endTime={endTime}
+            eqFilters={useMemo(() => ({ ...filterBase, state: 'emulation' }), [filterBase])}
+            {...queryBase}
           />
         </MetricRow>
       </MetricCollection>
