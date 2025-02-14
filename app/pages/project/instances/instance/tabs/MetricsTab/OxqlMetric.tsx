@@ -11,7 +11,7 @@
  * https://github.com/oxidecomputer/omicron/tree/main/oximeter/oximeter/schema
  */
 
-import React, { Suspense, useMemo } from 'react'
+import React, { Fragment, Suspense, useMemo } from 'react'
 
 import { useApiQuery, type ChartDatum, type OxqlQueryResult } from '@oxide/api'
 
@@ -146,24 +146,11 @@ export const getOxqlQuery = ({
 }
 
 const Keyword = classed.span`text-[#C6A5EA]` // purple
-// light green
-/** Includes <br>, two space indent, and pipe. no trailing space */
-const NewlinePipe = () => (
-  <>
-    <br />
-    {'  '}
-    <span className="text-[#A7E0C8]">|</span>
-  </>
-)
+const NewlinePipe = () => <span className="text-[#A7E0C8]">{'\n  | '}</span> // light green
 const StringLit = classed.span`text-[#68D9A7]` // green
 const NumLit = classed.span`text-[#EDD5A6]` // light yellow
 
-const FilterSep = () => (
-  <>
-    <br />
-    {'      && '}
-  </>
-)
+const FilterSep = () => '\n      && '
 
 export function HighlightedOxqlQuery({
   metricName,
@@ -175,24 +162,33 @@ export function HighlightedOxqlQuery({
   const meanWindow = getMeanWindow(startTime, endTime)
   const secondsToAdjust = parseInt(meanWindow, 10) * 2
   const adjustedStart = new Date(startTime.getTime() - secondsToAdjust * 1000)
-  // prettier-ignore
   const filters = [
-    <React.Fragment key={adjustedStart.getTime()}>timestamp &gt;= <NumLit>@{oxqlTimestamp(adjustedStart)}</NumLit></React.Fragment>,
-    <React.Fragment key={endTime.getTime()}>timestamp &lt; <NumLit>@{oxqlTimestamp(endTime)}</NumLit></React.Fragment>,
+    <Fragment key="start">
+      timestamp &gt;= <NumLit>@{oxqlTimestamp(adjustedStart)}</NumLit>
+    </Fragment>,
+    <Fragment key="end">
+      timestamp &lt; <NumLit>@{oxqlTimestamp(endTime)}</NumLit>
+    </Fragment>,
     ...Object.entries(eqFilters)
       .filter(([_, v]) => !!v)
-      .map(([k, v]) => <React.Fragment key={`${k}-${v}`}>{k} == <StringLit>"{v}"</StringLit></React.Fragment>),
+      .map(([k, v]) => (
+        <Fragment key={`${k}-${v}`}>
+          {k} == <StringLit>&quot;{v}&quot;</StringLit>
+        </Fragment>
+      )),
   ]
 
   return (
     <>
       <Keyword>get</Keyword> {metricName}
-      <NewlinePipe /> <Keyword>filter</Keyword> {intersperse(filters, <FilterSep />)}
-      <NewlinePipe /> <Keyword>align</Keyword> mean_within(<NumLit>{meanWindow}</NumLit>)
+      <NewlinePipe />
+      <Keyword>filter</Keyword> {intersperse(filters, <FilterSep />)}
+      <NewlinePipe />
+      <Keyword>align</Keyword> mean_within(<NumLit>{meanWindow}</NumLit>)
       {groupBy && (
         <>
-          <NewlinePipe /> <Keyword>group_by</Keyword> [{groupBy.cols.join(', ')}],{' '}
-          {groupBy.op}
+          <NewlinePipe />
+          <Keyword>group_by</Keyword> [{groupBy.cols.join(', ')}], {groupBy.op}
         </>
       )}
     </>
