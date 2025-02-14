@@ -9,10 +9,17 @@
 import { useMemo, useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router'
 
-import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
+import {
+  apiQueryClient,
+  usePrefetchedApiQuery,
+  type InstanceNetworkInterface,
+} from '@oxide/api'
+import { Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
+import { TableEmptyBox } from '~/ui/lib/Table'
 import { ALL_ISH } from '~/util/consts'
 
 import { useMetricsContext } from '../MetricsTab'
@@ -29,7 +36,6 @@ export async function loader({ params }: LoaderFunctionArgs) {
       path: { instance },
       query: { project },
     }),
-    // add interface prefetch
     apiQueryClient.prefetchQuery('instanceNetworkInterfaceList', {
       query: { project, instance, limit: ALL_ISH },
     }),
@@ -42,24 +48,42 @@ const groupByInstanceId = { cols: ['instance_id'], op: 'sum' } as const
 Component.displayName = 'NetworkMetricsTab'
 export function Component() {
   const { project, instance } = useInstanceSelector()
-  const prefetchPathAndQuery = { path: { instance }, query: { project } }
-  const { data: instanceData } = usePrefetchedApiQuery('instanceView', prefetchPathAndQuery)
-  const { data: interfaceData } = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
+  const { data: nics } = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
     query: { project, instance, limit: ALL_ISH },
   })
 
+  if (nics.items.length === 0) {
+    return (
+      <TableEmptyBox>
+        <EmptyMessage
+          icon={<Networking24Icon />}
+          title="No network metrics available"
+          body="Network metrics are only available if there are network interfaces attached"
+        />
+      </TableEmptyBox>
+    )
+  }
+
+  return <NetworkMetrics nics={nics.items} />
+}
+
+function NetworkMetrics({ nics }: { nics: InstanceNetworkInterface[] }) {
+  const { project, instance } = useInstanceSelector()
+  const { data: instanceData } = usePrefetchedApiQuery('instanceView', {
+    path: { instance },
+    query: { project },
+  })
   const { startTime, endTime, dateTimeRangePicker, intervalPicker } = useMetricsContext()
 
-  const networks = useMemo(
+  const nicItems = useMemo(
     () => [
-      { name: 'All NICs', id: 'all' },
-      ...interfaceData.items.map(({ name, id }) => ({ name, id })),
+      { label: 'All NICs', value: 'all' },
+      ...nics.map((n) => ({ label: n.name, value: n.id })),
     ],
-    [interfaceData]
+    [nics]
   )
 
-  const [nic, setNic] = useState(networks[0])
-  const items = networks.map(({ name, id }) => ({ label: name, value: id }))
+  const [selectedNic, setSelectedNic] = useState(nicItems[0].value)
 
   const queryBase = {
     startTime,
@@ -67,11 +91,11 @@ export function Component() {
     eqFilters: useMemo(
       () => ({
         instance_id: instanceData.id,
-        interface_id: nic.id === 'all' ? undefined : nic.id,
+        interface_id: selectedNic === 'all' ? undefined : selectedNic,
       }),
-      [instanceData.id, nic.id]
+      [instanceData.id, selectedNic]
     ),
-    groupBy: nic.id === 'all' ? groupByInstanceId : undefined,
+    groupBy: selectedNic === 'all' ? groupByInstanceId : undefined,
   }
 
   return (
@@ -79,22 +103,14 @@ export function Component() {
       <MetricHeader>
         <div className="flex gap-2">
           {intervalPicker}
-
-          {networks.length > 2 && (
-            <Listbox
-              className="w-52"
-              aria-label="Choose disk"
-              name="disk-name"
-              selected={nic.id}
-              items={items}
-              onChange={(val) => {
-                setNic({
-                  name: networks.find((n) => n.id === val)?.name || 'All NICs',
-                  id: val,
-                })
-              }}
-            />
-          )}
+          <Listbox
+            className="w-52"
+            aria-label="Choose disk"
+            name="disk-name"
+            selected={selectedNic}
+            items={nicItems}
+            onChange={(val) => setSelectedNic(val)}
+          />
         </div>
         {dateTimeRangePicker}
       </MetricHeader>

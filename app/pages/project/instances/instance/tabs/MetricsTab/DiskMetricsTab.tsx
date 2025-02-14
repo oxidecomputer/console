@@ -67,8 +67,8 @@ export function Component() {
       <TableEmptyBox>
         <EmptyMessage
           icon={<Storage24Icon />}
-          title="No metrics available"
-          body="Metrics are only available if there are disks attached"
+          title="No disk metrics available"
+          body="Disk metrics are only available if there are disks attached"
         />
       </TableEmptyBox>
     )
