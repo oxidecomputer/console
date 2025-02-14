@@ -177,11 +177,11 @@ export function HighlightedOxqlQuery({
   const adjustedStart = new Date(startTime.getTime() - secondsToAdjust * 1000)
   // prettier-ignore
   const filters = [
-    <>timestamp &gt;= <NumLit>@{oxqlTimestamp(adjustedStart)}</NumLit></>,
-    <>timestamp &lt; <NumLit>@{oxqlTimestamp(endTime)}</NumLit></>,
+    <React.Fragment key={adjustedStart.getTime()}>timestamp &gt;= <NumLit>@{oxqlTimestamp(adjustedStart)}</NumLit></React.Fragment>,
+    <React.Fragment key={endTime.getTime()}>timestamp &lt; <NumLit>@{oxqlTimestamp(endTime)}</NumLit></React.Fragment>,
     ...Object.entries(eqFilters)
       .filter(([_, v]) => !!v)
-      .map(([k, v]) => <>{k} == <StringLit>"{v}"</StringLit></>),
+      .map(([k, v]) => <React.Fragment key={`${k}-${v}`}>{k} == <StringLit>"{v}"</StringLit></React.Fragment>),
   ]
 
   return (
