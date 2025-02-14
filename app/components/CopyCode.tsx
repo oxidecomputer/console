@@ -5,13 +5,13 @@
  *
  * Copyright Oxide Computer Company
  */
-import cn from 'classnames'
 import { useState, type ReactNode } from 'react'
 
-import { OpenLink12Icon, Success12Icon } from '@oxide/design-system/icons/react'
+import { Success12Icon } from '@oxide/design-system/icons/react'
 
-import { Button, buttonStyle } from '~/ui/lib/Button'
+import { Button } from '~/ui/lib/Button'
 import { Modal } from '~/ui/lib/Modal'
+import { LearnMore } from '~/ui/lib/SettingsGroup'
 import { useTimeout } from '~/ui/lib/use-timeout'
 import { links } from '~/util/links'
 
@@ -74,15 +74,9 @@ export function CopyCode({
             </>
           }
         >
-          <a
-            className={cn(buttonStyle({ size: 'sm', variant: 'secondary' }), 'w-full')}
-            href={links.oxqlDocs}
-            target="_blank"
-            rel="noreferrer"
-          >
-            More about OxQL queries
-            <OpenLink12Icon className="ml-1 text-secondary" />
-          </a>
+          <span className="ml-1.5">
+            <LearnMore href={links.oxqlDocs} text="OxQL queries" />
+          </span>
         </Modal.Footer>
       </Modal>
     </>
