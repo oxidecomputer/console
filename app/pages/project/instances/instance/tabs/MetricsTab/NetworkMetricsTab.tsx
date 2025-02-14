@@ -105,8 +105,8 @@ function NetworkMetrics({ nics }: { nics: InstanceNetworkInterface[] }) {
           {intervalPicker}
           <Listbox
             className="w-52"
-            aria-label="Choose disk"
-            name="disk-name"
+            aria-label="Choose network interface"
+            name="nic-name"
             selected={selectedNic}
             items={nicItems}
             onChange={(val) => setSelectedNic(val)}
