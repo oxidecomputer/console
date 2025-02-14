@@ -74,7 +74,7 @@ export function CopyCode({
             </>
           }
         >
-          <span className="ml-1.5">
+          <span className="ml-1.5 text-sans-md">
             <LearnMore href={links.oxqlDocs} text="OxQL queries" />
           </span>
         </Modal.Footer>
