@@ -11,7 +11,7 @@
  * https://github.com/oxidecomputer/omicron/tree/main/oximeter/oximeter/schema
  */
 
-import React, { Fragment, Suspense, useMemo } from 'react'
+import React, { Fragment, Suspense, useEffect, useMemo } from 'react'
 
 import { useApiQuery, type ChartDatum, type OxqlQueryResult } from '@oxide/api'
 
@@ -21,6 +21,8 @@ import { intersperse } from '~/util/array'
 import { classed } from '~/util/classed'
 import { getDurationMinutes } from '~/util/date'
 import { links } from '~/util/links'
+
+import { useMetricsContext } from '../MetricsTab'
 
 // An OxQL Query Result can have multiple tables, but in the web console we only ever call
 // aligned timeseries queries, which always have exactly one table.
@@ -300,6 +302,14 @@ export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps)
     // avoid graphs flashing blank while loading when you change the time
     { placeholderData: (x) => x }
   )
+
+  // only start reloading data once an intial dataset has been loaded
+  const { setIsIntervalPickerEnabled } = useMetricsContext()
+  useEffect(() => {
+    if (metrics) {
+      setIsIntervalPickerEnabled(true)
+    }
+  }, [metrics, setIsIntervalPickerEnabled])
 
   const { startTime, endTime } = queryObj
   const chartData: ChartDatum[] = useMemo(() => getChartData(metrics), [metrics])

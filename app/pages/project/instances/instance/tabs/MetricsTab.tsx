@@ -7,7 +7,7 @@
  */
 
 import { useIsFetching } from '@tanstack/react-query'
-import { createContext, useContext, type ReactNode } from 'react'
+import { createContext, useContext, useState, type ReactNode } from 'react'
 
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
 import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
@@ -26,12 +26,22 @@ const MetricsContext = createContext<{
   endTime: Date
   dateTimeRangePicker: ReactNode
   intervalPicker: ReactNode
-}>({ startTime, endTime, dateTimeRangePicker: <></>, intervalPicker: <></> })
+  setIsIntervalPickerEnabled: (enabled: boolean) => void
+}>({
+  startTime,
+  endTime,
+  dateTimeRangePicker: <></>,
+  intervalPicker: <></>,
+  setIsIntervalPickerEnabled: () => {},
+})
 
 export const useMetricsContext = () => useContext(MetricsContext)
 
 export const MetricsTab = () => {
   const { project, instance } = useInstanceSelector()
+  // this ensures the interval picker (which defaults to reloading every 10s) only kicks in
+  // once some initial data have loaded, to prevent requests from stacking up
+  const [isIntervalPickerEnabled, setIsIntervalPickerEnabled] = useState(false)
 
   const { preset, onRangeChange, startTime, endTime, dateTimeRangePicker } =
     useDateTimeRangePicker({
@@ -39,7 +49,7 @@ export const MetricsTab = () => {
     })
 
   const { intervalPicker } = useIntervalPicker({
-    enabled: preset !== 'custom',
+    enabled: isIntervalPickerEnabled && preset !== 'custom',
     isLoading: useIsFetching({ queryKey: ['siloMetric'] }) > 0,
     // sliding the range forward is sufficient to trigger a refetch
     fn: () => onRangeChange(preset),
@@ -49,7 +59,13 @@ export const MetricsTab = () => {
   // Find the relevant <Outlet> in RouteTabs
   return (
     <MetricsContext.Provider
-      value={{ startTime, endTime, dateTimeRangePicker, intervalPicker }}
+      value={{
+        startTime,
+        endTime,
+        dateTimeRangePicker,
+        intervalPicker,
+        setIsIntervalPickerEnabled,
+      }}
     >
       <RouteTabs sideTabs tabListClassName="mt-24">
         <Tab to={pb.instanceCpuMetrics({ project, instance })} sideTab>
