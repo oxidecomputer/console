@@ -122,6 +122,8 @@ type TimeSeriesChartProps = {
 }
 
 const TICK_COUNT = 6
+const TICK_MARGIN = 8
+const TICK_SIZE = 6
 
 /** Round `value` up to nearest number divisible by `divisor` */
 function roundUpToDivBy(value: number, divisor: number) {
@@ -166,7 +168,7 @@ export default function TimeSeriesChart({
   const maxLabelLength = yTicks
     ? Math.max(...yTicks.ticks.map((tick) => yAxisTickFormatter(tick).length))
     : 0
-  const maxLabelWidth = maxLabelLength * TEXT_CHAR_WIDTH + 14
+  const maxLabelWidth = maxLabelLength * TEXT_CHAR_WIDTH + TICK_SIZE + TICK_MARGIN
 
   // falling back here instead of in the parent lets us avoid causing a
   // re-render on every render of the parent when the data is undefined
@@ -192,7 +194,7 @@ export default function TimeSeriesChart({
           width={width}
           height={height}
           data={data}
-          margin={{ top: 0, right: 8, bottom: 16, left: 0 }}
+          margin={{ top: 0, right: 0, bottom: 16, left: 0 }}
         >
           <CartesianGrid stroke={GRID_GRAY} vertical={false} />
           <XAxis
@@ -209,14 +211,16 @@ export default function TimeSeriesChart({
             ticks={getTicks(data, 5)}
             tickFormatter={isSameDay(startTime, endTime) ? shortTime : shortDateTime}
             tick={textMonoMd}
-            tickMargin={8}
+            tickMargin={TICK_MARGIN}
+            tickSize={TICK_SIZE}
           />
           <YAxis
             axisLine={{ stroke: GRID_GRAY }}
             tickLine={{ stroke: GRID_GRAY }}
             orientation="right"
             tick={textMonoMd}
-            tickMargin={8}
+            tickSize={TICK_SIZE}
+            tickMargin={TICK_MARGIN}
             tickFormatter={yAxisTickFormatter}
             padding={{ top: 32 }}
             width={maxLabelWidth}
