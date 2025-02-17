@@ -19,11 +19,9 @@ test('Shows 404 page when a resource is not found', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible()
 })
 
-test('Shows something went wrong page on other errors', async ({ page }) => {
-  const errors: Error[] = []
-  // listen for 'pageerror' instead of 'console' because firefox wasn't including
-  // the desired event in 'console'
-  page.on('pageerror', (e) => errors.push(e))
+test('Shows something went wrong page on other errors', async ({ page, browserName }) => {
+  const messages: string[] = []
+  page.on('console', (e) => messages.push(e.text()))
 
   await page.goto('/projects/error-503') // specially handled in mock server
   await expect(page.getByText('Something went wrong')).toBeVisible()
@@ -31,10 +29,13 @@ test('Shows something went wrong page on other errors', async ({ page }) => {
   // Invariant failed doesn't show up in the page...
   await expect(page.getByText('Invariant failed')).toBeHidden()
 
-  // but we do see it in the browser console
-  const error =
-    'Expected query to be prefetched.\nKey: ["projectView",{"path":{"project":"error-503"}}]'
-  expect(errors.some((e) => e.message.includes(error))).toBeTruthy()
+  // But we do see it in the browser console. Skip Firefox because it handles
+  // these errors differently and it's hard to get the error text out.
+  if (browserName !== 'firefox') {
+    const error =
+      'Expected query to be prefetched.\nKey: ["projectView",{"path":{"project":"error-503"}}]'
+    expect(messages.some((m) => m.includes(error))).toBeTruthy()
+  }
 
   // test clicking sign out
   await page.getByRole('button', { name: 'Sign out' }).click()
