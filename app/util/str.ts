@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import React from 'react'
+import React, { type ReactElement, type ReactNode } from 'react'
 
 export const capitalize = (s: string) => s && s.charAt(0).toUpperCase() + s.slice(1)
 
@@ -82,14 +82,14 @@ export const normalizeName = (text: string, allowNonLetterStart = false): string
  * Extract the string contents of a ReactNode, so <>This <HL>highlighted</HL> text</> becomes "This highlighted text"
  */
 export const extractText = (children: React.ReactNode): string =>
-  React.Children.toArray(children)
-    .map((child) =>
-      typeof child === 'string'
-        ? child
-        : React.isValidElement(child)
-          ? extractText(child.props.children)
-          : ''
-    )
+  (
+    React.Children.map(children, (child) => {
+      if (typeof child === 'string') return child
+      if (!React.isValidElement(child)) return undefined
+      return extractText((child as ReactElement<{ children?: ReactNode }>).props.children)
+    }) || []
+  )
+    .filter((x) => !!x)
     .join(' ')
     .trim()
     .replace(/\s+/g, ' ')

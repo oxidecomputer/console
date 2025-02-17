@@ -119,6 +119,8 @@ export function DateTimeRangePicker({
           label="Choose a date range"
           value={range}
           onChange={(range) => {
+            // early return should never happen because there's no way to clear the range
+            if (range === null) return
             setRange(range)
             setPreset('custom')
           }}

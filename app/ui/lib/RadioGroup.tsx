@@ -52,12 +52,17 @@ import React from 'react'
 
 import { classed } from '~/util/classed'
 
+import type { RadioProps } from './Radio'
+
 export const RadioGroupHint = classed.p`text-base text-default text-sans-sm max-w-3xl`
+
+// need to specify that we have these props because we rely on them in the cloneElement call
+type RadioElt = React.ReactElement<RadioProps>
 
 export type RadioGroupProps = {
   // gets passed to all the radios. this is what defines them as a group
   name: string
-  children: React.ReactElement | React.ReactElement[]
+  children: RadioElt | RadioElt[]
   // gets passed to all the radios (technically only needs to be on one)
   required?: boolean
   // gets passed to all the radios
@@ -92,7 +97,7 @@ export const RadioGroup = ({
         name,
         required,
         disabled,
-        defaultChecked: radio.props.value === defaultChecked ? 'true' : undefined,
+        defaultChecked: radio.props.value === defaultChecked ? true : undefined,
       })
     )}
   </div>

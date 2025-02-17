@@ -31,9 +31,11 @@ test('Shows something went wrong page on other errors', async ({ page, browserNa
 
   // But we do see it in the browser console. Skip Firefox because it handles
   // these errors differently and it's hard to get the error text out.
+  // eslint-disable-next-line playwright/no-conditional-in-test
   if (browserName !== 'firefox') {
     const error =
       'Expected query to be prefetched.\nKey: ["projectView",{"path":{"project":"error-503"}}]'
+    // eslint-disable-next-line playwright/no-conditional-expect
     expect(messages.some((m) => m.includes(error))).toBeTruthy()
   }
 

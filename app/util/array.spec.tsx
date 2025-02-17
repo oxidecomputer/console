@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { type ReactElement } from 'react'
+import type { JSX, ReactElement } from 'react'
 import { expect, test } from 'vitest'
 
 import { groupBy, intersperse, isSetEqual, setDiff } from './array'
@@ -41,7 +41,7 @@ test('intersperse', () => {
   const comma = <>,</>
   const or = <>or</>
 
-  const getText = (el: ReactElement) => el.props.children
+  const getText = (el: JSX.Element) => el.props.children
   const getKey = (el: ReactElement) => el.key
 
   expect(intersperse([a], comma).map(getText)).toEqual(['a'])
