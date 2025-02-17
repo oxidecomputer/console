@@ -64,6 +64,7 @@ export default {
     },
     animation: {
       'spin-slow': 'spin 5s linear infinite',
+      pulse: 'pulse 2s cubic-bezier(.4,0,.6,1) infinite',
     },
   },
   plugins: [

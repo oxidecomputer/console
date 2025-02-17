@@ -7,7 +7,7 @@
  */
 import cn from 'classnames'
 import { format } from 'date-fns'
-import { useMemo } from 'react'
+import { useMemo, type ReactNode } from 'react'
 import {
   Area,
   AreaChart,
@@ -20,6 +20,7 @@ import {
 import type { TooltipProps } from 'recharts/types/component/Tooltip'
 
 import type { ChartDatum } from '@oxide/api'
+import { Error12Icon } from '@oxide/design-system/icons/react'
 
 import { Spinner } from '~/ui/lib/Spinner'
 
@@ -113,6 +114,7 @@ type TimeSeriesChartProps = {
   unit?: string
   yAxisTickFormatter?: (val: number) => string
   hasBorder?: boolean
+  hasError?: boolean
 }
 
 const TICK_COUNT = 6
@@ -121,6 +123,41 @@ const TICK_COUNT = 6
 function roundUpToDivBy(value: number, divisor: number) {
   return Math.ceil(value / divisor) * divisor
 }
+
+// this top margin is also in the chart, probably want a way of unifying the sizing between the two
+const SkeletonMetric = ({
+  children,
+  shimmer = false,
+  className,
+}: {
+  children: ReactNode
+  shimmer?: boolean
+  className?: string
+}) => (
+  <div className="relative mt-3 flex h-[300px] w-full items-center">
+    <div
+      className={cn(
+        shimmer && 'motion-safe:animate-pulse',
+        'absolute inset-0 bottom-11',
+        className
+      )}
+    >
+      <div className="flex h-full flex-col justify-between">
+        {[...Array(4)].map((_e, i) => (
+          <div key={i} className="h-px w-full bg-tertiary" />
+        ))}
+      </div>
+      <div className="flex justify-between">
+        {[...Array(8)].map((_e, i) => (
+          <div key={i} className="h-1.5 w-px bg-tertiary" />
+        ))}
+      </div>
+    </div>
+    <div className="relative flex h-full w-full items-center justify-center pb-11">
+      {children}
+    </div>
+  </div>
+)
 
 // default export is most convenient for dynamic import
 // eslint-disable-next-line import/no-default-export
@@ -136,6 +173,7 @@ export default function TimeSeriesChart({
   unit,
   yAxisTickFormatter = (val) => val.toLocaleString(),
   hasBorder = true,
+  hasError = false,
 }: TimeSeriesChartProps) {
   // We use the largest data point +20% for the graph scale. !rawData doesn't
   // mean it's empty (it will never be empty because we fill in artificial 0s at
@@ -157,22 +195,44 @@ export default function TimeSeriesChart({
   // re-render on every render of the parent when the data is undefined
   const data = useMemo(() => rawData || [], [rawData])
 
-  if (!data || data.length === 0) {
+  const wrapperClass = cn(className, hasBorder && 'rounded-lg border border-default')
+
+  if (hasError) {
     return (
-      <div className="flex h-[300px] w-full items-center justify-center">
-        <div className="m-4 flex max-w-[18rem] flex-col items-center text-center">
-          <Spinner variant="secondary" />
-        </div>
-      </div>
+      <SkeletonMetric shimmer className={wrapperClass}>
+        <>
+          <div className="z-10 flex w-52 flex-col items-center justify-center gap-1">
+            <div className="my-2 flex h-8 w-8 items-center justify-center">
+              <div className="absolute h-8 w-8 rounded-full opacity-20 bg-destructive motion-safe:animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
+              <Error12Icon className="relative h-6 w-6 text-error-tertiary" />
+            </div>
+            <div className="text-semi-lg text-center text-raise">Something went wrong</div>
+            <div className="text-center text-sans-md text-secondary">
+              Try refreshing the page, or contact your project admin
+            </div>
+          </div>
+          <div
+            className="absolute inset-0 bg-accent-secondary"
+            style={{
+              background:
+                'radial-gradient(197.76% 54.9% at 50% 50%, var(--surface-default) 0%, rgba(8, 15, 17, 0.00) 100%)',
+            }}
+          />
+        </>
+      </SkeletonMetric>
+    )
+  } else if (!data || data.length === 0) {
+    return (
+      <SkeletonMetric shimmer className={wrapperClass}>
+        <Spinner size="md" />
+      </SkeletonMetric>
     )
   }
 
   return (
     <div className="h-[300px] w-full">
       {/* temporary until we migrate the old metrics to the new style */}
-      <ResponsiveContainer
-        className={cn(className, hasBorder && 'rounded-lg border border-default')}
-      >
+      <ResponsiveContainer className={wrapperClass}>
         <AreaChart
           width={width}
           height={height}

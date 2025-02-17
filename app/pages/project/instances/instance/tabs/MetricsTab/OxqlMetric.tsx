@@ -11,7 +11,14 @@
  * https://github.com/oxidecomputer/omicron/tree/main/oximeter/oximeter/schema
  */
 
-import React, { Fragment, Suspense, useEffect, useMemo } from 'react'
+import React, {
+  Children,
+  Fragment,
+  Suspense,
+  useEffect,
+  useMemo,
+  type ReactNode,
+} from 'react'
 
 import { useApiQuery, type ChartDatum, type OxqlQueryResult } from '@oxide/api'
 
@@ -296,7 +303,7 @@ type OxqlMetricProps = OxqlQuery & {
 
 export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps) {
   const query = toOxqlStr(queryObj)
-  const { data: metrics } = useApiQuery(
+  const { data: metrics, error } = useApiQuery(
     'systemTimeseriesQuery',
     { body: { query } },
     // avoid graphs flashing blank while loading when you change the time
@@ -353,6 +360,7 @@ export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps)
             width={480}
             height={240}
             hasBorder={false}
+            hasError={!!error}
           />
         </Suspense>
       </div>
@@ -360,9 +368,9 @@ export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps)
   )
 }
 
-export const MetricHeader = ({ children }: { children: React.ReactNode }) => {
+export const MetricHeader = ({ children }: { children: ReactNode }) => {
   // If header has only one child, align it to the end of the container
-  const justify = React.Children.count(children) === 1 ? 'justify-end' : 'justify-between'
+  const justify = Children.count(children) === 1 ? 'justify-end' : 'justify-between'
   return (
     <div className={`flex flex-col gap-2 ${justify} mt-8 @[48rem]:flex-row`}>
       {children}

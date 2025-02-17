@@ -1599,6 +1599,10 @@ export const handlers = makeHandlers({
     return handleMetrics(params)
   },
   systemTimeseriesQuery(params) {
+    // Randomly simulate a failure
+    if (Math.random() > 0.95) {
+      throw 500
+    }
     requireFleetViewer(params.cookies)
     return handleOxqlMetrics(params.body)
   },

@@ -2,7 +2,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at https://mozilla.org/MPL/2.0/.
- *  
+ *
  * Copyright Oxide Computer Company
  */
 
@@ -13,16 +13,21 @@
   animation: rotate 5s linear infinite;
 }
 
+.spinner.spinner-md {
+  --radius: 8;
+  --circumference: calc(var(--PI) * var(--radius) * 2px);
+}
+
 .spinner.spinner-lg {
-  --radius: 10;
-  --circumference: calc(var(--PI) * var(--radius) * 3px);
+  --radius: 14;
+  --circumference: calc(var(--PI) * var(--radius) * 2px);
 }
 
 .spinner .path {
   stroke-dasharray: var(--circumference);
   transform-origin: center;
   animation: dash 8s ease-in-out infinite;
-  stroke: var(--content-accent);
+  stroke: var(--content-accent-tertiary);
 }
 
 @media (prefers-reduced-motion) {
@@ -34,6 +39,10 @@
     animation: none;
     stroke-dasharray: 20;
     stroke-dashoffset: 100;
+  }
+
+  .spinner-md .path {
+    stroke-dasharray: 30;
   }
 
   .spinner-lg .path {
@@ -56,7 +65,7 @@
 
 .spinner-danger .bg,
 .spinner-danger .path {
-  stroke: var(--content-destructive);
+  stroke: var(--content-destructive-tertiary);
 }
 
 @keyframes rotate {
