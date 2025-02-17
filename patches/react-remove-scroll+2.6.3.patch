@@ -1,19 +1,20 @@
 diff --git a/node_modules/react-remove-scroll/dist/es2015/SideEffect.js b/node_modules/react-remove-scroll/dist/es2015/SideEffect.js
-index 625c185..6cd4d17 100644
+index 625c185..52d934f 100644
 --- a/node_modules/react-remove-scroll/dist/es2015/SideEffect.js
 +++ b/node_modules/react-remove-scroll/dist/es2015/SideEffect.js
-@@ -1,7 +1,5 @@
+@@ -1,7 +1,4 @@
 -import { __spreadArray } from "tslib";
  import * as React from 'react';
- import { RemoveScrollBar } from 'react-remove-scroll-bar';
+-import { RemoveScrollBar } from 'react-remove-scroll-bar';
 -import { styleSingleton } from 'react-style-singleton';
  import { nonPassive } from './aggresiveCapture';
  import { handleScroll, locationCouldBeScrolled } from './handleScroll';
  export var getTouchXY = function (event) {
-@@ -13,30 +11,16 @@ var extractRef = function (ref) {
+@@ -12,31 +9,16 @@ var extractRef = function (ref) {
+     return ref && 'current' in ref ? ref.current : ref;
  };
  var deltaCompare = function (x, y) { return x[0] === y[0] && x[1] === y[1]; };
- var generateStyle = function (id) { return "\n  .block-interactivity-".concat(id, " {pointer-events: none;}\n  .allow-interactivity-").concat(id, " {pointer-events: all;}\n"); };
+-var generateStyle = function (id) { return "\n  .block-interactivity-".concat(id, " {pointer-events: none;}\n  .allow-interactivity-").concat(id, " {pointer-events: all;}\n"); };
 -var idCounter = 0;
  var lockStack = [];
  export function RemoveScrollSideCar(props) {
@@ -42,7 +43,7 @@ index 625c185..6cd4d17 100644
      var shouldCancelEvent = React.useCallback(function (event, parent) {
          if (('touches' in event && event.touches.length === 2) || (event.type === 'wheel' && event.ctrlKey)) {
              return !lastProps.current.allowPinchZoom;
-@@ -139,10 +123,7 @@ export function RemoveScrollSideCar(props) {
+@@ -139,10 +121,7 @@ export function RemoveScrollSideCar(props) {
              document.removeEventListener('touchstart', scrollTouchStart, nonPassive);
          };
      }, []);
@@ -54,23 +55,3 @@ index 625c185..6cd4d17 100644
  }
  function getOutermostShadowParent(node) {
      var shadowParent = null;
-diff --git a/node_modules/react-remove-scroll/dist/es2015/UI.js b/node_modules/react-remove-scroll/dist/es2015/UI.js
-index 501c88a..076ee1c 100644
---- a/node_modules/react-remove-scroll/dist/es2015/UI.js
-+++ b/node_modules/react-remove-scroll/dist/es2015/UI.js
-@@ -1,6 +1,5 @@
- import { __assign, __rest } from "tslib";
- import * as React from 'react';
--import { fullWidthClassName, zeroRightClassName } from 'react-remove-scroll-bar/constants';
- import { useMergeRefs } from 'use-callback-ref';
- import { effectCar } from './medium';
- var nothing = function () {
-@@ -29,8 +28,4 @@ RemoveScroll.defaultProps = {
-     removeScrollBar: true,
-     inert: false,
- };
--RemoveScroll.classNames = {
--    fullWidth: fullWidthClassName,
--    zeroRight: zeroRightClassName,
--};
- export { RemoveScroll };
