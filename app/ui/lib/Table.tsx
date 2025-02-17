@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import React, { useRef, type ReactElement } from 'react'
+import React, { useRef, type JSX, type ReactElement } from 'react'
 import SimpleBar from 'simplebar-react'
 
 import { useIsOverflow } from '~/hooks/use-is-overflow'

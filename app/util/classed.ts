@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import React, { forwardRef } from 'react'
+import React, { forwardRef, type JSX } from 'react'
 
 // all the cuteness of tw.span`text-green-500 uppercase` with zero magic
 

@@ -22,7 +22,7 @@ interface UseIntervalProps {
  * a new one.
  */
 export function useInterval({ fn, delay, key }: UseIntervalProps) {
-  const callbackRef = useRef<() => void>()
+  const callbackRef = useRef<() => void>(undefined)
 
   useEffect(() => {
     callbackRef.current = fn
