@@ -75,6 +75,12 @@ const textMonoMd = {
   fill: 'var(--content-quaternary)',
 }
 
+// The length of a character in pixels at 11px with GT America Mono
+// Used for dynamically sizing the yAxis. If this were to fallback
+// the font would likely be thinner than the monospaced character
+// and therefore not overflow
+const TEXT_CHAR_WIDTH = 6.82
+
 function renderTooltip(props: TooltipProps<number, string>, unit?: string) {
   const { payload } = props
   if (!payload || payload.length < 1) return null
@@ -116,6 +122,8 @@ type TimeSeriesChartProps = {
 }
 
 const TICK_COUNT = 6
+const TICK_MARGIN = 8
+const TICK_SIZE = 6
 
 /** Round `value` up to nearest number divisible by `divisor` */
 function roundUpToDivBy(value: number, divisor: number) {
@@ -153,6 +161,15 @@ export default function TimeSeriesChart({
     ? { domain: [0, maxY], ticks: getVerticalTicks(TICK_COUNT, maxY) }
     : undefined
 
+  // We get the longest label length and multiply that with our `TICK_CHAR_WIDTH`
+  // and add the extra space for the tick stroke and spacing
+  // It's possible to get clever and calculate the width using the canvas or font metrics
+  // But our font is monospace so we can just use the length of the text * the baked width of the character
+  const maxLabelLength = yTicks
+    ? Math.max(...yTicks.ticks.map((tick) => yAxisTickFormatter(tick).length))
+    : 0
+  const maxLabelWidth = maxLabelLength * TEXT_CHAR_WIDTH + TICK_SIZE + TICK_MARGIN
+
   // falling back here instead of in the parent lets us avoid causing a
   // re-render on every render of the parent when the data is undefined
   const data = useMemo(() => rawData || [], [rawData])
@@ -177,7 +194,7 @@ export default function TimeSeriesChart({
           width={width}
           height={height}
           data={data}
-          margin={{ top: 0, right: 8, bottom: 16, left: 0 }}
+          margin={{ top: 0, right: hasBorder ? 16 : 0, bottom: 16, left: 0 }}
         >
           <CartesianGrid stroke={GRID_GRAY} vertical={false} />
           <XAxis
@@ -194,16 +211,19 @@ export default function TimeSeriesChart({
             ticks={getTicks(data, 5)}
             tickFormatter={isSameDay(startTime, endTime) ? shortTime : shortDateTime}
             tick={textMonoMd}
-            tickMargin={8}
+            tickMargin={TICK_MARGIN}
+            tickSize={TICK_SIZE}
           />
           <YAxis
             axisLine={{ stroke: GRID_GRAY }}
             tickLine={{ stroke: GRID_GRAY }}
             orientation="right"
             tick={textMonoMd}
-            tickMargin={8}
+            tickSize={TICK_SIZE}
+            tickMargin={TICK_MARGIN}
             tickFormatter={yAxisTickFormatter}
             padding={{ top: 32 }}
+            width={maxLabelWidth}
             {...yTicks}
           />
           {/* TODO: stop tooltip being focused by default on pageload if nothing else has been clicked */}
