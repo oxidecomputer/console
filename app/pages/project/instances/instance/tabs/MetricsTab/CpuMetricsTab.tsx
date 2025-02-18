@@ -6,13 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-/*
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, you can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * Copyright Oxide Computer Company
- */
 import { useMemo } from 'react'
 import { type LoaderFunctionArgs } from 'react-router'
 
@@ -67,34 +60,20 @@ export function Component() {
       <MetricCollection>
         <MetricRow>
           <OxqlMetric
-            title="CPU Utilization"
-            description="Cumulative time all vCPUs have spent in a state"
-            eqFilters={filterBase}
-            {...queryBase}
-          />
-        </MetricRow>
-        <MetricRow>
-          <OxqlMetric
             title="CPU Utilization: Running"
             eqFilters={useMemo(() => ({ ...filterBase, state: 'run' }), [filterBase])}
             {...queryBase}
           />
+        </MetricRow>
+        <MetricRow>
           <OxqlMetric
             title="CPU Utilization: Idling"
             eqFilters={useMemo(() => ({ ...filterBase, state: 'idle' }), [filterBase])}
             {...queryBase}
           />
-        </MetricRow>
-
-        <MetricRow>
           <OxqlMetric
             title="CPU Utilization: Waiting"
             eqFilters={useMemo(() => ({ ...filterBase, state: 'waiting' }), [filterBase])}
-            {...queryBase}
-          />
-          <OxqlMetric
-            title="CPU Utilization: Emulation"
-            eqFilters={useMemo(() => ({ ...filterBase, state: 'emulation' }), [filterBase])}
             {...queryBase}
           />
         </MetricRow>
