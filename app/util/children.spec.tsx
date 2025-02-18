@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import type { JSX } from 'react'
 import { describe, expect, it } from 'vitest'
 
 import { flattenChildren, isOneOf, pluckAllOfType, pluckFirstOfType } from './children'

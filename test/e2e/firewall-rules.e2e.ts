@@ -558,7 +558,7 @@ test('name conflict error on edit', async ({ page }) => {
   const nameField = page.getByRole('textbox', { name: 'Name', exact: true })
   await nameField.fill('allow-ssh')
 
-  const error = page.getByText('Name taken').first()
+  const error = page.getByRole('dialog').getByText('Name taken')
   await expect(error).toBeHidden()
 
   await page.getByRole('button', { name: 'Update rule' }).click()

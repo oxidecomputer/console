@@ -24,7 +24,7 @@ function setScrollPosition(key: string, pos: number) {
  * so the same path navigated to at different points in the history stack will
  * not share the same scroll position.
  */
-export function useScrollRestoration(container: React.RefObject<HTMLElement>) {
+export function useScrollRestoration(container: React.RefObject<HTMLElement | null>) {
   const key = `scroll-position-${useLocation().key}`
   const { state } = useNavigation()
   useEffect(() => {

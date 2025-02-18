@@ -19,26 +19,24 @@ import {
   useFocus,
   useHover,
   useInteractions,
+  useMergeRefs,
   useRole,
   type Placement,
 } from '@floating-ui/react'
 import cn from 'classnames'
-import {
-  Children,
-  cloneElement,
-  forwardRef,
-  useRef,
-  useState,
-  type ReactElement,
-} from 'react'
-import { mergeRefs } from 'react-merge-refs'
+import { Children, cloneElement, useRef, useState, type ReactElement } from 'react'
 
 import { usePopoverZIndex } from './SideModal'
 
 export interface TooltipProps {
   delay?: number
+  // Specify ref prop because we use it below when we inject the tooltip ref
+  // into the button child. If we don't do this, the library cannot find the
+  // button on the page in order to place the tooltip next to it; it lands in
+  // the corner at (0,0).
+
   /** The target the tooltip hovers near; can not be a raw string. */
-  children?: ReactElement
+  children?: ReactElement<{ ref?: React.Ref<HTMLButtonElement> }>
   /** The text to appear on hover/focus */
   content?: string | React.ReactNode
   /**
@@ -50,72 +48,72 @@ export interface TooltipProps {
   placement?: Placement
 }
 
-export const Tooltip = forwardRef(
-  ({ delay = 250, children, content, placement }: TooltipProps, elRef) => {
-    const [open, setOpen] = useState(false)
-    const arrowRef = useRef(null)
+export const Tooltip = ({ delay = 250, children, content, placement }: TooltipProps) => {
+  const [open, setOpen] = useState(false)
+  const arrowRef = useRef(null)
 
-    const { refs, floatingStyles, context } = useFloating({
-      open,
-      onOpenChange: setOpen,
-      placement,
-      whileElementsMounted: autoUpdate,
-      middleware: [
-        /**
-         * `autoPlacement` and `flip` are mutually excusive behaviors. If we
-         * manually provide a placement we want to make sure it flips to the
-         * other side if there is not enough space for it to be displayed in
-         * that position.
-         */
-        placement ? flip() : autoPlacement(),
-        offset(12),
-        shift({ padding: 16 }),
-        arrow({ element: arrowRef, padding: 12 }),
-      ],
-    })
+  const { refs, floatingStyles, context } = useFloating({
+    open,
+    onOpenChange: setOpen,
+    placement,
+    whileElementsMounted: autoUpdate,
+    middleware: [
+      /**
+       * `autoPlacement` and `flip` are mutually excusive behaviors. If we
+       * manually provide a placement we want to make sure it flips to the
+       * other side if there is not enough space for it to be displayed in
+       * that position.
+       */
+      placement ? flip() : autoPlacement(),
+      offset(12),
+      shift({ padding: 16 }),
+      arrow({ element: arrowRef, padding: 12 }),
+    ],
+  })
 
-    const { getReferenceProps, getFloatingProps } = useInteractions([
-      useHover(context, { move: false, delay: { open: delay, close: 0 } }),
-      useFocus(context),
-      useDismiss(context),
-      useRole(context, { role: 'tooltip' }),
-    ])
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    useHover(context, { move: false, delay: { open: delay, close: 0 } }),
+    useFocus(context),
+    useDismiss(context),
+    useRole(context, { role: 'tooltip' }),
+  ])
 
-    const child = cloneElement(Children.only(children) as ReactElement, {
-      ...getReferenceProps(),
-      ref: mergeRefs([refs.setReference, elRef]),
-    })
+  const onlyChild = Children.only(children)!
+  const child = cloneElement(onlyChild, {
+    ...getReferenceProps(),
+    // merge with whatever ref is already on the button
+    ref: useMergeRefs([refs.setReference, onlyChild.props.ref]),
+  })
 
-    const zIndex = usePopoverZIndex()
+  const zIndex = usePopoverZIndex()
 
-    if (!content) return child
+  if (!content) return child
 
-    return (
-      <>
-        {child}
-        <FloatingPortal>
-          {open && (
-            <div
-              ref={refs.setFloating}
-              className={cn('ox-tooltip max-content max-w-sm', zIndex)}
-              {...getFloatingProps()}
-              style={floatingStyles}
-            >
-              {content}
-              <FloatingArrow
-                width={12}
-                height={8}
-                strokeWidth={1}
-                tipRadius={2}
-                stroke="var(--stroke-secondary)"
-                fill="var(--surface-raise)"
-                ref={arrowRef}
-                context={context}
-              />
-            </div>
-          )}
-        </FloatingPortal>
-      </>
-    )
-  }
-)
+  return (
+    <>
+      {child}
+      <FloatingPortal>
+        {open && (
+          <div
+            ref={refs.setFloating}
+            className={cn('ox-tooltip max-content max-w-sm', zIndex)}
+            {...getFloatingProps()}
+            style={floatingStyles}
+          >
+            {content}
+            <FloatingArrow
+              width={12}
+              height={8}
+              strokeWidth={1}
+              tipRadius={2}
+              stroke="var(--stroke-secondary)"
+              fill="var(--surface-raise)"
+              ref={arrowRef}
+              context={context}
+            />
+          </div>
+        )}
+      </FloatingPortal>
+    </>
+  )
+}

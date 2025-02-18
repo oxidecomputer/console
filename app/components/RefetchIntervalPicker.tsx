@@ -87,7 +87,7 @@ export function useIntervalPicker({
           </button>
           <Listbox
             selected={enabled ? intervalPreset : 'Off'}
-            className={cn('[&>button]:!rounded-l-none', isSlim ? '' : 'w-24')}
+            className={cn('[&_button]:!rounded-l-none', isSlim ? '' : 'w-24')}
             items={intervalItems}
             onChange={setIntervalPreset}
             disabled={!enabled}

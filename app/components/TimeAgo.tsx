@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import type { Placement } from '@floating-ui/react'
+import type { JSX } from 'react'
 
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { timeAgoAbbr, toLocaleDateTimeString } from '~/util/date'

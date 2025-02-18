@@ -159,7 +159,7 @@ export const Combobox = ({
       {...props}
     >
       {({ open }) => (
-        <>
+        <div>
           {label && (
             // TODO: FieldLabel needs a real ID
             <div className="mb-2">
@@ -277,7 +277,7 @@ export const Combobox = ({
               )}
             </ComboboxOptions>
           )}
-        </>
+        </div>
       )}
     </HCombobox>
   )

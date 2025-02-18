@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import React, { useRef, type ReactElement } from 'react'
+import React, { useRef, type JSX, type ReactElement } from 'react'
 import SimpleBar from 'simplebar-react'
 
 import { useIsOverflow } from '~/hooks/use-is-overflow'
@@ -67,12 +67,14 @@ Table.Row = ({ className, selected, ...props }: TableRowProps) => (
   <tr className={cn('bg-default', className, selected && 'is-selected')} {...props} />
 )
 
+type RowElt = ReactElement<TableRowProps>
+
 export type TableBodyProps = JSX.IntrinsicElements['tbody']
 Table.Body = ({ className, children, ...props }: TableBodyProps) => {
   const rows = React.Children.toArray(children).map((c, i, siblings) => {
-    const child = c as ReactElement
-    const beforeSelected = (siblings[i - 1] as ReactElement | undefined)?.props.selected
-    const afterSelected = (siblings[i + 1] as ReactElement | undefined)?.props.selected
+    const child = c as RowElt
+    const beforeSelected = (siblings[i - 1] as RowElt | undefined)?.props.selected
+    const afterSelected = (siblings[i + 1] as RowElt | undefined)?.props.selected
     const className =
       child.props.selected && (beforeSelected || afterSelected)
         ? cn(
