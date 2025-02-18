@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { motion as m } from 'framer-motion'
+import * as m from 'motion/react-m'
 import { useState, type ReactNode } from 'react'
 
 import { Success12Icon } from '@oxide/design-system/icons/react'
@@ -14,30 +14,15 @@ import { Button } from '~/ui/lib/Button'
 import { Modal } from '~/ui/lib/Modal'
 import { useTimeout } from '~/ui/lib/use-timeout'
 
-type CopyCodeProps = {
+type CopyCodeModalProps = {
   code: string
   copyButtonText: string
   modalTitle: string
   footer?: ReactNode
   /** rendered code */
   children?: ReactNode
-}
-
-export function CopyCode(props: CopyCodeProps & { modalButtonText: string }) {
-  const [isOpen, setIsOpen] = useState(false)
-
-  function handleDismiss() {
-    setIsOpen(false)
-  }
-
-  return (
-    <>
-      <Button variant="ghost" size="sm" className="ml-2" onClick={() => setIsOpen(true)}>
-        {props.modalButtonText}
-      </Button>
-      <CopyCodeModal {...props} isOpen={isOpen} onDismiss={handleDismiss} />
-    </>
-  )
+  isOpen: boolean
+  onDismiss: () => void
 }
 
 export function CopyCodeModal({
@@ -48,7 +33,7 @@ export function CopyCodeModal({
   modalTitle,
   children,
   footer,
-}: CopyCodeProps & { isOpen: boolean; onDismiss: () => void }) {
+}: CopyCodeModalProps) {
   const [hasCopied, setHasCopied] = useState(false)
   useTimeout(() => setHasCopied(false), hasCopied ? 2000 : null)
 
@@ -109,15 +94,23 @@ export function EquivalentCliCommand({ project, instance }: EquivProps) {
     `--instance ${instance}`,
   ]
 
+  const [isOpen, setIsOpen] = useState(false)
+
   return (
-    <CopyCode
-      code={cmdParts.join(' ')}
-      modalButtonText="Equivalent CLI Command"
-      copyButtonText="Copy command"
-      modalTitle="CLI command"
-    >
-      <span className="mr-2 select-none text-tertiary">$</span>
-      {cmdParts.join(' \\\n    ')}
-    </CopyCode>
+    <>
+      <Button variant="ghost" size="sm" className="ml-2" onClick={() => setIsOpen(true)}>
+        Equivalent CLI Command
+      </Button>
+      <CopyCodeModal
+        code={cmdParts.join(' ')}
+        copyButtonText="Copy command"
+        modalTitle="CLI command"
+        isOpen={isOpen}
+        onDismiss={() => setIsOpen(false)}
+      >
+        <span className="mr-2 select-none text-tertiary">$</span>
+        {cmdParts.join(' \\\n    ')}
+      </CopyCodeModal>
+    </>
   )
 }
