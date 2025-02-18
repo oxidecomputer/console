@@ -337,7 +337,7 @@ export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps)
           label="Instance actions"
           actions={[
             {
-              label: 'Docs',
+              label: 'About this metric',
               onActivate: () => {
                 // Turn into a real link when this is fixed
                 // https://github.com/oxidecomputer/console/issues/1855
@@ -346,7 +346,7 @@ export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps)
               },
             },
             {
-              label: 'OxQL query',
+              label: 'View OxQL query',
               onActivate: () => setModalOpen(true),
             },
           ]}
