@@ -11,11 +11,12 @@
  * https://github.com/oxidecomputer/omicron/tree/main/oximeter/oximeter/schema
  */
 
-import React, { Fragment, Suspense, useEffect, useMemo } from 'react'
+import React, { Fragment, Suspense, useEffect, useMemo, useState } from 'react'
 
 import { useApiQuery, type ChartDatum, type OxqlQueryResult } from '@oxide/api'
 
-import { CopyCode } from '~/components/CopyCode'
+import { CopyCodeModal } from '~/components/CopyCode'
+import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { LearnMore } from '~/ui/lib/SettingsGroup'
 import { intersperse } from '~/util/array'
 import { classed } from '~/util/classed'
@@ -320,6 +321,8 @@ export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps)
     return getPercentChartProps(chartData, startTime, endTime)
   }, [unit, chartData, startTime, endTime])
 
+  const [modalOpen, setModalOpen] = useState(false)
+
   return (
     <div className="flex w-full grow flex-col rounded-lg border border-default">
       <div className="flex items-center justify-between border-b px-6 py-5 border-secondary">
@@ -330,15 +333,35 @@ export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps)
           </h2>
           <div className="mt-0.5 text-sans-md text-secondary">{description}</div>
         </div>
-        <CopyCode
+        <MoreActionsMenu
+          label="Instance actions"
+          actions={[
+            {
+              label: 'Docs',
+              onActivate: () => {
+                // Turn into a real link when this is fixed
+                // https://github.com/oxidecomputer/console/issues/1855
+                const url = links.oxqlSchemaDocs(queryObj.metricName)
+                window.open(url, '_blank', 'noopener,noreferrer')
+              },
+            },
+            {
+              label: 'OxQL query',
+              onActivate: () => setModalOpen(true),
+            },
+          ]}
+          isSmall
+        />
+        <CopyCodeModal
+          isOpen={modalOpen}
+          onDismiss={() => setModalOpen(false)}
           code={query}
-          modalButtonText="OxQL"
           copyButtonText="Copy query"
           modalTitle="OxQL query"
           footer={<LearnMore href={links.oxqlDocs} text="OxQL" />}
         >
           <HighlightedOxqlQuery {...queryObj} />
-        </CopyCode>
+        </CopyCodeModal>
       </div>
       <div className="px-6 py-5">
         <Suspense fallback={<div className="h-[300px]" />}>
