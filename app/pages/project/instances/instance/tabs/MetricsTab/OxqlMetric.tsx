@@ -341,16 +341,12 @@ export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps)
               onActivate: () => {
                 // Turn into a real link when this is fixed
                 // https://github.com/oxidecomputer/console/issues/1855
-                const slug = queryObj.metricName.replace(':', '')
-                window.open(
-                  `https://docs-git-timeseries-guide-oxidecomputer.vercel.app/guides/operator/available-metric-data#_${slug}`,
-                  '_blank',
-                  'noopener,noreferrer'
-                )
+                const url = links.oxqlSchemaDocs(queryObj.metricName)
+                window.open(url, '_blank', 'noopener,noreferrer')
               },
             },
             {
-              label: 'OxQL Query',
+              label: 'OxQL query',
               onActivate: () => setModalOpen(true),
             },
           ]}
