@@ -75,7 +75,7 @@ export function useIntervalPicker({ enabled, isLoading, fn }: Props) {
           </button>
           <Listbox
             selected={enabled ? intervalPreset : 'Off'}
-            className="w-24 [&>button]:!rounded-l-none"
+            className="w-24 [&_button]:!rounded-l-none"
             items={intervalItems}
             onChange={setIntervalPreset}
             disabled={!enabled}

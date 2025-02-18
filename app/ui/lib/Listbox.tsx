@@ -80,7 +80,7 @@ export const Listbox = <Value extends string = string>({
         disabled={isDisabled || isLoading}
       >
         {({ open }) => (
-          <>
+          <div>
             {label && (
               <div className="mb-2 max-w-lg">
                 <FieldLabel
@@ -163,7 +163,7 @@ export const Listbox = <Value extends string = string>({
                 </ListboxOption>
               ))}
             </ListboxOptions>
-          </>
+          </div>
         )}
       </HListbox>
     </div>
