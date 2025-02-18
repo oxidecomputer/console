@@ -34,7 +34,7 @@
   "dependencies": {
     "@floating-ui/react": "^0.26.23",
     "@headlessui/react": "^2.2.0",
-    "@oxide/design-system": "2.2.2--canary.df98ad7.0",
+    "@oxide/design-system": "^2.2.2",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-tabs": "^1.1.0",
