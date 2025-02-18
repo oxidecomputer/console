@@ -51,7 +51,11 @@ export const Checkbox = ({
       <input
         className={cn(inputStyle, className)}
         type="checkbox"
-        ref={(el) => el && (el.indeterminate = !!indeterminate)}
+        ref={(el) => {
+          if (el) {
+            el.indeterminate = !!indeterminate
+          }
+        }}
         {...inputProps}
       />
       {inputProps.checked && !indeterminate && <Check />}

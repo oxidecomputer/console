@@ -19,7 +19,9 @@ export const flattenChildren = (children: ReactNode): ChildArray => {
   const childArray = React.Children.toArray(children)
   return childArray.reduce((flattened: ChildArray, child) => {
     if ((child as ReactElement)?.type === React.Fragment) {
-      return flattened.concat(flattenChildren((child as ReactElement).props.children))
+      // in React 18, ReactElement defaulted to any, now we have to say it (embarrassingly)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return flattened.concat(flattenChildren((child as ReactElement<any>).props.children))
     }
     flattened.push(child)
     return flattened

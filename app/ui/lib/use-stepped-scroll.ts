@@ -15,8 +15,8 @@ import { useEffect, type RefObject } from 'react'
  * container does not scroll, it moves inside the outer container.
  */
 export function useSteppedScroll(
-  outerContainerRef: RefObject<HTMLElement>,
-  innerContainerRef: RefObject<HTMLElement>,
+  outerContainerRef: RefObject<HTMLElement | null>,
+  innerContainerRef: RefObject<HTMLElement | null>,
   selectedIdx: number,
   outerContainerHeight: number,
   itemSelector = 'li'
