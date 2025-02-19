@@ -23,6 +23,7 @@ import { Storage16Icon, Storage24Icon } from '@oxide/design-system/icons/react'
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import { DiskStateBadge } from '~/components/StateBadge'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -39,6 +40,8 @@ import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
 import { fancifyStates } from '../instances/instance/tabs/common'
+
+export const handle = makeCrumb('Disks', (p) => pb.disks(getProjectSelector(p)))
 
 const EmptyState = () => (
   <EmptyMessage

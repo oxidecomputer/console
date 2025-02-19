@@ -21,6 +21,7 @@ import {
 } from '@oxide/design-system/icons/react'
 
 import { TopBar } from '~/components/TopBar'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
@@ -29,6 +30,11 @@ import type * as PP from '~/util/path-params'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { ContentPane, PageContainer } from './helpers'
+
+export const projectLayoutHandle = makeCrumb(
+  (p) => p.project!,
+  (p) => pb.project(getProjectSelector(p))
+)
 
 type ProjectLayoutProps = {
   /** Sometimes we need a different layout for the content pane. Like

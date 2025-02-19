@@ -13,7 +13,6 @@ import {
   type LoaderFunctionArgs,
 } from 'react-router'
 
-import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { NotFound } from './components/ErrorPage'
 import { CreateDiskSideModalForm } from './forms/disk-create'
 import { CreateFirewallRuleForm } from './forms/firewall-rules-create'
@@ -43,7 +42,7 @@ import * as RouterCreate from './forms/vpc-router-create'
 import { EditRouterSideModalForm } from './forms/vpc-router-edit'
 import { CreateRouterRouteSideModalForm } from './forms/vpc-router-route-create'
 import { EditRouterRouteSideModalForm } from './forms/vpc-router-route-edit'
-import { makeCrumb, titleCrumb } from './hooks/use-crumbs'
+import { makeCrumb, titleCrumb, type Crumb } from './hooks/use-crumbs'
 import { getInstanceSelector, getProjectSelector, getVpcSelector } from './hooks/use-params'
 import { AuthLayout } from './layouts/AuthLayout'
 import { LoginLayout } from './layouts/LoginLayout'
@@ -95,8 +94,11 @@ import { pb } from './util/path-builder'
 
 type RouteModule = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  clientLoader?: (a: LoaderFunctionArgs<any>) => any
+  clientLoader?: (a: LoaderFunctionArgs<any>) => Promise<null>
   default: () => ReactElement
+  shouldRevalidate?: () => boolean
+  ErrorBoundary?: () => ReactElement
+  handle?: Crumb
 }
 
 function convert(m: RouteModule) {
@@ -118,12 +120,7 @@ export const routes = createRoutesFromElements(
     </Route>
 
     {/* This wraps all routes that are supposed to be authenticated */}
-    <Route
-      lazy={() => import('./layouts/AuthenticatedLayout').then(convert)}
-      errorElement={<RouterDataErrorBoundary />}
-      // very important. see `currentUserLoader` and `useCurrentUser`
-      shouldRevalidate={() => true}
-    >
+    <Route lazy={() => import('./layouts/AuthenticatedLayout').then(convert)}>
       <Route
         path="settings"
         handle={makeCrumb('Settings', pb.profile())}
@@ -254,10 +251,6 @@ export const routes = createRoutesFromElements(
         <Route
           path=":project"
           lazy={() => import('./layouts/SerialConsoleLayout').then(convert)}
-          handle={makeCrumb(
-            (p) => p.project!,
-            (p) => pb.project(getProjectSelector(p))
-          )}
         >
           <Route path="instances" handle={{ crumb: 'Instances' }}>
             <Route path=":instance" handle={makeCrumb((p) => p.instance!)}>
@@ -270,14 +263,7 @@ export const routes = createRoutesFromElements(
           </Route>
         </Route>
 
-        <Route
-          path=":project"
-          lazy={() => import('./layouts/ProjectLayout').then(convert)}
-          handle={makeCrumb(
-            (p) => p.project!,
-            (p) => pb.project(getProjectSelector(p))
-          )}
-        >
+        <Route path=":project" lazy={() => import('./layouts/ProjectLayout').then(convert)}>
           <Route index element={<Navigate to="instances" replace />} />
           <Route
             path="instances-new"
@@ -450,10 +436,7 @@ export const routes = createRoutesFromElements(
               handle={titleCrumb('Edit Floating IP')}
             />
           </Route>
-          <Route
-            lazy={() => import('./pages/project/disks/DisksPage').then(convert)}
-            handle={makeCrumb('Disks', (p) => pb.disks(getProjectSelector(p)))}
-          >
+          <Route lazy={() => import('./pages/project/disks/DisksPage').then(convert)}>
             <Route path="disks" element={null} />
             <Route
               path="disks-new"

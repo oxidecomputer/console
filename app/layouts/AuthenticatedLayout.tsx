@@ -9,7 +9,15 @@ import { Outlet } from 'react-router'
 
 import { apiQueryClient } from '@oxide/api'
 
+import { RouterDataErrorBoundary } from '~/components/ErrorBoundary'
 import { QuickActions } from '~/hooks/use-quick-actions'
+
+/** very important. see `currentUserLoader` and `useCurrentUser` */
+export const shouldRevalidate = () => true
+
+export function ErrorBoundary() {
+  return <RouterDataErrorBoundary />
+}
 
 /**
  * We use `shouldRevalidate={() => true}` to force this to re-run on every nav,

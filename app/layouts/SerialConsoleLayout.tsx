@@ -6,10 +6,16 @@
  * Copyright Oxide Computer Company
  */
 import { SerialConsoleContentPane } from './helpers.tsx'
-import { ProjectLayoutBase, projectLayoutLoader } from './ProjectLayoutBase.tsx'
+import {
+  ProjectLayoutBase,
+  projectLayoutHandle,
+  projectLayoutLoader,
+} from './ProjectLayoutBase.tsx'
 
 export const clientLoader = projectLayoutLoader
 
-export default function ProjectLayout() {
+export const handle = projectLayoutHandle
+
+export default function SerialConsoleLayout() {
   return <ProjectLayoutBase overrideContentPane={<SerialConsoleContentPane />} />
 }

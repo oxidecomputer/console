@@ -5,9 +5,16 @@
  *
  * Copyright Oxide Computer Company
  */
-import { ProjectLayoutBase, projectLayoutLoader } from './ProjectLayoutBase.tsx'
+
+import {
+  ProjectLayoutBase,
+  projectLayoutHandle,
+  projectLayoutLoader,
+} from './ProjectLayoutBase.tsx'
 
 export const clientLoader = projectLayoutLoader
+
+export const handle = projectLayoutHandle
 
 export default function ProjectLayout() {
   return <ProjectLayoutBase />
