@@ -101,7 +101,7 @@ export async function startMockAPI() {
         // eslint-disable-next-line @typescript-eslint/no-base-to-string
         client.send(event.data.toString() === '13' ? '\r\n' : event.data)
       })
-      await sleep(400)
+      await sleep(1000) // make sure everything is ready first (especially a problem in CI)
       await streamString(client.socket, 'Wake up Neo...')
     })
   ).start({
