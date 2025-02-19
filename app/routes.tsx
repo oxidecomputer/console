@@ -58,7 +58,6 @@ import * as ProjectAccess from './pages/project/access/ProjectAccessPage'
 import { FloatingIpsPage } from './pages/project/floating-ips/FloatingIpsPage'
 import { ImagesPage } from './pages/project/images/ImagesPage'
 import { InstancePage } from './pages/project/instances/instance/InstancePage'
-import * as SerialConsole from './pages/project/instances/instance/SerialConsolePage'
 import * as ConnectTab from './pages/project/instances/instance/tabs/ConnectTab'
 import * as MetricsTab from './pages/project/instances/instance/tabs/MetricsTab'
 import * as NetworkingTab from './pages/project/instances/instance/tabs/NetworkingTab'
@@ -256,8 +255,11 @@ export const routes = createRoutesFromElements(
             <Route path=":instance" handle={makeCrumb((p) => p.instance!)}>
               <Route
                 path="serial-console"
-                {...SerialConsole}
-                handle={{ crumb: 'Serial Console' }}
+                lazy={() =>
+                  import('./pages/project/instances/instance/SerialConsolePage').then(
+                    convert
+                  )
+                }
               />
             </Route>
           </Route>
