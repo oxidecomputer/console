@@ -54,7 +54,7 @@ const instanceList = ({ project }: PP.Project) =>
   getListQFn('instanceList', { query: { project, limit: 200 } })
 const diskList = (query: PP.Project) => getListQFn('diskList', { query })
 
-DisksPage.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
   await Promise.all([
     queryClient.prefetchQuery(diskList({ project }).optionsFn()),
@@ -93,7 +93,7 @@ const staticCols = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-export function DisksPage() {
+export default function DisksPage() {
   const { project } = useProjectSelector()
 
   const { mutateAsync: deleteDisk } = useApiMutation('diskDelete', {

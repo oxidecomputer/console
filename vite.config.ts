@@ -16,6 +16,8 @@ import { z } from 'zod'
 
 import vercelConfig from './vercel.json'
 
+const KiB = 1024
+
 const ApiMode = z.enum(['msw', 'dogfood', 'nexus'])
 
 const apiModeResult = ApiMode.default('nexus').safeParse(process.env.API_MODE)
@@ -95,6 +97,13 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       input: {
         app: 'index.html',
+      },
+      output: {
+        // React Router automatically splits any route module into its own file,
+        // but some end up being like 300 bytes. It feels silly to have several
+        // hundred of those, so we set a minimum size to end up with fewer.
+        // https://rollupjs.org/configuration-options/#output-experimentalminchunksize
+        experimentalMinChunkSize: 5 * KiB,
       },
     },
     // prevent inlining assets as `data:`, which is not permitted by our Content-Security-Policy
