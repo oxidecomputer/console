@@ -134,15 +134,6 @@ export default defineConfig(({ mode }) => ({
           apiMode === 'dogfood' ? `https://${DOGFOOD_HOST}` : 'http://localhost:12220',
         changeOrigin: true,
       },
-      '^/v1/instances/[^/]+/serial-console/stream': {
-        target:
-          // in msw mode, serial console is served by tools/deno/mock-serial-console.ts
-          apiMode === 'dogfood'
-            ? `wss://${DOGFOOD_HOST}`
-            : 'ws://127.0.0.1:' + (apiMode === 'msw' ? 6036 : 12220),
-        changeOrigin: true,
-        ws: true,
-      },
     },
   },
   preview: { headers },
