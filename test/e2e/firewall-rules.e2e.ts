@@ -8,7 +8,7 @@
 
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
-import { clickRowAction, expectRowVisible, selectOption } from './utils'
+import { clickRowAction, expectRowVisible, selectOption, sleep } from './utils'
 
 const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp']
 
@@ -168,6 +168,11 @@ test('firewall rule form targets table', async ({ page }) => {
   await targetVpcNameField.fill('abc')
   // hit enter one time to choose the custom value
   await targetVpcNameField.press('Enter')
+
+  // pressing enter twice here in quick succession causes test flake in firefox
+  // specifically and this fixes it
+  await sleep(300)
+
   // hit enter a second time to submit the subform
   await targetVpcNameField.press('Enter')
   await expectRowVisible(targets, { Type: 'vpc', Value: 'abc' })

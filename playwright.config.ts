@@ -19,10 +19,10 @@ export default {
   retries: process.env.CI ? 2 : 0,
   // use all available cores (2) on github actions. default is 50%, use that locally
   workers: process.env.CI ? '100%' : undefined,
-  timeout: 2 * 60 * 1000, // 2 minutes, surely overkill
+  timeout: 60 * 1000, // 1 minute
   fullyParallel: true,
   use: {
-    trace: 'on-all-retries',
+    trace: process.env.CI ? 'on-first-retry' : 'retain-on-failure',
     baseURL: 'http://localhost:4009',
   },
   projects: [

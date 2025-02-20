@@ -69,10 +69,11 @@ export async function expectRowVisible(
 ) {
   // wait for header and rows to avoid flake town
   const headerLoc = table.locator('thead >> role=cell')
-  await headerLoc.first().waitFor() // nth=0 bc error if there's more than 1
+  // unlike most things, waitFor has no timeout by default
+  await headerLoc.first().waitFor({ timeout: 10_000 }) // nth=0 bc error if there's more than 1
 
   const rowLoc = table.locator('tbody >> role=row')
-  await rowLoc.first().waitFor()
+  await rowLoc.first().waitFor({ timeout: 10_000 })
 
   async function getRows() {
     // need to pull header keys every time because the whole page can change
