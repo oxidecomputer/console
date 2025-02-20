@@ -10,7 +10,7 @@ import { describe, expect, it, test } from 'vitest'
 
 import {
   getLargestValue,
-  getMeanWindow,
+  getMeanWithinSeconds,
   getOrderOfMagnitude,
   getUnit,
   HighlightedOxqlQuery,
@@ -20,38 +20,51 @@ import {
 } from './OxqlMetric'
 
 test('oxqlTimestamp', () => {
-  const date1 = new Date('2025-02-11T00:00:00Z')
-  expect(oxqlTimestamp(date1)).toEqual('2025-02-11T00:00:00.000')
+  const date1 = new Date('2025-02-11T00:00:01.234Z')
+  expect(oxqlTimestamp(date1)).toEqual('2025-02-11T00:00:01.000')
   const datePST = new Date('2025-02-11T00:00:00-08:00')
   expect(oxqlTimestamp(datePST)).toEqual('2025-02-11T08:00:00.000')
 })
 
-describe('getMeanWindow', () => {
+describe('getMeanWithinSeconds', () => {
   const start = new Date('2025-02-11T00:00:00Z')
   test('calculates the mean window for a 10-minute range', () => {
     const end = new Date('2025-02-11T00:10:00Z') // 10 minutes later
-    expect(getMeanWindow(start, end)).toBe('10s')
+    expect(getMeanWithinSeconds(start, end)).toBe(10)
   })
 
   test('calculates the mean window for a 1-hour range', () => {
     const end = new Date('2025-02-11T01:00:00Z') // 60 minutes later
-    expect(getMeanWindow(start, end)).toBe('60s')
+    expect(getMeanWithinSeconds(start, end)).toBe(60)
   })
 
   test('calculates the mean window for a 24-hour range', () => {
     const end = new Date('2025-02-12T00:00:00Z') // 24 hours later
-    expect(getMeanWindow(start, end)).toBe('1440s')
+    expect(getMeanWithinSeconds(start, end)).toBe(1440)
   })
 
   test('calculates the mean window for a 1-week range', () => {
     const end = new Date('2025-02-18T00:00:00Z') // 1 week later
-    expect(getMeanWindow(start, end)).toBe('10080s')
+    expect(getMeanWithinSeconds(start, end)).toBe(10080)
   })
 
   test('calculates the mean window for a 10-minute range, but with only 5 datapoints', () => {
     const end = new Date('2025-02-11T00:10:00Z') // 10 minutes later
     const datapoints = 5
-    expect(getMeanWindow(start, end, datapoints)).toBe('120s')
+    expect(getMeanWithinSeconds(start, end, datapoints)).toBe(120)
+  })
+  test('calculates the mean window for a 2-hour range, but with only 5 datapoints', () => {
+    const end = new Date('2025-02-11T02:00:00Z') // 120 minutes later
+    const datapoints = 5
+    expect(getMeanWithinSeconds(start, end, datapoints)).toBe(1440)
+  })
+  test('calculates the mean window for a 1-month range', () => {
+    const end = new Date('2025-03-11T00:00:00Z') // 28 days later
+    expect(getMeanWithinSeconds(start, end)).toBe(40320)
+  })
+  test('calculates the mean window for a 1-month range, with only 20 datapoints', () => {
+    const end = new Date('2025-03-11T00:00:00Z') // 28 days later
+    expect(getMeanWithinSeconds(start, end, 20)).toBe(120960)
   })
 })
 

@@ -60,11 +60,26 @@ export function Component() {
       <MetricCollection>
         <MetricRow>
           <OxqlMetric
+            title="CPU Utilization"
+            eqFilters={useMemo(() => ({ ...filterBase }), [filterBase])}
+            {...queryBase}
+          />
+        </MetricRow>
+        {/* <MetricRow>
+          <OxqlMetric
             title="CPU Utilization: Running"
             eqFilters={useMemo(() => ({ ...filterBase, state: 'run' }), [filterBase])}
             {...queryBase}
           />
         </MetricRow>
+        <MetricRow>
+          <OxqlMetric
+            title="CPU Utilization: Emulation"
+            eqFilters={useMemo(() => ({ ...filterBase, state: 'emulation' }), [filterBase])}
+            {...queryBase}
+          />
+        </MetricRow>
+
         <MetricRow>
           <OxqlMetric
             title="CPU Utilization: Idling"
@@ -76,7 +91,7 @@ export function Component() {
             eqFilters={useMemo(() => ({ ...filterBase, state: 'waiting' }), [filterBase])}
             {...queryBase}
           />
-        </MetricRow>
+        </MetricRow> */}
       </MetricCollection>
     </>
   )

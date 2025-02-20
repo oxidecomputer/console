@@ -25,6 +25,9 @@ import { links } from '~/util/links'
 
 import { useMetricsContext } from '../MetricsTab'
 
+// the interval (in seconds) at which oximeter polls for new data; a constant in Propolis
+const VCPU_KSTAT_INTERVAL = 5
+
 // An OxQL Query Result can have multiple tables, but in the web console we only ever call
 // aligned timeseries queries, which always have exactly one table.
 export const getChartData = (data: OxqlQueryResult | undefined): ChartDatum[] => {
@@ -44,11 +47,8 @@ export const getChartData = (data: OxqlQueryResult | undefined): ChartDatum[] =>
 
 const TimeSeriesChart = React.lazy(() => import('~/components/TimeSeriesChart'))
 
-// TODO: we could probably do without the fractional seconds. it would make the
-// rendered OxQL look a little nicer
-
-/** convert to UTC and return the timezone-free format required by OxQL */
-export const oxqlTimestamp = (date: Date) => date.toISOString().replace('Z', '')
+/** convert to UTC and return the timezone-free format required by OxQL, without milliseconds */
+export const oxqlTimestamp = (date: Date) => date.toISOString().replace(/\.\d+Z$/, '.000')
 
 export type OxqlDiskMetricName =
   | 'virtual_disk:bytes_read'
@@ -77,17 +77,17 @@ export type OxqlMetricName = OxqlDiskMetricName | OxqlVmMetricName | OxqlNetwork
 
 export type OxqlVcpuState = 'run' | 'idle' | 'waiting' | 'emulation'
 
-/** determine the mean window for the given time range;
- * returns a string representing N seconds, e.g. '60s'
- * points = the number of datapoints we want to see in the chart
+/** determine the mean window, in seconds, for the given time range;
+ * datapoints = the number of datapoints we want to see in the chart
  *   (default is 60, to show 1 point per minute on a 1-hour chart)
  * We could dynamically adjust this based on the duration of the range,
  * like … for 1 week, show 1 datapoint per hour, for 1 day, show 1 datapoint per minute, etc.
  * */
-export const getMeanWindow = (start: Date, end: Date, datapoints = 60) => {
+export const getMeanWithinSeconds = (start: Date, end: Date, datapoints = 60) => {
   const durationMinutes = getDurationMinutes({ start, end })
+  // the 60 here is just the number of seconds in a minute; unrelated to the default 60 datapoints above
   const durationSeconds = durationMinutes * 60
-  return `${Math.round(durationSeconds / datapoints)}s`
+  return Math.round(durationSeconds / datapoints)
 }
 
 type FilterKey =
@@ -105,7 +105,17 @@ type GroupByCol = 'instance_id' | 'attached_instance_id'
 
 type GroupBy = {
   cols: NonEmptyArray<GroupByCol>
-  op: 'sum'
+  op: 'sum' | 'mean'
+}
+
+const getTimePropsForOxqlQuery = (startTime: Date, endTime: Date, datapoints = 60) => {
+  const meanWindowSeconds = getMeanWithinSeconds(startTime, endTime, datapoints)
+  // we adjust the start time back by 2x the mean window so that we can
+  // 1) drop the first datapoint (the cumulative sum of all previous datapoints)
+  // 2) ensure that the first datapoint we display on the chart matches the actual start time
+  const secondsToAdjust = meanWindowSeconds * 2
+  const adjustedStart = new Date(startTime.getTime() - secondsToAdjust * 1000)
+  return { meanWindowSeconds, adjustedStart }
 }
 
 export type OxqlQuery = {
@@ -123,12 +133,7 @@ export const toOxqlStr = ({
   groupBy,
   eqFilters = {},
 }: OxqlQuery) => {
-  const meanWindow = getMeanWindow(startTime, endTime)
-  // we adjust the start time back by 2x the mean window so that we can
-  // 1) drop the first datapoint (the cumulative sum of all previous datapoints)
-  // 2) ensure that the first datapoint we display on the chart matches the actual start time
-  const secondsToAdjust = parseInt(meanWindow, 10) * 2
-  const adjustedStart = new Date(startTime.getTime() - secondsToAdjust * 1000)
+  const { meanWindowSeconds, adjustedStart } = getTimePropsForOxqlQuery(startTime, endTime)
   const filters = [
     `timestamp >= @${oxqlTimestamp(adjustedStart)}`,
     `timestamp < @${oxqlTimestamp(endTime)}`,
@@ -142,11 +147,10 @@ export const toOxqlStr = ({
   const query = [
     `get ${metricName}`,
     `filter ${filters.join(' && ')}`,
-    `align mean_within(${meanWindow})`,
+    `align mean_within(${meanWindowSeconds}s)`,
   ]
 
   if (groupBy) query.push(`group_by [${groupBy.cols.join(', ')}], ${groupBy.op}`)
-
   return query.join(' | ')
 }
 
@@ -164,9 +168,7 @@ export function HighlightedOxqlQuery({
   groupBy,
   eqFilters = {},
 }: OxqlQuery) {
-  const meanWindow = getMeanWindow(startTime, endTime)
-  const secondsToAdjust = parseInt(meanWindow, 10) * 2
-  const adjustedStart = new Date(startTime.getTime() - secondsToAdjust * 1000)
+  const { meanWindowSeconds, adjustedStart } = getTimePropsForOxqlQuery(startTime, endTime)
   const filters = [
     <Fragment key="start">
       timestamp &gt;= <NumLit>@{oxqlTimestamp(adjustedStart)}</NumLit>
@@ -189,7 +191,7 @@ export function HighlightedOxqlQuery({
       <NewlinePipe />
       <Keyword>filter</Keyword> {intersperse(filters, <FilterSep />)}
       <NewlinePipe />
-      <Keyword>align</Keyword> mean_within(<NumLit>{meanWindow}</NumLit>)
+      <Keyword>align</Keyword> mean_within(<NumLit>{meanWindowSeconds}s</NumLit>)
       {groupBy && (
         <>
           <NewlinePipe />
@@ -265,27 +267,28 @@ export const getCountChartProps = (chartData: ChartDatum[]): OxqlMetricChartProp
   return { data: chartData, label: '(Count)', unitForSet: '', yAxisTickFormatter }
 }
 
-export const getPercentDivisor = (startTime: Date, endTime: Date) => {
-  const meanWindowSeconds = parseInt(getMeanWindow(startTime, endTime), 10)
-  // console.log('meanWindowSeconds', meanWindowSeconds)
-  // We actually need to know the number of nanoseconds
-  return meanWindowSeconds * 1_000_000_000
-}
+export const getUtilizationChartProps = (chartData: ChartDatum[]): OxqlMetricChartProps => {
+  // We'll need to know the number of CPUs to calculate the divisor.
+  // We get that from the number of timeseries-es in the chartData.
+  // For right now, just so I can get the latest changes in, I'm going to hardcode it, but
+  // as a preview, we'll be grouping the data by vcpu_id, and then we can get the number of
+  // CPUs from that; projected query will be something like
+  // oxql.query('get virtual_machine:vcpu_usage
+  //   | filter timestamp >= startTime
+  //     && timestamp < endTime
+  //     && instance_id == instanceId
+  //     && (state == "run" || state == "emulation")
+  //   | align mean_within(60s)
+  //   | group_by [vcpu_id], sum')
+  // This structure doesn't work with our current getChartData function, so we'll need to
+  // update that to handle the new approach
+  const nCPUs = 8 // 🔥🔥🔥🔥
 
-/**
- * The Percent chart components helper modifies the data, as the values are some percentage
- * of a whole. For now, all Percent charts are based on CPU utilization time. Because queries
- * can be dynamic in terms of the `mean_within` window, we use that value to determine the
- * divisor for the data.
- */
-export const getPercentChartProps = (
-  chartData: ChartDatum[],
-  startTime: Date,
-  endTime: Date
-): OxqlMetricChartProps => {
+  // The divisor is the VCPU_KSTAT_INTERVAL (5 seconds) * 1,000,000,000 (nanoseconds) * nCPUs
+  const divisor = VCPU_KSTAT_INTERVAL * 1000 * 1000 * 1000 * nCPUs
   const data = chartData.map(({ timestamp, value }) => ({
     timestamp,
-    value: value / getPercentDivisor(startTime, endTime),
+    value: (value * 100) / divisor,
   }))
   return { data, label: '(%)', unitForSet: '%', yAxisTickFormatter: (n: number) => `${n}%` }
 }
@@ -308,7 +311,8 @@ export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps)
   const { setIsIntervalPickerEnabled } = useMetricsContext()
   useEffect(() => {
     if (metrics) {
-      setIsIntervalPickerEnabled(true)
+      // this is too slow right now; disabling until we can make it faster
+      // setIsIntervalPickerEnabled(true)
     }
   }, [metrics, setIsIntervalPickerEnabled])
 
@@ -318,8 +322,8 @@ export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps)
   const { data, label, unitForSet, yAxisTickFormatter } = useMemo(() => {
     if (unit === 'Bytes') return getBytesChartProps(chartData)
     if (unit === 'Count') return getCountChartProps(chartData)
-    return getPercentChartProps(chartData, startTime, endTime)
-  }, [unit, chartData, startTime, endTime])
+    return getUtilizationChartProps(chartData)
+  }, [unit, chartData])
 
   const [modalOpen, setModalOpen] = useState(false)
 
