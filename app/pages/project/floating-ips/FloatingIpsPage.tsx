@@ -24,6 +24,7 @@ import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react
 import { DocsPopover } from '~/components/DocsPopover'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { HL } from '~/components/HL'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -58,7 +59,11 @@ const fipList = (project: string) => getListQFn('floatingIpList', { query: { pro
 const instanceList = (project: string) =>
   getListQFn('instanceList', { query: { project, limit: ALL_ISH } })
 
-FloatingIpsPage.loader = async ({ params }: LoaderFunctionArgs) => {
+export const handle = makeCrumb('Floating IPs', (p) =>
+  pb.floatingIps(getProjectSelector(p))
+)
+
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
   await Promise.all([
     queryClient.fetchQuery(fipList(project).optionsFn()),
@@ -96,7 +101,7 @@ const staticCols = [
   }),
 ]
 
-export function FloatingIpsPage() {
+export default function FloatingIpsPage() {
   const [floatingIpToModify, setFloatingIpToModify] = useState<FloatingIp | null>(null)
   const { project } = useProjectSelector()
   const { data: instances } = usePrefetchedQuery(instanceList(project).optionsFn())

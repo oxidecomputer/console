@@ -15,8 +15,6 @@ import {
 
 import { NotFound } from './components/ErrorPage'
 import { CreateDiskSideModalForm } from './forms/disk-create'
-import { CreateFloatingIpSideModalForm } from './forms/floating-ip-create'
-import { EditFloatingIpSideModalForm } from './forms/floating-ip-edit'
 import { ProjectImageEdit, SiloImageEdit } from './forms/image-edit'
 import { CreateImageFromSnapshotSideModalForm } from './forms/image-from-snapshot'
 import * as ImageCreate from './forms/image-upload'
@@ -38,7 +36,6 @@ import { makeCrumb, titleCrumb, type Crumb } from './hooks/use-crumbs'
 import { getInstanceSelector, getProjectSelector, getVpcSelector } from './hooks/use-params'
 import { instanceLookupLoader } from './pages/lookups'
 import * as ProjectAccess from './pages/project/access/ProjectAccessPage'
-import { FloatingIpsPage } from './pages/project/floating-ips/FloatingIpsPage'
 import { ImagesPage } from './pages/project/images/ImagesPage'
 import { InstancePage } from './pages/project/instances/instance/InstancePage'
 import * as ConnectTab from './pages/project/instances/instance/tabs/ConnectTab'
@@ -447,21 +444,18 @@ export const routes = createRoutesFromElements(
             </Route>
           </Route>
           <Route
-            element={<FloatingIpsPage />}
-            loader={FloatingIpsPage.loader}
-            handle={makeCrumb('Floating IPs', (p) => pb.floatingIps(getProjectSelector(p)))}
+            lazy={() =>
+              import('./pages/project/floating-ips/FloatingIpsPage').then(convert)
+            }
           >
             <Route path="floating-ips" element={null} />
             <Route
               path="floating-ips-new"
-              element={<CreateFloatingIpSideModalForm />}
-              handle={titleCrumb('New Floating IP')}
+              lazy={() => import('./forms/floating-ip-create').then(convert)}
             />
             <Route
               path="floating-ips/:floatingIp/edit"
-              element={<EditFloatingIpSideModalForm />}
-              loader={EditFloatingIpSideModalForm.loader}
-              handle={titleCrumb('Edit Floating IP')}
+              lazy={() => import('./forms/floating-ip-edit').then(convert)}
             />
           </Route>
           <Route lazy={() => import('./pages/project/disks/DisksPage').then(convert)}>
