@@ -5,7 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
-import { clickRowAction, expect, test } from './utils'
+import { expect, test, type Page } from '@playwright/test'
+
+import { clickRowAction } from './utils'
 
 test('serial console can connect while starting', async ({ page }) => {
   // create an instance
@@ -29,11 +31,10 @@ test('serial console can connect while starting', async ({ page }) => {
   await expect(page.getByText('The instance is starting')).toBeVisible()
   await expect(page.getByText('The instance is')).toBeHidden()
 
-  // Here it would be nice to test that the serial console connects, but we
-  // can't mock websockets with MSW yet: https://github.com/mswjs/msw/pull/2011
+  await testSerialConsole(page)
 })
 
-test('links in instance actions', async ({ page }) => {
+test('serial console for existing instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
   await clickRowAction(page, 'db1', 'View serial console')
   await expect(page).toHaveURL('/projects/mock-project/instances/db1/serial-console')
@@ -42,4 +43,23 @@ test('links in instance actions', async ({ page }) => {
   await page.getByRole('button', { name: 'Instance actions' }).click()
   await page.getByRole('menuitem', { name: 'View serial console' }).click()
   await expect(page).toHaveURL('/projects/mock-project/instances/db1/serial-console')
+
+  await testSerialConsole(page)
 })
+
+async function testSerialConsole(page: Page) {
+  const xterm = page.getByRole('application')
+
+  // MSW mocks a message. use first() because there are multiple copies on screen
+  await expect(xterm.getByText('Wake up Neo...').first()).toBeVisible()
+
+  // we need to do this for our keypresses to land
+  await page.locator('.xterm-helper-textarea').focus()
+
+  await xterm.pressSequentially('abc')
+  await expect(xterm.getByText('Wake up Neo...abc').first()).toBeVisible()
+  await xterm.press('Enter')
+  await xterm.pressSequentially('def')
+  await expect(xterm.getByText('Wake up Neo...abc').first()).toBeVisible()
+  await expect(xterm.getByText('def').first()).toBeVisible()
+}

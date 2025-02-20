@@ -15,7 +15,7 @@ set -o pipefail
 
 DIR="ci-e2e-traces"
 
-COMMIT=$1
+COMMIT=$(git rev-parse "$1")
 
 # Get the ID of the last github actions run if there was one. If a commit
 # is specified, use that, otherwise
@@ -42,8 +42,8 @@ if [ -e "$DIR/.run" ] && [ "$RUN_ID" == "$(cat $DIR/.run)" ]; then
 else
     rm -rf $DIR
     echo "Downloading traces..."
-    gh run download $RUN_ID --dir $DIR
-    echo $RUN_ID > $DIR/.run
+    gh run download "$RUN_ID" --dir $DIR
+    echo "$RUN_ID" > $DIR/.run
 fi
 
 # gnarly select and re-find is to take filepath noise out of the select list

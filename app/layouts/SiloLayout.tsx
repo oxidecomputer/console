@@ -17,11 +17,11 @@ import {
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '~/components/Sidebar'
 import { TopBar } from '~/components/TopBar'
+import { useCurrentUser } from '~/hooks/use-current-user'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
 
-import { useCurrentUser } from './AuthenticatedLayout'
 import { ContentPane, PageContainer } from './helpers'
 
 export function SiloLayout() {

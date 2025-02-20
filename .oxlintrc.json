@@ -1,5 +1,13 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "import",
+    // defaults
+    "react",
+    "unicorn",
+    "typescript",
+    "oxc"
+  ],
   "rules": {
     // only worry about console.log
     "no-console": ["error", { "allow": ["warn", "error", "info", "table"] }],
@@ -16,7 +24,18 @@
     "react/jsx-boolean-value": "error",
 
     "react-hooks/exhaustive-deps": "error",
-    "react-hooks/rules-of-hooks": "error"
+    "react-hooks/rules-of-hooks": "error",
+    "import/no-default-export": "error"
   },
+  "overrides": [
+    {
+      // default exports are needed in the route modules and the config files,
+      // but we want to avoid them anywhere else
+      "files": ["app/pages/**/*", "app/layouts/**/*", "*.config.ts", "*.config.mjs"],
+      "rules": {
+        "import/no-default-export": "off"
+      }
+    }
+  ],
   "ignorePatterns": ["dist/", "node_modules/"]
 }

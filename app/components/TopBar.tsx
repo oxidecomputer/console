@@ -18,7 +18,7 @@ import {
 } from '@oxide/design-system/icons/react'
 
 import { useCrumbs } from '~/hooks/use-crumbs'
-import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
+import { useCurrentUser } from '~/hooks/use-current-user'
 import { buttonStyle } from '~/ui/lib/Button'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 import { Identicon } from '~/ui/lib/Identicon'
