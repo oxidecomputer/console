@@ -16,7 +16,7 @@ import { useCrumbs } from '~/hooks/use-crumbs'
  * non top-level route: Instances / mock-project / Projects / maze-war / Oxide Console
  * top-level route: Oxide Console
  */
-export const useTitle = () =>
+const useTitle = () =>
   useCrumbs()
     .map((c) => c.label)
     .reverse()
@@ -27,7 +27,7 @@ export const useTitle = () =>
  * Root layout that applies to the entire app. Modify sparingly. It's rare for
  * anything to actually belong here.
  */
-export function RootLayout() {
+export default function RootLayout() {
   const title = useTitle()
   useEffect(() => {
     document.title = title

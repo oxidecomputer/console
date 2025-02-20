@@ -5,9 +5,14 @@
  *
  * Copyright Oxide Computer Company
  */
-import { createRoutesFromElements, Navigate, Route } from 'react-router'
+import type { ReactElement } from 'react'
+import {
+  createRoutesFromElements,
+  Navigate,
+  Route,
+  type LoaderFunctionArgs,
+} from 'react-router'
 
-import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { NotFound } from './components/ErrorPage'
 import { CreateDiskSideModalForm } from './forms/disk-create'
 import { CreateFirewallRuleForm } from './forms/firewall-rules-create'
@@ -37,14 +42,10 @@ import * as RouterCreate from './forms/vpc-router-create'
 import { EditRouterSideModalForm } from './forms/vpc-router-edit'
 import { CreateRouterRouteSideModalForm } from './forms/vpc-router-route-create'
 import { EditRouterRouteSideModalForm } from './forms/vpc-router-route-edit'
-import { makeCrumb, titleCrumb } from './hooks/use-crumbs'
+import { makeCrumb, titleCrumb, type Crumb } from './hooks/use-crumbs'
 import { getInstanceSelector, getProjectSelector, getVpcSelector } from './hooks/use-params'
-import { AuthenticatedLayout } from './layouts/AuthenticatedLayout'
 import { AuthLayout } from './layouts/AuthLayout'
-import { SerialConsoleContentPane } from './layouts/helpers'
 import { LoginLayout } from './layouts/LoginLayout'
-import { ProjectLayout } from './layouts/ProjectLayout'
-import { RootLayout } from './layouts/RootLayout'
 import { SettingsLayout } from './layouts/SettingsLayout'
 import { SiloLayout } from './layouts/SiloLayout'
 import * as SystemLayout from './layouts/SystemLayout'
@@ -54,17 +55,14 @@ import { LoginPage } from './pages/LoginPage'
 import { LoginPageSaml } from './pages/LoginPageSaml'
 import { instanceLookupLoader } from './pages/lookups'
 import * as ProjectAccess from './pages/project/access/ProjectAccessPage'
-import { DisksPage } from './pages/project/disks/DisksPage'
 import { FloatingIpsPage } from './pages/project/floating-ips/FloatingIpsPage'
 import { ImagesPage } from './pages/project/images/ImagesPage'
 import { InstancePage } from './pages/project/instances/instance/InstancePage'
-import * as SerialConsole from './pages/project/instances/instance/SerialConsolePage'
 import * as ConnectTab from './pages/project/instances/instance/tabs/ConnectTab'
 import * as MetricsTab from './pages/project/instances/instance/tabs/MetricsTab'
 import * as NetworkingTab from './pages/project/instances/instance/tabs/NetworkingTab'
 import * as SettingsTab from './pages/project/instances/instance/tabs/SettingsTab'
 import * as StorageTab from './pages/project/instances/instance/tabs/StorageTab'
-import { InstancesPage } from './pages/project/instances/InstancesPage'
 import { SnapshotsPage } from './pages/project/snapshots/SnapshotsPage'
 import { EditInternetGatewayForm } from './pages/project/vpcs/internet-gateway-edit'
 import * as RouterPage from './pages/project/vpcs/RouterPage'
@@ -93,8 +91,22 @@ import * as SystemUtilization from './pages/system/UtilizationPage'
 import { truncate } from './ui/lib/Truncate'
 import { pb } from './util/path-builder'
 
+type RouteModule = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  clientLoader?: (a: LoaderFunctionArgs<any>) => Promise<null>
+  default: () => ReactElement
+  shouldRevalidate?: () => boolean
+  ErrorBoundary?: () => ReactElement
+  handle?: Crumb
+}
+
+function convert(m: RouteModule) {
+  const { clientLoader, default: Component, ...rest } = m
+  return { ...rest, loader: clientLoader, Component }
+}
+
 export const routes = createRoutesFromElements(
-  <Route element={<RootLayout />}>
+  <Route lazy={() => import('./layouts/RootLayout').then(convert)}>
     <Route path="*" element={<NotFound />} />
     <Route element={<LoginLayout />}>
       <Route path="login/:silo/local" element={<LoginPage />} />
@@ -107,13 +119,7 @@ export const routes = createRoutesFromElements(
     </Route>
 
     {/* This wraps all routes that are supposed to be authenticated */}
-    <Route
-      element={<AuthenticatedLayout />}
-      loader={AuthenticatedLayout.loader}
-      errorElement={<RouterDataErrorBoundary />}
-      // very important. see `currentUserLoader` and `useCurrentUser`
-      shouldRevalidate={() => true}
-    >
+    <Route lazy={() => import('./layouts/AuthenticatedLayout').then(convert)}>
       <Route
         path="settings"
         handle={makeCrumb('Settings', pb.profile())}
@@ -243,33 +249,23 @@ export const routes = createRoutesFromElements(
               cannot use the normal <ContentPane>.*/}
         <Route
           path=":project"
-          element={<ProjectLayout overrideContentPane={<SerialConsoleContentPane />} />}
-          loader={ProjectLayout.loader}
-          handle={makeCrumb(
-            (p) => p.project!,
-            (p) => pb.project(getProjectSelector(p))
-          )}
+          lazy={() => import('./layouts/SerialConsoleLayout').then(convert)}
         >
           <Route path="instances" handle={{ crumb: 'Instances' }}>
             <Route path=":instance" handle={makeCrumb((p) => p.instance!)}>
               <Route
                 path="serial-console"
-                {...SerialConsole}
-                handle={{ crumb: 'Serial Console' }}
+                lazy={() =>
+                  import('./pages/project/instances/instance/SerialConsolePage').then(
+                    convert
+                  )
+                }
               />
             </Route>
           </Route>
         </Route>
 
-        <Route
-          path=":project"
-          element={<ProjectLayout />}
-          loader={ProjectLayout.loader}
-          handle={makeCrumb(
-            (p) => p.project!,
-            (p) => pb.project(getProjectSelector(p))
-          )}
-        >
+        <Route path=":project" lazy={() => import('./layouts/ProjectLayout').then(convert)}>
           <Route index element={<Navigate to="instances" replace />} />
           <Route
             path="instances-new"
@@ -278,7 +274,7 @@ export const routes = createRoutesFromElements(
             handle={{ crumb: 'New instance' }}
           />
           <Route path="instances" handle={{ crumb: 'Instances' }}>
-            <Route index element={<InstancesPage />} loader={InstancesPage.loader} />
+            <Route index lazy={() => import('./pages/project/instances/InstancesPage')} />
             <Route
               path=":instance"
               handle={makeCrumb(
@@ -442,11 +438,7 @@ export const routes = createRoutesFromElements(
               handle={titleCrumb('Edit Floating IP')}
             />
           </Route>
-          <Route
-            element={<DisksPage />}
-            handle={makeCrumb('Disks', (p) => pb.disks(getProjectSelector(p)))}
-            loader={DisksPage.loader}
-          >
+          <Route lazy={() => import('./pages/project/disks/DisksPage').then(convert)}>
             <Route path="disks" element={null} />
             <Route
               path="disks-new"

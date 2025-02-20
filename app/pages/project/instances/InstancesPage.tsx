@@ -62,7 +62,7 @@ const instanceList = (
   options?: Pick<UseQueryOptions<InstanceResultsPage, ApiError>, 'refetchInterval'>
 ) => getListQFn('instanceList', { query: { project } }, options)
 
-InstancesPage.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function loader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
   await queryClient.prefetchQuery(instanceList(project).optionsFn())
   return null
@@ -76,7 +76,8 @@ const POLL_FAST_TIMEOUT = 30 * sec
 const POLL_INTERVAL_FAST = 3 * sec
 const POLL_INTERVAL_SLOW = 60 * sec
 
-export function InstancesPage() {
+Component.displayName = 'InstancesPage'
+export function Component() {
   const { project } = useProjectSelector()
   const [resizeInstance, setResizeInstance] = useState<Instance | null>(null)
 

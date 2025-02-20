@@ -9,7 +9,7 @@ import { useMatches, type Params, type UIMatch } from 'react-router'
 
 import { invariant } from '~/util/invariant'
 
-type Crumb = {
+export type Crumb = {
   crumb: MakeStr
   /**
    * Side modal forms have their own routes and their own crumbs that we want
