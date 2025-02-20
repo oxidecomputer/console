@@ -17,8 +17,6 @@ import { NotFound } from './components/ErrorPage'
 import { CreateDiskSideModalForm } from './forms/disk-create'
 import { CreateFloatingIpSideModalForm } from './forms/floating-ip-create'
 import { EditFloatingIpSideModalForm } from './forms/floating-ip-edit'
-import { CreateIdpSideModalForm } from './forms/idp/create'
-import { EditIdpSideModalForm } from './forms/idp/edit'
 import { ProjectImageEdit, SiloImageEdit } from './forms/image-edit'
 import { CreateImageFromSnapshotSideModalForm } from './forms/image-from-snapshot'
 import * as ImageCreate from './forms/image-upload'
@@ -27,7 +25,6 @@ import * as IpPoolEdit from './forms/ip-pool-edit'
 import * as IpPoolAddRange from './forms/ip-pool-range-add'
 import * as ProjectCreate from './forms/project-create'
 import { EditProjectSideModalForm } from './forms/project-edit'
-import { CreateSiloSideModalForm } from './forms/silo-create'
 import * as SnapshotCreate from './forms/snapshot-create'
 import * as SSHKeyCreate from './forms/ssh-key-create'
 import { CreateSubnetForm } from './forms/subnet-create'
@@ -137,16 +134,20 @@ export const routes = createRoutesFromElements(
       <Route path="system" lazy={() => import('./layouts/SystemLayout').then(convert)}>
         <Route {...SilosPage} handle={makeCrumb('Silos', pb.silos())}>
           <Route path="silos" element={null} />
-          <Route path="silos-new" element={<CreateSiloSideModalForm />} />
+          <Route
+            path="silos-new"
+            lazy={() => import('./forms/silo-create').then(convert)}
+          />
         </Route>
         <Route path="silos" handle={{ crumb: 'Silos' }}>
           <Route path=":silo" {...SiloPage} handle={makeCrumb((p) => p.silo!)}>
-            <Route path="idps-new" element={<CreateIdpSideModalForm />} />
+            <Route
+              path="idps-new"
+              lazy={() => import('./forms/idp/create').then(convert)}
+            />
             <Route
               path="idps/saml/:provider"
-              element={<EditIdpSideModalForm />}
-              loader={EditIdpSideModalForm.loader}
-              handle={titleCrumb('Edit Identity Provider')}
+              lazy={() => import('./forms/idp/edit').then(convert)}
             />
           </Route>
         </Route>
