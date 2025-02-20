@@ -19,6 +19,7 @@ import {
 
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { ALL_ISH } from '~/util/consts'
@@ -26,6 +27,8 @@ import { pb } from '~/util/path-builder'
 
 import { CommonFields } from './firewall-rules-common'
 import { valuesToRuleUpdate, type FirewallRuleValues } from './firewall-rules-util'
+
+export const handle = titleCrumb('New Rule')
 
 /** Empty form for when we're not creating from an existing rule */
 const defaultValuesEmpty: FirewallRuleValues = {
@@ -55,7 +58,7 @@ const ruleToValues = (rule: VpcFirewallRule): FirewallRuleValues => ({
   hosts: rule.filters.hosts || [],
 })
 
-CreateFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('vpcFirewallRulesView', { query: { project, vpc } }),
@@ -69,7 +72,7 @@ CreateFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-export function CreateFirewallRuleForm() {
+export default function CreateFirewallRuleForm() {
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 

@@ -19,5 +19,11 @@
   "vite.browserType": "system",
   "vite.buildCommand": "npm run build",
   "vite.devCommand": "npm run start:msw",
-  "deno.enablePaths": ["./tools/deno"]
+  "deno.enablePaths": ["./tools/deno"],
+  "workbench.colorCustomizations": {
+    "sideBar.border": "#393939",
+    "activityBar.background": "#202077",
+    "titleBar.activeBackground": "#2D2DA6",
+    "titleBar.activeForeground": "#FAFAFE"
+  }
 }

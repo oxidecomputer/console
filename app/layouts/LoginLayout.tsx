@@ -10,7 +10,7 @@ import { Outlet } from 'react-router'
 import heroRackImg from '~/assets/oxide-hero-rack.webp'
 import { OxideLogo } from '~/components/OxideLogo'
 
-export function LoginLayout() {
+export default function LoginLayout() {
   return (
     <main className="layout relative flex h-screen">
       <div className="hero-bg relative flex w-1/2 justify-end text-accent sm-:hidden">

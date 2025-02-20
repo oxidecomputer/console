@@ -93,3 +93,15 @@ export const extractText = (children: React.ReactNode): string =>
     .join(' ')
     .trim()
     .replace(/\s+/g, ' ')
+
+// nexus wants the dash. we plan on changing that so it doesn't care
+export function addDashes(dashAfterIdxs: number[], code: string) {
+  let result = ''
+  for (let i = 0; i < code.length; i++) {
+    result += code[i]
+    if (dashAfterIdxs.includes(i)) {
+      result += '-'
+    }
+  }
+  return result
+}

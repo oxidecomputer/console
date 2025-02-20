@@ -14,21 +14,24 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
+export const handle = titleCrumb('Edit VPC')
+
 const vpcView = ({ project, vpc }: PP.Vpc) =>
   apiq('vpcView', { path: { vpc }, query: { project } })
 
-EditVpcSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcSelector(params)
   await queryClient.prefetchQuery(vpcView({ project, vpc }))
   return null
 }
 
-export function EditVpcSideModalForm() {
+export default function EditVpcSideModalForm() {
   const { vpc: vpcName, project } = useVpcSelector()
   const navigate = useNavigate()
 

@@ -14,25 +14,14 @@ import { Warning12Icon } from '@oxide/design-system/icons/react'
 import { AuthCodeInput } from '~/ui/lib/AuthCodeInput'
 import { Button } from '~/ui/lib/Button'
 import { pb } from '~/util/path-builder'
+import { addDashes } from '~/util/str'
 
 const DASH_AFTER_IDXS = [3]
-
-// nexus wants the dash. we plan on changing that so it doesn't care
-export function addDashes(dashAfterIdxs: number[], code: string) {
-  let result = ''
-  for (let i = 0; i < code.length; i++) {
-    result += code[i]
-    if (dashAfterIdxs.includes(i)) {
-      result += '-'
-    }
-  }
-  return result
-}
 
 /**
  * Device authorization verification page
  */
-export function DeviceAuthVerifyPage() {
+export default function DeviceAuthVerifyPage() {
   const navigate = useNavigate()
   const confirmPost = useApiMutation('deviceAuthConfirm', {
     onSuccess: () => {
