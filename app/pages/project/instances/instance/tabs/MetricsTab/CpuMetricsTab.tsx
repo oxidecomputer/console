@@ -45,7 +45,7 @@ export function Component() {
     metricName: 'virtual_machine:vcpu_usage' as const,
     startTime,
     endTime,
-    groupBy: { cols: ['instance_id'], op: 'sum' } as const,
+    groupBy: { cols: ['vcpu_id'], op: 'sum' } as const,
   }
 
   // all this memoization is ridiculous, but we need the filters referentially

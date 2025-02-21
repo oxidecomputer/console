@@ -26,23 +26,45 @@ import { links } from '~/util/links'
 import { useMetricsContext } from '../MetricsTab'
 
 // the interval (in seconds) at which oximeter polls for new data; a constant in Propolis
+// in time, we'll need to make this dynamic
 const VCPU_KSTAT_INTERVAL = 5
 
-// An OxQL Query Result can have multiple tables, but in the web console we only ever call
-// aligned timeseries queries, which always have exactly one table.
-export const getChartData = (data: OxqlQueryResult | undefined): ChartDatum[] => {
-  if (!data) return []
-  const ts = Object.values(data.tables[0].timeseries)
-  return ts
-    .flatMap((t) => {
-      const { timestamps, values } = t.points
-      const v = values[0].values.values as number[]
-      return timestamps.map((timestamp, idx) => ({
-        timestamp: new Date(timestamp).getTime(),
-        value: v[idx],
-      }))
-    })
-    .slice(1) // first datapoint can be a sum of all datapoints preceding it, so we remove before displaying
+type ChartData = {
+  chartData: ChartDatum[]
+  timeseriesCount: number
+}
+
+// Take the OxQL Query Result and return the data in a format that the chart can use
+// We'll do this by creating two arrays: one for the timestamps and one for the values
+// We'll then combine these into an array of objects, each with a timestamp and a value
+export const getChartData = (data: OxqlQueryResult | undefined): ChartData => {
+  if (!data) return { chartData: [], timeseriesCount: 0 }
+
+  const timeseriesData = Object.values(data.tables[0].timeseries)
+  const timeseriesCount = timeseriesData.length
+
+  if (!timeseriesCount) return { chartData: [], timeseriesCount: 0 }
+
+  // Extract timestamps (all series should have the same timestamps)
+  const timestamps = timeseriesData[0].points.timestamps.map((t) => new Date(t).getTime())
+
+  // Initialize an array to accumulate values; defaults to 0
+  const valuesSum = new Float64Array(timestamps.length)
+
+  // Sum up the values across all time series
+  for (const ts of timeseriesData) {
+    const values = ts.points.values[0]?.values?.values || []
+    values.forEach((v, idx) => (valuesSum[idx] += Number(v) || 0))
+  }
+
+  const chartData = timestamps
+    .map((timestamp, idx) => ({
+      timestamp,
+      value: valuesSum[idx],
+    }))
+    .slice(1)
+
+  return { chartData, timeseriesCount }
 }
 
 const TimeSeriesChart = React.lazy(() => import('~/components/TimeSeriesChart'))
@@ -101,7 +123,7 @@ type FilterKey =
   // for network metrics
   | 'interface_id'
 
-type GroupByCol = 'instance_id' | 'attached_instance_id'
+type GroupByCol = 'instance_id' | 'attached_instance_id' | 'vcpu_id'
 
 type GroupBy = {
   cols: NonEmptyArray<GroupByCol>
@@ -267,29 +289,22 @@ export const getCountChartProps = (chartData: ChartDatum[]): OxqlMetricChartProp
   return { data: chartData, label: '(Count)', unitForSet: '', yAxisTickFormatter }
 }
 
-export const getUtilizationChartProps = (chartData: ChartDatum[]): OxqlMetricChartProps => {
-  // We'll need to know the number of CPUs to calculate the divisor.
-  // We get that from the number of timeseries-es in the chartData.
-  // For right now, just so I can get the latest changes in, I'm going to hardcode it, but
-  // as a preview, we'll be grouping the data by vcpu_id, and then we can get the number of
-  // CPUs from that; projected query will be something like
-  // oxql.query('get virtual_machine:vcpu_usage
-  //   | filter timestamp >= startTime
-  //     && timestamp < endTime
-  //     && instance_id == instanceId
-  //     && (state == "run" || state == "emulation")
-  //   | align mean_within(60s)
-  //   | group_by [vcpu_id], sum')
-  // This structure doesn't work with our current getChartData function, so we'll need to
-  // update that to handle the new approach
-  const nCPUs = 8 // 🔥🔥🔥🔥
-
+// To properly calculate the utilization percentage, we need to know the number of CPUs.
+// We get that from the timeseriesCount value.
+export const getUtilizationChartProps = (
+  chartData: ChartDatum[],
+  nCPUs: number
+): OxqlMetricChartProps => {
   // The divisor is the VCPU_KSTAT_INTERVAL (5 seconds) * 1,000,000,000 (nanoseconds) * nCPUs
   const divisor = VCPU_KSTAT_INTERVAL * 1000 * 1000 * 1000 * nCPUs
-  const data = chartData.map(({ timestamp, value }) => ({
-    timestamp,
-    value: (value * 100) / divisor,
-  }))
+  const data =
+    // dividing by 0 would blow it up, so on the off chance that timeSeriesCount is 0, return an empty array
+    divisor > 0
+      ? chartData.map(({ timestamp, value }) => ({
+          timestamp,
+          value: (value * 100) / divisor,
+        }))
+      : []
   return { data, label: '(%)', unitForSet: '%', yAxisTickFormatter: (n: number) => `${n}%` }
 }
 
@@ -306,7 +321,6 @@ export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps)
     // avoid graphs flashing blank while loading when you change the time
     { placeholderData: (x) => x }
   )
-
   // only start reloading data once an intial dataset has been loaded
   const { setIsIntervalPickerEnabled } = useMetricsContext()
   useEffect(() => {
@@ -317,13 +331,13 @@ export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps)
   }, [metrics, setIsIntervalPickerEnabled])
 
   const { startTime, endTime } = queryObj
-  const chartData: ChartDatum[] = useMemo(() => getChartData(metrics), [metrics])
+  const { chartData, timeseriesCount } = useMemo(() => getChartData(metrics), [metrics])
   const unit = getUnit(title)
   const { data, label, unitForSet, yAxisTickFormatter } = useMemo(() => {
     if (unit === 'Bytes') return getBytesChartProps(chartData)
     if (unit === 'Count') return getCountChartProps(chartData)
-    return getUtilizationChartProps(chartData)
-  }, [unit, chartData])
+    return getUtilizationChartProps(chartData, timeseriesCount)
+  }, [unit, chartData, timeseriesCount])
 
   const [modalOpen, setModalOpen] = useState(false)
 

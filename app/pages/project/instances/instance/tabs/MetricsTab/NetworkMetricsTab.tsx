@@ -117,20 +117,6 @@ function NetworkMetrics({ nics }: { nics: InstanceNetworkInterface[] }) {
       <MetricCollection>
         <MetricRow>
           <OxqlMetric
-            title="Packets Sent"
-            description="Number of packets sent on the link"
-            metricName="instance_network_interface:packets_sent"
-            {...queryBase}
-          />
-          <OxqlMetric
-            title="Packets Received"
-            description="Number of packets received on the link"
-            metricName="instance_network_interface:packets_received"
-            {...queryBase}
-          />
-        </MetricRow>
-        <MetricRow>
-          <OxqlMetric
             title="Bytes Sent"
             description="Number of bytes sent on the link"
             metricName="instance_network_interface:bytes_sent"
@@ -140,6 +126,20 @@ function NetworkMetrics({ nics }: { nics: InstanceNetworkInterface[] }) {
             title="Bytes Received"
             description="Number of bytes received on the link"
             metricName="instance_network_interface:bytes_received"
+            {...queryBase}
+          />
+        </MetricRow>
+        <MetricRow>
+          <OxqlMetric
+            title="Packets Sent"
+            description="Number of packets sent on the link"
+            metricName="instance_network_interface:packets_sent"
+            {...queryBase}
+          />
+          <OxqlMetric
+            title="Packets Received"
+            description="Number of packets received on the link"
+            metricName="instance_network_interface:packets_received"
             {...queryBase}
           />
         </MetricRow>
