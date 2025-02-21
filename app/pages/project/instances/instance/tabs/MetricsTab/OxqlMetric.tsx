@@ -131,13 +131,13 @@ type GroupBy = {
 }
 
 const getTimePropsForOxqlQuery = (startTime: Date, endTime: Date, datapoints = 60) => {
-  const meanWindowSeconds = getMeanWithinSeconds(startTime, endTime, datapoints)
+  const meanWithinSeconds = getMeanWithinSeconds(startTime, endTime, datapoints)
   // we adjust the start time back by 2x the mean window so that we can
   // 1) drop the first datapoint (the cumulative sum of all previous datapoints)
   // 2) ensure that the first datapoint we display on the chart matches the actual start time
-  const secondsToAdjust = meanWindowSeconds * 2
+  const secondsToAdjust = meanWithinSeconds * 2
   const adjustedStart = new Date(startTime.getTime() - secondsToAdjust * 1000)
-  return { meanWindowSeconds, adjustedStart }
+  return { meanWithinSeconds, adjustedStart }
 }
 
 export type OxqlQuery = {
@@ -155,7 +155,7 @@ export const toOxqlStr = ({
   groupBy,
   eqFilters = {},
 }: OxqlQuery) => {
-  const { meanWindowSeconds, adjustedStart } = getTimePropsForOxqlQuery(startTime, endTime)
+  const { meanWithinSeconds, adjustedStart } = getTimePropsForOxqlQuery(startTime, endTime)
   const filters = [
     `timestamp >= @${oxqlTimestamp(adjustedStart)}`,
     `timestamp < @${oxqlTimestamp(endTime)}`,
@@ -169,7 +169,7 @@ export const toOxqlStr = ({
   const query = [
     `get ${metricName}`,
     `filter ${filters.join(' && ')}`,
-    `align mean_within(${meanWindowSeconds}s)`,
+    `align mean_within(${meanWithinSeconds}s)`,
   ]
 
   if (groupBy) query.push(`group_by [${groupBy.cols.join(', ')}], ${groupBy.op}`)
@@ -190,7 +190,7 @@ export function HighlightedOxqlQuery({
   groupBy,
   eqFilters = {},
 }: OxqlQuery) {
-  const { meanWindowSeconds, adjustedStart } = getTimePropsForOxqlQuery(startTime, endTime)
+  const { meanWithinSeconds, adjustedStart } = getTimePropsForOxqlQuery(startTime, endTime)
   const filters = [
     <Fragment key="start">
       timestamp &gt;= <NumLit>@{oxqlTimestamp(adjustedStart)}</NumLit>
@@ -213,7 +213,7 @@ export function HighlightedOxqlQuery({
       <NewlinePipe />
       <Keyword>filter</Keyword> {intersperse(filters, <FilterSep />)}
       <NewlinePipe />
-      <Keyword>align</Keyword> mean_within(<NumLit>{meanWindowSeconds}s</NumLit>)
+      <Keyword>align</Keyword> mean_within(<NumLit>{meanWithinSeconds}s</NumLit>)
       {groupBy && (
         <>
           <NewlinePipe />

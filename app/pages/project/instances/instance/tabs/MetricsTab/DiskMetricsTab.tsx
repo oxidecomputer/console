@@ -124,6 +124,8 @@ function DiskMetrics({ disks, instance }: { disks: Disk[]; instance: Instance })
         {/* see the following link for the source of truth on what these mean
             https://github.com/oxidecomputer/crucible/blob/258f162b/upstairs/src/stats.rs#L9-L50 */}
 
+        {/* TODO: Add virtual_disk:io_latency once you can render histograms */}
+
         <MetricRow>
           <OxqlMetric
             title="Disk Reads"
