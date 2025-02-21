@@ -13,7 +13,12 @@
 
 import React, { Fragment, Suspense, useEffect, useMemo, useState } from 'react'
 
-import { useApiQuery, type ChartDatum, type OxqlQueryResult } from '@oxide/api'
+import {
+  useApiQuery,
+  type ChartDatum,
+  type OxqlQueryResult,
+  type Timeseries,
+} from '@oxide/api'
 
 import { CopyCodeModal } from '~/components/CopyCode'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
@@ -34,34 +39,41 @@ type ChartData = {
   timeseriesCount: number
 }
 
+const getTimestamps = (timeseries: Timeseries): number[] =>
+  timeseries?.points.timestamps.map((t) => new Date(t).getTime()) || []
+
+const getSummedValues = (timeseries: Timeseries[], arrLen: number): number[] => {
+  const summedValues = new Float64Array(arrLen)
+  timeseries.forEach((ts) => {
+    // get the values array from the timeseries
+    const values = ts.points.values[0]?.values?.values || []
+    // add each value to the corresponding index in the summedValues array
+    values.forEach((v, idx) => (summedValues[idx] += Number(v) || 0))
+  })
+  return Array.from(summedValues)
+}
+
 // Take the OxQL Query Result and return the data in a format that the chart can use
 // We'll do this by creating two arrays: one for the timestamps and one for the values
 // We'll then combine these into an array of objects, each with a timestamp and a value
-export const getChartData = (data: OxqlQueryResult | undefined): ChartData => {
-  if (!data) return { chartData: [], timeseriesCount: 0 }
-
+// Note that this data will need to be processed further, based on the kind of chart we're creating
+export const composeOxqlData = (data: OxqlQueryResult | undefined): ChartData => {
+  let timeseriesCount = 0
+  if (!data) return { chartData: [], timeseriesCount }
   const timeseriesData = Object.values(data.tables[0].timeseries)
-  const timeseriesCount = timeseriesData.length
-
-  if (!timeseriesCount) return { chartData: [], timeseriesCount: 0 }
-
+  timeseriesCount = timeseriesData.length
+  if (!timeseriesCount) return { chartData: [], timeseriesCount }
   // Extract timestamps (all series should have the same timestamps)
-  const timestamps = timeseriesData[0].points.timestamps.map((t) => new Date(t).getTime())
-
-  // Initialize an array to accumulate values; defaults to 0
-  const valuesSum = new Float64Array(timestamps.length)
-
+  const timestamps = getTimestamps(timeseriesData[0])
   // Sum up the values across all time series
-  for (const ts of timeseriesData) {
-    const values = ts.points.values[0]?.values?.values || []
-    values.forEach((v, idx) => (valuesSum[idx] += Number(v) || 0))
-  }
-
+  const summedValues = getSummedValues(timeseriesData, timestamps.length)
   const chartData = timestamps
     .map((timestamp, idx) => ({
       timestamp,
-      value: valuesSum[idx],
+      value: summedValues[idx],
     }))
+    // drop the first datapoint, which is the cumulative sum of all previous datapoints
+    // we've accounted for this by adjusting the start time back by 2x the mean window
     .slice(1)
 
   return { chartData, timeseriesCount }
@@ -102,8 +114,6 @@ export type OxqlVcpuState = 'run' | 'idle' | 'waiting' | 'emulation'
 /** determine the mean window, in seconds, for the given time range;
  * datapoints = the number of datapoints we want to see in the chart
  *   (default is 60, to show 1 point per minute on a 1-hour chart)
- * We could dynamically adjust this based on the duration of the range,
- * like … for 1 week, show 1 datapoint per hour, for 1 day, show 1 datapoint per minute, etc.
  * */
 export const getMeanWithinSeconds = (start: Date, end: Date, datapoints = 60) => {
   const durationMinutes = getDurationMinutes({ start, end })
@@ -235,8 +245,7 @@ export const getUnit = (title: string): ChartUnitType => {
 export const getLargestValue = (data: ChartDatum[]) =>
   data.length ? Math.max(0, ...data.map((d) => d.value)) : 0
 
-// not sure this is the best name
-export const getOrderOfMagnitude = (largestValue: number, base: number) =>
+export const getMaxExponent = (largestValue: number, base: number) =>
   Math.max(Math.floor(Math.log(largestValue) / Math.log(base)), 0)
 
 // What each function will return
@@ -252,7 +261,7 @@ const getBytesChartProps = (chartData: ChartDatum[]): OxqlMetricChartProps => {
   const base = 1024
   const byteUnits = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB']
   const largestValue = getLargestValue(chartData)
-  const orderOfMagnitude = getOrderOfMagnitude(largestValue, base)
+  const orderOfMagnitude = getMaxExponent(largestValue, base)
   const bytesChartDivisor = base ** orderOfMagnitude
   const data = chartData.map((d) => ({
     ...d,
@@ -284,7 +293,7 @@ export const yAxisLabelForCountChart = (val: number, orderOfMagnitude: number) =
  */
 export const getCountChartProps = (chartData: ChartDatum[]): OxqlMetricChartProps => {
   const largestValue = getLargestValue(chartData)
-  const orderOfMagnitude = getOrderOfMagnitude(largestValue, 1_000)
+  const orderOfMagnitude = getMaxExponent(largestValue, 1_000)
   const yAxisTickFormatter = (val: number) => yAxisLabelForCountChart(val, orderOfMagnitude)
   return { data: chartData, label: '(Count)', unitForSet: '', yAxisTickFormatter }
 }
@@ -329,9 +338,8 @@ export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps)
       // setIsIntervalPickerEnabled(true)
     }
   }, [metrics, setIsIntervalPickerEnabled])
-
   const { startTime, endTime } = queryObj
-  const { chartData, timeseriesCount } = useMemo(() => getChartData(metrics), [metrics])
+  const { chartData, timeseriesCount } = useMemo(() => composeOxqlData(metrics), [metrics])
   const unit = getUnit(title)
   const { data, label, unitForSet, yAxisTickFormatter } = useMemo(() => {
     if (unit === 'Bytes') return getBytesChartProps(chartData)
