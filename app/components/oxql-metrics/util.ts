@@ -109,12 +109,17 @@ export const getTimePropsForOxqlQuery = (
   return { meanWithinSeconds, adjustedStart }
 }
 
+/** get the values array from the timeseries */
+// the shape of this data is a bit confusing; check the tests for an example
+export const getValuesFromTimeseries = (timeseries: Timeseries) =>
+  timeseries.points.values[0]?.values?.values || []
+
 export const sumValues = (timeseries: Timeseries[], arrLen: number): number[] => {
   const summedValues = new Float64Array(arrLen)
   timeseries.forEach((ts) => {
-    // get the values array from the timeseries
-    const values = ts.points.values[0]?.values?.values || []
-    // add each value to the corresponding index in the summedValues array
+    const values = getValuesFromTimeseries(ts)
+    // add each value to the corresponding index in the summedValues array;
+    // default to 0 for cases of missing oximeter data
     values.forEach((v, idx) => (summedValues[idx] += Number(v) || 0))
   })
   return Array.from(summedValues)
@@ -147,8 +152,7 @@ export const composeOxqlData = (data: OxqlQueryResult | undefined) => {
       value: summedValues[idx],
     }))
     // Drop the first datapoint, which — for delta metric types — is the cumulative sum of all previous
-    // datapoints (like CPU utilization). We've accounted for this by adjusting the start time
-    // back by 2x the mean window
+    // datapoints (like CPU utilization). We've accounted for this by adjusting the start time earlier;
     // We could use a more elegant approach to this down the road
     .slice(1)
 
