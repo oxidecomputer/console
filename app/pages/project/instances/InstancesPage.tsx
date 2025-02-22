@@ -39,6 +39,7 @@ import { Tooltip } from '~/ui/lib/Tooltip'
 import { setDiff } from '~/util/array'
 import { toLocaleTimeString } from '~/util/date'
 import { pb } from '~/util/path-builder'
+import { pluralize } from '~/util/str'
 
 import { useMakeInstanceActions } from './actions'
 import { ResizeInstanceModal } from './instance/InstancePage'
@@ -99,7 +100,10 @@ export function Component() {
         header: 'CPU',
         cell: (info) => (
           <>
-            {info.getValue()} <span className="ml-1 text-tertiary">vCPU</span>
+            {info.getValue()}{' '}
+            <span className="ml-1 text-tertiary">
+              {pluralize('vCPU', info.getValue(), true)}
+            </span>
           </>
         ),
       }),
