@@ -101,9 +101,7 @@ export function Component() {
         cell: (info) => (
           <>
             {info.getValue()}{' '}
-            <span className="ml-1 text-tertiary">
-              {pluralize('vCPU', info.getValue(), true)}
-            </span>
+            <span className="ml-1 text-tertiary">{pluralize('vCPU', info.getValue())}</span>
           </>
         ),
       }),

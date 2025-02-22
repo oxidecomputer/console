@@ -222,9 +222,7 @@ export function InstancePage() {
         <PropertiesTable>
           <PropertiesTable.Row label="cpu">
             <span className="text-default">{instance.ncpus}</span>
-            <span className="ml-1 text-tertiary">
-              {pluralize(' vCPU', instance.ncpus, true)}
-            </span>
+            <span className="ml-1 text-tertiary">{pluralize(' vCPU', instance.ncpus)}</span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="ram">
             <span className="text-default">{memory.value}</span>

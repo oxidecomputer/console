@@ -10,10 +10,7 @@ import React, { type ReactElement, type ReactNode } from 'react'
 
 export const capitalize = (s: string) => s && s.charAt(0).toUpperCase() + s.slice(1)
 
-export const pluralize = (word: string, count: number, stringOnly = false) => {
-  const pluralizedWord = count === 1 ? word : `${word}s`
-  return stringOnly ? pluralizedWord : `${count} ${pluralizedWord}`
-}
+export const pluralize = (s: string, n: number) => `${s}${n === 1 ? '' : 's'}`
 
 export const camelCase = (s: string) =>
   s

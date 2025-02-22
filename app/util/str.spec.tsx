@@ -26,15 +26,9 @@ describe('capitalize', () => {
 
 describe('pluralize', () => {
   it('pluralizes correctly', () => {
-    expect(pluralize('item', 0)).toBe('0 items')
-    expect(pluralize('item', 1)).toBe('1 item')
-    expect(pluralize('item', 2)).toBe('2 items')
-  })
-
-  it('can return just the string', () => {
-    expect(pluralize('item', 0, true)).toBe('items')
-    expect(pluralize('item', 1, true)).toBe('item')
-    expect(pluralize('item', 2, true)).toBe('items')
+    expect(pluralize('item', 0)).toBe('items')
+    expect(pluralize('item', 1)).toBe('item')
+    expect(pluralize('item', 2)).toBe('items')
   })
 })
 
