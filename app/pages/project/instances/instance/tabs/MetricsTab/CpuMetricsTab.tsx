@@ -11,10 +11,15 @@ import { type LoaderFunctionArgs } from 'react-router'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 
+import {
+  MetricCollection,
+  MetricHeader,
+  MetricRow,
+  OxqlMetric,
+} from '~/components/oxql-metrics/OxqlMetric'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 
 import { useMetricsContext } from '../MetricsTab'
-import { MetricCollection, MetricHeader, MetricRow, OxqlMetric } from './OxqlMetric'
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)

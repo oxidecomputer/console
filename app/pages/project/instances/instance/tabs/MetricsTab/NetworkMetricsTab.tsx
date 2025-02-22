@@ -16,6 +16,12 @@ import {
 } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 
+import {
+  MetricCollection,
+  MetricHeader,
+  MetricRow,
+  OxqlMetric,
+} from '~/components/oxql-metrics/OxqlMetric'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
@@ -23,7 +29,6 @@ import { TableEmptyBox } from '~/ui/lib/Table'
 import { ALL_ISH } from '~/util/consts'
 
 import { useMetricsContext } from '../MetricsTab'
-import { MetricCollection, MetricHeader, MetricRow, OxqlMetric } from './OxqlMetric'
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)

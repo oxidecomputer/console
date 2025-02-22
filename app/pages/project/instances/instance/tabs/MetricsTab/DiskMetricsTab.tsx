@@ -19,19 +19,19 @@ import { type LoaderFunctionArgs } from 'react-router'
 import { apiQueryClient, usePrefetchedApiQuery, type Disk, type Instance } from '@oxide/api'
 import { Storage24Icon } from '@oxide/design-system/icons/react'
 
+import {
+  MetricCollection,
+  MetricHeader,
+  MetricRow,
+  OxqlMetric,
+} from '~/components/oxql-metrics/OxqlMetric'
+import type { OxqlQuery } from '~/components/oxql-metrics/util'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
 import { TableEmptyBox } from '~/ui/lib/Table'
 
 import { useMetricsContext } from '../MetricsTab'
-import {
-  MetricCollection,
-  MetricHeader,
-  MetricRow,
-  OxqlMetric,
-  type OxqlQuery,
-} from './OxqlMetric'
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
