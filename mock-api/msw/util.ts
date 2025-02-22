@@ -28,10 +28,7 @@ import {
 } from '@oxide/api'
 
 import { json, type Json } from '~/api/__generated__/msw-handlers'
-import {
-  type OxqlNetworkMetricName,
-  type OxqlVcpuState,
-} from '~/pages/project/instances/instance/tabs/MetricsTab/OxqlMetric'
+import type { OxqlNetworkMetricName, OxqlVcpuState } from '~/components/oxql-metrics/util'
 import { parseIp } from '~/util/ip'
 import { GiB, TiB } from '~/util/units'
 
