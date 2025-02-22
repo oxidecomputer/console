@@ -161,7 +161,7 @@ test('can resize a failed or stopped instance', async ({ page }) => {
   // resize 'you-fail', currently in a failed state
   await expectRowVisible(table, {
     name: 'you-fail',
-    CPU: '4 vCPU',
+    CPU: '4 vCPUs',
     Memory: '6 GiB',
     state: expect.stringMatching(/^failed\d+s$/),
   })
@@ -173,7 +173,7 @@ test('can resize a failed or stopped instance', async ({ page }) => {
   await resizeModal.getByRole('button', { name: 'Resize' }).click()
   await expectRowVisible(table, {
     name: 'you-fail',
-    CPU: '10 vCPU',
+    CPU: '10 vCPUs',
     Memory: '20 GiB',
     state: expect.stringMatching(/^failed\d+s$/),
   })
@@ -181,7 +181,7 @@ test('can resize a failed or stopped instance', async ({ page }) => {
   // resize 'db1', which needs to be stopped first
   await expectRowVisible(table, {
     name: 'db1',
-    CPU: '2 vCPU',
+    CPU: '2 vCPUs',
     Memory: '4 GiB',
     state: expect.stringMatching(/^running\d+s$/),
   })
@@ -200,7 +200,7 @@ test('can resize a failed or stopped instance', async ({ page }) => {
   await resizeModal.getByRole('button', { name: 'Resize' }).click()
   await expectRowVisible(table, {
     name: 'db1',
-    CPU: '8 vCPU',
+    CPU: '8 vCPUs',
     Memory: '16 GiB',
     state: expect.stringMatching(/^stopped\d+s$/),
   })
@@ -224,19 +224,19 @@ test('instance table', async ({ page }) => {
   const table = page.getByRole('table')
   await expectRowVisible(table, {
     name: 'db1',
-    CPU: '2 vCPU',
+    CPU: '2 vCPUs',
     Memory: '4 GiB',
     state: expect.stringMatching(/^running\d+s$/),
   })
   await expectRowVisible(table, {
     name: 'you-fail',
-    CPU: '4 vCPU',
+    CPU: '4 vCPUs',
     Memory: '6 GiB',
     state: expect.stringMatching(/^failed\d+s$/),
   })
   await expectRowVisible(table, {
     name: 'not-there-yet',
-    CPU: '2 vCPU',
+    CPU: '2 vCPUs',
     Memory: '8 GiB',
     state: expect.stringMatching(/^starting\d+s$/),
   })
