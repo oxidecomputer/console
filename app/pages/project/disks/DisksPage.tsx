@@ -23,6 +23,7 @@ import { Storage16Icon, Storage24Icon } from '@oxide/design-system/icons/react'
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import { DiskStateBadge } from '~/components/StateBadge'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -40,6 +41,8 @@ import type * as PP from '~/util/path-params'
 
 import { fancifyStates } from '../instances/instance/tabs/common'
 
+export const handle = makeCrumb('Disks', (p) => pb.disks(getProjectSelector(p)))
+
 const EmptyState = () => (
   <EmptyMessage
     icon={<Storage24Icon />}
@@ -54,7 +57,7 @@ const instanceList = ({ project }: PP.Project) =>
   getListQFn('instanceList', { query: { project, limit: 200 } })
 const diskList = (query: PP.Project) => getListQFn('diskList', { query })
 
-DisksPage.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
   await Promise.all([
     queryClient.prefetchQuery(diskList({ project }).optionsFn()),
@@ -93,7 +96,7 @@ const staticCols = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-export function DisksPage() {
+export default function DisksPage() {
   const { project } = useProjectSelector()
 
   const { mutateAsync: deleteDisk } = useApiMutation('diskDelete', {

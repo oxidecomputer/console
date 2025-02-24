@@ -16,7 +16,7 @@ import {
 } from 'react-hook-form'
 
 import { FieldLabel } from '~/ui/lib/FieldLabel'
-import { Radio } from '~/ui/lib/Radio'
+import { Radio, type RadioProps } from '~/ui/lib/Radio'
 import { RadioGroup, type RadioGroupProps } from '~/ui/lib/RadioGroup'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { capitalize } from '~/util/str'
@@ -97,11 +97,13 @@ export function RadioField<
   )
 }
 
+type RadioElt = React.ReactElement<RadioProps>
+
 export type RadioFieldDynProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
 > = Omit<RadioFieldProps<TFieldValues, TName>, 'parseValue' | 'items'> & {
-  children: React.ReactElement | React.ReactElement[]
+  children: RadioElt | RadioElt[]
 }
 
 /**

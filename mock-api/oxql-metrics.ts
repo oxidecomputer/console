@@ -6,10 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import type { OxqlQueryResult } from '~/api'
-import type {
-  OxqlMetricName,
-  OxqlVcpuState,
-} from '~/pages/project/instances/instance/tabs/MetricsTab/OxqlMetric'
+import type { OxqlMetricName, OxqlVcpuState } from '~/components/oxql-metrics/util'
 
 import { instances } from './instance'
 import type { Json } from './json-type'

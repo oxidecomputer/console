@@ -16,6 +16,8 @@ import { z } from 'zod'
 
 import vercelConfig from './vercel.json'
 
+const KiB = 1024
+
 const ApiMode = z.enum(['msw', 'dogfood', 'nexus'])
 
 const apiModeResult = ApiMode.default('nexus').safeParse(process.env.API_MODE)
@@ -96,6 +98,13 @@ export default defineConfig(({ mode }) => ({
       input: {
         app: 'index.html',
       },
+      output: {
+        // React Router automatically splits any route module into its own file,
+        // but some end up being like 300 bytes. It feels silly to have several
+        // hundred of those, so we set a minimum size to end up with fewer.
+        // https://rollupjs.org/configuration-options/#output-experimentalminchunksize
+        experimentalMinChunkSize: 5 * KiB,
+      },
     },
     // prevent inlining assets as `data:`, which is not permitted by our Content-Security-Policy
     assetsInlineLimit: 0,
@@ -133,15 +142,6 @@ export default defineConfig(({ mode }) => ({
         target:
           apiMode === 'dogfood' ? `https://${DOGFOOD_HOST}` : 'http://localhost:12220',
         changeOrigin: true,
-      },
-      '^/v1/instances/[^/]+/serial-console/stream': {
-        target:
-          // in msw mode, serial console is served by tools/deno/mock-serial-console.ts
-          apiMode === 'dogfood'
-            ? `wss://${DOGFOOD_HOST}`
-            : 'ws://127.0.0.1:' + (apiMode === 'msw' ? 6036 : 12220),
-        changeOrigin: true,
-        ws: true,
       },
     },
   },

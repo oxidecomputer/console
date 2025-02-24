@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, type LoaderFunctionArgs } from 'react-router'
 
 import {
@@ -20,12 +20,11 @@ import { PrevArrow12Icon } from '@oxide/design-system/icons/react'
 
 import { EquivalentCliCommand } from '~/components/CopyCode'
 import { InstanceStateBadge } from '~/components/StateBadge'
+import { Terminal } from '~/components/Terminal'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { Badge, type BadgeColor } from '~/ui/lib/Badge'
 import { Spinner } from '~/ui/lib/Spinner'
 import { pb } from '~/util/path-builder'
-
-const Terminal = lazy(() => import('~/components/Terminal'))
 
 type WsState = 'connecting' | 'open' | 'closed' | 'error'
 
@@ -43,7 +42,7 @@ const statusMessage: Record<WsState, string> = {
   error: 'error',
 }
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await apiQueryClient.prefetchQuery('instanceView', {
     path: { instance },
@@ -56,8 +55,9 @@ function isStarting(i: Instance | undefined) {
   return i?.runState === 'creating' || i?.runState === 'starting'
 }
 
-Component.displayName = 'SerialConsolePage'
-export function Component() {
+export const handle = { crumb: 'Serial Console' }
+
+export default function SerialConsolePage() {
   const instanceSelector = useInstanceSelector()
   const { project, instance } = instanceSelector
 
@@ -153,7 +153,7 @@ export function Component() {
         )}
         {/* closed && canConnect shouldn't be possible because there's no way to
          * close an open connection other than leaving the page */}
-        <Suspense fallback={null}>{ws.current && <Terminal ws={ws.current} />}</Suspense>
+        {ws.current && <Terminal ws={ws.current} />}
       </div>
       <div className="shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
         <div className="gutter flex h-20 items-center justify-between">

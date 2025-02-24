@@ -33,6 +33,9 @@ export const links = {
   keyConceptsProjectsDocs:
     'https://docs.oxide.computer/guides/key-entities-and-concepts#_projects',
   oxqlDocs: 'https://docs.oxide.computer/guides/operator/system-metrics#_oxql_quickstart',
+  // TODO: update URL once https://github.com/oxidecomputer/docs/pull/426 is merged
+  oxqlSchemaDocs: (metric: string) =>
+    `https://docs-git-timeseries-guide-oxidecomputer.vercel.app/guides/operator/available-metric-data#_${metric.replace(':', '')}`,
   projectsDocs: 'https://docs.oxide.computer/guides/onboarding-projects',
   quickStart: 'https://docs.oxide.computer/guides/quickstart',
   routersDocs:

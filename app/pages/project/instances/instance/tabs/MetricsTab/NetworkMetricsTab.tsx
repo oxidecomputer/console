@@ -16,6 +16,12 @@ import {
 } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 
+import {
+  MetricCollection,
+  MetricHeader,
+  MetricRow,
+  OxqlMetric,
+} from '~/components/oxql-metrics/OxqlMetric'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
@@ -23,7 +29,6 @@ import { TableEmptyBox } from '~/ui/lib/Table'
 import { ALL_ISH } from '~/util/consts'
 
 import { useMetricsContext } from '../MetricsTab'
-import { MetricCollection, MetricHeader, MetricRow, OxqlMetric } from './OxqlMetric'
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
@@ -117,20 +122,6 @@ function NetworkMetrics({ nics }: { nics: InstanceNetworkInterface[] }) {
       <MetricCollection>
         <MetricRow>
           <OxqlMetric
-            title="Packets Sent"
-            description="Number of packets sent on the link"
-            metricName="instance_network_interface:packets_sent"
-            {...queryBase}
-          />
-          <OxqlMetric
-            title="Packets Received"
-            description="Number of packets received on the link"
-            metricName="instance_network_interface:packets_received"
-            {...queryBase}
-          />
-        </MetricRow>
-        <MetricRow>
-          <OxqlMetric
             title="Bytes Sent"
             description="Number of bytes sent on the link"
             metricName="instance_network_interface:bytes_sent"
@@ -140,6 +131,20 @@ function NetworkMetrics({ nics }: { nics: InstanceNetworkInterface[] }) {
             title="Bytes Received"
             description="Number of bytes received on the link"
             metricName="instance_network_interface:bytes_received"
+            {...queryBase}
+          />
+        </MetricRow>
+        <MetricRow>
+          <OxqlMetric
+            title="Packets Sent"
+            description="Number of packets sent on the link"
+            metricName="instance_network_interface:packets_sent"
+            {...queryBase}
+          />
+          <OxqlMetric
+            title="Packets Received"
+            description="Number of packets received on the link"
+            metricName="instance_network_interface:packets_received"
             {...queryBase}
           />
         </MetricRow>

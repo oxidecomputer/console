@@ -10,7 +10,7 @@ import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/re
 import type { Group } from '@oxide/api'
 import { Settings24Icon } from '@oxide/design-system/icons/react'
 
-import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
+import { useCurrentUser } from '~/hooks/use-current-user'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'

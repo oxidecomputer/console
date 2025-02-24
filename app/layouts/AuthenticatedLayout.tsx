@@ -7,16 +7,23 @@
  */
 import { Outlet } from 'react-router'
 
-import { apiQueryClient, useApiQueryErrorsAllowed, usePrefetchedApiQuery } from '@oxide/api'
+import { apiQueryClient } from '@oxide/api'
 
+import { RouterDataErrorBoundary } from '~/components/ErrorBoundary'
 import { QuickActions } from '~/hooks/use-quick-actions'
-import { invariant } from '~/util/invariant'
+
+/** very important. see `currentUserLoader` and `useCurrentUser` */
+export const shouldRevalidate = () => true
+
+export function ErrorBoundary() {
+  return <RouterDataErrorBoundary />
+}
 
 /**
  * We use `shouldRevalidate={() => true}` to force this to re-run on every nav,
  * but the longer-than-default `staleTime` avoids fetching too much.
  */
-AuthenticatedLayout.loader = async () => {
+export async function clientLoader() {
   const staleTime = 60000
   await Promise.all([
     apiQueryClient.prefetchQuery('currentUserView', {}, { staleTime }),
@@ -38,35 +45,11 @@ AuthenticatedLayout.loader = async () => {
 }
 
 /** Wraps all authenticated routes. */
-export function AuthenticatedLayout() {
+export default function AuthenticatedLayout() {
   return (
     <>
       <QuickActions />
       <Outlet />
     </>
   )
-}
-
-/**
- * Access all the data fetched by the loader. Because of the `shouldRevalidate`
- * trick, that loader runs on every authenticated page, which means callers do
- * not have to worry about hitting these endpoints themselves in their own
- * loaders.
- */
-export function useCurrentUser() {
-  const { data: me } = usePrefetchedApiQuery('currentUserView', {})
-  const { data: myGroups } = usePrefetchedApiQuery('currentUserGroups', {})
-
-  // User can only get to system routes if they have viewer perms (at least) on
-  // the fleet. The natural place to find out whether they have such perms is
-  // the fleet (system) policy, but if the user doesn't have fleet read, we'll
-  // get a 403 from that endpoint. So we simply check whether that endpoint 200s
-  // or not to determine whether the user is a fleet viewer.
-  const { data: systemPolicy } = useApiQueryErrorsAllowed('systemPolicyView', {})
-  // don't use usePrefetchedApiQuery because it's not worth making an errors
-  // allowed version of that
-  invariant(systemPolicy, 'System policy must be prefetched')
-  const isFleetViewer = systemPolicy.type === 'success'
-
-  return { me, myGroups, isFleetViewer }
 }

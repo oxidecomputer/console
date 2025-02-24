@@ -54,10 +54,17 @@ const randomStatus = () => {
 
 const sleep = async (ms: number) => new Promise((res) => setTimeout(res, ms))
 
+async function streamString(socket: WebSocket, s: string, delayMs = 50) {
+  for (const c of s) {
+    socket.send(c)
+    await sleep(delayMs)
+  }
+}
+
 export async function startMockAPI() {
   // dynamic imports to make extremely sure none of this code ends up in the prod bundle
   const { handlers } = await import('../mock-api/msw/handlers')
-  const { http, HttpResponse } = await import('msw')
+  const { http, HttpResponse, ws } = await import('msw')
   const { setupWorker } = await import('msw/browser')
 
   // defined in here because it depends on the dynamic import
@@ -77,8 +84,27 @@ export async function startMockAPI() {
     // don't return anything means fall through to the real handlers
   })
 
+  // serial console
+  const secure = window.location.protocol === 'https:'
+  const protocol = secure ? 'wss' : 'ws'
+  const serialConsole = `${protocol}://${window.location.host}/v1/instances/:instance/serial-console/stream`
+
   // https://mswjs.io/docs/api/setup-worker/start#options
-  await setupWorker(interceptAll, ...handlers).start({
+  await setupWorker(
+    interceptAll,
+    ...handlers,
+
+    ws.link(serialConsole).addEventListener('connection', async ({ client }) => {
+      client.addEventListener('message', (event) => {
+        // Mirror client messages back (lets you type in the terminal). If it's
+        // an enter key, send a newline.
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
+        client.send(event.data.toString() === '13' ? '\r\n' : event.data)
+      })
+      await sleep(1000) // make sure everything is ready first (especially a problem in CI)
+      await streamString(client.socket, 'Wake up Neo...')
+    })
+  ).start({
     quiet: true, // don't log successfully handled requests
     // custom handler only to make logging less noisy. unhandled requests still
     // pass through to the server
