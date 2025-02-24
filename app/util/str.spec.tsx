@@ -60,8 +60,9 @@ it('commaSeries', () => {
   expect(commaSeries([], 'or')).toBe('')
   expect(commaSeries(['a'], 'or')).toBe('a')
   expect(commaSeries(['a', 'b'], 'or')).toBe('a or b')
-  expect(commaSeries(['a', 'b'], 'or')).toBe('a or b')
+  expect(commaSeries(['a', 'b'], 'and')).toBe('a and b')
   expect(commaSeries(['a', 'b', 'c'], 'or')).toBe('a, b, or c')
+  expect(commaSeries(['a', 'b', 'c'], 'and')).toBe('a, b, and c')
 })
 
 describe('titleCase', () => {
