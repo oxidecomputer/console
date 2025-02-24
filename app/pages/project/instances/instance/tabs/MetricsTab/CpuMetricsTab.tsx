@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
@@ -18,6 +18,7 @@ import {
   OxqlMetric,
 } from '~/components/oxql-metrics/OxqlMetric'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
+import { Listbox } from '~/ui/lib/Listbox'
 
 import { useMetricsContext } from '../MetricsTab'
 
@@ -57,46 +58,74 @@ export function Component() {
   // table or everything will re-render too much
   const filterBase = useMemo(() => ({ instance_id: instanceData.id }), [instanceData.id])
 
+  const stateItems = [
+    { label: 'State: Running', value: 'run' },
+    { label: 'State: Emulating', value: 'emulation' },
+    { label: 'State: Idling', value: 'idle' },
+    { label: 'State: Waiting', value: 'waiting' },
+    { label: 'See all states', value: 'all' },
+  ]
+
+  const [selectedState, setSelectedState] = useState(stateItems[0].value)
+
+  const title = `CPU Utilization: ${stateItems
+    .find((i) => i.value === selectedState)
+    ?.label.replace('State: ', '')
+    .replace('See all states', 'Total')}`
+  const state = selectedState === 'all' ? undefined : selectedState
   return (
     <>
       <MetricHeader>
-        {intervalPicker} {dateTimeRangePicker}
+        <div className="flex gap-2">
+          {intervalPicker}
+          <Listbox
+            className="w-52"
+            aria-label="Choose state"
+            name="disk-name"
+            selected={selectedState}
+            items={stateItems}
+            onChange={(value) => setSelectedState(value)}
+          />
+        </div>
+        {dateTimeRangePicker}
       </MetricHeader>
       <MetricCollection>
         <MetricRow>
           <OxqlMetric
-            title="CPU Utilization"
-            eqFilters={useMemo(() => ({ ...filterBase }), [filterBase])}
+            title={title}
+            eqFilters={useMemo(() => ({ ...filterBase, state }), [filterBase, state])}
             {...queryBase}
           />
         </MetricRow>
-        {/* <MetricRow>
-          <OxqlMetric
-            title="CPU Utilization: Running"
-            eqFilters={useMemo(() => ({ ...filterBase, state: 'run' }), [filterBase])}
-            {...queryBase}
-          />
-        </MetricRow>
-        <MetricRow>
-          <OxqlMetric
-            title="CPU Utilization: Emulation"
-            eqFilters={useMemo(() => ({ ...filterBase, state: 'emulation' }), [filterBase])}
-            {...queryBase}
-          />
-        </MetricRow>
+        {selectedState === 'all' && (
+          <>
+            <MetricRow>
+              <OxqlMetric
+                title="CPU Utilization: Running"
+                eqFilters={{ ...filterBase, state: 'run' }}
+                {...queryBase}
+              />
+              <OxqlMetric
+                title="CPU Utilization: Emulation"
+                eqFilters={{ ...filterBase, state: 'emulation' }}
+                {...queryBase}
+              />
+            </MetricRow>
 
-        <MetricRow>
-          <OxqlMetric
-            title="CPU Utilization: Idling"
-            eqFilters={useMemo(() => ({ ...filterBase, state: 'idle' }), [filterBase])}
-            {...queryBase}
-          />
-          <OxqlMetric
-            title="CPU Utilization: Waiting"
-            eqFilters={useMemo(() => ({ ...filterBase, state: 'waiting' }), [filterBase])}
-            {...queryBase}
-          />
-        </MetricRow> */}
+            <MetricRow>
+              <OxqlMetric
+                title="CPU Utilization: Idling"
+                eqFilters={{ ...filterBase, state: 'idle' }}
+                {...queryBase}
+              />
+              <OxqlMetric
+                title="CPU Utilization: Waiting"
+                eqFilters={{ ...filterBase, state: 'waiting' }}
+                {...queryBase}
+              />
+            </MetricRow>
+          </>
+        )}
       </MetricCollection>
     </>
   )
