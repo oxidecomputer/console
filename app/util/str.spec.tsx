@@ -14,12 +14,21 @@ import {
   extractText,
   kebabCase,
   normalizeName,
+  pluralize,
   titleCase,
 } from './str'
 
 describe('capitalize', () => {
   it('capitalizes the first letter', () => {
     expect(capitalize('this is a sentence')).toEqual('This is a sentence')
+  })
+})
+
+describe('pluralize', () => {
+  it('pluralizes correctly', () => {
+    expect(pluralize('item', 0)).toBe('items')
+    expect(pluralize('item', 1)).toBe('item')
+    expect(pluralize('item', 2)).toBe('items')
   })
 })
 
@@ -51,8 +60,9 @@ it('commaSeries', () => {
   expect(commaSeries([], 'or')).toBe('')
   expect(commaSeries(['a'], 'or')).toBe('a')
   expect(commaSeries(['a', 'b'], 'or')).toBe('a or b')
-  expect(commaSeries(['a', 'b'], 'or')).toBe('a or b')
+  expect(commaSeries(['a', 'b'], 'and')).toBe('a and b')
   expect(commaSeries(['a', 'b', 'c'], 'or')).toBe('a, b, or c')
+  expect(commaSeries(['a', 'b', 'c'], 'and')).toBe('a, b, and c')
 })
 
 describe('titleCase', () => {

@@ -52,6 +52,7 @@ import { Spinner } from '~/ui/lib/Spinner'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { truncate } from '~/ui/lib/Truncate'
 import { pb } from '~/util/path-builder'
+import { pluralize } from '~/util/str'
 import { GiB } from '~/util/units'
 
 import { useMakeInstanceActions } from '../actions'
@@ -221,7 +222,7 @@ export function InstancePage() {
         <PropertiesTable>
           <PropertiesTable.Row label="cpu">
             <span className="text-default">{instance.ncpus}</span>
-            <span className="ml-1 text-tertiary"> vCPUs</span>
+            <span className="ml-1 text-tertiary">{pluralize(' vCPU', instance.ncpus)}</span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="ram">
             <span className="text-default">{memory.value}</span>
