@@ -126,7 +126,7 @@ Modal.Footer = ({
   disabled = false,
   formId,
 }: FooterProps) => (
-  <footer className="flex items-center justify-between border-t px-3 py-3 border-secondary">
+  <footer className="flex items-center justify-between border-t px-4 py-3 border-secondary">
     <div className="mr-4">{children}</div>
     <div className="space-x-2">
       <Button variant="secondary" size="sm" onClick={onDismiss}>

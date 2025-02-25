@@ -59,7 +59,10 @@ import { FloatingIpsPage } from './pages/project/floating-ips/FloatingIpsPage'
 import { ImagesPage } from './pages/project/images/ImagesPage'
 import { InstancePage } from './pages/project/instances/instance/InstancePage'
 import * as ConnectTab from './pages/project/instances/instance/tabs/ConnectTab'
-import * as MetricsTab from './pages/project/instances/instance/tabs/MetricsTab'
+import { MetricsTab } from './pages/project/instances/instance/tabs/MetricsTab'
+import * as CpuMetricsTab from './pages/project/instances/instance/tabs/MetricsTab/CpuMetricsTab'
+import * as DiskMetricsTab from './pages/project/instances/instance/tabs/MetricsTab/DiskMetricsTab'
+import * as NetworkMetricsTab from './pages/project/instances/instance/tabs/MetricsTab/NetworkMetricsTab'
 import * as NetworkingTab from './pages/project/instances/instance/tabs/NetworkingTab'
 import * as SettingsTab from './pages/project/instances/instance/tabs/SettingsTab'
 import * as StorageTab from './pages/project/instances/instance/tabs/StorageTab'
@@ -290,7 +293,20 @@ export const routes = createRoutesFromElements(
                   path="networking"
                   handle={{ crumb: 'Networking' }}
                 />
-                <Route {...MetricsTab} path="metrics" handle={{ crumb: 'Metrics' }} />
+                <Route
+                  element={<MetricsTab />}
+                  path="metrics"
+                  handle={{ crumb: 'Metrics' }}
+                >
+                  <Route index element={<Navigate to="cpu" replace />} />
+                  <Route {...CpuMetricsTab} path="cpu" handle={{ crumb: 'CPU' }} />
+                  <Route {...DiskMetricsTab} path="disk" handle={{ crumb: 'Disk' }} />
+                  <Route
+                    {...NetworkMetricsTab}
+                    path="network"
+                    handle={{ crumb: 'Network' }}
+                  />
+                </Route>
                 <Route {...ConnectTab} path="connect" handle={{ crumb: 'Connect' }} />
                 <Route {...SettingsTab} path="settings" handle={{ crumb: 'Settings' }} />
               </Route>
