@@ -88,7 +88,7 @@ export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps)
           label="Instance actions"
           actions={[
             {
-              label: 'About this metric',
+              label: 'About metric',
               onActivate: () => {
                 const url = links.oxqlSchemaDocs(queryObj.metricName)
                 window.open(url, '_blank', 'noopener,noreferrer')
