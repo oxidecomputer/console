@@ -32,19 +32,9 @@ import { useMetricsContext } from '../MetricsTab'
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
-  await Promise.all([
-    apiQueryClient.prefetchQuery('instanceDiskList', {
-      path: { instance },
-      query: { project },
-    }),
-    apiQueryClient.prefetchQuery('instanceView', {
-      path: { instance },
-      query: { project },
-    }),
-    apiQueryClient.prefetchQuery('instanceNetworkInterfaceList', {
-      query: { project, instance, limit: ALL_ISH },
-    }),
-  ])
+  await apiQueryClient.prefetchQuery('instanceNetworkInterfaceList', {
+    query: { project, instance, limit: ALL_ISH },
+  })
   return null
 }
 

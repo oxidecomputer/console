@@ -7,9 +7,8 @@
  */
 
 import { useMemo, useState } from 'react'
-import { type LoaderFunctionArgs } from 'react-router'
 
-import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
+import { usePrefetchedApiQuery } from '@oxide/api'
 
 import {
   MetricCollection,
@@ -17,25 +16,10 @@ import {
   MetricRow,
   OxqlMetric,
 } from '~/components/oxql-metrics/OxqlMetric'
-import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
+import { useInstanceSelector } from '~/hooks/use-params'
 import { Listbox } from '~/ui/lib/Listbox'
 
 import { useMetricsContext } from '../MetricsTab'
-
-export async function loader({ params }: LoaderFunctionArgs) {
-  const { project, instance } = getInstanceSelector(params)
-  await Promise.all([
-    apiQueryClient.prefetchQuery('instanceDiskList', {
-      path: { instance },
-      query: { project },
-    }),
-    apiQueryClient.prefetchQuery('instanceView', {
-      path: { instance },
-      query: { project },
-    }),
-  ])
-  return null
-}
 
 Component.displayName = 'CpuMetricsTab'
 export function Component() {

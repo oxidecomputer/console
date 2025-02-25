@@ -6,13 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-/*
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, you can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * Copyright Oxide Computer Company
- */
 import { useMemo, useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router'
 
@@ -35,16 +28,10 @@ import { useMetricsContext } from '../MetricsTab'
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
-  await Promise.all([
-    apiQueryClient.prefetchQuery('instanceDiskList', {
-      path: { instance },
-      query: { project },
-    }),
-    apiQueryClient.prefetchQuery('instanceView', {
-      path: { instance },
-      query: { project },
-    }),
-  ])
+  await apiQueryClient.prefetchQuery('instanceDiskList', {
+    path: { instance },
+    query: { project },
+  })
   return null
 }
 

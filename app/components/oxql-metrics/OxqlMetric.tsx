@@ -20,11 +20,13 @@ import {
   useState,
   type ReactNode,
 } from 'react'
+import type { LoaderFunctionArgs } from 'react-router'
 
-import { useApiQuery } from '@oxide/api'
+import { apiQueryClient, useApiQuery } from '@oxide/api'
 
 import { CopyCodeModal } from '~/components/CopyCode'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
+import { getInstanceSelector } from '~/hooks/use-params'
 import { useMetricsContext } from '~/pages/project/instances/instance/tabs/MetricsTab'
 import { LearnMore } from '~/ui/lib/SettingsGroup'
 import { classed } from '~/util/classed'
@@ -42,6 +44,15 @@ import {
 
 const TimeSeriesChart = lazy(() => import('~/components/TimeSeriesChart'))
 
+export async function loader({ params }: LoaderFunctionArgs) {
+  const { project, instance } = getInstanceSelector(params)
+  await apiQueryClient.prefetchQuery('instanceView', {
+    path: { instance },
+    query: { project },
+  })
+  return null
+}
+
 export type OxqlMetricProps = OxqlQuery & {
   title: string
   description?: string
@@ -53,9 +64,9 @@ export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps)
   const query = toOxqlStr(queryObj)
   const { data: metrics, error } = useApiQuery(
     'systemTimeseriesQuery',
-    { body: { query } },
+    { body: { query } }
     // avoid graphs flashing blank while loading when you change the time
-    { placeholderData: (x) => x }
+    // { placeholderData: (x) => x }
   )
   useEffect(() => {
     if (metrics) {
