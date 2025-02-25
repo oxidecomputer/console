@@ -229,7 +229,7 @@ export default function TimeSeriesChart({
             </div>
           </div>
           <div
-            className="absolute inset-0 bg-accent-secondary"
+            className="absolute inset-x-0 bottom-12 top-1 bg-accent-secondary"
             style={{
               background:
                 'radial-gradient(197.76% 54.9% at 50% 50%, var(--surface-default) 0%, rgba(8, 15, 17, 0.00) 100%)',
@@ -241,7 +241,7 @@ export default function TimeSeriesChart({
   } else if (!data || data.length === 0) {
     return (
       <SkeletonMetric shimmer className={wrapperClass}>
-        <Spinner size="md" variant="secondary" />
+        <MetricsLoadingIndicator />
       </SkeletonMetric>
     )
   }
