@@ -1605,6 +1605,8 @@ export const handlers = makeHandlers({
     }
     requireFleetViewer(params.cookies)
 
+    // Add delay to more accurately simulate timeseries
+    // queries are slower than most other queries
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
     return handleOxqlMetrics(params.body)
