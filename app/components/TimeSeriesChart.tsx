@@ -241,7 +241,7 @@ export default function TimeSeriesChart({
   } else if (!data || data.length === 0) {
     return (
       <SkeletonMetric shimmer className={wrapperClass}>
-        <Spinner size="md" />
+        <Spinner size="md" variant="secondary" />
       </SkeletonMetric>
     )
   }
