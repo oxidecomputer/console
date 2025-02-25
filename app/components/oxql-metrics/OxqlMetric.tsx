@@ -90,8 +90,6 @@ export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps)
             {
               label: 'About this metric',
               onActivate: () => {
-                // Turn into a real link when this is fixed
-                // https://github.com/oxidecomputer/console/issues/1855
                 const url = links.oxqlSchemaDocs(queryObj.metricName)
                 window.open(url, '_blank', 'noopener,noreferrer')
               },
@@ -114,10 +112,9 @@ export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps)
           <HighlightedOxqlQuery {...queryObj} />
         </CopyCodeModal>
       </div>
-      <div className="px-6 py-5">
+      <div className="px-6 py-5 pt-8">
         <Suspense fallback={<div className="h-[300px]" />}>
           <TimeSeriesChart
-            className="mt-3"
             title={title}
             startTime={startTime}
             endTime={endTime}

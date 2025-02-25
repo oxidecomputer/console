@@ -142,7 +142,7 @@ const SkeletonMetric = ({
   shimmer?: boolean
   className?: string
 }) => (
-  <div className="relative mt-3 flex h-[300px] w-full items-center">
+  <div className="relative flex h-[300px] w-full items-center">
     <div
       className={cn(
         shimmer && 'motion-safe:animate-pulse',
