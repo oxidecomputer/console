@@ -1598,8 +1598,17 @@ export const handlers = makeHandlers({
     requireFleetViewer(params.cookies)
     return handleMetrics(params)
   },
-  systemTimeseriesQuery(params) {
+  async systemTimeseriesQuery(params) {
+    // Randomly simulate a failure
+    if (Math.random() > 0.95) {
+      throw 500
+    }
     requireFleetViewer(params.cookies)
+
+    // Add delay to more accurately simulate timeseries
+    // queries are slower than most other queries
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
     return handleOxqlMetrics(params.body)
   },
   siloMetric: handleMetrics,

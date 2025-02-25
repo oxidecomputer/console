@@ -63,7 +63,7 @@ export function Component() {
     { label: 'State: Emulating', value: 'emulation' },
     { label: 'State: Idling', value: 'idle' },
     { label: 'State: Waiting', value: 'waiting' },
-    { label: 'See all states', value: 'all' },
+    { label: 'All states', value: 'all' },
   ]
 
   const [selectedState, setSelectedState] = useState(stateItems[0].value)
@@ -71,7 +71,7 @@ export function Component() {
   const title = `CPU Utilization: ${stateItems
     .find((i) => i.value === selectedState)
     ?.label.replace('State: ', '')
-    .replace('See all states', 'Total')}`
+    .replace('All states', 'Total')}`
   const state = selectedState === 'all' ? undefined : selectedState
   return (
     <>

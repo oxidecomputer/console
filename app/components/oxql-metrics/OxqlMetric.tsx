@@ -11,7 +11,15 @@
  * https://github.com/oxidecomputer/omicron/tree/main/oximeter/oximeter/schema
  */
 
-import React, { Suspense, useEffect, useMemo, useState } from 'react'
+import {
+  Children,
+  lazy,
+  Suspense,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react'
 
 import { useApiQuery } from '@oxide/api'
 
@@ -32,7 +40,7 @@ import {
   type OxqlQuery,
 } from './util'
 
-const TimeSeriesChart = React.lazy(() => import('~/components/TimeSeriesChart'))
+const TimeSeriesChart = lazy(() => import('~/components/TimeSeriesChart'))
 
 export type OxqlMetricProps = OxqlQuery & {
   title: string
@@ -43,7 +51,7 @@ export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps)
   // only start reloading data once an intial dataset has been loaded
   const { setIsIntervalPickerEnabled } = useMetricsContext()
   const query = toOxqlStr(queryObj)
-  const { data: metrics } = useApiQuery(
+  const { data: metrics, error } = useApiQuery(
     'systemTimeseriesQuery',
     { body: { query } },
     // avoid graphs flashing blank while loading when you change the time
@@ -80,10 +88,8 @@ export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps)
           label="Instance actions"
           actions={[
             {
-              label: 'About this metric',
+              label: 'About metric',
               onActivate: () => {
-                // Turn into a real link when this is fixed
-                // https://github.com/oxidecomputer/console/issues/1855
                 const url = links.oxqlSchemaDocs(queryObj.metricName)
                 window.open(url, '_blank', 'noopener,noreferrer')
               },
@@ -106,10 +112,9 @@ export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps)
           <HighlightedOxqlQuery {...queryObj} />
         </CopyCodeModal>
       </div>
-      <div className="px-6 py-5">
+      <div className="px-6 py-5 pt-8">
         <Suspense fallback={<div className="h-[300px]" />}>
           <TimeSeriesChart
-            className="mt-3"
             title={title}
             startTime={startTime}
             endTime={endTime}
@@ -119,6 +124,7 @@ export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps)
             width={480}
             height={240}
             hasBorder={false}
+            hasError={!!error}
           />
         </Suspense>
       </div>
@@ -126,9 +132,9 @@ export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps)
   )
 }
 
-export const MetricHeader = ({ children }: { children: React.ReactNode }) => {
+export const MetricHeader = ({ children }: { children: ReactNode }) => {
   // If header has only one child, align it to the end of the container
-  const justify = React.Children.count(children) === 1 ? 'justify-end' : 'justify-between'
+  const justify = Children.count(children) === 1 ? 'justify-end' : 'justify-between'
   return (
     <div className={`flex flex-col gap-2 ${justify} mt-8 @[48rem]:flex-row`}>
       {children}

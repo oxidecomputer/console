@@ -50,7 +50,7 @@ export const MetricsTab = () => {
 
   const { intervalPicker } = useIntervalPicker({
     enabled: isIntervalPickerEnabled && preset !== 'custom',
-    isLoading: useIsFetching({ queryKey: ['siloMetric'] }) > 0,
+    isLoading: useIsFetching({ queryKey: ['systemTimeseriesQuery'] }) > 0,
     // sliding the range forward is sufficient to trigger a refetch
     fn: () => onRangeChange(preset),
     isSlim: true,
