@@ -22,8 +22,6 @@ import type { TooltipProps } from 'recharts/types/component/Tooltip'
 import type { ChartDatum } from '@oxide/api'
 import { Error12Icon } from '@oxide/design-system/icons/react'
 
-import { Spinner } from '~/ui/lib/Spinner'
-
 // Recharts's built-in ticks behavior is useless and probably broken
 /**
  * Split the data into n evenly spaced ticks, with one at the left end and one a
@@ -152,12 +150,12 @@ const SkeletonMetric = ({
     >
       <div className="flex h-full flex-col justify-between">
         {[...Array(4)].map((_e, i) => (
-          <div key={i} className="h-px w-full bg-tertiary" />
+          <div key={i} className="h-px w-full bg-[--stroke-secondary]" />
         ))}
       </div>
       <div className="flex justify-between">
         {[...Array(8)].map((_e, i) => (
-          <div key={i} className="h-1.5 w-px bg-tertiary" />
+          <div key={i} className="h-1.5 w-px bg-[--stroke-secondary]" />
         ))}
       </div>
     </div>
@@ -216,7 +214,7 @@ export default function TimeSeriesChart({
 
   if (hasError) {
     return (
-      <SkeletonMetric shimmer className={wrapperClass}>
+      <SkeletonMetric className={wrapperClass}>
         <>
           <div className="z-10 flex w-52 flex-col items-center justify-center gap-1">
             <div className="my-2 flex h-8 w-8 items-center justify-center">
@@ -308,3 +306,11 @@ export default function TimeSeriesChart({
     </div>
   )
 }
+
+const MetricsLoadingIndicator = () => (
+  <div className="metrics-loading-indicator">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+)
