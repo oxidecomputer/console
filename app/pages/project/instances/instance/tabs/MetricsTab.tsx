@@ -13,29 +13,28 @@ import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePi
 import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { useInstanceSelector } from '~/hooks/use-params'
+import { invariant } from '~/util/invariant'
 import { pb } from '~/util/path-builder'
 
-// useContext will need default values for startTime and endTime
-const oneHourAgo = new Date()
-oneHourAgo.setHours(oneHourAgo.getHours() - 1)
-const startTime = oneHourAgo
-const endTime = new Date()
-
-const MetricsContext = createContext<{
+type MetricsContextValue = {
   startTime: Date
   endTime: Date
   dateTimeRangePicker: ReactNode
   intervalPicker: ReactNode
   setIsIntervalPickerEnabled: (enabled: boolean) => void
-}>({
-  startTime,
-  endTime,
-  dateTimeRangePicker: <></>,
-  intervalPicker: <></>,
-  setIsIntervalPickerEnabled: () => {},
-})
+}
 
-export const useMetricsContext = () => useContext(MetricsContext)
+/**
+ * Using context lets the selected time window persist across route tab navs.
+ */
+const MetricsContext = createContext<MetricsContextValue | null>(null)
+
+// this lets us init with a null value but rule it out in the consumers
+export function useMetricsContext() {
+  const value = useContext(MetricsContext)
+  invariant(value, 'useMetricsContext can only be called inside a MetricsContext')
+  return value
+}
 
 export const MetricsTab = () => {
   const { project, instance } = useInstanceSelector()
@@ -62,17 +61,19 @@ export const MetricsTab = () => {
     isSlim: true,
   })
 
+  // memoizing here would be redundant because the only things that cause a
+  // render are these values, which would all be in the dep array anyway
+  const context = {
+    startTime,
+    endTime,
+    dateTimeRangePicker,
+    intervalPicker,
+    setIsIntervalPickerEnabled,
+  }
+
   // Find the relevant <Outlet> in RouteTabs
   return (
-    <MetricsContext.Provider
-      value={{
-        startTime,
-        endTime,
-        dateTimeRangePicker,
-        intervalPicker,
-        setIsIntervalPickerEnabled,
-      }}
-    >
+    <MetricsContext.Provider value={context}>
       <RouteTabs sideTabs tabListClassName="mt-24">
         <Tab to={pb.instanceCpuMetrics({ project, instance })} sideTab>
           CPU
