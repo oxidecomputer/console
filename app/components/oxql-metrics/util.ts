@@ -7,7 +7,7 @@
  */
 
 import type { ChartDatum, OxqlQueryResult, Timeseries } from '~/api'
-import { getDurationMinutes } from '~/util/date'
+import { getDurationSeconds } from '~/util/date'
 
 /*
  * OxQL Metrics Schema:
@@ -89,11 +89,9 @@ export const getTimestamps = (timeseries: Timeseries): number[] =>
  *   (default is 60, to show 1 point per minute on a 1-hour chart)
  * */
 export const getMeanWithinSeconds = (start: Date, end: Date, datapoints = 60) => {
-  const durationMinutes = getDurationMinutes({ start, end })
-  // the 60 here is just the number of seconds in a minute; unrelated to the default 60 datapoints above
-  const durationSeconds = durationMinutes * 60
+  const duration = getDurationSeconds({ start, end })
   // 5 second minimum, to handle oximeter logging interval for CPU data
-  return Math.max(VCPU_KSTAT_INTERVAL, Math.round(durationSeconds / datapoints))
+  return Math.max(VCPU_KSTAT_INTERVAL, Math.round(duration / datapoints))
 }
 
 export const getTimePropsForOxqlQuery = (

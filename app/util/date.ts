@@ -54,6 +54,5 @@ export const toLocaleTimeString = (d: Date, locale?: string) =>
 export const toLocaleDateTimeString = (d: Date, locale?: string) =>
   new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(d)
 
-/** get the number of minutes between two date objects */
-export const getDurationMinutes = ({ start, end }: { start: Date; end: Date }) =>
-  (end.getTime() - start.getTime()) / (1000 * 60)
+export const getDurationSeconds = ({ start, end }: { start: Date; end: Date }) =>
+  Math.round((end.getTime() - start.getTime()) / 1000)
