@@ -68,7 +68,7 @@ function NetworkMetrics({ nics }: { nics: InstanceNetworkInterface[] }) {
     path: { instance },
     query: { project },
   })
-  const { startTime, endTime, dateTimeRangePicker, intervalPicker } = useMetricsContext()
+  const { startTime, endTime, dateTimeRangePicker } = useMetricsContext()
 
   const nicItems = useMemo(
     () => [
@@ -97,7 +97,6 @@ function NetworkMetrics({ nics }: { nics: InstanceNetworkInterface[] }) {
     <>
       <MetricHeader>
         <div className="flex gap-2">
-          {intervalPicker}
           <Listbox
             className="w-52"
             aria-label="Choose network interface"

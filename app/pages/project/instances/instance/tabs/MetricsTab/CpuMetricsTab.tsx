@@ -29,7 +29,7 @@ export function Component() {
     query: { project },
   })
 
-  const { startTime, endTime, dateTimeRangePicker, intervalPicker } = useMetricsContext()
+  const { startTime, endTime, dateTimeRangePicker } = useMetricsContext()
 
   const queryBase = {
     metricName: 'virtual_machine:vcpu_usage' as const,
@@ -61,7 +61,6 @@ export function Component() {
     <>
       <MetricHeader>
         <div className="flex gap-2">
-          {intervalPicker}
           <Listbox
             className="w-52"
             aria-label="Choose state"
