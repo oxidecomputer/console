@@ -8,7 +8,7 @@
 import cn from 'classnames'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 
-export const spinnerSizes = ['base', 'lg'] as const
+export const spinnerSizes = ['base', 'md', 'lg'] as const
 export const spinnerVariants = ['primary', 'secondary', 'ghost', 'danger'] as const
 export type SpinnerSize = (typeof spinnerSizes)[number]
 export type SpinnerVariant = (typeof spinnerVariants)[number]
@@ -19,15 +19,35 @@ interface SpinnerProps {
   variant?: SpinnerVariant
 }
 
+const SPINNER_DIMENSIONS = {
+  base: {
+    frameSize: 12,
+    center: 6,
+    radius: 5,
+    strokeWidth: 2,
+  },
+  md: {
+    frameSize: 24,
+    center: 12,
+    radius: 10,
+    strokeWidth: 2,
+  },
+  lg: {
+    frameSize: 36,
+    center: 18,
+    radius: 16,
+    strokeWidth: 3,
+  },
+} as const
+
 export const Spinner = ({
   className,
   size = 'base',
   variant = 'primary',
 }: SpinnerProps) => {
-  const frameSize = size === 'lg' ? 36 : 12
-  const center = size === 'lg' ? 18 : 6
-  const radius = size === 'lg' ? 16 : 5
-  const strokeWidth = size === 'lg' ? 3 : 2
+  const dimensions = SPINNER_DIMENSIONS[size]
+  const { frameSize, center, radius, strokeWidth } = dimensions
+
   return (
     <svg
       width={frameSize}

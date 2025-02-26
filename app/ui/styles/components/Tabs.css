@@ -14,6 +14,10 @@
   @apply mx-[var(--content-gutter)];
 }
 
+.ox-tabs.full-width .ox-side-tabs .ox-tabs-panel {
+  @apply mx-0 ml-4;
+}
+
 .ox-tabs-list {
   @apply mb-8 flex bg-transparent;
 }
@@ -64,4 +68,21 @@
 .ox-tab[data-state='active'] > .ox-badge,
 .ox-tab.is-selected > .ox-badge {
   @apply bg-accent-secondary;
+}
+
+.ox-side-tabs-list {
+  @apply flex w-[180px] flex-shrink-0 flex-col gap-1;
+}
+
+.ox-side-tab {
+  @apply space-x-2 whitespace-nowrap rounded p-2 py-1.5 !no-underline text-sans-md text-secondary;
+}
+
+.ox-side-tab[data-state='active'],
+.ox-side-tab.is-selected {
+  @apply text-accent bg-accent-secondary;
+}
+
+.ox-side-tab:not([data-state='active'], .is-selected):hover {
+  @apply text-default bg-hover;
 }

@@ -62,6 +62,8 @@ export function Component() {
     isLoading: useIsFetching({ queryKey: ['siloMetric'] }) > 0,
     // sliding the range forward is sufficient to trigger a refetch
     fn: () => onRangeChange(preset),
+    showLastFetched: true,
+    className: 'mb-12',
   })
 
   const commonProps = {

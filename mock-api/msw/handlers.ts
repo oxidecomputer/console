@@ -49,6 +49,7 @@ import {
   forbiddenErr,
   getStartAndEndTime,
   handleMetrics,
+  handleOxqlMetrics,
   ipInAnyRange,
   ipRangeLen,
   NotImplemented,
@@ -1597,6 +1598,19 @@ export const handlers = makeHandlers({
     requireFleetViewer(params.cookies)
     return handleMetrics(params)
   },
+  async systemTimeseriesQuery(params) {
+    // Randomly simulate a failure
+    if (Math.random() > 0.95) {
+      throw 500
+    }
+    requireFleetViewer(params.cookies)
+
+    // Add delay to more accurately simulate timeseries
+    // queries are slower than most other queries
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
+    return handleOxqlMetrics(params.body)
+  },
   siloMetric: handleMetrics,
 
   // Misc endpoints we're not using yet in the console
@@ -1681,7 +1695,6 @@ export const handlers = makeHandlers({
   switchView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
   systemQuotasList: NotImplemented,
-  systemTimeseriesQuery: NotImplemented,
   systemTimeseriesSchemaList: NotImplemented,
   timeseriesQuery: NotImplemented,
   userBuiltinList: NotImplemented,

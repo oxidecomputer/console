@@ -51,6 +51,7 @@ it('mock-api is only referenced in test files', () => {
       "app/main.tsx",
       "app/msw-mock-api.ts",
       "docs/mock-api-differences.md",
+      "mock-api/msw/util.ts",
       "package.json",
       "test/e2e/utils.ts",
       "test/unit/server.ts",
