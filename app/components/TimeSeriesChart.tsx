@@ -186,7 +186,9 @@ export default function TimeSeriesChart({
   // beginning and end), it means the metrics requests haven't come back yet
   const maxY = useMemo(() => {
     if (!rawData) return null
-    const dataMax = Math.max(...rawData.map((datum) => datum.value))
+    const dataMax = Math.max(
+      ...rawData.map((datum) => datum.value).filter((x) => x !== null)
+    )
     return roundUpToDivBy(dataMax * 1.2, TICK_COUNT) // avoid uneven ticks
   }, [rawData])
 

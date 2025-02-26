@@ -45,6 +45,12 @@ export const MetricsTab = () => {
 
   const { preset, onRangeChange, startTime, endTime, dateTimeRangePicker } =
     useDateTimeRangePicker({
+      items: [
+        { label: 'Last hour', value: 'lastHour' },
+        { label: 'Last 3 hours', value: 'last3Hours' },
+        { label: 'Last 24 hours', value: 'lastDay' },
+        { label: 'Custom', value: 'custom' },
+      ],
       initialPreset: 'lastHour',
     })
 

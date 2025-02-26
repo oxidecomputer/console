@@ -73,7 +73,7 @@ export const VCPU_KSTAT_INTERVAL = 5
 
 // Returns 0 if there are no data points
 export const getLargestValue = (data: ChartDatum[]) =>
-  data.length ? Math.max(0, ...data.map((d) => d.value)) : 0
+  data.length ? Math.max(0, ...data.map((d) => d.value).filter((x) => x !== null)) : 0
 
 export const getMaxExponent = (largestValue: number, base: number) =>
   Math.max(Math.floor(Math.log(largestValue) / Math.log(base)), 0)
@@ -92,7 +92,8 @@ export const getMeanWithinSeconds = (start: Date, end: Date, datapoints = 60) =>
   const durationMinutes = getDurationMinutes({ start, end })
   // the 60 here is just the number of seconds in a minute; unrelated to the default 60 datapoints above
   const durationSeconds = durationMinutes * 60
-  return Math.round(durationSeconds / datapoints)
+  // 5 second minimum, to handle oximeter logging interval for CPU data
+  return Math.max(VCPU_KSTAT_INTERVAL, Math.round(durationSeconds / datapoints))
 }
 
 export const getTimePropsForOxqlQuery = (
@@ -114,15 +115,19 @@ export const getTimePropsForOxqlQuery = (
 export const getValuesFromTimeseries = (timeseries: Timeseries) =>
   timeseries.points.values[0]?.values?.values || []
 
-export const sumValues = (timeseries: Timeseries[], arrLen: number): number[] => {
-  const summedValues = new Float64Array(arrLen)
+export const sumValues = (timeseries: Timeseries[], arrLen: number): (number | null)[] => {
+  // default to null, so missing data doesn't show on chart as "0"
+  const summedValues: (number | null)[] = Array.from({ length: arrLen }, () => null)
   timeseries.forEach((ts) => {
     const values = getValuesFromTimeseries(ts)
-    // add each value to the corresponding index in the summedValues array;
-    // default to 0 for cases of missing oximeter data
-    values.forEach((v, idx) => (summedValues[idx] += Number(v) || 0))
+    // add each value to the corresponding index in the summedValues array
+    values.forEach((v, idx) => {
+      if (v === null) return
+      if (summedValues[idx] === null) summedValues[idx] = 0
+      summedValues[idx] += Number(v)
+    })
   })
-  return Array.from(summedValues)
+  return summedValues
 }
 
 type ChartUnitType = 'Bytes' | '%' | 'Count'
@@ -181,7 +186,7 @@ export const getBytesChartProps = (chartData: ChartDatum[]): OxqlMetricChartProp
   const bytesChartDivisor = base ** maxExponent
   const data = chartData.map((d) => ({
     ...d,
-    value: d.value / bytesChartDivisor,
+    value: d.value !== null ? d.value / bytesChartDivisor : null,
   }))
   const unitForSet = byteUnits[maxExponent]
   return {
@@ -225,7 +230,7 @@ export const getUtilizationChartProps = (
     divisor > 0
       ? chartData.map(({ timestamp, value }) => ({
           timestamp,
-          value: (value * 100) / divisor,
+          value: value !== null ? (value * 100) / divisor : null,
         }))
       : []
   return { data, label: '(%)', unitForSet: '%', yAxisTickFormatter: (n: number) => `${n}%` }
