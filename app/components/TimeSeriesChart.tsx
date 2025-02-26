@@ -217,28 +217,12 @@ export default function TimeSeriesChart({
   if (hasError) {
     return (
       <SkeletonMetric className={wrapperClass}>
-        <>
-          <div className="z-10 flex w-52 flex-col items-center justify-center gap-1">
-            <div className="my-2 flex h-8 w-8 items-center justify-center">
-              <div className="absolute h-8 w-8 rounded-full opacity-20 bg-destructive motion-safe:animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
-              <Error12Icon className="relative h-6 w-6 text-error-tertiary" />
-            </div>
-            <div className="text-semi-lg text-center text-raise">Something went wrong</div>
-            <div className="text-center text-sans-md text-secondary">
-              Try refreshing the page, or contact your project admin
-            </div>
-          </div>
-          <div
-            className="absolute inset-x-0 bottom-12 top-1 bg-accent-secondary"
-            style={{
-              background:
-                'radial-gradient(197.76% 54.9% at 50% 50%, var(--surface-default) 0%, rgba(8, 15, 17, 0.00) 100%)',
-            }}
-          />
-        </>
+        <MetricsError />
       </SkeletonMetric>
     )
-  } else if (!data || data.length === 0) {
+  }
+
+  if (!data || data.length === 0) {
     return (
       <SkeletonMetric shimmer className={wrapperClass}>
         <MetricsLoadingIndicator />
@@ -315,4 +299,26 @@ const MetricsLoadingIndicator = () => (
     <span></span>
     <span></span>
   </div>
+)
+
+const MetricsError = () => (
+  <>
+    <div className="z-10 flex w-52 flex-col items-center justify-center gap-1">
+      <div className="my-2 flex h-8 w-8 items-center justify-center">
+        <div className="absolute h-8 w-8 rounded-full opacity-20 bg-destructive motion-safe:animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
+        <Error12Icon className="relative h-6 w-6 text-error-tertiary" />
+      </div>
+      <div className="text-semi-lg text-center text-raise">Something went wrong</div>
+      <div className="text-center text-sans-md text-secondary">
+        Please try again. If the problem persists, contact your administrator.
+      </div>
+    </div>
+    <div
+      className="absolute inset-x-0 bottom-12 top-1 bg-accent-secondary"
+      style={{
+        background:
+          'radial-gradient(197.76% 54.9% at 50% 50%, var(--surface-default) 0%, rgba(8, 15, 17, 0.00) 100%)',
+      }}
+    />
+  </>
 )
