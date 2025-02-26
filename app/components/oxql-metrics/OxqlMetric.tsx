@@ -11,15 +11,7 @@
  * https://github.com/oxidecomputer/omicron/tree/main/oximeter/oximeter/schema
  */
 
-import {
-  Children,
-  lazy,
-  Suspense,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react'
+import { Children, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { LoaderFunctionArgs } from 'react-router'
 
 import { apiQueryClient, useApiQuery } from '@oxide/api'
@@ -27,11 +19,12 @@ import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { CopyCodeModal } from '~/components/CopyCode'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { getInstanceSelector } from '~/hooks/use-params'
-import { useMetricsContext } from '~/pages/project/instances/instance/tabs/MetricsTab'
+import { useMetricsContext } from '~/pages/project/instances/instance/tabs/common'
 import { LearnMore } from '~/ui/lib/SettingsGroup'
 import { classed } from '~/util/classed'
 import { links } from '~/util/links'
 
+import { TimeSeriesChart } from '../TimeSeriesChart'
 import { HighlightedOxqlQuery, toOxqlStr } from './HighlightedOxqlQuery'
 import {
   composeOxqlData,
@@ -41,8 +34,6 @@ import {
   getUtilizationChartProps,
   type OxqlQuery,
 } from './util'
-
-const TimeSeriesChart = lazy(() => import('~/components/TimeSeriesChart'))
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
@@ -124,20 +115,18 @@ export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps)
         </CopyCodeModal>
       </div>
       <div className="px-6 py-5 pt-8">
-        <Suspense fallback={<div className="h-[300px]" />}>
-          <TimeSeriesChart
-            title={title}
-            startTime={startTime}
-            endTime={endTime}
-            unit={unitForSet}
-            data={data}
-            yAxisTickFormatter={yAxisTickFormatter}
-            width={480}
-            height={240}
-            hasBorder={false}
-            hasError={!!error}
-          />
-        </Suspense>
+        <TimeSeriesChart
+          title={title}
+          startTime={startTime}
+          endTime={endTime}
+          unit={unitForSet}
+          data={data}
+          yAxisTickFormatter={yAxisTickFormatter}
+          width={480}
+          height={240}
+          hasBorder={false}
+          hasError={!!error}
+        />
       </div>
     </div>
   )

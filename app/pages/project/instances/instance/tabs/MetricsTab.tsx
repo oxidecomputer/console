@@ -7,36 +7,19 @@
  */
 
 import { useIsFetching } from '@tanstack/react-query'
-import { createContext, useContext, useState, type ReactNode } from 'react'
+import { useState } from 'react'
 
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
 import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { useInstanceSelector } from '~/hooks/use-params'
-import { invariant } from '~/util/invariant'
 import { pb } from '~/util/path-builder'
 
-type MetricsContextValue = {
-  startTime: Date
-  endTime: Date
-  dateTimeRangePicker: ReactNode
-  intervalPicker: ReactNode
-  setIsIntervalPickerEnabled: (enabled: boolean) => void
-}
+import { MetricsContext } from './common'
 
-/**
- * Using context lets the selected time window persist across route tab navs.
- */
-const MetricsContext = createContext<MetricsContextValue | null>(null)
+export const handle = { crumb: 'Metrics' }
 
-// this lets us init with a null value but rule it out in the consumers
-export function useMetricsContext() {
-  const value = useContext(MetricsContext)
-  invariant(value, 'useMetricsContext can only be called inside a MetricsContext')
-  return value
-}
-
-export const MetricsTab = () => {
+export default function MetricsTab() {
   const { project, instance } = useInstanceSelector()
   // this ensures the interval picker (which defaults to reloading every 10s) only kicks in
   // once some initial data have loaded, to prevent requests from stacking up

@@ -28,9 +28,9 @@ import { Listbox } from '~/ui/lib/Listbox'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { ALL_ISH } from '~/util/consts'
 
-import { useMetricsContext } from '../MetricsTab'
+import { useMetricsContext } from '../common'
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await apiQueryClient.prefetchQuery('instanceNetworkInterfaceList', {
     query: { project, instance, limit: ALL_ISH },
@@ -40,8 +40,9 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
 const groupByInstanceId = { cols: ['instance_id'], op: 'sum' } as const
 
-Component.displayName = 'NetworkMetricsTab'
-export function Component() {
+export const handle = { crumb: 'Network' }
+
+export default function NetworkMetricsTab() {
   const { project, instance } = useInstanceSelector()
   const { data: nics } = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
     query: { project, instance, limit: ALL_ISH },

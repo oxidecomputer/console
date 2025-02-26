@@ -165,9 +165,7 @@ const SkeletonMetric = ({
   </div>
 )
 
-// default export is most convenient for dynamic import
-// eslint-disable-next-line import/no-default-export
-export default function TimeSeriesChart({
+export function TimeSeriesChart({
   className,
   data: rawData,
   title,

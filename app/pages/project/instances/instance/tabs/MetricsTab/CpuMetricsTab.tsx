@@ -19,10 +19,11 @@ import {
 import { useInstanceSelector } from '~/hooks/use-params'
 import { Listbox } from '~/ui/lib/Listbox'
 
-import { useMetricsContext } from '../MetricsTab'
+import { useMetricsContext } from '../common'
 
-Component.displayName = 'CpuMetricsTab'
-export function Component() {
+export const handle = { crumb: 'CPU' }
+
+export default function CpuMetricsTab() {
   const { project, instance } = useInstanceSelector()
   const { data: instanceData } = usePrefetchedApiQuery('instanceView', {
     path: { instance },

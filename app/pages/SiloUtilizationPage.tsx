@@ -26,7 +26,9 @@ import { bytesToGiB, bytesToTiB } from '~/util/units'
 
 const toListboxItem = (x: { name: string; id: string }) => ({ label: x.name, value: x.id })
 
-export async function loader() {
+export const handle = { crumb: 'Utilization' }
+
+export async function clientLoader() {
   await Promise.all([
     apiQueryClient.prefetchQuery('projectList', {}),
     apiQueryClient.prefetchQuery('utilizationView', {}),
@@ -34,8 +36,7 @@ export async function loader() {
   return null
 }
 
-Component.displayName = 'SiloUtilizationPage'
-export function Component() {
+export default function SiloUtilizationPage() {
   const { me } = useCurrentUser()
 
   const siloId = me.siloId

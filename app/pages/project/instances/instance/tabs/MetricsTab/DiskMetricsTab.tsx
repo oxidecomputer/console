@@ -24,9 +24,9 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
 import { TableEmptyBox } from '~/ui/lib/Table'
 
-import { useMetricsContext } from '../MetricsTab'
+import { useMetricsContext } from '../common'
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await apiQueryClient.prefetchQuery('instanceDiskList', {
     path: { instance },
@@ -38,8 +38,9 @@ export async function loader({ params }: LoaderFunctionArgs) {
 // out here so we don't have to memoize it
 const groupByAttachedInstanceId = { cols: ['attached_instance_id'], op: 'sum' } as const
 
-Component.displayName = 'DiskMetricsTab'
-export function Component() {
+export const handle = { crumb: 'Disk' }
+
+export default function DiskMetricsTab() {
   const { project, instance } = useInstanceSelector()
   const { data: disks } = usePrefetchedApiQuery('instanceDiskList', {
     path: { instance },
