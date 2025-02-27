@@ -122,13 +122,6 @@ export const sumValues = (timeseries: Timeseries[], arrLen: number): (number | n
     )
   )
 
-type ChartUnitType = 'Bytes' | '%' | 'Count'
-export const getUnit = (title: string): ChartUnitType => {
-  if (title.includes('Bytes')) return 'Bytes'
-  if (title.includes('Utilization')) return '%'
-  return 'Count'
-}
-
 // Take the OxQL Query Result and return the data in a format that the chart can use
 // We'll do this by creating two arrays: one for the timestamps and one for the values
 // We'll then combine these into an array of objects, each with a timestamp and a value

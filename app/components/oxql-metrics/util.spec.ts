@@ -15,7 +15,6 @@ import {
   getMaxExponent,
   getMeanWithinSeconds,
   getTimePropsForOxqlQuery,
-  getUnit,
   getUtilizationChartProps,
   oxqlTimestamp,
   sumValues,
@@ -115,13 +114,6 @@ test('yAxisLabelForCountChart', () => {
   expect(yAxisLabelForCountChart(10 ** 9 + 1, 3)).toEqual('1B')
   expect(yAxisLabelForCountChart(10 ** 12, 4)).toEqual('1T')
   expect(yAxisLabelForCountChart(10 ** 12 + 1, 4)).toEqual('1T')
-})
-
-test('getUnit', () => {
-  expect(getUnit('CPU Utilization')).toEqual('%')
-  expect(getUnit('Bytes Read')).toEqual('Bytes')
-  expect(getUnit('Disk reads')).toEqual('Count')
-  expect(getUnit('Anything else')).toEqual('Count')
 })
 
 test('getLargestValue', () => {

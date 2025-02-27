@@ -36,6 +36,7 @@ export default function CpuMetricsTab() {
   type CpuChartType = OxqlVcpuState | 'all'
 
   const queryBase = {
+    unit: '%' as const,
     metricName: 'virtual_machine:vcpu_usage' as const,
     startTime,
     endTime,
@@ -96,7 +97,7 @@ export default function CpuMetricsTab() {
                 title="CPU Utilization: Waiting"
                 eqFilters={{ instance_id: instanceData.id, state: 'waiting' }}
                 {...queryBase}
-              />{' '}
+              />
             </MetricRow>
           </>
         ) : (

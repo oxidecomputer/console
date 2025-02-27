@@ -118,12 +118,14 @@ function DiskMetrics({ disks, instance }: { disks: Disk[]; instance: Instance })
             title="Disk Reads"
             description="Total number of read operations from the disk"
             metricName="virtual_disk:reads"
+            unit="Count"
             {...queryBase}
           />
           <OxqlMetric
             title="Disk Writes"
             description="Total number of write operations to the disk"
             metricName="virtual_disk:writes"
+            unit="Count"
             {...queryBase}
           />
         </MetricRow>
@@ -133,12 +135,14 @@ function DiskMetrics({ disks, instance }: { disks: Disk[]; instance: Instance })
             title="Bytes Read"
             description="Number of bytes read from the disk"
             metricName="virtual_disk:bytes_read"
+            unit="Bytes"
             {...queryBase}
           />
           <OxqlMetric
             title="Bytes Written"
             description="Number of bytes written to the disk"
             metricName="virtual_disk:bytes_written"
+            unit="Bytes"
             {...queryBase}
           />
         </MetricRow>
@@ -148,6 +152,7 @@ function DiskMetrics({ disks, instance }: { disks: Disk[]; instance: Instance })
             title="Disk Flushes"
             description="Total number of flush operations on the disk"
             metricName="virtual_disk:flushes"
+            unit="Count"
             {...queryBase}
           />
         </MetricRow>

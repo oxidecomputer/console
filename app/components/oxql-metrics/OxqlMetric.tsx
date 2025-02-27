@@ -30,7 +30,6 @@ import {
   composeOxqlData,
   getBytesChartProps,
   getCountChartProps,
-  getUnit,
   getUtilizationChartProps,
   type OxqlQuery,
 } from './util'
@@ -47,9 +46,10 @@ export async function loader({ params }: LoaderFunctionArgs) {
 export type OxqlMetricProps = OxqlQuery & {
   title: string
   description?: string
+  unit: 'Bytes' | '%' | 'Count'
 }
 
-export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps) {
+export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetricProps) {
   // only start reloading data once an intial dataset has been loaded
   const { setIsIntervalPickerEnabled } = useMetricsContext()
   const query = toOxqlStr(queryObj)
@@ -67,7 +67,6 @@ export function OxqlMetric({ title, description, ...queryObj }: OxqlMetricProps)
   }, [metrics, setIsIntervalPickerEnabled])
   const { startTime, endTime } = queryObj
   const { chartData, timeseriesCount } = useMemo(() => composeOxqlData(metrics), [metrics])
-  const unit = getUnit(title)
   const { data, label, unitForSet, yAxisTickFormatter } = useMemo(() => {
     if (unit === 'Bytes') return getBytesChartProps(chartData)
     if (unit === 'Count') return getCountChartProps(chartData)
