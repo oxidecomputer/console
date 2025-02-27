@@ -22,7 +22,7 @@ import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
-import { VpcDocsPopover } from '../VpcsPage'
+import { VpcDocsPopover } from './VpcsPage'
 
 const vpcView = ({ project, vpc }: PP.Vpc) =>
   apiq('vpcView', { path: { vpc }, query: { project } })
