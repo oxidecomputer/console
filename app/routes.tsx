@@ -9,6 +9,7 @@ import type { ReactElement } from 'react'
 import {
   createRoutesFromElements,
   Navigate,
+  redirect,
   Route,
   type LoaderFunctionArgs,
 } from 'react-router'
@@ -34,7 +35,6 @@ import { CreateRouterRouteSideModalForm } from './forms/vpc-router-route-create'
 import { EditRouterRouteSideModalForm } from './forms/vpc-router-route-edit'
 import { makeCrumb, titleCrumb, type Crumb } from './hooks/use-crumbs'
 import { getInstanceSelector, getProjectSelector, getVpcSelector } from './hooks/use-params'
-import { instanceLookupLoader } from './pages/lookups'
 import * as ProjectAccess from './pages/project/access/ProjectAccessPage'
 import { ImagesPage } from './pages/project/images/ImagesPage'
 import { InstancePage } from './pages/project/instances/instance/InstancePage'
@@ -66,9 +66,12 @@ import * as SilosPage from './pages/system/silos/SilosPage'
 import { truncate } from './ui/lib/Truncate'
 import { pb } from './util/path-builder'
 
+// hack because RR doesn't export the redirect type
+type Redirect = ReturnType<typeof redirect>
+
 type RouteModule = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  clientLoader?: (a: LoaderFunctionArgs<any>) => Promise<null>
+  clientLoader?: (a: LoaderFunctionArgs<any>) => Promise<Redirect | null>
   default: () => ReactElement | null
   shouldRevalidate?: () => boolean
   ErrorBoundary?: () => ReactElement
@@ -212,10 +215,12 @@ export const routes = createRoutesFromElements(
         {/* let's do both. what could go wrong*/}
         <Route
           path="lookup/instances/:instance"
-          element={null}
-          loader={instanceLookupLoader}
+          lazy={() => import('./pages/InstanceLookup.tsx').then(convert)}
         />
-        <Route path="lookup/i/:instance" element={null} loader={instanceLookupLoader} />
+        <Route
+          path="lookup/i/:instance"
+          lazy={() => import('./pages/InstanceLookup.tsx').then(convert)}
+        />
 
         {/* these are here instead of under projects because they need to use SiloLayout */}
         <Route {...Projects} handle={makeCrumb('Projects', pb.projects())}>

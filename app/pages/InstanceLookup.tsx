@@ -12,7 +12,7 @@ import { apiq, queryClient } from '@oxide/api'
 import { trigger404 } from '~/components/ErrorBoundary'
 import { pb } from '~/util/path-builder'
 
-export async function instanceLookupLoader({ params }: LoaderFunctionArgs) {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   try {
     const instance = await queryClient.fetchQuery(
       apiq('instanceView', { path: { instance: params.instance! } })
@@ -24,4 +24,9 @@ export async function instanceLookupLoader({ params }: LoaderFunctionArgs) {
   } catch (_e) {
     throw trigger404
   }
+}
+
+/** This should never render because the loader always redirects or 404s */
+export default function InstanceLookup() {
+  return null
 }
