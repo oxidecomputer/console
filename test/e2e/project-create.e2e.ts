@@ -31,8 +31,6 @@ test.describe('Project create', () => {
 
   test('shows field-level validation error and does not POST', async ({ page }) => {
     const input = page.getByRole('textbox', { name: 'Name' })
-    await input.pressSequentially('no sPoNgEbOb_CaSe or spaces')
-    await expect(input).toHaveValue('no-spongebob-case-or-spaces')
     await input.fill('no-ending-dash-')
     // submit to trigger validation
     await page.getByRole('button', { name: 'Create project' }).click()

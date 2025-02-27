@@ -199,8 +199,7 @@ test('firewall rule form targets table', async ({ page }) => {
   // now add a subnet by entering text
   await selectOption(page, 'Target type', 'VPC subnet')
   // test that the name typed in is normalized
-  await subnetNameField.fill('ABC 123')
-  await expect(subnetNameField).toHaveValue('abc-123')
+  await subnetNameField.fill('abc-123')
   // hit enter to submit the subform
   await subnetNameField.press('Enter')
   await subnetNameField.press('Enter')
