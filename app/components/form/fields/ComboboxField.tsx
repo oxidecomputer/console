@@ -21,7 +21,7 @@ import {
   getSelectedLabelFromValue,
   type ComboboxBaseProps,
 } from '~/ui/lib/Combobox'
-import { capitalize, normalizeName } from '~/util/str'
+import { capitalize } from '~/util/str'
 
 import { ErrorMessage } from './ErrorMessage'
 
@@ -60,7 +60,7 @@ export function ComboboxField<
       ? 'Select an option or enter a custom value'
       : 'Select an option',
   items,
-  transform = (value) => normalizeName(value, true),
+  transform,
   validate,
   ...props
 }: ComboboxFieldProps<TFieldValues, TName>) {
