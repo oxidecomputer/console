@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { createContext, ReactNode, useContext } from 'react'
+import { createContext, useContext, type ReactNode } from 'react'
 
 import { intersperse } from '~/util/array'
 import { invariant } from '~/util/invariant'
