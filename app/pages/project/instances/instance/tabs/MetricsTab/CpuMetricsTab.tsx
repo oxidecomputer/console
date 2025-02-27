@@ -30,9 +30,17 @@ export default function CpuMetricsTab() {
     path: { instance },
     query: { project },
   })
+
   const { startTime, endTime, dateTimeRangePicker } = useMetricsContext()
 
   type CpuChartType = OxqlVcpuState | 'all'
+
+  const queryBase = {
+    metricName: 'virtual_machine:vcpu_usage' as const,
+    startTime,
+    endTime,
+    groupBy: { cols: ['vcpu_id'], op: 'sum' } as const,
+  }
 
   const stateItems: { label: string; value: CpuChartType }[] = [
     { label: 'State: Running', value: 'run' },
@@ -41,19 +49,12 @@ export default function CpuMetricsTab() {
     { label: 'State: Waiting', value: 'waiting' },
     { label: 'All states', value: 'all' },
   ]
+
   const [selectedState, setSelectedState] = useState(stateItems[0].value)
 
-  const CpuStateMetric = ({ state }: { state: CpuChartType }) => (
-    <OxqlMetric
-      title={`CPU Utilization: ${stateItems.find((i) => i.value === state)?.label.replace('State: ', '')}`}
-      eqFilters={{ instance_id: instanceData.id, state }}
-      metricName={'virtual_machine:vcpu_usage' as const}
-      startTime={startTime}
-      endTime={endTime}
-      groupBy={{ cols: ['vcpu_id'], op: 'sum' } as const}
-    />
-  )
-
+  const title = `CPU Utilization: ${stateItems
+    .find((i) => i.value === selectedState)
+    ?.label.replace('State: ', '')}`
   return (
     <>
       <MetricHeader>
@@ -73,18 +74,38 @@ export default function CpuMetricsTab() {
         {selectedState === 'all' ? (
           <>
             <MetricRow>
-              <CpuStateMetric state="run" />
-              <CpuStateMetric state="emulation" />
+              <OxqlMetric
+                title="CPU Utilization: Running"
+                eqFilters={{ instance_id: instanceData.id, state: 'run' }}
+                {...queryBase}
+              />
+              <OxqlMetric
+                title="CPU Utilization: Emulation"
+                eqFilters={{ instance_id: instanceData.id, state: 'emulation' }}
+                {...queryBase}
+              />
             </MetricRow>
 
             <MetricRow>
-              <CpuStateMetric state="idle" />
-              <CpuStateMetric state="waiting" />
+              <OxqlMetric
+                title="CPU Utilization: Idling"
+                eqFilters={{ instance_id: instanceData.id, state: 'idle' }}
+                {...queryBase}
+              />
+              <OxqlMetric
+                title="CPU Utilization: Waiting"
+                eqFilters={{ instance_id: instanceData.id, state: 'waiting' }}
+                {...queryBase}
+              />{' '}
             </MetricRow>
           </>
         ) : (
           <MetricRow>
-            <CpuStateMetric state={selectedState} />
+            <OxqlMetric
+              title={title}
+              eqFilters={{ instance_id: instanceData.id, state: selectedState }}
+              {...queryBase}
+            />
           </MetricRow>
         )}
       </MetricCollection>
