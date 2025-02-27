@@ -30,14 +30,17 @@ test.describe('Project create', () => {
   })
 
   test('shows field-level validation error and does not POST', async ({ page }) => {
-    const input = page.getByRole('textbox', { name: 'Name' })
-    await input.fill('no-ending-dash-')
-    // submit to trigger validation
-    await page.getByRole('button', { name: 'Create project' }).click()
-
-    await expect(
-      page.getByText('Must end with a letter or number', { exact: true }).nth(0)
-    ).toBeVisible()
+    const expectInputError = async (text: string, error: string) => {
+      await page.getByRole('textbox', { name: 'Name' }).fill(text)
+      await page.getByRole('button', { name: 'Create project' }).click()
+      await expect(page.getByText(error).first()).toBeVisible()
+    }
+    await expectInputError('', 'Name is required')
+    await expectInputError('no spaces', 'Can only contain lower-case')
+    await expectInputError('no-UPPERCASE', 'Can only contain lower-case')
+    await expectInputError('no-ending-dash-', 'Must end with a letter or number')
+    await expectInputError('123-oops', 'Must start with a lower-case letter')
+    await expectInputError('HULK-SMASH', 'Can only contain lower-case')
   })
 
   test('shows form-level error for known server error', async ({ page }) => {
