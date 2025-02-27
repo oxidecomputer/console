@@ -6,10 +6,10 @@
  * Copyright Oxide Computer Company
  */
 
+import { differenceInSeconds } from 'date-fns'
 import * as R from 'remeda'
 
 import type { ChartDatum, OxqlQueryResult, Timeseries } from '~/api'
-import { getDurationSeconds } from '~/util/date'
 
 /*
  * OxQL Metrics Schema:
@@ -89,7 +89,7 @@ export const oxqlTimestamp = (date: Date) => date.toISOString().replace(/\.\d+Z$
  *   (default is 60, to show 1 point per minute on a 1-hour chart)
  * */
 export const getMeanWithinSeconds = (start: Date, end: Date, datapoints = 60) => {
-  const duration = getDurationSeconds({ start, end })
+  const duration = differenceInSeconds(end, start)
   // 5 second minimum, to handle oximeter logging interval for CPU data
   return Math.max(VCPU_KSTAT_INTERVAL_SEC, Math.round(duration / datapoints))
 }

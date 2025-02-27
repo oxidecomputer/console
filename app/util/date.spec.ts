@@ -9,7 +9,6 @@ import { subDays, subHours, subMinutes, subSeconds } from 'date-fns'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
-  getDurationSeconds,
   timeAgoAbbr,
   toLocaleDateString,
   toLocaleDateTimeString,
@@ -83,24 +82,5 @@ describe('timeAgoAbbr', () => {
     expect(toLocaleDateTimeString(baseDate, 'fr-FR')).toEqual('7 juin 2021, 00:00')
     expect(toLocaleDateTimeString(baseDate, 'de-DE')).toEqual('07.06.2021, 00:00')
     expect(toLocaleDateTimeString(baseDate, 'ja-JP')).toEqual('2021/06/07 0:00')
-  })
-})
-
-describe('getDurationSeconds', () => {
-  it('calculates the duration in seconds', () => {
-    const start1 = new Date(2021, 5, 7, 12, 0)
-    const end1 = new Date(2021, 5, 7, 12, 30)
-    expect(getDurationSeconds({ start: start1, end: end1 })).toEqual(1800)
-    const start2 = new Date('2025-01-01T00:00:00Z')
-    const end2 = new Date('2025-01-01T01:30:00Z')
-    expect(getDurationSeconds({ start: start2, end: end2 })).toEqual(5400)
-  })
-  it('rounds milliseconds', () => {
-    const start3 = new Date('2025-01-01T00:00:00Z')
-    const end3 = new Date('2025-01-01T00:00:00.22Z')
-    expect(getDurationSeconds({ start: start3, end: end3 })).toEqual(0)
-    const start4 = new Date('2025-01-01T00:00:00Z')
-    const end4 = new Date('2025-01-01T00:00:00.5Z')
-    expect(getDurationSeconds({ start: start4, end: end4 })).toEqual(1)
   })
 })
