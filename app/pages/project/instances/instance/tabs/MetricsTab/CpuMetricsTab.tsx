@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 
 import { usePrefetchedApiQuery } from '@oxide/api'
 
@@ -16,6 +16,7 @@ import {
   MetricRow,
   OxqlMetric,
 } from '~/components/oxql-metrics/OxqlMetric'
+import type { OxqlVcpuState } from '~/components/oxql-metrics/util'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { Listbox } from '~/ui/lib/Listbox'
 
@@ -29,35 +30,30 @@ export default function CpuMetricsTab() {
     path: { instance },
     query: { project },
   })
-
   const { startTime, endTime, dateTimeRangePicker } = useMetricsContext()
 
-  const queryBase = {
-    metricName: 'virtual_machine:vcpu_usage' as const,
-    startTime,
-    endTime,
-    groupBy: { cols: ['vcpu_id'], op: 'sum' } as const,
-  }
+  type CpuChartType = OxqlVcpuState | 'all'
 
-  // all this memoization is ridiculous, but we need the filters referentially
-  // table or everything will re-render too much
-  const filterBase = useMemo(() => ({ instance_id: instanceData.id }), [instanceData.id])
-
-  const stateItems = [
+  const stateItems: { label: string; value: CpuChartType }[] = [
     { label: 'State: Running', value: 'run' },
     { label: 'State: Emulating', value: 'emulation' },
     { label: 'State: Idling', value: 'idle' },
     { label: 'State: Waiting', value: 'waiting' },
     { label: 'All states', value: 'all' },
   ]
-
   const [selectedState, setSelectedState] = useState(stateItems[0].value)
 
-  const title = `CPU Utilization: ${stateItems
-    .find((i) => i.value === selectedState)
-    ?.label.replace('State: ', '')
-    .replace('All states', 'Total')}`
-  const state = selectedState === 'all' ? undefined : selectedState
+  const CpuStateMetric = ({ state }: { state: CpuChartType }) => (
+    <OxqlMetric
+      title={`CPU Utilization: ${stateItems.find((i) => i.value === state)?.label.replace('State: ', '')}`}
+      eqFilters={{ instance_id: instanceData.id, state }}
+      metricName={'virtual_machine:vcpu_usage' as const}
+      startTime={startTime}
+      endTime={endTime}
+      groupBy={{ cols: ['vcpu_id'], op: 'sum' } as const}
+    />
+  )
+
   return (
     <>
       <MetricHeader>
@@ -74,41 +70,22 @@ export default function CpuMetricsTab() {
         {dateTimeRangePicker}
       </MetricHeader>
       <MetricCollection>
-        <MetricRow>
-          <OxqlMetric
-            title={title}
-            eqFilters={useMemo(() => ({ ...filterBase, state }), [filterBase, state])}
-            {...queryBase}
-          />
-        </MetricRow>
-        {selectedState === 'all' && (
+        {selectedState === 'all' ? (
           <>
             <MetricRow>
-              <OxqlMetric
-                title="CPU Utilization: Running"
-                eqFilters={{ ...filterBase, state: 'run' }}
-                {...queryBase}
-              />
-              <OxqlMetric
-                title="CPU Utilization: Emulation"
-                eqFilters={{ ...filterBase, state: 'emulation' }}
-                {...queryBase}
-              />
+              <CpuStateMetric state="run" />
+              <CpuStateMetric state="emulation" />
             </MetricRow>
 
             <MetricRow>
-              <OxqlMetric
-                title="CPU Utilization: Idling"
-                eqFilters={{ ...filterBase, state: 'idle' }}
-                {...queryBase}
-              />
-              <OxqlMetric
-                title="CPU Utilization: Waiting"
-                eqFilters={{ ...filterBase, state: 'waiting' }}
-                {...queryBase}
-              />
+              <CpuStateMetric state="idle" />
+              <CpuStateMetric state="waiting" />
             </MetricRow>
           </>
+        ) : (
+          <MetricRow>
+            <CpuStateMetric state={selectedState} />
+          </MetricRow>
         )}
       </MetricCollection>
     </>
