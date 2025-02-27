@@ -37,11 +37,11 @@ import { makeCrumb, titleCrumb, type Crumb } from './hooks/use-crumbs'
 import { getInstanceSelector, getProjectSelector, getVpcSelector } from './hooks/use-params'
 import * as ProjectAccess from './pages/project/access/ProjectAccessPage'
 import { ImagesPage } from './pages/project/images/ImagesPage'
-import { InstancePage } from './pages/project/instances/instance/InstancePage'
-import * as ConnectTab from './pages/project/instances/instance/tabs/ConnectTab'
-import * as NetworkingTab from './pages/project/instances/instance/tabs/NetworkingTab'
-import * as SettingsTab from './pages/project/instances/instance/tabs/SettingsTab'
-import * as StorageTab from './pages/project/instances/instance/tabs/StorageTab'
+import * as ConnectTab from './pages/project/instances/ConnectTab'
+import { InstancePage } from './pages/project/instances/InstancePage'
+import * as NetworkingTab from './pages/project/instances/NetworkingTab'
+import * as SettingsTab from './pages/project/instances/SettingsTab'
+import * as StorageTab from './pages/project/instances/StorageTab'
 import { SnapshotsPage } from './pages/project/snapshots/SnapshotsPage'
 import { EditInternetGatewayForm } from './pages/project/vpcs/internet-gateway-edit'
 import * as RouterPage from './pages/project/vpcs/RouterPage'
@@ -255,9 +255,7 @@ export const routes = createRoutesFromElements(
               <Route
                 path="serial-console"
                 lazy={() =>
-                  import('./pages/project/instances/instance/SerialConsolePage').then(
-                    convert
-                  )
+                  import('./pages/project/instances/SerialConsolePage').then(convert)
                 }
               />
             </Route>
@@ -292,34 +290,24 @@ export const routes = createRoutesFromElements(
                 />
                 <Route
                   path="metrics"
-                  lazy={() =>
-                    import('./pages/project/instances/instance/tabs/MetricsTab').then(
-                      convert
-                    )
-                  }
+                  lazy={() => import('./pages/project/instances/MetricsTab').then(convert)}
                 >
                   <Route index element={<Navigate to="cpu" replace />} />
                   <Route
                     lazy={() =>
-                      import(
-                        './pages/project/instances/instance/tabs/MetricsTab/CpuMetricsTab'
-                      ).then(convert)
+                      import('./pages/project/instances/CpuMetricsTab').then(convert)
                     }
                     path="cpu"
                   />
                   <Route
                     lazy={() =>
-                      import(
-                        './pages/project/instances/instance/tabs/MetricsTab/DiskMetricsTab'
-                      ).then(convert)
+                      import('./pages/project/instances/DiskMetricsTab').then(convert)
                     }
                     path="disk"
                   />
                   <Route
                     lazy={() =>
-                      import(
-                        './pages/project/instances/instance/tabs/MetricsTab/NetworkMetricsTab'
-                      ).then(convert)
+                      import('./pages/project/instances/NetworkMetricsTab').then(convert)
                     }
                     path="network"
                     handle={{ crumb: 'Network' }}

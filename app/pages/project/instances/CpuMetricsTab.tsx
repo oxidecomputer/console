@@ -20,7 +20,7 @@ import type { OxqlVcpuState } from '~/components/oxql-metrics/util'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { Listbox } from '~/ui/lib/Listbox'
 
-import { useMetricsContext } from '../common'
+import { useMetricsContext } from './common'
 
 export const handle = { crumb: 'CPU' }
 

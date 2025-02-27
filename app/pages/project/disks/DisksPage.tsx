@@ -39,7 +39,7 @@ import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
-import { fancifyStates } from '../instances/instance/tabs/common'
+import { fancifyStates } from '../instances/common'
 
 export const handle = makeCrumb('Disks', (p) => pb.disks(getProjectSelector(p)))
 
