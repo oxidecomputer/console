@@ -59,7 +59,6 @@ import { FloatingIpsPage } from './pages/project/floating-ips/FloatingIpsPage'
 import { ImagesPage } from './pages/project/images/ImagesPage'
 import { InstancePage } from './pages/project/instances/instance/InstancePage'
 import * as ConnectTab from './pages/project/instances/instance/tabs/ConnectTab'
-import * as MetricsTab from './pages/project/instances/instance/tabs/MetricsTab'
 import * as NetworkingTab from './pages/project/instances/instance/tabs/NetworkingTab'
 import * as SettingsTab from './pages/project/instances/instance/tabs/SettingsTab'
 import * as StorageTab from './pages/project/instances/instance/tabs/StorageTab'
@@ -76,7 +75,6 @@ import * as Projects from './pages/ProjectsPage'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import * as SSHKeysPage from './pages/settings/SSHKeysPage'
 import * as SiloAccess from './pages/SiloAccessPage'
-import * as SiloUtilization from './pages/SiloUtilizationPage'
 import * as DisksTab from './pages/system/inventory/DisksTab'
 import { InventoryPage } from './pages/system/inventory/InventoryPage'
 import * as SledInstances from './pages/system/inventory/sled/SledInstancesTab'
@@ -87,7 +85,6 @@ import * as IpPools from './pages/system/networking/IpPoolsPage'
 import * as SiloImages from './pages/system/SiloImagesPage'
 import * as SiloPage from './pages/system/silos/SiloPage'
 import * as SilosPage from './pages/system/silos/SilosPage'
-import * as SystemUtilization from './pages/system/UtilizationPage'
 import { truncate } from './ui/lib/Truncate'
 import { pb } from './util/path-builder'
 
@@ -98,6 +95,10 @@ type RouteModule = {
   shouldRevalidate?: () => boolean
   ErrorBoundary?: () => ReactElement
   handle?: Crumb
+  // trick to get a nice type error when we forget to convert loader to
+  // clientLoader in the module
+  loader?: never
+  Component?: never
 }
 
 function convert(m: RouteModule) {
@@ -159,8 +160,7 @@ export const routes = createRoutesFromElements(
         <Route path="issues" element={null} />
         <Route
           path="utilization"
-          {...SystemUtilization}
-          handle={{ crumb: 'Utilization' }}
+          lazy={() => import('./pages/system/UtilizationPage').then(convert)}
         />
         <Route
           path="inventory"
@@ -213,7 +213,10 @@ export const routes = createRoutesFromElements(
         <Route path="images" {...SiloImages} handle={{ crumb: 'Images' }}>
           <Route path=":image/edit" {...SiloImageEdit} handle={titleCrumb('Edit Image')} />
         </Route>
-        <Route path="utilization" {...SiloUtilization} handle={{ crumb: 'Utilization' }} />
+        <Route
+          path="utilization"
+          lazy={() => import('./pages/SiloUtilizationPage').then(convert)}
+        />
 
         {/* let's do both. what could go wrong*/}
         <Route
@@ -290,7 +293,41 @@ export const routes = createRoutesFromElements(
                   path="networking"
                   handle={{ crumb: 'Networking' }}
                 />
-                <Route {...MetricsTab} path="metrics" handle={{ crumb: 'Metrics' }} />
+                <Route
+                  path="metrics"
+                  lazy={() =>
+                    import('./pages/project/instances/instance/tabs/MetricsTab').then(
+                      convert
+                    )
+                  }
+                >
+                  <Route index element={<Navigate to="cpu" replace />} />
+                  <Route
+                    lazy={() =>
+                      import(
+                        './pages/project/instances/instance/tabs/MetricsTab/CpuMetricsTab'
+                      ).then(convert)
+                    }
+                    path="cpu"
+                  />
+                  <Route
+                    lazy={() =>
+                      import(
+                        './pages/project/instances/instance/tabs/MetricsTab/DiskMetricsTab'
+                      ).then(convert)
+                    }
+                    path="disk"
+                  />
+                  <Route
+                    lazy={() =>
+                      import(
+                        './pages/project/instances/instance/tabs/MetricsTab/NetworkMetricsTab'
+                      ).then(convert)
+                    }
+                    path="network"
+                    handle={{ crumb: 'Network' }}
+                  />
+                </Route>
                 <Route {...ConnectTab} path="connect" handle={{ crumb: 'Connect' }} />
                 <Route {...SettingsTab} path="settings" handle={{ crumb: 'Settings' }} />
               </Route>

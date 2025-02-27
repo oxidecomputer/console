@@ -229,7 +229,7 @@ export type ChartDatum = {
   // we're doing the x axis as timestamp ms instead of Date primarily to make
   // type=number work
   timestamp: number
-  value: number
+  value: number | null
 }
 
 /** fill in data points at start and end of range */

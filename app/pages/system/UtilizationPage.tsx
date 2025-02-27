@@ -44,7 +44,7 @@ const siloUtilList = getListQFn('siloUtilizationList', {
   query: { limit: ALL_ISH },
 })
 
-export async function loader() {
+export async function clientLoader() {
   await Promise.all([
     queryClient.prefetchQuery(siloList.optionsFn()),
     queryClient.prefetchQuery(siloUtilList.optionsFn()),
@@ -52,8 +52,9 @@ export async function loader() {
   return null
 }
 
-Component.displayName = 'SystemUtilizationPage'
-export function Component() {
+export const handle = { crumb: 'Utilization' }
+
+export default function SystemUtilizationPage() {
   const { data: siloUtilizationList } = usePrefetchedQuery(siloUtilList.optionsFn())
 
   const { totalAllocated, totalProvisioned } = totalUtilization(siloUtilizationList.items)
@@ -113,6 +114,8 @@ const MetricsTab = () => {
     isLoading: useIsFetching({ queryKey: ['systemMetric'] }) > 0,
     // sliding the range forward is sufficient to trigger a refetch
     fn: () => onRangeChange(preset),
+    showLastFetched: true,
+    className: 'mb-12',
   })
 
   const commonProps = {

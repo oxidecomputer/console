@@ -127,6 +127,58 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/instances/i/connect",
     },
   ],
+  "instanceCpuMetrics (/projects/p/instances/i/metrics/cpu)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Instances",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "i",
+      "path": "/projects/p/instances/i/storage",
+    },
+    {
+      "label": "Metrics",
+      "path": "/projects/p/instances/i/metrics",
+    },
+    {
+      "label": "CPU",
+      "path": "/projects/p/instances/i/metrics/cpu",
+    },
+  ],
+  "instanceDiskMetrics (/projects/p/instances/i/metrics/disk)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Instances",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "i",
+      "path": "/projects/p/instances/i/storage",
+    },
+    {
+      "label": "Metrics",
+      "path": "/projects/p/instances/i/metrics",
+    },
+    {
+      "label": "Disk",
+      "path": "/projects/p/instances/i/metrics/disk",
+    },
+  ],
   "instanceMetrics (/projects/p/instances/i/metrics)": [
     {
       "label": "Projects",
@@ -147,6 +199,32 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "Metrics",
       "path": "/projects/p/instances/i/metrics",
+    },
+  ],
+  "instanceNetworkMetrics (/projects/p/instances/i/metrics/network)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Instances",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "i",
+      "path": "/projects/p/instances/i/storage",
+    },
+    {
+      "label": "Metrics",
+      "path": "/projects/p/instances/i/metrics",
+    },
+    {
+      "label": "Network",
+      "path": "/projects/p/instances/i/metrics/network",
     },
   ],
   "instanceNetworking (/projects/p/instances/i/networking)": [
