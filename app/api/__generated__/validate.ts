@@ -173,6 +173,83 @@ export const AddressLotResultsPage = z.preprocess(
   z.object({ items: AddressLot.array(), nextPage: z.string().optional() })
 )
 
+/**
+ * Describes the scope of affinity for the purposes of co-location.
+ */
+export const FailureDomain = z.preprocess(processResponseBody, z.enum(['sled']))
+
+/**
+ * Affinity policy used to describe "what to do when a request cannot be satisfied"
+ *
+ * Used for both Affinity and Anti-Affinity Groups
+ */
+export const AffinityPolicy = z.preprocess(processResponseBody, z.enum(['allow', 'fail']))
+
+/**
+ * Identity-related metadata that's included in nearly all public API objects
+ */
+export const AffinityGroup = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    failureDomain: FailureDomain,
+    id: z.string().uuid(),
+    name: Name,
+    policy: AffinityPolicy,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
+)
+
+/**
+ * Create-time parameters for an `AffinityGroup`
+ */
+export const AffinityGroupCreate = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    failureDomain: FailureDomain,
+    name: Name,
+    policy: AffinityPolicy,
+  })
+)
+
+export const TypedUuidForInstanceKind = z.preprocess(processResponseBody, z.string().uuid())
+
+/**
+ * A member of an Affinity Group
+ *
+ * Membership in a group is not exclusive - members may belong to multiple affinity / anti-affinity groups.
+ */
+export const AffinityGroupMember = z.preprocess(
+  processResponseBody,
+  z.object({ type: z.enum(['instance']), value: TypedUuidForInstanceKind })
+)
+
+/**
+ * A single page of results
+ */
+export const AffinityGroupMemberResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: AffinityGroupMember.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * A single page of results
+ */
+export const AffinityGroupResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: AffinityGroup.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * Updateable properties of an `AffinityGroup`
+ */
+export const AffinityGroupUpdate = z.preprocess(
+  processResponseBody,
+  z.object({ description: z.string().optional(), name: Name.optional() })
+)
+
 export const BgpMessageHistory = z.preprocess(processResponseBody, z.record(z.unknown()))
 
 /**
@@ -231,6 +308,69 @@ export const AllowList = z.preprocess(
 export const AllowListUpdate = z.preprocess(
   processResponseBody,
   z.object({ allowedIps: AllowedSourceIps })
+)
+
+/**
+ * Identity-related metadata that's included in nearly all public API objects
+ */
+export const AntiAffinityGroup = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    failureDomain: FailureDomain,
+    id: z.string().uuid(),
+    name: Name,
+    policy: AffinityPolicy,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
+)
+
+/**
+ * Create-time parameters for an `AntiAffinityGroup`
+ */
+export const AntiAffinityGroupCreate = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    failureDomain: FailureDomain,
+    name: Name,
+    policy: AffinityPolicy,
+  })
+)
+
+/**
+ * A member of an Anti-Affinity Group
+ *
+ * Membership in a group is not exclusive - members may belong to multiple affinity / anti-affinity groups.
+ */
+export const AntiAffinityGroupMember = z.preprocess(
+  processResponseBody,
+  z.object({ type: z.enum(['instance']), value: TypedUuidForInstanceKind })
+)
+
+/**
+ * A single page of results
+ */
+export const AntiAffinityGroupMemberResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: AntiAffinityGroupMember.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * A single page of results
+ */
+export const AntiAffinityGroupResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: AntiAffinityGroup.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * Updateable properties of an `AntiAffinityGroup`
+ */
+export const AntiAffinityGroupUpdate = z.preprocess(
+  processResponseBody,
+  z.object({ description: z.string().optional(), name: Name.optional() })
 )
 
 /**
@@ -4068,6 +4208,232 @@ export const LoginSamlParams = z.preprocess(
       siloName: Name,
     }),
     query: z.object({}),
+  })
+)
+
+export const AffinityGroupListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const AffinityGroupCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      project: NameOrId,
+    }),
+  })
+)
+
+export const AffinityGroupViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      affinityGroup: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const AffinityGroupUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      affinityGroup: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const AffinityGroupDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      affinityGroup: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const AffinityGroupMemberListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      affinityGroup: NameOrId,
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const AffinityGroupMemberInstanceViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      affinityGroup: NameOrId,
+      instance: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const AffinityGroupMemberInstanceAddParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      affinityGroup: NameOrId,
+      instance: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const AffinityGroupMemberInstanceDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      affinityGroup: NameOrId,
+      instance: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const AntiAffinityGroupListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const AntiAffinityGroupCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      project: NameOrId,
+    }),
+  })
+)
+
+export const AntiAffinityGroupViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      antiAffinityGroup: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const AntiAffinityGroupUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      antiAffinityGroup: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const AntiAffinityGroupDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      antiAffinityGroup: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const AntiAffinityGroupMemberListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      antiAffinityGroup: NameOrId,
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const AntiAffinityGroupMemberInstanceViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      antiAffinityGroup: NameOrId,
+      instance: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const AntiAffinityGroupMemberInstanceAddParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      antiAffinityGroup: NameOrId,
+      instance: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const AntiAffinityGroupMemberInstanceDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      antiAffinityGroup: NameOrId,
+      instance: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
   })
 )
 
