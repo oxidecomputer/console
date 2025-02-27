@@ -15,10 +15,8 @@ import {
   getMaxExponent,
   getMeanWithinSeconds,
   getTimePropsForOxqlQuery,
-  getTimestamps,
   getUnit,
   getUtilizationChartProps,
-  getValuesFromTimeseries,
   oxqlTimestamp,
   sumValues,
   yAxisLabelForCountChart,
@@ -160,10 +158,10 @@ const utilizationQueryResult1: OxqlQueryResult = {
               {
                 values: {
                   type: 'double',
-                  values: [
-                    4991154550.953981, 5002306111.529594, 5005747970.58788,
-                    4996292893.584528,
-                  ],
+                  // there is a bug in the client generator that makes this not allow nulls,
+                  // but we can in fact get them from the API for these values
+                  // @ts-expect-error
+                  values: [4991154550.953981, 5002306111.529594, 5005747970.58788, null],
                 },
                 metricType: 'gauge',
               },
@@ -177,29 +175,27 @@ const utilizationQueryResult1: OxqlQueryResult = {
 
 const timeseries1 = utilizationQueryResult1.tables[0].timeseries['16671618930358432507']
 
-test('getTimestamps', () => {
-  const expectedTimestamps = [1740166123000, 1740166183000, 1740166243000, 1740166303000]
-  expect(getTimestamps(timeseries1)).toEqual(expectedTimestamps)
-})
-
-test('getValuesFromTimeseries', () => {
-  expect(getValuesFromTimeseries(timeseries1)).toEqual([
-    4991154550.953981, 5002306111.529594, 5005747970.58788, 4996292893.584528,
-  ])
-})
-
 test('sumValues', () => {
   expect(sumValues([], 0)).toEqual([])
   expect(sumValues([timeseries1], 4)).toEqual([
-    4991154550.953981, 5002306111.529594, 5005747970.58788, 4996292893.584528,
+    4991154550.953981,
+    5002306111.529594,
+    5005747970.58788,
+    null,
   ])
   // we're just including this dataset twice to show that the numbers are getting added together
   expect(sumValues([timeseries1, timeseries1], 4)).toEqual([
-    9982309101.907963, 10004612223.059189, 10011495941.17576, 9992585787.169056,
+    9982309101.907963,
+    10004612223.059189,
+    10011495941.17576,
+    null,
   ])
   // and for good measure, we'll include it three times
   expect(sumValues([timeseries1, timeseries1, timeseries1], 4)).toEqual([
-    14973463652.861944, 15006918334.588783, 15017243911.763641, 14988878680.753584,
+    14973463652.861944,
+    15006918334.588783,
+    15017243911.763641,
+    null,
   ])
 })
 
@@ -217,7 +213,7 @@ const composedUtilizationData = {
     },
     {
       timestamp: 1740166303000,
-      value: 4996292893.584528,
+      value: null,
     },
   ],
   timeseriesCount: 1,
@@ -235,7 +231,7 @@ const utilizationChartData = [
   },
   {
     timestamp: 1740166303000,
-    value: 99.92585787169057,
+    value: null,
   },
 ]
 
@@ -252,7 +248,7 @@ const utilizationChartData4 = [
   },
   {
     timestamp: 1740166303000,
-    value: 24.981464467922642,
+    value: null,
   },
 ]
 

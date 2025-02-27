@@ -6,6 +6,8 @@
  * Copyright Oxide Computer Company
  */
 
+import * as R from 'remeda'
+
 import type { ChartDatum, OxqlQueryResult, Timeseries } from '~/api'
 import { getDurationSeconds } from '~/util/date'
 
@@ -14,7 +16,7 @@ import { getDurationSeconds } from '~/util/date'
  * https://github.com/oxidecomputer/omicron/tree/main/oximeter/oximeter/schema
  */
 
-export type OxqlDiskMetricName =
+type OxqlDiskMetricName =
   | 'virtual_disk:bytes_read'
   | 'virtual_disk:bytes_written'
   | 'virtual_disk:failed_flushes'
@@ -26,7 +28,7 @@ export type OxqlDiskMetricName =
   | 'virtual_disk:reads'
   | 'virtual_disk:writes'
 
-export type OxqlVmMetricName = 'virtual_machine:vcpu_usage'
+type OxqlVmMetricName = 'virtual_machine:vcpu_usage'
 
 export type OxqlNetworkMetricName =
   | 'instance_network_interface:bytes_received'
@@ -69,7 +71,8 @@ export type OxqlQuery = {
 
 // the interval (in seconds) at which oximeter polls for new data; a constant in Propolis
 // in time, we'll need to make this dynamic
-export const VCPU_KSTAT_INTERVAL = 5
+// https://github.com/oxidecomputer/propolis/blob/42b87359/bin/propolis-server/src/lib/stats/mod.rs#L54-L57
+export const VCPU_KSTAT_INTERVAL_SEC = 5
 
 // Returns 0 if there are no data points
 export const getLargestValue = (data: ChartDatum[]) =>
@@ -81,9 +84,6 @@ export const getMaxExponent = (largestValue: number, base: number) =>
 /** convert to UTC and return the timezone-free format required by OxQL, without milliseconds */
 export const oxqlTimestamp = (date: Date) => date.toISOString().replace(/\.\d+Z$/, '.000')
 
-export const getTimestamps = (timeseries: Timeseries): number[] =>
-  timeseries?.points.timestamps.map((t) => new Date(t).getTime()) || []
-
 /** determine the mean window, in seconds, for the given time range;
  * datapoints = the number of datapoints we want to see in the chart
  *   (default is 60, to show 1 point per minute on a 1-hour chart)
@@ -91,7 +91,7 @@ export const getTimestamps = (timeseries: Timeseries): number[] =>
 export const getMeanWithinSeconds = (start: Date, end: Date, datapoints = 60) => {
   const duration = getDurationSeconds({ start, end })
   // 5 second minimum, to handle oximeter logging interval for CPU data
-  return Math.max(VCPU_KSTAT_INTERVAL, Math.round(duration / datapoints))
+  return Math.max(VCPU_KSTAT_INTERVAL_SEC, Math.round(duration / datapoints))
 }
 
 export const getTimePropsForOxqlQuery = (
@@ -108,25 +108,19 @@ export const getTimePropsForOxqlQuery = (
   return { meanWithinSeconds, adjustedStart }
 }
 
-/** get the values array from the timeseries */
-// the shape of this data is a bit confusing; check the tests for an example
-export const getValuesFromTimeseries = (timeseries: Timeseries) =>
-  timeseries.points.values[0]?.values?.values || []
-
-export const sumValues = (timeseries: Timeseries[], arrLen: number): (number | null)[] => {
-  // default to null, so missing data doesn't show on chart as "0"
-  const summedValues: (number | null)[] = Array.from({ length: arrLen }, () => null)
-  timeseries.forEach((ts) => {
-    const values = getValuesFromTimeseries(ts)
-    // add each value to the corresponding index in the summedValues array
-    values.forEach((v, idx) => {
-      if (v === null) return
-      if (summedValues[idx] === null) summedValues[idx] = 0
-      summedValues[idx] += Number(v)
-    })
-  })
-  return summedValues
-}
+export const sumValues = (timeseries: Timeseries[], arrLen: number): (number | null)[] =>
+  Array.from({ length: arrLen }).map((_, i) =>
+    R.pipe(
+      timeseries,
+      // get point at that index for each timeseries
+      R.map((ts) => ts.points.values.at(0)?.values.values?.[i]),
+      // filter out nulls (undefined shouldn't happen)
+      R.filter((p) => typeof p === 'number'),
+      // null if no timeseries has a data point at that idx, so empty parts of
+      // the chart stay empty
+      (points) => (points.length > 0 ? R.sum(points) : null)
+    )
+  )
 
 type ChartUnitType = 'Bytes' | '%' | 'Count'
 export const getUnit = (title: string): ChartUnitType => {
@@ -146,14 +140,12 @@ export const composeOxqlData = (data: OxqlQueryResult | undefined) => {
   timeseriesCount = timeseriesData.length
   if (!timeseriesCount) return { chartData: [], timeseriesCount }
   // Extract timestamps (all series should have the same timestamps)
-  const timestamps = getTimestamps(timeseriesData[0])
+  const timestamps =
+    timeseriesData[0]?.points.timestamps.map((t) => new Date(t).getTime()) || []
   // Sum up the values across all time series
   const summedValues = sumValues(timeseriesData, timestamps.length)
   const chartData = timestamps
-    .map((timestamp, idx) => ({
-      timestamp,
-      value: summedValues[idx],
-    }))
+    .map((timestamp, idx) => ({ timestamp, value: summedValues[idx] }))
     // Drop the first datapoint, which — for delta metric types — is the cumulative sum of all previous
     // datapoints (like CPU utilization). We've accounted for this by adjusting the start time earlier;
     // We could use a more elegant approach to this down the road
@@ -222,7 +214,7 @@ export const getUtilizationChartProps = (
   nCPUs: number
 ): OxqlMetricChartProps => {
   // The divisor is the oximeter logging interval for CPU data (5 seconds) * 1,000,000,000 (nanoseconds) * nCPUs
-  const divisor = VCPU_KSTAT_INTERVAL * 1000 * 1000 * 1000 * nCPUs
+  const divisor = VCPU_KSTAT_INTERVAL_SEC * 1000 * 1000 * 1000 * nCPUs
   const data =
     // dividing by 0 would blow it up, so on the off chance that timeSeriesCount is 0, data should be an empty array
     divisor > 0
