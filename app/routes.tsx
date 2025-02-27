@@ -9,9 +9,9 @@ import type { ReactElement } from 'react'
 import {
   createRoutesFromElements,
   Navigate,
-  redirect,
   Route,
   type LoaderFunctionArgs,
+  type redirect,
 } from 'react-router'
 
 import { NotFound } from './components/ErrorPage'
