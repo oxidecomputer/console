@@ -104,7 +104,7 @@ module.exports = {
     {
       // default exports are needed in the route modules and the config files,
       // but we want to avoid them anywhere else
-      files: ['app/pages/**/*', 'app/layouts/**/*', '*.config.ts'],
+      files: ['app/pages/**/*', 'app/layouts/**/*', 'app/forms/**/*', '*.config.ts'],
       rules: { 'import/no-default-export': 'off' },
     },
     {

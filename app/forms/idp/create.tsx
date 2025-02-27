@@ -17,6 +17,7 @@ import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { useSiloSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Checkbox } from '~/ui/lib/Checkbox'
@@ -50,7 +51,9 @@ const defaultValues: IdpCreateFormValues = {
   },
 }
 
-export function CreateIdpSideModalForm() {
+export const handle = titleCrumb('New Identity Provider')
+
+export default function CreateIdpSideModalForm() {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
 

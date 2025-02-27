@@ -726,10 +726,6 @@ exports[`breadcrumbs 2`] = `
       "label": "v",
       "path": "/projects/p/vpcs/v/firewall-rules",
     },
-    {
-      "label": "Edit VPC",
-      "path": "/projects/p/vpcs/v/edit",
-    },
   ],
   "vpcFirewallRuleClone (/projects/p/vpcs/v/firewall-rules-new/fr)": [
     {

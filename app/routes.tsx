@@ -15,47 +15,27 @@ import {
 
 import { NotFound } from './components/ErrorPage'
 import { CreateDiskSideModalForm } from './forms/disk-create'
-import { CreateFirewallRuleForm } from './forms/firewall-rules-create'
-import { EditFirewallRuleForm } from './forms/firewall-rules-edit'
-import { CreateFloatingIpSideModalForm } from './forms/floating-ip-create'
-import { EditFloatingIpSideModalForm } from './forms/floating-ip-edit'
-import { CreateIdpSideModalForm } from './forms/idp/create'
-import { EditIdpSideModalForm } from './forms/idp/edit'
 import { ProjectImageEdit, SiloImageEdit } from './forms/image-edit'
 import { CreateImageFromSnapshotSideModalForm } from './forms/image-from-snapshot'
 import * as ImageCreate from './forms/image-upload'
-import { CreateInstanceForm } from './forms/instance-create'
 import { CreateIpPoolSideModalForm } from './forms/ip-pool-create'
 import * as IpPoolEdit from './forms/ip-pool-edit'
 import * as IpPoolAddRange from './forms/ip-pool-range-add'
 import * as ProjectCreate from './forms/project-create'
 import { EditProjectSideModalForm } from './forms/project-edit'
-import { CreateSiloSideModalForm } from './forms/silo-create'
 import * as SnapshotCreate from './forms/snapshot-create'
 import * as SSHKeyCreate from './forms/ssh-key-create'
-import { EditSSHKeySideModalForm } from './forms/ssh-key-edit'
 import { CreateSubnetForm } from './forms/subnet-create'
 import { EditSubnetForm } from './forms/subnet-edit'
 import { CreateVpcSideModalForm } from './forms/vpc-create'
-import { EditVpcSideModalForm } from './forms/vpc-edit'
 import * as RouterCreate from './forms/vpc-router-create'
 import { EditRouterSideModalForm } from './forms/vpc-router-edit'
 import { CreateRouterRouteSideModalForm } from './forms/vpc-router-route-create'
 import { EditRouterRouteSideModalForm } from './forms/vpc-router-route-edit'
 import { makeCrumb, titleCrumb, type Crumb } from './hooks/use-crumbs'
 import { getInstanceSelector, getProjectSelector, getVpcSelector } from './hooks/use-params'
-import { AuthLayout } from './layouts/AuthLayout'
-import { LoginLayout } from './layouts/LoginLayout'
-import { SettingsLayout } from './layouts/SettingsLayout'
-import { SiloLayout } from './layouts/SiloLayout'
-import * as SystemLayout from './layouts/SystemLayout'
-import { DeviceAuthSuccessPage } from './pages/DeviceAuthSuccessPage'
-import { DeviceAuthVerifyPage } from './pages/DeviceAuthVerifyPage'
-import { LoginPage } from './pages/LoginPage'
-import { LoginPageSaml } from './pages/LoginPageSaml'
 import { instanceLookupLoader } from './pages/lookups'
 import * as ProjectAccess from './pages/project/access/ProjectAccessPage'
-import { FloatingIpsPage } from './pages/project/floating-ips/FloatingIpsPage'
 import { ImagesPage } from './pages/project/images/ImagesPage'
 import { InstancePage } from './pages/project/instances/instance/InstancePage'
 import * as ConnectTab from './pages/project/instances/instance/tabs/ConnectTab'
@@ -72,8 +52,6 @@ import * as VpcSubnetsTab from './pages/project/vpcs/VpcPage/tabs/VpcSubnetsTab'
 import { VpcPage } from './pages/project/vpcs/VpcPage/VpcPage'
 import { VpcsPage } from './pages/project/vpcs/VpcsPage'
 import * as Projects from './pages/ProjectsPage'
-import { ProfilePage } from './pages/settings/ProfilePage'
-import * as SSHKeysPage from './pages/settings/SSHKeysPage'
 import * as SiloAccess from './pages/SiloAccessPage'
 import * as DisksTab from './pages/system/inventory/DisksTab'
 import { InventoryPage } from './pages/system/inventory/InventoryPage'
@@ -91,7 +69,7 @@ import { pb } from './util/path-builder'
 type RouteModule = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   clientLoader?: (a: LoaderFunctionArgs<any>) => Promise<null>
-  default: () => ReactElement
+  default: () => ReactElement | null
   shouldRevalidate?: () => boolean
   ErrorBoundary?: () => ReactElement
   handle?: Crumb
@@ -109,51 +87,64 @@ function convert(m: RouteModule) {
 export const routes = createRoutesFromElements(
   <Route lazy={() => import('./layouts/RootLayout').then(convert)}>
     <Route path="*" element={<NotFound />} />
-    <Route element={<LoginLayout />}>
-      <Route path="login/:silo/local" element={<LoginPage />} />
-      <Route path="login/:silo/saml/:provider" element={<LoginPageSaml />} />
+    <Route lazy={() => import('./layouts/LoginLayout.tsx').then(convert)}>
+      <Route
+        path="login/:silo/local"
+        lazy={() => import('./pages/LoginPage').then(convert)}
+      />
+      <Route
+        path="login/:silo/saml/:provider"
+        lazy={() => import('./pages/LoginPageSaml').then(convert)}
+      />
     </Route>
 
-    <Route path="device" element={<AuthLayout />}>
-      <Route path="verify" element={<DeviceAuthVerifyPage />} />
-      <Route path="success" element={<DeviceAuthSuccessPage />} />
+    <Route path="device" lazy={() => import('./layouts/AuthLayout').then(convert)}>
+      <Route
+        path="verify"
+        lazy={() => import('./pages/DeviceAuthVerifyPage').then(convert)}
+      />
+      <Route
+        path="success"
+        lazy={() => import('./pages/DeviceAuthSuccessPage').then(convert)}
+      />
     </Route>
 
     {/* This wraps all routes that are supposed to be authenticated */}
     <Route lazy={() => import('./layouts/AuthenticatedLayout').then(convert)}>
-      <Route
-        path="settings"
-        handle={makeCrumb('Settings', pb.profile())}
-        element={<SettingsLayout />}
-      >
+      <Route path="settings" lazy={() => import('./layouts/SettingsLayout').then(convert)}>
         <Route index element={<Navigate to="profile" replace />} />
-        <Route path="profile" element={<ProfilePage />} handle={{ crumb: 'Profile' }} />
-        <Route {...SSHKeysPage} handle={makeCrumb('SSH Keys', pb.sshKeys)}>
+        <Route
+          path="profile"
+          lazy={() => import('./pages/settings/ProfilePage').then(convert)}
+        />
+        <Route lazy={() => import('./pages/settings/SSHKeysPage').then(convert)}>
           <Route path="ssh-keys" element={null}>
             <Route
               path=":sshKey/edit"
-              loader={EditSSHKeySideModalForm.loader}
-              element={<EditSSHKeySideModalForm />}
-              handle={titleCrumb('View SSH Key')}
+              lazy={() => import('./forms/ssh-key-edit').then(convert)}
             />
           </Route>
           <Route path="ssh-keys-new" {...SSHKeyCreate} handle={titleCrumb('New SSH key')} />
         </Route>
       </Route>
 
-      <Route path="system" {...SystemLayout}>
+      <Route path="system" lazy={() => import('./layouts/SystemLayout').then(convert)}>
         <Route {...SilosPage} handle={makeCrumb('Silos', pb.silos())}>
           <Route path="silos" element={null} />
-          <Route path="silos-new" element={<CreateSiloSideModalForm />} />
+          <Route
+            path="silos-new"
+            lazy={() => import('./forms/silo-create').then(convert)}
+          />
         </Route>
         <Route path="silos" handle={{ crumb: 'Silos' }}>
           <Route path=":silo" {...SiloPage} handle={makeCrumb((p) => p.silo!)}>
-            <Route path="idps-new" element={<CreateIdpSideModalForm />} />
+            <Route
+              path="idps-new"
+              lazy={() => import('./forms/idp/create').then(convert)}
+            />
             <Route
               path="idps/saml/:provider"
-              element={<EditIdpSideModalForm />}
-              loader={EditIdpSideModalForm.loader}
-              handle={titleCrumb('Edit Identity Provider')}
+              lazy={() => import('./forms/idp/edit').then(convert)}
             />
           </Route>
         </Route>
@@ -209,7 +200,7 @@ export const routes = createRoutesFromElements(
 
       <Route index element={<Navigate to={pb.projects()} replace />} />
 
-      <Route element={<SiloLayout />}>
+      <Route lazy={() => import('./layouts/SiloLayout').then(convert)}>
         <Route path="images" {...SiloImages} handle={{ crumb: 'Images' }}>
           <Route path=":image/edit" {...SiloImageEdit} handle={titleCrumb('Edit Image')} />
         </Route>
@@ -272,12 +263,13 @@ export const routes = createRoutesFromElements(
           <Route index element={<Navigate to="instances" replace />} />
           <Route
             path="instances-new"
-            element={<CreateInstanceForm />}
-            loader={CreateInstanceForm.loader}
-            handle={{ crumb: 'New instance' }}
+            lazy={() => import('./forms/instance-create').then(convert)}
           />
           <Route path="instances" handle={{ crumb: 'Instances' }}>
-            <Route index lazy={() => import('./pages/project/instances/InstancesPage')} />
+            <Route
+              index
+              lazy={() => import('./pages/project/instances/InstancesPage').then(convert)}
+            />
             <Route
               path=":instance"
               handle={makeCrumb(
@@ -365,9 +357,7 @@ export const routes = createRoutesFromElements(
                 >
                   <Route
                     path="edit"
-                    element={<EditVpcSideModalForm />}
-                    loader={EditVpcSideModalForm.loader}
-                    handle={{ crumb: 'Edit VPC' }}
+                    lazy={() => import('./forms/vpc-edit').then(convert)}
                   />
                   <Route
                     path="firewall-rules"
@@ -377,15 +367,11 @@ export const routes = createRoutesFromElements(
                   <Route handle={{ crumb: 'Firewall Rules' }} element={null}>
                     <Route
                       path="firewall-rules-new/:rule?"
-                      element={<CreateFirewallRuleForm />}
-                      loader={CreateFirewallRuleForm.loader}
-                      handle={titleCrumb('New Rule')}
+                      lazy={() => import('./forms/firewall-rules-create').then(convert)}
                     />
                     <Route
                       path="firewall-rules/:rule/edit"
-                      element={<EditFirewallRuleForm />}
-                      loader={EditFirewallRuleForm.loader}
-                      handle={titleCrumb('Edit Rule')}
+                      lazy={() => import('./forms/firewall-rules-edit').then(convert)}
                     />
                   </Route>
                 </Route>
@@ -458,21 +444,18 @@ export const routes = createRoutesFromElements(
             </Route>
           </Route>
           <Route
-            element={<FloatingIpsPage />}
-            loader={FloatingIpsPage.loader}
-            handle={makeCrumb('Floating IPs', (p) => pb.floatingIps(getProjectSelector(p)))}
+            lazy={() =>
+              import('./pages/project/floating-ips/FloatingIpsPage').then(convert)
+            }
           >
             <Route path="floating-ips" element={null} />
             <Route
               path="floating-ips-new"
-              element={<CreateFloatingIpSideModalForm />}
-              handle={titleCrumb('New Floating IP')}
+              lazy={() => import('./forms/floating-ip-create').then(convert)}
             />
             <Route
               path="floating-ips/:floatingIp/edit"
-              element={<EditFloatingIpSideModalForm />}
-              loader={EditFloatingIpSideModalForm.loader}
-              handle={titleCrumb('Edit Floating IP')}
+              lazy={() => import('./forms/floating-ip-edit').then(convert)}
             />
           </Route>
           <Route lazy={() => import('./pages/project/disks/DisksPage').then(convert)}>
