@@ -7,10 +7,9 @@
  */
 import { randomBytes } from 'crypto'
 import { resolve } from 'path'
+import { reactRouter } from '@react-router/dev/vite'
 import basicSsl from '@vitejs/plugin-basic-ssl'
-import react from '@vitejs/plugin-react-swc'
 import { defineConfig } from 'vite'
-import { createHtmlPlugin } from 'vite-plugin-html'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import { z } from 'zod'
 
@@ -102,10 +101,8 @@ export default defineConfig(({ mode }) => ({
     sourcemap: true,
     // minify: false, // uncomment for debugging
     rollupOptions: {
-      input: {
-        app: 'index.html',
-      },
       output: {
+        // TODO: this does not seem to be having an effect with the RR plugin
         // React Router automatically splits any route module into its own file,
         // but some end up being like 300 bytes. It feels silly to have several
         // hundred of those, so we set a minimum size to end up with fewer.
@@ -127,12 +124,13 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     tsconfigPaths(),
-    createHtmlPlugin({
-      inject: {
-        tags: process.env.VERCEL ? [previewAnalyticsTag, ...previewMetaTag] : [],
-      },
-    }),
-    react(),
+    // TODO: move to root.tsx
+    // createHtmlPlugin({
+    //   inject: {
+    //     tags: process.env.VERCEL ? [previewAnalyticsTag, ...previewMetaTag] : [],
+    //   },
+    // }),
+    reactRouter(),
     apiMode === 'remote' && basicSsl(),
   ],
   html: {
