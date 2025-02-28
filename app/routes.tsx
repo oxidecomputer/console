@@ -16,11 +16,7 @@ import {
 
 import { NotFound } from './components/ErrorPage'
 import { makeCrumb, type Crumb } from './hooks/use-crumbs'
-import { getInstanceSelector, getProjectSelector, getVpcSelector } from './hooks/use-params'
-import * as VpcRoutersTab from './pages/project/vpcs//VpcRoutersTab'
-import { VpcPage } from './pages/project/vpcs/VpcPage'
-import { VpcsPage } from './pages/project/vpcs/VpcsPage'
-import * as DisksTab from './pages/system/inventory/DisksTab'
+import { getInstanceSelector, getVpcSelector } from './hooks/use-params'
 import { pb } from './util/path-builder'
 
 // hack because RR doesn't export the redirect type
@@ -138,7 +134,10 @@ export const routes = createRoutesFromElements(
             path="sleds"
             lazy={() => import('./pages/system/inventory/SledsTab').then(convert)}
           />
-          <Route path="disks" {...DisksTab} handle={{ crumb: 'Disks' }} />
+          <Route
+            path="disks"
+            lazy={() => import('./pages/system/inventory/DisksTab').then(convert)}
+          />
         </Route>
         <Route path="inventory" handle={{ crumb: 'Inventory' }}>
           <Route path="sleds" handle={{ crumb: 'Sleds' }}>
@@ -320,11 +319,7 @@ export const routes = createRoutesFromElements(
               </Route>
             </Route>
           </Route>
-          <Route
-            loader={VpcsPage.loader}
-            handle={makeCrumb('VPCs', (p) => pb.vpcs(getProjectSelector(p)))}
-            element={<VpcsPage />}
-          >
+          <Route lazy={() => import('./pages/project/vpcs/VpcsPage').then(convert)}>
             <Route path="vpcs" element={null} />
             <Route
               path="vpcs-new"
@@ -339,7 +334,7 @@ export const routes = createRoutesFromElements(
                 (p) => pb.vpc(getVpcSelector(p))
               )}
             >
-              <Route element={<VpcPage />} loader={VpcPage.loader}>
+              <Route lazy={() => import('./pages/project/vpcs/VpcPage').then(convert)}>
                 <Route
                   index
                   // janky one. we only want the loader. we'll have to make this
@@ -392,7 +387,9 @@ export const routes = createRoutesFromElements(
                     lazy={() => import('./forms/subnet-edit').then(convert)}
                   />
                 </Route>
-                <Route {...VpcRoutersTab} handle={{ crumb: 'Routers' }}>
+                <Route
+                  lazy={() => import('./pages/project/vpcs/VpcRoutersTab').then(convert)}
+                >
                   <Route path="routers" element={null}>
                     <Route
                       path=":router/edit"

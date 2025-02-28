@@ -35,14 +35,15 @@ const colHelper = createColumnHelper<VpcRouter>()
 
 const vpcRouterList = (query: PP.Vpc) => getListQFn('vpcRouterList', { query })
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcSelector(params)
   await queryClient.prefetchQuery(vpcRouterList({ project, vpc }).optionsFn())
   return null
 }
 
-Component.displayName = 'VpcRoutersTab'
-export function Component() {
+export const handle = { crumb: 'Routers' }
+
+export default function VpcRoutersTab() {
   const vpcSelector = useVpcSelector()
   const navigate = useNavigate()
   const { project, vpc } = vpcSelector
