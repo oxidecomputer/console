@@ -69,13 +69,14 @@ const staticColumns = [
 
 const ipPoolList = () => getListQFn('ipPoolList', {})
 
-export async function loader() {
+export async function clientLoader() {
   await queryClient.prefetchQuery(ipPoolList().optionsFn())
   return null
 }
 
-Component.displayName = 'IpPoolsPage'
-export function Component() {
+export const handle = { crumb: 'IP Pools' }
+
+export default function IpPoolsPage() {
   const navigate = useNavigate()
 
   const { mutateAsync: deletePool } = useApiMutation('ipPoolDelete', {

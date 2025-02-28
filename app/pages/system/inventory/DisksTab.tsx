@@ -40,10 +40,12 @@ const EmptyState = () => (
 
 const diskList = getListQFn('physicalDiskList', {})
 
-export async function loader() {
+export async function clientLoader() {
   await queryClient.prefetchQuery(diskList.optionsFn())
   return null
 }
+
+export const handle = { crumb: 'Disks' }
 
 const colHelper = createColumnHelper<PhysicalDisk>()
 const staticCols = [
@@ -69,8 +71,7 @@ const staticCols = [
   }),
 ]
 
-Component.displayName = 'DisksTab'
-export function Component() {
+export default function DisksTab() {
   const emptyState = <EmptyState />
   const { table } = useQueryTable({ query: diskList, columns: staticCols, emptyState })
   return table
