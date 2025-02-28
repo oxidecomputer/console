@@ -19,7 +19,6 @@ import {
 } from '@oxide/api'
 
 import { ListPlusCell } from '~/components/ListPlusCell'
-import { titleCrumb } from '~/hooks/use-crumbs'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { EnabledCell } from '~/table/cells/EnabledCell'
@@ -100,8 +99,6 @@ const staticColumns = [
 ]
 
 const rulesView = (query: PP.Vpc) => apiq('vpcFirewallRulesView', { query })
-
-export const handle = titleCrumb('Firewall Rules')
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcSelector(params)

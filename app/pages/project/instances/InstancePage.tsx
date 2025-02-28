@@ -36,7 +36,6 @@ import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { RefreshButton } from '~/components/RefreshButton'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { InstanceStateBadge } from '~/components/StateBadge'
-import { makeCrumb } from '~/hooks/use-crumbs'
 import {
   getInstanceSelector,
   useInstanceSelector,
@@ -119,11 +118,6 @@ const PollingSpinner = () => (
       <Spinner className="ml-2" />
     </button>
   </Tooltip>
-)
-
-export const handle = makeCrumb(
-  (p) => p.instance!,
-  (p) => pb.instance(getInstanceSelector(p))
 )
 
 export default function InstancePage() {
