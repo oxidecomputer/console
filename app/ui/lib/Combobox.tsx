@@ -66,7 +66,6 @@ export type ComboboxBaseProps = {
   onEnter?: (event: React.KeyboardEvent<HTMLInputElement>) => void
   /**
    * Optional function to transform the value entered into the input as the user types.
-   * Defaults in ComboboxField to running the `normalizeName` function on the input value.
    */
   transform?: (value: string) => string
 }
