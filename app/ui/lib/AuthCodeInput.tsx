@@ -14,7 +14,7 @@
  *   license that can be found in the LICENSE file or at
  *   https://opensource.org/licenses/MIT.
  */
-import { useEffect, useRef, type default as React } from 'react'
+import { useEffect, useRef } from 'react'
 
 import { KEYS } from '~/ui/util/keys'
 import { invariant } from '~/util/invariant'

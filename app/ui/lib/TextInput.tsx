@@ -7,7 +7,7 @@
  */
 import { announce } from '@react-aria/live-announcer'
 import cn from 'classnames'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import type { Merge } from 'type-fest'
 
 import { CopyToClipboard } from './CopyToClipboard'

@@ -7,7 +7,7 @@
  */
 import { useQuery } from '@tanstack/react-query'
 import { getCoreRowModel, useReactTable, type ColumnDef } from '@tanstack/react-table'
-import { useEffect, useMemo, useRef, type default as React } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 
 import { ensurePrefetched, type PaginatedQuery, type ResultsPage } from '@oxide/api'
 

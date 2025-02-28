@@ -7,9 +7,13 @@
  */
 
 import * as m from 'motion/react-m'
-import { forwardRef } from 'react'
+import { type Ref } from 'react'
 
-export const DialogOverlay = forwardRef<HTMLDivElement>((_, ref) => (
+type Props = {
+  ref?: Ref<HTMLDivElement>
+}
+
+export const DialogOverlay = ({ ref }: Props) => (
   <m.div
     ref={ref}
     aria-hidden
@@ -19,4 +23,4 @@ export const DialogOverlay = forwardRef<HTMLDivElement>((_, ref) => (
     exit={{ opacity: 0 }}
     transition={{ duration: 0.15, ease: 'easeOut' }}
   />
-))
+)
