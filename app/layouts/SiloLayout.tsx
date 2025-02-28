@@ -24,7 +24,7 @@ import { pb } from '~/util/path-builder'
 
 import { ContentPane, PageContainer } from './helpers'
 
-export function SiloLayout() {
+export default function SiloLayout() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const { me } = useCurrentUser()

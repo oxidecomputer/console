@@ -8,6 +8,9 @@
     "typescript",
     "oxc"
   ],
+  "categories": {
+    "correctness": "error"
+  },
   "rules": {
     // only worry about console.log
     "no-console": ["error", { "allow": ["warn", "error", "info", "table"] }],
@@ -25,13 +28,14 @@
 
     "react-hooks/exhaustive-deps": "error",
     "react-hooks/rules-of-hooks": "error",
-    "import/no-default-export": "error"
+    "import/no-default-export": "error",
+    "consistent-type-imports": "error"
   },
   "overrides": [
     {
       // default exports are needed in the route modules and the config files,
       // but we want to avoid them anywhere else
-      "files": ["app/pages/**/*", "app/layouts/**/*", "*.config.ts", "*.config.mjs"],
+      "files": ["app/pages/**/*", "app/layouts/**/*", "app/forms/**/*", "*.config.ts", "*.config.mjs"],
       "rules": {
         "import/no-default-export": "off"
       }

@@ -55,3 +55,5 @@ type Assign<P1, P2> = Omit<P1, keyof P2> & P2
 type NoExtraKeys<FewerKeys, MoreKeys extends FewerKeys> = FewerKeys & {
   [K in Exclude<keyof MoreKeys, keyof FewerKeys>]?: never
 }
+
+type NonEmptyArray<T> = readonly [T, ...T[]]

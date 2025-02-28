@@ -5,9 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, test } from 'vitest'
 
 import {
+  addDashes,
   camelCase,
   capitalize,
   commaSeries,
@@ -119,4 +120,12 @@ describe('extractText', () => {
   it('can handle regular strings', () => {
     expect(extractText('Some more text')).toBe('Some more text')
   })
+})
+
+test('addDashes', () => {
+  expect(addDashes([], 'abcdefgh')).toEqual('abcdefgh')
+  expect(addDashes([3], 'abcdefgh')).toEqual('abcd-efgh')
+  expect(addDashes([2, 5], 'abcdefgh')).toEqual('abc-def-gh')
+  // too-high idxs are ignored
+  expect(addDashes([7], 'abcd')).toEqual('abcd')
 })

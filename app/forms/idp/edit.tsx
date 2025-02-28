@@ -15,13 +15,14 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { getIdpSelector, useIdpSelector } from '~/hooks/use-params'
 import { FormDivider } from '~/ui/lib/Divider'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel, SideModal } from '~/ui/lib/SideModal'
 import { pb } from '~/util/path-builder'
 
-EditIdpSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { silo, provider } = getIdpSelector(params)
   await apiQueryClient.prefetchQuery('samlIdentityProviderView', {
     path: { provider },
@@ -30,7 +31,9 @@ EditIdpSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-export function EditIdpSideModalForm() {
+export const handle = titleCrumb('Edit Identity Provider')
+
+export default function EditIdpSideModalForm() {
   const { silo, provider } = useIdpSelector()
   const { data: idp } = usePrefetchedApiQuery('samlIdentityProviderView', {
     path: { provider },

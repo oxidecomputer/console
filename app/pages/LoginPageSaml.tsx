@@ -13,7 +13,7 @@ import { buttonStyle } from '~/ui/lib/Button'
 import { Identicon } from '~/ui/lib/Identicon'
 
 /** SAML "login page" that just links to the actual IdP */
-export function LoginPageSaml() {
+export default function LoginPageSaml() {
   const [searchParams] = useSearchParams()
   const { silo, provider } = useIdpSelector()
 

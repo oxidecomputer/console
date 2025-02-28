@@ -149,6 +149,87 @@ export type AddressLotResultsPage = {
   nextPage?: string
 }
 
+/**
+ * Describes the scope of affinity for the purposes of co-location.
+ */
+export type FailureDomain = 'sled'
+
+/**
+ * Affinity policy used to describe "what to do when a request cannot be satisfied"
+ *
+ * Used for both Affinity and Anti-Affinity Groups
+ */
+export type AffinityPolicy =
+  /** If the affinity request cannot be satisfied, allow it anyway.
+
+This enables a "best-effort" attempt to satisfy the affinity policy. */
+  | 'allow'
+
+  /** If the affinity request cannot be satisfied, fail explicitly. */
+  | 'fail'
+
+/**
+ * Identity-related metadata that's included in nearly all public API objects
+ */
+export type AffinityGroup = {
+  /** human-readable free-form text about a resource */
+  description: string
+  failureDomain: FailureDomain
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  policy: AffinityPolicy
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Create-time parameters for an `AffinityGroup`
+ */
+export type AffinityGroupCreate = {
+  description: string
+  failureDomain: FailureDomain
+  name: Name
+  policy: AffinityPolicy
+}
+
+export type TypedUuidForInstanceKind = string
+
+/**
+ * A member of an Affinity Group
+ *
+ * Membership in a group is not exclusive - members may belong to multiple affinity / anti-affinity groups.
+ */
+export type AffinityGroupMember = { type: 'instance'; value: TypedUuidForInstanceKind }
+
+/**
+ * A single page of results
+ */
+export type AffinityGroupMemberResultsPage = {
+  /** list of items on this page of results */
+  items: AffinityGroupMember[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * A single page of results
+ */
+export type AffinityGroupResultsPage = {
+  /** list of items on this page of results */
+  items: AffinityGroup[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Updateable properties of an `AffinityGroup`
+ */
+export type AffinityGroupUpdate = { description?: string; name?: Name }
+
 export type BgpMessageHistory = Record<string, unknown>
 
 /**
@@ -209,6 +290,66 @@ export type AllowListUpdate = {
   /** The new list of allowed source IPs. */
   allowedIps: AllowedSourceIps
 }
+
+/**
+ * Identity-related metadata that's included in nearly all public API objects
+ */
+export type AntiAffinityGroup = {
+  /** human-readable free-form text about a resource */
+  description: string
+  failureDomain: FailureDomain
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  policy: AffinityPolicy
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Create-time parameters for an `AntiAffinityGroup`
+ */
+export type AntiAffinityGroupCreate = {
+  description: string
+  failureDomain: FailureDomain
+  name: Name
+  policy: AffinityPolicy
+}
+
+/**
+ * A member of an Anti-Affinity Group
+ *
+ * Membership in a group is not exclusive - members may belong to multiple affinity / anti-affinity groups.
+ */
+export type AntiAffinityGroupMember = { type: 'instance'; value: TypedUuidForInstanceKind }
+
+/**
+ * A single page of results
+ */
+export type AntiAffinityGroupMemberResultsPage = {
+  /** list of items on this page of results */
+  items: AntiAffinityGroupMember[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * A single page of results
+ */
+export type AntiAffinityGroupResultsPage = {
+  /** list of items on this page of results */
+  items: AntiAffinityGroup[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Updateable properties of an `AntiAffinityGroup`
+ */
+export type AntiAffinityGroupUpdate = { description?: string; name?: Name }
 
 /**
  * Authorization scope for a timeseries.
@@ -4291,6 +4432,152 @@ export interface LoginSamlPathParams {
   siloName: Name
 }
 
+export interface AffinityGroupListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface AffinityGroupCreateQueryParams {
+  project: NameOrId
+}
+
+export interface AffinityGroupViewPathParams {
+  affinityGroup: NameOrId
+}
+
+export interface AffinityGroupViewQueryParams {
+  project?: NameOrId
+}
+
+export interface AffinityGroupUpdatePathParams {
+  affinityGroup: NameOrId
+}
+
+export interface AffinityGroupUpdateQueryParams {
+  project?: NameOrId
+}
+
+export interface AffinityGroupDeletePathParams {
+  affinityGroup: NameOrId
+}
+
+export interface AffinityGroupDeleteQueryParams {
+  project?: NameOrId
+}
+
+export interface AffinityGroupMemberListPathParams {
+  affinityGroup: NameOrId
+}
+
+export interface AffinityGroupMemberListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: IdSortMode
+}
+
+export interface AffinityGroupMemberInstanceViewPathParams {
+  affinityGroup: NameOrId
+  instance: NameOrId
+}
+
+export interface AffinityGroupMemberInstanceViewQueryParams {
+  project?: NameOrId
+}
+
+export interface AffinityGroupMemberInstanceAddPathParams {
+  affinityGroup: NameOrId
+  instance: NameOrId
+}
+
+export interface AffinityGroupMemberInstanceAddQueryParams {
+  project?: NameOrId
+}
+
+export interface AffinityGroupMemberInstanceDeletePathParams {
+  affinityGroup: NameOrId
+  instance: NameOrId
+}
+
+export interface AffinityGroupMemberInstanceDeleteQueryParams {
+  project?: NameOrId
+}
+
+export interface AntiAffinityGroupListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface AntiAffinityGroupCreateQueryParams {
+  project: NameOrId
+}
+
+export interface AntiAffinityGroupViewPathParams {
+  antiAffinityGroup: NameOrId
+}
+
+export interface AntiAffinityGroupViewQueryParams {
+  project?: NameOrId
+}
+
+export interface AntiAffinityGroupUpdatePathParams {
+  antiAffinityGroup: NameOrId
+}
+
+export interface AntiAffinityGroupUpdateQueryParams {
+  project?: NameOrId
+}
+
+export interface AntiAffinityGroupDeletePathParams {
+  antiAffinityGroup: NameOrId
+}
+
+export interface AntiAffinityGroupDeleteQueryParams {
+  project?: NameOrId
+}
+
+export interface AntiAffinityGroupMemberListPathParams {
+  antiAffinityGroup: NameOrId
+}
+
+export interface AntiAffinityGroupMemberListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: IdSortMode
+}
+
+export interface AntiAffinityGroupMemberInstanceViewPathParams {
+  antiAffinityGroup: NameOrId
+  instance: NameOrId
+}
+
+export interface AntiAffinityGroupMemberInstanceViewQueryParams {
+  project?: NameOrId
+}
+
+export interface AntiAffinityGroupMemberInstanceAddPathParams {
+  antiAffinityGroup: NameOrId
+  instance: NameOrId
+}
+
+export interface AntiAffinityGroupMemberInstanceAddQueryParams {
+  project?: NameOrId
+}
+
+export interface AntiAffinityGroupMemberInstanceDeletePathParams {
+  antiAffinityGroup: NameOrId
+  instance: NameOrId
+}
+
+export interface AntiAffinityGroupMemberInstanceDeleteQueryParams {
+  project?: NameOrId
+}
+
 export interface CertificateListQueryParams {
   limit?: number
   pageToken?: string
@@ -5472,6 +5759,10 @@ export type ApiListMethods = Pick<
   InstanceType<typeof Api>['methods'],
   | 'probeList'
   | 'supportBundleList'
+  | 'affinityGroupList'
+  | 'affinityGroupMemberList'
+  | 'antiAffinityGroupList'
+  | 'antiAffinityGroupMemberList'
   | 'certificateList'
   | 'diskList'
   | 'diskMetricsList'
@@ -5737,6 +6028,347 @@ export class Api extends HttpClient {
       return this.request<void>({
         path: `/login/${path.siloName}/saml/${path.providerName}`,
         method: 'POST',
+        ...params,
+      })
+    },
+    /**
+     * List affinity groups
+     */
+    affinityGroupList: (
+      { query = {} }: { query?: AffinityGroupListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AffinityGroupResultsPage>({
+        path: `/v1/affinity-groups`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create affinity group
+     */
+    affinityGroupCreate: (
+      { query, body }: { query: AffinityGroupCreateQueryParams; body: AffinityGroupCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AffinityGroup>({
+        path: `/v1/affinity-groups`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch affinity group
+     */
+    affinityGroupView: (
+      {
+        path,
+        query = {},
+      }: { path: AffinityGroupViewPathParams; query?: AffinityGroupViewQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AffinityGroup>({
+        path: `/v1/affinity-groups/${path.affinityGroup}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Update affinity group
+     */
+    affinityGroupUpdate: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: AffinityGroupUpdatePathParams
+        query?: AffinityGroupUpdateQueryParams
+        body: AffinityGroupUpdate
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AffinityGroup>({
+        path: `/v1/affinity-groups/${path.affinityGroup}`,
+        method: 'PUT',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete affinity group
+     */
+    affinityGroupDelete: (
+      {
+        path,
+        query = {},
+      }: { path: AffinityGroupDeletePathParams; query?: AffinityGroupDeleteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/affinity-groups/${path.affinityGroup}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List affinity group members
+     */
+    affinityGroupMemberList: (
+      {
+        path,
+        query = {},
+      }: {
+        path: AffinityGroupMemberListPathParams
+        query?: AffinityGroupMemberListQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AffinityGroupMemberResultsPage>({
+        path: `/v1/affinity-groups/${path.affinityGroup}/members`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch affinity group member
+     */
+    affinityGroupMemberInstanceView: (
+      {
+        path,
+        query = {},
+      }: {
+        path: AffinityGroupMemberInstanceViewPathParams
+        query?: AffinityGroupMemberInstanceViewQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AffinityGroupMember>({
+        path: `/v1/affinity-groups/${path.affinityGroup}/members/instance/${path.instance}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Add member to affinity group
+     */
+    affinityGroupMemberInstanceAdd: (
+      {
+        path,
+        query = {},
+      }: {
+        path: AffinityGroupMemberInstanceAddPathParams
+        query?: AffinityGroupMemberInstanceAddQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AffinityGroupMember>({
+        path: `/v1/affinity-groups/${path.affinityGroup}/members/instance/${path.instance}`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Remove member from affinity group
+     */
+    affinityGroupMemberInstanceDelete: (
+      {
+        path,
+        query = {},
+      }: {
+        path: AffinityGroupMemberInstanceDeletePathParams
+        query?: AffinityGroupMemberInstanceDeleteQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/affinity-groups/${path.affinityGroup}/members/instance/${path.instance}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List anti-affinity groups
+     */
+    antiAffinityGroupList: (
+      { query = {} }: { query?: AntiAffinityGroupListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AntiAffinityGroupResultsPage>({
+        path: `/v1/anti-affinity-groups`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create anti-affinity group
+     */
+    antiAffinityGroupCreate: (
+      {
+        query,
+        body,
+      }: { query: AntiAffinityGroupCreateQueryParams; body: AntiAffinityGroupCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AntiAffinityGroup>({
+        path: `/v1/anti-affinity-groups`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch anti-affinity group
+     */
+    antiAffinityGroupView: (
+      {
+        path,
+        query = {},
+      }: {
+        path: AntiAffinityGroupViewPathParams
+        query?: AntiAffinityGroupViewQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AntiAffinityGroup>({
+        path: `/v1/anti-affinity-groups/${path.antiAffinityGroup}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Update anti-affinity group
+     */
+    antiAffinityGroupUpdate: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: AntiAffinityGroupUpdatePathParams
+        query?: AntiAffinityGroupUpdateQueryParams
+        body: AntiAffinityGroupUpdate
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AntiAffinityGroup>({
+        path: `/v1/anti-affinity-groups/${path.antiAffinityGroup}`,
+        method: 'PUT',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete anti-affinity group
+     */
+    antiAffinityGroupDelete: (
+      {
+        path,
+        query = {},
+      }: {
+        path: AntiAffinityGroupDeletePathParams
+        query?: AntiAffinityGroupDeleteQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/anti-affinity-groups/${path.antiAffinityGroup}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List anti-affinity group members
+     */
+    antiAffinityGroupMemberList: (
+      {
+        path,
+        query = {},
+      }: {
+        path: AntiAffinityGroupMemberListPathParams
+        query?: AntiAffinityGroupMemberListQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AntiAffinityGroupMemberResultsPage>({
+        path: `/v1/anti-affinity-groups/${path.antiAffinityGroup}/members`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch anti-affinity group member
+     */
+    antiAffinityGroupMemberInstanceView: (
+      {
+        path,
+        query = {},
+      }: {
+        path: AntiAffinityGroupMemberInstanceViewPathParams
+        query?: AntiAffinityGroupMemberInstanceViewQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AntiAffinityGroupMember>({
+        path: `/v1/anti-affinity-groups/${path.antiAffinityGroup}/members/instance/${path.instance}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Add member to anti-affinity group
+     */
+    antiAffinityGroupMemberInstanceAdd: (
+      {
+        path,
+        query = {},
+      }: {
+        path: AntiAffinityGroupMemberInstanceAddPathParams
+        query?: AntiAffinityGroupMemberInstanceAddQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AntiAffinityGroupMember>({
+        path: `/v1/anti-affinity-groups/${path.antiAffinityGroup}/members/instance/${path.instance}`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Remove member from anti-affinity group
+     */
+    antiAffinityGroupMemberInstanceDelete: (
+      {
+        path,
+        query = {},
+      }: {
+        path: AntiAffinityGroupMemberInstanceDeletePathParams
+        query?: AntiAffinityGroupMemberInstanceDeleteQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/anti-affinity-groups/${path.antiAffinityGroup}/members/instance/${path.instance}`,
+        method: 'DELETE',
+        query,
         ...params,
       })
     },

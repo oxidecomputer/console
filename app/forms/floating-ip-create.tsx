@@ -24,6 +24,7 @@ import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Message } from '~/ui/lib/Message'
@@ -36,7 +37,9 @@ const defaultValues: Omit<FloatingIpCreate, 'ip'> = {
   pool: undefined,
 }
 
-export function CreateFloatingIpSideModalForm() {
+export const handle = titleCrumb('New Floating IP')
+
+export default function CreateFloatingIpSideModalForm() {
   // Fetch 1000 to we can be sure to get them all. Don't bother prefetching
   // because the list is hidden under the Advanced accordion.
   const { data: allPools } = useApiQuery('projectIpPoolList', { query: { limit: ALL_ISH } })

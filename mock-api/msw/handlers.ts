@@ -49,6 +49,7 @@ import {
   forbiddenErr,
   getStartAndEndTime,
   handleMetrics,
+  handleOxqlMetrics,
   ipInAnyRange,
   ipRangeLen,
   NotImplemented,
@@ -1597,9 +1598,34 @@ export const handlers = makeHandlers({
     requireFleetViewer(params.cookies)
     return handleMetrics(params)
   },
+  async systemTimeseriesQuery(params) {
+    if (Math.random() > 0.95) throw 500 // random failure
+    requireFleetViewer(params.cookies)
+    // timeseries queries are slower than most other queries
+    await delay(1000)
+    return handleOxqlMetrics(params.body)
+  },
   siloMetric: handleMetrics,
 
   // Misc endpoints we're not using yet in the console
+  affinityGroupCreate: NotImplemented,
+  affinityGroupDelete: NotImplemented,
+  affinityGroupList: NotImplemented,
+  affinityGroupMemberInstanceAdd: NotImplemented,
+  affinityGroupMemberInstanceDelete: NotImplemented,
+  affinityGroupMemberInstanceView: NotImplemented,
+  affinityGroupMemberList: NotImplemented,
+  affinityGroupUpdate: NotImplemented,
+  affinityGroupView: NotImplemented,
+  antiAffinityGroupCreate: NotImplemented,
+  antiAffinityGroupDelete: NotImplemented,
+  antiAffinityGroupList: NotImplemented,
+  antiAffinityGroupMemberInstanceAdd: NotImplemented,
+  antiAffinityGroupMemberInstanceDelete: NotImplemented,
+  antiAffinityGroupMemberInstanceView: NotImplemented,
+  antiAffinityGroupMemberList: NotImplemented,
+  antiAffinityGroupUpdate: NotImplemented,
+  antiAffinityGroupView: NotImplemented,
   certificateCreate: NotImplemented,
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
@@ -1681,7 +1707,6 @@ export const handlers = makeHandlers({
   switchView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
   systemQuotasList: NotImplemented,
-  systemTimeseriesQuery: NotImplemented,
   systemTimeseriesSchemaList: NotImplemented,
   timeseriesQuery: NotImplemented,
   userBuiltinList: NotImplemented,

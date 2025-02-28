@@ -42,7 +42,7 @@ import { pb } from '~/util/path-builder'
 import { pluralize } from '~/util/str'
 
 import { useMakeInstanceActions } from './actions'
-import { ResizeInstanceModal } from './instance/InstancePage'
+import { ResizeInstanceModal } from './InstancePage'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -63,7 +63,7 @@ const instanceList = (
   options?: Pick<UseQueryOptions<InstanceResultsPage, ApiError>, 'refetchInterval'>
 ) => getListQFn('instanceList', { query: { project } }, options)
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
   await queryClient.prefetchQuery(instanceList(project).optionsFn())
   return null
@@ -77,8 +77,7 @@ const POLL_FAST_TIMEOUT = 30 * sec
 const POLL_INTERVAL_FAST = 3 * sec
 const POLL_INTERVAL_SLOW = 60 * sec
 
-Component.displayName = 'InstancesPage'
-export function Component() {
+export default function InstancesPage() {
   const { project } = useProjectSelector()
   const [resizeInstance, setResizeInstance] = useState<Instance | null>(null)
 

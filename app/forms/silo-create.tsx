@@ -20,6 +20,7 @@ import { TextField } from '~/components/form/fields/TextField'
 import { TlsCertsField } from '~/components/form/fields/TlsCertsField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
@@ -48,7 +49,9 @@ const defaultValues: SiloCreateFormValues = {
   },
 }
 
-export function CreateSiloSideModalForm() {
+export const handle = titleCrumb('New Silo')
+
+export default function CreateSiloSideModalForm() {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
 

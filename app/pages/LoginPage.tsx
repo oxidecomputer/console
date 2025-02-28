@@ -24,7 +24,7 @@ const defaultValues: UsernamePasswordCredentials = {
 }
 
 /** Username/password form for local silo login */
-export function LoginPage() {
+export default function LoginPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const { silo } = useSiloSelector()

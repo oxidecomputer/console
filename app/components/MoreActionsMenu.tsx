@@ -5,6 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
+import cn from 'classnames'
+
 import { More12Icon } from '@oxide/design-system/icons/react'
 
 import type { MenuAction } from '~/table/columns/action-col'
@@ -16,13 +18,21 @@ interface MoreActionsMenuProps {
   /** The accessible name for the menu button */
   label: string
   actions: MenuAction[]
+  isSmall?: boolean
 }
-export const MoreActionsMenu = ({ actions, label }: MoreActionsMenuProps) => {
+export const MoreActionsMenu = ({
+  actions,
+  label,
+  isSmall = false,
+}: MoreActionsMenuProps) => {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger
         aria-label={label}
-        className="flex h-8 w-8 items-center justify-center rounded border border-default hover:bg-tertiary"
+        className={cn(
+          'flex items-center justify-center rounded border border-default hover:bg-tertiary',
+          isSmall ? 'h-6 w-6' : 'h-8 w-8'
+        )}
       >
         <More12Icon />
       </DropdownMenu.Trigger>

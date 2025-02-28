@@ -47,10 +47,12 @@ export function useDateTimeRangePicker({
   initialPreset,
   minValue,
   maxValue,
+  items,
 }: {
   initialPreset: RangeKey
   minValue?: DateValue | undefined
   maxValue?: DateValue | undefined
+  items?: { label: string; value: RangeKeyAll }[]
 }) {
   const now = useMemo(() => getNow(getLocalTimeZone()), [])
 
@@ -68,7 +70,16 @@ export function useDateTimeRangePicker({
     }
   }
 
-  const props = { preset, setPreset, range, setRange, minValue, maxValue, onRangeChange }
+  const props = {
+    preset,
+    setPreset,
+    range,
+    setRange,
+    minValue,
+    maxValue,
+    onRangeChange,
+    items,
+  }
 
   return {
     startTime: range.start.toDate(getLocalTimeZone()),
@@ -89,6 +100,7 @@ type DateTimeRangePickerProps = {
   onRangeChange?: (preset: RangeKeyAll) => void
   minValue?: DateValue | undefined
   maxValue?: DateValue | undefined
+  items?: { label: string; value: RangeKeyAll }[]
 }
 
 export function DateTimeRangePicker({
@@ -99,6 +111,7 @@ export function DateTimeRangePicker({
   minValue,
   maxValue,
   onRangeChange,
+  items,
 }: DateTimeRangePickerProps) {
   return (
     <form className="flex">
@@ -107,7 +120,7 @@ export function DateTimeRangePicker({
         name="preset"
         selected={preset}
         aria-label="Choose a time range preset"
-        items={rangePresets}
+        items={items || rangePresets}
         onChange={(value) => {
           setPreset(value)
           onRangeChange?.(value)

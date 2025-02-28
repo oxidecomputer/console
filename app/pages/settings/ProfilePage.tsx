@@ -26,7 +26,9 @@ const columns = [
   getActionsCol((_row: Group) => []),
 ]
 
-export function ProfilePage() {
+export const handle = { crumb: 'Profile' }
+
+export default function ProfilePage() {
   const { me, myGroups } = useCurrentUser()
 
   const groupsTable = useReactTable({

@@ -157,7 +157,7 @@ const baseDefaultValues: InstanceCreateInput = {
   externalIps: [{ type: 'ephemeral' }],
 }
 
-CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
   await Promise.all([
     // fetch both project and silo images
@@ -173,7 +173,9 @@ CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-export function CreateInstanceForm() {
+export const handle = { crumb: 'New instance' }
+
+export default function CreateInstanceForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()

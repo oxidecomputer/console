@@ -11,7 +11,7 @@ import { OpenLink12Icon } from '@oxide/design-system/icons/react'
 import { classed } from '~/util/classed'
 
 export const LearnMore = ({ href, text }: { href: string; text: React.ReactNode }) => (
-  <>
+  <div className="text-sans-md">
     Learn more about{' '}
     <a
       href={href}
@@ -22,7 +22,7 @@ export const LearnMore = ({ href, text }: { href: string; text: React.ReactNode 
       {text}
       <OpenLink12Icon className="ml-1 align-middle" />
     </a>
-  </>
+  </div>
 )
 
 /** Use size=sm on buttons and links! */

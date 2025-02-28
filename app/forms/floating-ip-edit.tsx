@@ -20,6 +20,7 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { getFloatingIpSelector, useFloatingIpSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
@@ -35,7 +36,7 @@ const floatingIpView = ({ project, floatingIp }: PP.FloatingIp) =>
 const instanceList = (project: string) =>
   getListQFn('instanceList', { query: { project, limit: ALL_ISH } })
 
-EditFloatingIpSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const selector = getFloatingIpSelector(params)
   await Promise.all([
     queryClient.fetchQuery(floatingIpView(selector)),
@@ -44,7 +45,9 @@ EditFloatingIpSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-export function EditFloatingIpSideModalForm() {
+export const handle = titleCrumb('Edit Floating IP')
+
+export default function EditFloatingIpSideModalForm() {
   const navigate = useNavigate()
 
   const floatingIpSelector = useFloatingIpSelector()

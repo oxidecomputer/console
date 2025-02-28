@@ -9,6 +9,7 @@ import { differenceInSeconds, subHours } from 'date-fns'
 // Works without the .js for dev server and prod build in MSW mode, but
 // playwright wants the .js. No idea why, let's just add the .js.
 import { IPv4, IPv6 } from 'ip-num/IPNumber.js'
+import { getMockOxqlInstanceData } from 'mock-api/oxql-metrics'
 
 import {
   FLEET_ID,
@@ -17,14 +18,17 @@ import {
   totalCapacity,
   type DiskCreate,
   type IpRange,
+  type OxqlQueryResult,
   type RoleKey,
   type Sled,
   type SystemMetricName,
   type SystemMetricQueryParams,
+  type TimeseriesQuery,
   type User,
 } from '@oxide/api'
 
 import { json, type Json } from '~/api/__generated__/msw-handlers'
+import type { OxqlNetworkMetricName, OxqlVcpuState } from '~/components/oxql-metrics/util'
 import { parseIp } from '~/util/ip'
 import { GiB, TiB } from '~/util/units'
 
@@ -412,4 +416,21 @@ export function updateDesc(
   if (update.description !== undefined) {
     resource.description = update.description
   }
+}
+
+// The metric name is the second word in the query string
+const getMetricNameFromQuery = (query: string) => query.split(' ')[1]
+
+// The state value is the string in quotes after 'state == ' in the query string
+// It might not be present in the string
+const getCpuStateFromQuery = (query: string): OxqlVcpuState | undefined => {
+  const stateRegex = /state\s*==\s*"([^"]+)"/
+  const match = query.match(stateRegex)
+  return match ? (match[1] as OxqlVcpuState) : undefined
+}
+
+export function handleOxqlMetrics({ query }: TimeseriesQuery): Json<OxqlQueryResult> {
+  const metricName = getMetricNameFromQuery(query) as OxqlNetworkMetricName
+  const stateValue = getCpuStateFromQuery(query)
+  return getMockOxqlInstanceData(metricName, stateValue)
 }

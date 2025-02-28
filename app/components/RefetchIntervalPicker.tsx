@@ -37,9 +37,19 @@ type Props = {
   enabled: boolean
   isLoading: boolean
   fn: () => void
+  showLastFetched?: boolean
+  className?: string
+  isSlim?: boolean
 }
 
-export function useIntervalPicker({ enabled, isLoading, fn }: Props) {
+export function useIntervalPicker({
+  enabled,
+  isLoading,
+  fn,
+  showLastFetched = false,
+  className,
+  isSlim = false,
+}: Props) {
   const [intervalPreset, setIntervalPreset] = useState<IntervalPreset>('10s')
 
   const [lastFetched, setLastFetched] = useState(new Date())
@@ -53,11 +63,13 @@ export function useIntervalPicker({ enabled, isLoading, fn }: Props) {
   return {
     intervalMs: (enabled && intervalPresets[intervalPreset]) || undefined,
     intervalPicker: (
-      <div className="mb-12 flex items-center justify-between">
-        <div className="hidden items-center gap-2 text-right text-mono-sm text-tertiary lg+:flex">
-          <Time16Icon className="text-quaternary" /> Refreshed{' '}
-          {toLocaleTimeString(lastFetched)}
-        </div>
+      <div className={cn('flex items-center justify-between', className)}>
+        {showLastFetched && (
+          <div className="hidden items-center gap-2 text-right text-mono-sm text-tertiary lg+:flex">
+            <Time16Icon className="text-quaternary" /> Refreshed{' '}
+            {toLocaleTimeString(lastFetched)}
+          </div>
+        )}
         <div className="flex">
           <button
             type="button"
@@ -75,10 +87,11 @@ export function useIntervalPicker({ enabled, isLoading, fn }: Props) {
           </button>
           <Listbox
             selected={enabled ? intervalPreset : 'Off'}
-            className="w-24 [&_button]:!rounded-l-none"
+            className={cn('[&_button]:!rounded-l-none', isSlim ? '' : 'w-24')}
             items={intervalItems}
             onChange={setIntervalPreset}
             disabled={!enabled}
+            hideSelected={isSlim}
           />
         </div>
       </div>
