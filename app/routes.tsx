@@ -15,8 +15,7 @@ import {
 } from 'react-router'
 
 import { NotFound } from './components/ErrorPage'
-import { ProjectImageEdit, SiloImageEdit } from './forms/image-edit'
-import { makeCrumb, titleCrumb, type Crumb } from './hooks/use-crumbs'
+import { makeCrumb, type Crumb } from './hooks/use-crumbs'
 import { getInstanceSelector, getProjectSelector, getVpcSelector } from './hooks/use-params'
 import * as ConnectTab from './pages/project/instances/ConnectTab'
 import { InstancePage } from './pages/project/instances/InstancePage'
@@ -188,7 +187,10 @@ export const routes = createRoutesFromElements(
 
       <Route lazy={() => import('./layouts/SiloLayout').then(convert)}>
         <Route path="images" {...SiloImages} handle={{ crumb: 'Images' }}>
-          <Route path=":image/edit" {...SiloImageEdit} handle={titleCrumb('Edit Image')} />
+          <Route
+            path=":image/edit"
+            lazy={() => import('./pages/system/SiloImageEdit').then(convert)}
+          />
         </Route>
         <Route
           path="utilization"
@@ -461,8 +463,7 @@ export const routes = createRoutesFromElements(
             />
             <Route
               path="images/:image/edit"
-              {...ProjectImageEdit}
-              handle={titleCrumb('Edit Image')}
+              lazy={() => import('./pages/project/images/ProjectImageEdit').then(convert)}
             />
           </Route>
           <Route
