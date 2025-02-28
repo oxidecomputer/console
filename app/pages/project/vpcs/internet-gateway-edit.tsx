@@ -10,14 +10,12 @@ import { useQuery } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
-export const handle = titleCrumb('Edit Internet Gateway')
-
 import { Gateway16Icon } from '@oxide/design-system/icons/react'
 
 import { apiQueryClient, queryClient, usePrefetchedApiQuery } from '~/api'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { getInternetGatewaySelector, useInternetGatewaySelector } from '~/hooks/use-params'
 import { titleCrumb } from '~/hooks/use-crumbs'
+import { getInternetGatewaySelector, useInternetGatewaySelector } from '~/hooks/use-params'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { FormDivider } from '~/ui/lib/Divider'
@@ -36,6 +34,8 @@ import {
   routerList,
   useGatewayRoutes,
 } from './gateway-data'
+
+export const handle = titleCrumb('Edit Internet Gateway')
 
 const RoutesEmpty = () => (
   <Table.Row>

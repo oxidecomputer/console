@@ -30,7 +30,6 @@ import * as NetworkingTab from './pages/project/instances/NetworkingTab'
 import * as SettingsTab from './pages/project/instances/SettingsTab'
 import * as StorageTab from './pages/project/instances/StorageTab'
 import * as VpcRoutersTab from './pages/project/vpcs//VpcRoutersTab'
-import { VpcFirewallRulesTab } from './pages/project/vpcs/VpcFirewallRulesTab'
 import { VpcPage } from './pages/project/vpcs/VpcPage'
 import { VpcsPage } from './pages/project/vpcs/VpcsPage'
 import * as DisksTab from './pages/system/inventory/DisksTab'
@@ -322,12 +321,22 @@ export const routes = createRoutesFromElements(
               <Route element={<VpcPage />} loader={VpcPage.loader}>
                 <Route
                   index
-                  element={<Navigate to="firewall-rules" replace />}
-                  loader={VpcFirewallRulesTab.loader}
+                  // janky one. we only want the loader. we'll have to make this
+                  // its own file eventually. unfortunately the loader can't
+                  // do redirect() with a replace
+                  lazy={() =>
+                    import('./pages/project/vpcs/VpcFirewallRulesTab')
+                      .then(convert)
+                      .then(({ loader }) => ({
+                        loader,
+                        Component: () => <Navigate to="firewall-rules" replace />,
+                      }))
+                  }
                 />
                 <Route
-                  element={<VpcFirewallRulesTab />}
-                  loader={VpcFirewallRulesTab.loader}
+                  lazy={() =>
+                    import('./pages/project/vpcs/VpcFirewallRulesTab').then(convert)
+                  }
                 >
                   <Route
                     path="edit"
@@ -335,10 +344,10 @@ export const routes = createRoutesFromElements(
                   />
                   <Route
                     path="firewall-rules"
-                    handle={{ crumb: 'Firewall Rules' }}
                     element={null}
+                    handle={{ crumb: 'Firewall Rules' }}
                   />
-                  <Route handle={{ crumb: 'Firewall Rules' }} element={null}>
+                  <Route element={null} handle={{ crumb: 'Firewall Rules' }}>
                     <Route
                       path="firewall-rules-new/:rule?"
                       lazy={() => import('./forms/firewall-rules-create').then(convert)}
@@ -446,7 +455,6 @@ export const routes = createRoutesFromElements(
             <Route
               path="snapshots-new"
               lazy={() => import('./forms/snapshot-create').then(convert)}
-              handle={titleCrumb('New snapshot')}
             />
             <Route
               path="snapshots/:snapshot/images-new"

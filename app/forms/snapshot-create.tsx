@@ -9,8 +9,6 @@ import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import { titleCrumb } from '~/hooks/use-crumbs'
-
 import {
   diskCan,
   useApiMutation,
@@ -24,6 +22,7 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { toComboboxItems } from '~/ui/lib/Combobox'

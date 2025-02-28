@@ -12,6 +12,7 @@ import { Cloud16Icon, Cloud24Icon, NextArrow12Icon } from '@oxide/design-system/
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
 import { Badge } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -36,7 +37,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-export const handle = { crumb: (p: any) => p.silo! }
+export const handle = makeCrumb((p) => p.silo!)
 
 export default function SiloPage() {
   const siloSelector = useSiloSelector()

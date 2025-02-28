@@ -20,6 +20,7 @@ import { Cloud16Icon, Cloud24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -69,14 +70,14 @@ export async function clientLoader() {
   return null
 }
 
-export const handle = { crumb: 'Silos' }
+export const handle = makeCrumb('Silos', pb.silos())
 
 export default function SilosPage() {
   const navigate = useNavigate()
 
   const queryClient = useApiQueryClient()
   const { mutateAsync: deleteSilo } = useApiMutation('siloDelete', {
-    onSuccess(silo, { path }) {
+    onSuccess(_silo, { path }) {
       queryClient.invalidateQueries('siloList')
       addToast(<>Silo <HL>{path.silo}</HL> deleted</>) // prettier-ignore
     },
