@@ -30,10 +30,12 @@ const STATE_BADGE_COLORS: Record<SledState, BadgeColor> = {
 
 const sledList = getListQFn('sledList', {})
 
-export async function loader() {
+export async function clientLoader() {
   await queryClient.prefetchQuery(sledList.optionsFn())
   return null
 }
+
+export const handle = { crumb: 'Sleds' }
 
 const colHelper = createColumnHelper<Sled>()
 const staticCols = [
@@ -88,8 +90,7 @@ const staticCols = [
   }),
 ]
 
-Component.displayName = 'SledsTab'
-export function Component() {
+export default function SledsTab() {
   const emptyState = <EmptyMessage icon={<Servers24Icon />} title="No sleds found" />
   const { table } = useQueryTable({ query: sledList, columns: staticCols, emptyState })
   return table

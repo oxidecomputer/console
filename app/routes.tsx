@@ -24,7 +24,6 @@ import * as DisksTab from './pages/system/inventory/DisksTab'
 import { InventoryPage } from './pages/system/inventory/InventoryPage'
 import * as SledInstances from './pages/system/inventory/sled/SledInstancesTab'
 import * as SledPage from './pages/system/inventory/sled/SledPage'
-import * as SledsTab from './pages/system/inventory/SledsTab'
 import * as IpPool from './pages/system/networking/IpPoolPage'
 import * as IpPools from './pages/system/networking/IpPoolsPage'
 import * as SiloImages from './pages/system/SiloImagesPage'
@@ -133,8 +132,21 @@ export const routes = createRoutesFromElements(
           loader={InventoryPage.loader}
           handle={makeCrumb('Inventory', pb.sledInventory())}
         >
-          <Route index element={<Navigate to="sleds" replace />} loader={SledsTab.loader} />
-          <Route path="sleds" {...SledsTab} handle={{ crumb: 'Sleds' }} />
+          <Route
+            index
+            lazy={() =>
+              import('./pages/system/inventory/SledsTab')
+                .then(convert)
+                .then(({ loader }) => ({
+                  loader,
+                  Component: () => <Navigate to="sleds" replace />,
+                }))
+            }
+          />
+          <Route
+            path="sleds"
+            lazy={() => import('./pages/system/inventory/SledsTab').then(convert)}
+          />
           <Route path="disks" {...DisksTab} handle={{ crumb: 'Disks' }} />
         </Route>
         <Route path="inventory" handle={{ crumb: 'Inventory' }}>
