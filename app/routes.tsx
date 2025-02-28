@@ -144,7 +144,7 @@ export const routes = createRoutesFromElements(
             {/* a crumb for the sled ID looks ridiculous, unfortunately */}
             <Route
               path=":sledId"
-              lazy={() => import('./pages/system/inventory/sled/SledPage')}
+              lazy={() => import('./pages/system/inventory/sled/SledPage').then(convert)}
             >
               <Route
                 index
@@ -168,7 +168,7 @@ export const routes = createRoutesFromElements(
         </Route>
         <Route path="networking">
           <Route index element={<Navigate to="ip-pools" replace />} />
-          <Route lazy={() => import('./pages/system/networking/IpPoolsPage')}>
+          <Route lazy={() => import('./pages/system/networking/IpPoolsPage').then(convert)}>
             <Route path="ip-pools" element={null} />
             <Route
               path="ip-pools-new"
@@ -177,7 +177,10 @@ export const routes = createRoutesFromElements(
           </Route>
         </Route>
         <Route path="networking/ip-pools" handle={{ crumb: 'IP Pools' }}>
-          <Route path=":pool" lazy={() => import('./pages/system/networking/IpPoolPage')}>
+          <Route
+            path=":pool"
+            lazy={() => import('./pages/system/networking/IpPoolPage').then(convert)}
+          >
             <Route path="edit" lazy={() => import('./forms/ip-pool-edit').then(convert)} />
             <Route
               path="ranges-add"
