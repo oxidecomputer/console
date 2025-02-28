@@ -14,6 +14,7 @@ import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -45,13 +46,15 @@ const colHelper = createColumnHelper<Image>()
 
 const imageList = (query: PP.Project) => getListQFn('imageList', { query })
 
-ImagesPage.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
   await queryClient.prefetchQuery(imageList({ project }).optionsFn())
   return null
 }
 
-export function ImagesPage() {
+export const handle = makeCrumb('Images', (p) => pb.projectImages(getProjectSelector(p)))
+
+export default function ImagesPage() {
   const { project } = useProjectSelector()
 
   const [promoteImageName, setPromoteImageName] = useState<string | null>(null)

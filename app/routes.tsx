@@ -18,7 +18,6 @@ import { NotFound } from './components/ErrorPage'
 import { CreateDiskSideModalForm } from './forms/disk-create'
 import { ProjectImageEdit, SiloImageEdit } from './forms/image-edit'
 import { CreateImageFromSnapshotSideModalForm } from './forms/image-from-snapshot'
-import * as ImageCreate from './forms/image-upload'
 import { CreateIpPoolSideModalForm } from './forms/ip-pool-create'
 import * as IpPoolEdit from './forms/ip-pool-edit'
 import * as IpPoolAddRange from './forms/ip-pool-range-add'
@@ -36,7 +35,6 @@ import { EditRouterRouteSideModalForm } from './forms/vpc-router-route-edit'
 import { makeCrumb, titleCrumb, type Crumb } from './hooks/use-crumbs'
 import { getInstanceSelector, getProjectSelector, getVpcSelector } from './hooks/use-params'
 import * as ProjectAccess from './pages/project/access/ProjectAccessPage'
-import { ImagesPage } from './pages/project/images/ImagesPage'
 import * as ConnectTab from './pages/project/instances/ConnectTab'
 import { InstancePage } from './pages/project/instances/InstancePage'
 import * as NetworkingTab from './pages/project/instances/NetworkingTab'
@@ -481,13 +479,12 @@ export const routes = createRoutesFromElements(
               handle={titleCrumb('Create image from snapshot')}
             />
           </Route>
-          <Route
-            element={<ImagesPage />}
-            handle={makeCrumb('Images', (p) => pb.projectImages(getProjectSelector(p)))}
-            loader={ImagesPage.loader}
-          >
+          <Route lazy={() => import('./pages/project/images/ImagesPage').then(convert)}>
             <Route path="images" element={null} />
-            <Route path="images-new" {...ImageCreate} handle={titleCrumb('Upload image')} />
+            <Route
+              path="images-new"
+              lazy={() => import('./forms/image-upload').then(convert)}
+            />
             <Route
               path="images/:image/edit"
               {...ProjectImageEdit}
