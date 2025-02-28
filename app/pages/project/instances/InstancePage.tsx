@@ -55,7 +55,7 @@ import { pb } from '~/util/path-builder'
 import { pluralize } from '~/util/str'
 import { GiB } from '~/util/units'
 
-import { useMakeInstanceActions } from '../actions'
+import { useMakeInstanceActions } from './actions'
 
 function getPrimaryVpcId(nics: InstanceNetworkInterface[]) {
   const nic = nics.find((nic) => nic.primary)

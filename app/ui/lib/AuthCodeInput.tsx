@@ -14,7 +14,13 @@
  *   license that can be found in the LICENSE file or at
  *   https://opensource.org/licenses/MIT.
  */
-import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  type default as React,
+} from 'react'
 
 import { KEYS } from '~/ui/util/keys'
 import { invariant } from '~/util/invariant'

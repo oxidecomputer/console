@@ -30,7 +30,7 @@ import {
   routeList,
   routerList,
   useGatewayRoutes,
-} from '../../gateway-data'
+} from './gateway-data'
 
 const gatewayList = ({ project, vpc }: PP.Vpc) =>
   getListQFn('internetGatewayList', { query: { project, vpc, limit: ALL_ISH } })

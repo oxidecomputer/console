@@ -11,6 +11,7 @@ import {
   Navigate,
   Route,
   type LoaderFunctionArgs,
+  type redirect,
 } from 'react-router'
 
 import { NotFound } from './components/ErrorPage'
@@ -34,23 +35,22 @@ import { CreateRouterRouteSideModalForm } from './forms/vpc-router-route-create'
 import { EditRouterRouteSideModalForm } from './forms/vpc-router-route-edit'
 import { makeCrumb, titleCrumb, type Crumb } from './hooks/use-crumbs'
 import { getInstanceSelector, getProjectSelector, getVpcSelector } from './hooks/use-params'
-import { instanceLookupLoader } from './pages/lookups'
 import * as ProjectAccess from './pages/project/access/ProjectAccessPage'
 import { ImagesPage } from './pages/project/images/ImagesPage'
-import { InstancePage } from './pages/project/instances/instance/InstancePage'
-import * as ConnectTab from './pages/project/instances/instance/tabs/ConnectTab'
-import * as NetworkingTab from './pages/project/instances/instance/tabs/NetworkingTab'
-import * as SettingsTab from './pages/project/instances/instance/tabs/SettingsTab'
-import * as StorageTab from './pages/project/instances/instance/tabs/StorageTab'
+import * as ConnectTab from './pages/project/instances/ConnectTab'
+import { InstancePage } from './pages/project/instances/InstancePage'
+import * as NetworkingTab from './pages/project/instances/NetworkingTab'
+import * as SettingsTab from './pages/project/instances/SettingsTab'
+import * as StorageTab from './pages/project/instances/StorageTab'
 import { SnapshotsPage } from './pages/project/snapshots/SnapshotsPage'
+import * as VpcRoutersTab from './pages/project/vpcs//VpcRoutersTab'
 import { EditInternetGatewayForm } from './pages/project/vpcs/internet-gateway-edit'
 import * as RouterPage from './pages/project/vpcs/RouterPage'
-import { VpcFirewallRulesTab } from './pages/project/vpcs/VpcPage/tabs/VpcFirewallRulesTab'
-import { VpcInternetGatewaysTab } from './pages/project/vpcs/VpcPage/tabs/VpcGatewaysTab'
-import * as VpcRoutersTab from './pages/project/vpcs/VpcPage/tabs/VpcRoutersTab'
-import * as VpcSubnetsTab from './pages/project/vpcs/VpcPage/tabs/VpcSubnetsTab'
-import { VpcPage } from './pages/project/vpcs/VpcPage/VpcPage'
+import { VpcFirewallRulesTab } from './pages/project/vpcs/VpcFirewallRulesTab'
+import { VpcInternetGatewaysTab } from './pages/project/vpcs/VpcGatewaysTab'
+import { VpcPage } from './pages/project/vpcs/VpcPage'
 import { VpcsPage } from './pages/project/vpcs/VpcsPage'
+import * as VpcSubnetsTab from './pages/project/vpcs/VpcSubnetsTab'
 import * as Projects from './pages/ProjectsPage'
 import * as SiloAccess from './pages/SiloAccessPage'
 import * as DisksTab from './pages/system/inventory/DisksTab'
@@ -66,9 +66,12 @@ import * as SilosPage from './pages/system/silos/SilosPage'
 import { truncate } from './ui/lib/Truncate'
 import { pb } from './util/path-builder'
 
+// hack because RR doesn't export the redirect type
+type Redirect = ReturnType<typeof redirect>
+
 type RouteModule = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  clientLoader?: (a: LoaderFunctionArgs<any>) => Promise<null>
+  clientLoader?: (a: LoaderFunctionArgs<any>) => Promise<Redirect | null>
   default: () => ReactElement | null
   shouldRevalidate?: () => boolean
   ErrorBoundary?: () => ReactElement
@@ -212,10 +215,12 @@ export const routes = createRoutesFromElements(
         {/* let's do both. what could go wrong*/}
         <Route
           path="lookup/instances/:instance"
-          element={null}
-          loader={instanceLookupLoader}
+          lazy={() => import('./pages/InstanceLookup.tsx').then(convert)}
         />
-        <Route path="lookup/i/:instance" element={null} loader={instanceLookupLoader} />
+        <Route
+          path="lookup/i/:instance"
+          lazy={() => import('./pages/InstanceLookup.tsx').then(convert)}
+        />
 
         {/* these are here instead of under projects because they need to use SiloLayout */}
         <Route {...Projects} handle={makeCrumb('Projects', pb.projects())}>
@@ -250,9 +255,7 @@ export const routes = createRoutesFromElements(
               <Route
                 path="serial-console"
                 lazy={() =>
-                  import('./pages/project/instances/instance/SerialConsolePage').then(
-                    convert
-                  )
+                  import('./pages/project/instances/SerialConsolePage').then(convert)
                 }
               />
             </Route>
@@ -287,34 +290,24 @@ export const routes = createRoutesFromElements(
                 />
                 <Route
                   path="metrics"
-                  lazy={() =>
-                    import('./pages/project/instances/instance/tabs/MetricsTab').then(
-                      convert
-                    )
-                  }
+                  lazy={() => import('./pages/project/instances/MetricsTab').then(convert)}
                 >
                   <Route index element={<Navigate to="cpu" replace />} />
                   <Route
                     lazy={() =>
-                      import(
-                        './pages/project/instances/instance/tabs/MetricsTab/CpuMetricsTab'
-                      ).then(convert)
+                      import('./pages/project/instances/CpuMetricsTab').then(convert)
                     }
                     path="cpu"
                   />
                   <Route
                     lazy={() =>
-                      import(
-                        './pages/project/instances/instance/tabs/MetricsTab/DiskMetricsTab'
-                      ).then(convert)
+                      import('./pages/project/instances/DiskMetricsTab').then(convert)
                     }
                     path="disk"
                   />
                   <Route
                     lazy={() =>
-                      import(
-                        './pages/project/instances/instance/tabs/MetricsTab/NetworkMetricsTab'
-                      ).then(convert)
+                      import('./pages/project/instances/NetworkMetricsTab').then(convert)
                     }
                     path="network"
                     handle={{ crumb: 'Network' }}

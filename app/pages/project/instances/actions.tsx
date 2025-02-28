@@ -16,7 +16,7 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 
-import { fancifyStates } from './instance/tabs/common'
+import { fancifyStates } from './common'
 
 type Options = {
   onSuccess?: () => void

@@ -42,7 +42,7 @@ import { pb } from '~/util/path-builder'
 import { pluralize } from '~/util/str'
 
 import { useMakeInstanceActions } from './actions'
-import { ResizeInstanceModal } from './instance/InstancePage'
+import { ResizeInstanceModal } from './InstancePage'
 
 const EmptyState = () => (
   <EmptyMessage
