@@ -110,7 +110,7 @@ export default defineConfig(({ mode }) => ({
         // but some end up being like 300 bytes. It feels silly to have several
         // hundred of those, so we set a minimum size to end up with fewer.
         // https://rollupjs.org/configuration-options/#output-experimentalminchunksize
-        experimentalMinChunkSize: 5 * KiB,
+        experimentalMinChunkSize: 30 * KiB,
       },
     },
     // prevent inlining assets as `data:`, which is not permitted by our Content-Security-Policy
