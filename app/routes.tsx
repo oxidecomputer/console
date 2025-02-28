@@ -17,11 +17,6 @@ import {
 import { NotFound } from './components/ErrorPage'
 import { makeCrumb, type Crumb } from './hooks/use-crumbs'
 import { getInstanceSelector, getProjectSelector, getVpcSelector } from './hooks/use-params'
-import * as ConnectTab from './pages/project/instances/ConnectTab'
-import { InstancePage } from './pages/project/instances/InstancePage'
-import * as NetworkingTab from './pages/project/instances/NetworkingTab'
-import * as SettingsTab from './pages/project/instances/SettingsTab'
-import * as StorageTab from './pages/project/instances/StorageTab'
 import * as VpcRoutersTab from './pages/project/vpcs//VpcRoutersTab'
 import { VpcPage } from './pages/project/vpcs/VpcPage'
 import { VpcsPage } from './pages/project/vpcs/VpcsPage'
@@ -263,12 +258,18 @@ export const routes = createRoutesFromElements(
               )}
             >
               <Route index element={<Navigate to="storage" replace />} />
-              <Route element={<InstancePage />} loader={InstancePage.loader}>
-                <Route {...StorageTab} path="storage" handle={{ crumb: 'Storage' }} />
+              <Route
+                lazy={() => import('./pages/project/instances/InstancePage').then(convert)}
+              >
                 <Route
-                  {...NetworkingTab}
+                  path="storage"
+                  lazy={() => import('./pages/project/instances/StorageTab').then(convert)}
+                />
+                <Route
                   path="networking"
-                  handle={{ crumb: 'Networking' }}
+                  lazy={() =>
+                    import('./pages/project/instances/NetworkingTab').then(convert)
+                  }
                 />
                 <Route
                   path="metrics"
@@ -295,8 +296,14 @@ export const routes = createRoutesFromElements(
                     handle={{ crumb: 'Network' }}
                   />
                 </Route>
-                <Route {...ConnectTab} path="connect" handle={{ crumb: 'Connect' }} />
-                <Route {...SettingsTab} path="settings" handle={{ crumb: 'Settings' }} />
+                <Route
+                  path="connect"
+                  lazy={() => import('./pages/project/instances/ConnectTab').then(convert)}
+                />
+                <Route
+                  path="settings"
+                  lazy={() => import('./pages/project/instances/SettingsTab').then(convert)}
+                />
               </Route>
             </Route>
           </Route>

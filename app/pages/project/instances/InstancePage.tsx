@@ -36,6 +36,7 @@ import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { RefreshButton } from '~/components/RefreshButton'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { InstanceStateBadge } from '~/components/StateBadge'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import {
   getInstanceSelector,
   useInstanceSelector,
@@ -73,7 +74,7 @@ async function refreshData() {
   ])
 }
 
-InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('instanceView', {
@@ -120,7 +121,12 @@ const PollingSpinner = () => (
   </Tooltip>
 )
 
-export function InstancePage() {
+export const handle = makeCrumb(
+  (p) => p.instance!,
+  (p) => pb.instance(getInstanceSelector(p))
+)
+
+export default function InstancePage() {
   const instanceSelector = useInstanceSelector()
   const [resizeInstance, setResizeInstance] = useState(false)
 

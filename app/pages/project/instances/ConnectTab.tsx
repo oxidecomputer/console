@@ -17,7 +17,7 @@ import { LearnMore, SettingsGroup } from '~/ui/lib/SettingsGroup'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await apiQueryClient.prefetchQuery('instanceExternalIpList', {
     path: { instance },
@@ -26,8 +26,9 @@ export async function loader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-Component.displayName = 'ConnectTab'
-export function Component() {
+export const handle = { crumb: 'Connect' }
+
+export default function ConnectTab() {
   const { project, instance } = useInstanceSelector()
   const { data: externalIps } = usePrefetchedApiQuery('instanceExternalIpList', {
     path: { instance },

@@ -84,7 +84,7 @@ const SubnetNameFromId = ({ value }: { value: string }) => {
   return <span className="text-default">{subnet.name}</span>
 }
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('instanceNetworkInterfaceList', {
@@ -178,8 +178,9 @@ const staticIpCols = [
   }),
 ]
 
-Component.displayName = 'NetworkingTab'
-export function Component() {
+export const handle = { crumb: 'Networking' }
+
+export default function NetworkingTab() {
   const instanceSelector = useInstanceSelector()
   const { instance: instanceName, project } = instanceSelector
 

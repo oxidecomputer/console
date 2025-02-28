@@ -39,8 +39,9 @@ type FormValues = {
   autoRestartPolicy: FormPolicy
 }
 
-Component.displayName = 'SettingsTab'
-export function Component() {
+export const handle = { crumb: 'Settings' }
+
+export default function SettingsTab() {
   const instanceSelector = useInstanceSelector()
 
   const { data: instance } = usePrefetchedApiQuery('instanceView', {
