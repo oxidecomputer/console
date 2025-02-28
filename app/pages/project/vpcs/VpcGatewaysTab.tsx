@@ -32,6 +32,8 @@ import {
   useGatewayRoutes,
 } from './gateway-data'
 
+export const handle = { crumb: 'Internet Gateways' }
+
 const gatewayList = ({ project, vpc }: PP.Vpc) =>
   getListQFn('internetGatewayList', { query: { project, vpc, limit: ALL_ISH } })
 const projectIpPoolList = getListQFn('projectIpPoolList', { query: { limit: ALL_ISH } })
@@ -57,7 +59,7 @@ const GatewayRoutes = ({ project, vpc, gateway }: PP.VpcInternetGateway) => {
 
 const colHelper = createColumnHelper<InternetGateway>()
 
-VpcInternetGatewaysTab.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcSelector(params)
   const [gateways, routers] = await Promise.all([
     queryClient.fetchQuery(gatewayList({ project, vpc }).optionsFn()),
@@ -89,7 +91,7 @@ VpcInternetGatewaysTab.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-export function VpcInternetGatewaysTab() {
+export default function VpcInternetGatewaysTab() {
   const { project, vpc } = useVpcSelector()
 
   const emptyState = (

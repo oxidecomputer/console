@@ -59,7 +59,7 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
   </TableEmptyBox>
 )
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('policyView', {}),
@@ -71,6 +71,8 @@ export async function loader({ params }: LoaderFunctionArgs) {
   return null
 }
 
+export const handle = { crumb: 'Access' }
+
 type UserRow = {
   id: string
   identityType: IdentityType
@@ -81,8 +83,7 @@ type UserRow = {
 
 const colHelper = createColumnHelper<UserRow>()
 
-Component.displayName = 'ProjectAccessPage'
-export function Component() {
+export default function ProjectAccessPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
   const { project } = useProjectSelector()

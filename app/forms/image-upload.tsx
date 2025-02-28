@@ -35,6 +35,7 @@ import { NameField } from '~/components/form/fields/NameField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
@@ -175,11 +176,12 @@ const CHUNK_SIZE_BYTES = 512 * KiB
 // TODO: make sure cleanup, cancelEverything, and resetMainFlow are called in
 // the right places
 
-Component.displayName = 'ImageCreate'
+export const handle = titleCrumb('Upload image')
+
 /**
  * Upload an image. Opens a second modal to show upload progress.
  */
-export function Component() {
+export default function ImageCreate() {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()

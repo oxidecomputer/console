@@ -20,6 +20,7 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
@@ -28,13 +29,15 @@ import type * as PP from '~/util/path-params'
 const routerView = ({ project, vpc, router }: PP.VpcRouter) =>
   apiq('vpcRouterView', { path: { router }, query: { project, vpc } })
 
-EditRouterSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const selector = getVpcRouterSelector(params)
   await queryClient.prefetchQuery(routerView(selector))
   return null
 }
 
-export function EditRouterSideModalForm() {
+export const handle = titleCrumb('Edit Router')
+
+export default function EditRouterSideModalForm() {
   const routerSelector = useVpcRouterSelector()
   const { project, vpc, router } = routerSelector
   const { data: routerData } = usePrefetchedQuery(routerView(routerSelector))

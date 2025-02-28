@@ -19,20 +19,22 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { getIpPoolSelector, useIpPoolSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 
 import { IpPoolVisibilityMessage } from './ip-pool-create'
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { pool } = getIpPoolSelector(params)
   await apiQueryClient.prefetchQuery('ipPoolView', { path: { pool } })
   return null
 }
 
-Component.displayName = 'EditIpPoolSideModalForm'
-export function Component() {
+export const handle = makeCrumb('Edit IP pool')
+
+export default function EditIpPoolSideModalForm() {
   const queryClient = useApiQueryClient()
   const navigate = useNavigate()
   const poolSelector = useIpPoolSelector()

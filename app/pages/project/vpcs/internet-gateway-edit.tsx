@@ -14,6 +14,7 @@ import { Gateway16Icon } from '@oxide/design-system/icons/react'
 
 import { apiQueryClient, queryClient, usePrefetchedApiQuery } from '~/api'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { getInternetGatewaySelector, useInternetGatewaySelector } from '~/hooks/use-params'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
@@ -33,6 +34,8 @@ import {
   routerList,
   useGatewayRoutes,
 } from './gateway-data'
+
+export const handle = titleCrumb('Edit Internet Gateway')
 
 const RoutesEmpty = () => (
   <Table.Row>
@@ -63,7 +66,7 @@ function RouteRows({ project, vpc, gateway }: PP.VpcInternetGateway) {
   ))
 }
 
-EditInternetGatewayForm.loader = async function ({ params }: LoaderFunctionArgs) {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc, gateway } = getInternetGatewaySelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('internetGatewayView', {
@@ -82,7 +85,7 @@ EditInternetGatewayForm.loader = async function ({ params }: LoaderFunctionArgs)
   return null
 }
 
-export function EditInternetGatewayForm() {
+export default function EditInternetGatewayForm() {
   const navigate = useNavigate()
   const { project, vpc, gateway } = useInternetGatewaySelector()
   const onDismiss = () => navigate(pb.vpcInternetGateways({ project, vpc }))

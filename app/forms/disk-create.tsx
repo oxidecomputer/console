@@ -8,7 +8,6 @@
 import { filesize } from 'filesize'
 import { useMemo } from 'react'
 import { useController, useForm, type Control } from 'react-hook-form'
-import { useNavigate, type NavigateFunction } from 'react-router'
 
 import {
   useApiMutation,
@@ -59,11 +58,7 @@ type CreateSideModalFormProps = {
    * the RQ `onSuccess` defined for the mutation.
    */
   onSubmit?: (diskCreate: DiskCreate) => void
-  /**
-   * Passing navigate is a bit of a hack to be able to do a nav from the routes
-   * file. The callers that don't need the arg can ignore it.
-   */
-  onDismiss: (navigate: NavigateFunction) => void
+  onDismiss: () => void
   onSuccess?: (disk: Disk) => void
   unavailableDiskNames?: string[]
 }
@@ -75,14 +70,13 @@ export function CreateDiskSideModalForm({
   unavailableDiskNames = [],
 }: CreateSideModalFormProps) {
   const queryClient = useApiQueryClient()
-  const navigate = useNavigate()
 
   const createDisk = useApiMutation('diskCreate', {
     onSuccess(data) {
       queryClient.invalidateQueries('diskList')
       addToast(<>Disk <HL>{data.name}</HL> created</>) // prettier-ignore
       onSuccess?.(data)
-      onDismiss(navigate)
+      onDismiss()
     },
   })
 
@@ -123,7 +117,7 @@ export function CreateDiskSideModalForm({
       form={form}
       formType="create"
       resourceName="disk"
-      onDismiss={() => onDismiss(navigate)}
+      onDismiss={onDismiss}
       onSubmit={({ size, ...rest }) => {
         const body = { size: size * GiB, ...rest }
         if (onSubmit) {

@@ -15,44 +15,11 @@ import {
 } from 'react-router'
 
 import { NotFound } from './components/ErrorPage'
-import { CreateDiskSideModalForm } from './forms/disk-create'
-import { ProjectImageEdit, SiloImageEdit } from './forms/image-edit'
-import { CreateImageFromSnapshotSideModalForm } from './forms/image-from-snapshot'
-import * as ImageCreate from './forms/image-upload'
-import { CreateIpPoolSideModalForm } from './forms/ip-pool-create'
-import * as IpPoolEdit from './forms/ip-pool-edit'
-import * as IpPoolAddRange from './forms/ip-pool-range-add'
-import * as ProjectCreate from './forms/project-create'
-import { EditProjectSideModalForm } from './forms/project-edit'
-import * as SnapshotCreate from './forms/snapshot-create'
-import * as SSHKeyCreate from './forms/ssh-key-create'
-import { CreateSubnetForm } from './forms/subnet-create'
-import { EditSubnetForm } from './forms/subnet-edit'
-import { CreateVpcSideModalForm } from './forms/vpc-create'
-import * as RouterCreate from './forms/vpc-router-create'
-import { EditRouterSideModalForm } from './forms/vpc-router-edit'
-import { CreateRouterRouteSideModalForm } from './forms/vpc-router-route-create'
-import { EditRouterRouteSideModalForm } from './forms/vpc-router-route-edit'
-import { makeCrumb, titleCrumb, type Crumb } from './hooks/use-crumbs'
+import { makeCrumb, type Crumb } from './hooks/use-crumbs'
 import { getInstanceSelector, getProjectSelector, getVpcSelector } from './hooks/use-params'
-import * as ProjectAccess from './pages/project/access/ProjectAccessPage'
-import { ImagesPage } from './pages/project/images/ImagesPage'
-import * as ConnectTab from './pages/project/instances/ConnectTab'
-import { InstancePage } from './pages/project/instances/InstancePage'
-import * as NetworkingTab from './pages/project/instances/NetworkingTab'
-import * as SettingsTab from './pages/project/instances/SettingsTab'
-import * as StorageTab from './pages/project/instances/StorageTab'
-import { SnapshotsPage } from './pages/project/snapshots/SnapshotsPage'
 import * as VpcRoutersTab from './pages/project/vpcs//VpcRoutersTab'
-import { EditInternetGatewayForm } from './pages/project/vpcs/internet-gateway-edit'
-import * as RouterPage from './pages/project/vpcs/RouterPage'
-import { VpcFirewallRulesTab } from './pages/project/vpcs/VpcFirewallRulesTab'
-import { VpcInternetGatewaysTab } from './pages/project/vpcs/VpcGatewaysTab'
 import { VpcPage } from './pages/project/vpcs/VpcPage'
 import { VpcsPage } from './pages/project/vpcs/VpcsPage'
-import * as VpcSubnetsTab from './pages/project/vpcs/VpcSubnetsTab'
-import * as Projects from './pages/ProjectsPage'
-import * as SiloAccess from './pages/SiloAccessPage'
 import * as DisksTab from './pages/system/inventory/DisksTab'
 import { InventoryPage } from './pages/system/inventory/InventoryPage'
 import * as SledInstances from './pages/system/inventory/sled/SledInstancesTab'
@@ -61,8 +28,6 @@ import * as SledsTab from './pages/system/inventory/SledsTab'
 import * as IpPool from './pages/system/networking/IpPoolPage'
 import * as IpPools from './pages/system/networking/IpPoolsPage'
 import * as SiloImages from './pages/system/SiloImagesPage'
-import * as SiloPage from './pages/system/silos/SiloPage'
-import * as SilosPage from './pages/system/silos/SilosPage'
 import { truncate } from './ui/lib/Truncate'
 import { pb } from './util/path-builder'
 
@@ -127,12 +92,15 @@ export const routes = createRoutesFromElements(
               lazy={() => import('./forms/ssh-key-edit').then(convert)}
             />
           </Route>
-          <Route path="ssh-keys-new" {...SSHKeyCreate} handle={titleCrumb('New SSH key')} />
+          <Route
+            path="ssh-keys-new"
+            lazy={() => import('./pages/settings/ssh-key-create').then(convert)}
+          />
         </Route>
       </Route>
 
       <Route path="system" lazy={() => import('./layouts/SystemLayout').then(convert)}>
-        <Route {...SilosPage} handle={makeCrumb('Silos', pb.silos())}>
+        <Route lazy={() => import('./pages/system/silos/SilosPage').then(convert)}>
           <Route path="silos" element={null} />
           <Route
             path="silos-new"
@@ -140,7 +108,10 @@ export const routes = createRoutesFromElements(
           />
         </Route>
         <Route path="silos" handle={{ crumb: 'Silos' }}>
-          <Route path=":silo" {...SiloPage} handle={makeCrumb((p) => p.silo!)}>
+          <Route
+            path=":silo"
+            lazy={() => import('./pages/system/silos/SiloPage').then(convert)}
+          >
             <Route
               path="idps-new"
               lazy={() => import('./forms/idp/create').then(convert)}
@@ -190,13 +161,19 @@ export const routes = createRoutesFromElements(
           <Route index element={<Navigate to="ip-pools" replace />} />
           <Route {...IpPools} handle={{ crumb: 'IP Pools' }}>
             <Route path="ip-pools" element={null} />
-            <Route path="ip-pools-new" element={<CreateIpPoolSideModalForm />} />
+            <Route
+              path="ip-pools-new"
+              lazy={() => import('./forms/ip-pool-create').then(convert)}
+            />
           </Route>
         </Route>
         <Route path="networking/ip-pools" handle={{ crumb: 'IP Pools' }}>
           <Route path=":pool" {...IpPool} handle={makeCrumb((p) => p.pool!)}>
-            <Route path="edit" {...IpPoolEdit} handle={{ crumb: 'Edit IP pool' }} />
-            <Route path="ranges-add" {...IpPoolAddRange} handle={titleCrumb('Add Range')} />
+            <Route path="edit" lazy={() => import('./forms/ip-pool-edit').then(convert)} />
+            <Route
+              path="ranges-add"
+              lazy={() => import('./forms/ip-pool-range-add').then(convert)}
+            />
           </Route>
         </Route>
       </Route>
@@ -205,7 +182,10 @@ export const routes = createRoutesFromElements(
 
       <Route lazy={() => import('./layouts/SiloLayout').then(convert)}>
         <Route path="images" {...SiloImages} handle={{ crumb: 'Images' }}>
-          <Route path=":image/edit" {...SiloImageEdit} handle={titleCrumb('Edit Image')} />
+          <Route
+            path=":image/edit"
+            lazy={() => import('./pages/system/SiloImageEdit').then(convert)}
+          />
         </Route>
         <Route
           path="utilization"
@@ -223,22 +203,19 @@ export const routes = createRoutesFromElements(
         />
 
         {/* these are here instead of under projects because they need to use SiloLayout */}
-        <Route {...Projects} handle={makeCrumb('Projects', pb.projects())}>
+        <Route lazy={() => import('./pages/ProjectsPage').then(convert)}>
           <Route path="projects" element={null} />
           <Route
             path="projects-new"
-            {...ProjectCreate}
-            handle={titleCrumb('New project')}
+            lazy={() => import('./forms/project-create').then(convert)}
           />
           <Route
             path="projects/:project/edit"
-            element={<EditProjectSideModalForm />}
-            loader={EditProjectSideModalForm.loader}
-            handle={titleCrumb('Edit project')}
+            lazy={() => import('./forms/project-edit').then(convert)}
           />
         </Route>
 
-        <Route path="access" {...SiloAccess} handle={{ crumb: 'Access' }} />
+        <Route path="access" lazy={() => import('./pages/SiloAccessPage').then(convert)} />
       </Route>
 
       {/* PROJECT */}
@@ -281,12 +258,18 @@ export const routes = createRoutesFromElements(
               )}
             >
               <Route index element={<Navigate to="storage" replace />} />
-              <Route element={<InstancePage />} loader={InstancePage.loader}>
-                <Route {...StorageTab} path="storage" handle={{ crumb: 'Storage' }} />
+              <Route
+                lazy={() => import('./pages/project/instances/InstancePage').then(convert)}
+              >
                 <Route
-                  {...NetworkingTab}
+                  path="storage"
+                  lazy={() => import('./pages/project/instances/StorageTab').then(convert)}
+                />
+                <Route
                   path="networking"
-                  handle={{ crumb: 'Networking' }}
+                  lazy={() =>
+                    import('./pages/project/instances/NetworkingTab').then(convert)
+                  }
                 />
                 <Route
                   path="metrics"
@@ -313,8 +296,14 @@ export const routes = createRoutesFromElements(
                     handle={{ crumb: 'Network' }}
                   />
                 </Route>
-                <Route {...ConnectTab} path="connect" handle={{ crumb: 'Connect' }} />
-                <Route {...SettingsTab} path="settings" handle={{ crumb: 'Settings' }} />
+                <Route
+                  path="connect"
+                  lazy={() => import('./pages/project/instances/ConnectTab').then(convert)}
+                />
+                <Route
+                  path="settings"
+                  lazy={() => import('./pages/project/instances/SettingsTab').then(convert)}
+                />
               </Route>
             </Route>
           </Route>
@@ -326,8 +315,7 @@ export const routes = createRoutesFromElements(
             <Route path="vpcs" element={null} />
             <Route
               path="vpcs-new"
-              element={<CreateVpcSideModalForm />}
-              handle={titleCrumb('New VPC')}
+              lazy={() => import('./forms/vpc-create').then(convert)}
             />
           </Route>
           <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
@@ -341,12 +329,22 @@ export const routes = createRoutesFromElements(
               <Route element={<VpcPage />} loader={VpcPage.loader}>
                 <Route
                   index
-                  element={<Navigate to="firewall-rules" replace />}
-                  loader={VpcFirewallRulesTab.loader}
+                  // janky one. we only want the loader. we'll have to make this
+                  // its own file eventually. unfortunately the loader can't
+                  // do redirect() with a replace
+                  lazy={() =>
+                    import('./pages/project/vpcs/VpcFirewallRulesTab')
+                      .then(convert)
+                      .then(({ loader }) => ({
+                        loader,
+                        Component: () => <Navigate to="firewall-rules" replace />,
+                      }))
+                  }
                 />
                 <Route
-                  element={<VpcFirewallRulesTab />}
-                  loader={VpcFirewallRulesTab.loader}
+                  lazy={() =>
+                    import('./pages/project/vpcs/VpcFirewallRulesTab').then(convert)
+                  }
                 >
                   <Route
                     path="edit"
@@ -354,10 +352,10 @@ export const routes = createRoutesFromElements(
                   />
                   <Route
                     path="firewall-rules"
-                    handle={{ crumb: 'Firewall Rules' }}
                     element={null}
+                    handle={{ crumb: 'Firewall Rules' }}
                   />
-                  <Route handle={{ crumb: 'Firewall Rules' }} element={null}>
+                  <Route element={null} handle={{ crumb: 'Firewall Rules' }}>
                     <Route
                       path="firewall-rules-new/:rule?"
                       lazy={() => import('./forms/firewall-rules-create').then(convert)}
@@ -368,46 +366,40 @@ export const routes = createRoutesFromElements(
                     />
                   </Route>
                 </Route>
-                <Route {...VpcSubnetsTab} handle={{ crumb: 'Subnets' }}>
+                <Route
+                  lazy={() => import('./pages/project/vpcs/VpcSubnetsTab').then(convert)}
+                >
                   <Route path="subnets" element={null} />
                   <Route
                     path="subnets-new"
-                    element={<CreateSubnetForm />}
-                    handle={titleCrumb('New Subnet')}
+                    lazy={() => import('./forms/subnet-create').then(convert)}
                   />
                   <Route
                     path="subnets/:subnet/edit"
-                    element={<EditSubnetForm />}
-                    loader={EditSubnetForm.loader}
-                    handle={titleCrumb('Edit Subnet')}
+                    lazy={() => import('./forms/subnet-edit').then(convert)}
                   />
                 </Route>
                 <Route {...VpcRoutersTab} handle={{ crumb: 'Routers' }}>
                   <Route path="routers" element={null}>
                     <Route
                       path=":router/edit"
-                      element={<EditRouterSideModalForm />}
-                      loader={EditRouterSideModalForm.loader}
-                      handle={titleCrumb('Edit Router')}
+                      lazy={() => import('./forms/vpc-router-edit').then(convert)}
                     />
                   </Route>
                   <Route
                     path="routers-new"
-                    {...RouterCreate}
-                    handle={titleCrumb('New Router')}
+                    lazy={() => import('./forms/vpc-router-create').then(convert)}
                   />
                 </Route>
                 <Route
                   path="internet-gateways"
-                  handle={{ crumb: 'Internet Gateways' }}
-                  loader={VpcInternetGatewaysTab.loader}
-                  element={<VpcInternetGatewaysTab />}
+                  lazy={() => import('./pages/project/vpcs/VpcGatewaysTab').then(convert)}
                 >
                   <Route
                     path=":gateway"
-                    element={<EditInternetGatewayForm />}
-                    loader={EditInternetGatewayForm.loader}
-                    handle={titleCrumb('Edit Internet Gateway')}
+                    lazy={() =>
+                      import('./pages/project/vpcs/internet-gateway-edit').then(convert)
+                    }
                   />
                 </Route>
               </Route>
@@ -416,20 +408,19 @@ export const routes = createRoutesFromElements(
           <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
             <Route path=":vpc" handle={makeCrumb((p) => p.vpc!)}>
               <Route path="routers" handle={{ crumb: 'Routers' }}>
-                <Route path=":router" {...RouterPage} handle={makeCrumb((p) => p.router!)}>
+                <Route
+                  path=":router"
+                  lazy={() => import('./pages/project/vpcs/RouterPage').then(convert)}
+                >
                   <Route handle={{ crumb: 'Routes' }}>
                     <Route index element={null} />
                     <Route
                       path="routes-new"
-                      element={<CreateRouterRouteSideModalForm />}
-                      loader={CreateRouterRouteSideModalForm.loader}
-                      handle={titleCrumb('New Route')}
+                      lazy={() => import('./forms/vpc-router-route-create').then(convert)}
                     />
                     <Route
                       path="routes/:route/edit"
-                      element={<EditRouterRouteSideModalForm />}
-                      loader={EditRouterRouteSideModalForm.loader}
-                      handle={titleCrumb('Edit Route')}
+                      lazy={() => import('./forms/vpc-router-route-edit').then(convert)}
                     />
                   </Route>
                 </Route>
@@ -455,46 +446,37 @@ export const routes = createRoutesFromElements(
             <Route path="disks" element={null} />
             <Route
               path="disks-new"
-              element={
-                // relative nav is allowed just this once because the route is
-                // literally right there
-                <CreateDiskSideModalForm onDismiss={(navigate) => navigate('../disks')} />
-              }
-              handle={titleCrumb('New disk')}
+              lazy={() => import('./pages/project/disks/DiskCreate').then(convert)}
             />
           </Route>
           <Route
-            element={<SnapshotsPage />}
-            handle={makeCrumb('Snapshots', (p) => pb.snapshots(getProjectSelector(p)))}
-            loader={SnapshotsPage.loader}
+            lazy={() => import('./pages/project/snapshots/SnapshotsPage').then(convert)}
           >
             <Route path="snapshots" element={null} />
             <Route
               path="snapshots-new"
-              {...SnapshotCreate}
-              handle={titleCrumb('New snapshot')}
+              lazy={() => import('./forms/snapshot-create').then(convert)}
             />
             <Route
               path="snapshots/:snapshot/images-new"
-              element={<CreateImageFromSnapshotSideModalForm />}
-              loader={CreateImageFromSnapshotSideModalForm.loader}
-              handle={titleCrumb('Create image from snapshot')}
+              lazy={() => import('./forms/image-from-snapshot').then(convert)}
+            />
+          </Route>
+          <Route lazy={() => import('./pages/project/images/ImagesPage').then(convert)}>
+            <Route path="images" element={null} />
+            <Route
+              path="images-new"
+              lazy={() => import('./forms/image-upload').then(convert)}
+            />
+            <Route
+              path="images/:image/edit"
+              lazy={() => import('./pages/project/images/ProjectImageEdit').then(convert)}
             />
           </Route>
           <Route
-            element={<ImagesPage />}
-            handle={makeCrumb('Images', (p) => pb.projectImages(getProjectSelector(p)))}
-            loader={ImagesPage.loader}
-          >
-            <Route path="images" element={null} />
-            <Route path="images-new" {...ImageCreate} handle={titleCrumb('Upload image')} />
-            <Route
-              path="images/:image/edit"
-              {...ProjectImageEdit}
-              handle={titleCrumb('Edit Image')}
-            />
-          </Route>
-          <Route path="access" {...ProjectAccess} handle={{ crumb: 'Access' }} />
+            path="access"
+            lazy={() => import('./pages/project/access/ProjectAccessPage').then(convert)}
+          />
         </Route>
       </Route>
     </Route>

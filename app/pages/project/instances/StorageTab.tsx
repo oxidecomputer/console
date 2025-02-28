@@ -41,7 +41,7 @@ import { links } from '~/util/links'
 
 import { fancifyStates } from './common'
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   const selector = { path: { instance }, query: { project } }
   await Promise.all([
@@ -75,8 +75,9 @@ const staticCols = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-Component.displayName = 'StorageTab'
-export function Component() {
+export const handle = { crumb: 'Storage' }
+
+export default function StorageTab() {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
   const [showDiskAttach, setShowDiskAttach] = useState(false)
 

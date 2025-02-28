@@ -12,6 +12,7 @@ import { useApiMutation, useApiQueryClient, type IpRange } from '@oxide/api'
 
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { useIpPoolSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Message } from '~/ui/lib/Message'
@@ -59,8 +60,9 @@ function resolver(values: IpRange) {
   return Object.keys(errors).length > 0 ? { values: {}, errors } : { values, errors: {} }
 }
 
-Component.displayName = 'IpPoolAddRange'
-export function Component() {
+export const handle = titleCrumb('Add Range')
+
+export default function IpPoolAddRange() {
   const { pool } = useIpPoolSelector()
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()

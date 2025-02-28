@@ -22,6 +22,7 @@ import { Snapshots16Icon, Snapshots24Icon } from '@oxide/design-system/icons/rea
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { SnapshotStateBadge } from '~/components/StateBadge'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
@@ -56,7 +57,7 @@ const EmptyState = () => (
 
 const snapshotList = (project: string) => getListQFn('snapshotList', { query: { project } })
 
-SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
   await Promise.all([
     queryClient.prefetchQuery(snapshotList(project).optionsFn()),
@@ -84,6 +85,8 @@ SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
+export const handle = makeCrumb('Snapshots', (p) => pb.snapshots(getProjectSelector(p)))
+
 const colHelper = createColumnHelper<Snapshot>()
 const staticCols = [
   colHelper.accessor('name', {}),
@@ -99,7 +102,7 @@ const staticCols = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-export function SnapshotsPage() {
+export default function SnapshotsPage() {
   const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
   const navigate = useNavigate()

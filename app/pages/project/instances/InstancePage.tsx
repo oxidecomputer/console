@@ -73,7 +73,7 @@ async function refreshData() {
   ])
 }
 
-InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('instanceView', {
@@ -120,7 +120,7 @@ const PollingSpinner = () => (
   </Tooltip>
 )
 
-export function InstancePage() {
+export default function InstancePage() {
   const instanceSelector = useInstanceSelector()
   const [resizeInstance, setResizeInstance] = useState(false)
 

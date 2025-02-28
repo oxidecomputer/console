@@ -100,13 +100,13 @@ const staticColumns = [
 
 const rulesView = (query: PP.Vpc) => apiq('vpcFirewallRulesView', { query })
 
-VpcFirewallRulesTab.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcSelector(params)
   await queryClient.prefetchQuery(rulesView({ project, vpc }))
   return null
 }
 
-export function VpcFirewallRulesTab() {
+export default function VpcFirewallRulesTab() {
   const vpcSelector = useVpcSelector()
 
   const { data } = usePrefetchedQuery(rulesView(vpcSelector))

@@ -27,6 +27,7 @@ import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { routeFormMessage } from '~/forms/vpc-router-route-common'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
@@ -43,12 +44,14 @@ import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
+export const handle = makeCrumb((p) => p.router!)
+
 const routerView = ({ project, vpc, router }: PP.VpcRouter) =>
   apiq('vpcRouterView', { path: { router }, query: { vpc, project } })
 
 const routeList = (query: PP.VpcRouter) => getListQFn('vpcRouterRouteList', { query })
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const routerSelector = getVpcRouterSelector(params)
   await Promise.all([
     queryClient.prefetchQuery(routerView(routerSelector)),
@@ -82,8 +85,7 @@ const RouterRouteTypeValueBadge = ({
   )
 }
 
-Component.displayName = 'RouterPage'
-export function Component() {
+export default function RouterPage() {
   const { project, vpc, router } = useVpcRouterSelector()
   const { data: routerData } = usePrefetchedQuery(routerView({ project, vpc, router }))
 

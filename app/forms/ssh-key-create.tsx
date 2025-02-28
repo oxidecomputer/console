@@ -29,8 +29,7 @@ type Props = {
   message?: React.ReactNode
 }
 
-Component.displayName = 'SSHKeyCreate'
-export function Component({ onDismiss, message }: Props) {
+export function SSHKeyCreate({ onDismiss, message }: Props) {
   const queryClient = useApiQueryClient()
   const navigate = useNavigate()
 

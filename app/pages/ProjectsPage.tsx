@@ -13,6 +13,7 @@ import { apiq, getListQFn, queryClient, useApiMutation, type Project } from '@ox
 import { Folder16Icon, Folder24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { makeLinkCell } from '~/table/cells/LinkCell'
@@ -38,7 +39,7 @@ const EmptyState = () => (
 
 const projectList = getListQFn('projectList', {})
 
-export async function loader() {
+export async function clientLoader() {
   // fetchQuery instead of prefetchQuery means errors blow up here instead of
   // waiting to hit the invariant in the useQuery call. We may end up doing this
   // everywhere, but here in particular it is needed to trigger the silo group
@@ -46,6 +47,8 @@ export async function loader() {
   await queryClient.fetchQuery(projectList.optionsFn())
   return null
 }
+
+export const handle = makeCrumb('Projects', pb.projects())
 
 const colHelper = createColumnHelper<Project>()
 const staticCols = [
@@ -56,8 +59,7 @@ const staticCols = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-Component.displayName = 'ProjectsPage'
-export function Component() {
+export default function ProjectsPage() {
   const navigate = useNavigate()
 
   const { mutateAsync: deleteProject } = useApiMutation('projectDelete', {

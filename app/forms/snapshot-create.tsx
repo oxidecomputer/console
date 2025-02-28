@@ -22,6 +22,7 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { toComboboxItems } from '~/ui/lib/Combobox'
@@ -42,8 +43,9 @@ const defaultValues: SnapshotCreate = {
   name: '',
 }
 
-Component.displayName = 'SnapshotCreate'
-export function Component() {
+export const handle = titleCrumb('New snapshot')
+
+export default function SnapshotCreate() {
   const queryClient = useApiQueryClient()
   const projectSelector = useProjectSelector()
   const navigate = useNavigate()
