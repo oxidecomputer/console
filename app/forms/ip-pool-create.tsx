@@ -14,6 +14,7 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { addToast } from '~/stores/toast'
 import { Message } from '~/ui/lib/Message'
 import { pb } from '~/util/path-builder'
@@ -23,7 +24,9 @@ const defaultValues: IpPoolCreate = {
   description: '',
 }
 
-export function CreateIpPoolSideModalForm() {
+export const handle = titleCrumb('New IP pool')
+
+export default function CreateIpPoolSideModalForm() {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
 

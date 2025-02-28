@@ -15,13 +15,7 @@ import {
 } from 'react-router'
 
 import { NotFound } from './components/ErrorPage'
-import { CreateDiskSideModalForm } from './forms/disk-create'
 import { ProjectImageEdit, SiloImageEdit } from './forms/image-edit'
-import { CreateIpPoolSideModalForm } from './forms/ip-pool-create'
-import * as IpPoolEdit from './forms/ip-pool-edit'
-import * as IpPoolAddRange from './forms/ip-pool-range-add'
-import { CreateVpcSideModalForm } from './forms/vpc-create'
-import { EditRouterSideModalForm } from './forms/vpc-router-edit'
 import { makeCrumb, titleCrumb, type Crumb } from './hooks/use-crumbs'
 import { getInstanceSelector, getProjectSelector, getVpcSelector } from './hooks/use-params'
 import * as ConnectTab from './pages/project/instances/ConnectTab'
@@ -173,13 +167,19 @@ export const routes = createRoutesFromElements(
           <Route index element={<Navigate to="ip-pools" replace />} />
           <Route {...IpPools} handle={{ crumb: 'IP Pools' }}>
             <Route path="ip-pools" element={null} />
-            <Route path="ip-pools-new" element={<CreateIpPoolSideModalForm />} />
+            <Route
+              path="ip-pools-new"
+              lazy={() => import('./forms/ip-pool-create').then(convert)}
+            />
           </Route>
         </Route>
         <Route path="networking/ip-pools" handle={{ crumb: 'IP Pools' }}>
           <Route path=":pool" {...IpPool} handle={makeCrumb((p) => p.pool!)}>
-            <Route path="edit" {...IpPoolEdit} handle={{ crumb: 'Edit IP pool' }} />
-            <Route path="ranges-add" {...IpPoolAddRange} handle={titleCrumb('Add Range')} />
+            <Route path="edit" lazy={() => import('./forms/ip-pool-edit').then(convert)} />
+            <Route
+              path="ranges-add"
+              lazy={() => import('./forms/ip-pool-range-add').then(convert)}
+            />
           </Route>
         </Route>
       </Route>
@@ -306,8 +306,7 @@ export const routes = createRoutesFromElements(
             <Route path="vpcs" element={null} />
             <Route
               path="vpcs-new"
-              element={<CreateVpcSideModalForm />}
-              handle={titleCrumb('New VPC')}
+              lazy={() => import('./forms/vpc-create').then(convert)}
             />
           </Route>
           <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
@@ -375,9 +374,7 @@ export const routes = createRoutesFromElements(
                   <Route path="routers" element={null}>
                     <Route
                       path=":router/edit"
-                      element={<EditRouterSideModalForm />}
-                      loader={EditRouterSideModalForm.loader}
-                      handle={titleCrumb('Edit Router')}
+                      lazy={() => import('./forms/vpc-router-edit').then(convert)}
                     />
                   </Route>
                   <Route
@@ -440,12 +437,7 @@ export const routes = createRoutesFromElements(
             <Route path="disks" element={null} />
             <Route
               path="disks-new"
-              element={
-                // relative nav is allowed just this once because the route is
-                // literally right there
-                <CreateDiskSideModalForm onDismiss={(navigate) => navigate('../disks')} />
-              }
-              handle={titleCrumb('New disk')}
+              lazy={() => import('./pages/project/disks/DiskCreate').then(convert)}
             />
           </Route>
           <Route

@@ -15,6 +15,7 @@ import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
@@ -25,7 +26,9 @@ const defaultValues: VpcCreate = {
   dnsName: '',
 }
 
-export function CreateVpcSideModalForm() {
+export const handle = titleCrumb('New VPC')
+
+export default function CreateVpcSideModalForm() {
   const projectSelector = useProjectSelector()
   const queryClient = useApiQueryClient()
   const navigate = useNavigate()
