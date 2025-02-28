@@ -19,7 +19,7 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
-import { titleCrumb } from '~/hooks/use-crumbs'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { getIpPoolSelector, useIpPoolSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
@@ -32,7 +32,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-export const handle = titleCrumb('Edit IP pool')
+export const handle = makeCrumb('Edit IP pool')
 
 export default function EditIpPoolSideModalForm() {
   const queryClient = useApiQueryClient()
