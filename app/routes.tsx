@@ -21,11 +21,8 @@ import * as VpcRoutersTab from './pages/project/vpcs//VpcRoutersTab'
 import { VpcPage } from './pages/project/vpcs/VpcPage'
 import { VpcsPage } from './pages/project/vpcs/VpcsPage'
 import * as DisksTab from './pages/system/inventory/DisksTab'
-import { InventoryPage } from './pages/system/inventory/InventoryPage'
 import * as SledInstances from './pages/system/inventory/sled/SledInstancesTab'
 import * as SledPage from './pages/system/inventory/sled/SledPage'
-import * as IpPool from './pages/system/networking/IpPoolPage'
-import * as IpPools from './pages/system/networking/IpPoolsPage'
 import * as SiloImages from './pages/system/SiloImagesPage'
 import { truncate } from './ui/lib/Truncate'
 import { pb } from './util/path-builder'
@@ -128,9 +125,7 @@ export const routes = createRoutesFromElements(
         />
         <Route
           path="inventory"
-          element={<InventoryPage />}
-          loader={InventoryPage.loader}
-          handle={makeCrumb('Inventory', pb.sledInventory())}
+          lazy={() => import('./pages/system/inventory/InventoryPage.tsx').then(convert)}
         >
           <Route
             index
@@ -171,7 +166,7 @@ export const routes = createRoutesFromElements(
         </Route>
         <Route path="networking">
           <Route index element={<Navigate to="ip-pools" replace />} />
-          <Route {...IpPools} handle={{ crumb: 'IP Pools' }}>
+          <Route lazy={() => import('./pages/system/networking/IpPoolsPage')}>
             <Route path="ip-pools" element={null} />
             <Route
               path="ip-pools-new"
@@ -180,7 +175,7 @@ export const routes = createRoutesFromElements(
           </Route>
         </Route>
         <Route path="networking/ip-pools" handle={{ crumb: 'IP Pools' }}>
-          <Route path=":pool" {...IpPool} handle={makeCrumb((p) => p.pool!)}>
+          <Route path=":pool" lazy={() => import('./pages/system/networking/IpPoolPage')}>
             <Route path="edit" lazy={() => import('./forms/ip-pool-edit').then(convert)} />
             <Route
               path="ranges-add"
