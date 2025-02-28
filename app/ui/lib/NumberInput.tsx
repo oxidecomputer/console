@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import React, { useRef } from 'react'
+import { useRef, type Ref } from 'react'
 import {
   useButton,
   useLocale,
@@ -17,15 +17,13 @@ import {
 import { mergeRefs } from 'react-merge-refs'
 import { useNumberFieldState } from 'react-stately'
 
-export type NumberInputProps = {
+type NumberInputProps = AriaNumberFieldProps & {
   className?: string
   error?: boolean
+  ref?: Ref<HTMLInputElement>
 }
 
-export const NumberInput = React.forwardRef<
-  HTMLInputElement,
-  AriaNumberFieldProps & NumberInputProps
->((props: AriaNumberFieldProps & NumberInputProps, forwardedRef) => {
+export function NumberInput(props: NumberInputProps) {
   const { locale } = useLocale()
   const state = useNumberFieldState({ ...props, locale })
 
@@ -47,7 +45,7 @@ export const NumberInput = React.forwardRef<
     >
       <input
         {...inputProps}
-        ref={mergeRefs([forwardedRef, inputRef])}
+        ref={mergeRefs([props.ref, inputRef])}
         className={cn(
           `w-full rounded border-none px-3 py-[0.6875rem] !outline-offset-1 text-sans-md text-raise bg-default placeholder:text-tertiary focus:outline-none disabled:cursor-not-allowed disabled:text-secondary disabled:bg-disabled`,
           props.error && 'focus-error',
@@ -65,7 +63,7 @@ export const NumberInput = React.forwardRef<
       </div>
     </div>
   )
-})
+}
 
 function IncrementButton(props: AriaButtonProps<'button'> & { className?: string }) {
   const ref = useRef(null)

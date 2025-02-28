@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { useId, type default as React } from 'react'
+import { useId } from 'react'
 import {
   useController,
   type Control,

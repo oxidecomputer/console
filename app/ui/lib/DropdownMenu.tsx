@@ -14,7 +14,7 @@ import {
   type MenuItemsProps,
 } from '@headlessui/react'
 import cn from 'classnames'
-import { forwardRef, type ForwardedRef, type ReactNode } from 'react'
+import { type ReactNode, type Ref } from 'react'
 import { Link } from 'react-router'
 
 export const Root = Menu
@@ -60,26 +60,24 @@ export function LinkItem({ className, to, children }: LinkItemProps) {
   )
 }
 
-type ButtonRef = ForwardedRef<HTMLButtonElement>
 type ItemProps = {
   className?: string
   onSelect?: () => void
   children: ReactNode
   disabled?: boolean
+  ref?: Ref<HTMLButtonElement>
 }
 
 // need to forward ref because of tooltips on disabled menu buttons
-export const Item = forwardRef(
-  ({ className, onSelect, children, disabled }: ItemProps, ref: ButtonRef) => (
-    <MenuItem disabled={disabled}>
-      <button
-        type="button"
-        className={cn('DropdownMenuItem ox-menu-item', className)}
-        ref={ref}
-        onClick={onSelect}
-      >
-        {children}
-      </button>
-    </MenuItem>
-  )
+export const Item = ({ className, onSelect, children, disabled, ref }: ItemProps) => (
+  <MenuItem disabled={disabled}>
+    <button
+      type="button"
+      className={cn('DropdownMenuItem ox-menu-item', className)}
+      ref={ref}
+      onClick={onSelect}
+    >
+      {children}
+    </button>
+  </MenuItem>
 )
