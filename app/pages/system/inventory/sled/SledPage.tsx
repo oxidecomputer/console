@@ -12,21 +12,26 @@ import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Servers24Icon } from '@oxide/design-system/icons/react'
 
 import { RouteTabs, Tab } from '~/components/RouteTabs'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { requireSledParams, useSledParams } from '~/hooks/use-params'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { truncate } from '~/ui/lib/Truncate'
 import { pb } from '~/util/path-builder'
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { sledId } = requireSledParams(params)
   await apiQueryClient.prefetchQuery('sledView', {
     path: { sledId },
   })
   return null
 }
+export const handle = makeCrumb(
+  (p) => truncate(p.sledId!, 12, 'middle'),
+  (p) => pb.sled({ sledId: p.sledId! })
+)
 
-Component.displayName = 'SledPage'
-export function Component() {
+export default function SledPage() {
   const { sledId } = useSledParams()
   const { data: sled } = usePrefetchedApiQuery('sledView', { path: { sledId } })
 

@@ -21,10 +21,7 @@ import * as VpcRoutersTab from './pages/project/vpcs//VpcRoutersTab'
 import { VpcPage } from './pages/project/vpcs/VpcPage'
 import { VpcsPage } from './pages/project/vpcs/VpcsPage'
 import * as DisksTab from './pages/system/inventory/DisksTab'
-import * as SledInstances from './pages/system/inventory/sled/SledInstancesTab'
-import * as SledPage from './pages/system/inventory/sled/SledPage'
 import * as SiloImages from './pages/system/SiloImagesPage'
-import { truncate } from './ui/lib/Truncate'
 import { pb } from './util/path-builder'
 
 // hack because RR doesn't export the redirect type
@@ -149,18 +146,25 @@ export const routes = createRoutesFromElements(
             {/* a crumb for the sled ID looks ridiculous, unfortunately */}
             <Route
               path=":sledId"
-              {...SledPage}
-              handle={makeCrumb(
-                (p) => truncate(p.sledId!, 12, 'middle'),
-                (p) => pb.sled({ sledId: p.sledId! })
-              )}
+              lazy={() => import('./pages/system/inventory/sled/SledPage')}
             >
               <Route
                 index
-                element={<Navigate to="instances" replace />}
-                loader={SledInstances.loader}
+                lazy={() =>
+                  import('./pages/system/inventory/sled/SledInstancesTab')
+                    .then(convert)
+                    .then(({ loader }) => ({
+                      loader,
+                      Component: () => <Navigate to="instances" replace />,
+                    }))
+                }
               />
-              <Route path="instances" handle={{ crumb: 'Instances' }} {...SledInstances} />
+              <Route
+                path="instances"
+                lazy={() =>
+                  import('./pages/system/inventory/sled/SledInstancesTab').then(convert)
+                }
+              />
             </Route>
           </Route>
         </Route>
