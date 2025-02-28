@@ -49,63 +49,56 @@ export type TextInputBaseProps = Merge<
   }
 >
 
-export const TextInput = React.forwardRef<
-  HTMLInputElement,
-  TextInputBaseProps & TextAreaProps
->(
-  (
-    {
-      type = 'text',
-      value,
-      error,
-      className,
-      disabled,
-      fieldClassName,
-      copyable,
-      as: asProp,
-      ...fieldProps
-    },
-    ref
-  ) => {
-    const Component = asProp || 'input'
-    return (
-      <div
+export function TextInput({
+  type = 'text',
+  value,
+  error,
+  className,
+  disabled,
+  fieldClassName,
+  copyable,
+  as: asProp,
+  ref,
+  ...fieldProps
+}: TextInputBaseProps & TextAreaProps) {
+  const Component = asProp || 'input'
+  return (
+    <div
+      className={cn(
+        'flex items-center rounded border',
+        error
+          ? 'border-error-secondary hover:border-error'
+          : 'border-default hover:border-hover',
+        disabled && '!border-default',
+        className
+      )}
+    >
+      <Component
+        // @ts-expect-error this is fine, it's just mad because Component is a variable
+        ref={ref}
+        type={type}
+        value={value}
         className={cn(
-          'flex items-center rounded border',
-          error
-            ? 'border-error-secondary hover:border-error'
-            : 'border-default hover:border-hover',
-          disabled && '!border-default',
-          className
+          `w-full rounded border-none px-3 py-[0.6875rem] !outline-offset-1 text-sans-md text-raise bg-default placeholder:text-tertiary focus:outline-none disabled:cursor-not-allowed disabled:text-secondary disabled:bg-disabled`,
+          error && 'focus-error',
+          fieldClassName,
+          disabled && 'text-disabled bg-disabled',
+          copyable && 'pr-0'
         )}
-      >
-        <Component
-          // @ts-expect-error this is fine, it's just mad because Component is a variable
-          ref={ref}
-          type={type}
-          value={value}
-          className={cn(
-            `w-full rounded border-none px-3 py-[0.6875rem] !outline-offset-1 text-sans-md text-raise bg-default placeholder:text-tertiary focus:outline-none disabled:cursor-not-allowed disabled:text-secondary disabled:bg-disabled`,
-            error && 'focus-error',
-            fieldClassName,
-            disabled && 'text-disabled bg-disabled',
-            copyable && 'pr-0'
-          )}
-          aria-invalid={error}
-          disabled={disabled}
-          spellCheck={false}
-          {...fieldProps}
+        aria-invalid={error}
+        disabled={disabled}
+        spellCheck={false}
+        {...fieldProps}
+      />
+      {copyable && (
+        <CopyToClipboard
+          text={value || ''}
+          className="!h-10 rounded-none border-l border-solid px-4 bg-disabled border-default"
         />
-        {copyable && (
-          <CopyToClipboard
-            text={value || ''}
-            className="!h-10 rounded-none border-l border-solid px-4 bg-disabled border-default"
-          />
-        )}
-      </div>
-    )
-  }
-)
+      )}
+    </div>
+  )
+}
 
 type HintProps = {
   // ID required as a reminder to pass aria-describedby on TextField
