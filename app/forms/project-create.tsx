@@ -14,6 +14,7 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 
@@ -22,8 +23,9 @@ const defaultValues: ProjectCreate = {
   description: '',
 }
 
-Component.displayName = 'ProjectCreateSideModalForm'
-export function Component() {
+export const handle = titleCrumb('New project')
+
+export default function ProjectCreateSideModalForm() {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
 

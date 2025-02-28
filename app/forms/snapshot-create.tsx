@@ -9,6 +9,8 @@ import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
+import { titleCrumb } from '~/hooks/use-crumbs'
+
 import {
   diskCan,
   useApiMutation,
@@ -42,8 +44,9 @@ const defaultValues: SnapshotCreate = {
   name: '',
 }
 
-Component.displayName = 'SnapshotCreate'
-export function Component() {
+export const handle = titleCrumb('New snapshot')
+
+export default function SnapshotCreate() {
   const queryClient = useApiQueryClient()
   const projectSelector = useProjectSelector()
   const navigate = useNavigate()

@@ -14,6 +14,7 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { useVpcSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
@@ -23,8 +24,9 @@ const defaultValues: VpcRouterCreate = {
   description: '',
 }
 
-Component.displayName = 'RouterCreate'
-export function Component() {
+export const handle = titleCrumb('New Router')
+
+export default function RouterCreate() {
   const queryClient = useApiQueryClient()
   const vpcSelector = useVpcSelector()
   const navigate = useNavigate()

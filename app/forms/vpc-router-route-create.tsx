@@ -13,6 +13,7 @@ import { apiQueryClient, useApiMutation, useApiQueryClient } from '@oxide/api'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { RouteFormFields, type RouteFormValues } from '~/forms/vpc-router-route-common'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { ALL_ISH } from '~/util/consts'
@@ -25,7 +26,9 @@ const defaultValues: RouteFormValues = {
   target: { type: 'ip', value: '' },
 }
 
-CreateRouterRouteSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
+export const handle = titleCrumb('New Route')
+
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcRouterSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('vpcSubnetList', {
@@ -41,7 +44,7 @@ CreateRouterRouteSideModalForm.loader = async ({ params }: LoaderFunctionArgs) =
   return null
 }
 
-export function CreateRouterRouteSideModalForm() {
+export default function CreateRouterRouteSideModalForm() {
   const queryClient = useApiQueryClient()
   const routerSelector = useVpcRouterSelector()
   const navigate = useNavigate()

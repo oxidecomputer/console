@@ -16,6 +16,8 @@ import {
   type VpcSubnetUpdate,
 } from '@oxide/api'
 
+import { titleCrumb } from '~/hooks/use-crumbs'
+
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -35,13 +37,15 @@ import type * as PP from '~/util/path-params'
 const subnetView = ({ project, vpc, subnet }: PP.VpcSubnet) =>
   apiq('vpcSubnetView', { query: { project, vpc }, path: { subnet } })
 
-EditSubnetForm.loader = async ({ params }: LoaderFunctionArgs) => {
+export const handle = titleCrumb('Edit Subnet')
+
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const selector = getVpcSubnetSelector(params)
   await queryClient.prefetchQuery(subnetView(selector))
   return null
 }
 
-export function EditSubnetForm() {
+export default function EditSubnetForm() {
   const subnetSelector = useVpcSubnetSelector()
   const { project, vpc } = subnetSelector
 

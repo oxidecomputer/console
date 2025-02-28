@@ -22,6 +22,7 @@ import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { getProjectSnapshotSelector, useProjectSnapshotSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
@@ -38,13 +39,15 @@ const defaultValues: Omit<ImageCreate, 'source'> = {
 const snapshotView = ({ project, snapshot }: PP.Snapshot) =>
   apiq('snapshotView', { path: { snapshot }, query: { project } })
 
-CreateImageFromSnapshotSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, snapshot } = getProjectSnapshotSelector(params)
   await queryClient.prefetchQuery(snapshotView({ project, snapshot }))
   return null
 }
 
-export function CreateImageFromSnapshotSideModalForm() {
+export const handle = titleCrumb('Create image from snapshot')
+
+export default function CreateImageFromSnapshotSideModalForm() {
   const { snapshot, project } = useProjectSnapshotSelector()
   const { data } = usePrefetchedQuery(snapshotView({ project, snapshot }))
   const navigate = useNavigate()

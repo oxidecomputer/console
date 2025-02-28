@@ -10,6 +10,8 @@ import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import { apiq, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
 
+import { titleCrumb } from '~/hooks/use-crumbs'
+
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
@@ -21,13 +23,15 @@ import type * as PP from '~/util/path-params'
 
 const projectView = ({ project }: PP.Project) => apiq('projectView', { path: { project } })
 
-EditProjectSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
+export const handle = titleCrumb('Edit project')
+
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
   await queryClient.prefetchQuery(projectView({ project }))
   return null
 }
 
-export function EditProjectSideModalForm() {
+export default function EditProjectSideModalForm() {
   const navigate = useNavigate()
 
   const projectSelector = useProjectSelector()

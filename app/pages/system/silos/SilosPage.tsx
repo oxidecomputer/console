@@ -64,13 +64,14 @@ const staticCols = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-export async function loader() {
+export async function clientLoader() {
   await queryClient.prefetchQuery(siloList().optionsFn())
   return null
 }
 
-Component.displayName = 'SilosPage'
-export function Component() {
+export const handle = { crumb: 'Silos' }
+
+export default function SilosPage() {
   const navigate = useNavigate()
 
   const queryClient = useApiQueryClient()

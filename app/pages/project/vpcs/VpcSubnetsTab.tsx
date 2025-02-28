@@ -35,14 +35,15 @@ const colHelper = createColumnHelper<VpcSubnet>()
 
 const subnetList = (params: PP.Vpc) => getListQFn('vpcSubnetList', { query: params })
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcSelector(params)
   await queryClient.prefetchQuery(subnetList({ project, vpc }).optionsFn())
   return null
 }
 
-Component.displayName = 'VpcSubnetsTab'
-export function Component() {
+export const handle = { crumb: 'Subnets' }
+
+export default function VpcSubnetsTab() {
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 
