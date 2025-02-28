@@ -21,7 +21,6 @@ import * as VpcRoutersTab from './pages/project/vpcs//VpcRoutersTab'
 import { VpcPage } from './pages/project/vpcs/VpcPage'
 import { VpcsPage } from './pages/project/vpcs/VpcsPage'
 import * as DisksTab from './pages/system/inventory/DisksTab'
-import * as SiloImages from './pages/system/SiloImagesPage'
 import { pb } from './util/path-builder'
 
 // hack because RR doesn't export the redirect type
@@ -192,10 +191,13 @@ export const routes = createRoutesFromElements(
       <Route index element={<Navigate to={pb.projects()} replace />} />
 
       <Route lazy={() => import('./layouts/SiloLayout').then(convert)}>
-        <Route path="images" {...SiloImages} handle={{ crumb: 'Images' }}>
+        <Route
+          path="images"
+          lazy={() => import('./pages/SiloImagesPage.tsx').then(convert)}
+        >
           <Route
             path=":image/edit"
-            lazy={() => import('./pages/system/SiloImageEdit').then(convert)}
+            lazy={() => import('./pages/SiloImageEdit.tsx').then(convert)}
           />
         </Route>
         <Route
