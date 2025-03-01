@@ -11,48 +11,88 @@
   width: 0%;
 }
 
-.global-loading-bar.loading {
-  animation-name: loading-bar-loading;
-  animation-duration: 4s;
-  /* don't reset to zero at 100%, just sit there */
-  animation-fill-mode: forwards;
+/* counterintuitively, no-preference covers the false case */
+@media (prefers-reduced-motion: no-preference) {
+  .global-loading-bar.loading {
+    animation-name: loading-bar-loading;
+    animation-duration: 4s;
+    /* don't reset to zero at 100%, just sit there */
+    animation-fill-mode: forwards;
+  }
+
+  .global-loading-bar.done {
+    animation-name: loading-bar-done;
+    animation-duration: 0.3s;
+  }
+
+  @keyframes loading-bar-loading {
+    0% {
+      opacity: 1;
+      width: 0%;
+    }
+
+    4% {
+      opacity: 1;
+      width: 20%;
+    }
+
+    40% {
+      opacity: 1;
+      width: 40%;
+    }
+
+    100% {
+      opacity: 1;
+      width: 45%;
+    }
+  }
+
+  @keyframes loading-bar-done {
+    0% {
+      opacity: 1;
+      width: 45%;
+    }
+
+    100% {
+      opacity: 0;
+      width: 100%;
+    }
+  }
 }
 
-.global-loading-bar.done {
-  animation-name: loading-bar-done;
-  animation-duration: 0.3s;
-}
-
-@keyframes loading-bar-loading {
-  0% {
-    opacity: 1;
-    width: 0%;
-  }
-
-  4% {
-    opacity: 1;
-    width: 20%;
-  }
-
-  40% {
-    opacity: 1;
-    width: 40%;
-  }
-
-  100% {
-    opacity: 1;
-    width: 45%;
-  }
-}
-
-@keyframes loading-bar-done {
-  0% {
-    opacity: 1;
-    width: 45%;
-  }
-
-  100% {
-    opacity: 0;
+@media (prefers-reduced-motion: reduce) {
+  .global-loading-bar.loading {
     width: 100%;
+    animation-name: loading-bar-pulsing;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+  }
+
+  .global-loading-bar.done {
+    width: 100%;
+    animation-name: loading-bar-done-reduced;
+    animation-duration: 0.3s;
+    animation-fill-mode: forwards;
+  }
+
+  @keyframes loading-bar-pulsing {
+    0% {
+      opacity: 0.5;
+    }
+
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes loading-bar-done-reduced {
+    0% {
+      opacity: 1;
+    }
+
+    100% {
+      opacity: 0;
+    }
   }
 }
