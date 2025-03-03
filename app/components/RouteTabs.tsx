@@ -11,6 +11,7 @@ import { Link, Outlet } from 'react-router'
 
 import { useIsActivePath } from '~/hooks/use-is-active-path'
 import { KEYS } from '~/ui/util/keys'
+import { Wrap } from '~/ui/util/wrap'
 
 const selectTab = (e: React.KeyboardEvent<HTMLDivElement>) => {
   const target = e.target as HTMLDivElement
@@ -63,7 +64,9 @@ export function RouteTabs({
         className={cn(tabListClasses, tabListClassName)}
         onKeyDown={selectTab}
       >
-        {children}
+        <Wrap when={sideTabs} with={<div className="ox-side-tabs-list sticky top-10" />}>
+          {children}
+        </Wrap>
       </div>
       {/* TODO: Add aria-describedby for active tab */}
       <div className={panelClasses} role="tabpanel" tabIndex={0}>

@@ -57,7 +57,7 @@ export default function MetricsTab() {
   // Find the relevant <Outlet> in RouteTabs
   return (
     <MetricsContext.Provider value={context}>
-      <RouteTabs sideTabs tabListClassName="mt-24">
+      <RouteTabs sideTabs tabListClassName="mt-14">
         <Tab to={pb.instanceCpuMetrics({ project, instance })} sideTab>
           CPU
         </Tab>
