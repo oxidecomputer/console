@@ -62,7 +62,7 @@ PropertiesTable.Row = ({ label, children }: PropertiesTableRowProps) => (
     <span className="flex items-center whitespace-nowrap text-mono-sm text-secondary">
       {label}
     </span>
-    <div className="flex h-10 items-center overflow-hidden whitespace-nowrap pr-4 text-sans-md text-default">
+    <div className="flex h-[38px] items-center overflow-hidden whitespace-nowrap pr-4 text-sans-md text-default">
       {children}
     </div>
   </>
