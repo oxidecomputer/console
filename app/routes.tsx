@@ -16,7 +16,19 @@ import {
 
 import { NotFound } from './components/ErrorPage'
 import { makeCrumb, type Crumb } from './hooks/use-crumbs'
-import { getInstanceSelector, getVpcSelector } from './hooks/use-params'
+import { getInstanceSelector, getProjectSelector, getVpcSelector } from './hooks/use-params'
+import * as VpcRoutersTab from './pages/project/vpcs//VpcRoutersTab'
+import { VpcPage } from './pages/project/vpcs/VpcPage'
+import { VpcsPage } from './pages/project/vpcs/VpcsPage'
+import * as DisksTab from './pages/system/inventory/DisksTab'
+import { InventoryPage } from './pages/system/inventory/InventoryPage'
+import * as SledInstances from './pages/system/inventory/sled/SledInstancesTab'
+import * as SledPage from './pages/system/inventory/sled/SledPage'
+import * as SledsTab from './pages/system/inventory/SledsTab'
+import * as IpPool from './pages/system/networking/IpPoolPage'
+import * as IpPools from './pages/system/networking/IpPoolsPage'
+import * as SiloImages from './pages/system/SiloImagesPage'
+import { truncate } from './ui/lib/Truncate'
 import { pb } from './util/path-builder'
 
 // hack because RR doesn't export the redirect type
@@ -117,58 +129,37 @@ export const routes = createRoutesFromElements(
         />
         <Route
           path="inventory"
-          lazy={() => import('./pages/system/inventory/InventoryPage.tsx').then(convert)}
+          element={<InventoryPage />}
+          loader={InventoryPage.loader}
+          handle={makeCrumb('Inventory', pb.sledInventory())}
         >
-          <Route
-            index
-            lazy={() =>
-              import('./pages/system/inventory/SledsTab')
-                .then(convert)
-                .then(({ loader }) => ({
-                  loader,
-                  Component: () => <Navigate to="sleds" replace />,
-                }))
-            }
-          />
-          <Route
-            path="sleds"
-            lazy={() => import('./pages/system/inventory/SledsTab').then(convert)}
-          />
-          <Route
-            path="disks"
-            lazy={() => import('./pages/system/inventory/DisksTab').then(convert)}
-          />
+          <Route index element={<Navigate to="sleds" replace />} loader={SledsTab.loader} />
+          <Route path="sleds" {...SledsTab} handle={{ crumb: 'Sleds' }} />
+          <Route path="disks" {...DisksTab} handle={{ crumb: 'Disks' }} />
         </Route>
         <Route path="inventory" handle={{ crumb: 'Inventory' }}>
           <Route path="sleds" handle={{ crumb: 'Sleds' }}>
             {/* a crumb for the sled ID looks ridiculous, unfortunately */}
             <Route
               path=":sledId"
-              lazy={() => import('./pages/system/inventory/sled/SledPage').then(convert)}
+              {...SledPage}
+              handle={makeCrumb(
+                (p) => truncate(p.sledId!, 12, 'middle'),
+                (p) => pb.sled({ sledId: p.sledId! })
+              )}
             >
               <Route
                 index
-                lazy={() =>
-                  import('./pages/system/inventory/sled/SledInstancesTab')
-                    .then(convert)
-                    .then(({ loader }) => ({
-                      loader,
-                      Component: () => <Navigate to="instances" replace />,
-                    }))
-                }
+                element={<Navigate to="instances" replace />}
+                loader={SledInstances.loader}
               />
-              <Route
-                path="instances"
-                lazy={() =>
-                  import('./pages/system/inventory/sled/SledInstancesTab').then(convert)
-                }
-              />
+              <Route path="instances" handle={{ crumb: 'Instances' }} {...SledInstances} />
             </Route>
           </Route>
         </Route>
         <Route path="networking">
           <Route index element={<Navigate to="ip-pools" replace />} />
-          <Route lazy={() => import('./pages/system/networking/IpPoolsPage').then(convert)}>
+          <Route {...IpPools} handle={{ crumb: 'IP Pools' }}>
             <Route path="ip-pools" element={null} />
             <Route
               path="ip-pools-new"
@@ -177,10 +168,7 @@ export const routes = createRoutesFromElements(
           </Route>
         </Route>
         <Route path="networking/ip-pools" handle={{ crumb: 'IP Pools' }}>
-          <Route
-            path=":pool"
-            lazy={() => import('./pages/system/networking/IpPoolPage').then(convert)}
-          >
+          <Route path=":pool" {...IpPool} handle={makeCrumb((p) => p.pool!)}>
             <Route path="edit" lazy={() => import('./forms/ip-pool-edit').then(convert)} />
             <Route
               path="ranges-add"
@@ -193,13 +181,10 @@ export const routes = createRoutesFromElements(
       <Route index element={<Navigate to={pb.projects()} replace />} />
 
       <Route lazy={() => import('./layouts/SiloLayout').then(convert)}>
-        <Route
-          path="images"
-          lazy={() => import('./pages/SiloImagesPage.tsx').then(convert)}
-        >
+        <Route path="images" {...SiloImages} handle={{ crumb: 'Images' }}>
           <Route
             path=":image/edit"
-            lazy={() => import('./pages/SiloImageEdit.tsx').then(convert)}
+            lazy={() => import('./pages/system/SiloImageEdit').then(convert)}
           />
         </Route>
         <Route
@@ -322,7 +307,11 @@ export const routes = createRoutesFromElements(
               </Route>
             </Route>
           </Route>
-          <Route lazy={() => import('./pages/project/vpcs/VpcsPage').then(convert)}>
+          <Route
+            loader={VpcsPage.loader}
+            handle={makeCrumb('VPCs', (p) => pb.vpcs(getProjectSelector(p)))}
+            element={<VpcsPage />}
+          >
             <Route path="vpcs" element={null} />
             <Route
               path="vpcs-new"
@@ -337,7 +326,7 @@ export const routes = createRoutesFromElements(
                 (p) => pb.vpc(getVpcSelector(p))
               )}
             >
-              <Route lazy={() => import('./pages/project/vpcs/VpcPage').then(convert)}>
+              <Route element={<VpcPage />} loader={VpcPage.loader}>
                 <Route
                   index
                   // janky one. we only want the loader. we'll have to make this
@@ -390,9 +379,7 @@ export const routes = createRoutesFromElements(
                     lazy={() => import('./forms/subnet-edit').then(convert)}
                   />
                 </Route>
-                <Route
-                  lazy={() => import('./pages/project/vpcs/VpcRoutersTab').then(convert)}
-                >
+                <Route {...VpcRoutersTab} handle={{ crumb: 'Routers' }}>
                   <Route path="routers" element={null}>
                     <Route
                       path=":router/edit"

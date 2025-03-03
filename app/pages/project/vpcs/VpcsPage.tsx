@@ -15,7 +15,6 @@ import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/r
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
-import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -66,15 +65,13 @@ const colHelper = createColumnHelper<Vpc>()
 
 // just as in the vpcList call for the quick actions menu, include limit to make
 // sure it matches the call in the QueryTable
-export async function clientLoader({ params }: LoaderFunctionArgs) {
+VpcsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
   await queryClient.prefetchQuery(vpcList(project).optionsFn())
   return null
 }
 
-export const handle = makeCrumb('VPCs', (p) => pb.vpcs(getProjectSelector(p)))
-
-export default function VpcsPage() {
+export function VpcsPage() {
   const { project } = useProjectSelector()
   const navigate = useNavigate()
 

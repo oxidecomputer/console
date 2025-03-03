@@ -51,12 +51,10 @@ const EmptyState = () => (
 
 const imageList = getListQFn('imageList', {})
 
-export async function clientLoader() {
+export async function loader() {
   await queryClient.prefetchQuery(imageList.optionsFn())
   return null
 }
-
-export const handle = { crumb: 'Images' }
 
 const colHelper = createColumnHelper<Image>()
 const staticCols = [
@@ -68,7 +66,8 @@ const staticCols = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-export default function SiloImagesPage() {
+Component.displayName = 'SiloImagesPage'
+export function Component() {
   const [showModal, setShowModal] = useState(false)
   const [demoteImage, setDemoteImage] = useState<Image | null>(null)
 
