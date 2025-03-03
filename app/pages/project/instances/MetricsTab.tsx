@@ -58,15 +58,9 @@ export default function MetricsTab() {
   return (
     <MetricsContext.Provider value={context}>
       <RouteTabs sideTabs tabListClassName="mt-14">
-        <Tab to={pb.instanceCpuMetrics({ project, instance })} sideTab>
-          CPU
-        </Tab>
-        <Tab to={pb.instanceDiskMetrics({ project, instance })} sideTab>
-          Disk
-        </Tab>
-        <Tab to={pb.instanceNetworkMetrics({ project, instance })} sideTab>
-          Network
-        </Tab>
+        <Tab to={pb.instanceCpuMetrics({ project, instance })}>CPU</Tab>
+        <Tab to={pb.instanceDiskMetrics({ project, instance })}>Disk</Tab>
+        <Tab to={pb.instanceNetworkMetrics({ project, instance })}>Network</Tab>
       </RouteTabs>
     </MetricsContext.Provider>
   )

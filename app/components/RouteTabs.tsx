@@ -83,16 +83,14 @@ export function RouteTabs({
 export interface TabProps {
   to: string
   children: ReactNode
-  sideTab?: boolean
 }
-export const Tab = ({ to, children, sideTab = false }: TabProps) => {
+export const Tab = ({ to, children }: TabProps) => {
   const isActive = useIsActivePath({ to })
-  const baseClass = sideTab ? 'ox-side-tab' : 'ox-tab'
   return (
     <Link
       role="tab"
       to={to}
-      className={cn(baseClass, { 'is-selected': isActive })}
+      className={cn('ox-tab', { 'is-selected': isActive })}
       tabIndex={isActive ? 0 : -1}
       aria-selected={isActive}
     >

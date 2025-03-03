@@ -6,83 +6,90 @@
  * Copyright Oxide Computer Company
  */
 
-.ox-tabs.full-width {
-  @apply !mx-0 !w-full;
-}
-
-.ox-tabs.full-width .ox-tabs-panel {
-  @apply mx-[var(--content-gutter)];
-}
-
-.ox-tabs.full-width .ox-side-tabs .ox-tabs-panel {
-  @apply mx-0 ml-4;
-}
-
+/* Tab list container styles */
 .ox-tabs-list {
   @apply mb-10 flex bg-transparent;
 }
 
 .ox-tabs-list:after {
   @apply block w-full border-b border-secondary;
-  content: ' ';
-}
-.ox-tabs.full-width .ox-tabs-list:before {
-  @apply block w-10 min-w-max flex-shrink-0 border-b border-secondary;
-  content: ' ';
+  content: '';
 }
 
+/* Panel styles */
 .ox-tabs-panel:focus-visible {
   @apply outline outline-2 outline-offset-[1rem] outline-accent-secondary;
 }
 
+/* Base tab styles */
 .ox-tab {
   @apply h-10 space-x-2 whitespace-nowrap border-b px-1.5 pb-1 pt-2 uppercase !no-underline text-mono-sm text-secondary border-secondary;
 }
 
-.ox-tab[data-state='active'],
+.ox-tabs-list .ox-tab > * {
+  @apply rounded bg-transparent px-1.5 py-1;
+}
+
+/* Hover states */
+.ox-tabs-list .ox-tab:hover > * {
+  @apply bg-hover;
+}
+
+/* Active states */
 .ox-tab.is-selected {
   @apply text-accent border-accent;
 }
 
-.ox-tab > * {
-  @apply rounded bg-transparent px-1.5 py-1;
-}
-.ox-tab:hover > * {
-  @apply bg-hover;
-}
-
-.ox-tab[data-state='active']:hover > *,
 .ox-tab.is-selected:hover > * {
   @apply !bg-accent-secondary;
 }
 
+/* Badge styles */
 .ox-tab > .ox-badge {
   @apply -mt-1 select-none text-current;
 }
 
-.ox-tab[data-state='inactive'] > .ox-badge,
 .ox-tab:not(.is-selected) > .ox-badge {
   @apply bg-disabled;
 }
 
-.ox-tab[data-state='active'] > .ox-badge,
 .ox-tab.is-selected > .ox-badge {
   @apply bg-accent-secondary;
 }
 
+/* Full width variants */
+.ox-tabs.full-width {
+  @apply !mx-0 !w-full;
+}
+
+.ox-tabs.full-width > .ox-tabs-panel {
+  @apply mx-[var(--content-gutter)];
+}
+
+.ox-tabs.full-width .ox-tabs-list:before {
+  @apply block w-10 min-w-max flex-shrink-0 border-b border-secondary;
+  content: '';
+}
+
+/* Side tabs styles */
 .ox-side-tabs-list {
   @apply sticky top-10 flex w-[180px] flex-shrink-0 flex-col gap-0.5;
 }
 
-.ox-side-tab {
-  @apply space-x-2 whitespace-nowrap rounded p-2 py-1.5 !no-underline text-sans-md text-secondary;
+.ox-side-tabs-list .ox-tab {
+  @apply h-auto whitespace-nowrap rounded p-2 py-1.5 normal-case !no-underline text-sans-md text-secondary;
+  border-bottom: none;
 }
 
-.ox-side-tab[data-state='active'],
-.ox-side-tab.is-selected {
+.ox-side-tabs .ox-tab.is-selected {
   @apply text-accent bg-accent-secondary;
+  border: none;
 }
 
-.ox-side-tab:not([data-state='active'], .is-selected):hover {
+.ox-side-tabs .ox-tabs-panel {
+  @apply mx-0 ml-4;
+}
+
+.ox-side-tabs-list .ox-tab:not(.is-selected):hover {
   @apply text-default bg-hover;
 }
