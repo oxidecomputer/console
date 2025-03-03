@@ -43,7 +43,7 @@ if (!consoleCommit) {
 const fullCommit = await $`git rev-parse ${consoleCommit}`.text()
 
 if (consoleCommit !== fullCommit) {
-  console.log(`Resolved ${consoleCommit} to ${fullCommit}`)
+  console.info(`Resolved ${consoleCommit} to ${fullCommit}`)
 }
 
 console.info('Finding nexus zones...')
