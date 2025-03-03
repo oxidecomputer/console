@@ -33,6 +33,7 @@ import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { getIpPoolSelector, useIpPoolSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -59,7 +60,7 @@ const ipPoolView = (pool: string) => apiq('ipPoolView', { path: { pool } })
 const ipPoolSiloList = (pool: string) => getListQFn('ipPoolSiloList', { path: { pool } })
 const ipPoolRangeList = (pool: string) => getListQFn('ipPoolRangeList', { path: { pool } })
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { pool } = getIpPoolSelector(params)
   await Promise.all([
     queryClient.prefetchQuery(ipPoolView(pool)),
@@ -79,8 +80,9 @@ export async function loader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-Component.displayName = 'IpPoolPage'
-export function Component() {
+export const handle = makeCrumb((p) => p.pool!)
+
+export default function IpPoolpage() {
   const poolSelector = useIpPoolSelector()
   const { data: pool } = usePrefetchedQuery(ipPoolView(poolSelector.pool))
   const { data: ranges } = usePrefetchedQuery(

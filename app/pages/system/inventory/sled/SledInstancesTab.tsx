@@ -33,11 +33,13 @@ const EmptyState = () => {
   )
 }
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { sledId } = requireSledParams(params)
   await queryClient.prefetchQuery(sledInstanceList(sledId).optionsFn())
   return null
 }
+
+export const handle = { crumb: 'Instances' }
 
 // passing in empty function because we still want the copy ID button
 const makeActions = (): MenuAction[] => []
@@ -69,8 +71,7 @@ const staticCols = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-Component.displayName = 'SledInstancesTab'
-export function Component() {
+export default function SledInstancesTab() {
   const { sledId } = useSledParams()
   const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({

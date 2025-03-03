@@ -15,19 +15,22 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { getSshKeySelector, useSshKeySelector } from '~/hooks/use-params'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
 import { pb } from '~/util/path-builder'
 
-EditSSHKeySideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { sshKey } = getSshKeySelector(params)
   await apiQueryClient.prefetchQuery('currentUserSshKeyView', { path: { sshKey } })
   return null
 }
 
-export function EditSSHKeySideModalForm() {
+export const handle = titleCrumb('View SSH Key')
+
+export default function EditSSHKeySideModalForm() {
   const navigate = useNavigate()
   const { sshKey } = useSshKeySelector()
 

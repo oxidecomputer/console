@@ -23,12 +23,15 @@ import {
   routeFormMessage,
   type RouteFormValues,
 } from '~/forms/vpc-router-route-common'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { getVpcRouterRouteSelector, useVpcRouterRouteSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
-EditRouterRouteSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
+export const handle = titleCrumb('Edit Route')
+
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc, router, route } = getVpcRouterRouteSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('vpcRouterRouteView', {
@@ -48,7 +51,7 @@ EditRouterRouteSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => 
   return null
 }
 
-export function EditRouterRouteSideModalForm() {
+export default function EditRouterRouteSideModalForm() {
   const queryClient = useApiQueryClient()
   const { route: routeName, ...routerSelector } = useVpcRouterRouteSelector()
   const navigate = useNavigate()

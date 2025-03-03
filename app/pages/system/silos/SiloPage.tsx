@@ -12,6 +12,7 @@ import { Cloud16Icon, Cloud24Icon, NextArrow12Icon } from '@oxide/design-system/
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
 import { Badge } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -25,7 +26,7 @@ import { siloIdpList, SiloIdpsTab } from './SiloIdpsTab'
 import { siloIpPoolsQuery, SiloIpPoolsTab } from './SiloIpPoolsTab'
 import { SiloQuotasTab } from './SiloQuotasTab'
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { silo } = getSiloSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('siloView', { path: { silo } }),
@@ -36,8 +37,9 @@ export async function loader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-Component.displayName = 'SiloPage'
-export function Component() {
+export const handle = makeCrumb((p) => p.silo!)
+
+export default function SiloPage() {
   const siloSelector = useSiloSelector()
 
   const { data: silo } = usePrefetchedApiQuery('siloView', { path: siloSelector })
@@ -64,16 +66,12 @@ export function Component() {
         />
       </PageHeader>
 
-      <PropertiesTable.Group className="mb-16">
-        <PropertiesTable>
-          <PropertiesTable.IdRow id={silo.id} />
-          <PropertiesTable.DescriptionRow description={silo.description} />
-        </PropertiesTable>
-        <PropertiesTable>
-          <PropertiesTable.DateRow date={silo.timeCreated} label="Created" />
-          <PropertiesTable.DateRow date={silo.timeModified} label="Last Modified" />
-        </PropertiesTable>
-      </PropertiesTable.Group>
+      <PropertiesTable columns={2} className="-mt-8 mb-8">
+        <PropertiesTable.IdRow id={silo.id} />
+        <PropertiesTable.DescriptionRow description={silo.description} />
+        <PropertiesTable.DateRow date={silo.timeCreated} label="Created" />
+        <PropertiesTable.DateRow date={silo.timeModified} label="Last Modified" />
+      </PropertiesTable>
 
       <QueryParamTabs className="full-width" defaultValue="idps">
         <Tabs.List>

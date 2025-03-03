@@ -123,41 +123,45 @@ test.describe('Image upload', () => {
     await expectVisible(page, [fileRequired])
   })
 
-  test('cancel', async ({ page, browserName }) => {
-    // eslint-disable-next-line playwright/no-skipped-test
-    test.skip(browserName === 'webkit', 'safari. stop this')
+  const cancelStates = [
+    'Put disk in import mode',
+    'Upload image file',
+    'Get disk out of import mode',
+    // 'Finalize disk and create snapshot',
+  ]
 
-    await fillForm(page, 'new-image')
+  for (const state of cancelStates) {
+    test(`cancel in state '${state}'`, async ({ page }) => {
+      await fillForm(page, 'new-image')
 
-    await page.getByRole('button', { name: 'Upload image' }).click()
+      await page.getByRole('button', { name: 'Upload image' }).click()
 
-    const progressModal = page.getByRole('dialog', { name: 'Image upload progress' })
-    await expect(progressModal).toBeVisible()
+      const progressModal = page.getByRole('dialog', { name: 'Image upload progress' })
+      await expect(progressModal).toBeVisible()
 
-    // wait to be in the middle of upload
-    const uploadStep = page.getByTestId('upload-step: Upload image file')
-    await expect(uploadStep).toHaveAttribute('data-status', 'running')
+      // wait to be in the middle of the specified step
+      const uploadStep = page.getByTestId(`upload-step: ${state}`)
+      await expect(uploadStep).toHaveAttribute('data-status', 'running')
 
-    // form is disabled and semi-hidden
-    // await expectNotVisible(page, ['role=textbox[name="Name"]'])
+      // form is disabled and semi-hidden
+      // await expectNotVisible(page, ['role=textbox[name="Name"]'])
 
-    page.on('dialog', (dialog) => dialog.accept()) // click yes on the are you sure prompt
-    await progressModal.getByRole('button', { name: 'Cancel' }).click()
+      page.on('dialog', (dialog) => dialog.accept()) // click yes on the are you sure prompt
+      await progressModal.getByRole('button', { name: 'Cancel' }).click()
 
-    // modal has closed
-    await expect(progressModal).toBeHidden()
+      // modal has closed
+      await expect(progressModal).toBeHidden()
 
-    // form's back
-    await expectVisible(page, ['role=textbox[name="Name"]'])
+      // form's back
+      await expect(page.getByRole('textbox', { name: 'Name' })).toBeVisible()
 
-    // get out of the form
-    await page.click('text=Cancel')
-
-    // TODO: go to disks and make sure the tmp one got cleaned up
-    // await page.click('role=link[name="Disks"]')
-    // await expectVisible(page, ['role=cell[name="disk-1"]'])
-    // await expectNotVisible(page, ['role=cell[name=tmp]'])
-  })
+      // get out of the form and go to the disks page to check it's not there
+      await page.getByRole('button', { name: 'Cancel' }).click()
+      await page.getByRole('link', { name: 'Disks' }).click()
+      await expect(page.getByRole('cell', { name: 'disk-1', exact: true })).toBeVisible()
+      await expect(page.getByRole('cell', { name: 'tmp' })).toBeHidden()
+    })
+  }
 
   // testing the onFocusOutside fix
   test('cancel canceling', async ({ page, browserName }) => {

@@ -16,7 +16,7 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 
-import { fancifyStates } from './instance/tabs/common'
+import { fancifyStates } from './common'
 
 type Options = {
   onSuccess?: () => void
@@ -147,8 +147,8 @@ export const useMakeInstanceActions = (
         {
           label: 'Resize',
           onActivate: () => onResizeClick?.(instance),
-          disabled: !instanceCan.update(instance) && (
-            <>Only {fancifyStates(instanceCan.update.states)} instances can be resized</>
+          disabled: !instanceCan.resize(instance) && (
+            <>Only {fancifyStates(instanceCan.resize.states)} instances can be resized</>
           ),
         },
         {

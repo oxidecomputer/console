@@ -26,6 +26,7 @@ import {
 } from '~/components/form/fields/useItemsList'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { getVpcSubnetSelector, useVpcSubnetSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
@@ -35,13 +36,15 @@ import type * as PP from '~/util/path-params'
 const subnetView = ({ project, vpc, subnet }: PP.VpcSubnet) =>
   apiq('vpcSubnetView', { query: { project, vpc }, path: { subnet } })
 
-EditSubnetForm.loader = async ({ params }: LoaderFunctionArgs) => {
+export const handle = titleCrumb('Edit Subnet')
+
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const selector = getVpcSubnetSelector(params)
   await queryClient.prefetchQuery(subnetView(selector))
   return null
 }
 
-export function EditSubnetForm() {
+export default function EditSubnetForm() {
   const subnetSelector = useVpcSubnetSelector()
   const { project, vpc } = subnetSelector
 

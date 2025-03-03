@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
+import containerQueriesPlugin from '@tailwindcss/container-queries'
 import { type Config } from 'tailwindcss'
 import plugin from 'tailwindcss/plugin'
 
@@ -61,6 +62,10 @@ export default {
       transparent: 'transparent',
       current: 'currentColor',
     },
+    animation: {
+      'spin-slow': 'spin 5s linear infinite',
+      pulse: 'pulse 2s cubic-bezier(.4,0,.6,1) infinite',
+    },
   },
   plugins: [
     plugin(({ addVariant, addUtilities }) => {
@@ -71,5 +76,6 @@ export default {
       addUtilities(colorUtilities)
       addUtilities(elevationUtilities)
     }),
+    containerQueriesPlugin,
   ],
 } satisfies Config

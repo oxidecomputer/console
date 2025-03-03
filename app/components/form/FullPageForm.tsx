@@ -126,7 +126,7 @@ const ConfirmNavigation = ({ blocker }: { blocker: Blocker }) => (
     isOpen={blocker.state === 'blocked'}
     onDismiss={() => blocker.reset?.()}
     title="Confirm navigation"
-    narrow
+    width="narrow"
   >
     <Modal.Section>
       Are you sure you want to leave this page?

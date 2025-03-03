@@ -40,6 +40,12 @@ if (!consoleCommit) {
   Deno.exit(1)
 }
 
+const fullCommit = await $`git rev-parse ${consoleCommit}`.text()
+
+if (consoleCommit !== fullCommit) {
+  console.info(`Resolved ${consoleCommit} to ${fullCommit}`)
+}
+
 console.info('Finding nexus zones...')
 const zones: string = await $`./tools/dogfood/find-zone.sh nexus`.text()
 const gimletNums = zones
@@ -49,7 +55,7 @@ const gimletNums = zones
 
 console.info(`Found: ${JSON.stringify(gimletNums)}\n`)
 
-const TARBALL_URL = `https://dl.oxide.computer/releases/console/${consoleCommit}.tar.gz`
+const TARBALL_URL = `https://dl.oxide.computer/releases/console/${fullCommit}.tar.gz`
 const TARBALL_FILE = '/tmp/console.tar.gz'
 
 console.info(`Downloading tarball to ${TARBALL_FILE}`)

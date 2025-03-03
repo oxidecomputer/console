@@ -20,6 +20,7 @@ import { Key16Icon, Key24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
@@ -34,15 +35,16 @@ import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const sshKeyList = () => getListQFn('currentUserSshKeyList', {})
-export async function loader() {
+export const handle = makeCrumb('SSH Keys', pb.sshKeys)
+
+export async function clientLoader() {
   await queryClient.prefetchQuery(sshKeyList().optionsFn())
   return null
 }
 
 const colHelper = createColumnHelper<SshKey>()
 
-Component.displayName = 'SSHKeysPage'
-export function Component() {
+export default function SSHKeysPage() {
   const navigate = useNavigate()
 
   const queryClient = useApiQueryClient()

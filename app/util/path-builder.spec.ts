@@ -48,8 +48,12 @@ test('path builder', () => {
         "floatingIpsNew": "/projects/p/floating-ips-new",
         "instance": "/projects/p/instances/i/storage",
         "instanceConnect": "/projects/p/instances/i/connect",
+        "instanceCpuMetrics": "/projects/p/instances/i/metrics/cpu",
+        "instanceDiskMetrics": "/projects/p/instances/i/metrics/disk",
         "instanceMetrics": "/projects/p/instances/i/metrics",
+        "instanceNetworkMetrics": "/projects/p/instances/i/metrics/network",
         "instanceNetworking": "/projects/p/instances/i/networking",
+        "instanceSettings": "/projects/p/instances/i/settings",
         "instanceStorage": "/projects/p/instances/i/storage",
         "instances": "/projects/p/instances",
         "instancesNew": "/projects/p/instances-new",
@@ -113,27 +117,36 @@ test('path builder', () => {
 
 // matchRoutes returns something slightly different from UIMatch
 const getMatches = (pathname: string) =>
-  matchRoutes(routes, pathname)!.map((m) => ({
-    pathname: m.pathname,
-    params: m.params,
-    handle: m.route.handle,
-    // not used
-    id: '',
-    data: undefined,
-  }))
+  Promise.all(
+    matchRoutes(routes, pathname)!.map(async (m) => {
+      // As we convert route modules to RR framework mode with lazy imports,
+      // more and more of the routes will have their handles defined inside the
+      // route module. We need to call the lazy function to import the module
+      // contents and fill out the route object with it.
+      const route = { ...m.route, ...(await m.route.lazy?.()) }
+      return {
+        pathname: m.pathname,
+        params: m.params,
+        handle: route.handle,
+        // not used
+        id: '',
+        data: undefined,
+      }
+    })
+  )
 
 // run every route in the path builder through the crumbs logic
-test('breadcrumbs', () => {
-  const pairs = Object.entries(pb).map(([key, fn]) => {
-    const pathname = fn(params)
-    return [
-      `${key} (${pathname})`,
-      matchesToCrumbs(getMatches(pathname))
-        .filter((c) => !c.titleOnly)
-        // omit titleOnly because of noise in the snapshot
-        .map(R.omit(['titleOnly'])),
-    ] as const
-  })
+test('breadcrumbs', async () => {
+  const pairs = await Promise.all(
+    Object.entries(pb).map(async ([key, fn]) => {
+      const pathname = fn(params)
+      const matches = await getMatches(pathname)
+      const crumbs = matchesToCrumbs(matches)
+        .filter(({ titleOnly }) => !titleOnly)
+        .map(R.omit(['titleOnly']))
+      return [`${key} (${pathname})`, crumbs] as const
+    })
+  )
 
   const zeroCrumbKeys = pairs
     .filter(([_, crumbs]) => crumbs.length === 0)

@@ -21,6 +21,7 @@ import {
 } from '~/components/form/fields/useItemsList'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { useVpcSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
@@ -36,7 +37,9 @@ const defaultValues: Required<VpcSubnetCreate> = {
   customRouter: customRouterDataToForm(undefined),
 }
 
-export function CreateSubnetForm() {
+export const handle = titleCrumb('New Subnet')
+
+export default function CreateSubnetForm() {
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 

@@ -10,7 +10,7 @@ import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/re
 import type { Group } from '@oxide/api'
 import { Settings24Icon } from '@oxide/design-system/icons/react'
 
-import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
+import { useCurrentUser } from '~/hooks/use-current-user'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
@@ -26,7 +26,9 @@ const columns = [
   getActionsCol((_row: Group) => []),
 ]
 
-export function ProfilePage() {
+export const handle = { crumb: 'Profile' }
+
+export default function ProfilePage() {
   const { me, myGroups } = useCurrentUser()
 
   const groupsTable = useReactTable({
@@ -41,11 +43,11 @@ export function ProfilePage() {
         <PageTitle icon={<Settings24Icon />}>Profile</PageTitle>
       </PageHeader>
 
-      <PropertiesTable className="-mt-8 mb-16">
+      <PropertiesTable className="-mt-8 mb-8">
         <PropertiesTable.Row label="Display name">{me.displayName}</PropertiesTable.Row>
         <PropertiesTable.Row label="User ID">
           {me.id}
-          <CopyToClipboard className="ml-2" text={me.id} />
+          <CopyToClipboard className="ml-1" text={me.id} />
         </PropertiesTable.Row>
       </PropertiesTable>
 

@@ -88,9 +88,188 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /experimental/v1/system/support-bundles` */
+  supportBundleList: (params: {
+    query: Api.SupportBundleListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SupportBundleInfoResultsPage>>
+  /** `POST /experimental/v1/system/support-bundles` */
+  supportBundleCreate: (params: {
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SupportBundleInfo>>
+  /** `GET /experimental/v1/system/support-bundles/:supportBundle` */
+  supportBundleView: (params: {
+    path: Api.SupportBundleViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SupportBundleInfo>>
+  /** `DELETE /experimental/v1/system/support-bundles/:supportBundle` */
+  supportBundleDelete: (params: {
+    path: Api.SupportBundleDeletePathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /experimental/v1/system/support-bundles/:supportBundle/download` */
+  supportBundleDownload: (params: {
+    path: Api.SupportBundleDownloadPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `HEAD /experimental/v1/system/support-bundles/:supportBundle/download` */
+  supportBundleHead: (params: {
+    path: Api.SupportBundleHeadPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /experimental/v1/system/support-bundles/:supportBundle/download/:file` */
+  supportBundleDownloadFile: (params: {
+    path: Api.SupportBundleDownloadFilePathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `HEAD /experimental/v1/system/support-bundles/:supportBundle/download/:file` */
+  supportBundleHeadFile: (params: {
+    path: Api.SupportBundleHeadFilePathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /experimental/v1/system/support-bundles/:supportBundle/index` */
+  supportBundleIndex: (params: {
+    path: Api.SupportBundleIndexPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `POST /login/:siloName/saml/:providerName` */
   loginSaml: (params: {
     path: Api.LoginSamlPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/affinity-groups` */
+  affinityGroupList: (params: {
+    query: Api.AffinityGroupListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AffinityGroupResultsPage>>
+  /** `POST /v1/affinity-groups` */
+  affinityGroupCreate: (params: {
+    query: Api.AffinityGroupCreateQueryParams
+    body: Json<Api.AffinityGroupCreate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AffinityGroup>>
+  /** `GET /v1/affinity-groups/:affinityGroup` */
+  affinityGroupView: (params: {
+    path: Api.AffinityGroupViewPathParams
+    query: Api.AffinityGroupViewQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AffinityGroup>>
+  /** `PUT /v1/affinity-groups/:affinityGroup` */
+  affinityGroupUpdate: (params: {
+    path: Api.AffinityGroupUpdatePathParams
+    query: Api.AffinityGroupUpdateQueryParams
+    body: Json<Api.AffinityGroupUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AffinityGroup>>
+  /** `DELETE /v1/affinity-groups/:affinityGroup` */
+  affinityGroupDelete: (params: {
+    path: Api.AffinityGroupDeletePathParams
+    query: Api.AffinityGroupDeleteQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/affinity-groups/:affinityGroup/members` */
+  affinityGroupMemberList: (params: {
+    path: Api.AffinityGroupMemberListPathParams
+    query: Api.AffinityGroupMemberListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AffinityGroupMemberResultsPage>>
+  /** `GET /v1/affinity-groups/:affinityGroup/members/instance/:instance` */
+  affinityGroupMemberInstanceView: (params: {
+    path: Api.AffinityGroupMemberInstanceViewPathParams
+    query: Api.AffinityGroupMemberInstanceViewQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AffinityGroupMember>>
+  /** `POST /v1/affinity-groups/:affinityGroup/members/instance/:instance` */
+  affinityGroupMemberInstanceAdd: (params: {
+    path: Api.AffinityGroupMemberInstanceAddPathParams
+    query: Api.AffinityGroupMemberInstanceAddQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AffinityGroupMember>>
+  /** `DELETE /v1/affinity-groups/:affinityGroup/members/instance/:instance` */
+  affinityGroupMemberInstanceDelete: (params: {
+    path: Api.AffinityGroupMemberInstanceDeletePathParams
+    query: Api.AffinityGroupMemberInstanceDeleteQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/anti-affinity-groups` */
+  antiAffinityGroupList: (params: {
+    query: Api.AntiAffinityGroupListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AntiAffinityGroupResultsPage>>
+  /** `POST /v1/anti-affinity-groups` */
+  antiAffinityGroupCreate: (params: {
+    query: Api.AntiAffinityGroupCreateQueryParams
+    body: Json<Api.AntiAffinityGroupCreate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AntiAffinityGroup>>
+  /** `GET /v1/anti-affinity-groups/:antiAffinityGroup` */
+  antiAffinityGroupView: (params: {
+    path: Api.AntiAffinityGroupViewPathParams
+    query: Api.AntiAffinityGroupViewQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AntiAffinityGroup>>
+  /** `PUT /v1/anti-affinity-groups/:antiAffinityGroup` */
+  antiAffinityGroupUpdate: (params: {
+    path: Api.AntiAffinityGroupUpdatePathParams
+    query: Api.AntiAffinityGroupUpdateQueryParams
+    body: Json<Api.AntiAffinityGroupUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AntiAffinityGroup>>
+  /** `DELETE /v1/anti-affinity-groups/:antiAffinityGroup` */
+  antiAffinityGroupDelete: (params: {
+    path: Api.AntiAffinityGroupDeletePathParams
+    query: Api.AntiAffinityGroupDeleteQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/anti-affinity-groups/:antiAffinityGroup/members` */
+  antiAffinityGroupMemberList: (params: {
+    path: Api.AntiAffinityGroupMemberListPathParams
+    query: Api.AntiAffinityGroupMemberListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AntiAffinityGroupMemberResultsPage>>
+  /** `GET /v1/anti-affinity-groups/:antiAffinityGroup/members/instance/:instance` */
+  antiAffinityGroupMemberInstanceView: (params: {
+    path: Api.AntiAffinityGroupMemberInstanceViewPathParams
+    query: Api.AntiAffinityGroupMemberInstanceViewQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AntiAffinityGroupMember>>
+  /** `POST /v1/anti-affinity-groups/:antiAffinityGroup/members/instance/:instance` */
+  antiAffinityGroupMemberInstanceAdd: (params: {
+    path: Api.AntiAffinityGroupMemberInstanceAddPathParams
+    query: Api.AntiAffinityGroupMemberInstanceAddQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AntiAffinityGroupMember>>
+  /** `DELETE /v1/anti-affinity-groups/:antiAffinityGroup/members/instance/:instance` */
+  antiAffinityGroupMemberInstanceDelete: (params: {
+    path: Api.AntiAffinityGroupMemberInstanceDeletePathParams
+    query: Api.AntiAffinityGroupMemberInstanceDeleteQueryParams
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
@@ -674,6 +853,13 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.PhysicalDisk>>
+  /** `GET /v1/system/hardware/rack-switch-port/:rackId/:switchLocation/:port/lldp/neighbors` */
+  networkingSwitchPortLldpNeighbors: (params: {
+    path: Api.NetworkingSwitchPortLldpNeighborsPathParams
+    query: Api.NetworkingSwitchPortLldpNeighborsQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.LldpNeighborResultsPage>>
   /** `GET /v1/system/hardware/racks` */
   rackList: (params: {
     query: Api.RackListQueryParams
@@ -737,6 +923,21 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.SwitchPortResultsPage>>
+  /** `GET /v1/system/hardware/switch-port/:port/lldp/config` */
+  networkingSwitchPortLldpConfigView: (params: {
+    path: Api.NetworkingSwitchPortLldpConfigViewPathParams
+    query: Api.NetworkingSwitchPortLldpConfigViewQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.LldpLinkConfig>>
+  /** `POST /v1/system/hardware/switch-port/:port/lldp/config` */
+  networkingSwitchPortLldpConfigUpdate: (params: {
+    path: Api.NetworkingSwitchPortLldpConfigUpdatePathParams
+    query: Api.NetworkingSwitchPortLldpConfigUpdateQueryParams
+    body: Json<Api.LldpLinkConfig>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `POST /v1/system/hardware/switch-port/:port/settings` */
   networkingSwitchPortApplySettings: (params: {
     path: Api.NetworkingSwitchPortApplySettingsPathParams
@@ -1527,9 +1728,173 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       '/experimental/v1/probes/:probe',
       handler(handlers['probeDelete'], schema.ProbeDeleteParams, null)
     ),
+    http.get(
+      '/experimental/v1/system/support-bundles',
+      handler(handlers['supportBundleList'], schema.SupportBundleListParams, null)
+    ),
+    http.post(
+      '/experimental/v1/system/support-bundles',
+      handler(handlers['supportBundleCreate'], null, null)
+    ),
+    http.get(
+      '/experimental/v1/system/support-bundles/:supportBundle',
+      handler(handlers['supportBundleView'], schema.SupportBundleViewParams, null)
+    ),
+    http.delete(
+      '/experimental/v1/system/support-bundles/:supportBundle',
+      handler(handlers['supportBundleDelete'], schema.SupportBundleDeleteParams, null)
+    ),
+    http.get(
+      '/experimental/v1/system/support-bundles/:supportBundle/download',
+      handler(handlers['supportBundleDownload'], schema.SupportBundleDownloadParams, null)
+    ),
+    http.head(
+      '/experimental/v1/system/support-bundles/:supportBundle/download',
+      handler(handlers['supportBundleHead'], schema.SupportBundleHeadParams, null)
+    ),
+    http.get(
+      '/experimental/v1/system/support-bundles/:supportBundle/download/:file',
+      handler(
+        handlers['supportBundleDownloadFile'],
+        schema.SupportBundleDownloadFileParams,
+        null
+      )
+    ),
+    http.head(
+      '/experimental/v1/system/support-bundles/:supportBundle/download/:file',
+      handler(handlers['supportBundleHeadFile'], schema.SupportBundleHeadFileParams, null)
+    ),
+    http.get(
+      '/experimental/v1/system/support-bundles/:supportBundle/index',
+      handler(handlers['supportBundleIndex'], schema.SupportBundleIndexParams, null)
+    ),
     http.post(
       '/login/:siloName/saml/:providerName',
       handler(handlers['loginSaml'], schema.LoginSamlParams, null)
+    ),
+    http.get(
+      '/v1/affinity-groups',
+      handler(handlers['affinityGroupList'], schema.AffinityGroupListParams, null)
+    ),
+    http.post(
+      '/v1/affinity-groups',
+      handler(
+        handlers['affinityGroupCreate'],
+        schema.AffinityGroupCreateParams,
+        schema.AffinityGroupCreate
+      )
+    ),
+    http.get(
+      '/v1/affinity-groups/:affinityGroup',
+      handler(handlers['affinityGroupView'], schema.AffinityGroupViewParams, null)
+    ),
+    http.put(
+      '/v1/affinity-groups/:affinityGroup',
+      handler(
+        handlers['affinityGroupUpdate'],
+        schema.AffinityGroupUpdateParams,
+        schema.AffinityGroupUpdate
+      )
+    ),
+    http.delete(
+      '/v1/affinity-groups/:affinityGroup',
+      handler(handlers['affinityGroupDelete'], schema.AffinityGroupDeleteParams, null)
+    ),
+    http.get(
+      '/v1/affinity-groups/:affinityGroup/members',
+      handler(
+        handlers['affinityGroupMemberList'],
+        schema.AffinityGroupMemberListParams,
+        null
+      )
+    ),
+    http.get(
+      '/v1/affinity-groups/:affinityGroup/members/instance/:instance',
+      handler(
+        handlers['affinityGroupMemberInstanceView'],
+        schema.AffinityGroupMemberInstanceViewParams,
+        null
+      )
+    ),
+    http.post(
+      '/v1/affinity-groups/:affinityGroup/members/instance/:instance',
+      handler(
+        handlers['affinityGroupMemberInstanceAdd'],
+        schema.AffinityGroupMemberInstanceAddParams,
+        null
+      )
+    ),
+    http.delete(
+      '/v1/affinity-groups/:affinityGroup/members/instance/:instance',
+      handler(
+        handlers['affinityGroupMemberInstanceDelete'],
+        schema.AffinityGroupMemberInstanceDeleteParams,
+        null
+      )
+    ),
+    http.get(
+      '/v1/anti-affinity-groups',
+      handler(handlers['antiAffinityGroupList'], schema.AntiAffinityGroupListParams, null)
+    ),
+    http.post(
+      '/v1/anti-affinity-groups',
+      handler(
+        handlers['antiAffinityGroupCreate'],
+        schema.AntiAffinityGroupCreateParams,
+        schema.AntiAffinityGroupCreate
+      )
+    ),
+    http.get(
+      '/v1/anti-affinity-groups/:antiAffinityGroup',
+      handler(handlers['antiAffinityGroupView'], schema.AntiAffinityGroupViewParams, null)
+    ),
+    http.put(
+      '/v1/anti-affinity-groups/:antiAffinityGroup',
+      handler(
+        handlers['antiAffinityGroupUpdate'],
+        schema.AntiAffinityGroupUpdateParams,
+        schema.AntiAffinityGroupUpdate
+      )
+    ),
+    http.delete(
+      '/v1/anti-affinity-groups/:antiAffinityGroup',
+      handler(
+        handlers['antiAffinityGroupDelete'],
+        schema.AntiAffinityGroupDeleteParams,
+        null
+      )
+    ),
+    http.get(
+      '/v1/anti-affinity-groups/:antiAffinityGroup/members',
+      handler(
+        handlers['antiAffinityGroupMemberList'],
+        schema.AntiAffinityGroupMemberListParams,
+        null
+      )
+    ),
+    http.get(
+      '/v1/anti-affinity-groups/:antiAffinityGroup/members/instance/:instance',
+      handler(
+        handlers['antiAffinityGroupMemberInstanceView'],
+        schema.AntiAffinityGroupMemberInstanceViewParams,
+        null
+      )
+    ),
+    http.post(
+      '/v1/anti-affinity-groups/:antiAffinityGroup/members/instance/:instance',
+      handler(
+        handlers['antiAffinityGroupMemberInstanceAdd'],
+        schema.AntiAffinityGroupMemberInstanceAddParams,
+        null
+      )
+    ),
+    http.delete(
+      '/v1/anti-affinity-groups/:antiAffinityGroup/members/instance/:instance',
+      handler(
+        handlers['antiAffinityGroupMemberInstanceDelete'],
+        schema.AntiAffinityGroupMemberInstanceDeleteParams,
+        null
+      )
     ),
     http.get(
       '/v1/certificates',
@@ -1977,6 +2342,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['physicalDiskView'], schema.PhysicalDiskViewParams, null)
     ),
     http.get(
+      '/v1/system/hardware/rack-switch-port/:rackId/:switchLocation/:port/lldp/neighbors',
+      handler(
+        handlers['networkingSwitchPortLldpNeighbors'],
+        schema.NetworkingSwitchPortLldpNeighborsParams,
+        null
+      )
+    ),
+    http.get(
       '/v1/system/hardware/racks',
       handler(handlers['rackList'], schema.RackListParams, null)
     ),
@@ -2022,6 +2395,22 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         handlers['networkingSwitchPortList'],
         schema.NetworkingSwitchPortListParams,
         null
+      )
+    ),
+    http.get(
+      '/v1/system/hardware/switch-port/:port/lldp/config',
+      handler(
+        handlers['networkingSwitchPortLldpConfigView'],
+        schema.NetworkingSwitchPortLldpConfigViewParams,
+        null
+      )
+    ),
+    http.post(
+      '/v1/system/hardware/switch-port/:port/lldp/config',
+      handler(
+        handlers['networkingSwitchPortLldpConfigUpdate'],
+        schema.NetworkingSwitchPortLldpConfigUpdateParams,
+        schema.LldpLinkConfig
       )
     ),
     http.post(

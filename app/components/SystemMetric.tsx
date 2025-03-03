@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import React, { Suspense, useMemo, useRef } from 'react'
+import { useMemo, useRef } from 'react'
 
 import {
   synthesizeData,
@@ -16,7 +16,7 @@ import {
 
 import { Spinner } from '~/ui/lib/Spinner'
 
-const TimeSeriesChart = React.lazy(() => import('./TimeSeriesChart'))
+import { TimeSeriesChart } from './TimeSeriesChart'
 
 // The difference between system metric and silo metric is
 //   1. different endpoints
@@ -99,20 +99,18 @@ export function SiloMetric({
         {(inRange.isPending || beforeStart.isPending) && <Spinner />}
       </h2>
       {/* TODO: proper skeleton for empty chart */}
-      <Suspense fallback={<div />}>
-        <div className="mt-3 h-[300px]">
-          <TimeSeriesChart
-            data={data}
-            title={title}
-            width={480}
-            height={240}
-            interpolation="stepAfter"
-            startTime={startTime}
-            endTime={endTime}
-            unit={unit !== 'count' ? unit : undefined}
-          />
-        </div>
-      </Suspense>
+      <div className="mt-3 h-[300px]">
+        <TimeSeriesChart
+          data={data}
+          title={title}
+          width={480}
+          height={240}
+          interpolation="stepAfter"
+          startTime={startTime}
+          endTime={endTime}
+          unit={unit !== 'count' ? unit : undefined}
+        />
+      </div>
     </div>
   )
 }
@@ -177,20 +175,18 @@ export function SystemMetric({
         {(inRange.isPending || beforeStart.isPending) && <Spinner />}
       </h2>
       {/* TODO: proper skeleton for empty chart */}
-      <Suspense fallback={<div />}>
-        <div className="mt-3 h-[300px]">
-          <TimeSeriesChart
-            data={data}
-            title={title}
-            width={480}
-            height={240}
-            interpolation="stepAfter"
-            startTime={startTime}
-            endTime={endTime}
-            unit={unit !== 'count' ? unit : undefined}
-          />
-        </div>
-      </Suspense>
+      <div className="mt-3 h-[300px]">
+        <TimeSeriesChart
+          data={data}
+          title={title}
+          width={480}
+          height={240}
+          interpolation="stepAfter"
+          startTime={startTime}
+          endTime={endTime}
+          unit={unit !== 'count' ? unit : undefined}
+        />
+      </div>
     </div>
   )
 }

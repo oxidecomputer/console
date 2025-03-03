@@ -26,10 +26,15 @@ export const links = {
   instanceActionsDocs: 'https://docs.oxide.computer/guides/managing-instances',
   // TODO: link to section
   instanceBootDiskDocs: 'https://docs.oxide.computer/guides/deploying-workloads',
+  instanceUpdateDocs:
+    'https://docs.oxide.computer/guides/managing-instances#_update_instances',
   keyConceptsIamPolicyDocs:
     'https://docs.oxide.computer/guides/key-entities-and-concepts#iam-policy',
   keyConceptsProjectsDocs:
     'https://docs.oxide.computer/guides/key-entities-and-concepts#_projects',
+  oxqlDocs: 'https://docs.oxide.computer/guides/operator/system-metrics#_oxql_quickstart',
+  oxqlSchemaDocs: (metric: string) =>
+    `https://docs.oxide.computer/guides/metrics/timeseries-schemas#_${metric.replace(':', '')}`,
   projectsDocs: 'https://docs.oxide.computer/guides/onboarding-projects',
   quickStart: 'https://docs.oxide.computer/guides/quickstart',
   routersDocs:
@@ -50,6 +55,8 @@ export const links = {
   systemSiloDocs: 'https://docs.oxide.computer/guides/operator/silo-management',
   transitIpsDocs:
     'https://docs.oxide.computer/guides/configuring-guest-networking#_example_4_software_routing_tunnels',
+  troubleshootingAccess:
+    'https://docs.oxide.computer/guides/operator/faq#_how_do_i_fix_the_something_went_wrong_error',
   instancesDocs: 'https://docs.oxide.computer/guides/deploying-workloads',
   vpcsDocs: 'https://docs.oxide.computer/guides/configuring-guest-networking',
 }

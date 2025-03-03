@@ -173,6 +173,83 @@ export const AddressLotResultsPage = z.preprocess(
   z.object({ items: AddressLot.array(), nextPage: z.string().optional() })
 )
 
+/**
+ * Describes the scope of affinity for the purposes of co-location.
+ */
+export const FailureDomain = z.preprocess(processResponseBody, z.enum(['sled']))
+
+/**
+ * Affinity policy used to describe "what to do when a request cannot be satisfied"
+ *
+ * Used for both Affinity and Anti-Affinity Groups
+ */
+export const AffinityPolicy = z.preprocess(processResponseBody, z.enum(['allow', 'fail']))
+
+/**
+ * Identity-related metadata that's included in nearly all public API objects
+ */
+export const AffinityGroup = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    failureDomain: FailureDomain,
+    id: z.string().uuid(),
+    name: Name,
+    policy: AffinityPolicy,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
+)
+
+/**
+ * Create-time parameters for an `AffinityGroup`
+ */
+export const AffinityGroupCreate = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    failureDomain: FailureDomain,
+    name: Name,
+    policy: AffinityPolicy,
+  })
+)
+
+export const TypedUuidForInstanceKind = z.preprocess(processResponseBody, z.string().uuid())
+
+/**
+ * A member of an Affinity Group
+ *
+ * Membership in a group is not exclusive - members may belong to multiple affinity / anti-affinity groups.
+ */
+export const AffinityGroupMember = z.preprocess(
+  processResponseBody,
+  z.object({ type: z.enum(['instance']), value: TypedUuidForInstanceKind })
+)
+
+/**
+ * A single page of results
+ */
+export const AffinityGroupMemberResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: AffinityGroupMember.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * A single page of results
+ */
+export const AffinityGroupResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: AffinityGroup.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * Updateable properties of an `AffinityGroup`
+ */
+export const AffinityGroupUpdate = z.preprocess(
+  processResponseBody,
+  z.object({ description: z.string().optional(), name: Name.optional() })
+)
+
 export const BgpMessageHistory = z.preprocess(processResponseBody, z.record(z.unknown()))
 
 /**
@@ -231,6 +308,69 @@ export const AllowList = z.preprocess(
 export const AllowListUpdate = z.preprocess(
   processResponseBody,
   z.object({ allowedIps: AllowedSourceIps })
+)
+
+/**
+ * Identity-related metadata that's included in nearly all public API objects
+ */
+export const AntiAffinityGroup = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    failureDomain: FailureDomain,
+    id: z.string().uuid(),
+    name: Name,
+    policy: AffinityPolicy,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
+)
+
+/**
+ * Create-time parameters for an `AntiAffinityGroup`
+ */
+export const AntiAffinityGroupCreate = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    failureDomain: FailureDomain,
+    name: Name,
+    policy: AffinityPolicy,
+  })
+)
+
+/**
+ * A member of an Anti-Affinity Group
+ *
+ * Membership in a group is not exclusive - members may belong to multiple affinity / anti-affinity groups.
+ */
+export const AntiAffinityGroupMember = z.preprocess(
+  processResponseBody,
+  z.object({ type: z.enum(['instance']), value: TypedUuidForInstanceKind })
+)
+
+/**
+ * A single page of results
+ */
+export const AntiAffinityGroupMemberResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: AntiAffinityGroupMember.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * A single page of results
+ */
+export const AntiAffinityGroupResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: AntiAffinityGroup.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * Updateable properties of an `AntiAffinityGroup`
+ */
+export const AntiAffinityGroupUpdate = z.preprocess(
+  processResponseBody,
+  z.object({ description: z.string().optional(), name: Name.optional() })
 )
 
 /**
@@ -2188,6 +2328,32 @@ export const LldpLinkConfig = z.preprocess(
 )
 
 /**
+ * Information about LLDP advertisements from other network entities directly connected to a switch port.  This structure contains both metadata about when and where the neighbor was seen, as well as the specific information the neighbor was advertising.
+ */
+export const LldpNeighbor = z.preprocess(
+  processResponseBody,
+  z.object({
+    chassisId: z.string(),
+    firstSeen: z.coerce.date(),
+    lastSeen: z.coerce.date(),
+    linkDescription: z.string().optional(),
+    linkName: z.string(),
+    localPort: z.string(),
+    managementIp: IpNet.array(),
+    systemDescription: z.string().optional(),
+    systemName: z.string().optional(),
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const LldpNeighborResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: LldpNeighbor.array(), nextPage: z.string().optional() })
+)
+
+/**
  * A loopback address is an address that is assigned to a rack switch but is not associated with any particular port.
  */
 export const LoopbackAddress = z.preprocess(
@@ -3095,6 +3261,35 @@ export const SshKeyResultsPage = z.preprocess(
   z.object({ items: SshKey.array(), nextPage: z.string().optional() })
 )
 
+export const TypedUuidForSupportBundleKind = z.preprocess(
+  processResponseBody,
+  z.string().uuid()
+)
+
+export const SupportBundleState = z.preprocess(
+  processResponseBody,
+  z.enum(['collecting', 'destroying', 'failed', 'active'])
+)
+
+export const SupportBundleInfo = z.preprocess(
+  processResponseBody,
+  z.object({
+    id: TypedUuidForSupportBundleKind,
+    reasonForCreation: z.string(),
+    reasonForFailure: z.string().optional(),
+    state: SupportBundleState,
+    timeCreated: z.coerce.date(),
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const SupportBundleInfoResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: SupportBundleInfo.array(), nextPage: z.string().optional() })
+)
+
 /**
  * An operator's view of a Switch.
  */
@@ -3810,6 +4005,13 @@ export const NameOrIdSortMode = z.preprocess(
   z.enum(['name_ascending', 'name_descending', 'id_ascending'])
 )
 
+/**
+ * Supported set of sort modes for scanning by id only.
+ *
+ * Currently, we only support scanning in ascending order.
+ */
+export const IdSortMode = z.preprocess(processResponseBody, z.enum(['id_ascending']))
+
 export const DiskMetricName = z.preprocess(
   processResponseBody,
   z.enum(['activated', 'flush', 'read', 'read_bytes', 'write', 'write_bytes'])
@@ -3822,13 +4024,6 @@ export const PaginationOrder = z.preprocess(
   processResponseBody,
   z.enum(['ascending', 'descending'])
 )
-
-/**
- * Supported set of sort modes for scanning by id only.
- *
- * Currently, we only support scanning in ascending order.
- */
-export const IdSortMode = z.preprocess(processResponseBody, z.enum(['id_ascending']))
 
 export const SystemMetricName = z.preprocess(
   processResponseBody,
@@ -3913,6 +4108,98 @@ export const ProbeDeleteParams = z.preprocess(
   })
 )
 
+export const SupportBundleListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const SupportBundleCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      supportBundle: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      supportBundle: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleDownloadParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      supportBundle: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleHeadParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      supportBundle: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleDownloadFileParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      file: z.string(),
+      supportBundle: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleHeadFileParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      file: z.string(),
+      supportBundle: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleIndexParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      supportBundle: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
 export const LoginSamlParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -3921,6 +4208,232 @@ export const LoginSamlParams = z.preprocess(
       siloName: Name,
     }),
     query: z.object({}),
+  })
+)
+
+export const AffinityGroupListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const AffinityGroupCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      project: NameOrId,
+    }),
+  })
+)
+
+export const AffinityGroupViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      affinityGroup: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const AffinityGroupUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      affinityGroup: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const AffinityGroupDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      affinityGroup: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const AffinityGroupMemberListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      affinityGroup: NameOrId,
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const AffinityGroupMemberInstanceViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      affinityGroup: NameOrId,
+      instance: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const AffinityGroupMemberInstanceAddParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      affinityGroup: NameOrId,
+      instance: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const AffinityGroupMemberInstanceDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      affinityGroup: NameOrId,
+      instance: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const AntiAffinityGroupListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const AntiAffinityGroupCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      project: NameOrId,
+    }),
+  })
+)
+
+export const AntiAffinityGroupViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      antiAffinityGroup: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const AntiAffinityGroupUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      antiAffinityGroup: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const AntiAffinityGroupDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      antiAffinityGroup: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const AntiAffinityGroupMemberListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      antiAffinityGroup: NameOrId,
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const AntiAffinityGroupMemberInstanceViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      antiAffinityGroup: NameOrId,
+      instance: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const AntiAffinityGroupMemberInstanceAddParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      antiAffinityGroup: NameOrId,
+      instance: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const AntiAffinityGroupMemberInstanceDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      antiAffinityGroup: NameOrId,
+      instance: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
   })
 )
 
@@ -4946,6 +5459,22 @@ export const PhysicalDiskViewParams = z.preprocess(
   })
 )
 
+export const NetworkingSwitchPortLldpNeighborsParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      port: Name,
+      rackId: z.string().uuid(),
+      switchLocation: Name,
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
 export const RackListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -5056,6 +5585,32 @@ export const NetworkingSwitchPortListParams = z.preprocess(
       pageToken: z.string().optional(),
       sortBy: IdSortMode.optional(),
       switchPortId: z.string().uuid().optional(),
+    }),
+  })
+)
+
+export const NetworkingSwitchPortLldpConfigViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      port: Name,
+    }),
+    query: z.object({
+      rackId: z.string().uuid(),
+      switchLocation: Name,
+    }),
+  })
+)
+
+export const NetworkingSwitchPortLldpConfigUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      port: Name,
+    }),
+    query: z.object({
+      rackId: z.string().uuid(),
+      switchLocation: Name,
     }),
   })
 )

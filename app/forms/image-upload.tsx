@@ -35,6 +35,7 @@ import { NameField } from '~/components/form/fields/NameField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
@@ -175,20 +176,15 @@ const CHUNK_SIZE_BYTES = 512 * KiB
 // TODO: make sure cleanup, cancelEverything, and resetMainFlow are called in
 // the right places
 
-Component.displayName = 'ImageCreate'
+export const handle = titleCrumb('Upload image')
+
 /**
  * Upload an image. Opens a second modal to show upload progress.
  */
-export function Component() {
+export default function ImageCreate() {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
-
-  // Note: abort currently only works if it fires during the upload file step.
-  // We could make it work between the other steps by calling
-  // `abortController.throwIfAborted()` after each one. We could technically
-  // plumb through the signal to the requests themselves, but they complete so
-  // quickly it's probably not necessary.
 
   // The state in this component is very complex because we are doing a bunch of
   // requests in order, all of which can fail, plus the whole thing can be
@@ -250,8 +246,19 @@ export function Component() {
   // separate so we can distinguish between cleanup due to error vs. cleanup after success
   const stopImportCleanup = useApiMutation('diskBulkWriteImportStop')
   const finalizeDiskCleanup = useApiMutation('diskFinalizeImport')
-  const deleteDiskCleanup = useApiMutation('diskDelete')
-  const deleteSnapshotCleanup = useApiMutation('snapshotDelete')
+  // in production these invalidations are unlikely to matter, but they help a
+  // lot in the tests when we check the disk list after canceling to make sure
+  // the temp resources got deleted
+  const deleteDiskCleanup = useApiMutation('diskDelete', {
+    onSuccess() {
+      queryClient.invalidateQueries('diskList')
+    },
+  })
+  const deleteSnapshotCleanup = useApiMutation('snapshotDelete', {
+    onSuccess() {
+      queryClient.invalidateQueries('snapshotList')
+    },
+  })
 
   const cleanupMutations = [
     stopImportCleanup,
@@ -270,31 +277,36 @@ export function Component() {
   const snapshot = useRef<Snapshot | null>(null)
   const disk = useRef<Disk | null>(null)
 
-  // if closeModal runs during bulk upload due to a cancel, cancelEverything
-  // causes an abort of the bulk upload, which throws an error to onSubmit's
-  // catch, which calls `cleanup`. so when we call cleanup here, it will be a
-  // double cleanup. we could get rid of this one, but for the rare cancel *not*
-  // during bulk upload we will still want to call cleanup. rather than
-  // coordinating when to cleanup, we make cleanup idempotent by having it check
-  // whether it has already been run, or more concretely before each action,
-  // check whether it needs to be done
   function closeModal() {
     if (allDone) {
       backToImages()
       return
     }
 
-    // if we're still going, need to confirm cancelation. if we have an error,
+    // if we're still going, need to confirm cancellation. if we have an error,
     // everything is already stopped
     if (modalError || confirm('Are you sure? Closing the modal will cancel the upload.')) {
+      // Note we don't run cleanup() here -- cancelEverything triggers an
+      // abort, which gets caught by the try/catch in the onSubmit on the upload
+      // form, which does the cleanup. We used to call cleanup here and used
+      // error-prone state logic to avoid it running twice.
+      //
+      // Because we are working with a closed-over copy of allDone, there is
+      // a possibility that the upload finishes while the user is looking at
+      // the confirm modal, in which case cancelEverything simply won't do
+      // anything. The finally{} in onSubmit clears out the abortController so
+      // cancelEverything() is a noop.
       cancelEverything()
-      // TODO: probably shouldn't await this, but we do need to catch errors
-      cleanup()
       resetMainFlow()
       setModalOpen(false)
     }
   }
 
+  // Aborting works for steps other than file upload despite the
+  // signal not being used directly in the former because we call
+  // `abortController.throwIfAborted()` after each step. We could technically
+  // plumb through the signal to the requests themselves, but they complete so
+  // quickly it's probably not necessary.
   function cancelEverything() {
     abortController.current?.abort(ABORT_ERROR)
   }
@@ -306,14 +318,8 @@ export function Component() {
     setSyntheticUploadState(initSyntheticState)
   }
 
-  const cleaningUp = useRef(false)
-
   /** If a snapshot or disk was created, clean it up*/
   async function cleanup() {
-    // don't run if already running
-    if (cleaningUp.current) return
-    cleaningUp.current = true
-
     if (snapshot.current) {
       await deleteSnapshotCleanup.mutateAsync({ path: { snapshot: snapshot.current.id } })
       snapshot.current = null
@@ -335,7 +341,6 @@ export function Component() {
       await deleteDiskCleanup.mutateAsync({ path: { disk: disk.current.id } })
       disk.current = null
     }
-    cleaningUp.current = false
   }
 
   async function onSubmit({
@@ -500,10 +505,6 @@ export function Component() {
       title="Upload image"
       onDismiss={backToImages}
       onSubmit={async (values) => {
-        // every submit needs its own AbortController because they can't be
-        // reset
-        abortController.current = new AbortController()
-
         setFormError(null)
 
         // check that image name isn't taken before starting the whole thing
@@ -532,16 +533,29 @@ export function Component() {
           return
         }
 
+        // every submit needs its own AbortController because they can't be
+        // reset
+        abortController.current = new AbortController()
+
         try {
           await onSubmit(values)
         } catch (e) {
           if (e !== ABORT_ERROR) {
+            console.error(e)
             setModalError('Something went wrong. Please try again.')
+            // abort anything in flight in case
+            cancelEverything()
           }
-          cancelEverything()
           // user canceled
           await cleanup()
           // TODO: if we get here, show failure state in the upload modal
+        } finally {
+          // Clear the abort controller. This is aimed at the case where the
+          // user clicks cancel and then stares at the confirm modal without
+          // clicking for so long that the upload manages to finish, which means
+          // there's no longer anything to cancel. If abortController is gone,
+          // cancelEverything is a noop.
+          abortController.current = null
         }
       }}
       loading={formLoading}

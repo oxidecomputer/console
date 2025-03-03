@@ -8,7 +8,6 @@
 import { filesize } from 'filesize'
 import { useMemo } from 'react'
 import { useController, useForm, type Control } from 'react-hook-form'
-import { useNavigate, type NavigateFunction } from 'react-router'
 
 import {
   useApiMutation,
@@ -37,11 +36,12 @@ import { Radio } from '~/ui/lib/Radio'
 import { RadioGroup } from '~/ui/lib/RadioGroup'
 import { Slash } from '~/ui/lib/Slash'
 import { toLocaleDateString } from '~/util/date'
+import { diskSizeNearest10 } from '~/util/math'
 import { bytesToGiB, GiB } from '~/util/units'
 
 const blankDiskSource: DiskSource = {
   type: 'blank',
-  blockSize: 512,
+  blockSize: 4096,
 }
 
 const defaultValues: DiskCreate = {
@@ -58,11 +58,7 @@ type CreateSideModalFormProps = {
    * the RQ `onSuccess` defined for the mutation.
    */
   onSubmit?: (diskCreate: DiskCreate) => void
-  /**
-   * Passing navigate is a bit of a hack to be able to do a nav from the routes
-   * file. The callers that don't need the arg can ignore it.
-   */
-  onDismiss: (navigate: NavigateFunction) => void
+  onDismiss: () => void
   onSuccess?: (disk: Disk) => void
   unavailableDiskNames?: string[]
 }
@@ -74,14 +70,13 @@ export function CreateDiskSideModalForm({
   unavailableDiskNames = [],
 }: CreateSideModalFormProps) {
   const queryClient = useApiQueryClient()
-  const navigate = useNavigate()
 
   const createDisk = useApiMutation('diskCreate', {
     onSuccess(data) {
       queryClient.invalidateQueries('diskList')
       addToast(<>Disk <HL>{data.name}</HL> created</>) // prettier-ignore
       onSuccess?.(data)
-      onDismiss(navigate)
+      onDismiss()
     },
   })
 
@@ -122,7 +117,7 @@ export function CreateDiskSideModalForm({
       form={form}
       formType="create"
       resourceName="disk"
-      onDismiss={() => onDismiss(navigate)}
+      onDismiss={onDismiss}
       onSubmit={({ size, ...rest }) => {
         const body = { size: size * GiB, ...rest }
         if (onSubmit) {
@@ -227,8 +222,7 @@ const DiskSourceField = ({
               const image = images.find((i) => i.id === id)! // if it's selected, it must be present
               const imageSizeGiB = image.size / GiB
               if (diskSizeField.value < imageSizeGiB) {
-                const nearest10 = Math.ceil(imageSizeGiB / 10) * 10
-                diskSizeField.onChange(nearest10)
+                diskSizeField.onChange(diskSizeNearest10(imageSizeGiB))
               }
             }}
           />
@@ -288,8 +282,7 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
         const snapshot = snapshots.find((i) => i.id === id)! // if it's selected, it must be present
         const snapshotSizeGiB = snapshot.size / GiB
         if (diskSizeField.value < snapshotSizeGiB) {
-          const nearest10 = Math.ceil(snapshotSizeGiB / 10) * 10
-          diskSizeField.onChange(nearest10)
+          diskSizeField.onChange(diskSizeNearest10(snapshotSizeGiB))
         }
       }}
     />

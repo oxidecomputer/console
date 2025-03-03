@@ -40,10 +40,15 @@ export const pb = {
   instance: (params: PP.Instance) => pb.instanceStorage(params),
 
   instanceMetrics: (params: PP.Instance) => `${instanceBase(params)}/metrics`,
+  instanceCpuMetrics: (params: PP.Instance) => `${instanceBase(params)}/metrics/cpu`,
+  instanceDiskMetrics: (params: PP.Instance) => `${instanceBase(params)}/metrics/disk`,
+  instanceNetworkMetrics: (params: PP.Instance) =>
+    `${instanceBase(params)}/metrics/network`,
   instanceStorage: (params: PP.Instance) => `${instanceBase(params)}/storage`,
   instanceConnect: (params: PP.Instance) => `${instanceBase(params)}/connect`,
   instanceNetworking: (params: PP.Instance) => `${instanceBase(params)}/networking`,
   serialConsole: (params: PP.Instance) => `${instanceBase(params)}/serial-console`,
+  instanceSettings: (params: PP.Instance) => `${instanceBase(params)}/settings`,
 
   disksNew: (params: PP.Project) => `${projectBase(params)}/disks-new`,
   disks: (params: PP.Project) => `${projectBase(params)}/disks`,

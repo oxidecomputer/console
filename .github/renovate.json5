@@ -20,7 +20,6 @@
     // Packages to auto update and auto merge if CI passes
     {
       managers: ['npm'],
-      automerge: true,
       packageNames: ['typescript'],
       enabled: true,
     },

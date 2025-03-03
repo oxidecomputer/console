@@ -102,8 +102,9 @@ module.exports = {
   ignorePatterns: ['dist/', 'node_modules/', 'tools/deno/'],
   overrides: [
     {
-      // default export is needed in config files
-      files: ['*.config.ts'],
+      // default exports are needed in the route modules and the config files,
+      // but we want to avoid them anywhere else
+      files: ['app/pages/**/*', 'app/layouts/**/*', 'app/forms/**/*', '*.config.ts'],
       rules: { 'import/no-default-export': 'off' },
     },
     {

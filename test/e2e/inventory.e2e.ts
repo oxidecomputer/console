@@ -55,6 +55,7 @@ test('Sled inventory page', async ({ page }) => {
   await sledsTable.getByRole('link').first().click()
 
   await expectVisible(page, ['role=heading[name*="Sled"]'])
+  await expect(page.getByText('serialBRM02222869')).toBeVisible()
 
   const instancesTab = page.getByRole('tab', { name: 'Instances' })
   await expect(instancesTab).toBeVisible()

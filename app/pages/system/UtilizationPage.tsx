@@ -10,10 +10,11 @@ import { useIsFetching } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 
 import {
-  apiQueryClient,
   FLEET_ID,
+  getListQFn,
+  queryClient,
   totalUtilization,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
 } from '@oxide/api'
 import { Metrics16Icon, Metrics24Icon } from '@oxide/design-system/icons/react'
 
@@ -30,22 +31,31 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { ResourceMeter } from '~/ui/lib/ResourceMeter'
 import { Table } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { round } from '~/util/math'
 import { pb } from '~/util/path-builder'
 import { bytesToGiB, bytesToTiB } from '~/util/units'
 
-export async function loader() {
+const siloList = getListQFn('siloList', {
+  query: { limit: ALL_ISH },
+})
+const siloUtilList = getListQFn('siloUtilizationList', {
+  query: { limit: ALL_ISH },
+})
+
+export async function clientLoader() {
   await Promise.all([
-    apiQueryClient.prefetchQuery('siloList', {}),
-    apiQueryClient.prefetchQuery('siloUtilizationList', {}),
+    queryClient.prefetchQuery(siloList.optionsFn()),
+    queryClient.prefetchQuery(siloUtilList.optionsFn()),
   ])
   return null
 }
 
-Component.displayName = 'SystemUtilizationPage'
-export function Component() {
-  const { data: siloUtilizationList } = usePrefetchedApiQuery('siloUtilizationList', {})
+export const handle = { crumb: 'Utilization' }
+
+export default function SystemUtilizationPage() {
+  const { data: siloUtilizationList } = usePrefetchedQuery(siloUtilList.optionsFn())
 
   const { totalAllocated, totalProvisioned } = totalUtilization(siloUtilizationList.items)
 
@@ -83,7 +93,7 @@ export function Component() {
 }
 
 const MetricsTab = () => {
-  const { data: silos } = usePrefetchedApiQuery('siloList', {})
+  const { data: silos } = usePrefetchedQuery(siloList.optionsFn())
 
   const siloItems = useMemo(() => {
     const items = silos?.items.map((silo) => ({ label: silo.name, value: silo.id })) || []
@@ -104,6 +114,8 @@ const MetricsTab = () => {
     isLoading: useIsFetching({ queryKey: ['systemMetric'] }) > 0,
     // sliding the range forward is sufficient to trigger a refetch
     fn: () => onRangeChange(preset),
+    showLastFetched: true,
+    className: 'mb-12',
   })
 
   const commonProps = {
@@ -157,7 +169,8 @@ const MetricsTab = () => {
 }
 
 function UsageTab() {
-  const { data: siloUtilizations } = usePrefetchedApiQuery('siloUtilizationList', {})
+  const { data: siloUtilizations } = usePrefetchedQuery(siloUtilList.optionsFn())
+
   return (
     <Table className="w-full">
       <Table.Header>

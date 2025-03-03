@@ -7,7 +7,7 @@
  */
 import cn from 'classnames'
 import { format } from 'date-fns'
-import { useMemo } from 'react'
+import { useMemo, type ReactNode } from 'react'
 import {
   Area,
   AreaChart,
@@ -20,6 +20,7 @@ import {
 import type { TooltipProps } from 'recharts/types/component/Tooltip'
 
 import type { ChartDatum } from '@oxide/api'
+import { Error12Icon } from '@oxide/design-system/icons/react'
 
 // Recharts's built-in ticks behavior is useless and probably broken
 /**
@@ -73,6 +74,12 @@ const textMonoMd = {
   fill: 'var(--content-quaternary)',
 }
 
+// The length of a character in pixels at 11px with GT America Mono
+// Used for dynamically sizing the yAxis. If this were to fallback
+// the font would likely be thinner than the monospaced character
+// and therefore not overflow
+const TEXT_CHAR_WIDTH = 6.82
+
 function renderTooltip(props: TooltipProps<number, string>, unit?: string) {
   const { payload } = props
   if (!payload || payload.length < 1) return null
@@ -110,18 +117,55 @@ type TimeSeriesChartProps = {
   endTime: Date
   unit?: string
   yAxisTickFormatter?: (val: number) => string
+  hasBorder?: boolean
+  hasError?: boolean
 }
 
 const TICK_COUNT = 6
+const TICK_MARGIN = 8
+const TICK_SIZE = 6
 
 /** Round `value` up to nearest number divisible by `divisor` */
 function roundUpToDivBy(value: number, divisor: number) {
   return Math.ceil(value / divisor) * divisor
 }
 
-// default export is most convenient for dynamic import
-// eslint-disable-next-line import/no-default-export
-export default function TimeSeriesChart({
+// this top margin is also in the chart, probably want a way of unifying the sizing between the two
+const SkeletonMetric = ({
+  children,
+  shimmer = false,
+  className,
+}: {
+  children: ReactNode
+  shimmer?: boolean
+  className?: string
+}) => (
+  <div className="relative flex h-[300px] w-full items-center">
+    <div
+      className={cn(
+        shimmer && 'motion-safe:animate-pulse',
+        'absolute inset-0 bottom-11',
+        className
+      )}
+    >
+      <div className="flex h-full flex-col justify-between">
+        {[...Array(4)].map((_e, i) => (
+          <div key={i} className="h-px w-full bg-[--stroke-secondary]" />
+        ))}
+      </div>
+      <div className="flex justify-between">
+        {[...Array(8)].map((_e, i) => (
+          <div key={i} className="h-1.5 w-px bg-[--stroke-secondary]" />
+        ))}
+      </div>
+    </div>
+    <div className="relative flex h-full w-full items-center justify-center pb-11">
+      {children}
+    </div>
+  </div>
+)
+
+export function TimeSeriesChart({
   className,
   data: rawData,
   title,
@@ -132,13 +176,17 @@ export default function TimeSeriesChart({
   endTime,
   unit,
   yAxisTickFormatter = (val) => val.toLocaleString(),
+  hasBorder = true,
+  hasError = false,
 }: TimeSeriesChartProps) {
   // We use the largest data point +20% for the graph scale. !rawData doesn't
   // mean it's empty (it will never be empty because we fill in artificial 0s at
   // beginning and end), it means the metrics requests haven't come back yet
   const maxY = useMemo(() => {
     if (!rawData) return null
-    const dataMax = Math.max(...rawData.map((datum) => datum.value))
+    const dataMax = Math.max(
+      ...rawData.map((datum) => datum.value).filter((x) => x !== null)
+    )
     return roundUpToDivBy(dataMax * 1.2, TICK_COUNT) // avoid uneven ticks
   }, [rawData])
 
@@ -149,64 +197,126 @@ export default function TimeSeriesChart({
     ? { domain: [0, maxY], ticks: getVerticalTicks(TICK_COUNT, maxY) }
     : undefined
 
+  // We get the longest label length and multiply that with our `TICK_CHAR_WIDTH`
+  // and add the extra space for the tick stroke and spacing
+  // It's possible to get clever and calculate the width using the canvas or font metrics
+  // But our font is monospace so we can just use the length of the text * the baked width of the character
+  const maxLabelLength = yTicks
+    ? Math.max(...yTicks.ticks.map((tick) => yAxisTickFormatter(tick).length))
+    : 0
+  const maxLabelWidth = maxLabelLength * TEXT_CHAR_WIDTH + TICK_SIZE + TICK_MARGIN
+
   // falling back here instead of in the parent lets us avoid causing a
   // re-render on every render of the parent when the data is undefined
   const data = useMemo(() => rawData || [], [rawData])
 
+  const wrapperClass = cn(className, hasBorder && 'rounded-lg border border-default')
+
+  if (hasError) {
+    return (
+      <SkeletonMetric className={wrapperClass}>
+        <MetricsError />
+      </SkeletonMetric>
+    )
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <SkeletonMetric shimmer className={wrapperClass}>
+        <MetricsLoadingIndicator />
+      </SkeletonMetric>
+    )
+  }
+
   return (
-    <ResponsiveContainer width="100%" height={300}>
-      <AreaChart
-        width={width}
-        height={height}
-        data={data}
-        margin={{ top: 0, right: 8, bottom: 16, left: 0 }}
-        className={cn(className, 'rounded-lg border border-default')}
-      >
-        <CartesianGrid stroke={GRID_GRAY} vertical={false} />
-        <XAxis
-          axisLine={{ stroke: GRID_GRAY }}
-          tickLine={{ stroke: GRID_GRAY }}
-          // TODO: show full given date range in the chart even if the data doesn't fill the range
-          domain={['auto', 'auto']}
-          dataKey="timestamp"
-          interval="preserveStart"
-          scale="time"
-          // TODO: use Date directly as x-axis values
-          type="number"
-          name="Time"
-          ticks={getTicks(data, 5)}
-          tickFormatter={isSameDay(startTime, endTime) ? shortTime : shortDateTime}
-          tick={textMonoMd}
-          tickMargin={8}
-        />
-        <YAxis
-          axisLine={{ stroke: GRID_GRAY }}
-          tickLine={{ stroke: GRID_GRAY }}
-          orientation="right"
-          tick={textMonoMd}
-          tickMargin={8}
-          tickFormatter={yAxisTickFormatter}
-          padding={{ top: 32 }}
-          {...yTicks}
-        />
-        {/* TODO: stop tooltip being focused by default on pageload if nothing else has been clicked */}
-        <Tooltip
-          isAnimationActive={false}
-          content={(props: TooltipProps<number, string>) => renderTooltip(props, unit)}
-          cursor={{ stroke: CURSOR_GRAY, strokeDasharray: '3,3' }}
-          wrapperStyle={{ outline: 'none' }}
-        />
-        <Area
-          dataKey="value"
-          name={title}
-          type={interpolation}
-          stroke={GREEN_600}
-          fill={GREEN_400}
-          isAnimationActive={false}
-          dot={false}
-          activeDot={{ fill: GREEN_800, r: 3, strokeWidth: 0 }}
-        />
-      </AreaChart>
-    </ResponsiveContainer>
+    <div className="h-[300px] w-full">
+      {/* temporary until we migrate the old metrics to the new style */}
+      <ResponsiveContainer className={wrapperClass}>
+        <AreaChart
+          width={width}
+          height={height}
+          data={data}
+          margin={{ top: 0, right: hasBorder ? 16 : 0, bottom: 16, left: 0 }}
+        >
+          <CartesianGrid stroke={GRID_GRAY} vertical={false} />
+          <XAxis
+            axisLine={{ stroke: GRID_GRAY }}
+            tickLine={{ stroke: GRID_GRAY }}
+            // TODO: show full given date range in the chart even if the data doesn't fill the range
+            domain={['auto', 'auto']}
+            dataKey="timestamp"
+            interval="preserveStart"
+            scale="time"
+            // TODO: use Date directly as x-axis values
+            type="number"
+            name="Time"
+            ticks={getTicks(data, 5)}
+            tickFormatter={isSameDay(startTime, endTime) ? shortTime : shortDateTime}
+            tick={textMonoMd}
+            tickMargin={TICK_MARGIN}
+            tickSize={TICK_SIZE}
+          />
+          <YAxis
+            axisLine={{ stroke: GRID_GRAY }}
+            tickLine={{ stroke: GRID_GRAY }}
+            orientation="right"
+            tick={textMonoMd}
+            tickSize={TICK_SIZE}
+            tickMargin={TICK_MARGIN}
+            tickFormatter={yAxisTickFormatter}
+            padding={{ top: 32 }}
+            width={maxLabelWidth}
+            {...yTicks}
+          />
+          {/* TODO: stop tooltip being focused by default on pageload if nothing else has been clicked */}
+          <Tooltip
+            isAnimationActive={false}
+            content={(props: TooltipProps<number, string>) => renderTooltip(props, unit)}
+            cursor={{ stroke: CURSOR_GRAY, strokeDasharray: '3,3' }}
+            wrapperStyle={{ outline: 'none' }}
+          />
+          <Area
+            dataKey="value"
+            name={title}
+            type={interpolation}
+            stroke={GREEN_600}
+            fill={GREEN_400}
+            isAnimationActive={false}
+            dot={false}
+            activeDot={{ fill: GREEN_800, r: 3, strokeWidth: 0 }}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
   )
 }
+
+const MetricsLoadingIndicator = () => (
+  <div className="metrics-loading-indicator">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+)
+
+const MetricsError = () => (
+  <>
+    <div className="z-10 flex w-52 flex-col items-center justify-center gap-1">
+      <div className="my-2 flex h-8 w-8 items-center justify-center">
+        <div className="absolute h-8 w-8 rounded-full opacity-20 bg-destructive motion-safe:animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
+        <Error12Icon className="relative h-6 w-6 text-error-tertiary" />
+      </div>
+      <div className="text-semi-lg text-center text-raise">Something went wrong</div>
+      <div className="text-center text-sans-md text-secondary">
+        Please try again. If the problem persists, contact your administrator.
+      </div>
+    </div>
+    <div
+      className="absolute inset-x-0 bottom-12 top-1 bg-accent-secondary"
+      style={{
+        background:
+          'radial-gradient(197.76% 54.9% at 50% 50%, var(--surface-default) 0%, rgba(8, 15, 17, 0.00) 100%)',
+      }}
+    />
+  </>
+)

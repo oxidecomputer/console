@@ -39,9 +39,10 @@ import { Tooltip } from '~/ui/lib/Tooltip'
 import { setDiff } from '~/util/array'
 import { toLocaleTimeString } from '~/util/date'
 import { pb } from '~/util/path-builder'
+import { pluralize } from '~/util/str'
 
 import { useMakeInstanceActions } from './actions'
-import { ResizeInstanceModal } from './instance/InstancePage'
+import { ResizeInstanceModal } from './InstancePage'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -62,7 +63,7 @@ const instanceList = (
   options?: Pick<UseQueryOptions<InstanceResultsPage, ApiError>, 'refetchInterval'>
 ) => getListQFn('instanceList', { query: { project } }, options)
 
-InstancesPage.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
   await queryClient.prefetchQuery(instanceList(project).optionsFn())
   return null
@@ -76,7 +77,7 @@ const POLL_FAST_TIMEOUT = 30 * sec
 const POLL_INTERVAL_FAST = 3 * sec
 const POLL_INTERVAL_SLOW = 60 * sec
 
-export function InstancesPage() {
+export default function InstancesPage() {
   const { project } = useProjectSelector()
   const [resizeInstance, setResizeInstance] = useState<Instance | null>(null)
 
@@ -98,7 +99,8 @@ export function InstancesPage() {
         header: 'CPU',
         cell: (info) => (
           <>
-            {info.getValue()} <span className="ml-1 text-tertiary">vCPU</span>
+            {info.getValue()}{' '}
+            <span className="ml-1 text-tertiary">{pluralize('vCPU', info.getValue())}</span>
           </>
         ),
       }),

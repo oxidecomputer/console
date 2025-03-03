@@ -18,6 +18,10 @@ import { afterAll, afterEach, beforeAll } from 'vitest'
 import { resetDb } from '../../mock-api/msw/db'
 import { server } from './server'
 
+// xterm calls this when it's imported, so defining it here suppresses
+// an error that the method is not implemented
+HTMLCanvasElement.prototype.getContext = () => null
+
 beforeAll(() => server.listen())
 afterEach(() => {
   resetDb()

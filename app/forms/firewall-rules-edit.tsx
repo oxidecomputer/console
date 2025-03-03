@@ -19,6 +19,7 @@ import {
 import { trigger404 } from '~/components/ErrorBoundary'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import {
   getFirewallRuleSelector,
   useFirewallRuleSelector,
@@ -37,7 +38,9 @@ import {
 } from './firewall-rules-common'
 import { valuesToRuleUpdate, type FirewallRuleValues } from './firewall-rules-util'
 
-EditFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
+export const handle = titleCrumb('Edit Rule')
+
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc, rule } = getFirewallRuleSelector(params)
 
   const [firewallRules] = await Promise.all([
@@ -55,7 +58,7 @@ EditFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-export function EditFirewallRuleForm() {
+export default function EditFirewallRuleForm() {
   const { project, vpc, rule } = useFirewallRuleSelector()
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()

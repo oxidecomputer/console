@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import { getLocalTimeZone, type DateValue } from '@internationalized/date'
-import type { TimeValue } from '@react-types/datepicker'
 import cn from 'classnames'
 import { useMemo, useRef } from 'react'
 import { useButton, useDateFormatter, useDatePicker } from 'react-aria'
@@ -36,7 +35,7 @@ export function DatePicker(props: DatePickerProps) {
   const formatter = useDateFormatter({
     dateStyle: 'short',
     timeStyle: 'short',
-    hourCycle: 'h24',
+    hourCycle: 'h23',
   })
 
   const label = useMemo(() => {
@@ -44,12 +43,6 @@ export function DatePicker(props: DatePickerProps) {
       ? formatter.format(state.dateValue.toDate(getLocalTimeZone()))
       : ''
   }, [state, formatter])
-
-  const handleSetTime = (v: TimeValue) => {
-    if (v !== null) {
-      state.setTimeValue(v)
-    }
-  }
 
   return (
     <div
@@ -93,7 +86,9 @@ export function DatePicker(props: DatePickerProps) {
             <div className="flex items-center space-x-2 border-t p-4 border-t-secondary">
               <TimeField
                 value={state.timeValue}
-                onChange={handleSetTime}
+                onChange={(v) => {
+                  if (v !== null) state.setTimeValue(v)
+                }}
                 hourCycle={24}
                 className="grow"
               />

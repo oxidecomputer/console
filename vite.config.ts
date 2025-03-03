@@ -16,13 +16,19 @@ import { z } from 'zod'
 
 import vercelConfig from './vercel.json'
 
-const ApiMode = z.enum(['msw', 'dogfood', 'nexus'])
+const KiB = 1024
+
+const ApiMode = z.enum(['msw', 'remote', 'nexus'])
+
+function bail(msg: string): never {
+  console.error(msg)
+  process.exit(1)
+}
 
 const apiModeResult = ApiMode.default('nexus').safeParse(process.env.API_MODE)
 if (!apiModeResult.success) {
   const options = ApiMode.options.join(', ')
-  console.error(`Error: API_MODE must be one of: [${options}]. If unset, default is "msw".`)
-  process.exit(1)
+  bail(`Error: API_MODE must be one of: [${options}]. If unset, default is "msw".`)
 }
 /**
  * What API are we talking to? Only relevant in development mode.
@@ -33,8 +39,11 @@ if (!apiModeResult.success) {
  */
 const apiMode = apiModeResult.data
 
-// if you want a different host you can override it with EXT_HOST
-const DOGFOOD_HOST = process.env.EXT_HOST || 'oxide.sys.rack2.eng.oxide.computer'
+if (apiMode === 'remote' && !process.env.EXT_HOST) {
+  bail(`Error: EXT_HOST is required when API_MODE=remote. See package.json for examples.`)
+}
+
+const EXT_HOST = process.env.EXT_HOST
 
 const previewAnalyticsTag = {
   injectTo: 'head' as const,
@@ -96,6 +105,13 @@ export default defineConfig(({ mode }) => ({
       input: {
         app: 'index.html',
       },
+      output: {
+        // React Router automatically splits any route module into its own file,
+        // but some end up being like 300 bytes. It feels silly to have several
+        // hundred of those, so we set a minimum size to end up with fewer.
+        // https://rollupjs.org/configuration-options/#output-experimentalminchunksize
+        experimentalMinChunkSize: 30 * KiB,
+      },
     },
     // prevent inlining assets as `data:`, which is not permitted by our Content-Security-Policy
     assetsInlineLimit: 0,
@@ -117,7 +133,7 @@ export default defineConfig(({ mode }) => ({
       },
     }),
     react(),
-    apiMode === 'dogfood' && basicSsl(),
+    apiMode === 'remote' && basicSsl(),
   ],
   html: {
     // don't include a placeholder nonce in production.
@@ -130,18 +146,8 @@ export default defineConfig(({ mode }) => ({
     // these only get hit when MSW doesn't intercept the request
     proxy: {
       '/v1': {
-        target:
-          apiMode === 'dogfood' ? `https://${DOGFOOD_HOST}` : 'http://localhost:12220',
+        target: apiMode === 'remote' ? `https://${EXT_HOST}` : 'http://localhost:12220',
         changeOrigin: true,
-      },
-      '^/v1/instances/[^/]+/serial-console/stream': {
-        target:
-          // in msw mode, serial console is served by tools/deno/mock-serial-console.ts
-          apiMode === 'dogfood'
-            ? `wss://${DOGFOOD_HOST}`
-            : 'ws://127.0.0.1:' + (apiMode === 'msw' ? 6036 : 12220),
-        changeOrigin: true,
-        ws: true,
       },
     },
   },

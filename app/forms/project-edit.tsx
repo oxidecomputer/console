@@ -14,6 +14,7 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
@@ -21,13 +22,15 @@ import type * as PP from '~/util/path-params'
 
 const projectView = ({ project }: PP.Project) => apiq('projectView', { path: { project } })
 
-EditProjectSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
+export const handle = titleCrumb('Edit project')
+
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
   await queryClient.prefetchQuery(projectView({ project }))
   return null
 }
 
-export function EditProjectSideModalForm() {
+export default function EditProjectSideModalForm() {
   const navigate = useNavigate()
 
   const projectSelector = useProjectSelector()

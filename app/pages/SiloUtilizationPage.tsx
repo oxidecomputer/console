@@ -17,7 +17,7 @@ import { DocsPopover } from '~/components/DocsPopover'
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
 import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
 import { SiloMetric } from '~/components/SystemMetric'
-import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
+import { useCurrentUser } from '~/hooks/use-current-user'
 import { Divider } from '~/ui/lib/Divider'
 import { Listbox } from '~/ui/lib/Listbox'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -26,7 +26,9 @@ import { bytesToGiB, bytesToTiB } from '~/util/units'
 
 const toListboxItem = (x: { name: string; id: string }) => ({ label: x.name, value: x.id })
 
-export async function loader() {
+export const handle = { crumb: 'Utilization' }
+
+export async function clientLoader() {
   await Promise.all([
     apiQueryClient.prefetchQuery('projectList', {}),
     apiQueryClient.prefetchQuery('utilizationView', {}),
@@ -34,8 +36,7 @@ export async function loader() {
   return null
 }
 
-Component.displayName = 'SiloUtilizationPage'
-export function Component() {
+export default function SiloUtilizationPage() {
   const { me } = useCurrentUser()
 
   const siloId = me.siloId
@@ -62,6 +63,8 @@ export function Component() {
     isLoading: useIsFetching({ queryKey: ['siloMetric'] }) > 0,
     // sliding the range forward is sufficient to trigger a refetch
     fn: () => onRangeChange(preset),
+    showLastFetched: true,
+    className: 'mb-12',
   })
 
   const commonProps = {

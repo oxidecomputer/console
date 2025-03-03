@@ -19,11 +19,11 @@ import {
 import { trigger404 } from '~/components/ErrorBoundary'
 import { DocsLinkItem, NavLinkItem, Sidebar } from '~/components/Sidebar'
 import { TopBar } from '~/components/TopBar'
+import { useCurrentUser } from '~/hooks/use-current-user'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
 
-import { useCurrentUser } from './AuthenticatedLayout'
 import { ContentPane, PageContainer } from './helpers'
 
 /**
@@ -34,7 +34,7 @@ import { ContentPane, PageContainer } from './helpers'
  * error. We're being a little cavalier here with the error. If it's something
  * other than a 403, that would be strange and we would want to know.
  */
-export async function loader() {
+export async function clientLoader() {
   // we don't need to use the ErrorsAllowed version here because we're 404ing
   // immediately on error, so we don't need to pick the result up from the cache
   const isFleetViewer = await apiQueryClient
@@ -49,8 +49,7 @@ export async function loader() {
   return null
 }
 
-Component.displayName = 'SystemLayout'
-export function Component() {
+export default function SystemLayout() {
   // Only show silo picker if we are looking at a particular silo. The more
   // robust way of doing this would be to make a separate layout for the
   // silo-specific routes in the route config, but it's overkill considering

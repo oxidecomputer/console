@@ -8,7 +8,7 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import cn from 'classnames'
 import * as m from 'motion/react-m'
-import React, { useRef, type ReactNode } from 'react'
+import { useRef, type ReactNode } from 'react'
 
 import { Close12Icon, Error12Icon } from '@oxide/design-system/icons/react'
 

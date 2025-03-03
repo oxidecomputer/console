@@ -38,16 +38,39 @@ const selectTab = (e: React.KeyboardEvent<HTMLDivElement>) => {
 export interface RouteTabsProps {
   children: ReactNode
   fullWidth?: boolean
+  sideTabs?: boolean
+  tabListClassName?: string
 }
-export function RouteTabs({ children, fullWidth }: RouteTabsProps) {
+/** Tabbed views, controlling both the layout and functioning of tabs and the panel contents.
+ *  sideTabs: Whether the tabs are displayed on the side of the panel. Default is false.
+ */
+export function RouteTabs({
+  children,
+  fullWidth,
+  sideTabs = false,
+  tabListClassName,
+}: RouteTabsProps) {
+  /* TODO: Add aria-describedby for active tab */
   return (
-    <div className={cn('ox-tabs', { 'full-width': fullWidth })}>
+    <div
+      className={cn(sideTabs ? 'ox-side-tabs flex' : 'ox-tabs', {
+        'full-width': !sideTabs && fullWidth,
+      })}
+    >
       {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus */}
-      <div role="tablist" className="ox-tabs-list" onKeyDown={selectTab}>
+      <div
+        role="tablist"
+        className={cn(sideTabs ? 'ox-side-tabs-list' : 'ox-tabs-list', tabListClassName)}
+        onKeyDown={selectTab}
+      >
         {children}
       </div>
-      {/* TODO: Add aria-describedby for active tab */}
-      <div className="ox-tabs-panel" role="tabpanel" tabIndex={0}>
+
+      <div
+        className={cn('ox-tabs-panel @container', { 'ml-5 flex-grow': sideTabs })}
+        role="tabpanel"
+        tabIndex={0}
+      >
         <Outlet />
       </div>
     </div>

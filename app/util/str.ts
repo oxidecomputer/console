@@ -6,11 +6,11 @@
  * Copyright Oxide Computer Company
  */
 
-import React from 'react'
+import React, { type ReactElement, type ReactNode } from 'react'
 
 export const capitalize = (s: string) => s && s.charAt(0).toUpperCase() + s.slice(1)
 
-export const pluralize = (s: string, n: number) => `${n} ${s}${n === 1 ? '' : 's'}`
+export const pluralize = (s: string, n: number) => `${s}${n === 1 ? '' : 's'}`
 
 export const camelCase = (s: string) =>
   s
@@ -58,38 +58,30 @@ export const titleCase = (text: string): string => {
  */
 export const isAllZeros = (base64Data: string) => /^A*=*$/.test(base64Data)
 
-/** Clean up text so that it conforms to Name field syntax rules:
- *   - lowercase only
- *   - no spaces
- *   - only letters/numbers/dashes allowed
- *   - capped at 63 characters
- *  By default, it must start with a letter; this can be overriden with the second argument,
- *  for contexts where we want to allow numbers at the start, like searching in comboboxes.
- */
-export const normalizeName = (text: string, allowNonLetterStart = false): string => {
-  const normalizedName = text
-    .toLowerCase()
-    .replace(/[\s_]+/g, '-') // Replace spaces and underscores with dashes
-    .replace(/[^a-z0-9-]/g, '') // Remove non-alphanumeric (or dash) characters
-    .slice(0, 63) // Limit string to 63 characters
-  if (allowNonLetterStart) {
-    return normalizedName
-  }
-  return normalizedName.replace(/^[^a-z]+/, '') // Remove any non-letter characters from the start
-}
-
 /**
  * Extract the string contents of a ReactNode, so <>This <HL>highlighted</HL> text</> becomes "This highlighted text"
  */
 export const extractText = (children: React.ReactNode): string =>
-  React.Children.toArray(children)
-    .map((child) =>
-      typeof child === 'string'
-        ? child
-        : React.isValidElement(child)
-          ? extractText(child.props.children)
-          : ''
-    )
+  (
+    React.Children.map(children, (child) => {
+      if (typeof child === 'string') return child
+      if (!React.isValidElement(child)) return undefined
+      return extractText((child as ReactElement<{ children?: ReactNode }>).props.children)
+    }) || []
+  )
+    .filter((x) => !!x)
     .join(' ')
     .trim()
     .replace(/\s+/g, ' ')
+
+// nexus wants the dash. we plan on changing that so it doesn't care
+export function addDashes(dashAfterIdxs: number[], code: string) {
+  let result = ''
+  for (let i = 0; i < code.length; i++) {
+    result += code[i]
+    if (dashAfterIdxs.includes(i)) {
+      result += '-'
+    }
+  }
+  return result
+}

@@ -61,9 +61,7 @@ interface TerminalProps {
   ws: WebSocket
 }
 
-// default export is most convenient for dynamic import
-// eslint-disable-next-line import/no-default-export
-export default function Terminal({ ws }: TerminalProps) {
+export function Terminal({ ws }: TerminalProps) {
   const [term, setTerm] = useState<XTerm | null>(null)
   const terminalRef = useRef<HTMLDivElement>(null)
 
@@ -104,7 +102,11 @@ export default function Terminal({ ws }: TerminalProps) {
 
   return (
     <>
-      <div className="h-full w-[calc(100%-3rem)] text-mono-code" ref={terminalRef} />
+      <div
+        role="application"
+        className="h-full w-[calc(100%-3rem)] text-mono-code"
+        ref={terminalRef}
+      />
       <div className="absolute right-0 top-0 space-y-2 text-default">
         <ScrollButton onClick={() => term?.scrollToTop()} aria-label="Scroll to top">
           <DirectionUpIcon aria-hidden />

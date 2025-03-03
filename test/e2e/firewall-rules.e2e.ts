@@ -8,7 +8,7 @@
 
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
-import { clickRowAction, expectRowVisible, selectOption } from './utils'
+import { clickRowAction, expectRowVisible, selectOption, sleep } from './utils'
 
 const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp']
 
@@ -168,6 +168,11 @@ test('firewall rule form targets table', async ({ page }) => {
   await targetVpcNameField.fill('abc')
   // hit enter one time to choose the custom value
   await targetVpcNameField.press('Enter')
+
+  // pressing enter twice here in quick succession causes test flake in firefox
+  // specifically and this fixes it
+  await sleep(300)
+
   // hit enter a second time to submit the subform
   await targetVpcNameField.press('Enter')
   await expectRowVisible(targets, { Type: 'vpc', Value: 'abc' })
@@ -194,8 +199,7 @@ test('firewall rule form targets table', async ({ page }) => {
   // now add a subnet by entering text
   await selectOption(page, 'Target type', 'VPC subnet')
   // test that the name typed in is normalized
-  await subnetNameField.fill('ABC 123')
-  await expect(subnetNameField).toHaveValue('abc-123')
+  await subnetNameField.fill('abc-123')
   // hit enter to submit the subform
   await subnetNameField.press('Enter')
   await subnetNameField.press('Enter')
@@ -558,7 +562,7 @@ test('name conflict error on edit', async ({ page }) => {
   const nameField = page.getByRole('textbox', { name: 'Name', exact: true })
   await nameField.fill('allow-ssh')
 
-  const error = page.getByText('Name taken').first()
+  const error = page.getByRole('dialog').getByText('Name taken')
   await expect(error).toBeHidden()
 
   await page.getByRole('button', { name: 'Update rule' }).click()

@@ -1,0 +1,57 @@
+diff --git a/node_modules/react-remove-scroll/dist/es2015/SideEffect.js b/node_modules/react-remove-scroll/dist/es2015/SideEffect.js
+index 625c185..52d934f 100644
+--- a/node_modules/react-remove-scroll/dist/es2015/SideEffect.js
++++ b/node_modules/react-remove-scroll/dist/es2015/SideEffect.js
+@@ -1,7 +1,4 @@
+-import { __spreadArray } from "tslib";
+ import * as React from 'react';
+-import { RemoveScrollBar } from 'react-remove-scroll-bar';
+-import { styleSingleton } from 'react-style-singleton';
+ import { nonPassive } from './aggresiveCapture';
+ import { handleScroll, locationCouldBeScrolled } from './handleScroll';
+ export var getTouchXY = function (event) {
+@@ -12,31 +9,16 @@ var extractRef = function (ref) {
+     return ref && 'current' in ref ? ref.current : ref;
+ };
+ var deltaCompare = function (x, y) { return x[0] === y[0] && x[1] === y[1]; };
+-var generateStyle = function (id) { return "\n  .block-interactivity-".concat(id, " {pointer-events: none;}\n  .allow-interactivity-").concat(id, " {pointer-events: all;}\n"); };
+-var idCounter = 0;
+ var lockStack = [];
+ export function RemoveScrollSideCar(props) {
+     var shouldPreventQueue = React.useRef([]);
+     var touchStartRef = React.useRef([0, 0]);
+     var activeAxis = React.useRef();
+-    var id = React.useState(idCounter++)[0];
+-    var Style = React.useState(styleSingleton)[0];
++    var Style = React.useState({})[0];
+     var lastProps = React.useRef(props);
+     React.useEffect(function () {
+         lastProps.current = props;
+     }, [props]);
+-    React.useEffect(function () {
+-        if (props.inert) {
+-            document.body.classList.add("block-interactivity-".concat(id));
+-            var allow_1 = __spreadArray([props.lockRef.current], (props.shards || []).map(extractRef), true).filter(Boolean);
+-            allow_1.forEach(function (el) { return el.classList.add("allow-interactivity-".concat(id)); });
+-            return function () {
+-                document.body.classList.remove("block-interactivity-".concat(id));
+-                allow_1.forEach(function (el) { return el.classList.remove("allow-interactivity-".concat(id)); });
+-            };
+-        }
+-        return;
+-    }, [props.inert, props.lockRef.current, props.shards]);
+     var shouldCancelEvent = React.useCallback(function (event, parent) {
+         if (('touches' in event && event.touches.length === 2) || (event.type === 'wheel' && event.ctrlKey)) {
+             return !lastProps.current.allowPinchZoom;
+@@ -139,10 +121,7 @@ export function RemoveScrollSideCar(props) {
+             document.removeEventListener('touchstart', scrollTouchStart, nonPassive);
+         };
+     }, []);
+-    var removeScrollBar = props.removeScrollBar, inert = props.inert;
+-    return (React.createElement(React.Fragment, null,
+-        inert ? React.createElement(Style, { styles: generateStyle(id) }) : null,
+-        removeScrollBar ? React.createElement(RemoveScrollBar, { gapMode: props.gapMode }) : null));
++    return (React.createElement(React.Fragment, null));
+ }
+ function getOutermostShadowParent(node) {
+     var shadowParent = null;
