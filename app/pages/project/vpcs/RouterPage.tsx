@@ -200,7 +200,7 @@ export default function RouterPage() {
           <MoreActionsMenu label="Router actions" actions={actions} />
         </div>
       </PageHeader>
-      <PropertiesTable columns={2} className="-mt-8 mb-16">
+      <PropertiesTable columns={2} className="-mt-8 mb-8">
         <PropertiesTable.DescriptionRow description={routerData.description} />
         <PropertiesTable.Row label="Kind">
           <Badge color="neutral">{routerData.kind}</Badge>

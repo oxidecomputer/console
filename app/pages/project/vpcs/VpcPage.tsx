@@ -75,7 +75,7 @@ export default function VpcPage() {
           <MoreActionsMenu label="VPC actions" actions={actions} />
         </div>
       </PageHeader>
-      <PropertiesTable columns={2} className="-mt-8 mb-16">
+      <PropertiesTable columns={2} className="-mt-8 mb-8">
         <PropertiesTable.DescriptionRow description={vpc.description} />
         <PropertiesTable.Row label="DNS Name">{vpc.dnsName}</PropertiesTable.Row>
         <PropertiesTable.DateRow date={vpc.timeCreated} label="Created" />

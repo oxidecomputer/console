@@ -66,7 +66,7 @@ export default function SiloPage() {
         />
       </PageHeader>
 
-      <PropertiesTable columns={2} className="-mt-8 mb-16">
+      <PropertiesTable columns={2} className="-mt-8 mb-8">
         <PropertiesTable.IdRow id={silo.id} />
         <PropertiesTable.DescriptionRow description={silo.description} />
         <PropertiesTable.DateRow date={silo.timeCreated} label="Created" />

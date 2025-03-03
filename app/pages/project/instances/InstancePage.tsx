@@ -218,7 +218,7 @@ export default function InstancePage() {
           <MoreActionsMenu label="Instance actions" actions={allMenuActions} />
         </div>
       </PageHeader>
-      <PropertiesTable columns={2} className="-mt-8 mb-16">
+      <PropertiesTable columns={2} className="-mt-8 mb-8">
         <PropertiesTable.Row label="cpu">
           <span className="text-default">{instance.ncpus}</span>
           <span className="ml-1 text-tertiary">{pluralize(' vCPU', instance.ncpus)}</span>
