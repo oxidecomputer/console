@@ -200,18 +200,14 @@ export default function RouterPage() {
           <MoreActionsMenu label="Router actions" actions={actions} />
         </div>
       </PageHeader>
-      <PropertiesTable.Group className="-mt-8 mb-16">
-        <PropertiesTable>
-          <PropertiesTable.DescriptionRow description={routerData.description} />
-          <PropertiesTable.Row label="Kind">
-            <Badge color="neutral">{routerData.kind}</Badge>
-          </PropertiesTable.Row>
-        </PropertiesTable>
-        <PropertiesTable>
-          <PropertiesTable.DateRow date={routerData.timeCreated} label="Created" />
-          <PropertiesTable.DateRow date={routerData.timeModified} label="Last Modified" />
-        </PropertiesTable>
-      </PropertiesTable.Group>
+      <PropertiesTable columns={2} className="-mt-8 mb-16">
+        <PropertiesTable.DescriptionRow description={routerData.description} />
+        <PropertiesTable.Row label="Kind">
+          <Badge color="neutral">{routerData.kind}</Badge>
+        </PropertiesTable.Row>
+        <PropertiesTable.DateRow date={routerData.timeCreated} label="Created" />
+        <PropertiesTable.DateRow date={routerData.timeModified} label="Last Modified" />
+      </PropertiesTable>
       <TableControls className="mb-3">
         <TableTitle>Routes</TableTitle>
         {canCreateNewRoute ? (

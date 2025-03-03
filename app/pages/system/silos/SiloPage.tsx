@@ -66,16 +66,12 @@ export default function SiloPage() {
         />
       </PageHeader>
 
-      <PropertiesTable.Group className="mb-16">
-        <PropertiesTable>
-          <PropertiesTable.IdRow id={silo.id} />
-          <PropertiesTable.DescriptionRow description={silo.description} />
-        </PropertiesTable>
-        <PropertiesTable>
-          <PropertiesTable.DateRow date={silo.timeCreated} label="Created" />
-          <PropertiesTable.DateRow date={silo.timeModified} label="Last Modified" />
-        </PropertiesTable>
-      </PropertiesTable.Group>
+      <PropertiesTable columns={2} className="-mt-8 mb-16">
+        <PropertiesTable.IdRow id={silo.id} />
+        <PropertiesTable.DescriptionRow description={silo.description} />
+        <PropertiesTable.DateRow date={silo.timeCreated} label="Created" />
+        <PropertiesTable.DateRow date={silo.timeModified} label="Last Modified" />
+      </PropertiesTable>
 
       <QueryParamTabs className="full-width" defaultValue="idps">
         <Tabs.List>
