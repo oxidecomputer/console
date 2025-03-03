@@ -41,9 +41,9 @@ export function PropertiesTable({
         className,
         'properties-table min-w-min basis-6/12 rounded-lg border border-default',
         'children:border-t children:pl-3 children:pr-6 children:border-secondary [&>*:nth-child(-n+2)]:!border-t-0',
+        'grid grid-cols-[minmax(min-content,1fr)_3fr]',
         {
-          'grid grid-cols-[minmax(min-content,1fr)_3fr]': columns === 1,
-          'grid grid-cols-[minmax(min-content,1fr)_3fr] lg+:grid-cols-[minmax(min-content,1fr)_3fr_minmax(min-content,1fr)_3fr] lg+:[&>*:nth-child(-n+4)]:!border-t-0 lg+:[&>*:nth-child(4n-2)]:border-r':
+          'lg+:grid-cols-[minmax(min-content,1fr)_3fr_minmax(min-content,1fr)_3fr] lg+:[&>*:nth-child(-n+4)]:!border-t-0 lg+:[&>*:nth-child(4n-2)]:border-r':
             columns === 2,
         }
       )}
