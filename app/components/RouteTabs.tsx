@@ -51,25 +51,29 @@ export function RouteTabs({
   sideTabs = false,
   tabListClassName,
 }: RouteTabsProps) {
-  const wrapperClasses = sideTabs
-    ? 'ox-side-tabs flex'
-    : cn('ox-tabs', { 'full-width': fullWidth })
-  const tabListClasses = sideTabs ? 'ox-side-tabs-list' : 'ox-tabs-list'
-  const panelClasses = cn('ox-tabs-panel @container', { 'ml-5 flex-grow': sideTabs })
+  /* TODO: Add aria-describedby for active tab */
   return (
-    <div className={wrapperClasses}>
-      {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus */}
-      <div
-        role="tablist"
-        className={cn(tabListClasses, tabListClassName)}
-        onKeyDown={selectTab}
-      >
-        <Wrap when={sideTabs} with={<div className="ox-side-tabs-list sticky top-10" />}>
+    <div
+      className={cn(sideTabs ? 'ox-side-tabs flex' : 'ox-tabs', {
+        'full-width': !sideTabs && fullWidth,
+      })}
+    >
+      <Wrap when={sideTabs} with={<div />}>
+        {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus */}
+        <div
+          role="tablist"
+          className={cn(sideTabs ? 'ox-side-tabs-list' : 'ox-tabs-list', tabListClassName)}
+          onKeyDown={selectTab}
+        >
           {children}
-        </Wrap>
-      </div>
-      {/* TODO: Add aria-describedby for active tab */}
-      <div className={panelClasses} role="tabpanel" tabIndex={0}>
+        </div>
+      </Wrap>
+
+      <div
+        className={cn('ox-tabs-panel @container', { 'ml-5 flex-grow': sideTabs })}
+        role="tabpanel"
+        tabIndex={0}
+      >
         <Outlet />
       </div>
     </div>
