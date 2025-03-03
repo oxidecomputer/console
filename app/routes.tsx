@@ -308,7 +308,6 @@ export const routes = createRoutesFromElements(
                       import('./pages/project/instances/NetworkMetricsTab').then(convert)
                     }
                     path="network"
-                    handle={{ crumb: 'Network' }}
                   />
                 </Route>
                 <Route

@@ -40,8 +40,6 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 
 const groupByInstanceId = { cols: ['instance_id'], op: 'sum' } as const
 
-export const handle = { crumb: 'Network' }
-
 export default function NetworkMetricsTab() {
   const { project, instance } = useInstanceSelector()
   const { data: nics } = usePrefetchedApiQuery('instanceNetworkInterfaceList', {

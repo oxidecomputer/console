@@ -22,8 +22,6 @@ import { Listbox } from '~/ui/lib/Listbox'
 
 import { useMetricsContext } from './common'
 
-export const handle = { crumb: 'CPU' }
-
 export default function CpuMetricsTab() {
   const { project, instance } = useInstanceSelector()
   const { data: instanceData } = usePrefetchedApiQuery('instanceView', {
