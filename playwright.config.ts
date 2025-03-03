@@ -21,6 +21,9 @@ export default {
   workers: process.env.CI ? '100%' : undefined,
   timeout: 60 * 1000, // 1 minute
   fullyParallel: true,
+  // default is 5 seconds. somehow playwright really hates async route modules,
+  // takes a long time to load them. https://playwright.dev/docs/test-timeouts
+  expect: { timeout: 10_000 },
   use: {
     trace: process.env.CI ? 'on-first-retry' : 'retain-on-failure',
     baseURL: 'http://localhost:4009',
