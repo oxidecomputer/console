@@ -141,7 +141,7 @@ test.describe('Image upload', () => {
 
       // wait to be in the middle of the specified step
       const uploadStep = page.getByTestId(`upload-step: ${state}`)
-      await expect(uploadStep).toHaveAttribute('data-status', 'running', { timeout: 10000 })
+      await expect(uploadStep).toHaveAttribute('data-status', 'running')
 
       // form is disabled and semi-hidden
       // await expectNotVisible(page, ['role=textbox[name="Name"]'])
@@ -159,8 +159,7 @@ test.describe('Image upload', () => {
       await page.getByRole('button', { name: 'Cancel' }).click()
       await page.getByRole('link', { name: 'Disks' }).click()
       await expect(page.getByRole('cell', { name: 'disk-1', exact: true })).toBeVisible()
-      // needs a little extra time for delete to go through
-      await expect(page.getByRole('cell', { name: 'tmp' })).toBeHidden({ timeout: 10000 })
+      await expect(page.getByRole('cell', { name: 'tmp' })).toBeHidden()
     })
   }
 

@@ -21,7 +21,7 @@ async function getCrumbs(page: Page) {
 type Pair = [string, string]
 
 async function expectCrumbs(page: Page, crumbs: Pair[]) {
-  await expect.poll(() => getCrumbs(page), { timeout: 10000 }).toEqual(crumbs)
+  await expect.poll(() => getCrumbs(page)).toEqual(crumbs)
 }
 
 const projectCrumbs: Pair[] = [
