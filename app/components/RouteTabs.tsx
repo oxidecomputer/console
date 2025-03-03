@@ -50,23 +50,27 @@ export function RouteTabs({
   sideTabs = false,
   tabListClassName,
 }: RouteTabsProps) {
-  const wrapperClasses = sideTabs
-    ? 'ox-side-tabs flex'
-    : cn('ox-tabs', { 'full-width': fullWidth })
-  const tabListClasses = sideTabs ? 'ox-side-tabs-list' : 'ox-tabs-list'
-  const panelClasses = cn('ox-tabs-panel @container', { 'ml-5 flex-grow': sideTabs })
+  /* TODO: Add aria-describedby for active tab */
   return (
-    <div className={wrapperClasses}>
+    <div
+      className={cn(sideTabs ? 'ox-side-tabs flex' : 'ox-tabs', {
+        'full-width': !sideTabs && fullWidth,
+      })}
+    >
       {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus */}
       <div
         role="tablist"
-        className={cn(tabListClasses, tabListClassName)}
+        className={cn(sideTabs ? 'ox-side-tabs-list' : 'ox-tabs-list', tabListClassName)}
         onKeyDown={selectTab}
       >
         {children}
       </div>
-      {/* TODO: Add aria-describedby for active tab */}
-      <div className={panelClasses} role="tabpanel" tabIndex={0}>
+
+      <div
+        className={cn('ox-tabs-panel @container', { 'ml-5 flex-grow': sideTabs })}
+        role="tabpanel"
+        tabIndex={0}
+      >
         <Outlet />
       </div>
     </div>
@@ -76,16 +80,14 @@ export function RouteTabs({
 export interface TabProps {
   to: string
   children: ReactNode
-  sideTab?: boolean
 }
-export const Tab = ({ to, children, sideTab = false }: TabProps) => {
+export const Tab = ({ to, children }: TabProps) => {
   const isActive = useIsActivePath({ to })
-  const baseClass = sideTab ? 'ox-side-tab' : 'ox-tab'
   return (
     <Link
       role="tab"
       to={to}
-      className={cn(baseClass, { 'is-selected': isActive })}
+      className={cn('ox-tab', { 'is-selected': isActive })}
       tabIndex={isActive ? 0 : -1}
       aria-selected={isActive}
     >

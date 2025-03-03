@@ -43,7 +43,7 @@ export default function ProfilePage() {
         <PageTitle icon={<Settings24Icon />}>Profile</PageTitle>
       </PageHeader>
 
-      <PropertiesTable className="-mt-8 mb-16">
+      <PropertiesTable className="-mt-8 mb-8">
         <PropertiesTable.Row label="Display name">{me.displayName}</PropertiesTable.Row>
         <PropertiesTable.Row label="User ID">
           {me.id}

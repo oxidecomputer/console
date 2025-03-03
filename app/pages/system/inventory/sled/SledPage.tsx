@@ -43,7 +43,7 @@ export default function SledPage() {
         <PageTitle icon={<Servers24Icon />}>Sled</PageTitle>
       </PageHeader>
 
-      <PropertiesTable columns={2} className="-mt-8 mb-16">
+      <PropertiesTable columns={2} className="-mt-8 mb-8">
         <PropertiesTable.Row label="sled id">
           <span className="text-default">{sled.id}</span>
         </PropertiesTable.Row>
