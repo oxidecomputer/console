@@ -22,7 +22,7 @@ export default {
   timeout: 60 * 1000, // 1 minute
   fullyParallel: true,
   use: {
-    trace: process.env.CI ? 'on-first-retry' : 'retain-on-failure',
+    trace: 'retain-on-failure',
     baseURL: 'http://localhost:4009',
   },
   projects: [
