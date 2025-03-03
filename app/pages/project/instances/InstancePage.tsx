@@ -218,45 +218,41 @@ export default function InstancePage() {
           <MoreActionsMenu label="Instance actions" actions={allMenuActions} />
         </div>
       </PageHeader>
-      <PropertiesTable.Group className="-mt-8 mb-16">
-        <PropertiesTable>
-          <PropertiesTable.Row label="cpu">
-            <span className="text-default">{instance.ncpus}</span>
-            <span className="ml-1 text-tertiary">{pluralize(' vCPU', instance.ncpus)}</span>
-          </PropertiesTable.Row>
-          <PropertiesTable.Row label="ram">
-            <span className="text-default">{memory.value}</span>
-            <span className="ml-1 text-tertiary"> {memory.unit}</span>
-          </PropertiesTable.Row>
-          <PropertiesTable.Row label="state">
-            <div className="flex items-center gap-2">
-              <InstanceStateBadge state={instance.runState} />
-              {instanceTransitioning(instance) && <PollingSpinner />}
-              <InstanceAutoRestartPopover instance={instance} />
-            </div>
-          </PropertiesTable.Row>
-          <PropertiesTable.Row label="vpc">
-            {vpc ? (
-              <Link
-                className="link-with-underline group text-sans-md"
-                to={pb.vpc({ project: instanceSelector.project, vpc: vpc.name })}
-              >
-                {vpc.name}
-              </Link>
-            ) : (
-              <EmptyCell />
-            )}
-          </PropertiesTable.Row>
-        </PropertiesTable>
-        <PropertiesTable>
-          <PropertiesTable.DescriptionRow description={instance.description} />
-          <PropertiesTable.DateRow date={instance.timeCreated} label="Created" />
-          <PropertiesTable.IdRow id={instance.id} />
-          <PropertiesTable.Row label="external IPs">
-            {<ExternalIps {...instanceSelector} />}
-          </PropertiesTable.Row>
-        </PropertiesTable>
-      </PropertiesTable.Group>
+      <PropertiesTable columns={2} className="-mt-8 mb-16">
+        <PropertiesTable.Row label="cpu">
+          <span className="text-default">{instance.ncpus}</span>
+          <span className="ml-1 text-tertiary">{pluralize(' vCPU', instance.ncpus)}</span>
+        </PropertiesTable.Row>
+        <PropertiesTable.Row label="ram">
+          <span className="text-default">{memory.value}</span>
+          <span className="ml-1 text-tertiary"> {memory.unit}</span>
+        </PropertiesTable.Row>
+        <PropertiesTable.Row label="state">
+          <div className="flex items-center gap-2">
+            <InstanceStateBadge state={instance.runState} />
+            {instanceTransitioning(instance) && <PollingSpinner />}
+            <InstanceAutoRestartPopover instance={instance} />
+          </div>
+        </PropertiesTable.Row>
+        <PropertiesTable.Row label="vpc">
+          {vpc ? (
+            <Link
+              className="link-with-underline group text-sans-md"
+              to={pb.vpc({ project: instanceSelector.project, vpc: vpc.name })}
+            >
+              {vpc.name}
+            </Link>
+          ) : (
+            <EmptyCell />
+          )}
+        </PropertiesTable.Row>
+        <PropertiesTable.DescriptionRow description={instance.description} />
+        <PropertiesTable.DateRow date={instance.timeCreated} label="Created" />
+        <PropertiesTable.IdRow id={instance.id} />
+        <PropertiesTable.Row label="external IPs">
+          {<ExternalIps {...instanceSelector} />}
+        </PropertiesTable.Row>
+      </PropertiesTable>
       <RouteTabs fullWidth>
         <Tab to={pb.instanceStorage(instanceSelector)}>Storage</Tab>
         <Tab to={pb.instanceNetworking(instanceSelector)}>Networking</Tab>
