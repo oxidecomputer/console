@@ -38,8 +38,6 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 // out here so we don't have to memoize it
 const groupByAttachedInstanceId = { cols: ['attached_instance_id'], op: 'sum' } as const
 
-export const handle = { crumb: 'Disk' }
-
 export default function DiskMetricsTab() {
   const { project, instance } = useInstanceSelector()
   const { data: disks } = usePrefetchedApiQuery('instanceDiskList', {

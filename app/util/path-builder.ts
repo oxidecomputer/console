@@ -14,6 +14,8 @@ const projectBase = ({ project }: PP.Project) => `${pb.projects()}/${project}`
 const instanceBase = ({ project, instance }: PP.Instance) =>
   `${pb.instances({ project })}/${instance}`
 const vpcBase = ({ project, vpc }: PP.Vpc) => `${pb.vpcs({ project })}/${vpc}`
+const instanceMetricsBase = ({ project, instance }: PP.Instance) =>
+  `${instanceBase({ project, instance })}/metrics`
 
 export const pb = {
   projects: () => `/projects`,
@@ -39,11 +41,9 @@ export const pb = {
    */
   instance: (params: PP.Instance) => pb.instanceStorage(params),
 
-  instanceMetrics: (params: PP.Instance) => `${instanceBase(params)}/metrics`,
-  instanceCpuMetrics: (params: PP.Instance) => `${instanceBase(params)}/metrics/cpu`,
-  instanceDiskMetrics: (params: PP.Instance) => `${instanceBase(params)}/metrics/disk`,
-  instanceNetworkMetrics: (params: PP.Instance) =>
-    `${instanceBase(params)}/metrics/network`,
+  instanceCpuMetrics: (params: PP.Instance) => `${instanceMetricsBase(params)}/cpu`,
+  instanceDiskMetrics: (params: PP.Instance) => `${instanceMetricsBase(params)}/disk`,
+  instanceNetworkMetrics: (params: PP.Instance) => `${instanceMetricsBase(params)}/network`,
   instanceStorage: (params: PP.Instance) => `${instanceBase(params)}/storage`,
   instanceConnect: (params: PP.Instance) => `${instanceBase(params)}/connect`,
   instanceNetworking: (params: PP.Instance) => `${instanceBase(params)}/networking`,
