@@ -39,7 +39,9 @@ export const Truncate = ({
           {truncate(text, maxLength, position)}
         </div>
       </Tooltip>
-      {hasCopyButton && <CopyToClipboard text={text} />}
+      <div className="flex items-center p-0.5">
+        {hasCopyButton && <CopyToClipboard text={text} />}
+      </div>
     </div>
   )
 }

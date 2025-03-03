@@ -43,37 +43,33 @@ export default function SledPage() {
         <PageTitle icon={<Servers24Icon />}>Sled</PageTitle>
       </PageHeader>
 
-      <PropertiesTable.Group className="-mt-8 mb-16">
-        <PropertiesTable>
-          <PropertiesTable.Row label="sled id">
-            <span className="text-default">{sled.id}</span>
-          </PropertiesTable.Row>
-          <PropertiesTable.Row label="part">
-            <span className="text-default">{sled.baseboard.part}</span>
-          </PropertiesTable.Row>
-          <PropertiesTable.Row label="serial">
-            <span className="text-default">{sled.baseboard.serial}</span>
-          </PropertiesTable.Row>
-          <PropertiesTable.Row label="revision">
-            <span className="text-default">{sled.baseboard.revision}</span>
-          </PropertiesTable.Row>
-        </PropertiesTable>
-        <PropertiesTable>
-          <PropertiesTable.Row label="rack id">
-            <span className="text-default">{sled.rackId}</span>
-          </PropertiesTable.Row>
-          <PropertiesTable.Row label="location">
-            <span className="text-disabled">Coming soon</span>
-          </PropertiesTable.Row>
-          <PropertiesTable.Row label="usable hardware threads">
-            <span className="text-default">{sled.usableHardwareThreads}</span>
-          </PropertiesTable.Row>
-          <PropertiesTable.Row label="usable physical ram">
-            <span className="pr-0.5 text-default">{ram.value}</span>
-            <span className="text-tertiary">{ram.unit}</span>
-          </PropertiesTable.Row>
-        </PropertiesTable>
-      </PropertiesTable.Group>
+      <PropertiesTable columns={2} className="-mt-8 mb-16">
+        <PropertiesTable.Row label="sled id">
+          <span className="text-default">{sled.id}</span>
+        </PropertiesTable.Row>
+        <PropertiesTable.Row label="part">
+          <span className="text-default">{sled.baseboard.part}</span>
+        </PropertiesTable.Row>
+        <PropertiesTable.Row label="serial">
+          <span className="text-default">{sled.baseboard.serial}</span>
+        </PropertiesTable.Row>
+        <PropertiesTable.Row label="revision">
+          <span className="text-default">{sled.baseboard.revision}</span>
+        </PropertiesTable.Row>
+        <PropertiesTable.Row label="rack id">
+          <span className="text-default">{sled.rackId}</span>
+        </PropertiesTable.Row>
+        <PropertiesTable.Row label="location">
+          <span className="text-disabled">Coming soon</span>
+        </PropertiesTable.Row>
+        <PropertiesTable.Row label="usable hardware threads">
+          <span className="text-default">{sled.usableHardwareThreads}</span>
+        </PropertiesTable.Row>
+        <PropertiesTable.Row label="usable physical ram">
+          <span className="pr-0.5 text-default">{ram.value}</span>
+          <span className="text-tertiary">{ram.unit}</span>
+        </PropertiesTable.Row>
+      </PropertiesTable>
 
       <RouteTabs fullWidth>
         <Tab to={pb.sledInstances({ sledId })}>Instances</Tab>

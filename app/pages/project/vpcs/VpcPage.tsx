@@ -75,16 +75,12 @@ export default function VpcPage() {
           <MoreActionsMenu label="VPC actions" actions={actions} />
         </div>
       </PageHeader>
-      <PropertiesTable.Group className="mb-16">
-        <PropertiesTable>
-          <PropertiesTable.DescriptionRow description={vpc.description} />
-          <PropertiesTable.Row label="DNS Name">{vpc.dnsName}</PropertiesTable.Row>
-        </PropertiesTable>
-        <PropertiesTable>
-          <PropertiesTable.DateRow date={vpc.timeCreated} label="Created" />
-          <PropertiesTable.DateRow date={vpc.timeModified} label="Last Modified" />
-        </PropertiesTable>
-      </PropertiesTable.Group>
+      <PropertiesTable columns={2} className="-mt-8 mb-16">
+        <PropertiesTable.DescriptionRow description={vpc.description} />
+        <PropertiesTable.Row label="DNS Name">{vpc.dnsName}</PropertiesTable.Row>
+        <PropertiesTable.DateRow date={vpc.timeCreated} label="Created" />
+        <PropertiesTable.DateRow date={vpc.timeModified} label="Last Modified" />
+      </PropertiesTable>
 
       <RouteTabs fullWidth>
         <Tab to={pb.vpcFirewallRules(vpcSelector)}>Firewall Rules</Tab>
