@@ -6,13 +6,14 @@
  * Copyright Oxide Computer Company
  */
 
-.global-loading-bar {
-  opacity: 1;
-  width: 0%;
-}
 
 /* counterintuitively, no-preference covers the false case */
 @media (prefers-reduced-motion: no-preference) {
+  .global-loading-bar {
+    opacity: 1;
+    width: 0%;
+  }
+
   .global-loading-bar.loading {
     animation-name: loading-bar-loading;
     animation-duration: 4s;
@@ -61,24 +62,28 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .global-loading-bar.loading {
+  .global-loading-bar {
+    opacity: 0;
     width: 100%;
+  }
+
+  .global-loading-bar.loading {
     animation-name: loading-bar-pulsing;
-    animation-duration: 2s;
+    animation-duration: 0.8s;
+    /* don't reset to zero at 100%, just sit there */
+    animation-fill-mode: forwards;
     animation-iteration-count: infinite;
     animation-direction: alternate;
   }
 
   .global-loading-bar.done {
-    width: 100%;
     animation-name: loading-bar-done-reduced;
-    animation-duration: 0.3s;
-    animation-fill-mode: forwards;
+    animation-duration: 0.1s;
   }
 
   @keyframes loading-bar-pulsing {
     0% {
-      opacity: 0.5;
+      opacity: 0.7;
     }
 
     100% {
@@ -91,8 +96,12 @@
       opacity: 1;
     }
 
+    80% {
+      opacity: 0.2;
+    }
+
     100% {
-      opacity: 0;
+      opacity: 0.0;
     }
   }
 }
