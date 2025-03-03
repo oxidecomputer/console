@@ -58,16 +58,14 @@ export function RouteTabs({
         'full-width': !sideTabs && fullWidth,
       })}
     >
-      <Wrap when={sideTabs} with={<div />}>
-        {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus */}
-        <div
-          role="tablist"
-          className={cn(sideTabs ? 'ox-side-tabs-list' : 'ox-tabs-list', tabListClassName)}
-          onKeyDown={selectTab}
-        >
-          {children}
-        </div>
-      </Wrap>
+      {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus */}
+      <div
+        role="tablist"
+        className={cn(sideTabs ? 'ox-side-tabs-list' : 'ox-tabs-list', tabListClassName)}
+        onKeyDown={selectTab}
+      >
+        {children}
+      </div>
 
       <div
         className={cn('ox-tabs-panel @container', { 'ml-5 flex-grow': sideTabs })}
