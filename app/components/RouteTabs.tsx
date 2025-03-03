@@ -11,7 +11,6 @@ import { Link, Outlet } from 'react-router'
 
 import { useIsActivePath } from '~/hooks/use-is-active-path'
 import { KEYS } from '~/ui/util/keys'
-import { Wrap } from '~/ui/util/wrap'
 
 const selectTab = (e: React.KeyboardEvent<HTMLDivElement>) => {
   const target = e.target as HTMLDivElement
