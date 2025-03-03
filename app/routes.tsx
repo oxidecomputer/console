@@ -40,6 +40,16 @@ function convert(m: RouteModule) {
   return { ...rest, loader: clientLoader, Component }
 }
 
+/**
+ * We'll have to make these their own files eventually, but in the meantime this
+ * helper will extract the loader only and make a client-side replace redirect.
+ * Unfortunately, the loader can't do redirect() with a replace.
+ */
+const redirectWithLoader = (to: string) => (mod: RouteModule) => ({
+  loader: mod.clientLoader,
+  Component: () => <Navigate to={to} replace />,
+})
+
 export const routes = createRoutesFromElements(
   <Route lazy={() => import('./layouts/RootLayout').then(convert)}>
     <Route path="*" element={<NotFound />} />
@@ -122,12 +132,7 @@ export const routes = createRoutesFromElements(
           <Route
             index
             lazy={() =>
-              import('./pages/system/inventory/SledsTab')
-                .then(convert)
-                .then(({ loader }) => ({
-                  loader,
-                  Component: () => <Navigate to="sleds" replace />,
-                }))
+              import('./pages/system/inventory/SledsTab').then(redirectWithLoader('sleds'))
             }
           />
           <Route
@@ -149,12 +154,9 @@ export const routes = createRoutesFromElements(
               <Route
                 index
                 lazy={() =>
-                  import('./pages/system/inventory/sled/SledInstancesTab')
-                    .then(convert)
-                    .then(({ loader }) => ({
-                      loader,
-                      Component: () => <Navigate to="instances" replace />,
-                    }))
+                  import('./pages/system/inventory/sled/SledInstancesTab').then(
+                    redirectWithLoader('instances')
+                  )
                 }
               />
               <Route
@@ -339,16 +341,10 @@ export const routes = createRoutesFromElements(
               <Route lazy={() => import('./pages/project/vpcs/VpcPage').then(convert)}>
                 <Route
                   index
-                  // janky one. we only want the loader. we'll have to make this
-                  // its own file eventually. unfortunately the loader can't
-                  // do redirect() with a replace
                   lazy={() =>
-                    import('./pages/project/vpcs/VpcFirewallRulesTab')
-                      .then(convert)
-                      .then(({ loader }) => ({
-                        loader,
-                        Component: () => <Navigate to="firewall-rules" replace />,
-                      }))
+                    import('./pages/project/vpcs/VpcFirewallRulesTab').then(
+                      redirectWithLoader('firewall-rules')
+                    )
                   }
                 />
                 <Route
