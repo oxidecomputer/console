@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { layout, route, type RouteConfig } from '@react-router/dev/routes'
+import { index, layout, route, type RouteConfig } from '@react-router/dev/routes'
 
 export default [
   layout('./layouts/RootLayout.tsx', [
@@ -25,6 +25,25 @@ export default [
         route('lookup/i/:instance', './pages/InstanceLookup.tsx', {
           id: 'instance-lookup-shorthand', // needed to dedupe route ID
         }),
+      ]),
+      route('projects', './pages/ProjectsCrumb.tsx', [
+        route(':project', './layouts/ProjectLayout.tsx', [
+          route('instances', './pages/project/InstancesCrumb.tsx', [
+            index('./pages/project/instances/InstancesPage.tsx'),
+            route(':instance', './pages/project/instances/InstancePage.tsx', [
+              // TODO: index route with nav redirect
+              route('storage', './pages/project/instances/StorageTab.tsx'),
+              route('networking', './pages/project/instances/NetworkingTab.tsx'),
+              route('metrics', './pages/project/instances/MetricsTab.tsx', [
+                route('cpu', './pages/project/instances/CpuMetricsTab.tsx'),
+                route('disk', './pages/project/instances/DiskMetricsTab.tsx'),
+                route('network', './pages/project/instances/NetworkMetricsTab.tsx'),
+              ]),
+              route('connect', './pages/project/instances/ConnectTab.tsx'),
+              route('settings', './pages/project/instances/SettingsTab.tsx'),
+            ]),
+          ]),
+        ]),
       ]),
     ]),
   ]),

@@ -36,6 +36,7 @@ import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { RefreshButton } from '~/components/RefreshButton'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { InstanceStateBadge } from '~/components/StateBadge'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import {
   getInstanceSelector,
   useInstanceSelector,
@@ -72,6 +73,11 @@ async function refreshData() {
     apiQueryClient.invalidateQueries('diskMetricsList'), // metrics tab
   ])
 }
+
+export const handle = makeCrumb(
+  (p) => p.instance!,
+  (p) => pb.instance(getInstanceSelector(p))
+)
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
