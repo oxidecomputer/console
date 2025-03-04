@@ -10,7 +10,7 @@ import * as R from 'remeda'
 import { expect, test } from 'vitest'
 
 import { matchesToCrumbs } from '~/hooks/use-crumbs'
-import { routes } from '~/routes'
+import { routes } from '~/routes.tsx'
 
 import { pb } from './path-builder'
 
