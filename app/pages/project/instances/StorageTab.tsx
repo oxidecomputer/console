@@ -343,19 +343,6 @@ export default function StorageTab() {
         <CardBlock.Header title="Additional disks" id="other-disks-label">
           <div className="flex gap-3">
             <Button
-              size="sm"
-              onClick={() => setShowDiskCreate(true)}
-              disabledReason={
-                <>
-                  Instance must be <span className="text-raise">stopped</span> to create and
-                  attach a disk
-                </>
-              }
-              disabled={!instanceCan.attachDisk(instance)}
-            >
-              Create disk
-            </Button>
-            <Button
               variant="secondary"
               size="sm"
               onClick={() => setShowDiskAttach(true)}
@@ -368,6 +355,19 @@ export default function StorageTab() {
               disabled={!instanceCan.attachDisk(instance)}
             >
               Attach existing disk
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => setShowDiskCreate(true)}
+              disabledReason={
+                <>
+                  Instance must be <span className="text-raise">stopped</span> to create and
+                  attach a disk
+                </>
+              }
+              disabled={!instanceCan.attachDisk(instance)}
+            >
+              Create disk
             </Button>
           </div>
         </CardBlock.Header>
