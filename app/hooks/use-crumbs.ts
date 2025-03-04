@@ -9,8 +9,8 @@ import { useMatches, type Params, type UIMatch } from 'react-router'
 
 import { invariant } from '~/util/invariant'
 
-export type Crumb = {
-  crumb: MakeStr
+export type Crumb<P extends Params = Params> = {
+  crumb: MakeStr<P>
   /**
    * Side modal forms have their own routes and their own crumbs that we want
    * in the page title, but it's weird for them to affect the nav breadcrumbs
@@ -26,15 +26,19 @@ export type Crumb = {
    * link directly to that child, otherwise we get a weird flash due to linking
    * to the parent node and waiting for the redirect.
    */
-  path?: MakeStr
+  path?: MakeStr<P>
 }
 
 type MatchWithCrumb = UIMatch<unknown, Crumb>
 
-type MakeStr = string | ((p: Params) => string)
+type MakeStr<P extends Params> = string | ((p: P) => string)
 
 /** Helper to make crumb definitions less verbose */
-export const makeCrumb = (crumb: MakeStr, path?: MakeStr): Crumb => ({ crumb, path })
+export const makeCrumb = <P extends Params = Params>(
+  crumb: MakeStr<P>,
+  path?: MakeStr<P>
+): Crumb<P> => ({ crumb, path })
+
 export const titleCrumb = (crumb: string): Crumb => ({ crumb, titleOnly: true })
 
 function hasCrumb(m: UIMatch): m is MatchWithCrumb {

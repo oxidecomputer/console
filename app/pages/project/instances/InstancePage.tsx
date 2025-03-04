@@ -56,6 +56,7 @@ import { instanceMetricsBase, pb } from '~/util/path-builder'
 import { pluralize } from '~/util/str'
 import { GiB } from '~/util/units'
 
+import { type Info as RouteInfo } from './+types/InstancePage'
 import { useMakeInstanceActions } from './actions'
 
 function getPrimaryVpcId(nics: InstanceNetworkInterface[]) {
@@ -74,9 +75,9 @@ async function refreshData() {
   ])
 }
 
-export const handle = makeCrumb(
-  (p) => p.instance!,
-  (p) => pb.instance(getInstanceSelector(p))
+export const handle = makeCrumb<RouteInfo['params']>(
+  (p) => p.instance,
+  (p) => pb.instance(p)
 )
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
