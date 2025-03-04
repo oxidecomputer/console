@@ -55,14 +55,14 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
   const query = toOxqlStr(queryObj)
   const { data: metrics, error } = useApiQuery(
     'systemTimeseriesQuery',
-    { body: { query } }
+    { body: { query } },
     // avoid graphs flashing blank while loading when you change the time
-    // { placeholderData: (x) => x }
+    { placeholderData: (x) => x }
   )
   useEffect(() => {
     if (metrics) {
       // this is too slow right now; disabling until we can make it faster
-      // setIsIntervalPickerEnabled(true)
+      setIsIntervalPickerEnabled(true)
     }
   }, [metrics, setIsIntervalPickerEnabled])
   const { startTime, endTime } = queryObj

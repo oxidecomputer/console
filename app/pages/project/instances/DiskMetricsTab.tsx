@@ -65,7 +65,7 @@ export default function DiskMetricsTab() {
 
 /** Only rendered if there is at least one disk in the list */
 function DiskMetrics({ disks, instance }: { disks: Disk[]; instance: Instance }) {
-  const { startTime, endTime, dateTimeRangePicker } = useMetricsContext()
+  const { startTime, endTime, dateTimeRangePicker, intervalPicker } = useMetricsContext()
 
   const diskItems = useMemo(
     () => [
@@ -94,6 +94,7 @@ function DiskMetrics({ disks, instance }: { disks: Disk[]; instance: Instance })
     <>
       <MetricHeader>
         <div className="flex gap-2">
+          {intervalPicker}
           <Listbox
             className="w-52"
             aria-label="Choose disk"

@@ -29,7 +29,7 @@ export default function CpuMetricsTab() {
     query: { project },
   })
 
-  const { startTime, endTime, dateTimeRangePicker } = useMetricsContext()
+  const { startTime, endTime, dateTimeRangePicker, intervalPicker } = useMetricsContext()
 
   type CpuChartType = OxqlVcpuState | 'all'
 
@@ -58,6 +58,7 @@ export default function CpuMetricsTab() {
     <>
       <MetricHeader>
         <div className="flex gap-2">
+          {intervalPicker}
           <Listbox
             className="w-52"
             aria-label="Choose state"
