@@ -144,7 +144,7 @@ const SkeletonMetric = ({
     <div
       className={cn(
         shimmer && 'motion-safe:animate-pulse',
-        'absolute inset-0 bottom-11',
+        'absolute inset-0 bottom-7',
         className
       )}
     >
@@ -236,7 +236,7 @@ export function TimeSeriesChart({
           width={width}
           height={height}
           data={data}
-          margin={{ top: 0, right: hasBorder ? 16 : 0, bottom: 16, left: 0 }}
+          margin={{ top: 0, right: hasBorder ? 16 : 0, bottom: 0, left: 0 }}
         >
           <CartesianGrid stroke={GRID_GRAY} vertical={false} />
           <XAxis
