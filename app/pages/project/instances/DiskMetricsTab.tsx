@@ -50,7 +50,7 @@ export default function DiskMetricsTab() {
   })
   if (disks.items.length === 0) {
     return (
-      <TableEmptyBox noBorder>
+      <TableEmptyBox border={false}>
         <EmptyMessage
           icon={<Storage24Icon />}
           title="No disk metrics available"

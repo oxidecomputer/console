@@ -119,16 +119,15 @@ Table.Cell = ({ height = 'small', className, children, ...props }: TableCellProp
  */
 export const TableActions = classed.div`-mt-6 mb-3 flex justify-end gap-2`
 
-export const TableEmptyBox = ({
-  children,
-  noBorder,
-}: {
+type TableEmptyBoxProps = {
   children: React.ReactNode
-  noBorder?: boolean
-}) => (
+  border?: boolean
+}
+
+export const TableEmptyBox = ({ children, border = true }: TableEmptyBoxProps) => (
   <div
     className={cn('flex h-full max-h-[480px] items-center justify-center rounded-lg px-4', {
-      'border py-4 border-secondary': !noBorder,
+      'border py-4 border-secondary': border,
     })}
   >
     {children}

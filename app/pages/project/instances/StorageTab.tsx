@@ -410,7 +410,7 @@ export default function StorageTab() {
 
 function BootDiskEmptyState({ otherDisks }: { otherDisks: Disk[] }) {
   return (
-    <TableEmptyBox noBorder>
+    <TableEmptyBox border={false}>
       <EmptyMessage
         icon={<Storage24Icon />}
         title="No boot disk set"
@@ -450,7 +450,7 @@ function BootDiskEmptyState({ otherDisks }: { otherDisks: Disk[] }) {
 
 function OtherDisksEmptyState() {
   return (
-    <TableEmptyBox noBorder>
+    <TableEmptyBox border={false}>
       <EmptyMessage
         icon={<Storage24Icon />}
         title="No other disks"
