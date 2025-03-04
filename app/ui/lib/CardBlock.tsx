@@ -28,7 +28,7 @@ export function CardBlock({ children, width = 'full' }: CardBlockProps) {
   return (
     <div
       className={cn(
-        'flex flex-col rounded-lg border py-5 text-sans-md border-default',
+        'flex flex-col rounded-lg border py-5 text-sans-md border-default children:border-b children:border-b-secondary last:children:border-0 last:children:pb-0',
         widthClass[width]
       )}
     >
@@ -45,7 +45,7 @@ type HeaderProps = {
 }
 
 CardBlock.Header = ({ title, description, children, titleId }: HeaderProps) => (
-  <header className="flex items-start justify-between border-b px-5 pb-4 text-secondary border-secondary">
+  <header className="flex items-start justify-between px-5 pb-4 text-secondary">
     <div className="flex flex-col gap-0.5">
       <div className="text-sans-semi-lg text-raise" id={titleId}>
         {title}
@@ -58,9 +58,9 @@ CardBlock.Header = ({ title, description, children, titleId }: HeaderProps) => (
 )
 
 // If there's a table with a scrollbar we want to avoid it adding extra padding at the bottom
-CardBlock.Body = classed.div`px-5 pt-4 space-y-4 [&>*:last-child[data-simplebar]]:pb-3 [&>*:last-child[data-simplebar]]:-mb-3`
+CardBlock.Body = classed.div`px-5 py-4 space-y-4 [&>*:last-child[data-simplebar]]:pb-3 [&>*:last-child[data-simplebar]]:-mb-3`
 
-CardBlock.Footer = classed.footer`flex items-center justify-between border-t px-5 pt-4 text-secondary border-secondary`
+CardBlock.Footer = classed.footer`flex items-center justify-between px-5 pt-4 text-secondary`
 
 export const LearnMore = ({ href, text }: { href: string; text: React.ReactNode }) => (
   <div className="text-sans-md">
