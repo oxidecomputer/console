@@ -142,12 +142,14 @@ export const instanceCan = R.mapValues(instanceActions, (states: InstanceState[]
   return test
 })
 
-export function instanceTransitioning({ runState }: Instance) {
+export function instanceTransitioning(runState: InstanceState) {
   return (
     runState === 'creating' ||
     runState === 'starting' ||
-    runState === 'stopping' ||
-    runState === 'rebooting'
+    runState === 'rebooting' ||
+    runState === 'migrating' ||
+    runState === 'repairing' ||
+    runState === 'stopping'
   )
 }
 

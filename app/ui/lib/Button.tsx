@@ -13,6 +13,8 @@ import { Spinner } from '~/ui/lib/Spinner'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { Wrap } from '~/ui/util/wrap'
 
+import { type BadgeColor } from './Badge'
+
 export const buttonSizes = ['sm', 'icon', 'base'] as const
 export const variants = ['primary', 'secondary', 'ghost', 'danger'] as const
 
@@ -24,6 +26,13 @@ const sizeStyle: Record<ButtonSize, string> = {
   // meant for buttons that only contain a single icon
   icon: 'h-8 w-8 text-mono-sm [&>svg]:w-4',
   base: 'h-10 px-4 text-mono-sm [&>svg]:w-5',
+}
+
+const variantToBadgeColorMap: Record<Variant, BadgeColor> = {
+  primary: 'default',
+  danger: 'destructive',
+  secondary: 'neutral',
+  ghost: 'neutral',
 }
 
 type ButtonStyleProps = {
@@ -117,7 +126,7 @@ export const Button = ({
             transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
             className="absolute left-1/2 top-1/2"
           >
-            <Spinner variant={variant} />
+            <Spinner variant={variantToBadgeColorMap[variant || 'primary']} />
           </m.span>
         )}
         <m.span

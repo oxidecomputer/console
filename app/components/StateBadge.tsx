@@ -5,25 +5,39 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { DiskState, InstanceState, SnapshotState } from '@oxide/api'
+import cn from 'classnames'
+
+import {
+  instanceTransitioning,
+  type DiskState,
+  type InstanceState,
+  type SnapshotState,
+} from '@oxide/api'
 
 import { Badge, type BadgeColor, type BadgeProps } from '~/ui/lib/Badge'
+import { Spinner } from '~/ui/lib/Spinner'
 
-const INSTANCE_COLORS: Record<InstanceState, Pick<BadgeProps, 'color' | 'variant'>> = {
-  creating: { color: 'purple', variant: 'solid' },
-  starting: { color: 'blue', variant: 'solid' },
-  running: { color: 'default' },
-  rebooting: { color: 'notice' },
-  stopping: { color: 'notice' },
-  stopped: { color: 'neutral', variant: 'solid' },
-  repairing: { color: 'notice', variant: 'solid' },
-  migrating: { color: 'notice', variant: 'solid' },
-  failed: { color: 'destructive', variant: 'solid' },
-  destroyed: { color: 'neutral', variant: 'solid' },
+const INSTANCE_COLORS: Record<InstanceState, BadgeColor> = {
+  running: 'default',
+  stopped: 'neutral',
+  failed: 'destructive',
+  destroyed: 'destructive',
+  creating: 'default',
+  starting: 'blue',
+  rebooting: 'blue',
+  migrating: 'purple',
+  repairing: 'notice',
+  stopping: 'neutral',
 }
 
 export const InstanceStateBadge = (props: { state: InstanceState; className?: string }) => (
-  <Badge {...INSTANCE_COLORS[props.state]} className={props.className}>
+  <Badge
+    color={INSTANCE_COLORS[props.state]}
+    className={cn(props.className, 'children:flex children:items-center children:gap-1')}
+  >
+    {instanceTransitioning(props.state) && (
+      <Spinner size="sm" variant={INSTANCE_COLORS[props.state]} />
+    )}
     {props.state}
   </Badge>
 )

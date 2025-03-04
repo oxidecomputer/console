@@ -48,8 +48,6 @@ import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
-import { Spinner } from '~/ui/lib/Spinner'
-import { Tooltip } from '~/ui/lib/Tooltip'
 import { truncate } from '~/ui/lib/Truncate'
 import { pb } from '~/util/path-builder'
 import { pluralize } from '~/util/str'
@@ -112,14 +110,6 @@ const sec = 1000 // ms, obviously
 const POLL_INTERVAL_FAST = 2 * sec
 const POLL_INTERVAL_SLOW = 30 * sec
 
-const PollingSpinner = () => (
-  <Tooltip content="Auto-refreshing while state changes" delay={150}>
-    <button type="button">
-      <Spinner className="ml-2" />
-    </button>
-  </Tooltip>
-)
-
 export default function InstancePage() {
   const instanceSelector = useInstanceSelector()
   const [resizeInstance, setResizeInstance] = useState(false)
@@ -151,7 +141,7 @@ export default function InstancePage() {
       // polling on the list page.
       refetchInterval: ({ state: { data: instance } }) => {
         if (!instance) return false
-        if (instanceTransitioning(instance)) return POLL_INTERVAL_FAST
+        if (instanceTransitioning(instance.runState)) return POLL_INTERVAL_FAST
 
         if (instance.runState === 'failed' && instance.autoRestartEnabled) {
           return instanceAutoRestartingSoon(instance)
@@ -230,7 +220,6 @@ export default function InstancePage() {
         <PropertiesTable.Row label="state">
           <div className="flex items-center gap-2">
             <InstanceStateBadge state={instance.runState} />
-            {instanceTransitioning(instance) && <PollingSpinner />}
             <InstanceAutoRestartPopover instance={instance} />
           </div>
         </PropertiesTable.Row>
