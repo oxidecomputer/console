@@ -34,9 +34,9 @@ import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { Button } from '~/ui/lib/Button'
-import { CreateButton } from '~/ui/lib/CreateButton'
+import { CardBlock } from '~/ui/lib/CardBlock'
 import { EMBody, EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { TableControls, TableEmptyBox, TableTitle } from '~/ui/lib/Table'
+import { TableEmptyBox } from '~/ui/lib/Table'
 import { links } from '~/util/links'
 
 import { fancifyStates } from './common'
@@ -323,53 +323,64 @@ export default function StorageTab() {
   })
 
   return (
-    <>
-      <TableControls>
-        <TableTitle id="boot-disks-label">Boot disk</TableTitle>
-      </TableControls>
-      {bootDisks.length > 0 ? (
-        <Table aria-labelledby="boot-disks-label" table={bootDisksTable} />
-      ) : (
-        <BootDiskEmptyState otherDisks={otherDisks} />
-      )}
+    <div className="space-y-5">
+      <CardBlock>
+        <CardBlock.Header
+          title="Boot disk"
+          description="The disk your instance will boot from"
+        />
+        <CardBlock.Body>
+          {bootDisks.length > 0 ? (
+            <Table aria-labelledby="boot-disks-label" table={bootDisksTable} />
+          ) : (
+            <BootDiskEmptyState otherDisks={otherDisks} />
+          )}
+        </CardBlock.Body>
+      </CardBlock>
 
-      <TableControls className="mt-10">
-        <TableTitle id="other-disks-label">Other disks</TableTitle>
-      </TableControls>
-
-      {otherDisks.length > 0 ? (
-        <Table aria-labelledby="other-disks-label" table={otherDisksTable} />
-      ) : (
-        <OtherDisksEmptyState />
-      )}
-
-      <div className="mt-4 flex gap-3">
-        <CreateButton
-          onClick={() => setShowDiskCreate(true)}
-          disabledReason={
-            <>
-              Instance must be <span className="text-raise">stopped</span> to create and
-              attach a disk
-            </>
-          }
-          disabled={!instanceCan.attachDisk(instance)}
+      <CardBlock>
+        <CardBlock.Header
+          title="Other disks"
+          description="Additional storage for your instance"
         >
-          Create disk
-        </CreateButton>
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={() => setShowDiskAttach(true)}
-          disabledReason={
-            <>
-              Instance must be <span className="text-raise">stopped</span> to attach a disk
-            </>
-          }
-          disabled={!instanceCan.attachDisk(instance)}
-        >
-          Attach existing disk
-        </Button>
-      </div>
+          <div className="flex gap-3">
+            <Button
+              size="sm"
+              onClick={() => setShowDiskCreate(true)}
+              disabledReason={
+                <>
+                  Instance must be <span className="text-raise">stopped</span> to create and
+                  attach a disk
+                </>
+              }
+              disabled={!instanceCan.attachDisk(instance)}
+            >
+              Create disk
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setShowDiskAttach(true)}
+              disabledReason={
+                <>
+                  Instance must be <span className="text-raise">stopped</span> to attach a
+                  disk
+                </>
+              }
+              disabled={!instanceCan.attachDisk(instance)}
+            >
+              Attach existing disk
+            </Button>
+          </div>
+        </CardBlock.Header>
+        <CardBlock.Body>
+          {otherDisks.length > 0 ? (
+            <Table aria-labelledby="other-disks-label" table={otherDisksTable} />
+          ) : (
+            <OtherDisksEmptyState />
+          )}
+        </CardBlock.Body>
+      </CardBlock>
 
       {showDiskCreate && (
         <CreateDiskSideModalForm
@@ -391,7 +402,7 @@ export default function StorageTab() {
           submitError={attachDisk.error}
         />
       )}
-    </>
+    </div>
   )
 }
 

@@ -98,8 +98,8 @@ export function EquivalentCliCommand({ project, instance }: EquivProps) {
 
   return (
     <>
-      <Button variant="ghost" size="sm" className="ml-2" onClick={() => setIsOpen(true)}>
-        Equivalent CLI Command
+      <Button variant="secondary" size="sm" onClick={() => setIsOpen(true)}>
+        CLI Command
       </Button>
       <CopyCodeModal
         code={cmdParts.join(' ')}
