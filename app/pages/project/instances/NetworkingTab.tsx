@@ -424,7 +424,7 @@ export default function NetworkingTab() {
               className="table-inline"
             />
           ) : (
-            <TableEmptyBox>
+            <TableEmptyBox noBorder>
               <EmptyMessage
                 icon={<IpGlobal24Icon />}
                 title="No external IPs"
@@ -471,7 +471,7 @@ export default function NetworkingTab() {
               className="table-inline"
             />
           ) : (
-            <TableEmptyBox>
+            <TableEmptyBox noBorder>
               <EmptyMessage
                 icon={<Networking24Icon />}
                 title="No network interfaces"
