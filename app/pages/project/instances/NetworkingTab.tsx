@@ -396,6 +396,7 @@ export default function NetworkingTab() {
         <CardBlock.Header
           title="External IPs"
           description="External IPs allow your instances to communicate with the internet"
+          id="attached-ips-label"
         >
           <div className="flex gap-3">
             {/*
@@ -449,6 +450,7 @@ export default function NetworkingTab() {
         <CardBlock.Header
           title="Network interfaces"
           description="Network interfaces connect your instance to VPCs"
+          id="nics-label"
         >
           <Button
             size="sm"

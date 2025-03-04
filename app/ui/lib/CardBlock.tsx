@@ -41,14 +41,18 @@ CardBlock.Header = ({
   title,
   description,
   children,
+  id,
 }: {
   title: string
   description?: ReactNode
   children?: ReactNode
+  id?: string
 }) => (
   <header className="flex items-start justify-between border-b px-5 pb-4 text-secondary border-secondary">
     <div className="flex flex-col gap-0.5">
-      <div className="text-sans-semi-lg text-raise">{title}</div>
+      <div className="text-sans-semi-lg text-raise" id={id}>
+        {title}
+      </div>
       {description && <div className="text-secondary">{description}</div>}
     </div>
 

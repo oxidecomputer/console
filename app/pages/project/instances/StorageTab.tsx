@@ -325,10 +325,7 @@ export default function StorageTab() {
   return (
     <div className="space-y-5">
       <CardBlock>
-        <CardBlock.Header
-          title="Boot disk"
-          description="The disk your instance will boot from"
-        />
+        <CardBlock.Header title="Boot disk" id="boot-disks-label" />
         <CardBlock.Body>
           {bootDisks.length > 0 ? (
             <Table aria-labelledby="boot-disks-label" table={bootDisksTable} />
@@ -339,10 +336,7 @@ export default function StorageTab() {
       </CardBlock>
 
       <CardBlock>
-        <CardBlock.Header
-          title="Other disks"
-          description="Additional storage for your instance"
-        >
+        <CardBlock.Header title="Additional disks" id="other-disks-label">
           <div className="flex gap-3">
             <Button
               size="sm"
