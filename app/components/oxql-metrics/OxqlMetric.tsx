@@ -77,7 +77,7 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
 
   return (
     <div className="flex w-full grow flex-col rounded-lg border border-default">
-      <div className="flex items-center justify-between border-b px-5 pb-4 pt-5 border-secondary">
+      <div className="flex items-center justify-between border-b p-5 pt-8 border-secondary">
         <div>
           <h2 className="flex items-baseline gap-1.5">
             <div className="text-sans-semi-lg">{title}</div>
