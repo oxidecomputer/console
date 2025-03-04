@@ -12,7 +12,7 @@ import { apiQueryClient, usePrefetchedApiQuery } from '~/api'
 import { EquivalentCliCommand } from '~/components/CopyCode'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { buttonStyle } from '~/ui/lib/Button'
-import { CardBlock } from '~/ui/lib/CardBlock'
+import { CardBlock, LearnMore } from '~/ui/lib/CardBlock'
 import { InlineCode } from '~/ui/lib/InlineCode'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
@@ -54,7 +54,9 @@ export default function ConnectTab() {
             Connect
           </Link>
         </CardBlock.Header>
-        <CardBlock.Footer text="Serial Console" href={links.serialConsoleDocs} />
+        <CardBlock.Footer>
+          <LearnMore href={links.serialConsoleDocs} text="Serial Console" />
+        </CardBlock.Footer>
       </CardBlock>
 
       <CardBlock width="medium">
@@ -81,7 +83,9 @@ export default function ConnectTab() {
             </>
           }
         />
-        <CardBlock.Footer text="SSH" href={links.sshDocs} />
+        <CardBlock.Footer>
+          <LearnMore href={links.sshDocs} text="SSH" />
+        </CardBlock.Footer>
       </CardBlock>
     </div>
   )

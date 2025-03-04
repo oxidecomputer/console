@@ -325,7 +325,7 @@ export default function StorageTab() {
   return (
     <div className="space-y-5">
       <CardBlock>
-        <CardBlock.Header title="Boot disk" id="boot-disks-label" />
+        <CardBlock.Header title="Boot disk" titleId="boot-disks-label" />
         <CardBlock.Body>
           {bootDisks.length > 0 ? (
             <Table
@@ -340,7 +340,7 @@ export default function StorageTab() {
       </CardBlock>
 
       <CardBlock>
-        <CardBlock.Header title="Additional disks" id="other-disks-label">
+        <CardBlock.Header title="Additional disks" titleId="other-disks-label">
           <div className="flex gap-3">
             <Button
               variant="secondary"

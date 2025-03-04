@@ -12,11 +12,11 @@ import { OpenLink12Icon } from '@oxide/design-system/icons/react'
 
 import { classed } from '~/util/classed'
 
-type Width = 'medium' | 'fullWidth'
+type Width = 'medium' | 'full'
 
 const widthClass: Record<Width, string> = {
   medium: 'w-full max-w-[740px]',
-  fullWidth: 'w-full',
+  full: 'w-full',
 }
 
 export type CardBlockProps = {
@@ -24,7 +24,7 @@ export type CardBlockProps = {
   width?: Width
 }
 
-export function CardBlock({ children, width = 'fullWidth' }: CardBlockProps) {
+export function CardBlock({ children, width = 'full' }: CardBlockProps) {
   return (
     <div
       className={cn(
@@ -37,20 +37,17 @@ export function CardBlock({ children, width = 'fullWidth' }: CardBlockProps) {
   )
 }
 
-CardBlock.Header = ({
-  title,
-  description,
-  children,
-  id,
-}: {
+type HeaderProps = {
   title: string
   description?: ReactNode
   children?: ReactNode
-  id?: string
-}) => (
+  titleId?: string
+}
+
+CardBlock.Header = ({ title, description, children, titleId }: HeaderProps) => (
   <header className="flex items-start justify-between border-b px-5 pb-4 text-secondary border-secondary">
     <div className="flex flex-col gap-0.5">
-      <div className="text-sans-semi-lg text-raise" id={id}>
+      <div className="text-sans-semi-lg text-raise" id={titleId}>
         {title}
       </div>
       {description && <div className="text-secondary">{description}</div>}
@@ -62,20 +59,8 @@ CardBlock.Header = ({
 
 // If there's a table with a scrollbar we want to avoid it adding extra padding at the bottom
 CardBlock.Body = classed.div`px-5 pt-4 space-y-4 [&>*:last-child[data-simplebar]]:pb-3 [&>*:last-child[data-simplebar]]:-mb-3`
-CardBlock.Footer = ({
-  text,
-  href,
-  children,
-}: {
-  text: string
-  href: string
-  children?: ReactNode
-}) => (
-  <footer className="flex items-center justify-between border-t px-5 pt-4 text-secondary border-secondary">
-    <LearnMore href={href} text={text} />
-    {children}
-  </footer>
-)
+
+CardBlock.Footer = classed.footer`flex items-center justify-between border-t px-5 pt-4 text-secondary border-secondary`
 
 export const LearnMore = ({ href, text }: { href: string; text: React.ReactNode }) => (
   <div className="text-sans-md">

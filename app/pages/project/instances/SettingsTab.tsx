@@ -21,7 +21,7 @@ import { ListboxField } from '~/components/form/fields/ListboxField'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Button } from '~/ui/lib/Button'
-import { CardBlock } from '~/ui/lib/CardBlock'
+import { CardBlock, LearnMore } from '~/ui/lib/CardBlock'
 import { type ListboxItem } from '~/ui/lib/Listbox'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { toLocaleDateTimeString } from '~/util/date'
@@ -139,7 +139,8 @@ export default function SettingsTab() {
             )}
           </FormMeta>
         </CardBlock.Body>
-        <CardBlock.Footer text="Auto-Restart" href={links.instanceUpdateDocs}>
+        <CardBlock.Footer>
+          <LearnMore href={links.instanceUpdateDocs} text="Auto-Restart" />
           <Button size="sm" type="submit" disabled={disableSubmit}>
             Save
           </Button>
