@@ -97,7 +97,7 @@ export default function SettingsTab() {
           title="Auto-restart"
           description="The auto-restart policy for this instance"
         />
-        <CardBlock.Body className="">
+        <CardBlock.Body>
           <ListboxField
             control={form.control}
             name="autoRestartPolicy"
