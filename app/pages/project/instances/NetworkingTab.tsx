@@ -393,11 +393,7 @@ export default function NetworkingTab() {
   return (
     <div className="space-y-5">
       <CardBlock>
-        <CardBlock.Header
-          title="External IPs"
-          description="External IPs allow your instances to communicate with the internet"
-          id="attached-ips-label"
-        >
+        <CardBlock.Header title="External IPs" id="attached-ips-label">
           <div className="flex gap-3">
             {/*
                 We normally wouldn't hide this button and would just have a disabled state on it,
@@ -447,11 +443,7 @@ export default function NetworkingTab() {
       </CardBlock>
 
       <CardBlock>
-        <CardBlock.Header
-          title="Network interfaces"
-          description="Network interfaces connect your instance to VPCs"
-          id="nics-label"
-        >
+        <CardBlock.Header title="Network interfaces" id="nics-label">
           <Button
             size="sm"
             onClick={() => setCreateModalOpen(true)}
