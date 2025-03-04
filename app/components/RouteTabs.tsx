@@ -90,6 +90,7 @@ export const Tab = ({ to, children }: TabProps) => {
       className={cn('ox-tab', { 'is-selected': isActive })}
       tabIndex={isActive ? 0 : -1}
       aria-selected={isActive}
+      data-state={isActive ? 'active' : 'inactive'}
     >
       <div>{children}</div>
     </Link>
