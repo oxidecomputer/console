@@ -418,7 +418,11 @@ export default function NetworkingTab() {
 
         <CardBlock.Body>
           {eips.items.length > 0 ? (
-            <Table aria-labelledby="attached-ips-label" table={ipTableInstance} />
+            <Table
+              aria-labelledby="attached-ips-label"
+              table={ipTableInstance}
+              className="table-inline"
+            />
           ) : (
             <TableEmptyBox>
               <EmptyMessage
@@ -461,7 +465,11 @@ export default function NetworkingTab() {
 
         <CardBlock.Body>
           {nics.length > 0 ? (
-            <Table aria-labelledby="nics-label" table={tableInstance} />
+            <Table
+              aria-labelledby="nics-label"
+              table={tableInstance}
+              className="table-inline"
+            />
           ) : (
             <TableEmptyBox>
               <EmptyMessage

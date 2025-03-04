@@ -328,7 +328,11 @@ export default function StorageTab() {
         <CardBlock.Header title="Boot disk" id="boot-disks-label" />
         <CardBlock.Body>
           {bootDisks.length > 0 ? (
-            <Table aria-labelledby="boot-disks-label" table={bootDisksTable} />
+            <Table
+              aria-labelledby="boot-disks-label"
+              table={bootDisksTable}
+              className="table-inline"
+            />
           ) : (
             <BootDiskEmptyState otherDisks={otherDisks} />
           )}
@@ -369,7 +373,11 @@ export default function StorageTab() {
         </CardBlock.Header>
         <CardBlock.Body>
           {otherDisks.length > 0 ? (
-            <Table aria-labelledby="other-disks-label" table={otherDisksTable} />
+            <Table
+              aria-labelledby="other-disks-label"
+              table={otherDisksTable}
+              className="table-inline"
+            />
           ) : (
             <OtherDisksEmptyState />
           )}
