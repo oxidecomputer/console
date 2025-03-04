@@ -199,11 +199,50 @@ export type AffinityGroupCreate = {
 export type TypedUuidForInstanceKind = string
 
 /**
+ * Running state of an Instance (primarily: booted or stopped)
+ *
+ * This typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle
+ */
+export type InstanceState =
+  /** The instance is being created. */
+  | 'creating'
+
+  /** The instance is currently starting up. */
+  | 'starting'
+
+  /** The instance is currently running. */
+  | 'running'
+
+  /** The instance has been requested to stop and a transition to "Stopped" is imminent. */
+  | 'stopping'
+
+  /** The instance is currently stopped. */
+  | 'stopped'
+
+  /** The instance is in the process of rebooting - it will remain in the "rebooting" state until the VM is starting once more. */
+  | 'rebooting'
+
+  /** The instance is in the process of migrating - it will remain in the "migrating" state until the migration process is complete and the destination propolis is ready to continue execution. */
+  | 'migrating'
+
+  /** The instance is attempting to recover from a failure. */
+  | 'repairing'
+
+  /** The instance has encountered a failure. */
+  | 'failed'
+
+  /** The instance has been deleted. */
+  | 'destroyed'
+
+/**
  * A member of an Affinity Group
  *
  * Membership in a group is not exclusive - members may belong to multiple affinity / anti-affinity groups.
  */
-export type AffinityGroupMember = { type: 'instance'; value: TypedUuidForInstanceKind }
+export type AffinityGroupMember = {
+  type: 'instance'
+  value: { id: TypedUuidForInstanceKind; name: Name; runState: InstanceState }
+}
 
 /**
  * A single page of results
@@ -319,12 +358,21 @@ export type AntiAffinityGroupCreate = {
   policy: AffinityPolicy
 }
 
+export type TypedUuidForAffinityGroupKind = string
+
 /**
  * A member of an Anti-Affinity Group
  *
  * Membership in a group is not exclusive - members may belong to multiple affinity / anti-affinity groups.
  */
-export type AntiAffinityGroupMember = { type: 'instance'; value: TypedUuidForInstanceKind }
+export type AntiAffinityGroupMember =
+  /** An affinity group belonging to this group */
+  | { type: 'affinity_group'; value: { id: TypedUuidForAffinityGroupKind; name: Name } }
+  /** An instance belonging to this group */
+  | {
+      type: 'instance'
+      value: { id: TypedUuidForInstanceKind; name: Name; runState: InstanceState }
+    }
 
 /**
  * A single page of results
@@ -1865,42 +1913,6 @@ export type InstanceAutoRestartPolicy =
  * The number of CPUs in an Instance
  */
 export type InstanceCpuCount = number
-
-/**
- * Running state of an Instance (primarily: booted or stopped)
- *
- * This typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle
- */
-export type InstanceState =
-  /** The instance is being created. */
-  | 'creating'
-
-  /** The instance is currently starting up. */
-  | 'starting'
-
-  /** The instance is currently running. */
-  | 'running'
-
-  /** The instance has been requested to stop and a transition to "Stopped" is imminent. */
-  | 'stopping'
-
-  /** The instance is currently stopped. */
-  | 'stopped'
-
-  /** The instance is in the process of rebooting - it will remain in the "rebooting" state until the VM is starting once more. */
-  | 'rebooting'
-
-  /** The instance is in the process of migrating - it will remain in the "migrating" state until the migration process is complete and the destination propolis is ready to continue execution. */
-  | 'migrating'
-
-  /** The instance is attempting to recover from a failure. */
-  | 'repairing'
-
-  /** The instance has encountered a failure. */
-  | 'failed'
-
-  /** The instance has been deleted. */
-  | 'destroyed'
 
 /**
  * View of an Instance
@@ -4475,7 +4487,7 @@ export interface AffinityGroupMemberListQueryParams {
   limit?: number
   pageToken?: string
   project?: NameOrId
-  sortBy?: IdSortMode
+  sortBy?: NameOrIdSortMode
 }
 
 export interface AffinityGroupMemberInstanceViewPathParams {
@@ -4548,7 +4560,34 @@ export interface AntiAffinityGroupMemberListQueryParams {
   limit?: number
   pageToken?: string
   project?: NameOrId
-  sortBy?: IdSortMode
+  sortBy?: NameOrIdSortMode
+}
+
+export interface AntiAffinityGroupMemberAffinityGroupViewPathParams {
+  affinityGroup: NameOrId
+  antiAffinityGroup: NameOrId
+}
+
+export interface AntiAffinityGroupMemberAffinityGroupViewQueryParams {
+  project?: NameOrId
+}
+
+export interface AntiAffinityGroupMemberAffinityGroupAddPathParams {
+  affinityGroup: NameOrId
+  antiAffinityGroup: NameOrId
+}
+
+export interface AntiAffinityGroupMemberAffinityGroupAddQueryParams {
+  project?: NameOrId
+}
+
+export interface AntiAffinityGroupMemberAffinityGroupDeletePathParams {
+  affinityGroup: NameOrId
+  antiAffinityGroup: NameOrId
+}
+
+export interface AntiAffinityGroupMemberAffinityGroupDeleteQueryParams {
+  project?: NameOrId
 }
 
 export interface AntiAffinityGroupMemberInstanceViewPathParams {
@@ -6313,7 +6352,67 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch anti-affinity group member
+     * Fetch anti-affinity group member of type affinity group
+     */
+    antiAffinityGroupMemberAffinityGroupView: (
+      {
+        path,
+        query = {},
+      }: {
+        path: AntiAffinityGroupMemberAffinityGroupViewPathParams
+        query?: AntiAffinityGroupMemberAffinityGroupViewQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AntiAffinityGroupMember>({
+        path: `/v1/anti-affinity-groups/${path.antiAffinityGroup}/members/affinity-group/${path.affinityGroup}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Add affinity group member to anti-affinity group
+     */
+    antiAffinityGroupMemberAffinityGroupAdd: (
+      {
+        path,
+        query = {},
+      }: {
+        path: AntiAffinityGroupMemberAffinityGroupAddPathParams
+        query?: AntiAffinityGroupMemberAffinityGroupAddQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AntiAffinityGroupMember>({
+        path: `/v1/anti-affinity-groups/${path.antiAffinityGroup}/members/affinity-group/${path.affinityGroup}`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Remove affinity group member from anti-affinity group
+     */
+    antiAffinityGroupMemberAffinityGroupDelete: (
+      {
+        path,
+        query = {},
+      }: {
+        path: AntiAffinityGroupMemberAffinityGroupDeletePathParams
+        query?: AntiAffinityGroupMemberAffinityGroupDeleteQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/anti-affinity-groups/${path.antiAffinityGroup}/members/affinity-group/${path.affinityGroup}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch anti-affinity group member of type instance
      */
     antiAffinityGroupMemberInstanceView: (
       {
@@ -6333,7 +6432,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Add member to anti-affinity group
+     * Add instance member to anti-affinity group
      */
     antiAffinityGroupMemberInstanceAdd: (
       {
@@ -6353,7 +6452,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Remove member from anti-affinity group
+     * Remove instance member from anti-affinity group
      */
     antiAffinityGroupMemberInstanceDelete: (
       {

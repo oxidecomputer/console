@@ -252,6 +252,27 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.AntiAffinityGroupMemberResultsPage>>
+  /** `GET /v1/anti-affinity-groups/:antiAffinityGroup/members/affinity-group/:affinityGroup` */
+  antiAffinityGroupMemberAffinityGroupView: (params: {
+    path: Api.AntiAffinityGroupMemberAffinityGroupViewPathParams
+    query: Api.AntiAffinityGroupMemberAffinityGroupViewQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AntiAffinityGroupMember>>
+  /** `POST /v1/anti-affinity-groups/:antiAffinityGroup/members/affinity-group/:affinityGroup` */
+  antiAffinityGroupMemberAffinityGroupAdd: (params: {
+    path: Api.AntiAffinityGroupMemberAffinityGroupAddPathParams
+    query: Api.AntiAffinityGroupMemberAffinityGroupAddQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AntiAffinityGroupMember>>
+  /** `DELETE /v1/anti-affinity-groups/:antiAffinityGroup/members/affinity-group/:affinityGroup` */
+  antiAffinityGroupMemberAffinityGroupDelete: (params: {
+    path: Api.AntiAffinityGroupMemberAffinityGroupDeletePathParams
+    query: Api.AntiAffinityGroupMemberAffinityGroupDeleteQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `GET /v1/anti-affinity-groups/:antiAffinityGroup/members/instance/:instance` */
   antiAffinityGroupMemberInstanceView: (params: {
     path: Api.AntiAffinityGroupMemberInstanceViewPathParams
@@ -1869,6 +1890,30 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(
         handlers['antiAffinityGroupMemberList'],
         schema.AntiAffinityGroupMemberListParams,
+        null
+      )
+    ),
+    http.get(
+      '/v1/anti-affinity-groups/:antiAffinityGroup/members/affinity-group/:affinityGroup',
+      handler(
+        handlers['antiAffinityGroupMemberAffinityGroupView'],
+        schema.AntiAffinityGroupMemberAffinityGroupViewParams,
+        null
+      )
+    ),
+    http.post(
+      '/v1/anti-affinity-groups/:antiAffinityGroup/members/affinity-group/:affinityGroup',
+      handler(
+        handlers['antiAffinityGroupMemberAffinityGroupAdd'],
+        schema.AntiAffinityGroupMemberAffinityGroupAddParams,
+        null
+      )
+    ),
+    http.delete(
+      '/v1/anti-affinity-groups/:antiAffinityGroup/members/affinity-group/:affinityGroup',
+      handler(
+        handlers['antiAffinityGroupMemberAffinityGroupDelete'],
+        schema.AntiAffinityGroupMemberAffinityGroupDeleteParams,
         null
       )
     ),
