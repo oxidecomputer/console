@@ -50,7 +50,6 @@ test('path builder', () => {
         "instanceConnect": "/projects/p/instances/i/connect",
         "instanceCpuMetrics": "/projects/p/instances/i/metrics/cpu",
         "instanceDiskMetrics": "/projects/p/instances/i/metrics/disk",
-        "instanceMetrics": "/projects/p/instances/i/metrics",
         "instanceNetworkMetrics": "/projects/p/instances/i/metrics/network",
         "instanceNetworking": "/projects/p/instances/i/networking",
         "instanceSettings": "/projects/p/instances/i/settings",

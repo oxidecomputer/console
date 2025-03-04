@@ -14,7 +14,9 @@ const projectBase = ({ project }: PP.Project) => `${pb.projects()}/${project}`
 const instanceBase = ({ project, instance }: PP.Instance) =>
   `${pb.instances({ project })}/${instance}`
 const vpcBase = ({ project, vpc }: PP.Vpc) => `${pb.vpcs({ project })}/${vpc}`
-const instanceMetricsBase = ({ project, instance }: PP.Instance) =>
+
+/** Don't use this for links. only exported for use as toPrefix on metrics tab */
+export const instanceMetricsBase = ({ project, instance }: PP.Instance) =>
   `${instanceBase({ project, instance })}/metrics`
 
 export const pb = {
@@ -41,7 +43,6 @@ export const pb = {
    */
   instance: (params: PP.Instance) => pb.instanceStorage(params),
 
-  instanceMetrics: (params: PP.Instance) => `${instanceMetricsBase(params)}`,
   instanceCpuMetrics: (params: PP.Instance) => `${instanceMetricsBase(params)}/cpu`,
   instanceDiskMetrics: (params: PP.Instance) => `${instanceMetricsBase(params)}/disk`,
   instanceNetworkMetrics: (params: PP.Instance) => `${instanceMetricsBase(params)}/network`,

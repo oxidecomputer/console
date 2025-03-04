@@ -51,7 +51,7 @@ import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { Spinner } from '~/ui/lib/Spinner'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { truncate } from '~/ui/lib/Truncate'
-import { pb } from '~/util/path-builder'
+import { instanceMetricsBase, pb } from '~/util/path-builder'
 import { pluralize } from '~/util/str'
 import { GiB } from '~/util/units'
 
@@ -256,7 +256,12 @@ export default function InstancePage() {
       <RouteTabs fullWidth>
         <Tab to={pb.instanceStorage(instanceSelector)}>Storage</Tab>
         <Tab to={pb.instanceNetworking(instanceSelector)}>Networking</Tab>
-        <Tab to={pb.instanceMetrics(instanceSelector)}>Metrics</Tab>
+        <Tab
+          to={pb.instanceCpuMetrics(instanceSelector)}
+          toPrefix={instanceMetricsBase(instanceSelector)}
+        >
+          Metrics
+        </Tab>
         <Tab to={pb.instanceConnect(instanceSelector)}>Connect</Tab>
         <Tab to={pb.instanceSettings(instanceSelector)}>Settings</Tab>
       </RouteTabs>
