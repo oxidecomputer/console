@@ -26,7 +26,7 @@ type AttachDiskProps = {
   diskNamesToExclude?: string[]
   loading?: boolean
   submitError?: ApiError | null
-  instance: Instance
+  instance?: Instance
 }
 
 /**
@@ -70,12 +70,16 @@ export function AttachDiskModalForm({
       onSubmit={onSubmit}
       width="medium"
       submitDisabled={
-        !instanceCan.attachDisk(instance) ? 'Instance must be stopped' : undefined
+        instance && !instanceCan.attachDisk(instance)
+          ? 'Instance must be stopped'
+          : undefined
       }
     >
-      <StopInstancePrompt instance={instance}>
-        An instance must be stopped to attach a disk.
-      </StopInstancePrompt>
+      {instance && ['stopping', 'running'].includes(instance.runState) && (
+        <StopInstancePrompt instance={instance}>
+          An instance must be stopped to attach a disk.
+        </StopInstancePrompt>
+      )}
       <ComboboxField
         label="Disk name"
         placeholder="Select a disk"
