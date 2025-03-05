@@ -7,7 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import { useForm, type FieldValues } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { Outlet } from 'react-router'
 
 import {
@@ -36,7 +36,6 @@ import { Button } from '~/ui/lib/Button'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
-import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
@@ -202,6 +201,10 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
   )
 }
 
+type DemoteFormValues = {
+  project: string | undefined
+}
+
 const DemoteImageModal = ({
   onDismiss,
   image,
@@ -209,20 +212,17 @@ const DemoteImageModal = ({
   onDismiss: () => void
   image: Image
 }) => {
-  const { control, handleSubmit, watch } = useForm()
+  const defaultValues: DemoteFormValues = { project: undefined }
+  const form = useForm({ defaultValues })
 
-  const selectedProject: string | undefined = watch('project')
+  const selectedProject: string | undefined = form.watch('project')
 
   const queryClient = useApiQueryClient()
 
   const demoteImage = useApiMutation('imageDemote', {
     onSuccess(data) {
       addToast({
-        content: (
-          <>
-            Image <HL>{data.name}</HL> demoted
-          </>
-        ),
+        content: <>Image <HL>{data.name}</HL> demoted</>, // prettier-ignore
         cta: selectedProject
           ? {
               text: `View images in ${selectedProject}`,
@@ -239,51 +239,40 @@ const DemoteImageModal = ({
     onSettled: onDismiss,
   })
 
-  const onSubmit = (data: FieldValues) => {
-    demoteImage.mutate({ path: { image: image.id }, query: { project: data.project } })
-  }
-
   const projects = useApiQuery('projectList', {})
   const projectItems = useMemo(() => toComboboxItems(projects.data?.items), [projects.data])
 
   return (
-    <Modal isOpen onDismiss={onDismiss} title="Demote image">
-      <Modal.Body>
-        <Modal.Section>
-          <form
-            autoComplete="off"
-            onSubmit={(e) => {
-              e.stopPropagation()
-              handleSubmit(onSubmit)(e)
-            }}
-            className="space-y-4"
-          >
-            <p>
-              Demoting: <span className="text-sans-semi-md text-raise">{image.name}</span>
-            </p>
+    <ModalForm
+      title="Demote image"
+      form={form}
+      loading={demoteImage.isPending}
+      submitError={demoteImage.error}
+      onSubmit={({ project }) => {
+        if (!project) return // shouldn't happen because of validation
+        demoteImage.mutate({ path: { image: image.id }, query: { project } })
+      }}
+      onDismiss={onDismiss}
+      submitLabel="Demote"
+    >
+      <p>
+        Demoting: <span className="text-sans-semi-md text-raise">{image.name}</span>
+      </p>
 
-            <Message
-              variant="info"
-              content="Once an image has been demoted it is only visible to the project that it is demoted into. This will not affect disks already created with the image."
-            />
-
-            <ComboboxField
-              placeholder="Select project for image"
-              name="project"
-              label="Project"
-              items={projectItems}
-              isLoading={projects.isPending}
-              required
-              control={control}
-            />
-          </form>
-        </Modal.Section>
-      </Modal.Body>
-      <Modal.Footer
-        onDismiss={onDismiss}
-        onAction={handleSubmit(onSubmit)}
-        actionText="Demote"
+      <Message
+        variant="info"
+        content="Once an image has been demoted it is only visible to the project that it is demoted into. This will not affect disks already created with the image."
       />
-    </Modal>
+
+      <ComboboxField
+        placeholder="Select project for image"
+        name="project"
+        label="Project"
+        items={projectItems}
+        isLoading={projects.isPending}
+        required
+        control={form.control}
+      />
+    </ModalForm>
   )
 }
