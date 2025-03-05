@@ -50,6 +50,7 @@ export const getProjectSnapshotSelector = requireParams('project', 'snapshot')
 export const requireSledParams = requireParams('sledId')
 export const requireUpdateParams = requireParams('version')
 export const getIpPoolSelector = requireParams('pool')
+export const getAffinitySelector = requireParams('project', 'affinity')
 
 /**
  * Turn `getThingSelector`, a pure function on a params object, into a hook
@@ -96,3 +97,4 @@ export const useIdpSelector = () => useSelectedParams(getIdpSelector)
 export const useSledParams = () => useSelectedParams(requireSledParams)
 export const useUpdateParams = () => useSelectedParams(requireUpdateParams)
 export const useIpPoolSelector = () => useSelectedParams(getIpPoolSelector)
+export const useAffinitySelector = () => useSelectedParams(getAffinitySelector)

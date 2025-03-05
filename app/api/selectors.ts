@@ -24,6 +24,7 @@ export type InternetGatewayIpPool = Merge<InternetGateway, { pool?: string }>
 export type VpcRouterRoute = Readonly<Merge<VpcRouter, { route?: string }>>
 export type VpcSubnet = Readonly<Merge<Vpc, { subnet?: string }>>
 export type FirewallRule = Readonly<Merge<Vpc, { rule?: string }>>
+export type Affinity = Readonly<Merge<Project, { affinity?: string }>>
 export type Silo = Readonly<{ silo?: string }>
 export type IdentityProvider = Readonly<Merge<Silo, { provider: string }>>
 export type SystemUpdate = Readonly<{ version: string }>

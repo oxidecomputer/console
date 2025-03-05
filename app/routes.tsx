@@ -16,7 +16,11 @@ import {
 
 import { NotFound } from './components/ErrorPage'
 import { makeCrumb, type Crumb } from './hooks/use-crumbs'
-import { getInstanceSelector, getVpcSelector } from './hooks/use-params'
+import {
+  getAffinitySelector,
+  getInstanceSelector,
+  getVpcSelector,
+} from './hooks/use-params'
 import { pb } from './util/path-builder'
 
 // hack because RR doesn't export the redirect type
@@ -485,6 +489,19 @@ export const routes = createRoutesFromElements(
             path="access"
             lazy={() => import('./pages/project/access/ProjectAccessPage').then(convert)}
           />
+          <Route
+            path="affinity"
+            lazy={() => import('./pages/project/affinity/AffinityIndexPage').then(convert)}
+          />
+          <Route
+            path="affinity"
+            handle={makeCrumb('Affinity', (p) => pb.affinityIndex(getAffinitySelector(p)))}
+          >
+            <Route
+              path=":affinity"
+              lazy={() => import('./pages/project/affinity/AffinityPage').then(convert)}
+            />
+          </Route>
         </Route>
       </Route>
     </Route>
