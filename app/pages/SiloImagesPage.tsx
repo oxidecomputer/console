@@ -24,6 +24,7 @@ import { DocsPopover } from '~/components/DocsPopover'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { toImageComboboxItem } from '~/components/form/fields/ImageSelectField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
+import { ModalForm } from '~/components/form/ModalForm'
 import { HL } from '~/components/HL'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -129,7 +130,7 @@ type Values = { project: string | null; image: string | null }
 const defaultValues: Values = { project: null, image: null }
 
 const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
-  const { control, handleSubmit, watch, resetField } = useForm({ defaultValues })
+  const form = useForm({ defaultValues })
 
   const queryClient = useApiQueryClient()
 
@@ -146,7 +147,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
 
   const projects = useApiQuery('projectList', {})
   const projectItems = useMemo(() => toComboboxItems(projects.data?.items), [projects.data])
-  const selectedProject = watch('project')
+  const selectedProject = form.watch('project')
 
   // can only fetch images if a project is selected
   const images = useApiQuery(
@@ -165,44 +166,42 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
   }
 
   return (
-    <Modal isOpen onDismiss={onDismiss} title="Promote image">
-      <Modal.Body>
-        <Modal.Section>
-          <form autoComplete="off" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <ComboboxField
-              placeholder="Select a project"
-              name="project"
-              label="Project"
-              items={projectItems}
-              onChange={() => {
-                resetField('image') // reset image field when the project changes
-              }}
-              isLoading={projects.isPending}
-              required
-              control={control}
-            />
-            <ListboxField
-              control={control}
-              name="image"
-              placeholder="Select an image"
-              items={imageItems}
-              isLoading={images.isPending}
-              required
-              disabled={!selectedProject}
-            />
-          </form>
-          <Message
-            variant="info"
-            content="Once an image has been promoted it is visible to all projects in a silo"
-          />
-        </Modal.Section>
-      </Modal.Body>
-      <Modal.Footer
-        onDismiss={onDismiss}
-        onAction={handleSubmit(onSubmit)}
-        actionText="Promote"
+    <ModalForm
+      title="Promote image"
+      form={form}
+      resourceName="Image"
+      loading={promoteImage.isPending}
+      submitError={promoteImage.error}
+      onSubmit={onSubmit}
+      onDismiss={onDismiss}
+      submitLabel="Promote"
+    >
+      <ComboboxField
+        placeholder="Select a project"
+        name="project"
+        label="Project"
+        items={projectItems}
+        onChange={() => {
+          form.resetField('image') // reset image field when the project changes
+        }}
+        isLoading={projects.isPending}
+        required
+        control={form.control}
       />
-    </Modal>
+      <ListboxField
+        control={form.control}
+        name="image"
+        placeholder="Select an image"
+        items={imageItems}
+        isLoading={images.isPending}
+        required
+        disabled={!selectedProject}
+      />
+      <Message
+        variant="info"
+        content="Once an image has been promoted it is visible to all projects in a silo"
+      />
+    </ModalForm>
   )
 }
 
