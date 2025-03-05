@@ -393,7 +393,6 @@ export default function StorageTab() {
           }}
           loading={attachDisk.isPending}
           submitError={attachDisk.error}
-          instance={instance}
         />
       )}
     </div>
