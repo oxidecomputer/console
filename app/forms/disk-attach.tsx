@@ -66,7 +66,6 @@ export function AttachDiskModalForm({
       loading={loading}
       title="Attach disk"
       onSubmit={onSubmit}
-      width="medium"
     >
       <ComboboxField
         label="Disk name"
