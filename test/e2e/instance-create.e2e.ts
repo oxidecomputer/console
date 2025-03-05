@@ -276,7 +276,7 @@ test('can’t create a disk with a name that collides with the boot disk name', 
   await expect(bootDiskTable.getByRole('cell', { name: 'disk-11' })).toBeVisible()
 
   // Find the Other Disks table and verify that disk-12 is there
-  const otherDisksTable = page.getByRole('table', { name: 'Other disks' })
+  const otherDisksTable = page.getByRole('table', { name: 'Additional disks' })
   await expect(otherDisksTable.getByRole('cell', { name: 'disk-12' })).toBeVisible()
 })
 
@@ -593,7 +593,7 @@ test('create instance with additional disks', async ({ page }) => {
   await expect(bootDiskTable.getByRole('cell', { name: /^more-disks-/ })).toBeVisible()
 
   // Check for the additional disks
-  const otherDisksTable = page.getByRole('table', { name: 'Other disks' })
+  const otherDisksTable = page.getByRole('table', { name: 'Additional disks' })
   await expectRowVisible(otherDisksTable, { Disk: 'new-disk-1', size: '5 GiB' })
   await expectRowVisible(otherDisksTable, { Disk: 'disk-3', size: '6 GiB' })
 })

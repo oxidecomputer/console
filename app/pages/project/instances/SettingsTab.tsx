@@ -21,8 +21,8 @@ import { ListboxField } from '~/components/form/fields/ListboxField'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Button } from '~/ui/lib/Button'
+import { CardBlock, LearnMore } from '~/ui/lib/CardBlock'
 import { type ListboxItem } from '~/ui/lib/Listbox'
-import { LearnMore, SettingsGroup } from '~/ui/lib/SettingsGroup'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { toLocaleDateTimeString } from '~/util/date'
 import { links } from '~/util/links'
@@ -91,13 +91,13 @@ export default function SettingsTab() {
   })
 
   return (
-    <form className="space-y-6" onSubmit={onSubmit}>
-      <SettingsGroup.Container>
-        <SettingsGroup.Header>
-          <SettingsGroup.Title>Auto-restart</SettingsGroup.Title>
-          <p>The auto-restart policy for this instance</p>
-        </SettingsGroup.Header>
-        <SettingsGroup.Body>
+    <form onSubmit={onSubmit}>
+      <CardBlock width="medium">
+        <CardBlock.Header
+          title="Auto-restart"
+          description="The auto-restart policy for this instance"
+        />
+        <CardBlock.Body>
           <ListboxField
             control={form.control}
             name="autoRestartPolicy"
@@ -138,16 +138,14 @@ export default function SettingsTab() {
               <span className="text-tertiary">N/A</span>
             )}
           </FormMeta>
-        </SettingsGroup.Body>
-        <SettingsGroup.Footer>
-          <div>
-            <LearnMore text="Auto-Restart" href={links.instanceUpdateDocs} />
-          </div>
+        </CardBlock.Body>
+        <CardBlock.Footer>
+          <LearnMore href={links.instanceUpdateDocs} text="Auto-Restart" />
           <Button size="sm" type="submit" disabled={disableSubmit}>
             Save
           </Button>
-        </SettingsGroup.Footer>
-      </SettingsGroup.Container>
+        </CardBlock.Footer>
+      </CardBlock>
     </form>
   )
 }

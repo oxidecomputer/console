@@ -11,6 +11,7 @@ deno.lock
 .settings/
 *.sublime-workspace
 .helix
+.react-router/
 
 # IDE - VSCode
 .vscode/*

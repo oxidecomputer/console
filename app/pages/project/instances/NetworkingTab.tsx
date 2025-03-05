@@ -44,10 +44,11 @@ import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
+import { Button } from '~/ui/lib/Button'
+import { CardBlock } from '~/ui/lib/CardBlock'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
-import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { TableControls, TableEmptyBox, TableTitle } from '~/ui/lib/Table'
+import { TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
@@ -390,28 +391,49 @@ export default function NetworkingTab() {
         : null
 
   return (
-    <>
-      <TableControls>
-        <TableTitle id="attached-ips-label">External IPs</TableTitle>
-        <div className="flex gap-3">
-          {/*
-            We normally wouldn't hide this button and would just have a disabled state on it,
-            but it is very rare for this button to be necessary, and it would be disabled
-            most of the time, for most users. To reduce clutter on the screen, we're hiding it.
-           */}
-          {enableEphemeralAttachButton && (
-            <CreateButton onClick={() => setAttachEphemeralModalOpen(true)}>
-              Attach ephemeral IP
-            </CreateButton>
+    <div className="space-y-5">
+      <CardBlock>
+        <CardBlock.Header title="External IPs" titleId="attached-ips-label">
+          <div className="flex gap-3">
+            {/*
+                We normally wouldn't hide this button and would just have a disabled state on it,
+                but it is very rare for this button to be necessary, and it would be disabled
+                most of the time, for most users. To reduce clutter on the screen, we're hiding it.
+               */}
+            {enableEphemeralAttachButton && (
+              <Button size="sm" onClick={() => setAttachEphemeralModalOpen(true)}>
+                Attach ephemeral IP
+              </Button>
+            )}
+            <Button
+              size="sm"
+              onClick={() => setAttachFloatingModalOpen(true)}
+              disabled={!!floatingDisabledReason}
+              disabledReason={floatingDisabledReason}
+            >
+              Attach floating IP
+            </Button>
+          </div>
+        </CardBlock.Header>
+
+        <CardBlock.Body>
+          {eips.items.length > 0 ? (
+            <Table
+              aria-labelledby="attached-ips-label"
+              table={ipTableInstance}
+              className="table-inline"
+            />
+          ) : (
+            <TableEmptyBox border={false}>
+              <EmptyMessage
+                icon={<IpGlobal24Icon />}
+                title="No external IPs"
+                body="Attach an external IP to see it here"
+              />
+            </TableEmptyBox>
           )}
-          <CreateButton
-            onClick={() => setAttachFloatingModalOpen(true)}
-            disabled={!!floatingDisabledReason}
-            disabledReason={floatingDisabledReason}
-          >
-            Attach floating IP
-          </CreateButton>
-        </div>
+        </CardBlock.Body>
+
         {attachEphemeralModalOpen && (
           <AttachEphemeralIpModal onDismiss={() => setAttachEphemeralModalOpen(false)} />
         )}
@@ -422,33 +444,43 @@ export default function NetworkingTab() {
             onDismiss={() => setAttachFloatingModalOpen(false)}
           />
         )}
-      </TableControls>
-      {eips.items.length > 0 ? (
-        <Table aria-labelledby="attached-ips-label" table={ipTableInstance} />
-      ) : (
-        <TableEmptyBox>
-          <EmptyMessage
-            icon={<IpGlobal24Icon />}
-            title="No external IPs"
-            body="Attach an external IP to see it here"
-          />
-        </TableEmptyBox>
-      )}
+      </CardBlock>
 
-      <TableControls className="mt-8">
-        <TableTitle id="nics-label">Network interfaces</TableTitle>
-        <CreateButton
-          onClick={() => setCreateModalOpen(true)}
-          disabled={!instanceCan.updateNic(instance)}
-          disabledReason={
-            <>
-              A network interface cannot be created or edited unless the instance is{' '}
-              {updateNicStates}.
-            </>
-          }
-        >
-          Add network interface
-        </CreateButton>
+      <CardBlock>
+        <CardBlock.Header title="Network interfaces" titleId="nics-label">
+          <Button
+            size="sm"
+            onClick={() => setCreateModalOpen(true)}
+            disabled={!instanceCan.updateNic(instance)}
+            disabledReason={
+              <>
+                A network interface cannot be created or edited unless the instance is{' '}
+                {updateNicStates}.
+              </>
+            }
+          >
+            Add network interface
+          </Button>
+        </CardBlock.Header>
+
+        <CardBlock.Body>
+          {nics.length > 0 ? (
+            <Table
+              aria-labelledby="nics-label"
+              table={tableInstance}
+              className="table-inline"
+            />
+          ) : (
+            <TableEmptyBox border={false}>
+              <EmptyMessage
+                icon={<Networking24Icon />}
+                title="No network interfaces"
+                body="Create a network interface to see it here"
+              />
+            </TableEmptyBox>
+          )}
+        </CardBlock.Body>
+
         {createModalOpen && (
           <CreateNetworkInterfaceForm
             onDismiss={() => setCreateModalOpen(false)}
@@ -456,22 +488,11 @@ export default function NetworkingTab() {
             submitError={createNic.error}
           />
         )}
-      </TableControls>
-      {nics.length > 0 ? (
-        <Table aria-labelledby="nics-label" table={tableInstance} />
-      ) : (
-        <TableEmptyBox>
-          <EmptyMessage
-            icon={<Networking24Icon />}
-            title="No network interfaces"
-            body="Create a network interface to see it here"
-          />
-        </TableEmptyBox>
-      )}
 
-      {editing && (
-        <EditNetworkInterfaceForm editing={editing} onDismiss={() => setEditing(null)} />
-      )}
-    </>
+        {editing && (
+          <EditNetworkInterfaceForm editing={editing} onDismiss={() => setEditing(null)} />
+        )}
+      </CardBlock>
+    </div>
   )
 }
