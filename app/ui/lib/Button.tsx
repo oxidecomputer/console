@@ -13,13 +13,14 @@ import { Spinner } from '~/ui/lib/Spinner'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { Wrap } from '~/ui/util/wrap'
 
-export const buttonSizes = ['sm', 'icon', 'base'] as const
-export const variants = ['primary', 'secondary', 'ghost', 'danger'] as const
+export const buttonSizes = ['xs', 'sm', 'icon', 'base'] as const
+export const variants = ['primary', 'secondary', 'ghost', 'danger', 'notice'] as const
 
 export type ButtonSize = (typeof buttonSizes)[number]
 export type Variant = (typeof variants)[number]
 
 const sizeStyle: Record<ButtonSize, string> = {
+  xs: 'h-6 px-2 text-mono-xs',
   sm: 'h-8 px-3 text-mono-sm [&>svg]:w-4',
   // meant for buttons that only contain a single icon
   icon: 'h-8 w-8 text-mono-sm [&>svg]:w-4',
@@ -115,7 +116,7 @@ export const Button = ({
             animate={{ opacity: 1, y: '-50%', x: '-50%' }}
             initial={{ opacity: 0, y: 'calc(-50% - 25px)', x: '-50%' }}
             transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
-            className="absolute left-1/2 top-1/2"
+            className="absolute left-1/2 top-1/2 flex items-center justify-center"
           >
             <Spinner variant={variant} />
           </m.span>
