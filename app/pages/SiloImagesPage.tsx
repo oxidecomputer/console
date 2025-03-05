@@ -261,7 +261,7 @@ const DemoteImageModal = ({
 
       <Message
         variant="info"
-        content="Once an image has been demoted it is only visible to the project that it is demoted into. This will not affect disks already created with the image."
+        content="Once an image has been demoted it is only visible within the project that it is demoted into. This will not affect disks already created with the image."
       />
 
       <ComboboxField
