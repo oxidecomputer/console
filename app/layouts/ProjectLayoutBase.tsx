@@ -115,7 +115,7 @@ export function ProjectLayoutBase({ overrideContentPane }: ProjectLayoutProps) {
           <NavLinkItem to={pb.projectAccess(projectSelector)}>
             <Access16Icon title="Access" /> Access
           </NavLinkItem>
-          <NavLinkItem to={pb.affinityIndex(projectSelector)}>
+          <NavLinkItem to={pb.affinityGroups(projectSelector)}>
             <Access16Icon title="Affinity" /> Affinity
           </NavLinkItem>
         </Sidebar.Nav>

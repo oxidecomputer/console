@@ -491,15 +491,19 @@ export const routes = createRoutesFromElements(
           />
           <Route
             path="affinity"
-            lazy={() => import('./pages/project/affinity/AffinityIndexPage').then(convert)}
+            lazy={() =>
+              import('./pages/project/affinity/AffinityGroupsPage.tsx').then(convert)
+            }
           />
           <Route
             path="affinity"
-            handle={makeCrumb('Affinity', (p) => pb.affinityIndex(getAffinitySelector(p)))}
+            handle={makeCrumb('Affinity', (p) => pb.affinityGroups(getAffinitySelector(p)))}
           >
             <Route
               path=":affinity"
-              lazy={() => import('./pages/project/affinity/AffinityPage').then(convert)}
+              lazy={() =>
+                import('./pages/project/affinity/AffinityGroupPage.tsx').then(convert)
+              }
             />
           </Route>
         </Route>

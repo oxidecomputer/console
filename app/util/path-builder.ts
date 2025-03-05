@@ -96,8 +96,8 @@ export const pb = {
   floatingIpEdit: (params: PP.FloatingIp) =>
     `${pb.floatingIps(params)}/${params.floatingIp}/edit`,
 
-  affinityIndex: (params: PP.Project) => `${projectBase(params)}/affinity`,
-  affinity: (params: PP.Affinity) => `${pb.affinityIndex(params)}/${params.affinity}`,
+  affinityGroups: (params: PP.Project) => `${projectBase(params)}/affinity`,
+  affinityGroup: (params: PP.Affinity) => `${pb.affinityGroups(params)}/${params.affinity}`,
 
   siloUtilization: () => '/utilization',
   siloAccess: () => '/access',
