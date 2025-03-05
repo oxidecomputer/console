@@ -22,7 +22,7 @@
 }
 
 .btn-secondary {
-  @apply text-default bg-secondary hover:bg-hover disabled:text-tertiary disabled:bg-secondary;
+  @apply text-default bg-secondary hover:bg-hover disabled:text-disabled disabled:bg-secondary;
 }
 .btn-secondary:disabled > .spinner,
 .btn-secondary.visually-disabled > .spinner {
