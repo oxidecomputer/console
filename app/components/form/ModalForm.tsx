@@ -43,44 +43,40 @@ export function ModalForm<TFieldValues extends FieldValues>({
   overlay = true,
 }: ModalFormProps<TFieldValues>) {
   const id = useId()
-
   const { isSubmitting } = form.formState
-
   return (
-    <>
-      <Modal isOpen onDismiss={onDismiss} title={title} width={width} overlay={overlay}>
-        <Modal.Body>
-          <Modal.Section>
-            {submitError && (
-              <Message variant="error" title="Error" content={submitError.message} />
-            )}
-            <form
-              id={id}
-              className="ox-form"
-              autoComplete="off"
-              onSubmit={(e) => {
-                if (!onSubmit) return
-                // This modal being in a portal doesn't prevent the submit event
-                // from bubbling up out of the portal. Normally that's not a
-                // problem, but sometimes (e.g., instance create) we render the
-                // SideModalForm from inside another form, in which case submitting
-                // the inner form submits the outer form unless we stop propagation
-                e.stopPropagation()
-                form.handleSubmit(onSubmit)(e)
-              }}
-            >
-              {children}
-            </form>
-          </Modal.Section>
-        </Modal.Body>
-        <Modal.Footer
-          onDismiss={onDismiss}
-          formId={id}
-          actionText={submitLabel}
-          disabled={!!submitDisabled}
-          actionLoading={loading || isSubmitting}
-        />
-      </Modal>
-    </>
+    <Modal isOpen onDismiss={onDismiss} title={title} width={width} overlay={overlay}>
+      <Modal.Body>
+        <Modal.Section>
+          {submitError && (
+            <Message variant="error" title="Error" content={submitError.message} />
+          )}
+          <form
+            id={id}
+            className="ox-form"
+            autoComplete="off"
+            onSubmit={(e) => {
+              if (!onSubmit) return
+              // This modal being in a portal doesn't prevent the submit event
+              // from bubbling up out of the portal. Normally that's not a
+              // problem, but sometimes (e.g., instance create) we render the
+              // SideModalForm from inside another form, in which case submitting
+              // the inner form submits the outer form unless we stop propagation
+              e.stopPropagation()
+              form.handleSubmit(onSubmit)(e)
+            }}
+          >
+            {children}
+          </form>
+        </Modal.Section>
+      </Modal.Body>
+      <Modal.Footer
+        onDismiss={onDismiss}
+        formId={id}
+        actionText={submitLabel}
+        disabled={!!submitDisabled}
+        actionLoading={loading || isSubmitting}
+      />
+    </Modal>
   )
 }
