@@ -160,19 +160,16 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
     [images.data]
   )
 
-  const onSubmit = ({ image, project }: Values) => {
-    if (!image || !project) return
-    promoteImage.mutate({ path: { image } })
-  }
-
   return (
     <ModalForm
       title="Promote image"
       form={form}
-      resourceName="Image"
       loading={promoteImage.isPending}
       submitError={promoteImage.error}
-      onSubmit={onSubmit}
+      onSubmit={({ image, project }) => {
+        if (!image || !project) return // shouldn't happen because of validation
+        promoteImage.mutate({ path: { image } })
+      }}
       onDismiss={onDismiss}
       submitLabel="Promote"
     >

@@ -60,7 +60,6 @@ export function AttachDiskModalForm({
     <ModalForm
       form={form}
       onDismiss={onDismiss}
-      resourceName="disk"
       submitLabel="Attach disk"
       submitError={submitError}
       loading={loading}
