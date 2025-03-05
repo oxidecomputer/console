@@ -334,18 +334,7 @@ export default function StorageTab() {
 
       <CardBlock>
         <CardBlock.Header title="Additional disks" titleId="other-disks-label">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setShowDiskAttach(true)}
-            disabledReason={
-              <>
-                Instance must be <span className="text-raise">stopped</span> to attach a
-                disk
-              </>
-            }
-            disabled={!instanceCan.attachDisk(instance)}
-          >
+          <Button variant="secondary" size="sm" onClick={() => setShowDiskAttach(true)}>
             Attach existing disk
           </Button>
           <Button

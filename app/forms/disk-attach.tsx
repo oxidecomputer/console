@@ -8,7 +8,7 @@
 import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { useApiQuery, type ApiError, type Instance } from '@oxide/api'
+import { instanceCan, useApiQuery, type ApiError, type Instance } from '@oxide/api'
 
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { ModalForm } from '~/components/form/ModalForm'
@@ -71,7 +71,7 @@ export function AttachDiskModalForm({
       onSubmit={onSubmit}
       width="medium"
       submitDisabled={
-        instance.runState !== 'stopped' ? 'Instance must be stopped' : undefined
+        !instanceCan.attachDisk(instance) ? 'Instance must be stopped' : undefined
       }
     >
       <StopInstancePrompt instance={instance}>
