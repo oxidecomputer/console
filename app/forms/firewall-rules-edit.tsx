@@ -30,7 +30,12 @@ import { ALL_ISH } from '~/util/consts'
 import { invariant } from '~/util/invariant'
 import { pb } from '~/util/path-builder'
 
-import { CommonFields } from './firewall-rules-common'
+import {
+  CommonFields,
+  defaultActiveSubforms,
+  submitDisabledMessage,
+  useSubformStates,
+} from './firewall-rules-common'
 import { valuesToRuleUpdate, type FirewallRuleValues } from './firewall-rules-util'
 
 export const handle = titleCrumb('Edit Rule')
@@ -57,6 +62,8 @@ export default function EditFirewallRuleForm() {
   const { project, vpc, rule } = useFirewallRuleSelector()
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
+
+  const { subformStates, updateSubformStates } = useSubformStates(defaultActiveSubforms)
 
   const { data: firewallRules } = usePrefetchedApiQuery('vpcFirewallRulesView', {
     query: { project, vpc },
@@ -125,6 +132,7 @@ export default function EditFirewallRuleForm() {
       // validationSchema={validationSchema}
       // validateOnBlur
       loading={updateRules.isPending}
+      submitDisabled={submitDisabledMessage(subformStates)}
       submitError={updateRules.error}
     >
       <CommonFields
@@ -132,6 +140,7 @@ export default function EditFirewallRuleForm() {
         // error if name is being changed to something that conflicts with some other rule
         nameTaken={(name) => !!otherRules.find((r) => r.name === name)}
         error={updateRules.error}
+        updateSubformStates={updateSubformStates}
       />
     </SideModalForm>
   )
