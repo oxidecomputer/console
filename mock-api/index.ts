@@ -6,6 +6,10 @@
  * Copyright Oxide Computer Company
  */
 
+export * from './affinity-group'
+export * from './affinity-group-member'
+export * from './anti-affinity-group'
+export * from './anti-affinity-group-member'
 export * from './disk'
 export * from './external-ip'
 export * from './floating-ip'
@@ -25,5 +29,4 @@ export * from './sshKeys'
 export * from './switch'
 export * from './user'
 export * from './user-group'
-export * from './user'
 export * from './vpc'
