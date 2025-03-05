@@ -54,4 +54,4 @@ export function EmptyMessage(props: Props) {
   )
 }
 
-export const EMBody = classed.p`mt-1 text-balance text-sans-md text-default`
+export const EMBody = classed.p`mt-0.5 text-balance text-sans-md text-default`

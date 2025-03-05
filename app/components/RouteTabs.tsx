@@ -79,10 +79,16 @@ export function RouteTabs({
 
 export interface TabProps {
   to: string
+  /**
+   * Used in rare cases when a tab has sidebar tabs underneath and we want to be
+   * able to link directly to the first sidebar tab, but we of course also want
+   * this tab to appear active for all the sidebar tabs. See instance metrics.
+   */
+  toPrefix?: string
   children: ReactNode
 }
-export const Tab = ({ to, children }: TabProps) => {
-  const isActive = useIsActivePath({ to })
+export const Tab = ({ to, toPrefix, children }: TabProps) => {
+  const isActive = useIsActivePath({ to: toPrefix || to })
   return (
     <Link
       role="tab"
@@ -90,6 +96,7 @@ export const Tab = ({ to, children }: TabProps) => {
       className={cn('ox-tab', { 'is-selected': isActive })}
       tabIndex={isActive ? 0 : -1}
       aria-selected={isActive}
+      data-state={isActive ? 'active' : 'inactive'}
     >
       <div>{children}</div>
     </Link>

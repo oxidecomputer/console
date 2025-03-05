@@ -9,6 +9,12 @@
 table.ox-table {
   border-spacing: 0px;
 
+  --table-border-radius: var(--border-radius-lg);
+
+  &.table-inline {
+    --table-border-radius: var(--border-radius);
+  }
+
   /*
   Adds borders to first and last in a
   row excluding table corners
@@ -80,20 +86,20 @@ table.ox-table {
   }
 
   & tr:last-of-type td:last-of-type.action-col > div {
-    border-bottom-right-radius: var(--border-radius-lg);
+    border-bottom-right-radius: var(--table-border-radius);
   }
 
   & tr:last-of-type td:first-of-type > div {
-    border-bottom-left-radius: var(--border-radius-lg);
+    border-bottom-left-radius: var(--table-border-radius);
   }
 
   & tr:last-of-type td:last-of-type.action-col:after {
-    border-bottom-right-radius: var(--border-radius-lg);
+    border-bottom-right-radius: var(--table-border-radius);
     @apply pointer-events-none absolute bottom-0 left-0 right-0 top-0 border-b border-r content-[''] border-default;
   }
 
   & tr:last-of-type td:last-of-type:not(.action-col) {
-    border-bottom-right-radius: var(--border-radius-lg);
+    border-bottom-right-radius: var(--table-border-radius);
   }
 
   & tr:last-of-type td:first-of-type {
@@ -101,7 +107,7 @@ table.ox-table {
   }
 
   & tr:last-of-type td:first-of-type:after {
-    border-bottom-left-radius: var(--border-radius-lg);
+    border-bottom-left-radius: var(--table-border-radius);
     @apply pointer-events-none absolute bottom-0 left-0 right-0 top-0 border-b border-l content-[''] border-default;
   }
 
@@ -110,12 +116,12 @@ table.ox-table {
   }
 
   & th:first-of-type > div {
-    border-top-left-radius: var(--border-radius-lg);
+    border-top-left-radius: var(--table-border-radius);
     @apply w-[calc(100%+1px)] bg-secondary;
   }
 
   & th:first-of-type:after {
-    border-top-left-radius: var(--border-radius-lg);
+    border-top-left-radius: var(--table-border-radius);
     @apply pointer-events-none absolute bottom-0 left-0 right-0 top-0 border-l border-t content-[''] border-default;
   }
 
@@ -124,17 +130,17 @@ table.ox-table {
   }
 
   & th:last-of-type.action-col > div {
-    border-top-right-radius: var(--border-radius-lg);
+    border-top-right-radius: var(--table-border-radius);
     @apply bg-secondary;
   }
 
   & th:last-of-type.action-col:after {
-    border-top-right-radius: var(--border-radius-lg);
+    border-top-right-radius: var(--table-border-radius);
     @apply pointer-events-none absolute bottom-0 left-0 right-0 top-0 border-r border-t content-[''] border-default;
   }
 
   & th:last-of-type:not(.action-col) {
-    border-top-right-radius: var(--border-radius-lg);
+    border-top-right-radius: var(--table-border-radius);
     @apply border-r;
   }
 

@@ -49,7 +49,7 @@ import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { truncate } from '~/ui/lib/Truncate'
-import { pb } from '~/util/path-builder'
+import { instanceMetricsBase, pb } from '~/util/path-builder'
 import { pluralize } from '~/util/str'
 import { GiB } from '~/util/units'
 
@@ -245,7 +245,12 @@ export default function InstancePage() {
       <RouteTabs fullWidth>
         <Tab to={pb.instanceStorage(instanceSelector)}>Storage</Tab>
         <Tab to={pb.instanceNetworking(instanceSelector)}>Networking</Tab>
-        <Tab to={pb.instanceCpuMetrics(instanceSelector)}>Metrics</Tab>
+        <Tab
+          to={pb.instanceCpuMetrics(instanceSelector)}
+          toPrefix={instanceMetricsBase(instanceSelector)}
+        >
+          Metrics
+        </Tab>
         <Tab to={pb.instanceConnect(instanceSelector)}>Connect</Tab>
         <Tab to={pb.instanceSettings(instanceSelector)}>Settings</Tab>
       </RouteTabs>
