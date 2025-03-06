@@ -7,21 +7,21 @@
  */
 
 import { makeCrumb } from '~/hooks/use-crumbs'
-import { getAffinitySelector, useAffinitySelector } from '~/hooks/use-params'
+import { getAffinityGroupSelector, useAffinityGroupSelector } from '~/hooks/use-params'
 import { pb } from '~/util/path-builder'
 
-import { AffinityPageHeader } from './AffinityGroupsPage'
+import { AffinityPageHeader } from './AffinityPage'
 
 export const handle = makeCrumb(
   (p) => p.affinity!,
-  (p) => pb.affinityGroup(getAffinitySelector(p))
+  (p) => pb.affinityGroup(getAffinityGroupSelector(p))
 )
 
 export default function AffinityPage() {
-  const { affinity } = useAffinitySelector()
+  const { affinityGroup } = useAffinityGroupSelector()
   return (
     <>
-      <AffinityPageHeader name={affinity} />
+      <AffinityPageHeader name={affinityGroup} />
       {/* header content */}
       {/* body content */}
     </>

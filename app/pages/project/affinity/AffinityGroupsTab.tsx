@@ -9,10 +9,8 @@
 import type { LoaderFunctionArgs } from 'react-router'
 
 import { apiQueryClient } from '@oxide/api'
-import { Access24Icon } from '@oxide/design-system/icons/react'
 
 import { getProjectSelector } from '~/hooks/use-params'
-import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
@@ -26,21 +24,8 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-export const AffinityPageHeader = ({ name = 'Affinity' }: { name?: string }) => (
-  <PageHeader>
-    {/* TODO: update once Affinity icon is in the design system */}
-    <PageTitle icon={<Access24Icon />}>{name}</PageTitle>
-    {/* TODO: Add a DocsPopover with docLinks.affinity once the doc page exists */}
-  </PageHeader>
-)
-
 export const handle = { crumb: 'Affinity' }
 
 export default function ProjectAccessPage() {
-  return (
-    <>
-      <AffinityPageHeader />
-      Table goes here
-    </>
-  )
+  return <>Table goes here</>
 }

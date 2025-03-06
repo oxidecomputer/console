@@ -2,6 +2,44 @@
 
 exports[`breadcrumbs 2`] = `
 {
+  "affinityGroup (/projects/p/affinity/affinity-groups/ag)": [],
+  "affinityGroups (/projects/p/affinity/affinity-groups)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Affinity",
+      "path": "/projects/p/affinity",
+    },
+    {
+      "label": "Affinity",
+      "path": "/projects/p/affinity/affinity-groups",
+    },
+  ],
+  "antiAffinityGroup (/projects/p/affinity/anti-affinity-groups/aag)": [],
+  "antiAffinityGroups (/projects/p/affinity/anti-affinity-groups)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Affinity",
+      "path": "/projects/p/affinity",
+    },
+    {
+      "label": "Anti-Affinity",
+      "path": "/projects/p/affinity/anti-affinity-groups",
+    },
+  ],
   "deviceSuccess (/device/success)": [],
   "diskInventory (/system/inventory/disks)": [
     {
@@ -527,24 +565,6 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "Silos",
       "path": "/system/silos",
-    },
-  ],
-  "sled (/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances)": [
-    {
-      "label": "Inventory",
-      "path": "/system/inventory",
-    },
-    {
-      "label": "Sleds",
-      "path": "/system/inventory/sleds",
-    },
-    {
-      "label": "5c56b…ec3e0",
-      "path": "/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances",
-    },
-    {
-      "label": "Instances",
-      "path": "/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances",
     },
   ],
   "sledInstances (/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances)": [

@@ -16,11 +16,7 @@ import {
 
 import { NotFound } from './components/ErrorPage'
 import { makeCrumb, type Crumb } from './hooks/use-crumbs'
-import {
-  getAffinitySelector,
-  getInstanceSelector,
-  getVpcSelector,
-} from './hooks/use-params'
+import { getInstanceSelector, getVpcSelector } from './hooks/use-params'
 import { pb } from './util/path-builder'
 
 // hack because RR doesn't export the redirect type
@@ -491,20 +487,28 @@ export const routes = createRoutesFromElements(
           />
           <Route
             path="affinity"
-            lazy={() =>
-              import('./pages/project/affinity/AffinityGroupsPage.tsx').then(convert)
-            }
-          />
-          <Route
-            path="affinity"
-            handle={makeCrumb('Affinity', (p) => pb.affinityGroups(getAffinitySelector(p)))}
+            lazy={() => import('./pages/project/affinity/AffinityPage.tsx').then(convert)}
           >
+            <Route index element={<Navigate to="affinity-groups" replace />} />
             <Route
+              path="affinity-groups"
+              lazy={() =>
+                import('./pages/project/affinity/AffinityGroupsTab.tsx').then(convert)
+              }
+            />
+            {/* TODO: Get sidebar nav isActive working with anti-affinity tab */}
+            <Route
+              path="anti-affinity-groups"
+              lazy={() =>
+                import('./pages/project/affinity/AntiAffinityGroupsTab.tsx').then(convert)
+              }
+            />
+            {/* <Route
               path=":affinity"
               lazy={() =>
                 import('./pages/project/affinity/AffinityGroupPage.tsx').then(convert)
               }
-            />
+            /> */}
           </Route>
         </Route>
       </Route>

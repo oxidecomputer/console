@@ -6,10 +6,11 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { NavLink, useLocation } from 'react-router'
+import { Link, useLocation } from 'react-router'
 
 import { Action16Icon, Document16Icon } from '@oxide/design-system/icons/react'
 
+import { useIsActivePath } from '~/hooks/use-is-active-path'
 import { openQuickActions } from '~/hooks/use-quick-actions'
 import { Button } from '~/ui/lib/Button'
 import { Truncate } from '~/ui/lib/Truncate'
@@ -88,24 +89,28 @@ export const NavLinkItem = (props: {
   children: React.ReactNode
   end?: boolean
   disabled?: boolean
+  // Only for a particular case, when we want to spoof the path and pretend 'isActive'
+  toPrefix?: string
 }) => {
+  const pathname = useLocation().pathname
   // If the current page is the create form for this NavLinkItem's resource, highlight the NavLink in the sidebar
-  const currentPathIsCreateForm = useLocation().pathname.startsWith(`${props.to}-new`)
+  const currentPathIsCreateForm = pathname.startsWith(`${props.to}-new`)
+  // We aren't using NavLink, as we need to occasionally use a toPrefix to create a faux active state for matching root paths
+  // so we also recreate the isActive logic here
+  const isActive = useIsActivePath({ to: props.toPrefix || props.to, end: props.end })
   return (
     <li>
-      <NavLink
+      <Link
         to={props.to}
-        className={({ isActive }) =>
-          cn(linkStyles, {
-            'text-accent !bg-accent-secondary hover:!bg-accent-secondary-hover [&>svg]:!text-accent-tertiary':
-              isActive || currentPathIsCreateForm,
-            'pointer-events-none text-disabled': props.disabled,
-          })
-        }
-        end={props.end}
+        className={cn(linkStyles, {
+          'text-accent !bg-accent-secondary hover:!bg-accent-secondary-hover [&>svg]:!text-accent-tertiary':
+            isActive || currentPathIsCreateForm,
+          'pointer-events-none text-disabled': props.disabled,
+        })}
+        aria-current={isActive ? 'page' : undefined}
       >
         {props.children}
-      </NavLink>
+      </Link>
     </li>
   )
 }
