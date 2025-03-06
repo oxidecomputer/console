@@ -68,12 +68,7 @@ export function AttachDiskModalForm({
       loading={loading}
       title="Attach disk"
       onSubmit={onSubmit}
-      width="medium"
-      submitDisabled={
-        instance && !instanceCan.attachDisk(instance)
-          ? 'Instance must be stopped'
-          : undefined
-      }
+      submitDisabled={instance && !instanceCan.attachDisk(instance)}
     >
       {instance && ['stopping', 'running'].includes(instance.runState) && (
         <StopInstancePrompt instance={instance}>
