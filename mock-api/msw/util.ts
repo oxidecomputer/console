@@ -35,6 +35,7 @@ import { GiB, TiB } from '~/util/units'
 import type { DbRoleAssignmentResourceType } from '..'
 import { genI64Data } from '../metrics'
 import { db } from './db'
+import { Rando } from './rando'
 
 interface PaginateOptions {
   limit?: number
@@ -148,25 +149,6 @@ export const errIfInvalidDiskSize = (disk: Json<DiskCreate>) => {
     const imageSize = db.images.find((i) => source.image_id === i.id)?.size ?? 0
     if (disk.size >= imageSize) return
     throw 'Disk size must be greater than or equal to the image size'
-  }
-}
-
-export class Rando {
-  private a: number
-  private c: number
-  private m: number
-  private seed: number
-
-  constructor(seed: number, a = 1664525, c = 1013904223, m = 2 ** 32) {
-    this.seed = seed
-    this.a = a
-    this.c = c
-    this.m = m
-  }
-
-  public next(): number {
-    this.seed = (this.a * this.seed + this.c) % this.m
-    return this.seed / this.m
   }
 }
 

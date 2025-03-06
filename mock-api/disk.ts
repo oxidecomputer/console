@@ -11,7 +11,7 @@ import { GiB } from '~/util/units'
 
 import { instance } from './instance'
 import type { Json } from './json-type'
-import { Rando } from './msw/util'
+import { Rando } from './msw/rando'
 import { project, project2 } from './project'
 
 // Use seeded random for consistent states across runs
@@ -39,7 +39,7 @@ const randomDiskState = (): DiskState => {
     case 'attached':
     case 'attaching':
     case 'detaching':
-      return { state, instance: instance.id }
+      return { state, instance: 'ac8aff03-bd10-4adf-acca-d5db8e8b2a4c' }
     case 'detached':
     case 'creating':
     case 'destroyed':
