@@ -148,7 +148,6 @@ export function instanceTransitioning(runState: InstanceState) {
     runState === 'starting' ||
     runState === 'rebooting' ||
     runState === 'migrating' ||
-    runState === 'repairing' ||
     runState === 'stopping'
   )
 }
@@ -192,8 +191,6 @@ export function diskTransitioning(diskState: DiskState['state']) {
     diskState === 'attaching' ||
     diskState === 'creating' ||
     diskState === 'detaching' ||
-    diskState === 'importing_from_url' ||
-    diskState === 'importing_from_bulk_writes' ||
     diskState === 'finalizing'
   )
 }
