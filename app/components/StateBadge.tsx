@@ -64,7 +64,7 @@ export const DiskStateBadge = (props: { state: DiskStateStr; className?: string 
     {diskTransitioning(props.state) && (
       <Spinner size="sm" variant={DISK_COLORS[props.state]} />
     )}
-    {props.state}
+    {props.state.replace(/_/g, ' ')}
   </Badge>
 )
 
