@@ -15,9 +15,10 @@ const instanceBase = ({ project, instance }: PP.Instance) =>
   `${pb.instances({ project })}/${instance}`
 const vpcBase = ({ project, vpc }: PP.Vpc) => `${pb.vpcs({ project })}/${vpc}`
 
-/** Don't use this for links. only exported for use as toPrefix on metrics tab */
+/** Don't use these for links. only exported for use as toPrefix */
 export const instanceMetricsBase = ({ project, instance }: PP.Instance) =>
   `${instanceBase({ project, instance })}/metrics`
+export const inventoryBase = () => '/system/inventory'
 
 export const pb = {
   projects: () => `/projects`,
@@ -109,10 +110,9 @@ export const pb = {
   ipPoolEdit: (params: PP.IpPool) => `${pb.ipPool(params)}/edit`,
   ipPoolRangeAdd: (params: PP.IpPool) => `${pb.ipPool(params)}/ranges-add`,
 
-  sledInventory: () => '/system/inventory/sleds',
-  diskInventory: () => '/system/inventory/disks',
-  sled: ({ sledId }: PP.Sled) => `/system/inventory/sleds/${sledId}/instances`,
-  sledInstances: ({ sledId }: PP.Sled) => `/system/inventory/sleds/${sledId}/instances`,
+  sledInventory: () => `${inventoryBase()}/sleds`,
+  diskInventory: () => `${inventoryBase()}/disks`,
+  sledInstances: ({ sledId }: PP.Sled) => `${pb.sledInventory()}/${sledId}/instances`,
 
   silos: () => '/system/silos',
   silosNew: () => '/system/silos-new',

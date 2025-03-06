@@ -6,10 +6,11 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { NavLink, useLocation } from 'react-router'
+import { Link, useLocation } from 'react-router'
 
 import { Action16Icon, Document16Icon } from '@oxide/design-system/icons/react'
 
+import { useIsActivePath } from '~/hooks/use-is-active-path'
 import { openQuickActions } from '~/hooks/use-quick-actions'
 import { Button } from '~/ui/lib/Button'
 import { Truncate } from '~/ui/lib/Truncate'
@@ -83,29 +84,34 @@ Sidebar.Nav = ({ children, heading }: SidebarNav) => (
   </div>
 )
 
-export const NavLinkItem = (props: {
+type NavLinkProps = {
   to: string
   children: React.ReactNode
   end?: boolean
   disabled?: boolean
-}) => {
+  // Only for a particular case, when we want to spoof the path and pretend 'isActive'
+  toPrefix?: string
+}
+
+export const NavLinkItem = ({ to, children, end, disabled, toPrefix }: NavLinkProps) => {
   // If the current page is the create form for this NavLinkItem's resource, highlight the NavLink in the sidebar
-  const currentPathIsCreateForm = useLocation().pathname.startsWith(`${props.to}-new`)
+  const currentPathIsCreateForm = useLocation().pathname.startsWith(`${to}-new`)
+  // We aren't using NavLink, as we need to occasionally use a toPrefix to create an active state for matching root paths
+  // so we also recreate the isActive logic here
+  const isActive = useIsActivePath({ to: toPrefix || to, end })
   return (
     <li>
-      <NavLink
-        to={props.to}
-        className={({ isActive }) =>
-          cn(linkStyles, {
-            'text-accent !bg-accent-secondary hover:!bg-accent-secondary-hover [&>svg]:!text-accent-tertiary':
-              isActive || currentPathIsCreateForm,
-            'pointer-events-none text-disabled': props.disabled,
-          })
-        }
-        end={props.end}
+      <Link
+        to={to}
+        className={cn(linkStyles, {
+          'text-accent !bg-accent-secondary hover:!bg-accent-secondary-hover [&>svg]:!text-accent-tertiary':
+            isActive || currentPathIsCreateForm,
+          'pointer-events-none text-disabled': disabled,
+        })}
+        aria-current={isActive ? 'page' : undefined}
       >
-        {props.children}
-      </NavLink>
+        {children}
+      </Link>
     </li>
   )
 }
