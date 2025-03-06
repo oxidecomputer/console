@@ -13,6 +13,16 @@
   animation: rotate 5s linear infinite;
 }
 
+.spinner .path,
+.spinner .bg {
+  stroke: currentColor;
+}
+
+.spinner.spinner-sm {
+  --radius: 5;
+  --circumference: calc(var(--PI) * var(--radius) * 1.5px);
+}
+
 .spinner.spinner-md {
   --radius: 8;
   --circumference: calc(var(--PI) * var(--radius) * 2px);
@@ -27,7 +37,6 @@
   stroke-dasharray: var(--circumference);
   transform-origin: center;
   animation: dash 8s ease-in-out infinite;
-  stroke: var(--content-accent-tertiary);
 }
 
 @media (prefers-reduced-motion) {
@@ -48,24 +57,6 @@
   .spinner-lg .path {
     stroke-dasharray: 50;
   }
-}
-
-.spinner-ghost .bg,
-.spinner-secondary .bg {
-  stroke: var(--content-default);
-}
-
-.spinner-secondary .path {
-  stroke: var(--content-secondary);
-}
-
-.spinner-primary .bg {
-  stroke: var(--content-accent);
-}
-
-.spinner-danger .bg,
-.spinner-danger .path {
-  stroke: var(--content-destructive-tertiary);
 }
 
 @keyframes rotate {
