@@ -44,6 +44,10 @@
   @apply hidden;
 }
 
+.btn-notice.ox-button:after {
+  @apply opacity-40;
+}
+
 /**
  * A class to make it very visually obvious that a button style is missing
  */
