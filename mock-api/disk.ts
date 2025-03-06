@@ -5,13 +5,49 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { Disk } from '@oxide/api'
+import type { Disk, DiskState } from '@oxide/api'
 
 import { GiB } from '~/util/units'
 
 import { instance } from './instance'
 import type { Json } from './json-type'
 import { project, project2 } from './project'
+
+const randomDiskState = (): DiskState => {
+  const states: DiskState['state'][] = [
+    'attached',
+    'attaching',
+    'creating',
+    'detaching',
+    'detached',
+    'destroyed',
+    'faulted',
+    'maintenance',
+    'import_ready',
+    'importing_from_url',
+    'importing_from_bulk_writes',
+    'finalizing',
+  ]
+
+  const state = states[Math.floor(Math.random() * states.length)]
+
+  switch (state) {
+    case 'attached':
+    case 'attaching':
+    case 'detaching':
+      return { state, instance: instance.id }
+    case 'detached':
+    case 'creating':
+    case 'destroyed':
+    case 'faulted':
+    case 'maintenance':
+    case 'import_ready':
+    case 'importing_from_url':
+    case 'importing_from_bulk_writes':
+    case 'finalizing':
+      return { state }
+  }
+}
 
 export const disks: Json<Disk>[] = [
   {
@@ -157,7 +193,7 @@ export const disks: Json<Disk>[] = [
       project_id: project2.id,
       time_created: new Date().toISOString(),
       time_modified: new Date().toISOString(),
-      state: { state: 'detached' as const },
+      state: randomDiskState(),
       device_path: '/jkl',
       size: 12 * GiB,
       block_size: 2048,

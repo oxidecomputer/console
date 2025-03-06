@@ -49,7 +49,7 @@ const SPINNER_DIMENSIONS = {
 const SPINNER_COLORS: Record<BadgeColor, string> = {
   default: 'text-accent-secondary',
   neutral: 'text-secondary',
-  destructive: 'text-error-secondary',
+  destructive: 'text-destructive-secondary',
   notice: 'text-notice-secondary',
   purple: 'text-[--base-purple-700]',
   blue: 'text-[--base-blue-700]',

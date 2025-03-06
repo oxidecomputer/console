@@ -187,6 +187,17 @@ const diskActions = {
   setAsBootDisk: ['attached'],
 } satisfies Record<string, DiskState['state'][]>
 
+export function diskTransitioning(diskState: DiskState['state']) {
+  return (
+    diskState === 'attaching' ||
+    diskState === 'creating' ||
+    diskState === 'detaching' ||
+    diskState === 'importing_from_url' ||
+    diskState === 'importing_from_bulk_writes' ||
+    diskState === 'finalizing'
+  )
+}
+
 export const diskCan = R.mapValues(diskActions, (states: DiskState['state'][]) => {
   // only have to Pick because we want this to work for both Disk and
   // Json<Disk>, which we pass to it in the MSW handlers

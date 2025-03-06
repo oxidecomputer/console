@@ -18,6 +18,11 @@
   stroke: currentColor;
 }
 
+.spinner.spinner-sm {
+  --radius: 5;
+  --circumference: calc(var(--PI) * var(--radius) * 1.5px);
+}
+
 .spinner.spinner-md {
   --radius: 8;
   --circumference: calc(var(--PI) * var(--radius) * 2px);
