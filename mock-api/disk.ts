@@ -39,7 +39,7 @@ const randomDiskState = (): DiskState => {
     case 'attached':
     case 'attaching':
     case 'detaching':
-      return { state, instance: 'ac8aff03-bd10-4adf-acca-d5db8e8b2a4c' }
+      return { state, instance: '32a0249f-3a5c-4d30-a154-2476e372aa62' }
     case 'detached':
     case 'creating':
     case 'destroyed':
