@@ -11,7 +11,11 @@ import { GiB } from '~/util/units'
 
 import { instance } from './instance'
 import type { Json } from './json-type'
+import { Rando } from './msw/util'
 import { project, project2 } from './project'
+
+// Use seeded random for consistent states across runs
+const rando = new Rando(0)
 
 const randomDiskState = (): DiskState => {
   const states: DiskState['state'][] = [
@@ -29,7 +33,7 @@ const randomDiskState = (): DiskState => {
     'finalizing',
   ]
 
-  const state = states[Math.floor(Math.random() * states.length)]
+  const state = states[Math.floor(rando.next() * states.length)]
 
   switch (state) {
     case 'attached':

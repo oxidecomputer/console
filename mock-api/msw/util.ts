@@ -151,7 +151,7 @@ export const errIfInvalidDiskSize = (disk: Json<DiskCreate>) => {
   }
 }
 
-class Rando {
+export class Rando {
   private a: number
   private c: number
   private m: number

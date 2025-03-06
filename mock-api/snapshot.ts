@@ -14,7 +14,40 @@ import { GiB } from '~/util/units'
 
 import { disks } from './disk'
 import type { Json } from './json-type'
+import { Rando } from './msw/util'
 import { project } from './project'
+
+// Use seeded random for consistent states across runs
+const rando = new Rando(0)
+
+function randomSnapshotState() {
+  const num = rando.next()
+
+  // We still want it to be mostly ready states
+  if (num > 0.1) {
+    return 'ready'
+  } else if (num > 0.066) {
+    return 'destroyed'
+  } else if (num > 0.033) {
+    return 'faulted'
+  } else {
+    return 'creating'
+  }
+}
+
+function generateSnapshot(index: number): Json<Snapshot> {
+  return {
+    id: uuid(),
+    name: `disk-1-snapshot-${index + 8}`,
+    description: '',
+    project_id: project.id,
+    time_created: new Date().toISOString(),
+    time_modified: new Date().toISOString(),
+    size: 1024 * (index + 1),
+    disk_id: disks[0].id,
+    state: randomSnapshotState(),
+  }
+}
 
 const generatedSnapshots: Json<Snapshot>[] = Array.from({ length: 80 }, (_, i) =>
   generateSnapshot(i)
@@ -53,39 +86,6 @@ export const snapshots: Json<Snapshot>[] = [
     size: 3072,
     disk_id: disks[0].id,
     state: 'ready',
-  },
-  {
-    id: '0ad35199-357c-4df9-81c3-1b09126a6615',
-    name: 'faulted-snapshot',
-    description: '',
-    project_id: project.id,
-    time_created: new Date().toISOString(),
-    time_modified: new Date().toISOString(),
-    size: 2048,
-    disk_id: disks[0].id,
-    state: 'faulted',
-  },
-  {
-    id: 'fe95fecf-26a4-4192-8869-313d576722c6',
-    name: 'destroyed-snapshot',
-    description: '',
-    project_id: project.id,
-    time_created: new Date().toISOString(),
-    time_modified: new Date().toISOString(),
-    size: 2048,
-    disk_id: disks[0].id,
-    state: 'destroyed',
-  },
-  {
-    id: 'ebb31677-a435-4187-9ad1-9aaea0df077e',
-    name: 'creating-snapshot',
-    description: '',
-    project_id: project.id,
-    time_created: new Date().toISOString(),
-    time_modified: new Date().toISOString(),
-    size: 2048,
-    disk_id: disks[0].id,
-    state: 'creating',
   },
   {
     id: 'dc598369-4554-4ccd-aa89-a837e6ca487d',
@@ -133,17 +133,3 @@ export const snapshots: Json<Snapshot>[] = [
   },
   ...generatedSnapshots,
 ]
-
-function generateSnapshot(index: number): Json<Snapshot> {
-  return {
-    id: uuid(),
-    name: `disk-1-snapshot-${index + 8}`,
-    description: '',
-    project_id: project.id,
-    time_created: new Date().toISOString(),
-    time_modified: new Date().toISOString(),
-    size: 1024 * (index + 1),
-    disk_id: disks[0].id,
-    state: 'ready',
-  }
-}
