@@ -17,10 +17,12 @@ import { Modal, type ModalProps } from '~/ui/lib/Modal'
 type ModalFormProps<TFieldValues extends FieldValues> = {
   form: UseFormReturn<TFieldValues>
   children: ReactNode
+
   /** Must be provided with a reason describing why it's disabled */
-  submitDisabled?: string
+  submitDisabled?: boolean
   onSubmit: (values: TFieldValues) => void
   submitLabel: string
+
   // require loading and error so we can't forget to hook them up. there are a
   // few forms that don't need them, so we'll use dummy values
 
@@ -33,7 +35,7 @@ export function ModalForm<TFieldValues extends FieldValues>({
   form,
   children,
   onDismiss,
-  submitDisabled,
+  submitDisabled = false,
   submitError,
   title,
   onSubmit,
@@ -44,6 +46,7 @@ export function ModalForm<TFieldValues extends FieldValues>({
 }: ModalFormProps<TFieldValues>) {
   const id = useId()
   const { isSubmitting } = form.formState
+
   return (
     <Modal isOpen onDismiss={onDismiss} title={title} width={width} overlay={overlay}>
       <Modal.Body>
@@ -74,7 +77,7 @@ export function ModalForm<TFieldValues extends FieldValues>({
         onDismiss={onDismiss}
         formId={id}
         actionText={submitLabel}
-        disabled={!!submitDisabled}
+        disabled={submitDisabled}
         actionLoading={loading || isSubmitting}
       />
     </Modal>
