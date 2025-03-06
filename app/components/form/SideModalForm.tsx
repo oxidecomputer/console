@@ -30,14 +30,6 @@ type EditFormProps = {
 
 type SideModalFormProps<TFieldValues extends FieldValues> = {
   form: UseFormReturn<TFieldValues>
-  /**
-   * A function that returns the fields.
-   *
-   * Implemented as a function so we can pass `control` to the fields in the
-   * calling code. We could do that internally with `cloneElement` instead, but
-   * then in the calling code, the field would not infer `TFieldValues` and
-   * constrain the `name` prop to paths in the values object.
-   */
   children: ReactNode
   onDismiss: () => void
   resourceName: string
