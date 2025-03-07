@@ -436,6 +436,10 @@ type DiskBulkImport = {
 }
 
 const initDb = {
+  affinityGroups: [...mock.affinityGroups],
+  affinityGroupMembers: [...mock.affinityGroupMembers],
+  antiAffinityGroups: [...mock.antiAffinityGroups],
+  antiAffinityGroupMembers: [...mock.antiAffinityGroupMembers],
   disks: [...mock.disks],
   diskBulkImportState: new Map<string, DiskBulkImport>(),
   floatingIps: [...mock.floatingIps],

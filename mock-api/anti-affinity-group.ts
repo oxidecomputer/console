@@ -12,16 +12,16 @@ import type { Json } from './json-type'
 export const antiAffinityGroups: Json<AntiAffinityGroup>[] = [
   {
     id: 'c874bfbe-c896-48b1-b6f1-9a3dfb7fb7c9',
-    name: '',
+    name: 'romulus-remus',
     description: '',
     failure_domain: 'sled',
-    policy: 'allow',
+    policy: 'fail',
     time_created: '2025-03-10T01:23:45.678Z',
     time_modified: '2025-03-10T01:23:45.678Z',
   },
   {
     id: 'c874bfbe-c896-48b1-b6f1-9a3dfb7fb7c9',
-    name: '',
+    name: 'set-osiris',
     description: '',
     failure_domain: 'sled',
     policy: 'allow',

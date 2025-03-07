@@ -1606,11 +1606,12 @@ export const handlers = makeHandlers({
     return handleOxqlMetrics(params.body)
   },
   siloMetric: handleMetrics,
+  affinityGroupList: ({ query }) => paginated(query, db.affinityGroups),
+  antiAffinityGroupList: ({ query }) => paginated(query, db.antiAffinityGroups),
 
   // Misc endpoints we're not using yet in the console
   affinityGroupCreate: NotImplemented,
   affinityGroupDelete: NotImplemented,
-  affinityGroupList: NotImplemented,
   affinityGroupMemberInstanceAdd: NotImplemented,
   affinityGroupMemberInstanceDelete: NotImplemented,
   affinityGroupMemberInstanceView: NotImplemented,
@@ -1619,7 +1620,6 @@ export const handlers = makeHandlers({
   affinityGroupView: NotImplemented,
   antiAffinityGroupCreate: NotImplemented,
   antiAffinityGroupDelete: NotImplemented,
-  antiAffinityGroupList: NotImplemented,
   antiAffinityGroupMemberAffinityGroupView: NotImplemented,
   antiAffinityGroupMemberAffinityGroupAdd: NotImplemented,
   antiAffinityGroupMemberAffinityGroupDelete: NotImplemented,
