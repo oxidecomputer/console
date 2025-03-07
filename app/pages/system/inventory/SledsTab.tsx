@@ -40,7 +40,7 @@ export const handle = { crumb: 'Sleds' }
 const colHelper = createColumnHelper<Sled>()
 const staticCols = [
   colHelper.accessor('id', {
-    cell: makeLinkCell((sledId) => pb.sled({ sledId })),
+    cell: makeLinkCell((sledId) => pb.sledInstances({ sledId })),
   }),
   // TODO: colHelper.accessor('baseboard.serviceAddress', { header: 'service address' }),
   colHelper.group({

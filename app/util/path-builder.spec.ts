@@ -81,7 +81,6 @@ test('path builder', () => {
         "siloUtilization": "/utilization",
         "silos": "/system/silos",
         "silosNew": "/system/silos-new",
-        "sled": "/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances",
         "sledInstances": "/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances",
         "sledInventory": "/system/inventory/sleds",
         "snapshotImagesNew": "/projects/p/snapshots/sn/images-new",
