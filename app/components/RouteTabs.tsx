@@ -84,11 +84,11 @@ export interface TabProps {
    * able to link directly to the first sidebar tab, but we of course also want
    * this tab to appear active for all the sidebar tabs. See instance metrics.
    */
-  toPrefix?: string
+  activePrefix?: string
   children: ReactNode
 }
-export const Tab = ({ to, toPrefix, children }: TabProps) => {
-  const isActive = useIsActivePath({ to: toPrefix || to })
+export const Tab = ({ to, activePrefix, children }: TabProps) => {
+  const isActive = useIsActivePath({ to: activePrefix || to })
   return (
     <Link
       role="tab"

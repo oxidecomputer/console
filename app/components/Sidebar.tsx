@@ -89,16 +89,22 @@ type NavLinkProps = {
   children: React.ReactNode
   end?: boolean
   disabled?: boolean
-  // Only for a particular case, when we want to spoof the path and pretend 'isActive'
-  toPrefix?: string
+  // Only for cases where we want to spoof the path and pretend 'isActive'
+  activePrefix?: string
 }
 
-export const NavLinkItem = ({ to, children, end, disabled, toPrefix }: NavLinkProps) => {
+export const NavLinkItem = ({
+  to,
+  children,
+  end,
+  disabled,
+  activePrefix,
+}: NavLinkProps) => {
   // If the current page is the create form for this NavLinkItem's resource, highlight the NavLink in the sidebar
   const currentPathIsCreateForm = useLocation().pathname.startsWith(`${to}-new`)
-  // We aren't using NavLink, as we need to occasionally use a toPrefix to create an active state for matching root paths
+  // We aren't using NavLink, as we need to occasionally use an activePrefix to create an active state for matching root paths
   // so we also recreate the isActive logic here
-  const isActive = useIsActivePath({ to: toPrefix || to, end })
+  const isActive = useIsActivePath({ to: activePrefix || to, end })
   return (
     <li>
       <Link
