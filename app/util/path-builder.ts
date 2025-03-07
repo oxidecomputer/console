@@ -15,7 +15,7 @@ const instanceBase = ({ project, instance }: PP.Instance) =>
   `${pb.instances({ project })}/${instance}`
 const vpcBase = ({ project, vpc }: PP.Vpc) => `${pb.vpcs({ project })}/${vpc}`
 
-/** Don't use these for links. only exported for use as toPrefix */
+/** Don't use these for links. only exported for use with activePrefix */
 export const affinityBase = (params: PP.Project) => `${projectBase(params)}/affinity`
 export const instanceMetricsBase = ({ project, instance }: PP.Instance) =>
   `${instanceBase({ project, instance })}/metrics`

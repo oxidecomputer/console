@@ -258,7 +258,7 @@ export default function InstancePage() {
         <Tab to={pb.instanceNetworking(instanceSelector)}>Networking</Tab>
         <Tab
           to={pb.instanceCpuMetrics(instanceSelector)}
-          toPrefix={instanceMetricsBase(instanceSelector)}
+          activePrefix={instanceMetricsBase(instanceSelector)}
         >
           Metrics
         </Tab>

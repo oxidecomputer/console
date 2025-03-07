@@ -84,32 +84,39 @@ Sidebar.Nav = ({ children, heading }: SidebarNav) => (
   </div>
 )
 
-export const NavLinkItem = (props: {
+type NavLinkProps = {
   to: string
   children: React.ReactNode
   end?: boolean
   disabled?: boolean
-  // Only for a particular case, when we want to spoof the path and pretend 'isActive'
-  toPrefix?: string
-}) => {
-  const pathname = useLocation().pathname
+  // Only for cases where we want to spoof the path and pretend 'isActive'
+  activePrefix?: string
+}
+
+export const NavLinkItem = ({
+  to,
+  children,
+  end,
+  disabled,
+  activePrefix,
+}: NavLinkProps) => {
   // If the current page is the create form for this NavLinkItem's resource, highlight the NavLink in the sidebar
-  const currentPathIsCreateForm = pathname.startsWith(`${props.to}-new`)
-  // We aren't using NavLink, as we need to occasionally use a toPrefix to create a faux active state for matching root paths
+  const currentPathIsCreateForm = useLocation().pathname.startsWith(`${to}-new`)
+  // We aren't using NavLink, as we need to occasionally use an activePrefix to create an active state for matching root paths
   // so we also recreate the isActive logic here
-  const isActive = useIsActivePath({ to: props.toPrefix || props.to, end: props.end })
+  const isActive = useIsActivePath({ to: activePrefix || to, end })
   return (
     <li>
       <Link
-        to={props.to}
+        to={to}
         className={cn(linkStyles, {
           'text-accent !bg-accent-secondary hover:!bg-accent-secondary-hover [&>svg]:!text-accent-tertiary':
             isActive || currentPathIsCreateForm,
-          'pointer-events-none text-disabled': props.disabled,
+          'pointer-events-none text-disabled': disabled,
         })}
         aria-current={isActive ? 'page' : undefined}
       >
-        {props.children}
+        {children}
       </Link>
     </li>
   )

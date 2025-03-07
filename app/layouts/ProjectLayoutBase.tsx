@@ -115,7 +115,7 @@ export function ProjectLayoutBase({ overrideContentPane }: ProjectLayoutProps) {
           </NavLinkItem>
           <NavLinkItem
             to={pb.affinityGroups(projectSelector)}
-            toPrefix={affinityBase(projectSelector)}
+            activePrefix={affinityBase(projectSelector)}
           >
             <Access16Icon title="Affinity" /> Affinity
           </NavLinkItem>
