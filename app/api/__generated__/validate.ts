@@ -186,7 +186,7 @@ export const FailureDomain = z.preprocess(processResponseBody, z.enum(['sled']))
 export const AffinityPolicy = z.preprocess(processResponseBody, z.enum(['allow', 'fail']))
 
 /**
- * Identity-related metadata that's included in nearly all public API objects
+ * View of an Affinity Group
  */
 export const AffinityGroup = z.preprocess(
   processResponseBody,
@@ -196,6 +196,7 @@ export const AffinityGroup = z.preprocess(
     id: z.string().uuid(),
     name: Name,
     policy: AffinityPolicy,
+    projectId: z.string().uuid(),
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
   })
@@ -335,7 +336,7 @@ export const AllowListUpdate = z.preprocess(
 )
 
 /**
- * Identity-related metadata that's included in nearly all public API objects
+ * View of an Anti-Affinity Group
  */
 export const AntiAffinityGroup = z.preprocess(
   processResponseBody,
@@ -345,6 +346,7 @@ export const AntiAffinityGroup = z.preprocess(
     id: z.string().uuid(),
     name: Name,
     policy: AffinityPolicy,
+    projectId: z.string().uuid(),
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
   })
@@ -2932,6 +2934,20 @@ export const SamlIdentityProviderCreate = z.preprocess(
 )
 
 /**
+ * Parameters for PUT requests to `/v1/system/update/target-release`.
+ */
+export const SetTargetReleaseParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    systemVersion: z
+      .string()
+      .regex(
+        /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
+      ),
+  })
+)
+
+/**
  * Describes how identities are managed and users are authenticated in this Silo
  */
 export const SiloIdentityMode = z.preprocess(
@@ -3559,6 +3575,36 @@ export const SwitchPortSettingsView = z.preprocess(
 export const SwitchResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: Switch.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * Source of a system software target release.
+ */
+export const TargetReleaseSource = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ type: z.enum(['unspecified']) }),
+    z.object({
+      type: z.enum(['system_version']),
+      version: z
+        .string()
+        .regex(
+          /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
+        ),
+    }),
+  ])
+)
+
+/**
+ * View of a system software target release.
+ */
+export const TargetRelease = z.preprocess(
+  processResponseBody,
+  z.object({
+    generation: z.number(),
+    releaseSource: TargetReleaseSource,
+    timeRequested: z.coerce.date(),
+  })
 )
 
 /**
@@ -6419,6 +6465,22 @@ export const SystemTimeseriesSchemaListParams = z.preprocess(
       limit: z.number().min(1).max(4294967295).optional(),
       pageToken: z.string().optional(),
     }),
+  })
+)
+
+export const TargetReleaseViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const TargetReleaseUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
   })
 )
 

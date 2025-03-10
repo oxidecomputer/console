@@ -1407,6 +1407,17 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.TimeseriesSchemaResultsPage>>
+  /** `GET /v1/system/update/target-release` */
+  targetReleaseView: (params: {
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.TargetRelease>>
+  /** `PUT /v1/system/update/target-release` */
+  targetReleaseUpdate: (params: {
+    body: Json<Api.SetTargetReleaseParams>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.TargetRelease>>
   /** `GET /v1/system/users` */
   siloUserList: (params: {
     query: Api.SiloUserListQueryParams
@@ -2859,6 +2870,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         schema.SystemTimeseriesSchemaListParams,
         null
       )
+    ),
+    http.get(
+      '/v1/system/update/target-release',
+      handler(handlers['targetReleaseView'], null, null)
+    ),
+    http.put(
+      '/v1/system/update/target-release',
+      handler(handlers['targetReleaseUpdate'], null, schema.SetTargetReleaseParams)
     ),
     http.get(
       '/v1/system/users',
