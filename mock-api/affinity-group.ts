@@ -8,7 +8,7 @@
 import type { AffinityGroup } from '@oxide/api'
 
 import type { Json } from './json-type'
-import { project, project2 } from './project'
+import { project } from './project'
 
 export const affinityGroups: Json<AffinityGroup>[] = [
   {
@@ -37,7 +37,7 @@ export const affinityGroups: Json<AffinityGroup>[] = [
     description: '',
     failure_domain: 'sled',
     policy: 'fail',
-    project_id: project2.id,
+    project_id: project.id,
     time_created: '2025-04-13T00:00:00.000Z',
     time_modified: '2025-04-16T00:00:00.000Z',
   },

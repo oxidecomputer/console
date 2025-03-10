@@ -1606,8 +1606,18 @@ export const handlers = makeHandlers({
     return handleOxqlMetrics(params.body)
   },
   siloMetric: handleMetrics,
-  affinityGroupList: ({ query }) => paginated(query, db.affinityGroups),
-  antiAffinityGroupList: ({ query }) => paginated(query, db.antiAffinityGroups),
+  affinityGroupList: ({ query }) => {
+    const project = lookup.project({ ...query })
+    const affinityGroups = db.affinityGroups.filter((i) => i.project_id === project.id)
+    return paginated(query, affinityGroups)
+  },
+  antiAffinityGroupList: ({ query }) => {
+    const project = lookup.project({ ...query })
+    const antiAffinityGroups = db.antiAffinityGroups.filter(
+      (i) => i.project_id === project.id
+    )
+    return paginated(query, antiAffinityGroups)
+  },
 
   // Misc endpoints we're not using yet in the console
   affinityGroupCreate: NotImplemented,
