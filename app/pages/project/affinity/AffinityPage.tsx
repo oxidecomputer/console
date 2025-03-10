@@ -29,8 +29,8 @@ export default function AffinityPage() {
     <>
       <AffinityPageHeader />
       <RouteTabs fullWidth>
-        <Tab to={pb.affinityGroups(project)}>Affinity Groups</Tab>
         <Tab to={pb.antiAffinityGroups(project)}>Anti-Affinity Groups</Tab>
+        <Tab to={pb.affinityGroups(project)}>Affinity Groups</Tab>
       </RouteTabs>
     </>
   )

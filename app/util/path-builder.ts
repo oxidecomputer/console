@@ -99,14 +99,14 @@ export const pb = {
     `${pb.floatingIps(params)}/${params.floatingIp}/edit`,
 
   affinityGroups: (params: PP.Project) => `${affinityBase(params)}/affinity-groups`,
-  affinityGroup: (params: PP.Affinity) =>
+  affinityGroup: (params: PP.AffinityGroup) =>
     `${pb.affinityGroups(params)}/${params.affinityGroup}`,
   affinityGroupNew: (params: PP.Project) =>
     `${pb.affinityGroups(params)}/affinity-groups-new`,
 
   antiAffinityGroups: (params: PP.Project) =>
     `${affinityBase(params)}/anti-affinity-groups`,
-  antiAffinityGroup: (params: PP.AntiAffinity) =>
+  antiAffinityGroup: (params: PP.AntiAffinityGroup) =>
     `${pb.antiAffinityGroups(params)}/${params.antiAffinityGroup}`,
   antiAffinityGroupNew: (params: PP.Project) =>
     `${pb.antiAffinityGroups(params)}/anti-affinity-groups-new`,

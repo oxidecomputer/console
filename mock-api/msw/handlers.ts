@@ -1611,6 +1611,7 @@ export const handlers = makeHandlers({
     const affinityGroups = db.affinityGroups.filter((i) => i.project_id === project.id)
     return paginated(query, affinityGroups)
   },
+  affinityGroupView: ({ path, query }) => lookup.affinityGroup({ ...path, ...query }),
   antiAffinityGroupList: ({ query }) => {
     const project = lookup.project({ ...query })
     const antiAffinityGroups = db.antiAffinityGroups.filter(
@@ -1618,6 +1619,8 @@ export const handlers = makeHandlers({
     )
     return paginated(query, antiAffinityGroups)
   },
+  antiAffinityGroupView: ({ path, query }) =>
+    lookup.antiAffinityGroup({ ...path, ...query }),
 
   // Misc endpoints we're not using yet in the console
   affinityGroupCreate: NotImplemented,
@@ -1627,7 +1630,6 @@ export const handlers = makeHandlers({
   affinityGroupMemberInstanceView: NotImplemented,
   affinityGroupMemberList: NotImplemented,
   affinityGroupUpdate: NotImplemented,
-  affinityGroupView: NotImplemented,
   antiAffinityGroupCreate: NotImplemented,
   antiAffinityGroupDelete: NotImplemented,
   antiAffinityGroupMemberAffinityGroupView: NotImplemented,
@@ -1638,7 +1640,6 @@ export const handlers = makeHandlers({
   antiAffinityGroupMemberInstanceView: NotImplemented,
   antiAffinityGroupMemberList: NotImplemented,
   antiAffinityGroupUpdate: NotImplemented,
-  antiAffinityGroupView: NotImplemented,
   certificateCreate: NotImplemented,
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,

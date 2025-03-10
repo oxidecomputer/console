@@ -67,6 +67,42 @@ export const getIpFromPool = (poolName: string | undefined) => {
 }
 
 export const lookup = {
+  affinityGroup({
+    affinityGroup: id,
+    ...projectSelector
+  }: Sel.AffinityGroup): Json<Api.AffinityGroup> {
+    if (!id) throw notFoundErr('no affinity group specified')
+
+    if (isUuid(id)) {
+      ensureNoParentSelectors('affinity group', projectSelector)
+      return lookupById(db.affinityGroups, id)
+    }
+
+    const project = lookup.project(projectSelector)
+    const affinityGroup = db.affinityGroups.find(
+      (a) => a.project_id === project.id && a.name === id
+    )
+    if (!affinityGroup) throw notFoundErr(`affinity group '${id}'`)
+    return affinityGroup
+  },
+  antiAffinityGroup({
+    antiAffinityGroup: id,
+    ...projectSelector
+  }: Sel.AntiAffinityGroup): Json<Api.AntiAffinityGroup> {
+    if (!id) throw notFoundErr('no anti-affinity group specified')
+
+    if (isUuid(id)) {
+      ensureNoParentSelectors('anti-affinity group', projectSelector)
+      return lookupById(db.antiAffinityGroups, id)
+    }
+
+    const project = lookup.project(projectSelector)
+    const antiAffinityGroup = db.antiAffinityGroups.find(
+      (a) => a.project_id === project.id && a.name === id
+    )
+    if (!antiAffinityGroup) throw notFoundErr(`anti-affinity group '${id}'`)
+    return antiAffinityGroup
+  },
   project({ project: id }: Sel.Project): Json<Api.Project> {
     if (!id) throw notFoundErr('no project specified')
 
