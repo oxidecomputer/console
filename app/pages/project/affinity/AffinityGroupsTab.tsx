@@ -25,7 +25,7 @@ export const handle = { crumb: 'Affinity' }
 const EmptyState = () => (
   <EmptyMessage
     icon={<Access24Icon />}
-    title="No Affinity Groups"
+    title="No affinity groups"
     body="Create an affinity group to see it here"
     buttonText="New affinity group"
     buttonTo={pb.affinityGroupNew(useProjectSelector())}

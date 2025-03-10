@@ -25,7 +25,7 @@ export const handle = { crumb: 'Anti-Affinity' }
 const EmptyState = () => (
   <EmptyMessage
     icon={<Access24Icon />}
-    title="No Anti-Affinity Groups"
+    title="No anti-affinity groups"
     body="Create an anti-affinity group to see it here"
     buttonText="New anti-affinity group"
     buttonTo={pb.antiAffinityGroupNew(useProjectSelector())}

@@ -31,4 +31,14 @@ export const antiAffinityGroups: Json<AntiAffinityGroup>[] = [
     time_created: '2025-03-12T02:34:56.789Z',
     time_modified: '2025-03-12T02:34:56.789Z',
   },
+  {
+    id: 'bd2d3edf-fd4e-4eca-922c-8b447a2e7151',
+    name: 'oil-water',
+    description: '',
+    failure_domain: 'sled',
+    policy: 'fail',
+    project_id: project.id,
+    time_created: '2025-02-15T00:00:00.000Z',
+    time_modified: '2025-03-15T01:05:15.151Z',
+  },
 ]
