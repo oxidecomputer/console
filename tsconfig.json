@@ -11,6 +11,7 @@
     "module": "es2020",
     "moduleResolution": "bundler",
     "noEmit": true,
+    "noUnusedLocals": true,
     "outDir": "dist",
     "paths": {
       "~/*": ["app/*"],

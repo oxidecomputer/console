@@ -6,24 +6,24 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
+import { type ReactNode } from 'react'
 
 import { More12Icon } from '@oxide/design-system/icons/react'
 
-import type { MenuAction } from '~/table/columns/action-col'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
-import { Tooltip } from '~/ui/lib/Tooltip'
-import { Wrap } from '~/ui/util/wrap'
 
 interface MoreActionsMenuProps {
   /** The accessible name for the menu button */
   label: string
-  actions: MenuAction[]
   isSmall?: boolean
+  /** Dropdown items only */
+  children?: ReactNode
 }
+
 export const MoreActionsMenu = ({
-  actions,
   label,
   isSmall = false,
+  children,
 }: MoreActionsMenuProps) => {
   return (
     <DropdownMenu.Root>
@@ -36,19 +36,7 @@ export const MoreActionsMenu = ({
       >
         <More12Icon />
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content className="mt-2">
-        {actions.map((a) => (
-          <Wrap key={a.label} when={!!a.disabled} with={<Tooltip content={a.disabled} />}>
-            <DropdownMenu.Item
-              className={a.className}
-              disabled={!!a.disabled}
-              onSelect={a.onActivate}
-            >
-              {a.label}
-            </DropdownMenu.Item>
-          </Wrap>
-        ))}
-      </DropdownMenu.Content>
+      <DropdownMenu.Content className="mt-2">{children}</DropdownMenu.Content>
     </DropdownMenu.Root>
   )
 }

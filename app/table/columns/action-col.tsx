@@ -11,19 +11,22 @@ import { useMemo } from 'react'
 
 import { More12Icon } from '@oxide/design-system/icons/react'
 
+import { CopyIdItem } from '~/components/CopyIdItem'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
-import { Tooltip } from '~/ui/lib/Tooltip'
-import { Wrap } from '~/ui/util/wrap'
-import { kebabCase } from '~/util/str'
 
-type MakeActions<Item> = (item: Item) => Array<MenuAction>
-
+/**
+ * `to` is a URL, item will be rendered a `<Link>`. `onActivate` is a callback.
+ * Only the callback one can be disabled.
+ */
 export type MenuAction = {
   label: string
-  onActivate: () => void
-  disabled?: false | React.ReactNode
   className?: string
-}
+} & (
+  | { to: string; disabled?: never }
+  | { onActivate: () => void; disabled?: React.ReactNode }
+)
+
+type MakeActions<Item> = (item: Item) => Array<MenuAction>
 
 /** Convenience helper to combine regular cols with actions col and memoize */
 export function useColsWithActions<TData extends Record<string, unknown>>(
@@ -66,7 +69,6 @@ type RowActionsProps = {
 export const RowActions = ({ id, copyIdLabel = 'Copy ID', actions }: RowActionsProps) => {
   return (
     <DropdownMenu.Root>
-      {/* TODO: This name should not suck; future us, make it so! */}
       {/* stopPropagation prevents clicks from toggling row select in a single select table */}
       <DropdownMenu.Trigger
         className="flex h-full w-10 items-center justify-center"
@@ -77,35 +79,25 @@ export const RowActions = ({ id, copyIdLabel = 'Copy ID', actions }: RowActionsP
       </DropdownMenu.Trigger>
       {/* offset moves menu in from the right so it doesn't align with the table border */}
       <DropdownMenu.Content anchor={{ to: 'bottom end', offset: -6 }} className="-mt-2">
-        {id && (
-          <DropdownMenu.Item
-            onSelect={() => {
-              window.navigator.clipboard.writeText(id)
-            }}
-          >
-            {copyIdLabel}
-          </DropdownMenu.Item>
-        )}
-        {actions?.map((action) => {
-          // TODO: Tooltip on disabled button broke, probably due to portal
-          return (
-            <Wrap
-              when={!!action.disabled}
-              with={<Tooltip content={action.disabled} />}
-              key={kebabCase(`action-${action.label}`)}
-            >
-              <DropdownMenu.Item
-                className={cn(action.className, {
-                  destructive: action.label.toLowerCase() === 'delete' && !action.disabled,
-                })}
-                onSelect={action.onActivate}
-                disabled={!!action.disabled}
-              >
-                {action.label}
-              </DropdownMenu.Item>
-            </Wrap>
+        {id && <CopyIdItem id={id} label={copyIdLabel} />}
+        {actions?.map(({ className, ...action }) =>
+          'to' in action ? (
+            // note no destructive styling or disabled
+            <DropdownMenu.LinkItem key={action.label} to={action.to} className={className}>
+              {action.label}
+            </DropdownMenu.LinkItem>
+          ) : (
+            <DropdownMenu.Item
+              key={action.label}
+              label={action.label}
+              className={cn(className, {
+                destructive: action.label.toLowerCase() === 'delete' && !action.disabled,
+              })}
+              onSelect={action.onActivate}
+              disabled={action.disabled}
+            />
           )
-        })}
+        )}
       </DropdownMenu.Content>
     </DropdownMenu.Root>
   )

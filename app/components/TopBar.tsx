@@ -146,7 +146,7 @@ function UserMenu() {
       </DropdownMenu.Trigger>
       <DropdownMenu.Content gap={8}>
         <DropdownMenu.LinkItem to={pb.profile()}>Settings</DropdownMenu.LinkItem>
-        <DropdownMenu.Item onSelect={() => logout.mutate({})}>Sign out</DropdownMenu.Item>
+        <DropdownMenu.Item onSelect={() => logout.mutate({})} label="Sign out" />
       </DropdownMenu.Content>
     </DropdownMenu.Root>
   )
