@@ -8,6 +8,7 @@
 import type { AntiAffinityGroup } from '@oxide/api'
 
 import type { Json } from './json-type'
+import { project, project2 } from './project'
 
 export const antiAffinityGroups: Json<AntiAffinityGroup>[] = [
   {
@@ -16,6 +17,7 @@ export const antiAffinityGroups: Json<AntiAffinityGroup>[] = [
     description: '',
     failure_domain: 'sled',
     policy: 'fail',
+    project_id: project.id,
     time_created: '2025-03-10T01:23:45.678Z',
     time_modified: '2025-03-10T01:23:45.678Z',
   },
@@ -25,6 +27,7 @@ export const antiAffinityGroups: Json<AntiAffinityGroup>[] = [
     description: '',
     failure_domain: 'sled',
     policy: 'allow',
+    project_id: project2.id,
     time_created: '2025-03-12T02:34:56.789Z',
     time_modified: '2025-03-12T02:34:56.789Z',
   },

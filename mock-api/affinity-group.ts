@@ -8,6 +8,7 @@
 import type { AffinityGroup } from '@oxide/api'
 
 import type { Json } from './json-type'
+import { project, project2 } from './project'
 
 export const affinityGroups: Json<AffinityGroup>[] = [
   {
@@ -16,6 +17,7 @@ export const affinityGroups: Json<AffinityGroup>[] = [
     description: 'Main web deployments',
     failure_domain: 'sled',
     policy: 'allow',
+    project_id: project.id,
     time_created: '2025-03-01T00:00:00.000Z',
     time_modified: '2025-04-05T12:10:07.917Z',
   },
@@ -25,6 +27,7 @@ export const affinityGroups: Json<AffinityGroup>[] = [
     description: '',
     failure_domain: 'sled',
     policy: 'fail',
+    project_id: project.id,
     time_created: '2025-03-03T00:00:00.000Z',
     time_modified: '2025-03-09T00:00:00.000Z',
   },
@@ -34,6 +37,7 @@ export const affinityGroups: Json<AffinityGroup>[] = [
     description: '',
     failure_domain: 'sled',
     policy: 'fail',
+    project_id: project2.id,
     time_created: '2025-04-13T00:00:00.000Z',
     time_modified: '2025-04-16T00:00:00.000Z',
   },
