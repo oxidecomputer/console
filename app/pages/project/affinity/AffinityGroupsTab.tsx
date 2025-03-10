@@ -20,7 +20,7 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
-export const handle = { crumb: 'Affinity' }
+export const handle = { crumb: 'Affinity groups' }
 
 const EmptyState = () => (
   <EmptyMessage

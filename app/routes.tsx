@@ -496,19 +496,30 @@ export const routes = createRoutesFromElements(
                 import('./pages/project/affinity/AffinityGroupsTab.tsx').then(convert)
               }
             />
-            {/* TODO: Get sidebar nav isActive working with anti-affinity tab */}
             <Route
               path="anti-affinity-groups"
               lazy={() =>
                 import('./pages/project/affinity/AntiAffinityGroupsTab.tsx').then(convert)
               }
             />
-            {/* <Route
-              path=":affinity"
-              lazy={() =>
-                import('./pages/project/affinity/AffinityGroupPage.tsx').then(convert)
-              }
-            /> */}
+          </Route>
+          <Route path="affinity" handle={{ crumb: 'Affinity' }}>
+            <Route path="affinity-groups" handle={{ crumb: 'Affinity groups' }}>
+              <Route
+                path=":affinityGroup"
+                lazy={() =>
+                  import('./pages/project/affinity/AffinityGroupPage.tsx').then(convert)
+                }
+              />
+            </Route>
+            <Route path="anti-affinity-groups" handle={{ crumb: 'Anti-affinity groups' }}>
+              <Route
+                path=":antiAffinityGroup"
+                lazy={() =>
+                  import('./pages/project/affinity/AntiAffinityGroupPage.tsx').then(convert)
+                }
+              />
+            </Route>
           </Route>
         </Route>
       </Route>
