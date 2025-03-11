@@ -206,15 +206,25 @@ export default function InstancePage() {
           </div>
           <MoreActionsMenu label="Instance actions">
             <CopyIdItem id={instance.id} />
-            {makeMenuActions(instance).map((action) => (
-              <DropdownMenu.Item
-                key={action.label}
-                label={action.label}
-                onSelect={action.onActivate}
-                disabled={action.disabled}
-                className={action.className}
-              />
-            ))}
+            {makeMenuActions(instance).map((action) =>
+              'to' in action ? (
+                <DropdownMenu.LinkItem
+                  key={action.label}
+                  to={action.to}
+                  className={action.className}
+                >
+                  {action.label}
+                </DropdownMenu.LinkItem>
+              ) : (
+                <DropdownMenu.Item
+                  key={action.label}
+                  label={action.label}
+                  onSelect={action.onActivate}
+                  disabled={action.disabled}
+                  className={action.className}
+                />
+              )
+            )}
           </MoreActionsMenu>
         </div>
       </PageHeader>

@@ -14,17 +14,26 @@ import { More12Icon } from '@oxide/design-system/icons/react'
 import { CopyIdItem } from '~/components/CopyIdItem'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 
+type MenuActionBase = {
+  label: string
+  className?: string
+}
+
+export type MenuActionItem = MenuActionBase & {
+  onActivate: () => void
+  disabled?: React.ReactNode
+}
+
+type MenuActionLink = MenuActionBase & {
+  to: string
+  disabled?: never
+}
+
 /**
  * `to` is a URL, item will be rendered a `<Link>`. `onActivate` is a callback.
  * Only the callback one can be disabled.
  */
-export type MenuAction = {
-  label: string
-  className?: string
-} & (
-  | { to: string; disabled?: never }
-  | { onActivate: () => void; disabled?: React.ReactNode }
-)
+export type MenuAction = MenuActionItem | MenuActionLink
 
 type MakeActions<Item> = (item: Item) => Array<MenuAction>
 

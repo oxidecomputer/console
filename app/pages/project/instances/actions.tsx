@@ -13,6 +13,7 @@ import { HL } from '~/components/HL'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import type { MenuAction, MenuActionItem } from '~/table/columns/action-col'
 import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './common'
@@ -49,7 +50,8 @@ export const useMakeInstanceActions = (
   const { onResizeClick } = options
 
   const makeButtonActions = useCallback(
-    (instance: Instance) => {
+    // restrict to items for now so we don't have to handle links in the calling code
+    (instance: Instance): MenuActionItem[] => {
       const instanceParams = { path: { instance: instance.name }, query: { project } }
       return [
         {
@@ -116,7 +118,7 @@ export const useMakeInstanceActions = (
   )
 
   const makeMenuActions = useCallback(
-    (instance: Instance) => {
+    (instance: Instance): MenuAction[] => {
       const instanceParams = { path: { instance: instance.name }, query: { project } }
       return [
         {

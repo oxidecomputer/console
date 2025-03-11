@@ -73,7 +73,7 @@ export function LinkItem({ className, to, children }: LinkItemProps) {
 type ItemProps = {
   label: string
   className?: string
-  onSelect?: () => void
+  onSelect: () => void
   /* If present, ReactNode will be displayed in a tooltip */
   disabled?: React.ReactNode
   ref?: Ref<HTMLButtonElement>
