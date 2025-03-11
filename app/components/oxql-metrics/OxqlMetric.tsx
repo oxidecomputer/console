@@ -88,7 +88,7 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
         </div>
         <MoreActionsMenu label="Instance actions" isSmall>
           <Dropdown.LinkItem to={links.oxqlSchemaDocs(queryObj.metricName)}>
-            About metric
+            About this metric
           </Dropdown.LinkItem>
           <Dropdown.Item onSelect={() => setModalOpen(true)} label="View OxQL query" />
         </MoreActionsMenu>
