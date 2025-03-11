@@ -17,6 +17,8 @@ import cn from 'classnames'
 import { type ReactNode, type Ref } from 'react'
 import { Link } from 'react-router'
 
+import { OpenLink12Icon } from '@oxide/design-system/icons/react'
+
 import { Wrap } from '../util/wrap'
 import { Tooltip } from './Tooltip'
 
@@ -59,12 +61,12 @@ type LinkItemProps = {
 
 export function LinkItem({ className, to, children }: LinkItemProps) {
   // rather lazy test for external links
-  const ext = /^https?:/.test(to) ? { rel: 'noreferrer', target: '_blank' } : {}
+  const ext = /^https?:/.test(to) ? { rel: 'noreferrer', target: '_blank' } : undefined
   // TODO: external link icon to show when it will open in a new tab
   return (
     <MenuItem>
       <Link className={cn('DropdownMenuItem ox-menu-item', className)} to={to} {...ext}>
-        {children}
+        {children} {ext ? <OpenLink12Icon className="ml-1.5" /> : null}
       </Link>
     </MenuItem>
   )
