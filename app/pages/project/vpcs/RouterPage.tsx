@@ -7,7 +7,7 @@
  */
 
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
@@ -23,6 +23,7 @@ import {
   type RouterRoute,
   type RouteTarget,
 } from '~/api'
+import { CopyIdItem } from '~/components/CopyIdItem'
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
@@ -96,18 +97,6 @@ export default function RouterPage() {
       addToast({ content: 'Route deleted' })
     },
   })
-
-  const actions = useMemo(
-    () => [
-      {
-        label: 'Copy ID',
-        onActivate() {
-          window.navigator.clipboard.writeText(routerData.id || '')
-        },
-      },
-    ],
-    [routerData]
-  )
 
   const emptyState = (
     <EmptyMessage
@@ -197,7 +186,9 @@ export default function RouterPage() {
             summary="Routers are collections of routes that direct traffic between VPCs and their subnets."
             links={[docLinks.routers]}
           />
-          <MoreActionsMenu label="Router actions" actions={actions} />
+          <MoreActionsMenu label="Router actions">
+            <CopyIdItem id={routerData.id} />
+          </MoreActionsMenu>
         </div>
       </PageHeader>
       <PropertiesTable columns={2} className="-mt-8 mb-8">

@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import { useCallback } from 'react'
-import { useNavigate } from 'react-router'
 
 import { instanceCan, useApiMutation, type Instance } from '@oxide/api'
 
@@ -14,6 +13,7 @@ import { HL } from '~/components/HL'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import type { MenuAction, MenuActionItem } from '~/table/columns/action-col'
 import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './common'
@@ -50,7 +50,8 @@ export const useMakeInstanceActions = (
   const { onResizeClick } = options
 
   const makeButtonActions = useCallback(
-    (instance: Instance) => {
+    // restrict to items for now so we don't have to handle links in the calling code
+    (instance: Instance): MenuActionItem[] => {
       const instanceParams = { path: { instance: instance.name }, query: { project } }
       return [
         {
@@ -116,9 +117,8 @@ export const useMakeInstanceActions = (
     [project, startInstanceAsync, stopInstanceAsync]
   )
 
-  const navigate = useNavigate()
   const makeMenuActions = useCallback(
-    (instance: Instance) => {
+    (instance: Instance): MenuAction[] => {
       const instanceParams = { path: { instance: instance.name }, query: { project } }
       return [
         {
@@ -153,9 +153,7 @@ export const useMakeInstanceActions = (
         },
         {
           label: 'View serial console',
-          onActivate() {
-            navigate(pb.serialConsole({ project, instance: instance.name }))
-          },
+          to: pb.serialConsole({ project, instance: instance.name }),
         },
         {
           label: 'Delete',
@@ -179,7 +177,7 @@ export const useMakeInstanceActions = (
     // Do not put `options` in here, refer to the property. options is not ref
     // stable. Extra renders here cause the row actions menu to close when it
     // shouldn't, like during polling on instance list.
-    [project, deleteInstanceAsync, rebootInstanceAsync, onResizeClick, navigate]
+    [project, deleteInstanceAsync, rebootInstanceAsync, onResizeClick]
   )
 
   return { makeButtonActions, makeMenuActions }
