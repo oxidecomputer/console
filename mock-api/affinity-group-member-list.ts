@@ -5,10 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { AffinityGroupMember } from '@oxide/api'
+import type { AffinityGroupMember, AntiAffinityGroupMember } from '@oxide/api'
 
 import { affinityGroups } from './affinity-group'
 import { affinityGroupMembers } from './affinity-group-member'
+import { antiAffinityGroups } from './anti-affinity-group'
+import { antiAffinityGroupMembers } from './anti-affinity-group-member'
 import type { Json } from './json-type'
 
 type DbAffinityGroupMember = {
@@ -28,5 +30,25 @@ export const affinityGroupMemberLists: Json<DbAffinityGroupMember>[] = [
   {
     affinity_group_id: affinityGroups[0].id,
     affinity_group_member: affinityGroupMembers[1],
+  },
+]
+
+type DbAntiAffinityGroupMember = {
+  anti_affinity_group_id: string
+  anti_affinity_group_member: AntiAffinityGroupMember
+}
+
+export const antiAffinityGroupMemberLists: Json<DbAntiAffinityGroupMember>[] = [
+  {
+    anti_affinity_group_id: antiAffinityGroups[0].id,
+    anti_affinity_group_member: antiAffinityGroupMembers[0],
+  },
+  {
+    anti_affinity_group_id: antiAffinityGroups[1].id,
+    anti_affinity_group_member: antiAffinityGroupMembers[0],
+  },
+  {
+    anti_affinity_group_id: antiAffinityGroups[2].id,
+    anti_affinity_group_member: antiAffinityGroupMembers[0],
   },
 ]
