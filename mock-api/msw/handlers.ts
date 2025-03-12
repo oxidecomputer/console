@@ -30,7 +30,6 @@ import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
 
 import { genCumulativeI64Data } from '../metrics'
-import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
 import { getTimestamps } from '../util'
 import { defaultFirewallRules } from '../vpc'
@@ -838,10 +837,6 @@ export const handlers = makeHandlers({
 
     return json(instance, { status: 202 })
   },
-  async instanceSerialConsole(_params) {
-    await delay(3000)
-    return json(serial)
-  },
   instanceStart({ path, query }) {
     const instance = lookup.instance({ ...path, ...query })
     instance.run_state = 'starting'
@@ -1630,6 +1625,7 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
+  instanceSerialConsole: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
   instanceSshPublicKeyList: NotImplemented,
   internetGatewayCreate: NotImplemented,
