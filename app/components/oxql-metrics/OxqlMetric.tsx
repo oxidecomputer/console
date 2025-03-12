@@ -21,6 +21,7 @@ import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { getInstanceSelector } from '~/hooks/use-params'
 import { useMetricsContext } from '~/pages/project/instances/common'
 import { LearnMore } from '~/ui/lib/CardBlock'
+import * as Dropdown from '~/ui/lib/DropdownMenu'
 import { classed } from '~/util/classed'
 import { links } from '~/util/links'
 
@@ -85,23 +86,12 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
           </h2>
           <div className="mt-0.5 text-sans-md text-secondary">{description}</div>
         </div>
-        <MoreActionsMenu
-          label="Instance actions"
-          actions={[
-            {
-              label: 'About metric',
-              onActivate: () => {
-                const url = links.oxqlSchemaDocs(queryObj.metricName)
-                window.open(url, '_blank', 'noopener,noreferrer')
-              },
-            },
-            {
-              label: 'View OxQL query',
-              onActivate: () => setModalOpen(true),
-            },
-          ]}
-          isSmall
-        />
+        <MoreActionsMenu label="Instance actions" isSmall>
+          <Dropdown.LinkItem to={links.oxqlSchemaDocs(queryObj.metricName)}>
+            About this metric
+          </Dropdown.LinkItem>
+          <Dropdown.Item onSelect={() => setModalOpen(true)} label="View OxQL query" />
+        </MoreActionsMenu>
         <CopyCodeModal
           isOpen={modalOpen}
           onDismiss={() => setModalOpen(false)}
