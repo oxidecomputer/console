@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { Access24Icon } from '@oxide/design-system/icons/react'
+import { Affinity24Icon } from '@oxide/design-system/icons/react'
 
 import {
   apiq,
@@ -41,7 +41,7 @@ export const antiAffinityGroupMemberList = ({
 export const AffinityPageHeader = ({ name = 'Affinity' }: { name?: string }) => (
   <PageHeader>
     {/* TODO: update once Affinity icon is in the design system */}
-    <PageTitle icon={<Access24Icon />}>{name}</PageTitle>
+    <PageTitle icon={<Affinity24Icon />}>{name}</PageTitle>
     {/* TODO: Add a DocsPopover with docLinks.affinity once the doc page exists */}
   </PageHeader>
 )
@@ -91,7 +91,7 @@ export const AffinityGroupEmptyState = ({
     type === 'affinity' ? pb.affinityGroupNew(project) : pb.antiAffinityGroupNew(project)
   return (
     <EmptyMessage
-      icon={<Access24Icon />}
+      icon={<Affinity24Icon />}
       title={`No ${type} groups`}
       body={`Create a new ${type} group to see it here`}
       buttonText={`New ${type} group`}

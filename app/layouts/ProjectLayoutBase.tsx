@@ -11,6 +11,7 @@ import { useLocation, useNavigate, type LoaderFunctionArgs } from 'react-router'
 import { apiq, queryClient, usePrefetchedQuery } from '@oxide/api'
 import {
   Access16Icon,
+  Affinity16Icon,
   Folder16Icon,
   Images16Icon,
   Instances16Icon,
@@ -117,7 +118,7 @@ export function ProjectLayoutBase({ overrideContentPane }: ProjectLayoutProps) {
             to={pb.antiAffinityGroups(projectSelector)}
             activePrefix={affinityBase(projectSelector)}
           >
-            <Access16Icon title="Affinity" /> Affinity
+            <Affinity16Icon title="Affinity" /> Affinity
           </NavLinkItem>
           <NavLinkItem to={pb.projectAccess(projectSelector)}>
             <Access16Icon title="Access" /> Access
