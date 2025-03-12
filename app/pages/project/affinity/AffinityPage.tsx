@@ -6,20 +6,11 @@
  * Copyright Oxide Computer Company
  */
 
-import { Access24Icon } from '@oxide/design-system/icons/react'
-
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { useProjectSelector } from '~/hooks/use-params'
-import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { pb } from '~/util/path-builder'
 
-export const AffinityPageHeader = ({ name = 'Affinity' }: { name?: string }) => (
-  <PageHeader>
-    {/* TODO: update once Affinity icon is in the design system */}
-    <PageTitle icon={<Access24Icon />}>{name}</PageTitle>
-    {/* TODO: Add a DocsPopover with docLinks.affinity once the doc page exists */}
-  </PageHeader>
-)
+import { AffinityPageHeader } from './utils'
 
 export const handle = { crumb: 'Affinity' }
 

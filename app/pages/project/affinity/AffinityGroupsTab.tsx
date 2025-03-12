@@ -10,27 +10,17 @@ import { createColumnHelper } from '@tanstack/react-table'
 import type { LoaderFunctionArgs } from 'react-router'
 
 import { getListQFn, queryClient, type AffinityGroup } from '@oxide/api'
-import { Access24Icon } from '@oxide/design-system/icons/react'
 
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
-import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
-export const handle = { crumb: 'Affinity groups' }
+import { AffinityGroupEmptyState } from './utils'
 
-const EmptyState = () => (
-  <EmptyMessage
-    icon={<Access24Icon />}
-    title="No affinity groups"
-    body="Create an affinity group to see it here"
-    buttonText="New affinity group"
-    buttonTo={pb.affinityGroupNew(useProjectSelector())}
-  />
-)
+export const handle = { crumb: 'Affinity groups' }
 
 const affinityGroupList = (query: PP.Project) => getListQFn('affinityGroupList', { query })
 
@@ -56,7 +46,7 @@ export default function AffinityGroupsTab() {
   const { table } = useQueryTable({
     query: affinityGroupList({ project }),
     columns: staticCols,
-    emptyState: <EmptyState />,
+    emptyState: <AffinityGroupEmptyState type="affinity" />,
   })
 
   return table

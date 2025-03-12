@@ -10,27 +10,17 @@ import { createColumnHelper } from '@tanstack/react-table'
 import type { LoaderFunctionArgs } from 'react-router'
 
 import { getListQFn, queryClient, type AntiAffinityGroup } from '@oxide/api'
-import { Access24Icon } from '@oxide/design-system/icons/react'
 
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
-import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
-export const handle = { crumb: 'Anti-Affinity' }
+import { AffinityGroupEmptyState } from './utils'
 
-const EmptyState = () => (
-  <EmptyMessage
-    icon={<Access24Icon />}
-    title="No anti-affinity groups"
-    body="Create an anti-affinity group to see it here"
-    buttonText="New anti-affinity group"
-    buttonTo={pb.antiAffinityGroupNew(useProjectSelector())}
-  />
-)
+export const handle = { crumb: 'Anti-Affinity' }
 
 const antiAffinityGroupList = (query: PP.Project) =>
   getListQFn('antiAffinityGroupList', { query })
@@ -59,7 +49,7 @@ export default function AffinityGroupsTab() {
   const { table } = useQueryTable({
     query: antiAffinityGroupList({ project }),
     columns: staticCols,
-    emptyState: <EmptyState />,
+    emptyState: <AffinityGroupEmptyState type="anti-affinity" />,
   })
 
   return table

@@ -8,19 +8,18 @@
 import type { AffinityGroupMember } from '@oxide/api'
 
 import { instance } from './instance'
-import type { Json } from './json-type'
 
-export const affinityGroupMembers: Json<AffinityGroupMember>[] = [
+export const affinityGroupMembers: AffinityGroupMember[] = [
   {
     type: 'instance',
-    value: { id: instance.id, name: instance.name, run_state: instance.run_state },
+    value: { id: instance.id, name: instance.name, runState: instance.run_state },
   },
   {
     type: 'instance',
     value: {
       id: '250037eb-809e-4dcb-a2be-f2c110223afb',
       name: 'a non-matching instance that shouldn’t be in the list',
-      run_state: 'running',
+      runState: 'running',
     },
   },
 ]

@@ -476,6 +476,7 @@ const initDb = {
   affinityGroupMembers: [...mock.affinityGroupMembers],
   antiAffinityGroups: [...mock.antiAffinityGroups],
   antiAffinityGroupMembers: [...mock.antiAffinityGroupMembers],
+  affinityGroupMemberLists: [...mock.affinityGroupMemberLists],
   disks: [...mock.disks],
   diskBulkImportState: new Map<string, DiskBulkImport>(),
   floatingIps: [...mock.floatingIps],

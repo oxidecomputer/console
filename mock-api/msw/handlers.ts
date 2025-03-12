@@ -1612,6 +1612,17 @@ export const handlers = makeHandlers({
     return paginated(query, affinityGroups)
   },
   affinityGroupView: ({ path, query }) => lookup.affinityGroup({ ...path, ...query }),
+  affinityGroupMemberList: ({ path, query }) => {
+    const project = lookup.project({ ...query })
+    const affinityGroup = lookup.affinityGroup({
+      project: project.id,
+      affinityGroup: path.affinityGroup,
+    })
+    const members = db.affinityGroupMemberLists
+      .filter((i) => i.affinity_group_id === affinityGroup.id)
+      .map((i) => i.affinity_group_member)
+    return { items: members }
+  },
   antiAffinityGroupList: ({ query }) => {
     const project = lookup.project({ ...query })
     const antiAffinityGroups = db.antiAffinityGroups.filter(
@@ -1628,7 +1639,6 @@ export const handlers = makeHandlers({
   affinityGroupMemberInstanceAdd: NotImplemented,
   affinityGroupMemberInstanceDelete: NotImplemented,
   affinityGroupMemberInstanceView: NotImplemented,
-  affinityGroupMemberList: NotImplemented,
   affinityGroupUpdate: NotImplemented,
   antiAffinityGroupCreate: NotImplemented,
   antiAffinityGroupDelete: NotImplemented,
