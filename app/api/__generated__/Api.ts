@@ -169,7 +169,7 @@ This enables a "best-effort" attempt to satisfy the affinity policy. */
   | 'fail'
 
 /**
- * Identity-related metadata that's included in nearly all public API objects
+ * View of an Affinity Group
  */
 export type AffinityGroup = {
   /** human-readable free-form text about a resource */
@@ -180,6 +180,7 @@ export type AffinityGroup = {
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
   policy: AffinityPolicy
+  projectId: string
   /** timestamp when this resource was created */
   timeCreated: Date
   /** timestamp when this resource was last modified */
@@ -292,7 +293,7 @@ export type AllowListUpdate = {
 }
 
 /**
- * Identity-related metadata that's included in nearly all public API objects
+ * View of an Anti-Affinity Group
  */
 export type AntiAffinityGroup = {
   /** human-readable free-form text about a resource */
@@ -303,6 +304,7 @@ export type AntiAffinityGroup = {
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
   policy: AffinityPolicy
+  projectId: string
   /** timestamp when this resource was created */
   timeCreated: Date
   /** timestamp when this resource was last modified */
@@ -3114,6 +3116,14 @@ export type SamlIdentityProviderCreate = {
 }
 
 /**
+ * Parameters for PUT requests to `/v1/system/update/target-release`.
+ */
+export type SetTargetReleaseParams = {
+  /** Version of the system software to make the target release. */
+  systemVersion: string
+}
+
+/**
  * Describes how identities are managed and users are authenticated in this Silo
  */
 export type SiloIdentityMode =
@@ -3870,6 +3880,27 @@ export type SwitchResultsPage = {
   items: Switch[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string
+}
+
+/**
+ * Source of a system software target release.
+ */
+export type TargetReleaseSource =
+  /** Unspecified or unknown source (probably MUPdate). */
+  | { type: 'unspecified' }
+  /** The specified release of the rack's system software. */
+  | { type: 'system_version'; version: string }
+
+/**
+ * View of a system software target release.
+ */
+export type TargetRelease = {
+  /** The target-release generation number. */
+  generation: number
+  /** The source of the target release. */
+  releaseSource: TargetReleaseSource
+  /** The time it was set as the target release. */
+  timeRequested: Date
 }
 
 /**
@@ -8956,6 +8987,30 @@ export class Api extends HttpClient {
         path: `/v1/system/timeseries/schemas`,
         method: 'GET',
         query,
+        ...params,
+      })
+    },
+    /**
+     * Get the current target release of the rack's system software
+     */
+    targetReleaseView: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<TargetRelease>({
+        path: `/v1/system/update/target-release`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Set the current target release of the rack's system software
+     */
+    targetReleaseUpdate: (
+      { body }: { body: SetTargetReleaseParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<TargetRelease>({
+        path: `/v1/system/update/target-release`,
+        method: 'PUT',
+        body,
         ...params,
       })
     },
