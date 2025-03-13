@@ -8,7 +8,7 @@
 import type { AntiAffinityGroupMember } from '@oxide/api'
 
 import { antiAffinityGroups } from './anti-affinity-group'
-import { instance } from './instance'
+import { instance, startingInstance } from './instance'
 import type { Json } from './json-type'
 
 export const antiAffinityGroupMembers: Json<AntiAffinityGroupMember>[] = [
@@ -19,6 +19,14 @@ export const antiAffinityGroupMembers: Json<AntiAffinityGroupMember>[] = [
   {
     type: 'instance',
     value: { id: instance.id, name: instance.name, run_state: instance.run_state },
+  },
+  {
+    type: 'instance',
+    value: {
+      id: startingInstance.id,
+      name: startingInstance.name,
+      run_state: startingInstance.run_state,
+    },
   },
   {
     type: 'instance',

@@ -27,21 +27,21 @@ export const handle = makeCrumb(
 )
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, antiAffinityGroup } = getAntiAffinityGroupSelector(params)
+  const antiAffinityGroupSelector = getAntiAffinityGroupSelector(params)
   await Promise.all([
-    queryClient.fetchQuery(antiAffinityGroupView({ project, antiAffinityGroup })),
-    queryClient.fetchQuery(antiAffinityGroupMemberList({ project, antiAffinityGroup })),
+    queryClient.fetchQuery(antiAffinityGroupView(antiAffinityGroupSelector)),
+    queryClient.fetchQuery(antiAffinityGroupMemberList(antiAffinityGroupSelector)),
   ])
   return null
 }
 
 export default function AntiAffinityPage() {
-  const { project, antiAffinityGroup } = useAntiAffinityGroupSelector()
+  const antiAffinityGroupSelector = useAntiAffinityGroupSelector()
   const { data: group } = usePrefetchedQuery(
-    antiAffinityGroupView({ project, antiAffinityGroup })
+    antiAffinityGroupView(antiAffinityGroupSelector)
   )
   const { data: members } = usePrefetchedQuery(
-    antiAffinityGroupMemberList({ project, antiAffinityGroup })
+    antiAffinityGroupMemberList(antiAffinityGroupSelector)
   )
   return <GroupPage type="anti-affinity" group={group} members={members.items} />
 }

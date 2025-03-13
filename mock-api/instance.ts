@@ -48,7 +48,7 @@ const failedInstance: Json<Instance> = {
   time_last_auto_restarted: addMinutes(new Date(), -55).toISOString(), // 55 minutes ago
 }
 
-const startingInstance: Json<Instance> = {
+export const startingInstance: Json<Instance> = {
   ...base,
   id: '16737f54-1f76-4c96-8b7c-9d24971c1d62',
   name: 'not-there-yet',

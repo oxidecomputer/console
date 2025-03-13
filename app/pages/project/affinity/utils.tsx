@@ -6,6 +6,8 @@
  * Copyright Oxide Computer Company
  */
 
+import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+
 import { Affinity24Icon } from '@oxide/design-system/icons/react'
 
 import {
@@ -16,6 +18,7 @@ import {
   type AntiAffinityGroupMember,
 } from '~/api'
 import { useProjectSelector } from '~/hooks/use-params'
+import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -46,40 +49,6 @@ export const AffinityPageHeader = ({ name = 'Affinity' }: { name?: string }) => 
   </PageHeader>
 )
 
-type AffinityGroupType = {
-  type: 'affinity'
-  group: AffinityGroup
-  members: AffinityGroupMember[]
-}
-type AntiAffinityGroupType = {
-  type: 'anti-affinity'
-  group: AntiAffinityGroup
-  members: AntiAffinityGroupMember[]
-}
-type GroupPageType = AffinityGroupType | AntiAffinityGroupType
-
-export const GroupPage = ({ type, group, members }: GroupPageType) => {
-  const { id, name, description, policy, timeCreated } = group
-  return (
-    <>
-      <AffinityPageHeader name={name} />
-      <PropertiesTable columns={2} className="-mt-8 mb-8">
-        <PropertiesTable.Row label="type">
-          <Badge>{type}</Badge>
-        </PropertiesTable.Row>
-        <PropertiesTable.DescriptionRow description={description} />
-        <PropertiesTable.Row label="policy">
-          <Badge color="neutral">{policy}</Badge>
-        </PropertiesTable.Row>
-        <PropertiesTable.DateRow date={timeCreated} label="Created" />
-        <PropertiesTable.Row label="Members">{members.length}</PropertiesTable.Row>
-        <PropertiesTable.IdRow id={id} />
-      </PropertiesTable>
-      Members Table Goes Here
-    </>
-  )
-}
-
 // For both Affinity Groups and Anti-Affinity Groups
 export const AffinityGroupEmptyState = ({
   type,
@@ -97,5 +66,54 @@ export const AffinityGroupEmptyState = ({
       buttonText={`New ${type} group`}
       buttonTo={buttonTo}
     />
+  )
+}
+
+type AffinityGroupType = {
+  type: 'affinity'
+  group: AffinityGroup
+  members: AffinityGroupMember[]
+}
+type AntiAffinityGroupType = {
+  type: 'anti-affinity'
+  group: AntiAffinityGroup
+  members: AntiAffinityGroupMember[]
+}
+type GroupPageType = AffinityGroupType | AntiAffinityGroupType
+
+const colHelper = createColumnHelper<{
+  name: string
+  type: 'instance' | 'affinity_group'
+}>()
+
+export const GroupPage = ({ type, group, members }: GroupPageType) => {
+  const { id, name, description, policy, timeCreated } = group
+  const table = useReactTable({
+    columns: [colHelper.accessor('name', {}), colHelper.accessor('type', {})],
+    data: members.map((member) => ({ name: member.value.name, type: member.type })),
+    getCoreRowModel: getCoreRowModel(),
+  })
+
+  return (
+    <>
+      <AffinityPageHeader name={name} />
+      <PropertiesTable columns={2} className="-mt-8 mb-8">
+        <PropertiesTable.Row label="type">
+          <Badge>{type}</Badge>
+        </PropertiesTable.Row>
+        <PropertiesTable.DescriptionRow description={description} />
+        <PropertiesTable.Row label="policy">
+          <Badge color="neutral">{policy}</Badge>
+        </PropertiesTable.Row>
+        <PropertiesTable.DateRow date={timeCreated} label="Created" />
+        <PropertiesTable.Row label="Members">{members.length}</PropertiesTable.Row>
+        <PropertiesTable.IdRow id={id} />
+      </PropertiesTable>
+      {members.length > 0 ? (
+        <Table table={table} />
+      ) : (
+        <AffinityGroupEmptyState type={type} />
+      )}
+    </>
   )
 }
