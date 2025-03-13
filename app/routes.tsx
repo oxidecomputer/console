@@ -9,9 +9,9 @@ import type { ReactElement } from 'react'
 import {
   createRoutesFromElements,
   Navigate,
+  redirect,
   Route,
   type LoaderFunctionArgs,
-  type redirect,
 } from 'react-router'
 
 import { NotFound } from './components/ErrorPage'
@@ -207,7 +207,7 @@ export const routes = createRoutesFromElements(
         </Route>
       </Route>
 
-      <Route index element={<Navigate to={pb.projects()} replace />} />
+      <Route index loader={() => redirect(pb.projects())} />
 
       <Route lazy={() => import('./layouts/SiloLayout').then(convert)}>
         <Route
