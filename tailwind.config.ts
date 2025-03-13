@@ -65,6 +65,16 @@ export default {
     animation: {
       'spin-slow': 'spin 5s linear infinite',
       pulse: 'pulse 2s cubic-bezier(.4,0,.6,1) infinite',
+      // used by PageSkeleton
+      pulse2: 'pulse2 1.3s cubic-bezier(.4,0,.6,1) infinite',
+    },
+    keyframes: {
+      // different from pulse in that we go up a little before we go back down.
+      // pulse starts at opacity 1
+      pulse2: {
+        '0%, 100%': { opacity: '0.75' },
+        '50%': { opacity: '1' },
+      },
     },
   },
   plugins: [
