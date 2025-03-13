@@ -15,10 +15,10 @@ import type { Json } from './json-type'
 
 type DbAffinityGroupMember = {
   affinity_group_id: string
-  affinity_group_member: AffinityGroupMember
+  affinity_group_member: Json<AffinityGroupMember>
 }
 
-export const affinityGroupMemberLists: Json<DbAffinityGroupMember>[] = [
+export const affinityGroupMemberLists: DbAffinityGroupMember[] = [
   {
     affinity_group_id: affinityGroups[0].id,
     affinity_group_member: affinityGroupMembers[0],
@@ -35,10 +35,10 @@ export const affinityGroupMemberLists: Json<DbAffinityGroupMember>[] = [
 
 type DbAntiAffinityGroupMember = {
   anti_affinity_group_id: string
-  anti_affinity_group_member: AntiAffinityGroupMember
+  anti_affinity_group_member: Json<AntiAffinityGroupMember>
 }
 
-export const antiAffinityGroupMemberLists: Json<DbAntiAffinityGroupMember>[] = [
+export const antiAffinityGroupMemberLists: DbAntiAffinityGroupMember[] = [
   {
     anti_affinity_group_id: antiAffinityGroups[0].id,
     anti_affinity_group_member: antiAffinityGroupMembers[0],

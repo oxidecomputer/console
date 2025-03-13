@@ -75,7 +75,7 @@ export const GroupPage = ({ type, group, members }: GroupPageType) => {
         <PropertiesTable.Row label="Members">{members.length}</PropertiesTable.Row>
         <PropertiesTable.IdRow id={id} />
       </PropertiesTable>
-      {/* here is where the members table goes */}
+      Members Table Goes Here
     </>
   )
 }
