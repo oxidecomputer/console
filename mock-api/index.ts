@@ -7,10 +7,6 @@
  */
 
 export * from './affinity-group'
-export * from './affinity-group-member'
-export * from './anti-affinity-group'
-export * from './anti-affinity-group-member'
-export * from './affinity-group-member-list'
 export * from './disk'
 export * from './external-ip'
 export * from './floating-ip'

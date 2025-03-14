@@ -31,7 +31,7 @@ export const instance: Json<Instance> = {
   hostname: 'oxide.com',
   project_id: project.id,
   run_state: 'running',
-  boot_disk_id: '7f2309a5-13e3-47e0-8a4c-2a3b3bc992fd', // disk-1
+  boot_disk_id: '7f2309a5-13e3-47e0-8a4c-2a3b3bc992fd', // disk-1: needs to be written out here to reduce circular dependencies
 }
 
 const failedInstance: Json<Instance> = {
@@ -104,6 +104,17 @@ const failedCooledRestartNever: Json<Instance> = {
   run_state: 'failed',
   auto_restart_cooldown_expiration: addMinutes(new Date(), -5).toISOString(), // 5 minutes ago
   time_last_auto_restarted: addMinutes(new Date(), -65).toISOString(), // 65 minutes ago
+}
+
+export const instanceDb2: Json<Instance> = {
+  ...base,
+  id: 'e78b49c0-e534-400c-adca-a18cc9ab0d8c',
+  name: 'db2',
+  description: 'a second database instance',
+  hostname: 'oxide.com',
+  project_id: project.id,
+  run_state: 'running',
+  boot_disk_id: '48f94570-60d8-401c-857f-5bf912d2d3fc', // disk-2: needs to be written out here to reduce circular dependencies
 }
 
 export const instances: Json<Instance>[] = [
