@@ -23,6 +23,7 @@ import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { ListboxField } from '~/components/form/fields/ListboxField'
+import { ModalForm } from '~/components/form/ModalForm'
 import { HL } from '~/components/HL'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
@@ -38,7 +39,6 @@ import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
-import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
 import { ALL_ISH } from '~/util/consts'
@@ -258,45 +258,41 @@ const AttachFloatingIpModal = ({
       addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
   })
+
   const form = useForm({ defaultValues: { instanceId: '' } })
-  const instanceId = form.watch('instanceId')
 
   return (
-    <Modal isOpen title="Attach floating IP" onDismiss={onDismiss}>
-      <Modal.Body>
-        <Modal.Section>
-          <Message
-            variant="info"
-            content={
-              <>
-                The selected instance will be reachable at <HL>{address}</HL>
-              </>
-            }
-          />
-          <form>
-            <ListboxField
-              control={form.control}
-              name="instanceId"
-              items={instances.map((i) => ({ value: i.id, label: i.name }))}
-              label="Instance"
-              required
-              placeholder="Select an instance"
-            />
-          </form>
-        </Modal.Section>
-      </Modal.Body>
-      <Modal.Footer
-        actionText="Attach"
-        disabled={!instanceId}
-        onAction={() =>
-          floatingIpAttach.mutate({
-            path: { floatingIp },
-            query: { project },
-            body: { kind: 'instance', parent: instanceId },
-          })
+    <ModalForm
+      title="Attach floating IP"
+      form={form}
+      onSubmit={({ instanceId }) => {
+        floatingIpAttach.mutate({
+          path: { floatingIp },
+          query: { project },
+          body: { kind: 'instance', parent: instanceId },
+        })
+      }}
+      submitLabel="Attach"
+      submitError={floatingIpAttach.error}
+      loading={floatingIpAttach.isPending}
+      onDismiss={onDismiss}
+    >
+      <Message
+        variant="info"
+        content={
+          <>
+            The selected instance will be reachable at <HL>{address}</HL>
+          </>
         }
-        onDismiss={onDismiss}
-      ></Modal.Footer>
-    </Modal>
+      />
+      <ListboxField
+        control={form.control}
+        name="instanceId"
+        items={instances.map((i) => ({ value: i.id, label: i.name }))}
+        label="Instance"
+        required
+        placeholder="Select an instance"
+      />
+    </ModalForm>
   )
 }
