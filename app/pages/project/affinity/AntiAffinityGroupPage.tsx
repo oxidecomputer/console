@@ -6,31 +6,47 @@
  * Copyright Oxide Computer Company
  */
 
+import { createColumnHelper } from '@tanstack/react-table'
 import type { LoaderFunctionArgs } from 'react-router'
 
-import { queryClient, usePrefetchedQuery } from '~/api'
+import {
+  getListQFn,
+  queryClient,
+  usePrefetchedQuery,
+  type AntiAffinityGroupMember,
+} from '~/api'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import {
   getAntiAffinityGroupSelector,
   useAntiAffinityGroupSelector,
 } from '~/hooks/use-params'
 import {
-  antiAffinityGroupMemberList,
+  AffinityGroupEmptyState,
   antiAffinityGroupView,
   GroupPage,
 } from '~/pages/project/affinity/utils'
+import { useQueryTable } from '~/table/QueryTable'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
 export const handle = makeCrumb(
   (p) => p.antiAffinityGroup!,
   (p) => pb.antiAffinityGroup(getAntiAffinityGroupSelector(p))
 )
 
+const colHelper = createColumnHelper<AntiAffinityGroupMember>()
+
+const memberList = (query: PP.AntiAffinityGroup) =>
+  getListQFn('antiAffinityGroupMemberList', {
+    path: { antiAffinityGroup: query.antiAffinityGroup },
+    query: { project: query.project },
+  })
+
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const antiAffinityGroupSelector = getAntiAffinityGroupSelector(params)
   await Promise.all([
     queryClient.fetchQuery(antiAffinityGroupView(antiAffinityGroupSelector)),
-    queryClient.fetchQuery(antiAffinityGroupMemberList(antiAffinityGroupSelector)),
+    queryClient.fetchQuery(memberList(antiAffinityGroupSelector).optionsFn()),
   ])
   return null
 }
@@ -41,7 +57,25 @@ export default function AntiAffinityPage() {
     antiAffinityGroupView(antiAffinityGroupSelector)
   )
   const { data: members } = usePrefetchedQuery(
-    antiAffinityGroupMemberList(antiAffinityGroupSelector)
+    memberList(antiAffinityGroupSelector).optionsFn()
   )
-  return <GroupPage type="anti-affinity" group={group} members={members.items} />
+  const membersCount = members?.items.length ?? 0
+  const columns = [
+    colHelper.accessor('value.name', {
+      header: 'Name',
+      cell: (info) => info.getValue(),
+    }),
+    colHelper.accessor('type', {}),
+  ]
+
+  const { table } = useQueryTable({
+    query: memberList(antiAffinityGroupSelector),
+    columns,
+    emptyState: <AffinityGroupEmptyState type="anti-affinity" />,
+    getId: (member: AntiAffinityGroupMember) => member.value.id,
+  })
+
+  return (
+    <GroupPage type="anti-affinity" group={group} table={table} members={membersCount} />
+  )
 }

@@ -6,19 +6,11 @@
  * Copyright Oxide Computer Company
  */
 
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
-
 import { Affinity24Icon } from '@oxide/design-system/icons/react'
 
-import {
-  apiq,
-  type AffinityGroup,
-  type AffinityGroupMember,
-  type AntiAffinityGroup,
-  type AntiAffinityGroupMember,
-} from '~/api'
+import { apiq, type AffinityGroup, type AntiAffinityGroup } from '~/api'
 import { useProjectSelector } from '~/hooks/use-params'
-import { Table } from '~/table/Table'
+import type { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -43,18 +35,14 @@ export const antiAffinityGroupMemberList = ({
 
 export const AffinityPageHeader = ({ name = 'Affinity' }: { name?: string }) => (
   <PageHeader>
-    {/* TODO: update once Affinity icon is in the design system */}
     <PageTitle icon={<Affinity24Icon />}>{name}</PageTitle>
     {/* TODO: Add a DocsPopover with docLinks.affinity once the doc page exists */}
   </PageHeader>
 )
 
+type AffinityGroupTypes = 'affinity' | 'anti-affinity'
 // For both Affinity Groups and Anti-Affinity Groups
-export const AffinityGroupEmptyState = ({
-  type,
-}: {
-  type: 'affinity' | 'anti-affinity'
-}) => {
+export const AffinityGroupEmptyState = ({ type }: { type: AffinityGroupTypes }) => {
   const project = useProjectSelector()
   const buttonTo =
     type === 'affinity' ? pb.affinityGroupNew(project) : pb.antiAffinityGroupNew(project)
@@ -69,31 +57,23 @@ export const AffinityGroupEmptyState = ({
   )
 }
 
-type AffinityGroupType = {
+type AffinityGroupPageType = {
   type: 'affinity'
   group: AffinityGroup
-  members: AffinityGroupMember[]
 }
-type AntiAffinityGroupType = {
+type AntiAffinityGroupPageType = {
   type: 'anti-affinity'
   group: AntiAffinityGroup
-  members: AntiAffinityGroupMember[]
 }
-type GroupPageType = AffinityGroupType | AntiAffinityGroupType
+type CommonProps = {
+  members?: number
+  table: ReturnType<typeof useQueryTable>['table']
+}
 
-const colHelper = createColumnHelper<{
-  name: string
-  type: 'instance' | 'affinity_group'
-}>()
+type GroupPageType = (AffinityGroupPageType | AntiAffinityGroupPageType) & CommonProps
 
-export const GroupPage = ({ type, group, members }: GroupPageType) => {
+export const GroupPage = ({ type, group, members, table }: GroupPageType) => {
   const { id, name, description, policy, timeCreated } = group
-  const table = useReactTable({
-    columns: [colHelper.accessor('name', {}), colHelper.accessor('type', {})],
-    data: members.map((member) => ({ name: member.value.name, type: member.type })),
-    getCoreRowModel: getCoreRowModel(),
-  })
-
   return (
     <>
       <AffinityPageHeader name={name} />
@@ -106,14 +86,10 @@ export const GroupPage = ({ type, group, members }: GroupPageType) => {
           <Badge color="neutral">{policy}</Badge>
         </PropertiesTable.Row>
         <PropertiesTable.DateRow date={timeCreated} label="Created" />
-        <PropertiesTable.Row label="Members">{members.length}</PropertiesTable.Row>
+        <PropertiesTable.Row label="Members">{members}</PropertiesTable.Row>
         <PropertiesTable.IdRow id={id} />
       </PropertiesTable>
-      {members.length > 0 ? (
-        <Table table={table} />
-      ) : (
-        <AffinityGroupEmptyState type={type} />
-      )}
+      {table}
     </>
   )
 }
