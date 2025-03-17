@@ -15,7 +15,7 @@ import {
   colorUtilities,
   elevationUtilities,
   textUtilities,
-} from '@oxide/design-system/styles/dist/tailwind-tokens.ts'
+} from '@oxide/design-system/styles/tailwind-tokens.ts'
 
 export default {
   corePlugins: {
