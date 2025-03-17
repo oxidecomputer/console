@@ -93,8 +93,8 @@
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "~8.22.0",
     "@typescript-eslint/parser": "~8.22.0",
-    "@vitejs/plugin-basic-ssl": "^1.2.0",
-    "@vitejs/plugin-react-swc": "^3.7.2",
+    "@vitejs/plugin-basic-ssl": "^2.0.0",
+    "@vitejs/plugin-react-swc": "^3.8.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^9.1.0",
@@ -109,7 +109,7 @@
     "identity-obj-proxy": "^3.0.0",
     "ip-num": "^1.5.1",
     "jsdom": "^25.0.1",
-    "msw": "^2.7.0",
+    "msw": "^2.7.3",
     "oxlint": "^0.16.0",
     "patch-package": "^8.0.0",
     "postcss": "^8.4.49",
@@ -124,10 +124,10 @@
     "tsx": "^4.19.2",
     "type-fest": "^4.33.0",
     "typescript": "~5.7.3",
-    "vite": "^6.1.0",
+    "vite": "^6.2.2",
     "vite-plugin-html": "^3.2.2",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.0.5"
+    "vitest": "^3.0.9"
   },
   "browserslist": [
     "defaults"
