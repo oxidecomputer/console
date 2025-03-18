@@ -16,6 +16,7 @@ import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
+import { AffinityGroupPolicyBadge, Badge } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { pb } from '~/util/path-builder'
@@ -50,6 +51,13 @@ export default function AffinityPage() {
       ),
     }),
     colHelper.accessor('description', Columns.description),
+    colHelper.accessor(() => {}, {
+      header: 'type',
+      cell: () => <Badge>anti-affinity</Badge>,
+    }),
+    colHelper.accessor('policy', {
+      cell: (info) => <AffinityGroupPolicyBadge policy={info.getValue()} />,
+    }),
     colHelper.accessor('timeCreated', Columns.timeCreated),
   ]
 
