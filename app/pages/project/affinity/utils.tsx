@@ -8,30 +8,10 @@
 
 import { Affinity24Icon } from '@oxide/design-system/icons/react'
 
-import { apiq, type AffinityGroup, type AntiAffinityGroup } from '~/api'
 import { useProjectSelector } from '~/hooks/use-params'
-import type { useQueryTable } from '~/table/QueryTable'
-import { Badge } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { pb } from '~/util/path-builder'
-import type * as PP from '~/util/path-params'
-
-export const affinityGroupView = ({ project, affinityGroup }: PP.AffinityGroup) =>
-  apiq('affinityGroupView', { path: { affinityGroup }, query: { project } })
-export const affinityGroupMemberList = ({ project, affinityGroup }: PP.AffinityGroup) =>
-  apiq('affinityGroupMemberList', { path: { affinityGroup }, query: { project } })
-export const antiAffinityGroupView = ({
-  project,
-  antiAffinityGroup,
-}: PP.AntiAffinityGroup) =>
-  apiq('antiAffinityGroupView', { path: { antiAffinityGroup }, query: { project } })
-export const antiAffinityGroupMemberList = ({
-  project,
-  antiAffinityGroup,
-}: PP.AntiAffinityGroup) =>
-  apiq('antiAffinityGroupMemberList', { path: { antiAffinityGroup }, query: { project } })
 
 export const AffinityPageHeader = ({ name = 'Affinity' }: { name?: string }) => (
   <PageHeader>
@@ -40,56 +20,12 @@ export const AffinityPageHeader = ({ name = 'Affinity' }: { name?: string }) => 
   </PageHeader>
 )
 
-type AffinityGroupTypes = 'affinity' | 'anti-affinity'
-// For both Affinity Groups and Anti-Affinity Groups
-export const AffinityGroupEmptyState = ({ type }: { type: AffinityGroupTypes }) => {
-  const project = useProjectSelector()
-  const buttonTo =
-    type === 'affinity' ? pb.affinityGroupNew(project) : pb.antiAffinityGroupNew(project)
-  return (
-    <EmptyMessage
-      icon={<Affinity24Icon />}
-      title={`No ${type} groups`}
-      body={`Create a new ${type} group to see it here`}
-      buttonText={`New ${type} group`}
-      buttonTo={buttonTo}
-    />
-  )
-}
-
-type AffinityGroupPageType = {
-  type: 'affinity'
-  group: AffinityGroup
-}
-type AntiAffinityGroupPageType = {
-  type: 'anti-affinity'
-  group: AntiAffinityGroup
-}
-type CommonProps = {
-  members?: number
-  table: ReturnType<typeof useQueryTable>['table']
-}
-
-type GroupPageType = (AffinityGroupPageType | AntiAffinityGroupPageType) & CommonProps
-
-export const GroupPage = ({ type, group, members, table }: GroupPageType) => {
-  const { id, name, description, policy, timeCreated } = group
-  return (
-    <>
-      <AffinityPageHeader name={name} />
-      <PropertiesTable columns={2} className="-mt-8 mb-8">
-        <PropertiesTable.Row label="type">
-          <Badge>{type}</Badge>
-        </PropertiesTable.Row>
-        <PropertiesTable.DescriptionRow description={description} />
-        <PropertiesTable.Row label="policy">
-          <Badge color="neutral">{policy}</Badge>
-        </PropertiesTable.Row>
-        <PropertiesTable.DateRow date={timeCreated} label="Created" />
-        <PropertiesTable.Row label="Members">{members}</PropertiesTable.Row>
-        <PropertiesTable.IdRow id={id} />
-      </PropertiesTable>
-      {table}
-    </>
-  )
-}
+export const AffinityGroupEmptyState = () => (
+  <EmptyMessage
+    icon={<Affinity24Icon />}
+    title="No anti-affinity groups"
+    body="Create a new anti-affinity group to see it here"
+    buttonText="New anti-affinity group"
+    buttonTo={pb.antiAffinityGroupNew(useProjectSelector())}
+  />
+)

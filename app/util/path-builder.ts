@@ -98,18 +98,17 @@ export const pb = {
   floatingIpEdit: (params: PP.FloatingIp) =>
     `${pb.floatingIps(params)}/${params.floatingIp}/edit`,
 
-  affinityGroups: (params: PP.Project) => `${affinityBase(params)}/affinity-groups`,
+  affinityGroups: (params: PP.Project) => affinityBase(params),
   affinityGroup: (params: PP.AffinityGroup) =>
     `${pb.affinityGroups(params)}/${params.affinityGroup}`,
   affinityGroupNew: (params: PP.Project) =>
     `${pb.affinityGroups(params)}/affinity-groups-new`,
 
-  antiAffinityGroups: (params: PP.Project) =>
-    `${affinityBase(params)}/anti-affinity-groups`,
+  antiAffinityGroups: (params: PP.Project) => affinityBase(params),
   antiAffinityGroup: (params: PP.AntiAffinityGroup) =>
-    `${pb.antiAffinityGroups(params)}/${params.antiAffinityGroup}`,
+    `${affinityBase(params)}/${params.antiAffinityGroup}`,
   antiAffinityGroupNew: (params: PP.Project) =>
-    `${pb.antiAffinityGroups(params)}/anti-affinity-groups-new`,
+    `${affinityBase(params)}/anti-affinity-groups-new`,
 
   siloUtilization: () => '/utilization',
   siloAccess: () => '/access',

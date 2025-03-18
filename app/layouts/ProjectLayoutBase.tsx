@@ -114,10 +114,7 @@ export function ProjectLayoutBase({ overrideContentPane }: ProjectLayoutProps) {
           <NavLinkItem to={pb.floatingIps(projectSelector)}>
             <IpGlobal16Icon /> Floating IPs
           </NavLinkItem>
-          <NavLinkItem
-            to={pb.antiAffinityGroups(projectSelector)}
-            activePrefix={affinityBase(projectSelector)}
-          >
+          <NavLinkItem to={affinityBase(projectSelector)}>
             <Affinity16Icon title="Affinity" /> Affinity
           </NavLinkItem>
           <NavLinkItem to={pb.projectAccess(projectSelector)}>
