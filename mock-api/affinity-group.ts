@@ -95,16 +95,16 @@ type DbAffinityGroupMember = {
 
 export const affinityGroupMemberLists: DbAffinityGroupMember[] = [
   {
-    affinity_group_id: affinityGroups[0].id,
-    affinity_group_member: affinityGroupMembers[0],
+    affinity_group_id: affinityGroup.id,
+    affinity_group_member: affinityGroupMemberInstance,
   },
   {
-    affinity_group_id: affinityGroups[1].id,
-    affinity_group_member: affinityGroupMembers[0],
+    affinity_group_id: affinityGroup.id,
+    affinity_group_member: affinityGroupMemberStartingInstance,
   },
   {
-    affinity_group_id: affinityGroups[0].id,
-    affinity_group_member: affinityGroupMembers[1],
+    affinity_group_id: sandboxAffinityGroup.id,
+    affinity_group_member: affinityGroupMemberInstance,
   },
 ]
 

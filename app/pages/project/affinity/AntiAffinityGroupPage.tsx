@@ -80,6 +80,7 @@ export default function AntiAffinityPage() {
   const { data: members } = usePrefetchedQuery(
     memberList({ antiAffinityGroup, project }).optionsFn()
   )
+  // TODO: is this going to just get the length of the items in the query? Might need to do a query for all members to get length
   const membersCount = members?.items.length ?? 0
   const columns = [
     colHelper.accessor('value.name', {
