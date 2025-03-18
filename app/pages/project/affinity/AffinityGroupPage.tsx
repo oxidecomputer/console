@@ -17,6 +17,8 @@ import {
 } from '~/api'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getAffinityGroupSelector, useAffinityGroupSelector } from '~/hooks/use-params'
+import { makeLinkCell } from '~/table/cells/LinkCell'
+import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
@@ -55,9 +57,11 @@ export default function AffinityPage() {
   const columns = [
     colHelper.accessor('value.name', {
       header: 'Name',
-      cell: (info) => info.getValue(),
+      cell: makeLinkCell((instance) =>
+        pb.instance({ project: affinityGroupSelector.project, instance })
+      ),
     }),
-    colHelper.accessor('type', {}),
+    colHelper.accessor('value.runState', Columns.instanceState),
   ]
 
   const { table } = useQueryTable({

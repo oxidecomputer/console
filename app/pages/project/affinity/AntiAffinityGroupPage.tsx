@@ -25,6 +25,8 @@ import {
   antiAffinityGroupView,
   GroupPage,
 } from '~/pages/project/affinity/utils'
+import { makeLinkCell } from '~/table/cells/LinkCell'
+import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
@@ -53,6 +55,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 
 export default function AntiAffinityPage() {
   const antiAffinityGroupSelector = useAntiAffinityGroupSelector()
+  const { project } = antiAffinityGroupSelector
   const { data: group } = usePrefetchedQuery(
     antiAffinityGroupView(antiAffinityGroupSelector)
   )
@@ -63,9 +66,9 @@ export default function AntiAffinityPage() {
   const columns = [
     colHelper.accessor('value.name', {
       header: 'Name',
-      cell: (info) => info.getValue(),
+      cell: makeLinkCell((instance) => pb.instance({ project, instance })),
     }),
-    colHelper.accessor('type', {}),
+    colHelper.accessor('value.runState', Columns.instanceState),
   ]
 
   const { table } = useQueryTable({
