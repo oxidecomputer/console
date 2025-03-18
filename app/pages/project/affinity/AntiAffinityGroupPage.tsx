@@ -28,6 +28,7 @@ import { makeLinkCell } from '~/table/cells/LinkCell'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
+import { CardBlock } from '~/ui/lib/CardBlock'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { pb } from '~/util/path-builder'
@@ -59,6 +60,17 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
+const AffinityGroupMemberEmptyState = () => (
+  <EmptyMessage
+    icon={<Affinity24Icon />}
+    title="No anti-affinity groups"
+    body="Add a new anti-affinity group member to see it here"
+    buttonText="Add anti-affinity group member"
+    // TODO: add path builder for anti-affinity group member
+    buttonTo={pb.antiAffinityGroupNew(useProjectSelector())}
+  />
+)
+
 export default function AntiAffinityPage() {
   const { antiAffinityGroup, project } = useAntiAffinityGroupSelector()
   const { data: group } = usePrefetchedQuery(
@@ -81,7 +93,7 @@ export default function AntiAffinityPage() {
     query: memberList({ antiAffinityGroup, project }),
     columns,
     emptyState: <AffinityGroupMemberEmptyState />,
-    getId: (member: AntiAffinityGroupMember) => member.value.id,
+    getId: (member) => member.value.id,
   })
 
   return (
@@ -99,18 +111,13 @@ export default function AntiAffinityPage() {
         <PropertiesTable.Row label="Members">{membersCount}</PropertiesTable.Row>
         <PropertiesTable.IdRow id={id} />
       </PropertiesTable>
-      {table}
+      <CardBlock>
+        <CardBlock.Header
+          title="Members"
+          description="Instances in this anti-affinity group"
+        />
+        <CardBlock.Body>{table}</CardBlock.Body>
+      </CardBlock>
     </>
   )
 }
-
-export const AffinityGroupMemberEmptyState = () => (
-  <EmptyMessage
-    icon={<Affinity24Icon />}
-    title="No anti-affinity groups"
-    body="Add a new anti-affinity group member to see it here"
-    buttonText="Add anti-affinity group member"
-    // TODO: add path builder for anti-affinity group member
-    buttonTo={pb.antiAffinityGroupNew(useProjectSelector())}
-  />
-)
