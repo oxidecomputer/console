@@ -172,10 +172,6 @@ export const antiAffinityGroupMemberLists: DbAntiAffinityGroupMember[] = [
 
 export const antiAffinityGroupMembers: Json<AntiAffinityGroupMember>[] = [
   {
-    type: 'affinity_group',
-    value: { id: romulusRemus.id, name: romulusRemus.name },
-  },
-  {
     type: 'instance',
     value: { id: instance.id, name: instance.name, run_state: instance.run_state },
   },

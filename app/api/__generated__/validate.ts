@@ -365,11 +365,6 @@ export const AntiAffinityGroupCreate = z.preprocess(
   })
 )
 
-export const TypedUuidForAffinityGroupKind = z.preprocess(
-  processResponseBody,
-  z.string().uuid()
-)
-
 /**
  * A member of an Anti-Affinity Group
  *
@@ -377,20 +372,10 @@ export const TypedUuidForAffinityGroupKind = z.preprocess(
  */
 export const AntiAffinityGroupMember = z.preprocess(
   processResponseBody,
-  z.union([
-    z.object({
-      type: z.enum(['affinity_group']),
-      value: z.object({ id: TypedUuidForAffinityGroupKind, name: Name }),
-    }),
-    z.object({
-      type: z.enum(['instance']),
-      value: z.object({
-        id: TypedUuidForInstanceKind,
-        name: Name,
-        runState: InstanceState,
-      }),
-    }),
-  ])
+  z.object({
+    type: z.enum(['instance']),
+    value: z.object({ id: TypedUuidForInstanceKind, name: Name, runState: InstanceState }),
+  })
 )
 
 /**
@@ -4461,45 +4446,6 @@ export const AntiAffinityGroupMemberListParams = z.preprocess(
       pageToken: z.string().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
-    }),
-  })
-)
-
-export const AntiAffinityGroupMemberAffinityGroupViewParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      affinityGroup: NameOrId,
-      antiAffinityGroup: NameOrId,
-    }),
-    query: z.object({
-      project: NameOrId.optional(),
-    }),
-  })
-)
-
-export const AntiAffinityGroupMemberAffinityGroupAddParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      affinityGroup: NameOrId,
-      antiAffinityGroup: NameOrId,
-    }),
-    query: z.object({
-      project: NameOrId.optional(),
-    }),
-  })
-)
-
-export const AntiAffinityGroupMemberAffinityGroupDeleteParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      affinityGroup: NameOrId,
-      antiAffinityGroup: NameOrId,
-    }),
-    query: z.object({
-      project: NameOrId.optional(),
     }),
   })
 )

@@ -360,21 +360,15 @@ export type AntiAffinityGroupCreate = {
   policy: AffinityPolicy
 }
 
-export type TypedUuidForAffinityGroupKind = string
-
 /**
  * A member of an Anti-Affinity Group
  *
  * Membership in a group is not exclusive - members may belong to multiple affinity / anti-affinity groups.
  */
-export type AntiAffinityGroupMember =
-  /** An affinity group belonging to this group */
-  | { type: 'affinity_group'; value: { id: TypedUuidForAffinityGroupKind; name: Name } }
-  /** An instance belonging to this group */
-  | {
-      type: 'instance'
-      value: { id: TypedUuidForInstanceKind; name: Name; runState: InstanceState }
-    }
+export type AntiAffinityGroupMember = {
+  type: 'instance'
+  value: { id: TypedUuidForInstanceKind; name: Name; runState: InstanceState }
+}
 
 /**
  * A single page of results
@@ -4594,33 +4588,6 @@ export interface AntiAffinityGroupMemberListQueryParams {
   sortBy?: NameOrIdSortMode
 }
 
-export interface AntiAffinityGroupMemberAffinityGroupViewPathParams {
-  affinityGroup: NameOrId
-  antiAffinityGroup: NameOrId
-}
-
-export interface AntiAffinityGroupMemberAffinityGroupViewQueryParams {
-  project?: NameOrId
-}
-
-export interface AntiAffinityGroupMemberAffinityGroupAddPathParams {
-  affinityGroup: NameOrId
-  antiAffinityGroup: NameOrId
-}
-
-export interface AntiAffinityGroupMemberAffinityGroupAddQueryParams {
-  project?: NameOrId
-}
-
-export interface AntiAffinityGroupMemberAffinityGroupDeletePathParams {
-  affinityGroup: NameOrId
-  antiAffinityGroup: NameOrId
-}
-
-export interface AntiAffinityGroupMemberAffinityGroupDeleteQueryParams {
-  project?: NameOrId
-}
-
 export interface AntiAffinityGroupMemberInstanceViewPathParams {
   antiAffinityGroup: NameOrId
   instance: NameOrId
@@ -6383,67 +6350,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch anti-affinity group member of type affinity group
-     */
-    antiAffinityGroupMemberAffinityGroupView: (
-      {
-        path,
-        query = {},
-      }: {
-        path: AntiAffinityGroupMemberAffinityGroupViewPathParams
-        query?: AntiAffinityGroupMemberAffinityGroupViewQueryParams
-      },
-      params: FetchParams = {}
-    ) => {
-      return this.request<AntiAffinityGroupMember>({
-        path: `/v1/anti-affinity-groups/${path.antiAffinityGroup}/members/affinity-group/${path.affinityGroup}`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Add affinity group member to anti-affinity group
-     */
-    antiAffinityGroupMemberAffinityGroupAdd: (
-      {
-        path,
-        query = {},
-      }: {
-        path: AntiAffinityGroupMemberAffinityGroupAddPathParams
-        query?: AntiAffinityGroupMemberAffinityGroupAddQueryParams
-      },
-      params: FetchParams = {}
-    ) => {
-      return this.request<AntiAffinityGroupMember>({
-        path: `/v1/anti-affinity-groups/${path.antiAffinityGroup}/members/affinity-group/${path.affinityGroup}`,
-        method: 'POST',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Remove affinity group member from anti-affinity group
-     */
-    antiAffinityGroupMemberAffinityGroupDelete: (
-      {
-        path,
-        query = {},
-      }: {
-        path: AntiAffinityGroupMemberAffinityGroupDeletePathParams
-        query?: AntiAffinityGroupMemberAffinityGroupDeleteQueryParams
-      },
-      params: FetchParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/v1/anti-affinity-groups/${path.antiAffinityGroup}/members/affinity-group/${path.affinityGroup}`,
-        method: 'DELETE',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Fetch anti-affinity group member of type instance
+     * Fetch anti-affinity group member
      */
     antiAffinityGroupMemberInstanceView: (
       {
@@ -6463,7 +6370,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Add instance member to anti-affinity group
+     * Add member to anti-affinity group
      */
     antiAffinityGroupMemberInstanceAdd: (
       {
@@ -6483,7 +6390,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Remove instance member from anti-affinity group
+     * Remove member from anti-affinity group
      */
     antiAffinityGroupMemberInstanceDelete: (
       {
