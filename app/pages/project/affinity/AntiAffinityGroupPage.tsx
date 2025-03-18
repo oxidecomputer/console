@@ -9,6 +9,8 @@
 import { createColumnHelper } from '@tanstack/react-table'
 import type { LoaderFunctionArgs } from 'react-router'
 
+import { Affinity24Icon } from '@oxide/design-system/icons/react'
+
 import {
   apiq,
   getListQFn,
@@ -20,15 +22,18 @@ import { makeCrumb } from '~/hooks/use-crumbs'
 import {
   getAntiAffinityGroupSelector,
   useAntiAffinityGroupSelector,
+  useProjectSelector,
 } from '~/hooks/use-params'
-import { AffinityGroupEmptyState, AffinityPageHeader } from '~/pages/project/affinity/utils'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
+
+import { AffinityPageHeader } from './AffinityPage'
 
 export const handle = makeCrumb(
   (p) => p.antiAffinityGroup!,
@@ -37,32 +42,31 @@ export const handle = makeCrumb(
 
 const colHelper = createColumnHelper<AntiAffinityGroupMember>()
 
-const antiAffinityGroupView = ({ project, antiAffinityGroup }: PP.AntiAffinityGroup) =>
+const antiAffinityGroupView = ({ antiAffinityGroup, project }: PP.AntiAffinityGroup) =>
   apiq('antiAffinityGroupView', { path: { antiAffinityGroup }, query: { project } })
-const memberList = ({ project, antiAffinityGroup }: PP.AntiAffinityGroup) =>
+const memberList = ({ antiAffinityGroup, project }: PP.AntiAffinityGroup) =>
   getListQFn('antiAffinityGroupMemberList', {
-    path: { antiAffinityGroup: antiAffinityGroup },
-    query: { project: project },
+    path: { antiAffinityGroup },
+    query: { project },
   })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const antiAffinityGroupSelector = getAntiAffinityGroupSelector(params)
+  const { antiAffinityGroup, project } = getAntiAffinityGroupSelector(params)
   await Promise.all([
-    queryClient.fetchQuery(antiAffinityGroupView(antiAffinityGroupSelector)),
-    queryClient.fetchQuery(memberList(antiAffinityGroupSelector).optionsFn()),
+    queryClient.fetchQuery(antiAffinityGroupView({ antiAffinityGroup, project })),
+    queryClient.fetchQuery(memberList({ antiAffinityGroup, project }).optionsFn()),
   ])
   return null
 }
 
 export default function AntiAffinityPage() {
-  const antiAffinityGroupSelector = useAntiAffinityGroupSelector()
-  const { project } = antiAffinityGroupSelector
+  const { antiAffinityGroup, project } = useAntiAffinityGroupSelector()
   const { data: group } = usePrefetchedQuery(
-    antiAffinityGroupView(antiAffinityGroupSelector)
+    antiAffinityGroupView({ antiAffinityGroup, project })
   )
   const { id, name, description, policy, timeCreated } = group
   const { data: members } = usePrefetchedQuery(
-    memberList(antiAffinityGroupSelector).optionsFn()
+    memberList({ antiAffinityGroup, project }).optionsFn()
   )
   const membersCount = members?.items.length ?? 0
   const columns = [
@@ -74,9 +78,9 @@ export default function AntiAffinityPage() {
   ]
 
   const { table } = useQueryTable({
-    query: memberList(antiAffinityGroupSelector),
+    query: memberList({ antiAffinityGroup, project }),
     columns,
-    emptyState: <AffinityGroupEmptyState />,
+    emptyState: <AffinityGroupMemberEmptyState />,
     getId: (member: AntiAffinityGroupMember) => member.value.id,
   })
 
@@ -99,3 +103,14 @@ export default function AntiAffinityPage() {
     </>
   )
 }
+
+export const AffinityGroupMemberEmptyState = () => (
+  <EmptyMessage
+    icon={<Affinity24Icon />}
+    title="No anti-affinity groups"
+    body="Add a new anti-affinity group member to see it here"
+    buttonText="Add anti-affinity group member"
+    // TODO: add path builder for anti-affinity group member
+    buttonTo={pb.antiAffinityGroupNew(useProjectSelector())}
+  />
+)

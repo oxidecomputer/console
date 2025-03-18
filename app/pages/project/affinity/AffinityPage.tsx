@@ -10,15 +10,16 @@ import { createColumnHelper } from '@tanstack/react-table'
 import type { LoaderFunctionArgs } from 'react-router'
 
 import { getListQFn, queryClient, type AntiAffinityGroup } from '@oxide/api'
+import { Affinity24Icon } from '@oxide/design-system/icons/react'
 
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
-
-import { AffinityGroupEmptyState, AffinityPageHeader } from './utils'
 
 export const handle = { crumb: 'Affinity' }
 
@@ -32,6 +33,13 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 }
 
 const colHelper = createColumnHelper<AntiAffinityGroup>()
+
+export const AffinityPageHeader = ({ name = 'Affinity' }: { name?: string }) => (
+  <PageHeader>
+    <PageTitle icon={<Affinity24Icon />}>{name}</PageTitle>
+    {/* TODO: Add a DocsPopover with docLinks.affinity once the doc page exists */}
+  </PageHeader>
+)
 
 export default function AffinityPage() {
   const { project } = useProjectSelector()
@@ -57,3 +65,13 @@ export default function AffinityPage() {
     </>
   )
 }
+
+export const AffinityGroupEmptyState = () => (
+  <EmptyMessage
+    icon={<Affinity24Icon />}
+    title="No anti-affinity groups"
+    body="Create a new anti-affinity group to see it here"
+    buttonText="New anti-affinity group"
+    buttonTo={pb.antiAffinityGroupNew(useProjectSelector())}
+  />
+)
