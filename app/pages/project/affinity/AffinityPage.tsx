@@ -9,10 +9,17 @@
 import { createColumnHelper } from '@tanstack/react-table'
 import type { LoaderFunctionArgs } from 'react-router'
 
-import { getListQFn, queryClient, type AntiAffinityGroup } from '@oxide/api'
+import {
+  apiq,
+  getListQFn,
+  queryClient,
+  useApiQuery,
+  type AntiAffinityGroup,
+} from '@oxide/api'
 import { Affinity24Icon } from '@oxide/design-system/icons/react'
 
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -26,10 +33,24 @@ export const handle = { crumb: 'Affinity' }
 
 const antiAffinityGroupList = (query: PP.Project) =>
   getListQFn('antiAffinityGroupList', { query })
+const memberList = ({ antiAffinityGroup, project }: PP.AntiAffinityGroup) =>
+  apiq('antiAffinityGroupMemberList', {
+    path: { antiAffinityGroup },
+    query: { project },
+  })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
-  await queryClient.fetchQuery(antiAffinityGroupList({ project }).optionsFn())
+  await queryClient
+    .fetchQuery(antiAffinityGroupList({ project }).optionsFn())
+    .then((data) => {
+      // Preload the anti-affinity group details
+      data.items.forEach((antiAffinityGroup) => {
+        queryClient.fetchQuery(
+          memberList({ antiAffinityGroup: antiAffinityGroup.name, project })
+        )
+      })
+    })
   return null
 }
 
@@ -58,6 +79,10 @@ export default function AffinityPage() {
     colHelper.accessor('policy', {
       cell: (info) => <AffinityGroupPolicyBadge policy={info.getValue()} />,
     }),
+    colHelper.accessor('name', {
+      header: 'members',
+      cell: (info) => <AffinityGroupMembersCell antiAffinityGroup={info.getValue()} />,
+    }),
     colHelper.accessor('timeCreated', Columns.timeCreated),
   ]
 
@@ -83,3 +108,23 @@ export const AffinityGroupEmptyState = () => (
     buttonTo={pb.antiAffinityGroupNew(useProjectSelector())}
   />
 )
+
+// TODO: Make this component list out the members of the group, each linked to the instance
+// TODO: See if you can use the prefetched query
+export const AffinityGroupMembersCell = ({
+  antiAffinityGroup,
+}: {
+  antiAffinityGroup: string
+}) => {
+  const { project } = useProjectSelector()
+  const { data: members } = useApiQuery('antiAffinityGroupMemberList', {
+    path: { antiAffinityGroup },
+    query: { project },
+  })
+
+  // has to be after the hooks because hooks can't be executed conditionally
+  if (!members) return <EmptyCell />
+  if (!members) return <SkeletonCell />
+
+  return <>{members.items.length}</>
+}
