@@ -10,7 +10,7 @@ import { useController, type Control } from 'react-hook-form'
 
 import type { DiskCreate } from '@oxide/api'
 
-import { AttachDiskSideModalForm } from '~/forms/disk-attach'
+import { AttachDiskModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import type { InstanceCreateInput } from '~/forms/instance-create'
 import { Badge } from '~/ui/lib/Badge'
@@ -115,7 +115,7 @@ export function DisksTableField({
         />
       )}
       {showDiskAttach && (
-        <AttachDiskSideModalForm
+        <AttachDiskModalForm
           onDismiss={() => setShowDiskAttach(false)}
           onSubmit={(values) => {
             onChange([...items, { type: 'attach', ...values }])

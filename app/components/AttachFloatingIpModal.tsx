@@ -13,8 +13,9 @@ import { ListboxField } from '~/components/form/fields/ListboxField'
 import { HL } from '~/components/HL'
 import { addToast } from '~/stores/toast'
 import { Message } from '~/ui/lib/Message'
-import { Modal } from '~/ui/lib/Modal'
 import { Slash } from '~/ui/lib/Slash'
+
+import { ModalForm } from './form/ModalForm'
 
 function FloatingIpLabel({ fip }: { fip: FloatingIp }) {
   return (
@@ -60,40 +61,39 @@ export const AttachFloatingIpModal = ({
   const floatingIp = form.watch('floatingIp')
 
   return (
-    <Modal isOpen title="Attach floating IP" onDismiss={onDismiss}>
-      <Modal.Body>
-        <Modal.Section>
-          <Message
-            variant="info"
-            content={`Instance ‘${instance.name}’ will be reachable at the selected IP address`}
-          />
-          <form>
-            <ListboxField
-              control={form.control}
-              name="floatingIp"
-              label="Floating IP"
-              placeholder="Select a floating IP"
-              items={floatingIps.map((ip) => ({
-                value: ip.id,
-                label: <FloatingIpLabel fip={ip} />,
-                selectedLabel: ip.name,
-              }))}
-              required
-            />
-          </form>
-        </Modal.Section>
-      </Modal.Body>
-      <Modal.Footer
-        actionText="Attach"
-        disabled={!floatingIp}
-        onAction={() =>
-          floatingIpAttach.mutate({
-            path: { floatingIp }, // note that this is an ID!
-            body: { kind: 'instance', parent: instance.id },
-          })
-        }
-        onDismiss={onDismiss}
-      ></Modal.Footer>
-    </Modal>
+    <ModalForm
+      form={form}
+      onDismiss={onDismiss}
+      submitLabel="Attach floating IP"
+      submitError={floatingIpAttach.error}
+      loading={floatingIpAttach.isPending}
+      title="Attach floating IP"
+      onSubmit={() =>
+        floatingIpAttach.mutate({
+          path: { floatingIp }, // note that this is an ID!
+          body: { kind: 'instance', parent: instance.id },
+        })
+      }
+      submitDisabled={!floatingIp}
+    >
+      <Message
+        variant="info"
+        content={`Instance ‘${instance.name}’ will be reachable at the selected IP address`}
+      />
+      <form>
+        <ListboxField
+          control={form.control}
+          name="floatingIp"
+          label="Floating IP"
+          placeholder="Select a floating IP"
+          items={floatingIps.map((ip) => ({
+            value: ip.id,
+            label: <FloatingIpLabel fip={ip} />,
+            selectedLabel: ip.name,
+          }))}
+          required
+        />
+      </form>
+    </ModalForm>
   )
 }

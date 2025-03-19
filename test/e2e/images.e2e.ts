@@ -98,7 +98,7 @@ test('can demote an image from silo', async ({ page }) => {
   await clickRowAction(page, 'arch-2022-06-01', 'Demote')
 
   // Notice is visible
-  await expect(page.getByText('only visible to the project')).toBeVisible()
+  await expect(page.getByText('only visible within the project')).toBeVisible()
 
   // Correct image is selected
   await expect(page.getByText('Demoting: arch-2022-06-01')).toBeVisible()
