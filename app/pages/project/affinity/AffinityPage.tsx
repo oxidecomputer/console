@@ -112,8 +112,7 @@ export const AffinityGroupEmptyState = () => (
   />
 )
 
-// TODO: Make this component list out the members of the group, each linked to the instance
-// TODO: See if you can use the prefetched query
+// TODO: Use the prefetched query
 export const AffinityGroupMembersCell = ({
   antiAffinityGroup,
 }: {
@@ -125,9 +124,8 @@ export const AffinityGroupMembersCell = ({
     query: { project, limit: 2 },
   })
 
-  // has to be after the hooks because hooks can't be executed conditionally
-  if (!members) return <EmptyCell />
   if (!members) return <SkeletonCell />
+  if (!members.items.length) return <EmptyCell />
 
   const instances = members.items.map((member) => member.value.name)
   const instancesToShow = instances.slice(0, 2)
@@ -140,7 +138,7 @@ export const AffinityGroupMembersCell = ({
       {instance}
     </Link>
   ))
-  if (instances.length > 2) {
+  if (instances.length > instancesToShow.length) {
     links.push(<>…</>)
   }
   return <div className="flex max-w-full items-center">{intersperse(links, <Slash />)}</div>
