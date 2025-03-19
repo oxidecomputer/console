@@ -7,7 +7,7 @@
  */
 
 import { createColumnHelper } from '@tanstack/react-table'
-import type { LoaderFunctionArgs } from 'react-router'
+import { Link, type LoaderFunctionArgs } from 'react-router'
 
 import {
   apiq,
@@ -26,6 +26,8 @@ import { useQueryTable } from '~/table/QueryTable'
 import { AffinityGroupPolicyBadge, Badge } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { Slash } from '~/ui/lib/Slash'
+import { intersperse } from '~/util/array'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
@@ -36,7 +38,8 @@ const antiAffinityGroupList = (query: PP.Project) =>
 const memberList = ({ antiAffinityGroup, project }: PP.AntiAffinityGroup) =>
   apiq('antiAffinityGroupMemberList', {
     path: { antiAffinityGroup },
-    query: { project },
+    // We only need to get the first 2 members for preview
+    query: { project, limit: 2 },
   })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
@@ -119,12 +122,26 @@ export const AffinityGroupMembersCell = ({
   const { project } = useProjectSelector()
   const { data: members } = useApiQuery('antiAffinityGroupMemberList', {
     path: { antiAffinityGroup },
-    query: { project },
+    query: { project, limit: 2 },
   })
 
   // has to be after the hooks because hooks can't be executed conditionally
   if (!members) return <EmptyCell />
   if (!members) return <SkeletonCell />
 
-  return <>{members.items.length}</>
+  const instances = members.items.map((member) => member.value.name)
+  const instancesToShow = instances.slice(0, 2)
+  const links = instancesToShow.map((instance) => (
+    <Link
+      key={instance}
+      to={pb.instance({ project, instance })}
+      className="link-with-underline"
+    >
+      {instance}
+    </Link>
+  ))
+  if (instances.length > 2) {
+    links.push(<>…</>)
+  }
+  return <div className="flex max-w-full items-center">{intersperse(links, <Slash />)}</div>
 }
