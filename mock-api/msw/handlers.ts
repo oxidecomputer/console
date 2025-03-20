@@ -1638,6 +1638,20 @@ export const handlers = makeHandlers({
       .map((i) => i.anti_affinity_group_member)
     return { items: members }
   },
+  antiAffinityGroupMemberInstanceDelete: ({ path, query }) => {
+    const project = lookup.project({ ...query })
+    const instance = lookup.instance({ ...query, instance: path.instance })
+    const antiAffinityGroup = lookup.antiAffinityGroup({
+      project: project.id,
+      antiAffinityGroup: path.antiAffinityGroup,
+    })
+    db.antiAffinityGroupMemberLists = db.antiAffinityGroupMemberLists.filter(
+      (i) =>
+        i.anti_affinity_group_id !== antiAffinityGroup.id ||
+        i.anti_affinity_group_member.value.name !== instance.name
+    )
+    return 204
+  },
 
   // Misc endpoints we're not using yet in the console
   affinityGroupCreate: NotImplemented,
@@ -1649,7 +1663,6 @@ export const handlers = makeHandlers({
   antiAffinityGroupCreate: NotImplemented,
   antiAffinityGroupDelete: NotImplemented,
   antiAffinityGroupMemberInstanceAdd: NotImplemented,
-  antiAffinityGroupMemberInstanceDelete: NotImplemented,
   antiAffinityGroupMemberInstanceView: NotImplemented,
   antiAffinityGroupUpdate: NotImplemented,
   certificateCreate: NotImplemented,

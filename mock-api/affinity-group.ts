@@ -59,11 +59,6 @@ export const affinityGroupMemberInstance: Json<AffinityGroupMember> = {
   value: { id: instance.id, name: instance.name, run_state: instance.run_state },
 }
 
-export const affinityGroupDb2Instance: Json<AffinityGroupMember> = {
-  type: 'instance',
-  value: { id: instanceDb2.id, name: instanceDb2.name, run_state: instanceDb2.run_state },
-}
-
 export const affinityGroupMemberStartingInstance: Json<AffinityGroupMember> = {
   type: 'instance',
   value: {
@@ -158,7 +153,14 @@ export const antiAffinityGroupMemberLists: DbAntiAffinityGroupMember[] = [
   },
   {
     anti_affinity_group_id: romulusRemus.id,
-    anti_affinity_group_member: affinityGroupDb2Instance,
+    anti_affinity_group_member: {
+      type: 'instance',
+      value: {
+        id: instanceDb2.id,
+        name: instanceDb2.name,
+        run_state: instanceDb2.run_state,
+      },
+    },
   },
   {
     anti_affinity_group_id: setOsiris.id,
