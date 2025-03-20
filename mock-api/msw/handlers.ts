@@ -18,6 +18,8 @@ import {
   INSTANCE_MAX_RAM_GiB,
   INSTANCE_MIN_RAM_GiB,
   MAX_NICS_PER_INSTANCE,
+  type AffinityGroupMember,
+  type AntiAffinityGroupMember,
   type ApiTypes as Api,
   type InstanceDiskAttachment,
   type SamlIdentityProvider,
@@ -1613,9 +1615,14 @@ export const handlers = makeHandlers({
       project: project.id,
       affinityGroup: path.affinityGroup,
     })
-    const members = db.affinityGroupMemberLists
+    const members: Json<AffinityGroupMember>[] = db.affinityGroupMemberLists
       .filter((i) => i.affinity_group_id === affinityGroup.id)
-      .map((i) => i.affinity_group_member)
+      .map((i) => {
+        const { id, name, run_state } = lookup.instance({
+          instance: i.affinity_group_member.value.id,
+        })
+        return { type: 'instance', value: { id, name, run_state } }
+      })
     return { items: members }
   },
   antiAffinityGroupList: ({ query }) => {
@@ -1633,9 +1640,14 @@ export const handlers = makeHandlers({
       project: project.id,
       antiAffinityGroup: path.antiAffinityGroup,
     })
-    const members = db.antiAffinityGroupMemberLists
+    const members: Json<AntiAffinityGroupMember>[] = db.antiAffinityGroupMemberLists
       .filter((i) => i.anti_affinity_group_id === antiAffinityGroup.id)
-      .map((i) => i.anti_affinity_group_member)
+      .map((i) => {
+        const { id, name, run_state } = lookup.instance({
+          instance: i.anti_affinity_group_member.value.id,
+        })
+        return { type: 'instance', value: { id, name, run_state } }
+      })
     return { items: members }
   },
   antiAffinityGroupMemberInstanceDelete: ({ path, query }) => {

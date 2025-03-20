@@ -56,7 +56,7 @@ export const affinityGroups: Json<AffinityGroup>[] = [
 
 export const affinityGroupMemberInstance: Json<AffinityGroupMember> = {
   type: 'instance',
-  value: { id: instance.id, name: instance.name, run_state: instance.run_state },
+  value: { id: instance.id, name: instance.name, run_state: 'stopped' },
 }
 
 export const affinityGroupMemberStartingInstance: Json<AffinityGroupMember> = {
@@ -88,6 +88,9 @@ type DbAffinityGroupMember = {
   affinity_group_member: Json<AffinityGroupMember>
 }
 
+// Although these are properly constructed, the antiAffinityGroupMemberLists function in handlers.ts
+// will dynamically construct the affinity / anti-affinity group members based on the instances in
+// the instance list, using the ID of the affinity_group_member
 export const affinityGroupMemberLists: DbAffinityGroupMember[] = [
   {
     affinity_group_id: affinityGroup.id,
@@ -108,7 +111,7 @@ export const affinityGroupMemberLists: DbAffinityGroupMember[] = [
 export const romulusRemus: Json<AntiAffinityGroup> = {
   id: 'c874bfbe-c896-48b1-b6f1-9a3dfb7fb7c9',
   name: 'romulus-remus',
-  description: '',
+  description: 'Keep these two apart',
   failure_domain: 'sled',
   policy: 'fail',
   project_id: project.id,
@@ -145,7 +148,6 @@ type DbAntiAffinityGroupMember = {
   anti_affinity_group_member: Json<AntiAffinityGroupMember>
 }
 
-// set variable names for each anti-affinity group member
 export const antiAffinityGroupMemberLists: DbAntiAffinityGroupMember[] = [
   {
     anti_affinity_group_id: romulusRemus.id,

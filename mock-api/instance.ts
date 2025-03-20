@@ -124,4 +124,5 @@ export const instances: Json<Instance>[] = [
   failedRestartingSoon,
   failedRestartNever,
   failedCooledRestartNever,
+  instanceDb2,
 ]
