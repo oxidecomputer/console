@@ -109,6 +109,10 @@ export default function AntiAffinityPage() {
   const makeActions = useCallback(
     (antiAffinityGroupMember: AntiAffinityGroupMember) => [
       {
+        disabled:
+          antiAffinityGroupMember.value.runState !== 'stopped'
+            ? 'Instances must be stopped before they can be removed from an anti-affinity group'
+            : undefined,
         label: 'Remove',
         onActivate: confirmDelete({
           doDelete: () =>
