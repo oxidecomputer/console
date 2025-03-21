@@ -77,12 +77,6 @@ export const nonMatchingAffinityGroupMemberInstance: Json<AffinityGroupMember> =
   },
 }
 
-export const affinityGroupMembers: Json<AffinityGroupMember>[] = [
-  affinityGroupMemberInstance,
-  affinityGroupMemberStartingInstance,
-  nonMatchingAffinityGroupMemberInstance,
-]
-
 type DbAffinityGroupMember = {
   affinity_group_id: string
   affinity_group_member: Json<AffinityGroupMember>
@@ -170,29 +164,6 @@ export const antiAffinityGroupMemberLists: DbAntiAffinityGroupMember[] = [
   },
   {
     anti_affinity_group_id: oilWater.id,
-    anti_affinity_group_member: affinityGroupMembers[0],
-  },
-]
-
-export const antiAffinityGroupMembers: Json<AntiAffinityGroupMember>[] = [
-  {
-    type: 'instance',
-    value: { id: instance.id, name: instance.name, run_state: instance.run_state },
-  },
-  {
-    type: 'instance',
-    value: {
-      id: startingInstance.id,
-      name: startingInstance.name,
-      run_state: startingInstance.run_state,
-    },
-  },
-  {
-    type: 'instance',
-    value: {
-      id: '4f1f4dc9-da8a-48d6-ace2-c3f6330d4a5e',
-      name: 'a non-matching instance that shouldn’t be in the list',
-      run_state: 'stopped',
-    },
+    anti_affinity_group_member: affinityGroupMemberInstance,
   },
 ]
