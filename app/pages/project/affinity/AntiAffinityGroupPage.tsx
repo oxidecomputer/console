@@ -67,7 +67,7 @@ const AntiAffinityGroupMemberEmptyState = () => (
   <TableEmptyBox>
     <EmptyMessage
       icon={<Affinity24Icon />}
-      title="No anti-affinity groups"
+      title="No anti-affinity group members"
       body="Add a new anti-affinity group member to see it here"
       buttonText="Add anti-affinity group member"
       // TODO: this should open the AntiAffinityGroupd edit modal
