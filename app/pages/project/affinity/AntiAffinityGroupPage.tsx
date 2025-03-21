@@ -7,7 +7,6 @@
  */
 
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback } from 'react'
 import type { LoaderFunctionArgs } from 'react-router'
 
 import { Affinity24Icon } from '@oxide/design-system/icons/react'
@@ -16,21 +15,16 @@ import {
   apiq,
   getListQFn,
   queryClient,
-  useApiMutation,
   usePrefetchedQuery,
   type AntiAffinityGroupMember,
 } from '~/api'
-import { HL } from '~/components/HL'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import {
   getAntiAffinityGroupSelector,
   useAntiAffinityGroupSelector,
   useProjectSelector,
 } from '~/hooks/use-params'
-import { confirmDelete } from '~/stores/confirm-delete'
-import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
-import { useColsWithActions } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
@@ -95,44 +89,9 @@ export default function AntiAffinityPage() {
     colHelper.accessor('value.runState', Columns.instanceState),
   ]
 
-  const { mutateAsync: removeMember } = useApiMutation(
-    'antiAffinityGroupMemberInstanceDelete',
-    {
-      onSuccess(_data, variables) {
-        queryClient.invalidateEndpoint('antiAffinityGroupMemberList')
-        queryClient.invalidateEndpoint('antiAffinityGroupView')
-        addToast(<>Member <HL>{variables.path.instance}</HL> removed from anti-affinity group <HL>{group.name}</HL></>) // prettier-ignore
-      },
-    }
-  )
-
-  const makeActions = useCallback(
-    (antiAffinityGroupMember: AntiAffinityGroupMember) => [
-      {
-        label: 'Remove',
-        onActivate: confirmDelete({
-          doDelete: () =>
-            removeMember({
-              path: {
-                antiAffinityGroup: antiAffinityGroup,
-                instance: antiAffinityGroupMember.value.name,
-              },
-              query: { project },
-            }),
-          // TODO: Look into adding a modalVerb prop to the confirmDelete function,
-          // as right now the copy implies that the modal is for deleting the instance 🙀
-          // modalVerb: 'Remove',
-          label: antiAffinityGroupMember.value.name,
-        }),
-      },
-    ],
-    [project, removeMember, antiAffinityGroup]
-  )
-
-  const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({
     query: memberList({ antiAffinityGroup, project }),
-    columns,
+    columns: staticCols,
     emptyState: <AffinityGroupMemberEmptyState />,
     getId: (member) => member.value.id,
   })
