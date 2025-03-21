@@ -111,8 +111,6 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
           unit={unitForSet}
           data={data}
           yAxisTickFormatter={yAxisTickFormatter}
-          width={480}
-          height={240}
           hasBorder={false}
           hasError={!!error}
         />
