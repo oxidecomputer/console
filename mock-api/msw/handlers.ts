@@ -1617,11 +1617,7 @@ export const handlers = makeHandlers({
   },
   affinityGroupView: ({ path, query }) => lookup.affinityGroup({ ...path, ...query }),
   affinityGroupMemberList: ({ path, query }) => {
-    const project = lookup.project({ ...query })
-    const affinityGroup = lookup.affinityGroup({
-      project: project.id,
-      affinityGroup: path.affinityGroup,
-    })
+    const affinityGroup = lookup.affinityGroup({ ...path, ...query })
     const members: Json<AffinityGroupMember>[] = db.affinityGroupMemberLists
       .filter((i) => i.affinity_group_id === affinityGroup.id)
       .map((i) => {
