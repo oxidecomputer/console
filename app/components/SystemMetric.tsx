@@ -103,8 +103,6 @@ export function SiloMetric({
         <TimeSeriesChart
           data={data}
           title={title}
-          width={480}
-          height={240}
           interpolation="stepAfter"
           startTime={startTime}
           endTime={endTime}
@@ -179,8 +177,6 @@ export function SystemMetric({
         <TimeSeriesChart
           data={data}
           title={title}
-          width={480}
-          height={240}
           interpolation="stepAfter"
           startTime={startTime}
           endTime={endTime}

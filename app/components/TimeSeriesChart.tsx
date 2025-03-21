@@ -110,8 +110,6 @@ type TimeSeriesChartProps = {
   className?: string
   data: ChartDatum[] | undefined
   title: string
-  width: number
-  height: number
   interpolation?: 'linear' | 'stepAfter'
   startTime: Date
   endTime: Date
@@ -169,8 +167,6 @@ export function TimeSeriesChart({
   className,
   data: rawData,
   title,
-  width,
-  height,
   interpolation = 'linear',
   startTime,
   endTime,
@@ -228,16 +224,14 @@ export function TimeSeriesChart({
     )
   }
 
+  const margin = { top: 0, right: hasBorder ? 16 : 0, bottom: 0, left: 0 }
+
+  // ResponsiveContainer has default height and width of 100%
+  // https://recharts.org/en-US/api/ResponsiveContainer
   return (
     <div className="h-[300px] w-full">
-      {/* temporary until we migrate the old metrics to the new style */}
       <ResponsiveContainer className={wrapperClass}>
-        <AreaChart
-          width={width}
-          height={height}
-          data={data}
-          margin={{ top: 0, right: hasBorder ? 16 : 0, bottom: 0, left: 0 }}
-        >
+        <AreaChart data={data} margin={margin}>
           <CartesianGrid stroke={GRID_GRAY} vertical={false} />
           <XAxis
             axisLine={{ stroke: GRID_GRAY }}
