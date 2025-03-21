@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { createColumnHelper } from '@tanstack/react-table'
+import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import type { LoaderFunctionArgs } from 'react-router'
 
 import { Affinity24Icon } from '@oxide/design-system/icons/react'
@@ -26,11 +26,13 @@ import {
 } from '~/hooks/use-params'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { Columns } from '~/table/columns/common'
-import { useQueryTable } from '~/table/QueryTable'
+import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
 import { CardBlock } from '~/ui/lib/CardBlock'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { TableEmptyBox } from '~/ui/lib/Table'
+import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
@@ -48,7 +50,8 @@ const antiAffinityGroupView = ({ antiAffinityGroup, project }: PP.AntiAffinityGr
 const memberList = ({ antiAffinityGroup, project }: PP.AntiAffinityGroup) =>
   getListQFn('antiAffinityGroupMemberList', {
     path: { antiAffinityGroup },
-    query: { project },
+    // member limit in DB is currently 32, so pagination isn't needed
+    query: { project, limit: ALL_ISH },
   })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
@@ -60,14 +63,17 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-const AffinityGroupMemberEmptyState = () => (
-  <EmptyMessage
-    icon={<Affinity24Icon />}
-    title="No anti-affinity groups"
-    body="Add a new anti-affinity group member to see it here"
-    buttonText="Add anti-affinity group member"
-    buttonTo={pb.antiAffinityGroupNew(useProjectSelector())}
-  />
+const AntiAffinityGroupMemberEmptyState = () => (
+  <TableEmptyBox>
+    <EmptyMessage
+      icon={<Affinity24Icon />}
+      title="No anti-affinity groups"
+      body="Add a new anti-affinity group member to see it here"
+      buttonText="Add anti-affinity group member"
+      // TODO: this should open the AntiAffinityGroupd edit modal
+      buttonTo={pb.antiAffinityGroupNew(useProjectSelector())}
+    />
+  </TableEmptyBox>
 )
 
 export default function AntiAffinityPage() {
@@ -89,11 +95,10 @@ export default function AntiAffinityPage() {
     colHelper.accessor('value.runState', Columns.instanceState),
   ]
 
-  const { table } = useQueryTable({
-    query: memberList({ antiAffinityGroup, project }),
+  const table = useReactTable({
     columns: staticCols,
-    emptyState: <AffinityGroupMemberEmptyState />,
-    getId: (member) => member.value.id,
+    data: members?.items ?? [],
+    getCoreRowModel: getCoreRowModel(),
   })
 
   return (
@@ -116,7 +121,13 @@ export default function AntiAffinityPage() {
           title="Members"
           description="Instances in this anti-affinity group"
         />
-        <CardBlock.Body>{table}</CardBlock.Body>
+        <CardBlock.Body>
+          {membersCount === 0 ? (
+            <AntiAffinityGroupMemberEmptyState />
+          ) : (
+            <Table table={table} />
+          )}
+        </CardBlock.Body>
       </CardBlock>
     </>
   )

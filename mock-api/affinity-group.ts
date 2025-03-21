@@ -124,8 +124,4 @@ export const antiAffinityGroupMemberLists: DbAntiAffinityGroupMember[] = [
     anti_affinity_group_id: setOsiris.id,
     anti_affinity_group_member: { type: 'instance', id: startingInstance.id },
   },
-  {
-    anti_affinity_group_id: oilWater.id,
-    anti_affinity_group_member: { type: 'instance', id: instance.id },
-  },
 ]
