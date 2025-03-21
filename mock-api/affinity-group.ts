@@ -6,12 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import type {
-  AffinityGroup,
-  AffinityGroupMember,
-  AntiAffinityGroup,
-  AntiAffinityGroupMember,
-} from '@oxide/api'
+import type { AffinityGroup, AntiAffinityGroup, TypedUuidForInstanceKind } from '@oxide/api'
 
 import { instance, instanceDb2, startingInstance } from './instance'
 import type { Json } from './json-type'
@@ -54,49 +49,23 @@ export const affinityGroups: Json<AffinityGroup>[] = [
   },
 ]
 
-export const affinityGroupMemberInstance: Json<AffinityGroupMember> = {
-  type: 'instance',
-  value: { id: instance.id, name: instance.name, run_state: 'stopped' },
-}
-
-export const affinityGroupMemberStartingInstance: Json<AffinityGroupMember> = {
-  type: 'instance',
-  value: {
-    id: startingInstance.id,
-    name: startingInstance.name,
-    run_state: startingInstance.run_state,
-  },
-}
-
-export const nonMatchingAffinityGroupMemberInstance: Json<AffinityGroupMember> = {
-  type: 'instance',
-  value: {
-    id: '4f1f4dc9-da8a-48d6-ace2-c3f6330d4a5e',
-    name: 'a non-matching instance that shouldn’t be in the list',
-    run_state: 'stopped',
-  },
-}
-
 type DbAffinityGroupMember = {
   affinity_group_id: string
-  affinity_group_member: Json<AffinityGroupMember>
+  affinity_group_member: { type: 'instance'; id: TypedUuidForInstanceKind }
 }
 
-// Although these are properly constructed, the antiAffinityGroupMemberLists function in handlers.ts
-// will dynamically construct the affinity / anti-affinity group members based on the instances in
-// the instance list, using the ID of the affinity_group_member
 export const affinityGroupMemberLists: DbAffinityGroupMember[] = [
   {
     affinity_group_id: affinityGroup.id,
-    affinity_group_member: affinityGroupMemberInstance,
+    affinity_group_member: { type: 'instance', id: instance.id },
   },
   {
     affinity_group_id: affinityGroup.id,
-    affinity_group_member: affinityGroupMemberStartingInstance,
+    affinity_group_member: { type: 'instance', id: startingInstance.id },
   },
   {
     affinity_group_id: sandboxAffinityGroup.id,
-    affinity_group_member: affinityGroupMemberInstance,
+    affinity_group_member: { type: 'instance', id: instance.id },
   },
 ]
 
@@ -139,31 +108,24 @@ export const antiAffinityGroups = [romulusRemus, setOsiris, oilWater]
 
 type DbAntiAffinityGroupMember = {
   anti_affinity_group_id: string
-  anti_affinity_group_member: Json<AntiAffinityGroupMember>
+  anti_affinity_group_member: { type: 'instance'; id: TypedUuidForInstanceKind }
 }
 
 export const antiAffinityGroupMemberLists: DbAntiAffinityGroupMember[] = [
   {
     anti_affinity_group_id: romulusRemus.id,
-    anti_affinity_group_member: affinityGroupMemberInstance,
+    anti_affinity_group_member: { type: 'instance', id: instance.id },
   },
   {
     anti_affinity_group_id: romulusRemus.id,
-    anti_affinity_group_member: {
-      type: 'instance',
-      value: {
-        id: instanceDb2.id,
-        name: instanceDb2.name,
-        run_state: instanceDb2.run_state,
-      },
-    },
+    anti_affinity_group_member: { type: 'instance', id: instanceDb2.id },
   },
   {
     anti_affinity_group_id: setOsiris.id,
-    anti_affinity_group_member: affinityGroupMemberStartingInstance,
+    anti_affinity_group_member: { type: 'instance', id: startingInstance.id },
   },
   {
     anti_affinity_group_id: oilWater.id,
-    anti_affinity_group_member: affinityGroupMemberInstance,
+    anti_affinity_group_member: { type: 'instance', id: instance.id },
   },
 ]

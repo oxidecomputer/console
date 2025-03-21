@@ -682,6 +682,13 @@ export const handlers = makeHandlers({
   instanceDelete({ path, query }) {
     const instance = lookup.instance({ ...path, ...query })
     db.instances = db.instances.filter((i) => i.id !== instance.id)
+    // delete instance from any affinity / anti-affinity groups with it as a member
+    db.affinityGroupMemberLists = db.affinityGroupMemberLists.filter(
+      (member) => member.affinity_group_member.id !== instance.id
+    )
+    db.antiAffinityGroupMemberLists = db.antiAffinityGroupMemberLists.filter(
+      (member) => member.anti_affinity_group_member.id !== instance.id
+    )
     return 204
   },
   instanceDiskList({ path, query }) {
@@ -1619,7 +1626,7 @@ export const handlers = makeHandlers({
       .filter((i) => i.affinity_group_id === affinityGroup.id)
       .map((i) => {
         const { id, name, run_state } = lookup.instance({
-          instance: i.affinity_group_member.value.id,
+          instance: i.affinity_group_member.id,
         })
         return { type: 'instance', value: { id, name, run_state } }
       })
@@ -1640,7 +1647,7 @@ export const handlers = makeHandlers({
       .filter((i) => i.anti_affinity_group_id === antiAffinityGroup.id)
       .map((i) => {
         const { id, name, run_state } = lookup.instance({
-          instance: i.anti_affinity_group_member.value.id,
+          instance: i.anti_affinity_group_member.id,
         })
         return { type: 'instance', value: { id, name, run_state } }
       })
@@ -1656,7 +1663,7 @@ export const handlers = makeHandlers({
     db.antiAffinityGroupMemberLists = db.antiAffinityGroupMemberLists.filter(
       (i) =>
         i.anti_affinity_group_id !== antiAffinityGroup.id ||
-        i.anti_affinity_group_member.value.name !== instance.name
+        i.anti_affinity_group_member.id !== instance.id
     )
     return 204
   },

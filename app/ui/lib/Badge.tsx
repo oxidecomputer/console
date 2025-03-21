@@ -62,13 +62,3 @@ export const Badge = ({
     </span>
   )
 }
-
-export const AffinityGroupPolicyBadge = (props: { policy: string; className?: string }) => (
-  <Badge
-    color="neutral"
-    variant={props.policy === 'allow' ? 'default' : 'solid'}
-    className={props.className}
-  >
-    {props.policy}
-  </Badge>
-)

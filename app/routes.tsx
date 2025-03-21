@@ -485,11 +485,11 @@ export const routes = createRoutesFromElements(
             path="access"
             lazy={() => import('./pages/project/access/ProjectAccessPage').then(convert)}
           />
-          <Route
-            path="affinity"
-            lazy={() => import('./pages/project/affinity/AffinityPage.tsx').then(convert)}
-          />
           <Route path="affinity" handle={{ crumb: 'Affinity' }}>
+            <Route
+              index
+              lazy={() => import('./pages/project/affinity/AffinityPage.tsx').then(convert)}
+            />
             <Route
               path=":antiAffinityGroup"
               lazy={() =>

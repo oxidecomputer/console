@@ -14,6 +14,7 @@ import {
   getListQFn,
   queryClient,
   useApiQuery,
+  type AffinityPolicy,
   type AntiAffinityGroup,
 } from '@oxide/api'
 import { Affinity24Icon } from '@oxide/design-system/icons/react'
@@ -23,15 +24,13 @@ import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
-import { AffinityGroupPolicyBadge, Badge } from '~/ui/lib/Badge'
+import { Badge } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { Slash } from '~/ui/lib/Slash'
 import { intersperse } from '~/util/array'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
-
-export const handle = { crumb: 'Affinity' }
 
 const antiAffinityGroupList = (query: PP.Project) =>
   getListQFn('antiAffinityGroupList', { query })
@@ -64,6 +63,17 @@ export const AffinityPageHeader = ({ name = 'Affinity' }: { name?: string }) => 
     <PageTitle icon={<Affinity24Icon />}>{name}</PageTitle>
     {/* TODO: Add a DocsPopover with docLinks.affinity once the doc page exists */}
   </PageHeader>
+)
+
+type AffinityGroupPolicyBadgeProps = { policy: AffinityPolicy; className?: string }
+const AffinityGroupPolicyBadge = ({ policy, className }: AffinityGroupPolicyBadgeProps) => (
+  <Badge
+    color="neutral"
+    variant={{ allow: 'default' as const, fail: 'solid' as const }[policy]}
+    className={className}
+  >
+    {policy}
+  </Badge>
 )
 
 export default function AffinityPage() {
