@@ -1635,11 +1635,7 @@ export const handlers = makeHandlers({
   antiAffinityGroupView: ({ path, query }) =>
     lookup.antiAffinityGroup({ ...path, ...query }),
   antiAffinityGroupMemberList: ({ path, query }) => {
-    const project = lookup.project({ ...query })
-    const antiAffinityGroup = lookup.antiAffinityGroup({
-      project: project.id,
-      antiAffinityGroup: path.antiAffinityGroup,
-    })
+    const antiAffinityGroup = lookup.antiAffinityGroup({ ...path, ...query })
     const members: Json<AntiAffinityGroupMember>[] = db.antiAffinityGroupMemberLists
       .filter((i) => i.anti_affinity_group_id === antiAffinityGroup.id)
       .map((i) => {
