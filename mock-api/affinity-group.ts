@@ -108,7 +108,7 @@ export const antiAffinityGroups = [romulusRemus, setOsiris, oilWater]
 
 type DbAntiAffinityGroupMember = {
   anti_affinity_group_id: string
-  anti_affinity_group_member: { type: 'instance'; id: TypedUuidForInstanceKind }
+  anti_affinity_group_member: { type: 'instance'; id: string }
 }
 
 export const antiAffinityGroupMemberLists: DbAntiAffinityGroupMember[] = [
