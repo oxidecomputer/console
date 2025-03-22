@@ -42,8 +42,6 @@ export async function clientLoader() {
     .then(() => true)
     .catch(() => false)
 
-  // TODO: make sure 404 is the desired behavior. This situation should be
-  // pretty unlikely.
   if (!isFleetViewer) throw trigger404
 
   return null
