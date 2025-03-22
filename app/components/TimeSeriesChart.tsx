@@ -7,7 +7,7 @@
  */
 import cn from 'classnames'
 import { format } from 'date-fns'
-import React, { useMemo, type ReactNode } from 'react'
+import { useMemo, type ReactNode } from 'react'
 import {
   Area,
   AreaChart,
@@ -316,7 +316,7 @@ type ChartHeaderProps = {
   title: string
   label: string
   description?: string
-  children?: React.ReactNode
+  children?: ReactNode
 }
 
 export function ChartHeader({ title, label, description, children }: ChartHeaderProps) {
