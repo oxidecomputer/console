@@ -25,7 +25,7 @@ import * as Dropdown from '~/ui/lib/DropdownMenu'
 import { classed } from '~/util/classed'
 import { links } from '~/util/links'
 
-import { TimeSeriesChart } from '../TimeSeriesChart'
+import { ChartContainer, ChartHeader, TimeSeriesChart } from '../TimeSeriesChart'
 import { HighlightedOxqlQuery, toOxqlStr } from './HighlightedOxqlQuery'
 import {
   composeOxqlData,
@@ -77,15 +77,8 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
   const [modalOpen, setModalOpen] = useState(false)
 
   return (
-    <div className="flex w-full grow flex-col rounded-lg border border-default">
-      <div className="flex items-center justify-between border-b px-5 pb-4 pt-5 border-secondary">
-        <div>
-          <h2 className="flex items-baseline gap-1.5">
-            <div className="text-sans-semi-lg">{title}</div>
-            <div className="text-sans-md text-secondary">{label}</div>
-          </h2>
-          <div className="mt-0.5 text-sans-md text-secondary">{description}</div>
-        </div>
+    <ChartContainer>
+      <ChartHeader title={title} label={label} description={description}>
         <MoreActionsMenu label="Instance actions" isSmall>
           <Dropdown.LinkItem to={links.oxqlSchemaDocs(queryObj.metricName)}>
             About this metric
@@ -102,20 +95,17 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
         >
           <HighlightedOxqlQuery {...queryObj} />
         </CopyCodeModal>
-      </div>
-      <div className="px-5 pb-5 pt-8">
-        <TimeSeriesChart
-          title={title}
-          startTime={startTime}
-          endTime={endTime}
-          unit={unitForSet}
-          data={data}
-          yAxisTickFormatter={yAxisTickFormatter}
-          hasBorder={false}
-          hasError={!!error}
-        />
-      </div>
-    </div>
+      </ChartHeader>
+      <TimeSeriesChart
+        title={title}
+        startTime={startTime}
+        endTime={endTime}
+        unit={unitForSet}
+        data={data}
+        yAxisTickFormatter={yAxisTickFormatter}
+        hasError={!!error}
+      />
+    </ChartContainer>
   )
 }
 

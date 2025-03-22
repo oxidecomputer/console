@@ -114,7 +114,7 @@ export default function SiloUtilizationPage() {
           {...commonProps}
           metricName="cpus_provisioned"
           title="CPU"
-          unit="count"
+          unit="Count"
         />
         <SiloMetric
           {...commonProps}

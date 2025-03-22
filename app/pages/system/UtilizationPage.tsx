@@ -147,7 +147,7 @@ const MetricsTab = () => {
           {...commonProps}
           metricName="cpus_provisioned"
           title="CPU"
-          unit="count"
+          unit="Count"
         />
         <SystemMetric
           {...commonProps}
