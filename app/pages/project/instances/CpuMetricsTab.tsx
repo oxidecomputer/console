@@ -26,7 +26,7 @@ type CpuChartType = OxqlVcpuState | 'all'
 
 const descriptions: Record<OxqlVcpuState, string | undefined> = {
   run: 'Executing guest instructions',
-  idle: 'CPU has no work to do',
+  idle: 'Not executing instructions',
   emulation: 'Handling guest operations in the host (like I/O)',
   waiting: 'Ready but waiting, usually due to contention',
 }
