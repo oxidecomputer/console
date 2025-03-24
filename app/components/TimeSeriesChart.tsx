@@ -266,7 +266,7 @@ export function TimeSeriesChart({
           />
           <Area
             dataKey="value"
-            name={title}
+            name={title} // Provides name for value in hover tooltip
             type={interpolation}
             stroke={GREEN_600}
             fill={GREEN_400}
