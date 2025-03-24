@@ -128,7 +128,7 @@ export const AntiAffinityGroupEmptyState = () => (
     <EmptyMessage
       icon={<Affinity24Icon />}
       title="No anti-affinity groups"
-      body="Create a new anti-affinity group to see it here"
+      body="Create an anti-affinity group to see it here"
       buttonText="New anti-affinity group"
       buttonTo={pb.antiAffinityGroupNew(useProjectSelector())}
     />
