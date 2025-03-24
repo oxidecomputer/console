@@ -68,9 +68,9 @@ const AntiAffinityGroupMemberEmptyState = () => (
     <EmptyMessage
       icon={<Affinity24Icon />}
       title="No anti-affinity group members"
-      body="Add a new anti-affinity group member to see it here"
+      body="Add an instance to the group to see it here"
       buttonText="Add anti-affinity group member"
-      // TODO: this should open the AntiAffinityGroupd edit modal
+      // TODO: this should open the AntiAffinityGroup edit modal
       buttonTo={pb.antiAffinityGroupNew(useProjectSelector())}
     />
   </TableEmptyBox>
@@ -85,8 +85,7 @@ export default function AntiAffinityPage() {
   const { data: members } = usePrefetchedQuery(
     memberList({ antiAffinityGroup, project }).optionsFn()
   )
-  // TODO: Run an ALL_ISH query to get total number of members
-  const membersCount = members?.items.length ?? 0
+  const membersCount = members.items.length ?? 0
   const staticCols = [
     colHelper.accessor('value.name', {
       header: 'Name',
@@ -97,7 +96,7 @@ export default function AntiAffinityPage() {
 
   const table = useReactTable({
     columns: staticCols,
-    data: members?.items ?? [],
+    data: members.items ?? [],
     getCoreRowModel: getCoreRowModel(),
   })
 
