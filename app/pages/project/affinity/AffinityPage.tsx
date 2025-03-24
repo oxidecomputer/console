@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { createColumnHelper } from '@tanstack/react-table'
+import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { Link, type LoaderFunctionArgs } from 'react-router'
 
 import {
@@ -14,6 +14,7 @@ import {
   getListQFn,
   queryClient,
   useApiQuery,
+  usePrefetchedQuery,
   type AffinityPolicy,
   type AntiAffinityGroup,
 } from '@oxide/api'
@@ -23,17 +24,19 @@ import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { Columns } from '~/table/columns/common'
-import { useQueryTable } from '~/table/QueryTable'
+import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { Slash } from '~/ui/lib/Slash'
+import { TableEmptyBox } from '~/ui/lib/Table'
 import { intersperse } from '~/util/array'
+import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
-const antiAffinityGroupList = (query: PP.Project) =>
-  getListQFn('antiAffinityGroupList', { query })
+const antiAffinityGroupList = ({ project }: PP.Project) =>
+  getListQFn('antiAffinityGroupList', { query: { project, limit: ALL_ISH } })
 const memberList = ({ antiAffinityGroup, project }: PP.AntiAffinityGroup) =>
   apiq('antiAffinityGroupMemberList', {
     path: { antiAffinityGroup },
@@ -98,28 +101,38 @@ export default function AffinityPage() {
     }),
     colHelper.accessor('timeCreated', Columns.timeCreated),
   ]
+  const {
+    data: { items: antiAffinityGroups },
+  } = usePrefetchedQuery(antiAffinityGroupList({ project }).optionsFn())
 
-  const { table } = useQueryTable({
-    query: antiAffinityGroupList({ project }),
+  const table = useReactTable({
     columns: staticCols,
-    emptyState: <AffinityGroupEmptyState />,
+    data: antiAffinityGroups || [],
+    getCoreRowModel: getCoreRowModel(),
   })
+
   return (
     <>
       <AffinityPageHeader />
-      {table}
+      {antiAffinityGroups.length === 0 ? (
+        <AntiAffinityGroupEmptyState />
+      ) : (
+        <Table table={table} />
+      )}
     </>
   )
 }
 
-export const AffinityGroupEmptyState = () => (
-  <EmptyMessage
-    icon={<Affinity24Icon />}
-    title="No anti-affinity groups"
-    body="Create a new anti-affinity group to see it here"
-    buttonText="New anti-affinity group"
-    buttonTo={pb.antiAffinityGroupNew(useProjectSelector())}
-  />
+export const AntiAffinityGroupEmptyState = () => (
+  <TableEmptyBox>
+    <EmptyMessage
+      icon={<Affinity24Icon />}
+      title="No anti-affinity groups"
+      body="Create a new anti-affinity group to see it here"
+      buttonText="New anti-affinity group"
+      buttonTo={pb.antiAffinityGroupNew(useProjectSelector())}
+    />
+  </TableEmptyBox>
 )
 
 // TODO: Use the prefetched query
