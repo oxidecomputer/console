@@ -41,7 +41,6 @@ export default function MetricsTab() {
     isLoading: useIsFetching({ queryKey: ['systemTimeseriesQuery'] }) > 0,
     // sliding the range forward is sufficient to trigger a refetch
     fn: () => onRangeChange(preset),
-    isSlim: true,
   })
 
   // memoizing here would be redundant because the only things that cause a
