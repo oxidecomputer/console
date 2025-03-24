@@ -63,8 +63,6 @@ export default function SiloUtilizationPage() {
     isLoading: useIsFetching({ queryKey: ['siloMetric'] }) > 0,
     // sliding the range forward is sufficient to trigger a refetch
     fn: () => onRangeChange(preset),
-    showLastFetched: true,
-    className: 'mb-12',
   })
 
   const commonProps = {
@@ -94,20 +92,21 @@ export default function SiloUtilizationPage() {
 
       <Divider className="my-6" />
 
-      <div className="mb-3 mt-8 flex justify-between gap-3">
-        <Listbox
-          selected={filterId}
-          className="w-64"
-          aria-labelledby="filter-id-label"
-          name="filter-id"
-          items={projectItems}
-          onChange={setFilterId}
-        />
+      <div className="mb-3 mt-8 flex flex-wrap justify-between gap-3">
+        <div className="flex gap-2">
+          {intervalPicker}
 
+          <Listbox
+            selected={filterId}
+            className="w-52"
+            aria-labelledby="filter-id-label"
+            name="filter-id"
+            items={projectItems}
+            onChange={setFilterId}
+          />
+        </div>
         <div className="flex items-center gap-2">{dateTimeRangePicker}</div>
       </div>
-
-      {intervalPicker}
 
       <div className="mb-12 space-y-12">
         <SiloMetric
