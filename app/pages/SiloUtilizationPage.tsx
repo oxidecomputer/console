@@ -108,7 +108,7 @@ export default function SiloUtilizationPage() {
         <div className="flex items-center gap-2">{dateTimeRangePicker}</div>
       </div>
 
-      <div className="mb-12 space-y-12">
+      <div className="mb-3 space-y-4">
         <SiloMetric
           {...commonProps}
           metricName="cpus_provisioned"
