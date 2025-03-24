@@ -101,24 +101,18 @@ export default function AffinityPage() {
     }),
     colHelper.accessor('timeCreated', Columns.timeCreated),
   ]
-  const {
-    data: { items: antiAffinityGroups },
-  } = usePrefetchedQuery(antiAffinityGroupList({ project }).optionsFn())
+  const { data } = usePrefetchedQuery(antiAffinityGroupList({ project }).optionsFn())
 
   const table = useReactTable({
     columns: staticCols,
-    data: antiAffinityGroups || [],
+    data: data.items,
     getCoreRowModel: getCoreRowModel(),
   })
 
   return (
     <>
       <AffinityPageHeader />
-      {antiAffinityGroups.length === 0 ? (
-        <AntiAffinityGroupEmptyState />
-      ) : (
-        <Table table={table} />
-      )}
+      {data.items.length ? <Table table={table} /> : <AntiAffinityGroupEmptyState />}
     </>
   )
 }

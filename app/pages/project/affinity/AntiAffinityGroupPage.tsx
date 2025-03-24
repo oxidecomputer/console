@@ -85,7 +85,7 @@ export default function AntiAffinityPage() {
   const { data: members } = usePrefetchedQuery(
     memberList({ antiAffinityGroup, project }).optionsFn()
   )
-  const membersCount = members.items.length ?? 0
+  const membersCount = members.items.length
   const staticCols = [
     colHelper.accessor('value.name', {
       header: 'Name',
@@ -96,7 +96,7 @@ export default function AntiAffinityPage() {
 
   const table = useReactTable({
     columns: staticCols,
-    data: members.items ?? [],
+    data: members.items,
     getCoreRowModel: getCoreRowModel(),
   })
 
@@ -121,11 +121,7 @@ export default function AntiAffinityPage() {
           description="Instances in this anti-affinity group"
         />
         <CardBlock.Body>
-          {membersCount === 0 ? (
-            <AntiAffinityGroupMemberEmptyState />
-          ) : (
-            <Table table={table} />
-          )}
+          {membersCount ? <Table table={table} /> : <AntiAffinityGroupMemberEmptyState />}
         </CardBlock.Body>
       </CardBlock>
     </>
