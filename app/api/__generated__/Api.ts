@@ -200,11 +200,50 @@ export type AffinityGroupCreate = {
 export type TypedUuidForInstanceKind = string
 
 /**
+ * Running state of an Instance (primarily: booted or stopped)
+ *
+ * This typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle
+ */
+export type InstanceState =
+  /** The instance is being created. */
+  | 'creating'
+
+  /** The instance is currently starting up. */
+  | 'starting'
+
+  /** The instance is currently running. */
+  | 'running'
+
+  /** The instance has been requested to stop and a transition to "Stopped" is imminent. */
+  | 'stopping'
+
+  /** The instance is currently stopped. */
+  | 'stopped'
+
+  /** The instance is in the process of rebooting - it will remain in the "rebooting" state until the VM is starting once more. */
+  | 'rebooting'
+
+  /** The instance is in the process of migrating - it will remain in the "migrating" state until the migration process is complete and the destination propolis is ready to continue execution. */
+  | 'migrating'
+
+  /** The instance is attempting to recover from a failure. */
+  | 'repairing'
+
+  /** The instance has encountered a failure. */
+  | 'failed'
+
+  /** The instance has been deleted. */
+  | 'destroyed'
+
+/**
  * A member of an Affinity Group
  *
  * Membership in a group is not exclusive - members may belong to multiple affinity / anti-affinity groups.
  */
-export type AffinityGroupMember = { type: 'instance'; value: TypedUuidForInstanceKind }
+export type AffinityGroupMember = {
+  type: 'instance'
+  value: { id: TypedUuidForInstanceKind; name: Name; runState: InstanceState }
+}
 
 /**
  * A single page of results
@@ -326,7 +365,10 @@ export type AntiAffinityGroupCreate = {
  *
  * Membership in a group is not exclusive - members may belong to multiple affinity / anti-affinity groups.
  */
-export type AntiAffinityGroupMember = { type: 'instance'; value: TypedUuidForInstanceKind }
+export type AntiAffinityGroupMember = {
+  type: 'instance'
+  value: { id: TypedUuidForInstanceKind; name: Name; runState: InstanceState }
+}
 
 /**
  * A single page of results
@@ -1819,10 +1861,7 @@ export type Image = {
 /**
  * The source of the underlying image.
  */
-export type ImageSource =
-  | { id: string; type: 'snapshot' }
-  /** Boot the Alpine ISO that ships with the Propolis zone. Intended for development purposes only. */
-  | { type: 'you_can_boot_anything_as_long_as_its_alpine' }
+export type ImageSource = { id: string; type: 'snapshot' }
 
 /**
  * Create-time parameters for an `Image`
@@ -1867,42 +1906,6 @@ export type InstanceAutoRestartPolicy =
  * The number of CPUs in an Instance
  */
 export type InstanceCpuCount = number
-
-/**
- * Running state of an Instance (primarily: booted or stopped)
- *
- * This typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle
- */
-export type InstanceState =
-  /** The instance is being created. */
-  | 'creating'
-
-  /** The instance is currently starting up. */
-  | 'starting'
-
-  /** The instance is currently running. */
-  | 'running'
-
-  /** The instance has been requested to stop and a transition to "Stopped" is imminent. */
-  | 'stopping'
-
-  /** The instance is currently stopped. */
-  | 'stopped'
-
-  /** The instance is in the process of rebooting - it will remain in the "rebooting" state until the VM is starting once more. */
-  | 'rebooting'
-
-  /** The instance is in the process of migrating - it will remain in the "migrating" state until the migration process is complete and the destination propolis is ready to continue execution. */
-  | 'migrating'
-
-  /** The instance is attempting to recover from a failure. */
-  | 'repairing'
-
-  /** The instance has encountered a failure. */
-  | 'failed'
-
-  /** The instance has been deleted. */
-  | 'destroyed'
 
 /**
  * View of an Instance
@@ -4506,7 +4509,7 @@ export interface AffinityGroupMemberListQueryParams {
   limit?: number
   pageToken?: string
   project?: NameOrId
-  sortBy?: IdSortMode
+  sortBy?: NameOrIdSortMode
 }
 
 export interface AffinityGroupMemberInstanceViewPathParams {
@@ -4579,7 +4582,7 @@ export interface AntiAffinityGroupMemberListQueryParams {
   limit?: number
   pageToken?: string
   project?: NameOrId
-  sortBy?: IdSortMode
+  sortBy?: NameOrIdSortMode
 }
 
 export interface AntiAffinityGroupMemberInstanceViewPathParams {
