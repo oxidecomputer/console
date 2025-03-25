@@ -218,13 +218,37 @@ export const AffinityGroupCreate = z.preprocess(
 export const TypedUuidForInstanceKind = z.preprocess(processResponseBody, z.string().uuid())
 
 /**
+ * Running state of an Instance (primarily: booted or stopped)
+ *
+ * This typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle
+ */
+export const InstanceState = z.preprocess(
+  processResponseBody,
+  z.enum([
+    'creating',
+    'starting',
+    'running',
+    'stopping',
+    'stopped',
+    'rebooting',
+    'migrating',
+    'repairing',
+    'failed',
+    'destroyed',
+  ])
+)
+
+/**
  * A member of an Affinity Group
  *
  * Membership in a group is not exclusive - members may belong to multiple affinity / anti-affinity groups.
  */
 export const AffinityGroupMember = z.preprocess(
   processResponseBody,
-  z.object({ type: z.enum(['instance']), value: TypedUuidForInstanceKind })
+  z.object({
+    type: z.enum(['instance']),
+    value: z.object({ id: TypedUuidForInstanceKind, name: Name, runState: InstanceState }),
+  })
 )
 
 /**
@@ -348,7 +372,10 @@ export const AntiAffinityGroupCreate = z.preprocess(
  */
 export const AntiAffinityGroupMember = z.preprocess(
   processResponseBody,
-  z.object({ type: z.enum(['instance']), value: TypedUuidForInstanceKind })
+  z.object({
+    type: z.enum(['instance']),
+    value: z.object({ id: TypedUuidForInstanceKind, name: Name, runState: InstanceState }),
+  })
 )
 
 /**
@@ -1751,10 +1778,7 @@ export const Image = z.preprocess(
  */
 export const ImageSource = z.preprocess(
   processResponseBody,
-  z.union([
-    z.object({ id: z.string().uuid(), type: z.enum(['snapshot']) }),
-    z.object({ type: z.enum(['you_can_boot_anything_as_long_as_its_alpine']) }),
-  ])
+  z.object({ id: z.string().uuid(), type: z.enum(['snapshot']) })
 )
 
 /**
@@ -1801,27 +1825,6 @@ export const InstanceAutoRestartPolicy = z.preprocess(
 export const InstanceCpuCount = z.preprocess(
   processResponseBody,
   z.number().min(0).max(65535)
-)
-
-/**
- * Running state of an Instance (primarily: booted or stopped)
- *
- * This typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle
- */
-export const InstanceState = z.preprocess(
-  processResponseBody,
-  z.enum([
-    'creating',
-    'starting',
-    'running',
-    'stopping',
-    'stopped',
-    'rebooting',
-    'migrating',
-    'repairing',
-    'failed',
-    'destroyed',
-  ])
 )
 
 /**
@@ -4326,7 +4329,7 @@ export const AffinityGroupMemberListParams = z.preprocess(
       limit: z.number().min(1).max(4294967295).optional(),
       pageToken: z.string().optional(),
       project: NameOrId.optional(),
-      sortBy: IdSortMode.optional(),
+      sortBy: NameOrIdSortMode.optional(),
     }),
   })
 )
@@ -4439,7 +4442,7 @@ export const AntiAffinityGroupMemberListParams = z.preprocess(
       limit: z.number().min(1).max(4294967295).optional(),
       pageToken: z.string().optional(),
       project: NameOrId.optional(),
-      sortBy: IdSortMode.optional(),
+      sortBy: NameOrIdSortMode.optional(),
     }),
   })
 )
