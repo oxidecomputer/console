@@ -26,7 +26,24 @@ function ExternalLink({ href, children }: { href: string; children: ReactNode })
   )
 }
 
-export function MswBanner() {
+type Props = {
+  /**
+   * HACK to avoid the user opening the modal while on the loading skeleton
+   * -- it immediately closes when the page finishes loading because the
+   * banner is dropped when the HydrateFallback unmounts and re-rendered in
+   * RootLayout. A more ideal solution would be to render the banner outside
+   * the RouterProvider and therefore have it be the same banner in both the
+   * HydrateFallback and normal page situations, but it's a lot more work to
+   * get the layout right in that case with respect to things like the loading
+   * bar. When we switch to framework mode, we can manage all this in the root
+   * route using the Layout export. In the meantime, this is tolerable and only
+   * applies to the preview deploys, and only burdens someone who manages to
+   * click the Learn More button in the half second before the content loads.
+   */
+  disableButton?: boolean
+}
+
+export function MswBanner({ disableButton }: Props) {
   const [isOpen, setIsOpen] = useState(false)
   const closeModal = () => setIsOpen(false)
   return (
@@ -38,6 +55,7 @@ export function MswBanner() {
           type="button"
           className="ml-2 flex items-center gap-0.5 text-sans-md hover:text-info"
           onClick={() => setIsOpen(true)}
+          disabled={disableButton}
         >
           Learn more <NextArrow12Icon />
         </button>

@@ -12,6 +12,7 @@
     "moduleResolution": "bundler",
     "noEmit": true,
     "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "outDir": "dist",
     "paths": {
       "~/*": ["app/*"],

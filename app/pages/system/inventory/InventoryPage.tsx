@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-import { getListQFn, queryClient, usePrefetchedQuery } from '@oxide/api'
 import { Servers16Icon, Servers24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -16,21 +15,9 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-const rackList = getListQFn('rackList', {})
-
-export async function clientLoader() {
-  await queryClient.prefetchQuery(rackList.optionsFn())
-  return null
-}
-
 export const handle = makeCrumb('Inventory', pb.sledInventory())
 
 export default function InventoryPage() {
-  const { data: racks } = usePrefetchedQuery(rackList.optionsFn())
-  const rack = racks?.items[0]
-
-  if (!rack) return null
-
   return (
     <>
       <PageHeader>

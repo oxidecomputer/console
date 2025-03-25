@@ -202,6 +202,11 @@ test('firewall rule form targets table', async ({ page }) => {
   await subnetNameField.fill('abc-123')
   // hit enter to submit the subform
   await subnetNameField.press('Enter')
+
+  // pressing enter twice here in quick succession causes test flake in firefox
+  // specifically and this fixes it
+  await sleep(300)
+
   await subnetNameField.press('Enter')
   await expectRowVisible(targets, { Type: 'subnet', Value: 'abc-123' })
 
