@@ -1778,10 +1778,7 @@ export const Image = z.preprocess(
  */
 export const ImageSource = z.preprocess(
   processResponseBody,
-  z.union([
-    z.object({ id: z.string().uuid(), type: z.enum(['snapshot']) }),
-    z.object({ type: z.enum(['you_can_boot_anything_as_long_as_its_alpine']) }),
-  ])
+  z.object({ id: z.string().uuid(), type: z.enum(['snapshot']) })
 )
 
 /**

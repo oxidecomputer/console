@@ -1861,10 +1861,7 @@ export type Image = {
 /**
  * The source of the underlying image.
  */
-export type ImageSource =
-  | { id: string; type: 'snapshot' }
-  /** Boot the Alpine ISO that ships with the Propolis zone. Intended for development purposes only. */
-  | { type: 'you_can_boot_anything_as_long_as_its_alpine' }
+export type ImageSource = { id: string; type: 'snapshot' }
 
 /**
  * Create-time parameters for an `Image`
