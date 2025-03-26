@@ -30,7 +30,7 @@ import {
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
-import { useColsWithActions } from '~/table/columns/action-col'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
@@ -113,9 +113,16 @@ export default function AntiAffinityPage() {
   ]
 
   const makeActions = useCallback(
-    (antiAffinityGroupMember: AntiAffinityGroupMember) => [
+    (antiAffinityGroupMember: AntiAffinityGroupMember): MenuAction[] => [
       {
-        label: 'Remove',
+        label: 'Copy ID',
+        onActivate() {
+          navigator.clipboard.writeText(antiAffinityGroupMember.value.id)
+          addToast('ID copied to clipboard')
+        },
+      },
+      {
+        label: 'Remove from group',
         onActivate() {
           confirmAction({
             actionType: 'danger',
