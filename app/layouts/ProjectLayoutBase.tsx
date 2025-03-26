@@ -26,7 +26,7 @@ import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
-import { affinityBase, pb } from '~/util/path-builder'
+import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
@@ -69,7 +69,7 @@ export function ProjectLayoutBase({ overrideContentPane }: ProjectLayoutProps) {
           { value: 'Images', path: pb.projectImages(projectSelector) },
           { value: 'VPCs', path: pb.vpcs(projectSelector) },
           { value: 'Floating IPs', path: pb.floatingIps(projectSelector) },
-          { value: 'Affinity', path: pb.antiAffinityGroups(projectSelector) },
+          { value: 'Affinity', path: pb.affinity(projectSelector) },
           { value: 'Access', path: pb.projectAccess(projectSelector) },
         ]
           // filter out the entry for the path we're currently on
@@ -114,7 +114,7 @@ export function ProjectLayoutBase({ overrideContentPane }: ProjectLayoutProps) {
           <NavLinkItem to={pb.floatingIps(projectSelector)}>
             <IpGlobal16Icon /> Floating IPs
           </NavLinkItem>
-          <NavLinkItem to={affinityBase(projectSelector)}>
+          <NavLinkItem to={pb.affinity(projectSelector)}>
             <Affinity16Icon title="Affinity" /> Affinity
           </NavLinkItem>
           <NavLinkItem to={pb.projectAccess(projectSelector)}>

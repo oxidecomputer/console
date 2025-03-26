@@ -7,6 +7,7 @@
  */
 
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { useMemo } from 'react'
 import { Link, type LoaderFunctionArgs } from 'react-router'
 
 import {
@@ -79,32 +80,40 @@ const AffinityGroupPolicyBadge = ({ policy, className }: AffinityGroupPolicyBadg
   </Badge>
 )
 
+const staticCols = [
+  colHelper.accessor('description', Columns.description),
+  colHelper.accessor(() => {}, {
+    header: 'type',
+    cell: () => <Badge>anti-affinity</Badge>,
+  }),
+  colHelper.accessor('policy', {
+    cell: (info) => <AffinityGroupPolicyBadge policy={info.getValue()} />,
+  }),
+  colHelper.accessor('name', {
+    header: 'members',
+    cell: (info) => <AffinityGroupMembersCell antiAffinityGroup={info.getValue()} />,
+  }),
+  colHelper.accessor('timeCreated', Columns.timeCreated),
+]
+
 export default function AffinityPage() {
   const { project } = useProjectSelector()
-  const staticCols = [
-    colHelper.accessor('name', {
-      cell: makeLinkCell((antiAffinityGroup) =>
-        pb.antiAffinityGroup({ project, antiAffinityGroup })
-      ),
-    }),
-    colHelper.accessor('description', Columns.description),
-    colHelper.accessor(() => {}, {
-      header: 'type',
-      cell: () => <Badge>anti-affinity</Badge>,
-    }),
-    colHelper.accessor('policy', {
-      cell: (info) => <AffinityGroupPolicyBadge policy={info.getValue()} />,
-    }),
-    colHelper.accessor('name', {
-      header: 'members',
-      cell: (info) => <AffinityGroupMembersCell antiAffinityGroup={info.getValue()} />,
-    }),
-    colHelper.accessor('timeCreated', Columns.timeCreated),
-  ]
+  const columns = useMemo(
+    () => [
+      colHelper.accessor('name', {
+        cell: makeLinkCell((antiAffinityGroup) =>
+          pb.antiAffinityGroup({ project, antiAffinityGroup })
+        ),
+        id: 'members',
+      }),
+      ...staticCols,
+    ],
+    [project]
+  )
   const { data } = usePrefetchedQuery(antiAffinityGroupList({ project }).optionsFn())
 
   const table = useReactTable({
-    columns: staticCols,
+    columns,
     data: data.items,
     getCoreRowModel: getCoreRowModel(),
   })
@@ -123,8 +132,6 @@ export const AntiAffinityGroupEmptyState = () => (
       icon={<Affinity24Icon />}
       title="No anti-affinity groups"
       body="Create an anti-affinity group to see it here"
-      buttonText="New anti-affinity group"
-      buttonTo={pb.antiAffinityGroupNew(useProjectSelector())}
     />
   </TableEmptyBox>
 )

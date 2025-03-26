@@ -15,8 +15,6 @@ const instanceBase = ({ project, instance }: PP.Instance) =>
   `${pb.instances({ project })}/${instance}`
 const vpcBase = ({ project, vpc }: PP.Vpc) => `${pb.vpcs({ project })}/${vpc}`
 
-/** Don't use these for links. only exported for use with activePrefix */
-export const affinityBase = (params: PP.Project) => `${projectBase(params)}/affinity`
 export const instanceMetricsBase = ({ project, instance }: PP.Instance) =>
   `${instanceBase({ project, instance })}/metrics`
 export const inventoryBase = () => '/system/inventory'
@@ -98,17 +96,9 @@ export const pb = {
   floatingIpEdit: (params: PP.FloatingIp) =>
     `${pb.floatingIps(params)}/${params.floatingIp}/edit`,
 
-  affinityGroups: (params: PP.Project) => affinityBase(params),
-  affinityGroup: (params: PP.AffinityGroup) =>
-    `${pb.affinityGroups(params)}/${params.affinityGroup}`,
-  affinityGroupNew: (params: PP.Project) =>
-    `${pb.affinityGroups(params)}/affinity-groups-new`,
-
-  antiAffinityGroups: (params: PP.Project) => affinityBase(params),
+  affinity: (params: PP.Project) => `${projectBase(params)}/affinity`,
   antiAffinityGroup: (params: PP.AntiAffinityGroup) =>
-    `${affinityBase(params)}/${params.antiAffinityGroup}`,
-  antiAffinityGroupNew: (params: PP.Project) =>
-    `${affinityBase(params)}/anti-affinity-groups-new`,
+    `${pb.affinity(params)}/${params.antiAffinityGroup}`,
 
   siloUtilization: () => '/utilization',
   siloAccess: () => '/access',
