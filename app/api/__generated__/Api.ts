@@ -239,6 +239,8 @@ export type InstanceState =
  * A member of an Affinity Group
  *
  * Membership in a group is not exclusive - members may belong to multiple affinity / anti-affinity groups.
+ *
+ * Affinity Groups can contain up to 32 members.
  */
 export type AffinityGroupMember = {
   type: 'instance'
@@ -364,6 +366,8 @@ export type AntiAffinityGroupCreate = {
  * A member of an Anti-Affinity Group
  *
  * Membership in a group is not exclusive - members may belong to multiple affinity / anti-affinity groups.
+ *
+ * Anti-Affinity Groups can contain up to 32 members.
  */
 export type AntiAffinityGroupMember = {
   type: 'instance'
@@ -2001,6 +2005,8 @@ If more than one interface is provided, then the first will be designated the pr
  * Create-time parameters for an `Instance`
  */
 export type InstanceCreate = {
+  /** Anti-Affinity groups which this instance should be added. */
+  antiAffinityGroups?: NameOrId[]
   /** The auto-restart policy for this instance.
 
 This policy determines whether the instance should be automatically restarted by the control plane on failure. If this is `null`, no auto-restart policy will be explicitly configured for this instance, and the control plane will select the default policy when determining whether the instance can be automatically restarted.
@@ -4838,6 +4844,28 @@ export interface InstanceDeleteQueryParams {
   project?: NameOrId
 }
 
+export interface InstanceAffinityGroupListPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceAffinityGroupListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface InstanceAntiAffinityGroupListPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceAntiAffinityGroupListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
 export interface InstanceDiskListPathParams {
   instance: NameOrId
 }
@@ -6880,6 +6908,46 @@ export class Api extends HttpClient {
       return this.request<void>({
         path: `/v1/instances/${path.instance}`,
         method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List affinity groups containing instance
+     */
+    instanceAffinityGroupList: (
+      {
+        path,
+        query = {},
+      }: {
+        path: InstanceAffinityGroupListPathParams
+        query?: InstanceAffinityGroupListQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AffinityGroupResultsPage>({
+        path: `/v1/instances/${path.instance}/affinity-groups`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List anti-affinity groups containing instance
+     */
+    instanceAntiAffinityGroupList: (
+      {
+        path,
+        query = {},
+      }: {
+        path: InstanceAntiAffinityGroupListPathParams
+        query?: InstanceAntiAffinityGroupListQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AntiAffinityGroupResultsPage>({
+        path: `/v1/instances/${path.instance}/anti-affinity-groups`,
+        method: 'GET',
         query,
         ...params,
       })

@@ -242,6 +242,8 @@ export const InstanceState = z.preprocess(
  * A member of an Affinity Group
  *
  * Membership in a group is not exclusive - members may belong to multiple affinity / anti-affinity groups.
+ *
+ * Affinity Groups can contain up to 32 members.
  */
 export const AffinityGroupMember = z.preprocess(
   processResponseBody,
@@ -369,6 +371,8 @@ export const AntiAffinityGroupCreate = z.preprocess(
  * A member of an Anti-Affinity Group
  *
  * Membership in a group is not exclusive - members may belong to multiple affinity / anti-affinity groups.
+ *
+ * Anti-Affinity Groups can contain up to 32 members.
  */
 export const AntiAffinityGroupMember = z.preprocess(
   processResponseBody,
@@ -1901,6 +1905,7 @@ export const InstanceNetworkInterfaceAttachment = z.preprocess(
 export const InstanceCreate = z.preprocess(
   processResponseBody,
   z.object({
+    antiAffinityGroups: NameOrId.array().default([]).optional(),
     autoRestartPolicy: InstanceAutoRestartPolicy.default(null).optional(),
     bootDisk: InstanceDiskAttachment.default(null).optional(),
     description: z.string(),
@@ -4870,6 +4875,36 @@ export const InstanceDeleteParams = z.preprocess(
     }),
     query: z.object({
       project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InstanceAffinityGroupListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      instance: NameOrId,
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const InstanceAntiAffinityGroupListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      instance: NameOrId,
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
     }),
   })
 )
