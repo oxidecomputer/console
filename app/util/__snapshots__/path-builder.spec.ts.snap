@@ -2,43 +2,7 @@
 
 exports[`breadcrumbs 2`] = `
 {
-  "affinityGroup (/projects/p/affinity/ag)": [
-    {
-      "label": "Projects",
-      "path": "/projects",
-    },
-    {
-      "label": "p",
-      "path": "/projects/p/instances",
-    },
-    {
-      "label": "Affinity",
-      "path": "/projects/p/affinity",
-    },
-    {
-      "label": "ag",
-      "path": "/projects/p/affinity/ag",
-    },
-  ],
-  "affinityGroupNew (/projects/p/affinity/affinity-groups-new)": [
-    {
-      "label": "Projects",
-      "path": "/projects",
-    },
-    {
-      "label": "p",
-      "path": "/projects/p/instances",
-    },
-    {
-      "label": "Affinity",
-      "path": "/projects/p/affinity",
-    },
-    {
-      "label": "affinity-groups-new",
-      "path": "/projects/p/affinity/affinity-groups-new",
-    },
-  ],
-  "affinityGroups (/projects/p/affinity)": [
+  "affinity (/projects/p/affinity)": [
     {
       "label": "Projects",
       "path": "/projects",
@@ -68,38 +32,6 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "aag",
       "path": "/projects/p/affinity/aag",
-    },
-  ],
-  "antiAffinityGroupNew (/projects/p/affinity/anti-affinity-groups-new)": [
-    {
-      "label": "Projects",
-      "path": "/projects",
-    },
-    {
-      "label": "p",
-      "path": "/projects/p/instances",
-    },
-    {
-      "label": "Affinity",
-      "path": "/projects/p/affinity",
-    },
-    {
-      "label": "anti-affinity-groups-new",
-      "path": "/projects/p/affinity/anti-affinity-groups-new",
-    },
-  ],
-  "antiAffinityGroups (/projects/p/affinity)": [
-    {
-      "label": "Projects",
-      "path": "/projects",
-    },
-    {
-      "label": "p",
-      "path": "/projects/p/instances",
-    },
-    {
-      "label": "Affinity",
-      "path": "/projects/p/affinity",
     },
   ],
   "deviceSuccess (/device/success)": [],

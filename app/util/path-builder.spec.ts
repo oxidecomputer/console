@@ -41,12 +41,8 @@ test('path builder', () => {
   expect(Object.fromEntries(Object.entries(pb).map(([key, fn]) => [key, fn(params)])))
     .toMatchInlineSnapshot(`
       {
-        "affinityGroup": "/projects/p/affinity/ag",
-        "affinityGroupNew": "/projects/p/affinity/affinity-groups-new",
-        "affinityGroups": "/projects/p/affinity",
+        "affinity": "/projects/p/affinity",
         "antiAffinityGroup": "/projects/p/affinity/aag",
-        "antiAffinityGroupNew": "/projects/p/affinity/anti-affinity-groups-new",
-        "antiAffinityGroups": "/projects/p/affinity",
         "deviceSuccess": "/device/success",
         "diskInventory": "/system/inventory/disks",
         "disks": "/projects/p/disks",
