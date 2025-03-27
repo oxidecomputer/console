@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo } from 'react'
 import { Link, type LoaderFunctionArgs } from 'react-router'
@@ -14,7 +15,6 @@ import {
   apiq,
   getListQFn,
   queryClient,
-  useApiQuery,
   usePrefetchedQuery,
   type AffinityPolicy,
   type AntiAffinityGroup,
@@ -47,16 +47,16 @@ const memberList = ({ antiAffinityGroup, project }: PP.AntiAffinityGroup) =>
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
-  await queryClient
-    .fetchQuery(antiAffinityGroupList({ project }).optionsFn())
-    .then((data) => {
-      // Preload the anti-affinity group details
-      data.items.forEach((antiAffinityGroup) => {
-        queryClient.fetchQuery(
-          memberList({ antiAffinityGroup: antiAffinityGroup.name, project })
-        )
-      })
-    })
+  const groups = await queryClient.fetchQuery(
+    antiAffinityGroupList({ project }).optionsFn()
+  )
+  const memberFetches = groups.items.map(({ name }) =>
+    queryClient.prefetchQuery(memberList({ antiAffinityGroup: name, project }))
+  )
+  // The browser will fetch up to 6 anti-affinity group member lists without queuing,
+  // so we can prefetch them without slowing down the page. If there are more than 6 groups,
+  // we won't bother to wait for the promises to fulfill, and will just load the actual page content.
+  if (groups.items.length < 6) await Promise.all(memberFetches)
   return null
 }
 
@@ -143,10 +143,7 @@ export const AffinityGroupMembersCell = ({
   antiAffinityGroup: string
 }) => {
   const { project } = useProjectSelector()
-  const { data: members } = useApiQuery('antiAffinityGroupMemberList', {
-    path: { antiAffinityGroup },
-    query: { project, limit: 2 },
-  })
+  const { data: members } = useQuery(memberList({ antiAffinityGroup, project }))
 
   if (!members) return <SkeletonCell />
   if (!members.items.length) return <EmptyCell />
