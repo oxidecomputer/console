@@ -335,6 +335,10 @@ export const routes = createRoutesFromElements(
                   path="settings"
                   lazy={() => import('./pages/project/instances/SettingsTab').then(convert)}
                 />
+                <Route
+                  path="affinity"
+                  lazy={() => import('./pages/project/instances/AffinityTab').then(convert)}
+                />
               </Route>
             </Route>
           </Route>

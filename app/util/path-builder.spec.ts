@@ -51,6 +51,7 @@ test('path builder', () => {
         "floatingIps": "/projects/p/floating-ips",
         "floatingIpsNew": "/projects/p/floating-ips-new",
         "instance": "/projects/p/instances/i/storage",
+        "instanceAffinity": "/projects/p/instances/i/affinity",
         "instanceConnect": "/projects/p/instances/i/connect",
         "instanceCpuMetrics": "/projects/p/instances/i/metrics/cpu",
         "instanceDiskMetrics": "/projects/p/instances/i/metrics/disk",
