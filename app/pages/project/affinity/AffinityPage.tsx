@@ -8,22 +8,27 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Link, type LoaderFunctionArgs } from 'react-router'
 
 import {
   apiq,
   getListQFn,
   queryClient,
+  useApiMutation,
   usePrefetchedQuery,
   type AffinityPolicy,
   type AntiAffinityGroup,
 } from '@oxide/api'
 import { Affinity24Icon } from '@oxide/design-system/icons/react'
 
+import { HL } from '~/components/HL'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
@@ -98,7 +103,7 @@ const staticCols = [
 
 export default function AffinityPage() {
   const { project } = useProjectSelector()
-  const columns = useMemo(
+  const cols = useMemo(
     () => [
       colHelper.accessor('name', {
         cell: makeLinkCell((antiAffinityGroup) =>
@@ -111,6 +116,37 @@ export default function AffinityPage() {
     [project]
   )
   const { data } = usePrefetchedQuery(antiAffinityGroupList({ project }).optionsFn())
+
+  const { mutateAsync: deleteGroup } = useApiMutation('antiAffinityGroupDelete', {
+    onSuccess(_data, variables) {
+      queryClient.invalidateEndpoint('antiAffinityGroupList')
+      queryClient.invalidateEndpoint('antiAffinityGroupMemberList')
+      addToast(
+        <>
+          Anti-affinity group <HL>{variables.path.antiAffinityGroup}</HL> deleted
+        </>
+      )
+    },
+  })
+
+  const makeActions = useCallback(
+    (antiAffinityGroup: AntiAffinityGroup): MenuAction[] => [
+      {
+        label: 'Delete',
+        onActivate: confirmDelete({
+          doDelete: () =>
+            deleteGroup({
+              path: { antiAffinityGroup: antiAffinityGroup.name },
+              query: { project },
+            }),
+          label: antiAffinityGroup.name,
+        }),
+      },
+    ],
+    [project, deleteGroup]
+  )
+
+  const columns = useColsWithActions(cols, makeActions)
 
   const table = useReactTable({
     columns,
