@@ -94,7 +94,6 @@ export default function AffinityTab() {
   const antiAffinityCols = useMemo(
     () => [
       colHelper.accessor('name', {
-        header: 'Group Name',
         cell: makeLinkCell((antiAffinityGroup) =>
           pb.antiAffinityGroup({ project, antiAffinityGroup })
         ),
