@@ -39,7 +39,7 @@ export const antiAffinityGroupList = ({ project, instance }: PP.Instance) =>
 const colHelper = createColumnHelper<AffinityGroup | AntiAffinityGroup>()
 const staticCols = [
   colHelper.accessor('description', {
-    cell: (info) => <DescriptionCell text={info.getValue()} maxLength={32} />,
+    cell: (info) => <DescriptionCell text={info.getValue()} />,
   }),
   colHelper.accessor('policy', {
     header: () => (
@@ -96,7 +96,7 @@ export function AntiAffinityCard() {
   })
 
   return (
-    <CardBlock width="medium">
+    <CardBlock>
       <CardBlock.Header title="Anti-affinity groups" titleId="anti-affinity-groups-label" />
       <CardBlock.Body>
         {antiAffinityGroups.items.length > 0 ? (

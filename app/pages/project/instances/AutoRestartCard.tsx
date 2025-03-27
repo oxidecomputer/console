@@ -90,7 +90,7 @@ export function AutoRestartCard() {
 
   return (
     <form onSubmit={onSubmit}>
-      <CardBlock width="medium">
+      <CardBlock>
         <CardBlock.Header
           title="Auto-restart"
           description="The auto-restart policy for this instance"
@@ -103,7 +103,7 @@ export function AutoRestartCard() {
             description="The global default is currently best effort, but this may change in the future."
             items={restartPolicyItems}
             required
-            className="max-w-none"
+            className="max-w-lg"
           />
           <FormMeta
             label="Cooldown expiration"
