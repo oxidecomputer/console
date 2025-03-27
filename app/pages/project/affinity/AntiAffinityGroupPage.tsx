@@ -7,7 +7,7 @@
  */
 
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router'
 
 import { Affinity24Icon } from '@oxide/design-system/icons/react'
@@ -16,15 +16,20 @@ import {
   apiq,
   getListQFn,
   queryClient,
+  useApiMutation,
   usePrefetchedQuery,
   type AntiAffinityGroupMember,
 } from '~/api'
+import { HL } from '~/components/HL'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import {
   getAntiAffinityGroupSelector,
   useAntiAffinityGroupSelector,
 } from '~/hooks/use-params'
+import { confirmAction } from '~/stores/confirm-action'
+import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
@@ -84,7 +89,7 @@ export default function AntiAffinityPage() {
     memberList({ antiAffinityGroup, project }).optionsFn()
   )
   const membersCount = members.items.length
-  const columns = useMemo(
+  const cols = useMemo(
     () => [
       colHelper.accessor('value.name', {
         header: 'Name',
@@ -94,6 +99,57 @@ export default function AntiAffinityPage() {
     ],
     [project]
   )
+
+  const { mutateAsync: removeMember } = useApiMutation(
+    'antiAffinityGroupMemberInstanceDelete',
+    {
+      onSuccess(_data, variables) {
+        queryClient.invalidateEndpoint('antiAffinityGroupMemberList')
+        queryClient.invalidateEndpoint('antiAffinityGroupView')
+        addToast(<>Member <HL>{variables.path.instance}</HL> removed from anti-affinity group <HL>{group.name}</HL></>) // prettier-ignore
+      },
+    }
+  )
+
+  const makeActions = useCallback(
+    (antiAffinityGroupMember: AntiAffinityGroupMember): MenuAction[] => [
+      {
+        label: 'Copy instance ID',
+        onActivate() {
+          navigator.clipboard.writeText(antiAffinityGroupMember.value.id)
+          addToast('ID copied to clipboard')
+        },
+      },
+      {
+        label: 'Remove from group',
+        onActivate() {
+          confirmAction({
+            actionType: 'danger',
+            doAction: () =>
+              removeMember({
+                path: {
+                  antiAffinityGroup: antiAffinityGroup,
+                  instance: antiAffinityGroupMember.value.name,
+                },
+                query: { project },
+              }),
+            modalTitle: 'Remove instance from anti-affinity group',
+            modalContent: (
+              <p>
+                Are you sure you want to remove{' '}
+                <HL>{antiAffinityGroupMember.value.name}</HL> from the anti-affinity group{' '}
+                <HL>{antiAffinityGroup}</HL>?
+              </p>
+            ),
+            errorTitle: `Error removing ${antiAffinityGroupMember.value.name}`,
+          })
+        },
+      },
+    ],
+    [project, removeMember, antiAffinityGroup]
+  )
+
+  const columns = useColsWithActions(cols, makeActions)
 
   const table = useReactTable({
     columns,
