@@ -8,7 +8,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { Link, type LoaderFunctionArgs } from 'react-router'
 
 import {
@@ -103,18 +103,6 @@ const staticCols = [
 
 export default function AffinityPage() {
   const { project } = useProjectSelector()
-  const cols = useMemo(
-    () => [
-      colHelper.accessor('name', {
-        cell: makeLinkCell((antiAffinityGroup) =>
-          pb.antiAffinityGroup({ project, antiAffinityGroup })
-        ),
-        id: 'members',
-      }),
-      ...staticCols,
-    ],
-    [project]
-  )
   const { data } = usePrefetchedQuery(antiAffinityGroupList({ project }).optionsFn())
 
   const { mutateAsync: deleteGroup } = useApiMutation('antiAffinityGroupDelete', {
@@ -146,7 +134,18 @@ export default function AffinityPage() {
     [project, deleteGroup]
   )
 
-  const columns = useColsWithActions(cols, makeActions)
+  const columns = useColsWithActions(
+    [
+      colHelper.accessor('name', {
+        cell: makeLinkCell((antiAffinityGroup) =>
+          pb.antiAffinityGroup({ project, antiAffinityGroup })
+        ),
+        id: 'members',
+      }),
+      ...staticCols,
+    ],
+    makeActions
+  )
 
   const table = useReactTable({
     columns,

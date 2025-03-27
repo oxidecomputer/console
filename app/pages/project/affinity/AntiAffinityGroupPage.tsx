@@ -7,7 +7,7 @@
  */
 
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import type { LoaderFunctionArgs } from 'react-router'
 
 import { Affinity24Icon } from '@oxide/design-system/icons/react'
@@ -89,16 +89,6 @@ export default function AntiAffinityPage() {
     memberList({ antiAffinityGroup, project }).optionsFn()
   )
   const membersCount = members.items.length
-  const cols = useMemo(
-    () => [
-      colHelper.accessor('value.name', {
-        header: 'Name',
-        cell: makeLinkCell((instance) => pb.instance({ project, instance })),
-      }),
-      colHelper.accessor('value.runState', Columns.instanceState),
-    ],
-    [project]
-  )
 
   const { mutateAsync: removeMember } = useApiMutation(
     'antiAffinityGroupMemberInstanceDelete',
@@ -149,7 +139,16 @@ export default function AntiAffinityPage() {
     [project, removeMember, antiAffinityGroup]
   )
 
-  const columns = useColsWithActions(cols, makeActions)
+  const columns = useColsWithActions(
+    [
+      colHelper.accessor('value.name', {
+        header: 'Name',
+        cell: makeLinkCell((instance) => pb.instance({ project, instance })),
+      }),
+      colHelper.accessor('value.runState', Columns.instanceState),
+    ],
+    makeActions
+  )
 
   const table = useReactTable({
     columns,
