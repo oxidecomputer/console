@@ -49,7 +49,6 @@ export const pb = {
   instanceStorage: (params: PP.Instance) => `${instanceBase(params)}/storage`,
   instanceConnect: (params: PP.Instance) => `${instanceBase(params)}/connect`,
   instanceNetworking: (params: PP.Instance) => `${instanceBase(params)}/networking`,
-  instanceAffinity: (params: PP.Instance) => `${instanceBase(params)}/affinity`,
   serialConsole: (params: PP.Instance) => `${instanceBase(params)}/serial-console`,
   instanceSettings: (params: PP.Instance) => `${instanceBase(params)}/settings`,
 

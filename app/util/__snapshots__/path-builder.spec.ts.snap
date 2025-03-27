@@ -137,28 +137,6 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/instances/i/storage",
     },
   ],
-  "instanceAffinity (/projects/p/instances/i/affinity)": [
-    {
-      "label": "Projects",
-      "path": "/projects",
-    },
-    {
-      "label": "p",
-      "path": "/projects/p/instances",
-    },
-    {
-      "label": "Instances",
-      "path": "/projects/p/instances",
-    },
-    {
-      "label": "i",
-      "path": "/projects/p/instances/i/storage",
-    },
-    {
-      "label": "Affinity",
-      "path": "/projects/p/instances/i/affinity",
-    },
-  ],
   "instanceConnect (/projects/p/instances/i/connect)": [
     {
       "label": "Projects",

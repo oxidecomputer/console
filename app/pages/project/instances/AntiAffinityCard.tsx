@@ -5,23 +5,21 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo } from 'react'
-import { type LoaderFunctionArgs } from 'react-router'
 
 import {
-  apiq,
   getListQFn,
-  queryClient,
   usePrefetchedQuery,
   type AffinityGroup,
   type AntiAffinityGroup,
 } from '@oxide/api'
 import { Affinity24Icon } from '@oxide/design-system/icons/react'
 
-import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
+import { useInstanceSelector } from '~/hooks/use-params'
+import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
-import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
 import { CardBlock } from '~/ui/lib/CardBlock'
@@ -32,28 +30,17 @@ import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
-const instanceView = ({ project, instance }: PP.Instance) =>
-  apiq('instanceView', { path: { instance }, query: { project } })
-const antiAffinityGroupList = ({ project, instance }: PP.Instance) =>
+export const antiAffinityGroupList = ({ project, instance }: PP.Instance) =>
   getListQFn('instanceAntiAffinityGroupList', {
     path: { instance },
     query: { project, limit: ALL_ISH },
   })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const instanceSelector = getInstanceSelector(params)
-  await Promise.all([
-    // This is covered by the InstancePage loader but there's no downside to
-    // being redundant. If it were removed there, we'd still want it here.
-    queryClient.prefetchQuery(instanceView(instanceSelector)),
-    queryClient.prefetchQuery(antiAffinityGroupList(instanceSelector).optionsFn()),
-  ])
-  return null
-}
-
 const colHelper = createColumnHelper<AffinityGroup | AntiAffinityGroup>()
 const staticCols = [
-  colHelper.accessor('description', Columns.description),
+  colHelper.accessor('description', {
+    cell: (info) => <DescriptionCell text={info.getValue()} maxLength={32} />,
+  }),
   colHelper.accessor('policy', {
     header: () => (
       <>
@@ -81,9 +68,7 @@ const staticCols = [
   }),
 ]
 
-export const handle = { crumb: 'Affinity' }
-
-export default function AffinityTab() {
+export function AntiAffinityCard() {
   const instanceSelector = useInstanceSelector()
   const { project } = instanceSelector
 
@@ -111,9 +96,8 @@ export default function AffinityTab() {
   })
 
   return (
-    <CardBlock>
+    <CardBlock width="medium">
       <CardBlock.Header title="Anti-affinity groups" titleId="anti-affinity-groups-label" />
-
       <CardBlock.Body>
         {antiAffinityGroups.items.length > 0 ? (
           <Table
@@ -125,7 +109,7 @@ export default function AffinityTab() {
           <TableEmptyBox border={false}>
             <EmptyMessage
               icon={<Affinity24Icon />}
-              title="No Anti-Affinity Groups"
+              title="No anti-affinity groups"
               body="This instance is not a member of any anti-affinity groups"
             />
           </TableEmptyBox>

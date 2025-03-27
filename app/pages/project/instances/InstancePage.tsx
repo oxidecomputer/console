@@ -273,7 +273,6 @@ export default function InstancePage() {
           Metrics
         </Tab>
         <Tab to={pb.instanceConnect(instanceSelector)}>Connect</Tab>
-        <Tab to={pb.instanceAffinity(instanceSelector)}>Affinity</Tab>
         <Tab to={pb.instanceSettings(instanceSelector)}>Settings</Tab>
       </RouteTabs>
       {resizeInstance && (
