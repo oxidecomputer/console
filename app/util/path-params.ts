@@ -26,3 +26,5 @@ export type VpcRouterRoute = Required<Sel.VpcRouterRoute>
 export type VpcSubnet = Required<Sel.VpcSubnet>
 export type VpcInternetGateway = Required<Sel.InternetGateway>
 export type SshKey = Required<Sel.SshKey>
+export type AffinityGroup = Required<Sel.AffinityGroup>
+export type AntiAffinityGroup = Required<Sel.AntiAffinityGroup>

@@ -2,6 +2,38 @@
 
 exports[`breadcrumbs 2`] = `
 {
+  "affinity (/projects/p/affinity)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Affinity",
+      "path": "/projects/p/affinity",
+    },
+  ],
+  "antiAffinityGroup (/projects/p/affinity/aag)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Affinity",
+      "path": "/projects/p/affinity",
+    },
+    {
+      "label": "aag",
+      "path": "/projects/p/affinity/aag",
+    },
+  ],
   "deviceSuccess (/device/success)": [],
   "diskInventory (/system/inventory/disks)": [
     {

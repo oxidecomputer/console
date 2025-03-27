@@ -18,6 +18,8 @@ import {
   INSTANCE_MAX_RAM_GiB,
   INSTANCE_MIN_RAM_GiB,
   MAX_NICS_PER_INSTANCE,
+  type AffinityGroupMember,
+  type AntiAffinityGroupMember,
   type ApiTypes as Api,
   type InstanceDiskAttachment,
   type SamlIdentityProvider,
@@ -680,6 +682,13 @@ export const handlers = makeHandlers({
   instanceDelete({ path, query }) {
     const instance = lookup.instance({ ...path, ...query })
     db.instances = db.instances.filter((i) => i.id !== instance.id)
+    // delete instance from any affinity / anti-affinity groups with it as a member
+    db.affinityGroupMemberLists = db.affinityGroupMemberLists.filter(
+      (member) => member.affinity_group_member.id !== instance.id
+    )
+    db.antiAffinityGroupMemberLists = db.antiAffinityGroupMemberLists.filter(
+      (member) => member.anti_affinity_group_member.id !== instance.id
+    )
     return 204
   },
   instanceDiskList({ path, query }) {
@@ -1601,26 +1610,72 @@ export const handlers = makeHandlers({
     return handleOxqlMetrics(params.body)
   },
   siloMetric: handleMetrics,
+  affinityGroupList: ({ query }) => {
+    const project = lookup.project({ ...query })
+    const affinityGroups = db.affinityGroups.filter((i) => i.project_id === project.id)
+    return paginated(query, affinityGroups)
+  },
+  affinityGroupView: ({ path, query }) => lookup.affinityGroup({ ...path, ...query }),
+  affinityGroupMemberList: ({ path, query }) => {
+    const affinityGroup = lookup.affinityGroup({ ...path, ...query })
+    const members: Json<AffinityGroupMember>[] = db.affinityGroupMemberLists
+      .filter((i) => i.affinity_group_id === affinityGroup.id)
+      .map((i) => {
+        const { id, name, run_state } = lookup.instance({
+          instance: i.affinity_group_member.id,
+        })
+        return { type: 'instance', value: { id, name, run_state } }
+      })
+    return { items: members }
+  },
+  antiAffinityGroupList: ({ query }) => {
+    const project = lookup.project({ ...query })
+    const antiAffinityGroups = db.antiAffinityGroups.filter(
+      (i) => i.project_id === project.id
+    )
+    return paginated(query, antiAffinityGroups)
+  },
+  antiAffinityGroupView: ({ path, query }) =>
+    lookup.antiAffinityGroup({ ...path, ...query }),
+  antiAffinityGroupMemberList: ({ path, query }) => {
+    const antiAffinityGroup = lookup.antiAffinityGroup({ ...path, ...query })
+    const members: Json<AntiAffinityGroupMember>[] = db.antiAffinityGroupMemberLists
+      .filter((i) => i.anti_affinity_group_id === antiAffinityGroup.id)
+      .map((i) => {
+        const { id, name, run_state } = lookup.instance({
+          instance: i.anti_affinity_group_member.id,
+        })
+        return { type: 'instance', value: { id, name, run_state } }
+      })
+    return { items: members }
+  },
+  antiAffinityGroupMemberInstanceDelete: ({ path, query }) => {
+    const project = lookup.project({ ...query })
+    const instance = lookup.instance({ ...query, instance: path.instance })
+    const antiAffinityGroup = lookup.antiAffinityGroup({
+      project: project.id,
+      antiAffinityGroup: path.antiAffinityGroup,
+    })
+    db.antiAffinityGroupMemberLists = db.antiAffinityGroupMemberLists.filter(
+      (i) =>
+        i.anti_affinity_group_id !== antiAffinityGroup.id ||
+        i.anti_affinity_group_member.id !== instance.id
+    )
+    return 204
+  },
 
   // Misc endpoints we're not using yet in the console
   affinityGroupCreate: NotImplemented,
   affinityGroupDelete: NotImplemented,
-  affinityGroupList: NotImplemented,
   affinityGroupMemberInstanceAdd: NotImplemented,
   affinityGroupMemberInstanceDelete: NotImplemented,
   affinityGroupMemberInstanceView: NotImplemented,
-  affinityGroupMemberList: NotImplemented,
   affinityGroupUpdate: NotImplemented,
-  affinityGroupView: NotImplemented,
   antiAffinityGroupCreate: NotImplemented,
   antiAffinityGroupDelete: NotImplemented,
-  antiAffinityGroupList: NotImplemented,
   antiAffinityGroupMemberInstanceAdd: NotImplemented,
-  antiAffinityGroupMemberInstanceDelete: NotImplemented,
   antiAffinityGroupMemberInstanceView: NotImplemented,
-  antiAffinityGroupMemberList: NotImplemented,
   antiAffinityGroupUpdate: NotImplemented,
-  antiAffinityGroupView: NotImplemented,
   certificateCreate: NotImplemented,
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,

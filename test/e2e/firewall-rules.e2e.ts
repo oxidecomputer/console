@@ -620,10 +620,10 @@ test('arbitrary values combobox', async ({ page }) => {
   const input = page.getByRole('combobox', { name: 'Instance name' })
 
   await input.focus()
-  await expectOptions(page, ['db1', 'you-fail', 'not-there-yet'])
+  await expectOptions(page, ['db1', 'you-fail', 'not-there-yet', 'db2'])
 
   await input.fill('d')
-  await expectOptions(page, ['db1', 'Custom: d'])
+  await expectOptions(page, ['db1', 'db2', 'Custom: d'])
 
   await input.blur()
   await expect(page.getByRole('option')).toBeHidden()
@@ -632,7 +632,7 @@ test('arbitrary values combobox', async ({ page }) => {
   await input.focus()
 
   // same options show up after blur (there was a bug around this)
-  await expectOptions(page, ['db1', 'Custom: d'])
+  await expectOptions(page, ['db1', 'db2', 'Custom: d'])
 })
 
 test("esc in combobox doesn't close form", async ({ page }) => {

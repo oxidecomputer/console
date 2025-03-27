@@ -15,7 +15,6 @@ const instanceBase = ({ project, instance }: PP.Instance) =>
   `${pb.instances({ project })}/${instance}`
 const vpcBase = ({ project, vpc }: PP.Vpc) => `${pb.vpcs({ project })}/${vpc}`
 
-/** Don't use these for links. only exported for use with activePrefix */
 export const instanceMetricsBase = ({ project, instance }: PP.Instance) =>
   `${instanceBase({ project, instance })}/metrics`
 export const inventoryBase = () => '/system/inventory'
@@ -96,6 +95,10 @@ export const pb = {
   floatingIpsNew: (params: PP.Project) => `${projectBase(params)}/floating-ips-new`,
   floatingIpEdit: (params: PP.FloatingIp) =>
     `${pb.floatingIps(params)}/${params.floatingIp}/edit`,
+
+  affinity: (params: PP.Project) => `${projectBase(params)}/affinity`,
+  antiAffinityGroup: (params: PP.AntiAffinityGroup) =>
+    `${pb.affinity(params)}/${params.antiAffinityGroup}`,
 
   siloUtilization: () => '/utilization',
   siloAccess: () => '/access',

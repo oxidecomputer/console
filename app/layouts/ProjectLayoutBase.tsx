@@ -11,6 +11,7 @@ import { useLocation, useNavigate, type LoaderFunctionArgs } from 'react-router'
 import { apiq, queryClient, usePrefetchedQuery } from '@oxide/api'
 import {
   Access16Icon,
+  Affinity16Icon,
   Folder16Icon,
   Images16Icon,
   Instances16Icon,
@@ -68,6 +69,7 @@ export function ProjectLayoutBase({ overrideContentPane }: ProjectLayoutProps) {
           { value: 'Images', path: pb.projectImages(projectSelector) },
           { value: 'VPCs', path: pb.vpcs(projectSelector) },
           { value: 'Floating IPs', path: pb.floatingIps(projectSelector) },
+          { value: 'Affinity', path: pb.affinity(projectSelector) },
           { value: 'Access', path: pb.projectAccess(projectSelector) },
         ]
           // filter out the entry for the path we're currently on
@@ -111,6 +113,9 @@ export function ProjectLayoutBase({ overrideContentPane }: ProjectLayoutProps) {
           </NavLinkItem>
           <NavLinkItem to={pb.floatingIps(projectSelector)}>
             <IpGlobal16Icon /> Floating IPs
+          </NavLinkItem>
+          <NavLinkItem to={pb.affinity(projectSelector)}>
+            <Affinity16Icon title="Affinity" /> Affinity
           </NavLinkItem>
           <NavLinkItem to={pb.projectAccess(projectSelector)}>
             <Access16Icon title="Access" /> Access

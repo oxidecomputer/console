@@ -16,6 +16,8 @@ import { pb } from './path-builder'
 
 // params can be the same for all of them because they only use what they need
 const params = {
+  affinityGroup: 'ag',
+  antiAffinityGroup: 'aag',
   floatingIp: 'f',
   gateway: 'g',
   project: 'p',
@@ -39,6 +41,8 @@ test('path builder', () => {
   expect(Object.fromEntries(Object.entries(pb).map(([key, fn]) => [key, fn(params)])))
     .toMatchInlineSnapshot(`
       {
+        "affinity": "/projects/p/affinity",
+        "antiAffinityGroup": "/projects/p/affinity/aag",
         "deviceSuccess": "/device/success",
         "diskInventory": "/system/inventory/disks",
         "disks": "/projects/p/disks",
