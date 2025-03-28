@@ -13,7 +13,6 @@ import { Link, type LoaderFunctionArgs } from 'react-router'
 
 import {
   apiq,
-  getListQFn,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -42,7 +41,7 @@ import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
 const antiAffinityGroupList = ({ project }: PP.Project) =>
-  getListQFn('antiAffinityGroupList', { query: { project, limit: ALL_ISH } })
+  apiq('antiAffinityGroupList', { query: { project, limit: ALL_ISH } })
 const memberList = ({ antiAffinityGroup, project }: PP.AntiAffinityGroup) =>
   apiq('antiAffinityGroupMemberList', {
     path: { antiAffinityGroup },
@@ -52,9 +51,7 @@ const memberList = ({ antiAffinityGroup, project }: PP.AntiAffinityGroup) =>
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
-  const groups = await queryClient.fetchQuery(
-    antiAffinityGroupList({ project }).optionsFn()
-  )
+  const groups = await queryClient.fetchQuery(antiAffinityGroupList({ project }))
   const memberFetches = groups.items.map(({ name }) =>
     queryClient.prefetchQuery(memberList({ antiAffinityGroup: name, project }))
   )
@@ -103,7 +100,7 @@ const staticCols = [
 
 export default function AffinityPage() {
   const { project } = useProjectSelector()
-  const { data } = usePrefetchedQuery(antiAffinityGroupList({ project }).optionsFn())
+  const { data } = usePrefetchedQuery(antiAffinityGroupList({ project }))
 
   const { mutateAsync: deleteGroup } = useApiMutation('antiAffinityGroupDelete', {
     onSuccess(_data, variables) {

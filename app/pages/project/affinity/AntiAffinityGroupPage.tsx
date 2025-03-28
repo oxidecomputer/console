@@ -14,7 +14,6 @@ import { Affinity24Icon } from '@oxide/design-system/icons/react'
 
 import {
   apiq,
-  getListQFn,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -54,7 +53,7 @@ const colHelper = createColumnHelper<AntiAffinityGroupMember>()
 const antiAffinityGroupView = ({ antiAffinityGroup, project }: PP.AntiAffinityGroup) =>
   apiq('antiAffinityGroupView', { path: { antiAffinityGroup }, query: { project } })
 const memberList = ({ antiAffinityGroup, project }: PP.AntiAffinityGroup) =>
-  getListQFn('antiAffinityGroupMemberList', {
+  apiq('antiAffinityGroupMemberList', {
     path: { antiAffinityGroup },
     // member limit in DB is currently 32, so pagination isn't needed
     query: { project, limit: ALL_ISH },
@@ -64,7 +63,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { antiAffinityGroup, project } = getAntiAffinityGroupSelector(params)
   await Promise.all([
     queryClient.fetchQuery(antiAffinityGroupView({ antiAffinityGroup, project })),
-    queryClient.fetchQuery(memberList({ antiAffinityGroup, project }).optionsFn()),
+    queryClient.fetchQuery(memberList({ antiAffinityGroup, project })),
   ])
   return null
 }
@@ -85,9 +84,7 @@ export default function AntiAffinityPage() {
     antiAffinityGroupView({ antiAffinityGroup, project })
   )
   const { id, name, description, policy, timeCreated } = group
-  const { data: members } = usePrefetchedQuery(
-    memberList({ antiAffinityGroup, project }).optionsFn()
-  )
+  const { data: members } = usePrefetchedQuery(memberList({ antiAffinityGroup, project }))
   const membersCount = members.items.length
 
   const { mutateAsync: removeMember } = useApiMutation(
