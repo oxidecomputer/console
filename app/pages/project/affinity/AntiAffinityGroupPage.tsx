@@ -104,7 +104,6 @@ export default function AntiAffinityPage() {
         label: 'Copy instance ID',
         onActivate() {
           navigator.clipboard.writeText(antiAffinityGroupMember.value.id)
-          addToast('ID copied to clipboard')
         },
       },
       {
@@ -122,17 +121,11 @@ export default function AntiAffinityPage() {
               }),
             modalTitle: 'Remove instance from anti-affinity group',
             modalContent: (
-              <>
-                <p>
-                  Are you sure you want to remove{' '}
-                  <HL>{antiAffinityGroupMember.value.name}</HL> from the anti-affinity group{' '}
-                  <HL>{antiAffinityGroup}</HL>?
-                </p>
-                <p>
-                  Future placement of this instance will not attempt to satisfy the affinity
-                  rules.
-                </p>
-              </>
+              <p>
+                Are you sure you want to remove{' '}
+                <HL>{antiAffinityGroupMember.value.name}</HL> from the anti-affinity group{' '}
+                <HL>{antiAffinityGroup}</HL>?
+              </p>
             ),
             errorTitle: `Error removing ${antiAffinityGroupMember.value.name}`,
           })

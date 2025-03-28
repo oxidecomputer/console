@@ -127,16 +127,10 @@ export default function AffinityPage() {
               }),
             modalTitle: 'Delete anti-affinity group',
             modalContent: (
-              <>
-                <p>
-                  Are you sure you want to delete the anti-affinity group{' '}
-                  <HL>{antiAffinityGroup.name}</HL>?
-                </p>
-                <p>
-                  Future placement of the affinity group’s members will not attempt to
-                  satisfy the affinity rules.
-                </p>
-              </>
+              <p>
+                Are you sure you want to delete the anti-affinity group{' '}
+                <HL>{antiAffinityGroup.name}</HL>?
+              </p>
             ),
             errorTitle: `Error removing ${antiAffinityGroup.name}`,
           })
