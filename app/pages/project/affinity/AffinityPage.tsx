@@ -24,7 +24,7 @@ import { Affinity24Icon } from '@oxide/design-system/icons/react'
 
 import { HL } from '~/components/HL'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
-import { confirmDelete } from '~/stores/confirm-delete'
+import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
@@ -108,7 +108,6 @@ export default function AffinityPage() {
   const { mutateAsync: deleteGroup } = useApiMutation('antiAffinityGroupDelete', {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('antiAffinityGroupList')
-      queryClient.invalidateEndpoint('antiAffinityGroupMemberList')
       addToast(
         <>
           Anti-affinity group <HL>{variables.path.antiAffinityGroup}</HL> deleted
@@ -121,14 +120,30 @@ export default function AffinityPage() {
     (antiAffinityGroup: AntiAffinityGroup): MenuAction[] => [
       {
         label: 'Delete',
-        onActivate: confirmDelete({
-          doDelete: () =>
-            deleteGroup({
-              path: { antiAffinityGroup: antiAffinityGroup.name },
-              query: { project },
-            }),
-          label: antiAffinityGroup.name,
-        }),
+        onActivate() {
+          confirmAction({
+            actionType: 'danger',
+            doAction: () =>
+              deleteGroup({
+                path: { antiAffinityGroup: antiAffinityGroup.name },
+                query: { project },
+              }),
+            modalTitle: 'Delete anti-affinity group',
+            modalContent: (
+              <>
+                <p>
+                  Are you sure you want to delete the anti-affinity group{' '}
+                  <HL>{antiAffinityGroup.name}</HL>?
+                </p>
+                <p>
+                  Future placement of the affinity group’s members will not attempt to
+                  satisfy the affinity rules.
+                </p>
+              </>
+            ),
+            errorTitle: `Error removing ${antiAffinityGroup.name}`,
+          })
+        },
       },
     ],
     [project, deleteGroup]
