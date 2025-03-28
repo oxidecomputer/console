@@ -1638,13 +1638,8 @@ export const handlers = makeHandlers({
   antiAffinityGroupView: ({ path, query }) =>
     lookup.antiAffinityGroup({ ...path, ...query }),
   antiAffinityGroupDelete: ({ path, query }) => {
-    const antiAffinityGroup = lookup.antiAffinityGroup({ ...path, ...query })
-    db.antiAffinityGroups = db.antiAffinityGroups.filter(
-      (i) =>
-        !(
-          i.name === antiAffinityGroup.name && i.project_id === antiAffinityGroup.project_id
-        )
-    )
+    const group = lookup.antiAffinityGroup({ ...path, ...query })
+    db.antiAffinityGroups = db.antiAffinityGroups.filter((i) => i.id !== group.id)
     return 204
   },
   antiAffinityGroupMemberList: ({ path, query }) => {
