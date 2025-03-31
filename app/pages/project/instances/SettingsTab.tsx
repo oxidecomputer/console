@@ -19,7 +19,7 @@ export const handle = { crumb: 'Settings' }
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const instanceSelector = getInstanceSelector(params)
-  await queryClient.prefetchQuery(antiAffinityGroupList(instanceSelector).optionsFn())
+  await queryClient.prefetchQuery(antiAffinityGroupList(instanceSelector))
   return null
 }
 

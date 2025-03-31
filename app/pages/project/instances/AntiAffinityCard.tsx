@@ -10,7 +10,7 @@ import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/re
 import { useMemo } from 'react'
 
 import {
-  getListQFn,
+  apiq,
   usePrefetchedQuery,
   type AffinityGroup,
   type AntiAffinityGroup,
@@ -30,7 +30,7 @@ import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
 export const antiAffinityGroupList = ({ project, instance }: PP.Instance) =>
-  getListQFn('instanceAntiAffinityGroupList', {
+  apiq('instanceAntiAffinityGroupList', {
     path: { instance },
     query: { project, limit: ALL_ISH },
   })
@@ -48,7 +48,7 @@ export function AntiAffinityCard() {
   const { project } = instanceSelector
 
   const { data: antiAffinityGroups } = usePrefetchedQuery(
-    antiAffinityGroupList(instanceSelector).optionsFn()
+    antiAffinityGroupList(instanceSelector)
   )
 
   const antiAffinityCols = useMemo(
