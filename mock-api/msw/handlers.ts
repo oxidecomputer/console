@@ -1668,6 +1668,28 @@ export const handlers = makeHandlers({
     )
     return 204
   },
+  instanceAntiAffinityGroupList: ({ path, query }) => {
+    const instance = lookup.instance({ ...path, ...query })
+    const antiAffinityGroups = db.antiAffinityGroups.filter((group) =>
+      db.antiAffinityGroupMemberLists.some(
+        (member) =>
+          member.anti_affinity_group_id === group.id &&
+          member.anti_affinity_group_member.id === instance.id
+      )
+    )
+    return paginated(query, antiAffinityGroups)
+  },
+  instanceAffinityGroupList: ({ path, query }) => {
+    const instance = lookup.instance({ ...path, ...query })
+    const affinityGroups = db.affinityGroups.filter((group) =>
+      db.affinityGroupMemberLists.some(
+        (member) =>
+          member.affinity_group_id === group.id &&
+          member.affinity_group_member.id === instance.id
+      )
+    )
+    return paginated(query, affinityGroups)
+  },
 
   // Misc endpoints we're not using yet in the console
   affinityGroupCreate: NotImplemented,
@@ -1684,8 +1706,6 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
-  instanceAffinityGroupList: NotImplemented,
-  instanceAntiAffinityGroupList: NotImplemented,
   instanceSerialConsole: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
   instanceSshPublicKeyList: NotImplemented,

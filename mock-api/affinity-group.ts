@@ -74,7 +74,8 @@ export const affinityGroupMemberLists: DbAffinityGroupMember[] = [
 export const romulusRemus: Json<AntiAffinityGroup> = {
   id: 'c874bfbe-c896-48b1-b6f1-9a3dfb7fb7c9',
   name: 'romulus-remus',
-  description: 'Keep these two apart',
+  description:
+    'Keep these two apart. and a bunch more words in the description. long long very long',
   failure_domain: 'sled',
   policy: 'fail',
   project_id: project.id,
