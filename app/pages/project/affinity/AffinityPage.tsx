@@ -8,22 +8,26 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
-import { useMemo } from 'react'
+import { useCallback } from 'react'
 import { Link, type LoaderFunctionArgs } from 'react-router'
 
 import {
   apiq,
-  getListQFn,
   queryClient,
+  useApiMutation,
   usePrefetchedQuery,
   type AffinityPolicy,
   type AntiAffinityGroup,
 } from '@oxide/api'
 import { Affinity24Icon } from '@oxide/design-system/icons/react'
 
+import { HL } from '~/components/HL'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { confirmAction } from '~/stores/confirm-action'
+import { addToast } from '~/stores/toast'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
@@ -37,7 +41,7 @@ import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
 const antiAffinityGroupList = ({ project }: PP.Project) =>
-  getListQFn('antiAffinityGroupList', { query: { project, limit: ALL_ISH } })
+  apiq('antiAffinityGroupList', { query: { project, limit: ALL_ISH } })
 const memberList = ({ antiAffinityGroup, project }: PP.AntiAffinityGroup) =>
   apiq('antiAffinityGroupMemberList', {
     path: { antiAffinityGroup },
@@ -47,9 +51,7 @@ const memberList = ({ antiAffinityGroup, project }: PP.AntiAffinityGroup) =>
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
-  const groups = await queryClient.fetchQuery(
-    antiAffinityGroupList({ project }).optionsFn()
-  )
+  const groups = await queryClient.fetchQuery(antiAffinityGroupList({ project }))
   const memberFetches = groups.items.map(({ name }) =>
     queryClient.prefetchQuery(memberList({ antiAffinityGroup: name, project }))
   )
@@ -98,8 +100,48 @@ const staticCols = [
 
 export default function AffinityPage() {
   const { project } = useProjectSelector()
-  const columns = useMemo(
-    () => [
+  const { data } = usePrefetchedQuery(antiAffinityGroupList({ project }))
+
+  const { mutateAsync: deleteGroup } = useApiMutation('antiAffinityGroupDelete', {
+    onSuccess(_data, variables) {
+      queryClient.invalidateEndpoint('antiAffinityGroupList')
+      addToast(
+        <>
+          Anti-affinity group <HL>{variables.path.antiAffinityGroup}</HL> deleted
+        </>
+      )
+    },
+  })
+
+  const makeActions = useCallback(
+    (antiAffinityGroup: AntiAffinityGroup): MenuAction[] => [
+      {
+        label: 'Delete',
+        onActivate() {
+          confirmAction({
+            actionType: 'danger',
+            doAction: () =>
+              deleteGroup({
+                path: { antiAffinityGroup: antiAffinityGroup.name },
+                query: { project },
+              }),
+            modalTitle: 'Delete anti-affinity group',
+            modalContent: (
+              <p>
+                Are you sure you want to delete the anti-affinity group{' '}
+                <HL>{antiAffinityGroup.name}</HL>?
+              </p>
+            ),
+            errorTitle: `Error removing ${antiAffinityGroup.name}`,
+          })
+        },
+      },
+    ],
+    [project, deleteGroup]
+  )
+
+  const columns = useColsWithActions(
+    [
       colHelper.accessor('name', {
         cell: makeLinkCell((antiAffinityGroup) =>
           pb.antiAffinityGroup({ project, antiAffinityGroup })
@@ -108,9 +150,8 @@ export default function AffinityPage() {
       }),
       ...staticCols,
     ],
-    [project]
+    makeActions
   )
-  const { data } = usePrefetchedQuery(antiAffinityGroupList({ project }).optionsFn())
 
   const table = useReactTable({
     columns,

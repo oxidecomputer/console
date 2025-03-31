@@ -1637,6 +1637,11 @@ export const handlers = makeHandlers({
   },
   antiAffinityGroupView: ({ path, query }) =>
     lookup.antiAffinityGroup({ ...path, ...query }),
+  antiAffinityGroupDelete: ({ path, query }) => {
+    const group = lookup.antiAffinityGroup({ ...path, ...query })
+    db.antiAffinityGroups = db.antiAffinityGroups.filter((i) => i.id !== group.id)
+    return 204
+  },
   antiAffinityGroupMemberList: ({ path, query }) => {
     const antiAffinityGroup = lookup.antiAffinityGroup({ ...path, ...query })
     const members: Json<AntiAffinityGroupMember>[] = db.antiAffinityGroupMemberLists
@@ -1672,7 +1677,6 @@ export const handlers = makeHandlers({
   affinityGroupMemberInstanceView: NotImplemented,
   affinityGroupUpdate: NotImplemented,
   antiAffinityGroupCreate: NotImplemented,
-  antiAffinityGroupDelete: NotImplemented,
   antiAffinityGroupMemberInstanceAdd: NotImplemented,
   antiAffinityGroupMemberInstanceView: NotImplemented,
   antiAffinityGroupUpdate: NotImplemented,
