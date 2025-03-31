@@ -18,14 +18,13 @@ import {
 import { Affinity24Icon } from '@oxide/design-system/icons/react'
 
 import { useInstanceSelector } from '~/hooks/use-params'
-import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
+import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
 import { CardBlock } from '~/ui/lib/CardBlock'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
-import { TipIcon } from '~/ui/lib/TipIcon'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
@@ -38,32 +37,8 @@ export const antiAffinityGroupList = ({ project, instance }: PP.Instance) =>
 
 const colHelper = createColumnHelper<AffinityGroup | AntiAffinityGroup>()
 const staticCols = [
-  colHelper.accessor('description', {
-    cell: (info) => <DescriptionCell text={info.getValue()} />,
-  }),
+  colHelper.accessor('description', Columns.description),
   colHelper.accessor('policy', {
-    header: () => (
-      <>
-        Policy
-        <TipIcon className="ml-2">
-          The affinity policy describes what to do when a request cannot be satisfied.
-          &lsquo;allow&rsquo; means a best-effort approach, while &lsquo;fail&rsquo; means
-          fail explicitly.
-        </TipIcon>
-      </>
-    ),
-    cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
-  }),
-  colHelper.accessor('failureDomain', {
-    header: () => (
-      <>
-        Failure Domain
-        <TipIcon className="ml-2">
-          Describes the scope of affinity for the purposes of co-location. Currently, only
-          &lsquo;sled&rsquo; is supported.
-        </TipIcon>
-      </>
-    ),
     cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
   }),
 ]
