@@ -97,6 +97,7 @@ export const pb = {
     `${pb.floatingIps(params)}/${params.floatingIp}/edit`,
 
   affinity: (params: PP.Project) => `${projectBase(params)}/affinity`,
+  affinityNew: (params: PP.Project) => `${projectBase(params)}/affinity-new`,
   antiAffinityGroup: (params: PP.AntiAffinityGroup) =>
     `${pb.affinity(params)}/${params.antiAffinityGroup}`,
 

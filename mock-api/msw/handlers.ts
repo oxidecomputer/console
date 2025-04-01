@@ -1628,6 +1628,38 @@ export const handlers = makeHandlers({
       })
     return { items: members }
   },
+  antiAffinityGroupCreate(params) {
+    const project = lookup.project(params.query)
+    errIfExists(db.antiAffinityGroups, { name: params.body.name, project_id: project.id })
+
+    const newAntiAffinityGroup: Json<Api.AntiAffinityGroup> = {
+      id: uuid(),
+      project_id: project.id,
+      ...params.body,
+      ...getTimestamps(),
+    }
+    db.antiAffinityGroups.push(newAntiAffinityGroup)
+
+    return json(newAntiAffinityGroup, { status: 201 })
+  },
+  antiAffinityGroupUpdate({ body, path, query }) {
+    const antiAffinityGroup = lookup.antiAffinityGroup({ ...path, ...query })
+    if (body.name) {
+      // Error if changing the group name and that group name already exists
+      if (body.name !== antiAffinityGroup.name) {
+        errIfExists(db.antiAffinityGroups, {
+          project_id: antiAffinityGroup.project_id,
+          name: body.name,
+        })
+      }
+      antiAffinityGroup.name = body.name
+    }
+    updateDesc(antiAffinityGroup, body)
+    if (body.description) {
+      antiAffinityGroup.description = body.description
+    }
+    return antiAffinityGroup
+  },
   antiAffinityGroupList: ({ query }) => {
     const project = lookup.project({ ...query })
     const antiAffinityGroups = db.antiAffinityGroups.filter(
@@ -1676,10 +1708,8 @@ export const handlers = makeHandlers({
   affinityGroupMemberInstanceDelete: NotImplemented,
   affinityGroupMemberInstanceView: NotImplemented,
   affinityGroupUpdate: NotImplemented,
-  antiAffinityGroupCreate: NotImplemented,
   antiAffinityGroupMemberInstanceAdd: NotImplemented,
   antiAffinityGroupMemberInstanceView: NotImplemented,
-  antiAffinityGroupUpdate: NotImplemented,
   certificateCreate: NotImplemented,
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,

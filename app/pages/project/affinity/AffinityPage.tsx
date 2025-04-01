@@ -9,7 +9,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback } from 'react'
-import { Link, type LoaderFunctionArgs } from 'react-router'
+import { Link, Outlet, type LoaderFunctionArgs } from 'react-router'
 
 import {
   apiq,
@@ -31,10 +31,11 @@ import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { Slash } from '~/ui/lib/Slash'
-import { TableEmptyBox } from '~/ui/lib/Table'
+import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
 import { intersperse } from '~/util/array'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
@@ -100,7 +101,9 @@ const staticCols = [
 
 export default function AffinityPage() {
   const { project } = useProjectSelector()
-  const { data } = usePrefetchedQuery(antiAffinityGroupList({ project }))
+  const {
+    data: { items: antiAffinityGroups },
+  } = usePrefetchedQuery(antiAffinityGroupList({ project }))
 
   const { mutateAsync: deleteGroup } = useApiMutation('antiAffinityGroupDelete', {
     onSuccess(_data, variables) {
@@ -155,14 +158,22 @@ export default function AffinityPage() {
 
   const table = useReactTable({
     columns,
-    data: data.items,
+    data: antiAffinityGroups,
     getCoreRowModel: getCoreRowModel(),
   })
 
   return (
     <>
       <AffinityPageHeader />
-      {data.items.length ? <Table table={table} /> : <AntiAffinityGroupEmptyState />}
+      <TableActions>
+        <CreateLink to={pb.affinityNew({ project })}>New anti-affinity group</CreateLink>
+      </TableActions>
+      {antiAffinityGroups.length ? (
+        <Table table={table} />
+      ) : (
+        <AntiAffinityGroupEmptyState />
+      )}
+      <Outlet />
     </>
   )
 }
