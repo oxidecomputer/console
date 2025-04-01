@@ -18,7 +18,7 @@ import { apiQueryClient, useApiQuery } from '@oxide/api'
 
 import { CopyCodeModal } from '~/components/CopyCode'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
-import { getInstanceSelector } from '~/hooks/use-params'
+import { getInstanceSelector, useProjectSelector } from '~/hooks/use-params'
 import { useMetricsContext } from '~/pages/project/instances/common'
 import { LearnMore } from '~/ui/lib/CardBlock'
 import * as Dropdown from '~/ui/lib/DropdownMenu'
@@ -53,10 +53,11 @@ export type OxqlMetricProps = OxqlQuery & {
 export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetricProps) {
   // only start reloading data once an intial dataset has been loaded
   const { setIsIntervalPickerEnabled } = useMetricsContext()
+  const { project } = useProjectSelector()
   const query = toOxqlStr(queryObj)
   const { data: metrics, error } = useApiQuery(
-    'systemTimeseriesQuery',
-    { body: { query } }
+    'timeseriesQuery',
+    { body: { query }, query: { project } }
     // avoid graphs flashing blank while loading when you change the time
     // { placeholderData: (x) => x }
   )
