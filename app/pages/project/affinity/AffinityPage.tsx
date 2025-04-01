@@ -23,11 +23,7 @@ import { Affinity24Icon } from '@oxide/design-system/icons/react'
 
 import { HL } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
-import {
-  getProjectSelector,
-  useAntiAffinityGroupSelector,
-  useProjectSelector,
-} from '~/hooks/use-params'
+import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
@@ -72,23 +68,22 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 const colHelper = createColumnHelper<AntiAffinityGroup>()
 
 export const AffinityPageHeader = ({ name = 'Affinity' }: { name?: string }) => {
-  const { project, antiAffinityGroup } = useAntiAffinityGroupSelector()
+  const { project } = useProjectSelector()
   return (
     <PageHeader>
       <PageTitle icon={<Affinity24Icon />}>{name}</PageTitle>
-      {name !== 'Affinity' && (
-        <div className="inline-flex gap-2">
-          {/* TODO: Add a DocsPopover with docLinks.affinity once the doc page exists */}
-
+      <div className="inline-flex gap-2">
+        {/* TODO: Add a DocsPopover with docLinks.affinity once the doc page exists */}
+        {name !== 'Affinity' && (
           <MoreActionsMenu label="Anti-affinity group actions">
             <DropdownMenu.LinkItem
-              to={pb.antiAffinityGroupEdit({ project, antiAffinityGroup })}
+              to={pb.antiAffinityGroupEdit({ project, antiAffinityGroup: name })}
             >
               Edit
             </DropdownMenu.LinkItem>
           </MoreActionsMenu>
-        </div>
-      )}
+        )}
+      </div>
     </PageHeader>
   )
 }
@@ -104,6 +99,7 @@ const AffinityGroupPolicyBadge = ({ policy, className }: AffinityGroupPolicyBadg
 )
 
 const staticCols = [
+  colHelper.accessor('id', Columns.id),
   colHelper.accessor('description', Columns.description),
   colHelper.accessor(() => {}, {
     header: 'type',
