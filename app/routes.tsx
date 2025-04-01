@@ -502,9 +502,8 @@ export const routes = createRoutesFromElements(
           />
           <Route
             lazy={() => import('./pages/project/affinity/AffinityPage').then(convert)}
-            element={null}
+            handle={{ crumb: 'Affinity' }}
           >
-            <Route path="affinity" index element={null} />
             <Route
               path="affinity-new"
               lazy={() => import('./forms/anti-affinity-group-create').then(convert)}
