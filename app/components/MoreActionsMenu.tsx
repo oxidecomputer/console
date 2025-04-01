@@ -30,7 +30,7 @@ export const MoreActionsMenu = ({
       <DropdownMenu.Trigger
         aria-label={label}
         className={cn(
-          'flex items-center justify-center rounded border border-default hover:bg-tertiary',
+          'active-clicked flex items-center justify-center rounded border border-default hover:bg-tertiary',
           isSmall ? 'h-6 w-6' : 'h-8 w-8'
         )}
       >

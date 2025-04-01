@@ -161,7 +161,7 @@ function SiloSystemPicker({ level }: { level: 'silo' | 'system' }) {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger
-        className="flex items-center rounded border px-2 py-1.5 text-sans-md text-default border-secondary hover:bg-hover"
+        className="active-clicked flex items-center rounded border px-2 py-1.5 text-sans-md text-default border-secondary hover:bg-hover"
         aria-label="Switch between system and silo"
       >
         <div className="flex items-center text-tertiary">
