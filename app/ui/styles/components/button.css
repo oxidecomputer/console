@@ -9,7 +9,7 @@
 .ox-button {
   @apply relative;
 }
-.ox-button:active {
+.ox-button:active:not(.visually-disabled) {
   @apply translate-y-px;
 }
 .ox-button:after {
