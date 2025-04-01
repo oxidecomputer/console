@@ -9,6 +9,9 @@
 .ox-button {
   @apply relative;
 }
+.ox-button:active {
+  @apply translate-y-px;
+}
 .ox-button:after {
   content: '';
   @apply absolute bottom-0 left-0 right-0 top-0 rounded border border-current opacity-[0.05];
