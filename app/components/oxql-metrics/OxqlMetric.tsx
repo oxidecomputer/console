@@ -11,14 +11,15 @@
  * https://github.com/oxidecomputer/omicron/tree/main/oximeter/oximeter/schema
  */
 
+import { useQuery } from '@tanstack/react-query'
 import { Children, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { LoaderFunctionArgs } from 'react-router'
 
-import { apiQueryClient, useApiQuery } from '@oxide/api'
+import { apiq, queryClient } from '@oxide/api'
 
 import { CopyCodeModal } from '~/components/CopyCode'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
-import { getInstanceSelector } from '~/hooks/use-params'
+import { getInstanceSelector, useProjectSelector } from '~/hooks/use-params'
 import { useMetricsContext } from '~/pages/project/instances/common'
 import { LearnMore } from '~/ui/lib/CardBlock'
 import * as Dropdown from '~/ui/lib/DropdownMenu'
@@ -37,10 +38,9 @@ import {
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
-  await apiQueryClient.prefetchQuery('instanceView', {
-    path: { instance },
-    query: { project },
-  })
+  await queryClient.prefetchQuery(
+    apiq('instanceView', { path: { instance }, query: { project } })
+  )
   return null
 }
 
@@ -53,10 +53,10 @@ export type OxqlMetricProps = OxqlQuery & {
 export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetricProps) {
   // only start reloading data once an intial dataset has been loaded
   const { setIsIntervalPickerEnabled } = useMetricsContext()
+  const { project } = useProjectSelector()
   const query = toOxqlStr(queryObj)
-  const { data: metrics, error } = useApiQuery(
-    'systemTimeseriesQuery',
-    { body: { query } }
+  const { data: metrics, error } = useQuery(
+    apiq('timeseriesQuery', { body: { query }, query: { project } })
     // avoid graphs flashing blank while loading when you change the time
     // { placeholderData: (x) => x }
   )

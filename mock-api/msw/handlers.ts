@@ -1602,12 +1602,25 @@ export const handlers = makeHandlers({
     requireFleetViewer(params.cookies)
     return handleMetrics(params)
   },
-  async systemTimeseriesQuery(params) {
-    if (Math.random() > 0.95) throw 500 // random failure
-    requireFleetViewer(params.cookies)
+  async timeseriesQuery({ body, query }) {
+    lookup.project(query) // 404 if project doesn't exist
+
+    // We could try to do something analogous to what the API does, namely
+    // adding on silo and project to the oxql query to make sure only allowed
+    // data turns up, but since this endpoint is always called from within a
+    // project and constructed with project IDs, this would be unlikely to catch
+    // console bugs.
+    // https://github.com/oxidecomputer/omicron/blob/cf38148d/nexus/src/app/metrics.rs#L154-L179
+
     // timeseries queries are slower than most other queries
     await delay(1000)
-    return handleOxqlMetrics(params.body)
+    return handleOxqlMetrics(body)
+  },
+  async systemTimeseriesQuery({ cookies, body }) {
+    requireFleetViewer(cookies)
+    // timeseries queries are slower than most other queries
+    await delay(1000)
+    return handleOxqlMetrics(body)
   },
   siloMetric: handleMetrics,
   affinityGroupList: ({ query }) => {
@@ -1787,7 +1800,6 @@ export const handlers = makeHandlers({
   systemTimeseriesSchemaList: NotImplemented,
   targetReleaseView: NotImplemented,
   targetReleaseUpdate: NotImplemented,
-  timeseriesQuery: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
 })
