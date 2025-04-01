@@ -8,7 +8,7 @@
 
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback } from 'react'
-import type { LoaderFunctionArgs } from 'react-router'
+import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
 import { Affinity24Icon } from '@oxide/design-system/icons/react'
 
@@ -177,6 +177,7 @@ export default function AntiAffinityPage() {
           {membersCount ? <Table table={table} /> : <AntiAffinityGroupMemberEmptyState />}
         </CardBlock.Body>
       </CardBlock>
+      <Outlet />
     </>
   )
 }

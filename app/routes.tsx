@@ -519,7 +519,12 @@ export const routes = createRoutesFromElements(
               lazy={() =>
                 import('./pages/project/affinity/AntiAffinityGroupPage.tsx').then(convert)
               }
-            />
+            >
+              <Route
+                path="edit"
+                lazy={() => import('./forms/anti-affinity-group-edit').then(convert)}
+              />
+            </Route>
           </Route>
         </Route>
       </Route>

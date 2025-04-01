@@ -100,6 +100,8 @@ export const pb = {
   affinityNew: (params: PP.Project) => `${projectBase(params)}/affinity-new`,
   antiAffinityGroup: (params: PP.AntiAffinityGroup) =>
     `${pb.affinity(params)}/${params.antiAffinityGroup}`,
+  antiAffinityGroupEdit: (params: PP.AntiAffinityGroup) =>
+    `${pb.antiAffinityGroup(params)}/edit`,
 
   siloUtilization: () => '/utilization',
   siloAccess: () => '/access',

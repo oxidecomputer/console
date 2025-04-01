@@ -1,0 +1,114 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+import { useForm } from 'react-hook-form'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+
+import {
+  apiq,
+  queryClient,
+  useApiMutation,
+  usePrefetchedQuery,
+  type AntiAffinityGroupUpdate,
+} from '@oxide/api'
+
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { NameField } from '~/components/form/fields/NameField'
+import { SideModalForm } from '~/components/form/SideModalForm'
+import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
+import {
+  getAntiAffinityGroupSelector,
+  useAntiAffinityGroupSelector,
+} from '~/hooks/use-params'
+import { addToast } from '~/stores/toast'
+import { ALL_ISH } from '~/util/consts'
+import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
+
+export const handle = titleCrumb('New anti-affinity group')
+
+const affinityGroupList = ({ project }: PP.Project) =>
+  apiq('affinityGroupList', { query: { project, limit: ALL_ISH } })
+const antiAffinityGroupList = ({ project }: PP.Project) =>
+  apiq('antiAffinityGroupList', { query: { project, limit: ALL_ISH } })
+const antiAffinityGroupView = ({ project, antiAffinityGroup }: PP.AntiAffinityGroup) =>
+  apiq('antiAffinityGroupView', { path: { antiAffinityGroup }, query: { project } })
+
+export async function clientLoader({ params }: LoaderFunctionArgs) {
+  const { project, antiAffinityGroup } = getAntiAffinityGroupSelector(params)
+  await Promise.all([
+    queryClient.prefetchQuery(antiAffinityGroupList({ project })),
+    queryClient.prefetchQuery(affinityGroupList({ project })),
+    queryClient.prefetchQuery(antiAffinityGroupView({ project, antiAffinityGroup })),
+  ])
+  return null
+}
+
+export default function EditAntiAffintyGroupForm() {
+  const { project, antiAffinityGroup } = useAntiAffinityGroupSelector()
+
+  const navigate = useNavigate()
+  const onDismiss = () => navigate(pb.antiAffinityGroup({ project, antiAffinityGroup }))
+
+  const editAntiAffinityGroup = useApiMutation('antiAffinityGroupUpdate', {
+    onSuccess(updatedAntiAffinityGroup) {
+      navigate(
+        pb.antiAffinityGroup({ project, antiAffinityGroup: updatedAntiAffinityGroup.name })
+      )
+      addToast(<>Anti-affinity group <HL>{updatedAntiAffinityGroup.name}</HL> updated</>) // prettier-ignore
+      queryClient.invalidateQueries(antiAffinityGroupList({ project }))
+    },
+  })
+
+  const {
+    data: { items: existingAntiAffinityGroups },
+  } = usePrefetchedQuery(antiAffinityGroupList({ project }))
+  const { data: antiAffinityGroupData } = usePrefetchedQuery(
+    antiAffinityGroupView({ project, antiAffinityGroup })
+  )
+  const defaultValues: AntiAffinityGroupUpdate = {
+    name: antiAffinityGroupData.name,
+    description: antiAffinityGroupData.description,
+  }
+  const form = useForm({ defaultValues })
+  const control = form.control
+
+  return (
+    <SideModalForm
+      form={form}
+      formType="create"
+      resourceName="rule"
+      title="Add anti-affinity group"
+      onDismiss={onDismiss}
+      onSubmit={(values) => {
+        editAntiAffinityGroup.mutate({
+          path: { antiAffinityGroup },
+          query: { project },
+          body: {
+            name: values.name || antiAffinityGroupData.name,
+            description: values.description || '',
+          },
+        })
+      }}
+      loading={editAntiAffinityGroup.isPending}
+      submitError={editAntiAffinityGroup.error}
+      submitLabel="Edit group"
+    >
+      <NameField
+        name="name"
+        control={control}
+        validate={(name) => {
+          if (existingAntiAffinityGroups.find((g) => g.name === name)) {
+            return 'Name taken. To update an existing group, edit it directly.'
+          }
+        }}
+      />
+      <DescriptionField name="description" control={control} />
+    </SideModalForm>
+  )
+}

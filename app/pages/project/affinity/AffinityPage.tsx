@@ -9,7 +9,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback } from 'react'
-import { Link, Outlet, type LoaderFunctionArgs } from 'react-router'
+import { Link, Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
   apiq,
@@ -22,7 +22,12 @@ import {
 import { Affinity24Icon } from '@oxide/design-system/icons/react'
 
 import { HL } from '~/components/HL'
-import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { MoreActionsMenu } from '~/components/MoreActionsMenu'
+import {
+  getProjectSelector,
+  useAntiAffinityGroupSelector,
+  useProjectSelector,
+} from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
@@ -32,6 +37,7 @@ import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
 import { CreateLink } from '~/ui/lib/CreateButton'
+import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { Slash } from '~/ui/lib/Slash'
@@ -65,13 +71,27 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 
 const colHelper = createColumnHelper<AntiAffinityGroup>()
 
-export const AffinityPageHeader = ({ name = 'Affinity' }: { name?: string }) => (
-  <PageHeader>
-    <PageTitle icon={<Affinity24Icon />}>{name}</PageTitle>
-    {/* TODO: Add a DocsPopover with docLinks.affinity once the doc page exists */}
-  </PageHeader>
-)
+export const AffinityPageHeader = ({ name = 'Affinity' }: { name?: string }) => {
+  const { project, antiAffinityGroup } = useAntiAffinityGroupSelector()
+  return (
+    <PageHeader>
+      <PageTitle icon={<Affinity24Icon />}>{name}</PageTitle>
+      {name !== 'Affinity' && (
+        <div className="inline-flex gap-2">
+          {/* TODO: Add a DocsPopover with docLinks.affinity once the doc page exists */}
 
+          <MoreActionsMenu label="Anti-affinity group actions">
+            <DropdownMenu.LinkItem
+              to={pb.antiAffinityGroupEdit({ project, antiAffinityGroup })}
+            >
+              Edit
+            </DropdownMenu.LinkItem>
+          </MoreActionsMenu>
+        </div>
+      )}
+    </PageHeader>
+  )
+}
 type AffinityGroupPolicyBadgeProps = { policy: AffinityPolicy; className?: string }
 const AffinityGroupPolicyBadge = ({ policy, className }: AffinityGroupPolicyBadgeProps) => (
   <Badge
@@ -104,6 +124,7 @@ export default function AffinityPage() {
   const {
     data: { items: antiAffinityGroups },
   } = usePrefetchedQuery(antiAffinityGroupList({ project }))
+  const navigate = useNavigate()
 
   const { mutateAsync: deleteGroup } = useApiMutation('antiAffinityGroupDelete', {
     onSuccess(_data, variables) {
@@ -118,6 +139,14 @@ export default function AffinityPage() {
 
   const makeActions = useCallback(
     (antiAffinityGroup: AntiAffinityGroup): MenuAction[] => [
+      {
+        label: 'Edit',
+        onActivate() {
+          navigate(
+            pb.antiAffinityGroupEdit({ project, antiAffinityGroup: antiAffinityGroup.name })
+          )
+        },
+      },
       {
         label: 'Delete',
         onActivate() {
@@ -140,7 +169,7 @@ export default function AffinityPage() {
         },
       },
     ],
-    [project, deleteGroup]
+    [project, deleteGroup, navigate]
   )
 
   const columns = useColsWithActions(
