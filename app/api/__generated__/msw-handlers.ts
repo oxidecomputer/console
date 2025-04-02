@@ -499,6 +499,20 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/instances/:instance/affinity-groups` */
+  instanceAffinityGroupList: (params: {
+    path: Api.InstanceAffinityGroupListPathParams
+    query: Api.InstanceAffinityGroupListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AffinityGroupResultsPage>>
+  /** `GET /v1/instances/:instance/anti-affinity-groups` */
+  instanceAntiAffinityGroupList: (params: {
+    path: Api.InstanceAntiAffinityGroupListPathParams
+    query: Api.InstanceAntiAffinityGroupListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AntiAffinityGroupResultsPage>>
   /** `GET /v1/instances/:instance/disks` */
   instanceDiskList: (params: {
     path: Api.InstanceDiskListPathParams
@@ -1386,6 +1400,17 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.TimeseriesSchemaResultsPage>>
+  /** `GET /v1/system/update/target-release` */
+  targetReleaseView: (params: {
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.TargetRelease>>
+  /** `PUT /v1/system/update/target-release` */
+  targetReleaseUpdate: (params: {
+    body: Json<Api.SetTargetReleaseParams>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.TargetRelease>>
   /** `GET /v1/system/users` */
   siloUserList: (params: {
     query: Api.SiloUserListQueryParams
@@ -2051,6 +2076,22 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.delete(
       '/v1/instances/:instance',
       handler(handlers['instanceDelete'], schema.InstanceDeleteParams, null)
+    ),
+    http.get(
+      '/v1/instances/:instance/affinity-groups',
+      handler(
+        handlers['instanceAffinityGroupList'],
+        schema.InstanceAffinityGroupListParams,
+        null
+      )
+    ),
+    http.get(
+      '/v1/instances/:instance/anti-affinity-groups',
+      handler(
+        handlers['instanceAntiAffinityGroupList'],
+        schema.InstanceAntiAffinityGroupListParams,
+        null
+      )
     ),
     http.get(
       '/v1/instances/:instance/disks',
@@ -2814,6 +2855,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         schema.SystemTimeseriesSchemaListParams,
         null
       )
+    ),
+    http.get(
+      '/v1/system/update/target-release',
+      handler(handlers['targetReleaseView'], null, null)
+    ),
+    http.put(
+      '/v1/system/update/target-release',
+      handler(handlers['targetReleaseUpdate'], null, schema.SetTargetReleaseParams)
     ),
     http.get(
       '/v1/system/users',

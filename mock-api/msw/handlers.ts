@@ -18,6 +18,8 @@ import {
   INSTANCE_MAX_RAM_GiB,
   INSTANCE_MIN_RAM_GiB,
   MAX_NICS_PER_INSTANCE,
+  type AffinityGroupMember,
+  type AntiAffinityGroupMember,
   type ApiTypes as Api,
   type InstanceDiskAttachment,
   type SamlIdentityProvider,
@@ -30,7 +32,6 @@ import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
 
 import { genCumulativeI64Data } from '../metrics'
-import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
 import { getTimestamps } from '../util'
 import { defaultFirewallRules } from '../vpc'
@@ -681,6 +682,13 @@ export const handlers = makeHandlers({
   instanceDelete({ path, query }) {
     const instance = lookup.instance({ ...path, ...query })
     db.instances = db.instances.filter((i) => i.id !== instance.id)
+    // delete instance from any affinity / anti-affinity groups with it as a member
+    db.affinityGroupMemberLists = db.affinityGroupMemberLists.filter(
+      (member) => member.affinity_group_member.id !== instance.id
+    )
+    db.antiAffinityGroupMemberLists = db.antiAffinityGroupMemberLists.filter(
+      (member) => member.anti_affinity_group_member.id !== instance.id
+    )
     return 204
   },
   instanceDiskList({ path, query }) {
@@ -837,10 +845,6 @@ export const handlers = makeHandlers({
     }, 3000)
 
     return json(instance, { status: 202 })
-  },
-  async instanceSerialConsole(_params) {
-    await delay(3000)
-    return json(serial)
   },
   instanceStart({ path, query }) {
     const instance = lookup.instance({ ...path, ...query })
@@ -1598,38 +1602,124 @@ export const handlers = makeHandlers({
     requireFleetViewer(params.cookies)
     return handleMetrics(params)
   },
-  async systemTimeseriesQuery(params) {
-    if (Math.random() > 0.95) throw 500 // random failure
-    requireFleetViewer(params.cookies)
+  async timeseriesQuery({ body, query }) {
+    lookup.project(query) // 404 if project doesn't exist
+
+    // We could try to do something analogous to what the API does, namely
+    // adding on silo and project to the oxql query to make sure only allowed
+    // data turns up, but since this endpoint is always called from within a
+    // project and constructed with project IDs, this would be unlikely to catch
+    // console bugs.
+    // https://github.com/oxidecomputer/omicron/blob/cf38148d/nexus/src/app/metrics.rs#L154-L179
+
     // timeseries queries are slower than most other queries
     await delay(1000)
-    return handleOxqlMetrics(params.body)
+    return handleOxqlMetrics(body)
+  },
+  async systemTimeseriesQuery({ cookies, body }) {
+    requireFleetViewer(cookies)
+    // timeseries queries are slower than most other queries
+    await delay(1000)
+    return handleOxqlMetrics(body)
   },
   siloMetric: handleMetrics,
+  affinityGroupList: ({ query }) => {
+    const project = lookup.project({ ...query })
+    const affinityGroups = db.affinityGroups.filter((i) => i.project_id === project.id)
+    return paginated(query, affinityGroups)
+  },
+  affinityGroupView: ({ path, query }) => lookup.affinityGroup({ ...path, ...query }),
+  affinityGroupMemberList: ({ path, query }) => {
+    const affinityGroup = lookup.affinityGroup({ ...path, ...query })
+    const members: Json<AffinityGroupMember>[] = db.affinityGroupMemberLists
+      .filter((i) => i.affinity_group_id === affinityGroup.id)
+      .map((i) => {
+        const { id, name, run_state } = lookup.instance({
+          instance: i.affinity_group_member.id,
+        })
+        return { type: 'instance', value: { id, name, run_state } }
+      })
+    return { items: members }
+  },
+  antiAffinityGroupList: ({ query }) => {
+    const project = lookup.project({ ...query })
+    const antiAffinityGroups = db.antiAffinityGroups.filter(
+      (i) => i.project_id === project.id
+    )
+    return paginated(query, antiAffinityGroups)
+  },
+  antiAffinityGroupView: ({ path, query }) =>
+    lookup.antiAffinityGroup({ ...path, ...query }),
+  antiAffinityGroupDelete: ({ path, query }) => {
+    const group = lookup.antiAffinityGroup({ ...path, ...query })
+    db.antiAffinityGroups = db.antiAffinityGroups.filter((i) => i.id !== group.id)
+    return 204
+  },
+  antiAffinityGroupMemberList: ({ path, query }) => {
+    const antiAffinityGroup = lookup.antiAffinityGroup({ ...path, ...query })
+    const members: Json<AntiAffinityGroupMember>[] = db.antiAffinityGroupMemberLists
+      .filter((i) => i.anti_affinity_group_id === antiAffinityGroup.id)
+      .map((i) => {
+        const { id, name, run_state } = lookup.instance({
+          instance: i.anti_affinity_group_member.id,
+        })
+        return { type: 'instance', value: { id, name, run_state } }
+      })
+    return { items: members }
+  },
+  antiAffinityGroupMemberInstanceDelete: ({ path, query }) => {
+    const project = lookup.project({ ...query })
+    const instance = lookup.instance({ ...query, instance: path.instance })
+    const antiAffinityGroup = lookup.antiAffinityGroup({
+      project: project.id,
+      antiAffinityGroup: path.antiAffinityGroup,
+    })
+    db.antiAffinityGroupMemberLists = db.antiAffinityGroupMemberLists.filter(
+      (i) =>
+        i.anti_affinity_group_id !== antiAffinityGroup.id ||
+        i.anti_affinity_group_member.id !== instance.id
+    )
+    return 204
+  },
+  instanceAntiAffinityGroupList: ({ path, query }) => {
+    const instance = lookup.instance({ ...path, ...query })
+    const antiAffinityGroups = db.antiAffinityGroups.filter((group) =>
+      db.antiAffinityGroupMemberLists.some(
+        (member) =>
+          member.anti_affinity_group_id === group.id &&
+          member.anti_affinity_group_member.id === instance.id
+      )
+    )
+    return paginated(query, antiAffinityGroups)
+  },
+  instanceAffinityGroupList: ({ path, query }) => {
+    const instance = lookup.instance({ ...path, ...query })
+    const affinityGroups = db.affinityGroups.filter((group) =>
+      db.affinityGroupMemberLists.some(
+        (member) =>
+          member.affinity_group_id === group.id &&
+          member.affinity_group_member.id === instance.id
+      )
+    )
+    return paginated(query, affinityGroups)
+  },
 
   // Misc endpoints we're not using yet in the console
   affinityGroupCreate: NotImplemented,
   affinityGroupDelete: NotImplemented,
-  affinityGroupList: NotImplemented,
   affinityGroupMemberInstanceAdd: NotImplemented,
   affinityGroupMemberInstanceDelete: NotImplemented,
   affinityGroupMemberInstanceView: NotImplemented,
-  affinityGroupMemberList: NotImplemented,
   affinityGroupUpdate: NotImplemented,
-  affinityGroupView: NotImplemented,
   antiAffinityGroupCreate: NotImplemented,
-  antiAffinityGroupDelete: NotImplemented,
-  antiAffinityGroupList: NotImplemented,
   antiAffinityGroupMemberInstanceAdd: NotImplemented,
-  antiAffinityGroupMemberInstanceDelete: NotImplemented,
   antiAffinityGroupMemberInstanceView: NotImplemented,
-  antiAffinityGroupMemberList: NotImplemented,
   antiAffinityGroupUpdate: NotImplemented,
-  antiAffinityGroupView: NotImplemented,
   certificateCreate: NotImplemented,
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
+  instanceSerialConsole: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
   instanceSshPublicKeyList: NotImplemented,
   internetGatewayCreate: NotImplemented,
@@ -1708,7 +1798,8 @@ export const handlers = makeHandlers({
   systemPolicyUpdate: NotImplemented,
   systemQuotasList: NotImplemented,
   systemTimeseriesSchemaList: NotImplemented,
-  timeseriesQuery: NotImplemented,
+  targetReleaseView: NotImplemented,
+  targetReleaseUpdate: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
 })

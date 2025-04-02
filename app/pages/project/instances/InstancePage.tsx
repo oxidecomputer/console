@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { filesize } from 'filesize'
-import { useId, useMemo, useState } from 'react'
+import { useId, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
@@ -27,6 +27,7 @@ import {
   instanceCan,
   instanceTransitioning,
 } from '~/api/util'
+import { CopyIdItem } from '~/components/CopyIdItem'
 import { ExternalIps } from '~/components/ExternalIps'
 import { NumberField } from '~/components/form/fields/NumberField'
 import { HL } from '~/components/HL'
@@ -44,6 +45,7 @@ import {
 import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { Button } from '~/ui/lib/Button'
+import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -169,19 +171,6 @@ export default function InstancePage() {
     { enabled: !!primaryVpcId }
   )
 
-  const allMenuActions = useMemo(
-    () => [
-      {
-        label: 'Copy ID',
-        onActivate() {
-          window.navigator.clipboard.writeText(instance.id || '')
-        },
-      },
-      ...makeMenuActions(instance),
-    ],
-    [instance, makeMenuActions]
-  )
-
   const memory = filesize(instance.memory, { output: 'object', base: 2 })
 
   return (
@@ -205,7 +194,28 @@ export default function InstancePage() {
               </Button>
             ))}
           </div>
-          <MoreActionsMenu label="Instance actions" actions={allMenuActions} />
+          <MoreActionsMenu label="Instance actions">
+            <CopyIdItem id={instance.id} />
+            {makeMenuActions(instance).map((action) =>
+              'to' in action ? (
+                <DropdownMenu.LinkItem
+                  key={action.label}
+                  to={action.to}
+                  className={action.className}
+                >
+                  {action.label}
+                </DropdownMenu.LinkItem>
+              ) : (
+                <DropdownMenu.Item
+                  key={action.label}
+                  label={action.label}
+                  onSelect={action.onActivate}
+                  disabled={action.disabled}
+                  className={action.className}
+                />
+              )
+            )}
+          </MoreActionsMenu>
         </div>
       </PageHeader>
       <PropertiesTable columns={2} className="-mt-8 mb-8">
@@ -247,7 +257,7 @@ export default function InstancePage() {
         <Tab to={pb.instanceNetworking(instanceSelector)}>Networking</Tab>
         <Tab
           to={pb.instanceCpuMetrics(instanceSelector)}
-          toPrefix={instanceMetricsBase(instanceSelector)}
+          activePrefix={instanceMetricsBase(instanceSelector)}
         >
           Metrics
         </Tab>

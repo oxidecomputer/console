@@ -46,6 +46,7 @@ import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { CreateButton, CreateLink } from '~/ui/lib/CreateButton'
+import * as Dropdown from '~/ui/lib/DropdownMenu'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
@@ -97,28 +98,6 @@ export default function IpPoolpage() {
     },
   })
 
-  const actions = useMemo(
-    () => [
-      {
-        label: 'Edit',
-        onActivate() {
-          navigate(pb.ipPoolEdit(poolSelector))
-        },
-      },
-      {
-        label: 'Delete',
-        onActivate: confirmDelete({
-          doDelete: () => deletePool({ path: { pool: pool.name } }),
-          label: pool.name,
-        }),
-        disabled:
-          !!ranges.items.length && 'IP pool cannot be deleted while it contains IP ranges',
-        className: ranges.items.length ? '' : 'destructive',
-      },
-    ],
-    [deletePool, navigate, poolSelector, pool.name, ranges.items]
-  )
-
   return (
     <>
       <PageHeader>
@@ -130,7 +109,21 @@ export default function IpPoolpage() {
             summary="IP pools are collections of external IPs you can assign to silos. When a pool is linked to a silo, users in that silo can allocate IPs from the pool for their instances."
             links={[docLinks.systemIpPools]}
           />
-          <MoreActionsMenu label="IP pool actions" actions={actions} />
+          <MoreActionsMenu label="IP pool actions">
+            <Dropdown.LinkItem to={pb.ipPoolEdit(poolSelector)}>Edit</Dropdown.LinkItem>
+            <Dropdown.Item
+              label="Delete"
+              onSelect={confirmDelete({
+                doDelete: () => deletePool({ path: { pool: pool.name } }),
+                label: pool.name,
+              })}
+              disabled={
+                !!ranges.items.length &&
+                'IP pool cannot be deleted while it contains IP ranges'
+              }
+              className={ranges.items.length ? '' : 'destructive'}
+            />
+          </MoreActionsMenu>
         </div>
       </PageHeader>
       <UtilizationBars />

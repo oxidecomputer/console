@@ -71,7 +71,7 @@ export default function EditFirewallRuleForm() {
   const onDismiss = () => navigate(pb.vpcFirewallRules(vpcSelector))
 
   const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
-    onSuccess(updatedRules, { body }) {
+    onSuccess(_updatedRules, { body }) {
       // Nav before the invalidate because I once saw the above invariant fail
       // briefly after successful edit (error page flashed but then we land
       // on the rules list ok) and I think it was a race condition where the

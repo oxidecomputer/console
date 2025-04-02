@@ -11,7 +11,7 @@
   @apply z-topBarDropdown min-w-36 rounded border p-0 bg-raise border-secondary;
 
   & .DropdownMenuItem {
-    @apply block w-full cursor-pointer select-none border-b py-2 pl-3 pr-6 text-left text-sans-md text-default border-secondary last:border-b-0;
+    @apply flex w-full cursor-pointer select-none items-center border-b py-2 pl-3 pr-6 text-left text-sans-md text-default border-secondary last:border-b-0;
 
     &.destructive {
       @apply text-destructive;

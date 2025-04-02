@@ -99,7 +99,7 @@ async function genForCommit(commit: string, force: boolean) {
     await $`rm -rf ${tmpDir}`
     await $`mkdir -p ${tmpDir}`
     console.info(`Generating for ${commit}...`)
-    await $`npx @oxide/openapi-gen-ts@0.4.0 ${specUrl(commit)} ${tmpDir}`
+    await $`npx @oxide/openapi-gen-ts@latest ${specUrl(commit)} ${tmpDir}`
     await $`npx prettier --write --log-level error ${tmpDir}`
   }
 

@@ -53,31 +53,35 @@ const randomDiskState = (): DiskState => {
   }
 }
 
+export const disk1: Json<Disk> = {
+  id: '7f2309a5-13e3-47e0-8a4c-2a3b3bc992fd',
+  name: 'disk-1',
+  description: "it's a disk",
+  project_id: project.id,
+  time_created: new Date().toISOString(),
+  time_modified: new Date().toISOString(),
+  state: { state: 'attached', instance: instance.id },
+  device_path: '/abc',
+  size: 2 * GiB,
+  block_size: 2048,
+}
+
+export const disk2: Json<Disk> = {
+  id: '48f94570-60d8-401c-857f-5bf912d2d3fc',
+  name: 'disk-2',
+  description: "it's a second disk",
+  project_id: project.id,
+  time_created: new Date().toISOString(),
+  time_modified: new Date().toISOString(),
+  state: { state: 'attached', instance: instance.id },
+  device_path: '/def',
+  size: 4 * GiB,
+  block_size: 2048,
+}
+
 export const disks: Json<Disk>[] = [
-  {
-    id: '7f2309a5-13e3-47e0-8a4c-2a3b3bc992fd',
-    name: 'disk-1',
-    description: "it's a disk",
-    project_id: project.id,
-    time_created: new Date().toISOString(),
-    time_modified: new Date().toISOString(),
-    state: { state: 'attached', instance: instance.id },
-    device_path: '/abc',
-    size: 2 * GiB,
-    block_size: 2048,
-  },
-  {
-    id: '48f94570-60d8-401c-857f-5bf912d2d3fc',
-    name: 'disk-2',
-    description: "it's a second disk",
-    project_id: project.id,
-    time_created: new Date().toISOString(),
-    time_modified: new Date().toISOString(),
-    state: { state: 'attached', instance: instance.id },
-    device_path: '/def',
-    size: 4 * GiB,
-    block_size: 2048,
-  },
+  disk1,
+  disk2,
   {
     id: '3b768903-1d0b-4d78-9308-c12d3889bdfb',
     name: 'disk-3',

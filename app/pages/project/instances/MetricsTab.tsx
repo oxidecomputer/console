@@ -38,10 +38,9 @@ export default function MetricsTab() {
 
   const { intervalPicker } = useIntervalPicker({
     enabled: isIntervalPickerEnabled && preset !== 'custom',
-    isLoading: useIsFetching({ queryKey: ['systemTimeseriesQuery'] }) > 0,
+    isLoading: useIsFetching({ queryKey: ['timeseriesQuery'] }) > 0,
     // sliding the range forward is sufficient to trigger a refetch
     fn: () => onRangeChange(preset),
-    isSlim: true,
   })
 
   // memoizing here would be redundant because the only things that cause a

@@ -7,7 +7,7 @@
  */
 import tunnel from 'tunnel-rat'
 
-const Tunnel = tunnel('page-actions')
+const Tunnel = tunnel()
 
 export const PageActions = Tunnel.In
 export const PageActionsTarget = Tunnel.Out

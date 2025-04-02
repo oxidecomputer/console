@@ -22,6 +22,8 @@ import type { TooltipProps } from 'recharts/types/component/Tooltip'
 import type { ChartDatum } from '@oxide/api'
 import { Error12Icon } from '@oxide/design-system/icons/react'
 
+import { classed } from '~/util/classed'
+
 // Recharts's built-in ticks behavior is useless and probably broken
 /**
  * Split the data into n evenly spaced ticks, with one at the left end and one a
@@ -110,14 +112,11 @@ type TimeSeriesChartProps = {
   className?: string
   data: ChartDatum[] | undefined
   title: string
-  width: number
-  height: number
   interpolation?: 'linear' | 'stepAfter'
   startTime: Date
   endTime: Date
   unit?: string
   yAxisTickFormatter?: (val: number) => string
-  hasBorder?: boolean
   hasError?: boolean
 }
 
@@ -166,17 +165,13 @@ const SkeletonMetric = ({
 )
 
 export function TimeSeriesChart({
-  className,
   data: rawData,
   title,
-  width,
-  height,
   interpolation = 'linear',
   startTime,
   endTime,
   unit,
   yAxisTickFormatter = (val) => val.toLocaleString(),
-  hasBorder = true,
   hasError = false,
 }: TimeSeriesChartProps) {
   // We use the largest data point +20% for the graph scale. !rawData doesn't
@@ -210,11 +205,9 @@ export function TimeSeriesChart({
   // re-render on every render of the parent when the data is undefined
   const data = useMemo(() => rawData || [], [rawData])
 
-  const wrapperClass = cn(className, hasBorder && 'rounded-lg border border-default')
-
   if (hasError) {
     return (
-      <SkeletonMetric className={wrapperClass}>
+      <SkeletonMetric>
         <MetricsError />
       </SkeletonMetric>
     )
@@ -222,22 +215,18 @@ export function TimeSeriesChart({
 
   if (!data || data.length === 0) {
     return (
-      <SkeletonMetric shimmer className={wrapperClass}>
+      <SkeletonMetric shimmer>
         <MetricsLoadingIndicator />
       </SkeletonMetric>
     )
   }
 
+  // ResponsiveContainer has default height and width of 100%
+  // https://recharts.org/en-US/api/ResponsiveContainer
   return (
-    <div className="h-[300px] w-full">
-      {/* temporary until we migrate the old metrics to the new style */}
-      <ResponsiveContainer className={wrapperClass}>
-        <AreaChart
-          width={width}
-          height={height}
-          data={data}
-          margin={{ top: 0, right: hasBorder ? 16 : 0, bottom: 0, left: 0 }}
-        >
+    <div className="px-5 pb-5 pt-8">
+      <ResponsiveContainer height={300}>
+        <AreaChart data={data} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
           <CartesianGrid stroke={GRID_GRAY} vertical={false} />
           <XAxis
             axisLine={{ stroke: GRID_GRAY }}
@@ -277,7 +266,7 @@ export function TimeSeriesChart({
           />
           <Area
             dataKey="value"
-            name={title}
+            name={title} // Provides name for value in hover tooltip
             type={interpolation}
             stroke={GREEN_600}
             fill={GREEN_400}
@@ -320,3 +309,27 @@ const MetricsError = () => (
     />
   </>
 )
+
+export const ChartContainer = classed.div`flex w-full grow flex-col rounded-lg border border-default`
+
+type ChartHeaderProps = {
+  title: string
+  label: string
+  description?: string
+  children?: ReactNode
+}
+
+export function ChartHeader({ title, label, description, children }: ChartHeaderProps) {
+  return (
+    <div className="flex items-center justify-between border-b px-5 pb-4 pt-5 border-secondary">
+      <div>
+        <h2 className="flex items-baseline gap-1.5">
+          <div className="text-sans-semi-lg">{title}</div>
+          <div className="text-sans-md text-secondary">{label}</div>
+        </h2>
+        <div className="mt-0.5 text-sans-md text-secondary">{description}</div>
+      </div>
+      {children}
+    </div>
+  )
+}

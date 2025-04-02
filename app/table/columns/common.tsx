@@ -8,6 +8,8 @@
 
 import { filesize } from 'filesize'
 
+import type { InstanceState } from '~/api'
+import { InstanceStateBadge } from '~/components/StateBadge'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { DateTime } from '~/ui/lib/DateTime'
 
@@ -17,6 +19,10 @@ type Info<T> = { getValue: () => T }
 
 function dateCell(info: Info<Date>) {
   return <DateTime date={info.getValue()} />
+}
+
+function instanceStateCell(info: Info<InstanceState>) {
+  return <InstanceStateBadge state={info.getValue()} />
 }
 
 function sizeCell(info: Info<number>) {
@@ -34,6 +40,7 @@ export const Columns = {
   description: {
     cell: (info: Info<string | undefined>) => <DescriptionCell text={info.getValue()} />,
   },
+  instanceState: { header: 'state', cell: instanceStateCell },
   size: { cell: sizeCell },
   timeCreated: { header: 'created', cell: dateCell },
   timeModified: { header: 'modified', cell: dateCell },

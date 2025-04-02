@@ -11,20 +11,22 @@
  * https://github.com/oxidecomputer/omicron/tree/main/oximeter/oximeter/schema
  */
 
+import { useQuery } from '@tanstack/react-query'
 import { Children, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { LoaderFunctionArgs } from 'react-router'
 
-import { apiQueryClient, useApiQuery } from '@oxide/api'
+import { apiq, queryClient } from '@oxide/api'
 
 import { CopyCodeModal } from '~/components/CopyCode'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
-import { getInstanceSelector } from '~/hooks/use-params'
+import { getInstanceSelector, useProjectSelector } from '~/hooks/use-params'
 import { useMetricsContext } from '~/pages/project/instances/common'
 import { LearnMore } from '~/ui/lib/CardBlock'
+import * as Dropdown from '~/ui/lib/DropdownMenu'
 import { classed } from '~/util/classed'
 import { links } from '~/util/links'
 
-import { TimeSeriesChart } from '../TimeSeriesChart'
+import { ChartContainer, ChartHeader, TimeSeriesChart } from '../TimeSeriesChart'
 import { HighlightedOxqlQuery, toOxqlStr } from './HighlightedOxqlQuery'
 import {
   composeOxqlData,
@@ -36,10 +38,9 @@ import {
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
-  await apiQueryClient.prefetchQuery('instanceView', {
-    path: { instance },
-    query: { project },
-  })
+  await queryClient.prefetchQuery(
+    apiq('instanceView', { path: { instance }, query: { project } })
+  )
   return null
 }
 
@@ -52,10 +53,10 @@ export type OxqlMetricProps = OxqlQuery & {
 export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetricProps) {
   // only start reloading data once an intial dataset has been loaded
   const { setIsIntervalPickerEnabled } = useMetricsContext()
+  const { project } = useProjectSelector()
   const query = toOxqlStr(queryObj)
-  const { data: metrics, error } = useApiQuery(
-    'systemTimeseriesQuery',
-    { body: { query } }
+  const { data: metrics, error } = useQuery(
+    apiq('timeseriesQuery', { body: { query }, query: { project } })
     // avoid graphs flashing blank while loading when you change the time
     // { placeholderData: (x) => x }
   )
@@ -76,32 +77,14 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
   const [modalOpen, setModalOpen] = useState(false)
 
   return (
-    <div className="flex w-full grow flex-col rounded-lg border border-default">
-      <div className="flex items-center justify-between border-b px-5 pb-4 pt-5 border-secondary">
-        <div>
-          <h2 className="flex items-baseline gap-1.5">
-            <div className="text-sans-semi-lg">{title}</div>
-            <div className="text-sans-md text-secondary">{label}</div>
-          </h2>
-          <div className="mt-0.5 text-sans-md text-secondary">{description}</div>
-        </div>
-        <MoreActionsMenu
-          label="Instance actions"
-          actions={[
-            {
-              label: 'About metric',
-              onActivate: () => {
-                const url = links.oxqlSchemaDocs(queryObj.metricName)
-                window.open(url, '_blank', 'noopener,noreferrer')
-              },
-            },
-            {
-              label: 'View OxQL query',
-              onActivate: () => setModalOpen(true),
-            },
-          ]}
-          isSmall
-        />
+    <ChartContainer>
+      <ChartHeader title={title} label={label} description={description}>
+        <MoreActionsMenu label="Instance actions" isSmall>
+          <Dropdown.LinkItem to={links.oxqlSchemaDocs(queryObj.metricName)}>
+            About this metric
+          </Dropdown.LinkItem>
+          <Dropdown.Item onSelect={() => setModalOpen(true)} label="View OxQL query" />
+        </MoreActionsMenu>
         <CopyCodeModal
           isOpen={modalOpen}
           onDismiss={() => setModalOpen(false)}
@@ -112,22 +95,17 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
         >
           <HighlightedOxqlQuery {...queryObj} />
         </CopyCodeModal>
-      </div>
-      <div className="px-5 pb-5 pt-8">
-        <TimeSeriesChart
-          title={title}
-          startTime={startTime}
-          endTime={endTime}
-          unit={unitForSet}
-          data={data}
-          yAxisTickFormatter={yAxisTickFormatter}
-          width={480}
-          height={240}
-          hasBorder={false}
-          hasError={!!error}
-        />
-      </div>
-    </div>
+      </ChartHeader>
+      <TimeSeriesChart
+        title={title}
+        startTime={startTime}
+        endTime={endTime}
+        unit={unitForSet}
+        data={data}
+        yAxisTickFormatter={yAxisTickFormatter}
+        hasError={!!error}
+      />
+    </ChartContainer>
   )
 }
 

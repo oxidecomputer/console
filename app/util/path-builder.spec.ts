@@ -16,6 +16,8 @@ import { pb } from './path-builder'
 
 // params can be the same for all of them because they only use what they need
 const params = {
+  affinityGroup: 'ag',
+  antiAffinityGroup: 'aag',
   floatingIp: 'f',
   gateway: 'g',
   project: 'p',
@@ -39,6 +41,8 @@ test('path builder', () => {
   expect(Object.fromEntries(Object.entries(pb).map(([key, fn]) => [key, fn(params)])))
     .toMatchInlineSnapshot(`
       {
+        "affinity": "/projects/p/affinity",
+        "antiAffinityGroup": "/projects/p/affinity/aag",
         "deviceSuccess": "/device/success",
         "diskInventory": "/system/inventory/disks",
         "disks": "/projects/p/disks",
@@ -81,7 +85,6 @@ test('path builder', () => {
         "siloUtilization": "/utilization",
         "silos": "/system/silos",
         "silosNew": "/system/silos-new",
-        "sled": "/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances",
         "sledInstances": "/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances",
         "sledInventory": "/system/inventory/sleds",
         "snapshotImagesNew": "/projects/p/snapshots/sn/images-new",
