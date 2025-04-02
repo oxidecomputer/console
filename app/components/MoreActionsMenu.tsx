@@ -27,14 +27,15 @@ export const MoreActionsMenu = ({
 }: MoreActionsMenuProps) => {
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger
-        aria-label={label}
-        className={cn(
-          'active-clicked flex items-center justify-center rounded border border-default hover:bg-tertiary',
-          isSmall ? 'h-6 w-6' : 'h-8 w-8'
-        )}
-      >
-        <More12Icon />
+      <DropdownMenu.Trigger aria-label={label}>
+        <div
+          className={cn(
+            'active-clicked flex items-center justify-center rounded border border-default hover:bg-tertiary',
+            isSmall ? 'h-6 w-6' : 'h-8 w-8'
+          )}
+        >
+          <More12Icon />
+        </div>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content className="mt-2">{children}</DropdownMenu.Content>
     </DropdownMenu.Root>
