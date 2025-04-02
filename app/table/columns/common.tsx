@@ -26,7 +26,7 @@ function dateCell(info: Info<Date>) {
 function idCell(info: Info<string>) {
   return (
     <span className="flex max-w-full items-center gap-0.5">
-      <Truncate text={info.getValue()} maxLength={10} />
+      <Truncate text={info.getValue()} maxLength={14} position="middle" />
       <CopyToClipboard text={info.getValue()} />
     </span>
   )
