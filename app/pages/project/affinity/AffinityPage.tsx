@@ -22,7 +22,7 @@ import { Affinity24Icon } from '@oxide/design-system/icons/react'
 
 import { HL } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
-import { antiAffinityGroupList, memberList } from '~/forms/affinity-util'
+import { antiAffinityGroupList, antiAffinityGroupMemberList } from '~/forms/affinity-util'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
@@ -45,7 +45,9 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
   const groups = await queryClient.fetchQuery(antiAffinityGroupList({ project }))
   const memberFetches = groups.items.map(({ name }) =>
-    queryClient.prefetchQuery(memberList({ antiAffinityGroup: name, project }))
+    queryClient.prefetchQuery(
+      antiAffinityGroupMemberList({ antiAffinityGroup: name, project })
+    )
   )
   // The browser will fetch up to 6 anti-affinity group member lists without queuing,
   // so we can prefetch them without slowing down the page. If there are more than 6 groups,
@@ -88,7 +90,6 @@ const AffinityGroupPolicyBadge = ({ policy, className }: AffinityGroupPolicyBadg
 )
 
 const staticCols = [
-  colHelper.accessor('id', Columns.id),
   colHelper.accessor('description', Columns.description),
   colHelper.accessor(() => {}, {
     header: 'type',
@@ -101,6 +102,7 @@ const staticCols = [
     header: 'members',
     cell: (info) => <AffinityGroupMembersCell antiAffinityGroup={info.getValue()} />,
   }),
+  colHelper.accessor('id', Columns.id),
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
@@ -209,7 +211,9 @@ export const AffinityGroupMembersCell = ({
   antiAffinityGroup: string
 }) => {
   const { project } = useProjectSelector()
-  const { data: members } = useQuery(memberList({ antiAffinityGroup, project }))
+  const { data: members } = useQuery(
+    antiAffinityGroupMemberList({ antiAffinityGroup, project })
+  )
 
   if (!members) return <SkeletonCell />
   if (!members.items.length) return <EmptyCell />
