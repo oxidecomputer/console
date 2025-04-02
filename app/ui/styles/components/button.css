@@ -10,7 +10,7 @@
   @apply relative;
 }
 .active-clicked:active:not(.visually-disabled) {
-  @apply translate-y-px;
+  @apply motion-safe:translate-y-px;
 }
 .ox-button:after {
   content: '';
