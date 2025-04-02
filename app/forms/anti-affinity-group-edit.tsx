@@ -9,7 +9,6 @@ import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
-  apiq,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -26,18 +25,15 @@ import {
   useAntiAffinityGroupSelector,
 } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
-import type * as PP from '~/util/path-params'
+
+import {
+  affinityGroupList,
+  antiAffinityGroupList,
+  antiAffinityGroupView,
+} from './affinity-util'
 
 export const handle = titleCrumb('New anti-affinity group')
-
-const affinityGroupList = ({ project }: PP.Project) =>
-  apiq('affinityGroupList', { query: { project, limit: ALL_ISH } })
-const antiAffinityGroupList = ({ project }: PP.Project) =>
-  apiq('antiAffinityGroupList', { query: { project, limit: ALL_ISH } })
-const antiAffinityGroupView = ({ project, antiAffinityGroup }: PP.AntiAffinityGroup) =>
-  apiq('antiAffinityGroupView', { path: { antiAffinityGroup }, query: { project } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, antiAffinityGroup } = getAntiAffinityGroupSelector(params)

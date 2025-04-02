@@ -13,13 +13,18 @@ import { Outlet, type LoaderFunctionArgs } from 'react-router'
 import { Affinity24Icon } from '@oxide/design-system/icons/react'
 
 import {
-  apiq,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
   type AntiAffinityGroupMember,
 } from '~/api'
 import { HL } from '~/components/HL'
+import {
+  affinityGroupList,
+  antiAffinityGroupMemberList,
+  antiAffinityGroupView,
+  instanceList,
+} from '~/forms/affinity-util'
 import { AddAntiAffinityGroupMemberForm } from '~/forms/anti-affinity-group-member-add'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import {
@@ -39,9 +44,7 @@ import { Divider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { TableEmptyBox } from '~/ui/lib/Table'
-import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
-import type * as PP from '~/util/path-params'
 
 import { AffinityPageHeader } from './AffinityPage'
 
@@ -52,24 +55,11 @@ export const handle = makeCrumb(
 
 const colHelper = createColumnHelper<AntiAffinityGroupMember>()
 
-const antiAffinityGroupView = ({ antiAffinityGroup, project }: PP.AntiAffinityGroup) =>
-  apiq('antiAffinityGroupView', { path: { antiAffinityGroup }, query: { project } })
-const memberList = ({ antiAffinityGroup, project }: PP.AntiAffinityGroup) =>
-  apiq('antiAffinityGroupMemberList', {
-    path: { antiAffinityGroup },
-    // member limit in DB is currently 32, so pagination isn't needed
-    query: { project, limit: ALL_ISH },
-  })
-const instanceList = ({ project }: PP.Project) =>
-  apiq('instanceList', { query: { project, limit: ALL_ISH } })
-const affinityGroupList = ({ project }: PP.Project) =>
-  apiq('affinityGroupList', { query: { project, limit: ALL_ISH } })
-
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { antiAffinityGroup, project } = getAntiAffinityGroupSelector(params)
   await Promise.all([
     queryClient.fetchQuery(antiAffinityGroupView({ antiAffinityGroup, project })),
-    queryClient.fetchQuery(memberList({ antiAffinityGroup, project })),
+    queryClient.fetchQuery(antiAffinityGroupMemberList({ antiAffinityGroup, project })),
     queryClient.prefetchQuery(instanceList({ project })),
     queryClient.prefetchQuery(affinityGroupList({ project })),
   ])
@@ -92,7 +82,9 @@ export default function AntiAffinityPage() {
     antiAffinityGroupView({ antiAffinityGroup, project })
   )
   const { id, name, description, policy, timeCreated } = group
-  const { data: members } = usePrefetchedQuery(memberList({ antiAffinityGroup, project }))
+  const { data: members } = usePrefetchedQuery(
+    antiAffinityGroupMemberList({ antiAffinityGroup, project })
+  )
   const membersCount = members.items.length
 
   const { mutateAsync: removeMember } = useApiMutation(
@@ -105,7 +97,7 @@ export default function AntiAffinityPage() {
       },
     }
   )
-  // useState is at this level because the CreateButton needs to control the modal
+  // useState is at this level so the CreateButton can open the modal
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const makeActions = useCallback(

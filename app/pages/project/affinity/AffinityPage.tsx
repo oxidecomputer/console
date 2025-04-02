@@ -12,7 +12,6 @@ import { useCallback } from 'react'
 import { Link, Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
-  apiq,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -23,6 +22,7 @@ import { Affinity24Icon } from '@oxide/design-system/icons/react'
 
 import { HL } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
+import { antiAffinityGroupList, memberList } from '~/forms/affinity-util'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
@@ -39,18 +39,7 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { Slash } from '~/ui/lib/Slash'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
 import { intersperse } from '~/util/array'
-import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
-import type * as PP from '~/util/path-params'
-
-const antiAffinityGroupList = ({ project }: PP.Project) =>
-  apiq('antiAffinityGroupList', { query: { project, limit: ALL_ISH } })
-const memberList = ({ antiAffinityGroup, project }: PP.AntiAffinityGroup) =>
-  apiq('antiAffinityGroupMemberList', {
-    path: { antiAffinityGroup },
-    // We only need to get the first 2 members for preview
-    query: { project, limit: 2 },
-  })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)

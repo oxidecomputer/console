@@ -9,7 +9,7 @@
 import { useForm } from 'react-hook-form'
 import type { LoaderFunctionArgs } from 'react-router'
 
-import { apiq, queryClient, useApiMutation, usePrefetchedQuery } from '~/api'
+import { queryClient, useApiMutation, usePrefetchedQuery } from '~/api'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
 import {
@@ -19,24 +19,17 @@ import {
 import { addToast } from '~/stores/toast'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { Modal } from '~/ui/lib/Modal'
-import { ALL_ISH } from '~/util/consts'
-import type * as PP from '~/util/path-params'
 
-const memberList = ({ antiAffinityGroup, project }: PP.AntiAffinityGroup) =>
-  apiq('antiAffinityGroupMemberList', {
-    path: { antiAffinityGroup },
-    // member limit in DB is currently 32, so pagination isn't needed
-    query: { project, limit: ALL_ISH },
-  })
-const instanceList = ({ project }: PP.Project) =>
-  apiq('instanceList', { query: { project, limit: ALL_ISH } })
-const affinityGroupList = ({ project }: PP.Project) =>
-  apiq('affinityGroupList', { query: { project, limit: ALL_ISH } })
+import {
+  affinityGroupList,
+  antiAffinityGroupMemberList,
+  instanceList,
+} from './affinity-util'
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { antiAffinityGroup, project } = getAntiAffinityGroupSelector(params)
   await Promise.all([
-    queryClient.fetchQuery(memberList({ antiAffinityGroup, project })),
+    queryClient.fetchQuery(antiAffinityGroupMemberList({ antiAffinityGroup, project })),
     queryClient.prefetchQuery(instanceList({ project })),
     queryClient.prefetchQuery(affinityGroupList({ project })),
   ])
@@ -52,6 +45,15 @@ export function AddAntiAffinityGroupMemberForm({
 }) {
   const { project, antiAffinityGroup } = useAntiAffinityGroupSelector()
 
+  const { data: members } = usePrefetchedQuery(
+    antiAffinityGroupMemberList({ antiAffinityGroup, project })
+  )
+  const { data: instances } = usePrefetchedQuery(instanceList({ project }))
+  // Construct a list of all instances not currently in this anti-affinity group.
+  const availableInstances = instances.items.filter(
+    (instance) => !members.items.some(({ value }) => value.name === instance.name)
+  )
+
   const form = useForm({
     defaultValues: {
       antiAffinityGroupMember: '',
@@ -62,20 +64,6 @@ export function AddAntiAffinityGroupMemberForm({
     setIsModalOpen(false)
     form.reset()
   }
-
-  const { data: members } = usePrefetchedQuery(memberList({ antiAffinityGroup, project }))
-
-  // We need to construct a list of availableInstances. These should not include any
-  // instances already in this anti-affinity group. They should also not include any
-  // instances that are already in an affinity group that is included in this list.
-  const { data: instances } = usePrefetchedQuery(instanceList({ project }))
-  const availableInstances = toComboboxItems(
-    instances.items.filter((instance) => {
-      const isInThisGroup = members.items.some(({ value }) => value.name === instance.name)
-      // TODO: Check if the instance is already in an affinity group that is in this anti-affinity group
-      return !isInThisGroup
-    })
-  )
 
   const { mutateAsync: addMember } = useApiMutation('antiAffinityGroupMemberInstanceAdd', {
     onSuccess(_data, variables) {
@@ -98,7 +86,7 @@ export function AddAntiAffinityGroupMemberForm({
             label="Instance"
             placeholder="Select an instance"
             name="antiAffinityGroupMember"
-            items={availableInstances}
+            items={toComboboxItems(availableInstances)}
             required
             control={form.control}
           />
