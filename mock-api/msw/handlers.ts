@@ -1602,12 +1602,25 @@ export const handlers = makeHandlers({
     requireFleetViewer(params.cookies)
     return handleMetrics(params)
   },
-  async systemTimeseriesQuery(params) {
-    if (Math.random() > 0.95) throw 500 // random failure
-    requireFleetViewer(params.cookies)
+  async timeseriesQuery({ body, query }) {
+    lookup.project(query) // 404 if project doesn't exist
+
+    // We could try to do something analogous to what the API does, namely
+    // adding on silo and project to the oxql query to make sure only allowed
+    // data turns up, but since this endpoint is always called from within a
+    // project and constructed with project IDs, this would be unlikely to catch
+    // console bugs.
+    // https://github.com/oxidecomputer/omicron/blob/cf38148d/nexus/src/app/metrics.rs#L154-L179
+
     // timeseries queries are slower than most other queries
     await delay(1000)
-    return handleOxqlMetrics(params.body)
+    return handleOxqlMetrics(body)
+  },
+  async systemTimeseriesQuery({ cookies, body }) {
+    requireFleetViewer(cookies)
+    // timeseries queries are slower than most other queries
+    await delay(1000)
+    return handleOxqlMetrics(body)
   },
   siloMetric: handleMetrics,
   affinityGroupList: ({ query }) => {
@@ -1729,6 +1742,28 @@ export const handlers = makeHandlers({
     )
     return 204
   },
+  instanceAntiAffinityGroupList: ({ path, query }) => {
+    const instance = lookup.instance({ ...path, ...query })
+    const antiAffinityGroups = db.antiAffinityGroups.filter((group) =>
+      db.antiAffinityGroupMemberLists.some(
+        (member) =>
+          member.anti_affinity_group_id === group.id &&
+          member.anti_affinity_group_member.id === instance.id
+      )
+    )
+    return paginated(query, antiAffinityGroups)
+  },
+  instanceAffinityGroupList: ({ path, query }) => {
+    const instance = lookup.instance({ ...path, ...query })
+    const affinityGroups = db.affinityGroups.filter((group) =>
+      db.affinityGroupMemberLists.some(
+        (member) =>
+          member.affinity_group_id === group.id &&
+          member.affinity_group_member.id === instance.id
+      )
+    )
+    return paginated(query, affinityGroups)
+  },
 
   // Misc endpoints we're not using yet in the console
   affinityGroupCreate: NotImplemented,
@@ -1742,8 +1777,6 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
-  instanceAffinityGroupList: NotImplemented,
-  instanceAntiAffinityGroupList: NotImplemented,
   instanceSerialConsole: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
   instanceSshPublicKeyList: NotImplemented,
@@ -1825,7 +1858,6 @@ export const handlers = makeHandlers({
   systemTimeseriesSchemaList: NotImplemented,
   targetReleaseView: NotImplemented,
   targetReleaseUpdate: NotImplemented,
-  timeseriesQuery: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
 })
