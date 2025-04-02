@@ -1686,6 +1686,35 @@ export const handlers = makeHandlers({
       })
     return { items: members }
   },
+  antiAffinityGroupMemberInstanceAdd({ path, query }) {
+    const project = lookup.project({ ...query })
+    const instance = lookup.instance({ ...query, instance: path.instance })
+    const antiAffinityGroup = lookup.antiAffinityGroup({
+      project: project.id,
+      antiAffinityGroup: path.antiAffinityGroup,
+    })
+    const alreadyThere = db.antiAffinityGroupMemberLists.some(
+      (i) =>
+        i.anti_affinity_group_id === antiAffinityGroup.id &&
+        i.anti_affinity_group_member.id === instance.id
+    )
+    if (alreadyThere) {
+      throw 'Instance already in anti-affinity group'
+    }
+    const newMember: Json<Api.AntiAffinityGroupMember> = {
+      type: 'instance',
+      value: {
+        id: instance.id,
+        name: instance.name,
+        run_state: instance.run_state,
+      },
+    }
+    db.antiAffinityGroupMemberLists.push({
+      anti_affinity_group_id: antiAffinityGroup.id,
+      anti_affinity_group_member: { type: 'instance', id: instance.id },
+    })
+    return json(newMember, { status: 201 })
+  },
   antiAffinityGroupMemberInstanceDelete: ({ path, query }) => {
     const project = lookup.project({ ...query })
     const instance = lookup.instance({ ...query, instance: path.instance })
@@ -1708,7 +1737,6 @@ export const handlers = makeHandlers({
   affinityGroupMemberInstanceDelete: NotImplemented,
   affinityGroupMemberInstanceView: NotImplemented,
   affinityGroupUpdate: NotImplemented,
-  antiAffinityGroupMemberInstanceAdd: NotImplemented,
   antiAffinityGroupMemberInstanceView: NotImplemented,
   certificateCreate: NotImplemented,
   certificateDelete: NotImplemented,

@@ -7,7 +7,7 @@
  */
 
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
 import { Affinity24Icon } from '@oxide/design-system/icons/react'
@@ -20,6 +20,7 @@ import {
   type AntiAffinityGroupMember,
 } from '~/api'
 import { HL } from '~/components/HL'
+import { AddAntiAffinityGroupMemberForm } from '~/forms/anti-affinity-group-member-add'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import {
   getAntiAffinityGroupSelector,
@@ -33,6 +34,7 @@ import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
 import { CardBlock } from '~/ui/lib/CardBlock'
+import { CreateButton } from '~/ui/lib/CreateButton'
 import { Divider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
@@ -58,12 +60,18 @@ const memberList = ({ antiAffinityGroup, project }: PP.AntiAffinityGroup) =>
     // member limit in DB is currently 32, so pagination isn't needed
     query: { project, limit: ALL_ISH },
   })
+const instanceList = ({ project }: PP.Project) =>
+  apiq('instanceList', { query: { project, limit: ALL_ISH } })
+const affinityGroupList = ({ project }: PP.Project) =>
+  apiq('affinityGroupList', { query: { project, limit: ALL_ISH } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { antiAffinityGroup, project } = getAntiAffinityGroupSelector(params)
   await Promise.all([
     queryClient.fetchQuery(antiAffinityGroupView({ antiAffinityGroup, project })),
     queryClient.fetchQuery(memberList({ antiAffinityGroup, project })),
+    queryClient.prefetchQuery(instanceList({ project })),
+    queryClient.prefetchQuery(affinityGroupList({ project })),
   ])
   return null
 }
@@ -97,6 +105,8 @@ export default function AntiAffinityPage() {
       },
     }
   )
+  // useState is at this level because the CreateButton needs to control the modal
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const makeActions = useCallback(
     (antiAffinityGroupMember: AntiAffinityGroupMember): MenuAction[] => [
@@ -172,11 +182,19 @@ export default function AntiAffinityPage() {
         <CardBlock.Header
           title="Members"
           description="Instances in this anti-affinity group"
-        />
+        >
+          <CreateButton onClick={() => setIsModalOpen(true)}>
+            Add instance to group
+          </CreateButton>
+        </CardBlock.Header>
         <CardBlock.Body>
           {membersCount ? <Table table={table} /> : <AntiAffinityGroupMemberEmptyState />}
         </CardBlock.Body>
       </CardBlock>
+      <AddAntiAffinityGroupMemberForm
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+      />
       <Outlet />
     </>
   )
