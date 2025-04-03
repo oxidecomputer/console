@@ -18,8 +18,9 @@ import {
   type AffinityPolicy,
   type AntiAffinityGroup,
 } from '@oxide/api'
-import { Affinity24Icon } from '@oxide/design-system/icons/react'
+import { Affinity16Icon, Affinity24Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import { antiAffinityGroupList, antiAffinityGroupMemberList } from '~/forms/affinity-util'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
@@ -37,6 +38,7 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { Slash } from '~/ui/lib/Slash'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
 import { intersperse } from '~/util/array'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
@@ -158,9 +160,12 @@ export default function AffinityPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Affinity24Icon />}>Affinity</PageTitle>
-        <div className="inline-flex gap-2">
-          {/* TODO: Add a DocsPopover with docLinks.affinity once the doc page exists */}
-        </div>
+        <DocsPopover
+          heading="affinity"
+          icon={<Affinity16Icon />}
+          summary="Instances in an anti-affinity group will be placed on different sleds when they start. The policy attribute controls whether this is a hard or soft constraint."
+          links={[docLinks.affinity]}
+        />{' '}
       </PageHeader>
       <TableActions>
         <CreateLink to={pb.affinityNew({ project })}>New group</CreateLink>
