@@ -157,8 +157,8 @@ export default function AntiAffinityPage() {
   })
 
   const disabledReason = () => {
-    // TODO: Verify maximum number of members
-    if (membersCount >= 16) {
+    // https://github.com/oxidecomputer/omicron/blob/main/nexus/db-queries/src/db/datastore/affinity.rs#L66
+    if (membersCount >= 32) {
       return 'Maximum number of members reached'
     }
     if (!instances.items.length) {
