@@ -198,6 +198,9 @@ export default function AntiAffinityPage() {
           <CreateButton
             onClick={() => setIsModalOpen(true)}
             disabled={!availableInstances.length}
+            disabledReason={
+              availableInstances.length ? undefined : 'No instances are available to add'
+            }
           >
             Add instance
           </CreateButton>
