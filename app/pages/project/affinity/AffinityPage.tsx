@@ -9,7 +9,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback } from 'react'
-import { Link, Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { Link, Outlet, type LoaderFunctionArgs } from 'react-router'
 
 import {
   queryClient,
@@ -89,7 +89,6 @@ export default function AffinityPage() {
   const {
     data: { items: antiAffinityGroups },
   } = usePrefetchedQuery(antiAffinityGroupList({ project }))
-  const navigate = useNavigate()
 
   const { mutateAsync: deleteGroup } = useApiMutation('antiAffinityGroupDelete', {
     onSuccess(_data, variables) {
@@ -106,11 +105,10 @@ export default function AffinityPage() {
     (antiAffinityGroup: AntiAffinityGroup): MenuAction[] => [
       {
         label: 'Edit',
-        onActivate() {
-          navigate(
-            pb.antiAffinityGroupEdit({ project, antiAffinityGroup: antiAffinityGroup.name })
-          )
-        },
+        to: pb.antiAffinityGroupEdit({
+          project,
+          antiAffinityGroup: antiAffinityGroup.name,
+        }),
       },
       {
         label: 'Delete',
@@ -134,7 +132,7 @@ export default function AffinityPage() {
         },
       },
     ],
-    [project, deleteGroup, navigate]
+    [project, deleteGroup]
   )
 
   const columns = useColsWithActions(
