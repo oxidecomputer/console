@@ -159,13 +159,13 @@ export default function AffinityPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Affinity24Icon />}>Affinity</PageTitle>
+        <PageTitle icon={<Affinity24Icon />}>Anti-Affinity Groups</PageTitle>
         <div className="inline-flex gap-2">
           {/* TODO: Add a DocsPopover with docLinks.affinity once the doc page exists */}
         </div>
       </PageHeader>
       <TableActions>
-        <CreateLink to={pb.affinityNew({ project })}>New anti-affinity group</CreateLink>
+        <CreateLink to={pb.affinityNew({ project })}>New group</CreateLink>
       </TableActions>
       {antiAffinityGroups.length ? (
         <Table table={table} />

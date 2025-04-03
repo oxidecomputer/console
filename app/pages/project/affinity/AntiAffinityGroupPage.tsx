@@ -199,7 +199,7 @@ export default function AntiAffinityPage() {
             onClick={() => setIsModalOpen(true)}
             disabled={!availableInstances.length}
           >
-            Add instance to group
+            Add instance
           </CreateButton>
         </CardBlock.Header>
         <CardBlock.Body>
