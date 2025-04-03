@@ -156,6 +156,20 @@ export default function AntiAffinityPage() {
     getCoreRowModel: getCoreRowModel(),
   })
 
+  const disabledReason = () => {
+    // TODO: Verify maximum number of members
+    if (membersCount >= 16) {
+      return 'Maximum number of members reached'
+    }
+    if (!instances.items.length) {
+      return 'No instances available'
+    }
+    if (!availableInstances.length) {
+      return 'All instances are already in this group'
+    }
+    return undefined
+  }
+
   return (
     <>
       <PageHeader>
@@ -192,9 +206,7 @@ export default function AntiAffinityPage() {
           <CreateButton
             onClick={() => setIsModalOpen(true)}
             disabled={!availableInstances.length}
-            disabledReason={
-              availableInstances.length ? undefined : 'No instances are available to add'
-            }
+            disabledReason={disabledReason()}
           >
             Add instance
           </CreateButton>
