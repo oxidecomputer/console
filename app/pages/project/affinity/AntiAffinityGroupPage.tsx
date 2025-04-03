@@ -39,8 +39,8 @@ import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
+import { Button } from '~/ui/lib/Button'
 import { CardBlock } from '~/ui/lib/CardBlock'
-import { CreateButton } from '~/ui/lib/CreateButton'
 import { Divider } from '~/ui/lib/Divider'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -203,13 +203,14 @@ export default function AntiAffinityPage() {
           title="Members"
           description="Instances in this anti-affinity group"
         >
-          <CreateButton
+          <Button
+            size="sm"
             onClick={() => setIsModalOpen(true)}
             disabled={!availableInstances.length}
             disabledReason={disabledReason()}
           >
             Add instance
-          </CreateButton>
+          </Button>
         </CardBlock.Header>
         <CardBlock.Body>
           {membersCount ? <Table table={table} /> : <AntiAffinityGroupMemberEmptyState />}

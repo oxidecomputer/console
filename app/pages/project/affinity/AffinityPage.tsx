@@ -82,7 +82,6 @@ const staticCols = [
     header: 'members',
     cell: (info) => <AffinityGroupMembersCell antiAffinityGroup={info.getValue()} />,
   }),
-  colHelper.accessor('id', Columns.id),
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 

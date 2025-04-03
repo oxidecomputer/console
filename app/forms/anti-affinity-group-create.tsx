@@ -5,15 +5,11 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
-import {
-  queryClient,
-  useApiMutation,
-  usePrefetchedQuery,
-  type AntiAffinityGroupCreate,
-} from '@oxide/api'
+import { queryClient, useApiMutation, type AntiAffinityGroupCreate } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -25,16 +21,13 @@ import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 
-import { affinityGroupList, antiAffinityGroupList } from './affinity-util'
+import { antiAffinityGroupList } from './affinity-util'
 
 export const handle = titleCrumb('New anti-affinity group')
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
+export function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
-  await Promise.all([
-    queryClient.prefetchQuery(antiAffinityGroupList({ project })),
-    queryClient.prefetchQuery(affinityGroupList({ project })),
-  ])
+  queryClient.prefetchQuery(antiAffinityGroupList({ project }))
   return null
 }
 
@@ -52,9 +45,7 @@ export default function CreateAntiAffintyGroupForm() {
     },
   })
 
-  const {
-    data: { items: existingAntiAffinityGroups },
-  } = usePrefetchedQuery(antiAffinityGroupList({ project }))
+  const { data: existingAntiAffinityGroups } = useQuery(antiAffinityGroupList({ project }))
   const defaultValues = {
     name: '',
     description: '',
@@ -78,6 +69,7 @@ export default function CreateAntiAffintyGroupForm() {
         })
       }}
       loading={createAntiAffinityGroup.isPending}
+      submitDisabled={existingAntiAffinityGroups === undefined ? 'Loading …' : undefined}
       submitError={createAntiAffinityGroup.error}
       submitLabel="Add group"
     >
@@ -85,7 +77,7 @@ export default function CreateAntiAffintyGroupForm() {
         name="name"
         control={control}
         validate={(name) => {
-          if (existingAntiAffinityGroups.find((g) => g.name === name)) {
+          if (existingAntiAffinityGroups?.items.find((g) => g.name === name)) {
             return 'Name taken. To update an existing group, edit it directly.'
           }
         }}
