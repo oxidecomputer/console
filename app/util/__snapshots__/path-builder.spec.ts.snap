@@ -16,7 +16,39 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/affinity",
     },
   ],
+  "affinityNew (/projects/p/affinity-new)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Affinity",
+      "path": "/projects/p/",
+    },
+  ],
   "antiAffinityGroup (/projects/p/affinity/aag)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Affinity",
+      "path": "/projects/p/affinity",
+    },
+    {
+      "label": "aag",
+      "path": "/projects/p/affinity/aag",
+    },
+  ],
+  "antiAffinityGroupEdit (/projects/p/affinity/aag/edit)": [
     {
       "label": "Projects",
       "path": "/projects",
