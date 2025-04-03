@@ -26,7 +26,7 @@ import {
 } from '@oxide/api'
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
-import { instanceCan } from '~/api/util'
+import { instanceCan, OXQL_GROUP_BY_ERROR } from '~/api/util'
 import { parseIp } from '~/util/ip'
 import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
@@ -1626,6 +1626,8 @@ export const handlers = makeHandlers({
       } else if (body.query.includes('state == "emulation"')) {
         points.timestamps = points.timestamps.slice(0, 1)
         points.values = points.values.slice(0, 1)
+      } else if (body.query.includes('state == "idle"')) {
+        throw OXQL_GROUP_BY_ERROR
       }
     }
 

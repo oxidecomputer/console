@@ -15,7 +15,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Children, useMemo, useState, type ReactNode } from 'react'
 import type { LoaderFunctionArgs } from 'react-router'
 
-import { apiq, queryClient } from '@oxide/api'
+import { apiq, OXQL_GROUP_BY_ERROR, queryClient } from '@oxide/api'
 
 import { CopyCodeModal } from '~/components/CopyCode'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
@@ -68,7 +68,7 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
   // flow the emptiness on through, but in the meantime we have to detect
   // this error and pretend it is not an error.
   // See https://github.com/oxidecomputer/omicron/issues/7715
-  const errorMeansEmpty = error?.message === 'Input tables to a `group_by` must be aligned'
+  const errorMeansEmpty = error?.message === OXQL_GROUP_BY_ERROR
   const hasError = !!error && !errorMeansEmpty
 
   const { startTime, endTime } = queryObj

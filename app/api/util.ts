@@ -288,3 +288,5 @@ export function parseIpUtilization({ ipv4, ipv6 }: IpPoolUtilization) {
     },
   }
 }
+
+export const OXQL_GROUP_BY_ERROR = 'Input tables to a `group_by` must be aligned'
