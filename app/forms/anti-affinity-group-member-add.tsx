@@ -7,52 +7,25 @@
  */
 
 import { useForm } from 'react-hook-form'
-import type { LoaderFunctionArgs } from 'react-router'
 
-import { queryClient, useApiMutation, usePrefetchedQuery } from '~/api'
+import { queryClient, useApiMutation, type Instance } from '~/api'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
-import {
-  getAntiAffinityGroupSelector,
-  useAntiAffinityGroupSelector,
-} from '~/hooks/use-params'
+import { useAntiAffinityGroupSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { Modal } from '~/ui/lib/Modal'
 
-import {
-  affinityGroupList,
-  antiAffinityGroupMemberList,
-  instanceList,
-} from './affinity-util'
-
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { antiAffinityGroup, project } = getAntiAffinityGroupSelector(params)
-  await Promise.all([
-    queryClient.prefetchQuery(antiAffinityGroupMemberList({ antiAffinityGroup, project })),
-    queryClient.prefetchQuery(instanceList({ project })),
-    queryClient.prefetchQuery(affinityGroupList({ project })),
-  ])
-  return null
-}
-
 export function AddAntiAffinityGroupMemberForm({
+  availableInstances,
   isModalOpen,
   setIsModalOpen,
 }: {
+  availableInstances: Instance[]
   isModalOpen: boolean
   setIsModalOpen: (open: boolean) => void
 }) {
   const { project, antiAffinityGroup } = useAntiAffinityGroupSelector()
-
-  const { data: members } = usePrefetchedQuery(
-    antiAffinityGroupMemberList({ antiAffinityGroup, project })
-  )
-  const { data: instances } = usePrefetchedQuery(instanceList({ project }))
-  // Construct a list of all instances not currently in this anti-affinity group.
-  const availableInstances = instances.items.filter(
-    (instance) => !members.items.some(({ value }) => value.name === instance.name)
-  )
 
   const form = useForm({
     defaultValues: {

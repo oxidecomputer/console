@@ -87,6 +87,12 @@ export default function AntiAffinityPage() {
   )
   const membersCount = members.items.length
 
+  const { data: instances } = usePrefetchedQuery(instanceList({ project }))
+  // Construct a list of all instances not currently in this anti-affinity group.
+  const availableInstances = instances.items
+    .filter((instance) => !members.items.some(({ value }) => value.name === instance.name))
+    .sort((a, b) => a.name.localeCompare(b.name))
+
   const { mutateAsync: removeMember } = useApiMutation(
     'antiAffinityGroupMemberInstanceDelete',
     {
@@ -176,7 +182,10 @@ export default function AntiAffinityPage() {
           title="Members"
           description="Instances in this anti-affinity group"
         >
-          <CreateButton onClick={() => setIsModalOpen(true)}>
+          <CreateButton
+            onClick={() => setIsModalOpen(true)}
+            disabled={!availableInstances.length}
+          >
             Add instance to group
           </CreateButton>
         </CardBlock.Header>
@@ -185,6 +194,7 @@ export default function AntiAffinityPage() {
         </CardBlock.Body>
       </CardBlock>
       <AddAntiAffinityGroupMemberForm
+        availableInstances={availableInstances}
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
       />
