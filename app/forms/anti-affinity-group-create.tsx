@@ -25,10 +25,11 @@ import { antiAffinityGroupList } from './affinity-util'
 
 export const handle = titleCrumb('New anti-affinity group')
 
-export function clientLoader({ params }: LoaderFunctionArgs) {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
   queryClient.prefetchQuery(antiAffinityGroupList({ project }))
-  return null
+  // the async demands a promise, so this just returns a promise that resolves to null
+  return Promise.resolve(null)
 }
 
 export default function CreateAntiAffintyGroupForm() {
