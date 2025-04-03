@@ -61,18 +61,17 @@ export default function EditAntiAffintyGroupForm() {
     },
   })
 
-  const {
-    data: { items: existingAntiAffinityGroups },
-  } = usePrefetchedQuery(antiAffinityGroupList({ project }))
+  const { data: existingAntiAffinityGroups } = usePrefetchedQuery(
+    antiAffinityGroupList({ project })
+  )
+
   const { data: antiAffinityGroupData } = usePrefetchedQuery(
     antiAffinityGroupView({ project, antiAffinityGroup })
   )
-  const defaultValues: AntiAffinityGroupUpdate = {
-    name: antiAffinityGroupData.name,
-    description: antiAffinityGroupData.description,
-  }
-  const form = useForm({ defaultValues })
-  const control = form.control
+
+  const form = useForm<AntiAffinityGroupUpdate>({
+    defaultValues: { ...antiAffinityGroupData },
+  })
 
   return (
     <SideModalForm
@@ -85,10 +84,7 @@ export default function EditAntiAffintyGroupForm() {
         editAntiAffinityGroup.mutate({
           path: { antiAffinityGroup },
           query: { project },
-          body: {
-            name: values.name || antiAffinityGroupData.name,
-            description: values.description || '',
-          },
+          body: { ...values },
         })
       }}
       loading={editAntiAffinityGroup.isPending}
@@ -97,14 +93,14 @@ export default function EditAntiAffintyGroupForm() {
     >
       <NameField
         name="name"
-        control={control}
+        control={form.control}
         validate={(name) => {
-          if (existingAntiAffinityGroups.find((g) => g.name === name)) {
+          if (existingAntiAffinityGroups.items.find((g) => g.name === name)) {
             return 'Name taken. To update an existing group, edit it directly.'
           }
         }}
       />
-      <DescriptionField name="description" control={control} />
+      <DescriptionField name="description" control={form.control} />
     </SideModalForm>
   )
 }

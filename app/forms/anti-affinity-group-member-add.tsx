@@ -8,7 +8,12 @@
 
 import { useForm } from 'react-hook-form'
 
-import { queryClient, useApiMutation, type Instance } from '~/api'
+import {
+  queryClient,
+  useApiMutation,
+  type AntiAffinityGroupMemberInstanceAddPathParams,
+  type Instance,
+} from '~/api'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
 import { useAntiAffinityGroupSelector } from '~/hooks/use-params'
@@ -27,9 +32,9 @@ export function AddAntiAffinityGroupMemberForm({
 }) {
   const { project, antiAffinityGroup } = useAntiAffinityGroupSelector()
 
-  const form = useForm({
+  const form = useForm<AntiAffinityGroupMemberInstanceAddPathParams>({
     defaultValues: {
-      antiAffinityGroupMember: '',
+      instance: '',
     },
   })
 
@@ -58,7 +63,7 @@ export function AddAntiAffinityGroupMemberForm({
           <ComboboxField
             label="Instance"
             placeholder="Select an instance"
-            name="antiAffinityGroupMember"
+            name="instance"
             items={toComboboxItems(availableInstances)}
             required
             control={form.control}
@@ -71,7 +76,7 @@ export function AddAntiAffinityGroupMemberForm({
           addMember({
             path: {
               antiAffinityGroup,
-              instance: form.getValues('antiAffinityGroupMember'),
+              instance: form.getValues('instance'),
             },
             query: { project },
           })

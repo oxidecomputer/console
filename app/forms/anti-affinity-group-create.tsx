@@ -12,7 +12,7 @@ import {
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
-  type AffinityPolicy,
+  type AntiAffinityGroupCreate,
 } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -28,13 +28,6 @@ import { pb } from '~/util/path-builder'
 import { affinityGroupList, antiAffinityGroupList } from './affinity-util'
 
 export const handle = titleCrumb('New anti-affinity group')
-
-type AntiAffinityGroupFormValues = {
-  name: string
-  description: string
-  policy: AffinityPolicy
-  affinityGroupMembers: string[]
-}
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
@@ -62,13 +55,13 @@ export default function CreateAntiAffintyGroupForm() {
   const {
     data: { items: existingAntiAffinityGroups },
   } = usePrefetchedQuery(antiAffinityGroupList({ project }))
-  const defaultValues: AntiAffinityGroupFormValues = {
+  const defaultValues = {
     name: '',
     description: '',
-    policy: 'allow',
-    affinityGroupMembers: [],
+    failureDomain: 'sled' as const,
+    policy: 'allow' as const,
   }
-  const form = useForm({ defaultValues })
+  const form = useForm<AntiAffinityGroupCreate>({ defaultValues })
   const control = form.control
 
   return (
@@ -81,12 +74,7 @@ export default function CreateAntiAffintyGroupForm() {
       onSubmit={(values) => {
         createAntiAffinityGroup.mutate({
           query: { project },
-          body: {
-            name: values.name,
-            description: values.description,
-            policy: values.policy,
-            failureDomain: 'sled',
-          },
+          body: { ...values },
         })
       }}
       loading={createAntiAffinityGroup.isPending}
