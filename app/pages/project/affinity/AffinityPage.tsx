@@ -157,7 +157,7 @@ export default function AffinityPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Affinity24Icon />}>Anti-Affinity Groups</PageTitle>
+        <PageTitle icon={<Affinity24Icon />}>Affinity</PageTitle>
         <div className="inline-flex gap-2">
           {/* TODO: Add a DocsPopover with docLinks.affinity once the doc page exists */}
         </div>
