@@ -90,9 +90,9 @@ export default function AntiAffinityPage() {
 
   const { data: instances } = usePrefetchedQuery(instanceList({ project }))
   // Construct a list of all instances not currently in this anti-affinity group.
-  const availableInstances = instances.items
-    .filter((instance) => !members.items.some(({ value }) => value.name === instance.name))
-    .sort((a, b) => a.name.localeCompare(b.name))
+  const availableInstances = instances.items.filter(
+    (instance) => !members.items.some(({ value }) => value.name === instance.name)
+  )
 
   const { mutateAsync: removeMember } = useApiMutation(
     'antiAffinityGroupMemberInstanceDelete',
