@@ -58,8 +58,8 @@ const colHelper = createColumnHelper<AntiAffinityGroupMember>()
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { antiAffinityGroup, project } = getAntiAffinityGroupSelector(params)
   await Promise.all([
-    queryClient.fetchQuery(antiAffinityGroupView({ antiAffinityGroup, project })),
-    queryClient.fetchQuery(antiAffinityGroupMemberList({ antiAffinityGroup, project })),
+    queryClient.prefetchQuery(antiAffinityGroupView({ antiAffinityGroup, project })),
+    queryClient.prefetchQuery(antiAffinityGroupMemberList({ antiAffinityGroup, project })),
     queryClient.prefetchQuery(instanceList({ project })),
     queryClient.prefetchQuery(affinityGroupList({ project })),
   ])

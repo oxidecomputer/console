@@ -29,7 +29,7 @@ import {
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { antiAffinityGroup, project } = getAntiAffinityGroupSelector(params)
   await Promise.all([
-    queryClient.fetchQuery(antiAffinityGroupMemberList({ antiAffinityGroup, project })),
+    queryClient.prefetchQuery(antiAffinityGroupMemberList({ antiAffinityGroup, project })),
     queryClient.prefetchQuery(instanceList({ project })),
     queryClient.prefetchQuery(affinityGroupList({ project })),
   ])
