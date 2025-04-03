@@ -21,7 +21,6 @@ import {
 import { Affinity24Icon } from '@oxide/design-system/icons/react'
 
 import { HL } from '~/components/HL'
-import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { antiAffinityGroupList, antiAffinityGroupMemberList } from '~/forms/affinity-util'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
@@ -33,7 +32,6 @@ import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
 import { CreateLink } from '~/ui/lib/CreateButton'
-import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { Slash } from '~/ui/lib/Slash'
@@ -58,26 +56,6 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 
 const colHelper = createColumnHelper<AntiAffinityGroup>()
 
-export const AffinityPageHeader = ({ name = 'Affinity' }: { name?: string }) => {
-  const { project } = useProjectSelector()
-  return (
-    <PageHeader>
-      <PageTitle icon={<Affinity24Icon />}>{name}</PageTitle>
-      <div className="inline-flex gap-2">
-        {/* TODO: Add a DocsPopover with docLinks.affinity once the doc page exists */}
-        {name !== 'Affinity' && (
-          <MoreActionsMenu label="Anti-affinity group actions">
-            <DropdownMenu.LinkItem
-              to={pb.antiAffinityGroupEdit({ project, antiAffinityGroup: name })}
-            >
-              Edit
-            </DropdownMenu.LinkItem>
-          </MoreActionsMenu>
-        )}
-      </div>
-    </PageHeader>
-  )
-}
 type AffinityGroupPolicyBadgeProps = { policy: AffinityPolicy; className?: string }
 const AffinityGroupPolicyBadge = ({ policy, className }: AffinityGroupPolicyBadgeProps) => (
   <Badge
@@ -180,7 +158,12 @@ export default function AffinityPage() {
 
   return (
     <>
-      <AffinityPageHeader />
+      <PageHeader>
+        <PageTitle icon={<Affinity24Icon />}>Affinity</PageTitle>
+        <div className="inline-flex gap-2">
+          {/* TODO: Add a DocsPopover with docLinks.affinity once the doc page exists */}
+        </div>
+      </PageHeader>
       <TableActions>
         <CreateLink to={pb.affinityNew({ project })}>New anti-affinity group</CreateLink>
       </TableActions>

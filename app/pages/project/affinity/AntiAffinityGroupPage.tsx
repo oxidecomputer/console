@@ -19,6 +19,7 @@ import {
   type AntiAffinityGroupMember,
 } from '~/api'
 import { HL } from '~/components/HL'
+import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import {
   affinityGroupList,
   antiAffinityGroupMemberList,
@@ -41,12 +42,12 @@ import { Badge } from '~/ui/lib/Badge'
 import { CardBlock } from '~/ui/lib/CardBlock'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { Divider } from '~/ui/lib/Divider'
+import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { pb } from '~/util/path-builder'
-
-import { AffinityPageHeader } from './AffinityPage'
 
 export const handle = makeCrumb(
   (p) => p.antiAffinityGroup!,
@@ -163,7 +164,19 @@ export default function AntiAffinityPage() {
 
   return (
     <>
-      <AffinityPageHeader name={name} />
+      <PageHeader>
+        <PageTitle icon={<Affinity24Icon />}>{name}</PageTitle>
+        <div className="inline-flex gap-2">
+          {/* TODO: Add a DocsPopover with docLinks.affinity once the doc page exists */}
+          <MoreActionsMenu label="Anti-affinity group actions">
+            <DropdownMenu.LinkItem
+              to={pb.antiAffinityGroupEdit({ project, antiAffinityGroup: name })}
+            >
+              Edit
+            </DropdownMenu.LinkItem>
+          </MoreActionsMenu>
+        </div>
+      </PageHeader>
       <PropertiesTable columns={2} className="-mt-8 mb-8">
         <PropertiesTable.Row label="type">
           <Badge>anti-affinity</Badge>
