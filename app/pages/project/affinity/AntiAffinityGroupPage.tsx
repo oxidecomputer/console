@@ -157,7 +157,7 @@ export default function AntiAffinityPage() {
   })
 
   const disabledReason = () => {
-    // https://github.com/oxidecomputer/omicron/blob/main/nexus/db-queries/src/db/datastore/affinity.rs#L66
+    // https://github.com/oxidecomputer/omicron/blob/77c4136a767d4d1365c3ad715a335da9035415db/nexus/db-queries/src/db/datastore/affinity.rs#L66
     if (membersCount >= 32) {
       return 'Maximum number of members reached'
     }
