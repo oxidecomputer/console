@@ -110,12 +110,6 @@ export default function AntiAffinityPage() {
   const makeActions = useCallback(
     (antiAffinityGroupMember: AntiAffinityGroupMember): MenuAction[] => [
       {
-        label: 'Copy instance ID',
-        onActivate() {
-          navigator.clipboard.writeText(antiAffinityGroupMember.value.id)
-        },
-      },
-      {
         label: 'Remove from group',
         onActivate() {
           confirmAction({

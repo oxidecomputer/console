@@ -11,8 +11,8 @@ import { filesize } from 'filesize'
 import type { InstanceState } from '~/api'
 import { InstanceStateBadge } from '~/components/StateBadge'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
+import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { DateTime } from '~/ui/lib/DateTime'
-import { Truncate } from '~/ui/lib/Truncate'
 
 // the full type of the info arg is CellContext<Row, Item> from RT, but in these
 // cells we only care about the return value of getValue
@@ -23,7 +23,15 @@ function dateCell(info: Info<Date>) {
 }
 
 function idCell(info: Info<string>) {
-  return <Truncate text={info.getValue()} maxLength={14} position="middle" hasCopyButton />
+  const text = info.getValue()
+  return (
+    <div className="flex items-center gap-0.5 overflow-hidden">
+      {text}
+      <div className="flex items-center p-0.5">
+        <CopyToClipboard text={text} />
+      </div>
+    </div>
+  )
 }
 
 function instanceStateCell(info: Info<InstanceState>) {
