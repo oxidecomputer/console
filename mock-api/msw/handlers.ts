@@ -1668,9 +1668,6 @@ export const handlers = makeHandlers({
       antiAffinityGroup.name = body.name
     }
     updateDesc(antiAffinityGroup, body)
-    if (body.description) {
-      antiAffinityGroup.description = body.description
-    }
     return antiAffinityGroup
   },
   antiAffinityGroupList: ({ query }) => {
