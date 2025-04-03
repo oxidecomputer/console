@@ -11,7 +11,6 @@ import { filesize } from 'filesize'
 import type { InstanceState } from '~/api'
 import { InstanceStateBadge } from '~/components/StateBadge'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
-import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { DateTime } from '~/ui/lib/DateTime'
 import { Truncate } from '~/ui/lib/Truncate'
 
@@ -24,12 +23,7 @@ function dateCell(info: Info<Date>) {
 }
 
 function idCell(info: Info<string>) {
-  return (
-    <span className="flex max-w-full items-center gap-0.5">
-      <Truncate text={info.getValue()} maxLength={14} position="middle" />
-      <CopyToClipboard text={info.getValue()} />
-    </span>
-  )
+  return <Truncate text={info.getValue()} maxLength={14} position="middle" hasCopyButton />
 }
 
 function instanceStateCell(info: Info<InstanceState>) {
