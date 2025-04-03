@@ -41,3 +41,31 @@ test('Instance metrics work for non-fleet viewer', async ({ browser }) => {
   // we don't want an error, we want the data!
   await expect(page.getByText('Something went wrong')).toBeHidden()
 })
+
+test('empty and loading states', async ({ page }) => {
+  // we have special handling in the API to return special data for this project
+  await page.goto('/projects/other-project/instances/failed-restarting-soon/metrics/cpu')
+
+  const loading = page.getByLabel('Chart loading') // aria-label on loading indicator
+  const noData = page.getByText('No data', { exact: true })
+
+  // default running state returns two data points, which get turned into one by
+  // the data munging
+  await expect(loading).toBeVisible()
+  await expect(loading).toBeHidden()
+  await expect(noData).toBeHidden()
+
+  const statePicker = page.getByRole('button', { name: 'Choose state' })
+
+  // emulation state returns one data point
+  await statePicker.click()
+  await page.getByRole('option', { name: 'State: Emulation' }).click()
+  await expect(loading).toBeVisible()
+  await expect(loading).toBeHidden()
+  await expect(noData).toBeVisible()
+
+  // make sure it goes away agan for the first one
+  await statePicker.click()
+  await page.getByRole('option', { name: 'State: Running' }).click()
+  await expect(noData).toBeHidden()
+})

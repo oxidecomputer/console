@@ -1620,8 +1620,13 @@ export const handlers = makeHandlers({
     if (query.project === 'other-project') {
       // 1. return only one data point
       const points = Object.values(data.tables[0].timeseries)[0].points
-      points.timestamps = points.timestamps.slice(0, 2)
-      points.values = points.values.slice(0, 2)
+      if (body.query.includes('state == "run"')) {
+        points.timestamps = points.timestamps.slice(0, 2)
+        points.values = points.values.slice(0, 2)
+      } else if (body.query.includes('state == "emulation"')) {
+        points.timestamps = points.timestamps.slice(0, 1)
+        points.values = points.values.slice(0, 1)
+      }
     }
 
     return data

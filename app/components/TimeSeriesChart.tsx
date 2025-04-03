@@ -290,7 +290,7 @@ export function TimeSeriesChart({
 }
 
 const MetricsLoadingIndicator = () => (
-  <div className="metrics-loading-indicator">
+  <div className="metrics-loading-indicator" aria-label="Chart loading">
     <span></span>
     <span></span>
     <span></span>
@@ -308,7 +308,7 @@ const MetricsMessage = ({
 }) => (
   <>
     <div className="z-10 flex w-52 flex-col items-center justify-center gap-1">
-      <div className="my-2 flex h-8 w-8 items-center justify-center">{icon}</div>
+      {icon}
       <div className="text-semi-lg text-center text-raise">{title}</div>
       <div className="text-balance text-center text-sans-md text-secondary">
         {description}
@@ -327,10 +327,10 @@ const MetricsMessage = ({
 const MetricsError = () => (
   <MetricsMessage
     icon={
-      <>
+      <div className="my-2 flex h-8 w-8 items-center justify-center">
         <div className="absolute h-8 w-8 rounded-full opacity-20 bg-destructive motion-safe:animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
         <Error12Icon className="relative h-6 w-6 text-error-tertiary" />
-      </>
+      </div>
     }
     title="Something went wrong"
     description="Please try again. If the problem persists, contact your administrator."
@@ -339,8 +339,8 @@ const MetricsError = () => (
 
 const MetricsEmpty = () => (
   <MetricsMessage
-    // icon={<Char className="h-6 w-6 text-secondary" />}
-    title="No data"
+    // mt-3 is a shameful hack to get it vertically centered in the chart
+    title={<div className="mt-3">No data</div>}
     description="There is no data for this time period."
   />
 )

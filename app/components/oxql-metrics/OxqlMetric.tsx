@@ -19,7 +19,7 @@ import { apiq, queryClient } from '@oxide/api'
 
 import { CopyCodeModal } from '~/components/CopyCode'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
-import { getInstanceSelector } from '~/hooks/use-params'
+import { getInstanceSelector, useProjectSelector } from '~/hooks/use-params'
 import { LearnMore } from '~/ui/lib/CardBlock'
 import * as Dropdown from '~/ui/lib/DropdownMenu'
 import { classed } from '~/util/classed'
@@ -51,12 +51,13 @@ export type OxqlMetricProps = OxqlQuery & {
 
 export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetricProps) {
   const query = toOxqlStr(queryObj)
+  const { project } = useProjectSelector()
   const {
     data: metrics,
     error,
-    isPending,
+    isLoading,
   } = useQuery(
-    apiq('systemTimeseriesQuery', { body: { query } })
+    apiq('timeseriesQuery', { body: { query }, query: { project } })
     // avoid graphs flashing blank while loading when you change the time
     // { placeholderData: (x) => x }
   )
@@ -113,7 +114,8 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
         data={data}
         yAxisTickFormatter={yAxisTickFormatter}
         hasError={hasError}
-        loading={isPending}
+        // isLoading only covers first load --- future-proof against the reintroduction of interval refresh
+        loading={isLoading}
       />
     </ChartContainer>
   )
