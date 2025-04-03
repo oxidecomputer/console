@@ -1614,7 +1614,17 @@ export const handlers = makeHandlers({
 
     // timeseries queries are slower than most other queries
     await delay(1000)
-    return handleOxqlMetrics(body)
+    const data = handleOxqlMetrics(body)
+
+    // we use other-project to test certain response cases
+    if (query.project === 'other-project') {
+      // 1. return only one data point
+      const points = Object.values(data.tables[0].timeseries)[0].points
+      points.timestamps = points.timestamps.slice(0, 2)
+      points.values = points.values.slice(0, 2)
+    }
+
+    return data
   },
   async systemTimeseriesQuery({ cookies, body }) {
     requireFleetViewer(cookies)
