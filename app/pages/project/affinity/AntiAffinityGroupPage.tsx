@@ -25,7 +25,7 @@ import {
   antiAffinityGroupView,
   instanceList,
 } from '~/forms/affinity-util'
-import { AddAntiAffinityGroupMemberForm } from '~/forms/anti-affinity-group-member-add'
+import AddAntiAffinityGroupMemberForm from '~/forms/anti-affinity-group-member-add'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import {
   getAntiAffinityGroupSelector,

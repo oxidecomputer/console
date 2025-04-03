@@ -21,7 +21,7 @@ import { addToast } from '~/stores/toast'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { Modal } from '~/ui/lib/Modal'
 
-export function AddAntiAffinityGroupMemberForm({
+export default function AddAntiAffinityGroupMemberForm({
   availableInstances,
   isModalOpen,
   setIsModalOpen,
