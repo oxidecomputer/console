@@ -115,10 +115,10 @@ export function ProjectLayoutBase({ overrideContentPane }: ProjectLayoutProps) {
             <IpGlobal16Icon /> Floating IPs
           </NavLinkItem>
           <NavLinkItem to={pb.affinity(projectSelector)}>
-            <Affinity16Icon title="Affinity" /> Affinity
+            <Affinity16Icon /> Affinity
           </NavLinkItem>
           <NavLinkItem to={pb.projectAccess(projectSelector)}>
-            <Access16Icon title="access" /> Access
+            <Access16Icon /> Access
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
