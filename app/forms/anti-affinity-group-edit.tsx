@@ -78,7 +78,7 @@ export default function EditAntiAffintyGroupForm() {
       form={form}
       formType="create"
       resourceName="rule"
-      title="Add anti-affinity group"
+      title="Edit anti-affinity group"
       onDismiss={onDismiss}
       onSubmit={(values) => {
         editAntiAffinityGroup.mutate({

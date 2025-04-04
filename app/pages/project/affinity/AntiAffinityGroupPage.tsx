@@ -21,7 +21,6 @@ import {
 import { HL } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import {
-  affinityGroupList,
   antiAffinityGroupMemberList,
   antiAffinityGroupView,
   instanceList,
@@ -62,7 +61,6 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     queryClient.prefetchQuery(antiAffinityGroupView({ antiAffinityGroup, project })),
     queryClient.prefetchQuery(antiAffinityGroupMemberList({ antiAffinityGroup, project })),
     queryClient.prefetchQuery(instanceList({ project })),
-    queryClient.prefetchQuery(affinityGroupList({ project })),
   ])
   return null
 }
@@ -141,7 +139,7 @@ export default function AntiAffinityPage() {
   const columns = useColsWithActions(
     [
       colHelper.accessor('value.name', {
-        header: 'Name',
+        header: 'name',
         cell: makeLinkCell((instance) => pb.instance({ project, instance })),
       }),
       colHelper.accessor('value.runState', Columns.instanceState),
