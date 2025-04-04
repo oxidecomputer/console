@@ -280,7 +280,9 @@ export const getMockOxqlInstanceData = (
   state?: OxqlVcpuState
 ): Json<OxqlQueryResult> => {
   const values = state ? mockOxqlVcpuStateValues[state] : mockOxqlValues[name]
-  return {
+  // structuredClone lets us mutate data in the calling code without messing up
+  // the source data
+  return structuredClone({
     tables: [
       {
         name: name,
@@ -310,5 +312,5 @@ export const getMockOxqlInstanceData = (
         },
       },
     ],
-  }
+  })
 }

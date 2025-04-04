@@ -26,7 +26,7 @@ import {
 } from '@oxide/api'
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
-import { instanceCan } from '~/api/util'
+import { instanceCan, OXQL_GROUP_BY_ERROR } from '~/api/util'
 import { parseIp } from '~/util/ip'
 import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
@@ -1614,7 +1614,24 @@ export const handlers = makeHandlers({
 
     // timeseries queries are slower than most other queries
     await delay(1000)
-    return handleOxqlMetrics(body)
+    const data = handleOxqlMetrics(body)
+
+    // we use other-project to test certain response cases
+    if (query.project === 'other-project') {
+      // 1. return only one data point
+      const points = Object.values(data.tables[0].timeseries)[0].points
+      if (body.query.includes('state == "run"')) {
+        points.timestamps = points.timestamps.slice(0, 2)
+        points.values = points.values.slice(0, 2)
+      } else if (body.query.includes('state == "emulation"')) {
+        points.timestamps = points.timestamps.slice(0, 1)
+        points.values = points.values.slice(0, 1)
+      } else if (body.query.includes('state == "idle"')) {
+        throw OXQL_GROUP_BY_ERROR
+      }
+    }
+
+    return data
   },
   async systemTimeseriesQuery({ cookies, body }) {
     requireFleetViewer(cookies)

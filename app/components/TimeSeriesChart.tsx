@@ -118,6 +118,7 @@ type TimeSeriesChartProps = {
   unit?: string
   yAxisTickFormatter?: (val: number) => string
   hasError?: boolean
+  loading: boolean
 }
 
 const TICK_COUNT = 6
@@ -173,6 +174,7 @@ export function TimeSeriesChart({
   unit,
   yAxisTickFormatter = (val) => val.toLocaleString(),
   hasError = false,
+  loading,
 }: TimeSeriesChartProps) {
   // We use the largest data point +20% for the graph scale. !rawData doesn't
   // mean it's empty (it will never be empty because we fill in artificial 0s at
@@ -213,10 +215,17 @@ export function TimeSeriesChart({
     )
   }
 
-  if (!data || data.length === 0) {
+  if (loading) {
     return (
       <SkeletonMetric shimmer>
         <MetricsLoadingIndicator />
+      </SkeletonMetric>
+    )
+  }
+  if (!data || data.length === 0) {
+    return (
+      <SkeletonMetric>
+        <MetricsEmpty />
       </SkeletonMetric>
     )
   }
@@ -281,23 +290,28 @@ export function TimeSeriesChart({
 }
 
 const MetricsLoadingIndicator = () => (
-  <div className="metrics-loading-indicator">
+  <div className="metrics-loading-indicator" aria-label="Chart loading">
     <span></span>
     <span></span>
     <span></span>
   </div>
 )
 
-const MetricsError = () => (
+const MetricsMessage = ({
+  icon,
+  title,
+  description,
+}: {
+  icon?: React.ReactNode
+  title: React.ReactNode
+  description: React.ReactNode
+}) => (
   <>
     <div className="z-10 flex w-52 flex-col items-center justify-center gap-1">
-      <div className="my-2 flex h-8 w-8 items-center justify-center">
-        <div className="absolute h-8 w-8 rounded-full opacity-20 bg-destructive motion-safe:animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
-        <Error12Icon className="relative h-6 w-6 text-error-tertiary" />
-      </div>
-      <div className="text-semi-lg text-center text-raise">Something went wrong</div>
-      <div className="text-center text-sans-md text-secondary">
-        Please try again. If the problem persists, contact your administrator.
+      {icon}
+      <div className="text-semi-lg text-center text-raise">{title}</div>
+      <div className="text-balance text-center text-sans-md text-secondary">
+        {description}
       </div>
     </div>
     <div
@@ -310,6 +324,26 @@ const MetricsError = () => (
   </>
 )
 
+const MetricsError = () => (
+  <MetricsMessage
+    icon={
+      <div className="my-2 flex h-8 w-8 items-center justify-center">
+        <div className="absolute h-8 w-8 rounded-full opacity-20 bg-destructive motion-safe:animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
+        <Error12Icon className="relative h-6 w-6 text-error-tertiary" />
+      </div>
+    }
+    title="Something went wrong"
+    description="Please try again. If the problem persists, contact your administrator."
+  />
+)
+
+const MetricsEmpty = () => (
+  <MetricsMessage
+    // mt-3 is a shameful hack to get it vertically centered in the chart
+    title={<div className="mt-3">No data</div>}
+    description="There is no data for this time period."
+  />
+)
 export const ChartContainer = classed.div`flex w-full grow flex-col rounded-lg border border-default`
 
 type ChartHeaderProps = {
