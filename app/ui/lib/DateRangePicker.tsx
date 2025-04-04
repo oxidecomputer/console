@@ -86,30 +86,31 @@ export function DateRangePicker(props: DateRangePickerProps) {
         <Popover triggerRef={ref} state={state} placement="bottom start">
           <Dialog {...dialogProps}>
             <RangeCalendar {...calendarProps} />
-            <div className="flex items-center space-x-2 border-t p-4 border-t-secondary">
-              <TimeField
-                label="Start time"
-                value={state.timeRange?.start || null}
-                onChange={(v) => state.setTime('start', v)}
-                hourCycle={24}
-                className="shrink-0 grow basis-0"
-              />
-              <div className="text-quaternary">–</div>
-              <TimeField
-                label="End time"
-                value={state.timeRange?.end || null}
-                onChange={(v) => state.setTime('end', v)}
-                hourCycle={24}
-                className="shrink-0 grow basis-0"
-              />
-            </div>
-            <div className="flex items-center justify-center space-x-2 px-4 border-t-secondary">
+            <div className="flex flex-col items-center gap-3 border-t p-4 border-t-secondary">
+              <div className="flex w-full items-center space-x-2">
+                <TimeField
+                  label="Start time"
+                  value={state.timeRange?.start || null}
+                  onChange={(v) => state.setTime('start', v)}
+                  hourCycle={24}
+                  className="shrink-0 grow basis-0"
+                />
+                <div className="text-quaternary">–</div>
+                <TimeField
+                  label="End time"
+                  value={state.timeRange?.end || null}
+                  onChange={(v) => state.setTime('end', v)}
+                  hourCycle={24}
+                  className="shrink-0 grow basis-0"
+                />
+              </div>
               {state.isInvalid && (
-                <p {...errorMessageProps} className="-mt-1 mb-4 text-sans-md text-error">
+                <p {...errorMessageProps} className="text-sans-md text-error">
                   Date range is invalid
                 </p>
               )}
             </div>
+            <div className="flex items-center justify-center space-x-2 px-4 border-t-secondary"></div>
           </Dialog>
         </Popover>
       )}
