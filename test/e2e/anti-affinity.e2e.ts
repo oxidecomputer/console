@@ -8,7 +8,7 @@
 
 import { expect, test } from '@playwright/test'
 
-import { clickRowAction, expectRowVisible } from './utils'
+import { clickRowAction, closeToast, expectRowVisible } from './utils'
 
 test('can nav to Affinity from /', async ({ page }) => {
   await page.goto('/')
@@ -125,4 +125,24 @@ test('can delete an anti-affinity group', async ({ page }) => {
   await expect(page).toHaveURL('/projects/mock-project/affinity')
   // check that we can see the new anti-affinity group in the table
   await expect(page.getByRole('table').getByText('set-osiris')).toBeVisible()
+})
+
+test('can delete anti-affinity group from detail page', async ({ page }) => {
+  await page.goto('/projects/mock-project/affinity/romulus-remus')
+
+  const modal = page.getByRole('dialog', { name: 'Confirm delete' })
+  await expect(modal).toBeHidden()
+
+  await page.getByLabel('Anti-affinity group actions').click()
+  await page.getByRole('menuitem', { name: 'Delete' }).click()
+
+  await expect(modal).toBeVisible()
+  await page.getByRole('button', { name: 'Confirm' }).click()
+
+  // modal closes, row is gone
+  await expect(modal).toBeHidden()
+  await closeToast(page)
+  await expect(page).toHaveURL('/projects/mock-project/affinity')
+  await expectRowVisible(page.getByRole('table'), { name: 'set-osiris' })
+  await expect(page.getByRole('cell', { name: 'romulus-remus' })).toBeHidden()
 })

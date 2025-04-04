@@ -22,6 +22,12 @@ import { pb } from '~/util/path-builder'
 
 export const handle = titleCrumb('New anti-affinity group')
 
+const defaultValues: Omit<AntiAffinityGroupCreate, 'failureDomain'> = {
+  name: '',
+  description: '',
+  policy: 'allow',
+}
+
 export default function CreateAntiAffintyGroupForm() {
   const { project } = useProjectSelector()
 
@@ -35,13 +41,7 @@ export default function CreateAntiAffintyGroupForm() {
     },
   })
 
-  const defaultValues = {
-    name: '',
-    description: '',
-    failureDomain: 'sled' as const,
-    policy: 'allow' as const,
-  }
-  const form = useForm<AntiAffinityGroupCreate>({ defaultValues })
+  const form = useForm({ defaultValues })
   const control = form.control
 
   return (
@@ -51,12 +51,12 @@ export default function CreateAntiAffintyGroupForm() {
       resourceName="rule"
       title="Add anti-affinity group"
       onDismiss={() => navigate(pb.affinity({ project }))}
-      onSubmit={(values) => {
+      onSubmit={(values) =>
         createAntiAffinityGroup.mutate({
           query: { project },
-          body: { ...values },
+          body: { ...values, failureDomain: 'sled' },
         })
-      }}
+      }
       loading={createAntiAffinityGroup.isPending}
       submitError={createAntiAffinityGroup.error}
       submitLabel="Add group"

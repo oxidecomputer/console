@@ -7,6 +7,7 @@
  */
 import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import * as R from 'remeda'
 
 import {
   queryClient,
@@ -51,13 +52,12 @@ export default function EditAntiAffintyGroupForm() {
     },
   })
 
-  const { data: antiAffinityGroupData } = usePrefetchedQuery(
+  const { data: group } = usePrefetchedQuery(
     antiAffinityGroupView({ project, antiAffinityGroup })
   )
 
-  const form = useForm<AntiAffinityGroupUpdate>({
-    defaultValues: { ...antiAffinityGroupData },
-  })
+  const defaultValues: AntiAffinityGroupUpdate = R.pick(group, ['name', 'description'])
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm
@@ -70,7 +70,7 @@ export default function EditAntiAffintyGroupForm() {
         editAntiAffinityGroup.mutate({
           path: { antiAffinityGroup },
           query: { project },
-          body: { ...values },
+          body: values,
         })
       }}
       loading={editAntiAffinityGroup.isPending}

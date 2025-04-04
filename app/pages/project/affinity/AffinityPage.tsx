@@ -17,13 +17,13 @@ import {
   type AffinityPolicy,
   type AntiAffinityGroup,
 } from '@oxide/api'
-import { Affinity16Icon, Affinity24Icon } from '@oxide/design-system/icons/react'
+import { Affinity24Icon } from '@oxide/design-system/icons/react'
 
-import { DocsPopover } from '~/components/DocsPopover'
+import { AffinityDocsPopover } from '~/components/AffinityDocsPopover'
 import { HL } from '~/components/HL'
 import { antiAffinityGroupList, antiAffinityGroupMemberList } from '~/forms/affinity-util'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
-import { confirmAction } from '~/stores/confirm-action'
+import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
@@ -36,7 +36,6 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
-import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
@@ -113,24 +112,15 @@ export default function AffinityPage() {
       },
       {
         label: 'Delete',
-        onActivate() {
-          confirmAction({
-            actionType: 'danger',
-            doAction: () =>
-              deleteGroup({
-                path: { antiAffinityGroup: antiAffinityGroup.name },
-                query: { project },
-              }),
-            modalTitle: 'Delete anti-affinity group',
-            modalContent: (
-              <p>
-                Are you sure you want to delete the anti-affinity group{' '}
-                <HL>{antiAffinityGroup.name}</HL>?
-              </p>
-            ),
-            errorTitle: `Error removing ${antiAffinityGroup.name}`,
-          })
-        },
+        onActivate: confirmDelete({
+          doDelete: () =>
+            deleteGroup({
+              path: { antiAffinityGroup: antiAffinityGroup.name },
+              query: { project },
+            }),
+          label: antiAffinityGroup.name,
+          resourceKind: 'anti-affinity group',
+        }),
       },
     ],
     [project, deleteGroup]
@@ -159,12 +149,7 @@ export default function AffinityPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Affinity24Icon />}>Affinity</PageTitle>
-        <DocsPopover
-          heading="affinity"
-          icon={<Affinity16Icon />}
-          summary="Instances in an anti-affinity group will be placed on different sleds when they start. The policy attribute controls whether this is a hard or soft constraint."
-          links={[docLinks.affinity]}
-        />{' '}
+        <AffinityDocsPopover />
       </PageHeader>
       <TableActions>
         <CreateLink to={pb.affinityNew({ project })}>New group</CreateLink>

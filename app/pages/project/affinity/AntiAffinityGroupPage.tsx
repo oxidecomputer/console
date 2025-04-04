@@ -8,7 +8,7 @@
 
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useState } from 'react'
-import { Outlet, type LoaderFunctionArgs } from 'react-router'
+import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import { Affinity24Icon } from '@oxide/design-system/icons/react'
 
@@ -18,6 +18,7 @@ import {
   usePrefetchedQuery,
   type AntiAffinityGroupMember,
 } from '~/api'
+import { AffinityDocsPopover } from '~/components/AffinityDocsPopover'
 import { HL } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import {
@@ -32,6 +33,7 @@ import {
   useAntiAffinityGroupSelector,
 } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
+import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -102,6 +104,17 @@ export default function AntiAffinityPage() {
       },
     }
   )
+
+  const navigate = useNavigate()
+
+  const { mutateAsync: deleteGroup } = useApiMutation('antiAffinityGroupDelete', {
+    onSuccess() {
+      navigate(pb.affinity({ project }))
+      queryClient.invalidateEndpoint('antiAffinityGroupList')
+      addToast(<>Anti-affinity group <HL>{group.name}</HL> deleted</>) // prettier-ignore
+    },
+  })
+
   // useState is at this level so the CreateButton can open the modal
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -173,13 +186,26 @@ export default function AntiAffinityPage() {
       <PageHeader>
         <PageTitle icon={<Affinity24Icon />}>{name}</PageTitle>
         <div className="inline-flex gap-2">
-          {/* TODO: Add a DocsPopover with docLinks.affinity once the doc page exists */}
+          <AffinityDocsPopover />
           <MoreActionsMenu label="Anti-affinity group actions">
             <DropdownMenu.LinkItem
               to={pb.antiAffinityGroupEdit({ project, antiAffinityGroup: name })}
             >
               Edit
             </DropdownMenu.LinkItem>
+            <DropdownMenu.Item
+              label="Delete"
+              onSelect={confirmDelete({
+                doDelete: () =>
+                  deleteGroup({
+                    path: { antiAffinityGroup: group.name },
+                    query: { project },
+                  }),
+                label: group.name,
+                resourceKind: 'anti-affinity group',
+              })}
+              className="destructive"
+            />
           </MoreActionsMenu>
         </div>
       </PageHeader>
