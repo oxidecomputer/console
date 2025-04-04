@@ -18,7 +18,7 @@ import {
   usePrefetchedQuery,
   type AntiAffinityGroupMember,
 } from '~/api'
-import { AffinityDocsPopover } from '~/components/AffinityDocsPopover'
+import { AffinityDocsPopover, AffinityPolicyHeader } from '~/components/AffinityDocsPopover'
 import { HL } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import {
@@ -214,7 +214,7 @@ export default function AntiAffinityPage() {
           <Badge>anti-affinity</Badge>
         </PropertiesTable.Row>
         <PropertiesTable.DescriptionRow description={description} />
-        <PropertiesTable.Row label="policy">
+        <PropertiesTable.Row label={<AffinityPolicyHeader />}>
           <Badge color="neutral">{policy}</Badge>
         </PropertiesTable.Row>
         <PropertiesTable.DateRow date={timeCreated} label="Created" />

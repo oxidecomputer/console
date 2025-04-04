@@ -7,6 +7,8 @@
  */
 import { Affinity16Icon } from '@oxide/design-system/icons/react'
 
+import { policyHelpText } from '~/forms/affinity-util'
+import { TipIcon } from '~/ui/lib/TipIcon'
 import { docLinks } from '~/util/links'
 
 import { DocsPopover } from './DocsPopover'
@@ -15,7 +17,13 @@ export const AffinityDocsPopover = () => (
   <DocsPopover
     heading="affinity"
     icon={<Affinity16Icon />}
-    summary="Instances in an anti-affinity group will be placed on different sleds when they start. The policy controls whether this is a hard or soft constraint."
+    summary="Instances in an anti-affinity group will be placed on different sleds when they start."
     links={[docLinks.affinity]}
   />
+)
+
+export const AffinityPolicyHeader = () => (
+  <>
+    Policy<TipIcon className="ml-1.5">{policyHelpText}</TipIcon>
+  </>
 )

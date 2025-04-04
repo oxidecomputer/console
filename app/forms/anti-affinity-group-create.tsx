@@ -20,6 +20,8 @@ import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 
+import { policyHelpText } from './affinity-util'
+
 export const handle = titleCrumb('New anti-affinity group')
 
 const defaultValues: Omit<AntiAffinityGroupCreate, 'failureDomain'> = {
@@ -28,7 +30,7 @@ const defaultValues: Omit<AntiAffinityGroupCreate, 'failureDomain'> = {
   policy: 'allow',
 }
 
-export default function CreateAntiAffintyGroupForm() {
+export default function CreateAntiAffinityGroupForm() {
   const { project } = useProjectSelector()
 
   const navigate = useNavigate()
@@ -65,6 +67,7 @@ export default function CreateAntiAffintyGroupForm() {
       <DescriptionField name="description" control={control} />
       <RadioField
         name="policy"
+        description={policyHelpText}
         column
         control={control}
         items={[

@@ -17,6 +17,7 @@ import {
 } from '@oxide/api'
 import { Affinity24Icon } from '@oxide/design-system/icons/react'
 
+import { AffinityPolicyHeader } from '~/components/AffinityDocsPopover'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { Columns } from '~/table/columns/common'
@@ -39,6 +40,7 @@ const colHelper = createColumnHelper<AffinityGroup | AntiAffinityGroup>()
 const staticCols = [
   colHelper.accessor('description', Columns.description),
   colHelper.accessor('policy', {
+    header: AffinityPolicyHeader,
     cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
   }),
 ]

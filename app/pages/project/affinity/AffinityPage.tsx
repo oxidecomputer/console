@@ -19,7 +19,7 @@ import {
 } from '@oxide/api'
 import { Affinity24Icon } from '@oxide/design-system/icons/react'
 
-import { AffinityDocsPopover } from '~/components/AffinityDocsPopover'
+import { AffinityDocsPopover, AffinityPolicyHeader } from '~/components/AffinityDocsPopover'
 import { HL } from '~/components/HL'
 import { antiAffinityGroupList, antiAffinityGroupMemberList } from '~/forms/affinity-util'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
@@ -79,6 +79,7 @@ const staticCols = [
     cell: (info) => <AffinityGroupMembersCell antiAffinityGroup={info.getValue()} />,
   }),
   colHelper.accessor('policy', {
+    header: AffinityPolicyHeader,
     cell: (info) => <AffinityGroupPolicyBadge policy={info.getValue()} />,
   }),
   colHelper.accessor('timeCreated', Columns.timeCreated),
