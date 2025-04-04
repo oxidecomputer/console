@@ -65,7 +65,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
             state.isOpen && 'z-10 ring-2',
             'relative flex h-11 items-center rounded-l rounded-r border text-sans-md border-default focus-within:ring-2 hover:border-raise focus:z-10',
             state.isInvalid
-              ? 'focus-error border-error ring-error-secondary'
+              ? 'focus-error border-error ring-error-secondary hover:border-error'
               : 'border-default ring-accent-secondary'
           )}
         >
