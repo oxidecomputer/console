@@ -13,9 +13,6 @@ import type * as PP from '~/util/path-params'
 export const instanceList = ({ project }: PP.Project) =>
   apiq('instanceList', { query: { project, limit: ALL_ISH } })
 
-export const affinityGroupList = ({ project }: PP.Project) =>
-  apiq('affinityGroupList', { query: { project, limit: ALL_ISH } })
-
 export const antiAffinityGroupList = ({ project }: PP.Project) =>
   apiq('antiAffinityGroupList', { query: { project, limit: ALL_ISH } })
 

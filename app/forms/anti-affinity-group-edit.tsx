@@ -27,11 +27,7 @@ import {
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 
-import {
-  affinityGroupList,
-  antiAffinityGroupList,
-  antiAffinityGroupView,
-} from './affinity-util'
+import { antiAffinityGroupList, antiAffinityGroupView } from './affinity-util'
 
 export const handle = titleCrumb('New anti-affinity group')
 
@@ -39,7 +35,6 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, antiAffinityGroup } = getAntiAffinityGroupSelector(params)
   await Promise.all([
     queryClient.prefetchQuery(antiAffinityGroupList({ project })),
-    queryClient.prefetchQuery(affinityGroupList({ project })),
     queryClient.prefetchQuery(antiAffinityGroupView({ project, antiAffinityGroup })),
   ])
   return null
