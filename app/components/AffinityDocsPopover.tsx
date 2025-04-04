@@ -17,7 +17,7 @@ export const AffinityDocsPopover = () => (
   <DocsPopover
     heading="affinity"
     icon={<Affinity16Icon />}
-    summary="Instances in an anti-affinity group will be placed on different sleds when they start."
+    summary="Instances in an anti-affinity group will be placed on different sleds when they start. The policy attribute determines whether instances can still start when a unique sled is not available."
     links={[docLinks.affinity]}
   />
 )
