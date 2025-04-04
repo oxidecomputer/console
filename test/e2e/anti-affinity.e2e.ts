@@ -19,7 +19,7 @@ test('can nav to Affinity from /', async ({ page }) => {
     name: 'romulus-remus',
     type: 'anti-affinity',
     policy: 'fail',
-    members: '2',
+    instances: '2',
   })
 
   // click the anti-affinity group name cell to go to the view page

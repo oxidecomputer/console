@@ -25,6 +25,7 @@ import { antiAffinityGroupList, antiAffinityGroupMemberList } from '~/forms/affi
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
+import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -71,14 +72,16 @@ const staticCols = [
     header: 'type',
     cell: () => <Badge>anti-affinity</Badge>,
   }),
+  colHelper.accessor('description', {
+    cell: (info) => <DescriptionCell text={info.getValue()} maxLength={32} />,
+  }),
+  colHelper.accessor('name', {
+    header: 'instances',
+    cell: (info) => <AffinityGroupMembersCell antiAffinityGroup={info.getValue()} />,
+  }),
   colHelper.accessor('policy', {
     cell: (info) => <AffinityGroupPolicyBadge policy={info.getValue()} />,
   }),
-  colHelper.accessor('name', {
-    header: 'members',
-    cell: (info) => <AffinityGroupMembersCell antiAffinityGroup={info.getValue()} />,
-  }),
-  colHelper.accessor('description', Columns.description),
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 

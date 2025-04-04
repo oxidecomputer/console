@@ -27,16 +27,13 @@ import {
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 
-import { antiAffinityGroupList, antiAffinityGroupView } from './affinity-util'
+import { antiAffinityGroupView } from './affinity-util'
 
 export const handle = titleCrumb('New anti-affinity group')
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, antiAffinityGroup } = getAntiAffinityGroupSelector(params)
-  await Promise.all([
-    queryClient.prefetchQuery(antiAffinityGroupList({ project })),
-    queryClient.prefetchQuery(antiAffinityGroupView({ project, antiAffinityGroup })),
-  ])
+  await queryClient.prefetchQuery(antiAffinityGroupView({ project, antiAffinityGroup }))
   return null
 }
 
@@ -44,21 +41,15 @@ export default function EditAntiAffintyGroupForm() {
   const { project, antiAffinityGroup } = useAntiAffinityGroupSelector()
 
   const navigate = useNavigate()
-  const onDismiss = () => navigate(pb.antiAffinityGroup({ project, antiAffinityGroup }))
 
   const editAntiAffinityGroup = useApiMutation('antiAffinityGroupUpdate', {
-    onSuccess(updatedAntiAffinityGroup) {
-      navigate(
-        pb.antiAffinityGroup({ project, antiAffinityGroup: updatedAntiAffinityGroup.name })
-      )
-      addToast(<>Anti-affinity group <HL>{updatedAntiAffinityGroup.name}</HL> updated</>) // prettier-ignore
-      queryClient.invalidateQueries(antiAffinityGroupList({ project }))
+    onSuccess(updatedGroup) {
+      queryClient.invalidateEndpoint('antiAffinityGroupView')
+      queryClient.invalidateEndpoint('antiAffinityGroupList')
+      navigate(pb.antiAffinityGroup({ project, antiAffinityGroup: updatedGroup.name }))
+      addToast(<>Anti-affinity group <HL>{updatedGroup.name}</HL> updated</>) // prettier-ignore
     },
   })
-
-  const { data: existingAntiAffinityGroups } = usePrefetchedQuery(
-    antiAffinityGroupList({ project })
-  )
 
   const { data: antiAffinityGroupData } = usePrefetchedQuery(
     antiAffinityGroupView({ project, antiAffinityGroup })
@@ -74,7 +65,7 @@ export default function EditAntiAffintyGroupForm() {
       formType="create"
       resourceName="rule"
       title="Edit anti-affinity group"
-      onDismiss={onDismiss}
+      onDismiss={() => navigate(pb.antiAffinityGroup({ project, antiAffinityGroup }))}
       onSubmit={(values) => {
         editAntiAffinityGroup.mutate({
           path: { antiAffinityGroup },
@@ -86,15 +77,7 @@ export default function EditAntiAffintyGroupForm() {
       submitError={editAntiAffinityGroup.error}
       submitLabel="Edit group"
     >
-      <NameField
-        name="name"
-        control={form.control}
-        validate={(name) => {
-          if (existingAntiAffinityGroups.items.find((g) => g.name === name)) {
-            return 'Name taken. To update an existing group, edit it directly.'
-          }
-        }}
-      />
+      <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
     </SideModalForm>
   )
