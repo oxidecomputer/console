@@ -6,10 +6,9 @@
  * Copyright Oxide Computer Company
  */
 
-import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback } from 'react'
-import { Link, Outlet, type LoaderFunctionArgs } from 'react-router'
+import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
 import {
   queryClient,
@@ -35,9 +34,7 @@ import { Badge } from '~/ui/lib/Badge'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { Slash } from '~/ui/lib/Slash'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
-import { intersperse } from '~/util/array'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -70,7 +67,6 @@ const AffinityGroupPolicyBadge = ({ policy, className }: AffinityGroupPolicyBadg
 )
 
 const staticCols = [
-  colHelper.accessor('description', Columns.description),
   colHelper.accessor(() => {}, {
     header: 'type',
     cell: () => <Badge>anti-affinity</Badge>,
@@ -82,6 +78,7 @@ const staticCols = [
     header: 'members',
     cell: (info) => <AffinityGroupMembersCell antiAffinityGroup={info.getValue()} />,
   }),
+  colHelper.accessor('description', Columns.description),
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
@@ -189,33 +186,16 @@ export const AntiAffinityGroupEmptyState = () => (
   </TableEmptyBox>
 )
 
-// TODO: Use the prefetched query
 export const AffinityGroupMembersCell = ({
   antiAffinityGroup,
 }: {
   antiAffinityGroup: string
 }) => {
   const { project } = useProjectSelector()
-  const { data: members } = useQuery(
+  const { data: members } = usePrefetchedQuery(
     antiAffinityGroupMemberList({ antiAffinityGroup, project })
   )
-
   if (!members) return <SkeletonCell />
   if (!members.items.length) return <EmptyCell />
-
-  const instances = members.items.map((member) => member.value.name)
-  const instancesToShow = instances.slice(0, 2)
-  const links = instancesToShow.map((instance) => (
-    <Link
-      key={instance}
-      to={pb.instance({ project, instance })}
-      className="link-with-underline"
-    >
-      {instance}
-    </Link>
-  ))
-  if (instances.length > instancesToShow.length) {
-    links.push(<>…</>)
-  }
-  return <div className="flex max-w-full items-center">{intersperse(links, <Slash />)}</div>
+  return <>{members.items.length}</>
 }
