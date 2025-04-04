@@ -82,11 +82,6 @@ export function DateRangePicker(props: DateRangePickerProps) {
           </div>
         </button>
       </div>
-      {state.isInvalid && (
-        <p {...errorMessageProps} className="py-2 text-sans-md text-error">
-          Date range is invalid
-        </p>
-      )}
       {state.isOpen && (
         <Popover triggerRef={ref} state={state} placement="bottom start">
           <Dialog {...dialogProps}>
@@ -107,6 +102,13 @@ export function DateRangePicker(props: DateRangePickerProps) {
                 hourCycle={24}
                 className="shrink-0 grow basis-0"
               />
+            </div>
+            <div className="flex items-center justify-center space-x-2 px-4 border-t-secondary">
+              {state.isInvalid && (
+                <p {...errorMessageProps} className="-mt-1 mb-4 text-sans-md text-error">
+                  Date range is invalid
+                </p>
+              )}
             </div>
           </Dialog>
         </Popover>
