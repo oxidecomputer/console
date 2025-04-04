@@ -100,7 +100,7 @@ export default function AntiAffinityPage() {
     {
       onSuccess(_data, variables) {
         queryClient.invalidateEndpoint('antiAffinityGroupMemberList')
-        queryClient.invalidateEndpoint('antiAffinityGroupView')
+        queryClient.invalidateEndpoint('instanceAntiAffinityGroupList')
         addToast(<>Member <HL>{variables.path.instance}</HL> removed from anti-affinity group <HL>{group.name}</HL></>) // prettier-ignore
       },
     }
