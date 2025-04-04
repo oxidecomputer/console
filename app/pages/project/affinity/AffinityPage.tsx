@@ -55,16 +55,10 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 
 const colHelper = createColumnHelper<AntiAffinityGroup>()
 
-type AffinityGroupPolicyBadgeProps = { policy: AffinityPolicy; className?: string }
-const AffinityGroupPolicyBadge = ({ policy, className }: AffinityGroupPolicyBadgeProps) => (
-  <Badge
-    color="neutral"
-    variant={{ allow: 'default' as const, fail: 'solid' as const }[policy]}
-    className={className}
-  >
-    {policy}
-  </Badge>
-)
+export const AffinityGroupPolicyBadge = ({ policy }: { policy: AffinityPolicy }) => {
+  const variant = { allow: 'default' as const, fail: 'solid' as const }[policy]
+  return <Badge color="neutral" variant={variant}>{policy}</Badge> // prettier-ignore
+}
 
 const staticCols = [
   colHelper.accessor(() => {}, {

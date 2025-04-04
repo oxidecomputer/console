@@ -19,10 +19,10 @@ import { Affinity24Icon } from '@oxide/design-system/icons/react'
 
 import { AffinityPolicyHeader } from '~/components/AffinityDocsPopover'
 import { useInstanceSelector } from '~/hooks/use-params'
+import { AffinityGroupPolicyBadge } from '~/pages/project/affinity/AffinityPage'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
-import { Badge } from '~/ui/lib/Badge'
 import { CardBlock } from '~/ui/lib/CardBlock'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
@@ -41,7 +41,7 @@ const staticCols = [
   colHelper.accessor('description', Columns.description),
   colHelper.accessor('policy', {
     header: AffinityPolicyHeader,
-    cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
+    cell: (info) => <AffinityGroupPolicyBadge policy={info.getValue()} />,
   }),
 ]
 

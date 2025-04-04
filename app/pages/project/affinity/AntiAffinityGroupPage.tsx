@@ -32,6 +32,7 @@ import {
   getAntiAffinityGroupSelector,
   useAntiAffinityGroupSelector,
 } from '~/hooks/use-params'
+import { AffinityGroupPolicyBadge } from '~/pages/project/affinity/AffinityPage'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -215,7 +216,7 @@ export default function AntiAffinityPage() {
         </PropertiesTable.Row>
         <PropertiesTable.DescriptionRow description={description} />
         <PropertiesTable.Row label={<AffinityPolicyHeader />}>
-          <Badge color="neutral">{policy}</Badge>
+          <AffinityGroupPolicyBadge policy={policy} />
         </PropertiesTable.Row>
         <PropertiesTable.DateRow date={timeCreated} label="Created" />
         <PropertiesTable.Row label="Members">{membersCount}</PropertiesTable.Row>
