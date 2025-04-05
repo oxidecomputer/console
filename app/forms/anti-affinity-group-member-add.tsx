@@ -32,15 +32,16 @@ export default function AddAntiAffinityGroupMemberForm({
 }) {
   const { project, antiAffinityGroup } = useAntiAffinityGroupSelector()
 
-  const form = useForm<AntiAffinityGroupMemberInstanceAddPathParams>({
-    defaultValues: {
-      instance: '',
-    },
-  })
+  const { control, handleSubmit, reset } =
+    useForm<AntiAffinityGroupMemberInstanceAddPathParams>({
+      defaultValues: {
+        instance: '',
+      },
+    })
 
   const onDismiss = () => {
     setIsModalOpen(false)
-    form.reset()
+    reset()
   }
 
   const { mutateAsync: addMember } = useApiMutation('antiAffinityGroupMemberInstanceAdd', {
@@ -48,9 +49,16 @@ export default function AddAntiAffinityGroupMemberForm({
       onDismiss()
       queryClient.invalidateEndpoint('antiAffinityGroupMemberList')
       queryClient.invalidateEndpoint('antiAffinityGroupView')
-      addToast(<>Member <HL>{variables.path.instance}</HL> added to anti-affinity group <HL>{antiAffinityGroup}</HL></>) // prettier-ignore
+      addToast(<>Instance <HL>{variables.path.instance}</HL> added to anti-affinity group <HL>{antiAffinityGroup}</HL></>) // prettier-ignore
     },
   })
+
+  const onSubmit = ({ instance }: AntiAffinityGroupMemberInstanceAddPathParams) => {
+    addMember({
+      path: { antiAffinityGroup, instance },
+      query: { project },
+    })
+  }
 
   return (
     <Modal isOpen={isModalOpen} onDismiss={onDismiss} title="Add instance to group">
@@ -58,29 +66,23 @@ export default function AddAntiAffinityGroupMemberForm({
         <Modal.Section>
           <p className="text-sm text-gray-500">
             Select an instance to add to the anti-affinity group{' '}
-            <HL>{antiAffinityGroup}</HL>.
+            <HL>{antiAffinityGroup}</HL>. Only stopped instances can be added to the group.
           </p>
-          <ComboboxField
-            label="Instance"
-            placeholder="Select an instance"
-            name="instance"
-            items={toComboboxItems(availableInstances)}
-            required
-            control={form.control}
-          />
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <ComboboxField
+              placeholder="Select an instance"
+              name="instance"
+              label="Instance"
+              items={toComboboxItems(availableInstances)}
+              required
+              control={control}
+            />
+          </form>
         </Modal.Section>
       </Modal.Body>
       <Modal.Footer
         onDismiss={onDismiss}
-        onAction={() =>
-          addMember({
-            path: {
-              antiAffinityGroup,
-              instance: form.getValues('instance'),
-            },
-            query: { project },
-          })
-        }
+        onAction={handleSubmit(onSubmit)}
         actionText="Add to group"
       />
     </Modal>
