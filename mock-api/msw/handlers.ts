@@ -1658,6 +1658,35 @@ export const handlers = makeHandlers({
       })
     return { items: members }
   },
+  antiAffinityGroupCreate(params) {
+    const project = lookup.project(params.query)
+    errIfExists(db.antiAffinityGroups, { name: params.body.name, project_id: project.id })
+
+    const newAntiAffinityGroup: Json<Api.AntiAffinityGroup> = {
+      id: uuid(),
+      project_id: project.id,
+      ...params.body,
+      ...getTimestamps(),
+    }
+    db.antiAffinityGroups.push(newAntiAffinityGroup)
+
+    return json(newAntiAffinityGroup, { status: 201 })
+  },
+  antiAffinityGroupUpdate({ body, path, query }) {
+    const antiAffinityGroup = lookup.antiAffinityGroup({ ...path, ...query })
+    if (body.name) {
+      // Error if changing the group name and that group name already exists
+      if (body.name !== antiAffinityGroup.name) {
+        errIfExists(db.antiAffinityGroups, {
+          project_id: antiAffinityGroup.project_id,
+          name: body.name,
+        })
+      }
+      antiAffinityGroup.name = body.name
+    }
+    updateDesc(antiAffinityGroup, body)
+    return antiAffinityGroup
+  },
   antiAffinityGroupList: ({ query }) => {
     const project = lookup.project({ ...query })
     const antiAffinityGroups = db.antiAffinityGroups.filter(
@@ -1683,6 +1712,35 @@ export const handlers = makeHandlers({
         return { type: 'instance', value: { id, name, run_state } }
       })
     return { items: members }
+  },
+  antiAffinityGroupMemberInstanceAdd({ path, query }) {
+    const project = lookup.project({ ...query })
+    const instance = lookup.instance({ ...query, instance: path.instance })
+    const antiAffinityGroup = lookup.antiAffinityGroup({
+      project: project.id,
+      antiAffinityGroup: path.antiAffinityGroup,
+    })
+    const alreadyThere = db.antiAffinityGroupMemberLists.some(
+      (i) =>
+        i.anti_affinity_group_id === antiAffinityGroup.id &&
+        i.anti_affinity_group_member.id === instance.id
+    )
+    if (alreadyThere) {
+      throw 'Instance already in anti-affinity group'
+    }
+    const newMember: Json<Api.AntiAffinityGroupMember> = {
+      type: 'instance',
+      value: {
+        id: instance.id,
+        name: instance.name,
+        run_state: instance.run_state,
+      },
+    }
+    db.antiAffinityGroupMemberLists.push({
+      anti_affinity_group_id: antiAffinityGroup.id,
+      anti_affinity_group_member: { type: 'instance', id: instance.id },
+    })
+    return json(newMember, { status: 201 })
   },
   antiAffinityGroupMemberInstanceDelete: ({ path, query }) => {
     const project = lookup.project({ ...query })
@@ -1728,10 +1786,7 @@ export const handlers = makeHandlers({
   affinityGroupMemberInstanceDelete: NotImplemented,
   affinityGroupMemberInstanceView: NotImplemented,
   affinityGroupUpdate: NotImplemented,
-  antiAffinityGroupCreate: NotImplemented,
-  antiAffinityGroupMemberInstanceAdd: NotImplemented,
   antiAffinityGroupMemberInstanceView: NotImplemented,
-  antiAffinityGroupUpdate: NotImplemented,
   certificateCreate: NotImplemented,
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,

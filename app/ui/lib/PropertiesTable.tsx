@@ -54,7 +54,7 @@ export function PropertiesTable({
 }
 
 interface PropertiesTableRowProps {
-  label: string
+  label: ReactNode
   children: ReactNode
 }
 PropertiesTable.Row = ({ label, children }: PropertiesTableRowProps) => (

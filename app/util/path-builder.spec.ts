@@ -42,7 +42,9 @@ test('path builder', () => {
     .toMatchInlineSnapshot(`
       {
         "affinity": "/projects/p/affinity",
+        "affinityNew": "/projects/p/affinity-new",
         "antiAffinityGroup": "/projects/p/affinity/aag",
+        "antiAffinityGroupEdit": "/projects/p/affinity/aag/edit",
         "deviceSuccess": "/device/success",
         "diskInventory": "/system/inventory/disks",
         "disks": "/projects/p/disks",
