@@ -52,9 +52,24 @@ test('can add a new anti-affinity group', async ({ page }) => {
   await expect(page).toHaveURL('/projects/mock-project/affinity/new-anti-affinity-group')
 
   // add a member to the new anti-affinity group
-  await page.getByRole('button', { name: 'Add instance' }).click()
-  await expect(page.getByRole('heading', { name: 'Add instance to group' })).toBeVisible()
-  await page.getByRole('combobox', { name: 'Instance' }).fill('db1')
+  const addInstanceButton = page.getByRole('button', { name: 'Add instance' })
+  const addInstanceModal = page.getByRole('dialog', { name: 'Add instance to group' })
+  const instanceCombobox = page.getByRole('combobox', { name: 'Instance' })
+
+  // open modal and pick instance
+  await addInstanceButton.click()
+  await expect(addInstanceModal).toBeVisible()
+  await instanceCombobox.fill('db1')
+  await page.getByRole('option', { name: 'db1' }).click()
+  await expect(instanceCombobox).toHaveValue('db1')
+
+  // close and reopen the modal to make sure the field clears
+  await page.getByRole('button', { name: 'Cancel' }).click()
+  await expect(addInstanceModal).toBeHidden()
+  await addInstanceButton.click()
+  await expect(instanceCombobox).toHaveValue('')
+
+  // now do it again for real and submit
   await page.getByRole('option', { name: 'db1' }).click()
   await page.getByRole('button', { name: 'Add to group' }).click()
 

@@ -8,12 +8,7 @@
 
 import { useForm } from 'react-hook-form'
 
-import {
-  queryClient,
-  useApiMutation,
-  type AntiAffinityGroupMemberInstanceAddPathParams,
-  type Instance,
-} from '~/api'
+import { queryClient, useApiMutation, type Instance } from '~/api'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
 import { useAntiAffinityGroupSelector } from '~/hooks/use-params'
@@ -21,28 +16,19 @@ import { addToast } from '~/stores/toast'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { Modal } from '~/ui/lib/Modal'
 
+type Values = { instance: string }
+
+const defaultValues: Values = { instance: '' }
+
+type Props = { instances: Instance[]; onDismiss: () => void }
+
 export default function AddAntiAffinityGroupMemberForm({
-  availableInstances,
-  isModalOpen,
-  setIsModalOpen,
-}: {
-  availableInstances: Instance[]
-  isModalOpen: boolean
-  setIsModalOpen: (open: boolean) => void
-}) {
+  instances: availableInstances,
+  onDismiss,
+}: Props) {
   const { project, antiAffinityGroup } = useAntiAffinityGroupSelector()
 
-  const { control, handleSubmit, reset } =
-    useForm<AntiAffinityGroupMemberInstanceAddPathParams>({
-      defaultValues: {
-        instance: '',
-      },
-    })
-
-  const onDismiss = () => {
-    setIsModalOpen(false)
-    reset()
-  }
+  const { control, handleSubmit } = useForm({ defaultValues })
 
   const { mutateAsync: addMember } = useApiMutation('antiAffinityGroupMemberInstanceAdd', {
     onSuccess(_data, variables) {
@@ -53,7 +39,7 @@ export default function AddAntiAffinityGroupMemberForm({
     },
   })
 
-  const onSubmit = ({ instance }: AntiAffinityGroupMemberInstanceAddPathParams) => {
+  const onSubmit = ({ instance }: Values) => {
     addMember({
       path: { antiAffinityGroup, instance },
       query: { project },
@@ -61,7 +47,7 @@ export default function AddAntiAffinityGroupMemberForm({
   }
 
   return (
-    <Modal isOpen={isModalOpen} onDismiss={onDismiss} title="Add instance to group">
+    <Modal isOpen onDismiss={onDismiss} title="Add instance to group">
       <Modal.Body>
         <Modal.Section>
           <p className="text-sm text-gray-500">

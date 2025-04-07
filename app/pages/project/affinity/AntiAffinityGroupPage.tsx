@@ -241,11 +241,12 @@ export default function AntiAffinityPage() {
           {membersCount ? <Table table={table} /> : <AntiAffinityGroupMemberEmptyState />}
         </CardBlock.Body>
       </CardBlock>
-      <AddAntiAffinityGroupMemberForm
-        availableInstances={availableInstances}
-        isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
-      />
+      {isModalOpen && (
+        <AddAntiAffinityGroupMemberForm
+          instances={availableInstances}
+          onDismiss={() => setIsModalOpen(false)}
+        />
+      )}
       <Outlet />
     </>
   )
