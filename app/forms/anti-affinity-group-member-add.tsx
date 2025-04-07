@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
+import { useId } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { queryClient, useApiMutation, type Instance } from '~/api'
@@ -25,7 +26,8 @@ type Props = { instances: Instance[]; onDismiss: () => void }
 export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }: Props) {
   const { project, antiAffinityGroup } = useAntiAffinityGroupSelector()
 
-  const { control, handleSubmit } = useForm({ defaultValues })
+  const form = useForm({ defaultValues })
+  const formId = useId()
 
   const { mutateAsync: addMember } = useApiMutation('antiAffinityGroupMemberInstanceAdd', {
     onSuccess(_data, variables) {
@@ -36,7 +38,7 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
     },
   })
 
-  const onSubmit = handleSubmit(({ instance }) => {
+  const onSubmit = form.handleSubmit(({ instance }) => {
     addMember({
       path: { antiAffinityGroup, instance },
       query: { project },
@@ -51,19 +53,19 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
             Select an instance to add to the anti-affinity group{' '}
             <HL>{antiAffinityGroup}</HL>. Only stopped instances can be added to the group.
           </p>
-          <form onSubmit={onSubmit}>
+          <form id={formId} onSubmit={onSubmit}>
             <ComboboxField
               placeholder="Select an instance"
               name="instance"
               label="Instance"
               items={toComboboxItems(instances)}
               required
-              control={control}
+              control={form.control}
             />
           </form>
         </Modal.Section>
       </Modal.Body>
-      <Modal.Footer onDismiss={onDismiss} onAction={onSubmit} actionText="Add to group" />
+      <Modal.Footer onDismiss={onDismiss} actionText="Add to group" formId={formId} />
     </Modal>
   )
 }
