@@ -154,7 +154,7 @@ export default function AntiAffinityPage() {
     [
       colHelper.accessor('value.name', {
         header: 'name',
-        cell: makeLinkCell((instance) => pb.instance({ project, instance })),
+        cell: makeLinkCell((instance) => pb.instanceSettings({ project, instance })),
       }),
       colHelper.accessor('value.runState', Columns.instanceState),
       colHelper.accessor('value.id', Columns.id),

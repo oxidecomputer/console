@@ -30,6 +30,10 @@ test('can nav to Affinity from /', async ({ page }) => {
   await expect(page).toHaveTitle(
     'romulus-remus / Affinity Groups / mock-project / Projects / Oxide Console'
   )
+
+  // click through to instance
+  await page.getByRole('link', { name: 'db1' }).click()
+  await expect(page).toHaveURL('/projects/mock-project/instances/db1/settings')
 })
 
 test('can add a new anti-affinity group', async ({ page }) => {
