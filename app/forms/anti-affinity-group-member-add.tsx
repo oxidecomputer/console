@@ -22,10 +22,7 @@ const defaultValues: Values = { instance: '' }
 
 type Props = { instances: Instance[]; onDismiss: () => void }
 
-export default function AddAntiAffinityGroupMemberForm({
-  instances: availableInstances,
-  onDismiss,
-}: Props) {
+export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }: Props) {
   const { project, antiAffinityGroup } = useAntiAffinityGroupSelector()
 
   const { control, handleSubmit } = useForm({ defaultValues })
@@ -39,12 +36,12 @@ export default function AddAntiAffinityGroupMemberForm({
     },
   })
 
-  const onSubmit = ({ instance }: Values) => {
+  const onSubmit = handleSubmit(({ instance }) => {
     addMember({
       path: { antiAffinityGroup, instance },
       query: { project },
     })
-  }
+  })
 
   return (
     <Modal isOpen onDismiss={onDismiss} title="Add instance to group">
@@ -54,23 +51,19 @@ export default function AddAntiAffinityGroupMemberForm({
             Select an instance to add to the anti-affinity group{' '}
             <HL>{antiAffinityGroup}</HL>. Only stopped instances can be added to the group.
           </p>
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={onSubmit}>
             <ComboboxField
               placeholder="Select an instance"
               name="instance"
               label="Instance"
-              items={toComboboxItems(availableInstances)}
+              items={toComboboxItems(instances)}
               required
               control={control}
             />
           </form>
         </Modal.Section>
       </Modal.Body>
-      <Modal.Footer
-        onDismiss={onDismiss}
-        onAction={handleSubmit(onSubmit)}
-        actionText="Add to group"
-      />
+      <Modal.Footer onDismiss={onDismiss} onAction={onSubmit} actionText="Add to group" />
     </Modal>
   )
 }
