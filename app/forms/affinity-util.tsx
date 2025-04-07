@@ -33,4 +33,4 @@ export const antiAffinityGroupMemberList = ({
   })
 
 export const policyHelpText =
-  'Whether instances are allowed to start when every available sled already has a group member on it'
+  'Whether member instances are allowed to start when every available sled already has a group member on it'

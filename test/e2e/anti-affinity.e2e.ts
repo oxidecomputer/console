@@ -17,7 +17,7 @@ test('can nav to Affinity from /', async ({ page }) => {
 
   await expectRowVisible(page.getByRole('table'), {
     name: 'romulus-remus',
-    type: 'anti-affinity',
+    'Group type': 'anti-affinity',
     Policy: 'fail',
     instances: '2',
   })

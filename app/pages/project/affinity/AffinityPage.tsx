@@ -25,7 +25,6 @@ import { antiAffinityGroupList, antiAffinityGroupMemberList } from '~/forms/affi
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -62,11 +61,8 @@ export const AffinityGroupPolicyBadge = ({ policy }: { policy: AffinityPolicy })
 
 const staticCols = [
   colHelper.accessor(() => {}, {
-    header: 'type',
+    header: 'Group type',
     cell: () => <Badge>anti-affinity</Badge>,
-  }),
-  colHelper.accessor('description', {
-    cell: (info) => <DescriptionCell text={info.getValue()} maxLength={32} />,
   }),
   colHelper.accessor('name', {
     header: 'instances',
