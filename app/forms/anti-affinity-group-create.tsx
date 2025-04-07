@@ -67,7 +67,8 @@ export default function CreateAntiAffinityGroupForm() {
       <DescriptionField name="description" control={control} />
       <RadioField
         name="policy"
-        description={policyHelpText}
+        // forgive me
+        description={`${policyHelpText}, i.e., when all available sleds already contain a group member.`}
         column
         control={control}
         items={[
