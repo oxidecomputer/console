@@ -12,7 +12,7 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/instances",
     },
     {
-      "label": "Affinity",
+      "label": "Affinity Groups",
       "path": "/projects/p/affinity",
     },
   ],
@@ -26,7 +26,7 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/instances",
     },
     {
-      "label": "Affinity",
+      "label": "Affinity Groups",
       "path": "/projects/p/",
     },
   ],
@@ -40,7 +40,7 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/instances",
     },
     {
-      "label": "Affinity",
+      "label": "Affinity Groups",
       "path": "/projects/p/affinity",
     },
     {
@@ -58,7 +58,7 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/instances",
     },
     {
-      "label": "Affinity",
+      "label": "Affinity Groups",
       "path": "/projects/p/affinity",
     },
     {

@@ -60,8 +60,8 @@ export const AffinityGroupPolicyBadge = ({ policy }: { policy: AffinityPolicy })
 }
 
 const staticCols = [
-  colHelper.accessor(() => {}, {
-    header: 'Group type',
+  colHelper.display({
+    header: 'type',
     cell: () => <Badge>anti-affinity</Badge>,
   }),
   colHelper.accessor('name', {
@@ -139,7 +139,7 @@ export default function AffinityPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Affinity24Icon />}>Affinity</PageTitle>
+        <PageTitle icon={<Affinity24Icon />}>Affinity Groups</PageTitle>
         <AffinityDocsPopover />
       </PageHeader>
       <TableActions>

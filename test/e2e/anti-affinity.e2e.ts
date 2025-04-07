@@ -17,7 +17,7 @@ test('can nav to Affinity from /', async ({ page }) => {
 
   await expectRowVisible(page.getByRole('table'), {
     name: 'romulus-remus',
-    'Group type': 'anti-affinity',
+    type: 'anti-affinity',
     Policy: 'fail',
     instances: '2',
   })
@@ -28,7 +28,7 @@ test('can nav to Affinity from /', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'romulus-remus' })).toBeVisible()
   await expect(page).toHaveURL('/projects/mock-project/affinity/romulus-remus')
   await expect(page).toHaveTitle(
-    'romulus-remus / Affinity / mock-project / Projects / Oxide Console'
+    'romulus-remus / Affinity Groups / mock-project / Projects / Oxide Console'
   )
 })
 
@@ -67,7 +67,7 @@ test('can add a new anti-affinity group', async ({ page }) => {
   await expect(cell).toBeHidden()
 
   // expect empty message
-  await expect(page.getByText('No anti-affinity group members')).toBeVisible()
+  await expect(page.getByText('No group members')).toBeVisible()
 })
 
 // edit an anti-affinity group from the view page

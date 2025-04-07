@@ -72,7 +72,7 @@ const AntiAffinityGroupMemberEmptyState = () => (
   <TableEmptyBox>
     <EmptyMessage
       icon={<Affinity24Icon />}
-      title="No anti-affinity group members"
+      title="No group members"
       body="Add an instance to the group to see it here"
     />
   </TableEmptyBox>
