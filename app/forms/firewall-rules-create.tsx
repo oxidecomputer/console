@@ -122,7 +122,7 @@ export default function CreateFirewallRuleForm() {
       }}
       loading={updateRules.isPending}
       submitError={updateRules.error}
-      submitLabel="Add rule"
+      submitLabel="Add"
     >
       <CommonFields
         control={form.control}

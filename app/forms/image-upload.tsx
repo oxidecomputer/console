@@ -560,7 +560,7 @@ export default function ImageCreate() {
       }}
       loading={formLoading}
       submitError={formError}
-      submitLabel={allDone ? 'Done' : 'Upload image'}
+      submitLabel={allDone ? 'Done' : 'Upload'}
     >
       <Message
         variant="info"

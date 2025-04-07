@@ -65,7 +65,7 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
       }}
       loading={updatePolicy.isPending}
       submitError={updatePolicy.error}
-      submitLabel="Assign role"
+      submitLabel="Assign"
       onDismiss={onDismiss}
     >
       <ListboxField

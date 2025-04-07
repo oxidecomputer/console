@@ -131,7 +131,7 @@ export default function CreateIdpSideModalForm() {
       }}
       loading={createIdp.isPending}
       submitError={createIdp.error}
-      submitLabel="Create provider"
+      submitLabel="Create"
     >
       <Message
         content={

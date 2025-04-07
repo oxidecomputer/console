@@ -75,7 +75,7 @@ export default function CreateImageFromSnapshotSideModalForm() {
       formType="create"
       resourceName="image"
       title="Create image from snapshot"
-      submitLabel="Create image"
+      submitLabel="Create"
       onDismiss={onDismiss}
       onSubmit={(body) =>
         createImage.mutate({

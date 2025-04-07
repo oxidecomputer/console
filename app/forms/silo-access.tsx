@@ -60,7 +60,7 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
       }}
       loading={updatePolicy.isPending}
       submitError={updatePolicy.error}
-      submitLabel="Assign role"
+      submitLabel="Assign"
     >
       <ListboxField
         name="identityId"

@@ -19,7 +19,7 @@ import { SideModal } from '~/ui/lib/SideModal'
 type CreateFormProps = {
   formType: 'create'
   /** Only needed if you need to override the default button text (`Create ${resourceName}`) */
-  submitLabel?: string
+  submitLabel?: 'Add' | 'Assign' | 'Attach' | 'Create' | 'Done' | 'Upload'
 }
 
 type EditFormProps = {
@@ -90,10 +90,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
     }
   }, [submitError, form])
 
-  const label =
-    formType === 'edit'
-      ? `Update ${resourceName}`
-      : submitLabel || title || `Create ${resourceName}`
+  const label = formType === 'edit' ? 'Update' : submitLabel || title || 'Create'
 
   // must be destructured up here to subscribe to changes. inlining
   // form.formState.isDirty does not work
