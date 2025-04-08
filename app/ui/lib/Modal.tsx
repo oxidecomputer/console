@@ -14,11 +14,9 @@ import { Close12Icon } from '@oxide/design-system/icons/react'
 
 import { classed } from '~/util/classed'
 
-import { Wrap } from '../util/wrap'
 import { Button } from './Button'
 import { DialogOverlay } from './DialogOverlay'
 import { ModalContext } from './modal-context'
-import { Tooltip } from './Tooltip'
 
 type Width = 'narrow' | 'medium' | 'free'
 
@@ -115,7 +113,6 @@ type FooterProps = {
   actionLoading?: boolean
   cancelText?: string
   disabled?: boolean
-  disabledReason?: string
 } & MergeExclusive<{ formId: string }, { onAction: () => void }>
 
 Modal.Footer = ({
@@ -127,7 +124,6 @@ Modal.Footer = ({
   actionLoading,
   cancelText,
   disabled = false,
-  disabledReason,
   formId,
 }: FooterProps) => (
   <footer className="flex items-center justify-between border-t px-4 py-3 border-secondary">
@@ -136,19 +132,17 @@ Modal.Footer = ({
       <Button variant="secondary" size="sm" onClick={onDismiss}>
         {cancelText || 'Cancel'}
       </Button>
-      <Wrap when={disabled && !!disabledReason} with={<Tooltip content={disabledReason} />}>
-        <Button
-          type={formId ? 'submit' : 'button'}
-          form={formId}
-          size="sm"
-          variant={actionType}
-          onClick={onAction}
-          disabled={disabled}
-          loading={actionLoading}
-        >
-          {actionText}
-        </Button>
-      </Wrap>
+      <Button
+        type={formId ? 'submit' : 'button'}
+        form={formId}
+        size="sm"
+        variant={actionType}
+        onClick={onAction}
+        disabled={disabled}
+        loading={actionLoading}
+      >
+        {actionText}
+      </Button>
     </div>
   </footer>
 )

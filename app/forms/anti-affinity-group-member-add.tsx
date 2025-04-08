@@ -15,6 +15,7 @@ import { HL } from '~/components/HL'
 import { useAntiAffinityGroupSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { toComboboxItems } from '~/ui/lib/Combobox'
+import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 
 type Values = { instance: string }
@@ -67,6 +68,12 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
               control={form.control}
             />
           </form>
+          {!selectedInstanceIsStopped && (
+            <Message
+              variant="notice"
+              content="An instance must be stopped to add it to a group"
+            />
+          )}
         </Modal.Section>
       </Modal.Body>
       <Modal.Footer
@@ -74,11 +81,6 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
         actionText="Add to group"
         formId={formId}
         disabled={!selectedInstanceIsStopped}
-        disabledReason={
-          selectedInstanceIsStopped
-            ? undefined
-            : 'Only stopped instances can be added to the group'
-        }
       />
     </Modal>
   )
