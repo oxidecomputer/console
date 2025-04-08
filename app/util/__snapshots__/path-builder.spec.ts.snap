@@ -431,7 +431,7 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/instances",
     },
     {
-      "label": "Access",
+      "label": "Project Access",
       "path": "/projects/p/access",
     },
   ],
@@ -539,7 +539,7 @@ exports[`breadcrumbs 2`] = `
   ],
   "siloAccess (/access)": [
     {
-      "label": "Access",
+      "label": "Silo Access",
       "path": "/access",
     },
   ],

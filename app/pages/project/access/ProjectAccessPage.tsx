@@ -71,7 +71,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-export const handle = { crumb: 'Access' }
+export const handle = { crumb: 'Project Access' }
 
 type UserRow = {
   id: string
@@ -204,7 +204,7 @@ export default function ProjectAccessPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Access24Icon />}>Access</PageTitle>
+        <PageTitle icon={<Access24Icon />}>Project Access</PageTitle>
         <DocsPopover
           heading="access"
           icon={<Access16Icon />}
