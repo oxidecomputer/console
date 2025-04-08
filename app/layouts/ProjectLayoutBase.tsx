@@ -69,7 +69,7 @@ export function ProjectLayoutBase({ overrideContentPane }: ProjectLayoutProps) {
           { value: 'Images', path: pb.projectImages(projectSelector) },
           { value: 'VPCs', path: pb.vpcs(projectSelector) },
           { value: 'Floating IPs', path: pb.floatingIps(projectSelector) },
-          { value: 'Affinity', path: pb.affinity(projectSelector) },
+          { value: 'Affinity Groups', path: pb.affinity(projectSelector) },
           { value: 'Access', path: pb.projectAccess(projectSelector) },
         ]
           // filter out the entry for the path we're currently on
@@ -106,7 +106,7 @@ export function ProjectLayoutBase({ overrideContentPane }: ProjectLayoutProps) {
             <Snapshots16Icon /> Snapshots
           </NavLinkItem>
           <NavLinkItem to={pb.projectImages(projectSelector)}>
-            <Images16Icon title="images" /> Images
+            <Images16Icon /> Images
           </NavLinkItem>
           <NavLinkItem to={pb.vpcs(projectSelector)}>
             <Networking16Icon /> VPCs
@@ -115,10 +115,10 @@ export function ProjectLayoutBase({ overrideContentPane }: ProjectLayoutProps) {
             <IpGlobal16Icon /> Floating IPs
           </NavLinkItem>
           <NavLinkItem to={pb.affinity(projectSelector)}>
-            <Affinity16Icon title="Affinity" /> Affinity
+            <Affinity16Icon /> Affinity Groups
           </NavLinkItem>
           <NavLinkItem to={pb.projectAccess(projectSelector)}>
-            <Access16Icon title="Access" /> Access
+            <Access16Icon /> Access
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>

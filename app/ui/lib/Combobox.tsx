@@ -213,12 +213,14 @@ export const Combobox = ({
                 onInputChange?.(value)
               }}
               onKeyDown={(e) => {
-                // Prevent form submission when the user presses Enter inside a combobox.
-                // The combobox component already handles Enter keypresses to select items,
-                // so we only preventDefault when the combobox is closed.
-                if (e.key === 'Enter' && !open) {
+                // If the caller is using onEnter to override enter behavior, preventDefault
+                // in order to prevent the containing form from being submitted too. We don't
+                // need to do this when the combobox is open because that enter keypress is
+                // already handled internally (selects the highlighted item). So we only do
+                // this when the combobox is closed.
+                if (e.key === 'Enter' && onEnter && !open) {
                   e.preventDefault()
-                  onEnter?.(e)
+                  onEnter(e)
                 }
               }}
               placeholder={placeholder}
