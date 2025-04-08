@@ -150,7 +150,7 @@ export function AntiAffinityCard() {
     getCoreRowModel: getCoreRowModel(),
   })
 
-  const disabledReason = () => {
+  const getDisabledReason = () => {
     if (instanceData.runState !== 'stopped') {
       return 'This instance must be stopped to add it to a group'
     }
@@ -162,14 +162,15 @@ export function AntiAffinityCard() {
     }
     return undefined
   }
+  const disabledReason = getDisabledReason()
 
   return (
     <CardBlock>
       <CardBlock.Header title="Anti-affinity groups" titleId="anti-affinity-groups-label">
         <Button
           size="sm"
-          disabled={!!disabledReason()}
-          disabledReason={disabledReason()}
+          disabled={!!disabledReason}
+          disabledReason={disabledReason}
           onClick={() => setIsModalOpen(true)}
         >
           Add to group
