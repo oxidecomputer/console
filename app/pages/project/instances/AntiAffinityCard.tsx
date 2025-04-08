@@ -224,8 +224,8 @@ export function AddToGroupModal({ onDismiss, nonMemberGroups }: ModalProps) {
     <Modal isOpen onDismiss={onDismiss} title="Add to anti-affinity group">
       <Modal.Body>
         <Modal.Section>
-          <p className="text-sm text-gray-500 mb-4">
-            Select an anti-affinity group to add instance <HL>{instance}</HL> to.
+          <p className="mb-6">
+            Select a group to add instance <HL>{instance}</HL> to.
           </p>
           <form id={formId} onSubmit={handleSubmit}>
             <ComboboxField
