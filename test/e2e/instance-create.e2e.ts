@@ -260,12 +260,12 @@ test('can’t create a disk with a name that collides with the boot disk name', 
   await page.getByRole('button', { name: 'Create new disk' }).click()
   const dialog = page.getByRole('dialog')
   await dialog.getByRole('textbox', { name: 'name' }).fill('disk-11')
-  await dialog.getByRole('button', { name: 'Create disk' }).click()
+  await dialog.getByRole('button', { name: 'Create' }).click()
   // Expect to see an error message
   await expect(dialog.getByText('Name is already in use')).toBeVisible()
   // Change the disk name to something else
   await dialog.getByRole('textbox', { name: 'name' }).fill('disk-12')
-  await dialog.getByRole('button', { name: 'Create disk' }).click()
+  await dialog.getByRole('button', { name: 'Create' }).click()
   // The disk has been "created" (is in the list of Additional Disks)
   await expectVisible(page, ['text=disk-12'])
   // Create the instance
@@ -571,12 +571,12 @@ test('create instance with additional disks', async ({ page }) => {
   await sizeField.fill('5')
   await expect(sizeField).toHaveValue('5')
 
-  await createForm.getByRole('button', { name: 'Create disk' }).click()
+  await createForm.getByRole('button', { name: 'Create' }).click()
   await expect(createForm.getByText('Name is already in use')).toBeVisible()
 
   // rename the disk to one that's allowed
   await createForm.getByRole('textbox', { name: 'Name', exact: true }).fill('new-disk-1')
-  await createForm.getByRole('button', { name: 'Create disk' }).click()
+  await createForm.getByRole('button', { name: 'Create' }).click()
 
   const disksTable = page.getByRole('table', { name: 'Disks' })
   await expect(disksTable.getByText('disk-6')).toBeHidden()
@@ -585,7 +585,7 @@ test('create instance with additional disks', async ({ page }) => {
   // now that name is taken too, so disk create disallows it
   await page.getByRole('button', { name: 'Create new disk' }).click()
   await createForm.getByRole('textbox', { name: 'Name', exact: true }).fill('new-disk-1')
-  await createForm.getByRole('button', { name: 'Create disk' }).click()
+  await createForm.getByRole('button', { name: 'Create' }).click()
   await expect(createForm.getByText('Name is already in use')).toBeVisible()
   await createForm.getByRole('button', { name: 'Cancel' }).click()
 

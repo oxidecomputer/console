@@ -164,7 +164,7 @@ test('IP pool create', async ({ page }) => {
 
   await page.getByRole('textbox', { name: 'Name' }).fill('another-pool')
   await page.getByRole('textbox', { name: 'Description' }).fill('whatever')
-  await page.getByRole('button', { name: 'Create IP pool' }).click()
+  await page.getByRole('button', { name: 'Create' }).click()
 
   await expect(modal).toBeHidden()
   await expectRowVisible(page.getByRole('table'), {
@@ -183,7 +183,7 @@ test('IP pool edit', async ({ page }) => {
 
   await page.getByRole('textbox', { name: 'Name' }).fill('updated-pool')
   await page.getByRole('textbox', { name: 'Description' }).fill('an updated description')
-  await page.getByRole('button', { name: 'Update IP pool' }).click()
+  await page.getByRole('button', { name: 'Update' }).click()
 
   await expect(modal).toBeHidden()
   await expect(page).toHaveURL('/system/networking/ip-pools/updated-pool')

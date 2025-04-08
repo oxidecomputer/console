@@ -359,7 +359,7 @@ test('form scrolls to name field on already exists error', async ({ page }) => {
 
   await addTlsCert(page)
 
-  await page.getByRole('button', { name: 'Create silo' }).click()
+  await page.getByRole('button', { name: 'Create' }).click()
 
   await expect(nameField).toBeInViewport()
   await expect(page.getByText('name already exists').nth(0)).toBeVisible()
@@ -387,8 +387,8 @@ test('Quotas tab', async ({ page }) => {
   })
 
   const sideModal = page.getByRole('dialog', { name: 'Edit quotas' })
-  const edit = page.getByRole('button', { name: 'Edit quotas' })
-  const submit = sideModal.getByRole('button', { name: 'Update quotas' })
+  const edit = page.getByRole('button', { name: 'Edit' })
+  const submit = sideModal.getByRole('button', { name: 'Update' })
 
   await edit.click()
   await expect(sideModal).toBeVisible()

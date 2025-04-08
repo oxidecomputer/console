@@ -64,7 +64,7 @@ test.describe('Disk create', () => {
   })
 
   test.afterEach(async ({ page }) => {
-    await page.getByRole('button', { name: 'Create disk' }).click()
+    await page.getByRole('button', { name: 'Create' }).click()
 
     await expect(page.getByRole('dialog', { name: 'Create disk' })).toBeHidden()
     await expectToast(page, 'Disk a-new-disk created')

@@ -42,7 +42,7 @@ test('can create a floating IP', async ({ page }) => {
   // choose pool and submit
   await label.click()
   await page.getByRole('option', { name: 'ip-pool-1' }).click()
-  await page.getByRole('button', { name: 'Create floating IP' }).click()
+  await page.getByRole('button', { name: 'Create' }).click()
 
   await expect(page).toHaveURL(floatingIpsPage)
 

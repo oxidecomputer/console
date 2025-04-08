@@ -42,14 +42,14 @@ test('can create firewall rule', async ({ page }) => {
 
   await selectOption(page, 'Target type', 'IP')
   await page.getByRole('textbox', { name: 'IP address' }).fill('192.168.0.1')
-  await page.getByRole('button', { name: 'Add target' }).click()
+  await page.getByRole('button', { name: 'Add' }).click()
   await expectRowVisible(targets, { Type: 'ip', Value: '192.168.0.1' })
 
   // add host filter instance "host-filter-instance"
   await selectOption(page, 'Host type', 'Instance')
   await page.getByRole('combobox', { name: 'Instance name' }).fill('host-filter-instance')
   await page.getByText('host-filter-instance').click()
-  await page.getByRole('button', { name: 'Add host filter' }).click()
+  await page.getByRole('button', { name: 'Add' }).click()
 
   // host is added to hosts table
   const hosts = page.getByRole('table', { name: 'Host filters' })
@@ -57,7 +57,7 @@ test('can create firewall rule', async ({ page }) => {
 
   const portRangeField = page.getByRole('textbox', { name: 'Port filters' })
   const invalidPort = page.getByRole('dialog').getByText('Not a valid port range')
-  const addPortButton = page.getByRole('button', { name: 'Add port filter' })
+  const addPortButton = page.getByRole('button', { name: 'Add' })
   await portRangeField.fill('abc')
   await expect(invalidPort).toBeHidden()
   await addPortButton.click()
@@ -85,7 +85,7 @@ test('can create firewall rule', async ({ page }) => {
   await page.locator('text=UDP').click()
 
   // submit the form
-  await page.getByRole('button', { name: 'Add rule' }).click()
+  await page.getByRole('button', { name: 'Add' }).click()
 
   // modal closes again
   await expect(modal).toBeHidden()
@@ -158,7 +158,7 @@ test('firewall rule form targets table', async ({ page }) => {
   const targets = page.getByRole('table', { name: 'Targets' })
   const targetVpcNameField = page.getByRole('combobox', { name: 'VPC name' }).first()
 
-  const addButton = page.getByRole('button', { name: 'Add target' })
+  const addButton = page.getByRole('button', { name: 'Add' })
 
   // addButton should be disabled until a value is added
   await expect(addButton).toBeDisabled()
@@ -231,7 +231,7 @@ test('firewall rule form targets table', async ({ page }) => {
 test('firewall rule form target validation', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules-new')
 
-  const addButton = page.getByRole('button', { name: 'Add target' })
+  const addButton = page.getByRole('button', { name: 'Add' })
   const targets = page.getByRole('table', { name: 'Targets' })
 
   const formModal = page.getByRole('dialog', { name: 'Add firewall rule' })
@@ -296,7 +296,7 @@ test('firewall rule form target validation', async ({ page }) => {
 test('firewall rule form host validation', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules-new')
 
-  const addButton = page.getByRole('button', { name: 'Add host filter' })
+  const addButton = page.getByRole('button', { name: 'Add' })
   const hosts = page.getByRole('table', { name: 'Host filters' })
 
   const formModal = page.getByRole('dialog', { name: 'Add firewall rule' })
@@ -368,7 +368,7 @@ test('firewall rule form hosts table', async ({ page }) => {
 
   const hosts = page.getByRole('table', { name: 'Host filters' })
   const hostFiltersVpcNameField = page.getByRole('combobox', { name: 'VPC name' }).nth(1)
-  const addButton = page.getByRole('button', { name: 'Add host filter' })
+  const addButton = page.getByRole('button', { name: 'Add' })
 
   // add hosts with overlapping names and types to test delete
 
@@ -454,14 +454,14 @@ test('can update firewall rule', async ({ page }) => {
   await selectOption(page, 'Host type', 'VPC subnet')
   await page.getByRole('combobox', { name: 'Subnet name' }).fill('edit-filter-subnet')
   await page.getByText('edit-filter-subnet').click()
-  await page.getByRole('button', { name: 'Add host filter' }).click()
+  await page.getByRole('button', { name: 'Add' }).click()
 
   // new host is added to hosts table
   const hosts = page.getByRole('table', { name: 'Host filters' })
   await expectRowVisible(hosts, { Type: 'subnet', Value: 'edit-filter-subnet' })
 
   // submit the form
-  await page.getByRole('button', { name: 'Update rule' }).click()
+  await page.getByRole('button', { name: 'Update' }).click()
 
   // modal closes again
   await expect(modal).toBeHidden()
@@ -554,7 +554,7 @@ test('name conflict error on create', async ({ page }) => {
   const error = page.getByText('Name taken').first()
   await expect(error).toBeHidden()
 
-  await page.getByRole('button', { name: 'Add rule' }).click()
+  await page.getByRole('button', { name: 'Add' }).click()
   await expect(error).toBeVisible()
 })
 
@@ -570,7 +570,7 @@ test('name conflict error on edit', async ({ page }) => {
   const error = page.getByRole('dialog').getByText('Name taken')
   await expect(error).toBeHidden()
 
-  await page.getByRole('button', { name: 'Update rule' }).click()
+  await page.getByRole('button', { name: 'Update' }).click()
   await expect(error).toBeVisible()
 
   // change name back
@@ -578,14 +578,14 @@ test('name conflict error on edit', async ({ page }) => {
 
   // changing a value _without_ changing the name is allowed
   await page.getByRole('textbox', { name: 'Priority' }).fill('37')
-  await page.getByRole('button', { name: 'Update rule' }).click()
+  await page.getByRole('button', { name: 'Update' }).click()
   await expect(error).toBeHidden()
   await expectRowVisible(page.getByRole('table'), { Name: 'allow-icmp', Priority: '37' })
 
   // changing the name to a non-conflicting name is allowed
   await page.getByRole('link', { name: 'allow-icmp' }).click()
   await nameField.fill('allow-icmp2')
-  await page.getByRole('button', { name: 'Update rule' }).click()
+  await page.getByRole('button', { name: 'Update' }).click()
   await expectRowVisible(page.getByRole('table'), { Name: 'allow-icmp2', Priority: '37' })
 })
 
@@ -609,7 +609,7 @@ test('arbitrary values combobox', async ({ page }) => {
   await expectOptions(page, ['Custom: d'])
 
   await vpcInput.blur()
-  page.getByRole('button', { name: 'Add target' }).click()
+  page.getByRole('button', { name: 'Add' }).click()
   await expect(vpcInput).toHaveValue('')
 
   await vpcInput.focus()

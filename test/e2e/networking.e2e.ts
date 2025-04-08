@@ -63,10 +63,10 @@ test('Create and edit VPC', async ({ page }) => {
     'role=textbox[name="Name"]',
     'role=textbox[name="Description"]',
     'role=textbox[name="DNS name"]',
-    'role=button[name="Update VPC"]',
+    'role=button[name="Update"]',
   ])
   await page.fill('role=textbox[name="Name"]', 'new-vpc')
-  await page.click('role=button[name="Update VPC"]')
+  await page.click('role=button[name="Update"]')
 
   // Close toast, it holds up the test for some reason
   await closeToast(page)
@@ -94,7 +94,7 @@ test('Create and edit subnet', async ({ page }) => {
   ])
   await page.fill('role=textbox[name="Name"]', 'new-subnet')
   await page.fill('role=textbox[name="IPv4 block"]', '10.1.1.1/24')
-  await page.click('role=button[name="Create subnet"]')
+  await page.click('role=button[name="Create"]')
 
   // Edit subnet
   await expectVisible(page, ['role=cell[name="new-subnet"]'])
@@ -106,11 +106,11 @@ test('Create and edit subnet', async ({ page }) => {
 
   await expectVisible(page, [
     'role=heading[name="Edit subnet"]',
-    'role=button[name="Update subnet"]',
+    'role=button[name="Update"]',
   ])
   await page.fill('role=textbox[name="Name"]', 'edited-subnet')
   await page.fill('role=textbox[name="Description"]', 'behold')
-  await page.click('role=button[name="Update subnet"]')
+  await page.click('role=button[name="Update"]')
 
   await expectNotVisible(page, ['role=cell[name="new-subnet"]'])
   await expectVisible(page, ['role=cell[name="edited-subnet"]'])

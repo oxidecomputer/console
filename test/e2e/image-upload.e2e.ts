@@ -64,7 +64,7 @@ test.describe('Image upload', () => {
 
     await fillForm(page, 'new-image')
 
-    await page.getByRole('button', { name: 'Upload image' }).click()
+    await page.getByRole('button', { name: 'Upload' }).click()
 
     // now the modal pops open and the thing starts going
     await expectUploadProcess(page)
@@ -84,12 +84,12 @@ test.describe('Image upload', () => {
     await fillForm(page, 'image-1')
 
     await expectNotVisible(page, ['text="Image name already exists"'])
-    await page.getByRole('button', { name: 'Upload image' }).click()
+    await page.getByRole('button', { name: 'Upload' }).click()
     await expectVisible(page, ['text="Image name already exists"'])
 
     // changing name and resubmitting removes error
     await page.fill('role=textbox[name="Name"]', 'image-5')
-    await page.getByRole('button', { name: 'Upload image' }).click()
+    await page.getByRole('button', { name: 'Upload' }).click()
     await expectNotVisible(page, ['text="Image name already exists"'])
     await expectUploadProcess(page)
 
@@ -107,7 +107,7 @@ test.describe('Image upload', () => {
 
     await expectNotVisible(page, [nameRequired, fileRequired])
 
-    await page.getByRole('button', { name: 'Upload image' }).click()
+    await page.getByRole('button', { name: 'Upload' }).click()
     await expectVisible(page, [nameRequired, fileRequired])
 
     await page.fill('role=textbox[name="Name"]', 'new-image')
@@ -118,7 +118,7 @@ test.describe('Image upload', () => {
     await expectNotVisible(page, [fileRequired])
 
     await page.click('role=button[name="Clear file"]')
-    await page.getByRole('button', { name: 'Upload image' }).click()
+    await page.getByRole('button', { name: 'Upload' }).click()
 
     await expectVisible(page, [fileRequired])
   })
@@ -172,7 +172,7 @@ test.describe('Image upload', () => {
 
     const progressModal = page.getByRole('dialog', { name: 'Image upload progress' })
 
-    await page.getByRole('button', { name: 'Upload image' }).click()
+    await page.getByRole('button', { name: 'Upload' }).click()
     await expect(progressModal).toBeVisible()
 
     let confirmCount = 0
@@ -203,7 +203,7 @@ test.describe('Image upload', () => {
 
     await fillForm(page, 'new-image')
 
-    await page.getByRole('button', { name: 'Upload image' }).click()
+    await page.getByRole('button', { name: 'Upload' }).click()
 
     // wait to be in the middle of upload
     const uploadStep = page.getByTestId('upload-step: Upload image file')
@@ -223,10 +223,10 @@ test.describe('Image upload', () => {
     await expect(page.getByRole('textbox', { name: 'Name' })).toBeVisible()
     // need to wait for submit button to come back because it's in a loading
     // state while the cleanup runs
-    await expect(page.getByRole('button', { name: 'Upload image' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Upload' })).toBeVisible()
 
     // resubmit and it should work fine
-    await page.getByRole('button', { name: 'Upload image' }).click()
+    await page.getByRole('button', { name: 'Upload' }).click()
     await expectUploadProcess(page)
   })
 
@@ -244,7 +244,7 @@ test.describe('Image upload', () => {
 
       await fillForm(page, imageName)
 
-      await page.getByRole('button', { name: 'Upload image' }).click()
+      await page.getByRole('button', { name: 'Upload' }).click()
 
       const step = page.getByTestId(`upload-step: ${stepText}`)
       await expect(step).toHaveAttribute('data-status', 'error', { timeout: 15000 })

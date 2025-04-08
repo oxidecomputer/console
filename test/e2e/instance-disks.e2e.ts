@@ -110,7 +110,7 @@ test('Create disk', async ({ page }) => {
   // New disk form
   const createForm = page.getByRole('dialog', { name: 'Create disk' })
   await expect(createForm).toBeHidden()
-  await page.getByRole('button', { name: 'Create disk' }).click()
+  await page.getByRole('button', { name: 'Create' }).click()
   await expect(createForm).toBeVisible()
 
   await createForm.getByRole('textbox', { name: 'Name' }).fill('created-disk')
@@ -120,7 +120,7 @@ test('Create disk', async ({ page }) => {
   await page.getByRole('button', { name: 'Source snapshot' }).click()
   await page.getByRole('option', { name: 'snapshot-heavy' }).click()
 
-  await createForm.getByRole('button', { name: 'Create disk' }).click()
+  await createForm.getByRole('button', { name: 'Create' }).click()
 
   const otherDisksTable = page.getByRole('table', { name: 'Additional disks' })
   await expectRowVisible(otherDisksTable, { Disk: 'created-disk', size: '20 GiB' })
