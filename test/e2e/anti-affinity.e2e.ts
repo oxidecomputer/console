@@ -8,7 +8,6 @@
 
 import { expect, test } from '@playwright/test'
 
-import { expectInstanceState } from './instance.e2e'
 import { clickRowAction, closeToast, expectRowVisible } from './utils'
 
 test('can nav to Affinity from /', async ({ page }) => {
@@ -83,7 +82,10 @@ test('can add a new anti-affinity group', async ({ page }) => {
   await page.getByRole('link', { name: 'Instances' }).click()
   clickRowAction(page, 'db1', 'Stop')
   await page.getByRole('button', { name: 'Confirm' }).click()
-  await expectInstanceState(page, 'db1', 'stopped')
+  await expectRowVisible(page.getByRole('table'), {
+    name: 'db1',
+    state: expect.stringContaining('stopped'),
+  })
 
   // go back to the anti-affinity group and add the instance
   await page.getByRole('link', { name: 'Affinity' }).click()
