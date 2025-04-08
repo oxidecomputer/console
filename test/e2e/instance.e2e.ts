@@ -15,7 +15,7 @@ import {
   type Page,
 } from './utils'
 
-const expectInstanceState = async (page: Page, instance: string, state: string) => {
+export const expectInstanceState = async (page: Page, instance: string, state: string) => {
   await expectRowVisible(page.getByRole('table'), {
     name: instance,
     state: expect.stringContaining(state),
