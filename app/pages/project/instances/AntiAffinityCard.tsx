@@ -53,6 +53,12 @@ export const allAntiAffinityGroups = ({ project }: PP.Project) =>
     query: { project, limit: ALL_ISH },
   })
 
+const instanceView = ({ project, instance }: PP.Instance) =>
+  apiq('instanceView', {
+    path: { instance },
+    query: { project },
+  })
+
 const colHelper = createColumnHelper<AffinityGroup | AntiAffinityGroup>()
 const staticCols = [
   colHelper.accessor('description', Columns.description),
@@ -70,6 +76,7 @@ export function AntiAffinityCard() {
     instanceAntiAffinityGroups(instanceSelector)
   )
   const { data: allGroups } = usePrefetchedQuery(allAntiAffinityGroups(instanceSelector))
+  const { data: instanceData } = usePrefetchedQuery(instanceView(instanceSelector))
 
   const nonMemberGroups = useMemo(
     () => R.differenceWith(allGroups.items, memberGroups.items, (a, b) => a.id === b.id),
@@ -148,13 +155,15 @@ export function AntiAffinityCard() {
       <CardBlock.Header title="Anti-affinity groups" titleId="anti-affinity-groups-label">
         <Button
           size="sm"
-          disabled={nonMemberGroups.length === 0}
+          disabled={instanceData.runState !== 'stopped' || nonMemberGroups.length === 0}
           disabledReason={
-            allGroups.items.length === 0
-              ? 'No groups found'
-              : nonMemberGroups.length === 0
-                ? 'Instance is already in all groups'
-                : undefined
+            instanceData.runState !== 'stopped'
+              ? 'Only stopped instances can be added to anti-affinity groups'
+              : allGroups.items.length === 0
+                ? 'No groups found'
+                : nonMemberGroups.length === 0
+                  ? 'Instance is already in all groups'
+                  : undefined
           }
           onClick={() => setIsModalOpen(true)}
         >
