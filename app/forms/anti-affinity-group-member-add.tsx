@@ -27,6 +27,7 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
   const { project, antiAffinityGroup } = useAntiAffinityGroupSelector()
 
   const form = useForm({ defaultValues })
+  const { instance } = form.watch()
   const formId = useId()
 
   const { mutateAsync: addMember } = useApiMutation('antiAffinityGroupMemberInstanceAdd', {
@@ -44,6 +45,9 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
       query: { project },
     })
   })
+
+  const selectedInstanceIsStopped =
+    instances.find((i) => i.name === instance)?.runState === 'stopped' || false
 
   return (
     <Modal isOpen onDismiss={onDismiss} title="Add instance to group">
@@ -65,7 +69,17 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
           </form>
         </Modal.Section>
       </Modal.Body>
-      <Modal.Footer onDismiss={onDismiss} actionText="Add to group" formId={formId} />
+      <Modal.Footer
+        onDismiss={onDismiss}
+        actionText="Add to group"
+        formId={formId}
+        disabled={!selectedInstanceIsStopped}
+        disabledReason={
+          selectedInstanceIsStopped
+            ? undefined
+            : 'Only stopped instances can be added to the group'
+        }
+      />
     </Modal>
   )
 }

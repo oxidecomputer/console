@@ -59,6 +59,7 @@ test('can add a new anti-affinity group', async ({ page }) => {
   const addInstanceButton = page.getByRole('button', { name: 'Add instance' })
   const addInstanceModal = page.getByRole('dialog', { name: 'Add instance to group' })
   const instanceCombobox = page.getByRole('combobox', { name: 'Instance' })
+  const modalAddButton = page.getByRole('button', { name: 'Add to group' })
 
   // open modal and pick instance
   await addInstanceButton.click()
@@ -72,10 +73,27 @@ test('can add a new anti-affinity group', async ({ page }) => {
   await expect(addInstanceModal).toBeHidden()
   await addInstanceButton.click()
   await expect(instanceCombobox).toHaveValue('')
-
-  // now do it again for real and submit
   await page.getByRole('option', { name: 'db1' }).click()
-  await page.getByRole('button', { name: 'Add to group' }).click()
+  // the submit button should be disabled
+  await expect(modalAddButton).toBeDisabled()
+
+  // go disable db1
+  await page.getByRole('button', { name: 'Cancel' }).click()
+  await page.getByRole('link', { name: 'Instances' }).click()
+  clickRowAction(page, 'db1', 'Stop')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expect(page.getByRole('cell', { name: 'db1' })).toHaveText('Stopped')
+
+  // go back to the anti-affinity group and add the instance
+  await page.getByRole('link', { name: 'Affinity' }).click()
+  await page.getByRole('link', { name: 'new-anti-affinity-group' }).click()
+  await addInstanceButton.click()
+  await expect(addInstanceModal).toBeVisible()
+  await instanceCombobox.fill('db1')
+  await page.getByRole('option', { name: 'db1' }).click()
+  await expect(instanceCombobox).toHaveValue('db1')
+  // the submit button should be enabled
+  await modalAddButton.click()
 
   const cell = page.getByRole('cell', { name: 'db1' })
   await expect(cell).toBeVisible()
