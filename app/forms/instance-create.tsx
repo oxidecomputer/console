@@ -20,6 +20,7 @@ import {
   useApiMutation,
   useApiQueryClient,
   usePrefetchedApiQuery,
+  type AntiAffinityGroup,
   type ExternalIpCreate,
   type FloatingIp,
   type Image,
@@ -29,6 +30,7 @@ import {
   type SiloIpPool,
 } from '@oxide/api'
 import {
+  Affinity16Icon,
   Images16Icon,
   Instances16Icon,
   Instances24Icon,
@@ -60,6 +62,7 @@ import { FullPageForm } from '~/components/form/FullPageForm'
 import { HL } from '~/components/HL'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { Checkbox } from '~/ui/lib/Checkbox'
 import { toComboboxItems } from '~/ui/lib/Combobox'
@@ -155,6 +158,7 @@ const baseDefaultValues: InstanceCreateInput = {
 
   userData: null,
   externalIps: [{ type: 'ephemeral' }],
+  antiAffinityGroups: [],
 }
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
@@ -169,6 +173,9 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     apiQueryClient.prefetchQuery('currentUserSshKeyList', {}),
     apiQueryClient.prefetchQuery('projectIpPoolList', { query: { limit: ALL_ISH } }),
     apiQueryClient.prefetchQuery('floatingIpList', { query: { project, limit: ALL_ISH } }),
+    apiQueryClient.prefetchQuery('antiAffinityGroupList', {
+      query: { project, limit: ALL_ISH },
+    }),
   ])
   return null
 }
@@ -343,6 +350,7 @@ export default function CreateInstanceForm() {
               networkInterfaces: values.networkInterfaces,
               sshPublicKeys: values.sshPublicKeys,
               userData,
+              antiAffinityGroups: values.antiAffinityGroups,
             },
           })
         }}
@@ -645,7 +653,13 @@ const AdvancedAccordion = ({
   const [openItems, setOpenItems] = useState<string[]>([])
   const [floatingIpModalOpen, setFloatingIpModalOpen] = useState(false)
   const [selectedFloatingIp, setSelectedFloatingIp] = useState<FloatingIp | undefined>()
+  const [antiAffinityGroupModalOpen, setAntiAffinityGroupModalOpen] = useState(false)
+  const [selectedAntiAffinityGroup, setSelectedAntiAffinityGroup] = useState<
+    AntiAffinityGroup | undefined
+  >()
+
   const externalIps = useController({ control, name: 'externalIps' })
+  const antiAffinityGroups = useController({ control, name: 'antiAffinityGroups' })
   const ephemeralIp = externalIps.field.value?.find((ip) => ip.type === 'ephemeral')
   const assignEphemeralIp = !!ephemeralIp
   const selectedPool = ephemeralIp && 'pool' in ephemeralIp ? ephemeralIp.pool : undefined
@@ -656,6 +670,9 @@ const AdvancedAccordion = ({
 
   const { project } = useProjectSelector()
   const { data: floatingIpList } = usePrefetchedApiQuery('floatingIpList', {
+    query: { project, limit: ALL_ISH },
+  })
+  const { data: antiAffinityGroupList } = usePrefetchedApiQuery('antiAffinityGroupList', {
     query: { project, limit: ALL_ISH },
   })
 
@@ -672,6 +689,17 @@ const AdvancedAccordion = ({
   const attachedFloatingIpsData = attachedFloatingIps
     .map((ip) => attachableFloatingIps.find((fip) => fip.name === ip.floatingIp))
     .filter((ip) => !!ip)
+
+  const attachedAntiAffinityGroupNames = antiAffinityGroups.field.value || []
+
+  const attachedAntiAffinityGroupData = attachedAntiAffinityGroupNames
+    .map((name) => antiAffinityGroupList.items.find((group) => group.name === name))
+    .filter((group) => !!group)
+
+  // Available anti-affinity groups with those already attached removed
+  const availableAntiAffinityGroups = antiAffinityGroupList.items.filter(
+    (group) => !attachedAntiAffinityGroupNames.includes(group.name)
+  )
 
   const closeFloatingIpModal = () => {
     setFloatingIpModalOpen(false)
@@ -693,6 +721,27 @@ const AdvancedAccordion = ({
       externalIps.field.value?.filter(
         (ip) => !(ip.type === 'floating' && ip.floatingIp === name)
       )
+    )
+  }
+
+  const closeAntiAffinityGroupModal = () => {
+    setAntiAffinityGroupModalOpen(false)
+    setSelectedAntiAffinityGroup(undefined)
+  }
+
+  const attachAntiAffinityGroup = () => {
+    if (selectedAntiAffinityGroup) {
+      antiAffinityGroups.field.onChange([
+        ...(antiAffinityGroups.field.value || []),
+        selectedAntiAffinityGroup.name,
+      ])
+    }
+    closeAntiAffinityGroupModal()
+  }
+
+  const detachAntiAffinityGroup = (name: string) => {
+    antiAffinityGroups.field.onChange(
+      antiAffinityGroups.field.value?.filter((groupName) => groupName !== name)
     )
   }
 
@@ -774,12 +823,12 @@ const AdvancedAccordion = ({
           )}
         </div>
 
-        <div className="flex flex-1 flex-col gap-4">
+        <div className="flex flex-1 flex-col gap-2">
           <h2 className="flex items-center text-sans-md">
             Floating IPs{' '}
             <TipIcon className="ml-1.5">
               Floating IPs exist independently of instances and can be attached to and
-              detached from them as needed.
+              detached from them as needed
             </TipIcon>
           </h2>
           {isFloatingIpAttached && (
@@ -821,7 +870,6 @@ const AdvancedAccordion = ({
             <div>
               <Button
                 size="sm"
-                className="shrink-0"
                 disabled={availableFloatingIps.length === 0}
                 disabledReason="No floating IPs available"
                 onClick={() => setFloatingIpModalOpen(true)}
@@ -882,6 +930,119 @@ const AdvancedAccordion = ({
           control={control}
           disabled={isSubmitting}
         />
+        <div className="flex flex-1 flex-col gap-2">
+          <h2 className="flex items-center text-sans-md">
+            Anti-affinity groups
+            <TipIcon className="ml-1.5">
+              Instances in an anti-affinity group will be placed on different sleds when
+              they start
+            </TipIcon>
+          </h2>
+          {attachedAntiAffinityGroupNames.length > 0 && (
+            <MiniTable.Table>
+              <MiniTable.Header>
+                <MiniTable.HeadCell>Name</MiniTable.HeadCell>
+                <MiniTable.HeadCell>Policy</MiniTable.HeadCell>
+                {/* For remove button */}
+                <MiniTable.HeadCell className="w-12" />
+              </MiniTable.Header>
+              <MiniTable.Body>
+                {attachedAntiAffinityGroupData.map((item, index) => (
+                  <MiniTable.Row
+                    tabIndex={0}
+                    aria-rowindex={index + 1}
+                    aria-label={`Name: ${item.name}, Policy: ${item.policy}`}
+                    key={item.name}
+                  >
+                    <MiniTable.Cell>{item.name}</MiniTable.Cell>
+                    <MiniTable.Cell>
+                      <Badge variant="solid">{item.policy}</Badge>
+                    </MiniTable.Cell>
+                    <MiniTable.RemoveCell
+                      onClick={() => detachAntiAffinityGroup(item.name)}
+                      label={`remove anti-affinity group ${item.name}`}
+                    />
+                  </MiniTable.Row>
+                ))}
+              </MiniTable.Body>
+            </MiniTable.Table>
+          )}
+          {antiAffinityGroupList.items.length === 0 ? (
+            <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
+              <EmptyMessage
+                icon={<Affinity16Icon />}
+                title="No anti-affinity groups found"
+                body="Create an anti-affinity group to see it here"
+              />
+            </div>
+          ) : (
+            <div>
+              <Button
+                size="sm"
+                disabled={availableAntiAffinityGroups.length === 0}
+                disabledReason="No anti-affinity groups available"
+                onClick={() => setAntiAffinityGroupModalOpen(true)}
+              >
+                Add to group
+              </Button>
+            </div>
+          )}
+
+          <Modal
+            isOpen={antiAffinityGroupModalOpen}
+            onDismiss={closeAntiAffinityGroupModal}
+            title="Add instance to group"
+          >
+            <Modal.Body>
+              <Modal.Section>
+                <Message
+                  variant="info"
+                  content="Instances in an anti-affinity group will be placed on different sleds when they start. The policy attribute determines whether instances can still start when a unique sled is not available."
+                />
+                <form>
+                  <Listbox
+                    name="antiAffinityGroup"
+                    items={availableAntiAffinityGroups.map((group) => ({
+                      value: group.name,
+                      label: (
+                        <div>
+                          <div>{group.name}</div>
+                          <div className="flex gap-0.5 text-secondary selected:text-accent-secondary">
+                            <div>{group.policy}</div>
+                            {group.description && (
+                              <>
+                                <Slash />
+                                <div className="grow overflow-hidden overflow-ellipsis whitespace-pre text-left">
+                                  {group.description}
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      ),
+                      selectedLabel: group.name,
+                    }))}
+                    label="Group"
+                    onChange={(name) => {
+                      setSelectedAntiAffinityGroup(
+                        availableAntiAffinityGroups.find((group) => group.name === name)
+                      )
+                    }}
+                    required
+                    placeholder="Select a group"
+                    selected={selectedAntiAffinityGroup?.name || ''}
+                  />
+                </form>
+              </Modal.Section>
+            </Modal.Body>
+            <Modal.Footer
+              actionText="Add"
+              disabled={!selectedAntiAffinityGroup}
+              onAction={attachAntiAffinityGroup}
+              onDismiss={closeAntiAffinityGroupModal}
+            ></Modal.Footer>
+          </Modal>
+        </div>
       </AccordionItem>
     </Accordion.Root>
   )
