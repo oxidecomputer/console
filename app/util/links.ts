@@ -10,9 +10,8 @@ const remoteAccess = 'https://docs.oxide.computer/guides/remote-access'
 
 export const links = {
   accessDocs: 'https://docs.oxide.computer/guides/configuring-access',
-  // TODO: make sure this is right before merging
   affinityDocs:
-    'https://docs.oxide.computer/guides/deploying-workloads#_anti_affinity_groups',
+    'https://docs.oxide.computer/guides/deploying-workloads#_affinity_and_anti_affinity',
   cloudInitFormat: 'https://cloudinit.readthedocs.io/en/latest/explanation/format.html',
   cloudInitExamples: 'https://cloudinit.readthedocs.io/en/latest/reference/examples.html',
   disksDocs: 'https://docs.oxide.computer/guides/managing-disks-and-snapshots',

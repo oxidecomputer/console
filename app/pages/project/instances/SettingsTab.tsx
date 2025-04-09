@@ -10,13 +10,10 @@ import { type LoaderFunctionArgs } from 'react-router'
 
 import { queryClient } from '@oxide/api'
 
+import { antiAffinityGroupList } from '~/forms/affinity-util'
 import { getInstanceSelector } from '~/hooks/use-params'
 
-import {
-  allAntiAffinityGroups,
-  AntiAffinityCard,
-  instanceAntiAffinityGroups,
-} from './AntiAffinityCard'
+import { AntiAffinityCard, instanceAntiAffinityGroups } from './AntiAffinityCard'
 import { AutoRestartCard } from './AutoRestartCard'
 
 export const handle = { crumb: 'Settings' }
@@ -25,7 +22,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await Promise.all([
     queryClient.prefetchQuery(instanceAntiAffinityGroups({ project, instance })),
-    queryClient.prefetchQuery(allAntiAffinityGroups({ project })),
+    queryClient.prefetchQuery(antiAffinityGroupList({ project })),
   ])
   return null
 }

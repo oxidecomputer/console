@@ -25,6 +25,7 @@ import { Affinity24Icon } from '@oxide/design-system/icons/react'
 import { AffinityPolicyHeader } from '~/components/AffinityDocsPopover'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
+import { antiAffinityGroupList } from '~/forms/affinity-util'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { AffinityGroupPolicyBadge } from '~/pages/project/affinity/AffinityPage'
 import { confirmAction } from '~/stores/confirm-action'
@@ -49,17 +50,6 @@ export const instanceAntiAffinityGroups = ({ project, instance }: PP.Instance) =
     query: { project, limit: ALL_ISH },
   })
 
-export const allAntiAffinityGroups = ({ project }: PP.Project) =>
-  apiq('antiAffinityGroupList', {
-    query: { project, limit: ALL_ISH },
-  })
-
-const instanceView = ({ project, instance }: PP.Instance) =>
-  apiq('instanceView', {
-    path: { instance },
-    query: { project },
-  })
-
 const colHelper = createColumnHelper<AffinityGroup | AntiAffinityGroup>()
 const staticCols = [
   colHelper.accessor('description', Columns.description),
@@ -76,8 +66,10 @@ export function AntiAffinityCard() {
   const { data: memberGroups } = usePrefetchedQuery(
     instanceAntiAffinityGroups(instanceSelector)
   )
-  const { data: allGroups } = usePrefetchedQuery(allAntiAffinityGroups(instanceSelector))
-  const { data: instanceData } = usePrefetchedQuery(instanceView(instanceSelector))
+  const { data: allGroups } = usePrefetchedQuery(antiAffinityGroupList(instanceSelector))
+  const { data: instanceData } = usePrefetchedQuery(
+    apiq('instanceView', { path: { instance }, query: { project } })
+  )
 
   const nonMemberGroups = useMemo(
     () => R.differenceWith(allGroups.items, memberGroups.items, (a, b) => a.id === b.id),

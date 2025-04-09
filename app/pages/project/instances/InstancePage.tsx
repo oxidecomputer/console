@@ -297,11 +297,9 @@ export function ResizeInstanceModal({
   const { project } = useProjectSelector()
   const instanceUpdate = useApiMutation('instanceUpdate', {
     onSuccess(_updatedInstance) {
-      if (onListView) {
-        apiQueryClient.invalidateQueries('instanceList')
-      } else {
-        apiQueryClient.invalidateQueries('instanceView')
-      }
+      apiQueryClient.invalidateQueries('instanceList')
+      apiQueryClient.invalidateQueries('instanceView')
+
       onDismiss()
       addToast({
         content: (
