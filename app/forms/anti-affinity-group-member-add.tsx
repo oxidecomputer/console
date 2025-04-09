@@ -9,7 +9,7 @@
 import { useId } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { queryClient, useApiMutation, type Instance } from '~/api'
+import { instanceCan, queryClient, useApiMutation, type Instance } from '~/api'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
 import { useAntiAffinityGroupSelector } from '~/hooks/use-params'
@@ -28,7 +28,6 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
   const { project, antiAffinityGroup } = useAntiAffinityGroupSelector()
 
   const form = useForm({ defaultValues })
-  const { instance } = form.watch()
   const formId = useId()
 
   const { mutateAsync: addMember } = useApiMutation('antiAffinityGroupMemberInstanceAdd', {
@@ -47,8 +46,11 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
     })
   })
 
-  const selectedInstanceIsStopped =
-    instances.find((i) => i.name === instance)?.runState === 'stopped' || false
+  const instance = form.watch('instance')
+  const selectedInstance = instances.find((i) => i.name === instance)
+  const canAddInstance = selectedInstance
+    ? instanceCan.addToAntiAffinityGroup(selectedInstance)
+    : false
 
   return (
     <Modal isOpen onDismiss={onDismiss} title="Add instance to group">
@@ -68,7 +70,7 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
               control={form.control}
             />
           </form>
-          {!selectedInstanceIsStopped && (
+          {!canAddInstance && (
             <Message
               variant="notice"
               content="An instance must be stopped to add it to a group"
@@ -80,7 +82,7 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
         onDismiss={onDismiss}
         actionText="Add to group"
         formId={formId}
-        disabled={!selectedInstanceIsStopped}
+        disabled={!canAddInstance}
       />
     </Modal>
   )
