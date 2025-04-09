@@ -49,7 +49,7 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
   const instance = form.watch('instance')
   const selectedInstance = instances.find((i) => i.name === instance)
   const canAddInstance = selectedInstance
-    ? instanceCan.addToAntiAffinityGroup(selectedInstance)
+    ? instanceCan.addToAffinityGroup(selectedInstance)
     : false
 
   return (
