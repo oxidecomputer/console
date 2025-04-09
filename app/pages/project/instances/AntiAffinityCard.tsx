@@ -151,19 +151,15 @@ export function AntiAffinityCard() {
     getCoreRowModel: getCoreRowModel(),
   })
 
-  const getDisabledReason = () => {
-    if (!instanceCan.addToAntiAffinityGroup(instanceData)) {
-      return <>Only <HL>stopped</HL> instances can be added to a group</> // prettier-ignore
-    }
-    if (allGroups.items.length === 0) {
-      return 'No groups found'
-    }
-    if (nonMemberGroups.length === 0) {
-      return 'Instance is already in all groups'
-    }
-    return undefined
+  let disabledReason = undefined
+  if (!instanceCan.addToAntiAffinityGroup(instanceData)) {
+    disabledReason =
+      <>Only <HL>stopped</HL> instances can be added to a group</> // prettier-ignore
+  } else if (allGroups.items.length === 0) {
+    disabledReason = 'No groups found'
+  } else if (nonMemberGroups.length === 0) {
+    disabledReason = 'Instance is already in all groups'
   }
-  const disabledReason = getDisabledReason()
 
   return (
     <CardBlock>
