@@ -235,7 +235,10 @@ export const Combobox = ({
             />
             {items.length > 0 && (
               <ComboboxButton
-                className="my-1.5 flex items-center border-l px-3 bg-default border-secondary"
+                className={cn(
+                  'my-1.5 flex items-center border-l px-3 border-secondary',
+                  disabled ? 'cursor-not-allowed bg-disabled' : 'bg-default'
+                )}
                 aria-hidden
               >
                 <SelectArrows6Icon title="Select" className="w-2 text-secondary" />

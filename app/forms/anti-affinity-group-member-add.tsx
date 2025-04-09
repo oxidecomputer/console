@@ -35,7 +35,7 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
     onSuccess(_data, variables) {
       onDismiss()
       queryClient.invalidateEndpoint('antiAffinityGroupMemberList')
-      queryClient.invalidateEndpoint('antiAffinityGroupView')
+      queryClient.invalidateEndpoint('instanceAntiAffinityGroupList')
       addToast(<>Instance <HL>{variables.path.instance}</HL> added to anti-affinity group <HL>{antiAffinityGroup}</HL></>) // prettier-ignore
     },
   })

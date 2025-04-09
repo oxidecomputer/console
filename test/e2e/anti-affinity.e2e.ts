@@ -186,3 +186,70 @@ test('can delete anti-affinity group from detail page', async ({ page }) => {
   await expectRowVisible(page.getByRole('table'), { name: 'set-osiris' })
   await expect(page.getByRole('cell', { name: 'romulus-remus' })).toBeHidden()
 })
+
+test('add and remove instance from group on instance settings', async ({ page }) => {
+  const groupName = 'oil-water'
+
+  // Go to instance settings
+  await page.goto('/projects/mock-project/instances/db1/settings')
+
+  // Locate the Anti-affinity card and the table within it
+  const groupsTable = page.getByRole('table', { name: 'Anti-affinity groups' })
+
+  const groupCell = groupsTable.getByRole('cell', { name: groupName })
+
+  // Ensure the group is not initially present
+  await expect(groupCell).toBeHidden()
+
+  // Make sure Add to group button is disabled
+  const addToGroupButton = page.getByRole('button', { name: 'Add to group' })
+  await expect(addToGroupButton).toBeDisabled()
+
+  // Stop the instance
+  await page.getByRole('button', { name: 'Stop' }).click()
+  const confirmStopModal = page.getByRole('dialog', { name: 'Confirm stop' })
+  await expect(confirmStopModal).toBeVisible()
+  await confirmStopModal.getByRole('button', { name: 'Confirm' }).click()
+  await expect(confirmStopModal).toBeHidden()
+
+  // Add instance to group
+  await addToGroupButton.click()
+  const modal = page.getByRole('dialog', { name: 'Add to anti-affinity group' })
+  await expect(modal).toBeVisible()
+  await modal.getByRole('combobox', { name: 'Anti-affinity group' }).click()
+  await page.getByRole('option', { name: groupName }).click()
+  await modal.getByRole('button', { name: 'Add to group' }).click()
+  await expect(modal).toBeHidden()
+  await closeToast(page)
+
+  // Group appears in table
+  await expect(groupCell).toBeVisible()
+
+  // Go to the group page
+  await page.getByRole('link', { name: groupName }).click()
+  await expect(page.getByRole('heading', { name: groupName })).toBeVisible()
+  const groupTable = page.getByRole('table')
+
+  // Instance is listed in the group members table
+  await expectRowVisible(groupTable, { name: 'db1' })
+
+  // Go back to instance settings
+  await page.getByRole('link', { name: 'db1' }).click()
+
+  // Remove instance from group using row action
+  await clickRowAction(page, groupName, 'Remove instance from group')
+  const confirmModal = page.getByRole('dialog', { name: 'Remove instance from group' })
+  await expect(confirmModal).toBeVisible()
+  await confirmModal.getByRole('button', { name: 'Confirm' }).click()
+  await expect(confirmModal).toBeHidden()
+  await closeToast(page)
+
+  // Group is no longer in table
+  await expect(groupCell).toBeHidden()
+
+  // Instance is gone from group members table
+  await page.goto('/projects/mock-project/affinity/oil-water')
+  await expect(page.getByRole('heading', { name: groupName })).toBeVisible()
+  await expect(page.getByRole('cell', { name: 'db1' })).toBeHidden()
+  await expect(page.getByText('No group members')).toBeVisible()
+})
