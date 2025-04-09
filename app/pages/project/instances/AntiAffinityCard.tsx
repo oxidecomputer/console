@@ -13,6 +13,7 @@ import * as R from 'remeda'
 
 import {
   apiq,
+  instanceCan,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -151,7 +152,7 @@ export function AntiAffinityCard() {
   })
 
   const getDisabledReason = () => {
-    if (instanceData.runState !== 'stopped') {
+    if (!instanceCan.addToAntiAffinityGroup(instanceData)) {
       return 'This instance must be stopped to add it to a group'
     }
     if (allGroups.items.length === 0) {

@@ -131,6 +131,10 @@ const instanceActions = {
   updateNic: ['stopped'],
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/src/app/instance.rs#L1520-L1522
   serialConsole: ['running', 'rebooting', 'migrating', 'repairing'],
+
+  // https://github.com/oxidecomputer/omicron/blob/5e27bde/nexus/src/app/affinity.rs#L357 checks to see that there's no VMM
+  // TODO: determine whether the intent is only `stopped` or also `failed`
+  addToAntiAffinityGroup: ['stopped'],
 } satisfies Record<string, InstanceState[]>
 
 // setting .states is a cute way to make it ergonomic to call the test function
