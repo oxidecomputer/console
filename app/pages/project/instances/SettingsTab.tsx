@@ -12,14 +12,21 @@ import { queryClient } from '@oxide/api'
 
 import { getInstanceSelector } from '~/hooks/use-params'
 
-import { AntiAffinityCard, antiAffinityGroupList } from './AntiAffinityCard'
+import {
+  allAntiAffinityGroups,
+  AntiAffinityCard,
+  instanceAntiAffinityGroups,
+} from './AntiAffinityCard'
 import { AutoRestartCard } from './AutoRestartCard'
 
 export const handle = { crumb: 'Settings' }
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const instanceSelector = getInstanceSelector(params)
-  await queryClient.prefetchQuery(antiAffinityGroupList(instanceSelector))
+  const { project, instance } = getInstanceSelector(params)
+  await Promise.all([
+    queryClient.prefetchQuery(instanceAntiAffinityGroups({ project, instance })),
+    queryClient.prefetchQuery(allAntiAffinityGroups({ project })),
+  ])
   return null
 }
 

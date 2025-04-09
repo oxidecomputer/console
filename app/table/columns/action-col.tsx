@@ -42,13 +42,18 @@ export function useColsWithActions<TData extends Record<string, unknown>>(
   /** Should be static or memoized */
   columns: ColumnDef<TData, any>[], // eslint-disable-line @typescript-eslint/no-explicit-any
   /** Must be memoized to avoid re-renders */
-  makeActions: MakeActions<TData>
+  makeActions: MakeActions<TData>,
+  copyIdLabel?: string
 ) {
-  return useMemo(() => [...columns, getActionsCol(makeActions)], [columns, makeActions])
+  return useMemo(
+    () => [...columns, getActionsCol(makeActions, copyIdLabel)],
+    [columns, makeActions, copyIdLabel]
+  )
 }
 
 export const getActionsCol = <TData extends Record<string, unknown>>(
-  makeActions: MakeActions<TData>
+  makeActions: MakeActions<TData>,
+  copyIdLabel?: string
 ): ColumnDef<TData> => {
   return {
     id: 'menu',
@@ -62,7 +67,7 @@ export const getActionsCol = <TData extends Record<string, unknown>>(
       // TODO: control flow here has always confused me, would like to straighten it out
       const actions = makeActions(row.original)
       const id = typeof row.original.id === 'string' ? row.original.id : null
-      return <RowActions id={id} actions={actions} />
+      return <RowActions id={id} actions={actions} copyIdLabel={copyIdLabel} />
     },
   }
 }
