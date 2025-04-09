@@ -779,7 +779,7 @@ const AdvancedAccordion = ({
             Floating IPs{' '}
             <TipIcon className="ml-1.5">
               Floating IPs exist independently of instances and can be attached to and
-              detached from them as needed.
+              detached from them as needed
             </TipIcon>
           </h2>
           {isFloatingIpAttached && (
