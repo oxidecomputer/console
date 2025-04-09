@@ -37,6 +37,13 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
       queryClient.invalidateEndpoint('instanceAntiAffinityGroupList')
       addToast(<>Instance <HL>{variables.path.instance}</HL> added to anti-affinity group <HL>{antiAffinityGroup}</HL></>) // prettier-ignore
     },
+    onError(error) {
+      addToast({
+        title: 'Failed to add instance to group',
+        content: error.message,
+        variant: 'error',
+      })
+    },
   })
 
   const onSubmit = form.handleSubmit(({ instance }) => {

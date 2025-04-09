@@ -215,6 +215,13 @@ export function AddToGroupModal({ onDismiss, nonMemberGroups }: ModalProps) {
         </>
       )
     },
+    onError(error) {
+      addToast({
+        title: 'Failed to add instance to group',
+        content: error.message,
+        variant: 'error',
+      })
+    },
   })
 
   const handleSubmit = form.handleSubmit(({ group }) => {
