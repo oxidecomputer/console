@@ -164,7 +164,7 @@ const staticIpCols = [
       <>
         Kind
         <TipIcon className="ml-2">
-          Floating IPs can be detached from this instance and attached to another.
+          Floating IPs can be detached from this instance and attached to another
         </TipIcon>
       </>
     ),

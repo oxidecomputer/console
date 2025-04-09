@@ -145,7 +145,7 @@ export default function ProjectAccessPage() {
             Role
             <TipIcon className="ml-2">
               A user or group&apos;s effective role for this project is the strongest role
-              on either the silo or project.
+              on either the silo or project
             </TipIcon>
           </span>
         ),

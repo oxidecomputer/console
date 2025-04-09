@@ -271,7 +271,7 @@ const silosStaticCols = [
           Pool is silo default
           <TipIcon>
             IPs are allocated from the default pool when users ask for an IP without
-            specifying a pool.
+            specifying a pool
           </TipIcon>
         </span>
       )
