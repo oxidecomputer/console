@@ -16,7 +16,7 @@ import { disks } from './disk'
 import type { Json } from './json-type'
 import { project } from './project'
 
-const generatedSnapshots: Json<Snapshot>[] = Array.from({ length: 80 }, (_, i) =>
+const generatedSnapshots: Json<Snapshot>[] = Array.from({ length: 160 }, (_, i) =>
   generateSnapshot(i)
 )
 

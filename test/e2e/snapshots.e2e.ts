@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, expectRowVisible, expectVisible, test } from './utils'
+import { clickRowAction, expect, expectRowVisible, expectVisible, test } from './utils'
 
 test('Click through snapshots', async ({ page }) => {
   await page.goto('/projects/mock-project')
@@ -85,13 +85,11 @@ test('Error on delete snapshot', async ({ page }) => {
 test('Create image from snapshot', async ({ page }) => {
   await page.goto('/projects/mock-project/snapshots')
 
-  const row = page.getByRole('row', { name: 'snapshot-4' })
-  await row.getByRole('button', { name: 'Row actions' }).click()
-  await page.getByRole('menuitem', { name: 'Create image' }).click()
+  await clickRowAction(page, 'disk-1-snapshot-8', 'Create image')
 
   await expectVisible(page, ['role=dialog[name="Create image from snapshot"]'])
 
-  await page.fill('role=textbox[name="Name"]', 'image-from-snapshot-4')
+  await page.fill('role=textbox[name="Name"]', 'image-from-snapshot-8')
   await page.fill('role=textbox[name="Description"]', 'image description')
   await page.fill('role=textbox[name="OS"]', 'Ubuntu')
   await page.fill('role=textbox[name="Version"]', '20.02')
@@ -102,7 +100,7 @@ test('Create image from snapshot', async ({ page }) => {
 
   await page.click('role=link[name*="Images"]')
   await expectRowVisible(page.getByRole('table'), {
-    name: 'image-from-snapshot-4',
+    name: 'image-from-snapshot-8',
     description: 'image description',
   })
 })
@@ -110,9 +108,7 @@ test('Create image from snapshot', async ({ page }) => {
 test('Create image from snapshot, name taken', async ({ page }) => {
   await page.goto('/projects/mock-project/snapshots')
 
-  const row = page.getByRole('row', { name: 'snapshot-4' })
-  await row.getByRole('button', { name: 'Row actions' }).click()
-  await page.getByRole('menuitem', { name: 'Create image' }).click()
+  await clickRowAction(page, 'disk-1-snapshot-8', 'Create image')
 
   await expectVisible(page, ['role=dialog[name="Create image from snapshot"]'])
 

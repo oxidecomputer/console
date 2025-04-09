@@ -119,7 +119,7 @@ export const getApiQueryOptions =
 
 // Managed here instead of at the display layer so it can be built into the
 // query options and shared between loader prefetch and QueryTable
-export const PAGE_SIZE = 25
+export const PAGE_SIZE = 50
 
 /**
  * This primarily exists so we can have an object that encapsulates everything
