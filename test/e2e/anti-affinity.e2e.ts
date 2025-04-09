@@ -180,8 +180,19 @@ test('add and remove instance from group on instance settings', async ({ page })
   // Ensure the group is not initially present
   await expect(groupCell).toBeHidden()
 
-  // add instance to group
-  await page.getByRole('button', { name: 'Add to group' }).click()
+  // Make sure Add to group button is disabled
+  const addToGroupButton = page.getByRole('button', { name: 'Add to group' })
+  await expect(addToGroupButton).toBeDisabled()
+
+  // Stop the instance
+  await page.getByRole('button', { name: 'Stop' }).click()
+  const confirmStopModal = page.getByRole('dialog', { name: 'Confirm stop' })
+  await expect(confirmStopModal).toBeVisible()
+  await confirmStopModal.getByRole('button', { name: 'Confirm' }).click()
+  await expect(confirmStopModal).toBeHidden()
+
+  // Add instance to group
+  await addToGroupButton.click()
   const modal = page.getByRole('dialog', { name: 'Add to anti-affinity group' })
   await expect(modal).toBeVisible()
   await modal.getByRole('combobox', { name: 'Anti-affinity group' }).click()
