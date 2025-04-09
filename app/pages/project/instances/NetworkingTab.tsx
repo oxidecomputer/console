@@ -455,7 +455,7 @@ export default function NetworkingTab() {
             disabledReason={
               <>
                 A network interface cannot be created or edited unless the instance is{' '}
-                {updateNicStates}.
+                {updateNicStates}
               </>
             }
           >

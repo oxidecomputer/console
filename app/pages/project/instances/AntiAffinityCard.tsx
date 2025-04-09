@@ -153,7 +153,7 @@ export function AntiAffinityCard() {
 
   const getDisabledReason = () => {
     if (!instanceCan.addToAntiAffinityGroup(instanceData)) {
-      return 'This instance must be stopped to add it to a group'
+      return <>Only <HL>stopped</HL> instances can be added to a group</> // prettier-ignore
     }
     if (allGroups.items.length === 0) {
       return 'No groups found'
