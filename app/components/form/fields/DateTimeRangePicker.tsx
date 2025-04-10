@@ -34,6 +34,8 @@ const computeStart: Record<RangeKey, (now: DateValue) => DateValue> = {
   last30Days: (now) => now.subtract({ days: 30 }),
 }
 
+const tz = getLocalTimeZone()
+
 // Limitations:
 //   - list of presets is hard-coded
 //   - initial preset can't be "custom"
@@ -55,7 +57,6 @@ export function useDateTimeRangePicker({
   maxValue?: DateValue | undefined
   items?: { label: string; value: RangeKeyAll }[]
 }) {
-  const tz = getLocalTimeZone()
   const now = useMemo(() => getNow(tz), [])
 
   const start = computeStart[initialPreset](now)
