@@ -71,6 +71,7 @@
     "ts-pattern": "^5.6.2",
     "tslib": "^2.7.0",
     "tunnel-rat": "^0.1.2",
+    "use-debounce": "^10.0.4",
     "uuid": "^10.0.0",
     "zod": "^3.23.8",
     "zustand": "^5.0.3"

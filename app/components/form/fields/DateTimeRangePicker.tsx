@@ -7,6 +7,7 @@
  */
 import { getLocalTimeZone, now as getNow, type DateValue } from '@internationalized/date'
 import { useMemo, useState } from 'react'
+import { useDebounce } from 'use-debounce'
 
 import { DateRangePicker } from '~/ui/lib/DateRangePicker'
 import { Listbox } from '~/ui/lib/Listbox'
@@ -54,7 +55,8 @@ export function useDateTimeRangePicker({
   maxValue?: DateValue | undefined
   items?: { label: string; value: RangeKeyAll }[]
 }) {
-  const now = useMemo(() => getNow(getLocalTimeZone()), [])
+  const tz = getLocalTimeZone()
+  const now = useMemo(() => getNow(tz), [])
 
   const start = computeStart[initialPreset](now)
   const end = now
@@ -64,7 +66,7 @@ export function useDateTimeRangePicker({
 
   const onRangeChange = (newPreset: RangeKeyAll) => {
     if (newPreset !== 'custom') {
-      const now = getNow(getLocalTimeZone())
+      const now = getNow(tz)
       const newStartTime = computeStart[newPreset](now)
       setRange({ start: newStartTime, end: now })
     }
@@ -81,10 +83,13 @@ export function useDateTimeRangePicker({
     items,
   }
 
+  const [startTime] = useDebounce(range.start.toDate(tz), 400)
+  const [endTime] = useDebounce(range.end.toDate(tz), 400)
+
   return {
-    startTime: range.start.toDate(getLocalTimeZone()),
-    endTime: range.end.toDate(getLocalTimeZone()),
-    preset: preset,
+    startTime,
+    endTime,
+    preset,
     onRangeChange: onRangeChange,
     dateTimeRangePicker: <DateTimeRangePicker {...props} />,
   }
