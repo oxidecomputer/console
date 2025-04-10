@@ -156,7 +156,7 @@ type FormMetaProps = {
 
 const FormMeta = ({ label, tip, children }: FormMetaProps) => (
   <div>
-    <div className="mb-2 flex items-center gap-1 border-b pb-2 text-sans-md border-secondary">
+    <div className="mb-2 flex items-center gap-1 border-b pb-2 text-sans-md text-raise border-secondary">
       <div>{label}</div>
       {tip && <TipIcon>{tip}</TipIcon>}
     </div>
