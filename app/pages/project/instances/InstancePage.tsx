@@ -72,6 +72,7 @@ async function refreshData() {
     apiQueryClient.invalidateQueries('instanceNetworkInterfaceList'),
     apiQueryClient.invalidateQueries('instanceDiskList'), // storage tab
     apiQueryClient.invalidateQueries('diskMetricsList'), // metrics tab
+    apiQueryClient.invalidateQueries('antiAffinityGroupMemberList'),
   ])
 }
 
