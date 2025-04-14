@@ -112,6 +112,7 @@ export default function IpPoolsPage() {
   const { table, query } = useQueryTable({
     query: ipPoolList(),
     columns,
+    rowHeight: 'large',
     emptyState: <EmptyState />,
   })
   const { data: pools } = query
