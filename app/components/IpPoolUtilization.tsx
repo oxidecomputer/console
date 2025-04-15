@@ -32,7 +32,7 @@ export function IpUtilCell(util: IpPoolUtilization) {
   // a pool already exists with IPv6 ranges, so we might as well show that. also
   // this is nice for e2e testing the utilization logic
   return (
-    <div className="space-y-0.5">
+    <div className="flex gap-4">
       <div>
         <Badge color="neutral" className="mr-2 !normal-case">
           v4
