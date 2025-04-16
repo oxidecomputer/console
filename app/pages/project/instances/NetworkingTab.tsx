@@ -164,7 +164,7 @@ const staticIpCols = [
       <>
         Kind
         <TipIcon className="ml-2">
-          Floating IPs can be detached from this instance and attached to another.
+          Floating IPs can be detached from this instance and attached to another
         </TipIcon>
       </>
     ),
@@ -455,7 +455,7 @@ export default function NetworkingTab() {
             disabledReason={
               <>
                 A network interface cannot be created or edited unless the instance is{' '}
-                {updateNicStates}.
+                {updateNicStates}
               </>
             }
           >

@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-
 /* counterintuitively, no-preference covers the false case */
 @media (prefers-reduced-motion: no-preference) {
   .global-loading-bar {
@@ -101,7 +100,7 @@
     }
 
     100% {
-      opacity: 0.0;
+      opacity: 0;
     }
   }
 }

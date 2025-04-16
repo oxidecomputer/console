@@ -46,7 +46,7 @@ test('can promote an image from silo', async ({ page }) => {
   await page.getByRole('option', { name: 'mock-project' }).click()
 
   // Select an image in that project
-  const imageListbox = page.locator('role=button[name*="Image"]')
+  const imageListbox = page.getByRole('button', { name: 'Image', exact: true })
   await expect(imageListbox).toBeEnabled()
   await imageListbox.click()
   await page.locator('role=option >> text="image-1"').click()

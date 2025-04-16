@@ -22,7 +22,7 @@ import { TopBar } from '~/components/TopBar'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
-import { pb } from '~/util/path-builder'
+import { inventoryBase, pb } from '~/util/path-builder'
 
 import { ContentPane, PageContainer } from './helpers'
 
@@ -42,8 +42,6 @@ export async function clientLoader() {
     .then(() => true)
     .catch(() => false)
 
-  // TODO: make sure 404 is the desired behavior. This situation should be
-  // pretty unlikely.
   if (!isFleetViewer) throw trigger404
 
   return null
@@ -102,7 +100,7 @@ export default function SystemLayout() {
           <NavLinkItem to={pb.systemUtilization()}>
             <Metrics16Icon /> Utilization
           </NavLinkItem>
-          <NavLinkItem to={pb.sledInventory()}>
+          <NavLinkItem to={pb.sledInventory()} activePrefix={inventoryBase()}>
             <Servers16Icon /> Inventory
           </NavLinkItem>
           <NavLinkItem to={pb.ipPools()}>

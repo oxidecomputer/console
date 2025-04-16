@@ -9,12 +9,13 @@ import type { ReactElement } from 'react'
 import {
   createRoutesFromElements,
   Navigate,
+  redirect,
   Route,
   type LoaderFunctionArgs,
-  type redirect,
 } from 'react-router'
 
 import { NotFound } from './components/ErrorPage'
+import { PageSkeleton } from './components/PageSkeleton.tsx'
 import { makeCrumb, type Crumb } from './hooks/use-crumbs'
 import { getInstanceSelector, getVpcSelector } from './hooks/use-params'
 import { pb } from './util/path-builder'
@@ -29,6 +30,7 @@ type RouteModule = {
   shouldRevalidate?: () => boolean
   ErrorBoundary?: () => ReactElement
   handle?: Crumb
+  hydrateFallbackElement?: ReactElement
   // trick to get a nice type error when we forget to convert loader to
   // clientLoader in the module
   loader?: never
@@ -51,7 +53,20 @@ const redirectWithLoader = (to: string) => (mod: RouteModule) => ({
 })
 
 export const routes = createRoutesFromElements(
-  <Route lazy={() => import('./layouts/RootLayout').then(convert)}>
+  <Route
+    lazy={() => import('./layouts/RootLayout').then(convert)}
+    // This only works here, not on any lower layouts. In framework mode they
+    // make clearer that only the root can have a `HydrateFallback` -- that
+    // restriction appears to be in place implicitly in library mode. This is
+    // why we need skipPaths: there are layouts that don't have the grid that
+    // matches skeleton, so we can't show the skeleton on those pages.
+    //
+    // Also notable: this only works when explicitly added here as a prop,
+    // not  as an export from  the lazy-loaded route module, which makes sense
+    // because the loading of that route module is itself part of "hydration"
+    // (confusingly, not what React calls hydration).
+    hydrateFallbackElement={<PageSkeleton skipPaths={[/^\/login\//, /^\/device\//]} />}
+  >
     <Route path="*" element={<NotFound />} />
     <Route lazy={() => import('./layouts/LoginLayout.tsx').then(convert)}>
       <Route
@@ -192,7 +207,7 @@ export const routes = createRoutesFromElements(
         </Route>
       </Route>
 
-      <Route index element={<Navigate to={pb.projects()} replace />} />
+      <Route index loader={() => redirect(pb.projects())} />
 
       <Route lazy={() => import('./layouts/SiloLayout').then(convert)}>
         <Route
@@ -485,6 +500,32 @@ export const routes = createRoutesFromElements(
             path="access"
             lazy={() => import('./pages/project/access/ProjectAccessPage').then(convert)}
           />
+          <Route
+            lazy={() => import('./pages/project/affinity/AffinityPage').then(convert)}
+            handle={{ crumb: 'Affinity Groups' }}
+          >
+            <Route
+              path="affinity-new"
+              lazy={() => import('./forms/anti-affinity-group-create').then(convert)}
+            />
+          </Route>
+          <Route path="affinity" handle={{ crumb: 'Affinity Groups' }}>
+            <Route
+              index
+              lazy={() => import('./pages/project/affinity/AffinityPage.tsx').then(convert)}
+            />
+            <Route
+              path=":antiAffinityGroup"
+              lazy={() =>
+                import('./pages/project/affinity/AntiAffinityGroupPage.tsx').then(convert)
+              }
+            >
+              <Route
+                path="edit"
+                lazy={() => import('./forms/anti-affinity-group-edit').then(convert)}
+              />
+            </Route>
+          </Route>
         </Route>
       </Route>
     </Route>

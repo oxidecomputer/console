@@ -186,7 +186,7 @@ export const FailureDomain = z.preprocess(processResponseBody, z.enum(['sled']))
 export const AffinityPolicy = z.preprocess(processResponseBody, z.enum(['allow', 'fail']))
 
 /**
- * Identity-related metadata that's included in nearly all public API objects
+ * View of an Affinity Group
  */
 export const AffinityGroup = z.preprocess(
   processResponseBody,
@@ -196,6 +196,7 @@ export const AffinityGroup = z.preprocess(
     id: z.string().uuid(),
     name: Name,
     policy: AffinityPolicy,
+    projectId: z.string().uuid(),
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
   })
@@ -217,13 +218,39 @@ export const AffinityGroupCreate = z.preprocess(
 export const TypedUuidForInstanceKind = z.preprocess(processResponseBody, z.string().uuid())
 
 /**
+ * Running state of an Instance (primarily: booted or stopped)
+ *
+ * This typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle
+ */
+export const InstanceState = z.preprocess(
+  processResponseBody,
+  z.enum([
+    'creating',
+    'starting',
+    'running',
+    'stopping',
+    'stopped',
+    'rebooting',
+    'migrating',
+    'repairing',
+    'failed',
+    'destroyed',
+  ])
+)
+
+/**
  * A member of an Affinity Group
  *
  * Membership in a group is not exclusive - members may belong to multiple affinity / anti-affinity groups.
+ *
+ * Affinity Groups can contain up to 32 members.
  */
 export const AffinityGroupMember = z.preprocess(
   processResponseBody,
-  z.object({ type: z.enum(['instance']), value: TypedUuidForInstanceKind })
+  z.object({
+    type: z.enum(['instance']),
+    value: z.object({ id: TypedUuidForInstanceKind, name: Name, runState: InstanceState }),
+  })
 )
 
 /**
@@ -311,7 +338,7 @@ export const AllowListUpdate = z.preprocess(
 )
 
 /**
- * Identity-related metadata that's included in nearly all public API objects
+ * View of an Anti-Affinity Group
  */
 export const AntiAffinityGroup = z.preprocess(
   processResponseBody,
@@ -321,6 +348,7 @@ export const AntiAffinityGroup = z.preprocess(
     id: z.string().uuid(),
     name: Name,
     policy: AffinityPolicy,
+    projectId: z.string().uuid(),
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
   })
@@ -343,10 +371,15 @@ export const AntiAffinityGroupCreate = z.preprocess(
  * A member of an Anti-Affinity Group
  *
  * Membership in a group is not exclusive - members may belong to multiple affinity / anti-affinity groups.
+ *
+ * Anti-Affinity Groups can contain up to 32 members.
  */
 export const AntiAffinityGroupMember = z.preprocess(
   processResponseBody,
-  z.object({ type: z.enum(['instance']), value: TypedUuidForInstanceKind })
+  z.object({
+    type: z.enum(['instance']),
+    value: z.object({ id: TypedUuidForInstanceKind, name: Name, runState: InstanceState }),
+  })
 )
 
 /**
@@ -1749,10 +1782,7 @@ export const Image = z.preprocess(
  */
 export const ImageSource = z.preprocess(
   processResponseBody,
-  z.union([
-    z.object({ id: z.string().uuid(), type: z.enum(['snapshot']) }),
-    z.object({ type: z.enum(['you_can_boot_anything_as_long_as_its_alpine']) }),
-  ])
+  z.object({ id: z.string().uuid(), type: z.enum(['snapshot']) })
 )
 
 /**
@@ -1799,27 +1829,6 @@ export const InstanceAutoRestartPolicy = z.preprocess(
 export const InstanceCpuCount = z.preprocess(
   processResponseBody,
   z.number().min(0).max(65535)
-)
-
-/**
- * Running state of an Instance (primarily: booted or stopped)
- *
- * This typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle
- */
-export const InstanceState = z.preprocess(
-  processResponseBody,
-  z.enum([
-    'creating',
-    'starting',
-    'running',
-    'stopping',
-    'stopped',
-    'rebooting',
-    'migrating',
-    'repairing',
-    'failed',
-    'destroyed',
-  ])
 )
 
 /**
@@ -1896,6 +1905,7 @@ export const InstanceNetworkInterfaceAttachment = z.preprocess(
 export const InstanceCreate = z.preprocess(
   processResponseBody,
   z.object({
+    antiAffinityGroups: NameOrId.array().default([]).optional(),
     autoRestartPolicy: InstanceAutoRestartPolicy.default(null).optional(),
     bootDisk: InstanceDiskAttachment.default(null).optional(),
     description: z.string(),
@@ -2911,6 +2921,20 @@ export const SamlIdentityProviderCreate = z.preprocess(
 )
 
 /**
+ * Parameters for PUT requests to `/v1/system/update/target-release`.
+ */
+export const SetTargetReleaseParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    systemVersion: z
+      .string()
+      .regex(
+        /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
+      ),
+  })
+)
+
+/**
  * Describes how identities are managed and users are authenticated in this Silo
  */
 export const SiloIdentityMode = z.preprocess(
@@ -3538,6 +3562,36 @@ export const SwitchPortSettingsView = z.preprocess(
 export const SwitchResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: Switch.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * Source of a system software target release.
+ */
+export const TargetReleaseSource = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ type: z.enum(['unspecified']) }),
+    z.object({
+      type: z.enum(['system_version']),
+      version: z
+        .string()
+        .regex(
+          /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
+        ),
+    }),
+  ])
+)
+
+/**
+ * View of a system software target release.
+ */
+export const TargetRelease = z.preprocess(
+  processResponseBody,
+  z.object({
+    generation: z.number(),
+    releaseSource: TargetReleaseSource,
+    timeRequested: z.coerce.date(),
+  })
 )
 
 /**
@@ -4280,7 +4334,7 @@ export const AffinityGroupMemberListParams = z.preprocess(
       limit: z.number().min(1).max(4294967295).optional(),
       pageToken: z.string().optional(),
       project: NameOrId.optional(),
-      sortBy: IdSortMode.optional(),
+      sortBy: NameOrIdSortMode.optional(),
     }),
   })
 )
@@ -4393,7 +4447,7 @@ export const AntiAffinityGroupMemberListParams = z.preprocess(
       limit: z.number().min(1).max(4294967295).optional(),
       pageToken: z.string().optional(),
       project: NameOrId.optional(),
-      sortBy: IdSortMode.optional(),
+      sortBy: NameOrIdSortMode.optional(),
     }),
   })
 )
@@ -4821,6 +4875,36 @@ export const InstanceDeleteParams = z.preprocess(
     }),
     query: z.object({
       project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InstanceAffinityGroupListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      instance: NameOrId,
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const InstanceAntiAffinityGroupListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      instance: NameOrId,
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
     }),
   })
 )
@@ -6359,6 +6443,22 @@ export const SystemTimeseriesSchemaListParams = z.preprocess(
       limit: z.number().min(1).max(4294967295).optional(),
       pageToken: z.string().optional(),
     }),
+  })
+)
+
+export const TargetReleaseViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const TargetReleaseUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
   })
 )
 

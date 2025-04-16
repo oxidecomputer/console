@@ -169,7 +169,7 @@ This enables a "best-effort" attempt to satisfy the affinity policy. */
   | 'fail'
 
 /**
- * Identity-related metadata that's included in nearly all public API objects
+ * View of an Affinity Group
  */
 export type AffinityGroup = {
   /** human-readable free-form text about a resource */
@@ -180,6 +180,7 @@ export type AffinityGroup = {
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
   policy: AffinityPolicy
+  projectId: string
   /** timestamp when this resource was created */
   timeCreated: Date
   /** timestamp when this resource was last modified */
@@ -199,11 +200,52 @@ export type AffinityGroupCreate = {
 export type TypedUuidForInstanceKind = string
 
 /**
+ * Running state of an Instance (primarily: booted or stopped)
+ *
+ * This typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle
+ */
+export type InstanceState =
+  /** The instance is being created. */
+  | 'creating'
+
+  /** The instance is currently starting up. */
+  | 'starting'
+
+  /** The instance is currently running. */
+  | 'running'
+
+  /** The instance has been requested to stop and a transition to "Stopped" is imminent. */
+  | 'stopping'
+
+  /** The instance is currently stopped. */
+  | 'stopped'
+
+  /** The instance is in the process of rebooting - it will remain in the "rebooting" state until the VM is starting once more. */
+  | 'rebooting'
+
+  /** The instance is in the process of migrating - it will remain in the "migrating" state until the migration process is complete and the destination propolis is ready to continue execution. */
+  | 'migrating'
+
+  /** The instance is attempting to recover from a failure. */
+  | 'repairing'
+
+  /** The instance has encountered a failure. */
+  | 'failed'
+
+  /** The instance has been deleted. */
+  | 'destroyed'
+
+/**
  * A member of an Affinity Group
  *
  * Membership in a group is not exclusive - members may belong to multiple affinity / anti-affinity groups.
+ *
+ * Affinity Groups can contain up to 32 members.
  */
-export type AffinityGroupMember = { type: 'instance'; value: TypedUuidForInstanceKind }
+export type AffinityGroupMember = {
+  type: 'instance'
+  value: { id: TypedUuidForInstanceKind; name: Name; runState: InstanceState }
+}
 
 /**
  * A single page of results
@@ -292,7 +334,7 @@ export type AllowListUpdate = {
 }
 
 /**
- * Identity-related metadata that's included in nearly all public API objects
+ * View of an Anti-Affinity Group
  */
 export type AntiAffinityGroup = {
   /** human-readable free-form text about a resource */
@@ -303,6 +345,7 @@ export type AntiAffinityGroup = {
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
   policy: AffinityPolicy
+  projectId: string
   /** timestamp when this resource was created */
   timeCreated: Date
   /** timestamp when this resource was last modified */
@@ -323,8 +366,13 @@ export type AntiAffinityGroupCreate = {
  * A member of an Anti-Affinity Group
  *
  * Membership in a group is not exclusive - members may belong to multiple affinity / anti-affinity groups.
+ *
+ * Anti-Affinity Groups can contain up to 32 members.
  */
-export type AntiAffinityGroupMember = { type: 'instance'; value: TypedUuidForInstanceKind }
+export type AntiAffinityGroupMember = {
+  type: 'instance'
+  value: { id: TypedUuidForInstanceKind; name: Name; runState: InstanceState }
+}
 
 /**
  * A single page of results
@@ -1817,10 +1865,7 @@ export type Image = {
 /**
  * The source of the underlying image.
  */
-export type ImageSource =
-  | { id: string; type: 'snapshot' }
-  /** Boot the Alpine ISO that ships with the Propolis zone. Intended for development purposes only. */
-  | { type: 'you_can_boot_anything_as_long_as_its_alpine' }
+export type ImageSource = { id: string; type: 'snapshot' }
 
 /**
  * Create-time parameters for an `Image`
@@ -1865,42 +1910,6 @@ export type InstanceAutoRestartPolicy =
  * The number of CPUs in an Instance
  */
 export type InstanceCpuCount = number
-
-/**
- * Running state of an Instance (primarily: booted or stopped)
- *
- * This typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle
- */
-export type InstanceState =
-  /** The instance is being created. */
-  | 'creating'
-
-  /** The instance is currently starting up. */
-  | 'starting'
-
-  /** The instance is currently running. */
-  | 'running'
-
-  /** The instance has been requested to stop and a transition to "Stopped" is imminent. */
-  | 'stopping'
-
-  /** The instance is currently stopped. */
-  | 'stopped'
-
-  /** The instance is in the process of rebooting - it will remain in the "rebooting" state until the VM is starting once more. */
-  | 'rebooting'
-
-  /** The instance is in the process of migrating - it will remain in the "migrating" state until the migration process is complete and the destination propolis is ready to continue execution. */
-  | 'migrating'
-
-  /** The instance is attempting to recover from a failure. */
-  | 'repairing'
-
-  /** The instance has encountered a failure. */
-  | 'failed'
-
-  /** The instance has been deleted. */
-  | 'destroyed'
 
 /**
  * View of an Instance
@@ -1996,6 +2005,8 @@ If more than one interface is provided, then the first will be designated the pr
  * Create-time parameters for an `Instance`
  */
 export type InstanceCreate = {
+  /** Anti-Affinity groups which this instance should be added. */
+  antiAffinityGroups?: NameOrId[]
   /** The auto-restart policy for this instance.
 
 This policy determines whether the instance should be automatically restarted by the control plane on failure. If this is `null`, no auto-restart policy will be explicitly configured for this instance, and the control plane will select the default policy when determining whether the instance can be automatically restarted.
@@ -3114,6 +3125,14 @@ export type SamlIdentityProviderCreate = {
 }
 
 /**
+ * Parameters for PUT requests to `/v1/system/update/target-release`.
+ */
+export type SetTargetReleaseParams = {
+  /** Version of the system software to make the target release. */
+  systemVersion: string
+}
+
+/**
  * Describes how identities are managed and users are authenticated in this Silo
  */
 export type SiloIdentityMode =
@@ -3873,6 +3892,27 @@ export type SwitchResultsPage = {
 }
 
 /**
+ * Source of a system software target release.
+ */
+export type TargetReleaseSource =
+  /** Unspecified or unknown source (probably MUPdate). */
+  | { type: 'unspecified' }
+  /** The specified release of the rack's system software. */
+  | { type: 'system_version'; version: string }
+
+/**
+ * View of a system software target release.
+ */
+export type TargetRelease = {
+  /** The target-release generation number. */
+  generation: number
+  /** The source of the target release. */
+  releaseSource: TargetReleaseSource
+  /** The time it was set as the target release. */
+  timeRequested: Date
+}
+
+/**
  * Text descriptions for the target and metric of a timeseries.
  */
 export type TimeseriesDescription = { metric: string; target: string }
@@ -4475,7 +4515,7 @@ export interface AffinityGroupMemberListQueryParams {
   limit?: number
   pageToken?: string
   project?: NameOrId
-  sortBy?: IdSortMode
+  sortBy?: NameOrIdSortMode
 }
 
 export interface AffinityGroupMemberInstanceViewPathParams {
@@ -4548,7 +4588,7 @@ export interface AntiAffinityGroupMemberListQueryParams {
   limit?: number
   pageToken?: string
   project?: NameOrId
-  sortBy?: IdSortMode
+  sortBy?: NameOrIdSortMode
 }
 
 export interface AntiAffinityGroupMemberInstanceViewPathParams {
@@ -4802,6 +4842,28 @@ export interface InstanceDeletePathParams {
 
 export interface InstanceDeleteQueryParams {
   project?: NameOrId
+}
+
+export interface InstanceAffinityGroupListPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceAffinityGroupListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface InstanceAntiAffinityGroupListPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceAntiAffinityGroupListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
 }
 
 export interface InstanceDiskListPathParams {
@@ -5754,66 +5816,6 @@ export interface VpcDeletePathParams {
 export interface VpcDeleteQueryParams {
   project?: NameOrId
 }
-
-export type ApiListMethods = Pick<
-  InstanceType<typeof Api>['methods'],
-  | 'probeList'
-  | 'supportBundleList'
-  | 'affinityGroupList'
-  | 'affinityGroupMemberList'
-  | 'antiAffinityGroupList'
-  | 'antiAffinityGroupMemberList'
-  | 'certificateList'
-  | 'diskList'
-  | 'diskMetricsList'
-  | 'floatingIpList'
-  | 'groupList'
-  | 'imageList'
-  | 'instanceList'
-  | 'instanceDiskList'
-  | 'instanceExternalIpList'
-  | 'instanceSshPublicKeyList'
-  | 'internetGatewayIpAddressList'
-  | 'internetGatewayIpPoolList'
-  | 'internetGatewayList'
-  | 'projectIpPoolList'
-  | 'currentUserSshKeyList'
-  | 'instanceNetworkInterfaceList'
-  | 'projectList'
-  | 'snapshotList'
-  | 'physicalDiskList'
-  | 'rackList'
-  | 'sledList'
-  | 'sledPhysicalDiskList'
-  | 'sledInstanceList'
-  | 'networkingSwitchPortList'
-  | 'switchList'
-  | 'siloIdentityProviderList'
-  | 'ipPoolList'
-  | 'ipPoolRangeList'
-  | 'ipPoolSiloList'
-  | 'ipPoolServiceRangeList'
-  | 'networkingAddressLotList'
-  | 'networkingAddressLotBlockList'
-  | 'networkingBgpConfigList'
-  | 'networkingBgpAnnounceSetList'
-  | 'networkingBgpAnnouncementList'
-  | 'networkingLoopbackAddressList'
-  | 'networkingSwitchPortSettingsList'
-  | 'roleList'
-  | 'systemQuotasList'
-  | 'siloList'
-  | 'siloIpPoolList'
-  | 'systemTimeseriesSchemaList'
-  | 'siloUserList'
-  | 'userBuiltinList'
-  | 'siloUtilizationList'
-  | 'userList'
-  | 'vpcRouterRouteList'
-  | 'vpcRouterList'
-  | 'vpcSubnetList'
-  | 'vpcList'
->
 
 type EmptyObj = Record<string, never>
 export class Api extends HttpClient {
@@ -6906,6 +6908,46 @@ export class Api extends HttpClient {
       return this.request<void>({
         path: `/v1/instances/${path.instance}`,
         method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List affinity groups containing instance
+     */
+    instanceAffinityGroupList: (
+      {
+        path,
+        query = {},
+      }: {
+        path: InstanceAffinityGroupListPathParams
+        query?: InstanceAffinityGroupListQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AffinityGroupResultsPage>({
+        path: `/v1/instances/${path.instance}/affinity-groups`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List anti-affinity groups containing instance
+     */
+    instanceAntiAffinityGroupList: (
+      {
+        path,
+        query = {},
+      }: {
+        path: InstanceAntiAffinityGroupListPathParams
+        query?: InstanceAntiAffinityGroupListQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AntiAffinityGroupResultsPage>({
+        path: `/v1/instances/${path.instance}/anti-affinity-groups`,
+        method: 'GET',
         query,
         ...params,
       })
@@ -8956,6 +8998,30 @@ export class Api extends HttpClient {
         path: `/v1/system/timeseries/schemas`,
         method: 'GET',
         query,
+        ...params,
+      })
+    },
+    /**
+     * Get the current target release of the rack's system software
+     */
+    targetReleaseView: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<TargetRelease>({
+        path: `/v1/system/update/target-release`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Set the current target release of the rack's system software
+     */
+    targetReleaseUpdate: (
+      { body }: { body: SetTargetReleaseParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<TargetRelease>({
+        path: `/v1/system/update/target-release`,
+        method: 'PUT',
+        body,
         ...params,
       })
     },
