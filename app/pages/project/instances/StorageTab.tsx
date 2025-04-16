@@ -289,11 +289,12 @@ export default function StorageTab() {
   )
 
   const attachDisk = useApiMutation('instanceDiskAttach', {
-    onSuccess() {
+    onSuccess(disk) {
       queryClient.invalidateQueries('instanceDiskList')
       // cover all our bases. this is called by both modals
       setShowDiskCreate(false)
       setShowDiskAttach(false)
+      addToast(<>Disk <HL>{disk.name}</HL> attached</>) // prettier-ignore
     },
   })
 
