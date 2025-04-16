@@ -8,10 +8,11 @@
 import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { useApiQuery, type ApiError } from '@oxide/api'
+import { instanceCan, useApiQuery, type ApiError, type Instance } from '@oxide/api'
 
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { ModalForm } from '~/components/form/ModalForm'
+import { StopInstancePrompt } from '~/components/StopInstancePrompt'
 import { useProjectSelector } from '~/hooks/use-params'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { ALL_ISH } from '~/util/consts'
@@ -25,6 +26,7 @@ type AttachDiskProps = {
   diskNamesToExclude?: string[]
   loading?: boolean
   submitError?: ApiError | null
+  instance?: Instance
 }
 
 /**
@@ -37,6 +39,7 @@ export function AttachDiskModalForm({
   diskNamesToExclude = [],
   loading = false,
   submitError = null,
+  instance,
 }: AttachDiskProps) {
   const { project } = useProjectSelector()
 
@@ -65,7 +68,13 @@ export function AttachDiskModalForm({
       loading={loading}
       title="Attach disk"
       onSubmit={onSubmit}
+      submitDisabled={instance && !instanceCan.attachDisk(instance)}
     >
+      {instance && ['stopping', 'running'].includes(instance.runState) && (
+        <StopInstancePrompt instance={instance}>
+          An instance must be stopped to attach a disk.
+        </StopInstancePrompt>
+      )}
       <ComboboxField
         label="Disk name"
         placeholder="Select a disk"

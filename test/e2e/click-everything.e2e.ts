@@ -24,7 +24,6 @@ test('Click through instance page', async ({ page }) => {
     'role=cell[name="disk-2"]',
     // buttons disabled while instance is running
     'role=button[name="Create disk"][disabled]',
-    'role=button[name="Attach existing disk"][disabled]',
     // TODO: assert minitable contents
   ])
   await expectNotVisible(page, ['role=cell[name="disk-3"]'])
