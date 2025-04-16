@@ -591,6 +591,39 @@ export const handlers = makeHandlers({
       newInstance.run_state = 'running'
     }, 4000)
 
+    // Add instance to specified anti-affinity groups
+    if (body.anti_affinity_groups && body.anti_affinity_groups.length > 0) {
+      for (const groupName of body.anti_affinity_groups) {
+        try {
+          const antiAffinityGroup = lookup.antiAffinityGroup({
+            project: project.id,
+            antiAffinityGroup: groupName,
+          })
+
+          // Check if instance is already in the group
+          const alreadyThere = db.antiAffinityGroupMemberLists.some(
+            (i) =>
+              i.anti_affinity_group_id === antiAffinityGroup.id &&
+              i.anti_affinity_group_member.id === instanceId
+          )
+
+          if (!alreadyThere) {
+            db.antiAffinityGroupMemberLists.push({
+              anti_affinity_group_id: antiAffinityGroup.id,
+              anti_affinity_group_member: {
+                id: instanceId,
+                type: 'instance',
+              },
+              ...getTimestamps(),
+            })
+          }
+        } catch (_e) {
+          // Silently ignore if group not found - API will handle validation
+          console.warn(`Anti-affinity group ${groupName} not found, skipping`)
+        }
+      }
+    }
+
     db.instances.push(newInstance)
 
     return json(newInstance, { status: 201 })
