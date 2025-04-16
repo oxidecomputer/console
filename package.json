@@ -125,10 +125,10 @@
     "tsx": "^4.19.2",
     "type-fest": "^4.33.0",
     "typescript": "~5.7.3",
-    "vite": "^6.2.5",
+    "vite": "^6.3.0",
     "vite-plugin-html": "^3.2.2",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.0.9"
+    "vitest": "^3.1.1"
   },
   "browserslist": [
     "defaults"
