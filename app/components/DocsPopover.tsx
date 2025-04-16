@@ -46,11 +46,10 @@ export const DocsPopover = ({ heading, icon, summary, links }: DocsPopoverProps)
   const title = `Learn about ${heading}`
   return (
     <Popover>
-      <PopoverButton
-        className={cn(buttonStyle({ size: 'sm', variant: 'ghost' }), 'w-8')}
-        title={title}
-      >
-        <Info16Icon aria-hidden className="shrink-0" />
+      <PopoverButton title={title}>
+        <div className={cn(buttonStyle({ size: 'sm', variant: 'ghost' }), 'w-8')}>
+          <Info16Icon aria-hidden className="shrink-0" />
+        </div>
       </PopoverButton>
       <PopoverPanel
         // popover-panel needed for enter animation
