@@ -123,11 +123,13 @@ test('path builder', () => {
 const getMatches = (pathname: string) =>
   Promise.all(
     matchRoutes(routes, pathname)!.map(async (m) => {
+      // lazy can also be an object as of RR 7.5, but we never use it that way
+      const lazy = typeof m.route.lazy === 'function' ? m.route.lazy : undefined
       // As we convert route modules to RR framework mode with lazy imports,
       // more and more of the routes will have their handles defined inside the
       // route module. We need to call the lazy function to import the module
       // contents and fill out the route object with it.
-      const route = { ...m.route, ...(await m.route.lazy?.()) }
+      const route = { ...m.route, ...(await lazy?.()) }
       return {
         pathname: m.pathname,
         params: m.params,
