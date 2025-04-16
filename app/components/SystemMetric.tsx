@@ -100,6 +100,9 @@ export function SiloMetric({
         startTime={startTime}
         endTime={endTime}
         unit={unit !== 'Count' ? unit : undefined}
+        // note use of loading, not fetching, which is only true on first fetch.
+        // otherwise we get loading states on refetches
+        loading={inRange.isLoading || beforeStart.isLoading}
       />
     </ChartContainer>
   )
@@ -168,6 +171,9 @@ export function SystemMetric({
         startTime={startTime}
         endTime={endTime}
         unit={unit !== 'Count' ? unit : undefined}
+        // note use of loading, not fetching, which is only true on first fetch.
+        // otherwise we get loading states on refetches
+        loading={inRange.isLoading || beforeStart.isLoading}
       />
     </ChartContainer>
   )

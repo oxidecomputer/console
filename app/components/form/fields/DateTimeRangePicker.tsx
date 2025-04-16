@@ -7,6 +7,7 @@
  */
 import { getLocalTimeZone, now as getNow, type DateValue } from '@internationalized/date'
 import { useMemo, useState } from 'react'
+import { useDebounce } from 'use-debounce'
 
 import { DateRangePicker } from '~/ui/lib/DateRangePicker'
 import { Listbox } from '~/ui/lib/Listbox'
@@ -33,6 +34,8 @@ const computeStart: Record<RangeKey, (now: DateValue) => DateValue> = {
   last30Days: (now) => now.subtract({ days: 30 }),
 }
 
+const tz = getLocalTimeZone()
+
 // Limitations:
 //   - list of presets is hard-coded
 //   - initial preset can't be "custom"
@@ -54,7 +57,7 @@ export function useDateTimeRangePicker({
   maxValue?: DateValue | undefined
   items?: { label: string; value: RangeKeyAll }[]
 }) {
-  const now = useMemo(() => getNow(getLocalTimeZone()), [])
+  const now = useMemo(() => getNow(tz), [])
 
   const start = computeStart[initialPreset](now)
   const end = now
@@ -64,7 +67,7 @@ export function useDateTimeRangePicker({
 
   const onRangeChange = (newPreset: RangeKeyAll) => {
     if (newPreset !== 'custom') {
-      const now = getNow(getLocalTimeZone())
+      const now = getNow(tz)
       const newStartTime = computeStart[newPreset](now)
       setRange({ start: newStartTime, end: now })
     }
@@ -81,10 +84,13 @@ export function useDateTimeRangePicker({
     items,
   }
 
+  const [startTime] = useDebounce(range.start.toDate(tz), 400)
+  const [endTime] = useDebounce(range.end.toDate(tz), 400)
+
   return {
-    startTime: range.start.toDate(getLocalTimeZone()),
-    endTime: range.end.toDate(getLocalTimeZone()),
-    preset: preset,
+    startTime,
+    endTime,
+    preset,
     onRangeChange: onRangeChange,
     dateTimeRangePicker: <DateTimeRangePicker {...props} />,
   }
@@ -116,7 +122,7 @@ export function DateTimeRangePicker({
   return (
     <form className="flex">
       <Listbox
-        className="z-10 w-[10rem] border-r border-r-default [&_button]:!rounded-r-none [&_button]:!border-r-0"
+        className="z-10 w-[10rem] [&_button]:!rounded-r-none [&_button]:!border-r-0"
         name="preset"
         selected={preset}
         aria-label="Choose a time range preset"
@@ -140,7 +146,7 @@ export function DateTimeRangePicker({
           minValue={minValue}
           maxValue={maxValue}
           hideTimeZone
-          className="[&_.rounded-l]:!rounded-l-none [&_button]:!border-l-0"
+          className="[&_.rounded-l]:!rounded-l-none"
         />
       </div>
     </form>

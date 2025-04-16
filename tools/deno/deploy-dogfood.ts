@@ -32,18 +32,22 @@ Usage:
 `.trim()
 
 const args = parseArgs(Deno.args)
-const consoleCommit = args._[0]
+const consoleRevision = args._[0]
 
-if (!consoleCommit) {
+if (!consoleRevision) {
   console.error('Error: Console commit hash is required\n')
   console.info(USAGE)
   Deno.exit(1)
 }
 
-const fullCommit = await $`git rev-parse ${consoleCommit}`.text()
+const isTag = (await $`git cat-file -t ${consoleRevision}`.noThrow().text()) === 'tag'
 
-if (consoleCommit !== fullCommit) {
-  console.info(`Resolved ${consoleCommit} to ${fullCommit}`)
+// if console commit is a tag we use ^{} to get the hash of the commit
+// underneath the tag, not of the tag itself
+const fullCommit = await $`git rev-parse ${consoleRevision}${isTag ? '^{}' : ''}`.text()
+
+if (consoleRevision !== fullCommit) {
+  console.info(`Resolved ${consoleRevision} to ${fullCommit}`)
 }
 
 console.info('Finding nexus zones...')

@@ -26,7 +26,7 @@ import {
 } from '@oxide/api'
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
-import { instanceCan } from '~/api/util'
+import { instanceCan, OXQL_GROUP_BY_ERROR } from '~/api/util'
 import { parseIp } from '~/util/ip'
 import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
@@ -1602,12 +1602,42 @@ export const handlers = makeHandlers({
     requireFleetViewer(params.cookies)
     return handleMetrics(params)
   },
-  async systemTimeseriesQuery(params) {
-    if (Math.random() > 0.95) throw 500 // random failure
-    requireFleetViewer(params.cookies)
+  async timeseriesQuery({ body, query }) {
+    lookup.project(query) // 404 if project doesn't exist
+
+    // We could try to do something analogous to what the API does, namely
+    // adding on silo and project to the oxql query to make sure only allowed
+    // data turns up, but since this endpoint is always called from within a
+    // project and constructed with project IDs, this would be unlikely to catch
+    // console bugs.
+    // https://github.com/oxidecomputer/omicron/blob/cf38148d/nexus/src/app/metrics.rs#L154-L179
+
     // timeseries queries are slower than most other queries
     await delay(1000)
-    return handleOxqlMetrics(params.body)
+    const data = handleOxqlMetrics(body)
+
+    // we use other-project to test certain response cases
+    if (query.project === 'other-project') {
+      // 1. return only one data point
+      const points = Object.values(data.tables[0].timeseries)[0].points
+      if (body.query.includes('state == "run"')) {
+        points.timestamps = points.timestamps.slice(0, 2)
+        points.values = points.values.slice(0, 2)
+      } else if (body.query.includes('state == "emulation"')) {
+        points.timestamps = points.timestamps.slice(0, 1)
+        points.values = points.values.slice(0, 1)
+      } else if (body.query.includes('state == "idle"')) {
+        throw OXQL_GROUP_BY_ERROR
+      }
+    }
+
+    return data
+  },
+  async systemTimeseriesQuery({ cookies, body }) {
+    requireFleetViewer(cookies)
+    // timeseries queries are slower than most other queries
+    await delay(1000)
+    return handleOxqlMetrics(body)
   },
   siloMetric: handleMetrics,
   affinityGroupList: ({ query }) => {
@@ -1627,6 +1657,35 @@ export const handlers = makeHandlers({
         return { type: 'instance', value: { id, name, run_state } }
       })
     return { items: members }
+  },
+  antiAffinityGroupCreate(params) {
+    const project = lookup.project(params.query)
+    errIfExists(db.antiAffinityGroups, { name: params.body.name, project_id: project.id })
+
+    const newAntiAffinityGroup: Json<Api.AntiAffinityGroup> = {
+      id: uuid(),
+      project_id: project.id,
+      ...params.body,
+      ...getTimestamps(),
+    }
+    db.antiAffinityGroups.push(newAntiAffinityGroup)
+
+    return json(newAntiAffinityGroup, { status: 201 })
+  },
+  antiAffinityGroupUpdate({ body, path, query }) {
+    const antiAffinityGroup = lookup.antiAffinityGroup({ ...path, ...query })
+    if (body.name) {
+      // Error if changing the group name and that group name already exists
+      if (body.name !== antiAffinityGroup.name) {
+        errIfExists(db.antiAffinityGroups, {
+          project_id: antiAffinityGroup.project_id,
+          name: body.name,
+        })
+      }
+      antiAffinityGroup.name = body.name
+    }
+    updateDesc(antiAffinityGroup, body)
+    return antiAffinityGroup
   },
   antiAffinityGroupList: ({ query }) => {
     const project = lookup.project({ ...query })
@@ -1653,6 +1712,35 @@ export const handlers = makeHandlers({
         return { type: 'instance', value: { id, name, run_state } }
       })
     return { items: members }
+  },
+  antiAffinityGroupMemberInstanceAdd({ path, query }) {
+    const project = lookup.project({ ...query })
+    const instance = lookup.instance({ ...query, instance: path.instance })
+    const antiAffinityGroup = lookup.antiAffinityGroup({
+      project: project.id,
+      antiAffinityGroup: path.antiAffinityGroup,
+    })
+    const alreadyThere = db.antiAffinityGroupMemberLists.some(
+      (i) =>
+        i.anti_affinity_group_id === antiAffinityGroup.id &&
+        i.anti_affinity_group_member.id === instance.id
+    )
+    if (alreadyThere) {
+      throw 'Instance already in anti-affinity group'
+    }
+    const newMember: Json<Api.AntiAffinityGroupMember> = {
+      type: 'instance',
+      value: {
+        id: instance.id,
+        name: instance.name,
+        run_state: instance.run_state,
+      },
+    }
+    db.antiAffinityGroupMemberLists.push({
+      anti_affinity_group_id: antiAffinityGroup.id,
+      anti_affinity_group_member: { type: 'instance', id: instance.id },
+    })
+    return json(newMember, { status: 201 })
   },
   antiAffinityGroupMemberInstanceDelete: ({ path, query }) => {
     const project = lookup.project({ ...query })
@@ -1698,10 +1786,7 @@ export const handlers = makeHandlers({
   affinityGroupMemberInstanceDelete: NotImplemented,
   affinityGroupMemberInstanceView: NotImplemented,
   affinityGroupUpdate: NotImplemented,
-  antiAffinityGroupCreate: NotImplemented,
-  antiAffinityGroupMemberInstanceAdd: NotImplemented,
   antiAffinityGroupMemberInstanceView: NotImplemented,
-  antiAffinityGroupUpdate: NotImplemented,
   certificateCreate: NotImplemented,
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
@@ -1787,7 +1872,6 @@ export const handlers = makeHandlers({
   systemTimeseriesSchemaList: NotImplemented,
   targetReleaseView: NotImplemented,
   targetReleaseUpdate: NotImplemented,
-  timeseriesQuery: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
 })
