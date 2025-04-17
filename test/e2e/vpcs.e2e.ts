@@ -7,12 +7,18 @@
  */
 import { expect, test } from '@playwright/test'
 
-import { clickRowAction, expectRowVisible, selectOption } from './utils'
+import {
+  clickButton,
+  clickLink,
+  clickRowAction,
+  expectRowVisible,
+  selectOption,
+} from './utils'
 
 test('can nav to VpcPage from /', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('table').getByRole('link', { name: 'mock-project' }).click()
-  await page.getByRole('link', { name: 'VPCs' }).click()
+  await clickLink(page, 'VPCs')
 
   await expectRowVisible(page.getByRole('table'), {
     name: 'mock-vpc',
@@ -22,7 +28,7 @@ test('can nav to VpcPage from /', async ({ page }) => {
   })
 
   // click the vpc name cell to go there
-  await page.getByRole('link', { name: 'mock-vpc' }).click()
+  await clickLink(page, 'mock-vpc')
 
   await expect(page.getByRole('heading', { name: 'mock-vpc' })).toBeVisible()
   await expect(page.getByRole('tab', { name: 'Firewall rules' })).toBeVisible()
@@ -48,7 +54,7 @@ test('can edit VPC', async ({ page }) => {
   await clickRowAction(page, 'mock-vpc', 'Edit')
   await expect(page).toHaveURL('/projects/mock-project/vpcs/mock-vpc/edit')
   await page.getByRole('textbox', { name: 'Name' }).first().fill('mock-vpc-2')
-  await page.getByRole('button', { name: 'Update VPC' }).click()
+  await clickButton(page, 'Update VPC')
   await expect(page).toHaveURL('/projects/mock-project/vpcs/mock-vpc-2/firewall-rules')
   await expect(page.getByRole('heading', { name: 'mock-vpc-2' })).toBeVisible()
 
@@ -235,7 +241,7 @@ test('create router route', async ({ page }) => {
   )
 
   // create a new route
-  await page.getByRole('link', { name: 'New route' }).click()
+  await clickLink(page, 'New route')
   await nameInput.fill('new-route')
 
   // Test IP validation for destination
@@ -317,7 +323,7 @@ test('edit and delete router route', async ({ page }) => {
 
   // delete the route
   await clickRowAction(page, 'new-name', 'Delete')
-  await page.getByRole('button', { name: 'Confirm' }).click()
+  await clickButton(page, 'Confirm')
   // expect 1 row in table
   await expect(table.locator('tbody >> tr')).toHaveCount(1)
 })
@@ -345,7 +351,7 @@ test('can view internet gateways', async ({ page }) => {
     Routes: '—',
   })
 
-  await page.getByRole('link', { name: 'internet-gateway-1' }).click()
+  await clickLink(page, 'internet-gateway-1')
   await expect(page).toHaveURL(
     '/projects/mock-project/vpcs/mock-vpc/internet-gateways/internet-gateway-1'
   )
@@ -354,10 +360,10 @@ test('can view internet gateways', async ({ page }) => {
   await expect(sidemodal.getByText('123.4.56.3')).toBeVisible()
 
   // close the sidemodal
-  await sidemodal.getByRole('button', { name: 'Close' }).click()
+  await clickButton(sidemodal, 'Close')
   await expect(sidemodal).toBeHidden()
 
-  await page.getByRole('link', { name: 'internet-gateway-2' }).click()
+  await clickLink(page, 'internet-gateway-2')
   await expect(sidemodal.getByText('This internet gateway does not have any')).toBeVisible()
 })
 
@@ -373,7 +379,7 @@ test('internet gateway shows proper list of routes targeting it', async ({ page 
   await expect(table.locator('tbody >> tr')).toHaveCount(1)
 
   // close the sidemodal
-  await sidemodal.getByRole('button', { name: 'Close' }).click()
+  await clickButton(sidemodal, 'Close')
   await expect(sidemodal).toBeHidden()
   // check for the route count; which should be 1
   await expect(page.getByRole('link', { name: '1', exact: true })).toBeVisible()
@@ -396,7 +402,7 @@ test('internet gateway shows proper list of routes targeting it', async ({ page 
   await page.getByRole('button', { name: 'Create route' }).click()
 
   // go back to the mock-vpc page by clicking on the link in the header
-  await page.getByRole('link', { name: 'mock-vpc' }).click()
+  await clickLink(page, 'mock-vpc')
   // click on the internet gateways tab and then the internet-gateway-1 link to go to the detail page
   await page.getByRole('tab', { name: 'Internet Gateways' }).click()
   // verify that the route count is now 2: click on the link to go to the edit gateway sidemodal

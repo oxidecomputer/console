@@ -8,7 +8,14 @@
 
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
-import { clickRowAction, expectRowVisible, selectOption, sleep } from './utils'
+import {
+  clickButton,
+  clickLink,
+  clickRowAction,
+  expectRowVisible,
+  selectOption,
+  sleep,
+} from './utils'
 
 const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp']
 
@@ -27,7 +34,7 @@ test('can create firewall rule', async ({ page }) => {
   await expect(modal).toBeHidden()
 
   // open modal
-  await page.getByRole('link', { name: 'New rule' }).click()
+  await clickLink(page, 'New rule')
 
   // modal is now open
   await expect(modal).toBeVisible()
@@ -42,14 +49,14 @@ test('can create firewall rule', async ({ page }) => {
 
   await selectOption(page, 'Target type', 'IP')
   await page.getByRole('textbox', { name: 'IP address' }).fill('192.168.0.1')
-  await page.getByRole('button', { name: 'Add target' }).click()
+  await clickButton(page, 'Add target')
   await expectRowVisible(targets, { Type: 'ip', Value: '192.168.0.1' })
 
   // add host filter instance "host-filter-instance"
   await selectOption(page, 'Host type', 'Instance')
   await page.getByRole('combobox', { name: 'Instance name' }).fill('host-filter-instance')
   await page.getByText('host-filter-instance').click()
-  await page.getByRole('button', { name: 'Add host filter' }).click()
+  await clickButton(page, 'Add host filter')
 
   // host is added to hosts table
   const hosts = page.getByRole('table', { name: 'Host filters' })
@@ -85,7 +92,7 @@ test('can create firewall rule', async ({ page }) => {
   await page.locator('text=UDP').click()
 
   // submit the form
-  await page.getByRole('button', { name: 'Add rule' }).click()
+  await clickButton(page, 'Add rule')
 
   // modal closes again
   await expect(modal).toBeHidden()
@@ -364,7 +371,7 @@ test('firewall rule form hosts table', async ({ page }) => {
   await page.getByRole('tab', { name: 'Firewall Rules' }).click()
 
   // open modal
-  await page.getByRole('link', { name: 'New rule' }).click()
+  await clickLink(page, 'New Rule')
 
   const hosts = page.getByRole('table', { name: 'Host filters' })
   const hostFiltersVpcNameField = page.getByRole('combobox', { name: 'VPC name' }).nth(1)
@@ -427,7 +434,7 @@ test('can update firewall rule', async ({ page }) => {
   await expect(modal).toBeHidden()
 
   // can click name cell to edit
-  await page.getByRole('link', { name: 'allow-icmp' }).click()
+  await clickLink(page, 'allow-icmp')
 
   // modal is now open
   await expect(modal).toBeVisible()
@@ -454,14 +461,14 @@ test('can update firewall rule', async ({ page }) => {
   await selectOption(page, 'Host type', 'VPC subnet')
   await page.getByRole('combobox', { name: 'Subnet name' }).fill('edit-filter-subnet')
   await page.getByText('edit-filter-subnet').click()
-  await page.getByRole('button', { name: 'Add host filter' }).click()
+  await clickButton(page, 'Add host filter')
 
   // new host is added to hosts table
   const hosts = page.getByRole('table', { name: 'Host filters' })
   await expectRowVisible(hosts, { Type: 'subnet', Value: 'edit-filter-subnet' })
 
   // submit the form
-  await page.getByRole('button', { name: 'Update rule' }).click()
+  await clickButton(page, 'Update rule')
 
   // modal closes again
   await expect(modal).toBeHidden()
@@ -554,7 +561,7 @@ test('name conflict error on create', async ({ page }) => {
   const error = page.getByText('Name taken').first()
   await expect(error).toBeHidden()
 
-  await page.getByRole('button', { name: 'Add rule' }).click()
+  await clickButton(page, 'Add rule')
   await expect(error).toBeVisible()
 })
 
@@ -570,7 +577,7 @@ test('name conflict error on edit', async ({ page }) => {
   const error = page.getByRole('dialog').getByText('Name taken')
   await expect(error).toBeHidden()
 
-  await page.getByRole('button', { name: 'Update rule' }).click()
+  await clickButton(page, 'Update rule')
   await expect(error).toBeVisible()
 
   // change name back
@@ -578,14 +585,14 @@ test('name conflict error on edit', async ({ page }) => {
 
   // changing a value _without_ changing the name is allowed
   await page.getByRole('textbox', { name: 'Priority' }).fill('37')
-  await page.getByRole('button', { name: 'Update rule' }).click()
+  await clickButton(page, 'Update rule')
   await expect(error).toBeHidden()
   await expectRowVisible(page.getByRole('table'), { Name: 'allow-icmp', Priority: '37' })
 
   // changing the name to a non-conflicting name is allowed
-  await page.getByRole('link', { name: 'allow-icmp' }).click()
+  await clickLink(page, 'allow-icmp')
   await nameField.fill('allow-icmp2')
-  await page.getByRole('button', { name: 'Update rule' }).click()
+  await clickButton(page, 'Update rule')
   await expectRowVisible(page.getByRole('table'), { Name: 'allow-icmp2', Priority: '37' })
 })
 
@@ -646,7 +653,7 @@ test("esc in combobox doesn't close form", async ({ page }) => {
   await expect(confirmModal).toBeHidden()
   await page.keyboard.press('Escape')
   await expect(confirmModal).toBeVisible()
-  await confirmModal.getByRole('button', { name: 'Keep editing' }).click()
+  await clickButton(confirmModal, 'Keep editing')
   await expect(confirmModal).toBeHidden()
 
   const formModal = page.getByRole('dialog', { name: 'Add firewall rule' })

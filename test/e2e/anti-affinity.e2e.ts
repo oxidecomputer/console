@@ -8,12 +8,18 @@
 
 import { expect, test } from '@playwright/test'
 
-import { clickRowAction, closeToast, expectRowVisible } from './utils'
+import {
+  clickButton,
+  clickLink,
+  clickRowAction,
+  closeToast,
+  expectRowVisible,
+} from './utils'
 
 test('can nav to Affinity from /', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('table').getByRole('link', { name: 'mock-project' }).click()
-  await page.getByRole('link', { name: 'Affinity' }).click()
+  await clickLink(page, 'Affinity')
 
   await expectRowVisible(page.getByRole('table'), {
     name: 'romulus-remus',
@@ -23,7 +29,7 @@ test('can nav to Affinity from /', async ({ page }) => {
   })
 
   // click the anti-affinity group name cell to go to the view page
-  await page.getByRole('link', { name: 'romulus-remus' }).click()
+  await clickLink(page, 'romulus-remus')
 
   await expect(page.getByRole('heading', { name: 'romulus-remus' })).toBeVisible()
   await expect(page).toHaveURL('/projects/mock-project/affinity/romulus-remus')
@@ -32,13 +38,13 @@ test('can nav to Affinity from /', async ({ page }) => {
   )
 
   // click through to instance
-  await page.getByRole('link', { name: 'db1' }).click()
+  await clickLink(page, 'db1')
   await expect(page).toHaveURL('/projects/mock-project/instances/db1/settings')
 })
 
 test('can add a new anti-affinity group', async ({ page }) => {
   await page.goto('/projects/mock-project/affinity')
-  await page.getByRole('link', { name: 'New group' }).click()
+  await clickLink(page, 'New group')
   await expect(page).toHaveURL('/projects/mock-project/affinity-new')
   await expect(page.getByRole('heading', { name: 'Add anti-affinity group' })).toBeVisible()
 
@@ -50,7 +56,7 @@ test('can add a new anti-affinity group', async ({ page }) => {
   await page.getByRole('radio', { name: 'Fail' }).click()
 
   // submit the form
-  await page.getByRole('button', { name: 'Add group' }).click()
+  await clickButton(page, 'Add group')
 
   // check that we are on the view page for the new anti-affinity group
   await expect(page).toHaveURL('/projects/mock-project/affinity/new-anti-affinity-group')
@@ -78,18 +84,18 @@ test('can add a new anti-affinity group', async ({ page }) => {
   await expect(modalAddButton).toBeDisabled()
 
   // go disable db1
-  await page.getByRole('button', { name: 'Cancel' }).click()
-  await page.getByRole('link', { name: 'Instances' }).click()
+  await clickButton(page, 'Cancel')
+  await clickLink(page, 'Instances')
   clickRowAction(page, 'db1', 'Stop')
-  await page.getByRole('button', { name: 'Confirm' }).click()
+  await clickButton(page, 'Confirm')
   await expectRowVisible(page.getByRole('table'), {
     name: 'db1',
     state: expect.stringContaining('stopped'),
   })
 
   // go back to the anti-affinity group and add the instance
-  await page.getByRole('link', { name: 'Affinity' }).click()
-  await page.getByRole('link', { name: 'new-anti-affinity-group' }).click()
+  await clickLink(page, 'Affinity')
+  await clickLink(page, 'new-anti-affinity-group')
   await addInstanceButton.click()
   await expect(addInstanceModal).toBeVisible()
   await instanceCombobox.fill('db1')
@@ -103,7 +109,7 @@ test('can add a new anti-affinity group', async ({ page }) => {
 
   // remove the instance from the group
   await clickRowAction(page, 'db1', 'Remove from group')
-  await page.getByRole('button', { name: 'Confirm' }).click()
+  await clickButton(page, 'Confirm')
   await expect(cell).toBeHidden()
 
   // expect empty message
@@ -113,7 +119,7 @@ test('can add a new anti-affinity group', async ({ page }) => {
 // edit an anti-affinity group from the view page
 test('can edit an anti-affinity group', async ({ page }) => {
   await page.goto('/projects/mock-project/affinity/romulus-remus')
-  await page.getByRole('button', { name: 'Anti-affinity group actions' }).click()
+  await clickButton(page, 'Anti-affinity group actions')
   await page.getByRole('menuitem', { name: 'Edit' }).click()
 
   // can see Add anti-affinity group header
@@ -123,7 +129,7 @@ test('can edit an anti-affinity group', async ({ page }) => {
 
   // change the name to romulus-remus-2
   await page.getByLabel('Name').fill('romulus-remus-2')
-  await page.getByRole('button', { name: 'Edit group' }).click()
+  await clickButton(page, 'Edit group')
   await expect(page).toHaveURL('/projects/mock-project/affinity/romulus-remus-2')
   await expect(page.getByRole('heading', { name: 'romulus-remus-2' })).toBeVisible()
 })
@@ -138,7 +144,7 @@ test('can delete an anti-affinity group', async ({ page }) => {
   ).toBeVisible()
 
   // confirm the deletion
-  await page.getByRole('button', { name: 'Confirm' }).click()
+  await clickButton(page, 'Confirm')
 
   // check that we are back on the affinity page
   await expect(page).toHaveURL('/projects/mock-project/affinity')
@@ -147,7 +153,7 @@ test('can delete an anti-affinity group', async ({ page }) => {
   await expect(page.getByRole('table').getByText('set-osiris')).toBeHidden()
 
   // can create a new anti-affinity group with the same name
-  await page.getByRole('link', { name: 'New group' }).click()
+  await clickLink(page, 'New group')
   await expect(page).toHaveURL('/projects/mock-project/affinity-new')
   await expect(page.getByRole('heading', { name: 'Add anti-affinity group' })).toBeVisible()
   await page.getByLabel('Name').fill('set-osiris')
@@ -155,7 +161,7 @@ test('can delete an anti-affinity group', async ({ page }) => {
     .getByRole('textbox', { name: 'Description' })
     .fill('this is a new anti-affinity group')
   await page.getByRole('radio', { name: 'Fail' }).click()
-  await page.getByRole('button', { name: 'Add group' }).click()
+  await clickButton(page, 'Add group')
 
   await expect(page).toHaveURL('/projects/mock-project/affinity/set-osiris')
   await expect(page.getByRole('heading', { name: 'set-osiris' })).toBeVisible()
@@ -177,7 +183,7 @@ test('can delete anti-affinity group from detail page', async ({ page }) => {
   await page.getByRole('menuitem', { name: 'Delete' }).click()
 
   await expect(modal).toBeVisible()
-  await page.getByRole('button', { name: 'Confirm' }).click()
+  await clickButton(page, 'Confirm')
 
   // modal closes, row is gone
   await expect(modal).toBeHidden()
@@ -206,10 +212,10 @@ test('add and remove instance from group on instance settings', async ({ page })
   await expect(addToGroupButton).toBeDisabled()
 
   // Stop the instance
-  await page.getByRole('button', { name: 'Stop' }).click()
+  await clickButton(page, 'Stop')
   const confirmStopModal = page.getByRole('dialog', { name: 'Confirm stop' })
   await expect(confirmStopModal).toBeVisible()
-  await confirmStopModal.getByRole('button', { name: 'Confirm' }).click()
+  await clickButton(confirmStopModal, 'Confirm')
   await expect(confirmStopModal).toBeHidden()
 
   // Add instance to group
@@ -218,7 +224,7 @@ test('add and remove instance from group on instance settings', async ({ page })
   await expect(modal).toBeVisible()
   await modal.getByRole('combobox', { name: 'Anti-affinity group' }).click()
   await page.getByRole('option', { name: groupName }).click()
-  await modal.getByRole('button', { name: 'Add to group' }).click()
+  await clickButton(modal, 'Add to group')
   await expect(modal).toBeHidden()
   await closeToast(page)
 
@@ -226,7 +232,7 @@ test('add and remove instance from group on instance settings', async ({ page })
   await expect(groupCell).toBeVisible()
 
   // Go to the group page
-  await page.getByRole('link', { name: groupName }).click()
+  await clickLink(page, groupName)
   await expect(page.getByRole('heading', { name: groupName })).toBeVisible()
   const groupTable = page.getByRole('table')
 
@@ -234,13 +240,13 @@ test('add and remove instance from group on instance settings', async ({ page })
   await expectRowVisible(groupTable, { name: 'db1' })
 
   // Go back to instance settings
-  await page.getByRole('link', { name: 'db1' }).click()
+  await clickLink(page, 'db1')
 
   // Remove instance from group using row action
   await clickRowAction(page, groupName, 'Remove instance from group')
   const confirmModal = page.getByRole('dialog', { name: 'Remove instance from group' })
   await expect(confirmModal).toBeVisible()
-  await confirmModal.getByRole('button', { name: 'Confirm' }).click()
+  await clickButton(confirmModal, 'Confirm')
   await expect(confirmModal).toBeHidden()
   await closeToast(page)
 

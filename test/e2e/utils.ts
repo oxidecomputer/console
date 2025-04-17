@@ -111,8 +111,8 @@ export async function expectRowVisible(
 }
 
 export async function stopInstance(page: Page) {
-  await page.getByRole('button', { name: 'Stop' }).click()
-  await page.getByRole('button', { name: 'Confirm' }).click()
+  await clickButton(page, 'Stop')
+  await clickButton(page, 'Confirm')
   await closeToast(page)
   // don't need to manually refresh because of polling
   await expect(page.getByText('statestopped')).toBeVisible()
@@ -165,6 +165,14 @@ export const openRowActions = async (page: Page, name: string) => {
 export async function clickRowAction(page: Page, rowName: string, actionName: string) {
   await openRowActions(page, rowName)
   await page.getByRole('menuitem', { name: actionName }).click()
+}
+
+export async function clickButton(loc: Page | Locator, name: string) {
+  await loc.getByRole('button', { name }).click()
+}
+
+export async function clickLink(loc: Page | Locator, name: string) {
+  await loc.getByRole('link', { name }).click()
 }
 
 /**
@@ -254,12 +262,12 @@ export async function scrollTo(page: Page, to: number) {
 }
 
 export async function addTlsCert(page: Page) {
-  page.getByRole('button', { name: 'Add TLS certificate' }).click()
+  clickButton(page, 'Add TLS certificate')
   await page
     .getByRole('dialog', { name: 'Add TLS certificate' })
     .getByRole('textbox', { name: 'Name' })
     .fill('test-cert')
   await chooseFile(page, page.getByLabel('Cert', { exact: true }), 'small')
   await chooseFile(page, page.getByLabel('Key'), 'small')
-  await page.getByRole('button', { name: 'Add Certificate' }).click()
+  await clickButton(page, 'Add Certificate')
 }

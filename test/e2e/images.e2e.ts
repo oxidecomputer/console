@@ -8,6 +8,7 @@
 import { test } from '@playwright/test'
 
 import {
+  clickButton,
   clickRowAction,
   clipboardText,
   expect,
@@ -104,13 +105,13 @@ test('can demote an image from silo', async ({ page }) => {
   await expect(page.getByText('Demoting: arch-2022-06-01')).toBeVisible()
 
   // Cannot demote without first selecting a project
-  await page.getByRole('button', { name: 'Demote' }).click()
+  await clickButton(page, 'Demote')
   await expect(
     page.getByRole('dialog', { name: 'Demote' }).getByText('Project is required')
   ).toBeVisible()
 
   await selectOption(page, 'Project', 'mock-project')
-  await page.getByRole('button', { name: 'Demote' }).click()
+  await clickButton(page, 'Demote')
 
   // Demote image and check it was successful
   await expect(
@@ -131,7 +132,7 @@ test('can delete an image from a project', async ({ page }) => {
   await clickRowAction(page, 'image-3', 'Delete')
   const spinner = page.getByRole('dialog').getByLabel('Spinner')
   await expect(spinner).toBeHidden()
-  await page.getByRole('button', { name: 'Confirm' }).click()
+  await clickButton(page, 'Confiirm')
   await expect(spinner).toBeVisible()
 
   // Check deletion was successful
@@ -149,7 +150,7 @@ test('can delete an image from a silo', async ({ page }) => {
   await clickRowAction(page, 'ubuntu-20-04', 'Delete')
   const spinner = page.getByRole('dialog').getByLabel('Spinner')
   await expect(spinner).toBeHidden()
-  await page.getByRole('button', { name: 'Confirm' }).click()
+  await clickButton(page, 'Confirm')
   await expect(spinner).toBeVisible()
 
   // Check deletion was successful
@@ -171,7 +172,7 @@ test("Silo viewer can't delete silo image", async ({ browser }) => {
   await clickRowAction(page, 'ubuntu-20-04', 'Delete')
   const spinner = page.getByRole('dialog').getByLabel('Spinner')
   await expect(spinner).toBeHidden()
-  await page.getByRole('button', { name: 'Confirm' }).click()
+  await clickButton(page, 'Confirm')
   await expect(spinner).toBeVisible()
 
   // Check deletion was successful
