@@ -17,8 +17,8 @@ export default {
   forbidOnly: !!process.env.CI,
   // Retry on CI only
   retries: process.env.CI ? 2 : 0,
-  // use all available cores (2) on github actions. default is 50%, use that locally
-  workers: process.env.CI ? '100%' : undefined,
+  // use all available cores (2) on github actions. use fewer locally
+  workers: process.env.CI ? '100%' : '66%',
   timeout: 60 * 1000, // 1 minute
   fullyParallel: true,
   // default is 5 seconds. somehow playwright really hates async route modules,
