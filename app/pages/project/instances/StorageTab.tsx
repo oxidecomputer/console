@@ -25,7 +25,7 @@ import { Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { HL } from '~/components/HL'
 import { DiskStateBadge } from '~/components/StateBadge'
-import { AttachDiskSideModalForm } from '~/forms/disk-attach'
+import { AttachDiskModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
@@ -289,18 +289,12 @@ export default function StorageTab() {
   )
 
   const attachDisk = useApiMutation('instanceDiskAttach', {
-    onSuccess() {
+    onSuccess(disk) {
       queryClient.invalidateQueries('instanceDiskList')
       // cover all our bases. this is called by both modals
       setShowDiskCreate(false)
       setShowDiskAttach(false)
-    },
-    onError(err) {
-      addToast({
-        title: 'Failed to attach disk',
-        content: err.message,
-        variant: 'error',
-      })
+      addToast(<>Disk <HL>{disk.name}</HL> attached</>) // prettier-ignore
     },
   })
 
@@ -341,35 +335,33 @@ export default function StorageTab() {
 
       <CardBlock>
         <CardBlock.Header title="Additional disks" titleId="other-disks-label">
-          <div className="flex gap-3">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setShowDiskAttach(true)}
-              disabledReason={
-                <>
-                  Instance must be <span className="text-raise">stopped</span> to attach a
-                  disk
-                </>
-              }
-              disabled={!instanceCan.attachDisk(instance)}
-            >
-              Attach existing disk
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => setShowDiskCreate(true)}
-              disabledReason={
-                <>
-                  Instance must be <span className="text-raise">stopped</span> to create and
-                  attach a disk
-                </>
-              }
-              disabled={!instanceCan.attachDisk(instance)}
-            >
-              Create disk
-            </Button>
-          </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setShowDiskAttach(true)}
+            disabledReason={
+              <>
+                Instance must be <span className="text-raise">stopped</span> to attach a
+                disk
+              </>
+            }
+            disabled={!instanceCan.attachDisk(instance)}
+          >
+            Attach existing disk
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => setShowDiskCreate(true)}
+            disabledReason={
+              <>
+                Instance must be <span className="text-raise">stopped</span> to create and
+                attach a disk
+              </>
+            }
+            disabled={!instanceCan.attachDisk(instance)}
+          >
+            Create disk
+          </Button>
         </CardBlock.Header>
         <CardBlock.Body>
           {otherDisks.length > 0 ? (
@@ -395,7 +387,7 @@ export default function StorageTab() {
         />
       )}
       {showDiskAttach && (
-        <AttachDiskSideModalForm
+        <AttachDiskModalForm
           onDismiss={() => setShowDiskAttach(false)}
           onSubmit={({ name }) => {
             attachDisk.mutate({ ...instancePathQuery, body: { disk: name } })

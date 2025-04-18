@@ -11,7 +11,7 @@ import { useForm } from 'react-hook-form'
 import { useApiQuery, type ApiError } from '@oxide/api'
 
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
-import { SideModalForm } from '~/components/form/SideModalForm'
+import { ModalForm } from '~/components/form/ModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { ALL_ISH } from '~/util/consts'
@@ -31,7 +31,7 @@ type AttachDiskProps = {
  * Can be used with either a `setState` or a real mutation as `onSubmit`, hence
  * the optional `loading` and `submitError`
  */
-export function AttachDiskSideModalForm({
+export function AttachDiskModalForm({
   onSubmit,
   onDismiss,
   diskNamesToExclude = [],
@@ -40,7 +40,7 @@ export function AttachDiskSideModalForm({
 }: AttachDiskProps) {
   const { project } = useProjectSelector()
 
-  const { data } = useApiQuery('diskList', {
+  const { data, isPending } = useApiQuery('diskList', {
     query: { project, limit: ALL_ISH },
   })
   const detachedDisks = useMemo(
@@ -54,17 +54,17 @@ export function AttachDiskSideModalForm({
   )
 
   const form = useForm({ defaultValues })
+  const { control } = form
 
   return (
-    <SideModalForm
+    <ModalForm
       form={form}
-      formType="create"
-      resourceName="disk"
+      onDismiss={onDismiss}
+      submitLabel="Attach disk"
+      submitError={submitError}
+      loading={loading}
       title="Attach disk"
       onSubmit={onSubmit}
-      loading={loading}
-      submitError={submitError}
-      onDismiss={onDismiss}
     >
       <ComboboxField
         label="Disk name"
@@ -72,8 +72,9 @@ export function AttachDiskSideModalForm({
         name="name"
         items={detachedDisks}
         required
-        control={form.control}
+        control={control}
+        isLoading={isPending}
       />
-    </SideModalForm>
+    </ModalForm>
   )
 }
