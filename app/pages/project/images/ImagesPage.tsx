@@ -7,7 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import { Outlet, type LoaderFunctionArgs } from 'react-router'
+import { Link, Outlet, type LoaderFunctionArgs } from 'react-router'
 
 import { getListQFn, queryClient, useApiMutation, type Image } from '@oxide/api'
 import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
@@ -22,12 +22,11 @@ import { makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
-import { CreateLink } from '~/ui/lib/CreateButton'
+import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableActions } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
@@ -109,16 +108,21 @@ export default function ImagesPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Images24Icon />}>Project Images</PageTitle>
-        <DocsPopover
-          heading="Images"
-          icon={<Images16Icon />}
-          summary="Images let you create a new disk based on an existing one. Images can be uploaded directly or created from a snapshot."
-          links={[docLinks.images]}
-        />
+        <div className="inline-flex gap-2">
+          <Link
+            to={pb.siloImages()}
+            className={buttonStyle({ size: 'sm', variant: 'ghost' })}
+          >
+            Silo Images
+          </Link>
+          <DocsPopover
+            heading="Images"
+            icon={<Images16Icon />}
+            summary="Images let you create a new disk based on an existing one. Images can be uploaded directly or created from a snapshot."
+            links={[docLinks.images]}
+          />
+        </div>
       </PageHeader>
-      <TableActions>
-        <CreateLink to={pb.projectImagesNew({ project })}>Upload image</CreateLink>
-      </TableActions>
       {table}
       {promoteImageName && (
         <PromoteImageModal
