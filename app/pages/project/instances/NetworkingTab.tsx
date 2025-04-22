@@ -226,6 +226,8 @@ export default function NetworkingTab() {
     query: { ...instanceSelector, limit: ALL_ISH },
   }).data.items
 
+  const multipleNics = nics.length > 1
+
   const makeActions = useCallback(
     (nic: NicRow): MenuAction[] => {
       const canUpdateNic = instanceCan.updateNic({ runState: nic.instanceState })
@@ -238,7 +240,7 @@ export default function NetworkingTab() {
         // > There is always zero or one primary NIC. There may zero or more secondary NICs (up to 7 today), but only if there is already a primary.
         // > The primary NIC is where we attach all the external networking state, like external addresses, and the VPC information like routes, subnet information, internet gateways, etc.
         // > You may delete any secondary NIC. You may delete the primary NIC only if it's the only NIC (there are no secondary NICs).
-        if (nic.primary && nics.length > 1) {
+        if (nic.primary && multipleNics) {
           return 'This network interface is primary and cannot be deleted while other network interfaces are attached'
         }
         return undefined
@@ -289,7 +291,7 @@ export default function NetworkingTab() {
         },
       ]
     },
-    [deleteNic, editNic, instanceSelector, nics.length]
+    [deleteNic, editNic, instanceSelector, multipleNics]
   )
 
   const columns = useColsWithActions(staticCols, makeActions)
