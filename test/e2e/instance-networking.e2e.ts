@@ -7,7 +7,13 @@
  */
 import { expect, test } from '@playwright/test'
 
-import { clickRowAction, expectRowVisible, expectVisible, stopInstance } from './utils'
+import {
+  clickRowAction,
+  expectRowVisible,
+  expectVisible,
+  openRowActions,
+  stopInstance,
+} from './utils'
 
 test('Instance networking tab — NIC table', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
@@ -72,7 +78,17 @@ test('Instance networking tab — NIC table', async ({ page }) => {
   const nic3 = page.getByRole('cell', { name: 'nic-3' })
   await expect(nic3).toBeVisible()
 
-  // Delete just-added network interface
+  // See that the primary NIC can not be deleted when other NICs exist
+  await openRowActions(page, 'nic-3')
+  await page.getByRole('menuitem', { name: 'Delete' }).hover()
+  await expect(page.getByText('This network interface is primary and cannot')).toBeVisible()
+
+  // Delete the non-primary NIC
+  await clickRowAction(page, 'my-nic', 'Delete')
+  await expect(page.getByText('Are you sure you want to delete my-nic?')).toBeVisible()
+  await page.getByRole('button', { name: 'Confirm' }).click()
+
+  // Now the primary NIC is deletable
   await clickRowAction(page, 'nic-3', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(nic3).toBeHidden()

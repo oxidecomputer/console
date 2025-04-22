@@ -222,9 +222,28 @@ export default function NetworkingTab() {
     query: { project },
   })
 
+  const nics = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
+    query: { ...instanceSelector, limit: ALL_ISH },
+  }).data.items
+
   const makeActions = useCallback(
     (nic: NicRow): MenuAction[] => {
       const canUpdateNic = instanceCan.updateNic({ runState: nic.instanceState })
+
+      const deleteDisabledReason = () => {
+        if (!canUpdateNic) {
+          return <>The instance must be {updateNicStates} to delete a network interface</>
+        }
+        // If the NIC is primary, we can't delete it if there are other NICs. Per Ben N:
+        // > There is always zero or one primary NIC. There may zero or more secondary NICs (up to 7 today), but only if there is already a primary.
+        // > The primary NIC is where we attach all the external networking state, like external addresses, and the VPC information like routes, subnet information, internet gateways, etc.
+        // > You may delete any secondary NIC. You may delete the primary NIC only if it's the only NIC (there are no secondary NICs).
+        if (nic.primary && nics.length > 1) {
+          return 'This network interface is primary and cannot be deleted while other network interfaces are attached'
+        }
+        return undefined
+      }
+
       return [
         {
           label: 'Make primary',
@@ -266,20 +285,14 @@ export default function NetworkingTab() {
               }),
             label: nic.name,
           }),
-          disabled: !canUpdateNic && (
-            <>The instance must be {updateNicStates} to delete a network interface</>
-          ),
+          disabled: deleteDisabledReason(),
         },
       ]
     },
-    [deleteNic, editNic, instanceSelector]
+    [deleteNic, editNic, instanceSelector, nics.length]
   )
 
   const columns = useColsWithActions(staticCols, makeActions)
-
-  const nics = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
-    query: { ...instanceSelector, limit: ALL_ISH },
-  }).data.items
 
   const nicRows = useMemo(
     () => nics.map((nic) => ({ ...nic, instanceState: instance.runState })),
