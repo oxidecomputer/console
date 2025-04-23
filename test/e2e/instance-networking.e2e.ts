@@ -89,7 +89,7 @@ test('Instance networking tab — NIC table', async ({ page }) => {
   await page.getByRole('button', { name: 'Confirm' }).click()
 
   // Now the primary NIC is deletable
-  await clickRowAction(page, 'nic-3', 'Delete')
+  await clickRowAction(page, 'nic-3 primary — 123.45.68.8', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(nic3).toBeHidden()
 })
