@@ -7,10 +7,10 @@
  */
 import {
   clickRowAction,
+  clickRowActions,
   closeToast,
   expect,
   expectRowVisible,
-  openRowActions,
   test,
   type Page,
 } from './utils'
@@ -41,7 +41,7 @@ test('can start a failed instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
 
   // check the start button disabled message on a running instance
-  await openRowActions(page, 'db1')
+  await clickRowActions(page, 'db1')
   await page.getByRole('menuitem', { name: 'Start' }).hover()
   await expect(
     page.getByText('Only stopped or failed instances can be started')
@@ -118,14 +118,14 @@ test('can reboot a running instance', async ({ page }) => {
 test('cannot reboot a failed instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
   await expectInstanceState(page, 'you-fail', 'failed')
-  await openRowActions(page, 'you-fail')
+  await clickRowActions(page, 'you-fail')
   await expect(page.getByRole('menuitem', { name: 'Reboot' })).toBeDisabled()
 })
 
 test('cannot reboot a starting instance, or a stopped instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
   await expectInstanceState(page, 'not-there-yet', 'starting')
-  await openRowActions(page, 'not-there-yet')
+  await clickRowActions(page, 'not-there-yet')
   await expect(page.getByRole('menuitem', { name: 'Reboot' })).toBeDisabled()
   // hit escape to close the menu so clickRowAction succeeds
   await page.keyboard.press('Escape')
@@ -136,7 +136,7 @@ test('cannot reboot a starting instance, or a stopped instance', async ({ page }
   await expectInstanceState(page, 'not-there-yet', 'stopping')
   await expectInstanceState(page, 'not-there-yet', 'stopped')
   // reboot is still disabled for a stopped instance
-  await openRowActions(page, 'not-there-yet')
+  await clickRowActions(page, 'not-there-yet')
   await expect(page.getByRole('menuitem', { name: 'Reboot' })).toBeDisabled()
 })
 
@@ -144,13 +144,13 @@ test('cannot resize a running or starting instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
 
   await expectInstanceState(page, 'db1', 'running')
-  await openRowActions(page, 'db1')
+  await clickRowActions(page, 'db1')
   await expect(page.getByRole('menuitem', { name: 'Resize' })).toBeDisabled()
 
   await page.keyboard.press('Escape') // get out of the menu
 
   await expectInstanceState(page, 'not-there-yet', 'starting')
-  await openRowActions(page, 'not-there-yet')
+  await clickRowActions(page, 'not-there-yet')
   await expect(page.getByRole('menuitem', { name: 'Resize' })).toBeDisabled()
 })
 
@@ -254,7 +254,7 @@ async function expectRowMenuStaysOpen(page: Page, rowSelector: string) {
   await expect(menu).toBeHidden()
   await expect(stopped).toBeHidden()
 
-  await openRowActions(page, rowSelector)
+  await clickRowActions(page, rowSelector)
   await expect(stopped).toBeHidden() // still not stopped yet
   await expect(menu).toBeVisible()
 
@@ -300,7 +300,7 @@ test("polling doesn't close row actions: instances", async ({ page }) => {
   await expect(menu).toBeHidden()
   await expect(stopped).toBeHidden()
 
-  await openRowActions(page, 'db1')
+  await clickRowActions(page, 'db1')
   await expect(stopped).toBeHidden() // still not stopped yet
   await expect(menu).toBeVisible()
 
