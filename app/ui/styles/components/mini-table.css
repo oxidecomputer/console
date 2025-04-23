@@ -33,7 +33,7 @@
   }
 
   & td:last-child > div {
-    @apply w-12 justify-center pl-0 pr-0;
+    @apply justify-center pl-0 pr-0;
   }
   & td:last-child > div > button {
     @apply -mx-3 -my-3 flex items-center justify-center px-3 py-3;
