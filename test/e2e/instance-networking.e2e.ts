@@ -80,16 +80,22 @@ test('Instance networking tab — NIC table', async ({ page }) => {
 
   // See that the primary NIC cannot be deleted when other NICs exist
   await openRowActions(page, 'nic-3')
+  await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeDisabled()
   await page.getByRole('menuitem', { name: 'Delete' }).hover()
   await expect(page.getByText('This network interface is primary and cannot')).toBeVisible()
 
   // Delete the non-primary NIC
-  await clickRowAction(page, 'my-nic', 'Delete')
+  // although we could use clickRowAction here, it can sometimes be flaky if we don't slow it down a bit
+  await openRowActions(page, 'my-nic')
+  await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeEnabled()
+  await page.getByRole('menuitem', { name: 'Delete' }).click()
   await expect(page.getByText('Are you sure you want to delete my-nic?')).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
 
   // Now the primary NIC is deletable
-  await clickRowAction(page, 'nic-3', 'Delete')
+  await openRowActions(page, 'nic-3')
+  await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeEnabled()
+  await page.getByRole('menuitem', { name: 'Delete' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(nic3).toBeHidden()
 })
