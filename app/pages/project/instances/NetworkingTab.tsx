@@ -241,7 +241,7 @@ export default function NetworkingTab() {
         // > The primary NIC is where we attach all the external networking state, like external addresses, and the VPC information like routes, subnet information, internet gateways, etc.
         // > You may delete any secondary NIC. You may delete the primary NIC only if it's the only NIC (there are no secondary NICs).
         if (nic.primary && multipleNics) {
-          return 'This network interface is primary and cannot be deleted while other network interfaces are attached'
+          return 'The primary interface can’t be deleted while other interfaces are attached. To delete it, make another interface primary.'
         }
         return undefined
       }
