@@ -8,7 +8,7 @@
 import { expect, test } from './utils'
 
 test('Show / hide contextual help docs links', async ({ page }) => {
-  const learnAbout = page.getByText('Learn about disks')
+  const learnAbout = page.getByRole('heading', { name: 'Learn about disks' })
   const managingDisksLink = page.getByRole('link', { name: 'Disks and Snapshots' })
 
   await page.goto('/projects/mock-project/disks')
@@ -17,7 +17,7 @@ test('Show / hide contextual help docs links', async ({ page }) => {
   await expect(managingDisksLink).toBeHidden()
 
   // open the contextual help docs links
-  await page.getByLabel('Links to docs').click()
+  await page.getByRole('button', { name: 'Learn about disks' }).click()
   await expect(learnAbout).toBeVisible()
   await expect(managingDisksLink).toBeVisible()
 

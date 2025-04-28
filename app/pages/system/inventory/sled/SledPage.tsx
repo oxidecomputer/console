@@ -28,7 +28,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 }
 export const handle = makeCrumb(
   (p) => truncate(p.sledId!, 12, 'middle'),
-  (p) => pb.sled({ sledId: p.sledId! })
+  (p) => pb.sledInstances({ sledId: p.sledId! })
 )
 
 export default function SledPage() {

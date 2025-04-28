@@ -132,21 +132,22 @@ function UserMenu() {
   const { me } = useCurrentUser()
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger
-        className={cn(
-          buttonStyle({ size: 'sm', variant: 'ghost' }),
-          'flex items-center gap-1.5 !px-2 !border-secondary'
-        )}
-        aria-label="User menu"
-      >
-        <Profile16Icon className="text-tertiary" />
-        <span className="normal-case text-sans-md text-default">
-          {me.displayName || 'User'}
-        </span>
+      <DropdownMenu.Trigger aria-label="User menu">
+        <div
+          className={cn(
+            buttonStyle({ size: 'sm', variant: 'ghost' }),
+            'flex items-center gap-1.5 !px-2 !border-secondary'
+          )}
+        >
+          <Profile16Icon className="text-tertiary" />
+          <span className="normal-case text-sans-md text-default">
+            {me.displayName || 'User'}
+          </span>
+        </div>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content gap={8}>
         <DropdownMenu.LinkItem to={pb.profile()}>Settings</DropdownMenu.LinkItem>
-        <DropdownMenu.Item onSelect={() => logout.mutate({})}>Sign out</DropdownMenu.Item>
+        <DropdownMenu.Item onSelect={() => logout.mutate({})} label="Sign out" />
       </DropdownMenu.Content>
     </DropdownMenu.Root>
   )
@@ -160,16 +161,15 @@ function UserMenu() {
 function SiloSystemPicker({ level }: { level: 'silo' | 'system' }) {
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger
-        className="flex items-center rounded border px-2 py-1.5 text-sans-md text-default border-secondary hover:bg-hover"
-        aria-label="Switch between system and silo"
-      >
-        <div className="flex items-center text-tertiary">
-          {level === 'system' ? <Servers16Icon /> : <Organization16Icon />}
+      <DropdownMenu.Trigger aria-label="Switch between system and silo">
+        <div className="active-clicked flex items-center rounded border px-2 py-1.5 text-sans-md text-default border-secondary hover:bg-hover">
+          <div className="flex items-center text-tertiary">
+            {level === 'system' ? <Servers16Icon /> : <Organization16Icon />}
+          </div>
+          <div className="ml-1.5 mr-3">{level === 'system' ? 'System' : 'Silo'}</div>
+          {/* aria-hidden is a tip from the Reach docs */}
+          <SelectArrows6Icon className="text-quaternary" aria-hidden />
         </div>
-        <div className="ml-1.5 mr-3">{level === 'system' ? 'System' : 'Silo'}</div>
-        {/* aria-hidden is a tip from the Reach docs */}
-        <SelectArrows6Icon className="text-quaternary" aria-hidden />
       </DropdownMenu.Trigger>
       <DropdownMenu.Content className="mt-2 max-h-80 overflow-y-auto" anchor="bottom start">
         <SystemSiloItem to={pb.silos()} label="System" isSelected={level === 'system'} />

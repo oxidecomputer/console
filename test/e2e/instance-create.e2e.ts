@@ -14,6 +14,7 @@ import {
   expectRowVisible,
   expectVisible,
   selectOption,
+  sleep,
   test,
   type Page,
 } from './utils'
@@ -276,7 +277,7 @@ test('can’t create a disk with a name that collides with the boot disk name', 
   await expect(bootDiskTable.getByRole('cell', { name: 'disk-11' })).toBeVisible()
 
   // Find the Other Disks table and verify that disk-12 is there
-  const otherDisksTable = page.getByRole('table', { name: 'Other disks' })
+  const otherDisksTable = page.getByRole('table', { name: 'Additional disks' })
   await expect(otherDisksTable.getByRole('cell', { name: 'disk-12' })).toBeVisible()
 })
 
@@ -550,8 +551,22 @@ test('create instance with additional disks', async ({ page }) => {
   // verify that an existing name can't be used
   await createForm.getByRole('textbox', { name: 'Name', exact: true }).fill('disk-6')
 
-  // this fill fails to happen sometimes, causing test flakes. the assert here
-  // should catch it slightly sooner
+  // If we try to fill the size field too soon after render (unnaturally fast --
+  // a real user would not be able to do it), the value gets quickly overwritten
+  // back to the default of 10, possibly because there are renders already in
+  // flight by the type we fill. This causes test flakes where the field is 10
+  // after we've filled 5 and the disk we're creating ends up with 10 GiB in
+  // the table. The flakes happened in Safari, but by adding a sleep _after_ the
+  // fill but before the check, we can force the failure in every browser.  By
+  // waiting a bit here _before_ the fill, we give those renders a chance to
+  // wrap up before we fill.
+  //
+  // This is a HACK -- logging in instance create and disk create shows that
+  // disk create does seem to render again a few hundred ms after the initial
+  // one, and it appears driven by renders in instance create (specifically the
+  // usePrefetchedApiQuery calls), but I wasn't able to fix it for real.
+  await sleep(1000)
+
   const sizeField = createForm.getByRole('textbox', { name: 'Size (GiB)' })
   await sizeField.fill('5')
   await expect(sizeField).toHaveValue('5')
@@ -593,7 +608,7 @@ test('create instance with additional disks', async ({ page }) => {
   await expect(bootDiskTable.getByRole('cell', { name: /^more-disks-/ })).toBeVisible()
 
   // Check for the additional disks
-  const otherDisksTable = page.getByRole('table', { name: 'Other disks' })
+  const otherDisksTable = page.getByRole('table', { name: 'Additional disks' })
   await expectRowVisible(otherDisksTable, { Disk: 'new-disk-1', size: '5 GiB' })
   await expectRowVisible(otherDisksTable, { Disk: 'disk-3', size: '6 GiB' })
 })

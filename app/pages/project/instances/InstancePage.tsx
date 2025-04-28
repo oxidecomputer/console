@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { filesize } from 'filesize'
-import { useId, useMemo, useState } from 'react'
+import { useId, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
@@ -27,6 +27,7 @@ import {
   instanceCan,
   instanceTransitioning,
 } from '~/api/util'
+import { CopyIdItem } from '~/components/CopyIdItem'
 import { ExternalIps } from '~/components/ExternalIps'
 import { NumberField } from '~/components/form/fields/NumberField'
 import { HL } from '~/components/HL'
@@ -44,6 +45,7 @@ import {
 import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { Button } from '~/ui/lib/Button'
+import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -51,7 +53,7 @@ import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { Spinner } from '~/ui/lib/Spinner'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { truncate } from '~/ui/lib/Truncate'
-import { pb } from '~/util/path-builder'
+import { instanceMetricsBase, pb } from '~/util/path-builder'
 import { pluralize } from '~/util/str'
 import { GiB } from '~/util/units'
 
@@ -70,6 +72,7 @@ async function refreshData() {
     apiQueryClient.invalidateQueries('instanceNetworkInterfaceList'),
     apiQueryClient.invalidateQueries('instanceDiskList'), // storage tab
     apiQueryClient.invalidateQueries('diskMetricsList'), // metrics tab
+    apiQueryClient.invalidateQueries('antiAffinityGroupMemberList'),
   ])
 }
 
@@ -179,19 +182,6 @@ export default function InstancePage() {
     { enabled: !!primaryVpcId }
   )
 
-  const allMenuActions = useMemo(
-    () => [
-      {
-        label: 'Copy ID',
-        onActivate() {
-          window.navigator.clipboard.writeText(instance.id || '')
-        },
-      },
-      ...makeMenuActions(instance),
-    ],
-    [instance, makeMenuActions]
-  )
-
   const memory = filesize(instance.memory, { output: 'object', base: 2 })
 
   return (
@@ -215,7 +205,28 @@ export default function InstancePage() {
               </Button>
             ))}
           </div>
-          <MoreActionsMenu label="Instance actions" actions={allMenuActions} />
+          <MoreActionsMenu label="Instance actions">
+            <CopyIdItem id={instance.id} />
+            {makeMenuActions(instance).map((action) =>
+              'to' in action ? (
+                <DropdownMenu.LinkItem
+                  key={action.label}
+                  to={action.to}
+                  className={action.className}
+                >
+                  {action.label}
+                </DropdownMenu.LinkItem>
+              ) : (
+                <DropdownMenu.Item
+                  key={action.label}
+                  label={action.label}
+                  onSelect={action.onActivate}
+                  disabled={action.disabled}
+                  className={action.className}
+                />
+              )
+            )}
+          </MoreActionsMenu>
         </div>
       </PageHeader>
       <PropertiesTable columns={2} className="-mt-8 mb-8">
@@ -256,7 +267,12 @@ export default function InstancePage() {
       <RouteTabs fullWidth>
         <Tab to={pb.instanceStorage(instanceSelector)}>Storage</Tab>
         <Tab to={pb.instanceNetworking(instanceSelector)}>Networking</Tab>
-        <Tab to={pb.instanceMetrics(instanceSelector)}>Metrics</Tab>
+        <Tab
+          to={pb.instanceCpuMetrics(instanceSelector)}
+          activePrefix={instanceMetricsBase(instanceSelector)}
+        >
+          Metrics
+        </Tab>
         <Tab to={pb.instanceConnect(instanceSelector)}>Connect</Tab>
         <Tab to={pb.instanceSettings(instanceSelector)}>Settings</Tab>
       </RouteTabs>
@@ -282,11 +298,9 @@ export function ResizeInstanceModal({
   const { project } = useProjectSelector()
   const instanceUpdate = useApiMutation('instanceUpdate', {
     onSuccess(_updatedInstance) {
-      if (onListView) {
-        apiQueryClient.invalidateQueries('instanceList')
-      } else {
-        apiQueryClient.invalidateQueries('instanceView')
-      }
+      apiQueryClient.invalidateQueries('instanceList')
+      apiQueryClient.invalidateQueries('instanceView')
+
       onDismiss()
       addToast({
         content: (

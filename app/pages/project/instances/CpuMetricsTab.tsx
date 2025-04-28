@@ -22,7 +22,14 @@ import { Listbox } from '~/ui/lib/Listbox'
 
 import { useMetricsContext } from './common'
 
-export const handle = { crumb: 'CPU' }
+type CpuChartType = OxqlVcpuState | 'all'
+
+const descriptions: Record<OxqlVcpuState, string | undefined> = {
+  run: 'Executing guest instructions',
+  idle: 'Not executing instructions',
+  emulation: 'Handling guest operations in the host (like I/O)',
+  waiting: 'Ready but waiting, usually due to contention',
+}
 
 export default function CpuMetricsTab() {
   const { project, instance } = useInstanceSelector()
@@ -32,8 +39,6 @@ export default function CpuMetricsTab() {
   })
 
   const { startTime, endTime, dateTimeRangePicker } = useMetricsContext()
-
-  type CpuChartType = OxqlVcpuState | 'all'
 
   const queryBase = {
     unit: '%' as const,
@@ -45,8 +50,8 @@ export default function CpuMetricsTab() {
 
   const stateItems: { label: string; value: CpuChartType }[] = [
     { label: 'State: Running', value: 'run' },
-    { label: 'State: Emulating', value: 'emulation' },
-    { label: 'State: Idling', value: 'idle' },
+    { label: 'State: Emulation', value: 'emulation' },
+    { label: 'State: Idle', value: 'idle' },
     { label: 'State: Waiting', value: 'waiting' },
     { label: 'All states', value: 'all' },
   ]
@@ -77,11 +82,13 @@ export default function CpuMetricsTab() {
             <MetricRow>
               <OxqlMetric
                 title="CPU Utilization: Running"
+                description={descriptions.run}
                 eqFilters={{ instance_id: instanceData.id, state: 'run' }}
                 {...queryBase}
               />
               <OxqlMetric
                 title="CPU Utilization: Emulation"
+                description={descriptions.emulation}
                 eqFilters={{ instance_id: instanceData.id, state: 'emulation' }}
                 {...queryBase}
               />
@@ -89,12 +96,14 @@ export default function CpuMetricsTab() {
 
             <MetricRow>
               <OxqlMetric
-                title="CPU Utilization: Idling"
+                title="CPU Utilization: Idle"
+                description={descriptions.idle}
                 eqFilters={{ instance_id: instanceData.id, state: 'idle' }}
                 {...queryBase}
               />
               <OxqlMetric
                 title="CPU Utilization: Waiting"
+                description={descriptions.waiting}
                 eqFilters={{ instance_id: instanceData.id, state: 'waiting' }}
                 {...queryBase}
               />
@@ -104,6 +113,7 @@ export default function CpuMetricsTab() {
           <MetricRow>
             <OxqlMetric
               title={title}
+              description={descriptions[selectedState]}
               eqFilters={{ instance_id: instanceData.id, state: selectedState }}
               {...queryBase}
             />

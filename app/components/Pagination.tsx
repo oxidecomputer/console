@@ -12,7 +12,7 @@ import {
   type PaginationProps as UIPaginationProps,
 } from '~/ui/lib/Pagination'
 
-const Tunnel = tunnel('pagination')
+const Tunnel = tunnel()
 
 export function Pagination(props: UIPaginationProps) {
   return (

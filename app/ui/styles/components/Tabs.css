@@ -36,12 +36,12 @@
 }
 
 /* Active states */
-.ox-tab.is-selected {
+.ox-tab[data-state='active'] {
   @apply text-accent border-accent;
 }
 
-.ox-tab.is-selected:hover > * {
-  @apply !bg-accent-secondary;
+.ox-tabs-list .ox-tab[data-state='active']:hover > * {
+  @apply bg-accent-secondary;
 }
 
 /* Badge styles */
@@ -49,12 +49,12 @@
   @apply -mt-1 select-none text-current;
 }
 
-.ox-tab:not(.is-selected) > .ox-badge {
+.ox-tab[data-state='inactive'] > .ox-badge {
   @apply bg-disabled;
 }
 
-.ox-tab.is-selected > .ox-badge {
-  @apply bg-accent-secondary;
+.ox-tab[data-state='active'] > .ox-badge {
+  @apply bg-accent-secondary-hover;
 }
 
 /* Full width variants */
@@ -81,7 +81,7 @@
   border-bottom: none;
 }
 
-.ox-side-tabs .ox-tab.is-selected {
+.ox-side-tabs-list .ox-tab[data-state='active'] {
   @apply text-accent bg-accent-secondary;
   border: none;
 }
@@ -90,6 +90,10 @@
   @apply mx-0 ml-4;
 }
 
-.ox-side-tabs-list .ox-tab:not(.is-selected):hover {
+.ox-side-tabs-list .ox-tab[data-state='active']:hover {
+  @apply bg-accent-secondary-hover;
+}
+
+.ox-side-tabs-list .ox-tab:not([data-state='active']):hover {
   @apply text-default bg-hover;
 }

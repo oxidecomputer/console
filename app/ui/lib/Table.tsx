@@ -104,8 +104,8 @@ Table.Cell = ({ height = 'small', className, children, ...props }: TableCellProp
   >
     <div
       className={cn(
-        'relative -my-[1px] -mr-[2px] flex items-center border-b border-l p-3 border-secondary',
-        { 'h-12': height === 'small', 'h-16': height === 'large' }
+        'relative -my-[1px] -mr-[2px] flex items-center border-b border-l px-3 py-2 border-secondary',
+        { 'h-11': height === 'small', 'h-14': height === 'large' }
       )}
     >
       {children}
@@ -119,7 +119,20 @@ Table.Cell = ({ height = 'small', className, children, ...props }: TableCellProp
  */
 export const TableActions = classed.div`-mt-6 mb-3 flex justify-end gap-2`
 
-export const TableEmptyBox = classed.div`flex h-full max-h-[480px] items-center justify-center rounded-lg border border-secondary p-4`
+type TableEmptyBoxProps = {
+  children: React.ReactNode
+  border?: boolean
+}
+
+export const TableEmptyBox = ({ children, border = true }: TableEmptyBoxProps) => (
+  <div
+    className={cn('flex h-full max-h-[480px] items-center justify-center rounded-lg px-4', {
+      'border py-4 border-secondary': border,
+    })}
+  >
+    {children}
+  </div>
+)
 
 /**
  * Used _outside_ of the `Table`, this element includes a soon-to-be-removed description of the resource inside the table,

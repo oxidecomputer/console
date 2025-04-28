@@ -14,9 +14,7 @@ import {
   type SystemMetricName,
 } from '@oxide/api'
 
-import { Spinner } from '~/ui/lib/Spinner'
-
-import { TimeSeriesChart } from './TimeSeriesChart'
+import { ChartContainer, ChartHeader, TimeSeriesChart } from './TimeSeriesChart'
 
 // The difference between system metric and silo metric is
 //   1. different endpoints
@@ -24,7 +22,7 @@ import { TimeSeriesChart } from './TimeSeriesChart'
 
 type MetricProps = {
   title: string
-  unit?: string
+  unit: string
   startTime: Date
   endTime: Date
   metricName: SystemMetricName
@@ -93,25 +91,20 @@ export function SiloMetric({
   // in the tooltip. could be just once on the end of the x-axis like GCP
 
   return (
-    <div>
-      <h2 className="flex items-center gap-1.5 px-3 text-mono-sm text-default">
-        {title} {unit && <span className="text-tertiary">({unit})</span>}{' '}
-        {(inRange.isPending || beforeStart.isPending) && <Spinner />}
-      </h2>
-      {/* TODO: proper skeleton for empty chart */}
-      <div className="mt-3 h-[300px]">
-        <TimeSeriesChart
-          data={data}
-          title={title}
-          width={480}
-          height={240}
-          interpolation="stepAfter"
-          startTime={startTime}
-          endTime={endTime}
-          unit={unit !== 'count' ? unit : undefined}
-        />
-      </div>
-    </div>
+    <ChartContainer>
+      <ChartHeader title={title} label={`(${unit})`} />
+      <TimeSeriesChart
+        data={data}
+        title={title}
+        interpolation="stepAfter"
+        startTime={startTime}
+        endTime={endTime}
+        unit={unit !== 'Count' ? unit : undefined}
+        // note use of loading, not fetching, which is only true on first fetch.
+        // otherwise we get loading states on refetches
+        loading={inRange.isLoading || beforeStart.isLoading}
+      />
+    </ChartContainer>
   )
 }
 
@@ -169,24 +162,19 @@ export function SystemMetric({
   // in the tooltip. could be just once on the end of the x-axis like GCP
 
   return (
-    <div>
-      <h2 className="flex items-center gap-1.5 px-3 text-mono-sm text-default">
-        {title} {unit && <span className="text-tertiary">({unit})</span>}{' '}
-        {(inRange.isPending || beforeStart.isPending) && <Spinner />}
-      </h2>
-      {/* TODO: proper skeleton for empty chart */}
-      <div className="mt-3 h-[300px]">
-        <TimeSeriesChart
-          data={data}
-          title={title}
-          width={480}
-          height={240}
-          interpolation="stepAfter"
-          startTime={startTime}
-          endTime={endTime}
-          unit={unit !== 'count' ? unit : undefined}
-        />
-      </div>
-    </div>
+    <ChartContainer>
+      <ChartHeader title={title} label={`(${unit})`} />
+      <TimeSeriesChart
+        data={data}
+        title={title}
+        interpolation="stepAfter"
+        startTime={startTime}
+        endTime={endTime}
+        unit={unit !== 'Count' ? unit : undefined}
+        // note use of loading, not fetching, which is only true on first fetch.
+        // otherwise we get loading states on refetches
+        loading={inRange.isLoading || beforeStart.isLoading}
+      />
+    </ChartContainer>
   )
 }

@@ -7,7 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
-import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
 import {
   getListQFn,
@@ -55,14 +55,11 @@ export default function VpcSubnetsTab() {
     },
   })
 
-  const navigate = useNavigate()
-
   const makeActions = useCallback(
     (subnet: VpcSubnet): MenuAction[] => [
       {
         label: 'Edit',
-        onActivate: () =>
-          navigate(pb.vpcSubnetsEdit({ ...vpcSelector, subnet: subnet.name })),
+        to: pb.vpcSubnetsEdit({ ...vpcSelector, subnet: subnet.name }),
       },
       // TODO: only show if you have permission to do this
       {
@@ -73,7 +70,7 @@ export default function VpcSubnetsTab() {
         }),
       },
     ],
-    [navigate, deleteSubnet, vpcSelector]
+    [deleteSubnet, vpcSelector]
   )
 
   const columns = useMemo(

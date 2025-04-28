@@ -25,7 +25,7 @@ import { Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { HL } from '~/components/HL'
 import { DiskStateBadge } from '~/components/StateBadge'
-import { AttachDiskSideModalForm } from '~/forms/disk-attach'
+import { AttachDiskModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
@@ -34,9 +34,9 @@ import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { Button } from '~/ui/lib/Button'
-import { CreateButton } from '~/ui/lib/CreateButton'
+import { CardBlock } from '~/ui/lib/CardBlock'
 import { EMBody, EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { TableControls, TableEmptyBox, TableTitle } from '~/ui/lib/Table'
+import { TableEmptyBox } from '~/ui/lib/Table'
 import { links } from '~/util/links'
 
 import { fancifyStates } from './common'
@@ -289,18 +289,12 @@ export default function StorageTab() {
   )
 
   const attachDisk = useApiMutation('instanceDiskAttach', {
-    onSuccess() {
+    onSuccess(disk) {
       queryClient.invalidateQueries('instanceDiskList')
       // cover all our bases. this is called by both modals
       setShowDiskCreate(false)
       setShowDiskAttach(false)
-    },
-    onError(err) {
-      addToast({
-        title: 'Failed to attach disk',
-        content: err.message,
-        variant: 'error',
-      })
+      addToast(<>Disk <HL>{disk.name}</HL> attached</>) // prettier-ignore
     },
   })
 
@@ -323,53 +317,64 @@ export default function StorageTab() {
   })
 
   return (
-    <>
-      <TableControls>
-        <TableTitle id="boot-disks-label">Boot disk</TableTitle>
-      </TableControls>
-      {bootDisks.length > 0 ? (
-        <Table aria-labelledby="boot-disks-label" table={bootDisksTable} />
-      ) : (
-        <BootDiskEmptyState otherDisks={otherDisks} />
-      )}
+    <div className="space-y-5">
+      <CardBlock>
+        <CardBlock.Header title="Boot disk" titleId="boot-disks-label" />
+        <CardBlock.Body>
+          {bootDisks.length > 0 ? (
+            <Table
+              aria-labelledby="boot-disks-label"
+              table={bootDisksTable}
+              className="table-inline"
+            />
+          ) : (
+            <BootDiskEmptyState otherDisks={otherDisks} />
+          )}
+        </CardBlock.Body>
+      </CardBlock>
 
-      <TableControls className="mt-10">
-        <TableTitle id="other-disks-label">Other disks</TableTitle>
-      </TableControls>
-
-      {otherDisks.length > 0 ? (
-        <Table aria-labelledby="other-disks-label" table={otherDisksTable} />
-      ) : (
-        <OtherDisksEmptyState />
-      )}
-
-      <div className="mt-4 flex gap-3">
-        <CreateButton
-          onClick={() => setShowDiskCreate(true)}
-          disabledReason={
-            <>
-              Instance must be <span className="text-raise">stopped</span> to create and
-              attach a disk
-            </>
-          }
-          disabled={!instanceCan.attachDisk(instance)}
-        >
-          Create disk
-        </CreateButton>
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={() => setShowDiskAttach(true)}
-          disabledReason={
-            <>
-              Instance must be <span className="text-raise">stopped</span> to attach a disk
-            </>
-          }
-          disabled={!instanceCan.attachDisk(instance)}
-        >
-          Attach existing disk
-        </Button>
-      </div>
+      <CardBlock>
+        <CardBlock.Header title="Additional disks" titleId="other-disks-label">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setShowDiskAttach(true)}
+            disabledReason={
+              <>
+                Instance must be <span className="text-raise">stopped</span> to attach a
+                disk
+              </>
+            }
+            disabled={!instanceCan.attachDisk(instance)}
+          >
+            Attach existing disk
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => setShowDiskCreate(true)}
+            disabledReason={
+              <>
+                Instance must be <span className="text-raise">stopped</span> to create and
+                attach a disk
+              </>
+            }
+            disabled={!instanceCan.attachDisk(instance)}
+          >
+            Create disk
+          </Button>
+        </CardBlock.Header>
+        <CardBlock.Body>
+          {otherDisks.length > 0 ? (
+            <Table
+              aria-labelledby="other-disks-label"
+              table={otherDisksTable}
+              className="table-inline"
+            />
+          ) : (
+            <OtherDisksEmptyState />
+          )}
+        </CardBlock.Body>
+      </CardBlock>
 
       {showDiskCreate && (
         <CreateDiskSideModalForm
@@ -382,7 +387,7 @@ export default function StorageTab() {
         />
       )}
       {showDiskAttach && (
-        <AttachDiskSideModalForm
+        <AttachDiskModalForm
           onDismiss={() => setShowDiskAttach(false)}
           onSubmit={({ name }) => {
             attachDisk.mutate({ ...instancePathQuery, body: { disk: name } })
@@ -391,13 +396,13 @@ export default function StorageTab() {
           submitError={attachDisk.error}
         />
       )}
-    </>
+    </div>
   )
 }
 
 function BootDiskEmptyState({ otherDisks }: { otherDisks: Disk[] }) {
   return (
-    <TableEmptyBox>
+    <TableEmptyBox border={false}>
       <EmptyMessage
         icon={<Storage24Icon />}
         title="No boot disk set"
@@ -437,7 +442,7 @@ function BootDiskEmptyState({ otherDisks }: { otherDisks: Disk[] }) {
 
 function OtherDisksEmptyState() {
   return (
-    <TableEmptyBox>
+    <TableEmptyBox border={false}>
       <EmptyMessage
         icon={<Storage24Icon />}
         title="No other disks"

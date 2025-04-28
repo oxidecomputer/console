@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs, type NavigateFunction } from 'react-router'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
   apiq,
@@ -43,10 +43,6 @@ export default function EditRouterSideModalForm() {
   const { data: routerData } = usePrefetchedQuery(routerView(routerSelector))
   const navigate = useNavigate()
 
-  const onDismiss = (navigate: NavigateFunction) => {
-    navigate(pb.vpcRouters({ project, vpc }))
-  }
-
   const editRouter = useApiMutation('vpcRouterUpdate', {
     onSuccess(updatedRouter) {
       queryClient.invalidateEndpoint('vpcRouterList')
@@ -67,7 +63,7 @@ export default function EditRouterSideModalForm() {
       form={form}
       formType="edit"
       resourceName="router"
-      onDismiss={() => onDismiss(navigate)}
+      onDismiss={() => navigate(pb.vpcRouters({ project, vpc }))}
       onSubmit={(body) =>
         editRouter.mutate({
           path: { router },

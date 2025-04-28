@@ -122,7 +122,7 @@ test('Create disk', async ({ page }) => {
 
   await createForm.getByRole('button', { name: 'Create disk' }).click()
 
-  const otherDisksTable = page.getByRole('table', { name: 'Other disks' })
+  const otherDisksTable = page.getByRole('table', { name: 'Additional disks' })
   await expectRowVisible(otherDisksTable, { Disk: 'created-disk', size: '20 GiB' })
 })
 
@@ -169,7 +169,7 @@ test('Change boot disk', async ({ page }) => {
 
   // assert disk-1 is boot disk, disk-2 also there
   const bootDiskTable = page.getByRole('table', { name: 'Boot disk' })
-  const otherDisksTable = page.getByRole('table', { name: 'Other disks' })
+  const otherDisksTable = page.getByRole('table', { name: 'Additional disks' })
   const confirm = page.getByRole('button', { name: 'Confirm' })
   const noBootDisk = page.getByText('No boot disk set')
   const noOtherDisks = page.getByText('No other disks')

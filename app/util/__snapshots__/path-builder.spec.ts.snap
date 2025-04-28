@@ -2,6 +2,70 @@
 
 exports[`breadcrumbs 2`] = `
 {
+  "affinity (/projects/p/affinity)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Affinity Groups",
+      "path": "/projects/p/affinity",
+    },
+  ],
+  "affinityNew (/projects/p/affinity-new)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Affinity Groups",
+      "path": "/projects/p/",
+    },
+  ],
+  "antiAffinityGroup (/projects/p/affinity/aag)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Affinity Groups",
+      "path": "/projects/p/affinity",
+    },
+    {
+      "label": "aag",
+      "path": "/projects/p/affinity/aag",
+    },
+  ],
+  "antiAffinityGroupEdit (/projects/p/affinity/aag/edit)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Affinity Groups",
+      "path": "/projects/p/affinity",
+    },
+    {
+      "label": "aag",
+      "path": "/projects/p/affinity/aag",
+    },
+  ],
   "deviceSuccess (/device/success)": [],
   "diskInventory (/system/inventory/disks)": [
     {
@@ -148,38 +212,8 @@ exports[`breadcrumbs 2`] = `
       "label": "Metrics",
       "path": "/projects/p/instances/i/metrics",
     },
-    {
-      "label": "CPU",
-      "path": "/projects/p/instances/i/metrics/cpu",
-    },
   ],
   "instanceDiskMetrics (/projects/p/instances/i/metrics/disk)": [
-    {
-      "label": "Projects",
-      "path": "/projects",
-    },
-    {
-      "label": "p",
-      "path": "/projects/p/instances",
-    },
-    {
-      "label": "Instances",
-      "path": "/projects/p/instances",
-    },
-    {
-      "label": "i",
-      "path": "/projects/p/instances/i/storage",
-    },
-    {
-      "label": "Metrics",
-      "path": "/projects/p/instances/i/metrics",
-    },
-    {
-      "label": "Disk",
-      "path": "/projects/p/instances/i/metrics/disk",
-    },
-  ],
-  "instanceMetrics (/projects/p/instances/i/metrics)": [
     {
       "label": "Projects",
       "path": "/projects",
@@ -221,10 +255,6 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "Metrics",
       "path": "/projects/p/instances/i/metrics",
-    },
-    {
-      "label": "Network",
-      "path": "/projects/p/instances/i/metrics/network",
     },
   ],
   "instanceNetworking (/projects/p/instances/i/networking)": [
@@ -401,7 +431,7 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/instances",
     },
     {
-      "label": "Access",
+      "label": "Project Access",
       "path": "/projects/p/access",
     },
   ],
@@ -509,7 +539,7 @@ exports[`breadcrumbs 2`] = `
   ],
   "siloAccess (/access)": [
     {
-      "label": "Access",
+      "label": "Silo Access",
       "path": "/access",
     },
   ],
@@ -561,24 +591,6 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "Silos",
       "path": "/system/silos",
-    },
-  ],
-  "sled (/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances)": [
-    {
-      "label": "Inventory",
-      "path": "/system/inventory",
-    },
-    {
-      "label": "Sleds",
-      "path": "/system/inventory/sleds",
-    },
-    {
-      "label": "5c56b…ec3e0",
-      "path": "/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances",
-    },
-    {
-      "label": "Instances",
-      "path": "/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances",
     },
   ],
   "sledInstances (/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances)": [

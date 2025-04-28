@@ -71,7 +71,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-export const handle = { crumb: 'Access' }
+export const handle = { crumb: 'Project Access' }
 
 type UserRow = {
   id: string
@@ -145,7 +145,7 @@ export default function ProjectAccessPage() {
             Role
             <TipIcon className="ml-2">
               A user or group&apos;s effective role for this project is the strongest role
-              on either the silo or project.
+              on either the silo or project
             </TipIcon>
           </span>
         ),
@@ -204,7 +204,7 @@ export default function ProjectAccessPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Access24Icon />}>Access</PageTitle>
+        <PageTitle icon={<Access24Icon />}>Project Access</PageTitle>
         <DocsPopover
           heading="access"
           icon={<Access16Icon />}

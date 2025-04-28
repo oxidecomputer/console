@@ -202,6 +202,11 @@ test('firewall rule form targets table', async ({ page }) => {
   await subnetNameField.fill('abc-123')
   // hit enter to submit the subform
   await subnetNameField.press('Enter')
+
+  // pressing enter twice here in quick succession causes test flake in firefox
+  // specifically and this fixes it
+  await sleep(300)
+
   await subnetNameField.press('Enter')
   await expectRowVisible(targets, { Type: 'subnet', Value: 'abc-123' })
 
@@ -615,10 +620,10 @@ test('arbitrary values combobox', async ({ page }) => {
   const input = page.getByRole('combobox', { name: 'Instance name' })
 
   await input.focus()
-  await expectOptions(page, ['db1', 'you-fail', 'not-there-yet'])
+  await expectOptions(page, ['db1', 'you-fail', 'not-there-yet', 'db2'])
 
   await input.fill('d')
-  await expectOptions(page, ['db1', 'Custom: d'])
+  await expectOptions(page, ['db1', 'db2', 'Custom: d'])
 
   await input.blur()
   await expect(page.getByRole('option')).toBeHidden()
@@ -627,7 +632,7 @@ test('arbitrary values combobox', async ({ page }) => {
   await input.focus()
 
   // same options show up after blur (there was a bug around this)
-  await expectOptions(page, ['db1', 'Custom: d'])
+  await expectOptions(page, ['db1', 'db2', 'Custom: d'])
 })
 
 test("esc in combobox doesn't close form", async ({ page }) => {

@@ -38,8 +38,6 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 // out here so we don't have to memoize it
 const groupByAttachedInstanceId = { cols: ['attached_instance_id'], op: 'sum' } as const
 
-export const handle = { crumb: 'Disk' }
-
 export default function DiskMetricsTab() {
   const { project, instance } = useInstanceSelector()
   const { data: disks } = usePrefetchedApiQuery('instanceDiskList', {
@@ -52,7 +50,7 @@ export default function DiskMetricsTab() {
   })
   if (disks.items.length === 0) {
     return (
-      <TableEmptyBox>
+      <TableEmptyBox border={false}>
         <EmptyMessage
           icon={<Storage24Icon />}
           title="No disk metrics available"
@@ -116,14 +114,12 @@ function DiskMetrics({ disks, instance }: { disks: Disk[]; instance: Instance })
         <MetricRow>
           <OxqlMetric
             title="Disk Reads"
-            description="Total number of read operations from the disk"
             metricName="virtual_disk:reads"
             unit="Count"
             {...queryBase}
           />
           <OxqlMetric
             title="Disk Writes"
-            description="Total number of write operations to the disk"
             metricName="virtual_disk:writes"
             unit="Count"
             {...queryBase}
@@ -133,14 +129,12 @@ function DiskMetrics({ disks, instance }: { disks: Disk[]; instance: Instance })
         <MetricRow>
           <OxqlMetric
             title="Bytes Read"
-            description="Number of bytes read from the disk"
             metricName="virtual_disk:bytes_read"
             unit="Bytes"
             {...queryBase}
           />
           <OxqlMetric
             title="Bytes Written"
-            description="Number of bytes written to the disk"
             metricName="virtual_disk:bytes_written"
             unit="Bytes"
             {...queryBase}
@@ -150,7 +144,6 @@ function DiskMetrics({ disks, instance }: { disks: Disk[]; instance: Instance })
         <MetricRow>
           <OxqlMetric
             title="Disk Flushes"
-            description="Total number of flush operations on the disk"
             metricName="virtual_disk:flushes"
             unit="Count"
             {...queryBase}

@@ -62,7 +62,7 @@ export async function clientLoader() {
   return null
 }
 
-export const handle = { crumb: 'Access' }
+export const handle = { crumb: 'Silo Access' }
 
 type UserRow = {
   id: string
@@ -165,7 +165,7 @@ export default function SiloAccessPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Access24Icon />}>Access</PageTitle>
+        <PageTitle icon={<Access24Icon />}>Silo Access</PageTitle>
         <DocsPopover
           heading="access"
           icon={<Access16Icon />}

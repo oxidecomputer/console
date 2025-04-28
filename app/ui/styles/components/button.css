@@ -9,6 +9,9 @@
 .ox-button {
   @apply relative;
 }
+.active-clicked:active:not(.visually-disabled) {
+  @apply motion-safe:translate-y-px;
+}
 .ox-button:after {
   content: '';
   @apply absolute bottom-0 left-0 right-0 top-0 rounded border border-current opacity-[0.05];
@@ -22,7 +25,7 @@
 }
 
 .btn-secondary {
-  @apply text-default bg-secondary hover:bg-hover disabled:text-tertiary disabled:bg-secondary;
+  @apply text-default bg-secondary hover:bg-hover disabled:text-disabled disabled:bg-secondary;
 }
 .btn-secondary:disabled > .spinner,
 .btn-secondary.visually-disabled > .spinner {

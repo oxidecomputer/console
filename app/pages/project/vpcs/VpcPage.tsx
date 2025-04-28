@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMemo } from 'react'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import { apiq, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
@@ -17,6 +16,7 @@ import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { pb } from '~/util/path-builder'
@@ -46,33 +46,23 @@ export default function VpcPage() {
     },
   })
 
-  const actions = useMemo(
-    () => [
-      {
-        label: 'Edit',
-        onActivate() {
-          navigate(pb.vpcEdit(vpcSelector))
-        },
-      },
-      {
-        label: 'Delete',
-        onActivate: confirmDelete({
-          doDelete: () => deleteVpc({ path: { vpc: vpcName }, query: { project } }),
-          label: vpcName,
-        }),
-        className: 'destructive',
-      },
-    ],
-    [deleteVpc, navigate, project, vpcName, vpcSelector]
-  )
-
   return (
     <>
       <PageHeader>
         <PageTitle icon={<Networking24Icon />}>{vpc.name}</PageTitle>
         <div className="inline-flex gap-2">
           <VpcDocsPopover />
-          <MoreActionsMenu label="VPC actions" actions={actions} />
+          <MoreActionsMenu label="VPC actions">
+            <DropdownMenu.LinkItem to={pb.vpcEdit(vpcSelector)}>Edit</DropdownMenu.LinkItem>
+            <DropdownMenu.Item
+              label="Delete"
+              onSelect={confirmDelete({
+                doDelete: () => deleteVpc({ path: { vpc: vpcName }, query: { project } }),
+                label: vpcName,
+              })}
+              className="destructive"
+            />
+          </MoreActionsMenu>
         </div>
       </PageHeader>
       <PropertiesTable columns={2} className="-mt-8 mb-8">

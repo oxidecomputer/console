@@ -730,9 +730,9 @@ const AdvancedAccordion = ({
         </div>
 
         <div className="flex flex-1 flex-col gap-4">
-          <h2 className="text-sans-md">
+          <h2 className="flex items-center text-sans-md">
             Ephemeral IP{' '}
-            <TipIcon>
+            <TipIcon className="ml-1.5">
               Ephemeral IPs are allocated when the instance is created and deallocated when
               it is deleted
             </TipIcon>
@@ -775,11 +775,11 @@ const AdvancedAccordion = ({
         </div>
 
         <div className="flex flex-1 flex-col gap-4">
-          <h2 className="text-sans-md">
+          <h2 className="flex items-center text-sans-md">
             Floating IPs{' '}
-            <TipIcon>
+            <TipIcon className="ml-1.5">
               Floating IPs exist independently of instances and can be attached to and
-              detached from them as needed.
+              detached from them as needed
             </TipIcon>
           </h2>
           {isFloatingIpAttached && (

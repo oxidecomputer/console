@@ -36,17 +36,20 @@ export const DocsPopoverLink = ({ href, linkText }: DocsPopoverLinkProps) => (
 )
 
 type DocsPopoverProps = {
-  heading: React.ReactNode
+  heading: string
   icon: JSX.Element
   links: Array<DocsPopoverLinkProps>
   summary: string
 }
 
 export const DocsPopover = ({ heading, icon, summary, links }: DocsPopoverProps) => {
+  const title = `Learn about ${heading}`
   return (
     <Popover>
-      <PopoverButton className={cn(buttonStyle({ size: 'sm', variant: 'ghost' }), 'w-8')}>
-        <Info16Icon aria-label="Links to docs" className="shrink-0" />
+      <PopoverButton title={title}>
+        <div className={cn(buttonStyle({ size: 'sm', variant: 'ghost' }), 'w-8')}>
+          <Info16Icon aria-hidden className="shrink-0" />
+        </div>
       </PopoverButton>
       <PopoverPanel
         // popover-panel needed for enter animation
@@ -56,7 +59,7 @@ export const DocsPopover = ({ heading, icon, summary, links }: DocsPopoverProps)
         <div className="px-4">
           <h2 className="mt-4 flex items-center gap-1 text-sans-md">
             <div className="mr-1 flex items-center text-accent-secondary">{icon}</div>
-            Learn about {heading}
+            {title}
           </h2>
           <p className="mb-3 mt-2 text-sans-md text-default">{summary}</p>
         </div>

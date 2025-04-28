@@ -16,6 +16,8 @@ import { pb } from './path-builder'
 
 // params can be the same for all of them because they only use what they need
 const params = {
+  affinityGroup: 'ag',
+  antiAffinityGroup: 'aag',
   floatingIp: 'f',
   gateway: 'g',
   project: 'p',
@@ -39,6 +41,10 @@ test('path builder', () => {
   expect(Object.fromEntries(Object.entries(pb).map(([key, fn]) => [key, fn(params)])))
     .toMatchInlineSnapshot(`
       {
+        "affinity": "/projects/p/affinity",
+        "affinityNew": "/projects/p/affinity-new",
+        "antiAffinityGroup": "/projects/p/affinity/aag",
+        "antiAffinityGroupEdit": "/projects/p/affinity/aag/edit",
         "deviceSuccess": "/device/success",
         "diskInventory": "/system/inventory/disks",
         "disks": "/projects/p/disks",
@@ -50,7 +56,6 @@ test('path builder', () => {
         "instanceConnect": "/projects/p/instances/i/connect",
         "instanceCpuMetrics": "/projects/p/instances/i/metrics/cpu",
         "instanceDiskMetrics": "/projects/p/instances/i/metrics/disk",
-        "instanceMetrics": "/projects/p/instances/i/metrics",
         "instanceNetworkMetrics": "/projects/p/instances/i/metrics/network",
         "instanceNetworking": "/projects/p/instances/i/networking",
         "instanceSettings": "/projects/p/instances/i/settings",
@@ -82,7 +87,6 @@ test('path builder', () => {
         "siloUtilization": "/utilization",
         "silos": "/system/silos",
         "silosNew": "/system/silos-new",
-        "sled": "/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances",
         "sledInstances": "/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances",
         "sledInventory": "/system/inventory/sleds",
         "snapshotImagesNew": "/projects/p/snapshots/sn/images-new",
@@ -119,11 +123,13 @@ test('path builder', () => {
 const getMatches = (pathname: string) =>
   Promise.all(
     matchRoutes(routes, pathname)!.map(async (m) => {
+      // lazy can also be an object as of RR 7.5, but we never use it that way
+      const lazy = typeof m.route.lazy === 'function' ? m.route.lazy : undefined
       // As we convert route modules to RR framework mode with lazy imports,
       // more and more of the routes will have their handles defined inside the
       // route module. We need to call the lazy function to import the module
       // contents and fill out the route object with it.
-      const route = { ...m.route, ...(await m.route.lazy?.()) }
+      const route = { ...m.route, ...(await lazy?.()) }
       return {
         pathname: m.pathname,
         params: m.params,

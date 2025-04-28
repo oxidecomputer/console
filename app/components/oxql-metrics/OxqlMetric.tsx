@@ -11,20 +11,21 @@
  * https://github.com/oxidecomputer/omicron/tree/main/oximeter/oximeter/schema
  */
 
-import { Children, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { Children, useMemo, useState, type ReactNode } from 'react'
 import type { LoaderFunctionArgs } from 'react-router'
 
-import { apiQueryClient, useApiQuery } from '@oxide/api'
+import { apiq, OXQL_GROUP_BY_ERROR, queryClient } from '@oxide/api'
 
 import { CopyCodeModal } from '~/components/CopyCode'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
-import { getInstanceSelector } from '~/hooks/use-params'
-import { useMetricsContext } from '~/pages/project/instances/common'
-import { LearnMore } from '~/ui/lib/SettingsGroup'
+import { getInstanceSelector, useProjectSelector } from '~/hooks/use-params'
+import { LearnMore } from '~/ui/lib/CardBlock'
+import * as Dropdown from '~/ui/lib/DropdownMenu'
 import { classed } from '~/util/classed'
 import { links } from '~/util/links'
 
-import { TimeSeriesChart } from '../TimeSeriesChart'
+import { ChartContainer, ChartHeader, TimeSeriesChart } from '../TimeSeriesChart'
 import { HighlightedOxqlQuery, toOxqlStr } from './HighlightedOxqlQuery'
 import {
   composeOxqlData,
@@ -36,10 +37,9 @@ import {
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
-  await apiQueryClient.prefetchQuery('instanceView', {
-    path: { instance },
-    query: { project },
-  })
+  await queryClient.prefetchQuery(
+    apiq('instanceView', { path: { instance }, query: { project } })
+  )
   return null
 }
 
@@ -50,23 +50,34 @@ export type OxqlMetricProps = OxqlQuery & {
 }
 
 export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetricProps) {
-  // only start reloading data once an intial dataset has been loaded
-  const { setIsIntervalPickerEnabled } = useMetricsContext()
   const query = toOxqlStr(queryObj)
-  const { data: metrics, error } = useApiQuery(
-    'systemTimeseriesQuery',
-    { body: { query } }
+  const { project } = useProjectSelector()
+  const {
+    data: metrics,
+    error,
+    isLoading,
+  } = useQuery(
+    apiq('timeseriesQuery', { body: { query }, query: { project } })
     // avoid graphs flashing blank while loading when you change the time
     // { placeholderData: (x) => x }
   )
-  useEffect(() => {
-    if (metrics) {
-      // this is too slow right now; disabling until we can make it faster
-      // setIsIntervalPickerEnabled(true)
-    }
-  }, [metrics, setIsIntervalPickerEnabled])
+
+  // HACK: omicron has a bug where it blows up on an attempt to group by on
+  // empty result set because it can't determine whether the data is aligned.
+  // Most likely it should consider empty data sets trivially aligned and just
+  // flow the emptiness on through, but in the meantime we have to detect
+  // this error and pretend it is not an error.
+  // See https://github.com/oxidecomputer/omicron/issues/7715
+  const errorMeansEmpty = error?.message === OXQL_GROUP_BY_ERROR
+  const hasError = !!error && !errorMeansEmpty
+
   const { startTime, endTime } = queryObj
-  const { chartData, timeseriesCount } = useMemo(() => composeOxqlData(metrics), [metrics])
+  const { chartData, timeseriesCount } = useMemo(
+    () =>
+      errorMeansEmpty ? { chartData: [], timeseriesCount: 0 } : composeOxqlData(metrics),
+    [metrics, errorMeansEmpty]
+  )
+
   const { data, label, unitForSet, yAxisTickFormatter } = useMemo(() => {
     if (unit === 'Bytes') return getBytesChartProps(chartData)
     if (unit === 'Count') return getCountChartProps(chartData)
@@ -76,32 +87,14 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
   const [modalOpen, setModalOpen] = useState(false)
 
   return (
-    <div className="flex w-full grow flex-col rounded-lg border border-default">
-      <div className="flex items-center justify-between border-b px-6 py-5 border-secondary">
-        <div>
-          <h2 className="flex items-baseline gap-1.5">
-            <div className="text-sans-semi-lg">{title}</div>
-            <div className="text-sans-md text-secondary">{label}</div>
-          </h2>
-          <div className="mt-0.5 text-sans-md text-secondary">{description}</div>
-        </div>
-        <MoreActionsMenu
-          label="Instance actions"
-          actions={[
-            {
-              label: 'About metric',
-              onActivate: () => {
-                const url = links.oxqlSchemaDocs(queryObj.metricName)
-                window.open(url, '_blank', 'noopener,noreferrer')
-              },
-            },
-            {
-              label: 'View OxQL query',
-              onActivate: () => setModalOpen(true),
-            },
-          ]}
-          isSmall
-        />
+    <ChartContainer>
+      <ChartHeader title={title} label={label} description={description}>
+        <MoreActionsMenu label="Instance actions" isSmall>
+          <Dropdown.LinkItem to={links.oxqlSchemaDocs(queryObj.metricName)}>
+            About this metric
+          </Dropdown.LinkItem>
+          <Dropdown.Item onSelect={() => setModalOpen(true)} label="View OxQL query" />
+        </MoreActionsMenu>
         <CopyCodeModal
           isOpen={modalOpen}
           onDismiss={() => setModalOpen(false)}
@@ -112,22 +105,19 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
         >
           <HighlightedOxqlQuery {...queryObj} />
         </CopyCodeModal>
-      </div>
-      <div className="px-6 py-5 pt-8">
-        <TimeSeriesChart
-          title={title}
-          startTime={startTime}
-          endTime={endTime}
-          unit={unitForSet}
-          data={data}
-          yAxisTickFormatter={yAxisTickFormatter}
-          width={480}
-          height={240}
-          hasBorder={false}
-          hasError={!!error}
-        />
-      </div>
-    </div>
+      </ChartHeader>
+      <TimeSeriesChart
+        title={title}
+        startTime={startTime}
+        endTime={endTime}
+        unit={unitForSet}
+        data={data}
+        yAxisTickFormatter={yAxisTickFormatter}
+        hasError={hasError}
+        // isLoading only covers first load --- future-proof against the reintroduction of interval refresh
+        loading={isLoading}
+      />
+    </ChartContainer>
   )
 }
 

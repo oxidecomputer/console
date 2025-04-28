@@ -65,7 +65,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
             state.isOpen && 'z-10 ring-2',
             'relative flex h-11 items-center rounded-l rounded-r border text-sans-md border-default focus-within:ring-2 hover:border-raise focus:z-10',
             state.isInvalid
-              ? 'focus-error border-error ring-error-secondary'
+              ? 'focus-error border-error ring-error-secondary hover:border-error'
               : 'border-default ring-accent-secondary'
           )}
         >
@@ -82,32 +82,35 @@ export function DateRangePicker(props: DateRangePickerProps) {
           </div>
         </button>
       </div>
-      {state.isInvalid && (
-        <p {...errorMessageProps} className="py-2 text-sans-md text-error">
-          Date range is invalid
-        </p>
-      )}
       {state.isOpen && (
         <Popover triggerRef={ref} state={state} placement="bottom start">
           <Dialog {...dialogProps}>
             <RangeCalendar {...calendarProps} />
-            <div className="flex items-center space-x-2 border-t p-4 border-t-secondary">
-              <TimeField
-                label="Start time"
-                value={state.timeRange?.start || null}
-                onChange={(v) => state.setTime('start', v)}
-                hourCycle={24}
-                className="shrink-0 grow basis-0"
-              />
-              <div className="text-quaternary">–</div>
-              <TimeField
-                label="End time"
-                value={state.timeRange?.end || null}
-                onChange={(v) => state.setTime('end', v)}
-                hourCycle={24}
-                className="shrink-0 grow basis-0"
-              />
+            <div className="flex flex-col items-center gap-3 border-t p-4 border-t-secondary">
+              <div className="flex w-full items-center space-x-2">
+                <TimeField
+                  label="Start time"
+                  value={state.timeRange?.start || null}
+                  onChange={(v) => state.setTime('start', v)}
+                  hourCycle={24}
+                  className="shrink-0 grow basis-0"
+                />
+                <div className="text-quaternary">–</div>
+                <TimeField
+                  label="End time"
+                  value={state.timeRange?.end || null}
+                  onChange={(v) => state.setTime('end', v)}
+                  hourCycle={24}
+                  className="shrink-0 grow basis-0"
+                />
+              </div>
+              {state.isInvalid && (
+                <p {...errorMessageProps} className="text-sans-md text-error">
+                  Date range is invalid
+                </p>
+              )}
             </div>
+            <div className="flex items-center justify-center space-x-2 px-4 border-t-secondary"></div>
           </Dialog>
         </Popover>
       )}
