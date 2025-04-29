@@ -46,17 +46,17 @@ export function DisksTableField({
   return (
     <>
       <div className="max-w-lg">
-        {!!items.length && (
-          <MiniTable.Table className="mb-4" aria-label="Disks">
-            <MiniTable.Header>
-              <MiniTable.HeadCell>Name</MiniTable.HeadCell>
-              <MiniTable.HeadCell>Type</MiniTable.HeadCell>
-              <MiniTable.HeadCell>Size</MiniTable.HeadCell>
-              {/* For remove button */}
-              <MiniTable.HeadCell className="w-12" />
-            </MiniTable.Header>
-            <MiniTable.Body>
-              {items.map((item, index) => (
+        <MiniTable.Table className="mb-4" aria-label="Disks">
+          <MiniTable.Header>
+            <MiniTable.HeadCell>Name</MiniTable.HeadCell>
+            <MiniTable.HeadCell>Type</MiniTable.HeadCell>
+            <MiniTable.HeadCell>Size</MiniTable.HeadCell>
+            {/* For remove button */}
+            <MiniTable.HeadCell className="w-12" />
+          </MiniTable.Header>
+          <MiniTable.Body>
+            {items.length ? (
+              items.map((item, index) => (
                 <MiniTable.Row
                   tabIndex={0}
                   aria-rowindex={index + 1}
@@ -84,10 +84,16 @@ export function DisksTableField({
                     label={`remove disk ${item.name}`}
                   />
                 </MiniTable.Row>
-              ))}
-            </MiniTable.Body>
-          </MiniTable.Table>
-        )}
+              ))
+            ) : (
+              <MiniTable.EmptyRow
+                title="No Disks"
+                body="Add a disk to see it here"
+                columnCount={4}
+              />
+            )}
+          </MiniTable.Body>
+        </MiniTable.Table>
 
         <div className="space-x-3">
           <Button size="sm" onClick={() => setShowDiskCreate(true)} disabled={disabled}>
