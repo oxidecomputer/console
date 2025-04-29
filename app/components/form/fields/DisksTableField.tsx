@@ -86,8 +86,8 @@ export function DisksTableField({
                 </MiniTable.Row>
               ))
             ) : (
-              <MiniTable.EmptyRow
-                title="No Disks"
+              <MiniTable.EmptyState
+                title="No disks"
                 body="Add a disk to see it here"
                 columnCount={4}
               />
