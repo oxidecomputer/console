@@ -122,8 +122,9 @@ export function AntiAffinityCard() {
     [instance, project, removeMember]
   )
 
-  const antiAffinityCols = useColsWithActions(
-    [
+  // has to be memoized to avoid extra renders on instance poll closing the menu
+  const cols = useMemo(
+    () => [
       colHelper.accessor('name', {
         cell: makeLinkCell((antiAffinityGroup) =>
           pb.antiAffinityGroup({ project, antiAffinityGroup })
@@ -131,14 +132,13 @@ export function AntiAffinityCard() {
       }),
       ...staticCols,
     ],
-    makeActions,
-    'Copy group ID'
+    [project]
   )
 
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const antiAffinityTable = useReactTable({
-    columns: antiAffinityCols,
+    columns: useColsWithActions(cols, makeActions, 'Copy group ID'),
     data: memberGroups.items,
     getCoreRowModel: getCoreRowModel(),
   })
