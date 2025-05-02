@@ -1501,6 +1501,22 @@ export const Error = z.preprocess(
   z.object({ errorCode: z.string().optional(), message: z.string(), requestId: z.string() })
 )
 
+/**
+ * A webhook event class.
+ */
+export const EventClass = z.preprocess(
+  processResponseBody,
+  z.object({ description: z.string(), name: z.string() })
+)
+
+/**
+ * A single page of results
+ */
+export const EventClassResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: EventClass.array(), nextPage: z.string().nullable().optional() })
+)
+
 export const ExternalIp = z.preprocess(
   processResponseBody,
   z.union([
@@ -2029,6 +2045,15 @@ export const InstanceUpdate = z.preprocess(
   })
 )
 
+export const InterfaceNum = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ unknown: z.number().min(0).max(4294967295) }),
+    z.object({ ifIndex: z.number().min(0).max(4294967295) }),
+    z.object({ portNumber: z.number().min(0).max(4294967295) }),
+  ])
+)
+
 /**
  * An internet gateway provides a path between VPC networks and external networks.
  */
@@ -2364,6 +2389,23 @@ export const LldpLinkConfig = z.preprocess(
   })
 )
 
+export const NetworkAddress = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ ipAddr: z.string().ip() }),
+    z.object({ iEEE802: z.number().min(0).max(255).array() }),
+  ])
+)
+
+export const ManagementAddress = z.preprocess(
+  processResponseBody,
+  z.object({
+    addr: NetworkAddress,
+    interfaceNum: InterfaceNum,
+    oid: z.number().min(0).max(255).array().optional(),
+  })
+)
+
 /**
  * Information about LLDP advertisements from other network entities directly connected to a switch port.  This structure contains both metadata about when and where the neighbor was seen, as well as the specific information the neighbor was advertising.
  */
@@ -2376,7 +2418,7 @@ export const LldpNeighbor = z.preprocess(
     linkDescription: z.string().nullable().optional(),
     linkName: z.string(),
     localPort: z.string(),
-    managementIp: IpNet.array(),
+    managementIp: ManagementAddress.array(),
     systemDescription: z.string().nullable().optional(),
     systemName: z.string().nullable().optional(),
   })
@@ -3709,6 +3751,16 @@ export const TimeseriesSchemaResultsPage = z.preprocess(
   z.object({ items: TimeseriesSchema.array(), nextPage: z.string().nullable().optional() })
 )
 
+export const TypedUuidForWebhookEventKind = z.preprocess(
+  processResponseBody,
+  z.string().uuid()
+)
+
+export const TypedUuidForWebhookReceiverKind = z.preprocess(
+  processResponseBody,
+  z.string().uuid()
+)
+
 /**
  * A sled that has not been added to an initialized rack yet
  */
@@ -4094,6 +4146,183 @@ export const VpcUpdate = z.preprocess(
 )
 
 /**
+ * A webhook event class subscription
+ *
+ * A webhook event class subscription matches either a single event class exactly, or a glob pattern including wildcards that may match multiple event classes
+ */
+export const WebhookSubscription = z.preprocess(
+  processResponseBody,
+  z.string().regex(/^([a-zA-Z0-9_]+|\*|\*\*)(\.([a-zA-Z0-9_]+|\*|\*\*))*$/)
+)
+
+/**
+ * Create-time identity-related parameters
+ */
+export const WebhookCreate = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    endpoint: z.string(),
+    name: Name,
+    secrets: z.string().array(),
+    subscriptions: WebhookSubscription.array().default([]).optional(),
+  })
+)
+
+/**
+ * The response received from a webhook receiver endpoint.
+ */
+export const WebhookDeliveryResponse = z.preprocess(
+  processResponseBody,
+  z.object({ durationMs: z.number().min(0), status: z.number().min(0).max(65535) })
+)
+
+export const WebhookDeliveryAttemptResult = z.preprocess(
+  processResponseBody,
+  z.enum(['succeeded', 'failed_http_error', 'failed_unreachable', 'failed_timeout'])
+)
+
+/**
+ * An individual delivery attempt for a webhook event.
+ *
+ * This represents a single HTTP request that was sent to the receiver, and its outcome.
+ */
+export const WebhookDeliveryAttempt = z.preprocess(
+  processResponseBody,
+  z.object({
+    attempt: z.number().min(0),
+    response: WebhookDeliveryResponse.nullable().optional(),
+    result: WebhookDeliveryAttemptResult,
+    timeSent: z.coerce.date(),
+  })
+)
+
+/**
+ * The state of a webhook delivery attempt.
+ */
+export const WebhookDeliveryState = z.preprocess(
+  processResponseBody,
+  z.enum(['pending', 'delivered', 'failed'])
+)
+
+/**
+ * The reason a webhook event was delivered
+ */
+export const WebhookDeliveryTrigger = z.preprocess(
+  processResponseBody,
+  z.enum(['event', 'resend', 'probe'])
+)
+
+/**
+ * A delivery of a webhook event.
+ */
+export const WebhookDelivery = z.preprocess(
+  processResponseBody,
+  z.object({
+    attempts: WebhookDeliveryAttempt.array(),
+    eventClass: z.string(),
+    eventId: TypedUuidForWebhookEventKind,
+    id: z.string().uuid(),
+    state: WebhookDeliveryState,
+    timeStarted: z.coerce.date(),
+    trigger: WebhookDeliveryTrigger,
+    webhookId: TypedUuidForWebhookReceiverKind,
+  })
+)
+
+export const WebhookDeliveryId = z.preprocess(
+  processResponseBody,
+  z.object({ deliveryId: z.string().uuid() })
+)
+
+/**
+ * A single page of results
+ */
+export const WebhookDeliveryResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: WebhookDelivery.array(), nextPage: z.string().nullable().optional() })
+)
+
+/**
+ * Data describing the result of a webhook liveness probe attempt.
+ */
+export const WebhookProbeResult = z.preprocess(
+  processResponseBody,
+  z.object({
+    probe: WebhookDelivery,
+    resendsStarted: z.number().min(0).nullable().optional(),
+  })
+)
+
+/**
+ * The public ID of a secret key assigned to a webhook.
+ */
+export const WebhookSecretId = z.preprocess(
+  processResponseBody,
+  z.object({ id: z.string().uuid() })
+)
+
+/**
+ * The configuration for a webhook.
+ */
+export const WebhookReceiver = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    endpoint: z.string(),
+    id: z.string().uuid(),
+    name: Name,
+    secrets: WebhookSecretId.array(),
+    subscriptions: WebhookSubscription.array(),
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const WebhookReceiverResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: WebhookReceiver.array(), nextPage: z.string().nullable().optional() })
+)
+
+/**
+ * Parameters to update a webhook configuration.
+ */
+export const WebhookReceiverUpdate = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string().nullable().optional(),
+    endpoint: z.string().nullable().optional(),
+    name: Name.nullable().optional(),
+  })
+)
+
+export const WebhookSecretCreate = z.preprocess(
+  processResponseBody,
+  z.object({ secret: z.string() })
+)
+
+/**
+ * A list of the IDs of secrets associated with a webhook.
+ */
+export const WebhookSecrets = z.preprocess(
+  processResponseBody,
+  z.object({ secrets: WebhookSecretId.array() })
+)
+
+export const WebhookSubscriptionCreate = z.preprocess(
+  processResponseBody,
+  z.object({ subscription: WebhookSubscription })
+)
+
+export const WebhookSubscriptionCreated = z.preprocess(
+  processResponseBody,
+  z.object({ subscription: WebhookSubscription })
+)
+
+/**
  * Supported set of sort modes for scanning by name or id
  */
 export const NameOrIdSortMode = z.preprocess(
@@ -4132,6 +4361,14 @@ export const SystemMetricName = z.preprocess(
  * Currently, we only support scanning in ascending order.
  */
 export const NameSortMode = z.preprocess(processResponseBody, z.enum(['name_ascending']))
+
+/**
+ * Supported set of sort modes for scanning by timestamp and ID
+ */
+export const TimeAndIdSortMode = z.preprocess(
+  processResponseBody,
+  z.enum(['ascending', 'descending'])
+)
 
 export const DeviceAuthRequestParams = z.preprocess(
   processResponseBody,
@@ -6661,7 +6898,7 @@ export const VpcRouterRouteViewParams = z.preprocess(
     }),
     query: z.object({
       project: NameOrId.optional(),
-      router: NameOrId,
+      router: NameOrId.optional(),
       vpc: NameOrId.optional(),
     }),
   })
@@ -6895,5 +7132,158 @@ export const VpcDeleteParams = z.preprocess(
     query: z.object({
       project: NameOrId.optional(),
     }),
+  })
+)
+
+export const WebhookDeliveryListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      receiver: NameOrId,
+      delivered: SafeBoolean.nullable().optional(),
+      failed: SafeBoolean.nullable().optional(),
+      pending: SafeBoolean.nullable().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      sortBy: TimeAndIdSortMode.optional(),
+    }),
+  })
+)
+
+export const WebhookDeliveryResendParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      eventId: z.string().uuid(),
+    }),
+    query: z.object({
+      receiver: NameOrId,
+    }),
+  })
+)
+
+export const WebhookEventClassListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      filter: WebhookSubscription.optional(),
+    }),
+  })
+)
+
+export const WebhookReceiverListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const WebhookReceiverCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const WebhookReceiverViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      receiver: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const WebhookReceiverUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      receiver: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const WebhookReceiverDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      receiver: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const WebhookReceiverProbeParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      receiver: NameOrId,
+    }),
+    query: z.object({
+      resend: SafeBoolean.optional(),
+    }),
+  })
+)
+
+export const WebhookReceiverSubscriptionAddParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      receiver: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const WebhookReceiverSubscriptionRemoveParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      receiver: NameOrId,
+      subscription: WebhookSubscription,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const WebhookSecretsListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      receiver: NameOrId,
+    }),
+  })
+)
+
+export const WebhookSecretsAddParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      receiver: NameOrId,
+    }),
+  })
+)
+
+export const WebhookSecretsDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      secretId: z.string().uuid(),
+    }),
+    query: z.object({}),
   })
 )
