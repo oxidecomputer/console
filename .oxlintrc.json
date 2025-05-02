@@ -9,7 +9,7 @@
     "oxc"
   ],
   "categories": {
-    "correctness": "error",
+    "correctness": "error"
   },
   "rules": {
     // only worry about console.log
