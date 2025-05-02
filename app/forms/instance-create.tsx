@@ -905,13 +905,11 @@ const PRESETS = [
   { category: 'general', id: 'general-sm', memory: 16, ncpus: 4 },
   { category: 'general', id: 'general-md', memory: 32, ncpus: 8 },
   { category: 'general', id: 'general-lg', memory: 64, ncpus: 16 },
-  { category: 'general', id: 'general-xl', memory: 128, ncpus: 32 },
 
   { category: 'highCPU', id: 'highCPU-xs', memory: 4, ncpus: 2 },
   { category: 'highCPU', id: 'highCPU-sm', memory: 8, ncpus: 4 },
   { category: 'highCPU', id: 'highCPU-md', memory: 16, ncpus: 8 },
   { category: 'highCPU', id: 'highCPU-lg', memory: 32, ncpus: 16 },
-  { category: 'highCPU', id: 'highCPU-xl', memory: 64, ncpus: 32 },
 
   { category: 'highMemory', id: 'highMemory-xs', memory: 16, ncpus: 2 },
   { category: 'highMemory', id: 'highMemory-sm', memory: 32, ncpus: 4 },
