@@ -392,6 +392,7 @@ test('maintains selected values even when changing tabs', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   const imageSelectCombobox = page.getByRole('combobox', { name: 'Image' })
+  await imageSelectCombobox.scrollIntoViewIfNeeded()
   // Filter the combobox for a particular silo image
   await imageSelectCombobox.fill('arch')
   // select the image
