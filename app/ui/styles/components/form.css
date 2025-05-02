@@ -2,7 +2,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at https://mozilla.org/MPL/2.0/.
- *  
+ *
  * Copyright Oxide Computer Company
  */
 
@@ -22,10 +22,7 @@
   @apply space-y-6;
 }
 
-.ox-form.is-side-modal .ox-divider {
+.ox-form .ox-divider,
+.ox-form .ox-divider:not([hidden]) {
   @apply my-10;
-}
-
-.ox-form:not(.is-side-modal) .ox-divider {
-  @apply mb-16 mt-20;
 }
