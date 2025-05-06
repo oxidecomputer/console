@@ -14,7 +14,7 @@ import { pb } from '~/util/path-builder'
 import { EmptyCell, SkeletonCell } from './EmptyCell'
 import { LinkCell } from './LinkCell'
 
-export const InstanceLinkCell = ({ instanceId }: { instanceId?: string }) => {
+export const InstanceLinkCell = ({ instanceId }: { instanceId?: string | null }) => {
   const { project } = useProjectSelector()
   const { data: instance } = useApiQuery(
     'instanceView',

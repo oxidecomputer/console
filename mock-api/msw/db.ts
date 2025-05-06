@@ -54,8 +54,8 @@ function ensureNoParentSelectors(
   }
 }
 
-export const getIpFromPool = (poolName: string | undefined) => {
-  const pool = lookup.ipPool({ pool: poolName })
+export const getIpFromPool = (poolName: string | undefined | null) => {
+  const pool = lookup.ipPool({ pool: poolName || undefined })
   const ipPoolRange = db.ipPoolRanges.find((range) => range.ip_pool_id === pool.id)
   if (!ipPoolRange) throw notFoundErr(`IP range for pool '${poolName}'`)
 

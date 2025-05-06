@@ -32,7 +32,7 @@ export interface PaginationProps {
   pageSize: number
   hasNext: boolean
   hasPrev: boolean
-  nextPage: string | undefined
+  nextPage: string | undefined | null
   onNext: (nextPage: string) => void
   onPrev: () => void
   className?: string
