@@ -8,6 +8,7 @@
 
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import type { SetNonNullable } from 'type-fest'
 
 import {
   apiQueryClient,
@@ -96,7 +97,7 @@ function EditQuotasForm({ onDismiss }: { onDismiss: () => void }) {
   const quotas = utilization.allocated
 
   // required because we need to rule out undefined because NumberField hates that
-  const defaultValues: Required<SiloQuotasUpdate> = {
+  const defaultValues: SetNonNullable<Required<SiloQuotasUpdate>> = {
     cpus: quotas.cpus,
     memory: bytesToGiB(quotas.memory),
     storage: bytesToGiB(quotas.storage),
