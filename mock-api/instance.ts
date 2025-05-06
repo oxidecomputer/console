@@ -44,6 +44,7 @@ const failedInstance: Json<Instance> = {
   hostname: 'oxide.com',
   project_id: project.id,
   run_state: 'failed',
+  auto_restart_policy: null,
   auto_restart_cooldown_expiration: addMinutes(new Date(), 5).toISOString(), // 5 minutes from now
   time_last_auto_restarted: addMinutes(new Date(), -55).toISOString(), // 55 minutes ago
 }
