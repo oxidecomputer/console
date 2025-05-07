@@ -4536,9 +4536,16 @@ Note that this may be 0, if there were no events found which had not been delive
 }
 
 /**
- * The public ID of a secret key assigned to a webhook.
+ * A view of a shared secret key assigned to a webhook receiver.
+ *
+ * Once a secret is created, the value of the secret is not available in the API, as it must remain secret. Instead, secrets are referenced by their unique IDs assigned when they are created.
  */
-export type WebhookSecretId = { id: string }
+export type WebhookSecret = {
+  /** The public unique ID of the secret. */
+  id: string
+  /** The UTC timestamp at which this secret was created. */
+  timeCreated: Date
+}
 
 /**
  * The configuration for a webhook.
@@ -4552,7 +4559,7 @@ export type WebhookReceiver = {
   id: string
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
-  secrets: WebhookSecretId[]
+  secrets: WebhookSecret[]
   /** The list of event classes to which this receiver is subscribed. */
   subscriptions: WebhookSubscription[]
   /** timestamp when this resource was created */
@@ -4589,7 +4596,7 @@ export type WebhookSecretCreate = {
 /**
  * A list of the IDs of secrets associated with a webhook.
  */
-export type WebhookSecrets = { secrets: WebhookSecretId[] }
+export type WebhookSecrets = { secrets: WebhookSecret[] }
 
 export type WebhookSubscriptionCreate = {
   /** The event class pattern to subscribe to. */
@@ -10039,7 +10046,7 @@ export class Api extends HttpClient {
       { query, body }: { query: WebhookSecretsAddQueryParams; body: WebhookSecretCreate },
       params: FetchParams = {}
     ) => {
-      return this.request<WebhookSecretId>({
+      return this.request<WebhookSecret>({
         path: `/v1/webhooks/secrets`,
         method: 'POST',
         body,

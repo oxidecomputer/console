@@ -4255,11 +4255,13 @@ export const WebhookProbeResult = z.preprocess(
 )
 
 /**
- * The public ID of a secret key assigned to a webhook.
+ * A view of a shared secret key assigned to a webhook receiver.
+ *
+ * Once a secret is created, the value of the secret is not available in the API, as it must remain secret. Instead, secrets are referenced by their unique IDs assigned when they are created.
  */
-export const WebhookSecretId = z.preprocess(
+export const WebhookSecret = z.preprocess(
   processResponseBody,
-  z.object({ id: z.string().uuid() })
+  z.object({ id: z.string().uuid(), timeCreated: z.coerce.date() })
 )
 
 /**
@@ -4272,7 +4274,7 @@ export const WebhookReceiver = z.preprocess(
     endpoint: z.string(),
     id: z.string().uuid(),
     name: Name,
-    secrets: WebhookSecretId.array(),
+    secrets: WebhookSecret.array(),
     subscriptions: WebhookSubscription.array(),
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
@@ -4309,7 +4311,7 @@ export const WebhookSecretCreate = z.preprocess(
  */
 export const WebhookSecrets = z.preprocess(
   processResponseBody,
-  z.object({ secrets: WebhookSecretId.array() })
+  z.object({ secrets: WebhookSecret.array() })
 )
 
 export const WebhookSubscriptionCreate = z.preprocess(

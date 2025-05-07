@@ -1708,7 +1708,7 @@ export interface MSWHandlers {
     body: Json<Api.WebhookSecretCreate>
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.WebhookSecretId>>
+  }) => Promisable<HandlerResult<Api.WebhookSecret>>
   /** `DELETE /v1/webhooks/secrets/:secretId` */
   webhookSecretsDelete: (params: {
     path: Api.WebhookSecretsDeletePathParams
