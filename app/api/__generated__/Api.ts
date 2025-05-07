@@ -1569,8 +1569,28 @@ export type Distributionint64 = {
  * Parameters for creating an ephemeral IP address for an instance.
  */
 export type EphemeralIpCreate = {
-  /** Name or ID of the IP pool used to allocate an address */
+  /** Name or ID of the IP pool used to allocate an address. If unspecified, the default IP pool will be used. */
   pool?: NameOrId | null
+}
+
+/**
+ * A webhook event class.
+ */
+export type EventClass = {
+  /** A description of what this event class represents. */
+  description: string
+  /** The name of the event class. */
+  name: string
+}
+
+/**
+ * A single page of results
+ */
+export type EventClassResultsPage = {
+  /** list of items on this page of results */
+  items: EventClass[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
 }
 
 export type ExternalIp =
@@ -1602,7 +1622,7 @@ export type ExternalIp =
  * Parameters for creating an external IP address for instances.
  */
 export type ExternalIpCreate =
-  /** An IP address providing both inbound and outbound access. The address is automatically-assigned from the provided IP Pool, or the current silo's default pool if not specified. */
+  /** An IP address providing both inbound and outbound access. The address is automatically assigned from the provided IP pool or the default IP pool if not specified. */
   | { pool?: NameOrId | null; type: 'ephemeral' }
   /** An IP address providing both inbound and outbound access. The address is an existing floating IP object assigned to the current project.
 
@@ -2150,6 +2170,11 @@ If not provided, unset the instance's boot disk. */
   ncpus: InstanceCpuCount
 }
 
+export type InterfaceNum =
+  | { unknown: number }
+  | { ifIndex: number }
+  | { portNumber: number }
+
 /**
  * An internet gateway provides a path between VPC networks and external networks.
  */
@@ -2509,6 +2534,14 @@ export type LldpLinkConfig = {
   systemName?: string | null
 }
 
+export type NetworkAddress = { ipAddr: string } | { iEEE802: number[] }
+
+export type ManagementAddress = {
+  addr: NetworkAddress
+  interfaceNum: InterfaceNum
+  oid?: number[] | null
+}
+
 /**
  * Information about LLDP advertisements from other network entities directly connected to a switch port.  This structure contains both metadata about when and where the neighbor was seen, as well as the specific information the neighbor was advertising.
  */
@@ -2526,7 +2559,7 @@ export type LldpNeighbor = {
   /** The port on which the neighbor was seen */
   localPort: string
   /** The LLDP management IP(s) advertised by the neighbor */
-  managementIp: IpNet[]
+  managementIp: ManagementAddress[]
   /** The LLDP system description advertised by the neighbor */
   systemDescription?: string | null
   /** The LLDP system name advertised by the neighbor */
@@ -3977,6 +4010,10 @@ export type TimeseriesSchemaResultsPage = {
   nextPage?: string | null
 }
 
+export type TypedUuidForWebhookEventKind = string
+
+export type TypedUuidForWebhookReceiverKind = string
+
 /**
  * A sled that has not been added to an initialized rack yet
  */
@@ -4364,6 +4401,207 @@ export type VpcUpdate = {
 }
 
 /**
+ * A webhook event class subscription
+ *
+ * A webhook event class subscription matches either a single event class exactly, or a glob pattern including wildcards that may match multiple event classes
+ */
+export type WebhookSubscription = string
+
+/**
+ * Create-time identity-related parameters
+ */
+export type WebhookCreate = {
+  description: string
+  /** The URL that webhook notification requests should be sent to */
+  endpoint: string
+  name: Name
+  /** A non-empty list of secret keys used to sign webhook payloads. */
+  secrets: string[]
+  /** A list of webhook event class subscriptions.
+
+If this list is empty or is not included in the request body, the webhook will not be subscribed to any events. */
+  subscriptions?: WebhookSubscription[]
+}
+
+/**
+ * The response received from a webhook receiver endpoint.
+ */
+export type WebhookDeliveryResponse = {
+  /** The response time of the webhook endpoint, in milliseconds. */
+  durationMs: number
+  /** The HTTP status code returned from the webhook endpoint. */
+  status: number
+}
+
+export type WebhookDeliveryAttemptResult =
+  /** The webhook event has been delivered successfully. */
+  | 'succeeded'
+
+  /** A webhook request was sent to the endpoint, and it returned a HTTP error status code indicating an error. */
+  | 'failed_http_error'
+
+  /** The webhook request could not be sent to the receiver endpoint. */
+  | 'failed_unreachable'
+
+  /** A connection to the receiver endpoint was successfully established, but no response was received within the delivery timeout. */
+  | 'failed_timeout'
+
+/**
+ * An individual delivery attempt for a webhook event.
+ *
+ * This represents a single HTTP request that was sent to the receiver, and its outcome.
+ */
+export type WebhookDeliveryAttempt = {
+  /** The attempt number. */
+  attempt: number
+  response?: WebhookDeliveryResponse | null
+  /** The outcome of this delivery attempt: either the event was delivered successfully, or the request failed for one of several reasons. */
+  result: WebhookDeliveryAttemptResult
+  /** The time at which the webhook delivery was attempted. */
+  timeSent: Date
+}
+
+/**
+ * The state of a webhook delivery attempt.
+ */
+export type WebhookDeliveryState =
+  /** The webhook event has not yet been delivered successfully.
+
+Either no delivery attempts have yet been performed, or the delivery has failed at least once but has retries remaining. */
+  | 'pending'
+
+  /** The webhook event has been delivered successfully. */
+  | 'delivered'
+
+  /** The webhook delivery attempt has failed permanently and will not be retried again. */
+  | 'failed'
+
+/**
+ * The reason a webhook event was delivered
+ */
+export type WebhookDeliveryTrigger =
+  /** Delivery was triggered by the event occurring for the first time. */
+  | 'event'
+
+  /** Delivery was triggered by a request to resend the event. */
+  | 'resend'
+
+  /** This delivery is a liveness probe. */
+  | 'probe'
+
+/**
+ * A delivery of a webhook event.
+ */
+export type WebhookDelivery = {
+  /** Individual attempts to deliver this webhook event, and their outcomes. */
+  attempts: WebhookDeliveryAttempt[]
+  /** The event class. */
+  eventClass: string
+  /** The UUID of the event. */
+  eventId: TypedUuidForWebhookEventKind
+  /** The UUID of this delivery attempt. */
+  id: string
+  /** The state of this delivery. */
+  state: WebhookDeliveryState
+  /** The time at which this delivery began (i.e. the event was dispatched to the receiver). */
+  timeStarted: Date
+  /** Why this delivery was performed. */
+  trigger: WebhookDeliveryTrigger
+  /** The UUID of the webhook receiver that this event was delivered to. */
+  webhookId: TypedUuidForWebhookReceiverKind
+}
+
+export type WebhookDeliveryId = { deliveryId: string }
+
+/**
+ * A single page of results
+ */
+export type WebhookDeliveryResultsPage = {
+  /** list of items on this page of results */
+  items: WebhookDelivery[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
+ * Data describing the result of a webhook liveness probe attempt.
+ */
+export type WebhookProbeResult = {
+  /** The outcome of the probe request. */
+  probe: WebhookDelivery
+  /** If the probe request succeeded, and resending failed deliveries on success was requested, the number of new delivery attempts started. Otherwise, if the probe did not succeed, or resending failed deliveries was not requested, this is null.
+
+Note that this may be 0, if there were no events found which had not been delivered successfully to this receiver. */
+  resendsStarted?: number | null
+}
+
+/**
+ * The public ID of a secret key assigned to a webhook.
+ */
+export type WebhookSecretId = { id: string }
+
+/**
+ * The configuration for a webhook.
+ */
+export type WebhookReceiver = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** The URL that webhook notification requests are sent to. */
+  endpoint: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  secrets: WebhookSecretId[]
+  /** The list of event classes to which this receiver is subscribed. */
+  subscriptions: WebhookSubscription[]
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * A single page of results
+ */
+export type WebhookReceiverResultsPage = {
+  /** list of items on this page of results */
+  items: WebhookReceiver[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
+ * Parameters to update a webhook configuration.
+ */
+export type WebhookReceiverUpdate = {
+  description?: string | null
+  /** The URL that webhook notification requests should be sent to */
+  endpoint?: string | null
+  name?: Name | null
+}
+
+export type WebhookSecretCreate = {
+  /** The value of the shared secret key. */
+  secret: string
+}
+
+/**
+ * A list of the IDs of secrets associated with a webhook.
+ */
+export type WebhookSecrets = { secrets: WebhookSecretId[] }
+
+export type WebhookSubscriptionCreate = {
+  /** The event class pattern to subscribe to. */
+  subscription: WebhookSubscription
+}
+
+export type WebhookSubscriptionCreated = {
+  /** The new subscription added to the receiver. */
+  subscription: WebhookSubscription
+}
+
+/**
  * Supported set of sort modes for scanning by name or id
  */
 export type NameOrIdSortMode =
@@ -4407,6 +4645,16 @@ export type SystemMetricName =
  * Currently, we only support scanning in ascending order.
  */
 export type NameSortMode = 'name_ascending'
+
+/**
+ * Supported set of sort modes for scanning by timestamp and ID
+ */
+export type TimeAndIdSortMode =
+  /** sort in increasing order of timestamp and ID, i.e., earliest first */
+  | 'ascending'
+
+  /** sort in increasing order of timestamp and ID, i.e., most recent first */
+  | 'descending'
 
 export interface ProbeListQueryParams {
   limit?: number | null
@@ -5670,7 +5918,7 @@ export interface VpcRouterRouteViewPathParams {
 
 export interface VpcRouterRouteViewQueryParams {
   project?: NameOrId
-  router: NameOrId
+  router?: NameOrId
   vpc?: NameOrId
 }
 
@@ -5819,6 +6067,77 @@ export interface VpcDeletePathParams {
 
 export interface VpcDeleteQueryParams {
   project?: NameOrId
+}
+
+export interface WebhookDeliveryListQueryParams {
+  receiver: NameOrId
+  delivered?: boolean | null
+  failed?: boolean | null
+  pending?: boolean | null
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: TimeAndIdSortMode
+}
+
+export interface WebhookDeliveryResendPathParams {
+  eventId: string
+}
+
+export interface WebhookDeliveryResendQueryParams {
+  receiver: NameOrId
+}
+
+export interface WebhookEventClassListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  filter?: WebhookSubscription
+}
+
+export interface WebhookReceiverListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: NameOrIdSortMode
+}
+
+export interface WebhookReceiverViewPathParams {
+  receiver: NameOrId
+}
+
+export interface WebhookReceiverUpdatePathParams {
+  receiver: NameOrId
+}
+
+export interface WebhookReceiverDeletePathParams {
+  receiver: NameOrId
+}
+
+export interface WebhookReceiverProbePathParams {
+  receiver: NameOrId
+}
+
+export interface WebhookReceiverProbeQueryParams {
+  resend?: boolean
+}
+
+export interface WebhookReceiverSubscriptionAddPathParams {
+  receiver: NameOrId
+}
+
+export interface WebhookReceiverSubscriptionRemovePathParams {
+  receiver: NameOrId
+  subscription: WebhookSubscription
+}
+
+export interface WebhookSecretsListQueryParams {
+  receiver: NameOrId
+}
+
+export interface WebhookSecretsAddQueryParams {
+  receiver: NameOrId
+}
+
+export interface WebhookSecretsDeletePathParams {
+  secretId: string
 }
 
 type EmptyObj = Record<string, never>
@@ -8092,7 +8411,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List a silo's IdP's name
+     * List identity providers for silo
      */
     siloIdentityProviderList: (
       { query = {} }: { query?: SiloIdentityProviderListQueryParams },
@@ -8161,7 +8480,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Create SAML IdP
+     * Create SAML identity provider
      */
     samlIdentityProviderCreate: (
       {
@@ -8179,7 +8498,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch SAML IdP
+     * Fetch SAML identity provider
      */
     samlIdentityProviderView: (
       {
@@ -9217,8 +9536,8 @@ export class Api extends HttpClient {
     vpcRouterRouteView: (
       {
         path,
-        query,
-      }: { path: VpcRouterRouteViewPathParams; query: VpcRouterRouteViewQueryParams },
+        query = {},
+      }: { path: VpcRouterRouteViewPathParams; query?: VpcRouterRouteViewQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<RouterRoute>({
@@ -9530,6 +9849,214 @@ export class Api extends HttpClient {
         path: `/v1/vpcs/${path.vpc}`,
         method: 'DELETE',
         query,
+        ...params,
+      })
+    },
+    /**
+     * List delivery attempts to webhook receiver
+     */
+    webhookDeliveryList: (
+      { query }: { query: WebhookDeliveryListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<WebhookDeliveryResultsPage>({
+        path: `/v1/webhooks/deliveries`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Request re-delivery of webhook event
+     */
+    webhookDeliveryResend: (
+      {
+        path,
+        query,
+      }: { path: WebhookDeliveryResendPathParams; query: WebhookDeliveryResendQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<WebhookDeliveryId>({
+        path: `/v1/webhooks/deliveries/${path.eventId}/resend`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List webhook event classes
+     */
+    webhookEventClassList: (
+      { query = {} }: { query?: WebhookEventClassListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<EventClassResultsPage>({
+        path: `/v1/webhooks/event-classes`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List webhook receivers
+     */
+    webhookReceiverList: (
+      { query = {} }: { query?: WebhookReceiverListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<WebhookReceiverResultsPage>({
+        path: `/v1/webhooks/receivers`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create webhook receiver
+     */
+    webhookReceiverCreate: (
+      { body }: { body: WebhookCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<WebhookReceiver>({
+        path: `/v1/webhooks/receivers`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Fetch webhook receiver
+     */
+    webhookReceiverView: (
+      { path }: { path: WebhookReceiverViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<WebhookReceiver>({
+        path: `/v1/webhooks/receivers/${path.receiver}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Update webhook receiver
+     */
+    webhookReceiverUpdate: (
+      {
+        path,
+        body,
+      }: { path: WebhookReceiverUpdatePathParams; body: WebhookReceiverUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/webhooks/receivers/${path.receiver}`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Delete webhook receiver
+     */
+    webhookReceiverDelete: (
+      { path }: { path: WebhookReceiverDeletePathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/webhooks/receivers/${path.receiver}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * Send liveness probe to webhook receiver
+     */
+    webhookReceiverProbe: (
+      {
+        path,
+        query = {},
+      }: { path: WebhookReceiverProbePathParams; query?: WebhookReceiverProbeQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<WebhookProbeResult>({
+        path: `/v1/webhooks/receivers/${path.receiver}/probe`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Add webhook receiver subscription
+     */
+    webhookReceiverSubscriptionAdd: (
+      {
+        path,
+        body,
+      }: {
+        path: WebhookReceiverSubscriptionAddPathParams
+        body: WebhookSubscriptionCreate
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<WebhookSubscriptionCreated>({
+        path: `/v1/webhooks/receivers/${path.receiver}/subscriptions`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Remove webhook receiver subscription
+     */
+    webhookReceiverSubscriptionRemove: (
+      { path }: { path: WebhookReceiverSubscriptionRemovePathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/webhooks/receivers/${path.receiver}/subscriptions/${path.subscription}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * List webhook receiver secret IDs
+     */
+    webhookSecretsList: (
+      { query }: { query: WebhookSecretsListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<WebhookSecrets>({
+        path: `/v1/webhooks/secrets`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Add secret to webhook receiver
+     */
+    webhookSecretsAdd: (
+      { query, body }: { query: WebhookSecretsAddQueryParams; body: WebhookSecretCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<WebhookSecretId>({
+        path: `/v1/webhooks/secrets`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Remove secret from webhook receiver
+     */
+    webhookSecretsDelete: (
+      { path }: { path: WebhookSecretsDeletePathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/webhooks/secrets/${path.secretId}`,
+        method: 'DELETE',
         ...params,
       })
     },
