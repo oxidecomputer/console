@@ -257,6 +257,7 @@ test('can’t create a disk with a name that collides with the boot disk name', 
   await page.fill('input[name=bootDiskName]', 'disk-11')
 
   // Attempt to create a disk with the same name
+  await expect(page.getByText('No disks')).toBeVisible()
   await page.getByRole('button', { name: 'Create new disk' }).click()
   const dialog = page.getByRole('dialog')
   await dialog.getByRole('textbox', { name: 'name' }).fill('disk-11')
@@ -268,6 +269,7 @@ test('can’t create a disk with a name that collides with the boot disk name', 
   await dialog.getByRole('button', { name: 'Create disk' }).click()
   // The disk has been "created" (is in the list of Additional Disks)
   await expectVisible(page, ['text=disk-12'])
+  await expect(page.getByText('No disks')).toBeHidden()
   // Create the instance
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL('/projects/mock-project/instances/another-instance/storage')

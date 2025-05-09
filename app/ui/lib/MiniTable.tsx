@@ -10,6 +10,7 @@ import { Error16Icon } from '@oxide/design-system/icons/react'
 import { classed } from '~/util/classed'
 
 import { Button } from './Button'
+import { EmptyMessage } from './EmptyMessage'
 import { Table as BigTable } from './Table'
 
 type Children = { children: React.ReactNode }
@@ -35,6 +36,16 @@ export const Cell = ({ children }: Children) => {
     </td>
   )
 }
+
+export const EmptyState = (props: { title: string; body: string; columnCount: number }) => (
+  <Row>
+    <td colSpan={props.columnCount}>
+      <div className="!m-0 !w-full !flex-col !border-none !bg-transparent !py-14">
+        <EmptyMessage title={props.title} body={props.body} />
+      </div>
+    </td>
+  </Row>
+)
 
 // followed this for icon in button best practices
 // https://www.sarasoueidan.com/blog/accessible-icon-buttons/
