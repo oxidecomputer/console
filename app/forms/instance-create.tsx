@@ -737,24 +737,21 @@ const AdvancedAccordion = ({
               it is deleted
             </TipIcon>
           </h2>
-          <div className="flex items-start gap-2.5">
-            <Checkbox
-              id="assignEphemeralIp"
-              checked={assignEphemeralIp}
-              onChange={() => {
-                const newExternalIps = assignEphemeralIp
-                  ? externalIps.field.value?.filter((ip) => ip.type !== 'ephemeral')
-                  : [
-                      ...(externalIps.field.value || []),
-                      { type: 'ephemeral', pool: selectedPool || defaultPool },
-                    ]
-                externalIps.field.onChange(newExternalIps)
-              }}
-            />
-            <label htmlFor="assignEphemeralIp" className="text-sans-md text-default">
-              Allocate and attach an ephemeral IP address
-            </label>
-          </div>
+          <Checkbox
+            id="assignEphemeralIp"
+            checked={assignEphemeralIp}
+            onChange={() => {
+              const newExternalIps = assignEphemeralIp
+                ? externalIps.field.value?.filter((ip) => ip.type !== 'ephemeral')
+                : [
+                    ...(externalIps.field.value || []),
+                    { type: 'ephemeral', pool: selectedPool || defaultPool },
+                  ]
+              externalIps.field.onChange(newExternalIps)
+            }}
+          >
+            Allocate and attach an ephemeral IP address
+          </Checkbox>
           {assignEphemeralIp && (
             <Listbox
               name="pools"
