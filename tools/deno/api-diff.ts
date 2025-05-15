@@ -66,16 +66,28 @@ async function getCommitRange(
   // if there are no args or the arg is a number, we're talking about a PR
   if (args.length === 0 || typeof args[0] === 'number') {
     const prNum = args[0] || (await pickPr())
+    // This commits and parents thing is absurd, but the idea is to use the
+    // parent of the first commit as the base. If we just use the base ref
+    // directly, hwe get the current state of main, which means the diff will
+    // reflect both the current PR and any changes made on main since it branch
+    // edoff.
     const query = `{
       repository(owner: "oxidecomputer", name: "omicron") {
         pullRequest(number: ${prNum}) {
-          baseRefOid
           headRefOid
+          commits(first: 1) {
+            nodes {
+              commit {
+                parents(first: 1) { nodes { oid } }
+              }
+            }
+          }
         }
       }
     }`
     const pr = await $`gh api graphql -f query=${query}`.json()
-    const { baseRefOid: base, headRefOid: head } = pr.data.repository.pullRequest
+    const head = pr.data.repository.pullRequest.headRefOid
+    const base = pr.data.repository.pullRequest.commits.nodes[0].commit.parents.nodes[0].oid
     return { base, head }
   }
 
