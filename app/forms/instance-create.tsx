@@ -432,14 +432,13 @@ export default function CreateInstanceForm() {
               label="CPUs"
               name="ncpus"
               min={1}
-              max={INSTANCE_MAX_CPU}
               control={control}
               validate={(cpus) => {
                 if (cpus < 1) {
                   return `Must be at least 1 vCPU`
                 }
                 if (cpus > INSTANCE_MAX_CPU) {
-                  return `CPUs capped to ${INSTANCE_MAX_CPU}`
+                  return `Can be at most ${INSTANCE_MAX_CPU}`
                 }
               }}
               disabled={isSubmitting}
@@ -450,7 +449,6 @@ export default function CreateInstanceForm() {
               label="Memory"
               name="memory"
               min={1}
-              max={INSTANCE_MAX_RAM_GiB}
               control={control}
               validate={(memory) => {
                 if (memory < 1) {
