@@ -66,11 +66,11 @@ async function getCommitRange(
   // if there are no args or the arg is a number, we're talking about a PR
   if (args.length === 0 || typeof args[0] === 'number') {
     const prNum = args[0] || (await pickPr())
-    // This commits and parents thing is absurd, but the idea is to use the
-    // parent of the first commit as the base. If we just use the base ref
-    // directly, hwe get the current state of main, which means the diff will
-    // reflect both the current PR and any changes made on main since it branch
-    // edoff.
+    // This graphql thing is absurd, but the idea is to use the branch point as
+    // the base, i.e., the parent of the first commit. If we use the base ref
+    // (e.g., main) directly, we get the current state of main, which means the
+    // diff will reflect both the current PR and any changes made on main since
+    // it branched off.
     const query = `{
       repository(owner: "oxidecomputer", name: "omicron") {
         pullRequest(number: ${prNum}) {
