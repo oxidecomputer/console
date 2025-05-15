@@ -15,9 +15,10 @@ const HELP = `
 Display changes to API client caused by a given Omicron PR. Works by downloading
 the OpenAPI spec before and after, generating clients in temp dirs, and diffing.
 
-Requirements:
+Dependencies:
   - Deno (which you have if you're seeing this message)
   - GitHub CLI (gh)
+  - Optional: delta diff pager https://dandavison.github.io/delta/
 
 Usage:
   ./tools/deno/api-diff.ts [-f] [PR number or commit SHA]
@@ -124,8 +125,8 @@ async function genForCommit(commit: string, force: boolean) {
 
 if (!$.commandExistsSync('gh')) throw Error('Need gh (GitHub CLI)')
 
-// prefer difftastic if it exists. https://difftastic.wilfred.me.uk/
-const diffTool = $.commandExistsSync('difft') ? 'difft' : 'diff'
+// prefer delta if it exists. https://dandavison.github.io/delta/
+const diffTool = $.commandExistsSync('delta') ? 'delta' : 'diff'
 
 const args = parseArgs(Deno.args, {
   alias: { force: 'f', help: 'h' },
