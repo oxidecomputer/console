@@ -17,7 +17,7 @@ export const DialogOverlay = ({ ref }: Props) => (
   <m.div
     ref={ref}
     aria-hidden
-    className="fixed inset-0 z-modalOverlay overflow-auto bg-scrim"
+    className="bg-scrim fixed inset-0 z-(--modal-overlay) overflow-auto"
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     exit={{ opacity: 0 }}

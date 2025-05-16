@@ -92,7 +92,7 @@
 }
 
 .metrics-loading-indicator span {
-  @apply block h-1 w-[3px] rounded-[1px] bg-[--theme-accent-500];
+  @apply block h-1 w-[3px] rounded-[1px] bg-(--theme-accent-500);
   animation: stretch 1.8s infinite both;
 }
 

@@ -69,7 +69,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
               : 'border-default ring-accent-secondary'
           )}
         >
-          <div className="relative flex w-[16rem] items-center px-3 text-sans-md">
+          <div className="relative flex w-64 items-center px-3 text-sans-md">
             <div className="truncate">{label}</div>
             {state.isInvalid && (
               <div className="absolute bottom-0 right-2 top-0 flex items-center text-error">

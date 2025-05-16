@@ -23,5 +23,5 @@
 }
 
 .ox-form .ox-divider {
-  @apply !my-10; /* important overrides space-y-* on .ox-form */
+  @apply my-10!; /* important overrides space-y-* on .ox-form */
 }

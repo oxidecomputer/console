@@ -181,9 +181,9 @@ export const Combobox = ({
                 ? 'focus-error border-error-secondary focus-within:ring-error-secondary hover:border-error'
                 : 'border-default focus-within:ring-accent-secondary hover:border-hover',
               disabled
-                ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
+                ? 'cursor-not-allowed text-disabled bg-disabled border-default!'
                 : 'bg-default',
-              disabled && hasError && '!border-error-secondary'
+              disabled && hasError && 'border-error-secondary!'
             )}
             // Putting the inputRef on the div makes it so the div can be focused by RHF when there's an error.
             // We want to focus on the div (rather than the input) so the combobox doesn't open automatically
@@ -226,9 +226,9 @@ export const Combobox = ({
               placeholder={placeholder}
               disabled={disabled || isLoading}
               className={cn(
-                `h-10 w-full rounded !border-none px-3 py-2 !outline-none text-sans-md text-raise placeholder:text-tertiary`,
+                `h-10 w-full rounded border-none! px-3 py-2 outline-none! text-sans-md text-raise placeholder:text-tertiary`,
                 disabled
-                  ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
+                  ? 'cursor-not-allowed text-disabled bg-disabled border-default!'
                   : 'bg-default',
                 hasError && 'focus-error'
               )}
@@ -249,7 +249,7 @@ export const Combobox = ({
             <ComboboxOptions
               anchor="bottom start"
               // 13px gap is presumably because it's measured from inside the outline or something
-              className={`ox-menu pointer-events-auto ${zIndex} relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border !outline-none border-secondary [--anchor-gap:13px] empty:hidden`}
+              className={`ox-menu pointer-events-auto ${zIndex} relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border outline-none! border-secondary [--anchor-gap:13px] empty:hidden`}
               modal={false}
             >
               {filteredItems.map((item) => (
@@ -276,7 +276,7 @@ export const Combobox = ({
               ))}
               {!allowArbitraryValues && filteredItems.length === 0 && (
                 <ComboboxOption disabled value="no-matches" className="relative">
-                  <div className="ox-menu-item !text-disabled">No items match</div>
+                  <div className="ox-menu-item text-disabled!">No items match</div>
                 </ComboboxOption>
               )}
             </ComboboxOptions>

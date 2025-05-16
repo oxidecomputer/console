@@ -26,7 +26,7 @@ function FloatingIpLabel({ fip }: { fip: FloatingIp }) {
         {fip.description && (
           <>
             <Slash />
-            <div className="grow overflow-hidden overflow-ellipsis whitespace-pre text-left">
+            <div className="grow overflow-hidden text-ellipsis whitespace-pre text-left">
               {fip.description}
             </div>
           </>

@@ -152,7 +152,7 @@ function UtilizationBars() {
   if (ipv4.capacity === 0 && ipv6.capacity === 0n) return null
 
   return (
-    <div className="-mt-8 mb-8 flex min-w-min flex-col gap-3 lg+:flex-row">
+    <div className="1000:flex-row -mt-8 mb-8 flex min-w-min flex-col gap-3">
       {ipv4.capacity > 0 && (
         <CapacityBar
           icon={<IpGlobal16Icon />}

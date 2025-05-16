@@ -263,7 +263,7 @@ export default function CreateInstanceForm() {
   // additional form elements for projectImage and siloImage tabs
   const bootDiskSizeAndName = (
     <>
-      <div key="divider" className="!my-12 content-['a']" />
+      <div key="divider" className="my-12! content-['a']" />
       <DiskSizeField
         key="diskSizeField"
         label="Disk size"
@@ -621,7 +621,7 @@ const FloatingIpLabel = ({ ip }: { ip: FloatingIp }) => (
       {ip.description && (
         <>
           <Slash />
-          <div className="grow overflow-hidden overflow-ellipsis whitespace-pre text-left">
+          <div className="grow overflow-hidden text-ellipsis whitespace-pre text-left">
             {ip.description}
           </div>
         </>

@@ -34,13 +34,13 @@ export function IpUtilCell(util: IpPoolUtilization) {
   return (
     <div className="flex gap-4">
       <div>
-        <Badge color="neutral" className="mr-2 !normal-case">
+        <Badge color="neutral" className="mr-2 normal-case!">
           v4
         </Badge>
         <IpUtilFrac {...ipv4} />
       </div>
       <div>
-        <Badge color="neutral" className="mr-2 !normal-case">
+        <Badge color="neutral" className="mr-2 normal-case!">
           v6
         </Badge>
         <IpUtilFrac {...ipv6} />

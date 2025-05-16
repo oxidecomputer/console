@@ -69,7 +69,7 @@ export function TextInput({
         error
           ? 'border-error-secondary hover:border-error'
           : 'border-default hover:border-hover',
-        disabled && '!border-default',
+        disabled && 'border-default!',
         className
       )}
     >
@@ -79,7 +79,7 @@ export function TextInput({
         type={type}
         value={value}
         className={cn(
-          `w-full rounded border-none px-3 py-[0.6875rem] !outline-offset-1 text-sans-md text-raise bg-default placeholder:text-tertiary focus:outline-none disabled:cursor-not-allowed disabled:text-secondary disabled:bg-disabled`,
+          `w-full rounded border-none px-3 py-2.75 outline-offset-1! text-sans-md text-raise bg-default placeholder:text-tertiary focus:outline-none disabled:cursor-not-allowed disabled:text-secondary disabled:bg-disabled`,
           error && 'focus-error',
           fieldClassName,
           disabled && 'text-disabled bg-disabled',
@@ -93,7 +93,7 @@ export function TextInput({
       {copyable && (
         <CopyToClipboard
           text={value || ''}
-          className="!h-10 rounded-none border-l border-solid px-4 bg-disabled border-default"
+          className="h-10! rounded-none border-l border-solid px-4 bg-disabled border-default"
         />
       )}
     </div>

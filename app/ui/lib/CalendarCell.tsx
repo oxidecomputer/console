@@ -79,8 +79,8 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
           'my-0.5 h-8 w-10 text-center text-mono-md',
           isSelectionStart || isSelectionEnd
             ? isInvalid
-              ? '!text-error'
-              : '!text-accent'
+              ? 'text-error!'
+              : 'text-accent!'
             : '',
           isSelected && !isDisabled
             ? isInvalid
@@ -113,7 +113,7 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
           className={cn(
             'relative z-10 flex h-full w-full items-center justify-center',
             isDisabled && !isInvalid
-              ? 'disabled cursor-not-allowed text-disabled !bg-raise'
+              ? 'disabled cursor-not-allowed text-disabled bg-raise!'
               : ''
           )}
         >
@@ -125,8 +125,8 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
             className={cn(
               "absolute bottom-[5px] left-1/2 h-[3px] w-[3px] -translate-x-1/2 rounded-full content-['']",
               isInvalid
-                ? 'bg-[var(--content-error-tertiary)]'
-                : 'bg-[var(--content-accent-tertiary)]'
+                ? 'bg-(--content-error-tertiary)'
+                : 'bg-(--content-accent-tertiary)'
             )}
           />
         )}

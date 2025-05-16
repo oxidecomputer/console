@@ -55,9 +55,9 @@ const color: Record<Variant, string> = {
 }
 
 const textColor: Record<Variant, string> = {
-  success: 'text-accent children:text-accent',
-  error: 'text-error children:text-error',
-  info: 'text-notice children:text-notice',
+  success: 'text-accent *:text-accent',
+  error: 'text-error *:text-error',
+  info: 'text-notice *:text-notice',
 }
 
 const secondaryTextColor: Record<Variant, string> = {
@@ -84,7 +84,7 @@ export const Toast = ({
   return (
     <div
       className={cn(
-        'relative flex w-96 items-start overflow-hidden rounded-lg p-4 elevation-2',
+        'elevation-2 relative flex w-96 items-start overflow-hidden rounded-lg p-4',
         color[variant],
         textColor[variant]
       )}
@@ -101,19 +101,19 @@ export const Toast = ({
 
         {cta && (
           <Link
-            className="mt-3 block text-mono-sm text-accent-secondary hover:text-accent"
+            className="text-mono-sm text-accent-secondary hover:text-accent mt-3 block"
             to={cta.link}
           >
             <Truncate text={cta.text} maxLength={36} />
           </Link>
         )}
       </div>
-      <div className="mr-[2px] mt-[3px] flex items-center self-baseline">
+      <div className="mt-[3px] mr-[2px] flex items-center self-baseline">
         <button
           type="button"
           aria-label="Dismiss notification"
           className={cn(
-            '-m-2 flex items-center rounded !border-transparent p-2 hover:bg-accent-secondary-hover',
+            'hover:bg-accent-secondary-hover -m-2 flex items-center rounded border-transparent! p-2',
             textColor[variant]
           )}
           onClick={onClose}

@@ -28,7 +28,7 @@ export function Table({ className, ...props }: TableProps) {
       autoHide={false}
     >
       <table
-        className={cn(className, 'ox-table w-full border-separate text-sans-md')}
+        className={cn(className, 'ox-table text-sans-md w-full border-separate')}
         {...props}
       />
     </SimpleBar>
@@ -40,7 +40,7 @@ Table.HeaderRow = (props: TableHeaderRowProps) => <Table.Row {...props} />
 
 export type TableHeaderProps = JSX.IntrinsicElements['thead']
 Table.Header = ({ children, className }: TableHeaderProps) => (
-  <thead className={cn('text-left text-mono-sm text-secondary', className)}>
+  <thead className={cn('text-mono-sm text-secondary text-left', className)}>
     {children}
   </thead>
 )
@@ -50,11 +50,11 @@ Table.HeadCell = ({ className, children, ...props }: TableHeadCellProps) => (
   <th
     className={cn(
       className,
-      'border border-x-0 pl-0 text-left text-mono-sm bg-secondary border-default children:first:border-0'
+      'text-mono-sm bg-secondary border-default border border-x-0 pl-0 text-left *:first:border-0'
     )}
     {...props}
   >
-    <div className="-my-[1px] flex h-9 items-center border-l px-3 border-secondary">
+    <div className="border-secondary -my-px flex h-9 items-center border-l px-3">
       {children}
     </div>
   </th>
@@ -98,13 +98,13 @@ Table.Cell = ({ height = 'small', className, children, ...props }: TableCellProp
   <td
     className={cn(
       className,
-      'pl-0 text-raise border-default children:first:border-l-0 children:last:-mr-[1px]'
+      'text-raise border-default pl-0 *:first:border-l-0 *:last:-mr-px'
     )}
     {...props}
   >
     <div
       className={cn(
-        'relative -my-[1px] -mr-[2px] flex items-center border-b border-l px-3 py-2 border-secondary',
+        'border-secondary relative -my-px -mr-[2px] flex items-center border-b border-l px-3 py-2',
         { 'h-11': height === 'small', 'h-14': height === 'large' }
       )}
     >
@@ -127,7 +127,7 @@ type TableEmptyBoxProps = {
 export const TableEmptyBox = ({ children, border = true }: TableEmptyBoxProps) => (
   <div
     className={cn('flex h-full max-h-[480px] items-center justify-center rounded-lg px-4', {
-      'border py-4 border-secondary': border,
+      'border-secondary border py-4': border,
     })}
   >
     {children}

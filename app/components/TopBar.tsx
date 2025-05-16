@@ -136,7 +136,7 @@ function UserMenu() {
         <div
           className={cn(
             buttonStyle({ size: 'sm', variant: 'ghost' }),
-            'flex items-center gap-1.5 !px-2 !border-secondary'
+            'flex items-center gap-1.5 px-2! border-secondary!'
           )}
         >
           <Profile16Icon className="text-tertiary" />
@@ -183,10 +183,10 @@ function SystemSiloItem(props: { label: string; to: string; isSelected: boolean 
   return (
     <DropdownMenu.LinkItem
       to={props.to}
-      className={cn('!pr-3', { 'is-selected': props.isSelected })}
+      className={cn('pr-3!', { 'is-selected': props.isSelected })}
     >
       <div className="flex w-full items-center gap-2">
-        <div className="flex-grow">{props.label}</div>
+        <div className="grow">{props.label}</div>
         {props.isSelected && <Success12Icon className="block" />}
       </div>
     </DropdownMenu.LinkItem>

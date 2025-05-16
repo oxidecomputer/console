@@ -38,7 +38,7 @@ export function NumberInput(props: NumberInputProps) {
         props.error
           ? 'border-error-secondary hover:border-error'
           : 'border-default hover:border-hover',
-        props.isDisabled && '!border-default',
+        props.isDisabled && 'border-default!',
         props.className
       )}
       {...groupProps}
@@ -47,7 +47,7 @@ export function NumberInput(props: NumberInputProps) {
         {...inputProps}
         ref={mergeRefs([props.ref, inputRef])}
         className={cn(
-          `w-full rounded border-none px-3 py-[0.6875rem] !outline-offset-1 text-sans-md text-raise bg-default placeholder:text-tertiary focus:outline-none disabled:cursor-not-allowed disabled:text-secondary disabled:bg-disabled`,
+          `w-full rounded border-none px-3 py-2.75 outline-offset-1! text-sans-md text-raise bg-default placeholder:text-tertiary focus:outline-none disabled:cursor-not-allowed disabled:text-secondary disabled:bg-disabled`,
           props.error && 'focus-error',
           props.isDisabled && 'text-disabled bg-disabled'
         )}
@@ -56,7 +56,7 @@ export function NumberInput(props: NumberInputProps) {
         <IncrementButton {...incrementButtonProps}>
           <InputArrowIcon />
         </IncrementButton>
-        <div className="h-[1px] w-full border-t border-t-default" />
+        <div className="h-px w-full border-t border-t-default" />
         <IncrementButton {...decrementButtonProps}>
           <InputArrowIcon className="rotate-180" />
         </IncrementButton>

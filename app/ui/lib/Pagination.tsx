@@ -19,7 +19,7 @@ const PageInput = ({ number, className }: PageInputProps) => {
   return (
     <span
       className={cn(
-        'h-4 whitespace-nowrap rounded px-[3px] pb-[3px] pt-[1px] ring-1 ring-inset text-mono-sm text-default bg-tertiary ring-secondary',
+        'h-4 whitespace-nowrap rounded px-[3px] pb-[3px] pt-px ring-1 ring-inset text-mono-sm text-default bg-tertiary ring-secondary',
         className
       )}
     >

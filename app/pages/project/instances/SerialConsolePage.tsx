@@ -135,7 +135,7 @@ export default function SerialConsolePage() {
   }, [canConnect])
 
   return (
-    <div className="!mx-0 flex h-full max-h-[calc(100vh-var(--top-bar-height))] !w-full flex-col">
+    <div className="mx-0! flex h-full max-h-[calc(100vh-var(--top-bar-height))] w-full! flex-col">
       <Link
         to={pb.instance(instanceSelector)}
         className="mx-3 mb-6 mt-3 flex h-10 shrink-0 items-center rounded px-3 bg-accent-secondary"
@@ -198,7 +198,7 @@ function SerialSkeleton({ children, animate }: SkeletonProps) {
           background: 'linear-gradient(180deg, rgba(8, 15, 17, 0) 0%, #080F11 100%)',
         }}
       />
-      <div className="absolute left-1/2 top-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-lg border p-12 !bg-raise border-secondary elevation-3">
+      <div className="absolute left-1/2 top-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-lg border p-12 bg-raise! border-secondary elevation-3">
         {children}
       </div>
     </div>
