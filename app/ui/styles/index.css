@@ -40,8 +40,6 @@
 
 @import '@xterm/xterm/css/xterm.css' layer(components);
 
-@source '../../node_modules/@oxide/design-system/dist/components';
-
 @theme {
   --animate-spin-slow: spin 5s linear infinite;
   --animate-pulse: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
