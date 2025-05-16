@@ -121,14 +121,7 @@
 
 @layer base {
   body {
-    @apply text-default bg-default overflow-y-hidden;
-    font-family:
-      SuisseIntl,
-      -apple-system,
-      BlinkMacSystemFont,
-      Helvetica,
-      Arial,
-      sans-serif;
+    @apply text-default bg-default overflow-y-hidden font-sans;
   }
 
   /* https://github.com/tailwindlabs/tailwindcss/blob/v2.2.4/src/plugins/css/preflight.css#L57 */
