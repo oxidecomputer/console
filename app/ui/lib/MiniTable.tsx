@@ -26,7 +26,7 @@ export const HeadCell = BigTable.HeadCell
 
 export const Body = classed.tbody``
 
-export const Row = classed.tr`is-selected children:border-default first:children:border-l children:last:border-b last:children:border-r`
+export const Row = classed.tr`is-selected *:border-default first:*:border-l *:last:border-b last:*:border-r`
 
 export const Cell = ({ children }: Children) => {
   return (

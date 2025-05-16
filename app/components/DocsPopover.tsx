@@ -22,14 +22,14 @@ type DocsPopoverLinkProps = {
 export const DocsPopoverLink = ({ href, linkText }: DocsPopoverLinkProps) => (
   <a
     href={href}
-    className="group block px-4 children:last:border-0"
+    className="group block px-4 *:last:border-0"
     target="_blank"
     rel="noreferrer"
   >
-    <div className="mx-2 border-b py-1.5 border-secondary">
-      <div className="relative -ml-2 inline-block rounded py-1 pl-2 pr-7 text-sans-md text-raise group-hover:bg-tertiary">
+    <div className="border-secondary mx-2 border-b py-1.5">
+      <div className="text-sans-md text-raise group-hover:bg-tertiary relative -ml-2 inline-block rounded py-1 pr-7 pl-2">
         <span className="inline-block max-w-[300px] truncate align-middle">{linkText}</span>
-        <OpenLink12Icon className="absolute top-1.5 ml-2 translate-y-[1px] text-secondary" />
+        <OpenLink12Icon className="text-secondary absolute top-1.5 ml-2 translate-y-px" />
       </div>
     </div>
   </a>
@@ -53,18 +53,18 @@ export const DocsPopover = ({ heading, icon, summary, links }: DocsPopoverProps)
       </PopoverButton>
       <PopoverPanel
         // popover-panel needed for enter animation
-        className="popover-panel z-10 w-96 rounded-lg border bg-raise border-secondary elevation-2"
+        className="popover-panel bg-raise border-secondary elevation-2 z-10 w-96 rounded-lg border"
         anchor={{ to: 'bottom end', gap: 12 }}
       >
         <div className="px-4">
-          <h2 className="mt-4 flex items-center gap-1 text-sans-md">
-            <div className="mr-1 flex items-center text-accent-secondary">{icon}</div>
+          <h2 className="text-sans-md mt-4 flex items-center gap-1">
+            <div className="text-accent-secondary mr-1 flex items-center">{icon}</div>
             {title}
           </h2>
-          <p className="mb-3 mt-2 text-sans-md text-default">{summary}</p>
+          <p className="text-sans-md text-default mt-2 mb-3">{summary}</p>
         </div>
-        <div className="border-t pb-1 border-secondary">
-          <h3 className="mb-1 mt-3 px-4 text-mono-sm text-tertiary">Guides</h3>
+        <div className="border-secondary border-t pb-1">
+          <h3 className="text-mono-sm text-tertiary mt-3 mb-1 px-4">Guides</h3>
           {links.map((link) => (
             <DocsPopoverLink key={link.href} {...link} />
           ))}

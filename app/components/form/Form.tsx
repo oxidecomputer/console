@@ -52,12 +52,7 @@ export const Form = {
     invariant(submit, 'Form.Actions must contain a Form.Submit component')
 
     return (
-      <div
-        className={cn(
-          'flex w-full items-center gap-[0.625rem] children:shrink-0',
-          className
-        )}
-      >
+      <div className={cn('flex w-full items-center gap-2.5 *:shrink-0', className)}>
         {cloneElement(submit, {
           form: formId,
           disabled: !!submitDisabled,
@@ -66,7 +61,7 @@ export const Form = {
         })}
         {childArray}
         {error && (
-          <div className="flex !shrink grow items-start justify-end text-mono-sm text-error 2xl+:justify-start">
+          <div className="text-mono-sm text-error 1400:justify-start flex shrink! grow items-start justify-end">
             <Error12Icon className="mx-2 mt-0.5 shrink-0" />
             <span>{error.message}</span>
           </div>

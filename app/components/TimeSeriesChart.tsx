@@ -150,12 +150,12 @@ const SkeletonMetric = ({
     >
       <div className="flex h-full flex-col justify-between">
         {[...Array(4)].map((_e, i) => (
-          <div key={i} className="h-px w-full bg-[--stroke-secondary]" />
+          <div key={i} className="h-px w-full bg-(--stroke-secondary)" />
         ))}
       </div>
       <div className="flex justify-between">
         {[...Array(8)].map((_e, i) => (
-          <div key={i} className="h-1.5 w-px bg-[--stroke-secondary]" />
+          <div key={i} className="h-1.5 w-px bg-(--stroke-secondary)" />
         ))}
       </div>
     </div>

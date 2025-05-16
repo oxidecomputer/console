@@ -612,28 +612,28 @@ export default function ImageCreate() {
       </div>
       {file && modalOpen && (
         <Modal isOpen onDismiss={closeModal} title="Image upload progress">
-          <Modal.Body className="!p-0">
-            <Modal.Section className="!p-0">
-              <div className="children:border-b children:border-b-secondary last:children:border-b-0">
+          <Modal.Body className="p-0!">
+            <Modal.Section className="p-0!">
+              <div className="*:border-b-secondary *:border-b last:*:border-b-0">
                 {modalError && (
                   <Message
                     variant="error"
                     title="Error"
                     content={modalError}
-                    className="!rounded-none !shadow-none"
+                    className="rounded-none! shadow-none!"
                   />
                 )}
                 <Step state={createDisk} label="Create temporary disk" />
                 <Step state={startImport} label="Put disk in import mode" />
                 <Step state={syntheticUploadState} label="Upload image file">
-                  <div className="rounded-lg border bg-default border-default">
-                    <div className="flex justify-between border-b p-3 pb-2 border-b-secondary">
+                  <div className="bg-default border-default rounded-lg border">
+                    <div className="border-b-secondary flex justify-between border-b p-3 pb-2">
                       <div className="text-sans-md text-raise">{file.name}</div>
                       {/* cancel and/or pause buttons could go here */}
                     </div>
                     <div className="p-3 pt-2">
-                      <div className="flex justify-between text-mono-sm">
-                        <div className="!normal-case text-default">
+                      <div className="text-mono-sm flex justify-between">
+                        <div className="text-default normal-case!">
                           {fsize((uploadProgress / 100) * file.size)}{' '}
                           <span className="text-quaternary">/</span> {fsize(file.size)}
                         </div>
@@ -667,7 +667,7 @@ export default function ImageCreate() {
                   label="Image uploaded successfully"
                   className={
                     allDone
-                      ? 'transition-colors bg-accent-secondary children:text-accent'
+                      ? 'bg-accent-secondary *:text-accent transition-colors'
                       : 'transition-colors'
                   }
                 />
@@ -771,7 +771,7 @@ function BootableNotice({
     <Message
       variant="info"
       title="This image might not be bootable"
-      className="[&>*]:space-y-2"
+      className="*:space-y-2"
       content={content}
     />
   )

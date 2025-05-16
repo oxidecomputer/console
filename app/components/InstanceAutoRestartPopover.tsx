@@ -112,7 +112,7 @@ export const InstanceAutoRestartPopover = ({ instance }: { instance: Instance })
                 Instance Auto-Restart
               </span>
             </span>
-            <OpenLink12Icon className="ml-1 translate-y-[1px] text-secondary" />
+            <OpenLink12Icon className="ml-1 translate-y-px text-secondary" />
           </a>
         </div>
       </PopoverPanel>
@@ -123,7 +123,7 @@ export const InstanceAutoRestartPopover = ({ instance }: { instance: Instance })
 const PopoverRow = ({ label, children }: { label: string; children: ReactNode }) => (
   <div className="flex h-10 items-center border-b border-b-secondary">
     <div className="w-32 pl-3 pr-2 text-mono-sm text-tertiary">{label}</div>
-    <div className="flex h-10 flex-grow items-center gap-1.5 pr-2 text-sans-md">
+    <div className="flex h-10 grow items-center gap-1.5 pr-2 text-sans-md">
       {children}
     </div>
   </div>

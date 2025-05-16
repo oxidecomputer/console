@@ -20,7 +20,7 @@
   }
 
   & td + td:before {
-    @apply absolute bottom-[2px] top-[calc(0.5rem+1px)] block w-[1px] border-l opacity-40 border-accent-tertiary;
+    @apply absolute bottom-[2px] top-[calc(0.5rem+1px)] block w-px border-l opacity-40 border-accent-tertiary;
     content: ' ';
   }
 

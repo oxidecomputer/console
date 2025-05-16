@@ -60,7 +60,7 @@ export const getActionsCol = <TData extends Record<string, unknown>>(
     header: '',
     meta: {
       thClassName: 'action-col',
-      tdClassName: 'action-col children:p-0 w-10',
+      tdClassName: 'action-col *:p-0 w-10',
     },
 
     cell: ({ row }) => {

@@ -108,9 +108,9 @@ export const Listbox = <Value extends string = string>({
                 open && 'ring-2 ring-accent-secondary',
                 open && hasError && 'ring-error-secondary',
                 isDisabled
-                  ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
+                  ? 'cursor-not-allowed text-disabled bg-disabled border-default!'
                   : 'bg-default',
-                isDisabled && hasError && '!border-error-secondary',
+                isDisabled && hasError && 'border-error-secondary!',
                 hideSelected ? 'w-auto' : 'w-full'
               )}
               ref={buttonRef}
@@ -118,7 +118,7 @@ export const Listbox = <Value extends string = string>({
             >
               {!hideSelected && (
                 <>
-                  <div className="w-full overflow-hidden overflow-ellipsis whitespace-pre px-3 text-left">
+                  <div className="w-full overflow-hidden text-ellipsis whitespace-pre px-3 text-left">
                     {selectedItem ? (
                       // selectedLabel is one line, which is what we need when label is a ReactNode
                       selectedItem.selectedLabel || selectedItem.label
@@ -145,8 +145,8 @@ export const Listbox = <Value extends string = string>({
               anchor={{ gap: 12, to: 'bottom start' }}
               className={cn(
                 zIndex,
-                'ox-menu pointer-events-auto overflow-y-auto !outline-none',
-                !hideSelected ? 'w-[var(--button-width)]' : 'min-w-24'
+                'ox-menu pointer-events-auto overflow-y-auto outline-none!',
+                !hideSelected ? 'w-(--button-width)' : 'min-w-24'
               )}
               // This is to prevent the `useOthersInert` call in ListboxOptions.
               // Without this, when the listbox options box scrolls under the

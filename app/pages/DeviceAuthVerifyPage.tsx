@@ -33,7 +33,7 @@ export default function DeviceAuthVerifyPage() {
 
   return (
     <form
-      className="w-full max-w-[470px] rounded-lg border p-9 text-center !bg-raise border-secondary elevation-3"
+      className="w-full max-w-[470px] rounded-lg border p-9 text-center bg-raise! border-secondary elevation-3"
       onSubmit={(event) => {
         event.preventDefault()
 
@@ -56,7 +56,7 @@ export default function DeviceAuthVerifyPage() {
         dashAfterIdxs={DASH_AFTER_IDXS}
       />
       <Button
-        className="w-full !text-mono-sm"
+        className="w-full text-mono-sm!"
         type="submit"
         loading={confirmPost.isPending}
         disabled={confirmPost.isPending || confirmPost.isSuccess || userCode.length < 8}

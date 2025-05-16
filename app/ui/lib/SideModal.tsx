@@ -23,10 +23,10 @@ export function usePopoverZIndex() {
   const isInModal = useIsInModal()
   const isInSideModal = useIsInSideModal()
   return isInModal
-    ? 'z-modalDropdown'
+    ? 'z-(--z-modal-dropdown)'
     : isInSideModal
-      ? 'z-sideModalDropdown'
-      : 'z-contentDropdown'
+      ? 'z-(--z-side-modal)'
+      : 'z-(--z-content-dropdown)'
 }
 
 export type SideModalProps = {
@@ -69,10 +69,10 @@ export function SideModal({
               initial={{ x: animate ? 40 : 0 }}
               animate={{ x: 0 }}
               transition={{ type: 'spring', duration: 0.4, bounce: 0 }}
-              className="DialogContent ox-side-modal pointer-events-auto fixed bottom-0 right-0 top-0 z-sideModal m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-raise border-secondary elevation-2"
+              className="DialogContent ox-side-modal bg-raise border-secondary elevation-2 pointer-events-auto fixed top-0 right-0 bottom-0 z-(--z-side-modal) m-0 flex w-128 flex-col justify-between border-l p-0"
             >
-              <div className="items-top mb-4 mt-8">
-                <Dialog.Title className="flex w-full items-center justify-between break-words pr-8 text-sans-2xl text-raise">
+              <div className="items-top mt-8 mb-4">
+                <Dialog.Title className="text-sans-2xl text-raise flex w-full items-center justify-between pr-8 break-words">
                   {title}
                 </Dialog.Title>
                 {subtitle}
@@ -103,7 +103,7 @@ export function SideModal({
 
               {/* Close button is here at the end so we aren't automatically focusing on it when the side modal is opened. Positioned in the safe area at the top */}
               <Dialog.Close
-                className="absolute right-[var(--content-gutter)] top-10 -m-2 flex rounded p-2 hover:bg-hover"
+                className="hover:bg-hover absolute top-10 right-(--content-gutter) -m-2 flex rounded p-2"
                 aria-label="Close"
               >
                 <Close12Icon className="text-default" />
@@ -128,8 +128,8 @@ function SideModalBody({ children }: { children?: ReactNode }) {
     <div
       ref={overflowRef}
       className={cn(
-        'body relative h-full overflow-y-auto pb-12 pt-8',
-        !scrollStart && 'border-t border-t-secondary'
+        'body relative h-full overflow-y-auto pt-8 pb-12',
+        !scrollStart && 'border-t-secondary border-t'
       )}
       data-testid="sidemodal-scroll-container"
     >
@@ -145,9 +145,9 @@ SideModal.Heading = classed.div`text-sans-semi-xl text-raise`
 SideModal.Section = classed.div`p-8 space-y-6 border-secondary`
 
 SideModal.Footer = ({ children, error }: { children: ReactNode; error?: boolean }) => (
-  <footer className="flex w-full items-center justify-end gap-[0.625rem] border-t py-5 border-secondary children:shrink-0">
+  <footer className="border-secondary flex w-full items-center justify-end gap-2.5 border-t py-5 *:shrink-0">
     {error && (
-      <div className="flex grow items-center gap-1.5 text-sans-md text-error">
+      <div className="text-sans-md text-error flex grow items-center gap-1.5">
         <Error12Icon className="shrink-0" />
         <span>Error</span>
       </div>
