@@ -40,37 +40,44 @@ interface PaginateOptions {
   limit?: number | null
   pageToken?: string | null
 }
-export interface ResultsPage<I extends { id: string }> {
+export interface ResultsPage<I extends { id: string; name?: string }> {
   items: I[]
   nextPage: string | null
 }
 
-export const paginated = <P extends PaginateOptions, I extends { id: string }>(
+export const paginated = <
+  P extends PaginateOptions,
+  I extends { id: string; name?: string },
+>(
   params: P,
   items: I[]
 ) => {
   const limit = params.limit || 100
   const pageToken = params.pageToken
 
-  let startIndex = pageToken ? items.findIndex((i) => i.id === pageToken) : 0
+  const sortedItems = items.sort((a, b) =>
+    a.name && b.name ? a.name.localeCompare(b.name) : a.id.localeCompare(b.id)
+  )
+
+  let startIndex = pageToken ? sortedItems.findIndex((i) => i.id === pageToken) : 0
   startIndex = startIndex < 0 ? 0 : startIndex
 
-  if (startIndex > items.length) {
+  if (startIndex > sortedItems.length) {
     return {
       items: [],
       nextPage: null,
     }
   }
 
-  if (limit + startIndex >= items.length) {
+  if (limit + startIndex >= sortedItems.length) {
     return {
-      items: items.slice(startIndex),
+      items: sortedItems.slice(startIndex),
       nextPage: null,
     }
   }
 
   return {
-    items: items.slice(startIndex, startIndex + limit),
+    items: sortedItems.slice(startIndex, startIndex + limit),
     nextPage: `${items[startIndex + limit].id}`,
   }
 }
