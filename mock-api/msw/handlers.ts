@@ -412,11 +412,8 @@ export const handlers = makeHandlers({
 
     const instanceId = uuid()
 
-    // TODO: These values should ultimately be represented in the schema and
-    // checked with the generated schema validation code.
-
     if (body.memory > INSTANCE_MAX_RAM_GiB * GiB) {
-      throw `Memory must be less than ${INSTANCE_MAX_RAM_GiB} GiB`
+      throw `Memory can be at most ${INSTANCE_MAX_RAM_GiB} GiB`
     }
 
     if (body.memory < INSTANCE_MIN_RAM_GiB * GiB) {

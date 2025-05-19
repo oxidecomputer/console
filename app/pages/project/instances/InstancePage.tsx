@@ -374,7 +374,7 @@ export function ResizeInstanceModal({
                   return `Must be at least 1 vCPU`
                 }
                 if (cpus > INSTANCE_MAX_CPU) {
-                  return `CPUs capped to ${INSTANCE_MAX_CPU}`
+                  return `Can be at most ${INSTANCE_MAX_CPU}`
                 }
                 // We can show this error and therefore inform the user
                 // of the limit rather than preventing it completely
