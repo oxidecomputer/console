@@ -14,7 +14,7 @@ import {
   type StrictResponse,
 } from 'msw'
 import type { Promisable, SnakeCasedPropertiesDeep as Snakify } from 'type-fest'
-import { type ZodSchema } from 'zod'
+import { type ZodType } from 'zod/v4'
 
 import type * as Api from './Api'
 import { snakeify } from './util'
@@ -1717,7 +1717,7 @@ export interface MSWHandlers {
   }) => Promisable<StatusCode>
 }
 
-function validateParams<S extends ZodSchema>(
+function validateParams<S extends ZodType>(
   schema: S,
   req: Request,
   pathParams: PathParams
@@ -1750,8 +1750,9 @@ function validateParams<S extends ZodSchema>(
 const handler =
   (
     handler: MSWHandlers[keyof MSWHandlers],
-    paramSchema: ZodSchema | null,
-    bodySchema: ZodSchema | null
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    paramSchema: ZodType<any> | null,
+    bodySchema: ZodType | null
   ) =>
   async ({
     request: req,
