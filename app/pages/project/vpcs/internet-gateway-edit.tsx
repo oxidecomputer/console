@@ -39,7 +39,7 @@ export const handle = titleCrumb('Edit Internet Gateway')
 
 const RoutesEmpty = () => (
   <Table.Row>
-    <Table.Cell colSpan={2} className="!bg-raise">
+    <Table.Cell colSpan={2} className="bg-raise!">
       No VPC router routes target this gateway.
     </Table.Cell>
   </Table.Row>
@@ -53,7 +53,7 @@ function RouteRows({ project, vpc, gateway }: PP.VpcInternetGateway) {
 
   return matchingRoutes.map(([router, route]) => (
     <Table.Row key={route.id}>
-      <Table.Cell className="!bg-raise">
+      <Table.Cell className="bg-raise!">
         <Link
           to={pb.vpcRouter({ project, vpc, router })}
           className="link-with-underline text-sans-md"
@@ -61,7 +61,7 @@ function RouteRows({ project, vpc, gateway }: PP.VpcInternetGateway) {
           {router}
         </Link>
       </Table.Cell>
-      <Table.Cell className="!bg-raise">{route.name}</Table.Cell>
+      <Table.Cell className="bg-raise!">{route.name}</Table.Cell>
     </Table.Row>
   ))
 }

@@ -45,10 +45,10 @@ const color: Record<Variant, string> = {
 }
 
 const textColor: Record<Variant, string> = {
-  success: 'text-accent children:text-accent',
-  error: 'text-error children:text-error',
-  notice: 'text-notice children:text-notice',
-  info: 'text-info children:text-info',
+  success: 'text-accent *:text-accent',
+  error: 'text-error *:text-error',
+  notice: 'text-notice *:text-notice',
+  info: 'text-info *:text-info',
 }
 
 const secondaryTextColor: Record<Variant, string> = {
@@ -77,7 +77,7 @@ export const Message = ({
   return (
     <div
       className={cn(
-        'relative flex items-start gap-2.5 overflow-hidden rounded-lg p-4 elevation-1',
+        'elevation-1 relative flex items-start gap-2.5 overflow-hidden rounded-lg p-4',
         color[variant],
         textColor[variant],
         className
@@ -100,7 +100,7 @@ export const Message = ({
         {cta && (
           <Link
             className={cn(
-              'mt-1 flex items-center underline text-sans-md',
+              'text-sans-md mt-1 flex items-center underline',
               linkColor[variant]
             )}
             to={cta.link}

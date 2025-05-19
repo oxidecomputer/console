@@ -55,9 +55,9 @@ export default function ProfilePage() {
         Groups
       </TableTitle>
       <Table table={groupsTable} aria-labelledby="groups-label" />
-      <p className="inline-block max-w-md text-sans-md text-default">
+      <p className="text-sans-md text-default inline-block max-w-md">
         Your user information is managed by your organization.{' '}
-        <span className="md+:block">
+        <span className="800:block">
           To update your information, contact your administrator.
         </span>
       </p>

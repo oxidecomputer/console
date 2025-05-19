@@ -185,7 +185,7 @@ export default function CreateIdpSideModalForm() {
           name="acsUrl"
           label="ACS URL"
           description={
-            <div className="children:inline-block">
+            <div className="*:inline-block">
               <span>
                 Oxide endpoint for the identity provider to send the SAML response.{' '}
               </span>

@@ -8,17 +8,17 @@
 
 .dropdown-menu-content {
   /* we want menu popover to be on top of top bar and pagination bar too */
-  @apply z-topBarDropdown min-w-36 rounded border p-0 bg-raise border-secondary;
+  @apply bg-raise border-secondary z-(--z-top-bar-dropdown) min-w-36 rounded border p-0;
 
   & .DropdownMenuItem {
-    @apply flex w-full cursor-pointer select-none items-center border-b py-2 pl-3 pr-6 text-left text-sans-md text-default border-secondary last:border-b-0;
+    @apply text-sans-md text-default border-secondary flex w-full cursor-pointer items-center border-b py-2 pr-6 pl-3 text-left select-none last:border-b-0;
 
     &.destructive {
       @apply text-destructive;
     }
 
     &[data-disabled] {
-      @apply cursor-not-allowed text-disabled;
+      @apply text-disabled cursor-not-allowed;
     }
 
     &.destructive[data-disabled] {

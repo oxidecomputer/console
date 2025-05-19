@@ -61,7 +61,7 @@ export function DatePicker(props: DatePickerProps) {
               : 'border-default ring-accent-secondary'
           )}
         >
-          <div className={cn('relative flex w-[10rem] items-center px-3 text-sans-md')}>
+          <div className={cn('relative flex w-40 items-center px-3 text-sans-md')}>
             {label}
             {state.isInvalid && (
               <div className="absolute bottom-0 right-2 top-0 flex items-center text-error">
