@@ -80,26 +80,20 @@ test.describe('Disk create', () => {
 
   test('from snapshot', async ({ page }) => {
     await page.getByRole('radio', { name: 'Snapshot' }).click()
-    await page
-      .getByPlaceholder('Select a snapshot or enter a snapshot name', { exact: true })
-      .click()
+    await page.getByRole('combobox', { name: 'Source snapshot' }).click()
     await page.getByRole('option', { name: 'delete-500' }).click()
   })
 
   // max-size snapshot required a fix
   test('from max-size snapshot', async ({ page }) => {
     await page.getByRole('radio', { name: 'Snapshot' }).click()
-    await page
-      .getByPlaceholder('Select a snapshot or enter a snapshot name', { exact: true })
-      .click()
+    await page.getByRole('combobox', { name: 'Source snapshot' }).click()
     await page.getByRole('option', { name: 'snapshot-max' }).click()
   })
 
   test('from image', async ({ page }) => {
     await page.getByRole('radio', { name: 'Image' }).click()
-    await page
-      .getByPlaceholder('Select an image or enter an image name', { exact: true })
-      .click()
+    await page.getByRole('combobox', { name: 'Source image' }).click()
     await page.getByRole('option', { name: 'image-3' }).click()
   })
 

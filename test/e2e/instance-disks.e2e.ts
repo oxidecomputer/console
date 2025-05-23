@@ -117,9 +117,7 @@ test('Create disk', async ({ page }) => {
   await expect(createForm.getByRole('textbox', { name: 'Description' })).toBeVisible()
 
   await page.getByRole('radio', { name: 'Snapshot' }).click()
-  await page
-    .getByPlaceholder('Select a snapshot or enter a snapshot name', { exact: true })
-    .click()
+  await page.getByRole('combobox', { name: 'Source snapshot' }).click()
   await page.getByRole('option', { name: 'snapshot-heavy' }).click()
 
   await createForm.getByRole('button', { name: 'Create disk' }).click()
