@@ -7,6 +7,7 @@
  */
 
 import type { UseFormReturn } from 'react-hook-form'
+import type { SetNonNullable } from 'type-fest'
 
 import {
   usePrefetchedApiQuery,
@@ -26,7 +27,9 @@ import { Message } from '~/ui/lib/Message'
 import { ALL_ISH } from '~/util/consts'
 import { validateIp, validateIpNet } from '~/util/ip'
 
-export type RouteFormValues = RouterRouteCreate | Required<RouterRouteUpdate>
+export type RouteFormValues =
+  | RouterRouteCreate
+  | SetNonNullable<Required<RouterRouteUpdate>>
 
 export const routeFormMessage = {
   vpcSubnetNotModifiable:

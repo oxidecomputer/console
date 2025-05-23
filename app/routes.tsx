@@ -207,7 +207,7 @@ export const routes = createRoutesFromElements(
         </Route>
       </Route>
 
-      <Route index loader={() => redirect(pb.projects())} />
+      <Route index loader={() => redirect(pb.projects())} element={null} />
 
       <Route lazy={() => import('./layouts/SiloLayout').then(convert)}>
         <Route

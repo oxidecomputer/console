@@ -270,9 +270,14 @@ export const handlers = makeHandlers({
       id: uuid(),
       project_id: project.id,
       // TODO: use ip-num to actually get the next available IP in the pool
-      ip: [...Array(4)].map(() => Math.floor(Math.random() * 256)).join('.'),
+      ip:
+        body.ip ||
+        Array.from({ length: 4 })
+          .map(() => Math.floor(Math.random() * 256))
+          .join('.'),
       ip_pool_id: pool.id,
-      ...body,
+      description: body.description,
+      name: body.name,
       ...getTimestamps(),
     }
     db.floatingIps.push(newFloatingIp)
@@ -407,11 +412,8 @@ export const handlers = makeHandlers({
 
     const instanceId = uuid()
 
-    // TODO: These values should ultimately be represented in the schema and
-    // checked with the generated schema validation code.
-
     if (body.memory > INSTANCE_MAX_RAM_GiB * GiB) {
-      throw `Memory must be less than ${INSTANCE_MAX_RAM_GiB} GiB`
+      throw `Memory can be at most ${INSTANCE_MAX_RAM_GiB} GiB`
     }
 
     if (body.memory < INSTANCE_MIN_RAM_GiB * GiB) {
@@ -661,6 +663,7 @@ export const handlers = makeHandlers({
     // https://github.com/oxidecomputer/omicron/blob/0c6ab099e/nexus/db-queries/src/db/datastore/instance.rs#L228-L239
     instance.auto_restart_enabled = match(instance.auto_restart_policy)
       .with(undefined, () => true)
+      .with(null, () => true)
       .with('best_effort', () => true)
       .with('never', () => false)
       .exhaustive()
@@ -1518,9 +1521,9 @@ export const handlers = makeHandlers({
     requireFleetCollab(cookies)
     const quotas = lookup.siloQuotas(path)
 
-    if (body.cpus !== undefined) quotas.cpus = body.cpus
-    if (body.memory !== undefined) quotas.memory = body.memory
-    if (body.storage !== undefined) quotas.storage = body.storage
+    if (body.cpus != null) quotas.cpus = body.cpus
+    if (body.memory != null) quotas.memory = body.memory
+    if (body.storage != null) quotas.storage = body.storage
 
     return quotas
   },
@@ -1874,4 +1877,18 @@ export const handlers = makeHandlers({
   targetReleaseUpdate: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
+  webhookDeliveryList: NotImplemented,
+  webhookDeliveryResend: NotImplemented,
+  webhookEventClassList: NotImplemented,
+  webhookReceiverCreate: NotImplemented,
+  webhookReceiverDelete: NotImplemented,
+  webhookReceiverList: NotImplemented,
+  webhookReceiverProbe: NotImplemented,
+  webhookReceiverSubscriptionAdd: NotImplemented,
+  webhookReceiverSubscriptionRemove: NotImplemented,
+  webhookReceiverUpdate: NotImplemented,
+  webhookReceiverView: NotImplemented,
+  webhookSecretsAdd: NotImplemented,
+  webhookSecretsDelete: NotImplemented,
+  webhookSecretsList: NotImplemented,
 })

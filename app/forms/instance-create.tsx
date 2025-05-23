@@ -432,14 +432,13 @@ export default function CreateInstanceForm() {
               label="CPUs"
               name="ncpus"
               min={1}
-              max={INSTANCE_MAX_CPU}
               control={control}
               validate={(cpus) => {
                 if (cpus < 1) {
                   return `Must be at least 1 vCPU`
                 }
                 if (cpus > INSTANCE_MAX_CPU) {
-                  return `CPUs capped to ${INSTANCE_MAX_CPU}`
+                  return `Can be at most ${INSTANCE_MAX_CPU}`
                 }
               }}
               disabled={isSubmitting}
@@ -450,7 +449,6 @@ export default function CreateInstanceForm() {
               label="Memory"
               name="memory"
               min={1}
-              max={INSTANCE_MAX_RAM_GiB}
               control={control}
               validate={(memory) => {
                 if (memory < 1) {
@@ -737,24 +735,21 @@ const AdvancedAccordion = ({
               it is deleted
             </TipIcon>
           </h2>
-          <div className="flex items-start gap-2.5">
-            <Checkbox
-              id="assignEphemeralIp"
-              checked={assignEphemeralIp}
-              onChange={() => {
-                const newExternalIps = assignEphemeralIp
-                  ? externalIps.field.value?.filter((ip) => ip.type !== 'ephemeral')
-                  : [
-                      ...(externalIps.field.value || []),
-                      { type: 'ephemeral', pool: selectedPool || defaultPool },
-                    ]
-                externalIps.field.onChange(newExternalIps)
-              }}
-            />
-            <label htmlFor="assignEphemeralIp" className="text-sans-md text-default">
-              Allocate and attach an ephemeral IP address
-            </label>
-          </div>
+          <Checkbox
+            id="assignEphemeralIp"
+            checked={assignEphemeralIp}
+            onChange={() => {
+              const newExternalIps = assignEphemeralIp
+                ? externalIps.field.value?.filter((ip) => ip.type !== 'ephemeral')
+                : [
+                    ...(externalIps.field.value || []),
+                    { type: 'ephemeral', pool: selectedPool || defaultPool },
+                  ]
+              externalIps.field.onChange(newExternalIps)
+            }}
+          >
+            Allocate and attach an ephemeral IP address
+          </Checkbox>
           {assignEphemeralIp && (
             <Listbox
               name="pools"
@@ -905,13 +900,11 @@ const PRESETS = [
   { category: 'general', id: 'general-sm', memory: 16, ncpus: 4 },
   { category: 'general', id: 'general-md', memory: 32, ncpus: 8 },
   { category: 'general', id: 'general-lg', memory: 64, ncpus: 16 },
-  { category: 'general', id: 'general-xl', memory: 128, ncpus: 32 },
 
   { category: 'highCPU', id: 'highCPU-xs', memory: 4, ncpus: 2 },
   { category: 'highCPU', id: 'highCPU-sm', memory: 8, ncpus: 4 },
   { category: 'highCPU', id: 'highCPU-md', memory: 16, ncpus: 8 },
   { category: 'highCPU', id: 'highCPU-lg', memory: 32, ncpus: 16 },
-  { category: 'highCPU', id: 'highCPU-xl', memory: 64, ncpus: 32 },
 
   { category: 'highMemory', id: 'highMemory-xs', memory: 16, ncpus: 2 },
   { category: 'highMemory', id: 'highMemory-sm', memory: 32, ncpus: 4 },

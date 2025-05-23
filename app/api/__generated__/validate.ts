@@ -84,7 +84,7 @@ export const Address = z.preprocess(
   z.object({
     address: IpNet,
     addressLot: NameOrId,
-    vlanId: z.number().min(0).max(65535).optional(),
+    vlanId: z.number().min(0).max(65535).nullable().optional(),
   })
 )
 
@@ -141,7 +141,7 @@ export const AddressLotBlockCreate = z.preprocess(
  */
 export const AddressLotBlockResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: AddressLotBlock.array(), nextPage: z.string().optional() })
+  z.object({ items: AddressLotBlock.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -170,7 +170,7 @@ export const AddressLotCreateResponse = z.preprocess(
  */
 export const AddressLotResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: AddressLot.array(), nextPage: z.string().optional() })
+  z.object({ items: AddressLot.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -258,7 +258,10 @@ export const AffinityGroupMember = z.preprocess(
  */
 export const AffinityGroupMemberResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: AffinityGroupMember.array(), nextPage: z.string().optional() })
+  z.object({
+    items: AffinityGroupMember.array(),
+    nextPage: z.string().nullable().optional(),
+  })
 )
 
 /**
@@ -266,7 +269,7 @@ export const AffinityGroupMemberResultsPage = z.preprocess(
  */
 export const AffinityGroupResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: AffinityGroup.array(), nextPage: z.string().optional() })
+  z.object({ items: AffinityGroup.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -274,7 +277,10 @@ export const AffinityGroupResultsPage = z.preprocess(
  */
 export const AffinityGroupUpdate = z.preprocess(
   processResponseBody,
-  z.object({ description: z.string().optional(), name: Name.optional() })
+  z.object({
+    description: z.string().nullable().optional(),
+    name: Name.nullable().optional(),
+  })
 )
 
 export const BgpMessageHistory = z.preprocess(processResponseBody, z.record(z.unknown()))
@@ -387,7 +393,10 @@ export const AntiAffinityGroupMember = z.preprocess(
  */
 export const AntiAffinityGroupMemberResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: AntiAffinityGroupMember.array(), nextPage: z.string().optional() })
+  z.object({
+    items: AntiAffinityGroupMember.array(),
+    nextPage: z.string().nullable().optional(),
+  })
 )
 
 /**
@@ -395,7 +404,7 @@ export const AntiAffinityGroupMemberResultsPage = z.preprocess(
  */
 export const AntiAffinityGroupResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: AntiAffinityGroup.array(), nextPage: z.string().optional() })
+  z.object({ items: AntiAffinityGroup.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -403,7 +412,10 @@ export const AntiAffinityGroupResultsPage = z.preprocess(
  */
 export const AntiAffinityGroupUpdate = z.preprocess(
   processResponseBody,
-  z.object({ description: z.string().optional(), name: Name.optional() })
+  z.object({
+    description: z.string().nullable().optional(),
+    name: Name.nullable().optional(),
+  })
 )
 
 /**
@@ -451,7 +463,7 @@ export const BfdSessionEnable = z.preprocess(
   processResponseBody,
   z.object({
     detectionThreshold: z.number().min(0).max(255),
-    local: z.string().ip().optional(),
+    local: z.string().ip().nullable().optional(),
     mode: BfdMode,
     remote: z.string().ip(),
     requiredRx: z.number().min(0),
@@ -468,7 +480,7 @@ export const BfdStatus = z.preprocess(
   processResponseBody,
   z.object({
     detectionThreshold: z.number().min(0).max(255),
-    local: z.string().ip().optional(),
+    local: z.string().ip().nullable().optional(),
     mode: BfdMode,
     peer: z.string().ip(),
     requiredRx: z.number().min(0),
@@ -535,7 +547,7 @@ export const BgpConfig = z.preprocess(
     name: Name,
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
-    vrf: z.string().optional(),
+    vrf: z.string().nullable().optional(),
   })
 )
 
@@ -549,7 +561,7 @@ export const BgpConfigCreate = z.preprocess(
     bgpAnnounceSetId: NameOrId,
     description: z.string(),
     name: Name,
-    vrf: Name.optional(),
+    vrf: Name.nullable().optional(),
   })
 )
 
@@ -558,7 +570,7 @@ export const BgpConfigCreate = z.preprocess(
  */
 export const BgpConfigResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: BgpConfig.array(), nextPage: z.string().optional() })
+  z.object({ items: BgpConfig.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -611,12 +623,12 @@ export const BgpPeer = z.preprocess(
     idleHoldTime: z.number().min(0).max(4294967295),
     interfaceName: z.string(),
     keepalive: z.number().min(0).max(4294967295),
-    localPref: z.number().min(0).max(4294967295).optional(),
-    md5AuthKey: z.string().optional(),
-    minTtl: z.number().min(0).max(255).optional(),
-    multiExitDiscriminator: z.number().min(0).max(4294967295).optional(),
-    remoteAsn: z.number().min(0).max(4294967295).optional(),
-    vlanId: z.number().min(0).max(65535).optional(),
+    localPref: z.number().min(0).max(4294967295).nullable().optional(),
+    md5AuthKey: z.string().nullable().optional(),
+    minTtl: z.number().min(0).max(255).nullable().optional(),
+    multiExitDiscriminator: z.number().min(0).max(4294967295).nullable().optional(),
+    remoteAsn: z.number().min(0).max(4294967295).nullable().optional(),
+    vlanId: z.number().min(0).max(65535).nullable().optional(),
   })
 )
 
@@ -962,7 +974,7 @@ export const CertificateCreate = z.preprocess(
  */
 export const CertificateResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Certificate.array(), nextPage: z.string().optional() })
+  z.object({ items: Certificate.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -1295,7 +1307,7 @@ export const DatumType = z.preprocess(
 
 export const MissingDatum = z.preprocess(
   processResponseBody,
-  z.object({ datumType: DatumType, startTime: z.coerce.date().optional() })
+  z.object({ datumType: DatumType, startTime: z.coerce.date().nullable().optional() })
 )
 
 /**
@@ -1391,11 +1403,11 @@ export const Disk = z.preprocess(
     description: z.string(),
     devicePath: z.string(),
     id: z.string().uuid(),
-    imageId: z.string().uuid().optional(),
+    imageId: z.string().uuid().nullable().optional(),
     name: Name,
     projectId: z.string().uuid(),
     size: ByteCount,
-    snapshotId: z.string().uuid().optional(),
+    snapshotId: z.string().uuid().nullable().optional(),
     state: DiskState,
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
@@ -1430,7 +1442,7 @@ export const DiskPath = z.preprocess(processResponseBody, z.object({ disk: NameO
  */
 export const DiskResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Disk.array(), nextPage: z.string().optional() })
+  z.object({ items: Disk.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -1443,11 +1455,11 @@ export const Distributiondouble = z.preprocess(
   z.object({
     bins: z.number().array(),
     counts: z.number().min(0).array(),
-    max: z.number().optional(),
-    min: z.number().optional(),
-    p50: Quantile.optional(),
-    p90: Quantile.optional(),
-    p99: Quantile.optional(),
+    max: z.number().nullable().optional(),
+    min: z.number().nullable().optional(),
+    p50: Quantile.nullable().optional(),
+    p90: Quantile.nullable().optional(),
+    p99: Quantile.nullable().optional(),
     squaredMean: z.number(),
     sumOfSamples: z.number(),
   })
@@ -1463,11 +1475,11 @@ export const Distributionint64 = z.preprocess(
   z.object({
     bins: z.number().array(),
     counts: z.number().min(0).array(),
-    max: z.number().optional(),
-    min: z.number().optional(),
-    p50: Quantile.optional(),
-    p90: Quantile.optional(),
-    p99: Quantile.optional(),
+    max: z.number().nullable().optional(),
+    min: z.number().nullable().optional(),
+    p50: Quantile.nullable().optional(),
+    p90: Quantile.nullable().optional(),
+    p99: Quantile.nullable().optional(),
     squaredMean: z.number(),
     sumOfSamples: z.number(),
   })
@@ -1478,7 +1490,7 @@ export const Distributionint64 = z.preprocess(
  */
 export const EphemeralIpCreate = z.preprocess(
   processResponseBody,
-  z.object({ pool: NameOrId.optional() })
+  z.object({ pool: NameOrId.nullable().optional() })
 )
 
 /**
@@ -1489,6 +1501,22 @@ export const Error = z.preprocess(
   z.object({ errorCode: z.string().optional(), message: z.string(), requestId: z.string() })
 )
 
+/**
+ * A webhook event class.
+ */
+export const EventClass = z.preprocess(
+  processResponseBody,
+  z.object({ description: z.string(), name: z.string() })
+)
+
+/**
+ * A single page of results
+ */
+export const EventClassResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: EventClass.array(), nextPage: z.string().nullable().optional() })
+)
+
 export const ExternalIp = z.preprocess(
   processResponseBody,
   z.union([
@@ -1496,7 +1524,7 @@ export const ExternalIp = z.preprocess(
     z.object({
       description: z.string(),
       id: z.string().uuid(),
-      instanceId: z.string().uuid().optional(),
+      instanceId: z.string().uuid().nullable().optional(),
       ip: z.string().ip(),
       ipPoolId: z.string().uuid(),
       kind: z.enum(['floating']),
@@ -1514,7 +1542,7 @@ export const ExternalIp = z.preprocess(
 export const ExternalIpCreate = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ pool: NameOrId.optional(), type: z.enum(['ephemeral']) }),
+    z.object({ pool: NameOrId.nullable().optional(), type: z.enum(['ephemeral']) }),
     z.object({ floatingIp: NameOrId, type: z.enum(['floating']) }),
   ])
 )
@@ -1524,7 +1552,7 @@ export const ExternalIpCreate = z.preprocess(
  */
 export const ExternalIpResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: ExternalIp.array(), nextPage: z.string().optional() })
+  z.object({ items: ExternalIp.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -1592,7 +1620,7 @@ export const FieldValue = z.preprocess(
  */
 export const FinalizeDisk = z.preprocess(
   processResponseBody,
-  z.object({ snapshotName: Name.optional() })
+  z.object({ snapshotName: Name.nullable().optional() })
 )
 
 export const FleetRole = z.preprocess(
@@ -1640,7 +1668,7 @@ export const FloatingIp = z.preprocess(
   z.object({
     description: z.string(),
     id: z.string().uuid(),
-    instanceId: z.string().uuid().optional(),
+    instanceId: z.string().uuid().nullable().optional(),
     ip: z.string().ip(),
     ipPoolId: z.string().uuid(),
     name: Name,
@@ -1670,9 +1698,9 @@ export const FloatingIpCreate = z.preprocess(
   processResponseBody,
   z.object({
     description: z.string(),
-    ip: z.string().ip().optional(),
+    ip: z.string().ip().nullable().optional(),
     name: Name,
-    pool: NameOrId.optional(),
+    pool: NameOrId.nullable().optional(),
   })
 )
 
@@ -1681,7 +1709,7 @@ export const FloatingIpCreate = z.preprocess(
  */
 export const FloatingIpResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: FloatingIp.array(), nextPage: z.string().optional() })
+  z.object({ items: FloatingIp.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -1689,7 +1717,10 @@ export const FloatingIpResultsPage = z.preprocess(
  */
 export const FloatingIpUpdate = z.preprocess(
   processResponseBody,
-  z.object({ description: z.string().optional(), name: Name.optional() })
+  z.object({
+    description: z.string().nullable().optional(),
+    name: Name.nullable().optional(),
+  })
 )
 
 /**
@@ -1705,7 +1736,7 @@ export const Group = z.preprocess(
  */
 export const GroupResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Group.array(), nextPage: z.string().optional() })
+  z.object({ items: Group.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -1744,7 +1775,7 @@ export const IdentityProvider = z.preprocess(
  */
 export const IdentityProviderResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: IdentityProvider.array(), nextPage: z.string().optional() })
+  z.object({ items: IdentityProvider.array(), nextPage: z.string().nullable().optional() })
 )
 
 export const IdpMetadataSource = z.preprocess(
@@ -1765,11 +1796,11 @@ export const Image = z.preprocess(
   z.object({
     blockSize: ByteCount,
     description: z.string(),
-    digest: Digest.optional(),
+    digest: Digest.nullable().optional(),
     id: z.string().uuid(),
     name: Name,
     os: z.string(),
-    projectId: z.string().uuid().optional(),
+    projectId: z.string().uuid().nullable().optional(),
     size: ByteCount,
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
@@ -1804,7 +1835,7 @@ export const ImageCreate = z.preprocess(
  */
 export const ImageResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Image.array(), nextPage: z.string().optional() })
+  z.object({ items: Image.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -1837,10 +1868,10 @@ export const InstanceCpuCount = z.preprocess(
 export const Instance = z.preprocess(
   processResponseBody,
   z.object({
-    autoRestartCooldownExpiration: z.coerce.date().optional(),
+    autoRestartCooldownExpiration: z.coerce.date().nullable().optional(),
     autoRestartEnabled: SafeBoolean,
-    autoRestartPolicy: InstanceAutoRestartPolicy.optional(),
-    bootDiskId: z.string().uuid().optional(),
+    autoRestartPolicy: InstanceAutoRestartPolicy.nullable().optional(),
+    bootDiskId: z.string().uuid().nullable().optional(),
     description: z.string(),
     hostname: z.string(),
     id: z.string().uuid(),
@@ -1850,7 +1881,7 @@ export const Instance = z.preprocess(
     projectId: z.string().uuid(),
     runState: InstanceState,
     timeCreated: z.coerce.date(),
-    timeLastAutoRestarted: z.coerce.date().optional(),
+    timeLastAutoRestarted: z.coerce.date().nullable().optional(),
     timeModified: z.coerce.date(),
     timeRunStateUpdated: z.coerce.date(),
   })
@@ -1880,7 +1911,7 @@ export const InstanceNetworkInterfaceCreate = z.preprocess(
   processResponseBody,
   z.object({
     description: z.string(),
-    ip: z.string().ip().optional(),
+    ip: z.string().ip().nullable().optional(),
     name: Name,
     subnetName: Name,
     vpcName: Name,
@@ -1906,8 +1937,8 @@ export const InstanceCreate = z.preprocess(
   processResponseBody,
   z.object({
     antiAffinityGroups: NameOrId.array().default([]).optional(),
-    autoRestartPolicy: InstanceAutoRestartPolicy.default(null).optional(),
-    bootDisk: InstanceDiskAttachment.default(null).optional(),
+    autoRestartPolicy: InstanceAutoRestartPolicy.default(null).nullable().optional(),
+    bootDisk: InstanceDiskAttachment.default(null).nullable().optional(),
     description: z.string(),
     disks: InstanceDiskAttachment.array().default([]).optional(),
     externalIps: ExternalIpCreate.array().default([]).optional(),
@@ -1964,7 +1995,10 @@ export const InstanceNetworkInterface = z.preprocess(
  */
 export const InstanceNetworkInterfaceResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: InstanceNetworkInterface.array(), nextPage: z.string().optional() })
+  z.object({
+    items: InstanceNetworkInterface.array(),
+    nextPage: z.string().nullable().optional(),
+  })
 )
 
 /**
@@ -1975,8 +2009,8 @@ export const InstanceNetworkInterfaceResultsPage = z.preprocess(
 export const InstanceNetworkInterfaceUpdate = z.preprocess(
   processResponseBody,
   z.object({
-    description: z.string().optional(),
-    name: Name.optional(),
+    description: z.string().nullable().optional(),
+    name: Name.nullable().optional(),
     primary: SafeBoolean.default(false).optional(),
     transitIps: IpNet.array().default([]).optional(),
   })
@@ -1987,7 +2021,7 @@ export const InstanceNetworkInterfaceUpdate = z.preprocess(
  */
 export const InstanceResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Instance.array(), nextPage: z.string().optional() })
+  z.object({ items: Instance.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -2004,11 +2038,20 @@ export const InstanceSerialConsoleData = z.preprocess(
 export const InstanceUpdate = z.preprocess(
   processResponseBody,
   z.object({
-    autoRestartPolicy: InstanceAutoRestartPolicy.optional(),
-    bootDisk: NameOrId.optional(),
+    autoRestartPolicy: InstanceAutoRestartPolicy.nullable().optional(),
+    bootDisk: NameOrId.nullable().optional(),
     memory: ByteCount,
     ncpus: InstanceCpuCount,
   })
+)
+
+export const InterfaceNum = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ unknown: z.number().min(0).max(4294967295) }),
+    z.object({ ifIndex: z.number().min(0).max(4294967295) }),
+    z.object({ portNumber: z.number().min(0).max(4294967295) }),
+  ])
 )
 
 /**
@@ -2063,7 +2106,10 @@ export const InternetGatewayIpAddressCreate = z.preprocess(
  */
 export const InternetGatewayIpAddressResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: InternetGatewayIpAddress.array(), nextPage: z.string().optional() })
+  z.object({
+    items: InternetGatewayIpAddress.array(),
+    nextPage: z.string().nullable().optional(),
+  })
 )
 
 /**
@@ -2095,7 +2141,10 @@ export const InternetGatewayIpPoolCreate = z.preprocess(
  */
 export const InternetGatewayIpPoolResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: InternetGatewayIpPool.array(), nextPage: z.string().optional() })
+  z.object({
+    items: InternetGatewayIpPool.array(),
+    nextPage: z.string().nullable().optional(),
+  })
 )
 
 /**
@@ -2103,7 +2152,7 @@ export const InternetGatewayIpPoolResultsPage = z.preprocess(
  */
 export const InternetGatewayResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: InternetGateway.array(), nextPage: z.string().optional() })
+  z.object({ items: InternetGateway.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -2176,7 +2225,7 @@ export const IpPoolRange = z.preprocess(
  */
 export const IpPoolRangeResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: IpPoolRange.array(), nextPage: z.string().optional() })
+  z.object({ items: IpPoolRange.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -2184,7 +2233,7 @@ export const IpPoolRangeResultsPage = z.preprocess(
  */
 export const IpPoolResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: IpPool.array(), nextPage: z.string().optional() })
+  z.object({ items: IpPool.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -2204,7 +2253,7 @@ export const IpPoolSiloLink = z.preprocess(
  */
 export const IpPoolSiloLinkResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: IpPoolSiloLink.array(), nextPage: z.string().optional() })
+  z.object({ items: IpPoolSiloLink.array(), nextPage: z.string().nullable().optional() })
 )
 
 export const IpPoolSiloUpdate = z.preprocess(
@@ -2217,7 +2266,10 @@ export const IpPoolSiloUpdate = z.preprocess(
  */
 export const IpPoolUpdate = z.preprocess(
   processResponseBody,
-  z.object({ description: z.string().optional(), name: Name.optional() })
+  z.object({
+    description: z.string().nullable().optional(),
+    name: Name.nullable().optional(),
+  })
 )
 
 export const Ipv4Utilization = z.preprocess(
@@ -2263,13 +2315,13 @@ export const LinkFec = z.preprocess(processResponseBody, z.enum(['firecode', 'no
 export const LldpLinkConfigCreate = z.preprocess(
   processResponseBody,
   z.object({
-    chassisId: z.string().optional(),
+    chassisId: z.string().nullable().optional(),
     enabled: SafeBoolean,
-    linkDescription: z.string().optional(),
-    linkName: z.string().optional(),
-    managementIp: z.string().ip().optional(),
-    systemDescription: z.string().optional(),
-    systemName: z.string().optional(),
+    linkDescription: z.string().nullable().optional(),
+    linkName: z.string().nullable().optional(),
+    managementIp: z.string().ip().nullable().optional(),
+    systemDescription: z.string().nullable().optional(),
+    systemName: z.string().nullable().optional(),
   })
 )
 
@@ -2297,11 +2349,11 @@ export const LinkSpeed = z.preprocess(
 export const TxEqConfig = z.preprocess(
   processResponseBody,
   z.object({
-    main: z.number().min(-2147483647).max(2147483647).optional(),
-    post1: z.number().min(-2147483647).max(2147483647).optional(),
-    post2: z.number().min(-2147483647).max(2147483647).optional(),
-    pre1: z.number().min(-2147483647).max(2147483647).optional(),
-    pre2: z.number().min(-2147483647).max(2147483647).optional(),
+    main: z.number().min(-2147483647).max(2147483647).nullable().optional(),
+    post1: z.number().min(-2147483647).max(2147483647).nullable().optional(),
+    post2: z.number().min(-2147483647).max(2147483647).nullable().optional(),
+    pre1: z.number().min(-2147483647).max(2147483647).nullable().optional(),
+    pre2: z.number().min(-2147483647).max(2147483647).nullable().optional(),
   })
 )
 
@@ -2312,11 +2364,11 @@ export const LinkConfigCreate = z.preprocess(
   processResponseBody,
   z.object({
     autoneg: SafeBoolean,
-    fec: LinkFec.optional(),
+    fec: LinkFec.nullable().optional(),
     lldp: LldpLinkConfigCreate,
     mtu: z.number().min(0).max(65535),
     speed: LinkSpeed,
-    txEq: TxEqConfig.optional(),
+    txEq: TxEqConfig.nullable().optional(),
   })
 )
 
@@ -2326,14 +2378,31 @@ export const LinkConfigCreate = z.preprocess(
 export const LldpLinkConfig = z.preprocess(
   processResponseBody,
   z.object({
-    chassisId: z.string().optional(),
+    chassisId: z.string().nullable().optional(),
     enabled: SafeBoolean,
     id: z.string().uuid(),
-    linkDescription: z.string().optional(),
-    linkName: z.string().optional(),
-    managementIp: IpNet.optional(),
-    systemDescription: z.string().optional(),
-    systemName: z.string().optional(),
+    linkDescription: z.string().nullable().optional(),
+    linkName: z.string().nullable().optional(),
+    managementIp: IpNet.nullable().optional(),
+    systemDescription: z.string().nullable().optional(),
+    systemName: z.string().nullable().optional(),
+  })
+)
+
+export const NetworkAddress = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ ipAddr: z.string().ip() }),
+    z.object({ iEEE802: z.number().min(0).max(255).array() }),
+  ])
+)
+
+export const ManagementAddress = z.preprocess(
+  processResponseBody,
+  z.object({
+    addr: NetworkAddress,
+    interfaceNum: InterfaceNum,
+    oid: z.number().min(0).max(255).array().optional(),
   })
 )
 
@@ -2346,12 +2415,12 @@ export const LldpNeighbor = z.preprocess(
     chassisId: z.string(),
     firstSeen: z.coerce.date(),
     lastSeen: z.coerce.date(),
-    linkDescription: z.string().optional(),
+    linkDescription: z.string().nullable().optional(),
     linkName: z.string(),
     localPort: z.string(),
-    managementIp: IpNet.array(),
-    systemDescription: z.string().optional(),
-    systemName: z.string().optional(),
+    managementIp: ManagementAddress.array(),
+    systemDescription: z.string().nullable().optional(),
+    systemName: z.string().nullable().optional(),
   })
 )
 
@@ -2360,7 +2429,7 @@ export const LldpNeighbor = z.preprocess(
  */
 export const LldpNeighborResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: LldpNeighbor.array(), nextPage: z.string().optional() })
+  z.object({ items: LldpNeighbor.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -2397,7 +2466,7 @@ export const LoopbackAddressCreate = z.preprocess(
  */
 export const LoopbackAddressResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: LoopbackAddress.array(), nextPage: z.string().optional() })
+  z.object({ items: LoopbackAddress.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -2413,7 +2482,7 @@ export const Measurement = z.preprocess(
  */
 export const MeasurementResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Measurement.array(), nextPage: z.string().optional() })
+  z.object({ items: Measurement.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -2468,12 +2537,18 @@ export const NetworkInterface = z.preprocess(
 export const ValueArray = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ type: z.enum(['integer']), values: z.number().array() }),
-    z.object({ type: z.enum(['double']), values: z.number().array() }),
-    z.object({ type: z.enum(['boolean']), values: SafeBoolean.array() }),
-    z.object({ type: z.enum(['string']), values: z.string().array() }),
-    z.object({ type: z.enum(['integer_distribution']), values: Distributionint64.array() }),
-    z.object({ type: z.enum(['double_distribution']), values: Distributiondouble.array() }),
+    z.object({ type: z.enum(['integer']), values: z.number().nullable().array() }),
+    z.object({ type: z.enum(['double']), values: z.number().nullable().array() }),
+    z.object({ type: z.enum(['boolean']), values: SafeBoolean.nullable().array() }),
+    z.object({ type: z.enum(['string']), values: z.string().nullable().array() }),
+    z.object({
+      type: z.enum(['integer_distribution']),
+      values: Distributionint64.nullable().array(),
+    }),
+    z.object({
+      type: z.enum(['double_distribution']),
+      values: Distributiondouble.nullable().array(),
+    }),
   ])
 )
 
@@ -2569,7 +2644,7 @@ export const PhysicalDisk = z.preprocess(
     model: z.string(),
     policy: PhysicalDiskPolicy,
     serial: z.string(),
-    sledId: z.string().uuid().optional(),
+    sledId: z.string().uuid().nullable().optional(),
     state: PhysicalDiskState,
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
@@ -2582,7 +2657,7 @@ export const PhysicalDisk = z.preprocess(
  */
 export const PhysicalDiskResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: PhysicalDisk.array(), nextPage: z.string().optional() })
+  z.object({ items: PhysicalDisk.array(), nextPage: z.string().nullable().optional() })
 )
 
 export const PingStatus = z.preprocess(processResponseBody, z.enum(['ok']))
@@ -2611,7 +2686,7 @@ export const ProbeCreate = z.preprocess(
   processResponseBody,
   z.object({
     description: z.string(),
-    ipPool: NameOrId.optional(),
+    ipPool: NameOrId.nullable().optional(),
     name: Name,
     sled: z.string().uuid(),
   })
@@ -2648,7 +2723,7 @@ export const ProbeInfo = z.preprocess(
  */
 export const ProbeInfoResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: ProbeInfo.array(), nextPage: z.string().optional() })
+  z.object({ items: ProbeInfo.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -2678,7 +2753,7 @@ export const ProjectCreate = z.preprocess(
  */
 export const ProjectResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Project.array(), nextPage: z.string().optional() })
+  z.object({ items: Project.array(), nextPage: z.string().nullable().optional() })
 )
 
 export const ProjectRole = z.preprocess(
@@ -2715,7 +2790,10 @@ export const ProjectRolePolicy = z.preprocess(
  */
 export const ProjectUpdate = z.preprocess(
   processResponseBody,
-  z.object({ description: z.string().optional(), name: Name.optional() })
+  z.object({
+    description: z.string().nullable().optional(),
+    name: Name.nullable().optional(),
+  })
 )
 
 /**
@@ -2735,7 +2813,7 @@ export const Rack = z.preprocess(
  */
 export const RackResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Rack.array(), nextPage: z.string().optional() })
+  z.object({ items: Rack.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -2764,7 +2842,7 @@ export const Role = z.preprocess(
  */
 export const RoleResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Role.array(), nextPage: z.string().optional() })
+  z.object({ items: Role.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -2775,8 +2853,8 @@ export const Route = z.preprocess(
   z.object({
     dst: IpNet,
     gw: z.string().ip(),
-    ribPriority: z.number().min(0).max(255).optional(),
-    vid: z.number().min(0).max(65535).optional(),
+    ribPriority: z.number().min(0).max(255).nullable().optional(),
+    vid: z.number().min(0).max(65535).nullable().optional(),
   })
 )
 
@@ -2864,7 +2942,7 @@ export const RouterRouteCreate = z.preprocess(
  */
 export const RouterRouteResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: RouterRoute.array(), nextPage: z.string().optional() })
+  z.object({ items: RouterRoute.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -2873,9 +2951,9 @@ export const RouterRouteResultsPage = z.preprocess(
 export const RouterRouteUpdate = z.preprocess(
   processResponseBody,
   z.object({
-    description: z.string().optional(),
+    description: z.string().nullable().optional(),
     destination: RouteDestination,
-    name: Name.optional(),
+    name: Name.nullable().optional(),
     target: RouteTarget,
   })
 )
@@ -2888,11 +2966,11 @@ export const SamlIdentityProvider = z.preprocess(
   z.object({
     acsUrl: z.string(),
     description: z.string(),
-    groupAttributeName: z.string().optional(),
+    groupAttributeName: z.string().nullable().optional(),
     id: z.string().uuid(),
     idpEntityId: z.string(),
     name: Name,
-    publicCert: z.string().optional(),
+    publicCert: z.string().nullable().optional(),
     sloUrl: z.string(),
     spClientId: z.string(),
     technicalContactEmail: z.string(),
@@ -2909,11 +2987,11 @@ export const SamlIdentityProviderCreate = z.preprocess(
   z.object({
     acsUrl: z.string(),
     description: z.string(),
-    groupAttributeName: z.string().optional(),
+    groupAttributeName: z.string().nullable().optional(),
     idpEntityId: z.string(),
     idpMetadataSource: IdpMetadataSource,
     name: Name,
-    signingKeypair: DerEncodedKeyPair.default(null).optional(),
+    signingKeypair: DerEncodedKeyPair.default(null).nullable().optional(),
     sloUrl: z.string(),
     spClientId: z.string(),
     technicalContactEmail: z.string(),
@@ -2975,7 +3053,7 @@ export const SiloQuotasCreate = z.preprocess(
 export const SiloCreate = z.preprocess(
   processResponseBody,
   z.object({
-    adminGroupName: z.string().optional(),
+    adminGroupName: z.string().nullable().optional(),
     description: z.string(),
     discoverable: SafeBoolean,
     identityMode: SiloIdentityMode,
@@ -3008,7 +3086,7 @@ export const SiloIpPool = z.preprocess(
  */
 export const SiloIpPoolResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: SiloIpPool.array(), nextPage: z.string().optional() })
+  z.object({ items: SiloIpPool.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -3029,7 +3107,7 @@ export const SiloQuotas = z.preprocess(
  */
 export const SiloQuotasResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: SiloQuotas.array(), nextPage: z.string().optional() })
+  z.object({ items: SiloQuotas.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -3038,9 +3116,9 @@ export const SiloQuotasResultsPage = z.preprocess(
 export const SiloQuotasUpdate = z.preprocess(
   processResponseBody,
   z.object({
-    cpus: z.number().optional(),
-    memory: ByteCount.optional(),
-    storage: ByteCount.optional(),
+    cpus: z.number().nullable().optional(),
+    memory: ByteCount.nullable().optional(),
+    storage: ByteCount.nullable().optional(),
   })
 )
 
@@ -3049,7 +3127,7 @@ export const SiloQuotasUpdate = z.preprocess(
  */
 export const SiloResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Silo.array(), nextPage: z.string().optional() })
+  z.object({ items: Silo.array(), nextPage: z.string().nullable().optional() })
 )
 
 export const SiloRole = z.preprocess(
@@ -3107,7 +3185,7 @@ export const SiloUtilization = z.preprocess(
  */
 export const SiloUtilizationResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: SiloUtilization.array(), nextPage: z.string().optional() })
+  z.object({ items: SiloUtilization.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -3171,7 +3249,7 @@ export const SledInstance = z.preprocess(
     activeSledId: z.string().uuid(),
     id: z.string().uuid(),
     memory: z.number(),
-    migrationId: z.string().uuid().optional(),
+    migrationId: z.string().uuid().nullable().optional(),
     name: Name,
     ncpus: z.number(),
     projectName: Name,
@@ -3187,7 +3265,7 @@ export const SledInstance = z.preprocess(
  */
 export const SledInstanceResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: SledInstance.array(), nextPage: z.string().optional() })
+  z.object({ items: SledInstance.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -3211,7 +3289,7 @@ export const SledProvisionPolicyResponse = z.preprocess(
  */
 export const SledResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Sled.array(), nextPage: z.string().optional() })
+  z.object({ items: Sled.array(), nextPage: z.string().nullable().optional() })
 )
 
 export const SnapshotState = z.preprocess(
@@ -3250,7 +3328,7 @@ export const SnapshotCreate = z.preprocess(
  */
 export const SnapshotResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Snapshot.array(), nextPage: z.string().optional() })
+  z.object({ items: Snapshot.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -3282,7 +3360,7 @@ export const SshKeyCreate = z.preprocess(
  */
 export const SshKeyResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: SshKey.array(), nextPage: z.string().optional() })
+  z.object({ items: SshKey.array(), nextPage: z.string().nullable().optional() })
 )
 
 export const TypedUuidForSupportBundleKind = z.preprocess(
@@ -3300,7 +3378,7 @@ export const SupportBundleInfo = z.preprocess(
   z.object({
     id: TypedUuidForSupportBundleKind,
     reasonForCreation: z.string(),
-    reasonForFailure: z.string().optional(),
+    reasonForFailure: z.string().nullable().optional(),
     state: SupportBundleState,
     timeCreated: z.coerce.date(),
   })
@@ -3311,7 +3389,7 @@ export const SupportBundleInfo = z.preprocess(
  */
 export const SupportBundleInfoResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: SupportBundleInfo.array(), nextPage: z.string().optional() })
+  z.object({ items: SupportBundleInfo.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -3380,7 +3458,7 @@ export const SwitchPort = z.preprocess(
   z.object({
     id: z.string().uuid(),
     portName: z.string(),
-    portSettingsId: z.string().uuid().optional(),
+    portSettingsId: z.string().uuid().nullable().optional(),
     rackId: z.string().uuid(),
     switchLocation: z.string(),
   })
@@ -3396,7 +3474,7 @@ export const SwitchPortAddressConfig = z.preprocess(
     addressLotBlockId: z.string().uuid(),
     interfaceName: z.string(),
     portSettingsId: z.string().uuid(),
-    vlanId: z.number().min(0).max(65535).optional(),
+    vlanId: z.number().min(0).max(65535).nullable().optional(),
   })
 )
 
@@ -3447,13 +3525,13 @@ export const SwitchPortLinkConfig = z.preprocess(
   processResponseBody,
   z.object({
     autoneg: SafeBoolean,
-    fec: LinkFec.optional(),
+    fec: LinkFec.nullable().optional(),
     linkName: z.string(),
-    lldpLinkConfigId: z.string().uuid().optional(),
+    lldpLinkConfigId: z.string().uuid().nullable().optional(),
     mtu: z.number().min(0).max(65535),
     portSettingsId: z.string().uuid(),
     speed: LinkSpeed,
-    txEqConfigId: z.string().uuid().optional(),
+    txEqConfigId: z.string().uuid().nullable().optional(),
   })
 )
 
@@ -3462,7 +3540,7 @@ export const SwitchPortLinkConfig = z.preprocess(
  */
 export const SwitchPortResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: SwitchPort.array(), nextPage: z.string().optional() })
+  z.object({ items: SwitchPort.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -3475,8 +3553,8 @@ export const SwitchPortRouteConfig = z.preprocess(
     gw: IpNet,
     interfaceName: z.string(),
     portSettingsId: z.string().uuid(),
-    ribPriority: z.number().min(0).max(255).optional(),
-    vlanId: z.number().min(0).max(65535).optional(),
+    ribPriority: z.number().min(0).max(255).nullable().optional(),
+    vlanId: z.number().min(0).max(65535).nullable().optional(),
   })
 )
 
@@ -3525,7 +3603,10 @@ export const SwitchPortSettingsGroups = z.preprocess(
  */
 export const SwitchPortSettingsResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: SwitchPortSettings.array(), nextPage: z.string().optional() })
+  z.object({
+    items: SwitchPortSettings.array(),
+    nextPage: z.string().nullable().optional(),
+  })
 )
 
 /**
@@ -3551,7 +3632,7 @@ export const SwitchPortSettingsView = z.preprocess(
     port: SwitchPortConfig,
     routes: SwitchPortRouteConfig.array(),
     settings: SwitchPortSettings,
-    txEq: TxEqConfig.array(),
+    txEq: TxEqConfig.nullable().array(),
     vlanInterfaces: SwitchVlanInterfaceConfig.array(),
   })
 )
@@ -3561,7 +3642,7 @@ export const SwitchPortSettingsView = z.preprocess(
  */
 export const SwitchResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Switch.array(), nextPage: z.string().optional() })
+  z.object({ items: Switch.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -3667,7 +3748,17 @@ export const TimeseriesSchema = z.preprocess(
  */
 export const TimeseriesSchemaResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: TimeseriesSchema.array(), nextPage: z.string().optional() })
+  z.object({ items: TimeseriesSchema.array(), nextPage: z.string().nullable().optional() })
+)
+
+export const TypedUuidForWebhookEventKind = z.preprocess(
+  processResponseBody,
+  z.string().uuid()
+)
+
+export const TypedUuidForWebhookReceiverKind = z.preprocess(
+  processResponseBody,
+  z.string().uuid()
 )
 
 /**
@@ -3695,7 +3786,7 @@ export const UninitializedSledId = z.preprocess(
  */
 export const UninitializedSledResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: UninitializedSled.array(), nextPage: z.string().optional() })
+  z.object({ items: UninitializedSled.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -3727,7 +3818,7 @@ export const UserBuiltin = z.preprocess(
  */
 export const UserBuiltinResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: UserBuiltin.array(), nextPage: z.string().optional() })
+  z.object({ items: UserBuiltin.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -3770,7 +3861,7 @@ export const UserCreate = z.preprocess(
  */
 export const UserResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: User.array(), nextPage: z.string().optional() })
+  z.object({ items: User.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -3815,7 +3906,7 @@ export const VpcCreate = z.preprocess(
   z.object({
     description: z.string(),
     dnsName: Name,
-    ipv6Prefix: Ipv6Net.optional(),
+    ipv6Prefix: Ipv6Net.nullable().optional(),
     name: Name,
   })
 )
@@ -3942,7 +4033,7 @@ export const VpcFirewallRules = z.preprocess(
  */
 export const VpcResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: Vpc.array(), nextPage: z.string().optional() })
+  z.object({ items: Vpc.array(), nextPage: z.string().nullable().optional() })
 )
 
 export const VpcRouterKind = z.preprocess(processResponseBody, z.enum(['system', 'custom']))
@@ -3976,7 +4067,7 @@ export const VpcRouterCreate = z.preprocess(
  */
 export const VpcRouterResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: VpcRouter.array(), nextPage: z.string().optional() })
+  z.object({ items: VpcRouter.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -3984,7 +4075,10 @@ export const VpcRouterResultsPage = z.preprocess(
  */
 export const VpcRouterUpdate = z.preprocess(
   processResponseBody,
-  z.object({ description: z.string().optional(), name: Name.optional() })
+  z.object({
+    description: z.string().nullable().optional(),
+    name: Name.nullable().optional(),
+  })
 )
 
 /**
@@ -3993,7 +4087,7 @@ export const VpcRouterUpdate = z.preprocess(
 export const VpcSubnet = z.preprocess(
   processResponseBody,
   z.object({
-    customRouterId: z.string().uuid().optional(),
+    customRouterId: z.string().uuid().nullable().optional(),
     description: z.string(),
     id: z.string().uuid(),
     ipv4Block: Ipv4Net,
@@ -4011,10 +4105,10 @@ export const VpcSubnet = z.preprocess(
 export const VpcSubnetCreate = z.preprocess(
   processResponseBody,
   z.object({
-    customRouter: NameOrId.optional(),
+    customRouter: NameOrId.nullable().optional(),
     description: z.string(),
     ipv4Block: Ipv4Net,
-    ipv6Block: Ipv6Net.optional(),
+    ipv6Block: Ipv6Net.nullable().optional(),
     name: Name,
   })
 )
@@ -4024,7 +4118,7 @@ export const VpcSubnetCreate = z.preprocess(
  */
 export const VpcSubnetResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: VpcSubnet.array(), nextPage: z.string().optional() })
+  z.object({ items: VpcSubnet.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -4033,9 +4127,9 @@ export const VpcSubnetResultsPage = z.preprocess(
 export const VpcSubnetUpdate = z.preprocess(
   processResponseBody,
   z.object({
-    customRouter: NameOrId.optional(),
-    description: z.string().optional(),
-    name: Name.optional(),
+    customRouter: NameOrId.nullable().optional(),
+    description: z.string().nullable().optional(),
+    name: Name.nullable().optional(),
   })
 )
 
@@ -4045,10 +4139,189 @@ export const VpcSubnetUpdate = z.preprocess(
 export const VpcUpdate = z.preprocess(
   processResponseBody,
   z.object({
-    description: z.string().optional(),
-    dnsName: Name.optional(),
-    name: Name.optional(),
+    description: z.string().nullable().optional(),
+    dnsName: Name.nullable().optional(),
+    name: Name.nullable().optional(),
   })
+)
+
+/**
+ * A webhook event class subscription
+ *
+ * A webhook event class subscription matches either a single event class exactly, or a glob pattern including wildcards that may match multiple event classes
+ */
+export const WebhookSubscription = z.preprocess(
+  processResponseBody,
+  z.string().regex(/^([a-zA-Z0-9_]+|\*|\*\*)(\.([a-zA-Z0-9_]+|\*|\*\*))*$/)
+)
+
+/**
+ * Create-time identity-related parameters
+ */
+export const WebhookCreate = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    endpoint: z.string(),
+    name: Name,
+    secrets: z.string().array(),
+    subscriptions: WebhookSubscription.array().default([]).optional(),
+  })
+)
+
+/**
+ * The response received from a webhook receiver endpoint.
+ */
+export const WebhookDeliveryResponse = z.preprocess(
+  processResponseBody,
+  z.object({ durationMs: z.number().min(0), status: z.number().min(0).max(65535) })
+)
+
+export const WebhookDeliveryAttemptResult = z.preprocess(
+  processResponseBody,
+  z.enum(['succeeded', 'failed_http_error', 'failed_unreachable', 'failed_timeout'])
+)
+
+/**
+ * An individual delivery attempt for a webhook event.
+ *
+ * This represents a single HTTP request that was sent to the receiver, and its outcome.
+ */
+export const WebhookDeliveryAttempt = z.preprocess(
+  processResponseBody,
+  z.object({
+    attempt: z.number().min(0),
+    response: WebhookDeliveryResponse.nullable().optional(),
+    result: WebhookDeliveryAttemptResult,
+    timeSent: z.coerce.date(),
+  })
+)
+
+/**
+ * The state of a webhook delivery attempt.
+ */
+export const WebhookDeliveryState = z.preprocess(
+  processResponseBody,
+  z.enum(['pending', 'delivered', 'failed'])
+)
+
+/**
+ * The reason a webhook event was delivered
+ */
+export const WebhookDeliveryTrigger = z.preprocess(
+  processResponseBody,
+  z.enum(['event', 'resend', 'probe'])
+)
+
+/**
+ * A delivery of a webhook event.
+ */
+export const WebhookDelivery = z.preprocess(
+  processResponseBody,
+  z.object({
+    attempts: WebhookDeliveryAttempt.array(),
+    eventClass: z.string(),
+    eventId: TypedUuidForWebhookEventKind,
+    id: z.string().uuid(),
+    state: WebhookDeliveryState,
+    timeStarted: z.coerce.date(),
+    trigger: WebhookDeliveryTrigger,
+    webhookId: TypedUuidForWebhookReceiverKind,
+  })
+)
+
+export const WebhookDeliveryId = z.preprocess(
+  processResponseBody,
+  z.object({ deliveryId: z.string().uuid() })
+)
+
+/**
+ * A single page of results
+ */
+export const WebhookDeliveryResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: WebhookDelivery.array(), nextPage: z.string().nullable().optional() })
+)
+
+/**
+ * Data describing the result of a webhook liveness probe attempt.
+ */
+export const WebhookProbeResult = z.preprocess(
+  processResponseBody,
+  z.object({
+    probe: WebhookDelivery,
+    resendsStarted: z.number().min(0).nullable().optional(),
+  })
+)
+
+/**
+ * A view of a shared secret key assigned to a webhook receiver.
+ *
+ * Once a secret is created, the value of the secret is not available in the API, as it must remain secret. Instead, secrets are referenced by their unique IDs assigned when they are created.
+ */
+export const WebhookSecret = z.preprocess(
+  processResponseBody,
+  z.object({ id: z.string().uuid(), timeCreated: z.coerce.date() })
+)
+
+/**
+ * The configuration for a webhook.
+ */
+export const WebhookReceiver = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    endpoint: z.string(),
+    id: z.string().uuid(),
+    name: Name,
+    secrets: WebhookSecret.array(),
+    subscriptions: WebhookSubscription.array(),
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const WebhookReceiverResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: WebhookReceiver.array(), nextPage: z.string().nullable().optional() })
+)
+
+/**
+ * Parameters to update a webhook configuration.
+ */
+export const WebhookReceiverUpdate = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string().nullable().optional(),
+    endpoint: z.string().nullable().optional(),
+    name: Name.nullable().optional(),
+  })
+)
+
+export const WebhookSecretCreate = z.preprocess(
+  processResponseBody,
+  z.object({ secret: z.string() })
+)
+
+/**
+ * A list of the IDs of secrets associated with a webhook.
+ */
+export const WebhookSecrets = z.preprocess(
+  processResponseBody,
+  z.object({ secrets: WebhookSecret.array() })
+)
+
+export const WebhookSubscriptionCreate = z.preprocess(
+  processResponseBody,
+  z.object({ subscription: WebhookSubscription })
+)
+
+export const WebhookSubscriptionCreated = z.preprocess(
+  processResponseBody,
+  z.object({ subscription: WebhookSubscription })
 )
 
 /**
@@ -4091,6 +4364,14 @@ export const SystemMetricName = z.preprocess(
  */
 export const NameSortMode = z.preprocess(processResponseBody, z.enum(['name_ascending']))
 
+/**
+ * Supported set of sort modes for scanning by timestamp and ID
+ */
+export const TimeAndIdSortMode = z.preprocess(
+  processResponseBody,
+  z.enum(['ascending', 'descending'])
+)
+
 export const DeviceAuthRequestParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -4120,8 +4401,8 @@ export const ProbeListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -4167,8 +4448,8 @@ export const SupportBundleListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
   })
@@ -4270,8 +4551,8 @@ export const AffinityGroupListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -4331,8 +4612,8 @@ export const AffinityGroupMemberListParams = z.preprocess(
       affinityGroup: NameOrId,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -4383,8 +4664,8 @@ export const AntiAffinityGroupListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -4444,8 +4725,8 @@ export const AntiAffinityGroupMemberListParams = z.preprocess(
       antiAffinityGroup: NameOrId,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -4496,8 +4777,8 @@ export const CertificateListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
   })
@@ -4536,8 +4817,8 @@ export const DiskListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -4635,9 +4916,9 @@ export const DiskMetricsListParams = z.preprocess(
     }),
     query: z.object({
       endTime: z.coerce.date().optional(),
-      limit: z.number().min(1).max(4294967295).optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
       order: PaginationOrder.optional(),
-      pageToken: z.string().optional(),
+      pageToken: z.string().nullable().optional(),
       startTime: z.coerce.date().optional(),
       project: NameOrId.optional(),
     }),
@@ -4649,8 +4930,8 @@ export const FloatingIpListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -4732,8 +5013,8 @@ export const GroupListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
   })
@@ -4754,8 +5035,8 @@ export const ImageListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -4825,8 +5106,8 @@ export const InstanceListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -4886,8 +5167,8 @@ export const InstanceAffinityGroupListParams = z.preprocess(
       instance: NameOrId,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -4901,8 +5182,8 @@ export const InstanceAntiAffinityGroupListParams = z.preprocess(
       instance: NameOrId,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -4916,8 +5197,8 @@ export const InstanceDiskListParams = z.preprocess(
       instance: NameOrId,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -5003,9 +5284,9 @@ export const InstanceSerialConsoleParams = z.preprocess(
       instance: NameOrId,
     }),
     query: z.object({
-      fromStart: z.number().min(0).optional(),
-      maxBytes: z.number().min(0).optional(),
-      mostRecent: z.number().min(0).optional(),
+      fromStart: z.number().min(0).nullable().optional(),
+      maxBytes: z.number().min(0).nullable().optional(),
+      mostRecent: z.number().min(0).nullable().optional(),
       project: NameOrId.optional(),
     }),
   })
@@ -5018,7 +5299,7 @@ export const InstanceSerialConsoleStreamParams = z.preprocess(
       instance: NameOrId,
     }),
     query: z.object({
-      mostRecent: z.number().min(0).optional(),
+      mostRecent: z.number().min(0).nullable().optional(),
       project: NameOrId.optional(),
     }),
   })
@@ -5031,8 +5312,8 @@ export const InstanceSshPublicKeyListParams = z.preprocess(
       instance: NameOrId,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -5069,8 +5350,8 @@ export const InternetGatewayIpAddressListParams = z.preprocess(
     path: z.object({}),
     query: z.object({
       gateway: NameOrId.optional(),
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
       vpc: NameOrId.optional(),
@@ -5111,8 +5392,8 @@ export const InternetGatewayIpPoolListParams = z.preprocess(
     path: z.object({}),
     query: z.object({
       gateway: NameOrId.optional(),
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
       vpc: NameOrId.optional(),
@@ -5152,8 +5433,8 @@ export const InternetGatewayListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
       vpc: NameOrId.optional(),
@@ -5204,8 +5485,8 @@ export const ProjectIpPoolListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
   })
@@ -5252,8 +5533,8 @@ export const CurrentUserGroupsParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
   })
@@ -5264,8 +5545,8 @@ export const CurrentUserSshKeyListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
   })
@@ -5307,9 +5588,9 @@ export const SiloMetricParams = z.preprocess(
     }),
     query: z.object({
       endTime: z.coerce.date().optional(),
-      limit: z.number().min(1).max(4294967295).optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
       order: PaginationOrder.optional(),
-      pageToken: z.string().optional(),
+      pageToken: z.string().nullable().optional(),
       startTime: z.coerce.date().optional(),
       project: NameOrId.optional(),
     }),
@@ -5322,8 +5603,8 @@ export const InstanceNetworkInterfaceListParams = z.preprocess(
     path: z.object({}),
     query: z.object({
       instance: NameOrId.optional(),
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -5409,8 +5690,8 @@ export const ProjectListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
   })
@@ -5479,8 +5760,8 @@ export const SnapshotListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -5526,8 +5807,8 @@ export const PhysicalDiskListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
   })
@@ -5552,8 +5833,8 @@ export const NetworkingSwitchPortLldpNeighborsParams = z.preprocess(
       switchLocation: Name,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
   })
@@ -5564,8 +5845,8 @@ export const RackListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
   })
@@ -5586,8 +5867,8 @@ export const SledListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
   })
@@ -5618,8 +5899,8 @@ export const SledPhysicalDiskListParams = z.preprocess(
       sledId: z.string().uuid(),
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
   })
@@ -5632,8 +5913,8 @@ export const SledInstanceListParams = z.preprocess(
       sledId: z.string().uuid(),
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
   })
@@ -5654,8 +5935,8 @@ export const SledListUninitializedParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
     }),
   })
 )
@@ -5665,10 +5946,10 @@ export const NetworkingSwitchPortListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
-      switchPortId: z.string().uuid().optional(),
+      switchPortId: z.string().uuid().nullable().optional(),
     }),
   })
 )
@@ -5743,8 +6024,8 @@ export const SwitchListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
   })
@@ -5765,8 +6046,8 @@ export const SiloIdentityProviderListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       silo: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -5834,8 +6115,8 @@ export const IpPoolListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
   })
@@ -5886,8 +6167,8 @@ export const IpPoolRangeListParams = z.preprocess(
       pool: NameOrId,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
     }),
   })
 )
@@ -5919,8 +6200,8 @@ export const IpPoolSiloListParams = z.preprocess(
       pool: NameOrId,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
   })
@@ -5981,8 +6262,8 @@ export const IpPoolServiceRangeListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
     }),
   })
 )
@@ -6011,9 +6292,9 @@ export const SystemMetricParams = z.preprocess(
     }),
     query: z.object({
       endTime: z.coerce.date().optional(),
-      limit: z.number().min(1).max(4294967295).optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
       order: PaginationOrder.optional(),
-      pageToken: z.string().optional(),
+      pageToken: z.string().nullable().optional(),
       startTime: z.coerce.date().optional(),
       silo: NameOrId.optional(),
     }),
@@ -6025,8 +6306,8 @@ export const NetworkingAddressLotListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
   })
@@ -6057,8 +6338,8 @@ export const NetworkingAddressLotBlockListParams = z.preprocess(
       addressLot: NameOrId,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
   })
@@ -6109,8 +6390,8 @@ export const NetworkingBgpConfigListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
   })
@@ -6139,8 +6420,8 @@ export const NetworkingBgpAnnounceSetListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
   })
@@ -6215,8 +6496,8 @@ export const NetworkingLoopbackAddressListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
   })
@@ -6248,8 +6529,8 @@ export const NetworkingSwitchPortSettingsListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       portSettings: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -6305,8 +6586,8 @@ export const RoleListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
     }),
   })
 )
@@ -6326,8 +6607,8 @@ export const SystemQuotasListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
   })
@@ -6338,8 +6619,8 @@ export const SiloListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
   })
@@ -6380,8 +6661,8 @@ export const SiloIpPoolListParams = z.preprocess(
       silo: NameOrId,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
   })
@@ -6440,8 +6721,8 @@ export const SystemTimeseriesSchemaListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
     }),
   })
 )
@@ -6467,8 +6748,8 @@ export const SiloUserListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       silo: NameOrId.optional(),
       sortBy: IdSortMode.optional(),
     }),
@@ -6492,8 +6773,8 @@ export const UserBuiltinListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: NameSortMode.optional(),
     }),
   })
@@ -6514,8 +6795,8 @@ export const SiloUtilizationListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
   })
@@ -6546,9 +6827,9 @@ export const UserListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      group: z.string().uuid().optional(),
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      group: z.string().uuid().nullable().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
     }),
   })
@@ -6589,8 +6870,8 @@ export const VpcRouterRouteListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       router: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
@@ -6619,7 +6900,7 @@ export const VpcRouterRouteViewParams = z.preprocess(
     }),
     query: z.object({
       project: NameOrId.optional(),
-      router: NameOrId,
+      router: NameOrId.optional(),
       vpc: NameOrId.optional(),
     }),
   })
@@ -6658,8 +6939,8 @@ export const VpcRouterListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
       vpc: NameOrId.optional(),
@@ -6722,8 +7003,8 @@ export const VpcSubnetListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
       vpc: NameOrId.optional(),
@@ -6788,8 +7069,8 @@ export const VpcSubnetListNetworkInterfacesParams = z.preprocess(
       subnet: NameOrId,
     }),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
       vpc: NameOrId.optional(),
@@ -6802,8 +7083,8 @@ export const VpcListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
       project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -6853,5 +7134,158 @@ export const VpcDeleteParams = z.preprocess(
     query: z.object({
       project: NameOrId.optional(),
     }),
+  })
+)
+
+export const WebhookDeliveryListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      receiver: NameOrId,
+      delivered: SafeBoolean.nullable().optional(),
+      failed: SafeBoolean.nullable().optional(),
+      pending: SafeBoolean.nullable().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      sortBy: TimeAndIdSortMode.optional(),
+    }),
+  })
+)
+
+export const WebhookDeliveryResendParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      eventId: z.string().uuid(),
+    }),
+    query: z.object({
+      receiver: NameOrId,
+    }),
+  })
+)
+
+export const WebhookEventClassListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      filter: WebhookSubscription.optional(),
+    }),
+  })
+)
+
+export const WebhookReceiverListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const WebhookReceiverCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const WebhookReceiverViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      receiver: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const WebhookReceiverUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      receiver: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const WebhookReceiverDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      receiver: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const WebhookReceiverProbeParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      receiver: NameOrId,
+    }),
+    query: z.object({
+      resend: SafeBoolean.optional(),
+    }),
+  })
+)
+
+export const WebhookReceiverSubscriptionAddParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      receiver: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const WebhookReceiverSubscriptionRemoveParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      receiver: NameOrId,
+      subscription: WebhookSubscription,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const WebhookSecretsListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      receiver: NameOrId,
+    }),
+  })
+)
+
+export const WebhookSecretsAddParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      receiver: NameOrId,
+    }),
+  })
+)
+
+export const WebhookSecretsDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      secretId: z.string().uuid(),
+    }),
+    query: z.object({}),
   })
 )

@@ -14,7 +14,7 @@ import { pb } from '~/util/path-builder'
 import { EmptyCell, SkeletonCell } from './EmptyCell'
 import { LinkCell } from './LinkCell'
 
-export const RouterLinkCell = ({ routerId }: { routerId?: string }) => {
+export const RouterLinkCell = ({ routerId }: { routerId?: string | null }) => {
   const { project, vpc } = useVpcSelector()
   const { data: router, isError } = useApiQuery(
     'vpcRouterView',

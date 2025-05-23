@@ -150,9 +150,6 @@ const utilizationQueryResult1: OxqlQueryResult = {
               {
                 values: {
                   type: 'double',
-                  // there is a bug in the client generator that makes this not allow nulls,
-                  // but we can in fact get them from the API for these values
-                  // @ts-expect-error
                   values: [4991154550.953981, 5002306111.529594, 5005747970.58788, null],
                 },
                 metricType: 'gauge',
