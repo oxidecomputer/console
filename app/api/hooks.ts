@@ -31,7 +31,7 @@ import { navToLogin } from './nav-to-login'
 type Params<F> = F extends (p: infer P) => any ? P : never
 type Result<F> = F extends (p: any) => Promise<ApiResult<infer R>> ? R : never
 
-export type ResultsPage<TItem> = { items: TItem[]; nextPage?: string }
+export type ResultsPage<TItem> = { items: TItem[]; nextPage?: string | null }
 
 type ApiClient = Record<string, (...args: any) => Promise<ApiResult<any>>>
 /* eslint-enable @typescript-eslint/no-explicit-any */

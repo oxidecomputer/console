@@ -1626,6 +1626,95 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/webhooks/deliveries` */
+  webhookDeliveryList: (params: {
+    query: Api.WebhookDeliveryListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.WebhookDeliveryResultsPage>>
+  /** `POST /v1/webhooks/deliveries/:eventId/resend` */
+  webhookDeliveryResend: (params: {
+    path: Api.WebhookDeliveryResendPathParams
+    query: Api.WebhookDeliveryResendQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.WebhookDeliveryId>>
+  /** `GET /v1/webhooks/event-classes` */
+  webhookEventClassList: (params: {
+    query: Api.WebhookEventClassListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.EventClassResultsPage>>
+  /** `GET /v1/webhooks/receivers` */
+  webhookReceiverList: (params: {
+    query: Api.WebhookReceiverListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.WebhookReceiverResultsPage>>
+  /** `POST /v1/webhooks/receivers` */
+  webhookReceiverCreate: (params: {
+    body: Json<Api.WebhookCreate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.WebhookReceiver>>
+  /** `GET /v1/webhooks/receivers/:receiver` */
+  webhookReceiverView: (params: {
+    path: Api.WebhookReceiverViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.WebhookReceiver>>
+  /** `PUT /v1/webhooks/receivers/:receiver` */
+  webhookReceiverUpdate: (params: {
+    path: Api.WebhookReceiverUpdatePathParams
+    body: Json<Api.WebhookReceiverUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `DELETE /v1/webhooks/receivers/:receiver` */
+  webhookReceiverDelete: (params: {
+    path: Api.WebhookReceiverDeletePathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `POST /v1/webhooks/receivers/:receiver/probe` */
+  webhookReceiverProbe: (params: {
+    path: Api.WebhookReceiverProbePathParams
+    query: Api.WebhookReceiverProbeQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.WebhookProbeResult>>
+  /** `POST /v1/webhooks/receivers/:receiver/subscriptions` */
+  webhookReceiverSubscriptionAdd: (params: {
+    path: Api.WebhookReceiverSubscriptionAddPathParams
+    body: Json<Api.WebhookSubscriptionCreate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.WebhookSubscriptionCreated>>
+  /** `DELETE /v1/webhooks/receivers/:receiver/subscriptions/:subscription` */
+  webhookReceiverSubscriptionRemove: (params: {
+    path: Api.WebhookReceiverSubscriptionRemovePathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/webhooks/secrets` */
+  webhookSecretsList: (params: {
+    query: Api.WebhookSecretsListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.WebhookSecrets>>
+  /** `POST /v1/webhooks/secrets` */
+  webhookSecretsAdd: (params: {
+    query: Api.WebhookSecretsAddQueryParams
+    body: Json<Api.WebhookSecretCreate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.WebhookSecret>>
+  /** `DELETE /v1/webhooks/secrets/:secretId` */
+  webhookSecretsDelete: (params: {
+    path: Api.WebhookSecretsDeletePathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
 }
 
 function validateParams<S extends ZodSchema>(
@@ -3015,6 +3104,78 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.delete(
       '/v1/vpcs/:vpc',
       handler(handlers['vpcDelete'], schema.VpcDeleteParams, null)
+    ),
+    http.get(
+      '/v1/webhooks/deliveries',
+      handler(handlers['webhookDeliveryList'], schema.WebhookDeliveryListParams, null)
+    ),
+    http.post(
+      '/v1/webhooks/deliveries/:eventId/resend',
+      handler(handlers['webhookDeliveryResend'], schema.WebhookDeliveryResendParams, null)
+    ),
+    http.get(
+      '/v1/webhooks/event-classes',
+      handler(handlers['webhookEventClassList'], schema.WebhookEventClassListParams, null)
+    ),
+    http.get(
+      '/v1/webhooks/receivers',
+      handler(handlers['webhookReceiverList'], schema.WebhookReceiverListParams, null)
+    ),
+    http.post(
+      '/v1/webhooks/receivers',
+      handler(handlers['webhookReceiverCreate'], null, schema.WebhookCreate)
+    ),
+    http.get(
+      '/v1/webhooks/receivers/:receiver',
+      handler(handlers['webhookReceiverView'], schema.WebhookReceiverViewParams, null)
+    ),
+    http.put(
+      '/v1/webhooks/receivers/:receiver',
+      handler(
+        handlers['webhookReceiverUpdate'],
+        schema.WebhookReceiverUpdateParams,
+        schema.WebhookReceiverUpdate
+      )
+    ),
+    http.delete(
+      '/v1/webhooks/receivers/:receiver',
+      handler(handlers['webhookReceiverDelete'], schema.WebhookReceiverDeleteParams, null)
+    ),
+    http.post(
+      '/v1/webhooks/receivers/:receiver/probe',
+      handler(handlers['webhookReceiverProbe'], schema.WebhookReceiverProbeParams, null)
+    ),
+    http.post(
+      '/v1/webhooks/receivers/:receiver/subscriptions',
+      handler(
+        handlers['webhookReceiverSubscriptionAdd'],
+        schema.WebhookReceiverSubscriptionAddParams,
+        schema.WebhookSubscriptionCreate
+      )
+    ),
+    http.delete(
+      '/v1/webhooks/receivers/:receiver/subscriptions/:subscription',
+      handler(
+        handlers['webhookReceiverSubscriptionRemove'],
+        schema.WebhookReceiverSubscriptionRemoveParams,
+        null
+      )
+    ),
+    http.get(
+      '/v1/webhooks/secrets',
+      handler(handlers['webhookSecretsList'], schema.WebhookSecretsListParams, null)
+    ),
+    http.post(
+      '/v1/webhooks/secrets',
+      handler(
+        handlers['webhookSecretsAdd'],
+        schema.WebhookSecretsAddParams,
+        schema.WebhookSecretCreate
+      )
+    ),
+    http.delete(
+      '/v1/webhooks/secrets/:secretId',
+      handler(handlers['webhookSecretsDelete'], schema.WebhookSecretsDeleteParams, null)
     ),
   ]
 }

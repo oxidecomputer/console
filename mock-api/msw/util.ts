@@ -37,8 +37,8 @@ import { genI64Data } from '../metrics'
 import { db } from './db'
 
 interface PaginateOptions {
-  limit?: number
-  pageToken?: string
+  limit?: number | null
+  pageToken?: string | null
 }
 export interface ResultsPage<I extends { id: string }> {
   items: I[]
@@ -49,7 +49,9 @@ export const paginated = <P extends PaginateOptions, I extends { id: string }>(
   params: P,
   items: I[]
 ) => {
-  const { limit = 100, pageToken } = params || {}
+  const limit = params.limit || 100
+  const pageToken = params.pageToken
+
   let startIndex = pageToken ? items.findIndex((i) => i.id === pageToken) : 0
   startIndex = startIndex < 0 ? 0 : startIndex
 
@@ -410,10 +412,10 @@ export const ipInAnyRange = (ip: string, ranges: IpRange[]) =>
 
 export function updateDesc(
   resource: { description: string },
-  update: { description?: string }
+  update: { description?: string | null }
 ) {
   // Can't be `if (update.description)` because you could never set it to ''
-  if (update.description !== undefined) {
+  if (update.description != null) {
     resource.description = update.description
   }
 }
