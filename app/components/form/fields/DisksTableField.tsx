@@ -52,7 +52,7 @@ export function DisksTableField({
             <MiniTable.HeadCell>Type</MiniTable.HeadCell>
             <MiniTable.HeadCell>Size</MiniTable.HeadCell>
             {/* For remove button */}
-            <MiniTable.HeadCell className="w-12" />
+            <MiniTable.HeadCell />
           </MiniTable.Header>
           <MiniTable.Body>
             {items.length ? (
@@ -75,7 +75,7 @@ export function DisksTableField({
                     ) : (
                       <>
                         <span>{bytesToGiB(item.size)}</span>
-                        <span className="ml-1 inline-block text-accent-secondary">GiB</span>
+                        <span className="ml-1 inline-block text-tertiary">GiB</span>
                       </>
                     )}
                   </MiniTable.Cell>
