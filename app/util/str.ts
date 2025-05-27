@@ -85,3 +85,7 @@ export function addDashes(dashAfterIdxs: number[], code: string) {
   }
   return result
 }
+
+export function article(a: string) {
+  return ['a', 'e', 'i', 'o', 'u'].includes(a[0]) ? `an ${a}` : `a ${a}`
+}

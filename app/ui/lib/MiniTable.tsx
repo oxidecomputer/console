@@ -5,9 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
+import type { ReactNode } from 'react'
+
 import { Error16Icon } from '@oxide/design-system/icons/react'
 
 import { classed } from '~/util/classed'
+import { article } from '~/util/str'
 
 import { Button } from './Button'
 import { EmptyMessage } from './EmptyMessage'
@@ -83,3 +86,57 @@ export const ClearAndAddButtons = ({
     </Button>
   </div>
 )
+
+type MiniTableProps = {
+  resourceName: string
+  emptyTableResourceName?: string
+  columns: string[]
+  rows: ReactNode[][]
+  onClick?: () => void
+}
+export const MiniTable = ({
+  resourceName,
+  emptyTableResourceName,
+  columns,
+  rows = [],
+  onClick,
+}: MiniTableProps) => {
+  // assumption here is that if an onClick is passed, there's a remove cell
+  const hasRemoveCell = !!onClick
+  const emptyTableCopy = `Add ${article(emptyTableResourceName || resourceName)[0]}`
+  const columnCount = columns?.length || 0 + (hasRemoveCell ? 1 : 0)
+  return (
+    <Table className="mb-4" aria-label="Disks">
+      <Header>
+        {rows.length ? (
+          columns?.map((column) => <HeadCell key={column}>{column}</HeadCell>)
+        ) : (
+          <HeadCell>{resourceName}</HeadCell>
+        )}
+        {hasRemoveCell && <HeadCell />}
+      </Header>
+      <Body>
+        {rows.length ? (
+          rows.map((items, index) => (
+            <Row tabIndex={0} aria-rowindex={index + 1} key={items}>
+              {items.map((item, index) => (
+                <Cell key={index}>{item}</Cell>
+              ))}
+              {/* Todo: write the callback for the row */}
+              <RemoveCell
+                onClick={onClick}
+                label={`remove ${resourceName}${item.name ? ` ${item.name}` : ''}`}
+              />
+            </Row>
+          ))
+        ) : (
+          <EmptyState
+            title={`No ${resourceName}s`}
+            body={emptyTableCopy}
+            columnCount={columnCount}
+          />
+        )}
+      </Body>
+    </Table>
+  )
+}
