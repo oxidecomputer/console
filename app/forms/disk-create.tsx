@@ -215,7 +215,7 @@ const DiskSourceField = ({
             control={control}
             name="diskSource.imageId"
             label="Source image"
-            placeholder="Select an image or enter an image name"
+            placeholder="Select an image"
             isLoading={areImagesLoading}
             items={images.map((i) => toImageComboboxItem(i, true))}
             required
@@ -266,7 +266,7 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
       control={control}
       name="diskSource.snapshotId"
       label="Source snapshot"
-      placeholder="Select a snapshot or enter a snapshot name"
+      placeholder="Select a snapshot"
       items={snapshots.map((i) => {
         const formattedSize = filesize(i.size, { base: 2, output: 'object' })
         return {
