@@ -99,43 +99,43 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.SupportBundleInfo>>
-  /** `GET /experimental/v1/system/support-bundles/:supportBundle` */
+  /** `GET /experimental/v1/system/support-bundles/:bundleId` */
   supportBundleView: (params: {
     path: Api.SupportBundleViewPathParams
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.SupportBundleInfo>>
-  /** `DELETE /experimental/v1/system/support-bundles/:supportBundle` */
+  /** `DELETE /experimental/v1/system/support-bundles/:bundleId` */
   supportBundleDelete: (params: {
     path: Api.SupportBundleDeletePathParams
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
-  /** `GET /experimental/v1/system/support-bundles/:supportBundle/download` */
+  /** `GET /experimental/v1/system/support-bundles/:bundleId/download` */
   supportBundleDownload: (params: {
     path: Api.SupportBundleDownloadPathParams
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
-  /** `HEAD /experimental/v1/system/support-bundles/:supportBundle/download` */
+  /** `HEAD /experimental/v1/system/support-bundles/:bundleId/download` */
   supportBundleHead: (params: {
     path: Api.SupportBundleHeadPathParams
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
-  /** `GET /experimental/v1/system/support-bundles/:supportBundle/download/:file` */
+  /** `GET /experimental/v1/system/support-bundles/:bundleId/download/:file` */
   supportBundleDownloadFile: (params: {
     path: Api.SupportBundleDownloadFilePathParams
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
-  /** `HEAD /experimental/v1/system/support-bundles/:supportBundle/download/:file` */
+  /** `HEAD /experimental/v1/system/support-bundles/:bundleId/download/:file` */
   supportBundleHeadFile: (params: {
     path: Api.SupportBundleHeadFilePathParams
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
-  /** `GET /experimental/v1/system/support-bundles/:supportBundle/index` */
+  /** `GET /experimental/v1/system/support-bundles/:bundleId/index` */
   supportBundleIndex: (params: {
     path: Api.SupportBundleIndexPathParams
     req: Request
@@ -210,6 +210,64 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/alert-classes` */
+  alertClassList: (params: {
+    query: Api.AlertClassListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AlertClassResultsPage>>
+  /** `GET /v1/alert-receivers` */
+  alertReceiverList: (params: {
+    query: Api.AlertReceiverListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AlertReceiverResultsPage>>
+  /** `GET /v1/alert-receivers/:receiver` */
+  alertReceiverView: (params: {
+    path: Api.AlertReceiverViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AlertReceiver>>
+  /** `DELETE /v1/alert-receivers/:receiver` */
+  alertReceiverDelete: (params: {
+    path: Api.AlertReceiverDeletePathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/alert-receivers/:receiver/deliveries` */
+  alertDeliveryList: (params: {
+    path: Api.AlertDeliveryListPathParams
+    query: Api.AlertDeliveryListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AlertDeliveryResultsPage>>
+  /** `POST /v1/alert-receivers/:receiver/probe` */
+  alertReceiverProbe: (params: {
+    path: Api.AlertReceiverProbePathParams
+    query: Api.AlertReceiverProbeQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AlertProbeResult>>
+  /** `POST /v1/alert-receivers/:receiver/subscriptions` */
+  alertReceiverSubscriptionAdd: (params: {
+    path: Api.AlertReceiverSubscriptionAddPathParams
+    body: Json<Api.AlertSubscriptionCreate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AlertSubscriptionCreated>>
+  /** `DELETE /v1/alert-receivers/:receiver/subscriptions/:subscription` */
+  alertReceiverSubscriptionRemove: (params: {
+    path: Api.AlertReceiverSubscriptionRemovePathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `POST /v1/alerts/:alertId/resend` */
+  alertDeliveryResend: (params: {
+    path: Api.AlertDeliveryResendPathParams
+    query: Api.AlertDeliveryResendQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AlertDeliveryId>>
   /** `GET /v1/anti-affinity-groups` */
   antiAffinityGroupList: (params: {
     query: Api.AntiAffinityGroupListQueryParams
@@ -1626,90 +1684,33 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
-  /** `GET /v1/webhooks/deliveries` */
-  webhookDeliveryList: (params: {
-    query: Api.WebhookDeliveryListQueryParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.WebhookDeliveryResultsPage>>
-  /** `POST /v1/webhooks/deliveries/:eventId/resend` */
-  webhookDeliveryResend: (params: {
-    path: Api.WebhookDeliveryResendPathParams
-    query: Api.WebhookDeliveryResendQueryParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.WebhookDeliveryId>>
-  /** `GET /v1/webhooks/event-classes` */
-  webhookEventClassList: (params: {
-    query: Api.WebhookEventClassListQueryParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.EventClassResultsPage>>
-  /** `GET /v1/webhooks/receivers` */
-  webhookReceiverList: (params: {
-    query: Api.WebhookReceiverListQueryParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.WebhookReceiverResultsPage>>
-  /** `POST /v1/webhooks/receivers` */
+  /** `POST /v1/webhook-receivers` */
   webhookReceiverCreate: (params: {
     body: Json<Api.WebhookCreate>
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.WebhookReceiver>>
-  /** `GET /v1/webhooks/receivers/:receiver` */
-  webhookReceiverView: (params: {
-    path: Api.WebhookReceiverViewPathParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.WebhookReceiver>>
-  /** `PUT /v1/webhooks/receivers/:receiver` */
+  /** `PUT /v1/webhook-receivers/:receiver` */
   webhookReceiverUpdate: (params: {
     path: Api.WebhookReceiverUpdatePathParams
     body: Json<Api.WebhookReceiverUpdate>
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
-  /** `DELETE /v1/webhooks/receivers/:receiver` */
-  webhookReceiverDelete: (params: {
-    path: Api.WebhookReceiverDeletePathParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<StatusCode>
-  /** `POST /v1/webhooks/receivers/:receiver/probe` */
-  webhookReceiverProbe: (params: {
-    path: Api.WebhookReceiverProbePathParams
-    query: Api.WebhookReceiverProbeQueryParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.WebhookProbeResult>>
-  /** `POST /v1/webhooks/receivers/:receiver/subscriptions` */
-  webhookReceiverSubscriptionAdd: (params: {
-    path: Api.WebhookReceiverSubscriptionAddPathParams
-    body: Json<Api.WebhookSubscriptionCreate>
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.WebhookSubscriptionCreated>>
-  /** `DELETE /v1/webhooks/receivers/:receiver/subscriptions/:subscription` */
-  webhookReceiverSubscriptionRemove: (params: {
-    path: Api.WebhookReceiverSubscriptionRemovePathParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<StatusCode>
-  /** `GET /v1/webhooks/secrets` */
+  /** `GET /v1/webhook-secrets` */
   webhookSecretsList: (params: {
     query: Api.WebhookSecretsListQueryParams
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.WebhookSecrets>>
-  /** `POST /v1/webhooks/secrets` */
+  /** `POST /v1/webhook-secrets` */
   webhookSecretsAdd: (params: {
     query: Api.WebhookSecretsAddQueryParams
     body: Json<Api.WebhookSecretCreate>
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.WebhookSecret>>
-  /** `DELETE /v1/webhooks/secrets/:secretId` */
+  /** `DELETE /v1/webhook-secrets/:secretId` */
   webhookSecretsDelete: (params: {
     path: Api.WebhookSecretsDeletePathParams
     req: Request
@@ -1851,23 +1852,23 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['supportBundleCreate'], null, null)
     ),
     http.get(
-      '/experimental/v1/system/support-bundles/:supportBundle',
+      '/experimental/v1/system/support-bundles/:bundleId',
       handler(handlers['supportBundleView'], schema.SupportBundleViewParams, null)
     ),
     http.delete(
-      '/experimental/v1/system/support-bundles/:supportBundle',
+      '/experimental/v1/system/support-bundles/:bundleId',
       handler(handlers['supportBundleDelete'], schema.SupportBundleDeleteParams, null)
     ),
     http.get(
-      '/experimental/v1/system/support-bundles/:supportBundle/download',
+      '/experimental/v1/system/support-bundles/:bundleId/download',
       handler(handlers['supportBundleDownload'], schema.SupportBundleDownloadParams, null)
     ),
     http.head(
-      '/experimental/v1/system/support-bundles/:supportBundle/download',
+      '/experimental/v1/system/support-bundles/:bundleId/download',
       handler(handlers['supportBundleHead'], schema.SupportBundleHeadParams, null)
     ),
     http.get(
-      '/experimental/v1/system/support-bundles/:supportBundle/download/:file',
+      '/experimental/v1/system/support-bundles/:bundleId/download/:file',
       handler(
         handlers['supportBundleDownloadFile'],
         schema.SupportBundleDownloadFileParams,
@@ -1875,11 +1876,11 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       )
     ),
     http.head(
-      '/experimental/v1/system/support-bundles/:supportBundle/download/:file',
+      '/experimental/v1/system/support-bundles/:bundleId/download/:file',
       handler(handlers['supportBundleHeadFile'], schema.SupportBundleHeadFileParams, null)
     ),
     http.get(
-      '/experimental/v1/system/support-bundles/:supportBundle/index',
+      '/experimental/v1/system/support-bundles/:bundleId/index',
       handler(handlers['supportBundleIndex'], schema.SupportBundleIndexParams, null)
     ),
     http.post(
@@ -1945,6 +1946,50 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         schema.AffinityGroupMemberInstanceDeleteParams,
         null
       )
+    ),
+    http.get(
+      '/v1/alert-classes',
+      handler(handlers['alertClassList'], schema.AlertClassListParams, null)
+    ),
+    http.get(
+      '/v1/alert-receivers',
+      handler(handlers['alertReceiverList'], schema.AlertReceiverListParams, null)
+    ),
+    http.get(
+      '/v1/alert-receivers/:receiver',
+      handler(handlers['alertReceiverView'], schema.AlertReceiverViewParams, null)
+    ),
+    http.delete(
+      '/v1/alert-receivers/:receiver',
+      handler(handlers['alertReceiverDelete'], schema.AlertReceiverDeleteParams, null)
+    ),
+    http.get(
+      '/v1/alert-receivers/:receiver/deliveries',
+      handler(handlers['alertDeliveryList'], schema.AlertDeliveryListParams, null)
+    ),
+    http.post(
+      '/v1/alert-receivers/:receiver/probe',
+      handler(handlers['alertReceiverProbe'], schema.AlertReceiverProbeParams, null)
+    ),
+    http.post(
+      '/v1/alert-receivers/:receiver/subscriptions',
+      handler(
+        handlers['alertReceiverSubscriptionAdd'],
+        schema.AlertReceiverSubscriptionAddParams,
+        schema.AlertSubscriptionCreate
+      )
+    ),
+    http.delete(
+      '/v1/alert-receivers/:receiver/subscriptions/:subscription',
+      handler(
+        handlers['alertReceiverSubscriptionRemove'],
+        schema.AlertReceiverSubscriptionRemoveParams,
+        null
+      )
+    ),
+    http.post(
+      '/v1/alerts/:alertId/resend',
+      handler(handlers['alertDeliveryResend'], schema.AlertDeliveryResendParams, null)
     ),
     http.get(
       '/v1/anti-affinity-groups',
@@ -3105,68 +3150,24 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       '/v1/vpcs/:vpc',
       handler(handlers['vpcDelete'], schema.VpcDeleteParams, null)
     ),
-    http.get(
-      '/v1/webhooks/deliveries',
-      handler(handlers['webhookDeliveryList'], schema.WebhookDeliveryListParams, null)
-    ),
     http.post(
-      '/v1/webhooks/deliveries/:eventId/resend',
-      handler(handlers['webhookDeliveryResend'], schema.WebhookDeliveryResendParams, null)
-    ),
-    http.get(
-      '/v1/webhooks/event-classes',
-      handler(handlers['webhookEventClassList'], schema.WebhookEventClassListParams, null)
-    ),
-    http.get(
-      '/v1/webhooks/receivers',
-      handler(handlers['webhookReceiverList'], schema.WebhookReceiverListParams, null)
-    ),
-    http.post(
-      '/v1/webhooks/receivers',
+      '/v1/webhook-receivers',
       handler(handlers['webhookReceiverCreate'], null, schema.WebhookCreate)
     ),
-    http.get(
-      '/v1/webhooks/receivers/:receiver',
-      handler(handlers['webhookReceiverView'], schema.WebhookReceiverViewParams, null)
-    ),
     http.put(
-      '/v1/webhooks/receivers/:receiver',
+      '/v1/webhook-receivers/:receiver',
       handler(
         handlers['webhookReceiverUpdate'],
         schema.WebhookReceiverUpdateParams,
         schema.WebhookReceiverUpdate
       )
     ),
-    http.delete(
-      '/v1/webhooks/receivers/:receiver',
-      handler(handlers['webhookReceiverDelete'], schema.WebhookReceiverDeleteParams, null)
-    ),
-    http.post(
-      '/v1/webhooks/receivers/:receiver/probe',
-      handler(handlers['webhookReceiverProbe'], schema.WebhookReceiverProbeParams, null)
-    ),
-    http.post(
-      '/v1/webhooks/receivers/:receiver/subscriptions',
-      handler(
-        handlers['webhookReceiverSubscriptionAdd'],
-        schema.WebhookReceiverSubscriptionAddParams,
-        schema.WebhookSubscriptionCreate
-      )
-    ),
-    http.delete(
-      '/v1/webhooks/receivers/:receiver/subscriptions/:subscription',
-      handler(
-        handlers['webhookReceiverSubscriptionRemove'],
-        schema.WebhookReceiverSubscriptionRemoveParams,
-        null
-      )
-    ),
     http.get(
-      '/v1/webhooks/secrets',
+      '/v1/webhook-secrets',
       handler(handlers['webhookSecretsList'], schema.WebhookSecretsListParams, null)
     ),
     http.post(
-      '/v1/webhooks/secrets',
+      '/v1/webhook-secrets',
       handler(
         handlers['webhookSecretsAdd'],
         schema.WebhookSecretsAddParams,
@@ -3174,7 +3175,7 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       )
     ),
     http.delete(
-      '/v1/webhooks/secrets/:secretId',
+      '/v1/webhook-secrets/:secretId',
       handler(handlers['webhookSecretsDelete'], schema.WebhookSecretsDeleteParams, null)
     ),
   ]

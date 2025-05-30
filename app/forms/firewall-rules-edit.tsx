@@ -78,8 +78,15 @@ export default function EditFirewallRuleForm() {
       // invalidate managed to complete while the modal was still open.
       onDismiss()
       queryClient.invalidateQueries('vpcFirewallRulesView')
-      const updatedRule = body.rules[body.rules.length - 1]
-      addToast(<>Firewall rule <HL>{updatedRule.name}</HL> updated</>) // prettier-ignore
+
+      // We are pretty sure here that there is a rule in the list because we are
+      // in the form updating it. We also know the one being updated is last in
+      // the body because we put it it here. We use the request body instead of
+      // the response because the server could change the order.
+      const updatedRule = body.rules?.at(-1)
+      if (updatedRule) {
+        addToast(<>Firewall rule <HL>{updatedRule.name}</HL> updated</>) // prettier-ignore
+      }
     },
   })
 
