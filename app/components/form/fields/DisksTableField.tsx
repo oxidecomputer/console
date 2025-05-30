@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
 import type { DiskCreate } from '@oxide/api'
@@ -46,48 +46,64 @@ export function DisksTableField({
   return (
     <>
       <div className="max-w-lg">
-        {!!items.length && (
-          <MiniTable.Table className="mb-4" aria-label="Disks">
-            <MiniTable.Header>
-              <MiniTable.HeadCell>Name</MiniTable.HeadCell>
-              <MiniTable.HeadCell>Type</MiniTable.HeadCell>
-              <MiniTable.HeadCell>Size</MiniTable.HeadCell>
-              {/* For remove button */}
-              <MiniTable.HeadCell className="w-12" />
-            </MiniTable.Header>
-            <MiniTable.Body>
-              {items.map((item, index) => (
-                <MiniTable.Row
-                  tabIndex={0}
-                  aria-rowindex={index + 1}
-                  aria-label={`Name: ${item.name}, Type: ${item.type}`}
-                  key={item.name}
-                >
-                  <MiniTable.Cell>
-                    <Truncate text={item.name} maxLength={35} />
-                  </MiniTable.Cell>
-                  <MiniTable.Cell>
-                    <Badge variant="solid">{item.type}</Badge>
-                  </MiniTable.Cell>
-                  <MiniTable.Cell>
-                    {item.type === 'attach' ? (
-                      '—'
-                    ) : (
-                      <>
-                        <span>{bytesToGiB(item.size)}</span>
-                        <span className="ml-1 inline-block text-accent-secondary">GiB</span>
-                      </>
-                    )}
-                  </MiniTable.Cell>
-                  <MiniTable.RemoveCell
-                    onClick={() => onChange(items.filter((i) => i.name !== item.name))}
-                    label={`remove disk ${item.name}`}
-                  />
-                </MiniTable.Row>
-              ))}
-            </MiniTable.Body>
-          </MiniTable.Table>
-        )}
+        <MiniTable.Table className="mb-4" aria-label="Disks">
+          <MiniTable.Header>
+            <MiniTable.HeadCell>Name</MiniTable.HeadCell>
+            <MiniTable.HeadCell>Type</MiniTable.HeadCell>
+            <MiniTable.HeadCell>Size</MiniTable.HeadCell>
+            {/* For remove button */}
+            <MiniTable.HeadCell />
+          </MiniTable.Header>
+          <MiniTable.Body>
+            {items.length ? (
+              items.map((item, index) => (
+                <Fragment key={item.name}>
+                  <MiniTable.Row
+                    tabIndex={0}
+                    aria-rowindex={index + 1}
+                    aria-label={`Name: ${item.name}, Type: ${item.type}`}
+                    key={item.name}
+                  >
+                    <MiniTable.Cell>
+                      <Truncate text={item.name} maxLength={35} />
+                    </MiniTable.Cell>
+                    <MiniTable.Cell>
+                      <Badge variant="solid">{item.type}</Badge>
+                    </MiniTable.Cell>
+                    <MiniTable.Cell>
+                      {item.type === 'attach' ? (
+                        '—'
+                      ) : (
+                        <>
+                          <span>{bytesToGiB(item.size)}</span>
+                          <span className="ml-1 inline-block text-tertiary">GiB</span>
+                        </>
+                      )}
+                    </MiniTable.Cell>
+                    <MiniTable.RemoveCell
+                      onClick={() => onChange(items.filter((i) => i.name !== item.name))}
+                      label={`remove disk ${item.name}`}
+                    />
+                  </MiniTable.Row>
+                  <MiniTable.Row>
+                    <MiniTable.InputCell
+                      colSpan={3}
+                      defaultValue=""
+                      placeholder="Enter disk name"
+                    />
+                    <MiniTable.Cell>x</MiniTable.Cell>
+                  </MiniTable.Row>
+                </Fragment>
+              ))
+            ) : (
+              <MiniTable.EmptyState
+                title="No disks"
+                body="Add a disk to see it here"
+                columnCount={4}
+              />
+            )}
+          </MiniTable.Body>
+        </MiniTable.Table>
 
         <div className="space-x-3">
           <Button size="sm" onClick={() => setShowDiskCreate(true)} disabled={disabled}>
