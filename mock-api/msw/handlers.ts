@@ -1457,6 +1457,15 @@ export const handlers = makeHandlers({
     db.sshKeys = db.sshKeys.filter((i) => i.id !== sshKey.id)
     return 204
   },
+  currentUserAccessTokenDelete({ path }) {
+    // Mock delete token - find and remove from mock tokens
+    db.deviceTokens = db.deviceTokens.filter((token) => token.id !== path.tokenId)
+    return 204
+  },
+  currentUserAccessTokenList({ query }) {
+    // Mock token list - return dummy tokens for current user
+    return paginated(query, db.deviceTokens)
+  },
   sledView({ path, cookies }) {
     requireFleetViewer(cookies)
     return lookup.sled(path)
@@ -1498,6 +1507,7 @@ export const handlers = makeHandlers({
     db.silos.push(newSilo)
     db.siloQuotas.push({ silo_id: newSilo.id, ...quotas })
     db.siloProvisioned.push({ silo_id: newSilo.id, cpus: 0, memory: 0, storage: 0 })
+    db.siloSettings.push({ silo_id: newSilo.id, device_token_max_ttl_seconds: null })
     return json(newSilo, { status: 201 })
   },
   siloView({ path, cookies }) {
@@ -1509,6 +1519,7 @@ export const handlers = makeHandlers({
     const silo = lookup.silo(path)
     db.silos = db.silos.filter((i) => i.id !== silo.id)
     db.ipPoolSilos = db.ipPoolSilos.filter((i) => i.silo_id !== silo.id)
+    db.siloSettings = db.siloSettings.filter((i) => i.silo_id !== silo.id)
     return 204
   },
   siloIdentityProviderList({ query, cookies }) {
@@ -1799,14 +1810,10 @@ export const handlers = makeHandlers({
   alertReceiverSubscriptionRemove: NotImplemented,
   alertReceiverView: NotImplemented,
   antiAffinityGroupMemberInstanceView: NotImplemented,
-  authSettingsUpdate: NotImplemented,
-  authSettingsView: NotImplemented,
   certificateCreate: NotImplemented,
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
-  currentUserAccessTokenDelete: NotImplemented,
-  currentUserAccessTokenList: NotImplemented,
   instanceSerialConsole: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
   instanceSshPublicKeyList: NotImplemented,
@@ -1866,6 +1873,22 @@ export const handlers = makeHandlers({
   rackView: NotImplemented,
   roleList: NotImplemented,
   roleView: NotImplemented,
+  authSettingsUpdate({ body }) {
+    // Find settings for default silo (assume it exists)
+    const settingsIndex = db.siloSettings.findIndex((s) => s.silo_id === defaultSilo.id)
+
+    // Update existing settings
+    db.siloSettings[settingsIndex] = {
+      ...db.siloSettings[settingsIndex],
+      device_token_max_ttl_seconds: body.device_token_max_ttl_seconds,
+    }
+    return db.siloSettings[settingsIndex]
+  },
+  authSettingsView() {
+    // Find settings for default silo (assume it exists)
+    const settings = db.siloSettings.find((s) => s.silo_id === defaultSilo.id)!
+    return settings
+  },
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
   siloUserList: NotImplemented,

@@ -1,0 +1,111 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+import { createColumnHelper } from '@tanstack/react-table'
+import { useCallback, useMemo } from 'react'
+
+import {
+  getListQFn,
+  queryClient,
+  useApiMutation,
+  useApiQueryClient,
+  type DeviceAccessToken,
+} from '@oxide/api'
+import { Key16Icon, Key24Icon } from '@oxide/design-system/icons/react'
+
+import { HL } from '~/components/HL'
+import { makeCrumb } from '~/hooks/use-crumbs'
+import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
+import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
+import { Columns } from '~/table/columns/common'
+import { useQueryTable } from '~/table/QueryTable'
+import { DateTime } from '~/ui/lib/DateTime'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { TipIcon } from '~/ui/lib/TipIcon'
+import { pb } from '~/util/path-builder'
+
+const tokenList = () => getListQFn('currentUserAccessTokenList', {})
+export const handle = makeCrumb('Access Tokens', pb.accessTokens)
+
+export async function clientLoader() {
+  await queryClient.prefetchQuery(tokenList().optionsFn())
+  return null
+}
+
+const colHelper = createColumnHelper<DeviceAccessToken>()
+
+export default function AccessTokensPage() {
+  const queryClient = useApiQueryClient()
+
+  const { mutateAsync: deleteToken } = useApiMutation('currentUserAccessTokenDelete', {
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries('currentUserAccessTokenList')
+      addToast(<>Access token <HL>{variables.path.tokenId}</HL> deleted</>) // prettier-ignore
+    },
+  })
+
+  const makeActions = useCallback(
+    (token: DeviceAccessToken): MenuAction[] => [
+      {
+        label: 'Delete',
+        onActivate: confirmDelete({
+          doDelete: () => deleteToken({ path: { tokenId: token.id } }),
+          label: token.id,
+          extraContent:
+            'This cannot be undone. Any application or instances of the Oxide CLI that depends on this token will need a new one.',
+        }),
+      },
+    ],
+    [deleteToken]
+  )
+
+  const columns = useMemo(() => {
+    return [
+      colHelper.accessor('id', {
+        header: () => (
+          <>
+            ID{' '}
+            <TipIcon className="ml-1.5">
+              A database ID for the token record, not the bearer token itself.
+            </TipIcon>
+          </>
+        ),
+        cell: (info) => <span className="font-mono">{info.getValue()}</span>,
+      }),
+      colHelper.accessor('timeCreated', Columns.timeCreated),
+      colHelper.accessor('timeExpires', {
+        header: 'Expires',
+        cell: (info) => {
+          const date = info.getValue()
+          if (!date) return 'Never'
+          return <DateTime date={date} />
+        },
+      }),
+      getActionsCol(makeActions),
+    ]
+  }, [makeActions])
+
+  const emptyState = (
+    <EmptyMessage
+      icon={<Key16Icon />}
+      title="No access tokens"
+      body="Your access tokens will appear here when they are created"
+    />
+  )
+  const { table } = useQueryTable({ query: tokenList(), columns, emptyState })
+
+  return (
+    <>
+      <PageHeader>
+        <PageTitle icon={<Key24Icon />}>Access Tokens</PageTitle>
+      </PageHeader>
+      {table}
+    </>
+  )
+}
