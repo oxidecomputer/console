@@ -47,6 +47,27 @@ export const EmptyState = (props: { title: string; body: string; columnCount: nu
   </Row>
 )
 
+export const InputCell = ({
+  colSpan,
+  defaultValue,
+  placeholder,
+}: {
+  colSpan?: number
+  defaultValue: string
+  placeholder: string
+}) => (
+  <td colSpan={colSpan}>
+    <div>
+      <input
+        type="text"
+        className="text-sm m-0 w-full bg-transparent p-0 !outline-none text-default placeholder:text-quaternary"
+        placeholder={placeholder}
+        defaultValue={defaultValue}
+      />
+    </div>
+  </td>
+)
+
 // followed this for icon in button best practices
 // https://www.sarasoueidan.com/blog/accessible-icon-buttons/
 export const RemoveCell = ({ onClick, label }: { onClick: () => void; label: string }) => (

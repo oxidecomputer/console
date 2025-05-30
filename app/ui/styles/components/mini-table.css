@@ -28,17 +28,27 @@
     @apply bottom-[calc(0.5rem+2px)];
   }
 
+  /* all divs */
   & td > div {
-    @apply flex h-11 items-center border border-y border-r-0 py-3 pl-3 pr-6 border-default;
+    @apply flex h-9 items-center border border-y border-r-0 py-3 pl-3 pr-6 border-default;
   }
 
+  /* first cell's div */
+  & td:first-child > div {
+    @apply ml-2 rounded-l border-l;
+  }
+
+  /* second-to-last cell's div */
   & td:nth-last-child(2) > div {
     @apply rounded-r border-r;
   }
 
+  /* last cell's div (the div for the delete button) */
   & td:last-child > div {
-    @apply flex w-8 items-center justify-center border-none pl-6;
+    @apply flex w-8 items-center justify-center border-none px-5;
   }
+
+  /* the delete button */
   & td:last-child > div > button {
     @apply flex items-center justify-center text-tertiary;
   }
@@ -48,10 +58,6 @@
 
   & tr:last-child td {
     @apply pb-2;
-  }
-
-  & td:first-child > div {
-    @apply ml-2 rounded-l border-l;
   }
 
   & thead tr:first-of-type th:first-of-type {
