@@ -331,6 +331,17 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/auth-settings` */
+  authSettingsView: (params: {
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SiloAuthSettings>>
+  /** `PUT /v1/auth-settings` */
+  authSettingsUpdate: (params: {
+    body: Json<Api.SiloAuthSettingsUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SiloAuthSettings>>
   /** `GET /v1/certificates` */
   certificateList: (params: {
     query: Api.CertificateListQueryParams
@@ -754,6 +765,18 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.CurrentUser>>
+  /** `GET /v1/me/access-tokens` */
+  currentUserAccessTokenList: (params: {
+    query: Api.CurrentUserAccessTokenListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.DeviceAccessTokenResultsPage>>
+  /** `DELETE /v1/me/access-tokens/:tokenId` */
+  currentUserAccessTokenDelete: (params: {
+    path: Api.CurrentUserAccessTokenDeletePathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `GET /v1/me/groups` */
   currentUserGroups: (params: {
     query: Api.CurrentUserGroupsQueryParams
@@ -2055,6 +2078,11 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         null
       )
     ),
+    http.get('/v1/auth-settings', handler(handlers['authSettingsView'], null, null)),
+    http.put(
+      '/v1/auth-settings',
+      handler(handlers['authSettingsUpdate'], null, schema.SiloAuthSettingsUpdate)
+    ),
     http.get(
       '/v1/certificates',
       handler(handlers['certificateList'], schema.CertificateListParams, null)
@@ -2385,6 +2413,22 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     ),
     http.post('/v1/logout', handler(handlers['logout'], null, null)),
     http.get('/v1/me', handler(handlers['currentUserView'], null, null)),
+    http.get(
+      '/v1/me/access-tokens',
+      handler(
+        handlers['currentUserAccessTokenList'],
+        schema.CurrentUserAccessTokenListParams,
+        null
+      )
+    ),
+    http.delete(
+      '/v1/me/access-tokens/:tokenId',
+      handler(
+        handlers['currentUserAccessTokenDelete'],
+        schema.CurrentUserAccessTokenDeleteParams,
+        null
+      )
+    ),
     http.get(
       '/v1/me/groups',
       handler(handlers['currentUserGroups'], schema.CurrentUserGroupsParams, null)

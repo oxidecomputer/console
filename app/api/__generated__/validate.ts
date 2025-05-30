@@ -1536,14 +1536,37 @@ export const DerEncodedKeyPair = z.preprocess(
   z.object({ privateKey: z.string(), publicCert: z.string() })
 )
 
+/**
+ * View of a device access token
+ */
+export const DeviceAccessToken = z.preprocess(
+  processResponseBody,
+  z.object({
+    id: z.string().uuid(),
+    timeCreated: z.coerce.date(),
+    timeExpires: z.coerce.date().nullable().optional(),
+  })
+)
+
 export const DeviceAccessTokenRequest = z.preprocess(
   processResponseBody,
   z.object({ clientId: z.string().uuid(), deviceCode: z.string(), grantType: z.string() })
 )
 
+/**
+ * A single page of results
+ */
+export const DeviceAccessTokenResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: DeviceAccessToken.array(), nextPage: z.string().nullable().optional() })
+)
+
 export const DeviceAuthRequest = z.preprocess(
   processResponseBody,
-  z.object({ clientId: z.string().uuid() })
+  z.object({
+    clientId: z.string().uuid(),
+    ttlSeconds: z.number().min(0).max(4294967295).nullable().optional(),
+  })
 )
 
 export const DeviceAuthVerify = z.preprocess(
@@ -3205,6 +3228,25 @@ export const Silo = z.preprocess(
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
   })
+)
+
+/**
+ * A collection of resource counts used to set the virtual capacity of a silo
+ */
+export const SiloAuthSettings = z.preprocess(
+  processResponseBody,
+  z.object({
+    deviceTokenMaxTtlSeconds: z.number().nullable().optional(),
+    siloId: z.string().uuid(),
+  })
+)
+
+/**
+ * Updateable properties of a silo's settings.
+ */
+export const SiloAuthSettingsUpdate = z.preprocess(
+  processResponseBody,
+  z.object({ deviceTokenMaxTtlSeconds: z.number().min(1).max(4294967295).nullable() })
 )
 
 /**
@@ -4913,6 +4955,22 @@ export const AntiAffinityGroupMemberInstanceDeleteParams = z.preprocess(
   })
 )
 
+export const AuthSettingsViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const AuthSettingsUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
 export const CertificateListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -5665,6 +5723,28 @@ export const CurrentUserViewParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const CurrentUserAccessTokenListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const CurrentUserAccessTokenDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      tokenId: z.string().uuid(),
+    }),
     query: z.object({}),
   })
 )

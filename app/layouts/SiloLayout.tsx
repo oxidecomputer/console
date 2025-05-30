@@ -68,7 +68,7 @@ export default function SiloLayout() {
             <Metrics16Icon /> Utilization
           </NavLinkItem>
           <NavLinkItem to={pb.siloAccess()}>
-            <Access16Icon /> Access
+            <Access16Icon /> Silo Access
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>

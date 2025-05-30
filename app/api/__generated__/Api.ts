@@ -1633,13 +1633,37 @@ export type DerEncodedKeyPair = {
   publicCert: string
 }
 
+/**
+ * View of a device access token
+ */
+export type DeviceAccessToken = {
+  /** A unique, immutable, system-controlled identifier for the token. Note that this ID is not the bearer token itself, which starts with "oxide-token-" */
+  id: string
+  timeCreated: Date
+  timeExpires?: Date | null
+}
+
 export type DeviceAccessTokenRequest = {
   clientId: string
   deviceCode: string
   grantType: string
 }
 
-export type DeviceAuthRequest = { clientId: string }
+/**
+ * A single page of results
+ */
+export type DeviceAccessTokenResultsPage = {
+  /** list of items on this page of results */
+  items: DeviceAccessToken[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+export type DeviceAuthRequest = {
+  clientId: string
+  /** Optional lifetime for the access token in seconds. If not specified, the silo's max TTL will be used (if set). */
+  ttlSeconds?: number | null
+}
 
 export type DeviceAuthVerify = { userCode: string }
 
@@ -3397,6 +3421,19 @@ The default is that no Fleet roles are conferred by any Silo roles unless there'
   timeCreated: Date
   /** timestamp when this resource was last modified */
   timeModified: Date
+}
+
+/**
+ * A collection of resource counts used to set the virtual capacity of a silo
+ */
+export type SiloAuthSettings = { deviceTokenMaxTtlSeconds?: number | null; siloId: string }
+
+/**
+ * Updateable properties of a silo's settings.
+ */
+export type SiloAuthSettingsUpdate = {
+  /** Maximum lifetime of a device token in seconds. If set to null, users will be able to create tokens that do not expire. */
+  deviceTokenMaxTtlSeconds: number | null
 }
 
 /**
@@ -5430,6 +5467,16 @@ export interface LoginLocalPathParams {
   siloName: Name
 }
 
+export interface CurrentUserAccessTokenListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: IdSortMode
+}
+
+export interface CurrentUserAccessTokenDeletePathParams {
+  tokenId: string
+}
+
 export interface CurrentUserGroupsQueryParams {
   limit?: number | null
   pageToken?: string | null
@@ -6886,6 +6933,30 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Fetch current silo's auth settings
+     */
+    authSettingsView: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<SiloAuthSettings>({
+        path: `/v1/auth-settings`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Update current silo's auth settings
+     */
+    authSettingsUpdate: (
+      { body }: { body: SiloAuthSettingsUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloAuthSettings>({
+        path: `/v1/auth-settings`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
      * List certificates for external endpoints
      */
     certificateList: (
@@ -7917,6 +7988,33 @@ export class Api extends HttpClient {
       return this.request<CurrentUser>({
         path: `/v1/me`,
         method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * List access tokens
+     */
+    currentUserAccessTokenList: (
+      { query = {} }: { query?: CurrentUserAccessTokenListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<DeviceAccessTokenResultsPage>({
+        path: `/v1/me/access-tokens`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete access token
+     */
+    currentUserAccessTokenDelete: (
+      { path }: { path: CurrentUserAccessTokenDeletePathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/me/access-tokens/${path.tokenId}`,
+        method: 'DELETE',
         ...params,
       })
     },
