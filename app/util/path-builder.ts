@@ -14,6 +14,7 @@ const projectBase = ({ project }: PP.Project) => `${pb.projects()}/${project}`
 const instanceBase = ({ project, instance }: PP.Instance) =>
   `${pb.instances({ project })}/${instance}`
 const vpcBase = ({ project, vpc }: PP.Vpc) => `${pb.vpcs({ project })}/${vpc}`
+const siloAccessBase = '/access'
 
 export const instanceMetricsBase = ({ project, instance }: PP.Instance) =>
   `${instanceBase({ project, instance })}/metrics`
@@ -104,7 +105,8 @@ export const pb = {
     `${pb.antiAffinityGroup(params)}/edit`,
 
   siloUtilization: () => '/utilization',
-  siloAccess: () => '/access',
+  siloAccessPolicy: () => `${siloAccessBase}/policy`,
+  siloAccessSettings: () => `${siloAccessBase}/settings`,
   siloImages: () => '/images',
   siloImageEdit: (params: PP.SiloImage) => `${pb.siloImages()}/${params.image}/edit`,
 

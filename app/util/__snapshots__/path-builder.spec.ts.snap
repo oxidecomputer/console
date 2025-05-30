@@ -547,10 +547,24 @@ exports[`breadcrumbs 2`] = `
       "path": "/system/silos/s",
     },
   ],
-  "siloAccess (/access)": [
+  "siloAccessPolicy (/access/policy)": [
     {
       "label": "Silo Access",
-      "path": "/access",
+      "path": "/access/policy",
+    },
+    {
+      "label": "Policy",
+      "path": "/access/policy",
+    },
+  ],
+  "siloAccessSettings (/access/settings)": [
+    {
+      "label": "Silo Access",
+      "path": "/access/policy",
+    },
+    {
+      "label": "Settings",
+      "path": "/access/settings",
     },
   ],
   "siloIdpsNew (/system/silos/s/idps-new)": [

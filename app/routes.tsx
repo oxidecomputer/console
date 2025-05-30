@@ -251,7 +251,17 @@ export const routes = createRoutesFromElements(
           />
         </Route>
 
-        <Route path="access" lazy={() => import('./pages/SiloAccessPage').then(convert)} />
+        <Route path="access" lazy={() => import('./pages/SiloAccessPage').then(convert)}>
+          <Route index element={<Navigate to="policy" replace />} />
+          <Route
+            path="policy"
+            lazy={() => import('./pages/SiloAccessPolicy').then(convert)}
+          />
+          <Route
+            path="settings"
+            lazy={() => import('./pages/SiloAccessSettings').then(convert)}
+          />
+        </Route>
       </Route>
 
       {/* PROJECT */}

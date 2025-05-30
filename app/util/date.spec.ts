@@ -6,9 +6,10 @@
  * Copyright Oxide Computer Company
  */
 import { subDays, subHours, subMinutes, subSeconds } from 'date-fns'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest'
 
 import {
+  formatDurationSeconds,
   timeAgoAbbr,
   toLocaleDateString,
   toLocaleDateTimeString,
@@ -83,4 +84,24 @@ describe('timeAgoAbbr', () => {
     expect(toLocaleDateTimeString(baseDate, 'de-DE')).toEqual('07.06.2021, 00:00')
     expect(toLocaleDateTimeString(baseDate, 'ja-JP')).toEqual('2021/06/07 0:00')
   })
+})
+
+test('formatDurationSeconds', () => {
+  expect(formatDurationSeconds(0)).toEqual('0 seconds')
+  expect(formatDurationSeconds(1)).toEqual('1 second')
+  expect(formatDurationSeconds(30)).toEqual('30 seconds')
+  expect(formatDurationSeconds(59)).toEqual('59 seconds')
+
+  expect(formatDurationSeconds(60)).toEqual('1 minute (60 seconds)')
+  expect(formatDurationSeconds(90)).toEqual('About 2 minutes (90 seconds)')
+  expect(formatDurationSeconds(119)).toEqual('About 2 minutes (119 seconds)')
+  expect(formatDurationSeconds(120)).toEqual('2 minutes (120 seconds)')
+
+  expect(formatDurationSeconds(3600)).toEqual('1 hour (3,600 seconds)')
+  expect(formatDurationSeconds(3660)).toEqual('About 1 hour (3,660 seconds)')
+  expect(formatDurationSeconds(7100)).toEqual('About 2 hours (7,100 seconds)')
+  expect(formatDurationSeconds(7200)).toEqual('2 hours (7,200 seconds)')
+
+  expect(formatDurationSeconds(86400)).toEqual('1 day (86,400 seconds)')
+  expect(formatDurationSeconds(172800)).toEqual('2 days (172,800 seconds)')
 })
