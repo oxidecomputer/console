@@ -19,7 +19,6 @@ import { commaSeries } from '~/util/str'
 
 import type { Json } from '../json-type'
 import { siloSettings } from '../silo'
-import { deviceTokens } from '../token'
 import { internalError } from './util'
 
 export const notFoundErr = (msg: string) => {
@@ -478,7 +477,7 @@ const initDb = {
   affinityGroupMemberLists: [...mock.affinityGroupMemberLists],
   antiAffinityGroups: [...mock.antiAffinityGroups],
   antiAffinityGroupMemberLists: [...mock.antiAffinityGroupMemberLists],
-  deviceTokens: [...deviceTokens],
+  deviceTokens: [...mock.deviceTokens],
   disks: [...mock.disks],
   diskBulkImportState: new Map<string, DiskBulkImport>(),
   floatingIps: [...mock.floatingIps],

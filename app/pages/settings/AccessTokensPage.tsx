@@ -58,7 +58,7 @@ export default function AccessTokensPage() {
           doDelete: () => deleteToken({ path: { tokenId: token.id } }),
           label: token.id,
           extraContent:
-            'This cannot be undone. Any application or instances of the Oxide CLI that depends on this token will need a new one.',
+            'This cannot be undone. Any application or instance of the Oxide CLI that depends on this token will need a new one.',
         }),
       },
     ],

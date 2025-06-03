@@ -1419,6 +1419,15 @@ export const handlers = makeHandlers({
 
     return body
   },
+  // assume every silo has a settings entry in both of these
+  authSettingsUpdate({ body }) {
+    const settings = db.siloSettings.find((s) => s.silo_id === defaultSilo.id)!
+    settings.device_token_max_ttl_seconds = body.device_token_max_ttl_seconds
+    return settings
+  },
+  authSettingsView() {
+    return db.siloSettings.find((s) => s.silo_id === defaultSilo.id)!
+  },
   rackList: ({ query, cookies }) => {
     requireFleetViewer(cookies)
     return paginated(query, db.racks)
@@ -1458,14 +1467,10 @@ export const handlers = makeHandlers({
     return 204
   },
   currentUserAccessTokenDelete({ path }) {
-    // Mock delete token - find and remove from mock tokens
     db.deviceTokens = db.deviceTokens.filter((token) => token.id !== path.tokenId)
     return 204
   },
-  currentUserAccessTokenList({ query }) {
-    // Mock token list - return dummy tokens for current user
-    return paginated(query, db.deviceTokens)
-  },
+  currentUserAccessTokenList: ({ query }) => paginated(query, db.deviceTokens),
   sledView({ path, cookies }) {
     requireFleetViewer(cookies)
     return lookup.sled(path)
@@ -1873,22 +1878,6 @@ export const handlers = makeHandlers({
   rackView: NotImplemented,
   roleList: NotImplemented,
   roleView: NotImplemented,
-  authSettingsUpdate({ body }) {
-    // Find settings for default silo (assume it exists)
-    const settingsIndex = db.siloSettings.findIndex((s) => s.silo_id === defaultSilo.id)
-
-    // Update existing settings
-    db.siloSettings[settingsIndex] = {
-      ...db.siloSettings[settingsIndex],
-      device_token_max_ttl_seconds: body.device_token_max_ttl_seconds,
-    }
-    return db.siloSettings[settingsIndex]
-  },
-  authSettingsView() {
-    // Find settings for default silo (assume it exists)
-    const settings = db.siloSettings.find((s) => s.silo_id === defaultSilo.id)!
-    return settings
-  },
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
   siloUserList: NotImplemented,
