@@ -70,7 +70,7 @@ export default function AccessTokensPage() {
       colHelper.accessor('id', {
         header: () => (
           <>
-            ID{' '}
+            ID
             <TipIcon className="ml-1.5">
               A database ID for the token record, not the bearer token itself.
             </TipIcon>
