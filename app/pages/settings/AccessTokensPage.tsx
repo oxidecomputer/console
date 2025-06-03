@@ -15,7 +15,7 @@ import {
   useApiQueryClient,
   type DeviceAccessToken,
 } from '@oxide/api'
-import { Key16Icon, Key24Icon } from '@oxide/design-system/icons/react'
+import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
@@ -95,7 +95,7 @@ export default function AccessTokensPage() {
 
   const emptyState = (
     <EmptyMessage
-      icon={<Key16Icon />}
+      icon={<Access16Icon />}
       title="No access tokens"
       body="Your access tokens will appear here when they are created"
     />
@@ -105,10 +105,10 @@ export default function AccessTokensPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Key24Icon />}>Access Tokens</PageTitle>
+        <PageTitle icon={<Access24Icon />}>Access Tokens</PageTitle>
         <DocsPopover
           heading="access tokens"
-          icon={<Key16Icon />}
+          icon={<Access16Icon />}
           summary="Access tokens are used to authenticate API calls from the CLI and SDKs. You can list and delete tokens here. Use the CLI to generate new ones."
           links={[docLinks.deviceTokens]}
         />
