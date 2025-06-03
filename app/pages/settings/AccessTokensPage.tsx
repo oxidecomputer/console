@@ -17,6 +17,7 @@ import {
 } from '@oxide/api'
 import { Key16Icon, Key24Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -28,6 +29,7 @@ import { DateTime } from '~/ui/lib/DateTime'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TipIcon } from '~/ui/lib/TipIcon'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const tokenList = () => getListQFn('currentUserAccessTokenList', {})
@@ -104,6 +106,12 @@ export default function AccessTokensPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Key24Icon />}>Access Tokens</PageTitle>
+        <DocsPopover
+          heading="access tokens"
+          icon={<Key16Icon />}
+          summary="Access tokens are used to authenticate API calls from the CLI and SDKs. You can list and delete tokens here. Use the CLI to generate new ones."
+          links={[docLinks.deviceTokens]}
+        />
       </PageHeader>
       {table}
     </>
