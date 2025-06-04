@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Fragment, useState } from 'react'
+import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
 import type { DiskCreate } from '@oxide/api'
@@ -57,43 +57,33 @@ export function DisksTableField({
           <MiniTable.Body>
             {items.length ? (
               items.map((item, index) => (
-                <Fragment key={item.name}>
-                  <MiniTable.Row
-                    tabIndex={0}
-                    aria-rowindex={index + 1}
-                    aria-label={`Name: ${item.name}, Type: ${item.type}`}
-                    key={item.name}
-                  >
-                    <MiniTable.Cell>
-                      <Truncate text={item.name} maxLength={35} />
-                    </MiniTable.Cell>
-                    <MiniTable.Cell>
-                      <Badge variant="solid">{item.type}</Badge>
-                    </MiniTable.Cell>
-                    <MiniTable.Cell>
-                      {item.type === 'attach' ? (
-                        '—'
-                      ) : (
-                        <>
-                          <span>{bytesToGiB(item.size)}</span>
-                          <span className="ml-1 inline-block text-tertiary">GiB</span>
-                        </>
-                      )}
-                    </MiniTable.Cell>
-                    <MiniTable.RemoveCell
-                      onClick={() => onChange(items.filter((i) => i.name !== item.name))}
-                      label={`remove disk ${item.name}`}
-                    />
-                  </MiniTable.Row>
-                  <MiniTable.Row>
-                    <MiniTable.InputCell
-                      colSpan={3}
-                      defaultValue=""
-                      placeholder="Enter disk name"
-                    />
-                    <MiniTable.Cell>x</MiniTable.Cell>
-                  </MiniTable.Row>
-                </Fragment>
+                <MiniTable.Row
+                  tabIndex={0}
+                  aria-rowindex={index + 1}
+                  aria-label={`Name: ${item.name}, Type: ${item.type}`}
+                  key={item.name}
+                >
+                  <MiniTable.Cell>
+                    <Truncate text={item.name} maxLength={35} />
+                  </MiniTable.Cell>
+                  <MiniTable.Cell>
+                    <Badge variant="solid">{item.type}</Badge>
+                  </MiniTable.Cell>
+                  <MiniTable.Cell>
+                    {item.type === 'attach' ? (
+                      '—'
+                    ) : (
+                      <>
+                        <span>{bytesToGiB(item.size)}</span>
+                        <span className="ml-1 inline-block text-tertiary">GiB</span>
+                      </>
+                    )}
+                  </MiniTable.Cell>
+                  <MiniTable.RemoveCell
+                    onClick={() => onChange(items.filter((i) => i.name !== item.name))}
+                    label={`remove disk ${item.name}`}
+                  />
+                </MiniTable.Row>
               ))
             ) : (
               <MiniTable.EmptyState
