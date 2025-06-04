@@ -132,6 +132,7 @@ export const pb = {
   sshKeys: () => '/settings/ssh-keys',
   sshKeysNew: () => '/settings/ssh-keys-new',
   sshKeyEdit: (params: PP.SshKey) => `/settings/ssh-keys/${params.sshKey}/edit`,
+  accessTokens: () => '/settings/access-tokens',
 
   deviceSuccess: () => '/device/success',
 }

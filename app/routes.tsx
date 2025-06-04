@@ -110,6 +110,10 @@ export const routes = createRoutesFromElements(
             lazy={() => import('./pages/settings/ssh-key-create').then(convert)}
           />
         </Route>
+        <Route
+          path="access-tokens"
+          lazy={() => import('./pages/settings/AccessTokensPage').then(convert)}
+        />
       </Route>
 
       <Route path="system" lazy={() => import('./layouts/SystemLayout').then(convert)}>

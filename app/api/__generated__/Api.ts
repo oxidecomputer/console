@@ -55,6 +55,8 @@ export type Address = {
 export type AddressConfig = {
   /** The set of addresses assigned to the port configuration. */
   addresses: Address[]
+  /** Link to assign the address to */
+  linkName: Name
 }
 
 /**
@@ -852,7 +854,11 @@ export type BgpPeer = {
   vlanId?: number | null
 }
 
-export type BgpPeerConfig = { peers: BgpPeer[] }
+export type BgpPeerConfig = {
+  /** Link that the peer is reachable on */
+  linkName: Name
+  peers: BgpPeer[]
+}
 
 /**
  * The current state of a BGP peer.
@@ -1633,13 +1639,37 @@ export type DerEncodedKeyPair = {
   publicCert: string
 }
 
+/**
+ * View of a device access token
+ */
+export type DeviceAccessToken = {
+  /** A unique, immutable, system-controlled identifier for the token. Note that this ID is not the bearer token itself, which starts with "oxide-token-" */
+  id: string
+  timeCreated: Date
+  timeExpires?: Date | null
+}
+
 export type DeviceAccessTokenRequest = {
   clientId: string
   deviceCode: string
   grantType: string
 }
 
-export type DeviceAuthRequest = { clientId: string }
+/**
+ * A single page of results
+ */
+export type DeviceAccessTokenResultsPage = {
+  /** list of items on this page of results */
+  items: DeviceAccessToken[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+export type DeviceAuthRequest = {
+  clientId: string
+  /** Optional lifetime for the access token in seconds. If not specified, the silo's max TTL will be used (if set). */
+  ttlSeconds?: number | null
+}
 
 export type DeviceAuthVerify = { userCode: string }
 
@@ -2700,6 +2730,8 @@ export type LinkConfigCreate = {
   autoneg: boolean
   /** The requested forward-error correction method.  If this is not specified, the standard FEC for the underlying media will be applied if it can be determined. */
   fec?: LinkFec | null
+  /** Link name */
+  linkName: Name
   /** The link-layer discovery protocol (LLDP) configuration for the link. */
   lldp: LldpLinkConfigCreate
   /** Maximum transmission unit for the link. */
@@ -2725,7 +2757,7 @@ export type LldpLinkConfig = {
   /** The LLDP link name TLV. */
   linkName?: string | null
   /** The LLDP management IP TLV. */
-  managementIp?: IpNet | null
+  managementIp?: string | null
   /** The LLDP system description TLV. */
   systemDescription?: string | null
   /** The LLDP system name TLV. */
@@ -3181,6 +3213,8 @@ export type Route = {
  * Route configuration data associated with a switch port configuration.
  */
 export type RouteConfig = {
+  /** Link the route should be active on */
+  linkName: Name
   /** The set of routes assigned to a switch port. */
   routes: Route[]
 }
@@ -3397,6 +3431,23 @@ The default is that no Fleet roles are conferred by any Silo roles unless there'
   timeCreated: Date
   /** timestamp when this resource was last modified */
   timeModified: Date
+}
+
+/**
+ * View of silo authentication settings
+ */
+export type SiloAuthSettings = {
+  /** Maximum lifetime of a device token in seconds. If set to null, users will be able to create tokens that do not expire. */
+  deviceTokenMaxTtlSeconds?: number | null
+  siloId: string
+}
+
+/**
+ * Updateable properties of a silo's settings.
+ */
+export type SiloAuthSettingsUpdate = {
+  /** Maximum lifetime of a device token in seconds. If set to null, users will be able to create tokens that do not expire. */
+  deviceTokenMaxTtlSeconds: number | null
 }
 
 /**
@@ -3878,6 +3929,8 @@ export type SwitchInterfaceKind =
 export type SwitchInterfaceConfigCreate = {
   /** What kind of switch interface this configuration represents. */
   kind: SwitchInterfaceKind
+  /** Link the interface will be assigned to */
+  linkName: Name
   /** Whether or not IPv6 is enabled. */
   v6Enabled: boolean
 }
@@ -3903,11 +3956,15 @@ export type SwitchPort = {
 /**
  * An IP address configuration for a port settings object.
  */
-export type SwitchPortAddressConfig = {
+export type SwitchPortAddressView = {
   /** The IP address and prefix. */
   address: IpNet
   /** The id of the address lot block this address is drawn from. */
   addressLotBlockId: string
+  /** The id of the address lot this address is drawn from. */
+  addressLotId: string
+  /** The name of the address lot this address is drawn from. */
+  addressLotName: Name
   /** The interface name this address belongs to. */
   interfaceName: string
   /** The port settings object this address configuration belongs to. */
@@ -3969,6 +4026,22 @@ export type SwitchPortConfigCreate = {
 }
 
 /**
+ * Per-port tx-eq overrides.  This can be used to fine-tune the transceiver equalization settings to improve signal integrity.
+ */
+export type TxEqConfig2 = {
+  /** Main tap */
+  main?: number | null
+  /** Post-cursor tap1 */
+  post1?: number | null
+  /** Post-cursor tap2 */
+  post2?: number | null
+  /** Pre-cursor tap1 */
+  pre1?: number | null
+  /** Pre-cursor tap2 */
+  pre2?: number | null
+}
+
+/**
  * A link configuration for a port settings object.
  */
 export type SwitchPortLinkConfig = {
@@ -3978,16 +4051,16 @@ export type SwitchPortLinkConfig = {
   fec?: LinkFec | null
   /** The name of this link. */
   linkName: string
-  /** The link-layer discovery protocol service configuration id for this link. */
-  lldpLinkConfigId?: string | null
+  /** The link-layer discovery protocol service configuration for this link. */
+  lldpLinkConfig?: LldpLinkConfig | null
   /** The maximum transmission unit for this link. */
   mtu: number
   /** The port settings this link configuration belongs to. */
   portSettingsId: string
   /** The configured speed of the link. */
   speed: LinkSpeed
-  /** The tx_eq configuration id for this link. */
-  txEqConfigId?: string | null
+  /** The tx_eq configuration for this link. */
+  txEqConfig?: TxEqConfig2 | null
 }
 
 /**
@@ -4007,7 +4080,7 @@ export type SwitchPortRouteConfig = {
   /** The route's destination network. */
   dst: IpNet
   /** The route's gateway address. */
-  gw: IpNet
+  gw: string
   /** The interface name this route configuration is assigned to. */
   interfaceName: string
   /** The port settings object this route configuration belongs to. */
@@ -4019,42 +4092,6 @@ export type SwitchPortRouteConfig = {
 }
 
 /**
- * A switch port settings identity whose id may be used to view additional details.
- */
-export type SwitchPortSettings = {
-  /** human-readable free-form text about a resource */
-  description: string
-  /** unique, immutable, system-controlled identifier for each resource */
-  id: string
-  /** unique, mutable, user-controlled identifier for each resource */
-  name: Name
-  /** timestamp when this resource was created */
-  timeCreated: Date
-  /** timestamp when this resource was last modified */
-  timeModified: Date
-}
-
-/**
- * Parameters for creating switch port settings. Switch port settings are the central data structure for setting up external networking. Switch port settings include link, interface, route, address and dynamic network protocol configuration.
- */
-export type SwitchPortSettingsCreate = {
-  /** Addresses indexed by interface name. */
-  addresses: Record<string, AddressConfig>
-  /** BGP peers indexed by interface name. */
-  bgpPeers: Record<string, BgpPeerConfig>
-  description: string
-  groups: NameOrId[]
-  /** Interfaces indexed by link name. */
-  interfaces: Record<string, SwitchInterfaceConfigCreate>
-  /** Links indexed by phy name. On ports that are not broken out, this is always phy0. On a 2x breakout the options are phy0 and phy1, on 4x phy0-phy3, etc. */
-  links: Record<string, LinkConfigCreate>
-  name: Name
-  portConfig: SwitchPortConfigCreate
-  /** Routes indexed by interface name. */
-  routes: Record<string, RouteConfig>
-}
-
-/**
  * This structure maps a port settings object to a port settings groups. Port settings objects may inherit settings from groups. This mapping defines the relationship between settings objects and the groups they reference.
  */
 export type SwitchPortSettingsGroups = {
@@ -4062,16 +4099,6 @@ export type SwitchPortSettingsGroups = {
   portSettingsGroupId: string
   /** The id of a port settings object referencing a port settings group. */
   portSettingsId: string
-}
-
-/**
- * A single page of results
- */
-export type SwitchPortSettingsResultsPage = {
-  /** list of items on this page of results */
-  items: SwitchPortSettings[]
-  /** token used to fetch the next page of results (if any) */
-  nextPage?: string | null
 }
 
 /**
@@ -4087,29 +4114,79 @@ export type SwitchVlanInterfaceConfig = {
 /**
  * This structure contains all port settings information in one place. It's a convenience data structure for getting a complete view of a particular port's settings.
  */
-export type SwitchPortSettingsView = {
+export type SwitchPortSettings = {
   /** Layer 3 IP address settings. */
-  addresses: SwitchPortAddressConfig[]
+  addresses: SwitchPortAddressView[]
   /** BGP peer settings. */
   bgpPeers: BgpPeer[]
+  /** human-readable free-form text about a resource */
+  description: string
   /** Switch port settings included from other switch port settings groups. */
   groups: SwitchPortSettingsGroups[]
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
   /** Layer 3 interface settings. */
   interfaces: SwitchInterfaceConfig[]
-  /** Link-layer discovery protocol (LLDP) settings. */
-  linkLldp: LldpLinkConfig[]
   /** Layer 2 link settings. */
   links: SwitchPortLinkConfig[]
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
   /** Layer 1 physical port settings. */
   port: SwitchPortConfig
   /** IP route settings. */
   routes: SwitchPortRouteConfig[]
-  /** The primary switch port settings handle. */
-  settings: SwitchPortSettings
-  /** TX equalization settings.  These are optional, and most links will not need them. */
-  txEq: (TxEqConfig | null)[]
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
   /** Vlan interface settings. */
   vlanInterfaces: SwitchVlanInterfaceConfig[]
+}
+
+/**
+ * Parameters for creating switch port settings. Switch port settings are the central data structure for setting up external networking. Switch port settings include link, interface, route, address and dynamic network protocol configuration.
+ */
+export type SwitchPortSettingsCreate = {
+  /** Addresses indexed by interface name. */
+  addresses: AddressConfig[]
+  /** BGP peers indexed by interface name. */
+  bgpPeers?: BgpPeerConfig[]
+  description: string
+  groups?: NameOrId[]
+  /** Interfaces indexed by link name. */
+  interfaces?: SwitchInterfaceConfigCreate[]
+  /** Links indexed by phy name. On ports that are not broken out, this is always phy0. On a 2x breakout the options are phy0 and phy1, on 4x phy0-phy3, etc. */
+  links: LinkConfigCreate[]
+  name: Name
+  portConfig: SwitchPortConfigCreate
+  /** Routes indexed by interface name. */
+  routes?: RouteConfig[]
+}
+
+/**
+ * A switch port settings identity whose id may be used to view additional details.
+ */
+export type SwitchPortSettingsIdentity = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * A single page of results
+ */
+export type SwitchPortSettingsIdentityResultsPage = {
+  /** list of items on this page of results */
+  items: SwitchPortSettingsIdentity[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
 }
 
 /**
@@ -5428,6 +5505,16 @@ export interface ProjectIpPoolViewPathParams {
 
 export interface LoginLocalPathParams {
   siloName: Name
+}
+
+export interface CurrentUserAccessTokenListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: IdSortMode
+}
+
+export interface CurrentUserAccessTokenDeletePathParams {
+  tokenId: string
 }
 
 export interface CurrentUserGroupsQueryParams {
@@ -6886,6 +6973,30 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Fetch current silo's auth settings
+     */
+    authSettingsView: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<SiloAuthSettings>({
+        path: `/v1/auth-settings`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Update current silo's auth settings
+     */
+    authSettingsUpdate: (
+      { body }: { body: SiloAuthSettingsUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloAuthSettings>({
+        path: `/v1/auth-settings`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
      * List certificates for external endpoints
      */
     certificateList: (
@@ -7917,6 +8028,33 @@ export class Api extends HttpClient {
       return this.request<CurrentUser>({
         path: `/v1/me`,
         method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * List access tokens
+     */
+    currentUserAccessTokenList: (
+      { query = {} }: { query?: CurrentUserAccessTokenListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<DeviceAccessTokenResultsPage>({
+        path: `/v1/me/access-tokens`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete access token
+     */
+    currentUserAccessTokenDelete: (
+      { path }: { path: CurrentUserAccessTokenDeletePathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/me/access-tokens/${path.tokenId}`,
+        method: 'DELETE',
         ...params,
       })
     },
@@ -9261,7 +9399,7 @@ export class Api extends HttpClient {
       { query = {} }: { query?: NetworkingSwitchPortSettingsListQueryParams },
       params: FetchParams = {}
     ) => {
-      return this.request<SwitchPortSettingsResultsPage>({
+      return this.request<SwitchPortSettingsIdentityResultsPage>({
         path: `/v1/system/networking/switch-port-settings`,
         method: 'GET',
         query,
@@ -9275,7 +9413,7 @@ export class Api extends HttpClient {
       { body }: { body: SwitchPortSettingsCreate },
       params: FetchParams = {}
     ) => {
-      return this.request<SwitchPortSettingsView>({
+      return this.request<SwitchPortSettings>({
         path: `/v1/system/networking/switch-port-settings`,
         method: 'POST',
         body,
@@ -9303,7 +9441,7 @@ export class Api extends HttpClient {
       { path }: { path: NetworkingSwitchPortSettingsViewPathParams },
       params: FetchParams = {}
     ) => {
-      return this.request<SwitchPortSettingsView>({
+      return this.request<SwitchPortSettings>({
         path: `/v1/system/networking/switch-port-settings/${path.port}`,
         method: 'GET',
         ...params,

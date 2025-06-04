@@ -181,7 +181,7 @@ export default function RouterPage() {
         <PageTitle icon={<Networking24Icon />}>{router}</PageTitle>
         <div className="inline-flex gap-2">
           <DocsPopover
-            heading="Routers"
+            heading="routers"
             icon={<Networking16Icon />}
             summary="Routers are collections of routes that direct traffic between VPCs and their subnets."
             links={[docLinks.routers]}

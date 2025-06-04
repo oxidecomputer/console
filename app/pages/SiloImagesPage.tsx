@@ -104,7 +104,7 @@ export default function SiloImagesPage() {
       <PageHeader>
         <PageTitle icon={<Images24Icon />}>Silo Images</PageTitle>
         <DocsPopover
-          heading="Images"
+          heading="images"
           icon={<Images16Icon />}
           summary="Images let you create a new disk based on an existing one. Silo images must be created within a project and then promoted."
           links={[docLinks.images]}
