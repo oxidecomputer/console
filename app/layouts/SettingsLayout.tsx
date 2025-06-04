@@ -9,7 +9,7 @@ import { useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 
 import {
-  Access16Icon,
+  AccessToken16Icon,
   Folder16Icon,
   Key16Icon,
   Profile16Icon,
@@ -68,7 +68,7 @@ export default function SettingsLayout() {
             <Key16Icon /> SSH Keys
           </NavLinkItem>
           <NavLinkItem to={pb.accessTokens()}>
-            <Access16Icon /> Access Tokens
+            <AccessToken16Icon /> Access Tokens
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
