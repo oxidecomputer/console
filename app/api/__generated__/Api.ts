@@ -55,6 +55,8 @@ export type Address = {
 export type AddressConfig = {
   /** The set of addresses assigned to the port configuration. */
   addresses: Address[]
+  /** Link to assign the address to */
+  linkName: Name
 }
 
 /**
@@ -300,6 +302,218 @@ export type SwitchBgpHistory = {
 export type AggregateBgpMessageHistory = {
   /** BGP history organized by switch. */
   switchHistories: SwitchBgpHistory[]
+}
+
+/**
+ * An alert class.
+ */
+export type AlertClass = {
+  /** A description of what this alert class represents. */
+  description: string
+  /** The name of the alert class. */
+  name: string
+}
+
+/**
+ * A single page of results
+ */
+export type AlertClassResultsPage = {
+  /** list of items on this page of results */
+  items: AlertClass[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+export type TypedUuidForAlertKind = string
+
+/**
+ * The response received from a webhook receiver endpoint.
+ */
+export type WebhookDeliveryResponse = {
+  /** The response time of the webhook endpoint, in milliseconds. */
+  durationMs: number
+  /** The HTTP status code returned from the webhook endpoint. */
+  status: number
+}
+
+export type WebhookDeliveryAttemptResult =
+  /** The webhook event has been delivered successfully. */
+  | 'succeeded'
+
+  /** A webhook request was sent to the endpoint, and it returned a HTTP error status code indicating an error. */
+  | 'failed_http_error'
+
+  /** The webhook request could not be sent to the receiver endpoint. */
+  | 'failed_unreachable'
+
+  /** A connection to the receiver endpoint was successfully established, but no response was received within the delivery timeout. */
+  | 'failed_timeout'
+
+/**
+ * An individual delivery attempt for a webhook event.
+ *
+ * This represents a single HTTP request that was sent to the receiver, and its outcome.
+ */
+export type WebhookDeliveryAttempt = {
+  /** The attempt number. */
+  attempt: number
+  response?: WebhookDeliveryResponse | null
+  /** The outcome of this delivery attempt: either the event was delivered successfully, or the request failed for one of several reasons. */
+  result: WebhookDeliveryAttemptResult
+  /** The time at which the webhook delivery was attempted. */
+  timeSent: Date
+}
+
+/**
+ * A list of attempts to deliver an alert to a receiver.
+ *
+ * The type of the delivery attempt model depends on the receiver type, as it may contain information specific to that delivery mechanism. For example, webhook delivery attempts contain the HTTP status code of the webhook request.
+ */
+export type AlertDeliveryAttempts = { webhook: WebhookDeliveryAttempt[] }
+
+export type TypedUuidForAlertReceiverKind = string
+
+/**
+ * The state of a webhook delivery attempt.
+ */
+export type AlertDeliveryState =
+  /** The webhook event has not yet been delivered successfully.
+
+Either no delivery attempts have yet been performed, or the delivery has failed at least once but has retries remaining. */
+  | 'pending'
+
+  /** The webhook event has been delivered successfully. */
+  | 'delivered'
+
+  /** The webhook delivery attempt has failed permanently and will not be retried again. */
+  | 'failed'
+
+/**
+ * The reason an alert was delivered
+ */
+export type AlertDeliveryTrigger =
+  /** Delivery was triggered by the alert itself. */
+  | 'alert'
+
+  /** Delivery was triggered by a request to resend the alert. */
+  | 'resend'
+
+  /** This delivery is a liveness probe. */
+  | 'probe'
+
+/**
+ * A delivery of a webhook event.
+ */
+export type AlertDelivery = {
+  /** The event class. */
+  alertClass: string
+  /** The UUID of the event. */
+  alertId: TypedUuidForAlertKind
+  /** Individual attempts to deliver this webhook event, and their outcomes. */
+  attempts: AlertDeliveryAttempts
+  /** The UUID of this delivery attempt. */
+  id: string
+  /** The UUID of the alert receiver that this event was delivered to. */
+  receiverId: TypedUuidForAlertReceiverKind
+  /** The state of this delivery. */
+  state: AlertDeliveryState
+  /** The time at which this delivery began (i.e. the event was dispatched to the receiver). */
+  timeStarted: Date
+  /** Why this delivery was performed. */
+  trigger: AlertDeliveryTrigger
+}
+
+export type AlertDeliveryId = { deliveryId: string }
+
+/**
+ * A single page of results
+ */
+export type AlertDeliveryResultsPage = {
+  /** list of items on this page of results */
+  items: AlertDelivery[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
+ * Data describing the result of an alert receiver liveness probe attempt.
+ */
+export type AlertProbeResult = {
+  /** The outcome of the probe delivery. */
+  probe: AlertDelivery
+  /** If the probe request succeeded, and resending failed deliveries on success was requested, the number of new delivery attempts started. Otherwise, if the probe did not succeed, or resending failed deliveries was not requested, this is null.
+
+Note that this may be 0, if there were no events found which had not been delivered successfully to this receiver. */
+  resendsStarted?: number | null
+}
+
+/**
+ * A view of a shared secret key assigned to a webhook receiver.
+ *
+ * Once a secret is created, the value of the secret is not available in the API, as it must remain secret. Instead, secrets are referenced by their unique IDs assigned when they are created.
+ */
+export type WebhookSecret = {
+  /** The public unique ID of the secret. */
+  id: string
+  /** The UTC timestamp at which this secret was created. */
+  timeCreated: Date
+}
+
+/**
+ * The possible alert delivery mechanisms for an alert receiver.
+ */
+export type AlertReceiverKind = {
+  /** The URL that webhook notification requests are sent to. */
+  endpoint: string
+  kind: 'webhook'
+  secrets: WebhookSecret[]
+}
+
+/**
+ * A webhook event class subscription
+ *
+ * A webhook event class subscription matches either a single event class exactly, or a glob pattern including wildcards that may match multiple event classes
+ */
+export type AlertSubscription = string
+
+/**
+ * The configuration for an alert receiver.
+ */
+export type AlertReceiver = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** Configuration specific to the kind of alert receiver that this is. */
+  kind: AlertReceiverKind
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** The list of alert classes to which this receiver is subscribed. */
+  subscriptions: AlertSubscription[]
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * A single page of results
+ */
+export type AlertReceiverResultsPage = {
+  /** list of items on this page of results */
+  items: AlertReceiver[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+export type AlertSubscriptionCreate = {
+  /** The event class pattern to subscribe to. */
+  subscription: AlertSubscription
+}
+
+export type AlertSubscriptionCreated = {
+  /** The new subscription added to the receiver. */
+  subscription: AlertSubscription
 }
 
 /**
@@ -640,7 +854,11 @@ export type BgpPeer = {
   vlanId?: number | null
 }
 
-export type BgpPeerConfig = { peers: BgpPeer[] }
+export type BgpPeerConfig = {
+  /** Link that the peer is reachable on */
+  linkName: Name
+  peers: BgpPeer[]
+}
 
 /**
  * The current state of a BGP peer.
@@ -1421,13 +1639,37 @@ export type DerEncodedKeyPair = {
   publicCert: string
 }
 
+/**
+ * View of a device access token
+ */
+export type DeviceAccessToken = {
+  /** A unique, immutable, system-controlled identifier for the token. Note that this ID is not the bearer token itself, which starts with "oxide-token-" */
+  id: string
+  timeCreated: Date
+  timeExpires?: Date | null
+}
+
 export type DeviceAccessTokenRequest = {
   clientId: string
   deviceCode: string
   grantType: string
 }
 
-export type DeviceAuthRequest = { clientId: string }
+/**
+ * A single page of results
+ */
+export type DeviceAccessTokenResultsPage = {
+  /** list of items on this page of results */
+  items: DeviceAccessToken[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+export type DeviceAuthRequest = {
+  clientId: string
+  /** Optional lifetime for the access token in seconds. If not specified, the silo's max TTL will be used (if set). */
+  ttlSeconds?: number | null
+}
 
 export type DeviceAuthVerify = { userCode: string }
 
@@ -1571,26 +1813,6 @@ export type Distributionint64 = {
 export type EphemeralIpCreate = {
   /** Name or ID of the IP pool used to allocate an address. If unspecified, the default IP pool will be used. */
   pool?: NameOrId | null
-}
-
-/**
- * A webhook event class.
- */
-export type EventClass = {
-  /** A description of what this event class represents. */
-  description: string
-  /** The name of the event class. */
-  name: string
-}
-
-/**
- * A single page of results
- */
-export type EventClassResultsPage = {
-  /** list of items on this page of results */
-  items: EventClass[]
-  /** token used to fetch the next page of results (if any) */
-  nextPage?: string | null
 }
 
 export type ExternalIp =
@@ -2033,14 +2255,20 @@ This policy determines whether the instance should be automatically restarted by
 
 Currently, the global default auto-restart policy is "best-effort", so instances with `null` auto-restart policies will be automatically restarted. However, in the future, the default policy may be configurable through other mechanisms, such as on a per-project basis. In that case, any configured default policy will be used if this is `null`. */
   autoRestartPolicy?: InstanceAutoRestartPolicy | null
-  /** The disk this instance should boot into. This disk can either be attached if it already exists, or created, if it should be a new disk.
+  /** The disk the instance is configured to boot from.
 
-It is strongly recommended to either provide a boot disk at instance creation, or update the instance after creation to set a boot disk.
+This disk can either be attached if it already exists or created along with the instance.
 
-An instance without an explicit boot disk can be booted: the options are as managed by UEFI, and as controlled by the guest OS, but with some risk.  If this instance later has a disk attached or detached, it is possible that boot options can end up reordered, with the intended boot disk moved after the EFI shell in boot priority. This may result in an instance that only boots to the EFI shell until the desired disk is set as an explicit boot disk and the instance rebooted. */
+Specifying a boot disk is optional but recommended to ensure predictable boot behavior. The boot disk can be set during instance creation or later if the instance is stopped.
+
+An instance that does not have a boot disk set will use the boot options specified in its UEFI settings, which are controlled by both the instance's UEFI firmware and the guest operating system. Boot options can change as disks are attached and detached, which may result in an instance that only boots to the EFI shell until a boot disk is set. */
   bootDisk?: InstanceDiskAttachment | null
   description: string
-  /** The disks to be created or attached for this instance. */
+  /** A list of disks to be attached to the instance.
+
+Disk attachments of type "create" will be created, while those of type "attach" must already exist.
+
+The order of this list does not guarantee a boot order for the instance. Use the boot_disk attribute to specify a boot disk. */
   disks?: InstanceDiskAttachment[]
   /** The external IP addresses provided to this instance.
 
@@ -2502,6 +2730,8 @@ export type LinkConfigCreate = {
   autoneg: boolean
   /** The requested forward-error correction method.  If this is not specified, the standard FEC for the underlying media will be applied if it can be determined. */
   fec?: LinkFec | null
+  /** Link name */
+  linkName: Name
   /** The link-layer discovery protocol (LLDP) configuration for the link. */
   lldp: LldpLinkConfigCreate
   /** Maximum transmission unit for the link. */
@@ -2527,7 +2757,7 @@ export type LldpLinkConfig = {
   /** The LLDP link name TLV. */
   linkName?: string | null
   /** The LLDP management IP TLV. */
-  managementIp?: IpNet | null
+  managementIp?: string | null
   /** The LLDP system description TLV. */
   systemDescription?: string | null
   /** The LLDP system name TLV. */
@@ -2983,6 +3213,8 @@ export type Route = {
  * Route configuration data associated with a switch port configuration.
  */
 export type RouteConfig = {
+  /** Link the route should be active on */
+  linkName: Name
   /** The set of routes assigned to a switch port. */
   routes: Route[]
 }
@@ -3199,6 +3431,23 @@ The default is that no Fleet roles are conferred by any Silo roles unless there'
   timeCreated: Date
   /** timestamp when this resource was last modified */
   timeModified: Date
+}
+
+/**
+ * View of silo authentication settings
+ */
+export type SiloAuthSettings = {
+  /** Maximum lifetime of a device token in seconds. If set to null, users will be able to create tokens that do not expire. */
+  deviceTokenMaxTtlSeconds?: number | null
+  siloId: string
+}
+
+/**
+ * Updateable properties of a silo's settings.
+ */
+export type SiloAuthSettingsUpdate = {
+  /** Maximum lifetime of a device token in seconds. If set to null, users will be able to create tokens that do not expire. */
+  deviceTokenMaxTtlSeconds: number | null
 }
 
 /**
@@ -3680,6 +3929,8 @@ export type SwitchInterfaceKind =
 export type SwitchInterfaceConfigCreate = {
   /** What kind of switch interface this configuration represents. */
   kind: SwitchInterfaceKind
+  /** Link the interface will be assigned to */
+  linkName: Name
   /** Whether or not IPv6 is enabled. */
   v6Enabled: boolean
 }
@@ -3705,11 +3956,15 @@ export type SwitchPort = {
 /**
  * An IP address configuration for a port settings object.
  */
-export type SwitchPortAddressConfig = {
+export type SwitchPortAddressView = {
   /** The IP address and prefix. */
   address: IpNet
   /** The id of the address lot block this address is drawn from. */
   addressLotBlockId: string
+  /** The id of the address lot this address is drawn from. */
+  addressLotId: string
+  /** The name of the address lot this address is drawn from. */
+  addressLotName: Name
   /** The interface name this address belongs to. */
   interfaceName: string
   /** The port settings object this address configuration belongs to. */
@@ -3771,6 +4026,22 @@ export type SwitchPortConfigCreate = {
 }
 
 /**
+ * Per-port tx-eq overrides.  This can be used to fine-tune the transceiver equalization settings to improve signal integrity.
+ */
+export type TxEqConfig2 = {
+  /** Main tap */
+  main?: number | null
+  /** Post-cursor tap1 */
+  post1?: number | null
+  /** Post-cursor tap2 */
+  post2?: number | null
+  /** Pre-cursor tap1 */
+  pre1?: number | null
+  /** Pre-cursor tap2 */
+  pre2?: number | null
+}
+
+/**
  * A link configuration for a port settings object.
  */
 export type SwitchPortLinkConfig = {
@@ -3780,16 +4051,16 @@ export type SwitchPortLinkConfig = {
   fec?: LinkFec | null
   /** The name of this link. */
   linkName: string
-  /** The link-layer discovery protocol service configuration id for this link. */
-  lldpLinkConfigId?: string | null
+  /** The link-layer discovery protocol service configuration for this link. */
+  lldpLinkConfig?: LldpLinkConfig | null
   /** The maximum transmission unit for this link. */
   mtu: number
   /** The port settings this link configuration belongs to. */
   portSettingsId: string
   /** The configured speed of the link. */
   speed: LinkSpeed
-  /** The tx_eq configuration id for this link. */
-  txEqConfigId?: string | null
+  /** The tx_eq configuration for this link. */
+  txEqConfig?: TxEqConfig2 | null
 }
 
 /**
@@ -3809,7 +4080,7 @@ export type SwitchPortRouteConfig = {
   /** The route's destination network. */
   dst: IpNet
   /** The route's gateway address. */
-  gw: IpNet
+  gw: string
   /** The interface name this route configuration is assigned to. */
   interfaceName: string
   /** The port settings object this route configuration belongs to. */
@@ -3821,42 +4092,6 @@ export type SwitchPortRouteConfig = {
 }
 
 /**
- * A switch port settings identity whose id may be used to view additional details.
- */
-export type SwitchPortSettings = {
-  /** human-readable free-form text about a resource */
-  description: string
-  /** unique, immutable, system-controlled identifier for each resource */
-  id: string
-  /** unique, mutable, user-controlled identifier for each resource */
-  name: Name
-  /** timestamp when this resource was created */
-  timeCreated: Date
-  /** timestamp when this resource was last modified */
-  timeModified: Date
-}
-
-/**
- * Parameters for creating switch port settings. Switch port settings are the central data structure for setting up external networking. Switch port settings include link, interface, route, address and dynamic network protocol configuration.
- */
-export type SwitchPortSettingsCreate = {
-  /** Addresses indexed by interface name. */
-  addresses: Record<string, AddressConfig>
-  /** BGP peers indexed by interface name. */
-  bgpPeers: Record<string, BgpPeerConfig>
-  description: string
-  groups: NameOrId[]
-  /** Interfaces indexed by link name. */
-  interfaces: Record<string, SwitchInterfaceConfigCreate>
-  /** Links indexed by phy name. On ports that are not broken out, this is always phy0. On a 2x breakout the options are phy0 and phy1, on 4x phy0-phy3, etc. */
-  links: Record<string, LinkConfigCreate>
-  name: Name
-  portConfig: SwitchPortConfigCreate
-  /** Routes indexed by interface name. */
-  routes: Record<string, RouteConfig>
-}
-
-/**
  * This structure maps a port settings object to a port settings groups. Port settings objects may inherit settings from groups. This mapping defines the relationship between settings objects and the groups they reference.
  */
 export type SwitchPortSettingsGroups = {
@@ -3864,16 +4099,6 @@ export type SwitchPortSettingsGroups = {
   portSettingsGroupId: string
   /** The id of a port settings object referencing a port settings group. */
   portSettingsId: string
-}
-
-/**
- * A single page of results
- */
-export type SwitchPortSettingsResultsPage = {
-  /** list of items on this page of results */
-  items: SwitchPortSettings[]
-  /** token used to fetch the next page of results (if any) */
-  nextPage?: string | null
 }
 
 /**
@@ -3889,29 +4114,79 @@ export type SwitchVlanInterfaceConfig = {
 /**
  * This structure contains all port settings information in one place. It's a convenience data structure for getting a complete view of a particular port's settings.
  */
-export type SwitchPortSettingsView = {
+export type SwitchPortSettings = {
   /** Layer 3 IP address settings. */
-  addresses: SwitchPortAddressConfig[]
+  addresses: SwitchPortAddressView[]
   /** BGP peer settings. */
   bgpPeers: BgpPeer[]
+  /** human-readable free-form text about a resource */
+  description: string
   /** Switch port settings included from other switch port settings groups. */
   groups: SwitchPortSettingsGroups[]
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
   /** Layer 3 interface settings. */
   interfaces: SwitchInterfaceConfig[]
-  /** Link-layer discovery protocol (LLDP) settings. */
-  linkLldp: LldpLinkConfig[]
   /** Layer 2 link settings. */
   links: SwitchPortLinkConfig[]
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
   /** Layer 1 physical port settings. */
   port: SwitchPortConfig
   /** IP route settings. */
   routes: SwitchPortRouteConfig[]
-  /** The primary switch port settings handle. */
-  settings: SwitchPortSettings
-  /** TX equalization settings.  These are optional, and most links will not need them. */
-  txEq: (TxEqConfig | null)[]
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
   /** Vlan interface settings. */
   vlanInterfaces: SwitchVlanInterfaceConfig[]
+}
+
+/**
+ * Parameters for creating switch port settings. Switch port settings are the central data structure for setting up external networking. Switch port settings include link, interface, route, address and dynamic network protocol configuration.
+ */
+export type SwitchPortSettingsCreate = {
+  /** Addresses indexed by interface name. */
+  addresses: AddressConfig[]
+  /** BGP peers indexed by interface name. */
+  bgpPeers?: BgpPeerConfig[]
+  description: string
+  groups?: NameOrId[]
+  /** Interfaces indexed by link name. */
+  interfaces?: SwitchInterfaceConfigCreate[]
+  /** Links indexed by phy name. On ports that are not broken out, this is always phy0. On a 2x breakout the options are phy0 and phy1, on 4x phy0-phy3, etc. */
+  links: LinkConfigCreate[]
+  name: Name
+  portConfig: SwitchPortConfigCreate
+  /** Routes indexed by interface name. */
+  routes?: RouteConfig[]
+}
+
+/**
+ * A switch port settings identity whose id may be used to view additional details.
+ */
+export type SwitchPortSettingsIdentity = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * A single page of results
+ */
+export type SwitchPortSettingsIdentityResultsPage = {
+  /** list of items on this page of results */
+  items: SwitchPortSettingsIdentity[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
 }
 
 /**
@@ -4009,10 +4284,6 @@ export type TimeseriesSchemaResultsPage = {
   /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
-
-export type TypedUuidForWebhookEventKind = string
-
-export type TypedUuidForWebhookReceiverKind = string
 
 /**
  * A sled that has not been added to an initialized rack yet
@@ -4269,7 +4540,7 @@ export type VpcFirewallRuleUpdate = {
 /**
  * Updated list of firewall rules. Will replace all existing rules.
  */
-export type VpcFirewallRuleUpdateParams = { rules: VpcFirewallRuleUpdate[] }
+export type VpcFirewallRuleUpdateParams = { rules?: VpcFirewallRuleUpdate[] }
 
 /**
  * Collection of a Vpc's firewall rules
@@ -4401,13 +4672,6 @@ export type VpcUpdate = {
 }
 
 /**
- * A webhook event class subscription
- *
- * A webhook event class subscription matches either a single event class exactly, or a glob pattern including wildcards that may match multiple event classes
- */
-export type WebhookSubscription = string
-
-/**
  * Create-time identity-related parameters
  */
 export type WebhookCreate = {
@@ -4420,135 +4684,11 @@ export type WebhookCreate = {
   /** A list of webhook event class subscriptions.
 
 If this list is empty or is not included in the request body, the webhook will not be subscribed to any events. */
-  subscriptions?: WebhookSubscription[]
+  subscriptions?: AlertSubscription[]
 }
 
 /**
- * The response received from a webhook receiver endpoint.
- */
-export type WebhookDeliveryResponse = {
-  /** The response time of the webhook endpoint, in milliseconds. */
-  durationMs: number
-  /** The HTTP status code returned from the webhook endpoint. */
-  status: number
-}
-
-export type WebhookDeliveryAttemptResult =
-  /** The webhook event has been delivered successfully. */
-  | 'succeeded'
-
-  /** A webhook request was sent to the endpoint, and it returned a HTTP error status code indicating an error. */
-  | 'failed_http_error'
-
-  /** The webhook request could not be sent to the receiver endpoint. */
-  | 'failed_unreachable'
-
-  /** A connection to the receiver endpoint was successfully established, but no response was received within the delivery timeout. */
-  | 'failed_timeout'
-
-/**
- * An individual delivery attempt for a webhook event.
- *
- * This represents a single HTTP request that was sent to the receiver, and its outcome.
- */
-export type WebhookDeliveryAttempt = {
-  /** The attempt number. */
-  attempt: number
-  response?: WebhookDeliveryResponse | null
-  /** The outcome of this delivery attempt: either the event was delivered successfully, or the request failed for one of several reasons. */
-  result: WebhookDeliveryAttemptResult
-  /** The time at which the webhook delivery was attempted. */
-  timeSent: Date
-}
-
-/**
- * The state of a webhook delivery attempt.
- */
-export type WebhookDeliveryState =
-  /** The webhook event has not yet been delivered successfully.
-
-Either no delivery attempts have yet been performed, or the delivery has failed at least once but has retries remaining. */
-  | 'pending'
-
-  /** The webhook event has been delivered successfully. */
-  | 'delivered'
-
-  /** The webhook delivery attempt has failed permanently and will not be retried again. */
-  | 'failed'
-
-/**
- * The reason a webhook event was delivered
- */
-export type WebhookDeliveryTrigger =
-  /** Delivery was triggered by the event occurring for the first time. */
-  | 'event'
-
-  /** Delivery was triggered by a request to resend the event. */
-  | 'resend'
-
-  /** This delivery is a liveness probe. */
-  | 'probe'
-
-/**
- * A delivery of a webhook event.
- */
-export type WebhookDelivery = {
-  /** Individual attempts to deliver this webhook event, and their outcomes. */
-  attempts: WebhookDeliveryAttempt[]
-  /** The event class. */
-  eventClass: string
-  /** The UUID of the event. */
-  eventId: TypedUuidForWebhookEventKind
-  /** The UUID of this delivery attempt. */
-  id: string
-  /** The state of this delivery. */
-  state: WebhookDeliveryState
-  /** The time at which this delivery began (i.e. the event was dispatched to the receiver). */
-  timeStarted: Date
-  /** Why this delivery was performed. */
-  trigger: WebhookDeliveryTrigger
-  /** The UUID of the webhook receiver that this event was delivered to. */
-  webhookId: TypedUuidForWebhookReceiverKind
-}
-
-export type WebhookDeliveryId = { deliveryId: string }
-
-/**
- * A single page of results
- */
-export type WebhookDeliveryResultsPage = {
-  /** list of items on this page of results */
-  items: WebhookDelivery[]
-  /** token used to fetch the next page of results (if any) */
-  nextPage?: string | null
-}
-
-/**
- * Data describing the result of a webhook liveness probe attempt.
- */
-export type WebhookProbeResult = {
-  /** The outcome of the probe request. */
-  probe: WebhookDelivery
-  /** If the probe request succeeded, and resending failed deliveries on success was requested, the number of new delivery attempts started. Otherwise, if the probe did not succeed, or resending failed deliveries was not requested, this is null.
-
-Note that this may be 0, if there were no events found which had not been delivered successfully to this receiver. */
-  resendsStarted?: number | null
-}
-
-/**
- * A view of a shared secret key assigned to a webhook receiver.
- *
- * Once a secret is created, the value of the secret is not available in the API, as it must remain secret. Instead, secrets are referenced by their unique IDs assigned when they are created.
- */
-export type WebhookSecret = {
-  /** The public unique ID of the secret. */
-  id: string
-  /** The UTC timestamp at which this secret was created. */
-  timeCreated: Date
-}
-
-/**
- * The configuration for a webhook.
+ * The configuration for a webhook alert receiver.
  */
 export type WebhookReceiver = {
   /** human-readable free-form text about a resource */
@@ -4560,22 +4700,12 @@ export type WebhookReceiver = {
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
   secrets: WebhookSecret[]
-  /** The list of event classes to which this receiver is subscribed. */
-  subscriptions: WebhookSubscription[]
+  /** The list of alert classes to which this receiver is subscribed. */
+  subscriptions: AlertSubscription[]
   /** timestamp when this resource was created */
   timeCreated: Date
   /** timestamp when this resource was last modified */
   timeModified: Date
-}
-
-/**
- * A single page of results
- */
-export type WebhookReceiverResultsPage = {
-  /** list of items on this page of results */
-  items: WebhookReceiver[]
-  /** token used to fetch the next page of results (if any) */
-  nextPage?: string | null
 }
 
 /**
@@ -4594,19 +4724,9 @@ export type WebhookSecretCreate = {
 }
 
 /**
- * A list of the IDs of secrets associated with a webhook.
+ * A list of the IDs of secrets associated with a webhook receiver.
  */
 export type WebhookSecrets = { secrets: WebhookSecret[] }
-
-export type WebhookSubscriptionCreate = {
-  /** The event class pattern to subscribe to. */
-  subscription: WebhookSubscription
-}
-
-export type WebhookSubscriptionCreated = {
-  /** The new subscription added to the receiver. */
-  subscription: WebhookSubscription
-}
 
 /**
  * Supported set of sort modes for scanning by name or id
@@ -4627,6 +4747,16 @@ export type NameOrIdSortMode =
  * Currently, we only support scanning in ascending order.
  */
 export type IdSortMode = 'id_ascending'
+
+/**
+ * Supported set of sort modes for scanning by timestamp and ID
+ */
+export type TimeAndIdSortMode =
+  /** sort in increasing order of timestamp and ID, i.e., earliest first */
+  | 'ascending'
+
+  /** sort in increasing order of timestamp and ID, i.e., most recent first */
+  | 'descending'
 
 export type DiskMetricName =
   | 'activated'
@@ -4652,16 +4782,6 @@ export type SystemMetricName =
  * Currently, we only support scanning in ascending order.
  */
 export type NameSortMode = 'name_ascending'
-
-/**
- * Supported set of sort modes for scanning by timestamp and ID
- */
-export type TimeAndIdSortMode =
-  /** sort in increasing order of timestamp and ID, i.e., earliest first */
-  | 'ascending'
-
-  /** sort in increasing order of timestamp and ID, i.e., most recent first */
-  | 'descending'
 
 export interface ProbeListQueryParams {
   limit?: number | null
@@ -4697,33 +4817,33 @@ export interface SupportBundleListQueryParams {
 }
 
 export interface SupportBundleViewPathParams {
-  supportBundle: string
+  bundleId: string
 }
 
 export interface SupportBundleDeletePathParams {
-  supportBundle: string
+  bundleId: string
 }
 
 export interface SupportBundleDownloadPathParams {
-  supportBundle: string
+  bundleId: string
 }
 
 export interface SupportBundleHeadPathParams {
-  supportBundle: string
+  bundleId: string
 }
 
 export interface SupportBundleDownloadFilePathParams {
+  bundleId: string
   file: string
-  supportBundle: string
 }
 
 export interface SupportBundleHeadFilePathParams {
+  bundleId: string
   file: string
-  supportBundle: string
 }
 
 export interface SupportBundleIndexPathParams {
-  supportBundle: string
+  bundleId: string
 }
 
 export interface LoginSamlPathParams {
@@ -4802,6 +4922,64 @@ export interface AffinityGroupMemberInstanceDeletePathParams {
 
 export interface AffinityGroupMemberInstanceDeleteQueryParams {
   project?: NameOrId
+}
+
+export interface AlertClassListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  filter?: AlertSubscription
+}
+
+export interface AlertReceiverListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: NameOrIdSortMode
+}
+
+export interface AlertReceiverViewPathParams {
+  receiver: NameOrId
+}
+
+export interface AlertReceiverDeletePathParams {
+  receiver: NameOrId
+}
+
+export interface AlertDeliveryListPathParams {
+  receiver: NameOrId
+}
+
+export interface AlertDeliveryListQueryParams {
+  delivered?: boolean | null
+  failed?: boolean | null
+  pending?: boolean | null
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: TimeAndIdSortMode
+}
+
+export interface AlertReceiverProbePathParams {
+  receiver: NameOrId
+}
+
+export interface AlertReceiverProbeQueryParams {
+  resend?: boolean
+}
+
+export interface AlertReceiverSubscriptionAddPathParams {
+  receiver: NameOrId
+}
+
+export interface AlertReceiverSubscriptionRemovePathParams {
+  receiver: NameOrId
+  subscription: AlertSubscription
+}
+
+export interface AlertDeliveryResendPathParams {
+  alertId: string
+}
+
+export interface AlertDeliveryResendQueryParams {
+  receiver: NameOrId
 }
 
 export interface AntiAffinityGroupListQueryParams {
@@ -5329,6 +5507,16 @@ export interface LoginLocalPathParams {
   siloName: Name
 }
 
+export interface CurrentUserAccessTokenListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: IdSortMode
+}
+
+export interface CurrentUserAccessTokenDeletePathParams {
+  tokenId: string
+}
+
 export interface CurrentUserGroupsQueryParams {
   limit?: number | null
   pageToken?: string | null
@@ -5624,7 +5812,7 @@ export interface SamlIdentityProviderViewPathParams {
 }
 
 export interface SamlIdentityProviderViewQueryParams {
-  silo: NameOrId
+  silo?: NameOrId
 }
 
 export interface IpPoolListQueryParams {
@@ -6076,63 +6264,8 @@ export interface VpcDeleteQueryParams {
   project?: NameOrId
 }
 
-export interface WebhookDeliveryListQueryParams {
-  receiver: NameOrId
-  delivered?: boolean | null
-  failed?: boolean | null
-  pending?: boolean | null
-  limit?: number | null
-  pageToken?: string | null
-  sortBy?: TimeAndIdSortMode
-}
-
-export interface WebhookDeliveryResendPathParams {
-  eventId: string
-}
-
-export interface WebhookDeliveryResendQueryParams {
-  receiver: NameOrId
-}
-
-export interface WebhookEventClassListQueryParams {
-  limit?: number | null
-  pageToken?: string | null
-  filter?: WebhookSubscription
-}
-
-export interface WebhookReceiverListQueryParams {
-  limit?: number | null
-  pageToken?: string | null
-  sortBy?: NameOrIdSortMode
-}
-
-export interface WebhookReceiverViewPathParams {
-  receiver: NameOrId
-}
-
 export interface WebhookReceiverUpdatePathParams {
   receiver: NameOrId
-}
-
-export interface WebhookReceiverDeletePathParams {
-  receiver: NameOrId
-}
-
-export interface WebhookReceiverProbePathParams {
-  receiver: NameOrId
-}
-
-export interface WebhookReceiverProbeQueryParams {
-  resend?: boolean
-}
-
-export interface WebhookReceiverSubscriptionAddPathParams {
-  receiver: NameOrId
-}
-
-export interface WebhookReceiverSubscriptionRemovePathParams {
-  receiver: NameOrId
-  subscription: WebhookSubscription
 }
 
 export interface WebhookSecretsListQueryParams {
@@ -6270,7 +6403,7 @@ export class Api extends HttpClient {
       params: FetchParams = {}
     ) => {
       return this.request<SupportBundleInfo>({
-        path: `/experimental/v1/system/support-bundles/${path.supportBundle}`,
+        path: `/experimental/v1/system/support-bundles/${path.bundleId}`,
         method: 'GET',
         ...params,
       })
@@ -6283,7 +6416,7 @@ export class Api extends HttpClient {
       params: FetchParams = {}
     ) => {
       return this.request<void>({
-        path: `/experimental/v1/system/support-bundles/${path.supportBundle}`,
+        path: `/experimental/v1/system/support-bundles/${path.bundleId}`,
         method: 'DELETE',
         ...params,
       })
@@ -6296,7 +6429,7 @@ export class Api extends HttpClient {
       params: FetchParams = {}
     ) => {
       return this.request<void>({
-        path: `/experimental/v1/system/support-bundles/${path.supportBundle}/download`,
+        path: `/experimental/v1/system/support-bundles/${path.bundleId}/download`,
         method: 'GET',
         ...params,
       })
@@ -6309,7 +6442,7 @@ export class Api extends HttpClient {
       params: FetchParams = {}
     ) => {
       return this.request<void>({
-        path: `/experimental/v1/system/support-bundles/${path.supportBundle}/download`,
+        path: `/experimental/v1/system/support-bundles/${path.bundleId}/download`,
         method: 'HEAD',
         ...params,
       })
@@ -6322,7 +6455,7 @@ export class Api extends HttpClient {
       params: FetchParams = {}
     ) => {
       return this.request<void>({
-        path: `/experimental/v1/system/support-bundles/${path.supportBundle}/download/${path.file}`,
+        path: `/experimental/v1/system/support-bundles/${path.bundleId}/download/${path.file}`,
         method: 'GET',
         ...params,
       })
@@ -6335,7 +6468,7 @@ export class Api extends HttpClient {
       params: FetchParams = {}
     ) => {
       return this.request<void>({
-        path: `/experimental/v1/system/support-bundles/${path.supportBundle}/download/${path.file}`,
+        path: `/experimental/v1/system/support-bundles/${path.bundleId}/download/${path.file}`,
         method: 'HEAD',
         ...params,
       })
@@ -6348,7 +6481,7 @@ export class Api extends HttpClient {
       params: FetchParams = {}
     ) => {
       return this.request<void>({
-        path: `/experimental/v1/system/support-bundles/${path.supportBundle}/index`,
+        path: `/experimental/v1/system/support-bundles/${path.bundleId}/index`,
         method: 'GET',
         ...params,
       })
@@ -6530,6 +6663,141 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * List alert classes
+     */
+    alertClassList: (
+      { query = {} }: { query?: AlertClassListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AlertClassResultsPage>({
+        path: `/v1/alert-classes`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List alert receivers
+     */
+    alertReceiverList: (
+      { query = {} }: { query?: AlertReceiverListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AlertReceiverResultsPage>({
+        path: `/v1/alert-receivers`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch alert receiver
+     */
+    alertReceiverView: (
+      { path }: { path: AlertReceiverViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AlertReceiver>({
+        path: `/v1/alert-receivers/${path.receiver}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Delete alert receiver
+     */
+    alertReceiverDelete: (
+      { path }: { path: AlertReceiverDeletePathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/alert-receivers/${path.receiver}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * List delivery attempts to alert receiver
+     */
+    alertDeliveryList: (
+      {
+        path,
+        query = {},
+      }: { path: AlertDeliveryListPathParams; query?: AlertDeliveryListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AlertDeliveryResultsPage>({
+        path: `/v1/alert-receivers/${path.receiver}/deliveries`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Send liveness probe to alert receiver
+     */
+    alertReceiverProbe: (
+      {
+        path,
+        query = {},
+      }: { path: AlertReceiverProbePathParams; query?: AlertReceiverProbeQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AlertProbeResult>({
+        path: `/v1/alert-receivers/${path.receiver}/probe`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Add alert receiver subscription
+     */
+    alertReceiverSubscriptionAdd: (
+      {
+        path,
+        body,
+      }: { path: AlertReceiverSubscriptionAddPathParams; body: AlertSubscriptionCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AlertSubscriptionCreated>({
+        path: `/v1/alert-receivers/${path.receiver}/subscriptions`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Remove alert receiver subscription
+     */
+    alertReceiverSubscriptionRemove: (
+      { path }: { path: AlertReceiverSubscriptionRemovePathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/alert-receivers/${path.receiver}/subscriptions/${path.subscription}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * Request re-delivery of alert
+     */
+    alertDeliveryResend: (
+      {
+        path,
+        query,
+      }: { path: AlertDeliveryResendPathParams; query: AlertDeliveryResendQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AlertDeliveryId>({
+        path: `/v1/alerts/${path.alertId}/resend`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
      * List anti-affinity groups
      */
     antiAffinityGroupList: (
@@ -6701,6 +6969,30 @@ export class Api extends HttpClient {
         path: `/v1/anti-affinity-groups/${path.antiAffinityGroup}/members/instance/${path.instance}`,
         method: 'DELETE',
         query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch current silo's auth settings
+     */
+    authSettingsView: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<SiloAuthSettings>({
+        path: `/v1/auth-settings`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Update current silo's auth settings
+     */
+    authSettingsUpdate: (
+      { body }: { body: SiloAuthSettingsUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloAuthSettings>({
+        path: `/v1/auth-settings`,
+        method: 'PUT',
+        body,
         ...params,
       })
     },
@@ -7740,6 +8032,33 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * List access tokens
+     */
+    currentUserAccessTokenList: (
+      { query = {} }: { query?: CurrentUserAccessTokenListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<DeviceAccessTokenResultsPage>({
+        path: `/v1/me/access-tokens`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete access token
+     */
+    currentUserAccessTokenDelete: (
+      { path }: { path: CurrentUserAccessTokenDeletePathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/me/access-tokens/${path.tokenId}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
      * Fetch current user's groups
      */
     currentUserGroups: (
@@ -8510,10 +8829,10 @@ export class Api extends HttpClient {
     samlIdentityProviderView: (
       {
         path,
-        query,
+        query = {},
       }: {
         path: SamlIdentityProviderViewPathParams
-        query: SamlIdentityProviderViewQueryParams
+        query?: SamlIdentityProviderViewQueryParams
       },
       params: FetchParams = {}
     ) => {
@@ -9080,7 +9399,7 @@ export class Api extends HttpClient {
       { query = {} }: { query?: NetworkingSwitchPortSettingsListQueryParams },
       params: FetchParams = {}
     ) => {
-      return this.request<SwitchPortSettingsResultsPage>({
+      return this.request<SwitchPortSettingsIdentityResultsPage>({
         path: `/v1/system/networking/switch-port-settings`,
         method: 'GET',
         query,
@@ -9094,7 +9413,7 @@ export class Api extends HttpClient {
       { body }: { body: SwitchPortSettingsCreate },
       params: FetchParams = {}
     ) => {
-      return this.request<SwitchPortSettingsView>({
+      return this.request<SwitchPortSettings>({
         path: `/v1/system/networking/switch-port-settings`,
         method: 'POST',
         body,
@@ -9122,7 +9441,7 @@ export class Api extends HttpClient {
       { path }: { path: NetworkingSwitchPortSettingsViewPathParams },
       params: FetchParams = {}
     ) => {
-      return this.request<SwitchPortSettingsView>({
+      return this.request<SwitchPortSettings>({
         path: `/v1/system/networking/switch-port-settings/${path.port}`,
         method: 'GET',
         ...params,
@@ -9860,65 +10179,6 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List delivery attempts to webhook receiver
-     */
-    webhookDeliveryList: (
-      { query }: { query: WebhookDeliveryListQueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<WebhookDeliveryResultsPage>({
-        path: `/v1/webhooks/deliveries`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Request re-delivery of webhook event
-     */
-    webhookDeliveryResend: (
-      {
-        path,
-        query,
-      }: { path: WebhookDeliveryResendPathParams; query: WebhookDeliveryResendQueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<WebhookDeliveryId>({
-        path: `/v1/webhooks/deliveries/${path.eventId}/resend`,
-        method: 'POST',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * List webhook event classes
-     */
-    webhookEventClassList: (
-      { query = {} }: { query?: WebhookEventClassListQueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<EventClassResultsPage>({
-        path: `/v1/webhooks/event-classes`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * List webhook receivers
-     */
-    webhookReceiverList: (
-      { query = {} }: { query?: WebhookReceiverListQueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<WebhookReceiverResultsPage>({
-        path: `/v1/webhooks/receivers`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
      * Create webhook receiver
      */
     webhookReceiverCreate: (
@@ -9926,22 +10186,9 @@ export class Api extends HttpClient {
       params: FetchParams = {}
     ) => {
       return this.request<WebhookReceiver>({
-        path: `/v1/webhooks/receivers`,
+        path: `/v1/webhook-receivers`,
         method: 'POST',
         body,
-        ...params,
-      })
-    },
-    /**
-     * Fetch webhook receiver
-     */
-    webhookReceiverView: (
-      { path }: { path: WebhookReceiverViewPathParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<WebhookReceiver>({
-        path: `/v1/webhooks/receivers/${path.receiver}`,
-        method: 'GET',
         ...params,
       })
     },
@@ -9956,72 +10203,9 @@ export class Api extends HttpClient {
       params: FetchParams = {}
     ) => {
       return this.request<void>({
-        path: `/v1/webhooks/receivers/${path.receiver}`,
+        path: `/v1/webhook-receivers/${path.receiver}`,
         method: 'PUT',
         body,
-        ...params,
-      })
-    },
-    /**
-     * Delete webhook receiver
-     */
-    webhookReceiverDelete: (
-      { path }: { path: WebhookReceiverDeletePathParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/v1/webhooks/receivers/${path.receiver}`,
-        method: 'DELETE',
-        ...params,
-      })
-    },
-    /**
-     * Send liveness probe to webhook receiver
-     */
-    webhookReceiverProbe: (
-      {
-        path,
-        query = {},
-      }: { path: WebhookReceiverProbePathParams; query?: WebhookReceiverProbeQueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<WebhookProbeResult>({
-        path: `/v1/webhooks/receivers/${path.receiver}/probe`,
-        method: 'POST',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Add webhook receiver subscription
-     */
-    webhookReceiverSubscriptionAdd: (
-      {
-        path,
-        body,
-      }: {
-        path: WebhookReceiverSubscriptionAddPathParams
-        body: WebhookSubscriptionCreate
-      },
-      params: FetchParams = {}
-    ) => {
-      return this.request<WebhookSubscriptionCreated>({
-        path: `/v1/webhooks/receivers/${path.receiver}/subscriptions`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Remove webhook receiver subscription
-     */
-    webhookReceiverSubscriptionRemove: (
-      { path }: { path: WebhookReceiverSubscriptionRemovePathParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/v1/webhooks/receivers/${path.receiver}/subscriptions/${path.subscription}`,
-        method: 'DELETE',
         ...params,
       })
     },
@@ -10033,7 +10217,7 @@ export class Api extends HttpClient {
       params: FetchParams = {}
     ) => {
       return this.request<WebhookSecrets>({
-        path: `/v1/webhooks/secrets`,
+        path: `/v1/webhook-secrets`,
         method: 'GET',
         query,
         ...params,
@@ -10047,7 +10231,7 @@ export class Api extends HttpClient {
       params: FetchParams = {}
     ) => {
       return this.request<WebhookSecret>({
-        path: `/v1/webhooks/secrets`,
+        path: `/v1/webhook-secrets`,
         method: 'POST',
         body,
         query,
@@ -10062,7 +10246,7 @@ export class Api extends HttpClient {
       params: FetchParams = {}
     ) => {
       return this.request<void>({
-        path: `/v1/webhooks/secrets/${path.secretId}`,
+        path: `/v1/webhook-secrets/${path.secretId}`,
         method: 'DELETE',
         ...params,
       })

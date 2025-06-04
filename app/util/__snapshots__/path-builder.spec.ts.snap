@@ -2,6 +2,16 @@
 
 exports[`breadcrumbs 2`] = `
 {
+  "accessTokens (/settings/access-tokens)": [
+    {
+      "label": "Settings",
+      "path": "/settings/profile",
+    },
+    {
+      "label": "Access Tokens",
+      "path": "/settings/access-tokens",
+    },
+  ],
   "affinity (/projects/p/affinity)": [
     {
       "label": "Projects",
