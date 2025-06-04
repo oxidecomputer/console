@@ -1364,13 +1364,13 @@ export interface MSWHandlers {
     query: Api.NetworkingSwitchPortSettingsListQueryParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.SwitchPortSettingsResultsPage>>
+  }) => Promisable<HandlerResult<Api.SwitchPortSettingsIdentityResultsPage>>
   /** `POST /v1/system/networking/switch-port-settings` */
   networkingSwitchPortSettingsCreate: (params: {
     body: Json<Api.SwitchPortSettingsCreate>
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.SwitchPortSettingsView>>
+  }) => Promisable<HandlerResult<Api.SwitchPortSettings>>
   /** `DELETE /v1/system/networking/switch-port-settings` */
   networkingSwitchPortSettingsDelete: (params: {
     query: Api.NetworkingSwitchPortSettingsDeleteQueryParams
@@ -1382,7 +1382,7 @@ export interface MSWHandlers {
     path: Api.NetworkingSwitchPortSettingsViewPathParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.SwitchPortSettingsView>>
+  }) => Promisable<HandlerResult<Api.SwitchPortSettings>>
   /** `GET /v1/system/policy` */
   systemPolicyView: (params: {
     req: Request

@@ -93,7 +93,7 @@ export const Address = z.preprocess(
  */
 export const AddressConfig = z.preprocess(
   processResponseBody,
-  z.object({ addresses: Address.array() })
+  z.object({ addresses: Address.array(), linkName: Name })
 )
 
 /**
@@ -818,7 +818,7 @@ export const BgpPeer = z.preprocess(
 
 export const BgpPeerConfig = z.preprocess(
   processResponseBody,
-  z.object({ peers: BgpPeer.array() })
+  z.object({ linkName: Name, peers: BgpPeer.array() })
 )
 
 /**
@@ -1565,7 +1565,7 @@ export const DeviceAuthRequest = z.preprocess(
   processResponseBody,
   z.object({
     clientId: z.string().uuid(),
-    ttlSeconds: z.number().min(0).max(4294967295).nullable().optional(),
+    ttlSeconds: z.number().min(1).max(4294967295).nullable().optional(),
   })
 )
 
@@ -2556,6 +2556,7 @@ export const LinkConfigCreate = z.preprocess(
   z.object({
     autoneg: SafeBoolean,
     fec: LinkFec.nullable().optional(),
+    linkName: Name,
     lldp: LldpLinkConfigCreate,
     mtu: z.number().min(0).max(65535),
     speed: LinkSpeed,
@@ -2574,7 +2575,7 @@ export const LldpLinkConfig = z.preprocess(
     id: z.string().uuid(),
     linkDescription: z.string().nullable().optional(),
     linkName: z.string().nullable().optional(),
-    managementIp: IpNet.nullable().optional(),
+    managementIp: z.string().ip().nullable().optional(),
     systemDescription: z.string().nullable().optional(),
     systemName: z.string().nullable().optional(),
   })
@@ -3054,7 +3055,7 @@ export const Route = z.preprocess(
  */
 export const RouteConfig = z.preprocess(
   processResponseBody,
-  z.object({ routes: Route.array() })
+  z.object({ linkName: Name, routes: Route.array() })
 )
 
 /**
@@ -3231,12 +3232,12 @@ export const Silo = z.preprocess(
 )
 
 /**
- * A collection of resource counts used to set the virtual capacity of a silo
+ * View of silo authentication settings
  */
 export const SiloAuthSettings = z.preprocess(
   processResponseBody,
   z.object({
-    deviceTokenMaxTtlSeconds: z.number().nullable().optional(),
+    deviceTokenMaxTtlSeconds: z.number().min(0).max(4294967295).nullable().optional(),
     siloId: z.string().uuid(),
   })
 )
@@ -3655,7 +3656,7 @@ export const SwitchInterfaceKind = z.preprocess(
  */
 export const SwitchInterfaceConfigCreate = z.preprocess(
   processResponseBody,
-  z.object({ kind: SwitchInterfaceKind, v6Enabled: SafeBoolean })
+  z.object({ kind: SwitchInterfaceKind, linkName: Name, v6Enabled: SafeBoolean })
 )
 
 export const SwitchLinkState = z.preprocess(processResponseBody, z.record(z.unknown()))
@@ -3677,11 +3678,13 @@ export const SwitchPort = z.preprocess(
 /**
  * An IP address configuration for a port settings object.
  */
-export const SwitchPortAddressConfig = z.preprocess(
+export const SwitchPortAddressView = z.preprocess(
   processResponseBody,
   z.object({
     address: IpNet,
     addressLotBlockId: z.string().uuid(),
+    addressLotId: z.string().uuid(),
+    addressLotName: Name,
     interfaceName: z.string(),
     portSettingsId: z.string().uuid(),
     vlanId: z.number().min(0).max(65535).nullable().optional(),
@@ -3729,6 +3732,20 @@ export const SwitchPortConfigCreate = z.preprocess(
 )
 
 /**
+ * Per-port tx-eq overrides.  This can be used to fine-tune the transceiver equalization settings to improve signal integrity.
+ */
+export const TxEqConfig2 = z.preprocess(
+  processResponseBody,
+  z.object({
+    main: z.number().min(-2147483647).max(2147483647).nullable().optional(),
+    post1: z.number().min(-2147483647).max(2147483647).nullable().optional(),
+    post2: z.number().min(-2147483647).max(2147483647).nullable().optional(),
+    pre1: z.number().min(-2147483647).max(2147483647).nullable().optional(),
+    pre2: z.number().min(-2147483647).max(2147483647).nullable().optional(),
+  })
+)
+
+/**
  * A link configuration for a port settings object.
  */
 export const SwitchPortLinkConfig = z.preprocess(
@@ -3737,11 +3754,11 @@ export const SwitchPortLinkConfig = z.preprocess(
     autoneg: SafeBoolean,
     fec: LinkFec.nullable().optional(),
     linkName: z.string(),
-    lldpLinkConfigId: z.string().uuid().nullable().optional(),
+    lldpLinkConfig: LldpLinkConfig.nullable().optional(),
     mtu: z.number().min(0).max(65535),
     portSettingsId: z.string().uuid(),
     speed: LinkSpeed,
-    txEqConfigId: z.string().uuid().nullable().optional(),
+    txEqConfig: TxEqConfig2.nullable().optional(),
   })
 )
 
@@ -3760,43 +3777,11 @@ export const SwitchPortRouteConfig = z.preprocess(
   processResponseBody,
   z.object({
     dst: IpNet,
-    gw: IpNet,
+    gw: z.string().ip(),
     interfaceName: z.string(),
     portSettingsId: z.string().uuid(),
     ribPriority: z.number().min(0).max(255).nullable().optional(),
     vlanId: z.number().min(0).max(65535).nullable().optional(),
-  })
-)
-
-/**
- * A switch port settings identity whose id may be used to view additional details.
- */
-export const SwitchPortSettings = z.preprocess(
-  processResponseBody,
-  z.object({
-    description: z.string(),
-    id: z.string().uuid(),
-    name: Name,
-    timeCreated: z.coerce.date(),
-    timeModified: z.coerce.date(),
-  })
-)
-
-/**
- * Parameters for creating switch port settings. Switch port settings are the central data structure for setting up external networking. Switch port settings include link, interface, route, address and dynamic network protocol configuration.
- */
-export const SwitchPortSettingsCreate = z.preprocess(
-  processResponseBody,
-  z.object({
-    addresses: z.record(z.string().min(1), AddressConfig),
-    bgpPeers: z.record(z.string().min(1), BgpPeerConfig),
-    description: z.string(),
-    groups: NameOrId.array(),
-    interfaces: z.record(z.string().min(1), SwitchInterfaceConfigCreate),
-    links: z.record(z.string().min(1), LinkConfigCreate),
-    name: Name,
-    portConfig: SwitchPortConfigCreate,
-    routes: z.record(z.string().min(1), RouteConfig),
   })
 )
 
@@ -3806,17 +3791,6 @@ export const SwitchPortSettingsCreate = z.preprocess(
 export const SwitchPortSettingsGroups = z.preprocess(
   processResponseBody,
   z.object({ portSettingsGroupId: z.string().uuid(), portSettingsId: z.string().uuid() })
-)
-
-/**
- * A single page of results
- */
-export const SwitchPortSettingsResultsPage = z.preprocess(
-  processResponseBody,
-  z.object({
-    items: SwitchPortSettings.array(),
-    nextPage: z.string().nullable().optional(),
-  })
 )
 
 /**
@@ -3830,20 +3804,65 @@ export const SwitchVlanInterfaceConfig = z.preprocess(
 /**
  * This structure contains all port settings information in one place. It's a convenience data structure for getting a complete view of a particular port's settings.
  */
-export const SwitchPortSettingsView = z.preprocess(
+export const SwitchPortSettings = z.preprocess(
   processResponseBody,
   z.object({
-    addresses: SwitchPortAddressConfig.array(),
+    addresses: SwitchPortAddressView.array(),
     bgpPeers: BgpPeer.array(),
+    description: z.string(),
     groups: SwitchPortSettingsGroups.array(),
+    id: z.string().uuid(),
     interfaces: SwitchInterfaceConfig.array(),
-    linkLldp: LldpLinkConfig.array(),
     links: SwitchPortLinkConfig.array(),
+    name: Name,
     port: SwitchPortConfig,
     routes: SwitchPortRouteConfig.array(),
-    settings: SwitchPortSettings,
-    txEq: TxEqConfig.nullable().array(),
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
     vlanInterfaces: SwitchVlanInterfaceConfig.array(),
+  })
+)
+
+/**
+ * Parameters for creating switch port settings. Switch port settings are the central data structure for setting up external networking. Switch port settings include link, interface, route, address and dynamic network protocol configuration.
+ */
+export const SwitchPortSettingsCreate = z.preprocess(
+  processResponseBody,
+  z.object({
+    addresses: AddressConfig.array(),
+    bgpPeers: BgpPeerConfig.array().default([]).optional(),
+    description: z.string(),
+    groups: NameOrId.array().default([]).optional(),
+    interfaces: SwitchInterfaceConfigCreate.array().default([]).optional(),
+    links: LinkConfigCreate.array(),
+    name: Name,
+    portConfig: SwitchPortConfigCreate,
+    routes: RouteConfig.array().default([]).optional(),
+  })
+)
+
+/**
+ * A switch port settings identity whose id may be used to view additional details.
+ */
+export const SwitchPortSettingsIdentity = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    id: z.string().uuid(),
+    name: Name,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const SwitchPortSettingsIdentityResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({
+    items: SwitchPortSettingsIdentity.array(),
+    nextPage: z.string().nullable().optional(),
   })
 )
 
