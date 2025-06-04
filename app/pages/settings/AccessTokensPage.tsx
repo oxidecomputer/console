@@ -8,13 +8,7 @@
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 
-import {
-  getListQFn,
-  queryClient,
-  useApiMutation,
-  useApiQueryClient,
-  type DeviceAccessToken,
-} from '@oxide/api'
+import { getListQFn, queryClient, useApiMutation, type DeviceAccessToken } from '@oxide/api'
 import { AccessToken16Icon, AccessToken24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -43,11 +37,9 @@ export async function clientLoader() {
 const colHelper = createColumnHelper<DeviceAccessToken>()
 
 export default function AccessTokensPage() {
-  const queryClient = useApiQueryClient()
-
   const { mutateAsync: deleteToken } = useApiMutation('currentUserAccessTokenDelete', {
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries('currentUserAccessTokenList')
+      queryClient.invalidateEndpoint('currentUserAccessTokenList')
       addToast(<>Access token <HL>{variables.path.tokenId}</HL> deleted</>) // prettier-ignore
     },
   })
