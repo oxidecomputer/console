@@ -67,7 +67,7 @@ export function DisksTableField({
                     <Truncate text={item.name} maxLength={35} />
                   </MiniTable.Cell>
                   <MiniTable.Cell>
-                    <Badge variant="solid">{item.type}</Badge>
+                    <Badge>{item.type}</Badge>
                   </MiniTable.Cell>
                   <MiniTable.Cell>
                     {item.type === 'attach' ? (

@@ -11,16 +11,20 @@
     border-spacing: 0px;
   }
 
+  /* all rows */
+  & tr {
+    @apply bg-default;
+    @apply relative;
+  }
+
+  /* all cells */
   & td {
     @apply relative px-0 pt-2;
   }
 
-  & tr {
-    @apply relative;
-  }
-
+  /* a fake left border for all cells that aren't first */
   & td + td:before {
-    @apply absolute bottom-[2px] top-[calc(0.5rem+1px)] block w-[1px] border-l opacity-40 border-tertiary;
+    @apply absolute bottom-[2px] top-[calc(0.5rem+1px)] block w-[1px] border-l border-secondary;
     content: ' ';
   }
 
@@ -50,7 +54,7 @@
 
   /* the delete button */
   & td:last-child > div > button {
-    @apply flex items-center justify-center text-tertiary;
+    @apply -m-2 flex items-center justify-center p-2 text-tertiary;
   }
   & td:last-child > div:has(button:hover, button:focus) {
     @apply text-default;
