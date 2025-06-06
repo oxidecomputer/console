@@ -777,35 +777,8 @@ const AdvancedAccordion = ({
               detached from them as needed
             </TipIcon>
           </h2>
-          {isFloatingIpAttached && (
-            <MiniTable.Table>
-              <MiniTable.Header>
-                <MiniTable.HeadCell>Name</MiniTable.HeadCell>
-                <MiniTable.HeadCell>IP</MiniTable.HeadCell>
-                {/* For remove button */}
-                <MiniTable.HeadCell className="w-12" />
-              </MiniTable.Header>
-              <MiniTable.Body>
-                {attachedFloatingIpsData.map((item, index) => (
-                  <MiniTable.Row
-                    tabIndex={0}
-                    aria-rowindex={index + 1}
-                    aria-label={`Name: ${item.name}, IP: ${item.ip}`}
-                    key={item.name}
-                  >
-                    <MiniTable.Cell>{item.name}</MiniTable.Cell>
-                    <MiniTable.Cell>{item.ip}</MiniTable.Cell>
-                    <MiniTable.RemoveCell
-                      onClick={() => detachFloatingIp(item.name)}
-                      label={`remove floating IP ${item.name}`}
-                    />
-                  </MiniTable.Row>
-                ))}
-              </MiniTable.Body>
-            </MiniTable.Table>
-          )}
           {floatingIpList.items.length === 0 ? (
-            <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
+            <div className="flex max-w-lg items-center justify-center rounded-lg border border-default">
               <EmptyMessage
                 icon={<IpGlobal16Icon />}
                 title="No floating IPs found"
@@ -813,8 +786,42 @@ const AdvancedAccordion = ({
               />
             </div>
           ) : (
-            <div>
+            <div className="flex flex-col items-end gap-3">
+              <MiniTable.Table>
+                <MiniTable.Header>
+                  <MiniTable.HeadCell>Name</MiniTable.HeadCell>
+                  <MiniTable.HeadCell>IP</MiniTable.HeadCell>
+                  {/* For remove button */}
+                  <MiniTable.HeadCell className="w-12" />
+                </MiniTable.Header>
+                <MiniTable.Body>
+                  {isFloatingIpAttached ? (
+                    attachedFloatingIpsData.map((item, index) => (
+                      <MiniTable.Row
+                        tabIndex={0}
+                        aria-rowindex={index + 1}
+                        aria-label={`Name: ${item.name}, IP: ${item.ip}`}
+                        key={item.name}
+                      >
+                        <MiniTable.Cell>{item.name}</MiniTable.Cell>
+                        <MiniTable.Cell>{item.ip}</MiniTable.Cell>
+                        <MiniTable.RemoveCell
+                          onClick={() => detachFloatingIp(item.name)}
+                          label={`remove floating IP ${item.name}`}
+                        />
+                      </MiniTable.Row>
+                    ))
+                  ) : (
+                    <MiniTable.EmptyState
+                      title="No floating IPs attached"
+                      body="Attach a floating IP to see it here"
+                      colSpan={3}
+                    />
+                  )}
+                </MiniTable.Body>
+              </MiniTable.Table>
               <Button
+                variant="secondary"
                 size="sm"
                 className="shrink-0"
                 disabled={availableFloatingIps.length === 0}
@@ -825,7 +832,6 @@ const AdvancedAccordion = ({
               </Button>
             </div>
           )}
-
           <Modal
             isOpen={floatingIpModalOpen}
             onDismiss={closeFloatingIpModal}

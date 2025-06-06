@@ -235,7 +235,7 @@ const TargetAndHostFilterSubform = ({
                 key={`${type}|${value}`}
               >
                 <MiniTable.Cell>
-                  <Badge variant="solid">{type}</Badge>
+                  <Badge>{type}</Badge>
                 </MiniTable.Cell>
                 <MiniTable.Cell>{value}</MiniTable.Cell>
                 <MiniTable.RemoveCell
