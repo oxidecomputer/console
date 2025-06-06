@@ -37,9 +37,9 @@ export const Cell = ({ children }: Children) => {
   )
 }
 
-export const EmptyState = (props: { title: string; body: string; columnCount: number }) => (
+export const EmptyState = (props: { title: string; body: string; colSpan: number }) => (
   <Row>
-    <td colSpan={props.columnCount}>
+    <td colSpan={props.colSpan}>
       <div className="!m-0 !w-full !flex-col !border-none !bg-transparent !py-14">
         <EmptyMessage title={props.title} body={props.body} />
       </div>

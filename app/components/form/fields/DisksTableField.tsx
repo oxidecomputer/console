@@ -45,8 +45,8 @@ export function DisksTableField({
 
   return (
     <>
-      <div className="max-w-lg">
-        <MiniTable.Table className="mb-4" aria-label="Disks">
+      <div className="flex max-w-lg flex-col items-end gap-3">
+        <MiniTable.Table aria-label="Disks">
           <MiniTable.Header>
             <MiniTable.HeadCell>Name</MiniTable.HeadCell>
             <MiniTable.HeadCell>Type</MiniTable.HeadCell>
@@ -89,7 +89,7 @@ export function DisksTableField({
               <MiniTable.EmptyState
                 title="No disks"
                 body="Add a disk to see it here"
-                columnCount={4}
+                colSpan={4}
               />
             )}
           </MiniTable.Body>
@@ -100,7 +100,7 @@ export function DisksTableField({
             Create new disk
           </Button>
           <Button
-            variant="ghost"
+            variant="secondary"
             size="sm"
             onClick={() => setShowDiskAttach(true)}
             disabled={disabled}
