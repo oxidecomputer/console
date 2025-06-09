@@ -54,10 +54,7 @@
 
   /* the delete button */
   & td:last-child > div > button {
-    @apply -m-2 flex items-center justify-center p-2 text-tertiary;
-  }
-  & td:last-child > div:has(button:hover, button:focus) {
-    @apply text-default;
+    @apply -m-2 flex items-center justify-center p-2 text-tertiary hover:text-secondary focus:text-secondary;
   }
 
   & tr:last-child td {

@@ -13,6 +13,7 @@ import type { DiskCreate } from '@oxide/api'
 import { AttachDiskModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import type { InstanceCreateInput } from '~/forms/instance-create'
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import * as MiniTable from '~/ui/lib/MiniTable'
@@ -71,7 +72,7 @@ export function DisksTableField({
                   </MiniTable.Cell>
                   <MiniTable.Cell>
                     {item.type === 'attach' ? (
-                      '—'
+                      <EmptyCell />
                     ) : (
                       <>
                         <span>{bytesToGiB(item.size)}</span>
