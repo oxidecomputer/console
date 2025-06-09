@@ -11,16 +11,20 @@
     border-spacing: 0px;
   }
 
+  /* all rows */
+  & tr {
+    @apply bg-default;
+    @apply relative;
+  }
+
+  /* all cells */
   & td {
     @apply relative px-0 pt-2;
   }
 
-  & tr {
-    @apply relative;
-  }
-
+  /* a fake left border for all cells that aren't first */
   & td + td:before {
-    @apply absolute bottom-[2px] top-[calc(0.5rem+1px)] block w-[1px] border-l opacity-40 border-accent-tertiary;
+    @apply absolute bottom-[2px] top-[calc(0.5rem+1px)] block w-[1px] border-l border-secondary;
     content: ' ';
   }
 
@@ -28,30 +32,33 @@
     @apply bottom-[calc(0.5rem+2px)];
   }
 
+  /* all divs */
   & td > div {
-    @apply flex h-11 items-center border-y py-3 pl-3 pr-6 text-accent bg-accent-secondary border-accent-tertiary;
+    @apply flex h-9 items-center border border-y border-r-0 py-3 pl-3 pr-6 border-default;
   }
 
-  & td:last-child > div {
-    @apply w-12 justify-center pl-0 pr-0;
-  }
-  & td:last-child > div > button {
-    @apply -mx-3 -my-3 flex items-center justify-center px-3 py-3;
-  }
-  & td:last-child > div:has(button:hover, button:focus) {
-    @apply bg-accent-secondary-hover;
-  }
-
-  & tr:last-child td {
-    @apply pb-2;
-  }
-
+  /* first cell's div */
   & td:first-child > div {
     @apply ml-2 rounded-l border-l;
   }
 
+  /* second-to-last cell's div */
+  & td:nth-last-child(2) > div {
+    @apply rounded-r border-r;
+  }
+
+  /* last cell's div (the div for the delete button) */
   & td:last-child > div {
-    @apply mr-2 rounded-r border-r;
+    @apply flex w-8 items-center justify-center border-none px-5;
+  }
+
+  /* the delete button */
+  & td:last-child > div > button {
+    @apply -m-2 flex items-center justify-center p-2 text-tertiary hover:text-secondary focus:text-secondary;
+  }
+
+  & tr:last-child td {
+    @apply pb-2;
   }
 
   & thead tr:first-of-type th:first-of-type {
@@ -61,7 +68,7 @@
 
   & thead tr:first-of-type th:last-of-type {
     border-top-right-radius: var(--border-radius-lg);
-    @apply border-r;
+    @apply w-8 border-r;
   }
 
   & tbody tr:last-of-type td:first-of-type {
