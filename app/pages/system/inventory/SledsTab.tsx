@@ -20,7 +20,7 @@ import { ProvisionPolicyBadge, SledKindBadge, SledStateBadge } from './sled/Sled
 const sledList = getListQFn('sledList', {})
 
 export async function clientLoader() {
-  await queryClient.prefetchQuery(sledList.optionsFn())
+  await queryClient.fetchQuery(sledList.optionsFn())
   return null
 }
 

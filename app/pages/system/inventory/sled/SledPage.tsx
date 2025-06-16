@@ -23,9 +23,7 @@ import { ProvisionPolicyBadge, SledKindBadge, SledStateBadge } from './SledBadge
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { sledId } = requireSledParams(params)
-  await apiQueryClient.prefetchQuery('sledView', {
-    path: { sledId },
-  })
+  await apiQueryClient.fetchQuery('sledView', { path: { sledId } })
   return null
 }
 export const handle = makeCrumb(
