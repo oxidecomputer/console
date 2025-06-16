@@ -69,17 +69,15 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 
   await Promise.all([
     ...gateways.items.flatMap((gateway: InternetGateway) => [
-      queryClient.prefetchQuery(
+      queryClient.fetchQuery(
         gatewayIpAddressList({ project, vpc, gateway: gateway.name }).optionsFn()
       ),
-      queryClient.prefetchQuery(
+      queryClient.fetchQuery(
         gatewayIpPoolList({ project, vpc, gateway: gateway.name }).optionsFn()
       ),
     ]),
     ...routers.items.map((router) =>
-      queryClient.prefetchQuery(
-        routeList({ project, vpc, router: router.name }).optionsFn()
-      )
+      queryClient.fetchQuery(routeList({ project, vpc, router: router.name }).optionsFn())
     ),
     queryClient.fetchQuery(projectIpPoolList.optionsFn()).then((pools) => {
       for (const pool of pools.items) {
@@ -94,7 +92,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 
 export const AttachedIpAddressHeader = () => (
   <>
-    attached IP address
+    Attached IP Address
     <TipIcon className="ml-1.5">
       Internet gateways without an IP address attached will use an address from the attached
       IP pool
