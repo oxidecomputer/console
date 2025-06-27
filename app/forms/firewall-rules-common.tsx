@@ -33,7 +33,7 @@ import { toComboboxItems } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Message } from '~/ui/lib/Message'
-import { ClearAndAddButtons, DataMiniTable } from '~/ui/lib/MiniTable'
+import { ClearAndAddButtons, MiniTable } from '~/ui/lib/MiniTable'
 import { SideModal } from '~/ui/lib/SideModal'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
@@ -217,7 +217,7 @@ const TargetAndHostFilterSubform = ({
         onSubmit={submitSubform}
       />
       {field.value.length > 0 && (
-        <DataMiniTable
+        <MiniTable
           className="mb-4"
           ariaLabel={nounTitle}
           items={field.value}
@@ -445,7 +445,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
         />
       </div>
       {ports.value.length > 0 && (
-        <DataMiniTable
+        <MiniTable
           className="mb-4"
           ariaLabel="Port filters"
           items={ports.value}

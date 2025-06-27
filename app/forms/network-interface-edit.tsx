@@ -25,7 +25,7 @@ import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
-import { ClearAndAddButtons, DataMiniTable } from '~/ui/lib/MiniTable'
+import { ClearAndAddButtons, MiniTable } from '~/ui/lib/MiniTable'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
 import { validateIpNet } from '~/util/ip'
@@ -134,7 +134,7 @@ export function EditNetworkInterfaceForm({
         />
       </div>
       {transitIps.length > 0 && (
-        <DataMiniTable
+        <MiniTable
           className="mb-4"
           ariaLabel="Transit IPs"
           items={transitIps}

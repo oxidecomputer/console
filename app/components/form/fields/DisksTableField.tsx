@@ -17,7 +17,7 @@ import { EmptyCell } from '~/table/cells/EmptyCell'
 import { sizeCellInner } from '~/table/columns/common'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
-import { DataMiniTable } from '~/ui/lib/MiniTable'
+import { MiniTable } from '~/ui/lib/MiniTable'
 import { Truncate } from '~/ui/lib/Truncate'
 
 export type DiskTableItem =
@@ -47,7 +47,7 @@ export function DisksTableField({
   return (
     <>
       <div className="flex max-w-lg flex-col items-end gap-3">
-        <DataMiniTable
+        <MiniTable
           ariaLabel="Disks"
           items={items}
           columns={[

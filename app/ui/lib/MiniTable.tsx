@@ -105,12 +105,12 @@ export const ClearAndAddButtons = ({
   </div>
 )
 
-export type Column<T> = {
+type Column<T> = {
   header: string
   cell: (item: T, index: number) => React.ReactNode
 }
 
-export type DataMiniTableProps<T> = {
+type MiniTableProps<T> = {
   ariaLabel: string
   items: T[]
   columns: Column<T>[]
@@ -121,7 +121,7 @@ export type DataMiniTableProps<T> = {
   className?: string
 }
 
-export function DataMiniTable<T>({
+export function MiniTable<T>({
   ariaLabel,
   items,
   columns,
@@ -130,7 +130,7 @@ export function DataMiniTable<T>({
   removeLabel,
   emptyState,
   className,
-}: DataMiniTableProps<T>) {
+}: MiniTableProps<T>) {
   return (
     <Table aria-label={ariaLabel} className={className}>
       <Header>

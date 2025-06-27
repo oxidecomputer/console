@@ -67,7 +67,7 @@ import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
-import { DataMiniTable } from '~/ui/lib/MiniTable'
+import { MiniTable } from '~/ui/lib/MiniTable'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { RadioCard } from '~/ui/lib/Radio'
@@ -785,7 +785,7 @@ const AdvancedAccordion = ({
             </div>
           ) : (
             <div className="flex flex-col items-end gap-3">
-              <DataMiniTable
+              <MiniTable
                 ariaLabel="Floating IPs"
                 items={attachedFloatingIpsData}
                 columns={[

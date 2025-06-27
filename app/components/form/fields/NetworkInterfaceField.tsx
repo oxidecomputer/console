@@ -17,7 +17,7 @@ import type { InstanceCreateInput } from '~/forms/instance-create'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
 import { Button } from '~/ui/lib/Button'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
-import { DataMiniTable } from '~/ui/lib/MiniTable'
+import { MiniTable } from '~/ui/lib/MiniTable'
 import { Radio } from '~/ui/lib/Radio'
 import { RadioGroup } from '~/ui/lib/RadioGroup'
 
@@ -76,7 +76,7 @@ export function NetworkInterfaceField({
         {value.type === 'create' && (
           <>
             {value.params.length > 0 && (
-              <DataMiniTable
+              <MiniTable
                 className="pt-2"
                 ariaLabel="Network Interfaces"
                 items={value.params}

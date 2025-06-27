@@ -14,7 +14,7 @@ import type { CertificateCreate } from '@oxide/api'
 import type { SiloCreateFormValues } from '~/forms/silo-create'
 import { Button } from '~/ui/lib/Button'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
-import { DataMiniTable } from '~/ui/lib/MiniTable'
+import { MiniTable } from '~/ui/lib/MiniTable'
 import { Modal } from '~/ui/lib/Modal'
 
 import { DescriptionField } from './DescriptionField'
@@ -47,7 +47,7 @@ export function TlsCertsField({ control }: { control: Control<SiloCreateFormValu
           TLS Certificates
         </FieldLabel>
         {!!items.length && (
-          <DataMiniTable
+          <MiniTable
             className="mb-4"
             ariaLabel="TLS Certificates"
             items={items}
