@@ -20,6 +20,7 @@ import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { TipIcon } from '~/ui/lib/TipIcon'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
@@ -68,17 +69,15 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 
   await Promise.all([
     ...gateways.items.flatMap((gateway: InternetGateway) => [
-      queryClient.prefetchQuery(
+      queryClient.fetchQuery(
         gatewayIpAddressList({ project, vpc, gateway: gateway.name }).optionsFn()
       ),
-      queryClient.prefetchQuery(
+      queryClient.fetchQuery(
         gatewayIpPoolList({ project, vpc, gateway: gateway.name }).optionsFn()
       ),
     ]),
     ...routers.items.map((router) =>
-      queryClient.prefetchQuery(
-        routeList({ project, vpc, router: router.name }).optionsFn()
-      )
+      queryClient.fetchQuery(routeList({ project, vpc, router: router.name }).optionsFn())
     ),
     queryClient.fetchQuery(projectIpPoolList.optionsFn()).then((pools) => {
       for (const pool of pools.items) {
@@ -90,6 +89,16 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 
   return null
 }
+
+export const AttachedIpAddressHeader = () => (
+  <>
+    Attached IP Address
+    <TipIcon className="ml-1.5">
+      Internet gateways without an IP address attached will use an address from the attached
+      IP pool
+    </TipIcon>
+  </>
+)
 
 export default function VpcInternetGatewaysTab() {
   const { project, vpc } = useVpcSelector()
@@ -111,18 +120,18 @@ export default function VpcInternetGatewaysTab() {
       colHelper.accessor('description', Columns.description),
       colHelper.accessor('name', {
         // ID needed to avoid key collision with other name column
-        id: 'ip-address',
-        header: 'Attached IP Address',
-        cell: (info) => (
-          <IpAddressCell project={project} vpc={vpc} gateway={info.getValue()} />
-        ),
-      }),
-      colHelper.accessor('name', {
-        // ID needed to avoid key collision with other name column
         id: 'ip-pool',
         header: 'Attached IP Pool',
         cell: (info) => (
           <GatewayIpPoolCell project={project} vpc={vpc} gateway={info.getValue()} />
+        ),
+      }),
+      colHelper.accessor('name', {
+        // ID needed to avoid key collision with other name column
+        id: 'ip-address',
+        header: AttachedIpAddressHeader,
+        cell: (info) => (
+          <IpAddressCell project={project} vpc={vpc} gateway={info.getValue()} />
         ),
       }),
       colHelper.accessor('name', {
