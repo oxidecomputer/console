@@ -136,9 +136,6 @@ export function DataMiniTable<T>({
   emptyState,
   className,
 }: DataMiniTableProps<T>) {
-  // Calculate colspan for empty state (columns + remove column)
-  const colSpan = columns.length + 1
-
   return (
     <Table aria-label={ariaLabel} className={className}>
       <Header>
@@ -170,7 +167,11 @@ export function DataMiniTable<T>({
             </Row>
           ))
         ) : (
-          <EmptyState title={emptyState.title} body={emptyState.body} colSpan={colSpan} />
+          <EmptyState
+            title={emptyState.title}
+            body={emptyState.body}
+            colSpan={columns.length + 1}
+          />
         )}
       </Body>
     </Table>
