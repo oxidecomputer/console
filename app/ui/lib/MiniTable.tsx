@@ -110,21 +110,18 @@ export type Column<T> = {
   cell: (item: T, index: number) => React.ReactNode
 }
 
-export type DataMiniTableProps<T> = {
+export type DataMiniTableProps<T extends Record<string, unknown>> = {
   ariaLabel: string
   items: T[]
   columns: Column<T>[]
   rowKey: (item: T, index: number) => string
-  onRemoveItem: (item: T, index: number) => void
-  removeLabel?: (item: T, index: number) => string
-  emptyState: {
-    title: string
-    body: string
-  }
+  onRemoveItem: (item: T) => void
+  removeLabel?: (item: T) => string
+  emptyState: { title: string; body: string }
   className?: string
 }
 
-export function DataMiniTable<T>({
+export function DataMiniTable<T extends Record<string, unknown>>({
   ariaLabel,
   items,
   columns,
@@ -152,11 +149,8 @@ export function DataMiniTable<T>({
               ))}
 
               <RemoveCell
-                onClick={() => onRemoveItem(item, index)}
-                label={
-                  removeLabel?.(item, index) ||
-                  `Remove ${ariaLabel.toLowerCase()} ${index + 1}`
-                }
+                onClick={() => onRemoveItem(item)}
+                label={removeLabel?.(item) || `Remove item ${index + 1}`}
               />
             </Row>
           ))

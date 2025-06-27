@@ -68,10 +68,7 @@ export function DisksTableField({
           rowKey={(item) => item.name}
           onRemoveItem={(item) => onChange(items.filter((i) => i.name !== item.name))}
           removeLabel={(item) => `Remove disk ${item.name}`}
-          emptyState={{
-            title: 'No disks',
-            body: 'Add a disk to see it here',
-          }}
+          emptyState={{ title: 'No disks', body: 'Add a disk to see it here' }}
         />
 
         <div className="space-x-3">
