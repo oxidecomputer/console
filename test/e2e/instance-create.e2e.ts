@@ -583,7 +583,7 @@ test('create instance with additional disks', async ({ page }) => {
 
   const disksTable = page.getByRole('table', { name: 'Disks' })
   await expect(disksTable.getByText('disk-6')).toBeHidden()
-  await expectRowVisible(disksTable, { Name: 'new-disk-1', Type: 'create', Size: '5GiB' })
+  await expectRowVisible(disksTable, { Name: 'new-disk-1', Type: 'create', Size: '5 GiB' })
 
   // now that name is taken too, so disk create disallows it
   await page.getByRole('button', { name: 'Create new disk' }).click()
