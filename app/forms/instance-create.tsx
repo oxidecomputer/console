@@ -784,7 +784,7 @@ const AdvancedAccordion = ({
               />
             </div>
           ) : (
-            <div className="flex flex-col items-end gap-3">
+            <div className="flex flex-col items-start gap-3">
               <MiniTable
                 ariaLabel="Floating IPs"
                 items={attachedFloatingIpsData}
@@ -795,10 +795,6 @@ const AdvancedAccordion = ({
                 rowKey={(item) => item.name}
                 onRemoveItem={(item) => detachFloatingIp(item.name)}
                 removeLabel={(item) => `remove floating IP ${item.name}`}
-                emptyState={{
-                  title: 'No floating IPs attached',
-                  body: 'Attach a floating IP to see it here',
-                }}
               />
               <Button
                 variant="secondary"

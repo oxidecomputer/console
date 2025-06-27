@@ -133,27 +133,20 @@ export function EditNetworkInterfaceForm({
           onSubmit={submitTransitIp}
         />
       </div>
-      {transitIps.length > 0 && (
-        <MiniTable
-          className="mb-4"
-          ariaLabel="Transit IPs"
-          items={transitIps}
-          columns={[{ header: 'Transit IPs', cell: (ip) => ip }]}
-          rowKey={(ip) => ip}
-          onRemoveItem={(ip) => {
-            form.setValue(
-              'transitIps',
-              transitIps.filter((item) => item !== ip)
-            )
-          }}
-          removeLabel={(ip) => `remove IP ${ip}`}
-          // empty state not used because the table is hidden when there are none
-          emptyState={{
-            title: 'No transit IPs',
-            body: 'Add a transit IP to see it here',
-          }}
-        />
-      )}
+      <MiniTable
+        className="mb-4"
+        ariaLabel="Transit IPs"
+        items={transitIps}
+        columns={[{ header: 'Transit IPs', cell: (ip) => ip }]}
+        rowKey={(ip) => ip}
+        onRemoveItem={(ip) => {
+          form.setValue(
+            'transitIps',
+            transitIps.filter((item) => item !== ip)
+          )
+        }}
+        removeLabel={(ip) => `remove IP ${ip}`}
+      />
     </SideModalForm>
   )
 }

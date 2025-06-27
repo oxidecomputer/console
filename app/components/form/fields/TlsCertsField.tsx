@@ -46,22 +46,15 @@ export function TlsCertsField({ control }: { control: Control<SiloCreateFormValu
         <FieldLabel id="tls-certificates-label" className="mb-3">
           TLS Certificates
         </FieldLabel>
-        {!!items.length && (
-          <MiniTable
-            className="mb-4"
-            ariaLabel="TLS Certificates"
-            items={items}
-            columns={[{ header: 'Name', cell: (item) => item.name }]}
-            rowKey={(item) => item.name}
-            onRemoveItem={(item) => onChange(items.filter((i) => i.name !== item.name))}
-            removeLabel={(item) => `remove cert ${item.name}`}
-            // empty state not used because the table is hidden when there are none
-            emptyState={{
-              title: 'No TLS certificates',
-              body: 'Add a certificate to see it here',
-            }}
-          />
-        )}
+        <MiniTable
+          className="mb-4"
+          ariaLabel="TLS Certificates"
+          items={items}
+          columns={[{ header: 'Name', cell: (item) => item.name }]}
+          rowKey={(item) => item.name}
+          onRemoveItem={(item) => onChange(items.filter((i) => i.name !== item.name))}
+          removeLabel={(item) => `remove cert ${item.name}`}
+        />
 
         {/* ref on button element allows scrollTo to work when the form has a "missing TLS cert" error */}
         <Button size="sm" onClick={() => setShowAddCert(true)} ref={ref}>

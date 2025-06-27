@@ -216,28 +216,19 @@ const TargetAndHostFilterSubform = ({
         onClear={() => subform.reset()}
         onSubmit={submitSubform}
       />
-      {field.value.length > 0 && (
-        <MiniTable
-          className="mb-4"
-          ariaLabel={nounTitle}
-          items={field.value}
-          columns={[
-            { header: 'Type', cell: (item) => <Badge>{item.type}</Badge> },
-            { header: 'Value', cell: (item) => item.value },
-          ]}
-          rowKey={({ type, value }) => `${type}|${value}`}
-          onRemoveItem={({ type, value }) => {
-            field.onChange(
-              field.value.filter((i) => !(i.value === value && i.type === type))
-            )
-          }}
-          // empty state not used because the table is hidden when there are none
-          emptyState={{
-            title: `No ${noun}s`,
-            body: `Add a ${noun} to see it here`,
-          }}
-        />
-      )}
+      <MiniTable
+        className="mb-4"
+        ariaLabel={nounTitle}
+        items={field.value}
+        columns={[
+          { header: 'Type', cell: (item) => <Badge>{item.type}</Badge> },
+          { header: 'Value', cell: (item) => item.value },
+        ]}
+        rowKey={({ type, value }) => `${type}|${value}`}
+        onRemoveItem={({ type, value }) => {
+          field.onChange(field.value.filter((i) => !(i.value === value && i.type === type)))
+        }}
+      />
     </>
   )
 }

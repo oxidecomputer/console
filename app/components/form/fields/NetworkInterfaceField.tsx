@@ -75,31 +75,24 @@ export function NetworkInterfaceField({
         </RadioGroup>
         {value.type === 'create' && (
           <>
-            {value.params.length > 0 && (
-              <MiniTable
-                className="pt-2"
-                ariaLabel="Network Interfaces"
-                items={value.params}
-                columns={[
-                  { header: 'Name', cell: (item) => item.name },
-                  { header: 'VPC', cell: (item) => item.vpcName },
-                  { header: 'Subnet', cell: (item) => item.subnetName },
-                ]}
-                rowKey={(item) => item.name}
-                onRemoveItem={(item) =>
-                  onChange({
-                    type: 'create',
-                    params: value.params.filter((i) => i.name !== item.name),
-                  })
-                }
-                removeLabel={(item) => `remove network interface ${item.name}`}
-                // empty state not used because the table is hidden when there are none
-                emptyState={{
-                  title: 'No network interfaces',
-                  body: 'Add a network interface to see it here',
-                }}
-              />
-            )}
+            <MiniTable
+              className="pt-2"
+              ariaLabel="Network Interfaces"
+              items={value.params}
+              columns={[
+                { header: 'Name', cell: (item) => item.name },
+                { header: 'VPC', cell: (item) => item.vpcName },
+                { header: 'Subnet', cell: (item) => item.subnetName },
+              ]}
+              rowKey={(item) => item.name}
+              onRemoveItem={(item) =>
+                onChange({
+                  type: 'create',
+                  params: value.params.filter((i) => i.name !== item.name),
+                })
+              }
+              removeLabel={(item) => `remove network interface ${item.name}`}
+            />
 
             {showForm && (
               <CreateNetworkInterfaceForm

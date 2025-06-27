@@ -117,10 +117,15 @@ type MiniTableProps<T> = {
   rowKey: (item: T, index: number) => string
   onRemoveItem: (item: T) => void
   removeLabel?: (item: T) => string
-  emptyState: { title: string; body: string }
+  /**
+   * If empty state is not provided, the entire table will disappear when items
+   * is empty
+   */
+  emptyState?: { title: string; body: string }
   className?: string
 }
 
+/** If `emptyState` is left out, `MiniTable` renders null when `items` is empty. */
 export function MiniTable<T>({
   ariaLabel,
   items,
@@ -131,6 +136,8 @@ export function MiniTable<T>({
   emptyState,
   className,
 }: MiniTableProps<T>) {
+  if (!emptyState && items.length === 0) return null
+
   return (
     <Table aria-label={ariaLabel} className={className}>
       <Header>
@@ -154,13 +161,13 @@ export function MiniTable<T>({
               />
             </Row>
           ))
-        ) : (
+        ) : emptyState ? (
           <EmptyState
             title={emptyState.title}
             body={emptyState.body}
             colSpan={columns.length + 1}
           />
-        )}
+        ) : null}
       </Body>
     </Table>
   )
