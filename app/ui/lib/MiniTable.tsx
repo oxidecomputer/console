@@ -15,21 +15,21 @@ import { Table as BigTable } from './Table'
 
 type Children = { children: React.ReactNode }
 
-export const Table = classed.table`ox-mini-table w-full border-separate text-sans-md`
+const Table = classed.table`ox-mini-table w-full border-separate text-sans-md`
 
-export const Header = ({ children }: Children) => (
+const Header = ({ children }: Children) => (
   <BigTable.Header>
     <BigTable.HeaderRow>{children}</BigTable.HeaderRow>
   </BigTable.Header>
 )
 
-export const HeadCell = BigTable.HeadCell
+const HeadCell = BigTable.HeadCell
 
-export const Body = classed.tbody``
+const Body = classed.tbody``
 
-export const Row = classed.tr`is-selected children:border-default first:children:border-l children:last:border-b last:children:border-r`
+const Row = classed.tr`is-selected children:border-default first:children:border-l children:last:border-b last:children:border-r`
 
-export const Cell = ({ children }: Children) => {
+const Cell = ({ children }: Children) => {
   return (
     <td>
       <div>{children}</div>
@@ -37,7 +37,7 @@ export const Cell = ({ children }: Children) => {
   )
 }
 
-export const EmptyState = (props: { title: string; body: string; colSpan: number }) => (
+const EmptyState = (props: { title: string; body: string; colSpan: number }) => (
   <Row>
     <td colSpan={props.colSpan}>
       <div className="!m-0 !w-full !flex-col !border-none !bg-transparent !py-14">
@@ -70,7 +70,7 @@ export const InputCell = ({
 
 // followed this for icon in button best practices
 // https://www.sarasoueidan.com/blog/accessible-icon-buttons/
-export const RemoveCell = ({ onClick, label }: { onClick: () => void; label: string }) => (
+const RemoveCell = ({ onClick, label }: { onClick: () => void; label: string }) => (
   <Cell>
     <button type="button" onClick={onClick} aria-label={label}>
       <Error16Icon aria-hidden focusable="false" />

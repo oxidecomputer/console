@@ -17,7 +17,7 @@ import type { InstanceCreateInput } from '~/forms/instance-create'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
 import { Button } from '~/ui/lib/Button'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
-import * as MiniTable from '~/ui/lib/MiniTable'
+import { DataMiniTable } from '~/ui/lib/MiniTable'
 import { Radio } from '~/ui/lib/Radio'
 import { RadioGroup } from '~/ui/lib/RadioGroup'
 
@@ -76,38 +76,29 @@ export function NetworkInterfaceField({
         {value.type === 'create' && (
           <>
             {value.params.length > 0 && (
-              <MiniTable.Table className="pt-2">
-                <MiniTable.Header>
-                  <MiniTable.HeadCell>Name</MiniTable.HeadCell>
-                  <MiniTable.HeadCell>VPC</MiniTable.HeadCell>
-                  <MiniTable.HeadCell>Subnet</MiniTable.HeadCell>
-                  {/* For remove button */}
-                  <MiniTable.HeadCell className="w-12" />
-                </MiniTable.Header>
-                <MiniTable.Body>
-                  {value.params.map((item, index) => (
-                    <MiniTable.Row
-                      tabIndex={0}
-                      aria-rowindex={index + 1}
-                      aria-label={`Name: ${item.name}, Vpc: ${item.vpcName}, Subnet: ${item.subnetName}`}
-                      key={item.name}
-                    >
-                      <MiniTable.Cell>{item.name}</MiniTable.Cell>
-                      <MiniTable.Cell>{item.vpcName}</MiniTable.Cell>
-                      <MiniTable.Cell>{item.subnetName}</MiniTable.Cell>
-                      <MiniTable.RemoveCell
-                        onClick={() =>
-                          onChange({
-                            type: 'create',
-                            params: value.params.filter((i) => i.name !== item.name),
-                          })
-                        }
-                        label={`remove network interface ${item.name}`}
-                      />
-                    </MiniTable.Row>
-                  ))}
-                </MiniTable.Body>
-              </MiniTable.Table>
+              <DataMiniTable
+                className="pt-2"
+                ariaLabel="Network Interfaces"
+                items={value.params}
+                columns={[
+                  { header: 'Name', cell: (item) => item.name },
+                  { header: 'VPC', cell: (item) => item.vpcName },
+                  { header: 'Subnet', cell: (item) => item.subnetName },
+                ]}
+                rowKey={(item) => item.name}
+                onRemoveItem={(item) =>
+                  onChange({
+                    type: 'create',
+                    params: value.params.filter((i) => i.name !== item.name),
+                  })
+                }
+                removeLabel={(item) => `remove network interface ${item.name}`}
+                // empty state not used because the table is hidden when there are none
+                emptyState={{
+                  title: 'No network interfaces',
+                  body: 'Add a network interface to see it here',
+                }}
+              />
             )}
 
             {showForm && (
