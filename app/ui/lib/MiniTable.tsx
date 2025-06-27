@@ -104,3 +104,75 @@ export const ClearAndAddButtons = ({
     </Button>
   </div>
 )
+
+export type Column<T> = {
+  header: string
+  render: (item: T, index: number) => React.ReactNode
+}
+
+export type DataMiniTableProps<T> = {
+  ariaLabel: string
+  items: T[]
+  columns: Column<T>[]
+  rowKey: (item: T, index: number) => string
+  rowLabel?: (item: T, index: number) => string
+  onRemoveItem: (item: T, index: number) => void
+  removeLabel?: (item: T, index: number) => string
+  emptyState: {
+    title: string
+    body: string
+  }
+  className?: string
+}
+
+export function DataMiniTable<T>({
+  ariaLabel,
+  items,
+  columns,
+  rowKey,
+  rowLabel,
+  onRemoveItem,
+  removeLabel,
+  emptyState,
+  className,
+}: DataMiniTableProps<T>) {
+  // Calculate colspan for empty state (columns + remove column)
+  const colSpan = columns.length + 1
+
+  return (
+    <Table aria-label={ariaLabel} className={className}>
+      <Header>
+        {columns.map((column, index) => (
+          <HeadCell key={index}>{column.header}</HeadCell>
+        ))}
+        <HeadCell /> {/* For remove button */}
+      </Header>
+
+      <Body>
+        {items.length ? (
+          items.map((item, index) => (
+            <Row
+              tabIndex={0}
+              aria-rowindex={index + 1}
+              aria-label={rowLabel?.(item, index)}
+              key={rowKey(item, index)}
+            >
+              {columns.map((column, colIndex) => (
+                <Cell key={colIndex}>{column.render(item, index)}</Cell>
+              ))}
+
+              {onRemoveItem && (
+                <RemoveCell
+                  onClick={() => onRemoveItem(item, index)}
+                  label={removeLabel?.(item, index) || `Remove item ${index + 1}`}
+                />
+              )}
+            </Row>
+          ))
+        ) : (
+          <EmptyState title={emptyState.title} body={emptyState.body} colSpan={colSpan} />
+        )}
+      </Body>
+    </Table>
+  )
+}

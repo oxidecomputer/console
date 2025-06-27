@@ -14,11 +14,11 @@ import { AttachDiskModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import type { InstanceCreateInput } from '~/forms/instance-create'
 import { EmptyCell } from '~/table/cells/EmptyCell'
+import { sizeCellInner } from '~/table/columns/common'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
-import * as MiniTable from '~/ui/lib/MiniTable'
+import { DataMiniTable } from '~/ui/lib/MiniTable'
 import { Truncate } from '~/ui/lib/Truncate'
-import { bytesToGiB } from '~/util/units'
 
 export type DiskTableItem =
   | (DiskCreate & { type: 'create' })
@@ -47,54 +47,33 @@ export function DisksTableField({
   return (
     <>
       <div className="flex max-w-lg flex-col items-end gap-3">
-        <MiniTable.Table aria-label="Disks">
-          <MiniTable.Header>
-            <MiniTable.HeadCell>Name</MiniTable.HeadCell>
-            <MiniTable.HeadCell>Type</MiniTable.HeadCell>
-            <MiniTable.HeadCell>Size</MiniTable.HeadCell>
-            {/* For remove button */}
-            <MiniTable.HeadCell />
-          </MiniTable.Header>
-          <MiniTable.Body>
-            {items.length ? (
-              items.map((item, index) => (
-                <MiniTable.Row
-                  tabIndex={0}
-                  aria-rowindex={index + 1}
-                  aria-label={`Name: ${item.name}, Type: ${item.type}`}
-                  key={item.name}
-                >
-                  <MiniTable.Cell>
-                    <Truncate text={item.name} maxLength={35} />
-                  </MiniTable.Cell>
-                  <MiniTable.Cell>
-                    <Badge>{item.type}</Badge>
-                  </MiniTable.Cell>
-                  <MiniTable.Cell>
-                    {item.type === 'attach' ? (
-                      <EmptyCell />
-                    ) : (
-                      <>
-                        <span>{bytesToGiB(item.size)}</span>
-                        <span className="ml-1 inline-block text-tertiary">GiB</span>
-                      </>
-                    )}
-                  </MiniTable.Cell>
-                  <MiniTable.RemoveCell
-                    onClick={() => onChange(items.filter((i) => i.name !== item.name))}
-                    label={`remove disk ${item.name}`}
-                  />
-                </MiniTable.Row>
-              ))
-            ) : (
-              <MiniTable.EmptyState
-                title="No disks"
-                body="Add a disk to see it here"
-                colSpan={4}
-              />
-            )}
-          </MiniTable.Body>
-        </MiniTable.Table>
+        <DataMiniTable
+          ariaLabel="Disks"
+          items={items}
+          columns={[
+            {
+              header: 'Name',
+              render: (item) => <Truncate text={item.name} maxLength={35} />,
+            },
+            {
+              header: 'Type',
+              render: (item) => <Badge>{item.type}</Badge>,
+            },
+            {
+              header: 'Size',
+              render: (item) =>
+                item.type === 'attach' ? <EmptyCell /> : sizeCellInner(item.size),
+            },
+          ]}
+          rowKey={(item) => item.name}
+          rowLabel={(item) => `Name: ${item.name}, Type: ${item.type}`}
+          onRemoveItem={(item) => onChange(items.filter((i) => i.name !== item.name))}
+          removeLabel={(item) => `Remove disk ${item.name}`}
+          emptyState={{
+            title: 'No disks',
+            body: 'Add a disk to see it here',
+          }}
+        />
 
         <div className="space-x-3">
           <Button size="sm" onClick={() => setShowDiskCreate(true)} disabled={disabled}>
