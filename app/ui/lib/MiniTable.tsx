@@ -110,7 +110,7 @@ export type Column<T> = {
   cell: (item: T, index: number) => React.ReactNode
 }
 
-export type DataMiniTableProps<T extends Record<string, unknown>> = {
+export type DataMiniTableProps<T> = {
   ariaLabel: string
   items: T[]
   columns: Column<T>[]
@@ -121,7 +121,7 @@ export type DataMiniTableProps<T extends Record<string, unknown>> = {
   className?: string
 }
 
-export function DataMiniTable<T extends Record<string, unknown>>({
+export function DataMiniTable<T>({
   ariaLabel,
   items,
   columns,

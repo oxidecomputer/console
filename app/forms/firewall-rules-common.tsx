@@ -33,7 +33,7 @@ import { toComboboxItems } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Message } from '~/ui/lib/Message'
-import * as MiniTable from '~/ui/lib/MiniTable'
+import { ClearAndAddButtons, DataMiniTable } from '~/ui/lib/MiniTable'
 import { SideModal } from '~/ui/lib/SideModal'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
@@ -148,11 +148,12 @@ const TargetAndHostFilterSubform = ({
     subform.setValue('value', value)
   }
 
+  const noun = sectionType === 'target' ? 'target' : 'host filter'
+  const nounTitle = capitalize(noun) + 's'
+
   return (
     <>
-      <SideModal.Heading>
-        {sectionType === 'target' ? 'Targets' : 'Host filters'}
-      </SideModal.Heading>
+      <SideModal.Heading>{nounTitle}</SideModal.Heading>
 
       <Message variant="info" content={messageContent} />
       <ListboxField
@@ -209,47 +210,33 @@ const TargetAndHostFilterSubform = ({
           }
         />
       )}
-      <MiniTable.ClearAndAddButtons
-        addButtonCopy={`Add ${sectionType === 'host' ? 'host filter' : 'target'}`}
+      <ClearAndAddButtons
+        addButtonCopy={`Add ${noun}`}
         disabled={!value}
         onClear={() => subform.reset()}
         onSubmit={submitSubform}
       />
       {field.value.length > 0 && (
-        <MiniTable.Table
+        <DataMiniTable
           className="mb-4"
-          aria-label={sectionType === 'target' ? 'Targets' : 'Host filters'}
-        >
-          <MiniTable.Header>
-            <MiniTable.HeadCell>Type</MiniTable.HeadCell>
-            <MiniTable.HeadCell>Value</MiniTable.HeadCell>
-            {/* For remove button */}
-            <MiniTable.HeadCell className="w-12" />
-          </MiniTable.Header>
-          <MiniTable.Body>
-            {field.value.map(({ type, value }, index) => (
-              <MiniTable.Row
-                tabIndex={0}
-                aria-rowindex={index + 1}
-                aria-label={`Name: ${value}, Type: ${type}`}
-                key={`${type}|${value}`}
-              >
-                <MiniTable.Cell>
-                  <Badge>{type}</Badge>
-                </MiniTable.Cell>
-                <MiniTable.Cell>{value}</MiniTable.Cell>
-                <MiniTable.RemoveCell
-                  onClick={() =>
-                    field.onChange(
-                      field.value.filter((i) => !(i.value === value && i.type === type))
-                    )
-                  }
-                  label={`remove ${sectionType} ${value}`}
-                />
-              </MiniTable.Row>
-            ))}
-          </MiniTable.Body>
-        </MiniTable.Table>
+          ariaLabel={nounTitle}
+          items={field.value}
+          columns={[
+            { header: 'Type', cell: (item) => <Badge>{item.type}</Badge> },
+            { header: 'Value', cell: (item) => item.value },
+          ]}
+          rowKey={({ type, value }) => `${type}|${value}`}
+          onRemoveItem={({ type, value }) => {
+            field.onChange(
+              field.value.filter((i) => !(i.value === value && i.type === type))
+            )
+          }}
+          // empty state not used because the table is hidden when there are none
+          emptyState={{
+            title: `No ${noun}s`,
+            body: `Add a ${noun} to see it here`,
+          }}
+        />
       )}
     </>
   )
@@ -450,7 +437,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
             }}
           />
         </div>
-        <MiniTable.ClearAndAddButtons
+        <ClearAndAddButtons
           addButtonCopy="Add port filter"
           disabled={!portValue}
           onClear={() => portRangeForm.reset()}
@@ -458,24 +445,16 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
         />
       </div>
       {ports.value.length > 0 && (
-        <MiniTable.Table className="mb-4" aria-label="Port filters">
-          <MiniTable.Header>
-            <MiniTable.HeadCell>Port ranges</MiniTable.HeadCell>
-            {/* For remove button */}
-            <MiniTable.HeadCell className="w-12" />
-          </MiniTable.Header>
-          <MiniTable.Body>
-            {ports.value.map((p) => (
-              <MiniTable.Row tabIndex={0} aria-label={p} key={p}>
-                <MiniTable.Cell>{p}</MiniTable.Cell>
-                <MiniTable.RemoveCell
-                  onClick={() => ports.onChange(ports.value.filter((p1) => p1 !== p))}
-                  label={`remove port ${p}`}
-                />
-              </MiniTable.Row>
-            ))}
-          </MiniTable.Body>
-        </MiniTable.Table>
+        <DataMiniTable
+          className="mb-4"
+          ariaLabel="Port filters"
+          items={ports.value}
+          columns={[{ header: 'Port ranges', cell: (p) => p }]}
+          rowKey={(port) => port}
+          emptyState={{ title: 'No ports', body: 'Add a port to see it here' }}
+          onRemoveItem={(p) => ports.onChange(ports.value.filter((p1) => p1 !== p))}
+          removeLabel={(port) => `remove port ${port}`}
+        />
       )}
 
       <fieldset className="space-y-0.5">
