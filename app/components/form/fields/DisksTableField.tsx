@@ -53,15 +53,15 @@ export function DisksTableField({
           columns={[
             {
               header: 'Name',
-              render: (item) => <Truncate text={item.name} maxLength={35} />,
+              cell: (item) => <Truncate text={item.name} maxLength={35} />,
             },
             {
               header: 'Type',
-              render: (item) => <Badge>{item.type}</Badge>,
+              cell: (item) => <Badge>{item.type}</Badge>,
             },
             {
               header: 'Size',
-              render: (item) =>
+              cell: (item) =>
                 item.type === 'attach' ? <EmptyCell /> : sizeCellInner(item.size),
             },
           ]}

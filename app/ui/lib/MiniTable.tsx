@@ -107,7 +107,7 @@ export const ClearAndAddButtons = ({
 
 export type Column<T> = {
   header: string
-  render: (item: T, index: number) => React.ReactNode
+  cell: (item: T, index: number) => React.ReactNode
 }
 
 export type DataMiniTableProps<T> = {
@@ -155,7 +155,7 @@ export function DataMiniTable<T>({
               key={rowKey(item, index)}
             >
               {columns.map((column, colIndex) => (
-                <Cell key={colIndex}>{column.render(item, index)}</Cell>
+                <Cell key={colIndex}>{column.cell(item, index)}</Cell>
               ))}
 
               <RemoveCell
