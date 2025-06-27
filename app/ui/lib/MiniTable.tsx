@@ -115,7 +115,6 @@ export type DataMiniTableProps<T> = {
   items: T[]
   columns: Column<T>[]
   rowKey: (item: T, index: number) => string
-  rowLabel: (item: T, index: number) => string
   onRemoveItem: (item: T, index: number) => void
   removeLabel?: (item: T, index: number) => string
   emptyState: {
@@ -130,7 +129,6 @@ export function DataMiniTable<T>({
   items,
   columns,
   rowKey,
-  rowLabel,
   onRemoveItem,
   removeLabel,
   emptyState,
@@ -148,12 +146,7 @@ export function DataMiniTable<T>({
       <Body>
         {items.length ? (
           items.map((item, index) => (
-            <Row
-              tabIndex={0}
-              aria-rowindex={index + 1}
-              aria-label={rowLabel(item, index)}
-              key={rowKey(item, index)}
-            >
+            <Row tabIndex={0} aria-rowindex={index + 1} key={rowKey(item, index)}>
               {columns.map((column, colIndex) => (
                 <Cell key={colIndex}>{column.cell(item, index)}</Cell>
               ))}

@@ -66,7 +66,6 @@ export function DisksTableField({
             },
           ]}
           rowKey={(item) => item.name}
-          rowLabel={(item) => `Name: ${item.name}, Type: ${item.type}`}
           onRemoveItem={(item) => onChange(items.filter((i) => i.name !== item.name))}
           removeLabel={(item) => `Remove disk ${item.name}`}
           emptyState={{
