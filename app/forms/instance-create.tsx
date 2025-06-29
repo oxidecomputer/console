@@ -586,7 +586,6 @@ export default function CreateInstanceForm() {
           // Don't allow the user to create a new disk with a name that matches other disk names (either the boot disk,
           // the names of disks that will be created and attached to this instance, or disks that already exist).
           unavailableDiskNames={[bootDiskName, ...unavailableDiskNames]}
-          allDisks={allDisks}
         />
         <FormDivider />
         <Form.Heading id="authentication">Authentication</Form.Heading>

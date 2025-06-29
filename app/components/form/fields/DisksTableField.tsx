@@ -8,12 +8,11 @@
 import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
-import type { Disk, DiskCreate } from '@oxide/api'
+import type { DiskCreate } from '@oxide/api'
 
 import { AttachDiskModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import type { InstanceCreateInput } from '~/forms/instance-create'
-import { EmptyCell } from '~/table/cells/EmptyCell'
 import { sizeCellInner } from '~/table/columns/common'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
@@ -32,12 +31,10 @@ export function DisksTableField({
   control,
   disabled,
   unavailableDiskNames,
-  allDisks,
 }: {
   control: Control<InstanceCreateInput>
   disabled: boolean
   unavailableDiskNames: string[]
-  allDisks: Disk[]
 }) {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
   const [showDiskAttach, setShowDiskAttach] = useState(false)
@@ -63,7 +60,7 @@ export function DisksTableField({
             },
             {
               header: 'Size',
-              cell: (item) => (item.size ? sizeCellInner(item.size) : <EmptyCell />),
+              cell: (item) => sizeCellInner(item.size),
             },
           ]}
           rowKey={(item) => item.name}
@@ -100,11 +97,8 @@ export function DisksTableField({
       {showDiskAttach && (
         <AttachDiskModalForm
           onDismiss={() => setShowDiskAttach(false)}
-          onSubmit={({ name }: { name: string }) => {
-            onChange([
-              ...items,
-              { name, type: 'attach', size: allDisks.find((d) => d.name === name)?.size },
-            ])
+          onSubmit={({ name, size }: { name: string; size: number }) => {
+            onChange([...items, { type: 'attach', name, size } satisfies DiskTableItem])
             setShowDiskAttach(false)
           }}
           diskNamesToExclude={items.filter((i) => i.type === 'attach').map((i) => i.name)}
