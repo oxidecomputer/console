@@ -8,7 +8,7 @@
 import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
-import type { DiskCreate } from '@oxide/api'
+import type { Disk, DiskCreate } from '@oxide/api'
 
 import { AttachDiskModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
@@ -22,7 +22,7 @@ import { Truncate } from '~/ui/lib/Truncate'
 
 export type DiskTableItem =
   | (DiskCreate & { type: 'create' })
-  | { name: string; type: 'attach' }
+  | { name: string; type: 'attach'; size: number }
 
 /**
  * Designed less for reuse, more to encapsulate logic that would otherwise
@@ -32,10 +32,12 @@ export function DisksTableField({
   control,
   disabled,
   unavailableDiskNames,
+  allDisks,
 }: {
   control: Control<InstanceCreateInput>
   disabled: boolean
   unavailableDiskNames: string[]
+  allDisks: Disk[]
 }) {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
   const [showDiskAttach, setShowDiskAttach] = useState(false)
@@ -61,8 +63,7 @@ export function DisksTableField({
             },
             {
               header: 'Size',
-              cell: (item) =>
-                item.type === 'attach' ? <EmptyCell /> : sizeCellInner(item.size),
+              cell: (item) => (item.size ? sizeCellInner(item.size) : <EmptyCell />),
             },
           ]}
           rowKey={(item) => item.name}
@@ -99,8 +100,11 @@ export function DisksTableField({
       {showDiskAttach && (
         <AttachDiskModalForm
           onDismiss={() => setShowDiskAttach(false)}
-          onSubmit={(values) => {
-            onChange([...items, { type: 'attach', ...values }])
+          onSubmit={({ name }: { name: string }) => {
+            onChange([
+              ...items,
+              { name, type: 'attach', size: allDisks.find((d) => d.name === name)?.size },
+            ])
             setShowDiskAttach(false)
           }}
           diskNamesToExclude={items.filter((i) => i.type === 'attach').map((i) => i.name)}
