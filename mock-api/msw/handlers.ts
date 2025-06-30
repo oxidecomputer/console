@@ -585,13 +585,15 @@ export const handlers = makeHandlers({
       auto_restart_enabled: true,
     }
 
-    setTimeout(() => {
-      newInstance.run_state = 'starting'
-    }, 1000)
+    if (body.start) {
+      setTimeout(() => {
+        newInstance.run_state = 'starting'
+      }, 1500)
 
-    setTimeout(() => {
-      newInstance.run_state = 'running'
-    }, 4000)
+      setTimeout(() => {
+        newInstance.run_state = 'running'
+      }, 4000)
+    }
 
     db.instances.push(newInstance)
 
