@@ -2,7 +2,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at https://mozilla.org/MPL/2.0/.
- *  
+ *
  * Copyright Oxide Computer Company
  */
 
@@ -26,6 +26,10 @@
   & td + td:before {
     @apply absolute bottom-[2px] top-[calc(0.5rem+1px)] block w-[1px] border-l border-secondary;
     content: ' ';
+  }
+
+  & tr td:last-child:before {
+    @apply hidden;
   }
 
   & tr:last-child td + td:before {

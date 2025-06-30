@@ -67,7 +67,7 @@ import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
-import * as MiniTable from '~/ui/lib/MiniTable'
+import { MiniTable } from '~/ui/lib/MiniTable'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { RadioCard } from '~/ui/lib/Radio'
@@ -694,8 +694,6 @@ const AdvancedAccordion = ({
     )
   }
 
-  const isFloatingIpAttached = attachedFloatingIps.some((ip) => ip.floatingIp !== '')
-
   const selectedFloatingIpMessage = (
     <>
       This instance will be reachable at{' '}
@@ -786,40 +784,18 @@ const AdvancedAccordion = ({
               />
             </div>
           ) : (
-            <div className="flex flex-col items-end gap-3">
-              <MiniTable.Table>
-                <MiniTable.Header>
-                  <MiniTable.HeadCell>Name</MiniTable.HeadCell>
-                  <MiniTable.HeadCell>IP</MiniTable.HeadCell>
-                  {/* For remove button */}
-                  <MiniTable.HeadCell className="w-12" />
-                </MiniTable.Header>
-                <MiniTable.Body>
-                  {isFloatingIpAttached ? (
-                    attachedFloatingIpsData.map((item, index) => (
-                      <MiniTable.Row
-                        tabIndex={0}
-                        aria-rowindex={index + 1}
-                        aria-label={`Name: ${item.name}, IP: ${item.ip}`}
-                        key={item.name}
-                      >
-                        <MiniTable.Cell>{item.name}</MiniTable.Cell>
-                        <MiniTable.Cell>{item.ip}</MiniTable.Cell>
-                        <MiniTable.RemoveCell
-                          onClick={() => detachFloatingIp(item.name)}
-                          label={`remove floating IP ${item.name}`}
-                        />
-                      </MiniTable.Row>
-                    ))
-                  ) : (
-                    <MiniTable.EmptyState
-                      title="No floating IPs attached"
-                      body="Attach a floating IP to see it here"
-                      colSpan={3}
-                    />
-                  )}
-                </MiniTable.Body>
-              </MiniTable.Table>
+            <div className="flex flex-col items-start gap-3">
+              <MiniTable
+                ariaLabel="Floating IPs"
+                items={attachedFloatingIpsData}
+                columns={[
+                  { header: 'Name', cell: (item) => item.name },
+                  { header: 'IP', cell: (item) => item.ip },
+                ]}
+                rowKey={(item) => item.name}
+                onRemoveItem={(item) => detachFloatingIp(item.name)}
+                removeLabel={(item) => `remove floating IP ${item.name}`}
+              />
               <Button
                 variant="secondary"
                 size="sm"

@@ -20,7 +20,7 @@ const defaultValues = { name: '' }
 
 type AttachDiskProps = {
   /** If defined, this overrides the usual mutation */
-  onSubmit: (diskAttach: { name: string }) => void
+  onSubmit: (diskAttach: { name: string; size: number }) => void
   onDismiss: () => void
   diskNamesToExclude?: string[]
   loading?: boolean
@@ -64,7 +64,13 @@ export function AttachDiskModalForm({
       submitError={submitError}
       loading={loading}
       title="Attach disk"
-      onSubmit={onSubmit}
+      onSubmit={({ name }) => {
+        // because the ComboboxField is required and does not allow arbitrary
+        // values (values not in the list of disks), we can only get here if the
+        // disk is defined and in the list
+        const disk = data!.items.find((d) => d.name === name)!
+        onSubmit({ name, size: disk.size })
+      }}
     >
       <ComboboxField
         label="Disk name"

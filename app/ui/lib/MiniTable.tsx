@@ -15,21 +15,21 @@ import { Table as BigTable } from './Table'
 
 type Children = { children: React.ReactNode }
 
-export const Table = classed.table`ox-mini-table w-full border-separate text-sans-md`
+const Table = classed.table`ox-mini-table w-full border-separate text-sans-md`
 
-export const Header = ({ children }: Children) => (
+const Header = ({ children }: Children) => (
   <BigTable.Header>
     <BigTable.HeaderRow>{children}</BigTable.HeaderRow>
   </BigTable.Header>
 )
 
-export const HeadCell = BigTable.HeadCell
+const HeadCell = BigTable.HeadCell
 
-export const Body = classed.tbody``
+const Body = classed.tbody``
 
-export const Row = classed.tr`is-selected children:border-default first:children:border-l children:last:border-b last:children:border-r`
+const Row = classed.tr`is-selected children:border-default first:children:border-l children:last:border-b last:children:border-r`
 
-export const Cell = ({ children }: Children) => {
+const Cell = ({ children }: Children) => {
   return (
     <td>
       <div>{children}</div>
@@ -37,7 +37,7 @@ export const Cell = ({ children }: Children) => {
   )
 }
 
-export const EmptyState = (props: { title: string; body: string; colSpan: number }) => (
+const EmptyState = (props: { title: string; body: string; colSpan: number }) => (
   <Row>
     <td colSpan={props.colSpan}>
       <div className="!m-0 !w-full !flex-col !border-none !bg-transparent !py-14">
@@ -70,7 +70,7 @@ export const InputCell = ({
 
 // followed this for icon in button best practices
 // https://www.sarasoueidan.com/blog/accessible-icon-buttons/
-export const RemoveCell = ({ onClick, label }: { onClick: () => void; label: string }) => (
+const RemoveCell = ({ onClick, label }: { onClick: () => void; label: string }) => (
   <Cell>
     <button type="button" onClick={onClick} aria-label={label}>
       <Error16Icon aria-hidden focusable="false" />
@@ -104,3 +104,71 @@ export const ClearAndAddButtons = ({
     </Button>
   </div>
 )
+
+type Column<T> = {
+  header: string
+  cell: (item: T, index: number) => React.ReactNode
+}
+
+type MiniTableProps<T> = {
+  ariaLabel: string
+  items: T[]
+  columns: Column<T>[]
+  rowKey: (item: T, index: number) => string
+  onRemoveItem: (item: T) => void
+  removeLabel?: (item: T) => string
+  /**
+   * If empty state is not provided, the entire table will disappear when items
+   * is empty
+   */
+  emptyState?: { title: string; body: string }
+  className?: string
+}
+
+/** If `emptyState` is left out, `MiniTable` renders null when `items` is empty. */
+export function MiniTable<T>({
+  ariaLabel,
+  items,
+  columns,
+  rowKey,
+  onRemoveItem,
+  removeLabel,
+  emptyState,
+  className,
+}: MiniTableProps<T>) {
+  if (!emptyState && items.length === 0) return null
+
+  return (
+    <Table aria-label={ariaLabel} className={className}>
+      <Header>
+        {columns.map((column, index) => (
+          <HeadCell key={index}>{column.header}</HeadCell>
+        ))}
+        <HeadCell /> {/* For remove button */}
+      </Header>
+
+      <Body>
+        {items.length ? (
+          items.map((item, index) => (
+            <Row tabIndex={0} aria-rowindex={index + 1} key={rowKey(item, index)}>
+              {columns.map((column, colIndex) => (
+                <Cell key={colIndex}>{column.cell(item, index)}</Cell>
+              ))}
+
+              <RemoveCell
+                onClick={() => onRemoveItem(item)}
+                label={removeLabel?.(item) || `Remove item ${index + 1}`}
+              />
+            </Row>
+          ))
+        ) : emptyState ? (
+          <EmptyState
+            title={emptyState.title}
+            body={emptyState.body}
+            colSpan={columns.length + 1}
+          />
+        ) : null}
+      </Body>
+    </Table>
+  )
+}

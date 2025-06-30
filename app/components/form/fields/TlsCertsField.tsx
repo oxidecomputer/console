@@ -14,7 +14,7 @@ import type { CertificateCreate } from '@oxide/api'
 import type { SiloCreateFormValues } from '~/forms/silo-create'
 import { Button } from '~/ui/lib/Button'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
-import * as MiniTable from '~/ui/lib/MiniTable'
+import { MiniTable } from '~/ui/lib/MiniTable'
 import { Modal } from '~/ui/lib/Modal'
 
 import { DescriptionField } from './DescriptionField'
@@ -46,31 +46,15 @@ export function TlsCertsField({ control }: { control: Control<SiloCreateFormValu
         <FieldLabel id="tls-certificates-label" className="mb-3">
           TLS Certificates
         </FieldLabel>
-        {!!items.length && (
-          <MiniTable.Table className="mb-4">
-            <MiniTable.Header>
-              <MiniTable.HeadCell>Name</MiniTable.HeadCell>
-              {/* For remove button */}
-              <MiniTable.HeadCell className="w-12" />
-            </MiniTable.Header>
-            <MiniTable.Body>
-              {items.map((item, index) => (
-                <MiniTable.Row
-                  tabIndex={0}
-                  aria-rowindex={index + 1}
-                  aria-label={`Name: ${item.name}, Description: ${item.description}`}
-                  key={item.name}
-                >
-                  <MiniTable.Cell>{item.name}</MiniTable.Cell>
-                  <MiniTable.RemoveCell
-                    onClick={() => onChange(items.filter((i) => i.name !== item.name))}
-                    label={`remove cert ${item.name}`}
-                  />
-                </MiniTable.Row>
-              ))}
-            </MiniTable.Body>
-          </MiniTable.Table>
-        )}
+        <MiniTable
+          className="mb-4"
+          ariaLabel="TLS Certificates"
+          items={items}
+          columns={[{ header: 'Name', cell: (item) => item.name }]}
+          rowKey={(item) => item.name}
+          onRemoveItem={(item) => onChange(items.filter((i) => i.name !== item.name))}
+          removeLabel={(item) => `remove cert ${item.name}`}
+        />
 
         {/* ref on button element allows scrollTo to work when the form has a "missing TLS cert" error */}
         <Button size="sm" onClick={() => setShowAddCert(true)} ref={ref}>
