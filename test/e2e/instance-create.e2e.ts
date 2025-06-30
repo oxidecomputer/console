@@ -597,7 +597,7 @@ test('create instance with additional disks', async ({ page }) => {
   await selectOption(page, 'Disk name', 'disk-3')
   await page.getByRole('button', { name: 'Attach disk' }).click()
 
-  await expectRowVisible(disksTable, { Name: 'disk-3', Type: 'attach', Size: '—' })
+  await expectRowVisible(disksTable, { Name: 'disk-3', Type: 'attach', Size: '6 GiB' })
 
   // Create the instance
   await page.getByRole('button', { name: 'Create instance' }).click()

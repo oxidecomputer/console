@@ -13,7 +13,6 @@ import type { DiskCreate } from '@oxide/api'
 import { AttachDiskModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import type { InstanceCreateInput } from '~/forms/instance-create'
-import { EmptyCell } from '~/table/cells/EmptyCell'
 import { sizeCellInner } from '~/table/columns/common'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
@@ -22,7 +21,7 @@ import { Truncate } from '~/ui/lib/Truncate'
 
 export type DiskTableItem =
   | (DiskCreate & { type: 'create' })
-  | { name: string; type: 'attach' }
+  | { name: string; type: 'attach'; size: number }
 
 /**
  * Designed less for reuse, more to encapsulate logic that would otherwise
@@ -61,8 +60,7 @@ export function DisksTableField({
             },
             {
               header: 'Size',
-              cell: (item) =>
-                item.type === 'attach' ? <EmptyCell /> : sizeCellInner(item.size),
+              cell: (item) => sizeCellInner(item.size),
             },
           ]}
           rowKey={(item) => item.name}
@@ -99,8 +97,8 @@ export function DisksTableField({
       {showDiskAttach && (
         <AttachDiskModalForm
           onDismiss={() => setShowDiskAttach(false)}
-          onSubmit={(values) => {
-            onChange([...items, { type: 'attach', ...values }])
+          onSubmit={({ name, size }: { name: string; size: number }) => {
+            onChange([...items, { type: 'attach', name, size } satisfies DiskTableItem])
             setShowDiskAttach(false)
           }}
           diskNamesToExclude={items.filter((i) => i.type === 'attach').map((i) => i.name)}
