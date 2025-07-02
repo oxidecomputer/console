@@ -16,11 +16,11 @@ import { parseArgs } from 'jsr:@std/cli@0.224.7'
 // StrictHostKeyChecking no
 // UserKnownHostsFile /dev/null
 // User root
-// ProxyCommand ssh jeeves.eng.oxide.computer pilot tp nc any $(echo "%h" | sed s/gc//) %p
+// ProxyCommand ssh castle.eng.oxide.computer pilot tp nc any $(echo "%h" | sed s/gc//) %p
 // ServerAliveInterval 15
 // ForwardAgent yes
 //
-// host jeeves
+// host castle
 // hostname %h.eng.oxide.computer
 // user <your actual username>
 // ForwardAgent yes
