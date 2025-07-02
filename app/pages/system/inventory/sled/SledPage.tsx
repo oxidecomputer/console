@@ -47,7 +47,7 @@ export default function SledPage() {
         <PropertiesTable.Row label="sled id">
           <span className="text-default">{sled.id}</span>
         </PropertiesTable.Row>
-        <PropertiesTable.Row label="kind">
+        <PropertiesTable.Row label="policy kind">
           <SledKindBadge policy={sled.policy} />
         </PropertiesTable.Row>
         <PropertiesTable.Row label="part">
