@@ -202,7 +202,7 @@ export function defaultFirewallRules(vpcId: string): Json<VpcFirewallRule[]> {
       description: 'allow inbound TCP connections on port 22 from anywhere',
       filters: {
         ports: ['22'],
-        protocols: ['TCP'],
+        protocols: [{ type: 'tcp' }],
       },
       action: 'allow',
       priority: 65534,
@@ -217,7 +217,7 @@ export function defaultFirewallRules(vpcId: string): Json<VpcFirewallRule[]> {
       targets: [{ type: 'vpc', value: 'default' }],
       description: 'allow inbound ICMP traffic from anywhere',
       filters: {
-        protocols: ['ICMP'],
+        protocols: [{ type: 'icmp', value: { icmp_type: 8 } }],
       },
       action: 'allow',
       priority: 65534,
@@ -242,7 +242,7 @@ export const firewallRules: Json<VpcFirewallRule[]> = [
     description: 'we just want to test with lots of filters',
     filters: {
       ports: ['3389', '45-89'],
-      protocols: ['TCP'],
+      protocols: [{ type: 'tcp' }],
       hosts: [
         { type: 'instance', value: 'hello-friend' },
         { type: 'subnet', value: 'my-subnet' },

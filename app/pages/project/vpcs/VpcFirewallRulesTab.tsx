@@ -77,7 +77,28 @@ const staticColumns = [
         ...(hosts || []).map((tv, i) => (
           <TypeValueCell key={`host-${tv.type}-${tv.value}-${i}`} {...tv} />
         )),
-        ...(protocols || []).map((p, i) => <Badge key={`${p}-${i}`}>{p}</Badge>),
+        ...(protocols || []).flatMap((p, i) => {
+          const badges = [<Badge key={`${p.type}-${i}`}>{p.type}</Badge>]
+          if (p.type === 'icmp' && p.value) {
+            badges.push(
+              <TypeValueCell
+                key={`icmp-type-${p.value.icmpType}-${i}`}
+                type="ICMP Type"
+                value={p.value.icmpType.toString()}
+              />
+            )
+            if (p.value.code) {
+              badges.push(
+                <TypeValueCell
+                  key={`icmp-code-${p.value.code}-${i}`}
+                  type="ICMP Code"
+                  value={p.value.code}
+                />
+              )
+            }
+          }
+          return badges
+        }),
         ...(ports || []).map((p, i) => (
           <TypeValueCell key={`port-${p}-${i}`} type="Port" value={p} />
         )),
