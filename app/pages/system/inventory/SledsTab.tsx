@@ -7,31 +7,20 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 
-import {
-  getListQFn,
-  queryClient,
-  type Sled,
-  type SledPolicy,
-  type SledState,
-} from '@oxide/api'
+import { getListQFn, queryClient, type Sled } from '@oxide/api'
 import { Servers24Icon } from '@oxide/design-system/icons/react'
 
-import { EmptyCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useQueryTable } from '~/table/QueryTable'
-import { Badge, type BadgeColor } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pb } from '~/util/path-builder'
 
-const STATE_BADGE_COLORS: Record<SledState, BadgeColor> = {
-  active: 'default',
-  decommissioned: 'neutral',
-}
+import { ProvisionPolicyBadge, SledKindBadge, SledStateBadge } from './sled/SledBadges'
 
 const sledList = getListQFn('sledList', {})
 
 export async function clientLoader() {
-  await queryClient.prefetchQuery(sledList.optionsFn())
+  await queryClient.fetchQuery(sledList.optionsFn())
   return null
 }
 
@@ -58,35 +47,16 @@ const staticCols = [
     columns: [
       colHelper.accessor('policy', {
         header: 'Kind',
-        cell: (info) => {
-          // need to cast because inference is broken inside groups
-          // https://github.com/TanStack/table/issues/5065
-          const policy: SledPolicy = info.getValue()
-          return policy.kind === 'expunged' ? (
-            <Badge color="neutral">Expunged</Badge>
-          ) : (
-            <Badge>In service</Badge>
-          )
-        },
+        cell: (info) => <SledKindBadge policy={info.getValue()} />,
       }),
       colHelper.accessor('policy', {
         header: 'Provision policy',
-        cell: (info) => {
-          const policy: SledPolicy = info.getValue()
-          if (policy.kind === 'expunged') return <EmptyCell />
-          return policy.provisionPolicy === 'provisionable' ? (
-            <Badge>Provisionable</Badge>
-          ) : (
-            <Badge color="neutral">Not provisionable</Badge>
-          )
-        },
+        cell: (info) => <ProvisionPolicyBadge policy={info.getValue()} />,
       }),
     ],
   }),
   colHelper.accessor('state', {
-    cell: (info) => (
-      <Badge color={STATE_BADGE_COLORS[info.getValue()]}>{info.getValue()}</Badge>
-    ),
+    cell: (info) => <SledStateBadge state={info.getValue()} />,
   }),
 ]
 
