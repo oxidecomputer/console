@@ -31,7 +31,7 @@ import { invariant } from '~/util/invariant'
 import { pb } from '~/util/path-builder'
 
 import { CommonFields } from './firewall-rules-common'
-import { valuesToRuleUpdate, type FirewallRuleValues } from './firewall-rules-util'
+import { ruleToFormValues, valuesToRuleUpdate, type FirewallRuleValues } from './firewall-rules-util'
 
 export const handle = titleCrumb('Edit Rule')
 
@@ -90,21 +90,7 @@ export default function EditFirewallRuleForm() {
     },
   })
 
-  const defaultValues: FirewallRuleValues = {
-    enabled: originalRule.status === 'enabled',
-    name: originalRule.name,
-    description: originalRule.description,
-
-    priority: originalRule.priority,
-    action: originalRule.action,
-    direction: originalRule.direction,
-
-    protocols: originalRule.filters.protocols || [],
-
-    ports: originalRule.filters.ports || [],
-    hosts: originalRule.filters.hosts || [],
-    targets: originalRule.targets,
-  }
+  const defaultValues: FirewallRuleValues = ruleToFormValues(originalRule)
 
   const form = useForm({ defaultValues })
 

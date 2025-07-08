@@ -15,6 +15,7 @@ import {
   type Instance,
   type Vpc,
   type VpcFirewallRuleHostFilter,
+  type VpcFirewallRuleProtocol,
   type VpcFirewallRuleTarget,
   type VpcSubnet,
 } from '~/api'
@@ -38,6 +39,7 @@ import { SideModal } from '~/ui/lib/SideModal'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
 import { ALL_ISH } from '~/util/consts'
+import { ICMP_TYPES } from '~/util/icmp'
 import { validateIp, validateIpNet } from '~/util/ip'
 import { links } from '~/util/links'
 import { capitalize } from '~/util/str'
@@ -253,15 +255,55 @@ const availableItems = (
 
 type ProtocolFieldProps = {
   control: Control<FirewallRuleValues>
-  protocol: 'TCP' | 'UDP' | 'ICMP'
+  protocol: VpcFirewallRuleProtocol['type']
 }
 const ProtocolField = ({ control, protocol }: ProtocolFieldProps) => (
   <div>
     <CheckboxField name="protocols" value={protocol} control={control}>
-      {protocol}
+      {protocol.toUpperCase()}
     </CheckboxField>
   </div>
 )
+
+type ICMPTypeFieldProps = {
+  control: Control<FirewallRuleValues>
+}
+const ICMPTypeField = ({ control }: ICMPTypeFieldProps) => {
+  const { field: protocolsField } = useController({
+    name: 'protocols',
+    control,
+  })
+
+  // Only show if ICMP is selected
+  const isIcmpSelected = protocolsField.value?.includes('icmp')
+
+  if (!isIcmpSelected) return null
+
+  const icmpTypeOptions = [
+    {
+      value: 'null', // ComboboxItem.value must be string
+      label: 'All ICMP',
+      selectedLabel: 'All ICMP',
+    },
+    ...Object.entries(ICMP_TYPES).map(([type, name]) => ({
+      value: type, // Use string representation
+      label: `${type} - ${name}`,
+      selectedLabel: `${type} - ${name}`,
+    })),
+  ]
+
+  return (
+    <div className="ml-6 mt-2">
+      <ComboboxField
+        label="ICMP Type"
+        name="icmpType"
+        control={control}
+        placeholder="Select ICMP type..."
+        items={icmpTypeOptions}
+      />
+    </div>
+  )
+}
 
 type CommonFieldsProps = {
   control: Control<FirewallRuleValues>
@@ -453,9 +495,12 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
         <FieldLabel id="portRange-label" htmlFor="portRange" className="mb-2">
           Protocol filters
         </FieldLabel>
-        <ProtocolField control={control} protocol="TCP" />
-        <ProtocolField control={control} protocol="UDP" />
-        <ProtocolField control={control} protocol="ICMP" />
+        <ProtocolField control={control} protocol="tcp" />
+        <ProtocolField control={control} protocol="udp" />
+        <ProtocolField control={control} protocol="icmp" />
+
+        {/* ICMP Type selector - only show if ICMP is selected */}
+        <ICMPTypeField control={control} />
       </fieldset>
 
       <FormDivider />

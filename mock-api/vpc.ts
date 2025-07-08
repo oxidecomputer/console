@@ -217,7 +217,7 @@ export function defaultFirewallRules(vpcId: string): Json<VpcFirewallRule[]> {
       targets: [{ type: 'vpc', value: 'default' }],
       description: 'allow inbound ICMP traffic from anywhere',
       filters: {
-        protocols: [{ type: 'icmp', value: { icmp_type: 8 } }],
+        protocols: [{ type: 'icmp', value: null }],
       },
       action: 'allow',
       priority: 65534,
