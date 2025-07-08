@@ -107,6 +107,7 @@ export const pb = {
   siloAccess: () => '/access',
   siloImages: () => '/images',
   siloImageEdit: (params: PP.SiloImage) => `${pb.siloImages()}/${params.image}/edit`,
+  siloAuditLogs: () => '/audit-logs',
 
   systemUtilization: () => '/system/utilization',
 

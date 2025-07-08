@@ -28,7 +28,7 @@ export function ContentPane() {
     >
       <div className="flex grow flex-col pb-8">
         <SkipLinkTarget />
-        <main className="[&>*]:gutter">
+        <main className="[&>*]:gutter h-full">
           <Outlet />
         </main>
       </div>

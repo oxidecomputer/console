@@ -1799,7 +1799,19 @@ export const handlers = makeHandlers({
     )
     return paginated(query, affinityGroups)
   },
+  auditLogList: ({ query }) => {
+    let filteredLogs = db.auditLogs
 
+    if (query.startTime) {
+      filteredLogs = filteredLogs.filter((log) => log.timestamp >= query.startTime!)
+    }
+
+    if (query.endTime) {
+      filteredLogs = filteredLogs.filter((log) => log.timestamp <= query.endTime!)
+    }
+
+    return paginated(query, filteredLogs)
+  },
   // Misc endpoints we're not using yet in the console
   affinityGroupCreate: NotImplemented,
   affinityGroupDelete: NotImplemented,
@@ -1900,6 +1912,8 @@ export const handlers = makeHandlers({
   systemPolicyUpdate: NotImplemented,
   systemQuotasList: NotImplemented,
   systemTimeseriesSchemaList: NotImplemented,
+  systemUpdateGetRepository: NotImplemented,
+  systemUpdatePutRepository: NotImplemented,
   targetReleaseUpdate: NotImplemented,
   targetReleaseView: NotImplemented,
   userBuiltinList: NotImplemented,
