@@ -936,6 +936,12 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/system/audit-log` */
+  auditLogList: (params: {
+    query: Api.AuditLogListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AuditLogEntryResultsPage>>
   /** `GET /v1/system/hardware/disks` */
   physicalDiskList: (params: {
     query: Api.PhysicalDiskListQueryParams
@@ -1341,6 +1347,17 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.BgpPeerStatus[]>>
+  /** `GET /v1/system/networking/inbound-icmp` */
+  networkingInboundIcmpView: (params: {
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ServiceIcmpConfig>>
+  /** `PUT /v1/system/networking/inbound-icmp` */
+  networkingInboundIcmpUpdate: (params: {
+    body: Json<Api.ServiceIcmpConfig>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `GET /v1/system/networking/loopback-address` */
   networkingLoopbackAddressList: (params: {
     query: Api.NetworkingLoopbackAddressListQueryParams
@@ -1751,12 +1768,6 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
-  /** `GET /v1/system/audit-log` */
-  auditLogList: (params: {
-    query: Api.AuditLogListQueryParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.AuditLogEntryResultsPage>>
 }
 
 function validateParams<S extends ZodSchema>(
@@ -2571,6 +2582,10 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['snapshotDelete'], schema.SnapshotDeleteParams, null)
     ),
     http.get(
+      '/v1/system/audit-log',
+      handler(handlers['auditLogList'], schema.AuditLogListParams, null)
+    ),
+    http.get(
       '/v1/system/hardware/disks',
       handler(handlers['physicalDiskList'], schema.PhysicalDiskListParams, null)
     ),
@@ -2927,6 +2942,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['networkingBgpStatus'], null, null)
     ),
     http.get(
+      '/v1/system/networking/inbound-icmp',
+      handler(handlers['networkingInboundIcmpView'], null, null)
+    ),
+    http.put(
+      '/v1/system/networking/inbound-icmp',
+      handler(handlers['networkingInboundIcmpUpdate'], null, schema.ServiceIcmpConfig)
+    ),
+    http.get(
       '/v1/system/networking/loopback-address',
       handler(
         handlers['networkingLoopbackAddressList'],
@@ -3255,10 +3278,6 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.delete(
       '/v1/webhook-secrets/:secretId',
       handler(handlers['webhookSecretsDelete'], schema.WebhookSecretsDeleteParams, null)
-    ),
-    http.get(
-      '/v1/system/audit-log',
-      handler(handlers['auditLogList'], schema.AuditLogListParams, null)
     ),
   ]
 }

@@ -611,6 +611,37 @@ export const ArtifactId = z.preprocess(
 )
 
 /**
+ * Audit log entry
+ */
+export const AuditLogEntry = z.preprocess(
+  processResponseBody,
+  z.object({
+    accessMethod: z.string().nullable().optional(),
+    actorId: z.string().uuid().nullable().optional(),
+    actorSiloId: z.string().uuid().nullable().optional(),
+    errorCode: z.string().nullable().optional(),
+    errorMessage: z.string().nullable().optional(),
+    httpStatusCode: z.number().min(0).max(65535),
+    id: z.string().uuid(),
+    operationId: z.string(),
+    requestId: z.string(),
+    requestUri: z.string(),
+    resourceId: z.string().uuid().nullable().optional(),
+    sourceIp: z.string().ip(),
+    timeCompleted: z.coerce.date(),
+    timestamp: z.coerce.date(),
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const AuditLogEntryResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: AuditLogEntry.array(), nextPage: z.string().nullable().optional() })
+)
+
+/**
  * Authorization scope for a timeseries.
  *
  * This describes the level at which a user must be authorized to read data from a timeseries. For example, fleet-scoping means the data is only visible to an operator or fleet reader. Project-scoped, on the other hand, indicates that a user will see data limited to the projects on which they have read permissions.
@@ -1952,6 +1983,20 @@ export const Hostname = z.preprocess(
     .regex(/^([a-zA-Z0-9]+[a-zA-Z0-9\-]*(?<!-))(\.[a-zA-Z0-9]+[a-zA-Z0-9\-]*(?<!-))*$/)
 )
 
+/**
+ * A range of ICMP(v6) types or codes
+ *
+ * An inclusive-inclusive range of ICMP(v6) types or codes. The second value may be omitted to represent a single parameter.
+ */
+export const IcmpParamRange = z.preprocess(
+  processResponseBody,
+  z
+    .string()
+    .min(1)
+    .max(7)
+    .regex(/^[0-9]{1,3}(-[0-9]{1,3})?$/)
+)
+
 export const IdentityProviderType = z.preprocess(processResponseBody, z.enum(['saml']))
 
 /**
@@ -3199,6 +3244,14 @@ export const SamlIdentityProviderCreate = z.preprocess(
 )
 
 /**
+ * Configuration of inbound ICMP allowed by API services.
+ */
+export const ServiceIcmpConfig = z.preprocess(
+  processResponseBody,
+  z.object({ enabled: SafeBoolean })
+)
+
+/**
  * Parameters for PUT requests to `/v1/system/update/target-release`.
  */
 export const SetTargetReleaseParams = z.preprocess(
@@ -4202,6 +4255,14 @@ export const VpcCreate = z.preprocess(
   })
 )
 
+export const VpcFirewallIcmpFilter = z.preprocess(
+  processResponseBody,
+  z.object({
+    code: IcmpParamRange.nullable().optional(),
+    icmpType: z.number().min(0).max(255),
+  })
+)
+
 export const VpcFirewallRuleAction = z.preprocess(
   processResponseBody,
   z.enum(['allow', 'deny'])
@@ -4231,7 +4292,11 @@ export const VpcFirewallRuleHostFilter = z.preprocess(
  */
 export const VpcFirewallRuleProtocol = z.preprocess(
   processResponseBody,
-  z.enum(['TCP', 'UDP', 'ICMP'])
+  z.union([
+    z.object({ type: z.enum(['tcp']) }),
+    z.object({ type: z.enum(['udp']) }),
+    z.object({ type: z.enum(['icmp']), value: VpcFirewallIcmpFilter.nullable() }),
+  ])
 )
 
 /**
@@ -4531,37 +4596,6 @@ export const PaginationOrder = z.preprocess(
 export const SystemMetricName = z.preprocess(
   processResponseBody,
   z.enum(['virtual_disk_space_provisioned', 'cpus_provisioned', 'ram_provisioned'])
-)
-
-/**
- * Audit log entry
- */
-export const AuditLogEntry = z.preprocess(
-  processResponseBody,
-  z.object({
-    accessMethod: z.string().nullable().optional(),
-    actorId: z.string().uuid().nullable().optional(),
-    actorSiloId: z.string().uuid().nullable().optional(),
-    errorCode: z.string().nullable().optional(),
-    errorMessage: z.string().nullable().optional(),
-    httpStatusCode: z.number().min(0).max(65535),
-    id: z.string().uuid(),
-    operationId: z.string(),
-    requestId: z.string(),
-    requestUri: z.string(),
-    resourceId: z.string().uuid().nullable().optional(),
-    sourceIp: z.string().ip(),
-    timeCompleted: z.coerce.date(),
-    timestamp: z.coerce.date(),
-  })
-)
-
-/**
- * A single page of results
- */
-export const AuditLogEntryResultsPage = z.preprocess(
-  processResponseBody,
-  z.object({ items: AuditLogEntry.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -6145,6 +6179,20 @@ export const SnapshotDeleteParams = z.preprocess(
   })
 )
 
+export const AuditLogListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      endTime: z.coerce.date().nullable().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      sortBy: TimeAndIdSortMode.optional(),
+      startTime: z.coerce.date().optional(),
+    }),
+  })
+)
+
 export const PhysicalDiskListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -6827,6 +6875,22 @@ export const NetworkingBgpImportedRoutesIpv4Params = z.preprocess(
 )
 
 export const NetworkingBgpStatusParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const NetworkingInboundIcmpViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const NetworkingInboundIcmpUpdateParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
@@ -7549,19 +7613,5 @@ export const WebhookSecretsDeleteParams = z.preprocess(
       secretId: z.string().uuid(),
     }),
     query: z.object({}),
-  })
-)
-
-export const AuditLogListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({
-      endTime: z.coerce.date().nullable().optional(),
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
-      pageToken: z.string().nullable().optional(),
-      sortBy: TimeAndIdSortMode.optional(),
-      startTime: z.coerce.date().optional(),
-    }),
   })
 )

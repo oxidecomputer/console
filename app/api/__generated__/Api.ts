@@ -626,6 +626,48 @@ export type ArtifactId = {
 }
 
 /**
+ * Audit log entry
+ */
+export type AuditLogEntry = {
+  /** API token or session cookie. Optional because it will not be defined on unauthenticated requests like login attempts. */
+  accessMethod?: string | null
+  /** User ID of the actor who performed the action */
+  actorId?: string | null
+  actorSiloId?: string | null
+  /** Error information if the action failed */
+  errorCode?: string | null
+  errorMessage?: string | null
+  /** HTTP status code */
+  httpStatusCode: number
+  /** Unique identifier for the audit log entry */
+  id: string
+  /** API endpoint ID, e.g., `project_create` */
+  operationId: string
+  /** Request ID for tracing requests through the system */
+  requestId: string
+  /** Full URL of the request */
+  requestUri: string
+  /** Resource identifier */
+  resourceId?: string | null
+  /** IP address that made the request */
+  sourceIp: string
+  /** Time operation completed */
+  timeCompleted: Date
+  /** When the request was received */
+  timestamp: Date
+}
+
+/**
+ * A single page of results
+ */
+export type AuditLogEntryResultsPage = {
+  /** list of items on this page of results */
+  items: AuditLogEntry[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
  * Authorization scope for a timeseries.
  *
  * This describes the level at which a user must be authorized to read data from a timeseries. For example, fleet-scoping means the data is only visible to an operator or fleet reader. Project-scoped, on the other hand, indicates that a user will see data limited to the projects on which they have read permissions.
@@ -2053,6 +2095,13 @@ export type GroupResultsPage = {
  */
 export type Hostname = string
 
+/**
+ * A range of ICMP(v6) types or codes
+ *
+ * An inclusive-inclusive range of ICMP(v6) types or codes. The second value may be omitted to represent a single parameter.
+ */
+export type IcmpParamRange = string
+
 export type IdentityProviderType = 'saml'
 
 /**
@@ -3403,6 +3452,14 @@ export type SamlIdentityProviderCreate = {
 }
 
 /**
+ * Configuration of inbound ICMP allowed by API services.
+ */
+export type ServiceIcmpConfig = {
+  /** When enabled, Nexus is able to receive ICMP Destination Unreachable type 3 (port unreachable) and type 4 (fragmentation needed), Redirect, and Time Exceeded messages. These enable Nexus to perform Path MTU discovery and better cope with fragmentation issues. Otherwise all inbound ICMP traffic will be dropped. */
+  enabled: boolean
+}
+
+/**
  * Parameters for PUT requests to `/v1/system/update/target-release`.
  */
 export type SetTargetReleaseParams = {
@@ -4521,6 +4578,8 @@ All IPv6 subnets created from this VPC must be taken from this range, which shou
   name: Name
 }
 
+export type VpcFirewallIcmpFilter = { code?: IcmpParamRange | null; icmpType: number }
+
 export type VpcFirewallRuleAction = 'allow' | 'deny'
 
 export type VpcFirewallRuleDirection = 'inbound' | 'outbound'
@@ -4543,7 +4602,10 @@ export type VpcFirewallRuleHostFilter =
 /**
  * The protocols that may be specified in a firewall rule's filter
  */
-export type VpcFirewallRuleProtocol = 'TCP' | 'UDP' | 'ICMP'
+export type VpcFirewallRuleProtocol =
+  | { type: 'tcp' }
+  | { type: 'udp' }
+  | { type: 'icmp'; value: VpcFirewallIcmpFilter | null }
 
 /**
  * Filters reduce the scope of a firewall rule. Without filters, the rule applies to all packets to the targets (or from the targets, if it's an outbound rule). With multiple filters, the rule applies only to packets matching ALL filters. The maximum number of each type of filter is 256.
@@ -4864,48 +4926,6 @@ export type SystemMetricName =
   | 'virtual_disk_space_provisioned'
   | 'cpus_provisioned'
   | 'ram_provisioned'
-
-/**
- * Audit log entry
- */
-export type AuditLogEntry = {
-  /** API token or session cookie. Optional because it will not be defined on unauthenticated requests like login attempts. */
-  accessMethod?: string | null
-  /** User ID of the actor who performed the action */
-  actorId?: string | null
-  actorSiloId?: string | null
-  /** Error information if the action failed */
-  errorCode?: string | null
-  errorMessage?: string | null
-  /** HTTP status code */
-  httpStatusCode: number
-  /** Unique identifier for the audit log entry */
-  id: string
-  /** API endpoint ID, e.g., `project_create` */
-  operationId: string
-  /** Request ID for tracing requests through the system */
-  requestId: string
-  /** Full URL of the request */
-  requestUri: string
-  /** Resource identifier */
-  resourceId?: string | null
-  /** IP address that made the request */
-  sourceIp: string
-  /** Time operation completed */
-  timeCompleted: Date
-  /** When the request was received */
-  timestamp: Date
-}
-
-/**
- * A single page of results
- */
-export type AuditLogEntryResultsPage = {
-  /** list of items on this page of results */
-  items: AuditLogEntry[]
-  /** token used to fetch the next page of results (if any) */
-  nextPage?: string | null
-}
 
 /**
  * Supported set of sort modes for scanning by name only
@@ -5774,6 +5794,14 @@ export interface SnapshotDeleteQueryParams {
   project?: NameOrId
 }
 
+export interface AuditLogListQueryParams {
+  endTime?: Date | null
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: TimeAndIdSortMode
+  startTime?: Date
+}
+
 export interface PhysicalDiskListQueryParams {
   limit?: number | null
   pageToken?: string | null
@@ -6417,14 +6445,6 @@ export interface WebhookSecretsAddQueryParams {
 
 export interface WebhookSecretsDeletePathParams {
   secretId: string
-}
-
-export interface AuditLogListQueryParams {
-  endTime?: Date | null
-  limit?: number | null
-  pageToken?: string | null
-  sortBy?: TimeAndIdSortMode
-  startTime?: Date
 }
 
 type EmptyObj = Record<string, never>
@@ -8569,6 +8589,20 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * View audit log
+     */
+    auditLogList: (
+      { query = {} }: { query?: AuditLogListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AuditLogEntryResultsPage>({
+        path: `/v1/system/audit-log`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
      * List physical disks
      */
     physicalDiskList: (
@@ -9499,6 +9533,30 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Return whether API services can receive limited ICMP traffic
+     */
+    networkingInboundIcmpView: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<ServiceIcmpConfig>({
+        path: `/v1/system/networking/inbound-icmp`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Set whether API services can receive limited ICMP traffic
+     */
+    networkingInboundIcmpUpdate: (
+      { body }: { body: ServiceIcmpConfig },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/networking/inbound-icmp`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
      * List loopback addresses
      */
     networkingLoopbackAddressList: (
@@ -10422,20 +10480,6 @@ export class Api extends HttpClient {
       return this.request<void>({
         path: `/v1/webhook-secrets/${path.secretId}`,
         method: 'DELETE',
-        ...params,
-      })
-    },
-    /**
-     * View audit log
-     */
-    auditLogList: (
-      { query = {} }: { query?: AuditLogListQueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<AuditLogEntryResultsPage>({
-        path: `/v1/system/audit-log`,
-        method: 'GET',
-        query,
         ...params,
       })
     },
