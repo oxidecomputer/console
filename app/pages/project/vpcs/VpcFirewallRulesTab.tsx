@@ -33,6 +33,7 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
+import { getProtocolKey } from '~/util/protocol'
 import { titleCase } from '~/util/str'
 
 const colHelper = createColumnHelper<VpcFirewallRule>()
@@ -77,8 +78,8 @@ const staticColumns = [
         ...(hosts || []).map((tv, i) => (
           <TypeValueCell key={`host-${tv.type}-${tv.value}-${i}`} {...tv} />
         )),
-        ...(protocols || []).map((p, i) => (
-          <ProtocolBadge key={`protocol-${i}`} protocol={p} />
+        ...(protocols || []).map((p) => (
+          <ProtocolBadge key={getProtocolKey(p)} protocol={p} />
         )),
         ...(ports || []).map((p, i) => (
           <TypeValueCell key={`port-${p}-${i}`} type="Port" value={p} />

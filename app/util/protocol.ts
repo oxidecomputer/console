@@ -42,3 +42,17 @@ export const getProtocolDisplayName = (protocol: VpcFirewallRuleProtocol): strin
   }
   return protocol.type.toUpperCase()
 }
+
+/**
+ * Generate a unique key for a protocol that can be used in React lists
+ */
+export const getProtocolKey = (protocol: VpcFirewallRuleProtocol): string => {
+  if (protocol.type === 'icmp') {
+    if (protocol.value === null) {
+      return 'icmp|all'
+    }
+    const code = protocol.value.code || 'all'
+    return `icmp|${protocol.value.icmpType}|${code}`
+  }
+  return protocol.type
+}

@@ -44,9 +44,9 @@ import { TextInputHint } from '~/ui/lib/TextInput'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { KEYS } from '~/ui/util/keys'
 import { ALL_ISH } from '~/util/consts'
-import { getProtocolDisplayName, ICMP_TYPES } from '~/util/icmp'
 import { validateIp, validateIpNet } from '~/util/ip'
 import { links } from '~/util/links'
+import { getProtocolDisplayName, getProtocolKey, ICMP_TYPES } from '~/util/protocol'
 import { capitalize, normalizeDashes } from '~/util/str'
 
 import { type FirewallRuleValues } from './firewall-rules-util'
@@ -313,17 +313,6 @@ const targetAndHostTableColumns = [
   },
 ]
 
-const getProtocolRowKey = (protocol: VpcFirewallRuleProtocol): string => {
-  if (protocol.type === 'icmp') {
-    if (protocol.value === null) {
-      return 'icmp|all'
-    }
-    const code = protocol.value.code || 'all'
-    return `icmp|${protocol.value.icmpType}|${code}`
-  }
-  return protocol.type
-}
-
 const isDuplicateProtocol = (
   newProtocol: VpcFirewallRuleProtocol,
   existingProtocols: VpcFirewallRuleProtocol[]
@@ -556,7 +545,7 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
           ariaLabel="Protocol filters"
           items={protocols.value}
           columns={protocolTableColumns}
-          rowKey={getProtocolRowKey}
+          rowKey={getProtocolKey}
           emptyState={{ title: 'No protocols', body: 'Add a protocol to see it here' }}
           onRemoveItem={removeProtocol}
           removeLabel={(protocol) => `Remove ${getProtocolDisplayName(protocol)}`}
