@@ -6,6 +6,8 @@
  * Copyright Oxide Computer Company
  */
 
+import type { VpcFirewallRuleProtocol } from '~/api'
+
 export const ICMP_TYPES: Record<number, string> = {
   0: 'Echo Reply',
   3: 'Destination Unreachable',
@@ -23,3 +25,20 @@ export const ICMP_TYPES: Record<number, string> = {
  * Get the human-readable name for an ICMP type
  */
 export const getIcmpTypeName = (type: number): string | undefined => ICMP_TYPES[type]
+
+/**
+ * Get a display name for a protocol, including ICMP types and codes
+ */
+export const getProtocolDisplayName = (protocol: VpcFirewallRuleProtocol): string => {
+  if (protocol.type === 'icmp') {
+    if (protocol.value === null) {
+      return 'ICMP (All types)'
+    } else {
+      const typeName =
+        ICMP_TYPES[protocol.value.icmpType] || `Type ${protocol.value.icmpType}`
+      const codePart = protocol.value.code ? ` | Code ${protocol.value.code}` : ''
+      return `ICMP ${protocol.value.icmpType} - ${typeName}${codePart}`
+    }
+  }
+  return protocol.type.toUpperCase()
+}

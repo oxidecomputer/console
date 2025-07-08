@@ -85,3 +85,6 @@ export function addDashes(dashAfterIdxs: number[], code: string) {
   }
   return result
 }
+
+/** Convert en- or em-dashes to regular dashes for user-inputted numeric ranges */
+export const normalizeDashes = (value: string): string => value.replace(/[—–]/g, '-')
