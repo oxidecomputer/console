@@ -77,9 +77,9 @@ const staticColumns = [
         ...(hosts || []).map((tv, i) => (
           <TypeValueCell key={`host-${tv.type}-${tv.value}-${i}`} {...tv} />
         )),
-        ...(protocols || []).flatMap((p, i) => {
-          return [<ProtocolBadge key={`protocol-${i}`} protocol={p} />]
-        }),
+        ...(protocols || []).map((p, i) => (
+          <ProtocolBadge key={`protocol-${i}`} protocol={p} />
+        )),
         ...(ports || []).map((p, i) => (
           <TypeValueCell key={`port-${p}-${i}`} type="Port" value={p} />
         )),

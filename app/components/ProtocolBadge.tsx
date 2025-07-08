@@ -29,8 +29,8 @@ export const ProtocolBadge = ({ protocol }: ProtocolBadgeProps) => {
       <div className="space-x-0.5">
         <Badge>ICMP</Badge>
         <Badge variant="solid">
-          TYPE {protocol.value.icmpType} | CODE
-          {protocol.value.code.includes('-') ? 'S' : ''} {protocol.value.code}
+          type {protocol.value.icmpType} | code
+          {protocol.value.code.includes('-') ? 's' : ''} {protocol.value.code}
         </Badge>
       </div>
     )
@@ -40,7 +40,7 @@ export const ProtocolBadge = ({ protocol }: ProtocolBadgeProps) => {
   return (
     <div className="space-x-0.5">
       <Badge>ICMP</Badge>
-      <Badge variant="solid">TYPE {protocol.value.icmpType}</Badge>
+      <Badge variant="solid">type {protocol.value.icmpType}</Badge>
     </div>
   )
 }

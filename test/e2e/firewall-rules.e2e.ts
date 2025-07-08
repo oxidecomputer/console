@@ -81,8 +81,9 @@ test('can create firewall rule', async ({ page }) => {
   // don't need to click because we're already validating onChange
   await expect(dupePort).toBeVisible()
 
-  // check the UDP box
-  await page.locator('text=UDP').click()
+  // select UDP from protocol dropdown
+  await selectOption(page, 'Protocol filters', 'UDP')
+  await page.getByRole('button', { name: 'Add protocol' }).click()
 
   // submit the form
   await page.getByRole('button', { name: 'Add rule' }).click()
@@ -323,7 +324,7 @@ test('firewall rule form host validation', async ({ page }) => {
   await expect(ipError).toBeVisible()
 
   // test clear button
-  await page.getByRole('button', { name: 'Clear' }).nth(2).click()
+  await page.getByRole('button', { name: 'Clear' }).nth(3).click()
   await expect(ipField).toHaveValue('')
 
   // Change back to VPC, enter valid value
@@ -438,10 +439,19 @@ test('can update firewall rule', async ({ page }) => {
   // priority is populated
   await expect(page.getByRole('textbox', { name: 'Priority' })).toHaveValue('65534')
 
-  // protocol is populated
-  await expect(page.locator('label >> text=ICMP')).toBeChecked()
-  await expect(page.locator('label >> text=TCP')).not.toBeChecked()
-  await expect(page.locator('label >> text=UDP')).not.toBeChecked()
+  // protocol is populated in the table
+  const protocolTable = page.getByRole('table', { name: 'Protocol filters' })
+  await expect(protocolTable.getByText('ICMP')).toBeVisible()
+
+  // remove the existing ICMP protocol filter
+  await protocolTable.getByRole('button', { name: 'remove' }).click()
+
+  // add a new ICMP protocol filter with type 3 and code 0
+  await selectOption(page, 'Protocol filters', 'ICMP')
+  await page.getByRole('combobox', { name: 'ICMP Type' }).fill('3')
+  await page.getByRole('combobox', { name: 'ICMP Type' }).press('Enter')
+  await page.getByRole('textbox', { name: 'ICMP Code' }).fill('0')
+  await page.getByRole('button', { name: 'Add protocol' }).click()
 
   // targets default vpc
   // screen.getByRole('cell', { name: 'vpc' })
@@ -472,8 +482,14 @@ test('can update firewall rule', async ({ page }) => {
 
   await expect(rows).toHaveCount(3)
 
-  // new target shows up in target cell
+  // new host filter shows up in filters cell, along with the new ICMP protocol
   await expect(page.locator('text=subnetedit-filter-subnetICMP')).toBeVisible()
+
+  // scroll table sideways past the filters cell to see the full content
+  await page.getByText('Enabled').first().scrollIntoViewIfNeeded()
+
+  // Look for the new ICMP type 3 code 0 in the filters cell using ProtocolBadge format
+  await expect(page.getByText('TYPE 3 | CODE 0')).toBeVisible()
 
   // other 3 rules are still there
   const rest = defaultRules.filter((r) => r !== 'allow-icmp')
@@ -497,9 +513,11 @@ test('create from existing rule', async ({ page }) => {
     'allow-icmp-copy'
   )
 
-  await expect(modal.getByRole('checkbox', { name: 'TCP' })).not.toBeChecked()
-  await expect(modal.getByRole('checkbox', { name: 'UDP' })).not.toBeChecked()
-  await expect(modal.getByRole('checkbox', { name: 'ICMP' })).toBeChecked()
+  // protocol is populated in the table
+  const protocolTable = modal.getByRole('table', { name: 'Protocol filters' })
+  await expect(protocolTable.getByText('ICMP')).toBeVisible()
+  await expect(protocolTable.getByText('TCP')).toBeHidden()
+  await expect(protocolTable.getByText('UDP')).toBeHidden()
 
   // no port filters
   const portFilters = modal.getByRole('table', { name: 'Port filters' })
@@ -522,9 +540,10 @@ test('create from existing rule', async ({ page }) => {
 
   await expect(portFilters.getByRole('cell', { name: '22', exact: true })).toBeVisible()
 
-  await expect(modal.getByRole('checkbox', { name: 'TCP' })).toBeChecked()
-  await expect(modal.getByRole('checkbox', { name: 'UDP' })).not.toBeChecked()
-  await expect(modal.getByRole('checkbox', { name: 'ICMP' })).not.toBeChecked()
+  // protocol is populated in the table
+  await expect(protocolTable.getByText('TCP')).toBeVisible()
+  await expect(protocolTable.getByText('UDP')).toBeHidden()
+  await expect(protocolTable.getByText('ICMP')).toBeHidden()
 
   await expect(targets.getByRole('row', { name: 'vpc default' })).toBeVisible()
 })

@@ -18,41 +18,24 @@ export type FirewallRuleValues = {
   action: VpcFirewallRule['action']
   direction: VpcFirewallRule['direction']
 
-  protocols: NonNullable<VpcFirewallRule['filters']['protocols']> // Store full protocol objects
+  protocols: NonNullable<VpcFirewallRule['filters']['protocols']>
 
   ports: NonNullable<VpcFirewallRule['filters']['ports']>
   hosts: NonNullable<VpcFirewallRule['filters']['hosts']>
   targets: VpcFirewallRuleTarget[]
 }
 
-export const ruleToFormValues = (rule: VpcFirewallRule): FirewallRuleValues => {
-  return {
-    enabled: rule.status === 'enabled',
-    priority: rule.priority,
-    name: rule.name,
-    description: rule.description,
-    action: rule.action,
-    direction: rule.direction,
-    protocols: rule.filters.protocols || [],
-    ports: rule.filters.ports || [],
-    hosts: rule.filters.hosts || [],
-    targets: rule.targets,
-  }
-}
-
-export const valuesToRuleUpdate = (values: FirewallRuleValues): VpcFirewallRuleUpdate => {
-  return {
-    name: values.name,
-    status: values.enabled ? 'enabled' : 'disabled',
-    action: values.action,
-    description: values.description,
-    direction: values.direction,
-    filters: {
-      hosts: values.hosts,
-      ports: values.ports,
-      protocols: values.protocols,
-    },
-    priority: values.priority,
-    targets: values.targets,
-  }
-}
+export const valuesToRuleUpdate = (values: FirewallRuleValues): VpcFirewallRuleUpdate => ({
+  name: values.name,
+  status: values.enabled ? 'enabled' : 'disabled',
+  action: values.action,
+  description: values.description,
+  direction: values.direction,
+  filters: {
+    hosts: values.hosts,
+    ports: values.ports,
+    protocols: values.protocols,
+  },
+  priority: values.priority,
+  targets: values.targets,
+})

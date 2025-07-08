@@ -262,7 +262,7 @@ type ProtocolFormValues = {
   icmpCode?: string
 }
 
-const ProtocolFiltersSection = ({ control }: { control: Control<FirewallRuleValues> }) => {
+const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) => {
   const protocols = useController({ name: 'protocols', control }).field
   const protocolForm = useForm<ProtocolFormValues>({
     defaultValues: { protocolType: '' },
@@ -605,7 +605,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
         />
       )}
 
-      <ProtocolFiltersSection control={control} />
+      <ProtocolFilters control={control} />
 
       <FormDivider />
 
