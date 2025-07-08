@@ -1803,11 +1803,13 @@ export const handlers = makeHandlers({
     let filteredLogs = db.auditLogs
 
     if (query.startTime) {
-      filteredLogs = filteredLogs.filter((log) => log.timestamp >= query.startTime!)
+      filteredLogs = filteredLogs.filter(
+        (log) => new Date(log.timestamp) >= query.startTime!
+      )
     }
 
     if (query.endTime) {
-      filteredLogs = filteredLogs.filter((log) => log.timestamp <= query.endTime!)
+      filteredLogs = filteredLogs.filter((log) => new Date(log.timestamp) <= query.endTime!)
     }
 
     return paginated(query, filteredLogs)
@@ -1873,6 +1875,8 @@ export const handlers = makeHandlers({
   networkingLoopbackAddressCreate: NotImplemented,
   networkingLoopbackAddressDelete: NotImplemented,
   networkingLoopbackAddressList: NotImplemented,
+  networkingInboundIcmpView: NotImplemented,
+  networkingInboundIcmpUpdate: NotImplemented,
   networkingSwitchPortApplySettings: NotImplemented,
   networkingSwitchPortClearSettings: NotImplemented,
   networkingSwitchPortList: NotImplemented,
