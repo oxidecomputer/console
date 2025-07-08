@@ -30,6 +30,7 @@ import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
 import { useVpcSelector } from '~/hooks/use-params'
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { Badge } from '~/ui/lib/Badge'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
@@ -273,6 +274,7 @@ const ProtocolFiltersSection = ({ control }: { control: Control<FirewallRuleValu
   const submitProtocol = protocolForm.handleSubmit((values) => {
     if (values.protocolType === 'tcp' || values.protocolType === 'udp') {
       const newProtocol = { type: values.protocolType }
+      // Check if this protocol type already exists
       if (!protocols.value.some((p) => p.type === values.protocolType)) {
         protocols.onChange([...protocols.value, newProtocol])
       }
@@ -280,7 +282,10 @@ const ProtocolFiltersSection = ({ control }: { control: Control<FirewallRuleValu
       if (values.icmpType === undefined) {
         // All ICMP types
         const newProtocol = { type: 'icmp' as const, value: null }
-        protocols.onChange([...protocols.value, newProtocol])
+        // Check if ICMP with null value already exists
+        if (!protocols.value.some((p) => p.type === 'icmp' && p.value === null)) {
+          protocols.onChange([...protocols.value, newProtocol])
+        }
       } else {
         // Specific ICMP type
         const icmpValue: VpcFirewallIcmpFilter = {
@@ -290,7 +295,14 @@ const ProtocolFiltersSection = ({ control }: { control: Control<FirewallRuleValu
           icmpValue.code = values.icmpCode
         }
         const newProtocol = { type: 'icmp' as const, value: icmpValue }
-        protocols.onChange([...protocols.value, newProtocol])
+        // Check if this exact ICMP type/code combination already exists
+        const isDuplicate = protocols.value.some((p) => {
+          if (p.type !== 'icmp' || !p.value) return false
+          return p.value.icmpType === icmpValue.icmpType && p.value.code === icmpValue.code
+        })
+        if (!isDuplicate) {
+          protocols.onChange([...protocols.value, newProtocol])
+        }
       }
     }
     protocolForm.reset()
@@ -372,7 +384,32 @@ const ProtocolFiltersSection = ({ control }: { control: Control<FirewallRuleValu
         <MiniTable
           ariaLabel="Protocol filters"
           items={protocols.value}
-          columns={[{ header: 'Protocol filters', cell: getProtocolDisplayName }]}
+          columns={[
+            {
+              header: 'Protocol',
+              cell: (protocol) => <Badge>{protocol.type.toUpperCase()}</Badge>,
+            },
+            {
+              header: 'Type',
+              cell: (protocol) =>
+                protocol.type === 'icmp' &&
+                protocol.value &&
+                protocol.value.icmpType !== undefined ? (
+                  <Badge>{protocol.value.icmpType}</Badge>
+                ) : (
+                  <EmptyCell />
+                ),
+            },
+            {
+              header: 'Code',
+              cell: (protocol) =>
+                protocol.type === 'icmp' && protocol.value && protocol.value.code ? (
+                  <Badge>{protocol.value.code}</Badge>
+                ) : (
+                  <EmptyCell />
+                ),
+            },
+          ]}
           rowKey={(protocol, index) => `${protocol.type}-${index}`}
           emptyState={{ title: 'No protocols', body: 'Add a protocol to see it here' }}
           onRemoveItem={removeProtocol}
