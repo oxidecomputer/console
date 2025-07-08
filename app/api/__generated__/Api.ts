@@ -55,7 +55,7 @@ export type Address = {
 export type AddressConfig = {
   /** The set of addresses assigned to the port configuration. */
   addresses: Address[]
-  /** Link to assign the address to */
+  /** Link to assign the addresses to. On ports that are not broken out, this is always phy0. On a 2x breakout the options are phy0 and phy1, on 4x phy0-phy3, etc. */
   linkName: Name
 }
 
@@ -614,6 +614,18 @@ export type AntiAffinityGroupResultsPage = {
 export type AntiAffinityGroupUpdate = { description?: string | null; name?: Name | null }
 
 /**
+ * An identifier for an artifact.
+ */
+export type ArtifactId = {
+  /** The kind of artifact this is. */
+  kind: string
+  /** The artifact's name. */
+  name: string
+  /** The artifact's version. */
+  version: string
+}
+
+/**
  * Authorization scope for a timeseries.
  *
  * This describes the level at which a user must be authorized to read data from a timeseries. For example, fleet-scoping means the data is only visible to an operator or fleet reader. Project-scoped, on the other hand, indicates that a user will see data limited to the projects on which they have read permissions.
@@ -837,7 +849,7 @@ export type BgpPeer = {
   /** How long to hold a peer in idle before attempting a new session (seconds). */
   idleHoldTime: number
   /** The name of interface to peer on. This is relative to the port configuration this BGP peer configuration is a part of. For example this value could be phy0 to refer to a primary physical interface. Or it could be vlan47 to refer to a VLAN interface. */
-  interfaceName: string
+  interfaceName: Name
   /** How often to send keepalive requests (seconds). */
   keepalive: number
   /** Apply a local preference to routes received from this peer. */
@@ -855,7 +867,7 @@ export type BgpPeer = {
 }
 
 export type BgpPeerConfig = {
-  /** Link that the peer is reachable on */
+  /** Link that the peer is reachable on. On ports that are not broken out, this is always phy0. On a 2x breakout the options are phy0 and phy1, on 4x phy0-phy3, etc. */
   linkName: Name
   peers: BgpPeer[]
 }
@@ -1646,6 +1658,7 @@ export type DeviceAccessToken = {
   /** A unique, immutable, system-controlled identifier for the token. Note that this ID is not the bearer token itself, which starts with "oxide-token-" */
   id: string
   timeCreated: Date
+  /** Expiration timestamp. A null value means the token does not automatically expire. */
   timeExpires?: Date | null
 }
 
@@ -2259,7 +2272,7 @@ Currently, the global default auto-restart policy is "best-effort", so instances
 
 This disk can either be attached if it already exists or created along with the instance.
 
-Specifying a boot disk is optional but recommended to ensure predictable boot behavior. The boot disk can be set during instance creation or later if the instance is stopped.
+Specifying a boot disk is optional but recommended to ensure predictable boot behavior. The boot disk can be set during instance creation or later if the instance is stopped. The boot disk counts against the disk attachment limit.
 
 An instance that does not have a boot disk set will use the boot options specified in its UEFI settings, which are controlled by both the instance's UEFI firmware and the guest operating system. Boot options can change as disks are attached and detached, which may result in an instance that only boots to the EFI shell until a boot disk is set. */
   bootDisk?: InstanceDiskAttachment | null
@@ -2268,7 +2281,7 @@ An instance that does not have a boot disk set will use the boot options specifi
 
 Disk attachments of type "create" will be created, while those of type "attach" must already exist.
 
-The order of this list does not guarantee a boot order for the instance. Use the boot_disk attribute to specify a boot disk. */
+The order of this list does not guarantee a boot order for the instance. Use the boot_disk attribute to specify a boot disk. When boot_disk is specified it will count against the disk attachment limit. */
   disks?: InstanceDiskAttachment[]
   /** The external IP addresses provided to this instance.
 
@@ -2726,11 +2739,11 @@ export type TxEqConfig = {
  * Switch link configuration.
  */
 export type LinkConfigCreate = {
-  /** Whether or not to set autonegotiation */
+  /** Whether or not to set autonegotiation. */
   autoneg: boolean
   /** The requested forward-error correction method.  If this is not specified, the standard FEC for the underlying media will be applied if it can be determined. */
   fec?: LinkFec | null
-  /** Link name */
+  /** Link name. On ports that are not broken out, this is always phy0. On a 2x breakout the options are phy0 and phy1, on 4x phy0-phy3, etc. */
   linkName: Name
   /** The link-layer discovery protocol (LLDP) configuration for the link. */
   lldp: LldpLinkConfigCreate
@@ -2738,7 +2751,7 @@ export type LinkConfigCreate = {
   mtu: number
   /** The speed of the link. */
   speed: LinkSpeed
-  /** Optional tx_eq settings */
+  /** Optional tx_eq settings. */
   txEq?: TxEqConfig | null
 }
 
@@ -3213,7 +3226,7 @@ export type Route = {
  * Route configuration data associated with a switch port configuration.
  */
 export type RouteConfig = {
-  /** Link the route should be active on */
+  /** Link name. On ports that are not broken out, this is always phy0. On a 2x breakout the options are phy0 and phy1, on 4x phy0-phy3, etc. */
   linkName: Name
   /** The set of routes assigned to a switch port. */
   routes: Route[]
@@ -3644,7 +3657,7 @@ An expunged sled is always non-provisionable. */
   | { kind: 'expunged' }
 
 /**
- * The current state of the sled, as determined by Nexus.
+ * The current state of the sled.
  */
 export type SledState =
   /** The sled is currently active, and has resources allocated on it. */
@@ -3666,7 +3679,7 @@ export type Sled = {
   policy: SledPolicy
   /** The rack to which this Sled is currently attached */
   rackId: string
-  /** The current state Nexus believes the sled to be in. */
+  /** The current state of the sled. */
   state: SledState
   /** timestamp when this resource was created */
   timeCreated: Date
@@ -3899,7 +3912,7 @@ export type SwitchInterfaceConfig = {
   /** A unique identifier for this switch interface. */
   id: string
   /** The name of this switch interface. */
-  interfaceName: string
+  interfaceName: Name
   /** The switch interface kind. */
   kind: SwitchInterfaceKind2
   /** The port settings object this switch interface configuration belongs to. */
@@ -3929,7 +3942,7 @@ export type SwitchInterfaceKind =
 export type SwitchInterfaceConfigCreate = {
   /** What kind of switch interface this configuration represents. */
   kind: SwitchInterfaceKind
-  /** Link the interface will be assigned to */
+  /** Link name. On ports that are not broken out, this is always phy0. On a 2x breakout the options are phy0 and phy1, on 4x phy0-phy3, etc. */
   linkName: Name
   /** Whether or not IPv6 is enabled. */
   v6Enabled: boolean
@@ -3944,7 +3957,7 @@ export type SwitchPort = {
   /** The id of the switch port. */
   id: string
   /** The name of this switch port. */
-  portName: string
+  portName: Name
   /** The primary settings group of this switch port. Will be `None` until this switch port is configured. */
   portSettingsId?: string | null
   /** The rack this switch port belongs to. */
@@ -3966,7 +3979,7 @@ export type SwitchPortAddressView = {
   /** The name of the address lot this address is drawn from. */
   addressLotName: Name
   /** The interface name this address belongs to. */
-  interfaceName: string
+  interfaceName: Name
   /** The port settings object this address configuration belongs to. */
   portSettingsId: string
   /** An optional VLAN ID */
@@ -4050,7 +4063,7 @@ export type SwitchPortLinkConfig = {
   /** The requested forward-error correction method.  If this is not specified, the standard FEC for the underlying media will be applied if it can be determined. */
   fec?: LinkFec | null
   /** The name of this link. */
-  linkName: string
+  linkName: Name
   /** The link-layer discovery protocol service configuration for this link. */
   lldpLinkConfig?: LldpLinkConfig | null
   /** The maximum transmission unit for this link. */
@@ -4082,7 +4095,7 @@ export type SwitchPortRouteConfig = {
   /** The route's gateway address. */
   gw: string
   /** The interface name this route configuration is assigned to. */
-  interfaceName: string
+  interfaceName: Name
   /** The port settings object this route configuration belongs to. */
   portSettingsId: string
   /** RIB Priority indicating priority within and across protocols. */
@@ -4147,19 +4160,19 @@ export type SwitchPortSettings = {
  * Parameters for creating switch port settings. Switch port settings are the central data structure for setting up external networking. Switch port settings include link, interface, route, address and dynamic network protocol configuration.
  */
 export type SwitchPortSettingsCreate = {
-  /** Addresses indexed by interface name. */
+  /** Address configurations. */
   addresses: AddressConfig[]
-  /** BGP peers indexed by interface name. */
+  /** BGP peer configurations. */
   bgpPeers?: BgpPeerConfig[]
   description: string
   groups?: NameOrId[]
-  /** Interfaces indexed by link name. */
+  /** Interface configurations. */
   interfaces?: SwitchInterfaceConfigCreate[]
-  /** Links indexed by phy name. On ports that are not broken out, this is always phy0. On a 2x breakout the options are phy0 and phy1, on 4x phy0-phy3, etc. */
+  /** Link configurations. */
   links: LinkConfigCreate[]
   name: Name
   portConfig: SwitchPortConfigCreate
-  /** Routes indexed by interface name. */
+  /** Route configurations. */
   routes?: RouteConfig[]
 }
 
@@ -4283,6 +4296,82 @@ export type TimeseriesSchemaResultsPage = {
   items: TimeseriesSchema[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
+}
+
+/**
+ * Metadata about an individual TUF artifact.
+ *
+ * Found within a `TufRepoDescription`.
+ */
+export type TufArtifactMeta = {
+  /** The hash of the artifact. */
+  hash: string
+  /** The artifact ID. */
+  id: ArtifactId
+  /** The size of the artifact in bytes. */
+  size: number
+}
+
+/**
+ * Metadata about a TUF repository.
+ *
+ * Found within a `TufRepoDescription`.
+ */
+export type TufRepoMeta = {
+  /** The file name of the repository.
+
+This is purely used for debugging and may not always be correct (e.g. with wicket, we read the file contents from stdin so we don't know the correct file name). */
+  fileName: string
+  /** The hash of the repository.
+
+This is a slight abuse of `ArtifactHash`, since that's the hash of individual artifacts within the repository. However, we use it here for convenience. */
+  hash: string
+  /** The system version in artifacts.json. */
+  systemVersion: string
+  /** The version of the targets role. */
+  targetsRoleVersion: number
+  /** The time until which the repo is valid. */
+  validUntil: Date
+}
+
+/**
+ * A description of an uploaded TUF repository.
+ */
+export type TufRepoDescription = {
+  /** Information about the artifacts present in the repository. */
+  artifacts: TufArtifactMeta[]
+  /** Information about the repository. */
+  repo: TufRepoMeta
+}
+
+/**
+ * Data about a successful TUF repo get from Nexus.
+ */
+export type TufRepoGetResponse = {
+  /** The description of the repository. */
+  description: TufRepoDescription
+}
+
+/**
+ * Status of a TUF repo import.
+ *
+ * Part of `TufRepoInsertResponse`.
+ */
+export type TufRepoInsertStatus =
+  /** The repository already existed in the database. */
+  | 'already_exists'
+
+  /** The repository did not exist, and was inserted into the database. */
+  | 'inserted'
+
+/**
+ * Data about a successful TUF repo import into Nexus.
+ */
+export type TufRepoInsertResponse = {
+  /** The repository as present in the database. */
+  recorded: TufRepoDescription
+  /** Whether this repository already existed or is new. */
+  status: TufRepoInsertStatus
 }
 
 /**
@@ -4775,6 +4864,48 @@ export type SystemMetricName =
   | 'virtual_disk_space_provisioned'
   | 'cpus_provisioned'
   | 'ram_provisioned'
+
+/**
+ * Audit log entry
+ */
+export type AuditLogEntry = {
+  /** API token or session cookie. Optional because it will not be defined on unauthenticated requests like login attempts. */
+  accessMethod?: string | null
+  /** User ID of the actor who performed the action */
+  actorId?: string | null
+  actorSiloId?: string | null
+  /** Error information if the action failed */
+  errorCode?: string | null
+  errorMessage?: string | null
+  /** HTTP status code */
+  httpStatusCode: number
+  /** Unique identifier for the audit log entry */
+  id: string
+  /** API endpoint ID, e.g., `project_create` */
+  operationId: string
+  /** Request ID for tracing requests through the system */
+  requestId: string
+  /** Full URL of the request */
+  requestUri: string
+  /** Resource identifier */
+  resourceId?: string | null
+  /** IP address that made the request */
+  sourceIp: string
+  /** Time operation completed */
+  timeCompleted: Date
+  /** When the request was received */
+  timestamp: Date
+}
+
+/**
+ * A single page of results
+ */
+export type AuditLogEntryResultsPage = {
+  /** list of items on this page of results */
+  items: AuditLogEntry[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
 
 /**
  * Supported set of sort modes for scanning by name only
@@ -6036,6 +6167,14 @@ export interface SystemTimeseriesSchemaListQueryParams {
   pageToken?: string | null
 }
 
+export interface SystemUpdatePutRepositoryQueryParams {
+  fileName: string
+}
+
+export interface SystemUpdateGetRepositoryPathParams {
+  systemVersion: string
+}
+
 export interface SiloUserListQueryParams {
   limit?: number | null
   pageToken?: string | null
@@ -6278,6 +6417,14 @@ export interface WebhookSecretsAddQueryParams {
 
 export interface WebhookSecretsDeletePathParams {
   secretId: string
+}
+
+export interface AuditLogListQueryParams {
+  endTime?: Date | null
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: TimeAndIdSortMode
+  startTime?: Date
 }
 
 type EmptyObj = Record<string, never>
@@ -9651,6 +9798,33 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Upload TUF repository
+     */
+    systemUpdatePutRepository: (
+      { query }: { query: SystemUpdatePutRepositoryQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<TufRepoInsertResponse>({
+        path: `/v1/system/update/repository`,
+        method: 'PUT',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch TUF repository description
+     */
+    systemUpdateGetRepository: (
+      { path }: { path: SystemUpdateGetRepositoryPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<TufRepoGetResponse>({
+        path: `/v1/system/update/repository/${path.systemVersion}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
      * Get the current target release of the rack's system software
      */
     targetReleaseView: (_: EmptyObj, params: FetchParams = {}) => {
@@ -10248,6 +10422,20 @@ export class Api extends HttpClient {
       return this.request<void>({
         path: `/v1/webhook-secrets/${path.secretId}`,
         method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * View audit log
+     */
+    auditLogList: (
+      { query = {} }: { query?: AuditLogListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AuditLogEntryResultsPage>({
+        path: `/v1/system/audit-log`,
+        method: 'GET',
+        query,
         ...params,
       })
     },

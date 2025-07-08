@@ -1481,6 +1481,18 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.TimeseriesSchemaResultsPage>>
+  /** `PUT /v1/system/update/repository` */
+  systemUpdatePutRepository: (params: {
+    query: Api.SystemUpdatePutRepositoryQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.TufRepoInsertResponse>>
+  /** `GET /v1/system/update/repository/:systemVersion` */
+  systemUpdateGetRepository: (params: {
+    path: Api.SystemUpdateGetRepositoryPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.TufRepoGetResponse>>
   /** `GET /v1/system/update/target-release` */
   targetReleaseView: (params: {
     req: Request
@@ -1739,6 +1751,12 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/system/audit-log` */
+  auditLogList: (params: {
+    query: Api.AuditLogListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AuditLogEntryResultsPage>>
 }
 
 function validateParams<S extends ZodSchema>(
@@ -3034,6 +3052,22 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         null
       )
     ),
+    http.put(
+      '/v1/system/update/repository',
+      handler(
+        handlers['systemUpdatePutRepository'],
+        schema.SystemUpdatePutRepositoryParams,
+        null
+      )
+    ),
+    http.get(
+      '/v1/system/update/repository/:systemVersion',
+      handler(
+        handlers['systemUpdateGetRepository'],
+        schema.SystemUpdateGetRepositoryParams,
+        null
+      )
+    ),
     http.get(
       '/v1/system/update/target-release',
       handler(handlers['targetReleaseView'], null, null)
@@ -3221,6 +3255,10 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.delete(
       '/v1/webhook-secrets/:secretId',
       handler(handlers['webhookSecretsDelete'], schema.WebhookSecretsDeleteParams, null)
+    ),
+    http.get(
+      '/v1/system/audit-log',
+      handler(handlers['auditLogList'], schema.AuditLogListParams, null)
     ),
   ]
 }
