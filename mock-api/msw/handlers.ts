@@ -1799,7 +1799,21 @@ export const handlers = makeHandlers({
     )
     return paginated(query, affinityGroups)
   },
+  auditLogList: ({ query }) => {
+    let filteredLogs = db.auditLogs
 
+    if (query.startTime) {
+      filteredLogs = filteredLogs.filter(
+        (log) => new Date(log.timestamp) >= query.startTime!
+      )
+    }
+
+    if (query.endTime) {
+      filteredLogs = filteredLogs.filter((log) => new Date(log.timestamp) <= query.endTime!)
+    }
+
+    return paginated(query, filteredLogs)
+  },
   // Misc endpoints we're not using yet in the console
   affinityGroupCreate: NotImplemented,
   affinityGroupDelete: NotImplemented,
@@ -1861,6 +1875,8 @@ export const handlers = makeHandlers({
   networkingLoopbackAddressCreate: NotImplemented,
   networkingLoopbackAddressDelete: NotImplemented,
   networkingLoopbackAddressList: NotImplemented,
+  networkingInboundIcmpView: NotImplemented,
+  networkingInboundIcmpUpdate: NotImplemented,
   networkingSwitchPortApplySettings: NotImplemented,
   networkingSwitchPortClearSettings: NotImplemented,
   networkingSwitchPortList: NotImplemented,
@@ -1900,6 +1916,8 @@ export const handlers = makeHandlers({
   systemPolicyUpdate: NotImplemented,
   systemQuotasList: NotImplemented,
   systemTimeseriesSchemaList: NotImplemented,
+  systemUpdateGetRepository: NotImplemented,
+  systemUpdatePutRepository: NotImplemented,
   targetReleaseUpdate: NotImplemented,
   targetReleaseView: NotImplemented,
   userBuiltinList: NotImplemented,

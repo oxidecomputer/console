@@ -12,6 +12,7 @@ import {
   Access16Icon,
   Folder16Icon,
   Images16Icon,
+  Logs16Icon,
   Metrics16Icon,
 } from '@oxide/design-system/icons/react'
 
@@ -37,6 +38,7 @@ export default function SiloLayout() {
           { value: 'Images', path: pb.siloImages() },
           { value: 'Utilization', path: pb.siloUtilization() },
           { value: 'Silo Access', path: pb.siloAccess() },
+          { value: 'Audit Logs', path: pb.siloAuditLogs() },
         ]
           // filter out the entry for the path we're currently on
           .filter((i) => i.path !== pathname)
@@ -69,6 +71,9 @@ export default function SiloLayout() {
           </NavLinkItem>
           <NavLinkItem to={pb.siloAccess()}>
             <Access16Icon /> Silo Access
+          </NavLinkItem>
+          <NavLinkItem to={pb.siloAuditLogs()}>
+            <Logs16Icon /> Audit Logs
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
