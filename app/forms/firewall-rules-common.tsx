@@ -338,7 +338,6 @@ const ProtocolFiltersSection = ({ control }: { control: Control<FirewallRuleValu
           control={protocolForm.control}
           placeholder=""
           items={[
-            { value: '', label: '' },
             { value: 'tcp', label: 'TCP' },
             { value: 'udp', label: 'UDP' },
             { value: 'icmp', label: 'ICMP' },
@@ -353,6 +352,7 @@ const ProtocolFiltersSection = ({ control }: { control: Control<FirewallRuleValu
               control={protocolForm.control}
               description="Select ICMP type (leave blank for all)"
               placeholder=""
+              allowArbitraryValues
               items={Object.entries(ICMP_TYPES).map(([type, name]) => ({
                 value: type,
                 label: `${type} - ${name}`,
@@ -365,7 +365,7 @@ const ProtocolFiltersSection = ({ control }: { control: Control<FirewallRuleValu
                 label="ICMP Code"
                 name="icmpCode"
                 control={protocolForm.control}
-                description="Enter code or range (e.g., 0, 1-3)"
+                description="Enter a single code (0) or a range (1–3)"
                 placeholder=""
               />
             )}

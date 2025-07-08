@@ -19,6 +19,7 @@ import {
 } from '@oxide/api'
 
 import { ListPlusCell } from '~/components/ListPlusCell'
+import { ProtocolBadge } from '~/components/ProtocolBadge'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { EnabledCell } from '~/table/cells/EnabledCell'
@@ -27,7 +28,6 @@ import { TypeValueCell } from '~/table/cells/TypeValueCell'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
-import { Badge } from '~/ui/lib/Badge'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
@@ -78,26 +78,7 @@ const staticColumns = [
           <TypeValueCell key={`host-${tv.type}-${tv.value}-${i}`} {...tv} />
         )),
         ...(protocols || []).flatMap((p, i) => {
-          const badges = [<Badge key={`${p.type}-${i}`}>{p.type}</Badge>]
-          if (p.type === 'icmp' && p.value) {
-            badges.push(
-              <TypeValueCell
-                key={`icmp-type-${p.value.icmpType}-${i}`}
-                type="ICMP Type"
-                value={p.value.icmpType.toString()}
-              />
-            )
-            if (p.value.code) {
-              badges.push(
-                <TypeValueCell
-                  key={`icmp-code-${p.value.code}-${i}`}
-                  type="ICMP Code"
-                  value={p.value.code}
-                />
-              )
-            }
-          }
-          return badges
+          return [<ProtocolBadge key={`protocol-${i}`} protocol={p} />]
         }),
         ...(ports || []).map((p, i) => (
           <TypeValueCell key={`port-${p}-${i}`} type="Port" value={p} />
