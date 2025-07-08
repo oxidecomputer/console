@@ -14,6 +14,7 @@ import {
   type ApiError,
   type Instance,
   type Vpc,
+  type VpcFirewallIcmpFilter,
   type VpcFirewallRuleHostFilter,
   type VpcFirewallRuleProtocol,
   type VpcFirewallRuleTarget,
@@ -253,54 +254,131 @@ const availableItems = (
   )
 }
 
-type ProtocolFieldProps = {
-  control: Control<FirewallRuleValues>
-  protocol: VpcFirewallRuleProtocol['type']
+// Protocol selection form values for the mini-form
+type ProtocolFormValues = {
+  protocolType: VpcFirewallRuleProtocol['type'] | ''
+  icmpType?: number
+  icmpCode?: string
 }
-const ProtocolField = ({ control, protocol }: ProtocolFieldProps) => (
-  <div>
-    <CheckboxField name="protocols" value={protocol} control={control}>
-      {protocol.toUpperCase()}
-    </CheckboxField>
-  </div>
-)
 
-type ICMPTypeFieldProps = {
-  control: Control<FirewallRuleValues>
-}
-const ICMPTypeField = ({ control }: ICMPTypeFieldProps) => {
-  const { field: protocolsField } = useController({
-    name: 'protocols',
-    control,
+const ProtocolFiltersSection = ({ control }: { control: Control<FirewallRuleValues> }) => {
+  const protocols = useController({ name: 'protocols', control }).field
+  const protocolForm = useForm<ProtocolFormValues>({
+    defaultValues: { protocolType: '' },
   })
 
-  // Only show if ICMP is selected
-  const isIcmpSelected = protocolsField.value?.includes('icmp')
+  const selectedProtocolType = protocolForm.watch('protocolType')
+  const selectedIcmpType = protocolForm.watch('icmpType')
 
-  if (!isIcmpSelected) return null
+  const submitProtocol = protocolForm.handleSubmit((values) => {
+    if (values.protocolType === 'tcp' || values.protocolType === 'udp') {
+      const newProtocol = { type: values.protocolType }
+      if (!protocols.value.some((p) => p.type === values.protocolType)) {
+        protocols.onChange([...protocols.value, newProtocol])
+      }
+    } else if (values.protocolType === 'icmp') {
+      if (values.icmpType === undefined) {
+        // All ICMP types
+        const newProtocol = { type: 'icmp' as const, value: null }
+        protocols.onChange([...protocols.value, newProtocol])
+      } else {
+        // Specific ICMP type
+        const icmpValue: VpcFirewallIcmpFilter = {
+          icmpType: Number(values.icmpType),
+        }
+        if (values.icmpCode) {
+          icmpValue.code = values.icmpCode
+        }
+        const newProtocol = { type: 'icmp' as const, value: icmpValue }
+        protocols.onChange([...protocols.value, newProtocol])
+      }
+    }
+    protocolForm.reset()
+  })
 
-  const icmpTypeOptions = [
-    {
-      value: 'null', // ComboboxItem.value must be string
-      label: 'All ICMP',
-      selectedLabel: 'All ICMP',
-    },
-    ...Object.entries(ICMP_TYPES).map(([type, name]) => ({
-      value: type, // Use string representation
-      label: `${type} - ${name}`,
-      selectedLabel: `${type} - ${name}`,
-    })),
-  ]
+  const removeProtocol = (protocolToRemove: VpcFirewallRuleProtocol) => {
+    const newProtocols = protocols.value.filter((protocol) => protocol !== protocolToRemove)
+    protocols.onChange(newProtocols)
+  }
+
+  const getProtocolDisplayName = (protocol: VpcFirewallRuleProtocol) => {
+    if (protocol.type === 'icmp') {
+      if (protocol.value === null) {
+        return 'ICMP (All types)'
+      } else {
+        const typeName =
+          ICMP_TYPES[protocol.value.icmpType] || `Type ${protocol.value.icmpType}`
+        const codePart = protocol.value.code ? ` | Code ${protocol.value.code}` : ''
+        return `ICMP ${protocol.value.icmpType} - ${typeName}${codePart}`
+      }
+    }
+    return protocol.type.toUpperCase()
+  }
 
   return (
-    <div className="ml-6 mt-2">
-      <ComboboxField
-        label="ICMP Type"
-        name="icmpType"
-        control={control}
-        placeholder="Select ICMP type..."
-        items={icmpTypeOptions}
-      />
+    <div className="space-y-4">
+      <div className="space-y-3">
+        <ListboxField
+          name="protocolType"
+          label="Protocol filters"
+          description="Restrict traffic to specific protocols"
+          hideOptionalTag
+          control={protocolForm.control}
+          placeholder=""
+          items={[
+            { value: '', label: '' },
+            { value: 'tcp', label: 'TCP' },
+            { value: 'udp', label: 'UDP' },
+            { value: 'icmp', label: 'ICMP' },
+          ]}
+        />
+
+        {selectedProtocolType === 'icmp' && (
+          <div className="space-y-3">
+            <ComboboxField
+              label="ICMP Type"
+              name="icmpType"
+              control={protocolForm.control}
+              description="Select ICMP type (leave blank for all)"
+              placeholder=""
+              items={Object.entries(ICMP_TYPES).map(([type, name]) => ({
+                value: type,
+                label: `${type} - ${name}`,
+                selectedLabel: `${type} - ${name}`,
+              }))}
+            />
+
+            {selectedIcmpType !== undefined && selectedIcmpType !== 0 && (
+              <TextField
+                label="ICMP Code"
+                name="icmpCode"
+                control={protocolForm.control}
+                description="Enter code or range (e.g., 0, 1-3)"
+                placeholder=""
+              />
+            )}
+          </div>
+        )}
+
+        <ClearAndAddButtons
+          addButtonCopy="Add protocol"
+          disabled={!selectedProtocolType}
+          onClear={() => protocolForm.reset()}
+          onSubmit={submitProtocol}
+        />
+      </div>
+
+      {protocols.value.length > 0 && (
+        <MiniTable
+          ariaLabel="Protocol filters"
+          items={protocols.value}
+          columns={[{ header: 'Protocol filters', cell: getProtocolDisplayName }]}
+          rowKey={(protocol, index) => `${protocol.type}-${index}`}
+          emptyState={{ title: 'No protocols', body: 'Add a protocol to see it here' }}
+          onRemoveItem={removeProtocol}
+          removeLabel={(protocol) => `Remove ${getProtocolDisplayName(protocol)}`}
+        />
+      )}
     </div>
   )
 }
@@ -490,18 +568,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
         />
       )}
 
-      <fieldset className="space-y-0.5">
-        {/* todo: abstract this label and checkbox pattern */}
-        <FieldLabel id="portRange-label" htmlFor="portRange" className="mb-2">
-          Protocol filters
-        </FieldLabel>
-        <ProtocolField control={control} protocol="tcp" />
-        <ProtocolField control={control} protocol="udp" />
-        <ProtocolField control={control} protocol="icmp" />
-
-        {/* ICMP Type selector - only show if ICMP is selected */}
-        <ICMPTypeField control={control} />
-      </fieldset>
+      <ProtocolFiltersSection control={control} />
 
       <FormDivider />
 

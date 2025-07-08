@@ -18,8 +18,7 @@ export type FirewallRuleValues = {
   action: VpcFirewallRule['action']
   direction: VpcFirewallRule['direction']
 
-  protocols: string[] // Form stores simple strings, converted to objects on submit
-  icmpType?: string
+  protocols: NonNullable<VpcFirewallRule['filters']['protocols']> // Store full protocol objects
 
   ports: NonNullable<VpcFirewallRule['filters']['ports']>
   hosts: NonNullable<VpcFirewallRule['filters']['hosts']>
@@ -27,18 +26,6 @@ export type FirewallRuleValues = {
 }
 
 export const ruleToFormValues = (rule: VpcFirewallRule): FirewallRuleValues => {
-  // Convert API protocol objects back to simple strings
-  const protocols = rule.filters.protocols?.map((p) => p.type) || []
-
-  // Extract ICMP type if present
-  let icmpType: string | undefined
-  const icmpProtocol = rule.filters.protocols?.find((p) => p.type === 'icmp')
-  if (icmpProtocol?.value?.icmpType !== undefined) {
-    icmpType = icmpProtocol.value.icmpType.toString()
-  } else if (icmpProtocol?.value === null) {
-    icmpType = 'null' // "All ICMP" option
-  }
-
   return {
     enabled: rule.status === 'enabled',
     priority: rule.priority,
@@ -46,8 +33,7 @@ export const ruleToFormValues = (rule: VpcFirewallRule): FirewallRuleValues => {
     description: rule.description,
     action: rule.action,
     direction: rule.direction,
-    protocols,
-    icmpType,
+    protocols: rule.filters.protocols || [],
     ports: rule.filters.ports || [],
     hosts: rule.filters.hosts || [],
     targets: rule.targets,
@@ -55,34 +41,6 @@ export const ruleToFormValues = (rule: VpcFirewallRule): FirewallRuleValues => {
 }
 
 export const valuesToRuleUpdate = (values: FirewallRuleValues): VpcFirewallRuleUpdate => {
-  // Convert string protocols to proper protocol objects
-  const protocols = values.protocols.map((protocolStr) => {
-    if (protocolStr === 'icmp') {
-      // For ICMP, include the type if specified, otherwise allow all ICMP
-      if (values.icmpType && values.icmpType !== 'null') {
-        const icmpTypeNum = parseInt(values.icmpType, 10)
-        if (isNaN(icmpTypeNum)) {
-          console.error('Invalid icmpType:', values.icmpType)
-          throw new Error(`Invalid ICMP type: ${values.icmpType}`)
-        }
-        return {
-          type: 'icmp' as const,
-          value: { icmpType: icmpTypeNum },
-        }
-      } else {
-        // No specific ICMP type (allow all) - use null value
-        return { type: 'icmp' as const, value: null }
-      }
-    } else if (protocolStr === 'tcp') {
-      return { type: 'tcp' as const }
-    } else if (protocolStr === 'udp') {
-      return { type: 'udp' as const }
-    }
-
-    // Fallback, should not happen
-    throw new Error(`Unknown protocol: ${protocolStr}`)
-  })
-
   return {
     name: values.name,
     status: values.enabled ? 'enabled' : 'disabled',
@@ -92,7 +50,7 @@ export const valuesToRuleUpdate = (values: FirewallRuleValues): VpcFirewallRuleU
     filters: {
       hosts: values.hosts,
       ports: values.ports,
-      protocols,
+      protocols: values.protocols,
     },
     priority: values.priority,
     targets: values.targets,
