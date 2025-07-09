@@ -489,7 +489,7 @@ test('can update firewall rule', async ({ page }) => {
   await page.getByText('Enabled').first().scrollIntoViewIfNeeded()
 
   // Look for the new ICMP type 3 code 0 in the filters cell using ProtocolBadge format
-  await expect(page.getByText('TYPE 3 | CODE 0')).toBeVisible()
+  await expect(page.getByText('TYPE 3CODE 0')).toBeVisible()
 
   // other 3 rules are still there
   const rest = defaultRules.filter((r) => r !== 'allow-icmp')
