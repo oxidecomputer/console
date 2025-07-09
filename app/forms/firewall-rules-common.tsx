@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { useEffect, useMemo, type ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import { useController, useForm, type Control } from 'react-hook-form'
 
 import {
@@ -32,7 +32,11 @@ import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
 import { useVpcSelector } from '~/hooks/use-params'
-import { EmptyCell } from '~/table/cells/EmptyCell'
+import {
+  ProtocolCell,
+  ProtocolCodeCell,
+  ProtocolTypeCell,
+} from '~/table/cells/ProtocolCell'
 import { Badge } from '~/ui/lib/Badge'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
@@ -41,7 +45,6 @@ import { Message } from '~/ui/lib/Message'
 import { ClearAndAddButtons, MiniTable } from '~/ui/lib/MiniTable'
 import { SideModal } from '~/ui/lib/SideModal'
 import { TextInputHint } from '~/ui/lib/TextInput'
-import { Tooltip } from '~/ui/lib/Tooltip'
 import { KEYS } from '~/ui/util/keys'
 import { ALL_ISH } from '~/util/consts'
 import { validateIp, validateIpNet } from '~/util/ip'
@@ -254,19 +257,12 @@ const availableItems = (
   )
 }
 
-// Protocol selection form values for the mini-form
+// Protocol selection form values for the subform
 type ProtocolFormValues = {
   protocolType: VpcFirewallRuleProtocol['type'] | ''
   icmpType?: number | string // ComboboxField with allowArbitraryValues can return strings
   icmpCode?: string
 }
-
-const protocolTypeItems: Array<{ value: VpcFirewallRuleProtocol['type']; label: string }> =
-  [
-    { value: 'tcp', label: 'TCP' },
-    { value: 'udp', label: 'UDP' },
-    { value: 'icmp', label: 'ICMP' },
-  ]
 
 const targetHostTypeItems: Array<{
   value: VpcFirewallRuleHostFilter['type']
@@ -289,6 +285,13 @@ const directionItems: Array<{ value: VpcFirewallRuleDirection; label: string }> 
   { value: 'outbound', label: 'Outbound' },
 ]
 
+const protocolTypeItems: Array<{ value: VpcFirewallRuleProtocol['type']; label: string }> =
+  [
+    { value: 'tcp', label: 'TCP' },
+    { value: 'udp', label: 'UDP' },
+    { value: 'icmp', label: 'ICMP' },
+  ]
+
 const icmpTypeItems = [
   { value: '', label: 'All types', selectedLabel: 'All types' },
   ...Object.entries(ICMP_TYPES).map(([type, name]) => ({
@@ -297,8 +300,6 @@ const icmpTypeItems = [
     selectedLabel: `${type}`,
   })),
 ]
-
-const portTableColumns = [{ header: 'Port ranges', cell: (p: string) => p }]
 
 const targetAndHostTableColumns = [
   {
@@ -310,6 +311,23 @@ const targetAndHostTableColumns = [
   {
     header: 'Value',
     cell: (item: VpcFirewallRuleTarget | VpcFirewallRuleHostFilter) => item.value,
+  },
+]
+
+const portTableColumns = [{ header: 'Port ranges', cell: (p: string) => p }]
+
+const protocolTableColumns = [
+  {
+    header: 'Protocol',
+    cell: (protocol: VpcFirewallRuleProtocol) => <ProtocolCell protocol={protocol} />,
+  },
+  {
+    header: 'Type',
+    cell: (protocol: VpcFirewallRuleProtocol) => <ProtocolTypeCell protocol={protocol} />,
+  },
+  {
+    header: 'Code',
+    cell: (protocol: VpcFirewallRuleProtocol) => <ProtocolCodeCell protocol={protocol} />,
   },
 ]
 
@@ -381,27 +399,6 @@ const icmpCodeValidation = (value: string | undefined) => {
   return 'ICMP code must be a number or numeric range'
 }
 
-const protocolEmptyCellHoverContent = (protocol: VpcFirewallRuleProtocol): ReactNode => {
-  if (protocol.type === 'tcp') return 'This firewall rule will match all TCP traffic'
-  if (protocol.type === 'udp') return 'This firewall rule will match all UDP traffic'
-  // in this case, the user could be looking at the type column or the code column
-  if (protocol.value === null) {
-    return 'This firewall rule will match all ICMP traffic'
-  }
-  // in this case, there's an icmpType but no code, which means the user is looking at the code column
-  if (protocol.value.code === undefined) {
-    return `This firewall rule will match all ICMP traffic of type ${protocol.value.icmpType}`
-  }
-}
-
-const ProtocolEmptyCell = ({ protocol }: { protocol: VpcFirewallRuleProtocol }) => (
-  <Tooltip content={protocolEmptyCellHoverContent(protocol)} placement="top">
-    <div>
-      <EmptyCell />
-    </div>
-  </Tooltip>
-)
-
 const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) => {
   const protocols = useController({ name: 'protocols', control }).field
   const protocolForm = useForm<ProtocolFormValues>({
@@ -410,38 +407,6 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
 
   const selectedProtocolType = protocolForm.watch('protocolType')
   const selectedIcmpType = protocolForm.watch('icmpType')
-
-  const protocolTableColumns = useMemo(
-    () => [
-      {
-        header: 'Protocol',
-        cell: (protocol: VpcFirewallRuleProtocol) => (
-          <Badge>{protocol.type.toUpperCase()}</Badge>
-        ),
-      },
-      {
-        header: 'Type',
-        cell: (protocol: VpcFirewallRuleProtocol) =>
-          protocol.type === 'icmp' &&
-          protocol.value &&
-          protocol.value.icmpType !== undefined ? (
-            <Badge>{protocol.value.icmpType}</Badge>
-          ) : (
-            <ProtocolEmptyCell protocol={protocol} />
-          ),
-      },
-      {
-        header: 'Code',
-        cell: (protocol: VpcFirewallRuleProtocol) =>
-          protocol.type === 'icmp' && protocol.value && protocol.value.code ? (
-            <Badge>{protocol.value.code}</Badge>
-          ) : (
-            <ProtocolEmptyCell protocol={protocol} />
-          ),
-      },
-    ],
-    []
-  )
 
   const addProtocolIfUnique = (newProtocol: VpcFirewallRuleProtocol) => {
     if (!isDuplicateProtocol(newProtocol, protocols.value)) {

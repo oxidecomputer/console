@@ -44,15 +44,14 @@ export const getProtocolDisplayName = (protocol: VpcFirewallRuleProtocol): strin
 }
 
 /**
- * Generate a unique key for a protocol that can be used in React lists
+ * Generate a key for a protocol that can be used in React lists.
+ * Relies on callsite logic to ensure uniqueness.
  */
 export const getProtocolKey = (protocol: VpcFirewallRuleProtocol): string => {
-  if (protocol.type === 'icmp') {
-    if (protocol.value === null) {
-      return 'icmp|all'
-    }
-    const code = protocol.value.code || 'all'
-    return `icmp|${protocol.value.icmpType}|${code}`
+  if (protocol.type === 'tcp' || protocol.type === 'udp') {
+    return protocol.type
   }
-  return protocol.type
+  return protocol.value === null
+    ? 'icmp|all'
+    : `icmp|${protocol.value.icmpType}|${protocol.value.code || 'all'}`
 }
