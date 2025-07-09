@@ -477,7 +477,7 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
                 validate={icmpTypeValidation}
               />
 
-              {selectedIcmpType !== undefined && selectedIcmpType !== 0 && (
+              {selectedIcmpType !== undefined && selectedIcmpType !== '' && (
                 <TextField
                   label="ICMP code"
                   name="icmpCode"
