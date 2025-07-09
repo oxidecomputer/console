@@ -37,15 +37,17 @@ export const ProtocolEmptyCell = ({ protocol }: { protocol: VpcFirewallRuleProto
 )
 
 export const ProtocolTypeCell = ({ protocol }: { protocol: VpcFirewallRuleProtocol }) =>
-  protocol.type === 'icmp' && protocol.value && protocol.value.icmpType !== undefined ? (
-    <Badge>{protocol.value.icmpType}</Badge>
+  // icmpType could be zero, so we check for `not undefined`
+  protocol.type === 'icmp' && protocol.value?.icmpType !== undefined ? (
+    protocol.value.icmpType
   ) : (
     <ProtocolEmptyCell protocol={protocol} />
   )
 
 export const ProtocolCodeCell = ({ protocol }: { protocol: VpcFirewallRuleProtocol }) =>
-  protocol.type === 'icmp' && protocol.value && protocol.value.code ? (
-    <Badge>{protocol.value.code}</Badge>
+  // code could be zero, so we check for `not undefined`
+  protocol.type === 'icmp' && protocol.value?.code !== undefined ? (
+    protocol.value.code
   ) : (
     <ProtocolEmptyCell protocol={protocol} />
   )
