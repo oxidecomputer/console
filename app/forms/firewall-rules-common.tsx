@@ -47,6 +47,7 @@ import { SideModal } from '~/ui/lib/SideModal'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
 import { ALL_ISH } from '~/util/consts'
+import { invariant } from '~/util/invariant'
 import { validateIp, validateIpNet } from '~/util/ip'
 import { links } from '~/util/links'
 import { getProtocolDisplayName, getProtocolKey, ICMP_TYPES } from '~/util/protocol'
@@ -378,7 +379,7 @@ const icmpCodeValidation = (value: string | undefined) => {
   }
 
   // Check if it's a range (e.g., "0-255", "1-10")
-  if (/^\d+[—–-]\d+$/.test(value.trim())) {
+  if (/^\d+-\d+$/.test(trimmedValue)) {
     const [startStr, endStr] = trimmedValue.split('-')
     const start = parseInt(startStr, 10)
     const end = parseInt(endStr, 10)
@@ -418,9 +419,9 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
     if (values.protocolType === 'tcp' || values.protocolType === 'udp') {
       addProtocolIfUnique({ type: values.protocolType })
     } else if (values.protocolType === 'icmp') {
-      if (values.icmpType === undefined) {
+      if (values.icmpType === undefined || values.icmpType === '') {
         // All ICMP types
-        addProtocolIfUnique({ type: 'icmp' as const, value: null })
+        addProtocolIfUnique({ type: 'icmp', value: null })
       } else {
         // Specific ICMP type
         const parsedIcmpType =
@@ -429,9 +430,10 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
             : values.icmpType
 
         // Validation is now handled by the form field, but add safety check
-        if (isNaN(parsedIcmpType) || parsedIcmpType < 0 || parsedIcmpType > 255) {
-          return // This should rarely happen due to form validation
-        }
+        invariant(
+          !isNaN(parsedIcmpType) && parsedIcmpType >= 0 && parsedIcmpType <= 255,
+          'ICMP type validation failed: value must be between 0 and 255'
+        )
 
         const icmpValue: VpcFirewallIcmpFilter = {
           icmpType: parsedIcmpType,
@@ -439,7 +441,7 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
         if (values.icmpCode) {
           icmpValue.code = values.icmpCode
         }
-        addProtocolIfUnique({ type: 'icmp' as const, value: icmpValue })
+        addProtocolIfUnique({ type: 'icmp', value: icmpValue })
       }
     }
     protocolForm.reset()
