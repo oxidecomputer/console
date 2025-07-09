@@ -26,14 +26,16 @@ export const ProtocolBadge = ({ protocol }: ProtocolBadgeProps) => {
   return (
     <div className="space-x-0.5">
       <Badge>ICMP</Badge>
-      <Badge variant="solid" className="!normal-case">
-        type {protocol.value.icmpType}
-        {protocol.value.code && (
-          <>
-            <span className="mx-1.5 inline-block h-2 border-l opacity-30 border-l-tertiary" />
-            {protocol.value.code.includes('-') ? 'codes' : 'code'} {protocol.value.code}
-          </>
-        )}
+      <Badge variant="solid">
+        <span className="flex items-center gap-1.5">
+          <span>type {protocol.value.icmpType}</span>
+          {protocol.value.code && (
+            <>
+              <span className="h-[10px] border-l border-l-accent-secondary" />
+              <span>code {protocol.value.code}</span>
+            </>
+          )}
+        </span>
       </Badge>
     </div>
   )
