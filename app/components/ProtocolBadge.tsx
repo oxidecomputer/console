@@ -23,24 +23,18 @@ export const ProtocolBadge = ({ protocol }: ProtocolBadgeProps) => {
     return <Badge>ICMP</Badge>
   }
 
-  if (protocol.value.code) {
-    // ICMP with type and code
-    return (
-      <div className="space-x-0.5">
-        <Badge>ICMP</Badge>
-        <Badge variant="solid">
-          type {protocol.value.icmpType} | code
-          {protocol.value.code.includes('-') ? 's' : ''} {protocol.value.code}
-        </Badge>
-      </div>
-    )
-  }
-
-  // ICMP with type only
   return (
     <div className="space-x-0.5">
       <Badge>ICMP</Badge>
-      <Badge variant="solid">type {protocol.value.icmpType}</Badge>
+      <Badge variant="solid" className="!normal-case">
+        type {protocol.value.icmpType}
+        {protocol.value.code && (
+          <>
+            <span className="mx-1.5 inline-block h-2 border-l opacity-30 border-l-tertiary" />
+            {protocol.value.code.includes('-') ? 'codes' : 'code'} {protocol.value.code}
+          </>
+        )}
+      </Badge>
     </div>
   )
 }
