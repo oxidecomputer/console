@@ -47,7 +47,6 @@ import { SideModal } from '~/ui/lib/SideModal'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
 import { ALL_ISH } from '~/util/consts'
-import { invariant } from '~/util/invariant'
 import { validateIp, validateIpNet } from '~/util/ip'
 import { links } from '~/util/links'
 import { getProtocolDisplayName, getProtocolKey, ICMP_TYPES } from '~/util/protocol'
@@ -367,7 +366,7 @@ const icmpTypeValidation = (value: string | number | undefined) => {
 const icmpCodeValidation = (value: string | undefined) => {
   if (!value || value.trim() === '') return undefined // allow empty
 
-  const trimmedValue = normalizeDashes(value.trim())
+  const trimmedValue = value.trim()
 
   // Check if it's a single number
   if (/^\d+$/.test(trimmedValue)) {
@@ -429,11 +428,9 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
             ? parseInt(values.icmpType, 10)
             : values.icmpType
 
-        // Validation is now handled by the form field, but add safety check
-        invariant(
-          !isNaN(parsedIcmpType) && parsedIcmpType >= 0 && parsedIcmpType <= 255,
-          'ICMP type validation failed: value must be between 0 and 255'
-        )
+        if (isNaN(parsedIcmpType) || parsedIcmpType < 0 || parsedIcmpType > 255) {
+          return
+        }
 
         const icmpValue: VpcFirewallIcmpFilter = {
           icmpType: parsedIcmpType,
