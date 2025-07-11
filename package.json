@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "license": "MPL-2.0",
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "scripts": {
     "start": "API_MODE=msw vite",
@@ -80,7 +80,7 @@
     "@ianvs/prettier-plugin-sort-imports": "^4.4.1",
     "@mswjs/http-middleware": "^0.10.3",
     "@oxide/openapi-gen-ts": "~0.7.0",
-    "@playwright/test": "^1.53.1",
+    "@playwright/test": "^1.54.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
