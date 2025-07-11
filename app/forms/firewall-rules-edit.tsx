@@ -95,15 +95,14 @@ export default function EditFirewallRuleForm() {
     name: originalRule.name,
     description: originalRule.description,
 
-    priority: originalRule.priority,
     action: originalRule.action,
     direction: originalRule.direction,
+    priority: originalRule.priority,
 
-    protocols: originalRule.filters.protocols || [],
-
-    ports: originalRule.filters.ports || [],
-    hosts: originalRule.filters.hosts || [],
     targets: originalRule.targets,
+    ports: originalRule.filters.ports || [],
+    protocols: originalRule.filters.protocols || [],
+    hosts: originalRule.filters.hosts || [],
   }
 
   const form = useForm({ defaultValues })

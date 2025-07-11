@@ -603,6 +603,14 @@ export const AntiAffinityGroupUpdate = z.preprocess(
 )
 
 /**
+ * An identifier for an artifact.
+ */
+export const ArtifactId = z.preprocess(
+  processResponseBody,
+  z.object({ kind: z.string(), name: z.string(), version: z.string() })
+)
+
+/**
  * Authorization scope for a timeseries.
  *
  * This describes the level at which a user must be authorized to read data from a timeseries. For example, fleet-scoping means the data is only visible to an operator or fleet reader. Project-scoped, on the other hand, indicates that a user will see data limited to the projects on which they have read permissions.
@@ -805,7 +813,7 @@ export const BgpPeer = z.preprocess(
     enforceFirstAs: SafeBoolean,
     holdTime: z.number().min(0).max(4294967295),
     idleHoldTime: z.number().min(0).max(4294967295),
-    interfaceName: z.string(),
+    interfaceName: Name,
     keepalive: z.number().min(0).max(4294967295),
     localPref: z.number().min(0).max(4294967295).nullable().optional(),
     md5AuthKey: z.string().nullable().optional(),
@@ -1942,6 +1950,20 @@ export const Hostname = z.preprocess(
     .min(1)
     .max(253)
     .regex(/^([a-zA-Z0-9]+[a-zA-Z0-9\-]*(?<!-))(\.[a-zA-Z0-9]+[a-zA-Z0-9\-]*(?<!-))*$/)
+)
+
+/**
+ * A range of ICMP(v6) types or codes
+ *
+ * An inclusive-inclusive range of ICMP(v6) types or codes. The second value may be omitted to represent a single parameter.
+ */
+export const IcmpParamRange = z.preprocess(
+  processResponseBody,
+  z
+    .string()
+    .min(1)
+    .max(7)
+    .regex(/^[0-9]{1,3}(-[0-9]{1,3})?$/)
 )
 
 export const IdentityProviderType = z.preprocess(processResponseBody, z.enum(['saml']))
@@ -3191,6 +3213,14 @@ export const SamlIdentityProviderCreate = z.preprocess(
 )
 
 /**
+ * Configuration of inbound ICMP allowed by API services.
+ */
+export const ServiceIcmpConfig = z.preprocess(
+  processResponseBody,
+  z.object({ enabled: SafeBoolean })
+)
+
+/**
  * Parameters for PUT requests to `/v1/system/update/target-release`.
  */
 export const SetTargetReleaseParams = z.preprocess(
@@ -3421,7 +3451,7 @@ export const SledPolicy = z.preprocess(
 )
 
 /**
- * The current state of the sled, as determined by Nexus.
+ * The current state of the sled.
  */
 export const SledState = z.preprocess(
   processResponseBody,
@@ -3632,7 +3662,7 @@ export const SwitchInterfaceConfig = z.preprocess(
   processResponseBody,
   z.object({
     id: z.string().uuid(),
-    interfaceName: z.string(),
+    interfaceName: Name,
     kind: SwitchInterfaceKind2,
     portSettingsId: z.string().uuid(),
     v6Enabled: SafeBoolean,
@@ -3668,7 +3698,7 @@ export const SwitchPort = z.preprocess(
   processResponseBody,
   z.object({
     id: z.string().uuid(),
-    portName: z.string(),
+    portName: Name,
     portSettingsId: z.string().uuid().nullable().optional(),
     rackId: z.string().uuid(),
     switchLocation: z.string(),
@@ -3685,7 +3715,7 @@ export const SwitchPortAddressView = z.preprocess(
     addressLotBlockId: z.string().uuid(),
     addressLotId: z.string().uuid(),
     addressLotName: Name,
-    interfaceName: z.string(),
+    interfaceName: Name,
     portSettingsId: z.string().uuid(),
     vlanId: z.number().min(0).max(65535).nullable().optional(),
   })
@@ -3753,7 +3783,7 @@ export const SwitchPortLinkConfig = z.preprocess(
   z.object({
     autoneg: SafeBoolean,
     fec: LinkFec.nullable().optional(),
-    linkName: z.string(),
+    linkName: Name,
     lldpLinkConfig: LldpLinkConfig.nullable().optional(),
     mtu: z.number().min(0).max(65535),
     portSettingsId: z.string().uuid(),
@@ -3778,7 +3808,7 @@ export const SwitchPortRouteConfig = z.preprocess(
   z.object({
     dst: IpNet,
     gw: z.string().ip(),
-    interfaceName: z.string(),
+    interfaceName: Name,
     portSettingsId: z.string().uuid(),
     ribPriority: z.number().min(0).max(255).nullable().optional(),
     vlanId: z.number().min(0).max(65535).nullable().optional(),
@@ -3981,6 +4011,70 @@ export const TimeseriesSchemaResultsPage = z.preprocess(
 )
 
 /**
+ * Metadata about an individual TUF artifact.
+ *
+ * Found within a `TufRepoDescription`.
+ */
+export const TufArtifactMeta = z.preprocess(
+  processResponseBody,
+  z.object({ hash: z.string(), id: ArtifactId, size: z.number().min(0) })
+)
+
+/**
+ * Metadata about a TUF repository.
+ *
+ * Found within a `TufRepoDescription`.
+ */
+export const TufRepoMeta = z.preprocess(
+  processResponseBody,
+  z.object({
+    fileName: z.string(),
+    hash: z.string(),
+    systemVersion: z
+      .string()
+      .regex(
+        /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
+      ),
+    targetsRoleVersion: z.number().min(0),
+    validUntil: z.coerce.date(),
+  })
+)
+
+/**
+ * A description of an uploaded TUF repository.
+ */
+export const TufRepoDescription = z.preprocess(
+  processResponseBody,
+  z.object({ artifacts: TufArtifactMeta.array(), repo: TufRepoMeta })
+)
+
+/**
+ * Data about a successful TUF repo get from Nexus.
+ */
+export const TufRepoGetResponse = z.preprocess(
+  processResponseBody,
+  z.object({ description: TufRepoDescription })
+)
+
+/**
+ * Status of a TUF repo import.
+ *
+ * Part of `TufRepoInsertResponse`.
+ */
+export const TufRepoInsertStatus = z.preprocess(
+  processResponseBody,
+  z.enum(['already_exists', 'inserted'])
+)
+
+/**
+ * Data about a successful TUF repo import into Nexus.
+ */
+export const TufRepoInsertResponse = z.preprocess(
+  processResponseBody,
+  z.object({ recorded: TufRepoDescription, status: TufRepoInsertStatus })
+)
+
+/**
  * A sled that has not been added to an initialized rack yet
  */
 export const UninitializedSled = z.preprocess(
@@ -4130,6 +4224,14 @@ export const VpcCreate = z.preprocess(
   })
 )
 
+export const VpcFirewallIcmpFilter = z.preprocess(
+  processResponseBody,
+  z.object({
+    code: IcmpParamRange.nullable().optional(),
+    icmpType: z.number().min(0).max(255),
+  })
+)
+
 export const VpcFirewallRuleAction = z.preprocess(
   processResponseBody,
   z.enum(['allow', 'deny'])
@@ -4159,7 +4261,11 @@ export const VpcFirewallRuleHostFilter = z.preprocess(
  */
 export const VpcFirewallRuleProtocol = z.preprocess(
   processResponseBody,
-  z.enum(['TCP', 'UDP', 'ICMP'])
+  z.union([
+    z.object({ type: z.enum(['tcp']) }),
+    z.object({ type: z.enum(['udp']) }),
+    z.object({ type: z.enum(['icmp']), value: VpcFirewallIcmpFilter.nullable() }),
+  ])
 )
 
 /**
@@ -6731,6 +6837,22 @@ export const NetworkingBgpStatusParams = z.preprocess(
   })
 )
 
+export const NetworkingInboundIcmpViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const NetworkingInboundIcmpUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
 export const NetworkingLoopbackAddressListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -6964,6 +7086,30 @@ export const SystemTimeseriesSchemaListParams = z.preprocess(
       limit: z.number().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
     }),
+  })
+)
+
+export const SystemUpdatePutRepositoryParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      fileName: z.string(),
+    }),
+  })
+)
+
+export const SystemUpdateGetRepositoryParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      systemVersion: z
+        .string()
+        .regex(
+          /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
+        ),
+    }),
+    query: z.object({}),
   })
 )
 

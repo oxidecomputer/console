@@ -1341,6 +1341,17 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.BgpPeerStatus[]>>
+  /** `GET /v1/system/networking/inbound-icmp` */
+  networkingInboundIcmpView: (params: {
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ServiceIcmpConfig>>
+  /** `PUT /v1/system/networking/inbound-icmp` */
+  networkingInboundIcmpUpdate: (params: {
+    body: Json<Api.ServiceIcmpConfig>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `GET /v1/system/networking/loopback-address` */
   networkingLoopbackAddressList: (params: {
     query: Api.NetworkingLoopbackAddressListQueryParams
@@ -1481,6 +1492,18 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.TimeseriesSchemaResultsPage>>
+  /** `PUT /v1/system/update/repository` */
+  systemUpdatePutRepository: (params: {
+    query: Api.SystemUpdatePutRepositoryQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.TufRepoInsertResponse>>
+  /** `GET /v1/system/update/repository/:systemVersion` */
+  systemUpdateGetRepository: (params: {
+    path: Api.SystemUpdateGetRepositoryPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.TufRepoGetResponse>>
   /** `GET /v1/system/update/target-release` */
   targetReleaseView: (params: {
     req: Request
@@ -2909,6 +2932,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['networkingBgpStatus'], null, null)
     ),
     http.get(
+      '/v1/system/networking/inbound-icmp',
+      handler(handlers['networkingInboundIcmpView'], null, null)
+    ),
+    http.put(
+      '/v1/system/networking/inbound-icmp',
+      handler(handlers['networkingInboundIcmpUpdate'], null, schema.ServiceIcmpConfig)
+    ),
+    http.get(
       '/v1/system/networking/loopback-address',
       handler(
         handlers['networkingLoopbackAddressList'],
@@ -3031,6 +3062,22 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(
         handlers['systemTimeseriesSchemaList'],
         schema.SystemTimeseriesSchemaListParams,
+        null
+      )
+    ),
+    http.put(
+      '/v1/system/update/repository',
+      handler(
+        handlers['systemUpdatePutRepository'],
+        schema.SystemUpdatePutRepositoryParams,
+        null
+      )
+    ),
+    http.get(
+      '/v1/system/update/repository/:systemVersion',
+      handler(
+        handlers['systemUpdateGetRepository'],
+        schema.SystemUpdateGetRepositoryParams,
         null
       )
     ),
