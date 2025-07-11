@@ -18,7 +18,7 @@ import type * as Sel from '~/api/selectors'
 import { commaSeries } from '~/util/str'
 
 import type { Json } from '../json-type'
-import { siloSettings } from '../silo'
+import { defaultSilo, siloSettings } from '../silo'
 import { internalError } from './util'
 
 export const notFoundErr = (msg: string) => {
@@ -56,9 +56,11 @@ function ensureNoParentSelectors(
 }
 
 export const getIpFromPool = (poolName: string | undefined | null) => {
-  const pool = lookup.ipPool({ pool: poolName || undefined })
+  const pool = poolName
+    ? lookup.ipPool({ pool: poolName })
+    : lookup.siloDefaultIpPool({ silo: defaultSilo.name })
   const ipPoolRange = db.ipPoolRanges.find((range) => range.ip_pool_id === pool.id)
-  if (!ipPoolRange) throw notFoundErr(`IP range for pool '${poolName}'`)
+  if (!ipPoolRange) throw notFoundErr(`IP range for pool '${poolName || 'default'}'`)
 
   // right now, we're just using the first address in the range, but we'll
   // want to filter the list of available IPs for the first unused address

@@ -1719,7 +1719,11 @@ export const Error = z.preprocess(
 export const ExternalIp = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ ip: z.string().ip(), kind: z.enum(['ephemeral']) }),
+    z.object({
+      ip: z.string().ip(),
+      ipPoolId: z.string().uuid(),
+      kind: z.enum(['ephemeral']),
+    }),
     z.object({
       description: z.string(),
       id: z.string().uuid(),
@@ -3031,35 +3035,6 @@ export const RackResultsPage = z.preprocess(
 )
 
 /**
- * A name for a built-in role
- *
- * Role names consist of two string components separated by dot (".").
- */
-export const RoleName = z.preprocess(
-  processResponseBody,
-  z
-    .string()
-    .max(63)
-    .regex(/[a-z-]+\.[a-z-]+/)
-)
-
-/**
- * View of a Role
- */
-export const Role = z.preprocess(
-  processResponseBody,
-  z.object({ description: z.string(), name: RoleName })
-)
-
-/**
- * A single page of results
- */
-export const RoleResultsPage = z.preprocess(
-  processResponseBody,
-  z.object({ items: Role.array(), nextPage: z.string().nullable().optional() })
-)
-
-/**
  * A route to a destination network through a gateway address.
  */
 export const Route = z.preprocess(
@@ -4100,6 +4075,26 @@ export const UninitializedSledId = z.preprocess(
 export const UninitializedSledResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: UninitializedSled.array(), nextPage: z.string().nullable().optional() })
+)
+
+/**
+ * Trusted root role used by the update system to verify update repositories.
+ */
+export const UpdatesTrustRoot = z.preprocess(
+  processResponseBody,
+  z.object({
+    id: z.string().uuid(),
+    rootRole: z.record(z.unknown()),
+    timeCreated: z.coerce.date(),
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const UpdatesTrustRootResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: UpdatesTrustRoot.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -6943,27 +6938,6 @@ export const SystemPolicyUpdateParams = z.preprocess(
   })
 )
 
-export const RoleListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
-      pageToken: z.string().nullable().optional(),
-    }),
-  })
-)
-
-export const RoleViewParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      roleName: z.string(),
-    }),
-    query: z.object({}),
-  })
-)
-
 export const SystemQuotasListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -7125,6 +7099,46 @@ export const TargetReleaseUpdateParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const SystemUpdateTrustRootListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const SystemUpdateTrustRootCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const SystemUpdateTrustRootViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      trustRootId: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SystemUpdateTrustRootDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      trustRootId: z.string().uuid(),
+    }),
     query: z.object({}),
   })
 )
