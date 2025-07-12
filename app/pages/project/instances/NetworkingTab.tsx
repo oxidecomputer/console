@@ -39,6 +39,7 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
+import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -178,6 +179,10 @@ const staticIpCols = [
       </>
     ),
     cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
+  }),
+  ipColHelper.accessor('ipPoolId', {
+    header: 'IP pool',
+    cell: (info) => <IpPoolCell ipPoolId={info.getValue()} />,
   }),
   ipColHelper.accessor('name', {
     cell: (info) =>

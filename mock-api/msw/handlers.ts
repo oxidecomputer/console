@@ -41,6 +41,7 @@ import {
   lookup,
   lookupById,
   notFoundErr,
+  resolveIpPool,
   utilizationForSilo,
 } from './db'
 import {
@@ -563,11 +564,14 @@ export const handlers = makeHandlers({
         // we've already validated that the IP isn't attached
         floatingIp.instance_id = instanceId
       } else if (ip.type === 'ephemeral') {
-        const firstAvailableAddress = getIpFromPool(ip.pool)
+        const pool = resolveIpPool(ip.pool, 'for ephemeral IP')
+        const firstAvailableAddress = getIpFromPool(pool.name)
+
         db.ephemeralIps.push({
           instance_id: instanceId,
           external_ip: {
             ip: firstAvailableAddress,
+            ip_pool_id: pool.id,
             kind: 'ephemeral',
           },
         })
@@ -737,9 +741,12 @@ export const handlers = makeHandlers({
   instanceEphemeralIpAttach({ path, query: projectParams, body }) {
     const instance = lookup.instance({ ...path, ...projectParams })
     const { pool } = body
-    const firstAvailableAddress = getIpFromPool(pool)
+    const poolObj = resolveIpPool(pool, 'for ephemeral IP attachment')
+    const firstAvailableAddress = getIpFromPool(poolObj.name)
+
     const externalIp = {
       ip: firstAvailableAddress,
+      ip_pool_id: poolObj.id,
       kind: 'ephemeral' as const,
     }
     db.ephemeralIps.push({
@@ -1880,8 +1887,6 @@ export const handlers = makeHandlers({
   probeList: NotImplemented,
   probeView: NotImplemented,
   rackView: NotImplemented,
-  roleList: NotImplemented,
-  roleView: NotImplemented,
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
   siloUserList: NotImplemented,
@@ -1904,6 +1909,10 @@ export const handlers = makeHandlers({
   systemTimeseriesSchemaList: NotImplemented,
   systemUpdateGetRepository: NotImplemented,
   systemUpdatePutRepository: NotImplemented,
+  systemUpdateTrustRootCreate: NotImplemented,
+  systemUpdateTrustRootDelete: NotImplemented,
+  systemUpdateTrustRootList: NotImplemented,
+  systemUpdateTrustRootView: NotImplemented,
   targetReleaseUpdate: NotImplemented,
   targetReleaseView: NotImplemented,
   userBuiltinList: NotImplemented,
