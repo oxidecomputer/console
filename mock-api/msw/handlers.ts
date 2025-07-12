@@ -41,6 +41,7 @@ import {
   lookup,
   lookupById,
   notFoundErr,
+  resolveIpPool,
   utilizationForSilo,
 } from './db'
 import {
@@ -563,10 +564,9 @@ export const handlers = makeHandlers({
         // we've already validated that the IP isn't attached
         floatingIp.instance_id = instanceId
       } else if (ip.type === 'ephemeral') {
-        const firstAvailableAddress = getIpFromPool(ip.pool)
-        const pool = ip.pool
-          ? lookup.ipPool({ pool: ip.pool })
-          : lookup.siloDefaultIpPool({ silo: defaultSilo.name })
+        const pool = resolveIpPool(ip.pool, 'for ephemeral IP')
+        const firstAvailableAddress = getIpFromPool(pool.name)
+
         db.ephemeralIps.push({
           instance_id: instanceId,
           external_ip: {
@@ -741,9 +741,9 @@ export const handlers = makeHandlers({
   instanceEphemeralIpAttach({ path, query: projectParams, body }) {
     const instance = lookup.instance({ ...path, ...projectParams })
     const { pool } = body
-    if (!pool) throw new Error('Pool is required for ephemeral IP attachment')
-    const firstAvailableAddress = getIpFromPool(pool)
-    const poolObj = lookup.ipPool({ pool })
+    const poolObj = resolveIpPool(pool, 'for ephemeral IP attachment')
+    const firstAvailableAddress = getIpFromPool(poolObj.name)
+
     const externalIp = {
       ip: firstAvailableAddress,
       ip_pool_id: poolObj.id,

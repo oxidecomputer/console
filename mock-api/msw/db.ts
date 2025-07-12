@@ -55,10 +55,22 @@ function ensureNoParentSelectors(
   }
 }
 
+export const resolveIpPool = (poolName: string | undefined | null, context = '') => {
+  if (poolName) {
+    return lookup.ipPool({ pool: poolName })
+  }
+  try {
+    return lookup.siloDefaultIpPool({ silo: defaultSilo.id })
+  } catch (_error) {
+    const contextMsg = context ? ` ${context}` : ''
+    throw new Error(
+      `No IP pool specified${contextMsg} and no default IP pool configured for silo. Please specify a pool.`
+    )
+  }
+}
+
 export const getIpFromPool = (poolName: string | undefined | null) => {
-  const pool = poolName
-    ? lookup.ipPool({ pool: poolName })
-    : lookup.siloDefaultIpPool({ silo: defaultSilo.name })
+  const pool = resolveIpPool(poolName)
   const ipPoolRange = db.ipPoolRanges.find((range) => range.ip_pool_id === pool.id)
   if (!ipPoolRange) throw notFoundErr(`IP range for pool '${poolName || 'default'}'`)
 
