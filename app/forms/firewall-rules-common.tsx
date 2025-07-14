@@ -453,7 +453,6 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
           <ListboxField
             name="protocolType"
             label="Protocol filters"
-            description="Restrict firewall rule to specific protocols"
             hideOptionalTag
             control={protocolForm.control}
             placeholder=""
@@ -466,7 +465,7 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
                 label="ICMP type"
                 name="icmpType"
                 control={protocolForm.control}
-                description="Select ICMP type (leave blank for all)"
+                description="Leave blank to match any type"
                 placeholder=""
                 allowArbitraryValues
                 items={icmpTypeItems}
