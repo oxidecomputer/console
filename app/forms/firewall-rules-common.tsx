@@ -260,7 +260,7 @@ const availableItems = (
 // Protocol selection form values for the subform
 type ProtocolFormValues = {
   protocolType: VpcFirewallRuleProtocol['type'] | ''
-  icmpType?: number | string // ComboboxField with allowArbitraryValues can return strings
+  icmpType?: string // ComboboxField with allowArbitraryValues can return strings
   icmpCode?: string
 }
 
@@ -356,11 +356,9 @@ const isDuplicateProtocol = (
 
 type ParseResult<T> = { success: true; data: T } | { success: false; message: string }
 
-const parseIcmpType = (
-  value: string | number | undefined
-): ParseResult<number | undefined> => {
+const parseIcmpType = (value: string | undefined): ParseResult<number | undefined> => {
   if (value === undefined || value === '') return { success: true, data: undefined }
-  const parsed = typeof value === 'string' ? parseInt(value, 10) : value
+  const parsed = parseInt(value, 10)
   if (isNaN(parsed) || parsed < 0 || parsed > 255) {
     return { success: false, message: `ICMP type must be a number between 0 and 255` }
   }
