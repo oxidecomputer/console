@@ -8,7 +8,7 @@ on:
 jobs:
   install:
     timeout-minutes: 60
-    runs-on: macos-15-xlarge
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -26,7 +26,7 @@ jobs:
         run: npm install
   ci:
     timeout-minutes: 5
-    runs-on: macos-15-xlarge
+    runs-on: ubuntu-latest
     needs: install
     steps:
       - uses: actions/checkout@v4
@@ -51,7 +51,7 @@ jobs:
   playwright:
     name: Playwright (${{ matrix.browser }})
     timeout-minutes: 20
-    runs-on: macos-15-xlarge
+    runs-on: ubuntu-latest
     needs: install
     strategy:
       fail-fast: false
