@@ -55,9 +55,9 @@ function ensureNoParentSelectors(
   }
 }
 
-export const resolveIpPool = (poolName: string | undefined | null, context = '') => {
-  if (poolName) {
-    return lookup.ipPool({ pool: poolName })
+export const resolveIpPool = (poolNameOrId: string | undefined | null, context = '') => {
+  if (poolNameOrId) {
+    return lookup.ipPool({ pool: poolNameOrId })
   }
   try {
     return lookup.siloDefaultIpPool({ silo: defaultSilo.id })
@@ -69,10 +69,13 @@ export const resolveIpPool = (poolName: string | undefined | null, context = '')
   }
 }
 
-export const getIpFromPool = (poolName: string | undefined | null) => {
-  const pool = resolveIpPool(poolName)
+export const getIpFromPool = (poolNameOrId: string | undefined | null) => {
+  const pool = resolveIpPool(poolNameOrId)
   const ipPoolRange = db.ipPoolRanges.find((range) => range.ip_pool_id === pool.id)
-  if (!ipPoolRange) throw notFoundErr(`IP range for pool '${poolName || 'default'}'`)
+  if (!ipPoolRange) {
+    const poolLabel = poolNameOrId ? `pool '${pool.name}'` : 'default pool'
+    throw notFoundErr(`IP range for ${poolLabel}`)
+  }
 
   // right now, we're just using the first address in the range, but we'll
   // want to filter the list of available IPs for the first unused address
