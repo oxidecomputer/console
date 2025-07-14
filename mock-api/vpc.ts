@@ -242,7 +242,7 @@ export const firewallRules: Json<VpcFirewallRule[]> = [
     description: 'we just want to test with lots of filters',
     filters: {
       ports: ['3389', '45-89'],
-      protocols: [{ type: 'tcp' }],
+      protocols: [{ type: 'tcp' }, { type: 'icmp', value: { icmp_type: 5, code: '1-3' } }],
       hosts: [
         { type: 'instance', value: 'hello-friend' },
         { type: 'subnet', value: 'my-subnet' },

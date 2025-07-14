@@ -128,15 +128,15 @@ test('firewall rule targets and filters overflow', async ({ page }) => {
   ).toBeVisible()
 
   await expect(
-    page.getByRole('cell', { name: 'instance hello-friend +5', exact: true })
+    page.getByRole('cell', { name: 'instance hello-friend +6', exact: true })
   ).toBeVisible()
 
   // scroll table sideways past the filters cell
   await page.getByText('Enabled').first().scrollIntoViewIfNeeded()
 
-  await page.getByText('+5').hover()
+  await page.getByText('+6').hover()
   const tooltip = page.getByRole('tooltip', {
-    name: 'Other filters subnet my-subnet ip 148.38.89.5 TCP Port 3389 Port 45-89',
+    name: 'Other filters subnet my-subnet ip 148.38.89.5 TCP ICMP type 5 code 1-3 Port 3389 Port 45-89',
     exact: true,
   })
   await expect(tooltip).toBeVisible()
