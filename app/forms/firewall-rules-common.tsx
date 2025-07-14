@@ -354,13 +354,17 @@ const isDuplicateProtocol = (
   return false
 }
 
-const icmpTypeValidation = (value: string | number | undefined) => {
-  if (value === undefined || value === '') return undefined // allow empty
+type ParseResult<T> = { success: true; data: T } | { success: false; message: string }
+
+const parseIcmpType = (
+  value: string | number | undefined
+): ParseResult<number | undefined> => {
+  if (value === undefined || value === '') return { success: true, data: undefined }
   const parsed = typeof value === 'string' ? parseInt(value, 10) : value
   if (isNaN(parsed) || parsed < 0 || parsed > 255) {
-    return `ICMP type must be a number between 0 and 255`
+    return { success: false, message: `ICMP type must be a number between 0 and 255` }
   }
-  return undefined
+  return { success: true, data: parsed }
 }
 
 const icmpCodeValidation = (value: string | undefined) => {
@@ -418,23 +422,18 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
     if (values.protocolType === 'tcp' || values.protocolType === 'udp') {
       addProtocolIfUnique({ type: values.protocolType })
     } else if (values.protocolType === 'icmp') {
-      if (values.icmpType === undefined || values.icmpType === '') {
+      // this parse should never fail because we've already validated, but doing
+      // it this way keeps the just-in-case early return logic consistent
+      const parseResult = parseIcmpType(values.icmpType)
+      if (!parseResult.success) return
+
+      const icmpType = parseResult.data
+      if (icmpType === undefined) {
         // All ICMP types
         addProtocolIfUnique({ type: 'icmp', value: null })
       } else {
         // Specific ICMP type
-        const parsedIcmpType =
-          typeof values.icmpType === 'string'
-            ? parseInt(values.icmpType, 10)
-            : values.icmpType
-
-        if (isNaN(parsedIcmpType) || parsedIcmpType < 0 || parsedIcmpType > 255) {
-          return
-        }
-
-        const icmpValue: VpcFirewallIcmpFilter = {
-          icmpType: parsedIcmpType,
-        }
+        const icmpValue: VpcFirewallIcmpFilter = { icmpType }
         if (values.icmpCode) {
           icmpValue.code = values.icmpCode
         }
@@ -473,7 +472,10 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
                 placeholder=""
                 allowArbitraryValues
                 items={icmpTypeItems}
-                validate={icmpTypeValidation}
+                validate={(value) => {
+                  const result = parseIcmpType(value)
+                  if (!result.success) return result.message
+                }}
               />
 
               {selectedIcmpType !== undefined && selectedIcmpType !== '' && (
