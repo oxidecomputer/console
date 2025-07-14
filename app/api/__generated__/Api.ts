@@ -4851,13 +4851,6 @@ export type NameOrIdSortMode =
   | 'id_ascending'
 
 /**
- * Supported set of sort modes for scanning by id only.
- *
- * Currently, we only support scanning in ascending order.
- */
-export type IdSortMode = 'id_ascending'
-
-/**
  * Supported set of sort modes for scanning by timestamp and ID
  */
 export type TimeAndIdSortMode =
@@ -4879,6 +4872,13 @@ export type DiskMetricName =
  * The order in which the client wants to page through the requested collection
  */
 export type PaginationOrder = 'ascending' | 'descending'
+
+/**
+ * Supported set of sort modes for scanning by id only.
+ *
+ * Currently, we only support scanning in ascending order.
+ */
+export type IdSortMode = 'id_ascending'
 
 export type SystemMetricName =
   | 'virtual_disk_space_provisioned'
@@ -4922,7 +4922,7 @@ export interface ProbeDeleteQueryParams {
 export interface SupportBundleListQueryParams {
   limit?: number | null
   pageToken?: string | null
-  sortBy?: IdSortMode
+  sortBy?: TimeAndIdSortMode
 }
 
 export interface SupportBundleViewPathParams {

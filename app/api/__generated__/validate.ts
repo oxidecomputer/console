@@ -4530,13 +4530,6 @@ export const NameOrIdSortMode = z.preprocess(
 )
 
 /**
- * Supported set of sort modes for scanning by id only.
- *
- * Currently, we only support scanning in ascending order.
- */
-export const IdSortMode = z.preprocess(processResponseBody, z.enum(['id_ascending']))
-
-/**
  * Supported set of sort modes for scanning by timestamp and ID
  */
 export const TimeAndIdSortMode = z.preprocess(
@@ -4556,6 +4549,13 @@ export const PaginationOrder = z.preprocess(
   processResponseBody,
   z.enum(['ascending', 'descending'])
 )
+
+/**
+ * Supported set of sort modes for scanning by id only.
+ *
+ * Currently, we only support scanning in ascending order.
+ */
+export const IdSortMode = z.preprocess(processResponseBody, z.enum(['id_ascending']))
 
 export const SystemMetricName = z.preprocess(
   processResponseBody,
@@ -4647,7 +4647,7 @@ export const SupportBundleListParams = z.preprocess(
     query: z.object({
       limit: z.number().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
-      sortBy: IdSortMode.optional(),
+      sortBy: TimeAndIdSortMode.optional(),
     }),
   })
 )
