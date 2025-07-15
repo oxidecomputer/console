@@ -1829,7 +1829,7 @@ export type EphemeralIpCreate = {
 }
 
 export type ExternalIp =
-  | { ip: string; kind: 'ephemeral' }
+  | { ip: string; ipPoolId: string; kind: 'ephemeral' }
   /** A Floating IP is a well-known IP address which can be attached and detached from instances. */
   | {
       /** human-readable free-form text about a resource */
@@ -3194,28 +3194,6 @@ export type RackResultsPage = {
 }
 
 /**
- * A name for a built-in role
- *
- * Role names consist of two string components separated by dot (".").
- */
-export type RoleName = string
-
-/**
- * View of a Role
- */
-export type Role = { description: string; name: RoleName }
-
-/**
- * A single page of results
- */
-export type RoleResultsPage = {
-  /** list of items on this page of results */
-  items: Role[]
-  /** token used to fetch the next page of results (if any) */
-  nextPage?: string | null
-}
-
-/**
  * A route to a destination network through a gateway address.
  */
 export type Route = {
@@ -4410,6 +4388,28 @@ export type UninitializedSledResultsPage = {
 }
 
 /**
+ * Trusted root role used by the update system to verify update repositories.
+ */
+export type UpdatesTrustRoot = {
+  /** The UUID of this trusted root role. */
+  id: string
+  /** The trusted root role itself, a JSON document as described by The Update Framework. */
+  rootRole: Record<string, unknown>
+  /** Time the trusted root role was added. */
+  timeCreated: Date
+}
+
+/**
+ * A single page of results
+ */
+export type UpdatesTrustRootResultsPage = {
+  /** list of items on this page of results */
+  items: UpdatesTrustRoot[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
  * View of a User
  */
 export type User = {
@@ -4851,13 +4851,6 @@ export type NameOrIdSortMode =
   | 'id_ascending'
 
 /**
- * Supported set of sort modes for scanning by id only.
- *
- * Currently, we only support scanning in ascending order.
- */
-export type IdSortMode = 'id_ascending'
-
-/**
  * Supported set of sort modes for scanning by timestamp and ID
  */
 export type TimeAndIdSortMode =
@@ -4879,6 +4872,13 @@ export type DiskMetricName =
  * The order in which the client wants to page through the requested collection
  */
 export type PaginationOrder = 'ascending' | 'descending'
+
+/**
+ * Supported set of sort modes for scanning by id only.
+ *
+ * Currently, we only support scanning in ascending order.
+ */
+export type IdSortMode = 'id_ascending'
 
 export type SystemMetricName =
   | 'virtual_disk_space_provisioned'
@@ -4922,7 +4922,7 @@ export interface ProbeDeleteQueryParams {
 export interface SupportBundleListQueryParams {
   limit?: number | null
   pageToken?: string | null
-  sortBy?: IdSortMode
+  sortBy?: TimeAndIdSortMode
 }
 
 export interface SupportBundleViewPathParams {
@@ -6085,15 +6085,6 @@ export interface NetworkingSwitchPortSettingsViewPathParams {
   port: NameOrId
 }
 
-export interface RoleListQueryParams {
-  limit?: number | null
-  pageToken?: string | null
-}
-
-export interface RoleViewPathParams {
-  roleName: string
-}
-
 export interface SystemQuotasListQueryParams {
   limit?: number | null
   pageToken?: string | null
@@ -6151,6 +6142,20 @@ export interface SystemUpdatePutRepositoryQueryParams {
 
 export interface SystemUpdateGetRepositoryPathParams {
   systemVersion: string
+}
+
+export interface SystemUpdateTrustRootListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: IdSortMode
+}
+
+export interface SystemUpdateTrustRootViewPathParams {
+  trustRootId: string
+}
+
+export interface SystemUpdateTrustRootDeletePathParams {
+  trustRootId: string
 }
 
 export interface SiloUserListQueryParams {
@@ -9610,30 +9615,6 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List built-in roles
-     */
-    roleList: (
-      { query = {} }: { query?: RoleListQueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<RoleResultsPage>({
-        path: `/v1/system/roles`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Fetch built-in role
-     */
-    roleView: ({ path }: { path: RoleViewPathParams }, params: FetchParams = {}) => {
-      return this.request<Role>({
-        path: `/v1/system/roles/${path.roleName}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
      * Lists resource quotas for all silos
      */
     systemQuotasList: (
@@ -9792,7 +9773,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Upload TUF repository
+     * Upload system release repository
      */
     systemUpdatePutRepository: (
       { query }: { query: SystemUpdatePutRepositoryQueryParams },
@@ -9806,7 +9787,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch TUF repository description
+     * Fetch system release repository description by version
      */
     systemUpdateGetRepository: (
       { path }: { path: SystemUpdateGetRepositoryPathParams },
@@ -9839,6 +9820,56 @@ export class Api extends HttpClient {
         path: `/v1/system/update/target-release`,
         method: 'PUT',
         body,
+        ...params,
+      })
+    },
+    /**
+     * List root roles in the updates trust store
+     */
+    systemUpdateTrustRootList: (
+      { query = {} }: { query?: SystemUpdateTrustRootListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<UpdatesTrustRootResultsPage>({
+        path: `/v1/system/update/trust-roots`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Add trusted root role to updates trust store
+     */
+    systemUpdateTrustRootCreate: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<UpdatesTrustRoot>({
+        path: `/v1/system/update/trust-roots`,
+        method: 'POST',
+        ...params,
+      })
+    },
+    /**
+     * Fetch trusted root role
+     */
+    systemUpdateTrustRootView: (
+      { path }: { path: SystemUpdateTrustRootViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<UpdatesTrustRoot>({
+        path: `/v1/system/update/trust-roots/${path.trustRootId}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Delete trusted root role
+     */
+    systemUpdateTrustRootDelete: (
+      { path }: { path: SystemUpdateTrustRootDeletePathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/update/trust-roots/${path.trustRootId}`,
+        method: 'DELETE',
         ...params,
       })
     },

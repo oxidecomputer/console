@@ -8,6 +8,7 @@
 import type { ExternalIp } from '@oxide/api'
 
 import { instances } from './instance'
+import { ipPool1 } from './ip-pool'
 import type { Json } from './json-type'
 
 /**
@@ -34,6 +35,7 @@ export const ephemeralIps: DbExternalIp[] = [
     instance_id: instances[0].id,
     external_ip: {
       ip: '123.4.56.0',
+      ip_pool_id: ipPool1.id,
       kind: 'ephemeral',
     },
   },
@@ -42,6 +44,7 @@ export const ephemeralIps: DbExternalIp[] = [
     instance_id: instances[2].id,
     external_ip: {
       ip: '123.4.56.1',
+      ip_pool_id: ipPool1.id,
       kind: 'ephemeral',
     },
   },
@@ -49,6 +52,7 @@ export const ephemeralIps: DbExternalIp[] = [
     instance_id: instances[2].id,
     external_ip: {
       ip: '123.4.56.2',
+      ip_pool_id: ipPool1.id,
       kind: 'ephemeral',
     },
   },
@@ -56,6 +60,7 @@ export const ephemeralIps: DbExternalIp[] = [
     instance_id: instances[2].id,
     external_ip: {
       ip: '123.4.56.3',
+      ip_pool_id: ipPool1.id,
       kind: 'ephemeral',
     },
   },

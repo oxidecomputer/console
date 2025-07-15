@@ -5,14 +5,20 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useApiQuery } from '~/api'
+import { useApiQueryErrorsAllowed } from '~/api'
 import { Tooltip } from '~/ui/lib/Tooltip'
 
-import { EmptyCell } from './EmptyCell'
+import { EmptyCell, SkeletonCell } from './EmptyCell'
 
 export const IpPoolCell = ({ ipPoolId }: { ipPoolId: string }) => {
-  const pool = useApiQuery('projectIpPoolView', { path: { pool: ipPoolId } }).data
-  if (!pool) return <EmptyCell />
+  const { data: result } = useApiQueryErrorsAllowed('projectIpPoolView', {
+    path: { pool: ipPoolId },
+  })
+  if (!result) return <SkeletonCell />
+  // this should essentially never happen, but it's probably better than blowing
+  // up the whole page if the pool is not found
+  if (result.type === 'error') return <EmptyCell />
+  const pool = result.data
   return (
     <Tooltip content={pool.description} placement="right">
       <span>{pool.name}</span>
