@@ -478,7 +478,8 @@ export const handlers = makeHandlers({
         // if there are no ranges in the pool or if the pool doesn't exist,
         // which aren't quite as good as checking that there are actually IPs
         // available, but they are good things to check
-        getIpFromPool({ poolNameOrId: ip.pool })
+        const pool = resolveIpPool(ip.pool)
+        getIpFromPool(pool)
       }
     })
 
@@ -565,7 +566,7 @@ export const handlers = makeHandlers({
         floatingIp.instance_id = instanceId
       } else if (ip.type === 'ephemeral') {
         const pool = resolveIpPool(ip.pool)
-        const firstAvailableAddress = getIpFromPool({ pool })
+        const firstAvailableAddress = getIpFromPool(pool)
 
         db.ephemeralIps.push({
           instance_id: instanceId,
@@ -741,7 +742,7 @@ export const handlers = makeHandlers({
   instanceEphemeralIpAttach({ path, query: projectParams, body }) {
     const instance = lookup.instance({ ...path, ...projectParams })
     const pool = resolveIpPool(body.pool)
-    const ip = getIpFromPool({ pool })
+    const ip = getIpFromPool(pool)
 
     const externalIp = { ip, ip_pool_id: pool.id, kind: 'ephemeral' as const }
     db.ephemeralIps.push({

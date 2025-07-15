@@ -55,23 +55,16 @@ function ensureNoParentSelectors(
   }
 }
 
-export const resolveIpPool = (poolNameOrId: string | undefined | null) =>
-  poolNameOrId
-    ? lookup.ipPool({ pool: poolNameOrId })
-    : lookup.siloDefaultIpPool({ silo: defaultSilo.id })
+/**
+ * If pool name or ID is given, look it up. Otherwise use silo default pool,
+ * (and error if the silo doesn't have one).
+ */
+export const resolveIpPool = (pool: string | undefined | null) =>
+  pool ? lookup.ipPool({ pool }) : lookup.siloDefaultIpPool({ silo: defaultSilo.id })
 
-export const getIpFromPool = (
-  params: { pool: Json<Api.IpPool> } | { poolNameOrId: string | undefined | null }
-) => {
-  const pool = 'pool' in params ? params.pool : resolveIpPool(params.poolNameOrId)
+export const getIpFromPool = (pool: Json<Api.IpPool>) => {
   const ipPoolRange = db.ipPoolRanges.find((range) => range.ip_pool_id === pool.id)
-  if (!ipPoolRange) {
-    if ('pool' in params) {
-      throw notFoundErr(`IP range for pool '${pool.name}'`)
-    }
-    const poolLabel = params.poolNameOrId ? `pool '${params.poolNameOrId}'` : 'default pool'
-    throw notFoundErr(`IP range for ${poolLabel}`)
-  }
+  if (!ipPoolRange) throw notFoundErr(`IP range for pool '${pool.name}'`)
 
   // right now, we're just using the first address in the range, but we'll
   // want to filter the list of available IPs for the first unused address
