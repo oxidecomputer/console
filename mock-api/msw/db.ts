@@ -60,11 +60,16 @@ export const resolveIpPool = (poolNameOrId: string | undefined | null) =>
     ? lookup.ipPool({ pool: poolNameOrId })
     : lookup.siloDefaultIpPool({ silo: defaultSilo.id })
 
-export const getIpFromPool = (poolNameOrId: string | undefined | null) => {
-  const pool = resolveIpPool(poolNameOrId)
+export const getIpFromPool = (
+  params: { pool: Json<Api.IpPool> } | { poolNameOrId: string | undefined | null }
+) => {
+  const pool = 'pool' in params ? params.pool : resolveIpPool(params.poolNameOrId)
   const ipPoolRange = db.ipPoolRanges.find((range) => range.ip_pool_id === pool.id)
   if (!ipPoolRange) {
-    const poolLabel = poolNameOrId ? `pool '${pool.name}'` : 'default pool'
+    if ('pool' in params) {
+      throw notFoundErr(`IP range for pool '${pool.name}'`)
+    }
+    const poolLabel = params.poolNameOrId ? `pool '${params.poolNameOrId}'` : 'default pool'
     throw notFoundErr(`IP range for ${poolLabel}`)
   }
 
