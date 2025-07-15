@@ -55,19 +55,10 @@ function ensureNoParentSelectors(
   }
 }
 
-export const resolveIpPool = (poolNameOrId: string | undefined | null, context = '') => {
-  if (poolNameOrId) {
-    return lookup.ipPool({ pool: poolNameOrId })
-  }
-  try {
-    return lookup.siloDefaultIpPool({ silo: defaultSilo.id })
-  } catch (_error) {
-    const contextMsg = context ? ` ${context}` : ''
-    throw new Error(
-      `No IP pool specified${contextMsg} and no default IP pool configured for silo. Please specify a pool.`
-    )
-  }
-}
+export const resolveIpPool = (poolNameOrId: string | undefined | null) =>
+  poolNameOrId
+    ? lookup.ipPool({ pool: poolNameOrId })
+    : lookup.siloDefaultIpPool({ silo: defaultSilo.id })
 
 export const getIpFromPool = (poolNameOrId: string | undefined | null) => {
   const pool = resolveIpPool(poolNameOrId)

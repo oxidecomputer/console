@@ -564,8 +564,8 @@ export const handlers = makeHandlers({
         // we've already validated that the IP isn't attached
         floatingIp.instance_id = instanceId
       } else if (ip.type === 'ephemeral') {
-        const pool = resolveIpPool(ip.pool, 'for ephemeral IP')
-        const firstAvailableAddress = getIpFromPool(pool.name)
+        const pool = resolveIpPool(ip.pool)
+        const firstAvailableAddress = getIpFromPool(pool.id)
 
         db.ephemeralIps.push({
           instance_id: instanceId,
@@ -741,8 +741,8 @@ export const handlers = makeHandlers({
   instanceEphemeralIpAttach({ path, query: projectParams, body }) {
     const instance = lookup.instance({ ...path, ...projectParams })
     const { pool } = body
-    const poolObj = resolveIpPool(pool, 'for ephemeral IP attachment')
-    const firstAvailableAddress = getIpFromPool(poolObj.name)
+    const poolObj = resolveIpPool(pool)
+    const firstAvailableAddress = getIpFromPool(poolObj.id)
 
     const externalIp = {
       ip: firstAvailableAddress,
