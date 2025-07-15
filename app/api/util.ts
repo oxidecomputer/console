@@ -23,17 +23,17 @@ import type {
   VpcFirewallRuleUpdate,
 } from './__generated__/Api'
 
-// API limits encoded in https://github.com/oxidecomputer/omicron/blob/b7af5f8e/nexus/src/app/mod.rs
+// API limits encoded in https://github.com/oxidecomputer/omicron/blob/aec3cd8d/nexus/src/app/mod.rs
 
 export const MAX_NICS_PER_INSTANCE = 8
 
 export const INSTANCE_MAX_CPU = 64
 export const INSTANCE_MIN_RAM_GiB = 1
-export const INSTANCE_MAX_RAM_GiB = 1024
+export const INSTANCE_MAX_RAM_GiB = 1536
 
 export const MIN_DISK_SIZE_GiB = 1
 /**
- * Disk size limited to 1023  as that's the maximum we can safely allocate right now
+ * Disk size limited to 1023 as that's the maximum we can safely allocate right now
  * @see https://github.com/oxidecomputer/omicron/issues/3212#issuecomment-1634497344
  */
 export const MAX_DISK_SIZE_GiB = 1023
