@@ -652,6 +652,19 @@ test('arbitrary values combobox', async ({ page }) => {
 
   // same options show up after blur (there was a bug around this)
   await expectOptions(page, ['db1', 'db2', 'Custom: d'])
+
+  // make sure typing in ICMP filter input actually updates the underlying value,
+  // triggering a validation error for bad input. without onInputChange binding
+  // the input value to the form value, this does not trigger an error because
+  // the form thinks the input is empyt.
+  await selectOption(page, 'Protocol filters', 'ICMP')
+  await page.getByRole('combobox', { name: 'ICMP type' }).pressSequentially('abc')
+  const error = page
+    .getByRole('dialog')
+    .getByText('ICMP type must be a number between 0 and 255')
+  await expect(error).toBeHidden()
+  await page.getByRole('button', { name: 'Add protocol filter' }).click()
+  await expect(error).toBeVisible()
 })
 
 test("esc in combobox doesn't close form", async ({ page }) => {

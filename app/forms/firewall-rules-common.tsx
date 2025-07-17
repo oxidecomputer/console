@@ -468,6 +468,7 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
                 description="Leave blank to match any type"
                 placeholder=""
                 allowArbitraryValues
+                onInputChange={(value) => protocolForm.setValue('icmpType', value)}
                 items={icmpTypeItems}
                 validate={(value) => {
                   const result = parseIcmpType(value)
