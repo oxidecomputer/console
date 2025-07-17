@@ -634,12 +634,12 @@ test('Validate CPU and RAM', async ({ page }) => {
   // make sure it's not clamping the value
   await expect(cpu).toHaveValue('999')
 
-  await memory.fill('1025')
+  await memory.fill('1537')
 
   const submitButton = page.getByRole('button', { name: 'Create instance' })
 
   const cpuMsg = page.getByText('Can be at most 64').first()
-  const memMsg = page.getByText('Can be at most 1024 GiB').first()
+  const memMsg = page.getByText('Can be at most 1536 GiB').first()
 
   await expect(cpuMsg).toBeHidden()
   await expect(memMsg).toBeHidden()
