@@ -14,7 +14,11 @@ import {
   type ApiError,
   type Instance,
   type Vpc,
+  type VpcFirewallIcmpFilter,
+  type VpcFirewallRuleAction,
+  type VpcFirewallRuleDirection,
   type VpcFirewallRuleHostFilter,
+  type VpcFirewallRuleProtocol,
   type VpcFirewallRuleTarget,
   type VpcSubnet,
 } from '~/api'
@@ -28,6 +32,11 @@ import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
 import { useVpcSelector } from '~/hooks/use-params'
+import {
+  ProtocolCell,
+  ProtocolCodeCell,
+  ProtocolTypeCell,
+} from '~/table/cells/ProtocolCell'
 import { Badge } from '~/ui/lib/Badge'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
@@ -40,7 +49,8 @@ import { KEYS } from '~/ui/util/keys'
 import { ALL_ISH } from '~/util/consts'
 import { validateIp, validateIpNet } from '~/util/ip'
 import { links } from '~/util/links'
-import { capitalize } from '~/util/str'
+import { getProtocolDisplayName, getProtocolKey, ICMP_TYPES } from '~/util/protocol'
+import { capitalize, normalizeDashes } from '~/util/str'
 
 import { type FirewallRuleValues } from './firewall-rules-util'
 
@@ -160,13 +170,7 @@ const TargetAndHostFilterSubform = ({
         name="type"
         label={`${capitalize(sectionType)} type`}
         control={subformControl}
-        items={[
-          { value: 'vpc', label: 'VPC' },
-          { value: 'subnet', label: 'VPC subnet' },
-          { value: 'instance', label: 'Instance' },
-          { value: 'ip', label: 'IP' },
-          { value: 'ip_net', label: 'IP subnet' },
-        ]}
+        items={targetHostTypeItems}
         onChange={onTypeChange}
         hideOptionalTag
       />
@@ -220,12 +224,14 @@ const TargetAndHostFilterSubform = ({
         className="mb-4"
         ariaLabel={nounTitle}
         items={field.value}
-        columns={[
-          { header: 'Type', cell: (item) => <Badge>{item.type}</Badge> },
-          { header: 'Value', cell: (item) => item.value },
-        ]}
-        rowKey={({ type, value }) => `${type}|${value}`}
-        onRemoveItem={({ type, value }) => {
+        columns={targetAndHostTableColumns}
+        rowKey={({ type, value }: VpcFirewallRuleTarget | VpcFirewallRuleHostFilter) =>
+          `${type}|${value}`
+        }
+        onRemoveItem={({
+          type,
+          value,
+        }: VpcFirewallRuleTarget | VpcFirewallRuleHostFilter) => {
           field.onChange(field.value.filter((i) => !(i.value === value && i.type === type)))
         }}
       />
@@ -251,17 +257,267 @@ const availableItems = (
   )
 }
 
-type ProtocolFieldProps = {
-  control: Control<FirewallRuleValues>
-  protocol: 'TCP' | 'UDP' | 'ICMP'
+// Protocol selection form values for the subform
+type ProtocolFormValues = {
+  protocolType: VpcFirewallRuleProtocol['type'] | ''
+  icmpType?: string // ComboboxField with allowArbitraryValues can return strings
+  icmpCode?: string
 }
-const ProtocolField = ({ control, protocol }: ProtocolFieldProps) => (
-  <div>
-    <CheckboxField name="protocols" value={protocol} control={control}>
-      {protocol}
-    </CheckboxField>
-  </div>
-)
+
+const targetHostTypeItems: Array<{
+  value: VpcFirewallRuleHostFilter['type']
+  label: string
+}> = [
+  { value: 'vpc', label: 'VPC' },
+  { value: 'subnet', label: 'VPC subnet' },
+  { value: 'instance', label: 'Instance' },
+  { value: 'ip', label: 'IP' },
+  { value: 'ip_net', label: 'IP subnet' },
+]
+
+const actionItems: Array<{ value: VpcFirewallRuleAction; label: string }> = [
+  { value: 'allow', label: 'Allow' },
+  { value: 'deny', label: 'Deny' },
+]
+
+const directionItems: Array<{ value: VpcFirewallRuleDirection; label: string }> = [
+  { value: 'inbound', label: 'Inbound' },
+  { value: 'outbound', label: 'Outbound' },
+]
+
+const protocolTypeItems: Array<{ value: VpcFirewallRuleProtocol['type']; label: string }> =
+  [
+    { value: 'tcp', label: 'TCP' },
+    { value: 'udp', label: 'UDP' },
+    { value: 'icmp', label: 'ICMP' },
+  ]
+
+const icmpTypeItems = [
+  { value: '', label: 'All types', selectedLabel: 'All types' },
+  ...Object.entries(ICMP_TYPES).map(([type, name]) => ({
+    value: type,
+    label: `${type} - ${name}`,
+    selectedLabel: `${type}`,
+  })),
+]
+
+const targetAndHostTableColumns = [
+  {
+    header: 'Type',
+    cell: (item: VpcFirewallRuleTarget | VpcFirewallRuleHostFilter) => (
+      <Badge>{item.type}</Badge>
+    ),
+  },
+  {
+    header: 'Value',
+    cell: (item: VpcFirewallRuleTarget | VpcFirewallRuleHostFilter) => item.value,
+  },
+]
+
+const portTableColumns = [{ header: 'Port ranges', cell: (p: string) => p }]
+
+const protocolTableColumns = [
+  {
+    header: 'Protocol',
+    cell: (protocol: VpcFirewallRuleProtocol) => <ProtocolCell protocol={protocol} />,
+  },
+  {
+    header: 'Type',
+    cell: (protocol: VpcFirewallRuleProtocol) => <ProtocolTypeCell protocol={protocol} />,
+  },
+  {
+    header: 'Code',
+    cell: (protocol: VpcFirewallRuleProtocol) => <ProtocolCodeCell protocol={protocol} />,
+  },
+]
+
+const isDuplicateProtocol = (
+  newProtocol: VpcFirewallRuleProtocol,
+  existingProtocols: VpcFirewallRuleProtocol[]
+) => {
+  if (newProtocol.type === 'tcp' || newProtocol.type === 'udp') {
+    return existingProtocols.some((p) => p.type === newProtocol.type)
+  }
+
+  if (newProtocol.type === 'icmp') {
+    if (newProtocol.value === null) {
+      return existingProtocols.some((p) => p.type === 'icmp' && p.value === null)
+    }
+    return existingProtocols.some(
+      (p) =>
+        p.type === 'icmp' &&
+        p.value?.icmpType === newProtocol.value?.icmpType &&
+        p.value?.code === newProtocol.value?.code
+    )
+  }
+
+  return false
+}
+
+type ParseResult<T> = { success: true; data: T } | { success: false; message: string }
+
+const parseIcmpType = (value: string | undefined): ParseResult<number | undefined> => {
+  if (value === undefined || value === '') return { success: true, data: undefined }
+  const parsed = parseInt(value, 10)
+  if (isNaN(parsed) || parsed < 0 || parsed > 255) {
+    return { success: false, message: `ICMP type must be a number between 0 and 255` }
+  }
+  return { success: true, data: parsed }
+}
+
+const icmpCodeValidation = (value: string | undefined) => {
+  if (!value || value.trim() === '') return undefined // allow empty
+
+  const trimmedValue = value.trim()
+
+  // Check if it's a single number
+  if (/^\d+$/.test(trimmedValue)) {
+    const num = parseInt(trimmedValue, 10)
+    if (num < 0 || num > 255) {
+      return 'ICMP code must be between 0 and 255'
+    }
+    return undefined
+  }
+
+  // Check if it's a range (e.g., "0-255", "1-10")
+  if (/^\d+-\d+$/.test(trimmedValue)) {
+    const [startStr, endStr] = trimmedValue.split('-')
+    const start = parseInt(startStr, 10)
+    const end = parseInt(endStr, 10)
+
+    if (start < 0 || start > 255) {
+      return 'ICMP code range start must be between 0 and 255'
+    }
+    if (end < 0 || end > 255) {
+      return 'ICMP code range end must be between 0 and 255'
+    }
+    if (start > end) {
+      return 'ICMP code range start must be less than or equal to range end'
+    }
+
+    return undefined
+  }
+
+  return 'ICMP code must be a number or numeric range'
+}
+
+const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) => {
+  const protocols = useController({ name: 'protocols', control }).field
+  const protocolForm = useForm<ProtocolFormValues>({
+    defaultValues: { protocolType: '' },
+  })
+
+  const selectedProtocolType = protocolForm.watch('protocolType')
+  const selectedIcmpType = protocolForm.watch('icmpType')
+
+  const addProtocolIfUnique = (newProtocol: VpcFirewallRuleProtocol) => {
+    if (!isDuplicateProtocol(newProtocol, protocols.value)) {
+      protocols.onChange([...protocols.value, newProtocol])
+    }
+  }
+
+  const submitProtocol = protocolForm.handleSubmit((values) => {
+    if (values.protocolType === 'tcp' || values.protocolType === 'udp') {
+      addProtocolIfUnique({ type: values.protocolType })
+    } else if (values.protocolType === 'icmp') {
+      // this parse should never fail because we've already validated, but doing
+      // it this way keeps the just-in-case early return logic consistent
+      const parseResult = parseIcmpType(values.icmpType)
+      if (!parseResult.success) return
+
+      const icmpType = parseResult.data
+      if (icmpType === undefined) {
+        // All ICMP types
+        addProtocolIfUnique({ type: 'icmp', value: null })
+      } else {
+        // Specific ICMP type
+        const icmpValue: VpcFirewallIcmpFilter = { icmpType }
+        if (values.icmpCode) {
+          icmpValue.code = values.icmpCode
+        }
+        addProtocolIfUnique({ type: 'icmp', value: icmpValue })
+      }
+    }
+    protocolForm.reset()
+  })
+
+  const removeProtocol = (protocolToRemove: VpcFirewallRuleProtocol) => {
+    const newProtocols = protocols.value.filter((protocol) => protocol !== protocolToRemove)
+    protocols.onChange(newProtocols)
+  }
+
+  return (
+    <>
+      <div className="space-y-3">
+        <div className="space-y-5">
+          <ListboxField
+            name="protocolType"
+            label="Protocol filters"
+            hideOptionalTag
+            control={protocolForm.control}
+            placeholder=""
+            items={protocolTypeItems}
+          />
+
+          {selectedProtocolType === 'icmp' && (
+            <>
+              <ComboboxField
+                label="ICMP type"
+                name="icmpType"
+                control={protocolForm.control}
+                description="Leave blank to match any type"
+                placeholder=""
+                allowArbitraryValues
+                onInputChange={(value) => protocolForm.setValue('icmpType', value)}
+                items={icmpTypeItems}
+                validate={(value) => {
+                  const result = parseIcmpType(value)
+                  if (!result.success) return result.message
+                }}
+              />
+
+              {selectedIcmpType !== undefined && selectedIcmpType !== '' && (
+                <TextField
+                  label="ICMP code"
+                  name="icmpCode"
+                  control={protocolForm.control}
+                  description={
+                    <>
+                      Enter a code (0) or range (e.g. 1&ndash;3). Leave blank for all
+                      traffic of type {selectedIcmpType}.
+                    </>
+                  }
+                  placeholder=""
+                  validate={icmpCodeValidation}
+                  transform={normalizeDashes}
+                />
+              )}
+            </>
+          )}
+        </div>
+
+        <ClearAndAddButtons
+          addButtonCopy="Add protocol filter"
+          disabled={!selectedProtocolType}
+          onClear={() => protocolForm.reset()}
+          onSubmit={submitProtocol}
+        />
+      </div>
+
+      {protocols.value.length > 0 && (
+        <MiniTable
+          ariaLabel="Protocol filters"
+          items={protocols.value}
+          columns={protocolTableColumns}
+          rowKey={getProtocolKey}
+          emptyState={{ title: 'No protocols', body: 'Add a protocol to see it here' }}
+          onRemoveItem={removeProtocol}
+          removeLabel={(protocol) => `Remove ${getProtocolDisplayName(protocol)}`}
+        />
+      )}
+    </>
+  )
+}
 
 type CommonFieldsProps = {
   control: Control<FirewallRuleValues>
@@ -334,15 +590,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
       />
       <DescriptionField name="description" control={control} />
 
-      <RadioField
-        name="action"
-        column
-        control={control}
-        items={[
-          { value: 'allow', label: 'Allow' },
-          { value: 'deny', label: 'Deny' },
-        ]}
-      />
+      <RadioField name="action" column control={control} items={actionItems} />
       <RadioField
         name="direction"
         label="Direction of traffic"
@@ -354,10 +602,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
             rule applies to traffic <em>from</em> the targets.
           </>
         }
-        items={[
-          { value: 'inbound', label: 'Inbound' },
-          { value: 'outbound', label: 'Outbound' },
-        ]}
+        items={directionItems}
       />
       <NumberField
         name="priority"
@@ -440,7 +685,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           className="mb-4"
           ariaLabel="Port filters"
           items={ports.value}
-          columns={[{ header: 'Port ranges', cell: (p) => p }]}
+          columns={portTableColumns}
           rowKey={(port) => port}
           emptyState={{ title: 'No ports', body: 'Add a port to see it here' }}
           onRemoveItem={(p) => ports.onChange(ports.value.filter((p1) => p1 !== p))}
@@ -448,15 +693,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
         />
       )}
 
-      <fieldset className="space-y-0.5">
-        {/* todo: abstract this label and checkbox pattern */}
-        <FieldLabel id="portRange-label" htmlFor="portRange" className="mb-2">
-          Protocol filters
-        </FieldLabel>
-        <ProtocolField control={control} protocol="TCP" />
-        <ProtocolField control={control} protocol="UDP" />
-        <ProtocolField control={control} protocol="ICMP" />
-      </fieldset>
+      <ProtocolFilters control={control} />
 
       <FormDivider />
 

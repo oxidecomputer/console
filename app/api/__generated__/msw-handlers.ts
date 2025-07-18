@@ -1341,6 +1341,17 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.BgpPeerStatus[]>>
+  /** `GET /v1/system/networking/inbound-icmp` */
+  networkingInboundIcmpView: (params: {
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ServiceIcmpConfig>>
+  /** `PUT /v1/system/networking/inbound-icmp` */
+  networkingInboundIcmpUpdate: (params: {
+    body: Json<Api.ServiceIcmpConfig>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `GET /v1/system/networking/loopback-address` */
   networkingLoopbackAddressList: (params: {
     query: Api.NetworkingLoopbackAddressListQueryParams
@@ -1394,18 +1405,6 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.FleetRolePolicy>>
-  /** `GET /v1/system/roles` */
-  roleList: (params: {
-    query: Api.RoleListQueryParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.RoleResultsPage>>
-  /** `GET /v1/system/roles/:roleName` */
-  roleView: (params: {
-    path: Api.RoleViewPathParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.Role>>
   /** `GET /v1/system/silo-quotas` */
   systemQuotasList: (params: {
     query: Api.SystemQuotasListQueryParams
@@ -1481,6 +1480,18 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.TimeseriesSchemaResultsPage>>
+  /** `PUT /v1/system/update/repository` */
+  systemUpdatePutRepository: (params: {
+    query: Api.SystemUpdatePutRepositoryQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.TufRepoInsertResponse>>
+  /** `GET /v1/system/update/repository/:systemVersion` */
+  systemUpdateGetRepository: (params: {
+    path: Api.SystemUpdateGetRepositoryPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.TufRepoGetResponse>>
   /** `GET /v1/system/update/target-release` */
   targetReleaseView: (params: {
     req: Request
@@ -1492,6 +1503,29 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.TargetRelease>>
+  /** `GET /v1/system/update/trust-roots` */
+  systemUpdateTrustRootList: (params: {
+    query: Api.SystemUpdateTrustRootListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.UpdatesTrustRootResultsPage>>
+  /** `POST /v1/system/update/trust-roots` */
+  systemUpdateTrustRootCreate: (params: {
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.UpdatesTrustRoot>>
+  /** `GET /v1/system/update/trust-roots/:trustRootId` */
+  systemUpdateTrustRootView: (params: {
+    path: Api.SystemUpdateTrustRootViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.UpdatesTrustRoot>>
+  /** `DELETE /v1/system/update/trust-roots/:trustRootId` */
+  systemUpdateTrustRootDelete: (params: {
+    path: Api.SystemUpdateTrustRootDeletePathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `GET /v1/system/users` */
   siloUserList: (params: {
     query: Api.SiloUserListQueryParams
@@ -2909,6 +2943,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['networkingBgpStatus'], null, null)
     ),
     http.get(
+      '/v1/system/networking/inbound-icmp',
+      handler(handlers['networkingInboundIcmpView'], null, null)
+    ),
+    http.put(
+      '/v1/system/networking/inbound-icmp',
+      handler(handlers['networkingInboundIcmpUpdate'], null, schema.ServiceIcmpConfig)
+    ),
+    http.get(
       '/v1/system/networking/loopback-address',
       handler(
         handlers['networkingLoopbackAddressList'],
@@ -2970,14 +3012,6 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['systemPolicyUpdate'], null, schema.FleetRolePolicy)
     ),
     http.get(
-      '/v1/system/roles',
-      handler(handlers['roleList'], schema.RoleListParams, null)
-    ),
-    http.get(
-      '/v1/system/roles/:roleName',
-      handler(handlers['roleView'], schema.RoleViewParams, null)
-    ),
-    http.get(
       '/v1/system/silo-quotas',
       handler(handlers['systemQuotasList'], schema.SystemQuotasListParams, null)
     ),
@@ -3034,6 +3068,22 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         null
       )
     ),
+    http.put(
+      '/v1/system/update/repository',
+      handler(
+        handlers['systemUpdatePutRepository'],
+        schema.SystemUpdatePutRepositoryParams,
+        null
+      )
+    ),
+    http.get(
+      '/v1/system/update/repository/:systemVersion',
+      handler(
+        handlers['systemUpdateGetRepository'],
+        schema.SystemUpdateGetRepositoryParams,
+        null
+      )
+    ),
     http.get(
       '/v1/system/update/target-release',
       handler(handlers['targetReleaseView'], null, null)
@@ -3041,6 +3091,34 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.put(
       '/v1/system/update/target-release',
       handler(handlers['targetReleaseUpdate'], null, schema.SetTargetReleaseParams)
+    ),
+    http.get(
+      '/v1/system/update/trust-roots',
+      handler(
+        handlers['systemUpdateTrustRootList'],
+        schema.SystemUpdateTrustRootListParams,
+        null
+      )
+    ),
+    http.post(
+      '/v1/system/update/trust-roots',
+      handler(handlers['systemUpdateTrustRootCreate'], null, null)
+    ),
+    http.get(
+      '/v1/system/update/trust-roots/:trustRootId',
+      handler(
+        handlers['systemUpdateTrustRootView'],
+        schema.SystemUpdateTrustRootViewParams,
+        null
+      )
+    ),
+    http.delete(
+      '/v1/system/update/trust-roots/:trustRootId',
+      handler(
+        handlers['systemUpdateTrustRootDelete'],
+        schema.SystemUpdateTrustRootDeleteParams,
+        null
+      )
     ),
     http.get(
       '/v1/system/users',
