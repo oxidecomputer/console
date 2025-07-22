@@ -265,7 +265,7 @@ export const Combobox = ({
                     // of those rules one by one. Better to rely on the shared classes.
                     <div
                       className={cn('ox-menu-item', {
-                        'is-selected': selected && query !== item.value,
+                        'is-selected': selected,
                         'is-highlighted': focus,
                       })}
                     >
