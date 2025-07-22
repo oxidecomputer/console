@@ -41,6 +41,7 @@ test('path builder', () => {
   expect(Object.fromEntries(Object.entries(pb).map(([key, fn]) => [key, fn(params)])))
     .toMatchInlineSnapshot(`
       {
+        "accessTokens": "/settings/access-tokens",
         "affinity": "/projects/p/affinity",
         "affinityNew": "/projects/p/affinity-new",
         "antiAffinityGroup": "/projects/p/affinity/aag",

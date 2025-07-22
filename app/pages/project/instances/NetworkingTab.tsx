@@ -39,6 +39,7 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
+import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -50,6 +51,7 @@ import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
+import { Tooltip } from '~/ui/lib/Tooltip'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
@@ -85,27 +87,35 @@ const SubnetNameFromId = ({ value }: { value: string }) => {
   return <span className="text-default">{subnet.name}</span>
 }
 
+const EphemeralIPEmptyCell = () => (
+  <Tooltip content="Ephemeral IPs don’t have names or descriptions" placement="top">
+    <div>
+      <EmptyCell />
+    </div>
+  </Tooltip>
+)
+
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('instanceNetworkInterfaceList', {
+    apiQueryClient.fetchQuery('instanceNetworkInterfaceList', {
       // we want this to cover all NICs; TODO: determine actual limit?
       query: { project, instance, limit: ALL_ISH },
     }),
-    apiQueryClient.prefetchQuery('floatingIpList', { query: { project, limit: ALL_ISH } }),
+    apiQueryClient.fetchQuery('floatingIpList', { query: { project, limit: ALL_ISH } }),
     // dupe of page-level fetch but that's fine, RQ dedupes
-    apiQueryClient.prefetchQuery('instanceExternalIpList', {
+    apiQueryClient.fetchQuery('instanceExternalIpList', {
       path: { instance },
       query: { project },
     }),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
-    apiQueryClient.prefetchQuery('instanceView', {
+    apiQueryClient.fetchQuery('instanceView', {
       path: { instance },
       query: { project },
     }),
     // This is used in AttachEphemeralIpModal
-    apiQueryClient.prefetchQuery('projectIpPoolList', { query: { limit: ALL_ISH } }),
+    apiQueryClient.fetchQuery('projectIpPoolList', { query: { limit: ALL_ISH } }),
   ])
   return null
 }
@@ -170,12 +180,22 @@ const staticIpCols = [
     ),
     cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
   }),
+  ipColHelper.accessor('ipPoolId', {
+    header: 'IP pool',
+    cell: (info) => <IpPoolCell ipPoolId={info.getValue()} />,
+  }),
   ipColHelper.accessor('name', {
-    cell: (info) => (info.getValue() ? info.getValue() : <EmptyCell />),
+    cell: (info) =>
+      info.row.original.kind === 'ephemeral' ? <EphemeralIPEmptyCell /> : info.getValue(),
   }),
   ipColHelper.accessor((row) => ('description' in row ? row.description : undefined), {
     header: 'description',
-    cell: (info) => <DescriptionCell text={info.getValue()} />,
+    cell: (info) =>
+      info.row.original.kind === 'ephemeral' ? (
+        <EphemeralIPEmptyCell />
+      ) : (
+        <DescriptionCell text={info.getValue()} />
+      ),
   }),
 ]
 

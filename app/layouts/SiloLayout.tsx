@@ -36,7 +36,7 @@ export default function SiloLayout() {
           { value: 'Projects', path: pb.projects() },
           { value: 'Images', path: pb.siloImages() },
           { value: 'Utilization', path: pb.siloUtilization() },
-          { value: 'Access', path: pb.siloAccess() },
+          { value: 'Silo Access', path: pb.siloAccess() },
         ]
           // filter out the entry for the path we're currently on
           .filter((i) => i.path !== pathname)
@@ -68,7 +68,7 @@ export default function SiloLayout() {
             <Metrics16Icon /> Utilization
           </NavLinkItem>
           <NavLinkItem to={pb.siloAccess()}>
-            <Access16Icon /> Access
+            <Access16Icon /> Silo Access
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
