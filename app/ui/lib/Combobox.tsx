@@ -15,6 +15,7 @@ import {
 } from '@headlessui/react'
 import { matchSorter } from 'match-sorter'
 import {
+  memo,
   useCallback,
   useEffect,
   useId,
@@ -23,6 +24,7 @@ import {
   type ReactNode,
   type Ref,
 } from 'react'
+import { useDebounce } from 'use-debounce'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
@@ -31,6 +33,23 @@ import { usePopoverZIndex } from './SideModal'
 import { TextInputHint } from './TextInput'
 
 export type ComboboxItem = { value: string; label: ReactNode; selectedLabel: string }
+
+// Memoized component for individual options - only re-renders when focus/selected actually changes for THIS item
+const MemoizedComboboxOptionContent = memo(function ComboboxOptionContent({
+  item,
+  focus,
+  selected,
+}: {
+  item: ComboboxItem
+  focus: boolean
+  selected: boolean
+}) {
+  return (
+    <div className="ox-menu-item" data-selected={selected} data-highlighted={focus}>
+      {item.label}
+    </div>
+  )
+})
 
 /** Convert an array of items with a `name` attribute to an array of ComboboxItems
  *  Useful when the rendered label and value are the same; in more complex cases,
@@ -43,10 +62,23 @@ export const toComboboxItems = (items?: Array<{ name: string }>): Array<Combobox
     selectedLabel: name,
   })) || []
 
+// Create a cached lookup map for O(1) selectedLabel lookups
+const labelLookupCache = new WeakMap<Array<ComboboxItem>, Map<string, string>>()
+
 export const getSelectedLabelFromValue = (
   items: Array<ComboboxItem>,
   selectedValue: string
-): string => items.find((item) => item.value === selectedValue)?.selectedLabel || ''
+): string => {
+  if (!labelLookupCache.has(items)) {
+    // Create lookup map for this items array
+    const lookupMap = new Map<string, string>()
+    items.forEach((item) => lookupMap.set(item.value, item.selectedLabel))
+    labelLookupCache.set(items, lookupMap)
+  }
+
+  const lookupMap = labelLookupCache.get(items)!
+  return lookupMap.get(selectedValue) || ''
+}
 
 /** Simple non-generic props shared with ComboboxField */
 export type ComboboxBaseProps = {
@@ -111,8 +143,14 @@ export const Combobox = ({
     selectedItemValue ? (allowArbitraryValues ? selectedItemValue : selectedItemLabel) : ''
   )
 
+  // Debounce the query for filtering to reduce expensive operations while typing
+  const [debouncedQuery] = useDebounce(query, 150)
+
   // Memoize query processing to avoid recalculation on every render
-  const normalizedQuery = useMemo(() => query.toLowerCase().replace(/\s*/g, ''), [query])
+  const normalizedQuery = useMemo(
+    () => debouncedQuery.toLowerCase().replace(/\s*/g, ''),
+    [debouncedQuery]
+  )
 
   // Memoize filtered items to avoid re-filtering on every render
   const filteredItems = useMemo(() => {
@@ -123,28 +161,32 @@ export const Combobox = ({
   }, [items, normalizedQuery])
 
   // Memoize custom arbitrary value label to avoid recreation on every render
+  // Use immediate query (not debounced) so custom option appears immediately
   const customValueItem = useMemo(() => {
     if (
-      allowArbitraryValues &&
-      query.length > 0 &&
-      !filteredItems.some((i) => i.selectedLabel === query)
+      !allowArbitraryValues ||
+      query.length === 0 ||
+      filteredItems.some((i) => i.selectedLabel === query)
     ) {
-      return {
-        value: query,
-        label: (
-          <>
-            <span className="text-default">Custom:</span> {query}
-          </>
-        ),
-        selectedLabel: query,
-      }
+      return null
     }
-    return null
+    return {
+      value: query,
+      label: (
+        <>
+          <span className="text-default">Custom:</span> {query}
+        </>
+      ),
+      selectedLabel: query,
+    }
   }, [allowArbitraryValues, query, filteredItems])
 
   // Final items list with custom value if applicable
   const finalFilteredItems = useMemo(() => {
-    return customValueItem ? [...filteredItems, customValueItem] : filteredItems
+    const itemsWithCustomValue = customValueItem
+      ? [...filteredItems, customValueItem]
+      : filteredItems
+    return itemsWithCustomValue
   }, [filteredItems, customValueItem])
 
   // In the arbitraryValues case, clear the query whenever the value is cleared.
@@ -244,18 +286,20 @@ export const Combobox = ({
     return selectedItemValue
       ? allowArbitraryValues
         ? selectedItemValue
-        : selectedItemLabel
-      : query
+        : selectedItemLabel || ''
+      : query || ''
   }, [selectedItemValue, allowArbitraryValues, selectedItemLabel, query])
 
   return (
     <HCombobox
       // necessary, as the displayed "value" is not the same as the actual selected item's *value*
-      value={selectedItemValue}
+      value={selectedItemValue || ''}
       onChange={handleChange}
       onClose={onCloseHandler}
       disabled={disabled || isLoading}
       immediate
+      // Virtual scrolling requires string[] for options, but we have complex objects
+      // The current performance optimizations (memoization, callbacks, CSS) should handle 1000+ items well
       {...props}
     >
       {({ open }) => (
@@ -311,15 +355,11 @@ export const Combobox = ({
                   className="relative border-b border-secondary last:border-0"
                 >
                   {({ focus, selected }) => (
-                    // This *could* be done with data-[focus] and data-[selected] instead, but
-                    // it would be a lot more verbose. those can only be used with TW classes,
-                    // not our .is-selected and .is-highlighted, so we'd have to copy the pieces
-                    // of those rules one by one. Better to rely on the shared classes.
-                    <div
-                      className={`ox-menu-item ${selected ? 'is-selected' : ''} ${focus ? 'is-highlighted' : ''}`}
-                    >
-                      {item.label}
-                    </div>
+                    <MemoizedComboboxOptionContent
+                      item={item}
+                      focus={focus}
+                      selected={selected}
+                    />
                   )}
                 </ComboboxOption>
               ))}

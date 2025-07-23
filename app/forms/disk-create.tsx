@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { filesize } from 'filesize'
+import { useMemo } from 'react'
 import { useController, useForm, type Control } from 'react-hook-form'
 
 import {
@@ -84,52 +85,66 @@ export function CreateDiskSideModalForm({
   const projectImages = useApiQuery('imageList', { query: { project } })
   const siloImages = useApiQuery('imageList', {})
 
+  // Memoize real images array to prevent recreation on every render
   // put project images first because if there are any, there probably aren't
   // very many and they're probably relevant
-  const realImages = [
-    ...(projectImages.data?.items || []),
-    ...(siloImages.data?.items || []),
-  ]
+  const realImages = useMemo(
+    () => [...(projectImages.data?.items || []), ...(siloImages.data?.items || [])],
+    [projectImages.data?.items, siloImages.data?.items]
+  )
 
-  // TODO: REMOVE THIS AFTER STRESS TESTING IS DONE
-  // Generate 1000 mock items for stress testing
-  const mockImages: Image[] = Array.from({ length: 1000 }, (_, i) => ({
-    id: `mock-image-${i}`,
-    name: `Mock Image ${i.toString().padStart(4, '0')}`,
-    size: 1073741824, // 1GB
-    version: '1.0.0',
-    description: `This is mock image ${i} for stress testing the combobox`,
-    digest: {
-      type: 'sha256',
-      value: '0'.repeat(64),
-    },
-    blockSize: 512,
-    timeCreated: new Date(),
-    timeModified: new Date(),
-    os: 'linux',
-  }))
+  // Memoize mock images array (only create once)
+  const mockImages = useMemo((): Image[] => {
+    // TODO: REMOVE THIS AFTER STRESS TESTING IS DONE
+    // Generate 1000 mock items for stress testing
+    return Array.from({ length: 1000 }, (_, i) => ({
+      id: `mock-image-${i}`,
+      name: `Mock Image ${i.toString().padStart(4, '0')}`,
+      size: 1073741824, // 1GB
+      version: '1.0.0',
+      description: `This is mock image ${i} for stress testing the combobox`,
+      digest: {
+        type: 'sha256',
+        value: '0'.repeat(64),
+      },
+      blockSize: 512,
+      timeCreated: new Date(),
+      timeModified: new Date(),
+      os: 'linux',
+    }))
+  }, [])
 
-  const images = [...realImages, ...mockImages]
+  // Memoize combined images array
+  const images = useMemo(() => [...realImages, ...mockImages], [realImages, mockImages])
   const areImagesLoading = projectImages.isPending || siloImages.isPending
 
   const snapshotsQuery = useApiQuery('snapshotList', { query: { project } })
-  const snapshots = snapshotsQuery.data?.items || []
+  const snapshots = useMemo(
+    () => snapshotsQuery.data?.items || [],
+    [snapshotsQuery.data?.items]
+  )
 
-  // validate disk source size
-  const diskSource = form.watch('diskSource').type
+  // Use useController for targeted watching instead of form.watch() to reduce re-renders
+  const diskSourceController = useController({ control: form.control, name: 'diskSource' })
+  const diskSource = diskSourceController.field.value.type
 
-  let validateSizeGiB: number | undefined = undefined
-  if (diskSource === 'snapshot') {
-    const selectedSnapshotId = form.watch('diskSource.snapshotId')
-    const selectedSnapshotSize = snapshots.find(
-      (snapshot) => snapshot.id === selectedSnapshotId
-    )?.size
-    validateSizeGiB = selectedSnapshotSize ? bytesToGiB(selectedSnapshotSize) : undefined
-  } else if (diskSource === 'image') {
-    const selectedImageId = form.watch('diskSource.imageId')
-    const selectedImageSize = images.find((image) => image.id === selectedImageId)?.size
-    validateSizeGiB = selectedImageSize ? bytesToGiB(selectedImageSize) : undefined
-  }
+  // Memoize size validation to avoid expensive lookups on every render
+  const validateSizeGiB = useMemo(() => {
+    if (diskSource === 'snapshot') {
+      const selectedSnapshotId = diskSourceController.field.value.snapshotId
+      if (!selectedSnapshotId) return undefined
+      const selectedSnapshotSize = snapshots.find(
+        (snapshot) => snapshot.id === selectedSnapshotId
+      )?.size
+      return selectedSnapshotSize ? bytesToGiB(selectedSnapshotSize) : undefined
+    } else if (diskSource === 'image') {
+      const selectedImageId = diskSourceController.field.value.imageId
+      if (!selectedImageId) return undefined
+      const selectedImageSize = images.find((image) => image.id === selectedImageId)?.size
+      return selectedImageSize ? bytesToGiB(selectedImageSize) : undefined
+    }
+    return undefined
+  }, [diskSource, diskSourceController.field.value, snapshots, images])
 
   return (
     <SideModalForm
@@ -191,6 +206,12 @@ const DiskSourceField = ({
   } = useController({ control, name: 'diskSource' })
   const diskSizeField = useController({ control, name: 'size' }).field
 
+  // Memoize the expensive toImageComboboxItem mapping to avoid recalculating on every render
+  const imageComboboxItems = useMemo(
+    () => images.map((i) => toImageComboboxItem(i, true)),
+    [images]
+  )
+
   return (
     <>
       <div className="max-w-lg space-y-2">
@@ -235,10 +256,11 @@ const DiskSourceField = ({
             label="Source image"
             placeholder="Select an image"
             isLoading={areImagesLoading}
-            items={images.map((i) => toImageComboboxItem(i, true))}
+            items={imageComboboxItems}
             required
             onChange={(id) => {
-              const image = images.find((i) => i.id === id)! // if it's selected, it must be present
+              const image = images.find((i) => i.id === id)
+              if (!image) return
               const imageSizeGiB = image.size / GiB
               if (diskSizeField.value < imageSizeGiB) {
                 diskSizeField.onChange(diskSizeNearest10(imageSizeGiB))
@@ -269,16 +291,16 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
   const { project } = useProjectSelector()
   const snapshotsQuery = useApiQuery('snapshotList', { query: { project } })
 
-  const snapshots = snapshotsQuery.data?.items || []
+  const snapshots = useMemo(
+    () => snapshotsQuery.data?.items || [],
+    [snapshotsQuery.data?.items]
+  )
   const diskSizeField = useController({ control, name: 'size' }).field
 
-  return (
-    <ComboboxField
-      control={control}
-      name="diskSource.snapshotId"
-      label="Source snapshot"
-      placeholder="Select a snapshot"
-      items={snapshots.map((i) => {
+  // Memoize the expensive snapshot ComboboxItem mapping to avoid recalculating on every render
+  const snapshotComboboxItems = useMemo(
+    () =>
+      snapshots.map((i) => {
         const formattedSize = filesize(i.size, { base: 2, output: 'object' })
         return {
           value: i.id,
@@ -294,7 +316,17 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
             </>
           ),
         }
-      })}
+      }),
+    [snapshots]
+  )
+
+  return (
+    <ComboboxField
+      control={control}
+      name="diskSource.snapshotId"
+      label="Source snapshot"
+      placeholder="Select a snapshot"
+      items={snapshotComboboxItems}
       isLoading={snapshotsQuery.isPending}
       required
       onChange={(id) => {

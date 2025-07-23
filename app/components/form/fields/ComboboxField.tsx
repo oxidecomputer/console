@@ -110,7 +110,7 @@ export function ComboboxField<
         description={memoizedDescription}
         items={items}
         required={required}
-        selectedItemValue={field.value}
+        selectedItemValue={field.value || ''}
         selectedItemLabel={selectedItemLabel}
         hasError={fieldState.error !== undefined}
         onChange={handleChange}
