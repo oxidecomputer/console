@@ -41,6 +41,7 @@ import {
   lookup,
   lookupById,
   notFoundErr,
+  resolveIpPool,
   utilizationForSilo,
 } from './db'
 import {
@@ -477,7 +478,8 @@ export const handlers = makeHandlers({
         // if there are no ranges in the pool or if the pool doesn't exist,
         // which aren't quite as good as checking that there are actually IPs
         // available, but they are good things to check
-        getIpFromPool(ip.pool)
+        const pool = resolveIpPool(ip.pool)
+        getIpFromPool(pool)
       }
     })
 
@@ -563,11 +565,14 @@ export const handlers = makeHandlers({
         // we've already validated that the IP isn't attached
         floatingIp.instance_id = instanceId
       } else if (ip.type === 'ephemeral') {
-        const firstAvailableAddress = getIpFromPool(ip.pool)
+        const pool = resolveIpPool(ip.pool)
+        const firstAvailableAddress = getIpFromPool(pool)
+
         db.ephemeralIps.push({
           instance_id: instanceId,
           external_ip: {
             ip: firstAvailableAddress,
+            ip_pool_id: pool.id,
             kind: 'ephemeral',
           },
         })
@@ -736,12 +741,10 @@ export const handlers = makeHandlers({
   },
   instanceEphemeralIpAttach({ path, query: projectParams, body }) {
     const instance = lookup.instance({ ...path, ...projectParams })
-    const { pool } = body
-    const firstAvailableAddress = getIpFromPool(pool)
-    const externalIp = {
-      ip: firstAvailableAddress,
-      kind: 'ephemeral' as const,
-    }
+    const pool = resolveIpPool(body.pool)
+    const ip = getIpFromPool(pool)
+
+    const externalIp = { ip, ip_pool_id: pool.id, kind: 'ephemeral' as const }
     db.ephemeralIps.push({
       instance_id: instance.id,
       external_ip: externalIp,
@@ -1804,12 +1807,14 @@ export const handlers = makeHandlers({
 
     if (query.startTime) {
       filteredLogs = filteredLogs.filter(
-        (log) => new Date(log.timestamp) >= query.startTime!
+        (log) => new Date(log.time_completed) >= query.startTime!
       )
     }
 
     if (query.endTime) {
-      filteredLogs = filteredLogs.filter((log) => new Date(log.timestamp) <= query.endTime!)
+      filteredLogs = filteredLogs.filter(
+        (log) => new Date(log.time_completed) < query.endTime!
+      )
     }
 
     return paginated(query, filteredLogs)
@@ -1872,11 +1877,11 @@ export const handlers = makeHandlers({
   networkingBgpImportedRoutesIpv4: NotImplemented,
   networkingBgpMessageHistory: NotImplemented,
   networkingBgpStatus: NotImplemented,
+  networkingInboundIcmpUpdate: NotImplemented,
+  networkingInboundIcmpView: NotImplemented,
   networkingLoopbackAddressCreate: NotImplemented,
   networkingLoopbackAddressDelete: NotImplemented,
   networkingLoopbackAddressList: NotImplemented,
-  networkingInboundIcmpView: NotImplemented,
-  networkingInboundIcmpUpdate: NotImplemented,
   networkingSwitchPortApplySettings: NotImplemented,
   networkingSwitchPortClearSettings: NotImplemented,
   networkingSwitchPortList: NotImplemented,
@@ -1894,8 +1899,6 @@ export const handlers = makeHandlers({
   probeList: NotImplemented,
   probeView: NotImplemented,
   rackView: NotImplemented,
-  roleList: NotImplemented,
-  roleView: NotImplemented,
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
   siloUserList: NotImplemented,
@@ -1911,6 +1914,7 @@ export const handlers = makeHandlers({
   supportBundleHeadFile: NotImplemented,
   supportBundleIndex: NotImplemented,
   supportBundleList: NotImplemented,
+  supportBundleUpdate: NotImplemented,
   supportBundleView: NotImplemented,
   switchView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
@@ -1918,10 +1922,18 @@ export const handlers = makeHandlers({
   systemTimeseriesSchemaList: NotImplemented,
   systemUpdateGetRepository: NotImplemented,
   systemUpdatePutRepository: NotImplemented,
+  systemUpdateTrustRootCreate: NotImplemented,
+  systemUpdateTrustRootDelete: NotImplemented,
+  systemUpdateTrustRootList: NotImplemented,
+  systemUpdateTrustRootView: NotImplemented,
   targetReleaseUpdate: NotImplemented,
   targetReleaseView: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
+  userLogout: NotImplemented,
+  userSessionList: NotImplemented,
+  userTokenList: NotImplemented,
+  userView: NotImplemented,
   webhookReceiverCreate: NotImplemented,
   webhookReceiverUpdate: NotImplemented,
   webhookSecretsAdd: NotImplemented,

@@ -625,15 +625,18 @@ export type ArtifactId = {
   version: string
 }
 
+export type AuditLogEntryActor =
+  | { kind: 'user_builtin'; userBuiltinId: string }
+  | { kind: 'silo_user'; siloId: string; siloUserId: string }
+  | { kind: 'unauthenticated' }
+
 /**
  * Audit log entry
  */
 export type AuditLogEntry = {
-  /** API token or session cookie. Optional because it will not be defined on unauthenticated requests like login attempts. */
+  /** Indicates whether request was made with an API token or session cookie. Optional because it will not be defined on unauthenticated requests like login attempts. */
   accessMethod?: string | null
-  /** User ID of the actor who performed the action */
-  actorId?: string | null
-  actorSiloId?: string | null
+  actor: AuditLogEntryActor
   /** Error information if the action failed */
   errorCode?: string | null
   errorMessage?: string | null
@@ -647,14 +650,14 @@ export type AuditLogEntry = {
   requestId: string
   /** Full URL of the request */
   requestUri: string
-  /** Resource identifier */
-  resourceId?: string | null
   /** IP address that made the request */
   sourceIp: string
   /** Time operation completed */
   timeCompleted: Date
   /** When the request was received */
-  timestamp: Date
+  timeStarted: Date
+  /** User agent string from the request */
+  userAgent?: string | null
 }
 
 /**
@@ -1242,6 +1245,26 @@ export type CertificateCreate = {
 export type CertificateResultsPage = {
   /** list of items on this page of results */
   items: Certificate[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
+ * View of a console session
+ */
+export type ConsoleSession = {
+  /** A unique, immutable, system-controlled identifier for the session */
+  id: string
+  timeCreated: Date
+  timeLastUsed: Date
+}
+
+/**
+ * A single page of results
+ */
+export type ConsoleSessionResultsPage = {
+  /** list of items on this page of results */
+  items: ConsoleSession[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
@@ -1871,7 +1894,7 @@ export type EphemeralIpCreate = {
 }
 
 export type ExternalIp =
-  | { ip: string; kind: 'ephemeral' }
+  | { ip: string; ipPoolId: string; kind: 'ephemeral' }
   /** A Floating IP is a well-known IP address which can be attached and detached from instances. */
   | {
       /** human-readable free-form text about a resource */
@@ -3236,28 +3259,6 @@ export type RackResultsPage = {
 }
 
 /**
- * A name for a built-in role
- *
- * Role names consist of two string components separated by dot (".").
- */
-export type RoleName = string
-
-/**
- * View of a Role
- */
-export type Role = { description: string; name: RoleName }
-
-/**
- * A single page of results
- */
-export type RoleResultsPage = {
-  /** list of items on this page of results */
-  items: Role[]
-  /** token used to fetch the next page of results (if any) */
-  nextPage?: string | null
-}
-
-/**
  * A route to a destination network through a gateway address.
  */
 export type Route = {
@@ -3265,7 +3266,7 @@ export type Route = {
   dst: IpNet
   /** The route gateway. */
   gw: string
-  /** Local preference for route. Higher preference indictes precedence within and across protocols. */
+  /** Route RIB priority. Higher priority indicates precedence within and across protocols. */
   ribPriority?: number | null
   /** VLAN id the gateway is reachable over. */
   vid?: number | null
@@ -3893,6 +3894,11 @@ export type SshKeyResultsPage = {
   nextPage?: string | null
 }
 
+export type SupportBundleCreate = {
+  /** User comment for the support bundle */
+  userComment?: string | null
+}
+
 export type TypedUuidForSupportBundleKind = string
 
 export type SupportBundleState =
@@ -3922,6 +3928,7 @@ export type SupportBundleInfo = {
   reasonForFailure?: string | null
   state: SupportBundleState
   timeCreated: Date
+  userComment?: string | null
 }
 
 /**
@@ -3932,6 +3939,11 @@ export type SupportBundleInfoResultsPage = {
   items: SupportBundleInfo[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
+}
+
+export type SupportBundleUpdate = {
+  /** User comment for the support bundle */
+  userComment?: string | null
 }
 
 /**
@@ -4155,7 +4167,7 @@ export type SwitchPortRouteConfig = {
   interfaceName: Name
   /** The port settings object this route configuration belongs to. */
   portSettingsId: string
-  /** RIB Priority indicating priority within and across protocols. */
+  /** Route RIB priority. Higher priority indicates precedence within and across protocols. */
   ribPriority?: number | null
   /** The VLAN identifier for the route. Use this if the gateway is reachable over an 802.1Q tagged L2 segment. */
   vlanId?: number | null
@@ -4447,6 +4459,28 @@ export type UninitializedSledId = { part: string; serial: string }
 export type UninitializedSledResultsPage = {
   /** list of items on this page of results */
   items: UninitializedSled[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
+ * Trusted root role used by the update system to verify update repositories.
+ */
+export type UpdatesTrustRoot = {
+  /** The UUID of this trusted root role. */
+  id: string
+  /** The trusted root role itself, a JSON document as described by The Update Framework. */
+  rootRole: Record<string, unknown>
+  /** Time the trusted root role was added. */
+  timeCreated: Date
+}
+
+/**
+ * A single page of results
+ */
+export type UpdatesTrustRootResultsPage = {
+  /** list of items on this page of results */
+  items: UpdatesTrustRoot[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
@@ -4893,21 +4927,14 @@ export type NameOrIdSortMode =
   | 'id_ascending'
 
 /**
- * Supported set of sort modes for scanning by id only.
- *
- * Currently, we only support scanning in ascending order.
- */
-export type IdSortMode = 'id_ascending'
-
-/**
  * Supported set of sort modes for scanning by timestamp and ID
  */
 export type TimeAndIdSortMode =
   /** sort in increasing order of timestamp and ID, i.e., earliest first */
-  | 'ascending'
+  | 'time_and_id_ascending'
 
   /** sort in increasing order of timestamp and ID, i.e., most recent first */
-  | 'descending'
+  | 'time_and_id_descending'
 
 export type DiskMetricName =
   | 'activated'
@@ -4921,6 +4948,13 @@ export type DiskMetricName =
  * The order in which the client wants to page through the requested collection
  */
 export type PaginationOrder = 'ascending' | 'descending'
+
+/**
+ * Supported set of sort modes for scanning by id only.
+ *
+ * Currently, we only support scanning in ascending order.
+ */
+export type IdSortMode = 'id_ascending'
 
 export type SystemMetricName =
   | 'virtual_disk_space_provisioned'
@@ -4964,10 +4998,14 @@ export interface ProbeDeleteQueryParams {
 export interface SupportBundleListQueryParams {
   limit?: number | null
   pageToken?: string | null
-  sortBy?: IdSortMode
+  sortBy?: TimeAndIdSortMode
 }
 
 export interface SupportBundleViewPathParams {
+  bundleId: string
+}
+
+export interface SupportBundleUpdatePathParams {
   bundleId: string
 }
 
@@ -6135,15 +6173,6 @@ export interface NetworkingSwitchPortSettingsViewPathParams {
   port: NameOrId
 }
 
-export interface RoleListQueryParams {
-  limit?: number | null
-  pageToken?: string | null
-}
-
-export interface RoleViewPathParams {
-  roleName: string
-}
-
 export interface SystemQuotasListQueryParams {
   limit?: number | null
   pageToken?: string | null
@@ -6203,6 +6232,20 @@ export interface SystemUpdateGetRepositoryPathParams {
   systemVersion: string
 }
 
+export interface SystemUpdateTrustRootListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: IdSortMode
+}
+
+export interface SystemUpdateTrustRootViewPathParams {
+  trustRootId: string
+}
+
+export interface SystemUpdateTrustRootDeletePathParams {
+  trustRootId: string
+}
+
 export interface SiloUserListQueryParams {
   limit?: number | null
   pageToken?: string | null
@@ -6244,6 +6287,34 @@ export interface TimeseriesQueryQueryParams {
 
 export interface UserListQueryParams {
   group?: string | null
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: IdSortMode
+}
+
+export interface UserViewPathParams {
+  userId: string
+}
+
+export interface UserTokenListPathParams {
+  userId: string
+}
+
+export interface UserTokenListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: IdSortMode
+}
+
+export interface UserLogoutPathParams {
+  userId: string
+}
+
+export interface UserSessionListPathParams {
+  userId: string
+}
+
+export interface UserSessionListQueryParams {
   limit?: number | null
   pageToken?: string | null
   sortBy?: IdSortMode
@@ -6555,10 +6626,14 @@ export class Api extends HttpClient {
     /**
      * Create a new support bundle
      */
-    supportBundleCreate: (_: EmptyObj, params: FetchParams = {}) => {
+    supportBundleCreate: (
+      { body }: { body: SupportBundleCreate },
+      params: FetchParams = {}
+    ) => {
       return this.request<SupportBundleInfo>({
         path: `/experimental/v1/system/support-bundles`,
         method: 'POST',
+        body,
         ...params,
       })
     },
@@ -6572,6 +6647,20 @@ export class Api extends HttpClient {
       return this.request<SupportBundleInfo>({
         path: `/experimental/v1/system/support-bundles/${path.bundleId}`,
         method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Update a support bundle
+     */
+    supportBundleUpdate: (
+      { path, body }: { path: SupportBundleUpdatePathParams; body: SupportBundleUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SupportBundleInfo>({
+        path: `/experimental/v1/system/support-bundles/${path.bundleId}`,
+        method: 'PUT',
+        body,
         ...params,
       })
     },
@@ -9674,30 +9763,6 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List built-in roles
-     */
-    roleList: (
-      { query = {} }: { query?: RoleListQueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<RoleResultsPage>({
-        path: `/v1/system/roles`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Fetch built-in role
-     */
-    roleView: ({ path }: { path: RoleViewPathParams }, params: FetchParams = {}) => {
-      return this.request<Role>({
-        path: `/v1/system/roles/${path.roleName}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
      * Lists resource quotas for all silos
      */
     systemQuotasList: (
@@ -9856,7 +9921,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Upload TUF repository
+     * Upload system release repository
      */
     systemUpdatePutRepository: (
       { query }: { query: SystemUpdatePutRepositoryQueryParams },
@@ -9870,7 +9935,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch TUF repository description
+     * Fetch system release repository description by version
      */
     systemUpdateGetRepository: (
       { path }: { path: SystemUpdateGetRepositoryPathParams },
@@ -9903,6 +9968,56 @@ export class Api extends HttpClient {
         path: `/v1/system/update/target-release`,
         method: 'PUT',
         body,
+        ...params,
+      })
+    },
+    /**
+     * List root roles in the updates trust store
+     */
+    systemUpdateTrustRootList: (
+      { query = {} }: { query?: SystemUpdateTrustRootListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<UpdatesTrustRootResultsPage>({
+        path: `/v1/system/update/trust-roots`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Add trusted root role to updates trust store
+     */
+    systemUpdateTrustRootCreate: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<UpdatesTrustRoot>({
+        path: `/v1/system/update/trust-roots`,
+        method: 'POST',
+        ...params,
+      })
+    },
+    /**
+     * Fetch trusted root role
+     */
+    systemUpdateTrustRootView: (
+      { path }: { path: SystemUpdateTrustRootViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<UpdatesTrustRoot>({
+        path: `/v1/system/update/trust-roots/${path.trustRootId}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Delete trusted root role
+     */
+    systemUpdateTrustRootDelete: (
+      { path }: { path: SystemUpdateTrustRootDeletePathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/update/trust-roots/${path.trustRootId}`,
+        method: 'DELETE',
         ...params,
       })
     },
@@ -10012,6 +10127,60 @@ export class Api extends HttpClient {
     ) => {
       return this.request<UserResultsPage>({
         path: `/v1/users`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch user
+     */
+    userView: ({ path }: { path: UserViewPathParams }, params: FetchParams = {}) => {
+      return this.request<User>({
+        path: `/v1/users/${path.userId}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * List user's access tokens
+     */
+    userTokenList: (
+      {
+        path,
+        query = {},
+      }: { path: UserTokenListPathParams; query?: UserTokenListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<DeviceAccessTokenResultsPage>({
+        path: `/v1/users/${path.userId}/access-tokens`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Log user out
+     */
+    userLogout: ({ path }: { path: UserLogoutPathParams }, params: FetchParams = {}) => {
+      return this.request<void>({
+        path: `/v1/users/${path.userId}/logout`,
+        method: 'POST',
+        ...params,
+      })
+    },
+    /**
+     * List user's console sessions
+     */
+    userSessionList: (
+      {
+        path,
+        query = {},
+      }: { path: UserSessionListPathParams; query?: UserSessionListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ConsoleSessionResultsPage>({
+        path: `/v1/users/${path.userId}/sessions`,
         method: 'GET',
         query,
         ...params,

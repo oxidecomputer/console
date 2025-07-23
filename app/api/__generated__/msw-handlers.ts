@@ -96,12 +96,20 @@ export interface MSWHandlers {
   }) => Promisable<HandlerResult<Api.SupportBundleInfoResultsPage>>
   /** `POST /experimental/v1/system/support-bundles` */
   supportBundleCreate: (params: {
+    body: Json<Api.SupportBundleCreate>
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.SupportBundleInfo>>
   /** `GET /experimental/v1/system/support-bundles/:bundleId` */
   supportBundleView: (params: {
     path: Api.SupportBundleViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SupportBundleInfo>>
+  /** `PUT /experimental/v1/system/support-bundles/:bundleId` */
+  supportBundleUpdate: (params: {
+    path: Api.SupportBundleUpdatePathParams
+    body: Json<Api.SupportBundleUpdate>
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.SupportBundleInfo>>
@@ -1411,18 +1419,6 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.FleetRolePolicy>>
-  /** `GET /v1/system/roles` */
-  roleList: (params: {
-    query: Api.RoleListQueryParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.RoleResultsPage>>
-  /** `GET /v1/system/roles/:roleName` */
-  roleView: (params: {
-    path: Api.RoleViewPathParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.Role>>
   /** `GET /v1/system/silo-quotas` */
   systemQuotasList: (params: {
     query: Api.SystemQuotasListQueryParams
@@ -1521,6 +1517,29 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.TargetRelease>>
+  /** `GET /v1/system/update/trust-roots` */
+  systemUpdateTrustRootList: (params: {
+    query: Api.SystemUpdateTrustRootListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.UpdatesTrustRootResultsPage>>
+  /** `POST /v1/system/update/trust-roots` */
+  systemUpdateTrustRootCreate: (params: {
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.UpdatesTrustRoot>>
+  /** `GET /v1/system/update/trust-roots/:trustRootId` */
+  systemUpdateTrustRootView: (params: {
+    path: Api.SystemUpdateTrustRootViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.UpdatesTrustRoot>>
+  /** `DELETE /v1/system/update/trust-roots/:trustRootId` */
+  systemUpdateTrustRootDelete: (params: {
+    path: Api.SystemUpdateTrustRootDeletePathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `GET /v1/system/users` */
   siloUserList: (params: {
     query: Api.SiloUserListQueryParams
@@ -1571,6 +1590,32 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.UserResultsPage>>
+  /** `GET /v1/users/:userId` */
+  userView: (params: {
+    path: Api.UserViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.User>>
+  /** `GET /v1/users/:userId/access-tokens` */
+  userTokenList: (params: {
+    path: Api.UserTokenListPathParams
+    query: Api.UserTokenListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.DeviceAccessTokenResultsPage>>
+  /** `POST /v1/users/:userId/logout` */
+  userLogout: (params: {
+    path: Api.UserLogoutPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/users/:userId/sessions` */
+  userSessionList: (params: {
+    path: Api.UserSessionListPathParams
+    query: Api.UserSessionListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ConsoleSessionResultsPage>>
   /** `GET /v1/utilization` */
   utilizationView: (params: {
     req: Request
@@ -1901,11 +1946,19 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     ),
     http.post(
       '/experimental/v1/system/support-bundles',
-      handler(handlers['supportBundleCreate'], null, null)
+      handler(handlers['supportBundleCreate'], null, schema.SupportBundleCreate)
     ),
     http.get(
       '/experimental/v1/system/support-bundles/:bundleId',
       handler(handlers['supportBundleView'], schema.SupportBundleViewParams, null)
+    ),
+    http.put(
+      '/experimental/v1/system/support-bundles/:bundleId',
+      handler(
+        handlers['supportBundleUpdate'],
+        schema.SupportBundleUpdateParams,
+        schema.SupportBundleUpdate
+      )
     ),
     http.delete(
       '/experimental/v1/system/support-bundles/:bundleId',
@@ -3011,14 +3064,6 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['systemPolicyUpdate'], null, schema.FleetRolePolicy)
     ),
     http.get(
-      '/v1/system/roles',
-      handler(handlers['roleList'], schema.RoleListParams, null)
-    ),
-    http.get(
-      '/v1/system/roles/:roleName',
-      handler(handlers['roleView'], schema.RoleViewParams, null)
-    ),
-    http.get(
       '/v1/system/silo-quotas',
       handler(handlers['systemQuotasList'], schema.SystemQuotasListParams, null)
     ),
@@ -3100,6 +3145,34 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['targetReleaseUpdate'], null, schema.SetTargetReleaseParams)
     ),
     http.get(
+      '/v1/system/update/trust-roots',
+      handler(
+        handlers['systemUpdateTrustRootList'],
+        schema.SystemUpdateTrustRootListParams,
+        null
+      )
+    ),
+    http.post(
+      '/v1/system/update/trust-roots',
+      handler(handlers['systemUpdateTrustRootCreate'], null, null)
+    ),
+    http.get(
+      '/v1/system/update/trust-roots/:trustRootId',
+      handler(
+        handlers['systemUpdateTrustRootView'],
+        schema.SystemUpdateTrustRootViewParams,
+        null
+      )
+    ),
+    http.delete(
+      '/v1/system/update/trust-roots/:trustRootId',
+      handler(
+        handlers['systemUpdateTrustRootDelete'],
+        schema.SystemUpdateTrustRootDeleteParams,
+        null
+      )
+    ),
+    http.get(
       '/v1/system/users',
       handler(handlers['siloUserList'], schema.SiloUserListParams, null)
     ),
@@ -3132,6 +3205,22 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       )
     ),
     http.get('/v1/users', handler(handlers['userList'], schema.UserListParams, null)),
+    http.get(
+      '/v1/users/:userId',
+      handler(handlers['userView'], schema.UserViewParams, null)
+    ),
+    http.get(
+      '/v1/users/:userId/access-tokens',
+      handler(handlers['userTokenList'], schema.UserTokenListParams, null)
+    ),
+    http.post(
+      '/v1/users/:userId/logout',
+      handler(handlers['userLogout'], schema.UserLogoutParams, null)
+    ),
+    http.get(
+      '/v1/users/:userId/sessions',
+      handler(handlers['userSessionList'], schema.UserSessionListParams, null)
+    ),
     http.get('/v1/utilization', handler(handlers['utilizationView'], null, null)),
     http.get(
       '/v1/vpc-firewall-rules',

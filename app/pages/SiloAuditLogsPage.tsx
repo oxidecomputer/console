@@ -223,9 +223,9 @@ export default function SiloAuditLogsPage() {
                 >
                   <div className="overflow-hidden whitespace-nowrap text-mono-sm">
                     <span className="text-tertiary">
-                      {toSyslogDateString(log.timestamp)}
+                      {toSyslogDateString(log.timeCompleted)}
                     </span>{' '}
-                    {toSyslogTimeString(log.timestamp)}
+                    {toSyslogTimeString(log.timeCompleted)}
                   </div>
                   <div className="flex gap-1 overflow-hidden whitespace-nowrap">
                     <span className="text-mono-sm text-tertiary">POST</span>
@@ -246,7 +246,7 @@ export default function SiloAuditLogsPage() {
                   </div>
                   <div className="text-secondary">maze-war</div>
                   <div className="text-secondary">
-                    {differenceInMilliseconds(new Date(log.timeCompleted), log.timestamp)}
+                    {differenceInMilliseconds(new Date(log.timeCompleted), log.timeStarted)}
                     ms
                   </div>
                 </button>
