@@ -209,6 +209,10 @@ export const routes = createRoutesFromElements(
             />
           </Route>
         </Route>
+        <Route
+          path="audit-log"
+          lazy={() => import('./pages/SiloAuditLogsPage').then(convert)}
+        />
       </Route>
 
       <Route index loader={() => redirect(pb.projects())} element={null} />
@@ -252,10 +256,6 @@ export const routes = createRoutesFromElements(
         </Route>
 
         <Route path="access" lazy={() => import('./pages/SiloAccessPage').then(convert)} />
-        <Route
-          path="audit-logs"
-          lazy={() => import('./pages/SiloAuditLogsPage').then(convert)}
-        />
       </Route>
 
       {/* PROJECT */}

@@ -107,7 +107,7 @@ const HighlightJSON = memo(({ jsonString }: { jsonString: string }) => {
   }
 })
 
-export const handle = { crumb: 'Audit Logs' }
+export const handle = { crumb: 'Audit Log' }
 
 export default function SiloAuditLogsPage() {
   const [expandedItem, setExpandedItem] = useState<string | null>(null)
@@ -298,11 +298,11 @@ export default function SiloAuditLogsPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Logs24Icon />}>Audit Logs</PageTitle>
+        <PageTitle icon={<Logs24Icon />}>Audit Log</PageTitle>
         <DocsPopover
-          heading="audit logs"
+          heading="audit log"
           icon={<Logs16Icon />}
-          summary="Audit logs provide a record of all system activities, including user actions, API calls, and system events."
+          summary="The audit log provides a record of system activities, including user actions, API calls, and system events."
           links={[docLinks.auditLogs]}
         />
       </PageHeader>

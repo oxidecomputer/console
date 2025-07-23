@@ -107,7 +107,6 @@ export const pb = {
   siloAccess: () => '/access',
   siloImages: () => '/images',
   siloImageEdit: (params: PP.SiloImage) => `${pb.siloImages()}/${params.image}/edit`,
-  siloAuditLogs: () => '/audit-logs',
 
   systemUtilization: () => '/system/utilization',
 
@@ -128,6 +127,8 @@ export const pb = {
   siloIdpsNew: (params: PP.Silo) => `${pb.silo(params)}/idps-new`,
   samlIdp: (params: PP.IdentityProvider) =>
     `${pb.silo(params)}/idps/saml/${params.provider}`,
+
+  auditLog: () => '/system/audit-log',
 
   profile: () => '/settings/profile',
   sshKeys: () => '/settings/ssh-keys',
