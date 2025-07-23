@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import {
   useController,
   type Control,
@@ -48,18 +48,7 @@ export function ComboboxField<
   onInputChange,
   allowArbitraryValues,
   placeholder,
-  // Intent is to not show both a placeholder and a description, while still having good defaults; prefer a description to a placeholder
-  /*
-   * If description is provided, use it.
-   * If not, but a placeholder is provided, the default description should be undefined.
-   * If no placeholder is provided and arbitrary values are allowed, the default description should be 'Select an option or enter a custom value'.
-   * If no placeholder is provided and arbitrary values are not allowed, the default description should be 'Select an option'.
-   */
-  description = placeholder
-    ? undefined
-    : allowArbitraryValues
-      ? 'Select an option or enter a custom value'
-      : 'Select an option',
+  description,
   items,
   transform,
   validate,
@@ -70,30 +59,62 @@ export function ComboboxField<
     control,
     rules: { required, validate },
   })
-  const [selectedItemLabel, setSelectedItemLabel] = useState(
-    getSelectedLabelFromValue(items, field.value || '')
+
+  // Memoize description computation to avoid recalculating on every render
+  const memoizedDescription = useMemo(() => {
+    // Intent is to not show both a placeholder and a description, while still having good defaults; prefer a description to a placeholder
+    /*
+     * If description is provided, use it.
+     * If not, but a placeholder is provided, the default description should be undefined.
+     * If no placeholder is provided and arbitrary values are allowed, the default description should be 'Select an option or enter a custom value'.
+     * If no placeholder is provided and arbitrary values are not allowed, the default description should be 'Select an option'.
+     */
+    return description !== undefined
+      ? description
+      : placeholder
+        ? undefined
+        : allowArbitraryValues
+          ? 'Select an option or enter a custom value'
+          : 'Select an option'
+  }, [description, placeholder, allowArbitraryValues])
+
+  // Memoize the selected label calculation to avoid recalculation when items/value haven't changed
+  const selectedItemLabel = useMemo(
+    () => getSelectedLabelFromValue(items, field.value || ''),
+    [items, field.value]
+  )
+
+  // Memoize onChange callback to prevent unnecessary re-renders
+  const handleChange = useCallback(
+    (value: string) => {
+      field.onChange(value)
+      onChange?.(value)
+    },
+    [field, onChange]
+  )
+
+  // Memoize onInputChange callback to prevent unnecessary re-renders
+  const handleInputChange = useCallback(
+    (value: string) => {
+      // If the user edits the input field, if arbitrary values are allowed, set the field's value; otherwise, clear the selected value
+      field.onChange(allowArbitraryValues ? value : undefined)
+      onInputChange?.(value)
+    },
+    [field, allowArbitraryValues, onInputChange]
   )
   return (
     <div className="max-w-lg">
       <Combobox
         label={label}
         placeholder={placeholder}
-        description={description}
+        description={memoizedDescription}
         items={items}
         required={required}
         selectedItemValue={field.value}
         selectedItemLabel={selectedItemLabel}
         hasError={fieldState.error !== undefined}
-        onChange={(value) => {
-          field.onChange(value)
-          onChange?.(value)
-          setSelectedItemLabel(getSelectedLabelFromValue(items, value))
-        }}
-        onInputChange={(value) => {
-          // If the user edits the input field, if arbitrary values are allowed, set the field's value; otherwise, clear the selected value
-          field.onChange(allowArbitraryValues ? value : undefined)
-          onInputChange?.(value)
-        }}
+        onChange={handleChange}
+        onInputChange={handleInputChange}
         allowArbitraryValues={allowArbitraryValues}
         inputRef={field.ref}
         transform={transform}

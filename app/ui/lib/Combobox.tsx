@@ -13,9 +13,16 @@ import {
   ComboboxOptions,
   Combobox as HCombobox,
 } from '@headlessui/react'
-import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
-import { useEffect, useId, useState, type ReactNode, type Ref } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useState,
+  type ReactNode,
+  type Ref,
+} from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
@@ -100,12 +107,45 @@ export const Combobox = ({
   transform,
   ...props
 }: ComboboxProps) => {
-  const [query, setQuery] = useState(selectedItemValue || '')
-  const q = query.toLowerCase().replace(/\s*/g, '')
-  const filteredItems = matchSorter(items, q, {
-    keys: ['selectedLabel', 'label'],
-    sorter: (items) => items, // preserve original order, don't sort by match
-  })
+  const [query, setQuery] = useState(() =>
+    selectedItemValue ? (allowArbitraryValues ? selectedItemValue : selectedItemLabel) : ''
+  )
+
+  // Memoize query processing to avoid recalculation on every render
+  const normalizedQuery = useMemo(() => query.toLowerCase().replace(/\s*/g, ''), [query])
+
+  // Memoize filtered items to avoid re-filtering on every render
+  const filteredItems = useMemo(() => {
+    return matchSorter(items, normalizedQuery, {
+      keys: ['selectedLabel', 'label'],
+      sorter: (items) => items, // preserve original order, don't sort by match
+    })
+  }, [items, normalizedQuery])
+
+  // Memoize custom arbitrary value label to avoid recreation on every render
+  const customValueItem = useMemo(() => {
+    if (
+      allowArbitraryValues &&
+      query.length > 0 &&
+      !filteredItems.some((i) => i.selectedLabel === query)
+    ) {
+      return {
+        value: query,
+        label: (
+          <>
+            <span className="text-default">Custom:</span> {query}
+          </>
+        ),
+        selectedLabel: query,
+      }
+    }
+    return null
+  }, [allowArbitraryValues, query, filteredItems])
+
+  // Final items list with custom value if applicable
+  const finalFilteredItems = useMemo(() => {
+    return customValueItem ? [...filteredItems, customValueItem] : filteredItems
+  }, [filteredItems, customValueItem])
 
   // In the arbitraryValues case, clear the query whenever the value is cleared.
   // this is necessary, e.g., for the firewall rules form when you submit the
@@ -126,33 +166,94 @@ export const Combobox = ({
     }
   }, [allowArbitraryValues, selectedItemValue])
 
-  // If the user has typed in a value that isn't in the list,
-  // add it as an option if `allowArbitraryValues` is true
-  if (
-    allowArbitraryValues &&
-    query.length > 0 &&
-    !filteredItems.some((i) => i.selectedLabel === query)
-  ) {
-    filteredItems.push({
-      value: query,
-      label: (
-        <>
-          <span className="text-default">Custom:</span> {query}
-        </>
-      ),
-      selectedLabel: query,
-    })
-  }
+  // Memoize callbacks to prevent unnecessary re-renders; fallback to '' allows clearing field to work
+  const handleChange = useCallback((val: string | null) => onChange(val || ''), [onChange])
+  const handleClose = useCallback(() => setQuery(''), [])
+  // We only want to keep the query on close when arbitrary values are allowed
+  const onCloseHandler = allowArbitraryValues ? undefined : handleClose
+
+  // Memoize input onChange callback to prevent function recreation on every render
+  const handleInputChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const value = transform ? transform(event.target.value) : event.target.value
+      // updates the query state as the user types, in order to filter the list of items
+      setQuery(value)
+      // if the parent component wants to know about input changes, call the callback
+      onInputChange?.(value)
+    },
+    [transform, onInputChange]
+  )
+
+  // Memoize onKeyDown callback to prevent function recreation on every render
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>, open: boolean) => {
+      // If the caller is using onEnter to override enter behavior, preventDefault
+      // in order to prevent the containing form from being submitted too. We don't
+      // need to do this when the combobox is open because that enter keypress is
+      // already handled internally (selects the highlighted item). So we only do
+      // this when the combobox is closed.
+      if (e.key === 'Enter' && onEnter && !open) {
+        e.preventDefault()
+        onEnter(e)
+      }
+    },
+    [onEnter]
+  )
+
   const zIndex = usePopoverZIndex()
   const id = useId()
+
+  const containerClassName = useMemo(
+    () =>
+      `flex rounded border focus-within:ring-2 ${
+        hasError
+          ? 'focus-error border-error-secondary focus-within:ring-error-secondary hover:border-error'
+          : 'border-default focus-within:ring-accent-secondary hover:border-hover'
+      } ${
+        disabled
+          ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
+          : 'bg-default'
+      } ${disabled && hasError ? '!border-error-secondary' : ''}`,
+    [hasError, disabled]
+  )
+
+  const inputClassName = useMemo(
+    () =>
+      `h-10 w-full rounded !border-none px-3 py-2 !outline-none text-sans-md text-raise placeholder:text-tertiary ${disabled ? 'cursor-not-allowed text-disabled bg-disabled !border-default' : 'bg-default'} ${hasError ? 'focus-error' : ''}`,
+    [hasError, disabled]
+  )
+
+  const buttonClassName = useMemo(
+    () =>
+      `my-1.5 flex items-center border-l px-3 border-secondary ${disabled ? 'cursor-not-allowed bg-disabled' : 'bg-default'}`,
+    [disabled]
+  )
+
+  // 13px gap is presumably because it's measured from inside the outline or something
+  const optionsClassName = useMemo(
+    () =>
+      `ox-menu pointer-events-auto ${zIndex} relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border !outline-none border-secondary [--anchor-gap:13px] empty:hidden`,
+    [zIndex]
+  )
+
+  // Memoize input value computation to avoid recalculation on every render
+  // If an option has been selected, display either the selected item's label or value.
+  // If no option has been selected yet, or the user has started editing the input, display the query.
+  // We are using value here, as opposed to Headless UI's displayValue, so we can normalize the value entered into the input (via the onChange event).
+  const inputValue = useMemo(() => {
+    return selectedItemValue
+      ? allowArbitraryValues
+        ? selectedItemValue
+        : selectedItemLabel
+      : query
+  }, [selectedItemValue, allowArbitraryValues, selectedItemLabel, query])
+
   return (
     <HCombobox
       // necessary, as the displayed "value" is not the same as the actual selected item's *value*
       value={selectedItemValue}
-      // fallback to '' allows clearing field to work
-      onChange={(val) => onChange(val || '')}
-      // we only want to keep the query on close when arbitrary values are allowed
-      onClose={allowArbitraryValues ? undefined : () => setQuery('')}
+      onChange={handleChange}
+      onClose={onCloseHandler}
       disabled={disabled || isLoading}
       immediate
       {...props}
@@ -160,7 +261,6 @@ export const Combobox = ({
       {({ open }) => (
         <div>
           {label && (
-            // TODO: FieldLabel needs a real ID
             <div className="mb-2">
               <FieldLabel
                 id={`${id}-label`}
@@ -175,16 +275,7 @@ export const Combobox = ({
             </div>
           )}
           <div
-            className={cn(
-              `flex rounded border focus-within:ring-2`,
-              hasError
-                ? 'focus-error border-error-secondary focus-within:ring-error-secondary hover:border-error'
-                : 'border-default focus-within:ring-accent-secondary hover:border-hover',
-              disabled
-                ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
-                : 'bg-default',
-              disabled && hasError && '!border-error-secondary'
-            )}
+            className={containerClassName}
             // Putting the inputRef on the div makes it so the div can be focused by RHF when there's an error.
             // We want to focus on the div (rather than the input) so the combobox doesn't open automatically
             // and obscure the error message.
@@ -194,53 +285,15 @@ export const Combobox = ({
           >
             <ComboboxInput
               id={`${id}-input`}
-              // If an option has been selected, display either the selected item's label or value.
-              // If no option has been selected yet, or the user has started editing the input, display the query.
-              // We are using value here, as opposed to Headless UI's displayValue, so we can normalize
-              // the value entered into the input (via the onChange event).
-              value={
-                selectedItemValue
-                  ? allowArbitraryValues
-                    ? selectedItemValue
-                    : selectedItemLabel
-                  : query
-              }
-              onChange={(event) => {
-                const value = transform ? transform(event.target.value) : event.target.value
-                // updates the query state as the user types, in order to filter the list of items
-                setQuery(value)
-                // if the parent component wants to know about input changes, call the callback
-                onInputChange?.(value)
-              }}
-              onKeyDown={(e) => {
-                // If the caller is using onEnter to override enter behavior, preventDefault
-                // in order to prevent the containing form from being submitted too. We don't
-                // need to do this when the combobox is open because that enter keypress is
-                // already handled internally (selects the highlighted item). So we only do
-                // this when the combobox is closed.
-                if (e.key === 'Enter' && onEnter && !open) {
-                  e.preventDefault()
-                  onEnter(e)
-                }
-              }}
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyDown={(e) => handleKeyDown(e, open)}
               placeholder={placeholder}
               disabled={disabled || isLoading}
-              className={cn(
-                `h-10 w-full rounded !border-none px-3 py-2 !outline-none text-sans-md text-raise placeholder:text-tertiary`,
-                disabled
-                  ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
-                  : 'bg-default',
-                hasError && 'focus-error'
-              )}
+              className={inputClassName}
             />
             {items.length > 0 && (
-              <ComboboxButton
-                className={cn(
-                  'my-1.5 flex items-center border-l px-3 border-secondary',
-                  disabled ? 'cursor-not-allowed bg-disabled' : 'bg-default'
-                )}
-                aria-hidden
-              >
+              <ComboboxButton className={buttonClassName} aria-hidden>
                 <SelectArrows6Icon title="Select" className="w-2 text-secondary" />
               </ComboboxButton>
             )}
@@ -248,11 +301,10 @@ export const Combobox = ({
           {(items.length > 0 || allowArbitraryValues) && (
             <ComboboxOptions
               anchor="bottom start"
-              // 13px gap is presumably because it's measured from inside the outline or something
-              className={`ox-menu pointer-events-auto ${zIndex} relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border !outline-none border-secondary [--anchor-gap:13px] empty:hidden`}
+              className={optionsClassName}
               modal={false}
             >
-              {filteredItems.map((item) => (
+              {finalFilteredItems.map((item) => (
                 <ComboboxOption
                   key={item.value}
                   value={item.value}
@@ -264,17 +316,14 @@ export const Combobox = ({
                     // not our .is-selected and .is-highlighted, so we'd have to copy the pieces
                     // of those rules one by one. Better to rely on the shared classes.
                     <div
-                      className={cn('ox-menu-item', {
-                        'is-selected': selected,
-                        'is-highlighted': focus,
-                      })}
+                      className={`ox-menu-item ${selected ? 'is-selected' : ''} ${focus ? 'is-highlighted' : ''}`}
                     >
                       {item.label}
                     </div>
                   )}
                 </ComboboxOption>
               ))}
-              {!allowArbitraryValues && filteredItems.length === 0 && (
+              {!allowArbitraryValues && finalFilteredItems.length === 0 && (
                 <ComboboxOption disabled value="no-matches" className="relative">
                   <div className="ox-menu-item !text-disabled">No items match</div>
                 </ComboboxOption>

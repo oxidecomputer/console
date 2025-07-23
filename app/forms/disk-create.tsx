@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import { filesize } from 'filesize'
-import { useMemo } from 'react'
 import { useController, useForm, type Control } from 'react-hook-form'
 
 import {
@@ -87,10 +86,30 @@ export function CreateDiskSideModalForm({
 
   // put project images first because if there are any, there probably aren't
   // very many and they're probably relevant
-  const images = useMemo(
-    () => [...(projectImages.data?.items || []), ...(siloImages.data?.items || [])],
-    [projectImages.data, siloImages.data]
-  )
+  const realImages = [
+    ...(projectImages.data?.items || []),
+    ...(siloImages.data?.items || []),
+  ]
+
+  // TODO: REMOVE THIS AFTER STRESS TESTING IS DONE
+  // Generate 1000 mock items for stress testing
+  const mockImages: Image[] = Array.from({ length: 1000 }, (_, i) => ({
+    id: `mock-image-${i}`,
+    name: `Mock Image ${i.toString().padStart(4, '0')}`,
+    size: 1073741824, // 1GB
+    version: '1.0.0',
+    description: `This is mock image ${i} for stress testing the combobox`,
+    digest: {
+      type: 'sha256',
+      value: '0'.repeat(64),
+    },
+    blockSize: 512,
+    timeCreated: new Date(),
+    timeModified: new Date(),
+    os: 'linux',
+  }))
+
+  const images = [...realImages, ...mockImages]
   const areImagesLoading = projectImages.isPending || siloImages.isPending
 
   const snapshotsQuery = useApiQuery('snapshotList', { query: { project } })
