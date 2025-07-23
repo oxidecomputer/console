@@ -1802,7 +1802,23 @@ export const handlers = makeHandlers({
     )
     return paginated(query, affinityGroups)
   },
+  auditLogList: ({ query }) => {
+    let filteredLogs = db.auditLogs
 
+    if (query.startTime) {
+      filteredLogs = filteredLogs.filter(
+        (log) => new Date(log.time_completed) >= query.startTime!
+      )
+    }
+
+    if (query.endTime) {
+      filteredLogs = filteredLogs.filter(
+        (log) => new Date(log.time_completed) < query.endTime!
+      )
+    }
+
+    return paginated(query, filteredLogs)
+  },
   // Misc endpoints we're not using yet in the console
   affinityGroupCreate: NotImplemented,
   affinityGroupDelete: NotImplemented,
@@ -1898,6 +1914,7 @@ export const handlers = makeHandlers({
   supportBundleHeadFile: NotImplemented,
   supportBundleIndex: NotImplemented,
   supportBundleList: NotImplemented,
+  supportBundleUpdate: NotImplemented,
   supportBundleView: NotImplemented,
   switchView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
@@ -1913,6 +1930,10 @@ export const handlers = makeHandlers({
   targetReleaseView: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
+  userLogout: NotImplemented,
+  userSessionList: NotImplemented,
+  userTokenList: NotImplemented,
+  userView: NotImplemented,
   webhookReceiverCreate: NotImplemented,
   webhookReceiverUpdate: NotImplemented,
   webhookSecretsAdd: NotImplemented,
