@@ -90,7 +90,7 @@ export function ComboboxField<
           onChange?.(value)
           setSelectedItemLabel(getSelectedLabelFromValue(items, value))
         }}
-        // if user edits input after selecting an item …
+        // if user edits the combobox input …
         onInputChange={(value) => {
           // if arbitrary values are allowed, save edited string in form state so it can be submitted
           // if not allowed, clear the selected item from form state, to force intentional selection of valid options
