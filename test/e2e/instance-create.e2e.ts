@@ -37,6 +37,16 @@ const selectAnExistingDisk = async (page: Page, name: string) => {
   await page.getByRole('option', { name }).click()
 }
 
+/** Ensure that certain combobox options are present, others are hidden */
+const expectComboboxOptions = async (page: Page, present: string[], hidden: string[]) => {
+  for (const option of present) {
+    await expect(page.getByRole('option', { name: option })).toBeVisible()
+  }
+  for (const option of hidden) {
+    await expect(page.getByRole('option', { name: option })).toBeHidden()
+  }
+}
+
 test('can create an instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
   await page.locator('text="New Instance"').click()
@@ -511,18 +521,16 @@ test('attaching additional disks allows for combobox filtering', async ({ page }
   await attachExistingDiskButton.click()
   await selectADisk.click()
   // several disks should be shown
-  await expect(page.getByRole('option', { name: 'disk-0001' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'disk-0002' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'disk-1000' })).toBeVisible()
+  await expectComboboxOptions(page, ['disk-0001', 'disk-0002', 'disk-1000'], [])
 
   // type in a string to use as a filter
   await selectADisk.fill('disk-010')
   // only disks with that substring should be shown
-  await expect(page.getByRole('option', { name: 'disk-0100' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'disk-0101' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'disk-0102' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'disk-0001' })).toBeHidden()
-  await expect(page.getByRole('option', { name: 'disk-1000' })).toBeHidden()
+  await expectComboboxOptions(
+    page,
+    ['disk-0100', 'disk-0101', 'disk-0102'],
+    ['disk-0001', 'disk-1000']
+  )
 
   // select one
   await page.getByRole('option', { name: 'disk-0102' }).click()
@@ -646,4 +654,60 @@ test('Validate CPU and RAM', async ({ page }) => {
 
   await expect(cpuMsg).toBeVisible()
   await expect(memMsg).toBeVisible()
+})
+
+test('clears silo image selection when typing arbitrary text and blurring', async ({
+  page,
+}) => {
+  const instanceName = 'test-instance'
+  const validImage = 'ubuntu-22-04'
+  const alternateImage1 = 'ubuntu-20-04'
+  const alternateImage2 = 'arch-2022-06-01'
+
+  await page.goto('/projects/mock-project/instances-new')
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+
+  const imageSelectCombobox = page.getByRole('combobox', { name: 'Image' })
+  await imageSelectCombobox.scrollIntoViewIfNeeded()
+
+  // Ensure the combobox is visible and has the expected options
+  await expect(imageSelectCombobox).toHaveValue('')
+  await imageSelectCombobox.click()
+  await expectComboboxOptions(page, [validImage, alternateImage1, alternateImage2], [])
+
+  // Filter the combobox for a particular silo image pattern
+  await imageSelectCombobox.fill('ubuntu')
+
+  // Ensure that only show the options that match the filter are visible
+  await expectComboboxOptions(page, [validImage, alternateImage1], [alternateImage2])
+
+  // Select an image
+  await page.getByRole('option', { name: validImage }).click()
+  await expect(imageSelectCombobox).toHaveValue(validImage)
+
+  // Delete four characters from the end to reveal more options
+  await page.keyboard.press('Backspace')
+  await page.keyboard.press('Backspace')
+  await page.keyboard.press('Backspace')
+  await page.keyboard.press('Backspace')
+
+  // There should now be an invalid value in the combobox, but we should be able to see both the ubuntu options: `ubuntu-22-04` and `ubuntu-20-04`
+  // and we should NOT be able to see the `arch-2022-06-01` option
+  await expect(imageSelectCombobox).toHaveValue('ubuntu-2')
+  await expectComboboxOptions(page, [validImage, alternateImage1], [alternateImage2])
+
+  // Blur the field by clicking elsewhere; because the value is not a valid silo image, the selection should be cleared
+  await page.getByRole('textbox', { name: 'Name', exact: true }).click()
+
+  // The selection should be cleared since allowArbitraryValues=false
+  await expect(imageSelectCombobox).toHaveValue('')
+
+  // Re-focus and select the original option again
+  await imageSelectCombobox.click()
+  await page.getByRole('option', { name: validImage }).click()
+  await expect(imageSelectCombobox).toHaveValue(validImage)
+
+  // Should be able to continue with instance creation
+  await page.getByRole('button', { name: 'Create instance' }).click()
+  await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
 })
