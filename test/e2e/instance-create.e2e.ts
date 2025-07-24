@@ -39,11 +39,11 @@ const selectAnExistingDisk = async (page: Page, name: string) => {
 
 /** Ensure that certain combobox options are present, others are hidden */
 const expectComboboxOptions = async (page: Page, present: string[], hidden: string[]) => {
-  for (const option of present) {
-    await expect(page.getByRole('option', { name: option })).toBeVisible()
+  for (const name of present) {
+    await expect(page.getByRole('option', { name })).toBeVisible()
   }
-  for (const option of hidden) {
-    await expect(page.getByRole('option', { name: option })).toBeHidden()
+  for (const name of hidden) {
+    await expect(page.getByRole('option', { name })).toBeHidden()
   }
 }
 
