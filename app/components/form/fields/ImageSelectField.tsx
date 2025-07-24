@@ -9,11 +9,11 @@ import { useController, type Control } from 'react-hook-form'
 
 import type { Image } from '@oxide/api'
 
+import { adjustDiskSizeForSource } from '~/forms/disk-util'
 import type { InstanceCreateInput } from '~/forms/instance-create'
 import type { ComboboxItem } from '~/ui/lib/Combobox'
 import { Slash } from '~/ui/lib/Slash'
-import { diskSizeNearest10 } from '~/util/math'
-import { bytesToGiB, GiB } from '~/util/units'
+import { bytesToGiB } from '~/util/units'
 
 import { ComboboxField } from './ComboboxField'
 
@@ -43,15 +43,7 @@ export function BootDiskImageSelectField({
       items={images.map((i) => toImageComboboxItem(i))}
       required
       onChange={(id) => {
-        const image = images.find((i) => i.id === id)
-        // the most likely scenario where image would be undefined is if the user has
-        // manually cleared the ComboboxField; they will need to pick a boot disk image
-        // in order to submit the form, so we don't need to do anything here
-        if (!image) return
-        const imageSizeGiB = image.size / GiB
-        if (diskSizeField.value < imageSizeGiB) {
-          diskSizeField.onChange(diskSizeNearest10(imageSizeGiB))
-        }
+        adjustDiskSizeForSource(diskSizeField, id, images)
       }}
     />
   )

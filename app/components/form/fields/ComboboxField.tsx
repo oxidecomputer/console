@@ -45,6 +45,7 @@ export function ComboboxField<
   label = capitalize(name),
   required,
   onChange,
+  onInputChange,
   allowArbitraryValues,
   placeholder,
   // Intent is to not show both a placeholder and a description, while still having good defaults; prefer a description to a placeholder
@@ -87,6 +88,11 @@ export function ComboboxField<
           field.onChange(value)
           onChange?.(value)
           setSelectedItemLabel(getSelectedLabelFromValue(items, value))
+        }}
+        onInputChange={(value) => {
+          // for forms allowing arbitrary values, treat typing as a selection
+          field.onChange(allowArbitraryValues ? value : undefined)
+          onInputChange?.(value)
         }}
         allowArbitraryValues={allowArbitraryValues}
         inputRef={field.ref}

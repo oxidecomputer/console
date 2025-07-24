@@ -28,6 +28,7 @@ import { NameField } from '~/components/form/fields/NameField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { adjustDiskSizeForSource } from '~/forms/disk-util'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
@@ -36,7 +37,6 @@ import { Radio } from '~/ui/lib/Radio'
 import { RadioGroup } from '~/ui/lib/RadioGroup'
 import { Slash } from '~/ui/lib/Slash'
 import { toLocaleDateString } from '~/util/date'
-import { diskSizeNearest10 } from '~/util/math'
 import { bytesToGiB, GiB } from '~/util/units'
 
 const blankDiskSource: DiskSource = {
@@ -171,7 +171,6 @@ const DiskSourceField = ({
     field: { value, onChange },
   } = useController({ control, name: 'diskSource' })
   const diskSizeField = useController({ control, name: 'size' }).field
-  const diskImageIdField = useController({ control, name: 'diskSource.imageId' }).field
 
   return (
     <>
@@ -219,15 +218,8 @@ const DiskSourceField = ({
             isLoading={areImagesLoading}
             items={images.map((i) => toImageComboboxItem(i, true))}
             required
-            onInputChange={() => {
-              diskImageIdField.onChange()
-            }}
             onChange={(id) => {
-              const image = images.find((i) => i.id === id)! // if it's selected, it must be present
-              const imageSizeGiB = image.size / GiB
-              if (diskSizeField.value < imageSizeGiB) {
-                diskSizeField.onChange(diskSizeNearest10(imageSizeGiB))
-              }
+              adjustDiskSizeForSource(diskSizeField, id, images)
             }}
           />
         )}
@@ -256,10 +248,6 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
 
   const snapshots = snapshotsQuery.data?.items || []
   const diskSizeField = useController({ control, name: 'size' }).field
-  const diskSnapshotIdField = useController({
-    control,
-    name: 'diskSource.snapshotId',
-  }).field
 
   return (
     <ComboboxField
@@ -286,15 +274,8 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
       })}
       isLoading={snapshotsQuery.isPending}
       required
-      onInputChange={() => {
-        diskSnapshotIdField.onChange()
-      }}
       onChange={(id) => {
-        const snapshot = snapshots.find((i) => i.id === id)! // if it's selected, it must be present
-        const snapshotSizeGiB = snapshot.size / GiB
-        if (diskSizeField.value < snapshotSizeGiB) {
-          diskSizeField.onChange(diskSizeNearest10(snapshotSizeGiB))
-        }
+        adjustDiskSizeForSource(diskSizeField, id, snapshots)
       }}
     />
   )
