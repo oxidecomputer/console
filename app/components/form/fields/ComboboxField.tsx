@@ -25,7 +25,7 @@ import { capitalize } from '~/util/str'
 
 import { ErrorMessage } from './ErrorMessage'
 
-export type ComboboxFieldProps<
+type ComboboxFieldProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
 > = {
