@@ -280,7 +280,8 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
       isLoading={snapshotsQuery.isPending}
       required
       onChange={(id) => {
-        const snapshot = snapshots.find((i) => i.id === id)! // if it's selected, it must be present
+        const snapshot = snapshots.find((i) => i.id === id)
+        if (!snapshot) return
         const snapshotSizeGiB = snapshot.size / GiB
         if (diskSizeField.value < snapshotSizeGiB) {
           diskSizeField.onChange(diskSizeNearest10(snapshotSizeGiB))
