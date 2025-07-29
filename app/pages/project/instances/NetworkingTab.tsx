@@ -8,6 +8,7 @@
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router'
+import { match, P } from 'ts-pattern'
 
 import {
   apiQueryClient,
@@ -388,13 +389,14 @@ export default function NetworkingTab() {
               modalContent: (
                 <p>
                   Are you sure you want to detach{' '}
-                  {externalIp.kind === 'ephemeral' ? (
-                    'this ephemeral IP'
-                  ) : (
-                    <>
-                      floating IP <HL>{externalIp.name}</HL>
-                    </>
-                  )}{' '}
+                  {match(externalIp)
+                    .with({ kind: P.union('ephemeral', 'snat') }, () => 'this ephemeral IP')
+                    .with({ kind: 'floating' }, ({ name }) => (
+                      <>
+                        floating IP <HL>{name}</HL>
+                      </>
+                    ))
+                    .exhaustive()}{' '}
                   from <HL>{instanceName}</HL>? The instance will no longer be reachable at{' '}
                   <HL>{externalIp.ip}</HL>.
                 </p>
