@@ -89,7 +89,7 @@ const SubnetNameFromId = ({ value }: { value: string }) => {
 
 const NonFloatingEmptyCell = ({ kind }: { kind: 'snat' | 'ephemeral' }) => (
   <Tooltip
-    content={`${kind === 'snat' ? 'SNAT IPs' : 'Ephemeral IPs'} don’t have names or descriptions`}
+    content={`${kind === 'snat' ? 'SNAT' : 'Ephemeral'} IPs don’t have names or descriptions`}
     placement="top"
   >
     <div>

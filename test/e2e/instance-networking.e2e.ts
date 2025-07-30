@@ -183,6 +183,25 @@ test('Instance networking tab — floating IPs', async ({ page }) => {
   await expect(attachFloatingIpButton).toBeEnabled()
 })
 
+test('Instance networking tab — SNAT IPs', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1/networking')
+  const externalIpTable = page.getByRole('table', { name: 'External IPs' })
+  const snatRow = externalIpTable.locator('tr').filter({ hasText: 'snat' })
+  await expect(snatRow).toBeVisible()
+
+  // expect the SNAT IP to have a port range badge
+  await expect(snatRow).toContainText('0–16383')
+
+  const actionsButton = snatRow.getByRole('button', { name: 'Row actions' })
+  await actionsButton.click()
+
+  // Should have "Copy IP address" action, just for consistency with other IP rows
+  await expect(page.getByRole('menuitem', { name: 'Copy IP address' })).toBeVisible()
+
+  // Should NOT have "Detach" action
+  await expect(page.getByRole('menuitem', { name: 'Detach' })).toBeHidden()
+})
+
 test('Edit network interface - Transit IPs', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1/networking')
 
