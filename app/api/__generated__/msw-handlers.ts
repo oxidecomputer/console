@@ -6,6 +6,14 @@
  * Copyright Oxide Computer Company
  */
 
+/**
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+
 import {
   http,
   HttpResponse,
@@ -96,12 +104,20 @@ export interface MSWHandlers {
   }) => Promisable<HandlerResult<Api.SupportBundleInfoResultsPage>>
   /** `POST /experimental/v1/system/support-bundles` */
   supportBundleCreate: (params: {
+    body: Json<Api.SupportBundleCreate>
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.SupportBundleInfo>>
   /** `GET /experimental/v1/system/support-bundles/:bundleId` */
   supportBundleView: (params: {
     path: Api.SupportBundleViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SupportBundleInfo>>
+  /** `PUT /experimental/v1/system/support-bundles/:bundleId` */
+  supportBundleUpdate: (params: {
+    path: Api.SupportBundleUpdatePathParams
+    body: Json<Api.SupportBundleUpdate>
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.SupportBundleInfo>>
@@ -1576,6 +1592,32 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.UserResultsPage>>
+  /** `GET /v1/users/:userId` */
+  userView: (params: {
+    path: Api.UserViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.User>>
+  /** `GET /v1/users/:userId/access-tokens` */
+  userTokenList: (params: {
+    path: Api.UserTokenListPathParams
+    query: Api.UserTokenListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.DeviceAccessTokenResultsPage>>
+  /** `POST /v1/users/:userId/logout` */
+  userLogout: (params: {
+    path: Api.UserLogoutPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/users/:userId/sessions` */
+  userSessionList: (params: {
+    path: Api.UserSessionListPathParams
+    query: Api.UserSessionListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ConsoleSessionResultsPage>>
   /** `GET /v1/utilization` */
   utilizationView: (params: {
     req: Request
@@ -1906,11 +1948,19 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     ),
     http.post(
       '/experimental/v1/system/support-bundles',
-      handler(handlers['supportBundleCreate'], null, null)
+      handler(handlers['supportBundleCreate'], null, schema.SupportBundleCreate)
     ),
     http.get(
       '/experimental/v1/system/support-bundles/:bundleId',
       handler(handlers['supportBundleView'], schema.SupportBundleViewParams, null)
+    ),
+    http.put(
+      '/experimental/v1/system/support-bundles/:bundleId',
+      handler(
+        handlers['supportBundleUpdate'],
+        schema.SupportBundleUpdateParams,
+        schema.SupportBundleUpdate
+      )
     ),
     http.delete(
       '/experimental/v1/system/support-bundles/:bundleId',
@@ -3153,6 +3203,22 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       )
     ),
     http.get('/v1/users', handler(handlers['userList'], schema.UserListParams, null)),
+    http.get(
+      '/v1/users/:userId',
+      handler(handlers['userView'], schema.UserViewParams, null)
+    ),
+    http.get(
+      '/v1/users/:userId/access-tokens',
+      handler(handlers['userTokenList'], schema.UserTokenListParams, null)
+    ),
+    http.post(
+      '/v1/users/:userId/logout',
+      handler(handlers['userLogout'], schema.UserLogoutParams, null)
+    ),
+    http.get(
+      '/v1/users/:userId/sessions',
+      handler(handlers['userSessionList'], schema.UserSessionListParams, null)
+    ),
     http.get('/v1/utilization', handler(handlers['utilizationView'], null, null)),
     http.get(
       '/v1/vpc-firewall-rules',

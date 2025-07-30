@@ -87,8 +87,11 @@ const SubnetNameFromId = ({ value }: { value: string }) => {
   return <span className="text-default">{subnet.name}</span>
 }
 
-const EphemeralIPEmptyCell = () => (
-  <Tooltip content="Ephemeral IPs don’t have names or descriptions" placement="top">
+const NonFloatingEmptyCell = ({ kind }: { kind: 'snat' | 'ephemeral' }) => (
+  <Tooltip
+    content={`${kind === 'snat' ? 'SNAT IPs' : 'Ephemeral IPs'} don’t have names or descriptions`}
+    placement="top"
+  >
     <div>
       <EmptyCell />
     </div>
@@ -167,14 +170,32 @@ const updateNicStates = fancifyStates(instanceCan.updateNic.states)
 const ipColHelper = createColumnHelper<ExternalIp>()
 const staticIpCols = [
   ipColHelper.accessor('ip', {
-    cell: (info) => <CopyableIp ip={info.getValue()} />,
+    cell: (info) => (
+      <div className="flex items-center gap-2">
+        <CopyableIp ip={info.getValue()} />
+        {info.row.original.kind === 'snat' && (
+          <Tooltip
+            content="This instance uses this IP address and ports for outbound traffic"
+            placement="top"
+          >
+            {/* div needed for Tooltip */}
+            <div>
+              <Badge color="neutral">
+                {info.row.original.firstPort}–{info.row.original.lastPort}
+              </Badge>
+            </div>
+          </Tooltip>
+        )}
+      </div>
+    ),
   }),
   ipColHelper.accessor('kind', {
     header: () => (
       <>
         Kind
         <TipIcon className="ml-2">
-          Floating IPs can be detached from this instance and attached to another
+          Floating IPs can be detached from this instance and attached to another; SNAT IPs
+          are used for outbound traffic, using a specific port range
         </TipIcon>
       </>
     ),
@@ -186,15 +207,19 @@ const staticIpCols = [
   }),
   ipColHelper.accessor('name', {
     cell: (info) =>
-      info.row.original.kind === 'ephemeral' ? <EphemeralIPEmptyCell /> : info.getValue(),
+      info.row.original.kind === 'floating' ? (
+        info.getValue()
+      ) : (
+        <NonFloatingEmptyCell kind={info.row.original.kind} />
+      ),
   }),
   ipColHelper.accessor((row) => ('description' in row ? row.description : undefined), {
     header: 'description',
     cell: (info) =>
-      info.row.original.kind === 'ephemeral' ? (
-        <EphemeralIPEmptyCell />
-      ) : (
+      info.row.original.kind === 'floating' ? (
         <DescriptionCell text={info.getValue()} />
+      ) : (
+        <NonFloatingEmptyCell kind={info.row.original.kind} />
       ),
   }),
 ]
@@ -361,6 +386,11 @@ export default function NetworkingTab() {
         onActivate: () => {
           window.navigator.clipboard.writeText(externalIp.ip)
         },
+      }
+
+      if (externalIp.kind === 'snat') {
+        // SNAT IPs can't be detached
+        return [copyAction]
       }
 
       const doAction =

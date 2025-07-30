@@ -8,6 +8,14 @@
 
 /* eslint-disable */
 
+/**
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+
 import { z, ZodType } from 'zod'
 
 import { processResponseBody, uniqueItems } from './util'
@@ -1170,6 +1178,26 @@ export const CertificateResultsPage = z.preprocess(
 )
 
 /**
+ * View of a console session
+ */
+export const ConsoleSession = z.preprocess(
+  processResponseBody,
+  z.object({
+    id: z.string().uuid(),
+    timeCreated: z.coerce.date(),
+    timeLastUsed: z.coerce.date(),
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const ConsoleSessionResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: ConsoleSession.array(), nextPage: z.string().nullable().optional() })
+)
+
+/**
  * A cumulative or counter data type.
  */
 export const Cumulativedouble = z.preprocess(
@@ -1719,6 +1747,13 @@ export const Error = z.preprocess(
 export const ExternalIp = z.preprocess(
   processResponseBody,
   z.union([
+    z.object({
+      firstPort: z.number().min(0).max(65535),
+      ip: z.string().ip(),
+      ipPoolId: z.string().uuid(),
+      kind: z.enum(['snat']),
+      lastPort: z.number().min(0).max(65535),
+    }),
     z.object({
       ip: z.string().ip(),
       ipPoolId: z.string().uuid(),
@@ -3579,6 +3614,11 @@ export const SshKeyResultsPage = z.preprocess(
   z.object({ items: SshKey.array(), nextPage: z.string().nullable().optional() })
 )
 
+export const SupportBundleCreate = z.preprocess(
+  processResponseBody,
+  z.object({ userComment: z.string().nullable().optional() })
+)
+
 export const TypedUuidForSupportBundleKind = z.preprocess(
   processResponseBody,
   z.string().uuid()
@@ -3597,6 +3637,7 @@ export const SupportBundleInfo = z.preprocess(
     reasonForFailure: z.string().nullable().optional(),
     state: SupportBundleState,
     timeCreated: z.coerce.date(),
+    userComment: z.string().nullable().optional(),
   })
 )
 
@@ -3606,6 +3647,11 @@ export const SupportBundleInfo = z.preprocess(
 export const SupportBundleInfoResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: SupportBundleInfo.array(), nextPage: z.string().nullable().optional() })
+)
+
+export const SupportBundleUpdate = z.preprocess(
+  processResponseBody,
+  z.object({ userComment: z.string().nullable().optional() })
 )
 
 /**
@@ -4534,7 +4580,7 @@ export const NameOrIdSortMode = z.preprocess(
  */
 export const TimeAndIdSortMode = z.preprocess(
   processResponseBody,
-  z.enum(['ascending', 'descending'])
+  z.enum(['time_and_id_ascending', 'time_and_id_descending'])
 )
 
 export const DiskMetricName = z.preprocess(
@@ -4661,6 +4707,16 @@ export const SupportBundleCreateParams = z.preprocess(
 )
 
 export const SupportBundleViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      bundleId: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleUpdateParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -7228,6 +7284,54 @@ export const UserListParams = z.preprocess(
     path: z.object({}),
     query: z.object({
       group: z.string().uuid().nullable().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const UserViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      userId: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const UserTokenListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      userId: z.string().uuid(),
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const UserLogoutParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      userId: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const UserSessionListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      userId: z.string().uuid(),
+    }),
+    query: z.object({
       limit: z.number().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),

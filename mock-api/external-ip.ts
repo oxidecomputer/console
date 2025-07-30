@@ -39,6 +39,16 @@ export const ephemeralIps: DbExternalIp[] = [
       kind: 'ephemeral',
     },
   },
+  {
+    instance_id: instances[0].id,
+    external_ip: {
+      ip: '123.4.56.10',
+      ip_pool_id: ipPool1.id,
+      kind: 'snat',
+      first_port: 0,
+      last_port: 16383,
+    },
+  },
   // middle one has no IPs
   {
     instance_id: instances[2].id,
