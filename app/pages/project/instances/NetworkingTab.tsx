@@ -174,10 +174,7 @@ const staticIpCols = [
       <div className="flex items-center gap-2">
         <CopyableIp ip={info.getValue()} />
         {info.row.original.kind === 'snat' && (
-          <Tooltip
-            content="This instance uses this IP address and ports for outbound traffic"
-            placement="top"
-          >
+          <Tooltip content="Outbound traffic uses this IP and port range" placement="top">
             {/* div needed for Tooltip */}
             <div>
               <Badge color="neutral">
