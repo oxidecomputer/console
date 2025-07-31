@@ -29,9 +29,6 @@ type DbExternalIp = {
 // table for floating IPs, analogous to the floating_ip view in Nexus.
 
 // Note that these addresses should come from ranges in ip-pool-1
-// Also note that SNAT IPs are subdivided into four ranges of ports,
-// with each instance getting a unique range.
-
 export const ephemeralIps: DbExternalIp[] = [
   {
     instance_id: instance.id,
@@ -41,28 +38,7 @@ export const ephemeralIps: DbExternalIp[] = [
       kind: 'ephemeral',
     },
   },
-  {
-    instance_id: instance.id,
-    external_ip: {
-      ip: '123.4.56.10',
-      ip_pool_id: ipPool1.id,
-      kind: 'snat',
-      first_port: 0,
-      last_port: 16383,
-    },
-  },
-  // failed instance has no IPs besides SNAT
-  {
-    instance_id: failedInstance.id,
-    external_ip: {
-      ip: '123.4.56.10',
-      ip_pool_id: ipPool1.id,
-      kind: 'snat',
-      first_port: 49151,
-      last_port: 65535,
-    },
-  },
-  // starting instance has a few ephemeral IPs, plus SNAT
+  // failedInstance has no ephemeral IPs
   {
     instance_id: startingInstance.id,
     external_ip: {
@@ -87,6 +63,21 @@ export const ephemeralIps: DbExternalIp[] = [
       kind: 'ephemeral',
     },
   },
+]
+
+// Note that SNAT IPs are subdivided into four ranges of ports,
+// with each instance getting a unique range.
+export const snatIps: DbExternalIp[] = [
+  {
+    instance_id: instance.id,
+    external_ip: {
+      ip: '123.4.56.10',
+      ip_pool_id: ipPool1.id,
+      kind: 'snat',
+      first_port: 0,
+      last_port: 16383,
+    },
+  },
   {
     instance_id: startingInstance.id,
     external_ip: {
@@ -97,7 +88,6 @@ export const ephemeralIps: DbExternalIp[] = [
       last_port: 32767,
     },
   },
-  // db2 instance only has a SNAT IP
   {
     instance_id: instanceDb2.id,
     external_ip: {
@@ -106,6 +96,16 @@ export const ephemeralIps: DbExternalIp[] = [
       kind: 'snat',
       first_port: 32768,
       last_port: 49151,
+    },
+  },
+  {
+    instance_id: failedInstance.id,
+    external_ip: {
+      ip: '123.4.56.10',
+      ip_pool_id: ipPool1.id,
+      kind: 'snat',
+      first_port: 49151,
+      last_port: 65535,
     },
   },
 ]

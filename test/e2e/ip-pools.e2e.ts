@@ -21,7 +21,7 @@ test('IP pool list', async ({ page }) => {
 
   await expect(table.getByRole('row')).toHaveCount(5) // header + 4 rows
 
-  await expectRowVisible(table, { name: 'ip-pool-1', Utilization: '10 / 24' })
+  await expectRowVisible(table, { name: 'ip-pool-1', Utilization: '7 / 24' })
   await expectRowVisible(table, {
     name: 'ip-pool-2',
     Utilization: 'v4' + '0 / 0' + 'v6' + '0 / 32',
@@ -282,8 +282,8 @@ test('remove range', async ({ page }) => {
   await expect(table.getByRole('row')).toHaveCount(2)
 
   // utilization updates
-  await expect(page.getByText('IPv4(IPs)47.62%')).toBeVisible()
-  await expect(page.getByText('Allocated10')).toBeVisible()
+  await expect(page.getByText('IPv4(IPs)33.33%')).toBeVisible()
+  await expect(page.getByText('Allocated7')).toBeVisible()
   await expect(page.getByText('Capacity21')).toBeVisible()
 
   // go back to the pool and verify the utilization column changed
@@ -292,14 +292,14 @@ test('remove range', async ({ page }) => {
   await breadcrumbs.getByRole('link', { name: 'IP Pools' }).click()
   await expectRowVisible(table, {
     name: 'ip-pool-1',
-    Utilization: '10 / 21',
+    Utilization: '7 / 21',
   })
 })
 
 test('deleting floating IP decrements utilization', async ({ page }) => {
   await page.goto('/system/networking/ip-pools')
   const table = page.getByRole('table')
-  await expectRowVisible(table, { name: 'ip-pool-1', Utilization: '10 / 24' })
+  await expectRowVisible(table, { name: 'ip-pool-1', Utilization: '7 / 24' })
 
   // go delete a floating IP
   await page.getByLabel('Switch between system and silo').click()
@@ -309,11 +309,11 @@ test('deleting floating IP decrements utilization', async ({ page }) => {
   await clickRowAction(page, 'rootbeer-float', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
 
-  // now go back and it's 9. wow
+  // now go back and it's 6. wow
   await page.getByLabel('Switch between system and silo').click()
   await page.getByRole('menuitem', { name: 'System' }).click()
   await page.getByRole('link', { name: 'IP Pools' }).click()
-  await expectRowVisible(table, { name: 'ip-pool-1', Utilization: '9 / 24' })
+  await expectRowVisible(table, { name: 'ip-pool-1', Utilization: '6 / 24' })
 })
 
 test('no ranges means no utilization bar', async ({ page }) => {
