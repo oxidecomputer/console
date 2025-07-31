@@ -10,8 +10,10 @@ import { useCallback, useMemo, useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router'
 
 import {
+  apiq,
   apiQueryClient,
   instanceCan,
+  queryClient,
   useApiMutation,
   useApiQuery,
   useApiQueryClient,
@@ -114,8 +116,16 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
       path: { instance },
       query: { project },
     }),
-    // This is used in AttachEphemeralIpModal
-    apiQueryClient.fetchQuery('projectIpPoolList', { query: { limit: ALL_ISH } }),
+    // Fetch IP Pools and preload into RQ cache so fetches by ID in
+    // IpPoolCell and AttachFloatingIpModal can be mostly instant
+    apiQueryClient
+      .fetchQuery('projectIpPoolList', { query: { limit: ALL_ISH } })
+      .then((pools) => {
+        for (const pool of pools.items) {
+          const { queryKey } = apiq('projectIpPoolView', { path: { pool: pool.id } })
+          queryClient.setQueryData(queryKey, pool)
+        }
+      }),
   ])
   return null
 }
