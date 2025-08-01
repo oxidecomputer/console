@@ -104,7 +104,7 @@ export const snatIps: DbExternalIp[] = [
       ip: '123.4.56.10',
       ip_pool_id: ipPool1.id,
       kind: 'snat',
-      first_port: 49151,
+      first_port: 49152,
       last_port: 65535,
     },
   },
