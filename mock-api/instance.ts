@@ -34,7 +34,7 @@ export const instance: Json<Instance> = {
   boot_disk_id: '7f2309a5-13e3-47e0-8a4c-2a3b3bc992fd', // disk-1: needs to be written out here to reduce circular dependencies
 }
 
-const failedInstance: Json<Instance> = {
+export const failedInstance: Json<Instance> = {
   ...base,
   id: 'b5946edc-5bed-4597-88ab-9a8beb9d32a4',
   name: 'you-fail',

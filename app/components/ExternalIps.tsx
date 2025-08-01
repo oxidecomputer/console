@@ -18,9 +18,15 @@ import { intersperse } from '~/util/array'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
-/** Move ephemeral IP (if present) to the end of the list of external IPs */
+/** Order IPs: floating first, then ephemeral, then SNAT */
 export const orderIps = (ips: ExternalIp[]) =>
-  R.sortBy(ips, (a) => (a.kind === 'ephemeral' ? 1 : -1))
+  R.sortBy(ips, (a) => {
+    if (a.kind === 'floating') return 0
+    if (a.kind === 'ephemeral') return 1
+    if (a.kind === 'snat') return 2
+    // This should never happen, but just in case
+    return 3
+  })
 
 export function ExternalIps({ project, instance }: PP.Instance) {
   const { data, isPending } = useApiQuery('instanceExternalIpList', {
@@ -29,7 +35,7 @@ export function ExternalIps({ project, instance }: PP.Instance) {
   })
   if (isPending) return <SkeletonCell />
 
-  const ips = data?.items
+  const ips = data?.items.filter((ip) => ip.kind !== 'snat')
   if (!ips || ips.length === 0) return <EmptyCell />
   const orderedIps = orderIps(ips)
   const ipsToShow = orderedIps.slice(0, 2)

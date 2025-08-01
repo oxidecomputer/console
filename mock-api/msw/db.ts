@@ -512,6 +512,7 @@ const initDb = {
   sleds: [...mock.sleds],
   switches: [...mock.switches],
   snapshots: [...mock.snapshots],
+  snatIps: [...mock.snatIps],
   sshKeys: [...mock.sshKeys],
   users: [...mock.users],
   vpcFirewallRules: [...mock.firewallRules],
