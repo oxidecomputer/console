@@ -143,8 +143,13 @@ test('Instance networking tab — floating IPs', async ({ page }) => {
   // See list of external IPs
   await expectRowVisible(externalIpTable, { ip: '123.4.56.0', Kind: 'ephemeral' })
   await expectRowVisible(externalIpTable, { ip: '123.4.56.5', Kind: 'floating' })
+  await expectRowVisible(externalIpTable, { ip: '123.4.56.100–16383', Kind: 'snat' })
 
   await expect(page.getByText('external IPs123.4.56.5/123.4.56.0')).toBeVisible()
+
+  // The list of IPs at the top of the page should not show the SNAT IP
+  await expect(page.getByText('external IPs123.4.56.5/123.4.56.0')).toBeVisible()
+  await expect(page.getByText('external IPs123.4.56.5/123.4.56.0/')).toBeHidden()
 
   // Attach a new external IP
   await attachFloatingIpButton.click()

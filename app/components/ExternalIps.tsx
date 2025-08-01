@@ -35,7 +35,7 @@ export function ExternalIps({ project, instance }: PP.Instance) {
   })
   if (isPending) return <SkeletonCell />
 
-  const ips = data?.items
+  const ips = data?.items.filter((ip) => ip.kind !== 'snat')
   if (!ips || ips.length === 0) return <EmptyCell />
   const orderedIps = orderIps(ips)
   const ipsToShow = orderedIps.slice(0, 2)
