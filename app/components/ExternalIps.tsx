@@ -19,14 +19,8 @@ import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
 /** Order IPs: floating first, then ephemeral, then SNAT */
-export const orderIps = (ips: ExternalIp[]) =>
-  R.sortBy(ips, (a) => {
-    if (a.kind === 'floating') return 0
-    if (a.kind === 'ephemeral') return 1
-    if (a.kind === 'snat') return 2
-    // This should never happen, but just in case
-    return 3
-  })
+const IP_ORDER = { floating: 0, ephemeral: 1, snat: 2 } as const
+export const orderIps = (ips: ExternalIp[]) => R.sortBy(ips, (a) => IP_ORDER[a.kind])
 
 export function ExternalIps({ project, instance }: PP.Instance) {
   const { data, isPending } = useApiQuery('instanceExternalIpList', {
@@ -35,6 +29,10 @@ export function ExternalIps({ project, instance }: PP.Instance) {
   })
   if (isPending) return <SkeletonCell />
 
+  // Exclude SNAT IPs from the properties table because they are rarely going
+  // to be what the user wants as the "external IP" of the instance -- they
+  // want one that can receive inbound traffic. This will have to change with
+  // https://github.com/oxidecomputer/omicron/issues/4317
   const ips = data?.items.filter((ip) => ip.kind !== 'snat')
   if (!ips || ips.length === 0) return <EmptyCell />
   const orderedIps = orderIps(ips)

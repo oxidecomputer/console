@@ -387,30 +387,36 @@ export default function NetworkingTab() {
       }
 
       if (externalIp.kind === 'snat') {
-        // SNAT IPs can't be detached
-        return [copyAction]
+        return [
+          copyAction,
+          {
+            label: 'Detach',
+            disabled: "SNAT IPs can't be detached",
+            onActivate: () => {},
+          },
+        ]
       }
 
-      const doAction =
-        externalIp.kind === 'floating'
-          ? () =>
-              floatingIpDetach({
-                path: { floatingIp: externalIp.name },
-                query: { project },
-              })
-          : () =>
-              ephemeralIpDetach({
-                path: { instance: instanceName },
-                query: { project },
-              })
+      const doDetach = match(externalIp)
+        .with(
+          { kind: 'ephemeral' },
+          () => () =>
+            ephemeralIpDetach({ path: { instance: instanceName }, query: { project } })
+        )
+        .with(
+          { kind: 'floating' },
+          ({ name }) =>
+            () =>
+              floatingIpDetach({ path: { floatingIp: name }, query: { project } })
+        )
+        .exhaustive()
 
       const label = match(externalIp)
         .with({ kind: 'ephemeral' }, () => 'this ephemeral IP')
-        .with({ kind: 'floating' }, ({ name }) => (
-          <>
-            floating IP <HL>{name}</HL>
-          </>
-        ))
+        .with(
+          { kind: 'floating' },
+          ({ name }) => <>floating IP <HL>{name}</HL></> // prettier-ignore
+        )
         .exhaustive()
 
       return [
@@ -420,7 +426,7 @@ export default function NetworkingTab() {
           onActivate: () =>
             confirmAction({
               actionType: 'danger',
-              doAction,
+              doAction: doDetach,
               modalTitle: `Confirm detach ${externalIp.kind} IP`,
               modalContent: (
                 <p>

@@ -203,8 +203,8 @@ test('Instance networking tab — SNAT IPs', async ({ page }) => {
   // Should have "Copy IP address" action, just for consistency with other IP rows
   await expect(page.getByRole('menuitem', { name: 'Copy IP address' })).toBeVisible()
 
-  // Should NOT have "Detach" action
-  await expect(page.getByRole('menuitem', { name: 'Detach' })).toBeHidden()
+  // Should have a disabled "Detach" action
+  await expect(page.getByRole('menuitem', { name: 'Detach' })).toBeDisabled()
 })
 
 test('Edit network interface - Transit IPs', async ({ page }) => {
