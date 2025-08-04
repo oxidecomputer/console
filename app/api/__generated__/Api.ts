@@ -1205,6 +1205,26 @@ export type CertificateResultsPage = {
 }
 
 /**
+ * View of a console session
+ */
+export type ConsoleSession = {
+  /** A unique, immutable, system-controlled identifier for the session */
+  id: string
+  timeCreated: Date
+  timeLastUsed: Date
+}
+
+/**
+ * A single page of results
+ */
+export type ConsoleSessionResultsPage = {
+  /** list of items on this page of results */
+  items: ConsoleSession[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
  * A cumulative or counter data type.
  */
 export type Cumulativedouble = { startTime: Date; value: number }
@@ -1829,6 +1849,20 @@ export type EphemeralIpCreate = {
 }
 
 export type ExternalIp =
+  /** A source NAT IP address.
+
+SNAT addresses are ephemeral addresses used only for outbound connectivity. */
+  | {
+      /** The first usable port within the IP address. */
+      firstPort: number
+      /** The IP address. */
+      ip: string
+      /** ID of the IP Pool from which the address is taken. */
+      ipPoolId: string
+      kind: 'snat'
+      /** The last usable port within the IP address. */
+      lastPort: number
+    }
   | { ip: string; ipPoolId: string; kind: 'ephemeral' }
   /** A Floating IP is a well-known IP address which can be attached and detached from instances. */
   | {
@@ -3201,7 +3235,7 @@ export type Route = {
   dst: IpNet
   /** The route gateway. */
   gw: string
-  /** Local preference for route. Higher preference indictes precedence within and across protocols. */
+  /** Route RIB priority. Higher priority indicates precedence within and across protocols. */
   ribPriority?: number | null
   /** VLAN id the gateway is reachable over. */
   vid?: number | null
@@ -3829,6 +3863,11 @@ export type SshKeyResultsPage = {
   nextPage?: string | null
 }
 
+export type SupportBundleCreate = {
+  /** User comment for the support bundle */
+  userComment?: string | null
+}
+
 export type TypedUuidForSupportBundleKind = string
 
 export type SupportBundleState =
@@ -3858,6 +3897,7 @@ export type SupportBundleInfo = {
   reasonForFailure?: string | null
   state: SupportBundleState
   timeCreated: Date
+  userComment?: string | null
 }
 
 /**
@@ -3868,6 +3908,11 @@ export type SupportBundleInfoResultsPage = {
   items: SupportBundleInfo[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
+}
+
+export type SupportBundleUpdate = {
+  /** User comment for the support bundle */
+  userComment?: string | null
 }
 
 /**
@@ -4091,7 +4136,7 @@ export type SwitchPortRouteConfig = {
   interfaceName: Name
   /** The port settings object this route configuration belongs to. */
   portSettingsId: string
-  /** RIB Priority indicating priority within and across protocols. */
+  /** Route RIB priority. Higher priority indicates precedence within and across protocols. */
   ribPriority?: number | null
   /** The VLAN identifier for the route. Use this if the gateway is reachable over an 802.1Q tagged L2 segment. */
   vlanId?: number | null
@@ -4855,23 +4900,10 @@ export type NameOrIdSortMode =
  */
 export type TimeAndIdSortMode =
   /** sort in increasing order of timestamp and ID, i.e., earliest first */
-  | 'ascending'
+  | 'time_and_id_ascending'
 
   /** sort in increasing order of timestamp and ID, i.e., most recent first */
-  | 'descending'
-
-export type DiskMetricName =
-  | 'activated'
-  | 'flush'
-  | 'read'
-  | 'read_bytes'
-  | 'write'
-  | 'write_bytes'
-
-/**
- * The order in which the client wants to page through the requested collection
- */
-export type PaginationOrder = 'ascending' | 'descending'
+  | 'time_and_id_descending'
 
 /**
  * Supported set of sort modes for scanning by id only.
@@ -4884,6 +4916,11 @@ export type SystemMetricName =
   | 'virtual_disk_space_provisioned'
   | 'cpus_provisioned'
   | 'ram_provisioned'
+
+/**
+ * The order in which the client wants to page through the requested collection
+ */
+export type PaginationOrder = 'ascending' | 'descending'
 
 /**
  * Supported set of sort modes for scanning by name only
@@ -4926,6 +4963,10 @@ export interface SupportBundleListQueryParams {
 }
 
 export interface SupportBundleViewPathParams {
+  bundleId: string
+}
+
+export interface SupportBundleUpdatePathParams {
   bundleId: string
 }
 
@@ -5234,20 +5275,6 @@ export interface DiskFinalizeImportPathParams {
 }
 
 export interface DiskFinalizeImportQueryParams {
-  project?: NameOrId
-}
-
-export interface DiskMetricsListPathParams {
-  disk: NameOrId
-  metric: DiskMetricName
-}
-
-export interface DiskMetricsListQueryParams {
-  endTime?: Date
-  limit?: number | null
-  order?: PaginationOrder
-  pageToken?: string | null
-  startTime?: Date
   project?: NameOrId
 }
 
@@ -6204,6 +6231,34 @@ export interface UserListQueryParams {
   sortBy?: IdSortMode
 }
 
+export interface UserViewPathParams {
+  userId: string
+}
+
+export interface UserTokenListPathParams {
+  userId: string
+}
+
+export interface UserTokenListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: IdSortMode
+}
+
+export interface UserLogoutPathParams {
+  userId: string
+}
+
+export interface UserSessionListPathParams {
+  userId: string
+}
+
+export interface UserSessionListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: IdSortMode
+}
+
 export interface VpcFirewallRulesViewQueryParams {
   project?: NameOrId
   vpc: NameOrId
@@ -6510,10 +6565,14 @@ export class Api extends HttpClient {
     /**
      * Create a new support bundle
      */
-    supportBundleCreate: (_: EmptyObj, params: FetchParams = {}) => {
+    supportBundleCreate: (
+      { body }: { body: SupportBundleCreate },
+      params: FetchParams = {}
+    ) => {
       return this.request<SupportBundleInfo>({
         path: `/experimental/v1/system/support-bundles`,
         method: 'POST',
+        body,
         ...params,
       })
     },
@@ -6527,6 +6586,20 @@ export class Api extends HttpClient {
       return this.request<SupportBundleInfo>({
         path: `/experimental/v1/system/support-bundles/${path.bundleId}`,
         method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Update a support bundle
+     */
+    supportBundleUpdate: (
+      { path, body }: { path: SupportBundleUpdatePathParams; body: SupportBundleUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SupportBundleInfo>({
+        path: `/experimental/v1/system/support-bundles/${path.bundleId}`,
+        method: 'PUT',
+        body,
         ...params,
       })
     },
@@ -7311,23 +7384,6 @@ export class Api extends HttpClient {
         path: `/v1/disks/${path.disk}/finalize`,
         method: 'POST',
         body,
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Fetch disk metrics
-     */
-    diskMetricsList: (
-      {
-        path,
-        query = {},
-      }: { path: DiskMetricsListPathParams; query?: DiskMetricsListQueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<MeasurementResultsPage>({
-        path: `/v1/disks/${path.disk}/metrics/${path.metric}`,
-        method: 'GET',
         query,
         ...params,
       })
@@ -9979,6 +10035,60 @@ export class Api extends HttpClient {
     ) => {
       return this.request<UserResultsPage>({
         path: `/v1/users`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch user
+     */
+    userView: ({ path }: { path: UserViewPathParams }, params: FetchParams = {}) => {
+      return this.request<User>({
+        path: `/v1/users/${path.userId}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * List user's access tokens
+     */
+    userTokenList: (
+      {
+        path,
+        query = {},
+      }: { path: UserTokenListPathParams; query?: UserTokenListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<DeviceAccessTokenResultsPage>({
+        path: `/v1/users/${path.userId}/access-tokens`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Log user out
+     */
+    userLogout: ({ path }: { path: UserLogoutPathParams }, params: FetchParams = {}) => {
+      return this.request<void>({
+        path: `/v1/users/${path.userId}/logout`,
+        method: 'POST',
+        ...params,
+      })
+    },
+    /**
+     * List user's console sessions
+     */
+    userSessionList: (
+      {
+        path,
+        query = {},
+      }: { path: UserSessionListPathParams; query?: UserSessionListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ConsoleSessionResultsPage>({
+        path: `/v1/users/${path.userId}/sessions`,
         method: 'GET',
         query,
         ...params,

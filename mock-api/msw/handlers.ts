@@ -31,7 +31,6 @@ import { parseIp } from '~/util/ip'
 import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
 
-import { genCumulativeI64Data } from '../metrics'
 import { defaultSilo, toIdp } from '../silo'
 import { getTimestamps } from '../util'
 import { defaultFirewallRules } from '../vpc'
@@ -49,7 +48,6 @@ import {
   errIfExists,
   errIfInvalidDiskSize,
   forbiddenErr,
-  getStartAndEndTime,
   handleMetrics,
   handleOxqlMetrics,
   ipInAnyRange,
@@ -175,21 +173,6 @@ export const handlers = makeHandlers({
 
     db.disks = db.disks.filter((d) => d.id !== disk.id)
     return 204
-  },
-  diskMetricsList({ path, query }) {
-    lookup.disk({ ...path, ...query })
-
-    const { startTime, endTime } = getStartAndEndTime(query)
-
-    if (endTime <= startTime) return { items: [] }
-
-    return {
-      items: genCumulativeI64Data(
-        Array.from({ length: 1000 }).map((_x, i) => Math.floor(Math.tanh(i / 500) * 3000)),
-        startTime,
-        endTime
-      ),
-    }
   },
   async diskBulkWriteImportStart({ path, query }) {
     const disk = lookup.disk({ ...path, ...query })
@@ -1898,6 +1881,7 @@ export const handlers = makeHandlers({
   supportBundleHeadFile: NotImplemented,
   supportBundleIndex: NotImplemented,
   supportBundleList: NotImplemented,
+  supportBundleUpdate: NotImplemented,
   supportBundleView: NotImplemented,
   switchView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
@@ -1913,6 +1897,10 @@ export const handlers = makeHandlers({
   targetReleaseView: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
+  userLogout: NotImplemented,
+  userSessionList: NotImplemented,
+  userTokenList: NotImplemented,
+  userView: NotImplemented,
   webhookReceiverCreate: NotImplemented,
   webhookReceiverUpdate: NotImplemented,
   webhookSecretsAdd: NotImplemented,

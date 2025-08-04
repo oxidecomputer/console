@@ -1170,6 +1170,26 @@ export const CertificateResultsPage = z.preprocess(
 )
 
 /**
+ * View of a console session
+ */
+export const ConsoleSession = z.preprocess(
+  processResponseBody,
+  z.object({
+    id: z.string().uuid(),
+    timeCreated: z.coerce.date(),
+    timeLastUsed: z.coerce.date(),
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const ConsoleSessionResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: ConsoleSession.array(), nextPage: z.string().nullable().optional() })
+)
+
+/**
  * A cumulative or counter data type.
  */
 export const Cumulativedouble = z.preprocess(
@@ -1719,6 +1739,13 @@ export const Error = z.preprocess(
 export const ExternalIp = z.preprocess(
   processResponseBody,
   z.union([
+    z.object({
+      firstPort: z.number().min(0).max(65535),
+      ip: z.string().ip(),
+      ipPoolId: z.string().uuid(),
+      kind: z.enum(['snat']),
+      lastPort: z.number().min(0).max(65535),
+    }),
     z.object({
       ip: z.string().ip(),
       ipPoolId: z.string().uuid(),
@@ -3579,6 +3606,11 @@ export const SshKeyResultsPage = z.preprocess(
   z.object({ items: SshKey.array(), nextPage: z.string().nullable().optional() })
 )
 
+export const SupportBundleCreate = z.preprocess(
+  processResponseBody,
+  z.object({ userComment: z.string().nullable().optional() })
+)
+
 export const TypedUuidForSupportBundleKind = z.preprocess(
   processResponseBody,
   z.string().uuid()
@@ -3597,6 +3629,7 @@ export const SupportBundleInfo = z.preprocess(
     reasonForFailure: z.string().nullable().optional(),
     state: SupportBundleState,
     timeCreated: z.coerce.date(),
+    userComment: z.string().nullable().optional(),
   })
 )
 
@@ -3606,6 +3639,11 @@ export const SupportBundleInfo = z.preprocess(
 export const SupportBundleInfoResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: SupportBundleInfo.array(), nextPage: z.string().nullable().optional() })
+)
+
+export const SupportBundleUpdate = z.preprocess(
+  processResponseBody,
+  z.object({ userComment: z.string().nullable().optional() })
 )
 
 /**
@@ -4534,20 +4572,7 @@ export const NameOrIdSortMode = z.preprocess(
  */
 export const TimeAndIdSortMode = z.preprocess(
   processResponseBody,
-  z.enum(['ascending', 'descending'])
-)
-
-export const DiskMetricName = z.preprocess(
-  processResponseBody,
-  z.enum(['activated', 'flush', 'read', 'read_bytes', 'write', 'write_bytes'])
-)
-
-/**
- * The order in which the client wants to page through the requested collection
- */
-export const PaginationOrder = z.preprocess(
-  processResponseBody,
-  z.enum(['ascending', 'descending'])
+  z.enum(['time_and_id_ascending', 'time_and_id_descending'])
 )
 
 /**
@@ -4560,6 +4585,14 @@ export const IdSortMode = z.preprocess(processResponseBody, z.enum(['id_ascendin
 export const SystemMetricName = z.preprocess(
   processResponseBody,
   z.enum(['virtual_disk_space_provisioned', 'cpus_provisioned', 'ram_provisioned'])
+)
+
+/**
+ * The order in which the client wants to page through the requested collection
+ */
+export const PaginationOrder = z.preprocess(
+  processResponseBody,
+  z.enum(['ascending', 'descending'])
 )
 
 /**
@@ -4661,6 +4694,16 @@ export const SupportBundleCreateParams = z.preprocess(
 )
 
 export const SupportBundleViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      bundleId: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SupportBundleUpdateParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -5221,24 +5264,6 @@ export const DiskFinalizeImportParams = z.preprocess(
       disk: NameOrId,
     }),
     query: z.object({
-      project: NameOrId.optional(),
-    }),
-  })
-)
-
-export const DiskMetricsListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      disk: NameOrId,
-      metric: DiskMetricName,
-    }),
-    query: z.object({
-      endTime: z.coerce.date().optional(),
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
-      order: PaginationOrder.optional(),
-      pageToken: z.string().nullable().optional(),
-      startTime: z.coerce.date().optional(),
       project: NameOrId.optional(),
     }),
   })
@@ -7228,6 +7253,54 @@ export const UserListParams = z.preprocess(
     path: z.object({}),
     query: z.object({
       group: z.string().uuid().nullable().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const UserViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      userId: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const UserTokenListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      userId: z.string().uuid(),
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const UserLogoutParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      userId: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const UserSessionListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      userId: z.string().uuid(),
+    }),
+    query: z.object({
       limit: z.number().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
       sortBy: IdSortMode.optional(),
