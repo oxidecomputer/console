@@ -71,8 +71,10 @@ async function refreshData() {
     apiQueryClient.invalidateQueries('instanceExternalIpList'),
     apiQueryClient.invalidateQueries('instanceNetworkInterfaceList'),
     apiQueryClient.invalidateQueries('instanceDiskList'), // storage tab
-    apiQueryClient.invalidateQueries('diskMetricsList'), // metrics tab
     apiQueryClient.invalidateQueries('antiAffinityGroupMemberList'),
+    // note that we do not include timeseriesQuery because the charts on the
+    // metrics tab will manage their own refresh intervals when we turn that
+    // back on
   ])
 }
 

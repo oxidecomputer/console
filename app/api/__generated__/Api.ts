@@ -8,14 +8,6 @@
 
 /* eslint-disable */
 
-/**
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, you can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * Copyright Oxide Computer Company
- */
-
 import { HttpClient, toQueryString, type FetchParams } from './http-client'
 
 export type { ApiConfig, ApiResult, ErrorBody, ErrorResult } from './http-client'
@@ -4913,19 +4905,6 @@ export type TimeAndIdSortMode =
   /** sort in increasing order of timestamp and ID, i.e., most recent first */
   | 'time_and_id_descending'
 
-export type DiskMetricName =
-  | 'activated'
-  | 'flush'
-  | 'read'
-  | 'read_bytes'
-  | 'write'
-  | 'write_bytes'
-
-/**
- * The order in which the client wants to page through the requested collection
- */
-export type PaginationOrder = 'ascending' | 'descending'
-
 /**
  * Supported set of sort modes for scanning by id only.
  *
@@ -4937,6 +4916,11 @@ export type SystemMetricName =
   | 'virtual_disk_space_provisioned'
   | 'cpus_provisioned'
   | 'ram_provisioned'
+
+/**
+ * The order in which the client wants to page through the requested collection
+ */
+export type PaginationOrder = 'ascending' | 'descending'
 
 /**
  * Supported set of sort modes for scanning by name only
@@ -5291,20 +5275,6 @@ export interface DiskFinalizeImportPathParams {
 }
 
 export interface DiskFinalizeImportQueryParams {
-  project?: NameOrId
-}
-
-export interface DiskMetricsListPathParams {
-  disk: NameOrId
-  metric: DiskMetricName
-}
-
-export interface DiskMetricsListQueryParams {
-  endTime?: Date
-  limit?: number | null
-  order?: PaginationOrder
-  pageToken?: string | null
-  startTime?: Date
   project?: NameOrId
 }
 
@@ -7414,23 +7384,6 @@ export class Api extends HttpClient {
         path: `/v1/disks/${path.disk}/finalize`,
         method: 'POST',
         body,
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Fetch disk metrics
-     */
-    diskMetricsList: (
-      {
-        path,
-        query = {},
-      }: { path: DiskMetricsListPathParams; query?: DiskMetricsListQueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<MeasurementResultsPage>({
-        path: `/v1/disks/${path.disk}/metrics/${path.metric}`,
-        method: 'GET',
         query,
         ...params,
       })

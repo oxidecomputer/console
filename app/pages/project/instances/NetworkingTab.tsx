@@ -8,6 +8,7 @@
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router'
+import { match } from 'ts-pattern'
 
 import {
   apiQueryClient,
@@ -403,6 +404,15 @@ export default function NetworkingTab() {
                 query: { project },
               })
 
+      const label = match(externalIp)
+        .with({ kind: 'ephemeral' }, () => 'this ephemeral IP')
+        .with({ kind: 'floating' }, ({ name }) => (
+          <>
+            floating IP <HL>{name}</HL>
+          </>
+        ))
+        .exhaustive()
+
       return [
         copyAction,
         {
@@ -414,16 +424,8 @@ export default function NetworkingTab() {
               modalTitle: `Confirm detach ${externalIp.kind} IP`,
               modalContent: (
                 <p>
-                  Are you sure you want to detach{' '}
-                  {externalIp.kind === 'ephemeral' ? (
-                    'this ephemeral IP'
-                  ) : (
-                    <>
-                      floating IP <HL>{externalIp.name}</HL>
-                    </>
-                  )}{' '}
-                  from <HL>{instanceName}</HL>? The instance will no longer be reachable at{' '}
-                  <HL>{externalIp.ip}</HL>.
+                  Are you sure you want to detach {label} from <HL>{instanceName}</HL>? The
+                  instance will no longer be reachable at <HL>{externalIp.ip}</HL>.
                 </p>
               ),
               errorTitle: `Error detaching ${externalIp.kind} IP`,

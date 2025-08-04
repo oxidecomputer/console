@@ -8,14 +8,6 @@
 
 /* eslint-disable */
 
-/**
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, you can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * Copyright Oxide Computer Company
- */
-
 import { z, ZodType } from 'zod'
 
 import { processResponseBody, uniqueItems } from './util'
@@ -4583,19 +4575,6 @@ export const TimeAndIdSortMode = z.preprocess(
   z.enum(['time_and_id_ascending', 'time_and_id_descending'])
 )
 
-export const DiskMetricName = z.preprocess(
-  processResponseBody,
-  z.enum(['activated', 'flush', 'read', 'read_bytes', 'write', 'write_bytes'])
-)
-
-/**
- * The order in which the client wants to page through the requested collection
- */
-export const PaginationOrder = z.preprocess(
-  processResponseBody,
-  z.enum(['ascending', 'descending'])
-)
-
 /**
  * Supported set of sort modes for scanning by id only.
  *
@@ -4606,6 +4585,14 @@ export const IdSortMode = z.preprocess(processResponseBody, z.enum(['id_ascendin
 export const SystemMetricName = z.preprocess(
   processResponseBody,
   z.enum(['virtual_disk_space_provisioned', 'cpus_provisioned', 'ram_provisioned'])
+)
+
+/**
+ * The order in which the client wants to page through the requested collection
+ */
+export const PaginationOrder = z.preprocess(
+  processResponseBody,
+  z.enum(['ascending', 'descending'])
 )
 
 /**
@@ -5277,24 +5264,6 @@ export const DiskFinalizeImportParams = z.preprocess(
       disk: NameOrId,
     }),
     query: z.object({
-      project: NameOrId.optional(),
-    }),
-  })
-)
-
-export const DiskMetricsListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      disk: NameOrId,
-      metric: DiskMetricName,
-    }),
-    query: z.object({
-      endTime: z.coerce.date().optional(),
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
-      order: PaginationOrder.optional(),
-      pageToken: z.string().nullable().optional(),
-      startTime: z.coerce.date().optional(),
       project: NameOrId.optional(),
     }),
   })
