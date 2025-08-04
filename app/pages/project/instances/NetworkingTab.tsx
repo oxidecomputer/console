@@ -192,8 +192,9 @@ const staticIpCols = [
       <>
         Kind
         <TipIcon className="ml-2">
-          Floating IPs can be detached from this instance and attached to another; SNAT IPs
-          are used for outbound traffic, using a specific port range
+          Floating IPs can be detached from this instance and attached to another. SNAT IPs
+          cannot receive traffic; they are used for outbound traffic when there are no
+          ephemeral or floating IPs.
         </TipIcon>
       </>
     ),
