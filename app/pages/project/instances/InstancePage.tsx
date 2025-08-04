@@ -263,7 +263,7 @@ export default function InstancePage() {
         <PropertiesTable.DateRow date={instance.timeCreated} label="Created" />
         <PropertiesTable.IdRow id={instance.id} />
         <PropertiesTable.Row label="external IPs">
-          {<ExternalIps {...instanceSelector} />}
+          <ExternalIps {...instanceSelector} />
         </PropertiesTable.Row>
       </PropertiesTable>
       <RouteTabs fullWidth>

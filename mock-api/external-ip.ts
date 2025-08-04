@@ -7,7 +7,7 @@
  */
 import type { ExternalIp } from '@oxide/api'
 
-import { instances } from './instance'
+import { failedInstance, instance, instanceDb2, startingInstance } from './instance'
 import { ipPool1 } from './ip-pool'
 import type { Json } from './json-type'
 
@@ -24,24 +24,23 @@ type DbExternalIp = {
   external_ip: Json<ExternalIp>
 }
 
-// Note that ExternalIp is a union of types representing ephemeral and floating
-// IPs, but we only put the ephemeral ones here. We have a separate table for
-// floating IPs analogous to the floating_ip view in Nexus.
+// Note that ExternalIp is a union of types representing ephemeral, floating, and
+// SNAT IPs, but we only put the ephemeral and SNAT ones here. We have a separate
+// table for floating IPs, analogous to the floating_ip view in Nexus.
 
 // Note that these addresses should come from ranges in ip-pool-1
-
 export const ephemeralIps: DbExternalIp[] = [
   {
-    instance_id: instances[0].id,
+    instance_id: instance.id,
     external_ip: {
       ip: '123.4.56.0',
       ip_pool_id: ipPool1.id,
       kind: 'ephemeral',
     },
   },
-  // middle one has no IPs
+  // failedInstance has no ephemeral IPs
   {
-    instance_id: instances[2].id,
+    instance_id: startingInstance.id,
     external_ip: {
       ip: '123.4.56.1',
       ip_pool_id: ipPool1.id,
@@ -49,7 +48,7 @@ export const ephemeralIps: DbExternalIp[] = [
     },
   },
   {
-    instance_id: instances[2].id,
+    instance_id: startingInstance.id,
     external_ip: {
       ip: '123.4.56.2',
       ip_pool_id: ipPool1.id,
@@ -57,11 +56,56 @@ export const ephemeralIps: DbExternalIp[] = [
     },
   },
   {
-    instance_id: instances[2].id,
+    instance_id: startingInstance.id,
     external_ip: {
       ip: '123.4.56.3',
       ip_pool_id: ipPool1.id,
       kind: 'ephemeral',
+    },
+  },
+]
+
+// Note that SNAT IPs are subdivided into four ranges of ports,
+// with each instance getting a unique range.
+export const snatIps: DbExternalIp[] = [
+  {
+    instance_id: instance.id,
+    external_ip: {
+      ip: '123.4.56.10',
+      ip_pool_id: ipPool1.id,
+      kind: 'snat',
+      first_port: 0,
+      last_port: 16383,
+    },
+  },
+  {
+    instance_id: startingInstance.id,
+    external_ip: {
+      ip: '123.4.56.10',
+      ip_pool_id: ipPool1.id,
+      kind: 'snat',
+      first_port: 16384,
+      last_port: 32767,
+    },
+  },
+  {
+    instance_id: instanceDb2.id,
+    external_ip: {
+      ip: '123.4.56.10',
+      ip_pool_id: ipPool1.id,
+      kind: 'snat',
+      first_port: 32768,
+      last_port: 49151,
+    },
+  },
+  {
+    instance_id: failedInstance.id,
+    external_ip: {
+      ip: '123.4.56.10',
+      ip_pool_id: ipPool1.id,
+      kind: 'snat',
+      first_port: 49152,
+      last_port: 65535,
     },
   },
 ]
