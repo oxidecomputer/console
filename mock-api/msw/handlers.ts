@@ -31,7 +31,6 @@ import { parseIp } from '~/util/ip'
 import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
 
-import { genCumulativeI64Data } from '../metrics'
 import { defaultSilo, toIdp } from '../silo'
 import { getTimestamps } from '../util'
 import { defaultFirewallRules } from '../vpc'
@@ -49,7 +48,6 @@ import {
   errIfExists,
   errIfInvalidDiskSize,
   forbiddenErr,
-  getStartAndEndTime,
   handleMetrics,
   handleOxqlMetrics,
   ipInAnyRange,
@@ -175,21 +173,6 @@ export const handlers = makeHandlers({
 
     db.disks = db.disks.filter((d) => d.id !== disk.id)
     return 204
-  },
-  diskMetricsList({ path, query }) {
-    lookup.disk({ ...path, ...query })
-
-    const { startTime, endTime } = getStartAndEndTime(query)
-
-    if (endTime <= startTime) return { items: [] }
-
-    return {
-      items: genCumulativeI64Data(
-        Array.from({ length: 1000 }).map((_x, i) => Math.floor(Math.tanh(i / 500) * 3000)),
-        startTime,
-        endTime
-      ),
-    }
   },
   async diskBulkWriteImportStart({ path, query }) {
     const disk = lookup.disk({ ...path, ...query })
@@ -769,13 +752,17 @@ export const handlers = makeHandlers({
       .filter((eip) => eip.instance_id === instance.id)
       .map((eip) => eip.external_ip)
 
+    const snatIps = db.snatIps
+      .filter((sip) => sip.instance_id === instance.id)
+      .map((sip) => sip.external_ip)
+
     // floating IPs are missing their `kind` field in the DB so we add it
     const floatingIps = db.floatingIps
       .filter((f) => f.instance_id === instance.id)
       .map((f) => ({ kind: 'floating' as const, ...f }))
 
     // endpoint is not paginated. or rather, it's fake paginated
-    return { items: [...ephemeralIps, ...floatingIps] }
+    return { items: [...ephemeralIps, ...snatIps, ...floatingIps] }
   },
   instanceNetworkInterfaceList({ query }) {
     const instance = lookup.instance(query)
@@ -885,11 +872,12 @@ export const handlers = makeHandlers({
       (r) => parseIp(r.first).type === 'v4'
     )
 
-    // in the real backend there are also SNAT IPs, but we don't currently
-    // represent those because they are not exposed through the API (except
-    // through the counts)
+    // Include SNAT IPs in IP utilization calculation, deduplicating by IP address
+    // since multiple instances can share the same SNAT IP with different port ranges
+    const uniqueSnatIps = [...new Set(db.snatIps.map((sip) => sip.external_ip.ip))]
     const allIps = [
       ...db.ephemeralIps.map((eip) => eip.external_ip.ip),
+      ...uniqueSnatIps,
       ...db.floatingIps.map((fip) => fip.ip),
     ]
 

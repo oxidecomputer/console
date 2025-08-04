@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 /**
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -7,6 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
+
+/* eslint-disable */
 
 import { z, ZodType } from 'zod'
 
@@ -624,6 +624,23 @@ export const AuditLogEntryActor = z.preprocess(
 )
 
 /**
+ * Result of an audit log entry
+ */
+export const AuditLogEntryResult = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ httpStatusCode: z.number().min(0).max(65535), kind: z.enum(['success']) }),
+    z.object({
+      errorCode: z.string().nullable().optional(),
+      errorMessage: z.string(),
+      httpStatusCode: z.number().min(0).max(65535),
+      kind: z.enum(['error']),
+    }),
+    z.object({ kind: z.enum(['unknown']) }),
+  ])
+)
+
+/**
  * Audit log entry
  */
 export const AuditLogEntry = z.preprocess(
@@ -631,13 +648,11 @@ export const AuditLogEntry = z.preprocess(
   z.object({
     accessMethod: z.string().nullable().optional(),
     actor: AuditLogEntryActor,
-    errorCode: z.string().nullable().optional(),
-    errorMessage: z.string().nullable().optional(),
-    httpStatusCode: z.number().min(0).max(65535),
     id: z.string().uuid(),
     operationId: z.string(),
     requestId: z.string(),
     requestUri: z.string(),
+    result: AuditLogEntryResult,
     sourceIp: z.string().ip(),
     timeCompleted: z.coerce.date(),
     timeStarted: z.coerce.date(),
@@ -1782,6 +1797,13 @@ export const Error = z.preprocess(
 export const ExternalIp = z.preprocess(
   processResponseBody,
   z.union([
+    z.object({
+      firstPort: z.number().min(0).max(65535),
+      ip: z.string().ip(),
+      ipPoolId: z.string().uuid(),
+      kind: z.enum(['snat']),
+      lastPort: z.number().min(0).max(65535),
+    }),
     z.object({
       ip: z.string().ip(),
       ipPoolId: z.string().uuid(),
@@ -4611,19 +4633,6 @@ export const TimeAndIdSortMode = z.preprocess(
   z.enum(['time_and_id_ascending', 'time_and_id_descending'])
 )
 
-export const DiskMetricName = z.preprocess(
-  processResponseBody,
-  z.enum(['activated', 'flush', 'read', 'read_bytes', 'write', 'write_bytes'])
-)
-
-/**
- * The order in which the client wants to page through the requested collection
- */
-export const PaginationOrder = z.preprocess(
-  processResponseBody,
-  z.enum(['ascending', 'descending'])
-)
-
 /**
  * Supported set of sort modes for scanning by id only.
  *
@@ -4634,6 +4643,14 @@ export const IdSortMode = z.preprocess(processResponseBody, z.enum(['id_ascendin
 export const SystemMetricName = z.preprocess(
   processResponseBody,
   z.enum(['virtual_disk_space_provisioned', 'cpus_provisioned', 'ram_provisioned'])
+)
+
+/**
+ * The order in which the client wants to page through the requested collection
+ */
+export const PaginationOrder = z.preprocess(
+  processResponseBody,
+  z.enum(['ascending', 'descending'])
 )
 
 /**
@@ -5305,24 +5322,6 @@ export const DiskFinalizeImportParams = z.preprocess(
       disk: NameOrId,
     }),
     query: z.object({
-      project: NameOrId.optional(),
-    }),
-  })
-)
-
-export const DiskMetricsListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      disk: NameOrId,
-      metric: DiskMetricName,
-    }),
-    query: z.object({
-      endTime: z.coerce.date().optional(),
-      limit: z.number().min(1).max(4294967295).nullable().optional(),
-      order: PaginationOrder.optional(),
-      pageToken: z.string().nullable().optional(),
-      startTime: z.coerce.date().optional(),
       project: NameOrId.optional(),
     }),
   })

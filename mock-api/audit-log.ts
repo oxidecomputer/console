@@ -93,9 +93,14 @@ function generateAuditLogEntry(index: number): Json<AuditLogEntry> {
       silo_id: defaultSilo.id,
       silo_user_id: mockUserIds[index % mockUserIds.length],
     },
-    error_code: isError ? `E${statusCode}` : null,
-    error_message: isError ? `Operation failed with status ${statusCode}` : null,
-    http_status_code: statusCode,
+    result: isError
+      ? {
+          kind: 'error',
+          error_code: `E${statusCode}`,
+          error_message: `Operation failed with status ${statusCode}`,
+          http_status_code: statusCode,
+        }
+      : { kind: 'success', http_status_code: statusCode },
     operation_id: operation,
     request_id: mockRequestIds[index % mockRequestIds.length],
     time_started: baseTime.toISOString(),
@@ -115,9 +120,7 @@ export const auditLogs: Json<AuditLogEntry[]> = [
       silo_id: defaultSilo.id,
       silo_user_id: mockUserIds[0],
     },
-    error_code: null,
-    error_message: null,
-    http_status_code: 201,
+    result: { kind: 'success', http_status_code: 201 },
     operation_id: 'instance_create',
     request_id: mockRequestIds[0],
     time_started: new Date(Date.now() - 1000 * 60 * 5).toISOString(), // 5 minutes ago
@@ -133,9 +136,7 @@ export const auditLogs: Json<AuditLogEntry[]> = [
       silo_id: defaultSilo.id,
       silo_user_id: mockUserIds[1],
     },
-    error_code: null,
-    error_message: null,
-    http_status_code: 200,
+    result: { kind: 'success', http_status_code: 200 },
     operation_id: 'instance_start',
     request_id: mockRequestIds[1],
     time_started: new Date(Date.now() - 1000 * 60 * 10).toISOString(), // 10 minutes ago
@@ -152,9 +153,12 @@ export const auditLogs: Json<AuditLogEntry[]> = [
       silo_id: mockSiloIds[1],
       silo_user_id: mockUserIds[2],
     },
-    error_code: 'E403',
-    error_message: 'Insufficient permissions to delete instance',
-    http_status_code: 403,
+    result: {
+      kind: 'error',
+      error_code: 'E403',
+      error_message: 'Insufficient permissions to delete instance',
+      http_status_code: 403,
+    },
     operation_id: 'instance_delete',
     request_id: mockRequestIds[2],
     time_started: new Date(Date.now() - 1000 * 60 * 15).toISOString(), // 15 minutes ago
@@ -166,9 +170,12 @@ export const auditLogs: Json<AuditLogEntry[]> = [
     id: uuid(),
     access_method: null,
     actor: { kind: 'unauthenticated' },
-    error_code: 'E401',
-    error_message: 'Authentication required',
-    http_status_code: 401,
+    result: {
+      kind: 'error',
+      error_code: 'E401',
+      error_message: 'Authentication required',
+      http_status_code: 401,
+    },
     operation_id: 'user_login',
     request_id: mockRequestIds[3],
     time_started: new Date(Date.now() - 1000 * 60 * 20).toISOString(), // 20 minutes ago
@@ -185,9 +192,7 @@ export const auditLogs: Json<AuditLogEntry[]> = [
       silo_id: mockSiloIds[0],
       silo_user_id: mockUserIds[0],
     },
-    error_code: null,
-    error_message: null,
-    http_status_code: 201,
+    result: { kind: 'success', http_status_code: 201 },
     operation_id: 'project_create',
     request_id: mockRequestIds[4],
     time_started: new Date(Date.now() - 1000 * 60 * 60).toISOString(), // 1 hour ago

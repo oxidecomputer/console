@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 /**
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -7,6 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
+
+/* eslint-disable */
 
 import { HttpClient, toQueryString, type FetchParams } from './http-client'
 
@@ -631,17 +631,33 @@ export type AuditLogEntryActor =
   | { kind: 'unauthenticated' }
 
 /**
+ * Result of an audit log entry
+ */
+export type AuditLogEntryResult =
+  /** The operation completed successfully */
+  | {
+      /** HTTP status code */
+      httpStatusCode: number
+      kind: 'success'
+    }
+  /** The operation failed */
+  | {
+      errorCode?: string | null
+      errorMessage: string
+      /** HTTP status code */
+      httpStatusCode: number
+      kind: 'error'
+    }
+  /** After the logged operation completed, our attempt to write the result to the audit log failed, so it was automatically marked completed later by a background job. This does not imply that the operation itself timed out or failed, only our attempts to log its result. */
+  | { kind: 'unknown' }
+
+/**
  * Audit log entry
  */
 export type AuditLogEntry = {
   /** Indicates whether request was made with an API token or session cookie. Optional because it will not be defined on unauthenticated requests like login attempts. */
   accessMethod?: string | null
   actor: AuditLogEntryActor
-  /** Error information if the action failed */
-  errorCode?: string | null
-  errorMessage?: string | null
-  /** HTTP status code */
-  httpStatusCode: number
   /** Unique identifier for the audit log entry */
   id: string
   /** API endpoint ID, e.g., `project_create` */
@@ -650,6 +666,8 @@ export type AuditLogEntry = {
   requestId: string
   /** Full URL of the request */
   requestUri: string
+  /** Result of the operation */
+  result: AuditLogEntryResult
   /** IP address that made the request */
   sourceIp: string
   /** Time operation completed */
@@ -1894,6 +1912,20 @@ export type EphemeralIpCreate = {
 }
 
 export type ExternalIp =
+  /** A source NAT IP address.
+
+SNAT addresses are ephemeral addresses used only for outbound connectivity. */
+  | {
+      /** The first usable port within the IP address. */
+      firstPort: number
+      /** The IP address. */
+      ip: string
+      /** ID of the IP Pool from which the address is taken. */
+      ipPoolId: string
+      kind: 'snat'
+      /** The last usable port within the IP address. */
+      lastPort: number
+    }
   | { ip: string; ipPoolId: string; kind: 'ephemeral' }
   /** A Floating IP is a well-known IP address which can be attached and detached from instances. */
   | {
@@ -4936,19 +4968,6 @@ export type TimeAndIdSortMode =
   /** sort in increasing order of timestamp and ID, i.e., most recent first */
   | 'time_and_id_descending'
 
-export type DiskMetricName =
-  | 'activated'
-  | 'flush'
-  | 'read'
-  | 'read_bytes'
-  | 'write'
-  | 'write_bytes'
-
-/**
- * The order in which the client wants to page through the requested collection
- */
-export type PaginationOrder = 'ascending' | 'descending'
-
 /**
  * Supported set of sort modes for scanning by id only.
  *
@@ -4960,6 +4979,11 @@ export type SystemMetricName =
   | 'virtual_disk_space_provisioned'
   | 'cpus_provisioned'
   | 'ram_provisioned'
+
+/**
+ * The order in which the client wants to page through the requested collection
+ */
+export type PaginationOrder = 'ascending' | 'descending'
 
 /**
  * Supported set of sort modes for scanning by name only
@@ -5314,20 +5338,6 @@ export interface DiskFinalizeImportPathParams {
 }
 
 export interface DiskFinalizeImportQueryParams {
-  project?: NameOrId
-}
-
-export interface DiskMetricsListPathParams {
-  disk: NameOrId
-  metric: DiskMetricName
-}
-
-export interface DiskMetricsListQueryParams {
-  endTime?: Date
-  limit?: number | null
-  order?: PaginationOrder
-  pageToken?: string | null
-  startTime?: Date
   project?: NameOrId
 }
 
@@ -7445,23 +7455,6 @@ export class Api extends HttpClient {
         path: `/v1/disks/${path.disk}/finalize`,
         method: 'POST',
         body,
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Fetch disk metrics
-     */
-    diskMetricsList: (
-      {
-        path,
-        query = {},
-      }: { path: DiskMetricsListPathParams; query?: DiskMetricsListQueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<MeasurementResultsPage>({
-        path: `/v1/disks/${path.disk}/metrics/${path.metric}`,
-        method: 'GET',
         query,
         ...params,
       })

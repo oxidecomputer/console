@@ -431,13 +431,6 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
-  /** `GET /v1/disks/:disk/metrics/:metric` */
-  diskMetricsList: (params: {
-    path: Api.DiskMetricsListPathParams
-    query: Api.DiskMetricsListQueryParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.MeasurementResultsPage>>
   /** `GET /v1/floating-ips` */
   floatingIpList: (params: {
     query: Api.FloatingIpListQueryParams
@@ -2222,10 +2215,6 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         schema.DiskFinalizeImportParams,
         schema.FinalizeDisk
       )
-    ),
-    http.get(
-      '/v1/disks/:disk/metrics/:metric',
-      handler(handlers['diskMetricsList'], schema.DiskMetricsListParams, null)
     ),
     http.get(
       '/v1/floating-ips',
