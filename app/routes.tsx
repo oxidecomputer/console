@@ -211,7 +211,7 @@ export const routes = createRoutesFromElements(
         </Route>
         <Route
           path="audit-log"
-          lazy={() => import('./pages/SiloAuditLogsPage').then(convert)}
+          lazy={() => import('./pages/system/AuditLog').then(convert)}
         />
       </Route>
 
