@@ -110,7 +110,7 @@ function generateAuditLogEntry(index: number): Json<AuditLogEntry> {
   }
 }
 
-export const auditLogs: Json<AuditLogEntry[]> = [
+export const auditLog: Json<AuditLogEntry[]> = [
   // Recent successful operations
   {
     id: uuid(),

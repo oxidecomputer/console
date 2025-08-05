@@ -88,14 +88,14 @@ export default function SiloAuditLogsPage() {
     placeholderData: (x) => x,
   })
 
-  const auditLogs = useMemo(() => {
+  const allItems = useMemo(() => {
     return data?.pages.flatMap((page) => page.items) || []
   }, [data])
 
   const parentRef = useRef<HTMLDivElement>(null)
 
   const rowVirtualizer = useVirtualizer({
-    count: auditLogs.length,
+    count: allItems.length,
     getScrollElement: () => document.querySelector('#scroll-container'),
     estimateSize,
     overscan: 20,
@@ -110,7 +110,7 @@ export default function SiloAuditLogsPage() {
         }}
       >
         {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-          const log = auditLogs[virtualRow.index]
+          const log = allItems[virtualRow.index]
 
           return (
             <div
@@ -164,7 +164,7 @@ export default function SiloAuditLogsPage() {
         })}
       </div>
       <div className="flex justify-center border-t px-[var(--content-gutter)] py-4 border-secondary">
-        {!hasNextPage && !isFetching && !isPending && auditLogs.length > 0 ? (
+        {!hasNextPage && !isFetching && !isPending && allItems.length > 0 ? (
           <div className="text-mono-sm text-quaternary">
             No more logs to show within selected timeline
           </div>
@@ -193,7 +193,7 @@ export default function SiloAuditLogsPage() {
           heading="audit log"
           icon={<Logs16Icon />}
           summary="The audit log provides a record of system activities, including user actions, API calls, and system events."
-          links={[docLinks.auditLogs]}
+          links={[docLinks.auditLog]}
         />
       </PageHeader>
 

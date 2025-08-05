@@ -1791,7 +1791,7 @@ export const handlers = makeHandlers({
     return paginated(query, affinityGroups)
   },
   auditLogList: ({ query }) => {
-    let filteredLogs = db.auditLogs
+    let filteredLogs = db.auditLog
 
     if (query.startTime) {
       filteredLogs = filteredLogs.filter(
