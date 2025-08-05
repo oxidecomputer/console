@@ -10,7 +10,7 @@ import { useInfiniteQuery, useIsFetching } from '@tanstack/react-query'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import cn from 'classnames'
 import { differenceInMilliseconds } from 'date-fns'
-import { useMemo, useRef } from 'react'
+import { memo, useCallback, useMemo, useRef, useState } from 'react'
 import { match } from 'ts-pattern'
 
 import { api } from '@oxide/api'
@@ -31,6 +31,88 @@ import { docLinks } from '~/util/links'
 
 export const handle = { crumb: 'Audit Log' }
 
+const Indent = ({ depth }: { depth: number }) => (
+  <span className="inline-block" style={{ width: `${depth * 4 + 1}ch` }} />
+)
+
+const Primitive = ({ value }: { value: null | boolean | number | string }) => (
+  <span className="text-[var(--base-blue-600)]">
+    {value === null ? 'null' : typeof value === 'string' ? `"${value}"` : String(value)}
+  </span>
+)
+
+// silly faux highlighting
+// avoids unnecessary import of a library and all that overhead
+const HighlightJSON = memo(({ jsonString }: { jsonString: string }) => {
+  const renderValue = (
+    value: null | boolean | number | string | object,
+    depth = 0
+  ): React.ReactNode => {
+    if (
+      value === null ||
+      typeof value === 'boolean' ||
+      typeof value === 'number' ||
+      typeof value === 'string'
+    ) {
+      return <Primitive value={value} />
+    }
+
+    if (Array.isArray(value)) {
+      if (value.length === 0) return <span className="text-quaternary">[]</span>
+
+      return (
+        <>
+          <span className="text-quaternary">[</span>
+          {'\n'}
+          {value.map((item, index) => (
+            <span key={index}>
+              <Indent depth={depth + 1} />
+              {renderValue(item, depth + 1)}
+              {index < value.length - 1 && <span className="text-quaternary">,</span>}
+              {'\n'}
+            </span>
+          ))}
+          <Indent depth={depth} />
+          <span className="text-quaternary">]</span>
+        </>
+      )
+    }
+
+    if (typeof value === 'object') {
+      const entries = Object.entries(value)
+      if (entries.length === 0) return <span className="text-quaternary">{'{}'}</span>
+
+      return (
+        <>
+          <span className="text-quaternary">{'{'}</span>
+          {'\n'}
+          {entries.map(([key, val], index) => (
+            <span key={key}>
+              <Indent depth={depth + 1} />
+              <span className="text-default">{key}</span>
+              <span className="text-quaternary">: </span>
+              {renderValue(val, depth + 1)}
+              {index < entries.length - 1 && <span className="text-quaternary">,</span>}
+              {'\n'}
+            </span>
+          ))}
+          <Indent depth={depth} />
+          <span className="text-quaternary">{'}'}</span>
+        </>
+      )
+    }
+
+    return String(value)
+  }
+
+  try {
+    const parsed = JSON.parse(jsonString)
+    return <>{renderValue(parsed)}</>
+  } catch {
+    return <>{jsonString}</>
+  }
+})
+
 // todo
 // might want to still render the items in case of error
 const ErrorState = () => {
@@ -48,10 +130,11 @@ const colWidths = {
 
 const HeaderCell = classed.div`text-mono-sm text-tertiary`
 
-// for virtualizer
-const estimateSize = () => 36
+const EXPANDED_HEIGHT = 288 // h-72 * 4
 
 export default function SiloAuditLogsPage() {
+  const [expandedItem, setExpandedItem] = useState<string | null>(null)
+
   // pass refetch interval to this to keep the date up to date
   const { preset, startTime, endTime, dateTimeRangePicker, onRangeChange } =
     useDateTimeRangePicker({
@@ -104,9 +187,22 @@ export default function SiloAuditLogsPage() {
   const rowVirtualizer = useVirtualizer({
     count: allItems.length,
     getScrollElement: () => document.querySelector('#scroll-container'),
-    estimateSize,
+    estimateSize: useCallback(
+      (index) => {
+        return expandedItem === index.toString() ? 36 + EXPANDED_HEIGHT : 36
+      },
+      [expandedItem]
+    ),
     overscan: 20,
   })
+
+  const handleToggle = useCallback(
+    (index: string | null) => {
+      setExpandedItem(index)
+      rowVirtualizer.measure()
+    },
+    [rowVirtualizer]
+  )
 
   const logTable = (
     <>
@@ -118,6 +214,8 @@ export default function SiloAuditLogsPage() {
       >
         {rowVirtualizer.getVirtualItems().map((virtualRow) => {
           const log = allItems[virtualRow.index]
+          const isExpanded = expandedItem === virtualRow.index.toString()
+          const jsonString = JSON.stringify(log, null, 2)
 
           const [userId, siloId] = match(log.actor)
             .with({ kind: 'silo_user' }, (actor) => [actor.siloUserId, actor.siloId])
@@ -134,12 +232,18 @@ export default function SiloAuditLogsPage() {
                 transform: `translateY(${virtualRow.start}px)`,
               }}
             >
-              <div
+              <button
                 className={cn(
-                  'grid h-9 w-full items-center gap-8 px-[var(--content-gutter)] text-left text-sans-md border-secondary',
+                  'grid h-9 w-full cursor-pointer items-center gap-8 px-[var(--content-gutter)] text-left text-sans-md border-secondary',
+                  isExpanded ? 'bg-raise' : 'hover:bg-raise',
                   virtualRow.index !== 0 && 'border-t'
                 )}
                 style={colWidths}
+                onClick={() => {
+                  const newValue = isExpanded ? null : virtualRow.index.toString()
+                  handleToggle(newValue)
+                }}
+                type="button"
               >
                 {/* TODO: might be especially useful here to get the original UTC timestamp in a tooltip */}
                 <div className="overflow-hidden whitespace-nowrap text-mono-sm">
@@ -188,7 +292,14 @@ export default function SiloAuditLogsPage() {
                   {differenceInMilliseconds(new Date(log.timeCompleted), log.timeStarted)}
                   ms
                 </div>
-              </div>
+              </button>
+              {isExpanded && (
+                <div className="h-72 border-t px-[var(--content-gutter)] py-3 border-secondary">
+                  <pre className="h-full overflow-auto border-l pl-4 text-mono-code border-secondary">
+                    <HighlightJSON jsonString={jsonString} />
+                  </pre>
+                </div>
+              )}
             </div>
           )
         })}
