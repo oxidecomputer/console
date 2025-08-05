@@ -11,6 +11,7 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import cn from 'classnames'
 import { differenceInMilliseconds } from 'date-fns'
 import { useMemo, useRef } from 'react'
+import { match } from 'ts-pattern'
 
 import { api } from '@oxide/api'
 import { Logs16Icon, Logs24Icon } from '@oxide/design-system/icons/react'
@@ -18,10 +19,12 @@ import { Logs16Icon, Logs24Icon } from '@oxide/design-system/icons/react'
 import { DocsPopover } from '~/components/DocsPopover'
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
 import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { Spinner } from '~/ui/lib/Spinner'
+import { Truncate } from '~/ui/lib/Truncate'
 import { classed } from '~/util/classed'
 import { toSyslogDateString, toSyslogTimeString } from '~/util/date'
 import { docLinks } from '~/util/links'
@@ -37,6 +40,10 @@ const ErrorState = () => {
 // todo
 const LoadingState = () => {
   return <div>Loading State</div>
+}
+
+const colWidths = {
+  gridTemplateColumns: '7rem 4.25rem 180px 140px 120px 140px 300px 300px',
 }
 
 const HeaderCell = classed.div`text-mono-sm text-tertiary`
@@ -112,6 +119,12 @@ export default function SiloAuditLogsPage() {
         {rowVirtualizer.getVirtualItems().map((virtualRow) => {
           const log = allItems[virtualRow.index]
 
+          const [userId, siloId] = match(log.actor)
+            .with({ kind: 'silo_user' }, (actor) => [actor.siloUserId, actor.siloId])
+            .with({ kind: 'user_builtin' }, (actor) => [actor.userBuiltinId, undefined])
+            .with({ kind: 'unauthenticated' }, () => [undefined, undefined])
+            .exhaustive()
+
           return (
             <div
               key={virtualRow.index}
@@ -126,10 +139,9 @@ export default function SiloAuditLogsPage() {
                   'grid h-9 w-full items-center gap-8 px-[var(--content-gutter)] text-left text-sans-md border-secondary',
                   virtualRow.index !== 0 && 'border-t'
                 )}
-                style={{
-                  gridTemplateColumns: '7rem 4.25rem 180px 120px 120px 120px 300px 300px',
-                }}
+                style={colWidths}
               >
+                {/* TODO: might be especially useful here to get the original UTC timestamp in a tooltip */}
                 <div className="overflow-hidden whitespace-nowrap text-mono-sm">
                   <span className="text-tertiary">
                     {toSyslogDateString(log.timeCompleted)}
@@ -141,19 +153,37 @@ export default function SiloAuditLogsPage() {
                   <Badge>200</Badge>
                 </div>
                 <div>
-                  <Badge color="neutral" className="text-tertiary">
-                    {log.operationId.split('_').join(' ')}
-                  </Badge>
+                  <Badge color="neutral">{log.operationId.split('_').join(' ')}</Badge>
                 </div>
-                <div className="text-secondary">hannah.arendt</div>
-                <div>
-                  {!!log.accessMethod && (
-                    <Badge color="neutral" className="text-tertiary">
-                      {log.accessMethod.split('_').join(' ')}
-                    </Badge>
+                <div className="text-secondary">
+                  {userId ? (
+                    <Truncate
+                      maxLength={12}
+                      text={userId}
+                      position="middle"
+                      hasCopyButton
+                    />
+                  ) : (
+                    <EmptyCell />
                   )}
                 </div>
-                <div className="text-secondary">maze-war</div>
+                <div>
+                  <Badge color="neutral">
+                    {log.accessMethod?.split('_').join(' ') || 'Unknown'}
+                  </Badge>
+                </div>
+                <div className="text-secondary">
+                  {siloId ? (
+                    <Truncate
+                      maxLength={12}
+                      text={siloId}
+                      position="middle"
+                      hasCopyButton
+                    />
+                  ) : (
+                    <EmptyCell />
+                  )}
+                </div>
                 <div className="text-secondary">
                   {differenceInMilliseconds(new Date(log.timeCompleted), log.timeStarted)}
                   ms
@@ -204,16 +234,15 @@ export default function SiloAuditLogsPage() {
 
       <div
         className="sticky top-0 z-10 !mx-0 grid !w-full items-center gap-8 border-b px-[var(--content-gutter)] pb-2 pt-4 bg-default border-secondary"
-        style={{
-          gridTemplateColumns: '7rem 4.25rem 180px 120px 120px 120px 300px 300px',
-        }}
+        style={colWidths}
       >
+        {/* TODO: explain that this is time completed, not time started as you might expect */}
         <HeaderCell>Time</HeaderCell>
         <HeaderCell>Status</HeaderCell>
         <HeaderCell>Operation</HeaderCell>
-        <HeaderCell>Actor</HeaderCell>
+        <HeaderCell>Actor ID</HeaderCell>
         <HeaderCell>Access Method</HeaderCell>
-        <HeaderCell>Silo</HeaderCell>
+        <HeaderCell>Silo ID</HeaderCell>
         <HeaderCell>Duration</HeaderCell>
       </div>
 
