@@ -201,5 +201,5 @@ export const auditLogs: Json<AuditLogEntry[]> = [
     source_ip: '192.168.1.100',
   },
   // Generate additional entries
-  ...Array.from({ length: 199995 }, (_, i) => generateAuditLogEntry(i + 5)),
+  ...Array.from({ length: 4995 }, (_, i) => generateAuditLogEntry(i + 5)),
 ]
