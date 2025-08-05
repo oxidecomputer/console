@@ -22,10 +22,24 @@ import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { Spinner } from '~/ui/lib/Spinner'
+import { classed } from '~/util/classed'
 import { toSyslogDateString, toSyslogTimeString } from '~/util/date'
 import { docLinks } from '~/util/links'
 
 export const handle = { crumb: 'Audit Log' }
+
+// todo
+// might want to still render the items in case of error
+const ErrorState = () => {
+  return <div>Error State</div>
+}
+
+// todo
+const LoadingState = () => {
+  return <div>Loading State</div>
+}
+
+const HeaderCell = classed.div`text-mono-sm text-tertiary`
 
 // for virtualizer
 const estimateSize = () => 36
@@ -87,7 +101,7 @@ export default function SiloAuditLogsPage() {
     overscan: 20,
   })
 
-  const LogTable = () => (
+  const logTable = (
     <>
       <div
         className="relative w-full"
@@ -115,7 +129,6 @@ export default function SiloAuditLogsPage() {
                 style={{
                   gridTemplateColumns: '7rem 4.25rem 180px 120px 120px 120px 300px 300px',
                 }}
-                onClick={() => {}}
               >
                 <div className="overflow-hidden whitespace-nowrap text-mono-sm">
                   <span className="text-tertiary">
@@ -172,17 +185,6 @@ export default function SiloAuditLogsPage() {
     </>
   )
 
-  // todo
-  // might want to still render the items in case of error
-  const ErrorState = () => {
-    return <div>Error State</div>
-  }
-
-  // todo
-  const LoadingState = () => {
-    return <div>Loading State</div>
-  }
-
   return (
     <>
       <PageHeader>
@@ -206,18 +208,18 @@ export default function SiloAuditLogsPage() {
           gridTemplateColumns: '7rem 4.25rem 180px 120px 120px 120px 300px 300px',
         }}
       >
-        {['Time', 'Status', 'Operation', 'Actor', 'Access Method', 'Silo', 'Duration'].map(
-          (header) => (
-            <div key={header} className="text-mono-sm text-tertiary">
-              {header}
-            </div>
-          )
-        )}
+        <HeaderCell>Time</HeaderCell>
+        <HeaderCell>Status</HeaderCell>
+        <HeaderCell>Operation</HeaderCell>
+        <HeaderCell>Actor</HeaderCell>
+        <HeaderCell>Access Method</HeaderCell>
+        <HeaderCell>Silo</HeaderCell>
+        <HeaderCell>Duration</HeaderCell>
       </div>
 
       <div className="!mx-0 flex h-full !w-full flex-col">
         <div className="w-full flex-1" ref={parentRef}>
-          {error ? <ErrorState /> : !isLoading ? <LogTable /> : <LoadingState />}
+          {error ? <ErrorState /> : !isLoading ? logTable : <LoadingState />}
         </div>
       </div>
     </>
