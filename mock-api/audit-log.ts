@@ -105,7 +105,7 @@ function generateAuditLogEntry(index: number): Json<AuditLogEntry> {
     request_id: mockRequestIds[index % mockRequestIds.length],
     time_started: baseTime.toISOString(),
     time_completed: completedTime.toISOString(),
-    request_uri: `/v1/projects/default/${operation.replace('_', '/')}`,
+    request_uri: `https://maze-war.sys.corp.rack/v1/projects/default/${operation.replace('_', '/')}`,
     source_ip: mockSourceIps[index % mockSourceIps.length],
   }
 }
@@ -125,7 +125,7 @@ export const auditLog: Json<AuditLogEntry[]> = [
     request_id: mockRequestIds[0],
     time_started: new Date(Date.now() - 1000 * 60 * 5).toISOString(), // 5 minutes ago
     time_completed: new Date(Date.now() - 1000 * 60 * 5 + 321).toISOString(), // 1 second later
-    request_uri: '/v1/projects/admin-project/instances',
+    request_uri: 'https://maze-war.sys.corp.rack/v1/projects/admin-project/instances',
     source_ip: '192.168.1.100',
   },
   {
@@ -141,7 +141,8 @@ export const auditLog: Json<AuditLogEntry[]> = [
     request_id: mockRequestIds[1],
     time_started: new Date(Date.now() - 1000 * 60 * 10).toISOString(), // 10 minutes ago
     time_completed: new Date(Date.now() - 1000 * 60 * 10 + 126).toISOString(), // 1 second later
-    request_uri: '/v1/projects/admin-project/instances/web-server-prod/start',
+    request_uri:
+      'https://maze-war.sys.corp.rack/v1/projects/admin-project/instances/web-server-prod/start',
     source_ip: '10.0.0.50',
   },
   // Failed operations
@@ -163,7 +164,8 @@ export const auditLog: Json<AuditLogEntry[]> = [
     request_id: mockRequestIds[2],
     time_started: new Date(Date.now() - 1000 * 60 * 15).toISOString(), // 15 minutes ago
     time_completed: new Date(Date.now() - 1000 * 60 * 15 + 147).toISOString(), // 1 second later
-    request_uri: '/v1/projects/dev-project/instances/test-instance',
+    request_uri:
+      'https://maze-war.sys.corp.rack/v1/projects/dev-project/instances/test-instance',
     source_ip: '172.16.0.25',
   },
   {
@@ -180,7 +182,7 @@ export const auditLog: Json<AuditLogEntry[]> = [
     request_id: mockRequestIds[3],
     time_started: new Date(Date.now() - 1000 * 60 * 20).toISOString(), // 20 minutes ago
     time_completed: new Date(Date.now() - 1000 * 60 * 20 + 16).toISOString(), // 1 second later
-    request_uri: '/v1/login',
+    request_uri: 'https://maze-war.sys.corp.rack/v1/login',
     source_ip: '203.0.113.15',
   },
   // More historical entries
@@ -197,7 +199,7 @@ export const auditLog: Json<AuditLogEntry[]> = [
     request_id: mockRequestIds[4],
     time_started: new Date(Date.now() - 1000 * 60 * 60).toISOString(), // 1 hour ago
     time_completed: new Date(Date.now() - 1000 * 60 * 60 + 36).toISOString(), // 1 second later
-    request_uri: '/v1/projects',
+    request_uri: 'https://maze-war.sys.corp.rack/v1/projects',
     source_ip: '192.168.1.100',
   },
   // Generate additional entries
