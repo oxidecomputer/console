@@ -31,6 +31,42 @@ import { docLinks } from '~/util/links'
 
 export const handle = { crumb: 'Audit Log' }
 
+/**
+ * Convert API response JSON from the camel-cased version we get out of the TS
+ * client back into snake-case, which is what we get from the API. This is truly
+ * stupid but I can't think of a better way.
+ */
+function camelToSnakeJson(o: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {}
+
+  for (const originalKey in o) {
+    if (!Object.prototype.hasOwnProperty.call(o, originalKey)) {
+      continue
+    }
+
+    const snakeKey = originalKey
+      .replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`)
+      .replace(/^_/, '')
+    const value = o[originalKey]
+
+    if (value !== null && typeof value === 'object') {
+      if (Array.isArray(value)) {
+        result[snakeKey] = value.map((item) =>
+          item !== null && typeof item === 'object' && !Array.isArray(item)
+            ? camelToSnakeJson(item as Record<string, unknown>)
+            : item
+        )
+      } else {
+        result[snakeKey] = camelToSnakeJson(value as Record<string, unknown>)
+      }
+    } else {
+      result[snakeKey] = value
+    }
+  }
+
+  return result
+}
+
 const Indent = ({ depth }: { depth: number }) => (
   <span className="inline-block" style={{ width: `${depth * 4 + 1}ch` }} />
 )
@@ -40,6 +76,8 @@ const Primitive = ({ value }: { value: null | boolean | number | string }) => (
     {value === null ? 'null' : typeof value === 'string' ? `"${value}"` : String(value)}
   </span>
 )
+
+// TODO: avoid converting JSON to string and then parsing again. just need a better memo
 
 // silly faux highlighting
 // avoids unnecessary import of a library and all that overhead
@@ -215,7 +253,10 @@ export default function SiloAuditLogsPage() {
         {rowVirtualizer.getVirtualItems().map((virtualRow) => {
           const log = allItems[virtualRow.index]
           const isExpanded = expandedItem === virtualRow.index.toString()
-          const jsonString = JSON.stringify(log, null, 2)
+          // only bother doing all this computation if we're the expanded row
+          const jsonString = isExpanded
+            ? JSON.stringify(camelToSnakeJson(log), null, 2)
+            : ''
 
           const [userId, siloId] = match(log.actor)
             .with({ kind: 'silo_user' }, (actor) => [actor.siloUserId, actor.siloId])
@@ -232,7 +273,7 @@ export default function SiloAuditLogsPage() {
                 transform: `translateY(${virtualRow.start}px)`,
               }}
             >
-              <button
+              <div
                 className={cn(
                   'grid h-9 w-full cursor-pointer items-center gap-8 px-[var(--content-gutter)] text-left text-sans-md border-secondary',
                   isExpanded ? 'bg-raise' : 'hover:bg-raise',
@@ -243,7 +284,6 @@ export default function SiloAuditLogsPage() {
                   const newValue = isExpanded ? null : virtualRow.index.toString()
                   handleToggle(newValue)
                 }}
-                type="button"
               >
                 {/* TODO: might be especially useful here to get the original UTC timestamp in a tooltip */}
                 <div className="overflow-hidden whitespace-nowrap text-mono-sm">
@@ -292,7 +332,7 @@ export default function SiloAuditLogsPage() {
                   {differenceInMilliseconds(new Date(log.timeCompleted), log.timeStarted)}
                   ms
                 </div>
-              </button>
+              </div>
               {isExpanded && (
                 <div className="h-72 border-t px-[var(--content-gutter)] py-3 border-secondary">
                   <pre className="h-full overflow-auto border-l pl-4 text-mono-code border-secondary">
