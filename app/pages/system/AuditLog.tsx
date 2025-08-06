@@ -12,7 +12,7 @@ import cn from 'classnames'
 import { differenceInMilliseconds } from 'date-fns'
 import { memo, useCallback, useMemo, useRef, useState } from 'react'
 import { match } from 'ts-pattern'
-import { JsonValue } from 'type-fest'
+import { type JsonValue } from 'type-fest'
 
 import { api } from '@oxide/api'
 import { Logs16Icon, Logs24Icon } from '@oxide/design-system/icons/react'
@@ -279,6 +279,15 @@ export default function SiloAuditLogsPage() {
                   const newValue = isExpanded ? null : virtualRow.index.toString()
                   handleToggle(newValue)
                 }}
+                // a11y thing: make it focusable and let the user press enter on it to toggle
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    const newValue = isExpanded ? null : virtualRow.index.toString()
+                    handleToggle(newValue)
+                  }
+                }}
+                role="button" // oxlint-disable-line prefer-tag-over-role
+                tabIndex={0}
               >
                 {/* TODO: might be especially useful here to get the original UTC timestamp in a tooltip */}
                 <div className="overflow-hidden whitespace-nowrap text-mono-sm">
