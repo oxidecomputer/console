@@ -12,6 +12,7 @@ import cn from 'classnames'
 import { differenceInMilliseconds } from 'date-fns'
 import { memo, useCallback, useMemo, useRef, useState } from 'react'
 import { match } from 'ts-pattern'
+import { JsonValue } from 'type-fest'
 
 import { api } from '@oxide/api'
 import { Logs16Icon, Logs24Icon } from '@oxide/design-system/icons/react'
@@ -77,78 +78,63 @@ const Primitive = ({ value }: { value: null | boolean | number | string }) => (
   </span>
 )
 
-// TODO: avoid converting JSON to string and then parsing again. just need a better memo
+// memo is important to avoid re-renders if the value hasn't changed. value
+// passed in must be referentially stable, which should generally be the case
+// with API responses
+const HighlightJSON = memo(({ json, depth = 0 }: { json: JsonValue; depth?: number }) => {
+  if (json === undefined) return null
 
-// silly faux highlighting
-// avoids unnecessary import of a library and all that overhead
-const HighlightJSON = memo(({ jsonString }: { jsonString: string }) => {
-  const renderValue = (
-    value: null | boolean | number | string | object,
-    depth = 0
-  ): React.ReactNode => {
-    if (
-      value === null ||
-      typeof value === 'boolean' ||
-      typeof value === 'number' ||
-      typeof value === 'string'
-    ) {
-      return <Primitive value={value} />
-    }
-
-    if (Array.isArray(value)) {
-      if (value.length === 0) return <span className="text-quaternary">[]</span>
-
-      return (
-        <>
-          <span className="text-quaternary">[</span>
-          {'\n'}
-          {value.map((item, index) => (
-            <span key={index}>
-              <Indent depth={depth + 1} />
-              {renderValue(item, depth + 1)}
-              {index < value.length - 1 && <span className="text-quaternary">,</span>}
-              {'\n'}
-            </span>
-          ))}
-          <Indent depth={depth} />
-          <span className="text-quaternary">]</span>
-        </>
-      )
-    }
-
-    if (typeof value === 'object') {
-      const entries = Object.entries(value)
-      if (entries.length === 0) return <span className="text-quaternary">{'{}'}</span>
-
-      return (
-        <>
-          <span className="text-quaternary">{'{'}</span>
-          {'\n'}
-          {entries.map(([key, val], index) => (
-            <span key={key}>
-              <Indent depth={depth + 1} />
-              <span className="text-default">{key}</span>
-              <span className="text-quaternary">: </span>
-              {renderValue(val, depth + 1)}
-              {index < entries.length - 1 && <span className="text-quaternary">,</span>}
-              {'\n'}
-            </span>
-          ))}
-          <Indent depth={depth} />
-          <span className="text-quaternary">{'}'}</span>
-        </>
-      )
-    }
-
-    return String(value)
+  if (
+    json === null ||
+    typeof json === 'boolean' ||
+    typeof json === 'number' ||
+    typeof json === 'string'
+  ) {
+    return <Primitive value={json} />
   }
 
-  try {
-    const parsed = JSON.parse(jsonString)
-    return <>{renderValue(parsed)}</>
-  } catch {
-    return <>{jsonString}</>
+  if (Array.isArray(json)) {
+    if (json.length === 0) return <span className="text-quaternary">[]</span>
+
+    return (
+      <>
+        <span className="text-quaternary">[</span>
+        {'\n'}
+        {json.map((item, index) => (
+          <span key={index}>
+            <Indent depth={depth + 1} />
+            <HighlightJSON json={item} depth={depth + 1} />
+            {index < json.length - 1 && <span className="text-quaternary">,</span>}
+            {'\n'}
+          </span>
+        ))}
+        <Indent depth={depth} />
+        <span className="text-quaternary">]</span>
+      </>
+    )
   }
+
+  const entries = Object.entries(json)
+  if (entries.length === 0) return <span className="text-quaternary">{'{}'}</span>
+
+  return (
+    <>
+      <span className="text-quaternary">{'{'}</span>
+      {'\n'}
+      {entries.map(([key, val], index) => (
+        <span key={key}>
+          <Indent depth={depth + 1} />
+          <span className="text-default">{key}</span>
+          <span className="text-quaternary">: </span>
+          <HighlightJSON json={val} depth={depth + 1} />
+          {index < entries.length - 1 && <span className="text-quaternary">,</span>}
+          {'\n'}
+        </span>
+      ))}
+      <Indent depth={depth} />
+      <span className="text-quaternary">{'}'}</span>
+    </>
+  )
 })
 
 // todo
@@ -254,9 +240,7 @@ export default function SiloAuditLogsPage() {
           const log = allItems[virtualRow.index]
           const isExpanded = expandedItem === virtualRow.index.toString()
           // only bother doing all this computation if we're the expanded row
-          const jsonString = isExpanded
-            ? JSON.stringify(camelToSnakeJson(log), null, 2)
-            : ''
+          const json = isExpanded ? camelToSnakeJson(log) : undefined
 
           const [userId, siloId] = match(log.actor)
             .with({ kind: 'silo_user' }, (actor) => [actor.siloUserId, actor.siloId])
@@ -336,7 +320,7 @@ export default function SiloAuditLogsPage() {
               {isExpanded && (
                 <div className="h-72 border-t px-[var(--content-gutter)] py-3 border-secondary">
                   <pre className="h-full overflow-auto border-l pl-4 text-mono-code border-secondary">
-                    <HighlightJSON jsonString={jsonString} />
+                    <HighlightJSON json={json as JsonValue} />
                   </pre>
                 </div>
               )}
