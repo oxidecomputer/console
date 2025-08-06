@@ -40,6 +40,8 @@ export const handle = { crumb: 'Audit Log' }
 function camelToSnakeJson(o: Record<string, unknown>): Record<string, unknown> {
   const result: Record<string, unknown> = {}
 
+  if (o instanceof Date) return o
+
   for (const originalKey in o) {
     if (!Object.prototype.hasOwnProperty.call(o, originalKey)) {
       continue
@@ -72,9 +74,15 @@ const Indent = ({ depth }: { depth: number }) => (
   <span className="inline-block" style={{ width: `${depth * 4 + 1}ch` }} />
 )
 
-const Primitive = ({ value }: { value: null | boolean | number | string }) => (
+const Primitive = ({ value }: { value: null | boolean | number | string | Date }) => (
   <span className="text-[var(--base-blue-600)]">
-    {value === null ? 'null' : typeof value === 'string' ? `"${value}"` : String(value)}
+    {value === null
+      ? 'null'
+      : typeof value === 'string'
+        ? `"${value}"`
+        : value instanceof Date
+          ? `"${value.toISOString()}"`
+          : String(value)}
   </span>
 )
 
@@ -88,7 +96,10 @@ const HighlightJSON = memo(({ json, depth = 0 }: { json: JsonValue; depth?: numb
     json === null ||
     typeof json === 'boolean' ||
     typeof json === 'number' ||
-    typeof json === 'string'
+    typeof json === 'string' ||
+    // special case. the types don't currently reflect that this is possible.
+    // dates have type object so you can't use typeof
+    json instanceof Date
   ) {
     return <Primitive value={json} />
   }
