@@ -84,8 +84,15 @@ export function useDateTimeRangePicker({
     items,
   }
 
-  const [startTime] = useDebounce(range.start.toDate(tz), 400)
-  const [endTime] = useDebounce(range.end.toDate(tz), 400)
+  // Without these useMemos, we get re-renders every 400ms because when the
+  // debounce timeout expires, it updates the value, which triggers a render for
+  // itself because the time gets remade by toDate() (i.e., even though it is
+  // the same time, it is a new object)
+  const rangeStart = useMemo(() => range.start.toDate(tz), [range.start])
+  const [startTime] = useDebounce(rangeStart, 400)
+
+  const rangeEnd = useMemo(() => range.end.toDate(tz), [range.end])
+  const [endTime] = useDebounce(rangeEnd, 400)
 
   return {
     startTime,
