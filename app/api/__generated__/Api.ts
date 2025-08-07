@@ -655,9 +655,9 @@ export type AuditLogEntryResult =
  * Audit log entry
  */
 export type AuditLogEntry = {
-  /** Indicates whether request was made with an API token or session cookie. Optional because it will not be defined on unauthenticated requests like login attempts. */
-  accessMethod?: string | null
   actor: AuditLogEntryActor
+  /** How the user authenticated the request. Possible values are "session_cookie" and "access_token". Optional because it will not be defined on unauthenticated requests like login attempts. */
+  authMethod?: string | null
   /** Unique identifier for the audit log entry */
   id: string
   /** API endpoint ID, e.g., `project_create` */
@@ -4409,6 +4409,8 @@ export type TufArtifactMeta = {
   hash: string
   /** The artifact ID. */
   id: ArtifactId
+  /** Contents of the `SIGN` field of a Hubris archive caboose, i.e., an identifier for the set of valid signing keys. Currently only applicable to RoT image and bootloader artifacts, where it will be an LPC55 Root Key Table Hash (RKTH). */
+  sign?: number[] | null
   /** The size of the artifact in bytes. */
   size: number
 }

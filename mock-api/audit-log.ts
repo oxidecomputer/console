@@ -59,7 +59,7 @@ const mockOperations = [
   'ssh_key_delete',
 ]
 
-const mockAccessMethod = ['session_cookie', 'api_token', null]
+const mockAuthMethod = ['session_cookie', 'api_token', null]
 
 const mockHttpStatusCodes = [200, 201, 204, 400, 401, 403, 404, 409, 500, 502, 503]
 
@@ -87,7 +87,7 @@ function generateAuditLogEntry(index: number): Json<AuditLogEntry> {
 
   return {
     id: uuid(),
-    access_method: mockAccessMethod[index % mockAccessMethod.length],
+    auth_method: mockAuthMethod[index % mockAuthMethod.length],
     actor: {
       kind: 'silo_user',
       silo_id: defaultSilo.id,
@@ -114,7 +114,7 @@ export const auditLog: Json<AuditLogEntry[]> = [
   // Recent successful operations
   {
     id: uuid(),
-    access_method: 'session_cookie',
+    auth_method: 'session_cookie',
     actor: {
       kind: 'silo_user',
       silo_id: defaultSilo.id,
@@ -130,7 +130,7 @@ export const auditLog: Json<AuditLogEntry[]> = [
   },
   {
     id: uuid(),
-    access_method: 'api_token',
+    auth_method: 'api_token',
     actor: {
       kind: 'silo_user',
       silo_id: defaultSilo.id,
@@ -148,7 +148,7 @@ export const auditLog: Json<AuditLogEntry[]> = [
   // Failed operations
   {
     id: uuid(),
-    access_method: 'session_cookie',
+    auth_method: 'session_cookie',
     actor: {
       kind: 'silo_user',
       silo_id: mockSiloIds[1],
@@ -170,7 +170,7 @@ export const auditLog: Json<AuditLogEntry[]> = [
   },
   {
     id: uuid(),
-    access_method: null,
+    auth_method: null,
     actor: { kind: 'unauthenticated' },
     result: {
       kind: 'error',
@@ -188,7 +188,7 @@ export const auditLog: Json<AuditLogEntry[]> = [
   // More historical entries
   {
     id: uuid(),
-    access_method: 'session_cookie',
+    auth_method: 'session_cookie',
     actor: {
       kind: 'silo_user',
       silo_id: mockSiloIds[0],

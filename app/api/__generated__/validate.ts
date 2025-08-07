@@ -646,8 +646,8 @@ export const AuditLogEntryResult = z.preprocess(
 export const AuditLogEntry = z.preprocess(
   processResponseBody,
   z.object({
-    accessMethod: z.string().nullable().optional(),
     actor: AuditLogEntryActor,
+    authMethod: z.string().nullable().optional(),
     id: z.string().uuid(),
     operationId: z.string(),
     requestId: z.string(),
@@ -4088,7 +4088,12 @@ export const TimeseriesSchemaResultsPage = z.preprocess(
  */
 export const TufArtifactMeta = z.preprocess(
   processResponseBody,
-  z.object({ hash: z.string(), id: ArtifactId, size: z.number().min(0) })
+  z.object({
+    hash: z.string(),
+    id: ArtifactId,
+    sign: z.number().min(0).max(255).array().optional(),
+    size: z.number().min(0),
+  })
 )
 
 /**

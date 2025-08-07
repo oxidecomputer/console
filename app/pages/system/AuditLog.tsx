@@ -316,9 +316,11 @@ export default function SiloAuditLogsPage() {
                   )}
                 </div>
                 <div>
-                  <Badge color="neutral">
-                    {log.accessMethod?.split('_').join(' ') || 'Unknown'}
-                  </Badge>
+                  {log.authMethod ? (
+                    <Badge color="neutral">{log.authMethod.split('_').join(' ')}</Badge>
+                  ) : (
+                    <EmptyCell />
+                  )}
                 </div>
                 <div className="text-secondary">
                   {siloId ? (
@@ -396,7 +398,7 @@ export default function SiloAuditLogsPage() {
         <HeaderCell>Status</HeaderCell>
         <HeaderCell>Operation</HeaderCell>
         <HeaderCell>Actor ID</HeaderCell>
-        <HeaderCell>Access Method</HeaderCell>
+        <HeaderCell>Auth Method</HeaderCell>
         <HeaderCell>Silo ID</HeaderCell>
         <HeaderCell>Duration</HeaderCell>
       </div>
