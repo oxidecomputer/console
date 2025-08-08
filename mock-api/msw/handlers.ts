@@ -1808,6 +1808,7 @@ export const handlers = makeHandlers({
   alertReceiverSubscriptionRemove: NotImplemented,
   alertReceiverView: NotImplemented,
   antiAffinityGroupMemberInstanceView: NotImplemented,
+  auditLogList: NotImplemented,
   certificateCreate: NotImplemented,
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,

@@ -625,6 +625,69 @@ export type ArtifactId = {
   version: string
 }
 
+export type AuditLogEntryActor =
+  | { kind: 'user_builtin'; userBuiltinId: string }
+  | { kind: 'silo_user'; siloId: string; siloUserId: string }
+  | { kind: 'unauthenticated' }
+
+/**
+ * Result of an audit log entry
+ */
+export type AuditLogEntryResult =
+  /** The operation completed successfully */
+  | {
+      /** HTTP status code */
+      httpStatusCode: number
+      kind: 'success'
+    }
+  /** The operation failed */
+  | {
+      errorCode?: string | null
+      errorMessage: string
+      /** HTTP status code */
+      httpStatusCode: number
+      kind: 'error'
+    }
+  /** After the logged operation completed, our attempt to write the result to the audit log failed, so it was automatically marked completed later by a background job. This does not imply that the operation itself timed out or failed, only our attempts to log its result. */
+  | { kind: 'unknown' }
+
+/**
+ * Audit log entry
+ */
+export type AuditLogEntry = {
+  actor: AuditLogEntryActor
+  /** How the user authenticated the request. Possible values are "session_cookie" and "access_token". Optional because it will not be defined on unauthenticated requests like login attempts. */
+  authMethod?: string | null
+  /** Unique identifier for the audit log entry */
+  id: string
+  /** API endpoint ID, e.g., `project_create` */
+  operationId: string
+  /** Request ID for tracing requests through the system */
+  requestId: string
+  /** URI of the request, truncated to 512 characters. Will only include host and scheme for HTTP/2 requests. For HTTP/1.1, the URI will consist of only the path and query. */
+  requestUri: string
+  /** Result of the operation */
+  result: AuditLogEntryResult
+  /** IP address that made the request */
+  sourceIp: string
+  /** Time operation completed */
+  timeCompleted: Date
+  /** When the request was received */
+  timeStarted: Date
+  /** User agent string from the request, truncated to 256 characters. */
+  userAgent?: string | null
+}
+
+/**
+ * A single page of results
+ */
+export type AuditLogEntryResultsPage = {
+  /** list of items on this page of results */
+  items: AuditLogEntry[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
 /**
  * Authorization scope for a timeseries.
  *
@@ -4346,6 +4409,8 @@ export type TufArtifactMeta = {
   hash: string
   /** The artifact ID. */
   id: ArtifactId
+  /** Contents of the `SIGN` field of a Hubris archive caboose, i.e., an identifier for the set of valid signing keys. Currently only applicable to RoT image and bootloader artifacts, where it will be an LPC55 Root Key Table Hash (RKTH). */
+  sign?: number[] | null
   /** The size of the artifact in bytes. */
   size: number
 }
@@ -5777,6 +5842,14 @@ export interface SnapshotDeletePathParams {
 
 export interface SnapshotDeleteQueryParams {
   project?: NameOrId
+}
+
+export interface AuditLogListQueryParams {
+  endTime?: Date | null
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: TimeAndIdSortMode
+  startTime?: Date
 }
 
 export interface PhysicalDiskListQueryParams {
@@ -8595,6 +8668,20 @@ export class Api extends HttpClient {
       return this.request<void>({
         path: `/v1/snapshots/${path.snapshot}`,
         method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * View audit log
+     */
+    auditLogList: (
+      { query = {} }: { query?: AuditLogListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AuditLogEntryResultsPage>({
+        path: `/v1/system/audit-log`,
+        method: 'GET',
         query,
         ...params,
       })
