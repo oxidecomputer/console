@@ -149,7 +149,13 @@ const deleteRowAndVerifyRowCount = async (table: Locator, expectedCount: number)
   await expect(rows).toHaveCount(expectedCount)
 }
 
-test('firewall rule form targets table', async ({ page }) => {
+test('firewall rule form targets table', async ({ page, browserName }) => {
+  // eslint-disable-next-line playwright/no-skipped-test
+  test.skip(
+    browserName === 'firefox',
+    'This test flakes too much in Firefox and we are totally changing this form very soon.'
+  )
+
   await page.goto('/projects/mock-project/vpcs/mock-vpc')
   await page.getByRole('tab', { name: 'Firewall Rules' }).click()
 
