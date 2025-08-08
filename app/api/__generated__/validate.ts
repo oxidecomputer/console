@@ -610,6 +610,64 @@ export const ArtifactId = z.preprocess(
   z.object({ kind: z.string(), name: z.string(), version: z.string() })
 )
 
+export const AuditLogEntryActor = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ kind: z.enum(['user_builtin']), userBuiltinId: z.string().uuid() }),
+    z.object({
+      kind: z.enum(['silo_user']),
+      siloId: z.string().uuid(),
+      siloUserId: z.string().uuid(),
+    }),
+    z.object({ kind: z.enum(['unauthenticated']) }),
+  ])
+)
+
+/**
+ * Result of an audit log entry
+ */
+export const AuditLogEntryResult = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ httpStatusCode: z.number().min(0).max(65535), kind: z.enum(['success']) }),
+    z.object({
+      errorCode: z.string().nullable().optional(),
+      errorMessage: z.string(),
+      httpStatusCode: z.number().min(0).max(65535),
+      kind: z.enum(['error']),
+    }),
+    z.object({ kind: z.enum(['unknown']) }),
+  ])
+)
+
+/**
+ * Audit log entry
+ */
+export const AuditLogEntry = z.preprocess(
+  processResponseBody,
+  z.object({
+    actor: AuditLogEntryActor,
+    authMethod: z.string().nullable().optional(),
+    id: z.string().uuid(),
+    operationId: z.string(),
+    requestId: z.string(),
+    requestUri: z.string(),
+    result: AuditLogEntryResult,
+    sourceIp: z.string().ip(),
+    timeCompleted: z.coerce.date(),
+    timeStarted: z.coerce.date(),
+    userAgent: z.string().nullable().optional(),
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const AuditLogEntryResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: AuditLogEntry.array(), nextPage: z.string().nullable().optional() })
+)
+
 /**
  * Authorization scope for a timeseries.
  *
@@ -4030,7 +4088,12 @@ export const TimeseriesSchemaResultsPage = z.preprocess(
  */
 export const TufArtifactMeta = z.preprocess(
   processResponseBody,
-  z.object({ hash: z.string(), id: ArtifactId, size: z.number().min(0) })
+  z.object({
+    hash: z.string(),
+    id: ArtifactId,
+    sign: z.number().min(0).max(255).array().optional(),
+    size: z.number().min(0),
+  })
 )
 
 /**
@@ -6164,6 +6227,20 @@ export const SnapshotDeleteParams = z.preprocess(
     }),
     query: z.object({
       project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const AuditLogListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      endTime: z.coerce.date().nullable().optional(),
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      sortBy: TimeAndIdSortMode.optional(),
+      startTime: z.coerce.date().optional(),
     }),
   })
 )

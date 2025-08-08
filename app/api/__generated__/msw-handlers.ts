@@ -937,6 +937,12 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/system/audit-log` */
+  auditLogList: (params: {
+    query: Api.AuditLogListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AuditLogEntryResultsPage>>
   /** `GET /v1/system/hardware/disks` */
   physicalDiskList: (params: {
     query: Api.PhysicalDiskListQueryParams
@@ -2616,6 +2622,10 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.delete(
       '/v1/snapshots/:snapshot',
       handler(handlers['snapshotDelete'], schema.SnapshotDeleteParams, null)
+    ),
+    http.get(
+      '/v1/system/audit-log',
+      handler(handlers['auditLogList'], schema.AuditLogListParams, null)
     ),
     http.get(
       '/v1/system/hardware/disks',
