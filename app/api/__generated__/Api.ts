@@ -664,7 +664,7 @@ export type AuditLogEntry = {
   operationId: string
   /** Request ID for tracing requests through the system */
   requestId: string
-  /** Full URL of the request */
+  /** URI of the request, truncated to 512 characters. Will only include host and scheme for HTTP/2 requests. For HTTP/1.1, the URI will consist of only the path and query. */
   requestUri: string
   /** Result of the operation */
   result: AuditLogEntryResult
@@ -674,7 +674,7 @@ export type AuditLogEntry = {
   timeCompleted: Date
   /** When the request was received */
   timeStarted: Date
-  /** User agent string from the request */
+  /** User agent string from the request, truncated to 256 characters. */
   userAgent?: string | null
 }
 
