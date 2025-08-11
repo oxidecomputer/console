@@ -8,6 +8,7 @@
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router'
+import { match } from 'ts-pattern'
 
 import {
   apiq,
@@ -89,8 +90,11 @@ const SubnetNameFromId = ({ value }: { value: string }) => {
   return <span className="text-default">{subnet.name}</span>
 }
 
-const EphemeralIPEmptyCell = () => (
-  <Tooltip content="Ephemeral IPs don’t have names or descriptions" placement="top">
+const NonFloatingEmptyCell = ({ kind }: { kind: 'snat' | 'ephemeral' }) => (
+  <Tooltip
+    content={`${kind === 'snat' ? 'SNAT' : 'Ephemeral'} IPs don’t have names or descriptions`}
+    placement="top"
+  >
     <div>
       <EmptyCell />
     </div>
@@ -177,14 +181,30 @@ const updateNicStates = fancifyStates(instanceCan.updateNic.states)
 const ipColHelper = createColumnHelper<ExternalIp>()
 const staticIpCols = [
   ipColHelper.accessor('ip', {
-    cell: (info) => <CopyableIp ip={info.getValue()} />,
+    cell: (info) => (
+      <div className="flex items-center gap-2">
+        <CopyableIp ip={info.getValue()} />
+        {info.row.original.kind === 'snat' && (
+          <Tooltip content="Outbound traffic uses this IP and port range" placement="top">
+            {/* div needed for Tooltip */}
+            <div>
+              <Badge color="neutral">
+                {info.row.original.firstPort}–{info.row.original.lastPort}
+              </Badge>
+            </div>
+          </Tooltip>
+        )}
+      </div>
+    ),
   }),
   ipColHelper.accessor('kind', {
     header: () => (
       <>
         Kind
         <TipIcon className="ml-2">
-          Floating IPs can be detached from this instance and attached to another
+          Floating IPs can be detached from this instance and attached to another. SNAT IPs
+          cannot receive traffic; they are used for outbound traffic when there are no
+          ephemeral or floating IPs.
         </TipIcon>
       </>
     ),
@@ -196,15 +216,19 @@ const staticIpCols = [
   }),
   ipColHelper.accessor('name', {
     cell: (info) =>
-      info.row.original.kind === 'ephemeral' ? <EphemeralIPEmptyCell /> : info.getValue(),
+      info.row.original.kind === 'floating' ? (
+        info.getValue()
+      ) : (
+        <NonFloatingEmptyCell kind={info.row.original.kind} />
+      ),
   }),
   ipColHelper.accessor((row) => ('description' in row ? row.description : undefined), {
     header: 'description',
     cell: (info) =>
-      info.row.original.kind === 'ephemeral' ? (
-        <EphemeralIPEmptyCell />
-      ) : (
+      info.row.original.kind === 'floating' ? (
         <DescriptionCell text={info.getValue()} />
+      ) : (
+        <NonFloatingEmptyCell kind={info.row.original.kind} />
       ),
   }),
 ]
@@ -373,18 +397,38 @@ export default function NetworkingTab() {
         },
       }
 
-      const doAction =
-        externalIp.kind === 'floating'
-          ? () =>
-              floatingIpDetach({
-                path: { floatingIp: externalIp.name },
-                query: { project },
-              })
-          : () =>
-              ephemeralIpDetach({
-                path: { instance: instanceName },
-                query: { project },
-              })
+      if (externalIp.kind === 'snat') {
+        return [
+          copyAction,
+          {
+            label: 'Detach',
+            disabled: "SNAT IPs can't be detached",
+            onActivate: () => {},
+          },
+        ]
+      }
+
+      const doDetach = match(externalIp)
+        .with(
+          { kind: 'ephemeral' },
+          () => () =>
+            ephemeralIpDetach({ path: { instance: instanceName }, query: { project } })
+        )
+        .with(
+          { kind: 'floating' },
+          ({ name }) =>
+            () =>
+              floatingIpDetach({ path: { floatingIp: name }, query: { project } })
+        )
+        .exhaustive()
+
+      const label = match(externalIp)
+        .with({ kind: 'ephemeral' }, () => 'this ephemeral IP')
+        .with(
+          { kind: 'floating' },
+          ({ name }) => <>floating IP <HL>{name}</HL></> // prettier-ignore
+        )
+        .exhaustive()
 
       return [
         copyAction,
@@ -393,20 +437,12 @@ export default function NetworkingTab() {
           onActivate: () =>
             confirmAction({
               actionType: 'danger',
-              doAction,
+              doAction: doDetach,
               modalTitle: `Confirm detach ${externalIp.kind} IP`,
               modalContent: (
                 <p>
-                  Are you sure you want to detach{' '}
-                  {externalIp.kind === 'ephemeral' ? (
-                    'this ephemeral IP'
-                  ) : (
-                    <>
-                      floating IP <HL>{externalIp.name}</HL>
-                    </>
-                  )}{' '}
-                  from <HL>{instanceName}</HL>? The instance will no longer be reachable at{' '}
-                  <HL>{externalIp.ip}</HL>.
+                  Are you sure you want to detach {label} from <HL>{instanceName}</HL>? The
+                  instance will no longer be reachable at <HL>{externalIp.ip}</HL>.
                 </p>
               ),
               errorTitle: `Error detaching ${externalIp.kind} IP`,

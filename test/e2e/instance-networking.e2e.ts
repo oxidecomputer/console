@@ -143,8 +143,13 @@ test('Instance networking tab — floating IPs', async ({ page }) => {
   // See list of external IPs
   await expectRowVisible(externalIpTable, { ip: '123.4.56.0', Kind: 'ephemeral' })
   await expectRowVisible(externalIpTable, { ip: '123.4.56.5', Kind: 'floating' })
+  await expectRowVisible(externalIpTable, { ip: '123.4.56.100–16383', Kind: 'snat' })
 
   await expect(page.getByText('external IPs123.4.56.5/123.4.56.0')).toBeVisible()
+
+  // The list of IPs at the top of the page should not show the SNAT IP
+  await expect(page.getByText('external IPs123.4.56.5/123.4.56.0')).toBeVisible()
+  await expect(page.getByText('external IPs123.4.56.5/123.4.56.0/')).toBeHidden()
 
   // Attach a new external IP
   await attachFloatingIpButton.click()
@@ -181,6 +186,25 @@ test('Instance networking tab — floating IPs', async ({ page }) => {
 
   // And that button should be enabled again
   await expect(attachFloatingIpButton).toBeEnabled()
+})
+
+test('Instance networking tab — SNAT IPs', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1/networking')
+  const externalIpTable = page.getByRole('table', { name: 'External IPs' })
+  const snatRow = externalIpTable.locator('tr').filter({ hasText: 'snat' })
+  await expect(snatRow).toBeVisible()
+
+  // expect the SNAT IP to have a port range badge
+  await expect(snatRow).toContainText('0–16383')
+
+  const actionsButton = snatRow.getByRole('button', { name: 'Row actions' })
+  await actionsButton.click()
+
+  // Should have "Copy IP address" action, just for consistency with other IP rows
+  await expect(page.getByRole('menuitem', { name: 'Copy IP address' })).toBeVisible()
+
+  // Should have a disabled "Detach" action
+  await expect(page.getByRole('menuitem', { name: 'Detach' })).toBeDisabled()
 })
 
 test('Edit network interface - Transit IPs', async ({ page }) => {
