@@ -139,9 +139,10 @@ export const Combobox = ({
     filteredItems.push({
       value: query,
       label: (
-        <>
-          <span className="text-default">Custom:</span> {query}
-        </>
+        <div className="flex items-center gap-1">
+          <span className="text-default">Custom:</span>{' '}
+          <span className="max-w-[9rem] truncate">{query}</span>
+        </div>
       ),
       selectedLabel: query,
     })
@@ -254,9 +255,9 @@ export const Combobox = ({
               // 13px gap is presumably because it's measured from inside the outline or something
               className={cn(
                 'ox-menu pointer-events-auto relative overflow-y-auto border !outline-none border-secondary [--anchor-gap:13px] empty:hidden',
-                matchDropdownWidth // todo: set max and dont extend outside of continer
+                matchDropdownWidth // todo: be a bit smarter about the width so it doesnt extend outside of container
                   ? 'w-[calc(var(--input-width)+var(--button-width))]'
-                  : 'min-w-[calc(var(--input-width)+var(--button-width))]',
+                  : 'min-w-[15rem]',
                 zIndex
               )}
               modal={false}
