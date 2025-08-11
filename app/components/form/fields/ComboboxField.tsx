@@ -75,7 +75,6 @@ export function ComboboxField<
   return (
     <div className="max-w-lg">
       <Combobox
-        label={label}
         placeholder={placeholder}
         description={description}
         items={items}
@@ -95,5 +94,42 @@ export function ComboboxField<
       />
       <ErrorMessage error={fieldState.error} label={label} />
     </div>
+  )
+}
+
+export const ComboboxFieldCell = <
+  TFieldValues extends FieldValues,
+  TName extends FieldPath<TFieldValues>,
+>({
+  name,
+  label = capitalize(name),
+  validate,
+  items,
+  ...props
+}: ComboboxFieldProps<TFieldValues, TName>) => {
+  const {
+    field,
+    fieldState: { error },
+  } = useController({ name, control: props.control, rules: { validate } })
+
+  const [selectedItemLabel, setSelectedItemLabel] = useState(
+    getSelectedLabelFromValue(items, field.value || '')
+  )
+
+  return (
+    <>
+      <Combobox
+        selectedItemValue={field.value}
+        selectedItemLabel={selectedItemLabel}
+        items={items}
+        {...field}
+        onChange={(value) => {
+          setSelectedItemLabel(getSelectedLabelFromValue(items, value))
+          field.onChange(value)
+        }}
+        hasError={!!error}
+      />
+      <ErrorMessage error={error} label={label} isSmall />
+    </>
   )
 }

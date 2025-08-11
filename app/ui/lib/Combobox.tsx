@@ -47,7 +47,7 @@ export type ComboboxBaseProps = {
   disabled?: boolean
   isLoading?: boolean
   items: Array<ComboboxItem>
-  label: string
+  label?: string
   placeholder?: string
   required?: boolean
   hideOptionalTag?: boolean
@@ -68,6 +68,8 @@ export type ComboboxBaseProps = {
    * Optional function to transform the value entered into the input as the user types.
    */
   transform?: (value: string) => string
+  // todo: document
+  matchDropdownWidth?: boolean
 }
 
 type ComboboxProps = {
@@ -98,6 +100,7 @@ export const Combobox = ({
   hideOptionalTag,
   inputRef,
   transform,
+  matchDropdownWidth = true,
   ...props
 }: ComboboxProps) => {
   const [query, setQuery] = useState(selectedItemValue || '')
@@ -176,7 +179,7 @@ export const Combobox = ({
           )}
           <div
             className={cn(
-              `flex rounded border focus-within:ring-2`,
+              `flex h-10 rounded border focus-within:ring-2`,
               hasError
                 ? 'focus-error border-error-secondary focus-within:ring-error-secondary hover:border-error'
                 : 'border-default focus-within:ring-accent-secondary hover:border-hover',
@@ -226,7 +229,7 @@ export const Combobox = ({
               placeholder={placeholder}
               disabled={disabled || isLoading}
               className={cn(
-                `h-10 w-full rounded !border-none px-3 py-2 !outline-none text-sans-md text-raise placeholder:text-tertiary`,
+                `h-full w-full rounded !border-none px-3 py-2 !outline-none text-sans-md text-raise placeholder:text-tertiary`,
                 disabled
                   ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
                   : 'bg-default',
@@ -249,7 +252,13 @@ export const Combobox = ({
             <ComboboxOptions
               anchor="bottom start"
               // 13px gap is presumably because it's measured from inside the outline or something
-              className={`ox-menu pointer-events-auto ${zIndex} relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border !outline-none border-secondary [--anchor-gap:13px] empty:hidden`}
+              className={cn(
+                'ox-menu pointer-events-auto relative overflow-y-auto border !outline-none border-secondary [--anchor-gap:13px] empty:hidden',
+                matchDropdownWidth // todo: set max and dont extend outside of continer
+                  ? 'w-[calc(var(--input-width)+var(--button-width))]'
+                  : 'min-w-[calc(var(--input-width)+var(--button-width))]',
+                zIndex
+              )}
               modal={false}
             >
               {filteredItems.map((item) => (

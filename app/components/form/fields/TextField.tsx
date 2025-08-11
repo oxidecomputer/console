@@ -55,26 +55,29 @@ export function TextField<
   TName extends FieldPath<TFieldValues>,
 >({
   name,
-  label = capitalize(name),
+  label,
   units,
   description,
   required,
   ...props
-}: Omit<TextFieldProps<TFieldValues, TName>, 'id'> & UITextAreaProps) {
+}: Omit<TextFieldProps<TFieldValues, TName>, 'id'> &
+  UITextAreaProps & { popoverError?: boolean }) {
   // id is omitted from props because we generate it here
   const id = useId()
   return (
     <div className="max-w-lg">
-      <div className="mb-2">
-        <FieldLabel htmlFor={id} id={`${id}-label`} optional={!required}>
-          {label} {units && <span className="ml-1 text-default">({units})</span>}
-        </FieldLabel>
-        {description && (
-          <TextInputHint id={`${id}-help-text`} className="mb-2">
-            {description}
-          </TextInputHint>
-        )}
-      </div>
+      {label && (
+        <div className="mb-2">
+          <FieldLabel htmlFor={id} id={`${id}-label`} optional={!required}>
+            {label} {units && <span className="ml-1 text-default">({units})</span>}
+          </FieldLabel>
+          {description && (
+            <TextInputHint id={`${id}-help-text`} className="mb-2">
+              {description}
+            </TextInputHint>
+          )}
+        </div>
+      )}
       {/* passing the generated id is very important for a11y */}
       <TextFieldInner name={name} {...props} id={id} />
     </div>
@@ -102,8 +105,9 @@ export const TextFieldInner = <
   required,
   id: idProp,
   transform,
+  popoverError,
   ...props
-}: TextFieldProps<TFieldValues, TName> & UITextAreaProps) => {
+}: TextFieldProps<TFieldValues, TName> & UITextAreaProps & { popoverError?: boolean }) => {
   const generatedId = useId()
   const id = idProp || generatedId
   const {
@@ -119,10 +123,11 @@ export const TextFieldInner = <
         error={!!error}
         aria-labelledby={`${id}-label ${id}-help-text`}
         onChange={(e) => onChange(transform ? transform(e.target.value) : e.target.value)}
+        popoverError={popoverError ? error : undefined}
         {...fieldRest}
         {...props}
       />
-      <ErrorMessage error={error} label={label} />
+      {!popoverError && <ErrorMessage error={error} label={label} />}
     </>
   )
 }

@@ -23,7 +23,7 @@
   }
 
   /* a fake left border for all cells that aren't first */
-  & td + td:before {
+  &:not(.interactive) td + td:before {
     @apply absolute bottom-[2px] top-[calc(0.5rem+1px)] block w-[1px] border-l border-secondary;
     content: ' ';
   }
@@ -38,7 +38,7 @@
 
   /* all divs */
   & td > div {
-    @apply flex h-9 items-center border border-y border-r-0 py-3 pl-3 pr-6 border-default;
+    @apply flex h-10 items-center border border-y border-r-0 py-3 pl-3 pr-6 border-default;
   }
 
   /* first cell's div */

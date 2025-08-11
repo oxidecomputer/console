@@ -8,7 +8,10 @@
 import { announce } from '@react-aria/live-announcer'
 import cn from 'classnames'
 import { useEffect } from 'react'
+import { type FieldError } from 'react-hook-form'
 import type { Merge } from 'type-fest'
+
+import { PopoverErrorMessage } from '~/components/form/fields/ErrorMessage'
 
 import { CopyToClipboard } from './CopyToClipboard'
 
@@ -59,13 +62,14 @@ export function TextInput({
   copyable,
   as: asProp,
   ref,
+  popoverError,
   ...fieldProps
-}: TextInputBaseProps & TextAreaProps) {
+}: TextInputBaseProps & TextAreaProps & { popoverError?: FieldError }) {
   const Component = asProp || 'input'
   return (
     <div
       className={cn(
-        'flex items-center rounded border',
+        'relative flex h-10 items-center rounded border',
         error
           ? 'border-error-secondary hover:border-error'
           : 'border-default hover:border-hover',
@@ -79,7 +83,7 @@ export function TextInput({
         type={type}
         value={value}
         className={cn(
-          `w-full rounded border-none px-3 py-[0.6875rem] !outline-offset-1 text-sans-md text-raise bg-default placeholder:text-tertiary focus:outline-none disabled:cursor-not-allowed disabled:text-secondary disabled:bg-disabled`,
+          `h-full w-full rounded border-none px-3 !outline-offset-1 text-sans-md text-raise bg-default placeholder:text-tertiary focus:outline-none disabled:cursor-not-allowed disabled:text-secondary disabled:bg-disabled`,
           error && 'focus-error',
           fieldClassName,
           disabled && 'text-disabled bg-disabled',
@@ -90,6 +94,14 @@ export function TextInput({
         spellCheck={false}
         {...fieldProps}
       />
+      {/* todo: interferes with copy to clipboard */}
+      {popoverError && (
+        <PopoverErrorMessage
+          error={popoverError}
+          label="Test"
+          className="absolute right-0 mr-2"
+        />
+      )}
       {copyable && (
         <CopyToClipboard
           text={value || ''}

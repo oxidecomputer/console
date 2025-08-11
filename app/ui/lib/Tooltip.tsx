@@ -29,6 +29,7 @@ import { Children, cloneElement, useRef, useState, type ReactElement } from 'rea
 import { usePopoverZIndex } from './SideModal'
 
 export interface TooltipProps {
+  variant?: 'default' | 'error'
   delay?: number
   // Specify ref prop because we use it below when we inject the tooltip ref
   // into the button child. If we don't do this, the library cannot find the
@@ -48,7 +49,13 @@ export interface TooltipProps {
   placement?: Placement
 }
 
-export const Tooltip = ({ delay = 250, children, content, placement }: TooltipProps) => {
+export const Tooltip = ({
+  variant = 'default',
+  delay = 250,
+  children,
+  content,
+  placement,
+}: TooltipProps) => {
   const [open, setOpen] = useState(false)
   const arrowRef = useRef(null)
 
@@ -87,6 +94,21 @@ export const Tooltip = ({ delay = 250, children, content, placement }: TooltipPr
 
   const zIndex = usePopoverZIndex()
 
+  const variantConfig = {
+    default: {
+      classes: 'bg-raise border-secondary text-default',
+      stroke: 'var(--stroke-secondary)',
+      fill: 'var(--surface-raise)',
+    },
+    error: {
+      classes: 'bg-error-secondary border-error-tertiary text-error',
+      stroke: 'var(--stroke-error-tertiary)',
+      fill: 'var(--surface-error-secondary)',
+    },
+  }
+
+  const config = variantConfig[variant] || variantConfig.default
+
   if (!content) return child
 
   return (
@@ -96,7 +118,11 @@ export const Tooltip = ({ delay = 250, children, content, placement }: TooltipPr
         {open && (
           <div
             ref={refs.setFloating}
-            className={cn('ox-tooltip max-content max-w-sm', zIndex)}
+            className={cn(
+              'max-content max-w-sm rounded border p-2 text-sans-md elevation-2',
+              config.classes,
+              zIndex
+            )}
             {...getFloatingProps()}
             style={floatingStyles}
           >
@@ -106,8 +132,8 @@ export const Tooltip = ({ delay = 250, children, content, placement }: TooltipPr
               height={8}
               strokeWidth={1}
               tipRadius={2}
-              stroke="var(--stroke-secondary)"
-              fill="var(--surface-raise)"
+              stroke={config.stroke}
+              fill={config.fill}
               ref={arrowRef}
               context={context}
             />
