@@ -6,4 +6,4 @@
  * Copyright Oxide Computer Company
  */
 
-export { Json } from '~/api/__generated__/msw-handlers'
+export { type Json } from '~/api/__generated__/msw-handlers'

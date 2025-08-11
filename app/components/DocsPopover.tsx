@@ -36,6 +36,7 @@ export const DocsPopoverLink = ({ href, linkText }: DocsPopoverLinkProps) => (
 )
 
 type DocsPopoverProps = {
+  /** Lower case because it appears as "Learn about ..." */
   heading: string
   icon: JSX.Element
   links: Array<DocsPopoverLinkProps>

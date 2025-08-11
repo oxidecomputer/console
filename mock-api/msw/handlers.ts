@@ -31,7 +31,6 @@ import { parseIp } from '~/util/ip'
 import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
 
-import { genCumulativeI64Data } from '../metrics'
 import { defaultSilo, toIdp } from '../silo'
 import { getTimestamps } from '../util'
 import { defaultFirewallRules } from '../vpc'
@@ -41,6 +40,7 @@ import {
   lookup,
   lookupById,
   notFoundErr,
+  resolveIpPool,
   utilizationForSilo,
 } from './db'
 import {
@@ -48,7 +48,6 @@ import {
   errIfExists,
   errIfInvalidDiskSize,
   forbiddenErr,
-  getStartAndEndTime,
   handleMetrics,
   handleOxqlMetrics,
   ipInAnyRange,
@@ -174,21 +173,6 @@ export const handlers = makeHandlers({
 
     db.disks = db.disks.filter((d) => d.id !== disk.id)
     return 204
-  },
-  diskMetricsList({ path, query }) {
-    lookup.disk({ ...path, ...query })
-
-    const { startTime, endTime } = getStartAndEndTime(query)
-
-    if (endTime <= startTime) return { items: [] }
-
-    return {
-      items: genCumulativeI64Data(
-        Array.from({ length: 1000 }).map((_x, i) => Math.floor(Math.tanh(i / 500) * 3000)),
-        startTime,
-        endTime
-      ),
-    }
   },
   async diskBulkWriteImportStart({ path, query }) {
     const disk = lookup.disk({ ...path, ...query })
@@ -477,7 +461,8 @@ export const handlers = makeHandlers({
         // if there are no ranges in the pool or if the pool doesn't exist,
         // which aren't quite as good as checking that there are actually IPs
         // available, but they are good things to check
-        getIpFromPool(ip.pool)
+        const pool = resolveIpPool(ip.pool)
+        getIpFromPool(pool)
       }
     })
 
@@ -563,11 +548,14 @@ export const handlers = makeHandlers({
         // we've already validated that the IP isn't attached
         floatingIp.instance_id = instanceId
       } else if (ip.type === 'ephemeral') {
-        const firstAvailableAddress = getIpFromPool(ip.pool)
+        const pool = resolveIpPool(ip.pool)
+        const firstAvailableAddress = getIpFromPool(pool)
+
         db.ephemeralIps.push({
           instance_id: instanceId,
           external_ip: {
             ip: firstAvailableAddress,
+            ip_pool_id: pool.id,
             kind: 'ephemeral',
           },
         })
@@ -585,13 +573,15 @@ export const handlers = makeHandlers({
       auto_restart_enabled: true,
     }
 
-    setTimeout(() => {
-      newInstance.run_state = 'starting'
-    }, 1000)
+    if (body.start) {
+      setTimeout(() => {
+        newInstance.run_state = 'starting'
+      }, 1500)
 
-    setTimeout(() => {
-      newInstance.run_state = 'running'
-    }, 4000)
+      setTimeout(() => {
+        newInstance.run_state = 'running'
+      }, 4000)
+    }
 
     db.instances.push(newInstance)
 
@@ -734,12 +724,10 @@ export const handlers = makeHandlers({
   },
   instanceEphemeralIpAttach({ path, query: projectParams, body }) {
     const instance = lookup.instance({ ...path, ...projectParams })
-    const { pool } = body
-    const firstAvailableAddress = getIpFromPool(pool)
-    const externalIp = {
-      ip: firstAvailableAddress,
-      kind: 'ephemeral' as const,
-    }
+    const pool = resolveIpPool(body.pool)
+    const ip = getIpFromPool(pool)
+
+    const externalIp = { ip, ip_pool_id: pool.id, kind: 'ephemeral' as const }
     db.ephemeralIps.push({
       instance_id: instance.id,
       external_ip: externalIp,
@@ -764,13 +752,17 @@ export const handlers = makeHandlers({
       .filter((eip) => eip.instance_id === instance.id)
       .map((eip) => eip.external_ip)
 
+    const snatIps = db.snatIps
+      .filter((sip) => sip.instance_id === instance.id)
+      .map((sip) => sip.external_ip)
+
     // floating IPs are missing their `kind` field in the DB so we add it
     const floatingIps = db.floatingIps
       .filter((f) => f.instance_id === instance.id)
       .map((f) => ({ kind: 'floating' as const, ...f }))
 
     // endpoint is not paginated. or rather, it's fake paginated
-    return { items: [...ephemeralIps, ...floatingIps] }
+    return { items: [...ephemeralIps, ...snatIps, ...floatingIps] }
   },
   instanceNetworkInterfaceList({ query }) {
     const instance = lookup.instance(query)
@@ -880,11 +872,12 @@ export const handlers = makeHandlers({
       (r) => parseIp(r.first).type === 'v4'
     )
 
-    // in the real backend there are also SNAT IPs, but we don't currently
-    // represent those because they are not exposed through the API (except
-    // through the counts)
+    // Include SNAT IPs in IP utilization calculation, deduplicating by IP address
+    // since multiple instances can share the same SNAT IP with different port ranges
+    const uniqueSnatIps = [...new Set(db.snatIps.map((sip) => sip.external_ip.ip))]
     const allIps = [
       ...db.ephemeralIps.map((eip) => eip.external_ip.ip),
+      ...uniqueSnatIps,
       ...db.floatingIps.map((fip) => fip.ip),
     ]
 
@@ -1210,7 +1203,7 @@ export const handlers = makeHandlers({
   vpcFirewallRulesUpdate({ body, query }) {
     const vpc = lookup.vpc(query)
 
-    const rules = body.rules.map((rule) => ({
+    const rules = (body.rules ?? []).map((rule) => ({
       vpc_id: vpc.id,
       id: uuid(),
       ...rule,
@@ -1419,6 +1412,15 @@ export const handlers = makeHandlers({
 
     return body
   },
+  // assume every silo has a settings entry in both of these
+  authSettingsUpdate({ body }) {
+    const settings = db.siloSettings.find((s) => s.silo_id === defaultSilo.id)!
+    settings.device_token_max_ttl_seconds = body.device_token_max_ttl_seconds
+    return settings
+  },
+  authSettingsView() {
+    return db.siloSettings.find((s) => s.silo_id === defaultSilo.id)!
+  },
   rackList: ({ query, cookies }) => {
     requireFleetViewer(cookies)
     return paginated(query, db.racks)
@@ -1457,6 +1459,11 @@ export const handlers = makeHandlers({
     db.sshKeys = db.sshKeys.filter((i) => i.id !== sshKey.id)
     return 204
   },
+  currentUserAccessTokenDelete({ path }) {
+    db.deviceTokens = db.deviceTokens.filter((token) => token.id !== path.tokenId)
+    return 204
+  },
+  currentUserAccessTokenList: ({ query }) => paginated(query, db.deviceTokens),
   sledView({ path, cookies }) {
     requireFleetViewer(cookies)
     return lookup.sled(path)
@@ -1498,6 +1505,7 @@ export const handlers = makeHandlers({
     db.silos.push(newSilo)
     db.siloQuotas.push({ silo_id: newSilo.id, ...quotas })
     db.siloProvisioned.push({ silo_id: newSilo.id, cpus: 0, memory: 0, storage: 0 })
+    db.siloSettings.push({ silo_id: newSilo.id, device_token_max_ttl_seconds: null })
     return json(newSilo, { status: 201 })
   },
   siloView({ path, cookies }) {
@@ -1509,6 +1517,7 @@ export const handlers = makeHandlers({
     const silo = lookup.silo(path)
     db.silos = db.silos.filter((i) => i.id !== silo.id)
     db.ipPoolSilos = db.ipPoolSilos.filter((i) => i.silo_id !== silo.id)
+    db.siloSettings = db.siloSettings.filter((i) => i.silo_id !== silo.id)
     return 204
   },
   siloIdentityProviderList({ query, cookies }) {
@@ -1789,7 +1798,17 @@ export const handlers = makeHandlers({
   affinityGroupMemberInstanceDelete: NotImplemented,
   affinityGroupMemberInstanceView: NotImplemented,
   affinityGroupUpdate: NotImplemented,
+  alertClassList: NotImplemented,
+  alertDeliveryList: NotImplemented,
+  alertDeliveryResend: NotImplemented,
+  alertReceiverDelete: NotImplemented,
+  alertReceiverList: NotImplemented,
+  alertReceiverProbe: NotImplemented,
+  alertReceiverSubscriptionAdd: NotImplemented,
+  alertReceiverSubscriptionRemove: NotImplemented,
+  alertReceiverView: NotImplemented,
   antiAffinityGroupMemberInstanceView: NotImplemented,
+  auditLogList: NotImplemented,
   certificateCreate: NotImplemented,
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
@@ -1831,6 +1850,8 @@ export const handlers = makeHandlers({
   networkingBgpImportedRoutesIpv4: NotImplemented,
   networkingBgpMessageHistory: NotImplemented,
   networkingBgpStatus: NotImplemented,
+  networkingInboundIcmpUpdate: NotImplemented,
+  networkingInboundIcmpView: NotImplemented,
   networkingLoopbackAddressCreate: NotImplemented,
   networkingLoopbackAddressDelete: NotImplemented,
   networkingLoopbackAddressList: NotImplemented,
@@ -1851,8 +1872,6 @@ export const handlers = makeHandlers({
   probeList: NotImplemented,
   probeView: NotImplemented,
   rackView: NotImplemented,
-  roleList: NotImplemented,
-  roleView: NotImplemented,
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
   siloUserList: NotImplemented,
@@ -1868,26 +1887,28 @@ export const handlers = makeHandlers({
   supportBundleHeadFile: NotImplemented,
   supportBundleIndex: NotImplemented,
   supportBundleList: NotImplemented,
+  supportBundleUpdate: NotImplemented,
   supportBundleView: NotImplemented,
   switchView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
   systemQuotasList: NotImplemented,
   systemTimeseriesSchemaList: NotImplemented,
-  targetReleaseView: NotImplemented,
+  systemUpdateGetRepository: NotImplemented,
+  systemUpdatePutRepository: NotImplemented,
+  systemUpdateTrustRootCreate: NotImplemented,
+  systemUpdateTrustRootDelete: NotImplemented,
+  systemUpdateTrustRootList: NotImplemented,
+  systemUpdateTrustRootView: NotImplemented,
   targetReleaseUpdate: NotImplemented,
+  targetReleaseView: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
-  webhookDeliveryList: NotImplemented,
-  webhookDeliveryResend: NotImplemented,
-  webhookEventClassList: NotImplemented,
+  userLogout: NotImplemented,
+  userSessionList: NotImplemented,
+  userTokenList: NotImplemented,
+  userView: NotImplemented,
   webhookReceiverCreate: NotImplemented,
-  webhookReceiverDelete: NotImplemented,
-  webhookReceiverList: NotImplemented,
-  webhookReceiverProbe: NotImplemented,
-  webhookReceiverSubscriptionAdd: NotImplemented,
-  webhookReceiverSubscriptionRemove: NotImplemented,
   webhookReceiverUpdate: NotImplemented,
-  webhookReceiverView: NotImplemented,
   webhookSecretsAdd: NotImplemented,
   webhookSecretsDelete: NotImplemented,
   webhookSecretsList: NotImplemented,

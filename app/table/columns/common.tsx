@@ -38,8 +38,9 @@ function instanceStateCell(info: Info<InstanceState>) {
   return <InstanceStateBadge state={info.getValue()} />
 }
 
-function sizeCell(info: Info<number>) {
-  const size = filesize(info.getValue(), { base: 2, output: 'object' })
+// not using Info<number> so this can also be used for minitables
+export function sizeCellInner(value: number) {
+  const size = filesize(value, { base: 2, output: 'object' })
   return (
     <span className="text-default">
       {size.value} <span className="text-tertiary">{size.unit}</span>
@@ -55,7 +56,7 @@ export const Columns = {
   },
   id: { header: 'ID', cell: idCell },
   instanceState: { header: 'state', cell: instanceStateCell },
-  size: { cell: sizeCell },
+  size: { cell: (info: Info<number>) => sizeCellInner(info.getValue()) },
   timeCreated: { header: 'created', cell: dateCell },
   timeModified: { header: 'modified', cell: dateCell },
 }

@@ -7,6 +7,7 @@
     "esModuleInterop": true,
     "importHelpers": true,
     "incremental": true,
+    "isolatedModules": true,
     "jsx": "react-jsx",
     "module": "es2020",
     "moduleResolution": "bundler",
@@ -24,7 +25,7 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
-    "target": "es2020",
+    "target": "es2022",
     "types": ["node", "vite/client", "vitest/importMeta"]
   },
   "exclude": ["tools/deno"]

@@ -8,7 +8,12 @@
 import { useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 
-import { Folder16Icon, Key16Icon, Profile16Icon } from '@oxide/design-system/icons/react'
+import {
+  AccessToken16Icon,
+  Folder16Icon,
+  Key16Icon,
+  Profile16Icon,
+} from '@oxide/design-system/icons/react'
 
 import { TopBar } from '~/components/TopBar'
 import { makeCrumb } from '~/hooks/use-crumbs'
@@ -31,6 +36,7 @@ export default function SettingsLayout() {
         [
           { value: 'Profile', path: pb.profile() },
           { value: 'SSH Keys', path: pb.sshKeys() },
+          { value: 'Access Tokens', path: pb.accessTokens() },
         ]
           // filter out the entry for the path we're currently on
           .filter((i) => i.path !== pathname)
@@ -60,6 +66,9 @@ export default function SettingsLayout() {
           </NavLinkItem>
           <NavLinkItem to={pb.sshKeys()}>
             <Key16Icon /> SSH Keys
+          </NavLinkItem>
+          <NavLinkItem to={pb.accessTokens()}>
+            <AccessToken16Icon /> Access Tokens
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>

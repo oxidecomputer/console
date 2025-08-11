@@ -7,7 +7,13 @@
  */
 import * as R from 'remeda'
 
-import type { IdentityProvider, SamlIdentityProvider, Silo, SiloQuotas } from '@oxide/api'
+import type {
+  IdentityProvider,
+  SamlIdentityProvider,
+  Silo,
+  SiloAuthSettings,
+  SiloQuotas,
+} from '@oxide/api'
 
 import { GiB, TiB } from '~/util/units'
 
@@ -111,3 +117,14 @@ export const toIdp = ({ provider, type }: DbIdp): Json<IdentityProvider> => ({
   provider_type: type,
   ...R.pick(provider, ['id', 'name', 'description', 'time_created', 'time_modified']),
 })
+
+export const siloSettings: Json<SiloAuthSettings>[] = [
+  {
+    silo_id: defaultSilo.id,
+    device_token_max_ttl_seconds: 3600 * 24, // 1 hour in seconds
+  },
+  {
+    silo_id: silos[1].id,
+    device_token_max_ttl_seconds: 7200, // 2 hours in seconds
+  },
+]
