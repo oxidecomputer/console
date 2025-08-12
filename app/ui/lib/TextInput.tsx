@@ -66,15 +66,17 @@ export function TextInput({
   ...fieldProps
 }: TextInputBaseProps & TextAreaProps & { popoverError?: FieldError }) {
   const Component = asProp || 'input'
+  const isTextArea = asProp === 'textarea'
   return (
     <div
       className={cn(
-        'relative flex h-10 items-center rounded border',
+        'relative flex items-center rounded border',
         error
           ? 'border-error-secondary hover:border-error'
           : 'border-default hover:border-hover',
         disabled && '!border-default',
-        className
+        className,
+        !isTextArea && 'h-10'
       )}
     >
       <Component
@@ -87,7 +89,8 @@ export function TextInput({
           error && 'focus-error',
           fieldClassName,
           disabled && 'text-disabled bg-disabled',
-          copyable && 'pr-0'
+          copyable && 'pr-0',
+          isTextArea && 'py-[0.6875rem]'
         )}
         aria-invalid={error}
         disabled={disabled}
