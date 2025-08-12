@@ -63,7 +63,7 @@ export function InputMiniTable<
   const columnCount = headers.length + 1 // +1 for remove button column
 
   return (
-    <div className={cn('w-full', className)}>
+    <div className={cn('w-full', className)} role="group" aria-label={name}>
       {/* Grid Container */}
       <div
         className="grid overflow-hidden rounded-lg border pb-1 bg-default border-default"
@@ -73,37 +73,54 @@ export function InputMiniTable<
             : `repeat(${headers.length}, 1fr) 2.25rem`,
           borderSpacing: '0px',
         }}
+        role="table"
       >
         {/* Header Row */}
-        {headers.map((header, index) => (
-          <div
-            key={index}
-            className="relative mb-1 flex h-9 items-center border-b pl-5 pr-3 text-left font-semibold text-mono-sm text-secondary bg-secondary border-default first:pl-3"
-          >
+        <div
+          role="row"
+          style={{
+            gridColumn: `1 / ${columnCount + 1}`,
+            gridRow: 1,
+            display: 'contents',
+          }}
+        >
+          {headers.map((header, index) => (
             <div
-              className={cn(
-                "absolute top-0 z-10 h-full w-px bg-[var(--base-neutral-200)] content-['']",
-                index === headers.length - 1 ? 'right-0' : '-right-1.5'
-              )}
-            />
-            {header}
-          </div>
-        ))}
-        {/* Header for remove button column */}
-        <div className="mb-1 border-b bg-secondary border-default" />
+              key={index}
+              className="relative mb-1 flex h-9 items-center border-b pl-5 pr-3 text-left font-semibold text-mono-sm text-secondary bg-secondary border-default first:pl-3"
+            >
+              <div
+                className={cn(
+                  "absolute top-0 z-10 h-full w-px bg-[var(--base-neutral-200)] content-['']",
+                  index === headers.length - 1 ? 'right-0' : '-right-1.5'
+                )}
+              />
+              {header}
+            </div>
+          ))}
+          {/* Header for remove button column */}
+          <div className="mb-1 border-b bg-secondary border-default" />
+        </div>
 
         {/* Body Rows */}
         {hasItems ? (
-          fields
-            .map((field, rowIndex) => {
-              const rowCells = renderRow(field, rowIndex, name)
-              return rowCells
-                .map((input, cellIndex) => (
+          fields.map((field, rowIndex) => {
+            const rowCells = renderRow(field, rowIndex, name)
+            return (
+              <div
+                key={field.id}
+                role="row"
+                style={{
+                  gridColumn: `1 / ${columnCount + 1}`,
+                  gridRow: rowIndex + 2, // +2 for header row and 1-indexed
+                  display: 'contents',
+                }}
+              >
+                {rowCells.map((input, cellIndex) => (
                   <div
                     key={`${field.id}-${cellIndex}`}
                     style={{
                       gridColumn: cellIndex + 1,
-                      gridRow: rowIndex + headers.length + 2, // +2 for header row and 1-indexed
                     }}
                   >
                     <div className={cn('ml-2 flex items-center py-1')}>
@@ -112,31 +129,29 @@ export function InputMiniTable<
                       </div>
                     </div>
                   </div>
-                ))
-                .concat([
-                  // Remove button cell
-                  <div
-                    key={`${field.id}-remove`}
-                    className={cn('relative')}
-                    style={{
-                      gridColumn: columnCount,
-                      gridRow: rowIndex + headers.length + 2,
-                    }}
-                  >
-                    <div className="flex h-12 items-center justify-center border-none py-2">
-                      <button
-                        type="button"
-                        onClick={() => remove(rowIndex)}
-                        aria-label={`Remove item ${rowIndex + 1}`}
-                        className="-m-2 flex items-center justify-center p-2 text-tertiary hover:text-secondary focus:text-secondary"
-                      >
-                        <Error16Icon aria-hidden focusable="false" />
-                      </button>
-                    </div>
-                  </div>,
-                ])
-            })
-            .flat()
+                ))}
+                {/* Remove button cell */}
+                <div
+                  key={`${field.id}-remove`}
+                  className={cn('relative')}
+                  style={{
+                    gridColumn: columnCount,
+                  }}
+                >
+                  <div className="flex h-12 items-center justify-center border-none py-2">
+                    <button
+                      type="button"
+                      onClick={() => remove(rowIndex)}
+                      aria-label={`Remove item ${rowIndex + 1}`}
+                      className="-m-2 flex items-center justify-center p-2 text-tertiary hover:text-secondary focus:text-secondary"
+                    >
+                      <Error16Icon aria-hidden focusable="false" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )
+          })
         ) : emptyState ? (
           <div
             style={{

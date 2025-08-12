@@ -40,14 +40,17 @@ export function PopoverErrorMessage({
 
   return (
     <Tooltip content={message} placement="top" variant="error">
-      <div
+      <button
+        type="button"
+        aria-label={`Error: ${message}`}
+        tabIndex={0}
         className={cn(
           className,
-          'flex h-6 w-6 items-center justify-center rounded-full bg-error-secondary'
+          '-ml-1 flex h-6 w-6 flex-shrink-0 cursor-help items-center justify-center rounded-full bg-error-secondary'
         )}
       >
-        <Info12Icon className="text-error-secondary" />
-      </div>
+        <Info12Icon className="text-error-secondary" aria-hidden="true" />
+      </button>
     </Tooltip>
   )
 }

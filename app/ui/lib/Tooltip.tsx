@@ -125,6 +125,7 @@ export const Tooltip = ({
             )}
             {...getFloatingProps()}
             style={floatingStyles}
+            role="tooltip"
           >
             {content}
             <FloatingArrow

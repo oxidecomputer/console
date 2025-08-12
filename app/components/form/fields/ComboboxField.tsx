@@ -62,8 +62,9 @@ export function ComboboxField<
   items,
   transform,
   validate,
+  popoverError,
   ...props
-}: ComboboxFieldProps<TFieldValues, TName>) {
+}: ComboboxFieldProps<TFieldValues, TName> & { popoverError?: boolean }) {
   const { field, fieldState } = useController({
     name,
     control,
@@ -91,8 +92,9 @@ export function ComboboxField<
         inputRef={field.ref}
         transform={transform}
         {...props}
+        popoverError={popoverError ? fieldState.error : undefined}
       />
-      <ErrorMessage error={fieldState.error} label={label} />
+      {!popoverError && <ErrorMessage error={fieldState.error} label={label} />}
     </div>
   )
 }

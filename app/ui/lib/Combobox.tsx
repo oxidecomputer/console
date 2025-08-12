@@ -16,8 +16,11 @@ import {
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
 import { useEffect, useId, useState, type ReactNode, type Ref } from 'react'
+import { type FieldError } from 'react-hook-form'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
+
+import { PopoverErrorMessage } from '~/components/form/fields/ErrorMessage'
 
 import { FieldLabel } from './FieldLabel'
 import { usePopoverZIndex } from './SideModal'
@@ -80,6 +83,7 @@ type ComboboxProps = {
   onChange: (value: string) => void
   /** Necessary if you want RHF to be able to focus it on error */
   inputRef?: Ref<HTMLInputElement>
+  popoverError?: FieldError
 } & ComboboxBaseProps
 
 export const Combobox = ({
@@ -101,6 +105,7 @@ export const Combobox = ({
   inputRef,
   transform,
   matchDropdownWidth = true,
+  popoverError,
   ...props
 }: ComboboxProps) => {
   const [query, setQuery] = useState(selectedItemValue || '')
@@ -180,7 +185,7 @@ export const Combobox = ({
           )}
           <div
             className={cn(
-              `flex h-10 rounded border focus-within:ring-2`,
+              `relative flex h-10 items-center rounded border focus-within:ring-2`,
               hasError
                 ? 'focus-error border-error-secondary focus-within:ring-error-secondary hover:border-error'
                 : 'border-default focus-within:ring-accent-secondary hover:border-hover',
@@ -237,6 +242,9 @@ export const Combobox = ({
                 hasError && 'focus-error'
               )}
             />
+            {popoverError && (
+              <PopoverErrorMessage error={popoverError} label="Test" className="mr-1.5" />
+            )}
             <ComboboxButton
               className={cn(
                 'my-1.5 flex items-center border-l px-3 border-secondary',

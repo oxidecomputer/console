@@ -102,7 +102,7 @@ export function TextInput({
         <PopoverErrorMessage
           error={popoverError}
           label="Test"
-          className="absolute right-0 mr-2"
+          className="absolute right-0 mr-1.5"
         />
       )}
       {copyable && (

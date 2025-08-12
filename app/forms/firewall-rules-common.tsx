@@ -162,6 +162,7 @@ const TargetsValueField = ({
         validateName(value, `${capitalize(type)} name`, false)
       }
       placeholder={valuePlaceholders[type]}
+      popoverError
     />
   ) : (
     <TextField
@@ -323,6 +324,7 @@ const ProtocolFilters = ({
             const result = parseIcmpType(String(value))
             if (!result.success) return result.message
           }}
+          popoverError
         />
       ) : (
         <TextInput key={`not-icmp-type-${index}`} disabled />
@@ -417,6 +419,7 @@ const HostFilters = ({
           allowArbitraryValues
           hideOptionalTag
           validate={(value) => validateName(value, `Host filter name`, false)}
+          popoverError
         />
       ) : (
         <TextField
