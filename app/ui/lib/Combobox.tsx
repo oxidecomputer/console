@@ -237,60 +237,56 @@ export const Combobox = ({
                 hasError && 'focus-error'
               )}
             />
-            {items.length > 0 && (
-              <ComboboxButton
-                className={cn(
-                  'my-1.5 flex items-center border-l px-3 border-secondary',
-                  disabled ? 'cursor-not-allowed bg-disabled' : 'bg-default'
-                )}
-                aria-hidden
-              >
-                <SelectArrows6Icon title="Select" className="w-2 text-secondary" />
-              </ComboboxButton>
-            )}
-          </div>
-          {(items.length > 0 || allowArbitraryValues) && (
-            <ComboboxOptions
-              anchor="bottom start"
-              // 13px gap is presumably because it's measured from inside the outline or something
+            <ComboboxButton
               className={cn(
-                'ox-menu pointer-events-auto relative overflow-y-auto border !outline-none border-secondary [--anchor-gap:13px] empty:hidden',
-                matchDropdownWidth // todo: be a bit smarter about the width so it doesnt extend outside of container
-                  ? 'w-[calc(var(--input-width)+var(--button-width))]'
-                  : 'min-w-[15rem]',
-                zIndex
+                'my-1.5 flex items-center border-l px-3 border-secondary',
+                disabled ? 'cursor-not-allowed bg-disabled' : 'bg-default'
               )}
-              modal={false}
+              aria-hidden
             >
-              {filteredItems.map((item) => (
-                <ComboboxOption
-                  key={item.value}
-                  value={item.value}
-                  className="relative border-b border-secondary last:border-0"
-                >
-                  {({ focus, selected }) => (
-                    // This *could* be done with data-[focus] and data-[selected] instead, but
-                    // it would be a lot more verbose. those can only be used with TW classes,
-                    // not our .is-selected and .is-highlighted, so we'd have to copy the pieces
-                    // of those rules one by one. Better to rely on the shared classes.
-                    <div
-                      className={cn('ox-menu-item', {
-                        'is-selected': selected && query !== item.value,
-                        'is-highlighted': focus,
-                      })}
-                    >
-                      {item.label}
-                    </div>
-                  )}
-                </ComboboxOption>
-              ))}
-              {!allowArbitraryValues && filteredItems.length === 0 && (
-                <ComboboxOption disabled value="no-matches" className="relative">
-                  <div className="ox-menu-item !text-disabled">No items match</div>
-                </ComboboxOption>
-              )}
-            </ComboboxOptions>
-          )}
+              <SelectArrows6Icon title="Select" className="w-2 text-secondary" />
+            </ComboboxButton>
+          </div>
+          <ComboboxOptions
+            anchor="bottom start"
+            // 13px gap is presumably because it's measured from inside the outline or something
+            className={cn(
+              'ox-menu pointer-events-auto relative overflow-y-auto border !outline-none border-secondary [--anchor-gap:13px] empty:hidden',
+              matchDropdownWidth // todo: be a bit smarter about the width so it doesnt extend outside of container
+                ? 'w-[calc(var(--input-width)+var(--button-width))]'
+                : 'min-w-[15rem]',
+              zIndex
+            )}
+            modal={false}
+          >
+            {filteredItems.map((item) => (
+              <ComboboxOption
+                key={item.value}
+                value={item.value}
+                className="relative border-b border-secondary last:border-0"
+              >
+                {({ focus, selected }) => (
+                  // This *could* be done with data-[focus] and data-[selected] instead, but
+                  // it would be a lot more verbose. those can only be used with TW classes,
+                  // not our .is-selected and .is-highlighted, so we'd have to copy the pieces
+                  // of those rules one by one. Better to rely on the shared classes.
+                  <div
+                    className={cn('ox-menu-item', {
+                      'is-selected': selected && query !== item.value,
+                      'is-highlighted': focus,
+                    })}
+                  >
+                    {item.label}
+                  </div>
+                )}
+              </ComboboxOption>
+            ))}
+            {filteredItems.length === 0 && (
+              <ComboboxOption disabled value="no-matches" className="relative">
+                <div className="ox-menu-item !text-disabled">No items match</div>
+              </ComboboxOption>
+            )}
+          </ComboboxOptions>
         </div>
       )}
     </HCombobox>
