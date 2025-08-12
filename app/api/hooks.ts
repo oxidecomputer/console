@@ -229,27 +229,16 @@ const ERRORS_ALLOWED = 'errors-allowed'
 /** Result that includes both success and error so it can be cached by RQ */
 type ErrorsAllowed<T, E> = { type: 'success'; data: T } | { type: 'error'; data: E }
 
-/**
- * Variant of `getUseApiQuery` that allows error responses as a valid result,
- * which importantly means they can be cached by RQ. This means we can prefetch
- * an endpoint that might error (see `prefetchQueryErrorsAllowed`) and use this
- * hook to retrieve the error result.
- *
- * Concretely, the only difference from `getUseApiQuery`: we turn all errors
- * into successes. Instead of throwing the error, we return it as a valid
- * result. This means `data` has a type that includes the possibility of error,
- * plus a discriminant to let us handle both sides properly in the calling code.
- */
-export const getUseApiQueryErrorsAllowed =
+export const getApiQueryOptionsErrorsAllowed =
   <A extends ApiClient>(api: A) =>
   <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
     options: UseQueryOtherOptions<ErrorsAllowed<Result<A[M]>, ApiError>> = {}
-  ) => {
-    return useQuery({
+  ) =>
+    queryOptions({
       // extra bit of key is important to distinguish from normal query. if we
-      // hit a a given endpoint twice on the same page, once the normal way and
+      // hit a given endpoint twice on the same page, once the normal way and
       // once with errors allowed the responses have different shapes, so we do
       // not want to share the cache and mix them up
       queryKey: [method, params, ERRORS_ALLOWED],
@@ -260,7 +249,6 @@ export const getUseApiQueryErrorsAllowed =
           .catch((data) => ({ type: 'error' as const, data })),
       ...options,
     })
-  }
 
 export const getUseApiMutation =
   <A extends ApiClient>(api: A) =>

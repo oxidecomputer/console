@@ -11,7 +11,7 @@ import { type LoaderFunctionArgs } from 'react-router'
 import { match } from 'ts-pattern'
 
 import {
-  apiq,
+  apiqErrorsAllowed,
   apiQueryClient,
   instanceCan,
   queryClient,
@@ -126,8 +126,12 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
       .fetchQuery('projectIpPoolList', { query: { limit: ALL_ISH } })
       .then((pools) => {
         for (const pool of pools.items) {
-          const { queryKey } = apiq('projectIpPoolView', { path: { pool: pool.id } })
-          queryClient.setQueryData(queryKey, pool)
+          // both IpPoolCell and the fetch in the model use errors-allowed
+          // versions to avoid blowing up in the unlikely event of an error
+          const { queryKey } = apiqErrorsAllowed('projectIpPoolView', {
+            path: { pool: pool.id },
+          })
+          queryClient.setQueryData(queryKey, { type: 'success', data: pool })
         }
       }),
   ])

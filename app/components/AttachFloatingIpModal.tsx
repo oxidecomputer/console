@@ -6,12 +6,13 @@
  * Copyright Oxide Computer Company
  */
 
+import { useQuery } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 
 import {
+  apiqErrorsAllowed,
   useApiMutation,
   useApiQueryClient,
-  useApiQueryErrorsAllowed,
   type FloatingIp,
   type Instance,
 } from '~/api'
@@ -24,9 +25,9 @@ import { Slash } from '~/ui/lib/Slash'
 import { ModalForm } from './form/ModalForm'
 
 function IpPoolName({ ipPoolId }: { ipPoolId: string }) {
-  const { data: result } = useApiQueryErrorsAllowed('projectIpPoolView', {
-    path: { pool: ipPoolId },
-  })
+  const { data: result } = useQuery(
+    apiqErrorsAllowed('projectIpPoolView', { path: { pool: ipPoolId } })
+  )
   // As with IpPoolCell, this should never happen, but to be safe …
   if (!result || result.type === 'error') return null
   return (
