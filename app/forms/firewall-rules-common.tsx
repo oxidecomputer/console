@@ -7,7 +7,13 @@
  */
 
 import { useEffect } from 'react'
-import { useFormState, useWatch, type Control, type UseFormReturn } from 'react-hook-form'
+import {
+  useFormState,
+  useWatch,
+  type Control,
+  type UseFormReturn,
+  type UseFormTrigger,
+} from 'react-hook-form'
 
 import {
   usePrefetchedApiQuery,
@@ -456,17 +462,16 @@ const HostFilters = ({
   )
 }
 
-type CommonFieldsProps = {
-  form: UseFormReturn<FirewallRuleValues>
-  nameTaken: (name: string) => boolean
-  error: ApiError | null
-}
-
-export const CommonFields = ({ form, nameTaken, error }: CommonFieldsProps) => {
-  const { control, trigger, setValue } = form
+const PortFilters = ({
+  control,
+  trigger,
+}: {
+  control: Control<FirewallRuleValues>
+  trigger: UseFormTrigger<FirewallRuleValues>
+}) => {
+  const ports = useWatch({ name: 'ports', control })
   const { errors } = useFormState({ control })
 
-  const ports = useWatch({ name: 'ports', control })
   // Helps catch errors that span multiple fields
   // without this, errors won't be cleared on one duplicate
   // field if the other is edited
@@ -475,6 +480,48 @@ export const CommonFields = ({ form, nameTaken, error }: CommonFieldsProps) => {
       trigger('ports')
     }
   }, [trigger, ports, errors])
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="mt-2">
+        <FieldLabel id="ports-label">Port filters</FieldLabel>
+        <TextInputHint id="ports-help-text" className="mb-2">
+          A single destination port (1234) or a range (1234&ndash;2345)
+        </TextInputHint>
+        <InputMiniTable
+          headers={['Port ranges']}
+          name="ports"
+          control={control}
+          renderRow={(_field, index) => [
+            <TextField
+              key={index}
+              name={`ports.${index}`}
+              control={control}
+              validate={(value) => {
+                if (!parsePortRange(value)) return 'Not a valid port range'
+                // Filter out the current port to check for duplicates
+                const otherPorts = ports.filter((_, i) => i !== index)
+                if (otherPorts.includes(value.trim())) return 'Port range already added'
+              }}
+              popoverError
+            />,
+          ]}
+          emptyState={{ title: 'No ports', body: 'Add a port to see it here' }}
+          defaultValue={new String('') as string} // if this simply '' it will not make new rows
+        />
+      </div>
+    </div>
+  )
+}
+
+type CommonFieldsProps = {
+  form: UseFormReturn<FirewallRuleValues>
+  nameTaken: (name: string) => boolean
+  error: ApiError | null
+}
+
+export const CommonFields = ({ form, nameTaken, error }: CommonFieldsProps) => {
+  const { control, trigger, setValue } = form
 
   return (
     <>
@@ -566,35 +613,7 @@ export const CommonFields = ({ form, nameTaken, error }: CommonFieldsProps) => {
         }
       />
 
-      <div className="flex flex-col gap-3">
-        <div className="mt-2">
-          <FieldLabel id="ports-label">Port filters</FieldLabel>
-          <TextInputHint id="ports-help-text" className="mb-2">
-            A single destination port (1234) or a range (1234&ndash;2345)
-          </TextInputHint>
-          <InputMiniTable
-            headers={['Port ranges']}
-            name="ports"
-            control={control}
-            renderRow={(_field, index) => [
-              <TextField
-                key={index}
-                name={`ports.${index}`}
-                control={control}
-                validate={(value) => {
-                  if (!parsePortRange(value)) return 'Not a valid port range'
-                  // Filter out the current port to check for duplicates
-                  const otherPorts = ports.filter((_, i) => i !== index)
-                  if (otherPorts.includes(value.trim())) return 'Port range already added'
-                }}
-                popoverError
-              />,
-            ]}
-            emptyState={{ title: 'No ports', body: 'Add a port to see it here' }}
-            defaultValue=""
-          />
-        </div>
-      </div>
+      <PortFilters control={control} trigger={trigger} />
 
       <ProtocolFilters
         control={control}
