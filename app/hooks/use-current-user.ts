@@ -6,7 +6,9 @@
  * Copyright Oxide Computer Company
  */
 
-import { useApiQueryErrorsAllowed, usePrefetchedApiQuery } from '~/api/client'
+import { useQuery } from '@tanstack/react-query'
+
+import { apiqErrorsAllowed, usePrefetchedApiQuery } from '~/api/client'
 import { invariant } from '~/util/invariant'
 
 /**
@@ -24,7 +26,7 @@ export function useCurrentUser() {
   // the fleet (system) policy, but if the user doesn't have fleet read, we'll
   // get a 403 from that endpoint. So we simply check whether that endpoint 200s
   // or not to determine whether the user is a fleet viewer.
-  const { data: systemPolicy } = useApiQueryErrorsAllowed('systemPolicyView', {})
+  const { data: systemPolicy } = useQuery(apiqErrorsAllowed('systemPolicyView', {}))
   // don't use usePrefetchedApiQuery because it's not worth making an errors
   // allowed version of that
   invariant(systemPolicy, 'System policy must be prefetched')
