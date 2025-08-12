@@ -6,9 +6,16 @@
  * Copyright Oxide Computer Company
  */
 
+import { useQuery } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 
-import { useApiMutation, useApiQueryClient, type FloatingIp, type Instance } from '~/api'
+import {
+  apiqErrorsAllowed,
+  useApiMutation,
+  useApiQueryClient,
+  type FloatingIp,
+  type Instance,
+} from '~/api'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { HL } from '~/components/HL'
 import { addToast } from '~/stores/toast'
@@ -17,12 +24,27 @@ import { Slash } from '~/ui/lib/Slash'
 
 import { ModalForm } from './form/ModalForm'
 
+function IpPoolName({ ipPoolId }: { ipPoolId: string }) {
+  const { data: result } = useQuery(
+    apiqErrorsAllowed('projectIpPoolView', { path: { pool: ipPoolId } })
+  )
+  // As with IpPoolCell, this should never happen, but to be safe …
+  if (!result || result.type === 'error') return null
+  return (
+    <>
+      <Slash />
+      <span>{result.data.name}</span>
+    </>
+  )
+}
+
 function FloatingIpLabel({ fip }: { fip: FloatingIp }) {
   return (
     <div className="text-secondary selected:text-accent-secondary">
       <div>{fip.name}</div>
       <div className="flex gap-0.5">
         <div>{fip.ip}</div>
+        <IpPoolName ipPoolId={fip.ipPoolId} />
         {fip.description && (
           <>
             <Slash />
