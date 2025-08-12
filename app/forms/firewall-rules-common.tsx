@@ -7,7 +7,7 @@
  */
 
 import { useEffect } from 'react'
-import { useFormState, useWatch, type Control } from 'react-hook-form'
+import { useFormState, useWatch, type Control, type UseFormReturn } from 'react-hook-form'
 
 import {
   usePrefetchedApiQuery,
@@ -46,43 +46,21 @@ import { capitalize, normalizeDashes } from '~/util/str'
 
 import { type FirewallRuleValues } from './firewall-rules-util'
 
-/**
- * This is a large file. The main thing to be aware of is that the firewall rules
- * form is made up of two main sections: Targets and Filters. Filters, then, has
- * a few sub-sections (Ports, Protocols, and Hosts).
- *
- * The Targets section and the Filters:Hosts section are very similar, so we've
- * pulled common code to the TargetAndHostFilterSubform components.
- * We also then set up the Targets / Ports / Hosts variables at the top of the
- * CommonFields component.
- */
+const valuePlaceholders = {
+  vpc: 'example-vpc',
+  subnet: 'example-subnet',
+  instance: 'example-inst',
+  ip: 'IPv4 or IPv6 address',
+  ip_net: 'IP network',
+}
 
-// type TargetAndHostFilterType =
-//   | VpcFirewallRuleTarget['type']
-//   | VpcFirewallRuleHostFilter['type']
-
-// these are part of the target and host filter form;
-// the specific values depend on the target or host filter type selected
-// todo: add to placeholder? info icon instead?
-// const getFilterValueProps = (targetOrHostType: TargetAndHostFilterType) => {
-//   switch (targetOrHostType) {
-//     case 'vpc':
-//       return { label: 'VPC name' }
-//     case 'subnet':
-//       return { label: 'Subnet name' }
-//     case 'instance':
-//       return { label: 'Instance name' }
-//     case 'ip':
-//       return { label: 'IP address', description: 'Enter an IPv4 or IPv6 address' }
-//     case 'ip_net':
-//       return {
-//         label: 'IP network',
-//         description: 'Looks like 192.168.0.0/16 or fd00:1122:3344:0001::1/64',
-//       }
-//   }
-// }
-
-const TargetFilter = ({ control }: { control: Control<FirewallRuleValues> }) => (
+const TargetFilter = ({
+  control,
+  onTypeChange,
+}: {
+  control: Control<FirewallRuleValues>
+  onTypeChange: (index: number) => void
+}) => (
   <>
     <SideModal.Heading>Targets</SideModal.Heading>
 
@@ -114,6 +92,7 @@ const TargetFilter = ({ control }: { control: Control<FirewallRuleValues> }) => 
             items={targetHostTypeItems}
             name={`targets.${index}.type`}
             control={control}
+            onChange={() => onTypeChange(index)}
           />,
           <TargetsValueField
             key={`targets.${index}.value`}
@@ -176,6 +155,7 @@ const TargetsValueField = ({
         // error message
         validateName(value, `${capitalize(type)} name`, false)
       }
+      placeholder={valuePlaceholders[type]}
     />
   ) : (
     <TextField
@@ -187,6 +167,7 @@ const TargetsValueField = ({
         undefined
       }
       popoverError
+      placeholder={valuePlaceholders[type]}
     />
   )
 }
@@ -296,7 +277,13 @@ const icmpCodeValidation = (value: string | undefined) => {
   return 'ICMP code must be a number or numeric range'
 }
 
-const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) => {
+const ProtocolFilters = ({
+  control,
+  onTypeChange,
+}: {
+  control: Control<FirewallRuleValues>
+  onTypeChange: (index: number) => void
+}) => {
   const protocols = useWatch({ name: 'protocols', control }) || []
 
   const renderProtocolRow = (
@@ -313,6 +300,7 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
         control={control}
         items={protocolTypeItems}
         hideOptionalTag
+        onChange={() => onTypeChange(index)}
       />,
       selectedType === 'icmp' ? (
         <ComboboxField
@@ -369,7 +357,13 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
   )
 }
 
-const HostFilters = ({ control }: { control: Control<FirewallRuleValues> }) => {
+const HostFilters = ({
+  control,
+  onTypeChange,
+}: {
+  control: Control<FirewallRuleValues>
+  onTypeChange: (index: number) => void
+}) => {
   const { project, vpc } = useVpcSelector()
   const {
     data: { items: instances },
@@ -406,6 +400,7 @@ const HostFilters = ({ control }: { control: Control<FirewallRuleValues> }) => {
         control={control}
         items={targetHostTypeItems}
         hideOptionalTag
+        onChange={() => onTypeChange(index)}
       />,
       selectedType === 'vpc' || selectedType === 'subnet' || selectedType === 'instance' ? (
         <ComboboxField
@@ -462,17 +457,16 @@ const HostFilters = ({ control }: { control: Control<FirewallRuleValues> }) => {
 }
 
 type CommonFieldsProps = {
-  control: Control<FirewallRuleValues>
+  form: UseFormReturn<FirewallRuleValues>
   nameTaken: (name: string) => boolean
-  error?: ApiError
-  getValues: () => FirewallRuleValues
-  trigger: (name: string) => Promise<void>
+  error: ApiError | null
 }
 
-export const CommonFields = ({ control, trigger, nameTaken, error }: CommonFieldsProps) => {
-  const ports = useWatch({ name: 'ports', control })
+export const CommonFields = ({ form, nameTaken, error }: CommonFieldsProps) => {
+  const { control, trigger, setValue } = form
   const { errors } = useFormState({ control })
 
+  const ports = useWatch({ name: 'ports', control })
   // Helps catch errors that span multiple fields
   // without this, errors won't be cleared on one duplicate
   // field if the other is edited
@@ -552,7 +546,10 @@ export const CommonFields = ({ control, trigger, nameTaken, error }: CommonField
 
       <FormDivider />
 
-      <TargetFilter control={control} />
+      <TargetFilter
+        control={control}
+        onTypeChange={(index: number) => setValue(`targets.${index}.value`, '')}
+      />
 
       <FormDivider />
 
@@ -599,11 +596,17 @@ export const CommonFields = ({ control, trigger, nameTaken, error }: CommonField
         </div>
       </div>
 
-      <ProtocolFilters control={control} />
+      <ProtocolFilters
+        control={control}
+        onTypeChange={(index) => setValue(`protocols.${index}.value`, null)}
+      />
 
       <FormDivider />
 
-      <HostFilters control={control} />
+      <HostFilters
+        control={control}
+        onTypeChange={(index) => setValue(`hosts.${index}.value`, '')}
+      />
 
       {error && (
         <>

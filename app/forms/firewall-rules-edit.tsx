@@ -134,7 +134,7 @@ export default function EditFirewallRuleForm() {
       submitError={updateRules.error}
     >
       <CommonFields
-        control={form.control}
+        form={form}
         // error if name is being changed to something that conflicts with some other rule
         nameTaken={(name) => !!otherRules.find((r) => r.name === name)}
         error={updateRules.error}

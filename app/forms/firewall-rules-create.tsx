@@ -125,10 +125,9 @@ export default function CreateFirewallRuleForm() {
       submitLabel="Add rule"
     >
       <CommonFields
-        control={form.control}
+        form={form}
         // error if name is already in use
         nameTaken={(name) => !!existingRules.find((r) => r.name === name)}
-        trigger={form.trigger}
         error={updateRules.error}
         // TODO: there should also be a form-level error so if the name is off
         // screen, it doesn't look like the submit button isn't working. Maybe
