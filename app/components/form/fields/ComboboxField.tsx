@@ -76,6 +76,7 @@ export function ComboboxField<
   return (
     <div className="max-w-lg">
       <Combobox
+        label={label}
         placeholder={placeholder}
         description={description}
         items={items}
