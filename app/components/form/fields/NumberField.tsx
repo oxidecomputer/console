@@ -5,77 +5,41 @@
  *
  * Copyright Oxide Computer Company
  */
-import cn from 'classnames'
-import { useId } from 'react'
 import { useController, type FieldPathByValue, type FieldValues } from 'react-hook-form'
 
-import { FieldLabel, InputHint } from '~/ui/lib/FieldLabel'
 import { NumberInput } from '~/ui/lib/NumberInput'
 import { capitalize } from '~/util/str'
 
-import { ErrorMessage } from './ErrorMessage'
+import { FieldWrapper } from './FieldWrapper'
 import type { TextFieldProps } from './TextField'
+
+export interface NumberFieldProps<
+  TFieldValues extends FieldValues,
+  TName extends FieldPathByValue<TFieldValues, number>,
+> extends Omit<TextFieldProps<TFieldValues, TName>, 'type' | 'transform'> {
+  max?: number
+  min?: number
+}
 
 export function NumberField<
   TFieldValues extends FieldValues,
-  // can only be used on fields with number values
   TName extends FieldPathByValue<TFieldValues, number>,
 >({
+  variant = 'default',
   name,
   label = capitalize(name),
   units,
   description,
   required,
-  ...props
-}: Omit<TextFieldProps<TFieldValues, TName>, 'id'>) {
-  // id is omitted from props because we generate it here
-  const id = useId()
-  return (
-    <div className="max-w-lg">
-      <div className="mb-2">
-        <FieldLabel htmlFor={id} id={`${id}-label`} optional={!required}>
-          {label} {units && <span className="ml-1 text-default">({units})</span>}
-        </FieldLabel>
-        {description && (
-          <InputHint id={`${id}-help-text`} className="mb-2">
-            {description}
-          </InputHint>
-        )}
-      </div>
-      {/* passing the generated id is very important for a11y */}
-      <NumberFieldInner name={name} id={id} label={label} required={required} {...props} />
-    </div>
-  )
-}
-
-/**
- * Primarily exists for `NumberField`, but we occasionally also need a plain field
- * without a label on it.
- *
- * Note that `id` is an allowed prop, unlike in `NumberField`, where it is always
- * generated from `name`. This is because we need to pass the generated ID in
- * from there to here. For the case where `NumberFieldInner` is used
- * independently, we also generate an ID for use only if none is passed in.
- */
-export const NumberFieldInner = <
-  TFieldValues extends FieldValues,
-  TName extends FieldPathByValue<TFieldValues, number>,
->({
-  name,
-  label = capitalize(name),
-  validate,
   control,
-  required,
-  id: idProp,
+  validate,
   disabled,
   max,
   min = 0,
-}: TextFieldProps<TFieldValues, TName>) => {
-  const generatedId = useId()
-  const id = idProp || generatedId
-
+  className,
+}: Omit<NumberFieldProps<TFieldValues, TName>, 'id'>) {
   const {
-    field,
+    field: { onChange, onBlur, value, ref },
     fieldState: { error },
   } = useController({
     name,
@@ -90,19 +54,39 @@ export const NumberFieldInner = <
     },
   })
 
-  return (
+  const labelWithUnits = units ? (
     <>
-      <NumberInput
-        id={id}
-        error={!!error}
-        aria-labelledby={cn(`${id}-label`)}
-        isDisabled={disabled}
-        maxValue={max ? Number(max) : undefined}
-        minValue={min !== undefined ? Number(min) : undefined}
-        {...field}
-        formatOptions={{ useGrouping: false }}
-      />
-      <ErrorMessage error={error} label={label} />
+      {label} <span className="ml-1 text-default">({units})</span>
     </>
+  ) : (
+    label
+  )
+
+  return (
+    <FieldWrapper
+      variant={variant}
+      label={labelWithUnits}
+      description={description}
+      required={required}
+      error={error}
+      errorLabel={label}
+    >
+      {({ id, 'aria-labelledby': ariaLabelledBy }) => (
+        <NumberInput
+          id={id}
+          error={!!error}
+          aria-labelledby={ariaLabelledBy}
+          isDisabled={disabled}
+          maxValue={max ? Number(max) : undefined}
+          minValue={min !== undefined ? Number(min) : undefined}
+          className={className}
+          value={value}
+          onChange={onChange}
+          onBlur={onBlur}
+          ref={ref}
+          formatOptions={{ useGrouping: false }}
+        />
+      )}
+    </FieldWrapper>
   )
 }

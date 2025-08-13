@@ -5,8 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import cn from 'classnames'
-import { useId } from 'react'
 import {
   useController,
   type Control,
@@ -16,7 +14,6 @@ import {
   type Validate,
 } from 'react-hook-form'
 
-import { FieldLabel, InputHint } from '~/ui/lib/FieldLabel'
 import {
   TextInput as UITextField,
   type TextAreaProps as UITextAreaProps,
@@ -24,7 +21,7 @@ import {
 } from '~/ui/lib/TextInput'
 import { capitalize } from '~/util/str'
 
-import { ErrorMessage } from './ErrorMessage'
+import { FieldWrapper } from './FieldWrapper'
 
 export interface TextFieldProps<
   TFieldValues extends FieldValues,
@@ -67,36 +64,40 @@ export function TextField<
   transform,
   ...props
 }: Omit<TextFieldProps<TFieldValues, TName>, 'id'> & UITextAreaProps) {
-  const id = useId()
   const {
     field: { onChange, ...fieldRest },
     fieldState: { error },
   } = useController({ name, control, rules: { required, validate } })
+
+  const labelWithUnits = units ? (
+    <>
+      {label} <span className="ml-1 text-default">({units})</span>
+    </>
+  ) : (
+    label
+  )
+
   return (
-    <div className={cn(variant !== 'inline' && 'max-w-lg')}>
-      {/* Hiding the label for inline inputs but keeping it available for screen readers */}
-      <div className={cn('mb-2', variant === 'inline' && 'sr-only')}>
-        <FieldLabel htmlFor={id} id={`${id}-label`} optional={!required}>
-          {label} {units && <span className="ml-1 text-default">({units})</span>}
-        </FieldLabel>
-        {description && (
-          <InputHint id={`${id}-help-text`} className="mb-2">
-            {description}
-          </InputHint>
-        )}
-      </div>
-      <UITextField
-        id={id}
-        title={label}
-        type={type}
-        error={!!error}
-        aria-labelledby={cn(`${id}-label`, description ? `${id}-help-text` : '')}
-        onChange={(e) => onChange(transform ? transform(e.target.value) : e.target.value)}
-        {...fieldRest}
-        {...props}
-      />
-      {/* todo: inline error message tooltip */}
-      <ErrorMessage error={error} label={label} />
-    </div>
+    <FieldWrapper
+      variant={variant}
+      label={labelWithUnits}
+      description={description}
+      required={required}
+      error={error}
+      errorLabel={label}
+    >
+      {({ id, 'aria-labelledby': ariaLabelledBy }) => (
+        <UITextField
+          id={id}
+          title={label}
+          type={type}
+          error={!!error}
+          aria-labelledby={ariaLabelledBy}
+          onChange={(e) => onChange(transform ? transform(e.target.value) : e.target.value)}
+          {...fieldRest}
+          {...props}
+        />
+      )}
+    </FieldWrapper>
   )
 }

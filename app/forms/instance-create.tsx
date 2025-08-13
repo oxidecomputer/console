@@ -46,13 +46,14 @@ import {
   DisksTableField,
   type DiskTableItem,
 } from '~/components/form/fields/DisksTableField'
+import { FieldWrapper } from '~/components/form/fields/FieldWrapper'
 import { FileField } from '~/components/form/fields/FileField'
 import { BootDiskImageSelectField as ImageSelectField } from '~/components/form/fields/ImageSelectField'
 import { toIpPoolItem } from '~/components/form/fields/ip-pool-item'
 import { NameField } from '~/components/form/fields/NameField'
 import { NetworkInterfaceField } from '~/components/form/fields/NetworkInterfaceField'
 import { NumberField } from '~/components/form/fields/NumberField'
-import { RadioFieldDyn } from '~/components/form/fields/RadioField'
+import { RadioField } from '~/components/form/fields/RadioField'
 import { SshKeysField } from '~/components/form/fields/SshKeysField'
 import { TextField } from '~/components/form/fields/TextField'
 import { Form } from '~/components/form/Form'
@@ -394,36 +395,21 @@ export default function CreateInstanceForm() {
             </Tabs.Trigger>
           </Tabs.List>
           <Tabs.Content value="general">
-            <RadioFieldDyn
-              name="presetId"
-              label=""
-              control={control}
-              disabled={isSubmitting}
-            >
+            <RadioField name="presetId" label="" control={control} disabled={isSubmitting}>
               {renderLargeRadioCards('general')}
-            </RadioFieldDyn>
+            </RadioField>
           </Tabs.Content>
 
           <Tabs.Content value="highCPU">
-            <RadioFieldDyn
-              name="presetId"
-              label=""
-              control={control}
-              disabled={isSubmitting}
-            >
+            <RadioField name="presetId" label="" control={control} disabled={isSubmitting}>
               {renderLargeRadioCards('highCPU')}
-            </RadioFieldDyn>
+            </RadioField>
           </Tabs.Content>
 
           <Tabs.Content value="highMemory">
-            <RadioFieldDyn
-              name="presetId"
-              label=""
-              control={control}
-              disabled={isSubmitting}
-            >
+            <RadioField name="presetId" label="" control={control} disabled={isSubmitting}>
               {renderLargeRadioCards('highMemory')}
-            </RadioFieldDyn>
+            </RadioField>
           </Tabs.Content>
 
           <Tabs.Content value="custom">
@@ -749,21 +735,26 @@ const AdvancedAccordion = ({
             Allocate and attach an ephemeral IP address
           </Checkbox>
           {assignEphemeralIp && (
-            <Listbox
-              name="pools"
-              label="IP pool for ephemeral IP"
-              placeholder={defaultPool ? `${defaultPool} (default)` : 'Select a pool'}
-              selected={`${siloPools.find((pool) => pool.name === selectedPool)?.name}`}
-              items={siloPools.map(toIpPoolItem)}
-              disabled={!assignEphemeralIp || isSubmitting}
-              required
-              onChange={(value) => {
-                const newExternalIps = externalIps.field.value?.map((ip) =>
-                  ip.type === 'ephemeral' ? { ...ip, pool: value } : ip
-                )
-                externalIps.field.onChange(newExternalIps)
-              }}
-            />
+            <FieldWrapper label="IP pool for ephemeral IP" required>
+              {({ id, 'aria-labelledby': ariaLabelledBy }) => (
+                <Listbox
+                  id={id}
+                  name="pools"
+                  placeholder={defaultPool ? `${defaultPool} (default)` : 'Select a pool'}
+                  selected={selectedPool || ''}
+                  items={siloPools.map(toIpPoolItem)}
+                  disabled={!assignEphemeralIp || isSubmitting}
+                  hasError={false}
+                  aria-labelledby={ariaLabelledBy}
+                  onChange={(value) => {
+                    const newExternalIps = externalIps.field.value?.map((ip) =>
+                      ip.type === 'ephemeral' ? { ...ip, pool: value } : ip
+                    )
+                    externalIps.field.onChange(newExternalIps)
+                  }}
+                />
+              )}
+            </FieldWrapper>
           )}
         </div>
 
@@ -817,23 +808,28 @@ const AdvancedAccordion = ({
               <Modal.Section>
                 <Message variant="info" content={selectedFloatingIpMessage} />
                 <form>
-                  <Listbox
-                    name="floatingIp"
-                    items={availableFloatingIps.map((i) => ({
-                      value: i.name,
-                      label: <FloatingIpLabel ip={i} />,
-                      selectedLabel: `${i.name} (${i.ip})`,
-                    }))}
-                    label="Floating IP"
-                    onChange={(name) => {
-                      setSelectedFloatingIp(
-                        availableFloatingIps.find((i) => i.name === name)
-                      )
-                    }}
-                    required
-                    placeholder="Select a floating IP"
-                    selected={selectedFloatingIp?.name || ''}
-                  />
+                  <FieldWrapper label="Floating IP" required>
+                    {({ id, 'aria-labelledby': ariaLabelledBy }) => (
+                      <Listbox
+                        id={id}
+                        name="floatingIp"
+                        items={availableFloatingIps.map((i) => ({
+                          value: i.name,
+                          label: <FloatingIpLabel ip={i} />,
+                          selectedLabel: `${i.name} (${i.ip})`,
+                        }))}
+                        onChange={(name) => {
+                          setSelectedFloatingIp(
+                            availableFloatingIps.find((i) => i.name === name)
+                          )
+                        }}
+                        placeholder="Select a floating IP"
+                        selected={selectedFloatingIp?.name || ''}
+                        hasError={false}
+                        aria-labelledby={ariaLabelledBy}
+                      />
+                    )}
+                  </FieldWrapper>
                 </form>
               </Modal.Section>
             </Modal.Body>

@@ -16,7 +16,6 @@ import { useId, type ReactNode, type Ref } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
-import { FieldLabel, InputHint } from './FieldLabel'
 import { usePopoverZIndex } from './SideModal'
 import { SpinnerLoader } from './Spinner'
 
@@ -35,14 +34,13 @@ export interface ListboxProps<Value extends string = string> {
   disabled?: boolean
   hasError?: boolean
   name?: string
-  label?: React.ReactNode
-  description?: React.ReactNode
-  required?: boolean
+  id?: string
   isLoading?: boolean
   /** Necessary if you want RHF to be able to focus it on error */
   buttonRef?: Ref<HTMLButtonElement>
-  hideOptionalTag?: boolean
   hideSelected?: boolean
+  /** Accessibility labels */
+  'aria-labelledby'?: string
 }
 
 export const Listbox = <Value extends string = string>({
@@ -54,21 +52,20 @@ export const Listbox = <Value extends string = string>({
   className,
   onChange,
   hasError = false,
-  label,
-  description,
-  required,
+  id: idProp,
   disabled,
   isLoading = false,
   buttonRef,
-  hideOptionalTag,
   hideSelected = false,
+  'aria-labelledby': ariaLabelledBy,
   ...props
 }: ListboxProps<Value>) => {
   const selectedItem = selected && items.find((i) => i.value === selected)
   const noItems = !isLoading && items.length === 0
   const isDisabled = disabled || noItems
   const zIndex = usePopoverZIndex()
-  const id = useId()
+  const generatedId = useId()
+  const id = idProp || generatedId
 
   return (
     <div className={cn('relative', className)}>
@@ -82,18 +79,6 @@ export const Listbox = <Value extends string = string>({
       >
         {({ open }) => (
           <div>
-            {label && (
-              <div className="mb-2 max-w-lg">
-                <FieldLabel
-                  id={`${id}-label`}
-                  htmlFor={id}
-                  optional={!required && !hideOptionalTag}
-                >
-                  {label}
-                </FieldLabel>
-                {description && <InputHint id={`${id}-help-text`}>{description}</InputHint>}
-              </div>
-            )}
             <ListboxButton
               id={id}
               name={name}
@@ -111,6 +96,7 @@ export const Listbox = <Value extends string = string>({
                 hideSelected ? 'w-auto' : 'w-full'
               )}
               ref={buttonRef}
+              aria-labelledby={ariaLabelledBy}
               {...props}
             >
               {!hideSelected && (

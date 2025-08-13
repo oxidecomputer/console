@@ -23,16 +23,28 @@ import {
 } from '~/ui/lib/Combobox'
 import { capitalize } from '~/util/str'
 
-import { ErrorMessage } from './ErrorMessage'
+import { FieldWrapper } from './FieldWrapper'
 
 export type ComboboxFieldProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
 > = {
+  variant?: 'default' | 'inline'
   name: TName
   control: Control<TFieldValues>
   onChange?: (value: string | null | undefined) => void
   validate?: Validate<FieldPathValue<TFieldValues, TName>, TFieldValues>
+  /** Will default to name if not provided */
+  label?: string
+  /**
+   * Displayed inline as supplementary text to the label. Should
+   * only be used for text that's necessary context for helping
+   * complete the input. This will be announced in tandem with the
+   * label when using a screen reader.
+   */
+  description?: React.ReactNode
+  required?: boolean
+  hideOptionalTag?: boolean
 } & ComboboxBaseProps
 
 export function ComboboxField<
@@ -40,6 +52,7 @@ export function ComboboxField<
   TName extends FieldPath<TFieldValues>,
   // TODO: constrain TValue to extend string
 >({
+  variant = 'default',
   control,
   name,
   label = capitalize(name),
@@ -62,6 +75,7 @@ export function ComboboxField<
   items,
   transform,
   validate,
+  hideOptionalTag,
   ...props
 }: ComboboxFieldProps<TFieldValues, TName>) {
   const { field, fieldState } = useController({
@@ -72,28 +86,37 @@ export function ComboboxField<
   const [selectedItemLabel, setSelectedItemLabel] = useState(
     getSelectedLabelFromValue(items, field.value || '')
   )
+
   return (
-    <div className="max-w-lg">
-      <Combobox
-        label={label}
-        placeholder={placeholder}
-        description={description}
-        items={items}
-        required={required}
-        selectedItemValue={field.value}
-        selectedItemLabel={selectedItemLabel}
-        hasError={fieldState.error !== undefined}
-        onChange={(value) => {
-          field.onChange(value)
-          onChange?.(value)
-          setSelectedItemLabel(getSelectedLabelFromValue(items, value))
-        }}
-        allowArbitraryValues={allowArbitraryValues}
-        inputRef={field.ref}
-        transform={transform}
-        {...props}
-      />
-      <ErrorMessage error={fieldState.error} label={label} />
-    </div>
+    <FieldWrapper
+      variant={variant}
+      label={label}
+      description={description}
+      required={required}
+      hideOptionalTag={hideOptionalTag}
+      error={fieldState.error}
+      errorLabel={label}
+    >
+      {({ id, 'aria-labelledby': ariaLabelledBy }) => (
+        <Combobox
+          id={id}
+          placeholder={placeholder}
+          items={items}
+          selectedItemValue={field.value}
+          selectedItemLabel={selectedItemLabel}
+          hasError={fieldState.error !== undefined}
+          aria-labelledby={ariaLabelledBy}
+          onChange={(value) => {
+            field.onChange(value)
+            onChange?.(value)
+            setSelectedItemLabel(getSelectedLabelFromValue(items, value))
+          }}
+          allowArbitraryValues={allowArbitraryValues}
+          inputRef={field.ref}
+          transform={transform}
+          {...props}
+        />
+      )}
+    </FieldWrapper>
   )
 }

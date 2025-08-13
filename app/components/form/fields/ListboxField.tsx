@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import cn from 'classnames'
 import {
   useController,
   type Control,
@@ -16,17 +15,25 @@ import {
 import { Listbox, type ListboxItem } from '~/ui/lib/Listbox'
 import { capitalize } from '~/util/str'
 
-import { ErrorMessage } from './ErrorMessage'
+import { FieldWrapper } from './FieldWrapper'
 
 export type ListboxFieldProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
 > = {
+  variant?: 'default' | 'inline'
   name: TName
   placeholder?: string
   className?: string
+  /** Will default to name if not provided */
   label?: string
   required?: boolean
+  /**
+   * Displayed inline as supplementary text to the label. Should
+   * only be used for text that's necessary context for helping
+   * complete the input. This will be announced in tandem with the
+   * label when using a screen reader.
+   */
   description?: string | React.ReactNode
   control: Control<TFieldValues>
   disabled?: boolean
@@ -41,6 +48,7 @@ export function ListboxField<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
 >({
+  variant = 'default',
   items,
   name,
   placeholder,
@@ -58,30 +66,39 @@ export function ListboxField<
   // TODO: recreate this logic
   //   validate: (v) => (required && !v ? `${name} is required` : undefined),
   const { field, fieldState } = useController({ name, control, rules: { required } })
+
   return (
-    <div className={cn('max-w-lg', className)}>
-      <Listbox
-        description={description}
-        label={label}
-        required={required}
-        placeholder={placeholder}
-        noItemsPlaceholder={noItemsPlaceholder}
-        selected={field.value || null}
-        items={items}
-        onChange={(value) => {
-          field.onChange(value)
-          onChange?.(value)
-        }}
-        // required to get required error to trigger on blur
-        // onBlur={field.onBlur}
-        disabled={disabled}
-        name={name}
-        hasError={fieldState.error !== undefined}
-        isLoading={isLoading}
-        buttonRef={field.ref}
-        hideOptionalTag={hideOptionalTag}
-      />
-      <ErrorMessage error={fieldState.error} label={label} />
-    </div>
+    <FieldWrapper
+      variant={variant}
+      label={label}
+      description={description}
+      required={required}
+      hideOptionalTag={hideOptionalTag}
+      error={fieldState.error}
+      className={className}
+      errorLabel={label}
+    >
+      {({ id, 'aria-labelledby': ariaLabelledBy }) => (
+        <Listbox
+          id={id}
+          placeholder={placeholder}
+          noItemsPlaceholder={noItemsPlaceholder}
+          selected={field.value || null}
+          items={items}
+          onChange={(value) => {
+            field.onChange(value)
+            onChange?.(value)
+          }}
+          // required to get required error to trigger on blur
+          // onBlur={field.onBlur}
+          disabled={disabled}
+          name={name}
+          hasError={fieldState.error !== undefined}
+          isLoading={isLoading}
+          buttonRef={field.ref}
+          aria-labelledby={ariaLabelledBy}
+        />
+      )}
+    </FieldWrapper>
   )
 }

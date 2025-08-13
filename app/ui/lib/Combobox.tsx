@@ -15,11 +15,10 @@ import {
 } from '@headlessui/react'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
-import { useEffect, useId, useState, type ReactNode, type Ref } from 'react'
+import { useEffect, useState, type ReactNode, type Ref } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
-import { FieldLabel, InputHint } from './FieldLabel'
 import { usePopoverZIndex } from './SideModal'
 
 export type ComboboxItem = { value: string; label: ReactNode; selectedLabel: string }
@@ -42,14 +41,10 @@ export const getSelectedLabelFromValue = (
 
 /** Simple non-generic props shared with ComboboxField */
 export type ComboboxBaseProps = {
-  description?: React.ReactNode
   disabled?: boolean
   isLoading?: boolean
   items: Array<ComboboxItem>
-  label: string
   placeholder?: string
-  required?: boolean
-  hideOptionalTag?: boolean
   /**
    * Pass in `allowArbitraryValues` as `true` when the user should be able to
    * type in new values that aren't in the list [default is `false`]
@@ -70,6 +65,7 @@ export type ComboboxBaseProps = {
 }
 
 type ComboboxProps = {
+  id: string
   selectedItemValue: string
   selectedItemLabel: string
   hasError?: boolean
@@ -77,16 +73,16 @@ type ComboboxProps = {
   onChange: (value: string) => void
   /** Necessary if you want RHF to be able to focus it on error */
   inputRef?: Ref<HTMLInputElement>
+  /** Accessibility labels */
+  'aria-labelledby'?: string
 } & ComboboxBaseProps
 
 export const Combobox = ({
-  description,
+  id,
   items = [],
-  label,
   selectedItemValue,
   selectedItemLabel,
   placeholder,
-  required,
   hasError,
   disabled,
   isLoading,
@@ -94,9 +90,9 @@ export const Combobox = ({
   onEnter,
   onInputChange,
   allowArbitraryValues = false,
-  hideOptionalTag,
   inputRef,
   transform,
+  'aria-labelledby': ariaLabelledBy,
   ...props
 }: ComboboxProps) => {
   const [query, setQuery] = useState(selectedItemValue || '')
@@ -143,7 +139,6 @@ export const Combobox = ({
     })
   }
   const zIndex = usePopoverZIndex()
-  const id = useId()
   return (
     <HCombobox
       // necessary, as the displayed "value" is not the same as the actual selected item's *value*
@@ -158,19 +153,6 @@ export const Combobox = ({
     >
       {({ open }) => (
         <div>
-          {label && (
-            // TODO: FieldLabel needs a real ID
-            <div className="mb-2">
-              <FieldLabel
-                id={`${id}-label`}
-                htmlFor={`${id}-input`}
-                optional={!required && !hideOptionalTag}
-              >
-                {label}
-              </FieldLabel>
-              {description && <InputHint id={`${id}-help-text`}>{description}</InputHint>}
-            </div>
-          )}
           <div
             className={cn(
               `flex rounded border focus-within:ring-2`,
@@ -190,7 +172,7 @@ export const Combobox = ({
             tabIndex={-1}
           >
             <ComboboxInput
-              id={`${id}-input`}
+              id={id}
               // If an option has been selected, display either the selected item's label or value.
               // If no option has been selected yet, or the user has started editing the input, display the query.
               // We are using value here, as opposed to Headless UI's displayValue, so we can normalize
@@ -229,6 +211,7 @@ export const Combobox = ({
                   : 'bg-default',
                 hasError && 'focus-error'
               )}
+              aria-labelledby={ariaLabelledBy}
             />
             {items.length > 0 && (
               <ComboboxButton
