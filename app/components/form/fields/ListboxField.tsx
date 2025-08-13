@@ -44,7 +44,7 @@ export function ListboxField<
   items,
   name,
   placeholder,
-  label = capitalize(name),
+  label,
   disabled,
   required,
   description,
@@ -81,7 +81,7 @@ export function ListboxField<
         buttonRef={field.ref}
         hideOptionalTag={hideOptionalTag}
       />
-      <ErrorMessage error={fieldState.error} label={label} />
+      <ErrorMessage error={fieldState.error} label={label || capitalize(name)} />
     </div>
   )
 }

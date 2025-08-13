@@ -6,15 +6,20 @@
  * Copyright Oxide Computer Company
  */
 
-import { useEffect, type ReactNode } from 'react'
-import { useController, useForm, type Control } from 'react-hook-form'
+import { useEffect } from 'react'
+import {
+  useFormState,
+  useWatch,
+  type Control,
+  type UseFormReturn,
+  type UseFormTrigger,
+} from 'react-hook-form'
 
 import {
   usePrefetchedApiQuery,
   type ApiError,
   type Instance,
   type Vpc,
-  type VpcFirewallIcmpFilter,
   type VpcFirewallRuleAction,
   type VpcFirewallRuleDirection,
   type VpcFirewallRuleHostFilter,
@@ -30,78 +35,91 @@ import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField, validateName } from '~/components/form/fields/NameField'
 import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioField } from '~/components/form/fields/RadioField'
-import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
+import { TextField } from '~/components/form/fields/TextField'
 import { useVpcSelector } from '~/hooks/use-params'
-import {
-  ProtocolCell,
-  ProtocolCodeCell,
-  ProtocolTypeCell,
-} from '~/table/cells/ProtocolCell'
-import { Badge } from '~/ui/lib/Badge'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { InputMiniTable } from '~/ui/lib/InputMiniTable'
 import { Message } from '~/ui/lib/Message'
-import { ClearAndAddButtons, MiniTable } from '~/ui/lib/MiniTable'
 import { SideModal } from '~/ui/lib/SideModal'
-import { TextInputHint } from '~/ui/lib/TextInput'
-import { KEYS } from '~/ui/util/keys'
+import { TextInput, TextInputHint } from '~/ui/lib/TextInput'
 import { ALL_ISH } from '~/util/consts'
 import { validateIp, validateIpNet } from '~/util/ip'
 import { links } from '~/util/links'
-import { getProtocolDisplayName, getProtocolKey, ICMP_TYPES } from '~/util/protocol'
+import { ICMP_TYPES } from '~/util/protocol'
 import { capitalize, normalizeDashes } from '~/util/str'
 
 import { type FirewallRuleValues } from './firewall-rules-util'
 
-/**
- * This is a large file. The main thing to be aware of is that the firewall rules
- * form is made up of two main sections: Targets and Filters. Filters, then, has
- * a few sub-sections (Ports, Protocols, and Hosts).
- *
- * The Targets section and the Filters:Hosts section are very similar, so we've
- * pulled common code to the TargetAndHostFilterSubform components.
- * We also then set up the Targets / Ports / Hosts variables at the top of the
- * CommonFields component.
- */
-
-type TargetAndHostFilterType =
-  | VpcFirewallRuleTarget['type']
-  | VpcFirewallRuleHostFilter['type']
-
-type TargetAndHostFormValues = {
-  type: TargetAndHostFilterType
-  value: string
+const valuePlaceholders = {
+  vpc: 'example-vpc',
+  subnet: 'example-subnet',
+  instance: 'example-inst',
+  ip: 'IPv4 or IPv6 address',
+  ip_net: 'IP network',
 }
 
-// these are part of the target and host filter form;
-// the specific values depend on the target or host filter type selected
-const getFilterValueProps = (targetOrHostType: TargetAndHostFilterType) => {
-  switch (targetOrHostType) {
-    case 'vpc':
-      return { label: 'VPC name' }
-    case 'subnet':
-      return { label: 'Subnet name' }
-    case 'instance':
-      return { label: 'Instance name' }
-    case 'ip':
-      return { label: 'IP address', description: 'Enter an IPv4 or IPv6 address' }
-    case 'ip_net':
-      return {
-        label: 'IP network',
-        description: 'Looks like 192.168.0.0/16 or fd00:1122:3344:0001::1/64',
-      }
-  }
-}
-
-const TargetAndHostFilterSubform = ({
-  sectionType,
+const TargetFilter = ({
   control,
-  messageContent,
+  onTypeChange,
 }: {
-  sectionType: 'target' | 'host'
   control: Control<FirewallRuleValues>
-  messageContent: ReactNode
+  onTypeChange: (index: number) => void
+}) => (
+  <>
+    <SideModal.Heading>Targets</SideModal.Heading>
+
+    <Message
+      variant="info"
+      content={
+        <>
+          <p>
+            Targets determine the instances to which this rule applies. You can target
+            instances directly or specify a VPC, VPC subnet, IP, or IP subnet, which will
+            apply the rule to traffic going to all matching instances.
+          </p>
+          <p className="mt-2">
+            Targets are additive: the rule applies to instances matching{' '}
+            <span className="underline">any</span> target.
+          </p>
+        </>
+      }
+    />
+
+    <div className="flex flex-col gap-3">
+      <InputMiniTable
+        headers={['Type', 'Value']}
+        name="targets"
+        control={control}
+        renderRow={(_field, index) => [
+          <ListboxField
+            key={`targets.${index}.type`}
+            items={targetHostTypeItems}
+            name={`targets.${index}.type`}
+            control={control}
+            onChange={() => onTypeChange(index)}
+          />,
+          <TargetsValueField
+            key={`targets.${index}.value`}
+            index={index}
+            control={control}
+          />,
+        ]}
+        emptyState={{ title: 'No targets', body: 'Add a target to see it here' }}
+        defaultValue={{ type: 'vpc', value: '' }}
+        columnWidths={['1.25fr', '2fr']}
+      />
+    </div>
+  </>
+)
+
+const TargetsValueField = ({
+  index,
+  control,
+}: {
+  index: number
+  control: Control<FirewallRuleValues>
 }) => {
   const { project, vpc } = useVpcSelector()
   // prefetchedApiQueries below are prefetched in firewall-rules-create and -edit
@@ -115,127 +133,49 @@ const TargetAndHostFilterSubform = ({
     data: { items: vpcSubnets },
   } = usePrefetchedApiQuery('vpcSubnetList', { query: { project, vpc, limit: ALL_ISH } })
 
-  const subform = useForm({ defaultValues: targetAndHostDefaultValues })
-  const field = useController({ name: `${sectionType}s`, control }).field
+  const type = useWatch({ name: `targets.${index}.type`, control })
+  const values = useWatch({ name: `targets`, control })
 
-  const submitSubform = subform.handleSubmit(({ type, value }) => {
-    if (!type || !value) return
-    if (field.value.some((f) => f.type === type && f.value === value)) return
-    field.onChange([...field.value, { type, value }])
-    subform.reset(targetAndHostDefaultValues)
-  })
-
-  // HACK: we need to reset the target form completely after a successful submit,
-  // including especially `isSubmitted`, because that governs whether we're in
-  // the validate regime (which doesn't validate until submit) or the reValidate
-  // regime (which validate on every keypress). The reset inside `handleSubmit`
-  // doesn't do that for us because `handleSubmit` set `isSubmitted: true` after
-  // running the callback. So we have to watch for a successful submit and call
-  // the reset again here.
-  // https://github.com/react-hook-form/react-hook-form/blob/9a497a70a/src/logic/createFormControl.ts#L1194-L1203
-  const { isSubmitSuccessful: subformSubmitSuccessful } = subform.formState
-  useEffect(() => {
-    if (subformSubmitSuccessful) subform.reset(targetAndHostDefaultValues)
-  }, [subformSubmitSuccessful, subform])
-
-  const [valueType, value] = subform.watch(['type', 'value'])
   const sectionItems = {
-    vpc: availableItems(field.value, 'vpc', vpcs),
-    subnet: availableItems(field.value, 'subnet', vpcSubnets),
-    instance: availableItems(field.value, 'instance', instances),
+    vpc: availableItems(values, 'vpc', vpcs),
+    subnet: availableItems(values, 'subnet', vpcSubnets),
+    instance: availableItems(values, 'instance', instances),
     ip: [],
     ip_net: [],
   }
-  const items = toComboboxItems(sectionItems[valueType])
-  const subformControl = subform.control
-  // HACK: reset the whole subform, keeping type (because we just set
-  // it). most importantly, this resets isSubmitted so the form can go
-  // back to validating on submit instead of change. Also resets readyToSubmit.
-  const onTypeChange = () => {
-    subform.reset({ type: subform.getValues('type'), value: '' })
-  }
-  const onInputChange = (value: string) => {
-    subform.setValue('value', value)
-  }
+  const items = toComboboxItems(sectionItems[type])
 
-  const noun = sectionType === 'target' ? 'target' : 'host filter'
-  const nounTitle = capitalize(noun) + 's'
-
-  return (
-    <>
-      <SideModal.Heading>{nounTitle}</SideModal.Heading>
-
-      <Message variant="info" content={messageContent} />
-      <ListboxField
-        name="type"
-        label={`${capitalize(sectionType)} type`}
-        control={subformControl}
-        items={targetHostTypeItems}
-        onChange={onTypeChange}
-        hideOptionalTag
-      />
-      {/* In the firewall rules form, a few types get comboboxes instead of text fields */}
-      {valueType === 'vpc' || valueType === 'subnet' || valueType === 'instance' ? (
-        <ComboboxField
-          disabled={subform.formState.isSubmitting}
-          name="value"
-          {...getFilterValueProps(valueType)}
-          description="Select an option or enter a custom value"
-          control={subformControl}
-          onEnter={submitSubform}
-          onInputChange={onInputChange}
-          items={items}
-          allowArbitraryValues
-          hideOptionalTag
-          validate={(value) =>
-            // required: false arg is desirable because otherwise if you put in
-            // a bad name and submit, causing it to revalidate onChange, then
-            // clear the field you're left with a BS "Target name is required"
-            // error message
-            validateName(value, `${capitalize(sectionType)} name`, false)
-          }
-        />
-      ) : (
-        <TextField
-          name="value"
-          {...getFilterValueProps(valueType)}
-          control={subformControl}
-          disabled={subform.formState.isSubmitting}
-          onKeyDown={(e) => {
-            if (e.key === KEYS.enter) {
-              e.preventDefault() // prevent full form submission
-              submitSubform(e)
-            }
-          }}
-          validate={(value) =>
-            (valueType === 'ip' && validateIp(value)) ||
-            (valueType === 'ip_net' && validateIpNet(value)) ||
-            undefined
-          }
-        />
-      )}
-      <ClearAndAddButtons
-        addButtonCopy={`Add ${noun}`}
-        disabled={!value}
-        onClear={() => subform.reset()}
-        onSubmit={submitSubform}
-      />
-      <MiniTable
-        className="mb-4"
-        ariaLabel={nounTitle}
-        items={field.value}
-        columns={targetAndHostTableColumns}
-        rowKey={({ type, value }: VpcFirewallRuleTarget | VpcFirewallRuleHostFilter) =>
-          `${type}|${value}`
-        }
-        onRemoveItem={({
-          type,
-          value,
-        }: VpcFirewallRuleTarget | VpcFirewallRuleHostFilter) => {
-          field.onChange(field.value.filter((i) => !(i.value === value && i.type === type)))
-        }}
-      />
-    </>
+  return type === 'vpc' || type === 'subnet' || type === 'instance' ? (
+    <ComboboxField
+      name={`targets.${index}.value`}
+      label=""
+      description="Select an option or enter a custom value"
+      control={control}
+      items={items}
+      allowArbitraryValues
+      hideOptionalTag
+      validate={(value) =>
+        // required: false arg is desirable because otherwise if you put in
+        // a bad name and submit, causing it to revalidate onChange, then
+        // clear the field you're left with a BS "Target name is required"
+        // error message
+        validateName(value, `${capitalize(type)} name`, false)
+      }
+      placeholder={valuePlaceholders[type]}
+      popoverError
+    />
+  ) : (
+    <TextField
+      name={`targets.${index}.value`}
+      control={control}
+      validate={(value) =>
+        (type === 'ip' && validateIp(value)) ||
+        (type === 'ip_net' && validateIpNet(value)) ||
+        undefined
+      }
+      popoverError
+      placeholder={valuePlaceholders[type]}
+    />
   )
 }
 
@@ -258,21 +198,17 @@ const availableItems = (
 }
 
 // Protocol selection form values for the subform
-type ProtocolFormValues = {
-  protocolType: VpcFirewallRuleProtocol['type'] | ''
-  icmpType?: string // ComboboxField with allowArbitraryValues can return strings
-  icmpCode?: string
-}
 
 const targetHostTypeItems: Array<{
   value: VpcFirewallRuleHostFilter['type']
   label: string
+  selectedLabel: string
 }> = [
-  { value: 'vpc', label: 'VPC' },
-  { value: 'subnet', label: 'VPC subnet' },
-  { value: 'instance', label: 'Instance' },
-  { value: 'ip', label: 'IP' },
-  { value: 'ip_net', label: 'IP subnet' },
+  { value: 'vpc', label: 'VPC', selectedLabel: 'VPC' },
+  { value: 'subnet', label: 'VPC subnet', selectedLabel: 'VPC subnet' },
+  { value: 'instance', label: 'Instance', selectedLabel: 'Instance' },
+  { value: 'ip', label: 'IP', selectedLabel: 'IP' },
+  { value: 'ip_net', label: 'IP subnet', selectedLabel: 'IP subnet' },
 ]
 
 const actionItems: Array<{ value: VpcFirewallRuleAction; label: string }> = [
@@ -300,59 +236,6 @@ const icmpTypeItems = [
     selectedLabel: `${type}`,
   })),
 ]
-
-const targetAndHostTableColumns = [
-  {
-    header: 'Type',
-    cell: (item: VpcFirewallRuleTarget | VpcFirewallRuleHostFilter) => (
-      <Badge>{item.type}</Badge>
-    ),
-  },
-  {
-    header: 'Value',
-    cell: (item: VpcFirewallRuleTarget | VpcFirewallRuleHostFilter) => item.value,
-  },
-]
-
-const portTableColumns = [{ header: 'Port ranges', cell: (p: string) => p }]
-
-const protocolTableColumns = [
-  {
-    header: 'Protocol',
-    cell: (protocol: VpcFirewallRuleProtocol) => <ProtocolCell protocol={protocol} />,
-  },
-  {
-    header: 'Type',
-    cell: (protocol: VpcFirewallRuleProtocol) => <ProtocolTypeCell protocol={protocol} />,
-  },
-  {
-    header: 'Code',
-    cell: (protocol: VpcFirewallRuleProtocol) => <ProtocolCodeCell protocol={protocol} />,
-  },
-]
-
-const isDuplicateProtocol = (
-  newProtocol: VpcFirewallRuleProtocol,
-  existingProtocols: VpcFirewallRuleProtocol[]
-) => {
-  if (newProtocol.type === 'tcp' || newProtocol.type === 'udp') {
-    return existingProtocols.some((p) => p.type === newProtocol.type)
-  }
-
-  if (newProtocol.type === 'icmp') {
-    if (newProtocol.value === null) {
-      return existingProtocols.some((p) => p.type === 'icmp' && p.value === null)
-    }
-    return existingProtocols.some(
-      (p) =>
-        p.type === 'icmp' &&
-        p.value?.icmpType === newProtocol.value?.icmpType &&
-        p.value?.code === newProtocol.value?.code
-    )
-  }
-
-  return false
-}
 
 type ParseResult<T> = { success: true; data: T } | { success: false; message: string }
 
@@ -401,147 +284,247 @@ const icmpCodeValidation = (value: string | undefined) => {
   return 'ICMP code must be a number or numeric range'
 }
 
-const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) => {
-  const protocols = useController({ name: 'protocols', control }).field
-  const protocolForm = useForm<ProtocolFormValues>({
-    defaultValues: { protocolType: '' },
-  })
+const ProtocolFilters = ({
+  control,
+  onTypeChange,
+}: {
+  control: Control<FirewallRuleValues>
+  onTypeChange: (index: number) => void
+}) => {
+  const protocols = useWatch({ name: 'protocols', control }) || []
 
-  const selectedProtocolType = protocolForm.watch('protocolType')
-  const selectedIcmpType = protocolForm.watch('icmpType')
+  const renderProtocolRow = (
+    _field: Record<string, unknown> & { id: string },
+    index: number
+  ) => {
+    const selectedType = protocols?.[index]?.type
 
-  const addProtocolIfUnique = (newProtocol: VpcFirewallRuleProtocol) => {
-    if (!isDuplicateProtocol(newProtocol, protocols.value)) {
-      protocols.onChange([...protocols.value, newProtocol])
-    }
+    return [
+      <ListboxField
+        key={`type-${index}`}
+        name={`protocols.${index}.type`}
+        label=""
+        control={control}
+        items={protocolTypeItems}
+        hideOptionalTag
+        onChange={() => onTypeChange(index)}
+      />,
+      selectedType === 'icmp' ? (
+        <ComboboxField
+          key={`icmp-type-${index}`}
+          name={`protocols.${index}.value.icmpType`}
+          label=""
+          control={control}
+          items={icmpTypeItems}
+          allowArbitraryValues
+          hideOptionalTag
+          matchDropdownWidth={false}
+          validate={(value) => {
+            if (!value) return undefined
+            const result = parseIcmpType(String(value))
+            if (!result.success) return result.message
+          }}
+          popoverError
+        />
+      ) : (
+        <TextInput key={`not-icmp-type-${index}`} disabled />
+      ),
+      selectedType === 'icmp' ? (
+        <TextField
+          key={`icmp-code-${index}`}
+          name={`protocols.${index}.value.code`}
+          control={control}
+          validate={(value) => {
+            if (value === null || value === undefined) return undefined
+            return icmpCodeValidation(value)
+          }}
+          transform={normalizeDashes}
+          popoverError
+        />
+      ) : (
+        <TextInput key={`not-icmp-code-${index}`} disabled />
+      ),
+    ]
   }
 
-  const submitProtocol = protocolForm.handleSubmit((values) => {
-    if (values.protocolType === 'tcp' || values.protocolType === 'udp') {
-      addProtocolIfUnique({ type: values.protocolType })
-    } else if (values.protocolType === 'icmp') {
-      // this parse should never fail because we've already validated, but doing
-      // it this way keeps the just-in-case early return logic consistent
-      const parseResult = parseIcmpType(values.icmpType)
-      if (!parseResult.success) return
+  return (
+    <div className="mt-2">
+      <FieldLabel id="protocols-label">Protocol filters</FieldLabel>
+      <TextInputHint id="protocols-help-text" className="mb-2">
+        Choose protocol types and configure ICMP settings if needed
+      </TextInputHint>
+      <InputMiniTable
+        headers={['Type', 'ICMP type', 'ICMP code']}
+        name="protocols"
+        control={control}
+        renderRow={renderProtocolRow}
+        emptyState={{ title: 'No protocols', body: 'Add a protocol to see it here' }}
+        defaultValue={{ type: 'tcp' } as VpcFirewallRuleProtocol}
+      />
+    </div>
+  )
+}
 
-      const icmpType = parseResult.data
-      if (icmpType === undefined) {
-        // All ICMP types
-        addProtocolIfUnique({ type: 'icmp', value: null })
-      } else {
-        // Specific ICMP type
-        const icmpValue: VpcFirewallIcmpFilter = { icmpType }
-        if (values.icmpCode) {
-          icmpValue.code = values.icmpCode
-        }
-        addProtocolIfUnique({ type: 'icmp', value: icmpValue })
-      }
+const HostFilters = ({
+  control,
+  onTypeChange,
+}: {
+  control: Control<FirewallRuleValues>
+  onTypeChange: (index: number) => void
+}) => {
+  const { project, vpc } = useVpcSelector()
+  const {
+    data: { items: instances },
+  } = usePrefetchedApiQuery('instanceList', { query: { project, limit: ALL_ISH } })
+  const {
+    data: { items: vpcs },
+  } = usePrefetchedApiQuery('vpcList', { query: { project, limit: ALL_ISH } })
+  const {
+    data: { items: vpcSubnets },
+  } = usePrefetchedApiQuery('vpcSubnetList', { query: { project, vpc, limit: ALL_ISH } })
+
+  const hosts = useWatch({ name: 'hosts', control }) || []
+
+  const renderHostRow = (
+    _field: Record<string, unknown> & { id: string },
+    index: number
+  ) => {
+    const selectedType = hosts?.[index]?.type
+
+    const sectionItems = {
+      vpc: availableItems(hosts, 'vpc', vpcs),
+      subnet: availableItems(hosts, 'subnet', vpcSubnets),
+      instance: availableItems(hosts, 'instance', instances),
+      ip: [],
+      ip_net: [],
     }
-    protocolForm.reset()
-  })
+    const items = toComboboxItems(sectionItems[selectedType] || [])
 
-  const removeProtocol = (protocolToRemove: VpcFirewallRuleProtocol) => {
-    const newProtocols = protocols.value.filter((protocol) => protocol !== protocolToRemove)
-    protocols.onChange(newProtocols)
+    return [
+      <ListboxField
+        key={`type-${index}`}
+        name={`hosts.${index}.type`}
+        label=""
+        control={control}
+        items={targetHostTypeItems}
+        hideOptionalTag
+        onChange={() => onTypeChange(index)}
+      />,
+      selectedType === 'vpc' || selectedType === 'subnet' || selectedType === 'instance' ? (
+        <ComboboxField
+          key={`value-${index}`}
+          name={`hosts.${index}.value`}
+          control={control}
+          items={items}
+          allowArbitraryValues
+          hideOptionalTag
+          validate={(value) => validateName(value, `Host filter name`, false)}
+          popoverError
+        />
+      ) : (
+        <TextField
+          key={`value-${index}`}
+          name={`hosts.${index}.value`}
+          control={control}
+          validate={(value) =>
+            (selectedType === 'ip' && validateIp(value)) ||
+            (selectedType === 'ip_net' && validateIpNet(value)) ||
+            undefined
+          }
+          popoverError
+        />
+      ),
+    ]
   }
 
   return (
     <>
-      <div className="space-y-3">
-        <div className="space-y-5">
-          <ListboxField
-            name="protocolType"
-            label="Protocol filters"
-            hideOptionalTag
-            control={protocolForm.control}
-            placeholder=""
-            items={protocolTypeItems}
-          />
+      <SideModal.Heading>Host filters</SideModal.Heading>
 
-          {selectedProtocolType === 'icmp' && (
-            <>
-              <ComboboxField
-                label="ICMP type"
-                name="icmpType"
-                control={protocolForm.control}
-                description="Leave blank to match any type"
-                placeholder=""
-                allowArbitraryValues
-                onInputChange={(value) => protocolForm.setValue('icmpType', value)}
-                items={icmpTypeItems}
-                validate={(value) => {
-                  const result = parseIcmpType(value)
-                  if (!result.success) return result.message
-                }}
-              />
+      <Message
+        variant="info"
+        content={
+          <>
+            Host filters match the &ldquo;other end&rdquo; of traffic from the
+            target&rsquo;s perspective: for an inbound rule, they match the source of
+            traffic. For an outbound rule, they match the destination.
+          </>
+        }
+      />
 
-              {selectedIcmpType !== undefined && selectedIcmpType !== '' && (
-                <TextField
-                  label="ICMP code"
-                  name="icmpCode"
-                  control={protocolForm.control}
-                  description={
-                    <>
-                      Enter a code (0) or range (e.g. 1&ndash;3). Leave blank for all
-                      traffic of type {selectedIcmpType}.
-                    </>
-                  }
-                  placeholder=""
-                  validate={icmpCodeValidation}
-                  transform={normalizeDashes}
-                />
-              )}
-            </>
-          )}
-        </div>
-
-        <ClearAndAddButtons
-          addButtonCopy="Add protocol filter"
-          disabled={!selectedProtocolType}
-          onClear={() => protocolForm.reset()}
-          onSubmit={submitProtocol}
-        />
-      </div>
-
-      {protocols.value.length > 0 && (
-        <MiniTable
-          ariaLabel="Protocol filters"
-          items={protocols.value}
-          columns={protocolTableColumns}
-          rowKey={getProtocolKey}
-          emptyState={{ title: 'No protocols', body: 'Add a protocol to see it here' }}
-          onRemoveItem={removeProtocol}
-          removeLabel={(protocol) => `Remove ${getProtocolDisplayName(protocol)}`}
-        />
-      )}
+      <InputMiniTable
+        headers={['Host type', 'Value']}
+        name="hosts"
+        control={control}
+        renderRow={renderHostRow}
+        emptyState={{ title: 'No host filters', body: 'Add a host filter to see it here' }}
+        defaultValue={{ type: 'vpc', value: '' } as VpcFirewallRuleHostFilter}
+        columnWidths={['1.25fr', '2fr']}
+      />
     </>
   )
 }
 
-type CommonFieldsProps = {
+const PortFilters = ({
+  control,
+  trigger,
+}: {
   control: Control<FirewallRuleValues>
+  trigger: UseFormTrigger<FirewallRuleValues>
+}) => {
+  const ports = useWatch({ name: 'ports', control })
+  const { errors } = useFormState({ control })
+
+  // Helps catch errors that span multiple fields
+  // without this, errors won't be cleared on one duplicate
+  // field if the other is edited
+  useEffect(() => {
+    if (errors['ports']) {
+      trigger('ports')
+    }
+  }, [trigger, ports, errors])
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="mt-2">
+        <FieldLabel id="ports-label">Port filters</FieldLabel>
+        <TextInputHint id="ports-help-text" className="mb-2">
+          A single destination port (1234) or a range (1234&ndash;2345)
+        </TextInputHint>
+        <InputMiniTable
+          headers={['Port ranges']}
+          name="ports"
+          control={control}
+          renderRow={(_field, index) => [
+            <TextField
+              key={index}
+              name={`ports.${index}`}
+              control={control}
+              validate={(value) => {
+                if (!parsePortRange(value)) return 'Not a valid port range'
+                // Filter out the current port to check for duplicates
+                const otherPorts = ports.filter((_, i) => i !== index)
+                if (otherPorts.includes(value.trim())) return 'Port range already added'
+              }}
+              popoverError
+            />,
+          ]}
+          emptyState={{ title: 'No ports', body: 'Add a port to see it here' }}
+          defaultValue={new String('') as string} // if this simply '' it will not make new rows
+        />
+      </div>
+    </div>
+  )
+}
+
+type CommonFieldsProps = {
+  form: UseFormReturn<FirewallRuleValues>
   nameTaken: (name: string) => boolean
   error: ApiError | null
 }
 
-const targetAndHostDefaultValues: TargetAndHostFormValues = {
-  type: 'vpc',
-  value: '',
-}
-
-export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) => {
-  // Ports
-  const portRangeForm = useForm({ defaultValues: { portRange: '' } })
-  const ports = useController({ name: 'ports', control }).field
-  const portValue = portRangeForm.watch('portRange')
-  const submitPortRange = portRangeForm.handleSubmit(({ portRange }) => {
-    const portRangeValue = portRange.trim()
-    // at this point we've already validated in validate() that it parses and
-    // that it is not already in the list
-    ports.onChange([...ports.value, portRangeValue])
-    portRangeForm.reset()
-  })
+export const CommonFields = ({ form, nameTaken, error }: CommonFieldsProps) => {
+  const { control, trigger, setValue } = form
 
   return (
     <>
@@ -613,22 +596,9 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
 
       <FormDivider />
 
-      <TargetAndHostFilterSubform
-        sectionType="target"
+      <TargetFilter
         control={control}
-        messageContent={
-          <>
-            <p>
-              Targets determine the instances to which this rule applies. You can target
-              instances directly or specify a VPC, VPC subnet, IP, or IP subnet, which will
-              apply the rule to traffic going to all matching instances.
-            </p>
-            <p className="mt-2">
-              Targets are additive: the rule applies to instances matching{' '}
-              <span className="underline">any</span> target.
-            </p>
-          </>
-        }
+        onTypeChange={(index: number) => setValue(`targets.${index}.value`, '')}
       />
 
       <FormDivider />
@@ -646,67 +616,18 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
         }
       />
 
-      <div className="flex flex-col gap-3">
-        {/* We have to blow this up instead of using TextField to get better
-            text styling on the label */}
-        <div className="mt-2">
-          <FieldLabel id="portRange-label" htmlFor="portRange">
-            Port filters
-          </FieldLabel>
-          <TextInputHint id="portRange-help-text" className="mb-2">
-            A single destination port (1234) or a range (1234&ndash;2345)
-          </TextInputHint>
-          <TextFieldInner
-            id="portRange"
-            name="portRange"
-            required
-            control={portRangeForm.control}
-            onKeyDown={(e) => {
-              if (e.key === KEYS.enter) {
-                e.preventDefault() // prevent full form submission
-                submitPortRange(e)
-              }
-            }}
-            validate={(value) => {
-              if (!parsePortRange(value)) return 'Not a valid port range'
-              if (ports.value.includes(value.trim())) return 'Port range already added'
-            }}
-          />
-        </div>
-        <ClearAndAddButtons
-          addButtonCopy="Add port filter"
-          disabled={!portValue}
-          onClear={() => portRangeForm.reset()}
-          onSubmit={submitPortRange}
-        />
-      </div>
-      {ports.value.length > 0 && (
-        <MiniTable
-          className="mb-4"
-          ariaLabel="Port filters"
-          items={ports.value}
-          columns={portTableColumns}
-          rowKey={(port) => port}
-          emptyState={{ title: 'No ports', body: 'Add a port to see it here' }}
-          onRemoveItem={(p) => ports.onChange(ports.value.filter((p1) => p1 !== p))}
-          removeLabel={(port) => `remove port ${port}`}
-        />
-      )}
+      <PortFilters control={control} trigger={trigger} />
 
-      <ProtocolFilters control={control} />
+      <ProtocolFilters
+        control={control}
+        onTypeChange={(index) => setValue(`protocols.${index}.value`, null)}
+      />
 
       <FormDivider />
 
-      <TargetAndHostFilterSubform
-        sectionType="host"
+      <HostFilters
         control={control}
-        messageContent={
-          <>
-            Host filters match the &ldquo;other end&rdquo; of traffic from the
-            target&rsquo;s perspective: for an inbound rule, they match the source of
-            traffic. For an outbound rule, they match the destination.
-          </>
-        }
+        onTypeChange={(index) => setValue(`hosts.${index}.value`, '')}
       />
 
       {error && (
