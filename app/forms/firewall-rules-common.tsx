@@ -30,7 +30,7 @@ import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField, validateName } from '~/components/form/fields/NameField'
 import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioField } from '~/components/form/fields/RadioField'
-import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
+import { TextField } from '~/components/form/fields/TextField'
 import { useVpcSelector } from '~/hooks/use-params'
 import {
   ProtocolCell,
@@ -40,11 +40,9 @@ import {
 import { Badge } from '~/ui/lib/Badge'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
-import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Message } from '~/ui/lib/Message'
 import { ClearAndAddButtons, MiniTable } from '~/ui/lib/MiniTable'
 import { SideModal } from '~/ui/lib/SideModal'
-import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
 import { ALL_ISH } from '~/util/consts'
 import { validateIp, validateIpNet } from '~/util/ip'
@@ -647,32 +645,23 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
       />
 
       <div className="flex flex-col gap-3">
-        {/* We have to blow this up instead of using TextField to get better
-            text styling on the label */}
-        <div className="mt-2">
-          <FieldLabel id="portRange-label" htmlFor="portRange">
-            Port filters
-          </FieldLabel>
-          <TextInputHint id="portRange-help-text" className="mb-2">
-            A single destination port (1234) or a range (1234&ndash;2345)
-          </TextInputHint>
-          <TextFieldInner
-            id="portRange"
-            name="portRange"
-            required
-            control={portRangeForm.control}
-            onKeyDown={(e) => {
-              if (e.key === KEYS.enter) {
-                e.preventDefault() // prevent full form submission
-                submitPortRange(e)
-              }
-            }}
-            validate={(value) => {
-              if (!parsePortRange(value)) return 'Not a valid port range'
-              if (ports.value.includes(value.trim())) return 'Port range already added'
-            }}
-          />
-        </div>
+        <TextField
+          label="Port filters"
+          description="A single destination port (1234) or a range (1234&ndash;2345)"
+          name="portRange"
+          required
+          control={portRangeForm.control}
+          onKeyDown={(e) => {
+            if (e.key === KEYS.enter) {
+              e.preventDefault() // prevent full form submission
+              submitPortRange(e)
+            }
+          }}
+          validate={(value) => {
+            if (!parsePortRange(value)) return 'Not a valid port range'
+            if (ports.value.includes(value.trim())) return 'Port range already added'
+          }}
+        />
         <ClearAndAddButtons
           addButtonCopy="Add port filter"
           disabled={!portValue}

@@ -11,7 +11,7 @@ import { useNavigate, useSearchParams } from 'react-router'
 
 import { useApiMutation, type UsernamePasswordCredentials } from '@oxide/api'
 
-import { TextFieldInner } from '~/components/form/fields/TextField'
+import { TextField } from '~/components/form/fields/TextField'
 import { useSiloSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Button } from '~/ui/lib/Button'
@@ -58,24 +58,22 @@ export default function LoginPage() {
           loginPost.mutate({ body, path: { siloName: silo } })
         })}
       >
-        <div>
-          <TextFieldInner
-            name="username"
-            placeholder="Username"
-            autoComplete="username"
-            required
-            control={form.control}
-          />
-        </div>
-        <div>
-          <TextFieldInner
-            name="password"
-            type="password"
-            placeholder="Password"
-            required
-            control={form.control}
-          />
-        </div>
+        <TextField
+          variant="inline"
+          name="username"
+          placeholder="Username"
+          autoComplete="username"
+          required
+          control={form.control}
+        />
+        <TextField
+          variant="inline"
+          name="password"
+          type="password"
+          placeholder="Password"
+          required
+          control={form.control}
+        />
         <Button type="submit" className="w-full" disabled={loginPost.isPending}>
           Sign in
         </Button>

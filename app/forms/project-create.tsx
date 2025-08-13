@@ -56,7 +56,7 @@ export default function ProjectCreateSideModalForm() {
       loading={createProject.isPending}
       submitError={createProject.error}
     >
-      <NameField name="name" control={form.control} />
+      <NameField variant="inline" name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
     </SideModalForm>
   )

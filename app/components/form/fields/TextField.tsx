@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import cn from 'classnames'
 import { useId } from 'react'
 import {
   useController,
@@ -30,6 +31,7 @@ export interface TextFieldProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
 > extends UITextFieldProps {
+  variant?: 'default' | 'inline'
   name: TName
   /** HTML type attribute, defaults to text */
   type?: 'text' | 'password'
@@ -54,18 +56,27 @@ export function TextField<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
 >({
+  variant = 'default',
   name,
+  type = 'text',
   label = capitalize(name),
   units,
   description,
   required,
+  control,
+  validate,
+  transform,
   ...props
 }: Omit<TextFieldProps<TFieldValues, TName>, 'id'> & UITextAreaProps) {
-  // id is omitted from props because we generate it here
   const id = useId()
+  const {
+    field: { onChange, ...fieldRest },
+    fieldState: { error },
+  } = useController({ name, control, rules: { required, validate } })
   return (
-    <div className="max-w-lg">
-      <div className="mb-2">
+    <div className={cn(variant !== 'inline' && 'max-w-lg')}>
+      {/* Hiding the label for inline inputs but keeping it available for screen readers */}
+      <div className={cn('mb-2', variant === 'inline' && 'sr-only')}>
         <FieldLabel htmlFor={id} id={`${id}-label`} optional={!required}>
           {label} {units && <span className="ml-1 text-default">({units})</span>}
         </FieldLabel>
@@ -75,54 +86,18 @@ export function TextField<
           </TextInputHint>
         )}
       </div>
-      {/* passing the generated id is very important for a11y */}
-      <TextFieldInner name={name} {...props} id={id} />
-    </div>
-  )
-}
-
-/**
- * Primarily exists for `TextField`, but we occasionally also need a plain field
- * without a label on it.
- *
- * Note that `id` is an allowed prop, unlike in `TextField`, where it is always
- * generated from `name`. This is because we need to pass the generated ID in
- * from there to here. For the case where `TextFieldInner` is used
- * independently, we also generate an ID for use only if none is passed in.
- */
-export const TextFieldInner = <
-  TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>,
->({
-  name,
-  type = 'text',
-  label = capitalize(name),
-  validate,
-  control,
-  required,
-  id: idProp,
-  transform,
-  ...props
-}: TextFieldProps<TFieldValues, TName> & UITextAreaProps) => {
-  const generatedId = useId()
-  const id = idProp || generatedId
-  const {
-    field: { onChange, ...fieldRest },
-    fieldState: { error },
-  } = useController({ name, control, rules: { required, validate } })
-  return (
-    <>
       <UITextField
         id={id}
         title={label}
         type={type}
         error={!!error}
-        aria-labelledby={`${id}-label ${id}-help-text`}
+        aria-labelledby={cn(`${id}-label`, description ? `${id}-help-text` : '')}
         onChange={(e) => onChange(transform ? transform(e.target.value) : e.target.value)}
         {...fieldRest}
         {...props}
       />
+      {/* todo: inline error message tooltip */}
       <ErrorMessage error={error} label={label} />
-    </>
+    </div>
   )
 }

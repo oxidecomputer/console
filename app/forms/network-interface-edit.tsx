@@ -18,15 +18,13 @@ import {
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
-import { TextFieldInner } from '~/components/form/fields/TextField'
+import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
-import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { ClearAndAddButtons, MiniTable } from '~/ui/lib/MiniTable'
-import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
 import { validateIpNet } from '~/util/ip'
 import { links } from '~/util/links'
@@ -96,36 +94,32 @@ export function EditNetworkInterfaceForm({
       <FormDivider />
 
       <div className="flex flex-col gap-3">
-        {/* We have to blow this up instead of using TextField for better layout control of field and ClearAndAddButtons */}
-        <div>
-          <FieldLabel id="transitIp-label" htmlFor="transitIp" optional>
-            Transit IPs
-          </FieldLabel>
-          <TextInputHint id="transitIp-help-text" className="mb-2">
-            An IP network, like 192.168.0.0/16.{' '}
-            <a href={links.transitIpsDocs} target="_blank" rel="noreferrer">
-              Learn more about transit IPs.
-            </a>
-          </TextInputHint>
-          <TextFieldInner
-            id="transitIp"
-            name="transitIp"
-            control={transitIpsForm.control}
-            onKeyDown={(e) => {
-              if (e.key === KEYS.enter) {
-                e.preventDefault() // prevent full form submission
-                submitTransitIp()
-              }
-            }}
-            validate={(value) => {
-              const error = validateIpNet(value)
-              if (error) return error
+        <TextField
+          name="transitIp"
+          label="Transit IPs"
+          description={
+            <>
+              An IP network, like 192.168.0.0/16.{' '}
+              <a href={links.transitIpsDocs} target="_blank" rel="noreferrer">
+                Learn more about transit IPs.
+              </a>
+            </>
+          }
+          control={transitIpsForm.control}
+          onKeyDown={(e) => {
+            if (e.key === KEYS.enter) {
+              e.preventDefault() // prevent full form submission
+              submitTransitIp()
+            }
+          }}
+          validate={(value) => {
+            const error = validateIpNet(value)
+            if (error) return error
 
-              if (transitIps.includes(value)) return 'Transit IP already in list'
-            }}
-            placeholder="Enter an IP network"
-          />
-        </div>
+            if (transitIps.includes(value)) return 'Transit IP already in list'
+          }}
+          placeholder="Enter an IP network"
+        />
         <ClearAndAddButtons
           addButtonCopy="Add Transit IP"
           disabled={!transitIpValue}
