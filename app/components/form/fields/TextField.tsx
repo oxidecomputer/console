@@ -16,9 +16,8 @@ import {
   type Validate,
 } from 'react-hook-form'
 
-import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { FieldLabel, InputHint } from '~/ui/lib/FieldLabel'
 import {
-  TextInputHint,
   TextInput as UITextField,
   type TextAreaProps as UITextAreaProps,
   type TextInputBaseProps as UITextFieldProps,
@@ -81,9 +80,9 @@ export function TextField<
           {label} {units && <span className="ml-1 text-default">({units})</span>}
         </FieldLabel>
         {description && (
-          <TextInputHint id={`${id}-help-text`} className="mb-2">
+          <InputHint id={`${id}-help-text`} className="mb-2">
             {description}
-          </TextInputHint>
+          </InputHint>
         )}
       </div>
       <UITextField

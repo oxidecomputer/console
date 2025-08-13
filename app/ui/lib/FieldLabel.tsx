@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import type { ElementType, PropsWithChildren } from 'react'
+import type { ElementType, PropsWithChildren, ReactNode } from 'react'
 
 interface FieldLabelProps {
   id: string
@@ -44,3 +44,25 @@ export const FieldLabel = ({
     </div>
   )
 }
+
+type HintProps = {
+  // ID required as a reminder to pass aria-describedby on TextField
+  id: string
+  children: ReactNode
+  className?: string
+}
+
+/**
+ * Pass id here and include that ID in aria-describedby on the TextField
+ */
+export const InputHint = ({ id, children, className }: HintProps) => (
+  <div
+    id={id}
+    className={cn(
+      'mt-1 text-sans-sm text-secondary [&_>_a]:underline hover:[&_>_a]:text-raise',
+      className
+    )}
+  >
+    {children}
+  </div>
+)

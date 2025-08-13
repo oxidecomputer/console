@@ -15,10 +15,9 @@ import {
   type PathValue,
 } from 'react-hook-form'
 
-import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { FieldLabel, InputHint } from '~/ui/lib/FieldLabel'
 import { Radio, type RadioProps } from '~/ui/lib/Radio'
 import { RadioGroup, type RadioGroupProps } from '~/ui/lib/RadioGroup'
-import { TextInputHint } from '~/ui/lib/TextInput'
 import { capitalize } from '~/util/str'
 
 export type RadioFieldProps<
@@ -74,7 +73,7 @@ export function RadioField<
           </FieldLabel>
         )}
         {/* TODO: Figure out where this hint field def should live */}
-        {description && <TextInputHint id={`${id}-help-text`}>{description}</TextInputHint>}
+        {description && <InputHint id={`${id}-help-text`}>{description}</InputHint>}
       </div>
       <RadioGroup
         defaultChecked={field.value}
@@ -135,7 +134,7 @@ export function RadioFieldDyn<
           </FieldLabel>
         )}
         {/* TODO: Figure out where this hint field def should live */}
-        {description && <TextInputHint id={`${id}-help-text`}>{description}</TextInputHint>}
+        {description && <InputHint id={`${id}-help-text`}>{description}</InputHint>}
       </div>
       <RadioGroup
         defaultChecked={field.value}

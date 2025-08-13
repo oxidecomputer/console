@@ -19,9 +19,8 @@ import { useEffect, useId, useState, type ReactNode, type Ref } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
-import { FieldLabel } from './FieldLabel'
+import { FieldLabel, InputHint } from './FieldLabel'
 import { usePopoverZIndex } from './SideModal'
-import { TextInputHint } from './TextInput'
 
 export type ComboboxItem = { value: string; label: ReactNode; selectedLabel: string }
 
@@ -169,9 +168,7 @@ export const Combobox = ({
               >
                 {label}
               </FieldLabel>
-              {description && (
-                <TextInputHint id={`${id}-help-text`}>{description}</TextInputHint>
-              )}
+              {description && <InputHint id={`${id}-help-text`}>{description}</InputHint>}
             </div>
           )}
           <div

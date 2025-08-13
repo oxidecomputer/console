@@ -65,6 +65,7 @@ import { Checkbox } from '~/ui/lib/Checkbox'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { InputHint } from '~/ui/lib/FieldLabel'
 import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { MiniTable } from '~/ui/lib/MiniTable'
@@ -73,7 +74,6 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { RadioCard } from '~/ui/lib/Radio'
 import { Slash } from '~/ui/lib/Slash'
 import { Tabs } from '~/ui/lib/Tabs'
-import { TextInputHint } from '~/ui/lib/TextInput'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { ALL_ISH } from '~/util/consts'
 import { readBlobAsBase64 } from '~/util/file'
@@ -361,10 +361,10 @@ export default function CreateInstanceForm() {
         </CheckboxField>
         <FormDivider />
         <Form.Heading id="hardware">Hardware</Form.Heading>
-        <TextInputHint id="hw-gp-help-text" className="mb-12 max-w-xl text-sans-md">
+        <InputHint id="hw-gp-help-text" className="mb-12 max-w-xl text-sans-md">
           Pick a pre-configured machine type that offers balanced vCPU and memory for most
           workloads or create a custom machine.
-        </TextInputHint>
+        </InputHint>
         <Tabs.Root
           id="choose-cpu-ram"
           className="full-width"

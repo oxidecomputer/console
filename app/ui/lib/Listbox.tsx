@@ -16,10 +16,9 @@ import { useId, type ReactNode, type Ref } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
-import { FieldLabel } from './FieldLabel'
+import { FieldLabel, InputHint } from './FieldLabel'
 import { usePopoverZIndex } from './SideModal'
 import { SpinnerLoader } from './Spinner'
-import { TextInputHint } from './TextInput'
 
 export type ListboxItem<Value extends string = string> = {
   value: Value
@@ -92,9 +91,7 @@ export const Listbox = <Value extends string = string>({
                 >
                   {label}
                 </FieldLabel>
-                {description && (
-                  <TextInputHint id={`${id}-help-text`}>{description}</TextInputHint>
-                )}
+                {description && <InputHint id={`${id}-help-text`}>{description}</InputHint>}
               </div>
             )}
             <ListboxButton

@@ -12,9 +12,8 @@ import {
   type FieldValues,
 } from 'react-hook-form'
 
-import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { FieldLabel, InputHint } from '~/ui/lib/FieldLabel'
 import { FileInput } from '~/ui/lib/FileInput'
-import { TextInputHint } from '~/ui/lib/TextInput'
 
 import { ErrorMessage } from './ErrorMessage'
 
@@ -51,7 +50,7 @@ export function FileField<
         <FieldLabel id={`${id}-label`} htmlFor={id} optional={!required}>
           {label}
         </FieldLabel>
-        {description && <TextInputHint id={`${id}-help-text`}>{description}</TextInputHint>}
+        {description && <InputHint id={`${id}-help-text`}>{description}</InputHint>}
       </div>
       <FileInput
         id={id}

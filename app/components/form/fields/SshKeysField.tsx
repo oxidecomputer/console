@@ -17,9 +17,8 @@ import { Button } from '~/ui/lib/Button'
 import { Checkbox } from '~/ui/lib/Checkbox'
 import { Divider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { FieldLabel, InputHint } from '~/ui/lib/FieldLabel'
 import { Message } from '~/ui/lib/Message'
-import { TextInputHint } from '~/ui/lib/TextInput'
 
 import { CheckboxField } from './CheckboxField'
 import { ErrorMessage } from './ErrorMessage'
@@ -77,9 +76,9 @@ export function SshKeysField({
     <div className="max-w-lg">
       <div className="mb-2">
         <FieldLabel id="ssh-keys-label">SSH keys</FieldLabel>
-        <TextInputHint id="ssh-keys-help-text">
+        <InputHint id="ssh-keys-help-text">
           SSH keys can be added and removed in your user settings
-        </TextInputHint>
+        </InputHint>
       </div>
       {keys.length > 0 ? (
         <>

@@ -5,9 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { announce } from '@react-aria/live-announcer'
 import cn from 'classnames'
-import { useEffect } from 'react'
 import type { Merge } from 'type-fest'
 
 import { CopyToClipboard } from './CopyToClipboard'
@@ -98,31 +96,4 @@ export function TextInput({
       )}
     </div>
   )
-}
-
-type HintProps = {
-  // ID required as a reminder to pass aria-describedby on TextField
-  id: string
-  children: React.ReactNode
-  className?: string
-}
-
-/**
- * Pass id here and include that ID in aria-describedby on the TextField
- */
-export const TextInputHint = ({ id, children, className }: HintProps) => (
-  <div
-    id={id}
-    className={cn(
-      'mt-1 text-sans-sm text-secondary [&_>_a]:underline hover:[&_>_a]:text-raise',
-      className
-    )}
-  >
-    {children}
-  </div>
-)
-
-export const TextInputError = ({ children }: { children: string }) => {
-  useEffect(() => announce(children, 'assertive'), [children])
-  return <div className="ml-px py-2 text-sans-md text-destructive">{children}</div>
 }

@@ -9,9 +9,8 @@ import cn from 'classnames'
 import { useId } from 'react'
 import { useController, type FieldPathByValue, type FieldValues } from 'react-hook-form'
 
-import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { FieldLabel, InputHint } from '~/ui/lib/FieldLabel'
 import { NumberInput } from '~/ui/lib/NumberInput'
-import { TextInputHint } from '~/ui/lib/TextInput'
 import { capitalize } from '~/util/str'
 
 import { ErrorMessage } from './ErrorMessage'
@@ -38,9 +37,9 @@ export function NumberField<
           {label} {units && <span className="ml-1 text-default">({units})</span>}
         </FieldLabel>
         {description && (
-          <TextInputHint id={`${id}-help-text`} className="mb-2">
+          <InputHint id={`${id}-help-text`} className="mb-2">
             {description}
-          </TextInputHint>
+          </InputHint>
         )}
       </div>
       {/* passing the generated id is very important for a11y */}
