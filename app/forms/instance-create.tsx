@@ -395,19 +395,37 @@ export default function CreateInstanceForm() {
             </Tabs.Trigger>
           </Tabs.List>
           <Tabs.Content value="general">
-            <RadioField name="presetId" label="" control={control} disabled={isSubmitting}>
+            <RadioField
+              name="presetId"
+              label=""
+              control={control}
+              disabled={isSubmitting}
+              variant="inline"
+            >
               {renderLargeRadioCards('general')}
             </RadioField>
           </Tabs.Content>
 
           <Tabs.Content value="highCPU">
-            <RadioField name="presetId" label="" control={control} disabled={isSubmitting}>
+            <RadioField
+              name="presetId"
+              label=""
+              control={control}
+              disabled={isSubmitting}
+              variant="inline"
+            >
               {renderLargeRadioCards('highCPU')}
             </RadioField>
           </Tabs.Content>
 
           <Tabs.Content value="highMemory">
-            <RadioField name="presetId" label="" control={control} disabled={isSubmitting}>
+            <RadioField
+              name="presetId"
+              label=""
+              control={control}
+              disabled={isSubmitting}
+              variant="inline"
+            >
               {renderLargeRadioCards('highMemory')}
             </RadioField>
           </Tabs.Content>
