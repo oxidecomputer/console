@@ -11,7 +11,7 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import cn from 'classnames'
 import { differenceInMilliseconds } from 'date-fns'
 import { memo, useCallback, useMemo, useRef, useState } from 'react'
-import { match } from 'ts-pattern'
+import { match, P } from 'ts-pattern'
 import { type JsonValue } from 'type-fest'
 
 import { api, AuditLogListQueryParams } from '@oxide/api'
@@ -159,8 +159,18 @@ const LoadingState = () => {
   return <div>Loading State</div>
 }
 
+function StatusCodeCell({ code }: { code: number }) {
+  const color =
+    code >= 200 && code < 400
+      ? 'default'
+      : code >= 400 && code < 500
+        ? 'notice'
+        : 'destructive'
+  return <Badge color={color}>{code}</Badge>
+}
+
 const colWidths = {
-  gridTemplateColumns: '7.5rem 4.25rem 180px 140px 120px 140px 300px 300px',
+  gridTemplateColumns: '7.5rem 3rem 180px 140px 120px 140px 300px 300px',
 }
 
 const HeaderCell = classed.div`text-mono-sm text-tertiary`
@@ -298,8 +308,12 @@ export default function SiloAuditLogsPage() {
                   {toSyslogTimeString(log.timeCompleted)}
                 </div>
                 <div className="flex gap-1 overflow-hidden whitespace-nowrap">
-                  <span className="text-mono-sm text-tertiary">POST</span>
-                  <Badge>200</Badge>
+                  {match(log.result)
+                    .with(P.union({ kind: 'success' }, { kind: 'error' }), (result) => (
+                      <StatusCodeCell code={result.httpStatusCode} />
+                    ))
+                    .with({ kind: 'unknown' }, () => <EmptyCell />)
+                    .exhaustive()}
                 </div>
                 <div>
                   <Badge color="neutral">{log.operationId.split('_').join(' ')}</Badge>
