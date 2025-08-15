@@ -5,15 +5,17 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useApiQueryErrorsAllowed } from '~/api'
+import { useQuery } from '@tanstack/react-query'
+
+import { apiqErrorsAllowed } from '~/api'
 import { Tooltip } from '~/ui/lib/Tooltip'
 
 import { EmptyCell, SkeletonCell } from './EmptyCell'
 
 export const IpPoolCell = ({ ipPoolId }: { ipPoolId: string }) => {
-  const { data: result } = useApiQueryErrorsAllowed('projectIpPoolView', {
-    path: { pool: ipPoolId },
-  })
+  const { data: result } = useQuery(
+    apiqErrorsAllowed('projectIpPoolView', { path: { pool: ipPoolId } })
+  )
   if (!result) return <SkeletonCell />
   // this should essentially never happen, but it's probably better than blowing
   // up the whole page if the pool is not found
