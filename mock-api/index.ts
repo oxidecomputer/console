@@ -7,6 +7,7 @@
  */
 
 export * from './affinity-group'
+export * from './audit-log'
 export * from './disk'
 export * from './external-ip'
 export * from './floating-ip'

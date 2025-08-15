@@ -12,6 +12,7 @@ export const links = {
   accessDocs: 'https://docs.oxide.computer/guides/configuring-access',
   affinityDocs:
     'https://docs.oxide.computer/guides/deploying-workloads#_affinity_and_anti_affinity',
+  auditLogDocs: 'https://docs.oxide.computer/guides/audit-logs',
   cloudInitFormat: 'https://cloudinit.readthedocs.io/en/latest/explanation/format.html',
   cloudInitExamples: 'https://cloudinit.readthedocs.io/en/latest/reference/examples.html',
   deviceTokenSetup:
@@ -74,6 +75,10 @@ export const docLinks = {
   affinity: {
     href: links.affinityDocs,
     linkText: 'Anti-Affinity Groups',
+  },
+  auditLog: {
+    href: links.auditLogDocs,
+    linkText: 'Audit Logs',
   },
   deviceTokens: {
     href: links.deviceTokenSetup,
