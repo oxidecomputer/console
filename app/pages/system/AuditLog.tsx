@@ -14,7 +14,7 @@ import { memo, useCallback, useMemo, useRef, useState } from 'react'
 import { match } from 'ts-pattern'
 import { type JsonValue } from 'type-fest'
 
-import { api } from '@oxide/api'
+import { api, AuditLogListQueryParams } from '@oxide/api'
 import { Logs16Icon, Logs24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -160,7 +160,7 @@ const LoadingState = () => {
 }
 
 const colWidths = {
-  gridTemplateColumns: '7rem 4.25rem 180px 140px 120px 140px 300px 300px',
+  gridTemplateColumns: '7.5rem 4.25rem 180px 140px 120px 140px 300px 300px',
 }
 
 const HeaderCell = classed.div`text-mono-sm text-tertiary`
@@ -184,10 +184,11 @@ export default function SiloAuditLogsPage() {
     fn: () => onRangeChange(preset),
   })
 
-  const queryParams = {
+  const queryParams: AuditLogListQueryParams = {
     startTime,
     endTime,
     limit: 500,
+    sortBy: 'time_and_id_descending',
   }
 
   const {
@@ -393,8 +394,7 @@ export default function SiloAuditLogsPage() {
         className="sticky top-0 z-10 !mx-0 grid !w-full items-center gap-8 border-b px-[var(--content-gutter)] pb-2 pt-4 bg-default border-secondary"
         style={colWidths}
       >
-        {/* TODO: explain that this is time completed, not time started as you might expect */}
-        <HeaderCell>Time</HeaderCell>
+        <HeaderCell>Time Completed</HeaderCell>
         <HeaderCell>Status</HeaderCell>
         <HeaderCell>Operation</HeaderCell>
         <HeaderCell>Actor ID</HeaderCell>
