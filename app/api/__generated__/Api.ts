@@ -272,7 +272,10 @@ export type AffinityGroupResultsPage = {
 /**
  * Updateable properties of an `AffinityGroup`
  */
-export type AffinityGroupUpdate = { description?: string | null; name?: Name | null }
+export type AffinityGroupUpdate = {
+  description?: string | null
+  name?: Name | null
+}
 
 export type BgpMessageHistory = Record<string, unknown>
 
@@ -611,7 +614,10 @@ export type AntiAffinityGroupResultsPage = {
 /**
  * Updateable properties of an `AntiAffinityGroup`
  */
-export type AntiAffinityGroupUpdate = { description?: string | null; name?: Name | null }
+export type AntiAffinityGroupUpdate = {
+  description?: string | null
+  name?: Name | null
+}
 
 /**
  * An identifier for an artifact.
@@ -2120,7 +2126,10 @@ export type FloatingIpResultsPage = {
 /**
  * Updateable identity-related parameters
  */
-export type FloatingIpUpdate = { description?: string | null; name?: Name | null }
+export type FloatingIpUpdate = {
+  description?: string | null
+  name?: Name | null
+}
 
 /**
  * View of a Group
@@ -2253,7 +2262,10 @@ export type ImageResultsPage = {
 /**
  * Parameters for importing blocks with a bulk write
  */
-export type ImportBlocksBulkWrite = { base64EncodedData: string; offset: number }
+export type ImportBlocksBulkWrite = {
+  base64EncodedData: string
+  offset: number
+}
 
 /**
  * A policy determining when an instance should be automatically restarted by the control plane.
@@ -3053,7 +3065,11 @@ export type Values = {
 /**
  * Timepoints and values for one timeseries.
  */
-export type Points = { startTimes?: Date[] | null; timestamps: Date[]; values: Values[] }
+export type Points = {
+  startTimes?: Date[] | null
+  timestamps: Date[]
+  values: Values[]
+}
 
 /**
  * A timeseries contains a timestamped set of values from one source.
@@ -4480,7 +4496,11 @@ export type TufRepoInsertResponse = {
 /**
  * A sled that has not been added to an initialized rack yet
  */
-export type UninitializedSled = { baseboard: Baseboard; cubby: number; rackId: string }
+export type UninitializedSled = {
+  baseboard: Baseboard
+  cubby: number
+  rackId: string
+}
 
 /**
  * The unique hardware ID for a sled
@@ -4597,7 +4617,10 @@ export type UserResultsPage = {
 /**
  * Credentials for local user login
  */
-export type UsernamePasswordCredentials = { password: Password; username: UserId }
+export type UsernamePasswordCredentials = {
+  password: Password
+  username: UserId
+}
 
 /**
  * View of the current silo's resource utilization and capacity
@@ -4646,7 +4669,10 @@ All IPv6 subnets created from this VPC must be taken from this range, which shou
   name: Name
 }
 
-export type VpcFirewallIcmpFilter = { code?: IcmpParamRange | null; icmpType: number }
+export type VpcFirewallIcmpFilter = {
+  code?: IcmpParamRange | null
+  icmpType: number
+}
 
 export type VpcFirewallRuleAction = 'allow' | 'deny'
 
@@ -4815,7 +4841,10 @@ export type VpcRouterResultsPage = {
 /**
  * Updateable properties of a `VpcRouter`
  */
-export type VpcRouterUpdate = { description?: string | null; name?: Name | null }
+export type VpcRouterUpdate = {
+  description?: string | null
+  name?: Name | null
+}
 
 /**
  * A VPC subnet represents a logical grouping for instances that allows network traffic between them, within a IPv4 subnetwork or optionally an IPv6 subnetwork.
@@ -6800,7 +6829,10 @@ export class Api extends HttpClient {
       {
         path,
         query = {},
-      }: { path: AffinityGroupViewPathParams; query?: AffinityGroupViewQueryParams },
+      }: {
+        path: AffinityGroupViewPathParams
+        query?: AffinityGroupViewQueryParams
+      },
       params: FetchParams = {}
     ) => {
       return this.request<AffinityGroup>({
@@ -6840,7 +6872,10 @@ export class Api extends HttpClient {
       {
         path,
         query = {},
-      }: { path: AffinityGroupDeletePathParams; query?: AffinityGroupDeleteQueryParams },
+      }: {
+        path: AffinityGroupDeletePathParams
+        query?: AffinityGroupDeleteQueryParams
+      },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -6991,7 +7026,10 @@ export class Api extends HttpClient {
       {
         path,
         query = {},
-      }: { path: AlertDeliveryListPathParams; query?: AlertDeliveryListQueryParams },
+      }: {
+        path: AlertDeliveryListPathParams
+        query?: AlertDeliveryListQueryParams
+      },
       params: FetchParams = {}
     ) => {
       return this.request<AlertDeliveryResultsPage>({
@@ -7008,7 +7046,10 @@ export class Api extends HttpClient {
       {
         path,
         query = {},
-      }: { path: AlertReceiverProbePathParams; query?: AlertReceiverProbeQueryParams },
+      }: {
+        path: AlertReceiverProbePathParams
+        query?: AlertReceiverProbeQueryParams
+      },
       params: FetchParams = {}
     ) => {
       return this.request<AlertProbeResult>({
@@ -7025,7 +7066,10 @@ export class Api extends HttpClient {
       {
         path,
         body,
-      }: { path: AlertReceiverSubscriptionAddPathParams; body: AlertSubscriptionCreate },
+      }: {
+        path: AlertReceiverSubscriptionAddPathParams
+        body: AlertSubscriptionCreate
+      },
       params: FetchParams = {}
     ) => {
       return this.request<AlertSubscriptionCreated>({
@@ -7055,7 +7099,10 @@ export class Api extends HttpClient {
       {
         path,
         query,
-      }: { path: AlertDeliveryResendPathParams; query: AlertDeliveryResendQueryParams },
+      }: {
+        path: AlertDeliveryResendPathParams
+        query: AlertDeliveryResendQueryParams
+      },
       params: FetchParams = {}
     ) => {
       return this.request<AlertDeliveryId>({
@@ -7086,7 +7133,10 @@ export class Api extends HttpClient {
       {
         query,
         body,
-      }: { query: AntiAffinityGroupCreateQueryParams; body: AntiAffinityGroupCreate },
+      }: {
+        query: AntiAffinityGroupCreateQueryParams
+        body: AntiAffinityGroupCreate
+      },
       params: FetchParams = {}
     ) => {
       return this.request<AntiAffinityGroup>({
@@ -7537,7 +7587,10 @@ export class Api extends HttpClient {
       {
         path,
         query = {},
-      }: { path: FloatingIpDeletePathParams; query?: FloatingIpDeleteQueryParams },
+      }: {
+        path: FloatingIpDeletePathParams
+        query?: FloatingIpDeleteQueryParams
+      },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -7577,7 +7630,10 @@ export class Api extends HttpClient {
       {
         path,
         query = {},
-      }: { path: FloatingIpDetachPathParams; query?: FloatingIpDetachQueryParams },
+      }: {
+        path: FloatingIpDetachPathParams
+        query?: FloatingIpDetachQueryParams
+      },
       params: FetchParams = {}
     ) => {
       return this.request<FloatingIp>({
@@ -7832,7 +7888,10 @@ export class Api extends HttpClient {
       {
         path,
         query = {},
-      }: { path: InstanceDiskListPathParams; query?: InstanceDiskListQueryParams },
+      }: {
+        path: InstanceDiskListPathParams
+        query?: InstanceDiskListQueryParams
+      },
       params: FetchParams = {}
     ) => {
       return this.request<DiskResultsPage>({
@@ -8173,7 +8232,10 @@ export class Api extends HttpClient {
       {
         query,
         body,
-      }: { query: InternetGatewayCreateQueryParams; body: InternetGatewayCreate },
+      }: {
+        query: InternetGatewayCreateQueryParams
+        body: InternetGatewayCreate
+      },
       params: FetchParams = {}
     ) => {
       return this.request<InternetGateway>({
@@ -8191,7 +8253,10 @@ export class Api extends HttpClient {
       {
         path,
         query = {},
-      }: { path: InternetGatewayViewPathParams; query?: InternetGatewayViewQueryParams },
+      }: {
+        path: InternetGatewayViewPathParams
+        query?: InternetGatewayViewQueryParams
+      },
       params: FetchParams = {}
     ) => {
       return this.request<InternetGateway>({
@@ -8799,7 +8864,10 @@ export class Api extends HttpClient {
       {
         path,
         query = {},
-      }: { path: SledPhysicalDiskListPathParams; query?: SledPhysicalDiskListQueryParams },
+      }: {
+        path: SledPhysicalDiskListPathParams
+        query?: SledPhysicalDiskListQueryParams
+      },
       params: FetchParams = {}
     ) => {
       return this.request<PhysicalDiskResultsPage>({
@@ -8816,7 +8884,10 @@ export class Api extends HttpClient {
       {
         path,
         query = {},
-      }: { path: SledInstanceListPathParams; query?: SledInstanceListQueryParams },
+      }: {
+        path: SledInstanceListPathParams
+        query?: SledInstanceListQueryParams
+      },
       params: FetchParams = {}
     ) => {
       return this.request<SledInstanceResultsPage>({
@@ -8833,7 +8904,10 @@ export class Api extends HttpClient {
       {
         path,
         body,
-      }: { path: SledSetProvisionPolicyPathParams; body: SledProvisionPolicyParams },
+      }: {
+        path: SledSetProvisionPolicyPathParams
+        body: SledProvisionPolicyParams
+      },
       params: FetchParams = {}
     ) => {
       return this.request<SledProvisionPolicyResponse>({
@@ -9037,7 +9111,10 @@ export class Api extends HttpClient {
       {
         path,
         query,
-      }: { path: LocalIdpUserDeletePathParams; query: LocalIdpUserDeleteQueryParams },
+      }: {
+        path: LocalIdpUserDeletePathParams
+        query: LocalIdpUserDeleteQueryParams
+      },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -9077,7 +9154,10 @@ export class Api extends HttpClient {
       {
         query,
         body,
-      }: { query: SamlIdentityProviderCreateQueryParams; body: SamlIdentityProviderCreate },
+      }: {
+        query: SamlIdentityProviderCreateQueryParams
+        body: SamlIdentityProviderCreate
+      },
       params: FetchParams = {}
     ) => {
       return this.request<SamlIdentityProvider>({
@@ -9177,7 +9257,10 @@ export class Api extends HttpClient {
       {
         path,
         query = {},
-      }: { path: IpPoolRangeListPathParams; query?: IpPoolRangeListQueryParams },
+      }: {
+        path: IpPoolRangeListPathParams
+        query?: IpPoolRangeListQueryParams
+      },
       params: FetchParams = {}
     ) => {
       return this.request<IpPoolRangeResultsPage>({
@@ -10171,7 +10254,10 @@ export class Api extends HttpClient {
       {
         path,
         query = {},
-      }: { path: UserSessionListPathParams; query?: UserSessionListQueryParams },
+      }: {
+        path: UserSessionListPathParams
+        query?: UserSessionListQueryParams
+      },
       params: FetchParams = {}
     ) => {
       return this.request<ConsoleSessionResultsPage>({
@@ -10212,7 +10298,10 @@ export class Api extends HttpClient {
       {
         query,
         body,
-      }: { query: VpcFirewallRulesUpdateQueryParams; body: VpcFirewallRuleUpdateParams },
+      }: {
+        query: VpcFirewallRulesUpdateQueryParams
+        body: VpcFirewallRuleUpdateParams
+      },
       params: FetchParams = {}
     ) => {
       return this.request<VpcFirewallRules>({
@@ -10259,7 +10348,10 @@ export class Api extends HttpClient {
       {
         path,
         query = {},
-      }: { path: VpcRouterRouteViewPathParams; query?: VpcRouterRouteViewQueryParams },
+      }: {
+        path: VpcRouterRouteViewPathParams
+        query?: VpcRouterRouteViewQueryParams
+      },
       params: FetchParams = {}
     ) => {
       return this.request<RouterRoute>({
@@ -10299,7 +10391,10 @@ export class Api extends HttpClient {
       {
         path,
         query = {},
-      }: { path: VpcRouterRouteDeletePathParams; query?: VpcRouterRouteDeleteQueryParams },
+      }: {
+        path: VpcRouterRouteDeletePathParams
+        query?: VpcRouterRouteDeleteQueryParams
+      },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -10385,7 +10480,10 @@ export class Api extends HttpClient {
       {
         path,
         query = {},
-      }: { path: VpcRouterDeletePathParams; query?: VpcRouterDeleteQueryParams },
+      }: {
+        path: VpcRouterDeletePathParams
+        query?: VpcRouterDeleteQueryParams
+      },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -10471,7 +10569,10 @@ export class Api extends HttpClient {
       {
         path,
         query = {},
-      }: { path: VpcSubnetDeletePathParams; query?: VpcSubnetDeleteQueryParams },
+      }: {
+        path: VpcSubnetDeletePathParams
+        query?: VpcSubnetDeleteQueryParams
+      },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -10549,7 +10650,11 @@ export class Api extends HttpClient {
         path,
         query = {},
         body,
-      }: { path: VpcUpdatePathParams; query?: VpcUpdateQueryParams; body: VpcUpdate },
+      }: {
+        path: VpcUpdatePathParams
+        query?: VpcUpdateQueryParams
+        body: VpcUpdate
+      },
       params: FetchParams = {}
     ) => {
       return this.request<Vpc>({
