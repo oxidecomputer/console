@@ -77,7 +77,7 @@ export const snapshots: Json<Snapshot>[] = [
     state: 'ready',
   },
   {
-    id: '7fc6ca11-452e-d3e4-9e1c-752ff615abea',
+    id: '75832119-7d9b-4e91-a7c6-76b996b69aaa',
     name: 'snapshot-heavy',
     description: '',
     project_id: project.id,

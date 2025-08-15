@@ -808,10 +808,12 @@ export const handlers = makeHandlers({
     }
     updateDesc(nic, body)
 
-    if (typeof body.primary === 'boolean' && body.primary !== nic.primary) {
-      if (nic.primary) {
-        throw 'Cannot remove the primary interface'
-      }
+    // We used to error here if body.primary was false and nic.primary was true
+    // on the grounds that you can't unset the primary interface. But this turns
+    // out not to match the real API, which ignores primary: false.
+    // https://github.com/oxidecomputer/omicron/blob/61ad056c/nexus/db-queries/src/db/datastore/network_interface.rs?plain=1#L804-L808
+
+    if (typeof body.primary === 'boolean' && body.primary && !nic.primary) {
       db.networkInterfaces
         .filter((n) => n.instance_id === nic.instance_id)
         .forEach((n) => {

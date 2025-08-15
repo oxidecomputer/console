@@ -12,7 +12,7 @@ import react from '@vitejs/plugin-react-swc'
 import { defineConfig } from 'vite'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import tsconfigPaths from 'vite-tsconfig-paths'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 import vercelConfig from './vercel.json'
 
