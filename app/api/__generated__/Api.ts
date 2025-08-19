@@ -152,6 +152,16 @@ export type AddressLotResultsPage = {
 }
 
 /**
+ * An address lot and associated blocks resulting from viewing an address lot.
+ */
+export type AddressLotViewResponse = {
+  /** The address lot blocks. */
+  blocks: AddressLotBlock[]
+  /** The address lot. */
+  lot: AddressLot
+}
+
+/**
  * Describes the scope of affinity for the purposes of co-location.
  */
 export type FailureDomain = 'sled'
@@ -3067,14 +3077,19 @@ export type Timeseries = { fields: Record<string, FieldValue>; points: Points }
  *
  * A table is the result of an OxQL query. It contains a name, usually the name of the timeseries schema from which the data is derived, and any number of timeseries, which contain the actual data.
  */
-export type Table = { name: string; timeseries: Record<string, Timeseries> }
+export type OxqlTable = {
+  /** The name of the table. */
+  name: string
+  /** The set of timeseries in the table, ordered by key. */
+  timeseries: Timeseries[]
+}
 
 /**
  * The result of a successful OxQL query.
  */
 export type OxqlQueryResult = {
   /** Tables resulting from the query, each containing timeseries. */
-  tables: Table[]
+  tables: OxqlTable[]
 }
 
 /**
@@ -6109,6 +6124,10 @@ export interface NetworkingAddressLotListQueryParams {
   limit?: number | null
   pageToken?: string | null
   sortBy?: NameOrIdSortMode
+}
+
+export interface NetworkingAddressLotViewPathParams {
+  addressLot: NameOrId
 }
 
 export interface NetworkingAddressLotDeletePathParams {
@@ -9374,6 +9393,19 @@ export class Api extends HttpClient {
         path: `/v1/system/networking/address-lot`,
         method: 'POST',
         body,
+        ...params,
+      })
+    },
+    /**
+     * Fetch address lot
+     */
+    networkingAddressLotView: (
+      { path }: { path: NetworkingAddressLotViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AddressLotViewResponse>({
+        path: `/v1/system/networking/address-lot/${path.addressLot}`,
+        method: 'GET',
         ...params,
       })
     },

@@ -1836,6 +1836,7 @@ export const handlers = makeHandlers({
   networkingAddressLotCreate: NotImplemented,
   networkingAddressLotDelete: NotImplemented,
   networkingAddressLotList: NotImplemented,
+  networkingAddressLotView: NotImplemented,
   networkingAllowListUpdate: NotImplemented,
   networkingAllowListView: NotImplemented,
   networkingBfdDisable: NotImplemented,

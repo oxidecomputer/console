@@ -1243,6 +1243,12 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.AddressLotCreateResponse>>
+  /** `GET /v1/system/networking/address-lot/:addressLot` */
+  networkingAddressLotView: (params: {
+    path: Api.NetworkingAddressLotViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AddressLotViewResponse>>
   /** `DELETE /v1/system/networking/address-lot/:addressLot` */
   networkingAddressLotDelete: (params: {
     path: Api.NetworkingAddressLotDeletePathParams
@@ -2875,6 +2881,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.post(
       '/v1/system/networking/address-lot',
       handler(handlers['networkingAddressLotCreate'], null, schema.AddressLotCreate)
+    ),
+    http.get(
+      '/v1/system/networking/address-lot/:addressLot',
+      handler(
+        handlers['networkingAddressLotView'],
+        schema.NetworkingAddressLotViewParams,
+        null
+      )
     ),
     http.delete(
       '/v1/system/networking/address-lot/:addressLot',
