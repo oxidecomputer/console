@@ -47,7 +47,7 @@ if (typeof window !== 'undefined') {
       const data = handleResult(result).tables
       logHeading(data.length + ' timeseries returned')
       for (const table of data) {
-        for (const ts of Object.values(table.timeseries)) {
+        for (const ts of table.timeseries) {
           const fields = Object.entries(ts.fields)
             .map(([k, v]) => `${k}: ${v.value}`)
             .join(', ')
