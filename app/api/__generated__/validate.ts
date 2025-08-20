@@ -167,6 +167,14 @@ export const AddressLotResultsPage = z.preprocess(
 )
 
 /**
+ * An address lot and associated blocks resulting from viewing an address lot.
+ */
+export const AddressLotViewResponse = z.preprocess(
+  processResponseBody,
+  z.object({ blocks: AddressLotBlock.array(), lot: AddressLot })
+)
+
+/**
  * Describes the scope of affinity for the purposes of co-location.
  */
 export const FailureDomain = z.preprocess(processResponseBody, z.enum(['sled']))
@@ -2845,9 +2853,9 @@ export const Timeseries = z.preprocess(
  *
  * A table is the result of an OxQL query. It contains a name, usually the name of the timeseries schema from which the data is derived, and any number of timeseries, which contain the actual data.
  */
-export const Table = z.preprocess(
+export const OxqlTable = z.preprocess(
   processResponseBody,
-  z.object({ name: z.string(), timeseries: z.record(z.string(), Timeseries) })
+  z.object({ name: z.string(), timeseries: Timeseries.array() })
 )
 
 /**
@@ -2855,7 +2863,7 @@ export const Table = z.preprocess(
  */
 export const OxqlQueryResult = z.preprocess(
   processResponseBody,
-  z.object({ tables: Table.array() })
+  z.object({ tables: OxqlTable.array() })
 )
 
 /**
@@ -6694,6 +6702,16 @@ export const NetworkingAddressLotCreateParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const NetworkingAddressLotViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      addressLot: NameOrId,
+    }),
     query: z.object({}),
   })
 )

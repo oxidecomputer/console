@@ -1633,7 +1633,7 @@ export const handlers = makeHandlers({
     // we use other-project to test certain response cases
     if (query.project === 'other-project') {
       // 1. return only one data point
-      const points = Object.values(data.tables[0].timeseries)[0].points
+      const points = data.tables[0].timeseries[0].points
       if (body.query.includes('state == "run"')) {
         points.timestamps = points.timestamps.slice(0, 2)
         points.values = points.values.slice(0, 2)
@@ -1836,6 +1836,7 @@ export const handlers = makeHandlers({
   networkingAddressLotCreate: NotImplemented,
   networkingAddressLotDelete: NotImplemented,
   networkingAddressLotList: NotImplemented,
+  networkingAddressLotView: NotImplemented,
   networkingAllowListUpdate: NotImplemented,
   networkingAllowListView: NotImplemented,
   networkingBfdDisable: NotImplemented,

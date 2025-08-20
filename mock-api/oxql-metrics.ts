@@ -286,9 +286,9 @@ export const getMockOxqlInstanceData = (
     tables: [
       {
         name: name,
-        timeseries: {
+        timeseries: [
           // This is a fake metric ID
-          '10607783231231666598': {
+          {
             fields: {
               instanceId: {
                 type: 'uuid',
@@ -309,7 +309,7 @@ export const getMockOxqlInstanceData = (
               ],
             },
           },
-        },
+        ],
       },
     ],
   })
