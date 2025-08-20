@@ -1270,7 +1270,14 @@ export const Cumulativeuint64 = z.preprocess(
  */
 export const CurrentUser = z.preprocess(
   processResponseBody,
-  z.object({ displayName: z.string(), id: z.uuid(), siloId: z.uuid(), siloName: Name })
+  z.object({
+    displayName: z.string(),
+    fleetViewer: SafeBoolean,
+    id: z.uuid(),
+    siloAdmin: SafeBoolean,
+    siloId: z.uuid(),
+    siloName: Name,
+  })
 )
 
 /**
@@ -2189,6 +2196,7 @@ export const InstanceNetworkInterfaceCreate = z.preprocess(
     ip: z.ipv4().nullable().optional(),
     name: Name,
     subnetName: Name,
+    transitIps: IpNet.array().default([]).optional(),
     vpcName: Name,
   })
 )

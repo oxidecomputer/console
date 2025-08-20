@@ -1323,7 +1323,11 @@ export type Cumulativeuint64 = { startTime: Date; value: number }
 export type CurrentUser = {
   /** Human-readable name that can identify the user */
   displayName: string
+  /** Whether this user has the viewer role on the fleet. Used by the web console to determine whether to show system-level UI. */
+  fleetViewer: boolean
   id: string
+  /** Whether this user has the admin role on their silo. Used by the web console to determine whether to show admin-only UI elements. */
+  siloAdmin: boolean
   /** Uuid of the silo to which this user belongs */
   siloId: string
   /** Name of the silo to which this user belongs. */
@@ -2353,6 +2357,8 @@ export type InstanceNetworkInterfaceCreate = {
   name: Name
   /** The VPC Subnet in which to create the interface. */
   subnetName: Name
+  /** A set of additional networks that this interface may send and receive traffic on. */
+  transitIps?: IpNet[]
   /** The VPC in which to create the interface. */
   vpcName: Name
 }

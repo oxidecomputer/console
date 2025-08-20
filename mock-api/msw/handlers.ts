@@ -59,6 +59,7 @@ import {
   requireRole,
   unavailableErr,
   updateDesc,
+  userHasRole,
 } from './util'
 
 // Note the *JSON types. Those represent actual API request and response bodies,
@@ -1428,7 +1429,13 @@ export const handlers = makeHandlers({
     return paginated(query, db.racks)
   },
   currentUserView({ cookies }) {
-    return { ...currentUser(cookies), silo_name: defaultSilo.name }
+    const user = currentUser(cookies)
+    return {
+      ...user,
+      silo_name: defaultSilo.name,
+      fleet_viewer: userHasRole(user, 'fleet', FLEET_ID, 'viewer'),
+      silo_admin: userHasRole(user, 'silo', defaultSilo.id, 'admin'),
+    }
   },
   currentUserGroups({ cookies }) {
     const user = currentUser(cookies)
