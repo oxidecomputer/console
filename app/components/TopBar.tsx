@@ -27,7 +27,7 @@ import { intersperse } from '~/util/array'
 import { pb } from '~/util/path-builder'
 
 export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
-  const { isFleetViewer } = useCurrentUser()
+  const { me } = useCurrentUser()
   // The height of this component is governed by the `PageContainer`
   // It's important that this component returns two distinct elements (wrapped in a fragment).
   // Each element will occupy one of the top column slots provided by `PageContainer`.
@@ -42,7 +42,7 @@ export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
           <Breadcrumbs />
         </div>
         <div className="flex items-center gap-2">
-          {isFleetViewer && <SiloSystemPicker level={systemOrSilo} />}
+          {me.fleetViewer && <SiloSystemPicker level={systemOrSilo} />}
           <UserMenu />
         </div>
       </div>
@@ -155,8 +155,8 @@ function UserMenu() {
 
 /**
  * Choose between System and Silo-scoped route trees, or if the user doesn't
- * have access to system routes (i.e., if systemPolicyView 403s) show the
- * current silo.
+ * have access to system routes (i.e., if /v1/me has fleetViewer: false) show
+ * the current silo.
  */
 function SiloSystemPicker({ level }: { level: 'silo' | 'system' }) {
   return (

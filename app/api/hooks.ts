@@ -305,40 +305,6 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
       queryFn: () => api[method](params).then(handleResult(method)),
       ...options,
     }),
-  /**
-   * Loader analog to `useApiQueryErrorsAllowed`. Prefetch a query that can
-   * error, converting the error to a valid result so RQ will cache it.
-   */
-  prefetchQueryErrorsAllowed: <M extends string & keyof A>(
-    method: M,
-    params: Params<A[M]>,
-    options: FetchQueryOtherOptions<ErrorsAllowed<Result<A[M]>, ApiError>> & {
-      /**
-       * HTTP errors will show up unexplained in the browser console. It can be
-       * helpful to reassure people they're normal.
-       */
-      explanation: string
-      expectedStatusCode: 403 | 404
-    }
-  ) =>
-    queryClient.prefetchQuery({
-      queryKey: [method, params, ERRORS_ALLOWED],
-      queryFn: () =>
-        api[method](params)
-          .then(handleResult(method))
-          .then((data) => ({ type: 'success' as const, data }))
-          .catch((data: ApiError) => {
-            // if we get an unexpected error, we're still throwing
-            if (data.statusCode !== options.expectedStatusCode) {
-              // data is the result of handleResult, so it's ready to through
-              // directly without further processing
-              throw data
-            }
-            console.info(options.explanation)
-            return { type: 'error' as const, data }
-          }),
-      ...options,
-    }),
 })
 
 /*
