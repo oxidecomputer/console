@@ -170,7 +170,7 @@ function StatusCodeCell({ code }: { code: number }) {
 }
 
 const colWidths = {
-  gridTemplateColumns: '7.5rem 3rem 180px 140px 120px 140px 300px 300px',
+  gridTemplateColumns: '7.5rem 3rem 180px 140px 120px 140px 1fr',
 }
 
 const HeaderCell = classed.div`text-mono-sm text-tertiary`
