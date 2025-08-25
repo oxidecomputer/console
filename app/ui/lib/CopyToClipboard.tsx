@@ -35,7 +35,9 @@ export const CopyToClipboard = ({
 
   useTimeout(() => setHasCopied(false), hasCopied ? 2000 : null)
 
-  const handleCopy = () => {
+  const handleCopy = (event: React.MouseEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
     window.navigator.clipboard.writeText(text).then(() => {
       setHasCopied(true)
     })
