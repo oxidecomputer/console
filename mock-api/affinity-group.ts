@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import type { AffinityGroup, AntiAffinityGroup, TypedUuidForInstanceKind } from '@oxide/api'
+import type { AffinityGroup, AntiAffinityGroup } from '@oxide/api'
 
 import { instance, instanceDb2, startingInstance } from './instance'
 import type { Json } from './json-type'
@@ -51,7 +51,7 @@ export const affinityGroups: Json<AffinityGroup>[] = [
 
 type DbAffinityGroupMember = {
   affinity_group_id: string
-  affinity_group_member: { type: 'instance'; id: TypedUuidForInstanceKind }
+  affinity_group_member: { type: 'instance'; id: string }
 }
 
 export const affinityGroupMemberLists: DbAffinityGroupMember[] = [

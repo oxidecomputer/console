@@ -209,8 +209,6 @@ export type AffinityGroupCreate = {
   policy: AffinityPolicy
 }
 
-export type TypedUuidForInstanceKind = string
-
 /**
  * Running state of an Instance (primarily: booted or stopped)
  *
@@ -256,7 +254,7 @@ export type InstanceState =
  */
 export type AffinityGroupMember = {
   type: 'instance'
-  value: { id: TypedUuidForInstanceKind; name: Name; runState: InstanceState }
+  value: { id: string; name: Name; runState: InstanceState }
 }
 
 /**
@@ -334,8 +332,6 @@ export type AlertClassResultsPage = {
   nextPage?: string | null
 }
 
-export type TypedUuidForAlertKind = string
-
 /**
  * The response received from a webhook receiver endpoint.
  */
@@ -381,8 +377,6 @@ export type WebhookDeliveryAttempt = {
  */
 export type AlertDeliveryAttempts = { webhook: WebhookDeliveryAttempt[] }
 
-export type TypedUuidForAlertReceiverKind = string
-
 /**
  * The state of a webhook delivery attempt.
  */
@@ -418,13 +412,13 @@ export type AlertDelivery = {
   /** The event class. */
   alertClass: string
   /** The UUID of the event. */
-  alertId: TypedUuidForAlertKind
+  alertId: string
   /** Individual attempts to deliver this webhook event, and their outcomes. */
   attempts: AlertDeliveryAttempts
   /** The UUID of this delivery attempt. */
   id: string
   /** The UUID of the alert receiver that this event was delivered to. */
-  receiverId: TypedUuidForAlertReceiverKind
+  receiverId: string
   /** The state of this delivery. */
   state: AlertDeliveryState
   /** The time at which this delivery began (i.e. the event was dispatched to the receiver). */
@@ -595,7 +589,7 @@ export type AntiAffinityGroupCreate = {
  */
 export type AntiAffinityGroupMember = {
   type: 'instance'
-  value: { id: TypedUuidForInstanceKind; name: Name; runState: InstanceState }
+  value: { id: string; name: Name; runState: InstanceState }
 }
 
 /**
@@ -3952,8 +3946,6 @@ export type SupportBundleCreate = {
   userComment?: string | null
 }
 
-export type TypedUuidForSupportBundleKind = string
-
 export type SupportBundleState =
   /** Support Bundle still actively being collected.
 
@@ -3976,7 +3968,7 @@ The record of the bundle still exists for readability, but the only valid operat
   | 'active'
 
 export type SupportBundleInfo = {
-  id: TypedUuidForSupportBundleKind
+  id: string
   reasonForCreation: string
   reasonForFailure?: string | null
   state: SupportBundleState
@@ -4426,6 +4418,10 @@ export type TimeseriesSchemaResultsPage = {
  * Found within a `TufRepoDescription`.
  */
 export type TufArtifactMeta = {
+  /** Contents of the `BORD` field of a Hubris archive caboose. Only applicable to artifacts that are Hubris archives.
+
+This field should always be `Some(_)` if `sign` is `Some(_)`, but the opposite is not true (SP images will have a `board` but not a `sign`). */
+  board?: string | null
   /** The hash of the artifact. */
   hash: string
   /** The artifact ID. */

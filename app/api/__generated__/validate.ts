@@ -216,8 +216,6 @@ export const AffinityGroupCreate = z.preprocess(
   })
 )
 
-export const TypedUuidForInstanceKind = z.preprocess(processResponseBody, z.uuid())
-
 /**
  * Running state of an Instance (primarily: booted or stopped)
  *
@@ -250,7 +248,7 @@ export const AffinityGroupMember = z.preprocess(
   processResponseBody,
   z.object({
     type: z.enum(['instance']),
-    value: z.object({ id: TypedUuidForInstanceKind, name: Name, runState: InstanceState }),
+    value: z.object({ id: z.uuid(), name: Name, runState: InstanceState }),
   })
 )
 
@@ -329,8 +327,6 @@ export const AlertClassResultsPage = z.preprocess(
   z.object({ items: AlertClass.array(), nextPage: z.string().nullable().optional() })
 )
 
-export const TypedUuidForAlertKind = z.preprocess(processResponseBody, z.uuid())
-
 /**
  * The response received from a webhook receiver endpoint.
  */
@@ -369,8 +365,6 @@ export const AlertDeliveryAttempts = z.preprocess(
   z.object({ webhook: WebhookDeliveryAttempt.array() })
 )
 
-export const TypedUuidForAlertReceiverKind = z.preprocess(processResponseBody, z.uuid())
-
 /**
  * The state of a webhook delivery attempt.
  */
@@ -394,10 +388,10 @@ export const AlertDelivery = z.preprocess(
   processResponseBody,
   z.object({
     alertClass: z.string(),
-    alertId: TypedUuidForAlertKind,
+    alertId: z.uuid(),
     attempts: AlertDeliveryAttempts,
     id: z.uuid(),
-    receiverId: TypedUuidForAlertReceiverKind,
+    receiverId: z.uuid(),
     state: AlertDeliveryState,
     timeStarted: z.coerce.date(),
     trigger: AlertDeliveryTrigger,
@@ -566,7 +560,7 @@ export const AntiAffinityGroupMember = z.preprocess(
   processResponseBody,
   z.object({
     type: z.enum(['instance']),
-    value: z.object({ id: TypedUuidForInstanceKind, name: Name, runState: InstanceState }),
+    value: z.object({ id: z.uuid(), name: Name, runState: InstanceState }),
   })
 )
 
@@ -3623,8 +3617,6 @@ export const SupportBundleCreate = z.preprocess(
   z.object({ userComment: z.string().nullable().optional() })
 )
 
-export const TypedUuidForSupportBundleKind = z.preprocess(processResponseBody, z.uuid())
-
 export const SupportBundleState = z.preprocess(
   processResponseBody,
   z.enum(['collecting', 'destroying', 'failed', 'active'])
@@ -3633,7 +3625,7 @@ export const SupportBundleState = z.preprocess(
 export const SupportBundleInfo = z.preprocess(
   processResponseBody,
   z.object({
-    id: TypedUuidForSupportBundleKind,
+    id: z.uuid(),
     reasonForCreation: z.string(),
     reasonForFailure: z.string().nullable().optional(),
     state: SupportBundleState,
@@ -4043,6 +4035,7 @@ export const TimeseriesSchemaResultsPage = z.preprocess(
 export const TufArtifactMeta = z.preprocess(
   processResponseBody,
   z.object({
+    board: z.string().nullable().optional(),
     hash: z.string(),
     id: ArtifactId,
     sign: z.number().min(0).max(255).array().optional(),
