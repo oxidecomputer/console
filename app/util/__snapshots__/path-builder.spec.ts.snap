@@ -76,6 +76,12 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/affinity/aag",
     },
   ],
+  "auditLog (/system/audit-log)": [
+    {
+      "label": "Audit Log",
+      "path": "/system/audit-log",
+    },
+  ],
   "deviceSuccess (/device/success)": [],
   "diskInventory (/system/inventory/disks)": [
     {

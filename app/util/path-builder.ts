@@ -128,6 +128,8 @@ export const pb = {
   samlIdp: (params: PP.IdentityProvider) =>
     `${pb.silo(params)}/idps/saml/${params.provider}`,
 
+  auditLog: () => '/system/audit-log',
+
   profile: () => '/settings/profile',
   sshKeys: () => '/settings/ssh-keys',
   sshKeysNew: () => '/settings/ssh-keys-new',
