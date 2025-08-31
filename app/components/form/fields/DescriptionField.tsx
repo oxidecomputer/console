@@ -7,6 +7,8 @@
  */
 import type { FieldPath, FieldValues } from 'react-hook-form'
 
+import { capitalize } from '~/util/str'
+
 import { TextField, type TextFieldProps } from './TextField'
 
 // TODO: Pull this from generated types
@@ -16,7 +18,14 @@ export function DescriptionField<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
 >(props: Omit<TextFieldProps<TFieldValues, TName>, 'validate'>) {
-  return <TextField as="textarea" validate={validateDescription} {...props} />
+  return (
+    <TextField
+      as="textarea"
+      label={props.label || capitalize(props.name)}
+      validate={validateDescription}
+      {...props}
+    />
+  )
 }
 
 // TODO Update JSON schema to match this, add fuzz testing between this and name pattern
