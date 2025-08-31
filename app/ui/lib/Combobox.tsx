@@ -151,8 +151,6 @@ export const Combobox = ({
       value={selectedItemValue}
       // fallback to '' allows clearing field to work
       onChange={(val) => onChange(val || '')}
-      // we only want to keep the query on close when arbitrary values are allowed
-      onClose={allowArbitraryValues ? undefined : () => setQuery('')}
       disabled={disabled || isLoading}
       immediate
       {...props}
