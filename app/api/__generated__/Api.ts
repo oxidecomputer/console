@@ -2642,6 +2642,11 @@ export type InternetGatewayResultsPage = {
 }
 
 /**
+ * The IP address version.
+ */
+export type IpVersion = 'v4' | 'v6'
+
+/**
  * A collection of IP ranges. If a pool is linked to a silo, IP addresses from the pool can be allocated within that silo
  */
 export type IpPool = {
@@ -2649,6 +2654,8 @@ export type IpPool = {
   description: string
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
+  /** The IP version for the pool. */
+  ipVersion: IpVersion
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** timestamp when this resource was created */
@@ -2660,7 +2667,14 @@ export type IpPool = {
 /**
  * Create-time parameters for an `IpPool`
  */
-export type IpPoolCreate = { description: string; name: Name }
+export type IpPoolCreate = {
+  description: string
+  /** The IP version of the pool.
+
+The default is IPv4. */
+  ipVersion?: IpVersion
+  name: Name
+}
 
 export type IpPoolLinkSilo = {
   /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo. */
@@ -2741,25 +2755,16 @@ export type IpPoolSiloUpdate = {
  */
 export type IpPoolUpdate = { description?: string | null; name?: Name | null }
 
-export type Ipv4Utilization = {
-  /** The number of IPv4 addresses allocated from this pool */
-  allocated: number
-  /** The total number of IPv4 addresses in the pool, i.e., the sum of the lengths of the IPv4 ranges. Unlike IPv6 capacity, can be a 32-bit integer because there are only 2^32 IPv4 addresses. */
-  capacity: number
-}
-
-export type Ipv6Utilization = {
-  /** The number of IPv6 addresses allocated from this pool. A 128-bit integer string to match the capacity field. */
-  allocated: string
-  /** The total number of IPv6 addresses in the pool, i.e., the sum of the lengths of the IPv6 ranges. An IPv6 range can contain up to 2^128 addresses, so we represent this value in JSON as a numeric string with a custom "uint128" format. */
-  capacity: string
-}
-
+/**
+ * The utilization of IP addresses in a pool.
+ *
+ * Note that both the count of remaining addresses and the total capacity are integers, reported as floating point numbers. This accommodates allocations larger than a 64-bit integer, which is common with IPv6 address spaces. With very large IP Pools (> 2**53 addresses), integer precision will be lost, in exchange for representing the entire range. In such a case the pool still has many available addresses.
+ */
 export type IpPoolUtilization = {
-  /** Number of allocated and total available IPv4 addresses in pool */
-  ipv4: Ipv4Utilization
-  /** Number of allocated and total available IPv6 addresses in pool */
-  ipv6: Ipv6Utilization
+  /** The total number of addresses in the pool. */
+  capacity: number
+  /** The number of remaining addresses in the pool. */
+  remaining: number
 }
 
 /**
@@ -3531,6 +3536,8 @@ export type SiloIdentityMode =
  * A Silo is the highest level unit of isolation.
  */
 export type Silo = {
+  /** Optionally, silos can have a group name that is automatically granted the silo admin role. */
+  adminGroupName?: string | null
   /** human-readable free-form text about a resource */
   description: string
   /** A silo where discoverable is false can be retrieved only by its id - it will not be part of the "list all silos" output. */

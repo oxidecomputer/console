@@ -27,7 +27,6 @@ import {
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
 import { instanceCan, OXQL_GROUP_BY_ERROR } from '~/api/util'
-import { parseIp } from '~/util/ip'
 import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
 
@@ -50,7 +49,6 @@ import {
   forbiddenErr,
   handleMetrics,
   handleOxqlMetrics,
-  ipInAnyRange,
   ipRangeLen,
   NotImplemented,
   paginated,
@@ -866,37 +864,40 @@ export const handlers = makeHandlers({
   },
   ipPoolList: ({ query }) => paginated(query, db.ipPools),
   ipPoolUtilizationView({ path }) {
+    // note: a given pool is either all IPv4 or all IPv6, but the logic is the
+    // same. we do everything in bigints and then convert to float at the end,
+    // like the API
+
     const pool = lookup.ipPool(path)
+
+    const allocatedIps = R.pipe(
+      [
+        ...db.floatingIps.filter((fip) => fip.ip_pool_id === pool.id).map((fip) => fip.ip),
+        ...db.ephemeralIps
+          .filter((eip) => eip.external_ip.ip_pool_id === pool.id)
+          .map((eip) => eip.external_ip.ip),
+        ...db.snatIps
+          .filter((sip) => sip.external_ip.ip_pool_id === pool.id)
+          .map((sip) => sip.external_ip.ip),
+      ],
+      // Dedupe by IP address since multiple instances can share the same SNAT
+      // IP with different port ranges
+      R.unique(),
+      R.length()
+    )
+
     const ranges = db.ipPoolRanges
       .filter((r) => r.ip_pool_id === pool.id)
       .map((r) => r.range)
-    const [ipv4Ranges, ipv6Ranges] = R.partition(
-      ranges,
-      (r) => parseIp(r.first).type === 'v4'
-    )
-
-    // Include SNAT IPs in IP utilization calculation, deduplicating by IP address
-    // since multiple instances can share the same SNAT IP with different port ranges
-    const uniqueSnatIps = [...new Set(db.snatIps.map((sip) => sip.external_ip.ip))]
-    const allIps = [
-      ...db.ephemeralIps.map((eip) => eip.external_ip.ip),
-      ...uniqueSnatIps,
-      ...db.floatingIps.map((fip) => fip.ip),
-    ]
-
-    const ipv4sInPool = allIps.filter((ip) => ipInAnyRange(ip, ipv4Ranges)).length
-    const ipv6sInPool = allIps.filter((ip) => ipInAnyRange(ip, ipv6Ranges)).length
+    // ipRangeLen returns a bigint, so R.sum will too unless the array is empty,
+    // in which case it returns 0. So the fallback is for that case.
+    const exactCapacity = R.sum(ranges.map(ipRangeLen)) || 0n
+    // always going to be small but also make it a bigint so we can subtract
+    const exactRemaining = exactCapacity - BigInt(allocatedIps)
 
     return {
-      ipv4: {
-        allocated: ipv4sInPool,
-        // ok to convert to number because we know it's small enough
-        capacity: Number(ipv4Ranges.reduce((acc, r) => acc + ipRangeLen(r), 0n)),
-      },
-      ipv6: {
-        allocated: ipv6sInPool.toString(),
-        capacity: ipv6Ranges.reduce((acc, r) => acc + ipRangeLen(r), 0n).toString(),
-      },
+      capacity: Number(exactCapacity),
+      remaining: Number(exactRemaining),
     }
   },
   siloIpPoolList({ path, query }) {
@@ -1019,7 +1020,14 @@ export const handlers = makeHandlers({
 
     const newPool: Json<Api.IpPool> = {
       id: uuid(),
-      ...body,
+      description: body.description,
+      name: body.name,
+      // It might not be possible to hit this fallback because the zod
+      // validator we use to parse this has default('v4') on it. But it also
+      // has `optional()` on it, which means the types think it can still be
+      // undefined.
+      // See https://zod.dev/v4/changelog?id=defaults-applied-within-optional-fields#defaults-applied-within-optional-fields
+      ip_version: body.ip_version || 'v4',
       ...getTimestamps(),
     }
     db.ipPools.push(newPool)

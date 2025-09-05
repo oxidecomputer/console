@@ -2433,6 +2433,11 @@ export const InternetGatewayResultsPage = z.preprocess(
 )
 
 /**
+ * The IP address version.
+ */
+export const IpVersion = z.preprocess(processResponseBody, z.enum(['v4', 'v6']))
+
+/**
  * A collection of IP ranges. If a pool is linked to a silo, IP addresses from the pool can be allocated within that silo
  */
 export const IpPool = z.preprocess(
@@ -2440,6 +2445,7 @@ export const IpPool = z.preprocess(
   z.object({
     description: z.string(),
     id: z.uuid(),
+    ipVersion: IpVersion,
     name: Name,
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
@@ -2451,7 +2457,11 @@ export const IpPool = z.preprocess(
  */
 export const IpPoolCreate = z.preprocess(
   processResponseBody,
-  z.object({ description: z.string(), name: Name })
+  z.object({
+    description: z.string(),
+    ipVersion: IpVersion.default('v4').optional(),
+    name: Name,
+  })
 )
 
 export const IpPoolLinkSilo = z.preprocess(
@@ -2539,22 +2549,14 @@ export const IpPoolUpdate = z.preprocess(
   })
 )
 
-export const Ipv4Utilization = z.preprocess(
-  processResponseBody,
-  z.object({
-    allocated: z.number().min(0).max(4294967295),
-    capacity: z.number().min(0).max(4294967295),
-  })
-)
-
-export const Ipv6Utilization = z.preprocess(
-  processResponseBody,
-  z.object({ allocated: z.string(), capacity: z.string() })
-)
-
+/**
+ * The utilization of IP addresses in a pool.
+ *
+ * Note that both the count of remaining addresses and the total capacity are integers, reported as floating point numbers. This accommodates allocations larger than a 64-bit integer, which is common with IPv6 address spaces. With very large IP Pools (> 2**53 addresses), integer precision will be lost, in exchange for representing the entire range. In such a case the pool still has many available addresses.
+ */
 export const IpPoolUtilization = z.preprocess(
   processResponseBody,
-  z.object({ ipv4: Ipv4Utilization, ipv6: Ipv6Utilization })
+  z.object({ capacity: z.number(), remaining: z.number() })
 )
 
 /**
@@ -3267,6 +3269,7 @@ export const SiloIdentityMode = z.preprocess(
 export const Silo = z.preprocess(
   processResponseBody,
   z.object({
+    adminGroupName: z.string().nullable().optional(),
     description: z.string(),
     discoverable: SafeBoolean,
     id: z.uuid(),

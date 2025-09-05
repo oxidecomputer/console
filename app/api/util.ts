@@ -15,7 +15,6 @@ import type {
   DiskState,
   Instance,
   InstanceState,
-  IpPoolUtilization,
   Measurement,
   SiloUtilization,
   Sled,
@@ -279,18 +278,6 @@ export function synthesizeData(
   })
 
   return result
-}
-
-// do this by hand instead of getting elaborate in the client generator.
-// see https://github.com/oxidecomputer/oxide.ts/pull/231
-export function parseIpUtilization({ ipv4, ipv6 }: IpPoolUtilization) {
-  return {
-    ipv4,
-    ipv6: {
-      allocated: BigInt(ipv6.allocated),
-      capacity: BigInt(ipv6.capacity),
-    },
-  }
 }
 
 export const OXQL_GROUP_BY_ERROR = 'Input tables to a `group_by` must be aligned'
