@@ -26,7 +26,7 @@ export const ipPool2: Json<IpPool> = {
   description: 'VPN IPs',
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
-  ip_version: 'v4',
+  ip_version: 'v6',
 }
 
 export const ipPool3: Json<IpPool> = {
@@ -92,15 +92,6 @@ export const ipPoolRanges: Json<IpPoolRange[]> = [
     time_created: new Date().toISOString(),
   },
   // pool 3 has no ranges
-  {
-    id: '4d85c502-52cc-47f9-b525-14b64cf5f1ea',
-    ip_pool_id: ipPool4.id,
-    range: {
-      first: '10.0.0.50',
-      last: '10.0.1.0',
-    },
-    time_created: new Date().toISOString(),
-  },
   {
     id: '914b10e1-0452-4d87-bc9b-7b91cc7c7628',
     ip_pool_id: ipPool4.id,

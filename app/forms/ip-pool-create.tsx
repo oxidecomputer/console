@@ -8,10 +8,16 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import { useApiMutation, useApiQueryClient, type IpPoolCreate } from '@oxide/api'
+import {
+  useApiMutation,
+  useApiQueryClient,
+  type IpPoolCreate,
+  // type IpVersion,
+} from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
+// import { RadioField } from '~/components/form/fields/RadioField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
@@ -19,9 +25,14 @@ import { addToast } from '~/stores/toast'
 import { Message } from '~/ui/lib/Message'
 import { pb } from '~/util/path-builder'
 
+// We are leaving the v4/v6 radio out for now because while you can
+// create a v6 pool, you can't actually add any ranges to it until
+// https://github.com/oxidecomputer/omicron/issues/8966
+
 const defaultValues: IpPoolCreate = {
   name: '',
   description: '',
+  ipVersion: 'v4',
 }
 
 export const handle = titleCrumb('New IP pool')
@@ -56,6 +67,19 @@ export default function CreateIpPoolSideModalForm() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
+      {/*
+      <RadioField
+        name="ipVersion"
+        label="IP version"
+        items={[
+          { label: 'v4', value: 'v4' satisfies IpVersion },
+          { label: 'v6', value: 'v6' satisfies IpVersion },
+        ]}
+        control={form.control}
+        // cast justified by `satisfies` lines above
+        parseValue={(x) => x as IpVersion}
+      />
+      */}
       <IpPoolVisibilityMessage />
     </SideModalForm>
   )

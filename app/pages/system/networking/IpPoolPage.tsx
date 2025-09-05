@@ -155,7 +155,7 @@ function UtilizationBars() {
       {capacity > 0 && (
         <CapacityBar
           icon={<IpGlobal16Icon />}
-          title="IPs Allocated"
+          title="ALLOCATED"
           // TODO: this is potentially broken in the case of large IPv6 numbers
           // due to lack of full precision. This should be fine and useful
           // for IPv4 pools, but for IPv6 we should probably just show the two
