@@ -49,7 +49,6 @@ import {
   forbiddenErr,
   handleMetrics,
   handleOxqlMetrics,
-  ipInAnyRange,
   ipRangeLen,
   NotImplemented,
   paginated,
@@ -876,18 +875,20 @@ export const handlers = makeHandlers({
 
     // Include SNAT IPs in IP utilization calculation, deduplicating by IP address
     // since multiple instances can share the same SNAT IP with different port ranges
-    const uniqueSnatIps = [...new Set(db.snatIps.map((sip) => sip.external_ip.ip))]
-    const allIps = [
-      ...db.ephemeralIps.map((eip) => eip.external_ip.ip),
-      ...uniqueSnatIps,
-      ...db.floatingIps.map((fip) => fip.ip),
-    ]
+    const allocatedIps =
+      db.floatingIps.filter((fip) => fip.ip_pool_id === pool.id).length +
+      R.pipe(
+        [...db.ephemeralIps, ...db.snatIps],
+        R.filter((ip) => ip.external_ip.ip_pool_id === pool.id),
+        // Dedupe by IP address since multiple instances can share the same SNAT IP
+        // with different port ranges
+        R.uniqueBy((ip) => ip.external_ip.ip)
+      ).length
 
     // sum is either bigint or number, but let's just guarantee it's a bigint
     const exactCapacity = BigInt(R.sum(ranges.map(ipRangeLen)))
     // always going to be small but also make it a bigint so we can subtract
-    const ipsInPool = BigInt(allIps.filter((ip) => ipInAnyRange(ip, ranges)).length)
-    const exactRemaining = exactCapacity - ipsInPool
+    const exactRemaining = exactCapacity - BigInt(allocatedIps)
 
     return {
       capacity: Number(exactCapacity),
