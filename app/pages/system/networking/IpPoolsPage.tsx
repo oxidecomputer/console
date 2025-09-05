@@ -48,16 +48,15 @@ const EmptyState = () => (
   />
 )
 
-function CapacityCell({ pool }: { pool: string }) {
+function UtilizationCell({ pool }: { pool: string }) {
   const { data } = useApiQuery('ipPoolUtilizationView', { path: { pool } })
   if (!data) return <SkeletonCell />
-  return <BigNum num={data.capacity} />
-}
-
-function RemainingCell({ pool }: { pool: string }) {
-  const { data } = useApiQuery('ipPoolUtilizationView', { path: { pool } })
-  if (!data) return <SkeletonCell />
-  return <BigNum num={data.remaining} />
+  return (
+    <div>
+      <BigNum className="text-raise" num={data.remaining} /> /{' '}
+      <BigNum className="text-secondary" num={data.capacity} />
+    </div>
+  )
 }
 
 const colHelper = createColumnHelper<IpPool>()
@@ -65,16 +64,12 @@ const colHelper = createColumnHelper<IpPool>()
 const staticColumns = [
   colHelper.accessor('name', { cell: makeLinkCell((pool) => pb.ipPool({ pool })) }),
   colHelper.accessor('description', Columns.description),
+  // TODO: add version column when API supports v6 pools
   colHelper.accessor('name', {
-    // ID is needed to prevent react key conflicts in header row
+    // ID is needed to prevent react key conflicts between cells keyed 'name'
     id: 'IPs Remaining',
     header: 'IPs Remaining',
-    cell: (info) => <RemainingCell pool={info.getValue()} />,
-  }),
-  colHelper.accessor('name', {
-    id: 'Capacity',
-    header: 'Capacity',
-    cell: (info) => <CapacityCell pool={info.getValue()} />,
+    cell: (info) => <UtilizationCell pool={info.getValue()} />,
   }),
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]

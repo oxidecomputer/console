@@ -23,27 +23,19 @@ test('IP pool list', async ({ page }) => {
 
   await expectRowVisible(table, {
     name: 'ip-pool-1',
-    'IP version': 'v4',
-    Remaining: '17',
-    Capacity: '24',
+    'IPs Remaining': '17 / 24',
   })
   await expectRowVisible(table, {
     name: 'ip-pool-2',
-    'IP version': 'v6',
-    Remaining: '32',
-    Capacity: '32',
+    'IPs Remaining': '32 / 32',
   })
   await expectRowVisible(table, {
     name: 'ip-pool-3',
-    'IP version': 'v4',
-    Remaining: '0',
-    Capacity: '0',
+    'IPs Remaining': '0 / 0',
   })
   await expectRowVisible(table, {
     name: 'ip-pool-4',
-    'IP version': 'v6',
-    Remaining: '18.4e18',
-    Capacity: '18.4e18',
+    'IPs Remaining': '18.4e18 / 18.4e18',
   })
 })
 
@@ -55,9 +47,7 @@ test.describe('german locale', () => {
     const table = page.getByRole('table')
     await expectRowVisible(table, {
       name: 'ip-pool-4',
-      'IP version': 'v6',
-      Remaining: '18,4e18',
-      Capacity: '18,4e18',
+      'IPs Remaining': '18,4e18 / 18,4e18',
     })
   })
 
@@ -186,9 +176,7 @@ test('IP pool create v4', async ({ page }) => {
   await expectRowVisible(page.getByRole('table'), {
     name: 'another-pool',
     description: 'whatever',
-    'IP version': 'v4',
-    Remaining: '0',
-    Capacity: '0',
+    'IPs Remaining': '0 / 0',
   })
 })
 
@@ -272,9 +260,7 @@ test('IP range validation and add', async ({ page }) => {
   await sidebar.getByRole('link', { name: 'IP Pools' }).click()
   await expectRowVisible(table, {
     name: 'ip-pool-2',
-    'IP version': 'v6',
-    Remaining: '33',
-    Capacity: '33',
+    'IPs Remaining': '33 / 33',
   })
 })
 
@@ -310,9 +296,7 @@ test('remove range', async ({ page }) => {
   await breadcrumbs.getByRole('link', { name: 'IP Pools' }).click()
   await expectRowVisible(table, {
     name: 'ip-pool-1',
-    'IP version': 'v4',
-    Remaining: '14',
-    Capacity: '21',
+    'IPs Remaining': '14 / 21',
   })
 })
 
@@ -321,9 +305,7 @@ test('deleting floating IP decrements utilization', async ({ page }) => {
   const table = page.getByRole('table')
   await expectRowVisible(table, {
     name: 'ip-pool-1',
-    'IP version': 'v4',
-    Remaining: '17',
-    Capacity: '24',
+    'IPs Remaining': '17 / 24',
   })
 
   // go delete a floating IP
@@ -340,9 +322,7 @@ test('deleting floating IP decrements utilization', async ({ page }) => {
   await page.getByRole('link', { name: 'IP Pools' }).click()
   await expectRowVisible(table, {
     name: 'ip-pool-1',
-    'IP version': 'v4',
-    Remaining: '18',
-    Capacity: '24',
+    'IPs Remaining': '18 / 24',
   })
 })
 
