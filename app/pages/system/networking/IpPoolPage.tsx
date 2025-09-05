@@ -159,7 +159,9 @@ function UtilizationBars() {
           // TODO: this is potentially broken in the case of large IPv6 numbers
           // due to lack of full precision. This should be fine and useful
           // for IPv4 pools, but for IPv6 we should probably just show the two
-          // numbers.
+          // numbers. For now there are no IPv6 pools.
+          // https://github.com/oxidecomputer/omicron/issues/8966
+          // https://github.com/oxidecomputer/omicron/issues/9004
           provisioned={Math.max(capacity - remaining, 0)}
           capacity={capacity}
           provisionedLabel="Allocated"

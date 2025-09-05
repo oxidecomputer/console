@@ -66,10 +66,13 @@ const staticColumns = [
   colHelper.accessor('name', { cell: makeLinkCell((pool) => pb.ipPool({ pool })) }),
   colHelper.accessor('description', Columns.description),
   colHelper.accessor('name', {
+    // ID is needed to prevent react key conflicts in header row
+    id: 'IPs Remaining',
     header: 'IPs Remaining',
     cell: (info) => <RemainingCell pool={info.getValue()} />,
   }),
   colHelper.accessor('name', {
+    id: 'Capacity',
     header: 'Capacity',
     cell: (info) => <CapacityCell pool={info.getValue()} />,
   }),
