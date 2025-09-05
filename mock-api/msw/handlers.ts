@@ -869,24 +869,29 @@ export const handlers = makeHandlers({
     // like the API
 
     const pool = lookup.ipPool(path)
+
+    const allocatedIps = R.pipe(
+      [
+        ...db.floatingIps.filter((fip) => fip.ip_pool_id === pool.id).map((fip) => fip.ip),
+        ...db.ephemeralIps
+          .filter((eip) => eip.external_ip.ip_pool_id === pool.id)
+          .map((eip) => eip.external_ip.ip),
+        ...db.snatIps
+          .filter((sip) => sip.external_ip.ip_pool_id === pool.id)
+          .map((sip) => sip.external_ip.ip),
+      ],
+      // Dedupe by IP address since multiple instances can share the same SNAT
+      // IP with different port ranges
+      R.unique(),
+      R.length()
+    )
+
     const ranges = db.ipPoolRanges
       .filter((r) => r.ip_pool_id === pool.id)
       .map((r) => r.range)
-
-    // Include SNAT IPs in IP utilization calculation, deduplicating by IP address
-    // since multiple instances can share the same SNAT IP with different port ranges
-    const allocatedIps =
-      db.floatingIps.filter((fip) => fip.ip_pool_id === pool.id).length +
-      R.pipe(
-        [...db.ephemeralIps, ...db.snatIps],
-        R.filter((ip) => ip.external_ip.ip_pool_id === pool.id),
-        // Dedupe by IP address since multiple instances can share the same SNAT IP
-        // with different port ranges
-        R.uniqueBy((ip) => ip.external_ip.ip)
-      ).length
-
-    // sum is either bigint or number, but let's just guarantee it's a bigint
-    const exactCapacity = BigInt(R.sum(ranges.map(ipRangeLen)))
+    // ipRangeLen returns a bigint, so R.sum will too unless the array is empty,
+    // in which case it returns 0. So the fallback is for that case.
+    const exactCapacity = R.sum(ranges.map(ipRangeLen)) || 0n
     // always going to be small but also make it a bigint so we can subtract
     const exactRemaining = exactCapacity - BigInt(allocatedIps)
 

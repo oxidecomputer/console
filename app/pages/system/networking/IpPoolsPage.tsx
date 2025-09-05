@@ -65,11 +65,9 @@ const staticColumns = [
   colHelper.accessor('name', { cell: makeLinkCell((pool) => pb.ipPool({ pool })) }),
   colHelper.accessor('description', Columns.description),
   // TODO: add version column when API supports v6 pools
-  colHelper.accessor('name', {
-    // ID is needed to prevent react key conflicts between cells keyed 'name'
-    id: 'IPs Remaining',
+  colHelper.display({
     header: 'IPs Remaining',
-    cell: (info) => <UtilizationCell pool={info.getValue()} />,
+    cell: (info) => <UtilizationCell pool={info.row.original.id} />,
   }),
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
