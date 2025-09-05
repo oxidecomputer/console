@@ -22,7 +22,6 @@ import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
-import { IpUtilCell } from '~/components/IpPoolUtilization'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -31,6 +30,8 @@ import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
+import { Badge } from '~/ui/lib/Badge'
+import { BigNum } from '~/ui/lib/BigNum'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -48,21 +49,38 @@ const EmptyState = () => (
   />
 )
 
-function UtilizationCell({ pool }: { pool: string }) {
+function CapacityCell({ pool }: { pool: string }) {
   const { data } = useApiQuery('ipPoolUtilizationView', { path: { pool } })
-
   if (!data) return <SkeletonCell />
-  return <IpUtilCell {...data} />
+  return <BigNum num={data.capacity} />
+}
+
+function RemainingCell({ pool }: { pool: string }) {
+  const { data } = useApiQuery('ipPoolUtilizationView', { path: { pool } })
+  if (!data) return <SkeletonCell />
+  return <BigNum num={data.remaining} />
 }
 
 const colHelper = createColumnHelper<IpPool>()
 
 const staticColumns = [
   colHelper.accessor('name', { cell: makeLinkCell((pool) => pb.ipPool({ pool })) }),
+  colHelper.accessor('ipVersion', {
+    header: 'IP version',
+    cell: (info) => (
+      <Badge color="neutral" className="!normal-case">
+        {info.getValue()}
+      </Badge>
+    ),
+  }),
   colHelper.accessor('description', Columns.description),
   colHelper.accessor('name', {
-    header: 'Utilization',
-    cell: (info) => <UtilizationCell pool={info.getValue()} />,
+    header: 'Remaining',
+    cell: (info) => <RemainingCell pool={info.getValue()} />,
+  }),
+  colHelper.accessor('name', {
+    header: 'Capacity',
+    cell: (info) => <CapacityCell pool={info.getValue()} />,
   }),
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
