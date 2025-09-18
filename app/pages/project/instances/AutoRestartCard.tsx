@@ -76,14 +76,16 @@ export function AutoRestartCard() {
       path: { instance: instanceSelector.instance },
       query: { project: instanceSelector.project },
       body: {
-        ncpus: instance.ncpus,
-        memory: instance.memory,
-        bootDisk: instance.bootDiskId,
         autoRestartPolicy: match(values.autoRestartPolicy)
           .with('default', () => undefined)
           .with('never', () => 'never' as const)
           .with('best_effort', () => 'best_effort' as const)
           .exhaustive(),
+        ncpus: instance.ncpus,
+        memory: instance.memory,
+        // optional ones would be unset if we left them out
+        cpuPlatform: instance.cpuPlatform,
+        bootDisk: instance.bootDiskId,
       },
     })
   })

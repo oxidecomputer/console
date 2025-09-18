@@ -167,8 +167,9 @@ export default function StorageTab() {
                   bootDisk: undefined,
                   ncpus: instance.ncpus,
                   memory: instance.memory,
-                  // this would get unset if we left it out
+                  // optional ones would be unset if we left them out
                   autoRestartPolicy: instance.autoRestartPolicy,
+                  cpuPlatform: instance.cpuPlatform,
                 },
               }),
             errorTitle: 'Could not unset boot disk',
@@ -205,6 +206,7 @@ export default function StorageTab() {
       instance.autoRestartPolicy,
       instance.ncpus,
       instance.memory,
+      instance.cpuPlatform,
       getSnapshotAction,
     ]
   )
@@ -231,8 +233,9 @@ export default function StorageTab() {
                   bootDisk: disk.id,
                   ncpus: instance.ncpus,
                   memory: instance.memory,
-                  // this would get unset if we left it out
+                  // optional ones would be unset if we left them out
                   autoRestartPolicy: instance.autoRestartPolicy,
+                  cpuPlatform: instance.cpuPlatform,
                 },
               }),
             errorTitle: `Could not ${verb} boot disk`,
@@ -283,6 +286,7 @@ export default function StorageTab() {
       instance.autoRestartPolicy,
       instance.ncpus,
       instance.memory,
+      instance.cpuPlatform,
       getSnapshotAction,
       bootDisks,
     ]
