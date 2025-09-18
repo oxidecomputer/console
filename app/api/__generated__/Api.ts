@@ -2274,6 +2274,26 @@ export type InstanceAutoRestartPolicy =
   | 'best_effort'
 
 /**
+ * A required CPU platform for an instance.
+ *
+ * When an instance specifies a required CPU platform:
+ *
+ * - The system may expose (to the VM) new CPU features that are only present on that platform (or on newer platforms of the same lineage that also support those features). - The instance must run on hosts that have CPUs that support all the features of the supplied platform.
+ *
+ * That is, the instance is restricted to hosts that have the CPUs which support all features of the required platform, but in exchange the CPU features exposed by the platform are available for the guest to use. Note that this may prevent an instance from starting (if the hosts that could run it are full but there is capacity on other incompatible hosts).
+ *
+ * If an instance does not specify a required CPU platform, then when it starts, the control plane selects a host for the instance and then supplies the guest with the "minimum" CPU platform supported by that host. This maximizes the number of hosts that can run the VM if it later needs to migrate to another host.
+ *
+ * In all cases, the CPU features presented by a given CPU platform are a subset of what the corresponding hardware may actually support; features which cannot be used from a virtual environment or do not have full hypervisor support may be masked off. See RFD 314 for specific CPU features in a CPU platform.
+ */
+export type InstanceCpuPlatform =
+  /** An AMD Milan-like CPU platform. */
+  | 'amd_milan'
+
+  /** An AMD Turin-like CPU platform. */
+  | 'amd_turin'
+
+/**
  * The number of CPUs in an Instance
  */
 export type InstanceCpuCount = number
@@ -2294,6 +2314,8 @@ This policy determines whether the instance should be automatically restarted by
   autoRestartPolicy?: InstanceAutoRestartPolicy | null
   /** the ID of the disk used to boot this Instance, if a specific one is assigned. */
   bootDiskId?: string | null
+  /** The CPU platform for this instance. If this is `null`, the instance requires no particular CPU platform. */
+  cpuPlatform?: InstanceCpuPlatform | null
   /** human-readable free-form text about a resource */
   description: string
   /** RFC1035-compliant hostname for the Instance. */
@@ -2390,6 +2412,8 @@ Specifying a boot disk is optional but recommended to ensure predictable boot be
 
 An instance that does not have a boot disk set will use the boot options specified in its UEFI settings, which are controlled by both the instance's UEFI firmware and the guest operating system. Boot options can change as disks are attached and detached, which may result in an instance that only boots to the EFI shell until a boot disk is set. */
   bootDisk?: InstanceDiskAttachment | null
+  /** The CPU platform to be used for this instance. If this is `null`, the instance requires no particular CPU platform; when it is started the instance will have the most general CPU platform supported by the sled it is initially placed on. */
+  cpuPlatform?: InstanceCpuPlatform | null
   description: string
   /** A list of disks to be attached to the instance.
 
@@ -2519,6 +2543,8 @@ Currently, the global default auto-restart policy is "best-effort", so instances
 
 If not provided, unset the instance's boot disk. */
   bootDisk?: NameOrId | null
+  /** The CPU platform to be used for this instance. If this is `null`, the instance requires no particular CPU platform. */
+  cpuPlatform?: InstanceCpuPlatform | null
   /** The amount of memory to assign to this instance. */
   memory: ByteCount
   /** The number of CPUs to assign to this instance. */
