@@ -643,6 +643,7 @@ export const handlers = makeHandlers({
 
     // Undefined or missing is meaningful: it unsets the value
     instance.auto_restart_policy = body.auto_restart_policy
+    instance.cpu_platform = body.cpu_platform
 
     // We depart here from nexus in that nexus does both of the following
     // calculations at view time (when converting model to view). We can't

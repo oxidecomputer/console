@@ -26,6 +26,7 @@ import {
   instanceAutoRestartingSoon,
   instanceCan,
   instanceTransitioning,
+  instanceUpdateBody,
 } from '~/api/util'
 import { CopyIdItem } from '~/components/CopyIdItem'
 import { ExternalIps } from '~/components/ExternalIps'
@@ -341,14 +342,14 @@ export function ResizeInstanceModal({
     instanceUpdate.mutate({
       path: { instance: instance.name },
       query: { project },
-      body: {
+      body: instanceUpdateBody({
         ncpus,
         memory: memory * GiB,
         // these need to be passed in or they'll be unset
-        bootDisk: instance.bootDiskId,
-        cpuPlatform: instance.cpuPlatform,
-        autoRestartPolicy: instance.autoRestartPolicy,
-      },
+        bootDisk: instance.bootDiskId || null,
+        cpuPlatform: instance.cpuPlatform || null,
+        autoRestartPolicy: instance.autoRestartPolicy || null,
+      }),
     })
   })
   const formId = useId()

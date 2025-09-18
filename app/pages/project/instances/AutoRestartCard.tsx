@@ -17,6 +17,7 @@ import {
   useApiMutation,
   usePrefetchedApiQuery,
 } from '~/api'
+import { instanceUpdateBody } from '~/api/util'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
@@ -75,18 +76,18 @@ export function AutoRestartCard() {
     instanceUpdate.mutate({
       path: { instance: instanceSelector.instance },
       query: { project: instanceSelector.project },
-      body: {
+      body: instanceUpdateBody({
         autoRestartPolicy: match(values.autoRestartPolicy)
-          .with('default', () => undefined)
+          .with('default', () => null)
           .with('never', () => 'never' as const)
           .with('best_effort', () => 'best_effort' as const)
           .exhaustive(),
         ncpus: instance.ncpus,
         memory: instance.memory,
         // optional ones would be unset if we left them out
-        cpuPlatform: instance.cpuPlatform,
-        bootDisk: instance.bootDiskId,
-      },
+        cpuPlatform: instance.cpuPlatform || null,
+        bootDisk: instance.bootDiskId || null,
+      }),
     })
   })
 

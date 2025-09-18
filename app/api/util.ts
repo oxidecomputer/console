@@ -15,6 +15,7 @@ import type {
   DiskState,
   Instance,
   InstanceState,
+  InstanceUpdate,
   Measurement,
   SiloUtilization,
   Sled,
@@ -281,3 +282,5 @@ export function synthesizeData(
 }
 
 export const OXQL_GROUP_BY_ERROR = 'Input tables to a `group_by` must be aligned'
+
+export const instanceUpdateBody = (body: Required<InstanceUpdate>): InstanceUpdate => body

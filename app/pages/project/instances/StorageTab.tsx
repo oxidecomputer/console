@@ -23,6 +23,7 @@ import {
 } from '@oxide/api'
 import { Storage24Icon } from '@oxide/design-system/icons/react'
 
+import { instanceUpdateBody } from '~/api/util'
 import { HL } from '~/components/HL'
 import { DiskStateBadge } from '~/components/StateBadge'
 import { AttachDiskModalForm } from '~/forms/disk-attach'
@@ -163,14 +164,14 @@ export default function StorageTab() {
             doAction: () =>
               instanceUpdate({
                 path: { instance: instance.id },
-                body: {
-                  bootDisk: undefined,
+                body: instanceUpdateBody({
+                  bootDisk: null,
                   ncpus: instance.ncpus,
                   memory: instance.memory,
                   // optional ones would be unset if we left them out
-                  autoRestartPolicy: instance.autoRestartPolicy,
-                  cpuPlatform: instance.cpuPlatform,
-                },
+                  autoRestartPolicy: instance.autoRestartPolicy || null,
+                  cpuPlatform: instance.cpuPlatform || null,
+                }),
               }),
             errorTitle: 'Could not unset boot disk',
             modalTitle: 'Confirm unset boot disk',
@@ -229,14 +230,14 @@ export default function StorageTab() {
             doAction: () =>
               instanceUpdate({
                 path: { instance: instance.id },
-                body: {
+                body: instanceUpdateBody({
                   bootDisk: disk.id,
                   ncpus: instance.ncpus,
                   memory: instance.memory,
                   // optional ones would be unset if we left them out
-                  autoRestartPolicy: instance.autoRestartPolicy,
-                  cpuPlatform: instance.cpuPlatform,
-                },
+                  autoRestartPolicy: instance.autoRestartPolicy || null,
+                  cpuPlatform: instance.cpuPlatform || null,
+                }),
               }),
             errorTitle: `Could not ${verb} boot disk`,
             modalTitle: `Confirm ${verb} boot disk`,
