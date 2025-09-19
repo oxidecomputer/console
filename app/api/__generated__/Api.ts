@@ -2538,13 +2538,13 @@ export type InstanceUpdate = {
 This policy determines whether the instance should be automatically restarted by the control plane on failure. If this is `null`, any explicitly configured auto-restart policy will be unset, and the control plane will select the default policy when determining whether the instance can be automatically restarted.
 
 Currently, the global default auto-restart policy is "best-effort", so instances with `null` auto-restart policies will be automatically restarted. However, in the future, the default policy may be configurable through other mechanisms, such as on a per-project basis. In that case, any configured default policy will be used if this is `null`. */
-  autoRestartPolicy?: InstanceAutoRestartPolicy | null
+  autoRestartPolicy: InstanceAutoRestartPolicy | null
   /** Name or ID of the disk the instance should be instructed to boot from.
 
-If not provided, unset the instance's boot disk. */
-  bootDisk?: NameOrId | null
+A null value unsets the boot disk. */
+  bootDisk: NameOrId | null
   /** The CPU platform to be used for this instance. If this is `null`, the instance requires no particular CPU platform. */
-  cpuPlatform?: InstanceCpuPlatform | null
+  cpuPlatform: InstanceCpuPlatform | null
   /** The amount of memory to assign to this instance. */
   memory: ByteCount
   /** The number of CPUs to assign to this instance. */

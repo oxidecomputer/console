@@ -2335,9 +2335,9 @@ export const InstanceSerialConsoleData = z.preprocess(
 export const InstanceUpdate = z.preprocess(
   processResponseBody,
   z.object({
-    autoRestartPolicy: InstanceAutoRestartPolicy.nullable().optional(),
-    bootDisk: NameOrId.nullable().optional(),
-    cpuPlatform: InstanceCpuPlatform.nullable().optional(),
+    autoRestartPolicy: InstanceAutoRestartPolicy.nullable(),
+    bootDisk: NameOrId.nullable(),
+    cpuPlatform: InstanceCpuPlatform.nullable(),
     memory: ByteCount,
     ncpus: InstanceCpuCount,
   })
