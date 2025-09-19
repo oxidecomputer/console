@@ -641,8 +641,9 @@ export const handlers = makeHandlers({
 
     // AUTO RESTART
 
-    // Undefined or missing is meaningful: it unsets the value
+    // null is meaningful: it unsets the value
     instance.auto_restart_policy = body.auto_restart_policy
+    instance.cpu_platform = body.cpu_platform
 
     // We depart here from nexus in that nexus does both of the following
     // calculations at view time (when converting model to view). We can't
@@ -651,7 +652,6 @@ export const handlers = makeHandlers({
 
     // https://github.com/oxidecomputer/omicron/blob/0c6ab099e/nexus/db-queries/src/db/datastore/instance.rs#L228-L239
     instance.auto_restart_enabled = match(instance.auto_restart_policy)
-      .with(undefined, () => true)
       .with(null, () => true)
       .with('best_effort', () => true)
       .with('never', () => false)

@@ -164,11 +164,11 @@ export default function StorageTab() {
               instanceUpdate({
                 path: { instance: instance.id },
                 body: {
-                  bootDisk: undefined,
+                  bootDisk: null,
                   ncpus: instance.ncpus,
                   memory: instance.memory,
-                  // this would get unset if we left it out
-                  autoRestartPolicy: instance.autoRestartPolicy,
+                  autoRestartPolicy: instance.autoRestartPolicy || null,
+                  cpuPlatform: instance.cpuPlatform || null,
                 },
               }),
             errorTitle: 'Could not unset boot disk',
@@ -205,6 +205,7 @@ export default function StorageTab() {
       instance.autoRestartPolicy,
       instance.ncpus,
       instance.memory,
+      instance.cpuPlatform,
       getSnapshotAction,
     ]
   )
@@ -231,8 +232,8 @@ export default function StorageTab() {
                   bootDisk: disk.id,
                   ncpus: instance.ncpus,
                   memory: instance.memory,
-                  // this would get unset if we left it out
-                  autoRestartPolicy: instance.autoRestartPolicy,
+                  autoRestartPolicy: instance.autoRestartPolicy || null,
+                  cpuPlatform: instance.cpuPlatform || null,
                 },
               }),
             errorTitle: `Could not ${verb} boot disk`,
@@ -283,6 +284,7 @@ export default function StorageTab() {
       instance.autoRestartPolicy,
       instance.ncpus,
       instance.memory,
+      instance.cpuPlatform,
       getSnapshotAction,
       bootDisks,
     ]
