@@ -14,8 +14,14 @@ import { memo, useCallback, useMemo, useRef, useState } from 'react'
 import { match, P } from 'ts-pattern'
 import { type JsonValue } from 'type-fest'
 
-import { api, AuditLogListQueryParams } from '@oxide/api'
-import { Logs16Icon, Logs24Icon } from '@oxide/design-system/icons/react'
+import { api, type AuditLogEntry, type AuditLogListQueryParams } from '@oxide/api'
+import {
+  Close12Icon,
+  Logs16Icon,
+  Logs24Icon,
+  NextArrow12Icon,
+  PrevArrow12Icon,
+} from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
@@ -23,12 +29,16 @@ import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
+import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
+import { Divider } from '~/ui/lib/Divider'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { Spinner } from '~/ui/lib/Spinner'
 import { Truncate } from '~/ui/lib/Truncate'
 import { classed } from '~/util/classed'
-import { toSyslogDateString, toSyslogTimeString } from '~/util/date'
+import { toLocaleDateString, toSyslogDateString, toSyslogTimeString } from '~/util/date'
 import { docLinks } from '~/util/links'
+import { deterRandom } from '~/util/math'
 
 export const handle = { crumb: 'Audit Log' }
 
@@ -154,28 +164,90 @@ const ErrorState = () => {
   return <div>Error State</div>
 }
 
-// todo
 const LoadingState = () => {
-  return <div>Loading State</div>
+  return (
+    <div className="h-full w-full overflow-hidden">
+      {/* Generate skeleton rows */}
+      <div className="w-full">
+        {[...Array(50)].map((_, i) => (
+          <div
+            key={i}
+            className={cn(
+              'grid h-9 w-full animate-pulse items-center gap-8 px-[var(--content-gutter)] border-secondary',
+              i !== 0 && 'border-t'
+            )}
+            style={{ ...colWidths, animationDelay: `${i * 0.1}s` }}
+          >
+            {/* Time column */}
+            <div className="h-4 rounded bg-tertiary" style={{ width: '80%' }} />
+
+            {/* Status column */}
+            <div className="h-4 rounded bg-tertiary" style={{ width: '60%' }} />
+
+            {/* Operation column */}
+            <div
+              className="h-4 rounded bg-tertiary"
+              style={{
+                width: `${deterRandom(i, 60, 10)}%`,
+              }}
+            />
+
+            {/* Actor ID column */}
+            <div
+              className="h-4 rounded bg-tertiary"
+              style={{
+                width: `${deterRandom(i, 80, 10)}%`,
+              }}
+            />
+
+            {/* Auth Method column */}
+            <div
+              className="h-4 rounded bg-tertiary"
+              style={{
+                width: `${deterRandom(i, 60, 20)}%`,
+              }}
+            />
+
+            {/* Silo ID column */}
+            <div
+              className="h-4 rounded bg-tertiary"
+              style={{
+                width: `${deterRandom(i, 80, 10)}%`,
+              }}
+            />
+
+            {/* Duration column */}
+            <div
+              className="h-4 rounded bg-tertiary"
+              style={{
+                width: `${deterRandom(i, 20, 5)}%`,
+              }}
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Gradient fade overlay */}
+      <div
+        className="pointer-events-none fixed bottom-0 h-32 w-full"
+        style={{
+          background: 'linear-gradient(180deg, rgba(8, 15, 17, 0) 0%, #080F11 100%)',
+        }}
+      />
+    </div>
+  )
 }
 
 function StatusCodeCell({ code }: { code: number }) {
-  const color =
-    code >= 200 && code < 400
-      ? 'default'
-      : code >= 400 && code < 500
-        ? 'notice'
-        : 'destructive'
+  const color = code >= 200 && code < 500 ? 'default' : 'destructive'
   return <Badge color={color}>{code}</Badge>
 }
 
 const colWidths = {
-  gridTemplateColumns: '7.5rem 3rem 180px 140px 120px 140px 1fr',
+  gridTemplateColumns: '7.75rem 3rem 160px 130px 120px 130px 1fr',
 }
 
 const HeaderCell = classed.div`text-mono-sm text-tertiary`
-
-const EXPANDED_HEIGHT = 288 // h-72 * 4
 
 export default function SiloAuditLogsPage() {
   const [expandedItem, setExpandedItem] = useState<string | null>(null)
@@ -233,19 +305,16 @@ export default function SiloAuditLogsPage() {
   const rowVirtualizer = useVirtualizer({
     count: allItems.length,
     getScrollElement: () => document.querySelector('#scroll-container'),
-    estimateSize: useCallback(
-      (index) => {
-        return expandedItem === index.toString() ? 36 + EXPANDED_HEIGHT : 36
-      },
-      [expandedItem]
-    ),
-    overscan: 20,
+    estimateSize: () => 36,
+    overscan: 40,
   })
 
   const handleToggle = useCallback(
     (index: string | null) => {
       setExpandedItem(index)
-      rowVirtualizer.measure()
+      setTimeout(() => {
+        rowVirtualizer.measure()
+      }, 0)
     },
     [rowVirtualizer]
   )
@@ -260,9 +329,8 @@ export default function SiloAuditLogsPage() {
       >
         {rowVirtualizer.getVirtualItems().map((virtualRow) => {
           const log = allItems[virtualRow.index]
-          const isExpanded = expandedItem === virtualRow.index.toString()
-          // only bother doing all this computation if we're the expanded row
-          const json = isExpanded ? camelToSnakeJson(log) : undefined
+          const indexStr = virtualRow.index.toString()
+          const isExpanded = expandedItem === indexStr
 
           const [userId, siloId] = match(log.actor)
             .with({ kind: 'silo_user' }, (actor) => [actor.siloUserId, actor.siloId])
@@ -281,20 +349,19 @@ export default function SiloAuditLogsPage() {
             >
               <div
                 className={cn(
-                  'grid h-9 w-full cursor-pointer items-center gap-8 px-[var(--content-gutter)] text-left text-sans-md border-secondary',
+                  'grid h-9 w-full cursor-pointer items-center gap-8 px-[var(--content-gutter)] text-left text-sans-md bg-default border-secondary',
                   isExpanded ? 'bg-raise' : 'hover:bg-raise',
                   virtualRow.index !== 0 && 'border-t'
                 )}
                 style={colWidths}
                 onClick={() => {
-                  const newValue = isExpanded ? null : virtualRow.index.toString()
-                  handleToggle(newValue)
+                  handleToggle(indexStr)
                 }}
+                // TODO: some of the focusing behaviour and repetitive code needs work
                 // a11y thing: make it focusable and let the user press enter on it to toggle
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
-                    const newValue = isExpanded ? null : virtualRow.index.toString()
-                    handleToggle(newValue)
+                    handleToggle(indexStr)
                   }
                 }}
                 role="button" // oxlint-disable-line prefer-tag-over-role
@@ -354,13 +421,6 @@ export default function SiloAuditLogsPage() {
                   ms
                 </div>
               </div>
-              {isExpanded && (
-                <div className="h-72 border-t px-[var(--content-gutter)] py-3 border-secondary">
-                  <pre className="h-full overflow-auto border-l pl-4 text-mono-code border-secondary">
-                    <HighlightJSON json={json as JsonValue} />
-                  </pre>
-                </div>
-              )}
             </div>
           )
         })}
@@ -387,41 +447,186 @@ export default function SiloAuditLogsPage() {
     </>
   )
 
+  const selectedItem = expandedItem ? allItems[parseInt(expandedItem, 10)] : null
+
   return (
     <>
-      <PageHeader>
-        <PageTitle icon={<Logs24Icon />}>Audit Log</PageTitle>
-        <DocsPopover
-          heading="audit log"
-          icon={<Logs16Icon />}
-          summary="The audit log provides a record of system activities, including user actions, API calls, and system events."
-          links={[docLinks.auditLog]}
-        />
-      </PageHeader>
+      <div className="!mx-0 !w-full">
+        <PageHeader className="gutter">
+          <PageTitle icon={<Logs24Icon />}>Audit Log</PageTitle>
+          <DocsPopover
+            heading="audit log"
+            icon={<Logs16Icon />}
+            summary="The audit log provides a record of system activities, including user actions, API calls, and system events."
+            links={[docLinks.auditLog]}
+          />
+        </PageHeader>
 
-      <div className="!mx-0 mb-3 mt-8 flex !w-full flex-wrap justify-between gap-3 border-b px-[var(--content-gutter)] pb-4 border-secondary">
-        <div className="flex gap-2">{intervalPicker}</div>
-        <div className="flex items-center gap-2">{dateTimeRangePicker}</div>
+        <div className="mb-3 mt-8 flex flex-wrap justify-between gap-3 border-b px-[var(--content-gutter)] pb-4 border-secondary">
+          <div className="flex gap-2">{intervalPicker}</div>
+          <div className="flex items-center gap-2">{dateTimeRangePicker}</div>
+        </div>
       </div>
 
-      <div
-        className="sticky top-0 z-10 !mx-0 grid !w-full items-center gap-8 border-b px-[var(--content-gutter)] pb-2 pt-4 bg-default border-secondary"
-        style={colWidths}
-      >
-        <HeaderCell>Time Completed</HeaderCell>
-        <HeaderCell>Status</HeaderCell>
-        <HeaderCell>Operation</HeaderCell>
-        <HeaderCell>Actor ID</HeaderCell>
-        <HeaderCell>Auth Method</HeaderCell>
-        <HeaderCell>Silo ID</HeaderCell>
-        <HeaderCell>Duration</HeaderCell>
-      </div>
-
-      <div className="!mx-0 flex h-full !w-full flex-col">
+      <div className="relative !mx-0 !w-full flex-grow overflow-x-clip">
         <div className="w-full flex-1" ref={parentRef}>
+          <div className="sticky top-0 z-10 border-b px-[var(--content-gutter)] pb-2 pt-4 bg-default border-secondary">
+            <div style={colWidths} className="grid items-center gap-8">
+              <HeaderCell>Time Completed</HeaderCell>
+              <HeaderCell>Status</HeaderCell>
+              <HeaderCell>Operation</HeaderCell>
+              <HeaderCell>Actor ID</HeaderCell>
+              <HeaderCell>Auth Method</HeaderCell>
+              <HeaderCell>Silo ID</HeaderCell>
+              <HeaderCell>Duration</HeaderCell>
+            </div>
+            {selectedItem &&
+              (() => {
+                const [userId, siloId] = match(selectedItem.actor)
+                  .with({ kind: 'silo_user' }, (actor) => [actor.siloUserId, actor.siloId])
+                  .with({ kind: 'user_builtin' }, (actor) => [
+                    actor.userBuiltinId,
+                    undefined,
+                  ])
+                  .with({ kind: 'unauthenticated' }, () => [undefined, undefined])
+                  .exhaustive()
+
+                const currentIndex = parseInt(expandedItem!, 10)
+
+                return (
+                  <ExpandedItem
+                    item={selectedItem}
+                    userId={userId}
+                    siloId={siloId}
+                    currentIndex={currentIndex}
+                    totalCount={allItems.length}
+                    onNavigate={(index) => handleToggle(index.toString())}
+                    onClose={() => handleToggle(null)}
+                  />
+                )
+              })()}
+          </div>
           {error ? <ErrorState /> : !isLoading ? logTable : <LoadingState />}
         </div>
       </div>
     </>
+  )
+}
+
+const ExpandedItem = ({
+  item,
+  userId,
+  siloId,
+  currentIndex,
+  totalCount,
+  onNavigate,
+  onClose,
+}: {
+  item: AuditLogEntry
+  userId?: string
+  siloId?: string
+  currentIndex: number
+  totalCount: number
+  onNavigate: (index: number) => void
+  onClose: () => void
+}) => {
+  const snakeJson = camelToSnakeJson(item)
+  const json = JSON.stringify(snakeJson, null, 2)
+
+  return (
+    <div className="absolute right-0 top-[40px] flex h-[calc(100dvh-var(--top-bar-height)-40px)] w-[30rem] flex-col gap-6 overflow-y-auto border-l border-t bg-default border-secondary">
+      <div className="flex items-center justify-between border-b px-2 py-2 bg-raise border-secondary">
+        <div className="flex items-center">
+          <button
+            type="button"
+            onClick={() => currentIndex > 0 && onNavigate(currentIndex - 1)}
+            disabled={currentIndex === 0}
+            className="flex h-6 w-6 flex-shrink-0 rotate-90 items-center justify-center rounded hover:bg-hover disabled:cursor-default disabled:opacity-50 disabled:hover:bg-raise"
+          >
+            {/* support arrow keys and keep centered autoscroll to element */}
+            <PrevArrow12Icon />
+          </button>
+          <button
+            type="button"
+            onClick={() => currentIndex < totalCount - 1 && onNavigate(currentIndex + 1)}
+            disabled={currentIndex === totalCount - 1}
+            className="flex h-6 w-6 flex-shrink-0 rotate-90 items-center justify-center rounded hover:bg-hover disabled:cursor-default disabled:opacity-50 disabled:hover:bg-raise"
+          >
+            <NextArrow12Icon />
+          </button>
+          <h3 className="ml-2 mr-1">
+            <Badge color="neutral">{item.operationId.split('_').join(' ')}</Badge>
+          </h3>
+          {match(item.result)
+            .with(P.union({ kind: 'success' }, { kind: 'error' }), (result) => (
+              <StatusCodeCell code={result.httpStatusCode} />
+            ))
+            .with({ kind: 'unknown' }, () => <EmptyCell />)
+            .exhaustive()}
+        </div>
+        <button
+          type="button"
+          onClick={onClose}
+          className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded hover:bg-hover"
+        >
+          <Close12Icon />
+        </button>
+      </div>
+
+      <div className="px-6">
+        <PropertiesTable>
+          <PropertiesTable.Row label="Time Completed">
+            <div>
+              {toLocaleDateString(item.timeCompleted)}{' '}
+              <span className="text-tertiary">
+                {toSyslogTimeString(item.timeCompleted)}
+              </span>
+            </div>
+          </PropertiesTable.Row>
+
+          <PropertiesTable.Row label="Actor ID">
+            {userId ? (
+              <Truncate maxLength={24} text={userId} position="middle" hasCopyButton />
+            ) : (
+              <EmptyCell />
+            )}
+          </PropertiesTable.Row>
+
+          <PropertiesTable.Row label="Access Method">
+            {item.authMethod ? (
+              <Badge color="neutral">{item.authMethod.split('_').join(' ')}</Badge>
+            ) : (
+              <EmptyCell />
+            )}
+          </PropertiesTable.Row>
+
+          <PropertiesTable.Row label="Silo ID">
+            {siloId ? (
+              <Truncate maxLength={24} text={siloId} position="middle" hasCopyButton />
+            ) : (
+              <EmptyCell />
+            )}
+          </PropertiesTable.Row>
+
+          <PropertiesTable.Row label="Duration">
+            {differenceInMilliseconds(new Date(item.timeCompleted), item.timeStarted)}ms
+          </PropertiesTable.Row>
+        </PropertiesTable>
+      </div>
+
+      <Divider />
+
+      <div className="px-6">
+        <div className="mb-2 flex items-center justify-between">
+          <h4 className="text-mono-sm text-tertiary">Raw JSON</h4>
+          <CopyToClipboard text={json} />
+        </div>
+        <div className="overflow-x-auto rounded border px-3 py-2 bg-raise border-secondary">
+          <pre className="text-mono-code ![font-size:13px] ![line-height:18px]">
+            <HighlightJSON json={snakeJson as JsonValue} />
+          </pre>
+        </div>
+      </div>
+    </div>
   )
 }
