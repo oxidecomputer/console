@@ -180,7 +180,7 @@ const ErrorState = ({ error, onDismiss }: { error: string; onDismiss: () => void
 
 const LoadingState = () => {
   return (
-    <div className="h-full w-full overflow-hidden">
+    <div className="h-full w-full overflow-hidden border-t border-secondary">
       {/* Generate skeleton rows */}
       <div className="w-full">
         {[...Array(50)].map((_, i) => (
@@ -491,7 +491,7 @@ export default function SiloAuditLogsPage() {
 
       <div className="relative !mx-0 !w-full flex-grow overflow-x-clip">
         <div className="w-full flex-1" ref={parentRef}>
-          <div className="sticky top-0 z-10 border-b px-[var(--content-gutter)] pb-2 pt-4 bg-default border-secondary">
+          <div className="sticky top-0 z-10 px-[var(--content-gutter)] pb-2 pt-4 bg-default">
             <div style={colWidths} className="grid items-center gap-8">
               <HeaderCell>Time Completed</HeaderCell>
               <HeaderCell>Status</HeaderCell>
