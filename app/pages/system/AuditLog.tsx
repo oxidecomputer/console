@@ -10,13 +10,14 @@ import { useInfiniteQuery, useIsFetching } from '@tanstack/react-query'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import cn from 'classnames'
 import { differenceInMilliseconds } from 'date-fns'
-import { memo, useCallback, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { match, P } from 'ts-pattern'
 import { type JsonValue } from 'type-fest'
 
 import { api, type AuditLogEntry, type AuditLogListQueryParams } from '@oxide/api'
 import {
   Close12Icon,
+  Error12Icon,
   Logs16Icon,
   Logs24Icon,
   NextArrow12Icon,
@@ -158,10 +159,23 @@ const HighlightJSON = memo(({ json, depth = 0 }: { json: JsonValue; depth?: numb
   )
 })
 
-// todo
-// might want to still render the items in case of error
-const ErrorState = () => {
-  return <div>Error State</div>
+const ErrorState = ({ error, onDismiss }: { error: string; onDismiss: () => void }) => {
+  return (
+    <div className="flex h-10 items-center justify-between border-b px-[var(--content-gutter)] text-sans-md text-error bg-error-secondary border-secondary">
+      <div className="-ml-[18px] flex items-center gap-1.5">
+        <Error12Icon className="flex-shrink-0" />
+        {error}
+      </div>
+      <button
+        type="button"
+        onClick={onDismiss}
+        className="absolute right-2 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded hover:bg-destructive-secondary-hover"
+        aria-label="Dismiss error"
+      >
+        <Close12Icon />
+      </button>
+    </div>
+  )
 }
 
 const LoadingState = () => {
@@ -251,6 +265,7 @@ const HeaderCell = classed.div`text-mono-sm text-tertiary`
 
 export default function SiloAuditLogsPage() {
   const [expandedItem, setExpandedItem] = useState<string | null>(null)
+  const [dismissedError, setDismissedError] = useState(false)
 
   // pass refetch interval to this to keep the date up to date
   const { preset, startTime, endTime, dateTimeRangePicker, onRangeChange } =
@@ -269,7 +284,6 @@ export default function SiloAuditLogsPage() {
   const queryParams: AuditLogListQueryParams = {
     startTime,
     endTime,
-    limit: 500,
     sortBy: 'time_and_id_descending',
   }
 
@@ -295,6 +309,11 @@ export default function SiloAuditLogsPage() {
     getNextPageParam: (lastPage) => lastPage.nextPage || undefined,
     placeholderData: (x) => x,
   })
+
+  // resetting the error if the query params change
+  useEffect(() => {
+    setDismissedError(false)
+  }, [startTime, endTime, preset])
 
   const allItems = useMemo(() => {
     return data?.pages.flatMap((page) => page.items) || []
@@ -449,6 +468,9 @@ export default function SiloAuditLogsPage() {
 
   const selectedItem = expandedItem ? allItems[parseInt(expandedItem, 10)] : null
 
+  const errorMessage = error?.message ?? 'An error occurred while loading audit logs'
+  const showError = error && !dismissedError
+
   return (
     <>
       <div className="!mx-0 !w-full">
@@ -463,7 +485,7 @@ export default function SiloAuditLogsPage() {
         </PageHeader>
 
         <div className="mb-3 mt-8 flex flex-wrap justify-between gap-3 border-b px-[var(--content-gutter)] pb-4 border-secondary">
-          <div className="flex gap-2">{intervalPicker}</div>
+          {intervalPicker}
           <div className="flex items-center gap-2">{dateTimeRangePicker}</div>
         </div>
       </div>
@@ -495,6 +517,7 @@ export default function SiloAuditLogsPage() {
 
                 return (
                   <ExpandedItem
+                    hasError={!!showError}
                     item={selectedItem}
                     userId={userId}
                     siloId={siloId}
@@ -506,7 +529,10 @@ export default function SiloAuditLogsPage() {
                 )
               })()}
           </div>
-          {error ? <ErrorState /> : !isLoading ? logTable : <LoadingState />}
+          {showError && (
+            <ErrorState error={errorMessage} onDismiss={() => setDismissedError(true)} />
+          )}
+          {!isLoading ? logTable : <LoadingState />}
         </div>
       </div>
     </>
@@ -521,6 +547,7 @@ const ExpandedItem = ({
   totalCount,
   onNavigate,
   onClose,
+  hasError = false,
 }: {
   item: AuditLogEntry
   userId?: string
@@ -529,12 +556,20 @@ const ExpandedItem = ({
   totalCount: number
   onNavigate: (index: number) => void
   onClose: () => void
+  hasError: boolean
 }) => {
   const snakeJson = camelToSnakeJson(item)
   const json = JSON.stringify(snakeJson, null, 2)
 
   return (
-    <div className="absolute right-0 top-[40px] flex h-[calc(100dvh-var(--top-bar-height)-40px)] w-[30rem] flex-col gap-6 overflow-y-auto border-l border-t bg-default border-secondary">
+    <div
+      className={cn(
+        'absolute right-0 top-[40px] flex w-[30rem] flex-col gap-6 overflow-y-auto border-l border-t bg-default border-secondary',
+        hasError
+          ? 'mt-10 h-[calc(100dvh-var(--top-bar-height)-80px)]'
+          : 'h-[calc(100dvh-var(--top-bar-height)-40px)]'
+      )}
+    >
       <div className="flex items-center justify-between border-b px-2 py-2 bg-raise border-secondary">
         <div className="flex items-center">
           <button
