@@ -131,8 +131,8 @@ const utilizationQueryResult1: OxqlQueryResult = {
   tables: [
     {
       name: 'virtual_machine:vcpu_usage',
-      timeseries: {
-        '16671618930358432507': {
+      timeseries: [
+        {
           fields: {
             vcpuId: {
               type: 'u32',
@@ -157,12 +157,12 @@ const utilizationQueryResult1: OxqlQueryResult = {
             ],
           },
         },
-      },
+      ],
     },
   ],
 }
 
-const timeseries1 = utilizationQueryResult1.tables[0].timeseries['16671618930358432507']
+const timeseries1 = utilizationQueryResult1.tables[0].timeseries[0]
 
 test('sumValues', () => {
   expect(sumValues([], 0)).toEqual([])

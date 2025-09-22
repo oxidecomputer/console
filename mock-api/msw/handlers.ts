@@ -27,7 +27,6 @@ import {
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
 import { instanceCan, OXQL_GROUP_BY_ERROR } from '~/api/util'
-import { parseIp } from '~/util/ip'
 import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
 
@@ -50,7 +49,6 @@ import {
   forbiddenErr,
   handleMetrics,
   handleOxqlMetrics,
-  ipInAnyRange,
   ipRangeLen,
   NotImplemented,
   paginated,
@@ -59,6 +57,7 @@ import {
   requireRole,
   unavailableErr,
   updateDesc,
+  userHasRole,
 } from './util'
 
 // Note the *JSON types. Those represent actual API request and response bodies,
@@ -642,8 +641,9 @@ export const handlers = makeHandlers({
 
     // AUTO RESTART
 
-    // Undefined or missing is meaningful: it unsets the value
+    // null is meaningful: it unsets the value
     instance.auto_restart_policy = body.auto_restart_policy
+    instance.cpu_platform = body.cpu_platform
 
     // We depart here from nexus in that nexus does both of the following
     // calculations at view time (when converting model to view). We can't
@@ -652,7 +652,6 @@ export const handlers = makeHandlers({
 
     // https://github.com/oxidecomputer/omicron/blob/0c6ab099e/nexus/db-queries/src/db/datastore/instance.rs#L228-L239
     instance.auto_restart_enabled = match(instance.auto_restart_policy)
-      .with(undefined, () => true)
       .with(null, () => true)
       .with('best_effort', () => true)
       .with('never', () => false)
@@ -808,10 +807,12 @@ export const handlers = makeHandlers({
     }
     updateDesc(nic, body)
 
-    if (typeof body.primary === 'boolean' && body.primary !== nic.primary) {
-      if (nic.primary) {
-        throw 'Cannot remove the primary interface'
-      }
+    // We used to error here if body.primary was false and nic.primary was true
+    // on the grounds that you can't unset the primary interface. But this turns
+    // out not to match the real API, which ignores primary: false.
+    // https://github.com/oxidecomputer/omicron/blob/61ad056c/nexus/db-queries/src/db/datastore/network_interface.rs?plain=1#L804-L808
+
+    if (typeof body.primary === 'boolean' && body.primary && !nic.primary) {
       db.networkInterfaces
         .filter((n) => n.instance_id === nic.instance_id)
         .forEach((n) => {
@@ -863,37 +864,40 @@ export const handlers = makeHandlers({
   },
   ipPoolList: ({ query }) => paginated(query, db.ipPools),
   ipPoolUtilizationView({ path }) {
+    // note: a given pool is either all IPv4 or all IPv6, but the logic is the
+    // same. we do everything in bigints and then convert to float at the end,
+    // like the API
+
     const pool = lookup.ipPool(path)
+
+    const allocatedIps = R.pipe(
+      [
+        ...db.floatingIps.filter((fip) => fip.ip_pool_id === pool.id).map((fip) => fip.ip),
+        ...db.ephemeralIps
+          .filter((eip) => eip.external_ip.ip_pool_id === pool.id)
+          .map((eip) => eip.external_ip.ip),
+        ...db.snatIps
+          .filter((sip) => sip.external_ip.ip_pool_id === pool.id)
+          .map((sip) => sip.external_ip.ip),
+      ],
+      // Dedupe by IP address since multiple instances can share the same SNAT
+      // IP with different port ranges
+      R.unique(),
+      R.length()
+    )
+
     const ranges = db.ipPoolRanges
       .filter((r) => r.ip_pool_id === pool.id)
       .map((r) => r.range)
-    const [ipv4Ranges, ipv6Ranges] = R.partition(
-      ranges,
-      (r) => parseIp(r.first).type === 'v4'
-    )
-
-    // Include SNAT IPs in IP utilization calculation, deduplicating by IP address
-    // since multiple instances can share the same SNAT IP with different port ranges
-    const uniqueSnatIps = [...new Set(db.snatIps.map((sip) => sip.external_ip.ip))]
-    const allIps = [
-      ...db.ephemeralIps.map((eip) => eip.external_ip.ip),
-      ...uniqueSnatIps,
-      ...db.floatingIps.map((fip) => fip.ip),
-    ]
-
-    const ipv4sInPool = allIps.filter((ip) => ipInAnyRange(ip, ipv4Ranges)).length
-    const ipv6sInPool = allIps.filter((ip) => ipInAnyRange(ip, ipv6Ranges)).length
+    // ipRangeLen returns a bigint, so R.sum will too unless the array is empty,
+    // in which case it returns 0. So the fallback is for that case.
+    const exactCapacity = R.sum(ranges.map(ipRangeLen)) || 0n
+    // always going to be small but also make it a bigint so we can subtract
+    const exactRemaining = exactCapacity - BigInt(allocatedIps)
 
     return {
-      ipv4: {
-        allocated: ipv4sInPool,
-        // ok to convert to number because we know it's small enough
-        capacity: Number(ipv4Ranges.reduce((acc, r) => acc + ipRangeLen(r), 0n)),
-      },
-      ipv6: {
-        allocated: ipv6sInPool.toString(),
-        capacity: ipv6Ranges.reduce((acc, r) => acc + ipRangeLen(r), 0n).toString(),
-      },
+      capacity: Number(exactCapacity),
+      remaining: Number(exactRemaining),
     }
   },
   siloIpPoolList({ path, query }) {
@@ -1016,7 +1020,14 @@ export const handlers = makeHandlers({
 
     const newPool: Json<Api.IpPool> = {
       id: uuid(),
-      ...body,
+      description: body.description,
+      name: body.name,
+      // It might not be possible to hit this fallback because the zod
+      // validator we use to parse this has default('v4') on it. But it also
+      // has `optional()` on it, which means the types think it can still be
+      // undefined.
+      // See https://zod.dev/v4/changelog?id=defaults-applied-within-optional-fields#defaults-applied-within-optional-fields
+      ip_version: body.ip_version || 'v4',
       ...getTimestamps(),
     }
     db.ipPools.push(newPool)
@@ -1426,7 +1437,13 @@ export const handlers = makeHandlers({
     return paginated(query, db.racks)
   },
   currentUserView({ cookies }) {
-    return { ...currentUser(cookies), silo_name: defaultSilo.name }
+    const user = currentUser(cookies)
+    return {
+      ...user,
+      silo_name: defaultSilo.name,
+      fleet_viewer: userHasRole(user, 'fleet', FLEET_ID, 'viewer'),
+      silo_admin: userHasRole(user, 'silo', defaultSilo.id, 'admin'),
+    }
   },
   currentUserGroups({ cookies }) {
     const user = currentUser(cookies)
@@ -1631,7 +1648,7 @@ export const handlers = makeHandlers({
     // we use other-project to test certain response cases
     if (query.project === 'other-project') {
       // 1. return only one data point
-      const points = Object.values(data.tables[0].timeseries)[0].points
+      const points = data.tables[0].timeseries[0].points
       if (body.query.includes('state == "run"')) {
         points.timestamps = points.timestamps.slice(0, 2)
         points.values = points.values.slice(0, 2)
@@ -1849,6 +1866,7 @@ export const handlers = makeHandlers({
   networkingAddressLotCreate: NotImplemented,
   networkingAddressLotDelete: NotImplemented,
   networkingAddressLotList: NotImplemented,
+  networkingAddressLotView: NotImplemented,
   networkingAllowListUpdate: NotImplemented,
   networkingAllowListView: NotImplemented,
   networkingBfdDisable: NotImplemented,

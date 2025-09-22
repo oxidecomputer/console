@@ -341,7 +341,13 @@ export function ResizeInstanceModal({
     instanceUpdate.mutate({
       path: { instance: instance.name },
       query: { project },
-      body: { ncpus, memory: memory * GiB, bootDisk: instance.bootDiskId },
+      body: {
+        ncpus,
+        memory: memory * GiB,
+        bootDisk: instance.bootDiskId || null,
+        cpuPlatform: instance.cpuPlatform || null,
+        autoRestartPolicy: instance.autoRestartPolicy || null,
+      },
     })
   })
   const formId = useId()

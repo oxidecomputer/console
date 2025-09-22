@@ -14,7 +14,7 @@ import {
   type StrictResponse,
 } from 'msw'
 import type { Promisable, SnakeCasedPropertiesDeep as Snakify } from 'type-fest'
-import { type ZodSchema } from 'zod'
+import { type ZodType } from 'zod/v4'
 
 import type * as Api from './Api'
 import { snakeify } from './util'
@@ -1243,6 +1243,12 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.AddressLotCreateResponse>>
+  /** `GET /v1/system/networking/address-lot/:addressLot` */
+  networkingAddressLotView: (params: {
+    path: Api.NetworkingAddressLotViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AddressLotViewResponse>>
   /** `DELETE /v1/system/networking/address-lot/:addressLot` */
   networkingAddressLotDelete: (params: {
     path: Api.NetworkingAddressLotDeletePathParams
@@ -1808,7 +1814,7 @@ export interface MSWHandlers {
   }) => Promisable<StatusCode>
 }
 
-function validateParams<S extends ZodSchema>(
+function validateParams<S extends ZodType>(
   schema: S,
   req: Request,
   pathParams: PathParams
@@ -1841,8 +1847,9 @@ function validateParams<S extends ZodSchema>(
 const handler =
   (
     handler: MSWHandlers[keyof MSWHandlers],
-    paramSchema: ZodSchema | null,
-    bodySchema: ZodSchema | null
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    paramSchema: ZodType<any> | null,
+    bodySchema: ZodType | null
   ) =>
   async ({
     request: req,
@@ -2874,6 +2881,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.post(
       '/v1/system/networking/address-lot',
       handler(handlers['networkingAddressLotCreate'], null, schema.AddressLotCreate)
+    ),
+    http.get(
+      '/v1/system/networking/address-lot/:addressLot',
+      handler(
+        handlers['networkingAddressLotView'],
+        schema.NetworkingAddressLotViewParams,
+        null
+      )
     ),
     http.delete(
       '/v1/system/networking/address-lot/:addressLot',
