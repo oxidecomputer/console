@@ -161,7 +161,7 @@ const HighlightJSON = memo(({ json, depth = 0 }: { json: JsonValue; depth?: numb
 
 const ErrorState = ({ error, onDismiss }: { error: string; onDismiss: () => void }) => {
   return (
-    <div className="flex h-10 items-center justify-between border-b px-[var(--content-gutter)] text-sans-md text-error bg-error-secondary border-secondary">
+    <div className="flex h-10 items-center justify-between px-[var(--content-gutter)] text-sans-md text-error bg-error-secondary">
       <div className="-ml-[18px] flex items-center gap-1.5">
         <Error12Icon className="flex-shrink-0" />
         {error}
@@ -368,9 +368,8 @@ export default function SiloAuditLogsPage() {
             >
               <div
                 className={cn(
-                  'grid h-9 w-full cursor-pointer items-center gap-8 px-[var(--content-gutter)] text-left text-sans-md bg-default border-secondary',
-                  isExpanded ? 'bg-raise' : 'hover:bg-raise',
-                  virtualRow.index !== 0 && 'border-t'
+                  'grid h-9 w-full cursor-pointer items-center gap-8 border-t px-[var(--content-gutter)] text-left text-sans-md bg-default border-secondary',
+                  isExpanded ? 'bg-raise' : 'hover:bg-raise'
                 )}
                 style={colWidths}
                 onClick={() => {
