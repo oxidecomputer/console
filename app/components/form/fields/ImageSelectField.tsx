@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useCallback, useMemo } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
 import type { Image } from '@oxide/api'
@@ -31,6 +32,29 @@ export function BootDiskImageSelectField({
   name,
 }: ImageSelectFieldProps) {
   const diskSizeField = useController({ control, name: 'bootDiskSize' }).field
+
+  // Memoize the expensive toImageComboboxItem mapping to avoid recalculating on every render
+  const imageComboboxItems = useMemo(
+    () => images.map((i) => toImageComboboxItem(i)),
+    [images]
+  )
+
+  // Memoize onChange callback to prevent function recreation on every render
+  const handleChange = useCallback(
+    (id: string) => {
+      const image = images.find((i) => i.id === id)
+      // the most likely scenario where image would be undefined is if the user has
+      // manually cleared the ComboboxField; they will need to pick a boot disk image
+      // in order to submit the form, so we don't need to do anything here
+      if (!image) return
+      const imageSizeGiB = image.size / GiB
+      if (diskSizeField.value < imageSizeGiB) {
+        diskSizeField.onChange(diskSizeNearest10(imageSizeGiB))
+      }
+    },
+    [images, diskSizeField]
+  )
+
   return (
     <ComboboxField
       disabled={disabled}
@@ -40,21 +64,21 @@ export function BootDiskImageSelectField({
       placeholder={
         name === 'siloImageSource' ? 'Select a silo image' : 'Select a project image'
       }
-      items={images.map((i) => toImageComboboxItem(i))}
+      items={imageComboboxItems}
       required
-      onChange={(id) => {
-        const image = images.find((i) => i.id === id)
-        // the most likely scenario where image would be undefined is if the user has
-        // manually cleared the ComboboxField; they will need to pick a boot disk image
-        // in order to submit the form, so we don't need to do anything here
-        if (!image) return
-        const imageSizeGiB = image.size / GiB
-        if (diskSizeField.value < imageSizeGiB) {
-          diskSizeField.onChange(diskSizeNearest10(imageSizeGiB))
-        }
-      }}
+      onChange={(id) => handleChange(id || '')}
     />
   )
+}
+
+// Memoize expensive bytesToGiB calculations
+const sizeCache = new Map<number, string>()
+
+function getCachedSizeGiB(size: number): string {
+  if (!sizeCache.has(size)) {
+    sizeCache.set(size, `${bytesToGiB(size, 1)} GiB`)
+  }
+  return sizeCache.get(size)!
 }
 
 export function toImageComboboxItem(
@@ -63,19 +87,24 @@ export function toImageComboboxItem(
 ): ComboboxItem {
   const { id, name, os, projectId, size, version } = image
 
-  // for metadata showing in the dropdown's options, include the project / silo indicator if requested
   const projectSiloIndicator = includeProjectSiloIndicator
     ? `${projectId ? 'Project' : 'Silo'} image`
     : null
-  // filter out undefined metadata and create a `<Slash />`-separated list for each comboboxitem
-  const itemMetadata = [os, version, `${bytesToGiB(size, 1)} GiB`, projectSiloIndicator]
-    .filter((i) => !!i)
-    .map((i, index) => (
-      <span key={`${i}`}>
-        {index > 0 ? <Slash /> : ''}
-        {i}
-      </span>
-    ))
+
+  // Build metadata array more efficiently
+  const metadata = []
+  if (os) metadata.push(os)
+  if (version) metadata.push(version)
+  if (size) metadata.push(getCachedSizeGiB(size))
+  if (projectSiloIndicator) metadata.push(projectSiloIndicator)
+
+  const itemMetadata = metadata.map((item, index) => (
+    <span key={item}>
+      {index > 0 && <Slash />}
+      {item}
+    </span>
+  ))
+
   return {
     value: id,
     selectedLabel: name,

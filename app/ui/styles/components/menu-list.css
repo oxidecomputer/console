@@ -14,18 +14,22 @@
   @apply relative cursor-pointer px-3 py-2 text-sans-md text-raise;
 }
 
+.ox-menu-item[data-highlighted='true'],
 .ox-menu-item.is-highlighted {
   @apply bg-hover;
 }
 
+.ox-menu-item[data-highlighted='true'][data-selected='true'],
 .ox-menu-item.is-highlighted.is-selected {
   @apply bg-accent-secondary-hover;
 }
 
+.ox-menu-item[data-selected='true'][data-highlighted],
 .ox-menu-item.is-selected[data-highlighted] {
   @apply bg-accent-secondary-hover;
 }
 
+.ox-menu-item[data-selected='true'],
 .ox-menu-item.is-selected {
   @apply border-0 text-accent bg-accent-secondary hover:bg-accent-secondary-hover;
   .ox-badge {
@@ -34,6 +38,7 @@
 }
 
 /* beautiful ring */
+.ox-menu-item[data-selected='true']:after,
 .ox-menu-item.is-selected:after {
   content: '';
   @apply absolute bottom-0 left-0 right-0 top-0 block rounded border border-accent;
