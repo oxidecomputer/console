@@ -733,6 +733,12 @@ exports[`breadcrumbs 2`] = `
       "path": "/settings/ssh-keys",
     },
   ],
+  "systemUpdate (/system/update)": [
+    {
+      "label": "System Update",
+      "path": "/system/update",
+    },
+  ],
   "systemUtilization (/system/utilization)": [
     {
       "label": "Utilization",

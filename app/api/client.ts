@@ -83,7 +83,7 @@ class QueryClient extends QueryClientOrig {
    * The params argument can be added in if we ever have a use case for it.
    */
   invalidateEndpoint(method: keyof typeof api.methods) {
-    this.invalidateQueries({ queryKey: [method] })
+    return this.invalidateQueries({ queryKey: [method] })
   }
 }
 

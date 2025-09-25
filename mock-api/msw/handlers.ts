@@ -1669,6 +1669,75 @@ export const handlers = makeHandlers({
     return handleOxqlMetrics(body)
   },
   siloMetric: handleMetrics,
+  systemUpdateRepositoryList: ({ cookies }) => {
+    requireFleetViewer(cookies)
+    // TODO: sort according to query params? unnecessary as long as default sort
+    // is what the console relies on
+
+    // no real pagination because pagination helper works on IDs, and these are
+    // paginated by version
+
+    // TODO: sort by version
+    return { items: db.tufRepos }
+  },
+  systemUpdateRepositoryUpload: ({ query, cookies }) => {
+    requireFleetCollab(cookies)
+    const { fileName } = query
+
+    // TODO: imitate API error messages more closely
+    if (!fileName.endsWith('.zip')) {
+      throw 'Must be a .zip file'
+    }
+
+    // Generate a simple hash based on the file name for mock purposes
+    const hash = fileName
+      .split('')
+      .reduce((acc, char) => ((acc << 5) - acc + char.charCodeAt(0)) | 0, 0)
+      .toString(16)
+
+    // Check if repo with this hash already exists
+    const existingRepo = db.tufRepos.find((r) => r.hash === hash)
+
+    if (existingRepo) {
+      return json(
+        { repo: existingRepo, status: 'already_exists' as const },
+        { status: 200 }
+      )
+    }
+
+    // Extract version from filename (e.g., "rack-1.2.0.zip" -> "1.2.0")
+    const versionMatch = fileName.match(/(\d+\.\d+\.\d+)/)
+    const systemVersion = versionMatch ? versionMatch[1] : '0.0.0'
+
+    const newRepo: Json<Api.TufRepo> = {
+      system_version: systemVersion,
+      file_name: fileName,
+      hash,
+      time_created: new Date().toISOString(),
+    }
+
+    db.tufRepos.push(newRepo)
+
+    return json({ repo: newRepo, status: 'inserted' as const }, { status: 201 })
+  },
+  systemUpdateStatus: ({ cookies }) => {
+    requireFleetViewer(cookies)
+    return db.updateStatus
+  },
+  targetReleaseUpdate: ({ body, cookies }) => {
+    requireFleetCollab(cookies)
+
+    // TODO: validate that version is allowed. must be newer than current
+    // https://github.com/oxidecomputer/omicron/blob/d74f5e3f1ae0a378dcdb9795a0ada2426702b046/nexus/src/external_api/http_entrypoints.rs#L7431-L7432
+
+    db.updateStatus.target_release = {
+      version: body.system_version,
+      time_requested: new Date().toISOString(),
+    }
+    db.updateStatus.time_last_step_planned = new Date().toISOString()
+
+    return 204
+  },
   affinityGroupList: ({ query }) => {
     const project = lookup.project({ ...query })
     const affinityGroups = db.affinityGroups.filter((i) => i.project_id === project.id)
@@ -1911,15 +1980,11 @@ export const handlers = makeHandlers({
   systemPolicyUpdate: NotImplemented,
   systemQuotasList: NotImplemented,
   systemTimeseriesSchemaList: NotImplemented,
-  systemUpdateRepositoryList: NotImplemented,
-  systemUpdateRepositoryUpload: NotImplemented,
   systemUpdateRepositoryView: NotImplemented,
-  systemUpdateStatus: NotImplemented,
   systemUpdateTrustRootCreate: NotImplemented,
   systemUpdateTrustRootDelete: NotImplemented,
   systemUpdateTrustRootList: NotImplemented,
   systemUpdateTrustRootView: NotImplemented,
-  targetReleaseUpdate: NotImplemented,
   scimTokenList: NotImplemented,
   scimTokenCreate: NotImplemented,
   scimTokenDeleteAll: NotImplemented,
