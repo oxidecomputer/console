@@ -18,6 +18,7 @@ import type * as Sel from '~/api/selectors'
 import { commaSeries } from '~/util/str'
 
 import type { Json } from '../json-type'
+import { defaultSilo, siloSettings } from '../silo'
 import { internalError } from './util'
 
 export const notFoundErr = (msg: string) => {
@@ -54,10 +55,16 @@ function ensureNoParentSelectors(
   }
 }
 
-export const getIpFromPool = (poolName: string | undefined) => {
-  const pool = lookup.ipPool({ pool: poolName })
+/**
+ * If pool name or ID is given, look it up. Otherwise use silo default pool,
+ * (and error if the silo doesn't have one).
+ */
+export const resolveIpPool = (pool: string | undefined | null) =>
+  pool ? lookup.ipPool({ pool }) : lookup.siloDefaultIpPool({ silo: defaultSilo.id })
+
+export const getIpFromPool = (pool: Json<Api.IpPool>) => {
   const ipPoolRange = db.ipPoolRanges.find((range) => range.ip_pool_id === pool.id)
-  if (!ipPoolRange) throw notFoundErr(`IP range for pool '${poolName}'`)
+  if (!ipPoolRange) throw notFoundErr(`IP range for pool '${pool.name}'`)
 
   // right now, we're just using the first address in the range, but we'll
   // want to filter the list of available IPs for the first unused address
@@ -476,6 +483,7 @@ const initDb = {
   affinityGroupMemberLists: [...mock.affinityGroupMemberLists],
   antiAffinityGroups: [...mock.antiAffinityGroups],
   antiAffinityGroupMemberLists: [...mock.antiAffinityGroupMemberLists],
+  deviceTokens: [...mock.deviceTokens],
   disks: [...mock.disks],
   diskBulkImportState: new Map<string, DiskBulkImport>(),
   floatingIps: [...mock.floatingIps],
@@ -499,10 +507,12 @@ const initDb = {
   silos: [...mock.silos],
   siloQuotas: [...mock.siloQuotas],
   siloProvisioned: [...mock.siloProvisioned],
+  siloSettings: [...siloSettings],
   identityProviders: [...mock.identityProviders],
   sleds: [...mock.sleds],
   switches: [...mock.switches],
   snapshots: [...mock.snapshots],
+  snatIps: [...mock.snatIps],
   sshKeys: [...mock.sshKeys],
   users: [...mock.users],
   vpcFirewallRules: [...mock.firewallRules],

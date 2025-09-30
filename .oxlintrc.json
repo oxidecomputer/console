@@ -2,14 +2,16 @@
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": [
     "import",
-    // defaults
     "react",
+    "jsx-a11y",
+    "promise",
+    // defaults (see https://oxc.rs/docs/guide/usage/linter/plugins.html#supported-plugins)
     "unicorn",
     "typescript",
     "oxc"
   ],
   "categories": {
-    "correctness": "error",
+    "correctness": "error"
   },
   "rules": {
     // only worry about console.log

@@ -69,7 +69,11 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-const refetchInstances = () => apiQueryClient.invalidateQueries('instanceList')
+const refetchInstances = () =>
+  Promise.all([
+    apiQueryClient.invalidateQueries('instanceList'),
+    apiQueryClient.invalidateQueries('antiAffinityGroupMemberList'),
+  ])
 
 const sec = 1000 // ms, obviously
 const POLL_FAST_TIMEOUT = 30 * sec

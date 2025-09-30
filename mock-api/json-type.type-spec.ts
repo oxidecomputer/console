@@ -27,8 +27,8 @@ assertType<{ x: string }>(val as { x: number })
 assertType<string>(val as Json<Date>)
 assertType<number>(val as Json<number>)
 assertType<{ x: string; y: number }>(val as Json<{ x: Date; y: number }>)
-assertType<{ x: { a_b45_c: string }; z: string[] }>(
-  val as Json<{ x: { aB45C: Date }; z: Date[] }>
+assertType<{ x: { a_b45c_d: string }; z: string[] }>(
+  val as Json<{ x: { aB45cD: Date }; z: Date[] }>
 )
 
 type VpcSubnetJSON = {

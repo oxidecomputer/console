@@ -7,6 +7,7 @@
  */
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
+import type { SetNonNullable } from 'type-fest'
 
 import { useApiMutation, useApiQueryClient, type VpcSubnetCreate } from '@oxide/api'
 
@@ -27,7 +28,7 @@ import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
 
-const defaultValues: Required<VpcSubnetCreate> = {
+const defaultValues: SetNonNullable<Required<VpcSubnetCreate>> = {
   name: '',
   description: '',
   ipv4Block: '',

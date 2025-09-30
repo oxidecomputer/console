@@ -7,6 +7,7 @@
  */
 import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import type { SetNonNullable } from 'type-fest'
 
 import {
   apiq,
@@ -61,7 +62,7 @@ export default function EditSubnetForm() {
     },
   })
 
-  const defaultValues: Required<VpcSubnetUpdate> = {
+  const defaultValues: SetNonNullable<Required<VpcSubnetUpdate>> = {
     name: subnet.name,
     description: subnet.description,
     customRouter: customRouterDataToForm(subnet.customRouterId),

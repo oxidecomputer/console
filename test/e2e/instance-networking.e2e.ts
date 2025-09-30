@@ -7,7 +7,13 @@
  */
 import { expect, test } from '@playwright/test'
 
-import { clickRowAction, expectRowVisible, expectVisible, stopInstance } from './utils'
+import {
+  clickRowAction,
+  clickRowActions,
+  expectRowVisible,
+  expectVisible,
+  stopInstance,
+} from './utils'
 
 test('Instance networking tab — NIC table', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
@@ -72,7 +78,23 @@ test('Instance networking tab — NIC table', async ({ page }) => {
   const nic3 = page.getByRole('cell', { name: 'nic-3' })
   await expect(nic3).toBeVisible()
 
-  // Delete just-added network interface
+  // See that the primary NIC cannot be deleted when other NICs exist
+  await clickRowActions(page, 'nic-3')
+  const deleteButton = page.getByRole('menuitem', { name: 'Delete' })
+  await expect(deleteButton).toBeDisabled()
+  await deleteButton.hover()
+  await expect(page.getByText('The primary interface can’t')).toBeVisible()
+
+  // close the menu for nic-3, without the next line fails in FF and Safari (but not Chrome)
+  await clickRowActions(page, 'nic-3')
+
+  // Delete the non-primary NIC
+  await clickRowAction(page, 'my-nic', 'Delete')
+  await expect(page.getByText('Are you sure you want to delete my-nic?')).toBeVisible()
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expect(page.getByRole('cell', { name: 'my-nic' })).toBeHidden()
+
+  // Now the primary NIC is deletable
   await clickRowAction(page, 'nic-3', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(nic3).toBeHidden()
@@ -121,8 +143,13 @@ test('Instance networking tab — floating IPs', async ({ page }) => {
   // See list of external IPs
   await expectRowVisible(externalIpTable, { ip: '123.4.56.0', Kind: 'ephemeral' })
   await expectRowVisible(externalIpTable, { ip: '123.4.56.5', Kind: 'floating' })
+  await expectRowVisible(externalIpTable, { ip: '123.4.56.100–16383', Kind: 'snat' })
 
   await expect(page.getByText('external IPs123.4.56.5/123.4.56.0')).toBeVisible()
+
+  // The list of IPs at the top of the page should not show the SNAT IP
+  await expect(page.getByText('external IPs123.4.56.5/123.4.56.0')).toBeVisible()
+  await expect(page.getByText('external IPs123.4.56.5/123.4.56.0/')).toBeHidden()
 
   // Attach a new external IP
   await attachFloatingIpButton.click()
@@ -159,6 +186,25 @@ test('Instance networking tab — floating IPs', async ({ page }) => {
 
   // And that button should be enabled again
   await expect(attachFloatingIpButton).toBeEnabled()
+})
+
+test('Instance networking tab — SNAT IPs', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1/networking')
+  const externalIpTable = page.getByRole('table', { name: 'External IPs' })
+  const snatRow = externalIpTable.locator('tr').filter({ hasText: 'snat' })
+  await expect(snatRow).toBeVisible()
+
+  // expect the SNAT IP to have a port range badge
+  await expect(snatRow).toContainText('0–16383')
+
+  const actionsButton = snatRow.getByRole('button', { name: 'Row actions' })
+  await actionsButton.click()
+
+  // Should have "Copy IP address" action, just for consistency with other IP rows
+  await expect(page.getByRole('menuitem', { name: 'Copy IP address' })).toBeVisible()
+
+  // Should have a disabled "Detach" action
+  await expect(page.getByRole('menuitem', { name: 'Detach' })).toBeDisabled()
 })
 
 test('Edit network interface - Transit IPs', async ({ page }) => {

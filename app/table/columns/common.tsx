@@ -11,6 +11,7 @@ import { filesize } from 'filesize'
 import type { InstanceState } from '~/api'
 import { InstanceStateBadge } from '~/components/StateBadge'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
+import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { DateTime } from '~/ui/lib/DateTime'
 
 // the full type of the info arg is CellContext<Row, Item> from RT, but in these
@@ -21,12 +22,25 @@ function dateCell(info: Info<Date>) {
   return <DateTime date={info.getValue()} />
 }
 
+function idCell(info: Info<string>) {
+  const text = info.getValue()
+  return (
+    <div className="flex items-center gap-0.5 overflow-hidden">
+      {text}
+      <div className="flex items-center p-0.5">
+        <CopyToClipboard text={text} />
+      </div>
+    </div>
+  )
+}
+
 function instanceStateCell(info: Info<InstanceState>) {
   return <InstanceStateBadge state={info.getValue()} />
 }
 
-function sizeCell(info: Info<number>) {
-  const size = filesize(info.getValue(), { base: 2, output: 'object' })
+// not using Info<number> so this can also be used for minitables
+export function sizeCellInner(value: number) {
+  const size = filesize(value, { base: 2, output: 'object' })
   return (
     <span className="text-default">
       {size.value} <span className="text-tertiary">{size.unit}</span>
@@ -40,8 +54,9 @@ export const Columns = {
   description: {
     cell: (info: Info<string | undefined>) => <DescriptionCell text={info.getValue()} />,
   },
+  id: { header: 'ID', cell: idCell },
   instanceState: { header: 'state', cell: instanceStateCell },
-  size: { cell: sizeCell },
+  size: { cell: (info: Info<number>) => sizeCellInner(info.getValue()) },
   timeCreated: { header: 'created', cell: dateCell },
   timeModified: { header: 'modified', cell: dateCell },
 }

@@ -12,7 +12,7 @@ import react from '@vitejs/plugin-react-swc'
 import { defineConfig } from 'vite'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import tsconfigPaths from 'vite-tsconfig-paths'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 import vercelConfig from './vercel.json'
 
@@ -102,9 +102,7 @@ export default defineConfig(({ mode }) => ({
     sourcemap: true,
     // minify: false, // uncomment for debugging
     rollupOptions: {
-      input: {
-        app: 'index.html',
-      },
+      // default entrypoint for vite is '<root>/index.html', so we don't have to set it
       output: {
         // React Router automatically splits any route module into its own file,
         // but some end up being like 300 bytes. It feels silly to have several

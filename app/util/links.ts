@@ -10,8 +10,12 @@ const remoteAccess = 'https://docs.oxide.computer/guides/remote-access'
 
 export const links = {
   accessDocs: 'https://docs.oxide.computer/guides/configuring-access',
+  affinityDocs:
+    'https://docs.oxide.computer/guides/deploying-workloads#_affinity_and_anti_affinity',
   cloudInitFormat: 'https://cloudinit.readthedocs.io/en/latest/explanation/format.html',
   cloudInitExamples: 'https://cloudinit.readthedocs.io/en/latest/reference/examples.html',
+  deviceTokenSetup:
+    'https://docs.oxide.computer/guides/working-with-api-and-sdk#_device_token_setup',
   disksDocs: 'https://docs.oxide.computer/guides/managing-disks-and-snapshots',
   firewallRulesDocs:
     'https://docs.oxide.computer/guides/configuring-guest-networking#_firewall_rules',
@@ -66,6 +70,14 @@ export const docLinks = {
   access: {
     href: links.accessDocs,
     linkText: 'Access Control',
+  },
+  affinity: {
+    href: links.affinityDocs,
+    linkText: 'Anti-Affinity Groups',
+  },
+  deviceTokens: {
+    href: links.deviceTokenSetup,
+    linkText: 'Access Tokens',
   },
   disks: {
     href: links.disksDocs,

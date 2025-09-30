@@ -12,15 +12,14 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
-import { Children, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { Children, useMemo, useState, type ReactNode } from 'react'
 import type { LoaderFunctionArgs } from 'react-router'
 
-import { apiq, queryClient } from '@oxide/api'
+import { apiq, OXQL_GROUP_BY_ERROR, queryClient } from '@oxide/api'
 
 import { CopyCodeModal } from '~/components/CopyCode'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { getInstanceSelector, useProjectSelector } from '~/hooks/use-params'
-import { useMetricsContext } from '~/pages/project/instances/common'
 import { LearnMore } from '~/ui/lib/CardBlock'
 import * as Dropdown from '~/ui/lib/DropdownMenu'
 import { classed } from '~/util/classed'
@@ -51,23 +50,34 @@ export type OxqlMetricProps = OxqlQuery & {
 }
 
 export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetricProps) {
-  // only start reloading data once an intial dataset has been loaded
-  const { setIsIntervalPickerEnabled } = useMetricsContext()
-  const { project } = useProjectSelector()
   const query = toOxqlStr(queryObj)
-  const { data: metrics, error } = useQuery(
+  const { project } = useProjectSelector()
+  const {
+    data: metrics,
+    error,
+    isLoading,
+  } = useQuery(
     apiq('timeseriesQuery', { body: { query }, query: { project } })
     // avoid graphs flashing blank while loading when you change the time
     // { placeholderData: (x) => x }
   )
-  useEffect(() => {
-    if (metrics) {
-      // this is too slow right now; disabling until we can make it faster
-      // setIsIntervalPickerEnabled(true)
-    }
-  }, [metrics, setIsIntervalPickerEnabled])
+
+  // HACK: omicron has a bug where it blows up on an attempt to group by on
+  // empty result set because it can't determine whether the data is aligned.
+  // Most likely it should consider empty data sets trivially aligned and just
+  // flow the emptiness on through, but in the meantime we have to detect
+  // this error and pretend it is not an error.
+  // See https://github.com/oxidecomputer/omicron/issues/7715
+  const errorMeansEmpty = error?.message === OXQL_GROUP_BY_ERROR
+  const hasError = !!error && !errorMeansEmpty
+
   const { startTime, endTime } = queryObj
-  const { chartData, timeseriesCount } = useMemo(() => composeOxqlData(metrics), [metrics])
+  const { chartData, timeseriesCount } = useMemo(
+    () =>
+      errorMeansEmpty ? { chartData: [], timeseriesCount: 0 } : composeOxqlData(metrics),
+    [metrics, errorMeansEmpty]
+  )
+
   const { data, label, unitForSet, yAxisTickFormatter } = useMemo(() => {
     if (unit === 'Bytes') return getBytesChartProps(chartData)
     if (unit === 'Count') return getCountChartProps(chartData)
@@ -103,7 +113,9 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
         unit={unitForSet}
         data={data}
         yAxisTickFormatter={yAxisTickFormatter}
-        hasError={!!error}
+        hasError={hasError}
+        // isLoading only covers first load --- future-proof against the reintroduction of interval refresh
+        loading={isLoading}
       />
     </ChartContainer>
   )

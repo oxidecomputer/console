@@ -69,7 +69,10 @@ async function refreshData() {
     apiQueryClient.invalidateQueries('instanceExternalIpList'),
     apiQueryClient.invalidateQueries('instanceNetworkInterfaceList'),
     apiQueryClient.invalidateQueries('instanceDiskList'), // storage tab
-    apiQueryClient.invalidateQueries('diskMetricsList'), // metrics tab
+    apiQueryClient.invalidateQueries('antiAffinityGroupMemberList'),
+    // note that we do not include timeseriesQuery because the charts on the
+    // metrics tab will manage their own refresh intervals when we turn that
+    // back on
   ])
 }
 
@@ -249,7 +252,7 @@ export default function InstancePage() {
         <PropertiesTable.DateRow date={instance.timeCreated} label="Created" />
         <PropertiesTable.IdRow id={instance.id} />
         <PropertiesTable.Row label="external IPs">
-          {<ExternalIps {...instanceSelector} />}
+          <ExternalIps {...instanceSelector} />
         </PropertiesTable.Row>
       </PropertiesTable>
       <RouteTabs fullWidth>
@@ -286,11 +289,9 @@ export function ResizeInstanceModal({
   const { project } = useProjectSelector()
   const instanceUpdate = useApiMutation('instanceUpdate', {
     onSuccess(_updatedInstance) {
-      if (onListView) {
-        apiQueryClient.invalidateQueries('instanceList')
-      } else {
-        apiQueryClient.invalidateQueries('instanceView')
-      }
+      apiQueryClient.invalidateQueries('instanceList')
+      apiQueryClient.invalidateQueries('instanceView')
+
       onDismiss()
       addToast({
         content: (
@@ -329,7 +330,13 @@ export function ResizeInstanceModal({
     instanceUpdate.mutate({
       path: { instance: instance.name },
       query: { project },
-      body: { ncpus, memory: memory * GiB, bootDisk: instance.bootDiskId },
+      body: {
+        ncpus,
+        memory: memory * GiB,
+        bootDisk: instance.bootDiskId || null,
+        cpuPlatform: instance.cpuPlatform || null,
+        autoRestartPolicy: instance.autoRestartPolicy || null,
+      },
     })
   })
   const formId = useId()
@@ -364,7 +371,7 @@ export function ResizeInstanceModal({
                   return `Must be at least 1 vCPU`
                 }
                 if (cpus > INSTANCE_MAX_CPU) {
-                  return `CPUs capped to ${INSTANCE_MAX_CPU}`
+                  return `Can be at most ${INSTANCE_MAX_CPU}`
                 }
                 // We can show this error and therefore inform the user
                 // of the limit rather than preventing it completely

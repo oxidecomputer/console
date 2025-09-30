@@ -6,8 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { useApiQueryErrorsAllowed, usePrefetchedApiQuery } from '~/api/client'
-import { invariant } from '~/util/invariant'
+import { apiq, usePrefetchedQuery } from '~/api/client'
 
 /**
  * Access all the data fetched by the loader. Because of the `shouldRevalidate`
@@ -16,19 +15,7 @@ import { invariant } from '~/util/invariant'
  * loaders.
  */
 export function useCurrentUser() {
-  const { data: me } = usePrefetchedApiQuery('currentUserView', {})
-  const { data: myGroups } = usePrefetchedApiQuery('currentUserGroups', {})
-
-  // User can only get to system routes if they have viewer perms (at least) on
-  // the fleet. The natural place to find out whether they have such perms is
-  // the fleet (system) policy, but if the user doesn't have fleet read, we'll
-  // get a 403 from that endpoint. So we simply check whether that endpoint 200s
-  // or not to determine whether the user is a fleet viewer.
-  const { data: systemPolicy } = useApiQueryErrorsAllowed('systemPolicyView', {})
-  // don't use usePrefetchedApiQuery because it's not worth making an errors
-  // allowed version of that
-  invariant(systemPolicy, 'System policy must be prefetched')
-  const isFleetViewer = systemPolicy.type === 'success'
-
-  return { me, myGroups, isFleetViewer }
+  const { data: me } = usePrefetchedQuery(apiq('currentUserView', {}))
+  const { data: myGroups } = usePrefetchedQuery(apiq('currentUserGroups', {}))
+  return { me, myGroups }
 }

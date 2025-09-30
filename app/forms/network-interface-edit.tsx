@@ -25,7 +25,7 @@ import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
-import * as MiniTable from '~/ui/lib/MiniTable'
+import { ClearAndAddButtons, MiniTable } from '~/ui/lib/MiniTable'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
 import { validateIpNet } from '~/util/ip'
@@ -126,43 +126,27 @@ export function EditNetworkInterfaceForm({
             placeholder="Enter an IP network"
           />
         </div>
-        <MiniTable.ClearAndAddButtons
+        <ClearAndAddButtons
           addButtonCopy="Add Transit IP"
           disabled={!transitIpValue}
           onClear={() => transitIpsForm.reset()}
           onSubmit={submitTransitIp}
         />
       </div>
-      {transitIps.length > 0 && (
-        <MiniTable.Table className="mb-4" aria-label="Transit IPs">
-          <MiniTable.Header>
-            <MiniTable.HeadCell>Transit IPs</MiniTable.HeadCell>
-            {/* For remove button */}
-            <MiniTable.HeadCell className="w-12" />
-          </MiniTable.Header>
-          <MiniTable.Body>
-            {transitIps.map((ip, index) => (
-              <MiniTable.Row
-                tabIndex={0}
-                aria-rowindex={index + 1}
-                aria-label={ip}
-                key={ip}
-              >
-                <MiniTable.Cell>{ip}</MiniTable.Cell>
-                <MiniTable.RemoveCell
-                  label={`remove IP ${ip}`}
-                  onClick={() => {
-                    form.setValue(
-                      'transitIps',
-                      transitIps.filter((item) => item !== ip)
-                    )
-                  }}
-                />
-              </MiniTable.Row>
-            ))}
-          </MiniTable.Body>
-        </MiniTable.Table>
-      )}
+      <MiniTable
+        className="mb-4"
+        ariaLabel="Transit IPs"
+        items={transitIps}
+        columns={[{ header: 'Transit IPs', cell: (ip) => ip }]}
+        rowKey={(ip) => ip}
+        onRemoveItem={(ip) => {
+          form.setValue(
+            'transitIps',
+            transitIps.filter((item) => item !== ip)
+          )
+        }}
+        removeLabel={(ip) => `remove IP ${ip}`}
+      />
     </SideModalForm>
   )
 }

@@ -5,17 +5,18 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback } from 'react'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
+  apiqErrorsAllowed,
   apiQueryClient,
   getListQFn,
   queryClient,
   useApiMutation,
   useApiQueryClient,
-  useApiQueryErrorsAllowed,
   type Snapshot,
 } from '@oxide/api'
 import { Snapshots16Icon, Snapshots24Icon } from '@oxide/design-system/icons/react'
@@ -38,7 +39,7 @@ import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const DiskNameFromId = ({ value }: { value: string }) => {
-  const { data } = useApiQueryErrorsAllowed('diskView', { path: { disk: value } })
+  const { data } = useQuery(apiqErrorsAllowed('diskView', { path: { disk: value } }))
 
   if (!data) return <SkeletonCell />
   if (data.type === 'error') return <Badge color="neutral">Deleted</Badge>

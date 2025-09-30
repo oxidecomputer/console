@@ -67,7 +67,7 @@ import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
-import * as MiniTable from '~/ui/lib/MiniTable'
+import { MiniTable } from '~/ui/lib/MiniTable'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { RadioCard } from '~/ui/lib/Radio'
@@ -432,14 +432,13 @@ export default function CreateInstanceForm() {
               label="CPUs"
               name="ncpus"
               min={1}
-              max={INSTANCE_MAX_CPU}
               control={control}
               validate={(cpus) => {
                 if (cpus < 1) {
                   return `Must be at least 1 vCPU`
                 }
                 if (cpus > INSTANCE_MAX_CPU) {
-                  return `CPUs capped to ${INSTANCE_MAX_CPU}`
+                  return `Can be at most ${INSTANCE_MAX_CPU}`
                 }
               }}
               disabled={isSubmitting}
@@ -450,7 +449,6 @@ export default function CreateInstanceForm() {
               label="Memory"
               name="memory"
               min={1}
-              max={INSTANCE_MAX_RAM_GiB}
               control={control}
               validate={(memory) => {
                 if (memory < 1) {
@@ -696,8 +694,6 @@ const AdvancedAccordion = ({
     )
   }
 
-  const isFloatingIpAttached = attachedFloatingIps.some((ip) => ip.floatingIp !== '')
-
   const selectedFloatingIpMessage = (
     <>
       This instance will be reachable at{' '}
@@ -737,24 +733,21 @@ const AdvancedAccordion = ({
               it is deleted
             </TipIcon>
           </h2>
-          <div className="flex items-start gap-2.5">
-            <Checkbox
-              id="assignEphemeralIp"
-              checked={assignEphemeralIp}
-              onChange={() => {
-                const newExternalIps = assignEphemeralIp
-                  ? externalIps.field.value?.filter((ip) => ip.type !== 'ephemeral')
-                  : [
-                      ...(externalIps.field.value || []),
-                      { type: 'ephemeral', pool: selectedPool || defaultPool },
-                    ]
-                externalIps.field.onChange(newExternalIps)
-              }}
-            />
-            <label htmlFor="assignEphemeralIp" className="text-sans-md text-default">
-              Allocate and attach an ephemeral IP address
-            </label>
-          </div>
+          <Checkbox
+            id="assignEphemeralIp"
+            checked={assignEphemeralIp}
+            onChange={() => {
+              const newExternalIps = assignEphemeralIp
+                ? externalIps.field.value?.filter((ip) => ip.type !== 'ephemeral')
+                : [
+                    ...(externalIps.field.value || []),
+                    { type: 'ephemeral', pool: selectedPool || defaultPool },
+                  ]
+              externalIps.field.onChange(newExternalIps)
+            }}
+          >
+            Allocate and attach an ephemeral IP address
+          </Checkbox>
           {assignEphemeralIp && (
             <Listbox
               name="pools"
@@ -779,38 +772,11 @@ const AdvancedAccordion = ({
             Floating IPs{' '}
             <TipIcon className="ml-1.5">
               Floating IPs exist independently of instances and can be attached to and
-              detached from them as needed.
+              detached from them as needed
             </TipIcon>
           </h2>
-          {isFloatingIpAttached && (
-            <MiniTable.Table>
-              <MiniTable.Header>
-                <MiniTable.HeadCell>Name</MiniTable.HeadCell>
-                <MiniTable.HeadCell>IP</MiniTable.HeadCell>
-                {/* For remove button */}
-                <MiniTable.HeadCell className="w-12" />
-              </MiniTable.Header>
-              <MiniTable.Body>
-                {attachedFloatingIpsData.map((item, index) => (
-                  <MiniTable.Row
-                    tabIndex={0}
-                    aria-rowindex={index + 1}
-                    aria-label={`Name: ${item.name}, IP: ${item.ip}`}
-                    key={item.name}
-                  >
-                    <MiniTable.Cell>{item.name}</MiniTable.Cell>
-                    <MiniTable.Cell>{item.ip}</MiniTable.Cell>
-                    <MiniTable.RemoveCell
-                      onClick={() => detachFloatingIp(item.name)}
-                      label={`remove floating IP ${item.name}`}
-                    />
-                  </MiniTable.Row>
-                ))}
-              </MiniTable.Body>
-            </MiniTable.Table>
-          )}
           {floatingIpList.items.length === 0 ? (
-            <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
+            <div className="flex max-w-lg items-center justify-center rounded-lg border border-default">
               <EmptyMessage
                 icon={<IpGlobal16Icon />}
                 title="No floating IPs found"
@@ -818,8 +784,20 @@ const AdvancedAccordion = ({
               />
             </div>
           ) : (
-            <div>
+            <div className="flex flex-col items-start gap-3">
+              <MiniTable
+                ariaLabel="Floating IPs"
+                items={attachedFloatingIpsData}
+                columns={[
+                  { header: 'Name', cell: (item) => item.name },
+                  { header: 'IP', cell: (item) => item.ip },
+                ]}
+                rowKey={(item) => item.name}
+                onRemoveItem={(item) => detachFloatingIp(item.name)}
+                removeLabel={(item) => `remove floating IP ${item.name}`}
+              />
               <Button
+                variant="secondary"
                 size="sm"
                 className="shrink-0"
                 disabled={availableFloatingIps.length === 0}
@@ -830,7 +808,6 @@ const AdvancedAccordion = ({
               </Button>
             </div>
           )}
-
           <Modal
             isOpen={floatingIpModalOpen}
             onDismiss={closeFloatingIpModal}
@@ -905,13 +882,11 @@ const PRESETS = [
   { category: 'general', id: 'general-sm', memory: 16, ncpus: 4 },
   { category: 'general', id: 'general-md', memory: 32, ncpus: 8 },
   { category: 'general', id: 'general-lg', memory: 64, ncpus: 16 },
-  { category: 'general', id: 'general-xl', memory: 128, ncpus: 32 },
 
   { category: 'highCPU', id: 'highCPU-xs', memory: 4, ncpus: 2 },
   { category: 'highCPU', id: 'highCPU-sm', memory: 8, ncpus: 4 },
   { category: 'highCPU', id: 'highCPU-md', memory: 16, ncpus: 8 },
   { category: 'highCPU', id: 'highCPU-lg', memory: 32, ncpus: 16 },
-  { category: 'highCPU', id: 'highCPU-xl', memory: 64, ncpus: 32 },
 
   { category: 'highMemory', id: 'highMemory-xs', memory: 16, ncpus: 2 },
   { category: 'highMemory', id: 'highMemory-sm', memory: 32, ncpus: 4 },

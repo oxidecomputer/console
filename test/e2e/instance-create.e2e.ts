@@ -257,6 +257,7 @@ test('can’t create a disk with a name that collides with the boot disk name', 
   await page.fill('input[name=bootDiskName]', 'disk-11')
 
   // Attempt to create a disk with the same name
+  await expect(page.getByText('No disks')).toBeVisible()
   await page.getByRole('button', { name: 'Create new disk' }).click()
   const dialog = page.getByRole('dialog')
   await dialog.getByRole('textbox', { name: 'name' }).fill('disk-11')
@@ -268,6 +269,7 @@ test('can’t create a disk with a name that collides with the boot disk name', 
   await dialog.getByRole('button', { name: 'Create disk' }).click()
   // The disk has been "created" (is in the list of Additional Disks)
   await expectVisible(page, ['text=disk-12'])
+  await expect(page.getByText('No disks')).toBeHidden()
   // Create the instance
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL('/projects/mock-project/instances/another-instance/storage')
@@ -392,6 +394,7 @@ test('maintains selected values even when changing tabs', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   const imageSelectCombobox = page.getByRole('combobox', { name: 'Image' })
+  await imageSelectCombobox.scrollIntoViewIfNeeded()
   // Filter the combobox for a particular silo image
   await imageSelectCombobox.fill('arch')
   // select the image
@@ -580,7 +583,7 @@ test('create instance with additional disks', async ({ page }) => {
 
   const disksTable = page.getByRole('table', { name: 'Disks' })
   await expect(disksTable.getByText('disk-6')).toBeHidden()
-  await expectRowVisible(disksTable, { Name: 'new-disk-1', Type: 'create', Size: '5GiB' })
+  await expectRowVisible(disksTable, { Name: 'new-disk-1', Type: 'create', Size: '5 GiB' })
 
   // now that name is taken too, so disk create disallows it
   await page.getByRole('button', { name: 'Create new disk' }).click()
@@ -594,7 +597,7 @@ test('create instance with additional disks', async ({ page }) => {
   await selectOption(page, 'Disk name', 'disk-3')
   await page.getByRole('button', { name: 'Attach disk' }).click()
 
-  await expectRowVisible(disksTable, { Name: 'disk-3', Type: 'attach', Size: '—' })
+  await expectRowVisible(disksTable, { Name: 'disk-3', Type: 'attach', Size: '6 GiB' })
 
   // Create the instance
   await page.getByRole('button', { name: 'Create instance' }).click()
@@ -611,4 +614,38 @@ test('create instance with additional disks', async ({ page }) => {
   const otherDisksTable = page.getByRole('table', { name: 'Additional disks' })
   await expectRowVisible(otherDisksTable, { Disk: 'new-disk-1', size: '5 GiB' })
   await expectRowVisible(otherDisksTable, { Disk: 'disk-3', size: '6 GiB' })
+})
+
+test('Validate CPU and RAM', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill('db2')
+  await selectASiloImage(page, 'ubuntu-22-04')
+
+  await page.getByRole('tab', { name: 'Custom' }).click()
+
+  const cpu = page.getByRole('textbox', { name: 'CPU' })
+  await cpu.fill('999')
+
+  // blur CPU
+  const memory = page.getByRole('textbox', { name: 'Memory' })
+  await memory.click()
+
+  // make sure it's not clamping the value
+  await expect(cpu).toHaveValue('999')
+
+  await memory.fill('1537')
+
+  const submitButton = page.getByRole('button', { name: 'Create instance' })
+
+  const cpuMsg = page.getByText('Can be at most 64').first()
+  const memMsg = page.getByText('Can be at most 1536 GiB').first()
+
+  await expect(cpuMsg).toBeHidden()
+  await expect(memMsg).toBeHidden()
+
+  await submitButton.click()
+
+  await expect(cpuMsg).toBeVisible()
+  await expect(memMsg).toBeVisible()
 })

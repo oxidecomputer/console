@@ -41,7 +41,7 @@ export function MetadataSourceField({
   } = useController({ control, name: 'idpMetadataSource' })
   return (
     <fieldset>
-      <legend id="metadata-source-legend" className="mb-2 text-sans-md">
+      <legend id="metadata-source-legend" className="mb-2 text-sans-md text-raise">
         Metadata source
       </legend>
       {/* TODO: probably need some help text here */}

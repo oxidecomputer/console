@@ -7,7 +7,7 @@
  */
 import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
-import type { SetRequired } from 'type-fest'
+import type { SetNonNullable, SetRequired } from 'type-fest'
 
 import { useApiQuery, type ApiError, type InstanceNetworkInterfaceCreate } from '@oxide/api'
 
@@ -20,7 +20,7 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
 import { FormDivider } from '~/ui/lib/Divider'
 
-const defaultValues: SetRequired<InstanceNetworkInterfaceCreate, 'ip'> = {
+const defaultValues: SetRequired<SetNonNullable<InstanceNetworkInterfaceCreate>, 'ip'> = {
   name: '',
   description: '',
   ip: '',

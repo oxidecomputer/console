@@ -121,7 +121,14 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
         </div>
 
         {cellIsToday && (
-          <div className="absolute bottom-[5px] left-1/2 h-[3px] w-[3px] -translate-x-1/2 rounded-full bg-[var(--content-accent-tertiary)] content-['']" />
+          <div
+            className={cn(
+              "absolute bottom-[5px] left-1/2 h-[3px] w-[3px] -translate-x-1/2 rounded-full content-['']",
+              isInvalid
+                ? 'bg-[var(--content-error-tertiary)]'
+                : 'bg-[var(--content-accent-tertiary)]'
+            )}
+          />
         )}
       </div>
     </td>

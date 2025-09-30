@@ -27,7 +27,7 @@ import { intersperse } from '~/util/array'
 import { pb } from '~/util/path-builder'
 
 export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
-  const { isFleetViewer } = useCurrentUser()
+  const { me } = useCurrentUser()
   // The height of this component is governed by the `PageContainer`
   // It's important that this component returns two distinct elements (wrapped in a fragment).
   // Each element will occupy one of the top column slots provided by `PageContainer`.
@@ -42,7 +42,7 @@ export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
           <Breadcrumbs />
         </div>
         <div className="flex items-center gap-2">
-          {isFleetViewer && <SiloSystemPicker level={systemOrSilo} />}
+          {me.fleetViewer && <SiloSystemPicker level={systemOrSilo} />}
           <UserMenu />
         </div>
       </div>
@@ -132,17 +132,18 @@ function UserMenu() {
   const { me } = useCurrentUser()
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger
-        className={cn(
-          buttonStyle({ size: 'sm', variant: 'ghost' }),
-          'flex items-center gap-1.5 !px-2 !border-secondary'
-        )}
-        aria-label="User menu"
-      >
-        <Profile16Icon className="text-tertiary" />
-        <span className="normal-case text-sans-md text-default">
-          {me.displayName || 'User'}
-        </span>
+      <DropdownMenu.Trigger aria-label="User menu">
+        <div
+          className={cn(
+            buttonStyle({ size: 'sm', variant: 'ghost' }),
+            'flex items-center gap-1.5 !px-2 !border-secondary'
+          )}
+        >
+          <Profile16Icon className="text-tertiary" />
+          <span className="normal-case text-sans-md text-default">
+            {me.displayName || 'User'}
+          </span>
+        </div>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content gap={8}>
         <DropdownMenu.LinkItem to={pb.profile()}>Settings</DropdownMenu.LinkItem>
@@ -154,22 +155,21 @@ function UserMenu() {
 
 /**
  * Choose between System and Silo-scoped route trees, or if the user doesn't
- * have access to system routes (i.e., if systemPolicyView 403s) show the
- * current silo.
+ * have access to system routes (i.e., if /v1/me has fleetViewer: false) show
+ * the current silo.
  */
 function SiloSystemPicker({ level }: { level: 'silo' | 'system' }) {
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger
-        className="flex items-center rounded border px-2 py-1.5 text-sans-md text-default border-secondary hover:bg-hover"
-        aria-label="Switch between system and silo"
-      >
-        <div className="flex items-center text-tertiary">
-          {level === 'system' ? <Servers16Icon /> : <Organization16Icon />}
+      <DropdownMenu.Trigger aria-label="Switch between system and silo">
+        <div className="active-clicked flex items-center rounded border px-2 py-1.5 text-sans-md text-default border-secondary hover:bg-hover">
+          <div className="flex items-center text-tertiary">
+            {level === 'system' ? <Servers16Icon /> : <Organization16Icon />}
+          </div>
+          <div className="ml-1.5 mr-3">{level === 'system' ? 'System' : 'Silo'}</div>
+          {/* aria-hidden is a tip from the Reach docs */}
+          <SelectArrows6Icon className="text-quaternary" aria-hidden />
         </div>
-        <div className="ml-1.5 mr-3">{level === 'system' ? 'System' : 'Silo'}</div>
-        {/* aria-hidden is a tip from the Reach docs */}
-        <SelectArrows6Icon className="text-quaternary" aria-hidden />
       </DropdownMenu.Trigger>
       <DropdownMenu.Content className="mt-2 max-h-80 overflow-y-auto" anchor="bottom start">
         <SystemSiloItem to={pb.silos()} label="System" isSelected={level === 'system'} />

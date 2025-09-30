@@ -129,7 +129,7 @@ export const sumValues = (timeseries: Timeseries[], arrLen: number): (number | n
 export const composeOxqlData = (data: OxqlQueryResult | undefined) => {
   let timeseriesCount = 0
   if (!data) return { chartData: [], timeseriesCount }
-  const timeseriesData = Object.values(data.tables[0].timeseries)
+  const timeseriesData = data.tables[0].timeseries
   timeseriesCount = timeseriesData.length
   if (!timeseriesCount) return { chartData: [], timeseriesCount }
   // Extract timestamps (all series should have the same timestamps)

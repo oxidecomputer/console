@@ -97,8 +97,11 @@ export const pb = {
     `${pb.floatingIps(params)}/${params.floatingIp}/edit`,
 
   affinity: (params: PP.Project) => `${projectBase(params)}/affinity`,
+  affinityNew: (params: PP.Project) => `${projectBase(params)}/affinity-new`,
   antiAffinityGroup: (params: PP.AntiAffinityGroup) =>
     `${pb.affinity(params)}/${params.antiAffinityGroup}`,
+  antiAffinityGroupEdit: (params: PP.AntiAffinityGroup) =>
+    `${pb.antiAffinityGroup(params)}/edit`,
 
   siloUtilization: () => '/utilization',
   siloAccess: () => '/access',
@@ -129,6 +132,7 @@ export const pb = {
   sshKeys: () => '/settings/ssh-keys',
   sshKeysNew: () => '/settings/ssh-keys-new',
   sshKeyEdit: (params: PP.SshKey) => `/settings/ssh-keys/${params.sshKey}/edit`,
+  accessTokens: () => '/settings/access-tokens',
 
   deviceSuccess: () => '/device/success',
 }

@@ -27,23 +27,13 @@ import { inventoryBase, pb } from '~/util/path-builder'
 import { ContentPane, PageContainer } from './helpers'
 
 /**
- * If we can see the policy, we're a fleet viewer, and we need to be a fleet
- * viewer in order to see any of the routes under this layout. We need to
- * `fetchQuery` instead of `prefetchQuery` because the latter doesn't return the
- * result, and then we need to `.catch()` because `fetchQuery` throws on request
- * error. We're being a little cavalier here with the error. If it's something
- * other than a 403, that would be strange and we would want to know.
+ * We need to be a fleet viewer in order to see any of the routes under this
+ * layout. We need to `fetchQuery` instead of `prefetchQuery` because the latter
+ * doesn't return the result.
  */
 export async function clientLoader() {
-  // we don't need to use the ErrorsAllowed version here because we're 404ing
-  // immediately on error, so we don't need to pick the result up from the cache
-  const isFleetViewer = await apiQueryClient
-    .fetchQuery('systemPolicyView', {})
-    .then(() => true)
-    .catch(() => false)
-
-  if (!isFleetViewer) throw trigger404
-
+  const me = await apiQueryClient.fetchQuery('currentUserView', {})
+  if (!me.fleetViewer) throw trigger404
   return null
 }
 

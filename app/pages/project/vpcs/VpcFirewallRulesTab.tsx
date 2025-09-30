@@ -19,6 +19,7 @@ import {
 } from '@oxide/api'
 
 import { ListPlusCell } from '~/components/ListPlusCell'
+import { ProtocolBadge } from '~/components/ProtocolBadge'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { EnabledCell } from '~/table/cells/EnabledCell'
@@ -27,12 +28,12 @@ import { TypeValueCell } from '~/table/cells/TypeValueCell'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
-import { Badge } from '~/ui/lib/Badge'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
+import { getProtocolKey } from '~/util/protocol'
 import { titleCase } from '~/util/str'
 
 const colHelper = createColumnHelper<VpcFirewallRule>()
@@ -77,7 +78,9 @@ const staticColumns = [
         ...(hosts || []).map((tv, i) => (
           <TypeValueCell key={`host-${tv.type}-${tv.value}-${i}`} {...tv} />
         )),
-        ...(protocols || []).map((p, i) => <Badge key={`${p}-${i}`}>{p}</Badge>),
+        ...(protocols || []).map((p) => (
+          <ProtocolBadge key={getProtocolKey(p)} protocol={p} />
+        )),
         ...(ports || []).map((p, i) => (
           <TypeValueCell key={`port-${p}-${i}`} type="Port" value={p} />
         )),

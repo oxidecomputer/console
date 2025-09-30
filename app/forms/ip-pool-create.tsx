@@ -19,9 +19,14 @@ import { addToast } from '~/stores/toast'
 import { Message } from '~/ui/lib/Message'
 import { pb } from '~/util/path-builder'
 
+// We are leaving the v4/v6 radio out for now because while you can
+// create a v6 pool, you can't actually add any ranges to it until
+// https://github.com/oxidecomputer/omicron/issues/8966
+
 const defaultValues: IpPoolCreate = {
   name: '',
   description: '',
+  ipVersion: 'v4',
 }
 
 export const handle = titleCrumb('New IP pool')

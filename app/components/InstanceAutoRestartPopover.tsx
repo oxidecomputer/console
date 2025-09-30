@@ -9,7 +9,7 @@ import { CloseButton, Popover, PopoverButton, PopoverPanel } from '@headlessui/r
 import { formatDistanceToNow } from 'date-fns'
 import { type ReactNode } from 'react'
 import { Link } from 'react-router'
-import { match } from 'ts-pattern'
+import { match, P } from 'ts-pattern'
 
 import {
   AutoRestart12Icon,
@@ -69,7 +69,7 @@ export const InstanceAutoRestartPopover = ({ instance }: { instance: Instance })
                 </Badge>
               ))
               .with('best_effort', () => <Badge>best effort</Badge>)
-              .with(undefined, () => <Badge color="neutral">Default</Badge>)
+              .with(P.nullish, () => <Badge color="neutral">Default</Badge>)
               .exhaustive()}
             <div className="transition-transform group-hover:translate-x-1">
               <NextArrow12Icon />

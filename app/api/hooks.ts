@@ -31,7 +31,7 @@ import { navToLogin } from './nav-to-login'
 type Params<F> = F extends (p: infer P) => any ? P : never
 type Result<F> = F extends (p: any) => Promise<ApiResult<infer R>> ? R : never
 
-export type ResultsPage<TItem> = { items: TItem[]; nextPage?: string }
+export type ResultsPage<TItem> = { items: TItem[]; nextPage?: string | null }
 
 type ApiClient = Record<string, (...args: any) => Promise<ApiResult<any>>>
 /* eslint-enable @typescript-eslint/no-explicit-any */
@@ -119,7 +119,7 @@ export const getApiQueryOptions =
 
 // Managed here instead of at the display layer so it can be built into the
 // query options and shared between loader prefetch and QueryTable
-export const PAGE_SIZE = 25
+export const PAGE_SIZE = 50
 
 /**
  * This primarily exists so we can have an object that encapsulates everything
@@ -229,27 +229,16 @@ const ERRORS_ALLOWED = 'errors-allowed'
 /** Result that includes both success and error so it can be cached by RQ */
 type ErrorsAllowed<T, E> = { type: 'success'; data: T } | { type: 'error'; data: E }
 
-/**
- * Variant of `getUseApiQuery` that allows error responses as a valid result,
- * which importantly means they can be cached by RQ. This means we can prefetch
- * an endpoint that might error (see `prefetchQueryErrorsAllowed`) and use this
- * hook to retrieve the error result.
- *
- * Concretely, the only difference from `getUseApiQuery`: we turn all errors
- * into successes. Instead of throwing the error, we return it as a valid
- * result. This means `data` has a type that includes the possibility of error,
- * plus a discriminant to let us handle both sides properly in the calling code.
- */
-export const getUseApiQueryErrorsAllowed =
+export const getApiQueryOptionsErrorsAllowed =
   <A extends ApiClient>(api: A) =>
   <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
     options: UseQueryOtherOptions<ErrorsAllowed<Result<A[M]>, ApiError>> = {}
-  ) => {
-    return useQuery({
+  ) =>
+    queryOptions({
       // extra bit of key is important to distinguish from normal query. if we
-      // hit a a given endpoint twice on the same page, once the normal way and
+      // hit a given endpoint twice on the same page, once the normal way and
       // once with errors allowed the responses have different shapes, so we do
       // not want to share the cache and mix them up
       queryKey: [method, params, ERRORS_ALLOWED],
@@ -260,7 +249,6 @@ export const getUseApiQueryErrorsAllowed =
           .catch((data) => ({ type: 'error' as const, data })),
       ...options,
     })
-  }
 
 export const getUseApiMutation =
   <A extends ApiClient>(api: A) =>
@@ -315,40 +303,6 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
     queryClient.prefetchQuery({
       queryKey: [method, params],
       queryFn: () => api[method](params).then(handleResult(method)),
-      ...options,
-    }),
-  /**
-   * Loader analog to `useApiQueryErrorsAllowed`. Prefetch a query that can
-   * error, converting the error to a valid result so RQ will cache it.
-   */
-  prefetchQueryErrorsAllowed: <M extends string & keyof A>(
-    method: M,
-    params: Params<A[M]>,
-    options: FetchQueryOtherOptions<ErrorsAllowed<Result<A[M]>, ApiError>> & {
-      /**
-       * HTTP errors will show up unexplained in the browser console. It can be
-       * helpful to reassure people they're normal.
-       */
-      explanation: string
-      expectedStatusCode: 403 | 404
-    }
-  ) =>
-    queryClient.prefetchQuery({
-      queryKey: [method, params, ERRORS_ALLOWED],
-      queryFn: () =>
-        api[method](params)
-          .then(handleResult(method))
-          .then((data) => ({ type: 'success' as const, data }))
-          .catch((data: ApiError) => {
-            // if we get an unexpected error, we're still throwing
-            if (data.statusCode !== options.expectedStatusCode) {
-              // data is the result of handleResult, so it's ready to through
-              // directly without further processing
-              throw data
-            }
-            console.info(options.explanation)
-            return { type: 'error' as const, data }
-          }),
       ...options,
     }),
 })
