@@ -12,6 +12,7 @@ import { apiQueryClient } from '@oxide/api'
 import {
   Cloud16Icon,
   IpGlobal16Icon,
+  Logs16Icon,
   Metrics16Icon,
   Servers16Icon,
 } from '@oxide/design-system/icons/react'
@@ -53,6 +54,7 @@ export default function SystemLayout() {
       { value: 'Utilization', path: pb.systemUtilization() },
       { value: 'Inventory', path: pb.sledInventory() },
       { value: 'IP Pools', path: pb.ipPools() },
+      { value: 'Audit Log', path: pb.auditLog() },
     ]
       // filter out the entry for the path we're currently on
       .filter((i) => i.path !== pathname)
@@ -95,6 +97,9 @@ export default function SystemLayout() {
           </NavLinkItem>
           <NavLinkItem to={pb.ipPools()}>
             <IpGlobal16Icon /> IP Pools
+          </NavLinkItem>
+          <NavLinkItem to={pb.auditLog()}>
+            <Logs16Icon /> Audit Log
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>

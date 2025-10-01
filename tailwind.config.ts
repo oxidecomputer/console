@@ -69,10 +69,13 @@ export default {
       pulse2: 'pulse2 1.3s cubic-bezier(.4,0,.6,1) infinite',
     },
     keyframes: {
+      pulse: {
+        '50%': { opacity: '0.66' },
+      },
       // different from pulse in that we go up a little before we go back down.
       // pulse starts at opacity 1
       pulse2: {
-        '0%, 100%': { opacity: '0.75' },
+        '0%, 100%': { opacity: '0.66' },
         '50%': { opacity: '1' },
       },
     },

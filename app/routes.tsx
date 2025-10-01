@@ -209,6 +209,10 @@ export const routes = createRoutesFromElements(
             />
           </Route>
         </Route>
+        <Route
+          path="audit-log"
+          lazy={() => import('./pages/system/AuditLog').then(convert)}
+        />
       </Route>
 
       <Route index loader={() => redirect(pb.projects())} element={null} />

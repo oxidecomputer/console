@@ -104,3 +104,10 @@ export function diskSizeNearest10(imageSizeGiB: number) {
   const nearest10 = Math.ceil(imageSizeGiB / 10) * 10
   return Math.min(nearest10, MAX_DISK_SIZE_GiB)
 }
+
+export function deterRandom(i: number, target: number, range: number) {
+  const variation =
+    (Math.sin(i * 0.7) * 1.0 + Math.sin(i * 1.3) * 0.75 + Math.sin(i * 2.1) * 0.5) / 2.25 // Normalize to approximately [-1, 1]
+
+  return target + variation * range
+}
