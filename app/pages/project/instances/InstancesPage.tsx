@@ -157,7 +157,7 @@ export default function InstancesPage() {
         const nextTransitioning = new Set(
           // Data will never actually be undefined because of the prefetch but whatever
           (data?.items || [])
-            .filter(instanceTransitioning)
+            .filter((instance) => instanceTransitioning(instance.runState))
             // These are strings of instance ID + current state. This is done because
             // of the case where an instance is stuck in starting (for example), polling
             // times out, and then you manually stop it. Without putting the state in the

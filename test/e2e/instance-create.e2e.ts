@@ -513,25 +513,25 @@ test('attaching additional disks allows for combobox filtering', async ({ page }
   await attachExistingDiskButton.click()
   await selectADisk.click()
   // several disks should be shown
-  await expect(page.getByRole('option', { name: 'disk-0001' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'disk-0002' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'disk-1000' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'disk-0005' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'disk-0007' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'disk-0988' })).toBeVisible()
 
   // type in a string to use as a filter
-  await selectADisk.fill('disk-010')
+  await selectADisk.fill('disk-02')
   // only disks with that substring should be shown
-  await expect(page.getByRole('option', { name: 'disk-0100' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'disk-0101' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'disk-0102' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'disk-0001' })).toBeHidden()
+  await expect(page.getByRole('option', { name: 'disk-0023' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'disk-0125' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'disk-0211' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'disk-0220' })).toBeHidden()
   await expect(page.getByRole('option', { name: 'disk-1000' })).toBeHidden()
 
   // select one
-  await page.getByRole('option', { name: 'disk-0102' }).click()
+  await page.getByRole('option', { name: 'disk-0211' }).click()
 
   // now options hidden and only the selected one is visible in the button/input
   await expect(page.getByRole('option')).toBeHidden()
-  await expect(page.getByRole('combobox', { name: 'Disk name' })).toHaveValue('disk-0102')
+  await expect(page.getByRole('combobox', { name: 'Disk name' })).toHaveValue('disk-0211')
 
   // a random string should give a disabled option
   await selectADisk.click()

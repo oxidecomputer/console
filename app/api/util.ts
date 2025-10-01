@@ -145,12 +145,13 @@ export const instanceCan = R.mapValues(instanceActions, (states: InstanceState[]
   return test
 })
 
-export function instanceTransitioning({ runState }: Instance) {
+export function instanceTransitioning(runState: InstanceState) {
   return (
     runState === 'creating' ||
     runState === 'starting' ||
-    runState === 'stopping' ||
-    runState === 'rebooting'
+    runState === 'rebooting' ||
+    runState === 'migrating' ||
+    runState === 'stopping'
   )
 }
 
@@ -187,6 +188,15 @@ const diskActions = {
   // https://github.com/oxidecomputer/omicron/blob/3093818/nexus/db-queries/src/db/datastore/instance.rs#L1077-L1081
   setAsBootDisk: ['attached'],
 } satisfies Record<string, DiskState['state'][]>
+
+export function diskTransitioning(diskState: DiskState['state']) {
+  return (
+    diskState === 'attaching' ||
+    diskState === 'creating' ||
+    diskState === 'detaching' ||
+    diskState === 'finalizing'
+  )
+}
 
 export const diskCan = R.mapValues(diskActions, (states: DiskState['state'][]) => {
   // only have to Pick because we want this to work for both Disk and
