@@ -1808,6 +1808,50 @@ export const handlers = makeHandlers({
     return paginated(query, affinityGroups)
   },
 
+  // SCIM token endpoints
+  scimTokenList({ query, cookies }) {
+    requireFleetViewer(cookies)
+    const silo = lookup.silo({ silo: query.silo })
+    // Filter by silo and strip out the siloId before returning
+    const tokens = db.scimTokens
+      .filter((t) => t.siloId === silo.id)
+      .map(({ siloId: _siloId, ...token }) => token)
+    return tokens
+  },
+  scimTokenCreate({ query, cookies }) {
+    requireFleetCollab(cookies)
+    const silo = lookup.silo({ silo: query.silo })
+    const newToken: Json<Api.ScimClientBearerTokenValue> = {
+      id: uuid(),
+      bearer_token: `token_${uuid()}`,
+      time_created: new Date().toISOString(),
+      time_expires: null,
+    }
+    // Store without the bearer_token but with siloId for filtering
+    const { bearer_token: _bearerToken, ...tokenWithoutBearer } = newToken
+    db.scimTokens.push({ ...tokenWithoutBearer, siloId: silo.id })
+    return json(newToken, { status: 201 })
+  },
+  scimTokenView({ path, cookies }) {
+    requireFleetViewer(cookies)
+    const token = lookupById(db.scimTokens, path.tokenId)
+    // Strip out siloId before returning
+    const { siloId: _siloId, ...tokenResponse } = token
+    return tokenResponse
+  },
+  scimTokenDelete({ path, cookies }) {
+    requireFleetCollab(cookies)
+    const token = lookupById(db.scimTokens, path.tokenId)
+    db.scimTokens = db.scimTokens.filter((t) => t.id !== token.id)
+    return 204
+  },
+  scimTokenDeleteAll({ query, cookies }) {
+    requireFleetCollab(cookies)
+    const silo = lookup.silo({ silo: query.silo })
+    db.scimTokens = db.scimTokens.filter((t) => t.siloId !== silo.id)
+    return 204
+  },
+
   // Misc endpoints we're not using yet in the console
   affinityGroupCreate: NotImplemented,
   affinityGroupDelete: NotImplemented,
@@ -1890,11 +1934,6 @@ export const handlers = makeHandlers({
   probeList: NotImplemented,
   probeView: NotImplemented,
   rackView: NotImplemented,
-  scimTokenCreate: NotImplemented,
-  scimTokenDelete: NotImplemented,
-  scimTokenDeleteAll: NotImplemented,
-  scimTokenList: NotImplemented,
-  scimTokenView: NotImplemented,
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
   siloUserList: NotImplemented,

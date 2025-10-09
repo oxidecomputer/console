@@ -10,6 +10,7 @@ import * as R from 'remeda'
 import type {
   IdentityProvider,
   SamlIdentityProvider,
+  ScimClientBearerToken,
   Silo,
   SiloAuthSettings,
   SiloQuotas,
@@ -126,5 +127,29 @@ export const siloSettings: Json<SiloAuthSettings>[] = [
   {
     silo_id: silos[1].id,
     device_token_max_ttl_seconds: 7200, // 2 hours in seconds
+  },
+]
+
+// SCIM tokens are stored with siloId for filtering, similar to identity providers
+type DbScimToken = Json<ScimClientBearerToken> & { siloId: string }
+
+export const scimTokens: DbScimToken[] = [
+  {
+    id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+    time_created: new Date(2024, 0, 15).toISOString(),
+    time_expires: null,
+    siloId: defaultSilo.id,
+  },
+  {
+    id: 'b2c3d4e5-f6a7-8901-bcde-f12345678901',
+    time_created: new Date(2024, 1, 20).toISOString(),
+    time_expires: new Date(2025, 1, 20).toISOString(),
+    siloId: defaultSilo.id,
+  },
+  {
+    id: 'c3d4e5f6-a7b8-9012-cdef-123456789012',
+    time_created: new Date(2024, 2, 10).toISOString(),
+    time_expires: null,
+    siloId: silos[1].id,
   },
 ]
