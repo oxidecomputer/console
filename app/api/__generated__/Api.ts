@@ -2533,21 +2533,23 @@ export type InstanceSerialConsoleData = {
  * Parameters of an `Instance` that can be reconfigured after creation.
  */
 export type InstanceUpdate = {
-  /** Sets the auto-restart policy for this instance.
+  /** The auto-restart policy for this instance.
 
 This policy determines whether the instance should be automatically restarted by the control plane on failure. If this is `null`, any explicitly configured auto-restart policy will be unset, and the control plane will select the default policy when determining whether the instance can be automatically restarted.
 
 Currently, the global default auto-restart policy is "best-effort", so instances with `null` auto-restart policies will be automatically restarted. However, in the future, the default policy may be configurable through other mechanisms, such as on a per-project basis. In that case, any configured default policy will be used if this is `null`. */
   autoRestartPolicy: InstanceAutoRestartPolicy | null
-  /** Name or ID of the disk the instance should be instructed to boot from.
+  /** The disk the instance is configured to boot from.
 
-A null value unsets the boot disk. */
+Setting a boot disk is optional but recommended to ensure predictable boot behavior. The boot disk can be set during instance creation or later if the instance is stopped. The boot disk counts against the disk attachment limit.
+
+An instance that does not have a boot disk set will use the boot options specified in its UEFI settings, which are controlled by both the instance's UEFI firmware and the guest operating system. Boot options can change as disks are attached and detached, which may result in an instance that only boots to the EFI shell until a boot disk is set. */
   bootDisk: NameOrId | null
-  /** The CPU platform to be used for this instance. If this is `null`, the instance requires no particular CPU platform. */
+  /** The CPU platform to be used for this instance. If this is `null`, the instance requires no particular CPU platform; when it is started the instance will have the most general CPU platform supported by the sled it is initially placed on. */
   cpuPlatform: InstanceCpuPlatform | null
-  /** The amount of memory to assign to this instance. */
+  /** The amount of RAM (in bytes) to be allocated to the instance */
   memory: ByteCount
-  /** The number of CPUs to assign to this instance. */
+  /** The number of vCPUs to be allocated to the instance */
   ncpus: InstanceCpuCount
 }
 
@@ -2665,6 +2667,26 @@ export type InternetGatewayResultsPage = {
   items: InternetGateway[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
+}
+
+/**
+ * A count of bytes / rows accessed during a query.
+ */
+export type IoCount = {
+  /** The number of bytes accessed. */
+  bytes: number
+  /** The number of rows accessed. */
+  rows: number
+}
+
+/**
+ * Summary of the I/O resources used by a query.
+ */
+export type IoSummary = {
+  /** The bytes and rows read by the query. */
+  read: IoCount
+  /** The bytes and rows written by the query. */
+  written: IoCount
 }
 
 /**
@@ -3069,6 +3091,20 @@ export type NetworkInterface = {
 }
 
 /**
+ * Basic metadata about the resource usage of a single ClickHouse SQL query.
+ */
+export type OxqlQuerySummary = {
+  /** The total duration of the ClickHouse query (network plus execution). */
+  elapsedMs: number
+  /** The database-assigned query ID. */
+  id: string
+  /** Summary of the data read and written. */
+  ioSummary: IoSummary
+  /** The raw ClickHouse SQL query. */
+  query: string
+}
+
+/**
  * List of data values for one timeseries.
  *
  * Each element is an option, where `None` represents a missing sample.
@@ -3119,6 +3155,8 @@ export type OxqlTable = {
  * The result of a successful OxQL query.
  */
 export type OxqlQueryResult = {
+  /** Summaries of queries run against ClickHouse. */
+  querySummaries?: OxqlQuerySummary[] | null
   /** Tables resulting from the query, each containing timeseries. */
   tables: OxqlTable[]
 }
@@ -3530,6 +3568,22 @@ export type SamlIdentityProviderCreate = {
   technicalContactEmail: string
 }
 
+export type ScimClientBearerToken = {
+  id: string
+  timeCreated: Date
+  timeExpires?: Date | null
+}
+
+/**
+ * The POST response is the only time the generated bearer token is returned to the client.
+ */
+export type ScimClientBearerTokenValue = {
+  bearerToken: string
+  id: string
+  timeCreated: Date
+  timeExpires?: Date | null
+}
+
 /**
  * Configuration of inbound ICMP allowed by API services.
  */
@@ -3555,6 +3609,9 @@ export type SiloIdentityMode =
 
   /** The system is the source of truth about users.  There is no linkage to an external authentication provider or identity provider. */
   | 'local_only'
+
+  /** Users are authenticated with SAML using an external authentication provider. Users and groups are managed with SCIM API calls, likely from the same authentication provider. */
+  | 'saml_scim'
 
 /**
  * View of a Silo
@@ -4396,6 +4453,8 @@ export type TimeseriesName = string
  * A timeseries query string, written in the Oximeter query language.
  */
 export type TimeseriesQuery = {
+  /** Whether to include ClickHouse query summaries in the response. */
+  includeSummaries?: boolean
   /** A timeseries query string, written in the Oximeter query language. */
   query: string
 }
@@ -6237,6 +6296,34 @@ export interface NetworkingSwitchPortSettingsDeleteQueryParams {
 
 export interface NetworkingSwitchPortSettingsViewPathParams {
   port: NameOrId
+}
+
+export interface ScimTokenListQueryParams {
+  silo: NameOrId
+}
+
+export interface ScimTokenCreateQueryParams {
+  silo: NameOrId
+}
+
+export interface ScimTokenDeleteAllQueryParams {
+  silo: NameOrId
+}
+
+export interface ScimTokenViewPathParams {
+  tokenId: string
+}
+
+export interface ScimTokenViewQueryParams {
+  silo: NameOrId
+}
+
+export interface ScimTokenDeletePathParams {
+  tokenId: string
+}
+
+export interface ScimTokenDeleteQueryParams {
+  silo: NameOrId
 }
 
 export interface SystemQuotasListQueryParams {
@@ -9821,6 +9908,79 @@ export class Api extends HttpClient {
         path: `/v1/system/policy`,
         method: 'PUT',
         body,
+        ...params,
+      })
+    },
+    /**
+     * List SCIM tokens
+     */
+    scimTokenList: (
+      { query }: { query: ScimTokenListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ScimClientBearerToken[]>({
+        path: `/v1/system/scim/tokens`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create SCIM token
+     */
+    scimTokenCreate: (
+      { query }: { query: ScimTokenCreateQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ScimClientBearerTokenValue>({
+        path: `/v1/system/scim/tokens`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete all SCIM tokens
+     */
+    scimTokenDeleteAll: (
+      { query }: { query: ScimTokenDeleteAllQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/scim/tokens`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch SCIM token
+     */
+    scimTokenView: (
+      { path, query }: { path: ScimTokenViewPathParams; query: ScimTokenViewQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ScimClientBearerToken>({
+        path: `/v1/system/scim/tokens/${path.tokenId}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete SCIM token
+     */
+    scimTokenDelete: (
+      {
+        path,
+        query,
+      }: { path: ScimTokenDeletePathParams; query: ScimTokenDeleteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/scim/tokens/${path.tokenId}`,
+        method: 'DELETE',
+        query,
         ...params,
       })
     },

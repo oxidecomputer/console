@@ -1418,6 +1418,38 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.FleetRolePolicy>>
+  /** `GET /v1/system/scim/tokens` */
+  scimTokenList: (params: {
+    query: Api.ScimTokenListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ScimClientBearerToken[]>>
+  /** `POST /v1/system/scim/tokens` */
+  scimTokenCreate: (params: {
+    query: Api.ScimTokenCreateQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ScimClientBearerTokenValue>>
+  /** `DELETE /v1/system/scim/tokens` */
+  scimTokenDeleteAll: (params: {
+    query: Api.ScimTokenDeleteAllQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/system/scim/tokens/:tokenId` */
+  scimTokenView: (params: {
+    path: Api.ScimTokenViewPathParams
+    query: Api.ScimTokenViewQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ScimClientBearerToken>>
+  /** `DELETE /v1/system/scim/tokens/:tokenId` */
+  scimTokenDelete: (params: {
+    path: Api.ScimTokenDeletePathParams
+    query: Api.ScimTokenDeleteQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `GET /v1/system/silo-quotas` */
   systemQuotasList: (params: {
     query: Api.SystemQuotasListQueryParams
@@ -3066,6 +3098,26 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.put(
       '/v1/system/policy',
       handler(handlers['systemPolicyUpdate'], null, schema.FleetRolePolicy)
+    ),
+    http.get(
+      '/v1/system/scim/tokens',
+      handler(handlers['scimTokenList'], schema.ScimTokenListParams, null)
+    ),
+    http.post(
+      '/v1/system/scim/tokens',
+      handler(handlers['scimTokenCreate'], schema.ScimTokenCreateParams, null)
+    ),
+    http.delete(
+      '/v1/system/scim/tokens',
+      handler(handlers['scimTokenDeleteAll'], schema.ScimTokenDeleteAllParams, null)
+    ),
+    http.get(
+      '/v1/system/scim/tokens/:tokenId',
+      handler(handlers['scimTokenView'], schema.ScimTokenViewParams, null)
+    ),
+    http.delete(
+      '/v1/system/scim/tokens/:tokenId',
+      handler(handlers['scimTokenDelete'], schema.ScimTokenDeleteParams, null)
     ),
     http.get(
       '/v1/system/silo-quotas',
