@@ -33,11 +33,11 @@ export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
   // Each element will occupy one of the top column slots provided by `PageContainer`.
   return (
     <>
-      <div className="flex items-center border-b border-r px-2 border-secondary">
+      <div className="border-secondary flex items-center border-r border-b px-2">
         <HomeButton level={systemOrSilo} />
       </div>
       {/* Height is governed by PageContainer grid */}
-      <div className="flex items-center justify-between gap-4 border-b px-3 bg-default border-secondary">
+      <div className="bg-default border-secondary flex items-center justify-between gap-4 border-b px-3">
         <div className="flex flex-1 gap-2.5">
           <Breadcrumbs />
         </div>
@@ -84,12 +84,12 @@ function HomeButton({ level }: { level: 'system' | 'silo' }) {
         }
 
   return (
-    <Link to={config.to} className="w-full grow rounded-lg p-1 hover:bg-hover">
+    <Link to={config.to} className="hover:bg-hover w-full grow rounded-lg p-1">
       <div className="flex w-full items-center">
         <div className="mr-2">{config.icon}</div>
         <div className="min-w-0 flex-1">
           <div className="text-mono-xs text-tertiary">{config.heading}</div>
-          <div className="overflow-hidden text-ellipsis whitespace-nowrap text-sans-md text-raise">
+          <div className="text-sans-md text-raise overflow-hidden text-ellipsis whitespace-nowrap">
             {config.label}
           </div>
         </div>
@@ -102,7 +102,7 @@ function Breadcrumbs() {
   const crumbs = useCrumbs().filter((c) => !c.titleOnly)
   return (
     <nav
-      className="flex items-center gap-0.5 overflow-clip text-sans-md"
+      className="text-sans-md flex items-center gap-0.5 overflow-clip"
       aria-label="Breadcrumbs"
     >
       {intersperse(
@@ -110,7 +110,7 @@ function Breadcrumbs() {
           <Link
             to={path}
             className={cn(
-              'whitespace-nowrap text-sans-md',
+              'text-sans-md whitespace-nowrap',
               i === crumbs.length - 1 ? 'text-raise' : 'text-secondary hover:text-default'
             )}
             key={`${label}|${path}`}
@@ -136,11 +136,11 @@ function UserMenu() {
         <div
           className={cn(
             buttonStyle({ size: 'sm', variant: 'ghost' }),
-            'flex items-center gap-1.5 !px-2 !border-secondary'
+            'border-secondary! flex items-center gap-1.5 px-2!'
           )}
         >
           <Profile16Icon className="text-tertiary" />
-          <span className="normal-case text-sans-md text-default">
+          <span className="text-sans-md text-default normal-case">
             {me.displayName || 'User'}
           </span>
         </div>
@@ -162,11 +162,11 @@ function SiloSystemPicker({ level }: { level: 'silo' | 'system' }) {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger aria-label="Switch between system and silo">
-        <div className="active-clicked flex items-center rounded border px-2 py-1.5 text-sans-md text-default border-secondary hover:bg-hover">
-          <div className="flex items-center text-tertiary">
+        <div className="active-clicked text-sans-md text-default border-secondary hover:bg-hover flex items-center rounded border px-2 py-1.5">
+          <div className="text-tertiary flex items-center">
             {level === 'system' ? <Servers16Icon /> : <Organization16Icon />}
           </div>
-          <div className="ml-1.5 mr-3">{level === 'system' ? 'System' : 'Silo'}</div>
+          <div className="mr-3 ml-1.5">{level === 'system' ? 'System' : 'Silo'}</div>
           {/* aria-hidden is a tip from the Reach docs */}
           <SelectArrows6Icon className="text-quaternary" aria-hidden />
         </div>
@@ -183,10 +183,10 @@ function SystemSiloItem(props: { label: string; to: string; isSelected: boolean 
   return (
     <DropdownMenu.LinkItem
       to={props.to}
-      className={cn('!pr-3', { 'is-selected': props.isSelected })}
+      className={cn('pr-3!', { 'is-selected': props.isSelected })}
     >
       <div className="flex w-full items-center gap-2">
-        <div className="flex-grow">{props.label}</div>
+        <div className="grow">{props.label}</div>
         {props.isSelected && <Success12Icon className="block" />}
       </div>
     </DropdownMenu.LinkItem>

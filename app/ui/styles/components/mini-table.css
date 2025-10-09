@@ -24,7 +24,7 @@
 
   /* a fake left border for all cells that aren't first */
   & td + td:before {
-    @apply absolute bottom-[2px] top-[calc(0.5rem+1px)] block w-[1px] border-l border-secondary;
+    @apply border-secondary absolute bottom-[2px] top-[calc(0.5rem+1px)] block w-[1px] border-l;
     content: ' ';
   }
 
@@ -38,7 +38,7 @@
 
   /* all divs */
   & td > div {
-    @apply flex h-9 items-center border border-y border-r-0 py-3 pl-3 pr-6 border-default;
+    @apply border-default flex h-9 items-center border border-y border-r-0 py-3 pl-3 pr-6;
   }
 
   /* first cell's div */
@@ -58,7 +58,7 @@
 
   /* the delete button */
   & td:last-child > div > button {
-    @apply -m-2 flex items-center justify-center p-2 text-tertiary hover:text-secondary focus:text-secondary;
+    @apply text-tertiary hover:text-secondary focus:text-secondary -m-2 flex items-center justify-center p-2;
   }
 
   & tr:last-child td {

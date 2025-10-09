@@ -7,11 +7,11 @@
  */
 
 .ox-menu {
-  @apply !max-h-[17.5rem] overflow-y-auto rounded border bg-raise border-secondary elevation-2;
+  @apply bg-raise border-secondary elevation-2 !max-h-[17.5rem] overflow-y-auto rounded border;
 }
 
 .ox-menu-item {
-  @apply relative cursor-pointer px-3 py-2 text-sans-md text-raise;
+  @apply text-sans-md text-raise relative cursor-pointer px-3 py-2;
 }
 
 .ox-menu-item.is-highlighted {
@@ -27,14 +27,14 @@
 }
 
 .ox-menu-item.is-selected {
-  @apply border-0 text-accent bg-accent-secondary hover:bg-accent-secondary-hover;
+  @apply text-accent bg-accent-secondary hover:bg-accent-secondary-hover border-0;
   .ox-badge {
-    @apply ring-0 text-inverse bg-accent;
+    @apply text-inverse bg-accent ring-0;
   }
 }
 
 /* beautiful ring */
 .ox-menu-item.is-selected:after {
   content: '';
-  @apply absolute bottom-0 left-0 right-0 top-0 block rounded border border-accent;
+  @apply border-accent absolute bottom-0 left-0 right-0 top-0 block rounded border;
 }

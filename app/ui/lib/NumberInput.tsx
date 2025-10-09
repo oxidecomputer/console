@@ -38,7 +38,7 @@ export function NumberInput(props: NumberInputProps) {
         props.error
           ? 'border-error-secondary hover:border-error'
           : 'border-default hover:border-hover',
-        props.isDisabled && '!border-default',
+        props.isDisabled && 'border-default!',
         props.className
       )}
       {...groupProps}
@@ -47,16 +47,16 @@ export function NumberInput(props: NumberInputProps) {
         {...inputProps}
         ref={mergeRefs([props.ref, inputRef])}
         className={cn(
-          `w-full rounded border-none px-3 py-[0.6875rem] !outline-offset-1 text-sans-md text-raise bg-default placeholder:text-tertiary focus:outline-none disabled:cursor-not-allowed disabled:text-secondary disabled:bg-disabled`,
+          `text-sans-md text-raise bg-default placeholder:text-tertiary disabled:text-secondary disabled:bg-disabled w-full rounded border-none px-3 py-2.75 outline-offset-1! focus:outline-hidden disabled:cursor-not-allowed`,
           props.error && 'focus-error',
           props.isDisabled && 'text-disabled bg-disabled'
         )}
       />
-      <div className="absolute bottom-0 right-0 top-0 flex flex-col border-l border-default">
+      <div className="border-default absolute top-0 right-0 bottom-0 flex flex-col border-l">
         <IncrementButton {...incrementButtonProps}>
           <InputArrowIcon />
         </IncrementButton>
-        <div className="h-[1px] w-full border-t border-t-default" />
+        <div className="border-t-default h-px w-full border-t" />
         <IncrementButton {...decrementButtonProps}>
           <InputArrowIcon className="rotate-180" />
         </IncrementButton>
@@ -74,7 +74,7 @@ function IncrementButton(props: AriaButtonProps<'button'> & { className?: string
       type="button"
       {...buttonProps}
       className={cn(
-        'flex h-1/2 w-8 items-center justify-center hover:bg-hover',
+        'hover:bg-hover flex h-1/2 w-8 items-center justify-center',
         buttonProps.disabled ? 'text-tertiary bg-disabled' : 'bg-default'
       )}
       ref={ref}

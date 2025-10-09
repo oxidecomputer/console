@@ -19,7 +19,7 @@ import { ErrorPage, NotFound } from './ErrorPage'
 const IdpMisconfig = () => (
   <Message
     variant="notice"
-    className="!mt-6"
+    className="mt-6!"
     showIcon={false}
     content={
       <p>

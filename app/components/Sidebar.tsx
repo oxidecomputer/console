@@ -15,15 +15,20 @@ import { openQuickActions } from '~/hooks/use-quick-actions'
 import { Button } from '~/ui/lib/Button'
 import { Truncate } from '~/ui/lib/Truncate'
 
-const linkStyles =
-  'flex h-7 items-center rounded px-2 text-sans-md hover:bg-hover [&>svg]:mr-2 [&>svg]:text-quaternary text-default'
+const linkStyles = (isActive = false) =>
+  cn(
+    'flex h-7 items-center rounded px-2 text-sans-md [&>svg]:mr-2',
+    isActive
+      ? 'text-accent bg-accent-secondary hover:bg-accent-secondary-hover [&>svg]:text-accent-tertiary'
+      : 'hover:bg-hover [&>svg]:text-quaternary text-default'
+  )
 
 // TODO: this probably doesn't go to the docs root. maybe it even opens a
 // menu with links to several relevant docs for the page
 export const DocsLinkItem = () => (
   <li>
     <a
-      className={linkStyles}
+      className={linkStyles()}
       href="https://docs.oxide.computer"
       target="_blank"
       rel="noreferrer"
@@ -43,12 +48,12 @@ const JumpToButton = () => {
       variant="ghost"
       size="sm"
       onClick={openQuickActions}
-      className="w-full !px-2"
+      className="w-full px-2!"
       // TODO: the more I use innerClassName the wronger it feels
       innerClassName="w-full justify-between text-tertiary"
     >
       <span className="flex items-center">
-        <Action16Icon className="mr-2 text-quaternary" /> Jump to
+        <Action16Icon className="text-quaternary mr-2" /> Jump to
       </span>
       <div className="text-mono-xs">{modKey}+K</div>
     </Button>
@@ -57,7 +62,7 @@ const JumpToButton = () => {
 
 export function Sidebar({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col border-r text-sans-md text-raise border-secondary">
+    <div className="text-sans-md text-raise border-secondary flex flex-col border-r">
       <div className="mx-3 mt-4">
         <JumpToButton />
       </div>
@@ -74,7 +79,7 @@ interface SidebarNav {
 Sidebar.Nav = ({ children, heading }: SidebarNav) => (
   <div className="mx-3 my-4 space-y-1">
     {heading && (
-      <div className="mb-2 text-mono-sm text-tertiary">
+      <div className="text-mono-sm text-tertiary mb-2">
         <Truncate text={heading} maxLength={24} />
       </div>
     )}
@@ -109,10 +114,8 @@ export const NavLinkItem = ({
     <li>
       <Link
         to={to}
-        className={cn(linkStyles, {
-          'text-accent !bg-accent-secondary hover:!bg-accent-secondary-hover [&>svg]:!text-accent-tertiary':
-            isActive || currentPathIsCreateForm,
-          'pointer-events-none text-disabled': disabled,
+        className={cn(linkStyles(isActive || currentPathIsCreateForm), {
+          'text-disabled pointer-events-none': disabled,
         })}
         aria-current={isActive ? 'page' : undefined}
       >

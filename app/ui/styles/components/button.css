@@ -41,7 +41,7 @@
 }
 
 .btn-ghost {
-  @apply border text-default border-default hover:bg-hover disabled:bg-transparent disabled:text-disabled;
+  @apply text-default border-default hover:bg-hover disabled:text-disabled border disabled:bg-transparent;
 }
 .btn-ghost:after {
   @apply hidden;

@@ -72,7 +72,7 @@ export default function SledPage() {
           <span className="text-default">{sled.rackId}</span>
         </PropertiesTable.Row>
         <PropertiesTable.Row label="usable physical ram">
-          <span className="pr-0.5 text-default">{ram.value}</span>
+          <span className="text-default pr-0.5">{ram.value}</span>
           <span className="text-tertiary">{ram.unit}</span>
         </PropertiesTable.Row>
       </PropertiesTable>

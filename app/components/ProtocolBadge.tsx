@@ -31,7 +31,7 @@ export const ProtocolBadge = ({ protocol }: ProtocolBadgeProps) => {
           <span>type {protocol.value.icmpType}</span>
           {protocol.value.code && (
             <>
-              <span className="h-[10px] border-l border-l-accent-secondary" />
+              <span className="border-l-accent-secondary h-[10px] border-l" />
               <span>code {protocol.value.code}</span>
             </>
           )}

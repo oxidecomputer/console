@@ -17,7 +17,7 @@ import { Button } from '~/ui/lib/Button'
 const GradientBackground = () => (
   <div
     // negative z-index avoids covering MSW warning banner
-    className="fixed bottom-0 left-0 right-0 top-0 -z-10"
+    className="fixed top-0 right-0 bottom-0 left-0 -z-10"
     style={{
       background:
         'radial-gradient(200% 100% at 50% 100%, var(--surface-default) 0%, #161B1D 100%)',
@@ -34,17 +34,17 @@ export function ErrorPage({ children }: Props) {
       <div className="relative flex w-full justify-between">
         <Link
           to="/"
-          className="flex items-center p-6 text-mono-sm text-default hover:text-raise"
+          className="text-mono-sm text-default hover:text-raise flex items-center p-6"
         >
-          <PrevArrow12Icon title="Select" className="mr-2 text-secondary" />
+          <PrevArrow12Icon title="Select" className="text-secondary mr-2" />
           Back to console
         </Link>
-        <SignOutButton className="mr-6 mt-4" />
+        <SignOutButton className="mt-4 mr-6" />
       </div>
-      <div className="absolute left-1/2 top-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded-lg border p-8 !bg-raise border-secondary elevation-3">
+      <div className="bg-raise! border-secondary elevation-3 absolute top-1/2 left-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded-lg border p-8">
         <div className="my-2 flex h-12 w-12 items-center justify-center">
-          <div className="absolute h-12 w-12 rounded-full opacity-20 bg-destructive motion-safe:animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
-          <Error12Icon className="relative h-8 w-8 text-error" />
+          <div className="bg-destructive absolute h-12 w-12 rounded-full opacity-20 motion-safe:animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
+          <Error12Icon className="text-error relative h-8 w-8" />
         </div>
 
         <div className="space-y-2 text-center">{children}</div>

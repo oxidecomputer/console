@@ -102,7 +102,7 @@ export default function EditFloatingIpSideModalForm() {
                 project: floatingIpSelector.project,
                 instance: instanceName,
               })}
-              className="link-with-underline group text-sans-md"
+              className="link-with-underline text-sans-md group"
             >
               {instanceName}
             </Link>

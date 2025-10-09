@@ -124,7 +124,7 @@ export const Button = ({
             animate={{ opacity: 1, y: '-50%', x: '-50%' }}
             initial={{ opacity: 0, y: 'calc(-50% - 25px)', x: '-50%' }}
             transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
-            className="absolute left-1/2 top-1/2 flex items-center justify-center"
+            className="absolute top-1/2 left-1/2 flex items-center justify-center"
           >
             <Spinner variant={variantToBadgeColorMap[variant || 'primary']} />
           </m.span>

@@ -101,16 +101,16 @@ export const Listbox = <Value extends string = string>({
               id={id}
               name={name}
               className={cn(
-                `flex h-11 items-center justify-between rounded border text-sans-md`,
+                `text-sans-md flex h-11 items-center justify-between rounded border`,
                 hasError
                   ? 'focus-error border-error-secondary hover:border-error'
                   : 'border-default hover:border-hover',
-                open && 'ring-2 ring-accent-secondary',
+                open && 'ring-accent-secondary ring-2',
                 open && hasError && 'ring-error-secondary',
                 isDisabled
-                  ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
+                  ? 'text-disabled bg-disabled border-default! cursor-not-allowed'
                   : 'bg-default',
-                isDisabled && hasError && '!border-error-secondary',
+                isDisabled && hasError && 'border-error-secondary!',
                 hideSelected ? 'w-auto' : 'w-full'
               )}
               ref={buttonRef}
@@ -118,7 +118,7 @@ export const Listbox = <Value extends string = string>({
             >
               {!hideSelected && (
                 <>
-                  <div className="w-full overflow-hidden overflow-ellipsis whitespace-pre px-3 text-left">
+                  <div className="w-full overflow-hidden px-3 text-left text-ellipsis whitespace-pre">
                     {selectedItem ? (
                       // selectedLabel is one line, which is what we need when label is a ReactNode
                       selectedItem.selectedLabel || selectedItem.label
@@ -133,20 +133,20 @@ export const Listbox = <Value extends string = string>({
               )}
               <div
                 className={cn(
-                  'flex h-[calc(100%-12px)] items-center px-3 border-secondary',
+                  'border-secondary flex h-[calc(100%-12px)] items-center px-3',
                   !hideSelected && 'border-l'
                 )}
                 aria-hidden
               >
-                <SelectArrows6Icon title="Select" className="w-2 text-secondary" />
+                <SelectArrows6Icon title="Select" className="text-secondary w-2" />
               </div>
             </ListboxButton>
             <ListboxOptions
               anchor={{ gap: 12, to: 'bottom start' }}
               className={cn(
                 zIndex,
-                'ox-menu pointer-events-auto overflow-y-auto !outline-none',
-                !hideSelected ? 'w-[var(--button-width)]' : 'min-w-24'
+                'ox-menu pointer-events-auto overflow-y-auto outline-hidden!',
+                !hideSelected ? 'w-(--button-width)' : 'min-w-24'
               )}
               // This is to prevent the `useOthersInert` call in ListboxOptions.
               // Without this, when the listbox options box scrolls under the
@@ -162,7 +162,7 @@ export const Listbox = <Value extends string = string>({
                 <ListboxOption
                   key={item.value}
                   value={item.value}
-                  className="relative border-b border-secondary last:border-0"
+                  className="border-secondary relative border-b last:border-0"
                 >
                   {({ focus, selected }) => (
                     <div

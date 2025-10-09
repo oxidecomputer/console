@@ -43,14 +43,14 @@ export const InstanceAutoRestartPopover = ({ instance }: { instance: Instance })
   return (
     <Popover>
       <PopoverButton
-        className="group flex h-6 w-6 items-center justify-center rounded border border-default hover:bg-hover"
+        className="border-default hover:bg-hover group flex h-6 w-6 items-center justify-center rounded border"
         aria-label="Auto-restart status"
       >
         <AutoRestart12Icon className="shrink-0" aria-hidden />
       </PopoverButton>
       <PopoverPanel
         // popover-panel needed for enter animation
-        className="popover-panel z-10 w-96 rounded-lg border bg-raise border-secondary elevation-2"
+        className="popover-panel bg-raise border-secondary elevation-2 z-10 w-96 rounded-lg border"
         anchor={{ to: 'bottom start', gap: 12 }}
       >
         <PopoverRow label="Auto Restart">
@@ -92,7 +92,7 @@ export const InstanceAutoRestartPopover = ({ instance }: { instance: Instance })
             )}
           </PopoverRow>
         )}
-        <div className="p-3 text-sans-md text-default">
+        <div className="text-sans-md text-default p-3">
           <p className="mb-2 pr-4">
             {enabled
               ? restartingSoon
@@ -106,13 +106,13 @@ export const InstanceAutoRestartPopover = ({ instance }: { instance: Instance })
             target="_blank"
             rel="noreferrer"
           >
-            <span className="inline-block max-w-[300px] truncate align-middle">
+            <span className="inline-block max-w-300 truncate align-middle">
               Learn about{' '}
               <span className="group-hover:link-with-underline text-raise">
                 Instance Auto-Restart
               </span>
             </span>
-            <OpenLink12Icon className="ml-1 translate-y-[1px] text-secondary" />
+            <OpenLink12Icon className="text-secondary ml-1 translate-y-px" />
           </a>
         </div>
       </PopoverPanel>
@@ -121,10 +121,8 @@ export const InstanceAutoRestartPopover = ({ instance }: { instance: Instance })
 }
 
 const PopoverRow = ({ label, children }: { label: string; children: ReactNode }) => (
-  <div className="flex h-10 items-center border-b border-b-secondary">
-    <div className="w-32 pl-3 pr-2 text-mono-sm text-tertiary">{label}</div>
-    <div className="flex h-10 flex-grow items-center gap-1.5 pr-2 text-sans-md">
-      {children}
-    </div>
+  <div className="border-b-secondary flex h-10 items-center border-b">
+    <div className="text-mono-sm text-tertiary w-32 pr-2 pl-3">{label}</div>
+    <div className="text-sans-md flex h-10 grow items-center gap-1.5 pr-2">{children}</div>
   </div>
 )

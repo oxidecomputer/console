@@ -48,7 +48,7 @@ export const Tag = ({
       className={cn(
         'ox-tag',
         `variant-${variant}`,
-        'inline-flex items-center whitespace-nowrap rounded px-1 text-mono-sm',
+        'text-mono-sm inline-flex items-center rounded px-1 whitespace-nowrap',
         tagColors[variant][color],
         narrow ? 'h-4' : 'h-6',
         className

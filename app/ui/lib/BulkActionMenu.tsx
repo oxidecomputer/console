@@ -18,8 +18,8 @@ export interface BulkActionMenuProps {
 export function BulkActionMenu({ children, selectedCount }: BulkActionMenuProps) {
   const actionButtons = flattenChildren(children)
   return (
-    <div className="flex w-fit rounded border bg-accent-secondary border-accent children:items-center children:space-x-2 children:p-3">
-      <div className="flex border-r border-accent-tertiary">{actionButtons}</div>
+    <div className="bg-accent-secondary border-accent flex w-fit rounded border *:items-center *:space-x-2 *:p-3">
+      <div className="border-accent-tertiary flex border-r">{actionButtons}</div>
       <div className="flex">
         <span className="text-sans-sm text-accent">{selectedCount} selected</span>
       </div>
@@ -31,7 +31,7 @@ BulkActionMenu.Button = (props: Omit<ButtonProps, 'size' | 'variant'>) => (
   <Button
     size="sm"
     // TODO: Remove this border once the proper button styles are available
-    className="rounded border !border-accent-secondary"
+    className="border-accent-secondary! rounded border"
     {...props}
   />
 )

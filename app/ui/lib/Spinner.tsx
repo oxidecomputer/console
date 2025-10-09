@@ -51,8 +51,8 @@ const SPINNER_COLORS: Record<BadgeColor, string> = {
   neutral: 'text-secondary',
   destructive: 'text-destructive-secondary',
   notice: 'text-notice-secondary',
-  purple: 'text-[--base-purple-700]',
-  blue: 'text-[--base-blue-700]',
+  purple: 'text-(--base-purple-700)',
+  blue: 'text-(--base-blue-700)',
 }
 
 export const Spinner = ({

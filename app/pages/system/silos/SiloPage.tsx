@@ -101,14 +101,14 @@ export default function SiloPage() {
             </TableEmptyBox>
           ) : (
             <>
-              <p className="mb-4 text-default">
+              <p className="text-default mb-4">
                 Silo roles can automatically grant a fleet role.
               </p>
               <ul className="space-y-3">
                 {roleMapPairs.map(([siloRole, fleetRole]) => (
                   <li key={siloRole + '|' + fleetRole} className="flex items-center">
                     <Badge>Silo {siloRole}</Badge>
-                    <NextArrow12Icon className="mx-3 text-default" aria-label="maps to" />
+                    <NextArrow12Icon className="text-default mx-3" aria-label="maps to" />
                     <span className="text-sans-md text-default">Fleet {fleetRole}</span>
                   </li>
                 ))}

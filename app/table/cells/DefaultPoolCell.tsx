@@ -12,7 +12,7 @@ import { Badge } from '~/ui/lib/Badge'
 export const DefaultPoolCell = ({ isDefault }: { isDefault: boolean }) =>
   isDefault ? (
     <>
-      <Success12Icon className="mr-1 text-accent" />
+      <Success12Icon className="text-accent mr-1" />
       <Badge>default</Badge>
     </>
   ) : null

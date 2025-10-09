@@ -22,8 +22,8 @@ type Width = 'narrow' | 'medium' | 'free'
 
 const widthClass: Record<Width, string> = {
   narrow: 'w-full max-w-[24rem]',
-  medium: 'w-full max-w-[28rem]',
-  free: 'min-w-[24rem] max-w-[48rem]', // give it a big max just to be safe
+  medium: 'w-full max-w-md',
+  free: 'min-w-[24rem] max-w-3xl', // give it a big max just to be safe
 }
 
 export type ModalProps = {
@@ -74,16 +74,16 @@ export function Modal({
               animate={{ x: '-50%', y: '-50%' }}
               transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
               className={cn(
-                'pointer-events-auto fixed left-1/2 top-[min(50%,500px)] z-modal m-0 flex max-h-[min(800px,80vh)] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2',
+                'bg-raise border-secondary elevation-2 pointer-events-auto fixed top-[min(50%,500px)] left-1/2 z-(--z-modal) m-0 flex max-h-[min(800px,80vh)] flex-col justify-between rounded-lg border p-0',
                 widthClass[width]
               )}
             >
-              <Dialog.Title className="border-b px-4 py-4 text-sans-semi-lg bg-secondary border-b-secondary">
+              <Dialog.Title className="text-sans-semi-lg bg-secondary border-b-secondary border-b px-4 py-4">
                 {title}
               </Dialog.Title>
               {children}
               <Dialog.Close
-                className="absolute right-2 top-3.5 flex items-center justify-center rounded p-2 hover:bg-hover"
+                className="hover:bg-hover absolute top-3.5 right-2 flex items-center justify-center rounded p-2"
                 aria-label="Close"
               >
                 <Close12Icon className="text-default" />
@@ -126,7 +126,7 @@ Modal.Footer = ({
   disabled,
   formId,
 }: FooterProps) => (
-  <footer className="flex items-center justify-between border-t px-4 py-3 border-secondary">
+  <footer className="border-secondary flex items-center justify-between border-t px-4 py-3">
     <div className="mr-4">{children}</div>
     <div className="space-x-2">
       <Button variant="secondary" size="sm" onClick={onDismiss}>

@@ -27,7 +27,7 @@ const HeadCell = BigTable.HeadCell
 
 const Body = classed.tbody``
 
-const Row = classed.tr`is-selected children:border-default first:children:border-l children:last:border-b last:children:border-r`
+const Row = classed.tr`is-selected *:border-default first:*:border-l *:last:border-b last:*:border-r`
 
 const Cell = ({ children }: Children) => {
   return (
@@ -40,7 +40,7 @@ const Cell = ({ children }: Children) => {
 const EmptyState = (props: { title: string; body: string; colSpan: number }) => (
   <Row>
     <td colSpan={props.colSpan}>
-      <div className="!m-0 !w-full !flex-col !border-none !bg-transparent !py-14">
+      <div className="m-0! w-full! flex-col! border-none! bg-transparent! py-14!">
         <EmptyMessage title={props.title} body={props.body} />
       </div>
     </td>
@@ -60,7 +60,7 @@ export const InputCell = ({
     <div>
       <input
         type="text"
-        className="text-sm m-0 w-full bg-transparent p-0 !outline-none text-default placeholder:text-quaternary"
+        className="text-default placeholder:text-quaternary m-0 w-full bg-transparent p-0 text-sm outline-hidden!"
         placeholder={placeholder}
         defaultValue={defaultValue}
       />

@@ -31,7 +31,7 @@ const INSTANCE_COLORS: Record<InstanceState, BadgeColor> = {
   stopping: 'neutral',
 }
 
-const badgeClasses = 'children:flex children:items-center children:gap-1'
+const badgeClasses = '*:flex *:items-center *:gap-1'
 
 export const InstanceStateBadge = (props: { state: InstanceState; className?: string }) => (
   <Badge color={INSTANCE_COLORS[props.state]} className={cn(props.className, badgeClasses)}>

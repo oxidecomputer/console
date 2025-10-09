@@ -92,7 +92,7 @@ export default function SiloUtilizationPage() {
 
       <Divider className="my-6" />
 
-      <div className="mb-3 mt-8 flex flex-wrap justify-between gap-3">
+      <div className="mt-8 mb-3 flex flex-wrap justify-between gap-3">
         <div className="flex gap-2">
           {intervalPicker}
 

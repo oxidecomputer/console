@@ -127,7 +127,7 @@ export function SshKeysField({
           <CloudInitMessage />
         </>
       ) : (
-        <div className="mt-4 flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
+        <div className="border-default mt-4 flex max-w-lg items-center justify-center rounded-lg border p-6">
           <EmptyMessage
             icon={<Key16Icon />}
             title="No SSH keys"

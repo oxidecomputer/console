@@ -13,12 +13,12 @@ import { Badge } from '~/ui/lib/Badge'
 export const EnabledCell = ({ value }: { value: VpcFirewallRuleStatus }) =>
   value === 'enabled' ? (
     <>
-      <Success12Icon className="mr-1 text-accent" />
+      <Success12Icon className="text-accent mr-1" />
       <Badge>Enabled</Badge>
     </>
   ) : (
     <>
-      <Disabled12Icon className="mr-1 text-notice" />
+      <Disabled12Icon className="text-notice mr-1" />
       <Badge color="notice">Disabled</Badge>
     </>
   )

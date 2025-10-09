@@ -135,13 +135,13 @@ export default function SerialConsolePage() {
   }, [canConnect])
 
   return (
-    <div className="!mx-0 flex h-full max-h-[calc(100vh-var(--top-bar-height))] !w-full flex-col">
+    <div className="mx-0! flex h-full max-h-[calc(100vh-var(--top-bar-height))] w-full! flex-col">
       <Link
         to={pb.instance(instanceSelector)}
-        className="mx-3 mb-6 mt-3 flex h-10 shrink-0 items-center rounded px-3 bg-accent-secondary"
+        className="bg-accent-secondary mx-3 mt-3 mb-6 flex h-10 shrink-0 items-center rounded px-3"
       >
         <PrevArrow12Icon className="text-accent-tertiary" />
-        <div className="ml-2 text-mono-sm text-accent">
+        <div className="text-mono-sm text-accent ml-2">
           <span className="text-accent-tertiary">Back to</span> instance
         </div>
       </Link>
@@ -155,7 +155,7 @@ export default function SerialConsolePage() {
          * close an open connection other than leaving the page */}
         {ws.current && <Terminal ws={ws.current} />}
       </div>
-      <div className="shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
+      <div className="bg-default border-secondary shrink-0 justify-between overflow-hidden border-t empty:border-t-0">
         <div className="gutter flex h-20 items-center justify-between">
           <div>
             <EquivalentCliCommand project={project} instance={instance} />
@@ -182,7 +182,7 @@ function SerialSkeleton({ children, animate }: SkeletonProps) {
         {[...Array(200)].map((_e, i) => (
           <div
             key={i}
-            className={cn('h-4 rounded bg-tertiary', {
+            className={cn('bg-tertiary h-4 rounded', {
               'motion-safe:animate-pulse': animate,
             })}
             style={{
@@ -198,7 +198,7 @@ function SerialSkeleton({ children, animate }: SkeletonProps) {
           background: 'linear-gradient(180deg, rgba(8, 15, 17, 0) 0%, #080F11 100%)',
         }}
       />
-      <div className="absolute left-1/2 top-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-lg border p-12 !bg-raise border-secondary elevation-3">
+      <div className="bg-raise! border-secondary elevation-3 absolute top-1/2 left-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-lg border p-12">
         {children}
       </div>
     </div>
@@ -216,11 +216,11 @@ const ConnectingSkeleton = () => (
 
 const CannotConnect = ({ instance }: { instance: Instance }) => (
   <SerialSkeleton animate={isStarting(instance)}>
-    <p className="flex items-center justify-center text-sans-xl">
+    <p className="text-sans-xl flex items-center justify-center">
       <span>The instance is </span>
       <InstanceStateBadge className="ml-1.5" state={instance.runState} />
     </p>
-    <p className="mt-2 text-balance text-center text-default">
+    <p className="text-default mt-2 text-center text-balance">
       {isStarting(instance)
         ? 'Waiting for the instance to start before connecting.'
         : 'You can only connect to the serial console on a running instance.'}
@@ -232,9 +232,9 @@ const CannotConnect = ({ instance }: { instance: Instance }) => (
 // we don't know what kind of thing we might pull off the error event
 const ErrorSkeleton = () => (
   <SerialSkeleton>
-    <p className="flex items-center justify-center text-center text-sans-xl">
+    <p className="text-sans-xl flex items-center justify-center text-center">
       Serial console connection failed
     </p>
-    <p className="mt-2 text-center text-default">Please try again.</p>
+    <p className="text-default mt-2 text-center">Please try again.</p>
   </SerialSkeleton>
 )
