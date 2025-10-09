@@ -14,10 +14,10 @@ import {
   type PhysicalDiskPolicy,
   type PhysicalDiskState,
 } from '@oxide/api'
+import { Badge, type BadgeColor } from '@oxide/design-system/components'
 import { Servers24Icon } from '@oxide/design-system/icons/react'
 
 import { useQueryTable } from '~/table/QueryTable'
-import { Badge, type BadgeColor } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 
 const POLICY_KIND_BADGE_COLORS: Record<PhysicalDiskPolicy['kind'], BadgeColor> = {

@@ -54,9 +54,7 @@ Table.HeadCell = ({ className, children, ...props }: TableHeadCellProps) => (
     )}
     {...props}
   >
-    <div className="border-secondary -my-px flex h-9 items-center border-l px-3">
-      {children}
-    </div>
+    <div className="border-secondary flex h-9 items-center border-l px-3">{children}</div>
   </th>
 )
 
@@ -98,13 +96,13 @@ Table.Cell = ({ height = 'small', className, children, ...props }: TableCellProp
   <td
     className={cn(
       className,
-      'text-raise border-default pl-0 *:first:border-l-0 *:last:-mr-px'
+      'text-raise border-default pl-0 *:first:border-l-0 last:*:-mr-px'
     )}
     {...props}
   >
     <div
       className={cn(
-        'border-secondary relative -my-px -mr-[2px] flex items-center border-b border-l px-3 py-2',
+        'border-secondary relative -mr-[2px] flex items-center border-b border-l px-3 py-2',
         { 'h-11': height === 'small', 'h-14': height === 'large' }
       )}
     >

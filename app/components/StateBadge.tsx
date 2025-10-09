@@ -14,8 +14,8 @@ import {
   type InstanceState,
   type SnapshotState,
 } from '@oxide/api'
+import { Badge, type BadgeColor } from '@oxide/design-system/components'
 
-import { Badge, type BadgeColor } from '~/ui/lib/Badge'
 import { Spinner } from '~/ui/lib/Spinner'
 
 const INSTANCE_COLORS: Record<InstanceState, BadgeColor> = {

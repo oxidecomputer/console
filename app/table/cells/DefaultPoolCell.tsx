@@ -5,9 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Badge } from '@oxide/design-system/components'
 import { Success12Icon } from '@oxide/design-system/icons/react'
-
-import { Badge } from '~/ui/lib/Badge'
 
 export const DefaultPoolCell = ({ isDefault }: { isDefault: boolean }) =>
   isDefault ? (

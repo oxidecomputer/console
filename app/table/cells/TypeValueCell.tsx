@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { Badge } from '~/ui/lib/Badge'
+import { Badge } from '@oxide/design-system/components'
 
 export type TypeValue = {
   type: string

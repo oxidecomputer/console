@@ -9,6 +9,8 @@
 import { useEffect, type ReactNode } from 'react'
 import { useController, useForm, type Control } from 'react-hook-form'
 
+import { Badge } from '@oxide/design-system/components'
+
 import {
   usePrefetchedApiQuery,
   type ApiError,
@@ -37,7 +39,6 @@ import {
   ProtocolCodeCell,
   ProtocolTypeCell,
 } from '~/table/cells/ProtocolCell'
-import { Badge } from '~/ui/lib/Badge'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'

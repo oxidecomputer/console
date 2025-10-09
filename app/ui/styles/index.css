@@ -39,6 +39,7 @@
 @import './themes/selection.css' layer(components);
 
 @import '@xterm/xterm/css/xterm.css' layer(components);
+@source '../../../node_modules/@oxide/design-system/dist';
 
 @theme {
   --animate-spin-slow: spin 5s linear infinite;
@@ -152,7 +153,7 @@
   input[type='radio']:focus-visible,
   input[type='checkbox']:focus-visible,
   input[type='number']:focus-visible {
-    @apply outline-solid outline-accent-secondary outline-2 outline-offset-0;
+    @apply outline-accent-secondary outline-2 outline-offset-0 outline-solid;
 
     &.focus-error {
       @apply outline-error-secondary;
@@ -188,7 +189,7 @@
   input[type='radio']:focus,
   input[type='checkbox']:focus,
   input[type='number']:focus {
-    @apply outline-solid outline-accent-secondary outline-2 outline-offset-0;
+    @apply outline-accent-secondary outline-2 outline-offset-0 outline-solid;
 
     &.focus-error {
       @apply outline-error-secondary;

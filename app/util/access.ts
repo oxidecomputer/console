@@ -6,8 +6,9 @@
  * Copyright Oxide Computer Company
  */
 
+import { type BadgeColor } from '@oxide/design-system/components'
+
 import type { IdentityType, RoleKey } from '~/api'
-import type { BadgeColor } from '~/ui/lib/Badge'
 
 export const identityTypeLabel: Record<IdentityType, string> = {
   silo_group: 'Group',

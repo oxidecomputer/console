@@ -9,11 +9,11 @@ import cn from 'classnames'
 import * as m from 'motion/react-m'
 import { type MouseEventHandler, type ReactNode } from 'react'
 
+import { type BadgeColor } from '@oxide/design-system/components'
+
 import { Spinner } from '~/ui/lib/Spinner'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { Wrap } from '~/ui/util/wrap'
-
-import { type BadgeColor } from './Badge'
 
 export const buttonSizes = ['sm', 'icon', 'base'] as const
 export const variants = ['primary', 'secondary', 'ghost', 'danger'] as const

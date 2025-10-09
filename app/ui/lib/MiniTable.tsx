@@ -27,7 +27,7 @@ const HeadCell = BigTable.HeadCell
 
 const Body = classed.tbody``
 
-const Row = classed.tr`is-selected *:border-default first:*:border-l *:last:border-b last:*:border-r`
+const Row = classed.tr`is-selected *:border-default first:*:border-l last:*:border-b last:*:border-r`
 
 const Cell = ({ children }: Children) => {
   return (

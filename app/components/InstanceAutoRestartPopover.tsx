@@ -11,6 +11,7 @@ import { type ReactNode } from 'react'
 import { Link } from 'react-router'
 import { match, P } from 'ts-pattern'
 
+import { Badge } from '@oxide/design-system/components'
 import {
   AutoRestart12Icon,
   NextArrow12Icon,
@@ -20,7 +21,6 @@ import {
 import type { Instance } from '~/api'
 import { instanceAutoRestartingSoon } from '~/api/util'
 import { useInstanceSelector } from '~/hooks/use-params'
-import { Badge } from '~/ui/lib/Badge'
 import { Spinner } from '~/ui/lib/Spinner'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'

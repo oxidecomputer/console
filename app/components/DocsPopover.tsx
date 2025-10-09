@@ -22,7 +22,7 @@ type DocsPopoverLinkProps = {
 export const DocsPopoverLink = ({ href, linkText }: DocsPopoverLinkProps) => (
   <a
     href={href}
-    className="group block px-4 *:last:border-0"
+    className="group block px-4 last:*:border-0"
     target="_blank"
     rel="noreferrer"
   >
