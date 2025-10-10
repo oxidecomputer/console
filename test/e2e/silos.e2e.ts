@@ -155,7 +155,8 @@ test('Create silo', async ({ page }) => {
   await expectRowVisible(table, { Resource: 'Memory', Quota: '58 GiB' })
   await expectRowVisible(table, { Resource: 'Storage', Quota: '735 GiB' })
 
-  await page.goBack()
+  // Go back to the silos list page to delete the silo
+  await page.goto('/system/silos')
 
   // now delete it
   await clickRowAction(page, 'other-silo', 'Delete')
