@@ -10,13 +10,20 @@ import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { type LoaderFunctionArgs } from 'react-router'
 
-import { getListQFn, useApiMutation, useApiQueryClient, type SiloIpPool } from '@oxide/api'
+import {
+  getListQFn,
+  queryClient,
+  useApiMutation,
+  useApiQueryClient,
+  type SiloIpPool,
+} from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
-import { useSiloSelector } from '~/hooks/use-params'
+import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
 import { DefaultPoolCell } from '~/table/cells/DefaultPoolCell'
@@ -62,7 +69,13 @@ const allSiloPoolsQuery = (silo: string) =>
 export const siloIpPoolsQuery = (silo: string) =>
   getListQFn('siloIpPoolList', { path: { silo } })
 
-export function SiloIpPoolsTab() {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
+  const { silo } = getSiloSelector(params)
+  await queryClient.prefetchQuery(siloIpPoolsQuery(silo).optionsFn())
+  return null
+}
+
+export default function SiloIpPoolsTab() {
   const { silo } = useSiloSelector()
   const [showLinkModal, setShowLinkModal] = useState(false)
   const queryClient = useApiQueryClient()

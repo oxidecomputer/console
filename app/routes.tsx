@@ -129,13 +129,30 @@ export const routes = createRoutesFromElements(
             path=":silo"
             lazy={() => import('./pages/system/silos/SiloPage').then(convert)}
           >
+            {/* Nesting keeps IdPs tab contents rendered when side modals are open*/}
+            <Route index element={<Navigate to="idps" replace />} />
+            <Route lazy={() => import('./pages/system/silos/SiloIdpsTab').then(convert)}>
+              <Route path="idps" element={null} />
+              <Route
+                path="idps-new"
+                lazy={() => import('./forms/idp/create').then(convert)}
+              />
+              <Route
+                path="idps/saml/:provider"
+                lazy={() => import('./forms/idp/edit').then(convert)}
+              />
+            </Route>
             <Route
-              path="idps-new"
-              lazy={() => import('./forms/idp/create').then(convert)}
+              path="ip-pools"
+              lazy={() => import('./pages/system/silos/SiloIpPoolsTab').then(convert)}
             />
             <Route
-              path="idps/saml/:provider"
-              lazy={() => import('./forms/idp/edit').then(convert)}
+              path="quotas"
+              lazy={() => import('./pages/system/silos/SiloQuotasTab').then(convert)}
+            />
+            <Route
+              path="fleet-roles"
+              lazy={() => import('./pages/system/silos/SiloFleetRolesTab').then(convert)}
             />
           </Route>
         </Route>

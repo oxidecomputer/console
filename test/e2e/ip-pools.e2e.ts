@@ -74,7 +74,7 @@ test('IP pool silo list', async ({ page }) => {
   // clicking silo takes you to silo page
   const siloLink = page.getByRole('link', { name: 'maze-war' })
   await siloLink.click()
-  await expect(page).toHaveURL('/system/silos/maze-war?tab=ip-pools')
+  await expect(page).toHaveURL('/system/silos/maze-war/ip-pools')
   await page.goBack()
 
   // unlink silo and the row is gone

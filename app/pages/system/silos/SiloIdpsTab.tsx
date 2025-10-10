@@ -7,12 +7,12 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo } from 'react'
-import { Outlet } from 'react-router'
+import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
 import { Cloud24Icon } from '@oxide/design-system/icons/react'
 
-import { getListQFn, type IdentityProvider } from '~/api'
-import { useSiloSelector } from '~/hooks/use-params'
+import { getListQFn, queryClient, type IdentityProvider } from '~/api'
+import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -30,7 +30,13 @@ const colHelper = createColumnHelper<IdentityProvider>()
 export const siloIdpList = (silo: string) =>
   getListQFn('siloIdentityProviderList', { query: { silo } })
 
-export function SiloIdpsTab() {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
+  const { silo } = getSiloSelector(params)
+  await queryClient.prefetchQuery(siloIdpList(silo).optionsFn())
+  return null
+}
+
+export default function SiloIdpsTab() {
   const { silo } = useSiloSelector()
 
   const columns = useMemo(
