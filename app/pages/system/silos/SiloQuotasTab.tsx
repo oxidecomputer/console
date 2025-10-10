@@ -117,7 +117,7 @@ function EditQuotasForm({ onDismiss }: { onDismiss: () => void }) {
 
   const updateQuotas = useApiMutation('siloQuotasUpdate', {
     onSuccess() {
-      queryClient.invalidateQueries({ queryKey: ['siloUtilizationView'] })
+      queryClient.invalidateEndpoint('siloUtilizationView')
       addToast({ content: 'Quotas updated' })
       onDismiss()
     },
