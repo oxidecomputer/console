@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { redirect, type LoaderFunctionArgs } from 'react-router'
+import { type LoaderFunctionArgs } from 'react-router'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Cloud16Icon, Cloud24Icon } from '@oxide/design-system/icons/react'
@@ -19,28 +19,8 @@ import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-export async function clientLoader({ params, request }: LoaderFunctionArgs) {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { silo } = getSiloSelector(params)
-
-  // Handle old query param-based URLs for backwards compatibility
-  const url = new URL(request.url)
-  const tab = url.searchParams.get('tab')
-  if (tab) {
-    const tabRoutes: Record<string, string> = {
-      idps: pb.siloIdps({ silo }),
-      'ip-pools': pb.siloIpPools({ silo }),
-      quotas: pb.siloQuotas({ silo }),
-      'fleet-roles': pb.siloFleetRoles({ silo }),
-    }
-    // Redirect to new route-based URL
-    if (tabRoutes[tab]) {
-      return redirect(tabRoutes[tab])
-    }
-    // Unknown tab, redirect to default
-    return redirect(pb.siloIdps({ silo }))
-  }
-
-  // Only load data needed by the parent page. Tab-specific data is loaded by each tab's loader.
   await apiQueryClient.prefetchQuery('siloView', { path: { silo } })
   return null
 }
