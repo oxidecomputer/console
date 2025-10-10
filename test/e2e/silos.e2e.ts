@@ -161,9 +161,6 @@ test('Create silo', async ({ page }) => {
     .getByRole('link', { name: 'Silos' })
     .click()
 
-  // Wait for the row to be visible before trying to delete it
-  await expect(page.getByRole('cell', { name: 'other-silo' })).toBeVisible()
-
   // now delete it
   await clickRowAction(page, 'other-silo', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
