@@ -12,9 +12,10 @@ import { type LoaderFunctionArgs } from 'react-router'
 import type { SetNonNullable } from 'type-fest'
 
 import {
-  apiQueryClient,
+  apiq,
+  queryClient,
   useApiMutation,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
   type SiloQuotasUpdate,
 } from '~/api'
 import { NumberField } from '~/components/form/fields/NumberField'
@@ -32,15 +33,15 @@ const Unit = classed.span`ml-1 text-secondary`
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { silo } = getSiloSelector(params)
-  await apiQueryClient.prefetchQuery('siloUtilizationView', { path: { silo } })
+  await queryClient.prefetchQuery(apiq('siloUtilizationView', { path: { silo } }))
   return null
 }
 
 export default function SiloQuotasTab() {
   const { silo } = useSiloSelector()
-  const { data: utilization } = usePrefetchedApiQuery('siloUtilizationView', {
-    path: { silo: silo },
-  })
+  const { data: utilization } = usePrefetchedQuery(
+    apiq('siloUtilizationView', { path: { silo } })
+  )
 
   const { allocated: quotas, provisioned } = utilization
 
@@ -98,9 +99,11 @@ export default function SiloQuotasTab() {
 
 function EditQuotasForm({ onDismiss }: { onDismiss: () => void }) {
   const { silo } = useSiloSelector()
-  const { data: utilization } = usePrefetchedApiQuery('siloUtilizationView', {
-    path: { silo: silo },
-  })
+  const { data: utilization } = usePrefetchedQuery(
+    apiq('siloUtilizationView', {
+      path: { silo: silo },
+    })
+  )
   const quotas = utilization.allocated
 
   // required because we need to rule out undefined because NumberField hates that
@@ -114,7 +117,7 @@ function EditQuotasForm({ onDismiss }: { onDismiss: () => void }) {
 
   const updateQuotas = useApiMutation('siloQuotasUpdate', {
     onSuccess() {
-      apiQueryClient.invalidateQueries('siloUtilizationView')
+      queryClient.invalidateQueries({ queryKey: ['siloUtilizationView'] })
       addToast({ content: 'Quotas updated' })
       onDismiss()
     },
