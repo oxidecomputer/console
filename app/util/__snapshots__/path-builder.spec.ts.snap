@@ -537,7 +537,7 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/instances/i/serial-console",
     },
   ],
-  "silo (/system/silos/s)": [
+  "silo (/system/silos/s/idps)": [
     {
       "label": "Silos",
       "path": "/system/silos",

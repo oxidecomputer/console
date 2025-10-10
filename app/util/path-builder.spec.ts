@@ -79,7 +79,7 @@ test('path builder', () => {
         "projectsNew": "/projects-new",
         "samlIdp": "/system/silos/s/idps/saml/pr",
         "serialConsole": "/projects/p/instances/i/serial-console",
-        "silo": "/system/silos/s",
+        "silo": "/system/silos/s/idps",
         "siloAccess": "/access",
         "siloFleetRoles": "/system/silos/s/fleet-roles",
         "siloIdps": "/system/silos/s/idps",
