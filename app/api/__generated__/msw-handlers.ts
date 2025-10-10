@@ -1418,6 +1418,38 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.FleetRolePolicy>>
+  /** `GET /v1/system/scim/tokens` */
+  scimTokenList: (params: {
+    query: Api.ScimTokenListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ScimClientBearerToken[]>>
+  /** `POST /v1/system/scim/tokens` */
+  scimTokenCreate: (params: {
+    query: Api.ScimTokenCreateQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ScimClientBearerTokenValue>>
+  /** `DELETE /v1/system/scim/tokens` */
+  scimTokenDeleteAll: (params: {
+    query: Api.ScimTokenDeleteAllQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/system/scim/tokens/:tokenId` */
+  scimTokenView: (params: {
+    path: Api.ScimTokenViewPathParams
+    query: Api.ScimTokenViewQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ScimClientBearerToken>>
+  /** `DELETE /v1/system/scim/tokens/:tokenId` */
+  scimTokenDelete: (params: {
+    path: Api.ScimTokenDeletePathParams
+    query: Api.ScimTokenDeleteQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `GET /v1/system/silo-quotas` */
   systemQuotasList: (params: {
     query: Api.SystemQuotasListQueryParams
@@ -1493,29 +1525,35 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.TimeseriesSchemaResultsPage>>
-  /** `PUT /v1/system/update/repository` */
-  systemUpdatePutRepository: (params: {
-    query: Api.SystemUpdatePutRepositoryQueryParams
+  /** `GET /v1/system/update/repositories` */
+  systemUpdateRepositoryList: (params: {
+    query: Api.SystemUpdateRepositoryListQueryParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.TufRepoInsertResponse>>
-  /** `GET /v1/system/update/repository/:systemVersion` */
-  systemUpdateGetRepository: (params: {
-    path: Api.SystemUpdateGetRepositoryPathParams
+  }) => Promisable<HandlerResult<Api.TufRepoResultsPage>>
+  /** `PUT /v1/system/update/repositories` */
+  systemUpdateRepositoryUpload: (params: {
+    query: Api.SystemUpdateRepositoryUploadQueryParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.TufRepoGetResponse>>
-  /** `GET /v1/system/update/target-release` */
-  targetReleaseView: (params: {
+  }) => Promisable<HandlerResult<Api.TufRepoUpload>>
+  /** `GET /v1/system/update/repositories/:systemVersion` */
+  systemUpdateRepositoryView: (params: {
+    path: Api.SystemUpdateRepositoryViewPathParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.TargetRelease>>
+  }) => Promisable<HandlerResult<Api.TufRepo>>
+  /** `GET /v1/system/update/status` */
+  systemUpdateStatus: (params: {
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.UpdateStatus>>
   /** `PUT /v1/system/update/target-release` */
   targetReleaseUpdate: (params: {
     body: Json<Api.SetTargetReleaseParams>
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.TargetRelease>>
+  }) => Promisable<StatusCode>
   /** `GET /v1/system/update/trust-roots` */
   systemUpdateTrustRootList: (params: {
     query: Api.SystemUpdateTrustRootListQueryParams
@@ -3068,6 +3106,26 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['systemPolicyUpdate'], null, schema.FleetRolePolicy)
     ),
     http.get(
+      '/v1/system/scim/tokens',
+      handler(handlers['scimTokenList'], schema.ScimTokenListParams, null)
+    ),
+    http.post(
+      '/v1/system/scim/tokens',
+      handler(handlers['scimTokenCreate'], schema.ScimTokenCreateParams, null)
+    ),
+    http.delete(
+      '/v1/system/scim/tokens',
+      handler(handlers['scimTokenDeleteAll'], schema.ScimTokenDeleteAllParams, null)
+    ),
+    http.get(
+      '/v1/system/scim/tokens/:tokenId',
+      handler(handlers['scimTokenView'], schema.ScimTokenViewParams, null)
+    ),
+    http.delete(
+      '/v1/system/scim/tokens/:tokenId',
+      handler(handlers['scimTokenDelete'], schema.ScimTokenDeleteParams, null)
+    ),
+    http.get(
       '/v1/system/silo-quotas',
       handler(handlers['systemQuotasList'], schema.SystemQuotasListParams, null)
     ),
@@ -3124,25 +3182,33 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         null
       )
     ),
+    http.get(
+      '/v1/system/update/repositories',
+      handler(
+        handlers['systemUpdateRepositoryList'],
+        schema.SystemUpdateRepositoryListParams,
+        null
+      )
+    ),
     http.put(
-      '/v1/system/update/repository',
+      '/v1/system/update/repositories',
       handler(
-        handlers['systemUpdatePutRepository'],
-        schema.SystemUpdatePutRepositoryParams,
+        handlers['systemUpdateRepositoryUpload'],
+        schema.SystemUpdateRepositoryUploadParams,
         null
       )
     ),
     http.get(
-      '/v1/system/update/repository/:systemVersion',
+      '/v1/system/update/repositories/:systemVersion',
       handler(
-        handlers['systemUpdateGetRepository'],
-        schema.SystemUpdateGetRepositoryParams,
+        handlers['systemUpdateRepositoryView'],
+        schema.SystemUpdateRepositoryViewParams,
         null
       )
     ),
     http.get(
-      '/v1/system/update/target-release',
-      handler(handlers['targetReleaseView'], null, null)
+      '/v1/system/update/status',
+      handler(handlers['systemUpdateStatus'], null, null)
     ),
     http.put(
       '/v1/system/update/target-release',

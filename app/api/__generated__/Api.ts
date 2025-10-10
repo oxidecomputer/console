@@ -617,18 +617,6 @@ export type AntiAffinityGroupResultsPage = {
  */
 export type AntiAffinityGroupUpdate = { description?: string | null; name?: Name | null }
 
-/**
- * An identifier for an artifact.
- */
-export type ArtifactId = {
-  /** The kind of artifact this is. */
-  kind: string
-  /** The artifact's name. */
-  name: string
-  /** The artifact's version. */
-  version: string
-}
-
 export type AuditLogEntryActor =
   | { kind: 'user_builtin'; userBuiltinId: string }
   | { kind: 'silo_user'; siloId: string; siloUserId: string }
@@ -2533,21 +2521,23 @@ export type InstanceSerialConsoleData = {
  * Parameters of an `Instance` that can be reconfigured after creation.
  */
 export type InstanceUpdate = {
-  /** Sets the auto-restart policy for this instance.
+  /** The auto-restart policy for this instance.
 
 This policy determines whether the instance should be automatically restarted by the control plane on failure. If this is `null`, any explicitly configured auto-restart policy will be unset, and the control plane will select the default policy when determining whether the instance can be automatically restarted.
 
 Currently, the global default auto-restart policy is "best-effort", so instances with `null` auto-restart policies will be automatically restarted. However, in the future, the default policy may be configurable through other mechanisms, such as on a per-project basis. In that case, any configured default policy will be used if this is `null`. */
   autoRestartPolicy: InstanceAutoRestartPolicy | null
-  /** Name or ID of the disk the instance should be instructed to boot from.
+  /** The disk the instance is configured to boot from.
 
-A null value unsets the boot disk. */
+Setting a boot disk is optional but recommended to ensure predictable boot behavior. The boot disk can be set during instance creation or later if the instance is stopped. The boot disk counts against the disk attachment limit.
+
+An instance that does not have a boot disk set will use the boot options specified in its UEFI settings, which are controlled by both the instance's UEFI firmware and the guest operating system. Boot options can change as disks are attached and detached, which may result in an instance that only boots to the EFI shell until a boot disk is set. */
   bootDisk: NameOrId | null
-  /** The CPU platform to be used for this instance. If this is `null`, the instance requires no particular CPU platform. */
+  /** The CPU platform to be used for this instance. If this is `null`, the instance requires no particular CPU platform; when it is started the instance will have the most general CPU platform supported by the sled it is initially placed on. */
   cpuPlatform: InstanceCpuPlatform | null
-  /** The amount of memory to assign to this instance. */
+  /** The amount of RAM (in bytes) to be allocated to the instance */
   memory: ByteCount
-  /** The number of CPUs to assign to this instance. */
+  /** The number of vCPUs to be allocated to the instance */
   ncpus: InstanceCpuCount
 }
 
@@ -2665,6 +2655,26 @@ export type InternetGatewayResultsPage = {
   items: InternetGateway[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
+}
+
+/**
+ * A count of bytes / rows accessed during a query.
+ */
+export type IoCount = {
+  /** The number of bytes accessed. */
+  bytes: number
+  /** The number of rows accessed. */
+  rows: number
+}
+
+/**
+ * Summary of the I/O resources used by a query.
+ */
+export type IoSummary = {
+  /** The bytes and rows read by the query. */
+  read: IoCount
+  /** The bytes and rows written by the query. */
+  written: IoCount
 }
 
 /**
@@ -3069,6 +3079,20 @@ export type NetworkInterface = {
 }
 
 /**
+ * Basic metadata about the resource usage of a single ClickHouse SQL query.
+ */
+export type OxqlQuerySummary = {
+  /** The total duration of the ClickHouse query (network plus execution). */
+  elapsedMs: number
+  /** The database-assigned query ID. */
+  id: string
+  /** Summary of the data read and written. */
+  ioSummary: IoSummary
+  /** The raw ClickHouse SQL query. */
+  query: string
+}
+
+/**
  * List of data values for one timeseries.
  *
  * Each element is an option, where `None` represents a missing sample.
@@ -3119,6 +3143,8 @@ export type OxqlTable = {
  * The result of a successful OxQL query.
  */
 export type OxqlQueryResult = {
+  /** Summaries of queries run against ClickHouse. */
+  querySummaries?: OxqlQuerySummary[] | null
   /** Tables resulting from the query, each containing timeseries. */
   tables: OxqlTable[]
 }
@@ -3530,6 +3556,22 @@ export type SamlIdentityProviderCreate = {
   technicalContactEmail: string
 }
 
+export type ScimClientBearerToken = {
+  id: string
+  timeCreated: Date
+  timeExpires?: Date | null
+}
+
+/**
+ * The POST response is the only time the generated bearer token is returned to the client.
+ */
+export type ScimClientBearerTokenValue = {
+  bearerToken: string
+  id: string
+  timeCreated: Date
+  timeExpires?: Date | null
+}
+
 /**
  * Configuration of inbound ICMP allowed by API services.
  */
@@ -3555,6 +3597,9 @@ export type SiloIdentityMode =
 
   /** The system is the source of truth about users.  There is no linkage to an external authentication provider or identity provider. */
   | 'local_only'
+
+  /** Users are authenticated with SAML using an external authentication provider. Users and groups are managed with SCIM API calls, likely from the same authentication provider. */
+  | 'saml_scim'
 
 /**
  * View of a Silo
@@ -4360,24 +4405,13 @@ export type SwitchResultsPage = {
 }
 
 /**
- * Source of a system software target release.
- */
-export type TargetReleaseSource =
-  /** Unspecified or unknown source (probably MUPdate). */
-  | { type: 'unspecified' }
-  /** The specified release of the rack's system software. */
-  | { type: 'system_version'; version: string }
-
-/**
- * View of a system software target release.
+ * View of a system software target release
  */
 export type TargetRelease = {
-  /** The target-release generation number. */
-  generation: number
-  /** The source of the target release. */
-  releaseSource: TargetReleaseSource
-  /** The time it was set as the target release. */
+  /** Time this was set as the target release */
   timeRequested: Date
+  /** The specified release of the rack's system software */
+  version: string
 }
 
 /**
@@ -4396,6 +4430,8 @@ export type TimeseriesName = string
  * A timeseries query string, written in the Oximeter query language.
  */
 export type TimeseriesQuery = {
+  /** Whether to include ClickHouse query summaries in the response. */
+  includeSummaries?: boolean
   /** A timeseries query string, written in the Oximeter query language. */
   query: string
 }
@@ -4446,86 +4482,44 @@ export type TimeseriesSchemaResultsPage = {
 }
 
 /**
- * Metadata about an individual TUF artifact.
- *
- * Found within a `TufRepoDescription`.
+ * Metadata about a TUF repository
  */
-export type TufArtifactMeta = {
-  /** Contents of the `BORD` field of a Hubris archive caboose. Only applicable to artifacts that are Hubris archives.
+export type TufRepo = {
+  /** The file name of the repository, as reported by the client that uploaded it
 
-This field should always be `Some(_)` if `sign` is `Some(_)`, but the opposite is not true (SP images will have a `board` but not a `sign`). */
-  board?: string | null
-  /** The hash of the artifact. */
-  hash: string
-  /** The artifact ID. */
-  id: ArtifactId
-  /** Contents of the `SIGN` field of a Hubris archive caboose, i.e., an identifier for the set of valid signing keys. Currently only applicable to RoT image and bootloader artifacts, where it will be an LPC55 Root Key Table Hash (RKTH). */
-  sign?: number[] | null
-  /** The size of the artifact in bytes. */
-  size: number
-}
-
-/**
- * Metadata about a TUF repository.
- *
- * Found within a `TufRepoDescription`.
- */
-export type TufRepoMeta = {
-  /** The file name of the repository.
-
-This is purely used for debugging and may not always be correct (e.g. with wicket, we read the file contents from stdin so we don't know the correct file name). */
+This is intended for debugging. The file name may not match any particular pattern, and even if it does, it may not be accurate since it's just what the client reported. */
   fileName: string
-  /** The hash of the repository.
-
-This is a slight abuse of `ArtifactHash`, since that's the hash of individual artifacts within the repository. However, we use it here for convenience. */
+  /** The hash of the repository */
   hash: string
-  /** The system version in artifacts.json. */
+  /** The system version for this repository
+
+The system version is a top-level version number applied to all the software in the repository. */
   systemVersion: string
-  /** The version of the targets role. */
-  targetsRoleVersion: number
-  /** The time until which the repo is valid. */
-  validUntil: Date
+  /** Time the repository was uploaded */
+  timeCreated: Date
 }
 
 /**
- * A description of an uploaded TUF repository.
+ * A single page of results
  */
-export type TufRepoDescription = {
-  /** Information about the artifacts present in the repository. */
-  artifacts: TufArtifactMeta[]
-  /** Information about the repository. */
-  repo: TufRepoMeta
+export type TufRepoResultsPage = {
+  /** list of items on this page of results */
+  items: TufRepo[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
 }
 
 /**
- * Data about a successful TUF repo get from Nexus.
+ * Whether the uploaded TUF repo already existed or was new and had to be inserted. Part of `TufRepoUpload`.
  */
-export type TufRepoGetResponse = {
-  /** The description of the repository. */
-  description: TufRepoDescription
-}
-
-/**
- * Status of a TUF repo import.
- *
- * Part of `TufRepoInsertResponse`.
- */
-export type TufRepoInsertStatus =
-  /** The repository already existed in the database. */
+export type TufRepoUploadStatus =
+  /** The repository already existed in the database */
   | 'already_exists'
 
-  /** The repository did not exist, and was inserted into the database. */
+  /** The repository did not exist, and was inserted into the database */
   | 'inserted'
 
-/**
- * Data about a successful TUF repo import into Nexus.
- */
-export type TufRepoInsertResponse = {
-  /** The repository as present in the database. */
-  recorded: TufRepoDescription
-  /** Whether this repository already existed or is new. */
-  status: TufRepoInsertStatus
-}
+export type TufRepoUpload = { repo: TufRepo; status: TufRepoUploadStatus }
 
 /**
  * A sled that has not been added to an initialized rack yet
@@ -4545,6 +4539,29 @@ export type UninitializedSledResultsPage = {
   items: UninitializedSled[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
+}
+
+export type UpdateStatus = {
+  /** Count of components running each release version
+
+Keys will be either:
+
+* Semver-like release version strings * "install dataset", representing the initial rack software before any updates * "unknown", which means there is no TUF repo uploaded that matches the software running on the component) */
+  componentsByReleaseVersion: Record<string, number>
+  /** Whether automatic update is suspended due to manual update activity
+
+After a manual support procedure that changes the system software, automatic update activity is suspended to avoid undoing the change. To resume automatic update, first upload the TUF repository matching the manually applied update, then set that as the target release. */
+  suspended: boolean
+  /** Current target release of the system software
+
+This may not correspond to the actual system software running at the time of request; it is instead the release that the system should be moving towards as a goal state. The system asynchronously updates software to match this target release.
+
+Will only be null if a target release has never been set. In that case, the system is not automatically attempting to manage software versions. */
+  targetRelease: TargetRelease | null
+  /** Time of most recent update planning activity
+
+This is intended as a rough indicator of the last time something happened in the update planner. */
+  timeLastStepPlanned: Date
 }
 
 /**
@@ -5036,6 +5053,16 @@ export type SystemMetricName =
  * The order in which the client wants to page through the requested collection
  */
 export type PaginationOrder = 'ascending' | 'descending'
+
+/**
+ * Supported sort modes when scanning by semantic version
+ */
+export type VersionSortMode =
+  /** Sort in increasing semantic version order (oldest first) */
+  | 'version_ascending'
+
+  /** Sort in decreasing semantic version order (newest first) */
+  | 'version_descending'
 
 /**
  * Supported set of sort modes for scanning by name only
@@ -6239,6 +6266,34 @@ export interface NetworkingSwitchPortSettingsViewPathParams {
   port: NameOrId
 }
 
+export interface ScimTokenListQueryParams {
+  silo: NameOrId
+}
+
+export interface ScimTokenCreateQueryParams {
+  silo: NameOrId
+}
+
+export interface ScimTokenDeleteAllQueryParams {
+  silo: NameOrId
+}
+
+export interface ScimTokenViewPathParams {
+  tokenId: string
+}
+
+export interface ScimTokenViewQueryParams {
+  silo: NameOrId
+}
+
+export interface ScimTokenDeletePathParams {
+  tokenId: string
+}
+
+export interface ScimTokenDeleteQueryParams {
+  silo: NameOrId
+}
+
 export interface SystemQuotasListQueryParams {
   limit?: number | null
   pageToken?: string | null
@@ -6290,11 +6345,17 @@ export interface SystemTimeseriesSchemaListQueryParams {
   pageToken?: string | null
 }
 
-export interface SystemUpdatePutRepositoryQueryParams {
+export interface SystemUpdateRepositoryListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: VersionSortMode
+}
+
+export interface SystemUpdateRepositoryUploadQueryParams {
   fileName: string
 }
 
-export interface SystemUpdateGetRepositoryPathParams {
+export interface SystemUpdateRepositoryViewPathParams {
   systemVersion: string
 }
 
@@ -9825,6 +9886,79 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * List SCIM tokens
+     */
+    scimTokenList: (
+      { query }: { query: ScimTokenListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ScimClientBearerToken[]>({
+        path: `/v1/system/scim/tokens`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create SCIM token
+     */
+    scimTokenCreate: (
+      { query }: { query: ScimTokenCreateQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ScimClientBearerTokenValue>({
+        path: `/v1/system/scim/tokens`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete all SCIM tokens
+     */
+    scimTokenDeleteAll: (
+      { query }: { query: ScimTokenDeleteAllQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/scim/tokens`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch SCIM token
+     */
+    scimTokenView: (
+      { path, query }: { path: ScimTokenViewPathParams; query: ScimTokenViewQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ScimClientBearerToken>({
+        path: `/v1/system/scim/tokens/${path.tokenId}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete SCIM token
+     */
+    scimTokenDelete: (
+      {
+        path,
+        query,
+      }: { path: ScimTokenDeletePathParams; query: ScimTokenDeleteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/scim/tokens/${path.tokenId}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
      * Lists resource quotas for all silos
      */
     systemQuotasList: (
@@ -9983,14 +10117,28 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Upload system release repository
+     * List all TUF repositories
      */
-    systemUpdatePutRepository: (
-      { query }: { query: SystemUpdatePutRepositoryQueryParams },
+    systemUpdateRepositoryList: (
+      { query = {} }: { query?: SystemUpdateRepositoryListQueryParams },
       params: FetchParams = {}
     ) => {
-      return this.request<TufRepoInsertResponse>({
-        path: `/v1/system/update/repository`,
+      return this.request<TufRepoResultsPage>({
+        path: `/v1/system/update/repositories`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Upload system release repository
+     */
+    systemUpdateRepositoryUpload: (
+      { query }: { query: SystemUpdateRepositoryUploadQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<TufRepoUpload>({
+        path: `/v1/system/update/repositories`,
         method: 'PUT',
         query,
         ...params,
@@ -9999,34 +10147,34 @@ export class Api extends HttpClient {
     /**
      * Fetch system release repository description by version
      */
-    systemUpdateGetRepository: (
-      { path }: { path: SystemUpdateGetRepositoryPathParams },
+    systemUpdateRepositoryView: (
+      { path }: { path: SystemUpdateRepositoryViewPathParams },
       params: FetchParams = {}
     ) => {
-      return this.request<TufRepoGetResponse>({
-        path: `/v1/system/update/repository/${path.systemVersion}`,
+      return this.request<TufRepo>({
+        path: `/v1/system/update/repositories/${path.systemVersion}`,
         method: 'GET',
         ...params,
       })
     },
     /**
-     * Get the current target release of the rack's system software
+     * Fetch system update status
      */
-    targetReleaseView: (_: EmptyObj, params: FetchParams = {}) => {
-      return this.request<TargetRelease>({
-        path: `/v1/system/update/target-release`,
+    systemUpdateStatus: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<UpdateStatus>({
+        path: `/v1/system/update/status`,
         method: 'GET',
         ...params,
       })
     },
     /**
-     * Set the current target release of the rack's system software
+     * Set target release
      */
     targetReleaseUpdate: (
       { body }: { body: SetTargetReleaseParams },
       params: FetchParams = {}
     ) => {
-      return this.request<TargetRelease>({
+      return this.request<void>({
         path: `/v1/system/update/target-release`,
         method: 'PUT',
         body,
