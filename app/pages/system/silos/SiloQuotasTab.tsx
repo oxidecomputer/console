@@ -8,6 +8,7 @@
 
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { type LoaderFunctionArgs } from 'react-router'
 import type { SetNonNullable } from 'type-fest'
 
 import {
@@ -18,7 +19,7 @@ import {
 } from '~/api'
 import { NumberField } from '~/components/form/fields/NumberField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useSiloSelector } from '~/hooks/use-params'
+import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Button } from '~/ui/lib/Button'
 import { Message } from '~/ui/lib/Message'
@@ -29,7 +30,13 @@ import { bytesToGiB, GiB } from '~/util/units'
 
 const Unit = classed.span`ml-1 text-secondary`
 
-export function SiloQuotasTab() {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
+  const { silo } = getSiloSelector(params)
+  await apiQueryClient.prefetchQuery('siloUtilizationView', { path: { silo } })
+  return null
+}
+
+export default function SiloQuotasTab() {
   const { silo } = useSiloSelector()
   const { data: utilization } = usePrefetchedApiQuery('siloUtilizationView', {
     path: { silo: silo },

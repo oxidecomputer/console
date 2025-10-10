@@ -129,6 +129,23 @@ export const routes = createRoutesFromElements(
             path=":silo"
             lazy={() => import('./pages/system/silos/SiloPage').then(convert)}
           >
+            <Route index element={<Navigate to="idps" replace />} />
+            <Route
+              path="idps"
+              lazy={() => import('./pages/system/silos/SiloIdpsTab').then(convert)}
+            />
+            <Route
+              path="ip-pools"
+              lazy={() => import('./pages/system/silos/SiloIpPoolsTab').then(convert)}
+            />
+            <Route
+              path="quotas"
+              lazy={() => import('./pages/system/silos/SiloQuotasTab').then(convert)}
+            />
+            <Route
+              path="fleet-roles"
+              lazy={() => import('./pages/system/silos/SiloFleetRolesTab').then(convert)}
+            />
             <Route
               path="idps-new"
               lazy={() => import('./forms/idp/create').then(convert)}

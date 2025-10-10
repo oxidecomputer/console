@@ -123,8 +123,11 @@ export const pb = {
   silos: () => '/system/silos',
   silosNew: () => '/system/silos-new',
   silo: ({ silo }: PP.Silo) => `/system/silos/${silo}`,
-  siloIpPools: (params: PP.Silo) => `${pb.silo(params)}?tab=ip-pools`,
+  siloIdps: (params: PP.Silo) => `${pb.silo(params)}/idps`,
   siloIdpsNew: (params: PP.Silo) => `${pb.silo(params)}/idps-new`,
+  siloIpPools: (params: PP.Silo) => `${pb.silo(params)}/ip-pools`,
+  siloQuotas: (params: PP.Silo) => `${pb.silo(params)}/quotas`,
+  siloFleetRoles: (params: PP.Silo) => `${pb.silo(params)}/fleet-roles`,
   samlIdp: (params: PP.IdentityProvider) =>
     `${pb.silo(params)}/idps/saml/${params.provider}`,
 
