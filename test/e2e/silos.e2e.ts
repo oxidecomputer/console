@@ -155,8 +155,14 @@ test('Create silo', async ({ page }) => {
   await expectRowVisible(table, { Resource: 'Memory', Quota: '58 GiB' })
   await expectRowVisible(table, { Resource: 'Storage', Quota: '735 GiB' })
 
-  // Go back to the silos list page to delete the silo
-  await page.goto('/system/silos')
+  // Go back to the silos list page to delete the silo using breadcrumbs
+  await page
+    .getByRole('navigation', { name: 'Breadcrumbs' })
+    .getByRole('link', { name: 'Silos' })
+    .click()
+
+  // Wait for the row to be visible before trying to delete it
+  await expect(page.getByRole('cell', { name: 'other-silo' })).toBeVisible()
 
   // now delete it
   await clickRowAction(page, 'other-silo', 'Delete')
