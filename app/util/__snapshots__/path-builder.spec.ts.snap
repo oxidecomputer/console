@@ -553,6 +553,26 @@ exports[`breadcrumbs 2`] = `
       "path": "/access",
     },
   ],
+  "siloFleetRoles (/system/silos/s/fleet-roles)": [
+    {
+      "label": "Silos",
+      "path": "/system/silos",
+    },
+    {
+      "label": "s",
+      "path": "/system/silos/s",
+    },
+  ],
+  "siloIdps (/system/silos/s/idps)": [
+    {
+      "label": "Silos",
+      "path": "/system/silos",
+    },
+    {
+      "label": "s",
+      "path": "/system/silos/s",
+    },
+  ],
   "siloIdpsNew (/system/silos/s/idps-new)": [
     {
       "label": "Silos",
@@ -575,7 +595,17 @@ exports[`breadcrumbs 2`] = `
       "path": "/images",
     },
   ],
-  "siloIpPools (/system/silos/s?tab=ip-pools)": [
+  "siloIpPools (/system/silos/s/ip-pools)": [
+    {
+      "label": "Silos",
+      "path": "/system/silos",
+    },
+    {
+      "label": "s",
+      "path": "/system/silos/s",
+    },
+  ],
+  "siloQuotas (/system/silos/s/quotas)": [
     {
       "label": "Silos",
       "path": "/system/silos",
