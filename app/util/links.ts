@@ -43,6 +43,8 @@ export const links = {
   quickStart: 'https://docs.oxide.computer/guides/quickstart',
   routersDocs:
     'https://docs.oxide.computer/guides/configuring-guest-networking#_custom_routers',
+  // 🚨 TODO: link to section once it exists in the docs 🚨
+  scimAuthDocs: '',
   siloQuotasDocs:
     'https://docs.oxide.computer/guides/operator/silo-management#_silo_resource_quota_management',
   sledDocs:
@@ -126,6 +128,10 @@ export const docLinks = {
   routers: {
     href: links.routersDocs,
     linkText: 'Custom Routers',
+  },
+  scim: {
+    href: links.scimAuthDocs,
+    linkText: 'SCIM Auth',
   },
   sleds: {
     href: links.sledDocs,

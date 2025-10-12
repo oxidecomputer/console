@@ -58,9 +58,10 @@ export default function SiloPage() {
 
       <RouteTabs fullWidth>
         <Tab to={pb.siloIdps(siloSelector)}>Identity Providers</Tab>
-        <Tab to={pb.siloIpPools(siloSelector)}>IP Pools</Tab>
+        <Tab to={pb.siloIpPools(siloSelector)}>Linked Pools</Tab>
         <Tab to={pb.siloQuotas(siloSelector)}>Quotas</Tab>
         <Tab to={pb.siloFleetRoles(siloSelector)}>Fleet roles</Tab>
+        <Tab to={pb.siloScim(siloSelector)}>SCIM</Tab>
       </RouteTabs>
     </>
   )
