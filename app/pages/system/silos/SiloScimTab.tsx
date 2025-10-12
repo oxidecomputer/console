@@ -34,7 +34,7 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { TableEmptyBox } from '~/ui/lib/Table'
-import { Tooltip } from '~/ui/lib/Tooltip'
+import { Truncate } from '~/ui/lib/Truncate'
 import { docLinks } from '~/util/links'
 
 const colHelper = createColumnHelper<ScimClientBearerToken>()
@@ -102,16 +102,9 @@ export default function SiloScimTab() {
     () => [
       colHelper.accessor('id', {
         header: 'ID',
-        cell: (info) => {
-          const id = info.getValue()
-          return (
-            <Tooltip content={id}>
-              <span className="font-mono text-secondary">
-                {id.slice(0, 8)}...{id.slice(-6)}
-              </span>
-            </Tooltip>
-          )
-        },
+        cell: (info) => (
+          <Truncate text={info.getValue()} position="middle" maxLength={18} />
+        ),
       }),
       colHelper.accessor('timeCreated', Columns.timeCreated),
       colHelper.accessor('timeExpires', {
@@ -145,7 +138,7 @@ export default function SiloScimTab() {
           titleId="scim-tokens-label"
           description="Manage authentication tokens for SCIM identity provisioning"
         >
-          {tokens.length > 0 && (
+          {tokens.length > 1 && (
             <Button
               size="sm"
               variant="ghost"
@@ -154,7 +147,7 @@ export default function SiloScimTab() {
                   deleteAllTokens.mutateAsync({
                     query: { silo: siloSelector.silo },
                   }),
-                label: 'all SCIM tokens',
+                label: `${tokens.length === 2 ? 'both' : `all ${tokens.length}`} SCIM tokens`,
               })}
             >
               Delete all

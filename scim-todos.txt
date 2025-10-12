@@ -1,3 +1,3 @@
 - Ask about 'name' column / attribute; not present in API, but was present in designs; are we expecting a name attribute?
 - Note that the API doesn't currently accept a body for scimTokenCreate, and so we don't have a way to pass in the time_expires datetime
-- We should probably have more alarming copy than "Are you sure you want to delete all SCIM tokens?"?
+- Is dynamic copy (both / all 6) on Delete All message too much?

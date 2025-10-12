@@ -20,8 +20,8 @@ test('SCIM tokens tab', async ({ page }) => {
   const table = page.getByRole('table', { name: 'SCIM Bearer Tokens' })
 
   // Check that existing tokens are visible
-  await expectRowVisible(table, { ID: 'a1b2c3d4...567890' })
-  await expectRowVisible(table, { ID: 'b2c3d4e5...678901' })
+  await expectRowVisible(table, { ID: 'a1b2c3d4…34567890' })
+  await expectRowVisible(table, { ID: 'b2c3d4e5…45678901' })
 
   // Check that the documentation link is visible
   await expect(page.getByText('Learn more about')).toBeVisible()
@@ -35,9 +35,8 @@ test('Create SCIM token', async ({ page }) => {
   await page.getByRole('button', { name: 'Create token' }).click()
 
   const createModal = page.getByRole('dialog', { name: 'Create token' })
-  const createMessage = createModal.getByText(
-    'This token will have access to provision users and groups via SCIM'
-  )
+  const modalMessage = 'This token will have access to provision users and groups via SCIM'
+  const createMessage = createModal.getByText(modalMessage)
   await expect(createModal).toBeVisible()
 
   // Check info message is visible
@@ -69,6 +68,13 @@ test('Create SCIM token', async ({ page }) => {
   // But a new row should exist - check the table has 3 rows now (header + 2 original + 1 new)
   const table = page.getByRole('table', { name: 'SCIM Bearer Tokens' })
   await expect(table.getByRole('row')).toHaveCount(4) // header + 3 tokens
+
+  // A quick check on the Delete All modal copy
+  await page.getByRole('button', { name: 'Delete all' }).click()
+  const confirmModal = page.getByRole('dialog', { name: 'Confirm delete' })
+  await expect(confirmModal).toBeVisible()
+  const warningText = 'Are you sure you want to delete all 3 SCIM tokens'
+  await expect(confirmModal.getByText(warningText)).toBeVisible()
 })
 
 test('Delete SCIM token', async ({ page }) => {
@@ -96,10 +102,10 @@ test('Delete SCIM token', async ({ page }) => {
   await expect(table.getByRole('row')).toHaveCount(2) // header + 1 token
 
   // The deleted token should not be visible
-  await expectNotVisible(page, [page.getByText('a1b2c3d4...567890')])
+  await expectNotVisible(page, [page.getByText('a1b2c3d4…34567890')])
 
   // The other token should still be visible
-  await expectRowVisible(table, { ID: 'b2c3d4e5...678901' })
+  await expectRowVisible(table, { ID: 'b2c3d4e5…45678901' })
 })
 
 test('Delete all SCIM tokens', async ({ page }) => {
@@ -116,9 +122,8 @@ test('Delete all SCIM tokens', async ({ page }) => {
   // Confirm deletion modal should appear
   const confirmModal = page.getByRole('dialog', { name: 'Confirm delete' })
   await expect(confirmModal).toBeVisible()
-  await expect(
-    confirmModal.getByText('Are you sure you want to delete all SCIM tokens')
-  ).toBeVisible()
+  const warningText = 'Are you sure you want to delete both SCIM tokens'
+  await expect(confirmModal.getByText(warningText)).toBeVisible()
 
   await confirmModal.getByRole('button', { name: 'Confirm' }).click()
 
