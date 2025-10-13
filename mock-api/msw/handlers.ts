@@ -1824,11 +1824,15 @@ export const handlers = makeHandlers({
 
     // Generate a 32-character hex string
     const hexString = uuid().replace(/-/g, '')
+    const now = new Date()
+    const expiration = new Date(now)
+    expiration.setDate(expiration.getDate() + 90)
+
     const newToken: Json<Api.ScimClientBearerTokenValue> = {
       id: uuid(),
       bearer_token: `scim_${hexString}`,
-      time_created: new Date().toISOString(),
-      time_expires: null,
+      time_created: now.toISOString(),
+      time_expires: expiration.toISOString(),
     }
 
     // Store without the bearer_token but with siloId for filtering

@@ -262,12 +262,14 @@ function TokenCreatedModal({
   return (
     <Modal isOpen onDismiss={onDismiss} title="Create token">
       <Modal.Section>
-        {token.timeExpires && (
-          <div>
-            <div className="mb-1 text-sans-sm text-secondary">Expires</div>
+        <div className="rounded border p-3 text-sans-sm border-default">
+          <div className="mb-1 uppercase text-mono-sm text-tertiary">Expires</div>
+          {token.timeExpires ? (
             <DateTime date={token.timeExpires} />
-          </div>
-        )}
+          ) : (
+            <Badge color="neutral">Never</Badge>
+          )}
+        </div>
 
         <Message
           variant="notice"
