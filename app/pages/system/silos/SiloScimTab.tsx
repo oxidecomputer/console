@@ -25,7 +25,6 @@ import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
-import { Button } from '~/ui/lib/Button'
 import { CardBlock } from '~/ui/lib/CardBlock'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { CreateButton } from '~/ui/lib/CreateButton'
@@ -70,12 +69,6 @@ export default function SiloScimTab() {
   } | null>(null)
 
   const deleteToken = useApiMutation('scimTokenDelete', {
-    onSuccess() {
-      apiQueryClient.invalidateQueries('scimTokenList')
-    },
-  })
-
-  const deleteAllTokens = useApiMutation('scimTokenDeleteAll', {
     onSuccess() {
       apiQueryClient.invalidateQueries('scimTokenList')
     },
@@ -138,21 +131,6 @@ export default function SiloScimTab() {
           titleId="scim-tokens-label"
           description="Manage authentication tokens for SCIM identity provisioning"
         >
-          {tokens.length > 1 && (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={confirmDelete({
-                doDelete: () =>
-                  deleteAllTokens.mutateAsync({
-                    query: { silo: siloSelector.silo },
-                  }),
-                label: `${tokens.length === 2 ? 'both' : `all ${tokens.length}`} SCIM tokens`,
-              })}
-            >
-              Delete all
-            </Button>
-          )}
           <CreateButton onClick={() => setShowCreateModal(true)}>Create token</CreateButton>
         </CardBlock.Header>
         <CardBlock.Body>

@@ -68,13 +68,6 @@ test('Create SCIM token', async ({ page }) => {
   // But a new row should exist - check the table has 3 rows now (header + 2 original + 1 new)
   const table = page.getByRole('table', { name: 'SCIM Bearer Tokens' })
   await expect(table.getByRole('row')).toHaveCount(4) // header + 3 tokens
-
-  // A quick check on the Delete All modal copy
-  await page.getByRole('button', { name: 'Delete all' }).click()
-  const confirmModal = page.getByRole('dialog', { name: 'Confirm delete' })
-  await expect(confirmModal).toBeVisible()
-  const warningText = 'Are you sure you want to delete all 3 SCIM tokens'
-  await expect(confirmModal.getByText(warningText)).toBeVisible()
 })
 
 test('Delete SCIM token', async ({ page }) => {
@@ -106,39 +99,14 @@ test('Delete SCIM token', async ({ page }) => {
 
   // The other token should still be visible
   await expectRowVisible(table, { ID: 'b2c3d4e5…45678901' })
-})
 
-test('Delete all SCIM tokens', async ({ page }) => {
-  await page.goto('/system/silos/maze-war/scim')
-
-  const table = page.getByRole('table', { name: 'SCIM Bearer Tokens' })
-
-  // Verify initial state - should have 2 tokens
-  await expect(table.getByRole('row')).toHaveCount(3) // header + 2 tokens
-
-  // Click "Delete all" button
-  await page.getByRole('button', { name: 'Delete all' }).click()
-
-  // Confirm deletion modal should appear
-  const confirmModal = page.getByRole('dialog', { name: 'Confirm delete' })
-  await expect(confirmModal).toBeVisible()
-  const warningText = 'Are you sure you want to delete both SCIM tokens'
-  await expect(confirmModal.getByText(warningText)).toBeVisible()
-
+  // Delete the second token
+  await clickRowAction(page, 'b2c3d4e5', 'Delete')
   await confirmModal.getByRole('button', { name: 'Confirm' }).click()
-
-  // Modal should close
-  await expect(confirmModal).toBeHidden()
-
-  // Table should no longer be visible
-  await expect(table).toBeHidden()
 
   // Empty state should be visible
   await expectVisible(page, [
     page.getByText('No SCIM tokens'),
     page.getByText('Create a token to see it here'),
   ])
-
-  // "Delete all" button should not be visible when there are no tokens
-  await expect(page.getByRole('button', { name: 'Delete all' })).toBeHidden()
 })

@@ -1854,12 +1854,6 @@ export const handlers = makeHandlers({
     db.scimTokens = db.scimTokens.filter((t) => t.id !== token.id)
     return 204
   },
-  scimTokenDeleteAll({ query, cookies }) {
-    requireFleetCollab(cookies)
-    const silo = lookup.silo({ silo: query.silo })
-    db.scimTokens = db.scimTokens.filter((t) => t.siloId !== silo.id)
-    return 204
-  },
 
   // Misc endpoints we're not using yet in the console
   affinityGroupCreate: NotImplemented,
@@ -1973,6 +1967,7 @@ export const handlers = makeHandlers({
   systemUpdateTrustRootList: NotImplemented,
   systemUpdateTrustRootView: NotImplemented,
   targetReleaseUpdate: NotImplemented,
+  scimTokenDeleteAll: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
   userLogout: NotImplemented,
