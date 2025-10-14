@@ -16,8 +16,11 @@ import {
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
 import { useEffect, useId, useState, type ReactNode, type Ref } from 'react'
+import { type FieldError } from 'react-hook-form'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
+
+import { PopoverErrorMessage } from '~/components/form/fields/ErrorMessage'
 
 import { FieldLabel } from './FieldLabel'
 import { usePopoverZIndex } from './SideModal'
@@ -47,7 +50,7 @@ export type ComboboxBaseProps = {
   disabled?: boolean
   isLoading?: boolean
   items: Array<ComboboxItem>
-  label: string
+  label?: string
   placeholder?: string
   required?: boolean
   hideOptionalTag?: boolean
@@ -68,6 +71,8 @@ export type ComboboxBaseProps = {
    * Optional function to transform the value entered into the input as the user types.
    */
   transform?: (value: string) => string
+  // todo: document
+  matchDropdownWidth?: boolean
 }
 
 type ComboboxProps = {
@@ -78,6 +83,7 @@ type ComboboxProps = {
   onChange: (value: string) => void
   /** Necessary if you want RHF to be able to focus it on error */
   inputRef?: Ref<HTMLInputElement>
+  popoverError?: FieldError
 } & ComboboxBaseProps
 
 export const Combobox = ({
@@ -98,6 +104,8 @@ export const Combobox = ({
   hideOptionalTag,
   inputRef,
   transform,
+  matchDropdownWidth = true,
+  popoverError,
   ...props
 }: ComboboxProps) => {
   const [query, setQuery] = useState(selectedItemValue || '')
@@ -136,9 +144,10 @@ export const Combobox = ({
     filteredItems.push({
       value: query,
       label: (
-        <>
-          <span className="text-default">Custom:</span> {query}
-        </>
+        <div className="flex items-center gap-1">
+          <span className="text-default">Custom:</span>{' '}
+          <span className="max-w-[9rem] truncate">{query}</span>
+        </div>
       ),
       selectedLabel: query,
     })
@@ -176,7 +185,7 @@ export const Combobox = ({
           )}
           <div
             className={cn(
-              `flex rounded border focus-within:ring-2`,
+              `relative flex h-10 items-center rounded border focus-within:ring-2`,
               hasError
                 ? 'focus-error border-error-secondary focus-within:ring-error-secondary hover:border-error'
                 : 'border-default focus-within:ring-accent-secondary hover:border-hover',
@@ -226,61 +235,66 @@ export const Combobox = ({
               placeholder={placeholder}
               disabled={disabled || isLoading}
               className={cn(
-                `h-10 w-full rounded !border-none px-3 py-2 !outline-none text-sans-md text-raise placeholder:text-tertiary`,
+                `h-full w-full rounded !border-none px-3 py-2 !outline-none text-sans-md text-raise placeholder:text-tertiary`,
                 disabled
                   ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
                   : 'bg-default',
                 hasError && 'focus-error'
               )}
             />
-            {items.length > 0 && (
-              <ComboboxButton
-                className={cn(
-                  'my-1.5 flex items-center border-l px-3 border-secondary',
-                  disabled ? 'cursor-not-allowed bg-disabled' : 'bg-default'
-                )}
-                aria-hidden
-              >
-                <SelectArrows6Icon title="Select" className="w-2 text-secondary" />
-              </ComboboxButton>
+            {popoverError && (
+              <PopoverErrorMessage error={popoverError} label="Test" className="mr-1.5" />
             )}
-          </div>
-          {(items.length > 0 || allowArbitraryValues) && (
-            <ComboboxOptions
-              anchor="bottom start"
-              // 13px gap is presumably because it's measured from inside the outline or something
-              className={`ox-menu pointer-events-auto ${zIndex} relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border !outline-none border-secondary [--anchor-gap:13px] empty:hidden`}
-              modal={false}
-            >
-              {filteredItems.map((item) => (
-                <ComboboxOption
-                  key={item.value}
-                  value={item.value}
-                  className="relative border-b border-secondary last:border-0"
-                >
-                  {({ focus, selected }) => (
-                    // This *could* be done with data-[focus] and data-[selected] instead, but
-                    // it would be a lot more verbose. those can only be used with TW classes,
-                    // not our .is-selected and .is-highlighted, so we'd have to copy the pieces
-                    // of those rules one by one. Better to rely on the shared classes.
-                    <div
-                      className={cn('ox-menu-item', {
-                        'is-selected': selected && query !== item.value,
-                        'is-highlighted': focus,
-                      })}
-                    >
-                      {item.label}
-                    </div>
-                  )}
-                </ComboboxOption>
-              ))}
-              {!allowArbitraryValues && filteredItems.length === 0 && (
-                <ComboboxOption disabled value="no-matches" className="relative">
-                  <div className="ox-menu-item !text-disabled">No items match</div>
-                </ComboboxOption>
+            <ComboboxButton
+              className={cn(
+                'my-1.5 flex items-center border-l px-3 border-secondary',
+                disabled ? 'cursor-not-allowed bg-disabled' : 'bg-default'
               )}
-            </ComboboxOptions>
-          )}
+              aria-hidden
+            >
+              <SelectArrows6Icon title="Select" className="w-2 text-secondary" />
+            </ComboboxButton>
+          </div>
+          <ComboboxOptions
+            anchor="bottom start"
+            // 13px gap is presumably because it's measured from inside the outline or something
+            className={cn(
+              'ox-menu pointer-events-auto relative overflow-y-auto border !outline-none border-secondary [--anchor-gap:13px] empty:hidden',
+              matchDropdownWidth // todo: be a bit smarter about the width so it doesnt extend outside of container
+                ? 'w-[calc(var(--input-width)+var(--button-width))]'
+                : 'min-w-[15rem]',
+              zIndex
+            )}
+            modal={false}
+          >
+            {filteredItems.map((item) => (
+              <ComboboxOption
+                key={item.value}
+                value={item.value}
+                className="relative border-b border-secondary last:border-0"
+              >
+                {({ focus, selected }) => (
+                  // This *could* be done with data-[focus] and data-[selected] instead, but
+                  // it would be a lot more verbose. those can only be used with TW classes,
+                  // not our .is-selected and .is-highlighted, so we'd have to copy the pieces
+                  // of those rules one by one. Better to rely on the shared classes.
+                  <div
+                    className={cn('ox-menu-item', {
+                      'is-selected': selected && query !== item.value,
+                      'is-highlighted': focus,
+                    })}
+                  >
+                    {item.label}
+                  </div>
+                )}
+              </ComboboxOption>
+            ))}
+            {filteredItems.length === 0 && (
+              <ComboboxOption disabled value="no-matches" className="relative">
+                <div className="ox-menu-item !text-disabled">No items match</div>
+              </ComboboxOption>
+            )}
+          </ComboboxOptions>
         </div>
       )}
     </HCombobox>

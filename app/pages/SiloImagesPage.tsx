@@ -187,6 +187,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
       <ListboxField
         control={form.control}
         name="image"
+        label="Image"
         placeholder="Select an image"
         items={imageItems}
         isLoading={images.isPending}
