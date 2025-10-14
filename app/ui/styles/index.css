@@ -218,7 +218,11 @@
     @apply text-raise;
   }
 
-  html:not([data-headlessui-focus-visible]) *:focus {
+  /*
+    https://github.com/tailwindlabs/headlessui/issues/2862#issuecomment-1840891819
+    fix for headlessui focus issue
+  */
+  html:not([data-headlessui-focus-visible]) .headless-hide-focus:focus {
     outline: none !important;
   }
 }

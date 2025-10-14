@@ -47,7 +47,7 @@ export const DocsPopover = ({ heading, icon, summary, links }: DocsPopoverProps)
   const title = `Learn about ${heading}`
   return (
     <Popover>
-      <PopoverButton title={title} className="rounded">
+      <PopoverButton title={title} className="headless-hide-focus rounded">
         <div className={cn(buttonStyle({ size: 'sm', variant: 'ghost' }), 'w-8')}>
           <Info16Icon aria-hidden className="shrink-0" />
         </div>

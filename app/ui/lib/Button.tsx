@@ -49,8 +49,8 @@ export const buttonStyle = ({
     `btn-${variant}`,
     sizeStyle[size],
     variant === 'danger'
-      ? 'focus:outline-destructive-secondary'
-      : 'focus:outline-accent-secondary'
+      ? 'focus-visible:outline-destructive-secondary'
+      : 'focus-visible:outline-accent-secondary'
   )
 }
 

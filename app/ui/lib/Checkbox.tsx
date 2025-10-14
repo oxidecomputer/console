@@ -18,7 +18,7 @@ const Check = () => (
 const Indeterminate = classed.div`absolute w-2 h-0.5 left-1 top-[7px] bg-accent pointer-events-none`
 
 const inputStyle = `
-  appearance-none border border-default bg-default h-4 w-4 rounded-sm absolute left-0 outline-hidden
+  appearance-none border border-default bg-default h-4 w-4 rounded-sm absolute left-0
   disabled:cursor-not-allowed
   hover:border-hover hover:cursor-pointer
   checked:bg-accent-secondary checked:border-accent-secondary
