@@ -23,7 +23,7 @@ test('Update status displays correctly', async ({ page }) => {
 
   await expect(page.getByText('Suspended No')).toBeVisible()
 
-  await expect(page.getByText('Available Releases')).toBeVisible()
+  await expect(page.getByText('Releases')).toBeVisible()
 
   await expect(page.getByText('rack-18.0.0.zip')).toBeVisible()
   await expect(page.getByText('rack-17.0.0.zip')).toBeVisible()
@@ -41,7 +41,7 @@ test('Update status displays correctly', async ({ page }) => {
 test('Set target release', async ({ page }) => {
   await page.goto('/system/update')
 
-  await expect(page.getByText('Available Releases')).toBeVisible()
+  await expect(page.getByText('Releases')).toBeVisible()
 
   // Verify initial state: 17.0.0 is the target
   await expect(page.getByLabel('Properties table')).toContainText('17.0.0')

@@ -167,7 +167,7 @@ export default function UpdatePage() {
       </PropertiesTable>
 
       <CardBlock>
-        <CardBlock.Header title="Available Releases" />
+        <CardBlock.Header title="Releases" />
         <CardBlock.Body>
           <ul className="space-y-3">
             {repos.items.map((repo) => {
