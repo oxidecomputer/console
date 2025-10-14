@@ -68,6 +68,8 @@ function calcProgress(status: UpdateStatus) {
   const total = R.sum(Object.values(status.componentsByReleaseVersion))
   const current = status.componentsByReleaseVersion[targetVersion] || 0
 
+  if (!total) return null // avoid dividing by zero
+
   return {
     current,
     total,
@@ -105,6 +107,8 @@ export default function UpdatePage() {
         </div>
       </PageHeader>
       <PropertiesTable className="-mt-8 mb-8">
+        {/* targetRelease will never be null on a customer system after the
+            first time it is set. */}
         <PropertiesTable.Row label="Target release">
           {status.targetRelease?.version ?? <EmptyCell />}
         </PropertiesTable.Row>
@@ -112,7 +116,7 @@ export default function UpdatePage() {
           {status.targetRelease?.timeRequested ? (
             <DateTime date={status.targetRelease.timeRequested} />
           ) : (
-            'N/A'
+            <EmptyCell />
           )}
         </PropertiesTable.Row>
         <PropertiesTable.Row
