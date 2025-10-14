@@ -145,7 +145,7 @@ export default function SerialConsolePage() {
           <span className="text-accent-tertiary">Back to</span> instance
         </div>
       </Link>
-      <div className="gutter relative w-full shrink grow overflow-hidden">
+      <div className="gutter relative shrink grow overflow-hidden">
         {connectionStatus === 'connecting' && <ConnectingSkeleton />}
         {connectionStatus === 'error' && <ErrorSkeleton />}
         {connectionStatus === 'closed' && !canConnect && (
