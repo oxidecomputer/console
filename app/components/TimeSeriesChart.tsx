@@ -63,7 +63,7 @@ const shortTime = (ts: number) => format(new Date(ts), 'HH:mm')
 const longDateTime = (ts: number) => format(new Date(ts), 'MMM d, yyyy HH:mm:ss zz')
 
 const GRID_GRAY = 'var(--stroke-secondary)'
-const CURSOR_GRAY = 'rgba(var(--base-neutral-500-rgb), 1)'
+const CURSOR = 'var(--chart-stroke-item)'
 const GREEN_400 = 'var(--theme-accent-400)'
 const GREEN_600 = 'var(--theme-accent-600)'
 const GREEN_800 = 'var(--theme-accent-800)'
@@ -270,7 +270,7 @@ export function TimeSeriesChart({
           <Tooltip
             isAnimationActive={false}
             content={(props: TooltipProps<number, string>) => renderTooltip(props, unit)}
-            cursor={{ stroke: CURSOR_GRAY, strokeDasharray: '3,3' }}
+            cursor={{ stroke: CURSOR, strokeDasharray: '3,3' }}
             wrapperStyle={{ outline: 'none' }}
           />
           <Area
