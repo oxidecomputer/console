@@ -70,7 +70,7 @@ export default function AccessTokensPage() {
             </TipIcon>
           </>
         ),
-        cell: (info) => <span className="font-mono">{info.getValue()}</span>,
+        cell: (info) => <span>{info.getValue()}</span>,
       }),
       colHelper.accessor('timeCreated', Columns.timeCreated),
       colHelper.accessor('timeExpires', {

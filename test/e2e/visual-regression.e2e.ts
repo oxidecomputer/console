@@ -109,4 +109,9 @@ test.describe('Visual Regression', () => {
     await expect(page).toHaveURL(/\/login/)
     await expect(page).toHaveScreenshot('login-form.png')
   })
+
+  test('command menu', async ({ page }) => {
+    await page.keyboard.press(`ControlOrMeta+k`)
+    await expect(page).toHaveScreenshot('command-menu.png', { fullPage: true })
+  })
 })

@@ -187,9 +187,10 @@ export function ActionMenu(props: ActionMenuProps) {
                             <li
                               role="option"
                               className={cn(
-                                'text-sans-md text-default bg-raise border-secondary hover:bg-hover box-border block h-full w-full cursor-pointer overflow-visible border p-4 select-none',
-                                item.value === selectedItem?.value &&
-                                  'text-accent bg-accent-secondary hover:bg-accent-secondary-hover'
+                                'text-sans-md border-secondary box-border block h-full w-full cursor-pointer overflow-visible border p-4 select-none',
+                                item.value === selectedItem?.value
+                                  ? 'text-accent bg-accent-secondary hover:bg-accent-secondary-hover'
+                                  : 'text-default bg-raise hover:bg-hover'
                               )}
                               aria-selected={item.value === selectedItem?.value}
                               onClick={() => {
