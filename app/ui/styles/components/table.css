@@ -71,6 +71,10 @@ table.ox-table {
     @apply !m-0 w-10 !p-0;
   }
 
+  & td:last-of-type > div {
+    @apply -m-px;
+  }
+
   /*
     Highlight when hovering over the action-col cell
   */
