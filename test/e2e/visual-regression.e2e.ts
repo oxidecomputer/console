@@ -16,7 +16,7 @@
 
 import { expect, test } from './utils'
 
-test.describe('Visual Regression', () => {
+test.describe('Visual Regression', { tag: '@visual' }, () => {
   test('projects list', async ({ page }) => {
     await page.goto('/projects')
     await page.getByRole('heading', { name: 'Projects' }).waitFor()

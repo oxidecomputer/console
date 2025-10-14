@@ -11,9 +11,6 @@ test.describe('login', () => {
   test('with valid credentials redirects', async ({ page }) => {
     await page.goto('/login/default-silo/local')
 
-    // Visual snapshot of login form
-    await expect(page).toHaveScreenshot('login-form.png')
-
     await page.fill('input[name=username]', 'abc')
     await page.fill('input[name=password]', 'def')
     await page.getByRole('button', { name: 'Sign in' }).click()
@@ -21,7 +18,6 @@ test.describe('login', () => {
 
     // Visual snapshot of projects page after login
     await expect(page.getByRole('heading', { name: 'Projects' })).toBeVisible()
-    await expect(page).toHaveScreenshot('projects-page.png')
   })
 
   test('with redirect_uri param redirects to last page', async ({ page }) => {
@@ -40,8 +36,5 @@ test.describe('login', () => {
     await page.fill('input[name=password]', 'bad') // the Bad Password
     await page.getByRole('button', { name: 'Sign in' }).click()
     await expect(page.getByText('Could not sign in')).toBeVisible()
-
-    // Visual snapshot of error state
-    await expect(page).toHaveScreenshot('login-error.png')
   })
 })
