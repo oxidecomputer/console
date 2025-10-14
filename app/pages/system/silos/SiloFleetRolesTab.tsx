@@ -7,10 +7,10 @@
  */
 
 import { usePrefetchedApiQuery } from '@oxide/api'
+import { Badge } from '@oxide/design-system'
 import { Cloud24Icon, NextArrow12Icon } from '@oxide/design-system/icons/react'
 
 import { useSiloSelector } from '~/hooks/use-params'
-import { Badge } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 
@@ -38,12 +38,12 @@ export default function SiloFleetRolesTab() {
 
   return (
     <>
-      <p className="mb-4 text-default">Silo roles can automatically grant a fleet role.</p>
+      <p className="text-default mb-4">Silo roles can automatically grant a fleet role.</p>
       <ul className="space-y-3">
         {roleMapPairs.map(([siloRole, fleetRole]) => (
           <li key={siloRole + '|' + fleetRole} className="flex items-center">
             <Badge>Silo {siloRole}</Badge>
-            <NextArrow12Icon className="mx-3 text-default" aria-label="maps to" />
+            <NextArrow12Icon className="text-default mx-3" aria-label="maps to" />
             <span className="text-sans-md text-default">Fleet {fleetRole}</span>
           </li>
         ))}

@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { type SiloIpPool } from '@oxide/api'
 import { Badge } from '@oxide/design-system/components'
 
 export function toIpPoolItem(p: SiloIpPool) {
