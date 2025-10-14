@@ -22,6 +22,8 @@
     "update-snapshots": "npm test run -- -u",
     "e2e": "playwright test",
     "e2ec": "playwright test --project=chrome",
+    "visual:baseline": "./tools/generate-visual-baseline.sh",
+    "visual:compare": "./tools/compare-visual-changes.sh",
     "lint": "oxlint && eslint --ext .js,.ts,.tsx app test mock-api",
     "oxlint": "oxlint",
     "fmt": "prettier --cache --write . && npm run lint -- --fix",
