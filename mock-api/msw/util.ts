@@ -372,7 +372,7 @@ export function requireRole(
 ) {
   const user = currentUser(cookies)
   // should it 404? I think the API is a mix
-  if (!userHasRole(user, resourceType, resourceId, role)) throw 403
+  if (!userHasRole(user, resourceType, resourceId, role)) throw forbiddenErr()
 }
 
 const ipToBigInt = (ip: string): bigint =>

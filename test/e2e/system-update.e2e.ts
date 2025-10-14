@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { expect, expectToast, test } from './utils'
+import { expect, expectToast, getPageAsUser, test } from './utils'
 
 test('Update status displays correctly', async ({ page }) => {
   await page.goto('/system/update')
@@ -112,4 +112,29 @@ test('Cannot downgrade to older release', async ({ page }) => {
 
   const release16 = page.getByRole('listitem').filter({ hasText: '16.0.0' })
   await expect(release16.getByText('Target')).toBeHidden()
+})
+
+test('Fleet viewer cannot set target release', async ({ browser }) => {
+  const page = await getPageAsUser(browser, 'Jane Austen')
+  await page.goto('/system/update')
+
+  // Verify initial state: 17.0.0 is the target
+  await expect(page.getByLabel('Properties table')).toContainText('17.0.0')
+
+  // Try to set 18.0.0 as target
+  await page.getByRole('button', { name: '18.0.0 actions' }).click()
+  await page.getByRole('menuitem', { name: 'Set as target release' }).click()
+  await page.getByRole('button', { name: 'Confirm' }).click()
+
+  // can't do it
+  await expectToast(page, 'Action not authorized')
+
+  // Verify the target release has NOT changed - still 17.0.0
+  await expect(page.getByLabel('Properties table')).toContainText('17.0.0')
+
+  const release17 = page.getByRole('listitem').filter({ hasText: '17.0.0' })
+  await expect(release17.getByText('Target')).toBeVisible()
+
+  const release18 = page.getByRole('listitem').filter({ hasText: '18.0.0' })
+  await expect(release18.getByText('Target')).toBeHidden()
 })
