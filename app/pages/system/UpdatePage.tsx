@@ -6,8 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useMemo } from 'react'
 import * as R from 'remeda'
 
 import {
@@ -25,7 +24,6 @@ import {
   type UpdateStatus,
 } from '~/api'
 import { DocsPopover } from '~/components/DocsPopover'
-import { FileField } from '~/components/form/fields/FileField'
 import { HL } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { RefreshButton } from '~/components/RefreshButton'
@@ -34,12 +32,9 @@ import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { Badge } from '~/ui/lib/Badge'
-import { Button } from '~/ui/lib/Button'
 import { CardBlock } from '~/ui/lib/CardBlock'
 import { DateTime } from '~/ui/lib/DateTime'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
-import { Message } from '~/ui/lib/Message'
-import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { TipIcon } from '~/ui/lib/TipIcon'
@@ -80,8 +75,6 @@ function calcProgress(status: UpdateStatus) {
 export default function UpdatePage() {
   const { data: status } = usePrefetchedQuery(apiq('systemUpdateStatus', {}))
   const { data: repos } = usePrefetchedQuery(apiq('systemUpdateRepositoryList', {}))
-  const [uploadModalOpen, setUploadModalOpen] = useState(false)
-  const closeUploadModal = () => setUploadModalOpen(false)
 
   const { mutateAsync: setTargetRelease } = useApiMutation('targetReleaseUpdate', {
     onSuccess() {
@@ -175,11 +168,7 @@ export default function UpdatePage() {
       </PropertiesTable>
 
       <CardBlock>
-        <CardBlock.Header title="Available Releases">
-          <Button size="sm" onClick={() => setUploadModalOpen(true)}>
-            Upload Release
-          </Button>
-        </CardBlock.Header>
+        <CardBlock.Header title="Available Releases" />
         <CardBlock.Body>
           <div className="space-y-3">
             {repos.items.map((repo) => {
@@ -237,82 +226,6 @@ export default function UpdatePage() {
           </div>
         </CardBlock.Body>
       </CardBlock>
-
-      {uploadModalOpen && <UploadReleaseModal onDismiss={closeUploadModal} />}
     </>
-  )
-}
-
-type UploadFormValues = {
-  releaseFile: File | null
-}
-
-const defaultValues: UploadFormValues = { releaseFile: null }
-
-function UploadReleaseModal({ onDismiss }: { onDismiss: () => void }) {
-  const form = useForm({ defaultValues })
-  const selectedFile = form.watch('releaseFile')
-
-  const {
-    mutateAsync: uploadRelease,
-    isPending: isUploading,
-    error: uploadError,
-    reset: resetUpload,
-  } = useApiMutation('systemUpdateRepositoryUpload', {
-    onSuccess(data) {
-      queryClient.invalidateEndpoint('systemUpdateRepositoryList')
-      addToast({
-        content:
-          data.status === 'already_exists' ? (
-            <>
-              Release <HL>{data.repo.systemVersion}</HL> already exists
-            </>
-          ) : (
-            <>
-              Uploaded release <HL>{data.repo.systemVersion}</HL>
-            </>
-          ),
-      })
-    },
-  })
-
-  const closeModal = () => {
-    onDismiss()
-    form.reset()
-    resetUpload()
-  }
-
-  const handleUpload = form.handleSubmit(async (values) => {
-    const file = values.releaseFile
-    if (!file) return
-
-    await uploadRelease({ query: { fileName: file.name } })
-    closeModal()
-  })
-
-  return (
-    <Modal isOpen onDismiss={closeModal} title="Upload Release">
-      <form id="upload-form" onSubmit={handleUpload}>
-        <Modal.Section>
-          {uploadError && (
-            <Message variant="error" title="Error" content={uploadError.message} />
-          )}
-          <FileField
-            id="release-file-input"
-            name="releaseFile"
-            label="Release file"
-            control={form.control}
-            required
-          />
-        </Modal.Section>
-      </form>
-      <Modal.Footer
-        formId="upload-form"
-        onDismiss={closeModal}
-        actionText="Upload"
-        actionLoading={isUploading}
-        disabled={!selectedFile || isUploading}
-      />
-    </Modal>
   )
 }
