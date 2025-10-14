@@ -16,8 +16,8 @@ import {
   useApiQueryClient,
   type Silo,
 } from '@oxide/api'
-import { Badge } from '@oxide/design-system/components'
 import { Cloud16Icon, Cloud24Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'

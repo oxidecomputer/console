@@ -6,8 +6,8 @@
  * Copyright Oxide Computer Company
  */
 import type { VpcFirewallRuleStatus } from '@oxide/api'
-import { Badge } from '@oxide/design-system/components'
 import { Disabled12Icon, Success12Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 export const EnabledCell = ({ value }: { value: VpcFirewallRuleStatus }) =>
   value === 'enabled' ? (

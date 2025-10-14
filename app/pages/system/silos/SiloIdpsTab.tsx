@@ -9,8 +9,8 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo } from 'react'
 import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
-import { Badge } from '@oxide/design-system/components'
 import { Cloud24Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import { getListQFn, queryClient, type IdentityProvider } from '~/api'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'

@@ -17,8 +17,8 @@ import {
   type AffinityPolicy,
   type AntiAffinityGroup,
 } from '@oxide/api'
-import { Badge } from '@oxide/design-system/components'
 import { Affinity24Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import { AffinityDocsPopover, AffinityPolicyHeader } from '~/components/AffinityDocsPopover'
 import { HL } from '~/components/HL'

@@ -8,7 +8,7 @@
 import cn from 'classnames'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 
-import { type BadgeColor } from '@oxide/design-system/components'
+import { type BadgeColor } from '@oxide/design-system/ui'
 
 export const spinnerSizes = ['sm', 'base', 'md', 'lg'] as const
 export type SpinnerSize = (typeof spinnerSizes)[number]

@@ -9,7 +9,7 @@
 import { useEffect, type ReactNode } from 'react'
 import { useController, useForm, type Control } from 'react-hook-form'
 
-import { Badge } from '@oxide/design-system/components'
+import { Badge } from '@oxide/design-system/ui'
 
 import {
   usePrefetchedApiQuery,

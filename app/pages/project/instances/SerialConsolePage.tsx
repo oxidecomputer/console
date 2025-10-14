@@ -16,8 +16,8 @@ import {
   usePrefetchedApiQuery,
   type Instance,
 } from '@oxide/api'
-import { Badge, type BadgeColor } from '@oxide/design-system/components'
 import { PrevArrow12Icon } from '@oxide/design-system/icons/react'
+import { Badge, type BadgeColor } from '@oxide/design-system/ui'
 
 import { EquivalentCliCommand } from '~/components/CopyCode'
 import { InstanceStateBadge } from '~/components/StateBadge'

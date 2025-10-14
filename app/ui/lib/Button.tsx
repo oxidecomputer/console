@@ -9,7 +9,7 @@ import cn from 'classnames'
 import * as m from 'motion/react-m'
 import { type MouseEventHandler, type ReactNode } from 'react'
 
-import { type BadgeColor } from '@oxide/design-system/components'
+import { type BadgeColor } from '@oxide/design-system/ui'
 
 import { Spinner } from '~/ui/lib/Spinner'
 import { Tooltip } from '~/ui/lib/Tooltip'

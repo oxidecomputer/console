@@ -19,8 +19,8 @@ import {
   useApiQueryClient,
   type Snapshot,
 } from '@oxide/api'
-import { Badge } from '@oxide/design-system/components'
 import { Snapshots16Icon, Snapshots24Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { SnapshotStateBadge } from '~/components/StateBadge'

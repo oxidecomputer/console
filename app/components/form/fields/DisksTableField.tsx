@@ -9,7 +9,7 @@ import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
 import type { DiskCreate } from '@oxide/api'
-import { Badge } from '@oxide/design-system/components'
+import { Badge } from '@oxide/design-system/ui'
 
 import { AttachDiskModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'

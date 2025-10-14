@@ -18,6 +18,7 @@ npm run visual:baseline -- HEAD~1
 ```
 
 This will:
+
 1. Fetch the latest main branch (if using `--main`)
 2. Temporarily checkout the specified commit
 3. Install dependencies

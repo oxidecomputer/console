@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Badge } from '@oxide/design-system/components'
+import { Badge } from '@oxide/design-system/ui'
 
 import type { SiloIpPool } from '~/api'
 

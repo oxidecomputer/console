@@ -7,8 +7,8 @@
  */
 
 import { usePrefetchedApiQuery } from '@oxide/api'
-import { Badge } from '@oxide/design-system'
 import { Cloud24Icon, NextArrow12Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import { useSiloSelector } from '~/hooks/use-params'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'

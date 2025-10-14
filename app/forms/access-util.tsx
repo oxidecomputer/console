@@ -12,7 +12,7 @@ import {
   type Policy,
   type RoleKey,
 } from '@oxide/api'
-import { Badge } from '@oxide/design-system/components'
+import { Badge } from '@oxide/design-system/ui'
 
 import { type ListboxItem } from '~/ui/lib/Listbox'
 import { capitalize } from '~/util/str'

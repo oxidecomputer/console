@@ -11,12 +11,12 @@ import { type ReactNode } from 'react'
 import { Link } from 'react-router'
 import { match, P } from 'ts-pattern'
 
-import { Badge } from '@oxide/design-system/components'
 import {
   AutoRestart12Icon,
   NextArrow12Icon,
   OpenLink12Icon,
 } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import type { Instance } from '~/api'
 import { instanceAutoRestartingSoon } from '~/api/util'

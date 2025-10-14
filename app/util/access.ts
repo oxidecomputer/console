@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { type BadgeColor } from '@oxide/design-system/components'
+import { type BadgeColor } from '@oxide/design-system/ui'
 
 import type { IdentityType, RoleKey } from '~/api'
 

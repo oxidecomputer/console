@@ -23,7 +23,7 @@
 
 /* Base tab styles */
 .ox-tab {
-  @apply text-mono-sm text-secondary border-secondary h-10 space-x-2 whitespace-nowrap border-b px-1.5 pb-1 pt-2 uppercase !no-underline;
+  @apply text-mono-sm text-secondary border-secondary h-10 space-x-2 border-b px-1.5 pt-2 pb-1 whitespace-nowrap uppercase !no-underline;
 }
 
 .ox-tabs-list .ox-tab > * {
@@ -46,7 +46,7 @@
 
 /* Badge styles */
 .ox-tab > .ox-badge {
-  @apply -mt-1 select-none text-current;
+  @apply -mt-1 text-current select-none;
 }
 
 .ox-tab[data-state='inactive'] > .ox-badge {
@@ -77,7 +77,7 @@
 }
 
 .ox-side-tabs-list .ox-tab {
-  @apply text-sans-md text-secondary h-auto whitespace-nowrap rounded p-2 py-1.5 normal-case !no-underline;
+  @apply text-sans-md text-secondary h-auto rounded p-2 py-1.5 whitespace-nowrap normal-case !no-underline;
   border-bottom: none;
 }
 

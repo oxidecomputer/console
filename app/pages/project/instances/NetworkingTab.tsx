@@ -23,8 +23,8 @@ import {
   type InstanceNetworkInterface,
   type InstanceState,
 } from '@oxide/api'
-import { Badge } from '@oxide/design-system/components'
 import { IpGlobal24Icon, Networking24Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import { AttachEphemeralIpModal } from '~/components/AttachEphemeralIpModal'
 import { AttachFloatingIpModal } from '~/components/AttachFloatingIpModal'
