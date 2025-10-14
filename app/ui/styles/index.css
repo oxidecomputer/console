@@ -217,4 +217,8 @@
   h5 {
     @apply text-raise;
   }
+
+  html:not([data-headlessui-focus-visible]) *:focus {
+    outline: none !important;
+  }
 }

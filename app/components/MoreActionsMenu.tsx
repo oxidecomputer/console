@@ -27,7 +27,7 @@ export const MoreActionsMenu = ({
 }: MoreActionsMenuProps) => {
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger aria-label={label}>
+      <DropdownMenu.Trigger aria-label={label} className="rounded">
         <div
           className={cn(
             'active-clicked border-default hover:bg-tertiary flex items-center justify-center rounded border',
