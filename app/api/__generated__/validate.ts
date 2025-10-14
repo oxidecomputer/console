@@ -594,14 +594,6 @@ export const AntiAffinityGroupUpdate = z.preprocess(
   })
 )
 
-/**
- * An identifier for an artifact.
- */
-export const ArtifactId = z.preprocess(
-  processResponseBody,
-  z.object({ kind: z.string(), name: z.string(), version: z.string() })
-)
-
 export const AuditLogEntryActor = z.preprocess(
   processResponseBody,
   z.union([
@@ -2454,6 +2446,22 @@ export const InternetGatewayResultsPage = z.preprocess(
 )
 
 /**
+ * A count of bytes / rows accessed during a query.
+ */
+export const IoCount = z.preprocess(
+  processResponseBody,
+  z.object({ bytes: z.number().min(0), rows: z.number().min(0) })
+)
+
+/**
+ * Summary of the I/O resources used by a query.
+ */
+export const IoSummary = z.preprocess(
+  processResponseBody,
+  z.object({ read: IoCount, written: IoCount })
+)
+
+/**
  * The IP address version.
  */
 export const IpVersion = z.preprocess(processResponseBody, z.enum(['v4', 'v6']))
@@ -2821,6 +2829,19 @@ export const NetworkInterface = z.preprocess(
 )
 
 /**
+ * Basic metadata about the resource usage of a single ClickHouse SQL query.
+ */
+export const OxqlQuerySummary = z.preprocess(
+  processResponseBody,
+  z.object({
+    elapsedMs: z.number().min(0),
+    id: z.uuid(),
+    ioSummary: IoSummary,
+    query: z.string(),
+  })
+)
+
+/**
  * List of data values for one timeseries.
  *
  * Each element is an option, where `None` represents a missing sample.
@@ -2888,7 +2909,10 @@ export const OxqlTable = z.preprocess(
  */
 export const OxqlQueryResult = z.preprocess(
   processResponseBody,
-  z.object({ tables: OxqlTable.array() })
+  z.object({
+    querySummaries: OxqlQuerySummary.array().optional(),
+    tables: OxqlTable.array(),
+  })
 )
 
 /**
@@ -3252,6 +3276,28 @@ export const SamlIdentityProviderCreate = z.preprocess(
   })
 )
 
+export const ScimClientBearerToken = z.preprocess(
+  processResponseBody,
+  z.object({
+    id: z.uuid(),
+    timeCreated: z.coerce.date(),
+    timeExpires: z.coerce.date().nullable().optional(),
+  })
+)
+
+/**
+ * The POST response is the only time the generated bearer token is returned to the client.
+ */
+export const ScimClientBearerTokenValue = z.preprocess(
+  processResponseBody,
+  z.object({
+    bearerToken: z.string(),
+    id: z.uuid(),
+    timeCreated: z.coerce.date(),
+    timeExpires: z.coerce.date().nullable().optional(),
+  })
+)
+
 /**
  * Configuration of inbound ICMP allowed by API services.
  */
@@ -3279,7 +3325,7 @@ export const SetTargetReleaseParams = z.preprocess(
  */
 export const SiloIdentityMode = z.preprocess(
   processResponseBody,
-  z.enum(['saml_jit', 'local_only'])
+  z.enum(['saml_jit', 'local_only', 'saml_scim'])
 )
 
 /**
@@ -3946,32 +3992,17 @@ export const SwitchResultsPage = z.preprocess(
 )
 
 /**
- * Source of a system software target release.
- */
-export const TargetReleaseSource = z.preprocess(
-  processResponseBody,
-  z.union([
-    z.object({ type: z.enum(['unspecified']) }),
-    z.object({
-      type: z.enum(['system_version']),
-      version: z
-        .string()
-        .regex(
-          /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
-        ),
-    }),
-  ])
-)
-
-/**
- * View of a system software target release.
+ * View of a system software target release
  */
 export const TargetRelease = z.preprocess(
   processResponseBody,
   z.object({
-    generation: z.number(),
-    releaseSource: TargetReleaseSource,
     timeRequested: z.coerce.date(),
+    version: z
+      .string()
+      .regex(
+        /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
+      ),
   })
 )
 
@@ -4000,7 +4031,7 @@ export const TimeseriesName = z.preprocess(
  */
 export const TimeseriesQuery = z.preprocess(
   processResponseBody,
-  z.object({ query: z.string() })
+  z.object({ includeSummaries: SafeBoolean.default(false).optional(), query: z.string() })
 )
 
 /**
@@ -4052,27 +4083,9 @@ export const TimeseriesSchemaResultsPage = z.preprocess(
 )
 
 /**
- * Metadata about an individual TUF artifact.
- *
- * Found within a `TufRepoDescription`.
+ * Metadata about a TUF repository
  */
-export const TufArtifactMeta = z.preprocess(
-  processResponseBody,
-  z.object({
-    board: z.string().nullable().optional(),
-    hash: z.string(),
-    id: ArtifactId,
-    sign: z.number().min(0).max(255).array().optional(),
-    size: z.number().min(0),
-  })
-)
-
-/**
- * Metadata about a TUF repository.
- *
- * Found within a `TufRepoDescription`.
- */
-export const TufRepoMeta = z.preprocess(
+export const TufRepo = z.preprocess(
   processResponseBody,
   z.object({
     fileName: z.string(),
@@ -4082,43 +4095,29 @@ export const TufRepoMeta = z.preprocess(
       .regex(
         /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
       ),
-    targetsRoleVersion: z.number().min(0),
-    validUntil: z.coerce.date(),
+    timeCreated: z.coerce.date(),
   })
 )
 
 /**
- * A description of an uploaded TUF repository.
+ * A single page of results
  */
-export const TufRepoDescription = z.preprocess(
+export const TufRepoResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ artifacts: TufArtifactMeta.array(), repo: TufRepoMeta })
+  z.object({ items: TufRepo.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
- * Data about a successful TUF repo get from Nexus.
+ * Whether the uploaded TUF repo already existed or was new and had to be inserted. Part of `TufRepoUpload`.
  */
-export const TufRepoGetResponse = z.preprocess(
-  processResponseBody,
-  z.object({ description: TufRepoDescription })
-)
-
-/**
- * Status of a TUF repo import.
- *
- * Part of `TufRepoInsertResponse`.
- */
-export const TufRepoInsertStatus = z.preprocess(
+export const TufRepoUploadStatus = z.preprocess(
   processResponseBody,
   z.enum(['already_exists', 'inserted'])
 )
 
-/**
- * Data about a successful TUF repo import into Nexus.
- */
-export const TufRepoInsertResponse = z.preprocess(
+export const TufRepoUpload = z.preprocess(
   processResponseBody,
-  z.object({ recorded: TufRepoDescription, status: TufRepoInsertStatus })
+  z.object({ repo: TufRepo, status: TufRepoUploadStatus })
 )
 
 /**
@@ -4143,6 +4142,16 @@ export const UninitializedSledId = z.preprocess(
 export const UninitializedSledResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: UninitializedSled.array(), nextPage: z.string().nullable().optional() })
+)
+
+export const UpdateStatus = z.preprocess(
+  processResponseBody,
+  z.object({
+    componentsByReleaseVersion: z.record(z.string(), z.number().min(0)),
+    suspended: SafeBoolean,
+    targetRelease: TargetRelease.nullable(),
+    timeLastStepPlanned: z.coerce.date(),
+  })
 )
 
 /**
@@ -4623,6 +4632,14 @@ export const SystemMetricName = z.preprocess(
 export const PaginationOrder = z.preprocess(
   processResponseBody,
   z.enum(['ascending', 'descending'])
+)
+
+/**
+ * Supported sort modes when scanning by semantic version
+ */
+export const VersionSortMode = z.preprocess(
+  processResponseBody,
+  z.enum(['version_ascending', 'version_descending'])
 )
 
 /**
@@ -7017,6 +7034,60 @@ export const SystemPolicyUpdateParams = z.preprocess(
   })
 )
 
+export const ScimTokenListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      silo: NameOrId,
+    }),
+  })
+)
+
+export const ScimTokenCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      silo: NameOrId,
+    }),
+  })
+)
+
+export const ScimTokenDeleteAllParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      silo: NameOrId,
+    }),
+  })
+)
+
+export const ScimTokenViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      tokenId: z.uuid(),
+    }),
+    query: z.object({
+      silo: NameOrId,
+    }),
+  })
+)
+
+export const ScimTokenDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      tokenId: z.uuid(),
+    }),
+    query: z.object({
+      silo: NameOrId,
+    }),
+  })
+)
+
 export const SystemQuotasListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -7142,7 +7213,19 @@ export const SystemTimeseriesSchemaListParams = z.preprocess(
   })
 )
 
-export const SystemUpdatePutRepositoryParams = z.preprocess(
+export const SystemUpdateRepositoryListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      sortBy: VersionSortMode.optional(),
+    }),
+  })
+)
+
+export const SystemUpdateRepositoryUploadParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
@@ -7152,7 +7235,7 @@ export const SystemUpdatePutRepositoryParams = z.preprocess(
   })
 )
 
-export const SystemUpdateGetRepositoryParams = z.preprocess(
+export const SystemUpdateRepositoryViewParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -7166,7 +7249,7 @@ export const SystemUpdateGetRepositoryParams = z.preprocess(
   })
 )
 
-export const TargetReleaseViewParams = z.preprocess(
+export const SystemUpdateStatusParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),

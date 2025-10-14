@@ -8,17 +8,19 @@
 
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { type LoaderFunctionArgs } from 'react-router'
 import type { SetNonNullable } from 'type-fest'
 
 import {
-  apiQueryClient,
+  apiq,
+  queryClient,
   useApiMutation,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
   type SiloQuotasUpdate,
 } from '~/api'
 import { NumberField } from '~/components/form/fields/NumberField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useSiloSelector } from '~/hooks/use-params'
+import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Button } from '~/ui/lib/Button'
 import { Message } from '~/ui/lib/Message'
@@ -29,11 +31,17 @@ import { bytesToGiB, GiB } from '~/util/units'
 
 const Unit = classed.span`ml-1 text-secondary`
 
-export function SiloQuotasTab() {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
+  const { silo } = getSiloSelector(params)
+  await queryClient.prefetchQuery(apiq('siloUtilizationView', { path: { silo } }))
+  return null
+}
+
+export default function SiloQuotasTab() {
   const { silo } = useSiloSelector()
-  const { data: utilization } = usePrefetchedApiQuery('siloUtilizationView', {
-    path: { silo: silo },
-  })
+  const { data: utilization } = usePrefetchedQuery(
+    apiq('siloUtilizationView', { path: { silo } })
+  )
 
   const { allocated: quotas, provisioned } = utilization
 
@@ -91,9 +99,11 @@ export function SiloQuotasTab() {
 
 function EditQuotasForm({ onDismiss }: { onDismiss: () => void }) {
   const { silo } = useSiloSelector()
-  const { data: utilization } = usePrefetchedApiQuery('siloUtilizationView', {
-    path: { silo: silo },
-  })
+  const { data: utilization } = usePrefetchedQuery(
+    apiq('siloUtilizationView', {
+      path: { silo: silo },
+    })
+  )
   const quotas = utilization.allocated
 
   // required because we need to rule out undefined because NumberField hates that
@@ -107,7 +117,7 @@ function EditQuotasForm({ onDismiss }: { onDismiss: () => void }) {
 
   const updateQuotas = useApiMutation('siloQuotasUpdate', {
     onSuccess() {
-      apiQueryClient.invalidateQueries('siloUtilizationView')
+      queryClient.invalidateEndpoint('siloUtilizationView')
       addToast({ content: 'Quotas updated' })
       onDismiss()
     },
