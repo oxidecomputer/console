@@ -8,7 +8,7 @@
 
 import { expect, expectToast, test } from './utils'
 
-test('System Update page displays correctly', async ({ page }) => {
+test('Update status displays correctly', async ({ page }) => {
   await page.goto('/system/update')
 
   await expect(page.getByRole('heading', { name: 'System Update' })).toBeVisible()
@@ -20,6 +20,8 @@ test('System Update page displays correctly', async ({ page }) => {
 
   await expect(page.getByText('60%')).toBeVisible() // 12/20 = 60%
   await expect(page.getByText('(12 of 20)')).toBeVisible()
+
+  await expect(page.getByText('Suspended No')).toBeVisible()
 
   await expect(page.getByText('Available Releases')).toBeVisible()
 

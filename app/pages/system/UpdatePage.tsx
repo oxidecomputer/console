@@ -158,10 +158,7 @@ export default function UpdatePage() {
             </>
           }
         >
-          {
-            // TODO: need a better T/F indicator
-            status.suspended ? 'True' : 'False'
-          }
+          {status.suspended ? 'Yes' : 'No'}
         </PropertiesTable.Row>
       </PropertiesTable>
 
