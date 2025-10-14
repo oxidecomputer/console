@@ -38,10 +38,14 @@ import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { TipIcon } from '~/ui/lib/TipIcon'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { percentage, round } from '~/util/math'
 
 export const handle = makeCrumb('System Update')
+
+const statusQuery = apiq('systemUpdateStatus', {})
+const reposQuery = apiq('systemUpdateRepositoryList', { query: { limit: ALL_ISH } })
 
 const refreshData = () =>
   Promise.all([
@@ -51,8 +55,8 @@ const refreshData = () =>
 
 export async function clientLoader() {
   await Promise.all([
-    queryClient.prefetchQuery(apiq('systemUpdateStatus', {})),
-    queryClient.prefetchQuery(apiq('systemUpdateRepositoryList', {})),
+    queryClient.prefetchQuery(statusQuery),
+    queryClient.prefetchQuery(reposQuery),
   ])
   return null
 }
@@ -73,8 +77,8 @@ function calcProgress(status: UpdateStatus) {
 }
 
 export default function UpdatePage() {
-  const { data: status } = usePrefetchedQuery(apiq('systemUpdateStatus', {}))
-  const { data: repos } = usePrefetchedQuery(apiq('systemUpdateRepositoryList', {}))
+  const { data: status } = usePrefetchedQuery(statusQuery)
+  const { data: repos } = usePrefetchedQuery(reposQuery)
 
   const { mutateAsync: setTargetRelease } = useApiMutation('targetReleaseUpdate', {
     onSuccess() {

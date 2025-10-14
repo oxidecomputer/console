@@ -8,7 +8,7 @@
 import { addHours } from 'date-fns'
 import { delay } from 'msw'
 import * as R from 'remeda'
-import { lt as semverLessThan } from 'semver'
+import { lt as semverLessThan, rcompare as semverRCompare } from 'semver'
 import { match } from 'ts-pattern'
 import { validate as isUuid, v4 as uuid } from 'uuid'
 
@@ -1673,14 +1673,17 @@ export const handlers = makeHandlers({
   siloMetric: handleMetrics,
   systemUpdateRepositoryList: ({ cookies }) => {
     requireFleetViewer(cookies)
-    // TODO: sort according to query params? unnecessary as long as default sort
-    // is what the console relies on
+    // we could sort based on the query params, but it's unnecessary as long as
+    // default sort is what the console relies on
 
     // no real pagination because pagination helper works on IDs, and these are
     // paginated by version
-
-    // TODO: sort by version
-    return { items: db.tufRepos }
+    return {
+      // sort by version descending
+      items: R.sort(db.tufRepos, (a, b) =>
+        semverRCompare(a.system_version, b.system_version)
+      ),
+    }
   },
   systemUpdateRepositoryUpload: ({ query, cookies }) => {
     requireFleetCollab(cookies)
