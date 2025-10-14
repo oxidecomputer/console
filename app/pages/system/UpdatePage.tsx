@@ -78,7 +78,7 @@ export default function UpdatePage() {
 
   const { mutateAsync: setTargetRelease } = useApiMutation('targetReleaseUpdate', {
     onSuccess() {
-      queryClient.invalidateEndpoint('systemUpdateStatus')
+      refreshData()
       addToast({ content: 'Target release updated' })
     },
     onError(err) {
@@ -170,15 +170,15 @@ export default function UpdatePage() {
       <CardBlock>
         <CardBlock.Header title="Available Releases" />
         <CardBlock.Body>
-          <div className="space-y-3">
+          <ul className="space-y-3">
             {repos.items.map((repo) => {
               const isTarget = repo.systemVersion === status.targetRelease?.version
               return (
-                <div
+                <li
                   key={repo.hash}
                   className="flex items-center gap-4 rounded border p-4 border-secondary"
                 >
-                  <Images24Icon className="shrink-0 text-secondary" />
+                  <Images24Icon className="shrink-0 text-secondary" aria-hidden />
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <span className="text-sans-semi-lg text-raise">
@@ -190,7 +190,7 @@ export default function UpdatePage() {
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1">
-                      <Time16Icon />
+                      <Time16Icon aria-hidden />
                       <DateTime date={repo.timeCreated} />
                     </div>
                   </div>
@@ -220,10 +220,10 @@ export default function UpdatePage() {
                       disabled={isTarget && 'Already set as target'}
                     />
                   </MoreActionsMenu>
-                </div>
+                </li>
               )
             })}
-          </div>
+          </ul>
         </CardBlock.Body>
       </CardBlock>
     </>

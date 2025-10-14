@@ -37,6 +37,7 @@ export function PropertiesTable({
   )
   return (
     <div
+      aria-label="Properties table"
       className={cn(
         className,
         'properties-table min-w-min basis-6/12 rounded-lg border border-default',
