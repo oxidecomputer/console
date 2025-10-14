@@ -8,6 +8,7 @@
 import { addHours } from 'date-fns'
 import { delay } from 'msw'
 import * as R from 'remeda'
+import { lt as semverLessThan } from 'semver'
 import { match } from 'ts-pattern'
 import { validate as isUuid, v4 as uuid } from 'uuid'
 
@@ -52,6 +53,7 @@ import {
   ipRangeLen,
   NotImplemented,
   paginated,
+  requireFleetAdmin,
   requireFleetCollab,
   requireFleetViewer,
   requireRole,
@@ -1725,10 +1727,16 @@ export const handlers = makeHandlers({
     return db.updateStatus
   },
   targetReleaseUpdate: ({ body, cookies }) => {
-    requireFleetCollab(cookies)
+    requireFleetAdmin(cookies)
 
-    // TODO: validate that version is allowed. must be newer than current
-    // https://github.com/oxidecomputer/omicron/blob/d74f5e3f1ae0a378dcdb9795a0ada2426702b046/nexus/src/external_api/http_entrypoints.rs#L7431-L7432
+    if (db.updateStatus.target_release) {
+      const currentVersion = db.updateStatus.target_release.version
+      const newVersion = body.system_version
+      // new version must be greater than or equal to current version
+      if (semverLessThan(newVersion, currentVersion)) {
+        throw `Requested target release (${newVersion}) must not be older than current target release (${currentVersion}).`
+      }
+    }
 
     db.updateStatus.target_release = {
       version: body.system_version,

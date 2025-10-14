@@ -81,13 +81,7 @@ export default function UpdatePage() {
       refreshData()
       addToast({ content: 'Target release updated' })
     },
-    onError(err) {
-      addToast({
-        title: 'Could not update target release',
-        content: err.message,
-        variant: 'error',
-      })
-    },
+    // error handled by confirm modal
   })
 
   const componentProgress = useMemo(() => calcProgress(status), [status])
