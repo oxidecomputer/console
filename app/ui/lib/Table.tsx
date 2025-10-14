@@ -50,7 +50,7 @@ Table.HeadCell = ({ className, children, ...props }: TableHeadCellProps) => (
   <th
     className={cn(
       className,
-      'text-mono-sm bg-secondary border-default border border-x-0 pl-0 text-left *:first:border-0'
+      'text-mono-sm bg-secondary border-default border border-x-0 pl-0 text-left *:first-child:border-0'
     )}
     {...props}
   >
@@ -96,7 +96,7 @@ Table.Cell = ({ height = 'small', className, children, ...props }: TableCellProp
   <td
     className={cn(
       className,
-      'text-raise border-default pl-0 *:first:border-l-0 last:*:-mr-px'
+      'text-raise border-default pl-0 *:first-child:border-l-0 *:last-child:-mr-px'
     )}
     {...props}
   >

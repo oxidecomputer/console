@@ -302,7 +302,7 @@ cell and the table is overflowing
 .scrolled th:first-of-type,
 .overflowing td:last-of-type.action-col,
 .overflowing th:last-of-type.action-col {
-  box-shadow: var(--elevation-2);
+  @apply elevation-2;
 }
 
 /*
