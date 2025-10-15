@@ -13,7 +13,7 @@ import {
   Images24Icon,
   SoftwareUpdate16Icon,
   SoftwareUpdate24Icon,
-  Time16Icon,
+  TimeOutline12Icon,
 } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
@@ -166,7 +166,7 @@ export default function UpdatePage() {
         </PropertiesTable.Row>
       </PropertiesTable>
 
-      <CardBlock className="min-w-160">
+      <CardBlock>
         <CardBlock.Header title="Releases" />
         <CardBlock.Body>
           <ul className="space-y-3">
@@ -175,21 +175,21 @@ export default function UpdatePage() {
               return (
                 <li
                   key={repo.hash}
-                  className="border-secondary flex items-center gap-4 rounded border p-4"
+                  className="border-secondary flex items-center gap-3 rounded border p-4"
                 >
-                  <Images24Icon className="text-secondary shrink-0" aria-hidden />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sans-semi-lg text-raise">
-                        {repo.systemVersion}
-                      </span>
-                      {isTarget && <Badge color="default">Target</Badge>}
+                  <Images24Icon className="text-tertiary shrink-0" aria-hidden />
+                  <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-2">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sans-semi-lg text-raise">
+                          {repo.systemVersion}
+                        </span>
+                        {isTarget && <Badge color="default">Target</Badge>}
+                      </div>
+                      <div className="text-secondary">{repo.fileName}</div>
                     </div>
-                    <div className="text-secondary">{repo.fileName}</div>
-                  </div>
-                  <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1">
-                      <Time16Icon aria-hidden />
+                      <TimeOutline12Icon className="text-tertiary mr-0.75" aria-hidden />
                       <DateTime date={repo.timeCreated} />
                     </div>
                   </div>
