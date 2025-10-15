@@ -134,7 +134,7 @@ export default function UpdatePage() {
           {componentProgress ? (
             <>
               <div className="mr-1.5">{componentProgress.percentage}%</div>
-              <div className="text-secondary">
+              <div className="text-tertiary">
                 ({componentProgress.current} of {componentProgress.total})
               </div>
             </>
@@ -179,10 +179,10 @@ export default function UpdatePage() {
               return (
                 <li
                   key={repo.hash}
-                  className="border-default flex items-center gap-3 rounded border pl-4"
+                  className="border-default @container flex items-center gap-3 rounded border pl-4"
                 >
                   <Images24Icon className="text-tertiary shrink-0" aria-hidden />
-                  <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-2 py-3">
+                  <div className="flex min-w-0 flex-1 flex-col flex-wrap items-start gap-x-4 gap-y-1 py-3 @md:flex-row @md:items-center">
                     <div className="flex-1">
                       <div className="flex items-center gap-1.5">
                         <span className="text-sans-semi-lg text-raise">
@@ -191,7 +191,7 @@ export default function UpdatePage() {
                         {isTarget && <Badge color="default">Target</Badge>}
                       </div>
                     </div>
-                    <div className="flex flex-col items-end gap-0.5">
+                    <div className="flex flex-col items-start gap-0.5 @md:items-end">
                       <div className="flex items-center gap-1.5">
                         <DateTime date={repo.timeCreated} />
                         <TimeOutline12Icon className="text-quaternary" aria-hidden />
