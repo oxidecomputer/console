@@ -11,7 +11,6 @@ import { useCallback, useMemo, useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router'
 
 import { AccessToken24Icon, OpenLink12Icon } from '@oxide/design-system/icons/react'
-import { Badge } from '@oxide/design-system/ui'
 
 import {
   apiQueryClient,
@@ -28,7 +27,6 @@ import { Table } from '~/table/Table'
 import { CardBlock } from '~/ui/lib/CardBlock'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { CreateButton } from '~/ui/lib/CreateButton'
-import { DateTime } from '~/ui/lib/DateTime'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
@@ -71,7 +69,6 @@ export default function SiloScimTab() {
     id: string
     bearerToken: string
     timeCreated: Date
-    timeExpires?: Date | null
   } | null>(null)
 
   const deleteToken = useApiMutation('scimTokenDelete', {
@@ -106,17 +103,6 @@ export default function SiloScimTab() {
         ),
       }),
       colHelper.accessor('timeCreated', Columns.timeCreated),
-      colHelper.accessor('timeExpires', {
-        header: 'Expires',
-        cell: (info) => {
-          const expires = info.getValue()
-          return expires ? (
-            <DateTime date={expires} />
-          ) : (
-            <Badge color="neutral">Never</Badge>
-          )
-        },
-      }),
     ],
     []
   )
@@ -193,12 +179,7 @@ function CreateTokenModal({
 }: {
   siloSelector: { silo: string }
   onDismiss: () => void
-  onSuccess: (token: {
-    id: string
-    bearerToken: string
-    timeCreated: Date
-    timeExpires?: Date | null
-  }) => void
+  onSuccess: (token: { id: string; bearerToken: string; timeCreated: Date }) => void
 }) {
   const createToken = useApiMutation('scimTokenCreate', {
     onSuccess(token) {
@@ -239,22 +220,12 @@ function TokenCreatedModal({
     id: string
     bearerToken: string
     timeCreated: Date
-    timeExpires?: Date | null
   }
   onDismiss: () => void
 }) {
   return (
     <Modal isOpen onDismiss={onDismiss} title="Create token">
       <Modal.Section>
-        <div className="text-sans-sm border-default rounded border p-3">
-          <div className="text-mono-sm text-tertiary mb-1 uppercase">Expires</div>
-          {token.timeExpires ? (
-            <DateTime date={token.timeExpires} />
-          ) : (
-            <Badge color="neutral">Never</Badge>
-          )}
-        </div>
-
         <Message
           variant="notice"
           content="This is the only time you'll see this token. Copy it now and store it securely."
