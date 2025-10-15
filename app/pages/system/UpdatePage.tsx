@@ -34,6 +34,7 @@ import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { CardBlock } from '~/ui/lib/CardBlock'
 import { DateTime } from '~/ui/lib/DateTime'
+import { Divider } from '~/ui/lib/Divider'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
@@ -106,7 +107,7 @@ export default function UpdatePage() {
           />
         </div>
       </PageHeader>
-      <PropertiesTable className="-mt-8 mb-8">
+      <PropertiesTable className="-mt-8">
         {/* targetRelease will never be null on a customer system after the
             first time it is set. */}
         <PropertiesTable.Row label="Target release">
@@ -166,6 +167,8 @@ export default function UpdatePage() {
         </PropertiesTable.Row>
       </PropertiesTable>
 
+      <Divider className="my-8" />
+
       <CardBlock>
         <CardBlock.Header title="Releases" />
         <CardBlock.Body>
@@ -175,7 +178,7 @@ export default function UpdatePage() {
               return (
                 <li
                   key={repo.hash}
-                  className="border-secondary flex items-center gap-3 rounded border p-4"
+                  className="border-default flex items-center gap-3 rounded border p-4"
                 >
                   <Images24Icon className="text-tertiary shrink-0" aria-hidden />
                   <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-2">
