@@ -22,23 +22,23 @@
   --surface-default: var(--theme-accent-300);
   --stroke-secondary: var(--stroke-accent-secondary);
   --stroke-surface: var(--surface-default);
-  --surface-raise: var(--theme-accent-4);
+  --surface-raise: var(--theme-accent-400);
 
   & .ox-badge,
   & .ox-tag,
   & .ox-button:not(.btn-ghost),
   & .ox-radio-card {
     --content-accent: var(--content-inverse);
-    --surface-accent-secondary: var(--theme-accent-1);
-    --surface-accent-secondary-hover: var(--theme-accent-2);
+    --surface-accent-secondary: var(--theme-accent-100);
+    --surface-accent-secondary-hover: var(--theme-accent-200);
     --content-notice: var(--content-inverse);
-    --surface-notice-secondary: var(--theme-notice-1);
-    --surface-notice-secondary-hover: var(--theme-notice-2);
+    --surface-notice-secondary: var(--theme-notice-100);
+    --surface-notice-secondary-hover: var(--theme-notice-200);
     --content-destructive: var(--content-inverse);
-    --surface-destructive-secondary: var(--theme-destructive-1);
-    --surface-destructive-secondary-hover: var(--theme-destructive-2);
+    --surface-destructive-secondary: var(--theme-destructive-100);
+    --surface-destructive-secondary-hover: var(--theme-destructive-200);
     --content-secondary: var(--content-inverse);
     --surface-secondary: var(--surface-inverse-secondary);
-    --surface-secondary-hover: var(--surface-inverse-tertiary);
+    --surface-secondary-hover: var(--content-tertiary);
   }
 }

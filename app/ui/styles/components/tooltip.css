@@ -7,7 +7,7 @@
  */
 
 .ox-tooltip {
-  @apply rounded border p-2 text-sans-md text-default bg-raise border-secondary elevation-2;
+  @apply text-sans-md text-default bg-raise border-secondary elevation-2 rounded border p-2;
 }
 
 .ox-tooltip-arrow {
@@ -19,17 +19,17 @@
 }
 
 .ox-tooltip[data-placement^='top'] .ox-tooltip-arrow {
-  @apply border-l border-t;
+  @apply border-t border-l;
   margin-top: 2.5px;
 }
 
 .ox-tooltip[data-placement^='bottom'] .ox-tooltip-arrow {
-  @apply -top-[6.5px] border-b border-r;
+  @apply -top-[6.5px] border-r border-b;
   margin-top: 0px;
 }
 
 .ox-tooltip[data-placement^='right'] .ox-tooltip-arrow {
-  @apply -left-[6.5px] border-r border-t;
+  @apply -left-[6.5px] border-t border-r;
 }
 
 .ox-tooltip[data-placement^='left'] .ox-tooltip-arrow {

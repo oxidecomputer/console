@@ -46,7 +46,7 @@ export function CopyCodeModal({
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} title={modalTitle} width="free">
       <Modal.Section>
-        <pre className="w-full rounded border px-4 py-3 !normal-case !tracking-normal text-mono-md bg-default border-secondary">
+        <pre className="text-mono-md bg-default border-secondary w-full rounded border px-4 py-3 tracking-normal! normal-case!">
           {children}
         </pre>
       </Modal.Section>
@@ -71,7 +71,7 @@ export function CopyCodeModal({
                 animate={{ opacity: 1, y: '-50%', x: '-50%' }}
                 initial={{ opacity: 0, y: 'calc(-50% - 25px)', x: '-50%' }}
                 transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
-                className="absolute left-1/2 top-1/2 flex items-center"
+                className="absolute top-1/2 left-1/2 flex items-center"
               >
                 <Success12Icon className="text-accent" />
               </m.span>
@@ -108,7 +108,7 @@ export function EquivalentCliCommand({ project, instance }: EquivProps) {
         isOpen={isOpen}
         onDismiss={() => setIsOpen(false)}
       >
-        <span className="mr-2 select-none text-tertiary">$</span>
+        <span className="text-tertiary mr-2 select-none">$</span>
         {cmdParts.join(' \\\n    ')}
       </CopyCodeModal>
     </>

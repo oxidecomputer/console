@@ -19,7 +19,7 @@ const PageInput = ({ number, className }: PageInputProps) => {
   return (
     <span
       className={cn(
-        'h-4 whitespace-nowrap rounded px-[3px] pb-[3px] pt-[1px] ring-1 ring-inset text-mono-sm text-default bg-tertiary ring-secondary',
+        'text-mono-sm text-default bg-tertiary ring-secondary h-4 rounded px-[3px] pt-px pb-[3px] whitespace-nowrap ring ring-inset',
         className
       )}
     >
@@ -53,11 +53,11 @@ export const Pagination = ({
       <nav
         aria-label="Pagination"
         className={cn(
-          'flex items-center justify-between text-mono-sm text-raise bg-default',
+          'text-mono-sm text-raise bg-default flex items-center justify-between',
           className
         )}
       >
-        <span className="flex-inline grow text-secondary">
+        <span className="flex-inline text-secondary grow">
           rows per page <PageInput number={pageSize} />
         </span>
         <span className="flex items-center space-x-3">
@@ -66,7 +66,7 @@ export const Pagination = ({
             type="button"
             className={cn(
               hasPrev ? 'text-default hover:text-raise' : 'text-disabled',
-              'flex items-center text-mono-sm'
+              'text-mono-sm flex items-center'
             )}
             disabled={!hasPrev}
             onClick={onPrev}
@@ -80,7 +80,7 @@ export const Pagination = ({
             type="button"
             className={cn(
               hasNext ? 'text-default hover:text-raise' : 'text-disabled',
-              'flex items-center text-mono-sm'
+              'text-mono-sm flex items-center'
             )}
             disabled={!hasNext}
             // nextPage will be defined if hasNext is true

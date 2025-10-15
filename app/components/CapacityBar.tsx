@@ -34,15 +34,15 @@ export const CapacityBar = <T extends number | bigint>({
   const unitElt = includeUnit ? <>&nbsp;{unit}</> : null
 
   return (
-    <div className="w-full min-w-min rounded-lg border border-default lg+:max-w-[50%]">
+    <div className="border-default 1000:max-w-1/2 w-full min-w-min rounded-lg border">
       <div className="flex justify-between p-3">
         <TitleCell icon={icon} title={title} unit={unit} />
         <PctCell pct={pct} />
       </div>
-      <div className="p-3 pb-4 pt-1">
+      <div className="p-3 pt-1 pb-4">
         <Bar pct={pct} />
       </div>
-      <div className="flex justify-between border-t border-secondary">
+      <div className="border-secondary flex justify-between border-t">
         <ValueCell label={provisionedLabel} value={provisioned} unit={unitElt} />
         <ValueCell label={capacityLabel} value={capacity} unit={unitElt} />
       </div>
@@ -55,9 +55,9 @@ function TitleCell({ icon, title, unit }: TitleCellProps) {
   return (
     <div>
       <div className="flex grow items-center">
-        <span className="mr-2 flex h-4 w-4 items-center text-accent">{icon}</span>
-        <span className="!normal-case text-mono-sm text-default">{title}</span>
-        <span className="ml-1 !normal-case text-mono-sm text-tertiary">({unit})</span>
+        <span className="text-accent mr-2 flex h-4 w-4 items-center">{icon}</span>
+        <span className="text-mono-sm text-default normal-case!">{title}</span>
+        <span className="text-mono-sm text-tertiary ml-1 normal-case!">({unit})</span>
       </div>
     </div>
   )
@@ -67,8 +67,8 @@ function PctCell({ pct }: { pct: number }) {
   // NaN happens when both top and bottom are 0
   if (Number.isNaN(pct)) {
     return (
-      <div className="flex -translate-y-0.5 items-baseline text-tertiary">
-        <div className="font-light text-sans-2xl text-raise">—</div>
+      <div className="text-tertiary flex -translate-y-0.5 items-baseline">
+        <div className="text-sans-2xl text-raise font-light">—</div>
         <div className="text-sans-xl">%</div>
       </div>
     )
@@ -77,7 +77,7 @@ function PctCell({ pct }: { pct: number }) {
   const [wholeNumber, decimal] = splitDecimal(pct)
   return (
     <div className="flex -translate-y-0.5 items-baseline">
-      <div className="font-light text-sans-2xl text-raise">{wholeNumber}</div>
+      <div className="text-sans-2xl text-raise font-light">{wholeNumber}</div>
       <div className="text-sans-xl text-tertiary">{decimal}%</div>
     </div>
   )
@@ -87,10 +87,10 @@ function Bar({ pct }: { pct: number }) {
   return (
     <div className="flex w-full gap-0.5">
       <div
-        className="h-3 rounded-l border bg-accent-secondary border-accent-secondary"
+        className="bg-accent-secondary border-accent-secondary h-3 rounded-l border"
         style={{ width: `${pct.toFixed(2)}%` }}
       ></div>
-      <div className="h-3 grow rounded-r border bg-info-secondary border-info-secondary"></div>
+      <div className="bg-info-secondary border-info-secondary h-3 grow rounded-r border"></div>
     </div>
   )
 }
@@ -103,9 +103,9 @@ type ValueCellProps = {
 
 function ValueCell({ label, value, unit }: ValueCellProps) {
   return (
-    <div className="p-3 text-mono-sm">
-      <div className="mb-px text-tertiary">{label}</div>
-      <div className="!normal-case text-default">
+    <div className="text-mono-sm p-3">
+      <div className="text-tertiary mb-px">{label}</div>
+      <div className="text-default normal-case!">
         <BigNum num={value} />
         {unit}
       </div>
