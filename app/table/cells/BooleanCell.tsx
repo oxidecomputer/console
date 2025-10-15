@@ -13,7 +13,7 @@ import { Disabled12Icon, Success12Icon } from '@oxide/design-system/icons/react'
 
 export const BooleanCell = ({ isTrue }: { isTrue: boolean }) =>
   isTrue ? (
-    <Success12Icon className="mr-1 text-accent" aria-label="true" />
+    <Success12Icon className="text-accent mr-1" aria-label="true" />
   ) : (
-    <Disabled12Icon className="mr-1 text-notice" aria-label="false" />
+    <Disabled12Icon className="text-notice mr-1" aria-label="false" />
   )

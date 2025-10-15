@@ -8,7 +8,7 @@
 import cn from 'classnames'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 
-import { type BadgeColor } from './Badge'
+import { type BadgeColor } from '@oxide/design-system/ui'
 
 export const spinnerSizes = ['sm', 'base', 'md', 'lg'] as const
 export type SpinnerSize = (typeof spinnerSizes)[number]
@@ -51,8 +51,8 @@ const SPINNER_COLORS: Record<BadgeColor, string> = {
   neutral: 'text-secondary',
   destructive: 'text-destructive-secondary',
   notice: 'text-notice-secondary',
-  purple: 'text-[--base-purple-700]',
-  blue: 'text-[--base-blue-700]',
+  purple: 'text-(--base-purple-700)',
+  blue: 'text-(--base-blue-700)',
 }
 
 export const Spinner = ({

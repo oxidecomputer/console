@@ -20,6 +20,7 @@ import {
   type Snapshot,
 } from '@oxide/api'
 import { Snapshots16Icon, Snapshots24Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { SnapshotStateBadge } from '~/components/StateBadge'
@@ -30,7 +31,6 @@ import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
-import { Badge } from '~/ui/lib/Badge'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'

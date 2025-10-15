@@ -104,7 +104,7 @@ export default function InstancesPage() {
         cell: (info) => (
           <>
             {info.getValue()}{' '}
-            <span className="ml-1 text-tertiary">{pluralize('vCPU', info.getValue())}</span>
+            <span className="text-tertiary ml-1">{pluralize('vCPU', info.getValue())}</span>
           </>
         ),
       }),
@@ -114,7 +114,7 @@ export default function InstancesPage() {
           const memory = filesize(info.getValue(), { output: 'object', base: 2 })
           return (
             <>
-              {memory.value} <span className="ml-1 text-tertiary">{memory.unit}</span>
+              {memory.value} <span className="text-tertiary ml-1">{memory.unit}</span>
             </>
           )
         },
@@ -219,7 +219,7 @@ export default function InstancesPage() {
       </PageHeader>
       {/* Avoid changing justify-end on TableActions for this one case. We can
        * fix this properly when we add refresh and filtering for all tables. */}
-      <TableActions className="!justify-between">
+      <TableActions className="justify-between!">
         <div className="flex items-center gap-2">
           <RefreshButton onClick={refetchInstances} />
           <Tooltip

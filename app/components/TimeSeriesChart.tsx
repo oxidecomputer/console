@@ -63,7 +63,7 @@ const shortTime = (ts: number) => format(new Date(ts), 'HH:mm')
 const longDateTime = (ts: number) => format(new Date(ts), 'MMM d, yyyy HH:mm:ss zz')
 
 const GRID_GRAY = 'var(--stroke-secondary)'
-const CURSOR_GRAY = 'rgba(var(--base-neutral-500-rgb), 1)'
+const CURSOR = 'var(--chart-stroke-item)'
 const GREEN_400 = 'var(--theme-accent-400)'
 const GREEN_600 = 'var(--theme-accent-600)'
 const GREEN_800 = 'var(--theme-accent-800)'
@@ -92,15 +92,15 @@ function renderTooltip(props: TooltipProps<number, string>, unit?: string) {
   } = payload[0]
   if (!timestamp || typeof value !== 'number') return null
   return (
-    <div className="rounded border outline-0 text-sans-md text-secondary bg-raise border-secondary elevation-2">
-      <div className="border-b px-3 py-2 pr-6 border-secondary">
+    <div className="text-sans-md text-secondary bg-raise border-secondary elevation-2 rounded border outline-0">
+      <div className="border-secondary border-b px-3 py-2 pr-6">
         {longDateTime(timestamp)}
       </div>
       <div className="px-3 py-2">
         <div className="text-secondary">{name}</div>
         <div className="text-raise">
           {value.toLocaleString()}
-          {unit && <span className="ml-1 text-secondary">{unit}</span>}
+          {unit && <span className="text-secondary ml-1">{unit}</span>}
         </div>
         {/* TODO: unit on value if relevant */}
       </div>
@@ -150,12 +150,12 @@ const SkeletonMetric = ({
     >
       <div className="flex h-full flex-col justify-between">
         {[...Array(4)].map((_e, i) => (
-          <div key={i} className="h-px w-full bg-[--stroke-secondary]" />
+          <div key={i} className="h-px w-full bg-(--stroke-secondary)" />
         ))}
       </div>
       <div className="flex justify-between">
         {[...Array(8)].map((_e, i) => (
-          <div key={i} className="h-1.5 w-px bg-[--stroke-secondary]" />
+          <div key={i} className="h-1.5 w-px bg-(--stroke-secondary)" />
         ))}
       </div>
     </div>
@@ -233,7 +233,7 @@ export function TimeSeriesChart({
   // ResponsiveContainer has default height and width of 100%
   // https://recharts.org/en-US/api/ResponsiveContainer
   return (
-    <div className="px-5 pb-5 pt-8">
+    <div className="px-5 pt-8 pb-5">
       <ResponsiveContainer height={300}>
         <AreaChart data={data} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
           <CartesianGrid stroke={GRID_GRAY} vertical={false} />
@@ -270,7 +270,7 @@ export function TimeSeriesChart({
           <Tooltip
             isAnimationActive={false}
             content={(props: TooltipProps<number, string>) => renderTooltip(props, unit)}
-            cursor={{ stroke: CURSOR_GRAY, strokeDasharray: '3,3' }}
+            cursor={{ stroke: CURSOR, strokeDasharray: '3,3' }}
             wrapperStyle={{ outline: 'none' }}
           />
           <Area
@@ -309,13 +309,13 @@ const MetricsMessage = ({
   <>
     <div className="z-10 flex w-52 flex-col items-center justify-center gap-1">
       {icon}
-      <div className="text-semi-lg text-center text-raise">{title}</div>
-      <div className="text-balance text-center text-sans-md text-secondary">
+      <div className="text-semi-lg text-raise text-center">{title}</div>
+      <div className="text-sans-md text-secondary text-center text-balance">
         {description}
       </div>
     </div>
     <div
-      className="absolute inset-x-0 bottom-12 top-1 bg-accent-secondary"
+      className="bg-accent-secondary absolute inset-x-0 top-1 bottom-12"
       style={{
         background:
           'radial-gradient(197.76% 54.9% at 50% 50%, var(--surface-default) 0%, rgba(8, 15, 17, 0.00) 100%)',
@@ -328,8 +328,8 @@ const MetricsError = () => (
   <MetricsMessage
     icon={
       <div className="my-2 flex h-8 w-8 items-center justify-center">
-        <div className="absolute h-8 w-8 rounded-full opacity-20 bg-destructive motion-safe:animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
-        <Error12Icon className="relative h-6 w-6 text-error-tertiary" />
+        <div className="bg-destructive absolute h-8 w-8 rounded-full opacity-20 motion-safe:animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
+        <Error12Icon className="text-error-tertiary relative h-6 w-6" />
       </div>
     }
     title="Something went wrong"
@@ -355,13 +355,13 @@ type ChartHeaderProps = {
 
 export function ChartHeader({ title, label, description, children }: ChartHeaderProps) {
   return (
-    <div className="flex items-center justify-between border-b px-5 pb-4 pt-5 border-secondary">
+    <div className="border-secondary flex items-center justify-between border-b px-5 pt-5 pb-4">
       <div>
         <h2 className="flex items-baseline gap-1.5">
           <div className="text-sans-semi-lg">{title}</div>
           <div className="text-sans-md text-secondary">{label}</div>
         </h2>
-        <div className="mt-0.5 text-sans-md text-secondary">{description}</div>
+        <div className="text-sans-md text-secondary mt-0.5">{description}</div>
       </div>
       {children}
     </div>

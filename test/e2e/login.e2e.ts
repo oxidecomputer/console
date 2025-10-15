@@ -10,10 +10,14 @@ import { expect, test } from './utils'
 test.describe('login', () => {
   test('with valid credentials redirects', async ({ page }) => {
     await page.goto('/login/default-silo/local')
+
     await page.fill('input[name=username]', 'abc')
     await page.fill('input[name=password]', 'def')
     await page.getByRole('button', { name: 'Sign in' }).click()
     await expect(page).toHaveURL('/projects')
+
+    // Visual snapshot of projects page after login
+    await expect(page.getByRole('heading', { name: 'Projects' })).toBeVisible()
   })
 
   test('with redirect_uri param redirects to last page', async ({ page }) => {

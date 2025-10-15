@@ -55,27 +55,27 @@ export function DatePicker(props: DatePickerProps) {
           type="button"
           className={cn(
             state.isOpen && 'z-10 ring-2',
-            'relative flex h-11 items-center rounded-l rounded-r border text-sans-md border-default focus-within:ring-2 hover:border-raise focus:z-10',
+            'text-sans-md border-default hover:border-raise relative flex h-11 items-center rounded-l rounded-r border focus-within:ring-2 focus:z-10',
             state.isInvalid
               ? 'focus-error border-error ring-error-secondary'
               : 'border-default ring-accent-secondary'
           )}
         >
-          <div className={cn('relative flex w-[10rem] items-center px-3 text-sans-md')}>
+          <div className={cn('text-sans-md relative flex w-40 items-center px-3')}>
             {label}
             {state.isInvalid && (
-              <div className="absolute bottom-0 right-2 top-0 flex items-center text-error">
+              <div className="text-error absolute top-0 right-2 bottom-0 flex items-center">
                 <Error12Icon className="h-3 w-3" />
               </div>
             )}
           </div>
-          <div className="-ml-px flex h-[calc(100%-12px)] w-10 items-center justify-center rounded-r border-l outline-none border-default">
-            <Calendar16Icon className="h-4 w-4 text-secondary" />
+          <div className="border-default -ml-px flex h-[calc(100%-12px)] w-10 items-center justify-center rounded-r border-l outline-hidden">
+            <Calendar16Icon className="text-secondary h-4 w-4" />
           </div>
         </button>
       </div>
       {state.isInvalid && (
-        <p {...errorMessageProps} className="py-2 text-sans-md text-error">
+        <p {...errorMessageProps} className="text-sans-md text-error py-2">
           Date is invalid
         </p>
       )}
@@ -83,7 +83,7 @@ export function DatePicker(props: DatePickerProps) {
         <Popover triggerRef={ref} state={state} placement="bottom start">
           <Dialog {...dialogProps}>
             <Calendar {...calendarProps} />
-            <div className="flex items-center space-x-2 border-t p-4 border-t-secondary">
+            <div className="border-t-secondary flex items-center space-x-2 border-t p-4">
               <TimeField
                 value={state.timeValue}
                 onChange={(v) => {

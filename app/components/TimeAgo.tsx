@@ -28,7 +28,7 @@ export const TimeAgo = ({
   )
   return (
     <Tooltip content={content} placement={placement}>
-      <span className="min-w-6 text-sans-sm text-secondary">{timeAgoAbbr(datetime)}</span>
+      <span className="text-sans-sm text-secondary min-w-6">{timeAgoAbbr(datetime)}</span>
     </Tooltip>
   )
 }

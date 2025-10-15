@@ -20,7 +20,7 @@ import type { ComponentProps } from 'react'
 export type RadioProps = Omit<React.ComponentProps<'input'>, 'type'>
 
 const fieldStyles = `
-  peer appearance-none absolute outline-none
+  peer appearance-none absolute outline-hidden
   border border-default h-4 w-4 rounded-full bg-default hover:border-hover checked:hover:border-accent
   checked:bg-accent-secondary checked:border-accent-secondary disabled:bg-disabled hover:disabled:bg-disabled
   disabled:hover:bg-transparent
@@ -31,22 +31,22 @@ export const Radio = ({ children, className, ...inputProps }: RadioProps) => (
     <span className="relative h-4 w-4">
       <input className={cn(fieldStyles, className)} type="radio" {...inputProps} />
       {/* the dot in the middle. hide by default, use peer-checked to show if checked */}
-      <div className="pointer-events-none absolute left-1 top-1 hidden h-2 w-2 rounded-full bg-accent peer-checked:block" />
+      <div className="bg-accent pointer-events-none absolute top-1 left-1 hidden h-2 w-2 rounded-full peer-checked:block" />
     </span>
 
-    {children && <span className="ml-2.5 text-sans-md text-default">{children}</span>}
+    {children && <span className="text-sans-md text-default ml-2.5">{children}</span>}
   </label>
 )
 
 const cardLabelStyles = `
-  py-2 px-4 text-sans-md border rounded border-default bg-default hover:border-hover
+  text-sans-md border rounded border-default bg-default hover:border-hover
   peer-focus:ring-2 peer-focus:ring-accent-secondary w-44 text-raise
 
-  children:py-3 children:px-3 children:-mx-4 children:border-secondary
-  first:children:-mt-2 last:children:-mb-2 cursor-pointer
+  *:border-secondary *:p-3
+  cursor-pointer
 
   peer-checked:bg-accent-secondary
-  peer-checked:border-accent-secondary peer-checked:hover:border-accent peer-checked:children:border-accent peer-checked:children:border-accent-secondary
+  peer-checked:border-accent-secondary peer-checked:hover:border-accent peer-checked:*:border-accent peer-checked:*:border-accent-secondary
   peer-checked:text-accent peer-checked:[&>*_.text-default]:text-accent-secondary
 
   peer-disabled:cursor-not-allowed
@@ -70,7 +70,7 @@ export function RadioCard({ children, className, ...inputProps }: RadioProps) {
 
 // TODO: Remove importants after tailwind variantOrder bug fixed
 RadioCard.Unit = ({ children, className, ...props }: ComponentProps<'span'>) => (
-  <span className={cn('!m-0 !p-0 text-default', className)} {...props}>
+  <span className={cn('text-default m-0! p-0!', className)} {...props}>
     {children}
   </span>
 )

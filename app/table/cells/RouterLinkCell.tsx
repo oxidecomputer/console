@@ -6,9 +6,10 @@
  * Copyright Oxide Computer Company
  */
 
+import { Badge } from '@oxide/design-system/ui'
+
 import { useApiQuery } from '~/api'
 import { useVpcSelector } from '~/hooks/use-params'
-import { Badge } from '~/ui/lib/Badge'
 import { pb } from '~/util/path-builder'
 
 import { EmptyCell, SkeletonCell } from './EmptyCell'

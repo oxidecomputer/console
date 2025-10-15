@@ -33,7 +33,7 @@ export default function DeviceAuthVerifyPage() {
 
   return (
     <form
-      className="w-full max-w-[470px] rounded-lg border p-9 text-center !bg-raise border-secondary elevation-3"
+      className="bg-raise! border-secondary elevation-3 w-full max-w-[470px] rounded-lg border p-9 text-center"
       onSubmit={(event) => {
         event.preventDefault()
 
@@ -44,8 +44,8 @@ export default function DeviceAuthVerifyPage() {
         }
       }}
     >
-      <h1 className="mb-1 text-sans-2xl text-accent">Device Authentication</h1>
-      <p className="mb-8 text-sans-lg text-secondary">
+      <h1 className="text-sans-2xl text-accent mb-1">Device Authentication</h1>
+      <p className="text-sans-lg text-secondary mb-8">
         Enter the code shown on your device
       </p>
       <AuthCodeInput
@@ -56,7 +56,7 @@ export default function DeviceAuthVerifyPage() {
         dashAfterIdxs={DASH_AFTER_IDXS}
       />
       <Button
-        className="w-full !text-mono-sm"
+        className="text-mono-sm! w-full"
         type="submit"
         loading={confirmPost.isPending}
         disabled={confirmPost.isPending || confirmPost.isSuccess || userCode.length < 8}
@@ -64,7 +64,7 @@ export default function DeviceAuthVerifyPage() {
         Log in on device
       </Button>
       {confirmPost.isError && (
-        <div className="mt-3 flex items-center justify-center text-sans-md text-error">
+        <div className="text-sans-md text-error mt-3 flex items-center justify-center">
           <Warning12Icon /> <div className="ml-1">Code is invalid</div>
         </div>
       )}

@@ -183,7 +183,7 @@ export default function InstancePage() {
         <div className="inline-flex gap-2">
           <RefreshButton onClick={refreshData} />
           <InstanceDocsPopover />
-          <div className="flex space-x-2 border-l pl-2 border-default">
+          <div className="border-default flex space-x-2 border-l pl-2">
             {makeButtonActions(instance).map((action) => (
               <Button
                 key={action.label}
@@ -224,11 +224,11 @@ export default function InstancePage() {
       <PropertiesTable columns={2} className="-mt-8 mb-8">
         <PropertiesTable.Row label="cpu">
           <span className="text-default">{instance.ncpus}</span>
-          <span className="ml-1 text-tertiary">{pluralize(' vCPU', instance.ncpus)}</span>
+          <span className="text-tertiary ml-1">{pluralize(' vCPU', instance.ncpus)}</span>
         </PropertiesTable.Row>
         <PropertiesTable.Row label="ram">
           <span className="text-default">{memory.value}</span>
-          <span className="ml-1 text-tertiary"> {memory.unit}</span>
+          <span className="text-tertiary ml-1"> {memory.unit}</span>
         </PropertiesTable.Row>
         <PropertiesTable.Row label="state">
           <div className="flex items-center gap-2">
@@ -239,7 +239,7 @@ export default function InstancePage() {
         <PropertiesTable.Row label="vpc">
           {vpc ? (
             <Link
-              className="link-with-underline group text-sans-md"
+              className="link-with-underline text-sans-md group"
               to={pb.vpc({ project: instanceSelector.project, vpc: vpc.name })}
             >
               {vpc.name}
@@ -397,7 +397,7 @@ export function ResizeInstanceModal({
             />
           </form>
           {instanceUpdate.error && (
-            <p className="mt-4 text-error">{instanceUpdate.error.message}</p>
+            <p className="text-error mt-4">{instanceUpdate.error.message}</p>
           )}
         </Modal.Section>
       </Modal.Body>

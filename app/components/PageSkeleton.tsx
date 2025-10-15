@@ -28,18 +28,18 @@ export function PageSkeleton({ skipPaths }: { skipPaths?: RegExp[] }) {
     <>
       {process.env.MSW_BANNER ? <MswBanner disableButton /> : null}
       <PageContainer>
-        <div className="flex items-center gap-2 border-b border-r p-3 border-secondary">
+        <div className="border-secondary flex items-center gap-2 border-r border-b p-3">
           <Block className="h-8 w-8" />
           <Block className="h-4 w-24" />
         </div>
-        <div className="flex items-center justify-between gap-2 border-b p-3 border-secondary">
+        <div className="border-secondary flex items-center justify-between gap-2 border-b p-3">
           <Block className="h-4 w-24" />
           <div className="flex items-center gap-2">
             <Block className="h-6 w-16" />
             <Block className="h-6 w-32" />
           </div>
         </div>
-        <div className="border-r p-4 border-secondary">
+        <div className="border-secondary border-r p-4">
           <Block className="mb-10 h-4 w-full" />
           <div className="mb-6 space-y-2">
             <Block className="h-4 w-32" />

@@ -129,9 +129,9 @@ function DateSegment({
           (segment.maxValue != null && String(segment.maxValue).length + 'ch') || undefined,
       }}
       className={cn(
-        'group box-content rounded px-[1px] text-right tabular-nums outline-none',
+        'group box-content rounded px-px text-right tabular-nums outline-hidden',
         !readOnly && 'focus:text-raise focus:bg-accent-secondary-hover',
-        segment.type === 'timeZoneName' ? 'ml-1 text-sans-sm' : 'text-sans-md'
+        segment.type === 'timeZoneName' ? 'text-sans-sm ml-1' : 'text-sans-md'
       )}
       // Segment props turns this into a focusable element
       // @ts-expect-error
@@ -141,7 +141,7 @@ function DateSegment({
       <span
         aria-hidden="true"
         className={cn(
-          'block w-full text-center text-quaternary',
+          'text-quaternary block w-full text-center',
           !readOnly && 'focus:text-raise'
         )}
         style={{

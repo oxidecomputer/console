@@ -31,3 +31,10 @@ test-results/
 ci-e2e-traces/
 playwright-report/
 .vercel
+
+# Visual regression snapshots
+test/e2e/**/*-snapshots/
+test/e2e/**/*.png
+
+# LLMs
+CLAUDE.md

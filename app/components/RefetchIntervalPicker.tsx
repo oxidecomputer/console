@@ -52,9 +52,9 @@ export function useIntervalPicker({ enabled, isLoading, fn, className }: Props) 
         <button
           type="button"
           className={cn(
-            'flex w-10 items-center justify-center rounded-l border-b border-l border-t border-default disabled:cursor-default',
+            'border-default flex w-10 items-center justify-center rounded-l border-t border-b border-l disabled:cursor-default',
             isLoading && 'hover:bg-hover',
-            !enabled && 'cursor-not-allowed bg-disabled'
+            !enabled && 'bg-disabled cursor-not-allowed'
           )}
           onClick={fn}
           disabled={isLoading || !enabled}
@@ -65,7 +65,7 @@ export function useIntervalPicker({ enabled, isLoading, fn, className }: Props) 
         </button>
         <Listbox
           selected={enabled ? intervalPreset : 'Off'}
-          className="[&_button]:!rounded-l-none"
+          className="[&_button]:rounded-l-none!"
           items={intervalItems}
           onChange={setIntervalPreset}
           disabled={!enabled}

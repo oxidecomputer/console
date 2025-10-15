@@ -18,6 +18,7 @@ import {
   type AntiAffinityGroup,
 } from '@oxide/api'
 import { Affinity24Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import { AffinityDocsPopover, AffinityPolicyHeader } from '~/components/AffinityDocsPopover'
 import { HL } from '~/components/HL'
@@ -30,7 +31,6 @@ import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
-import { Badge } from '~/ui/lib/Badge'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'

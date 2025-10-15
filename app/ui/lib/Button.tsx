@@ -9,11 +9,11 @@ import cn from 'classnames'
 import * as m from 'motion/react-m'
 import { type MouseEventHandler, type ReactNode } from 'react'
 
+import { type BadgeColor } from '@oxide/design-system/ui'
+
 import { Spinner } from '~/ui/lib/Spinner'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { Wrap } from '~/ui/util/wrap'
-
-import { type BadgeColor } from './Badge'
 
 export const buttonSizes = ['sm', 'icon', 'base'] as const
 export const variants = ['primary', 'secondary', 'ghost', 'danger'] as const
@@ -49,8 +49,8 @@ export const buttonStyle = ({
     `btn-${variant}`,
     sizeStyle[size],
     variant === 'danger'
-      ? 'focus:outline-destructive-secondary'
-      : 'focus:outline-accent-secondary'
+      ? 'focus-visible:outline-destructive-secondary'
+      : 'focus-visible:outline-accent-secondary'
   )
 }
 
@@ -124,7 +124,7 @@ export const Button = ({
             animate={{ opacity: 1, y: '-50%', x: '-50%' }}
             initial={{ opacity: 0, y: 'calc(-50% - 25px)', x: '-50%' }}
             transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
-            className="absolute left-1/2 top-1/2 flex items-center justify-center"
+            className="absolute top-1/2 left-1/2 flex items-center justify-center"
           >
             <Spinner variant={variantToBadgeColorMap[variant || 'primary']} />
           </m.span>

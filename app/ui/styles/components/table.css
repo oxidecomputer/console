@@ -9,10 +9,10 @@
 table.ox-table {
   border-spacing: 0px;
 
-  --table-border-radius: var(--border-radius-lg);
+  --table-border-radius: var(--radius-lg);
 
   &.table-inline {
-    --table-border-radius: var(--border-radius);
+    --table-border-radius: var(--radius);
   }
 
   /*
@@ -52,19 +52,27 @@ table.ox-table {
   /* First column is sticky */
   & th:first-of-type,
   & td:first-of-type {
-    @apply sticky left-0 z-10 bg-default;
+    @apply bg-default sticky left-0 z-10;
   }
 
   /*
   Last column is sticky if it
   is a more actions cell
   */
-  & th:last-of-type.action-col,
-  & td:last-of-type.action-col {
-    @apply sticky right-0 bg-default;
+  & th.action-col,
+  & td.action-col {
+    @apply bg-default sticky right-0 w-10;
   }
-  & th:last-of-type.action-col {
+  & th.action-col {
     @apply bg-secondary;
+  }
+  & th.action-col > div,
+  & td.action-col > div {
+    @apply !m-0 w-10 !p-0;
+  }
+
+  & td:last-of-type > div {
+    @apply -m-px;
   }
 
   /*
@@ -82,7 +90,7 @@ table.ox-table {
   below with a background colour and still keep the styling
   */
   & tr:last-of-type td:last-of-type.action-col {
-    @apply border-b-0 border-r-0;
+    @apply border-r-0 border-b-0 pr-px;
   }
 
   & tr:last-of-type td:last-of-type.action-col > div {
@@ -95,7 +103,7 @@ table.ox-table {
 
   & tr:last-of-type td:last-of-type.action-col:after {
     border-bottom-right-radius: var(--table-border-radius);
-    @apply pointer-events-none absolute bottom-0 left-0 right-0 top-0 border-b border-r content-[''] border-default;
+    @apply border-default pointer-events-none absolute top-0 right-0 bottom-0 left-0 z-0 border-r border-b content-[''];
   }
 
   & tr:last-of-type td:last-of-type:not(.action-col) {
@@ -108,25 +116,25 @@ table.ox-table {
 
   & tr:last-of-type td:first-of-type:after {
     border-bottom-left-radius: var(--table-border-radius);
-    @apply pointer-events-none absolute bottom-0 left-0 right-0 top-0 border-b border-l content-[''] border-default;
+    @apply border-default pointer-events-none absolute top-0 right-0 bottom-0 left-0 border-b border-l content-[''];
   }
 
   & th:first-of-type {
-    @apply border-l-0 border-t-0 !bg-default;
+    @apply !bg-default border-t-0 border-l-0;
   }
 
   & th:first-of-type > div {
     border-top-left-radius: var(--table-border-radius);
-    @apply w-[calc(100%+1px)] bg-secondary;
+    @apply bg-secondary w-[calc(100%+1px)];
   }
 
   & th:first-of-type:after {
     border-top-left-radius: var(--table-border-radius);
-    @apply pointer-events-none absolute bottom-0 left-0 right-0 top-0 border-l border-t content-[''] border-default;
+    @apply border-default pointer-events-none absolute top-0 right-0 bottom-0 left-0 border-t border-l content-[''];
   }
 
   & th:last-of-type.action-col {
-    @apply !border-r-0 !border-t-0 !bg-default;
+    @apply !bg-default !border-t-0 !border-r-0;
   }
 
   & th:last-of-type.action-col > div {
@@ -136,7 +144,7 @@ table.ox-table {
 
   & th:last-of-type.action-col:after {
     border-top-right-radius: var(--table-border-radius);
-    @apply pointer-events-none absolute bottom-0 left-0 right-0 top-0 border-r border-t content-[''] border-default;
+    @apply border-default pointer-events-none absolute top-0 right-0 bottom-0 left-0 border-t border-r content-[''];
   }
 
   & th:last-of-type:not(.action-col) {
@@ -286,7 +294,7 @@ table.ox-table {
 
   & .selection-end td:last-child > div,
   & .is-selected:not(.multi-selection) td:last-child > div {
-    @apply relative -ml-0.5 border-l-0 before:absolute before:bottom-1 before:left-0.5 before:top-0 before:block before:h-full before:border-l before:border-accent-tertiary;
+    @apply before:border-accent-tertiary relative -ml-0.5 border-l-0 before:absolute before:top-0 before:bottom-1 before:left-0.5 before:block before:h-full before:border-l;
     /* Avoid layout shift caused by the border being inline with the content */
     padding-left: calc(1rem - 1px);
   }
@@ -302,7 +310,7 @@ cell and the table is overflowing
 .scrolled th:first-of-type,
 .overflowing td:last-of-type.action-col,
 .overflowing th:last-of-type.action-col {
-  box-shadow: var(--elevation-2);
+  @apply elevation-2;
 }
 
 /*
@@ -321,7 +329,7 @@ cell and the table is overflowing
 
 .scrolled td:first-of-type:before,
 .scrolled th:first-of-type:before {
-  @apply absolute bottom-0 right-0 top-0 border-r content-[''] border-r-secondary;
+  @apply border-r-secondary absolute top-0 right-0 bottom-0 border-r content-[''];
 }
 
 .simplebar-scrollbar {

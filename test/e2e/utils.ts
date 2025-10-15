@@ -231,7 +231,7 @@ export async function chooseFile(
   size: 'large' | 'small' = 'large'
 ) {
   const fileChooserPromise = page.waitForEvent('filechooser')
-  await inputLocator.click()
+  await inputLocator.click({ force: true })
   const fileChooser = await fileChooserPromise
   await fileChooser.setFiles({
     name: 'my-image.iso',

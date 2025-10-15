@@ -39,11 +39,11 @@ export function PropertiesTable({
     <div
       className={cn(
         className,
-        'properties-table min-w-min basis-6/12 rounded-lg border border-default',
-        'children:border-t children:pl-3 children:pr-6 children:border-secondary [&>*:nth-child(-n+2)]:!border-t-0',
+        'properties-table border-default min-w-min basis-6/12 rounded-lg border',
+        '*:border-secondary *:border-t *:pr-6 *:pl-3 [&>*:nth-child(-n+2)]:border-t-0!',
         'grid grid-cols-[minmax(min-content,1fr)_3fr]',
         {
-          'lg+:grid-cols-[minmax(min-content,1fr)_3fr_minmax(min-content,1fr)_3fr] lg+:[&>*:nth-child(-n+4)]:!border-t-0 lg+:[&>*:nth-child(4n-2)]:border-r':
+          '1000:grid-cols-[minmax(min-content,1fr)_3fr_minmax(min-content,1fr)_3fr] 1000:[&>*:nth-child(-n+4)]:border-t-0! 1000:[&>*:nth-child(4n-2)]:border-r':
             columns === 2,
         }
       )}
@@ -59,10 +59,10 @@ interface PropertiesTableRowProps {
 }
 PropertiesTable.Row = ({ label, children }: PropertiesTableRowProps) => (
   <>
-    <span className="flex items-center whitespace-nowrap text-mono-sm text-secondary">
+    <span className="text-mono-sm text-secondary flex items-center whitespace-nowrap">
       {label}
     </span>
-    <div className="flex h-[38px] items-center overflow-hidden whitespace-nowrap pr-4 text-sans-md text-default">
+    <div className="text-sans-md text-default flex h-[38px] items-center overflow-hidden pr-4 whitespace-nowrap">
       {children}
     </div>
   </>

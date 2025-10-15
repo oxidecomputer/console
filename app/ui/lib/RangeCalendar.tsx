@@ -67,7 +67,7 @@ export const CalendarButton = ({
     onClick={handleClick}
     disabled={isDisabled}
     className={cn(
-      'flex h-8 w-10 items-center justify-center rounded outline-none text-secondary',
+      'text-secondary flex h-8 w-10 items-center justify-center rounded outline-hidden',
       isDisabled ? 'text-disabled' : 'hover:bg-tertiary'
     )}
   >
@@ -93,7 +93,7 @@ export const CalendarHeader = ({
     >
       <DirectionLeftIcon />
     </CalendarButton>
-    <h2 className="ml-2 flex-1 text-center text-sans-md">{title}</h2>
+    <h2 className="text-sans-md ml-2 flex-1 text-center">{title}</h2>
     <CalendarButton
       handleClick={state.focusNextPage}
       isDisabled={nextButtonProps.isDisabled || false}

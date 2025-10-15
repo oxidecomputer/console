@@ -263,7 +263,7 @@ export default function CreateInstanceForm() {
   // additional form elements for projectImage and siloImage tabs
   const bootDiskSizeAndName = (
     <>
-      <div key="divider" className="!my-12 content-['a']" />
+      <div key="divider" className="my-12! content-['a']" />
       <DiskSizeField
         key="diskSizeField"
         label="Disk size"
@@ -361,7 +361,7 @@ export default function CreateInstanceForm() {
         </CheckboxField>
         <FormDivider />
         <Form.Heading id="hardware">Hardware</Form.Heading>
-        <TextInputHint id="hw-gp-help-text" className="mb-12 max-w-xl text-sans-md">
+        <TextInputHint id="hw-gp-help-text" className="text-sans-md mb-12 max-w-xl">
           Pick a pre-configured machine type that offers balanced vCPU and memory for most
           workloads or create a custom machine.
         </TextInputHint>
@@ -510,7 +510,7 @@ export default function CreateInstanceForm() {
             className="space-y-4"
           >
             {siloImages.length === 0 ? (
-              <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
+              <div className="border-default flex max-w-lg items-center justify-center rounded-lg border p-6">
                 <EmptyMessage
                   icon={<Images16Icon />}
                   title="No silo images found"
@@ -534,7 +534,7 @@ export default function CreateInstanceForm() {
             className="space-y-4"
           >
             {projectImages.length === 0 ? (
-              <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
+              <div className="border-default flex max-w-lg items-center justify-center rounded-lg border p-6">
                 <EmptyMessage
                   icon={<Images16Icon />}
                   title="No project images found"
@@ -558,7 +558,7 @@ export default function CreateInstanceForm() {
 
           <Tabs.Content value={'disk' satisfies BootDiskSourceType} className="space-y-4">
             {disks.length === 0 ? (
-              <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
+              <div className="border-default flex max-w-lg items-center justify-center rounded-lg border p-6">
                 <EmptyMessage
                   icon={<Storage16Icon />}
                   title="No detached disks found"
@@ -614,12 +614,12 @@ const isFloating = (
 const FloatingIpLabel = ({ ip }: { ip: FloatingIp }) => (
   <div>
     <div>{ip.name}</div>
-    <div className="flex gap-0.5 text-secondary selected:text-accent-secondary">
+    <div className="text-secondary selected:text-accent-secondary flex gap-0.5">
       <div>{ip.ip}</div>
       {ip.description && (
         <>
           <Slash />
-          <div className="grow overflow-hidden overflow-ellipsis whitespace-pre text-left">
+          <div className="grow overflow-hidden text-left text-ellipsis whitespace-pre">
             {ip.description}
           </div>
         </>
@@ -726,7 +726,7 @@ const AdvancedAccordion = ({
         </div>
 
         <div className="flex flex-1 flex-col gap-4">
-          <h2 className="flex items-center text-sans-md">
+          <h2 className="text-sans-md flex items-center">
             Ephemeral IP{' '}
             <TipIcon className="ml-1.5">
               Ephemeral IPs are allocated when the instance is created and deallocated when
@@ -768,7 +768,7 @@ const AdvancedAccordion = ({
         </div>
 
         <div className="flex flex-1 flex-col gap-4">
-          <h2 className="flex items-center text-sans-md">
+          <h2 className="text-sans-md flex items-center">
             Floating IPs{' '}
             <TipIcon className="ml-1.5">
               Floating IPs exist independently of instances and can be attached to and
@@ -776,7 +776,7 @@ const AdvancedAccordion = ({
             </TipIcon>
           </h2>
           {floatingIpList.items.length === 0 ? (
-            <div className="flex max-w-lg items-center justify-center rounded-lg border border-default">
+            <div className="border-default flex max-w-lg items-center justify-center rounded-lg border">
               <EmptyMessage
                 icon={<IpGlobal16Icon />}
                 title="No floating IPs found"

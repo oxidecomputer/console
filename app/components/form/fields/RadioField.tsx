@@ -70,7 +70,7 @@ export function RadioField<
       <div className="mb-2">
         {label && (
           <FieldLabel id={`${id}-label`}>
-            {label} {units && <span className="ml-1 text-default">({units})</span>}
+            {label} {units && <span className="text-default ml-1">({units})</span>}
           </FieldLabel>
         )}
         {/* TODO: Figure out where this hint field def should live */}
@@ -131,7 +131,7 @@ export function RadioFieldDyn<
       <div className="mb-2">
         {label && (
           <FieldLabel id={`${id}-label`}>
-            {label} {units && <span className="ml-1 text-default">({units})</span>}
+            {label} {units && <span className="text-default ml-1">({units})</span>}
           </FieldLabel>
         )}
         {/* TODO: Figure out where this hint field def should live */}

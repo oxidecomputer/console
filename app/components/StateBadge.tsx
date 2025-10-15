@@ -14,8 +14,8 @@ import {
   type InstanceState,
   type SnapshotState,
 } from '@oxide/api'
+import { Badge, type BadgeColor } from '@oxide/design-system/ui'
 
-import { Badge, type BadgeColor } from '~/ui/lib/Badge'
 import { Spinner } from '~/ui/lib/Spinner'
 
 const INSTANCE_COLORS: Record<InstanceState, BadgeColor> = {
@@ -31,7 +31,7 @@ const INSTANCE_COLORS: Record<InstanceState, BadgeColor> = {
   stopping: 'neutral',
 }
 
-const badgeClasses = 'children:flex children:items-center children:gap-1'
+const badgeClasses = '*:flex *:items-center *:gap-1'
 
 export const InstanceStateBadge = (props: { state: InstanceState; className?: string }) => (
   <Badge color={INSTANCE_COLORS[props.state]} className={cn(props.className, badgeClasses)}>
