@@ -15,6 +15,7 @@ import {
   SoftwareUpdate24Icon,
   Time16Icon,
 } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import {
   apiq,
@@ -31,7 +32,6 @@ import { makeCrumb } from '~/hooks/use-crumbs'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
-import { Badge } from '~/ui/lib/Badge'
 import { CardBlock } from '~/ui/lib/CardBlock'
 import { DateTime } from '~/ui/lib/DateTime'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
@@ -175,9 +175,9 @@ export default function UpdatePage() {
               return (
                 <li
                   key={repo.hash}
-                  className="flex items-center gap-4 rounded border p-4 border-secondary"
+                  className="border-secondary flex items-center gap-4 rounded border p-4"
                 >
-                  <Images24Icon className="shrink-0 text-secondary" aria-hidden />
+                  <Images24Icon className="text-secondary shrink-0" aria-hidden />
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <span className="text-sans-semi-lg text-raise">
