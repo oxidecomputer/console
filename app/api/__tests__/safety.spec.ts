@@ -47,6 +47,7 @@ it('mock-api is only referenced in test files', () => {
   `)
   expect(grepFiles('mock-api')).toMatchInlineSnapshot(`
     [
+      "AGENTS.md",
       "README.md",
       "app/main.tsx",
       "app/msw-mock-api.ts",

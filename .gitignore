@@ -35,6 +35,3 @@ playwright-report/
 # Visual regression snapshots
 test/e2e/**/*-snapshots/
 test/e2e/**/*.png
-
-# LLMs
-CLAUDE.md
