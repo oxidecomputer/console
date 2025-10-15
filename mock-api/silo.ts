@@ -143,7 +143,7 @@ export const scimTokens: DbScimToken[] = [
   {
     id: 'b2c3d4e5-f6a7-8901-bcde-f12345678901',
     time_created: new Date(2025, 8, 20).toISOString(),
-    time_expires: new Date(2026, 8, 20).toISOString(),
+    time_expires: null,
     siloId: defaultSilo.id,
   },
   {
