@@ -28,7 +28,7 @@ export function CardBlock({ children, width = 'full' }: CardBlockProps) {
   return (
     <div
       className={cn(
-        'text-sans-md border-default *:border-b-secondary flex flex-col rounded-lg border py-5 *:border-b last:*:border-0 last:*:pb-0',
+        'text-sans-md border-default *:border-b-secondary flex flex-col rounded-lg border py-5 *:border-b *:last:border-0 *:last:pb-0',
         widthClass[width]
       )}
     >

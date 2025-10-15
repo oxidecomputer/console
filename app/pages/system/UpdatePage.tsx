@@ -11,9 +11,10 @@ import * as R from 'remeda'
 
 import {
   Images24Icon,
+  SizeOutline12Icon,
   SoftwareUpdate16Icon,
   SoftwareUpdate24Icon,
-  Time16Icon,
+  TimeOutline12Icon,
 } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
@@ -34,6 +35,7 @@ import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { CardBlock } from '~/ui/lib/CardBlock'
 import { DateTime } from '~/ui/lib/DateTime'
+import { Divider } from '~/ui/lib/Divider'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
@@ -106,7 +108,7 @@ export default function UpdatePage() {
           />
         </div>
       </PageHeader>
-      <PropertiesTable className="-mt-8 mb-8">
+      <PropertiesTable className="-mt-8">
         {/* targetRelease will never be null on a customer system after the
             first time it is set. */}
         <PropertiesTable.Row label="Target release">
@@ -132,7 +134,7 @@ export default function UpdatePage() {
           {componentProgress ? (
             <>
               <div className="mr-1.5">{componentProgress.percentage}%</div>
-              <div className="text-secondary">
+              <div className="text-tertiary">
                 ({componentProgress.current} of {componentProgress.total})
               </div>
             </>
@@ -166,6 +168,8 @@ export default function UpdatePage() {
         </PropertiesTable.Row>
       </PropertiesTable>
 
+      <Divider className="my-8" />
+
       <CardBlock>
         <CardBlock.Header title="Releases" />
         <CardBlock.Body>
@@ -175,50 +179,60 @@ export default function UpdatePage() {
               return (
                 <li
                   key={repo.hash}
-                  className="border-secondary flex items-center gap-4 rounded border p-4"
+                  className="border-default @container flex items-center gap-3 rounded border pl-4"
                 >
-                  <Images24Icon className="text-secondary shrink-0" aria-hidden />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sans-semi-lg text-raise">
-                        {repo.systemVersion}
-                      </span>
-                      {isTarget && <Badge color="default">Target</Badge>}
+                  <Images24Icon className="text-tertiary shrink-0" aria-hidden />
+                  <div className="flex min-w-0 flex-1 flex-col flex-wrap items-start gap-x-4 gap-y-1 py-3 @md:flex-row @md:items-center">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sans-semi-lg text-raise">
+                          {repo.systemVersion}
+                        </span>
+                        {isTarget && <Badge color="default">Target</Badge>}
+                      </div>
                     </div>
-                    <div className="text-secondary">{repo.fileName}</div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-1">
-                      <Time16Icon aria-hidden />
-                      <DateTime date={repo.timeCreated} />
+                    <div className="flex flex-col items-start gap-0.5 @md:items-end">
+                      <div className="flex items-center gap-1.5">
+                        <DateTime date={repo.timeCreated} />
+                        <TimeOutline12Icon className="text-quaternary" aria-hidden />
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <div>{repo.fileName}</div>
+                        <SizeOutline12Icon className="text-quaternary" aria-hidden />
+                      </div>
                     </div>
                   </div>
-                  <MoreActionsMenu label={`${repo.systemVersion} actions`} isSmall>
-                    <DropdownMenu.Item
-                      label="Set as target release"
-                      onSelect={() => {
-                        confirmAction({
-                          actionType: 'primary',
-                          doAction: () =>
-                            setTargetRelease({
-                              body: { systemVersion: repo.systemVersion },
-                            }),
-                          modalTitle: 'Confirm set target release',
-                          modalContent: (
-                            <p>
-                              Are you sure you want to set <HL>{repo.systemVersion}</HL> as
-                              the target release?
-                            </p>
-                          ),
-                          errorTitle: `Error setting target release to ${repo.systemVersion}`,
-                        })
-                      }}
-                      // TODO: follow API logic, disabling for older releases.
-                      // Or maybe just have the API tell us by adding a field to
-                      // the TufRepo response type.
-                      disabled={isTarget && 'Already set as target'}
-                    />
-                  </MoreActionsMenu>
+                  <div className="border-secondary flex items-center justify-center self-stretch border-l">
+                    <MoreActionsMenu
+                      label={`${repo.systemVersion} actions`}
+                      variant="filled"
+                    >
+                      <DropdownMenu.Item
+                        label="Set as target release"
+                        onSelect={() => {
+                          confirmAction({
+                            actionType: 'primary',
+                            doAction: () =>
+                              setTargetRelease({
+                                body: { systemVersion: repo.systemVersion },
+                              }),
+                            modalTitle: 'Confirm set target release',
+                            modalContent: (
+                              <p>
+                                Are you sure you want to set <HL>{repo.systemVersion}</HL>{' '}
+                                as the target release?
+                              </p>
+                            ),
+                            errorTitle: `Error setting target release to ${repo.systemVersion}`,
+                          })
+                        }}
+                        // TODO: follow API logic, disabling for older releases.
+                        // Or maybe just have the API tell us by adding a field to
+                        // the TufRepo response type.
+                        disabled={isTarget && 'Already set as target'}
+                      />
+                    </MoreActionsMenu>
+                  </div>
                 </li>
               )
             })}
