@@ -56,9 +56,15 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 
 export default function SiloScimTab() {
   const siloSelector = useSiloSelector()
-  const { data: tokens } = usePrefetchedApiQuery('scimTokenList', {
+  const { data } = usePrefetchedApiQuery('scimTokenList', {
     query: { silo: siloSelector.silo },
   })
+
+  // Order tokens by creation date, oldest first
+  const tokens = useMemo(
+    () => [...data].sort((a, b) => a.timeCreated.getTime() - b.timeCreated.getTime()),
+    [data]
+  )
 
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [createdToken, setCreatedToken] = useState<{
@@ -257,10 +263,10 @@ function TokenCreatedModal({
         <div className="mt-4">
           <div className="text-sans-semi-md mb-2 font-medium">Bearer Token</div>
           <div className="text-sans-sm text-raise bg-default border-default flex items-center rounded border font-mono">
-            <div className="flex-1 overflow-hidden p-3 text-ellipsis">
+            <div className="flex-1 overflow-hidden px-3 py-2 text-ellipsis">
               {token.bearerToken}
             </div>
-            <div className="border-default border-l p-3">
+            <div className="border-default border-l p-2">
               <CopyToClipboard text={token.bearerToken} />
             </div>
           </div>
