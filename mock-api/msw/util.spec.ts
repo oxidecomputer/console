@@ -80,6 +80,31 @@ describe('userHasRole', () => {
       ['Hans Jonas', false],
       ['Jacob Klein', false],
       ['Simone de Beauvoir', false],
+      ['Jane Austen', true],
+    ])
+  })
+
+  it('fleet admin', () => {
+    expect(
+      users.map((u) => [u.display_name, userHasRole(u, 'fleet', FLEET_ID, 'admin')])
+    ).toEqual([
+      ['Hannah Arendt', true],
+      ['Hans Jonas', false],
+      ['Jacob Klein', false],
+      ['Simone de Beauvoir', false],
+      ['Jane Austen', false],
+    ])
+  })
+
+  it('silo viewer', () => {
+    expect(
+      users.map((u) => [u.display_name, userHasRole(u, 'silo', defaultSilo.id, 'viewer')])
+    ).toEqual([
+      ['Hannah Arendt', true],
+      ['Hans Jonas', true],
+      ['Jacob Klein', false],
+      ['Simone de Beauvoir', false],
+      ['Jane Austen', true],
     ])
   })
 
@@ -94,6 +119,19 @@ describe('userHasRole', () => {
       ['Hans Jonas', true],
       ['Jacob Klein', false],
       ['Simone de Beauvoir', false],
+      ['Jane Austen', true],
+    ])
+  })
+
+  it('silo admin', () => {
+    expect(
+      users.map((u) => [u.display_name, userHasRole(u, 'silo', defaultSilo.id, 'admin')])
+    ).toEqual([
+      ['Hannah Arendt', true],
+      ['Hans Jonas', false],
+      ['Jacob Klein', false],
+      ['Simone de Beauvoir', false],
+      ['Jane Austen', false],
     ])
   })
 })

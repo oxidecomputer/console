@@ -355,6 +355,10 @@ export function requireFleetCollab(cookies: Record<string, string>) {
   requireRole(cookies, 'fleet', FLEET_ID, 'collaborator')
 }
 
+export function requireFleetAdmin(cookies: Record<string, string>) {
+  requireRole(cookies, 'fleet', FLEET_ID, 'admin')
+}
+
 /**
  * Determine whether current user has a role on a resource by looking roles
  * for the user as well as for the user's groups. Do nothing if yes, throw 403
@@ -368,7 +372,7 @@ export function requireRole(
 ) {
   const user = currentUser(cookies)
   // should it 404? I think the API is a mix
-  if (!userHasRole(user, resourceType, resourceId, role)) throw 403
+  if (!userHasRole(user, resourceType, resourceId, role)) throw forbiddenErr()
 }
 
 const ipToBigInt = (ip: string): bigint =>

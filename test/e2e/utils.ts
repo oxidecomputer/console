@@ -191,7 +191,7 @@ export async function selectOption(
 
 export async function getPageAsUser(
   browser: Browser,
-  user: 'Hans Jonas' | 'Simone de Beauvoir' | 'Jacob Klein'
+  user: 'Hans Jonas' | 'Simone de Beauvoir' | 'Jacob Klein' | 'Jane Austen'
 ): Promise<Page> {
   const browserContext = await browser.newContext()
   await browserContext.addCookies([
