@@ -22,14 +22,16 @@ const widthClass: Record<Width, string> = {
 export type CardBlockProps = {
   children: ReactNode
   width?: Width
+  className?: string
 }
 
-export function CardBlock({ children, width = 'full' }: CardBlockProps) {
+export function CardBlock({ children, className, width = 'full' }: CardBlockProps) {
   return (
     <div
       className={cn(
         'text-sans-md border-default *:border-b-secondary flex flex-col rounded-lg border py-5 *:border-b last:*:border-0 last:*:pb-0',
-        widthClass[width]
+        widthClass[width],
+        className
       )}
     >
       {children}

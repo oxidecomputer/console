@@ -166,7 +166,7 @@ export default function UpdatePage() {
         </PropertiesTable.Row>
       </PropertiesTable>
 
-      <CardBlock>
+      <CardBlock className="min-w-160">
         <CardBlock.Header title="Releases" />
         <CardBlock.Body>
           <ul className="space-y-3">
