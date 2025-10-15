@@ -11,6 +11,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router'
 
 import { AccessToken24Icon, OpenLink12Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import {
   apiQueryClient,
@@ -24,7 +25,6 @@ import { addToast } from '~/stores/toast'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
-import { Badge } from '~/ui/lib/Badge'
 import { CardBlock } from '~/ui/lib/CardBlock'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { CreateButton } from '~/ui/lib/CreateButton'
@@ -145,7 +145,7 @@ export default function SiloScimTab() {
           )}
         </CardBlock.Body>
         <CardBlock.Footer>
-          <div className="relative -ml-2 inline-block rounded py-1 pl-2 pr-7 text-sans-md text-raise group-hover:bg-tertiary">
+          <div className="text-sans-md text-raise group-hover:bg-tertiary relative -ml-2 inline-block rounded py-1 pr-7 pl-2">
             <span className="inline-block max-w-[300px] truncate align-middle">
               Learn more about{' '}
               <a
@@ -240,8 +240,8 @@ function TokenCreatedModal({
   return (
     <Modal isOpen onDismiss={onDismiss} title="Create token">
       <Modal.Section>
-        <div className="rounded border p-3 text-sans-sm border-default">
-          <div className="mb-1 uppercase text-mono-sm text-tertiary">Expires</div>
+        <div className="text-sans-sm border-default rounded border p-3">
+          <div className="text-mono-sm text-tertiary mb-1 uppercase">Expires</div>
           {token.timeExpires ? (
             <DateTime date={token.timeExpires} />
           ) : (
@@ -255,12 +255,12 @@ function TokenCreatedModal({
         />
 
         <div className="mt-4">
-          <div className="mb-2 font-medium text-sans-semi-md">Bearer Token</div>
-          <div className="font-mono flex items-center rounded border text-sans-sm text-raise bg-default border-default">
-            <div className="flex-1 overflow-hidden text-ellipsis p-3">
+          <div className="text-sans-semi-md mb-2 font-medium">Bearer Token</div>
+          <div className="text-sans-sm text-raise bg-default border-default flex items-center rounded border font-mono">
+            <div className="flex-1 overflow-hidden p-3 text-ellipsis">
               {token.bearerToken}
             </div>
-            <div className="border-l p-3 border-default">
+            <div className="border-default border-l p-3">
               <CopyToClipboard text={token.bearerToken} />
             </div>
           </div>
