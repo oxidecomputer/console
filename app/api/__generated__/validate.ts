@@ -2446,22 +2446,6 @@ export const InternetGatewayResultsPage = z.preprocess(
 )
 
 /**
- * A count of bytes / rows accessed during a query.
- */
-export const IoCount = z.preprocess(
-  processResponseBody,
-  z.object({ bytes: z.number().min(0), rows: z.number().min(0) })
-)
-
-/**
- * Summary of the I/O resources used by a query.
- */
-export const IoSummary = z.preprocess(
-  processResponseBody,
-  z.object({ read: IoCount, written: IoCount })
-)
-
-/**
  * The IP address version.
  */
 export const IpVersion = z.preprocess(processResponseBody, z.enum(['v4', 'v6']))
@@ -2829,19 +2813,6 @@ export const NetworkInterface = z.preprocess(
 )
 
 /**
- * Basic metadata about the resource usage of a single ClickHouse SQL query.
- */
-export const OxqlQuerySummary = z.preprocess(
-  processResponseBody,
-  z.object({
-    elapsedMs: z.number().min(0),
-    id: z.uuid(),
-    ioSummary: IoSummary,
-    query: z.string(),
-  })
-)
-
-/**
  * List of data values for one timeseries.
  *
  * Each element is an option, where `None` represents a missing sample.
@@ -2909,10 +2880,7 @@ export const OxqlTable = z.preprocess(
  */
 export const OxqlQueryResult = z.preprocess(
   processResponseBody,
-  z.object({
-    querySummaries: OxqlQuerySummary.array().optional(),
-    tables: OxqlTable.array(),
-  })
+  z.object({ tables: OxqlTable.array() })
 )
 
 /**
@@ -4031,7 +3999,7 @@ export const TimeseriesName = z.preprocess(
  */
 export const TimeseriesQuery = z.preprocess(
   processResponseBody,
-  z.object({ includeSummaries: SafeBoolean.default(false).optional(), query: z.string() })
+  z.object({ query: z.string() })
 )
 
 /**
