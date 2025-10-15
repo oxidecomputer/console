@@ -1,2 +1,0 @@
-- Will need to make pagination similar to other pseudo-paginated endpoints, like https://github.com/oxidecomputer/omicron/blob/d74f5e3f1ae0a378dcdb9795a0ada2426702b046/nexus/src/external_api/http_entrypoints.rs#L5392
-- Name attribute is in designs and might get added to API at some point, but not present yet.
