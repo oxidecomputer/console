@@ -80,7 +80,7 @@ export function FileInput({
       />
       <div
         className={cn(
-          'text-raise bg-default pointer-events-none relative z-1 flex flex-col items-center justify-center space-y-2 rounded border px-4 py-6',
+          'text-raise bg-default pointer-events-none relative z-1 flex flex-col items-center justify-center space-y-0.5 rounded border px-4 py-6',
           dragOver && 'bg-accent-secondary border-accent-secondary!',
           error
             ? 'border-error-secondary! group-hover:border-error'
