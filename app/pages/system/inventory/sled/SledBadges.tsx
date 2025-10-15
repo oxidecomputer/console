@@ -5,9 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Badge, type BadgeColor } from '@oxide/design-system/ui'
+
 import type { SledPolicy, SledState } from '~/api'
 import { EmptyCell } from '~/table/cells/EmptyCell'
-import { Badge, type BadgeColor } from '~/ui/lib/Badge'
 
 export const SledKindBadge = ({ policy }: { policy: SledPolicy }) =>
   policy.kind === 'expunged' ? (

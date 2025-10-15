@@ -8,6 +8,7 @@
 import { addHours } from 'date-fns'
 import { delay } from 'msw'
 import * as R from 'remeda'
+import { lt as semverLessThan, rcompare as semverRCompare } from 'semver'
 import { match } from 'ts-pattern'
 import { validate as isUuid, v4 as uuid } from 'uuid'
 
@@ -52,6 +53,7 @@ import {
   ipRangeLen,
   NotImplemented,
   paginated,
+  requireFleetAdmin,
   requireFleetCollab,
   requireFleetViewer,
   requireRole,
@@ -1669,6 +1671,84 @@ export const handlers = makeHandlers({
     return handleOxqlMetrics(body)
   },
   siloMetric: handleMetrics,
+  systemUpdateRepositoryList: ({ cookies }) => {
+    requireFleetViewer(cookies)
+    // we could sort based on the query params, but it's unnecessary as long as
+    // default sort is what the console relies on
+
+    // no real pagination because pagination helper works on IDs, and these are
+    // paginated by version
+    return {
+      // sort by version descending
+      items: R.sort(db.tufRepos, (a, b) =>
+        semverRCompare(a.system_version, b.system_version)
+      ),
+    }
+  },
+  systemUpdateRepositoryUpload: ({ query, cookies }) => {
+    requireFleetCollab(cookies)
+    const { fileName } = query
+
+    // TODO: imitate API error messages more closely
+    if (!fileName.endsWith('.zip')) {
+      throw 'Must be a .zip file'
+    }
+
+    // Generate a simple hash based on the file name for mock purposes
+    const hash = fileName
+      .split('')
+      .reduce((acc, char) => ((acc << 5) - acc + char.charCodeAt(0)) | 0, 0)
+      .toString(16)
+
+    // Check if repo with this hash already exists
+    const existingRepo = db.tufRepos.find((r) => r.hash === hash)
+
+    if (existingRepo) {
+      return json(
+        { repo: existingRepo, status: 'already_exists' as const },
+        { status: 200 }
+      )
+    }
+
+    // Extract version from filename (e.g., "rack-1.2.0.zip" -> "1.2.0")
+    const versionMatch = fileName.match(/(\d+\.\d+\.\d+)/)
+    const systemVersion = versionMatch ? versionMatch[1] : '0.0.0'
+
+    const newRepo: Json<Api.TufRepo> = {
+      system_version: systemVersion,
+      file_name: fileName,
+      hash,
+      time_created: new Date().toISOString(),
+    }
+
+    db.tufRepos.push(newRepo)
+
+    return json({ repo: newRepo, status: 'inserted' as const }, { status: 201 })
+  },
+  systemUpdateStatus: ({ cookies }) => {
+    requireFleetViewer(cookies)
+    return db.updateStatus
+  },
+  targetReleaseUpdate: ({ body, cookies }) => {
+    requireFleetAdmin(cookies)
+
+    if (db.updateStatus.target_release) {
+      const currentVersion = db.updateStatus.target_release.version
+      const newVersion = body.system_version
+      // new version must be greater than or equal to current version
+      if (semverLessThan(newVersion, currentVersion)) {
+        throw `Requested target release (${newVersion}) must not be older than current target release (${currentVersion}).`
+      }
+    }
+
+    db.updateStatus.target_release = {
+      version: body.system_version,
+      time_requested: new Date().toISOString(),
+    }
+    db.updateStatus.time_last_step_planned = new Date().toISOString()
+
+    return 204
+  },
   affinityGroupList: ({ query }) => {
     const project = lookup.project({ ...query })
     const affinityGroups = db.affinityGroups.filter((i) => i.project_id === project.id)
@@ -1958,15 +2038,11 @@ export const handlers = makeHandlers({
   systemPolicyUpdate: NotImplemented,
   systemQuotasList: NotImplemented,
   systemTimeseriesSchemaList: NotImplemented,
-  systemUpdateRepositoryList: NotImplemented,
-  systemUpdateRepositoryUpload: NotImplemented,
   systemUpdateRepositoryView: NotImplemented,
-  systemUpdateStatus: NotImplemented,
   systemUpdateTrustRootCreate: NotImplemented,
   systemUpdateTrustRootDelete: NotImplemented,
   systemUpdateTrustRootList: NotImplemented,
   systemUpdateTrustRootView: NotImplemented,
-  targetReleaseUpdate: NotImplemented,
   scimTokenDeleteAll: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,

@@ -230,6 +230,10 @@ export const routes = createRoutesFromElements(
             />
           </Route>
         </Route>
+        <Route
+          path="update"
+          lazy={() => import('./pages/system/UpdatePage').then(convert)}
+        />
       </Route>
 
       <Route index loader={() => redirect(pb.projects())} element={null} />

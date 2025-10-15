@@ -2658,26 +2658,6 @@ export type InternetGatewayResultsPage = {
 }
 
 /**
- * A count of bytes / rows accessed during a query.
- */
-export type IoCount = {
-  /** The number of bytes accessed. */
-  bytes: number
-  /** The number of rows accessed. */
-  rows: number
-}
-
-/**
- * Summary of the I/O resources used by a query.
- */
-export type IoSummary = {
-  /** The bytes and rows read by the query. */
-  read: IoCount
-  /** The bytes and rows written by the query. */
-  written: IoCount
-}
-
-/**
  * The IP address version.
  */
 export type IpVersion = 'v4' | 'v6'
@@ -3079,20 +3059,6 @@ export type NetworkInterface = {
 }
 
 /**
- * Basic metadata about the resource usage of a single ClickHouse SQL query.
- */
-export type OxqlQuerySummary = {
-  /** The total duration of the ClickHouse query (network plus execution). */
-  elapsedMs: number
-  /** The database-assigned query ID. */
-  id: string
-  /** Summary of the data read and written. */
-  ioSummary: IoSummary
-  /** The raw ClickHouse SQL query. */
-  query: string
-}
-
-/**
  * List of data values for one timeseries.
  *
  * Each element is an option, where `None` represents a missing sample.
@@ -3143,8 +3109,6 @@ export type OxqlTable = {
  * The result of a successful OxQL query.
  */
 export type OxqlQueryResult = {
-  /** Summaries of queries run against ClickHouse. */
-  querySummaries?: OxqlQuerySummary[] | null
   /** Tables resulting from the query, each containing timeseries. */
   tables: OxqlTable[]
 }
@@ -4430,8 +4394,6 @@ export type TimeseriesName = string
  * A timeseries query string, written in the Oximeter query language.
  */
 export type TimeseriesQuery = {
-  /** Whether to include ClickHouse query summaries in the response. */
-  includeSummaries?: boolean
   /** A timeseries query string, written in the Oximeter query language. */
   query: string
 }

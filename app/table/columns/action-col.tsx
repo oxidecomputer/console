@@ -60,7 +60,7 @@ export const getActionsCol = <TData extends Record<string, unknown>>(
     header: '',
     meta: {
       thClassName: 'action-col',
-      tdClassName: 'action-col children:p-0 w-10',
+      tdClassName: 'action-col',
     },
 
     cell: ({ row }) => {
@@ -85,7 +85,7 @@ export const RowActions = ({ id, copyIdLabel = 'Copy ID', actions }: RowActionsP
     <DropdownMenu.Root>
       {/* stopPropagation prevents clicks from toggling row select in a single select table */}
       <DropdownMenu.Trigger
-        className="flex h-full w-10 items-center justify-center"
+        className="headless-hide-focus flex h-full w-full items-center justify-center rounded -outline-offset-2"
         aria-label="Row actions"
         onClick={(e) => e.stopPropagation()}
       >

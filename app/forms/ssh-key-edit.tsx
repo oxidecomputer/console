@@ -64,7 +64,7 @@ export default function EditSSHKeySideModalForm() {
       <NameField name="name" control={form.control} disabled />
       <DescriptionField name="description" control={form.control} disabled />
       <div className="relative">
-        <CopyToClipboard className="!absolute right-0 top-0" text={data.publicKey} />
+        <CopyToClipboard className="absolute! top-0 right-0" text={data.publicKey} />
         <TextField
           as="textarea"
           name="publicKey"

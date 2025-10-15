@@ -9,7 +9,7 @@
     "incremental": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "module": "es2020",
+    "module": "esnext",
     "moduleResolution": "bundler",
     "noEmit": true,
     "noUnusedLocals": true,
@@ -25,7 +25,7 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
-    "target": "es2022",
+    "target": "es2023",
     "types": ["node", "vite/client", "vitest/importMeta"]
   },
   "exclude": ["tools/deno"]

@@ -34,4 +34,10 @@ export const user4: Json<User> = {
   silo_id: defaultSilo.id,
 }
 
-export const users = [user1, user2, user3, user4]
+export const user5: Json<User> = {
+  id: 'e7ab4cc1-a7c6-43df-8f69-84bb507c4d22',
+  display_name: 'Jane Austen',
+  silo_id: defaultSilo.id,
+}
+
+export const users = [user1, user2, user3, user4, user5]

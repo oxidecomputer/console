@@ -50,11 +50,19 @@ export function percentage<T extends number | bigint>(top: T, bottom: T): number
   return Number(((top as bigint) * 10_000n) / (bottom as bigint)) / 100
 }
 
-export function round(num: number, digits: number) {
+// there are a lot more options, but let's only include the ones we need.
+// halfExpand is the default when nothing/undefined is passed in. trunc is like floor
+// except it always rounds toward zero, so, e.g., -0.99 rounds to -0.9 instead
+// of -1.0
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat/NumberFormat#roundingmode
+type RoundingMode = 'trunc'
+
+export function round(num: number, digits: number, roundingMode?: RoundingMode) {
   // unlike with splitDecimal, we hard-code en-US to ensure that Number() will
   // be able to parse the result
   const nf = Intl.NumberFormat('en-US', {
     maximumFractionDigits: digits,
+    roundingMode,
     // very important, otherwise turning back into number will fail on n >= 1000
     // due to commas
     useGrouping: false,

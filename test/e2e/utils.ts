@@ -191,7 +191,7 @@ export async function selectOption(
 
 export async function getPageAsUser(
   browser: Browser,
-  user: 'Hans Jonas' | 'Simone de Beauvoir' | 'Jacob Klein'
+  user: 'Hans Jonas' | 'Simone de Beauvoir' | 'Jacob Klein' | 'Jane Austen'
 ): Promise<Page> {
   const browserContext = await browser.newContext()
   await browserContext.addCookies([
@@ -231,7 +231,7 @@ export async function chooseFile(
   size: 'large' | 'small' = 'large'
 ) {
   const fileChooserPromise = page.waitForEvent('filechooser')
-  await inputLocator.click()
+  await inputLocator.click({ force: true })
   const fileChooser = await fileChooserPromise
   await fileChooser.setFiles({
     name: 'my-image.iso',

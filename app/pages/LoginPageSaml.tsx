@@ -24,13 +24,13 @@ export default function LoginPageSaml() {
     <>
       <div className="mb-3 flex items-end space-x-3">
         <Identicon
-          className="flex h-[34px] w-[34px] items-center justify-center rounded text-accent bg-accent-secondary-hover"
+          className="text-accent bg-accent-secondary-hover flex h-[34px] w-[34px] items-center justify-center rounded"
           name={silo}
         />
         <div className="text-sans-2xl text-raise">{silo}</div>
       </div>
 
-      <hr className="my-6 w-full border-0 border-b border-b-secondary" />
+      <hr className="border-b-secondary my-6 w-full border-0 border-b" />
 
       <a
         className={cn(buttonStyle({}), 'w-full')}

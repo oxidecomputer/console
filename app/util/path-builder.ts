@@ -134,6 +134,8 @@ export const pb = {
   samlIdp: (params: PP.IdentityProvider) =>
     `${siloBase(params)}/idps/saml/${params.provider}`,
 
+  systemUpdate: () => '/system/update',
+
   profile: () => '/settings/profile',
   sshKeys: () => '/settings/ssh-keys',
   sshKeysNew: () => '/settings/ssh-keys-new',

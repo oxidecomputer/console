@@ -14,6 +14,7 @@ import {
   IpGlobal16Icon,
   Metrics16Icon,
   Servers16Icon,
+  SoftwareUpdate16Icon,
 } from '@oxide/design-system/icons/react'
 
 import { trigger404 } from '~/components/ErrorBoundary'
@@ -53,6 +54,7 @@ export default function SystemLayout() {
       { value: 'Utilization', path: pb.systemUtilization() },
       { value: 'Inventory', path: pb.sledInventory() },
       { value: 'IP Pools', path: pb.ipPools() },
+      { value: 'System Update', path: pb.systemUpdate() },
     ]
       // filter out the entry for the path we're currently on
       .filter((i) => i.path !== pathname)
@@ -95,6 +97,9 @@ export default function SystemLayout() {
           </NavLinkItem>
           <NavLinkItem to={pb.ipPools()}>
             <IpGlobal16Icon /> IP Pools
+          </NavLinkItem>
+          <NavLinkItem to={pb.systemUpdate()}>
+            <SoftwareUpdate16Icon /> System Update
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>

@@ -151,7 +151,7 @@ function UtilizationBars() {
   if (capacity === 0) return null
 
   return (
-    <div className="-mt-8 mb-8 flex min-w-min flex-col gap-3 lg+:flex-row">
+    <div className="1000:flex-row -mt-8 mb-8 flex min-w-min flex-col gap-3">
       {capacity > 0 && (
         <CapacityBar
           icon={<IpGlobal16Icon />}
