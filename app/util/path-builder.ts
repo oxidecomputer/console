@@ -130,6 +130,7 @@ export const pb = {
   siloIpPools: (params: PP.Silo) => `${siloBase(params)}/ip-pools`,
   siloQuotas: (params: PP.Silo) => `${siloBase(params)}/quotas`,
   siloFleetRoles: (params: PP.Silo) => `${siloBase(params)}/fleet-roles`,
+  siloScim: (params: PP.Silo) => `${siloBase(params)}/scim`,
   samlIdp: (params: PP.IdentityProvider) =>
     `${siloBase(params)}/idps/saml/${params.provider}`,
 

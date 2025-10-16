@@ -113,6 +113,7 @@ type FooterProps = {
   actionLoading?: boolean
   cancelText?: string
   disabled?: boolean
+  showCancel?: boolean
 } & MergeExclusive<{ formId: string }, { onAction: () => void }>
 
 Modal.Footer = ({
@@ -125,13 +126,16 @@ Modal.Footer = ({
   cancelText,
   disabled,
   formId,
+  showCancel = true,
 }: FooterProps) => (
   <footer className="border-secondary flex items-center justify-between border-t px-4 py-3">
     <div className="mr-4">{children}</div>
     <div className="space-x-2">
-      <Button variant="secondary" size="sm" onClick={onDismiss}>
-        {cancelText || 'Cancel'}
-      </Button>
+      {showCancel && (
+        <Button variant="secondary" size="sm" onClick={onDismiss}>
+          {cancelText || 'Cancel'}
+        </Button>
+      )}
       <Button
         type={formId ? 'submit' : 'button'}
         form={formId}

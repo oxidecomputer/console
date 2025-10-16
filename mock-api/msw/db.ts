@@ -504,6 +504,7 @@ const initDb = {
   projects: [...mock.projects],
   racks: [...mock.racks],
   roleAssignments: [...mock.roleAssignments],
+  scimTokens: [...mock.scimTokens],
   silos: [...mock.silos],
   siloQuotas: [...mock.siloQuotas],
   siloProvisioned: [...mock.siloProvisioned],
