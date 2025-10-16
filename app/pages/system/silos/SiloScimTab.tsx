@@ -115,6 +115,7 @@ export default function SiloScimTab() {
             <Badge color="neutral">Never</Badge>
           )
         },
+        meta: { thClassName: 'lg:w-1/4' },
       }),
     ],
     []
