@@ -10,7 +10,7 @@ import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/re
 import { useCallback, useMemo, useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router'
 
-import { AccessToken24Icon, OpenLink12Icon } from '@oxide/design-system/icons/react'
+import { AccessToken24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
 import {
@@ -34,7 +34,6 @@ import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { Truncate } from '~/ui/lib/Truncate'
-import { docLinks } from '~/util/links'
 
 const colHelper = createColumnHelper<ScimClientBearerToken>()
 
@@ -128,7 +127,7 @@ export default function SiloScimTab() {
     columns,
     getCoreRowModel: getCoreRowModel(),
   })
-  const { href, linkText } = docLinks.scim
+  // const { href, linkText } = docLinks.scim
   return (
     <>
       <CardBlock>
@@ -150,7 +149,7 @@ export default function SiloScimTab() {
             />
           )}
         </CardBlock.Body>
-        <CardBlock.Footer>
+        {/* <CardBlock.Footer>
           <div className="text-sans-md text-raise group-hover:bg-tertiary relative -ml-2 inline-block rounded py-1 pr-7 pl-2">
             <span className="inline-block max-w-[300px] truncate align-middle">
               Learn more about{' '}
@@ -165,7 +164,7 @@ export default function SiloScimTab() {
               </a>
             </span>
           </div>
-        </CardBlock.Footer>
+        </CardBlock.Footer> */}
       </CardBlock>
 
       {showCreateModal && (
