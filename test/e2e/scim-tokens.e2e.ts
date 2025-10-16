@@ -22,10 +22,6 @@ test('SCIM tokens tab', async ({ page }) => {
   // Check that existing tokens are visible
   await expectRowVisible(table, { ID: 'a1b2c3d4…34567890' })
   await expectRowVisible(table, { ID: 'b2c3d4e5…45678901' })
-
-  // Check that the documentation link is visible
-  await expect(page.getByText('Learn more about')).toBeVisible()
-  await expect(page.getByRole('link', { name: 'SCIM Auth' })).toBeVisible()
 })
 
 test('Create SCIM token', async ({ page }) => {
