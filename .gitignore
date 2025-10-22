@@ -33,5 +33,5 @@ playwright-report/
 .vercel
 
 # Visual regression snapshots
-test/e2e/**/*-snapshots/
-test/e2e/**/*.png
+test/visual/**/*-snapshots/
+test/visual/**/*.png

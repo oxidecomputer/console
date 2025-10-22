@@ -16,20 +16,18 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 print_usage() {
-  echo "Usage: $0 --main"
+  echo "Usage: $0"
   echo ""
   echo "Generate baseline visual snapshots from origin/main for comparison."
-  echo "Automatically cherry-picks test/e2e/visual-regression.e2e.ts to main."
+  echo "Automatically cherry-picks test/visual/regression.e2e.ts to main."
   echo ""
   echo "Example:"
-  echo "  $0 --main"
+  echo "  $0"
 }
 
-# Check for --main argument
-if [[ $# -eq 0 ]] || [[ "$1" != "--main" ]]; then
-  echo -e "${RED}Error: --main argument required${NC}"
+if [[ "$1" == "-h" ]]; then
   print_usage
-  exit 1
+  exit 0
 fi
 
 cd "$PROJECT_ROOT"
@@ -70,10 +68,17 @@ echo "Checking out origin/main..."
 git checkout -q "$RESOLVED_COMMIT"
 
 # Cherry-pick visual regression test
-TEST_FILE="test/e2e/visual-regression.e2e.ts"
+TEST_FILE="test/visual/regression.e2e.ts"
+CONFIG_FILE="playwright.visual.config.ts"
 if git show "$CURRENT_REF:$TEST_FILE" > /dev/null 2>&1; then
   echo "Cherry-picking visual regression test..."
   git checkout "$CURRENT_REF" -- "$TEST_FILE" 2>/dev/null || true
+  if git show "$CURRENT_REF:$CONFIG_FILE" > /dev/null 2>&1; then
+    git checkout "$CURRENT_REF" -- "$CONFIG_FILE" 2>/dev/null || true
+  else
+    echo -e "${RED}Error: $CONFIG_FILE not found in current branch${NC}"
+    exit 1
+  fi
 else
   echo -e "${RED}Error: $TEST_FILE not found in current branch${NC}"
   exit 1
@@ -106,7 +111,7 @@ cleanup() {
   fi
 
   if [[ $exit_code -eq 0 ]]; then
-    SNAPSHOT_COUNT=$(find test/e2e -type f -name "*.png" 2>/dev/null | wc -l | tr -d ' ')
+    SNAPSHOT_COUNT=$(find test/visual -type f -name "*.png" 2>/dev/null | wc -l | tr -d ' ')
     echo ""
     echo -e "${GREEN}✓ Generated $SNAPSHOT_COUNT baseline snapshot(s)${NC}"
   else
@@ -127,4 +132,4 @@ npm ci
 # Generate snapshots
 echo ""
 echo "Generating baseline snapshots (this may take several minutes)..."
-npx playwright test --project=chrome test/e2e/visual-regression.e2e.ts --update-snapshots
+npx playwright test --config="$CONFIG_FILE" --project=chrome --update-snapshots

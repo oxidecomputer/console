@@ -27,7 +27,7 @@
 - Cover role-gated flows by logging in with `getPageAsUser`; exercise negative paths (e.g., forbidden actions) alongside happy paths as shown in `test/e2e/system-update.e2e.ts`.
 - When UI needs new mock behavior, extend the MSW handlers/db minimally so E2E tests stay deterministic; prefer storing full API responses so subsequent calls see the updated state (`mock-api/msw/db.ts`, `mock-api/msw/handlers.ts`).
 - Co-locate Vitest specs next to the code they cover; use Testing Library utilities (`render`, `renderHook`, `fireEvent`, fake timers) to assert observable output rather than implementation details (`app/ui/lib/FileInput.spec.tsx`, `app/hooks/use-pagination.spec.ts`).
-- For sweeping styling changes, coordinate with the visual regression harness and follow `test/e2e/VISUAL-REGRESSION.md` for the workflow.
+- For sweeping styling changes, coordinate with the visual regression harness and follow `test/visual/README.md` for the workflow.
 
 # Data fetching pattern
 

@@ -20,7 +20,7 @@ print_usage() {
   echo "Usage: $0 [--ui] [--update]"
   echo ""
   echo "Compare current visual state against baseline snapshots."
-  echo "Runs test/e2e/visual-regression.e2e.ts"
+  echo "Runs test/visual/regression.e2e.ts"
   echo ""
   echo "Options:"
   echo "  --ui       Open Playwright UI mode"
@@ -65,7 +65,7 @@ if [[ ! -d "node_modules" ]]; then
 fi
 
 # Check if baseline snapshots exist
-SNAPSHOT_COUNT=$(find test/e2e -type f -name "*.png" 2>/dev/null | wc -l | tr -d ' ')
+SNAPSHOT_COUNT=$(find test/visual -type f -name "*.png" 2>/dev/null | wc -l | tr -d ' ')
 if [[ "$SNAPSHOT_COUNT" -eq 0 ]]; then
   echo -e "${RED}Error: No baseline snapshots found${NC}"
   echo ""
@@ -77,7 +77,7 @@ fi
 echo -e "${BLUE}Found $SNAPSHOT_COUNT baseline snapshot(s)${NC}"
 
 # Build command
-CMD="npx playwright test --project=chrome test/e2e/visual-regression.e2e.ts"
+CMD="npx playwright test --config=playwright.visual.config.ts"
 
 if [[ "$UI_MODE" == true ]]; then
   CMD="$CMD --ui"

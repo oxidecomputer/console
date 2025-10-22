@@ -22,6 +22,7 @@
     "update-snapshots": "npm test run -- -u",
     "e2e": "playwright test",
     "e2ec": "playwright test --project=chrome",
+    "e2e-visual": "playwright test -c playwright.visual.config.ts",
     "visual:baseline": "./tools/generate-visual-baseline.sh",
     "visual:compare": "./tools/compare-visual-changes.sh",
     "lint": "oxlint --type-aware && eslint --ext .js,.ts,.tsx app test mock-api",

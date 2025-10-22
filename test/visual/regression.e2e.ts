@@ -14,7 +14,10 @@
  * CSS frameworks, or making broad styling changes.
  */
 
-import { expect, test } from './utils'
+import { expect, test } from '../e2e/utils'
+
+// TODO: fix failures due to datestimes by fixing time
+// https://playwright.dev/docs/api/class-clock#clock-set-fixed-time
 
 test.describe('Visual Regression', { tag: '@visual' }, () => {
   test('projects list', async ({ page }) => {
