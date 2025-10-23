@@ -116,7 +116,7 @@
     "msw": "^2.7.5",
     "oxlint": "^1.23.0",
     "oxlint-tsgolint": "^0.2.0",
-    "patch-package": "^8.0.0",
+    "patch-package": "^8.0.1",
     "postcss": "^8.4.49",
     "postcss-import": "^16.1.0",
     "postcss-nesting": "^13.0.1",
