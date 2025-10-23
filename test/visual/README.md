@@ -4,11 +4,11 @@
 
 ### 1. Generate Baseline Snapshots
 
-First, generate baseline snapshots from a commit before your changes:
+First, generate baseline snapshots from some other revision:
 
 ```bash
-# Generate baseline from latest origin/main (most common)
-npm run visual:baseline -- --main
+# From main (most common)
+npm run visual:baseline
 
 # Or from a specific commit hash
 npm run visual:baseline -- abc123
@@ -17,7 +17,13 @@ npm run visual:baseline -- abc123
 npm run visual:baseline -- HEAD~1
 ```
 
-This will check out that revision in a git work tree, run the visual snapshot tests, and copy the snapshots back into your current working directory.
+This will check out that revision in a git worktree in a temp dir, run the
+visual snapshot tests, and copy the snapshots back into your current working
+directory.
+
+Note that this command does not fetch anything from the remote repo; it uses
+whatever you have locally. If you want to make sure you have the latest `main`,
+you need to pull it first.
 
 ### 2. Compare Current Changes
 
