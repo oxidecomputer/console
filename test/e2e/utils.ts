@@ -263,3 +263,8 @@ export async function addTlsCert(page: Page) {
   await chooseFile(page, page.getByLabel('Key'), 'small')
   await page.getByRole('button', { name: 'Add Certificate' }).click()
 }
+
+export async function hasConsoleMessage(page: Page, msg: string) {
+  const messages = await page.consoleMessages()
+  return messages.some((m) => m.text().includes(msg))
+}
