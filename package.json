@@ -43,7 +43,7 @@
     "@radix-ui/react-tabs": "^1.1.0",
     "@react-aria/live-announcer": "^3.3.4",
     "@tailwindcss/container-queries": "^0.1.1",
-    "@tailwindcss/vite": "^4.1.14",
+    "@tailwindcss/vite": "^4.1.16",
     "@tanstack/react-query": "^5.56.2",
     "@tanstack/react-query-devtools": "^5.56.2",
     "@tanstack/react-table": "^8.20.5",
@@ -98,7 +98,7 @@
     "@typescript-eslint/eslint-plugin": "~8.39.0",
     "@typescript-eslint/parser": "~8.39.0",
     "@vitejs/plugin-basic-ssl": "^2.1.0",
-    "@vitejs/plugin-react-swc": "^3.10.2",
+    "@vitejs/plugin-react-swc": "^4.1.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^9.1.0",
@@ -129,10 +129,10 @@
     "tsx": "^4.19.2",
     "type-fest": "^4.33.0",
     "typescript": "~5.9.2",
-    "vite": "^7.0.0",
+    "vite": "^7.1.12",
     "vite-plugin-html": "^3.2.2",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.2.4"
+    "vitest": "^4.0.2"
   },
   "browserslist": [
     "defaults"
