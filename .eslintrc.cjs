@@ -20,6 +20,7 @@ module.exports = {
     'prettier',
     'plugin:react-hook-form/recommended',
     'plugin:import/recommended',
+    'plugin:react-hooks/recommended',
   ],
   plugins: [
     '@typescript-eslint',
@@ -91,8 +92,16 @@ module.exports = {
     'prefer-arrow-callback': 'off',
     'prettier/prettier': 'error',
     radix: 'error',
+
+    // https://react.dev/reference/eslint-plugin-react-hooks#recommended
     'react-hooks/exhaustive-deps': 'error',
-    'react-hooks/rules-of-hooks': 'error',
+    // recommended rules that go nuts in our codebase. we should fix them
+    // eventually
+    'react-hooks/incompatible-library': 'off',
+    'react-hooks/purity': 'off',
+    'react-hooks/refs': 'off',
+    'react-hooks/set-state-in-effect': 'off',
+
     'react/button-has-type': 'error',
     'react/jsx-boolean-value': 'error',
     'react/display-name': 'off',

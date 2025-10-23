@@ -108,7 +108,7 @@
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-react": "^7.37.3",
     "eslint-plugin-react-hook-form": "^0.3.0",
-    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-hooks": "^7.0.0",
     "husky": "^9.1.7",
     "identity-obj-proxy": "^3.0.0",
     "ip-num": "^1.5.1",
