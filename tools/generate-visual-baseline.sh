@@ -10,10 +10,9 @@ set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
 
-echo "Fetching latest from origin..."
-git fetch origin main --quiet
+REV=${1:-main}
 
-COMMIT=$(git rev-parse origin/main)
+COMMIT=$(git rev-parse "$REV")
 WORKTREE_DIR=$(mktemp -d -t visual-baseline-XXXXXX)
 
 cleanup() {
@@ -22,7 +21,7 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-echo "Creating worktree at origin/main ($COMMIT)..."
+echo "Creating worktree at $REV ($COMMIT)..."
 git worktree add --detach "$WORKTREE_DIR" "$COMMIT" --quiet
 
 echo "Copying test files..."
@@ -35,7 +34,7 @@ echo "Installing dependencies..."
 npm ci
 
 echo "Generating baseline snapshots..."
-npx playwright test --config=playwright.visual.config.ts --project=chrome --update-snapshots
+npx playwright test --config=playwright.visual.config.ts --update-snapshots
 
 echo "Copying snapshots back..."
 cp -r test/visual/regression.e2e.ts-snapshots "$PROJECT_ROOT/test/visual/"
