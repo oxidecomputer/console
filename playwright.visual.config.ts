@@ -15,7 +15,6 @@ export default {
   testMatch: /\.e2e\.ts/,
   fullyParallel: true,
   workers: '66%',
-  timeout: 60 * 1000, // 1 minute
   use: {
     baseURL: 'http://localhost:4009',
   },

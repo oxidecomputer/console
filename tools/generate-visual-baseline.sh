@@ -34,7 +34,7 @@ cd "$WORKTREE_DIR"
 echo "Installing dependencies..."
 npm ci
 
-echo "Generating baseline snapshots (this may take several minutes)..."
+echo "Generating baseline snapshots..."
 npx playwright test --config=playwright.visual.config.ts --project=chrome --update-snapshots
 
 echo "Copying snapshots back..."
