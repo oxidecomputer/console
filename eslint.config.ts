@@ -1,19 +1,19 @@
-const js = require('@eslint/js')
-const tsParser = require('@typescript-eslint/parser')
-const prettierConfig = require('eslint-config-prettier')
-const prettierPlugin = require('eslint-plugin-prettier')
-const globals = require('globals')
-
-const { FlatCompat } = require('@eslint/eslintrc')
-const { fixupConfigRules } = require('@eslint/compat')
+import js from '@eslint/js'
+import tsParser from '@typescript-eslint/parser'
+import prettierConfig from 'eslint-config-prettier'
+import prettierPlugin from 'eslint-plugin-prettier'
+import globals from 'globals'
+import { FlatCompat } from '@eslint/eslintrc'
+import { fixupConfigRules } from '@eslint/compat'
+import type { Linter } from 'eslint'
 
 // FlatCompat needed for plugins that don't fully support flat config yet
 const compat = new FlatCompat({
-  baseDirectory: __dirname,
+  baseDirectory: import.meta.dirname,
   recommendedConfig: js.configs.recommended,
 })
 
-module.exports = [
+export default [
   // Ignore patterns
   {
     ignores: ['**/dist/', '**/node_modules/', 'tools/deno/'],
@@ -43,7 +43,7 @@ module.exports = [
         warnOnUnsupportedTypeScriptVersion: false,
         // this config is needed for type aware lint rules
         project: true,
-        tsconfigRootDir: __dirname,
+        tsconfigRootDir: import.meta.dirname,
       },
       globals: {
         ...globals.node,
@@ -170,4 +170,4 @@ module.exports = [
       'playwright/no-force-option': 'off',
     },
   },
-]
+] satisfies Linter.Config[]

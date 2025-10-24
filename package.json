@@ -90,6 +90,7 @@
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
+    "@types/eslint-config-prettier": "^6.11.3",
     "@types/lodash.throttle": "^4.1.9",
     "@types/md5": "^2.3.5",
     "@types/mousetrap": "^1.6.15",
