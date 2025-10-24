@@ -1,11 +1,14 @@
-import js from '@eslint/js'
-import tsParser from '@typescript-eslint/parser'
-import prettierConfig from 'eslint-config-prettier'
-import prettierPlugin from 'eslint-plugin-prettier'
-import globals from 'globals'
-import { FlatCompat } from '@eslint/eslintrc'
 import { fixupConfigRules } from '@eslint/compat'
-import type { Linter } from 'eslint'
+import { FlatCompat } from '@eslint/eslintrc'
+import js from '@eslint/js'
+import prettierConfig from 'eslint-config-prettier'
+import playwrightPlugin from 'eslint-plugin-playwright'
+import prettierPlugin from 'eslint-plugin-prettier'
+import reactPlugin from 'eslint-plugin-react'
+import reactHooksPlugin from 'eslint-plugin-react-hooks'
+import { defineConfig } from 'eslint/config'
+import globals from 'globals'
+import tseslint from 'typescript-eslint'
 
 // FlatCompat needed for plugins that don't fully support flat config yet
 const compat = new FlatCompat({
@@ -13,41 +16,36 @@ const compat = new FlatCompat({
   recommendedConfig: js.configs.recommended,
 })
 
-export default [
-  // Ignore patterns
-  {
-    ignores: ['**/dist/', '**/node_modules/', 'tools/deno/'],
-  },
-
-  // Base recommended configs
+export default defineConfig(
+  { ignores: ['**/dist/', '**/node_modules/', 'tools/deno/'] },
   js.configs.recommended,
+  tseslint.configs.recommendedTypeChecked,
+  tseslint.configs.strict,
+  tseslint.configs.stylistic,
+  reactPlugin.configs.flat.recommended,
+  reactHooksPlugin.configs.flat.recommended,
+
+  // Plugins without flat config support - use compat
   ...fixupConfigRules(
     compat.extends(
-      'plugin:@typescript-eslint/recommended-type-checked',
-      'plugin:@typescript-eslint/strict',
-      'plugin:@typescript-eslint/stylistic',
       'plugin:jsx-a11y/recommended',
-      'plugin:react/recommended',
       'plugin:react-hook-form/recommended',
-      'plugin:import/recommended',
-      'plugin:react-hooks/recommended'
+      'plugin:import/recommended'
     )
   ),
+
   prettierConfig,
 
   // Main config
   {
     languageOptions: {
-      parser: tsParser,
       parserOptions: {
         warnOnUnsupportedTypeScriptVersion: false,
         // this config is needed for type aware lint rules
         project: true,
         tsconfigRootDir: import.meta.dirname,
       },
-      globals: {
-        ...globals.node,
-      },
+      globals: { ...globals.node },
     },
 
     plugins: {
@@ -55,9 +53,7 @@ export default [
     },
 
     settings: {
-      react: {
-        version: 'detect',
-      },
+      react: { version: 'detect' },
     },
 
     rules: {
@@ -74,7 +70,11 @@ export default [
       '@typescript-eslint/no-duplicate-type-constituents': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
-        { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
       ],
 
       // disabling the type-aware rules we don't like
@@ -147,15 +147,12 @@ export default [
     },
   },
 
-  ...fixupConfigRules(
-    compat.extends('plugin:playwright/recommended')
-  ).map((config) => ({
-    ...config,
-    files: ['**/*.e2e.ts'],
-  })),
+  // Playwright config (native flat config support)
   {
     files: ['**/*.e2e.ts'],
+    ...playwrightPlugin.configs['flat/recommended'],
     rules: {
+      ...playwrightPlugin.configs['flat/recommended'].rules,
       'playwright/expect-expect': [
         'warn',
         {
@@ -169,5 +166,5 @@ export default [
       ],
       'playwright/no-force-option': 'off',
     },
-  },
-] satisfies Linter.Config[]
+  }
+)
