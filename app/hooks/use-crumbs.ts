@@ -47,7 +47,6 @@ function hasCrumb(m: UIMatch): m is MatchWithCrumb {
  * `createRoutesFromChildren` rejects a custom Route component.
  */
 function checkCrumbType(m: MatchWithCrumb): MatchWithCrumb {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const crumbType = typeof m.handle.crumb
   invariant(
     crumbType === 'string' || crumbType === 'function',
