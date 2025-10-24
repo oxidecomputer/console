@@ -463,8 +463,12 @@ test('can update firewall rule', async ({ page }) => {
   // screen.getByRole('cell', { name: 'vpc' })
   // screen.getByRole('cell', { name: 'default' })
 
+  await sleep(300)
+
   // update name
   await page.getByRole('textbox', { name: 'Name' }).fill('new-rule-name')
+
+  await sleep(300)
 
   // add host filter
   await selectOption(page, 'Host type', 'VPC subnet')
