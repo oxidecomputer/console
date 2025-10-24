@@ -68,7 +68,7 @@ import { type FirewallRuleValues } from './firewall-rules-util'
 
 type TargetAndHostFilterType =
   | VpcFirewallRuleTarget['type']
-  // eslint-disable-next-line @typescript-eslint/no-duplicate-type-constituents
+  // oxlint-disable-next-line @typescript-eslint/no-duplicate-type-constituents
   | VpcFirewallRuleHostFilter['type']
 
 type TargetAndHostFormValues = {

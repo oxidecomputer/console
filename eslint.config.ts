@@ -24,7 +24,6 @@ export default defineConfig(
   tseslint.configs.stylistic,
   reactPlugin.configs.flat.recommended,
   reactHooksPlugin.configs.flat.recommended,
-
   // Plugins without flat config support - use compat
   ...fixupConfigRules(
     compat.extends(
@@ -33,9 +32,7 @@ export default defineConfig(
       'plugin:import/recommended'
     )
   ),
-
   prettierConfig,
-
   // Main config
   {
     languageOptions: {
@@ -47,11 +44,9 @@ export default defineConfig(
       },
       globals: { ...globals.node },
     },
-
     plugins: {
       prettier: prettierPlugin,
     },
-
     settings: {
       react: { version: 'detect' },
     },
@@ -140,14 +135,7 @@ export default defineConfig(
     },
   },
 
-  {
-    files: ['*.js'],
-    rules: {
-      '@typescript-eslint/no-var-requires': 'off',
-    },
-  },
-
-  // Playwright config (native flat config support)
+  // Playwright config
   {
     files: ['**/*.e2e.ts'],
     ...playwrightPlugin.configs['flat/recommended'],
