@@ -154,6 +154,10 @@ export const routes = createRoutesFromElements(
               path="fleet-roles"
               lazy={() => import('./pages/system/silos/SiloFleetRolesTab').then(convert)}
             />
+            <Route
+              path="scim"
+              lazy={() => import('./pages/system/silos/SiloScimTab').then(convert)}
+            />
           </Route>
         </Route>
         <Route path="issues" element={null} />

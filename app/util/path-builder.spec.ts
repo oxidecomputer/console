@@ -88,6 +88,7 @@ test('path builder', () => {
         "siloImages": "/images",
         "siloIpPools": "/system/silos/s/ip-pools",
         "siloQuotas": "/system/silos/s/quotas",
+        "siloScim": "/system/silos/s/scim",
         "siloUtilization": "/utilization",
         "silos": "/system/silos",
         "silosNew": "/system/silos-new",
