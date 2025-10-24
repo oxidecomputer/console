@@ -80,6 +80,9 @@
     "zustand": "^5.0.3"
   },
   "devDependencies": {
+    "@eslint/compat": "^1.4.0",
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.38.0",
     "@ianvs/prettier-plugin-sort-imports": "^4.4.1",
     "@mswjs/http-middleware": "^0.10.3",
     "@oxide/openapi-gen-ts": "~0.9.0",
@@ -109,6 +112,7 @@
     "eslint-plugin-react": "^7.37.3",
     "eslint-plugin-react-hook-form": "^0.3.0",
     "eslint-plugin-react-hooks": "^7.0.0",
+    "globals": "^16.4.0",
     "husky": "^9.1.7",
     "identity-obj-proxy": "^3.0.0",
     "ip-num": "^1.5.1",
