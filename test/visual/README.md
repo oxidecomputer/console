@@ -4,11 +4,11 @@
 
 ### 1. Generate Baseline Snapshots
 
-First, generate baseline snapshots from a commit before your changes:
+First, generate baseline snapshots from some other revision:
 
 ```bash
-# Generate baseline from latest origin/main (most common)
-npm run visual:baseline -- --main
+# From main (most common)
+npm run visual:baseline
 
 # Or from a specific commit hash
 npm run visual:baseline -- abc123
@@ -17,13 +17,13 @@ npm run visual:baseline -- abc123
 npm run visual:baseline -- HEAD~1
 ```
 
-This will:
+This will check out that revision in a git worktree in a temp dir, run the
+visual snapshot tests, and copy the snapshots back into your current working
+directory.
 
-1. Fetch the latest main branch (if using `--main`)
-2. Temporarily checkout the specified commit
-3. Install dependencies
-4. Run all E2E tests with `--update-snapshots` to generate baseline images
-5. Restore your working directory to its previous state
+Note that this command does not fetch anything from the remote repo; it uses
+whatever you have locally. If you want to make sure you have the latest `main`,
+you need to pull it first.
 
 ### 2. Compare Current Changes
 
@@ -60,7 +60,7 @@ If differences are detected:
 If the visual changes are intentional and correct:
 
 ```bash
-npm run visual:compare -- --update
+npm run visual:compare -- --update-snapshots
 ```
 
 This will update the baseline snapshots to match the current state.

@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
+// eslint-disable-next-line no-default-export
 export default {
   // note: it seems like tailwind has to be last for it to work
   plugins: ['@ianvs/prettier-plugin-sort-imports', 'prettier-plugin-tailwindcss'],

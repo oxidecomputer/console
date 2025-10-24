@@ -24,8 +24,6 @@ export default {
   // default is 5 seconds. somehow playwright really hates async route modules,
   // takes a long time to load them. https://playwright.dev/docs/test-timeouts
   expect: { timeout: 10_000 },
-  // Skip visual regression tests in CI
-  grep: process.env.CI ? /^(?!.*@visual)/ : undefined,
   use: {
     trace: process.env.CI ? 'on-first-retry' : 'retain-on-failure',
     baseURL: 'http://localhost:4009',

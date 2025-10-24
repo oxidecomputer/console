@@ -15,23 +15,33 @@ import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 interface MoreActionsMenuProps {
   /** The accessible name for the menu button */
   label: string
-  isSmall?: boolean
+  variant?: 'default' | 'small' | 'filled'
   /** Dropdown items only */
   children?: ReactNode
 }
 
 export const MoreActionsMenu = ({
   label,
-  isSmall = false,
+  variant = 'default',
   children,
 }: MoreActionsMenuProps) => {
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger aria-label={label} className="rounded">
+      <DropdownMenu.Trigger
+        aria-label={label}
+        className={cn(
+          'headless-hide-focus rounded',
+          variant === 'filled' && 'h-full w-full'
+        )}
+      >
         <div
           className={cn(
-            'active-clicked border-default hover:bg-tertiary flex items-center justify-center rounded border',
-            isSmall ? 'h-6 w-6' : 'h-8 w-8'
+            'active-clicked hover:bg-tertiary flex items-center justify-center',
+            variant === 'small' && 'h-6 w-6',
+            variant === 'default' && 'h-8 w-8',
+            (variant === 'default' || variant === 'small') &&
+              'border-default rounded border',
+            variant === 'filled' && 'h-full w-full px-3'
           )}
         >
           <More12Icon />

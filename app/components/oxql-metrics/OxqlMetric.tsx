@@ -89,7 +89,7 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
   return (
     <ChartContainer>
       <ChartHeader title={title} label={label} description={description}>
-        <MoreActionsMenu label="Instance actions" isSmall>
+        <MoreActionsMenu label="Instance actions" variant="small">
           <Dropdown.LinkItem to={links.oxqlSchemaDocs(queryObj.metricName)}>
             About this metric
           </Dropdown.LinkItem>

@@ -116,8 +116,7 @@ describe('useApiQuery', () => {
 
       function BadApiCall() {
         try {
-          // this disable is for for oxlint
-          // eslint-disable-next-line react-hooks/rules-of-hooks
+          // oxlint-disable-next-line react-hooks/rules-of-hooks
           useApiQuery('projectView', { path: { project: 'nonexistent' } })
         } catch (e) {
           onError(e)
