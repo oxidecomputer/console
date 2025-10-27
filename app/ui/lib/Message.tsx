@@ -77,7 +77,7 @@ export const Message = ({
   return (
     <div
       className={cn(
-        'elevation-1 relative flex items-start gap-2.5 overflow-hidden rounded-lg border p-3 pr-5',
+        'elevation-1 relative flex items-start gap-2 overflow-hidden rounded-lg border p-3 pr-5',
         color[variant],
         textColor[variant],
         className
