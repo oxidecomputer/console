@@ -616,6 +616,43 @@ test('create instance with additional disks', async ({ page }) => {
   await expectRowVisible(otherDisksTable, { Disk: 'disk-3', size: '6 GiB' })
 })
 
+test('can add anti-affinity group when creating an instance', async ({ page }) => {
+  const instanceName = 'anti-affinity-instance'
+  await page.goto('/projects/mock-project/instances-new')
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await selectAProjectImage(page, 'image-1')
+
+  // Open the Configuration accordion to expose anti-affinity group controls
+  await page.getByRole('button', { name: 'Configuration' }).click()
+
+  await page.getByRole('button', { name: 'Add to group' }).click()
+
+  const dialog = page.getByRole('dialog')
+  await expect(dialog.getByText('Add instance to group')).toBeVisible()
+
+  const groupListbox = dialog.getByRole('button', { name: 'Group' })
+  await groupListbox.click()
+  await page.getByRole('option', { name: 'romulus-remus' }).click()
+
+  await dialog.getByRole('button', { name: 'Add', exact: true }).click()
+
+  // Verify the group appears in the mini-table
+  const antiAffinityTable = page.getByRole('table')
+  await expectRowVisible(antiAffinityTable, { Name: 'romulus-remus', Policy: 'fail' })
+
+  await page.getByRole('button', { name: 'Create instance' }).click()
+
+  await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
+  await expectVisible(page, [`h1:has-text("${instanceName}")`])
+  await page.getByRole('tab', { name: 'Settings' }).click()
+
+  const ipsTable = page.getByRole('table', { name: 'Anti-affinity groups' })
+  await expectRowVisible(ipsTable, {
+    name: 'romulus-remus',
+    Policy: 'fail',
+  })
+})
+
 test('Validate CPU and RAM', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
 
