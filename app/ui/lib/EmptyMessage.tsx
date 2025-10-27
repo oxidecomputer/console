@@ -15,15 +15,16 @@ import { Button, buttonStyle } from './Button'
 
 const buttonStyleProps = { variant: 'ghost', size: 'sm', color: 'secondary' } as const
 
+export type EmptyStateButtonProps =
+  | { buttonText: string; buttonTo: string }
+  | { buttonText: string; onClick: () => void }
+  | { buttonText?: never }
+
 type Props = {
   icon?: ReactElement
   title: string
   body?: ReactNode
-} & ( // only require buttonTo or onClick if buttonText is present
-  | { buttonText: string; buttonTo: string }
-  | { buttonText: string; onClick: () => void }
-  | { buttonText?: never }
-)
+} & EmptyStateButtonProps
 
 export function EmptyMessage(props: Props) {
   let button: ReactElement | null = null

@@ -69,7 +69,7 @@ import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
-import { MiniTable } from '~/ui/lib/MiniTable'
+import { ClearAndAddButtons, MiniTable } from '~/ui/lib/MiniTable'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { RadioCard } from '~/ui/lib/Radio'
@@ -742,8 +742,6 @@ const AdvancedAccordion = ({
     )
   }
 
-  const isFloatingIpAttached = attachedFloatingIps.some((ip) => ip.floatingIp !== '')
-
   const selectedFloatingIpMessage = (
     <>
       This instance will be reachable at{' '}
@@ -916,19 +914,6 @@ const AdvancedAccordion = ({
               they start
             </TipIcon>
           </h2>
-          {attachedAntiAffinityGroupNames.length > 0 && (
-            <MiniTable
-              ariaLabel="Anti-affinity groups"
-              items={attachedAntiAffinityGroupData}
-              columns={[
-                { header: 'Name', cell: (item) => item.name },
-                { header: 'Policy', cell: (item) => item.policy },
-              ]}
-              rowKey={(item) => item.name}
-              onRemoveItem={(item) => detachAntiAffinityGroup(item.name)}
-              removeLabel={(item) => `remove anti-affinity group ${item.name}`}
-            />
-          )}
           {antiAffinityGroupList.items.length === 0 ? (
             <div className="border-default flex max-w-lg items-center justify-center rounded-lg border p-6">
               <EmptyMessage
@@ -938,16 +923,29 @@ const AdvancedAccordion = ({
               />
             </div>
           ) : (
-            <div>
-              <Button
-                size="sm"
+            <>
+              <MiniTable
+                ariaLabel="Anti-affinity groups"
+                items={attachedAntiAffinityGroupData}
+                columns={[
+                  { header: 'Name', cell: (item) => item.name },
+                  { header: 'Policy', cell: (item) => item.policy },
+                ]}
+                rowKey={(item) => item.name}
+                onRemoveItem={(item) => detachAntiAffinityGroup(item.name)}
+                removeLabel={(item) => `remove anti-affinity group ${item.name}`}
+                emptyState={{
+                  title: 'No anti-affinity groups',
+                  body: 'Add instance to group',
+                }}
+              />
+              <ClearAndAddButtons
+                addButtonCopy="Add group"
                 disabled={availableAntiAffinityGroups.length === 0}
-                disabledReason="No anti-affinity groups available"
-                onClick={() => setAntiAffinityGroupModalOpen(true)}
-              >
-                Add to group
-              </Button>
-            </div>
+                onSubmit={() => setAntiAffinityGroupModalOpen(true)}
+                onClear={() => antiAffinityGroups.field.onChange([])}
+              />
+            </>
           )}
 
           <Modal
