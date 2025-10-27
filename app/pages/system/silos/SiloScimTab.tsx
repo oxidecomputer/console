@@ -250,7 +250,7 @@ function TokenCreatedModal({
         />
 
         <div className="mt-4">
-          <div className="text-sans-semi-md mb-2">Bearer Token</div>
+          <div className="text-sans-md text-raise mb-2">Bearer Token</div>
           <div className="text-sans-md text-raise bg-default border-default flex items-stretch rounded border">
             <div className="flex-1 overflow-hidden px-3 py-2.75 text-ellipsis">
               {token.bearerToken}
