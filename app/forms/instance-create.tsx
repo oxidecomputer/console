@@ -62,7 +62,6 @@ import { FullPageForm } from '~/components/form/FullPageForm'
 import { HL } from '~/components/HL'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { Button } from '~/ui/lib/Button'
 import { Checkbox } from '~/ui/lib/Checkbox'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
@@ -832,7 +831,7 @@ const AdvancedAccordion = ({
               />
             </div>
           ) : (
-            <div className="flex flex-col items-start gap-3">
+            <>
               <MiniTable
                 ariaLabel="Floating IPs"
                 items={attachedFloatingIpsData}
@@ -843,17 +842,22 @@ const AdvancedAccordion = ({
                 rowKey={(item) => item.name}
                 onRemoveItem={(item) => detachFloatingIp(item.name)}
                 removeLabel={(item) => `remove floating IP ${item.name}`}
+                emptyState={{
+                  title: 'No floating IPs',
+                  body: 'Attach floating IP',
+                }}
               />
-              <Button
-                variant="secondary"
-                size="sm"
+              <ClearAndAddButtons
+                addButtonCopy="Attach floating IP"
                 disabled={availableFloatingIps.length === 0}
-                disabledReason="No floating IPs available"
-                onClick={() => setFloatingIpModalOpen(true)}
-              >
-                Attach floating IP
-              </Button>
-            </div>
+                onSubmit={() => setFloatingIpModalOpen(true)}
+                onClear={() =>
+                  externalIps.field.onChange(
+                    externalIps.field.value?.filter((ip) => ip.type !== 'floating')
+                  )
+                }
+              />
+            </>
           )}
           <Modal
             isOpen={floatingIpModalOpen}
