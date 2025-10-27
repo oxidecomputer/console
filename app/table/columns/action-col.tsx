@@ -42,27 +42,32 @@ export function useColsWithActions<TData extends Record<string, unknown>>(
   /** Should be static or memoized */
   columns: ColumnDef<TData, any>[], // eslint-disable-line @typescript-eslint/no-explicit-any
   /** Must be memoized to avoid re-renders */
-  makeActions: MakeActions<TData>
+  makeActions: MakeActions<TData>,
+  copyIdLabel?: string
 ) {
-  return useMemo(() => [...columns, getActionsCol(makeActions)], [columns, makeActions])
+  return useMemo(
+    () => [...columns, getActionsCol(makeActions, copyIdLabel)],
+    [columns, makeActions, copyIdLabel]
+  )
 }
 
 export const getActionsCol = <TData extends Record<string, unknown>>(
-  makeActions: MakeActions<TData>
+  makeActions: MakeActions<TData>,
+  copyIdLabel?: string
 ): ColumnDef<TData> => {
   return {
     id: 'menu',
     header: '',
     meta: {
       thClassName: 'action-col',
-      tdClassName: 'action-col children:p-0 w-10',
+      tdClassName: 'action-col',
     },
 
     cell: ({ row }) => {
       // TODO: control flow here has always confused me, would like to straighten it out
       const actions = makeActions(row.original)
       const id = typeof row.original.id === 'string' ? row.original.id : null
-      return <RowActions id={id} actions={actions} />
+      return <RowActions id={id} actions={actions} copyIdLabel={copyIdLabel} />
     },
   }
 }
@@ -80,7 +85,7 @@ export const RowActions = ({ id, copyIdLabel = 'Copy ID', actions }: RowActionsP
     <DropdownMenu.Root>
       {/* stopPropagation prevents clicks from toggling row select in a single select table */}
       <DropdownMenu.Trigger
-        className="flex h-full w-10 items-center justify-center"
+        className="headless-hide-focus flex h-full w-full items-center justify-center rounded -outline-offset-2"
         aria-label="Row actions"
         onClick={(e) => e.stopPropagation()}
       >

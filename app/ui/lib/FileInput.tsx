@@ -69,7 +69,7 @@ export function FileInput({
         type="file"
         name="file"
         className={cn(
-          '-z-1 absolute inset-0 w-full cursor-pointer rounded',
+          'absolute inset-0 -z-1 w-full cursor-pointer rounded',
           error && 'focus-error'
         )}
         {...inputProps}
@@ -80,32 +80,32 @@ export function FileInput({
       />
       <div
         className={cn(
-          'z-1 pointer-events-none relative flex flex-col items-center justify-center space-y-2 rounded border px-4 py-6 text-raise bg-default',
-          dragOver && 'bg-accent-secondary !border-accent-secondary',
+          'text-raise bg-default pointer-events-none relative z-1 flex flex-col items-center justify-center space-y-0.5 rounded border px-4 py-6',
+          dragOver && 'bg-accent-secondary border-accent-secondary!',
           error
-            ? '!border-error-secondary group-hover:border-error'
+            ? 'border-error-secondary! group-hover:border-error'
             : 'border-default group-hover:border-hover'
         )}
       >
         <div
           className={cn(
-            'flex items-center justify-center rounded p-1 text-accent bg-accent-secondary',
+            'text-accent bg-accent-secondary flex items-center justify-center rounded p-1',
             dragOver && 'bg-accent-secondary-hover'
           )}
         >
           <Document16Icon className="h-4 w-4" />
         </div>
-        <div className="flex h-8 items-center text-sans-md">
+        <div className="text-sans-md flex h-8 items-center">
           {file && !dragOver ? (
-            <div className="flex items-center text-raise">
+            <div className="text-raise flex items-center">
               <Truncate text={file.name} maxLength={32} position="middle" />
-              <span className="ml-1 text-tertiary">
+              <span className="text-tertiary ml-1">
                 ({filesize(file.size, { base: 2, pad: true })})
               </span>
               <button
                 type="button"
                 onClick={handleResetInput}
-                className="pointer-events-auto ml-1 inline-flex rounded p-1 hover:children:text-secondary"
+                className="hover:*:text-secondary pointer-events-auto ml-1 inline-flex rounded p-1"
                 aria-label="Clear file"
               >
                 <Error16Icon className="text-tertiary" />
@@ -115,7 +115,7 @@ export function FileInput({
             <>
               Drop a file or click to browse{' '}
               {accept && (
-                <span className="ml-1 text-tertiary">({removeLeadingPeriods(accept)})</span>
+                <span className="text-tertiary ml-1">({removeLeadingPeriods(accept)})</span>
               )}
             </>
           )}

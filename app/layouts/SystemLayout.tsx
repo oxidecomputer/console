@@ -14,6 +14,7 @@ import {
   IpGlobal16Icon,
   Metrics16Icon,
   Servers16Icon,
+  SoftwareUpdate16Icon,
 } from '@oxide/design-system/icons/react'
 
 import { trigger404 } from '~/components/ErrorBoundary'
@@ -27,23 +28,13 @@ import { inventoryBase, pb } from '~/util/path-builder'
 import { ContentPane, PageContainer } from './helpers'
 
 /**
- * If we can see the policy, we're a fleet viewer, and we need to be a fleet
- * viewer in order to see any of the routes under this layout. We need to
- * `fetchQuery` instead of `prefetchQuery` because the latter doesn't return the
- * result, and then we need to `.catch()` because `fetchQuery` throws on request
- * error. We're being a little cavalier here with the error. If it's something
- * other than a 403, that would be strange and we would want to know.
+ * We need to be a fleet viewer in order to see any of the routes under this
+ * layout. We need to `fetchQuery` instead of `prefetchQuery` because the latter
+ * doesn't return the result.
  */
 export async function clientLoader() {
-  // we don't need to use the ErrorsAllowed version here because we're 404ing
-  // immediately on error, so we don't need to pick the result up from the cache
-  const isFleetViewer = await apiQueryClient
-    .fetchQuery('systemPolicyView', {})
-    .then(() => true)
-    .catch(() => false)
-
-  if (!isFleetViewer) throw trigger404
-
+  const me = await apiQueryClient.fetchQuery('currentUserView', {})
+  if (!me.fleetViewer) throw trigger404
   return null
 }
 
@@ -63,6 +54,7 @@ export default function SystemLayout() {
       { value: 'Utilization', path: pb.systemUtilization() },
       { value: 'Inventory', path: pb.sledInventory() },
       { value: 'IP Pools', path: pb.ipPools() },
+      { value: 'System Update', path: pb.systemUpdate() },
     ]
       // filter out the entry for the path we're currently on
       .filter((i) => i.path !== pathname)
@@ -105,6 +97,9 @@ export default function SystemLayout() {
           </NavLinkItem>
           <NavLinkItem to={pb.ipPools()}>
             <IpGlobal16Icon /> IP Pools
+          </NavLinkItem>
+          <NavLinkItem to={pb.systemUpdate()}>
+            <SoftwareUpdate16Icon /> System Update
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>

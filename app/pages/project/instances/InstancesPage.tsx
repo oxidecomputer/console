@@ -69,7 +69,11 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-const refetchInstances = () => apiQueryClient.invalidateQueries('instanceList')
+const refetchInstances = () =>
+  Promise.all([
+    apiQueryClient.invalidateQueries('instanceList'),
+    apiQueryClient.invalidateQueries('antiAffinityGroupMemberList'),
+  ])
 
 const sec = 1000 // ms, obviously
 const POLL_FAST_TIMEOUT = 30 * sec
@@ -100,7 +104,7 @@ export default function InstancesPage() {
         cell: (info) => (
           <>
             {info.getValue()}{' '}
-            <span className="ml-1 text-tertiary">{pluralize('vCPU', info.getValue())}</span>
+            <span className="text-tertiary ml-1">{pluralize('vCPU', info.getValue())}</span>
           </>
         ),
       }),
@@ -110,7 +114,7 @@ export default function InstancesPage() {
           const memory = filesize(info.getValue(), { output: 'object', base: 2 })
           return (
             <>
-              {memory.value} <span className="ml-1 text-tertiary">{memory.unit}</span>
+              {memory.value} <span className="text-tertiary ml-1">{memory.unit}</span>
             </>
           )
         },
@@ -153,7 +157,7 @@ export default function InstancesPage() {
         const nextTransitioning = new Set(
           // Data will never actually be undefined because of the prefetch but whatever
           (data?.items || [])
-            .filter(instanceTransitioning)
+            .filter((instance) => instanceTransitioning(instance.runState))
             // These are strings of instance ID + current state. This is done because
             // of the case where an instance is stuck in starting (for example), polling
             // times out, and then you manually stop it. Without putting the state in the
@@ -215,7 +219,7 @@ export default function InstancesPage() {
       </PageHeader>
       {/* Avoid changing justify-end on TableActions for this one case. We can
        * fix this properly when we add refresh and filtering for all tables. */}
-      <TableActions className="!justify-between">
+      <TableActions className="justify-between!">
         <div className="flex items-center gap-2">
           <RefreshButton onClick={refetchInstances} />
           <Tooltip

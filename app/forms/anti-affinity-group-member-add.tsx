@@ -9,12 +9,13 @@
 import { useId } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { queryClient, useApiMutation, type Instance } from '~/api'
+import { instanceCan, queryClient, useApiMutation, type Instance } from '~/api'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
 import { useAntiAffinityGroupSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { toComboboxItems } from '~/ui/lib/Combobox'
+import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 
 type Values = { instance: string }
@@ -33,8 +34,15 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
     onSuccess(_data, variables) {
       onDismiss()
       queryClient.invalidateEndpoint('antiAffinityGroupMemberList')
-      queryClient.invalidateEndpoint('antiAffinityGroupView')
+      queryClient.invalidateEndpoint('instanceAntiAffinityGroupList')
       addToast(<>Instance <HL>{variables.path.instance}</HL> added to anti-affinity group <HL>{antiAffinityGroup}</HL></>) // prettier-ignore
+    },
+    onError(error) {
+      addToast({
+        title: 'Failed to add instance to group',
+        content: error.message,
+        variant: 'error',
+      })
     },
   })
 
@@ -44,6 +52,12 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
       query: { project },
     })
   })
+
+  const instance = form.watch('instance')
+  const selectedInstance = instances.find((i) => i.name === instance)
+  const canAddInstance = selectedInstance
+    ? instanceCan.addToAffinityGroup(selectedInstance)
+    : false
 
   return (
     <Modal isOpen onDismiss={onDismiss} title="Add instance to group">
@@ -63,9 +77,20 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
               control={form.control}
             />
           </form>
+          {!canAddInstance && (
+            <Message
+              variant="notice"
+              content="An instance must be stopped to add it to a group"
+            />
+          )}
         </Modal.Section>
       </Modal.Body>
-      <Modal.Footer onDismiss={onDismiss} actionText="Add to group" formId={formId} />
+      <Modal.Footer
+        onDismiss={onDismiss}
+        actionText="Add to group"
+        formId={formId}
+        disabled={!canAddInstance}
+      />
     </Modal>
   )
 }

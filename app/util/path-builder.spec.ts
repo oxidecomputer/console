@@ -41,6 +41,7 @@ test('path builder', () => {
   expect(Object.fromEntries(Object.entries(pb).map(([key, fn]) => [key, fn(params)])))
     .toMatchInlineSnapshot(`
       {
+        "accessTokens": "/settings/access-tokens",
         "affinity": "/projects/p/affinity",
         "affinityNew": "/projects/p/affinity-new",
         "antiAffinityGroup": "/projects/p/affinity/aag",
@@ -78,12 +79,15 @@ test('path builder', () => {
         "projectsNew": "/projects-new",
         "samlIdp": "/system/silos/s/idps/saml/pr",
         "serialConsole": "/projects/p/instances/i/serial-console",
-        "silo": "/system/silos/s",
+        "silo": "/system/silos/s/idps",
         "siloAccess": "/access",
+        "siloFleetRoles": "/system/silos/s/fleet-roles",
+        "siloIdps": "/system/silos/s/idps",
         "siloIdpsNew": "/system/silos/s/idps-new",
         "siloImageEdit": "/images/im/edit",
         "siloImages": "/images",
-        "siloIpPools": "/system/silos/s?tab=ip-pools",
+        "siloIpPools": "/system/silos/s/ip-pools",
+        "siloQuotas": "/system/silos/s/quotas",
         "siloUtilization": "/utilization",
         "silos": "/system/silos",
         "silosNew": "/system/silos-new",
@@ -95,6 +99,7 @@ test('path builder', () => {
         "sshKeyEdit": "/settings/ssh-keys/ss/edit",
         "sshKeys": "/settings/ssh-keys",
         "sshKeysNew": "/settings/ssh-keys-new",
+        "systemUpdate": "/system/update",
         "systemUtilization": "/system/utilization",
         "vpc": "/projects/p/vpcs/v/firewall-rules",
         "vpcEdit": "/projects/p/vpcs/v/edit",
@@ -123,11 +128,13 @@ test('path builder', () => {
 const getMatches = (pathname: string) =>
   Promise.all(
     matchRoutes(routes, pathname)!.map(async (m) => {
+      // lazy can also be an object as of RR 7.5, but we never use it that way
+      const lazy = typeof m.route.lazy === 'function' ? m.route.lazy : undefined
       // As we convert route modules to RR framework mode with lazy imports,
       // more and more of the routes will have their handles defined inside the
       // route module. We need to call the lazy function to import the module
       // contents and fill out the route object with it.
-      const route = { ...m.route, ...(await m.route.lazy?.()) }
+      const route = { ...m.route, ...(await lazy?.()) }
       return {
         pathname: m.pathname,
         params: m.params,

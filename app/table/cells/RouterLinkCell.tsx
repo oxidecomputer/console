@@ -6,15 +6,16 @@
  * Copyright Oxide Computer Company
  */
 
+import { Badge } from '@oxide/design-system/ui'
+
 import { useApiQuery } from '~/api'
 import { useVpcSelector } from '~/hooks/use-params'
-import { Badge } from '~/ui/lib/Badge'
 import { pb } from '~/util/path-builder'
 
 import { EmptyCell, SkeletonCell } from './EmptyCell'
 import { LinkCell } from './LinkCell'
 
-export const RouterLinkCell = ({ routerId }: { routerId?: string }) => {
+export const RouterLinkCell = ({ routerId }: { routerId?: string | null }) => {
   const { project, vpc } = useVpcSelector()
   const { data: router, isError } = useApiQuery(
     'vpcRouterView',

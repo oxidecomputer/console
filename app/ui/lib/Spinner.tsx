@@ -8,18 +8,24 @@
 import cn from 'classnames'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 
-export const spinnerSizes = ['base', 'md', 'lg'] as const
-export const spinnerVariants = ['primary', 'secondary', 'ghost', 'danger'] as const
+import { type BadgeColor } from '@oxide/design-system/ui'
+
+export const spinnerSizes = ['sm', 'base', 'md', 'lg'] as const
 export type SpinnerSize = (typeof spinnerSizes)[number]
-export type SpinnerVariant = (typeof spinnerVariants)[number]
 
 interface SpinnerProps {
   className?: string
   size?: SpinnerSize
-  variant?: SpinnerVariant
+  variant?: BadgeColor
 }
 
 const SPINNER_DIMENSIONS = {
+  sm: {
+    frameSize: 10,
+    center: 5,
+    radius: 4,
+    strokeWidth: 1.5,
+  },
   base: {
     frameSize: 12,
     center: 6,
@@ -40,10 +46,19 @@ const SPINNER_DIMENSIONS = {
   },
 } as const
 
+const SPINNER_COLORS: Record<BadgeColor, string> = {
+  default: 'text-accent-secondary',
+  neutral: 'text-secondary',
+  destructive: 'text-destructive-secondary',
+  notice: 'text-notice-secondary',
+  purple: 'text-(--base-purple-700)',
+  blue: 'text-(--base-blue-700)',
+}
+
 export const Spinner = ({
   className,
   size = 'base',
-  variant = 'primary',
+  variant = 'default',
 }: SpinnerProps) => {
   const dimensions = SPINNER_DIMENSIONS[size]
   const { frameSize, center, radius, strokeWidth } = dimensions
@@ -56,7 +71,7 @@ export const Spinner = ({
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-label="Spinner"
-      className={cn('spinner', `spinner-${variant}`, `spinner-${size}`, className)}
+      className={cn('spinner', SPINNER_COLORS[variant], `spinner-${size}`, className)}
     >
       <circle
         fill="none"

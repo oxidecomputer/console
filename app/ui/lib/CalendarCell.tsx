@@ -75,12 +75,12 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
         hidden={isOutsideVisibleRange}
         className={cn(
           'group relative',
-          'focus:outline-none',
-          'my-0.5 h-8 w-10 text-center text-mono-md',
+          'focus:outline-hidden',
+          'text-mono-md my-0.5 h-8 w-10 text-center',
           isSelectionStart || isSelectionEnd
             ? isInvalid
-              ? '!text-error'
-              : '!text-accent'
+              ? 'text-error!'
+              : 'text-accent!'
             : '',
           isSelected && !isDisabled
             ? isInvalid
@@ -95,11 +95,11 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
       >
         <div
           className={cn(
-            'pointer-events-none absolute bottom-[0] left-px right-px top-[0] rounded',
+            'pointer-events-none absolute top-[0] right-px bottom-[0] left-px rounded',
             isSelectionStart || isSelectionEnd
               ? isInvalid
-                ? 'border border-error-secondary'
-                : 'border border-accent-secondary'
+                ? 'border-error-secondary border'
+                : 'border-accent-secondary border'
               : '',
             isSelected && !isDisabled
               ? isInvalid
@@ -113,7 +113,7 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
           className={cn(
             'relative z-10 flex h-full w-full items-center justify-center',
             isDisabled && !isInvalid
-              ? 'disabled cursor-not-allowed text-disabled !bg-raise'
+              ? 'disabled text-disabled bg-raise! cursor-not-allowed'
               : ''
           )}
         >
@@ -124,9 +124,7 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
           <div
             className={cn(
               "absolute bottom-[5px] left-1/2 h-[3px] w-[3px] -translate-x-1/2 rounded-full content-['']",
-              isInvalid
-                ? 'bg-[var(--content-error-tertiary)]'
-                : 'bg-[var(--content-accent-tertiary)]'
+              isInvalid ? 'bg-(--content-error-tertiary)' : 'bg-(--content-accent-tertiary)'
             )}
           />
         )}

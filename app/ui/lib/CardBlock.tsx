@@ -28,7 +28,7 @@ export function CardBlock({ children, width = 'full' }: CardBlockProps) {
   return (
     <div
       className={cn(
-        'flex flex-col rounded-lg border py-5 text-sans-md border-default children:border-b children:border-b-secondary last:children:border-0 last:children:pb-0',
+        'text-sans-md border-default *:border-b-secondary flex flex-col rounded-lg border py-5 *:border-b *:last:border-0 *:last:pb-0',
         widthClass[width]
       )}
     >
@@ -45,7 +45,7 @@ type HeaderProps = {
 }
 
 CardBlock.Header = ({ title, description, children, titleId }: HeaderProps) => (
-  <header className="flex items-start justify-between px-5 pb-4 text-secondary">
+  <header className="text-secondary flex items-start justify-between px-5 pb-4">
     <div className="flex flex-col gap-0.5">
       <div className="text-sans-semi-lg text-raise" id={titleId}>
         {title}
@@ -67,7 +67,7 @@ export const LearnMore = ({ href, text }: { href: string; text: React.ReactNode 
     Learn more about{' '}
     <a
       href={href}
-      className="inline-flex items-center text-accent-secondary hover:text-accent"
+      className="text-accent-secondary hover:text-accent inline-flex items-center"
       target="_blank"
       rel="noreferrer"
     >

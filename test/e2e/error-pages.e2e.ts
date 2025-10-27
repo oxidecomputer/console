@@ -7,7 +7,7 @@
  */
 import { expect, test } from '@playwright/test'
 
-import { getPageAsUser } from './utils'
+import { getPageAsUser, hasConsoleMessage } from './utils'
 
 test('Shows 404 page when a resource is not found', async ({ page }) => {
   await page.goto('/nonexistent')
@@ -20,9 +20,6 @@ test('Shows 404 page when a resource is not found', async ({ page }) => {
 })
 
 test('Shows something went wrong page on other errors', async ({ page, browserName }) => {
-  const messages: string[] = []
-  page.on('console', (e) => messages.push(e.text()))
-
   await page.goto('/projects/error-503') // specially handled in mock server
   await expect(page.getByText('Something went wrong')).toBeVisible()
 
@@ -36,7 +33,7 @@ test('Shows something went wrong page on other errors', async ({ page, browserNa
     const error =
       'Expected query to be prefetched.\nKey: ["projectView",{"path":{"project":"error-503"}}]'
     // eslint-disable-next-line playwright/no-conditional-expect
-    expect(messages.some((m) => m.includes(error))).toBeTruthy()
+    expect(await hasConsoleMessage(page, error)).toBeTruthy()
   }
 
   // test clicking sign out

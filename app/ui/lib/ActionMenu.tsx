@@ -92,7 +92,7 @@ export function ActionMenu(props: ActionMenuProps) {
     >
       <Dialog.Portal>
         <DialogOverlay />
-        <Dialog.Content className="fixed inset-0 z-modal mx-auto mt-[20vh] w-[46rem] bg-transparent p-0">
+        <Dialog.Content className="fixed inset-0 z-(--z-modal) mx-auto mt-[20vh] w-184 bg-transparent p-0">
           <div
             onKeyDown={(e) => {
               const lastIdx = itemsInOrder.length - 1
@@ -117,13 +117,13 @@ export function ActionMenu(props: ActionMenuProps) {
           >
             <div
               className={cn(
-                'flex h-14 w-full overflow-y-auto rounded-lg border bg-raise border-secondary elevation-3'
+                'bg-raise border-secondary elevation-3 flex h-14 w-full overflow-y-auto rounded-lg border'
               )}
             >
               <input
                 ref={inputRef}
                 className={cn(
-                  'mousetrap caret-gray-100 w-full bg-transparent px-4 text-sans-xl focus:outline-none',
+                  'mousetrap text-sans-xl w-full bg-transparent px-4 caret-gray-100 focus:outline-hidden',
                   props.inputClassName
                 )}
                 value={input}
@@ -138,7 +138,7 @@ export function ActionMenu(props: ActionMenuProps) {
               {input.length > 0 && (
                 <button
                   type="button"
-                  className="flex items-center py-6 pl-6 pr-4 text-default"
+                  className="text-default flex items-center py-6 pr-4 pl-6"
                   onClick={() => {
                     setInput('')
                     inputRef.current?.focus()
@@ -151,14 +151,14 @@ export function ActionMenu(props: ActionMenuProps) {
               <button
                 type="button"
                 onClick={onDismiss}
-                className="flex h-full items-center border-l px-6 align-middle text-mono-sm text-default border-secondary"
+                className="text-mono-sm text-default border-secondary flex h-full items-center border-l px-6 align-middle"
               >
                 Dismiss
               </button>
             </div>
 
             {items.length > 0 && (
-              <div className="relative mt-5 transform-gpu overflow-hidden rounded-lg elevation-3">
+              <div className="elevation-3 relative mt-5 transform-gpu overflow-hidden rounded-lg">
                 <div
                   className="overflow-y-auto"
                   ref={divRef}
@@ -167,7 +167,7 @@ export function ActionMenu(props: ActionMenuProps) {
                   <ul ref={ulRef}>
                     {allGroups.map(([label, items]) => (
                       <div key={label}>
-                        <h3 className="sticky top-0 z-20 h-[32px] px-4 py-2 text-mono-sm text-default bg-tertiary">
+                        <h3 className="text-mono-sm text-default bg-tertiary sticky top-0 z-20 h-[32px] px-4 py-2">
                           {label}
                         </h3>
                         {items.map((item) => (
@@ -187,9 +187,10 @@ export function ActionMenu(props: ActionMenuProps) {
                             <li
                               role="option"
                               className={cn(
-                                'box-border block h-full w-full cursor-pointer select-none overflow-visible border p-4 text-sans-md text-default bg-raise border-secondary hover:bg-hover',
-                                item.value === selectedItem?.value &&
-                                  'text-accent bg-accent-secondary hover:bg-accent-secondary-hover'
+                                'text-sans-md border-secondary box-border block h-full w-full cursor-pointer overflow-visible border p-4 select-none',
+                                item.value === selectedItem?.value
+                                  ? 'text-accent bg-accent-secondary hover:bg-accent-secondary-hover'
+                                  : 'text-default bg-raise hover:bg-hover'
                               )}
                               aria-selected={item.value === selectedItem?.value}
                               onClick={() => {
@@ -205,7 +206,7 @@ export function ActionMenu(props: ActionMenuProps) {
                     ))}
                   </ul>
                 </div>
-                <div className="flex justify-between rounded-b-[3px] px-4 py-2 text-default bg-tertiary">
+                <div className="text-default bg-tertiary flex justify-between rounded-b-[3px] px-4 py-2">
                   <ActionMenuHotkey keys={['Enter']} action="submit" />
                   <ActionMenuHotkey keys={['Arrow Up', 'Arrow Down']} action="select" />
                   <ActionMenuHotkey keys={['Esc']} action="close" />
@@ -230,7 +231,7 @@ export const ActionMenuHotkey = ({ keys, action }: ActionMenuHotkeyProps) => (
       {keys.map((hotkey) => (
         <kbd
           key={hotkey}
-          className="mr-1 inline-block rounded border border-[rgba(255,255,255,.15)] px-2 py-1 text-mono-xs text-raise"
+          className="text-mono-xs text-raise mr-1 inline-block rounded border border-[rgba(255,255,255,.15)] px-2 py-1"
         >
           {hotkey}
         </kbd>

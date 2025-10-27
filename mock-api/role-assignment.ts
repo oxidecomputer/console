@@ -9,7 +9,7 @@ import { FLEET_ID, type IdentityType, type RoleKey } from '@oxide/api'
 
 import { project } from './project'
 import { defaultSilo } from './silo'
-import { user1, user3 } from './user'
+import { user1, user3, user5 } from './user'
 import { userGroup2, userGroup3 } from './user-group'
 
 // For most other resources, we can store the API types directly in the DB. But
@@ -33,35 +33,42 @@ export const roleAssignments: DbRoleAssignment[] = [
   {
     resource_type: 'fleet',
     resource_id: FLEET_ID,
-    identity_id: user1.id,
+    identity_id: user1.id, // Hannah Arendt
     identity_type: 'silo_user',
     role_name: 'admin',
   },
   {
+    resource_type: 'fleet',
+    resource_id: FLEET_ID,
+    identity_id: user5.id, // Jane Austen
+    identity_type: 'silo_user',
+    role_name: 'viewer',
+  },
+  {
     resource_type: 'silo',
     resource_id: defaultSilo.id,
-    identity_id: userGroup3.id,
+    identity_id: userGroup3.id, // real-estate-devs
     identity_type: 'silo_group',
     role_name: 'collaborator',
   },
   {
     resource_type: 'silo',
     resource_id: defaultSilo.id,
-    identity_id: user1.id,
+    identity_id: user1.id, // Hannah Arendt
     identity_type: 'silo_user',
     role_name: 'admin',
   },
   {
     resource_type: 'project',
     resource_id: project.id,
-    identity_id: user3.id,
+    identity_id: user3.id, // Jacob Klein
     identity_type: 'silo_user',
     role_name: 'collaborator',
   },
   {
     resource_type: 'project',
     resource_id: project.id,
-    identity_id: userGroup2.id,
+    identity_id: userGroup2.id, // kernel-devs
     identity_type: 'silo_group',
     role_name: 'viewer',
   },

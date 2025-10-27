@@ -1,2 +1,2 @@
 # use path directly instead of npx or npm run because it's way faster
-node_modules/.bin/oxlint --deny-warnings
+node_modules/.bin/oxlint --type-aware --deny-warnings

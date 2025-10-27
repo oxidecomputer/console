@@ -15,7 +15,6 @@ import type {
   DiskState,
   Instance,
   InstanceState,
-  IpPoolUtilization,
   Measurement,
   SiloUtilization,
   Sled,
@@ -23,17 +22,17 @@ import type {
   VpcFirewallRuleUpdate,
 } from './__generated__/Api'
 
-// API limits encoded in https://github.com/oxidecomputer/omicron/blob/main/nexus/src/app/mod.rs
+// API limits encoded in https://github.com/oxidecomputer/omicron/blob/aec3cd8d/nexus/src/app/mod.rs
 
 export const MAX_NICS_PER_INSTANCE = 8
 
 export const INSTANCE_MAX_CPU = 64
 export const INSTANCE_MIN_RAM_GiB = 1
-export const INSTANCE_MAX_RAM_GiB = 256
+export const INSTANCE_MAX_RAM_GiB = 1536
 
 export const MIN_DISK_SIZE_GiB = 1
 /**
- * Disk size limited to 1023  as that's the maximum we can safely allocate right now
+ * Disk size limited to 1023 as that's the maximum we can safely allocate right now
  * @see https://github.com/oxidecomputer/omicron/issues/3212#issuecomment-1634497344
  */
 export const MAX_DISK_SIZE_GiB = 1023
@@ -131,6 +130,10 @@ const instanceActions = {
   updateNic: ['stopped'],
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/src/app/instance.rs#L1520-L1522
   serialConsole: ['running', 'rebooting', 'migrating', 'repairing'],
+
+  // check to see that there's no VMM
+  // https://github.com/oxidecomputer/omicron/blob/c496683/nexus/db-queries/src/db/datastore/affinity.rs#L1025-L1034
+  addToAffinityGroup: ['stopped'],
 } satisfies Record<string, InstanceState[]>
 
 // setting .states is a cute way to make it ergonomic to call the test function
@@ -142,12 +145,13 @@ export const instanceCan = R.mapValues(instanceActions, (states: InstanceState[]
   return test
 })
 
-export function instanceTransitioning({ runState }: Instance) {
+export function instanceTransitioning(runState: InstanceState) {
   return (
     runState === 'creating' ||
     runState === 'starting' ||
-    runState === 'stopping' ||
-    runState === 'rebooting'
+    runState === 'rebooting' ||
+    runState === 'migrating' ||
+    runState === 'stopping'
   )
 }
 
@@ -184,6 +188,15 @@ const diskActions = {
   // https://github.com/oxidecomputer/omicron/blob/3093818/nexus/db-queries/src/db/datastore/instance.rs#L1077-L1081
   setAsBootDisk: ['attached'],
 } satisfies Record<string, DiskState['state'][]>
+
+export function diskTransitioning(diskState: DiskState['state']) {
+  return (
+    diskState === 'attaching' ||
+    diskState === 'creating' ||
+    diskState === 'detaching' ||
+    diskState === 'finalizing'
+  )
+}
 
 export const diskCan = R.mapValues(diskActions, (states: DiskState['state'][]) => {
   // only have to Pick because we want this to work for both Disk and
@@ -275,18 +288,6 @@ export function synthesizeData(
   })
 
   return result
-}
-
-// do this by hand instead of getting elaborate in the client generator.
-// see https://github.com/oxidecomputer/oxide.ts/pull/231
-export function parseIpUtilization({ ipv4, ipv6 }: IpPoolUtilization) {
-  return {
-    ipv4,
-    ipv6: {
-      allocated: BigInt(ipv6.allocated),
-      capacity: BigInt(ipv6.capacity),
-    },
-  }
 }
 
 export const OXQL_GROUP_BY_ERROR = 'Input tables to a `group_by` must be aligned'

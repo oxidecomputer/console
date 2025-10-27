@@ -11,6 +11,7 @@ import { useCallback } from 'react'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import {
   apiq,
@@ -35,7 +36,6 @@ import { addToast } from '~/stores/toast'
 import { TypeValueCell } from '~/table/cells/TypeValueCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
-import { Badge } from '~/ui/lib/Badge'
 import { CreateButton, CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -181,7 +181,7 @@ export default function RouterPage() {
         <PageTitle icon={<Networking24Icon />}>{router}</PageTitle>
         <div className="inline-flex gap-2">
           <DocsPopover
-            heading="Routers"
+            heading="routers"
             icon={<Networking16Icon />}
             summary="Routers are collections of routes that direct traffic between VPCs and their subnets."
             links={[docLinks.routers]}

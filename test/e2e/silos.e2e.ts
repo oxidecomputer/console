@@ -155,7 +155,11 @@ test('Create silo', async ({ page }) => {
   await expectRowVisible(table, { Resource: 'Memory', Quota: '58 GiB' })
   await expectRowVisible(table, { Resource: 'Storage', Quota: '735 GiB' })
 
-  await page.goBack()
+  // Go back to the silos list page to delete the silo using breadcrumbs
+  await page
+    .getByRole('navigation', { name: 'Breadcrumbs' })
+    .getByRole('link', { name: 'Silos' })
+    .click()
 
   // now delete it
   await clickRowAction(page, 'other-silo', 'Delete')
@@ -257,7 +261,7 @@ test('Identity providers', async ({ page }) => {
 })
 
 test('Silo IP pools', async ({ page }) => {
-  await page.goto('/system/silos/maze-war?tab=ip-pools')
+  await page.goto('/system/silos/maze-war/ip-pools')
 
   const table = page.getByRole('table')
   await expectRowVisible(table, { name: 'ip-pool-1', Default: 'default' })
@@ -305,7 +309,7 @@ test('Silo IP pools', async ({ page }) => {
 })
 
 test('Silo IP pools link pool', async ({ page }) => {
-  await page.goto('/system/silos/maze-war?tab=ip-pools')
+  await page.goto('/system/silos/maze-war/ip-pools')
 
   const table = page.getByRole('table')
   await expectRowVisible(table, { name: 'ip-pool-1', Default: 'default' })

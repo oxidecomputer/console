@@ -18,6 +18,7 @@ const vpcBase = ({ project, vpc }: PP.Vpc) => `${pb.vpcs({ project })}/${vpc}`
 export const instanceMetricsBase = ({ project, instance }: PP.Instance) =>
   `${instanceBase({ project, instance })}/metrics`
 export const inventoryBase = () => '/system/inventory'
+const siloBase = ({ silo }: PP.Silo) => `/system/silos/${silo}`
 
 export const pb = {
   projects: () => `/projects`,
@@ -122,16 +123,23 @@ export const pb = {
 
   silos: () => '/system/silos',
   silosNew: () => '/system/silos-new',
-  silo: ({ silo }: PP.Silo) => `/system/silos/${silo}`,
-  siloIpPools: (params: PP.Silo) => `${pb.silo(params)}?tab=ip-pools`,
-  siloIdpsNew: (params: PP.Silo) => `${pb.silo(params)}/idps-new`,
+  // canonical route for silo is first tab
+  silo: (params: PP.Silo) => pb.siloIdps(params),
+  siloIdps: (params: PP.Silo) => `${siloBase(params)}/idps`,
+  siloIdpsNew: (params: PP.Silo) => `${siloBase(params)}/idps-new`,
+  siloIpPools: (params: PP.Silo) => `${siloBase(params)}/ip-pools`,
+  siloQuotas: (params: PP.Silo) => `${siloBase(params)}/quotas`,
+  siloFleetRoles: (params: PP.Silo) => `${siloBase(params)}/fleet-roles`,
   samlIdp: (params: PP.IdentityProvider) =>
-    `${pb.silo(params)}/idps/saml/${params.provider}`,
+    `${siloBase(params)}/idps/saml/${params.provider}`,
+
+  systemUpdate: () => '/system/update',
 
   profile: () => '/settings/profile',
   sshKeys: () => '/settings/ssh-keys',
   sshKeysNew: () => '/settings/ssh-keys-new',
   sshKeyEdit: (params: PP.SshKey) => `/settings/ssh-keys/${params.sshKey}/edit`,
+  accessTokens: () => '/settings/access-tokens',
 
   deviceSuccess: () => '/device/success',
 }

@@ -17,8 +17,8 @@ export const ModalLinks = ({
   children: ReactNode
 }) => (
   <div>
-    <h3 className="mb-2 text-sans-semi-md text-raise">{heading}</h3>
-    <ul className="space-y-1 text-sans-md text-secondary">{children}</ul>
+    <h3 className="text-sans-semi-md text-raise mb-2">{heading}</h3>
+    <ul className="text-sans-md text-secondary space-y-1">{children}</ul>
   </div>
 )
 

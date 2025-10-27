@@ -57,7 +57,7 @@ function closeQuickActions() {
 function useGlobalActions() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { isFleetViewer } = useCurrentUser()
+  const { me } = useCurrentUser()
 
   return useMemo(() => {
     const actions = []
@@ -69,7 +69,7 @@ function useGlobalActions() {
         onSelect: () => navigate(pb.profile()),
       })
     }
-    if (isFleetViewer && !location.pathname.startsWith('/system/')) {
+    if (me.fleetViewer && !location.pathname.startsWith('/system/')) {
       actions.push({
         navGroup: 'System',
         value: 'Manage system',
@@ -77,7 +77,7 @@ function useGlobalActions() {
       })
     }
     return actions
-  }, [location.pathname, navigate, isFleetViewer])
+  }, [location.pathname, navigate, me.fleetViewer])
 }
 
 /**

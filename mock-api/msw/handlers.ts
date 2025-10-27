@@ -8,6 +8,7 @@
 import { addHours } from 'date-fns'
 import { delay } from 'msw'
 import * as R from 'remeda'
+import { lt as semverLessThan, rcompare as semverRCompare } from 'semver'
 import { match } from 'ts-pattern'
 import { validate as isUuid, v4 as uuid } from 'uuid'
 
@@ -27,11 +28,9 @@ import {
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
 import { instanceCan, OXQL_GROUP_BY_ERROR } from '~/api/util'
-import { parseIp } from '~/util/ip'
 import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
 
-import { genCumulativeI64Data } from '../metrics'
 import { defaultSilo, toIdp } from '../silo'
 import { getTimestamps } from '../util'
 import { defaultFirewallRules } from '../vpc'
@@ -41,6 +40,7 @@ import {
   lookup,
   lookupById,
   notFoundErr,
+  resolveIpPool,
   utilizationForSilo,
 } from './db'
 import {
@@ -48,18 +48,18 @@ import {
   errIfExists,
   errIfInvalidDiskSize,
   forbiddenErr,
-  getStartAndEndTime,
   handleMetrics,
   handleOxqlMetrics,
-  ipInAnyRange,
   ipRangeLen,
   NotImplemented,
   paginated,
+  requireFleetAdmin,
   requireFleetCollab,
   requireFleetViewer,
   requireRole,
   unavailableErr,
   updateDesc,
+  userHasRole,
 } from './util'
 
 // Note the *JSON types. Those represent actual API request and response bodies,
@@ -175,21 +175,6 @@ export const handlers = makeHandlers({
     db.disks = db.disks.filter((d) => d.id !== disk.id)
     return 204
   },
-  diskMetricsList({ path, query }) {
-    lookup.disk({ ...path, ...query })
-
-    const { startTime, endTime } = getStartAndEndTime(query)
-
-    if (endTime <= startTime) return { items: [] }
-
-    return {
-      items: genCumulativeI64Data(
-        Array.from({ length: 1000 }).map((_x, i) => Math.floor(Math.tanh(i / 500) * 3000)),
-        startTime,
-        endTime
-      ),
-    }
-  },
   async diskBulkWriteImportStart({ path, query }) {
     const disk = lookup.disk({ ...path, ...query })
 
@@ -270,9 +255,14 @@ export const handlers = makeHandlers({
       id: uuid(),
       project_id: project.id,
       // TODO: use ip-num to actually get the next available IP in the pool
-      ip: [...Array(4)].map(() => Math.floor(Math.random() * 256)).join('.'),
+      ip:
+        body.ip ||
+        Array.from({ length: 4 })
+          .map(() => Math.floor(Math.random() * 256))
+          .join('.'),
       ip_pool_id: pool.id,
-      ...body,
+      description: body.description,
+      name: body.name,
       ...getTimestamps(),
     }
     db.floatingIps.push(newFloatingIp)
@@ -407,11 +397,8 @@ export const handlers = makeHandlers({
 
     const instanceId = uuid()
 
-    // TODO: These values should ultimately be represented in the schema and
-    // checked with the generated schema validation code.
-
     if (body.memory > INSTANCE_MAX_RAM_GiB * GiB) {
-      throw `Memory must be less than ${INSTANCE_MAX_RAM_GiB} GiB`
+      throw `Memory can be at most ${INSTANCE_MAX_RAM_GiB} GiB`
     }
 
     if (body.memory < INSTANCE_MIN_RAM_GiB * GiB) {
@@ -475,7 +462,8 @@ export const handlers = makeHandlers({
         // if there are no ranges in the pool or if the pool doesn't exist,
         // which aren't quite as good as checking that there are actually IPs
         // available, but they are good things to check
-        getIpFromPool(ip.pool)
+        const pool = resolveIpPool(ip.pool)
+        getIpFromPool(pool)
       }
     })
 
@@ -561,11 +549,14 @@ export const handlers = makeHandlers({
         // we've already validated that the IP isn't attached
         floatingIp.instance_id = instanceId
       } else if (ip.type === 'ephemeral') {
-        const firstAvailableAddress = getIpFromPool(ip.pool)
+        const pool = resolveIpPool(ip.pool)
+        const firstAvailableAddress = getIpFromPool(pool)
+
         db.ephemeralIps.push({
           instance_id: instanceId,
           external_ip: {
             ip: firstAvailableAddress,
+            ip_pool_id: pool.id,
             kind: 'ephemeral',
           },
         })
@@ -583,13 +574,15 @@ export const handlers = makeHandlers({
       auto_restart_enabled: true,
     }
 
-    setTimeout(() => {
-      newInstance.run_state = 'starting'
-    }, 1000)
+    if (body.start) {
+      setTimeout(() => {
+        newInstance.run_state = 'starting'
+      }, 1500)
 
-    setTimeout(() => {
-      newInstance.run_state = 'running'
-    }, 4000)
+      setTimeout(() => {
+        newInstance.run_state = 'running'
+      }, 4000)
+    }
 
     // Add instance to specified anti-affinity groups
     if (body.anti_affinity_groups && body.anti_affinity_groups.length > 0) {
@@ -683,8 +676,9 @@ export const handlers = makeHandlers({
 
     // AUTO RESTART
 
-    // Undefined or missing is meaningful: it unsets the value
+    // null is meaningful: it unsets the value
     instance.auto_restart_policy = body.auto_restart_policy
+    instance.cpu_platform = body.cpu_platform
 
     // We depart here from nexus in that nexus does both of the following
     // calculations at view time (when converting model to view). We can't
@@ -693,7 +687,7 @@ export const handlers = makeHandlers({
 
     // https://github.com/oxidecomputer/omicron/blob/0c6ab099e/nexus/db-queries/src/db/datastore/instance.rs#L228-L239
     instance.auto_restart_enabled = match(instance.auto_restart_policy)
-      .with(undefined, () => true)
+      .with(null, () => true)
       .with('best_effort', () => true)
       .with('never', () => false)
       .exhaustive()
@@ -764,12 +758,10 @@ export const handlers = makeHandlers({
   },
   instanceEphemeralIpAttach({ path, query: projectParams, body }) {
     const instance = lookup.instance({ ...path, ...projectParams })
-    const { pool } = body
-    const firstAvailableAddress = getIpFromPool(pool)
-    const externalIp = {
-      ip: firstAvailableAddress,
-      kind: 'ephemeral' as const,
-    }
+    const pool = resolveIpPool(body.pool)
+    const ip = getIpFromPool(pool)
+
+    const externalIp = { ip, ip_pool_id: pool.id, kind: 'ephemeral' as const }
     db.ephemeralIps.push({
       instance_id: instance.id,
       external_ip: externalIp,
@@ -794,13 +786,17 @@ export const handlers = makeHandlers({
       .filter((eip) => eip.instance_id === instance.id)
       .map((eip) => eip.external_ip)
 
+    const snatIps = db.snatIps
+      .filter((sip) => sip.instance_id === instance.id)
+      .map((sip) => sip.external_ip)
+
     // floating IPs are missing their `kind` field in the DB so we add it
     const floatingIps = db.floatingIps
       .filter((f) => f.instance_id === instance.id)
       .map((f) => ({ kind: 'floating' as const, ...f }))
 
     // endpoint is not paginated. or rather, it's fake paginated
-    return { items: [...ephemeralIps, ...floatingIps] }
+    return { items: [...ephemeralIps, ...snatIps, ...floatingIps] }
   },
   instanceNetworkInterfaceList({ query }) {
     const instance = lookup.instance(query)
@@ -846,10 +842,12 @@ export const handlers = makeHandlers({
     }
     updateDesc(nic, body)
 
-    if (typeof body.primary === 'boolean' && body.primary !== nic.primary) {
-      if (nic.primary) {
-        throw 'Cannot remove the primary interface'
-      }
+    // We used to error here if body.primary was false and nic.primary was true
+    // on the grounds that you can't unset the primary interface. But this turns
+    // out not to match the real API, which ignores primary: false.
+    // https://github.com/oxidecomputer/omicron/blob/61ad056c/nexus/db-queries/src/db/datastore/network_interface.rs?plain=1#L804-L808
+
+    if (typeof body.primary === 'boolean' && body.primary && !nic.primary) {
       db.networkInterfaces
         .filter((n) => n.instance_id === nic.instance_id)
         .forEach((n) => {
@@ -901,36 +899,40 @@ export const handlers = makeHandlers({
   },
   ipPoolList: ({ query }) => paginated(query, db.ipPools),
   ipPoolUtilizationView({ path }) {
+    // note: a given pool is either all IPv4 or all IPv6, but the logic is the
+    // same. we do everything in bigints and then convert to float at the end,
+    // like the API
+
     const pool = lookup.ipPool(path)
+
+    const allocatedIps = R.pipe(
+      [
+        ...db.floatingIps.filter((fip) => fip.ip_pool_id === pool.id).map((fip) => fip.ip),
+        ...db.ephemeralIps
+          .filter((eip) => eip.external_ip.ip_pool_id === pool.id)
+          .map((eip) => eip.external_ip.ip),
+        ...db.snatIps
+          .filter((sip) => sip.external_ip.ip_pool_id === pool.id)
+          .map((sip) => sip.external_ip.ip),
+      ],
+      // Dedupe by IP address since multiple instances can share the same SNAT
+      // IP with different port ranges
+      R.unique(),
+      R.length()
+    )
+
     const ranges = db.ipPoolRanges
       .filter((r) => r.ip_pool_id === pool.id)
       .map((r) => r.range)
-    const [ipv4Ranges, ipv6Ranges] = R.partition(
-      ranges,
-      (r) => parseIp(r.first).type === 'v4'
-    )
-
-    // in the real backend there are also SNAT IPs, but we don't currently
-    // represent those because they are not exposed through the API (except
-    // through the counts)
-    const allIps = [
-      ...db.ephemeralIps.map((eip) => eip.external_ip.ip),
-      ...db.floatingIps.map((fip) => fip.ip),
-    ]
-
-    const ipv4sInPool = allIps.filter((ip) => ipInAnyRange(ip, ipv4Ranges)).length
-    const ipv6sInPool = allIps.filter((ip) => ipInAnyRange(ip, ipv6Ranges)).length
+    // ipRangeLen returns a bigint, so R.sum will too unless the array is empty,
+    // in which case it returns 0. So the fallback is for that case.
+    const exactCapacity = R.sum(ranges.map(ipRangeLen)) || 0n
+    // always going to be small but also make it a bigint so we can subtract
+    const exactRemaining = exactCapacity - BigInt(allocatedIps)
 
     return {
-      ipv4: {
-        allocated: ipv4sInPool,
-        // ok to convert to number because we know it's small enough
-        capacity: Number(ipv4Ranges.reduce((acc, r) => acc + ipRangeLen(r), 0n)),
-      },
-      ipv6: {
-        allocated: ipv6sInPool.toString(),
-        capacity: ipv6Ranges.reduce((acc, r) => acc + ipRangeLen(r), 0n).toString(),
-      },
+      capacity: Number(exactCapacity),
+      remaining: Number(exactRemaining),
     }
   },
   siloIpPoolList({ path, query }) {
@@ -1053,7 +1055,14 @@ export const handlers = makeHandlers({
 
     const newPool: Json<Api.IpPool> = {
       id: uuid(),
-      ...body,
+      description: body.description,
+      name: body.name,
+      // It might not be possible to hit this fallback because the zod
+      // validator we use to parse this has default('v4') on it. But it also
+      // has `optional()` on it, which means the types think it can still be
+      // undefined.
+      // See https://zod.dev/v4/changelog?id=defaults-applied-within-optional-fields#defaults-applied-within-optional-fields
+      ip_version: body.ip_version || 'v4',
       ...getTimestamps(),
     }
     db.ipPools.push(newPool)
@@ -1240,7 +1249,7 @@ export const handlers = makeHandlers({
   vpcFirewallRulesUpdate({ body, query }) {
     const vpc = lookup.vpc(query)
 
-    const rules = body.rules.map((rule) => ({
+    const rules = (body.rules ?? []).map((rule) => ({
       vpc_id: vpc.id,
       id: uuid(),
       ...rule,
@@ -1449,12 +1458,27 @@ export const handlers = makeHandlers({
 
     return body
   },
+  // assume every silo has a settings entry in both of these
+  authSettingsUpdate({ body }) {
+    const settings = db.siloSettings.find((s) => s.silo_id === defaultSilo.id)!
+    settings.device_token_max_ttl_seconds = body.device_token_max_ttl_seconds
+    return settings
+  },
+  authSettingsView() {
+    return db.siloSettings.find((s) => s.silo_id === defaultSilo.id)!
+  },
   rackList: ({ query, cookies }) => {
     requireFleetViewer(cookies)
     return paginated(query, db.racks)
   },
   currentUserView({ cookies }) {
-    return { ...currentUser(cookies), silo_name: defaultSilo.name }
+    const user = currentUser(cookies)
+    return {
+      ...user,
+      silo_name: defaultSilo.name,
+      fleet_viewer: userHasRole(user, 'fleet', FLEET_ID, 'viewer'),
+      silo_admin: userHasRole(user, 'silo', defaultSilo.id, 'admin'),
+    }
   },
   currentUserGroups({ cookies }) {
     const user = currentUser(cookies)
@@ -1487,6 +1511,11 @@ export const handlers = makeHandlers({
     db.sshKeys = db.sshKeys.filter((i) => i.id !== sshKey.id)
     return 204
   },
+  currentUserAccessTokenDelete({ path }) {
+    db.deviceTokens = db.deviceTokens.filter((token) => token.id !== path.tokenId)
+    return 204
+  },
+  currentUserAccessTokenList: ({ query }) => paginated(query, db.deviceTokens),
   sledView({ path, cookies }) {
     requireFleetViewer(cookies)
     return lookup.sled(path)
@@ -1528,6 +1557,7 @@ export const handlers = makeHandlers({
     db.silos.push(newSilo)
     db.siloQuotas.push({ silo_id: newSilo.id, ...quotas })
     db.siloProvisioned.push({ silo_id: newSilo.id, cpus: 0, memory: 0, storage: 0 })
+    db.siloSettings.push({ silo_id: newSilo.id, device_token_max_ttl_seconds: null })
     return json(newSilo, { status: 201 })
   },
   siloView({ path, cookies }) {
@@ -1539,6 +1569,7 @@ export const handlers = makeHandlers({
     const silo = lookup.silo(path)
     db.silos = db.silos.filter((i) => i.id !== silo.id)
     db.ipPoolSilos = db.ipPoolSilos.filter((i) => i.silo_id !== silo.id)
+    db.siloSettings = db.siloSettings.filter((i) => i.silo_id !== silo.id)
     return 204
   },
   siloIdentityProviderList({ query, cookies }) {
@@ -1551,9 +1582,9 @@ export const handlers = makeHandlers({
     requireFleetCollab(cookies)
     const quotas = lookup.siloQuotas(path)
 
-    if (body.cpus !== undefined) quotas.cpus = body.cpus
-    if (body.memory !== undefined) quotas.memory = body.memory
-    if (body.storage !== undefined) quotas.storage = body.storage
+    if (body.cpus != null) quotas.cpus = body.cpus
+    if (body.memory != null) quotas.memory = body.memory
+    if (body.storage != null) quotas.storage = body.storage
 
     return quotas
   },
@@ -1652,7 +1683,7 @@ export const handlers = makeHandlers({
     // we use other-project to test certain response cases
     if (query.project === 'other-project') {
       // 1. return only one data point
-      const points = Object.values(data.tables[0].timeseries)[0].points
+      const points = data.tables[0].timeseries[0].points
       if (body.query.includes('state == "run"')) {
         points.timestamps = points.timestamps.slice(0, 2)
         points.values = points.values.slice(0, 2)
@@ -1673,6 +1704,84 @@ export const handlers = makeHandlers({
     return handleOxqlMetrics(body)
   },
   siloMetric: handleMetrics,
+  systemUpdateRepositoryList: ({ cookies }) => {
+    requireFleetViewer(cookies)
+    // we could sort based on the query params, but it's unnecessary as long as
+    // default sort is what the console relies on
+
+    // no real pagination because pagination helper works on IDs, and these are
+    // paginated by version
+    return {
+      // sort by version descending
+      items: R.sort(db.tufRepos, (a, b) =>
+        semverRCompare(a.system_version, b.system_version)
+      ),
+    }
+  },
+  systemUpdateRepositoryUpload: ({ query, cookies }) => {
+    requireFleetCollab(cookies)
+    const { fileName } = query
+
+    // TODO: imitate API error messages more closely
+    if (!fileName.endsWith('.zip')) {
+      throw 'Must be a .zip file'
+    }
+
+    // Generate a simple hash based on the file name for mock purposes
+    const hash = fileName
+      .split('')
+      .reduce((acc, char) => ((acc << 5) - acc + char.charCodeAt(0)) | 0, 0)
+      .toString(16)
+
+    // Check if repo with this hash already exists
+    const existingRepo = db.tufRepos.find((r) => r.hash === hash)
+
+    if (existingRepo) {
+      return json(
+        { repo: existingRepo, status: 'already_exists' as const },
+        { status: 200 }
+      )
+    }
+
+    // Extract version from filename (e.g., "rack-1.2.0.zip" -> "1.2.0")
+    const versionMatch = fileName.match(/(\d+\.\d+\.\d+)/)
+    const systemVersion = versionMatch ? versionMatch[1] : '0.0.0'
+
+    const newRepo: Json<Api.TufRepo> = {
+      system_version: systemVersion,
+      file_name: fileName,
+      hash,
+      time_created: new Date().toISOString(),
+    }
+
+    db.tufRepos.push(newRepo)
+
+    return json({ repo: newRepo, status: 'inserted' as const }, { status: 201 })
+  },
+  systemUpdateStatus: ({ cookies }) => {
+    requireFleetViewer(cookies)
+    return db.updateStatus
+  },
+  targetReleaseUpdate: ({ body, cookies }) => {
+    requireFleetAdmin(cookies)
+
+    if (db.updateStatus.target_release) {
+      const currentVersion = db.updateStatus.target_release.version
+      const newVersion = body.system_version
+      // new version must be greater than or equal to current version
+      if (semverLessThan(newVersion, currentVersion)) {
+        throw `Requested target release (${newVersion}) must not be older than current target release (${currentVersion}).`
+      }
+    }
+
+    db.updateStatus.target_release = {
+      version: body.system_version,
+      time_requested: new Date().toISOString(),
+    }
+    db.updateStatus.time_last_step_planned = new Date().toISOString()
+
+    return 204
+  },
   affinityGroupList: ({ query }) => {
     const project = lookup.project({ ...query })
     const affinityGroups = db.affinityGroups.filter((i) => i.project_id === project.id)
@@ -1819,7 +1928,17 @@ export const handlers = makeHandlers({
   affinityGroupMemberInstanceDelete: NotImplemented,
   affinityGroupMemberInstanceView: NotImplemented,
   affinityGroupUpdate: NotImplemented,
+  alertClassList: NotImplemented,
+  alertDeliveryList: NotImplemented,
+  alertDeliveryResend: NotImplemented,
+  alertReceiverDelete: NotImplemented,
+  alertReceiverList: NotImplemented,
+  alertReceiverProbe: NotImplemented,
+  alertReceiverSubscriptionAdd: NotImplemented,
+  alertReceiverSubscriptionRemove: NotImplemented,
+  alertReceiverView: NotImplemented,
   antiAffinityGroupMemberInstanceView: NotImplemented,
+  auditLogList: NotImplemented,
   certificateCreate: NotImplemented,
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
@@ -1845,6 +1964,7 @@ export const handlers = makeHandlers({
   networkingAddressLotCreate: NotImplemented,
   networkingAddressLotDelete: NotImplemented,
   networkingAddressLotList: NotImplemented,
+  networkingAddressLotView: NotImplemented,
   networkingAllowListUpdate: NotImplemented,
   networkingAllowListView: NotImplemented,
   networkingBfdDisable: NotImplemented,
@@ -1861,6 +1981,8 @@ export const handlers = makeHandlers({
   networkingBgpImportedRoutesIpv4: NotImplemented,
   networkingBgpMessageHistory: NotImplemented,
   networkingBgpStatus: NotImplemented,
+  networkingInboundIcmpUpdate: NotImplemented,
+  networkingInboundIcmpView: NotImplemented,
   networkingLoopbackAddressCreate: NotImplemented,
   networkingLoopbackAddressDelete: NotImplemented,
   networkingLoopbackAddressList: NotImplemented,
@@ -1881,8 +2003,6 @@ export const handlers = makeHandlers({
   probeList: NotImplemented,
   probeView: NotImplemented,
   rackView: NotImplemented,
-  roleList: NotImplemented,
-  roleView: NotImplemented,
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
   siloUserList: NotImplemented,
@@ -1898,13 +2018,31 @@ export const handlers = makeHandlers({
   supportBundleHeadFile: NotImplemented,
   supportBundleIndex: NotImplemented,
   supportBundleList: NotImplemented,
+  supportBundleUpdate: NotImplemented,
   supportBundleView: NotImplemented,
   switchView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
   systemQuotasList: NotImplemented,
   systemTimeseriesSchemaList: NotImplemented,
-  targetReleaseView: NotImplemented,
-  targetReleaseUpdate: NotImplemented,
+  systemUpdateRepositoryView: NotImplemented,
+  systemUpdateTrustRootCreate: NotImplemented,
+  systemUpdateTrustRootDelete: NotImplemented,
+  systemUpdateTrustRootList: NotImplemented,
+  systemUpdateTrustRootView: NotImplemented,
+  scimTokenList: NotImplemented,
+  scimTokenCreate: NotImplemented,
+  scimTokenDeleteAll: NotImplemented,
+  scimTokenView: NotImplemented,
+  scimTokenDelete: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
+  userLogout: NotImplemented,
+  userSessionList: NotImplemented,
+  userTokenList: NotImplemented,
+  userView: NotImplemented,
+  webhookReceiverCreate: NotImplemented,
+  webhookReceiverUpdate: NotImplemented,
+  webhookSecretsAdd: NotImplemented,
+  webhookSecretsDelete: NotImplemented,
+  webhookSecretsList: NotImplemented,
 })

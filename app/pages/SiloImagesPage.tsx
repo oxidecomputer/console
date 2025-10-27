@@ -7,7 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import { useForm, type FieldValues } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { Outlet } from 'react-router'
 
 import {
@@ -24,6 +24,7 @@ import { DocsPopover } from '~/components/DocsPopover'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { toImageComboboxItem } from '~/components/form/fields/ImageSelectField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
+import { ModalForm } from '~/components/form/ModalForm'
 import { HL } from '~/components/HL'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -35,7 +36,6 @@ import { Button } from '~/ui/lib/Button'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
-import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
@@ -104,7 +104,7 @@ export default function SiloImagesPage() {
       <PageHeader>
         <PageTitle icon={<Images24Icon />}>Silo Images</PageTitle>
         <DocsPopover
-          heading="Images"
+          heading="images"
           icon={<Images16Icon />}
           summary="Images let you create a new disk based on an existing one. Silo images must be created within a project and then promoted."
           links={[docLinks.images]}
@@ -129,7 +129,7 @@ type Values = { project: string | null; image: string | null }
 const defaultValues: Values = { project: null, image: null }
 
 const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
-  const { control, handleSubmit, watch, resetField } = useForm({ defaultValues })
+  const form = useForm({ defaultValues })
 
   const queryClient = useApiQueryClient()
 
@@ -146,7 +146,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
 
   const projects = useApiQuery('projectList', {})
   const projectItems = useMemo(() => toComboboxItems(projects.data?.items), [projects.data])
-  const selectedProject = watch('project')
+  const selectedProject = form.watch('project')
 
   // can only fetch images if a project is selected
   const images = useApiQuery(
@@ -159,51 +159,50 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
     [images.data]
   )
 
-  const onSubmit = ({ image, project }: Values) => {
-    if (!image || !project) return
-    promoteImage.mutate({ path: { image } })
-  }
-
   return (
-    <Modal isOpen onDismiss={onDismiss} title="Promote image">
-      <Modal.Body>
-        <Modal.Section>
-          <form autoComplete="off" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <ComboboxField
-              placeholder="Select a project"
-              name="project"
-              label="Project"
-              items={projectItems}
-              onChange={() => {
-                resetField('image') // reset image field when the project changes
-              }}
-              isLoading={projects.isPending}
-              required
-              control={control}
-            />
-            <ListboxField
-              control={control}
-              name="image"
-              placeholder="Select an image"
-              items={imageItems}
-              isLoading={images.isPending}
-              required
-              disabled={!selectedProject}
-            />
-          </form>
-          <Message
-            variant="info"
-            content="Once an image has been promoted it is visible to all projects in a silo"
-          />
-        </Modal.Section>
-      </Modal.Body>
-      <Modal.Footer
-        onDismiss={onDismiss}
-        onAction={handleSubmit(onSubmit)}
-        actionText="Promote"
+    <ModalForm
+      title="Promote image"
+      form={form}
+      loading={promoteImage.isPending}
+      submitError={promoteImage.error}
+      onSubmit={({ image, project }) => {
+        if (!image || !project) return // shouldn't happen because of validation
+        promoteImage.mutate({ path: { image } })
+      }}
+      onDismiss={onDismiss}
+      submitLabel="Promote"
+    >
+      <ComboboxField
+        placeholder="Select a project"
+        name="project"
+        label="Project"
+        items={projectItems}
+        onChange={() => {
+          form.resetField('image') // reset image field when the project changes
+        }}
+        isLoading={projects.isPending}
+        required
+        control={form.control}
       />
-    </Modal>
+      <ListboxField
+        control={form.control}
+        name="image"
+        placeholder="Select an image"
+        items={imageItems}
+        isLoading={images.isPending}
+        required
+        disabled={!selectedProject}
+      />
+      <Message
+        variant="info"
+        content="Once an image has been promoted it is visible to all projects in a silo"
+      />
+    </ModalForm>
   )
+}
+
+type DemoteFormValues = {
+  project: string | undefined
 }
 
 const DemoteImageModal = ({
@@ -213,20 +212,17 @@ const DemoteImageModal = ({
   onDismiss: () => void
   image: Image
 }) => {
-  const { control, handleSubmit, watch } = useForm()
+  const defaultValues: DemoteFormValues = { project: undefined }
+  const form = useForm({ defaultValues })
 
-  const selectedProject: string | undefined = watch('project')
+  const selectedProject: string | undefined = form.watch('project')
 
   const queryClient = useApiQueryClient()
 
   const demoteImage = useApiMutation('imageDemote', {
     onSuccess(data) {
       addToast({
-        content: (
-          <>
-            Image <HL>{data.name}</HL> demoted
-          </>
-        ),
+        content: <>Image <HL>{data.name}</HL> demoted</>, // prettier-ignore
         cta: selectedProject
           ? {
               text: `View images in ${selectedProject}`,
@@ -243,51 +239,40 @@ const DemoteImageModal = ({
     onSettled: onDismiss,
   })
 
-  const onSubmit = (data: FieldValues) => {
-    demoteImage.mutate({ path: { image: image.id }, query: { project: data.project } })
-  }
-
   const projects = useApiQuery('projectList', {})
   const projectItems = useMemo(() => toComboboxItems(projects.data?.items), [projects.data])
 
   return (
-    <Modal isOpen onDismiss={onDismiss} title="Demote image">
-      <Modal.Body>
-        <Modal.Section>
-          <form
-            autoComplete="off"
-            onSubmit={(e) => {
-              e.stopPropagation()
-              handleSubmit(onSubmit)(e)
-            }}
-            className="space-y-4"
-          >
-            <p>
-              Demoting: <span className="text-sans-semi-md text-raise">{image.name}</span>
-            </p>
+    <ModalForm
+      title="Demote image"
+      form={form}
+      loading={demoteImage.isPending}
+      submitError={demoteImage.error}
+      onSubmit={({ project }) => {
+        if (!project) return // shouldn't happen because of validation
+        demoteImage.mutate({ path: { image: image.id }, query: { project } })
+      }}
+      onDismiss={onDismiss}
+      submitLabel="Demote"
+    >
+      <p>
+        Demoting: <span className="text-sans-semi-md text-raise">{image.name}</span>
+      </p>
 
-            <Message
-              variant="info"
-              content="Once an image has been demoted it is only visible to the project that it is demoted into. This will not affect disks already created with the image."
-            />
-
-            <ComboboxField
-              placeholder="Select project for image"
-              name="project"
-              label="Project"
-              items={projectItems}
-              isLoading={projects.isPending}
-              required
-              control={control}
-            />
-          </form>
-        </Modal.Section>
-      </Modal.Body>
-      <Modal.Footer
-        onDismiss={onDismiss}
-        onAction={handleSubmit(onSubmit)}
-        actionText="Demote"
+      <Message
+        variant="info"
+        content="Once an image has been demoted it is only visible within the project that it is demoted into. This will not affect disks already created with the image."
       />
-    </Modal>
+
+      <ComboboxField
+        placeholder="Select project for image"
+        name="project"
+        label="Project"
+        items={projectItems}
+        isLoading={projects.isPending}
+        required
+        control={form.control}
+      />
+    </ModalForm>
   )
 }

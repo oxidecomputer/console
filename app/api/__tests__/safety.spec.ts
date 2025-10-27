@@ -47,6 +47,7 @@ it('mock-api is only referenced in test files', () => {
   `)
   expect(grepFiles('mock-api')).toMatchInlineSnapshot(`
     [
+      "AGENTS.md",
       "README.md",
       "app/main.tsx",
       "app/msw-mock-api.ts",
@@ -73,8 +74,8 @@ const listFiles = (s: string) =>
   execSync(`git ls-files | grep "${s}"`).toString().trim().split('\n')
 
 // avoid accidentally making an e2e file in the wrong place
-it('e2e tests are only in test/e2e', () => {
+it('e2e tests are only in test/e2e or test/visual', () => {
   for (const file of listFiles('\\.e2e\\.')) {
-    expect(file).toMatch(/^test\/e2e/)
+    expect(file).toMatch(/^test\/(e2e|visual)/)
   }
 })

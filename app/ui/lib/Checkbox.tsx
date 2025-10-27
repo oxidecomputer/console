@@ -12,13 +12,13 @@ import { Checkmark12Icon } from '@oxide/design-system/icons/react'
 import { classed } from '~/util/classed'
 
 const Check = () => (
-  <Checkmark12Icon className="pointer-events-none absolute left-0.5 top-0.5 h-3 w-3 fill-current text-accent" />
+  <Checkmark12Icon className="text-accent pointer-events-none absolute top-0.5 left-0.5 h-3 w-3 fill-current" />
 )
 
 const Indeterminate = classed.div`absolute w-2 h-0.5 left-1 top-[7px] bg-accent pointer-events-none`
 
 const inputStyle = `
-  appearance-none border border-default bg-default h-4 w-4 rounded-sm absolute left-0 outline-none
+  appearance-none border border-default bg-default h-4 w-4 rounded-sm absolute left-0
   disabled:cursor-not-allowed
   hover:border-hover hover:cursor-pointer
   checked:bg-accent-secondary checked:border-accent-secondary
@@ -62,6 +62,6 @@ export const Checkbox = ({
       {indeterminate && <Indeterminate />}
     </span>
 
-    {children && <span className="ml-2.5 text-sans-md text-default">{children}</span>}
+    {children && <span className="text-sans-md text-default ml-2.5">{children}</span>}
   </label>
 )

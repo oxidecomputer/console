@@ -131,8 +131,8 @@ const utilizationQueryResult1: OxqlQueryResult = {
   tables: [
     {
       name: 'virtual_machine:vcpu_usage',
-      timeseries: {
-        '16671618930358432507': {
+      timeseries: [
+        {
           fields: {
             vcpuId: {
               type: 'u32',
@@ -150,9 +150,6 @@ const utilizationQueryResult1: OxqlQueryResult = {
               {
                 values: {
                   type: 'double',
-                  // there is a bug in the client generator that makes this not allow nulls,
-                  // but we can in fact get them from the API for these values
-                  // @ts-expect-error
                   values: [4991154550.953981, 5002306111.529594, 5005747970.58788, null],
                 },
                 metricType: 'gauge',
@@ -160,12 +157,12 @@ const utilizationQueryResult1: OxqlQueryResult = {
             ],
           },
         },
-      },
+      ],
     },
   ],
 }
 
-const timeseries1 = utilizationQueryResult1.tables[0].timeseries['16671618930358432507']
+const timeseries1 = utilizationQueryResult1.tables[0].timeseries[0]
 
 test('sumValues', () => {
   expect(sumValues([], 0)).toEqual([])

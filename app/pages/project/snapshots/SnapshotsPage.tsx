@@ -5,20 +5,22 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback } from 'react'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
+  apiqErrorsAllowed,
   apiQueryClient,
   getListQFn,
   queryClient,
   useApiMutation,
   useApiQueryClient,
-  useApiQueryErrorsAllowed,
   type Snapshot,
 } from '@oxide/api'
 import { Snapshots16Icon, Snapshots24Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { SnapshotStateBadge } from '~/components/StateBadge'
@@ -29,7 +31,6 @@ import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
-import { Badge } from '~/ui/lib/Badge'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -38,7 +39,7 @@ import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const DiskNameFromId = ({ value }: { value: string }) => {
-  const { data } = useApiQueryErrorsAllowed('diskView', { path: { disk: value } })
+  const { data } = useQuery(apiqErrorsAllowed('diskView', { path: { disk: value } }))
 
   if (!data) return <SkeletonCell />
   if (data.type === 'error') return <Badge color="neutral">Deleted</Badge>

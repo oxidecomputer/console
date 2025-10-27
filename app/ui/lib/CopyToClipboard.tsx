@@ -35,7 +35,8 @@ export const CopyToClipboard = ({
 
   useTimeout(() => setHasCopied(false), hasCopied ? 2000 : null)
 
-  const handleCopy = () => {
+  const handleCopy = (event: React.MouseEvent) => {
+    event.stopPropagation()
     window.navigator.clipboard.writeText(text).then(() => {
       setHasCopied(true)
     })
@@ -53,7 +54,7 @@ export const CopyToClipboard = ({
   return (
     <button
       className={cn(
-        'relative h-5 w-5 rounded',
+        'active-clicked relative h-5 w-5 rounded',
         hasCopied
           ? 'text-accent bg-accent-secondary'
           : 'text-tertiary hover:text-default hover:bg-hover',

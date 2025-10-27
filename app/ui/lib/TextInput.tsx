@@ -69,7 +69,7 @@ export function TextInput({
         error
           ? 'border-error-secondary hover:border-error'
           : 'border-default hover:border-hover',
-        disabled && '!border-default',
+        disabled && 'border-default!',
         className
       )}
     >
@@ -79,7 +79,7 @@ export function TextInput({
         type={type}
         value={value}
         className={cn(
-          `w-full rounded border-none px-3 py-[0.6875rem] !outline-offset-1 text-sans-md text-raise bg-default placeholder:text-tertiary focus:outline-none disabled:cursor-not-allowed disabled:text-secondary disabled:bg-disabled`,
+          `text-sans-md text-raise bg-default placeholder:text-tertiary disabled:text-secondary disabled:bg-disabled w-full rounded border-none px-3 py-2.75 outline-offset-1! disabled:cursor-not-allowed`,
           error && 'focus-error',
           fieldClassName,
           disabled && 'text-disabled bg-disabled',
@@ -93,7 +93,7 @@ export function TextInput({
       {copyable && (
         <CopyToClipboard
           text={value || ''}
-          className="!h-10 rounded-none border-l border-solid px-4 bg-disabled border-default"
+          className="bg-disabled border-default h-10! rounded-none border-l border-solid px-4"
         />
       )}
     </div>
@@ -114,7 +114,7 @@ export const TextInputHint = ({ id, children, className }: HintProps) => (
   <div
     id={id}
     className={cn(
-      'mt-1 text-sans-sm text-secondary [&_>_a]:underline hover:[&_>_a]:text-raise',
+      'text-sans-sm text-secondary hover:[&_>_a]:text-raise mt-1 [&_>_a]:underline',
       className
     )}
   >
@@ -124,5 +124,5 @@ export const TextInputHint = ({ id, children, className }: HintProps) => (
 
 export const TextInputError = ({ children }: { children: string }) => {
   useEffect(() => announce(children, 'assertive'), [children])
-  return <div className="ml-px py-2 text-sans-md text-destructive">{children}</div>
+  return <div className="text-sans-md text-destructive ml-px py-2">{children}</div>
 }

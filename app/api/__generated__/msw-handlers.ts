@@ -14,7 +14,7 @@ import {
   type StrictResponse,
 } from 'msw'
 import type { Promisable, SnakeCasedPropertiesDeep as Snakify } from 'type-fest'
-import { type ZodSchema } from 'zod'
+import { type ZodType } from 'zod/v4'
 
 import type * as Api from './Api'
 import { snakeify } from './util'
@@ -96,46 +96,54 @@ export interface MSWHandlers {
   }) => Promisable<HandlerResult<Api.SupportBundleInfoResultsPage>>
   /** `POST /experimental/v1/system/support-bundles` */
   supportBundleCreate: (params: {
+    body: Json<Api.SupportBundleCreate>
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.SupportBundleInfo>>
-  /** `GET /experimental/v1/system/support-bundles/:supportBundle` */
+  /** `GET /experimental/v1/system/support-bundles/:bundleId` */
   supportBundleView: (params: {
     path: Api.SupportBundleViewPathParams
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.SupportBundleInfo>>
-  /** `DELETE /experimental/v1/system/support-bundles/:supportBundle` */
+  /** `PUT /experimental/v1/system/support-bundles/:bundleId` */
+  supportBundleUpdate: (params: {
+    path: Api.SupportBundleUpdatePathParams
+    body: Json<Api.SupportBundleUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SupportBundleInfo>>
+  /** `DELETE /experimental/v1/system/support-bundles/:bundleId` */
   supportBundleDelete: (params: {
     path: Api.SupportBundleDeletePathParams
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
-  /** `GET /experimental/v1/system/support-bundles/:supportBundle/download` */
+  /** `GET /experimental/v1/system/support-bundles/:bundleId/download` */
   supportBundleDownload: (params: {
     path: Api.SupportBundleDownloadPathParams
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
-  /** `HEAD /experimental/v1/system/support-bundles/:supportBundle/download` */
+  /** `HEAD /experimental/v1/system/support-bundles/:bundleId/download` */
   supportBundleHead: (params: {
     path: Api.SupportBundleHeadPathParams
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
-  /** `GET /experimental/v1/system/support-bundles/:supportBundle/download/:file` */
+  /** `GET /experimental/v1/system/support-bundles/:bundleId/download/:file` */
   supportBundleDownloadFile: (params: {
     path: Api.SupportBundleDownloadFilePathParams
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
-  /** `HEAD /experimental/v1/system/support-bundles/:supportBundle/download/:file` */
+  /** `HEAD /experimental/v1/system/support-bundles/:bundleId/download/:file` */
   supportBundleHeadFile: (params: {
     path: Api.SupportBundleHeadFilePathParams
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
-  /** `GET /experimental/v1/system/support-bundles/:supportBundle/index` */
+  /** `GET /experimental/v1/system/support-bundles/:bundleId/index` */
   supportBundleIndex: (params: {
     path: Api.SupportBundleIndexPathParams
     req: Request
@@ -210,6 +218,64 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/alert-classes` */
+  alertClassList: (params: {
+    query: Api.AlertClassListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AlertClassResultsPage>>
+  /** `GET /v1/alert-receivers` */
+  alertReceiverList: (params: {
+    query: Api.AlertReceiverListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AlertReceiverResultsPage>>
+  /** `GET /v1/alert-receivers/:receiver` */
+  alertReceiverView: (params: {
+    path: Api.AlertReceiverViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AlertReceiver>>
+  /** `DELETE /v1/alert-receivers/:receiver` */
+  alertReceiverDelete: (params: {
+    path: Api.AlertReceiverDeletePathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/alert-receivers/:receiver/deliveries` */
+  alertDeliveryList: (params: {
+    path: Api.AlertDeliveryListPathParams
+    query: Api.AlertDeliveryListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AlertDeliveryResultsPage>>
+  /** `POST /v1/alert-receivers/:receiver/probe` */
+  alertReceiverProbe: (params: {
+    path: Api.AlertReceiverProbePathParams
+    query: Api.AlertReceiverProbeQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AlertProbeResult>>
+  /** `POST /v1/alert-receivers/:receiver/subscriptions` */
+  alertReceiverSubscriptionAdd: (params: {
+    path: Api.AlertReceiverSubscriptionAddPathParams
+    body: Json<Api.AlertSubscriptionCreate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AlertSubscriptionCreated>>
+  /** `DELETE /v1/alert-receivers/:receiver/subscriptions/:subscription` */
+  alertReceiverSubscriptionRemove: (params: {
+    path: Api.AlertReceiverSubscriptionRemovePathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `POST /v1/alerts/:alertId/resend` */
+  alertDeliveryResend: (params: {
+    path: Api.AlertDeliveryResendPathParams
+    query: Api.AlertDeliveryResendQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AlertDeliveryId>>
   /** `GET /v1/anti-affinity-groups` */
   antiAffinityGroupList: (params: {
     query: Api.AntiAffinityGroupListQueryParams
@@ -273,6 +339,17 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/auth-settings` */
+  authSettingsView: (params: {
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SiloAuthSettings>>
+  /** `PUT /v1/auth-settings` */
+  authSettingsUpdate: (params: {
+    body: Json<Api.SiloAuthSettingsUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SiloAuthSettings>>
   /** `GET /v1/certificates` */
   certificateList: (params: {
     query: Api.CertificateListQueryParams
@@ -354,13 +431,6 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
-  /** `GET /v1/disks/:disk/metrics/:metric` */
-  diskMetricsList: (params: {
-    path: Api.DiskMetricsListPathParams
-    query: Api.DiskMetricsListQueryParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.MeasurementResultsPage>>
   /** `GET /v1/floating-ips` */
   floatingIpList: (params: {
     query: Api.FloatingIpListQueryParams
@@ -696,6 +766,18 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.CurrentUser>>
+  /** `GET /v1/me/access-tokens` */
+  currentUserAccessTokenList: (params: {
+    query: Api.CurrentUserAccessTokenListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.DeviceAccessTokenResultsPage>>
+  /** `DELETE /v1/me/access-tokens/:tokenId` */
+  currentUserAccessTokenDelete: (params: {
+    path: Api.CurrentUserAccessTokenDeletePathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `GET /v1/me/groups` */
   currentUserGroups: (params: {
     query: Api.CurrentUserGroupsQueryParams
@@ -855,6 +937,12 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/system/audit-log` */
+  auditLogList: (params: {
+    query: Api.AuditLogListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AuditLogEntryResultsPage>>
   /** `GET /v1/system/hardware/disks` */
   physicalDiskList: (params: {
     query: Api.PhysicalDiskListQueryParams
@@ -1155,6 +1243,12 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.AddressLotCreateResponse>>
+  /** `GET /v1/system/networking/address-lot/:addressLot` */
+  networkingAddressLotView: (params: {
+    path: Api.NetworkingAddressLotViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AddressLotViewResponse>>
   /** `DELETE /v1/system/networking/address-lot/:addressLot` */
   networkingAddressLotDelete: (params: {
     path: Api.NetworkingAddressLotDeletePathParams
@@ -1260,6 +1354,17 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.BgpPeerStatus[]>>
+  /** `GET /v1/system/networking/inbound-icmp` */
+  networkingInboundIcmpView: (params: {
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ServiceIcmpConfig>>
+  /** `PUT /v1/system/networking/inbound-icmp` */
+  networkingInboundIcmpUpdate: (params: {
+    body: Json<Api.ServiceIcmpConfig>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `GET /v1/system/networking/loopback-address` */
   networkingLoopbackAddressList: (params: {
     query: Api.NetworkingLoopbackAddressListQueryParams
@@ -1283,13 +1388,13 @@ export interface MSWHandlers {
     query: Api.NetworkingSwitchPortSettingsListQueryParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.SwitchPortSettingsResultsPage>>
+  }) => Promisable<HandlerResult<Api.SwitchPortSettingsIdentityResultsPage>>
   /** `POST /v1/system/networking/switch-port-settings` */
   networkingSwitchPortSettingsCreate: (params: {
     body: Json<Api.SwitchPortSettingsCreate>
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.SwitchPortSettingsView>>
+  }) => Promisable<HandlerResult<Api.SwitchPortSettings>>
   /** `DELETE /v1/system/networking/switch-port-settings` */
   networkingSwitchPortSettingsDelete: (params: {
     query: Api.NetworkingSwitchPortSettingsDeleteQueryParams
@@ -1301,7 +1406,7 @@ export interface MSWHandlers {
     path: Api.NetworkingSwitchPortSettingsViewPathParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.SwitchPortSettingsView>>
+  }) => Promisable<HandlerResult<Api.SwitchPortSettings>>
   /** `GET /v1/system/policy` */
   systemPolicyView: (params: {
     req: Request
@@ -1313,18 +1418,38 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.FleetRolePolicy>>
-  /** `GET /v1/system/roles` */
-  roleList: (params: {
-    query: Api.RoleListQueryParams
+  /** `GET /v1/system/scim/tokens` */
+  scimTokenList: (params: {
+    query: Api.ScimTokenListQueryParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.RoleResultsPage>>
-  /** `GET /v1/system/roles/:roleName` */
-  roleView: (params: {
-    path: Api.RoleViewPathParams
+  }) => Promisable<HandlerResult<Api.ScimClientBearerToken[]>>
+  /** `POST /v1/system/scim/tokens` */
+  scimTokenCreate: (params: {
+    query: Api.ScimTokenCreateQueryParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.Role>>
+  }) => Promisable<HandlerResult<Api.ScimClientBearerTokenValue>>
+  /** `DELETE /v1/system/scim/tokens` */
+  scimTokenDeleteAll: (params: {
+    query: Api.ScimTokenDeleteAllQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/system/scim/tokens/:tokenId` */
+  scimTokenView: (params: {
+    path: Api.ScimTokenViewPathParams
+    query: Api.ScimTokenViewQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ScimClientBearerToken>>
+  /** `DELETE /v1/system/scim/tokens/:tokenId` */
+  scimTokenDelete: (params: {
+    path: Api.ScimTokenDeletePathParams
+    query: Api.ScimTokenDeleteQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `GET /v1/system/silo-quotas` */
   systemQuotasList: (params: {
     query: Api.SystemQuotasListQueryParams
@@ -1400,17 +1525,58 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.TimeseriesSchemaResultsPage>>
-  /** `GET /v1/system/update/target-release` */
-  targetReleaseView: (params: {
+  /** `GET /v1/system/update/repositories` */
+  systemUpdateRepositoryList: (params: {
+    query: Api.SystemUpdateRepositoryListQueryParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.TargetRelease>>
+  }) => Promisable<HandlerResult<Api.TufRepoResultsPage>>
+  /** `PUT /v1/system/update/repositories` */
+  systemUpdateRepositoryUpload: (params: {
+    query: Api.SystemUpdateRepositoryUploadQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.TufRepoUpload>>
+  /** `GET /v1/system/update/repositories/:systemVersion` */
+  systemUpdateRepositoryView: (params: {
+    path: Api.SystemUpdateRepositoryViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.TufRepo>>
+  /** `GET /v1/system/update/status` */
+  systemUpdateStatus: (params: {
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.UpdateStatus>>
   /** `PUT /v1/system/update/target-release` */
   targetReleaseUpdate: (params: {
     body: Json<Api.SetTargetReleaseParams>
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.TargetRelease>>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/system/update/trust-roots` */
+  systemUpdateTrustRootList: (params: {
+    query: Api.SystemUpdateTrustRootListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.UpdatesTrustRootResultsPage>>
+  /** `POST /v1/system/update/trust-roots` */
+  systemUpdateTrustRootCreate: (params: {
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.UpdatesTrustRoot>>
+  /** `GET /v1/system/update/trust-roots/:trustRootId` */
+  systemUpdateTrustRootView: (params: {
+    path: Api.SystemUpdateTrustRootViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.UpdatesTrustRoot>>
+  /** `DELETE /v1/system/update/trust-roots/:trustRootId` */
+  systemUpdateTrustRootDelete: (params: {
+    path: Api.SystemUpdateTrustRootDeletePathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `GET /v1/system/users` */
   siloUserList: (params: {
     query: Api.SiloUserListQueryParams
@@ -1461,6 +1627,32 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.UserResultsPage>>
+  /** `GET /v1/users/:userId` */
+  userView: (params: {
+    path: Api.UserViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.User>>
+  /** `GET /v1/users/:userId/access-tokens` */
+  userTokenList: (params: {
+    path: Api.UserTokenListPathParams
+    query: Api.UserTokenListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.DeviceAccessTokenResultsPage>>
+  /** `POST /v1/users/:userId/logout` */
+  userLogout: (params: {
+    path: Api.UserLogoutPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/users/:userId/sessions` */
+  userSessionList: (params: {
+    path: Api.UserSessionListPathParams
+    query: Api.UserSessionListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ConsoleSessionResultsPage>>
   /** `GET /v1/utilization` */
   utilizationView: (params: {
     req: Request
@@ -1626,9 +1818,41 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `POST /v1/webhook-receivers` */
+  webhookReceiverCreate: (params: {
+    body: Json<Api.WebhookCreate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.WebhookReceiver>>
+  /** `PUT /v1/webhook-receivers/:receiver` */
+  webhookReceiverUpdate: (params: {
+    path: Api.WebhookReceiverUpdatePathParams
+    body: Json<Api.WebhookReceiverUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/webhook-secrets` */
+  webhookSecretsList: (params: {
+    query: Api.WebhookSecretsListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.WebhookSecrets>>
+  /** `POST /v1/webhook-secrets` */
+  webhookSecretsAdd: (params: {
+    query: Api.WebhookSecretsAddQueryParams
+    body: Json<Api.WebhookSecretCreate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.WebhookSecret>>
+  /** `DELETE /v1/webhook-secrets/:secretId` */
+  webhookSecretsDelete: (params: {
+    path: Api.WebhookSecretsDeletePathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
 }
 
-function validateParams<S extends ZodSchema>(
+function validateParams<S extends ZodType>(
   schema: S,
   req: Request,
   pathParams: PathParams
@@ -1661,8 +1885,9 @@ function validateParams<S extends ZodSchema>(
 const handler =
   (
     handler: MSWHandlers[keyof MSWHandlers],
-    paramSchema: ZodSchema | null,
-    bodySchema: ZodSchema | null
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    paramSchema: ZodType<any> | null,
+    bodySchema: ZodType | null
   ) =>
   async ({
     request: req,
@@ -1759,26 +1984,34 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     ),
     http.post(
       '/experimental/v1/system/support-bundles',
-      handler(handlers['supportBundleCreate'], null, null)
+      handler(handlers['supportBundleCreate'], null, schema.SupportBundleCreate)
     ),
     http.get(
-      '/experimental/v1/system/support-bundles/:supportBundle',
+      '/experimental/v1/system/support-bundles/:bundleId',
       handler(handlers['supportBundleView'], schema.SupportBundleViewParams, null)
     ),
+    http.put(
+      '/experimental/v1/system/support-bundles/:bundleId',
+      handler(
+        handlers['supportBundleUpdate'],
+        schema.SupportBundleUpdateParams,
+        schema.SupportBundleUpdate
+      )
+    ),
     http.delete(
-      '/experimental/v1/system/support-bundles/:supportBundle',
+      '/experimental/v1/system/support-bundles/:bundleId',
       handler(handlers['supportBundleDelete'], schema.SupportBundleDeleteParams, null)
     ),
     http.get(
-      '/experimental/v1/system/support-bundles/:supportBundle/download',
+      '/experimental/v1/system/support-bundles/:bundleId/download',
       handler(handlers['supportBundleDownload'], schema.SupportBundleDownloadParams, null)
     ),
     http.head(
-      '/experimental/v1/system/support-bundles/:supportBundle/download',
+      '/experimental/v1/system/support-bundles/:bundleId/download',
       handler(handlers['supportBundleHead'], schema.SupportBundleHeadParams, null)
     ),
     http.get(
-      '/experimental/v1/system/support-bundles/:supportBundle/download/:file',
+      '/experimental/v1/system/support-bundles/:bundleId/download/:file',
       handler(
         handlers['supportBundleDownloadFile'],
         schema.SupportBundleDownloadFileParams,
@@ -1786,11 +2019,11 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       )
     ),
     http.head(
-      '/experimental/v1/system/support-bundles/:supportBundle/download/:file',
+      '/experimental/v1/system/support-bundles/:bundleId/download/:file',
       handler(handlers['supportBundleHeadFile'], schema.SupportBundleHeadFileParams, null)
     ),
     http.get(
-      '/experimental/v1/system/support-bundles/:supportBundle/index',
+      '/experimental/v1/system/support-bundles/:bundleId/index',
       handler(handlers['supportBundleIndex'], schema.SupportBundleIndexParams, null)
     ),
     http.post(
@@ -1858,6 +2091,50 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       )
     ),
     http.get(
+      '/v1/alert-classes',
+      handler(handlers['alertClassList'], schema.AlertClassListParams, null)
+    ),
+    http.get(
+      '/v1/alert-receivers',
+      handler(handlers['alertReceiverList'], schema.AlertReceiverListParams, null)
+    ),
+    http.get(
+      '/v1/alert-receivers/:receiver',
+      handler(handlers['alertReceiverView'], schema.AlertReceiverViewParams, null)
+    ),
+    http.delete(
+      '/v1/alert-receivers/:receiver',
+      handler(handlers['alertReceiverDelete'], schema.AlertReceiverDeleteParams, null)
+    ),
+    http.get(
+      '/v1/alert-receivers/:receiver/deliveries',
+      handler(handlers['alertDeliveryList'], schema.AlertDeliveryListParams, null)
+    ),
+    http.post(
+      '/v1/alert-receivers/:receiver/probe',
+      handler(handlers['alertReceiverProbe'], schema.AlertReceiverProbeParams, null)
+    ),
+    http.post(
+      '/v1/alert-receivers/:receiver/subscriptions',
+      handler(
+        handlers['alertReceiverSubscriptionAdd'],
+        schema.AlertReceiverSubscriptionAddParams,
+        schema.AlertSubscriptionCreate
+      )
+    ),
+    http.delete(
+      '/v1/alert-receivers/:receiver/subscriptions/:subscription',
+      handler(
+        handlers['alertReceiverSubscriptionRemove'],
+        schema.AlertReceiverSubscriptionRemoveParams,
+        null
+      )
+    ),
+    http.post(
+      '/v1/alerts/:alertId/resend',
+      handler(handlers['alertDeliveryResend'], schema.AlertDeliveryResendParams, null)
+    ),
+    http.get(
       '/v1/anti-affinity-groups',
       handler(handlers['antiAffinityGroupList'], schema.AntiAffinityGroupListParams, null)
     ),
@@ -1921,6 +2198,11 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         null
       )
     ),
+    http.get('/v1/auth-settings', handler(handlers['authSettingsView'], null, null)),
+    http.put(
+      '/v1/auth-settings',
+      handler(handlers['authSettingsUpdate'], null, schema.SiloAuthSettingsUpdate)
+    ),
     http.get(
       '/v1/certificates',
       handler(handlers['certificateList'], schema.CertificateListParams, null)
@@ -1978,10 +2260,6 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         schema.DiskFinalizeImportParams,
         schema.FinalizeDisk
       )
-    ),
-    http.get(
-      '/v1/disks/:disk/metrics/:metric',
-      handler(handlers['diskMetricsList'], schema.DiskMetricsListParams, null)
     ),
     http.get(
       '/v1/floating-ips',
@@ -2252,6 +2530,22 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.post('/v1/logout', handler(handlers['logout'], null, null)),
     http.get('/v1/me', handler(handlers['currentUserView'], null, null)),
     http.get(
+      '/v1/me/access-tokens',
+      handler(
+        handlers['currentUserAccessTokenList'],
+        schema.CurrentUserAccessTokenListParams,
+        null
+      )
+    ),
+    http.delete(
+      '/v1/me/access-tokens/:tokenId',
+      handler(
+        handlers['currentUserAccessTokenDelete'],
+        schema.CurrentUserAccessTokenDeleteParams,
+        null
+      )
+    ),
+    http.get(
       '/v1/me/groups',
       handler(handlers['currentUserGroups'], schema.CurrentUserGroupsParams, null)
     ),
@@ -2373,6 +2667,10 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.delete(
       '/v1/snapshots/:snapshot',
       handler(handlers['snapshotDelete'], schema.SnapshotDeleteParams, null)
+    ),
+    http.get(
+      '/v1/system/audit-log',
+      handler(handlers['auditLogList'], schema.AuditLogListParams, null)
     ),
     http.get(
       '/v1/system/hardware/disks',
@@ -2622,6 +2920,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       '/v1/system/networking/address-lot',
       handler(handlers['networkingAddressLotCreate'], null, schema.AddressLotCreate)
     ),
+    http.get(
+      '/v1/system/networking/address-lot/:addressLot',
+      handler(
+        handlers['networkingAddressLotView'],
+        schema.NetworkingAddressLotViewParams,
+        null
+      )
+    ),
     http.delete(
       '/v1/system/networking/address-lot/:addressLot',
       handler(
@@ -2731,6 +3037,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['networkingBgpStatus'], null, null)
     ),
     http.get(
+      '/v1/system/networking/inbound-icmp',
+      handler(handlers['networkingInboundIcmpView'], null, null)
+    ),
+    http.put(
+      '/v1/system/networking/inbound-icmp',
+      handler(handlers['networkingInboundIcmpUpdate'], null, schema.ServiceIcmpConfig)
+    ),
+    http.get(
       '/v1/system/networking/loopback-address',
       handler(
         handlers['networkingLoopbackAddressList'],
@@ -2792,12 +3106,24 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['systemPolicyUpdate'], null, schema.FleetRolePolicy)
     ),
     http.get(
-      '/v1/system/roles',
-      handler(handlers['roleList'], schema.RoleListParams, null)
+      '/v1/system/scim/tokens',
+      handler(handlers['scimTokenList'], schema.ScimTokenListParams, null)
+    ),
+    http.post(
+      '/v1/system/scim/tokens',
+      handler(handlers['scimTokenCreate'], schema.ScimTokenCreateParams, null)
+    ),
+    http.delete(
+      '/v1/system/scim/tokens',
+      handler(handlers['scimTokenDeleteAll'], schema.ScimTokenDeleteAllParams, null)
     ),
     http.get(
-      '/v1/system/roles/:roleName',
-      handler(handlers['roleView'], schema.RoleViewParams, null)
+      '/v1/system/scim/tokens/:tokenId',
+      handler(handlers['scimTokenView'], schema.ScimTokenViewParams, null)
+    ),
+    http.delete(
+      '/v1/system/scim/tokens/:tokenId',
+      handler(handlers['scimTokenDelete'], schema.ScimTokenDeleteParams, null)
     ),
     http.get(
       '/v1/system/silo-quotas',
@@ -2857,12 +3183,64 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       )
     ),
     http.get(
-      '/v1/system/update/target-release',
-      handler(handlers['targetReleaseView'], null, null)
+      '/v1/system/update/repositories',
+      handler(
+        handlers['systemUpdateRepositoryList'],
+        schema.SystemUpdateRepositoryListParams,
+        null
+      )
+    ),
+    http.put(
+      '/v1/system/update/repositories',
+      handler(
+        handlers['systemUpdateRepositoryUpload'],
+        schema.SystemUpdateRepositoryUploadParams,
+        null
+      )
+    ),
+    http.get(
+      '/v1/system/update/repositories/:systemVersion',
+      handler(
+        handlers['systemUpdateRepositoryView'],
+        schema.SystemUpdateRepositoryViewParams,
+        null
+      )
+    ),
+    http.get(
+      '/v1/system/update/status',
+      handler(handlers['systemUpdateStatus'], null, null)
     ),
     http.put(
       '/v1/system/update/target-release',
       handler(handlers['targetReleaseUpdate'], null, schema.SetTargetReleaseParams)
+    ),
+    http.get(
+      '/v1/system/update/trust-roots',
+      handler(
+        handlers['systemUpdateTrustRootList'],
+        schema.SystemUpdateTrustRootListParams,
+        null
+      )
+    ),
+    http.post(
+      '/v1/system/update/trust-roots',
+      handler(handlers['systemUpdateTrustRootCreate'], null, null)
+    ),
+    http.get(
+      '/v1/system/update/trust-roots/:trustRootId',
+      handler(
+        handlers['systemUpdateTrustRootView'],
+        schema.SystemUpdateTrustRootViewParams,
+        null
+      )
+    ),
+    http.delete(
+      '/v1/system/update/trust-roots/:trustRootId',
+      handler(
+        handlers['systemUpdateTrustRootDelete'],
+        schema.SystemUpdateTrustRootDeleteParams,
+        null
+      )
     ),
     http.get(
       '/v1/system/users',
@@ -2897,6 +3275,22 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       )
     ),
     http.get('/v1/users', handler(handlers['userList'], schema.UserListParams, null)),
+    http.get(
+      '/v1/users/:userId',
+      handler(handlers['userView'], schema.UserViewParams, null)
+    ),
+    http.get(
+      '/v1/users/:userId/access-tokens',
+      handler(handlers['userTokenList'], schema.UserTokenListParams, null)
+    ),
+    http.post(
+      '/v1/users/:userId/logout',
+      handler(handlers['userLogout'], schema.UserLogoutParams, null)
+    ),
+    http.get(
+      '/v1/users/:userId/sessions',
+      handler(handlers['userSessionList'], schema.UserSessionListParams, null)
+    ),
     http.get('/v1/utilization', handler(handlers['utilizationView'], null, null)),
     http.get(
       '/v1/vpc-firewall-rules',
@@ -3015,6 +3409,34 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.delete(
       '/v1/vpcs/:vpc',
       handler(handlers['vpcDelete'], schema.VpcDeleteParams, null)
+    ),
+    http.post(
+      '/v1/webhook-receivers',
+      handler(handlers['webhookReceiverCreate'], null, schema.WebhookCreate)
+    ),
+    http.put(
+      '/v1/webhook-receivers/:receiver',
+      handler(
+        handlers['webhookReceiverUpdate'],
+        schema.WebhookReceiverUpdateParams,
+        schema.WebhookReceiverUpdate
+      )
+    ),
+    http.get(
+      '/v1/webhook-secrets',
+      handler(handlers['webhookSecretsList'], schema.WebhookSecretsListParams, null)
+    ),
+    http.post(
+      '/v1/webhook-secrets',
+      handler(
+        handlers['webhookSecretsAdd'],
+        schema.WebhookSecretsAddParams,
+        schema.WebhookSecretCreate
+      )
+    ),
+    http.delete(
+      '/v1/webhook-secrets/:secretId',
+      handler(handlers['webhookSecretsDelete'], schema.WebhookSecretsDeleteParams, null)
     ),
   ]
 }

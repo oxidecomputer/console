@@ -50,8 +50,6 @@ import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
-import { Spinner } from '~/ui/lib/Spinner'
-import { Tooltip } from '~/ui/lib/Tooltip'
 import { truncate } from '~/ui/lib/Truncate'
 import { instanceMetricsBase, pb } from '~/util/path-builder'
 import { pluralize } from '~/util/str'
@@ -71,7 +69,10 @@ async function refreshData() {
     apiQueryClient.invalidateQueries('instanceExternalIpList'),
     apiQueryClient.invalidateQueries('instanceNetworkInterfaceList'),
     apiQueryClient.invalidateQueries('instanceDiskList'), // storage tab
-    apiQueryClient.invalidateQueries('diskMetricsList'), // metrics tab
+    apiQueryClient.invalidateQueries('antiAffinityGroupMemberList'),
+    // note that we do not include timeseriesQuery because the charts on the
+    // metrics tab will manage their own refresh intervals when we turn that
+    // back on
   ])
 }
 
@@ -114,14 +115,6 @@ const sec = 1000 // ms, obviously
 const POLL_INTERVAL_FAST = 2 * sec
 const POLL_INTERVAL_SLOW = 30 * sec
 
-const PollingSpinner = () => (
-  <Tooltip content="Auto-refreshing while state changes" delay={150}>
-    <button type="button">
-      <Spinner className="ml-2" />
-    </button>
-  </Tooltip>
-)
-
 export default function InstancePage() {
   const instanceSelector = useInstanceSelector()
   const [resizeInstance, setResizeInstance] = useState(false)
@@ -153,7 +146,7 @@ export default function InstancePage() {
       // polling on the list page.
       refetchInterval: ({ state: { data: instance } }) => {
         if (!instance) return false
-        if (instanceTransitioning(instance)) return POLL_INTERVAL_FAST
+        if (instanceTransitioning(instance.runState)) return POLL_INTERVAL_FAST
 
         if (instance.runState === 'failed' && instance.autoRestartEnabled) {
           return instanceAutoRestartingSoon(instance)
@@ -190,7 +183,7 @@ export default function InstancePage() {
         <div className="inline-flex gap-2">
           <RefreshButton onClick={refreshData} />
           <InstanceDocsPopover />
-          <div className="flex space-x-2 border-l pl-2 border-default">
+          <div className="border-default flex space-x-2 border-l pl-2">
             {makeButtonActions(instance).map((action) => (
               <Button
                 key={action.label}
@@ -231,23 +224,22 @@ export default function InstancePage() {
       <PropertiesTable columns={2} className="-mt-8 mb-8">
         <PropertiesTable.Row label="cpu">
           <span className="text-default">{instance.ncpus}</span>
-          <span className="ml-1 text-tertiary">{pluralize(' vCPU', instance.ncpus)}</span>
+          <span className="text-tertiary ml-1">{pluralize(' vCPU', instance.ncpus)}</span>
         </PropertiesTable.Row>
         <PropertiesTable.Row label="ram">
           <span className="text-default">{memory.value}</span>
-          <span className="ml-1 text-tertiary"> {memory.unit}</span>
+          <span className="text-tertiary ml-1"> {memory.unit}</span>
         </PropertiesTable.Row>
         <PropertiesTable.Row label="state">
           <div className="flex items-center gap-2">
             <InstanceStateBadge state={instance.runState} />
-            {instanceTransitioning(instance) && <PollingSpinner />}
             <InstanceAutoRestartPopover instance={instance} />
           </div>
         </PropertiesTable.Row>
         <PropertiesTable.Row label="vpc">
           {vpc ? (
             <Link
-              className="link-with-underline group text-sans-md"
+              className="link-with-underline text-sans-md group"
               to={pb.vpc({ project: instanceSelector.project, vpc: vpc.name })}
             >
               {vpc.name}
@@ -260,7 +252,7 @@ export default function InstancePage() {
         <PropertiesTable.DateRow date={instance.timeCreated} label="Created" />
         <PropertiesTable.IdRow id={instance.id} />
         <PropertiesTable.Row label="external IPs">
-          {<ExternalIps {...instanceSelector} />}
+          <ExternalIps {...instanceSelector} />
         </PropertiesTable.Row>
       </PropertiesTable>
       <RouteTabs fullWidth>
@@ -297,11 +289,9 @@ export function ResizeInstanceModal({
   const { project } = useProjectSelector()
   const instanceUpdate = useApiMutation('instanceUpdate', {
     onSuccess(_updatedInstance) {
-      if (onListView) {
-        apiQueryClient.invalidateQueries('instanceList')
-      } else {
-        apiQueryClient.invalidateQueries('instanceView')
-      }
+      apiQueryClient.invalidateQueries('instanceList')
+      apiQueryClient.invalidateQueries('instanceView')
+
       onDismiss()
       addToast({
         content: (
@@ -340,7 +330,13 @@ export function ResizeInstanceModal({
     instanceUpdate.mutate({
       path: { instance: instance.name },
       query: { project },
-      body: { ncpus, memory: memory * GiB, bootDisk: instance.bootDiskId },
+      body: {
+        ncpus,
+        memory: memory * GiB,
+        bootDisk: instance.bootDiskId || null,
+        cpuPlatform: instance.cpuPlatform || null,
+        autoRestartPolicy: instance.autoRestartPolicy || null,
+      },
     })
   })
   const formId = useId()
@@ -375,7 +371,7 @@ export function ResizeInstanceModal({
                   return `Must be at least 1 vCPU`
                 }
                 if (cpus > INSTANCE_MAX_CPU) {
-                  return `CPUs capped to ${INSTANCE_MAX_CPU}`
+                  return `Can be at most ${INSTANCE_MAX_CPU}`
                 }
                 // We can show this error and therefore inform the user
                 // of the limit rather than preventing it completely
@@ -401,7 +397,7 @@ export function ResizeInstanceModal({
             />
           </form>
           {instanceUpdate.error && (
-            <p className="mt-4 text-error">{instanceUpdate.error.message}</p>
+            <p className="text-error mt-4">{instanceUpdate.error.message}</p>
           )}
         </Modal.Section>
       </Modal.Body>

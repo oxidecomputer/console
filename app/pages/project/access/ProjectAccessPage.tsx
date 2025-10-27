@@ -24,6 +24,7 @@ import {
   type RoleKey,
 } from '@oxide/api'
 import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
@@ -37,7 +38,6 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
-import { Badge } from '~/ui/lib/Badge'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -71,7 +71,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-export const handle = { crumb: 'Access' }
+export const handle = { crumb: 'Project Access' }
 
 type UserRow = {
   id: string
@@ -145,7 +145,7 @@ export default function ProjectAccessPage() {
             Role
             <TipIcon className="ml-2">
               A user or group&apos;s effective role for this project is the strongest role
-              on either the silo or project.
+              on either the silo or project
             </TipIcon>
           </span>
         ),
@@ -204,7 +204,7 @@ export default function ProjectAccessPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Access24Icon />}>Access</PageTitle>
+        <PageTitle icon={<Access24Icon />}>Project Access</PageTitle>
         <DocsPopover
           heading="access"
           icon={<Access16Icon />}

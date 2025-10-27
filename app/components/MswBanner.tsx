@@ -49,17 +49,17 @@ export function MswBanner({ disableButton }: Props) {
   return (
     <>
       {/* The [&+*]:pt-10 style is to ensure the page container isn't pushed out of screen as it uses 100vh for layout */}
-      <label className="absolute z-topBar flex h-10 w-full items-center justify-center text-sans-md text-info-secondary bg-info-secondary [&+*]:pt-10">
+      <aside className="text-sans-md text-info-secondary bg-info-secondary absolute z-(--z-top-bar) flex h-10 w-full items-center justify-center [&+*]:pt-10">
         <Info16Icon className="mr-2" /> This is a technical preview.
         <button
           type="button"
-          className="ml-2 flex items-center gap-0.5 text-sans-md hover:text-info"
+          className="text-sans-md hover:text-info ml-2 flex items-center gap-0.5"
           onClick={() => setIsOpen(true)}
           disabled={disableButton}
         >
           Learn more <NextArrow12Icon />
         </button>
-      </label>
+      </aside>
       <Modal isOpen={isOpen} onDismiss={closeModal} title="Console Technical Preview">
         <Modal.Section>
           <p>
@@ -91,7 +91,7 @@ export function MswBanner({ disableButton }: Props) {
             />
           </ModalLinks>
         </Modal.Section>
-        <footer className="flex items-center justify-end border-t px-3 py-3 border-secondary">
+        <footer className="border-secondary flex items-center justify-end border-t px-3 py-3">
           <Button size="sm" onClick={closeModal}>
             Close
           </Button>

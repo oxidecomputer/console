@@ -67,7 +67,7 @@ export function RouteTabs({
       </div>
 
       <div
-        className={cn('ox-tabs-panel @container', { 'ml-5 flex-grow': sideTabs })}
+        className={cn('ox-tabs-panel @container', { 'ml-5 grow': sideTabs })}
         role="tabpanel"
         tabIndex={0}
       >

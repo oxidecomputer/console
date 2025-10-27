@@ -28,18 +28,6 @@ export async function clientLoader() {
   await Promise.all([
     apiQueryClient.prefetchQuery('currentUserView', {}, { staleTime }),
     apiQueryClient.prefetchQuery('currentUserGroups', {}, { staleTime }),
-    // Need to prefetch this because every layout hits it when deciding whether
-    // to show the silo/system picker. It's also fetched by the SystemLayout
-    // loader to figure out whether to 404, but RQ dedupes the request.
-    apiQueryClient.prefetchQueryErrorsAllowed(
-      'systemPolicyView',
-      {},
-      {
-        explanation: '/v1/system/policy 403 is expected if user is not a fleet viewer.',
-        expectedStatusCode: 403,
-        staleTime,
-      }
-    ),
   ])
   return null
 }

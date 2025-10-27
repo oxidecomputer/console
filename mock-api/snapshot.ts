@@ -14,9 +14,42 @@ import { GiB } from '~/util/units'
 
 import { disks } from './disk'
 import type { Json } from './json-type'
+import { Rando } from './msw/rando'
 import { project } from './project'
 
-const generatedSnapshots: Json<Snapshot>[] = Array.from({ length: 80 }, (_, i) =>
+// Use seeded random for consistent states across runs
+const rando = new Rando(0)
+
+function randomSnapshotState() {
+  const num = rando.next()
+
+  // We still want it to be mostly ready states
+  if (num > 0.1) {
+    return 'ready'
+  } else if (num > 0.066) {
+    return 'destroyed'
+  } else if (num > 0.033) {
+    return 'faulted'
+  } else {
+    return 'creating'
+  }
+}
+
+function generateSnapshot(index: number): Json<Snapshot> {
+  return {
+    id: uuid(),
+    name: `disk-1-snapshot-${index + 8}`,
+    description: '',
+    project_id: project.id,
+    time_created: new Date().toISOString(),
+    time_modified: new Date().toISOString(),
+    size: 1024 * (index + 1),
+    disk_id: disks[0].id,
+    state: randomSnapshotState(),
+  }
+}
+
+const generatedSnapshots: Json<Snapshot>[] = Array.from({ length: 160 }, (_, i) =>
   generateSnapshot(i)
 )
 
@@ -77,7 +110,7 @@ export const snapshots: Json<Snapshot>[] = [
     state: 'ready',
   },
   {
-    id: '7fc6ca11-452e-d3e4-9e1c-752ff615abea',
+    id: '75832119-7d9b-4e91-a7c6-76b996b69aaa',
     name: 'snapshot-heavy',
     description: '',
     project_id: project.id,
@@ -100,17 +133,3 @@ export const snapshots: Json<Snapshot>[] = [
   },
   ...generatedSnapshots,
 ]
-
-function generateSnapshot(index: number): Json<Snapshot> {
-  return {
-    id: uuid(),
-    name: `disk-1-snapshot-${index + 8}`,
-    description: '',
-    project_id: project.id,
-    time_created: new Date().toISOString(),
-    time_modified: new Date().toISOString(),
-    size: 1024 * (index + 1),
-    disk_id: disks[0].id,
-    state: 'ready',
-  }
-}

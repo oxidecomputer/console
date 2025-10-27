@@ -15,9 +15,10 @@ const HELP = `
 Display changes to API client caused by a given Omicron PR. Works by downloading
 the OpenAPI spec before and after, generating clients in temp dirs, and diffing.
 
-Requirements:
+Dependencies:
   - Deno (which you have if you're seeing this message)
   - GitHub CLI (gh)
+  - Optional: delta diff pager https://dandavison.github.io/delta/
 
 Usage:
   ./tools/deno/api-diff.ts [-f] [PR number or commit SHA]
@@ -66,16 +67,28 @@ async function getCommitRange(
   // if there are no args or the arg is a number, we're talking about a PR
   if (args.length === 0 || typeof args[0] === 'number') {
     const prNum = args[0] || (await pickPr())
+    // This graphql thing is absurd, but the idea is to use the branch point as
+    // the base, i.e., the parent of the first commit. If we use the base ref
+    // (e.g., main) directly, we get the current state of main, which means the
+    // diff will reflect both the current PR and any changes made on main since
+    // it branched off.
     const query = `{
       repository(owner: "oxidecomputer", name: "omicron") {
         pullRequest(number: ${prNum}) {
-          baseRefOid
           headRefOid
+          commits(first: 1) {
+            nodes {
+              commit {
+                parents(first: 1) { nodes { oid } }
+              }
+            }
+          }
         }
       }
     }`
     const pr = await $`gh api graphql -f query=${query}`.json()
-    const { baseRefOid: base, headRefOid: head } = pr.data.repository.pullRequest
+    const head = pr.data.repository.pullRequest.headRefOid
+    const base = pr.data.repository.pullRequest.commits.nodes[0].commit.parents.nodes[0].oid
     return { base, head }
   }
 
@@ -112,8 +125,8 @@ async function genForCommit(commit: string, force: boolean) {
 
 if (!$.commandExistsSync('gh')) throw Error('Need gh (GitHub CLI)')
 
-// prefer difftastic if it exists. https://difftastic.wilfred.me.uk/
-const diffTool = $.commandExistsSync('difft') ? 'difft' : 'diff'
+// prefer delta if it exists. https://dandavison.github.io/delta/
+const diffTool = $.commandExistsSync('delta') ? 'delta' : 'diff'
 
 const args = parseArgs(Deno.args, {
   alias: { force: 'f', help: 'h' },

@@ -62,7 +62,6 @@ import { FullPageForm } from '~/components/form/FullPageForm'
 import { HL } from '~/components/HL'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { Checkbox } from '~/ui/lib/Checkbox'
 import { toComboboxItems } from '~/ui/lib/Combobox'
@@ -70,7 +69,7 @@ import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
-import * as MiniTable from '~/ui/lib/MiniTable'
+import { MiniTable } from '~/ui/lib/MiniTable'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { RadioCard } from '~/ui/lib/Radio'
@@ -270,7 +269,7 @@ export default function CreateInstanceForm() {
   // additional form elements for projectImage and siloImage tabs
   const bootDiskSizeAndName = (
     <>
-      <div key="divider" className="!my-12 content-['a']" />
+      <div key="divider" className="my-12! content-['a']" />
       <DiskSizeField
         key="diskSizeField"
         label="Disk size"
@@ -369,7 +368,7 @@ export default function CreateInstanceForm() {
         </CheckboxField>
         <FormDivider />
         <Form.Heading id="hardware">Hardware</Form.Heading>
-        <TextInputHint id="hw-gp-help-text" className="mb-12 max-w-xl text-sans-md">
+        <TextInputHint id="hw-gp-help-text" className="text-sans-md mb-12 max-w-xl">
           Pick a pre-configured machine type that offers balanced vCPU and memory for most
           workloads or create a custom machine.
         </TextInputHint>
@@ -440,14 +439,13 @@ export default function CreateInstanceForm() {
               label="CPUs"
               name="ncpus"
               min={1}
-              max={INSTANCE_MAX_CPU}
               control={control}
               validate={(cpus) => {
                 if (cpus < 1) {
                   return `Must be at least 1 vCPU`
                 }
                 if (cpus > INSTANCE_MAX_CPU) {
-                  return `CPUs capped to ${INSTANCE_MAX_CPU}`
+                  return `Can be at most ${INSTANCE_MAX_CPU}`
                 }
               }}
               disabled={isSubmitting}
@@ -458,7 +456,6 @@ export default function CreateInstanceForm() {
               label="Memory"
               name="memory"
               min={1}
-              max={INSTANCE_MAX_RAM_GiB}
               control={control}
               validate={(memory) => {
                 if (memory < 1) {
@@ -520,7 +517,7 @@ export default function CreateInstanceForm() {
             className="space-y-4"
           >
             {siloImages.length === 0 ? (
-              <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
+              <div className="border-default flex max-w-lg items-center justify-center rounded-lg border p-6">
                 <EmptyMessage
                   icon={<Images16Icon />}
                   title="No silo images found"
@@ -544,7 +541,7 @@ export default function CreateInstanceForm() {
             className="space-y-4"
           >
             {projectImages.length === 0 ? (
-              <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
+              <div className="border-default flex max-w-lg items-center justify-center rounded-lg border p-6">
                 <EmptyMessage
                   icon={<Images16Icon />}
                   title="No project images found"
@@ -568,7 +565,7 @@ export default function CreateInstanceForm() {
 
           <Tabs.Content value={'disk' satisfies BootDiskSourceType} className="space-y-4">
             {disks.length === 0 ? (
-              <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
+              <div className="border-default flex max-w-lg items-center justify-center rounded-lg border p-6">
                 <EmptyMessage
                   icon={<Storage16Icon />}
                   title="No detached disks found"
@@ -624,12 +621,12 @@ const isFloating = (
 const FloatingIpLabel = ({ ip }: { ip: FloatingIp }) => (
   <div>
     <div>{ip.name}</div>
-    <div className="flex gap-0.5 text-secondary selected:text-accent-secondary">
+    <div className="text-secondary selected:text-accent-secondary flex gap-0.5">
       <div>{ip.ip}</div>
       {ip.description && (
         <>
           <Slash />
-          <div className="grow overflow-hidden overflow-ellipsis whitespace-pre text-left">
+          <div className="grow overflow-hidden text-left text-ellipsis whitespace-pre">
             {ip.description}
           </div>
         </>
@@ -779,31 +776,28 @@ const AdvancedAccordion = ({
         </div>
 
         <div className="flex flex-1 flex-col gap-4">
-          <h2 className="flex items-center text-sans-md">
+          <h2 className="text-sans-md flex items-center">
             Ephemeral IP{' '}
             <TipIcon className="ml-1.5">
               Ephemeral IPs are allocated when the instance is created and deallocated when
               it is deleted
             </TipIcon>
           </h2>
-          <div className="flex items-start gap-2.5">
-            <Checkbox
-              id="assignEphemeralIp"
-              checked={assignEphemeralIp}
-              onChange={() => {
-                const newExternalIps = assignEphemeralIp
-                  ? externalIps.field.value?.filter((ip) => ip.type !== 'ephemeral')
-                  : [
-                      ...(externalIps.field.value || []),
-                      { type: 'ephemeral', pool: selectedPool || defaultPool },
-                    ]
-                externalIps.field.onChange(newExternalIps)
-              }}
-            />
-            <label htmlFor="assignEphemeralIp" className="text-sans-md text-default">
-              Allocate and attach an ephemeral IP address
-            </label>
-          </div>
+          <Checkbox
+            id="assignEphemeralIp"
+            checked={assignEphemeralIp}
+            onChange={() => {
+              const newExternalIps = assignEphemeralIp
+                ? externalIps.field.value?.filter((ip) => ip.type !== 'ephemeral')
+                : [
+                    ...(externalIps.field.value || []),
+                    { type: 'ephemeral', pool: selectedPool || defaultPool },
+                  ]
+              externalIps.field.onChange(newExternalIps)
+            }}
+          >
+            Allocate and attach an ephemeral IP address
+          </Checkbox>
           {assignEphemeralIp && (
             <Listbox
               name="pools"
@@ -824,42 +818,15 @@ const AdvancedAccordion = ({
         </div>
 
         <div className="flex flex-1 flex-col gap-2">
-          <h2 className="flex items-center text-sans-md">
+          <h2 className="text-sans-md flex items-center">
             Floating IPs{' '}
             <TipIcon className="ml-1.5">
               Floating IPs exist independently of instances and can be attached to and
               detached from them as needed
             </TipIcon>
           </h2>
-          {isFloatingIpAttached && (
-            <MiniTable.Table>
-              <MiniTable.Header>
-                <MiniTable.HeadCell>Name</MiniTable.HeadCell>
-                <MiniTable.HeadCell>IP</MiniTable.HeadCell>
-                {/* For remove button */}
-                <MiniTable.HeadCell className="w-12" />
-              </MiniTable.Header>
-              <MiniTable.Body>
-                {attachedFloatingIpsData.map((item, index) => (
-                  <MiniTable.Row
-                    tabIndex={0}
-                    aria-rowindex={index + 1}
-                    aria-label={`Name: ${item.name}, IP: ${item.ip}`}
-                    key={item.name}
-                  >
-                    <MiniTable.Cell>{item.name}</MiniTable.Cell>
-                    <MiniTable.Cell>{item.ip}</MiniTable.Cell>
-                    <MiniTable.RemoveCell
-                      onClick={() => detachFloatingIp(item.name)}
-                      label={`remove floating IP ${item.name}`}
-                    />
-                  </MiniTable.Row>
-                ))}
-              </MiniTable.Body>
-            </MiniTable.Table>
-          )}
           {floatingIpList.items.length === 0 ? (
-            <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
+            <div className="border-default flex max-w-lg items-center justify-center rounded-lg border">
               <EmptyMessage
                 icon={<IpGlobal16Icon />}
                 title="No floating IPs found"
@@ -867,8 +834,20 @@ const AdvancedAccordion = ({
               />
             </div>
           ) : (
-            <div>
+            <div className="flex flex-col items-start gap-3">
+              <MiniTable
+                ariaLabel="Floating IPs"
+                items={attachedFloatingIpsData}
+                columns={[
+                  { header: 'Name', cell: (item) => item.name },
+                  { header: 'IP', cell: (item) => item.ip },
+                ]}
+                rowKey={(item) => item.name}
+                onRemoveItem={(item) => detachFloatingIp(item.name)}
+                removeLabel={(item) => `remove floating IP ${item.name}`}
+              />
               <Button
+                variant="secondary"
                 size="sm"
                 disabled={availableFloatingIps.length === 0}
                 disabledReason="No floating IPs available"
@@ -878,7 +857,6 @@ const AdvancedAccordion = ({
               </Button>
             </div>
           )}
-
           <Modal
             isOpen={floatingIpModalOpen}
             onDismiss={closeFloatingIpModal}
@@ -931,7 +909,7 @@ const AdvancedAccordion = ({
           disabled={isSubmitting}
         />
         <div className="flex flex-1 flex-col gap-2">
-          <h2 className="flex items-center text-sans-md">
+          <h2 className="text-sans-md flex items-center">
             Anti-affinity groups
             <TipIcon className="ml-1.5">
               Instances in an anti-affinity group will be placed on different sleds when
@@ -939,36 +917,20 @@ const AdvancedAccordion = ({
             </TipIcon>
           </h2>
           {attachedAntiAffinityGroupNames.length > 0 && (
-            <MiniTable.Table>
-              <MiniTable.Header>
-                <MiniTable.HeadCell>Name</MiniTable.HeadCell>
-                <MiniTable.HeadCell>Policy</MiniTable.HeadCell>
-                {/* For remove button */}
-                <MiniTable.HeadCell className="w-12" />
-              </MiniTable.Header>
-              <MiniTable.Body>
-                {attachedAntiAffinityGroupData.map((item, index) => (
-                  <MiniTable.Row
-                    tabIndex={0}
-                    aria-rowindex={index + 1}
-                    aria-label={`Name: ${item.name}, Policy: ${item.policy}`}
-                    key={item.name}
-                  >
-                    <MiniTable.Cell>{item.name}</MiniTable.Cell>
-                    <MiniTable.Cell>
-                      <Badge variant="solid">{item.policy}</Badge>
-                    </MiniTable.Cell>
-                    <MiniTable.RemoveCell
-                      onClick={() => detachAntiAffinityGroup(item.name)}
-                      label={`remove anti-affinity group ${item.name}`}
-                    />
-                  </MiniTable.Row>
-                ))}
-              </MiniTable.Body>
-            </MiniTable.Table>
+            <MiniTable
+              ariaLabel="Anti-affinity groups"
+              items={attachedAntiAffinityGroupData}
+              columns={[
+                { header: 'Name', cell: (item) => item.name },
+                { header: 'Policy', cell: (item) => item.policy },
+              ]}
+              rowKey={(item) => item.name}
+              onRemoveItem={(item) => detachAntiAffinityGroup(item.name)}
+              removeLabel={(item) => `remove anti-affinity group ${item.name}`}
+            />
           )}
           {antiAffinityGroupList.items.length === 0 ? (
-            <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
+            <div className="border-default flex max-w-lg items-center justify-center rounded-lg border p-6">
               <EmptyMessage
                 icon={<Affinity16Icon />}
                 title="No anti-affinity groups found"
@@ -1007,12 +969,12 @@ const AdvancedAccordion = ({
                       label: (
                         <div>
                           <div>{group.name}</div>
-                          <div className="flex gap-0.5 text-secondary selected:text-accent-secondary">
+                          <div className="text-secondary selected:text-accent-secondary flex gap-0.5">
                             <div>{group.policy}</div>
                             {group.description && (
                               <>
                                 <Slash />
-                                <div className="grow overflow-hidden overflow-ellipsis whitespace-pre text-left">
+                                <div className="grow overflow-hidden text-left overflow-ellipsis whitespace-pre">
                                   {group.description}
                                 </div>
                               </>
@@ -1066,13 +1028,11 @@ const PRESETS = [
   { category: 'general', id: 'general-sm', memory: 16, ncpus: 4 },
   { category: 'general', id: 'general-md', memory: 32, ncpus: 8 },
   { category: 'general', id: 'general-lg', memory: 64, ncpus: 16 },
-  { category: 'general', id: 'general-xl', memory: 128, ncpus: 32 },
 
   { category: 'highCPU', id: 'highCPU-xs', memory: 4, ncpus: 2 },
   { category: 'highCPU', id: 'highCPU-sm', memory: 8, ncpus: 4 },
   { category: 'highCPU', id: 'highCPU-md', memory: 16, ncpus: 8 },
   { category: 'highCPU', id: 'highCPU-lg', memory: 32, ncpus: 16 },
-  { category: 'highCPU', id: 'highCPU-xl', memory: 64, ncpus: 32 },
 
   { category: 'highMemory', id: 'highMemory-xs', memory: 16, ncpus: 2 },
   { category: 'highMemory', id: 'highMemory-sm', memory: 32, ncpus: 4 },

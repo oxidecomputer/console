@@ -154,7 +154,7 @@ export async function closeToast(page: Page) {
 export const clipboardText = async (page: Page) =>
   page.evaluate(() => navigator.clipboard.readText())
 
-export const openRowActions = async (page: Page, name: string) => {
+export const clickRowActions = async (page: Page, name: string) => {
   await page
     .getByRole('row', { name, exact: false })
     .getByRole('button', { name: 'Row actions' })
@@ -163,7 +163,7 @@ export const openRowActions = async (page: Page, name: string) => {
 
 /** Select row by `rowName`, click the row actions button, and click `actionName` */
 export async function clickRowAction(page: Page, rowName: string, actionName: string) {
-  await openRowActions(page, rowName)
+  await clickRowActions(page, rowName)
   await page.getByRole('menuitem', { name: actionName }).click()
 }
 
@@ -191,7 +191,7 @@ export async function selectOption(
 
 export async function getPageAsUser(
   browser: Browser,
-  user: 'Hans Jonas' | 'Simone de Beauvoir' | 'Jacob Klein'
+  user: 'Hans Jonas' | 'Simone de Beauvoir' | 'Jacob Klein' | 'Jane Austen'
 ): Promise<Page> {
   const browserContext = await browser.newContext()
   await browserContext.addCookies([
@@ -231,7 +231,7 @@ export async function chooseFile(
   size: 'large' | 'small' = 'large'
 ) {
   const fileChooserPromise = page.waitForEvent('filechooser')
-  await inputLocator.click()
+  await inputLocator.click({ force: true })
   const fileChooser = await fileChooserPromise
   await fileChooser.setFiles({
     name: 'my-image.iso',
@@ -262,4 +262,9 @@ export async function addTlsCert(page: Page) {
   await chooseFile(page, page.getByLabel('Cert', { exact: true }), 'small')
   await chooseFile(page, page.getByLabel('Key'), 'small')
   await page.getByRole('button', { name: 'Add Certificate' }).click()
+}
+
+export async function hasConsoleMessage(page: Page, msg: string) {
+  const messages = await page.consoleMessages()
+  return messages.some((m) => m.text().includes(msg))
 }

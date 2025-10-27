@@ -5,61 +5,81 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { DiskState, InstanceState, SnapshotState } from '@oxide/api'
+import cn from 'classnames'
 
-import { Badge, type BadgeColor, type BadgeProps } from '~/ui/lib/Badge'
+import {
+  diskTransitioning,
+  instanceTransitioning,
+  type DiskState,
+  type InstanceState,
+  type SnapshotState,
+} from '@oxide/api'
+import { Badge, type BadgeColor } from '@oxide/design-system/ui'
 
-const INSTANCE_COLORS: Record<InstanceState, Pick<BadgeProps, 'color' | 'variant'>> = {
-  creating: { color: 'purple', variant: 'solid' },
-  starting: { color: 'blue', variant: 'solid' },
-  running: { color: 'default' },
-  rebooting: { color: 'notice' },
-  stopping: { color: 'notice' },
-  stopped: { color: 'neutral', variant: 'solid' },
-  repairing: { color: 'notice', variant: 'solid' },
-  migrating: { color: 'notice', variant: 'solid' },
-  failed: { color: 'destructive', variant: 'solid' },
-  destroyed: { color: 'neutral', variant: 'solid' },
+import { Spinner } from '~/ui/lib/Spinner'
+
+const INSTANCE_COLORS: Record<InstanceState, BadgeColor> = {
+  running: 'default',
+  stopped: 'neutral',
+  failed: 'destructive',
+  destroyed: 'destructive',
+  creating: 'default',
+  starting: 'blue',
+  rebooting: 'blue',
+  migrating: 'purple',
+  repairing: 'notice',
+  stopping: 'neutral',
 }
 
+const badgeClasses = '*:flex *:items-center *:gap-1'
+
 export const InstanceStateBadge = (props: { state: InstanceState; className?: string }) => (
-  <Badge {...INSTANCE_COLORS[props.state]} className={props.className}>
+  <Badge color={INSTANCE_COLORS[props.state]} className={cn(props.className, badgeClasses)}>
+    {instanceTransitioning(props.state) && (
+      <Spinner size="sm" variant={INSTANCE_COLORS[props.state]} />
+    )}
     {props.state}
   </Badge>
 )
 
 type DiskStateStr = DiskState['state']
 
-const DISK_COLORS: Record<DiskStateStr, Pick<BadgeProps, 'color' | 'variant'>> = {
-  attached: { color: 'default' },
-  attaching: { color: 'blue', variant: 'solid' },
-  creating: { color: 'purple', variant: 'solid' },
-  detaching: { color: 'notice', variant: 'solid' },
-  detached: { color: 'neutral', variant: 'solid' },
-  destroyed: { color: 'destructive', variant: 'solid' }, // should we ever see this?
-  faulted: { color: 'destructive', variant: 'solid' },
-  maintenance: { color: 'notice', variant: 'solid' },
-  import_ready: { color: 'blue', variant: 'solid' },
-  importing_from_url: { color: 'purple', variant: 'solid' },
-  importing_from_bulk_writes: { color: 'purple', variant: 'solid' },
-  finalizing: { color: 'blue', variant: 'solid' },
+const DISK_COLORS: Record<DiskStateStr, BadgeColor> = {
+  attached: 'default',
+  attaching: 'blue',
+  creating: 'default',
+  detaching: 'blue',
+  detached: 'neutral',
+  destroyed: 'destructive', // should we ever see this?
+  faulted: 'destructive',
+  maintenance: 'notice',
+  import_ready: 'blue',
+  importing_from_url: 'purple',
+  importing_from_bulk_writes: 'purple',
+  finalizing: 'blue',
 }
 
 export const DiskStateBadge = (props: { state: DiskStateStr; className?: string }) => (
-  <Badge {...DISK_COLORS[props.state]} className={props.className}>
-    {props.state}
+  <Badge color={DISK_COLORS[props.state]} className={cn(props.className, badgeClasses)}>
+    {diskTransitioning(props.state) && (
+      <Spinner size="sm" variant={DISK_COLORS[props.state]} />
+    )}
+    {props.state.replace(/_/g, ' ')}
   </Badge>
 )
 
 const SNAPSHOT_COLORS: Record<SnapshotState, BadgeColor> = {
-  creating: 'notice',
+  creating: 'default',
   destroyed: 'neutral',
   faulted: 'destructive',
   ready: 'default',
 }
 
 export const SnapshotStateBadge = (props: { state: SnapshotState; className?: string }) => (
-  <Badge color={SNAPSHOT_COLORS[props.state]} className={props.className}>
+  <Badge color={SNAPSHOT_COLORS[props.state]} className={cn(props.className, badgeClasses)}>
+    {props.state === 'creating' && (
+      <Spinner size="sm" variant={SNAPSHOT_COLORS[props.state]} />
+    )}
     {props.state}
   </Badge>
 )

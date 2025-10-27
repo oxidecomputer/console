@@ -15,7 +15,6 @@ import {
   apiq,
   apiQueryClient,
   getListQFn,
-  parseIpUtilization,
   queryClient,
   useApiMutation,
   useApiQuery,
@@ -147,30 +146,24 @@ export default function IpPoolpage() {
 function UtilizationBars() {
   const { pool } = useIpPoolSelector()
   const { data } = usePrefetchedApiQuery('ipPoolUtilizationView', { path: { pool } })
-  const { ipv4, ipv6 } = parseIpUtilization(data)
+  const { capacity, remaining } = data
 
-  if (ipv4.capacity === 0 && ipv6.capacity === 0n) return null
+  if (capacity === 0) return null
 
   return (
-    <div className="-mt-8 mb-8 flex min-w-min flex-col gap-3 lg+:flex-row">
-      {ipv4.capacity > 0 && (
+    <div className="1000:flex-row -mt-8 mb-8 flex min-w-min flex-col gap-3">
+      {capacity > 0 && (
         <CapacityBar
           icon={<IpGlobal16Icon />}
-          title="IPv4"
-          provisioned={ipv4.allocated}
-          capacity={ipv4.capacity}
-          provisionedLabel="Allocated"
-          capacityLabel="Capacity"
-          unit="IPs"
-          includeUnit={false}
-        />
-      )}
-      {ipv6.capacity > 0 && (
-        <CapacityBar
-          icon={<IpGlobal16Icon />}
-          title="IPv6"
-          provisioned={ipv6.allocated}
-          capacity={ipv6.capacity}
+          title="ALLOCATED"
+          // TODO: this is potentially broken in the case of large IPv6 numbers
+          // due to lack of full precision. This should be fine and useful
+          // for IPv4 pools, but for IPv6 we should probably just show the two
+          // numbers. For now there are no IPv6 pools.
+          // https://github.com/oxidecomputer/omicron/issues/8966
+          // https://github.com/oxidecomputer/omicron/issues/9004
+          provisioned={Math.max(capacity - remaining, 0)}
+          capacity={capacity}
           provisionedLabel="Allocated"
           capacityLabel="Capacity"
           unit="IPs"
@@ -271,7 +264,7 @@ const silosStaticCols = [
           Pool is silo default
           <TipIcon>
             IPs are allocated from the default pool when users ask for an IP without
-            specifying a pool.
+            specifying a pool
           </TipIcon>
         </span>
       )

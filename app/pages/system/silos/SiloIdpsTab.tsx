@@ -7,16 +7,16 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo } from 'react'
-import { Outlet } from 'react-router'
+import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
 import { Cloud24Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
-import { getListQFn, type IdentityProvider } from '~/api'
-import { useSiloSelector } from '~/hooks/use-params'
+import { getListQFn, queryClient, type IdentityProvider } from '~/api'
+import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
-import { Badge } from '~/ui/lib/Badge'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pb } from '~/util/path-builder'
@@ -30,7 +30,13 @@ const colHelper = createColumnHelper<IdentityProvider>()
 export const siloIdpList = (silo: string) =>
   getListQFn('siloIdentityProviderList', { query: { silo } })
 
-export function SiloIdpsTab() {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
+  const { silo } = getSiloSelector(params)
+  await queryClient.prefetchQuery(siloIdpList(silo).optionsFn())
+  return null
+}
+
+export default function SiloIdpsTab() {
   const { silo } = useSiloSelector()
 
   const columns = useMemo(

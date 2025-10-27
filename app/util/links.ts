@@ -10,11 +10,12 @@ const remoteAccess = 'https://docs.oxide.computer/guides/remote-access'
 
 export const links = {
   accessDocs: 'https://docs.oxide.computer/guides/configuring-access',
-  // TODO: make sure this is right before merging
   affinityDocs:
-    'https://docs.oxide.computer/guides/deploying-workloads#_anti_affinity_groups',
+    'https://docs.oxide.computer/guides/deploying-workloads#_affinity_and_anti_affinity',
   cloudInitFormat: 'https://cloudinit.readthedocs.io/en/latest/explanation/format.html',
   cloudInitExamples: 'https://cloudinit.readthedocs.io/en/latest/reference/examples.html',
+  deviceTokenSetup:
+    'https://docs.oxide.computer/guides/working-with-api-and-sdk#_device_token_setup',
   disksDocs: 'https://docs.oxide.computer/guides/managing-disks-and-snapshots',
   firewallRulesDocs:
     'https://docs.oxide.computer/guides/configuring-guest-networking#_firewall_rules',
@@ -56,6 +57,7 @@ export const links = {
   systemIpPoolsDocs: 'https://docs.oxide.computer/guides/operator/ip-pool-management',
   systemMetricsDocs: 'https://docs.oxide.computer/guides/operator/system-metrics',
   systemSiloDocs: 'https://docs.oxide.computer/guides/operator/silo-management',
+  systemUpdateDocs: 'https://docs.oxide.computer/guides/operator/system-update',
   transitIpsDocs:
     'https://docs.oxide.computer/guides/configuring-guest-networking#_example_4_software_routing_tunnels',
   troubleshootingAccess:
@@ -73,6 +75,10 @@ export const docLinks = {
   affinity: {
     href: links.affinityDocs,
     linkText: 'Anti-Affinity Groups',
+  },
+  deviceTokens: {
+    href: links.deviceTokenSetup,
+    linkText: 'Access Tokens',
   },
   disks: {
     href: links.disksDocs,
@@ -149,6 +155,10 @@ export const docLinks = {
   systemSilo: {
     href: links.systemSiloDocs,
     linkText: 'Silos',
+  },
+  systemUpdate: {
+    href: links.systemUpdateDocs,
+    linkText: 'System Update',
   },
   instances: {
     href: links.instancesDocs,

@@ -110,7 +110,7 @@ export default function ImagesPage() {
       <PageHeader>
         <PageTitle icon={<Images24Icon />}>Project Images</PageTitle>
         <DocsPopover
-          heading="Images"
+          heading="images"
           icon={<Images16Icon />}
           summary="Images let you create a new disk based on an existing one. Images can be uploaded directly or created from a snapshot."
           links={[docLinks.images]}
