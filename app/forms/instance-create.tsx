@@ -944,7 +944,7 @@ const AdvancedAccordion = ({
                 }}
               />
               <ClearAndAddButtons
-                addButtonCopy="Add group"
+                addButtonCopy="Add to group"
                 disabled={availableAntiAffinityGroups.length === 0}
                 onSubmit={() => setAntiAffinityGroupModalOpen(true)}
                 onClear={() => antiAffinityGroups.field.onChange([])}
