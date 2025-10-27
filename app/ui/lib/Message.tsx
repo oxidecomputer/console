@@ -38,17 +38,17 @@ const defaultIcon: Record<Variant, ReactElement> = {
 }
 
 const color: Record<Variant, string> = {
-  success: 'bg-accent-secondary',
-  error: 'bg-error-secondary',
-  notice: 'bg-notice-secondary',
-  info: 'bg-info-secondary',
+  success: 'bg-accent-secondary border-accent/10',
+  error: 'bg-error-secondary border-destructive/10',
+  notice: 'bg-notice-secondary border-notice/10',
+  info: 'bg-info-secondary border-blue-800/10',
 }
 
 const textColor: Record<Variant, string> = {
-  success: 'text-accent *:text-accent',
-  error: 'text-error *:text-error',
-  notice: 'text-notice *:text-notice',
-  info: 'text-info *:text-info',
+  success: 'text-accent',
+  error: 'text-error',
+  notice: 'text-notice',
+  info: 'text-info',
 }
 
 const secondaryTextColor: Record<Variant, string> = {
@@ -77,22 +77,26 @@ export const Message = ({
   return (
     <div
       className={cn(
-        'elevation-1 relative flex items-start gap-2.5 overflow-hidden rounded-lg p-4',
+        'elevation-1 relative flex items-start gap-2.5 overflow-hidden rounded-lg border p-3 pr-5',
         color[variant],
         textColor[variant],
         className
       )}
     >
       {showIcon && (
-        <div className="mt-[2px] flex [&>svg]:h-3 [&>svg]:w-3">{defaultIcon[variant]}</div>
+        <div
+          className={cn(
+            'mt-[2px] flex [&>svg]:h-3 [&>svg]:w-3',
+            `[&>svg]:${textColor[variant]}`
+          )}
+        >
+          {defaultIcon[variant]}
+        </div>
       )}
       <div className="flex-1">
         {title && <div className="text-sans-semi-md">{title}</div>}
         <div
-          className={cn(
-            'text-sans-md [&>a]:underline',
-            title ? secondaryTextColor[variant] : textColor[variant]
-          )}
+          className={cn('text-sans-md [&>a]:tint-underline', secondaryTextColor[variant])}
         >
           {content}
         </div>

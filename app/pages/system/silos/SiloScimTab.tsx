@@ -213,10 +213,8 @@ function CreateTokenModal({
   return (
     <Modal isOpen onDismiss={onDismiss} title="Create token">
       <Modal.Section>
-        <Message
-          variant="info"
-          content="This token will have access to provision users and groups via SCIM. Store it securely and never share it publicly."
-        />
+        This token will have access to provision users and groups via SCIM. Store it
+        securely and never share it publicly.
       </Modal.Section>
 
       <Modal.Footer
@@ -246,27 +244,18 @@ function TokenCreatedModal({
   return (
     <Modal isOpen onDismiss={onDismiss} title="Create token">
       <Modal.Section>
-        <div className="text-sans-sm border-default rounded border p-3">
-          <div className="text-mono-sm text-tertiary mb-1 uppercase">Expires</div>
-          {token.timeExpires ? (
-            <DateTime date={token.timeExpires} />
-          ) : (
-            <Badge color="neutral">Never</Badge>
-          )}
-        </div>
-
         <Message
           variant="notice"
           content="This is the only time you'll see this token. Copy it now and store it securely."
         />
 
         <div className="mt-4">
-          <div className="text-sans-semi-md mb-2 font-medium">Bearer Token</div>
-          <div className="text-sans-sm text-raise bg-default border-default flex items-center rounded border font-mono">
-            <div className="flex-1 overflow-hidden px-3 py-2 text-ellipsis">
+          <div className="text-sans-semi-md mb-2">Bearer Token</div>
+          <div className="text-sans-md text-raise bg-default border-default flex items-stretch rounded border">
+            <div className="flex-1 overflow-hidden px-3 py-2.75 text-ellipsis">
               {token.bearerToken}
             </div>
-            <div className="border-default border-l p-2">
+            <div className="border-default flex w-8 items-center justify-center border-l">
               <CopyToClipboard text={token.bearerToken} />
             </div>
           </div>
