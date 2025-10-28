@@ -620,6 +620,7 @@ export type AntiAffinityGroupUpdate = { description?: string | null; name?: Name
 export type AuditLogEntryActor =
   | { kind: 'user_builtin'; userBuiltinId: string }
   | { kind: 'silo_user'; siloId: string; siloUserId: string }
+  | { kind: 'scim'; siloId: string }
   | { kind: 'unauthenticated' }
 
 /**
@@ -2663,6 +2664,18 @@ export type InternetGatewayResultsPage = {
 export type IpVersion = 'v4' | 'v6'
 
 /**
+ * Type of IP pool.
+ */
+export type IpPoolType =
+  /** Unicast IP pool for standard IP allocations. */
+  | 'unicast'
+
+  /** Multicast IP pool for multicast group allocations.
+
+All ranges in a multicast pool must be either ASM or SSM (not mixed). */
+  | 'multicast'
+
+/**
  * A collection of IP ranges. If a pool is linked to a silo, IP addresses from the pool can be allocated within that silo
  */
 export type IpPool = {
@@ -2674,6 +2687,8 @@ export type IpPool = {
   ipVersion: IpVersion
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
+  /** Type of IP pool (unicast or multicast) */
+  poolType: IpPoolType
   /** timestamp when this resource was created */
   timeCreated: Date
   /** timestamp when this resource was last modified */
@@ -2681,7 +2696,11 @@ export type IpPool = {
 }
 
 /**
- * Create-time parameters for an `IpPool`
+ * Create-time parameters for an `IpPool`.
+ *
+ * For multicast pools, all ranges must be either Any-Source Multicast (ASM) or Source-Specific Multicast (SSM), but not both. Mixing ASM and SSM ranges in the same pool is not allowed.
+ *
+ * ASM: IPv4 addresses outside 232.0.0.0/8, IPv6 addresses with flag field != 3 SSM: IPv4 addresses in 232.0.0.0/8, IPv6 addresses with flag field = 3
  */
 export type IpPoolCreate = {
   description: string
@@ -2690,6 +2709,8 @@ export type IpPoolCreate = {
 The default is IPv4. */
   ipVersion?: IpVersion
   name: Name
+  /** Type of IP pool (defaults to Unicast) */
+  poolType?: IpPoolType
 }
 
 export type IpPoolLinkSilo = {
@@ -6236,10 +6257,6 @@ export interface ScimTokenCreateQueryParams {
   silo: NameOrId
 }
 
-export interface ScimTokenDeleteAllQueryParams {
-  silo: NameOrId
-}
-
 export interface ScimTokenViewPathParams {
   tokenId: string
 }
@@ -9265,7 +9282,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Add range to IP pool
+     * Add range to IP pool.
      */
     ipPoolRangeAdd: (
       { path, body }: { path: IpPoolRangeAddPathParams; body: IpRange },
@@ -9871,20 +9888,6 @@ export class Api extends HttpClient {
       return this.request<ScimClientBearerTokenValue>({
         path: `/v1/system/scim/tokens`,
         method: 'POST',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Delete all SCIM tokens
-     */
-    scimTokenDeleteAll: (
-      { query }: { query: ScimTokenDeleteAllQueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/v1/system/scim/tokens`,
-        method: 'DELETE',
         query,
         ...params,
       })

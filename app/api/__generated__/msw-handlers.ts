@@ -1430,12 +1430,6 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.ScimClientBearerTokenValue>>
-  /** `DELETE /v1/system/scim/tokens` */
-  scimTokenDeleteAll: (params: {
-    query: Api.ScimTokenDeleteAllQueryParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<StatusCode>
   /** `GET /v1/system/scim/tokens/:tokenId` */
   scimTokenView: (params: {
     path: Api.ScimTokenViewPathParams
@@ -3112,10 +3106,6 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.post(
       '/v1/system/scim/tokens',
       handler(handlers['scimTokenCreate'], schema.ScimTokenCreateParams, null)
-    ),
-    http.delete(
-      '/v1/system/scim/tokens',
-      handler(handlers['scimTokenDeleteAll'], schema.ScimTokenDeleteAllParams, null)
     ),
     http.get(
       '/v1/system/scim/tokens/:tokenId',

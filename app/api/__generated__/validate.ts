@@ -599,6 +599,7 @@ export const AuditLogEntryActor = z.preprocess(
   z.union([
     z.object({ kind: z.enum(['user_builtin']), userBuiltinId: z.uuid() }),
     z.object({ kind: z.enum(['silo_user']), siloId: z.uuid(), siloUserId: z.uuid() }),
+    z.object({ kind: z.enum(['scim']), siloId: z.uuid() }),
     z.object({ kind: z.enum(['unauthenticated']) }),
   ])
 )
@@ -2451,6 +2452,14 @@ export const InternetGatewayResultsPage = z.preprocess(
 export const IpVersion = z.preprocess(processResponseBody, z.enum(['v4', 'v6']))
 
 /**
+ * Type of IP pool.
+ */
+export const IpPoolType = z.preprocess(
+  processResponseBody,
+  z.enum(['unicast', 'multicast'])
+)
+
+/**
  * A collection of IP ranges. If a pool is linked to a silo, IP addresses from the pool can be allocated within that silo
  */
 export const IpPool = z.preprocess(
@@ -2460,13 +2469,18 @@ export const IpPool = z.preprocess(
     id: z.uuid(),
     ipVersion: IpVersion,
     name: Name,
+    poolType: IpPoolType,
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
   })
 )
 
 /**
- * Create-time parameters for an `IpPool`
+ * Create-time parameters for an `IpPool`.
+ *
+ * For multicast pools, all ranges must be either Any-Source Multicast (ASM) or Source-Specific Multicast (SSM), but not both. Mixing ASM and SSM ranges in the same pool is not allowed.
+ *
+ * ASM: IPv4 addresses outside 232.0.0.0/8, IPv6 addresses with flag field != 3 SSM: IPv4 addresses in 232.0.0.0/8, IPv6 addresses with flag field = 3
  */
 export const IpPoolCreate = z.preprocess(
   processResponseBody,
@@ -2474,6 +2488,7 @@ export const IpPoolCreate = z.preprocess(
     description: z.string(),
     ipVersion: IpVersion.default('v4').optional(),
     name: Name,
+    poolType: IpPoolType.default('unicast').optional(),
   })
 )
 
@@ -7013,16 +7028,6 @@ export const ScimTokenListParams = z.preprocess(
 )
 
 export const ScimTokenCreateParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({
-      silo: NameOrId,
-    }),
-  })
-)
-
-export const ScimTokenDeleteAllParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
