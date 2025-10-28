@@ -7,11 +7,13 @@
  */
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
+import type { SetRequired } from 'type-fest'
 
 import { useApiMutation, useApiQueryClient, type IpPoolCreate } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
+import { RadioField } from '~/components/form/fields/RadioField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
@@ -23,10 +25,13 @@ import { pb } from '~/util/path-builder'
 // create a v6 pool, you can't actually add any ranges to it until
 // https://github.com/oxidecomputer/omicron/issues/8966
 
-const defaultValues: IpPoolCreate = {
+type IpPoolCreateForm = SetRequired<IpPoolCreate, 'poolType'>
+
+const defaultValues: IpPoolCreateForm = {
   name: '',
   description: '',
   ipVersion: 'v4',
+  poolType: 'unicast',
 }
 
 export const handle = titleCrumb('New IP pool')
@@ -45,7 +50,7 @@ export default function CreateIpPoolSideModalForm() {
     },
   })
 
-  const form = useForm({ defaultValues })
+  const form = useForm<IpPoolCreateForm>({ defaultValues })
 
   return (
     <SideModalForm
@@ -53,8 +58,8 @@ export default function CreateIpPoolSideModalForm() {
       formType="create"
       resourceName="IP pool"
       onDismiss={onDismiss}
-      onSubmit={({ name, description }) => {
-        createPool.mutate({ body: { name, description } })
+      onSubmit={({ name, description, poolType }) => {
+        createPool.mutate({ body: { name, description, poolType } })
       }}
       loading={createPool.isPending}
       submitError={createPool.error}
@@ -62,6 +67,15 @@ export default function CreateIpPoolSideModalForm() {
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <IpPoolVisibilityMessage />
+      <RadioField
+        name="poolType"
+        label="Pool type"
+        control={form.control}
+        items={[
+          { value: 'unicast', label: 'Unicast' },
+          { value: 'multicast', label: 'Multicast' },
+        ]}
+      />
     </SideModalForm>
   )
 }

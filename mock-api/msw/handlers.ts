@@ -1030,6 +1030,7 @@ export const handlers = makeHandlers({
       // undefined.
       // See https://zod.dev/v4/changelog?id=defaults-applied-within-optional-fields#defaults-applied-within-optional-fields
       ip_version: body.ip_version || 'v4',
+      pool_type: body.pool_type || 'unicast',
       ...getTimestamps(),
     }
     db.ipPools.push(newPool)
@@ -1998,7 +1999,6 @@ export const handlers = makeHandlers({
   systemUpdateTrustRootView: NotImplemented,
   scimTokenList: NotImplemented,
   scimTokenCreate: NotImplemented,
-  scimTokenDeleteAll: NotImplemented,
   scimTokenView: NotImplemented,
   scimTokenDelete: NotImplemented,
   userBuiltinList: NotImplemented,
