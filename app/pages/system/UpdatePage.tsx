@@ -9,6 +9,7 @@
 import { differenceInMinutes } from 'date-fns'
 import { useMemo } from 'react'
 import * as R from 'remeda'
+import { lt as semverLt } from 'semver'
 
 import {
   Images24Icon,
@@ -198,7 +199,17 @@ export default function UpdatePage() {
         <CardBlock.Body>
           <ul className="space-y-3">
             {repos.items.map((repo) => {
-              const isTarget = repo.systemVersion === status.targetRelease?.version
+              const targetVersion = status.targetRelease?.version
+              const isTarget = repo.systemVersion === targetVersion
+              // semverLt looks at prerelease meta but not build meta. In prod
+              // it doesn't matter either way because there will be neither. On
+              // dogfood it shouldn't matter because the versions will usually
+              // be the same and with the same prelease meta and only differing
+              // build meta, so semverLt will return false and we don't disable
+              // any. Very important this is
+              const olderThanTarget = targetVersion
+                ? semverLt(repo.systemVersion, targetVersion)
+                : false
               return (
                 <li
                   key={repo.hash}
@@ -249,10 +260,13 @@ export default function UpdatePage() {
                             errorTitle: `Error setting target release to ${repo.systemVersion}`,
                           })
                         }}
-                        // TODO: follow API logic, disabling for older releases.
-                        // Or maybe just have the API tell us by adding a field to
-                        // the TufRepo response type.
-                        disabled={isTarget && 'Already set as target'}
+                        disabled={
+                          isTarget
+                            ? 'Already set as target'
+                            : olderThanTarget
+                              ? 'Cannot set older release as target'
+                              : false
+                        }
                       />
                     </MoreActionsMenu>
                   </div>

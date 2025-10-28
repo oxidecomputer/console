@@ -53,6 +53,8 @@ test('Set target release', async ({ page }) => {
   await page.getByRole('button', { name: '17.0.0 actions' }).click()
   const disabledItem = page.getByRole('menuitem', { name: 'Set as target release' })
   await expect(disabledItem).toBeDisabled()
+  await disabledItem.hover()
+  await expect(page.getByText('Already set as target')).toBeVisible()
   await page.keyboard.press('Escape')
 
   // Upgrade to 18.0.0
@@ -77,6 +79,13 @@ test('Set target release', async ({ page }) => {
 
   const release18 = page.getByRole('listitem').filter({ hasText: '18.0.0' })
   await expect(release18.getByText('Target')).toBeVisible()
+
+  // Set target on 17 should still be disabled, but now for a different reason
+  await page.getByRole('button', { name: '17.0.0 actions' }).click()
+  const setTargetItem = page.getByRole('menuitem', { name: 'Set as target release' })
+  await expect(setTargetItem).toBeDisabled()
+  await setTargetItem.hover()
+  await expect(page.getByText('Cannot set older release as target')).toBeVisible()
 })
 
 test('Cannot downgrade to older release', async ({ page }) => {
@@ -88,23 +97,12 @@ test('Cannot downgrade to older release', async ({ page }) => {
   const release17 = page.getByRole('listitem').filter({ hasText: '17.0.0' })
   await expect(release17.getByText('Target')).toBeVisible()
 
-  // Try to downgrade to 16.0.0
+  // Try to downgrade to 16.0.0 - button should be disabled
   await page.getByRole('button', { name: '16.0.0 actions' }).click()
-  await page.getByRole('menuitem', { name: 'Set as target release' }).click()
-
-  const modal = page.getByRole('dialog', { name: 'Confirm set target release' })
-  await expect(modal).toBeVisible()
-  await expect(
-    modal.getByText('Are you sure you want to set 16.0.0 as the target release?')
-  ).toBeVisible()
-
-  await page.getByRole('button', { name: 'Confirm' }).click()
-
-  // Verify error toast appears
-  await expectToast(
-    page,
-    'Requested target release (16.0.0) must not be older than current target release (17.0.0).'
-  )
+  const setTargetItem = page.getByRole('menuitem', { name: 'Set as target release' })
+  await expect(setTargetItem).toBeDisabled()
+  await setTargetItem.hover()
+  await expect(page.getByText('Cannot set older release as target')).toBeVisible()
 
   // Verify the target release has NOT changed - still 17.0.0
   await expect(page.getByLabel('Properties table')).toContainText('17.0.0')
