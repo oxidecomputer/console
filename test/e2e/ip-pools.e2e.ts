@@ -328,15 +328,19 @@ test('deleting floating IP decrements utilization', async ({ page }) => {
 
 test('no ranges means no utilization bar', async ({ page }) => {
   await page.goto('/system/networking/ip-pools/ip-pool-1')
+  await expect(page.getByRole('heading', { name: 'ip-pool-1' })).toBeVisible()
   await expect(page.getByText('Allocated(IPs)')).toBeVisible()
 
   await page.goto('/system/networking/ip-pools/ip-pool-2')
+  await expect(page.getByRole('heading', { name: 'ip-pool-2' })).toBeVisible()
   await expect(page.getByText('Allocated(IPs)')).toBeVisible()
 
   await page.goto('/system/networking/ip-pools/ip-pool-3')
+  await expect(page.getByRole('heading', { name: 'ip-pool-3' })).toBeVisible()
   await expect(page.getByText('Allocated(IPs)')).toBeHidden()
 
   await page.goto('/system/networking/ip-pools/ip-pool-4')
+  await expect(page.getByRole('heading', { name: 'ip-pool-4' })).toBeVisible()
   await expect(page.getByText('Allocated(IPs)')).toBeVisible()
 
   await clickRowAction(page, '::1', 'Remove')
