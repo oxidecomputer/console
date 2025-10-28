@@ -626,8 +626,8 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
               apply the rule to traffic going to all matching instances.
             </p>
             <p className="mt-2">
-              Targets are additive: the rule applies to instances matching{' '}
-              <span className="underline">any</span> target.
+              Targets are additive: the rule applies to instances matching <em>any</em>{' '}
+              target.
             </p>
           </>
         }
@@ -643,7 +643,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
             Filters reduce the scope of this rule. Without filters, the rule applies to all
             traffic to the targets (or from the targets, if it&rsquo;s an outbound rule).
             With multiple filter types, the rule applies to traffic matching at least one
-            filter of <span className="underline">every</span> type.
+            filter of <em>every</em> type.
           </>
         }
       />
