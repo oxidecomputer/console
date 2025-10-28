@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
+import { differenceInMinutes } from 'date-fns'
 import { useMemo } from 'react'
 import * as R from 'remeda'
 
@@ -46,7 +47,29 @@ import { percentage, round } from '~/util/math'
 
 export const handle = makeCrumb('System Update')
 
-const statusQuery = apiq('systemUpdateStatus', {})
+const SEC = 1000 // ms, obviously
+const POLL_FAST = 20 * SEC
+const POLL_SLOW = 120 * SEC
+
+const statusQuery = apiq(
+  'systemUpdateStatus',
+  {},
+  {
+    refetchInterval({ state: { data: status } }) {
+      if (!status) return false // should be impossible due to prefetch
+
+      const now = new Date()
+      const minSinceTargetSet = status.targetRelease
+        ? differenceInMinutes(now, status.targetRelease.timeRequested)
+        : null
+      const minSinceLastStepPlanned = differenceInMinutes(now, status.timeLastStepPlanned)
+      return minSinceLastStepPlanned < 30 ||
+        (minSinceTargetSet !== null && minSinceTargetSet < 30)
+        ? POLL_FAST
+        : POLL_SLOW
+    },
+  }
+)
 const reposQuery = apiq('systemUpdateRepositoryList', { query: { limit: ALL_ISH } })
 
 const refreshData = () =>
