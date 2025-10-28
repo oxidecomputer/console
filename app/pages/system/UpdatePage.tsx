@@ -7,7 +7,7 @@
  */
 
 import { differenceInMinutes } from 'date-fns'
-import { useMemo, type SVGProps } from 'react'
+import { useMemo } from 'react'
 import * as R from 'remeda'
 import { lt as semverLt } from 'semver'
 
@@ -225,17 +225,7 @@ export default function UpdatePage() {
                     </div>
                     <div className="flex flex-col items-start gap-0.5 pr-2 @md:items-end">
                       <DateTime date={repo.timeCreated} />
-                      <div className="flex items-center gap-0.5">
-                        <HashIcon className="text-quaternary" aria-hidden />
-                        <a
-                          href={`https://github.com/oxidecomputer/omicron/commits/${repo.hash}`}
-                          className="link-with-underline text-default"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {repo.hash.substring(0, 7)}
-                        </a>
-                      </div>
+                      <div>{repo.fileName}</div>
                     </div>
                   </div>
                   <div className="border-secondary flex items-center justify-center self-stretch border-l">
@@ -281,19 +271,3 @@ export default function UpdatePage() {
     </>
   )
 }
-
-const HashIcon = (props: SVGProps<SVGSVGElement>) => (
-  <svg
-    width="12"
-    height="12"
-    viewBox="0 0 12 12"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
-    <path
-      d="M8.8338 0.967163L9.16681 1.03357C9.34546 1.06923 9.46113 1.24262 9.4256 1.42126L9.00958 3.50037H10.1707C10.3529 3.5005 10.5008 3.64827 10.5008 3.83044V4.17029C10.5008 4.35245 10.3528 4.50023 10.1707 4.50037H8.81036L8.20978 7.50037H9.17072C9.35285 7.5005 9.50079 7.64827 9.50079 7.83044V8.17029C9.50079 8.35245 9.35285 8.50023 9.17072 8.50037H8.01056L7.55548 10.7748C7.51965 10.9533 7.34537 11.0691 7.16681 11.0336L6.8338 10.9672C6.65508 10.9314 6.53926 10.7572 6.57501 10.5785L6.99103 8.50037H4.01056L3.55548 10.7748C3.51965 10.9533 3.34537 11.0691 3.16681 11.0336L2.8338 10.9672C2.65508 10.9314 2.53926 10.7572 2.57501 10.5785L2.99103 8.50037H1.83087C1.64862 8.50037 1.5008 8.35254 1.50079 8.17029V7.83044C1.50079 7.64819 1.64862 7.50037 1.83087 7.50037H3.19025L3.79083 4.50037H2.83087C2.64862 4.50037 2.5008 4.35254 2.50079 4.17029V3.83044C2.50079 3.64819 2.64862 3.50037 2.83087 3.50037H3.99005L4.44513 1.22595C4.48085 1.04733 4.65516 0.931576 4.8338 0.967163L5.16681 1.03357C5.34546 1.06923 5.46113 1.24262 5.4256 1.42126L5.00958 3.50037H7.99005L8.44513 1.22595C8.48085 1.04733 8.65516 0.931576 8.8338 0.967163ZM4.81036 4.50037L4.20978 7.50037H7.19025L7.79083 4.50037H4.81036Z"
-      fill="currentColor"
-    />
-  </svg>
-)
