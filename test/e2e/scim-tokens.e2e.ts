@@ -12,12 +12,9 @@ import { clickRowAction, expectNotVisible, expectRowVisible, expectVisible } fro
 test('SCIM tokens tab', async ({ page }) => {
   await page.goto('/system/silos/maze-war/scim')
 
-  await expectVisible(page, [
-    page.getByText('SCIM Bearer Tokens'),
-    page.getByText('Manage authentication tokens for SCIM identity provisioning'),
-  ])
+  await expect(page.getByText('SCIM Tokens')).toBeVisible()
 
-  const table = page.getByRole('table', { name: 'SCIM Bearer Tokens' })
+  const table = page.getByRole('table', { name: 'SCIM Tokens' })
 
   // Check that existing tokens are visible
   await expectRowVisible(table, { ID: 'a1b2c3d4…34567890' })
@@ -30,46 +27,44 @@ test('Create SCIM token', async ({ page }) => {
   // Open create modal
   await page.getByRole('button', { name: 'Create token' }).click()
 
-  const createModal = page.getByRole('dialog', { name: 'Create token' })
-  const modalMessage = 'This token will have access to provision users and groups via SCIM'
-  const createMessage = createModal.getByText(modalMessage)
+  const createModal = page.getByRole('dialog', { name: 'Create SCIM token' })
   await expect(createModal).toBeVisible()
-
-  // Check info message is visible
-  await expect(createMessage).toBeVisible()
 
   // Create the token
   await createModal.getByRole('button', { name: 'Create' }).click()
 
   // Creation modal should go away
-  await expect(createMessage).toBeHidden()
+  await expect(createModal).toBeHidden()
 
-  // Check that the warning message is visible
-  const warning = createModal.getByText("This is the only time you'll see this token")
+  // Now we have a new modal with the token in it
+  const tokenCreatedModal = page.getByRole('dialog', { name: 'SCIM token created' })
+  await expect(tokenCreatedModal).toBeVisible()
+
+  // Check that the bearer token is visible and starts with oxide-scim-
+  const bearerTokenDiv = tokenCreatedModal.getByText(/^oxide-scim-[a-f0-9]{20}$/)
+  await expect(bearerTokenDiv).toBeVisible()
+  const warning = tokenCreatedModal.getByText('This is the only')
   await expect(warning).toBeVisible()
 
-  // Check that the bearer token is visible and starts with scim_
-  const bearerTokenDiv = createModal.getByText(/^scim_[a-f0-9]{32}$/)
-  await expect(bearerTokenDiv).toBeVisible()
-
   // Check that copy button is visible
-  const copyButton = createModal.getByRole('button', { name: 'Click to copy' })
+  const copyButton = tokenCreatedModal.getByRole('button', { name: 'Click to copy' })
   await expect(copyButton).toBeVisible()
 
   // Dismiss the modal
-  await createModal.getByRole('button', { name: 'Done' }).click()
-  await expect(createModal).toBeHidden()
+  await tokenCreatedModal.getByRole('button', { name: 'Done' }).click()
+  await expect(tokenCreatedModal).toBeHidden()
 
-  // The token should NOT be visible in the table (bearer token is not shown after creation)
-  // But a new row should exist - check the table has 3 rows now (header + 2 original + 1 new)
-  const table = page.getByRole('table', { name: 'SCIM Bearer Tokens' })
+  // The token should NOT be visible in the table (bearer token is not shown
+  // after creation), but a new row should exist. Check the table has 3 rows now
+  // (header + 2 original + 1 new)
+  const table = page.getByRole('table', { name: 'SCIM Tokens' })
   await expect(table.getByRole('row')).toHaveCount(4) // header + 3 tokens
 })
 
 test('Delete SCIM token', async ({ page }) => {
   await page.goto('/system/silos/maze-war/scim')
 
-  const table = page.getByRole('table', { name: 'SCIM Bearer Tokens' })
+  const table = page.getByRole('table', { name: 'SCIM Tokens' })
 
   // Verify initial state - should have 2 tokens
   await expect(table.getByRole('row')).toHaveCount(3) // header + 2 tokens

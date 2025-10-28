@@ -147,6 +147,7 @@ export default function CreateSiloSideModalForm() {
         control={form.control}
         items={[
           { value: 'saml_jit', label: 'SAML' },
+          { value: 'saml_scim', label: 'SAML + SCIM' },
           { value: 'local_only', label: 'Local only' },
         ]}
       />

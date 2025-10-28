@@ -1902,12 +1902,16 @@ export const handlers = makeHandlers({
     requireFleetCollab(cookies)
     const silo = lookup.silo({ silo: query.silo })
 
-    // Generate a 32-character hex string
-    const hexString = uuid().replace(/-/g, '')
+    // Generate a 20-character hex string
+    const hexString = uuid().replace(/-/g, '').slice(0, 20)
 
     const newToken: Json<Api.ScimClientBearerTokenValue> = {
       id: uuid(),
-      bearer_token: `scim_${hexString}`,
+      // TODO: looks like the API does not include oxide-scim- in the token,
+      // but I think it should, so make sure to check this pending the outcome
+      // of that discussion
+      // https://github.com/oxidecomputer/omicron/blob/9617f40a/nexus/tests/integration_tests/scim.rs?plain=1#L449
+      bearer_token: hexString,
       time_created: new Date().toISOString(),
     }
 

@@ -25,7 +25,7 @@ import { addToast } from '~/stores/toast'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
-import { CardBlock } from '~/ui/lib/CardBlock'
+import { CardBlock, LearnMore } from '~/ui/lib/CardBlock'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { DateTime } from '~/ui/lib/DateTime'
@@ -34,6 +34,7 @@ import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { Truncate } from '~/ui/lib/Truncate'
+import { links } from '~/util/links'
 
 const colHelper = createColumnHelper<ScimClientBearerToken>()
 
@@ -133,9 +134,9 @@ export default function SiloScimTab() {
     <>
       <CardBlock>
         <CardBlock.Header
-          title="SCIM Bearer Tokens"
+          title="SCIM Tokens"
           titleId="scim-tokens-label"
-          description="Manage authentication tokens for SCIM identity provisioning"
+          description="Tokens for authenticating requests to SCIM endpoints"
         >
           <CreateButton onClick={() => setShowCreateModal(true)}>Create token</CreateButton>
         </CardBlock.Header>
@@ -150,22 +151,9 @@ export default function SiloScimTab() {
             />
           )}
         </CardBlock.Body>
-        {/* <CardBlock.Footer>
-          <div className="text-sans-md text-raise group-hover:bg-tertiary relative -ml-2 inline-block rounded py-1 pr-7 pl-2">
-            <span className="inline-block max-w-[300px] truncate align-middle">
-              Learn more about{' '}
-              <a
-                href={href}
-                className="text-accent group-hover:text-accent"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {linkText}
-                <OpenLink12Icon className="absolute top-1.5 ml-1 translate-y-[1px]" />
-              </a>
-            </span>
-          </div>
-        </CardBlock.Footer> */}
+        <CardBlock.Footer>
+          <LearnMore href={links.scimDocs} text="SCIM" />
+        </CardBlock.Footer>
       </CardBlock>
 
       {showCreateModal && (
@@ -211,10 +199,11 @@ function CreateTokenModal({
   })
 
   return (
-    <Modal isOpen onDismiss={onDismiss} title="Create token">
+    <Modal isOpen onDismiss={onDismiss} title="Create SCIM token">
       <Modal.Section>
-        This token will have access to provision users and groups via SCIM. Store it
-        securely and never share it publicly.
+        Anyone with this token can manage users and groups in this silo via SCIM. Since
+        group membership grants roles, this token can be used to give a user admin
+        privileges. Store it securely and never share it publicly.
       </Modal.Section>
 
       <Modal.Footer
@@ -242,18 +231,25 @@ function TokenCreatedModal({
   onDismiss: () => void
 }) {
   return (
-    <Modal isOpen onDismiss={onDismiss} title="Create token">
+    <Modal isOpen onDismiss={onDismiss} title="SCIM token created">
       <Modal.Section>
         <Message
           variant="notice"
-          content="This is the only time you'll see this token. Copy it now and store it securely."
+          content=<>
+            This is the only time you’ll see this token. Copy it now and store it securely.
+          </>
         />
 
         <div className="mt-4">
           <div className="text-sans-md text-raise mb-2">Bearer Token</div>
           <div className="text-sans-md text-raise bg-default border-default flex items-stretch rounded border">
             <div className="flex-1 overflow-hidden px-3 py-2.75 text-ellipsis">
-              {token.bearerToken}
+              {/*
+               * TODO: looks like the API does not include oxide-scim- in the
+               * bearerToken field, but I think it should, so make sure to check
+               * this pending the outcome of that discussion
+               */}
+              oxide-scim-{token.bearerToken}
             </div>
             <div className="border-default flex w-8 items-center justify-center border-l">
               <CopyToClipboard text={token.bearerToken} />
