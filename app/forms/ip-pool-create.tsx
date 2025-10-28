@@ -64,12 +64,13 @@ export default function CreateIpPoolSideModalForm() {
       loading={createPool.isPending}
       submitError={createPool.error}
     >
+      <IpPoolVisibilityMessage />
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <IpPoolVisibilityMessage />
       <RadioField
         name="poolType"
         label="Pool type"
+        column
         control={form.control}
         items={[
           { value: 'unicast', label: 'Unicast' },
