@@ -244,12 +244,7 @@ function TokenCreatedModal({
           <div className="text-sans-md text-raise mb-2">Bearer Token</div>
           <div className="text-sans-md text-raise bg-default border-default flex items-stretch rounded border">
             <div className="flex-1 overflow-hidden px-3 py-2.75 text-ellipsis">
-              {/*
-               * TODO: looks like the API does not include oxide-scim- in the
-               * bearerToken field, but I think it should, so make sure to check
-               * this pending the outcome of that discussion
-               */}
-              oxide-scim-{token.bearerToken}
+              {token.bearerToken}
             </div>
             <div className="border-default flex w-8 items-center justify-center border-l">
               <CopyToClipboard text={token.bearerToken} />

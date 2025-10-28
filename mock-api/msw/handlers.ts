@@ -1907,11 +1907,7 @@ export const handlers = makeHandlers({
 
     const newToken: Json<Api.ScimClientBearerTokenValue> = {
       id: uuid(),
-      // TODO: looks like the API does not include oxide-scim- in the token,
-      // but I think it should, so make sure to check this pending the outcome
-      // of that discussion
-      // https://github.com/oxidecomputer/omicron/blob/9617f40a/nexus/tests/integration_tests/scim.rs?plain=1#L449
-      bearer_token: hexString,
+      bearer_token: `oxide-scim-${hexString}`,
       time_created: new Date().toISOString(),
     }
 
