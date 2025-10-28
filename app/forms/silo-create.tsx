@@ -8,6 +8,7 @@
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
+import { match } from 'ts-pattern'
 
 import { useApiMutation, useApiQueryClient, type SiloCreate } from '@oxide/api'
 
@@ -146,16 +147,20 @@ export default function CreateSiloSideModalForm() {
         column
         control={form.control}
         items={[
-          { value: 'saml_jit', label: 'SAML' },
+          { value: 'saml_jit', label: 'SAML + JIT' },
           { value: 'saml_scim', label: 'SAML + SCIM' },
           { value: 'local_only', label: 'Local only' },
         ]}
       />
-      {identityMode === 'saml_jit' && (
+      {match(identityMode)
+        .with('saml_jit', () => true)
+        .with('saml_scim', () => true)
+        .with('local_only', () => false)
+        .exhaustive() && (
         <TextField
           name="adminGroupName"
           label="Admin group name"
-          description="This group will be created and granted the Silo Admin role."
+          description="This group will be created and granted the admin role on the silo."
           control={form.control}
         />
       )}
