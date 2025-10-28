@@ -13,19 +13,19 @@ export const tufRepos: Json<TufRepo>[] = [
   {
     system_version: '18.0.0',
     file_name: 'rack-18.0.0.zip',
-    hash: 'a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6',
+    hash: '163acd11ef5b14aac27d04b2080393826e832714',
     time_created: new Date('2024-03-15T14:30:00Z').toISOString(),
   },
   {
     system_version: '17.0.0',
     file_name: 'rack-17.0.0.zip',
-    hash: '7d793037a0760186574b0282f2f435e7',
+    hash: '6510e87da6a6078509836e8faa27dc20272b472e',
     time_created: new Date('2024-02-20T14:30:00Z').toISOString(),
   },
   {
     system_version: '16.0.0',
     file_name: 'rack-16.0.0.zip',
-    hash: '5d41402abc4b2a76b9719d911017c592',
+    hash: '58f95ded7eed49fd30659035c5c16b5bb9e63a76',
     time_created: new Date('2024-01-15T10:00:00Z').toISOString(),
   },
 ]

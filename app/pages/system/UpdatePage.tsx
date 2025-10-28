@@ -13,10 +13,8 @@ import { lt as semverLt } from 'semver'
 
 import {
   Images24Icon,
-  SizeOutline12Icon,
   SoftwareUpdate16Icon,
   SoftwareUpdate24Icon,
-  TimeOutline12Icon,
 } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
@@ -213,9 +211,9 @@ export default function UpdatePage() {
               return (
                 <li
                   key={repo.hash}
-                  className="border-default @container flex items-center gap-3 rounded border pl-4"
+                  className="border-default @container flex items-center gap-2 rounded border pl-4"
                 >
-                  <Images24Icon className="text-tertiary shrink-0" aria-hidden />
+                  <Images24Icon className="text-quaternary shrink-0" aria-hidden />
                   <div className="flex min-w-0 flex-1 flex-col flex-wrap items-start gap-x-4 gap-y-1 py-3 @md:flex-row @md:items-center">
                     <div className="flex-1">
                       <div className="flex items-center gap-1.5">
@@ -225,15 +223,9 @@ export default function UpdatePage() {
                         {isTarget && <Badge color="default">Target</Badge>}
                       </div>
                     </div>
-                    <div className="flex flex-col items-start gap-0.5 @md:items-end">
-                      <div className="flex items-center gap-1.5">
-                        <DateTime date={repo.timeCreated} />
-                        <TimeOutline12Icon className="text-quaternary" aria-hidden />
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <div>{repo.fileName}</div>
-                        <SizeOutline12Icon className="text-quaternary" aria-hidden />
-                      </div>
+                    <div className="flex flex-col items-start gap-0.5 pr-2 @md:items-end">
+                      <DateTime date={repo.timeCreated} />
+                      <div>{repo.fileName}</div>
                     </div>
                   </div>
                   <div className="border-secondary flex items-center justify-center self-stretch border-l">
