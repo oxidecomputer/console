@@ -18,6 +18,7 @@ export const ipPool1: Json<IpPool> = {
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
   ip_version: 'v4',
+  pool_type: 'unicast',
 }
 
 export const ipPool2: Json<IpPool> = {
@@ -27,6 +28,7 @@ export const ipPool2: Json<IpPool> = {
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
   ip_version: 'v6',
+  pool_type: 'unicast',
 }
 
 export const ipPool3: Json<IpPool> = {
@@ -36,6 +38,7 @@ export const ipPool3: Json<IpPool> = {
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
   ip_version: 'v4',
+  pool_type: 'unicast',
 }
 
 export const ipPool4: Json<IpPool> = {
@@ -45,6 +48,7 @@ export const ipPool4: Json<IpPool> = {
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
   ip_version: 'v6',
+  pool_type: 'unicast',
 }
 
 export const ipPools: Json<IpPool>[] = [ipPool1, ipPool2, ipPool3, ipPool4]

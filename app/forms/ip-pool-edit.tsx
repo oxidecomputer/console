@@ -72,9 +72,9 @@ export default function EditIpPoolSideModalForm() {
       loading={editPool.isPending}
       submitError={editPool.error}
     >
+      <IpPoolVisibilityMessage />
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <IpPoolVisibilityMessage />
     </SideModalForm>
   )
 }

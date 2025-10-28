@@ -19,6 +19,7 @@ import {
   type IpPool,
 } from '@oxide/api'
 import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
@@ -64,6 +65,10 @@ const colHelper = createColumnHelper<IpPool>()
 const staticColumns = [
   colHelper.accessor('name', { cell: makeLinkCell((pool) => pb.ipPool({ pool })) }),
   colHelper.accessor('description', Columns.description),
+  colHelper.accessor('poolType', {
+    header: 'Pool type',
+    cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
+  }),
   // TODO: add version column when API supports v6 pools
   colHelper.display({
     header: 'IPs Remaining',
