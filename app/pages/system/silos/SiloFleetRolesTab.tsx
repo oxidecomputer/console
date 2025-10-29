@@ -10,6 +10,7 @@ import { usePrefetchedApiQuery } from '@oxide/api'
 import { Cloud24Icon, NextArrow12Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { useSiloSelector } from '~/hooks/use-params'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
@@ -51,3 +52,5 @@ export default function SiloFleetRolesTab() {
     </>
   )
 }
+
+export const handle = makeCrumb('Fleet Roles')

@@ -19,6 +19,7 @@ import {
   usePrefetchedApiQuery,
   type ScimClientBearerToken,
 } from '~/api'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -173,6 +174,8 @@ export default function SiloScimTab() {
     </>
   )
 }
+
+export const handle = makeCrumb('SCIM')
 
 function CreateTokenModal({
   siloSelector,
