@@ -20,6 +20,7 @@ import {
 } from '~/api'
 import { NumberField } from '~/components/form/fields/NumberField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Button } from '~/ui/lib/Button'
@@ -96,6 +97,8 @@ export default function SiloQuotasTab() {
     </>
   )
 }
+
+export const handle = makeCrumb('Quotas')
 
 function EditQuotasForm({ onDismiss }: { onDismiss: () => void }) {
   const { silo } = useSiloSelector()

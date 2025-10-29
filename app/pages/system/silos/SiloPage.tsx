@@ -25,7 +25,10 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-export const handle = makeCrumb((p) => p.silo!)
+export const handle = makeCrumb(
+  (p) => p.silo!,
+  (p) => pb.silo(getSiloSelector(p))
+)
 
 export default function SiloPage() {
   const siloSelector = useSiloSelector()

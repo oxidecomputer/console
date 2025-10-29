@@ -13,6 +13,7 @@ import { Cloud24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
 import { getListQFn, queryClient, type IdentityProvider } from '~/api'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { Columns } from '~/table/columns/common'
@@ -74,3 +75,7 @@ export default function SiloIdpsTab() {
     </>
   )
 }
+
+export const handle = makeCrumb('Identity Providers', (params) =>
+  pb.siloIdps(getSiloSelector(params))
+)

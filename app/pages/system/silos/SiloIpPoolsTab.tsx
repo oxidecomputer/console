@@ -23,6 +23,7 @@ import { Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
@@ -197,6 +198,8 @@ export default function SiloIpPoolsTab() {
     </>
   )
 }
+
+export const handle = makeCrumb('IP Pools')
 
 type LinkPoolFormValues = {
   pool: string | undefined

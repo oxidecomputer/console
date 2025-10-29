@@ -512,7 +512,11 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "s",
-      "path": "/system/silos/s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "Identity Providers",
+      "path": "/system/silos/s/idps",
     },
   ],
   "serialConsole (/projects/p/instances/i/serial-console)": [
@@ -544,7 +548,11 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "s",
-      "path": "/system/silos/s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "Identity Providers",
+      "path": "/system/silos/s/idps",
     },
   ],
   "siloAccess (/access)": [
@@ -560,7 +568,11 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "s",
-      "path": "/system/silos/s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "Fleet Roles",
+      "path": "/system/silos/s/fleet-roles",
     },
   ],
   "siloIdps (/system/silos/s/idps)": [
@@ -570,7 +582,11 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "s",
-      "path": "/system/silos/s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "Identity Providers",
+      "path": "/system/silos/s/idps",
     },
   ],
   "siloIdpsNew (/system/silos/s/idps-new)": [
@@ -580,7 +596,11 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "s",
-      "path": "/system/silos/s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "Identity Providers",
+      "path": "/system/silos/s/idps",
     },
   ],
   "siloImageEdit (/images/im/edit)": [
@@ -602,7 +622,11 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "s",
-      "path": "/system/silos/s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "IP Pools",
+      "path": "/system/silos/s/ip-pools",
     },
   ],
   "siloQuotas (/system/silos/s/quotas)": [
@@ -612,7 +636,11 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "s",
-      "path": "/system/silos/s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "Quotas",
+      "path": "/system/silos/s/quotas",
     },
   ],
   "siloScim (/system/silos/s/scim)": [
@@ -622,7 +650,11 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "s",
-      "path": "/system/silos/s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "SCIM",
+      "path": "/system/silos/s/scim",
     },
   ],
   "siloUtilization (/utilization)": [
