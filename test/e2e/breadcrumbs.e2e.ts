@@ -65,13 +65,23 @@ test('breadcrumbs', async ({ page }) => {
   await page.goto('/system/silos/maze-war')
   const siloCrumbs: Pair[] = [
     ['Silos', '/system/silos'],
-    ['maze-war', '/system/silos/maze-war'],
+    ['maze-war', '/system/silos/maze-war/idps'],
+    ['Identity Providers', '/system/silos/maze-war/idps'],
   ]
   await expectCrumbs(page, siloCrumbs)
   // same crumbs on IdP detail side modal
   await page.getByRole('link', { name: 'mock-idp' }).click()
   await expect(page).toHaveURL('/system/silos/maze-war/idps/saml/mock-idp')
   await expectCrumbs(page, siloCrumbs)
+
+  await page.keyboard.press('Escape')
+  await page.getByRole('tab', { name: 'Fleet Roles' }).click()
+  await expect(page).toHaveURL('/system/silos/maze-war/fleet-roles')
+  await expectCrumbs(page, [
+    ['Silos', '/system/silos'],
+    ['maze-war', '/system/silos/maze-war/idps'],
+    ['Fleet Roles', '/system/silos/maze-war/fleet-roles'],
+  ])
 
   await page.goto('/system/networking/ip-pools/ip-pool-1')
   const poolCrumbs: Pair[] = [
