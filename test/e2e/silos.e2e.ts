@@ -50,7 +50,7 @@ test('Create silo', async ({ page }) => {
   await expect(page.getByRole('checkbox', { name: 'Grant fleet admin' })).toBeChecked()
   await page.getByRole('radio', { name: 'Local only' }).click()
   await expect(page.getByRole('textbox', { name: 'Admin group name' })).toBeHidden()
-  await page.getByRole('radio', { name: 'SAML' }).click()
+  await page.getByRole('radio', { name: 'SAML + JIT' }).click()
   await expect(page.getByRole('textbox', { name: 'Admin group name' })).toHaveValue('')
   await expect(page.getByRole('checkbox', { name: 'Grant fleet admin' })).toBeChecked()
   await page.getByRole('textbox', { name: 'Admin group name' }).fill('admins')

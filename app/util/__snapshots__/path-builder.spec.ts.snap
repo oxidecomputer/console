@@ -615,6 +615,16 @@ exports[`breadcrumbs 2`] = `
       "path": "/system/silos/s",
     },
   ],
+  "siloScim (/system/silos/s/scim)": [
+    {
+      "label": "Silos",
+      "path": "/system/silos",
+    },
+    {
+      "label": "s",
+      "path": "/system/silos/s",
+    },
+  ],
   "siloUtilization (/utilization)": [
     {
       "label": "Utilization",

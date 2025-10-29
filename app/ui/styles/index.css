@@ -91,6 +91,15 @@
   }
 }
 
+@utility tint-underline {
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 50%, transparent);
+
+  &:hover {
+    text-decoration-color: color-mix(in srgb, currentColor 80%, transparent);
+  }
+}
+
 @layer utilities {
   :root {
     --content-gutter: 2.5rem;

@@ -63,9 +63,9 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
     <Modal isOpen onDismiss={onDismiss} title="Add instance to group">
       <Modal.Body>
         <Modal.Section>
-          <p className="text-sm text-gray-500">
+          <p>
             Select an instance to add to the anti-affinity group{' '}
-            <HL>{antiAffinityGroup}</HL>. Only stopped instances can be added to the group.
+            <HL>{antiAffinityGroup}</HL>.
           </p>
           <form id={formId} onSubmit={onSubmit}>
             <ComboboxField

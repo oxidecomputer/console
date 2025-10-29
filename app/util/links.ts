@@ -43,6 +43,8 @@ export const links = {
   quickStart: 'https://docs.oxide.computer/guides/quickstart',
   routersDocs:
     'https://docs.oxide.computer/guides/configuring-guest-networking#_custom_routers',
+  // TODO: make sure this is right
+  scimDocs: 'https://docs.oxide.computer/guides/operator/scim',
   siloQuotasDocs:
     'https://docs.oxide.computer/guides/operator/silo-management#_silo_resource_quota_management',
   sledDocs:
