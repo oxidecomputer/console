@@ -25,7 +25,7 @@ import { addToast } from '~/stores/toast'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
-import { CardBlock, LearnMore } from '~/ui/lib/CardBlock'
+import { CardBlock } from '~/ui/lib/CardBlock'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { DateTime } from '~/ui/lib/DateTime'
@@ -34,7 +34,6 @@ import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { Truncate } from '~/ui/lib/Truncate'
-import { links } from '~/util/links'
 
 const colHelper = createColumnHelper<ScimClientBearerToken>()
 
@@ -151,9 +150,10 @@ export default function SiloScimTab() {
             />
           )}
         </CardBlock.Body>
+        {/* TODO: put this back!
         <CardBlock.Footer>
           <LearnMore href={links.scimDocs} text="SCIM" />
-        </CardBlock.Footer>
+        </CardBlock.Footer> */}
       </CardBlock>
 
       {showCreateModal && (

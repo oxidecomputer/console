@@ -130,10 +130,6 @@ export const docLinks = {
     href: links.routersDocs,
     linkText: 'Custom Routers',
   },
-  scim: {
-    href: links.scimDocs,
-    linkText: 'SCIM',
-  },
   sleds: {
     href: links.sledDocs,
     linkText: 'Server Sleds',
