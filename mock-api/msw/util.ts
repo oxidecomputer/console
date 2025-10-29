@@ -422,3 +422,10 @@ export function handleOxqlMetrics({ query }: TimeseriesQuery): Json<OxqlQueryRes
   const stateValue = getCpuStateFromQuery(query)
   return getMockOxqlInstanceData(metricName, stateValue)
 }
+
+export function randomHex(length: number) {
+  const hexChars = '0123456789abcdef'
+  return Array.from({ length })
+    .map(() => hexChars.charAt(Math.floor(Math.random() * hexChars.length)))
+    .join('')
+}

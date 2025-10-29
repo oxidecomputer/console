@@ -90,6 +90,7 @@ export default function SiloScimTab() {
               path: { tokenId: token.id },
               query: { silo: siloSelector.silo },
             }),
+          resourceKind: 'SCIM token',
           label: token.id,
         }),
       },
@@ -234,19 +235,21 @@ function TokenCreatedModal({
   onDismiss: () => void
 }) {
   return (
-    <Modal isOpen onDismiss={onDismiss} title="SCIM token created">
+    <Modal isOpen onDismiss={onDismiss} title="SCIM token created" width="free">
       <Modal.Section>
         <Message
           variant="notice"
-          content=<>
-            This is the only time you’ll see this token. Copy it now and store it securely.
-          </>
+          content={
+            <div className="max-w-md">
+              You won’t see this token again. Copy it and store it securely.
+            </div>
+          }
         />
 
         <div className="mt-4">
           <div className="text-sans-md text-raise mb-2">Bearer Token</div>
           <div className="text-sans-md text-raise bg-default border-default flex items-stretch rounded border">
-            <div className="flex-1 overflow-hidden px-3 py-2.75 text-ellipsis">
+            <div className="flex-1 overflow-hidden py-2.75 pr-5 pl-3 text-nowrap text-ellipsis">
               {token.bearerToken}
             </div>
             <div className="border-default flex w-8 items-center justify-center border-l">
