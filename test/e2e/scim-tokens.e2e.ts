@@ -41,9 +41,9 @@ test('Create SCIM token', async ({ page }) => {
   await expect(tokenCreatedModal).toBeVisible()
 
   // Check that the bearer token is visible and starts with oxide-scim-
-  const bearerTokenDiv = tokenCreatedModal.getByText(/^oxide-scim-[a-f0-9]{20}$/)
+  const bearerTokenDiv = tokenCreatedModal.getByText(/^oxide-scim-[a-f0-9]{40}$/)
   await expect(bearerTokenDiv).toBeVisible()
-  const warning = tokenCreatedModal.getByText('This is the only')
+  const warning = tokenCreatedModal.getByText('You won’t see this token again')
   await expect(warning).toBeVisible()
 
   // Check that copy button is visible

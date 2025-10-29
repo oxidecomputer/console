@@ -53,6 +53,7 @@ import {
   ipRangeLen,
   NotImplemented,
   paginated,
+  randomHex,
   requireFleetAdmin,
   requireFleetCollab,
   requireFleetViewer,
@@ -1903,12 +1904,9 @@ export const handlers = makeHandlers({
     requireFleetCollab(cookies)
     const silo = lookup.silo({ silo: query.silo })
 
-    // Generate a 20-character hex string
-    const hexString = uuid().replace(/-/g, '').slice(0, 20)
-
     const newToken: Json<Api.ScimClientBearerTokenValue> = {
       id: uuid(),
-      bearer_token: `oxide-scim-${hexString}`,
+      bearer_token: `oxide-scim-${randomHex(40)}`,
       time_created: new Date().toISOString(),
     }
 
