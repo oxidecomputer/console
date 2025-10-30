@@ -43,11 +43,11 @@ export function EmptyMessage(props: Props) {
   return (
     <div className="m-4 flex max-w-[18rem] flex-col items-center text-center">
       {props.icon && (
-        <div className="text-accent bg-accent-secondary mb-4 rounded p-1 leading-[0]">
+        <div className="text-accent bg-accent-secondary mb-4 rounded p-1 leading-0">
           {props.icon}
         </div>
       )}
-      <h3 className="text-sans-semi-lg">{props.title}</h3>
+      <h3 className="text-sans-semi-lg text-balance">{props.title}</h3>
       {typeof props.body === 'string' ? <EMBody>{props.body}</EMBody> : props.body}
       {button}
     </div>

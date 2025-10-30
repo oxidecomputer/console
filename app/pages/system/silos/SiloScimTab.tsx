@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router'
@@ -19,6 +18,7 @@ import {
   apiQueryClient,
   queryClient,
   useApiMutation,
+  usePrefetchedQuery,
   type ScimClientBearerToken,
 } from '~/api'
 import { makeCrumb } from '~/hooks/use-crumbs'
@@ -59,10 +59,8 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 
 export default function SiloScimTab() {
   const siloSelector = useSiloSelector()
-  const { data: queryResult } = useQuery(
-    apiqErrorsAllowed('scimTokenList', {
-      query: { silo: siloSelector.silo },
-    })
+  const { data: queryResult } = usePrefetchedQuery(
+    apiqErrorsAllowed('scimTokenList', { query: siloSelector })
   )
 
   // Check if we got a 403 error
@@ -96,16 +94,13 @@ export default function SiloScimTab() {
         label: 'Delete',
         onActivate: confirmDelete({
           doDelete: () =>
-            deleteToken.mutateAsync({
-              path: { tokenId: token.id },
-              query: { silo: siloSelector.silo },
-            }),
+            deleteToken.mutateAsync({ path: { tokenId: token.id }, query: siloSelector }),
           resourceKind: 'SCIM token',
           label: token.id,
         }),
       },
     ],
-    [deleteToken, siloSelector.silo]
+    [deleteToken, siloSelector]
   )
 
   const staticColumns = useMemo(
@@ -157,11 +152,13 @@ export default function SiloScimTab() {
         </CardBlock.Header>
         <CardBlock.Body>
           {is403 ? (
-            <EmptyMessage
-              icon={<AccessToken24Icon />}
-              title="You do not have permission to view SCIM tokens"
-              body="Only fleet admins and silo admins can view and manage SCIM tokens for this silo"
-            />
+            <TableEmptyBox border={false}>
+              <EmptyMessage
+                icon={<AccessToken24Icon />}
+                title="You do not have permission to view SCIM tokens"
+                body="Only fleet and silo admins can manage SCIM tokens for this silo"
+              />
+            </TableEmptyBox>
           ) : tokens.length === 0 ? (
             <EmptyState />
           ) : (

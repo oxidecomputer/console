@@ -15,6 +15,9 @@ import {
   test,
 } from './utils'
 
+const tokenId1 = 'a1b2c3d4…34567890'
+const tokenId2 = 'b2c3d4e5…45678901'
+
 test('SCIM tokens tab', async ({ page }) => {
   await page.goto('/system/silos/maze-war/scim')
 
@@ -23,8 +26,8 @@ test('SCIM tokens tab', async ({ page }) => {
   const table = page.getByRole('table', { name: 'SCIM Tokens' })
 
   // Check that existing tokens are visible
-  await expectRowVisible(table, { ID: 'a1b2c3d4…34567890' })
-  await expectRowVisible(table, { ID: 'b2c3d4e5…45678901' })
+  await expectRowVisible(table, { ID: tokenId1 })
+  await expectRowVisible(table, { ID: tokenId2 })
 })
 
 test('Create SCIM token', async ({ page }) => {
@@ -108,20 +111,19 @@ test('Delete SCIM token', async ({ page }) => {
   ])
 })
 
-test('Fleet viewer without silo admin cannot view SCIM tokens', async ({ browser }) => {
-  // Jane Austen is a fleet viewer but not a silo admin on maze-war
-  const page = await getPageAsUser(browser, 'Jane Austen')
+test('Only fleet or silo admin can view SCIM tokens', async ({ page, browser }) => {
   await page.goto('/system/silos/maze-war/scim')
+  await expect(page.getByText(tokenId1)).toBeVisible()
 
-  // Should see permission denied message
-  await expectVisible(page, [
-    page.getByRole('heading', { name: 'You do not have permission to view SCIM tokens' }),
-    page.getByText('Only fleet admins and silo admins can view and manage SCIM tokens'),
-  ])
+  // Jane Austen is a fleet viewer but not a silo admin on maze-war
+  const page2 = await getPageAsUser(browser, 'Jane Austen')
+  await page2.goto('/system/silos/maze-war/scim')
 
-  // Create token button should not be visible
-  await expect(page.getByRole('button', { name: 'Create token' })).toBeHidden()
+  await expect(
+    page2.getByRole('heading', { name: 'You do not have permission to view SCIM tokens' })
+  ).toBeVisible()
+  await expect(page2.getByRole('button', { name: 'Create token' })).toBeHidden()
 
-  // Table should not be visible
-  await expect(page.getByRole('table', { name: 'SCIM Tokens' })).toBeHidden()
+  // Tokens should not be visible
+  await expect(page2.getByText(tokenId1)).toBeHidden()
 })
