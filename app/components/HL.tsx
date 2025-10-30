@@ -14,4 +14,5 @@ export const HL = classed.span`
   group-[.text-accent-secondary]:text-accent
   group-[.text-error-secondary]:text-error
   group-[.text-info-secondary]:text-info
+  group-[.text-notice-secondary]:text-notice
 `
