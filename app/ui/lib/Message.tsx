@@ -86,7 +86,7 @@ export const Message = ({
       {showIcon && (
         <div
           className={cn(
-            'mt-[2px] flex [&>svg]:h-3 [&>svg]:w-3',
+            'mt-0.5 flex [&>svg]:h-3 [&>svg]:w-3',
             `[&>svg]:${textColor[variant]}`
           )}
         >
@@ -96,7 +96,11 @@ export const Message = ({
       <div className="flex-1">
         {title && <div className="text-sans-semi-md">{title}</div>}
         <div
-          className={cn('text-sans-md [&>a]:tint-underline', secondaryTextColor[variant])}
+          className={cn(
+            // group gives HL the right color
+            'text-sans-md [&>a]:tint-underline group',
+            secondaryTextColor[variant]
+          )}
         >
           {content}
         </div>
