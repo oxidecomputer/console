@@ -64,7 +64,7 @@ export default function SiloScimTab() {
   )
 
   // Check if we got a 403 error
-  const is403 = queryResult?.type === 'error' && queryResult.data.statusCode === 403
+  const is403 = queryResult.type === 'error' && queryResult.data.statusCode === 403
 
   // Order tokens by creation date, oldest first
   const tokens = useMemo(() => {
