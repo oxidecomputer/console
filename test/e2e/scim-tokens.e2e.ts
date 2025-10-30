@@ -30,6 +30,15 @@ test('SCIM tokens tab', async ({ page }) => {
   await expectRowVisible(table, { ID: tokenId2 })
 })
 
+test('SCIM tokens tab empty state', async ({ page }) => {
+  await page.goto('/system/silos/myriad/scim')
+
+  const table = page.getByRole('table', { name: 'SCIM Tokens' })
+
+  await expect(table).toBeHidden()
+  await expect(page.getByRole('heading', { name: 'No SCIM tokens' })).toBeVisible()
+})
+
 test('Create SCIM token', async ({ page }) => {
   await page.goto('/system/silos/maze-war/scim')
 
