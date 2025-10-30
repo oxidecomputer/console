@@ -17,7 +17,6 @@ import { Badge } from '@oxide/design-system/ui'
 
 import {
   apiqErrorsAllowed,
-  apiQueryClient,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -196,7 +195,7 @@ function CreateTokenModal({
 }) {
   const createToken = useApiMutation('scimTokenCreate', {
     onSuccess(token) {
-      apiQueryClient.invalidateQueries('scimTokenList')
+      queryClient.invalidateEndpoint('scimTokenList')
       onSuccess(token)
     },
     onError(err) {
