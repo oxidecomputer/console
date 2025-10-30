@@ -360,6 +360,20 @@ export function requireFleetAdmin(cookies: Record<string, string>) {
 }
 
 /**
+ * Determine whether current user has fleet admin OR silo admin on a specific
+ * silo. Used for SCIM token operations. Do nothing if yes, throw 403 if no.
+ */
+export function requireFleetAdminOrSiloAdmin(
+  cookies: Record<string, string>,
+  siloId: string
+) {
+  const user = currentUser(cookies)
+  const hasFleetAdmin = userHasRole(user, 'fleet', FLEET_ID, 'admin')
+  const hasSiloAdmin = userHasRole(user, 'silo', siloId, 'admin')
+  if (!hasFleetAdmin && !hasSiloAdmin) throw forbiddenErr()
+}
+
+/**
  * Determine whether current user has a role on a resource by looking roles
  * for the user as well as for the user's groups. Do nothing if yes, throw 403
  * if no.

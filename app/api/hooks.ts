@@ -245,8 +245,8 @@ export const getApiQueryOptionsErrorsAllowed =
       queryFn: ({ signal }) =>
         api[method](params, { signal })
           .then(handleResult(method))
-          .then((data) => ({ type: 'success' as const, data }))
-          .catch((data) => ({ type: 'error' as const, data })),
+          .then((data: Result<A[M]>) => ({ type: 'success' as const, data }))
+          .catch((data: ApiError) => ({ type: 'error' as const, data })),
       ...options,
     })
 

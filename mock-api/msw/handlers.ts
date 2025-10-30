@@ -55,6 +55,7 @@ import {
   paginated,
   randomHex,
   requireFleetAdmin,
+  requireFleetAdminOrSiloAdmin,
   requireFleetCollab,
   requireFleetViewer,
   requireRole,
@@ -1892,8 +1893,8 @@ export const handlers = makeHandlers({
 
   // SCIM token endpoints
   scimTokenList({ query, cookies }) {
-    requireFleetViewer(cookies)
     const silo = lookup.silo({ silo: query.silo })
+    requireFleetAdminOrSiloAdmin(cookies, silo.id)
     // Filter by silo and strip out the siloId before returning
     const tokens = db.scimTokens
       .filter((t) => t.siloId === silo.id)
@@ -1901,8 +1902,8 @@ export const handlers = makeHandlers({
     return tokens
   },
   scimTokenCreate({ query, cookies }) {
-    requireFleetCollab(cookies)
     const silo = lookup.silo({ silo: query.silo })
+    requireFleetAdminOrSiloAdmin(cookies, silo.id)
 
     const newToken: Json<Api.ScimClientBearerTokenValue> = {
       id: uuid(),
@@ -1917,15 +1918,15 @@ export const handlers = makeHandlers({
     return json(newToken, { status: 201 })
   },
   scimTokenView({ path, cookies }) {
-    requireFleetViewer(cookies)
     const token = lookupById(db.scimTokens, path.tokenId)
+    requireFleetAdminOrSiloAdmin(cookies, token.siloId)
     // Strip out siloId before returning
     const { siloId: _siloId, ...tokenResponse } = token
     return tokenResponse
   },
   scimTokenDelete({ path, cookies }) {
-    requireFleetCollab(cookies)
     const token = lookupById(db.scimTokens, path.tokenId)
+    requireFleetAdminOrSiloAdmin(cookies, token.siloId)
     db.scimTokens = db.scimTokens.filter((t) => t.id !== token.id)
     return 204
   },
