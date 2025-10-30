@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router'
@@ -14,9 +15,10 @@ import { AccessToken24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
 import {
+  apiqErrorsAllowed,
   apiQueryClient,
+  queryClient,
   useApiMutation,
-  usePrefetchedApiQuery,
   type ScimClientBearerToken,
 } from '~/api'
 import { makeCrumb } from '~/hooks/use-crumbs'
@@ -50,21 +52,29 @@ const EmptyState = () => (
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { silo } = getSiloSelector(params)
-  await apiQueryClient.prefetchQuery('scimTokenList', { query: { silo } })
+  // Use errors-allowed approach so 403s don't throw and break the loader
+  await queryClient.prefetchQuery(apiqErrorsAllowed('scimTokenList', { query: { silo } }))
   return null
 }
 
 export default function SiloScimTab() {
   const siloSelector = useSiloSelector()
-  const { data } = usePrefetchedApiQuery('scimTokenList', {
-    query: { silo: siloSelector.silo },
-  })
+  const { data: queryResult } = useQuery(
+    apiqErrorsAllowed('scimTokenList', {
+      query: { silo: siloSelector.silo },
+    })
+  )
+
+  // Check if we got a 403 error
+  const is403 = queryResult?.type === 'error' && queryResult.data.statusCode === 403
 
   // Order tokens by creation date, oldest first
-  const tokens = useMemo(
-    () => [...data].sort((a, b) => a.timeCreated.getTime() - b.timeCreated.getTime()),
-    [data]
-  )
+  const tokens = useMemo(() => {
+    if (!queryResult || queryResult.type === 'error') return []
+    return [...queryResult.data].sort(
+      (a, b) => a.timeCreated.getTime() - b.timeCreated.getTime()
+    )
+  }, [queryResult])
 
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [createdToken, setCreatedToken] = useState<{
@@ -139,10 +149,20 @@ export default function SiloScimTab() {
           titleId="scim-tokens-label"
           description="Tokens for authenticating requests to SCIM endpoints"
         >
-          <CreateButton onClick={() => setShowCreateModal(true)}>Create token</CreateButton>
+          {!is403 && (
+            <CreateButton onClick={() => setShowCreateModal(true)}>
+              Create token
+            </CreateButton>
+          )}
         </CardBlock.Header>
         <CardBlock.Body>
-          {tokens.length === 0 ? (
+          {is403 ? (
+            <EmptyMessage
+              icon={<AccessToken24Icon />}
+              title="You do not have permission to view SCIM tokens"
+              body="Only fleet admins and silo admins can view and manage SCIM tokens for this silo"
+            />
+          ) : tokens.length === 0 ? (
             <EmptyState />
           ) : (
             <Table

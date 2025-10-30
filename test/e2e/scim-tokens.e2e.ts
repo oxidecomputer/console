@@ -5,9 +5,15 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, test } from '@playwright/test'
-
-import { clickRowAction, expectNotVisible, expectRowVisible, expectVisible } from './utils'
+import {
+  clickRowAction,
+  expect,
+  expectNotVisible,
+  expectRowVisible,
+  expectVisible,
+  getPageAsUser,
+  test,
+} from './utils'
 
 test('SCIM tokens tab', async ({ page }) => {
   await page.goto('/system/silos/maze-war/scim')
@@ -100,4 +106,22 @@ test('Delete SCIM token', async ({ page }) => {
     page.getByText('No SCIM tokens'),
     page.getByText('Create a token to see it here'),
   ])
+})
+
+test('Fleet viewer without silo admin cannot view SCIM tokens', async ({ browser }) => {
+  // Jane Austen is a fleet viewer but not a silo admin on maze-war
+  const page = await getPageAsUser(browser, 'Jane Austen')
+  await page.goto('/system/silos/maze-war/scim')
+
+  // Should see permission denied message
+  await expectVisible(page, [
+    page.getByRole('heading', { name: 'You do not have permission to view SCIM tokens' }),
+    page.getByText('Only fleet admins and silo admins can view and manage SCIM tokens'),
+  ])
+
+  // Create token button should not be visible
+  await expect(page.getByRole('button', { name: 'Create token' })).toBeHidden()
+
+  // Table should not be visible
+  await expect(page.getByRole('table', { name: 'SCIM Tokens' })).toBeHidden()
 })
