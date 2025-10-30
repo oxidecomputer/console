@@ -9,6 +9,8 @@
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router'
+import * as R from 'remeda'
+import { match } from 'ts-pattern'
 
 import { AccessToken24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
@@ -20,6 +22,7 @@ import {
   useApiMutation,
   usePrefetchedQuery,
   type ScimClientBearerToken,
+  type ScimClientBearerTokenValue,
 } from '~/api'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
@@ -38,7 +41,24 @@ import { Modal } from '~/ui/lib/Modal'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { Truncate } from '~/ui/lib/Truncate'
 
+export const handle = makeCrumb('SCIM')
+
 const colHelper = createColumnHelper<ScimClientBearerToken>()
+const staticColumns = [
+  colHelper.accessor('id', {
+    header: 'ID',
+    cell: (info) => <Truncate text={info.getValue()} position="middle" maxLength={18} />,
+  }),
+  colHelper.accessor('timeCreated', Columns.timeCreated),
+  colHelper.accessor('timeExpires', {
+    header: 'Expires',
+    cell: (info) => {
+      const expires = info.getValue()
+      return expires ? <DateTime date={expires} /> : <Badge color="neutral">Never</Badge>
+    },
+    meta: { thClassName: 'lg:w-1/4' },
+  }),
+]
 
 const EmptyState = () => (
   <TableEmptyBox border={false}>
@@ -57,36 +77,83 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
+type ModalState =
+  | { kind: 'create' }
+  | { kind: 'created'; token: ScimClientBearerTokenValue }
+  | false
+
 export default function SiloScimTab() {
   const siloSelector = useSiloSelector()
-  const { data: queryResult } = usePrefetchedQuery(
+  const { data: tokensResult } = usePrefetchedQuery(
     apiqErrorsAllowed('scimTokenList', { query: siloSelector })
   )
 
-  // Check if we got a 403 error
-  const is403 = queryResult.type === 'error' && queryResult.data.statusCode === 403
+  const [modalState, setModalState] = useState<ModalState>(false)
 
-  // Order tokens by creation date, oldest first
-  const tokens = useMemo(() => {
-    if (!queryResult || queryResult.type === 'error') return []
-    return [...queryResult.data].sort(
-      (a, b) => a.timeCreated.getTime() - b.timeCreated.getTime()
-    )
-  }, [queryResult])
+  return (
+    <>
+      <CardBlock>
+        <CardBlock.Header
+          title="SCIM Tokens"
+          titleId="scim-tokens-label"
+          description="Tokens for authenticating requests to SCIM endpoints"
+        >
+          {
+            // assume that if you can see the tokens, you can create tokens
+            tokensResult.type === 'success' && (
+              <CreateButton onClick={() => setModalState({ kind: 'create' })}>
+                Create token
+              </CreateButton>
+            )
+          }
+        </CardBlock.Header>
+        <CardBlock.Body>
+          {match(tokensResult)
+            .with({ type: 'error' }, () => (
+              <TableEmptyBox border={false}>
+                <EmptyMessage
+                  icon={<AccessToken24Icon />}
+                  title="You do not have permission to view SCIM tokens"
+                  body="Only fleet and silo admins can manage SCIM tokens for this silo"
+                />
+              </TableEmptyBox>
+            ))
+            .with({ type: 'success' }, ({ data }) => <TokensTable tokens={data} />)
+            .exhaustive()}
+        </CardBlock.Body>
+        {/* TODO: put this back!
+        <CardBlock.Footer>
+          <LearnMore href={links.scimDocs} text="SCIM" />
+        </CardBlock.Footer> */}
+      </CardBlock>
 
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const [createdToken, setCreatedToken] = useState<{
-    id: string
-    bearerToken: string
-    timeCreated: Date
-    timeExpires?: Date | null
-  } | null>(null)
+      {match(modalState)
+        .with({ kind: 'create' }, () => (
+          <CreateTokenModal
+            siloSelector={siloSelector}
+            onDismiss={() => setModalState(false)}
+            onSuccess={(token) => setModalState({ kind: 'created', token })}
+          />
+        ))
+        .with({ kind: 'created' }, ({ token }) => (
+          <TokenCreatedModal token={token} onDismiss={() => setModalState(false)} />
+        ))
+        .with(false, () => null)
+        .exhaustive()}
+    </>
+  )
+}
 
+function TokensTable({ tokens }: { tokens: ScimClientBearerToken[] }) {
+  const siloSelector = useSiloSelector()
   const deleteToken = useApiMutation('scimTokenDelete', {
     onSuccess() {
-      apiQueryClient.invalidateQueries('scimTokenList')
+      queryClient.invalidateEndpoint('scimTokenList')
     },
   })
+
+  // Order tokens by creation date, oldest first
+  const sortedTokens = useMemo(() => R.sortBy(tokens, (a) => a.timeCreated), [tokens])
 
   const makeActions = useCallback(
     (token: ScimClientBearerToken): MenuAction[] => [
@@ -103,97 +170,20 @@ export default function SiloScimTab() {
     [deleteToken, siloSelector]
   )
 
-  const staticColumns = useMemo(
-    () => [
-      colHelper.accessor('id', {
-        header: 'ID',
-        cell: (info) => (
-          <Truncate text={info.getValue()} position="middle" maxLength={18} />
-        ),
-      }),
-      colHelper.accessor('timeCreated', Columns.timeCreated),
-      colHelper.accessor('timeExpires', {
-        header: 'Expires',
-        cell: (info) => {
-          const expires = info.getValue()
-          return expires ? (
-            <DateTime date={expires} />
-          ) : (
-            <Badge color="neutral">Never</Badge>
-          )
-        },
-        meta: { thClassName: 'lg:w-1/4' },
-      }),
-    ],
-    []
-  )
-
   const columns = useColsWithActions(staticColumns, makeActions, 'Copy token ID')
 
   const table = useReactTable({
-    data: tokens,
+    data: sortedTokens,
     columns,
     getCoreRowModel: getCoreRowModel(),
   })
-  // const { href, linkText } = docLinks.scim
+
+  if (sortedTokens.length === 0) return <EmptyState />
+
   return (
-    <>
-      <CardBlock>
-        <CardBlock.Header
-          title="SCIM Tokens"
-          titleId="scim-tokens-label"
-          description="Tokens for authenticating requests to SCIM endpoints"
-        >
-          {!is403 && (
-            <CreateButton onClick={() => setShowCreateModal(true)}>
-              Create token
-            </CreateButton>
-          )}
-        </CardBlock.Header>
-        <CardBlock.Body>
-          {is403 ? (
-            <TableEmptyBox border={false}>
-              <EmptyMessage
-                icon={<AccessToken24Icon />}
-                title="You do not have permission to view SCIM tokens"
-                body="Only fleet and silo admins can manage SCIM tokens for this silo"
-              />
-            </TableEmptyBox>
-          ) : tokens.length === 0 ? (
-            <EmptyState />
-          ) : (
-            <Table
-              aria-labelledby="scim-tokens-label"
-              table={table}
-              className="table-inline"
-            />
-          )}
-        </CardBlock.Body>
-        {/* TODO: put this back!
-        <CardBlock.Footer>
-          <LearnMore href={links.scimDocs} text="SCIM" />
-        </CardBlock.Footer> */}
-      </CardBlock>
-
-      {showCreateModal && (
-        <CreateTokenModal
-          siloSelector={siloSelector}
-          onDismiss={() => setShowCreateModal(false)}
-          onSuccess={(token) => {
-            setShowCreateModal(false)
-            setCreatedToken(token)
-          }}
-        />
-      )}
-
-      {createdToken && (
-        <TokenCreatedModal token={createdToken} onDismiss={() => setCreatedToken(null)} />
-      )}
-    </>
+    <Table aria-labelledby="scim-tokens-label" table={table} className="table-inline" />
   )
 }
-
-export const handle = makeCrumb('SCIM')
 
 function CreateTokenModal({
   siloSelector,
@@ -202,12 +192,7 @@ function CreateTokenModal({
 }: {
   siloSelector: { silo: string }
   onDismiss: () => void
-  onSuccess: (token: {
-    id: string
-    bearerToken: string
-    timeCreated: Date
-    timeExpires?: Date | null
-  }) => void
+  onSuccess: (token: ScimClientBearerTokenValue) => void
 }) {
   const createToken = useApiMutation('scimTokenCreate', {
     onSuccess(token) {
@@ -243,12 +228,7 @@ function TokenCreatedModal({
   token,
   onDismiss,
 }: {
-  token: {
-    id: string
-    bearerToken: string
-    timeCreated: Date
-    timeExpires?: Date | null
-  }
+  token: ScimClientBearerTokenValue
   onDismiss: () => void
 }) {
   return (
