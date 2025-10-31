@@ -25,8 +25,7 @@ export const links = {
   imagesDocs: 'https://docs.oxide.computer/guides/creating-and-sharing-images',
   preparingImagesDocs:
     'https://docs.oxide.computer/guides/creating-and-sharing-images#_preparing_images_for_import',
-  identityProvidersDocs:
-    'https://docs.oxide.computer/guides/system/completing-rack-config#_configure_silo_identity_provider',
+  identityProvidersDocs: 'https://docs.oxide.computer/guides/operator/identity-providers',
   instanceActionsDocs: 'https://docs.oxide.computer/guides/managing-instances',
   // TODO: link to section
   instanceBootDiskDocs: 'https://docs.oxide.computer/guides/deploying-workloads',
@@ -44,7 +43,7 @@ export const links = {
   routersDocs:
     'https://docs.oxide.computer/guides/configuring-guest-networking#_custom_routers',
   scimDocs:
-    'https://docs.oxide.computer/guides/operator/identity-provider#_saml_authentication_scim_user_provisioning',
+    'https://docs.oxide.computer/guides/operator/identity-providers#_saml_authentication_scim_user_provisioning',
   siloQuotasDocs:
     'https://docs.oxide.computer/guides/operator/silo-management#_silo_resource_quota_management',
   sledDocs:
