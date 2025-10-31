@@ -89,6 +89,7 @@ type RoleRadioFieldProps = {
 
 export function RoleRadioField({ control, scope }: RoleRadioFieldProps) {
   const roleDescriptions = scope === 'Silo' ? siloRoleDescriptions : projectRoleDescriptions
+  const currentRole = control._formValues.roleName || ''
   return (
     <>
       <RadioFieldDyn
@@ -99,9 +100,14 @@ export function RoleRadioField({ control, scope }: RoleRadioFieldProps) {
         column
         className="mt-2"
       >
-        {allRoles.map((role, index) => (
-          <div className={index === 0 ? 'mt-2' : 'mt-1'} key={role}>
-            <Radio key={role} value={role} alignTop>
+        {allRoles.map((role) => (
+          <div className="mt-1" key={role}>
+            <Radio
+              name="roleName"
+              value={role}
+              defaultChecked={currentRole === role}
+              alignTop
+            >
               {/* negative top margin to control spacing with radio button and label */}
               <div className="-mt-0.5 ml-1">
                 <div className="text-sans-md text-raise">
