@@ -33,11 +33,6 @@ export const defaultValues: AddUserValues = {
   roleName: '',
 }
 
-export const roleItems = allRoles.map((role) => ({
-  value: role,
-  label: role.split('_').map(capitalize).join(' '),
-}))
-
 // Role descriptions for project-level roles
 const projectRoleDescriptions: Record<RoleKey, string> = {
   admin: 'Can control all aspects of the project',
