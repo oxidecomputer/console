@@ -38,15 +38,15 @@ export const roleItems = allRoles.map((role) => ({
 
 // Role descriptions for project-level roles
 const projectRoleDescriptions: Record<RoleKey, string> = {
-  admin: 'Complete control over the project',
+  admin: 'Can control all aspects of the project',
   collaborator: 'Can manage all resources, including networking',
-  limited_collaborator: 'Can manage compute resources, can not manage networking',
+  limited_collaborator: 'Can manage compute resources; can not manage networking',
   viewer: 'Can read most resources within the project',
 }
 
 // Role descriptions for silo-level roles
 const siloRoleDescriptions: Record<RoleKey, string> = {
-  admin: 'Superuser for the silo',
+  admin: 'Can control all aspects of the silo',
   collaborator: 'Can create and own projects; grants project admin role on all projects',
   limited_collaborator:
     'Can read most resources within the silo; grants limited collaborator role on all projects',
@@ -96,15 +96,20 @@ export function RoleRadioField({ control, scope }: RoleRadioFieldProps) {
       column
       className="mt-2"
     >
-      {allRoles.map((role) => (
-        <Radio key={role} value={role} alignTop className="pt-1">
-          <div className="-mt-0.5 ml-1">
-            <div className="text-sans-md text-raise">
-              {capitalize(role).replace('_', ' ')}
+      {allRoles.map((role, index) => (
+        <div className={index === 0 ? 'mt-2' : 'mt-1'} key={role}>
+          <Radio key={role} value={role} alignTop>
+            {/* negative top margin to control spacing with radio button and label */}
+            <div className="-mt-0.5 ml-1">
+              <div className="text-sans-md text-raise">
+                {capitalize(role).replace('_', ' ')}
+              </div>
+              <div className="text-sans-sm text-secondary mt-0.5">
+                {roleDescriptions[role]}
+              </div>
             </div>
-            <div className="text-sans-sm text-secondary my-1">{roleDescriptions[role]}</div>
-          </div>
-        </Radio>
+          </Radio>
+        </div>
       ))}
     </RadioFieldDyn>
   )
