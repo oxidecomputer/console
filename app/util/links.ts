@@ -44,7 +44,7 @@ export const links = {
   routersDocs:
     'https://docs.oxide.computer/guides/configuring-guest-networking#_custom_routers',
   scimDocs:
-    'https://docs.oxide.computer/guides/integrations/idp#_saml_authentication_scim_user_provisioning',
+    'https://docs.oxide.computer/guides/operator/identity-provider#_saml_authentication_scim_user_provisioning',
   siloQuotasDocs:
     'https://docs.oxide.computer/guides/operator/silo-management#_silo_resource_quota_management',
   sledDocs:
