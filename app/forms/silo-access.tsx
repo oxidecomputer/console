@@ -20,7 +20,7 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import {
   actorToItem,
   defaultValues,
-  roleItems,
+  RoleRadioField,
   type AddRoleModalProps,
   type EditRoleModalProps,
 } from './access-util'
@@ -69,13 +69,7 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
         required
         control={form.control}
       />
-      <ListboxField
-        name="roleName"
-        label="Role"
-        items={roleItems}
-        required
-        control={form.control}
-      />
+      <RoleRadioField control={form.control} scope="Silo" />
     </SideModalForm>
   )
 }
@@ -99,7 +93,6 @@ export function SiloAccessEditUserSideModal({
 
   return (
     <SideModalForm
-      // TODO: show user name in header or SOMEWHERE
       form={form}
       formType="edit"
       resourceName="role"
@@ -113,13 +106,7 @@ export function SiloAccessEditUserSideModal({
       submitError={updatePolicy.error}
       onDismiss={onDismiss}
     >
-      <ListboxField
-        name="roleName"
-        label="Role"
-        items={roleItems}
-        required
-        control={form.control}
-      />
+      <RoleRadioField control={form.control} scope="Silo" />
     </SideModalForm>
   )
 }
