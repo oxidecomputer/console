@@ -27,7 +27,10 @@ export const defaultValues: AddUserValues = {
   roleName: '',
 }
 
-export const roleItems = allRoles.map((role) => ({ value: role, label: capitalize(role) }))
+export const roleItems = allRoles.map((role) => ({
+  value: role,
+  label: role.split('_').map(capitalize).join(' '),
+}))
 
 export const actorToItem = (actor: Actor): ListboxItem => ({
   value: actor.id,
