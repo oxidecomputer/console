@@ -1155,8 +1155,9 @@ export const handlers = makeHandlers({
     const vpcs = db.vpcs.filter((v) => v.project_id === project.id)
     return paginated(query, vpcs)
   },
-  vpcCreate({ body, query }) {
+  vpcCreate({ body, query, cookies }) {
     const project = lookup.project(query)
+    requireRole(cookies, 'project', project.id, 'collaborator')
     errIfExists(db.vpcs, { name: body.name, project_id: project.id })
 
     const newVpc: Json<Api.Vpc> = {

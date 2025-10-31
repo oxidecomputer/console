@@ -7,7 +7,7 @@
  */
 import { expect, test } from '@playwright/test'
 
-import { clickRowAction, expectRowVisible, selectOption } from './utils'
+import { clickRowAction, expectRowVisible, getPageAsUser, selectOption } from './utils'
 
 test('can nav to VpcPage from /', async ({ page }) => {
   await page.goto('/')
@@ -413,4 +413,52 @@ test('internet gateway shows proper list of routes targeting it', async ({ page 
   await expect(page).toHaveURL(
     '/projects/mock-project/vpcs/mock-vpc/routers/mock-custom-router'
   )
+})
+
+test('collaborator can create VPC', async ({ browser }) => {
+  const page = await getPageAsUser(browser, 'Jacob Klein')
+  await page.goto('/projects/mock-project/vpcs')
+
+  const table = page.getByRole('table')
+
+  // Create a new VPC
+  await page.getByRole('link', { name: 'New Vpc' }).click()
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill('collab-test-vpc')
+  await page.getByRole('textbox', { name: 'DNS name' }).fill('collab-test-vpc')
+  await page.getByRole('button', { name: 'Create VPC' }).click()
+
+  // Should succeed and navigate to the VPC detail page
+  await expect(page.getByRole('heading', { name: 'collab-test-vpc' })).toBeVisible()
+  await expect(page.getByRole('tab', { name: 'Firewall Rules' })).toBeVisible()
+
+  // Navigate back to VPCs list to verify it was created
+  const breadcrumbs = page.getByRole('navigation', { name: 'Breadcrumbs' })
+  await breadcrumbs.getByRole('link', { name: 'VPCs' }).click()
+
+  await expectRowVisible(table, {
+    name: 'collab-test-vpc',
+    'DNS name': 'collab-test-vpc',
+  })
+})
+
+test('limited collaborator cannot create VPC', async ({ browser }) => {
+  const page = await getPageAsUser(browser, 'Hans Jonas')
+  await page.goto('/projects/mock-project/vpcs')
+
+  // Try to create a new VPC
+  await page.getByRole('link', { name: 'New Vpc' }).click()
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill('limited-test-vpc')
+  await page.getByRole('textbox', { name: 'DNS name' }).fill('limited-test-vpc')
+  await page.getByRole('button', { name: 'Create VPC' }).click()
+
+  // Expect the action to fail; Limited Collaborator role does not allow VPC creation
+  await expect(page.getByText('Action not authorized')).toBeVisible()
+
+  // Close the modal
+  await page.getByRole('button', { name: 'Close' }).click()
+  await page.getByRole('button', { name: 'Leave form' }).click()
+
+  // Verify we're still on the VPCs list page and the VPC was not created
+  await expect(page.getByRole('heading', { name: 'VPCs' })).toBeVisible()
+  await expect(page.getByRole('cell', { name: 'limited-test-vpc' })).toBeHidden()
 })
