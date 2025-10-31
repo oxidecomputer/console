@@ -17,7 +17,9 @@ import {
 import { Badge } from '@oxide/design-system/ui'
 
 import { RadioFieldDyn } from '~/components/form/fields/RadioField'
+import { HL } from '~/components/HL'
 import { type ListboxItem } from '~/ui/lib/Listbox'
+import { Message } from '~/ui/lib/Message'
 import { Radio } from '~/ui/lib/Radio'
 import { capitalize } from '~/util/str'
 
@@ -88,29 +90,43 @@ type RoleRadioFieldProps = {
 export function RoleRadioField({ control, scope }: RoleRadioFieldProps) {
   const roleDescriptions = scope === 'Silo' ? siloRoleDescriptions : projectRoleDescriptions
   return (
-    <RadioFieldDyn
-      name="roleName"
-      label={`${scope} role`}
-      required
-      control={control as Control<AddUserValues>}
-      column
-      className="mt-2"
-    >
-      {allRoles.map((role, index) => (
-        <div className={index === 0 ? 'mt-2' : 'mt-1'} key={role}>
-          <Radio key={role} value={role} alignTop>
-            {/* negative top margin to control spacing with radio button and label */}
-            <div className="-mt-0.5 ml-1">
-              <div className="text-sans-md text-raise">
-                {capitalize(role).replace('_', ' ')}
+    <>
+      <RadioFieldDyn
+        name="roleName"
+        label={`${scope} role`}
+        required
+        control={control as Control<AddUserValues>}
+        column
+        className="mt-2"
+      >
+        {allRoles.map((role, index) => (
+          <div className={index === 0 ? 'mt-2' : 'mt-1'} key={role}>
+            <Radio key={role} value={role} alignTop>
+              {/* negative top margin to control spacing with radio button and label */}
+              <div className="-mt-0.5 ml-1">
+                <div className="text-sans-md text-raise">
+                  {capitalize(role).replace('_', ' ')}
+                </div>
+                <div className="text-sans-sm text-secondary mt-0.5">
+                  {roleDescriptions[role]}
+                </div>
               </div>
-              <div className="text-sans-sm text-secondary mt-0.5">
-                {roleDescriptions[role]}
-              </div>
-            </div>
-          </Radio>
-        </div>
-      ))}
-    </RadioFieldDyn>
+            </Radio>
+          </div>
+        ))}
+      </RadioFieldDyn>
+      {scope === 'Project' && (
+        <Message
+          variant="info"
+          content={
+            <>
+              A user’s highest role determines their actual permissions. For example, a silo{' '}
+              <HL>admin</HL> assigned a <HL>viewer</HL> role on a project will still have{' '}
+              <HL>admin</HL> permissions on that project.
+            </>
+          }
+        />
+      )}
+    </>
   )
 }
