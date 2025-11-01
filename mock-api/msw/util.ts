@@ -304,7 +304,8 @@ export function currentUser(cookies: Record<string, string>): Json<User> {
 // could implement with `takeUntil(allRoles, r => r === role)`, but that is so
 // much harder to understand
 const roleOrStronger: Record<RoleKey, RoleKey[]> = {
-  viewer: ['viewer', 'collaborator', 'admin'],
+  viewer: ['viewer', 'limited_collaborator', 'collaborator', 'admin'],
+  limited_collaborator: ['limited_collaborator', 'collaborator', 'admin'],
   collaborator: ['collaborator', 'admin'],
   admin: ['admin'],
 }

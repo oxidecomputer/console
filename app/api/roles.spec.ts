@@ -157,5 +157,5 @@ test('byGroupThenName sorts as expected', () => {
 })
 
 test('allRoles', () => {
-  expect(allRoles).toEqual(['admin', 'collaborator', 'viewer'])
+  expect(allRoles).toEqual(['admin', 'collaborator', 'limited_collaborator', 'viewer'])
 })

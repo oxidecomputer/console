@@ -22,6 +22,7 @@ import {
   type AffinityGroupMember,
   type AntiAffinityGroupMember,
   type ApiTypes as Api,
+  type FleetRole,
   type InstanceDiskAttachment,
   type SamlIdentityProvider,
 } from '@oxide/api'
@@ -1154,8 +1155,9 @@ export const handlers = makeHandlers({
     const vpcs = db.vpcs.filter((v) => v.project_id === project.id)
     return paginated(query, vpcs)
   },
-  vpcCreate({ body, query }) {
+  vpcCreate({ body, query, cookies }) {
     const project = lookup.project(query)
+    requireRole(cookies, 'project', project.id, 'collaborator')
     errIfExists(db.vpcs, { name: body.name, project_id: project.id })
 
     const newVpc: Json<Api.Vpc> = {
@@ -1626,9 +1628,15 @@ export const handlers = makeHandlers({
   systemPolicyView({ cookies }) {
     requireFleetViewer(cookies)
 
+    const fleetRoles: FleetRole[] = ['admin', 'collaborator', 'viewer']
     const role_assignments = db.roleAssignments
       .filter((r) => r.resource_type === 'fleet' && r.resource_id === FLEET_ID)
-      .map((r) => R.pick(r, ['identity_id', 'identity_type', 'role_name']))
+      .filter((r) => fleetRoles.includes(r.role_name as FleetRole))
+      .map((r) => ({
+        identity_id: r.identity_id,
+        identity_type: r.identity_type,
+        role_name: r.role_name as FleetRole,
+      }))
 
     return { role_assignments }
   },

@@ -18,5 +18,6 @@ export const identityTypeLabel: Record<IdentityType, string> = {
 export const roleColor: Record<RoleKey, BadgeColor> = {
   admin: 'default',
   collaborator: 'purple',
+  limited_collaborator: 'purple',
   viewer: 'blue',
 }

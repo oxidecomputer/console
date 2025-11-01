@@ -22,7 +22,7 @@ import { addToast } from '~/stores/toast'
 import {
   actorToItem,
   defaultValues,
-  roleItems,
+  RoleRadioField,
   type AddRoleModalProps,
   type EditRoleModalProps,
 } from './access-util'
@@ -75,13 +75,7 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
         required
         control={form.control}
       />
-      <ListboxField
-        name="roleName"
-        label="Role"
-        items={roleItems}
-        required
-        control={form.control}
-      />
+      <RoleRadioField control={form.control} scope="Project" />
     </SideModalForm>
   )
 }
@@ -109,7 +103,6 @@ export function ProjectAccessEditUserSideModal({
 
   return (
     <SideModalForm
-      // TODO: show user name in header or SOMEWHERE
       form={form}
       formType="edit"
       resourceName="role"
@@ -124,13 +117,7 @@ export function ProjectAccessEditUserSideModal({
       submitError={updatePolicy.error}
       onDismiss={onDismiss}
     >
-      <ListboxField
-        name="roleName"
-        label="Role"
-        items={roleItems}
-        required
-        control={form.control}
-      />
+      <RoleRadioField control={form.control} scope="Project" />
     </SideModalForm>
   )
 }

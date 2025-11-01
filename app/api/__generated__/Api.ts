@@ -3297,7 +3297,7 @@ export type ProjectResultsPage = {
   nextPage?: string | null
 }
 
-export type ProjectRole = 'admin' | 'collaborator' | 'viewer'
+export type ProjectRole = 'admin' | 'collaborator' | 'limited_collaborator' | 'viewer'
 
 /**
  * Describes the assignment of a particular role on a particular resource to a particular identity (user, group, etc.)
@@ -3738,7 +3738,7 @@ export type SiloResultsPage = {
   nextPage?: string | null
 }
 
-export type SiloRole = 'admin' | 'collaborator' | 'viewer'
+export type SiloRole = 'admin' | 'collaborator' | 'limited_collaborator' | 'viewer'
 
 /**
  * Describes the assignment of a particular role on a particular resource to a particular identity (user, group, etc.)
@@ -10110,7 +10110,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch system release repository description by version
+     * Fetch system release repository by version
      */
     systemUpdateRepositoryView: (
       { path }: { path: SystemUpdateRepositoryViewPathParams },

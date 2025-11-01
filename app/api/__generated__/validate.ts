@@ -3056,7 +3056,7 @@ export const ProjectResultsPage = z.preprocess(
 
 export const ProjectRole = z.preprocess(
   processResponseBody,
-  z.enum(['admin', 'collaborator', 'viewer'])
+  z.enum(['admin', 'collaborator', 'limited_collaborator', 'viewer'])
 )
 
 /**
@@ -3438,7 +3438,7 @@ export const SiloResultsPage = z.preprocess(
 
 export const SiloRole = z.preprocess(
   processResponseBody,
-  z.enum(['admin', 'collaborator', 'viewer'])
+  z.enum(['admin', 'collaborator', 'limited_collaborator', 'viewer'])
 )
 
 /**
