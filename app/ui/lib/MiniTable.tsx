@@ -144,7 +144,8 @@ export function MiniTable<T>({
         {columns.map((column, index) => (
           <HeadCell key={index}>{column.header}</HeadCell>
         ))}
-        <HeadCell /> {/* For remove button */}
+        {/* For remove button */}
+        <HeadCell />
       </Header>
 
       <Body>
