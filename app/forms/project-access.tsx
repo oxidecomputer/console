@@ -51,10 +51,6 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
       form={form}
       formType="create"
       onSubmit={({ identityId, roleName }) => {
-        // can't happen because roleName is validated not to be '', but TS
-        // wants to be sure
-        if (roleName === '') return
-
         // actor is guaranteed to be in the list because it came from there
         const identityType = actors.find((a) => a.id === identityId)!.identityType
 

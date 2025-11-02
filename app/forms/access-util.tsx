@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import type { Control } from 'react-hook-form'
+import * as R from 'remeda'
 
 import {
   allRoles,
@@ -25,12 +26,12 @@ import { capitalize } from '~/util/str'
 
 type AddUserValues = {
   identityId: string
-  roleName: RoleKey | ''
+  roleName: RoleKey
 }
 
 export const defaultValues: AddUserValues = {
   identityId: '',
-  roleName: '',
+  roleName: 'viewer',
 }
 
 // Role descriptions for project-level roles
@@ -84,7 +85,6 @@ type RoleRadioFieldProps = {
 
 export function RoleRadioField({ control, scope }: RoleRadioFieldProps) {
   const roleDescriptions = scope === 'Silo' ? siloRoleDescriptions : projectRoleDescriptions
-  const currentRole = control._formValues.roleName || ''
   return (
     <>
       <RadioFieldDyn
@@ -95,25 +95,17 @@ export function RoleRadioField({ control, scope }: RoleRadioFieldProps) {
         column
         className="mt-2"
       >
-        {allRoles.map((role) => (
-          <div className="mt-1" key={role}>
-            <Radio
-              name="roleName"
-              value={role}
-              defaultChecked={currentRole === role}
-              alignTop
-            >
-              {/* negative top margin to control spacing with radio button and label */}
-              <div className="-mt-0.5 ml-1">
-                <div className="text-sans-md text-raise">
-                  {capitalize(role).replace('_', ' ')}
-                </div>
-                <div className="text-sans-sm text-secondary mt-0.5">
-                  {roleDescriptions[role]}
-                </div>
+        {R.reverse(allRoles).map((role) => (
+          <Radio name="roleName" key={role} value={role} alignTop>
+            <div className="ml-1">
+              <div className="text-sans-md text-raise">
+                {capitalize(role).replace('_', ' ')}
               </div>
-            </Radio>
-          </div>
+              <div className="text-sans-sm text-secondary mt-0.5">
+                {roleDescriptions[role]}
+              </div>
+            </div>
+          </Radio>
         ))}
       </RadioFieldDyn>
       {scope === 'Project' && (

@@ -46,10 +46,6 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
       title="Add user or group"
       onDismiss={onDismiss}
       onSubmit={({ identityId, roleName }) => {
-        // can't happen because roleName is validated not to be '', but TS
-        // wants to be sure
-        if (roleName === '') return
-
         // TODO: DRY logic
         // actor is guaranteed to be in the list because it came from there
         const identityType = actors.find((a) => a.id === identityId)!.identityType

@@ -19,6 +19,8 @@ import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Radio, type RadioProps } from '~/ui/lib/Radio'
 import { RadioGroup, type RadioGroupProps } from '~/ui/lib/RadioGroup'
 import { TextInputHint } from '~/ui/lib/TextInput'
+import { isOneOf } from '~/util/children'
+import { invariant } from '~/util/invariant'
 import { capitalize } from '~/util/str'
 
 export type RadioFieldProps<
@@ -126,6 +128,10 @@ export function RadioFieldDyn<
 }: RadioFieldDynProps<TFieldValues, TName>) {
   const id = useId()
   const { field } = useController({ name, control })
+  invariant(
+    isOneOf(children, [Radio, RadioCard]),
+    'Children of RadioFieldDyn must be Radio or RadioCard'
+  )
   return (
     <div>
       <div className="mb-2">
