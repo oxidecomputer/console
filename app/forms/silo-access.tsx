@@ -13,9 +13,11 @@ import {
   useApiMutation,
   useApiQueryClient,
 } from '@oxide/api'
+import { Access16Icon } from '@oxide/design-system/icons/react'
 
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { ResourceLabel } from '~/ui/lib/SideModal'
 
 import {
   actorToItem,
@@ -92,7 +94,12 @@ export function SiloAccessEditUserSideModal({
       form={form}
       formType="edit"
       resourceName="role"
-      title={`Change silo role for ${name}`}
+      title="Edit role"
+      subtitle={
+        <ResourceLabel>
+          <Access16Icon /> {name}
+        </ResourceLabel>
+      }
       onSubmit={({ roleName }) => {
         updatePolicy.mutate({
           body: updateRole({ identityId, identityType, roleName }, policy),

@@ -13,11 +13,13 @@ import {
   useApiMutation,
   useApiQueryClient,
 } from '@oxide/api'
+import { Access16Icon } from '@oxide/design-system/icons/react'
 
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { ResourceLabel } from '~/ui/lib/SideModal'
 
 import {
   actorToItem,
@@ -102,7 +104,12 @@ export function ProjectAccessEditUserSideModal({
       form={form}
       formType="edit"
       resourceName="role"
-      title={`Change project role for ${name}`}
+      title="Edit role"
+      subtitle={
+        <ResourceLabel>
+          <Access16Icon /> {name}
+        </ResourceLabel>
+      }
       onSubmit={({ roleName }) => {
         updatePolicy.mutate({
           path: { project },
