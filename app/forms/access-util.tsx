@@ -36,19 +36,19 @@ export const defaultValues: AddUserValues = {
 
 // Role descriptions for project-level roles
 const projectRoleDescriptions: Record<RoleKey, string> = {
-  admin: 'Can control all aspects of the project',
-  collaborator: 'Can manage all resources, including networking',
-  limited_collaborator: 'Can manage compute resources; can not manage networking',
-  viewer: 'Can read most resources within the project',
+  admin: 'Can control all aspects of the project.',
+  collaborator: 'Can manage all resources, including networking.',
+  limited_collaborator: 'Can manage compute resources. Cannot manage networking.',
+  viewer: 'Can read most resources within the project.',
 }
 
 // Role descriptions for silo-level roles
 const siloRoleDescriptions: Record<RoleKey, string> = {
-  admin: 'Can control all aspects of the silo',
-  collaborator: 'Can create and own projects; grants project admin role on all projects',
+  admin: 'Can control all aspects of the silo.',
+  collaborator: 'Can create and own projects. Grants project admin role on all projects.',
   limited_collaborator:
-    'Can read most resources within the silo; grants limited collaborator role on all projects',
-  viewer: 'Can read most resources within the silo; grants project viewer role',
+    'Can read most resources within the silo. Grants limited collaborator role on all projects.',
+  viewer: 'Can read most resources within the silo. Grants project viewer role.',
 }
 
 export const actorToItem = (actor: Actor): ListboxItem => ({
