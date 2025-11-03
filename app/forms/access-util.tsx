@@ -110,18 +110,16 @@ export function RoleRadioField<
           </Radio>
         ))}
       </RadioFieldDyn>
-      {scope === 'Project' && (
-        <Message
-          variant="info"
-          content={
-            <>
-              A user’s strongest role determines their actual permissions. For example, a
-              silo <HL>admin</HL> assigned a <HL>viewer</HL> role on a project will still
-              have <HL>admin</HL> permissions on that project.
-            </>
-          }
-        />
-      )}
+      <Message
+        variant="info"
+        content={
+          <>
+            A user’s strongest role determines their actual permissions. For example, a silo{' '}
+            <HL>admin</HL> assigned a <HL>viewer</HL> role on a project will still have{' '}
+            <HL>admin</HL> permissions on that project.
+          </>
+        }
+      />
     </>
   )
 }
