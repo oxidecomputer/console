@@ -131,7 +131,7 @@ export function RadioFieldDyn<
   TName extends FieldPath<TFieldValues>,
 >({
   name,
-  label = capitalize(name),
+  label,
   description,
   units,
   control,
@@ -146,7 +146,7 @@ export function RadioFieldDyn<
   )
   return (
     <div>
-      <div className="mb-2">
+      <div className="mb-3">
         {label && (
           <FieldLabel id={`${id}-label`}>
             {label} {units && <span className="text-default ml-1">({units})</span>}
