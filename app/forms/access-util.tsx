@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { Control } from 'react-hook-form'
+import type { Control, FieldPath, FieldValues } from 'react-hook-form'
 import * as R from 'remeda'
 
 import {
@@ -78,20 +78,26 @@ export type EditRoleModalProps = AddRoleModalProps & {
   defaultValues: { roleName: RoleKey }
 }
 
-type RoleRadioFieldProps = {
-  control: Control<AddUserValues> | Control<{ roleName: RoleKey }>
+export function RoleRadioField<
+  TFieldValues extends FieldValues,
+  TName extends FieldPath<TFieldValues>,
+>({
+  name,
+  control,
+  scope,
+}: {
+  name: TName
+  control: Control<TFieldValues>
   scope: 'Silo' | 'Project'
-}
-
-export function RoleRadioField({ control, scope }: RoleRadioFieldProps) {
+}) {
   const roleDescriptions = scope === 'Silo' ? siloRoleDescriptions : projectRoleDescriptions
   return (
     <>
       <RadioFieldDyn
-        name="roleName"
+        name={name}
         label={`${scope} role`}
         required
-        control={control as Control<AddUserValues>}
+        control={control}
         column
         className="mt-2"
       >

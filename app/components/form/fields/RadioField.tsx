@@ -101,11 +101,23 @@ export function RadioField<
 
 type RadioElt = React.ReactElement<RadioProps>
 
+// we do not extend RadioFieldProps here because it limits our ability to type
+// components like RoleRadioField. see https://tsplay.dev/ND13Om
+
 export type RadioFieldDynProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
-> = Omit<RadioFieldProps<TFieldValues, TName>, 'parseValue' | 'items'> & {
+> = {
+  name: TName
+  label?: string
+  description?: string | React.ReactNode
+  units?: string
+  control: Control<TFieldValues>
   children: RadioElt | RadioElt[]
+  column?: boolean
+  className?: string
+  required?: boolean
+  disabled?: boolean
 }
 
 /**

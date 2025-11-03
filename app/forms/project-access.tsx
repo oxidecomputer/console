@@ -73,7 +73,7 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
         required
         control={form.control}
       />
-      <RoleRadioField control={form.control} scope="Project" />
+      <RoleRadioField name="roleName" control={form.control} scope="Project" />
     </SideModalForm>
   )
 }
@@ -120,7 +120,7 @@ export function ProjectAccessEditUserSideModal({
       submitError={updatePolicy.error}
       onDismiss={onDismiss}
     >
-      <RoleRadioField control={form.control} scope="Project" />
+      <RoleRadioField name="roleName" control={form.control} scope="Project" />
     </SideModalForm>
   )
 }
