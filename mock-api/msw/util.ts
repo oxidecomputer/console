@@ -312,10 +312,9 @@ const roleOrStronger: Record<RoleKey, RoleKey[]> = {
 
 /**
  * Determine whether a user has a role at least as strong as `role` on the
- * specified resource. Note that this does not yet do parent-child inheritance
- * like Nexus does, i.e., if a user has collaborator on a silo, then it inherits
- * collaborator on all projects in the silo even if it has no explicit role on
- * those projects. This does NOT do that.
+ * specified resource. Implements parent-child inheritance like Nexus does:
+ * if a user has a role on a silo, they inherit that role on all projects
+ * in the silo.
  */
 export function userHasRole(
   user: Json<User>,
@@ -329,6 +328,8 @@ export function userHasRole(
     .filter((g) => !!g)
     .map((g) => g.id)
 
+  const actorIds = [user.id, ...userGroupIds]
+
   /** All actors with *at least* the specified role on the resource */
   const actorsWithRole = db.roleAssignments
     .filter(
@@ -339,8 +340,47 @@ export function userHasRole(
     )
     .map((ra) => ra.identity_id)
 
-  // user has role if their own ID or any of their groups is associated with the role
-  return [user.id, ...userGroupIds].some((id) => actorsWithRole.includes(id))
+  // Direct role on the resource
+  if (actorIds.some((id) => actorsWithRole.includes(id))) {
+    return true
+  }
+
+  // Check for inherited roles: if checking project role, also check parent silo roles
+  // Silo role inheritance to project roles:
+  // - silo admin → project admin
+  // - silo collaborator → project admin (note collaborator → admin)
+  // - silo limited_collaborator → project limited_collaborator
+  // - silo viewer → project viewer
+  if (resourceType === 'project') {
+    const project = db.projects.find((p) => p.id === resourceId)
+    if (!project) return false
+
+    // Map requested project role to silo roles that confer authority
+    const siloRolesForProjectRole: Record<RoleKey, RoleKey[]> = {
+      admin: ['admin', 'collaborator'], // silo collaborator grants project admin
+      collaborator: ['admin', 'collaborator'],
+      limited_collaborator: ['admin', 'collaborator', 'limited_collaborator'],
+      viewer: ['admin', 'collaborator', 'limited_collaborator', 'viewer'],
+    }
+
+    const requiredSiloRoles = siloRolesForProjectRole[role] || []
+
+    // Check if user has any silo role that grants the requested project role
+    const siloActorsWithRole = db.roleAssignments
+      .filter(
+        (ra) =>
+          ra.resource_type === 'silo' &&
+          ra.resource_id === user.silo_id &&
+          requiredSiloRoles.includes(ra.role_name)
+      )
+      .map((ra) => ra.identity_id)
+
+    if (actorIds.some((id) => siloActorsWithRole.includes(id))) {
+      return true
+    }
+  }
+
+  return false
 }
 
 /**

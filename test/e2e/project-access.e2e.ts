@@ -13,7 +13,7 @@ test('Click through project access page', async ({ page }) => {
   await page.goto('/projects/mock-project')
   await page.click('role=link[name*="Access"]')
 
-  // page is there, we see user 1 and 3 but not 2 or 4
+  // we see groups and users 1, 3, 6 but not users 2, 4, 5
   await expectVisible(page, ['role=heading[name*="Access"]'])
   const table = page.locator('table')
   await expectRowVisible(table, {
@@ -25,6 +25,11 @@ test('Click through project access page', async ({ page }) => {
     Name: 'Jacob Klein',
     Type: 'User',
     Role: 'project.collaborator',
+  })
+  await expectRowVisible(table, {
+    Name: 'Herbert Marcuse',
+    Type: 'User',
+    Role: 'project.limited_collaborator',
   })
   await expectRowVisible(table, {
     Name: 'real-estate-devs',
@@ -48,7 +53,10 @@ test('Click through project access page', async ({ page }) => {
 
   await page.click('role=button[name*="User or group"]')
   // only users not already on the project should be visible
-  await expectNotVisible(page, ['role=option[name="Jacob Klein"]'])
+  await expectNotVisible(page, [
+    'role=option[name="Jacob Klein"]',
+    'role=option[name="Herbert Marcuse"]',
+  ])
 
   await expectVisible(page, [
     'role=option[name="Hannah Arendt"]',
@@ -57,15 +65,7 @@ test('Click through project access page', async ({ page }) => {
   ])
 
   await page.click('role=option[name="Simone de Beauvoir"]')
-
-  await page.click('role=button[name*="Role"]')
-  await expectVisible(page, [
-    'role=option[name="Admin"]',
-    'role=option[name="Collaborator"]',
-    'role=option[name="Viewer"]',
-  ])
-
-  await page.click('role=option[name="Collaborator"]')
+  await page.getByRole('radio', { name: /^Collaborator / }).click()
   await page.click('role=button[name="Assign role"]')
 
   // User 4 shows up in the table
@@ -85,10 +85,12 @@ test('Click through project access page', async ({ page }) => {
   await expectVisible(page, [
     'role=heading[name*="Change project role for Simone de Beauvoir"]',
   ])
-  await expectVisible(page, ['button:has-text("Collaborator")'])
 
-  await page.click('role=button[name*="Role"]')
-  await page.click('role=option[name="Viewer"]')
+  // Verify Collaborator is currently selected
+  await expect(page.getByRole('radio', { name: /^Collaborator / })).toBeChecked()
+
+  // Select Viewer role
+  await page.getByRole('radio', { name: /^Viewer / }).click()
   await page.click('role=button[name="Update role"]')
 
   await expectRowVisible(table, { Name: user4.display_name, Role: 'project.viewer' })
@@ -106,8 +108,8 @@ test('Click through project access page', async ({ page }) => {
   await page.click('role=button[name="Add user or group"]')
   await page.click('role=button[name*="User or group"]')
   await page.click('role=option[name="Hannah Arendt"]')
-  await page.click('role=button[name*="Role"]')
-  await page.click('role=option[name="Viewer"]')
+  // Select Viewer role
+  await page.getByRole('radio', { name: /^Viewer / }).click()
   await page.click('role=button[name="Assign role"]')
   // because we only show the "effective" role, we should still see the silo admin role, but should now have an additional count value
   await expectRowVisible(table, {

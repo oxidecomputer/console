@@ -441,8 +441,36 @@ test('collaborator can create VPC', async ({ browser }) => {
   })
 })
 
-test('limited collaborator cannot create VPC', async ({ browser }) => {
+test('user in group with silo collaborator role can create VPC', async ({ browser }) => {
+  // Hans Jonas is in real-estate-devs group, which has silo.collaborator role
+  // Silo collaborator grants project admin, so he should be able to create VPCs
   const page = await getPageAsUser(browser, 'Hans Jonas')
+  await page.goto('/projects/mock-project/vpcs')
+
+  const table = page.getByRole('table')
+
+  // Create a new VPC
+  await page.getByRole('link', { name: 'New Vpc' }).click()
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill('group-test-vpc')
+  await page.getByRole('textbox', { name: 'DNS name' }).fill('group-test-vpc')
+  await page.getByRole('button', { name: 'Create VPC' }).click()
+
+  // Should succeed and navigate to the VPC detail page
+  await expect(page.getByRole('heading', { name: 'group-test-vpc' })).toBeVisible()
+  await expect(page.getByRole('tab', { name: 'Firewall Rules' })).toBeVisible()
+
+  // Navigate back to VPCs list to verify it was created
+  const breadcrumbs = page.getByRole('navigation', { name: 'Breadcrumbs' })
+  await breadcrumbs.getByRole('link', { name: 'VPCs' }).click()
+
+  await expectRowVisible(table, {
+    name: 'group-test-vpc',
+    'DNS name': 'group-test-vpc',
+  })
+})
+
+test('limited collaborator cannot create VPC', async ({ browser }) => {
+  const page = await getPageAsUser(browser, 'Herbert Marcuse')
   await page.goto('/projects/mock-project/vpcs')
 
   // Try to create a new VPC
