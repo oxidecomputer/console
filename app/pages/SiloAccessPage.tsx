@@ -25,10 +25,7 @@ import { Badge } from '@oxide/design-system/ui'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
-import {
-  SiloAccessAddUserSideModal,
-  SiloAccessEditUserSideModal,
-} from '~/forms/silo-access'
+import { SiloAccessAddUserModal, SiloAccessEditUserModal } from '~/forms/silo-access'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
@@ -178,13 +175,13 @@ export default function SiloAccessPage() {
         <CreateButton onClick={() => setAddModalOpen(true)}>Add user or group</CreateButton>
       </TableActions>
       {siloPolicy && addModalOpen && (
-        <SiloAccessAddUserSideModal
+        <SiloAccessAddUserModal
           onDismiss={() => setAddModalOpen(false)}
           policy={siloPolicy}
         />
       )}
       {siloPolicy && editingUserRow?.siloRole && (
-        <SiloAccessEditUserSideModal
+        <SiloAccessEditUserModal
           onDismiss={() => setEditingUserRow(null)}
           policy={siloPolicy}
           name={editingUserRow.name}

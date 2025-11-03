@@ -15,7 +15,7 @@ import {
 } from '@oxide/api'
 
 import { ListboxField } from '~/components/form/fields/ListboxField'
-import { SideModalForm } from '~/components/form/SideModalForm'
+import { ModalForm } from '~/components/form/ModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 
@@ -27,7 +27,7 @@ import {
   type EditRoleModalProps,
 } from './access-util'
 
-export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
+export function ProjectAccessAddUserModal({ onDismiss, policy }: AddRoleModalProps) {
   const { project } = useProjectSelector()
 
   const actors = useActorsNotInPolicy(policy)
@@ -45,11 +45,9 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
   const form = useForm({ defaultValues })
 
   return (
-    <SideModalForm
+    <ModalForm
       title="Add user or group"
-      resourceName="role"
       form={form}
-      formType="create"
       onSubmit={({ identityId, roleName }) => {
         // actor is guaranteed to be in the list because it came from there
         const identityType = actors.find((a) => a.id === identityId)!.identityType
@@ -72,11 +70,11 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
         control={form.control}
       />
       <RoleRadioField control={form.control} scope="Project" />
-    </SideModalForm>
+    </ModalForm>
   )
 }
 
-export function ProjectAccessEditUserSideModal({
+export function ProjectAccessEditUserModal({
   onDismiss,
   name,
   identityId,
@@ -98,10 +96,8 @@ export function ProjectAccessEditUserSideModal({
   const form = useForm({ defaultValues })
 
   return (
-    <SideModalForm
+    <ModalForm
       form={form}
-      formType="edit"
-      resourceName="role"
       title={`Change project role for ${name}`}
       onSubmit={({ roleName }) => {
         updatePolicy.mutate({
@@ -111,9 +107,10 @@ export function ProjectAccessEditUserSideModal({
       }}
       loading={updatePolicy.isPending}
       submitError={updatePolicy.error}
+      submitLabel="Update role"
       onDismiss={onDismiss}
     >
       <RoleRadioField control={form.control} scope="Project" />
-    </SideModalForm>
+    </ModalForm>
   )
 }

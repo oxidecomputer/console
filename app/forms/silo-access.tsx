@@ -15,7 +15,7 @@ import {
 } from '@oxide/api'
 
 import { ListboxField } from '~/components/form/fields/ListboxField'
-import { SideModalForm } from '~/components/form/SideModalForm'
+import { ModalForm } from '~/components/form/ModalForm'
 
 import {
   actorToItem,
@@ -25,7 +25,7 @@ import {
   type EditRoleModalProps,
 } from './access-util'
 
-export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
+export function SiloAccessAddUserModal({ onDismiss, policy }: AddRoleModalProps) {
   const actors = useActorsNotInPolicy(policy)
 
   const queryClient = useApiQueryClient()
@@ -39,10 +39,8 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
   const form = useForm({ defaultValues })
 
   return (
-    <SideModalForm
+    <ModalForm
       form={form}
-      formType="create"
-      resourceName="role"
       title="Add user or group"
       onDismiss={onDismiss}
       onSubmit={({ identityId, roleName }) => {
@@ -66,11 +64,11 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
         control={form.control}
       />
       <RoleRadioField control={form.control} scope="Silo" />
-    </SideModalForm>
+    </ModalForm>
   )
 }
 
-export function SiloAccessEditUserSideModal({
+export function SiloAccessEditUserModal({
   onDismiss,
   name,
   identityId,
@@ -88,10 +86,8 @@ export function SiloAccessEditUserSideModal({
   const form = useForm({ defaultValues })
 
   return (
-    <SideModalForm
+    <ModalForm
       form={form}
-      formType="edit"
-      resourceName="role"
       title={`Change silo role for ${name}`}
       onSubmit={({ roleName }) => {
         updatePolicy.mutate({
@@ -100,9 +96,10 @@ export function SiloAccessEditUserSideModal({
       }}
       loading={updatePolicy.isPending}
       submitError={updatePolicy.error}
+      submitLabel="Update role"
       onDismiss={onDismiss}
     >
       <RoleRadioField control={form.control} scope="Silo" />
-    </SideModalForm>
+    </ModalForm>
   )
 }

@@ -31,7 +31,7 @@ const fieldStyles = `
 
 export const Radio = ({ children, className, alignTop, ...inputProps }: RadioProps) => (
   <label className={cn('inline-flex', alignTop ? 'items-start' : 'items-center')}>
-    <span className="relative h-4 w-4">
+    <span className="relative h-4 w-4 shrink-0">
       <input className={cn(fieldStyles, className)} type="radio" {...inputProps} />
       {/* the dot in the middle. hide by default, use peer-checked to show if checked */}
       <div className="bg-accent pointer-events-none absolute top-1 left-1 hidden h-2 w-2 rounded-full peer-checked:block" />

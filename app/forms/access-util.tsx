@@ -97,14 +97,10 @@ export function RoleRadioField({ control, scope }: RoleRadioFieldProps) {
       >
         {R.reverse(allRoles).map((role) => (
           <Radio name="roleName" key={role} value={role} alignTop>
-            <div className="ml-1">
-              <div className="text-sans-md text-raise">
-                {capitalize(role).replace('_', ' ')}
-              </div>
-              <div className="text-sans-sm text-secondary mt-0.5">
-                {roleDescriptions[role]}
-              </div>
+            <div className="text-sans-md text-raise">
+              {capitalize(role).replace('_', ' ')}
             </div>
+            <div className="text-sans-sm text-secondary">{roleDescriptions[role]}</div>
           </Radio>
         ))}
       </RadioFieldDyn>
