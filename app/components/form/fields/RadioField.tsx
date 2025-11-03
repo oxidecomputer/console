@@ -16,7 +16,7 @@ import {
 } from 'react-hook-form'
 
 import { FieldLabel } from '~/ui/lib/FieldLabel'
-import { Radio, type RadioProps } from '~/ui/lib/Radio'
+import { Radio, RadioCard, type RadioProps } from '~/ui/lib/Radio'
 import { RadioGroup, type RadioGroupProps } from '~/ui/lib/RadioGroup'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { isOneOf } from '~/util/children'
