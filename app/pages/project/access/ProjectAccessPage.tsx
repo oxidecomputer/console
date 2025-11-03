@@ -30,8 +30,8 @@ import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
 import {
-  ProjectAccessAddUserModal,
-  ProjectAccessEditUserModal,
+  ProjectAccessAddUserSideModal,
+  ProjectAccessEditUserSideModal,
 } from '~/forms/project-access'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -217,13 +217,13 @@ export default function ProjectAccessPage() {
         <CreateButton onClick={() => setAddModalOpen(true)}>Add user or group</CreateButton>
       </TableActions>
       {projectPolicy && addModalOpen && (
-        <ProjectAccessAddUserModal
+        <ProjectAccessAddUserSideModal
           onDismiss={() => setAddModalOpen(false)}
           policy={projectPolicy}
         />
       )}
       {projectPolicy && editingUserRow?.projectRole && (
-        <ProjectAccessEditUserModal
+        <ProjectAccessEditUserSideModal
           onDismiss={() => setEditingUserRow(null)}
           policy={projectPolicy}
           name={editingUserRow.name}

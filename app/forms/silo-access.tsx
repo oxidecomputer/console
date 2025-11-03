@@ -15,7 +15,7 @@ import {
 } from '@oxide/api'
 
 import { ListboxField } from '~/components/form/fields/ListboxField'
-import { ModalForm } from '~/components/form/ModalForm'
+import { SideModalForm } from '~/components/form/SideModalForm'
 
 import {
   actorToItem,
@@ -25,7 +25,7 @@ import {
   type EditRoleModalProps,
 } from './access-util'
 
-export function SiloAccessAddUserModal({ onDismiss, policy }: AddRoleModalProps) {
+export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
   const actors = useActorsNotInPolicy(policy)
 
   const queryClient = useApiQueryClient()
@@ -39,8 +39,10 @@ export function SiloAccessAddUserModal({ onDismiss, policy }: AddRoleModalProps)
   const form = useForm({ defaultValues })
 
   return (
-    <ModalForm
+    <SideModalForm
       form={form}
+      formType="create"
+      resourceName="role"
       title="Add user or group"
       onDismiss={onDismiss}
       onSubmit={({ identityId, roleName }) => {
@@ -54,7 +56,6 @@ export function SiloAccessAddUserModal({ onDismiss, policy }: AddRoleModalProps)
       }}
       loading={updatePolicy.isPending}
       submitError={updatePolicy.error}
-      submitLabel="Assign role"
     >
       <ListboxField
         name="identityId"
@@ -64,11 +65,11 @@ export function SiloAccessAddUserModal({ onDismiss, policy }: AddRoleModalProps)
         control={form.control}
       />
       <RoleRadioField control={form.control} scope="Silo" />
-    </ModalForm>
+    </SideModalForm>
   )
 }
 
-export function SiloAccessEditUserModal({
+export function SiloAccessEditUserSideModal({
   onDismiss,
   name,
   identityId,
@@ -86,8 +87,10 @@ export function SiloAccessEditUserModal({
   const form = useForm({ defaultValues })
 
   return (
-    <ModalForm
+    <SideModalForm
       form={form}
+      formType="edit"
+      resourceName="role"
       title={`Change silo role for ${name}`}
       onSubmit={({ roleName }) => {
         updatePolicy.mutate({
@@ -96,10 +99,9 @@ export function SiloAccessEditUserModal({
       }}
       loading={updatePolicy.isPending}
       submitError={updatePolicy.error}
-      submitLabel="Update role"
       onDismiss={onDismiss}
     >
       <RoleRadioField control={form.control} scope="Silo" />
-    </ModalForm>
+    </SideModalForm>
   )
 }

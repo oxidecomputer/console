@@ -15,7 +15,7 @@ import {
 } from '@oxide/api'
 
 import { ListboxField } from '~/components/form/fields/ListboxField'
-import { ModalForm } from '~/components/form/ModalForm'
+import { SideModalForm } from '~/components/form/SideModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 
@@ -27,7 +27,7 @@ import {
   type EditRoleModalProps,
 } from './access-util'
 
-export function ProjectAccessAddUserModal({ onDismiss, policy }: AddRoleModalProps) {
+export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
   const { project } = useProjectSelector()
 
   const actors = useActorsNotInPolicy(policy)
@@ -45,9 +45,11 @@ export function ProjectAccessAddUserModal({ onDismiss, policy }: AddRoleModalPro
   const form = useForm({ defaultValues })
 
   return (
-    <ModalForm
+    <SideModalForm
       title="Add user or group"
+      resourceName="role"
       form={form}
+      formType="create"
       onSubmit={({ identityId, roleName }) => {
         // actor is guaranteed to be in the list because it came from there
         const identityType = actors.find((a) => a.id === identityId)!.identityType
@@ -59,7 +61,6 @@ export function ProjectAccessAddUserModal({ onDismiss, policy }: AddRoleModalPro
       }}
       loading={updatePolicy.isPending}
       submitError={updatePolicy.error}
-      submitLabel="Assign role"
       onDismiss={onDismiss}
     >
       <ListboxField
@@ -70,11 +71,11 @@ export function ProjectAccessAddUserModal({ onDismiss, policy }: AddRoleModalPro
         control={form.control}
       />
       <RoleRadioField control={form.control} scope="Project" />
-    </ModalForm>
+    </SideModalForm>
   )
 }
 
-export function ProjectAccessEditUserModal({
+export function ProjectAccessEditUserSideModal({
   onDismiss,
   name,
   identityId,
@@ -96,8 +97,10 @@ export function ProjectAccessEditUserModal({
   const form = useForm({ defaultValues })
 
   return (
-    <ModalForm
+    <SideModalForm
       form={form}
+      formType="edit"
+      resourceName="role"
       title={`Change project role for ${name}`}
       onSubmit={({ roleName }) => {
         updatePolicy.mutate({
@@ -107,10 +110,9 @@ export function ProjectAccessEditUserModal({
       }}
       loading={updatePolicy.isPending}
       submitError={updatePolicy.error}
-      submitLabel="Update role"
       onDismiss={onDismiss}
     >
       <RoleRadioField control={form.control} scope="Project" />
-    </ModalForm>
+    </SideModalForm>
   )
 }
