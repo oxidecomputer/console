@@ -50,6 +50,7 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
       resourceName="role"
       form={form}
       formType="create"
+      submitLabel="Assign role"
       onSubmit={({ identityId, roleName }) => {
         // actor is guaranteed to be in the list because it came from there
         const identityType = actors.find((a) => a.id === identityId)!.identityType

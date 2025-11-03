@@ -44,6 +44,7 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
       formType="create"
       resourceName="role"
       title="Add user or group"
+      submitLabel="Assign role"
       onDismiss={onDismiss}
       onSubmit={({ identityId, roleName }) => {
         // TODO: DRY logic
