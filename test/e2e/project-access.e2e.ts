@@ -82,9 +82,7 @@ test('Click through project access page', async ({ page }) => {
     .click()
   await page.click('role=menuitem[name="Change role"]')
 
-  await expectVisible(page, [
-    'role=heading[name*="Change project role for Simone de Beauvoir"]',
-  ])
+  await expectVisible(page, ['role=heading[name*="Edit role"]'])
 
   // Verify Collaborator is currently selected
   await expect(page.getByRole('radio', { name: /^Collaborator / })).toBeChecked()
