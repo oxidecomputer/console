@@ -81,6 +81,7 @@ describe('userHasRole', () => {
       ['Jacob Klein', false],
       ['Simone de Beauvoir', false],
       ['Jane Austen', true],
+      ['Herbert Marcuse', false],
     ])
   })
 
@@ -93,6 +94,7 @@ describe('userHasRole', () => {
       ['Jacob Klein', false],
       ['Simone de Beauvoir', false],
       ['Jane Austen', false],
+      ['Herbert Marcuse', false],
     ])
   })
 
@@ -105,6 +107,23 @@ describe('userHasRole', () => {
       ['Jacob Klein', false],
       ['Simone de Beauvoir', false],
       ['Jane Austen', true],
+      ['Herbert Marcuse', false],
+    ])
+  })
+
+  it('silo limited_collaborator', () => {
+    expect(
+      users.map((u) => [
+        u.display_name,
+        userHasRole(u, 'silo', defaultSilo.id, 'limited_collaborator'),
+      ])
+    ).toEqual([
+      ['Hannah Arendt', true],
+      ['Hans Jonas', true],
+      ['Jacob Klein', false],
+      ['Simone de Beauvoir', false],
+      ['Jane Austen', true],
+      ['Herbert Marcuse', false],
     ])
   })
 
@@ -120,6 +139,7 @@ describe('userHasRole', () => {
       ['Jacob Klein', false],
       ['Simone de Beauvoir', false],
       ['Jane Austen', true],
+      ['Herbert Marcuse', false],
     ])
   })
 
@@ -132,6 +152,7 @@ describe('userHasRole', () => {
       ['Jacob Klein', false],
       ['Simone de Beauvoir', false],
       ['Jane Austen', false],
+      ['Herbert Marcuse', false],
     ])
   })
 })
