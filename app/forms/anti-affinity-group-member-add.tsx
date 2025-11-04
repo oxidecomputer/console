@@ -80,7 +80,7 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
           {selectedInstance && !canAddInstance && (
             <Message
               variant="notice"
-              content="An instance must be stopped to add it to a group"
+              content="This instance must be stopped to add it to a group"
             />
           )}
         </Modal.Section>
