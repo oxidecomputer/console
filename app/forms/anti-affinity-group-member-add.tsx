@@ -77,7 +77,7 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
               control={form.control}
             />
           </form>
-          {!canAddInstance && (
+          {selectedInstance && !canAddInstance && (
             <Message
               variant="notice"
               content="An instance must be stopped to add it to a group"
@@ -89,7 +89,7 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
         onDismiss={onDismiss}
         actionText="Add to group"
         formId={formId}
-        disabled={!canAddInstance}
+        disabled={!selectedInstance || !canAddInstance}
       />
     </Modal>
   )
