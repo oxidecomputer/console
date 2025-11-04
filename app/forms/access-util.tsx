@@ -22,6 +22,7 @@ import { HL } from '~/components/HL'
 import { type ListboxItem } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { Radio } from '~/ui/lib/Radio'
+import { links } from '~/util/links'
 import { capitalize } from '~/util/str'
 
 type AddUserValues = {
@@ -78,6 +79,11 @@ export type EditRoleModalProps = AddRoleModalProps & {
   defaultValues: { roleName: RoleKey }
 }
 
+const AccessDocs = () => (
+  <a href={links.accessDocs} target="_blank" rel="noreferrer">
+    Access Control
+  </a>
+)
 export function RoleRadioField<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
@@ -113,11 +119,19 @@ export function RoleRadioField<
       <Message
         variant="info"
         content={
-          <>
-            A user’s strongest role determines their actual permissions. For example, a silo{' '}
-            <HL>admin</HL> assigned a <HL>viewer</HL> role on a project will still have{' '}
-            <HL>admin</HL> permissions on that project.
-          </>
+          scope === 'Silo' ? (
+            <>
+              Silo roles are inherited by all projects in the silo and override weaker
+              roles. For example, a silo viewer is <em>at least</em> a viewer on all
+              projects in the silo. Learn more in the <AccessDocs /> guide.
+            </>
+          ) : (
+            <>
+              Project roles can be overridden by a stronger role on the silo. For example, a
+              silo viewer is <em>at least</em> a viewer on all projects in the silo. Learn
+              more in the <AccessDocs /> guide.
+            </>
+          )
         }
       />
     </>
