@@ -16,9 +16,11 @@ import {
 } from 'react-hook-form'
 
 import { FieldLabel } from '~/ui/lib/FieldLabel'
-import { Radio, type RadioProps } from '~/ui/lib/Radio'
+import { Radio, RadioCard, type RadioProps } from '~/ui/lib/Radio'
 import { RadioGroup, type RadioGroupProps } from '~/ui/lib/RadioGroup'
 import { TextInputHint } from '~/ui/lib/TextInput'
+import { isOneOf } from '~/util/children'
+import { invariant } from '~/util/invariant'
 import { capitalize } from '~/util/str'
 
 export type RadioFieldProps<
@@ -99,11 +101,23 @@ export function RadioField<
 
 type RadioElt = React.ReactElement<RadioProps>
 
+// we do not extend RadioFieldProps here because it limits our ability to type
+// components like RoleRadioField. see https://tsplay.dev/ND13Om
+
 export type RadioFieldDynProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
-> = Omit<RadioFieldProps<TFieldValues, TName>, 'parseValue' | 'items'> & {
+> = {
+  name: TName
+  label?: string
+  description?: string | React.ReactNode
+  units?: string
+  control: Control<TFieldValues>
   children: RadioElt | RadioElt[]
+  column?: boolean
+  className?: string
+  required?: boolean
+  disabled?: boolean
 }
 
 /**
@@ -117,7 +131,7 @@ export function RadioFieldDyn<
   TName extends FieldPath<TFieldValues>,
 >({
   name,
-  label = capitalize(name),
+  label,
   description,
   units,
   control,
@@ -126,9 +140,13 @@ export function RadioFieldDyn<
 }: RadioFieldDynProps<TFieldValues, TName>) {
   const id = useId()
   const { field } = useController({ name, control })
+  invariant(
+    isOneOf(children, [Radio, RadioCard]),
+    'Children of RadioFieldDyn must be Radio or RadioCard'
+  )
   return (
     <div>
-      <div className="mb-2">
+      <div className="mb-3">
         {label && (
           <FieldLabel id={`${id}-label`}>
             {label} {units && <span className="text-default ml-1">({units})</span>}

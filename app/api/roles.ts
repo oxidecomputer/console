@@ -33,7 +33,8 @@ const flatRoles = (roleOrder: Record<RoleKey, number>): RoleKey[] =>
 export const roleOrder: Record<RoleKey, number> = {
   collaborator: 1,
   admin: 0,
-  viewer: 2,
+  viewer: 3,
+  limited_collaborator: 2,
 }
 
 /** `roleOrder` record converted to a sorted array of roles. */

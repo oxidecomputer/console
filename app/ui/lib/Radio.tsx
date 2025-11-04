@@ -17,7 +17,10 @@ import cn from 'classnames'
 import type { ComponentProps } from 'react'
 
 // input type is fixed to "radio"
-export type RadioProps = Omit<React.ComponentProps<'input'>, 'type'>
+export type RadioProps = Omit<React.ComponentProps<'input'>, 'type'> & {
+  /** Align radio button with top of content instead of center (useful for multi-line content) */
+  alignTop?: boolean
+}
 
 const fieldStyles = `
   peer appearance-none absolute outline-hidden
@@ -26,9 +29,9 @@ const fieldStyles = `
   disabled:hover:bg-transparent
 `
 
-export const Radio = ({ children, className, ...inputProps }: RadioProps) => (
-  <label className="inline-flex items-center">
-    <span className="relative h-4 w-4">
+export const Radio = ({ children, className, alignTop, ...inputProps }: RadioProps) => (
+  <label className={cn('inline-flex', alignTop ? 'items-start' : 'items-center')}>
+    <span className="relative h-4 w-4 shrink-0">
       <input className={cn(fieldStyles, className)} type="radio" {...inputProps} />
       {/* the dot in the middle. hide by default, use peer-checked to show if checked */}
       <div className="bg-accent pointer-events-none absolute top-1 left-1 hidden h-2 w-2 rounded-full peer-checked:block" />

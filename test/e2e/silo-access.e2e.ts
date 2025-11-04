@@ -14,7 +14,7 @@ test('Click through silo access page', async ({ page }) => {
 
   const table = page.locator('role=table')
 
-  // page is there, we see user 1 and 2 but not 3
+  // page is there; we see user 1 and 2 but not 3
   await page.click('role=link[name*="Access"]')
 
   await expectVisible(page, ['role=heading[name*="Access"]'])
@@ -44,15 +44,7 @@ test('Click through silo access page', async ({ page }) => {
   ])
 
   await page.click('role=option[name="Jacob Klein"]')
-
-  await page.click('role=button[name*="Role"]')
-  await expectVisible(page, [
-    'role=option[name="Admin"]',
-    'role=option[name="Collaborator"]',
-    'role=option[name="Viewer"]',
-  ])
-
-  await page.click('role=option[name="Collaborator"]')
+  await page.getByRole('radio', { name: /^Collaborator / }).click()
   await page.click('role=button[name="Assign role"]')
 
   // User 3 shows up in the table
@@ -69,11 +61,13 @@ test('Click through silo access page', async ({ page }) => {
     .click()
   await page.click('role=menuitem[name="Change role"]')
 
-  await expectVisible(page, ['role=heading[name*="Change silo role for Jacob Klein"]'])
-  await expectVisible(page, ['button:has-text("Collaborator")'])
+  await expectVisible(page, ['role=heading[name*="Edit role"]'])
 
-  await page.click('role=button[name*="Role"]')
-  await page.click('role=option[name="Viewer"]')
+  // Verify Collaborator is currently selected
+  await expect(page.getByRole('radio', { name: /^Collaborator / })).toBeChecked()
+
+  // Select Viewer role
+  await page.getByRole('radio', { name: /^Viewer / }).click()
   await page.click('role=button[name="Update role"]')
 
   await expectRowVisible(table, { Name: user3.display_name, Role: 'silo.viewer' })
