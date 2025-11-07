@@ -19,6 +19,7 @@ import {
 import { Badge } from '@oxide/design-system/ui'
 
 import {
+  api,
   apiq,
   queryClient,
   useApiMutation,
@@ -51,7 +52,7 @@ const POLL_FAST = 20 * SEC
 const POLL_SLOW = 120 * SEC
 
 const statusQuery = apiq(
-  'systemUpdateStatus',
+  api.methods.systemUpdateStatus,
   {},
   {
     refetchInterval({ state: { data: status } }) {
@@ -69,7 +70,9 @@ const statusQuery = apiq(
     },
   }
 )
-const reposQuery = apiq('systemUpdateRepositoryList', { query: { limit: ALL_ISH } })
+const reposQuery = apiq(api.methods.systemUpdateRepositoryList, {
+  query: { limit: ALL_ISH },
+})
 
 const refreshData = () =>
   Promise.all([

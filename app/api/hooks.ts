@@ -20,6 +20,7 @@ import { type SetNonNullable } from 'type-fest'
 import { invariant } from '~/util/invariant'
 
 import type { ApiResult } from './__generated__/Api'
+import type { FetchParams } from './__generated__/http-client'
 import { processServerError, type ApiError } from './errors'
 import { navToLogin } from './nav-to-login'
 
@@ -37,7 +38,7 @@ type ApiClient = Record<string, (...args: any) => Promise<ApiResult<any>>>
 // make it generic over Api, which requires passing it as an argument to
 // getUseApiQuery, etc. This is fine because it is only being called inside
 // functions where `method` is already required to be an API method.
-const handleResult =
+export const handleResult =
   (method: string) =>
   <Data>(result: ApiResult<Data>) => {
     if (result.type === 'success') return result.data
@@ -80,7 +81,7 @@ Error message:  ${error.message.replace(/\n/g, '\n' + ' '.repeat('Error message:
  * `queryKey` and `queryFn` are always constructed by our helper hooks, so we
  * only allow the rest of the options.
  */
-type UseQueryOtherOptions<T> = Omit<
+export type UseQueryOtherOptions<T> = Omit<
   UseQueryOptions<T, ApiError>,
   'queryKey' | 'queryFn' | 'initialData'
 >
@@ -194,28 +195,64 @@ export function ensurePrefetched<TData, TError>(
 const ERRORS_ALLOWED = 'errors-allowed'
 
 /** Result that includes both success and error so it can be cached by RQ */
-type ErrorsAllowed<T, E> = { type: 'success'; data: T } | { type: 'error'; data: E }
+type ErrorsAllowed<T> = { type: 'success'; data: T } | { type: 'error'; data: ApiError }
 
-export const getApiQueryOptionsErrorsAllowed =
-  <A extends ApiClient>(api: A) =>
-  <M extends string & keyof A>(
-    method: M,
-    params: Params<A[M]>,
-    options: UseQueryOtherOptions<ErrorsAllowed<Result<A[M]>, ApiError>> = {}
-  ) =>
-    queryOptions({
-      // extra bit of key is important to distinguish from normal query. if we
-      // hit a given endpoint twice on the same page, once the normal way and
-      // once with errors allowed the responses have different shapes, so we do
-      // not want to share the cache and mix them up
-      queryKey: [method, params, ERRORS_ALLOWED],
-      queryFn: ({ signal }) =>
-        api[method](params, { signal })
-          .then(handleResult(method))
-          .then((data: Result<A[M]>) => ({ type: 'success' as const, data }))
-          .catch((data: ApiError) => ({ type: 'error' as const, data })),
-      ...options,
-    })
+export const apiq = <Params, Data>(
+  f: (p: Params, fp: FetchParams) => Promise<ApiResult<Data>>,
+  params: Params,
+  options: UseQueryOtherOptions<Data> = {}
+) =>
+  queryOptions({
+    queryKey: [f.name, params],
+    // no catch, let unexpected errors bubble up
+    queryFn: ({ signal }) => f(params, { signal }).then(handleResult(f.name)),
+    // In the case of 404s, let the error bubble up to the error boundary so
+    // we can say Not Found. If you need to allow a 404 and want it to show
+    // up as `error` state instead, pass `useErrorBoundary: false` as an
+    // option from the calling component and it will override this
+    throwOnError: (err) => err.statusCode === 404,
+    ...options,
+  })
+
+/**
+ * Variant of `apiq` that allows error responses as a valid result,
+ * which importantly means they can be cached by RQ. This means we can prefetch
+ * an endpoint that might error (see `prefetchQueryErrorsAllowed`) and use this
+ * hook to retrieve the error result.
+ *
+ * Concretely, the difference from the usual query function is that we turn all
+ * errors into successes. Instead of throwing the error, we return it as a valid
+ * result. This means `data` has a type that includes the possibility of error,
+ * plus a discriminant to let us handle both sides properly in the calling code.
+ *
+ * We also use a special query key to distinguish these from normal API queries.
+ * If we hit a given endpoint twice on the same page, once the normal way and
+ * once with errors allowed, the responses have different shapes, so we do not
+ * want to share the cache and mix them up.
+ */
+export const apiqErrorsAllowed = <Params, Data>(
+  f: (p: Params, fp: FetchParams) => Promise<ApiResult<Data>>,
+  params: Params,
+  options: UseQueryOtherOptions<ErrorsAllowed<Data>> = {}
+) =>
+  queryOptions({
+    // extra bit of key is important to distinguish from normal query. if we
+    // hit a given endpoint twice on the same page, once the normal way and
+    // once with errors allowed the responses have different shapes, so we do
+    // not want to share the cache and mix them up
+    queryKey: [f.name, params, ERRORS_ALLOWED],
+    queryFn: ({ signal }) =>
+      f(params, { signal })
+        .then(handleResult(f.name))
+        .then((data) => ({ type: 'success' as const, data }))
+        .catch((data: ApiError) => ({ type: 'error' as const, data })),
+    // In the case of 404s, let the error bubble up to the error boundary so
+    // we can say Not Found. If you need to allow a 404 and want it to show
+    // up as `error` state instead, pass `useErrorBoundary: false` as an
+    // option from the calling component and it will override this
+    throwOnError: (err) => err.statusCode === 404,
+    ...options,
+  })
 
 export const getUseApiMutation =
   <A extends ApiClient>(api: A) =>

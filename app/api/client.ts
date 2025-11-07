@@ -13,40 +13,15 @@ import {
 
 import { Api } from './__generated__/Api'
 import { type ApiError } from './errors'
-import {
-  ensurePrefetched,
-  getApiQueryOptions,
-  getApiQueryOptionsErrorsAllowed,
-  getListQueryOptionsFn,
-  getUseApiMutation,
-} from './hooks'
+import { ensurePrefetched, getListQueryOptionsFn, getUseApiMutation } from './hooks'
+
+export { apiq, apiqErrorsAllowed } from './hooks'
 
 export const api = new Api({
   // unit tests run in Node, whose fetch implementation requires a full URL
   host: process.env.NODE_ENV === 'test' ? 'http://testhost' : '',
 })
 
-export type ApiMethods = typeof api.methods
-
-/** API-specific query options helper. */
-export const apiq = getApiQueryOptions(api.methods)
-/**
- * Variant of `apiq` that allows error responses as a valid result,
- * which importantly means they can be cached by RQ. This means we can prefetch
- * an endpoint that might error (see `prefetchQueryErrorsAllowed`) and use this
- * hook to retrieve the error result.
- *
- * Concretely, the difference from the usual query function is that we turn all
- * errors into successes. Instead of throwing the error, we return it as a valid
- * result. This means `data` has a type that includes the possibility of error,
- * plus a discriminant to let us handle both sides properly in the calling code.
- *
- * We also use a special query key to distinguish these from normal API queries.
- * If we hit a given endpoint twice on the same page, once the normal way and
- * once with errors allowed, the responses have different shapes, so we do not
- * want to share the cache and mix them up.
- */
-export const apiqErrorsAllowed = getApiQueryOptionsErrorsAllowed(api.methods)
 /**
  * Query options helper that only supports list endpoints. Returns
  * a function `(limit, pageToken) => QueryOptions` for use with
