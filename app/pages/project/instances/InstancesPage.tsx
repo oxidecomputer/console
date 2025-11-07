@@ -12,7 +12,6 @@ import { useMemo, useRef, useState } from 'react'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
-  apiQueryClient,
   getListQFn,
   queryClient,
   type ApiError,
@@ -71,8 +70,8 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 
 const refetchInstances = () =>
   Promise.all([
-    apiQueryClient.invalidateQueries('instanceList'),
-    apiQueryClient.invalidateQueries('antiAffinityGroupMemberList'),
+    queryClient.invalidateEndpoint('instanceList'),
+    queryClient.invalidateEndpoint('antiAffinityGroupMemberList'),
   ])
 
 const sec = 1000 // ms, obviously

@@ -19,8 +19,6 @@ import {
   getApiQueryOptionsErrorsAllowed,
   getListQueryOptionsFn,
   getUseApiMutation,
-  getUsePrefetchedApiQuery,
-  wrapQueryClient,
 } from './hooks'
 
 export const api = new Api({
@@ -55,15 +53,14 @@ export const apiqErrorsAllowed = getApiQueryOptionsErrorsAllowed(api.methods)
  * `useQueryTable`.
  */
 export const getListQFn = getListQueryOptionsFn(api.methods)
+export const useApiMutation = getUseApiMutation(api.methods)
+
 /**
- * Same as `useApiQuery`, except we use `invariant(data)` to ensure the data is
+ * Same as `useQuery`, except we use `invariant(data)` to ensure the data is
  * already there in the cache at request time, which means it has been
  * prefetched in a loader. Whenever this hook is used, there should be an e2e
  * test loading the page to exercise the invariant in CI.
  */
-export const usePrefetchedApiQuery = getUsePrefetchedApiQuery(api.methods)
-export const useApiMutation = getUseApiMutation(api.methods)
-
 export const usePrefetchedQuery = <TData>(options: UseQueryOptions<TData, ApiError>) =>
   ensurePrefetched(useQuery(options), options.queryKey)
 
@@ -96,11 +93,3 @@ export const queryClient = new QueryClient({
     },
   },
 })
-
-// to be used in loaders, which are outside the component tree and therefore
-// don't have access to context
-export const apiQueryClient = wrapQueryClient(api.methods, queryClient)
-
-// used to retrieve the typed query client in components. doesn't need to exist:
-// we could import apiQueryClient directly everywhere, but the change is noisy
-export const useApiQueryClient = () => apiQueryClient

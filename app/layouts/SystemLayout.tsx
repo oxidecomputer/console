@@ -8,7 +8,7 @@
 import { useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 
-import { apiQueryClient } from '@oxide/api'
+import { apiq, queryClient } from '@oxide/api'
 import {
   Cloud16Icon,
   IpGlobal16Icon,
@@ -33,7 +33,7 @@ import { ContentPane, PageContainer } from './helpers'
  * doesn't return the result.
  */
 export async function clientLoader() {
-  const me = await apiQueryClient.fetchQuery('currentUserView', {})
+  const me = await queryClient.fetchQuery(apiq('currentUserView', {}))
   if (!me.fleetViewer) throw trigger404
   return null
 }
