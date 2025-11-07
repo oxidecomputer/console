@@ -8,13 +8,13 @@
 
 /*
  * We import all of these here instead of in the corresponding component files
- * so we can control the order things are imported in. In theory that's what the
- * @layer directives are for, but Vite's usage of postcss-import didn't  seem
- * to be aware of the @tailwind directives here. I suspect it was not following
- * the order specified in our postcss config. In any case we don't need to worry
- * about that if we're controlling the order directly here. All of these end up
- * inlined into a single file by postcss-import.
+ * so we can control the order things are imported in. Tailwind v4 uses native
+ * CSS cascade layers (@layer), and the first @layer declaration establishes
+ * precedence order. Each @import can be assigned to a layer using layer()
+ * syntax, ensuring predictable specificity regardless of import order.
  */
+
+@layer base, components, utilities;
 
 @import 'tailwindcss';
 
@@ -24,19 +24,19 @@
 
 @import './fonts.css' layer(base);
 @import './vars.css' layer(base);
-@import './components/button.css';
-@import './components/menu-button.css';
-@import './components/menu-list.css';
-@import './components/loading-bar.css';
-@import './components/Tabs.css';
-@import './components/form.css';
-@import './components/login-page.css';
-@import './components/mini-table.css';
-@import './components/side-modal.css';
-@import './components/spinner.css';
-@import './components/table.css';
-@import './components/tooltip.css';
-@import './themes/selection.css';
+@import './components/button.css' layer(components);
+@import './components/menu-button.css' layer(components);
+@import './components/menu-list.css' layer(components);
+@import './components/loading-bar.css' layer(components);
+@import './components/Tabs.css' layer(components);
+@import './components/form.css' layer(components);
+@import './components/login-page.css' layer(components);
+@import './components/mini-table.css' layer(components);
+@import './components/side-modal.css' layer(components);
+@import './components/spinner.css' layer(components);
+@import './components/table.css' layer(components);
+@import './components/tooltip.css' layer(components);
+@import './themes/selection.css' layer(components);
 
 @import '@xterm/xterm/css/xterm.css' layer(components);
 @source '../../../node_modules/@oxide/design-system/dist';
