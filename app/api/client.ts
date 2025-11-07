@@ -13,21 +13,15 @@ import {
 
 import { Api } from './__generated__/Api'
 import { type ApiError } from './errors'
-import { ensurePrefetched, getListQueryOptionsFn, getUseApiMutation } from './hooks'
+import { ensurePrefetched, getUseApiMutation } from './hooks'
 
-export { apiq, apiqErrorsAllowed } from './hooks'
+export { apiq, apiqErrorsAllowed, getListQFn } from './hooks'
 
 export const api = new Api({
   // unit tests run in Node, whose fetch implementation requires a full URL
   host: process.env.NODE_ENV === 'test' ? 'http://testhost' : '',
 })
 
-/**
- * Query options helper that only supports list endpoints. Returns
- * a function `(limit, pageToken) => QueryOptions` for use with
- * `useQueryTable`.
- */
-export const getListQFn = getListQueryOptionsFn(api.methods)
 export const useApiMutation = getUseApiMutation(api.methods)
 
 /**

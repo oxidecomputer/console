@@ -81,29 +81,10 @@ Error message:  ${error.message.replace(/\n/g, '\n' + ' '.repeat('Error message:
  * `queryKey` and `queryFn` are always constructed by our helper hooks, so we
  * only allow the rest of the options.
  */
-export type UseQueryOtherOptions<T> = Omit<
+type UseQueryOtherOptions<T> = Omit<
   UseQueryOptions<T, ApiError>,
   'queryKey' | 'queryFn' | 'initialData'
 >
-
-export const getApiQueryOptions =
-  <A extends ApiClient>(api: A) =>
-  <M extends string & keyof A>(
-    method: M,
-    params: Params<A[M]>,
-    options: UseQueryOtherOptions<Result<A[M]>> = {}
-  ) =>
-    queryOptions({
-      queryKey: [method, params],
-      // no catch, let unexpected errors bubble up
-      queryFn: () => api[method](params).then(handleResult(method)),
-      // In the case of 404s, let the error bubble up to the error boundary so
-      // we can say Not Found. If you need to allow a 404 and want it to show
-      // up as `error` state instead, pass `useErrorBoundary: false` as an
-      // option from the calling component and it will override this
-      throwOnError: (err) => err.statusCode === 404,
-      ...options,
-    })
 
 // Managed here instead of at the display layer so it can be built into the
 // query options and shared between loader prefetch and QueryTable
@@ -123,47 +104,43 @@ export type PaginatedQuery<TData> = {
 }
 
 /**
- * This is the same as getApiQueryOptions except for two things:
+ * Query options helper that only supports list endpoints. Returns
+ * a function `(limit, pageToken) => QueryOptions` for use with
+ * `useQueryTable`.
  *
- *   1. We use a type constraint on the method key to ensure it can
- *      only be used with endpoints that return a `ResultsPage`.
- *   2. Instead of returning the options directly, it returns a paginated
- *      query config object containing the page size and a function that
- *      takes `limit` and `pageToken` and merges them into the query params
- *      so that these can be passed in by `QueryTable`.
+ * Instead of returning the options directly, it returns a paginated
+ * query config object containing the page size and a function that
+ * takes `limit` and `pageToken` and merges them into the query params
+ * so that these can be passed in by `QueryTable`.
  */
-export const getListQueryOptionsFn =
-  <A extends ApiClient>(api: A) =>
-  <
-    M extends string &
-      {
-        // this helper can only be used with endpoints that return ResultsPage
-        [K in keyof A]: Result<A[K]> extends ResultsPage<unknown> ? K : never
-      }[keyof A],
-  >(
-    method: M,
-    params: Params<A[M]>,
-    options: UseQueryOtherOptions<Result<A[M]>> = {}
-  ): PaginatedQuery<Result<A[M]>> => {
-    // We pull limit out of the query params rather than passing it in some
-    // other way so that there is exactly one way of specifying it. If we had
-    // some other way of doing it, and then you also passed it in as a query
-    // param, it would be hard to guess which takes precedence. (pathOr plays
-    // nice when the properties don't exist.)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const limit = R.pathOr(params as any, ['query', 'limit'], PAGE_SIZE)
-    return {
-      optionsFn: (pageToken?: string) => {
-        const newParams = { ...params, query: { ...params.query, limit, pageToken } }
-        return getApiQueryOptions(api)(method, newParams, {
-          ...options,
-          // identity function so current page sticks around while next loads
-          placeholderData: (x) => x,
-        })
-      },
-      pageSize: limit,
-    }
+export const getListQFn = <
+  Q,
+  Params extends { query?: Q },
+  Data extends ResultsPage<unknown>,
+>(
+  f: (p: Params, fp: FetchParams) => Promise<ApiResult<Data>>,
+  params: Params,
+  options: UseQueryOtherOptions<Data> = {}
+): PaginatedQuery<Data> => {
+  // We pull limit out of the query params rather than passing it in some
+  // other way so that there is exactly one way of specifying it. If we had
+  // some other way of doing it, and then you also passed it in as a query
+  // param, it would be hard to guess which takes precedence. (pathOr plays
+  // nice when the properties don't exist.)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const limit = R.pathOr(params as any, ['query', 'limit'], PAGE_SIZE)
+  return {
+    optionsFn: (pageToken?: string) => {
+      const newParams = { ...params, query: { ...params.query, limit, pageToken } }
+      return apiq(f, newParams, {
+        ...options,
+        // identity function so current page sticks around while next loads
+        placeholderData: (x) => x,
+      })
+    },
+    pageSize: limit,
   }
+}
 
 const prefetchError = (key?: QueryKey) =>
   `Expected query to be prefetched.
