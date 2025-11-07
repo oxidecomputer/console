@@ -12,14 +12,14 @@ import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 import type { SetRequired } from 'type-fest'
 
 import {
-  apiQueryClient,
+  apiq,
   diskCan,
   genName,
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
+  queryClient,
   useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
   type ExternalIpCreate,
   type FloatingIp,
   type Image,
@@ -161,14 +161,14 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
   await Promise.all([
     // fetch both project and silo images
-    apiQueryClient.prefetchQuery('imageList', { query: { project } }),
-    apiQueryClient.prefetchQuery('imageList', {}),
-    apiQueryClient.prefetchQuery('diskList', {
-      query: { project, limit: ALL_ISH },
-    }),
-    apiQueryClient.prefetchQuery('currentUserSshKeyList', {}),
-    apiQueryClient.prefetchQuery('projectIpPoolList', { query: { limit: ALL_ISH } }),
-    apiQueryClient.prefetchQuery('floatingIpList', { query: { project, limit: ALL_ISH } }),
+    queryClient.prefetchQuery(apiq('imageList', { query: { project } })),
+    queryClient.prefetchQuery(apiq('imageList', {})),
+    queryClient.prefetchQuery(apiq('diskList', { query: { project, limit: ALL_ISH } })),
+    queryClient.prefetchQuery(apiq('currentUserSshKeyList', {})),
+    queryClient.prefetchQuery(apiq('projectIpPoolList', { query: { limit: ALL_ISH } })),
+    queryClient.prefetchQuery(
+      apiq('floatingIpList', { query: { project, limit: ALL_ISH } })
+    ),
   ])
   return null
 }
@@ -177,44 +177,43 @@ export const handle = { crumb: 'New instance' }
 
 export default function CreateInstanceForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
   const navigate = useNavigate()
 
   const createInstance = useApiMutation('instanceCreate', {
     onSuccess(instance) {
       // refetch list of instances
-      queryClient.invalidateQueries('instanceList')
+      queryClient.invalidateEndpoint('instanceList')
       // avoid the instance fetch when the instance page loads since we have the data
-      queryClient.setQueryData(
-        'instanceView',
-        { path: { instance: instance.name }, query: { project } },
-        instance
-      )
+      const instanceView = apiq('instanceView', {
+        path: { instance: instance.name },
+        query: { project },
+      })
+      queryClient.setQueryData(instanceView.queryKey, instance)
       addToast(<>Instance <HL>{instance.name}</HL> created</>) // prettier-ignore
       navigate(pb.instance({ project, instance: instance.name }))
     },
   })
 
-  const siloImages = usePrefetchedApiQuery('imageList', {}).data.items
-  const projectImages = usePrefetchedApiQuery('imageList', { query: { project } }).data
+  const siloImages = usePrefetchedQuery(apiq('imageList', {})).data.items
+  const projectImages = usePrefetchedQuery(apiq('imageList', { query: { project } })).data
     .items
   const allImages = [...siloImages, ...projectImages]
 
   const defaultImage = allImages[0]
 
-  const allDisks = usePrefetchedApiQuery('diskList', {
-    query: { project, limit: ALL_ISH },
-  }).data.items
+  const allDisks = usePrefetchedQuery(
+    apiq('diskList', { query: { project, limit: ALL_ISH } })
+  ).data.items
   const disks = useMemo(() => toComboboxItems(allDisks.filter(diskCan.attach)), [allDisks])
 
-  const { data: sshKeys } = usePrefetchedApiQuery('currentUserSshKeyList', {})
+  const { data: sshKeys } = usePrefetchedQuery(apiq('currentUserSshKeyList', {}))
   const allKeys = useMemo(() => sshKeys.items.map((key) => key.id), [sshKeys])
 
   // projectIpPoolList fetches the pools linked to the current silo
-  const { data: siloPools } = usePrefetchedApiQuery('projectIpPoolList', {
-    query: { limit: ALL_ISH },
-  })
+  const { data: siloPools } = usePrefetchedQuery(
+    apiq('projectIpPoolList', { query: { limit: ALL_ISH } })
+  )
   const defaultPool = useMemo(
     () => (siloPools ? siloPools.items.find((p) => p.isDefault)?.name : undefined),
     [siloPools]
@@ -638,9 +637,9 @@ const AdvancedAccordion = ({
   const instanceName = useWatch({ control, name: 'name' })
 
   const { project } = useProjectSelector()
-  const { data: floatingIpList } = usePrefetchedApiQuery('floatingIpList', {
-    query: { project, limit: ALL_ISH },
-  })
+  const { data: floatingIpList } = usePrefetchedQuery(
+    apiq('floatingIpList', { query: { project, limit: ALL_ISH } })
+  )
 
   // Filter out the IPs that are already attached to an instance
   const attachableFloatingIps = useMemo(

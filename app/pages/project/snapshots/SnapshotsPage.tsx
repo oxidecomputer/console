@@ -11,12 +11,11 @@ import { useCallback } from 'react'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
+  apiq,
   apiqErrorsAllowed,
-  apiQueryClient,
   getListQFn,
   queryClient,
   useApiMutation,
-  useApiQueryClient,
   type Snapshot,
 } from '@oxide/api'
 import { Snapshots16Icon, Snapshots24Icon } from '@oxide/design-system/icons/react'
@@ -71,13 +70,12 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     // data is just never found in the cache. Note that the disks that error
     // (delete disks) are not prefetched here because they are (obviously) not
     // in the disk list response.
-    apiQueryClient
-      .fetchQuery('diskList', { query: { project, limit: 200 } })
+    queryClient
+      .fetchQuery(apiq('diskList', { query: { project, limit: 200 } }))
       .then((disks) => {
         for (const disk of disks.items) {
-          apiQueryClient.setQueryDataErrorsAllowed(
-            'diskView',
-            { path: { disk: disk.id } },
+          queryClient.setQueryData(
+            apiqErrorsAllowed('diskView', { path: { disk: disk.id } }).queryKey,
             { type: 'success', data: disk }
           )
         }
@@ -104,13 +102,12 @@ const staticCols = [
 ]
 
 export default function SnapshotsPage() {
-  const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
   const navigate = useNavigate()
 
   const { mutateAsync: deleteSnapshot } = useApiMutation('snapshotDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('snapshotList')
+      queryClient.invalidateEndpoint('snapshotList')
     },
   })
 

@@ -11,14 +11,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Outlet } from 'react-router'
 
-import {
-  apiq,
-  getListQFn,
-  queryClient,
-  useApiMutation,
-  useApiQueryClient,
-  type Image,
-} from '@oxide/api'
+import { apiq, getListQFn, queryClient, useApiMutation, type Image } from '@oxide/api'
 import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -73,11 +66,10 @@ export default function SiloImagesPage() {
   const [showModal, setShowModal] = useState(false)
   const [demoteImage, setDemoteImage] = useState<Image | null>(null)
 
-  const queryClient = useApiQueryClient()
   const { mutateAsync: deleteImage } = useApiMutation('imageDelete', {
     onSuccess(_data, variables) {
       addToast(<>Image <HL>{variables.path.image}</HL> deleted</>) // prettier-ignore
-      queryClient.invalidateQueries('imageList')
+      queryClient.invalidateEndpoint('imageList')
     },
   })
 
@@ -132,12 +124,10 @@ const defaultValues: Values = { project: null, image: null }
 const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
   const form = useForm({ defaultValues })
 
-  const queryClient = useApiQueryClient()
-
   const promoteImage = useApiMutation('imagePromote', {
     onSuccess(data) {
       addToast(<>Image <HL>{data.name}</HL> promoted</>) // prettier-ignore
-      queryClient.invalidateQueries('imageList')
+      queryClient.invalidateEndpoint('imageList')
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
@@ -220,8 +210,6 @@ const DemoteImageModal = ({
 
   const selectedProject: string | undefined = form.watch('project')
 
-  const queryClient = useApiQueryClient()
-
   const demoteImage = useApiMutation('imageDemote', {
     onSuccess(data) {
       addToast({
@@ -234,7 +222,7 @@ const DemoteImageModal = ({
           : undefined,
       })
 
-      queryClient.invalidateQueries('imageList')
+      queryClient.invalidateEndpoint('imageList')
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })

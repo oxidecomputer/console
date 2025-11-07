@@ -8,7 +8,7 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
-import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
+import { apiq, queryClient, usePrefetchedQuery } from '@oxide/api'
 import { Key16Icon } from '@oxide/design-system/icons/react'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -21,10 +21,14 @@ import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
+
+const sshKeyView = ({ sshKey }: PP.SshKey) =>
+  apiq('currentUserSshKeyView', { path: { sshKey } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { sshKey } = getSshKeySelector(params)
-  await apiQueryClient.prefetchQuery('currentUserSshKeyView', { path: { sshKey } })
+  const selector = getSshKeySelector(params)
+  await queryClient.prefetchQuery(sshKeyView(selector))
   return null
 }
 
@@ -32,11 +36,9 @@ export const handle = titleCrumb('View SSH Key')
 
 export default function EditSSHKeySideModalForm() {
   const navigate = useNavigate()
-  const { sshKey } = useSshKeySelector()
+  const selector = useSshKeySelector()
 
-  const { data } = usePrefetchedApiQuery('currentUserSshKeyView', {
-    path: { sshKey },
-  })
+  const { data } = usePrefetchedQuery(sshKeyView(selector))
 
   const form = useForm({ defaultValues: data })
 

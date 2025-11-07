@@ -12,7 +12,8 @@ import { useController, useForm, type Control } from 'react-hook-form'
 import { Badge } from '@oxide/design-system/ui'
 
 import {
-  usePrefetchedApiQuery,
+  apiq,
+  usePrefetchedQuery,
   type ApiError,
   type Instance,
   type Vpc,
@@ -109,13 +110,13 @@ const TargetAndHostFilterSubform = ({
   // prefetchedApiQueries below are prefetched in firewall-rules-create and -edit
   const {
     data: { items: instances },
-  } = usePrefetchedApiQuery('instanceList', { query: { project, limit: ALL_ISH } })
+  } = usePrefetchedQuery(apiq('instanceList', { query: { project, limit: ALL_ISH } }))
   const {
     data: { items: vpcs },
-  } = usePrefetchedApiQuery('vpcList', { query: { project, limit: ALL_ISH } })
+  } = usePrefetchedQuery(apiq('vpcList', { query: { project, limit: ALL_ISH } }))
   const {
     data: { items: vpcSubnets },
-  } = usePrefetchedApiQuery('vpcSubnetList', { query: { project, vpc, limit: ALL_ISH } })
+  } = usePrefetchedQuery(apiq('vpcSubnetList', { query: { project, vpc, limit: ALL_ISH } }))
 
   const subform = useForm({ defaultValues: targetAndHostDefaultValues })
   const field = useController({ name: `${sectionType}s`, control }).field

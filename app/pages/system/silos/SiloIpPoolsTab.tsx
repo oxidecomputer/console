@@ -12,13 +12,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { type LoaderFunctionArgs } from 'react-router'
 
-import {
-  getListQFn,
-  queryClient,
-  useApiMutation,
-  useApiQueryClient,
-  type SiloIpPool,
-} from '@oxide/api'
+import { getListQFn, queryClient, useApiMutation, type SiloIpPool } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
@@ -79,7 +73,6 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 export default function SiloIpPoolsTab() {
   const { silo } = useSiloSelector()
   const [showLinkModal, setShowLinkModal] = useState(false)
-  const queryClient = useApiQueryClient()
 
   // Fetch all_ish, but there should only be a few anyway. Not prefetched
   // because the prefetched one only gets 25 to match the query table. This req
@@ -95,12 +88,12 @@ export default function SiloIpPoolsTab() {
 
   const { mutateAsync: updatePoolLink } = useApiMutation('ipPoolSiloUpdate', {
     onSuccess() {
-      queryClient.invalidateQueries('siloIpPoolList')
+      queryClient.invalidateEndpoint('siloIpPoolList')
     },
   })
   const { mutateAsync: unlinkPool } = useApiMutation('ipPoolSiloUnlink', {
     onSuccess() {
-      queryClient.invalidateQueries('siloIpPoolList')
+      queryClient.invalidateEndpoint('siloIpPoolList')
       // We only have the ID, so will show a generic confirmation message
       addToast({ content: 'IP pool unlinked' })
     },
@@ -208,13 +201,12 @@ type LinkPoolFormValues = {
 const defaultValues: LinkPoolFormValues = { pool: undefined }
 
 function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
-  const queryClient = useApiQueryClient()
   const { silo } = useSiloSelector()
   const { control, handleSubmit } = useForm({ defaultValues })
 
   const linkPool = useApiMutation('ipPoolSiloLink', {
     onSuccess() {
-      queryClient.invalidateQueries('siloIpPoolList')
+      queryClient.invalidateEndpoint('siloIpPoolList')
     },
     onError(err) {
       addToast({ title: 'Could not link pool', content: err.message, variant: 'error' })

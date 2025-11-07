@@ -8,12 +8,7 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
-import {
-  apiQueryClient,
-  useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
-} from '@oxide/api'
+import { apiq, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -23,29 +18,31 @@ import { makeCrumb } from '~/hooks/use-crumbs'
 import { getIpPoolSelector, useIpPoolSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
 import { IpPoolVisibilityMessage } from './ip-pool-create'
 
+const ipPoolView = ({ pool }: PP.IpPool) => apiq('ipPoolView', { path: { pool } })
+
 export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { pool } = getIpPoolSelector(params)
-  await apiQueryClient.prefetchQuery('ipPoolView', { path: { pool } })
+  const selector = getIpPoolSelector(params)
+  await queryClient.prefetchQuery(ipPoolView(selector))
   return null
 }
 
 export const handle = makeCrumb('Edit IP pool')
 
 export default function EditIpPoolSideModalForm() {
-  const queryClient = useApiQueryClient()
   const navigate = useNavigate()
   const poolSelector = useIpPoolSelector()
 
-  const { data: pool } = usePrefetchedApiQuery('ipPoolView', { path: poolSelector })
+  const { data: pool } = usePrefetchedQuery(ipPoolView(poolSelector))
 
   const form = useForm({ defaultValues: pool })
 
   const editPool = useApiMutation('ipPoolUpdate', {
     onSuccess(updatedPool) {
-      queryClient.invalidateQueries('ipPoolList')
+      queryClient.invalidateEndpoint('ipPoolList')
       navigate(pb.ipPool({ pool: updatedPool.name }))
       addToast(<>IP pool <HL>{updatedPool.name}</HL> updated</>) // prettier-ignore
 
@@ -55,7 +52,7 @@ export default function EditIpPoolSideModalForm() {
       // page's pool gets cleared out while we're still on the page. If we're
       // navigating to a different page, its query will fetch anew regardless.
       if (pool.name === updatedPool.name) {
-        queryClient.invalidateQueries('ipPoolView')
+        queryClient.invalidateEndpoint('ipPoolView')
       }
     },
   })

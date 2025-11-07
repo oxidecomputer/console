@@ -9,12 +9,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 
-import {
-  apiQueryClient,
-  useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
-} from '@oxide/api'
+import { apiq, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
 
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
@@ -34,31 +29,26 @@ export const handle = titleCrumb('Edit Route')
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc, router, route } = getVpcRouterRouteSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('vpcRouterRouteView', {
-      path: { route },
-      query: { project, vpc, router },
-    }),
-    apiQueryClient.prefetchQuery('vpcSubnetList', {
-      query: { project, vpc, limit: ALL_ISH },
-    }),
-    apiQueryClient.prefetchQuery('instanceList', {
-      query: { project, limit: ALL_ISH },
-    }),
-    apiQueryClient.prefetchQuery('internetGatewayList', {
-      query: { project, vpc, limit: ALL_ISH },
-    }),
+    queryClient.prefetchQuery(
+      apiq('vpcRouterRouteView', { path: { route }, query: { project, vpc, router } })
+    ),
+    queryClient.prefetchQuery(
+      apiq('vpcSubnetList', { query: { project, vpc, limit: ALL_ISH } })
+    ),
+    queryClient.prefetchQuery(apiq('instanceList', { query: { project, limit: ALL_ISH } })),
+    queryClient.prefetchQuery(
+      apiq('internetGatewayList', { query: { project, vpc, limit: ALL_ISH } })
+    ),
   ])
   return null
 }
 
 export default function EditRouterRouteSideModalForm() {
-  const queryClient = useApiQueryClient()
   const { route: routeName, ...routerSelector } = useVpcRouterRouteSelector()
   const navigate = useNavigate()
-  const { data: route } = usePrefetchedApiQuery('vpcRouterRouteView', {
-    path: { route: routeName },
-    query: routerSelector,
-  })
+  const { data: route } = usePrefetchedQuery(
+    apiq('vpcRouterRouteView', { path: { route: routeName }, query: routerSelector })
+  )
 
   const defaultValues: RouteFormValues = R.pick(route, [
     'name',
@@ -71,8 +61,8 @@ export default function EditRouterRouteSideModalForm() {
 
   const updateRouterRoute = useApiMutation('vpcRouterRouteUpdate', {
     onSuccess(updatedRoute) {
-      queryClient.invalidateQueries('vpcRouterRouteList')
-      queryClient.invalidateQueries('vpcRouterRouteView')
+      queryClient.invalidateEndpoint('vpcRouterRouteList')
+      queryClient.invalidateEndpoint('vpcRouterRouteView')
       addToast(<>Route <HL>{updatedRoute.name}</HL> updated</>) // prettier-ignore
       navigate(pb.vpcRouter(routerSelector))
     },

@@ -12,10 +12,11 @@ import { useForm } from 'react-hook-form'
 import { match } from 'ts-pattern'
 
 import {
-  apiQueryClient,
+  apiq,
   instanceAutoRestartingSoon,
+  queryClient,
   useApiMutation,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
 } from '~/api'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { useInstanceSelector } from '~/hooks/use-params'
@@ -42,14 +43,16 @@ type FormValues = {
 export function AutoRestartCard() {
   const instanceSelector = useInstanceSelector()
 
-  const { data: instance } = usePrefetchedApiQuery('instanceView', {
-    path: { instance: instanceSelector.instance },
-    query: { project: instanceSelector.project },
-  })
+  const { data: instance } = usePrefetchedQuery(
+    apiq('instanceView', {
+      path: { instance: instanceSelector.instance },
+      query: { project: instanceSelector.project },
+    })
+  )
 
   const instanceUpdate = useApiMutation('instanceUpdate', {
     onSuccess() {
-      apiQueryClient.invalidateQueries('instanceView')
+      queryClient.invalidateEndpoint('instanceView')
       addToast({ content: 'Instance auto-restart policy updated' })
     },
     onError(err) {

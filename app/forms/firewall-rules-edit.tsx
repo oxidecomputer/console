@@ -9,11 +9,11 @@ import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
-  apiQueryClient,
+  apiq,
   firewallRuleGetToPut,
+  queryClient,
   useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
 } from '@oxide/api'
 
 import { trigger404 } from '~/components/ErrorBoundary'
@@ -39,12 +39,12 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc, rule } = getFirewallRuleSelector(params)
 
   const [firewallRules] = await Promise.all([
-    apiQueryClient.fetchQuery('vpcFirewallRulesView', { query: { project, vpc } }),
-    apiQueryClient.prefetchQuery('instanceList', { query: { project, limit: ALL_ISH } }),
-    apiQueryClient.prefetchQuery('vpcList', { query: { project, limit: ALL_ISH } }),
-    apiQueryClient.prefetchQuery('vpcSubnetList', {
-      query: { project, vpc, limit: ALL_ISH },
-    }),
+    queryClient.fetchQuery(apiq('vpcFirewallRulesView', { query: { project, vpc } })),
+    queryClient.prefetchQuery(apiq('instanceList', { query: { project, limit: ALL_ISH } })),
+    queryClient.prefetchQuery(apiq('vpcList', { query: { project, limit: ALL_ISH } })),
+    queryClient.prefetchQuery(
+      apiq('vpcSubnetList', { query: { project, vpc, limit: ALL_ISH } })
+    ),
   ])
 
   const originalRule = firewallRules.rules.find((r) => r.name === rule)
@@ -56,11 +56,10 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 export default function EditFirewallRuleForm() {
   const { project, vpc, rule } = useFirewallRuleSelector()
   const vpcSelector = useVpcSelector()
-  const queryClient = useApiQueryClient()
 
-  const { data: firewallRules } = usePrefetchedApiQuery('vpcFirewallRulesView', {
-    query: { project, vpc },
-  })
+  const { data: firewallRules } = usePrefetchedQuery(
+    apiq('vpcFirewallRulesView', { query: { project, vpc } })
+  )
 
   const originalRule = firewallRules.rules.find((r) => r.name === rule)
 
@@ -77,7 +76,7 @@ export default function EditFirewallRuleForm() {
       // on the rules list ok) and I think it was a race condition where the
       // invalidate managed to complete while the modal was still open.
       onDismiss()
-      queryClient.invalidateQueries('vpcFirewallRulesView')
+      queryClient.invalidateEndpoint('vpcFirewallRulesView')
 
       // We are pretty sure here that there is a rule in the list because we are
       // in the form updating it. We also know the one being updated is last in

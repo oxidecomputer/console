@@ -14,12 +14,10 @@ import { match } from 'ts-pattern'
 import {
   apiq,
   apiqErrorsAllowed,
-  apiQueryClient,
   instanceCan,
   queryClient,
   useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
   type ExternalIp,
   type InstanceNetworkInterface,
   type InstanceState,
@@ -101,26 +99,26 @@ const NonFloatingEmptyCell = ({ kind }: { kind: 'snat' | 'ephemeral' }) => (
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await Promise.all([
-    apiQueryClient.fetchQuery('instanceNetworkInterfaceList', {
-      // we want this to cover all NICs; TODO: determine actual limit?
-      query: { project, instance, limit: ALL_ISH },
-    }),
-    apiQueryClient.fetchQuery('floatingIpList', { query: { project, limit: ALL_ISH } }),
+    queryClient.fetchQuery(
+      apiq('instanceNetworkInterfaceList', {
+        // we want this to cover all NICs; TODO: determine actual limit?
+        query: { project, instance, limit: ALL_ISH },
+      })
+    ),
+    queryClient.fetchQuery(apiq('floatingIpList', { query: { project, limit: ALL_ISH } })),
     // dupe of page-level fetch but that's fine, RQ dedupes
-    apiQueryClient.fetchQuery('instanceExternalIpList', {
-      path: { instance },
-      query: { project },
-    }),
+    queryClient.fetchQuery(
+      apiq('instanceExternalIpList', { path: { instance }, query: { project } })
+    ),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
-    apiQueryClient.fetchQuery('instanceView', {
-      path: { instance },
-      query: { project },
-    }),
+    queryClient.fetchQuery(
+      apiq('instanceView', { path: { instance }, query: { project } })
+    ),
     // Fetch IP Pools and preload into RQ cache so fetches by ID in
     // IpPoolCell and AttachFloatingIpModal can be mostly instant
-    apiQueryClient
-      .fetchQuery('projectIpPoolList', { query: { limit: ALL_ISH } })
+    queryClient
+      .fetchQuery(apiq('projectIpPoolList', { query: { limit: ALL_ISH } }))
       .then((pools) => {
         for (const pool of pools.items) {
           // both IpPoolCell and the fetch in the model use errors-allowed
@@ -242,46 +240,42 @@ export default function NetworkingTab() {
   const instanceSelector = useInstanceSelector()
   const { instance: instanceName, project } = instanceSelector
 
-  const queryClient = useApiQueryClient()
-
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<InstanceNetworkInterface | null>(null)
   const [attachEphemeralModalOpen, setAttachEphemeralModalOpen] = useState(false)
   const [attachFloatingModalOpen, setAttachFloatingModalOpen] = useState(false)
 
   // Fetch the floating IPs to show in the "Attach floating IP" modal
-  const { data: ips } = usePrefetchedApiQuery('floatingIpList', {
-    query: { project, limit: ALL_ISH },
-  })
+  const { data: ips } = usePrefetchedQuery(
+    apiq('floatingIpList', { query: { project, limit: ALL_ISH } })
+  )
   // Filter out the IPs that are already attached to an instance
   const availableIps = useMemo(() => ips.items.filter((ip) => !ip.instanceId), [ips])
 
   const createNic = useApiMutation('instanceNetworkInterfaceCreate', {
     onSuccess() {
-      queryClient.invalidateQueries('instanceNetworkInterfaceList')
+      queryClient.invalidateEndpoint('instanceNetworkInterfaceList')
       setCreateModalOpen(false)
     },
   })
   const { mutateAsync: deleteNic } = useApiMutation('instanceNetworkInterfaceDelete', {
     onSuccess(_data, variables) {
-      queryClient.invalidateQueries('instanceNetworkInterfaceList')
+      queryClient.invalidateEndpoint('instanceNetworkInterfaceList')
       addToast(<>Network interface <HL>{variables.path.interface}</HL> deleted</>) // prettier-ignore
     },
   })
   const { mutate: editNic } = useApiMutation('instanceNetworkInterfaceUpdate', {
     onSuccess() {
-      queryClient.invalidateQueries('instanceNetworkInterfaceList')
+      queryClient.invalidateEndpoint('instanceNetworkInterfaceList')
     },
   })
 
-  const { data: instance } = usePrefetchedApiQuery('instanceView', {
-    path: { instance: instanceName },
-    query: { project },
-  })
-
-  const nics = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
-    query: { ...instanceSelector, limit: ALL_ISH },
-  }).data.items
+  const { data: instance } = usePrefetchedQuery(
+    apiq('instanceView', { path: { instance: instanceName }, query: { project } })
+  )
+  const nics = usePrefetchedQuery(
+    apiq('instanceNetworkInterfaceList', { query: { ...instanceSelector, limit: ALL_ISH } })
+  ).data.items
 
   const multipleNics = nics.length > 1
 
@@ -365,14 +359,13 @@ export default function NetworkingTab() {
   })
 
   // Attached IPs Table
-  const { data: eips } = usePrefetchedApiQuery('instanceExternalIpList', {
-    path: { instance: instanceName },
-    query: { project },
-  })
+  const { data: eips } = usePrefetchedQuery(
+    apiq('instanceExternalIpList', { path: { instance: instanceName }, query: { project } })
+  )
 
   const { mutateAsync: ephemeralIpDetach } = useApiMutation('instanceEphemeralIpDetach', {
     onSuccess() {
-      queryClient.invalidateQueries('instanceExternalIpList')
+      queryClient.invalidateEndpoint('instanceExternalIpList')
       addToast({ content: 'Ephemeral IP detached' })
     },
     onError: (err) => {
@@ -382,8 +375,8 @@ export default function NetworkingTab() {
 
   const { mutateAsync: floatingIpDetach } = useApiMutation('floatingIpDetach', {
     onSuccess(_data, variables) {
-      queryClient.invalidateQueries('floatingIpList')
-      queryClient.invalidateQueries('instanceExternalIpList')
+      queryClient.invalidateEndpoint('floatingIpList')
+      queryClient.invalidateEndpoint('instanceExternalIpList')
       addToast(<>Floating IP <HL>{variables.path.floatingIp}</HL> detached</>) // prettier-ignore
     },
     onError: (err) => {

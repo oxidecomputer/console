@@ -7,28 +7,29 @@
  */
 import { type LoaderFunctionArgs } from 'react-router'
 
-import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
+import { apiq, queryClient, usePrefetchedQuery } from '@oxide/api'
 
 import { EditImageSideModalForm } from '~/forms/image-edit'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getProjectImageSelector, useProjectImageSelector } from '~/hooks/use-params'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
+
+const imageView = ({ image, project }: PP.Image) =>
+  apiq('imageView', { path: { image }, query: { project } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, image } = getProjectImageSelector(params)
-  await apiQueryClient.prefetchQuery('imageView', { path: { image }, query: { project } })
+  const selector = getProjectImageSelector(params)
+  await queryClient.prefetchQuery(imageView(selector))
   return null
 }
 
 export const handle = titleCrumb('Edit Image')
 
 export default function ProjectImageEdit() {
-  const { project, image } = useProjectImageSelector()
-  const { data } = usePrefetchedApiQuery('imageView', {
-    path: { image },
-    query: { project },
-  })
+  const selector = useProjectImageSelector()
+  const { data } = usePrefetchedQuery(imageView(selector))
 
-  const dismissLink = pb.projectImages({ project })
+  const dismissLink = pb.projectImages({ project: selector.project })
   return <EditImageSideModalForm image={data} dismissLink={dismissLink} type="Project" />
 }

@@ -12,8 +12,8 @@ import { useController, useForm, type Control } from 'react-hook-form'
 
 import {
   apiq,
+  queryClient,
   useApiMutation,
-  useApiQueryClient,
   type BlockSize,
   type Disk,
   type DiskCreate,
@@ -70,11 +70,9 @@ export function CreateDiskSideModalForm({
   onDismiss,
   unavailableDiskNames = [],
 }: CreateSideModalFormProps) {
-  const queryClient = useApiQueryClient()
-
   const createDisk = useApiMutation('diskCreate', {
     onSuccess(data) {
-      queryClient.invalidateQueries('diskList')
+      queryClient.invalidateEndpoint('diskList')
       addToast(<>Disk <HL>{data.name}</HL> created</>) // prettier-ignore
       onSuccess?.(data)
       onDismiss()

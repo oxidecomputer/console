@@ -11,8 +11,8 @@ import { useForm } from 'react-hook-form'
 
 import {
   apiqErrorsAllowed,
+  queryClient,
   useApiMutation,
-  useApiQueryClient,
   type FloatingIp,
   type Instance,
 } from '~/api'
@@ -67,11 +67,10 @@ export const AttachFloatingIpModal = ({
   instance: Instance
   onDismiss: () => void
 }) => {
-  const queryClient = useApiQueryClient()
   const floatingIpAttach = useApiMutation('floatingIpAttach', {
     onSuccess(floatingIp) {
-      queryClient.invalidateQueries('floatingIpList')
-      queryClient.invalidateQueries('instanceExternalIpList')
+      queryClient.invalidateEndpoint('floatingIpList')
+      queryClient.invalidateEndpoint('instanceExternalIpList')
       addToast(<>IP <HL>{floatingIp.name}</HL> attached</>) // prettier-ignore
       onDismiss()
     },

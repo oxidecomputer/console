@@ -8,7 +8,7 @@
 import { useForm, type FieldErrors } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import { useApiMutation, useApiQueryClient, type IpRange } from '@oxide/api'
+import { queryClient, useApiMutation, type IpRange } from '@oxide/api'
 
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
@@ -65,15 +65,14 @@ export const handle = titleCrumb('Add Range')
 export default function IpPoolAddRange() {
   const { pool } = useIpPoolSelector()
   const navigate = useNavigate()
-  const queryClient = useApiQueryClient()
 
   const onDismiss = () => navigate(pb.ipPool({ pool }))
 
   const addRange = useApiMutation('ipPoolRangeAdd', {
     onSuccess(_range) {
       // refetch list of projects in sidebar
-      queryClient.invalidateQueries('ipPoolRangeList')
-      queryClient.invalidateQueries('ipPoolUtilizationView')
+      queryClient.invalidateEndpoint('ipPoolRangeList')
+      queryClient.invalidateEndpoint('ipPoolUtilizationView')
       addToast({ content: 'IP range added' })
       onDismiss()
     },

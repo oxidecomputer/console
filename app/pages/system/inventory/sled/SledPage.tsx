@@ -8,7 +8,7 @@
 import { filesize } from 'filesize'
 import type { LoaderFunctionArgs } from 'react-router'
 
-import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
+import { apiq, queryClient, usePrefetchedQuery } from '@oxide/api'
 import { Servers24Icon } from '@oxide/design-system/icons/react'
 
 import { RouteTabs, Tab } from '~/components/RouteTabs'
@@ -18,12 +18,15 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { truncate } from '~/ui/lib/Truncate'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
 import { ProvisionPolicyBadge, SledKindBadge, SledStateBadge } from './SledBadges'
 
+const sledView = ({ sledId }: PP.Sled) => apiq('sledView', { path: { sledId } })
+
 export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { sledId } = requireSledParams(params)
-  await apiQueryClient.fetchQuery('sledView', { path: { sledId } })
+  const selector = requireSledParams(params)
+  await queryClient.fetchQuery(sledView(selector))
   return null
 }
 export const handle = makeCrumb(
@@ -33,7 +36,7 @@ export const handle = makeCrumb(
 
 export default function SledPage() {
   const { sledId } = useSledParams()
-  const { data: sled } = usePrefetchedApiQuery('sledView', { path: { sledId } })
+  const { data: sled } = usePrefetchedQuery(sledView({ sledId }))
 
   const ram = filesize(sled.usablePhysicalRam, { output: 'object', base: 2 })
 

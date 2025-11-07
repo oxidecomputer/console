@@ -11,9 +11,10 @@ import { Link, type LoaderFunctionArgs } from 'react-router'
 
 import {
   api,
-  apiQueryClient,
+  apiq,
   instanceCan,
-  usePrefetchedApiQuery,
+  queryClient,
+  usePrefetchedQuery,
   type Instance,
 } from '@oxide/api'
 import { PrevArrow12Icon } from '@oxide/design-system/icons/react'
@@ -25,6 +26,7 @@ import { Terminal } from '~/components/Terminal'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { Spinner } from '~/ui/lib/Spinner'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
 type WsState = 'connecting' | 'open' | 'closed' | 'error'
 
@@ -44,10 +46,9 @@ const statusMessage: Record<WsState, string> = {
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
-  await apiQueryClient.prefetchQuery('instanceView', {
-    path: { instance },
-    query: { project },
-  })
+  await queryClient.prefetchQuery(
+    apiq('instanceView', { path: { instance }, query: { project } })
+  )
   return null
 }
 
@@ -55,22 +56,21 @@ function isStarting(i: Instance | undefined) {
   return i?.runState === 'creating' || i?.runState === 'starting'
 }
 
+const instanceView = ({ project, instance }: PP.Instance) =>
+  apiq('instanceView', { path: { instance }, query: { project } })
+
 export const handle = { crumb: 'Serial Console' }
 
 export default function SerialConsolePage() {
   const instanceSelector = useInstanceSelector()
   const { project, instance } = instanceSelector
 
-  const { data: instanceData } = usePrefetchedApiQuery(
-    'instanceView',
-    {
-      query: { project },
-      path: { instance },
-    },
+  const { data: instanceData } = usePrefetchedQuery({
+    ...instanceView({ project, instance }),
     // if we land here and the instance is starting, we will not be able to
     // connect, so we poll and connect as soon as it's running.
-    { refetchInterval: (q) => (isStarting(q.state.data) ? 1000 : false) }
-  )
+    refetchInterval: (q) => (isStarting(q.state.data) ? 1000 : false),
+  })
 
   const ws = useRef<WebSocket | null>(null)
 

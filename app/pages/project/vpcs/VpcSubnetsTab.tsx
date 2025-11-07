@@ -9,13 +9,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
-import {
-  getListQFn,
-  queryClient,
-  useApiMutation,
-  useApiQueryClient,
-  type VpcSubnet,
-} from '@oxide/api'
+import { getListQFn, queryClient, useApiMutation, type VpcSubnet } from '@oxide/api'
 
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -45,11 +39,10 @@ export const handle = { crumb: 'Subnets' }
 
 export default function VpcSubnetsTab() {
   const vpcSelector = useVpcSelector()
-  const queryClient = useApiQueryClient()
 
   const { mutateAsync: deleteSubnet } = useApiMutation('vpcSubnetDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcSubnetList')
+      queryClient.invalidateEndpoint('vpcSubnetList')
       // We only have the ID, so will show a generic confirmation message
       addToast({ content: 'Subnet deleted' })
     },

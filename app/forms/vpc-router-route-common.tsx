@@ -10,7 +10,8 @@ import type { UseFormReturn } from 'react-hook-form'
 import type { SetNonNullable } from 'type-fest'
 
 import {
-  usePrefetchedApiQuery,
+  apiq,
+  usePrefetchedQuery,
   type RouteDestination,
   type RouterRouteCreate,
   type RouterRouteUpdate,
@@ -102,18 +103,20 @@ type RouteFormFieldsProps = {
 export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
   const routerSelector = useVpcRouterSelector()
   const { project, vpc } = routerSelector
-  // usePrefetchedApiQuery items below are initially fetched in the loaders in vpc-router-route-create and -edit
+  // usePrefetchedQuery items below are initially fetched in the loaders in vpc-router-route-create and -edit
   const {
     data: { items: vpcSubnets },
-  } = usePrefetchedApiQuery('vpcSubnetList', { query: { project, vpc, limit: ALL_ISH } })
+  } = usePrefetchedQuery(apiq('vpcSubnetList', { query: { project, vpc, limit: ALL_ISH } }))
   const {
     data: { items: instances },
-  } = usePrefetchedApiQuery('instanceList', { query: { project, limit: ALL_ISH } })
+  } = usePrefetchedQuery(apiq('instanceList', { query: { project, limit: ALL_ISH } }))
   const {
     data: { items: internetGateways },
-  } = usePrefetchedApiQuery('internetGatewayList', {
-    query: { project, vpc, limit: ALL_ISH },
-  })
+  } = usePrefetchedQuery(
+    apiq('internetGatewayList', {
+      query: { project, vpc, limit: ALL_ISH },
+    })
+  )
 
   const { control } = form
   const destinationType = form.watch('destination.type')

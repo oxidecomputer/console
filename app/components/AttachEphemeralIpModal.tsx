@@ -9,7 +9,7 @@
 import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { useApiMutation, useApiQueryClient, usePrefetchedApiQuery } from '~/api'
+import { apiq, queryClient, useApiMutation, usePrefetchedQuery } from '~/api'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { HL } from '~/components/HL'
 import { useInstanceSelector } from '~/hooks/use-params'
@@ -20,18 +20,17 @@ import { ALL_ISH } from '~/util/consts'
 import { toIpPoolItem } from './form/fields/ip-pool-item'
 
 export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void }) => {
-  const queryClient = useApiQueryClient()
   const { project, instance } = useInstanceSelector()
-  const { data: siloPools } = usePrefetchedApiQuery('projectIpPoolList', {
-    query: { limit: ALL_ISH },
-  })
+  const { data: siloPools } = usePrefetchedQuery(
+    apiq('projectIpPoolList', { query: { limit: ALL_ISH } })
+  )
   const defaultPool = useMemo(
     () => siloPools?.items.find((pool) => pool.isDefault),
     [siloPools]
   )
   const instanceEphemeralIpAttach = useApiMutation('instanceEphemeralIpAttach', {
     onSuccess(ephemeralIp) {
-      queryClient.invalidateQueries('instanceExternalIpList')
+      queryClient.invalidateEndpoint('instanceExternalIpList')
       addToast(<>IP <HL>{ephemeralIp.ip}</HL> attached</>) // prettier-ignore
       onDismiss()
     },

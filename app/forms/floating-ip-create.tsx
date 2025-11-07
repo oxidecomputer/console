@@ -11,7 +11,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import { apiq, useApiMutation, useApiQueryClient, type FloatingIpCreate } from '@oxide/api'
+import { apiq, queryClient, useApiMutation, type FloatingIpCreate } from '@oxide/api'
 
 import { AccordionItem } from '~/components/AccordionItem'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -42,14 +42,13 @@ export default function CreateFloatingIpSideModalForm() {
     apiq('projectIpPoolList', { query: { limit: ALL_ISH } })
   )
 
-  const queryClient = useApiQueryClient()
   const projectSelector = useProjectSelector()
   const navigate = useNavigate()
 
   const createFloatingIp = useApiMutation('floatingIpCreate', {
     onSuccess(floatingIp) {
-      queryClient.invalidateQueries('floatingIpList')
-      queryClient.invalidateQueries('ipPoolUtilizationView')
+      queryClient.invalidateEndpoint('floatingIpList')
+      queryClient.invalidateEndpoint('ipPoolUtilizationView')
       addToast(<>Floating IP <HL>{floatingIp.name}</HL> created</>) // prettier-ignore
       navigate(pb.floatingIps(projectSelector))
     },

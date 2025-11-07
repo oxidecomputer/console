@@ -13,9 +13,9 @@ import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
   apiq,
-  apiQueryClient,
+  queryClient,
   useApiMutation,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
   type Instance,
   type InstanceNetworkInterface,
 } from '@oxide/api'
@@ -53,10 +53,22 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { truncate } from '~/ui/lib/Truncate'
 import { instanceMetricsBase, pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 import { pluralize } from '~/util/str'
 import { GiB } from '~/util/units'
 
 import { useMakeInstanceActions } from './actions'
+
+const instanceView = ({ project, instance }: PP.Instance) =>
+  apiq('instanceView', { path: { instance }, query: { project } })
+
+const instanceExternalIpList = ({ project, instance }: PP.Instance) =>
+  apiq('instanceExternalIpList', { path: { instance }, query: { project } })
+
+const instanceNetworkInterfaceList = (query: PP.Instance) =>
+  apiq('instanceNetworkInterfaceList', { query })
+
+const vpcView = (vpc: string) => apiq('vpcView', { path: { vpc } })
 
 function getPrimaryVpcId(nics: InstanceNetworkInterface[]) {
   const nic = nics.find((nic) => nic.primary)
@@ -66,11 +78,11 @@ function getPrimaryVpcId(nics: InstanceNetworkInterface[]) {
 // this is meant to cover everything that we fetch in the page
 async function refreshData() {
   await Promise.all([
-    apiQueryClient.invalidateQueries('instanceView'),
-    apiQueryClient.invalidateQueries('instanceExternalIpList'),
-    apiQueryClient.invalidateQueries('instanceNetworkInterfaceList'),
-    apiQueryClient.invalidateQueries('instanceDiskList'), // storage tab
-    apiQueryClient.invalidateQueries('antiAffinityGroupMemberList'),
+    queryClient.invalidateEndpoint('instanceView'),
+    queryClient.invalidateEndpoint('instanceExternalIpList'),
+    queryClient.invalidateEndpoint('instanceNetworkInterfaceList'),
+    queryClient.invalidateEndpoint('instanceDiskList'), // storage tab
+    queryClient.invalidateEndpoint('antiAffinityGroupMemberList'),
     // note that we do not include timeseriesQuery because the charts on the
     // metrics tab will manage their own refresh intervals when we turn that
     // back on
@@ -78,16 +90,10 @@ async function refreshData() {
 }
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, instance } = getInstanceSelector(params)
+  const selector = getInstanceSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('instanceView', {
-      path: { instance },
-      query: { project },
-    }),
-    apiQueryClient.prefetchQuery('instanceExternalIpList', {
-      path: { instance },
-      query: { project },
-    }),
+    queryClient.prefetchQuery(instanceView(selector)),
+    queryClient.prefetchQuery(instanceExternalIpList(selector)),
     // The VPC fetch here ensures that the VPC shows up at pageload time without
     // a loading state. This is an unusual prefetch in that
     //
@@ -98,15 +104,11 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     // Using .then() like this instead of doing the NICs call before the
     // entire Promise.all() means this whole *pair* of requests can happen in
     // parallel with the other two instead of only the second one.
-    apiQueryClient
-      .fetchQuery('instanceNetworkInterfaceList', {
-        query: { project, instance },
-      })
-      .then((nics) => {
-        const vpc = getPrimaryVpcId(nics.items)
-        if (!vpc) return Promise.resolve()
-        return apiQueryClient.prefetchQuery('vpcView', { path: { vpc } })
-      }),
+    queryClient.fetchQuery(instanceNetworkInterfaceList(selector)).then((nics) => {
+      const vpc = getPrimaryVpcId(nics.items)
+      if (!vpc) return Promise.resolve()
+      return queryClient.prefetchQuery(vpcView(vpc))
+    }),
   ])
   return null
 }
@@ -126,52 +128,42 @@ export default function InstancePage() {
     onSuccess: refreshData,
     // go to project instances list since there's no more instance
     onDelete: () => {
-      apiQueryClient.invalidateQueries('instanceList')
+      queryClient.invalidateEndpoint('instanceList')
       navigate(pb.instances(instanceSelector))
     },
     onResizeClick: () => setResizeInstance(true),
   })
 
-  const { data: instance } = usePrefetchedApiQuery(
-    'instanceView',
-    {
-      path: { instance: instanceSelector.instance },
-      query: { project: instanceSelector.project },
-    },
-    {
-      // We're using this logic here on instance detail, but not on instance
-      // list. Instance list will only poll for the transitioning case. We don't
-      // show anything about auto-restart on the instance list, so the only point
-      // of polling would be to catch a restart when it happens. But with the
-      // cooldown period being an hour, we'd be doing a _lot_ of unnecessary
-      // polling on the list page.
-      refetchInterval: ({ state: { data: instance } }) => {
-        if (!instance) return false
-        if (instanceTransitioning(instance.runState)) return POLL_INTERVAL_FAST
+  const { data: instance } = usePrefetchedQuery({
+    ...instanceView(instanceSelector),
+    // We're using this logic here on instance detail, but not on instance
+    // list. Instance list will only poll for the transitioning case. We don't
+    // show anything about auto-restart on the instance list, so the only point
+    // of polling would be to catch a restart when it happens. But with the
+    // cooldown period being an hour, we'd be doing a _lot_ of unnecessary
+    // polling on the list page.
+    refetchInterval: ({ state: { data: instance } }) => {
+      if (!instance) return false
+      if (instanceTransitioning(instance.runState)) return POLL_INTERVAL_FAST
 
-        if (instance.runState === 'failed' && instance.autoRestartEnabled) {
-          return instanceAutoRestartingSoon(instance)
-            ? POLL_INTERVAL_FAST
-            : POLL_INTERVAL_SLOW
-        }
-      },
-    }
-  )
-
-  const { data: nics } = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
-    query: {
-      project: instanceSelector.project,
-      instance: instanceSelector.instance,
+      if (instance.runState === 'failed' && instance.autoRestartEnabled) {
+        return instanceAutoRestartingSoon(instance)
+          ? POLL_INTERVAL_FAST
+          : POLL_INTERVAL_SLOW
+      }
     },
   })
+
+  const { data: nics } = usePrefetchedQuery(instanceNetworkInterfaceList(instanceSelector))
   const primaryVpcId = getPrimaryVpcId(nics.items)
 
   // a little funny, as noted in the loader -- this should always be prefetched
   // when primaryVpcId is defined, but primaryVpcId might not be defined, so
-  // we can't use usePrefetchedApiQuery
-  const { data: vpc } = useQuery(
-    apiq('vpcView', { path: { vpc: primaryVpcId! } }, { enabled: !!primaryVpcId })
-  )
+  // we can't use usePrefetchedQuery
+  const { data: vpc } = useQuery({
+    ...vpcView(primaryVpcId!),
+    enabled: !!primaryVpcId,
+  })
 
   const memory = filesize(instance.memory, { output: 'object', base: 2 })
 
@@ -288,8 +280,8 @@ export function ResizeInstanceModal({
   const { project } = useProjectSelector()
   const instanceUpdate = useApiMutation('instanceUpdate', {
     onSuccess(_updatedInstance) {
-      apiQueryClient.invalidateQueries('instanceList')
-      apiQueryClient.invalidateQueries('instanceView')
+      queryClient.invalidateEndpoint('instanceList')
+      queryClient.invalidateEndpoint('instanceView')
 
       onDismiss()
       addToast({

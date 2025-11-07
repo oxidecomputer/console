@@ -12,7 +12,7 @@ import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import { Gateway16Icon } from '@oxide/design-system/icons/react'
 
-import { apiQueryClient, queryClient, usePrefetchedApiQuery } from '~/api'
+import { apiq, queryClient, usePrefetchedQuery } from '~/api'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getInternetGatewaySelector, useInternetGatewaySelector } from '~/hooks/use-params'
@@ -69,10 +69,12 @@ function RouteRows({ project, vpc, gateway }: PP.VpcInternetGateway) {
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc, gateway } = getInternetGatewaySelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('internetGatewayView', {
-      query: { project, vpc },
-      path: { gateway },
-    }),
+    queryClient.prefetchQuery(
+      apiq('internetGatewayView', {
+        query: { project, vpc },
+        path: { gateway },
+      })
+    ),
     queryClient.prefetchQuery(gatewayIpPoolList({ project, vpc, gateway }).optionsFn()),
     queryClient.prefetchQuery(gatewayIpAddressList({ project, vpc, gateway }).optionsFn()),
     ...(await queryClient.fetchQuery(routerList({ project, vpc }).optionsFn())).items.map(
@@ -89,10 +91,12 @@ export default function EditInternetGatewayForm() {
   const navigate = useNavigate()
   const { project, vpc, gateway } = useInternetGatewaySelector()
   const onDismiss = () => navigate(pb.vpcInternetGateways({ project, vpc }))
-  const { data: internetGateway } = usePrefetchedApiQuery('internetGatewayView', {
-    query: { project, vpc },
-    path: { gateway },
-  })
+  const { data: internetGateway } = usePrefetchedQuery(
+    apiq('internetGatewayView', {
+      query: { project, vpc },
+      path: { gateway },
+    })
+  )
   const { data: { items: gatewayIpPools } = {} } = useQuery(
     gatewayIpPoolList({ project, vpc, gateway }).optionsFn()
   )

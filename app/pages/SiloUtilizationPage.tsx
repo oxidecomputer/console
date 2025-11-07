@@ -9,7 +9,7 @@ import { getLocalTimeZone, now } from '@internationalized/date'
 import { useIsFetching } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 
-import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
+import { apiq, queryClient, usePrefetchedQuery } from '@oxide/api'
 import { Metrics16Icon, Metrics24Icon } from '@oxide/design-system/icons/react'
 
 import { CapacityBars } from '~/components/CapacityBars'
@@ -26,12 +26,15 @@ import { bytesToGiB, bytesToTiB } from '~/util/units'
 
 const toListboxItem = (x: { name: string; id: string }) => ({ label: x.name, value: x.id })
 
+const projectList = apiq('projectList', {})
+const utilizationView = apiq('utilizationView', {})
+
 export const handle = { crumb: 'Utilization' }
 
 export async function clientLoader() {
   await Promise.all([
-    apiQueryClient.prefetchQuery('projectList', {}),
-    apiQueryClient.prefetchQuery('utilizationView', {}),
+    queryClient.prefetchQuery(projectList),
+    queryClient.prefetchQuery(utilizationView),
   ])
   return null
 }
@@ -41,8 +44,8 @@ export default function SiloUtilizationPage() {
 
   const siloId = me.siloId
 
-  const { data: projects } = usePrefetchedApiQuery('projectList', {})
-  const { data: utilization } = usePrefetchedApiQuery('utilizationView', {})
+  const { data: projects } = usePrefetchedQuery(projectList)
+  const { data: utilization } = usePrefetchedQuery(utilizationView)
 
   const projectItems = useMemo(() => {
     const items = projects.items.map(toListboxItem) || []

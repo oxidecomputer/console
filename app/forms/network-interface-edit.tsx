@@ -10,8 +10,8 @@ import { useForm } from 'react-hook-form'
 import * as R from 'remeda'
 
 import {
+  queryClient,
   useApiMutation,
-  useApiQueryClient,
   type InstanceNetworkInterface,
   type InstanceNetworkInterfaceUpdate,
 } from '@oxide/api'
@@ -40,12 +40,11 @@ export function EditNetworkInterfaceForm({
   onDismiss,
   editing,
 }: EditNetworkInterfaceFormProps) {
-  const queryClient = useApiQueryClient()
   const instanceSelector = useInstanceSelector()
 
   const editNetworkInterface = useApiMutation('instanceNetworkInterfaceUpdate', {
     onSuccess(nic) {
-      queryClient.invalidateQueries('instanceNetworkInterfaceList')
+      queryClient.invalidateEndpoint('instanceNetworkInterfaceList')
       addToast(<>Network interface <HL>{nic.name}</HL> updated</>) // prettier-ignore
       onDismiss()
     },

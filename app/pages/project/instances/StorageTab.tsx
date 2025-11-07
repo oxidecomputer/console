@@ -11,13 +11,13 @@ import type { LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 
 import {
-  apiQueryClient,
+  apiq,
   diskCan,
   genName,
   instanceCan,
+  queryClient,
   useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
   type Disk,
   type InstanceState,
 } from '@oxide/api'
@@ -48,10 +48,10 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     // don't bother with page size because this will never paginate. max disks
     // per instance is 8
     // https://github.com/oxidecomputer/omicron/blob/40fc3835/nexus/db-queries/src/db/queries/disk.rs#L16-L21
-    apiQueryClient.prefetchQuery('instanceDiskList', selector),
+    queryClient.prefetchQuery(apiq('instanceDiskList', selector)),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
-    apiQueryClient.prefetchQuery('instanceView', selector),
+    queryClient.prefetchQuery(apiq('instanceView', selector)),
   ])
   return null
 }
@@ -81,7 +81,6 @@ export default function StorageTab() {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
   const [showDiskAttach, setShowDiskAttach] = useState(false)
 
-  const queryClient = useApiQueryClient()
   const { instance: instanceName, project } = useInstanceSelector()
   const instancePathQuery = useMemo(
     () => ({ path: { instance: instanceName }, query: { project } }),
@@ -90,20 +89,16 @@ export default function StorageTab() {
 
   const { mutateAsync: detachDisk } = useApiMutation('instanceDiskDetach', {
     onSuccess(disk) {
-      queryClient.invalidateQueries('instanceDiskList')
+      queryClient.invalidateEndpoint('instanceDiskList')
       addToast(<>Disk <HL>{disk.name}</HL> detached</>) // prettier-ignore
     },
     onError(err) {
-      addToast({
-        title: 'Failed to detach disk',
-        content: err.message,
-        variant: 'error',
-      })
+      addToast({ title: 'Failed to detach disk', content: err.message, variant: 'error' })
     },
   })
   const { mutate: createSnapshot } = useApiMutation('snapshotCreate', {
     onSuccess(snapshot) {
-      queryClient.invalidateQueries('snapshotList')
+      queryClient.invalidateEndpoint('snapshotList')
       addToast(<>Snapshot <HL>{snapshot.name}</HL> created</>) // prettier-ignore
     },
     onError(err) {
@@ -115,11 +110,13 @@ export default function StorageTab() {
     },
   })
 
-  const { data: instance } = usePrefetchedApiQuery('instanceView', instancePathQuery)
+  const { data: instance } = usePrefetchedQuery(
+    apiq('instanceView', { path: { instance: instanceName }, query: { project } })
+  )
 
   const { mutateAsync: instanceUpdate } = useApiMutation('instanceUpdate', {
     onSuccess() {
-      apiQueryClient.invalidateQueries('instanceView')
+      queryClient.invalidateEndpoint('instanceView')
     },
   })
 
@@ -140,7 +137,7 @@ export default function StorageTab() {
     [createSnapshot, project]
   )
 
-  const { data: disks } = usePrefetchedApiQuery('instanceDiskList', instancePathQuery)
+  const { data: disks } = usePrefetchedQuery(apiq('instanceDiskList', instancePathQuery))
 
   const [bootDisks, otherDisks] = useMemo(
     () => R.partition(disks.items, (d) => d.id === instance.bootDiskId),
@@ -292,8 +289,7 @@ export default function StorageTab() {
 
   const attachDisk = useApiMutation('instanceDiskAttach', {
     onSuccess(disk) {
-      queryClient.invalidateQueries('instanceDiskList')
-      // cover all our bases. this is called by both modals
+      queryClient.invalidateEndpoint('instanceDiskList')
       setShowDiskCreate(false)
       setShowDiskAttach(false)
       addToast(<>Disk <HL>{disk.name}</HL> attached</>) // prettier-ignore
