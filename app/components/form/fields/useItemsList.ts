@@ -6,9 +6,11 @@
  * Copyright Oxide Computer Company
  */
 
+import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
-import { useApiQuery } from '~/api'
+import { apiq } from '@oxide/api'
+
 import { useVpcSelector } from '~/hooks/use-params'
 
 /**
@@ -30,7 +32,7 @@ export function customRouterDataToForm(value: string | undefined | null): string
 
 export const useCustomRouterItems = () => {
   const vpcSelector = useVpcSelector()
-  const { data, isLoading } = useApiQuery('vpcRouterList', { query: vpcSelector })
+  const { data, isLoading } = useQuery(apiq('vpcRouterList', { query: vpcSelector }))
 
   const routerItems = useMemo(() => {
     const items = (data?.items || [])

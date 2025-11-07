@@ -6,7 +6,9 @@
  * Copyright Oxide Computer Company
  */
 
-import { useApiQuery } from '@oxide/api'
+import { useQuery } from '@tanstack/react-query'
+
+import { apiq } from '@oxide/api'
 
 import { useProjectSelector } from '~/hooks/use-params'
 import { pb } from '~/util/path-builder'
@@ -16,10 +18,8 @@ import { LinkCell } from './LinkCell'
 
 export const InstanceLinkCell = ({ instanceId }: { instanceId?: string | null }) => {
   const { project } = useProjectSelector()
-  const { data: instance } = useApiQuery(
-    'instanceView',
-    { path: { instance: instanceId! } },
-    { enabled: !!instanceId }
+  const { data: instance } = useQuery(
+    apiq('instanceView', { path: { instance: instanceId! } }, { enabled: !!instanceId })
   )
 
   // has to be after the hooks because hooks can't be executed conditionally

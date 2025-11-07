@@ -19,7 +19,6 @@ import {
   getApiQueryOptionsErrorsAllowed,
   getListQueryOptionsFn,
   getUseApiMutation,
-  getUseApiQuery,
   getUsePrefetchedApiQuery,
   wrapQueryClient,
 } from './hooks'
@@ -56,7 +55,6 @@ export const apiqErrorsAllowed = getApiQueryOptionsErrorsAllowed(api.methods)
  * `useQueryTable`.
  */
 export const getListQFn = getListQueryOptionsFn(api.methods)
-export const useApiQuery = getUseApiQuery(api.methods)
 /**
  * Same as `useApiQuery`, except we use `invariant(data)` to ensure the data is
  * already there in the cache at request time, which means it has been

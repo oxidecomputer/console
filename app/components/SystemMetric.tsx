@@ -5,14 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { useMemo, useRef } from 'react'
 
-import {
-  synthesizeData,
-  useApiQuery,
-  type ChartDatum,
-  type SystemMetricName,
-} from '@oxide/api'
+import { apiq, synthesizeData, type ChartDatum, type SystemMetricName } from '@oxide/api'
 
 import { ChartContainer, ChartHeader, TimeSeriesChart } from './TimeSeriesChart'
 
@@ -53,23 +49,21 @@ export function SiloMetric({
 }: SiloMetricProps) {
   // TODO: we're only pulling the first page. Should we bump the cap to 10k?
   // Fetch multiple pages if 10k is not enough? That's a bit much.
-  const inRange = useApiQuery(
-    'siloMetric',
-    {
-      path: { metricName },
-      query: { project, startTime, endTime, limit: 3000 },
-    },
-    { placeholderData: (x) => x }
+  const inRange = useQuery(
+    apiq(
+      'siloMetric',
+      { path: { metricName }, query: { project, startTime, endTime, limit: 3000 } },
+      { placeholderData: (x) => x }
+    )
   )
 
   // get last point before startTime to use as first point in graph
-  const beforeStart = useApiQuery(
-    'siloMetric',
-    {
-      path: { metricName },
-      query: { project, endTime: startTime, ...staticParams },
-    },
-    { placeholderData: (x) => x }
+  const beforeStart = useQuery(
+    apiq(
+      'siloMetric',
+      { path: { metricName }, query: { project, endTime: startTime, ...staticParams } },
+      { placeholderData: (x) => x }
+    )
   )
 
   const ref = useRef<ChartDatum[] | undefined>(undefined)
@@ -124,23 +118,21 @@ export function SystemMetric({
 }: SystemMetricProps) {
   // TODO: we're only pulling the first page. Should we bump the cap to 10k?
   // Fetch multiple pages if 10k is not enough? That's a bit much.
-  const inRange = useApiQuery(
-    'systemMetric',
-    {
-      path: { metricName },
-      query: { silo, startTime, endTime, limit: 3000 },
-    },
-    { placeholderData: (x) => x }
+  const inRange = useQuery(
+    apiq(
+      'systemMetric',
+      { path: { metricName }, query: { silo, startTime, endTime, limit: 3000 } },
+      { placeholderData: (x) => x }
+    )
   )
 
   // get last point before startTime to use as first point in graph
-  const beforeStart = useApiQuery(
-    'systemMetric',
-    {
-      path: { metricName },
-      query: { silo, endTime: startTime, ...staticParams },
-    },
-    { placeholderData: (x) => x }
+  const beforeStart = useQuery(
+    apiq(
+      'systemMetric',
+      { path: { metricName }, query: { silo, endTime: startTime, ...staticParams } },
+      { placeholderData: (x) => x }
+    )
   )
 
   const ref = useRef<ChartDatum[] | undefined>(undefined)

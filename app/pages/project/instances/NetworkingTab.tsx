@@ -5,18 +5,19 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router'
 import { match } from 'ts-pattern'
 
 import {
+  apiq,
   apiqErrorsAllowed,
   apiQueryClient,
   instanceCan,
   queryClient,
   useApiMutation,
-  useApiQuery,
   useApiQueryClient,
   usePrefetchedApiQuery,
   type ExternalIp,
@@ -62,10 +63,8 @@ import { fancifyStates } from './common'
 
 const VpcNameFromId = ({ value }: { value: string }) => {
   const { project } = useProjectSelector()
-  const { data: vpc, isError } = useApiQuery(
-    'vpcView',
-    { path: { vpc: value } },
-    { throwOnError: false }
+  const { data: vpc, isError } = useQuery(
+    apiq('vpcView', { path: { vpc: value } }, { throwOnError: false })
   )
 
   // If we can't find it, it must have been deleted. This is probably not
@@ -77,10 +76,8 @@ const VpcNameFromId = ({ value }: { value: string }) => {
 }
 
 const SubnetNameFromId = ({ value }: { value: string }) => {
-  const { data: subnet, isError } = useApiQuery(
-    'vpcSubnetView',
-    { path: { subnet: value } },
-    { throwOnError: false }
+  const { data: subnet, isError } = useQuery(
+    apiq('vpcSubnetView', { path: { subnet: value } }, { throwOnError: false })
   )
 
   // same deal as VPC: probably not possible but let's be safe

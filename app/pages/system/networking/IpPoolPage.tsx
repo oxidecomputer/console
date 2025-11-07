@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -17,7 +18,6 @@ import {
   getListQFn,
   queryClient,
   useApiMutation,
-  useApiQuery,
   useApiQueryClient,
   usePrefetchedApiQuery,
   usePrefetchedQuery,
@@ -244,7 +244,7 @@ function IpRangesTable() {
 }
 
 function SiloNameFromId({ value: siloId }: { value: string }) {
-  const { data: silo } = useApiQuery('siloView', { path: { silo: siloId } })
+  const { data: silo } = useQuery(apiq('siloView', { path: { silo: siloId } }))
 
   if (!silo) return <SkeletonCell />
 
@@ -371,11 +371,10 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
     linkSilo.mutate({ path: { pool }, body: { silo, isDefault: false } })
   }
 
-  const linkedSilos = useApiQuery('ipPoolSiloList', {
-    path: { pool },
-    query: { limit: ALL_ISH },
-  })
-  const allSilos = useApiQuery('siloList', { query: { limit: ALL_ISH } })
+  const linkedSilos = useQuery(
+    apiq('ipPoolSiloList', { path: { pool }, query: { limit: ALL_ISH } })
+  )
+  const allSilos = useQuery(apiq('siloList', { query: { limit: ALL_ISH } }))
 
   // in order to get the list of remaining unlinked silos, we have to get the
   // list of all silos and remove the already linked ones

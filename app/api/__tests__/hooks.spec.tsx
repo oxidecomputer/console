@@ -5,15 +5,18 @@
  *
  * Copyright Oxide Computer Company
  */
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
 import { act, render, renderHook, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 import { project } from '@oxide/api-mocks'
 
-import { useApiMutation, useApiQuery } from '..'
+import { apiq, useApiMutation } from '..'
 import type { DiskCreate } from '../__generated__/Api'
 import { overrideOnce } from '../../../test/unit/server'
+
+// TODO: rethink whether these tests need to exist when they are so well-covered
+// by playwright tests
 
 // because useApiQuery and useApiMutation are almost entirely typed wrappers
 // around React Query's useQuery and useMutation, these tests are mostly about
@@ -32,12 +35,12 @@ export function Wrapper({ children }: { children: React.ReactNode }) {
 
 const config = { wrapper: Wrapper }
 
-const renderProjectList = () => renderHook(() => useApiQuery('projectList', {}), config)
+const renderProjectList = () => renderHook(() => useQuery(apiq('projectList', {})), config)
 
 // 503 is a special key in the MSW server that returns a 503
 const renderGetProject503 = () =>
   renderHook(
-    () => useApiQuery('projectView', { path: { project: 'project-error-503' } }),
+    () => useQuery(apiq('projectView', { path: { project: 'project-error-503' } })),
     config
   )
 
@@ -117,7 +120,7 @@ describe('useApiQuery', () => {
       function BadApiCall() {
         try {
           // oxlint-disable-next-line react-hooks/rules-of-hooks
-          useApiQuery('projectView', { path: { project: 'nonexistent' } })
+          useQuery(apiq('projectView', { path: { project: 'nonexistent' } }))
         } catch (e) {
           onError(e)
         }
@@ -139,10 +142,12 @@ describe('useApiQuery', () => {
     it('default throw behavior can be overridden to use query error state', async () => {
       const { result } = renderHook(
         () =>
-          useApiQuery(
-            'projectView',
-            { path: { project: 'nonexistent' } },
-            { throwOnError: false } // <----- the point
+          useQuery(
+            apiq(
+              'projectView',
+              { path: { project: 'nonexistent' } },
+              { throwOnError: false }
+            )
           ),
         config
       )
