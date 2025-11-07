@@ -174,7 +174,9 @@ const staticCols = [
     header: 'Transit IPs',
     cell: (info) => (
       <ListPlusCell tooltipTitle="Other transit IPs">
-        {info.getValue()?.map((ip) => <div key={ip}>{ip}</div>)}
+        {info.getValue()?.map((ip) => (
+          <div key={ip}>{ip}</div>
+        ))}
       </ListPlusCell>
     ),
   }),

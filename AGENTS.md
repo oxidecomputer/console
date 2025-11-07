@@ -44,7 +44,6 @@
 - Gate per-resource actions with capability helpers: `instanceCan.start(instance)`, `diskCan.delete(disk)`, etc. (`app/api/util.ts:91-207`)—these return booleans and have `.states` properties listing valid states. Always use these instead of inline state checks; they centralize business logic and link to Omicron source explaining restrictions.
 - Pass `disabledReason` prop (accepts ReactNode) when disabling buttons so the UI explains why the action is unavailable.
 
-
 # Upgrading pinned omicron version
 
 1. Update commit hash in `OMICRON_VERSION`.

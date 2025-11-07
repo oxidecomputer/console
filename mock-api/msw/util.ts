@@ -9,7 +9,6 @@ import { differenceInSeconds, subHours } from 'date-fns'
 // Works without the .js for dev server and prod build in MSW mode, but
 // playwright wants the .js. No idea why, let's just add the .js.
 import { IPv4, IPv6 } from 'ip-num/IPNumber.js'
-import { getMockOxqlInstanceData } from 'mock-api/oxql-metrics'
 
 import {
   FLEET_ID,
@@ -34,6 +33,7 @@ import { GiB, TiB } from '~/util/units'
 
 import type { DbRoleAssignmentResourceType } from '..'
 import { genI64Data } from '../metrics'
+import { getMockOxqlInstanceData } from '../oxql-metrics'
 import { db } from './db'
 import { Rando } from './rando'
 

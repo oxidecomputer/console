@@ -28,8 +28,8 @@ import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ALL_ISH } from '~/util/consts'
+import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
-import { pb } from 'app/util/path-builder'
 
 const floatingIpView = ({ project, floatingIp }: PP.FloatingIp) =>
   apiq('floatingIpView', { path: { floatingIp }, query: { project } })

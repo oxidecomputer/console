@@ -3,7 +3,6 @@
   "compilerOptions": {
     "allowUnreachableCode": false,
     "allowImportingTsExtensions": true,
-    "baseUrl": ".",
     "esModuleInterop": true,
     "importHelpers": true,
     "incremental": true,
@@ -16,9 +15,9 @@
     "noUnusedParameters": true,
     "outDir": "dist",
     "paths": {
-      "~/*": ["app/*"],
-      "@oxide/api": ["app/api/index.ts"],
-      "@oxide/api-mocks": ["mock-api/index.ts"]
+      "~/*": ["./app/*"],
+      "@oxide/api": ["./app/api/index.ts"],
+      "@oxide/api-mocks": ["./mock-api/index.ts"]
     },
     "resolveJsonModule": true,
     "rootDir": ".",
