@@ -5,13 +5,14 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { filesize } from 'filesize'
 import { useMemo } from 'react'
 import { useController, useForm, type Control } from 'react-hook-form'
 
 import {
+  apiq,
   useApiMutation,
-  useApiQuery,
   useApiQueryClient,
   type BlockSize,
   type Disk,
@@ -82,8 +83,8 @@ export function CreateDiskSideModalForm({
 
   const form = useForm({ defaultValues })
   const { project } = useProjectSelector()
-  const projectImages = useApiQuery('imageList', { query: { project } })
-  const siloImages = useApiQuery('imageList', {})
+  const projectImages = useQuery(apiq('imageList', { query: { project } }))
+  const siloImages = useQuery(apiq('imageList', {}))
 
   // put project images first because if there are any, there probably aren't
   // very many and they're probably relevant
@@ -93,7 +94,7 @@ export function CreateDiskSideModalForm({
   )
   const areImagesLoading = projectImages.isPending || siloImages.isPending
 
-  const snapshotsQuery = useApiQuery('snapshotList', { query: { project } })
+  const snapshotsQuery = useQuery(apiq('snapshotList', { query: { project } }))
   const snapshots = snapshotsQuery.data?.items || []
 
   // validate disk source size
@@ -235,11 +236,8 @@ const DiskSourceField = ({
 }
 
 const DiskNameFromId = ({ disk }: { disk: string }) => {
-  const { data, isPending, isError } = useApiQuery(
-    'diskView',
-    { path: { disk } },
-    // this can 404 if the source disk has been deleted, and that's fine
-    { throwOnError: false }
+  const { data, isPending, isError } = useQuery(
+    apiq('diskView', { path: { disk } }, { throwOnError: false })
   )
 
   if (isPending || isError) return null
@@ -248,7 +246,7 @@ const DiskNameFromId = ({ disk }: { disk: string }) => {
 
 const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
   const { project } = useProjectSelector()
-  const snapshotsQuery = useApiQuery('snapshotList', { query: { project } })
+  const snapshotsQuery = useQuery(apiq('snapshotList', { query: { project } }))
 
   const snapshots = snapshotsQuery.data?.items || []
   const diskSizeField = useController({ control, name: 'size' }).field

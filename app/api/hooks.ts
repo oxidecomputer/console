@@ -177,15 +177,6 @@ export const getListQueryOptionsFn =
     }
   }
 
-export const getUseApiQuery =
-  <A extends ApiClient>(api: A) =>
-  <M extends string & keyof A>(
-    method: M,
-    params: Params<A[M]>,
-    options: UseQueryOtherOptions<Result<A[M]>> = {}
-  ) =>
-    useQuery(getApiQueryOptions(api)(method, params, options))
-
 export const getUsePrefetchedApiQuery =
   <A extends ApiClient>(api: A) =>
   <M extends string & keyof A>(

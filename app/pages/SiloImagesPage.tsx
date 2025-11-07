@@ -5,16 +5,17 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Outlet } from 'react-router'
 
 import {
+  apiq,
   getListQFn,
   queryClient,
   useApiMutation,
-  useApiQuery,
   useApiQueryClient,
   type Image,
 } from '@oxide/api'
@@ -144,15 +145,17 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
     onSettled: onDismiss,
   })
 
-  const projects = useApiQuery('projectList', {})
+  const projects = useQuery(apiq('projectList', {}))
   const projectItems = useMemo(() => toComboboxItems(projects.data?.items), [projects.data])
   const selectedProject = form.watch('project')
 
   // can only fetch images if a project is selected
-  const images = useApiQuery(
-    'imageList',
-    { query: { project: selectedProject! } },
-    { enabled: !!selectedProject }
+  const images = useQuery(
+    apiq(
+      'imageList',
+      { query: { project: selectedProject! } },
+      { enabled: !!selectedProject }
+    )
   )
   const imageItems = useMemo(
     () => (images.data?.items || []).map((i) => toImageComboboxItem(i)),
@@ -239,7 +242,7 @@ const DemoteImageModal = ({
     onSettled: onDismiss,
   })
 
-  const projects = useApiQuery('projectList', {})
+  const projects = useQuery(apiq('projectList', {}))
   const projectItems = useMemo(() => toComboboxItems(projects.data?.items), [projects.data])
 
   return (

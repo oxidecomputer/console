@@ -5,15 +5,16 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { filesize } from 'filesize'
 import { useId, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
+  apiq,
   apiQueryClient,
   useApiMutation,
-  useApiQuery,
   usePrefetchedApiQuery,
   type Instance,
   type InstanceNetworkInterface,
@@ -168,10 +169,8 @@ export default function InstancePage() {
   // a little funny, as noted in the loader -- this should always be prefetched
   // when primaryVpcId is defined, but primaryVpcId might not be defined, so
   // we can't use usePrefetchedApiQuery
-  const { data: vpc } = useApiQuery(
-    'vpcView',
-    { path: { vpc: primaryVpcId! } },
-    { enabled: !!primaryVpcId }
+  const { data: vpc } = useQuery(
+    apiq('vpcView', { path: { vpc: primaryVpcId! } }, { enabled: !!primaryVpcId })
   )
 
   const memory = filesize(instance.memory, { output: 'object', base: 2 })

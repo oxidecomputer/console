@@ -5,14 +5,15 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
 import {
+  apiq,
   diskCan,
   useApiMutation,
-  useApiQuery,
   useApiQueryClient,
   type SnapshotCreate,
 } from '@oxide/api'
@@ -31,9 +32,7 @@ import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
 const useSnapshotDiskItems = ({ project }: PP.Project) => {
-  const { data: disks } = useApiQuery('diskList', {
-    query: { project, limit: ALL_ISH },
-  })
+  const { data: disks } = useQuery(apiq('diskList', { query: { project, limit: ALL_ISH } }))
   return disks?.items.filter(diskCan.snapshot)
 }
 

@@ -5,11 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import type { SetNonNullable, SetRequired } from 'type-fest'
 
-import { useApiQuery, type ApiError, type InstanceNetworkInterfaceCreate } from '@oxide/api'
+import { apiq, type ApiError, type InstanceNetworkInterfaceCreate } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
@@ -47,7 +48,7 @@ export function CreateNetworkInterfaceForm({
 }: CreateNetworkInterfaceFormProps) {
   const projectSelector = useProjectSelector()
 
-  const { data: vpcsData } = useApiQuery('vpcList', { query: projectSelector })
+  const { data: vpcsData } = useQuery(apiq('vpcList', { query: projectSelector }))
   const vpcs = useMemo(() => vpcsData?.items || [], [vpcsData])
 
   const form = useForm({ defaultValues })

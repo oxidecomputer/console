@@ -6,16 +6,17 @@
  * Copyright Oxide Computer Company
  */
 
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet, useNavigate } from 'react-router'
 
 import {
+  apiq,
   apiQueryClient,
   getListQFn,
   queryClient,
   useApiMutation,
-  useApiQuery,
   type IpPool,
 } from '@oxide/api'
 import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
@@ -50,7 +51,7 @@ const EmptyState = () => (
 )
 
 function UtilizationCell({ pool }: { pool: string }) {
-  const { data } = useApiQuery('ipPoolUtilizationView', { path: { pool } })
+  const { data } = useQuery(apiq('ipPoolUtilizationView', { path: { pool } }))
   if (!data) return <SkeletonCell />
   return (
     <div>

@@ -6,16 +6,12 @@
  * Copyright Oxide Computer Company
  */
 import * as Accordion from '@radix-ui/react-accordion'
+import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import {
-  useApiMutation,
-  useApiQuery,
-  useApiQueryClient,
-  type FloatingIpCreate,
-} from '@oxide/api'
+import { apiq, useApiMutation, useApiQueryClient, type FloatingIpCreate } from '@oxide/api'
 
 import { AccordionItem } from '~/components/AccordionItem'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -42,7 +38,9 @@ export const handle = titleCrumb('New Floating IP')
 export default function CreateFloatingIpSideModalForm() {
   // Fetch 1000 to we can be sure to get them all. Don't bother prefetching
   // because the list is hidden under the Advanced accordion.
-  const { data: allPools } = useApiQuery('projectIpPoolList', { query: { limit: ALL_ISH } })
+  const { data: allPools } = useQuery(
+    apiq('projectIpPoolList', { query: { limit: ALL_ISH } })
+  )
 
   const queryClient = useApiQueryClient()
   const projectSelector = useProjectSelector()
