@@ -12,6 +12,7 @@ import { type LoaderFunctionArgs } from 'react-router'
 import type { SetNonNullable } from 'type-fest'
 
 import {
+  api,
   apiq,
   queryClient,
   useApiMutation,
@@ -28,21 +29,23 @@ import { Message } from '~/ui/lib/Message'
 import { Table } from '~/ui/lib/Table'
 import { classed } from '~/util/classed'
 import { links } from '~/util/links'
+import type * as PP from '~/util/path-params'
 import { bytesToGiB, GiB } from '~/util/units'
 
 const Unit = classed.span`ml-1 text-secondary`
 
+const siloUtil = ({ silo }: PP.Silo) =>
+  apiq(api.methods.siloUtilizationView, { path: { silo } })
+
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { silo } = getSiloSelector(params)
-  await queryClient.prefetchQuery(apiq('siloUtilizationView', { path: { silo } }))
+  await queryClient.prefetchQuery(siloUtil({ silo }))
   return null
 }
 
 export default function SiloQuotasTab() {
   const { silo } = useSiloSelector()
-  const { data: utilization } = usePrefetchedQuery(
-    apiq('siloUtilizationView', { path: { silo } })
-  )
+  const { data: utilization } = usePrefetchedQuery(siloUtil({ silo }))
 
   const { allocated: quotas, provisioned } = utilization
 
@@ -102,11 +105,7 @@ export const handle = makeCrumb('Quotas')
 
 function EditQuotasForm({ onDismiss }: { onDismiss: () => void }) {
   const { silo } = useSiloSelector()
-  const { data: utilization } = usePrefetchedQuery(
-    apiq('siloUtilizationView', {
-      path: { silo: silo },
-    })
-  )
+  const { data: utilization } = usePrefetchedQuery(siloUtil({ silo }))
   const quotas = utilization.allocated
 
   // required because we need to rule out undefined because NumberField hates that
@@ -118,7 +117,7 @@ function EditQuotasForm({ onDismiss }: { onDismiss: () => void }) {
 
   const form = useForm({ defaultValues })
 
-  const updateQuotas = useApiMutation('siloQuotasUpdate', {
+  const updateQuotas = useApiMutation(api.methods.siloQuotasUpdate, {
     onSuccess() {
       queryClient.invalidateEndpoint('siloUtilizationView')
       addToast({ content: 'Quotas updated' })
