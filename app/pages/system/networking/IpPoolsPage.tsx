@@ -11,7 +11,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet, useNavigate } from 'react-router'
 
-import { apiq, getListQFn, queryClient, useApiMutation, type IpPool } from '@oxide/api'
+import { api, apiq, getListQFn, queryClient, useApiMutation, type IpPool } from '@oxide/api'
 import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
@@ -44,7 +44,7 @@ const EmptyState = () => (
 )
 
 function UtilizationCell({ pool }: { pool: string }) {
-  const { data } = useQuery(apiq('ipPoolUtilizationView', { path: { pool } }))
+  const { data } = useQuery(apiq(api.methods.ipPoolUtilizationView, { path: { pool } }))
   if (!data) return <SkeletonCell />
   return (
     <div>
@@ -71,7 +71,7 @@ const staticColumns = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-const ipPoolList = getListQFn('ipPoolList', {})
+const ipPoolList = getListQFn(api.methods.ipPoolList, {})
 
 export async function clientLoader() {
   await queryClient.prefetchQuery(ipPoolList.optionsFn())
@@ -83,7 +83,7 @@ export const handle = { crumb: 'IP Pools' }
 export default function IpPoolsPage() {
   const navigate = useNavigate()
 
-  const { mutateAsync: deletePool } = useApiMutation('ipPoolDelete', {
+  const { mutateAsync: deletePool } = useApiMutation(api.methods.ipPoolDelete, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('ipPoolList')
       addToast(<>Pool <HL>{variables.path.pool}</HL> deleted</>) // prettier-ignore
@@ -97,7 +97,7 @@ export default function IpPoolsPage() {
         onActivate: () => {
           // the edit view has its own loader, but we can make the modal open
           // instantaneously by preloading the fetch result
-          const ipPoolView = apiq('ipPoolView', { path: { pool: pool.name } })
+          const ipPoolView = apiq(api.methods.ipPoolView, { path: { pool: pool.name } })
           queryClient.setQueryData(ipPoolView.queryKey, pool)
           navigate(pb.ipPoolEdit({ pool: pool.name }))
         },

@@ -9,20 +9,22 @@
 import { useQueries } from '@tanstack/react-query'
 import * as R from 'remeda'
 
-import { getListQFn, usePrefetchedQuery } from '~/api'
+import { api, getListQFn, usePrefetchedQuery } from '~/api'
 import { ALL_ISH } from '~/util/consts'
 import type * as PP from '~/util/path-params'
 
 export const routerList = ({ project, vpc }: PP.Vpc) =>
-  getListQFn('vpcRouterList', { query: { project, vpc, limit: ALL_ISH } })
+  getListQFn(api.methods.vpcRouterList, { query: { project, vpc, limit: ALL_ISH } })
 export const routeList = ({ project, vpc, router }: PP.VpcRouter) =>
-  getListQFn('vpcRouterRouteList', { query: { project, vpc, router, limit: ALL_ISH } })
+  getListQFn(api.methods.vpcRouterRouteList, {
+    query: { project, vpc, router, limit: ALL_ISH },
+  })
 export const gatewayIpPoolList = ({ project, vpc, gateway }: PP.VpcInternetGateway) =>
-  getListQFn('internetGatewayIpPoolList', {
+  getListQFn(api.methods.internetGatewayIpPoolList, {
     query: { project, vpc, gateway, limit: ALL_ISH },
   })
 export const gatewayIpAddressList = ({ project, vpc, gateway }: PP.VpcInternetGateway) =>
-  getListQFn('internetGatewayIpAddressList', {
+  getListQFn(api.methods.internetGatewayIpAddressList, {
     query: { project, vpc, gateway, limit: ALL_ISH },
   })
 

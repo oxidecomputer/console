@@ -14,6 +14,7 @@ import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/r
 import { Badge } from '@oxide/design-system/ui'
 
 import {
+  api,
   apiq,
   getListQFn,
   queryClient,
@@ -47,9 +48,10 @@ import type * as PP from '~/util/path-params'
 export const handle = makeCrumb((p) => p.router!)
 
 const routerView = ({ project, vpc, router }: PP.VpcRouter) =>
-  apiq('vpcRouterView', { path: { router }, query: { vpc, project } })
+  apiq(api.methods.vpcRouterView, { path: { router }, query: { vpc, project } })
 
-const routeList = (query: PP.VpcRouter) => getListQFn('vpcRouterRouteList', { query })
+const routeList = (query: PP.VpcRouter) =>
+  getListQFn(api.methods.vpcRouterRouteList, { query })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const routerSelector = getVpcRouterSelector(params)
@@ -89,13 +91,16 @@ export default function RouterPage() {
   const { project, vpc, router } = useVpcRouterSelector()
   const { data: routerData } = usePrefetchedQuery(routerView({ project, vpc, router }))
 
-  const { mutateAsync: deleteRouterRoute } = useApiMutation('vpcRouterRouteDelete', {
-    onSuccess() {
-      queryClient.invalidateEndpoint('vpcRouterRouteList')
-      // We only have the ID, so will show a generic confirmation message
-      addToast({ content: 'Route deleted' })
-    },
-  })
+  const { mutateAsync: deleteRouterRoute } = useApiMutation(
+    api.methods.vpcRouterRouteDelete,
+    {
+      onSuccess() {
+        queryClient.invalidateEndpoint('vpcRouterRouteList')
+        // We only have the ID, so will show a generic confirmation message
+        addToast({ content: 'Route deleted' })
+      },
+    }
+  )
 
   const emptyState = (
     <EmptyMessage
@@ -133,7 +138,7 @@ export default function RouterPage() {
         onActivate: () => {
           // the edit view has its own loader, but we can make the modal open
           // instantaneously by preloading the fetch result
-          const { queryKey } = apiq('vpcRouterRouteView', {
+          const { queryKey } = apiq(api.methods.vpcRouterRouteView, {
             path: { route: routerRoute.name },
             query: { project, vpc, router },
           })

@@ -10,6 +10,7 @@ import { useCallback } from 'react'
 import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
 import {
+  api,
   apiq,
   diskCan,
   genName,
@@ -54,8 +55,8 @@ const EmptyState = () => (
 )
 
 const instanceList = ({ project }: PP.Project) =>
-  getListQFn('instanceList', { query: { project, limit: 200 } })
-const diskList = (query: PP.Project) => getListQFn('diskList', { query })
+  getListQFn(api.methods.instanceList, { query: { project, limit: 200 } })
+const diskList = (query: PP.Project) => getListQFn(api.methods.diskList, { query })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
@@ -67,7 +68,9 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     // fetching individually if we don't fetch them all here
     queryClient.fetchQuery(instanceList({ project }).optionsFn()).then((instances) => {
       for (const instance of instances.items) {
-        const { queryKey } = apiq('instanceView', { path: { instance: instance.id } })
+        const { queryKey } = apiq(api.methods.instanceView, {
+          path: { instance: instance.id },
+        })
         queryClient.setQueryData(queryKey, instance)
       }
     }),
@@ -99,14 +102,14 @@ const staticCols = [
 export default function DisksPage() {
   const { project } = useProjectSelector()
 
-  const { mutateAsync: deleteDisk } = useApiMutation('diskDelete', {
+  const { mutateAsync: deleteDisk } = useApiMutation(api.methods.diskDelete, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('diskList')
       addToast(<>Disk <HL>{variables.path.disk}</HL> deleted</>) // prettier-ignore
     },
   })
 
-  const { mutate: createSnapshot } = useApiMutation('snapshotCreate', {
+  const { mutate: createSnapshot } = useApiMutation(api.methods.snapshotCreate, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('snapshotList')
       addToast(<>Snapshot <HL>{variables.body.name}</HL> created</>) // prettier-ignore

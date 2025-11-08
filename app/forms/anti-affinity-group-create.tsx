@@ -8,7 +8,7 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import { queryClient, useApiMutation, type AntiAffinityGroupCreate } from '@oxide/api'
+import { api, queryClient, useApiMutation, type AntiAffinityGroupCreate } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -35,7 +35,7 @@ export default function CreateAntiAffinityGroupForm() {
 
   const navigate = useNavigate()
 
-  const createAntiAffinityGroup = useApiMutation('antiAffinityGroupCreate', {
+  const createAntiAffinityGroup = useApiMutation(api.methods.antiAffinityGroupCreate, {
     onSuccess(antiAffinityGroup) {
       queryClient.invalidateEndpoint('antiAffinityGroupList')
       navigate(pb.antiAffinityGroup({ project, antiAffinityGroup: antiAffinityGroup.name }))

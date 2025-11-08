@@ -8,7 +8,7 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
-import { apiq, queryClient, useApiMutation } from '@oxide/api'
+import { api, apiq, queryClient, useApiMutation } from '@oxide/api'
 
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
@@ -32,11 +32,13 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcRouterSelector(params)
   await Promise.all([
     queryClient.prefetchQuery(
-      apiq('vpcSubnetList', { query: { project, vpc, limit: ALL_ISH } })
+      apiq(api.methods.vpcSubnetList, { query: { project, vpc, limit: ALL_ISH } })
     ),
-    queryClient.prefetchQuery(apiq('instanceList', { query: { project, limit: ALL_ISH } })),
     queryClient.prefetchQuery(
-      apiq('internetGatewayList', { query: { project, vpc, limit: ALL_ISH } })
+      apiq(api.methods.instanceList, { query: { project, limit: ALL_ISH } })
+    ),
+    queryClient.prefetchQuery(
+      apiq(api.methods.internetGatewayList, { query: { project, vpc, limit: ALL_ISH } })
     ),
   ])
   return null
@@ -48,7 +50,7 @@ export default function CreateRouterRouteSideModalForm() {
 
   const form = useForm({ defaultValues })
 
-  const createRouterRoute = useApiMutation('vpcRouterRouteCreate', {
+  const createRouterRoute = useApiMutation(api.methods.vpcRouterRouteCreate, {
     onSuccess(route) {
       queryClient.invalidateEndpoint('vpcRouterRouteList')
       addToast(<>Route <HL>{route.name}</HL> created</>) // prettier-ignore

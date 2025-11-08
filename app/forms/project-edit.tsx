@@ -8,7 +8,7 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
-import { apiq, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
+import { api, apiq, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -20,7 +20,8 @@ import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
-const projectView = ({ project }: PP.Project) => apiq('projectView', { path: { project } })
+const projectView = ({ project }: PP.Project) =>
+  apiq(api.methods.projectView, { path: { project } })
 
 export const handle = titleCrumb('Edit project')
 
@@ -39,7 +40,7 @@ export default function EditProjectSideModalForm() {
 
   const { data: project } = usePrefetchedQuery(projectView(projectSelector))
 
-  const editProject = useApiMutation('projectUpdate', {
+  const editProject = useApiMutation(api.methods.projectUpdate, {
     onSuccess(project) {
       // refetch list of projects in sidebar
       queryClient.invalidateEndpoint('projectList')

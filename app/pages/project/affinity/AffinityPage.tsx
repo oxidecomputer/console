@@ -11,6 +11,7 @@ import { useCallback } from 'react'
 import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
 import {
+  api,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -81,7 +82,7 @@ export default function AffinityPage() {
     data: { items: antiAffinityGroups },
   } = usePrefetchedQuery(antiAffinityGroupList({ project }))
 
-  const { mutateAsync: deleteGroup } = useApiMutation('antiAffinityGroupDelete', {
+  const { mutateAsync: deleteGroup } = useApiMutation(api.methods.antiAffinityGroupDelete, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('antiAffinityGroupList')
       addToast(

@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/react-query'
 import { ErrorBoundary as BaseErrorBoundary } from 'react-error-boundary'
 import { useRouteError } from 'react-router'
 
-import { apiq } from '~/api'
+import { api, apiq } from '~/api'
 import { type ApiError } from '~/api/errors'
 import { Message } from '~/ui/lib/Message'
 import { links } from '~/util/links'
@@ -42,9 +42,9 @@ const IdpMisconfig = () => (
 function useDetectNoSiloRole(enabled: boolean): boolean {
   // this is kind of a hail mary, so if any of this goes wrong we need to ignore it
   const options = { enabled, throwOnError: false }
-  const { data: me } = useQuery(apiq('currentUserView', {}, options))
-  const { data: myGroups } = useQuery(apiq('currentUserGroups', {}, options))
-  const { data: siloPolicy } = useQuery(apiq('policyView', {}, options))
+  const { data: me } = useQuery(apiq(api.methods.currentUserView, {}, options))
+  const { data: myGroups } = useQuery(apiq(api.methods.currentUserGroups, {}, options))
+  const { data: siloPolicy } = useQuery(apiq(api.methods.policyView, {}, options))
 
   if (!me || !myGroups || !siloPolicy) return false
 

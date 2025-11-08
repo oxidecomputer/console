@@ -8,7 +8,7 @@
 
 import { Link, type LoaderFunctionArgs } from 'react-router'
 
-import { apiq, queryClient, usePrefetchedQuery } from '~/api'
+import { api, apiq, queryClient, usePrefetchedQuery } from '~/api'
 import { EquivalentCliCommand } from '~/components/CopyCode'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { buttonStyle } from '~/ui/lib/Button'
@@ -20,7 +20,7 @@ import { pb } from '~/util/path-builder'
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await queryClient.prefetchQuery(
-    apiq('instanceExternalIpList', {
+    apiq(api.methods.instanceExternalIpList, {
       path: { instance },
       query: { project },
     })
@@ -33,7 +33,7 @@ export const handle = { crumb: 'Connect' }
 export default function ConnectTab() {
   const { project, instance } = useInstanceSelector()
   const { data: externalIps } = usePrefetchedQuery(
-    apiq('instanceExternalIpList', {
+    apiq(api.methods.instanceExternalIpList, {
       path: { instance },
       query: { project },
     })

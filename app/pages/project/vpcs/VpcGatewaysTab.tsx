@@ -11,7 +11,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo } from 'react'
 import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
-import { apiq, getListQFn, queryClient, type InternetGateway } from '~/api'
+import { api, apiq, getListQFn, queryClient, type InternetGateway } from '~/api'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
@@ -36,8 +36,10 @@ import {
 export const handle = { crumb: 'Internet Gateways' }
 
 const gatewayList = ({ project, vpc }: PP.Vpc) =>
-  getListQFn('internetGatewayList', { query: { project, vpc, limit: ALL_ISH } })
-const projectIpPoolList = getListQFn('projectIpPoolList', { query: { limit: ALL_ISH } })
+  getListQFn(api.methods.internetGatewayList, { query: { project, vpc, limit: ALL_ISH } })
+const projectIpPoolList = getListQFn(api.methods.projectIpPoolList, {
+  query: { limit: ALL_ISH },
+})
 
 const IpAddressCell = (gatewaySelector: PP.VpcInternetGateway) => {
   const { data: addresses } = useQuery(gatewayIpAddressList(gatewaySelector).optionsFn())
@@ -81,7 +83,9 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     ),
     queryClient.fetchQuery(projectIpPoolList.optionsFn()).then((pools) => {
       for (const pool of pools.items) {
-        const { queryKey } = apiq('projectIpPoolView', { path: { pool: pool.id } })
+        const { queryKey } = apiq(api.methods.projectIpPoolView, {
+          path: { pool: pool.id },
+        })
         queryClient.setQueryData(queryKey, pool)
       }
     }),

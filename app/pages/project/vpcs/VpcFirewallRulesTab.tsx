@@ -11,6 +11,7 @@ import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 
 import {
+  api,
   apiq,
   queryClient,
   useApiMutation,
@@ -101,7 +102,7 @@ const staticColumns = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-const rulesView = (query: PP.Vpc) => apiq('vpcFirewallRulesView', { query })
+const rulesView = (query: PP.Vpc) => apiq(api.methods.vpcFirewallRulesView, { query })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcSelector(params)
@@ -118,7 +119,7 @@ export default function VpcFirewallRulesTab() {
 
   const navigate = useNavigate()
 
-  const { mutateAsync: updateRules } = useApiMutation('vpcFirewallRulesUpdate', {
+  const { mutateAsync: updateRules } = useApiMutation(api.methods.vpcFirewallRulesUpdate, {
     onSuccess() {
       queryClient.invalidateEndpoint('vpcFirewallRulesView')
     },

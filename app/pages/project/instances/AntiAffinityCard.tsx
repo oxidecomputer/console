@@ -12,6 +12,7 @@ import { useForm } from 'react-hook-form'
 import * as R from 'remeda'
 
 import {
+  api,
   apiq,
   instanceCan,
   queryClient,
@@ -45,7 +46,7 @@ import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
 export const instanceAntiAffinityGroups = ({ project, instance }: PP.Instance) =>
-  apiq('instanceAntiAffinityGroupList', {
+  apiq(api.methods.instanceAntiAffinityGroupList, {
     path: { instance },
     query: { project, limit: ALL_ISH },
   })
@@ -68,7 +69,7 @@ export function AntiAffinityCard() {
   )
   const { data: allGroups } = usePrefetchedQuery(antiAffinityGroupList(instanceSelector))
   const { data: instanceData } = usePrefetchedQuery(
-    apiq('instanceView', { path: { instance }, query: { project } })
+    apiq(api.methods.instanceView, { path: { instance }, query: { project } })
   )
 
   const nonMemberGroups = useMemo(
@@ -77,7 +78,7 @@ export function AntiAffinityCard() {
   )
 
   const { mutateAsync: removeMember } = useApiMutation(
-    'antiAffinityGroupMemberInstanceDelete',
+    api.methods.antiAffinityGroupMemberInstanceDelete,
     {
       onSuccess(_data, variables) {
         addToast(
@@ -203,26 +204,29 @@ export function AddToGroupModal({ onDismiss, nonMemberGroups }: ModalProps) {
   const form = useForm({ defaultValues: { group: '' } })
   const formId = useId()
 
-  const { mutateAsync: addMember } = useApiMutation('antiAffinityGroupMemberInstanceAdd', {
-    onSuccess(_data, variables) {
-      onDismiss()
-      queryClient.invalidateEndpoint('antiAffinityGroupMemberList')
-      queryClient.invalidateEndpoint('instanceAntiAffinityGroupList')
-      addToast(
-        <>
-          Instance <HL>{instance}</HL> added to anti-affinity group{' '}
-          <HL>{variables.path.antiAffinityGroup}</HL>
-        </>
-      )
-    },
-    onError(error) {
-      addToast({
-        title: 'Failed to add instance to group',
-        content: error.message,
-        variant: 'error',
-      })
-    },
-  })
+  const { mutateAsync: addMember } = useApiMutation(
+    api.methods.antiAffinityGroupMemberInstanceAdd,
+    {
+      onSuccess(_data, variables) {
+        onDismiss()
+        queryClient.invalidateEndpoint('antiAffinityGroupMemberList')
+        queryClient.invalidateEndpoint('instanceAntiAffinityGroupList')
+        addToast(
+          <>
+            Instance <HL>{instance}</HL> added to anti-affinity group{' '}
+            <HL>{variables.path.antiAffinityGroup}</HL>
+          </>
+        )
+      },
+      onError(error) {
+        addToast({
+          title: 'Failed to add instance to group',
+          content: error.message,
+          variant: 'error',
+        })
+      },
+    }
+  )
 
   const handleSubmit = form.handleSubmit(({ group }) => {
     addMember({

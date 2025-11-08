@@ -12,6 +12,7 @@ import { useForm } from 'react-hook-form'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
+  api,
   apiq,
   queryClient,
   useApiMutation,
@@ -60,15 +61,15 @@ import { GiB } from '~/util/units'
 import { useMakeInstanceActions } from './actions'
 
 const instanceView = ({ project, instance }: PP.Instance) =>
-  apiq('instanceView', { path: { instance }, query: { project } })
+  apiq(api.methods.instanceView, { path: { instance }, query: { project } })
 
 const instanceExternalIpList = ({ project, instance }: PP.Instance) =>
-  apiq('instanceExternalIpList', { path: { instance }, query: { project } })
+  apiq(api.methods.instanceExternalIpList, { path: { instance }, query: { project } })
 
 const instanceNetworkInterfaceList = (query: PP.Instance) =>
-  apiq('instanceNetworkInterfaceList', { query })
+  apiq(api.methods.instanceNetworkInterfaceList, { query })
 
-const vpcView = (vpc: string) => apiq('vpcView', { path: { vpc } })
+const vpcView = (vpc: string) => apiq(api.methods.vpcView, { path: { vpc } })
 
 function getPrimaryVpcId(nics: InstanceNetworkInterface[]) {
   const nic = nics.find((nic) => nic.primary)
@@ -278,7 +279,7 @@ export function ResizeInstanceModal({
   onListView?: boolean
 }) {
   const { project } = useProjectSelector()
-  const instanceUpdate = useApiMutation('instanceUpdate', {
+  const instanceUpdate = useApiMutation(api.methods.instanceUpdate, {
     onSuccess(_updatedInstance) {
       queryClient.invalidateEndpoint('instanceList')
       queryClient.invalidateEndpoint('instanceView')

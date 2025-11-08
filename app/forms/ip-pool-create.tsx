@@ -9,7 +9,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 import type { SetRequired } from 'type-fest'
 
-import { queryClient, useApiMutation, type IpPoolCreate } from '@oxide/api'
+import { api, queryClient, useApiMutation, type IpPoolCreate } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -41,7 +41,7 @@ export default function CreateIpPoolSideModalForm() {
 
   const onDismiss = () => navigate(pb.ipPools())
 
-  const createPool = useApiMutation('ipPoolCreate', {
+  const createPool = useApiMutation(api.methods.ipPoolCreate, {
     onSuccess(_pool) {
       queryClient.invalidateEndpoint('ipPoolList')
       addToast(<>IP pool <HL>{_pool.name}</HL> created</>) // prettier-ignore

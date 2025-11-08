@@ -10,6 +10,7 @@ import type { UseFormReturn } from 'react-hook-form'
 import type { SetNonNullable } from 'type-fest'
 
 import {
+  api,
   apiq,
   usePrefetchedQuery,
   type RouteDestination,
@@ -106,14 +107,18 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
   // usePrefetchedQuery items below are initially fetched in the loaders in vpc-router-route-create and -edit
   const {
     data: { items: vpcSubnets },
-  } = usePrefetchedQuery(apiq('vpcSubnetList', { query: { project, vpc, limit: ALL_ISH } }))
+  } = usePrefetchedQuery(
+    apiq(api.methods.vpcSubnetList, { query: { project, vpc, limit: ALL_ISH } })
+  )
   const {
     data: { items: instances },
-  } = usePrefetchedQuery(apiq('instanceList', { query: { project, limit: ALL_ISH } }))
+  } = usePrefetchedQuery(
+    apiq(api.methods.instanceList, { query: { project, limit: ALL_ISH } })
+  )
   const {
     data: { items: internetGateways },
   } = usePrefetchedQuery(
-    apiq('internetGatewayList', {
+    apiq(api.methods.internetGatewayList, {
       query: { project, vpc, limit: ALL_ISH },
     })
   )

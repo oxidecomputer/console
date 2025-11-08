@@ -10,7 +10,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router'
 import * as R from 'remeda'
 
-import { apiq, type ExternalIp } from '@oxide/api'
+import { api, apiq, type ExternalIp } from '@oxide/api'
 
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
@@ -25,7 +25,7 @@ export const orderIps = (ips: ExternalIp[]) => R.sortBy(ips, (a) => IP_ORDER[a.k
 
 export function ExternalIps({ project, instance }: PP.Instance) {
   const { data, isPending } = useQuery(
-    apiq('instanceExternalIpList', { path: { instance }, query: { project } })
+    apiq(api.methods.instanceExternalIpList, { path: { instance }, query: { project } })
   )
   if (isPending) return <SkeletonCell />
 

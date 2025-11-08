@@ -9,7 +9,7 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate, useSearchParams } from 'react-router'
 
-import { useApiMutation, type UsernamePasswordCredentials } from '@oxide/api'
+import { api, useApiMutation, type UsernamePasswordCredentials } from '@oxide/api'
 
 import { TextFieldInner } from '~/components/form/fields/TextField'
 import { useSiloSelector } from '~/hooks/use-params'
@@ -31,7 +31,7 @@ export default function LoginPage() {
 
   const form = useForm({ defaultValues })
 
-  const loginPost = useApiMutation('loginLocal')
+  const loginPost = useApiMutation(api.methods.loginLocal)
 
   useEffect(() => {
     if (loginPost.isSuccess) {

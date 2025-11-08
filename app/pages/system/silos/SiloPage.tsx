@@ -9,7 +9,7 @@ import { type LoaderFunctionArgs } from 'react-router'
 
 import { Cloud16Icon, Cloud24Icon } from '@oxide/design-system/icons/react'
 
-import { apiq, queryClient, usePrefetchedQuery } from '~/api'
+import { api, apiq, queryClient, usePrefetchedQuery } from '~/api'
 import { DocsPopover } from '~/components/DocsPopover'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { makeCrumb } from '~/hooks/use-crumbs'
@@ -21,7 +21,7 @@ import { pb } from '~/util/path-builder'
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { silo } = getSiloSelector(params)
-  await queryClient.prefetchQuery(apiq('siloView', { path: { silo } }))
+  await queryClient.prefetchQuery(apiq(api.methods.siloView, { path: { silo } }))
   return null
 }
 
@@ -33,7 +33,9 @@ export const handle = makeCrumb(
 export default function SiloPage() {
   const siloSelector = useSiloSelector()
 
-  const { data: silo } = usePrefetchedQuery(apiq('siloView', { path: siloSelector }))
+  const { data: silo } = usePrefetchedQuery(
+    apiq(api.methods.siloView, { path: siloSelector })
+  )
 
   return (
     <>

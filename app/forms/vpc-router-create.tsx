@@ -8,7 +8,7 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import { queryClient, useApiMutation, type VpcRouterCreate } from '@oxide/api'
+import { api, queryClient, useApiMutation, type VpcRouterCreate } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -32,7 +32,7 @@ export default function RouterCreate() {
 
   const onDismiss = () => navigate(pb.vpcRouters(vpcSelector))
 
-  const createRouter = useApiMutation('vpcRouterCreate', {
+  const createRouter = useApiMutation(api.methods.vpcRouterCreate, {
     onSuccess(router) {
       queryClient.invalidateEndpoint('vpcRouterList')
       addToast(<>Router <HL>{router.name}</HL> created</>) // prettier-ignore

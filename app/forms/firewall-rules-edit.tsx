@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
+  api,
   apiq,
   firewallRuleGetToPut,
   queryClient,
@@ -39,11 +40,17 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc, rule } = getFirewallRuleSelector(params)
 
   const [firewallRules] = await Promise.all([
-    queryClient.fetchQuery(apiq('vpcFirewallRulesView', { query: { project, vpc } })),
-    queryClient.prefetchQuery(apiq('instanceList', { query: { project, limit: ALL_ISH } })),
-    queryClient.prefetchQuery(apiq('vpcList', { query: { project, limit: ALL_ISH } })),
+    queryClient.fetchQuery(
+      apiq(api.methods.vpcFirewallRulesView, { query: { project, vpc } })
+    ),
     queryClient.prefetchQuery(
-      apiq('vpcSubnetList', { query: { project, vpc, limit: ALL_ISH } })
+      apiq(api.methods.instanceList, { query: { project, limit: ALL_ISH } })
+    ),
+    queryClient.prefetchQuery(
+      apiq(api.methods.vpcList, { query: { project, limit: ALL_ISH } })
+    ),
+    queryClient.prefetchQuery(
+      apiq(api.methods.vpcSubnetList, { query: { project, vpc, limit: ALL_ISH } })
     ),
   ])
 
@@ -58,7 +65,7 @@ export default function EditFirewallRuleForm() {
   const vpcSelector = useVpcSelector()
 
   const { data: firewallRules } = usePrefetchedQuery(
-    apiq('vpcFirewallRulesView', { query: { project, vpc } })
+    apiq(api.methods.vpcFirewallRulesView, { query: { project, vpc } })
   )
 
   const originalRule = firewallRules.rules.find((r) => r.name === rule)
@@ -69,7 +76,7 @@ export default function EditFirewallRuleForm() {
   const navigate = useNavigate()
   const onDismiss = () => navigate(pb.vpcFirewallRules(vpcSelector))
 
-  const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
+  const updateRules = useApiMutation(api.methods.vpcFirewallRulesUpdate, {
     onSuccess(_updatedRules, { body }) {
       // Nav before the invalidate because I once saw the above invariant fail
       // briefly after successful edit (error page flashed but then we land

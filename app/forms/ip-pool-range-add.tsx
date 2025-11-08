@@ -8,7 +8,7 @@
 import { useForm, type FieldErrors } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import { queryClient, useApiMutation, type IpRange } from '@oxide/api'
+import { api, queryClient, useApiMutation, type IpRange } from '@oxide/api'
 
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
@@ -68,7 +68,7 @@ export default function IpPoolAddRange() {
 
   const onDismiss = () => navigate(pb.ipPool({ pool }))
 
-  const addRange = useApiMutation('ipPoolRangeAdd', {
+  const addRange = useApiMutation(api.methods.ipPoolRangeAdd, {
     onSuccess(_range) {
       // refetch list of projects in sidebar
       queryClient.invalidateEndpoint('ipPoolRangeList')

@@ -9,7 +9,14 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
-import { apiq, getListQFn, queryClient, useApiMutation, type VpcRouter } from '@oxide/api'
+import {
+  api,
+  apiq,
+  getListQFn,
+  queryClient,
+  useApiMutation,
+  type VpcRouter,
+} from '@oxide/api'
 
 import { HL } from '~/components/HL'
 import { routeFormMessage } from '~/forms/vpc-router-route-common'
@@ -27,7 +34,7 @@ import type * as PP from '~/util/path-params'
 
 const colHelper = createColumnHelper<VpcRouter>()
 
-const vpcRouterList = (query: PP.Vpc) => getListQFn('vpcRouterList', { query })
+const vpcRouterList = (query: PP.Vpc) => getListQFn(api.methods.vpcRouterList, { query })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcSelector(params)
@@ -62,7 +69,7 @@ export default function VpcRoutersTab() {
     [vpcSelector]
   )
 
-  const { mutateAsync: deleteRouter } = useApiMutation('vpcRouterDelete', {
+  const { mutateAsync: deleteRouter } = useApiMutation(api.methods.vpcRouterDelete, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('vpcRouterList')
       addToast(<>Router <HL>{variables.path.router}</HL> deleted</>) // prettier-ignore
@@ -76,7 +83,9 @@ export default function VpcRoutersTab() {
         onActivate: () => {
           // the edit view has its own loader, but we can make the modal open
           // instantaneously by preloading the fetch result
-          const { queryKey } = apiq('vpcRouterView', { path: { router: router.name } })
+          const { queryKey } = apiq(api.methods.vpcRouterView, {
+            path: { router: router.name },
+          })
           queryClient.setQueryData(queryKey, router)
           navigate(pb.vpcRouterEdit({ project, vpc, router: router.name }))
         },

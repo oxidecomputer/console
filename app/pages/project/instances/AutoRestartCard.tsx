@@ -12,6 +12,7 @@ import { useForm } from 'react-hook-form'
 import { match } from 'ts-pattern'
 
 import {
+  api,
   apiq,
   instanceAutoRestartingSoon,
   queryClient,
@@ -44,13 +45,13 @@ export function AutoRestartCard() {
   const instanceSelector = useInstanceSelector()
 
   const { data: instance } = usePrefetchedQuery(
-    apiq('instanceView', {
+    apiq(api.methods.instanceView, {
       path: { instance: instanceSelector.instance },
       query: { project: instanceSelector.project },
     })
   )
 
-  const instanceUpdate = useApiMutation('instanceUpdate', {
+  const instanceUpdate = useApiMutation(api.methods.instanceUpdate, {
     onSuccess() {
       queryClient.invalidateEndpoint('instanceView')
       addToast({ content: 'Instance auto-restart policy updated' })

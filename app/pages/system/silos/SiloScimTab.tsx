@@ -16,6 +16,7 @@ import { AccessToken24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
 import {
+  api,
   apiqErrorsAllowed,
   queryClient,
   useApiMutation,
@@ -73,7 +74,9 @@ const EmptyState = () => (
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { silo } = getSiloSelector(params)
   // Use errors-allowed approach so 403s don't throw and break the loader
-  await queryClient.prefetchQuery(apiqErrorsAllowed('scimTokenList', { query: { silo } }))
+  await queryClient.prefetchQuery(
+    apiqErrorsAllowed(api.methods.scimTokenList, { query: { silo } })
+  )
   return null
 }
 
@@ -85,7 +88,7 @@ type ModalState =
 export default function SiloScimTab() {
   const siloSelector = useSiloSelector()
   const { data: tokensResult } = usePrefetchedQuery(
-    apiqErrorsAllowed('scimTokenList', { query: siloSelector })
+    apiqErrorsAllowed(api.methods.scimTokenList, { query: siloSelector })
   )
 
   const [modalState, setModalState] = useState<ModalState>(false)
@@ -145,7 +148,7 @@ export default function SiloScimTab() {
 
 function TokensTable({ tokens }: { tokens: ScimClientBearerToken[] }) {
   const siloSelector = useSiloSelector()
-  const deleteToken = useApiMutation('scimTokenDelete', {
+  const deleteToken = useApiMutation(api.methods.scimTokenDelete, {
     onSuccess() {
       queryClient.invalidateEndpoint('scimTokenList')
     },
@@ -193,7 +196,7 @@ function CreateTokenModal({
   onDismiss: () => void
   onSuccess: (token: ScimClientBearerTokenValue) => void
 }) {
-  const createToken = useApiMutation('scimTokenCreate', {
+  const createToken = useApiMutation(api.methods.scimTokenCreate, {
     onSuccess(token) {
       queryClient.invalidateEndpoint('scimTokenList')
       onSuccess(token)

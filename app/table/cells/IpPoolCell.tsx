@@ -7,14 +7,14 @@
  */
 import { useQuery } from '@tanstack/react-query'
 
-import { apiqErrorsAllowed } from '~/api'
+import { api, apiqErrorsAllowed } from '~/api'
 import { Tooltip } from '~/ui/lib/Tooltip'
 
 import { EmptyCell, SkeletonCell } from './EmptyCell'
 
 export const IpPoolCell = ({ ipPoolId }: { ipPoolId: string }) => {
   const { data: result } = useQuery(
-    apiqErrorsAllowed('projectIpPoolView', { path: { pool: ipPoolId } })
+    apiqErrorsAllowed(api.methods.projectIpPoolView, { path: { pool: ipPoolId } })
   )
   if (!result) return <SkeletonCell />
   // this should essentially never happen, but it's probably better than blowing

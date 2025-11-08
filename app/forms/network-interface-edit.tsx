@@ -10,6 +10,7 @@ import { useForm } from 'react-hook-form'
 import * as R from 'remeda'
 
 import {
+  api,
   queryClient,
   useApiMutation,
   type InstanceNetworkInterface,
@@ -42,7 +43,7 @@ export function EditNetworkInterfaceForm({
 }: EditNetworkInterfaceFormProps) {
   const instanceSelector = useInstanceSelector()
 
-  const editNetworkInterface = useApiMutation('instanceNetworkInterfaceUpdate', {
+  const editNetworkInterface = useApiMutation(api.methods.instanceNetworkInterfaceUpdate, {
     onSuccess(nic) {
       queryClient.invalidateEndpoint('instanceNetworkInterfaceList')
       addToast(<>Network interface <HL>{nic.name}</HL> updated</>) // prettier-ignore

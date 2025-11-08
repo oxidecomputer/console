@@ -7,7 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 
-import { getListQFn, queryClient, type Sled } from '@oxide/api'
+import { api, getListQFn, queryClient, type Sled } from '@oxide/api'
 import { Servers24Icon } from '@oxide/design-system/icons/react'
 
 import { makeLinkCell } from '~/table/cells/LinkCell'
@@ -17,7 +17,7 @@ import { pb } from '~/util/path-builder'
 
 import { ProvisionPolicyBadge, SledKindBadge, SledStateBadge } from './sled/SledBadges'
 
-const sledList = getListQFn('sledList', {})
+const sledList = getListQFn(api.methods.sledList, {})
 
 export async function clientLoader() {
   await queryClient.fetchQuery(sledList.optionsFn())

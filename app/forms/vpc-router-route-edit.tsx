@@ -9,7 +9,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 
-import { apiq, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
+import { api, apiq, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
 
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
@@ -30,14 +30,19 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc, router, route } = getVpcRouterRouteSelector(params)
   await Promise.all([
     queryClient.prefetchQuery(
-      apiq('vpcRouterRouteView', { path: { route }, query: { project, vpc, router } })
+      apiq(api.methods.vpcRouterRouteView, {
+        path: { route },
+        query: { project, vpc, router },
+      })
     ),
     queryClient.prefetchQuery(
-      apiq('vpcSubnetList', { query: { project, vpc, limit: ALL_ISH } })
+      apiq(api.methods.vpcSubnetList, { query: { project, vpc, limit: ALL_ISH } })
     ),
-    queryClient.prefetchQuery(apiq('instanceList', { query: { project, limit: ALL_ISH } })),
     queryClient.prefetchQuery(
-      apiq('internetGatewayList', { query: { project, vpc, limit: ALL_ISH } })
+      apiq(api.methods.instanceList, { query: { project, limit: ALL_ISH } })
+    ),
+    queryClient.prefetchQuery(
+      apiq(api.methods.internetGatewayList, { query: { project, vpc, limit: ALL_ISH } })
     ),
   ])
   return null
@@ -47,7 +52,10 @@ export default function EditRouterRouteSideModalForm() {
   const { route: routeName, ...routerSelector } = useVpcRouterRouteSelector()
   const navigate = useNavigate()
   const { data: route } = usePrefetchedQuery(
-    apiq('vpcRouterRouteView', { path: { route: routeName }, query: routerSelector })
+    apiq(api.methods.vpcRouterRouteView, {
+      path: { route: routeName },
+      query: routerSelector,
+    })
   )
 
   const defaultValues: RouteFormValues = R.pick(route, [
@@ -59,7 +67,7 @@ export default function EditRouterRouteSideModalForm() {
   const form = useForm({ defaultValues })
   const disabled = route?.kind === 'vpc_subnet'
 
-  const updateRouterRoute = useApiMutation('vpcRouterRouteUpdate', {
+  const updateRouterRoute = useApiMutation(api.methods.vpcRouterRouteUpdate, {
     onSuccess(updatedRoute) {
       queryClient.invalidateEndpoint('vpcRouterRouteList')
       queryClient.invalidateEndpoint('vpcRouterRouteView')

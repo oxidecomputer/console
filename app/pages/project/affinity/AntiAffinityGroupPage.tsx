@@ -14,6 +14,7 @@ import { Affinity24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
 import {
+  api,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -96,7 +97,7 @@ export default function AntiAffinityPage() {
   )
 
   const { mutateAsync: removeMember } = useApiMutation(
-    'antiAffinityGroupMemberInstanceDelete',
+    api.methods.antiAffinityGroupMemberInstanceDelete,
     {
       onSuccess(_data, variables) {
         queryClient.invalidateEndpoint('antiAffinityGroupMemberList')
@@ -108,7 +109,7 @@ export default function AntiAffinityPage() {
 
   const navigate = useNavigate()
 
-  const { mutateAsync: deleteGroup } = useApiMutation('antiAffinityGroupDelete', {
+  const { mutateAsync: deleteGroup } = useApiMutation(api.methods.antiAffinityGroupDelete, {
     onSuccess() {
       navigate(pb.affinity({ project }))
       queryClient.invalidateEndpoint('antiAffinityGroupList')

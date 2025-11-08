@@ -9,7 +9,7 @@ import { getLocalTimeZone, now } from '@internationalized/date'
 import { useIsFetching } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 
-import { apiq, queryClient, usePrefetchedQuery } from '@oxide/api'
+import { api, apiq, queryClient, usePrefetchedQuery } from '@oxide/api'
 import { Metrics16Icon, Metrics24Icon } from '@oxide/design-system/icons/react'
 
 import { CapacityBars } from '~/components/CapacityBars'
@@ -26,8 +26,8 @@ import { bytesToGiB, bytesToTiB } from '~/util/units'
 
 const toListboxItem = (x: { name: string; id: string }) => ({ label: x.name, value: x.id })
 
-const projectList = apiq('projectList', {})
-const utilizationView = apiq('utilizationView', {})
+const projectList = apiq(api.methods.projectList, {})
+const utilizationView = apiq(api.methods.utilizationView, {})
 
 export const handle = { crumb: 'Utilization' }
 

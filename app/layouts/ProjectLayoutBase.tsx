@@ -8,7 +8,7 @@
 import { useMemo, type ReactElement } from 'react'
 import { useLocation, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
-import { apiq, queryClient, usePrefetchedQuery } from '@oxide/api'
+import { api, apiq, queryClient, usePrefetchedQuery } from '@oxide/api'
 import {
   Access16Icon,
   Affinity16Icon,
@@ -44,7 +44,8 @@ type ProjectLayoutProps = {
   overrideContentPane?: ReactElement
 }
 
-const projectView = ({ project }: PP.Project) => apiq('projectView', { path: { project } })
+const projectView = ({ project }: PP.Project) =>
+  apiq(api.methods.projectView, { path: { project } })
 
 export async function projectLayoutLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)

@@ -8,7 +8,13 @@
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 
-import { getListQFn, queryClient, useApiMutation, type DeviceAccessToken } from '@oxide/api'
+import {
+  api,
+  getListQFn,
+  queryClient,
+  useApiMutation,
+  type DeviceAccessToken,
+} from '@oxide/api'
 import { AccessToken16Icon, AccessToken24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -26,7 +32,7 @@ import { TipIcon } from '~/ui/lib/TipIcon'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-const tokenList = () => getListQFn('currentUserAccessTokenList', {})
+const tokenList = () => getListQFn(api.methods.currentUserAccessTokenList, {})
 export const handle = makeCrumb('Access Tokens', pb.accessTokens)
 
 export async function clientLoader() {
@@ -37,12 +43,15 @@ export async function clientLoader() {
 const colHelper = createColumnHelper<DeviceAccessToken>()
 
 export default function AccessTokensPage() {
-  const { mutateAsync: deleteToken } = useApiMutation('currentUserAccessTokenDelete', {
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateEndpoint('currentUserAccessTokenList')
-      addToast(<>Access token <HL>{variables.path.tokenId}</HL> deleted</>) // prettier-ignore
-    },
-  })
+  const { mutateAsync: deleteToken } = useApiMutation(
+    api.methods.currentUserAccessTokenDelete,
+    {
+      onSuccess: (_data, variables) => {
+        queryClient.invalidateEndpoint('currentUserAccessTokenList')
+        addToast(<>Access token <HL>{variables.path.tokenId}</HL> deleted</>) // prettier-ignore
+      },
+    }
+  )
 
   const makeActions = useCallback(
     (token: DeviceAccessToken): MenuAction[] => [

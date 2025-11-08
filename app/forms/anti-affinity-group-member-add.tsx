@@ -9,7 +9,7 @@
 import { useId } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { instanceCan, queryClient, useApiMutation, type Instance } from '~/api'
+import { api, instanceCan, queryClient, useApiMutation, type Instance } from '~/api'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
 import { useAntiAffinityGroupSelector } from '~/hooks/use-params'
@@ -30,21 +30,24 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
   const form = useForm({ defaultValues })
   const formId = useId()
 
-  const { mutateAsync: addMember } = useApiMutation('antiAffinityGroupMemberInstanceAdd', {
-    onSuccess(_data, variables) {
-      onDismiss()
-      queryClient.invalidateEndpoint('antiAffinityGroupMemberList')
-      queryClient.invalidateEndpoint('instanceAntiAffinityGroupList')
-      addToast(<>Instance <HL>{variables.path.instance}</HL> added to anti-affinity group <HL>{antiAffinityGroup}</HL></>) // prettier-ignore
-    },
-    onError(error) {
-      addToast({
-        title: 'Failed to add instance to group',
-        content: error.message,
-        variant: 'error',
-      })
-    },
-  })
+  const { mutateAsync: addMember } = useApiMutation(
+    api.methods.antiAffinityGroupMemberInstanceAdd,
+    {
+      onSuccess(_data, variables) {
+        onDismiss()
+        queryClient.invalidateEndpoint('antiAffinityGroupMemberList')
+        queryClient.invalidateEndpoint('instanceAntiAffinityGroupList')
+        addToast(<>Instance <HL>{variables.path.instance}</HL> added to anti-affinity group <HL>{antiAffinityGroup}</HL></>) // prettier-ignore
+      },
+      onError(error) {
+        addToast({
+          title: 'Failed to add instance to group',
+          content: error.message,
+          variant: 'error',
+        })
+      },
+    }
+  )
 
   const onSubmit = form.handleSubmit(({ instance }) => {
     addMember({

@@ -47,7 +47,7 @@ const statusMessage: Record<WsState, string> = {
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await queryClient.prefetchQuery(
-    apiq('instanceView', { path: { instance }, query: { project } })
+    apiq(api.methods.instanceView, { path: { instance }, query: { project } })
   )
   return null
 }
@@ -57,7 +57,7 @@ function isStarting(i: Instance | undefined) {
 }
 
 const instanceView = ({ project, instance }: PP.Instance) =>
-  apiq('instanceView', { path: { instance }, query: { project } })
+  apiq(api.methods.instanceView, { path: { instance }, query: { project } })
 
 export const handle = { crumb: 'Serial Console' }
 

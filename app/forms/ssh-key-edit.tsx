@@ -8,7 +8,7 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
-import { apiq, queryClient, usePrefetchedQuery } from '@oxide/api'
+import { api, apiq, queryClient, usePrefetchedQuery } from '@oxide/api'
 import { Key16Icon } from '@oxide/design-system/icons/react'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -24,7 +24,7 @@ import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
 const sshKeyView = ({ sshKey }: PP.SshKey) =>
-  apiq('currentUserSshKeyView', { path: { sshKey } })
+  apiq(api.methods.currentUserSshKeyView, { path: { sshKey } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const selector = getSshKeySelector(params)

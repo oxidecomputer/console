@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate, useParams, type LoaderFunctionArgs } from 'react-router'
 
 import {
+  api,
   apiq,
   firewallRuleGetToPut,
   queryClient,
@@ -61,11 +62,17 @@ const ruleToValues = (rule: VpcFirewallRule): FirewallRuleValues => ({
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcSelector(params)
   await Promise.all([
-    queryClient.prefetchQuery(apiq('vpcFirewallRulesView', { query: { project, vpc } })),
-    queryClient.prefetchQuery(apiq('instanceList', { query: { project, limit: ALL_ISH } })),
-    queryClient.prefetchQuery(apiq('vpcList', { query: { project, limit: ALL_ISH } })),
     queryClient.prefetchQuery(
-      apiq('vpcSubnetList', { query: { project, vpc, limit: ALL_ISH } })
+      apiq(api.methods.vpcFirewallRulesView, { query: { project, vpc } })
+    ),
+    queryClient.prefetchQuery(
+      apiq(api.methods.instanceList, { query: { project, limit: ALL_ISH } })
+    ),
+    queryClient.prefetchQuery(
+      apiq(api.methods.vpcList, { query: { project, limit: ALL_ISH } })
+    ),
+    queryClient.prefetchQuery(
+      apiq(api.methods.vpcSubnetList, { query: { project, vpc, limit: ALL_ISH } })
     ),
   ])
 
@@ -78,7 +85,7 @@ export default function CreateFirewallRuleForm() {
   const navigate = useNavigate()
   const onDismiss = () => navigate(pb.vpcFirewallRules(vpcSelector))
 
-  const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
+  const updateRules = useApiMutation(api.methods.vpcFirewallRulesUpdate, {
     onSuccess(updatedRules) {
       const newRule = updatedRules.rules[updatedRules.rules.length - 1]
       queryClient.invalidateEndpoint('vpcFirewallRulesView')
@@ -87,7 +94,9 @@ export default function CreateFirewallRuleForm() {
     },
   })
 
-  const { data } = usePrefetchedQuery(apiq('vpcFirewallRulesView', { query: vpcSelector }))
+  const { data } = usePrefetchedQuery(
+    apiq(api.methods.vpcFirewallRulesView, { query: vpcSelector })
+  )
   const existingRules = data.rules
 
   // The :rule path param is optional. If it is present, we are creating a

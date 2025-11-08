@@ -7,7 +7,13 @@
  */
 import { useForm } from 'react-hook-form'
 
-import { queryClient, updateRole, useActorsNotInPolicy, useApiMutation } from '@oxide/api'
+import {
+  api,
+  queryClient,
+  updateRole,
+  useActorsNotInPolicy,
+  useApiMutation,
+} from '@oxide/api'
 import { Access16Icon } from '@oxide/design-system/icons/react'
 
 import { ListboxField } from '~/components/form/fields/ListboxField'
@@ -29,7 +35,7 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
 
   const actors = useActorsNotInPolicy(policy)
 
-  const updatePolicy = useApiMutation('projectPolicyUpdate', {
+  const updatePolicy = useApiMutation(api.methods.projectPolicyUpdate, {
     onSuccess: () => {
       queryClient.invalidateEndpoint('projectPolicyView')
       // We don't have the name of the user or group, so we'll just have a generic message
@@ -82,7 +88,7 @@ export function ProjectAccessEditUserSideModal({
 }: EditRoleModalProps) {
   const { project } = useProjectSelector()
 
-  const updatePolicy = useApiMutation('projectPolicyUpdate', {
+  const updatePolicy = useApiMutation(api.methods.projectPolicyUpdate, {
     onSuccess: () => {
       queryClient.invalidateEndpoint('projectPolicyView')
       addToast({ content: 'Role updated' })

@@ -8,7 +8,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 
-import { useApiMutation } from '@oxide/api'
+import { api, useApiMutation } from '@oxide/api'
 import { Warning12Icon } from '@oxide/design-system/icons/react'
 
 import { AuthCodeInput } from '~/ui/lib/AuthCodeInput'
@@ -23,7 +23,7 @@ const DASH_AFTER_IDXS = [3]
  */
 export default function DeviceAuthVerifyPage() {
   const navigate = useNavigate()
-  const confirmPost = useApiMutation('deviceAuthConfirm', {
+  const confirmPost = useApiMutation(api.methods.deviceAuthConfirm, {
     onSuccess: () => {
       navigate(pb.deviceSuccess())
     },

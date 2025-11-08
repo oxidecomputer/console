@@ -7,7 +7,7 @@
  */
 import { useCallback } from 'react'
 
-import { instanceCan, useApiMutation, type Instance } from '@oxide/api'
+import { api, instanceCan, useApiMutation, type Instance } from '@oxide/api'
 
 import { HL } from '~/components/HL'
 import { confirmAction } from '~/stores/confirm-action'
@@ -39,11 +39,17 @@ export const useMakeInstanceActions = (
   // while the whole useMutation result object is not. The async ones are used
   // when we need to confirm because the confirm modals want that.
   const opts = { onSuccess: options.onSuccess }
-  const { mutateAsync: startInstanceAsync } = useApiMutation('instanceStart', opts)
-  const { mutateAsync: stopInstanceAsync } = useApiMutation('instanceStop', opts)
-  const { mutateAsync: rebootInstanceAsync } = useApiMutation('instanceReboot', opts)
+  const { mutateAsync: startInstanceAsync } = useApiMutation(
+    api.methods.instanceStart,
+    opts
+  )
+  const { mutateAsync: stopInstanceAsync } = useApiMutation(api.methods.instanceStop, opts)
+  const { mutateAsync: rebootInstanceAsync } = useApiMutation(
+    api.methods.instanceReboot,
+    opts
+  )
   // delete has its own
-  const { mutateAsync: deleteInstanceAsync } = useApiMutation('instanceDelete', {
+  const { mutateAsync: deleteInstanceAsync } = useApiMutation(api.methods.instanceDelete, {
     onSuccess: options.onDelete,
   })
 

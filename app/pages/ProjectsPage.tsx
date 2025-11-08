@@ -9,7 +9,14 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet, useNavigate } from 'react-router'
 
-import { apiq, getListQFn, queryClient, useApiMutation, type Project } from '@oxide/api'
+import {
+  api,
+  apiq,
+  getListQFn,
+  queryClient,
+  useApiMutation,
+  type Project,
+} from '@oxide/api'
 import { Folder16Icon, Folder24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -37,7 +44,7 @@ const EmptyState = () => (
   />
 )
 
-const projectList = getListQFn('projectList', {})
+const projectList = getListQFn(api.methods.projectList, {})
 
 export async function clientLoader() {
   // fetchQuery instead of prefetchQuery means errors blow up here instead of
@@ -62,7 +69,7 @@ const staticCols = [
 export default function ProjectsPage() {
   const navigate = useNavigate()
 
-  const { mutateAsync: deleteProject } = useApiMutation('projectDelete', {
+  const { mutateAsync: deleteProject } = useApiMutation(api.methods.projectDelete, {
     onSuccess() {
       queryClient.invalidateEndpoint('projectList')
     },
@@ -75,7 +82,9 @@ export default function ProjectsPage() {
         onActivate: () => {
           // the edit view has its own loader, but we can make the modal open
           // instantaneously by preloading the fetch result
-          const { queryKey } = apiq('projectView', { path: { project: project.name } })
+          const { queryKey } = apiq(api.methods.projectView, {
+            path: { project: project.name },
+          })
           queryClient.setQueryData(queryKey, project)
           navigate(pb.projectEdit({ project: project.name }))
         },

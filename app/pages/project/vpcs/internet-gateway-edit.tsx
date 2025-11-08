@@ -12,7 +12,7 @@ import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import { Gateway16Icon } from '@oxide/design-system/icons/react'
 
-import { apiq, queryClient, usePrefetchedQuery } from '~/api'
+import { api, apiq, queryClient, usePrefetchedQuery } from '~/api'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getInternetGatewaySelector, useInternetGatewaySelector } from '~/hooks/use-params'
@@ -70,7 +70,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc, gateway } = getInternetGatewaySelector(params)
   await Promise.all([
     queryClient.prefetchQuery(
-      apiq('internetGatewayView', {
+      apiq(api.methods.internetGatewayView, {
         query: { project, vpc },
         path: { gateway },
       })
@@ -92,7 +92,7 @@ export default function EditInternetGatewayForm() {
   const { project, vpc, gateway } = useInternetGatewaySelector()
   const onDismiss = () => navigate(pb.vpcInternetGateways({ project, vpc }))
   const { data: internetGateway } = usePrefetchedQuery(
-    apiq('internetGatewayView', {
+    apiq(api.methods.internetGatewayView, {
       query: { project, vpc },
       path: { gateway },
     })
