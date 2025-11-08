@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router'
@@ -41,12 +42,15 @@ const colHelper = createColumnHelper<SshKey>()
 export default function SSHKeysPage() {
   const navigate = useNavigate()
 
-  const { mutateAsync: deleteSshKey } = useApiMutation('currentUserSshKeyDelete', {
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateEndpoint('currentUserSshKeyList')
-      addToast(<>SSH key <HL>{variables.path.sshKey}</HL> deleted</>) // prettier-ignore
-    },
-  })
+  const { mutateAsync: deleteSshKey } = useApiMutation(
+    api.methods.currentUserSshKeyDelete,
+    {
+      onSuccess: (_data, variables) => {
+        queryClient.invalidateEndpoint('currentUserSshKeyList')
+        addToast(<>SSH key <HL>{variables.path.sshKey}</HL> deleted</>) // prettier-ignore
+      },
+    }
+  )
 
   const makeActions = useCallback(
     (sshKey: SshKey): MenuAction[] => [

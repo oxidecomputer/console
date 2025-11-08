@@ -13,16 +13,14 @@ import {
 
 import { Api } from './__generated__/Api'
 import { type ApiError } from './errors'
-import { ensurePrefetched, getUseApiMutation } from './hooks'
+import { ensurePrefetched } from './hooks'
 
-export { apiq, apiqErrorsAllowed, getListQFn } from './hooks'
+export { apiq, apiqErrorsAllowed, useApiMutation, getListQFn } from './hooks'
 
 export const api = new Api({
   // unit tests run in Node, whose fetch implementation requires a full URL
   host: process.env.NODE_ENV === 'test' ? 'http://testhost' : '',
 })
-
-export const useApiMutation = getUseApiMutation(api.methods)
 
 /**
  * Same as `useQuery`, except we use `invariant(data)` to ensure the data is

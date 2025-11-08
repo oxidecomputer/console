@@ -24,14 +24,7 @@ import type { FetchParams } from './__generated__/http-client'
 import { processServerError, type ApiError } from './errors'
 import { navToLogin } from './nav-to-login'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-type Params<F> = F extends (p: infer P) => any ? P : never
-type Result<F> = F extends (p: any) => Promise<ApiResult<infer R>> ? R : never
-
 export type ResultsPage<TItem> = { items: TItem[]; nextPage?: string | null }
-
-type ApiClient = Record<string, (...args: any) => Promise<ApiResult<any>>>
-/* eslint-enable @typescript-eslint/no-explicit-any */
 
 // method: keyof Api would be strictly more correct, but making it a string
 // means we can call this directly in all the spots below instead of having to
@@ -231,21 +224,30 @@ export const apiqErrorsAllowed = <Params, Data>(
     ...options,
   })
 
-export const getUseApiMutation =
-  <A extends ApiClient>(api: A) =>
-  <M extends string & keyof A>(
-    method: M,
-    options?: Omit<
-      UseMutationOptions<Result<A[M]>, ApiError, Params<A[M]> & { signal?: AbortSignal }>,
-      'mutationFn'
-    >
-  ) =>
-    useMutation({
-      mutationFn: ({ signal, ...params }) =>
-        api[method](params, { signal }).then(handleResult(method)),
-      // no catch, let unexpected errors bubble up
-      ...options,
-    })
+// Unlike the query one, we don't need this to go through an options object
+// because we are not calling the mutation in two spots and sharing the options
+//
+// The signal thing is a hack that lets us pass in a signal as part of the
+// params because mutation functions don't take a nice thing you can pass a
+// signal in. I tried doing this with MutationMeta
+// https://tanstack.com/query/latest/docs/framework/react/typescript#registering-global-meta
+// but mutate() and mutateAsync() don't take the full option set or a context
+// object. You can only initalize the meta at the site of the useMutation call,
+// which doesn't work for the image upload use case because the timeout signal
+// needs to be initialized separately for each call.
+export const useApiMutation = <Params, Data>(
+  f: (p: Params, fp: FetchParams) => Promise<ApiResult<Data>>,
+  options?: Omit<
+    UseMutationOptions<Data, ApiError, Params & { signal?: AbortSignal }>,
+    'mutationFn'
+  >
+) =>
+  useMutation({
+    mutationFn: ({ signal, ...params }) =>
+      f(params as Params, { signal }).then(handleResult(f.name)),
+    // no catch, let unexpected errors bubble up
+    ...options,
+  })
 
 /*
 1. what's up with [method, params]?
@@ -257,35 +259,4 @@ or an array of those. The contents are tested with deep equality (not tricked
 by key order) to uniquely identify a request for caching purposes. For us, what
 uniquely identifies a request is the string name of the method and the params
 object.
-
-2. what's up with the types?
-
-  A              - api client object
-  M              - api method name, i.e., a key on the client object
-  A[M]           - api fetcher function like (p: Params) => Promise<Response>
-  Params<A[M]>   - extract Params from the function
-  Result<A[M]>   - extract Result from the function
-
-The difficulty is that we want full type safety, i.e., based on the method name
-passed in, we want the typechecker to check the params and annotate the
-response. PickByValue ensures we only call methods on the API object that follow
-the (params) => Promise<Result> pattern. Then we use the inferred type of the
-key (the method name) to enforce that params match the expected params on the
-named method. Finally we use the Result helper to tell react-query what type to
-put on the response data.
-
-3. why
-
-     (api) => (method, params) => useQuery(..., api[method](params))
-
-   instead of
-
-     const api = new Api()
-     (method, params) => useQuery(..., api[method](params))
-
-   i.e., why not use a closure for api?
-
-In order to infer the A type and enforce that M is the right kind of key such
-that we can pull the params and response off and actually call api[method], api
-needs to be an argument to the function too.
 */

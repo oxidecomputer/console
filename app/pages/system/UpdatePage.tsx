@@ -109,13 +109,16 @@ export default function UpdatePage() {
   const { data: status } = usePrefetchedQuery(statusQuery)
   const { data: repos } = usePrefetchedQuery(reposQuery)
 
-  const { mutateAsync: setTargetRelease } = useApiMutation('targetReleaseUpdate', {
-    onSuccess() {
-      refreshData()
-      addToast({ content: 'Target release updated' })
-    },
-    // error handled by confirm modal
-  })
+  const { mutateAsync: setTargetRelease } = useApiMutation(
+    api.methods.targetReleaseUpdate,
+    {
+      onSuccess() {
+        refreshData()
+        addToast({ content: 'Target release updated' })
+      },
+      // error handled by confirm modal
+    }
+  )
 
   const componentProgress = useMemo(() => calcProgress(status), [status])
 
