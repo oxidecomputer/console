@@ -8,7 +8,7 @@
 
 import { Link, type LoaderFunctionArgs } from 'react-router'
 
-import { apiQueryClient, usePrefetchedApiQuery } from '~/api'
+import { apiq, queryClient, usePrefetchedQuery } from '~/api'
 import { EquivalentCliCommand } from '~/components/CopyCode'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { buttonStyle } from '~/ui/lib/Button'
@@ -19,10 +19,12 @@ import { pb } from '~/util/path-builder'
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
-  await apiQueryClient.prefetchQuery('instanceExternalIpList', {
-    path: { instance },
-    query: { project },
-  })
+  await queryClient.prefetchQuery(
+    apiq('instanceExternalIpList', {
+      path: { instance },
+      query: { project },
+    })
+  )
   return null
 }
 
@@ -30,10 +32,12 @@ export const handle = { crumb: 'Connect' }
 
 export default function ConnectTab() {
   const { project, instance } = useInstanceSelector()
-  const { data: externalIps } = usePrefetchedApiQuery('instanceExternalIpList', {
-    path: { instance },
-    query: { project },
-  })
+  const { data: externalIps } = usePrefetchedQuery(
+    apiq('instanceExternalIpList', {
+      path: { instance },
+      query: { project },
+    })
+  )
   const floatingIp = externalIps.items.find((ip) => ip.kind === 'floating')
   const ephemeralIp = externalIps.items.find((ip) => ip.kind === 'ephemeral')
   // prefer floating, fall back to ephemeral

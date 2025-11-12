@@ -12,13 +12,13 @@ import type { LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 
 import {
-  apiQueryClient,
+  apiq,
   byGroupThenName,
   deleteRole,
+  queryClient,
   roleOrder,
   useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
   useUserRows,
   type IdentityType,
   type RoleKey,
@@ -46,6 +46,13 @@ import { TipIcon } from '~/ui/lib/TipIcon'
 import { identityTypeLabel, roleColor } from '~/util/access'
 import { groupBy } from '~/util/array'
 import { docLinks } from '~/util/links'
+import type * as PP from '~/util/path-params'
+
+const policyView = apiq('policyView', {})
+const projectPolicyView = ({ project }: PP.Project) =>
+  apiq('projectPolicyView', { path: { project } })
+const userList = apiq('userList', {})
+const groupList = apiq('groupList', {})
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
@@ -60,13 +67,13 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
 )
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project } = getProjectSelector(params)
+  const selector = getProjectSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('policyView', {}),
-    apiQueryClient.prefetchQuery('projectPolicyView', { path: { project } }),
+    queryClient.prefetchQuery(policyView),
+    queryClient.prefetchQuery(projectPolicyView(selector)),
     // used to resolve user names
-    apiQueryClient.prefetchQuery('userList', {}),
-    apiQueryClient.prefetchQuery('groupList', {}),
+    queryClient.prefetchQuery(userList),
+    queryClient.prefetchQuery(groupList),
   ])
   return null
 }
@@ -86,14 +93,12 @@ const colHelper = createColumnHelper<UserRow>()
 export default function ProjectAccessPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
-  const { project } = useProjectSelector()
+  const projectSelector = useProjectSelector()
 
-  const { data: siloPolicy } = usePrefetchedApiQuery('policyView', {})
+  const { data: siloPolicy } = usePrefetchedQuery(policyView)
   const siloRows = useUserRows(siloPolicy.roleAssignments, 'silo')
 
-  const { data: projectPolicy } = usePrefetchedApiQuery('projectPolicyView', {
-    path: { project },
-  })
+  const { data: projectPolicy } = usePrefetchedQuery(projectPolicyView(projectSelector))
   const projectRows = useUserRows(projectPolicy.roleAssignments, 'project')
 
   const rows = useMemo(() => {
@@ -120,10 +125,9 @@ export default function ProjectAccessPage() {
       .sort(byGroupThenName)
   }, [siloRows, projectRows])
 
-  const queryClient = useApiQueryClient()
   const { mutateAsync: updatePolicy } = useApiMutation('projectPolicyUpdate', {
     onSuccess: () => {
-      queryClient.invalidateQueries('projectPolicyView')
+      queryClient.invalidateEndpoint('projectPolicyView')
       addToast({ content: 'Access removed' })
     },
     // TODO: handle 403
@@ -174,7 +178,7 @@ export default function ProjectAccessPage() {
           onActivate: confirmDelete({
             doDelete: () =>
               updatePolicy({
-                path: { project },
+                path: { project: projectSelector.project },
                 // we know policy is there, otherwise there's no row to display
                 body: deleteRole(row.id, projectPolicy),
               }),
@@ -192,7 +196,7 @@ export default function ProjectAccessPage() {
         },
       ]),
     ],
-    [projectPolicy, project, updatePolicy]
+    [projectPolicy, projectSelector.project, updatePolicy]
   )
 
   const tableInstance = useReactTable({

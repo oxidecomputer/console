@@ -9,7 +9,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 import type { SetNonNullable } from 'type-fest'
 
-import { useApiMutation, useApiQueryClient, type VpcSubnetCreate } from '@oxide/api'
+import { queryClient, useApiMutation, type VpcSubnetCreate } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
@@ -42,14 +42,13 @@ export const handle = titleCrumb('New Subnet')
 
 export default function CreateSubnetForm() {
   const vpcSelector = useVpcSelector()
-  const queryClient = useApiQueryClient()
 
   const navigate = useNavigate()
   const onDismiss = () => navigate(pb.vpcSubnets(vpcSelector))
 
   const createSubnet = useApiMutation('vpcSubnetCreate', {
     onSuccess(subnet) {
-      queryClient.invalidateQueries('vpcSubnetList')
+      queryClient.invalidateEndpoint('vpcSubnetList')
       onDismiss()
       addToast(<>Subnet <HL>{subnet.name}</HL> created</>) // prettier-ignore
     },

@@ -8,8 +8,7 @@
 
 import { useState } from 'react'
 
-import { usePrefetchedApiQuery } from '@oxide/api'
-
+import { apiq, usePrefetchedQuery } from '~/api'
 import {
   MetricCollection,
   MetricHeader,
@@ -33,10 +32,9 @@ const descriptions: Record<OxqlVcpuState, string | undefined> = {
 
 export default function CpuMetricsTab() {
   const { project, instance } = useInstanceSelector()
-  const { data: instanceData } = usePrefetchedApiQuery('instanceView', {
-    path: { instance },
-    query: { project },
-  })
+  const { data: instanceData } = usePrefetchedQuery(
+    apiq('instanceView', { path: { instance }, query: { project } })
+  )
 
   const { startTime, endTime, dateTimeRangePicker } = useMetricsContext()
 

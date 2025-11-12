@@ -7,7 +7,7 @@
  */
 import { Outlet } from 'react-router'
 
-import { apiQueryClient } from '@oxide/api'
+import { apiq, queryClient } from '@oxide/api'
 
 import { RouterDataErrorBoundary } from '~/components/ErrorBoundary'
 import { QuickActions } from '~/hooks/use-quick-actions'
@@ -26,8 +26,8 @@ export function ErrorBoundary() {
 export async function clientLoader() {
   const staleTime = 60000
   await Promise.all([
-    apiQueryClient.prefetchQuery('currentUserView', {}, { staleTime }),
-    apiQueryClient.prefetchQuery('currentUserGroups', {}, { staleTime }),
+    queryClient.prefetchQuery({ ...apiq('currentUserView', {}), staleTime }),
+    queryClient.prefetchQuery({ ...apiq('currentUserGroups', {}), staleTime }),
   ])
   return null
 }

@@ -10,13 +10,7 @@ import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import {
-  apiq,
-  diskCan,
-  useApiMutation,
-  useApiQueryClient,
-  type SnapshotCreate,
-} from '@oxide/api'
+import { apiq, diskCan, queryClient, useApiMutation, type SnapshotCreate } from '@oxide/api'
 
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -45,7 +39,6 @@ const defaultValues: SnapshotCreate = {
 export const handle = titleCrumb('New snapshot')
 
 export default function SnapshotCreate() {
-  const queryClient = useApiQueryClient()
   const projectSelector = useProjectSelector()
   const navigate = useNavigate()
 
@@ -56,7 +49,7 @@ export default function SnapshotCreate() {
 
   const createSnapshot = useApiMutation('snapshotCreate', {
     onSuccess(snapshot) {
-      queryClient.invalidateQueries('snapshotList')
+      queryClient.invalidateEndpoint('snapshotList')
       addToast(<>Snapshot <HL>{snapshot.name}</HL> created</>) // prettier-ignore
       onDismiss()
     },

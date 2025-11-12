@@ -15,8 +15,9 @@ import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
 import {
+  apiq,
+  queryClient,
   useApiMutation,
-  useApiQueryClient,
   type ApiError,
   type BlockSize,
   type Disk,
@@ -183,7 +184,6 @@ export const handle = titleCrumb('Upload image')
  */
 export default function ImageCreate() {
   const navigate = useNavigate()
-  const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
 
   // The state in this component is very complex because we are doing a bunch of
@@ -251,12 +251,12 @@ export default function ImageCreate() {
   // the temp resources got deleted
   const deleteDiskCleanup = useApiMutation('diskDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('diskList')
+      queryClient.invalidateEndpoint('diskList')
     },
   })
   const deleteSnapshotCleanup = useApiMutation('snapshotDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('snapshotList')
+      queryClient.invalidateEndpoint('snapshotList')
     },
   })
 
@@ -328,7 +328,7 @@ export default function ImageCreate() {
     if (disk.current) {
       // we won't be able to delete the disk unless it's out of import mode
       const path = { disk: disk.current.id }
-      const freshDisk = await queryClient.fetchQuery('diskView', { path })
+      const freshDisk = await queryClient.fetchQuery(apiq('diskView', { path }))
       const diskState = freshDisk.state.state
       if (diskState === 'importing_from_bulk_writes') {
         await stopImportCleanup.mutateAsync({ path })
@@ -455,10 +455,9 @@ export default function ImageCreate() {
 
     // diskFinalizeImport does not return the snapshot, but create image
     // requires an ID
-    snapshot.current = await queryClient.fetchQuery('snapshotView', {
-      path: { snapshot: snapshotName },
-      query: { project },
-    })
+    snapshot.current = await queryClient.fetchQuery(
+      apiq('snapshotView', { path: { snapshot: snapshotName }, query: { project } })
+    )
     abortController.current?.signal.throwIfAborted()
 
     // TODO: we checked at the beginning that the image name was free, but it
@@ -478,7 +477,7 @@ export default function ImageCreate() {
     })
     abortController.current?.signal.throwIfAborted()
 
-    queryClient.invalidateQueries('imageList')
+    queryClient.invalidateEndpoint('imageList')
 
     // now delete the snapshot and the disk. don't use cleanup() because that
     // uses different mutations
@@ -509,10 +508,9 @@ export default function ImageCreate() {
 
         // check that image name isn't taken before starting the whole thing
         const image = await queryClient
-          .fetchQuery('imageView', {
-            path: { image: values.imageName },
-            query: { project },
-          })
+          .fetchQuery(
+            apiq('imageView', { path: { image: values.imageName }, query: { project } })
+          )
           .catch((e) => {
             // eat a 404 since that's what we want. anything else should still blow up
             if (e.statusCode === 404) {

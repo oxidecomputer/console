@@ -9,13 +9,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet, useNavigate } from 'react-router'
 
-import {
-  getListQFn,
-  queryClient,
-  useApiMutation,
-  useApiQueryClient,
-  type Silo,
-} from '@oxide/api'
+import { getListQFn, queryClient, useApiMutation, type Silo } from '@oxide/api'
 import { Cloud16Icon, Cloud24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
@@ -75,10 +69,9 @@ export const handle = makeCrumb('Silos', pb.silos())
 export default function SilosPage() {
   const navigate = useNavigate()
 
-  const queryClient = useApiQueryClient()
   const { mutateAsync: deleteSilo } = useApiMutation('siloDelete', {
     onSuccess(_silo, { path }) {
-      queryClient.invalidateQueries('siloList')
+      queryClient.invalidateEndpoint('siloList')
       addToast(<>Silo <HL>{path.silo}</HL> deleted</>) // prettier-ignore
     },
   })

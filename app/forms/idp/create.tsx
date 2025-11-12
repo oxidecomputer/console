@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { queryClient, useApiMutation } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { FileField } from '~/components/form/fields/FileField'
@@ -55,7 +55,6 @@ export const handle = titleCrumb('New Identity Provider')
 
 export default function CreateIdpSideModalForm() {
   const navigate = useNavigate()
-  const queryClient = useApiQueryClient()
 
   const { silo } = useSiloSelector()
 
@@ -63,7 +62,7 @@ export default function CreateIdpSideModalForm() {
 
   const createIdp = useApiMutation('samlIdentityProviderCreate', {
     onSuccess(idp) {
-      queryClient.invalidateQueries('siloIdentityProviderList')
+      queryClient.invalidateEndpoint('siloIdentityProviderList')
       addToast(<>IdP <HL>{idp.name}</HL> created</>) // prettier-ignore
       onDismiss()
     },

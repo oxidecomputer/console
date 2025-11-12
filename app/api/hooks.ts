@@ -9,10 +9,6 @@ import {
   hashKey,
   queryOptions,
   useMutation,
-  useQuery,
-  type FetchQueryOptions,
-  type InvalidateQueryFilters,
-  type QueryClient,
   type QueryKey,
   type UseMutationOptions,
   type UseQueryOptions,
@@ -87,15 +83,6 @@ Error message:  ${error.message.replace(/\n/g, '\n' + ' '.repeat('Error message:
 type UseQueryOtherOptions<T> = Omit<
   UseQueryOptions<T, ApiError>,
   'queryKey' | 'queryFn' | 'initialData'
->
-
-/**
- * `queryKey` and `queryFn` are always constructed by our helper hooks, so we
- * only allow the rest of the options.
- */
-type FetchQueryOtherOptions<T> = Omit<
-  FetchQueryOptions<T, ApiError>,
-  'queryKey' | 'queryFn'
 >
 
 export const getApiQueryOptions =
@@ -177,17 +164,6 @@ export const getListQueryOptionsFn =
     }
   }
 
-export const getUsePrefetchedApiQuery =
-  <A extends ApiClient>(api: A) =>
-  <M extends string & keyof A>(
-    method: M,
-    params: Params<A[M]>,
-    options: UseQueryOtherOptions<Result<A[M]>> = {}
-  ) => {
-    const qOptions = getApiQueryOptions(api)(method, params, options)
-    return ensurePrefetched(useQuery(qOptions), qOptions.queryKey)
-  }
-
 const prefetchError = (key?: QueryKey) =>
   `Expected query to be prefetched.
 Key: ${key ? hashKey(key) : '<unknown>'}
@@ -256,47 +232,6 @@ export const getUseApiMutation =
       // no catch, let unexpected errors bubble up
       ...options,
     })
-
-export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryClient) => ({
-  /**
-   * Note that we only take a single argument, `method`, rather than allowing
-   * the full query key `[query, params]` to be specified. This is to avoid
-   * accidentally overspecifying and therefore failing to match the desired
-   * query. The params argument can be added back in if we ever have a use case
-   * for it.
-   *
-   * Passing no arguments will invalidate all queries.
-   */
-  invalidateQueries: <M extends keyof A>(method?: M, filters?: InvalidateQueryFilters) =>
-    queryClient.invalidateQueries(method ? { queryKey: [method], ...filters } : undefined),
-  setQueryData: <M extends keyof A>(method: M, params: Params<A[M]>, data: Result<A[M]>) =>
-    queryClient.setQueryData([method, params], data),
-  setQueryDataErrorsAllowed: <M extends keyof A>(
-    method: M,
-    params: Params<A[M]>,
-    data: ErrorsAllowed<Result<A[M]>, ApiError>
-  ) => queryClient.setQueryData([method, params, ERRORS_ALLOWED], data),
-  fetchQuery: <M extends string & keyof A>(
-    method: M,
-    params: Params<A[M]>,
-    options: FetchQueryOtherOptions<Result<A[M]>> = {}
-  ) =>
-    queryClient.fetchQuery({
-      queryKey: [method, params],
-      queryFn: () => api[method](params).then(handleResult(method)),
-      ...options,
-    }),
-  prefetchQuery: <M extends string & keyof A>(
-    method: M,
-    params: Params<A[M]>,
-    options: FetchQueryOtherOptions<Result<A[M]>> = {}
-  ) =>
-    queryClient.prefetchQuery({
-      queryKey: [method, params],
-      queryFn: () => api[method](params).then(handleResult(method)),
-      ...options,
-    }),
-})
 
 /*
 1. what's up with [method, params]?

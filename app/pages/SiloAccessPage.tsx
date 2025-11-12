@@ -9,13 +9,13 @@ import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/re
 import { useMemo, useState } from 'react'
 
 import {
-  apiQueryClient,
+  apiq,
   byGroupThenName,
   deleteRole,
   getEffectiveRole,
+  queryClient,
   useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
   useUserRows,
   type IdentityType,
   type RoleKey,
@@ -52,12 +52,16 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
   </TableEmptyBox>
 )
 
+const policyView = apiq('policyView', {})
+const userList = apiq('userList', {})
+const groupList = apiq('groupList', {})
+
 export async function clientLoader() {
   await Promise.all([
-    apiQueryClient.prefetchQuery('policyView', {}),
+    queryClient.prefetchQuery(policyView),
     // used to resolve user names
-    apiQueryClient.prefetchQuery('userList', {}),
-    apiQueryClient.prefetchQuery('groupList', {}),
+    queryClient.prefetchQuery(userList),
+    queryClient.prefetchQuery(groupList),
   ])
   return null
 }
@@ -78,7 +82,7 @@ export default function SiloAccessPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
 
-  const { data: siloPolicy } = usePrefetchedApiQuery('policyView', {})
+  const { data: siloPolicy } = usePrefetchedQuery(policyView)
   const siloRows = useUserRows(siloPolicy.roleAssignments, 'silo')
 
   const rows = useMemo(() => {
@@ -104,9 +108,8 @@ export default function SiloAccessPage() {
       .sort(byGroupThenName)
   }, [siloRows])
 
-  const queryClient = useApiQueryClient()
   const { mutateAsync: updatePolicy } = useApiMutation('policyUpdate', {
-    onSuccess: () => queryClient.invalidateQueries('policyView'),
+    onSuccess: () => queryClient.invalidateEndpoint('policyView'),
     // TODO: handle 403
   })
 

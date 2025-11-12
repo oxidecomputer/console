@@ -15,7 +15,6 @@ import { Badge } from '@oxide/design-system/ui'
 
 import {
   apiq,
-  apiQueryClient,
   getListQFn,
   queryClient,
   useApiMutation,
@@ -92,7 +91,7 @@ export default function RouterPage() {
 
   const { mutateAsync: deleteRouterRoute } = useApiMutation('vpcRouterRouteDelete', {
     onSuccess() {
-      apiQueryClient.invalidateQueries('vpcRouterRouteList')
+      queryClient.invalidateEndpoint('vpcRouterRouteList')
       // We only have the ID, so will show a generic confirmation message
       addToast({ content: 'Route deleted' })
     },
@@ -134,11 +133,11 @@ export default function RouterPage() {
         onActivate: () => {
           // the edit view has its own loader, but we can make the modal open
           // instantaneously by preloading the fetch result
-          apiQueryClient.setQueryData(
-            'vpcRouterRouteView',
-            { path: { route: routerRoute.name }, query: { project, vpc, router } },
-            routerRoute
-          )
+          const { queryKey } = apiq('vpcRouterRouteView', {
+            path: { route: routerRoute.name },
+            query: { project, vpc, router },
+          })
+          queryClient.setQueryData(queryKey, routerRoute)
           navigate(pb.vpcRouterRouteEdit({ project, vpc, router, route: routerRoute.name }))
         },
         disabled:

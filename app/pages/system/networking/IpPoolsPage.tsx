@@ -11,14 +11,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet, useNavigate } from 'react-router'
 
-import {
-  apiq,
-  apiQueryClient,
-  getListQFn,
-  queryClient,
-  useApiMutation,
-  type IpPool,
-} from '@oxide/api'
+import { apiq, getListQFn, queryClient, useApiMutation, type IpPool } from '@oxide/api'
 import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
@@ -78,10 +71,10 @@ const staticColumns = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-const ipPoolList = () => getListQFn('ipPoolList', {})
+const ipPoolList = getListQFn('ipPoolList', {})
 
 export async function clientLoader() {
-  await queryClient.prefetchQuery(ipPoolList().optionsFn())
+  await queryClient.prefetchQuery(ipPoolList.optionsFn())
   return null
 }
 
@@ -92,7 +85,7 @@ export default function IpPoolsPage() {
 
   const { mutateAsync: deletePool } = useApiMutation('ipPoolDelete', {
     onSuccess(_data, variables) {
-      apiQueryClient.invalidateQueries('ipPoolList')
+      queryClient.invalidateEndpoint('ipPoolList')
       addToast(<>Pool <HL>{variables.path.pool}</HL> deleted</>) // prettier-ignore
     },
   })
@@ -104,7 +97,8 @@ export default function IpPoolsPage() {
         onActivate: () => {
           // the edit view has its own loader, but we can make the modal open
           // instantaneously by preloading the fetch result
-          apiQueryClient.setQueryData('ipPoolView', { path: { pool: pool.name } }, pool)
+          const ipPoolView = apiq('ipPoolView', { path: { pool: pool.name } })
+          queryClient.setQueryData(ipPoolView.queryKey, pool)
           navigate(pb.ipPoolEdit({ pool: pool.name }))
         },
       },
@@ -121,7 +115,7 @@ export default function IpPoolsPage() {
 
   const columns = useColsWithActions(staticColumns, makeActions)
   const { table, query } = useQueryTable({
-    query: ipPoolList(),
+    query: ipPoolList,
     columns,
     // turn this back on if we expect to see IPv6 ranges regularly
     // rowHeight: 'large',

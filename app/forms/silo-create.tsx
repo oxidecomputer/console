@@ -10,7 +10,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 import { match } from 'ts-pattern'
 
-import { useApiMutation, useApiQueryClient, type SiloCreate } from '@oxide/api'
+import { apiq, queryClient, useApiMutation, type SiloCreate } from '@oxide/api'
 
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -54,14 +54,14 @@ export const handle = titleCrumb('New Silo')
 
 export default function CreateSiloSideModalForm() {
   const navigate = useNavigate()
-  const queryClient = useApiQueryClient()
 
   const onDismiss = () => navigate(pb.silos())
 
   const createSilo = useApiMutation('siloCreate', {
     onSuccess(silo) {
-      queryClient.invalidateQueries('siloList')
-      queryClient.setQueryData('siloView', { path: { silo: silo.name } }, silo)
+      queryClient.invalidateEndpoint('siloList')
+      const siloView = apiq('siloView', { path: { silo: silo.name } })
+      queryClient.setQueryData(siloView.queryKey, silo)
       addToast(<>Silo <HL>{silo.name}</HL> created</>) // prettier-ignore
       onDismiss()
     },

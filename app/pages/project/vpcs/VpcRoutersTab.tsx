@@ -9,13 +9,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
-import {
-  apiQueryClient,
-  getListQFn,
-  queryClient,
-  useApiMutation,
-  type VpcRouter,
-} from '@oxide/api'
+import { apiq, getListQFn, queryClient, useApiMutation, type VpcRouter } from '@oxide/api'
 
 import { HL } from '~/components/HL'
 import { routeFormMessage } from '~/forms/vpc-router-route-common'
@@ -70,7 +64,7 @@ export default function VpcRoutersTab() {
 
   const { mutateAsync: deleteRouter } = useApiMutation('vpcRouterDelete', {
     onSuccess(_data, variables) {
-      apiQueryClient.invalidateQueries('vpcRouterList')
+      queryClient.invalidateEndpoint('vpcRouterList')
       addToast(<>Router <HL>{variables.path.router}</HL> deleted</>) // prettier-ignore
     },
   })
@@ -82,11 +76,8 @@ export default function VpcRoutersTab() {
         onActivate: () => {
           // the edit view has its own loader, but we can make the modal open
           // instantaneously by preloading the fetch result
-          apiQueryClient.setQueryData(
-            'vpcRouterView',
-            { path: { router: router.name } },
-            router
-          )
+          const { queryKey } = apiq('vpcRouterView', { path: { router: router.name } })
+          queryClient.setQueryData(queryKey, router)
           navigate(pb.vpcRouterEdit({ project, vpc, router: router.name }))
         },
       },

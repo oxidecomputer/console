@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { usePrefetchedApiQuery } from '@oxide/api'
+import { apiq, usePrefetchedQuery } from '@oxide/api'
 import { Cloud24Icon, NextArrow12Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
@@ -14,10 +14,13 @@ import { makeCrumb } from '~/hooks/use-crumbs'
 import { useSiloSelector } from '~/hooks/use-params'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
+import type * as PP from '~/util/path-params'
+
+const siloView = ({ silo }: PP.Silo) => apiq('siloView', { path: { silo } })
 
 export default function SiloFleetRolesTab() {
   const siloSelector = useSiloSelector()
-  const { data: silo } = usePrefetchedApiQuery('siloView', { path: siloSelector })
+  const { data: silo } = usePrefetchedQuery(siloView(siloSelector))
 
   const roleMapPairs = Object.entries(silo.mappedFleetRoles).flatMap(
     ([fleetRole, siloRoles]) =>

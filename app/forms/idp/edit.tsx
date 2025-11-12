@@ -8,7 +8,7 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
-import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
+import { apiq, queryClient, usePrefetchedQuery } from '@oxide/api'
 import { Access16Icon } from '@oxide/design-system/icons/react'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -24,10 +24,9 @@ import { pb } from '~/util/path-builder'
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { silo, provider } = getIdpSelector(params)
-  await apiQueryClient.prefetchQuery('samlIdentityProviderView', {
-    path: { provider },
-    query: { silo },
-  })
+  await queryClient.prefetchQuery(
+    apiq('samlIdentityProviderView', { path: { provider }, query: { silo } })
+  )
   return null
 }
 
@@ -35,10 +34,9 @@ export const handle = titleCrumb('Edit Identity Provider')
 
 export default function EditIdpSideModalForm() {
   const { silo, provider } = useIdpSelector()
-  const { data: idp } = usePrefetchedApiQuery('samlIdentityProviderView', {
-    path: { provider },
-    query: { silo },
-  })
+  const { data: idp } = usePrefetchedQuery(
+    apiq('samlIdentityProviderView', { path: { provider }, query: { silo } })
+  )
 
   const navigate = useNavigate()
   const onDismiss = () => navigate(pb.silo({ silo }))

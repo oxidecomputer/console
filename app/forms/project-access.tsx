@@ -7,12 +7,7 @@
  */
 import { useForm } from 'react-hook-form'
 
-import {
-  updateRole,
-  useActorsNotInPolicy,
-  useApiMutation,
-  useApiQueryClient,
-} from '@oxide/api'
+import { queryClient, updateRole, useActorsNotInPolicy, useApiMutation } from '@oxide/api'
 import { Access16Icon } from '@oxide/design-system/icons/react'
 
 import { ListboxField } from '~/components/form/fields/ListboxField'
@@ -34,10 +29,9 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
 
   const actors = useActorsNotInPolicy(policy)
 
-  const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('projectPolicyUpdate', {
     onSuccess: () => {
-      queryClient.invalidateQueries('projectPolicyView')
+      queryClient.invalidateEndpoint('projectPolicyView')
       // We don't have the name of the user or group, so we'll just have a generic message
       addToast({ content: 'Role assigned' })
       onDismiss()
@@ -88,10 +82,9 @@ export function ProjectAccessEditUserSideModal({
 }: EditRoleModalProps) {
   const { project } = useProjectSelector()
 
-  const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('projectPolicyUpdate', {
     onSuccess: () => {
-      queryClient.invalidateQueries('projectPolicyView')
+      queryClient.invalidateEndpoint('projectPolicyView')
       addToast({ content: 'Role updated' })
       onDismiss()
     },

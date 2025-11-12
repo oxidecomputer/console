@@ -9,7 +9,7 @@
 import { useMemo, useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router'
 
-import { apiQueryClient, usePrefetchedApiQuery, type Disk, type Instance } from '@oxide/api'
+import { apiq, queryClient, usePrefetchedQuery, type Disk, type Instance } from '@oxide/api'
 import { Storage24Icon } from '@oxide/design-system/icons/react'
 
 import {
@@ -28,10 +28,9 @@ import { useMetricsContext } from './common'
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
-  await apiQueryClient.prefetchQuery('instanceDiskList', {
-    path: { instance },
-    query: { project },
-  })
+  await queryClient.prefetchQuery(
+    apiq('instanceDiskList', { path: { instance }, query: { project } })
+  )
   return null
 }
 
@@ -40,14 +39,13 @@ const groupByAttachedInstanceId = { cols: ['attached_instance_id'], op: 'sum' } 
 
 export default function DiskMetricsTab() {
   const { project, instance } = useInstanceSelector()
-  const { data: disks } = usePrefetchedApiQuery('instanceDiskList', {
-    path: { instance },
-    query: { project },
-  })
-  const { data: instanceData } = usePrefetchedApiQuery('instanceView', {
-    path: { instance },
-    query: { project },
-  })
+  const { data: disks } = usePrefetchedQuery(
+    apiq('instanceDiskList', { path: { instance }, query: { project } })
+  )
+
+  const { data: instanceData } = usePrefetchedQuery(
+    apiq('instanceView', { path: { instance }, query: { project } })
+  )
   if (disks.items.length === 0) {
     return (
       <TableEmptyBox border={false}>

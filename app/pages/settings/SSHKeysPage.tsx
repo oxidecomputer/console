@@ -9,13 +9,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router'
 
-import {
-  getListQFn,
-  queryClient,
-  useApiMutation,
-  useApiQueryClient,
-  type SshKey,
-} from '@oxide/api'
+import { getListQFn, queryClient, useApiMutation, type SshKey } from '@oxide/api'
 import { Key16Icon, Key24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -34,11 +28,11 @@ import { TableActions } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-const sshKeyList = () => getListQFn('currentUserSshKeyList', {})
+const sshKeyList = getListQFn('currentUserSshKeyList', {})
 export const handle = makeCrumb('SSH Keys', pb.sshKeys)
 
 export async function clientLoader() {
-  await queryClient.prefetchQuery(sshKeyList().optionsFn())
+  await queryClient.prefetchQuery(sshKeyList.optionsFn())
   return null
 }
 
@@ -47,11 +41,9 @@ const colHelper = createColumnHelper<SshKey>()
 export default function SSHKeysPage() {
   const navigate = useNavigate()
 
-  const queryClient = useApiQueryClient()
-
   const { mutateAsync: deleteSshKey } = useApiMutation('currentUserSshKeyDelete', {
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries('currentUserSshKeyList')
+      queryClient.invalidateEndpoint('currentUserSshKeyList')
       addToast(<>SSH key <HL>{variables.path.sshKey}</HL> deleted</>) // prettier-ignore
     },
   })
@@ -94,7 +86,7 @@ export default function SSHKeysPage() {
       onClick={() => navigate(pb.sshKeysNew())}
     />
   )
-  const { table } = useQueryTable({ query: sshKeyList(), columns, emptyState })
+  const { table } = useQueryTable({ query: sshKeyList, columns, emptyState })
 
   return (
     <>
