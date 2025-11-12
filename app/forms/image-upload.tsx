@@ -411,7 +411,7 @@ export default function ImageCreate() {
             path,
             body: { offset, base64EncodedData },
             // use both the abort signal for the whole upload and a per-request timeout
-            signal: anySignal([
+            __signal: anySignal([
               AbortSignal.timeout(30000),
               abortController.current?.signal,
             ]),

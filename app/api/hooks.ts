@@ -31,7 +31,7 @@ export type ResultsPage<TItem> = { items: TItem[]; nextPage?: string | null }
 // make it generic over Api, which requires passing it as an argument to
 // getUseApiQuery, etc. This is fine because it is only being called inside
 // functions where `method` is already required to be an API method.
-export const handleResult =
+const handleResult =
   (method: string) =>
   <Data>(result: ApiResult<Data>) => {
     if (result.type === 'success') return result.data
@@ -111,7 +111,7 @@ export const getListQFn = <
   Params extends { query?: Q },
   Data extends ResultsPage<unknown>,
 >(
-  f: (p: Params, fp: FetchParams) => Promise<ApiResult<Data>>,
+  f: (p: Params) => Promise<ApiResult<Data>>,
   params: Params,
   options: UseQueryOtherOptions<Data> = {}
 ): PaginatedQuery<Data> => {
@@ -167,15 +167,27 @@ const ERRORS_ALLOWED = 'errors-allowed'
 /** Result that includes both success and error so it can be cached by RQ */
 type ErrorsAllowed<T> = { type: 'success'; data: T } | { type: 'error'; data: ApiError }
 
+// what's up with [method, params]?
+//
+// https://react-query.tanstack.com/guides/queries
+//
+// The first arg to useQuery is a unique key, which can be a string, an object,
+// or an array of those. The contents are tested with deep equality (not tricked
+// by key order) to uniquely identify a request for caching purposes. For us, what
+// uniquely identifies a request is the string name of the method and the params
+// object.
+
 export const apiq = <Params, Data>(
-  f: (p: Params, fp: FetchParams) => Promise<ApiResult<Data>>,
+  f: (p: Params) => Promise<ApiResult<Data>>,
   params: Params,
   options: UseQueryOtherOptions<Data> = {}
 ) =>
   queryOptions({
+    // method name first means we can invalidate all calls to this endpoint by
+    // invalidating [f.name] (see invalidateEndpoint)
     queryKey: [f.name, params],
     // no catch, let unexpected errors bubble up
-    queryFn: ({ signal }) => f(params, { signal }).then(handleResult(f.name)),
+    queryFn: () => f(params).then(handleResult(f.name)),
     // In the case of 404s, let the error bubble up to the error boundary so
     // we can say Not Found. If you need to allow a 404 and want it to show
     // up as `error` state instead, pass `useErrorBoundary: false` as an
@@ -201,7 +213,7 @@ export const apiq = <Params, Data>(
  * want to share the cache and mix them up.
  */
 export const apiqErrorsAllowed = <Params, Data>(
-  f: (p: Params, fp: FetchParams) => Promise<ApiResult<Data>>,
+  f: (p: Params) => Promise<ApiResult<Data>>,
   params: Params,
   options: UseQueryOtherOptions<ErrorsAllowed<Data>> = {}
 ) =>
@@ -211,8 +223,8 @@ export const apiqErrorsAllowed = <Params, Data>(
     // once with errors allowed the responses have different shapes, so we do
     // not want to share the cache and mix them up
     queryKey: [f.name, params, ERRORS_ALLOWED],
-    queryFn: ({ signal }) =>
-      f(params, { signal })
+    queryFn: () =>
+      f(params)
         .then(handleResult(f.name))
         .then((data) => ({ type: 'success' as const, data }))
         .catch((data: ApiError) => ({ type: 'error' as const, data })),
@@ -238,25 +250,20 @@ export const apiqErrorsAllowed = <Params, Data>(
 export const useApiMutation = <Params, Data>(
   f: (p: Params, fp: FetchParams) => Promise<ApiResult<Data>>,
   options?: Omit<
-    UseMutationOptions<Data, ApiError, Params & { signal?: AbortSignal }>,
+    // __signal bit makes it so you can pass a signal to mutate and mutateAsync.
+    // the underscores make it virtually impossible for this to conflict with an
+    // actual API field
+    UseMutationOptions<Data, ApiError, Params & { __signal?: AbortSignal }>,
     'mutationFn'
   >
 ) =>
   useMutation({
-    mutationFn: ({ signal, ...params }) =>
-      f(params as Params, { signal }).then(handleResult(f.name)),
+    mutationFn: ({ __signal, ...params }) =>
+      // Pretty safe cast: signal is an optional addition at the call site, not
+      // part of the original Params type. Removing it via destructuring gives
+      // us back Params, but TS can't prove Omit<Params & {signal?}, 'signal'>
+      // === Params structurally.
+      f(params as Params, { signal: __signal }).then(handleResult(f.name)),
     // no catch, let unexpected errors bubble up
     ...options,
   })
-
-/*
-1. what's up with [method, params]?
-
-https://react-query.tanstack.com/guides/queries
-
-The first arg to useQuery is a unique key, which can be a string, an object,
-or an array of those. The contents are tested with deep equality (not tricked
-by key order) to uniquely identify a request for caching purposes. For us, what
-uniquely identifies a request is the string name of the method and the params
-object.
-*/
