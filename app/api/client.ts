@@ -76,6 +76,8 @@ export const queryClient = new QueryClient({
 
 export type ResultsPage<TItem> = { items: TItem[]; nextPage?: string | null }
 
+type HandledResult<T> = { type: 'success'; data: T } | { type: 'error'; data: ApiError }
+
 // method: keyof Api would be strictly more correct, but making it a string
 // means we can call this directly in all the spots below instead of having to
 // make it generic over Api, which requires passing it as an argument to
@@ -83,8 +85,8 @@ export type ResultsPage<TItem> = { items: TItem[]; nextPage?: string | null }
 // functions where `method` is already required to be an API method.
 const handleResult =
   (method: string) =>
-  <Data>(result: ApiResult<Data>) => {
-    if (result.type === 'success') return result.data
+  <Data>(result: ApiResult<Data>): HandledResult<Data> => {
+    if (result.type === 'success') return { type: 'success', data: result.data }
 
     // if logged out, hit /login to trigger login redirect
     // Exception: 401 on password login POST needs to be handled in-page
@@ -116,8 +118,7 @@ Error message:  ${error.message.replace(/\n/g, '\n' + ' '.repeat('Error message:
       )
     }
 
-    // we need to rethrow because that's how react-query knows it's an error
-    throw error
+    return { type: 'error', data: error }
   }
 
 /**
@@ -212,11 +213,6 @@ export function ensurePrefetched<TData, TError>(
   return result as SetNonNullable<typeof result, 'data'>
 }
 
-const ERRORS_ALLOWED = 'errors-allowed'
-
-/** Result that includes both success and error so it can be cached by RQ */
-type ErrorsAllowed<T> = { type: 'success'; data: T } | { type: 'error'; data: ApiError }
-
 // what's up with [method, params]?
 //
 // https://react-query.tanstack.com/guides/queries
@@ -242,7 +238,13 @@ export const q = <Params, Data>(
     // it seems there are race conditions where something being unmounted on one
     // page causes a query we need on the subsequent page to be canceled right
     // in the middle of prefetching
-    queryFn: () => f(params).then(handleResult(f.name)),
+    queryFn: () =>
+      f(params)
+        .then(handleResult(f.name))
+        .then((result) => {
+          if (result.type === 'success') return result.data
+          throw result.data
+        }),
     // In the case of 404s, let the error bubble up to the error boundary so
     // we can say Not Found. If you need to allow a 404 and want it to show
     // up as `error` state instead, pass `throwOnError: false` as an
@@ -251,26 +253,28 @@ export const q = <Params, Data>(
     ...options,
   })
 
+const ERRORS_ALLOWED = 'errors-allowed'
+
 /**
- * Variant of `apiq` that allows error responses as a valid result,
- * which importantly means they can be cached by RQ. This means we can prefetch
- * an endpoint that might error (see `prefetchQueryErrorsAllowed`) and use this
- * hook to retrieve the error result.
+ * Variant of `apiq` that allows error responses as a valid result, which
+ * importantly means they can be cached by RQ. This means we can prefetch an
+ * endpoint that might error and use this hook to retrieve the error result.
  *
- * Concretely, the difference from the usual query function is that we turn all
- * errors into successes. Instead of throwing the error, we return it as a valid
- * result. This means `data` has a type that includes the possibility of error,
- * plus a discriminant to let us handle both sides properly in the calling code.
+ * Concretely, the difference from the usual query function is that we we
+ * don't throw if handleResult comes back with an error. We return the entire
+ * result object as a valid result. This means `data` has a type that includes
+ * the possibility of error, plus a discriminant to let us handle both sides
+ * properly in the calling code.
  *
  * We also use a special query key to distinguish these from normal API queries.
  * If we hit a given endpoint twice on the same page, once the normal way and
- * once with errors allowed, the responses have different shapes, so we do not
+ * once with errors allowed, the results have different shapes, so we do not
  * want to share the cache and mix them up.
  */
 export const apiqErrorsAllowed = <Params, Data>(
   f: (p: Params) => Promise<ApiResult<Data>>,
   params: Params,
-  options: UseQueryOtherOptions<ErrorsAllowed<Data>> = {}
+  options: UseQueryOtherOptions<HandledResult<Data>> = {}
 ) =>
   queryOptions({
     // extra bit of key is important to distinguish from normal query. if we
@@ -278,11 +282,7 @@ export const apiqErrorsAllowed = <Params, Data>(
     // once with errors allowed the responses have different shapes, so we do
     // not want to share the cache and mix them up
     queryKey: [f.name, params, ERRORS_ALLOWED],
-    queryFn: () =>
-      f(params)
-        .then(handleResult(f.name))
-        .then((data) => ({ type: 'success' as const, data }))
-        .catch((data: ApiError) => ({ type: 'error' as const, data })),
+    queryFn: () => f(params).then(handleResult(f.name)),
     // In the case of 404s, let the error bubble up to the error boundary so
     // we can say Not Found. If you need to allow a 404 and want it to show
     // up as `error` state instead, pass `throwOnError: false` as an
@@ -318,7 +318,12 @@ export const useApiMutation = <Params, Data>(
       // part of the original Params type. Removing it via destructuring gives
       // us back Params, but TS can't prove Omit<Params & {signal?}, 'signal'>
       // === Params structurally.
-      f(params as Params, { signal: __signal }).then(handleResult(f.name)),
+      f(params as Params, { signal: __signal })
+        .then(handleResult(f.name))
+        .then((result) => {
+          if (result.type === 'success') return result.data
+          throw result.data
+        }),
     // no catch, let unexpected errors bubble up
     ...options,
   })
