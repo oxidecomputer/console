@@ -12,9 +12,10 @@ import type { LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 
 import {
-  apiq,
+  api,
   byGroupThenName,
   deleteRole,
+  q,
   queryClient,
   roleOrder,
   useApiMutation,
@@ -48,11 +49,11 @@ import { groupBy } from '~/util/array'
 import { docLinks } from '~/util/links'
 import type * as PP from '~/util/path-params'
 
-const policyView = apiq('policyView', {})
+const policyView = q(api.policyView, {})
 const projectPolicyView = ({ project }: PP.Project) =>
-  apiq('projectPolicyView', { path: { project } })
-const userList = apiq('userList', {})
-const groupList = apiq('groupList', {})
+  q(api.projectPolicyView, { path: { project } })
+const userList = q(api.userList, {})
+const groupList = q(api.groupList, {})
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
@@ -125,7 +126,7 @@ export default function ProjectAccessPage() {
       .sort(byGroupThenName)
   }, [siloRows, projectRows])
 
-  const { mutateAsync: updatePolicy } = useApiMutation('projectPolicyUpdate', {
+  const { mutateAsync: updatePolicy } = useApiMutation(api.projectPolicyUpdate, {
     onSuccess: () => {
       queryClient.invalidateEndpoint('projectPolicyView')
       addToast({ content: 'Access removed' })

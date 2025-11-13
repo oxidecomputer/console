@@ -15,7 +15,8 @@ import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
 import {
-  apiq,
+  api,
+  q,
   queryClient,
   useApiMutation,
   type ApiError,
@@ -208,25 +209,25 @@ export default function ImageCreate() {
   // done with everything, ready to close the modal
   const [allDone, setAllDone] = useState(false)
 
-  const createDisk = useApiMutation('diskCreate')
-  const startImport = useApiMutation('diskBulkWriteImportStart')
+  const createDisk = useApiMutation(api.diskCreate)
+  const startImport = useApiMutation(api.diskBulkWriteImportStart)
 
   // gcTime: 0 prevents the mutation cache from holding onto all the chunks for
   // 5 minutes. It can be a ton of memory. To be honest, I don't even understand
   // why the mutation cache exists. It's not like the query cache, which dedupes
   // identical queries made around the same time.
   // https://tanstack.com/query/v5/docs/reference/MutationCache
-  const uploadChunk = useApiMutation('diskBulkWriteImport', { gcTime: 0 })
+  const uploadChunk = useApiMutation(api.diskBulkWriteImport, { gcTime: 0 })
 
   // synthetic state for upload step because it consists of multiple requests
   const [syntheticUploadState, setSyntheticUploadState] =
     useState<MutationState>(initSyntheticState)
 
-  const stopImport = useApiMutation('diskBulkWriteImportStop')
-  const finalizeDisk = useApiMutation('diskFinalizeImport')
-  const createImage = useApiMutation('imageCreate')
-  const deleteDisk = useApiMutation('diskDelete')
-  const deleteSnapshot = useApiMutation('snapshotDelete')
+  const stopImport = useApiMutation(api.diskBulkWriteImportStop)
+  const finalizeDisk = useApiMutation(api.diskFinalizeImport)
+  const createImage = useApiMutation(api.imageCreate)
+  const deleteDisk = useApiMutation(api.diskDelete)
+  const deleteSnapshot = useApiMutation(api.snapshotDelete)
 
   // TODO: Distinguish cleanup mutations being called after successful run vs.
   // due to error. In the former case, they have their own steps to highlight as
@@ -244,17 +245,17 @@ export default function ImageCreate() {
   ]
 
   // separate so we can distinguish between cleanup due to error vs. cleanup after success
-  const stopImportCleanup = useApiMutation('diskBulkWriteImportStop')
-  const finalizeDiskCleanup = useApiMutation('diskFinalizeImport')
+  const stopImportCleanup = useApiMutation(api.diskBulkWriteImportStop)
+  const finalizeDiskCleanup = useApiMutation(api.diskFinalizeImport)
   // in production these invalidations are unlikely to matter, but they help a
   // lot in the tests when we check the disk list after canceling to make sure
   // the temp resources got deleted
-  const deleteDiskCleanup = useApiMutation('diskDelete', {
+  const deleteDiskCleanup = useApiMutation(api.diskDelete, {
     onSuccess() {
       queryClient.invalidateEndpoint('diskList')
     },
   })
-  const deleteSnapshotCleanup = useApiMutation('snapshotDelete', {
+  const deleteSnapshotCleanup = useApiMutation(api.snapshotDelete, {
     onSuccess() {
       queryClient.invalidateEndpoint('snapshotList')
     },
@@ -328,7 +329,7 @@ export default function ImageCreate() {
     if (disk.current) {
       // we won't be able to delete the disk unless it's out of import mode
       const path = { disk: disk.current.id }
-      const freshDisk = await queryClient.fetchQuery(apiq('diskView', { path }))
+      const freshDisk = await queryClient.fetchQuery(q(api.diskView, { path }))
       const diskState = freshDisk.state.state
       if (diskState === 'importing_from_bulk_writes') {
         await stopImportCleanup.mutateAsync({ path })
@@ -410,7 +411,7 @@ export default function ImageCreate() {
             path,
             body: { offset, base64EncodedData },
             // use both the abort signal for the whole upload and a per-request timeout
-            signal: anySignal([
+            __signal: anySignal([
               AbortSignal.timeout(30000),
               abortController.current?.signal,
             ]),
@@ -456,7 +457,10 @@ export default function ImageCreate() {
     // diskFinalizeImport does not return the snapshot, but create image
     // requires an ID
     snapshot.current = await queryClient.fetchQuery(
-      apiq('snapshotView', { path: { snapshot: snapshotName }, query: { project } })
+      q(api.snapshotView, {
+        path: { snapshot: snapshotName },
+        query: { project },
+      })
     )
     abortController.current?.signal.throwIfAborted()
 
@@ -509,7 +513,10 @@ export default function ImageCreate() {
         // check that image name isn't taken before starting the whole thing
         const image = await queryClient
           .fetchQuery(
-            apiq('imageView', { path: { image: values.imageName }, query: { project } })
+            q(api.imageView, {
+              path: { image: values.imageName },
+              query: { project },
+            })
           )
           .catch((e) => {
             // eat a 404 since that's what we want. anything else should still blow up

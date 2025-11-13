@@ -11,8 +11,9 @@ import { Link, type LoaderFunctionArgs } from 'react-router'
 
 import {
   api,
-  apiq,
   instanceCan,
+  instanceSerialConsoleStream,
+  q,
   queryClient,
   usePrefetchedQuery,
   type Instance,
@@ -47,7 +48,7 @@ const statusMessage: Record<WsState, string> = {
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await queryClient.prefetchQuery(
-    apiq('instanceView', { path: { instance }, query: { project } })
+    q(api.instanceView, { path: { instance }, query: { project } })
   )
   return null
 }
@@ -57,7 +58,7 @@ function isStarting(i: Instance | undefined) {
 }
 
 const instanceView = ({ project, instance }: PP.Instance) =>
-  apiq('instanceView', { path: { instance }, query: { project } })
+  q(api.instanceView, { path: { instance }, query: { project } })
 
 export const handle = { crumb: 'Serial Console' }
 
@@ -93,7 +94,7 @@ export default function SerialConsolePage() {
     // TODO: error handling if this connection fails
     if (!ws.current) {
       const { project, instance } = instanceSelector
-      ws.current = api.ws.instanceSerialConsoleStream({
+      ws.current = instanceSerialConsoleStream({
         secure: window.location.protocol === 'https:',
         host: window.location.host,
         path: { instance },

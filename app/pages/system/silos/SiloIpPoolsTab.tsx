@@ -12,7 +12,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { type LoaderFunctionArgs } from 'react-router'
 
-import { getListQFn, queryClient, useApiMutation, type SiloIpPool } from '@oxide/api'
+import { api, getListQFn, queryClient, useApiMutation, type SiloIpPool } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
@@ -55,14 +55,14 @@ const staticCols = [
   }),
 ]
 
-const allPoolsQuery = getListQFn('ipPoolList', { query: { limit: ALL_ISH } })
+const allPoolsQuery = getListQFn(api.ipPoolList, { query: { limit: ALL_ISH } })
 
 const allSiloPoolsQuery = (silo: string) =>
-  getListQFn('siloIpPoolList', { path: { silo }, query: { limit: ALL_ISH } })
+  getListQFn(api.siloIpPoolList, { path: { silo }, query: { limit: ALL_ISH } })
 
 // exported to call in silo page loader
 export const siloIpPoolsQuery = (silo: string) =>
-  getListQFn('siloIpPoolList', { path: { silo } })
+  getListQFn(api.siloIpPoolList, { path: { silo } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { silo } = getSiloSelector(params)
@@ -86,12 +86,12 @@ export default function SiloIpPoolsTab() {
     [allPools]
   )
 
-  const { mutateAsync: updatePoolLink } = useApiMutation('ipPoolSiloUpdate', {
+  const { mutateAsync: updatePoolLink } = useApiMutation(api.ipPoolSiloUpdate, {
     onSuccess() {
       queryClient.invalidateEndpoint('siloIpPoolList')
     },
   })
-  const { mutateAsync: unlinkPool } = useApiMutation('ipPoolSiloUnlink', {
+  const { mutateAsync: unlinkPool } = useApiMutation(api.ipPoolSiloUnlink, {
     onSuccess() {
       queryClient.invalidateEndpoint('siloIpPoolList')
       // We only have the ID, so will show a generic confirmation message
@@ -204,7 +204,7 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
   const { silo } = useSiloSelector()
   const { control, handleSubmit } = useForm({ defaultValues })
 
-  const linkPool = useApiMutation('ipPoolSiloLink', {
+  const linkPool = useApiMutation(api.ipPoolSiloLink, {
     onSuccess() {
       queryClient.invalidateEndpoint('siloIpPoolList')
     },

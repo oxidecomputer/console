@@ -8,7 +8,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 
-import { apiq } from '@oxide/api'
+import { api, q } from '@oxide/api'
 import { Badge } from '@oxide/design-system/ui'
 
 import { useVpcSelector } from '~/hooks/use-params'
@@ -20,7 +20,7 @@ import { LinkCell } from './LinkCell'
 export const RouterLinkCell = ({ routerId }: { routerId?: string | null }) => {
   const { project, vpc } = useVpcSelector()
   const { data: router, isError } = useQuery(
-    apiq('vpcRouterView', { path: { router: routerId! } }, { enabled: !!routerId })
+    q(api.vpcRouterView, { path: { router: routerId! } }, { enabled: !!routerId })
   )
   if (!routerId) return <EmptyCell />
   // probably not possible but let’s be safe

@@ -8,7 +8,7 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import { queryClient, useApiMutation, type SshKeyCreate } from '@oxide/api'
+import { api, queryClient, useApiMutation, type SshKeyCreate } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -34,7 +34,7 @@ export function SSHKeyCreate({ onDismiss, message }: Props) {
 
   const handleDismiss = onDismiss ? onDismiss : () => navigate(pb.sshKeys())
 
-  const createSshKey = useApiMutation('currentUserSshKeyCreate', {
+  const createSshKey = useApiMutation(api.currentUserSshKeyCreate, {
     onSuccess(sshKey) {
       queryClient.invalidateEndpoint('currentUserSshKeyList')
       handleDismiss()

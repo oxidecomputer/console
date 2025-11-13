@@ -9,10 +9,11 @@ import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/re
 import { useMemo, useState } from 'react'
 
 import {
-  apiq,
+  api,
   byGroupThenName,
   deleteRole,
   getEffectiveRole,
+  q,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -52,9 +53,9 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
   </TableEmptyBox>
 )
 
-const policyView = apiq('policyView', {})
-const userList = apiq('userList', {})
-const groupList = apiq('groupList', {})
+const policyView = q(api.policyView, {})
+const userList = q(api.userList, {})
+const groupList = q(api.groupList, {})
 
 export async function clientLoader() {
   await Promise.all([
@@ -108,7 +109,7 @@ export default function SiloAccessPage() {
       .sort(byGroupThenName)
   }, [siloRows])
 
-  const { mutateAsync: updatePolicy } = useApiMutation('policyUpdate', {
+  const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
     onSuccess: () => queryClient.invalidateEndpoint('policyView'),
     // TODO: handle 403
   })

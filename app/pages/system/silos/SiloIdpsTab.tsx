@@ -12,7 +12,7 @@ import { Outlet, type LoaderFunctionArgs } from 'react-router'
 import { Cloud24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
-import { getListQFn, queryClient, type IdentityProvider } from '~/api'
+import { api, getListQFn, queryClient, type IdentityProvider } from '~/api'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
 import { LinkCell } from '~/table/cells/LinkCell'
@@ -29,7 +29,7 @@ const EmptyState = () => (
 const colHelper = createColumnHelper<IdentityProvider>()
 
 export const siloIdpList = (silo: string) =>
-  getListQFn('siloIdentityProviderList', { query: { silo } })
+  getListQFn(api.siloIdentityProviderList, { query: { silo } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { silo } = getSiloSelector(params)

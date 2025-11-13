@@ -8,7 +8,7 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
-import { apiq, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
+import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -23,7 +23,7 @@ import type * as PP from '~/util/path-params'
 export const handle = titleCrumb('Edit VPC')
 
 const vpcView = ({ project, vpc }: PP.Vpc) =>
-  apiq('vpcView', { path: { vpc }, query: { project } })
+  q(api.vpcView, { path: { vpc }, query: { project } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcSelector(params)
@@ -37,7 +37,7 @@ export default function EditVpcSideModalForm() {
 
   const { data: vpc } = usePrefetchedQuery(vpcView({ project, vpc: vpcName }))
 
-  const editVpc = useApiMutation('vpcUpdate', {
+  const editVpc = useApiMutation(api.vpcUpdate, {
     onSuccess(updatedVpc) {
       queryClient.invalidateEndpoint('vpcList')
       navigate(pb.vpc({ project, vpc: updatedVpc.name }))

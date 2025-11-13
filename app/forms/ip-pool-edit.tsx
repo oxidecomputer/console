@@ -8,7 +8,7 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
-import { apiq, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
+import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -22,7 +22,7 @@ import type * as PP from '~/util/path-params'
 
 import { IpPoolVisibilityMessage } from './ip-pool-create'
 
-const ipPoolView = ({ pool }: PP.IpPool) => apiq('ipPoolView', { path: { pool } })
+const ipPoolView = ({ pool }: PP.IpPool) => q(api.ipPoolView, { path: { pool } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const selector = getIpPoolSelector(params)
@@ -40,7 +40,7 @@ export default function EditIpPoolSideModalForm() {
 
   const form = useForm({ defaultValues: pool })
 
-  const editPool = useApiMutation('ipPoolUpdate', {
+  const editPool = useApiMutation(api.ipPoolUpdate, {
     onSuccess(updatedPool) {
       queryClient.invalidateEndpoint('ipPoolList')
       navigate(pb.ipPool({ pool: updatedPool.name }))

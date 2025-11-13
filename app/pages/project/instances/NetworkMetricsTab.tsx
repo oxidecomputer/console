@@ -10,7 +10,8 @@ import { useMemo, useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router'
 
 import {
-  apiq,
+  api,
+  q,
   queryClient,
   usePrefetchedQuery,
   type InstanceNetworkInterface,
@@ -34,7 +35,7 @@ import { useMetricsContext } from './common'
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await queryClient.prefetchQuery(
-    apiq('instanceNetworkInterfaceList', {
+    q(api.instanceNetworkInterfaceList, {
       query: { project, instance, limit: ALL_ISH },
     })
   )
@@ -46,7 +47,7 @@ const groupByInstanceId = { cols: ['instance_id'], op: 'sum' } as const
 export default function NetworkMetricsTab() {
   const { project, instance } = useInstanceSelector()
   const { data: nics } = usePrefetchedQuery(
-    apiq('instanceNetworkInterfaceList', {
+    q(api.instanceNetworkInterfaceList, {
       query: { project, instance, limit: ALL_ISH },
     })
   )
@@ -69,7 +70,7 @@ export default function NetworkMetricsTab() {
 function NetworkMetrics({ nics }: { nics: InstanceNetworkInterface[] }) {
   const { project, instance } = useInstanceSelector()
   const { data: instanceData } = usePrefetchedQuery(
-    apiq('instanceView', { path: { instance }, query: { project } })
+    q(api.instanceView, { path: { instance }, query: { project } })
   )
   const { startTime, endTime, dateTimeRangePicker } = useMetricsContext()
 

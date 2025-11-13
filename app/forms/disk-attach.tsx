@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { apiq, type ApiError } from '@oxide/api'
+import { api, q, type ApiError } from '@oxide/api'
 
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { ModalForm } from '~/components/form/ModalForm'
@@ -42,7 +42,7 @@ export function AttachDiskModalForm({
   const { project } = useProjectSelector()
 
   const { data, isPending } = useQuery(
-    apiq('diskList', { query: { project, limit: ALL_ISH } })
+    q(api.diskList, { query: { project, limit: ALL_ISH } })
   )
   const detachedDisks = useMemo(
     () =>

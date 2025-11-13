@@ -8,7 +8,7 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import { apiq, queryClient, useApiMutation, type ProjectCreate } from '@oxide/api'
+import { api, q, queryClient, useApiMutation, type ProjectCreate } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -30,12 +30,12 @@ export default function ProjectCreateSideModalForm() {
 
   const onDismiss = () => navigate(pb.projects())
 
-  const createProject = useApiMutation('projectCreate', {
+  const createProject = useApiMutation(api.projectCreate, {
     onSuccess(project) {
       // refetch list of projects in sidebar
       queryClient.invalidateEndpoint('projectList')
       // avoid the project fetch when the project page loads since we have the data
-      const projectView = apiq('projectView', { path: { project: project.name } })
+      const projectView = q(api.projectView, { path: { project: project.name } })
       queryClient.setQueryData(projectView.queryKey, project)
       addToast(<>Project <HL>{project.name}</HL> created</>) // prettier-ignore
       navigate(pb.project({ project: project.name }))

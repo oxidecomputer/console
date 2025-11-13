@@ -8,6 +8,7 @@
 import { createColumnHelper } from '@tanstack/react-table'
 
 import {
+  api,
   getListQFn,
   queryClient,
   type PhysicalDisk,
@@ -38,7 +39,7 @@ const EmptyState = () => (
   />
 )
 
-const diskList = getListQFn('physicalDiskList', {})
+const diskList = getListQFn(api.physicalDiskList, {})
 
 export async function clientLoader() {
   await queryClient.prefetchQuery(diskList.optionsFn())

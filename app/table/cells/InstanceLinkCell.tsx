@@ -8,7 +8,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 
-import { apiq } from '@oxide/api'
+import { api, q } from '@oxide/api'
 
 import { useProjectSelector } from '~/hooks/use-params'
 import { pb } from '~/util/path-builder'
@@ -19,7 +19,7 @@ import { LinkCell } from './LinkCell'
 export const InstanceLinkCell = ({ instanceId }: { instanceId?: string | null }) => {
   const { project } = useProjectSelector()
   const { data: instance } = useQuery(
-    apiq('instanceView', { path: { instance: instanceId! } }, { enabled: !!instanceId })
+    q(api.instanceView, { path: { instance: instanceId! } }, { enabled: !!instanceId })
   )
 
   // has to be after the hooks because hooks can't be executed conditionally

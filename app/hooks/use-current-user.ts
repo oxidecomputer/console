@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { apiq, usePrefetchedQuery } from '~/api/client'
+import { api, q, usePrefetchedQuery } from '~/api/client'
 
 /**
  * Access all the data fetched by the loader. Because of the `shouldRevalidate`
@@ -15,7 +15,7 @@ import { apiq, usePrefetchedQuery } from '~/api/client'
  * loaders.
  */
 export function useCurrentUser() {
-  const { data: me } = usePrefetchedQuery(apiq('currentUserView', {}))
-  const { data: myGroups } = usePrefetchedQuery(apiq('currentUserGroups', {}))
+  const { data: me } = usePrefetchedQuery(q(api.currentUserView, {}))
+  const { data: myGroups } = usePrefetchedQuery(q(api.currentUserGroups, {}))
   return { me, myGroups }
 }

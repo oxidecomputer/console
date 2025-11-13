@@ -9,8 +9,9 @@ import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
-  apiq,
+  api,
   firewallRuleGetToPut,
+  q,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -39,11 +40,11 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc, rule } = getFirewallRuleSelector(params)
 
   const [firewallRules] = await Promise.all([
-    queryClient.fetchQuery(apiq('vpcFirewallRulesView', { query: { project, vpc } })),
-    queryClient.prefetchQuery(apiq('instanceList', { query: { project, limit: ALL_ISH } })),
-    queryClient.prefetchQuery(apiq('vpcList', { query: { project, limit: ALL_ISH } })),
+    queryClient.fetchQuery(q(api.vpcFirewallRulesView, { query: { project, vpc } })),
+    queryClient.prefetchQuery(q(api.instanceList, { query: { project, limit: ALL_ISH } })),
+    queryClient.prefetchQuery(q(api.vpcList, { query: { project, limit: ALL_ISH } })),
     queryClient.prefetchQuery(
-      apiq('vpcSubnetList', { query: { project, vpc, limit: ALL_ISH } })
+      q(api.vpcSubnetList, { query: { project, vpc, limit: ALL_ISH } })
     ),
   ])
 
@@ -58,7 +59,7 @@ export default function EditFirewallRuleForm() {
   const vpcSelector = useVpcSelector()
 
   const { data: firewallRules } = usePrefetchedQuery(
-    apiq('vpcFirewallRulesView', { query: { project, vpc } })
+    q(api.vpcFirewallRulesView, { query: { project, vpc } })
   )
 
   const originalRule = firewallRules.rules.find((r) => r.name === rule)
@@ -69,7 +70,7 @@ export default function EditFirewallRuleForm() {
   const navigate = useNavigate()
   const onDismiss = () => navigate(pb.vpcFirewallRules(vpcSelector))
 
-  const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
+  const updateRules = useApiMutation(api.vpcFirewallRulesUpdate, {
     onSuccess(_updatedRules, { body }) {
       // Nav before the invalidate because I once saw the above invariant fail
       // briefly after successful edit (error page flashed but then we land

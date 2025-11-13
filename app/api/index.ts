@@ -19,6 +19,5 @@ export * from './__generated__/Api'
 
 export type { ApiTypes }
 
-export { ensurePrefetched, type PaginatedQuery, type ResultsPage } from './hooks'
 export type { ApiError } from './errors'
 export { navToLogin } from './nav-to-login'

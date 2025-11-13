@@ -11,7 +11,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { project } from '@oxide/api-mocks'
 
-import { apiq, useApiMutation } from '..'
+import { api, q, useApiMutation } from '..'
 import type { DiskCreate } from '../__generated__/Api'
 import { overrideOnce } from '../../../test/unit/server'
 
@@ -35,16 +35,17 @@ export function Wrapper({ children }: { children: React.ReactNode }) {
 
 const config = { wrapper: Wrapper }
 
-const renderProjectList = () => renderHook(() => useQuery(apiq('projectList', {})), config)
+const renderProjectList = () => renderHook(() => useQuery(q(api.projectList, {})), config)
 
 // 503 is a special key in the MSW server that returns a 503
 const renderGetProject503 = () =>
   renderHook(
-    () => useQuery(apiq('projectView', { path: { project: 'project-error-503' } })),
+    () => useQuery(q(api.projectView, { path: { project: 'project-error-503' } })),
     config
   )
 
-const renderCreateProject = () => renderHook(() => useApiMutation('projectCreate'), config)
+const renderCreateProject = () =>
+  renderHook(() => useApiMutation(api.projectCreate), config)
 
 const createParams = {
   body: { name: 'abc', description: '', hello: 'a' },
@@ -120,7 +121,7 @@ describe('useApiQuery', () => {
       function BadApiCall() {
         try {
           // oxlint-disable-next-line react-hooks/rules-of-hooks
-          useQuery(apiq('projectView', { path: { project: 'nonexistent' } }))
+          useQuery(q(api.projectView, { path: { project: 'nonexistent' } }))
         } catch (e) {
           onError(e)
         }
@@ -143,8 +144,8 @@ describe('useApiQuery', () => {
       const { result } = renderHook(
         () =>
           useQuery(
-            apiq(
-              'projectView',
+            q(
+              api.projectView,
               { path: { project: 'nonexistent' } },
               { throwOnError: false }
             )
@@ -205,7 +206,7 @@ describe('useApiMutation', () => {
     }
 
     it('passes through raw response', async () => {
-      const { result } = renderHook(() => useApiMutation('diskCreate'), config)
+      const { result } = renderHook(() => useApiMutation(api.diskCreate), config)
 
       act(() => result.current.mutate(diskCreate404Params))
 
@@ -219,7 +220,7 @@ describe('useApiMutation', () => {
     })
 
     it('parses error json if possible', async () => {
-      const { result } = renderHook(() => useApiMutation('diskCreate'), config)
+      const { result } = renderHook(() => useApiMutation(api.diskCreate), config)
 
       act(() => result.current.mutate(diskCreate404Params))
 
@@ -285,4 +286,13 @@ describe('useApiMutation', () => {
       })
     })
   })
+})
+
+// we're relying on the name property of the API method for the queryKey, so we
+// need to make sure nothing changes in the generated client to cause the API
+// methods to not have a name
+it('apiq queryKey', () => {
+  const params = { path: { silo: 'abc' } }
+  const queryOptions = q(api.siloView, { path: { silo: 'abc' } })
+  expect(queryOptions.queryKey).toEqual(['siloView', params])
 })

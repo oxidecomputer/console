@@ -7,7 +7,7 @@
  */
 import { type LoaderFunctionArgs } from 'react-router'
 
-import { apiq, queryClient, usePrefetchedQuery } from '@oxide/api'
+import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 
 import { EditImageSideModalForm } from '~/forms/image-edit'
 import { titleCrumb } from '~/hooks/use-crumbs'
@@ -16,7 +16,7 @@ import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
 const imageView = ({ image, project }: PP.Image) =>
-  apiq('imageView', { path: { image }, query: { project } })
+  q(api.imageView, { path: { image }, query: { project } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const selector = getProjectImageSelector(params)

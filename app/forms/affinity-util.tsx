@@ -6,27 +6,30 @@
  * Copyright Oxide Computer Company
  */
 
-import { apiq } from '~/api'
+import { api, q } from '~/api'
 import { ALL_ISH } from '~/util/consts'
 import type * as PP from '~/util/path-params'
 
 export const instanceList = ({ project }: PP.Project) =>
-  apiq('instanceList', { query: { project, limit: ALL_ISH } })
+  q(api.instanceList, { query: { project, limit: ALL_ISH } })
 
 export const antiAffinityGroupList = ({ project }: PP.Project) =>
-  apiq('antiAffinityGroupList', { query: { project, limit: ALL_ISH } })
+  q(api.antiAffinityGroupList, { query: { project, limit: ALL_ISH } })
 
 export const antiAffinityGroupView = ({
   project,
   antiAffinityGroup,
 }: PP.AntiAffinityGroup) =>
-  apiq('antiAffinityGroupView', { path: { antiAffinityGroup }, query: { project } })
+  q(api.antiAffinityGroupView, {
+    path: { antiAffinityGroup },
+    query: { project },
+  })
 
 export const antiAffinityGroupMemberList = ({
   antiAffinityGroup,
   project,
 }: PP.AntiAffinityGroup) =>
-  apiq('antiAffinityGroupMemberList', {
+  q(api.antiAffinityGroupMemberList, {
     path: { antiAffinityGroup },
     // member limit in DB is currently 32, so pagination isn't needed
     query: { project, limit: ALL_ISH },

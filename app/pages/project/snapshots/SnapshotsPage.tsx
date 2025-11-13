@@ -11,9 +11,10 @@ import { useCallback } from 'react'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
-  apiq,
-  apiqErrorsAllowed,
+  api,
   getListQFn,
+  q,
+  qErrorsAllowed,
   queryClient,
   useApiMutation,
   type Snapshot,
@@ -38,7 +39,7 @@ import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const DiskNameFromId = ({ value }: { value: string }) => {
-  const { data } = useQuery(apiqErrorsAllowed('diskView', { path: { disk: value } }))
+  const { data } = useQuery(qErrorsAllowed(api.diskView, { path: { disk: value } }))
 
   if (!data) return <SkeletonCell />
   if (data.type === 'error') return <Badge color="neutral">Deleted</Badge>
@@ -55,7 +56,8 @@ const EmptyState = () => (
   />
 )
 
-const snapshotList = (project: string) => getListQFn('snapshotList', { query: { project } })
+const snapshotList = (project: string) =>
+  getListQFn(api.snapshotList, { query: { project } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
@@ -71,11 +73,11 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     // (delete disks) are not prefetched here because they are (obviously) not
     // in the disk list response.
     queryClient
-      .fetchQuery(apiq('diskList', { query: { project, limit: 200 } }))
+      .fetchQuery(q(api.diskList, { query: { project, limit: 200 } }))
       .then((disks) => {
         for (const disk of disks.items) {
           queryClient.setQueryData(
-            apiqErrorsAllowed('diskView', { path: { disk: disk.id } }).queryKey,
+            qErrorsAllowed(api.diskView, { path: { disk: disk.id } }).queryKey,
             { type: 'success', data: disk }
           )
         }
@@ -105,7 +107,7 @@ export default function SnapshotsPage() {
   const { project } = useProjectSelector()
   const navigate = useNavigate()
 
-  const { mutateAsync: deleteSnapshot } = useApiMutation('snapshotDelete', {
+  const { mutateAsync: deleteSnapshot } = useApiMutation(api.snapshotDelete, {
     onSuccess() {
       queryClient.invalidateEndpoint('snapshotList')
     },

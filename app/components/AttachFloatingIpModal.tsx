@@ -10,7 +10,8 @@ import { useQuery } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 
 import {
-  apiqErrorsAllowed,
+  api,
+  qErrorsAllowed,
   queryClient,
   useApiMutation,
   type FloatingIp,
@@ -26,7 +27,7 @@ import { ModalForm } from './form/ModalForm'
 
 function IpPoolName({ ipPoolId }: { ipPoolId: string }) {
   const { data: result } = useQuery(
-    apiqErrorsAllowed('projectIpPoolView', { path: { pool: ipPoolId } })
+    qErrorsAllowed(api.projectIpPoolView, { path: { pool: ipPoolId } })
   )
   // As with IpPoolCell, this should never happen, but to be safe …
   if (!result || result.type === 'error') return null
@@ -67,7 +68,7 @@ export const AttachFloatingIpModal = ({
   instance: Instance
   onDismiss: () => void
 }) => {
-  const floatingIpAttach = useApiMutation('floatingIpAttach', {
+  const floatingIpAttach = useApiMutation(api.floatingIpAttach, {
     onSuccess(floatingIp) {
       queryClient.invalidateEndpoint('floatingIpList')
       queryClient.invalidateEndpoint('instanceExternalIpList')

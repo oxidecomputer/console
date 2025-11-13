@@ -5,11 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router'
 
-import { getListQFn, queryClient, useApiMutation, type SshKey } from '@oxide/api'
+import { api, getListQFn, queryClient, useApiMutation, type SshKey } from '@oxide/api'
 import { Key16Icon, Key24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -28,7 +29,7 @@ import { TableActions } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-const sshKeyList = getListQFn('currentUserSshKeyList', {})
+const sshKeyList = getListQFn(api.currentUserSshKeyList, {})
 export const handle = makeCrumb('SSH Keys', pb.sshKeys)
 
 export async function clientLoader() {
@@ -41,7 +42,7 @@ const colHelper = createColumnHelper<SshKey>()
 export default function SSHKeysPage() {
   const navigate = useNavigate()
 
-  const { mutateAsync: deleteSshKey } = useApiMutation('currentUserSshKeyDelete', {
+  const { mutateAsync: deleteSshKey } = useApiMutation(api.currentUserSshKeyDelete, {
     onSuccess: (_data, variables) => {
       queryClient.invalidateEndpoint('currentUserSshKeyList')
       addToast(<>SSH key <HL>{variables.path.sshKey}</HL> deleted</>) // prettier-ignore

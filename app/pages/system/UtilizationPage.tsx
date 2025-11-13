@@ -10,6 +10,7 @@ import { useIsFetching } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 
 import {
+  api,
   FLEET_ID,
   getListQFn,
   queryClient,
@@ -37,10 +38,10 @@ import { round } from '~/util/math'
 import { pb } from '~/util/path-builder'
 import { bytesToGiB, bytesToTiB } from '~/util/units'
 
-const siloList = getListQFn('siloList', {
+const siloList = getListQFn(api.siloList, {
   query: { limit: ALL_ISH },
 })
-const siloUtilList = getListQFn('siloUtilizationList', {
+const siloUtilList = getListQFn(api.siloUtilizationList, {
   query: { limit: ALL_ISH },
 })
 

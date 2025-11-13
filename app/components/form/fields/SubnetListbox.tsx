@@ -8,7 +8,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useWatch, type FieldPath, type FieldValues } from 'react-hook-form'
 
-import { apiq } from '@oxide/api'
+import { api, q } from '@oxide/api'
 
 import { useProjectSelector } from '~/hooks/use-params'
 
@@ -42,8 +42,8 @@ export function SubnetListbox<
   // TODO: error handling other than fallback to empty list?
   const subnets =
     useQuery(
-      apiq(
-        'vpcSubnetList',
+      q(
+        api.vpcSubnetList,
         { query: { ...projectSelector, vpc: vpcName } },
         { enabled: vpcExists, throwOnError: false }
       )

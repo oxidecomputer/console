@@ -11,10 +11,11 @@ import type { LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 
 import {
-  apiq,
+  api,
   diskCan,
   genName,
   instanceCan,
+  q,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -48,10 +49,10 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     // don't bother with page size because this will never paginate. max disks
     // per instance is 8
     // https://github.com/oxidecomputer/omicron/blob/40fc3835/nexus/db-queries/src/db/queries/disk.rs#L16-L21
-    queryClient.prefetchQuery(apiq('instanceDiskList', selector)),
+    queryClient.prefetchQuery(q(api.instanceDiskList, selector)),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
-    queryClient.prefetchQuery(apiq('instanceView', selector)),
+    queryClient.prefetchQuery(q(api.instanceView, selector)),
   ])
   return null
 }
@@ -87,7 +88,7 @@ export default function StorageTab() {
     [instanceName, project]
   )
 
-  const { mutateAsync: detachDisk } = useApiMutation('instanceDiskDetach', {
+  const { mutateAsync: detachDisk } = useApiMutation(api.instanceDiskDetach, {
     onSuccess(disk) {
       queryClient.invalidateEndpoint('instanceDiskList')
       addToast(<>Disk <HL>{disk.name}</HL> detached</>) // prettier-ignore
@@ -96,7 +97,7 @@ export default function StorageTab() {
       addToast({ title: 'Failed to detach disk', content: err.message, variant: 'error' })
     },
   })
-  const { mutate: createSnapshot } = useApiMutation('snapshotCreate', {
+  const { mutate: createSnapshot } = useApiMutation(api.snapshotCreate, {
     onSuccess(snapshot) {
       queryClient.invalidateEndpoint('snapshotList')
       addToast(<>Snapshot <HL>{snapshot.name}</HL> created</>) // prettier-ignore
@@ -111,10 +112,10 @@ export default function StorageTab() {
   })
 
   const { data: instance } = usePrefetchedQuery(
-    apiq('instanceView', { path: { instance: instanceName }, query: { project } })
+    q(api.instanceView, { path: { instance: instanceName }, query: { project } })
   )
 
-  const { mutateAsync: instanceUpdate } = useApiMutation('instanceUpdate', {
+  const { mutateAsync: instanceUpdate } = useApiMutation(api.instanceUpdate, {
     onSuccess() {
       queryClient.invalidateEndpoint('instanceView')
     },
@@ -137,7 +138,7 @@ export default function StorageTab() {
     [createSnapshot, project]
   )
 
-  const { data: disks } = usePrefetchedQuery(apiq('instanceDiskList', instancePathQuery))
+  const { data: disks } = usePrefetchedQuery(q(api.instanceDiskList, instancePathQuery))
 
   const [bootDisks, otherDisks] = useMemo(
     () => R.partition(disks.items, (d) => d.id === instance.bootDiskId),
@@ -287,7 +288,7 @@ export default function StorageTab() {
     ]
   )
 
-  const attachDisk = useApiMutation('instanceDiskAttach', {
+  const attachDisk = useApiMutation(api.instanceDiskAttach, {
     onSuccess(disk) {
       queryClient.invalidateEndpoint('instanceDiskList')
       setShowDiskCreate(false)

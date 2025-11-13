@@ -7,7 +7,7 @@
  */
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
-import { apiq, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
+import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { HL } from '~/components/HL'
@@ -25,7 +25,7 @@ import type * as PP from '~/util/path-params'
 import { VpcDocsPopover } from './VpcsPage'
 
 const vpcView = ({ project, vpc }: PP.Vpc) =>
-  apiq('vpcView', { path: { vpc }, query: { project } })
+  q(api.vpcView, { path: { vpc }, query: { project } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   await queryClient.prefetchQuery(vpcView(getVpcSelector(params)))
@@ -38,7 +38,7 @@ export default function VpcPage() {
   const { project, vpc: vpcName } = vpcSelector
   const { data: vpc } = usePrefetchedQuery(vpcView(vpcSelector))
 
-  const { mutateAsync: deleteVpc } = useApiMutation('vpcDelete', {
+  const { mutateAsync: deleteVpc } = useApiMutation(api.vpcDelete, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('vpcList')
       navigate(pb.vpcs({ project }))

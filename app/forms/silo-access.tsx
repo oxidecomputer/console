@@ -7,7 +7,13 @@
  */
 import { useForm } from 'react-hook-form'
 
-import { queryClient, updateRole, useActorsNotInPolicy, useApiMutation } from '@oxide/api'
+import {
+  api,
+  queryClient,
+  updateRole,
+  useActorsNotInPolicy,
+  useApiMutation,
+} from '@oxide/api'
 import { Access16Icon } from '@oxide/design-system/icons/react'
 
 import { ListboxField } from '~/components/form/fields/ListboxField'
@@ -25,7 +31,7 @@ import {
 export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
   const actors = useActorsNotInPolicy(policy)
 
-  const updatePolicy = useApiMutation('policyUpdate', {
+  const updatePolicy = useApiMutation(api.policyUpdate, {
     onSuccess: () => {
       queryClient.invalidateEndpoint('policyView')
       onDismiss()
@@ -74,7 +80,7 @@ export function SiloAccessEditUserSideModal({
   policy,
   defaultValues,
 }: EditRoleModalProps) {
-  const updatePolicy = useApiMutation('policyUpdate', {
+  const updatePolicy = useApiMutation(api.policyUpdate, {
     onSuccess: () => {
       queryClient.invalidateEndpoint('policyView')
       onDismiss()

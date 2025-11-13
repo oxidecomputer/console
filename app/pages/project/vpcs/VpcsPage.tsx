@@ -10,7 +10,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
-import { apiq, getListQFn, queryClient, useApiMutation, type Vpc } from '@oxide/api'
+import { api, getListQFn, q, queryClient, useApiMutation, type Vpc } from '@oxide/api'
 import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -33,7 +33,7 @@ import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
-const vpcList = (project: string) => getListQFn('vpcList', { query: { project } })
+const vpcList = (project: string) => getListQFn(api.vpcList, { query: { project } })
 
 const EmptyState = () => (
   <EmptyMessage
@@ -55,7 +55,7 @@ export const VpcDocsPopover = () => (
 )
 
 const FirewallRuleCount = ({ project, vpc }: PP.Vpc) => {
-  const { data } = useQuery(apiq('vpcFirewallRulesView', { query: { project, vpc } }))
+  const { data } = useQuery(q(api.vpcFirewallRulesView, { query: { project, vpc } }))
 
   if (!data) return <SkeletonCell /> // loading
 
@@ -78,7 +78,7 @@ export default function VpcsPage() {
   const { project } = useProjectSelector()
   const navigate = useNavigate()
 
-  const { mutateAsync: deleteVpc } = useApiMutation('vpcDelete', {
+  const { mutateAsync: deleteVpc } = useApiMutation(api.vpcDelete, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('vpcList')
       addToast(<>VPC <HL>{variables.path.vpc}</HL> deleted</>) // prettier-ignore
@@ -91,7 +91,7 @@ export default function VpcsPage() {
         label: 'Edit',
         onActivate() {
           queryClient.setQueryData(
-            apiq('vpcView', { path: { vpc: vpc.name }, query: { project } }).queryKey,
+            q(api.vpcView, { path: { vpc: vpc.name }, query: { project } }).queryKey,
             vpc
           )
           navigate(pb.vpcEdit({ project, vpc: vpc.name }), { state: vpc })

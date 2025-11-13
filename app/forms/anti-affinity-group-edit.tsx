@@ -10,6 +10,7 @@ import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 
 import {
+  api,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -43,7 +44,7 @@ export default function EditAntiAffintyGroupForm() {
 
   const navigate = useNavigate()
 
-  const editAntiAffinityGroup = useApiMutation('antiAffinityGroupUpdate', {
+  const editAntiAffinityGroup = useApiMutation(api.antiAffinityGroupUpdate, {
     onSuccess(updatedGroup) {
       queryClient.invalidateEndpoint('antiAffinityGroupView')
       queryClient.invalidateEndpoint('antiAffinityGroupList')

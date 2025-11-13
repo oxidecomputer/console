@@ -9,7 +9,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
-import { getListQFn, queryClient, useApiMutation, type Image } from '@oxide/api'
+import { api, getListQFn, queryClient, useApiMutation, type Image } from '@oxide/api'
 import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -44,7 +44,7 @@ const EmptyState = () => (
 
 const colHelper = createColumnHelper<Image>()
 
-const imageList = (query: PP.Project) => getListQFn('imageList', { query })
+const imageList = (query: PP.Project) => getListQFn(api.imageList, { query })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
@@ -59,7 +59,7 @@ export default function ImagesPage() {
 
   const [promoteImageName, setPromoteImageName] = useState<string | null>(null)
 
-  const { mutateAsync: deleteImage } = useApiMutation('imageDelete', {
+  const { mutateAsync: deleteImage } = useApiMutation(api.imageDelete, {
     onSuccess(_data, variables) {
       addToast(<>Image <HL>{variables.path.image}</HL> deleted</>) // prettier-ignore
       queryClient.invalidateEndpoint('imageList')
@@ -136,7 +136,7 @@ type PromoteModalProps = { onDismiss: () => void; imageName: string }
 const PromoteImageModal = ({ onDismiss, imageName }: PromoteModalProps) => {
   const { project } = useProjectSelector()
 
-  const promoteImage = useApiMutation('imagePromote', {
+  const promoteImage = useApiMutation(api.imagePromote, {
     onSuccess(data) {
       addToast({
         content: (

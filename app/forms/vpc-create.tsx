@@ -8,7 +8,7 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import { apiq, queryClient, useApiMutation, type VpcCreate } from '@oxide/api'
+import { api, q, queryClient, useApiMutation, type VpcCreate } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -32,11 +32,14 @@ export default function CreateVpcSideModalForm() {
   const projectSelector = useProjectSelector()
   const navigate = useNavigate()
 
-  const createVpc = useApiMutation('vpcCreate', {
+  const createVpc = useApiMutation(api.vpcCreate, {
     onSuccess(vpc) {
       queryClient.invalidateEndpoint('vpcList')
       // avoid the vpc fetch when the vpc page loads since we have the data
-      const vpcView = apiq('vpcView', { path: { vpc: vpc.name }, query: projectSelector })
+      const vpcView = q(api.vpcView, {
+        path: { vpc: vpc.name },
+        query: projectSelector,
+      })
       queryClient.setQueryData(vpcView.queryKey, vpc)
       addToast(<>VPC <HL>{vpc.name}</HL> created</>) // prettier-ignore
       navigate(pb.vpc({ vpc: vpc.name, ...projectSelector }))

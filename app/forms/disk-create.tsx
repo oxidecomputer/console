@@ -11,7 +11,8 @@ import { useMemo } from 'react'
 import { useController, useForm, type Control } from 'react-hook-form'
 
 import {
-  apiq,
+  api,
+  q,
   queryClient,
   useApiMutation,
   type BlockSize,
@@ -70,7 +71,7 @@ export function CreateDiskSideModalForm({
   onDismiss,
   unavailableDiskNames = [],
 }: CreateSideModalFormProps) {
-  const createDisk = useApiMutation('diskCreate', {
+  const createDisk = useApiMutation(api.diskCreate, {
     onSuccess(data) {
       queryClient.invalidateEndpoint('diskList')
       addToast(<>Disk <HL>{data.name}</HL> created</>) // prettier-ignore
@@ -81,8 +82,8 @@ export function CreateDiskSideModalForm({
 
   const form = useForm({ defaultValues })
   const { project } = useProjectSelector()
-  const projectImages = useQuery(apiq('imageList', { query: { project } }))
-  const siloImages = useQuery(apiq('imageList', {}))
+  const projectImages = useQuery(q(api.imageList, { query: { project } }))
+  const siloImages = useQuery(q(api.imageList, {}))
 
   // put project images first because if there are any, there probably aren't
   // very many and they're probably relevant
@@ -92,7 +93,7 @@ export function CreateDiskSideModalForm({
   )
   const areImagesLoading = projectImages.isPending || siloImages.isPending
 
-  const snapshotsQuery = useQuery(apiq('snapshotList', { query: { project } }))
+  const snapshotsQuery = useQuery(q(api.snapshotList, { query: { project } }))
   const snapshots = snapshotsQuery.data?.items || []
 
   // validate disk source size
@@ -235,7 +236,7 @@ const DiskSourceField = ({
 
 const DiskNameFromId = ({ disk }: { disk: string }) => {
   const { data, isPending, isError } = useQuery(
-    apiq('diskView', { path: { disk } }, { throwOnError: false })
+    q(api.diskView, { path: { disk } }, { throwOnError: false })
   )
 
   if (isPending || isError) return null
@@ -244,7 +245,7 @@ const DiskNameFromId = ({ disk }: { disk: string }) => {
 
 const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
   const { project } = useProjectSelector()
-  const snapshotsQuery = useQuery(apiq('snapshotList', { query: { project } }))
+  const snapshotsQuery = useQuery(q(api.snapshotList, { query: { project } }))
 
   const snapshots = snapshotsQuery.data?.items || []
   const diskSizeField = useController({ control, name: 'size' }).field

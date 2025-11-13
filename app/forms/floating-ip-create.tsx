@@ -11,7 +11,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import { apiq, queryClient, useApiMutation, type FloatingIpCreate } from '@oxide/api'
+import { api, q, queryClient, useApiMutation, type FloatingIpCreate } from '@oxide/api'
 
 import { AccordionItem } from '~/components/AccordionItem'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -39,13 +39,13 @@ export default function CreateFloatingIpSideModalForm() {
   // Fetch 1000 to we can be sure to get them all. Don't bother prefetching
   // because the list is hidden under the Advanced accordion.
   const { data: allPools } = useQuery(
-    apiq('projectIpPoolList', { query: { limit: ALL_ISH } })
+    q(api.projectIpPoolList, { query: { limit: ALL_ISH } })
   )
 
   const projectSelector = useProjectSelector()
   const navigate = useNavigate()
 
-  const createFloatingIp = useApiMutation('floatingIpCreate', {
+  const createFloatingIp = useApiMutation(api.floatingIpCreate, {
     onSuccess(floatingIp) {
       queryClient.invalidateEndpoint('floatingIpList')
       queryClient.invalidateEndpoint('ipPoolUtilizationView')

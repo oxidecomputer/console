@@ -14,8 +14,9 @@ import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/r
 import { Badge } from '@oxide/design-system/ui'
 
 import {
-  apiq,
+  api,
   getListQFn,
+  q,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -47,9 +48,9 @@ import type * as PP from '~/util/path-params'
 export const handle = makeCrumb((p) => p.router!)
 
 const routerView = ({ project, vpc, router }: PP.VpcRouter) =>
-  apiq('vpcRouterView', { path: { router }, query: { vpc, project } })
+  q(api.vpcRouterView, { path: { router }, query: { vpc, project } })
 
-const routeList = (query: PP.VpcRouter) => getListQFn('vpcRouterRouteList', { query })
+const routeList = (query: PP.VpcRouter) => getListQFn(api.vpcRouterRouteList, { query })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const routerSelector = getVpcRouterSelector(params)
@@ -89,7 +90,7 @@ export default function RouterPage() {
   const { project, vpc, router } = useVpcRouterSelector()
   const { data: routerData } = usePrefetchedQuery(routerView({ project, vpc, router }))
 
-  const { mutateAsync: deleteRouterRoute } = useApiMutation('vpcRouterRouteDelete', {
+  const { mutateAsync: deleteRouterRoute } = useApiMutation(api.vpcRouterRouteDelete, {
     onSuccess() {
       queryClient.invalidateEndpoint('vpcRouterRouteList')
       // We only have the ID, so will show a generic confirmation message
@@ -133,7 +134,7 @@ export default function RouterPage() {
         onActivate: () => {
           // the edit view has its own loader, but we can make the modal open
           // instantaneously by preloading the fetch result
-          const { queryKey } = apiq('vpcRouterRouteView', {
+          const { queryKey } = q(api.vpcRouterRouteView, {
             path: { route: routerRoute.name },
             query: { project, vpc, router },
           })

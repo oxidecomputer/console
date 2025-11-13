@@ -19,7 +19,8 @@ import {
 import { Badge } from '@oxide/design-system/ui'
 
 import {
-  apiq,
+  api,
+  q,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -50,8 +51,8 @@ const SEC = 1000 // ms, obviously
 const POLL_FAST = 20 * SEC
 const POLL_SLOW = 120 * SEC
 
-const statusQuery = apiq(
-  'systemUpdateStatus',
+const statusQuery = q(
+  api.systemUpdateStatus,
   {},
   {
     refetchInterval({ state: { data: status } }) {
@@ -69,7 +70,9 @@ const statusQuery = apiq(
     },
   }
 )
-const reposQuery = apiq('systemUpdateRepositoryList', { query: { limit: ALL_ISH } })
+const reposQuery = q(api.systemUpdateRepositoryList, {
+  query: { limit: ALL_ISH },
+})
 
 const refreshData = () =>
   Promise.all([
@@ -106,7 +109,7 @@ export default function UpdatePage() {
   const { data: status } = usePrefetchedQuery(statusQuery)
   const { data: repos } = usePrefetchedQuery(reposQuery)
 
-  const { mutateAsync: setTargetRelease } = useApiMutation('targetReleaseUpdate', {
+  const { mutateAsync: setTargetRelease } = useApiMutation(api.targetReleaseUpdate, {
     onSuccess() {
       refreshData()
       addToast({ content: 'Target release updated' })

@@ -11,7 +11,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Outlet } from 'react-router'
 
-import { apiq, getListQFn, queryClient, useApiMutation, type Image } from '@oxide/api'
+import { api, getListQFn, q, queryClient, useApiMutation, type Image } from '@oxide/api'
 import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -43,7 +43,7 @@ const EmptyState = () => (
   />
 )
 
-const imageList = getListQFn('imageList', {})
+const imageList = getListQFn(api.imageList, {})
 
 export async function clientLoader() {
   await queryClient.prefetchQuery(imageList.optionsFn())
@@ -66,7 +66,7 @@ export default function SiloImagesPage() {
   const [showModal, setShowModal] = useState(false)
   const [demoteImage, setDemoteImage] = useState<Image | null>(null)
 
-  const { mutateAsync: deleteImage } = useApiMutation('imageDelete', {
+  const { mutateAsync: deleteImage } = useApiMutation(api.imageDelete, {
     onSuccess(_data, variables) {
       addToast(<>Image <HL>{variables.path.image}</HL> deleted</>) // prettier-ignore
       queryClient.invalidateEndpoint('imageList')
@@ -124,7 +124,7 @@ const defaultValues: Values = { project: null, image: null }
 const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
   const form = useForm({ defaultValues })
 
-  const promoteImage = useApiMutation('imagePromote', {
+  const promoteImage = useApiMutation(api.imagePromote, {
     onSuccess(data) {
       addToast(<>Image <HL>{data.name}</HL> promoted</>) // prettier-ignore
       queryClient.invalidateEndpoint('imageList')
@@ -135,14 +135,14 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
     onSettled: onDismiss,
   })
 
-  const projects = useQuery(apiq('projectList', {}))
+  const projects = useQuery(q(api.projectList, {}))
   const projectItems = useMemo(() => toComboboxItems(projects.data?.items), [projects.data])
   const selectedProject = form.watch('project')
 
   // can only fetch images if a project is selected
   const images = useQuery(
-    apiq(
-      'imageList',
+    q(
+      api.imageList,
       { query: { project: selectedProject! } },
       { enabled: !!selectedProject }
     )
@@ -210,7 +210,7 @@ const DemoteImageModal = ({
 
   const selectedProject: string | undefined = form.watch('project')
 
-  const demoteImage = useApiMutation('imageDemote', {
+  const demoteImage = useApiMutation(api.imageDemote, {
     onSuccess(data) {
       addToast({
         content: <>Image <HL>{data.name}</HL> demoted</>, // prettier-ignore
@@ -230,7 +230,7 @@ const DemoteImageModal = ({
     onSettled: onDismiss,
   })
 
-  const projects = useQuery(apiq('projectList', {}))
+  const projects = useQuery(q(api.projectList, {}))
   const projectItems = useMemo(() => toComboboxItems(projects.data?.items), [projects.data])
 
   return (

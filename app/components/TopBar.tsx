@@ -8,7 +8,7 @@
 import cn from 'classnames'
 import { Link } from 'react-router'
 
-import { navToLogin, useApiMutation } from '@oxide/api'
+import { api, navToLogin, useApiMutation } from '@oxide/api'
 import {
   Organization16Icon,
   Profile16Icon,
@@ -125,7 +125,7 @@ function Breadcrumbs() {
 }
 
 function UserMenu() {
-  const logout = useApiMutation('logout', {
+  const logout = useApiMutation(api.logout, {
     onSuccess: () => navToLogin({ includeCurrent: false }),
   })
   // fetch happens in loader wrapping all authed pages
