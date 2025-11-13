@@ -186,7 +186,12 @@ export const apiq = <Params, Data>(
     // method name first means we can invalidate all calls to this endpoint by
     // invalidating [f.name] (see invalidateEndpoint)
     queryKey: [f.name, params],
-    // no catch, let unexpected errors bubble up
+    // no catch, let unexpected errors bubble up. note there is a signal param
+    // on queryFn that we could forward on to f(), but we are deliberately not
+    // doing that. we don't really care about canceling queries in flight, and
+    // it seems there are race conditions where something being unmounted on one
+    // page causes a query we need on the subsequent page to be canceled right
+    // in the middle of prefetching
     queryFn: () => f(params).then(handleResult(f.name)),
     // In the case of 404s, let the error bubble up to the error boundary so
     // we can say Not Found. If you need to allow a 404 and want it to show
