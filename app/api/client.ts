@@ -245,7 +245,7 @@ export const q = <Params, Data>(
     queryFn: () => f(params).then(handleResult(f.name)),
     // In the case of 404s, let the error bubble up to the error boundary so
     // we can say Not Found. If you need to allow a 404 and want it to show
-    // up as `error` state instead, pass `useErrorBoundary: false` as an
+    // up as `error` state instead, pass `throwOnError: false` as an
     // option from the calling component and it will override this
     throwOnError: (err) => err.statusCode === 404,
     ...options,
@@ -285,7 +285,7 @@ export const apiqErrorsAllowed = <Params, Data>(
         .catch((data: ApiError) => ({ type: 'error' as const, data })),
     // In the case of 404s, let the error bubble up to the error boundary so
     // we can say Not Found. If you need to allow a 404 and want it to show
-    // up as `error` state instead, pass `useErrorBoundary: false` as an
+    // up as `error` state instead, pass `throwOnError: false` as an
     // option from the calling component and it will override this
     throwOnError: (err) => err.statusCode === 404,
     ...options,
