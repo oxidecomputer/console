@@ -65,7 +65,7 @@ export function NotFound() {
 }
 
 export function SignOutButton({ className }: { className?: string }) {
-  const logout = useApiMutation(api.methods.logout, {
+  const logout = useApiMutation(api.logout, {
     onSuccess: () => navToLogin({ includeCurrent: false }),
   })
   return (

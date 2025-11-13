@@ -31,7 +31,7 @@ import {
 export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
   const actors = useActorsNotInPolicy(policy)
 
-  const updatePolicy = useApiMutation(api.methods.policyUpdate, {
+  const updatePolicy = useApiMutation(api.policyUpdate, {
     onSuccess: () => {
       queryClient.invalidateEndpoint('policyView')
       onDismiss()
@@ -80,7 +80,7 @@ export function SiloAccessEditUserSideModal({
   policy,
   defaultValues,
 }: EditRoleModalProps) {
-  const updatePolicy = useApiMutation(api.methods.policyUpdate, {
+  const updatePolicy = useApiMutation(api.policyUpdate, {
     onSuccess: () => {
       queryClient.invalidateEndpoint('policyView')
       onDismiss()

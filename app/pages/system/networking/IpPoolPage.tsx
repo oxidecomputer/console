@@ -14,8 +14,8 @@ import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
   api,
-  apiq,
   getListQFn,
+  q,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -55,15 +55,15 @@ import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
-const ipPoolView = ({ pool }: PP.IpPool) => apiq(api.methods.ipPoolView, { path: { pool } })
+const ipPoolView = ({ pool }: PP.IpPool) => q(api.ipPoolView, { path: { pool } })
 const ipPoolUtilizationView = ({ pool }: PP.IpPool) =>
-  apiq(api.methods.ipPoolUtilizationView, { path: { pool } })
+  q(api.ipPoolUtilizationView, { path: { pool } })
 const ipPoolSiloList = ({ pool }: PP.IpPool) =>
-  getListQFn(api.methods.ipPoolSiloList, { path: { pool } })
+  getListQFn(api.ipPoolSiloList, { path: { pool } })
 const ipPoolRangeList = ({ pool }: PP.IpPool) =>
-  getListQFn(api.methods.ipPoolRangeList, { path: { pool } })
-const siloList = apiq(api.methods.siloList, { query: { limit: 200 } })
-const siloView = ({ silo }: PP.Silo) => apiq(api.methods.siloView, { path: { silo } })
+  getListQFn(api.ipPoolRangeList, { path: { pool } })
+const siloList = q(api.siloList, { query: { limit: 200 } })
+const siloView = ({ silo }: PP.Silo) => q(api.siloView, { path: { silo } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const selector = getIpPoolSelector(params)
@@ -92,7 +92,7 @@ export default function IpPoolpage() {
   const { data: pool } = usePrefetchedQuery(ipPoolView(poolSelector))
   const { data: ranges } = usePrefetchedQuery(ipPoolRangeList(poolSelector).optionsFn())
   const navigate = useNavigate()
-  const { mutateAsync: deletePool } = useApiMutation(api.methods.ipPoolDelete, {
+  const { mutateAsync: deletePool } = useApiMutation(api.ipPoolDelete, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('ipPoolList')
       navigate(pb.ipPools())
@@ -187,7 +187,7 @@ const ipRangesStaticCols = [
 function IpRangesTable() {
   const { pool } = useIpPoolSelector()
 
-  const { mutateAsync: removeRange } = useApiMutation(api.methods.ipPoolRangeRemove, {
+  const { mutateAsync: removeRange } = useApiMutation(api.ipPoolRangeRemove, {
     onSuccess() {
       queryClient.invalidateEndpoint('ipPoolRangeList')
       queryClient.invalidateEndpoint('ipPoolUtilizationView')
@@ -246,7 +246,7 @@ function IpRangesTable() {
 }
 
 function SiloNameFromId({ value: siloId }: { value: string }) {
-  const { data: silo } = useQuery(apiq(api.methods.siloView, { path: { silo: siloId } }))
+  const { data: silo } = useQuery(q(api.siloView, { path: { silo: siloId } }))
 
   if (!silo) return <SkeletonCell />
 
@@ -278,7 +278,7 @@ const silosStaticCols = [
 function LinkedSilosTable() {
   const poolSelector = useIpPoolSelector()
 
-  const { mutateAsync: unlinkSilo } = useApiMutation(api.methods.ipPoolSiloUnlink, {
+  const { mutateAsync: unlinkSilo } = useApiMutation(api.ipPoolSiloUnlink, {
     onSuccess() {
       queryClient.invalidateEndpoint('ipPoolSiloList')
     },
@@ -356,7 +356,7 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
   const { pool } = useIpPoolSelector()
   const { control, handleSubmit } = useForm({ defaultValues })
 
-  const linkSilo = useApiMutation(api.methods.ipPoolSiloLink, {
+  const linkSilo = useApiMutation(api.ipPoolSiloLink, {
     onSuccess() {
       queryClient.invalidateEndpoint('ipPoolSiloList')
     },
@@ -372,9 +372,9 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
   }
 
   const linkedSilos = useQuery(
-    apiq(api.methods.ipPoolSiloList, { path: { pool }, query: { limit: ALL_ISH } })
+    q(api.ipPoolSiloList, { path: { pool }, query: { limit: ALL_ISH } })
   )
-  const allSilos = useQuery(apiq(api.methods.siloList, { query: { limit: ALL_ISH } }))
+  const allSilos = useQuery(q(api.siloList, { query: { limit: ALL_ISH } }))
 
   // in order to get the list of remaining unlinked silos, we have to get the
   // list of all silos and remove the already linked ones

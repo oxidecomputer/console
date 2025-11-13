@@ -97,7 +97,7 @@ export default function AntiAffinityPage() {
   )
 
   const { mutateAsync: removeMember } = useApiMutation(
-    api.methods.antiAffinityGroupMemberInstanceDelete,
+    api.antiAffinityGroupMemberInstanceDelete,
     {
       onSuccess(_data, variables) {
         queryClient.invalidateEndpoint('antiAffinityGroupMemberList')
@@ -109,7 +109,7 @@ export default function AntiAffinityPage() {
 
   const navigate = useNavigate()
 
-  const { mutateAsync: deleteGroup } = useApiMutation(api.methods.antiAffinityGroupDelete, {
+  const { mutateAsync: deleteGroup } = useApiMutation(api.antiAffinityGroupDelete, {
     onSuccess() {
       navigate(pb.affinity({ project }))
       queryClient.invalidateEndpoint('antiAffinityGroupList')

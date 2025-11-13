@@ -82,7 +82,7 @@ export default function AffinityPage() {
     data: { items: antiAffinityGroups },
   } = usePrefetchedQuery(antiAffinityGroupList({ project }))
 
-  const { mutateAsync: deleteGroup } = useApiMutation(api.methods.antiAffinityGroupDelete, {
+  const { mutateAsync: deleteGroup } = useApiMutation(api.antiAffinityGroupDelete, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('antiAffinityGroupList')
       addToast(

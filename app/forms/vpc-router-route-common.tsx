@@ -11,7 +11,7 @@ import type { SetNonNullable } from 'type-fest'
 
 import {
   api,
-  apiq,
+  q,
   usePrefetchedQuery,
   type RouteDestination,
   type RouterRouteCreate,
@@ -107,18 +107,14 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
   // usePrefetchedQuery items below are initially fetched in the loaders in vpc-router-route-create and -edit
   const {
     data: { items: vpcSubnets },
-  } = usePrefetchedQuery(
-    apiq(api.methods.vpcSubnetList, { query: { project, vpc, limit: ALL_ISH } })
-  )
+  } = usePrefetchedQuery(q(api.vpcSubnetList, { query: { project, vpc, limit: ALL_ISH } }))
   const {
     data: { items: instances },
-  } = usePrefetchedQuery(
-    apiq(api.methods.instanceList, { query: { project, limit: ALL_ISH } })
-  )
+  } = usePrefetchedQuery(q(api.instanceList, { query: { project, limit: ALL_ISH } }))
   const {
     data: { items: internetGateways },
   } = usePrefetchedQuery(
-    apiq(api.methods.internetGatewayList, {
+    q(api.internetGatewayList, {
       query: { project, vpc, limit: ALL_ISH },
     })
   )

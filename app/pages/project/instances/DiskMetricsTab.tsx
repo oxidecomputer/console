@@ -11,7 +11,7 @@ import { type LoaderFunctionArgs } from 'react-router'
 
 import {
   api,
-  apiq,
+  q,
   queryClient,
   usePrefetchedQuery,
   type Disk,
@@ -36,7 +36,7 @@ import { useMetricsContext } from './common'
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await queryClient.prefetchQuery(
-    apiq(api.methods.instanceDiskList, { path: { instance }, query: { project } })
+    q(api.instanceDiskList, { path: { instance }, query: { project } })
   )
   return null
 }
@@ -47,11 +47,11 @@ const groupByAttachedInstanceId = { cols: ['attached_instance_id'], op: 'sum' } 
 export default function DiskMetricsTab() {
   const { project, instance } = useInstanceSelector()
   const { data: disks } = usePrefetchedQuery(
-    apiq(api.methods.instanceDiskList, { path: { instance }, query: { project } })
+    q(api.instanceDiskList, { path: { instance }, query: { project } })
   )
 
   const { data: instanceData } = usePrefetchedQuery(
-    apiq(api.methods.instanceView, { path: { instance }, query: { project } })
+    q(api.instanceView, { path: { instance }, query: { project } })
   )
   if (disks.items.length === 0) {
     return (

@@ -29,7 +29,7 @@ const EmptyState = () => (
 const colHelper = createColumnHelper<IdentityProvider>()
 
 export const siloIdpList = (silo: string) =>
-  getListQFn(api.methods.siloIdentityProviderList, { query: { silo } })
+  getListQFn(api.siloIdentityProviderList, { query: { silo } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { silo } = getSiloSelector(params)

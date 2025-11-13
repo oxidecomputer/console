@@ -12,9 +12,9 @@ import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
   api,
-  apiq,
   apiqErrorsAllowed,
   getListQFn,
+  q,
   queryClient,
   useApiMutation,
   type Snapshot,
@@ -39,9 +39,7 @@ import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const DiskNameFromId = ({ value }: { value: string }) => {
-  const { data } = useQuery(
-    apiqErrorsAllowed(api.methods.diskView, { path: { disk: value } })
-  )
+  const { data } = useQuery(apiqErrorsAllowed(api.diskView, { path: { disk: value } }))
 
   if (!data) return <SkeletonCell />
   if (data.type === 'error') return <Badge color="neutral">Deleted</Badge>
@@ -59,7 +57,7 @@ const EmptyState = () => (
 )
 
 const snapshotList = (project: string) =>
-  getListQFn(api.methods.snapshotList, { query: { project } })
+  getListQFn(api.snapshotList, { query: { project } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
@@ -75,11 +73,11 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     // (delete disks) are not prefetched here because they are (obviously) not
     // in the disk list response.
     queryClient
-      .fetchQuery(apiq(api.methods.diskList, { query: { project, limit: 200 } }))
+      .fetchQuery(q(api.diskList, { query: { project, limit: 200 } }))
       .then((disks) => {
         for (const disk of disks.items) {
           queryClient.setQueryData(
-            apiqErrorsAllowed(api.methods.diskView, { path: { disk: disk.id } }).queryKey,
+            apiqErrorsAllowed(api.diskView, { path: { disk: disk.id } }).queryKey,
             { type: 'success', data: disk }
           )
         }
@@ -109,7 +107,7 @@ export default function SnapshotsPage() {
   const { project } = useProjectSelector()
   const navigate = useNavigate()
 
-  const { mutateAsync: deleteSnapshot } = useApiMutation(api.methods.snapshotDelete, {
+  const { mutateAsync: deleteSnapshot } = useApiMutation(api.snapshotDelete, {
     onSuccess() {
       queryClient.invalidateEndpoint('snapshotList')
     },

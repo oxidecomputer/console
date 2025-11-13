@@ -32,7 +32,7 @@ export default function RouterCreate() {
 
   const onDismiss = () => navigate(pb.vpcRouters(vpcSelector))
 
-  const createRouter = useApiMutation(api.methods.vpcRouterCreate, {
+  const createRouter = useApiMutation(api.vpcRouterCreate, {
     onSuccess(router) {
       queryClient.invalidateEndpoint('vpcRouterList')
       addToast(<>Router <HL>{router.name}</HL> created</>) // prettier-ignore

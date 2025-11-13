@@ -31,7 +31,7 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
   const formId = useId()
 
   const { mutateAsync: addMember } = useApiMutation(
-    api.methods.antiAffinityGroupMemberInstanceAdd,
+    api.antiAffinityGroupMemberInstanceAdd,
     {
       onSuccess(_data, variables) {
         onDismiss()

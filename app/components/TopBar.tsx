@@ -125,7 +125,7 @@ function Breadcrumbs() {
 }
 
 function UserMenu() {
-  const logout = useApiMutation(api.methods.logout, {
+  const logout = useApiMutation(api.logout, {
     onSuccess: () => navToLogin({ includeCurrent: false }),
   })
   // fetch happens in loader wrapping all authed pages

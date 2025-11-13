@@ -27,7 +27,7 @@ import { ModalForm } from './form/ModalForm'
 
 function IpPoolName({ ipPoolId }: { ipPoolId: string }) {
   const { data: result } = useQuery(
-    apiqErrorsAllowed(api.methods.projectIpPoolView, { path: { pool: ipPoolId } })
+    apiqErrorsAllowed(api.projectIpPoolView, { path: { pool: ipPoolId } })
   )
   // As with IpPoolCell, this should never happen, but to be safe …
   if (!result || result.type === 'error') return null
@@ -68,7 +68,7 @@ export const AttachFloatingIpModal = ({
   instance: Instance
   onDismiss: () => void
 }) => {
-  const floatingIpAttach = useApiMutation(api.methods.floatingIpAttach, {
+  const floatingIpAttach = useApiMutation(api.floatingIpAttach, {
     onSuccess(floatingIp) {
       queryClient.invalidateEndpoint('floatingIpList')
       queryClient.invalidateEndpoint('instanceExternalIpList')

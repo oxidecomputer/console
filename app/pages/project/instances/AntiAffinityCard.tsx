@@ -13,8 +13,8 @@ import * as R from 'remeda'
 
 import {
   api,
-  apiq,
   instanceCan,
+  q,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -46,7 +46,7 @@ import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
 export const instanceAntiAffinityGroups = ({ project, instance }: PP.Instance) =>
-  apiq(api.methods.instanceAntiAffinityGroupList, {
+  q(api.instanceAntiAffinityGroupList, {
     path: { instance },
     query: { project, limit: ALL_ISH },
   })
@@ -69,7 +69,7 @@ export function AntiAffinityCard() {
   )
   const { data: allGroups } = usePrefetchedQuery(antiAffinityGroupList(instanceSelector))
   const { data: instanceData } = usePrefetchedQuery(
-    apiq(api.methods.instanceView, { path: { instance }, query: { project } })
+    q(api.instanceView, { path: { instance }, query: { project } })
   )
 
   const nonMemberGroups = useMemo(
@@ -78,7 +78,7 @@ export function AntiAffinityCard() {
   )
 
   const { mutateAsync: removeMember } = useApiMutation(
-    api.methods.antiAffinityGroupMemberInstanceDelete,
+    api.antiAffinityGroupMemberInstanceDelete,
     {
       onSuccess(_data, variables) {
         addToast(
@@ -205,7 +205,7 @@ export function AddToGroupModal({ onDismiss, nonMemberGroups }: ModalProps) {
   const formId = useId()
 
   const { mutateAsync: addMember } = useApiMutation(
-    api.methods.antiAffinityGroupMemberInstanceAdd,
+    api.antiAffinityGroupMemberInstanceAdd,
     {
       onSuccess(_data, variables) {
         onDismiss()

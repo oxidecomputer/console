@@ -26,10 +26,14 @@ import type { FetchParams } from './__generated__/http-client'
 import { processServerError, type ApiError } from './errors'
 import { navToLogin } from './nav-to-login'
 
-export const api = new Api({
+const _api = new Api({
   // unit tests run in Node, whose fetch implementation requires a full URL
   host: process.env.NODE_ENV === 'test' ? 'http://testhost' : '',
 })
+
+export const api = _api.methods
+
+export const instanceSerialConsoleStream = _api.ws.instanceSerialConsoleStream
 
 /**
  * Same as `useQuery`, except we use `invariant(data)` to ensure the data is
@@ -53,7 +57,7 @@ class QueryClient extends QueryClientOrig {
    * accidentally overspecifying and therefore failing to match the desired query.
    * The params argument can be added in if we ever have a use case for it.
    */
-  invalidateEndpoint(method: keyof typeof api.methods) {
+  invalidateEndpoint(method: keyof typeof api) {
     return this.invalidateQueries({ queryKey: [method] })
   }
 }
@@ -171,7 +175,7 @@ export const getListQFn = <
   return {
     optionsFn: (pageToken?: string) => {
       const newParams = { ...params, query: { ...params.query, limit, pageToken } }
-      return apiq(f, newParams, {
+      return q(f, newParams, {
         ...options,
         // identity function so current page sticks around while next loads
         placeholderData: (x) => x,
@@ -223,7 +227,7 @@ type ErrorsAllowed<T> = { type: 'success'; data: T } | { type: 'error'; data: Ap
 // uniquely identifies a request is the string name of the method and the params
 // object.
 
-export const apiq = <Params, Data>(
+export const q = <Params, Data>(
   f: (p: Params) => Promise<ApiResult<Data>>,
   params: Params,
   options: UseQueryOtherOptions<Data> = {}

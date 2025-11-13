@@ -23,7 +23,7 @@ const DASH_AFTER_IDXS = [3]
  */
 export default function DeviceAuthVerifyPage() {
   const navigate = useNavigate()
-  const confirmPost = useApiMutation(api.methods.deviceAuthConfirm, {
+  const confirmPost = useApiMutation(api.deviceAuthConfirm, {
     onSuccess: () => {
       navigate(pb.deviceSuccess())
     },

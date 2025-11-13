@@ -39,17 +39,11 @@ export const useMakeInstanceActions = (
   // while the whole useMutation result object is not. The async ones are used
   // when we need to confirm because the confirm modals want that.
   const opts = { onSuccess: options.onSuccess }
-  const { mutateAsync: startInstanceAsync } = useApiMutation(
-    api.methods.instanceStart,
-    opts
-  )
-  const { mutateAsync: stopInstanceAsync } = useApiMutation(api.methods.instanceStop, opts)
-  const { mutateAsync: rebootInstanceAsync } = useApiMutation(
-    api.methods.instanceReboot,
-    opts
-  )
+  const { mutateAsync: startInstanceAsync } = useApiMutation(api.instanceStart, opts)
+  const { mutateAsync: stopInstanceAsync } = useApiMutation(api.instanceStop, opts)
+  const { mutateAsync: rebootInstanceAsync } = useApiMutation(api.instanceReboot, opts)
   // delete has its own
-  const { mutateAsync: deleteInstanceAsync } = useApiMutation(api.methods.instanceDelete, {
+  const { mutateAsync: deleteInstanceAsync } = useApiMutation(api.instanceDelete, {
     onSuccess: options.onDelete,
   })
 

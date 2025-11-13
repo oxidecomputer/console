@@ -16,7 +16,7 @@ import { useNavigate } from 'react-router'
 
 import {
   api,
-  apiq,
+  q,
   queryClient,
   useApiMutation,
   type ApiError,
@@ -209,25 +209,25 @@ export default function ImageCreate() {
   // done with everything, ready to close the modal
   const [allDone, setAllDone] = useState(false)
 
-  const createDisk = useApiMutation(api.methods.diskCreate)
-  const startImport = useApiMutation(api.methods.diskBulkWriteImportStart)
+  const createDisk = useApiMutation(api.diskCreate)
+  const startImport = useApiMutation(api.diskBulkWriteImportStart)
 
   // gcTime: 0 prevents the mutation cache from holding onto all the chunks for
   // 5 minutes. It can be a ton of memory. To be honest, I don't even understand
   // why the mutation cache exists. It's not like the query cache, which dedupes
   // identical queries made around the same time.
   // https://tanstack.com/query/v5/docs/reference/MutationCache
-  const uploadChunk = useApiMutation(api.methods.diskBulkWriteImport, { gcTime: 0 })
+  const uploadChunk = useApiMutation(api.diskBulkWriteImport, { gcTime: 0 })
 
   // synthetic state for upload step because it consists of multiple requests
   const [syntheticUploadState, setSyntheticUploadState] =
     useState<MutationState>(initSyntheticState)
 
-  const stopImport = useApiMutation(api.methods.diskBulkWriteImportStop)
-  const finalizeDisk = useApiMutation(api.methods.diskFinalizeImport)
-  const createImage = useApiMutation(api.methods.imageCreate)
-  const deleteDisk = useApiMutation(api.methods.diskDelete)
-  const deleteSnapshot = useApiMutation(api.methods.snapshotDelete)
+  const stopImport = useApiMutation(api.diskBulkWriteImportStop)
+  const finalizeDisk = useApiMutation(api.diskFinalizeImport)
+  const createImage = useApiMutation(api.imageCreate)
+  const deleteDisk = useApiMutation(api.diskDelete)
+  const deleteSnapshot = useApiMutation(api.snapshotDelete)
 
   // TODO: Distinguish cleanup mutations being called after successful run vs.
   // due to error. In the former case, they have their own steps to highlight as
@@ -245,17 +245,17 @@ export default function ImageCreate() {
   ]
 
   // separate so we can distinguish between cleanup due to error vs. cleanup after success
-  const stopImportCleanup = useApiMutation(api.methods.diskBulkWriteImportStop)
-  const finalizeDiskCleanup = useApiMutation(api.methods.diskFinalizeImport)
+  const stopImportCleanup = useApiMutation(api.diskBulkWriteImportStop)
+  const finalizeDiskCleanup = useApiMutation(api.diskFinalizeImport)
   // in production these invalidations are unlikely to matter, but they help a
   // lot in the tests when we check the disk list after canceling to make sure
   // the temp resources got deleted
-  const deleteDiskCleanup = useApiMutation(api.methods.diskDelete, {
+  const deleteDiskCleanup = useApiMutation(api.diskDelete, {
     onSuccess() {
       queryClient.invalidateEndpoint('diskList')
     },
   })
-  const deleteSnapshotCleanup = useApiMutation(api.methods.snapshotDelete, {
+  const deleteSnapshotCleanup = useApiMutation(api.snapshotDelete, {
     onSuccess() {
       queryClient.invalidateEndpoint('snapshotList')
     },
@@ -329,7 +329,7 @@ export default function ImageCreate() {
     if (disk.current) {
       // we won't be able to delete the disk unless it's out of import mode
       const path = { disk: disk.current.id }
-      const freshDisk = await queryClient.fetchQuery(apiq(api.methods.diskView, { path }))
+      const freshDisk = await queryClient.fetchQuery(q(api.diskView, { path }))
       const diskState = freshDisk.state.state
       if (diskState === 'importing_from_bulk_writes') {
         await stopImportCleanup.mutateAsync({ path })
@@ -457,7 +457,7 @@ export default function ImageCreate() {
     // diskFinalizeImport does not return the snapshot, but create image
     // requires an ID
     snapshot.current = await queryClient.fetchQuery(
-      apiq(api.methods.snapshotView, {
+      q(api.snapshotView, {
         path: { snapshot: snapshotName },
         query: { project },
       })
@@ -513,7 +513,7 @@ export default function ImageCreate() {
         // check that image name isn't taken before starting the whole thing
         const image = await queryClient
           .fetchQuery(
-            apiq(api.methods.imageView, {
+            q(api.imageView, {
               path: { image: values.imageName },
               query: { project },
             })

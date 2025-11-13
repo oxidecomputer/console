@@ -34,7 +34,7 @@ export function SSHKeyCreate({ onDismiss, message }: Props) {
 
   const handleDismiss = onDismiss ? onDismiss : () => navigate(pb.sshKeys())
 
-  const createSshKey = useApiMutation(api.methods.currentUserSshKeyCreate, {
+  const createSshKey = useApiMutation(api.currentUserSshKeyCreate, {
     onSuccess(sshKey) {
       queryClient.invalidateEndpoint('currentUserSshKeyList')
       handleDismiss()

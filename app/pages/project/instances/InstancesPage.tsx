@@ -61,7 +61,7 @@ const instanceList = (
   // kinda gnarly, but we need refetchInterval in the component but not in the loader.
   // pick refetchInterval to avoid annoying type conflicts on the full object
   options?: Pick<UseQueryOptions<InstanceResultsPage, ApiError>, 'refetchInterval'>
-) => getListQFn(api.methods.instanceList, { query: { project } }, options)
+) => getListQFn(api.instanceList, { query: { project } }, options)
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)

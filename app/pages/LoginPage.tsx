@@ -31,7 +31,7 @@ export default function LoginPage() {
 
   const form = useForm({ defaultValues })
 
-  const loginPost = useApiMutation(api.methods.loginLocal)
+  const loginPost = useApiMutation(api.loginLocal)
 
   useEffect(() => {
     if (loginPost.isSuccess) {

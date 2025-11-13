@@ -21,7 +21,7 @@ import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 
 const sledInstanceList = (sledId: string) =>
-  getListQFn(api.methods.sledInstanceList, { path: { sledId } })
+  getListQFn(api.sledInstanceList, { path: { sledId } })
 
 const EmptyState = () => {
   return (

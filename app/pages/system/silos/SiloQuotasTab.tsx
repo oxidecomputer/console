@@ -13,7 +13,7 @@ import type { SetNonNullable } from 'type-fest'
 
 import {
   api,
-  apiq,
+  q,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -34,8 +34,7 @@ import { bytesToGiB, GiB } from '~/util/units'
 
 const Unit = classed.span`ml-1 text-secondary`
 
-const siloUtil = ({ silo }: PP.Silo) =>
-  apiq(api.methods.siloUtilizationView, { path: { silo } })
+const siloUtil = ({ silo }: PP.Silo) => q(api.siloUtilizationView, { path: { silo } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { silo } = getSiloSelector(params)
@@ -117,7 +116,7 @@ function EditQuotasForm({ onDismiss }: { onDismiss: () => void }) {
 
   const form = useForm({ defaultValues })
 
-  const updateQuotas = useApiMutation(api.methods.siloQuotasUpdate, {
+  const updateQuotas = useApiMutation(api.siloQuotasUpdate, {
     onSuccess() {
       queryClient.invalidateEndpoint('siloUtilizationView')
       addToast({ content: 'Quotas updated' })

@@ -10,8 +10,8 @@ import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
   api,
-  apiq,
   getListQFn,
+  q,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -33,9 +33,9 @@ import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
 const floatingIpView = ({ project, floatingIp }: PP.FloatingIp) =>
-  apiq(api.methods.floatingIpView, { path: { floatingIp }, query: { project } })
+  q(api.floatingIpView, { path: { floatingIp }, query: { project } })
 const instanceList = (project: string) =>
-  getListQFn(api.methods.instanceList, { query: { project, limit: ALL_ISH } })
+  getListQFn(api.instanceList, { query: { project, limit: ALL_ISH } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const selector = getFloatingIpSelector(params)
@@ -61,7 +61,7 @@ export default function EditFloatingIpSideModalForm() {
   )
   const instanceName = instances.items.find((i) => i.id === floatingIp.instanceId)?.name
 
-  const editFloatingIp = useApiMutation(api.methods.floatingIpUpdate, {
+  const editFloatingIp = useApiMutation(api.floatingIpUpdate, {
     onSuccess(_floatingIp) {
       queryClient.invalidateEndpoint('floatingIpList')
       addToast(<>Floating IP <HL>{_floatingIp.name}</HL> updated</>) // prettier-ignore

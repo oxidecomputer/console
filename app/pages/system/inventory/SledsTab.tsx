@@ -17,7 +17,7 @@ import { pb } from '~/util/path-builder'
 
 import { ProvisionPolicyBadge, SledKindBadge, SledStateBadge } from './sled/SledBadges'
 
-const sledList = getListQFn(api.methods.sledList, {})
+const sledList = getListQFn(api.sledList, {})
 
 export async function clientLoader() {
   await queryClient.fetchQuery(sledList.optionsFn())

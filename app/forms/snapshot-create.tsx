@@ -12,8 +12,8 @@ import { useNavigate } from 'react-router'
 
 import {
   api,
-  apiq,
   diskCan,
+  q,
   queryClient,
   useApiMutation,
   type SnapshotCreate,
@@ -33,9 +33,7 @@ import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
 const useSnapshotDiskItems = ({ project }: PP.Project) => {
-  const { data: disks } = useQuery(
-    apiq(api.methods.diskList, { query: { project, limit: ALL_ISH } })
-  )
+  const { data: disks } = useQuery(q(api.diskList, { query: { project, limit: ALL_ISH } }))
   return disks?.items.filter(diskCan.snapshot)
 }
 
@@ -56,7 +54,7 @@ export default function SnapshotCreate() {
 
   const onDismiss = () => navigate(pb.snapshots(projectSelector))
 
-  const createSnapshot = useApiMutation(api.methods.snapshotCreate, {
+  const createSnapshot = useApiMutation(api.snapshotCreate, {
     onSuccess(snapshot) {
       queryClient.invalidateEndpoint('snapshotList')
       addToast(<>Snapshot <HL>{snapshot.name}</HL> created</>) // prettier-ignore

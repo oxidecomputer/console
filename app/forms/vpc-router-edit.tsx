@@ -10,7 +10,7 @@ import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
   api,
-  apiq,
+  q,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -28,7 +28,7 @@ import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
 const routerView = ({ project, vpc, router }: PP.VpcRouter) =>
-  apiq(api.methods.vpcRouterView, { path: { router }, query: { project, vpc } })
+  q(api.vpcRouterView, { path: { router }, query: { project, vpc } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const selector = getVpcRouterSelector(params)
@@ -44,7 +44,7 @@ export default function EditRouterSideModalForm() {
   const { data: routerData } = usePrefetchedQuery(routerView(routerSelector))
   const navigate = useNavigate()
 
-  const editRouter = useApiMutation(api.methods.vpcRouterUpdate, {
+  const editRouter = useApiMutation(api.vpcRouterUpdate, {
     onSuccess(updatedRouter) {
       queryClient.invalidateEndpoint('vpcRouterList')
       addToast(<>Router <HL>{updatedRouter.name}</HL> updated</>) // prettier-ignore

@@ -31,7 +31,7 @@ import { TableActions } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-const siloList = () => getListQFn(api.methods.siloList, {})
+const siloList = () => getListQFn(api.siloList, {})
 
 const EmptyState = () => (
   <EmptyMessage
@@ -69,7 +69,7 @@ export const handle = makeCrumb('Silos', pb.silos())
 export default function SilosPage() {
   const navigate = useNavigate()
 
-  const { mutateAsync: deleteSilo } = useApiMutation(api.methods.siloDelete, {
+  const { mutateAsync: deleteSilo } = useApiMutation(api.siloDelete, {
     onSuccess(_silo, { path }) {
       queryClient.invalidateEndpoint('siloList')
       addToast(<>Silo <HL>{path.silo}</HL> deleted</>) // prettier-ignore

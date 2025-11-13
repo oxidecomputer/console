@@ -43,7 +43,7 @@ export function EditNetworkInterfaceForm({
 }: EditNetworkInterfaceFormProps) {
   const instanceSelector = useInstanceSelector()
 
-  const editNetworkInterface = useApiMutation(api.methods.instanceNetworkInterfaceUpdate, {
+  const editNetworkInterface = useApiMutation(api.instanceNetworkInterfaceUpdate, {
     onSuccess(nic) {
       queryClient.invalidateEndpoint('instanceNetworkInterfaceList')
       addToast(<>Network interface <HL>{nic.name}</HL> updated</>) // prettier-ignore

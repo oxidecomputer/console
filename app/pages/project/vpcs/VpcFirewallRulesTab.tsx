@@ -12,7 +12,7 @@ import * as R from 'remeda'
 
 import {
   api,
-  apiq,
+  q,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -102,7 +102,7 @@ const staticColumns = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-const rulesView = (query: PP.Vpc) => apiq(api.methods.vpcFirewallRulesView, { query })
+const rulesView = (query: PP.Vpc) => q(api.vpcFirewallRulesView, { query })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcSelector(params)
@@ -119,7 +119,7 @@ export default function VpcFirewallRulesTab() {
 
   const navigate = useNavigate()
 
-  const { mutateAsync: updateRules } = useApiMutation(api.methods.vpcFirewallRulesUpdate, {
+  const { mutateAsync: updateRules } = useApiMutation(api.vpcFirewallRulesUpdate, {
     onSuccess() {
       queryClient.invalidateEndpoint('vpcFirewallRulesView')
     },

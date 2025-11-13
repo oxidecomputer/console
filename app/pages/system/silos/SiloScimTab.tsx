@@ -74,9 +74,7 @@ const EmptyState = () => (
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { silo } = getSiloSelector(params)
   // Use errors-allowed approach so 403s don't throw and break the loader
-  await queryClient.prefetchQuery(
-    apiqErrorsAllowed(api.methods.scimTokenList, { query: { silo } })
-  )
+  await queryClient.prefetchQuery(apiqErrorsAllowed(api.scimTokenList, { query: { silo } }))
   return null
 }
 
@@ -88,7 +86,7 @@ type ModalState =
 export default function SiloScimTab() {
   const siloSelector = useSiloSelector()
   const { data: tokensResult } = usePrefetchedQuery(
-    apiqErrorsAllowed(api.methods.scimTokenList, { query: siloSelector })
+    apiqErrorsAllowed(api.scimTokenList, { query: siloSelector })
   )
 
   const [modalState, setModalState] = useState<ModalState>(false)
@@ -148,7 +146,7 @@ export default function SiloScimTab() {
 
 function TokensTable({ tokens }: { tokens: ScimClientBearerToken[] }) {
   const siloSelector = useSiloSelector()
-  const deleteToken = useApiMutation(api.methods.scimTokenDelete, {
+  const deleteToken = useApiMutation(api.scimTokenDelete, {
     onSuccess() {
       queryClient.invalidateEndpoint('scimTokenList')
     },
@@ -196,7 +194,7 @@ function CreateTokenModal({
   onDismiss: () => void
   onSuccess: (token: ScimClientBearerTokenValue) => void
 }) {
-  const createToken = useApiMutation(api.methods.scimTokenCreate, {
+  const createToken = useApiMutation(api.scimTokenCreate, {
     onSuccess(token) {
       queryClient.invalidateEndpoint('scimTokenList')
       onSuccess(token)

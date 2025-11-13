@@ -14,17 +14,17 @@ import { ALL_ISH } from '~/util/consts'
 import type * as PP from '~/util/path-params'
 
 export const routerList = ({ project, vpc }: PP.Vpc) =>
-  getListQFn(api.methods.vpcRouterList, { query: { project, vpc, limit: ALL_ISH } })
+  getListQFn(api.vpcRouterList, { query: { project, vpc, limit: ALL_ISH } })
 export const routeList = ({ project, vpc, router }: PP.VpcRouter) =>
-  getListQFn(api.methods.vpcRouterRouteList, {
+  getListQFn(api.vpcRouterRouteList, {
     query: { project, vpc, router, limit: ALL_ISH },
   })
 export const gatewayIpPoolList = ({ project, vpc, gateway }: PP.VpcInternetGateway) =>
-  getListQFn(api.methods.internetGatewayIpPoolList, {
+  getListQFn(api.internetGatewayIpPoolList, {
     query: { project, vpc, gateway, limit: ALL_ISH },
   })
 export const gatewayIpAddressList = ({ project, vpc, gateway }: PP.VpcInternetGateway) =>
-  getListQFn(api.methods.internetGatewayIpAddressList, {
+  getListQFn(api.internetGatewayIpAddressList, {
     query: { project, vpc, gateway, limit: ALL_ISH },
   })
 

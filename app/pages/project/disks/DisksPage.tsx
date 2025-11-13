@@ -11,10 +11,10 @@ import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
 import {
   api,
-  apiq,
   diskCan,
   genName,
   getListQFn,
+  q,
   queryClient,
   useApiMutation,
   type Disk,
@@ -55,8 +55,8 @@ const EmptyState = () => (
 )
 
 const instanceList = ({ project }: PP.Project) =>
-  getListQFn(api.methods.instanceList, { query: { project, limit: 200 } })
-const diskList = (query: PP.Project) => getListQFn(api.methods.diskList, { query })
+  getListQFn(api.instanceList, { query: { project, limit: 200 } })
+const diskList = (query: PP.Project) => getListQFn(api.diskList, { query })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
@@ -68,7 +68,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     // fetching individually if we don't fetch them all here
     queryClient.fetchQuery(instanceList({ project }).optionsFn()).then((instances) => {
       for (const instance of instances.items) {
-        const { queryKey } = apiq(api.methods.instanceView, {
+        const { queryKey } = q(api.instanceView, {
           path: { instance: instance.id },
         })
         queryClient.setQueryData(queryKey, instance)
@@ -102,14 +102,14 @@ const staticCols = [
 export default function DisksPage() {
   const { project } = useProjectSelector()
 
-  const { mutateAsync: deleteDisk } = useApiMutation(api.methods.diskDelete, {
+  const { mutateAsync: deleteDisk } = useApiMutation(api.diskDelete, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('diskList')
       addToast(<>Disk <HL>{variables.path.disk}</HL> deleted</>) // prettier-ignore
     },
   })
 
-  const { mutate: createSnapshot } = useApiMutation(api.methods.snapshotCreate, {
+  const { mutate: createSnapshot } = useApiMutation(api.snapshotCreate, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('snapshotList')
       addToast(<>Snapshot <HL>{variables.body.name}</HL> created</>) // prettier-ignore

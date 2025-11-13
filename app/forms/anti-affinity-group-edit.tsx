@@ -44,7 +44,7 @@ export default function EditAntiAffintyGroupForm() {
 
   const navigate = useNavigate()
 
-  const editAntiAffinityGroup = useApiMutation(api.methods.antiAffinityGroupUpdate, {
+  const editAntiAffinityGroup = useApiMutation(api.antiAffinityGroupUpdate, {
     onSuccess(updatedGroup) {
       queryClient.invalidateEndpoint('antiAffinityGroupView')
       queryClient.invalidateEndpoint('antiAffinityGroupList')

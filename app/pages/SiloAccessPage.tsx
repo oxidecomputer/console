@@ -10,10 +10,10 @@ import { useMemo, useState } from 'react'
 
 import {
   api,
-  apiq,
   byGroupThenName,
   deleteRole,
   getEffectiveRole,
+  q,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -53,9 +53,9 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
   </TableEmptyBox>
 )
 
-const policyView = apiq(api.methods.policyView, {})
-const userList = apiq(api.methods.userList, {})
-const groupList = apiq(api.methods.groupList, {})
+const policyView = q(api.policyView, {})
+const userList = q(api.userList, {})
+const groupList = q(api.groupList, {})
 
 export async function clientLoader() {
   await Promise.all([
@@ -109,7 +109,7 @@ export default function SiloAccessPage() {
       .sort(byGroupThenName)
   }, [siloRows])
 
-  const { mutateAsync: updatePolicy } = useApiMutation(api.methods.policyUpdate, {
+  const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
     onSuccess: () => queryClient.invalidateEndpoint('policyView'),
     // TODO: handle 403
   })

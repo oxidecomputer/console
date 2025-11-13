@@ -13,9 +13,9 @@ import { match } from 'ts-pattern'
 
 import {
   api,
-  apiq,
   apiqErrorsAllowed,
   instanceCan,
+  q,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -63,7 +63,7 @@ import { fancifyStates } from './common'
 const VpcNameFromId = ({ value }: { value: string }) => {
   const { project } = useProjectSelector()
   const { data: vpc, isError } = useQuery(
-    apiq(api.methods.vpcView, { path: { vpc: value } }, { throwOnError: false })
+    q(api.vpcView, { path: { vpc: value } }, { throwOnError: false })
   )
 
   // If we can't find it, it must have been deleted. This is probably not
@@ -76,7 +76,7 @@ const VpcNameFromId = ({ value }: { value: string }) => {
 
 const SubnetNameFromId = ({ value }: { value: string }) => {
   const { data: subnet, isError } = useQuery(
-    apiq(api.methods.vpcSubnetView, { path: { subnet: value } }, { throwOnError: false })
+    q(api.vpcSubnetView, { path: { subnet: value } }, { throwOnError: false })
   )
 
   // same deal as VPC: probably not possible but let's be safe
@@ -101,32 +101,28 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await Promise.all([
     queryClient.fetchQuery(
-      apiq(api.methods.instanceNetworkInterfaceList, {
+      q(api.instanceNetworkInterfaceList, {
         // we want this to cover all NICs; TODO: determine actual limit?
         query: { project, instance, limit: ALL_ISH },
       })
     ),
-    queryClient.fetchQuery(
-      apiq(api.methods.floatingIpList, { query: { project, limit: ALL_ISH } })
-    ),
+    queryClient.fetchQuery(q(api.floatingIpList, { query: { project, limit: ALL_ISH } })),
     // dupe of page-level fetch but that's fine, RQ dedupes
     queryClient.fetchQuery(
-      apiq(api.methods.instanceExternalIpList, { path: { instance }, query: { project } })
+      q(api.instanceExternalIpList, { path: { instance }, query: { project } })
     ),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
-    queryClient.fetchQuery(
-      apiq(api.methods.instanceView, { path: { instance }, query: { project } })
-    ),
+    queryClient.fetchQuery(q(api.instanceView, { path: { instance }, query: { project } })),
     // Fetch IP Pools and preload into RQ cache so fetches by ID in
     // IpPoolCell and AttachFloatingIpModal can be mostly instant
     queryClient
-      .fetchQuery(apiq(api.methods.projectIpPoolList, { query: { limit: ALL_ISH } }))
+      .fetchQuery(q(api.projectIpPoolList, { query: { limit: ALL_ISH } }))
       .then((pools) => {
         for (const pool of pools.items) {
           // both IpPoolCell and the fetch in the model use errors-allowed
           // versions to avoid blowing up in the unlikely event of an error
-          const { queryKey } = apiqErrorsAllowed(api.methods.projectIpPoolView, {
+          const { queryKey } = apiqErrorsAllowed(api.projectIpPoolView, {
             path: { pool: pool.id },
           })
           queryClient.setQueryData(queryKey, { type: 'success', data: pool })
@@ -250,37 +246,34 @@ export default function NetworkingTab() {
 
   // Fetch the floating IPs to show in the "Attach floating IP" modal
   const { data: ips } = usePrefetchedQuery(
-    apiq(api.methods.floatingIpList, { query: { project, limit: ALL_ISH } })
+    q(api.floatingIpList, { query: { project, limit: ALL_ISH } })
   )
   // Filter out the IPs that are already attached to an instance
   const availableIps = useMemo(() => ips.items.filter((ip) => !ip.instanceId), [ips])
 
-  const createNic = useApiMutation(api.methods.instanceNetworkInterfaceCreate, {
+  const createNic = useApiMutation(api.instanceNetworkInterfaceCreate, {
     onSuccess() {
       queryClient.invalidateEndpoint('instanceNetworkInterfaceList')
       setCreateModalOpen(false)
     },
   })
-  const { mutateAsync: deleteNic } = useApiMutation(
-    api.methods.instanceNetworkInterfaceDelete,
-    {
-      onSuccess(_data, variables) {
-        queryClient.invalidateEndpoint('instanceNetworkInterfaceList')
-        addToast(<>Network interface <HL>{variables.path.interface}</HL> deleted</>) // prettier-ignore
-      },
-    }
-  )
-  const { mutate: editNic } = useApiMutation(api.methods.instanceNetworkInterfaceUpdate, {
+  const { mutateAsync: deleteNic } = useApiMutation(api.instanceNetworkInterfaceDelete, {
+    onSuccess(_data, variables) {
+      queryClient.invalidateEndpoint('instanceNetworkInterfaceList')
+      addToast(<>Network interface <HL>{variables.path.interface}</HL> deleted</>) // prettier-ignore
+    },
+  })
+  const { mutate: editNic } = useApiMutation(api.instanceNetworkInterfaceUpdate, {
     onSuccess() {
       queryClient.invalidateEndpoint('instanceNetworkInterfaceList')
     },
   })
 
   const { data: instance } = usePrefetchedQuery(
-    apiq(api.methods.instanceView, { path: { instance: instanceName }, query: { project } })
+    q(api.instanceView, { path: { instance: instanceName }, query: { project } })
   )
   const nics = usePrefetchedQuery(
-    apiq(api.methods.instanceNetworkInterfaceList, {
+    q(api.instanceNetworkInterfaceList, {
       query: { ...instanceSelector, limit: ALL_ISH },
     })
   ).data.items
@@ -368,26 +361,23 @@ export default function NetworkingTab() {
 
   // Attached IPs Table
   const { data: eips } = usePrefetchedQuery(
-    apiq(api.methods.instanceExternalIpList, {
+    q(api.instanceExternalIpList, {
       path: { instance: instanceName },
       query: { project },
     })
   )
 
-  const { mutateAsync: ephemeralIpDetach } = useApiMutation(
-    api.methods.instanceEphemeralIpDetach,
-    {
-      onSuccess() {
-        queryClient.invalidateEndpoint('instanceExternalIpList')
-        addToast({ content: 'Ephemeral IP detached' })
-      },
-      onError: (err) => {
-        addToast({ title: 'Error', content: err.message, variant: 'error' })
-      },
-    }
-  )
+  const { mutateAsync: ephemeralIpDetach } = useApiMutation(api.instanceEphemeralIpDetach, {
+    onSuccess() {
+      queryClient.invalidateEndpoint('instanceExternalIpList')
+      addToast({ content: 'Ephemeral IP detached' })
+    },
+    onError: (err) => {
+      addToast({ title: 'Error', content: err.message, variant: 'error' })
+    },
+  })
 
-  const { mutateAsync: floatingIpDetach } = useApiMutation(api.methods.floatingIpDetach, {
+  const { mutateAsync: floatingIpDetach } = useApiMutation(api.floatingIpDetach, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('floatingIpList')
       queryClient.invalidateEndpoint('instanceExternalIpList')

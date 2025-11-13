@@ -12,8 +12,8 @@ import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
   api,
-  apiq,
   getListQFn,
+  q,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -56,10 +56,9 @@ const EmptyState = () => (
   />
 )
 
-const fipList = (project: string) =>
-  getListQFn(api.methods.floatingIpList, { query: { project } })
+const fipList = (project: string) => getListQFn(api.floatingIpList, { query: { project } })
 const instanceList = (project: string) =>
-  getListQFn(api.methods.instanceList, { query: { project, limit: ALL_ISH } })
+  getListQFn(api.instanceList, { query: { project, limit: ALL_ISH } })
 
 export const handle = makeCrumb('Floating IPs', (p) =>
   pb.floatingIps(getProjectSelector(p))
@@ -74,10 +73,10 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     // IpPoolCell can be mostly instant yet gracefully fall back to
     // fetching individually if we don't fetch them all here
     queryClient
-      .fetchQuery(apiq(api.methods.projectIpPoolList, { query: { limit: ALL_ISH } }))
+      .fetchQuery(q(api.projectIpPoolList, { query: { limit: ALL_ISH } }))
       .then((pools) => {
         for (const pool of pools.items) {
-          const { queryKey } = apiq(api.methods.projectIpPoolView, {
+          const { queryKey } = q(api.projectIpPoolView, {
             path: { pool: pool.id },
           })
           queryClient.setQueryData(queryKey, pool)
@@ -111,7 +110,7 @@ export default function FloatingIpsPage() {
   const { data: instances } = usePrefetchedQuery(instanceList(project).optionsFn())
   const navigate = useNavigate()
 
-  const { mutateAsync: floatingIpDetach } = useApiMutation(api.methods.floatingIpDetach, {
+  const { mutateAsync: floatingIpDetach } = useApiMutation(api.floatingIpDetach, {
     onSuccess(floatingIp) {
       queryClient.invalidateEndpoint('floatingIpList')
       addToast(<>Floating IP <HL>{floatingIp.name}</HL> detached</>) // prettier-ignore
@@ -120,7 +119,7 @@ export default function FloatingIpsPage() {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
   })
-  const { mutateAsync: deleteFloatingIp } = useApiMutation(api.methods.floatingIpDelete, {
+  const { mutateAsync: deleteFloatingIp } = useApiMutation(api.floatingIpDelete, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('floatingIpList')
       queryClient.invalidateEndpoint('ipPoolUtilizationView')
@@ -175,7 +174,7 @@ export default function FloatingIpsPage() {
         {
           label: 'Edit',
           onActivate: () => {
-            const { queryKey } = apiq(api.methods.floatingIpView, {
+            const { queryKey } = q(api.floatingIpView, {
               path: { floatingIp: floatingIp.name },
               query: { project },
             })
@@ -252,7 +251,7 @@ const AttachFloatingIpModal = ({
   project: string
   onDismiss: () => void
 }) => {
-  const floatingIpAttach = useApiMutation(api.methods.floatingIpAttach, {
+  const floatingIpAttach = useApiMutation(api.floatingIpAttach, {
     onSuccess(floatingIp) {
       queryClient.invalidateEndpoint('floatingIpList')
       addToast(<>Floating IP <HL>{floatingIp.name}</HL> attached</>) // prettier-ignore

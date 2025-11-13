@@ -38,10 +38,10 @@ import { round } from '~/util/math'
 import { pb } from '~/util/path-builder'
 import { bytesToGiB, bytesToTiB } from '~/util/units'
 
-const siloList = getListQFn(api.methods.siloList, {
+const siloList = getListQFn(api.siloList, {
   query: { limit: ALL_ISH },
 })
-const siloUtilList = getListQFn(api.methods.siloUtilizationList, {
+const siloUtilList = getListQFn(api.siloUtilizationList, {
   query: { limit: ALL_ISH },
 })
 

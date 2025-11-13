@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { api, apiq, usePrefetchedQuery } from '@oxide/api'
+import { api, q, usePrefetchedQuery } from '@oxide/api'
 import { Cloud24Icon, NextArrow12Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
@@ -16,7 +16,7 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import type * as PP from '~/util/path-params'
 
-const siloView = ({ silo }: PP.Silo) => apiq(api.methods.siloView, { path: { silo } })
+const siloView = ({ silo }: PP.Silo) => q(api.siloView, { path: { silo } })
 
 export default function SiloFleetRolesTab() {
   const siloSelector = useSiloSelector()

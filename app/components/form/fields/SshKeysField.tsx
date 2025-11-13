@@ -8,7 +8,7 @@
 import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
-import { api, apiq, usePrefetchedQuery } from '@oxide/api'
+import { api, q, usePrefetchedQuery } from '@oxide/api'
 import { Key16Icon } from '@oxide/design-system/icons/react'
 
 import type { InstanceCreateInput } from '~/forms/instance-create'
@@ -55,8 +55,7 @@ export function SshKeysField({
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
 }) {
-  const keys =
-    usePrefetchedQuery(apiq(api.methods.currentUserSshKeyList, {})).data?.items || []
+  const keys = usePrefetchedQuery(q(api.currentUserSshKeyList, {})).data?.items || []
   const [showAddSshKey, setShowAddSshKey] = useState(false)
 
   const {

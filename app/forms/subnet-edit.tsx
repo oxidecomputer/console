@@ -11,7 +11,7 @@ import type { SetNonNullable } from 'type-fest'
 
 import {
   api,
-  apiq,
+  q,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -36,7 +36,7 @@ import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
 const subnetView = ({ project, vpc, subnet }: PP.VpcSubnet) =>
-  apiq(api.methods.vpcSubnetView, { query: { project, vpc }, path: { subnet } })
+  q(api.vpcSubnetView, { query: { project, vpc }, path: { subnet } })
 
 export const handle = titleCrumb('Edit Subnet')
 
@@ -55,7 +55,7 @@ export default function EditSubnetForm() {
 
   const { data: subnet } = usePrefetchedQuery(subnetView(subnetSelector))
 
-  const updateSubnet = useApiMutation(api.methods.vpcSubnetUpdate, {
+  const updateSubnet = useApiMutation(api.vpcSubnetUpdate, {
     onSuccess(subnet) {
       queryClient.invalidateEndpoint('vpcSubnetList')
       addToast(<>Subnet <HL>{subnet.name}</HL> updated</>) // prettier-ignore

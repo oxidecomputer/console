@@ -35,7 +35,7 @@ export default function CreateAntiAffinityGroupForm() {
 
   const navigate = useNavigate()
 
-  const createAntiAffinityGroup = useApiMutation(api.methods.antiAffinityGroupCreate, {
+  const createAntiAffinityGroup = useApiMutation(api.antiAffinityGroupCreate, {
     onSuccess(antiAffinityGroup) {
       queryClient.invalidateEndpoint('antiAffinityGroupList')
       navigate(pb.antiAffinityGroup({ project, antiAffinityGroup: antiAffinityGroup.name }))

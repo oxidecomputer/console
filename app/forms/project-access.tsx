@@ -35,7 +35,7 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
 
   const actors = useActorsNotInPolicy(policy)
 
-  const updatePolicy = useApiMutation(api.methods.projectPolicyUpdate, {
+  const updatePolicy = useApiMutation(api.projectPolicyUpdate, {
     onSuccess: () => {
       queryClient.invalidateEndpoint('projectPolicyView')
       // We don't have the name of the user or group, so we'll just have a generic message
@@ -88,7 +88,7 @@ export function ProjectAccessEditUserSideModal({
 }: EditRoleModalProps) {
   const { project } = useProjectSelector()
 
-  const updatePolicy = useApiMutation(api.methods.projectPolicyUpdate, {
+  const updatePolicy = useApiMutation(api.projectPolicyUpdate, {
     onSuccess: () => {
       queryClient.invalidateEndpoint('projectPolicyView')
       addToast({ content: 'Role updated' })

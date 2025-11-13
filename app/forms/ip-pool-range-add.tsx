@@ -68,7 +68,7 @@ export default function IpPoolAddRange() {
 
   const onDismiss = () => navigate(pb.ipPool({ pool }))
 
-  const addRange = useApiMutation(api.methods.ipPoolRangeAdd, {
+  const addRange = useApiMutation(api.ipPoolRangeAdd, {
     onSuccess(_range) {
       // refetch list of projects in sidebar
       queryClient.invalidateEndpoint('ipPoolRangeList')

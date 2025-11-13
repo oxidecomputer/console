@@ -29,7 +29,7 @@ import { TableActions } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-const sshKeyList = getListQFn(api.methods.currentUserSshKeyList, {})
+const sshKeyList = getListQFn(api.currentUserSshKeyList, {})
 export const handle = makeCrumb('SSH Keys', pb.sshKeys)
 
 export async function clientLoader() {
@@ -42,15 +42,12 @@ const colHelper = createColumnHelper<SshKey>()
 export default function SSHKeysPage() {
   const navigate = useNavigate()
 
-  const { mutateAsync: deleteSshKey } = useApiMutation(
-    api.methods.currentUserSshKeyDelete,
-    {
-      onSuccess: (_data, variables) => {
-        queryClient.invalidateEndpoint('currentUserSshKeyList')
-        addToast(<>SSH key <HL>{variables.path.sshKey}</HL> deleted</>) // prettier-ignore
-      },
-    }
-  )
+  const { mutateAsync: deleteSshKey } = useApiMutation(api.currentUserSshKeyDelete, {
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateEndpoint('currentUserSshKeyList')
+      addToast(<>SSH key <HL>{variables.path.sshKey}</HL> deleted</>) // prettier-ignore
+    },
+  })
 
   const makeActions = useCallback(
     (sshKey: SshKey): MenuAction[] => [

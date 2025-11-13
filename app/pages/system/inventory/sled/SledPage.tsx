@@ -8,7 +8,7 @@
 import { filesize } from 'filesize'
 import type { LoaderFunctionArgs } from 'react-router'
 
-import { api, apiq, queryClient, usePrefetchedQuery } from '@oxide/api'
+import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 import { Servers24Icon } from '@oxide/design-system/icons/react'
 
 import { RouteTabs, Tab } from '~/components/RouteTabs'
@@ -22,7 +22,7 @@ import type * as PP from '~/util/path-params'
 
 import { ProvisionPolicyBadge, SledKindBadge, SledStateBadge } from './SledBadges'
 
-const sledView = ({ sledId }: PP.Sled) => apiq(api.methods.sledView, { path: { sledId } })
+const sledView = ({ sledId }: PP.Sled) => q(api.sledView, { path: { sledId } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const selector = requireSledParams(params)

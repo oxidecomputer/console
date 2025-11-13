@@ -8,13 +8,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo, useRef } from 'react'
 
-import {
-  api,
-  apiq,
-  synthesizeData,
-  type ChartDatum,
-  type SystemMetricName,
-} from '@oxide/api'
+import { api, q, synthesizeData, type ChartDatum, type SystemMetricName } from '@oxide/api'
 
 import { ChartContainer, ChartHeader, TimeSeriesChart } from './TimeSeriesChart'
 
@@ -56,8 +50,8 @@ export function SiloMetric({
   // TODO: we're only pulling the first page. Should we bump the cap to 10k?
   // Fetch multiple pages if 10k is not enough? That's a bit much.
   const inRange = useQuery(
-    apiq(
-      api.methods.siloMetric,
+    q(
+      api.siloMetric,
       { path: { metricName }, query: { project, startTime, endTime, limit: 3000 } },
       { placeholderData: (x) => x }
     )
@@ -65,8 +59,8 @@ export function SiloMetric({
 
   // get last point before startTime to use as first point in graph
   const beforeStart = useQuery(
-    apiq(
-      api.methods.siloMetric,
+    q(
+      api.siloMetric,
       { path: { metricName }, query: { project, endTime: startTime, ...staticParams } },
       { placeholderData: (x) => x }
     )
@@ -125,8 +119,8 @@ export function SystemMetric({
   // TODO: we're only pulling the first page. Should we bump the cap to 10k?
   // Fetch multiple pages if 10k is not enough? That's a bit much.
   const inRange = useQuery(
-    apiq(
-      api.methods.systemMetric,
+    q(
+      api.systemMetric,
       { path: { metricName }, query: { silo, startTime, endTime, limit: 3000 } },
       { placeholderData: (x) => x }
     )
@@ -134,8 +128,8 @@ export function SystemMetric({
 
   // get last point before startTime to use as first point in graph
   const beforeStart = useQuery(
-    apiq(
-      api.methods.systemMetric,
+    q(
+      api.systemMetric,
       { path: { metricName }, query: { silo, endTime: startTime, ...staticParams } },
       { placeholderData: (x) => x }
     )

@@ -13,9 +13,9 @@ import * as R from 'remeda'
 
 import {
   api,
-  apiq,
   byGroupThenName,
   deleteRole,
+  q,
   queryClient,
   roleOrder,
   useApiMutation,
@@ -49,11 +49,11 @@ import { groupBy } from '~/util/array'
 import { docLinks } from '~/util/links'
 import type * as PP from '~/util/path-params'
 
-const policyView = apiq(api.methods.policyView, {})
+const policyView = q(api.policyView, {})
 const projectPolicyView = ({ project }: PP.Project) =>
-  apiq(api.methods.projectPolicyView, { path: { project } })
-const userList = apiq(api.methods.userList, {})
-const groupList = apiq(api.methods.groupList, {})
+  q(api.projectPolicyView, { path: { project } })
+const userList = q(api.userList, {})
+const groupList = q(api.groupList, {})
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
@@ -126,7 +126,7 @@ export default function ProjectAccessPage() {
       .sort(byGroupThenName)
   }, [siloRows, projectRows])
 
-  const { mutateAsync: updatePolicy } = useApiMutation(api.methods.projectPolicyUpdate, {
+  const { mutateAsync: updatePolicy } = useApiMutation(api.projectPolicyUpdate, {
     onSuccess: () => {
       queryClient.invalidateEndpoint('projectPolicyView')
       addToast({ content: 'Access removed' })

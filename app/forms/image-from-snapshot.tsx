@@ -11,7 +11,7 @@ import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
   api,
-  apiq,
+  q,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -38,7 +38,7 @@ const defaultValues: Omit<ImageCreate, 'source'> = {
 }
 
 const snapshotView = ({ project, snapshot }: PP.Snapshot) =>
-  apiq(api.methods.snapshotView, { path: { snapshot }, query: { project } })
+  q(api.snapshotView, { path: { snapshot }, query: { project } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, snapshot } = getProjectSnapshotSelector(params)
@@ -55,7 +55,7 @@ export default function CreateImageFromSnapshotSideModalForm() {
 
   const onDismiss = () => navigate(pb.snapshots({ project }))
 
-  const createImage = useApiMutation(api.methods.imageCreate, {
+  const createImage = useApiMutation(api.imageCreate, {
     onSuccess(image) {
       queryClient.invalidateEndpoint('imageList')
       addToast(<>Image <HL>{image.name}</HL> created</>) // prettier-ignore

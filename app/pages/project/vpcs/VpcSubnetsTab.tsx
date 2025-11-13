@@ -27,8 +27,7 @@ import type * as PP from '~/util/path-params'
 
 const colHelper = createColumnHelper<VpcSubnet>()
 
-const subnetList = (params: PP.Vpc) =>
-  getListQFn(api.methods.vpcSubnetList, { query: params })
+const subnetList = (params: PP.Vpc) => getListQFn(api.vpcSubnetList, { query: params })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcSelector(params)
@@ -41,7 +40,7 @@ export const handle = { crumb: 'Subnets' }
 export default function VpcSubnetsTab() {
   const vpcSelector = useVpcSelector()
 
-  const { mutateAsync: deleteSubnet } = useApiMutation(api.methods.vpcSubnetDelete, {
+  const { mutateAsync: deleteSubnet } = useApiMutation(api.vpcSubnetDelete, {
     onSuccess() {
       queryClient.invalidateEndpoint('vpcSubnetList')
       // We only have the ID, so will show a generic confirmation message

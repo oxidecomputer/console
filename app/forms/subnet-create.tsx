@@ -46,7 +46,7 @@ export default function CreateSubnetForm() {
   const navigate = useNavigate()
   const onDismiss = () => navigate(pb.vpcSubnets(vpcSelector))
 
-  const createSubnet = useApiMutation(api.methods.vpcSubnetCreate, {
+  const createSubnet = useApiMutation(api.vpcSubnetCreate, {
     onSuccess(subnet) {
       queryClient.invalidateEndpoint('vpcSubnetList')
       onDismiss()
