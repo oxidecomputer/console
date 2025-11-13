@@ -12,9 +12,9 @@ import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
   api,
-  apiqErrorsAllowed,
   getListQFn,
   q,
+  qErrorsAllowed,
   queryClient,
   useApiMutation,
   type Snapshot,
@@ -39,7 +39,7 @@ import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const DiskNameFromId = ({ value }: { value: string }) => {
-  const { data } = useQuery(apiqErrorsAllowed(api.diskView, { path: { disk: value } }))
+  const { data } = useQuery(qErrorsAllowed(api.diskView, { path: { disk: value } }))
 
   if (!data) return <SkeletonCell />
   if (data.type === 'error') return <Badge color="neutral">Deleted</Badge>
@@ -77,7 +77,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
       .then((disks) => {
         for (const disk of disks.items) {
           queryClient.setQueryData(
-            apiqErrorsAllowed(api.diskView, { path: { disk: disk.id } }).queryKey,
+            qErrorsAllowed(api.diskView, { path: { disk: disk.id } }).queryKey,
             { type: 'success', data: disk }
           )
         }

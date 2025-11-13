@@ -13,9 +13,9 @@ import { match } from 'ts-pattern'
 
 import {
   api,
-  apiqErrorsAllowed,
   instanceCan,
   q,
+  qErrorsAllowed,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -122,7 +122,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
         for (const pool of pools.items) {
           // both IpPoolCell and the fetch in the model use errors-allowed
           // versions to avoid blowing up in the unlikely event of an error
-          const { queryKey } = apiqErrorsAllowed(api.projectIpPoolView, {
+          const { queryKey } = qErrorsAllowed(api.projectIpPoolView, {
             path: { pool: pool.id },
           })
           queryClient.setQueryData(queryKey, { type: 'success', data: pool })

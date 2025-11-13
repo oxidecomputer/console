@@ -17,7 +17,7 @@ import { Badge } from '@oxide/design-system/ui'
 
 import {
   api,
-  apiqErrorsAllowed,
+  qErrorsAllowed,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -74,7 +74,7 @@ const EmptyState = () => (
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { silo } = getSiloSelector(params)
   // Use errors-allowed approach so 403s don't throw and break the loader
-  await queryClient.prefetchQuery(apiqErrorsAllowed(api.scimTokenList, { query: { silo } }))
+  await queryClient.prefetchQuery(qErrorsAllowed(api.scimTokenList, { query: { silo } }))
   return null
 }
 
@@ -86,7 +86,7 @@ type ModalState =
 export default function SiloScimTab() {
   const siloSelector = useSiloSelector()
   const { data: tokensResult } = usePrefetchedQuery(
-    apiqErrorsAllowed(api.scimTokenList, { query: siloSelector })
+    qErrorsAllowed(api.scimTokenList, { query: siloSelector })
   )
 
   const [modalState, setModalState] = useState<ModalState>(false)

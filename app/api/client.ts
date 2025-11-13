@@ -31,8 +31,12 @@ const _api = new Api({
   host: process.env.NODE_ENV === 'test' ? 'http://testhost' : '',
 })
 
+// Pull the methods off to make the call sites shorter: `api.siloView`
+// instead of `api.methods.siloView`. We only put this method field there in
+// the generator to make the old way of typing `q` work, so we don't need it
+// anymore. I plan to change the client to put the methods at top level, and
+// then we can just export the Api() object directly.
 export const api = _api.methods
-
 export const instanceSerialConsoleStream = _api.ws.instanceSerialConsoleStream
 
 /**
@@ -223,6 +227,10 @@ export function ensurePrefetched<TData, TError>(
 // uniquely identifies a request is the string name of the method and the params
 // object.
 
+/**
+ * React Query query options helper that takes an API method, a params object,
+ * and (optionally) more RQ options. Returns a query options object.
+ */
 export const q = <Params, Data>(
   f: (p: Params) => Promise<ApiResult<Data>>,
   params: Params,
@@ -271,7 +279,7 @@ const ERRORS_ALLOWED = 'errors-allowed'
  * once with errors allowed, the results have different shapes, so we do not
  * want to share the cache and mix them up.
  */
-export const apiqErrorsAllowed = <Params, Data>(
+export const qErrorsAllowed = <Params, Data>(
   f: (p: Params) => Promise<ApiResult<Data>>,
   params: Params,
   options: UseQueryOtherOptions<HandledResult<Data>> = {}

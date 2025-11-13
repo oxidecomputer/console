@@ -11,7 +11,7 @@ import { useForm } from 'react-hook-form'
 
 import {
   api,
-  apiqErrorsAllowed,
+  qErrorsAllowed,
   queryClient,
   useApiMutation,
   type FloatingIp,
@@ -27,7 +27,7 @@ import { ModalForm } from './form/ModalForm'
 
 function IpPoolName({ ipPoolId }: { ipPoolId: string }) {
   const { data: result } = useQuery(
-    apiqErrorsAllowed(api.projectIpPoolView, { path: { pool: ipPoolId } })
+    qErrorsAllowed(api.projectIpPoolView, { path: { pool: ipPoolId } })
   )
   // As with IpPoolCell, this should never happen, but to be safe …
   if (!result || result.type === 'error') return null
