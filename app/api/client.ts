@@ -291,11 +291,10 @@ export const qErrorsAllowed = <Params, Data>(
     // not want to share the cache and mix them up
     queryKey: [f.name, params, ERRORS_ALLOWED],
     queryFn: () => f(params).then(handleResult(f.name)),
-    // In the case of 404s, let the error bubble up to the error boundary so
-    // we can say Not Found. If you need to allow a 404 and want it to show
-    // up as `error` state instead, pass `throwOnError: false` as an
-    // option from the calling component and it will override this
-    throwOnError: (err) => err.statusCode === 404,
+    // No point having throwOnError because errors do not throw. Worth
+    // considering still throwing for particular errors: sometimes we expect
+    // a 403, other times we expect 404s. We could take a list of acceptable
+    // status codes.
     ...options,
   })
 
