@@ -38,8 +38,8 @@ function logHeading(s: string) {
 }
 
 if (typeof window !== 'undefined') {
-  // @ts-expect-error
-  window.oxide = api.methods
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ;(window as any).oxide = api
   // @ts-expect-error
   window.oxql = {
     query: async (q: string) => {
