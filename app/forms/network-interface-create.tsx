@@ -46,7 +46,7 @@ export function CreateNetworkInterfaceForm({
   const {
     data: { items: vpcs },
   } = usePrefetchedQuery(q(api.vpcList, { query: { ...projectSelector, limit: ALL_ISH } }))
-  const defaultValues = {
+  const defaultValues: SetRequired<SetNonNullable<InstanceNetworkInterfaceCreate>, 'ip'> = {
     name: '',
     description: '',
     ip: '',
