@@ -5,9 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
-import type { SetNonNullable, SetRequired } from 'type-fest'
 
 import {
   api,
@@ -27,14 +25,6 @@ import { useProjectSelector } from '~/hooks/use-params'
 import { FormDivider } from '~/ui/lib/Divider'
 import { ALL_ISH } from '~/util/consts'
 
-const defaultValues: SetRequired<SetNonNullable<InstanceNetworkInterfaceCreate>, 'ip'> = {
-  name: '',
-  description: '',
-  ip: '',
-  subnetName: '',
-  vpcName: '',
-}
-
 type CreateNetworkInterfaceFormProps = {
   onDismiss: () => void
   onSubmit: (values: InstanceNetworkInterfaceCreate) => void
@@ -53,20 +43,18 @@ export function CreateNetworkInterfaceForm({
   submitError = null,
 }: CreateNetworkInterfaceFormProps) {
   const projectSelector = useProjectSelector()
-  const { data: vpcsData } = usePrefetchedQuery(
-    q(api.vpcList, { query: { ...projectSelector, limit: ALL_ISH } })
-  )
-  const vpcs = useMemo(() => vpcsData.items, [vpcsData])
-
+  const {
+    data: { items: vpcs },
+  } = usePrefetchedQuery(q(api.vpcList, { query: { ...projectSelector, limit: ALL_ISH } }))
+  const defaultValues = {
+    name: '',
+    description: '',
+    ip: '',
+    subnetName: '',
+    // Preselect first VPC
+    vpcName: vpcs.length > 0 ? vpcs[0].name : '',
+  }
   const form = useForm({ defaultValues })
-
-  // prefill form with first VPC
-  useEffect(() => {
-    if (vpcs.length > 0 && !form.getValues('vpcName')) {
-      form.setValue('vpcName', vpcs[0].name)
-    }
-  }, [vpcs, form])
-
   return (
     <SideModalForm
       form={form}
