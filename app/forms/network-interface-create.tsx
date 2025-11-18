@@ -51,7 +51,6 @@ export function CreateNetworkInterfaceForm({
     description: '',
     ip: '',
     subnetName: '',
-    // Preselect first VPC
     vpcName: vpcs.length > 0 ? vpcs[0].name : '',
   }
   const form = useForm({ defaultValues })
