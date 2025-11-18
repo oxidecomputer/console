@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useForm } from 'react-hook-form'
+import type { SetNonNullable, SetRequired } from 'type-fest'
 
 import {
   api,
