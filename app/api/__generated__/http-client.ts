@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { camelToSnake, isNotNull, processResponseBody, snakeify } from './util'
+import { camelToSnake, isNotNull, processResponseBody } from './util'
 
 /** Success responses from the API */
 export type ApiSuccess<Data> = {
@@ -47,7 +47,7 @@ export type ApiResult<Data> = ApiSuccess<Data> | ErrorResult
  * body and query params.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function replacer(_key: string, value: any) {
+export function dateReplacer(_key: string, value: any) {
   if (value instanceof Date) {
     return value.toISOString()
   }
@@ -56,7 +56,7 @@ function replacer(_key: string, value: any) {
 
 function encodeQueryParam(key: string, value: unknown) {
   return `${encodeURIComponent(camelToSnake(key))}=${encodeURIComponent(
-    replacer(key, value)
+    dateReplacer(key, value)
   )}`
 }
 
@@ -112,48 +112,6 @@ export interface FullParams extends FetchParams {
   body?: unknown
   host?: string
   method?: string
-}
-
-export interface ApiConfig {
-  /**
-   * No host means requests will be sent to the current host. This is used in
-   * the web console.
-   */
-  host?: string
-  token?: string
-  baseParams?: FetchParams
-}
-
-export class HttpClient {
-  host: string
-  token?: string
-  baseParams: FetchParams
-
-  constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
-    this.host = host
-    this.token = token
-
-    const headers = new Headers({ 'Content-Type': 'application/json' })
-    if (token) {
-      headers.append('Authorization', `Bearer ${token}`)
-    }
-    this.baseParams = mergeParams({ headers }, baseParams)
-  }
-
-  public async request<Data>({
-    body,
-    path,
-    query,
-    host,
-    ...fetchParams
-  }: FullParams): Promise<ApiResult<Data>> {
-    const url = (host || this.host) + path + toQueryString(query)
-    const init = {
-      ...mergeParams(this.baseParams, fetchParams),
-      body: JSON.stringify(snakeify(body), replacer),
-    }
-    return handleResponse(await fetch(url, init))
-  }
 }
 
 export function mergeParams(a: FetchParams, b: FetchParams): FetchParams {
