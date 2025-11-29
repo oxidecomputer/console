@@ -86,7 +86,7 @@
     "@eslint/js": "^9.38.0",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.0",
     "@mswjs/http-middleware": "^0.10.3",
-    "@oxide/openapi-gen-ts": "~0.9.0",
+    "@oxide/openapi-gen-ts": "~0.10.0",
     "@playwright/test": "^1.56.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
