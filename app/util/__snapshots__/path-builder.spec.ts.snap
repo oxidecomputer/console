@@ -431,7 +431,49 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/instances",
     },
   ],
-  "projectAccess (/projects/p/access)": [
+  "projectAccess (/projects/p/access/all)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Project Access",
+      "path": "/projects/p/access",
+    },
+  ],
+  "projectAccessAll (/projects/p/access/all)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Project Access",
+      "path": "/projects/p/access",
+    },
+  ],
+  "projectAccessGroups (/projects/p/access/groups)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Project Access",
+      "path": "/projects/p/access",
+    },
+  ],
+  "projectAccessUsers (/projects/p/access/users)": [
     {
       "label": "Projects",
       "path": "/projects",
@@ -555,7 +597,25 @@ exports[`breadcrumbs 2`] = `
       "path": "/system/silos/s/idps",
     },
   ],
-  "siloAccess (/access)": [
+  "siloAccess (/access/all)": [
+    {
+      "label": "Silo Access",
+      "path": "/access",
+    },
+  ],
+  "siloAccessAll (/access/all)": [
+    {
+      "label": "Silo Access",
+      "path": "/access",
+    },
+  ],
+  "siloAccessGroups (/access/groups)": [
+    {
+      "label": "Silo Access",
+      "path": "/access",
+    },
+  ],
+  "siloAccessUsers (/access/users)": [
     {
       "label": "Silo Access",
       "path": "/access",

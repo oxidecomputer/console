@@ -5,30 +5,23 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { LoaderFunctionArgs } from 'react-router'
 
 import { api, q, queryClient } from '@oxide/api'
 import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
-import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
-import type * as PP from '~/util/path-params'
 
 const policyView = q(api.policyView, {})
-const projectPolicyView = ({ project }: PP.Project) =>
-  q(api.projectPolicyView, { path: { project } })
 const userList = q(api.userList, {})
 const groupList = q(api.groupList, {})
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const selector = getProjectSelector(params)
+export async function clientLoader() {
   await Promise.all([
     queryClient.prefetchQuery(policyView),
-    queryClient.prefetchQuery(projectPolicyView(selector)),
     // used to resolve user names
     queryClient.prefetchQuery(userList),
     queryClient.prefetchQuery(groupList),
@@ -36,27 +29,25 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-export const handle = { crumb: 'Project Access' }
+export const handle = { crumb: 'Silo Access' }
 
-export default function ProjectAccessPage() {
-  const projectSelector = useProjectSelector()
-
+export default function SiloAccessPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Access24Icon />}>Project Access</PageTitle>
+        <PageTitle icon={<Access24Icon />}>Silo Access</PageTitle>
         <DocsPopover
           heading="access"
           icon={<Access16Icon />}
-          summary="Roles determine who can view, edit, or administer this project. Silo roles are inherited from the silo. If a user or group has both a silo and project role, the stronger role takes precedence."
+          summary="Roles determine who can view, edit, or administer this silo and the projects within it. If a user or group has both a silo and project role, the stronger role takes precedence."
           links={[docLinks.keyConceptsIam, docLinks.access]}
         />
       </PageHeader>
 
       <RouteTabs fullWidth>
-        <Tab to={pb.projectAccessAll(projectSelector)}>All</Tab>
-        <Tab to={pb.projectAccessUsers(projectSelector)}>Users</Tab>
-        <Tab to={pb.projectAccessGroups(projectSelector)}>Groups</Tab>
+        <Tab to={pb.siloAccessAll()}>All</Tab>
+        <Tab to={pb.siloAccessUsers()}>Users</Tab>
+        <Tab to={pb.siloAccessGroups()}>Groups</Tab>
       </RouteTabs>
       {/* TODO: Add routes for side modal forms to enable deep linking and browser back button:
           - /access/all/users-new and /access/all/groups-new for adding
