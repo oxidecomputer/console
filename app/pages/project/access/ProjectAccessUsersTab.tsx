@@ -8,111 +8,47 @@
 
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
-import * as R from 'remeda'
 
-import {
-  api,
-  byGroupThenName,
-  deleteRole,
-  q,
-  queryClient,
-  roleOrder,
-  useApiMutation,
-  usePrefetchedQuery,
-  useUserRows,
-  type IdentityType,
-  type RoleKey,
-} from '@oxide/api'
-import { Access24Icon } from '@oxide/design-system/icons/react'
+import { deleteRole, usePrefetchedQuery, useUserRows } from '@oxide/api'
 import { Badge } from '@oxide/design-system/ui'
 
+import { accessQueries } from '~/api/access-queries'
+import { AccessEmptyState } from '~/components/AccessEmptyState'
 import { HL } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
 import {
   ProjectAccessAddUserSideModal,
   ProjectAccessEditUserSideModal,
 } from '~/forms/project-access'
+import { useProjectAccessMutations } from '~/hooks/use-access-mutations'
+import { useProjectAccessRows } from '~/hooks/use-access-rows'
 import { useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
-import { addToast } from '~/stores/toast'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
+import type { ProjectAccessRow } from '~/types/access'
 import { CreateButton } from '~/ui/lib/CreateButton'
-import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
+import { TableActions } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { roleColor } from '~/util/access'
-import { groupBy } from '~/util/array'
-import type * as PP from '~/util/path-params'
 
-const policyView = q(api.policyView, {})
-const projectPolicyView = ({ project }: PP.Project) =>
-  q(api.projectPolicyView, { path: { project } })
-
-const EmptyState = ({ onClick }: { onClick: () => void }) => (
-  <TableEmptyBox>
-    <EmptyMessage
-      icon={<Access24Icon />}
-      title="No authorized users"
-      body="Give permission to view, edit, or administer this project"
-      buttonText="Add user to project"
-      onClick={onClick}
-    />
-  </TableEmptyBox>
-)
-
-type UserRow = {
-  id: string
-  identityType: IdentityType
-  name: string
-  projectRole: RoleKey | undefined
-  roleBadges: { roleSource: string; roleName: RoleKey }[]
-}
-
-const colHelper = createColumnHelper<UserRow>()
+const colHelper = createColumnHelper<ProjectAccessRow>()
 
 export default function ProjectAccessUsersTab() {
   const [addModalOpen, setAddModalOpen] = useState(false)
-  const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
+  const [editingUserRow, setEditingUserRow] = useState<ProjectAccessRow | null>(null)
   const projectSelector = useProjectSelector()
 
-  const { data: siloPolicy } = usePrefetchedQuery(policyView)
+  const { data: siloPolicy } = usePrefetchedQuery(accessQueries.siloPolicy())
   const siloRows = useUserRows(siloPolicy.roleAssignments, 'silo')
 
-  const { data: projectPolicy } = usePrefetchedQuery(projectPolicyView(projectSelector))
+  const { data: projectPolicy } = usePrefetchedQuery(
+    accessQueries.projectPolicy(projectSelector)
+  )
   const projectRows = useUserRows(projectPolicy.roleAssignments, 'project')
+  const rows = useProjectAccessRows(siloRows, projectRows, 'users')
 
-  const rows = useMemo(() => {
-    return groupBy(siloRows.concat(projectRows), (u) => u.id)
-      .map(([userId, userAssignments]) => {
-        const { name, identityType } = userAssignments[0]
-
-        const siloAccessRow = userAssignments.find((a) => a.roleSource === 'silo')
-        const projectAccessRow = userAssignments.find((a) => a.roleSource === 'project')
-
-        const roleBadges = R.sortBy(
-          [siloAccessRow, projectAccessRow].filter((r) => !!r),
-          (r) => roleOrder[r.roleName] // sorts strongest role first
-        )
-
-        return {
-          id: userId,
-          identityType,
-          name,
-          projectRole: projectAccessRow?.roleName,
-          roleBadges,
-        } satisfies UserRow
-      })
-      .filter((row) => row.identityType === 'silo_user')
-      .sort(byGroupThenName)
-  }, [siloRows, projectRows])
-
-  const { mutateAsync: updatePolicy } = useApiMutation(api.projectPolicyUpdate, {
-    onSuccess: () => {
-      queryClient.invalidateEndpoint('projectPolicyView')
-      addToast({ content: 'Access removed' })
-    },
-  })
+  const { updatePolicy } = useProjectAccessMutations()
 
   const columns = useMemo(
     () => [
@@ -141,7 +77,7 @@ export default function ProjectAccessUsersTab() {
         ),
       }),
 
-      getActionsCol((row: UserRow) => [
+      getActionsCol((row: ProjectAccessRow) => [
         {
           label: 'Change role',
           onActivate: () => setEditingUserRow(row),
@@ -180,13 +116,13 @@ export default function ProjectAccessUsersTab() {
       <TableActions>
         <CreateButton onClick={() => setAddModalOpen(true)}>Add user</CreateButton>
       </TableActions>
-      {projectPolicy && addModalOpen && (
+      {addModalOpen && (
         <ProjectAccessAddUserSideModal
           onDismiss={() => setAddModalOpen(false)}
           policy={projectPolicy}
         />
       )}
-      {projectPolicy && editingUserRow?.projectRole && (
+      {editingUserRow?.projectRole && (
         <ProjectAccessEditUserSideModal
           onDismiss={() => setEditingUserRow(null)}
           policy={projectPolicy}
@@ -197,7 +133,11 @@ export default function ProjectAccessUsersTab() {
         />
       )}
       {rows.length === 0 ? (
-        <EmptyState onClick={() => setAddModalOpen(true)} />
+        <AccessEmptyState
+          scope="project"
+          filter="users"
+          onClick={() => setAddModalOpen(true)}
+        />
       ) : (
         <Table table={tableInstance} />
       )}

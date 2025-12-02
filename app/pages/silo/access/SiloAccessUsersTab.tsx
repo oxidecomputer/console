@@ -8,94 +8,37 @@
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
 
-import {
-  api,
-  byGroupThenName,
-  deleteRole,
-  getEffectiveRole,
-  q,
-  queryClient,
-  useApiMutation,
-  usePrefetchedQuery,
-  useUserRows,
-  type IdentityType,
-  type RoleKey,
-} from '@oxide/api'
-import { Access24Icon } from '@oxide/design-system/icons/react'
+import { deleteRole, usePrefetchedQuery, useUserRows } from '@oxide/api'
 import { Badge } from '@oxide/design-system/ui'
 
+import { accessQueries } from '~/api/access-queries'
+import { AccessEmptyState } from '~/components/AccessEmptyState'
 import { HL } from '~/components/HL'
 import {
   SiloAccessAddUserSideModal,
   SiloAccessEditUserSideModal,
 } from '~/forms/silo-access'
+import { useSiloAccessMutations } from '~/hooks/use-access-mutations'
+import { useSiloAccessRows } from '~/hooks/use-access-rows'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
+import type { SiloAccessRow } from '~/types/access'
 import { CreateButton } from '~/ui/lib/CreateButton'
-import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
+import { TableActions } from '~/ui/lib/Table'
 import { roleColor } from '~/util/access'
-import { groupBy } from '~/util/array'
 
-const EmptyState = ({ onClick }: { onClick: () => void }) => (
-  <TableEmptyBox>
-    <EmptyMessage
-      icon={<Access24Icon />}
-      title="No authorized users"
-      body="Give permission to view, edit, or administer this silo"
-      buttonText="Add user"
-      onClick={onClick}
-    />
-  </TableEmptyBox>
-)
-
-const policyView = q(api.policyView, {})
-
-type UserRow = {
-  id: string
-  identityType: IdentityType
-  name: string
-  siloRole: RoleKey | undefined
-  effectiveRole: RoleKey
-}
-
-const colHelper = createColumnHelper<UserRow>()
+const colHelper = createColumnHelper<SiloAccessRow>()
 
 export default function SiloAccessUsersTab() {
   const [addModalOpen, setAddModalOpen] = useState(false)
-  const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
+  const [editingUserRow, setEditingUserRow] = useState<SiloAccessRow | null>(null)
 
-  const { data: siloPolicy } = usePrefetchedQuery(policyView)
+  const { data: siloPolicy } = usePrefetchedQuery(accessQueries.siloPolicy())
   const siloRows = useUserRows(siloPolicy.roleAssignments, 'silo')
+  const rows = useSiloAccessRows(siloRows, 'users')
 
-  const rows = useMemo(() => {
-    return groupBy(siloRows, (u) => u.id)
-      .map(([userId, userAssignments]) => {
-        const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
-
-        const roles = siloRole ? [siloRole] : []
-
-        const { name, identityType } = userAssignments[0]
-
-        const row: UserRow = {
-          id: userId,
-          identityType,
-          name,
-          siloRole,
-          // we know there has to be at least one
-          effectiveRole: getEffectiveRole(roles)!,
-        }
-
-        return row
-      })
-      .filter((row) => row.identityType === 'silo_user')
-      .sort(byGroupThenName)
-  }, [siloRows])
-
-  const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
-    onSuccess: () => queryClient.invalidateEndpoint('policyView'),
-  })
+  const { updatePolicy } = useSiloAccessMutations()
 
   const columns = useMemo(
     () => [
@@ -110,7 +53,7 @@ export default function SiloAccessUsersTab() {
           return role ? <Badge color={roleColor[role]}>silo.{role}</Badge> : null
         },
       }),
-      getActionsCol((row: UserRow) => [
+      getActionsCol((row: SiloAccessRow) => [
         {
           label: 'Change role',
           onActivate: () => setEditingUserRow(row),
@@ -147,13 +90,13 @@ export default function SiloAccessUsersTab() {
       <TableActions>
         <CreateButton onClick={() => setAddModalOpen(true)}>Add user</CreateButton>
       </TableActions>
-      {siloPolicy && addModalOpen && (
+      {addModalOpen && (
         <SiloAccessAddUserSideModal
           onDismiss={() => setAddModalOpen(false)}
           policy={siloPolicy}
         />
       )}
-      {siloPolicy && editingUserRow?.siloRole && (
+      {editingUserRow?.siloRole && (
         <SiloAccessEditUserSideModal
           onDismiss={() => setEditingUserRow(null)}
           policy={siloPolicy}
@@ -164,7 +107,11 @@ export default function SiloAccessUsersTab() {
         />
       )}
       {rows.length === 0 ? (
-        <EmptyState onClick={() => setAddModalOpen(true)} />
+        <AccessEmptyState
+          scope="silo"
+          filter="users"
+          onClick={() => setAddModalOpen(true)}
+        />
       ) : (
         <Table table={tableInstance} />
       )}

@@ -77,7 +77,7 @@ export function deleteRole(identityId: string, policy: Policy): Policy {
   return { roleAssignments }
 }
 
-type UserAccessRow = {
+export type UserAccessRow = {
   id: string
   identityType: IdentityType
   name: string
