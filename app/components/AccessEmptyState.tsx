@@ -22,7 +22,7 @@ export function AccessEmptyState({
   filter = 'all',
 }: AccessEmptyStateProps) {
   const titleMap = {
-    all: 'No authorized users',
+    all: 'No authorized users or groups',
     users: 'No authorized users',
     groups: 'No authorized groups',
   }
