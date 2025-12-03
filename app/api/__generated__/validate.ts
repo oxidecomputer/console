@@ -2336,7 +2336,7 @@ export const InstanceUpdate = z.preprocess(
     bootDisk: NameOrId.nullable(),
     cpuPlatform: InstanceCpuPlatform.nullable(),
     memory: ByteCount,
-    multicastGroups: NameOrId.array().default(null).optional(),
+    multicastGroups: NameOrId.array().nullable().default(null).optional(),
     ncpus: InstanceCpuCount,
   })
 )
@@ -2826,7 +2826,7 @@ export const MulticastGroupCreate = z.preprocess(
     mvlan: z.number().min(0).max(65535).nullable().optional(),
     name: Name,
     pool: NameOrId.nullable().default(null).optional(),
-    sourceIps: z.ipv4().array().default(null).optional(),
+    sourceIps: z.ipv4().array().nullable().default(null).optional(),
   })
 )
 
