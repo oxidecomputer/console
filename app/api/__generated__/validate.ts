@@ -2243,7 +2243,7 @@ export const InstanceCreate = z.preprocess(
     networkInterfaces: InstanceNetworkInterfaceAttachment.default({
       type: 'default',
     }).optional(),
-    sshPublicKeys: NameOrId.array().optional(),
+    sshPublicKeys: NameOrId.array().nullable().optional(),
     start: SafeBoolean.default(true).optional(),
     userData: z.string().default('').optional(),
   })
@@ -2705,7 +2705,7 @@ export const ManagementAddress = z.preprocess(
   z.object({
     addr: NetworkAddress,
     interfaceNum: InterfaceNum,
-    oid: z.number().min(0).max(255).array().optional(),
+    oid: z.number().min(0).max(255).array().nullable().optional(),
   })
 )
 
@@ -2883,7 +2883,7 @@ export const MulticastGroupUpdate = z.preprocess(
     description: z.string().nullable().optional(),
     mvlan: z.number().min(0).max(65535).nullable().optional(),
     name: Name.nullable().optional(),
-    sourceIps: z.ipv4().array().optional(),
+    sourceIps: z.ipv4().array().nullable().optional(),
   })
 )
 
@@ -2960,7 +2960,7 @@ export const Values = z.preprocess(
 export const Points = z.preprocess(
   processResponseBody,
   z.object({
-    startTimes: z.coerce.date().array().optional(),
+    startTimes: z.coerce.date().array().nullable().optional(),
     timestamps: z.coerce.date().array(),
     values: Values.array(),
   })
@@ -4425,9 +4425,9 @@ export const VpcFirewallRuleProtocol = z.preprocess(
 export const VpcFirewallRuleFilter = z.preprocess(
   processResponseBody,
   z.object({
-    hosts: VpcFirewallRuleHostFilter.array().optional(),
-    ports: L4PortRange.array().optional(),
-    protocols: VpcFirewallRuleProtocol.array().optional(),
+    hosts: VpcFirewallRuleHostFilter.array().nullable().optional(),
+    ports: L4PortRange.array().nullable().optional(),
+    protocols: VpcFirewallRuleProtocol.array().nullable().optional(),
   })
 )
 
