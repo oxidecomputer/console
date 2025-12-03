@@ -1640,6 +1640,8 @@ export const Digest = z.preprocess(
   z.object({ type: z.enum(['sha256']), value: z.string() })
 )
 
+export const DiskType = z.preprocess(processResponseBody, z.enum(['crucible']))
+
 /**
  * State of a Disk
  */
@@ -1670,6 +1672,7 @@ export const Disk = z.preprocess(
     blockSize: ByteCount,
     description: z.string(),
     devicePath: z.string(),
+    diskType: DiskType,
     id: z.uuid(),
     imageId: z.uuid().nullable().optional(),
     name: Name,
@@ -1725,9 +1728,9 @@ export const Distributiondouble = z.preprocess(
     counts: z.number().min(0).array(),
     max: z.number().nullable().optional(),
     min: z.number().nullable().optional(),
-    p50: Quantile.nullable().optional(),
-    p90: Quantile.nullable().optional(),
-    p99: Quantile.nullable().optional(),
+    p50: z.number().nullable().optional(),
+    p90: z.number().nullable().optional(),
+    p99: z.number().nullable().optional(),
     squaredMean: z.number(),
     sumOfSamples: z.number(),
   })
@@ -1745,9 +1748,9 @@ export const Distributionint64 = z.preprocess(
     counts: z.number().min(0).array(),
     max: z.number().nullable().optional(),
     min: z.number().nullable().optional(),
-    p50: Quantile.nullable().optional(),
-    p90: Quantile.nullable().optional(),
-    p99: Quantile.nullable().optional(),
+    p50: z.number().nullable().optional(),
+    p90: z.number().nullable().optional(),
+    p99: z.number().nullable().optional(),
     squaredMean: z.number(),
     sumOfSamples: z.number(),
   })
@@ -2234,6 +2237,7 @@ export const InstanceCreate = z.preprocess(
     externalIps: ExternalIpCreate.array().default([]).optional(),
     hostname: Hostname,
     memory: ByteCount,
+    multicastGroups: NameOrId.array().default([]).optional(),
     name: Name,
     ncpus: InstanceCpuCount,
     networkInterfaces: InstanceNetworkInterfaceAttachment.default({
@@ -2332,6 +2336,7 @@ export const InstanceUpdate = z.preprocess(
     bootDisk: NameOrId.nullable(),
     cpuPlatform: InstanceCpuPlatform.nullable(),
     memory: ByteCount,
+    multicastGroups: NameOrId.array().default(null).optional(),
     ncpus: InstanceCpuCount,
   })
 )
@@ -2789,6 +2794,97 @@ export const MeasurementResultsPage = z.preprocess(
 export const MetricType = z.preprocess(
   processResponseBody,
   z.enum(['gauge', 'delta', 'cumulative'])
+)
+
+/**
+ * View of a Multicast Group
+ */
+export const MulticastGroup = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    id: z.uuid(),
+    ipPoolId: z.uuid(),
+    multicastIp: z.ipv4(),
+    mvlan: z.number().min(0).max(65535).nullable().optional(),
+    name: Name,
+    sourceIps: z.ipv4().array(),
+    state: z.string(),
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
+)
+
+/**
+ * Create-time parameters for a multicast group.
+ */
+export const MulticastGroupCreate = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    multicastIp: z.ipv4().nullable().default(null).optional(),
+    mvlan: z.number().min(0).max(65535).nullable().optional(),
+    name: Name,
+    pool: NameOrId.nullable().default(null).optional(),
+    sourceIps: z.ipv4().array().default(null).optional(),
+  })
+)
+
+/**
+ * View of a Multicast Group Member (instance belonging to a multicast group)
+ */
+export const MulticastGroupMember = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    id: z.uuid(),
+    instanceId: z.uuid(),
+    multicastGroupId: z.uuid(),
+    name: Name,
+    state: z.string(),
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
+)
+
+/**
+ * Parameters for adding an instance to a multicast group.
+ */
+export const MulticastGroupMemberAdd = z.preprocess(
+  processResponseBody,
+  z.object({ instance: NameOrId })
+)
+
+/**
+ * A single page of results
+ */
+export const MulticastGroupMemberResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({
+    items: MulticastGroupMember.array(),
+    nextPage: z.string().nullable().optional(),
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const MulticastGroupResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: MulticastGroup.array(), nextPage: z.string().nullable().optional() })
+)
+
+/**
+ * Update-time parameters for a multicast group.
+ */
+export const MulticastGroupUpdate = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string().nullable().optional(),
+    mvlan: z.number().min(0).max(65535).nullable().optional(),
+    name: Name.nullable().optional(),
+    sourceIps: z.ipv4().array().optional(),
+  })
 )
 
 /**
@@ -5639,6 +5735,44 @@ export const InstanceEphemeralIpDetachParams = z.preprocess(
   })
 )
 
+export const InstanceMulticastGroupListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      instance: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InstanceMulticastGroupJoinParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      instance: NameOrId,
+      multicastGroup: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InstanceMulticastGroupLeaveParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      instance: NameOrId,
+      multicastGroup: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
 export const InstanceRebootParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -5988,6 +6122,95 @@ export const SiloMetricParams = z.preprocess(
       order: PaginationOrder.optional(),
       pageToken: z.string().nullable().optional(),
       startTime: z.coerce.date().optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const MulticastGroupListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const MulticastGroupCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const MulticastGroupViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      multicastGroup: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const MulticastGroupUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      multicastGroup: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const MulticastGroupDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      multicastGroup: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const MulticastGroupMemberListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      multicastGroup: NameOrId,
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const MulticastGroupMemberAddParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      multicastGroup: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const MulticastGroupMemberRemoveParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      instance: NameOrId,
+      multicastGroup: NameOrId,
+    }),
+    query: z.object({
       project: NameOrId.optional(),
     }),
   })
@@ -6708,6 +6931,16 @@ export const SystemMetricParams = z.preprocess(
       startTime: z.coerce.date().optional(),
       silo: NameOrId.optional(),
     }),
+  })
+)
+
+export const LookupMulticastGroupByIpParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      address: z.ipv4(),
+    }),
+    query: z.object({}),
   })
 )
 
