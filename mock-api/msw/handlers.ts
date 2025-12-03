@@ -161,6 +161,7 @@ export const handlers = makeHandlers({
       // TODO: for non-blank disk sources, look up image or snapshot by ID and
       // pull block size from there
       block_size: disk_source.type === 'blank' ? disk_source.block_size : 512,
+      disk_type: 'crucible',
       ...getTimestamps(),
     }
     db.disks.push(newDisk)
@@ -490,6 +491,7 @@ export const handlers = makeHandlers({
           state: { state: 'attached', instance: instanceId },
           device_path: '/mnt/disk',
           block_size: disk_source.type === 'blank' ? disk_source.block_size : 4096,
+          disk_type: 'crucible',
           ...getTimestamps(),
         }
         db.disks.push(newDisk)
@@ -1961,6 +1963,9 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
+  instanceMulticastGroupJoin: NotImplemented,
+  instanceMulticastGroupLeave: NotImplemented,
+  instanceMulticastGroupList: NotImplemented,
   instanceSerialConsole: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
   instanceSshPublicKeyList: NotImplemented,
@@ -1978,6 +1983,15 @@ export const handlers = makeHandlers({
   localIdpUserDelete: NotImplemented,
   localIdpUserSetPassword: NotImplemented,
   loginSaml: NotImplemented,
+  lookupMulticastGroupByIp: NotImplemented,
+  multicastGroupCreate: NotImplemented,
+  multicastGroupDelete: NotImplemented,
+  multicastGroupList: NotImplemented,
+  multicastGroupMemberAdd: NotImplemented,
+  multicastGroupMemberList: NotImplemented,
+  multicastGroupMemberRemove: NotImplemented,
+  multicastGroupUpdate: NotImplemented,
+  multicastGroupView: NotImplemented,
   networkingAddressLotBlockList: NotImplemented,
   networkingAddressLotCreate: NotImplemented,
   networkingAddressLotDelete: NotImplemented,
