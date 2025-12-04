@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { IdentityType, RoleKey } from '@oxide/api'
+import type { IdentityType, RoleKey, RoleScope } from '@oxide/api'
 
 export type AccessRowBase = {
   id: string
@@ -15,7 +15,7 @@ export type AccessRowBase = {
 
 export type ProjectAccessRow = AccessRowBase & {
   projectRole: RoleKey | undefined
-  roleBadges: { roleSource: 'silo' | 'project'; roleName: RoleKey }[]
+  roleBadges: { roleScope: RoleScope; roleName: RoleKey }[]
 }
 
 export type SiloAccessRow = AccessRowBase & {

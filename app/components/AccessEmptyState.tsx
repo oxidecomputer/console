@@ -5,50 +5,49 @@
  *
  * Copyright Oxide Computer Company
  */
+import type { RoleScope } from '@oxide/api'
 import { Access24Icon } from '@oxide/design-system/icons/react'
 
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 
+const titleMap = {
+  all: 'No authorized users or groups',
+  users: 'No authorized users',
+  groups: 'No authorized groups',
+} as const
+
+const buttonTextMap = {
+  project: {
+    all: 'Add user or group to project',
+    users: 'Add user to project',
+    groups: 'Add group to project',
+  },
+  silo: {
+    all: 'Add user or group',
+    users: 'Add user',
+    groups: 'Add group',
+  },
+} as const
+
 type AccessEmptyStateProps = {
   onClick: () => void
-  scope: 'project' | 'silo'
+  scope: RoleScope
   filter?: 'all' | 'users' | 'groups'
 }
 
-export function AccessEmptyState({
+export const AccessEmptyState = ({
   onClick,
   scope,
   filter = 'all',
-}: AccessEmptyStateProps) {
-  const titleMap = {
-    all: 'No authorized users or groups',
-    users: 'No authorized users',
-    groups: 'No authorized groups',
-  }
-
-  const buttonTextMap = {
-    project: {
-      all: 'Add user or group to project',
-      users: 'Add user to project',
-      groups: 'Add group to project',
-    },
-    silo: {
-      all: 'Add user or group',
-      users: 'Add user',
-      groups: 'Add group',
-    },
-  }
-
-  return (
-    <TableEmptyBox>
-      <EmptyMessage
-        icon={<Access24Icon />}
-        title={titleMap[filter]}
-        body={`Give permission to view, edit, or administer this ${scope}`}
-        buttonText={buttonTextMap[scope][filter]}
-        onClick={onClick}
-      />
-    </TableEmptyBox>
-  )
-}
+}: AccessEmptyStateProps) => (
+  <TableEmptyBox>
+    <EmptyMessage
+      icon={<Access24Icon />}
+      title={titleMap[filter]}
+      body={`Give permission to view, edit, or administer this ${scope}`}
+      buttonText={buttonTextMap[scope][filter]}
+      onClick={onClick}
+    />
+  </TableEmptyBox>
+)

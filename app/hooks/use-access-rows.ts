@@ -42,7 +42,7 @@ export function useSiloAccessRows(
         throw new Error(`Unexpected empty userAssignments array for userId ${userId}`)
       }
 
-      const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
+      const siloRole = userAssignments.find((a) => a.roleScope === 'silo')?.roleName
       const { name, identityType } = userAssignments[0]
 
       const row: SiloAccessRow = {
@@ -50,8 +50,8 @@ export function useSiloAccessRows(
         identityType,
         name,
         siloRole,
-        // effectiveRole is the most permissive role, or 'viewer' if no role assigned
-        effectiveRole: getEffectiveRole(siloRole ? [siloRole] : []) || 'viewer',
+        // All users in silo policy have a silo role (guaranteed by API)
+        effectiveRole: getEffectiveRole([siloRole!])!,
       }
 
       return row
@@ -76,8 +76,8 @@ export function useProjectAccessRows(
 
         const { name, identityType } = userAssignments[0]
 
-        const siloAccessRow = userAssignments.find((a) => a.roleSource === 'silo')
-        const projectAccessRow = userAssignments.find((a) => a.roleSource === 'project')
+        const siloAccessRow = userAssignments.find((a) => a.roleScope === 'silo')
+        const projectAccessRow = userAssignments.find((a) => a.roleScope === 'project')
 
         // Filter out undefined values with proper type guard, then map to expected shape
         const roleBadges = R.sortBy(
@@ -86,7 +86,7 @@ export function useProjectAccessRows(
           ),
           (r) => roleOrder[r.roleName] // sorts strongest role first
         ).map((r) => ({
-          roleSource: r.roleSource as 'silo' | 'project',
+          roleScope: r.roleScope,
           roleName: r.roleName,
         }))
 

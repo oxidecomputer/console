@@ -79,9 +79,9 @@ export default function ProjectAccessAllTab() {
         ),
         cell: (info) => (
           <ListPlusCell tooltipTitle="Other roles">
-            {info.getValue().map(({ roleName, roleSource }) => (
-              <Badge key={roleSource} color={roleColor[roleName]}>
-                {roleSource}.{roleName}
+            {info.getValue().map(({ roleName, roleScope }) => (
+              <Badge key={roleScope} color={roleColor[roleName]}>
+                {roleScope}.{roleName}
               </Badge>
             ))}
           </ListPlusCell>
