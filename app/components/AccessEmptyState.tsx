@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { RoleScope } from '@oxide/api'
+import type { RoleSource } from '@oxide/api'
 import { Access24Icon } from '@oxide/design-system/icons/react'
 
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -32,7 +32,7 @@ const buttonTextMap = {
 
 type AccessEmptyStateProps = {
   onClick: () => void
-  scope: RoleScope
+  scope: RoleSource
   filter?: 'all' | 'users' | 'groups'
 }
 

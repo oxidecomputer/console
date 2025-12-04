@@ -24,9 +24,9 @@ import { api, q, usePrefetchedQuery } from './client'
 export type RoleKey = FleetRole | SiloRole | ProjectRole
 
 /**
- * The scope of a role assignment (silo-level or project-level).
+ * The source of a role assignment (silo-level or project-level).
  */
-export type RoleScope = 'silo' | 'project'
+export type RoleSource = 'silo' | 'project'
 
 /** Turn a role order record into a sorted array of strings. */
 // used for displaying lists of roles, like in a <select>
@@ -87,7 +87,7 @@ export type UserAccessRow = {
   identityType: IdentityType
   name: string
   roleName: RoleKey
-  roleScope: RoleScope
+  roleSource: RoleSource
 }
 
 /**
@@ -99,7 +99,7 @@ export type UserAccessRow = {
  */
 export function useUserRows(
   roleAssignments: RoleAssignment[],
-  roleScope: RoleScope
+  roleSource: RoleSource
 ): UserAccessRow[] {
   // HACK: because the policy has no names, we are fetching ~all the users,
   // putting them in a dictionary, and adding the names to the rows
@@ -114,9 +114,9 @@ export function useUserRows(
       identityType: ra.identityType,
       name: usersDict[ra.identityId]?.displayName || '', // placeholder until we get names, obviously
       roleName: ra.roleName,
-      roleScope,
+      roleSource,
     }))
-  }, [roleAssignments, roleScope, users, groups])
+  }, [roleAssignments, roleSource, users, groups])
 }
 
 type SortableUserRow = { identityType: IdentityType; name: string }

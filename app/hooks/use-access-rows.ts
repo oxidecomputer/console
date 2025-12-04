@@ -42,7 +42,7 @@ export function useSiloAccessRows(
         throw new Error(`Unexpected empty userAssignments array for userId ${userId}`)
       }
 
-      const siloRole = userAssignments.find((a) => a.roleScope === 'silo')?.roleName
+      const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
       const { name, identityType } = userAssignments[0]
 
       const row: SiloAccessRow = {
@@ -76,8 +76,8 @@ export function useProjectAccessRows(
 
         const { name, identityType } = userAssignments[0]
 
-        const siloAccessRow = userAssignments.find((a) => a.roleScope === 'silo')
-        const projectAccessRow = userAssignments.find((a) => a.roleScope === 'project')
+        const siloAccessRow = userAssignments.find((a) => a.roleSource === 'silo')
+        const projectAccessRow = userAssignments.find((a) => a.roleSource === 'project')
 
         // Filter out undefined values with proper type guard, then map to expected shape
         const roleBadges = R.sortBy(
@@ -86,7 +86,7 @@ export function useProjectAccessRows(
           ),
           (r) => roleOrder[r.roleName] // sorts strongest role first
         ).map((r) => ({
-          roleScope: r.roleScope,
+          roleSource: r.roleSource,
           roleName: r.roleName,
         }))
 
