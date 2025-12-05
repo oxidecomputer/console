@@ -14,9 +14,10 @@ import {
   type LoaderFunctionArgs,
 } from 'react-router'
 
-import { AccessTab } from './components/AccessTab'
 import { NotFound } from './components/ErrorPage'
 import { PageSkeleton } from './components/PageSkeleton.tsx'
+import { ProjectAccessTab } from './components/ProjectAccessTab'
+import { SiloAccessTab } from './components/SiloAccessTab'
 import { makeCrumb, type Crumb } from './hooks/use-crumbs'
 import { getInstanceSelector, getVpcSelector } from './hooks/use-params'
 import { pb } from './util/path-builder'
@@ -282,9 +283,9 @@ export const routes = createRoutesFromElements(
           lazy={() => import('./pages/silo/access/SiloAccessPage').then(convert)}
         >
           <Route index element={<Navigate to="all" replace />} />
-          <Route path="all" element={<AccessTab filter="all" scope="silo" />} />
-          <Route path="users" element={<AccessTab filter="users" scope="silo" />} />
-          <Route path="groups" element={<AccessTab filter="groups" scope="silo" />} />
+          <Route path="all" element={<SiloAccessTab filter="all" />} />
+          <Route path="users" element={<SiloAccessTab filter="users" />} />
+          <Route path="groups" element={<SiloAccessTab filter="groups" />} />
         </Route>
       </Route>
 
@@ -539,9 +540,9 @@ export const routes = createRoutesFromElements(
             lazy={() => import('./pages/project/access/ProjectAccessPage').then(convert)}
           >
             <Route index element={<Navigate to="all" replace />} />
-            <Route path="all" element={<AccessTab filter="all" scope="project" />} />
-            <Route path="users" element={<AccessTab filter="users" scope="project" />} />
-            <Route path="groups" element={<AccessTab filter="groups" scope="project" />} />
+            <Route path="all" element={<ProjectAccessTab filter="all" />} />
+            <Route path="users" element={<ProjectAccessTab filter="users" />} />
+            <Route path="groups" element={<ProjectAccessTab filter="groups" />} />
           </Route>
           <Route
             lazy={() => import('./pages/project/affinity/AffinityPage').then(convert)}
