@@ -79,11 +79,9 @@ export function useProjectAccessRows(
         const siloAccessRow = userAssignments.find((a) => a.roleSource === 'silo')
         const projectAccessRow = userAssignments.find((a) => a.roleSource === 'project')
 
-        // Filter out undefined values with proper type guard, then map to expected shape
+        // Filter out undefined values, then map to expected shape
         const roleBadges = R.sortBy(
-          [siloAccessRow, projectAccessRow].filter(
-            (r): r is UserAccessRow => r !== undefined
-          ),
+          [siloAccessRow, projectAccessRow].filter((r) => r !== undefined),
           (r) => roleOrder[r.roleName] // sorts strongest role first
         ).map((r) => ({
           roleSource: r.roleSource,
