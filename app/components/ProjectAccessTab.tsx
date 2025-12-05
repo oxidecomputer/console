@@ -14,7 +14,7 @@ import { Badge } from '@oxide/design-system/ui'
 import { accessQueries } from '~/api/access-queries'
 import {
   getFilterEntityLabel,
-  getNoPermissionMessage,
+  getInheritedRoleMessage,
   identityTypeColumnDef,
 } from '~/components/access/shared'
 import { AccessEmptyState } from '~/components/AccessEmptyState'
@@ -95,7 +95,7 @@ function ProjectAccessTable({
         {
           label: 'Change role',
           onActivate: () => onEditRow(row),
-          disabled: !row.projectRole && getNoPermissionMessage('change', row.identityType),
+          disabled: !row.projectRole && getInheritedRoleMessage('change', row.identityType),
         },
         {
           label: 'Delete',
@@ -115,7 +115,7 @@ function ProjectAccessTable({
               </span>
             ),
           }),
-          disabled: !row.projectRole && getNoPermissionMessage('delete', row.identityType),
+          disabled: !row.projectRole && getInheritedRoleMessage('delete', row.identityType),
         },
       ]),
     ]

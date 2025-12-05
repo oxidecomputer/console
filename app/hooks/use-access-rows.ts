@@ -90,7 +90,9 @@ export function useProjectAccessRows(
 
         // Filter out undefined values, then map to expected shape
         const roleBadges = R.sortBy(
-          [siloAccessRow, projectAccessRow].filter((r) => r !== undefined),
+          [siloAccessRow, projectAccessRow].filter(
+            (r): r is UserAccessRow => r !== undefined
+          ),
           (r) => roleOrder[r.roleName] // sorts strongest role first
         ).map((r) => ({
           roleSource: r.roleSource,

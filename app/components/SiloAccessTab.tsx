@@ -12,11 +12,7 @@ import { deleteRole, usePrefetchedQuery, useUserRows, type Policy } from '@oxide
 import { Badge } from '@oxide/design-system/ui'
 
 import { accessQueries } from '~/api/access-queries'
-import {
-  getFilterEntityLabel,
-  getNoPermissionMessage,
-  identityTypeColumnDef,
-} from '~/components/access/shared'
+import { getFilterEntityLabel, identityTypeColumnDef } from '~/components/access/shared'
 import { AccessEmptyState } from '~/components/AccessEmptyState'
 import { HL } from '~/components/HL'
 import {
@@ -77,7 +73,6 @@ function SiloAccessTable({
         {
           label: 'Change role',
           onActivate: () => onEditRow(row),
-          disabled: !row.siloRole && getNoPermissionMessage('change', row.identityType),
         },
         {
           label: 'Delete',
@@ -93,7 +88,6 @@ function SiloAccessTable({
             ),
           }),
           // TODO: disable delete on permissions you can't delete
-          disabled: !row.siloRole && getNoPermissionMessage('delete', row.identityType),
         },
       ]),
     ]
