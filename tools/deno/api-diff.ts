@@ -56,21 +56,20 @@ async function resolveCommit(ref?: string | number): Promise<string> {
 const normalizeRef = (ref?: string | number) =>
   typeof ref === 'string' && /^\d+$/.test(ref) ? parseInt(ref, 10) : ref
 
-async function getSchemaFiles(
-  commit: string,
-  /**
-   * Include previous is for when we're diffing against a single commit, so we
-   * need both current and previous schema filename
-   */
-  includePrevious: boolean
-) {
+async function getLatestSchema(commit: string) {
+  const contents = await $`gh api ${SPEC_DIR_URL(commit)}`.json()
+  const latestLink = contents.find((f: { name: string }) => f.name === 'nexus-latest.json')
+  if (!latestLink) throw new Error('nexus-latest.json not found')
+  return (await fetch(latestLink.download_url).then((r) => r.text())).trim()
+}
+
+/** When diffing a single commit, we diff its latest schema against the previous one */
+async function getLatestAndPreviousSchema(commit: string) {
   const contents = await $`gh api ${SPEC_DIR_URL(commit)}`.json()
 
   const latestLink = contents.find((f: { name: string }) => f.name === 'nexus-latest.json')
   if (!latestLink) throw new Error('nexus-latest.json not found')
   const latest = (await fetch(latestLink.download_url).then((r) => r.text())).trim()
-
-  if (!includePrevious) return { latest }
 
   const schemaFiles = contents
     .filter(
@@ -83,10 +82,11 @@ async function getSchemaFiles(
   if (latestIndex === -1) throw new Error(`Latest schema ${latest} not found in dir`)
   if (latestIndex === 0) throw new Error('No previous schema version found')
 
-  return { before: schemaFiles[latestIndex - 1], latest }
+  return { previous: schemaFiles[latestIndex - 1], latest }
 }
 
 async function resolveTarget(ref1?: string | number, ref2?: string): Promise<DiffTarget> {
+  // Two refs: compare latest schema on each
   if (ref2 !== undefined) {
     if (ref1 === undefined)
       throw new ValidationError('Provide a base ref when passing two refs')
@@ -95,41 +95,44 @@ async function resolveTarget(ref1?: string | number, ref2?: string): Promise<Dif
       resolveCommit(normalizeRef(ref2)),
     ])
     const [baseSchema, headSchema] = await Promise.all([
-      getSchemaFiles(baseCommit, false).then((r) => r.latest),
-      getSchemaFiles(headCommit, false).then((r) => r.latest),
+      getLatestSchema(baseCommit),
+      getLatestSchema(headCommit),
     ])
     return { baseCommit, baseSchema, headCommit, headSchema }
   }
 
+  // Single ref: compare previous schema to latest within that commit
   const commit = await resolveCommit(normalizeRef(ref1))
-  const { before, latest } = await getSchemaFiles(commit, true)
-  return { baseCommit: commit, baseSchema: before, headCommit: commit, headSchema: latest }
+  const { previous, latest } = await getLatestAndPreviousSchema(commit)
+  return {
+    baseCommit: commit,
+    baseSchema: previous,
+    headCommit: commit,
+    headSchema: latest,
+  }
 }
 
-async function ensureSpec(
-  commit: string,
-  specFilename: string,
-  genClient: boolean,
-  force: boolean
-) {
+async function ensureSchema(commit: string, specFilename: string, force: boolean) {
   const dir = `/tmp/api-diff/${commit}/${specFilename}`
   const schemaPath = `${dir}/spec.json`
-  const clientPath = `${dir}/Api.ts`
-
   if (force || !(await exists(schemaPath))) {
     await $`mkdir -p ${dir}`
     console.info(`Downloading ${specFilename}...`)
     const content = await fetch(SPEC_RAW_URL(commit, specFilename)).then((r) => r.text())
     await Deno.writeTextFile(schemaPath, content)
   }
+  return schemaPath
+}
 
-  if (genClient && (force || !(await exists(clientPath)))) {
-    console.info(`Generating client for ${specFilename}...`)
+async function ensureClient(schemaPath: string, force: boolean) {
+  const dir = schemaPath.replace(/\/spec\.json$/, '')
+  const clientPath = `${dir}/Api.ts`
+  if (force || !(await exists(clientPath))) {
+    console.info(`Generating client...`)
     await $`npx @oxide/openapi-gen-ts@latest ${schemaPath} ${dir}`
     await $`npx prettier --write --log-level error ${dir}`
   }
-
-  return genClient ? clientPath : schemaPath
+  return clientPath
 }
 
 //////////////////////////////
@@ -140,25 +143,6 @@ if (!$.commandExistsSync('gh')) throw Error('Need gh (GitHub CLI)')
 
 // prefer delta if it exists. https://dandavison.github.io/delta/
 const diffTool = $.commandExistsSync('delta') ? 'delta' : 'diff'
-
-type Format = 'ts' | 'schema'
-
-async function runDiff(target: DiffTarget, format: Format, force: boolean) {
-  const genClient = format === 'ts'
-  const [basePath, headPath] = await Promise.all([
-    ensureSpec(target.baseCommit, target.baseSchema, genClient, force),
-    ensureSpec(target.headCommit, target.headSchema, genClient, force),
-  ])
-
-  await $`${diffTool} ${basePath} ${headPath}`.noThrow()
-}
-
-function parseFormat(format: string): Format {
-  if (format !== 'ts' && format !== 'schema') {
-    throw new ValidationError(`Invalid format: '${format}'. Must be 'ts' or 'schema'`)
-  }
-  return format as Format
-}
 
 await new Command()
   .name('api-diff')
@@ -179,15 +163,37 @@ Dependencies:
   )
   .helpOption('-h, --help', 'Show help')
   .option('-f, --force', 'Re-download spec and regenerate client even if cached')
+  .type('format', ({ value }) => {
+    if (value !== 'ts' && value !== 'schema') {
+      throw new ValidationError(`Invalid format: '${value}'. Must be 'ts' or 'schema'`)
+    }
+    return value
+  })
   .option(
-    '--format <format:string>',
+    '--format <format:format>',
     'Output format: ts (generated client) or schema (raw JSON)',
-    { default: 'ts' }
+    {
+      default: 'ts' as const,
+    }
   )
   .arguments('[ref1:string] [ref2:string]')
   .action(async (options, ref?: string, ref2?: string) => {
-    const format = parseFormat(options.format)
     const target = await resolveTarget(ref, ref2)
-    await runDiff(target, format, options.force ?? false)
+    const force = options.force ?? false
+
+    const [baseSchema, headSchema] = await Promise.all([
+      ensureSchema(target.baseCommit, target.baseSchema, force),
+      ensureSchema(target.headCommit, target.headSchema, force),
+    ])
+
+    if (options.format === 'schema') {
+      await $`${diffTool} ${baseSchema} ${headSchema}`.noThrow()
+    } else {
+      const [baseClient, headClient] = await Promise.all([
+        ensureClient(baseSchema, force),
+        ensureClient(headSchema, force),
+      ])
+      await $`${diffTool} ${baseClient} ${headClient}`.noThrow()
+    }
   })
   .parse(Deno.args)
