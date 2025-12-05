@@ -6,25 +6,22 @@
  * Copyright Oxide Computer Company
  */
 
-import { api, q, queryClient } from '@oxide/api'
+import { queryClient } from '@oxide/api'
 import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 
+import { accessQueries } from '~/api/access-queries'
 import { DocsPopover } from '~/components/DocsPopover'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-const policyView = q(api.policyView, {})
-const userList = q(api.userList, {})
-const groupList = q(api.groupList, {})
-
 export async function clientLoader() {
   await Promise.all([
-    queryClient.prefetchQuery(policyView),
+    queryClient.prefetchQuery(accessQueries.siloPolicy()),
     // used to resolve user names
-    queryClient.prefetchQuery(userList),
-    queryClient.prefetchQuery(groupList),
+    queryClient.prefetchQuery(accessQueries.userList()),
+    queryClient.prefetchQuery(accessQueries.groupList()),
   ])
   return null
 }

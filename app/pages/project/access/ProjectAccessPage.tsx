@@ -7,31 +7,25 @@
  */
 import type { LoaderFunctionArgs } from 'react-router'
 
-import { api, q, queryClient } from '@oxide/api'
+import { queryClient } from '@oxide/api'
 import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 
+import { accessQueries } from '~/api/access-queries'
 import { DocsPopover } from '~/components/DocsPopover'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
-import type * as PP from '~/util/path-params'
-
-const policyView = q(api.policyView, {})
-const projectPolicyView = ({ project }: PP.Project) =>
-  q(api.projectPolicyView, { path: { project } })
-const userList = q(api.userList, {})
-const groupList = q(api.groupList, {})
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const selector = getProjectSelector(params)
   await Promise.all([
-    queryClient.prefetchQuery(policyView),
-    queryClient.prefetchQuery(projectPolicyView(selector)),
+    queryClient.prefetchQuery(accessQueries.siloPolicy()),
+    queryClient.prefetchQuery(accessQueries.projectPolicy(selector)),
     // used to resolve user names
-    queryClient.prefetchQuery(userList),
-    queryClient.prefetchQuery(groupList),
+    queryClient.prefetchQuery(accessQueries.userList()),
+    queryClient.prefetchQuery(accessQueries.groupList()),
   ])
   return null
 }

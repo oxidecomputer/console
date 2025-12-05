@@ -34,26 +34,37 @@ export function useSiloAccessRows(
   filter: IdentityFilter = 'all'
 ): SiloAccessRow[] {
   return useMemo(() => {
-    const rows = groupBy(siloRows, (u) => u.id).map(([userId, userAssignments]) => {
-      // groupBy always produces non-empty arrays, but add guard for safety
-      if (userAssignments.length === 0) {
-        throw new Error(`Unexpected empty userAssignments array for userId ${userId}`)
-      }
+    const rows = groupBy(siloRows, (u) => u.id)
+      .map(([userId, userAssignments]) => {
+        // groupBy always produces non-empty arrays, but add guard for safety
+        if (userAssignments.length === 0) {
+          throw new Error(`Unexpected empty userAssignments array for userId ${userId}`)
+        }
 
-      const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
-      const { name, identityType } = userAssignments[0]
+        const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
+        const { name, identityType } = userAssignments[0]
 
-      const row: SiloAccessRow = {
-        id: userId,
-        identityType,
-        name,
-        siloRole,
-        // All users in silo policy have a silo role (guaranteed by API)
-        effectiveRole: getEffectiveRole([siloRole!])!,
-      }
+        // Skip rows without a silo role (shouldn't happen in normal operation, but be defensive)
+        if (!siloRole) {
+          return null
+        }
 
-      return row
-    })
+        const effectiveRole = getEffectiveRole([siloRole])
+        if (!effectiveRole) {
+          return null
+        }
+
+        const row: SiloAccessRow = {
+          id: userId,
+          identityType,
+          name,
+          siloRole,
+          effectiveRole,
+        }
+
+        return row
+      })
+      .filter((row): row is SiloAccessRow => row !== null)
 
     return filterByIdentityType(rows, filter).sort(byGroupThenName)
   }, [siloRows, filter])

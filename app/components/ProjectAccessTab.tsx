@@ -157,13 +157,13 @@ export function ProjectAccessTab({ filter, children }: ProjectAccessTabProps) {
       <TableActions>
         <CreateButton onClick={() => setAddModalOpen(true)}>{addButtonText}</CreateButton>
       </TableActions>
-      {addModalOpen && (
+      {projectPolicy && addModalOpen && (
         <ProjectAccessAddUserSideModal
           onDismiss={() => setAddModalOpen(false)}
           policy={projectPolicy}
         />
       )}
-      {editingRow && editingRow.projectRole && (
+      {projectPolicy && editingRow && editingRow.projectRole && (
         <ProjectAccessEditUserSideModal
           onDismiss={() => setEditingRow(null)}
           policy={projectPolicy}

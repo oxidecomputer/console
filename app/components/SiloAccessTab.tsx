@@ -127,13 +127,13 @@ export function SiloAccessTab({ filter, children }: SiloAccessTabProps) {
       <TableActions>
         <CreateButton onClick={() => setAddModalOpen(true)}>{addButtonText}</CreateButton>
       </TableActions>
-      {addModalOpen && (
+      {policy && addModalOpen && (
         <SiloAccessAddUserSideModal
           onDismiss={() => setAddModalOpen(false)}
           policy={policy}
         />
       )}
-      {editingRow && editingRow.siloRole && (
+      {policy && editingRow && editingRow.siloRole && (
         <SiloAccessEditUserSideModal
           onDismiss={() => setEditingRow(null)}
           policy={policy}
