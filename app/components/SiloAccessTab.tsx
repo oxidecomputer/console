@@ -16,7 +16,6 @@ import {
   getFilterEntityLabel,
   getNoPermissionMessage,
   identityTypeColumnDef,
-  type IdentityFilter,
 } from '~/components/access/shared'
 import { AccessEmptyState } from '~/components/AccessEmptyState'
 import { HL } from '~/components/HL'
@@ -29,7 +28,7 @@ import { useSiloAccessRows } from '~/hooks/use-access-rows'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
-import type { SiloAccessRow } from '~/types/access'
+import type { IdentityFilter, SiloAccessRow } from '~/types/access'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { TableActions } from '~/ui/lib/Table'
 import { roleColor } from '~/util/access'

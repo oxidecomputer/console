@@ -16,10 +16,8 @@ import {
   type UserAccessRow,
 } from '@oxide/api'
 
-import type { ProjectAccessRow, SiloAccessRow } from '~/types/access'
+import type { IdentityFilter, ProjectAccessRow, SiloAccessRow } from '~/types/access'
 import { groupBy } from '~/util/array'
-
-type IdentityFilter = 'all' | 'users' | 'groups'
 
 /** Filter rows by identity type based on the filter parameter */
 function filterByIdentityType<T extends { identityType: IdentityType }>(

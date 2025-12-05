@@ -6,9 +6,8 @@
  * Copyright Oxide Computer Company
  */
 
+import type { IdentityFilter } from '~/types/access'
 import { identityTypeLabel } from '~/util/access'
-
-export type IdentityFilter = 'all' | 'users' | 'groups'
 
 /**
  * Converts an identity type to a user-friendly label

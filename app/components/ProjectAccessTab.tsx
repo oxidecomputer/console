@@ -16,7 +16,6 @@ import {
   getFilterEntityLabel,
   getNoPermissionMessage,
   identityTypeColumnDef,
-  type IdentityFilter,
 } from '~/components/access/shared'
 import { AccessEmptyState } from '~/components/AccessEmptyState'
 import { HL } from '~/components/HL'
@@ -31,7 +30,7 @@ import { useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
-import type { ProjectAccessRow } from '~/types/access'
+import type { IdentityFilter, ProjectAccessRow } from '~/types/access'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { TableActions } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'

@@ -7,6 +7,8 @@
  */
 import type { IdentityType, RoleKey, RoleSource } from '@oxide/api'
 
+export type IdentityFilter = 'all' | 'users' | 'groups'
+
 export type AccessRowBase = {
   id: string
   identityType: IdentityType
