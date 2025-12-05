@@ -162,20 +162,16 @@ Dependencies:
   - Optional: fzf for PR picker https://github.com/junegunn/fzf`
   )
   .helpOption('-h, --help', 'Show help')
-  .option('-f, --force', 'Re-download spec and regenerate client even if cached')
+  .option('--force', 'Redo everything even if cached')
   .type('format', ({ value }) => {
     if (value !== 'ts' && value !== 'schema') {
       throw new ValidationError(`Invalid format: '${value}'. Must be 'ts' or 'schema'`)
     }
     return value
   })
-  .option(
-    '--format <format:format>',
-    'Output format: ts (generated client) or schema (raw JSON)',
-    {
-      default: 'ts' as const,
-    }
-  )
+  .option('-f, --format <format:format>', "Output format: 'ts' or 'schema'", {
+    default: 'ts' as const,
+  })
   .arguments('[ref1:string] [ref2:string]')
   .action(async (options, ref?: string, ref2?: string) => {
     const target = await resolveTarget(ref, ref2)
