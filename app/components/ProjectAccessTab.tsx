@@ -12,11 +12,7 @@ import { deleteRole, usePrefetchedQuery, useUserRows, type Policy } from '@oxide
 import { Badge } from '@oxide/design-system/ui'
 
 import { accessQueries } from '~/api/access-queries'
-import {
-  getFilterEntityLabel,
-  getInheritedRoleMessage,
-  identityTypeColumnDef,
-} from '~/components/access/shared'
+import { getFilterEntityLabel, identityTypeColumnDef } from '~/components/access/shared'
 import { AccessEmptyState } from '~/components/AccessEmptyState'
 import { HL } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
@@ -41,6 +37,18 @@ type ProjectAccessTabProps = {
   filter: IdentityFilter
   children?: ReactNode
 }
+
+/**
+ * Converts an identity type to a user-friendly label
+ */
+const getIdentityLabel = (identityType: string) =>
+  identityType === 'silo_user' ? 'user' : 'group'
+
+/**
+ * Message explaining that an inherited silo role cannot be modified at the project level
+ */
+const getInheritedRoleMessage = (action: 'change' | 'delete', identityType: string) =>
+  `Cannot ${action} inherited silo role. This ${getIdentityLabel(identityType)}'s role is set at the silo level.`
 
 function ProjectAccessTable({
   filter,

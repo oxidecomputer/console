@@ -12,23 +12,12 @@ import type { IdentityFilter } from '~/types/access'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 
+import { getFilterEntityLabel } from './access/shared'
+
 const titleMap = {
   all: 'No authorized users or groups',
   users: 'No authorized users',
   groups: 'No authorized groups',
-} as const
-
-const buttonTextMap = {
-  project: {
-    all: 'Add user or group to project',
-    users: 'Add user to project',
-    groups: 'Add group to project',
-  },
-  silo: {
-    all: 'Add user or group',
-    users: 'Add user',
-    groups: 'Add group',
-  },
 } as const
 
 type AccessEmptyStateProps = {
@@ -47,7 +36,7 @@ export const AccessEmptyState = ({
       icon={<Access24Icon />}
       title={titleMap[filter]}
       body={`Give permission to view, edit, or administer this ${scope}`}
-      buttonText={buttonTextMap[scope][filter]}
+      buttonText={`Add ${getFilterEntityLabel(filter)} to ${scope}`}
       onClick={onClick}
     />
   </TableEmptyBox>
