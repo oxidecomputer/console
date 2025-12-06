@@ -23,6 +23,11 @@ import { api, q, usePrefetchedQuery } from './client'
  */
 export type RoleKey = FleetRole | SiloRole | ProjectRole
 
+/**
+ * The source of a role assignment (silo-level or project-level).
+ */
+export type RoleSource = 'silo' | 'project'
+
 /** Turn a role order record into a sorted array of strings. */
 // used for displaying lists of roles, like in a <select>
 const flatRoles = (roleOrder: Record<RoleKey, number>): RoleKey[] =>
@@ -77,12 +82,12 @@ export function deleteRole(identityId: string, policy: Policy): Policy {
   return { roleAssignments }
 }
 
-type UserAccessRow = {
+export type UserAccessRow = {
   id: string
   identityType: IdentityType
   name: string
   roleName: RoleKey
-  roleSource: string
+  roleSource: RoleSource
 }
 
 /**
@@ -94,7 +99,7 @@ type UserAccessRow = {
  */
 export function useUserRows(
   roleAssignments: RoleAssignment[],
-  roleSource: string
+  roleSource: RoleSource
 ): UserAccessRow[] {
   // HACK: because the policy has no names, we are fetching ~all the users,
   // putting them in a dictionary, and adding the names to the rows
