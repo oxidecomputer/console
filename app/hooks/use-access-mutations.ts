@@ -7,13 +7,10 @@
  */
 import { api, queryClient, useApiMutation } from '@oxide/api'
 
-import { addToast } from '~/stores/toast'
-
 export function useProjectAccessMutations() {
   const { mutateAsync: updatePolicy } = useApiMutation(api.projectPolicyUpdate, {
     onSuccess: () => {
       queryClient.invalidateEndpoint('projectPolicyView')
-      addToast({ content: 'Access removed' })
     },
   })
 
@@ -24,7 +21,6 @@ export function useSiloAccessMutations() {
   const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
     onSuccess: () => {
       queryClient.invalidateEndpoint('policyView')
-      addToast({ content: 'Access removed' })
     },
   })
 

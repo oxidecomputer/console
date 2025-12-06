@@ -44,7 +44,7 @@ export function useSiloAccessRows(
         const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
         const { name, identityType } = userAssignments[0]
 
-        // Skip rows without a silo role (shouldn't happen in normal operation, but be defensive)
+        // Silo access tab only shows identities with explicit silo roles
         if (!siloRole) {
           return null
         }

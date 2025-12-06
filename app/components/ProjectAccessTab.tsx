@@ -28,6 +28,7 @@ import { useProjectAccessMutations } from '~/hooks/use-access-mutations'
 import { useProjectAccessRows } from '~/hooks/use-access-rows'
 import { useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
 import type { IdentityFilter, ProjectAccessRow } from '~/types/access'
@@ -104,11 +105,13 @@ function ProjectAccessTable({
           // cause the user to have an effective role of X. However we would have to look at
           // their groups too.
           onActivate: confirmDelete({
-            doDelete: async () =>
+            doDelete: async () => {
               await updatePolicy({
                 path: { project: projectName },
                 body: deleteRole(row.id, policy),
-              }),
+              })
+              addToast({ content: 'Access removed' })
+            },
             label: (
               <span>
                 the <HL>{row.projectRole}</HL> role for <HL>{row.name}</HL>

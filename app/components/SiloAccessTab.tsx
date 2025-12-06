@@ -22,6 +22,7 @@ import {
 import { useSiloAccessMutations } from '~/hooks/use-access-mutations'
 import { useSiloAccessRows } from '~/hooks/use-access-rows'
 import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
 import type { IdentityFilter, SiloAccessRow } from '~/types/access'
@@ -77,10 +78,12 @@ function SiloAccessTable({
         {
           label: 'Delete',
           onActivate: confirmDelete({
-            doDelete: async () =>
+            doDelete: async () => {
               await updatePolicy({
                 body: deleteRole(row.id, policy),
-              }),
+              })
+              addToast({ content: 'Access removed' })
+            },
             label: (
               <span>
                 the <HL>{row.siloRole}</HL> role for <HL>{row.name}</HL>
