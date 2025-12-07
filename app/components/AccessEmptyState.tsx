@@ -13,16 +13,10 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { identityFilterLabel } from '~/util/access'
 
-const titleMap = {
-  all: 'No authorized users or groups',
-  users: 'No authorized users',
-  groups: 'No authorized groups',
-} as const
-
 type AccessEmptyStateProps = {
   onClick: () => void
   scope: RoleSource
-  filter?: IdentityFilter
+  filter: IdentityFilter
 }
 
 export const AccessEmptyState = ({
@@ -33,7 +27,7 @@ export const AccessEmptyState = ({
   <TableEmptyBox>
     <EmptyMessage
       icon={<Access24Icon />}
-      title={titleMap[filter]}
+      title={`No authorized ${filter === 'all' ? 'users or groups' : filter}`}
       body={`Give permission to view, edit, or administer this ${scope}`}
       buttonText={`Add ${identityFilterLabel[filter]} to ${scope}`}
       onClick={onClick}

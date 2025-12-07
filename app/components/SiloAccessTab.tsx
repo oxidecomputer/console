@@ -8,18 +8,26 @@
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo, useState, type ReactNode } from 'react'
 
-import { deleteRole, usePrefetchedQuery, useUserRows, type Policy } from '@oxide/api'
+import {
+  api,
+  byGroupThenName,
+  deleteRole,
+  getEffectiveRole,
+  q,
+  queryClient,
+  useApiMutation,
+  usePrefetchedQuery,
+  useUserRows,
+  type Policy,
+} from '@oxide/api'
 import { Badge } from '@oxide/design-system/ui'
 
-import { accessQueries } from '~/api/access-queries'
 import { AccessEmptyState } from '~/components/AccessEmptyState'
 import { HL } from '~/components/HL'
 import {
   SiloAccessAddUserSideModal,
   SiloAccessEditUserSideModal,
 } from '~/forms/silo-access'
-import { useSiloAccessMutations } from '~/hooks/use-access-mutations'
-import { useSiloAccessRows } from '~/hooks/use-access-rows'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { getActionsCol } from '~/table/columns/action-col'
@@ -27,11 +35,58 @@ import { Table } from '~/table/Table'
 import type { IdentityFilter, SiloAccessRow } from '~/types/access'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { TableActions } from '~/ui/lib/Table'
-import { identityFilterLabel, identityTypeLabel, roleColor } from '~/util/access'
+import {
+  filterByIdentityType,
+  identityFilterLabel,
+  identityTypeLabel,
+  roleColor,
+} from '~/util/access'
+import { groupBy } from '~/util/array'
 
 type SiloAccessTabProps = {
   filter: IdentityFilter
   children?: ReactNode
+}
+
+function useSiloAccessRows(
+  siloRows: ReturnType<typeof useUserRows>,
+  filter: IdentityFilter
+) {
+  return useMemo(() => {
+    const rows = groupBy(siloRows, (u) => u.id)
+      .map(([userId, userAssignments]) => {
+        // groupBy always produces non-empty arrays, but add guard for safety
+        if (userAssignments.length === 0) {
+          throw new Error(`Unexpected empty userAssignments array for userId ${userId}`)
+        }
+
+        const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
+        const { name, identityType } = userAssignments[0]
+
+        // Silo access tab only shows identities with explicit silo roles
+        if (!siloRole) {
+          return null
+        }
+
+        const effectiveRole = getEffectiveRole([siloRole])
+        if (!effectiveRole) {
+          return null
+        }
+
+        const row: SiloAccessRow = {
+          id: userId,
+          identityType,
+          name,
+          siloRole,
+          effectiveRole,
+        }
+
+        return row
+      })
+      .filter((row): row is SiloAccessRow => row !== null)
+
+    return filterByIdentityType(rows, filter).sort(byGroupThenName)
+  }, [siloRows, filter])
 }
 
 function SiloAccessTable({
@@ -45,7 +100,11 @@ function SiloAccessTable({
   policy: Policy
   onEditRow: (row: SiloAccessRow) => void
 }) {
-  const { updatePolicy } = useSiloAccessMutations()
+  const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
+    onSuccess: () => {
+      queryClient.invalidateEndpoint('policyView')
+    },
+  })
 
   const columns = useMemo(() => {
     const colHelper = createColumnHelper<SiloAccessRow>()
@@ -54,11 +113,9 @@ function SiloAccessTable({
       colHelper.accessor('name', { header: 'Name' }),
       // TODO: Add member information for groups once API provides it. Ideally:
       //   1. A /groups/{groupId}/members endpoint to list members
-      //   2. A memberCount field on the Group type
-      // This would allow showing member count in the table and displaying members
-      // in a tooltip or expandable row.
-      // TODO: Add lastAccessed column for users once API provides it. The User type
-      // should include a lastAccessed timestamp to show when users last logged in.
+      //   2. A memberCount field on the Group type to show count,
+      //      plus list of members in tooltip or expandable row
+      // TODO: Add lastAccessed column for users once API provides it.
       ...(filter === 'all'
         ? [
             colHelper.accessor('identityType', {
@@ -117,7 +174,7 @@ export function SiloAccessTab({ filter, children }: SiloAccessTabProps) {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingRow, setEditingRow] = useState<SiloAccessRow | null>(null)
 
-  const { data: policy } = usePrefetchedQuery(accessQueries.siloPolicy())
+  const { data: policy } = usePrefetchedQuery(q(api.policyView, {}))
   const siloRows = useUserRows(policy.roleAssignments, 'silo')
   const rows = useSiloAccessRows(siloRows, filter)
 

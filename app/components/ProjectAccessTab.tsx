@@ -7,11 +7,24 @@
  */
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo, useState, type ReactNode } from 'react'
+import * as R from 'remeda'
 
-import { deleteRole, usePrefetchedQuery, useUserRows, type Policy } from '@oxide/api'
+import {
+  api,
+  byGroupThenName,
+  deleteRole,
+  q,
+  queryClient,
+  roleOrder,
+  useApiMutation,
+  usePrefetchedQuery,
+  useUserRows,
+  type IdentityType,
+  type Policy,
+  type UserAccessRow,
+} from '@oxide/api'
 import { Badge } from '@oxide/design-system/ui'
 
-import { accessQueries } from '~/api/access-queries'
 import { AccessEmptyState } from '~/components/AccessEmptyState'
 import { HL } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
@@ -19,8 +32,6 @@ import {
   ProjectAccessAddUserSideModal,
   ProjectAccessEditUserSideModal,
 } from '~/forms/project-access'
-import { useProjectAccessMutations } from '~/hooks/use-access-mutations'
-import { useProjectAccessRows } from '~/hooks/use-access-rows'
 import { useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -30,24 +41,67 @@ import type { IdentityFilter, ProjectAccessRow } from '~/types/access'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { TableActions } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
-import { identityFilterLabel, identityTypeLabel, roleColor } from '~/util/access'
+import {
+  filterByIdentityType,
+  identityFilterLabel,
+  identityTypeLabel,
+  roleColor,
+} from '~/util/access'
+import { groupBy } from '~/util/array'
 
 type ProjectAccessTabProps = {
   filter: IdentityFilter
   children?: ReactNode
 }
 
-/**
- * Converts an identity type to a user-friendly label
- */
-const getIdentityLabel = (identityType: string) =>
-  identityType === 'silo_user' ? 'user' : 'group'
+function useProjectAccessRows(
+  siloRows: UserAccessRow[],
+  projectRows: UserAccessRow[],
+  filter: IdentityFilter
+): ProjectAccessRow[] {
+  return useMemo(() => {
+    const rows = groupBy(siloRows.concat(projectRows), (u) => u.id).map(
+      ([userId, userAssignments]) => {
+        // groupBy always produces non-empty arrays, but add guard for safety
+        if (userAssignments.length === 0) {
+          throw new Error(`Unexpected empty userAssignments array for userId ${userId}`)
+        }
+
+        const { name, identityType } = userAssignments[0]
+
+        const siloAccessRow = userAssignments.find((a) => a.roleSource === 'silo')
+        const projectAccessRow = userAssignments.find((a) => a.roleSource === 'project')
+
+        // Filter out undefined values, then map to expected shape
+        const roleBadges = R.sortBy(
+          [siloAccessRow, projectAccessRow].filter(
+            (r): r is UserAccessRow => r !== undefined
+          ),
+          (r) => roleOrder[r.roleName] // sorts strongest role first
+        ).map((r) => ({
+          roleSource: r.roleSource,
+          roleName: r.roleName,
+        }))
+
+        return {
+          id: userId,
+          identityType,
+          name,
+          projectRole: projectAccessRow?.roleName,
+          roleBadges,
+        } satisfies ProjectAccessRow
+      }
+    )
+
+    return filterByIdentityType(rows, filter).sort(byGroupThenName)
+  }, [siloRows, projectRows, filter])
+}
 
 /**
  * Message explaining that an inherited silo role cannot be modified at the project level
  */
-const getInheritedRoleMessage = (action: 'change' | 'delete', identityType: string) =>
-  `Cannot ${action} inherited silo role. This ${getIdentityLabel(identityType)}'s role is set at the silo level.`
+const getInheritedRoleMessage = (action: 'change' | 'delete', identityType: IdentityType) =>
+  `Cannot ${action} inherited silo role. This ${identityTypeLabel[identityType].toLowerCase()}'s role is set at the silo level.`
 
 function ProjectAccessTable({
   filter,
@@ -62,7 +116,11 @@ function ProjectAccessTable({
   projectName: string
   onEditRow: (row: ProjectAccessRow) => void
 }) {
-  const { updatePolicy } = useProjectAccessMutations()
+  const { mutateAsync: updatePolicy } = useApiMutation(api.projectPolicyUpdate, {
+    onSuccess: () => {
+      queryClient.invalidateEndpoint('projectPolicyView')
+    },
+  })
 
   const columns = useMemo(() => {
     const colHelper = createColumnHelper<ProjectAccessRow>()
@@ -71,11 +129,9 @@ function ProjectAccessTable({
       colHelper.accessor('name', { header: 'Name' }),
       // TODO: Add member information for groups once API provides it. Ideally:
       //   1. A /groups/{groupId}/members endpoint to list members
-      //   2. A memberCount field on the Group type
-      // This would allow showing member count in the table and displaying members
-      // in a tooltip or expandable row.
-      // TODO: Add lastAccessed column for users once API provides it. The User type
-      // should include a lastAccessed timestamp to show when users last logged in.
+      //   2. A memberCount field on the Group type to show count,
+      //      plus list of members in tooltip or expandable row
+      // TODO: Add lastAccessed column for users once API provides it.
       ...(filter === 'all'
         ? [
             colHelper.accessor('identityType', {
@@ -154,11 +210,11 @@ export function ProjectAccessTab({ filter, children }: ProjectAccessTabProps) {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingRow, setEditingRow] = useState<ProjectAccessRow | null>(null)
 
-  const projectSelector = useProjectSelector()
+  const { project } = useProjectSelector()
 
-  const { data: siloPolicy } = usePrefetchedQuery(accessQueries.siloPolicy())
+  const { data: siloPolicy } = usePrefetchedQuery(q(api.policyView, {}))
   const { data: projectPolicy } = usePrefetchedQuery(
-    accessQueries.projectPolicy(projectSelector)
+    q(api.projectPolicyView, { path: { project } })
   )
 
   const siloRows = useUserRows(siloPolicy.roleAssignments, 'silo')
@@ -200,7 +256,7 @@ export function ProjectAccessTab({ filter, children }: ProjectAccessTabProps) {
           filter={filter}
           rows={rows}
           policy={projectPolicy}
-          projectName={projectSelector.project}
+          projectName={project}
           onEditRow={setEditingRow}
         />
       )}
