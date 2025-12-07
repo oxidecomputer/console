@@ -55,13 +55,8 @@ function useSiloAccessRows(
   return useMemo(() => {
     const rows = groupBy(siloRows, (u) => u.id)
       .map(([userId, userAssignments]) => {
-        // groupBy always produces non-empty arrays, but add guard for safety
-        if (userAssignments.length === 0) {
-          throw new Error(`Unexpected empty userAssignments array for userId ${userId}`)
-        }
-
-        const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
         const { name, identityType } = userAssignments[0]
+        const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
 
         // Silo access tab only shows identities with explicit silo roles
         if (!siloRole) {

@@ -7,6 +7,8 @@
  */
 import type { Page } from '@playwright/test'
 
+import type { RoleSource } from '~/api'
+
 import { expect, expectNotVisible, expectRowVisible, expectVisible } from './utils'
 
 /**
@@ -20,7 +22,7 @@ export async function testAddUserOnAllTabAndVerifyOnUsersTabs(
     /** Base URL path (e.g., '/access/all' or '/projects/mock-project/access/all') */
     baseUrl: string
     /** Role prefix (e.g., 'silo' or 'project') */
-    rolePrefix: 'silo' | 'project'
+    rolePrefix: RoleSource
   }
 ) {
   await page.goto(config.baseUrl)

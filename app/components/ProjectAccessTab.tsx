@@ -62,13 +62,7 @@ function useProjectAccessRows(
   return useMemo(() => {
     const rows = groupBy(siloRows.concat(projectRows), (u) => u.id).map(
       ([userId, userAssignments]) => {
-        // groupBy always produces non-empty arrays, but add guard for safety
-        if (userAssignments.length === 0) {
-          throw new Error(`Unexpected empty userAssignments array for userId ${userId}`)
-        }
-
         const { name, identityType } = userAssignments[0]
-
         const siloAccessRow = userAssignments.find((a) => a.roleSource === 'silo')
         const projectAccessRow = userAssignments.find((a) => a.roleSource === 'project')
 
