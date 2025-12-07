@@ -11,8 +11,7 @@ import { Access24Icon } from '@oxide/design-system/icons/react'
 import type { IdentityFilter } from '~/types/access'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
-
-import { getFilterEntityLabel } from './access/shared'
+import { identityFilterLabel } from '~/util/access'
 
 const titleMap = {
   all: 'No authorized users or groups',
@@ -36,7 +35,7 @@ export const AccessEmptyState = ({
       icon={<Access24Icon />}
       title={titleMap[filter]}
       body={`Give permission to view, edit, or administer this ${scope}`}
-      buttonText={`Add ${getFilterEntityLabel(filter)} to ${scope}`}
+      buttonText={`Add ${identityFilterLabel[filter]} to ${scope}`}
       onClick={onClick}
     />
   </TableEmptyBox>

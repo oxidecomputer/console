@@ -9,10 +9,17 @@
 import { type BadgeColor } from '@oxide/design-system/ui'
 
 import type { IdentityType, RoleKey } from '~/api'
+import type { IdentityFilter } from '~/types/access'
 
 export const identityTypeLabel: Record<IdentityType, string> = {
   silo_group: 'Group',
   silo_user: 'User',
+}
+
+export const identityFilterLabel: Record<IdentityFilter, string> = {
+  all: 'user or group',
+  users: 'user',
+  groups: 'group',
 }
 
 export const roleColor: Record<RoleKey, BadgeColor> = {

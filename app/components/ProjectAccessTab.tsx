@@ -12,7 +12,6 @@ import { deleteRole, usePrefetchedQuery, useUserRows, type Policy } from '@oxide
 import { Badge } from '@oxide/design-system/ui'
 
 import { accessQueries } from '~/api/access-queries'
-import { getFilterEntityLabel, identityTypeColumnDef } from '~/components/access/shared'
 import { AccessEmptyState } from '~/components/AccessEmptyState'
 import { HL } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
@@ -31,7 +30,7 @@ import type { IdentityFilter, ProjectAccessRow } from '~/types/access'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { TableActions } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
-import { roleColor } from '~/util/access'
+import { identityFilterLabel, identityTypeLabel, roleColor } from '~/util/access'
 
 type ProjectAccessTabProps = {
   filter: IdentityFilter
@@ -78,14 +77,19 @@ function ProjectAccessTable({
       // TODO: Add lastAccessed column for users once API provides it. The User type
       // should include a lastAccessed timestamp to show when users last logged in.
       ...(filter === 'all'
-        ? [colHelper.accessor('identityType', identityTypeColumnDef)]
+        ? [
+            colHelper.accessor('identityType', {
+              header: 'Type',
+              cell: (info) => identityTypeLabel[info.getValue()],
+            }),
+          ]
         : []),
       colHelper.accessor('roleBadges', {
         header: () => (
           <span className="inline-flex items-center">
             Role
             <TipIcon className="ml-2">
-              A {getFilterEntityLabel(filter)}&apos;s effective role for this project is the
+              A {identityFilterLabel[filter]}&apos;s effective role for this project is the
               strongest role on either the silo or project
             </TipIcon>
           </span>
@@ -161,7 +165,7 @@ export function ProjectAccessTab({ filter, children }: ProjectAccessTabProps) {
   const projectRows = useUserRows(projectPolicy.roleAssignments, 'project')
   const rows = useProjectAccessRows(siloRows, projectRows, filter)
 
-  const addButtonText = `Add ${getFilterEntityLabel(filter)}`
+  const addButtonText = `Add ${identityFilterLabel[filter]}`
 
   return (
     <>

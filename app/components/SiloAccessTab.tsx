@@ -12,7 +12,6 @@ import { deleteRole, usePrefetchedQuery, useUserRows, type Policy } from '@oxide
 import { Badge } from '@oxide/design-system/ui'
 
 import { accessQueries } from '~/api/access-queries'
-import { getFilterEntityLabel, identityTypeColumnDef } from '~/components/access/shared'
 import { AccessEmptyState } from '~/components/AccessEmptyState'
 import { HL } from '~/components/HL'
 import {
@@ -28,7 +27,7 @@ import { Table } from '~/table/Table'
 import type { IdentityFilter, SiloAccessRow } from '~/types/access'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { TableActions } from '~/ui/lib/Table'
-import { roleColor } from '~/util/access'
+import { identityFilterLabel, identityTypeLabel, roleColor } from '~/util/access'
 
 type SiloAccessTabProps = {
   filter: IdentityFilter
@@ -61,7 +60,12 @@ function SiloAccessTable({
       // TODO: Add lastAccessed column for users once API provides it. The User type
       // should include a lastAccessed timestamp to show when users last logged in.
       ...(filter === 'all'
-        ? [colHelper.accessor('identityType', identityTypeColumnDef)]
+        ? [
+            colHelper.accessor('identityType', {
+              header: 'Type',
+              cell: (info) => identityTypeLabel[info.getValue()],
+            }),
+          ]
         : []),
       colHelper.accessor('siloRole', {
         header: 'Role',
@@ -117,7 +121,7 @@ export function SiloAccessTab({ filter, children }: SiloAccessTabProps) {
   const siloRows = useUserRows(policy.roleAssignments, 'silo')
   const rows = useSiloAccessRows(siloRows, filter)
 
-  const addButtonText = `Add ${getFilterEntityLabel(filter)}`
+  const addButtonText = `Add ${identityFilterLabel[filter]}`
 
   return (
     <>
