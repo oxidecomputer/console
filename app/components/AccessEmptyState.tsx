@@ -8,10 +8,9 @@
 import type { RoleSource } from '@oxide/api'
 import { Access24Icon } from '@oxide/design-system/icons/react'
 
-import type { IdentityFilter } from '~/types/access'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
-import { identityFilterLabel } from '~/util/access'
+import { identityFilterLabel, type IdentityFilter } from '~/util/access'
 
 type AccessEmptyStateProps = {
   onClick: () => void

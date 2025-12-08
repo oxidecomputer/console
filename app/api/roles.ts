@@ -14,7 +14,7 @@
 import { useMemo } from 'react'
 import * as R from 'remeda'
 
-import type { IdentityFilter } from '~/types/access'
+import type { IdentityFilter } from '~/util/access'
 
 import type { FleetRole, IdentityType, ProjectRole, SiloRole } from './__generated__/Api'
 import { api, q, usePrefetchedQuery } from './client'

@@ -18,7 +18,9 @@ import {
   useApiMutation,
   usePrefetchedQuery,
   useUserRows,
+  type IdentityType,
   type Policy,
+  type RoleKey,
 } from '@oxide/api'
 import { Badge } from '@oxide/design-system/ui'
 
@@ -32,7 +34,6 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
-import type { IdentityFilter, SiloAccessRow } from '~/types/access'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { TableActions } from '~/ui/lib/Table'
 import {
@@ -40,8 +41,17 @@ import {
   identityFilterLabel,
   identityTypeLabel,
   roleColor,
+  type IdentityFilter,
 } from '~/util/access'
 import { groupBy } from '~/util/array'
+
+type SiloAccessRow = {
+  id: string
+  identityType: IdentityType
+  name: string
+  siloRole: RoleKey | undefined
+  effectiveRole: RoleKey
+}
 
 type SiloAccessTabProps = {
   filter: IdentityFilter

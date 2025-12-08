@@ -9,7 +9,8 @@
 import { type BadgeColor } from '@oxide/design-system/ui'
 
 import type { IdentityType, RoleKey } from '~/api'
-import type { IdentityFilter } from '~/types/access'
+
+export type IdentityFilter = 'all' | 'users' | 'groups'
 
 /** Filter rows by identity type based on the filter parameter */
 export function filterByIdentityType<T extends { identityType: IdentityType }>(

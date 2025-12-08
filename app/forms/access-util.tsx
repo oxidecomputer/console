@@ -18,10 +18,10 @@ import {
 import { Badge } from '@oxide/design-system/ui'
 
 import { RadioFieldDyn } from '~/components/form/fields/RadioField'
-import type { IdentityFilter } from '~/types/access'
 import { type ListboxItem } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { Radio } from '~/ui/lib/Radio'
+import { type IdentityFilter } from '~/util/access'
 import { links } from '~/util/links'
 import { capitalize } from '~/util/str'
 
