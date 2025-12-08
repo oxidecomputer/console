@@ -21,6 +21,8 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { ResourceLabel } from '~/ui/lib/SideModal'
+import { identityFilterLabel } from '~/util/access'
+import { capitalize } from '~/util/str'
 
 import {
   actorToItem,
@@ -29,10 +31,12 @@ import {
   type AddRoleModalProps,
   type EditRoleModalProps,
 } from './access-util'
-import { identityFilterLabel } from '~/util/access'
-import { capitalize } from '~/util/str'
 
-export function ProjectAccessAddUserSideModal({ onDismiss, policy, filter }: AddRoleModalProps) {
+export function ProjectAccessAddUserSideModal({
+  onDismiss,
+  policy,
+  filter,
+}: AddRoleModalProps) {
   const { project } = useProjectSelector()
 
   const actors = useActorsNotInPolicy(policy, filter)

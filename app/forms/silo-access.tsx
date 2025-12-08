@@ -19,6 +19,8 @@ import { Access16Icon } from '@oxide/design-system/icons/react'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { ResourceLabel } from '~/ui/lib/SideModal'
+import { identityFilterLabel } from '~/util/access'
+import { capitalize } from '~/util/str'
 
 import {
   actorToItem,
@@ -27,10 +29,12 @@ import {
   type AddRoleModalProps,
   type EditRoleModalProps,
 } from './access-util'
-import { identityFilterLabel } from '~/util/access'
-import { capitalize } from '~/util/str'
 
-export function SiloAccessAddUserSideModal({ onDismiss, policy, filter }: AddRoleModalProps) {
+export function SiloAccessAddUserSideModal({
+  onDismiss,
+  policy,
+  filter,
+}: AddRoleModalProps) {
   const actors = useActorsNotInPolicy(policy, filter)
 
   const updatePolicy = useApiMutation(api.policyUpdate, {
