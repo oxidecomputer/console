@@ -226,6 +226,7 @@ export function ProjectAccessTab({ filter, children }: ProjectAccessTabProps) {
         <ProjectAccessAddUserSideModal
           onDismiss={() => setAddModalOpen(false)}
           policy={projectPolicy}
+          filter={filter}
         />
       )}
       {projectPolicy && editingRow && editingRow.projectRole && (

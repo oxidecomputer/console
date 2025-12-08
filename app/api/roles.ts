@@ -14,6 +14,8 @@
 import { useMemo } from 'react'
 import * as R from 'remeda'
 
+import type { IdentityFilter } from '~/types/access'
+
 import type { FleetRole, IdentityType, ProjectRole, SiloRole } from './__generated__/Api'
 import { api, q, usePrefetchedQuery } from './client'
 
@@ -139,9 +141,9 @@ export type Actor = {
 
 /**
  * Fetch lists of users and groups, filtering out the ones that are already in
- * the given policy.
+ * the given policy. Optionally filter to only users or only groups.
  */
-export function useActorsNotInPolicy(policy: Policy): Actor[] {
+export function useActorsNotInPolicy(policy: Policy, filter?: IdentityFilter): Actor[] {
   const { data: users } = usePrefetchedQuery(q(api.userList, {}))
   const { data: groups } = usePrefetchedQuery(q(api.groupList, {}))
   return useMemo(() => {
@@ -155,9 +157,20 @@ export function useActorsNotInPolicy(policy: Policy): Actor[] {
       ...u,
       identityType: 'silo_user' as IdentityType,
     }))
-    // groups go before users
-    return allGroups.concat(allUsers).filter((u) => !actorsInPolicy.has(u.id)) || []
-  }, [users, groups, policy])
+
+    // Select which actors to include based on filter
+    let actors: Actor[]
+    if (filter === 'users') {
+      actors = allUsers
+    } else if (filter === 'groups') {
+      actors = allGroups
+    } else {
+      // 'all' or undefined; groups go before users
+      actors = allGroups.concat(allUsers)
+    }
+
+    return actors.filter((u) => !actorsInPolicy.has(u.id))
+  }, [policy, users, groups, filter])
 }
 
 export function userRoleFromPolicies(

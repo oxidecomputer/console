@@ -27,9 +27,11 @@ import {
   type AddRoleModalProps,
   type EditRoleModalProps,
 } from './access-util'
+import { identityFilterLabel } from '~/util/access'
+import { capitalize } from '~/util/str'
 
-export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
-  const actors = useActorsNotInPolicy(policy)
+export function SiloAccessAddUserSideModal({ onDismiss, policy, filter }: AddRoleModalProps) {
+  const actors = useActorsNotInPolicy(policy, filter)
 
   const updatePolicy = useApiMutation(api.policyUpdate, {
     onSuccess: () => {
@@ -40,12 +42,14 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
 
   const form = useForm({ defaultValues })
 
+  const entityLabel = identityFilterLabel[filter]
+
   return (
     <SideModalForm
       form={form}
       formType="create"
       resourceName="role"
-      title="Add user or group"
+      title={`Add ${entityLabel}`}
       submitLabel="Assign role"
       onDismiss={onDismiss}
       onSubmit={({ identityId, roleName }) => {
@@ -63,7 +67,7 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
       <ListboxField
         name="identityId"
         items={actors.map(actorToItem)}
-        label="User or group"
+        label={capitalize(entityLabel)}
         required
         control={form.control}
       />

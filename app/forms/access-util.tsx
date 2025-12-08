@@ -18,6 +18,7 @@ import {
 import { Badge } from '@oxide/design-system/ui'
 
 import { RadioFieldDyn } from '~/components/form/fields/RadioField'
+import type { IdentityFilter } from '~/types/access'
 import { type ListboxItem } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { Radio } from '~/ui/lib/Radio'
@@ -68,9 +69,12 @@ export const actorToItem = (actor: Actor): ListboxItem => ({
 export type AddRoleModalProps = {
   onDismiss: () => void
   policy: Policy
+  filter: IdentityFilter
 }
 
-export type EditRoleModalProps = AddRoleModalProps & {
+export type EditRoleModalProps = {
+  onDismiss: () => void
+  policy: Policy
   name?: string
   identityId: string
   identityType: IdentityType

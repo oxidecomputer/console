@@ -29,11 +29,13 @@ import {
   type AddRoleModalProps,
   type EditRoleModalProps,
 } from './access-util'
+import { identityFilterLabel } from '~/util/access'
+import { capitalize } from '~/util/str'
 
-export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
+export function ProjectAccessAddUserSideModal({ onDismiss, policy, filter }: AddRoleModalProps) {
   const { project } = useProjectSelector()
 
-  const actors = useActorsNotInPolicy(policy)
+  const actors = useActorsNotInPolicy(policy, filter)
 
   const updatePolicy = useApiMutation(api.projectPolicyUpdate, {
     onSuccess: () => {
@@ -46,9 +48,11 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
 
   const form = useForm({ defaultValues })
 
+  const entityLabel = identityFilterLabel[filter]
+
   return (
     <SideModalForm
-      title="Add user or group"
+      title={`Add ${entityLabel}`}
       resourceName="role"
       form={form}
       formType="create"
@@ -69,7 +73,7 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
       <ListboxField
         name="identityId"
         items={actors.map(actorToItem)}
-        label="User or group"
+        label={capitalize(entityLabel)}
         required
         control={form.control}
       />

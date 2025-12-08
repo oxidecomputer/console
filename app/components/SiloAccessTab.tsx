@@ -184,6 +184,7 @@ export function SiloAccessTab({ filter, children }: SiloAccessTabProps) {
         <SiloAccessAddUserSideModal
           onDismiss={() => setAddModalOpen(false)}
           policy={policy}
+          filter={filter}
         />
       )}
       {policy && editingRow && editingRow.siloRole && (
