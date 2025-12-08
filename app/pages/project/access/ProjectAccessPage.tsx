@@ -22,7 +22,6 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   await Promise.all([
     queryClient.prefetchQuery(q(api.policyView, {})),
     queryClient.prefetchQuery(q(api.projectPolicyView, { path: { project } })),
-    // used to resolve user names
     queryClient.prefetchQuery(q(api.userList, {})),
     queryClient.prefetchQuery(q(api.groupList, {})),
   ])
@@ -51,10 +50,6 @@ export default function ProjectAccessPage() {
         <Tab to={pb.projectAccessUsers(projectSelector)}>Users</Tab>
         <Tab to={pb.projectAccessGroups(projectSelector)}>Groups</Tab>
       </RouteTabs>
-      {/* TODO: Add routes for side modal forms to enable deep linking and browser back button:
-          - /access/all/users-new and /access/all/groups-new for adding
-          - /access/all/{id}/edit for editing roles
-          This would align with patterns like /instances-new, /idps-new, etc. */}
     </>
   )
 }

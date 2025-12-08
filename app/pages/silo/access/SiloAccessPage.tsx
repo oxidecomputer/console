@@ -18,7 +18,6 @@ import { pb } from '~/util/path-builder'
 export async function clientLoader() {
   await Promise.all([
     queryClient.prefetchQuery(q(api.policyView, {})),
-    // used to resolve user names
     queryClient.prefetchQuery(q(api.userList, {})),
     queryClient.prefetchQuery(q(api.groupList, {})),
   ])
@@ -45,10 +44,6 @@ export default function SiloAccessPage() {
         <Tab to={pb.siloAccessUsers()}>Users</Tab>
         <Tab to={pb.siloAccessGroups()}>Groups</Tab>
       </RouteTabs>
-      {/* TODO: Add routes for side modal forms to enable deep linking and browser back button:
-          - /access/all/users-new and /access/all/groups-new for adding
-          - /access/all/{id}/edit for editing roles
-          This would align with patterns like /instances-new, /idps-new, etc. */}
     </>
   )
 }
