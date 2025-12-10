@@ -17,6 +17,7 @@ import {
   useApiMutation,
   type BlockSize,
   type Disk,
+  type DiskBackend,
   type DiskCreate,
   type DiskSource,
   type Image,
@@ -32,7 +33,6 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Radio } from '~/ui/lib/Radio'
 import { RadioGroup } from '~/ui/lib/RadioGroup'
@@ -110,7 +110,9 @@ export function CreateDiskSideModalForm({
       )?.size
       validateSizeGiB = selectedSnapshotSize ? bytesToGiB(selectedSnapshotSize) : undefined
     } else if (diskSource.type === 'image') {
-      const selectedImageSize = images.find((image) => image.id === diskSource.imageId)?.size
+      const selectedImageSize = images.find(
+        (image) => image.id === diskSource.imageId
+      )?.size
       validateSizeGiB = selectedImageSize ? bytesToGiB(selectedImageSize) : undefined
     }
   }
@@ -142,12 +144,6 @@ export function CreateDiskSideModalForm({
         }}
       />
       <DescriptionField name="description" control={form.control} />
-      <FormDivider />
-      <DiskSourceField
-        control={form.control}
-        images={images}
-        areImagesLoading={areImagesLoading}
-      />
       <DiskSizeField
         name="size"
         control={form.control}
@@ -157,11 +153,16 @@ export function CreateDiskSideModalForm({
           }
         }}
       />
+      <DiskBackendField
+        control={form.control}
+        images={images}
+        areImagesLoading={areImagesLoading}
+      />
     </SideModalForm>
   )
 }
 
-const DiskSourceField = ({
+const DiskBackendField = ({
   control,
   images,
   areImagesLoading,
@@ -171,10 +172,64 @@ const DiskSourceField = ({
   areImagesLoading: boolean
 }) => {
   const {
-    field: { value, onChange },
-  } = useController({ control, name: 'diskBackend.diskSource' })
+    field: { value: diskBackend, onChange: setDiskBackend },
+  } = useController({ control, name: 'diskBackend' })
   const diskSizeField = useController({ control, name: 'size' }).field
 
+  return (
+    <>
+      <div className="max-w-lg space-y-2">
+        <FieldLabel id="disk-type-label">Disk type</FieldLabel>
+        <RadioGroup
+          aria-labelledby="disk-type-label"
+          name="diskBackendType"
+          column
+          defaultChecked={diskBackend.type}
+          onChange={(event) => {
+            const newType = event.target.value as DiskBackend['type']
+            if (newType === 'local') {
+              setDiskBackend({ type: 'local' })
+            } else {
+              setDiskBackend({ type: 'distributed', diskSource: blankDiskSource })
+            }
+          }}
+        >
+          <Radio value="distributed">Distributed</Radio>
+          <Radio value="local">Local</Radio>
+        </RadioGroup>
+      </div>
+
+      {diskBackend.type === 'distributed' && (
+        <DiskSourceField
+          control={control}
+          diskSource={diskBackend.diskSource}
+          setDiskSource={(source) =>
+            setDiskBackend({ type: 'distributed', diskSource: source })
+          }
+          diskSizeField={diskSizeField}
+          images={images}
+          areImagesLoading={areImagesLoading}
+        />
+      )}
+    </>
+  )
+}
+
+const DiskSourceField = ({
+  control,
+  diskSource,
+  setDiskSource,
+  diskSizeField,
+  images,
+  areImagesLoading,
+}: {
+  control: Control<DiskCreate>
+  diskSource: DiskSource
+  setDiskSource: (source: DiskSource) => void
+  diskSizeField: { value: number; onChange: (value: number) => void }
+  images: Image[]
+  areImagesLoading: boolean
+}) => {
   return (
     <>
       <div className="max-w-lg space-y-2">
@@ -183,12 +238,14 @@ const DiskSourceField = ({
           aria-labelledby="disk-source-label"
           name="diskSource"
           column
-          defaultChecked={value.type}
+          defaultChecked={diskSource.type}
           onChange={(event) => {
             const newType = event.target.value as DiskSource['type']
-
-            // need to include blockSize when switching back to blank
-            onChange(newType === 'blank' ? blankDiskSource : { type: newType })
+            // need to include blockSize when switching back to blank. other
+            // source types get their required fields from form inputs
+            setDiskSource(
+              newType === 'blank' ? blankDiskSource : ({ type: newType } as DiskSource)
+            )
           }}
         >
           <Radio value="blank">Blank</Radio>
@@ -197,7 +254,7 @@ const DiskSourceField = ({
         </RadioGroup>
       </div>
       <div className="max-w-lg">
-        {value.type === 'blank' && (
+        {diskSource.type === 'blank' && (
           <RadioField
             column
             name="diskBackend.diskSource.blockSize"
@@ -212,7 +269,7 @@ const DiskSourceField = ({
             ]}
           />
         )}
-        {value.type === 'image' && (
+        {diskSource.type === 'image' && (
           <ListboxField
             control={control}
             name="diskBackend.diskSource.imageId"
@@ -222,7 +279,7 @@ const DiskSourceField = ({
             items={images.map((i) => toImageComboboxItem(i, true))}
             required
             onChange={(id) => {
-              const image = images.find((i) => i.id === id)! // if it's selected, it must be present
+              const image = images.find((i) => i.id === id)!
               const imageSizeGiB = image.size / GiB
               if (diskSizeField.value < imageSizeGiB) {
                 diskSizeField.onChange(diskSizeNearest10(imageSizeGiB))
@@ -231,7 +288,7 @@ const DiskSourceField = ({
           />
         )}
 
-        {value.type === 'snapshot' && <SnapshotSelectField control={control} />}
+        {diskSource.type === 'snapshot' && <SnapshotSelectField control={control} />}
       </div>
     </>
   )
