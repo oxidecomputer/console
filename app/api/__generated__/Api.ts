@@ -1781,7 +1781,7 @@ export type DeviceAuthVerify = { userCode: string }
 
 export type Digest = { type: 'sha256'; value: string }
 
-export type DiskType = 'crucible'
+export type DiskType = 'distributed' | 'local'
 
 /**
  * State of a Disk
@@ -1839,7 +1839,7 @@ export type Disk = {
 }
 
 /**
- * Different sources for a disk
+ * Different sources for a Distributed Disk
  */
 export type DiskSource =
   /** Create a blank disk */
@@ -1856,12 +1856,23 @@ export type DiskSource =
   | { blockSize: BlockSize; type: 'importing_blocks' }
 
 /**
+ * The source of a `Disk`'s blocks
+ */
+export type DiskBackend =
+  | { type: 'local' }
+  | {
+      /** The initial source for this disk */
+      diskSource: DiskSource
+      type: 'distributed'
+    }
+
+/**
  * Create-time parameters for a `Disk`
  */
 export type DiskCreate = {
   description: string
-  /** The initial source for this disk */
-  diskSource: DiskSource
+  /** The source for this `Disk`'s blocks */
+  diskBackend: DiskBackend
   name: Name
   /** The total size of the Disk (in bytes) */
   size: ByteCount
@@ -2354,8 +2365,8 @@ export type InstanceDiskAttachment =
   /** During instance creation, create and attach disks */
   | {
       description: string
-      /** The initial source for this disk */
-      diskSource: DiskSource
+      /** The source for this `Disk`'s blocks */
+      diskBackend: DiskBackend
       name: Name
       /** The total size of the Disk (in bytes) */
       size: ByteCount
@@ -6851,7 +6862,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2025112000.0.0'
+  apiVersion = '2025120300.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host

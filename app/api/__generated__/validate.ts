@@ -1640,7 +1640,7 @@ export const Digest = z.preprocess(
   z.object({ type: z.enum(['sha256']), value: z.string() })
 )
 
-export const DiskType = z.preprocess(processResponseBody, z.enum(['crucible']))
+export const DiskType = z.preprocess(processResponseBody, z.enum(['distributed', 'local']))
 
 /**
  * State of a Disk
@@ -1686,7 +1686,7 @@ export const Disk = z.preprocess(
 )
 
 /**
- * Different sources for a disk
+ * Different sources for a Distributed Disk
  */
 export const DiskSource = z.preprocess(
   processResponseBody,
@@ -1699,11 +1699,27 @@ export const DiskSource = z.preprocess(
 )
 
 /**
+ * The source of a `Disk`'s blocks
+ */
+export const DiskBackend = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ type: z.enum(['local']) }),
+    z.object({ diskSource: DiskSource, type: z.enum(['distributed']) }),
+  ])
+)
+
+/**
  * Create-time parameters for a `Disk`
  */
 export const DiskCreate = z.preprocess(
   processResponseBody,
-  z.object({ description: z.string(), diskSource: DiskSource, name: Name, size: ByteCount })
+  z.object({
+    description: z.string(),
+    diskBackend: DiskBackend,
+    name: Name,
+    size: ByteCount,
+  })
 )
 
 export const DiskPath = z.preprocess(processResponseBody, z.object({ disk: NameOrId }))
@@ -2186,7 +2202,7 @@ export const InstanceDiskAttachment = z.preprocess(
   z.union([
     z.object({
       description: z.string(),
-      diskSource: DiskSource,
+      diskBackend: DiskBackend,
       name: Name,
       size: ByteCount,
       type: z.enum(['create']),
