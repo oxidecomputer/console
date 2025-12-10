@@ -146,12 +146,14 @@ export const handlers = makeHandlers({
 
     if (body.name === 'disk-create-500') throw 500
 
-    const { name, description, size, disk_source } = body
+    const { name, description, size, disk_backend } = body
     const newDisk: Json<Api.Disk> = {
       id: uuid(),
       project_id: project.id,
+      // TODO: confirm logic here
       state:
-        disk_source.type === 'importing_blocks'
+        disk_backend.type === 'distributed' &&
+        disk_backend.disk_source.type === 'importing_blocks'
           ? { state: 'import_ready' }
           : { state: 'detached' },
       device_path: '/mnt/disk',
@@ -160,8 +162,11 @@ export const handlers = makeHandlers({
       size,
       // TODO: for non-blank disk sources, look up image or snapshot by ID and
       // pull block size from there
-      block_size: disk_source.type === 'blank' ? disk_source.block_size : 512,
-      disk_type: 'crucible',
+      block_size:
+        disk_backend.type === 'distributed' && disk_backend.disk_source.type === 'blank'
+          ? disk_backend.disk_source.block_size
+          : 512,
+      disk_type: disk_backend.type,
       ...getTimestamps(),
     }
     db.disks.push(newDisk)
@@ -481,7 +486,7 @@ export const handlers = makeHandlers({
 
     for (const diskParams of allDisks) {
       if (diskParams.type === 'create') {
-        const { size, name, description, disk_source } = diskParams
+        const { size, name, description, disk_backend } = diskParams
         const newDisk: Json<Api.Disk> = {
           id: uuid(),
           name,
@@ -490,8 +495,12 @@ export const handlers = makeHandlers({
           project_id: project.id,
           state: { state: 'attached', instance: instanceId },
           device_path: '/mnt/disk',
-          block_size: disk_source.type === 'blank' ? disk_source.block_size : 4096,
-          disk_type: 'crucible',
+          // TODO: this doesn't seem right, check the omicron source
+          block_size:
+            disk_backend.type === 'distributed' && disk_backend.disk_source.type === 'blank'
+              ? disk_backend.disk_source.block_size
+              : 4096,
+          disk_type: disk_backend.type,
           ...getTimestamps(),
         }
         db.disks.push(newDisk)

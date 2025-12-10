@@ -17,8 +17,8 @@ import {
   useApiMutation,
   type BlockSize,
   type Disk,
+  type DiskBackend,
   type DiskCreate,
-  type DiskSource,
   type Image,
 } from '@oxide/api'
 
@@ -41,16 +41,19 @@ import { toLocaleDateString } from '~/util/date'
 import { diskSizeNearest10 } from '~/util/math'
 import { bytesToGiB, GiB } from '~/util/units'
 
-const blankDiskSource: DiskSource = {
-  type: 'blank',
-  blockSize: 4096,
+const blankDiskBackend: DiskBackend = {
+  type: 'distributed',
+  diskSource: {
+    type: 'blank',
+    blockSize: 4096,
+  },
 }
 
 const defaultValues: DiskCreate = {
   name: '',
   description: '',
   size: 10,
-  diskSource: blankDiskSource,
+  diskBackend: blankDiskBackend,
 }
 
 type CreateSideModalFormProps = {
@@ -185,7 +188,7 @@ const DiskSourceField = ({
             const newType = event.target.value as DiskCreate['diskSource']['type']
 
             // need to include blockSize when switching back to blank
-            onChange(newType === 'blank' ? blankDiskSource : { type: newType })
+            onChange(newType === 'blank' ? blankDiskBackend : { type: newType })
           }}
         >
           <Radio value="blank">Blank</Radio>

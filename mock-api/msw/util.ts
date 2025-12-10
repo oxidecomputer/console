@@ -135,23 +135,27 @@ export const errIfExists = <T extends Record<string, unknown>>(
 }
 
 export const errIfInvalidDiskSize = (disk: Json<DiskCreate>) => {
-  const source = disk.disk_source
   if (disk.size < MIN_DISK_SIZE_GiB * GiB) {
     throw `Disk size must be greater than or equal to ${MIN_DISK_SIZE_GiB} GiB`
   }
   if (disk.size > MAX_DISK_SIZE_GiB * GiB) {
     throw `Disk size must be less than or equal to ${MAX_DISK_SIZE_GiB} GiB`
   }
-  if (source.type === 'snapshot') {
-    const snapshotSize = db.snapshots.find((s) => source.snapshot_id === s.id)?.size ?? 0
-    if (disk.size >= snapshotSize) return
-    throw 'Disk size must be greater than or equal to the snapshot size'
+  const backend = disk.disk_backend
+  if (backend.type === 'distributed') {
+    const source = backend.disk_source
+    if (source.type === 'snapshot') {
+      const snapshotSize = db.snapshots.find((s) => source.snapshot_id === s.id)?.size ?? 0
+      if (disk.size >= snapshotSize) return
+      throw 'Disk size must be greater than or equal to the snapshot size'
+    }
+    if (source.type === 'image') {
+      const imageSize = db.images.find((i) => source.image_id === i.id)?.size ?? 0
+      if (disk.size >= imageSize) return
+      throw 'Disk size must be greater than or equal to the image size'
+    }
   }
-  if (source.type === 'image') {
-    const imageSize = db.images.find((i) => source.image_id === i.id)?.size ?? 0
-    if (disk.size >= imageSize) return
-    throw 'Disk size must be greater than or equal to the image size'
-  }
+  // TODO: use exhaustive match and handle local too
 }
 
 export function generateUtilization(
