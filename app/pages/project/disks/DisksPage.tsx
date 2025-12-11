@@ -23,7 +23,7 @@ import { Storage16Icon, Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
-import { DiskStateBadge } from '~/components/StateBadge'
+import { DiskStateBadge, DiskTypeBadge } from '~/components/StateBadge'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -91,6 +91,10 @@ const staticCols = [
       cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,
     }
   ),
+  colHelper.accessor('diskType', {
+    header: 'Type',
+    cell: (info) => <DiskTypeBadge diskType={info.getValue()} />,
+  }),
   colHelper.accessor('size', Columns.size),
   colHelper.accessor('state.state', {
     header: 'state',

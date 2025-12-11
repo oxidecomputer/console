@@ -100,7 +100,10 @@ const getBootDiskAttachment = (
     name: values.bootDiskName || genName(values.name, sourceName || source),
     description: `Created as a boot disk for ${values.name}`,
     size: values.bootDiskSize * GiB,
-    diskSource: { type: 'image', imageId: source },
+    diskBackend: {
+      type: 'distributed',
+      diskSource: { type: 'image', imageId: source },
+    },
   }
 }
 

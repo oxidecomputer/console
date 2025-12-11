@@ -12,7 +12,7 @@ set -o xtrace
 OMICRON_SHA=$(head -n 1 OMICRON_VERSION)
 GEN_DIR="$PWD/app/api/__generated__"
 
-SPEC_URL="https://raw.githubusercontent.com/oxidecomputer/omicron/$OMICRON_SHA/openapi/nexus.json"
+SPEC_BASE="https://raw.githubusercontent.com/oxidecomputer/omicron/$OMICRON_SHA/openapi/nexus"
 
 HEADER=$(cat <<'EOF'
 /**
@@ -25,8 +25,10 @@ HEADER=$(cat <<'EOF'
 
 EOF)
 
+LATEST_SPEC=$(curl "$SPEC_BASE/nexus-latest.json")
+
 # use versions of these packages specified in dev deps
-npm run openapi-gen-ts -- $SPEC_URL $GEN_DIR --features msw
+npm run openapi-gen-ts -- "$SPEC_BASE/$LATEST_SPEC" $GEN_DIR --features msw
 
 for f in Api.ts msw-handlers.ts validate.ts; do
   (printf '%s\n\n' "$HEADER"; cat "$GEN_DIR/$f") > "$GEN_DIR/$f.tmp"

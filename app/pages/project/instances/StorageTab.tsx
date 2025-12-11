@@ -25,7 +25,7 @@ import {
 import { Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { HL } from '~/components/HL'
-import { DiskStateBadge } from '~/components/StateBadge'
+import { DiskStateBadge, DiskTypeBadge } from '~/components/StateBadge'
 import { AttachDiskModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
@@ -68,6 +68,10 @@ type InstanceDisk = Disk & {
 const colHelper = createColumnHelper<InstanceDisk>()
 const staticCols = [
   colHelper.accessor('name', { header: 'Disk' }),
+  colHelper.accessor('diskType', {
+    header: 'Type',
+    cell: (info) => <DiskTypeBadge diskType={info.getValue()} />,
+  }),
   colHelper.accessor('size', Columns.size),
   colHelper.accessor((row) => row.state.state, {
     header: 'state',
