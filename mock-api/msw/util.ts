@@ -43,7 +43,7 @@ interface PaginateOptions {
 }
 export interface ResultsPage<I extends { id: string }> {
   items: I[]
-  nextPage: string | null
+  next_page: string | null
 }
 
 export const paginated = <P extends PaginateOptions, I extends { id: string }>(
@@ -59,20 +59,20 @@ export const paginated = <P extends PaginateOptions, I extends { id: string }>(
   if (startIndex > items.length) {
     return {
       items: [],
-      nextPage: null,
+      next_page: null,
     }
   }
 
   if (limit + startIndex >= items.length) {
     return {
       items: items.slice(startIndex),
-      nextPage: null,
+      next_page: null,
     }
   }
 
   return {
     items: items.slice(startIndex, startIndex + limit),
-    nextPage: `${items[startIndex + limit].id}`,
+    next_page: `${items[startIndex + limit].id}`,
   }
 }
 

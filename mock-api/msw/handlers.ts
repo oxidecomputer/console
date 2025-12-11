@@ -1144,10 +1144,10 @@ export const handlers = makeHandlers({
     return utilizationForSilo(silo)
   },
   siloUtilizationList({ query }) {
-    const { items: silos, nextPage } = paginated(query, db.silos)
+    const { items: silos, next_page } = paginated(query, db.silos)
     return {
       items: silos.map(utilizationForSilo),
-      nextPage,
+      next_page,
     }
   },
   vpcList({ query }) {
