@@ -28,6 +28,7 @@ import {
 import { Badge } from '@oxide/design-system/ui'
 
 import { AccessEmptyState } from '~/components/AccessEmptyState'
+import { GroupMembersModal } from '~/components/GroupMembersModal'
 import { HL } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
 import {
@@ -37,6 +38,7 @@ import {
 import { useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import { MembersCell } from '~/table/cells/MembersCell'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
 import { CreateButton } from '~/ui/lib/CreateButton'
@@ -113,12 +115,14 @@ function ProjectAccessTable({
   policy,
   projectName,
   onEditRow,
+  onViewMembers,
 }: {
   filter: IdentityFilter
   rows: ProjectAccessRow[]
   policy: Policy
   projectName: string
   onEditRow: (row: ProjectAccessRow) => void
+  onViewMembers: (row: ProjectAccessRow) => void
 }) {
   const { mutateAsync: updatePolicy } = useApiMutation(api.projectPolicyUpdate, {
     onSuccess: () => {
@@ -131,10 +135,6 @@ function ProjectAccessTable({
 
     return [
       colHelper.accessor('name', { header: 'Name' }),
-      // TODO: Add member information for groups once API provides it. Ideally:
-      //   1. A /groups/{groupId}/members endpoint to list members
-      //   2. A memberCount field on the Group type to show count,
-      //      plus list of members in tooltip or expandable row
       // TODO: Add lastAccessed column for users once API provides it.
       ...(filter === 'all'
         ? [
@@ -164,6 +164,20 @@ function ProjectAccessTable({
           </ListPlusCell>
         ),
       }),
+      ...(filter === 'groups'
+        ? [
+            colHelper.display({
+              id: 'users',
+              header: 'Users',
+              cell: (info) => {
+                const row = info.row.original
+                return (
+                  <MembersCell groupId={row.id} onViewMembers={() => onViewMembers(row)} />
+                )
+              },
+            }),
+          ]
+        : []),
       getActionsCol((row: ProjectAccessRow) => [
         {
           label: 'Change role',
@@ -194,7 +208,7 @@ function ProjectAccessTable({
         },
       ]),
     ]
-  }, [filter, policy, projectName, updatePolicy, onEditRow])
+  }, [filter, policy, projectName, updatePolicy, onEditRow, onViewMembers])
 
   const tableInstance = useReactTable<ProjectAccessRow>({
     columns,
@@ -213,6 +227,7 @@ function ProjectAccessTable({
 export function ProjectAccessTab({ filter, children }: ProjectAccessTabProps) {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingRow, setEditingRow] = useState<ProjectAccessRow | null>(null)
+  const [viewingMembersRow, setViewingMembersRow] = useState<ProjectAccessRow | null>(null)
 
   const { project } = useProjectSelector()
 
@@ -249,6 +264,13 @@ export function ProjectAccessTab({ filter, children }: ProjectAccessTabProps) {
           defaultValues={{ roleName: editingRow.projectRole }}
         />
       )}
+      {viewingMembersRow && (
+        <GroupMembersModal
+          groupId={viewingMembersRow.id}
+          groupName={viewingMembersRow.name}
+          onDismiss={() => setViewingMembersRow(null)}
+        />
+      )}
       {children}
       {rows.length === 0 ? (
         <AccessEmptyState
@@ -263,6 +285,7 @@ export function ProjectAccessTab({ filter, children }: ProjectAccessTabProps) {
           policy={projectPolicy}
           projectName={project}
           onEditRow={setEditingRow}
+          onViewMembers={setViewingMembersRow}
         />
       )}
     </>

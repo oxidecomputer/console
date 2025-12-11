@@ -25,6 +25,7 @@ import {
 import { Badge } from '@oxide/design-system/ui'
 
 import { AccessEmptyState } from '~/components/AccessEmptyState'
+import { GroupMembersModal } from '~/components/GroupMembersModal'
 import { HL } from '~/components/HL'
 import {
   SiloAccessAddUserSideModal,
@@ -32,6 +33,7 @@ import {
 } from '~/forms/silo-access'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import { MembersCell } from '~/table/cells/MembersCell'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
 import { CreateButton } from '~/ui/lib/CreateButton'
@@ -99,11 +101,13 @@ function SiloAccessTable({
   rows,
   policy,
   onEditRow,
+  onViewMembers,
 }: {
   filter: IdentityFilter
   rows: SiloAccessRow[]
   policy: Policy
   onEditRow: (row: SiloAccessRow) => void
+  onViewMembers: (row: SiloAccessRow) => void
 }) {
   const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
     onSuccess: () => {
@@ -116,10 +120,6 @@ function SiloAccessTable({
 
     return [
       colHelper.accessor('name', { header: 'Name' }),
-      // TODO: Add member information for groups once API provides it. Ideally:
-      //   1. A /groups/{groupId}/members endpoint to list members
-      //   2. A memberCount field on the Group type to show count,
-      //      plus list of members in tooltip or expandable row
       // TODO: Add lastAccessed column for users once API provides it.
       ...(filter === 'all'
         ? [
@@ -136,6 +136,21 @@ function SiloAccessTable({
           return role ? <Badge color={roleColor[role]}>silo.{role}</Badge> : null
         },
       }),
+      // Show Users column only on groups filter
+      ...(filter === 'groups'
+        ? [
+            colHelper.display({
+              id: 'users',
+              header: 'Users',
+              cell: (info) => {
+                const row = info.row.original
+                return (
+                  <MembersCell groupId={row.id} onViewMembers={() => onViewMembers(row)} />
+                )
+              },
+            }),
+          ]
+        : []),
       getActionsCol((row: SiloAccessRow) => [
         {
           label: 'Change role',
@@ -160,7 +175,7 @@ function SiloAccessTable({
         },
       ]),
     ]
-  }, [filter, policy, updatePolicy, onEditRow])
+  }, [filter, policy, updatePolicy, onEditRow, onViewMembers])
 
   const tableInstance = useReactTable<SiloAccessRow>({
     columns,
@@ -178,6 +193,7 @@ function SiloAccessTable({
 export function SiloAccessTab({ filter, children }: SiloAccessTabProps) {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingRow, setEditingRow] = useState<SiloAccessRow | null>(null)
+  const [viewingMembersRow, setViewingMembersRow] = useState<SiloAccessRow | null>(null)
 
   const { data: policy } = usePrefetchedQuery(q(api.policyView, {}))
   const siloRows = useUserRows(policy.roleAssignments, 'silo')
@@ -207,6 +223,13 @@ export function SiloAccessTab({ filter, children }: SiloAccessTabProps) {
           defaultValues={{ roleName: editingRow.siloRole }}
         />
       )}
+      {viewingMembersRow && (
+        <GroupMembersModal
+          groupId={viewingMembersRow.id}
+          groupName={viewingMembersRow.name}
+          onDismiss={() => setViewingMembersRow(null)}
+        />
+      )}
       {children}
       {rows.length === 0 ? (
         <AccessEmptyState
@@ -220,6 +243,7 @@ export function SiloAccessTab({ filter, children }: SiloAccessTabProps) {
           rows={rows}
           policy={policy}
           onEditRow={setEditingRow}
+          onViewMembers={setViewingMembersRow}
         />
       )}
     </>

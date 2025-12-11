@@ -47,8 +47,8 @@ export default function ProjectAccessPage() {
 
       <RouteTabs fullWidth>
         <Tab to={pb.projectAccessAll(projectSelector)}>All</Tab>
-        <Tab to={pb.projectAccessUsers(projectSelector)}>Users</Tab>
         <Tab to={pb.projectAccessGroups(projectSelector)}>Groups</Tab>
+        <Tab to={pb.projectAccessUsers(projectSelector)}>Users</Tab>
       </RouteTabs>
     </>
   )

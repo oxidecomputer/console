@@ -41,8 +41,8 @@ export default function SiloAccessPage() {
 
       <RouteTabs fullWidth>
         <Tab to={pb.siloAccessAll()}>All</Tab>
-        <Tab to={pb.siloAccessUsers()}>Users</Tab>
         <Tab to={pb.siloAccessGroups()}>Groups</Tab>
+        <Tab to={pb.siloAccessUsers()}>Users</Tab>
       </RouteTabs>
     </>
   )
