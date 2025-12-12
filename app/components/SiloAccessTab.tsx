@@ -51,7 +51,7 @@ type SiloAccessRow = {
   id: string
   identityType: IdentityType
   name: string
-  siloRole: RoleKey | undefined
+  siloRole: RoleKey
   effectiveRole: RoleKey
 }
 

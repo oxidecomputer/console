@@ -57,6 +57,8 @@ type ProjectAccessRow = {
   id: string
   identityType: IdentityType
   name: string
+  // projectRole is optional because users can appear in this table with only inherited silo roles.
+  // Actions that modify project-level roles check this field to determine if they should be disabled.
   projectRole: RoleKey | undefined
   roleBadges: { roleSource: RoleSource; roleName: RoleKey }[]
 }

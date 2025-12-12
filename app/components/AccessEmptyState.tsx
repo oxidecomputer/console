@@ -21,7 +21,7 @@ type AccessEmptyStateProps = {
 export const AccessEmptyState = ({
   onClick,
   scope,
-  filter = 'all',
+  filter,
 }: AccessEmptyStateProps) => (
   <TableEmptyBox>
     <EmptyMessage
