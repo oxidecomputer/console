@@ -16,7 +16,7 @@ import { expect, expectNotVisible, expectRowVisible, expectVisible } from './uti
  * Tests adding a user on the All tab, then verifying they appear correctly
  * on Users tab but not Groups tab
  */
-export async function testAddUserOnAllTabAndVerifyOnUsersTabs(
+export async function expectCanAddUserAcrossTabs(
   page: Page,
   config: {
     /** Base URL path (e.g., '/access/all' or '/projects/mock-project/access/all') */

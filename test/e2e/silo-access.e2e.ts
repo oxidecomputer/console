@@ -7,7 +7,7 @@
  */
 import { user3, user4 } from '@oxide/api-mocks'
 
-import { testAddUserOnAllTabAndVerifyOnUsersTabs } from './access-test-helpers'
+import { expectCanAddUserAcrossTabs } from './access-test-helpers'
 import { expect, expectNotVisible, expectRowVisible, expectVisible, test } from './utils'
 
 test('Click through silo access page', async ({ page }) => {
@@ -83,7 +83,7 @@ test('Click through silo access page', async ({ page }) => {
 })
 
 test('Add silo user on All tab and verify on Users tab', async ({ page }) => {
-  await testAddUserOnAllTabAndVerifyOnUsersTabs(page, {
+  await expectCanAddUserAcrossTabs(page, {
     baseUrl: '/access/all',
     rolePrefix: 'silo',
   })
