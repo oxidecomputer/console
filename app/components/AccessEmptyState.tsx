@@ -18,11 +18,7 @@ type AccessEmptyStateProps = {
   filter: IdentityFilter
 }
 
-export const AccessEmptyState = ({
-  onClick,
-  scope,
-  filter,
-}: AccessEmptyStateProps) => (
+export const AccessEmptyState = ({ onClick, scope, filter }: AccessEmptyStateProps) => (
   <TableEmptyBox>
     <EmptyMessage
       icon={<Access24Icon />}

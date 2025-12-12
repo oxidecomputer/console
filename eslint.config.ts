@@ -156,6 +156,7 @@ export default defineConfig(
             'expectRowVisible',
             'expectOptions',
             'expectRowMenuStaysOpen',
+            'expectCanAddUserAcrossTabs',
           ],
         },
       ],
