@@ -31,7 +31,7 @@ In order to avoid the complexity of server-side rendering (and running JS on the
 - a few other endpoints to handle auth actions like login/logout
 - a table of sessions (console-specific in practice, but not intrinsically so)
 
-The web console has no special privileges as an API consumer. Logging in sets a cookie, and we make cookie-authed API requests after that. See [RFD 223 Web Console Architecture](https://rfd.shared.oxide.computer/rfd/0223) (internal document for now) for a more detailed discussion. The endpoints live in [`nexus/src/external_api/console_api.rs`](https://github.com/oxidecomputer/omicron/blob/c3048a1b43b046c284432eba34d0bc1933de4d56/nexus/src/external_api/console_api.rs) in Omicron.
+The web console has no special privileges as an API consumer. Logging in sets a cookie, and we make cookie-authed API requests after that. See [RFD 223 Web Console Architecture](https://rfd.shared.oxide.computer/rfd/0223) for a more detailed discussion. The endpoints live in [`nexus/src/external_api/console_api.rs`](https://github.com/oxidecomputer/omicron/blob/c3048a1b43b046c284432eba34d0bc1933de4d56/nexus/src/external_api/console_api.rs) in Omicron.
 
 ## Tech
 
