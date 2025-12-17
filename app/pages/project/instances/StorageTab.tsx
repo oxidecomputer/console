@@ -32,6 +32,7 @@ import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { DiskDetailSideModal } from '~/pages/project/disks/DiskDetailSideModal'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
+import { ButtonCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
@@ -84,13 +85,9 @@ export default function StorageTab() {
       colHelper.accessor('name', {
         header: 'Disk',
         cell: (info) => (
-          <button
-            type="button"
-            className="link-with-underline"
-            onClick={() => setSelectedDisk(info.row.original)}
-          >
+          <ButtonCell onClick={() => setSelectedDisk(info.row.original)}>
             {info.getValue()}
-          </button>
+          </ButtonCell>
         ),
       }),
       colHelper.accessor('size', Columns.size),
