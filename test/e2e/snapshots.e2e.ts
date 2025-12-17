@@ -25,6 +25,19 @@ test('Click through snapshots', async ({ page }) => {
   await expectRowVisible(table, { name: 'snapshot-disk-deleted', disk: 'Deleted' })
 })
 
+test('Disk link opens detail modal', async ({ page }) => {
+  await page.goto('/projects/mock-project/snapshots')
+
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { name: 'snapshot-1', disk: 'disk-1' })
+
+  await page.getByRole('link', { name: 'disk-1' }).first().click()
+
+  const modal = page.getByRole('dialog', { name: 'Disk details' })
+  await expect(modal).toBeVisible()
+  await expect(modal.getByText('disk-1')).toBeVisible()
+})
+
 test('Confirm delete snapshot', async ({ page }) => {
   await page.goto('/projects/mock-project/snapshots')
 

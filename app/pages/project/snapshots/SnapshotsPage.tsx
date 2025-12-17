@@ -28,6 +28,7 @@ import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
+import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -39,11 +40,14 @@ import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const DiskNameFromId = ({ value }: { value: string }) => {
+  const { project } = useProjectSelector()
   const { data } = useQuery(qErrorsAllowed(api.diskView, { path: { disk: value } }))
 
   if (!data) return <SkeletonCell />
   if (data.type === 'error') return <Badge color="neutral">Deleted</Badge>
-  return <span className="text-default">{data.data.name}</span>
+  return (
+    <LinkCell to={pb.disk({ project, disk: data.data.name })}>{data.data.name}</LinkCell>
+  )
 }
 
 const EmptyState = () => (
