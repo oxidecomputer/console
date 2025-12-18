@@ -117,7 +117,7 @@ export default function EditIdpSideModalForm() {
       <TextField
         name="groupAttributeName"
         label="Group attribute name"
-        description="Name of the SAML attribute in the IdP response listing the user's groups"
+        description="Name of the SAML attribute in the IdP response listing the user’s groups"
         required
         control={form.control}
         disabled
