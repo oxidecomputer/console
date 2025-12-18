@@ -456,10 +456,6 @@ test('can update firewall rule', async ({ page }) => {
   await selectOption(page, 'Protocol filters', 'ICMP')
   await page.getByRole('combobox', { name: 'ICMP Type' }).fill('3')
   await page.getByRole('combobox', { name: 'ICMP Type' }).press('Enter')
-
-  // give FF time to process the above enter before moving to the next field
-  await sleep(300)
-
   await page.getByRole('textbox', { name: 'ICMP Code' }).fill('0')
   await page.getByRole('button', { name: 'Add protocol' }).click()
 
