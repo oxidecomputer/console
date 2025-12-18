@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
 import {
@@ -29,6 +29,7 @@ import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
+import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -79,25 +80,6 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 }
 
 const colHelper = createColumnHelper<Disk>()
-
-const staticCols = [
-  colHelper.accessor('name', {}),
-  // sneaky: rather than looking at particular states, just look at
-  // whether it has an instance field
-  colHelper.accessor(
-    (disk) => ('instance' in disk.state ? disk.state.instance : undefined),
-    {
-      header: 'Attached to',
-      cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,
-    }
-  ),
-  colHelper.accessor('size', Columns.size),
-  colHelper.accessor('state.state', {
-    header: 'state',
-    cell: (info) => <DiskStateBadge state={info.getValue()} />,
-  }),
-  colHelper.accessor('timeCreated', Columns.timeCreated),
-]
 
 export default function DisksPage() {
   const { project } = useProjectSelector()
@@ -162,7 +144,32 @@ export default function DisksPage() {
     [createSnapshot, deleteDisk, project]
   )
 
-  const columns = useColsWithActions(staticCols, makeActions)
+  const columns = useColsWithActions(
+    useMemo(
+      () => [
+        colHelper.accessor('name', {
+          cell: makeLinkCell((name) => pb.disk({ project, disk: name })),
+        }),
+        // sneaky: rather than looking at particular states, just look at
+        // whether it has an instance field
+        colHelper.accessor(
+          (disk) => ('instance' in disk.state ? disk.state.instance : undefined),
+          {
+            header: 'Attached to',
+            cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,
+          }
+        ),
+        colHelper.accessor('size', Columns.size),
+        colHelper.accessor('state.state', {
+          header: 'state',
+          cell: (info) => <DiskStateBadge state={info.getValue()} />,
+        }),
+        colHelper.accessor('timeCreated', Columns.timeCreated),
+      ],
+      [project]
+    ),
+    makeActions
+  )
   const { table } = useQueryTable({
     query: diskList({ project }),
     columns,

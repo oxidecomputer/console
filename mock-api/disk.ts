@@ -110,7 +110,8 @@ export const disks: Json<Disk>[] = [
   {
     id: '4d6f4c76-675f-4cda-b609-f3b8b301addb',
     name: 'disk-5',
-    description: '',
+    description:
+      "It is an ancient Mariner, And he stoppeth one of three. 'By thy long grey beard and glittering eye, Now wherefore stopp'st thou me? The Bridegroom's doors are opened wide, And I am next of kin; The guests are met, the feast is set: May'st hear the merry din.'",
     project_id: project.id,
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),

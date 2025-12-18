@@ -204,7 +204,7 @@ test('Identity providers', async ({ page }) => {
     'groups'
   )
 
-  await page.getByRole('button', { name: 'Close' }).click()
+  await page.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
 
   await expect(dialog).toBeHidden()
 

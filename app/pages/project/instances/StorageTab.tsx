@@ -29,8 +29,10 @@ import { DiskStateBadge } from '~/components/StateBadge'
 import { AttachDiskModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
+import { DiskDetailSideModal } from '~/pages/project/disks/DiskDetailSideModal'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
+import { ButtonCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
@@ -66,16 +68,6 @@ type InstanceDisk = Disk & {
 }
 
 const colHelper = createColumnHelper<InstanceDisk>()
-const staticCols = [
-  colHelper.accessor('name', { header: 'Disk' }),
-  colHelper.accessor('size', Columns.size),
-  colHelper.accessor((row) => row.state.state, {
-    header: 'state',
-    cell: (info) => <DiskStateBadge state={info.getValue()} />,
-  }),
-  colHelper.accessor('timeCreated', Columns.timeCreated),
-]
-
 export const handle = { crumb: 'Storage' }
 
 export default function StorageTab() {
@@ -86,6 +78,26 @@ export default function StorageTab() {
   const instancePathQuery = useMemo(
     () => ({ path: { instance: instanceName }, query: { project } }),
     [instanceName, project]
+  )
+
+  const staticCols = useMemo(
+    () => [
+      colHelper.accessor('name', {
+        header: 'Disk',
+        cell: (info) => (
+          <ButtonCell onClick={() => setSelectedDisk(info.row.original)}>
+            {info.getValue()}
+          </ButtonCell>
+        ),
+      }),
+      colHelper.accessor('size', Columns.size),
+      colHelper.accessor((row) => row.state.state, {
+        header: 'state',
+        cell: (info) => <DiskStateBadge state={info.getValue()} />,
+      }),
+      colHelper.accessor('timeCreated', Columns.timeCreated),
+    ],
+    []
   )
 
   const { mutateAsync: detachDisk } = useApiMutation(api.instanceDiskDetach, {
@@ -120,6 +132,9 @@ export default function StorageTab() {
       queryClient.invalidateEndpoint('instanceView')
     },
   })
+
+  // for showing disk detail side modal
+  const [selectedDisk, setSelectedDisk] = useState<Disk | null>(null)
 
   // shared between boot and other disks
   const getSnapshotAction = useCallback(
@@ -394,6 +409,9 @@ export default function StorageTab() {
           loading={attachDisk.isPending}
           submitError={attachDisk.error}
         />
+      )}
+      {selectedDisk && (
+        <DiskDetailSideModal disk={selectedDisk} onDismiss={() => setSelectedDisk(null)} />
       )}
     </div>
   )

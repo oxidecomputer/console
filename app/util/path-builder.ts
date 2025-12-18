@@ -55,6 +55,7 @@ export const pb = {
 
   disksNew: (params: PP.Project) => `${projectBase(params)}/disks-new`,
   disks: (params: PP.Project) => `${projectBase(params)}/disks`,
+  disk: (params: PP.Disk) => `${pb.disks(params)}/${params.disk}`,
 
   snapshotsNew: (params: PP.Project) => `${projectBase(params)}/snapshots-new`,
   snapshots: (params: PP.Project) => `${projectBase(params)}/snapshots`,

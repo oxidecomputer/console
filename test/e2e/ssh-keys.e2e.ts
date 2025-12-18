@@ -36,7 +36,7 @@ test('SSH keys', async ({ page }) => {
   await expect(modal.getByRole('textbox', { name: 'Public key' })).toBeDisabled()
 
   // close modal
-  await modal.getByRole('button', { name: 'Close' }).click()
+  await page.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
   await expect(modal).toBeHidden()
 
   // delete the two ssh keys
