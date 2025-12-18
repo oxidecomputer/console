@@ -259,7 +259,7 @@ export async function scrollTo(page: Page, to: number) {
 }
 
 export async function addTlsCert(page: Page) {
-  page.getByRole('button', { name: 'Add TLS certificate' }).click()
+  await page.getByRole('button', { name: 'Add TLS certificate' }).click()
   await page
     .getByRole('dialog', { name: 'Add TLS certificate' })
     .getByRole('textbox', { name: 'Name' })

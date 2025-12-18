@@ -29,7 +29,7 @@ test('can delete a failed instance', async ({ page }) => {
 
   const cell = page.getByRole('cell', { name: 'you-fail' })
   await expect(cell).toBeVisible() // just to match hidden check at the end
-  expectInstanceState(page, 'you-fail', 'failed')
+  await expectInstanceState(page, 'you-fail', 'failed')
 
   await clickRowAction(page, 'you-fail', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()

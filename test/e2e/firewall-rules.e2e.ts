@@ -630,7 +630,7 @@ test('arbitrary values combobox', async ({ page }) => {
   await expectOptions(page, ['Custom: d'])
 
   await vpcInput.blur()
-  page.getByRole('button', { name: 'Add target' }).click()
+  await page.getByRole('button', { name: 'Add target' }).click()
   await expect(vpcInput).toHaveValue('')
 
   await vpcInput.focus()

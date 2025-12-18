@@ -69,6 +69,13 @@
       "rules": {
         "import/no-default-export": "off"
       }
+    },
+    {
+      // catch unawaited Playwright calls in e2e tests
+      "files": ["test/e2e/**/*.ts"],
+      "rules": {
+        "@typescript-eslint/no-floating-promises": "error"
+      }
     }
   ],
   "ignorePatterns": ["dist/", "node_modules/"]
