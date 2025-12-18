@@ -494,6 +494,12 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
                   placeholder=""
                   validate={icmpCodeValidation}
                   transform={normalizeDashes}
+                  onKeyDown={(e) => {
+                    if (e.key === KEYS.enter) {
+                      e.preventDefault() // prevent full form submission
+                      submitProtocol(e)
+                    }
+                  }}
                 />
               )}
             </>
