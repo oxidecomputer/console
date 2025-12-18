@@ -19,6 +19,7 @@ import { DiskStateBadge } from '~/components/StateBadge'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getDiskSelector, useDiskSelector } from '~/hooks/use-params'
 import { EmptyCell } from '~/table/cells/EmptyCell'
+import { Button } from '~/ui/lib/Button'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel, SideModal } from '~/ui/lib/SideModal'
 import { pb } from '~/util/path-builder'
@@ -104,6 +105,11 @@ export function DiskDetailSideModal({
           <PropertiesTable.DateRow label="Last Modified" date={disk.timeModified} />
         </PropertiesTable>
       </SideModal.Body>
+      <SideModal.Footer>
+        <Button variant="ghost" size="sm" onClick={onDismiss}>
+          Close
+        </Button>
+      </SideModal.Footer>
     </SideModal>
   )
 }
