@@ -6,7 +6,12 @@
  * Copyright Oxide Computer Company
  */
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import {
+  NavigationType,
+  useNavigate,
+  useNavigationType,
+  type LoaderFunctionArgs,
+} from 'react-router'
 
 import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 import { Key16Icon } from '@oxide/design-system/icons/react'
@@ -14,7 +19,7 @@ import { Key16Icon } from '@oxide/design-system/icons/react'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
-import { SideModalForm } from '~/components/form/SideModalForm'
+import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getSshKeySelector, useSshKeySelector } from '~/hooks/use-params'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
@@ -41,22 +46,19 @@ export default function EditSSHKeySideModalForm() {
   const { data } = usePrefetchedQuery(sshKeyView(selector))
 
   const form = useForm({ defaultValues: data })
+  const onDismiss = () => navigate(pb.sshKeys())
+  const animate = useNavigationType() === NavigationType.Push
 
   return (
-    <SideModalForm
-      form={form}
-      formType="edit"
-      resourceName="SSH key"
+    <ReadOnlySideModalForm
       title="View SSH key"
-      onDismiss={() => navigate(pb.sshKeys())}
+      onDismiss={onDismiss}
+      animate={animate}
       subtitle={
         <ResourceLabel>
           <Key16Icon /> {data.name}
         </ResourceLabel>
       }
-      // TODO: pass actual error when this form is hooked up
-      loading={false}
-      submitError={null}
     >
       <PropertiesTable>
         <PropertiesTable.IdRow id={data.id} />
@@ -77,6 +79,6 @@ export default function EditSSHKeySideModalForm() {
           disabled
         />
       </div>
-    </SideModalForm>
+    </ReadOnlySideModalForm>
   )
 }

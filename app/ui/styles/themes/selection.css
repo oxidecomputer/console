@@ -28,6 +28,7 @@
   & .ox-tag,
   & .ox-button:not(.btn-ghost),
   & .ox-radio-card {
+    --content-default: var(--content-inverse);
     --content-accent: var(--content-inverse);
     --surface-accent-secondary: var(--theme-accent-100);
     --surface-accent-secondary-hover: var(--theme-accent-200);
@@ -38,7 +39,7 @@
     --surface-destructive-secondary: var(--theme-destructive-100);
     --surface-destructive-secondary-hover: var(--theme-destructive-200);
     --content-secondary: var(--content-inverse);
-    --surface-secondary: var(--surface-inverse-secondary);
+    --surface-secondary: var(--surface-accent);
     --surface-secondary-hover: var(--content-tertiary);
   }
 }

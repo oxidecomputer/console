@@ -6,7 +6,12 @@
  * Copyright Oxide Computer Company
  */
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import {
+  NavigationType,
+  useNavigate,
+  useNavigationType,
+  type LoaderFunctionArgs,
+} from 'react-router'
 
 import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 import { Access16Icon } from '@oxide/design-system/icons/react'
@@ -14,7 +19,7 @@ import { Access16Icon } from '@oxide/design-system/icons/react'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
-import { SideModalForm } from '~/components/form/SideModalForm'
+import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getIdpSelector, useIdpSelector } from '~/hooks/use-params'
 import { FormDivider } from '~/ui/lib/Divider'
@@ -40,24 +45,20 @@ export default function EditIdpSideModalForm() {
 
   const navigate = useNavigate()
   const onDismiss = () => navigate(pb.silo({ silo }))
+  const animate = useNavigationType() === NavigationType.Push
 
   const form = useForm({ defaultValues: idp })
 
   return (
-    <SideModalForm
-      form={form}
-      formType="edit"
-      resourceName="identity provider"
+    <ReadOnlySideModalForm
       title="Identity provider"
       onDismiss={onDismiss}
+      animate={animate}
       subtitle={
         <ResourceLabel>
           <Access16Icon /> {idp.name}
         </ResourceLabel>
       }
-      // TODO: pass actual error when this form is hooked up
-      submitError={null}
-      loading={false}
     >
       <PropertiesTable>
         <PropertiesTable.IdRow id={idp.id} />
@@ -79,7 +80,6 @@ export default function EditIdpSideModalForm() {
       <FormDivider />
 
       <SideModal.Heading>Service provider</SideModal.Heading>
-      {/* TODO: help text */}
       <TextField
         name="spClientId"
         label="Service provider client ID"
@@ -107,7 +107,6 @@ export default function EditIdpSideModalForm() {
       <FormDivider />
 
       <SideModal.Heading>Identity provider</SideModal.Heading>
-      {/* TODO: help text */}
       <TextField
         name="idpEntityId"
         label="Entity ID"
@@ -123,6 +122,6 @@ export default function EditIdpSideModalForm() {
         control={form.control}
         disabled
       />
-    </SideModalForm>
+    </ReadOnlySideModalForm>
   )
 }

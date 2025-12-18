@@ -177,9 +177,9 @@ test.describe('Image upload', () => {
 
     let confirmCount = 0
 
-    page.on('dialog', (dialog) => {
+    page.on('dialog', async (dialog) => {
       confirmCount += 1
-      dialog.dismiss()
+      await dialog.dismiss()
     }) // click cancel on the are you sure prompt
 
     await progressModal.getByRole('button', { name: 'Cancel' }).click()

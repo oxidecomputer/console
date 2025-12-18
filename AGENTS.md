@@ -17,8 +17,7 @@
 # API utilities & constants
 
 - Treat `app/api/util.ts` (and friends) as a thin translation layer: mirror backend rules only when the UI needs them, keep the client copy minimal, and always link to the authoritative Omicron source so reviewers can verify the behavior.
-- API constants live in `app/api/util.ts:25-38` with links to Omicron source: `MAX_NICS_PER_INSTANCE` (8), `INSTANCE_MAX_CPU` (64), `INSTANCE_MAX_RAM_GiB` (1536), `MIN_DISK_SIZE_GiB` (1), `MAX_DISK_SIZE_GiB` (1023), etc.
-- Use `ALL_ISH` (1000) from `app/util/consts.ts` when UI needs "approximately everything" for non-paginated queries—convention is to use this constant rather than magic numbers.
+- API constants live in `app/api/util.ts` with links to Omicron source.
 
 # Testing code
 
@@ -31,10 +30,10 @@
 
 # Data fetching pattern
 
-- Define endpoints with `apiq`, prefetch them in a `clientLoader`, then read data with `usePrefetchedQuery`.
-- Use `ALL_ISH` when the UI needs every item (e.g. release lists) and rely on `queryClient.invalidateEndpoint`—it now returns the `invalidateQueries` promise so it can be awaited (see `app/pages/system/UpdatePage.tsx`).
+- Define queries with `q(api.endpoint, params)` for single items or `getListQFn(api.listEndpoint, params)` for lists. Prefetch in `clientLoader` and read with `usePrefetchedQuery`; for on-demand fetches (modals, secondary data), use `useQuery` directly.
+- Use `ALL_ISH` from `app/util/consts.ts` when UI needs "all" items. Use `queryClient.invalidateEndpoint` to invalidate queries.
 - For paginated tables, compose `getListQFn` with `useQueryTable`; the helper wraps `limit`/`pageToken` handling and keeps placeholder data stable (`app/api/hooks.ts:123-188`, `app/pages/ProjectsPage.tsx:40-132`).
-- When a loader needs dependent data, fetch the primary list with `queryClient.fetchQuery`, prefetch its per-item queries, and only await a bounded batch so render isn’t blocked (see `app/pages/project/affinity/AffinityPage.tsx`).
+- When a loader needs dependent data, fetch the primary list with `queryClient.fetchQuery`, prefetch its per-item queries, and only await a bounded batch so render isn't blocked (see `app/pages/project/affinity/AffinityPage.tsx`).
 
 # Mutations & UI flow
 
@@ -83,15 +82,14 @@
 # Layout & accessibility
 
 - Build pages inside the shared `PageContainer`/`ContentPane` so you inherit the skip link, sticky footer, pagination target, and scroll restoration tied to `#scroll-container` (`app/layouts/helpers.tsx`, `app/hooks/use-scroll-restoration.ts`).
-- Surface page-level buttons and pagination via the `PageActions` and `Pagination` tunnels from `tunnel-rat`; anything rendered through `.In` components lands in the footer `.Target` automatically (`app/components/PageActions.tsx`, `app/components/Pagination.tsx`). This tunnel pattern is preferred over React portals for maintaining component co-location.
+- Surface page-level buttons and pagination via the `PageActions` and `Pagination` tunnels from `tunnel-rat`; anything rendered through `.In` lands in `.Target` automatically.
 - For global loading states, reuse `PageSkeleton`—it keeps the MSW banner and grid layout stable, and `skipPaths` lets you opt-out for routes with custom layouts (`app/components/PageSkeleton.tsx`).
 - Enforce accessibility at the type level: use `AriaLabel` type from `app/ui/util/aria.ts` which requires exactly one of `aria-label` or `aria-labelledby` on custom interactive components.
 
 # Route params & loaders
 
 - Wrap `useParams` with the provided selectors (`useProjectSelector`, `useInstanceSelector`, etc.) so required params throw during dev and produce memoized results safe for dependency arrays (`app/hooks/use-params.ts`).
-- Param selectors use React Query's `hashKey` internally to ensure stable object references across renders—same values = same object identity, preventing unnecessary re-renders.
-- Prefer `queryClient.fetchQuery` inside `clientLoader` blocks when the page needs data up front, and throw `trigger404` on real misses so the shared error boundary can render Not Found or the 403 IDP guidance (`app/pages/ProjectsPage.tsx`, `app/layouts/SystemLayout.tsx`, `app/components/ErrorBoundary.tsx`).
+- Prefer `queryClient.fetchQuery` inside `clientLoader` blocks when the page needs data up front, and throw `trigger404` on real misses so the error boundary renders Not Found.
 
 # Global stores & modals
 
@@ -100,47 +98,20 @@
 
 # UI components & styling
 
-- Reach for primitives in `app/ui` before inventing page-specific widgets; that directory intentionally holds router-agnostic building blocks (`app/ui/README.md`).
+- Reach for primitives in `app/ui` before inventing page-specific widgets; that directory holds router-agnostic building blocks.
 - When you just need Tailwind classes on a DOM element, use the `classed` helper instead of creating one-off wrappers (`app/util/classed.ts`).
-- Reuse utility components for consistent formatting—`TimeAgo`, `EmptyMessage`, `CardBlock`, `DocsPopover`, `PropertiesTable`, and friends exist so pages stay visually aligned (`app/components/TimeAgo.tsx`, `app/ui/lib`).
-
-# Docs & external links
-
-- Keep help URLs centralized: add new docs to `links`/`docLinks` and reference them when wiring `DocsPopover` or help badges (`app/util/links.ts`).
+- Reuse utility components for consistent formatting—`TimeAgo`, `EmptyMessage`, `CardBlock`, `DocsPopover`, `PropertiesTable`, etc.
+- Import icons from `@oxide/design-system/icons/react` with size suffixes: `16` for inline/table, `24` for headers/buttons, `12` for tiny indicators.
+- Keep help URLs in `links`/`docLinks` (`app/util/links.ts`).
 
 # Error handling
 
-- All API errors flow through `processServerError` in `app/api/errors.ts`, which transforms raw errors into user-friendly messages with special handling for common cases (Forbidden, ObjectNotFound, ObjectAlreadyExists).
-- On 401 errors, requests auto-redirect to `/login?redirect_uri=...` except for `loginLocal` endpoint which handles 401 in-page (`app/api/hooks.ts:49-57`).
-- On 403 errors, the error boundary automatically checks if the user has no groups and no silo role, displaying IDP misconfiguration guidance when detected (`app/components/ErrorBoundary.tsx:42-54`).
-- Throw `trigger404` (an object `{ type: 'error', statusCode: 404 }`) in loaders when resources don't exist; the error boundary will render `<NotFound />` (`app/components/ErrorBoundary.tsx`).
+- All API errors flow through `processServerError` in `app/api/errors.ts`, which transforms raw errors into user-friendly messages.
+- On 401 errors, requests auto-redirect to `/login`. On 403, the error boundary checks for IDP misconfiguration.
+- Throw `trigger404` in loaders when resources don't exist; the error boundary will render Not Found.
 
-# Validation patterns
+# Utilities & helpers
 
-- Resource name validation: use `validateName` from `app/components/form/fields/NameField.tsx:44-60` (max 63 chars, lowercase letters/numbers/dashes, must start with letter, must end with letter or number). This matches backend validation.
-- Description validation: use `validateDescription` for max 512 char limit (`app/components/form/fields/DescriptionField.tsx`).
-- IP validation: use `validateIp` and `validateIpNet` from `app/util/ip.ts` for IPv4/IPv6 and CIDR notation—regexes match Rust `std::net` behavior for consistency.
-- All validation functions return `string | undefined` for react-hook-form compatibility.
-
-# Type utilities
-
-- Check `types/util.d.ts` for `NoExtraKeys` (catches accidental extra properties) and other type helpers.
-- Prefer `type-fest` utilities for advanced type manipulation.
-- Route param types in `app/util/path-params.ts` use `Required<Sel.X>` pattern to distinguish required path params from optional query params.
-
-# Utility functions
-
-- Check `app/util/*` for string formatting, date handling, math, IP parsing, arrays, and file utilities. Use existing helpers before writing new ones.
-
-# Icons & visual feedback
-
-- Import icons from `@oxide/design-system/icons/react` with size suffixes: `16` for inline/table use, `24` for headers/buttons, `12` for tiny indicators.
-- Use `StateBadge` for resource states, `EmptyMessage` for empty states, `HL` for highlighted text in messages.
-
-# Role & permission patterns
-
-- Role helpers in `app/api/roles.ts`: `getEffectiveRole` determines most permissive role from a list, `roleOrder` defines hierarchy (admin > collaborator > viewer).
-- Use `useUserRows` hook to enrich role assignments with user/group names, sorted via `byGroupThenName` (groups first, then alphabetically).
-- Use `useActorsNotInPolicy` to fetch users/groups not already in a policy (for add-user forms).
-- Policy transformations: `updateRole` and `deleteRole` produce new policies immutably.
-- Check `userRoleFromPolicies` to determine effective user role across multiple policies (e.g., project + silo).
+- Check `app/util/*` for string formatting, date handling, IP parsing, etc. Check `types/util.d.ts` for type helpers.
+- Use `validateName` for resource names, `validateDescription` for descriptions, `validateIp`/`validateIpNet` for IPs.
+- Role helpers live in `app/api/roles.ts`.

@@ -80,7 +80,7 @@ test('can add a new anti-affinity group', async ({ page }) => {
   // go disable db1
   await page.getByRole('button', { name: 'Cancel' }).click()
   await page.getByRole('link', { name: 'Instances' }).click()
-  clickRowAction(page, 'db1', 'Stop')
+  await clickRowAction(page, 'db1', 'Stop')
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expectRowVisible(page.getByRole('table'), {
     name: 'db1',

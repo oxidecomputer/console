@@ -18,6 +18,7 @@ import {
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
   INSTANCE_MIN_RAM_GiB,
+  MAX_DISKS_PER_INSTANCE,
   MAX_NICS_PER_INSTANCE,
   type AffinityGroupMember,
   type AntiAffinityGroupMember,
@@ -430,6 +431,10 @@ export const handlers = makeHandlers({
     if (body.disks) allDisks.push(...body.disks)
     if (body.boot_disk) allDisks.push(body.boot_disk)
 
+    if (allDisks.length > MAX_DISKS_PER_INSTANCE) {
+      throw `Cannot attach more than ${MAX_DISKS_PER_INSTANCE} disks to an instance`
+    }
+
     for (const diskParams of allDisks) {
       if (diskParams.type === 'create') {
         errIfExists(db.disks, { name: diskParams.name, project_id: project.id }, 'disk')
@@ -711,6 +716,12 @@ export const handlers = makeHandlers({
     const instance = lookup.instance({ ...path, ...projectParams })
     if (instance.run_state !== 'stopped') {
       throw 'Cannot attach disk to instance that is not stopped'
+    }
+    const attachedDisks = db.disks.filter(
+      (d) => 'instance' in d.state && d.state.instance === instance.id
+    )
+    if (attachedDisks.length >= MAX_DISKS_PER_INSTANCE) {
+      throw `Cannot attach more than ${MAX_DISKS_PER_INSTANCE} disks to an instance`
     }
     const disk = lookup.disk({ ...projectParams, disk: body.disk })
     disk.state = {
@@ -1155,10 +1166,10 @@ export const handlers = makeHandlers({
     return utilizationForSilo(silo)
   },
   siloUtilizationList({ query }) {
-    const { items: silos, nextPage } = paginated(query, db.silos)
+    const { items: silos, next_page } = paginated(query, db.silos)
     return {
       items: silos.map(utilizationForSilo),
-      nextPage,
+      next_page,
     }
   },
   vpcList({ query }) {

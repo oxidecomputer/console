@@ -8,115 +8,131 @@
  * Copyright Oxide Computer Company
  */
 import { exists } from 'https://deno.land/std@0.208.0/fs/mod.ts'
-import { parseArgs } from 'https://deno.land/std@0.220.1/cli/mod.ts'
 import { $ } from 'https://deno.land/x/dax@0.39.1/mod.ts'
+import { Command, ValidationError } from 'jsr:@cliffy/command@1.0.0-rc.8'
 
-const HELP = `
-Display changes to API client caused by a given Omicron PR. Works by downloading
-the OpenAPI spec before and after, generating clients in temp dirs, and diffing.
-
-Dependencies:
-  - Deno (which you have if you're seeing this message)
-  - GitHub CLI (gh)
-  - Optional: delta diff pager https://dandavison.github.io/delta/
-
-Usage:
-  ./tools/deno/api-diff.ts [-f] [PR number or commit SHA]
-  ./tools/deno/api-diff.ts [-f] [commit SHA] [commit SHA]
-  ./tools/deno/api-diff.ts -h
-
-Flags:
-  -f, --force       Download spec and regen client even if dir already exists
-  -h, --help        Show this help message
-
-Parameters:
-  PR number or commit SHA: If left out, interactive picker is shown.
-  If two positional arguments are passed, we assume they are commits.
-`.trim()
-
-function printHelpAndExit(): never {
-  console.info(HELP)
-  Deno.exit()
-}
-
-// have to do this this way because I couldn't figure out how to get
-// my stupid bash function to show up here. I'm sure it's possible
-async function pickPr() {
-  const listPRs = () =>
-    $`gh pr list -R oxidecomputer/omicron --limit 100 
-        --json number,title,updatedAt,author 
+// fzf picker keeps UX quick without requiring people to wire up shell helpers
+async function pickPr(): Promise<number> {
+  const prNum = await $`gh pr list -R oxidecomputer/omicron --limit 100
+        --json number,title,updatedAt,author
         --template '{{range .}}{{tablerow .number .title .author.name (timeago .updatedAt)}}{{end}}'`
-  const picker = () => $`fzf --height 25% --reverse`
-  const cut = () => $`cut -f1 -d ' '`
-
-  const prNum = await listPRs().pipe(picker()).pipe(cut()).text()
-  if (!/^\d+$/.test(prNum)) {
+    .pipe($`fzf --height 25% --reverse`)
+    .pipe($`cut -f1 -d ' '`)
+    .text()
+  if (!/^\d+$/.test(prNum))
     throw new Error(`Error picking PR. Expected number, got '${prNum}'`)
-  }
-  return prNum
+  return parseInt(prNum, 10)
 }
 
-async function getCommitRange(
-  args: Array<string | number>
-): Promise<{ base: string; head: string }> {
-  // if there are two or more args, assume two commits
-  if (args.length >= 2) {
-    return { base: args[0].toString(), head: args[1].toString() }
-  }
+// because the schema files change, in order to specify a schema you need both a
+// commit and a filename
+type DiffTarget = {
+  baseCommit: string
+  baseSchema: string
+  headCommit: string
+  headSchema: string
+}
 
-  // if there are no args or the arg is a number, we're talking about a PR
-  if (args.length === 0 || typeof args[0] === 'number') {
-    const prNum = args[0] || (await pickPr())
-    // This graphql thing is absurd, but the idea is to use the branch point as
-    // the base, i.e., the parent of the first commit. If we use the base ref
-    // (e.g., main) directly, we get the current state of main, which means the
-    // diff will reflect both the current PR and any changes made on main since
-    // it branched off.
+const SPEC_DIR_URL = (commit: string) =>
+  `https://api.github.com/repos/oxidecomputer/omicron/contents/openapi/nexus?ref=${commit}`
+
+const SPEC_RAW_URL = (commit: string, filename: string) =>
+  `https://raw.githubusercontent.com/oxidecomputer/omicron/${commit}/openapi/nexus/${filename}`
+
+async function resolveCommit(ref?: string | number): Promise<string> {
+  if (ref === undefined) return resolveCommit(await pickPr())
+  if (typeof ref === 'number') {
     const query = `{
       repository(owner: "oxidecomputer", name: "omicron") {
-        pullRequest(number: ${prNum}) {
-          headRefOid
-          commits(first: 1) {
-            nodes {
-              commit {
-                parents(first: 1) { nodes { oid } }
-              }
-            }
-          }
-        }
+        pullRequest(number: ${ref}) { headRefOid }
       }
     }`
     const pr = await $`gh api graphql -f query=${query}`.json()
-    const head = pr.data.repository.pullRequest.headRefOid
-    const base = pr.data.repository.pullRequest.commits.nodes[0].commit.parents.nodes[0].oid
-    return { base, head }
+    return pr.data.repository.pullRequest.headRefOid
   }
-
-  // otherwise assume it's a commit
-  const head = args[0]
-  const parents =
-    await $`gh api repos/oxidecomputer/omicron/commits/${head} --jq '.parents'`.json()
-  if (parents.length > 1) throw new Error(`Commit has multiple parents:`)
-  return { base: parents[0].sha, head }
+  return ref
 }
 
-const specUrl = (commit: string) =>
-  `https://raw.githubusercontent.com/oxidecomputer/omicron/${commit}/openapi/nexus.json`
+const normalizeRef = (ref?: string | number) =>
+  typeof ref === 'string' && /^\d+$/.test(ref) ? parseInt(ref, 10) : ref
 
-async function genForCommit(commit: string, force: boolean) {
-  const tmpDir = `/tmp/api-diff/${commit}`
-  const alreadyExists = await exists(tmpDir + '/Api.ts')
+async function getLatestSchema(commit: string) {
+  const contents = await $`gh api ${SPEC_DIR_URL(commit)}`.json()
+  const latestLink = contents.find((f: { name: string }) => f.name === 'nexus-latest.json')
+  if (!latestLink) throw new Error('nexus-latest.json not found')
+  return (await fetch(latestLink.download_url).then((r) => r.text())).trim()
+}
 
-  // if the directory already exists, skip it
-  if (force || !alreadyExists) {
-    await $`rm -rf ${tmpDir}`
-    await $`mkdir -p ${tmpDir}`
-    console.info(`Generating for ${commit}...`)
-    await $`npx @oxide/openapi-gen-ts@latest ${specUrl(commit)} ${tmpDir}`
-    await $`npx prettier --write --log-level error ${tmpDir}`
+/** When diffing a single commit, we diff its latest schema against the previous one */
+async function getLatestAndPreviousSchema(commit: string) {
+  const contents = await $`gh api ${SPEC_DIR_URL(commit)}`.json()
+
+  const latestLink = contents.find((f: { name: string }) => f.name === 'nexus-latest.json')
+  if (!latestLink) throw new Error('nexus-latest.json not found')
+  const latest = (await fetch(latestLink.download_url).then((r) => r.text())).trim()
+
+  const schemaFiles = contents
+    .filter(
+      (f: { name: string }) => f.name.startsWith('nexus-') && f.name !== 'nexus-latest.json'
+    )
+    .map((f: { name: string }) => f.name)
+    .sort()
+
+  const latestIndex = schemaFiles.indexOf(latest)
+  if (latestIndex === -1) throw new Error(`Latest schema ${latest} not found in dir`)
+  if (latestIndex === 0) throw new Error('No previous schema version found')
+
+  return { previous: schemaFiles[latestIndex - 1], latest }
+}
+
+async function resolveTarget(ref1?: string | number, ref2?: string): Promise<DiffTarget> {
+  // Two refs: compare latest schema on each
+  if (ref2 !== undefined) {
+    if (ref1 === undefined)
+      throw new ValidationError('Provide a base ref when passing two refs')
+    const [baseCommit, headCommit] = await Promise.all([
+      resolveCommit(normalizeRef(ref1)),
+      resolveCommit(normalizeRef(ref2)),
+    ])
+    const [baseSchema, headSchema] = await Promise.all([
+      getLatestSchema(baseCommit),
+      getLatestSchema(headCommit),
+    ])
+    return { baseCommit, baseSchema, headCommit, headSchema }
   }
 
-  return tmpDir
+  // Single ref: compare previous schema to latest within that commit
+  const commit = await resolveCommit(normalizeRef(ref1))
+  const { previous, latest } = await getLatestAndPreviousSchema(commit)
+  return {
+    baseCommit: commit,
+    baseSchema: previous,
+    headCommit: commit,
+    headSchema: latest,
+  }
+}
+
+async function ensureSchema(commit: string, specFilename: string, force: boolean) {
+  const dir = `/tmp/api-diff/${commit}/${specFilename}`
+  const schemaPath = `${dir}/spec.json`
+  if (force || !(await exists(schemaPath))) {
+    await $`mkdir -p ${dir}`
+    console.info(`Downloading ${specFilename}...`)
+    const content = await fetch(SPEC_RAW_URL(commit, specFilename)).then((r) => r.text())
+    await Deno.writeTextFile(schemaPath, content)
+  }
+  return schemaPath
+}
+
+async function ensureClient(schemaPath: string, force: boolean) {
+  const dir = schemaPath.replace(/\/spec\.json$/, '')
+  const clientPath = `${dir}/Api.ts`
+  if (force || !(await exists(clientPath))) {
+    console.info(`Generating client...`)
+    await $`npx @oxide/openapi-gen-ts@latest ${schemaPath} ${dir}`
+    await $`npx prettier --write --log-level error ${dir}`
+  }
+  return clientPath
 }
 
 //////////////////////////////
@@ -128,20 +144,52 @@ if (!$.commandExistsSync('gh')) throw Error('Need gh (GitHub CLI)')
 // prefer delta if it exists. https://dandavison.github.io/delta/
 const diffTool = $.commandExistsSync('delta') ? 'delta' : 'diff'
 
-const args = parseArgs(Deno.args, {
-  alias: { force: 'f', help: 'h' },
-  boolean: ['force', 'help'],
-})
+await new Command()
+  .name('api-diff')
+  .description(
+    `Display changes to API client or schema caused by a given Omicron PR.
 
-if (args.help) printHelpAndExit()
+Arguments:
+  No args          Interactive PR picker
+  <pr>             PR number (e.g., 1234)
+  <commit>         Commit SHA
+  <base> <head>    Two refs (commits or PRs), compare latest schema on each
 
-const { base, head } = await getCommitRange(args._)
+Dependencies:
+  - Deno
+  - GitHub CLI (gh)
+  - Optional: delta diff pager https://dandavison.github.io/delta/
+  - Optional: fzf for PR picker https://github.com/junegunn/fzf`
+  )
+  .helpOption('-h, --help', 'Show help')
+  .option('--force', 'Redo everything even if cached')
+  .type('format', ({ value }) => {
+    if (value !== 'ts' && value !== 'schema') {
+      throw new ValidationError(`Invalid format: '${value}'. Must be 'ts' or 'schema'`)
+    }
+    return value
+  })
+  .option('-f, --format <format:format>', "Output format: 'ts' or 'schema'", {
+    default: 'ts' as const,
+  })
+  .arguments('[ref1:string] [ref2:string]')
+  .action(async (options, ref?: string, ref2?: string) => {
+    const target = await resolveTarget(ref, ref2)
+    const force = options.force ?? false
 
-const basePath = (await genForCommit(base, args.force)) + '/Api.ts'
-const headPath = (await genForCommit(head, args.force)) + '/Api.ts'
+    const [baseSchema, headSchema] = await Promise.all([
+      ensureSchema(target.baseCommit, target.baseSchema, force),
+      ensureSchema(target.headCommit, target.headSchema, force),
+    ])
 
-await $`${diffTool} ${basePath} ${headPath} || true`
-
-// useful if you want to open the file directly in an editor
-console.info('Before:', basePath)
-console.info('After: ', headPath)
+    if (options.format === 'schema') {
+      await $`${diffTool} ${baseSchema} ${headSchema}`.noThrow()
+    } else {
+      const [baseClient, headClient] = await Promise.all([
+        ensureClient(baseSchema, force),
+        ensureClient(headSchema, force),
+      ])
+      await $`${diffTool} ${baseClient} ${headClient}`.noThrow()
+    }
+  })
+  .parse(Deno.args)

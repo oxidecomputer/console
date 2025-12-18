@@ -14,7 +14,7 @@ import { Images16Icon } from '@oxide/design-system/icons/react'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
-import { SideModalForm } from '~/components/form/SideModalForm'
+import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
 import { capitalize } from '~/util/str'
@@ -24,33 +24,31 @@ export function EditImageSideModalForm({
   image,
   dismissLink,
   type,
+  animate,
 }: {
   image: Image
   dismissLink: string
   type: 'Project' | 'Silo'
+  animate?: boolean
 }) {
   const navigate = useNavigate()
   const form = useForm({ defaultValues: image })
   const resourceName = type === 'Project' ? 'project image' : 'silo image'
+  const onDismiss = () => navigate(dismissLink)
 
   return (
-    <SideModalForm
+    <ReadOnlySideModalForm
       title={capitalize(resourceName)}
-      form={form}
-      formType="edit"
-      resourceName={resourceName}
-      onDismiss={() => navigate(dismissLink)}
+      onDismiss={onDismiss}
+      animate={animate}
       subtitle={
         <ResourceLabel>
           <Images16Icon /> {image.name}
         </ResourceLabel>
       }
-      // TODO: pass actual error when this form is hooked up
-      submitError={null}
-      loading={false}
     >
       <PropertiesTable>
-        <PropertiesTable.Row label="Shared with">{type}</PropertiesTable.Row>
+        <PropertiesTable.Row label="Visibility">{type}</PropertiesTable.Row>
         <PropertiesTable.IdRow id={image.id} />
         <PropertiesTable.Row label="Size">
           <span>{bytesToGiB(image.size)}</span>
@@ -63,6 +61,6 @@ export function EditImageSideModalForm({
       <DescriptionField name="description" control={form.control} required disabled />
       <TextField name="os" label="OS" control={form.control} required disabled />
       <TextField name="version" control={form.control} required disabled />
-    </SideModalForm>
+    </ReadOnlySideModalForm>
   )
 }
