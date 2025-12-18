@@ -7,13 +7,18 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
-import { useForm } from 'react-hook-form'
-import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import {
+  Link,
+  NavigationType,
+  useNavigate,
+  useNavigationType,
+  type LoaderFunctionArgs,
+} from 'react-router'
 
 import { Gateway16Icon } from '@oxide/design-system/icons/react'
 
 import { api, q, queryClient, usePrefetchedQuery } from '~/api'
-import { SideModalForm } from '~/components/form/SideModalForm'
+import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getInternetGatewaySelector, useInternetGatewaySelector } from '~/hooks/use-params'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
@@ -91,6 +96,7 @@ export default function EditInternetGatewayForm() {
   const navigate = useNavigate()
   const { project, vpc, gateway } = useInternetGatewaySelector()
   const onDismiss = () => navigate(pb.vpcInternetGateways({ project, vpc }))
+  const animate = useNavigationType() === NavigationType.Push
   const { data: internetGateway } = usePrefetchedQuery(
     q(api.internetGatewayView, {
       query: { project, vpc },
@@ -104,25 +110,18 @@ export default function EditInternetGatewayForm() {
     gatewayIpAddressList({ project, vpc, gateway }).optionsFn()
   )
 
-  const form = useForm({})
-
   const hasAttachedPool = gatewayIpPools && gatewayIpPools.length > 0
 
   return (
-    <SideModalForm
+    <ReadOnlySideModalForm
       title="Internet gateway"
-      formType="edit"
-      resourceName="internet gateway"
       onDismiss={onDismiss}
+      animate={animate}
       subtitle={
         <ResourceLabel>
           <Gateway16Icon /> {internetGateway.name}
         </ResourceLabel>
       }
-      form={form}
-      // TODO: pass actual error when this form is hooked up
-      submitError={null}
-      loading={false}
     >
       <Message
         variant="info"
@@ -215,6 +214,6 @@ export default function EditInternetGatewayForm() {
           </Table.Body>
         </Table>
       </div>
-    </SideModalForm>
+    </ReadOnlySideModalForm>
   )
 }

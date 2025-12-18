@@ -6,7 +6,12 @@
  * Copyright Oxide Computer Company
  */
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import {
+  NavigationType,
+  useNavigate,
+  useNavigationType,
+  type LoaderFunctionArgs,
+} from 'react-router'
 
 import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 import { Access16Icon } from '@oxide/design-system/icons/react'
@@ -14,9 +19,9 @@ import { Access16Icon } from '@oxide/design-system/icons/react'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
+import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getIdpSelector, useIdpSelector } from '~/hooks/use-params'
-import { Button } from '~/ui/lib/Button'
 import { FormDivider } from '~/ui/lib/Divider'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel, SideModal } from '~/ui/lib/SideModal'
@@ -40,93 +45,83 @@ export default function EditIdpSideModalForm() {
 
   const navigate = useNavigate()
   const onDismiss = () => navigate(pb.silo({ silo }))
+  const animate = useNavigationType() === NavigationType.Push
 
   const form = useForm({ defaultValues: idp })
 
   return (
-    <SideModal
-      isOpen
-      onDismiss={onDismiss}
+    <ReadOnlySideModalForm
       title="Identity provider"
+      onDismiss={onDismiss}
+      animate={animate}
       subtitle={
         <ResourceLabel>
           <Access16Icon /> {idp.name}
         </ResourceLabel>
       }
     >
-      <SideModal.Body>
-        <div className="ox-form is-side-modal">
-          <PropertiesTable>
-            <PropertiesTable.IdRow id={idp.id} />
-            <PropertiesTable.DateRow date={idp.timeCreated} label="Created" />
-            <PropertiesTable.DateRow date={idp.timeModified} label="Updated" />
-          </PropertiesTable>
+      <PropertiesTable>
+        <PropertiesTable.IdRow id={idp.id} />
+        <PropertiesTable.DateRow date={idp.timeCreated} label="Created" />
+        <PropertiesTable.DateRow date={idp.timeModified} label="Updated" />
+      </PropertiesTable>
 
-          <NameField name="name" control={form.control} disabled />
-          <DescriptionField name="description" control={form.control} required disabled />
-          <TextField
-            name="technicalContactEmail"
-            label="Technical contact email"
-            required
-            control={form.control}
-            disabled
-            copyable
-          />
+      <NameField name="name" control={form.control} disabled />
+      <DescriptionField name="description" control={form.control} required disabled />
+      <TextField
+        name="technicalContactEmail"
+        label="Technical contact email"
+        required
+        control={form.control}
+        disabled
+        copyable
+      />
 
-          <FormDivider />
+      <FormDivider />
 
-          <SideModal.Heading>Service provider</SideModal.Heading>
-          {/* TODO: help text */}
-          <TextField
-            name="spClientId"
-            label="Service provider client ID"
-            required
-            control={form.control}
-            disabled
-          />
-          <TextField
-            name="acsUrl"
-            label="ACS URL"
-            description="Service provider endpoint for the IdP to send the SAML response"
-            required
-            control={form.control}
-            disabled
-          />
-          <TextField
-            name="sloUrl"
-            label="Single Logout (SLO) URL"
-            description="Service provider endpoint for log out requests"
-            required
-            control={form.control}
-            disabled
-          />
+      <SideModal.Heading>Service provider</SideModal.Heading>
+      <TextField
+        name="spClientId"
+        label="Service provider client ID"
+        required
+        control={form.control}
+        disabled
+      />
+      <TextField
+        name="acsUrl"
+        label="ACS URL"
+        description="Service provider endpoint for the IdP to send the SAML response"
+        required
+        control={form.control}
+        disabled
+      />
+      <TextField
+        name="sloUrl"
+        label="Single Logout (SLO) URL"
+        description="Service provider endpoint for log out requests"
+        required
+        control={form.control}
+        disabled
+      />
 
-          <FormDivider />
+      <FormDivider />
 
-          <SideModal.Heading>Identity provider</SideModal.Heading>
-          {/* TODO: help text */}
-          <TextField
-            name="idpEntityId"
-            label="Entity ID"
-            required
-            control={form.control}
-            disabled
-          />
-          <TextField
-            name="groupAttributeName"
-            label="Group attribute name"
-            description="Name of the SAML attribute in the IdP response listing the user's groups"
-            required
-            control={form.control}
-            disabled
-          />
-        </div>
-      </SideModal.Body>
-      <SideModal.Footer>
-        <Button variant="ghost" size="sm" onClick={onDismiss}>
-          Close
-        </Button>
-      </SideModal.Footer>
-    </SideModal>
+      <SideModal.Heading>Identity provider</SideModal.Heading>
+      <TextField
+        name="idpEntityId"
+        label="Entity ID"
+        required
+        control={form.control}
+        disabled
+      />
+      <TextField
+        name="groupAttributeName"
+        label="Group attribute name"
+        description="Name of the SAML attribute in the IdP response listing the user's groups"
+        required
+        control={form.control}
+        disabled
+      />
+    </ReadOnlySideModalForm>
   )
 }

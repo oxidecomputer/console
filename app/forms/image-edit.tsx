@@ -14,9 +14,9 @@ import { Images16Icon } from '@oxide/design-system/icons/react'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
-import { Button } from '~/ui/lib/Button'
+import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
-import { ResourceLabel, SideModal } from '~/ui/lib/SideModal'
+import { ResourceLabel } from '~/ui/lib/SideModal'
 import { capitalize } from '~/util/str'
 import { bytesToGiB } from '~/util/units'
 
@@ -24,10 +24,12 @@ export function EditImageSideModalForm({
   image,
   dismissLink,
   type,
+  animate,
 }: {
   image: Image
   dismissLink: string
   type: 'Project' | 'Silo'
+  animate?: boolean
 }) {
   const navigate = useNavigate()
   const form = useForm({ defaultValues: image })
@@ -35,39 +37,30 @@ export function EditImageSideModalForm({
   const onDismiss = () => navigate(dismissLink)
 
   return (
-    <SideModal
-      isOpen
-      onDismiss={onDismiss}
+    <ReadOnlySideModalForm
       title={capitalize(resourceName)}
+      onDismiss={onDismiss}
+      animate={animate}
       subtitle={
         <ResourceLabel>
           <Images16Icon /> {image.name}
         </ResourceLabel>
       }
     >
-      <SideModal.Body>
-        <div className="ox-form is-side-modal">
-          <PropertiesTable>
-            <PropertiesTable.Row label="Shared with">{type}</PropertiesTable.Row>
-            <PropertiesTable.IdRow id={image.id} />
-            <PropertiesTable.Row label="Size">
-              <span>{bytesToGiB(image.size)}</span>
-              <span className="text-tertiary ml-1 inline-block">GiB</span>
-            </PropertiesTable.Row>
-            <PropertiesTable.DateRow date={image.timeCreated} label="Created" />
-            <PropertiesTable.DateRow date={image.timeModified} label="Updated" />
-          </PropertiesTable>
-          <NameField name="name" control={form.control} disabled />
-          <DescriptionField name="description" control={form.control} required disabled />
-          <TextField name="os" label="OS" control={form.control} required disabled />
-          <TextField name="version" control={form.control} required disabled />
-        </div>
-      </SideModal.Body>
-      <SideModal.Footer>
-        <Button variant="ghost" size="sm" onClick={onDismiss}>
-          Close
-        </Button>
-      </SideModal.Footer>
-    </SideModal>
+      <PropertiesTable>
+        <PropertiesTable.Row label="Shared with">{type}</PropertiesTable.Row>
+        <PropertiesTable.IdRow id={image.id} />
+        <PropertiesTable.Row label="Size">
+          <span>{bytesToGiB(image.size)}</span>
+          <span className="text-tertiary ml-1 inline-block">GiB</span>
+        </PropertiesTable.Row>
+        <PropertiesTable.DateRow date={image.timeCreated} label="Created" />
+        <PropertiesTable.DateRow date={image.timeModified} label="Updated" />
+      </PropertiesTable>
+      <NameField name="name" control={form.control} disabled />
+      <DescriptionField name="description" control={form.control} required disabled />
+      <TextField name="os" label="OS" control={form.control} required disabled />
+      <TextField name="version" control={form.control} required disabled />
+    </ReadOnlySideModalForm>
   )
 }

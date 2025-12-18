@@ -104,7 +104,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
       <SideModal.Body>
         <form
           id={id}
-          className="ox-form is-side-modal"
+          className="ox-form"
           autoComplete="off"
           onSubmit={(e) => {
             if (!onSubmit) return
