@@ -50,7 +50,7 @@ export function EditImageSideModalForm({
       loading={false}
     >
       <PropertiesTable>
-        <PropertiesTable.Row label="Shared with">{type}</PropertiesTable.Row>
+        <PropertiesTable.Row label="Visibility">{type}</PropertiesTable.Row>
         <PropertiesTable.IdRow id={image.id} />
         <PropertiesTable.Row label="Size">
           <span>{bytesToGiB(image.size)}</span>
