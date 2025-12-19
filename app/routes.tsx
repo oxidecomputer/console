@@ -510,6 +510,10 @@ export const routes = createRoutesFromElements(
               path="disks-new"
               lazy={() => import('./pages/project/disks/DiskCreate').then(convert)}
             />
+            <Route
+              path="disks/:disk"
+              lazy={() => import('./pages/project/disks/DiskDetailSideModal').then(convert)}
+            />
           </Route>
           <Route
             lazy={() => import('./pages/project/snapshots/SnapshotsPage').then(convert)}

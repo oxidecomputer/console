@@ -77,6 +77,20 @@ exports[`breadcrumbs 2`] = `
     },
   ],
   "deviceSuccess (/device/success)": [],
+  "disk (/projects/p/disks/d)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Disks",
+      "path": "/projects/p/disks",
+    },
+  ],
   "diskInventory (/system/inventory/disks)": [
     {
       "label": "Inventory",

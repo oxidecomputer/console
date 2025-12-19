@@ -162,5 +162,13 @@ export default defineConfig(
       ],
       'playwright/no-force-option': 'off',
     },
+  },
+
+  // Catch unawaited Playwright calls in e2e tests
+  {
+    files: ['test/e2e/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-floating-promises': 'error',
+    },
   }
 )

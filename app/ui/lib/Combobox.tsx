@@ -213,14 +213,16 @@ export const Combobox = ({
                 onInputChange?.(value)
               }}
               onKeyDown={(e) => {
-                // If the caller is using onEnter to override enter behavior, preventDefault
-                // in order to prevent the containing form from being submitted too. We don't
-                // need to do this when the combobox is open because that enter keypress is
-                // already handled internally (selects the highlighted item). So we only do
-                // this when the combobox is closed.
-                if (e.key === 'Enter' && onEnter && !open) {
+                // When the combobox is open, Enter is handled internally by
+                // Headless UI (selects the highlighted item). When closed,
+                // we need to prevent the default behavior to avoid submitting
+                // the containing form. We also considered always preventing
+                // default on Enter regardless of open status, but it appears
+                // to break the combobox handling. Headless UI likely checks
+                // e.defaultPrevented before processing item selection.
+                if (e.key === 'Enter' && !open) {
                   e.preventDefault()
-                  onEnter(e)
+                  onEnter?.(e)
                 }
               }}
               placeholder={placeholder}

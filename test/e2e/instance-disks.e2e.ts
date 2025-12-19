@@ -17,6 +17,17 @@ import {
   test,
 } from './utils'
 
+test('Disk detail side modal', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1')
+
+  await page.getByRole('button', { name: 'disk-1' }).click()
+
+  const modal = page.getByRole('dialog', { name: 'Disk details' })
+  await expect(modal).toBeVisible()
+  await expect(modal.getByText('disk-1')).toBeVisible()
+  await expect(modal.getByText('2 GiB')).toBeVisible()
+})
+
 test('Disabled actions', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
 

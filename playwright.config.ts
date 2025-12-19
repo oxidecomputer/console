@@ -19,7 +19,7 @@ export default {
   retries: process.env.CI ? 2 : 0,
   // use all available cores (2) on github actions. use fewer locally
   workers: process.env.CI ? '100%' : '66%',
-  timeout: 60 * 1000, // 1 minute
+  timeout: (process.env.CI ? 60 : 30) * 1000, // shorter timeout locally
   fullyParallel: true,
   // default is 5 seconds. somehow playwright really hates async route modules,
   // takes a long time to load them. https://playwright.dev/docs/test-timeouts

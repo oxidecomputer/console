@@ -14,6 +14,18 @@ import {
   test,
 } from './utils'
 
+test('Disk detail side modal', async ({ page }) => {
+  await page.goto('/projects/mock-project/disks')
+
+  await page.getByRole('link', { name: 'disk-1', exact: true }).click()
+
+  const modal = page.getByRole('dialog', { name: 'Disk details' })
+  await expect(modal).toBeVisible()
+  await expect(modal.getByText('disk-1')).toBeVisible()
+  await expect(modal.getByText('2 GiB')).toBeVisible()
+  await expect(modal.getByText('2,048 bytes')).toBeVisible() // block size
+})
+
 test('List disks and snapshot', async ({ page }) => {
   await page.goto('/projects/mock-project/disks')
 

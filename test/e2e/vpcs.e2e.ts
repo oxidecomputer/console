@@ -354,7 +354,7 @@ test('can view internet gateways', async ({ page }) => {
   await expect(sidemodal.getByText('123.4.56.3')).toBeVisible()
 
   // close the sidemodal
-  await sidemodal.getByRole('button', { name: 'Close' }).click()
+  await page.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
   await expect(sidemodal).toBeHidden()
 
   await page.getByRole('link', { name: 'internet-gateway-2' }).click()
@@ -373,7 +373,7 @@ test('internet gateway shows proper list of routes targeting it', async ({ page 
   await expect(table.locator('tbody >> tr')).toHaveCount(1)
 
   // close the sidemodal
-  await sidemodal.getByRole('button', { name: 'Close' }).click()
+  await page.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
   await expect(sidemodal).toBeHidden()
   // check for the route count; which should be 1
   await expect(page.getByRole('link', { name: '1', exact: true })).toBeVisible()
