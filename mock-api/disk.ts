@@ -61,10 +61,9 @@ export const disk1: Json<Disk> = {
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
   state: { state: 'attached', instance: instance.id },
-  device_path: '/abc',
   size: 2 * GiB,
   block_size: 2048,
-  disk_type: 'distributed',
+  disk_type: { type: 'distributed' },
 }
 
 export const disk2: Json<Disk> = {
@@ -75,10 +74,9 @@ export const disk2: Json<Disk> = {
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
   state: { state: 'attached', instance: instance.id },
-  device_path: '/def',
   size: 4 * GiB,
   block_size: 2048,
-  disk_type: 'distributed',
+  disk_type: { type: 'distributed' },
 }
 
 export const disks: Json<Disk>[] = [
@@ -93,10 +91,9 @@ export const disks: Json<Disk>[] = [
     time_created: '2025-02-13T01:02:03.134789034233Z',
     time_modified: new Date().toISOString(),
     state: { state: 'detached' },
-    device_path: '/ghi',
     size: 6 * GiB,
     block_size: 2048,
-    disk_type: 'distributed',
+    disk_type: { type: 'distributed' },
   },
   {
     id: '5695b16d-e1d6-44b0-a75c-7b4299831540',
@@ -106,10 +103,9 @@ export const disks: Json<Disk>[] = [
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
     state: { state: 'detached' },
-    device_path: '/jkl',
     size: 64 * GiB,
     block_size: 2048,
-    disk_type: 'distributed',
+    disk_type: { type: 'distributed' },
   },
   {
     id: '4d6f4c76-675f-4cda-b609-f3b8b301addb',
@@ -120,10 +116,9 @@ export const disks: Json<Disk>[] = [
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
     state: { state: 'detached' },
-    device_path: '/jkl',
     size: 128 * GiB,
     block_size: 2048,
-    disk_type: 'distributed',
+    disk_type: { type: 'distributed' },
   },
   {
     id: '41481936-5a6b-4dcd-8dec-26c3bdc343bd',
@@ -133,10 +128,9 @@ export const disks: Json<Disk>[] = [
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
     state: { state: 'detached' },
-    device_path: '/jkl',
     size: 20 * GiB,
     block_size: 2048,
-    disk_type: 'distributed',
+    disk_type: { type: 'distributed' },
   },
   {
     id: '704cd392-9f6b-4a2b-8410-1f1e0794db80',
@@ -146,10 +140,9 @@ export const disks: Json<Disk>[] = [
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
     state: { state: 'detached' },
-    device_path: '/jkl',
     size: 24 * GiB,
     block_size: 2048,
-    disk_type: 'distributed',
+    disk_type: { type: 'distributed' },
   },
   {
     id: '305ee9c7-1930-4a8f-86d7-ed9eece9598e',
@@ -159,10 +152,9 @@ export const disks: Json<Disk>[] = [
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
     state: { state: 'detached' },
-    device_path: '/jkl',
     size: 16 * GiB,
     block_size: 2048,
-    disk_type: 'distributed',
+    disk_type: { type: 'distributed' },
   },
   {
     id: 'ccad8d48-df21-4a80-8c16-683ee6bfb290',
@@ -172,10 +164,9 @@ export const disks: Json<Disk>[] = [
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
     state: { state: 'detached' },
-    device_path: '/jkl',
     size: 32 * GiB,
     block_size: 2048,
-    disk_type: 'distributed',
+    disk_type: { type: 'distributed' },
   },
   {
     id: 'a028160f-603c-4562-bb71-d2d76f1ac2a8',
@@ -185,10 +176,9 @@ export const disks: Json<Disk>[] = [
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
     state: { state: 'detached' },
-    device_path: '/jkl',
     size: 24 * GiB,
     block_size: 2048,
-    disk_type: 'distributed',
+    disk_type: { type: 'distributed' },
   },
   {
     id: '3f23c80f-c523-4d86-8292-2ca3f807bb12',
@@ -198,10 +188,9 @@ export const disks: Json<Disk>[] = [
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
     state: { state: 'detached' },
-    device_path: '/jkl',
     size: 12 * GiB,
     block_size: 2048,
-    disk_type: 'distributed',
+    disk_type: { type: 'distributed' },
   },
   // put a ton of disks in project 2 so we can use it to test comboboxes
   ...Array.from({ length: 1010 }).map((_, i) => {
@@ -214,10 +203,9 @@ export const disks: Json<Disk>[] = [
       time_created: new Date().toISOString(),
       time_modified: new Date().toISOString(),
       state: randomDiskState(),
-      device_path: '/jkl',
       size: 12 * GiB,
       block_size: 2048,
-      disk_type: 'distributed' as const,
+      disk_type: { type: 'distributed' } as const,
     }
   }),
 ]

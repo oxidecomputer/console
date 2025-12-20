@@ -157,7 +157,6 @@ export const handlers = makeHandlers({
         disk_backend.disk_source.type === 'importing_blocks'
           ? { state: 'import_ready' }
           : { state: 'detached' },
-      device_path: '/mnt/disk',
       name,
       description,
       size,
@@ -167,7 +166,14 @@ export const handlers = makeHandlers({
         disk_backend.type === 'distributed' && disk_backend.disk_source.type === 'blank'
           ? disk_backend.disk_source.block_size
           : 512,
-      disk_type: disk_backend.type,
+      disk_type: match(disk_backend)
+        .with({ type: 'distributed' }, ({ disk_source }) => ({
+          type: 'distributed' as const,
+          image_id: disk_source.type === 'image' ? disk_source.image_id : null,
+          snapshot_id: disk_source.type === 'snapshot' ? disk_source.snapshot_id : null,
+        }))
+        .with({ type: 'local' }, () => ({ type: 'local' as const }))
+        .exhaustive(),
       ...getTimestamps(),
     }
     db.disks.push(newDisk)
@@ -499,13 +505,19 @@ export const handlers = makeHandlers({
           size,
           project_id: project.id,
           state: { state: 'attached', instance: instanceId },
-          device_path: '/mnt/disk',
           // TODO: this doesn't seem right, check the omicron source
           block_size:
             disk_backend.type === 'distributed' && disk_backend.disk_source.type === 'blank'
               ? disk_backend.disk_source.block_size
               : 4096,
-          disk_type: disk_backend.type,
+          disk_type: match(disk_backend)
+            .with({ type: 'distributed' }, ({ disk_source }) => ({
+              type: 'distributed' as const,
+              image_id: disk_source.type === 'image' ? disk_source.image_id : null,
+              snapshot_id: disk_source.type === 'snapshot' ? disk_source.snapshot_id : null,
+            }))
+            .with({ type: 'local' }, () => ({ type: 'local' as const }))
+            .exhaustive(),
           ...getTimestamps(),
         }
         db.disks.push(newDisk)

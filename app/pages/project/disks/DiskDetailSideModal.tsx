@@ -92,10 +92,12 @@ export function DiskDetailSideModal({
           {disk.blockSize.toLocaleString()} bytes
         </PropertiesTable.Row>
         <PropertiesTable.Row label="Image ID">
-          {disk.imageId ?? <EmptyCell />}
+          {(disk.diskType.type === 'distributed' && disk.diskType.imageId) ?? <EmptyCell />}
         </PropertiesTable.Row>
         <PropertiesTable.Row label="Snapshot ID">
-          {disk.snapshotId ?? <EmptyCell />}
+          {(disk.diskType.type === 'distributed' && disk.diskType.snapshotId) ?? (
+            <EmptyCell />
+          )}
         </PropertiesTable.Row>
         <PropertiesTable.DateRow label="Created" date={disk.timeCreated} />
         <PropertiesTable.DateRow label="Last Modified" date={disk.timeModified} />

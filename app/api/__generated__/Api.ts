@@ -956,6 +956,9 @@ export type BgpPeerState =
   /** Waiting for keepaliave or notification from peer. */
   | 'open_confirm'
 
+  /** There is an ongoing Connection Collision that hasn't yet been resolved. Two connections are maintained until one connection receives an Open or is able to progress into Established. */
+  | 'connection_collision'
+
   /** Synchronizing with peer. */
   | 'session_setup'
 
@@ -1781,7 +1784,19 @@ export type DeviceAuthVerify = { userCode: string }
 
 export type Digest = { type: 'sha256'; value: string }
 
-export type DiskType = 'distributed' | 'local'
+export type DiskType =
+  | {
+      /** ID of image from which disk was created, if any */
+      imageId?: string | null
+      /** ID of snapshot from which disk was created, if any */
+      snapshotId?: string | null
+      type: 'distributed'
+    }
+  | {
+      /** ID of the sled this local disk is allocated on, if it has been allocated. Once allocated it cannot be changed or migrated. */
+      sledId?: string | null
+      type: 'local'
+    }
 
 /**
  * State of a Disk
@@ -1819,18 +1834,13 @@ export type Disk = {
   blockSize: ByteCount
   /** human-readable free-form text about a resource */
   description: string
-  devicePath: string
   diskType: DiskType
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** ID of image from which disk was created, if any */
-  imageId?: string | null
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
   projectId: string
   size: ByteCount
-  /** ID of snapshot from which disk was created, if any */
-  snapshotId?: string | null
   state: DiskState
   /** timestamp when this resource was created */
   timeCreated: Date
@@ -6862,7 +6872,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2025120300.0.0'
+  apiVersion = '2025121800.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host

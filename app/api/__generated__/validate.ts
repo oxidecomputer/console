@@ -875,6 +875,7 @@ export const BgpPeerState = z.preprocess(
     'active',
     'open_sent',
     'open_confirm',
+    'connection_collision',
     'session_setup',
     'established',
   ])
@@ -1640,7 +1641,17 @@ export const Digest = z.preprocess(
   z.object({ type: z.enum(['sha256']), value: z.string() })
 )
 
-export const DiskType = z.preprocess(processResponseBody, z.enum(['distributed', 'local']))
+export const DiskType = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({
+      imageId: z.uuid().nullable().optional(),
+      snapshotId: z.uuid().nullable().optional(),
+      type: z.enum(['distributed']),
+    }),
+    z.object({ sledId: z.uuid().nullable().optional(), type: z.enum(['local']) }),
+  ])
+)
 
 /**
  * State of a Disk
@@ -1671,14 +1682,11 @@ export const Disk = z.preprocess(
   z.object({
     blockSize: ByteCount,
     description: z.string(),
-    devicePath: z.string(),
     diskType: DiskType,
     id: z.uuid(),
-    imageId: z.uuid().nullable().optional(),
     name: Name,
     projectId: z.uuid(),
     size: ByteCount,
-    snapshotId: z.uuid().nullable().optional(),
     state: DiskState,
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
