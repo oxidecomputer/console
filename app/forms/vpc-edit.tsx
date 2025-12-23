@@ -41,7 +41,8 @@ export default function EditVpcSideModalForm() {
     onSuccess(updatedVpc) {
       queryClient.invalidateEndpoint('vpcList')
       navigate(pb.vpc({ project, vpc: updatedVpc.name }))
-      addToast(<>VPC <HL>{updatedVpc.name}</HL> updated</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>VPC <HL>{updatedVpc.name}</HL> updated</>)
 
       // Only invalidate if we're staying on the same page. If the name
       // _has_ changed, invalidating vpcView causes an error page to flash

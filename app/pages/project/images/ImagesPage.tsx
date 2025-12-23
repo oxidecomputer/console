@@ -61,7 +61,8 @@ export default function ImagesPage() {
 
   const { mutateAsync: deleteImage } = useApiMutation(api.imageDelete, {
     onSuccess(_data, variables) {
-      addToast(<>Image <HL>{variables.path.image}</HL> deleted</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Image <HL>{variables.path.image}</HL> deleted</>)
       queryClient.invalidateEndpoint('imageList')
     },
   })

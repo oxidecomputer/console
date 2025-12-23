@@ -46,7 +46,8 @@ export default function EditProjectSideModalForm() {
       // avoid the project fetch when the project page loads since we have the data
       const { queryKey } = projectView({ project: project.name })
       queryClient.setQueryData(queryKey, project)
-      addToast(<>Project <HL>{project.name}</HL> updated</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Project <HL>{project.name}</HL> updated</>)
       onDismiss()
     },
   })

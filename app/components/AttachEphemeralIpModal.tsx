@@ -31,7 +31,8 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
   const instanceEphemeralIpAttach = useApiMutation(api.instanceEphemeralIpAttach, {
     onSuccess(ephemeralIp) {
       queryClient.invalidateEndpoint('instanceExternalIpList')
-      addToast(<>IP <HL>{ephemeralIp.ip}</HL> attached</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>IP <HL>{ephemeralIp.ip}</HL> attached</>)
       onDismiss()
     },
     onError: (err) => {

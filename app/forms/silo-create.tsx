@@ -62,7 +62,8 @@ export default function CreateSiloSideModalForm() {
       queryClient.invalidateEndpoint('siloList')
       const siloView = q(api.siloView, { path: { silo: silo.name } })
       queryClient.setQueryData(siloView.queryKey, silo)
-      addToast(<>Silo <HL>{silo.name}</HL> created</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Silo <HL>{silo.name}</HL> created</>)
       onDismiss()
     },
   })

@@ -102,7 +102,8 @@ export default function AntiAffinityPage() {
       onSuccess(_data, variables) {
         queryClient.invalidateEndpoint('antiAffinityGroupMemberList')
         queryClient.invalidateEndpoint('instanceAntiAffinityGroupList')
-        addToast(<>Member <HL>{variables.path.instance}</HL> removed from anti-affinity group <HL>{group.name}</HL></>) // prettier-ignore
+        // prettier-ignore
+        addToast(<>Member <HL>{variables.path.instance}</HL> removed from anti-affinity group <HL>{group.name}</HL></>)
       },
     }
   )
@@ -113,7 +114,8 @@ export default function AntiAffinityPage() {
     onSuccess() {
       navigate(pb.affinity({ project }))
       queryClient.invalidateEndpoint('antiAffinityGroupList')
-      addToast(<>Anti-affinity group <HL>{group.name}</HL> deleted</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Anti-affinity group <HL>{group.name}</HL> deleted</>)
     },
   })
 

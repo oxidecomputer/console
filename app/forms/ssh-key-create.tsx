@@ -38,7 +38,8 @@ export function SSHKeyCreate({ onDismiss, message }: Props) {
     onSuccess(sshKey) {
       queryClient.invalidateEndpoint('currentUserSshKeyList')
       handleDismiss()
-      addToast(<>SSH key <HL>{sshKey.name}</HL> created</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>SSH key <HL>{sshKey.name}</HL> created</>)
     },
   })
   const form = useForm({ defaultValues })

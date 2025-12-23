@@ -44,7 +44,8 @@ export default function CreateIpPoolSideModalForm() {
   const createPool = useApiMutation(api.ipPoolCreate, {
     onSuccess(_pool) {
       queryClient.invalidateEndpoint('ipPoolList')
-      addToast(<>IP pool <HL>{_pool.name}</HL> created</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>IP pool <HL>{_pool.name}</HL> created</>)
       navigate(pb.ipPools())
     },
   })

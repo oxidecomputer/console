@@ -57,7 +57,8 @@ const colHelper = createColumnHelper<AntiAffinityGroup>()
 
 export const AffinityGroupPolicyBadge = ({ policy }: { policy: AffinityPolicy }) => {
   const variant = { allow: 'default' as const, fail: 'solid' as const }[policy]
-  return <Badge color="neutral" variant={variant}>{policy}</Badge> // prettier-ignore
+  // prettier-ignore
+  return <Badge color="neutral" variant={variant}>{policy}</Badge>
 }
 
 const staticCols = [

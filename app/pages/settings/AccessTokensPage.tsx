@@ -46,7 +46,8 @@ export default function AccessTokensPage() {
   const { mutateAsync: deleteToken } = useApiMutation(api.currentUserAccessTokenDelete, {
     onSuccess: (_data, variables) => {
       queryClient.invalidateEndpoint('currentUserAccessTokenList')
-      addToast(<>Access token <HL>{variables.path.tokenId}</HL> deleted</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Access token <HL>{variables.path.tokenId}</HL> deleted</>)
     },
   })
 

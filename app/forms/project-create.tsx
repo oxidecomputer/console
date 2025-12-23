@@ -37,7 +37,8 @@ export default function ProjectCreateSideModalForm() {
       // avoid the project fetch when the project page loads since we have the data
       const projectView = q(api.projectView, { path: { project: project.name } })
       queryClient.setQueryData(projectView.queryKey, project)
-      addToast(<>Project <HL>{project.name}</HL> created</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Project <HL>{project.name}</HL> created</>)
       navigate(pb.project({ project: project.name }))
     },
   })

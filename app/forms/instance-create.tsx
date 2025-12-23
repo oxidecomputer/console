@@ -191,7 +191,8 @@ export default function CreateInstanceForm() {
         query: { project },
       })
       queryClient.setQueryData(instanceView.queryKey, instance)
-      addToast(<>Instance <HL>{instance.name}</HL> created</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Instance <HL>{instance.name}</HL> created</>)
       navigate(pb.instance({ project, instance: instance.name }))
     },
   })
