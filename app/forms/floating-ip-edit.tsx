@@ -64,7 +64,8 @@ export default function EditFloatingIpSideModalForm() {
   const editFloatingIp = useApiMutation(api.floatingIpUpdate, {
     onSuccess(_floatingIp) {
       queryClient.invalidateEndpoint('floatingIpList')
-      addToast(<>Floating IP <HL>{_floatingIp.name}</HL> updated</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Floating IP <HL>{_floatingIp.name}</HL> updated</>)
       onDismiss()
     },
   })

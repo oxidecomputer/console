@@ -81,7 +81,8 @@ export default function VpcsPage() {
   const { mutateAsync: deleteVpc } = useApiMutation(api.vpcDelete, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('vpcList')
-      addToast(<>VPC <HL>{variables.path.vpc}</HL> deleted</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>VPC <HL>{variables.path.vpc}</HL> deleted</>)
     },
   })
 

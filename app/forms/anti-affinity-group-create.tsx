@@ -39,7 +39,8 @@ export default function CreateAntiAffinityGroupForm() {
     onSuccess(antiAffinityGroup) {
       queryClient.invalidateEndpoint('antiAffinityGroupList')
       navigate(pb.antiAffinityGroup({ project, antiAffinityGroup: antiAffinityGroup.name }))
-      addToast(<>Anti-affinity group <HL>{antiAffinityGroup.name}</HL> created</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Anti-affinity group <HL>{antiAffinityGroup.name}</HL> created</>)
     },
   })
 

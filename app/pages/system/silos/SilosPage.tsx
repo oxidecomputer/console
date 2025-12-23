@@ -72,7 +72,8 @@ export default function SilosPage() {
   const { mutateAsync: deleteSilo } = useApiMutation(api.siloDelete, {
     onSuccess(_silo, { path }) {
       queryClient.invalidateEndpoint('siloList')
-      addToast(<>Silo <HL>{path.silo}</HL> deleted</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Silo <HL>{path.silo}</HL> deleted</>)
     },
   })
 

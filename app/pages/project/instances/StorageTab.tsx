@@ -103,7 +103,8 @@ export default function StorageTab() {
   const { mutateAsync: detachDisk } = useApiMutation(api.instanceDiskDetach, {
     onSuccess(disk) {
       queryClient.invalidateEndpoint('instanceDiskList')
-      addToast(<>Disk <HL>{disk.name}</HL> detached</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Disk <HL>{disk.name}</HL> detached</>)
     },
     onError(err) {
       addToast({ title: 'Failed to detach disk', content: err.message, variant: 'error' })
@@ -112,7 +113,8 @@ export default function StorageTab() {
   const { mutate: createSnapshot } = useApiMutation(api.snapshotCreate, {
     onSuccess(snapshot) {
       queryClient.invalidateEndpoint('snapshotList')
-      addToast(<>Snapshot <HL>{snapshot.name}</HL> created</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Snapshot <HL>{snapshot.name}</HL> created</>)
     },
     onError(err) {
       addToast({
@@ -283,7 +285,8 @@ export default function StorageTab() {
               detachDisk({ body: { disk: disk.name }, path: { instance: instance.id } }),
             errorTitle: 'Could not detach disk',
             modalTitle: 'Confirm detach disk',
-            modalContent: <p>Are you sure you want to detach <HL>{disk.name}</HL>?</p>, // prettier-ignore
+            // prettier-ignore
+            modalContent: <p>Are you sure you want to detach <HL>{disk.name}</HL>?</p>,
             actionType: 'danger',
           }),
       },
@@ -308,7 +311,8 @@ export default function StorageTab() {
       queryClient.invalidateEndpoint('instanceDiskList')
       setShowDiskCreate(false)
       setShowDiskAttach(false)
-      addToast(<>Disk <HL>{disk.name}</HL> attached</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Disk <HL>{disk.name}</HL> attached</>)
     },
   })
 

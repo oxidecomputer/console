@@ -50,7 +50,8 @@ export default function CreateSubnetForm() {
     onSuccess(subnet) {
       queryClient.invalidateEndpoint('vpcSubnetList')
       onDismiss()
-      addToast(<>Subnet <HL>{subnet.name}</HL> created</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Subnet <HL>{subnet.name}</HL> created</>)
     },
   })
 

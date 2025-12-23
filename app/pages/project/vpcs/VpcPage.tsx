@@ -42,7 +42,8 @@ export default function VpcPage() {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('vpcList')
       navigate(pb.vpcs({ project }))
-      addToast(<>VPC <HL>{variables.path.vpc}</HL> deleted</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>VPC <HL>{variables.path.vpc}</HL> deleted</>)
     },
   })
 

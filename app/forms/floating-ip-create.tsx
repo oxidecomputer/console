@@ -49,7 +49,8 @@ export default function CreateFloatingIpSideModalForm() {
     onSuccess(floatingIp) {
       queryClient.invalidateEndpoint('floatingIpList')
       queryClient.invalidateEndpoint('ipPoolUtilizationView')
-      addToast(<>Floating IP <HL>{floatingIp.name}</HL> created</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Floating IP <HL>{floatingIp.name}</HL> created</>)
       navigate(pb.floatingIps(projectSelector))
     },
   })

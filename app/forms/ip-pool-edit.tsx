@@ -44,7 +44,8 @@ export default function EditIpPoolSideModalForm() {
     onSuccess(updatedPool) {
       queryClient.invalidateEndpoint('ipPoolList')
       navigate(pb.ipPool({ pool: updatedPool.name }))
-      addToast(<>IP pool <HL>{updatedPool.name}</HL> updated</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>IP pool <HL>{updatedPool.name}</HL> updated</>)
 
       // Only invalidate if we're staying on the same page. If the name
       // _has_ changed, invalidating ipPoolView causes an error page to flash

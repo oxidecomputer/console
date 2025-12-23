@@ -74,7 +74,8 @@ export function CreateDiskSideModalForm({
   const createDisk = useApiMutation(api.diskCreate, {
     onSuccess(data) {
       queryClient.invalidateEndpoint('diskList')
-      addToast(<>Disk <HL>{data.name}</HL> created</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Disk <HL>{data.name}</HL> created</>)
       onSuccess?.(data)
       onDismiss()
     },

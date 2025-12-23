@@ -58,7 +58,8 @@ export default function CreateImageFromSnapshotSideModalForm() {
   const createImage = useApiMutation(api.imageCreate, {
     onSuccess(image) {
       queryClient.invalidateEndpoint('imageList')
-      addToast(<>Image <HL>{image.name}</HL> created</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Image <HL>{image.name}</HL> created</>)
       onDismiss()
     },
   })

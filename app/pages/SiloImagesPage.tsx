@@ -68,7 +68,8 @@ export default function SiloImagesPage() {
 
   const { mutateAsync: deleteImage } = useApiMutation(api.imageDelete, {
     onSuccess(_data, variables) {
-      addToast(<>Image <HL>{variables.path.image}</HL> deleted</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Image <HL>{variables.path.image}</HL> deleted</>)
       queryClient.invalidateEndpoint('imageList')
     },
   })
@@ -126,7 +127,8 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
 
   const promoteImage = useApiMutation(api.imagePromote, {
     onSuccess(data) {
-      addToast(<>Image <HL>{data.name}</HL> promoted</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Image <HL>{data.name}</HL> promoted</>)
       queryClient.invalidateEndpoint('imageList')
     },
     onError: (err) => {
@@ -213,7 +215,8 @@ const DemoteImageModal = ({
   const demoteImage = useApiMutation(api.imageDemote, {
     onSuccess(data) {
       addToast({
-        content: <>Image <HL>{data.name}</HL> demoted</>, // prettier-ignore
+        // prettier-ignore
+        content: <>Image <HL>{data.name}</HL> demoted</>,
         cta: selectedProject
           ? {
               text: `View images in ${selectedProject}`,
