@@ -44,6 +44,8 @@ jobs:
         run: npx tsc
       - name: Lint
         run: npm run lint
+      - name: Check formatting
+        run: npm run fmt:check
       - name: Test
         run: npm test run
       - name: Build
