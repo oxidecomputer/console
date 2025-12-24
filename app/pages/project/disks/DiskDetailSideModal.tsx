@@ -16,7 +16,7 @@ import { api, q, queryClient, usePrefetchedQuery, type Disk } from '@oxide/api'
 import { Storage16Icon } from '@oxide/design-system/icons/react'
 
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
-import { DiskStateBadge } from '~/components/StateBadge'
+import { DiskStateBadge, DiskTypeBadge } from '~/components/StateBadge'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getDiskSelector, useDiskSelector } from '~/hooks/use-params'
 import { EmptyCell } from '~/table/cells/EmptyCell'
@@ -87,15 +87,26 @@ export function DiskDetailSideModal({
         <PropertiesTable.Row label="State">
           <DiskStateBadge state={disk.state.state} />
         </PropertiesTable.Row>
+        <PropertiesTable.Row label="Disk type">
+          <DiskTypeBadge diskType={disk.diskType} />
+        </PropertiesTable.Row>
         {/* TODO: show attached instance by name like the table does? */}
         <PropertiesTable.Row label="Block size">
           {disk.blockSize.toLocaleString()} bytes
         </PropertiesTable.Row>
         <PropertiesTable.Row label="Image ID">
-          {disk.imageId ?? <EmptyCell />}
+          {disk.diskType.type === 'distributed' && disk.diskType.imageId ? (
+            disk.diskType.imageId
+          ) : (
+            <EmptyCell />
+          )}
         </PropertiesTable.Row>
         <PropertiesTable.Row label="Snapshot ID">
-          {disk.snapshotId ?? <EmptyCell />}
+          {disk.diskType.type === 'distributed' && disk.diskType.snapshotId ? (
+            disk.diskType.snapshotId
+          ) : (
+            <EmptyCell />
+          )}
         </PropertiesTable.Row>
         <PropertiesTable.DateRow label="Created" date={disk.timeCreated} />
         <PropertiesTable.DateRow label="Last Modified" date={disk.timeModified} />

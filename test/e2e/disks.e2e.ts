@@ -113,5 +113,19 @@ test.describe('Disk create', () => {
     await page.getByRole('radio', { name: 'Snapshot' }).click()
     await page.getByRole('radio', { name: 'Blank' }).click()
   })
+
+  test('local disk', async ({ page }) => {
+    const source = page.getByRole('radiogroup', { name: 'Source' })
+    const blockSize = page.getByRole('radiogroup', { name: 'Block size' })
+    // verify source and block size are visible for distributed (default)
+    await expect(source).toBeVisible()
+    await expect(blockSize).toBeVisible()
+
+    await page.getByRole('radio', { name: 'Local' }).click()
+
+    // source and block size options should disappear when local is selected
+    await expect(source).toBeHidden()
+    await expect(blockSize).toBeHidden()
+  })
   /* eslint-enable playwright/expect-expect */
 })

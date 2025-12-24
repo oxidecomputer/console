@@ -147,21 +147,33 @@ export const handlers = makeHandlers({
 
     if (body.name === 'disk-create-500') throw 500
 
-    const { name, description, size, disk_source } = body
+    const { name, description, size, disk_backend } = body
     const newDisk: Json<Api.Disk> = {
       id: uuid(),
       project_id: project.id,
+      // TODO: confirm logic here
       state:
-        disk_source.type === 'importing_blocks'
+        disk_backend.type === 'distributed' &&
+        disk_backend.disk_source.type === 'importing_blocks'
           ? { state: 'import_ready' }
           : { state: 'detached' },
-      device_path: '/mnt/disk',
       name,
       description,
       size,
       // TODO: for non-blank disk sources, look up image or snapshot by ID and
       // pull block size from there
-      block_size: disk_source.type === 'blank' ? disk_source.block_size : 512,
+      block_size:
+        disk_backend.type === 'distributed' && disk_backend.disk_source.type === 'blank'
+          ? disk_backend.disk_source.block_size
+          : 512,
+      disk_type: match(disk_backend)
+        .with({ type: 'distributed' }, ({ disk_source }) => ({
+          type: 'distributed' as const,
+          image_id: disk_source.type === 'image' ? disk_source.image_id : null,
+          snapshot_id: disk_source.type === 'snapshot' ? disk_source.snapshot_id : null,
+        }))
+        .with({ type: 'local' }, () => ({ type: 'local' as const }))
+        .exhaustive(),
       ...getTimestamps(),
     }
     db.disks.push(newDisk)
@@ -485,7 +497,7 @@ export const handlers = makeHandlers({
 
     for (const diskParams of allDisks) {
       if (diskParams.type === 'create') {
-        const { size, name, description, disk_source } = diskParams
+        const { size, name, description, disk_backend } = diskParams
         const newDisk: Json<Api.Disk> = {
           id: uuid(),
           name,
@@ -493,8 +505,19 @@ export const handlers = makeHandlers({
           size,
           project_id: project.id,
           state: { state: 'attached', instance: instanceId },
-          device_path: '/mnt/disk',
-          block_size: disk_source.type === 'blank' ? disk_source.block_size : 4096,
+          // TODO: this doesn't seem right, check the omicron source
+          block_size:
+            disk_backend.type === 'distributed' && disk_backend.disk_source.type === 'blank'
+              ? disk_backend.disk_source.block_size
+              : 4096,
+          disk_type: match(disk_backend)
+            .with({ type: 'distributed' }, ({ disk_source }) => ({
+              type: 'distributed' as const,
+              image_id: disk_source.type === 'image' ? disk_source.image_id : null,
+              snapshot_id: disk_source.type === 'snapshot' ? disk_source.snapshot_id : null,
+            }))
+            .with({ type: 'local' }, () => ({ type: 'local' as const }))
+            .exhaustive(),
           ...getTimestamps(),
         }
         db.disks.push(newDisk)
@@ -1972,6 +1995,9 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
+  instanceMulticastGroupJoin: NotImplemented,
+  instanceMulticastGroupLeave: NotImplemented,
+  instanceMulticastGroupList: NotImplemented,
   instanceSerialConsole: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
   instanceSshPublicKeyList: NotImplemented,
@@ -1989,6 +2015,15 @@ export const handlers = makeHandlers({
   localIdpUserDelete: NotImplemented,
   localIdpUserSetPassword: NotImplemented,
   loginSaml: NotImplemented,
+  lookupMulticastGroupByIp: NotImplemented,
+  multicastGroupCreate: NotImplemented,
+  multicastGroupDelete: NotImplemented,
+  multicastGroupList: NotImplemented,
+  multicastGroupMemberAdd: NotImplemented,
+  multicastGroupMemberList: NotImplemented,
+  multicastGroupMemberRemove: NotImplemented,
+  multicastGroupUpdate: NotImplemented,
+  multicastGroupView: NotImplemented,
   networkingAddressLotBlockList: NotImplemented,
   networkingAddressLotCreate: NotImplemented,
   networkingAddressLotDelete: NotImplemented,
