@@ -16,6 +16,8 @@ import {
 
 import { NotFound } from './components/ErrorPage'
 import { PageSkeleton } from './components/PageSkeleton.tsx'
+import { ProjectAccessTab } from './components/ProjectAccessTab'
+import { SiloAccessTab } from './components/SiloAccessTab'
 import { makeCrumb, type Crumb } from './hooks/use-crumbs'
 import { getInstanceSelector, getVpcSelector } from './hooks/use-params'
 import { pb } from './util/path-builder'
@@ -276,7 +278,15 @@ export const routes = createRoutesFromElements(
           />
         </Route>
 
-        <Route path="access" lazy={() => import('./pages/SiloAccessPage').then(convert)} />
+        <Route
+          path="access"
+          lazy={() => import('./pages/silo/access/SiloAccessPage').then(convert)}
+        >
+          <Route index element={<Navigate to="all" replace />} />
+          <Route path="all" element={<SiloAccessTab filter="all" />} />
+          <Route path="users" element={<SiloAccessTab filter="users" />} />
+          <Route path="groups" element={<SiloAccessTab filter="groups" />} />
+        </Route>
       </Route>
 
       {/* PROJECT */}
@@ -532,7 +542,12 @@ export const routes = createRoutesFromElements(
           <Route
             path="access"
             lazy={() => import('./pages/project/access/ProjectAccessPage').then(convert)}
-          />
+          >
+            <Route index element={<Navigate to="all" replace />} />
+            <Route path="all" element={<ProjectAccessTab filter="all" />} />
+            <Route path="users" element={<ProjectAccessTab filter="users" />} />
+            <Route path="groups" element={<ProjectAccessTab filter="groups" />} />
+          </Route>
           <Route
             lazy={() => import('./pages/project/affinity/AffinityPage').then(convert)}
             handle={{ crumb: 'Affinity Groups' }}

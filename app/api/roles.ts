@@ -14,6 +14,8 @@
 import { useMemo } from 'react'
 import * as R from 'remeda'
 
+import type { IdentityFilter } from '~/util/access'
+
 import type { FleetRole, IdentityType, ProjectRole, SiloRole } from './__generated__/Api'
 import { api, q, usePrefetchedQuery } from './client'
 
@@ -22,6 +24,11 @@ import { api, q, usePrefetchedQuery } from './client'
  * our methods generic on the *Role type is pointless (until they stop being the same).
  */
 export type RoleKey = FleetRole | SiloRole | ProjectRole
+
+/**
+ * The source of a role assignment (silo-level or project-level).
+ */
+export type RoleSource = 'silo' | 'project'
 
 /** Turn a role order record into a sorted array of strings. */
 // used for displaying lists of roles, like in a <select>
@@ -77,12 +84,12 @@ export function deleteRole(identityId: string, policy: Policy): Policy {
   return { roleAssignments }
 }
 
-type UserAccessRow = {
+export type UserAccessRow = {
   id: string
   identityType: IdentityType
   name: string
   roleName: RoleKey
-  roleSource: string
+  roleSource: RoleSource
 }
 
 /**
@@ -94,7 +101,7 @@ type UserAccessRow = {
  */
 export function useUserRows(
   roleAssignments: RoleAssignment[],
-  roleSource: string
+  roleSource: RoleSource
 ): UserAccessRow[] {
   // HACK: because the policy has no names, we are fetching ~all the users,
   // putting them in a dictionary, and adding the names to the rows
@@ -134,9 +141,9 @@ export type Actor = {
 
 /**
  * Fetch lists of users and groups, filtering out the ones that are already in
- * the given policy.
+ * the given policy. Optionally filter to only users or only groups.
  */
-export function useActorsNotInPolicy(policy: Policy): Actor[] {
+export function useActorsNotInPolicy(policy: Policy, filter?: IdentityFilter): Actor[] {
   const { data: users } = usePrefetchedQuery(q(api.userList, {}))
   const { data: groups } = usePrefetchedQuery(q(api.groupList, {}))
   return useMemo(() => {
@@ -150,9 +157,20 @@ export function useActorsNotInPolicy(policy: Policy): Actor[] {
       ...u,
       identityType: 'silo_user' as IdentityType,
     }))
-    // groups go before users
-    return allGroups.concat(allUsers).filter((u) => !actorsInPolicy.has(u.id)) || []
-  }, [users, groups, policy])
+
+    // Select which actors to include based on filter
+    let actors: Actor[]
+    if (filter === 'users') {
+      actors = allUsers
+    } else if (filter === 'groups') {
+      actors = allGroups
+    } else {
+      // 'all' or undefined; groups go before users
+      actors = allGroups.concat(allUsers)
+    }
+
+    return actors.filter((u) => !actorsInPolicy.has(u.id))
+  }, [policy, users, groups, filter])
 }
 
 export function userRoleFromPolicies(
