@@ -13,6 +13,7 @@
     "jsx-a11y",
     "promise",
     // defaults (see https://oxc.rs/docs/guide/usage/linter/plugins.html#supported-plugins)
+    "eslint",
     "unicorn",
     "typescript",
     "oxc"
