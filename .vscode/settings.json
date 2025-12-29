@@ -1,20 +1,19 @@
 {
   "[jsonc]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
   "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-  "[javascript]": { "editor.defaultFormatter": "dbaeumer.vscode-eslint" },
-  "[javascriptreact]": { "editor.defaultFormatter": "dbaeumer.vscode-eslint" },
-  "[typescript]": { "editor.defaultFormatter": "dbaeumer.vscode-eslint" },
-  "[typescriptreact]": { "editor.defaultFormatter": "dbaeumer.vscode-eslint" },
+  "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[javascriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[typescriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
   "typescript.tsdk": "node_modules/typescript/lib",
   "editor.formatOnSave": true,
-  "eslint.format.enable": true,
   "tailwindCSS.experimental.classRegex": ["classed.[a-z]+`([^`]*)`"],
   "css.customData": ["./.vscode/css.json"],
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.expand": false,
   "explorer.fileNesting.patterns": {
     ".gitignore": ".gitattributes, .gitmodules, .gitmessage, .mailmap, .git-blame*",
-    "package.json": "package-lock.json, .babelrc, .editorconfig, .eslint*, .figma*, .github*, .huskyrc*, plopfile*, .prettier*, .vscode*, playwright.config.*, prettier*, tsconfig.*, vitest.config.*, yarn*, postcss.config.*, tailwind.config.*, vite.config.ts, mockServiceWorker.js, vercel.json, .licenserc.yaml, LICENSE"
+    "package.json": "package-lock.json, .babelrc, .editorconfig, .figma*, .github*, .huskyrc*, plopfile*, .oxlintrc*, .prettier*, .vscode*, playwright.config.*, prettier*, tsconfig.*, vitest.config.*, yarn*, postcss.config.*, tailwind.config.*, vite.config.ts, mockServiceWorker.js, vercel.json, .licenserc.yaml, LICENSE"
   },
   "vite.browserType": "system",
   "vite.buildCommand": "npm run build",

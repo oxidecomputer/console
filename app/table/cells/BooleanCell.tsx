@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-/* eslint-disable jsx-a11y/aria-proptypes */
 // there seems to be a bug in the linter. it doesn't want you to use the string
 // "true" because it insists it's a boolean
 import { Disabled12Icon, Success12Icon } from '@oxide/design-system/icons/react'
