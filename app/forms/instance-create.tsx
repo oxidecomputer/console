@@ -100,7 +100,10 @@ const getBootDiskAttachment = (
     name: values.bootDiskName || genName(values.name, sourceName || source),
     description: `Created as a boot disk for ${values.name}`,
     size: values.bootDiskSize * GiB,
-    diskSource: { type: 'image', imageId: source },
+    diskBackend: {
+      type: 'distributed',
+      diskSource: { type: 'image', imageId: source },
+    },
   }
 }
 
@@ -258,7 +261,7 @@ export default function CreateInstanceForm() {
   const otherDisks = useWatch({ control, name: 'otherDisks' })
   const unavailableDiskNames = [
     ...allDisks, // existing disks from the API
-    ...otherDisks.filter((disk) => disk.type === 'create'), // disks being created here
+    ...otherDisks.filter((disk) => disk.action === 'create'), // disks being created here
   ].map((d) => d.name)
 
   // additional form elements for projectImage and siloImage tabs
@@ -337,7 +340,18 @@ export default function CreateInstanceForm() {
               description: values.description,
               memory: instance.memory * GiB,
               ncpus: instance.ncpus,
-              disks: values.otherDisks,
+              disks: values.otherDisks.map(
+                (d): InstanceDiskAttachment =>
+                  d.action === 'attach'
+                    ? { type: 'attach', name: d.name }
+                    : {
+                        type: 'create',
+                        name: d.name,
+                        description: d.description,
+                        size: d.size,
+                        diskBackend: d.diskBackend,
+                      }
+              ),
               bootDisk,
               externalIps: values.externalIps,
               start: values.start,

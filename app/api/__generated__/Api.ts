@@ -956,6 +956,9 @@ export type BgpPeerState =
   /** Waiting for keepaliave or notification from peer. */
   | 'open_confirm'
 
+  /** There is an ongoing Connection Collision that hasn't yet been resolved. Two connections are maintained until one connection receives an Open or is able to progress into Established. */
+  | 'connection_collision'
+
   /** Synchronizing with peer. */
   | 'session_setup'
 
@@ -1769,13 +1772,19 @@ export type DeviceAccessTokenResultsPage = {
 
 export type DeviceAuthRequest = {
   clientId: string
-  /** Optional lifetime for the access token in seconds. If not specified, the silo's max TTL will be used (if set). */
+  /** Optional lifetime for the access token in seconds.
+
+This value will be validated during the confirmation step. If not specified, it defaults to the silo's max TTL, which can be seen at `/v1/auth-settings`.  If specified, must not exceed the silo's max TTL.
+
+Some special logic applies when authenticating the confirmation request with an existing device token: the requested TTL must not produce an expiration time later than the authenticating token's expiration. If no TTL is specified, the expiration will be the lesser of the silo max and the authenticating token's expiration time. To get the longest allowed lifetime, omit the TTL and authenticate with a web console session. */
   ttlSeconds?: number | null
 }
 
 export type DeviceAuthVerify = { userCode: string }
 
 export type Digest = { type: 'sha256'; value: string }
+
+export type DiskType = 'distributed' | 'local'
 
 /**
  * State of a Disk
@@ -1814,6 +1823,7 @@ export type Disk = {
   /** human-readable free-form text about a resource */
   description: string
   devicePath: string
+  diskType: DiskType
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
   /** ID of image from which disk was created, if any */
@@ -1832,7 +1842,7 @@ export type Disk = {
 }
 
 /**
- * Different sources for a disk
+ * Different sources for a Distributed Disk
  */
 export type DiskSource =
   /** Create a blank disk */
@@ -1849,12 +1859,23 @@ export type DiskSource =
   | { blockSize: BlockSize; type: 'importing_blocks' }
 
 /**
+ * The source of a `Disk`'s blocks
+ */
+export type DiskBackend =
+  | { type: 'local' }
+  | {
+      /** The initial source for this disk */
+      diskSource: DiskSource
+      type: 'distributed'
+    }
+
+/**
  * Create-time parameters for a `Disk`
  */
 export type DiskCreate = {
   description: string
-  /** The initial source for this disk */
-  diskSource: DiskSource
+  /** The source for this `Disk`'s blocks */
+  diskBackend: DiskBackend
   name: Name
   /** The total size of the Disk (in bytes) */
   size: ByteCount
@@ -1885,9 +1906,9 @@ export type Distributiondouble = {
   counts: number[]
   max?: number | null
   min?: number | null
-  p50?: Quantile | null
-  p90?: Quantile | null
-  p99?: Quantile | null
+  p50?: number | null
+  p90?: number | null
+  p99?: number | null
   squaredMean: number
   sumOfSamples: number
 }
@@ -1902,9 +1923,9 @@ export type Distributionint64 = {
   counts: number[]
   max?: number | null
   min?: number | null
-  p50?: Quantile | null
-  p90?: Quantile | null
-  p99?: Quantile | null
+  p50?: number | null
+  p90?: number | null
+  p99?: number | null
   squaredMean: number
   sumOfSamples: number
 }
@@ -2347,8 +2368,8 @@ export type InstanceDiskAttachment =
   /** During instance creation, create and attach disks */
   | {
       description: string
-      /** The initial source for this disk */
-      diskSource: DiskSource
+      /** The source for this `Disk`'s blocks */
+      diskBackend: DiskBackend
       name: Name
       /** The total size of the Disk (in bytes) */
       size: ByteCount
@@ -2427,6 +2448,10 @@ By default, all instances have outbound connectivity, but no inbound connectivit
   hostname: Hostname
   /** The amount of RAM (in bytes) to be allocated to the instance */
   memory: ByteCount
+  /** The multicast groups this instance should join.
+
+The instance will be automatically added as a member of the specified multicast groups during creation, enabling it to send and receive multicast traffic for those groups. */
+  multicastGroups?: NameOrId[]
   name: Name
   /** The number of vCPUs to be allocated to the instance */
   ncpus: InstanceCpuCount
@@ -2547,6 +2572,12 @@ An instance that does not have a boot disk set will use the boot options specifi
   cpuPlatform: InstanceCpuPlatform | null
   /** The amount of RAM (in bytes) to be allocated to the instance */
   memory: ByteCount
+  /** Multicast groups this instance should join.
+
+When specified, this replaces the instance's current multicast group membership with the new set of groups. The instance will leave any groups not listed here and join any new groups that are specified.
+
+If not provided (None), the instance's multicast group membership will not be changed. */
+  multicastGroups?: NameOrId[] | null
   /** The number of vCPUs to be allocated to the instance */
   ncpus: InstanceCpuCount
 }
@@ -3012,7 +3043,7 @@ export type LoopbackAddressCreate = {
   anycast: boolean
   /** The subnet mask to use for the address. */
   mask: number
-  /** The containing the switch this loopback address will be configured on. */
+  /** The rack containing the switch this loopback address will be configured on. */
   rackId: string
   /** The location of the switch within the rack this loopback address will be configured on. */
   switchLocation: Name
@@ -3055,6 +3086,113 @@ export type MetricType =
 
   /** The value represents an accumulation between two points in time. */
   | 'cumulative'
+
+/**
+ * View of a Multicast Group
+ */
+export type MulticastGroup = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** The ID of the IP pool this resource belongs to. */
+  ipPoolId: string
+  /** The multicast IP address held by this resource. */
+  multicastIp: string
+  /** Multicast VLAN (MVLAN) for egress multicast traffic to upstream networks. None means no VLAN tagging on egress. */
+  mvlan?: number | null
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** Source IP addresses for Source-Specific Multicast (SSM). Empty array means any source is allowed. */
+  sourceIps: string[]
+  /** Current state of the multicast group. */
+  state: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Create-time parameters for a multicast group.
+ */
+export type MulticastGroupCreate = {
+  description: string
+  /** The multicast IP address to allocate. If None, one will be allocated from the default pool. */
+  multicastIp?: string | null
+  /** Multicast VLAN (MVLAN) for egress multicast traffic to upstream networks. Tags packets leaving the rack to traverse VLAN-segmented upstream networks.
+
+Valid range: 2-4094 (VLAN IDs 0-1 are reserved by IEEE 802.1Q standard). */
+  mvlan?: number | null
+  name: Name
+  /** Name or ID of the IP pool to allocate from. If None, uses the default multicast pool. */
+  pool?: NameOrId | null
+  /** Source IP addresses for Source-Specific Multicast (SSM).
+
+None uses default behavior (Any-Source Multicast). Empty list explicitly allows any source (Any-Source Multicast). Non-empty list restricts to specific sources (SSM). */
+  sourceIps?: string[] | null
+}
+
+/**
+ * View of a Multicast Group Member (instance belonging to a multicast group)
+ */
+export type MulticastGroupMember = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** The ID of the instance that is a member of this group. */
+  instanceId: string
+  /** The ID of the multicast group this member belongs to. */
+  multicastGroupId: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** Current state of the multicast group membership. */
+  state: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Parameters for adding an instance to a multicast group.
+ */
+export type MulticastGroupMemberAdd = {
+  /** Name or ID of the instance to add to the multicast group */
+  instance: NameOrId
+}
+
+/**
+ * A single page of results
+ */
+export type MulticastGroupMemberResultsPage = {
+  /** list of items on this page of results */
+  items: MulticastGroupMember[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
+ * A single page of results
+ */
+export type MulticastGroupResultsPage = {
+  /** list of items on this page of results */
+  items: MulticastGroup[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
+ * Update-time parameters for a multicast group.
+ */
+export type MulticastGroupUpdate = {
+  description?: string | null
+  /** Multicast VLAN (MVLAN) for egress multicast traffic to upstream networks. Set to null to clear the MVLAN. Valid range: 2-4094 when provided. Omit the field to leave mvlan unchanged. */
+  mvlan?: number | null
+  name?: Name | null
+  sourceIps?: string[] | null
+}
 
 /**
  * The type of network interface
@@ -5624,6 +5762,32 @@ export interface InstanceEphemeralIpDetachQueryParams {
   project?: NameOrId
 }
 
+export interface InstanceMulticastGroupListPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceMulticastGroupListQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceMulticastGroupJoinPathParams {
+  instance: NameOrId
+  multicastGroup: NameOrId
+}
+
+export interface InstanceMulticastGroupJoinQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceMulticastGroupLeavePathParams {
+  instance: NameOrId
+  multicastGroup: NameOrId
+}
+
+export interface InstanceMulticastGroupLeaveQueryParams {
+  project?: NameOrId
+}
+
 export interface InstanceRebootPathParams {
   instance: NameOrId
 }
@@ -5817,6 +5981,51 @@ export interface SiloMetricQueryParams {
   order?: PaginationOrder
   pageToken?: string | null
   startTime?: Date
+  project?: NameOrId
+}
+
+export interface MulticastGroupListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: NameOrIdSortMode
+}
+
+export interface MulticastGroupViewPathParams {
+  multicastGroup: NameOrId
+}
+
+export interface MulticastGroupUpdatePathParams {
+  multicastGroup: NameOrId
+}
+
+export interface MulticastGroupDeletePathParams {
+  multicastGroup: NameOrId
+}
+
+export interface MulticastGroupMemberListPathParams {
+  multicastGroup: NameOrId
+}
+
+export interface MulticastGroupMemberListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: IdSortMode
+}
+
+export interface MulticastGroupMemberAddPathParams {
+  multicastGroup: NameOrId
+}
+
+export interface MulticastGroupMemberAddQueryParams {
+  project?: NameOrId
+}
+
+export interface MulticastGroupMemberRemovePathParams {
+  instance: NameOrId
+  multicastGroup: NameOrId
+}
+
+export interface MulticastGroupMemberRemoveQueryParams {
   project?: NameOrId
 }
 
@@ -6172,6 +6381,10 @@ export interface SystemMetricQueryParams {
   pageToken?: string | null
   startTime?: Date
   silo?: NameOrId
+}
+
+export interface LookupMulticastGroupByIpPathParams {
+  address: string
 }
 
 export interface NetworkingAddressLotListQueryParams {
@@ -6652,7 +6865,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '20251008.0.0'
+  apiVersion = '2025121200.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host
@@ -8103,6 +8316,66 @@ export class Api {
       })
     },
     /**
+     * List multicast groups for instance
+     */
+    instanceMulticastGroupList: (
+      {
+        path,
+        query = {},
+      }: {
+        path: InstanceMulticastGroupListPathParams
+        query?: InstanceMulticastGroupListQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<MulticastGroupMemberResultsPage>({
+        path: `/v1/instances/${path.instance}/multicast-groups`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Join multicast group.
+     */
+    instanceMulticastGroupJoin: (
+      {
+        path,
+        query = {},
+      }: {
+        path: InstanceMulticastGroupJoinPathParams
+        query?: InstanceMulticastGroupJoinQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<MulticastGroupMember>({
+        path: `/v1/instances/${path.instance}/multicast-groups/${path.multicastGroup}`,
+        method: 'PUT',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Leave multicast group.
+     */
+    instanceMulticastGroupLeave: (
+      {
+        path,
+        query = {},
+      }: {
+        path: InstanceMulticastGroupLeavePathParams
+        query?: InstanceMulticastGroupLeaveQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/instances/${path.instance}/multicast-groups/${path.multicastGroup}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
      * Reboot an instance
      */
     instanceReboot: (
@@ -8538,6 +8811,137 @@ export class Api {
       return this.request<MeasurementResultsPage>({
         path: `/v1/metrics/${path.metricName}`,
         method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List all multicast groups.
+     */
+    multicastGroupList: (
+      { query = {} }: { query?: MulticastGroupListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<MulticastGroupResultsPage>({
+        path: `/v1/multicast-groups`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create a multicast group.
+     */
+    multicastGroupCreate: (
+      { body }: { body: MulticastGroupCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<MulticastGroup>({
+        path: `/v1/multicast-groups`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Fetch a multicast group.
+     */
+    multicastGroupView: (
+      { path }: { path: MulticastGroupViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<MulticastGroup>({
+        path: `/v1/multicast-groups/${path.multicastGroup}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Update a multicast group.
+     */
+    multicastGroupUpdate: (
+      { path, body }: { path: MulticastGroupUpdatePathParams; body: MulticastGroupUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<MulticastGroup>({
+        path: `/v1/multicast-groups/${path.multicastGroup}`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Delete a multicast group.
+     */
+    multicastGroupDelete: (
+      { path }: { path: MulticastGroupDeletePathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/multicast-groups/${path.multicastGroup}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * List members of a multicast group.
+     */
+    multicastGroupMemberList: (
+      {
+        path,
+        query = {},
+      }: {
+        path: MulticastGroupMemberListPathParams
+        query?: MulticastGroupMemberListQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<MulticastGroupMemberResultsPage>({
+        path: `/v1/multicast-groups/${path.multicastGroup}/members`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Add instance to a multicast group.
+     */
+    multicastGroupMemberAdd: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: MulticastGroupMemberAddPathParams
+        query?: MulticastGroupMemberAddQueryParams
+        body: MulticastGroupMemberAdd
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<MulticastGroupMember>({
+        path: `/v1/multicast-groups/${path.multicastGroup}/members`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Remove instance from a multicast group.
+     */
+    multicastGroupMemberRemove: (
+      {
+        path,
+        query = {},
+      }: {
+        path: MulticastGroupMemberRemovePathParams
+        query?: MulticastGroupMemberRemoveQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/multicast-groups/${path.multicastGroup}/members/${path.instance}`,
+        method: 'DELETE',
         query,
         ...params,
       })
@@ -9497,6 +9901,19 @@ export class Api {
         path: `/v1/system/metrics/${path.metricName}`,
         method: 'GET',
         query,
+        ...params,
+      })
+    },
+    /**
+     * Look up multicast group by IP address.
+     */
+    lookupMulticastGroupByIp: (
+      { path }: { path: LookupMulticastGroupByIpPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<MulticastGroup>({
+        path: `/v1/system/multicast-groups/by-ip/${path.address}`,
+        method: 'GET',
         ...params,
       })
     },
