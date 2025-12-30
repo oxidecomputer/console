@@ -87,6 +87,6 @@ export const SnapshotStateBadge = (props: { state: SnapshotState; className?: st
 
 export const DiskTypeBadge = (props: { diskType: DiskType; className?: string }) => (
   <Badge color="neutral" className={props.className}>
-    {props.diskType.type}
+    {props.diskType}
   </Badge>
 )

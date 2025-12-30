@@ -1784,19 +1784,7 @@ export type DeviceAuthVerify = { userCode: string }
 
 export type Digest = { type: 'sha256'; value: string }
 
-export type DiskType =
-  | {
-      /** ID of image from which disk was created, if any */
-      imageId?: string | null
-      /** ID of snapshot from which disk was created, if any */
-      snapshotId?: string | null
-      type: 'distributed'
-    }
-  | {
-      /** ID of the sled this local disk is allocated on, if it has been allocated. Once allocated it cannot be changed or migrated. */
-      sledId?: string | null
-      type: 'local'
-    }
+export type DiskType = 'distributed' | 'local'
 
 /**
  * State of a Disk
@@ -1834,13 +1822,18 @@ export type Disk = {
   blockSize: ByteCount
   /** human-readable free-form text about a resource */
   description: string
+  devicePath: string
   diskType: DiskType
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
+  /** ID of image from which disk was created, if any */
+  imageId?: string | null
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
   projectId: string
   size: ByteCount
+  /** ID of snapshot from which disk was created, if any */
+  snapshotId?: string | null
   state: DiskState
   /** timestamp when this resource was created */
   timeCreated: Date
@@ -6872,7 +6865,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2025121800.0.0'
+  apiVersion = '2025121200.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host

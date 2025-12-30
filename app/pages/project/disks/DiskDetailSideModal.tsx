@@ -91,22 +91,14 @@ export function DiskDetailSideModal({
           <DiskTypeBadge diskType={disk.diskType} />
         </PropertiesTable.Row>
         {/* TODO: show attached instance by name like the table does? */}
-        <PropertiesTable.Row label="Block size">
-          {disk.blockSize.toLocaleString()} bytes
-        </PropertiesTable.Row>
         <PropertiesTable.Row label="Image ID">
-          {disk.diskType.type === 'distributed' && disk.diskType.imageId ? (
-            disk.diskType.imageId
-          ) : (
-            <EmptyCell />
-          )}
+          {disk.imageId ?? <EmptyCell />}
         </PropertiesTable.Row>
         <PropertiesTable.Row label="Snapshot ID">
-          {disk.diskType.type === 'distributed' && disk.diskType.snapshotId ? (
-            disk.diskType.snapshotId
-          ) : (
-            <EmptyCell />
-          )}
+          {disk.snapshotId ?? <EmptyCell />}
+        </PropertiesTable.Row>
+        <PropertiesTable.Row label="Block size">
+          {disk.blockSize.toLocaleString()} bytes
         </PropertiesTable.Row>
         <PropertiesTable.DateRow label="Created" date={disk.timeCreated} />
         <PropertiesTable.DateRow label="Last Modified" date={disk.timeModified} />
