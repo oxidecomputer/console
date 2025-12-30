@@ -8,7 +8,7 @@
 import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
-import type { DiskCreate } from '@oxide/api'
+import type { DiskCreate, DiskType } from '@oxide/api'
 import { Badge } from '@oxide/design-system/ui'
 
 import { AttachDiskModalForm } from '~/forms/disk-attach'
@@ -21,7 +21,7 @@ import { Truncate } from '~/ui/lib/Truncate'
 
 export type DiskTableItem =
   | (DiskCreate & { action: 'create' })
-  | { name: string; action: 'attach'; size: number; diskType: string }
+  | { name: string; action: 'attach'; size: number; diskType: DiskType }
 
 /**
  * Designed less for reuse, more to encapsulate logic that would otherwise

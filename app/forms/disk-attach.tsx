@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { api, q, type ApiError } from '@oxide/api'
+import { api, q, type ApiError, type DiskType } from '@oxide/api'
 
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { ModalForm } from '~/components/form/ModalForm'
@@ -21,7 +21,7 @@ const defaultValues = { name: '' }
 
 type AttachDiskProps = {
   /** If defined, this overrides the usual mutation */
-  onSubmit: (diskAttach: { name: string; size: number; diskType: string }) => void
+  onSubmit: (diskAttach: { name: string; size: number; diskType: DiskType }) => void
   onDismiss: () => void
   diskNamesToExclude?: string[]
   loading?: boolean

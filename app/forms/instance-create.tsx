@@ -343,7 +343,13 @@ export default function CreateInstanceForm() {
                 (d): InstanceDiskAttachment =>
                   d.action === 'attach'
                     ? { type: 'attach', name: d.name }
-                    : { type: 'create', ...d }
+                    : {
+                        type: 'create',
+                        name: d.name,
+                        description: d.description,
+                        size: d.size,
+                        diskBackend: d.diskBackend,
+                      }
               ),
               bootDisk,
               externalIps: values.externalIps,
