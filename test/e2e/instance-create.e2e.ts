@@ -590,6 +590,22 @@ test('create instance with additional disks', async ({ page }) => {
     Size: '5 GiB',
   })
 
+  // Create a local disk
+  await page.getByRole('button', { name: 'Create new disk' }).click()
+  await createForm
+    .getByRole('textbox', { name: 'Name', exact: true })
+    .fill('new-disk-local')
+  await createForm.getByRole('textbox', { name: 'Size (GiB)' }).fill('10')
+  await createForm.getByRole('radio', { name: 'Local' }).click()
+  await createForm.getByRole('button', { name: 'Create disk' }).click()
+
+  await expectRowVisible(disksTable, {
+    Name: 'new-disk-local',
+    Action: 'create',
+    Type: 'local',
+    Size: '10 GiB',
+  })
+
   // now that name is taken too, so disk create disallows it
   await page.getByRole('button', { name: 'Create new disk' }).click()
   await createForm.getByRole('textbox', { name: 'Name', exact: true }).fill('new-disk-1')
@@ -623,6 +639,7 @@ test('create instance with additional disks', async ({ page }) => {
   // Check for the additional disks
   const otherDisksTable = page.getByRole('table', { name: 'Additional disks' })
   await expectRowVisible(otherDisksTable, { Disk: 'new-disk-1', size: '5 GiB' })
+  await expectRowVisible(otherDisksTable, { Disk: 'new-disk-local', size: '10 GiB' })
   await expectRowVisible(otherDisksTable, { Disk: 'disk-3', size: '6 GiB' })
 })
 
