@@ -49,7 +49,8 @@ export default function EditAntiAffintyGroupForm() {
       queryClient.invalidateEndpoint('antiAffinityGroupView')
       queryClient.invalidateEndpoint('antiAffinityGroupList')
       navigate(pb.antiAffinityGroup({ project, antiAffinityGroup: updatedGroup.name }))
-      addToast(<>Anti-affinity group <HL>{updatedGroup.name}</HL> updated</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Anti-affinity group <HL>{updatedGroup.name}</HL> updated</>)
     },
   })
 

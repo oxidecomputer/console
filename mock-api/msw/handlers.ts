@@ -50,6 +50,7 @@ import {
   errIfExists,
   errIfInvalidDiskSize,
   forbiddenErr,
+  getBlockSize,
   handleMetrics,
   handleOxqlMetrics,
   ipRangeLen,
@@ -147,21 +148,23 @@ export const handlers = makeHandlers({
 
     if (body.name === 'disk-create-500') throw 500
 
-    const { name, description, size, disk_source } = body
+    const { name, description, size, disk_backend } = body
     const newDisk: Json<Api.Disk> = {
       id: uuid(),
       project_id: project.id,
+      // importing_blocks disks go to import_ready, all others go to detached
+      // https://github.com/oxidecomputer/omicron/blob/dd74446/nexus/src/app/sagas/disk_create.rs#L805-L850
       state:
-        disk_source.type === 'importing_blocks'
+        disk_backend.type === 'distributed' &&
+        disk_backend.disk_source.type === 'importing_blocks'
           ? { state: 'import_ready' }
           : { state: 'detached' },
       device_path: '/mnt/disk',
       name,
       description,
       size,
-      // TODO: for non-blank disk sources, look up image or snapshot by ID and
-      // pull block size from there
-      block_size: disk_source.type === 'blank' ? disk_source.block_size : 512,
+      block_size: getBlockSize(disk_backend),
+      disk_type: disk_backend.type,
       ...getTimestamps(),
     }
     db.disks.push(newDisk)
@@ -485,7 +488,7 @@ export const handlers = makeHandlers({
 
     for (const diskParams of allDisks) {
       if (diskParams.type === 'create') {
-        const { size, name, description, disk_source } = diskParams
+        const { size, name, description, disk_backend } = diskParams
         const newDisk: Json<Api.Disk> = {
           id: uuid(),
           name,
@@ -494,7 +497,8 @@ export const handlers = makeHandlers({
           project_id: project.id,
           state: { state: 'attached', instance: instanceId },
           device_path: '/mnt/disk',
-          block_size: disk_source.type === 'blank' ? disk_source.block_size : 4096,
+          block_size: getBlockSize(disk_backend),
+          disk_type: disk_backend.type,
           ...getTimestamps(),
         }
         db.disks.push(newDisk)
@@ -1972,6 +1976,9 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
+  instanceMulticastGroupJoin: NotImplemented,
+  instanceMulticastGroupLeave: NotImplemented,
+  instanceMulticastGroupList: NotImplemented,
   instanceSerialConsole: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
   instanceSshPublicKeyList: NotImplemented,
@@ -1989,6 +1996,15 @@ export const handlers = makeHandlers({
   localIdpUserDelete: NotImplemented,
   localIdpUserSetPassword: NotImplemented,
   loginSaml: NotImplemented,
+  lookupMulticastGroupByIp: NotImplemented,
+  multicastGroupCreate: NotImplemented,
+  multicastGroupDelete: NotImplemented,
+  multicastGroupList: NotImplemented,
+  multicastGroupMemberAdd: NotImplemented,
+  multicastGroupMemberList: NotImplemented,
+  multicastGroupMemberRemove: NotImplemented,
+  multicastGroupUpdate: NotImplemented,
+  multicastGroupView: NotImplemented,
   networkingAddressLotBlockList: NotImplemented,
   networkingAddressLotCreate: NotImplemented,
   networkingAddressLotDelete: NotImplemented,

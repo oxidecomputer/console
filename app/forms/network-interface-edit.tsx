@@ -46,7 +46,8 @@ export function EditNetworkInterfaceForm({
   const editNetworkInterface = useApiMutation(api.instanceNetworkInterfaceUpdate, {
     onSuccess(nic) {
       queryClient.invalidateEndpoint('instanceNetworkInterfaceList')
-      addToast(<>Network interface <HL>{nic.name}</HL> updated</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Network interface <HL>{nic.name}</HL> updated</>)
       onDismiss()
     },
   })

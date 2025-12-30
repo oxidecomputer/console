@@ -65,7 +65,8 @@ export default function VpcRoutersTab() {
   const { mutateAsync: deleteRouter } = useApiMutation(api.vpcRouterDelete, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('vpcRouterList')
-      addToast(<>Router <HL>{variables.path.router}</HL> deleted</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Router <HL>{variables.path.router}</HL> deleted</>)
     },
   })
 

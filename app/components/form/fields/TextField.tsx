@@ -117,6 +117,7 @@ export const TextFieldInner = <
         title={label}
         type={type}
         error={!!error}
+        // oxlint-disable-next-line jsx-a11y/aria-proptypes -- https://github.com/oxc-project/oxc/issues/17465
         aria-labelledby={`${id}-label ${id}-help-text`}
         onChange={(e) => onChange(transform ? transform(e.target.value) : e.target.value)}
         {...fieldRest}

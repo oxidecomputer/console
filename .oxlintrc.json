@@ -1,11 +1,19 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "jsPlugins": [
+    {
+      "name": "playwright",
+      "specifier": "eslint-plugin-playwright"
+    }
+    // eslint-plugin-react-hook-form won't work — all its rules use context.getScope()
+  ],
   "plugins": [
     "import",
     "react",
     "jsx-a11y",
     "promise",
     // defaults (see https://oxc.rs/docs/guide/usage/linter/plugins.html#supported-plugins)
+    "eslint",
     "unicorn",
     "typescript",
     "oxc"
@@ -74,7 +82,20 @@
       // catch unawaited Playwright calls in e2e tests
       "files": ["test/e2e/**/*.ts"],
       "rules": {
-        "@typescript-eslint/no-floating-promises": "error"
+        "@typescript-eslint/no-floating-promises": "error",
+        "playwright/expect-expect": [
+          "warn",
+          {
+            "assertFunctionNames": [
+              "expectVisible",
+              "expectRowVisible",
+              "expectOptions",
+              "expectRowMenuStaysOpen",
+              "expectCanAddUserAcrossTabs"
+            ]
+          }
+        ],
+        "playwright/no-force-option": "off"
       }
     }
   ],

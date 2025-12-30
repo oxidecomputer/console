@@ -86,7 +86,8 @@ export default function IpPoolsPage() {
   const { mutateAsync: deletePool } = useApiMutation(api.ipPoolDelete, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('ipPoolList')
-      addToast(<>Pool <HL>{variables.path.pool}</HL> deleted</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Pool <HL>{variables.path.pool}</HL> deleted</>)
     },
   })
 

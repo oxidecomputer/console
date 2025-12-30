@@ -72,7 +72,8 @@ export const AttachFloatingIpModal = ({
     onSuccess(floatingIp) {
       queryClient.invalidateEndpoint('floatingIpList')
       queryClient.invalidateEndpoint('instanceExternalIpList')
-      addToast(<>IP <HL>{floatingIp.name}</HL> attached</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>IP <HL>{floatingIp.name}</HL> attached</>)
       onDismiss()
     },
     onError: (err) => {

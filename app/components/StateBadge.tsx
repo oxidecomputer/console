@@ -11,6 +11,7 @@ import {
   diskTransitioning,
   instanceTransitioning,
   type DiskState,
+  type DiskType,
   type InstanceState,
   type SnapshotState,
 } from '@oxide/api'
@@ -81,5 +82,11 @@ export const SnapshotStateBadge = (props: { state: SnapshotState; className?: st
       <Spinner size="sm" variant={SNAPSHOT_COLORS[props.state]} />
     )}
     {props.state}
+  </Badge>
+)
+
+export const DiskTypeBadge = (props: { diskType: DiskType; className?: string }) => (
+  <Badge color="neutral" className={props.className}>
+    {props.diskType}
   </Badge>
 )

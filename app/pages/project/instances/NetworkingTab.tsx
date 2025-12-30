@@ -260,7 +260,8 @@ export default function NetworkingTab() {
   const { mutateAsync: deleteNic } = useApiMutation(api.instanceNetworkInterfaceDelete, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('instanceNetworkInterfaceList')
-      addToast(<>Network interface <HL>{variables.path.interface}</HL> deleted</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Network interface <HL>{variables.path.interface}</HL> deleted</>)
     },
   })
   const { mutate: editNic } = useApiMutation(api.instanceNetworkInterfaceUpdate, {
@@ -381,7 +382,8 @@ export default function NetworkingTab() {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('floatingIpList')
       queryClient.invalidateEndpoint('instanceExternalIpList')
-      addToast(<>Floating IP <HL>{variables.path.floatingIp}</HL> detached</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Floating IP <HL>{variables.path.floatingIp}</HL> detached</>)
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
@@ -426,7 +428,8 @@ export default function NetworkingTab() {
         .with({ kind: 'ephemeral' }, () => 'this ephemeral IP')
         .with(
           { kind: 'floating' },
-          ({ name }) => <>floating IP <HL>{name}</HL></> // prettier-ignore
+          // prettier-ignore
+          ({ name }) => <>floating IP <HL>{name}</HL></>
         )
         .exhaustive()
 

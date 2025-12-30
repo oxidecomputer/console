@@ -51,7 +51,8 @@ export default function CreateRouterRouteSideModalForm() {
   const createRouterRoute = useApiMutation(api.vpcRouterRouteCreate, {
     onSuccess(route) {
       queryClient.invalidateEndpoint('vpcRouterRouteList')
-      addToast(<>Route <HL>{route.name}</HL> created</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Route <HL>{route.name}</HL> created</>)
       navigate(pb.vpcRouter(routerSelector))
     },
   })

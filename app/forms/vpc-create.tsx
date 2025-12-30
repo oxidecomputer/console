@@ -41,7 +41,8 @@ export default function CreateVpcSideModalForm() {
         query: projectSelector,
       })
       queryClient.setQueryData(vpcView.queryKey, vpc)
-      addToast(<>VPC <HL>{vpc.name}</HL> created</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>VPC <HL>{vpc.name}</HL> created</>)
       navigate(pb.vpc({ vpc: vpc.name, ...projectSelector }))
     },
   })

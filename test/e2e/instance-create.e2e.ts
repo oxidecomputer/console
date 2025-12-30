@@ -583,7 +583,28 @@ test('create instance with additional disks', async ({ page }) => {
 
   const disksTable = page.getByRole('table', { name: 'Disks' })
   await expect(disksTable.getByText('disk-6')).toBeHidden()
-  await expectRowVisible(disksTable, { Name: 'new-disk-1', Type: 'create', Size: '5 GiB' })
+  await expectRowVisible(disksTable, {
+    Name: 'new-disk-1',
+    Action: 'create',
+    Type: 'distributed',
+    Size: '5 GiB',
+  })
+
+  // Create a local disk
+  await page.getByRole('button', { name: 'Create new disk' }).click()
+  await createForm
+    .getByRole('textbox', { name: 'Name', exact: true })
+    .fill('new-disk-local')
+  await createForm.getByRole('textbox', { name: 'Size (GiB)' }).fill('10')
+  await createForm.getByRole('radio', { name: 'Local' }).click()
+  await createForm.getByRole('button', { name: 'Create disk' }).click()
+
+  await expectRowVisible(disksTable, {
+    Name: 'new-disk-local',
+    Action: 'create',
+    Type: 'local',
+    Size: '10 GiB',
+  })
 
   // now that name is taken too, so disk create disallows it
   await page.getByRole('button', { name: 'Create new disk' }).click()
@@ -597,7 +618,12 @@ test('create instance with additional disks', async ({ page }) => {
   await selectOption(page, 'Disk name', 'disk-3')
   await page.getByRole('button', { name: 'Attach disk' }).click()
 
-  await expectRowVisible(disksTable, { Name: 'disk-3', Type: 'attach', Size: '6 GiB' })
+  await expectRowVisible(disksTable, {
+    Name: 'disk-3',
+    Action: 'attach',
+    Type: 'distributed',
+    Size: '6 GiB',
+  })
 
   // Create the instance
   await page.getByRole('button', { name: 'Create instance' }).click()
@@ -613,6 +639,7 @@ test('create instance with additional disks', async ({ page }) => {
   // Check for the additional disks
   const otherDisksTable = page.getByRole('table', { name: 'Additional disks' })
   await expectRowVisible(otherDisksTable, { Disk: 'new-disk-1', size: '5 GiB' })
+  await expectRowVisible(otherDisksTable, { Disk: 'new-disk-local', size: '10 GiB' })
   await expectRowVisible(otherDisksTable, { Disk: 'disk-3', size: '6 GiB' })
 })
 

@@ -96,7 +96,8 @@ export default function IpPoolpage() {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('ipPoolList')
       navigate(pb.ipPools())
-      addToast(<>Pool <HL>{variables.path.pool}</HL> deleted</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Pool <HL>{variables.path.pool}</HL> deleted</>)
     },
   })
 

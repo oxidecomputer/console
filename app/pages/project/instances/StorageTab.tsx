@@ -25,7 +25,7 @@ import {
 import { Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { HL } from '~/components/HL'
-import { DiskStateBadge } from '~/components/StateBadge'
+import { DiskStateBadge, DiskTypeBadge } from '~/components/StateBadge'
 import { AttachDiskModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
@@ -68,6 +68,7 @@ type InstanceDisk = Disk & {
 }
 
 const colHelper = createColumnHelper<InstanceDisk>()
+
 export const handle = { crumb: 'Storage' }
 
 export default function StorageTab() {
@@ -90,6 +91,10 @@ export default function StorageTab() {
           </ButtonCell>
         ),
       }),
+      colHelper.accessor('diskType', {
+        header: 'Type',
+        cell: (info) => <DiskTypeBadge diskType={info.getValue()} />,
+      }),
       colHelper.accessor('size', Columns.size),
       colHelper.accessor((row) => row.state.state, {
         header: 'state',
@@ -103,7 +108,8 @@ export default function StorageTab() {
   const { mutateAsync: detachDisk } = useApiMutation(api.instanceDiskDetach, {
     onSuccess(disk) {
       queryClient.invalidateEndpoint('instanceDiskList')
-      addToast(<>Disk <HL>{disk.name}</HL> detached</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Disk <HL>{disk.name}</HL> detached</>)
     },
     onError(err) {
       addToast({ title: 'Failed to detach disk', content: err.message, variant: 'error' })
@@ -112,7 +118,8 @@ export default function StorageTab() {
   const { mutate: createSnapshot } = useApiMutation(api.snapshotCreate, {
     onSuccess(snapshot) {
       queryClient.invalidateEndpoint('snapshotList')
-      addToast(<>Snapshot <HL>{snapshot.name}</HL> created</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Snapshot <HL>{snapshot.name}</HL> created</>)
     },
     onError(err) {
       addToast({
@@ -283,7 +290,8 @@ export default function StorageTab() {
               detachDisk({ body: { disk: disk.name }, path: { instance: instance.id } }),
             errorTitle: 'Could not detach disk',
             modalTitle: 'Confirm detach disk',
-            modalContent: <p>Are you sure you want to detach <HL>{disk.name}</HL>?</p>, // prettier-ignore
+            // prettier-ignore
+            modalContent: <p>Are you sure you want to detach <HL>{disk.name}</HL>?</p>,
             actionType: 'danger',
           }),
       },
@@ -308,7 +316,8 @@ export default function StorageTab() {
       queryClient.invalidateEndpoint('instanceDiskList')
       setShowDiskCreate(false)
       setShowDiskAttach(false)
-      addToast(<>Disk <HL>{disk.name}</HL> attached</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Disk <HL>{disk.name}</HL> attached</>)
     },
   })
 

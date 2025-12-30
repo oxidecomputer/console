@@ -370,7 +370,10 @@ export default function ImageCreate() {
       body: {
         name: diskName,
         description: `temporary disk for importing image ${imageName}`,
-        diskSource: { type: 'importing_blocks', blockSize },
+        diskBackend: {
+          type: 'distributed',
+          diskSource: { type: 'importing_blocks', blockSize },
+        },
         size: Math.ceil(imageFile.size / GiB) * GiB,
       },
     })

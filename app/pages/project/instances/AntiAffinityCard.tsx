@@ -147,7 +147,8 @@ export function AntiAffinityCard() {
   let disabledReason = undefined
   if (!instanceCan.addToAffinityGroup(instanceData)) {
     disabledReason =
-      <>Only <HL>stopped</HL> instances can be added to a group</> // prettier-ignore
+      // prettier-ignore
+      <>Only <HL>stopped</HL> instances can be added to a group</>
   } else if (allGroups.items.length === 0) {
     disabledReason = 'No groups found'
   } else if (nonMemberGroups.length === 0) {

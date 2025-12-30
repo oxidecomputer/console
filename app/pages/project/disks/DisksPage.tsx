@@ -23,7 +23,7 @@ import { Storage16Icon, Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
-import { DiskStateBadge } from '~/components/StateBadge'
+import { DiskStateBadge, DiskTypeBadge } from '~/components/StateBadge'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -87,14 +87,16 @@ export default function DisksPage() {
   const { mutateAsync: deleteDisk } = useApiMutation(api.diskDelete, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('diskList')
-      addToast(<>Disk <HL>{variables.path.disk}</HL> deleted</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Disk <HL>{variables.path.disk}</HL> deleted</>)
     },
   })
 
   const { mutate: createSnapshot } = useApiMutation(api.snapshotCreate, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('snapshotList')
-      addToast(<>Snapshot <HL>{variables.body.name}</HL> created</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Snapshot <HL>{variables.body.name}</HL> created</>)
     },
     onError(err) {
       addToast({
@@ -110,7 +112,8 @@ export default function DisksPage() {
       {
         label: 'Snapshot',
         onActivate() {
-          addToast(<>Creating snapshot of disk <HL>{disk.name}</HL></>) // prettier-ignore
+          // prettier-ignore
+          addToast(<>Creating snapshot of disk <HL>{disk.name}</HL></>)
           createSnapshot({
             query: { project },
             body: {
@@ -159,6 +162,10 @@ export default function DisksPage() {
             cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,
           }
         ),
+        colHelper.accessor('diskType', {
+          header: 'Type',
+          cell: (info) => <DiskTypeBadge diskType={info.getValue()} />,
+        }),
         colHelper.accessor('size', Columns.size),
         colHelper.accessor('state.state', {
           header: 'state',
