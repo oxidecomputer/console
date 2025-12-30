@@ -50,6 +50,7 @@ import {
   errIfExists,
   errIfInvalidDiskSize,
   forbiddenErr,
+  getBlockSize,
   handleMetrics,
   handleOxqlMetrics,
   ipRangeLen,
@@ -151,7 +152,8 @@ export const handlers = makeHandlers({
     const newDisk: Json<Api.Disk> = {
       id: uuid(),
       project_id: project.id,
-      // TODO: confirm logic here
+      // importing_blocks disks go to import_ready, all others go to detached
+      // https://github.com/oxidecomputer/omicron/blob/dd74446/nexus/src/app/sagas/disk_create.rs#L805-L850
       state:
         disk_backend.type === 'distributed' &&
         disk_backend.disk_source.type === 'importing_blocks'
@@ -161,12 +163,7 @@ export const handlers = makeHandlers({
       name,
       description,
       size,
-      // TODO: for non-blank disk sources, look up image or snapshot by ID and
-      // pull block size from there
-      block_size:
-        disk_backend.type === 'distributed' && disk_backend.disk_source.type === 'blank'
-          ? disk_backend.disk_source.block_size
-          : 512,
+      block_size: getBlockSize(disk_backend),
       disk_type: disk_backend.type,
       ...getTimestamps(),
     }
@@ -500,11 +497,7 @@ export const handlers = makeHandlers({
           project_id: project.id,
           state: { state: 'attached', instance: instanceId },
           device_path: '/mnt/disk',
-          // TODO: this doesn't seem right, check the omicron source
-          block_size:
-            disk_backend.type === 'distributed' && disk_backend.disk_source.type === 'blank'
-              ? disk_backend.disk_source.block_size
-              : 4096,
+          block_size: getBlockSize(disk_backend),
           disk_type: disk_backend.type,
           ...getTimestamps(),
         }
