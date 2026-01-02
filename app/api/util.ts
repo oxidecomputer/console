@@ -22,14 +22,14 @@ import type {
   VpcFirewallRuleUpdate,
 } from './__generated__/Api'
 
-// API limits encoded in https://github.com/oxidecomputer/omicron/blob/aec3cd8d/nexus/src/app/mod.rs
+// API limits encoded in https://github.com/oxidecomputer/omicron/blob/2f7f8074/nexus/src/app/mod.rs#L125-L158
 
 // These are not actually used in app code, just the mock server. In the app we
 // can rely on API errors to communicate these limits.
 export const MAX_NICS_PER_INSTANCE = 8
 export const MAX_DISKS_PER_INSTANCE = 12
 
-export const INSTANCE_MAX_CPU = 64
+export const INSTANCE_MAX_CPU = 254
 export const INSTANCE_MIN_RAM_GiB = 1
 export const INSTANCE_MAX_RAM_GiB = 1536
 
