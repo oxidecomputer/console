@@ -12,7 +12,6 @@ import * as R from 'remeda'
 
 import {
   api,
-  diskCan,
   genName,
   instanceCan,
   q,
@@ -42,7 +41,7 @@ import { EMBody, EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { links } from '~/util/links'
 
-import { fancifyStates } from './common'
+import { snapshotDisabledReason } from './common'
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
@@ -147,9 +146,7 @@ export default function StorageTab() {
   const getSnapshotAction = useCallback(
     (disk: InstanceDisk) => ({
       label: 'Snapshot',
-      disabled: !diskCan.snapshot(disk) && (
-        <>Only disks in state {fancifyStates(diskCan.snapshot.states)} can be snapshotted</>
-      ),
+      disabled: snapshotDisabledReason(disk),
       onActivate() {
         createSnapshot({
           query: { project },
