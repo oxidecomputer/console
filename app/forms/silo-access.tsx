@@ -70,6 +70,7 @@ export function SiloAccessAddUserSideModal({
     >
       <ListboxField
         name="identityId"
+        placeholder={`Select a ${entityLabel}`}
         items={actors.map(actorToItem)}
         label={capitalize(entityLabel)}
         required
