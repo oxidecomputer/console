@@ -141,10 +141,27 @@ async function ensureClient(schemaPath: string, force: boolean) {
 
 if (!$.commandExistsSync('gh')) throw Error('Need gh (GitHub CLI)')
 
-// prefer delta if it exists and output is a terminal, otherwise use git diff
-// https://dandavison.github.io/delta/
-const useDelta = $.commandExistsSync('delta') && Deno.stdout.isTerminal()
-const diffCmd = useDelta ? ['delta'] : ['git', 'diff', '--no-index', '--']
+/** Run diff with clean labels (version extracted from spec filename) */
+async function runDiff(
+  base: string,
+  head: string,
+  baseVersion: string,
+  headVersion: string
+) {
+  const filename = base.endsWith('spec.json') ? 'spec.json' : 'Api.ts'
+  // prefer delta if it exists and output is a terminal, otherwise use diff
+  // https://dandavison.github.io/delta/
+  const useDelta = $.commandExistsSync('delta') && Deno.stdout.isTerminal()
+
+  // use -L to set labels, extracting version from spec filename (e.g., nexus-2026010300.0.0-7599dd.json)
+  const getVersion = (spec: string) =>
+    spec.match(/nexus-([^.]+\.[^.]+\.[^.]+)/)?.[1] ?? spec
+  const baseLabel = `a/${getVersion(baseVersion)}/${filename}`
+  const headLabel = `b/${getVersion(headVersion)}/${filename}`
+  // diff exits 1 when files differ, so noThrow() to avoid breaking the pipe
+  const diff = $`diff -u -L ${baseLabel} -L ${headLabel} ${base} ${head}`.noThrow()
+  await (useDelta ? diff.pipe($`delta`) : diff)
+}
 
 await new Command()
   .name('api-diff')
@@ -185,13 +202,13 @@ Dependencies:
     ])
 
     if (options.format === 'schema') {
-      await $`${diffCmd} ${baseSchema} ${headSchema}`.noThrow()
+      await runDiff(baseSchema, headSchema, target.baseSchema, target.headSchema)
     } else {
       const [baseClient, headClient] = await Promise.all([
         ensureClient(baseSchema, force),
         ensureClient(headSchema, force),
       ])
-      await $`${diffCmd} ${baseClient} ${headClient}`.noThrow()
+      await runDiff(baseClient, headClient, target.baseSchema, target.headSchema)
     }
   })
   .parse(Deno.args)
