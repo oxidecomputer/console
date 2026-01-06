@@ -117,7 +117,7 @@ async function ensureSchema(commit: string, specFilename: string, force: boolean
   const schemaPath = `${dir}/spec.json`
   if (force || !(await exists(schemaPath))) {
     await $`mkdir -p ${dir}`
-    console.info(`Downloading ${specFilename}...`)
+    console.error(`Downloading ${specFilename}...`)
     const content = await fetch(SPEC_RAW_URL(commit, specFilename)).then((r) => r.text())
     await Deno.writeTextFile(schemaPath, content)
   }
@@ -128,7 +128,7 @@ async function ensureClient(schemaPath: string, force: boolean) {
   const dir = schemaPath.replace(/\/spec\.json$/, '')
   const clientPath = `${dir}/Api.ts`
   if (force || !(await exists(clientPath))) {
-    console.info(`Generating client...`)
+    console.error(`Generating client...`)
     await $`npx @oxide/openapi-gen-ts@latest ${schemaPath} ${dir}`
     await $`npx prettier --write --log-level error ${dir}`
   }
@@ -141,8 +141,10 @@ async function ensureClient(schemaPath: string, force: boolean) {
 
 if (!$.commandExistsSync('gh')) throw Error('Need gh (GitHub CLI)')
 
-// prefer delta if it exists. https://dandavison.github.io/delta/
-const diffTool = $.commandExistsSync('delta') ? 'delta' : 'diff'
+// prefer delta if it exists and output is a terminal, otherwise use git diff
+// https://dandavison.github.io/delta/
+const useDelta = $.commandExistsSync('delta') && Deno.stdout.isTerminal()
+const diffCmd = useDelta ? ['delta'] : ['git', 'diff', '--no-index', '--']
 
 await new Command()
   .name('api-diff')
@@ -183,13 +185,13 @@ Dependencies:
     ])
 
     if (options.format === 'schema') {
-      await $`${diffTool} ${baseSchema} ${headSchema}`.noThrow()
+      await $`${diffCmd} ${baseSchema} ${headSchema}`.noThrow()
     } else {
       const [baseClient, headClient] = await Promise.all([
         ensureClient(baseSchema, force),
         ensureClient(headSchema, force),
       ])
-      await $`${diffTool} ${baseClient} ${headClient}`.noThrow()
+      await $`${diffCmd} ${baseClient} ${headClient}`.noThrow()
     }
   })
   .parse(Deno.args)
