@@ -117,7 +117,7 @@ async function ensureSchema(commit: string, specFilename: string, force: boolean
   const schemaPath = `${dir}/spec.json`
   if (force || !(await exists(schemaPath))) {
     await $`mkdir -p ${dir}`
-    console.info(`Downloading ${specFilename}...`)
+    console.error(`Downloading ${specFilename}...`)
     const content = await fetch(SPEC_RAW_URL(commit, specFilename)).then((r) => r.text())
     await Deno.writeTextFile(schemaPath, content)
   }
@@ -128,7 +128,7 @@ async function ensureClient(schemaPath: string, force: boolean) {
   const dir = schemaPath.replace(/\/spec\.json$/, '')
   const clientPath = `${dir}/Api.ts`
   if (force || !(await exists(clientPath))) {
-    console.info(`Generating client...`)
+    console.error(`Generating client...`)
     await $`npx @oxide/openapi-gen-ts@latest ${schemaPath} ${dir}`
     await $`npx prettier --write --log-level error ${dir}`
   }
@@ -141,8 +141,27 @@ async function ensureClient(schemaPath: string, force: boolean) {
 
 if (!$.commandExistsSync('gh')) throw Error('Need gh (GitHub CLI)')
 
-// prefer delta if it exists. https://dandavison.github.io/delta/
-const diffTool = $.commandExistsSync('delta') ? 'delta' : 'diff'
+/** Run diff with clean labels (version extracted from spec filename) */
+async function runDiff(
+  base: string,
+  head: string,
+  baseVersion: string,
+  headVersion: string
+) {
+  const filename = base.endsWith('spec.json') ? 'spec.json' : 'Api.ts'
+  // prefer delta if it exists and output is a terminal, otherwise use diff
+  // https://dandavison.github.io/delta/
+  const useDelta = $.commandExistsSync('delta') && Deno.stdout.isTerminal()
+
+  // use -L to set labels, extracting version from spec filename (e.g., nexus-2026010300.0.0-7599dd.json)
+  const getVersion = (spec: string) =>
+    spec.match(/nexus-([^.]+\.[^.]+\.[^.]+)/)?.[1] ?? spec
+  const baseLabel = `a/${getVersion(baseVersion)}/${filename}`
+  const headLabel = `b/${getVersion(headVersion)}/${filename}`
+  // diff exits 1 when files differ, so noThrow() to avoid breaking the pipe
+  const diff = $`diff -u -L ${baseLabel} -L ${headLabel} ${base} ${head}`.noThrow()
+  await (useDelta ? diff.pipe($`delta`) : diff)
+}
 
 await new Command()
   .name('api-diff')
@@ -183,13 +202,13 @@ Dependencies:
     ])
 
     if (options.format === 'schema') {
-      await $`${diffTool} ${baseSchema} ${headSchema}`.noThrow()
+      await runDiff(baseSchema, headSchema, target.baseSchema, target.headSchema)
     } else {
       const [baseClient, headClient] = await Promise.all([
         ensureClient(baseSchema, force),
         ensureClient(headSchema, force),
       ])
-      await $`${diffTool} ${baseClient} ${headClient}`.noThrow()
+      await runDiff(baseClient, headClient, target.baseSchema, target.headSchema)
     }
   })
   .parse(Deno.args)
