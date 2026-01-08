@@ -19,6 +19,8 @@ import { Access16Icon } from '@oxide/design-system/icons/react'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { ResourceLabel } from '~/ui/lib/SideModal'
+import { identityFilterLabel } from '~/util/access'
+import { capitalize } from '~/util/str'
 
 import {
   actorToItem,
@@ -28,8 +30,12 @@ import {
   type EditRoleModalProps,
 } from './access-util'
 
-export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
-  const actors = useActorsNotInPolicy(policy)
+export function SiloAccessAddUserSideModal({
+  onDismiss,
+  policy,
+  filter,
+}: AddRoleModalProps) {
+  const actors = useActorsNotInPolicy(policy, filter)
 
   const updatePolicy = useApiMutation(api.policyUpdate, {
     onSuccess: () => {
@@ -40,12 +46,14 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
 
   const form = useForm({ defaultValues })
 
+  const entityLabel = identityFilterLabel[filter]
+
   return (
     <SideModalForm
       form={form}
       formType="create"
       resourceName="role"
-      title="Add user or group"
+      title={`Add ${entityLabel}`}
       submitLabel="Assign role"
       onDismiss={onDismiss}
       onSubmit={({ identityId, roleName }) => {
@@ -62,8 +70,9 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
     >
       <ListboxField
         name="identityId"
+        placeholder={`Select a ${entityLabel}`}
         items={actors.map(actorToItem)}
-        label="User or group"
+        label={capitalize(entityLabel)}
         required
         control={form.control}
       />

@@ -21,6 +21,8 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { ResourceLabel } from '~/ui/lib/SideModal'
+import { identityFilterLabel } from '~/util/access'
+import { capitalize } from '~/util/str'
 
 import {
   actorToItem,
@@ -30,10 +32,14 @@ import {
   type EditRoleModalProps,
 } from './access-util'
 
-export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
+export function ProjectAccessAddUserSideModal({
+  onDismiss,
+  policy,
+  filter,
+}: AddRoleModalProps) {
   const { project } = useProjectSelector()
 
-  const actors = useActorsNotInPolicy(policy)
+  const actors = useActorsNotInPolicy(policy, filter)
 
   const updatePolicy = useApiMutation(api.projectPolicyUpdate, {
     onSuccess: () => {
@@ -46,9 +52,11 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
 
   const form = useForm({ defaultValues })
 
+  const entityLabel = identityFilterLabel[filter]
+
   return (
     <SideModalForm
-      title="Add user or group"
+      title={`Add ${entityLabel}`}
       resourceName="role"
       form={form}
       formType="create"
@@ -68,8 +76,9 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
     >
       <ListboxField
         name="identityId"
+        placeholder={`Select a ${entityLabel}`}
         items={actors.map(actorToItem)}
-        label="User or group"
+        label={capitalize(entityLabel)}
         required
         control={form.control}
       />
