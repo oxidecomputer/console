@@ -152,9 +152,15 @@ const staticCols = [
     ),
   }),
   colHelper.accessor('description', Columns.description),
-  colHelper.accessor('ip', {
+  colHelper.display({
+    id: 'ip',
     header: 'Private IP',
-    cell: (info) => <CopyableIp ip={info.getValue()} isLinked={false} />,
+    cell: (info) => {
+      const nic = info.row.original
+      const ip =
+        nic.ipStack.type === 'dual_stack' ? nic.ipStack.value.v4.ip : nic.ipStack.value.ip
+      return <CopyableIp ip={ip} isLinked={false} />
+    },
   }),
   colHelper.accessor('vpcId', {
     header: 'vpc',
@@ -164,15 +170,23 @@ const staticCols = [
     header: 'subnet',
     cell: (info) => <SubnetNameFromId value={info.getValue()} />,
   }),
-  colHelper.accessor('transitIps', {
+  colHelper.display({
+    id: 'transitIps',
     header: 'Transit IPs',
-    cell: (info) => (
-      <ListPlusCell tooltipTitle="Other transit IPs">
-        {info.getValue()?.map((ip) => (
-          <div key={ip}>{ip}</div>
-        ))}
-      </ListPlusCell>
-    ),
+    cell: (info) => {
+      const nic = info.row.original
+      const transitIps =
+        nic.ipStack.type === 'dual_stack'
+          ? nic.ipStack.value.v4.transitIps
+          : nic.ipStack.value.transitIps
+      return (
+        <ListPlusCell tooltipTitle="Other transit IPs">
+          {transitIps?.map((ip) => (
+            <div key={ip}>{ip}</div>
+          ))}
+        </ListPlusCell>
+      )
+    },
   }),
 ]
 

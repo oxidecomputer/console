@@ -7,7 +7,7 @@
  */
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import * as R from 'remeda'
+
 
 import {
   api,
@@ -52,11 +52,17 @@ export function EditNetworkInterfaceForm({
     },
   })
 
-  const defaultValues = R.pick(editing, [
-    'name',
-    'description',
-    'transitIps',
-  ]) satisfies InstanceNetworkInterfaceUpdate
+  // Extract transitIps from ipStack for the form
+  const extractedTransitIps =
+    editing.ipStack.type === 'dual_stack'
+      ? editing.ipStack.value.v4.transitIps
+      : editing.ipStack.value.transitIps
+
+  const defaultValues = {
+    name: editing.name,
+    description: editing.description,
+    transitIps: extractedTransitIps,
+  } satisfies InstanceNetworkInterfaceUpdate
 
   const form = useForm({ defaultValues })
   const transitIps = form.watch('transitIps') || []

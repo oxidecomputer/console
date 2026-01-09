@@ -171,6 +171,49 @@ export type AddressLotViewResponse = {
 }
 
 /**
+ * The IP address version.
+ */
+export type IpVersion = 'v4' | 'v6'
+
+/**
+ * Specify which IP pool to allocate from.
+ */
+export type PoolSelector =
+  /** Use the specified pool by name or ID. */
+  | {
+      /** The pool to allocate from. */
+      pool: NameOrId
+      type: 'explicit'
+    }
+  /** Use the default pool for the silo. */
+  | {
+      /** IP version to use when multiple default pools exist. Required if both IPv4 and IPv6 default pools are configured. */
+      ipVersion?: IpVersion | null
+      type: 'auto'
+    }
+
+/**
+ * Specify how to allocate a floating IP address.
+ */
+export type AddressSelector =
+  /** Reserve a specific IP address. */
+  | {
+      /** The IP address to reserve. Must be available in the pool. */
+      ip: string
+      /** The pool containing this address. If not specified, the default pool for the address's IP version is used. */
+      pool?: NameOrId | null
+      type: 'explicit'
+    }
+  /** Automatically allocate an IP address from a specified pool. */
+  | {
+      /** Pool selection.
+
+If omitted, this field uses the silo's default pool. If the silo has default pools for both IPv4 and IPv6, the request will fail unless `ip_version` is specified in the pool selector. */
+      poolSelector?: PoolSelector
+      type: 'auto'
+    }
+
+/**
  * Describes the scope of affinity for the purposes of co-location.
  */
 export type FailureDomain = 'sled'
@@ -1934,8 +1977,8 @@ export type Distributionint64 = {
  * Parameters for creating an ephemeral IP address for an instance.
  */
 export type EphemeralIpCreate = {
-  /** Name or ID of the IP pool used to allocate an address. If unspecified, the default IP pool will be used. */
-  pool?: NameOrId | null
+  /** Pool to allocate from. */
+  poolSelector?: PoolSelector
 }
 
 export type ExternalIp =
@@ -1981,8 +2024,12 @@ SNAT addresses are ephemeral addresses used only for outbound connectivity. */
  * Parameters for creating an external IP address for instances.
  */
 export type ExternalIpCreate =
-  /** An IP address providing both inbound and outbound access. The address is automatically assigned from the provided IP pool or the default IP pool if not specified. */
-  | { pool?: NameOrId | null; type: 'ephemeral' }
+  /** An IP address providing both inbound and outbound access. The address is automatically assigned from a pool. */
+  | {
+      /** Pool to allocate from. */
+      poolSelector?: PoolSelector
+      type: 'ephemeral'
+    }
   /** An IP address providing both inbound and outbound access. The address is an existing floating IP object assigned to the current project.
 
 The floating IP must not be in use by another instance or service. */
@@ -2126,12 +2173,10 @@ export type FloatingIpAttach = {
  * Parameters for creating a new floating IP address for instances.
  */
 export type FloatingIpCreate = {
+  /** IP address allocation method. */
+  addressSelector?: AddressSelector
   description: string
-  /** An IP address to reserve for use as a floating IP. This field is optional: when not set, an address will be automatically chosen from `pool`. If set, then the IP must be available in the resolved `pool`. */
-  ip?: string | null
   name: Name
-  /** The parent IP pool that a floating IP is pulled from. If unset, the default pool is selected. */
-  pool?: NameOrId | null
 }
 
 /**
@@ -2383,17 +2428,69 @@ export type InstanceDiskAttachment =
     }
 
 /**
+ * How a VPC-private IP address is assigned to a network interface.
+ */
+export type Ipv4Assignment =
+  /** Automatically assign an IP address from the VPC Subnet. */
+  | { type: 'auto' }
+  /** Explicitly assign a specific address, if available. */
+  | { type: 'explicit'; value: string }
+
+/**
+ * Configuration for a network interface's IPv4 addressing.
+ */
+export type PrivateIpv4StackCreate = {
+  /** The VPC-private address to assign to the interface. */
+  ip: Ipv4Assignment
+  /** Additional IP networks the interface can send / receive on. */
+  transitIps?: Ipv4Net[]
+}
+
+/**
+ * How a VPC-private IP address is assigned to a network interface.
+ */
+export type Ipv6Assignment =
+  /** Automatically assign an IP address from the VPC Subnet. */
+  | { type: 'auto' }
+  /** Explicitly assign a specific address, if available. */
+  | { type: 'explicit'; value: string }
+
+/**
+ * Configuration for a network interface's IPv6 addressing.
+ */
+export type PrivateIpv6StackCreate = {
+  /** The VPC-private address to assign to the interface. */
+  ip: Ipv6Assignment
+  /** Additional IP networks the interface can send / receive on. */
+  transitIps?: Ipv6Net[]
+}
+
+/**
+ * Create parameters for a network interface's IP stack.
+ */
+export type PrivateIpStackCreate =
+  /** The interface has only an IPv4 stack. */
+  | { type: 'v4'; value: PrivateIpv4StackCreate }
+  /** The interface has only an IPv6 stack. */
+  | { type: 'v6'; value: PrivateIpv6StackCreate }
+  /** The interface has both an IPv4 and IPv6 stack. */
+  | {
+      type: 'dual_stack'
+      value: { v4: PrivateIpv4StackCreate; v6: PrivateIpv6StackCreate }
+    }
+
+/**
  * Create-time parameters for an `InstanceNetworkInterface`
  */
 export type InstanceNetworkInterfaceCreate = {
   description: string
-  /** The IP address for the interface. One will be auto-assigned if not provided. */
-  ip?: string | null
+  /** The IP stack configuration for this interface.
+
+If not provided, a default configuration will be used, which creates a dual-stack IPv4 / IPv6 interface. */
+  ipConfig?: PrivateIpStackCreate
   name: Name
   /** The VPC Subnet in which to create the interface. */
   subnetName: Name
-  /** A set of additional networks that this interface may send and receive traffic on. */
-  transitIps?: IpNet[]
   /** The VPC in which to create the interface. */
   vpcName: Name
 }
@@ -2406,8 +2503,18 @@ export type InstanceNetworkInterfaceAttachment =
 
 If more than one interface is provided, then the first will be designated the primary interface for the instance. */
   | { params: InstanceNetworkInterfaceCreate[]; type: 'create' }
-  /** The default networking configuration for an instance is to create a single primary interface with an automatically-assigned IP address. The IP will be pulled from the Project's default VPC / VPC Subnet. */
-  | { type: 'default' }
+  /** Create a single primary interface with an automatically-assigned IPv4 address.
+
+The IP will be pulled from the Project's default VPC / VPC Subnet. */
+  | { type: 'default_ipv4' }
+  /** Create a single primary interface with an automatically-assigned IPv6 address.
+
+The IP will be pulled from the Project's default VPC / VPC Subnet. */
+  | { type: 'default_ipv6' }
+  /** Create a single primary interface with automatically-assigned IPv4 and IPv6 addresses.
+
+The IPs will be pulled from the Project's default VPC / VPC Subnet. */
+  | { type: 'default_dual_stack' }
   /** No network interfaces at all will be created for the instance. */
   | { type: 'none' }
 
@@ -2468,6 +2575,37 @@ If not provided, all SSH public keys from the user's profile will be sent. If an
 }
 
 /**
+ * The VPC-private IPv4 stack for a network interface
+ */
+export type PrivateIpv4Stack = {
+  /** The VPC-private IPv4 address for the interface. */
+  ip: string
+  /** A set of additional IPv4 networks that this interface may send and receive traffic on. */
+  transitIps: Ipv4Net[]
+}
+
+/**
+ * The VPC-private IPv6 stack for a network interface
+ */
+export type PrivateIpv6Stack = {
+  /** The VPC-private IPv6 address for the interface. */
+  ip: string
+  /** A set of additional IPv6 networks that this interface may send and receive traffic on. */
+  transitIps: Ipv6Net[]
+}
+
+/**
+ * The VPC-private IP stack for a network interface.
+ */
+export type PrivateIpStack =
+  /** The interface has only an IPv4 stack. */
+  | { type: 'v4'; value: PrivateIpv4Stack }
+  /** The interface has only an IPv6 stack. */
+  | { type: 'v6'; value: PrivateIpv6Stack }
+  /** The interface is dual-stack IPv4 and IPv6. */
+  | { type: 'dual_stack'; value: { v4: PrivateIpv4Stack; v6: PrivateIpv6Stack } }
+
+/**
  * A MAC address
  *
  * A Media Access Control address, in EUI-48 format
@@ -2484,8 +2622,8 @@ export type InstanceNetworkInterface = {
   id: string
   /** The Instance to which the interface belongs. */
   instanceId: string
-  /** The IP address assigned to this interface. */
-  ip: string
+  /** The VPC-private IP stack for this interface. */
+  ipStack: PrivateIpStack
   /** The MAC address assigned to this interface. */
   mac: MacAddr
   /** unique, mutable, user-controlled identifier for each resource */
@@ -2498,8 +2636,6 @@ export type InstanceNetworkInterface = {
   timeCreated: Date
   /** timestamp when this resource was last modified */
   timeModified: Date
-  /** A set of additional networks that this interface may send and receive traffic on. */
-  transitIps?: IpNet[]
   /** The VPC to which the interface belongs. */
   vpcId: string
 }
@@ -2528,7 +2664,7 @@ If applied to a secondary interface, that interface will become the primary on t
 
 Note that this can only be used to select a new primary interface for an instance. Requests to change the primary interface into a secondary will return an error. */
   primary?: boolean
-  /** A set of additional networks that this interface may send and receive traffic on. */
+  /** A set of additional networks that this interface may send and receive traffic on */
   transitIps?: IpNet[]
 }
 
@@ -2699,11 +2835,6 @@ export type InternetGatewayResultsPage = {
 }
 
 /**
- * The IP address version.
- */
-export type IpVersion = 'v4' | 'v6'
-
-/**
  * Type of IP pool.
  */
 export type IpPoolType =
@@ -2727,7 +2858,7 @@ export type IpPool = {
   ipVersion: IpVersion
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** Type of IP pool (unicast or multicast) */
+  /** Type of IP pool (unicast or multicast). */
   poolType: IpPoolType
   /** timestamp when this resource was created */
   timeCreated: Date
@@ -2754,7 +2885,9 @@ The default is IPv4. */
 }
 
 export type IpPoolLinkSilo = {
-  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo. */
+  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified.
+
+A silo can have at most one default pool per combination of pool type (unicast or multicast) and IP version (IPv4 or IPv6), allowing up to 4 default pools total. */
   isDefault: boolean
   silo: NameOrId
 }
@@ -2807,7 +2940,9 @@ export type IpPoolResultsPage = {
  */
 export type IpPoolSiloLink = {
   ipPoolId: string
-  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo. */
+  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified.
+
+A silo can have at most one default pool per combination of pool type (unicast or multicast) and IP version (IPv4 or IPv6), allowing up to 4 default pools total. */
   isDefault: boolean
   siloId: string
 }
@@ -2823,7 +2958,9 @@ export type IpPoolSiloLinkResultsPage = {
 }
 
 export type IpPoolSiloUpdate = {
-  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo, so when a pool is made default, an existing default will remain linked but will no longer be the default. */
+  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified.
+
+A silo can have at most one default pool per combination of pool type (unicast or multicast) and IP version (IPv4 or IPv6), allowing up to 4 default pools total. When a pool is made default, an existing default of the same type and version will remain linked but will no longer be the default. */
   isDefault: boolean
 }
 
@@ -3195,6 +3332,49 @@ export type MulticastGroupUpdate = {
 }
 
 /**
+ * VPC-private IPv4 configuration for a network interface.
+ */
+export type PrivateIpv4Config = {
+  /** VPC-private IP address. */
+  ip: string
+  /** The IP subnet. */
+  subnet: Ipv4Net
+  /** Additional networks on which the interface can send / receive traffic. */
+  transitIps?: Ipv4Net[]
+}
+
+/**
+ * VPC-private IPv6 configuration for a network interface.
+ */
+export type PrivateIpv6Config = {
+  /** VPC-private IP address. */
+  ip: string
+  /** The IP subnet. */
+  subnet: Ipv6Net
+  /** Additional networks on which the interface can send / receive traffic. */
+  transitIps: Ipv6Net[]
+}
+
+/**
+ * VPC-private IP address configuration for a network interface.
+ */
+export type PrivateIpConfig =
+  /** The interface has only an IPv4 configuration. */
+  | { type: 'v4'; value: PrivateIpv4Config }
+  /** The interface has only an IPv6 configuration. */
+  | { type: 'v6'; value: PrivateIpv6Config }
+  /** The interface is dual-stack. */
+  | {
+      type: 'dual_stack'
+      value: {
+        /** The interface's IPv4 configuration. */
+        v4: PrivateIpv4Config
+        /** The interface's IPv6 configuration. */
+        v6: PrivateIpv6Config
+      }
+    }
+
+/**
  * The type of network interface
  */
 export type NetworkInterfaceKind =
@@ -3215,14 +3395,12 @@ export type Vni = number
  */
 export type NetworkInterface = {
   id: string
-  ip: string
+  ipConfig: PrivateIpConfig
   kind: NetworkInterfaceKind
   mac: MacAddr
   name: Name
   primary: boolean
   slot: number
-  subnet: IpNet
-  transitIps?: IpNet[]
   vni: Vni
 }
 
@@ -3381,8 +3559,9 @@ export type Probe = {
  */
 export type ProbeCreate = {
   description: string
-  ipPool?: NameOrId | null
   name: Name
+  /** Pool to allocate from. */
+  poolSelector?: PoolSelector
   sled: string
 }
 
@@ -3820,10 +3999,16 @@ export type SiloIpPool = {
   description: string
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo. */
+  /** The IP version for the pool. */
+  ipVersion: IpVersion
+  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified.
+
+A silo can have at most one default pool per combination of pool type (unicast or multicast) and IP version (IPv4 or IPv6), allowing up to 4 default pools total. */
   isDefault: boolean
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
+  /** Type of IP pool (unicast or multicast). */
+  poolType: IpPoolType
   /** timestamp when this resource was created */
   timeCreated: Date
   /** timestamp when this resource was last modified */
@@ -6865,7 +7050,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2025121200.0.0'
+  apiVersion = '2026010500.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host

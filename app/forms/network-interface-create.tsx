@@ -8,7 +8,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
-import type { SetNonNullable, SetRequired } from 'type-fest'
 
 import { api, q, type ApiError, type InstanceNetworkInterfaceCreate } from '@oxide/api'
 
@@ -21,12 +20,12 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
 import { FormDivider } from '~/ui/lib/Divider'
 
-const defaultValues: SetRequired<SetNonNullable<InstanceNetworkInterfaceCreate>, 'ip'> = {
+const defaultValues = {
   name: '',
   description: '',
-  ip: '',
   subnetName: '',
   vpcName: '',
+  ip: '',
 }
 
 type CreateNetworkInterfaceFormProps = {
@@ -60,7 +59,19 @@ export function CreateNetworkInterfaceForm({
       resourceName="network interface"
       title="Add network interface"
       onDismiss={onDismiss}
-      onSubmit={({ ip, ...rest }) => onSubmit({ ip: ip.trim() || undefined, ...rest })}
+      onSubmit={({ ip, ...rest }) => {
+        // Transform to IPv4 ipConfig structure
+        const ipConfig = ip.trim()
+          ? {
+              type: 'v4' as const,
+              value: {
+                ip: { type: 'explicit' as const, value: ip.trim() },
+                transitIps: [],
+              },
+            }
+          : undefined
+        onSubmit({ ...rest, ipConfig })
+      }}
       loading={loading}
       submitError={submitError}
     >
@@ -83,7 +94,12 @@ export function CreateNetworkInterfaceForm({
         required
         control={form.control}
       />
-      <TextField name="ip" label="IP Address" control={form.control} />
+      <TextField
+        name="ip"
+        label="IP Address (IPv4)"
+        control={form.control}
+        placeholder="Leave blank for auto-assignment"
+      />
     </SideModalForm>
   )
 }
