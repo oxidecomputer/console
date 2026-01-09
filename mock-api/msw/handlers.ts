@@ -42,7 +42,6 @@ import {
   lookup,
   lookupById,
   notFoundErr,
-  
   resolvePoolSelector,
   utilizationForSilo,
 } from './db'
@@ -309,7 +308,8 @@ export const handlers = makeHandlers({
     const pool =
       addressSelector.type === 'explicit' && addressSelector.pool
         ? lookup.siloIpPool({ pool: addressSelector.pool, silo: defaultSilo.id })
-        : addressSelector.type === 'auto' && addressSelector.pool_selector?.type === 'explicit'
+        : addressSelector.type === 'auto' &&
+            addressSelector.pool_selector?.type === 'explicit'
           ? lookup.siloIpPool({
               pool: addressSelector.pool_selector.pool,
               silo: defaultSilo.id,
@@ -577,7 +577,9 @@ export const handlers = makeHandlers({
     const anySubnet = db.vpcSubnets.find((s) => s.vpc_id === anyVpc?.id)
     const niType = body.network_interfaces?.type
     if (
-      (niType === 'default_ipv4' || niType === 'default_ipv6' || niType === 'default_dual_stack') &&
+      (niType === 'default_ipv4' ||
+        niType === 'default_ipv6' ||
+        niType === 'default_dual_stack') &&
       anyVpc &&
       anySubnet
     ) {
