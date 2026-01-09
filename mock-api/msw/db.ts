@@ -62,6 +62,13 @@ function ensureNoParentSelectors(
 export const resolveIpPool = (pool: string | undefined | null) =>
   pool ? lookup.ipPool({ pool }) : lookup.siloDefaultIpPool({ silo: defaultSilo.id })
 
+export const resolvePoolSelector = (
+  poolSelector: { pool: string; type: 'explicit' } | { type: 'auto' } | undefined
+) =>
+  poolSelector?.type === 'explicit'
+    ? lookup.ipPool({ pool: poolSelector.pool })
+    : lookup.siloDefaultIpPool({ silo: defaultSilo.id })
+
 export const getIpFromPool = (pool: Json<Api.IpPool>) => {
   const ipPoolRange = db.ipPoolRanges.find((range) => range.ip_pool_id === pool.id)
   if (!ipPoolRange) throw notFoundErr(`IP range for pool '${pool.name}'`)

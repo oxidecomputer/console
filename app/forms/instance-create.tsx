@@ -151,7 +151,7 @@ const baseDefaultValues: InstanceCreateInput = {
   diskSource: '',
 
   otherDisks: [],
-  networkInterfaces: { type: 'default' },
+  networkInterfaces: { type: 'default_ipv4' },
 
   sshPublicKeys: [],
 
@@ -232,7 +232,9 @@ export default function CreateInstanceForm() {
     bootDiskSourceType: defaultSource,
     sshPublicKeys: allKeys,
     bootDiskSize: diskSizeNearest10(defaultImage?.size / GiB),
-    externalIps: [{ type: 'ephemeral', pool: defaultPool }],
+    externalIps: defaultPool
+      ? [{ type: 'ephemeral', poolSelector: { type: 'explicit', pool: defaultPool } }]
+      : [],
   }
 
   const form = useForm({ defaultValues })

@@ -175,6 +175,40 @@ export const AddressLotViewResponse = z.preprocess(
 )
 
 /**
+ * The IP address version.
+ */
+export const IpVersion = z.preprocess(processResponseBody, z.enum(['v4', 'v6']))
+
+/**
+ * Specify which IP pool to allocate from.
+ */
+export const PoolSelector = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ pool: NameOrId, type: z.enum(['explicit']) }),
+    z.object({ ipVersion: IpVersion.nullable().default(null), type: z.enum(['auto']) }),
+  ])
+)
+
+/**
+ * Specify how to allocate a floating IP address.
+ */
+export const AddressSelector = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({
+      ip: z.ipv4(),
+      pool: NameOrId.nullable().optional(),
+      type: z.enum(['explicit']),
+    }),
+    z.object({
+      poolSelector: PoolSelector.default({ ipVersion: null, type: 'auto' }),
+      type: z.enum(['auto']),
+    }),
+  ])
+)
+
+/**
  * Describes the scope of affinity for the purposes of co-location.
  */
 export const FailureDomain = z.preprocess(processResponseBody, z.enum(['sled']))
@@ -1778,7 +1812,7 @@ export const Distributionint64 = z.preprocess(
  */
 export const EphemeralIpCreate = z.preprocess(
   processResponseBody,
-  z.object({ pool: NameOrId.nullable().optional() })
+  z.object({ poolSelector: PoolSelector.default({ ipVersion: null, type: 'auto' }) })
 )
 
 /**
@@ -1821,7 +1855,10 @@ export const ExternalIp = z.preprocess(
 export const ExternalIpCreate = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ pool: NameOrId.nullable().optional(), type: z.enum(['ephemeral']) }),
+    z.object({
+      poolSelector: PoolSelector.default({ ipVersion: null, type: 'auto' }),
+      type: z.enum(['ephemeral']),
+    }),
     z.object({ floatingIp: NameOrId, type: z.enum(['floating']) }),
   ])
 )
@@ -1972,10 +2009,12 @@ export const FloatingIpAttach = z.preprocess(
 export const FloatingIpCreate = z.preprocess(
   processResponseBody,
   z.object({
+    addressSelector: AddressSelector.default({
+      poolSelector: { ipVersion: null, type: 'auto' },
+      type: 'auto',
+    }),
     description: z.string(),
-    ip: z.ipv4().nullable().optional(),
     name: Name,
-    pool: NameOrId.nullable().optional(),
   })
 )
 
@@ -2213,16 +2252,74 @@ export const InstanceDiskAttachment = z.preprocess(
 )
 
 /**
+ * How a VPC-private IP address is assigned to a network interface.
+ */
+export const Ipv4Assignment = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ type: z.enum(['auto']) }),
+    z.object({ type: z.enum(['explicit']), value: z.ipv4() }),
+  ])
+)
+
+/**
+ * Configuration for a network interface's IPv4 addressing.
+ */
+export const PrivateIpv4StackCreate = z.preprocess(
+  processResponseBody,
+  z.object({ ip: Ipv4Assignment, transitIps: Ipv4Net.array().default([]) })
+)
+
+/**
+ * How a VPC-private IP address is assigned to a network interface.
+ */
+export const Ipv6Assignment = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ type: z.enum(['auto']) }),
+    z.object({ type: z.enum(['explicit']), value: z.ipv6() }),
+  ])
+)
+
+/**
+ * Configuration for a network interface's IPv6 addressing.
+ */
+export const PrivateIpv6StackCreate = z.preprocess(
+  processResponseBody,
+  z.object({ ip: Ipv6Assignment, transitIps: Ipv6Net.array().default([]) })
+)
+
+/**
+ * Create parameters for a network interface's IP stack.
+ */
+export const PrivateIpStackCreate = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ type: z.enum(['v4']), value: PrivateIpv4StackCreate }),
+    z.object({ type: z.enum(['v6']), value: PrivateIpv6StackCreate }),
+    z.object({
+      type: z.enum(['dual_stack']),
+      value: z.object({ v4: PrivateIpv4StackCreate, v6: PrivateIpv6StackCreate }),
+    }),
+  ])
+)
+
+/**
  * Create-time parameters for an `InstanceNetworkInterface`
  */
 export const InstanceNetworkInterfaceCreate = z.preprocess(
   processResponseBody,
   z.object({
     description: z.string(),
-    ip: z.ipv4().nullable().optional(),
+    ipConfig: PrivateIpStackCreate.default({
+      type: 'dual_stack',
+      value: {
+        v4: { ip: { type: 'auto' }, transitIps: [] },
+        v6: { ip: { type: 'auto' }, transitIps: [] },
+      },
+    }),
     name: Name,
     subnetName: Name,
-    transitIps: IpNet.array().default([]).optional(),
     vpcName: Name,
   })
 )
@@ -2234,7 +2331,9 @@ export const InstanceNetworkInterfaceAttachment = z.preprocess(
   processResponseBody,
   z.union([
     z.object({ params: InstanceNetworkInterfaceCreate.array(), type: z.enum(['create']) }),
-    z.object({ type: z.enum(['default']) }),
+    z.object({ type: z.enum(['default_ipv4']) }),
+    z.object({ type: z.enum(['default_ipv6']) }),
+    z.object({ type: z.enum(['default_dual_stack']) }),
     z.object({ type: z.enum(['none']) }),
   ])
 )
@@ -2245,25 +2344,56 @@ export const InstanceNetworkInterfaceAttachment = z.preprocess(
 export const InstanceCreate = z.preprocess(
   processResponseBody,
   z.object({
-    antiAffinityGroups: NameOrId.array().default([]).optional(),
-    autoRestartPolicy: InstanceAutoRestartPolicy.nullable().default(null).optional(),
-    bootDisk: InstanceDiskAttachment.nullable().default(null).optional(),
-    cpuPlatform: InstanceCpuPlatform.nullable().default(null).optional(),
+    antiAffinityGroups: NameOrId.array().default([]),
+    autoRestartPolicy: InstanceAutoRestartPolicy.nullable().default(null),
+    bootDisk: InstanceDiskAttachment.nullable().default(null),
+    cpuPlatform: InstanceCpuPlatform.nullable().default(null),
     description: z.string(),
-    disks: InstanceDiskAttachment.array().default([]).optional(),
-    externalIps: ExternalIpCreate.array().default([]).optional(),
+    disks: InstanceDiskAttachment.array().default([]),
+    externalIps: ExternalIpCreate.array().default([]),
     hostname: Hostname,
     memory: ByteCount,
-    multicastGroups: NameOrId.array().default([]).optional(),
+    multicastGroups: NameOrId.array().default([]),
     name: Name,
     ncpus: InstanceCpuCount,
     networkInterfaces: InstanceNetworkInterfaceAttachment.default({
-      type: 'default',
-    }).optional(),
+      type: 'default_dual_stack',
+    }),
     sshPublicKeys: NameOrId.array().nullable().optional(),
-    start: SafeBoolean.default(true).optional(),
-    userData: z.string().default('').optional(),
+    start: SafeBoolean.default(true),
+    userData: z.string().default(''),
   })
+)
+
+/**
+ * The VPC-private IPv4 stack for a network interface
+ */
+export const PrivateIpv4Stack = z.preprocess(
+  processResponseBody,
+  z.object({ ip: z.ipv4(), transitIps: Ipv4Net.array() })
+)
+
+/**
+ * The VPC-private IPv6 stack for a network interface
+ */
+export const PrivateIpv6Stack = z.preprocess(
+  processResponseBody,
+  z.object({ ip: z.ipv6(), transitIps: Ipv6Net.array() })
+)
+
+/**
+ * The VPC-private IP stack for a network interface.
+ */
+export const PrivateIpStack = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ type: z.enum(['v4']), value: PrivateIpv4Stack }),
+    z.object({ type: z.enum(['v6']), value: PrivateIpv6Stack }),
+    z.object({
+      type: z.enum(['dual_stack']),
+      value: z.object({ v4: PrivateIpv4Stack, v6: PrivateIpv6Stack }),
+    }),
+  ])
 )
 
 /**
@@ -2289,14 +2419,13 @@ export const InstanceNetworkInterface = z.preprocess(
     description: z.string(),
     id: z.uuid(),
     instanceId: z.uuid(),
-    ip: z.ipv4(),
+    ipStack: PrivateIpStack,
     mac: MacAddr,
     name: Name,
     primary: SafeBoolean,
     subnetId: z.uuid(),
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
-    transitIps: IpNet.array().default([]).optional(),
     vpcId: z.uuid(),
   })
 )
@@ -2322,8 +2451,8 @@ export const InstanceNetworkInterfaceUpdate = z.preprocess(
   z.object({
     description: z.string().nullable().optional(),
     name: Name.nullable().optional(),
-    primary: SafeBoolean.default(false).optional(),
-    transitIps: IpNet.array().default([]).optional(),
+    primary: SafeBoolean.default(false),
+    transitIps: IpNet.array().default([]),
   })
 )
 
@@ -2353,7 +2482,7 @@ export const InstanceUpdate = z.preprocess(
     bootDisk: NameOrId.nullable(),
     cpuPlatform: InstanceCpuPlatform.nullable(),
     memory: ByteCount,
-    multicastGroups: NameOrId.array().nullable().default(null).optional(),
+    multicastGroups: NameOrId.array().nullable().default(null),
     ncpus: InstanceCpuCount,
   })
 )
@@ -2469,11 +2598,6 @@ export const InternetGatewayResultsPage = z.preprocess(
 )
 
 /**
- * The IP address version.
- */
-export const IpVersion = z.preprocess(processResponseBody, z.enum(['v4', 'v6']))
-
-/**
  * Type of IP pool.
  */
 export const IpPoolType = z.preprocess(
@@ -2508,9 +2632,9 @@ export const IpPoolCreate = z.preprocess(
   processResponseBody,
   z.object({
     description: z.string(),
-    ipVersion: IpVersion.default('v4').optional(),
+    ipVersion: IpVersion.default('v4'),
     name: Name,
-    poolType: IpPoolType.default('unicast').optional(),
+    poolType: IpPoolType.default('unicast'),
   })
 )
 
@@ -2839,11 +2963,11 @@ export const MulticastGroupCreate = z.preprocess(
   processResponseBody,
   z.object({
     description: z.string(),
-    multicastIp: z.ipv4().nullable().default(null).optional(),
-    mvlan: z.number().min(0).max(65535).nullable().optional(),
+    multicastIp: z.ipv4().nullable().default(null),
+    mvlan: z.number().min(0).max(65535).nullable().default(null),
     name: Name,
-    pool: NameOrId.nullable().default(null).optional(),
-    sourceIps: z.ipv4().array().nullable().default(null).optional(),
+    pool: NameOrId.nullable().default(null),
+    sourceIps: z.ipv4().array().nullable().default(null),
   })
 )
 
@@ -2905,6 +3029,37 @@ export const MulticastGroupUpdate = z.preprocess(
 )
 
 /**
+ * VPC-private IPv4 configuration for a network interface.
+ */
+export const PrivateIpv4Config = z.preprocess(
+  processResponseBody,
+  z.object({ ip: z.ipv4(), subnet: Ipv4Net, transitIps: Ipv4Net.array().default([]) })
+)
+
+/**
+ * VPC-private IPv6 configuration for a network interface.
+ */
+export const PrivateIpv6Config = z.preprocess(
+  processResponseBody,
+  z.object({ ip: z.ipv6(), subnet: Ipv6Net, transitIps: Ipv6Net.array() })
+)
+
+/**
+ * VPC-private IP address configuration for a network interface.
+ */
+export const PrivateIpConfig = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ type: z.enum(['v4']), value: PrivateIpv4Config }),
+    z.object({ type: z.enum(['v6']), value: PrivateIpv6Config }),
+    z.object({
+      type: z.enum(['dual_stack']),
+      value: z.object({ v4: PrivateIpv4Config, v6: PrivateIpv6Config }),
+    }),
+  ])
+)
+
+/**
  * The type of network interface
  */
 export const NetworkInterfaceKind = z.preprocess(
@@ -2928,14 +3083,12 @@ export const NetworkInterface = z.preprocess(
   processResponseBody,
   z.object({
     id: z.uuid(),
-    ip: z.ipv4(),
+    ipConfig: PrivateIpConfig,
     kind: NetworkInterfaceKind,
     mac: MacAddr,
     name: Name,
     primary: SafeBoolean,
     slot: z.number().min(0).max(255),
-    subnet: IpNet,
-    transitIps: IpNet.array().default([]).optional(),
     vni: Vni,
   })
 )
@@ -3097,8 +3250,8 @@ export const ProbeCreate = z.preprocess(
   processResponseBody,
   z.object({
     description: z.string(),
-    ipPool: NameOrId.nullable().optional(),
     name: Name,
+    poolSelector: PoolSelector.default({ ipVersion: null, type: 'auto' }),
     sled: z.uuid(),
   })
 )
@@ -3365,7 +3518,7 @@ export const SamlIdentityProviderCreate = z.preprocess(
     idpEntityId: z.string(),
     idpMetadataSource: IdpMetadataSource,
     name: Name,
-    signingKeypair: DerEncodedKeyPair.nullable().default(null).optional(),
+    signingKeypair: DerEncodedKeyPair.nullable().default(null),
     sloUrl: z.string(),
     spClientId: z.string(),
     technicalContactEmail: z.string(),
@@ -3481,9 +3634,7 @@ export const SiloCreate = z.preprocess(
     description: z.string(),
     discoverable: SafeBoolean,
     identityMode: SiloIdentityMode,
-    mappedFleetRoles: z
-      .record(z.string(), FleetRole.array().refine(...uniqueItems))
-      .optional(),
+    mappedFleetRoles: z.record(z.string(), FleetRole.array().refine(...uniqueItems)),
     name: Name,
     quotas: SiloQuotasCreate,
     tlsCertificates: CertificateCreate.array(),
@@ -3498,8 +3649,10 @@ export const SiloIpPool = z.preprocess(
   z.object({
     description: z.string(),
     id: z.uuid(),
+    ipVersion: IpVersion,
     isDefault: SafeBoolean,
     name: Name,
+    poolType: IpPoolType,
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
   })
@@ -4043,14 +4196,14 @@ export const SwitchPortSettingsCreate = z.preprocess(
   processResponseBody,
   z.object({
     addresses: AddressConfig.array(),
-    bgpPeers: BgpPeerConfig.array().default([]).optional(),
+    bgpPeers: BgpPeerConfig.array().default([]),
     description: z.string(),
-    groups: NameOrId.array().default([]).optional(),
-    interfaces: SwitchInterfaceConfigCreate.array().default([]).optional(),
+    groups: NameOrId.array().default([]),
+    interfaces: SwitchInterfaceConfigCreate.array().default([]),
     links: LinkConfigCreate.array(),
     name: Name,
     portConfig: SwitchPortConfigCreate,
-    routes: RouteConfig.array().default([]).optional(),
+    routes: RouteConfig.array().default([]),
   })
 )
 
@@ -4510,7 +4663,7 @@ export const VpcFirewallRuleUpdate = z.preprocess(
  */
 export const VpcFirewallRuleUpdateParams = z.preprocess(
   processResponseBody,
-  z.object({ rules: VpcFirewallRuleUpdate.array().default([]).optional() })
+  z.object({ rules: VpcFirewallRuleUpdate.array().default([]) })
 )
 
 /**
@@ -4648,7 +4801,7 @@ export const WebhookCreate = z.preprocess(
     endpoint: z.string(),
     name: Name,
     secrets: z.string().array(),
-    subscriptions: AlertSubscription.array().default([]).optional(),
+    subscriptions: AlertSubscription.array().default([]),
   })
 )
 

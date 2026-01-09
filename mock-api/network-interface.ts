@@ -17,11 +17,16 @@ export const networkInterface: Json<InstanceNetworkInterface> = {
   description: 'a network interface',
   primary: true,
   instance_id: instance.id,
-  ip: '172.30.0.10',
+  ip_stack: {
+    type: 'v4',
+    value: {
+      ip: '172.30.0.10',
+      transit_ips: ['172.30.0.0/22'],
+    },
+  },
   mac: '',
   subnet_id: vpcSubnet.id,
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
-  transit_ips: ['172.30.0.0/22'],
   vpc_id: vpc.id,
 }
