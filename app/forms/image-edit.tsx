@@ -24,12 +24,10 @@ export function EditImageSideModalForm({
   image,
   dismissLink,
   type,
-  animate,
 }: {
   image: Image
   dismissLink: string
   type: 'Project' | 'Silo'
-  animate?: boolean
 }) {
   const navigate = useNavigate()
   const form = useForm({ defaultValues: image })
@@ -40,7 +38,6 @@ export function EditImageSideModalForm({
     <ReadOnlySideModalForm
       title={capitalize(resourceName)}
       onDismiss={onDismiss}
-      animate={animate}
       subtitle={
         <ResourceLabel>
           <Images16Icon /> {image.name}

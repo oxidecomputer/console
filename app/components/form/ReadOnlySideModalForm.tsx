@@ -7,6 +7,7 @@
  */
 import type { ReactNode } from 'react'
 
+import { useShouldAnimateModal } from '~/hooks/use-should-animate-modal'
 import { Button } from '~/ui/lib/Button'
 import { SideModal } from '~/ui/lib/SideModal'
 
@@ -15,11 +16,7 @@ type ReadOnlySideModalFormProps = {
   subtitle?: ReactNode
   onDismiss: () => void
   children: ReactNode
-  /**
-   * Whether to animate the modal opening. Defaults to true. Used to prevent
-   * modal from animating in on a fresh pageload where it should already be
-   * open.
-   */
+  /** Pass `true` for state-driven modals. Omit for route-driven modals to use nav type. */
   animate?: boolean
 }
 
@@ -34,13 +31,14 @@ export function ReadOnlySideModalForm({
   children,
   animate,
 }: ReadOnlySideModalFormProps) {
+  const animateDefault = useShouldAnimateModal()
   return (
     <SideModal
       isOpen
       onDismiss={onDismiss}
       title={title}
       subtitle={subtitle}
-      animate={animate}
+      animate={animate ?? animateDefault}
     >
       <SideModal.Body>
         <div className="ox-form">{children}</div>

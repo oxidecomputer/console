@@ -6,12 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useForm } from 'react-hook-form'
-import {
-  NavigationType,
-  useNavigate,
-  useNavigationType,
-  type LoaderFunctionArgs,
-} from 'react-router'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 import { Access16Icon } from '@oxide/design-system/icons/react'
@@ -45,7 +40,6 @@ export default function EditIdpSideModalForm() {
 
   const navigate = useNavigate()
   const onDismiss = () => navigate(pb.silo({ silo }))
-  const animate = useNavigationType() === NavigationType.Push
 
   const form = useForm({ defaultValues: idp })
 
@@ -53,7 +47,6 @@ export default function EditIdpSideModalForm() {
     <ReadOnlySideModalForm
       title="Identity provider"
       onDismiss={onDismiss}
-      animate={animate}
       subtitle={
         <ResourceLabel>
           <Access16Icon /> {idp.name}

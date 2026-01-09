@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { NavigationType, useNavigationType, type LoaderFunctionArgs } from 'react-router'
+import type { LoaderFunctionArgs } from 'react-router'
 
 import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 
@@ -29,15 +29,7 @@ export const handle = titleCrumb('Edit Image')
 export default function ProjectImageEdit() {
   const selector = useProjectImageSelector()
   const { data } = usePrefetchedQuery(imageView(selector))
-  const animate = useNavigationType() === NavigationType.Push
 
   const dismissLink = pb.projectImages({ project: selector.project })
-  return (
-    <EditImageSideModalForm
-      image={data}
-      dismissLink={dismissLink}
-      type="Project"
-      animate={animate}
-    />
-  )
+  return <EditImageSideModalForm image={data} dismissLink={dismissLink} type="Project" />
 }
