@@ -152,10 +152,20 @@ const staticCols = [
     ),
   }),
   colHelper.accessor('description', Columns.description),
-  colHelper.accessor('ip', {
-    header: 'Private IP',
-    cell: (info) => <CopyableIp ip={info.getValue()} isLinked={false} />,
-  }),
+  colHelper.accessor(
+    (row) => {
+      const { ipStack } = row
+      if (ipStack.type === 'v4') return ipStack.value.ip
+      if (ipStack.type === 'v6') return ipStack.value.ip
+      if (ipStack.type === 'dual_stack') return ipStack.value.v4.ip
+      return ''
+    },
+    {
+      id: 'ip',
+      header: 'Private IP',
+      cell: (info) => <CopyableIp ip={info.getValue()} isLinked={false} />,
+    }
+  ),
   colHelper.accessor('vpcId', {
     header: 'vpc',
     cell: (info) => <VpcNameFromId value={info.getValue()} />,
@@ -164,16 +174,28 @@ const staticCols = [
     header: 'subnet',
     cell: (info) => <SubnetNameFromId value={info.getValue()} />,
   }),
-  colHelper.accessor('transitIps', {
-    header: 'Transit IPs',
-    cell: (info) => (
-      <ListPlusCell tooltipTitle="Other transit IPs">
-        {info.getValue()?.map((ip) => (
-          <div key={ip}>{ip}</div>
-        ))}
-      </ListPlusCell>
-    ),
-  }),
+  colHelper.accessor(
+    (row) => {
+      const { ipStack } = row
+      if (ipStack.type === 'v4') return ipStack.value.transitIps
+      if (ipStack.type === 'v6') return ipStack.value.transitIps
+      if (ipStack.type === 'dual_stack') {
+        return [...ipStack.value.v4.transitIps, ...ipStack.value.v6.transitIps]
+      }
+      return []
+    },
+    {
+      id: 'transitIps',
+      header: 'Transit IPs',
+      cell: (info) => (
+        <ListPlusCell tooltipTitle="Other transit IPs">
+          {info.getValue()?.map((ip) => (
+            <div key={ip}>{ip}</div>
+          ))}
+        </ListPlusCell>
+      ),
+    }
+  ),
 ]
 
 const updateNicStates = fancifyStates(instanceCan.updateNic.states)

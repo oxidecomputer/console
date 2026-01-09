@@ -69,7 +69,9 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
           instanceEphemeralIpAttach.mutate({
             path: { instance },
             query: { project },
-            body: { pool },
+            body: {
+              poolSelector: pool ? { type: 'explicit', pool } : undefined,
+            },
           })
         }
         onDismiss={onDismiss}
