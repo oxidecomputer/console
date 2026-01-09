@@ -6,12 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useForm } from 'react-hook-form'
-import {
-  NavigationType,
-  useNavigate,
-  useNavigationType,
-  type LoaderFunctionArgs,
-} from 'react-router'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 import { Key16Icon } from '@oxide/design-system/icons/react'
@@ -47,13 +42,11 @@ export default function EditSSHKeySideModalForm() {
 
   const form = useForm({ defaultValues: data })
   const onDismiss = () => navigate(pb.sshKeys())
-  const animate = useNavigationType() === NavigationType.Push
 
   return (
     <ReadOnlySideModalForm
       title="View SSH key"
       onDismiss={onDismiss}
-      animate={animate}
       subtitle={
         <ResourceLabel>
           <Key16Icon /> {data.name}

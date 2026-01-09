@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { NavigationType, useNavigationType, type LoaderFunctionArgs } from 'react-router'
+import type { LoaderFunctionArgs } from 'react-router'
 
 import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 
@@ -28,14 +28,6 @@ export const handle = titleCrumb('Edit Image')
 export default function SiloImageEdit() {
   const selector = useSiloImageSelector()
   const { data } = usePrefetchedQuery(imageView(selector))
-  const animate = useNavigationType() === NavigationType.Push
 
-  return (
-    <EditImageSideModalForm
-      image={data}
-      dismissLink={pb.siloImages()}
-      type="Silo"
-      animate={animate}
-    />
-  )
+  return <EditImageSideModalForm image={data} dismissLink={pb.siloImages()} type="Silo" />
 }

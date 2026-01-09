@@ -420,7 +420,11 @@ export default function StorageTab() {
         />
       )}
       {selectedDisk && (
-        <DiskDetailSideModal disk={selectedDisk} onDismiss={() => setSelectedDisk(null)} />
+        <DiskDetailSideModal
+          disk={selectedDisk}
+          onDismiss={() => setSelectedDisk(null)}
+          animate
+        />
       )}
     </div>
   )

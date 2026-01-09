@@ -169,7 +169,11 @@ export default function SnapshotsPage() {
       {table}
       <Outlet />
       {selectedDisk && (
-        <DiskDetailSideModal disk={selectedDisk} onDismiss={() => setSelectedDisk(null)} />
+        <DiskDetailSideModal
+          disk={selectedDisk}
+          onDismiss={() => setSelectedDisk(null)}
+          animate
+        />
       )}
     </>
   )
