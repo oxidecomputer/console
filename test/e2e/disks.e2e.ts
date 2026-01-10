@@ -30,7 +30,7 @@ test('List disks and snapshot', async ({ page }) => {
   await page.goto('/projects/mock-project/disks')
 
   const table = page.getByRole('table')
-  await expect(table.getByRole('row')).toHaveCount(12) // 11 + header
+  await expect(table.getByRole('row')).toHaveCount(13) // 12 + header
 
   // check one attached and one not attached
   await expectRowVisible(table, {
@@ -66,6 +66,22 @@ test('Disk snapshot error', async ({ page }) => {
   await expectNoToast(page, 'Creating snapshot of disk disk-snapshot-error')
   // … before we can check for the error toast
   await expectToast(page, 'Failed to create snapshotCannot snapshot disk')
+})
+
+test('Local disk snapshot disabled', async ({ page }) => {
+  await page.goto('/projects/mock-project/disks')
+
+  const row = page.getByRole('row', { name: 'local-disk', exact: false })
+  await row.getByRole('button', { name: 'Row actions' }).click()
+
+  const snapshotItem = page.getByRole('menuitem', { name: 'Snapshot' })
+  await expect(snapshotItem).toBeDisabled()
+
+  // hover to see tooltip with disabled reason
+  await snapshotItem.hover()
+  await expect(page.getByRole('tooltip')).toHaveText(
+    'Only distributed disks support snapshots'
+  )
 })
 
 test.describe('Disk create', () => {

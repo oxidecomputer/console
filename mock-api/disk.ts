@@ -203,6 +203,19 @@ export const disks: Json<Disk>[] = [
     block_size: 2048,
     disk_type: 'distributed',
   },
+  {
+    id: 'b8e3de3a-3c97-4f23-a3f3-73e7d3d3b9c1',
+    name: 'local-disk',
+    description: 'A local disk that cannot be snapshotted',
+    project_id: project.id,
+    time_created: new Date().toISOString(),
+    time_modified: new Date().toISOString(),
+    state: { state: 'detached' },
+    device_path: '/local',
+    size: 12 * GiB,
+    block_size: 2048,
+    disk_type: 'local',
+  },
   // put a ton of disks in project 2 so we can use it to test comboboxes
   ...Array.from({ length: 1010 }).map((_, i) => {
     const numStr = (i + 1).toString().padStart(4, '0')

@@ -1126,7 +1126,10 @@ export const handlers = makeHandlers({
 
     const disk = lookup.disk({ ...query, disk: body.disk })
     if (!diskCan.snapshot(disk)) {
-      throw 'Cannot snapshot disk in state ' + disk.state.state
+      throw match(disk.disk_type)
+        .with('distributed', () => 'Cannot snapshot disk in state ' + disk.state.state)
+        .with('local', () => 'Only distributed disks support snapshots')
+        .exhaustive()
     }
 
     const newSnapshot: Json<Api.Snapshot> = {

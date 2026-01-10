@@ -151,6 +151,24 @@ test('diskCan', () => {
   expect(diskCan.delete({ state: { state: 'attached', instance: 'xyz' } })).toBe(false)
   expect(diskCan.delete({ state: { state: 'detached' } })).toBe(true)
 
+  // snapshot requires distributed disk type
+  expect(diskCan.snapshot({ state: { state: 'detached' }, diskType: 'distributed' })).toBe(
+    true
+  )
+  expect(
+    diskCan.snapshot({
+      state: { state: 'attached', instance: 'x' },
+      diskType: 'distributed',
+    })
+  ).toBe(true)
+  expect(diskCan.snapshot({ state: { state: 'creating' }, diskType: 'distributed' })).toBe(
+    false
+  )
+  expect(diskCan.snapshot({ state: { state: 'detached' }, diskType: 'local' })).toBe(false)
+  expect(
+    diskCan.snapshot({ state: { state: 'attached', instance: 'x' }, diskType: 'local' })
+  ).toBe(false)
+
   // @ts-expect-error typechecker rejects actions that don't exist
   // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   diskCan.abc
