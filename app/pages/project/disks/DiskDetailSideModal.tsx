@@ -5,12 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import {
-  NavigationType,
-  useNavigate,
-  useNavigationType,
-  type LoaderFunctionArgs,
-} from 'react-router'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import { api, q, queryClient, usePrefetchedQuery, type Disk } from '@oxide/api'
 import { Storage16Icon } from '@oxide/design-system/icons/react'
@@ -41,14 +36,9 @@ export default function DiskDetailSideModalRoute() {
   const { project, disk } = useDiskSelector()
   const navigate = useNavigate()
   const { data } = usePrefetchedQuery(diskView({ project, disk }))
-  const animate = useNavigationType() === NavigationType.Push
 
   return (
-    <DiskDetailSideModal
-      disk={data}
-      onDismiss={() => navigate(pb.disks({ project }))}
-      animate={animate}
-    />
+    <DiskDetailSideModal disk={data} onDismiss={() => navigate(pb.disks({ project }))} />
   )
 }
 
@@ -60,14 +50,14 @@ export default function DiskDetailSideModalRoute() {
 type DiskDetailSideModalProps = {
   disk: Disk
   onDismiss: () => void
-  /** Default true because when used outside a route (e.g., StorageTab), it's always a click action */
+  /** Pass `true` for state-driven usage (e.g., StorageTab). Omit for route usage. */
   animate?: boolean
 }
 
 export function DiskDetailSideModal({
   disk,
   onDismiss,
-  animate = true,
+  animate,
 }: DiskDetailSideModalProps) {
   return (
     <ReadOnlySideModalForm

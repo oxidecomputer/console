@@ -8,10 +8,10 @@
 
 import { useEffect, useId, useState, type ReactNode } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
-import { NavigationType, useNavigationType } from 'react-router'
 
 import type { ApiError } from '@oxide/api'
 
+import { useShouldAnimateModal } from '~/hooks/use-should-animate-modal'
 import { Button } from '~/ui/lib/Button'
 import { Modal } from '~/ui/lib/Modal'
 import { SideModal } from '~/ui/lib/SideModal'
@@ -48,16 +48,6 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
   subtitle?: ReactNode
   onSubmit?: (values: TFieldValues) => void
 } & (CreateFormProps | EditFormProps)
-
-/**
- * Only animate the modal in when we're navigating by a client-side click.
- * Don't animate on a fresh pageload or on back/forward. The latter may be
- * slightly awkward but it also makes some sense. I do not believe there is
- * any way to distinguish between fresh pageload and back/forward.
- */
-function useShouldAnimateModal() {
-  return useNavigationType() === NavigationType.Push
-}
 
 export function SideModalForm<TFieldValues extends FieldValues>({
   form,
