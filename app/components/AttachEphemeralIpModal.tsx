@@ -65,14 +65,13 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
       <Modal.Footer
         actionText="Attach"
         disabled={!pool}
-        onAction={() => {
-          if (!pool) return
+        onAction={() =>
           instanceEphemeralIpAttach.mutate({
             path: { instance },
             query: { project },
-            body: { poolSelector: { type: 'explicit', pool } },
+            body: { poolSelector: { type: 'explicit', pool: pool! } },
           })
-        }}
+        }
         onDismiss={onDismiss}
       ></Modal.Footer>
     </Modal>
