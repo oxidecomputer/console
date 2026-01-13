@@ -7,6 +7,7 @@
     "node": ">=22"
   },
   "scripts": {
+    "pretest": "tsc --incremental -p tsconfig.json",
     "start": "API_MODE=msw vite",
     "start:msw": "API_MODE=msw vite",
     "start:nexus": "API_MODE=nexus vite",
@@ -49,6 +50,7 @@
     "@tanstack/react-table": "^8.20.5",
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/xterm": "^5.5.0",
+    "babel-plugin-istanbul": "^7.0.1",
     "classnames": "^2.5.1",
     "date-fns": "^3.6.0",
     "filesize": "^10.1.6",
@@ -77,6 +79,7 @@
     "tunnel-rat": "^0.1.2",
     "use-debounce": "^10.0.4",
     "uuid": "^10.0.0",
+    "v8-to-istanbul": "^9.3.0",
     "zod": "^4.0.17",
     "zustand": "^5.0.3"
   },
