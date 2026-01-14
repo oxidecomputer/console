@@ -54,7 +54,7 @@ export function EditNetworkInterfaceForm({
   // Extract transitIps from ipStack for the form
   const extractedTransitIps =
     editing.ipStack.type === 'dual_stack'
-      ? editing.ipStack.value.v4.transitIps
+      ? [...editing.ipStack.value.v4.transitIps, ...editing.ipStack.value.v6.transitIps]
       : editing.ipStack.value.transitIps
 
   const defaultValues = {

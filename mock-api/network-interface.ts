@@ -18,10 +18,16 @@ export const networkInterface: Json<InstanceNetworkInterface> = {
   primary: true,
   instance_id: instance.id,
   ip_stack: {
-    type: 'v4',
+    type: 'dual_stack',
     value: {
-      ip: '172.30.0.10',
-      transit_ips: ['172.30.0.0/22'],
+      v4: {
+        ip: '172.30.0.10',
+        transit_ips: ['172.30.0.0/22'],
+      },
+      v6: {
+        ip: '::1',
+        transit_ips: ['::/64'],
+      },
     },
   },
   mac: '',

@@ -157,9 +157,18 @@ const staticCols = [
     header: 'Private IP',
     cell: (info) => {
       const nic = info.row.original
-      const ip =
-        nic.ipStack.type === 'dual_stack' ? nic.ipStack.value.v4.ip : nic.ipStack.value.ip
-      return <CopyableIp ip={ip} isLinked={false} />
+      const { ipStack } = nic
+
+      if (ipStack.type === 'dual_stack') {
+        return (
+          <div>
+            <CopyableIp ip={ipStack.value.v4.ip} isLinked={false} />
+            <CopyableIp ip={ipStack.value.v6.ip} isLinked={false} />
+          </div>
+        )
+      }
+
+      return <CopyableIp ip={ipStack.value.ip} isLinked={false} />
     },
   }),
   colHelper.accessor('vpcId', {
@@ -175,10 +184,15 @@ const staticCols = [
     header: 'Transit IPs',
     cell: (info) => {
       const nic = info.row.original
-      const transitIps =
-        nic.ipStack.type === 'dual_stack'
-          ? nic.ipStack.value.v4.transitIps
-          : nic.ipStack.value.transitIps
+      const { ipStack } = nic
+
+      let transitIps: string[] = []
+      if (ipStack.type === 'v4' || ipStack.type === 'v6') {
+        transitIps = ipStack.value.transitIps
+      } else if (ipStack.type === 'dual_stack') {
+        // Combine both v4 and v6 transit IPs for dual-stack
+        transitIps = [...ipStack.value.v4.transitIps, ...ipStack.value.v6.transitIps]
+      }
       return (
         <ListPlusCell tooltipTitle="Other transit IPs">
           {transitIps?.map((ip) => (
