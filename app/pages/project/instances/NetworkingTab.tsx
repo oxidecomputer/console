@@ -161,7 +161,7 @@ const staticCols = [
 
       if (ipStack.type === 'dual_stack') {
         return (
-          <div>
+          <div className="flex flex-col gap-1">
             <CopyableIp ip={ipStack.value.v4.ip} isLinked={false} />
             <CopyableIp ip={ipStack.value.v6.ip} isLinked={false} />
           </div>

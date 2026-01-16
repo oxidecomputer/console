@@ -69,7 +69,7 @@ test('can create a NIC with a blank IP address', async ({ page }) => {
   await sidebar.getByRole('button', { name: 'Add network interface' }).click()
   await expect(sidebar).toBeHidden()
 
-  // ip address is auto-assigned
+  // ip address is auto-assigned (dual-stack by default)
   const table = page.getByRole('table', { name: 'Network interfaces' })
-  await expectRowVisible(table, { name: 'nic-2', 'Private IP': '123.45.68.8' })
+  await expectRowVisible(table, { name: 'nic-2', 'Private IP': '123.45.68.8fd12:3456::' })
 })

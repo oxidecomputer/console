@@ -87,7 +87,8 @@ const resolveIpStack = (
         type: 'dual_stack'
         value: { v4: Api.PrivateIpv4StackCreate; v6: Api.PrivateIpv6StackCreate }
       },
-  defaultIp = '127.0.0.1'
+  defaultV4Ip = '127.0.0.1',
+  defaultV6Ip = '::1'
 ):
   | { type: 'v4'; value: { ip: string; transit_ips: string[] } }
   | { type: 'v6'; value: { ip: string; transit_ips: string[] } }
@@ -103,11 +104,11 @@ const resolveIpStack = (
       type: 'dual_stack',
       value: {
         v4: {
-          ip: resolveIp(config.value.v4.ip, defaultIp),
+          ip: resolveIp(config.value.v4.ip, defaultV4Ip),
           transit_ips: config.value.v4.transitIps || [],
         },
         v6: {
-          ip: resolveIp(config.value.v6.ip, defaultIp),
+          ip: resolveIp(config.value.v6.ip, defaultV6Ip),
           transit_ips: config.value.v6.transitIps || [],
         },
       },
@@ -116,7 +117,7 @@ const resolveIpStack = (
   return {
     type: config.type,
     value: {
-      ip: resolveIp(config.value.ip, defaultIp),
+      ip: resolveIp(config.value.ip, config.type === 'v6' ? defaultV6Ip : defaultV4Ip),
       transit_ips: config.value.transitIps || [],
     },
   }
@@ -889,7 +890,7 @@ export const handlers = makeHandlers({
       name,
       description,
       ip_stack: ip_config
-        ? resolveIpStack(ip_config, '123.45.68.8')
+        ? resolveIpStack(ip_config, '123.45.68.8', 'fd12:3456::')
         : { type: 'v4', value: { ip: '123.45.68.8', transit_ips: [] } },
       vpc_id: vpc.id,
       subnet_id: subnet.id,
@@ -925,11 +926,13 @@ export const handlers = makeHandlers({
     }
 
     if (body.transit_ips) {
-      // TODO: Real API would parse IpNet[] and route IPv4/IPv6 to appropriate stacks.
-      // For mock, we just put all transit IPs into both stacks.
       if (nic.ip_stack.type === 'dual_stack') {
-        nic.ip_stack.value.v4.transit_ips = body.transit_ips
-        nic.ip_stack.value.v6.transit_ips = body.transit_ips
+        // Separate IPv4 and IPv6 transit IPs
+        const [v6TransitIps, v4TransitIps] = R.partition(body.transit_ips, (ip) =>
+          ip.includes(':')
+        )
+        nic.ip_stack.value.v4.transit_ips = v4TransitIps
+        nic.ip_stack.value.v6.transit_ips = v6TransitIps
       } else {
         nic.ip_stack.value.transit_ips = body.transit_ips
       }
