@@ -16,7 +16,7 @@
 
 # API utilities & constants
 
-- Treat `app/api/util.ts` (and friends) as a thin translation layer: mirror backend rules only when the UI needs them, keep the client copy minimal, and always link to the authoritative Omicron source so reviewers can verify the behavior.
+- Treat `app/api/util.ts` (and friends) as a thin translation layer: mirror backend rules only when the UI needs them, keep the client copy minimal, and always link to the authoritative Omicron source so reviewers can verify the behavior. Only keep 7 chars of the commit hash in the URL.
 - API constants live in `app/api/util.ts` with links to Omicron source.
 
 # Testing code
@@ -24,6 +24,7 @@
 - Run local checks before sending PRs: `npm run lint`, `npm run tsc`, `npm test run`, and `npm run e2ec`; pass `-- --ui` for Playwright UI mode or project/name filters like `npm run e2ec -- instance -g 'boot disk'`.
 - Keep Playwright specs focused on user-visible behavior—use accessible locators (`getByRole`, `getByLabel`), the helpers in `test/e2e/utils.ts` (`expectToast`, `expectRowVisible`, `selectOption`, `clickRowAction`), and close toasts so follow-on assertions aren’t blocked.
 - Cover role-gated flows by logging in with `getPageAsUser`; exercise negative paths (e.g., forbidden actions) alongside happy paths as shown in `test/e2e/system-update.e2e.ts`.
+- Consider `expectVisible` and `expectNotVisible` deprecated: prefer `expect().toBeVisible()` and `toBeHidden()` in new code.
 - When UI needs new mock behavior, extend the MSW handlers/db minimally so E2E tests stay deterministic; prefer storing full API responses so subsequent calls see the updated state (`mock-api/msw/db.ts`, `mock-api/msw/handlers.ts`).
 - Co-locate Vitest specs next to the code they cover; use Testing Library utilities (`render`, `renderHook`, `fireEvent`, fake timers) to assert observable output rather than implementation details (`app/ui/lib/FileInput.spec.tsx`, `app/hooks/use-pagination.spec.ts`).
 - For sweeping styling changes, coordinate with the visual regression harness and follow `test/visual/README.md` for the workflow.
@@ -115,3 +116,4 @@
 - Check `app/util/*` for string formatting, date handling, IP parsing, etc. Check `types/util.d.ts` for type helpers.
 - Use `validateName` for resource names, `validateDescription` for descriptions, `validateIp`/`validateIpNet` for IPs.
 - Role helpers live in `app/api/roles.ts`.
+- Use ts-pattern exhaustive match when doing conditional logic on union types to make sure all arms are handled
