@@ -27,10 +27,10 @@ import { Message } from '~/ui/lib/Message'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
-const defaultValues: FloatingIpCreate = {
+const defaultValues = {
   name: '',
   description: '',
-  addressSelector: undefined,
+  pool: '',
 }
 
 export const handle = titleCrumb('New Floating IP')
@@ -65,12 +65,9 @@ export default function CreateFloatingIpSideModalForm() {
       formType="create"
       resourceName="floating IP"
       onDismiss={() => navigate(pb.floatingIps(projectSelector))}
-      onSubmit={(values) => {
-        // Transform the form values to properly construct addressSelector
-        const pool = form.getValues('addressSelector.poolSelector.pool' as any)
-        const body = {
-          name: values.name,
-          description: values.description,
+      onSubmit={({ pool, ...values }) => {
+        const body: FloatingIpCreate = {
+          ...values,
           addressSelector: pool
             ? {
                 type: 'auto' as const,
@@ -103,7 +100,7 @@ export default function CreateFloatingIpSideModalForm() {
           />
 
           <ListboxField
-            name="addressSelector.poolSelector.pool"
+            name="pool"
             items={(allPools?.items || []).map(toIpPoolItem)}
             label="IP pool"
             control={form.control}

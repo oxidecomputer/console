@@ -30,6 +30,7 @@ import {
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
 import { instanceCan, OXQL_GROUP_BY_ERROR } from '~/api/util'
+import { parseIpNet } from '~/util/ip'
 import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
 
@@ -934,10 +935,12 @@ export const handlers = makeHandlers({
 
     if (body.transit_ips) {
       if (nic.ip_stack.type === 'dual_stack') {
-        // Separate IPv4 and IPv6 transit IPs
-        const [v6TransitIps, v4TransitIps] = R.partition(body.transit_ips, (ip) =>
-          ip.includes(':')
-        )
+        // Parse and separate IPv4 and IPv6 transit IPs using proper IP parsing
+        // This matches how the real API routes IpNet[] to the appropriate stacks
+        const [v6TransitIps, v4TransitIps] = R.partition(body.transit_ips, (ipNet) => {
+          const parsed = parseIpNet(ipNet)
+          return parsed.type === 'v6'
+        })
         nic.ip_stack.value.v4.transit_ips = v4TransitIps
         nic.ip_stack.value.v6.transit_ips = v6TransitIps
       } else {
