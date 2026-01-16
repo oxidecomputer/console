@@ -14,18 +14,23 @@ import { api, q, type ApiError, type InstanceNetworkInterfaceCreate } from '@oxi
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
+import { RadioField } from '~/components/form/fields/RadioField'
 import { SubnetListbox } from '~/components/form/fields/SubnetListbox'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
 import { FormDivider } from '~/ui/lib/Divider'
 
+type IpStackType = 'v4' | 'v6' | 'dual_stack'
+
 const defaultValues = {
   name: '',
   description: '',
   subnetName: '',
   vpcName: '',
-  ip: '',
+  ipStackType: 'dual_stack' as IpStackType,
+  ipv4: '',
+  ipv6: '',
 }
 
 type CreateNetworkInterfaceFormProps = {
@@ -51,6 +56,7 @@ export function CreateNetworkInterfaceForm({
   const vpcs = useMemo(() => vpcsData?.items || [], [vpcsData])
 
   const form = useForm({ defaultValues })
+  const ipStackType = form.watch('ipStackType')
 
   return (
     <SideModalForm
@@ -59,17 +65,47 @@ export function CreateNetworkInterfaceForm({
       resourceName="network interface"
       title="Add network interface"
       onDismiss={onDismiss}
-      onSubmit={({ ip, ...rest }) => {
-        // Transform to IPv4 ipConfig structure
-        const ipConfig = ip.trim()
-          ? {
-              type: 'v4' as const,
-              value: {
-                ip: { type: 'explicit' as const, value: ip.trim() },
+      onSubmit={({ ipStackType, ipv4, ipv6, ...rest }) => {
+        // Build ipConfig based on the selected IP stack type
+        let ipConfig: InstanceNetworkInterfaceCreate['ipConfig']
+
+        if (ipStackType === 'v4') {
+          ipConfig = {
+            type: 'v4',
+            value: {
+              ip: ipv4.trim() ? { type: 'explicit', value: ipv4.trim() } : { type: 'auto' },
+              transitIps: [],
+            },
+          }
+        } else if (ipStackType === 'v6') {
+          ipConfig = {
+            type: 'v6',
+            value: {
+              ip: ipv6.trim() ? { type: 'explicit', value: ipv6.trim() } : { type: 'auto' },
+              transitIps: [],
+            },
+          }
+        } else {
+          // dual_stack
+          ipConfig = {
+            type: 'dual_stack',
+            value: {
+              v4: {
+                ip: ipv4.trim()
+                  ? { type: 'explicit', value: ipv4.trim() }
+                  : { type: 'auto' },
                 transitIps: [],
               },
-            }
-          : undefined
+              v6: {
+                ip: ipv6.trim()
+                  ? { type: 'explicit', value: ipv6.trim() }
+                  : { type: 'auto' },
+                transitIps: [],
+              },
+            },
+          }
+        }
+
         onSubmit({ ...rest, ipConfig })
       }}
       loading={loading}
@@ -94,12 +130,45 @@ export function CreateNetworkInterfaceForm({
         required
         control={form.control}
       />
-      <TextField
-        name="ip"
-        label="IP Address (IPv4)"
+
+      <RadioField
+        name="ipStackType"
+        label="IP configuration"
         control={form.control}
-        placeholder="Leave blank for auto-assignment"
+        column
+        items={[
+          {
+            value: 'dual_stack',
+            label: 'IPv4 & IPv6',
+          },
+          {
+            value: 'v4',
+            label: 'IPv4',
+          },
+          {
+            value: 'v6',
+            label: 'IPv6',
+          },
+        ]}
       />
+
+      {(ipStackType === 'v4' || ipStackType === 'dual_stack') && (
+        <TextField
+          name="ipv4"
+          label="IPv4 Address"
+          control={form.control}
+          placeholder="Leave blank for auto-assignment"
+        />
+      )}
+
+      {(ipStackType === 'v6' || ipStackType === 'dual_stack') && (
+        <TextField
+          name="ipv6"
+          label="IPv6 Address"
+          control={form.control}
+          placeholder="Leave blank for auto-assignment"
+        />
+      )}
     </SideModalForm>
   )
 }

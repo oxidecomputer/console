@@ -891,7 +891,14 @@ export const handlers = makeHandlers({
       description,
       ip_stack: ip_config
         ? resolveIpStack(ip_config, '123.45.68.8', 'fd12:3456::')
-        : { type: 'v4', value: { ip: '123.45.68.8', transit_ips: [] } },
+        : // Default is dual-stack with auto-assigned IPs
+          {
+            type: 'dual_stack',
+            value: {
+              v4: { ip: '123.45.68.8', transit_ips: [] },
+              v6: { ip: 'fd12:3456::', transit_ips: [] },
+            },
+          },
       vpc_id: vpc.id,
       subnet_id: subnet.id,
       mac: '',
