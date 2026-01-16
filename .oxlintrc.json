@@ -90,7 +90,8 @@
               "expectVisible",
               "expectRowVisible",
               "expectOptions",
-              "expectRowMenuStaysOpen"
+              "expectRowMenuStaysOpen",
+              "expectCanAddUserAcrossTabs"
             ]
           }
         ],

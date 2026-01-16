@@ -7,6 +7,7 @@
  */
 import { user3, user4 } from '@oxide/api-mocks'
 
+import { expectCanAddUserAcrossTabs } from './access-test-helpers'
 import { expect, expectNotVisible, expectRowVisible, expectVisible, test } from './utils'
 
 test('Click through silo access page', async ({ page }) => {
@@ -79,4 +80,11 @@ test('Click through silo access page', async ({ page }) => {
   await page.getByRole('menuitem', { name: 'Delete' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(user3Row).toBeHidden()
+})
+
+test('Add silo user on All tab and verify on Users tab', async ({ page }) => {
+  await expectCanAddUserAcrossTabs(page, {
+    baseUrl: '/access/all',
+    rolePrefix: 'silo',
+  })
 })

@@ -7,6 +7,7 @@
  */
 import { user3, user4 } from '@oxide/api-mocks'
 
+import { expectCanAddUserAcrossTabs } from './access-test-helpers'
 import { expect, expectNotVisible, expectRowVisible, expectVisible, test } from './utils'
 
 test('Click through project access page', async ({ page }) => {
@@ -114,5 +115,12 @@ test('Click through project access page', async ({ page }) => {
     Name: 'Hannah Arendt',
     Type: 'User',
     Role: 'silo.admin+1',
+  })
+})
+
+test('Add project user on All tab and verify on Users tab', async ({ page }) => {
+  await expectCanAddUserAcrossTabs(page, {
+    baseUrl: '/projects/mock-project/access/all',
+    rolePrefix: 'project',
   })
 })
