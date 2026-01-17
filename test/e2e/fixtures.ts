@@ -5,25 +5,15 @@
  *
  * Copyright Oxide Computer Company
  */
-import { existsSync, mkdirSync, writeFileSync } from 'fs'
+import { mkdirSync, writeFileSync } from 'fs'
 import { resolve } from 'path'
 import { test as base, type Page } from '@playwright/test'
 
 const coverageEnabled = !!process.env.COVERAGE
 const coverageDir = resolve('.nyc_output')
 
-// Read existing coverage or start fresh
-function readExistingCoverage(): Record<string, unknown> {
-  const coverageFile = resolve(coverageDir, 'coverage.json')
-  if (existsSync(coverageFile)) {
-    try {
-      return JSON.parse(require('fs').readFileSync(coverageFile, 'utf-8'))
-    } catch {
-      return {}
-    }
-  }
-  return {}
-}
+// Counter for unique filenames within this worker process
+let coverageCounter = 0
 
 async function collectCoverage(page: Page): Promise<void> {
   if (!coverageEnabled) return
@@ -37,11 +27,9 @@ async function collectCoverage(page: Page): Promise<void> {
 
   mkdirSync(coverageDir, { recursive: true })
 
-  // Merge with existing coverage from previous tests
-  const existing = readExistingCoverage()
-  const merged = { ...existing, ...coverage }
-
-  writeFileSync(resolve(coverageDir, 'coverage.json'), JSON.stringify(merged))
+  // Write to unique file per test - nyc will merge all files in the directory
+  const filename = `coverage-${process.pid}-${coverageCounter++}.json`
+  writeFileSync(resolve(coverageDir, filename), JSON.stringify(coverage))
 }
 
 export const test = base.extend<{ coverageFixture: void }>({

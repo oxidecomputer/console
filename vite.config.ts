@@ -138,7 +138,12 @@ export default defineConfig(({ mode }) => ({
     !!process.env.VITE_COVERAGE &&
       istanbul({
         include: 'app/**/*',
-        exclude: ['node_modules', 'test/', 'app/api/__generated__', '**/*.spec.*'],
+        exclude: [
+          'app/api/__generated__',
+          '**/*.spec.*',
+          'app/api/window.ts',
+          'app/components/MswBanner.tsx',
+        ],
         extension: ['.ts', '.tsx'],
         requireEnv: true,
       }),
