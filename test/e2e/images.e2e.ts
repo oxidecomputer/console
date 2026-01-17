@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { test } from '@playwright/test'
+import { test } from './utils'
 
 import {
   clickRowAction,

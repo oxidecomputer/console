@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, test } from '@playwright/test'
+import { expect, test } from './utils'
 
 test('CSP headers', async ({ page }) => {
   // doesn't matter what page we go to

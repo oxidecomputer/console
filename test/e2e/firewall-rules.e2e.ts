@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { expect, test, type Locator, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from './utils'
 
 import { clickRowAction, expectRowVisible, selectOption, sleep } from './utils'
 

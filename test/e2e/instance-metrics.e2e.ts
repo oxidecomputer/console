@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { expect, test } from '@playwright/test'
+import { expect, test } from './utils'
 
 import { OXQL_GROUP_BY_ERROR } from '~/api'
 

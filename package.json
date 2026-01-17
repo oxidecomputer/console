@@ -22,6 +22,7 @@
     "update-snapshots": "npm test run -- -u",
     "e2e": "playwright test",
     "e2ec": "playwright test --project=chrome",
+    "e2e-coverage": "rm -rf .nyc_output && COVERAGE=1 npm run e2ec",
     "visual:baseline": "./tools/generate-visual-baseline.sh",
     "visual:compare": "playwright test -c playwright.visual.config.ts",
     "lint": "oxlint --type-aware",
@@ -49,7 +50,6 @@
     "@tanstack/react-table": "^8.20.5",
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/xterm": "^5.5.0",
-    "babel-plugin-istanbul": "^7.0.1",
     "classnames": "^2.5.1",
     "date-fns": "^3.6.0",
     "filesize": "^10.1.6",
@@ -78,7 +78,6 @@
     "tunnel-rat": "^0.1.2",
     "use-debounce": "^10.0.4",
     "uuid": "^10.0.0",
-    "v8-to-istanbul": "^9.3.0",
     "zod": "^4.0.17",
     "zustand": "^5.0.3"
   },
@@ -119,6 +118,7 @@
     "typescript": "~5.9.2",
     "vite": "^7.2.2",
     "vite-plugin-html": "^3.2.2",
+    "vite-plugin-istanbul": "^7.2.1",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^4.0.8"
   },

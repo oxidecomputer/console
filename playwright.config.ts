@@ -50,7 +50,7 @@ export default {
   ],
   // use different port so it doesn't conflict with local dev server
   webServer: {
-    command: 'npm run start:msw -- --port 4009',
+    command: `${process.env.COVERAGE ? 'VITE_COVERAGE=true ' : ''}npm run start:msw -- --port 4009`,
     port: 4009,
   },
 } satisfies PlaywrightTestConfig

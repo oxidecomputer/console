@@ -5,10 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { type Page } from '@playwright/test'
-
-import { expect, test } from './fixtures'
-import { expectNotVisible } from './utils'
+import { expect, expectNotVisible, test, type Page } from './utils'
 
 const openActionMenu = async (page: Page) => {
   // open the action menu (use the sidenav button, as keyboard events aren't reliable in Playwright)

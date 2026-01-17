@@ -12,6 +12,7 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 import react from '@vitejs/plugin-react-swc'
 import { defineConfig } from 'vite'
 import { createHtmlPlugin } from 'vite-plugin-html'
+import istanbul from 'vite-plugin-istanbul'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import { z } from 'zod/v4'
 
@@ -134,6 +135,13 @@ export default defineConfig(({ mode }) => ({
     }),
     react(),
     apiMode === 'remote' && basicSsl(),
+    !!process.env.VITE_COVERAGE &&
+      istanbul({
+        include: 'app/**/*',
+        exclude: ['node_modules', 'test/', 'app/api/__generated__', '**/*.spec.*'],
+        extension: ['.ts', '.tsx'],
+        requireEnv: true,
+      }),
   ],
   html: {
     // don't include a placeholder nonce in production.
