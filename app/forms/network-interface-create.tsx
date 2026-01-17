@@ -8,6 +8,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
+import { match } from 'ts-pattern'
 
 import { api, q, type ApiError, type InstanceNetworkInterfaceCreate } from '@oxide/api'
 
@@ -31,6 +32,22 @@ const defaultValues = {
   ipStackType: 'dual_stack' as IpStackType,
   ipv4: '',
   ipv6: '',
+}
+
+// Helper to build IP assignment from string
+function buildIpAssignment(
+  ipString: string
+): { type: 'auto' } | { type: 'explicit'; value: string } {
+  const trimmed = ipString.trim()
+  return trimmed ? { type: 'explicit', value: trimmed } : { type: 'auto' }
+}
+
+// Helper to build a single IP stack (v4 or v6)
+function buildIpStack(ipString: string) {
+  return {
+    ip: buildIpAssignment(ipString),
+    transitIps: [],
+  }
 }
 
 type CreateNetworkInterfaceFormProps = {
@@ -66,45 +83,23 @@ export function CreateNetworkInterfaceForm({
       title="Add network interface"
       onDismiss={onDismiss}
       onSubmit={({ ipStackType, ipv4, ipv6, ...rest }) => {
-        // Build ipConfig based on the selected IP stack type
-        let ipConfig: InstanceNetworkInterfaceCreate['ipConfig']
-
-        if (ipStackType === 'v4') {
-          ipConfig = {
-            type: 'v4',
+        const ipConfig = match(ipStackType)
+          .with('v4', () => ({
+            type: 'v4' as const,
+            value: buildIpStack(ipv4),
+          }))
+          .with('v6', () => ({
+            type: 'v6' as const,
+            value: buildIpStack(ipv6),
+          }))
+          .with('dual_stack', () => ({
+            type: 'dual_stack' as const,
             value: {
-              ip: ipv4.trim() ? { type: 'explicit', value: ipv4.trim() } : { type: 'auto' },
-              transitIps: [],
+              v4: buildIpStack(ipv4),
+              v6: buildIpStack(ipv6),
             },
-          }
-        } else if (ipStackType === 'v6') {
-          ipConfig = {
-            type: 'v6',
-            value: {
-              ip: ipv6.trim() ? { type: 'explicit', value: ipv6.trim() } : { type: 'auto' },
-              transitIps: [],
-            },
-          }
-        } else {
-          // dual_stack
-          ipConfig = {
-            type: 'dual_stack',
-            value: {
-              v4: {
-                ip: ipv4.trim()
-                  ? { type: 'explicit', value: ipv4.trim() }
-                  : { type: 'auto' },
-                transitIps: [],
-              },
-              v6: {
-                ip: ipv6.trim()
-                  ? { type: 'explicit', value: ipv6.trim() }
-                  : { type: 'auto' },
-                transitIps: [],
-              },
-            },
-          }
-        }
+          }))
+          .exhaustive()
 
         onSubmit({ ...rest, ipConfig })
       }}

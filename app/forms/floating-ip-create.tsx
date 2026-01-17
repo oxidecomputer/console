@@ -27,10 +27,15 @@ import { Message } from '~/ui/lib/Message'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
-const defaultValues = {
+type FloatingIpCreateFormData = {
+  name: string
+  description: string
+  pool?: string
+}
+
+const defaultValues: FloatingIpCreateFormData = {
   name: '',
   description: '',
-  pool: '',
 }
 
 export const handle = titleCrumb('New Floating IP')
