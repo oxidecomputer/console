@@ -151,7 +151,7 @@ const baseDefaultValues: InstanceCreateInput = {
   diskSource: '',
 
   otherDisks: [],
-  networkInterfaces: { type: 'default_ipv4' },
+  networkInterfaces: { type: 'default_dual_stack' },
 
   sshPublicKeys: [],
 

@@ -8,10 +8,7 @@
 import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
-import type {
-  InstanceNetworkInterfaceAttachment,
-  InstanceNetworkInterfaceCreate,
-} from '@oxide/api'
+import type { InstanceNetworkInterfaceCreate } from '@oxide/api'
 
 import type { InstanceCreateInput } from '~/forms/instance-create'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
@@ -44,6 +41,17 @@ export function NetworkInterfaceField({
     field: { value, onChange },
   } = useController({ control, name: 'networkInterfaces' })
 
+  // Map API types to radio values
+  // 'default_ipv4' | 'default_ipv6' | 'default_dual_stack' all map to 'default'
+  const radioValue =
+    value.type === 'default_ipv4' ||
+    value.type === 'default_ipv6' ||
+    value.type === 'default_dual_stack'
+      ? 'default'
+      : value.type
+
+  const isDefaultSelected = radioValue === 'default'
+
   return (
     <div className="max-w-lg space-y-2">
       <FieldLabel id="network-interface-type-label">Network interface</FieldLabel>
@@ -53,18 +61,21 @@ export function NetworkInterfaceField({
           name="networkInterfaceType"
           column
           className="pt-1"
-          defaultChecked={value.type}
+          defaultChecked={radioValue}
           onChange={(event) => {
-            const newType = event.target.value as InstanceNetworkInterfaceAttachment['type']
+            const radioSelection = event.target.value
 
             if (value.type === 'create') {
               setOldParams(value.params)
             }
 
-            if (newType === 'create') {
-              onChange({ type: newType, params: oldParams })
-            } else {
-              onChange({ type: newType })
+            if (radioSelection === 'create') {
+              onChange({ type: 'create', params: oldParams })
+            } else if (radioSelection === 'default') {
+              // When user selects 'default', use dual_stack as the default
+              onChange({ type: 'default_dual_stack' })
+            } else if (radioSelection === 'none') {
+              onChange({ type: 'none' })
             }
           }}
           disabled={disabled}
@@ -73,6 +84,29 @@ export function NetworkInterfaceField({
           <Radio value="default">Default</Radio>
           <Radio value="create">Custom</Radio>
         </RadioGroup>
+        {isDefaultSelected && (
+          <div className="ml-7 space-y-2">
+            <RadioGroup
+              aria-label="IP version"
+              name="ipVersion"
+              column
+              className="pt-1"
+              defaultChecked={value.type}
+              onChange={(event) => {
+                const ipVersionType = event.target.value as
+                  | 'default_ipv4'
+                  | 'default_ipv6'
+                  | 'default_dual_stack'
+                onChange({ type: ipVersionType })
+              }}
+              disabled={disabled}
+            >
+              <Radio value="default_dual_stack">IPv4 & IPv6</Radio>
+              <Radio value="default_ipv4">IPv4</Radio>
+              <Radio value="default_ipv6">IPv6</Radio>
+            </RadioGroup>
+          </div>
+        )}
         {value.type === 'create' && (
           <>
             <MiniTable
