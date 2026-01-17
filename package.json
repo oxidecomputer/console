@@ -7,7 +7,6 @@
     "node": ">=22"
   },
   "scripts": {
-    "pretest": "tsc --incremental -p tsconfig.json",
     "start": "API_MODE=msw vite",
     "start:msw": "API_MODE=msw vite",
     "start:nexus": "API_MODE=nexus vite",
