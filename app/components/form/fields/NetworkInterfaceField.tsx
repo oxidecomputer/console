@@ -8,10 +8,7 @@
 import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
-import type {
-  InstanceNetworkInterfaceAttachment,
-  InstanceNetworkInterfaceCreate,
-} from '@oxide/api'
+import type { InstanceNetworkInterfaceCreate } from '@oxide/api'
 
 import type { InstanceCreateInput } from '~/forms/instance-create'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
@@ -55,22 +52,24 @@ export function NetworkInterfaceField({
           className="pt-1"
           defaultChecked={value.type}
           onChange={(event) => {
-            const newType = event.target.value as InstanceNetworkInterfaceAttachment['type']
+            const newType = event.target.value
 
             if (value.type === 'create') {
               setOldParams(value.params)
             }
 
             if (newType === 'create') {
-              onChange({ type: newType, params: oldParams })
+              onChange({ type: 'create', params: oldParams })
             } else {
-              onChange({ type: newType })
+              onChange({ type: newType as typeof value.type })
             }
           }}
           disabled={disabled}
         >
+          <Radio value="default_dual_stack">Default IPv4 & IPv6</Radio>
+          <Radio value="default_ipv4">Default IPv4</Radio>
+          <Radio value="default_ipv6">Default IPv6</Radio>
           <Radio value="none">None</Radio>
-          <Radio value="default">Default</Radio>
           <Radio value="create">Custom</Radio>
         </RadioGroup>
         {value.type === 'create' && (

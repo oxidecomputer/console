@@ -27,10 +27,15 @@ import { Message } from '~/ui/lib/Message'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
-const defaultValues: Omit<FloatingIpCreate, 'ip'> = {
+type FloatingIpCreateFormData = {
+  name: string
+  description: string
+  pool?: string
+}
+
+const defaultValues: FloatingIpCreateFormData = {
   name: '',
   description: '',
-  pool: undefined,
 }
 
 export const handle = titleCrumb('New Floating IP')
@@ -65,7 +70,18 @@ export default function CreateFloatingIpSideModalForm() {
       formType="create"
       resourceName="floating IP"
       onDismiss={() => navigate(pb.floatingIps(projectSelector))}
-      onSubmit={(body) => createFloatingIp.mutate({ query: projectSelector, body })}
+      onSubmit={({ pool, ...values }) => {
+        const body: FloatingIpCreate = {
+          ...values,
+          addressSelector: pool
+            ? {
+                type: 'auto' as const,
+                poolSelector: { type: 'explicit' as const, pool },
+              }
+            : undefined,
+        }
+        createFloatingIp.mutate({ query: projectSelector, body })
+      }}
       loading={createFloatingIp.isPending}
       submitError={createFloatingIp.error}
     >

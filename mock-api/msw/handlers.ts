@@ -30,6 +30,7 @@ import {
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
 import { instanceCan, OXQL_GROUP_BY_ERROR } from '~/api/util'
+import { parseIpNet } from '~/util/ip'
 import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
 
@@ -42,7 +43,7 @@ import {
   lookup,
   lookupById,
   notFoundErr,
-  resolveIpPool,
+  resolvePoolSelector,
   utilizationForSilo,
 } from './db'
 import {
@@ -71,6 +72,57 @@ import {
 // the snake-cased objects coming straight from the API before the generated
 // client camel-cases the keys and parses date fields. Inside the mock API everything
 // is *JSON type.
+
+// Helper to resolve IP assignment to actual IP string
+const resolveIp = (
+  assignment: { type: 'auto' } | { type: 'explicit'; value: string },
+  defaultIp = '127.0.0.1'
+) => (assignment.type === 'explicit' ? assignment.value : defaultIp)
+
+// Convert PrivateIpStackCreate to PrivateIpStack
+const resolveIpStack = (
+  config:
+    | { type: 'v4'; value: Api.PrivateIpv4StackCreate }
+    | { type: 'v6'; value: Api.PrivateIpv6StackCreate }
+    | {
+        type: 'dual_stack'
+        value: { v4: Api.PrivateIpv4StackCreate; v6: Api.PrivateIpv6StackCreate }
+      },
+  defaultV4Ip = '127.0.0.1',
+  defaultV6Ip = '::1'
+):
+  | { type: 'v4'; value: { ip: string; transit_ips: string[] } }
+  | { type: 'v6'; value: { ip: string; transit_ips: string[] } }
+  | {
+      type: 'dual_stack'
+      value: {
+        v4: { ip: string; transit_ips: string[] }
+        v6: { ip: string; transit_ips: string[] }
+      }
+    } => {
+  if (config.type === 'dual_stack') {
+    return {
+      type: 'dual_stack',
+      value: {
+        v4: {
+          ip: resolveIp(config.value.v4.ip, defaultV4Ip),
+          transit_ips: config.value.v4.transitIps || [],
+        },
+        v6: {
+          ip: resolveIp(config.value.v6.ip, defaultV6Ip),
+          transit_ips: config.value.v6.transitIps || [],
+        },
+      },
+    }
+  }
+  return {
+    type: config.type,
+    value: {
+      ip: resolveIp(config.value.ip, config.type === 'v6' ? defaultV6Ip : defaultV4Ip),
+      transit_ips: config.value.transitIps || [],
+    },
+  }
+}
 
 export const handlers = makeHandlers({
   logout: () => 204,
@@ -254,16 +306,24 @@ export const handlers = makeHandlers({
     errIfExists(db.floatingIps, { name: body.name, project_id: project.id })
 
     // TODO: when IP is specified, use ipInAnyRange to check that it is in the pool
-    const pool = body.pool
-      ? lookup.siloIpPool({ pool: body.pool, silo: defaultSilo.id })
-      : lookup.siloDefaultIpPool({ silo: defaultSilo.id })
+    const addressSelector = body.address_selector || { type: 'auto' }
+    const pool =
+      addressSelector.type === 'explicit' && addressSelector.pool
+        ? lookup.siloIpPool({ pool: addressSelector.pool, silo: defaultSilo.id })
+        : addressSelector.type === 'auto' &&
+            addressSelector.pool_selector?.type === 'explicit'
+          ? lookup.siloIpPool({
+              pool: addressSelector.pool_selector.pool,
+              silo: defaultSilo.id,
+            })
+          : lookup.siloDefaultIpPool({ silo: defaultSilo.id })
 
     const newFloatingIp: Json<Api.FloatingIp> = {
       id: uuid(),
       project_id: project.id,
       // TODO: use ip-num to actually get the next available IP in the pool
       ip:
-        body.ip ||
+        (addressSelector.type === 'explicit' && addressSelector.ip) ||
         Array.from({ length: 4 })
           .map(() => Math.floor(Math.random() * 256))
           .join('.'),
@@ -473,7 +533,7 @@ export const handlers = makeHandlers({
         // if there are no ranges in the pool or if the pool doesn't exist,
         // which aren't quite as good as checking that there are actually IPs
         // available, but they are good things to check
-        const pool = resolveIpPool(ip.pool)
+        const pool = resolvePoolSelector(ip.pool_selector)
         getIpFromPool(pool)
       }
     })
@@ -517,14 +577,32 @@ export const handlers = makeHandlers({
     // a hack but not very important
     const anyVpc = db.vpcs.find((v) => v.project_id === project.id)
     const anySubnet = db.vpcSubnets.find((s) => s.vpc_id === anyVpc?.id)
-    if (body.network_interfaces?.type === 'default' && anyVpc && anySubnet) {
+    const niType = body.network_interfaces?.type
+    if (
+      (niType === 'default_ipv4' ||
+        niType === 'default_ipv6' ||
+        niType === 'default_dual_stack') &&
+      anyVpc &&
+      anySubnet
+    ) {
       db.networkInterfaces.push({
         id: uuid(),
         description: 'The default network interface',
         instance_id: instanceId,
         primary: true,
         mac: '00:00:00:00:00:00',
-        ip: '127.0.0.1',
+        ip_stack:
+          niType === 'default_dual_stack'
+            ? {
+                type: 'dual_stack',
+                value: {
+                  v4: { ip: '127.0.0.1', transit_ips: [] },
+                  v6: { ip: '::1', transit_ips: [] },
+                },
+              }
+            : niType === 'default_ipv6'
+              ? { type: 'v6', value: { ip: '::1', transit_ips: [] } }
+              : { type: 'v4', value: { ip: '127.0.0.1', transit_ips: [] } },
         name: 'default',
         vpc_id: anyVpc.id,
         subnet_id: anySubnet.id,
@@ -532,7 +610,7 @@ export const handlers = makeHandlers({
       })
     } else if (body.network_interfaces?.type === 'create') {
       body.network_interfaces.params.forEach(
-        ({ name, description, ip, subnet_name, vpc_name }, i) => {
+        ({ name, description, ip_config, subnet_name, vpc_name }, i) => {
           db.networkInterfaces.push({
             id: uuid(),
             name,
@@ -540,7 +618,12 @@ export const handlers = makeHandlers({
             instance_id: instanceId,
             primary: i === 0 ? true : false,
             mac: '00:00:00:00:00:00',
-            ip: ip || '127.0.0.1',
+            ip_stack: ip_config
+              ? resolveIpStack(ip_config)
+              : {
+                  type: 'v4',
+                  value: { ip: '127.0.0.1', transit_ips: [] },
+                },
             vpc_id: lookup.vpc({ ...query, vpc: vpc_name }).id,
             subnet_id: lookup.vpcSubnet({ ...query, vpc: vpc_name, subnet: subnet_name })
               .id,
@@ -561,7 +644,7 @@ export const handlers = makeHandlers({
         // we've already validated that the IP isn't attached
         floatingIp.instance_id = instanceId
       } else if (ip.type === 'ephemeral') {
-        const pool = resolveIpPool(ip.pool)
+        const pool = resolvePoolSelector(ip.pool_selector)
         const firstAvailableAddress = getIpFromPool(pool)
 
         db.ephemeralIps.push({
@@ -743,7 +826,7 @@ export const handlers = makeHandlers({
   },
   instanceEphemeralIpAttach({ path, query: projectParams, body }) {
     const instance = lookup.instance({ ...path, ...projectParams })
-    const pool = resolveIpPool(body.pool)
+    const pool = resolvePoolSelector(body.pool_selector)
     const ip = getIpFromPool(pool)
 
     const externalIp = { ip, ip_pool_id: pool.id, kind: 'ephemeral' as const }
@@ -795,7 +878,7 @@ export const handlers = makeHandlers({
     )
     errIfExists(nicsForInstance, { name: body.name })
 
-    const { name, description, subnet_name, vpc_name, ip } = body
+    const { name, description, subnet_name, vpc_name, ip_config } = body
 
     const vpc = lookup.vpc({ ...query, vpc: vpc_name })
     const subnet = lookup.vpcSubnet({ ...query, vpc: vpc_name, subnet: subnet_name })
@@ -807,7 +890,16 @@ export const handlers = makeHandlers({
       instance_id: instance.id,
       name,
       description,
-      ip: ip || '123.45.68.8',
+      ip_stack: ip_config
+        ? resolveIpStack(ip_config, '123.45.68.8', 'fd12:3456::')
+        : // Default is dual-stack with auto-assigned IPs
+          {
+            type: 'dual_stack',
+            value: {
+              v4: { ip: '123.45.68.8', transit_ips: [] },
+              v6: { ip: 'fd12:3456::', transit_ips: [] },
+            },
+          },
       vpc_id: vpc.id,
       subnet_id: subnet.id,
       mac: '',
@@ -842,7 +934,18 @@ export const handlers = makeHandlers({
     }
 
     if (body.transit_ips) {
-      nic.transit_ips = body.transit_ips
+      if (nic.ip_stack.type === 'dual_stack') {
+        // Parse and separate IPv4 and IPv6 transit IPs using proper IP parsing
+        // This matches how the real API routes IpNet[] to the appropriate stacks
+        const [v6TransitIps, v4TransitIps] = R.partition(body.transit_ips, (ipNet) => {
+          const parsed = parseIpNet(ipNet)
+          return parsed.type === 'v6'
+        })
+        nic.ip_stack.value.v4.transit_ips = v4TransitIps
+        nic.ip_stack.value.v6.transit_ips = v6TransitIps
+      } else {
+        nic.ip_stack.value.transit_ips = body.transit_ips
+      }
     }
 
     return nic

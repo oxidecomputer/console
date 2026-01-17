@@ -152,9 +152,24 @@ const staticCols = [
     ),
   }),
   colHelper.accessor('description', Columns.description),
-  colHelper.accessor('ip', {
+  colHelper.display({
+    id: 'ip',
     header: 'Private IP',
-    cell: (info) => <CopyableIp ip={info.getValue()} isLinked={false} />,
+    cell: (info) => {
+      const nic = info.row.original
+      const { ipStack } = nic
+
+      if (ipStack.type === 'dual_stack') {
+        return (
+          <div className="flex flex-col gap-1">
+            <CopyableIp ip={ipStack.value.v4.ip} isLinked={false} />
+            <CopyableIp ip={ipStack.value.v6.ip} isLinked={false} />
+          </div>
+        )
+      }
+
+      return <CopyableIp ip={ipStack.value.ip} isLinked={false} />
+    },
   }),
   colHelper.accessor('vpcId', {
     header: 'vpc',
@@ -164,15 +179,28 @@ const staticCols = [
     header: 'subnet',
     cell: (info) => <SubnetNameFromId value={info.getValue()} />,
   }),
-  colHelper.accessor('transitIps', {
+  colHelper.display({
+    id: 'transitIps',
     header: 'Transit IPs',
-    cell: (info) => (
-      <ListPlusCell tooltipTitle="Other transit IPs">
-        {info.getValue()?.map((ip) => (
-          <div key={ip}>{ip}</div>
-        ))}
-      </ListPlusCell>
-    ),
+    cell: (info) => {
+      const nic = info.row.original
+      const { ipStack } = nic
+
+      let transitIps: string[] = []
+      if (ipStack.type === 'v4' || ipStack.type === 'v6') {
+        transitIps = ipStack.value.transitIps
+      } else if (ipStack.type === 'dual_stack') {
+        // Combine both v4 and v6 transit IPs for dual-stack
+        transitIps = [...ipStack.value.v4.transitIps, ...ipStack.value.v6.transitIps]
+      }
+      return (
+        <ListPlusCell tooltipTitle="Other transit IPs">
+          {transitIps?.map((ip) => (
+            <div key={ip}>{ip}</div>
+          ))}
+        </ListPlusCell>
+      )
+    },
   }),
 ]
 

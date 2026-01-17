@@ -676,3 +676,112 @@ test('Validate CPU and RAM', async ({ page }) => {
   await expect(cpuMsg).toBeVisible()
   await expect(memMsg).toBeVisible()
 })
+
+test('create instance with IPv6-only networking', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+
+  const instanceName = 'ipv6-only-instance'
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await selectASiloImage(page, 'ubuntu-22-04')
+
+  // Open networking accordion
+  await page.getByRole('button', { name: 'Networking' }).click()
+
+  // Select "Default IPv6" network interface
+  await page.getByRole('radio', { name: 'Default IPv6', exact: true }).click()
+
+  // Create instance
+  await page.getByRole('button', { name: 'Create instance' }).click()
+
+  await expect(page).toHaveURL(/\/instances\/ipv6-only-instance/)
+
+  // Navigate to the Networking tab
+  await page.getByRole('tab', { name: 'Networking' }).click()
+
+  // Check that the network interfaces table shows up
+  const nicTable = page.getByRole('table', { name: 'Network interfaces' })
+  await expect(nicTable).toBeVisible()
+
+  // Verify the Private IP column exists and contains an IPv6 address
+  const privateIpCell = nicTable.getByRole('cell').filter({ hasText: /::/ })
+  await expect(privateIpCell.first()).toBeVisible()
+
+  // Verify no IPv4 address is shown (no periods in a dotted-decimal format within the Private IP)
+  // We check that the cell with IPv6 doesn't also contain IPv4
+  const cellText = await privateIpCell.first().textContent()
+  expect(cellText).toMatch(/::/)
+  expect(cellText).not.toMatch(/\d+\.\d+\.\d+\.\d+/)
+})
+
+test('create instance with IPv4-only networking', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+
+  const instanceName = 'ipv4-only-instance'
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await selectASiloImage(page, 'ubuntu-22-04')
+
+  // Open networking accordion
+  await page.getByRole('button', { name: 'Networking' }).click()
+
+  // Select "Default IPv4" network interface
+  await page.getByRole('radio', { name: 'Default IPv4', exact: true }).click()
+
+  // Create instance
+  await page.getByRole('button', { name: 'Create instance' }).click()
+
+  await expect(page).toHaveURL(/\/instances\/ipv4-only-instance/)
+
+  // Navigate to the Networking tab
+  await page.getByRole('tab', { name: 'Networking' }).click()
+
+  // Check that the network interfaces table shows up
+  const nicTable = page.getByRole('table', { name: 'Network interfaces' })
+  await expect(nicTable).toBeVisible()
+
+  // Verify the Private IP column exists and contains an IPv4 address
+  const privateIpCell = nicTable.getByRole('cell').filter({ hasText: /127\.0\.0\.1/ })
+  await expect(privateIpCell.first()).toBeVisible()
+
+  // Verify no IPv6 address is shown (no colons in IPv6 format within the Private IP)
+  const cellText = await privateIpCell.first().textContent()
+  expect(cellText).toMatch(/\d+\.\d+\.\d+\.\d+/)
+  expect(cellText).not.toMatch(/::/)
+})
+
+test('create instance with dual-stack networking shows both IPs', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+
+  const instanceName = 'dual-stack-instance'
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await selectASiloImage(page, 'ubuntu-22-04')
+
+  // Open networking accordion
+  await page.getByRole('button', { name: 'Networking' }).click()
+
+  // Default is already "Default IPv4 & IPv6", so no need to select it
+
+  // Create instance
+  await page.getByRole('button', { name: 'Create instance' }).click()
+
+  await expect(page).toHaveURL(/\/instances\/dual-stack-instance/)
+
+  // Navigate to the Networking tab
+  await page.getByRole('tab', { name: 'Networking' }).click()
+
+  // Check that the network interfaces table shows up
+  const nicTable = page.getByRole('table', { name: 'Network interfaces' })
+  await expect(nicTable).toBeVisible()
+
+  // Verify both IPv4 and IPv6 addresses are shown
+  const privateIpCells = nicTable
+    .locator('tbody tr')
+    .first()
+    .locator('td')
+    .filter({ hasText: /127\.0\.0\.1/ })
+  await expect(privateIpCells.first()).toBeVisible()
+
+  // Check that the same cell contains IPv6
+  const cellText = await privateIpCells.first().textContent()
+  expect(cellText).toMatch(/127\.0\.0\.1/) // IPv4
+  expect(cellText).toMatch(/::1/) // IPv6
+})

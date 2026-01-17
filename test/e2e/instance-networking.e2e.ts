@@ -51,7 +51,8 @@ test('Instance networking tab — NIC table', async ({ page }) => {
   await expectVisible(page, [
     'role=heading[name="Add network interface"]',
     'role=textbox[name="Description"]',
-    'role=textbox[name="IP Address"]',
+    'role=textbox[name="IPv4 Address"]',
+    'role=textbox[name="IPv6 Address"]',
   ])
 
   await page.getByRole('textbox', { name: 'Name' }).fill('nic-2')
@@ -266,11 +267,12 @@ test('Edit network interface - Transit IPs', async ({ page }) => {
   await modal.getByRole('button', { name: 'Update network interface' }).click()
 
   // Assert the transit IP is in the NICs table
+  // The NIC now has 3 transit IPs: 172.30.0.0/22 (v4), 192.168.0.0/16 (v4), and ::/64 (v6)
   const nicTable = page.getByRole('table', { name: 'Network interfaces' })
-  await expectRowVisible(nicTable, { 'Transit IPs': '172.30.0.0/22+1' })
+  await expectRowVisible(nicTable, { 'Transit IPs': '172.30.0.0/22+2' })
 
-  await page.getByText('+1').hover()
+  await page.getByText('+2').hover()
   await expect(
-    page.getByRole('tooltip', { name: 'Other transit IPs 192.168.0.0/16' })
+    page.getByRole('tooltip', { name: 'Other transit IPs 192.168.0.0/16 ::/64' })
   ).toBeVisible()
 })
