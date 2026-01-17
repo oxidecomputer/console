@@ -6,9 +6,16 @@
  * Copyright Oxide Computer Company
  */
 
-import { expect, test, type Locator, type Page } from './utils'
-
-import { clickRowAction, expectRowVisible, selectOption, sleep } from './utils'
+import {
+  clickRowAction,
+  expect,
+  expectRowVisible,
+  selectOption,
+  sleep,
+  test,
+  type Locator,
+  type Page,
+} from './utils'
 
 const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp']
 

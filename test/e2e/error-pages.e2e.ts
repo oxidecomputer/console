@@ -5,9 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, test } from './utils'
-
-import { getPageAsUser, hasConsoleMessage } from './utils'
+import { expect, getPageAsUser, hasConsoleMessage, test } from './utils'
 
 test('Shows 404 page when a resource is not found', async ({ page }) => {
   await page.goto('/nonexistent')

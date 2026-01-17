@@ -6,9 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { expect, test } from './utils'
-
-import { clickRowAction, expectRowVisible, expectToast } from './utils'
+import { clickRowAction, expect, expectRowVisible, expectToast, test } from './utils'
 
 test('IP pool list', async ({ page }) => {
   await page.goto('/system/networking/ip-pools')

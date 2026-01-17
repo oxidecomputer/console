@@ -5,9 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, test } from './utils'
-
-import { forEach } from './utils'
+import { expect, forEach, test } from './utils'
 
 // This could easily be done as a testing-lib test but I want it in a real
 // table. The .is-selected asserts are slightly brittle (and contrary to our

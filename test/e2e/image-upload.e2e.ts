@@ -5,14 +5,15 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, test, type Page } from './utils'
-
 import {
   chooseFile,
+  expect,
   expectNotVisible,
   expectRowVisible,
   expectVisible,
   sleep,
+  test,
+  type Page,
 } from './utils'
 
 // playwright isn't quick enough to catch each step going from ready to running

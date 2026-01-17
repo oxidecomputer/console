@@ -5,8 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { test } from './utils'
-
 import {
   clickRowAction,
   clipboardText,
@@ -16,6 +14,7 @@ import {
   expectVisible,
   getPageAsUser,
   selectOption,
+  test,
 } from './utils'
 
 test('can promote an image from silo', async ({ page }) => {

@@ -5,14 +5,14 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, test } from './utils'
-
 import {
   clickRowAction,
   clickRowActions,
+  expect,
   expectRowVisible,
   expectVisible,
   stopInstance,
+  test,
 } from './utils'
 
 test('Instance networking tab — NIC table', async ({ page }) => {

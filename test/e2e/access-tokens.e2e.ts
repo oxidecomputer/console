@@ -6,9 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { expect, test } from './utils'
-
-import { clickRowAction, expectRowVisible } from './utils'
+import { clickRowAction, expect, expectRowVisible, test } from './utils'
 
 const token1 = '6e762538-dd89-454e-b6e7-82a199b6e51a'
 const token2 = '9c858b30-bb11-4596-8c5e-c2bf1a26843e'

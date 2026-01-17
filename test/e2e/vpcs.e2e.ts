@@ -5,9 +5,14 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, test } from './utils'
-
-import { clickRowAction, expectRowVisible, getPageAsUser, selectOption } from './utils'
+import {
+  clickRowAction,
+  expect,
+  expectRowVisible,
+  getPageAsUser,
+  selectOption,
+  test,
+} from './utils'
 
 test('can nav to VpcPage from /', async ({ page }) => {
   await page.goto('/')
