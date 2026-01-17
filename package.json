@@ -22,7 +22,7 @@
     "update-snapshots": "npm test run -- -u",
     "e2e": "playwright test",
     "e2ec": "playwright test --project=chrome",
-    "e2e-coverage": "rm -rf .nyc_output coverage && COVERAGE=1 npm run e2ec && nyc report --reporter=html --report-dir=coverage && echo 'report at coverage/index.html'",
+    "e2e-coverage": "rm -rf .nyc_output coverage && npm run e2ec && nyc report --reporter=html --report-dir=coverage && echo 'report at coverage/index.html'",
     "visual:baseline": "./tools/generate-visual-baseline.sh",
     "visual:compare": "playwright test -c playwright.visual.config.ts",
     "lint": "oxlint --type-aware",
