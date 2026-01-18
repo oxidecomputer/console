@@ -5,14 +5,14 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, test } from '@playwright/test'
-
 import {
   clickRowAction,
   closeToast,
+  expect,
   expectNotVisible,
   expectRowVisible,
   expectVisible,
+  test,
 } from './utils'
 
 test('Create and edit VPC', async ({ page }) => {

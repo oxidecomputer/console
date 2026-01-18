@@ -5,16 +5,16 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, test } from '@playwright/test'
-
 import {
   addTlsCert,
   chooseFile,
   clickRowAction,
   closeToast,
+  expect,
   expectNotVisible,
   expectRowVisible,
   expectVisible,
+  test,
 } from './utils'
 
 test('Create silo', async ({ page }) => {

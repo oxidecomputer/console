@@ -5,9 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, test, type Page } from '@playwright/test'
-
-import { clickRowAction } from './utils'
+import { clickRowAction, expect, test, type Page } from './utils'
 
 test('serial console can connect while starting', async ({ page }) => {
   // create an instance

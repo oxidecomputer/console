@@ -12,6 +12,7 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 import react from '@vitejs/plugin-react-swc'
 import { defineConfig } from 'vite'
 import { createHtmlPlugin } from 'vite-plugin-html'
+import istanbul from 'vite-plugin-istanbul'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import { z } from 'zod/v4'
 
@@ -134,6 +135,28 @@ export default defineConfig(({ mode }) => ({
     }),
     react(),
     apiMode === 'remote' && basicSsl(),
+    // Docs: https://github.com/ifaxity/vite-plugin-istanbul
+    istanbul({
+      include: 'app/**/*',
+      exclude: [
+        'app/api/__generated__',
+        '**/*.spec.*',
+        'app/api/window.ts',
+        'app/components/MswBanner.tsx',
+      ],
+      extension: ['.ts', '.tsx'],
+      // We technically do not need checkProd to prevent instrumenting in
+      // production because the plugin won't instrument in build mode by default
+      // (tested by comparing with forceBuildInstrument: true, which increases
+      // the bundle size a ton), and we only use build mode in prod.
+      //
+      // Initially this used requireEnv to only instrument when VITE_COVERAGE
+      // is set, but instrumenting didn't seem to slow the tests down at all. So
+      // it seems fine to always instrument and always collect coverage if it's
+      // present (see test/e2e/fixtures.ts`). This keeps things simple in CI
+      // as well.
+      checkProd: true,
+    }),
   ],
   html: {
     // don't include a placeholder nonce in production.

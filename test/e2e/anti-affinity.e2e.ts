@@ -6,9 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { expect, test } from '@playwright/test'
-
-import { clickRowAction, closeToast, expectRowVisible } from './utils'
+import { clickRowAction, closeToast, expect, expectRowVisible, test } from './utils'
 
 test('can nav to Affinity from /', async ({ page }) => {
   await page.goto('/')

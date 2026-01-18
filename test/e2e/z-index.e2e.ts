@@ -5,9 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, test } from '@playwright/test'
-
-import { expectObscured, stopInstance } from './utils'
+import { expect, expectObscured, stopInstance, test } from './utils'
 
 test('Dropdown content in SidebarModal shows on screen', async ({ page }) => {
   // go to an instance’s Network Interfaces page

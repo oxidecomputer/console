@@ -5,9 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { test } from '@playwright/test'
-
-import { expect, expectRowVisible, stopInstance } from './utils'
+import { expect, expectRowVisible, stopInstance, test } from './utils'
 
 test('can create a NIC with a specified IP address', async ({ page }) => {
   // go to an instance’s Network Interfaces page

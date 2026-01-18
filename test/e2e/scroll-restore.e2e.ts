@@ -5,9 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, test } from '@playwright/test'
-
-import { expectScrollTop, scrollTo, sleep } from './utils'
+import { expect, expectScrollTop, scrollTo, sleep, test } from './utils'
 
 test('scroll restore', async ({ page }) => {
   // open small window to make scrolling easier

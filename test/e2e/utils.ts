@@ -5,13 +5,17 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, type Browser, type Locator, type Page } from '@playwright/test'
+import { type Browser, type Locator, type Page } from '@playwright/test'
 
 import { MiB } from '~/util/units'
 
 import { MSW_USER_COOKIE } from '../../mock-api/msw/util'
+// Import expect for use within this file
+import { expect } from './fixtures'
 
+// Re-export everything from playwright, then override test/expect with coverage-collecting versions
 export * from '@playwright/test'
+export { expect, test } from './fixtures'
 
 export async function forEach(
   loc: Locator,

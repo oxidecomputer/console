@@ -5,9 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, test } from '@playwright/test'
-
-import { expectToast } from './utils'
+import { expect, expectToast, test } from './utils'
 
 test('Auto restart policy on failed instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/you-fail')

@@ -5,11 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, test, type Page } from '@playwright/test'
-
 import { PAGE_SIZE } from '~/api/client'
 
-import { expectScrollTop, scrollTo } from './utils'
+import { expect, expectScrollTop, scrollTo, test, type Page } from './utils'
 
 // expectRowVisible is too have for all this
 const expectCell = (page: Page, name: string) =>

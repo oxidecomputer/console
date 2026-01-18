@@ -5,9 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, test } from '@playwright/test'
-
-import { expectVisible } from './utils'
+import { expect, expectVisible, test } from './utils'
 
 test.describe('Project create', () => {
   test.beforeEach(async ({ page }) => {

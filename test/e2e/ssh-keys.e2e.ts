@@ -5,9 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, test } from '@playwright/test'
-
-import { clickRowAction, expectRowVisible } from './utils'
+import { clickRowAction, expect, expectRowVisible, test } from './utils'
 
 test('SSH keys', async ({ page }) => {
   await page.goto('/settings/ssh-keys')

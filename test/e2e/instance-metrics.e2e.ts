@@ -6,11 +6,9 @@
  * Copyright Oxide Computer Company
  */
 
-import { expect, test } from '@playwright/test'
-
 import { OXQL_GROUP_BY_ERROR } from '~/api'
 
-import { getPageAsUser, hasConsoleMessage } from './utils'
+import { expect, getPageAsUser, hasConsoleMessage, test } from './utils'
 
 test('Click through instance metrics', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1/metrics/cpu')

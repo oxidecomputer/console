@@ -12,6 +12,7 @@ deno.lock
 *.sublime-workspace
 .helix
 .react-router/
+.nyc_output/
 
 # IDE - VSCode
 .vscode/*
@@ -30,6 +31,7 @@ Thumbs.db
 test-results/
 ci-e2e-traces/
 playwright-report/
+coverage/
 .vercel
 
 # Visual regression snapshots

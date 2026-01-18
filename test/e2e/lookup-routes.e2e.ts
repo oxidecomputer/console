@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, test } from '@playwright/test'
+import { expect, test } from './utils'
 
 test.describe('/lookup/i', () => {
   test('404s on existing name', async ({ page }) => {
