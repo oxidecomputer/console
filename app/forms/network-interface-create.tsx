@@ -5,12 +5,16 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useQuery } from '@tanstack/react-query'
-import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import type { SetNonNullable, SetRequired } from 'type-fest'
 
-import { api, q, type ApiError, type InstanceNetworkInterfaceCreate } from '@oxide/api'
+import {
+  api,
+  q,
+  usePrefetchedQuery,
+  type ApiError,
+  type InstanceNetworkInterfaceCreate,
+} from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
@@ -20,14 +24,7 @@ import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
 import { FormDivider } from '~/ui/lib/Divider'
-
-const defaultValues: SetRequired<SetNonNullable<InstanceNetworkInterfaceCreate>, 'ip'> = {
-  name: '',
-  description: '',
-  ip: '',
-  subnetName: '',
-  vpcName: '',
-}
+import { ALL_ISH } from '~/util/consts'
 
 type CreateNetworkInterfaceFormProps = {
   onDismiss: () => void
@@ -47,12 +44,17 @@ export function CreateNetworkInterfaceForm({
   submitError = null,
 }: CreateNetworkInterfaceFormProps) {
   const projectSelector = useProjectSelector()
-
-  const { data: vpcsData } = useQuery(q(api.vpcList, { query: projectSelector }))
-  const vpcs = useMemo(() => vpcsData?.items || [], [vpcsData])
-
+  const {
+    data: { items: vpcs },
+  } = usePrefetchedQuery(q(api.vpcList, { query: { ...projectSelector, limit: ALL_ISH } }))
+  const defaultValues: SetRequired<SetNonNullable<InstanceNetworkInterfaceCreate>, 'ip'> = {
+    name: '',
+    description: '',
+    ip: '',
+    subnetName: '',
+    vpcName: vpcs.length > 0 ? vpcs[0].name : '',
+  }
   const form = useForm({ defaultValues })
-
   return (
     <SideModalForm
       form={form}

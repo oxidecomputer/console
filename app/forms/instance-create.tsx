@@ -173,6 +173,8 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     queryClient.prefetchQuery(
       q(api.floatingIpList, { query: { project, limit: ALL_ISH } })
     ),
+    // Fetch VPCs for custom NIC form
+    queryClient.prefetchQuery(q(api.vpcList, { query: { project, limit: ALL_ISH } })),
   ])
   return null
 }

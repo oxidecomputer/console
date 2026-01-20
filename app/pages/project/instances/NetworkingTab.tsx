@@ -128,6 +128,8 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
           queryClient.setQueryData(queryKey, { type: 'success', data: pool })
         }
       }),
+    // Fetch VPCs for Add NIC form
+    queryClient.fetchQuery(q(api.vpcList, { query: { project, limit: ALL_ISH } })),
   ])
   return null
 }
