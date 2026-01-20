@@ -108,7 +108,7 @@ export const AddressAllocator = z.preprocess(
   processResponseBody,
   z.union([
     z.object({
-      ip: z.ipv4(),
+      ip: z.union([z.ipv4(), z.ipv6()]),
       pool: NameOrId.nullable().optional(),
       type: z.enum(['explicit']),
     }),
@@ -152,7 +152,11 @@ export const AddressLot = z.preprocess(
  */
 export const AddressLotBlock = z.preprocess(
   processResponseBody,
-  z.object({ firstAddress: z.ipv4(), id: z.uuid(), lastAddress: z.ipv4() })
+  z.object({
+    firstAddress: z.union([z.ipv4(), z.ipv6()]),
+    id: z.uuid(),
+    lastAddress: z.union([z.ipv4(), z.ipv6()]),
+  })
 )
 
 /**
@@ -160,7 +164,10 @@ export const AddressLotBlock = z.preprocess(
  */
 export const AddressLotBlockCreate = z.preprocess(
   processResponseBody,
-  z.object({ firstAddress: z.ipv4(), lastAddress: z.ipv4() })
+  z.object({
+    firstAddress: z.union([z.ipv4(), z.ipv6()]),
+    lastAddress: z.union([z.ipv4(), z.ipv6()]),
+  })
 )
 
 /**
@@ -677,7 +684,7 @@ export const AuditLogEntry = z.preprocess(
     requestId: z.string(),
     requestUri: z.string(),
     result: AuditLogEntryResult,
-    sourceIp: z.ipv4(),
+    sourceIp: z.union([z.ipv4(), z.ipv6()]),
     timeCompleted: z.coerce.date(),
     timeStarted: z.coerce.date(),
     userAgent: z.string().nullable().optional(),
@@ -727,7 +734,7 @@ export const BfdMode = z.preprocess(
  */
 export const BfdSessionDisable = z.preprocess(
   processResponseBody,
-  z.object({ remote: z.ipv4(), switch: Name })
+  z.object({ remote: z.union([z.ipv4(), z.ipv6()]), switch: Name })
 )
 
 /**
@@ -737,9 +744,9 @@ export const BfdSessionEnable = z.preprocess(
   processResponseBody,
   z.object({
     detectionThreshold: z.number().min(0).max(255),
-    local: z.ipv4().nullable().optional(),
+    local: z.union([z.ipv4(), z.ipv6()]).nullable().optional(),
     mode: BfdMode,
-    remote: z.ipv4(),
+    remote: z.union([z.ipv4(), z.ipv6()]),
     requiredRx: z.number().min(0),
     switch: Name,
   })
@@ -754,9 +761,9 @@ export const BfdStatus = z.preprocess(
   processResponseBody,
   z.object({
     detectionThreshold: z.number().min(0).max(255),
-    local: z.ipv4().nullable().optional(),
+    local: z.union([z.ipv4(), z.ipv6()]).nullable().optional(),
     mode: BfdMode,
-    peer: z.ipv4(),
+    peer: z.union([z.ipv4(), z.ipv6()]),
     requiredRx: z.number().min(0),
     state: BfdState,
     switch: Name,
@@ -881,7 +888,7 @@ export const ImportExportPolicy = z.preprocess(
 export const BgpPeer = z.preprocess(
   processResponseBody,
   z.object({
-    addr: z.ipv4(),
+    addr: z.union([z.ipv4(), z.ipv6()]),
     allowedExport: ImportExportPolicy,
     allowedImport: ImportExportPolicy,
     bgpConfig: NameOrId,
@@ -930,7 +937,7 @@ export const BgpPeerState = z.preprocess(
 export const BgpPeerStatus = z.preprocess(
   processResponseBody,
   z.object({
-    addr: z.ipv4(),
+    addr: z.union([z.ipv4(), z.ipv6()]),
     localAsn: z.number().min(0).max(4294967295),
     remoteAsn: z.number().min(0).max(4294967295),
     state: BgpPeerState,
@@ -1837,17 +1844,21 @@ export const ExternalIp = z.preprocess(
   z.union([
     z.object({
       firstPort: z.number().min(0).max(65535),
-      ip: z.ipv4(),
+      ip: z.union([z.ipv4(), z.ipv6()]),
       ipPoolId: z.uuid(),
       kind: z.enum(['snat']),
       lastPort: z.number().min(0).max(65535),
     }),
-    z.object({ ip: z.ipv4(), ipPoolId: z.uuid(), kind: z.enum(['ephemeral']) }),
+    z.object({
+      ip: z.union([z.ipv4(), z.ipv6()]),
+      ipPoolId: z.uuid(),
+      kind: z.enum(['ephemeral']),
+    }),
     z.object({
       description: z.string(),
       id: z.uuid(),
       instanceId: z.uuid().nullable().optional(),
-      ip: z.ipv4(),
+      ip: z.union([z.ipv4(), z.ipv6()]),
       ipPoolId: z.uuid(),
       kind: z.enum(['floating']),
       name: Name,
@@ -1934,7 +1945,7 @@ export const FieldValue = z.preprocess(
     z.object({ type: z.enum(['u32']), value: z.number().min(0).max(4294967295) }),
     z.object({ type: z.enum(['i64']), value: z.number() }),
     z.object({ type: z.enum(['u64']), value: z.number().min(0) }),
-    z.object({ type: z.enum(['ip_addr']), value: z.ipv4() }),
+    z.object({ type: z.enum(['ip_addr']), value: z.union([z.ipv4(), z.ipv6()]) }),
     z.object({ type: z.enum(['uuid']), value: z.uuid() }),
     z.object({ type: z.enum(['bool']), value: SafeBoolean }),
   ])
@@ -1990,7 +2001,7 @@ export const FloatingIp = z.preprocess(
     description: z.string(),
     id: z.uuid(),
     instanceId: z.uuid().nullable().optional(),
-    ip: z.ipv4(),
+    ip: z.union([z.ipv4(), z.ipv6()]),
     ipPoolId: z.uuid(),
     name: Name,
     projectId: z.uuid(),
@@ -2277,7 +2288,7 @@ export const MulticastGroupJoinSpec = z.preprocess(
   z.object({
     group: MulticastGroupIdentifier,
     ipVersion: IpVersion.nullable().default(null),
-    sourceIps: z.ipv4().array().nullable().default(null),
+    sourceIps: z.union([z.ipv4(), z.ipv6()]).array().nullable().default(null),
   })
 )
 
@@ -2404,7 +2415,7 @@ export const InstanceMulticastGroupJoin = z.preprocess(
   processResponseBody,
   z.object({
     ipVersion: IpVersion.nullable().default(null),
-    sourceIps: z.ipv4().array().nullable().default(null),
+    sourceIps: z.union([z.ipv4(), z.ipv6()]).array().nullable().default(null),
   })
 )
 
@@ -2568,7 +2579,7 @@ export const InternetGatewayCreate = z.preprocess(
 export const InternetGatewayIpAddress = z.preprocess(
   processResponseBody,
   z.object({
-    address: z.ipv4(),
+    address: z.union([z.ipv4(), z.ipv6()]),
     description: z.string(),
     id: z.uuid(),
     internetGatewayId: z.uuid(),
@@ -2583,7 +2594,7 @@ export const InternetGatewayIpAddress = z.preprocess(
  */
 export const InternetGatewayIpAddressCreate = z.preprocess(
   processResponseBody,
-  z.object({ address: z.ipv4(), description: z.string(), name: Name })
+  z.object({ address: z.union([z.ipv4(), z.ipv6()]), description: z.string(), name: Name })
 )
 
 /**
@@ -2805,7 +2816,7 @@ export const LldpLinkConfigCreate = z.preprocess(
     enabled: SafeBoolean,
     linkDescription: z.string().nullable().optional(),
     linkName: z.string().nullable().optional(),
-    managementIp: z.ipv4().nullable().optional(),
+    managementIp: z.union([z.ipv4(), z.ipv6()]).nullable().optional(),
     systemDescription: z.string().nullable().optional(),
     systemName: z.string().nullable().optional(),
   })
@@ -2870,7 +2881,7 @@ export const LldpLinkConfig = z.preprocess(
     id: z.uuid(),
     linkDescription: z.string().nullable().optional(),
     linkName: z.string().nullable().optional(),
-    managementIp: z.ipv4().nullable().optional(),
+    managementIp: z.union([z.ipv4(), z.ipv6()]).nullable().optional(),
     systemDescription: z.string().nullable().optional(),
     systemName: z.string().nullable().optional(),
   })
@@ -2879,7 +2890,7 @@ export const LldpLinkConfig = z.preprocess(
 export const NetworkAddress = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ ipAddr: z.ipv4() }),
+    z.object({ ipAddr: z.union([z.ipv4(), z.ipv6()]) }),
     z.object({ iEEE802: z.number().min(0).max(255).array() }),
   ])
 )
@@ -2939,7 +2950,7 @@ export const LoopbackAddress = z.preprocess(
 export const LoopbackAddressCreate = z.preprocess(
   processResponseBody,
   z.object({
-    address: z.ipv4(),
+    address: z.union([z.ipv4(), z.ipv6()]),
     addressLot: NameOrId,
     anycast: SafeBoolean,
     mask: z.number().min(0).max(255),
@@ -2989,10 +3000,10 @@ export const MulticastGroup = z.preprocess(
     description: z.string(),
     id: z.uuid(),
     ipPoolId: z.uuid(),
-    multicastIp: z.ipv4(),
+    multicastIp: z.union([z.ipv4(), z.ipv6()]),
     mvlan: z.number().min(0).max(65535).nullable().optional(),
     name: Name,
-    sourceIps: z.ipv4().array(),
+    sourceIps: z.union([z.ipv4(), z.ipv6()]).array(),
     state: z.string(),
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
@@ -3009,9 +3020,9 @@ export const MulticastGroupMember = z.preprocess(
     id: z.uuid(),
     instanceId: z.uuid(),
     multicastGroupId: z.uuid(),
-    multicastIp: z.ipv4(),
+    multicastIp: z.union([z.ipv4(), z.ipv6()]),
     name: Name,
-    sourceIps: z.ipv4().array(),
+    sourceIps: z.union([z.ipv4(), z.ipv6()]).array(),
     state: z.string(),
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
@@ -3274,7 +3285,7 @@ export const ProbeExternalIp = z.preprocess(
   processResponseBody,
   z.object({
     firstPort: z.number().min(0).max(65535),
-    ip: z.ipv4(),
+    ip: z.union([z.ipv4(), z.ipv6()]),
     kind: ProbeExternalIpKind,
     lastPort: z.number().min(0).max(65535),
   })
@@ -3388,7 +3399,7 @@ export const Route = z.preprocess(
   processResponseBody,
   z.object({
     dst: IpNet,
-    gw: z.ipv4(),
+    gw: z.union([z.ipv4(), z.ipv6()]),
     ribPriority: z.number().min(0).max(255).nullable().optional(),
     vid: z.number().min(0).max(65535).nullable().optional(),
   })
@@ -3410,7 +3421,7 @@ export const RouteConfig = z.preprocess(
 export const RouteDestination = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ type: z.enum(['ip']), value: z.ipv4() }),
+    z.object({ type: z.enum(['ip']), value: z.union([z.ipv4(), z.ipv6()]) }),
     z.object({ type: z.enum(['ip_net']), value: IpNet }),
     z.object({ type: z.enum(['vpc']), value: Name }),
     z.object({ type: z.enum(['subnet']), value: Name }),
@@ -3423,7 +3434,7 @@ export const RouteDestination = z.preprocess(
 export const RouteTarget = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ type: z.enum(['ip']), value: z.ipv4() }),
+    z.object({ type: z.enum(['ip']), value: z.union([z.ipv4(), z.ipv6()]) }),
     z.object({ type: z.enum(['vpc']), value: Name }),
     z.object({ type: z.enum(['subnet']), value: Name }),
     z.object({ type: z.enum(['instance']), value: Name }),
@@ -4152,7 +4163,7 @@ export const SwitchPortRouteConfig = z.preprocess(
   processResponseBody,
   z.object({
     dst: IpNet,
-    gw: z.ipv4(),
+    gw: z.union([z.ipv4(), z.ipv6()]),
     interfaceName: Name,
     portSettingsId: z.uuid(),
     ribPriority: z.number().min(0).max(255).nullable().optional(),
@@ -4581,7 +4592,7 @@ export const VpcFirewallRuleHostFilter = z.preprocess(
     z.object({ type: z.enum(['vpc']), value: Name }),
     z.object({ type: z.enum(['subnet']), value: Name }),
     z.object({ type: z.enum(['instance']), value: Name }),
-    z.object({ type: z.enum(['ip']), value: z.ipv4() }),
+    z.object({ type: z.enum(['ip']), value: z.union([z.ipv4(), z.ipv6()]) }),
     z.object({ type: z.enum(['ip_net']), value: IpNet }),
   ])
 )
@@ -4624,7 +4635,7 @@ export const VpcFirewallRuleTarget = z.preprocess(
     z.object({ type: z.enum(['vpc']), value: Name }),
     z.object({ type: z.enum(['subnet']), value: Name }),
     z.object({ type: z.enum(['instance']), value: Name }),
-    z.object({ type: z.enum(['ip']), value: z.ipv4() }),
+    z.object({ type: z.enum(['ip']), value: z.union([z.ipv4(), z.ipv6()]) }),
     z.object({ type: z.enum(['ip_net']), value: IpNet }),
   ])
 )
@@ -7303,7 +7314,7 @@ export const NetworkingLoopbackAddressDeleteParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
-      address: z.ipv4(),
+      address: z.union([z.ipv4(), z.ipv6()]),
       rackId: z.uuid(),
       subnetMask: z.number().min(0).max(255),
       switchLocation: Name,
