@@ -306,14 +306,14 @@ export const handlers = makeHandlers({
     errIfExists(db.floatingIps, { name: body.name, project_id: project.id })
 
     // TODO: when IP is specified, use ipInAnyRange to check that it is in the pool
-    const addressSelector = body.address_selector || { type: 'auto' }
+    const addressAllocator = body.address_allocator || { type: 'auto' }
     const pool =
-      addressSelector.type === 'explicit' && addressSelector.pool
-        ? lookup.siloIpPool({ pool: addressSelector.pool, silo: defaultSilo.id })
-        : addressSelector.type === 'auto' &&
-            addressSelector.pool_selector?.type === 'explicit'
+      addressAllocator.type === 'explicit' && addressAllocator.pool
+        ? lookup.siloIpPool({ pool: addressAllocator.pool, silo: defaultSilo.id })
+        : addressAllocator.type === 'auto' &&
+            addressAllocator.pool_selector?.type === 'explicit'
           ? lookup.siloIpPool({
-              pool: addressSelector.pool_selector.pool,
+              pool: addressAllocator.pool_selector.pool,
               silo: defaultSilo.id,
             })
           : lookup.siloDefaultIpPool({ silo: defaultSilo.id })
@@ -323,7 +323,7 @@ export const handlers = makeHandlers({
       project_id: project.id,
       // TODO: use ip-num to actually get the next available IP in the pool
       ip:
-        (addressSelector.type === 'explicit' && addressSelector.ip) ||
+        (addressAllocator.type === 'explicit' && addressAllocator.ip) ||
         Array.from({ length: 4 })
           .map(() => Math.floor(Math.random() * 256))
           .join('.'),
@@ -2102,14 +2102,8 @@ export const handlers = makeHandlers({
   localIdpUserDelete: NotImplemented,
   localIdpUserSetPassword: NotImplemented,
   loginSaml: NotImplemented,
-  lookupMulticastGroupByIp: NotImplemented,
-  multicastGroupCreate: NotImplemented,
-  multicastGroupDelete: NotImplemented,
   multicastGroupList: NotImplemented,
-  multicastGroupMemberAdd: NotImplemented,
   multicastGroupMemberList: NotImplemented,
-  multicastGroupMemberRemove: NotImplemented,
-  multicastGroupUpdate: NotImplemented,
   multicastGroupView: NotImplemented,
   networkingAddressLotBlockList: NotImplemented,
   networkingAddressLotCreate: NotImplemented,

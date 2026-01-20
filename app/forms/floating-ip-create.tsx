@@ -73,7 +73,7 @@ export default function CreateFloatingIpSideModalForm() {
       onSubmit={({ pool, ...values }) => {
         const body: FloatingIpCreate = {
           ...values,
-          addressSelector: pool
+          addressAllocator: pool
             ? {
                 type: 'auto' as const,
                 poolSelector: { type: 'explicit' as const, pool },
