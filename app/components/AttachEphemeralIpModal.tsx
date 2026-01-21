@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '~/api'
@@ -24,10 +23,6 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
   const { data: siloPools } = usePrefetchedQuery(
     q(api.projectIpPoolList, { query: { limit: ALL_ISH } })
   )
-  const defaultPool = useMemo(
-    () => siloPools?.items.find((pool) => pool.isDefault),
-    [siloPools]
-  )
   const instanceEphemeralIpAttach = useApiMutation(api.instanceEphemeralIpAttach, {
     onSuccess(ephemeralIp) {
       queryClient.invalidateEndpoint('instanceExternalIpList')
@@ -39,7 +34,7 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
       addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
   })
-  const form = useForm({ defaultValues: { pool: defaultPool?.name } })
+  const form = useForm({ defaultValues: { pool: '' } })
   const pool = form.watch('pool')
 
   return (
@@ -51,26 +46,21 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
               control={form.control}
               name="pool"
               label="IP pool"
-              placeholder={
-                siloPools?.items && siloPools.items.length > 0
-                  ? 'Select a pool'
-                  : 'No pools available'
-              }
+              placeholder="Default pool"
               items={siloPools.items.map(toIpPoolItem)}
-              required
             />
           </form>
         </Modal.Section>
       </Modal.Body>
       <Modal.Footer
         actionText="Attach"
-        disabled={!pool}
         onAction={() => {
-          if (!pool) return
           instanceEphemeralIpAttach.mutate({
             path: { instance },
             query: { project },
-            body: { poolSelector: { type: 'explicit', pool } },
+            body: pool
+              ? { poolSelector: { type: 'explicit', pool } }
+              : { poolSelector: { type: 'auto' } },
           })
         }}
         onDismiss={onDismiss}

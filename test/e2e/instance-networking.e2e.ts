@@ -122,9 +122,25 @@ test('Instance networking tab — Detach / Attach Ephemeral IPs', async ({ page 
   // The 'Attach ephemeral IP' button should be visible and enabled now that the existing ephemeral IP has been detached
   await expect(attachEphemeralIpButton).toBeEnabled()
 
-  // Attach a new ephemeral IP
+  // Attach a new ephemeral IP using the default pool (don't select a pool)
   await attachEphemeralIpButton.click()
-  const modal = page.getByRole('dialog', { name: 'Attach ephemeral IP' })
+  let modal = page.getByRole('dialog', { name: 'Attach ephemeral IP' })
+  await expect(modal).toBeVisible()
+  // Click Attach without selecting a pool - should use default pool
+  await page.getByRole('button', { name: 'Attach', exact: true }).click()
+  await expect(modal).toBeHidden()
+  await expect(ephemeralCell).toBeVisible()
+
+  // The 'Attach ephemeral IP' button should be hidden after attaching an ephemeral IP
+  await expect(attachEphemeralIpButton).toBeHidden()
+
+  // Detach and test with explicit pool selection
+  await clickRowAction(page, 'ephemeral', 'Detach')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expect(ephemeralCell).toBeHidden()
+
+  await attachEphemeralIpButton.click()
+  modal = page.getByRole('dialog', { name: 'Attach ephemeral IP' })
   await expect(modal).toBeVisible()
   await page.getByRole('button', { name: 'IP pool' }).click()
   await page.getByRole('option', { name: 'ip-pool-2' }).click()
