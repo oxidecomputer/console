@@ -234,7 +234,7 @@ export default function CreateInstanceForm() {
     bootDiskSize: diskSizeNearest10(defaultImage?.size / GiB),
     externalIps: defaultPool
       ? [{ type: 'ephemeral', poolSelector: { type: 'explicit', pool: defaultPool } }]
-      : [],
+      : [{ type: 'ephemeral' }],
   }
 
   const form = useForm({ defaultValues })
@@ -648,7 +648,10 @@ const AdvancedAccordion = ({
   const externalIps = useController({ control, name: 'externalIps' })
   const ephemeralIp = externalIps.field.value?.find((ip) => ip.type === 'ephemeral')
   const assignEphemeralIp = !!ephemeralIp
-  const selectedPool = ephemeralIp && 'pool' in ephemeralIp ? ephemeralIp.pool : undefined
+  const selectedPool =
+    ephemeralIp?.poolSelector?.type === 'explicit'
+      ? ephemeralIp.poolSelector.pool
+      : undefined
   const defaultPool = siloPools.find((pool) => pool.isDefault)?.name
   const attachedFloatingIps = (externalIps.field.value || []).filter(isFloating)
 
@@ -743,7 +746,15 @@ const AdvancedAccordion = ({
                 ? externalIps.field.value?.filter((ip) => ip.type !== 'ephemeral')
                 : [
                     ...(externalIps.field.value || []),
-                    { type: 'ephemeral', pool: selectedPool || defaultPool },
+                    selectedPool || defaultPool
+                      ? {
+                          type: 'ephemeral',
+                          poolSelector: {
+                            type: 'explicit',
+                            pool: selectedPool || defaultPool,
+                          },
+                        }
+                      : { type: 'ephemeral' },
                   ]
               externalIps.field.onChange(newExternalIps)
             }}
@@ -761,7 +772,9 @@ const AdvancedAccordion = ({
               required
               onChange={(value) => {
                 const newExternalIps = externalIps.field.value?.map((ip) =>
-                  ip.type === 'ephemeral' ? { ...ip, pool: value } : ip
+                  ip.type === 'ephemeral'
+                    ? { type: 'ephemeral', poolSelector: { type: 'explicit', pool: value } }
+                    : ip
                 )
                 externalIps.field.onChange(newExternalIps)
               }}
