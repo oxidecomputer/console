@@ -47,13 +47,14 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
               name="pool"
               label="IP pool"
               placeholder="Default pool"
-              items={siloPools.items.map(toIpPoolItem)}
+              items={(siloPools?.items ?? []).map(toIpPoolItem)}
             />
           </form>
         </Modal.Section>
       </Modal.Body>
       <Modal.Footer
         actionText="Attach"
+        disabled={!siloPools}
         onAction={() => {
           instanceEphemeralIpAttach.mutate({
             path: { instance },
