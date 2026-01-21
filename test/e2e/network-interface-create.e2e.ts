@@ -76,7 +76,10 @@ test('can create a NIC with a blank IP address', async ({ page }) => {
 
   // ip address is auto-assigned (dual-stack by default)
   const table = page.getByRole('table', { name: 'Network interfaces' })
-  await expectRowVisible(table, { name: 'nic-2', 'Private IP': '123.45.68.8fd12:3456::' })
+  await expectRowVisible(table, {
+    name: 'nic-2',
+    'Private IP': expect.stringMatching(/123\.45\.68\.8\s*fd12:3456::/),
+  })
 })
 
 test('can create a NIC with IPv6 only', async ({ page }) => {
@@ -126,5 +129,8 @@ test('can create a NIC with dual-stack and explicit IPs', async ({ page }) => {
   await expect(sidebar).toBeHidden()
 
   const table = page.getByRole('table', { name: 'Network interfaces' })
-  await expectRowVisible(table, { name: 'nic-4', 'Private IP': '10.0.0.5fd00::5' })
+  await expectRowVisible(table, {
+    name: 'nic-4',
+    'Private IP': expect.stringMatching(/10\.0\.0\.5\s*fd00::5/),
+  })
 })
