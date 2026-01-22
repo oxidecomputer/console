@@ -22,7 +22,12 @@ import {
   type IpPoolRange,
   type IpPoolSiloLink,
 } from '@oxide/api'
-import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
+import {
+  IpGlobal16Icon,
+  IpGlobal24Icon,
+  Success12Icon,
+} from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import { CapacityBar } from '~/components/CapacityBar'
 import { DocsPopover } from '~/components/DocsPopover'
@@ -35,7 +40,6 @@ import { getIpPoolSelector, useIpPoolSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import { DefaultPoolCell } from '~/table/cells/DefaultPoolCell'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -326,7 +330,13 @@ function LinkedSilosTable() {
             </span>
           )
         },
-        cell: (info) => <DefaultPoolCell isDefault={info.getValue()} />,
+        cell: (info) =>
+          info.getValue() ? (
+            <>
+              <Success12Icon className="text-accent mr-1" />
+              <Badge>default</Badge>
+            </>
+          ) : null,
       }),
     ],
     []
