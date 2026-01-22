@@ -255,26 +255,6 @@ function SiloNameFromId({ value: siloId }: { value: string }) {
 }
 
 const silosColHelper = createColumnHelper<IpPoolSiloLink>()
-const silosStaticCols = [
-  silosColHelper.accessor('siloId', {
-    header: 'Silo',
-    cell: (info) => <SiloNameFromId value={info.getValue()} />,
-  }),
-  silosColHelper.accessor('isDefault', {
-    header: () => {
-      return (
-        <span className="inline-flex items-center gap-2">
-          Pool is silo default
-          <TipIcon>
-            IPs are allocated from the default pool when users ask for an IP without
-            specifying a pool
-          </TipIcon>
-        </span>
-      )
-    },
-    cell: (info) => <DefaultPoolCell isDefault={info.getValue()} />,
-  }),
-]
 
 function LinkedSilosTable() {
   const poolSelector = useIpPoolSelector()
@@ -328,7 +308,31 @@ function LinkedSilosTable() {
     />
   )
 
-  const columns = useColsWithActions(silosStaticCols, makeActions)
+  const silosCols = useMemo(
+    () => [
+      silosColHelper.accessor('siloId', {
+        header: 'Silo',
+        cell: (info) => <SiloNameFromId value={info.getValue()} />,
+      }),
+      silosColHelper.accessor('isDefault', {
+        header: () => {
+          return (
+            <span className="inline-flex items-center gap-2">
+              Pool is silo default
+              <TipIcon>
+                IPs are allocated from the default pool when users ask for an IP without
+                specifying a pool
+              </TipIcon>
+            </span>
+          )
+        },
+        cell: (info) => <DefaultPoolCell isDefault={info.getValue()} />,
+      }),
+    ],
+    []
+  )
+
+  const columns = useColsWithActions(silosCols, makeActions)
   const { table } = useQueryTable({
     query: ipPoolSiloList(poolSelector),
     columns,

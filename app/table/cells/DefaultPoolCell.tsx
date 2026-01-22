@@ -8,10 +8,16 @@
 import { Success12Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
-export const DefaultPoolCell = ({ isDefault }: { isDefault: boolean }) =>
+export const DefaultPoolCell = ({
+  isDefault,
+  ipVersion,
+}: {
+  isDefault: boolean
+  ipVersion?: string
+}) =>
   isDefault ? (
     <>
       <Success12Icon className="text-accent mr-1" />
-      <Badge>default</Badge>
+      <Badge>default{ipVersion}</Badge>
     </>
   ) : null

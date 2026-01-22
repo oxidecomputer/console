@@ -62,7 +62,7 @@ export const ipPoolSilos: Json<IpPoolSiloLink>[] = [
   {
     ip_pool_id: ipPool2.id,
     silo_id: defaultSilo.id,
-    is_default: false,
+    is_default: true, // Both v4 and v6 pools are default - valid dual-default scenario
   },
 ]
 

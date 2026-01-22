@@ -1079,11 +1079,22 @@ export const handlers = makeHandlers({
     const ipPoolSilo = lookup.ipPoolSiloLink(path)
 
     // if we're setting default, we need to set is_default false on the existing default
+    // for the same IP version and pool type (a silo can have separate defaults for v4/v6)
     if (body.is_default) {
       const silo = lookup.silo(path)
-      const existingDefault = db.ipPoolSilos.find(
-        (ips) => ips.silo_id === silo.id && ips.is_default
-      )
+      const currentPool = lookup.ipPool({ pool: ipPoolSilo.ip_pool_id })
+
+      // Find existing default with same version and type
+      const existingDefault = db.ipPoolSilos.find((ips) => {
+        if (ips.silo_id !== silo.id || !ips.is_default) return false
+        const pool = db.ipPools.find((p) => p.id === ips.ip_pool_id)
+        return (
+          pool &&
+          pool.ip_version === currentPool.ip_version &&
+          pool.pool_type === currentPool.pool_type
+        )
+      })
+
       if (existingDefault) {
         existingDefault.is_default = false
       }

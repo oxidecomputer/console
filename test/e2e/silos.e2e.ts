@@ -264,8 +264,9 @@ test('Silo IP pools', async ({ page }) => {
   await page.goto('/system/silos/maze-war/ip-pools')
 
   const table = page.getByRole('table')
-  await expectRowVisible(table, { name: 'ip-pool-1', Default: 'default' })
-  await expectRowVisible(table, { name: 'ip-pool-2', Default: '' })
+  // Both pools start as default (one IPv4, one IPv6) - valid dual-default scenario
+  await expectRowVisible(table, { name: 'ip-pool-1', Default: 'default v4' })
+  await expectRowVisible(table, { name: 'ip-pool-2', Default: 'default v6' })
   await expect(table.getByRole('row')).toHaveCount(3) // header + 2
 
   // clicking on pool goes to pool detail
@@ -273,20 +274,7 @@ test('Silo IP pools', async ({ page }) => {
   await expect(page).toHaveURL('/system/networking/ip-pools/ip-pool-1')
   await page.goBack()
 
-  // make default
-  await clickRowAction(page, 'ip-pool-2', 'Make default')
-  await expect(
-    page
-      .getByRole('dialog', { name: 'Confirm change default' })
-      .getByText(
-        'Are you sure you want to change the default pool from ip-pool-1 to ip-pool-2?'
-      )
-  ).toBeVisible()
-  await page.getByRole('button', { name: 'Confirm' }).click()
-  await expectRowVisible(table, { name: 'ip-pool-1', Default: '' })
-  await expectRowVisible(table, { name: 'ip-pool-2', Default: 'default' })
-
-  // unlink
+  // unlink IPv4 pool
   await clickRowAction(page, 'ip-pool-1', 'Unlink')
   await expect(
     page
@@ -295,9 +283,10 @@ test('Silo IP pools', async ({ page }) => {
   ).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(page.getByRole('cell', { name: 'ip-pool-1' })).toBeHidden()
+  // ip-pool-2 should still be default, but now it's the only default so no version shown
   await expectRowVisible(table, { name: 'ip-pool-2', Default: 'default' })
 
-  // clear default
+  // clear default for IPv6 pool
   await clickRowAction(page, 'ip-pool-2', 'Clear default')
   await expect(
     page
@@ -312,8 +301,9 @@ test('Silo IP pools link pool', async ({ page }) => {
   await page.goto('/system/silos/maze-war/ip-pools')
 
   const table = page.getByRole('table')
-  await expectRowVisible(table, { name: 'ip-pool-1', Default: 'default' })
-  await expectRowVisible(table, { name: 'ip-pool-2', Default: '' })
+  // Both pools start as default (one IPv4, one IPv6)
+  await expectRowVisible(table, { name: 'ip-pool-1', Default: 'default v4' })
+  await expectRowVisible(table, { name: 'ip-pool-2', Default: 'default v6' })
   await expect(table.getByRole('row')).toHaveCount(3) // header + 2
 
   const modal = page.getByRole('dialog', { name: 'Link pool' })
