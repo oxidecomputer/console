@@ -227,6 +227,17 @@ export default function CreateInstanceForm() {
   const defaultSource =
     siloImages.length > 0 ? 'siloImage' : projectImages.length > 0 ? 'projectImage' : 'disk'
 
+  // Detect if both IPv4 and IPv6 default unicast pools exist
+  const hasDualDefaults = useMemo(() => {
+    if (!siloPools) return false
+    const defaultUnicastPools = siloPools.items.filter(
+      (pool) => pool.isDefault && pool.poolType === 'unicast'
+    )
+    const hasV4Default = defaultUnicastPools.some((p) => p.ipVersion === 'v4')
+    const hasV6Default = defaultUnicastPools.some((p) => p.ipVersion === 'v6')
+    return hasV4Default && hasV6Default
+  }, [siloPools])
+
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
     bootDiskSourceType: defaultSource,
@@ -234,7 +245,9 @@ export default function CreateInstanceForm() {
     bootDiskSize: diskSizeNearest10(defaultImage?.size / GiB),
     externalIps: defaultPool
       ? [{ type: 'ephemeral', poolSelector: { type: 'explicit', pool: defaultPool } }]
-      : [{ type: 'ephemeral' }],
+      : hasDualDefaults
+        ? [{ type: 'ephemeral', poolSelector: { type: 'auto', ipVersion: 'v4' } }]
+        : [{ type: 'ephemeral' }],
   }
 
   const form = useForm({ defaultValues })
@@ -598,6 +611,7 @@ export default function CreateInstanceForm() {
           control={control}
           isSubmitting={isSubmitting}
           siloPools={siloPools.items}
+          hasDualDefaults={hasDualDefaults}
         />
         <Form.Actions>
           <Form.Submit loading={createInstance.isPending}>Create instance</Form.Submit>
@@ -634,10 +648,12 @@ const AdvancedAccordion = ({
   control,
   isSubmitting,
   siloPools,
+  hasDualDefaults,
 }: {
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
   siloPools: Array<SiloIpPool>
+  hasDualDefaults: boolean
 }) => {
   // we track this state manually for the sole reason that we need to be able to
   // tell, inside AccordionItem, when an accordion is opened so we can scroll its
@@ -754,7 +770,12 @@ const AdvancedAccordion = ({
                             pool: selectedPool || defaultPool,
                           },
                         }
-                      : { type: 'ephemeral' },
+                      : hasDualDefaults
+                        ? {
+                            type: 'ephemeral',
+                            poolSelector: { type: 'auto', ipVersion: 'v4' },
+                          }
+                        : { type: 'ephemeral' },
                   ]
               externalIps.field.onChange(newExternalIps)
             }}

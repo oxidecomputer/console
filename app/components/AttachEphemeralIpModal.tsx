@@ -6,9 +6,17 @@
  * Copyright Oxide Computer Company
  */
 
+import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '~/api'
+import {
+  api,
+  q,
+  queryClient,
+  useApiMutation,
+  usePrefetchedQuery,
+  type IpVersion,
+} from '~/api'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { HL } from '~/components/HL'
 import { useInstanceSelector } from '~/hooks/use-params'
@@ -23,6 +31,18 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
   const { data: siloPools } = usePrefetchedQuery(
     q(api.projectIpPoolList, { query: { limit: ALL_ISH } })
   )
+
+  // Detect if both IPv4 and IPv6 default unicast pools exist
+  const hasDualDefaults = useMemo(() => {
+    if (!siloPools) return false
+    const defaultUnicastPools = siloPools.items.filter(
+      (pool) => pool.isDefault && pool.poolType === 'unicast'
+    )
+    const hasV4Default = defaultUnicastPools.some((p) => p.ipVersion === 'v4')
+    const hasV6Default = defaultUnicastPools.some((p) => p.ipVersion === 'v6')
+    return hasV4Default && hasV6Default
+  }, [siloPools])
+
   const instanceEphemeralIpAttach = useApiMutation(api.instanceEphemeralIpAttach, {
     onSuccess(ephemeralIp) {
       queryClient.invalidateEndpoint('instanceExternalIpList')
@@ -34,8 +54,12 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
       addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
   })
-  const form = useForm({ defaultValues: { pool: '' } })
+
+  const form = useForm<{ pool: string; ipVersion: IpVersion }>({
+    defaultValues: { pool: '', ipVersion: 'v4' },
+  })
   const pool = form.watch('pool')
+  const ipVersion = form.watch('ipVersion')
 
   return (
     <Modal isOpen title="Attach ephemeral IP" onDismiss={onDismiss}>
@@ -49,6 +73,19 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
               placeholder="Default pool"
               items={(siloPools?.items ?? []).map(toIpPoolItem)}
             />
+            {!pool && hasDualDefaults && (
+              <ListboxField
+                control={form.control}
+                name="ipVersion"
+                label="IP version"
+                description="Both IPv4 and IPv6 default pools exist; select a version"
+                items={[
+                  { label: 'IPv4', value: 'v4' },
+                  { label: 'IPv6', value: 'v6' },
+                ]}
+                required
+              />
+            )}
           </form>
         </Modal.Section>
       </Modal.Body>
@@ -61,7 +98,9 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
             query: { project },
             body: pool
               ? { poolSelector: { type: 'explicit', pool } }
-              : { poolSelector: { type: 'auto' } },
+              : hasDualDefaults
+                ? { poolSelector: { type: 'auto', ipVersion } }
+                : { poolSelector: { type: 'auto' } },
           })
         }}
         onDismiss={onDismiss}
