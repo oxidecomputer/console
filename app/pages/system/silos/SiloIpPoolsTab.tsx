@@ -12,14 +12,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { type LoaderFunctionArgs } from 'react-router'
 
-import {
-  api,
-  getListQFn,
-  queryClient,
-  useApiMutation,
-  type IpVersion,
-  type SiloIpPool,
-} from '@oxide/api'
+import { api, getListQFn, queryClient, useApiMutation, type SiloIpPool } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
@@ -29,7 +22,6 @@ import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
-import { DefaultPoolCell } from '~/table/cells/DefaultPoolCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -69,74 +61,33 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-// Helper component that computes dual defaults from table data
-function DefaultPoolCellWithContext({
-  isDefault,
-  ipVersion,
-  allRows,
-}: {
-  isDefault: boolean
-  ipVersion: IpVersion
-  allRows: SiloIpPool[]
-}) {
-  // Compute dual defaults from current table data
-  const hasDualDefaults = useMemo(() => {
-    const defaultUnicastPools = allRows.filter(
-      (pool) => pool.isDefault && pool.poolType === 'unicast'
-    )
-    const hasV4Default = defaultUnicastPools.some((p) => p.ipVersion === 'v4')
-    const hasV6Default = defaultUnicastPools.some((p) => p.ipVersion === 'v6')
-    return hasV4Default && hasV6Default
-  }, [allRows])
-
-  return (
-    <DefaultPoolCell
-      isDefault={isDefault}
-      ipVersion={hasDualDefaults ? ` ${ipVersion}` : undefined}
-    />
-  )
-}
-
 export default function SiloIpPoolsTab() {
   const { silo } = useSiloSelector()
   const [showLinkModal, setShowLinkModal] = useState(false)
 
-  // Fetch all pools for the table and for computing dual defaults
+  // Fetch all_ish, but there should only be a few anyway. Not prefetched
+  // because the prefetched one only gets 25 to match the query table. This req
+  // is better to do async because they can't click make default that fast
+  // anyway.
   const { data: allPoolsData } = useQuery(allSiloPoolsQuery(silo).optionsFn())
   const allPools = allPoolsData?.items
 
-  // Define columns
   const staticCols = useMemo(
     () => [
       colHelper.accessor('name', { cell: makeLinkCell((pool) => pb.ipPool({ pool })) }),
       colHelper.accessor('description', Columns.description),
       colHelper.accessor('ipVersion', {
         header: 'IP Version',
-        cell: (info) =>
-          info.getValue() === 'v4' ? (
-            <Badge color="neutral">v4</Badge>
-          ) : (
-            <Badge color="neutral">v6</Badge>
-          ),
+        cell: (info) => (
+          <>
+            <Badge color="neutral">{info.getValue()}</Badge>
+            {info.row.original.isDefault && <Badge className="ml-1">default</Badge>}
+          </>
+        ),
       }),
       colHelper.accessor('poolType', {
         header: 'Type',
-        cell: (info) =>
-          info.getValue() === 'unicast' ? (
-            <Badge color="neutral">Unicast</Badge>
-          ) : (
-            <Badge color="neutral">Multicast</Badge>
-          ),
-      }),
-      colHelper.accessor('isDefault', {
-        header: 'Default',
-        cell: (info) => (
-          <DefaultPoolCellWithContext
-            isDefault={info.getValue()}
-            ipVersion={info.row.original.ipVersion}
-            allRows={info.table.getRowModel().rows.map((r) => r.original)}
-          />
-        ),
+        cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
       }),
     ],
     []

@@ -265,8 +265,8 @@ test('Silo IP pools', async ({ page }) => {
 
   const table = page.getByRole('table')
   // Both pools start as default (one IPv4, one IPv6) - valid dual-default scenario
-  await expectRowVisible(table, { name: 'ip-pool-1', Default: 'default v4' })
-  await expectRowVisible(table, { name: 'ip-pool-2', Default: 'default v6' })
+  await expectRowVisible(table, { name: 'ip-pool-1', 'IP Version': 'v4default' })
+  await expectRowVisible(table, { name: 'ip-pool-2', 'IP Version': 'v6default' })
   await expect(table.getByRole('row')).toHaveCount(3) // header + 2
 
   // clicking on pool goes to pool detail
@@ -283,8 +283,8 @@ test('Silo IP pools', async ({ page }) => {
   ).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(page.getByRole('cell', { name: 'ip-pool-1' })).toBeHidden()
-  // ip-pool-2 should still be default, but now it's the only default so no version shown
-  await expectRowVisible(table, { name: 'ip-pool-2', Default: 'default' })
+  // ip-pool-2 should still be default
+  await expectRowVisible(table, { name: 'ip-pool-2', 'IP Version': 'v6default' })
 
   // clear default for IPv6 pool
   await clickRowAction(page, 'ip-pool-2', 'Clear default')
@@ -294,7 +294,7 @@ test('Silo IP pools', async ({ page }) => {
       .getByText('Are you sure you want ip-pool-2 to stop being the default')
   ).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
-  await expectRowVisible(table, { name: 'ip-pool-2', Default: '' })
+  await expectRowVisible(table, { name: 'ip-pool-2', 'IP Version': 'v6' })
 })
 
 test('Silo IP pools link pool', async ({ page }) => {
@@ -302,8 +302,8 @@ test('Silo IP pools link pool', async ({ page }) => {
 
   const table = page.getByRole('table')
   // Both pools start as default (one IPv4, one IPv6)
-  await expectRowVisible(table, { name: 'ip-pool-1', Default: 'default v4' })
-  await expectRowVisible(table, { name: 'ip-pool-2', Default: 'default v6' })
+  await expectRowVisible(table, { name: 'ip-pool-1', 'IP Version': 'v4default' })
+  await expectRowVisible(table, { name: 'ip-pool-2', 'IP Version': 'v6default' })
   await expect(table.getByRole('row')).toHaveCount(3) // header + 2
 
   const modal = page.getByRole('dialog', { name: 'Link pool' })
@@ -332,7 +332,7 @@ test('Silo IP pools link pool', async ({ page }) => {
 
   // modal closes and we see the thing in the table
   await expect(modal).toBeHidden()
-  await expectRowVisible(table, { name: 'ip-pool-3', Default: '' })
+  await expectRowVisible(table, { name: 'ip-pool-3', 'IP Version': 'v4' })
 })
 
 // just a convenient form to test this with because it's tall
