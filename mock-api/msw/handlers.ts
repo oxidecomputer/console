@@ -305,28 +305,26 @@ export const handlers = makeHandlers({
     const project = lookup.project(query)
     errIfExists(db.floatingIps, { name: body.name, project_id: project.id })
 
-    // TODO: when IP is specified, use ipInAnyRange to check that it is in the pool
     const addressAllocator = body.address_allocator || { type: 'auto' }
-    const pool =
-      addressAllocator.type === 'explicit' && addressAllocator.pool
-        ? lookup.siloIpPool({ pool: addressAllocator.pool, silo: defaultSilo.id })
-        : addressAllocator.type === 'auto' &&
-            addressAllocator.pool_selector?.type === 'explicit'
-          ? lookup.siloIpPool({
-              pool: addressAllocator.pool_selector.pool,
-              silo: defaultSilo.id,
-            })
-          : lookup.siloDefaultIpPool({ silo: defaultSilo.id })
+
+    // Determine the pool, respecting ipVersion when specified
+    let pool: Json<Api.IpPool>
+    if (addressAllocator.type === 'explicit' && addressAllocator.pool) {
+      pool = lookup.siloIpPool({ pool: addressAllocator.pool, silo: defaultSilo.id })
+    } else if (addressAllocator.type === 'auto') {
+      pool = resolvePoolSelector(addressAllocator.pool_selector)
+    } else {
+      pool = lookup.siloDefaultIpPool({ silo: defaultSilo.id })
+    }
+
+    // Generate IP from the pool (respects pool's IP version)
+    const ip =
+      (addressAllocator.type === 'explicit' && addressAllocator.ip) || getIpFromPool(pool)
 
     const newFloatingIp: Json<Api.FloatingIp> = {
       id: uuid(),
       project_id: project.id,
-      // TODO: use ip-num to actually get the next available IP in the pool
-      ip:
-        (addressAllocator.type === 'explicit' && addressAllocator.ip) ||
-        Array.from({ length: 4 })
-          .map(() => Math.floor(Math.random() * 256))
-          .join('.'),
+      ip,
       ip_pool_id: pool.id,
       description: body.description,
       name: body.name,

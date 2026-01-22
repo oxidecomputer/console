@@ -26,6 +26,7 @@ import {
   type Image,
   type InstanceCreate,
   type InstanceDiskAttachment,
+  type IpVersion,
   type NameOrId,
   type SiloIpPool,
 } from '@oxide/api'
@@ -50,6 +51,7 @@ import {
 import { FileField } from '~/components/form/fields/FileField'
 import { BootDiskImageSelectField as ImageSelectField } from '~/components/form/fields/ImageSelectField'
 import { toIpPoolItem } from '~/components/form/fields/ip-pool-item'
+import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { NetworkInterfaceField } from '~/components/form/fields/NetworkInterfaceField'
 import { NumberField } from '~/components/form/fields/NumberField'
@@ -127,6 +129,8 @@ export type InstanceCreateInput = Assign<
     userData: File | null
     // ssh keys are always specified. we do not need the undefined case
     sshPublicKeys: NonNullable<InstanceCreate['sshPublicKeys']>
+    // IP version for ephemeral IP when dual defaults exist
+    ephemeralIpVersion: IpVersion
   }
 >
 
@@ -159,6 +163,7 @@ const baseDefaultValues: InstanceCreateInput = {
 
   userData: null,
   externalIps: [{ type: 'ephemeral' }],
+  ephemeralIpVersion: 'v4',
 }
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
@@ -243,6 +248,8 @@ export default function CreateInstanceForm() {
     bootDiskSourceType: defaultSource,
     sshPublicKeys: allKeys,
     bootDiskSize: diskSizeNearest10(defaultImage?.size / GiB),
+    // When dual defaults exist and no explicit pool, default to v4 for dual_stack
+    ephemeralIpVersion: 'v4',
     externalIps: defaultPool
       ? [{ type: 'ephemeral', poolSelector: { type: 'explicit', pool: defaultPool } }]
       : hasDualDefaults
@@ -272,6 +279,20 @@ export default function CreateInstanceForm() {
       setIsSubmitting(false)
     }
   }, [createInstance.error])
+
+  // Watch networkInterfaces and update ephemeralIpVersion when dual defaults exist
+  const networkInterfaces = useWatch({ control, name: 'networkInterfaces' })
+  useEffect(() => {
+    if (!hasDualDefaults) return
+
+    // Couple ephemeral IP version to network interface type when dual defaults exist
+    if (networkInterfaces.type === 'default_ipv6') {
+      setValue('ephemeralIpVersion', 'v6')
+    } else if (networkInterfaces.type === 'default_ipv4') {
+      setValue('ephemeralIpVersion', 'v4')
+    }
+    // For default_dual_stack, leave as-is (user can choose in UI)
+  }, [networkInterfaces, hasDualDefaults, setValue])
 
   const otherDisks = useWatch({ control, name: 'otherDisks' })
   const unavailableDiskNames = [
@@ -612,6 +633,7 @@ export default function CreateInstanceForm() {
           isSubmitting={isSubmitting}
           siloPools={siloPools.items}
           hasDualDefaults={hasDualDefaults}
+          defaultPool={defaultPool}
         />
         <Form.Actions>
           <Form.Submit loading={createInstance.isPending}>Create instance</Form.Submit>
@@ -649,11 +671,13 @@ const AdvancedAccordion = ({
   isSubmitting,
   siloPools,
   hasDualDefaults,
+  defaultPool,
 }: {
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
   siloPools: Array<SiloIpPool>
   hasDualDefaults: boolean
+  defaultPool?: string
 }) => {
   // we track this state manually for the sole reason that we need to be able to
   // tell, inside AccordionItem, when an accordion is opened so we can scroll its
@@ -668,8 +692,30 @@ const AdvancedAccordion = ({
     ephemeralIp?.poolSelector?.type === 'explicit'
       ? ephemeralIp.poolSelector.pool
       : undefined
-  const defaultPool = siloPools.find((pool) => pool.isDefault)?.name
   const attachedFloatingIps = (externalIps.field.value || []).filter(isFloating)
+
+  const ephemeralIpVersionField = useController({ control, name: 'ephemeralIpVersion' })
+
+  // Update externalIps when ephemeralIpVersion changes and no explicit pool is selected
+  useEffect(() => {
+    if (!hasDualDefaults || !assignEphemeralIp || selectedPool) return
+
+    const ipVersion = ephemeralIpVersionField.field.value || 'v4'
+    const newExternalIps = externalIps.field.value?.map((ip) =>
+      ip.type === 'ephemeral'
+        ? { type: 'ephemeral', poolSelector: { type: 'auto', ipVersion } }
+        : ip
+    )
+    if (newExternalIps) {
+      externalIps.field.onChange(newExternalIps)
+    }
+  }, [
+    ephemeralIpVersionField.field.value,
+    hasDualDefaults,
+    assignEphemeralIp,
+    selectedPool,
+    externalIps,
+  ])
 
   const instanceName = useWatch({ control, name: 'name' })
 
@@ -773,7 +819,10 @@ const AdvancedAccordion = ({
                       : hasDualDefaults
                         ? {
                             type: 'ephemeral',
-                            poolSelector: { type: 'auto', ipVersion: 'v4' },
+                            poolSelector: {
+                              type: 'auto',
+                              ipVersion: ephemeralIpVersionField.field.value || 'v4',
+                            },
                           }
                         : { type: 'ephemeral' },
                   ]
@@ -783,23 +832,40 @@ const AdvancedAccordion = ({
             Allocate and attach an ephemeral IP address
           </Checkbox>
           {assignEphemeralIp && (
-            <Listbox
-              name="pools"
-              label="IP pool for ephemeral IP"
-              placeholder={defaultPool ? `${defaultPool} (default)` : 'Select a pool'}
-              selected={`${siloPools.find((pool) => pool.name === selectedPool)?.name}`}
-              items={siloPools.map(toIpPoolItem)}
-              disabled={!assignEphemeralIp || isSubmitting}
-              required
-              onChange={(value) => {
-                const newExternalIps = externalIps.field.value?.map((ip) =>
-                  ip.type === 'ephemeral'
-                    ? { type: 'ephemeral', poolSelector: { type: 'explicit', pool: value } }
-                    : ip
-                )
-                externalIps.field.onChange(newExternalIps)
-              }}
-            />
+            <>
+              <Listbox
+                name="pools"
+                label="IP pool for ephemeral IP"
+                placeholder={defaultPool ? `${defaultPool} (default)` : 'Select a pool'}
+                selected={`${siloPools.find((pool) => pool.name === selectedPool)?.name}`}
+                items={siloPools.map(toIpPoolItem)}
+                disabled={!assignEphemeralIp || isSubmitting}
+                required
+                onChange={(value) => {
+                  const newExternalIps = externalIps.field.value?.map((ip) =>
+                    ip.type === 'ephemeral'
+                      ? { type: 'ephemeral', poolSelector: { type: 'explicit', pool: value } }
+                      : ip
+                  )
+                  externalIps.field.onChange(newExternalIps)
+                }}
+              />
+
+              {!selectedPool && hasDualDefaults && (
+                <ListboxField
+                  control={control}
+                  name="ephemeralIpVersion"
+                  label="IP version for ephemeral IP"
+                  description="Both IPv4 and IPv6 default pools exist; select a version"
+                  items={[
+                    { label: 'IPv4', value: 'v4' },
+                    { label: 'IPv6', value: 'v6' },
+                  ]}
+                  required
+                  disabled={isSubmitting}
+                />
+              )}
+            </>
           )}
         </div>
 

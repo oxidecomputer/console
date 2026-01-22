@@ -7,11 +7,18 @@
  */
 import * as Accordion from '@radix-ui/react-accordion'
 import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import { api, q, queryClient, useApiMutation, type FloatingIpCreate } from '@oxide/api'
+import {
+  api,
+  q,
+  queryClient,
+  useApiMutation,
+  type FloatingIpCreate,
+  type IpVersion,
+} from '@oxide/api'
 
 import { AccordionItem } from '~/components/AccordionItem'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -31,11 +38,13 @@ type FloatingIpCreateFormData = {
   name: string
   description: string
   pool?: string
+  ipVersion: IpVersion
 }
 
 const defaultValues: FloatingIpCreateFormData = {
   name: '',
   description: '',
+  ipVersion: 'v4',
 }
 
 export const handle = titleCrumb('New Floating IP')
@@ -46,6 +55,20 @@ export default function CreateFloatingIpSideModalForm() {
   const { data: allPools } = useQuery(
     q(api.projectIpPoolList, { query: { limit: ALL_ISH } })
   )
+
+  // Only unicast pools can be used for floating IPs
+  const unicastPools = useMemo(() => {
+    if (!allPools) return []
+    return allPools.items.filter((p) => p.poolType === 'unicast')
+  }, [allPools])
+
+  // Detect if both IPv4 and IPv6 default unicast pools exist
+  const hasDualDefaults = useMemo(() => {
+    const defaultUnicastPools = unicastPools.filter((pool) => pool.isDefault)
+    const hasV4Default = defaultUnicastPools.some((p) => p.ipVersion === 'v4')
+    const hasV6Default = defaultUnicastPools.some((p) => p.ipVersion === 'v6')
+    return hasV4Default && hasV6Default
+  }, [unicastPools])
 
   const projectSelector = useProjectSelector()
   const navigate = useNavigate()
@@ -61,6 +84,7 @@ export default function CreateFloatingIpSideModalForm() {
   })
 
   const form = useForm({ defaultValues })
+  const pool = form.watch('pool')
 
   const [openItems, setOpenItems] = useState<string[]>([])
 
@@ -70,7 +94,7 @@ export default function CreateFloatingIpSideModalForm() {
       formType="create"
       resourceName="floating IP"
       onDismiss={() => navigate(pb.floatingIps(projectSelector))}
-      onSubmit={({ pool, ...values }) => {
+      onSubmit={({ pool, ipVersion, ...values }) => {
         const body: FloatingIpCreate = {
           ...values,
           addressAllocator: pool
@@ -78,7 +102,12 @@ export default function CreateFloatingIpSideModalForm() {
                 type: 'auto' as const,
                 poolSelector: { type: 'explicit' as const, pool },
               }
-            : undefined,
+            : hasDualDefaults
+              ? {
+                  type: 'auto' as const,
+                  poolSelector: { type: 'auto' as const, ipVersion },
+                }
+              : undefined,
         }
         createFloatingIp.mutate({ query: projectSelector, body })
       }}
@@ -106,11 +135,25 @@ export default function CreateFloatingIpSideModalForm() {
 
           <ListboxField
             name="pool"
-            items={(allPools?.items || []).map(toIpPoolItem)}
+            items={unicastPools.map(toIpPoolItem)}
             label="IP pool"
             control={form.control}
             placeholder="Select a pool"
           />
+
+          {!pool && hasDualDefaults && (
+            <ListboxField
+              control={form.control}
+              name="ipVersion"
+              label="IP version"
+              description="Both IPv4 and IPv6 default pools exist; select a version"
+              items={[
+                { label: 'IPv4', value: 'v4' },
+                { label: 'IPv6', value: 'v6' },
+              ]}
+              required
+            />
+          )}
         </AccordionItem>
       </Accordion.Root>
     </SideModalForm>
