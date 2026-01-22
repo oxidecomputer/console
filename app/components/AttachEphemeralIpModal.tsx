@@ -32,6 +32,16 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
     q(api.projectIpPoolList, { query: { limit: ALL_ISH } })
   )
 
+  // Only unicast pools can be used for ephemeral IPs
+  const unicastPools = useMemo(() => {
+    if (!siloPools) return []
+    return siloPools.items.filter((p) => p.poolType === 'unicast')
+  }, [siloPools])
+
+  const hasDefaultUnicastPool = useMemo(() => {
+    return unicastPools.some((p) => p.isDefault)
+  }, [unicastPools])
+
   // Detect if both IPv4 and IPv6 default unicast pools exist
   const hasDualDefaults = useMemo(() => {
     if (!siloPools) return false
@@ -61,6 +71,15 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
   const pool = form.watch('pool')
   const ipVersion = form.watch('ipVersion')
 
+  const getDisabledReason = () => {
+    if (!siloPools) return 'Loading pools...'
+    if (unicastPools.length === 0) return 'No unicast pools available'
+    if (!pool && !hasDefaultUnicastPool) {
+      return 'No default pool available; select a pool to continue'
+    }
+    return undefined
+  }
+
   return (
     <Modal isOpen title="Attach ephemeral IP" onDismiss={onDismiss}>
       <Modal.Body>
@@ -70,8 +89,19 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
               control={form.control}
               name="pool"
               label="IP pool"
-              placeholder="Default pool"
-              items={(siloPools?.items ?? []).map(toIpPoolItem)}
+              placeholder={
+                unicastPools.length === 0
+                  ? 'No unicast pools available'
+                  : hasDefaultUnicastPool
+                    ? 'Default pool'
+                    : 'Select a pool (no default available)'
+              }
+              description={
+                unicastPools.length === 0
+                  ? 'Contact your administrator to create a unicast IP pool'
+                  : undefined
+              }
+              items={unicastPools.map(toIpPoolItem)}
             />
             {!pool && hasDualDefaults && (
               <ListboxField
@@ -91,7 +121,10 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
       </Modal.Body>
       <Modal.Footer
         actionText="Attach"
-        disabled={!siloPools}
+        disabled={
+          !siloPools || unicastPools.length === 0 || (!pool && !hasDefaultUnicastPool)
+        }
+        disabledReason={getDisabledReason()}
         onAction={() => {
           instanceEphemeralIpAttach.mutate({
             path: { instance },
