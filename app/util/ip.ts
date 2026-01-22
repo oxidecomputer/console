@@ -6,6 +6,8 @@
  * Copyright Oxide Computer Company
  */
 
+import type { IpVersion } from '~/api'
+
 // Borrowed from Valibot. I tried some from Zod and an O'Reilly regex cookbook
 // but they didn't match results with std::net on simple test cases
 // https://github.com/fabian-hiller/valibot/blob/2554aea5/library/src/regex.ts#L43-L54
@@ -16,7 +18,7 @@ const IPV4_REGEX =
 const IPV6_REGEX =
   /^(?:(?:[\da-f]{1,4}:){7}[\da-f]{1,4}|(?:[\da-f]{1,4}:){1,7}:|(?:[\da-f]{1,4}:){1,6}:[\da-f]{1,4}|(?:[\da-f]{1,4}:){1,5}(?::[\da-f]{1,4}){1,2}|(?:[\da-f]{1,4}:){1,4}(?::[\da-f]{1,4}){1,3}|(?:[\da-f]{1,4}:){1,3}(?::[\da-f]{1,4}){1,4}|(?:[\da-f]{1,4}:){1,2}(?::[\da-f]{1,4}){1,5}|[\da-f]{1,4}:(?::[\da-f]{1,4}){1,6}|:(?:(?::[\da-f]{1,4}){1,7}|:)|fe80:(?::[\da-f]{0,4}){0,4}%[\da-z]+|::(?:f{4}(?::0{1,4})?:)?(?:(?:25[0-5]|(?:2[0-4]|1?\d)?\d)\.){3}(?:25[0-5]|(?:2[0-4]|1?\d)?\d)|(?:[\da-f]{1,4}:){1,4}:(?:(?:25[0-5]|(?:2[0-4]|1?\d)?\d)\.){3}(?:25[0-5]|(?:2[0-4]|1?\d)?\d))$/iu
 
-type ParsedIp = { type: 'v4' | 'v6'; address: string } | { type: 'error'; message: string }
+type ParsedIp = { type: IpVersion; address: string } | { type: 'error'; message: string }
 
 export function parseIp(ip: string): ParsedIp {
   if (IPV4_REGEX.test(ip)) return { type: 'v4', address: ip }
@@ -38,7 +40,7 @@ export function validateIp(ip: string): string | undefined {
 // https://github.com/oxidecomputer/oxnet/blob/7dacd265f1bcd0f8b47bd4805250c4f0812da206/src/ipnet.rs#L217-L223
 
 type ParsedIpNet =
-  | { type: 'v4' | 'v6'; address: string; width: number }
+  | { type: IpVersion; address: string; width: number }
   | { type: 'error'; message: string }
 
 const nonsenseError = {

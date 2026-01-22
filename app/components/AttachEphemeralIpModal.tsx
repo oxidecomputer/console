@@ -65,7 +65,7 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
     <Modal isOpen title="Attach ephemeral IP" onDismiss={onDismiss}>
       <Modal.Body>
         <Modal.Section>
-          <form>
+          <form className="space-y-4">
             <ListboxField
               control={form.control}
               name="pool"

@@ -10,7 +10,13 @@ import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { match } from 'ts-pattern'
 
-import { api, q, type ApiError, type InstanceNetworkInterfaceCreate } from '@oxide/api'
+import {
+  api,
+  q,
+  type ApiError,
+  type InstanceNetworkInterfaceCreate,
+  type IpVersion,
+} from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
@@ -22,7 +28,7 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
 import { FormDivider } from '~/ui/lib/Divider'
 
-type IpStackType = 'v4' | 'v6' | 'dual_stack'
+type IpStackType = IpVersion | 'dual_stack'
 
 const defaultValues = {
   name: '',

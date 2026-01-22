@@ -10,7 +10,7 @@
 import * as R from 'remeda'
 import { validate as isUuid } from 'uuid'
 
-import type { ApiTypes as Api } from '@oxide/api'
+import type { ApiTypes as Api, IpVersion } from '@oxide/api'
 import * as mock from '@oxide/api-mocks'
 
 import { json } from '~/api/__generated__/msw-handlers'
@@ -63,11 +63,35 @@ export const resolveIpPool = (pool: string | undefined | null) =>
   pool ? lookup.ipPool({ pool }) : lookup.siloDefaultIpPool({ silo: defaultSilo.id })
 
 export const resolvePoolSelector = (
-  poolSelector: { pool: string; type: 'explicit' } | { type: 'auto' } | undefined
-) =>
-  poolSelector?.type === 'explicit'
-    ? lookup.ipPool({ pool: poolSelector.pool })
-    : lookup.siloDefaultIpPool({ silo: defaultSilo.id })
+  poolSelector:
+    | { pool: string; type: 'explicit' }
+    | { type: 'auto'; ip_version?: IpVersion | null }
+    | undefined
+) => {
+  if (poolSelector?.type === 'explicit') {
+    return lookup.ipPool({ pool: poolSelector.pool })
+  }
+
+  // For 'auto' type, find the default pool for the specified IP version (or any default if not specified)
+  const silo = lookup.silo({ silo: defaultSilo.id })
+  const links = db.ipPoolSilos.filter((ips) => ips.silo_id === silo.id && ips.is_default)
+
+  if (poolSelector?.ip_version) {
+    // Find default pool matching the specified IP version
+    const link = links.find((ips) => {
+      const pool = db.ipPools.find((p) => p.id === ips.ip_pool_id)
+      return pool?.ip_version === poolSelector.ip_version
+    })
+    if (link) {
+      return lookupById(db.ipPools, link.ip_pool_id)
+    }
+  }
+
+  // Fall back to any default pool (for backwards compatibility)
+  const link = links[0]
+  if (!link) throw notFoundErr(`default pool for silo '${defaultSilo.id}'`)
+  return lookupById(db.ipPools, link.ip_pool_id)
+}
 
 export const getIpFromPool = (pool: Json<Api.IpPool>) => {
   const ipPoolRange = db.ipPoolRanges.find((range) => range.ip_pool_id === pool.id)
