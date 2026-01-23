@@ -239,21 +239,15 @@ export default function CreateInstanceForm() {
     [siloPools]
   )
 
+  const defaultUnicastPools = unicastPools.filter((pool) => pool.isDefault)
+  const hasV4Default = defaultUnicastPools.some((p) => p.ipVersion === 'v4')
+  const hasV6Default = defaultUnicastPools.some((p) => p.ipVersion === 'v6')
+
   // Detect if both IPv4 and IPv6 default unicast pools exist
-  const hasDualDefaults = useMemo(() => {
-    const defaultUnicastPools = unicastPools.filter((pool) => pool.isDefault)
-    const hasV4Default = defaultUnicastPools.some((p) => p.ipVersion === 'v4')
-    const hasV6Default = defaultUnicastPools.some((p) => p.ipVersion === 'v6')
-    return hasV4Default && hasV6Default
-  }, [unicastPools])
+  const hasDualDefaults = hasV4Default && hasV6Default
 
   const defaultSource =
     siloImages.length > 0 ? 'siloImage' : projectImages.length > 0 ? 'projectImage' : 'disk'
-
-  // Calculate if there's a single default pool (not dual defaults)
-  const singleDefaultPool = !hasDualDefaults
-    ? unicastPools.find((p) => p.isDefault)?.name
-    : undefined
 
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
@@ -264,10 +258,10 @@ export default function CreateInstanceForm() {
     ephemeralIpVersion: 'v4',
     // Set ephemeralIpPool if there's a single default, otherwise leave empty (for radio "use default")
     ephemeralIpPool: '',
-    externalIps: singleDefaultPool
-      ? [{ type: 'ephemeral', poolSelector: { type: 'explicit', pool: singleDefaultPool } }]
-      : hasDualDefaults
-        ? [{ type: 'ephemeral', poolSelector: { type: 'auto', ipVersion: 'v4' } }]
+    externalIps: hasV4Default
+      ? [{ type: 'ephemeral', poolSelector: { type: 'auto', ipVersion: 'v4' } }]
+      : hasV6Default
+        ? [{ type: 'ephemeral', poolSelector: { type: 'auto', ipVersion: 'v6' } }]
         : [{ type: 'ephemeral' }],
   }
 
