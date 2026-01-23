@@ -81,15 +81,17 @@ export function IpPoolSelector({
     // v4 default (explicit or fallback)
     currentSelection = 'v4-default'
   } else if (showV6Default) {
-    // Fallback to v6 default
+    // Fallback to v6 default if rendered
     currentSelection = 'v6-default'
-  } else if (filteredPools.length > 0) {
-    // Fallback to custom
-    currentSelection = 'custom'
-  } else {
-    // No options available - pick v4-default as safe default
+  } else if (showV4Default) {
+    // Fallback to v4 default if rendered
     currentSelection = 'v4-default'
+  } else {
+    // Final fallback: custom radio is always rendered, so this is safe
+    currentSelection = 'custom'
   }
+
+  const hasNoPools = filteredPools.length === 0 && !showV4Default && !showV6Default
 
   const radioName = `pool-selection-type-${poolFieldName}`
 
@@ -122,53 +124,59 @@ export function IpPoolSelector({
     <div className="space-y-4">
       <fieldset>
         <legend className="text-sans-md mb-2">Select IP pool</legend>
-        <div className="flex flex-col space-y-2">
-          {showV4Default && (
+        {hasNoPools ? (
+          <div className="text-secondary">
+            No IP pools available for this network interface type
+          </div>
+        ) : (
+          <div className="flex flex-col space-y-2">
+            {showV4Default && (
+              <Radio
+                name={radioName}
+                value="v4-default"
+                checked={currentSelection === 'v4-default'}
+                onChange={() => {
+                  setValue(poolFieldName, '')
+                  setValue(ipVersionFieldName, 'v4')
+                }}
+                disabled={disabled}
+              >
+                IPv4 default
+              </Radio>
+            )}
+            {showV6Default && (
+              <Radio
+                name={radioName}
+                value="v6-default"
+                checked={currentSelection === 'v6-default'}
+                onChange={() => {
+                  setValue(poolFieldName, '')
+                  setValue(ipVersionFieldName, 'v6')
+                }}
+                disabled={disabled}
+              >
+                IPv6 default
+              </Radio>
+            )}
             <Radio
               name={radioName}
-              value="v4-default"
-              checked={currentSelection === 'v4-default'}
+              value="custom"
+              checked={currentSelection === 'custom'}
               onChange={() => {
-                setValue(poolFieldName, '')
-                setValue(ipVersionFieldName, 'v4')
+                // Set to first compatible pool in list so the dropdown shows with a valid selection
+                if (filteredPools.length > 0) {
+                  setValue(poolFieldName, filteredPools[0].name)
+                }
               }}
               disabled={disabled}
             >
-              IPv4 default
+              custom pool
             </Radio>
-          )}
-          {showV6Default && (
-            <Radio
-              name={radioName}
-              value="v6-default"
-              checked={currentSelection === 'v6-default'}
-              onChange={() => {
-                setValue(poolFieldName, '')
-                setValue(ipVersionFieldName, 'v6')
-              }}
-              disabled={disabled}
-            >
-              IPv6 default
-            </Radio>
-          )}
-          <Radio
-            name={radioName}
-            value="custom"
-            checked={currentSelection === 'custom'}
-            onChange={() => {
-              // Set to first compatible pool in list so the dropdown shows with a valid selection
-              if (filteredPools.length > 0) {
-                setValue(poolFieldName, filteredPools[0].name)
-              }
-            }}
-            disabled={disabled}
-          >
-            custom pool
-          </Radio>
-        </div>
+          </div>
+        )}
       </fieldset>
 
-      {currentSelection === 'custom' && (
+      {currentSelection === 'custom' && filteredPools.length > 0 && (
         <ListboxField
           name={poolFieldName}
           items={filteredPools.map(toIpPoolItem)}
