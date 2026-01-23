@@ -51,22 +51,19 @@ export function IpPoolSelector({
   disabled = false,
   compatibleVersions,
 }: IpPoolSelectorProps) {
-  // Treat empty compatibleVersions array as "unknown" (same as undefined)
-  // This handles the case where NICs haven't loaded yet
-  const hasCompatibilityConstraints = compatibleVersions && compatibleVersions.length > 0
-
   // Determine which default pool versions exist
   const hasV4Default = pools.some((p) => p.isDefault && p.ipVersion === 'v4')
   const hasV6Default = pools.some((p) => p.isDefault && p.ipVersion === 'v6')
 
   // Filter default options by compatible versions
+  // undefined = no filtering, [] = filter out everything
   const showV4Default =
-    hasV4Default && (!hasCompatibilityConstraints || compatibleVersions.includes('v4'))
+    hasV4Default && (!compatibleVersions || compatibleVersions.includes('v4'))
   const showV6Default =
-    hasV6Default && (!hasCompatibilityConstraints || compatibleVersions.includes('v6'))
+    hasV6Default && (!compatibleVersions || compatibleVersions.includes('v6'))
 
   // Filter pools by compatible versions for custom pool dropdown
-  const filteredPools = hasCompatibilityConstraints
+  const filteredPools = compatibleVersions
     ? pools.filter((p) => compatibleVersions.includes(p.ipVersion))
     : pools
 

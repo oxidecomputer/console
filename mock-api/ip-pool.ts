@@ -63,7 +63,7 @@ export const ipPool5Multicast: Json<IpPool> = {
 }
 
 export const ipPool6Multicast: Json<IpPool> = {
-  id: 'c7d5b7ca-872f-4e39-95d1-fe4e8849fg2e',
+  id: 'c7d5b7ca-872f-4e39-95d1-fe4e8849f02e',
   name: 'ip-pool-6-multicast-v6',
   description: 'Multicast v6 pool',
   time_created: new Date().toISOString(),
@@ -146,7 +146,7 @@ export const ipPoolRanges: Json<IpPoolRange[]> = [
   },
   // Multicast pool ranges (should NOT be used for ephemeral/floating IPs)
   {
-    id: 'e8f6c8db-983g-4f4a-a6e2-gf5f9960gh3f',
+    id: 'e8f6c8db-9830-4f4a-a6e2-0f5f99600b3f',
     ip_pool_id: ipPool5Multicast.id,
     range: {
       first: '224.0.0.1',
@@ -155,7 +155,7 @@ export const ipPoolRanges: Json<IpPoolRange[]> = [
     time_created: new Date().toISOString(),
   },
   {
-    id: 'f9g7d9ec-a94h-5g5b-b7f3-hg6ga071hi4g',
+    id: 'f9a7d9ec-a940-5a5b-b7f3-0a6aa0710b4a',
     ip_pool_id: ipPool6Multicast.id,
     range: {
       first: 'ff00::1',

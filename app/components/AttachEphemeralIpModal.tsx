@@ -45,8 +45,9 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
 
   // Determine compatible IP versions based on instance's network interfaces
   // External IP version must match the NIC's private IP stack
-  const compatibleVersions: IpVersion[] = useMemo(() => {
-    if (!nics) return []
+  const compatibleVersions: IpVersion[] | undefined = useMemo(() => {
+    // Before NICs load, return undefined (treat as "unknown" - allow all)
+    if (!nics) return undefined
 
     const nicItems = nics.items
     const hasV4Nic = nicItems.some(
@@ -59,6 +60,7 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
     const versions: IpVersion[] = []
     if (hasV4Nic) versions.push('v4')
     if (hasV6Nic) versions.push('v6')
+    // Return the array (could be empty if instance has no NICs with compatible stacks)
     return versions
   }, [nics])
 
@@ -83,7 +85,7 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
 
   // Update ipVersion if only one version is compatible
   useEffect(() => {
-    if (compatibleVersions.length === 1) {
+    if (compatibleVersions && compatibleVersions.length === 1) {
       form.setValue('ipVersion', compatibleVersions[0])
     }
   }, [compatibleVersions, form])
@@ -92,6 +94,10 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
 
   const getDisabledReason = () => {
     if (!siloPools) return 'Loading pools...'
+    if (!nics) return 'Loading network interfaces...'
+    if (compatibleVersions && compatibleVersions.length === 0) {
+      return 'Instance has no network interfaces with compatible IP stacks'
+    }
     if (unicastPools.length === 0) return 'No unicast pools available'
     if (!pool && !hasDefaultUnicastPool) {
       return 'No default pool available; select a pool to continue'
@@ -121,7 +127,11 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
       <Modal.Footer
         actionText="Attach"
         disabled={
-          !siloPools || unicastPools.length === 0 || (!pool && !hasDefaultUnicastPool)
+          !siloPools ||
+          !nics ||
+          (compatibleVersions && compatibleVersions.length === 0) ||
+          unicastPools.length === 0 ||
+          (!pool && !hasDefaultUnicastPool)
         }
         disabledReason={getDisabledReason()}
         onAction={() => {
