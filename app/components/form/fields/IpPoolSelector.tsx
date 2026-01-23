@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useEffect } from 'react'
 import type { Control, UseFormSetValue } from 'react-hook-form'
 
 import type { IpVersion, SiloIpPool } from '@oxide/api'
@@ -50,10 +51,9 @@ export function IpPoolSelector({
   disabled = false,
   compatibleVersions,
 }: IpPoolSelectorProps) {
-  // Filter pools by compatible versions for custom pool dropdown
-  const filteredPools = compatibleVersions
-    ? pools.filter((p) => compatibleVersions.includes(p.ipVersion))
-    : pools
+  // Treat empty compatibleVersions array as "unknown" (same as undefined)
+  // This handles the case where NICs haven't loaded yet
+  const hasCompatibilityConstraints = compatibleVersions && compatibleVersions.length > 0
 
   // Determine which default pool versions exist
   const hasV4Default = pools.some((p) => p.isDefault && p.ipVersion === 'v4')
@@ -61,17 +61,65 @@ export function IpPoolSelector({
 
   // Filter default options by compatible versions
   const showV4Default =
-    hasV4Default && (!compatibleVersions || compatibleVersions.includes('v4'))
+    hasV4Default && (!hasCompatibilityConstraints || compatibleVersions.includes('v4'))
   const showV6Default =
-    hasV6Default && (!compatibleVersions || compatibleVersions.includes('v6'))
+    hasV6Default && (!hasCompatibilityConstraints || compatibleVersions.includes('v6'))
 
-  // Derive current selection from pool and ipVersion
+  // Filter pools by compatible versions for custom pool dropdown
+  const filteredPools = hasCompatibilityConstraints
+    ? pools.filter((p) => compatibleVersions.includes(p.ipVersion))
+    : pools
+
+  // Derive current selection, ensuring it maps to a rendered option
   type SelectionType = 'v4-default' | 'v6-default' | 'custom'
-  const currentSelection: SelectionType = currentPool
-    ? 'custom'
-    : currentIpVersion === 'v6'
-      ? 'v6-default'
-      : 'v4-default'
+  let currentSelection: SelectionType
+
+  if (currentPool && filteredPools.some((p) => p.name === currentPool)) {
+    // Valid custom pool selected
+    currentSelection = 'custom'
+  } else if (!currentPool && currentIpVersion === 'v6' && showV6Default) {
+    // v6 default requested and available
+    currentSelection = 'v6-default'
+  } else if (!currentPool && showV4Default) {
+    // v4 default (explicit or fallback)
+    currentSelection = 'v4-default'
+  } else if (showV6Default) {
+    // Fallback to v6 default
+    currentSelection = 'v6-default'
+  } else if (filteredPools.length > 0) {
+    // Fallback to custom
+    currentSelection = 'custom'
+  } else {
+    // No options available - pick v4-default as safe default
+    currentSelection = 'v4-default'
+  }
+
+  const radioName = `pool-selection-type-${poolFieldName}`
+
+  // Auto-correct form state when compatibility filtering changes the selection
+  useEffect(() => {
+    if (currentSelection === 'v4-default' && (currentPool || currentIpVersion !== 'v4')) {
+      setValue(poolFieldName, '')
+      setValue(ipVersionFieldName, 'v4')
+    } else if (
+      currentSelection === 'v6-default' &&
+      (currentPool || currentIpVersion !== 'v6')
+    ) {
+      setValue(poolFieldName, '')
+      setValue(ipVersionFieldName, 'v6')
+    } else if (currentSelection === 'custom' && !currentPool && filteredPools.length > 0) {
+      // Fell back to custom but no pool selected
+      setValue(poolFieldName, filteredPools[0].name)
+    }
+  }, [
+    currentSelection,
+    currentPool,
+    currentIpVersion,
+    filteredPools,
+    poolFieldName,
+    ipVersionFieldName,
+    setValue,
+  ])
 
   return (
     <div className="space-y-4">
@@ -80,7 +128,7 @@ export function IpPoolSelector({
         <div className="flex flex-col space-y-2">
           {showV4Default && (
             <Radio
-              name="pool-selection-type"
+              name={radioName}
               value="v4-default"
               checked={currentSelection === 'v4-default'}
               onChange={() => {
@@ -94,7 +142,7 @@ export function IpPoolSelector({
           )}
           {showV6Default && (
             <Radio
-              name="pool-selection-type"
+              name={radioName}
               value="v6-default"
               checked={currentSelection === 'v6-default'}
               onChange={() => {
@@ -107,7 +155,7 @@ export function IpPoolSelector({
             </Radio>
           )}
           <Radio
-            name="pool-selection-type"
+            name={radioName}
             value="custom"
             checked={currentSelection === 'custom'}
             onChange={() => {
