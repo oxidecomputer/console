@@ -135,12 +135,27 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
         }
         disabledReason={getDisabledReason()}
         onAction={() => {
+          // When using default pool, derive ipVersion from available defaults
+          let effectiveIpVersion = ipVersion
+          if (!pool) {
+            const v4Default = unicastPools.find((p) => p.isDefault && p.ipVersion === 'v4')
+            const v6Default = unicastPools.find((p) => p.isDefault && p.ipVersion === 'v6')
+
+            // If only one default exists, use that version
+            if (v4Default && !v6Default) {
+              effectiveIpVersion = 'v4'
+            } else if (v6Default && !v4Default) {
+              effectiveIpVersion = 'v6'
+            }
+            // If both exist, use form's ipVersion (user's choice)
+          }
+
           instanceEphemeralIpAttach.mutate({
             path: { instance },
             query: { project },
             body: pool
               ? { poolSelector: { type: 'explicit', pool } }
-              : { poolSelector: { type: 'auto', ipVersion } },
+              : { poolSelector: { type: 'auto', ipVersion: effectiveIpVersion } },
           })
         }}
         onDismiss={onDismiss}

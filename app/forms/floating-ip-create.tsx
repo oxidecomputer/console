@@ -86,6 +86,21 @@ export default function CreateFloatingIpSideModalForm() {
       resourceName="floating IP"
       onDismiss={() => navigate(pb.floatingIps(projectSelector))}
       onSubmit={({ pool, ipVersion, ...values }) => {
+        // When using default pool, derive ipVersion from available defaults
+        let effectiveIpVersion = ipVersion
+        if (!pool) {
+          const v4Default = unicastPools.find((p) => p.isDefault && p.ipVersion === 'v4')
+          const v6Default = unicastPools.find((p) => p.isDefault && p.ipVersion === 'v6')
+
+          // If only one default exists, use that version
+          if (v4Default && !v6Default) {
+            effectiveIpVersion = 'v4'
+          } else if (v6Default && !v4Default) {
+            effectiveIpVersion = 'v6'
+          }
+          // If both exist, use form's ipVersion (user's choice)
+        }
+
         const body: FloatingIpCreate = {
           ...values,
           addressAllocator: pool
@@ -95,7 +110,7 @@ export default function CreateFloatingIpSideModalForm() {
               }
             : {
                 type: 'auto' as const,
-                poolSelector: { type: 'auto' as const, ipVersion },
+                poolSelector: { type: 'auto' as const, ipVersion: effectiveIpVersion },
               },
         }
         createFloatingIp.mutate({ query: projectSelector, body })
