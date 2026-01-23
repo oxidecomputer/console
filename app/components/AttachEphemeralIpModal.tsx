@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 
 import {
@@ -17,19 +17,20 @@ import {
   usePrefetchedQuery,
   type IpVersion,
 } from '~/api'
-import { ListboxField } from '~/components/form/fields/ListboxField'
+import { IpPoolSelector } from '~/components/form/fields/IpPoolSelector'
 import { HL } from '~/components/HL'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Modal } from '~/ui/lib/Modal'
 import { ALL_ISH } from '~/util/consts'
 
-import { toIpPoolItem } from './form/fields/ip-pool-item'
-
 export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void }) => {
   const { project, instance } = useInstanceSelector()
   const { data: siloPools } = usePrefetchedQuery(
     q(api.projectIpPoolList, { query: { limit: ALL_ISH } })
+  )
+  const { data: nics } = usePrefetchedQuery(
+    q(api.instanceNetworkInterfaceList, { query: { project, instance } })
   )
 
   // Only unicast pools can be used for ephemeral IPs
@@ -42,16 +43,24 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
     return unicastPools.some((p) => p.isDefault)
   }, [unicastPools])
 
-  // Detect if both IPv4 and IPv6 default unicast pools exist
-  const hasDualDefaults = useMemo(() => {
-    if (!siloPools) return false
-    const defaultUnicastPools = siloPools.items.filter(
-      (pool) => pool.isDefault && pool.poolType === 'unicast'
+  // Determine compatible IP versions based on instance's network interfaces
+  // External IP version must match the NIC's private IP stack
+  const compatibleVersions: IpVersion[] = useMemo(() => {
+    if (!nics) return []
+
+    const nicItems = nics.items
+    const hasV4Nic = nicItems.some(
+      (nic) => nic.ipStack.type === 'v4' || nic.ipStack.type === 'dual_stack'
     )
-    const hasV4Default = defaultUnicastPools.some((p) => p.ipVersion === 'v4')
-    const hasV6Default = defaultUnicastPools.some((p) => p.ipVersion === 'v6')
-    return hasV4Default && hasV6Default
-  }, [siloPools])
+    const hasV6Nic = nicItems.some(
+      (nic) => nic.ipStack.type === 'v6' || nic.ipStack.type === 'dual_stack'
+    )
+
+    const versions: IpVersion[] = []
+    if (hasV4Nic) versions.push('v4')
+    if (hasV6Nic) versions.push('v6')
+    return versions
+  }, [nics])
 
   const instanceEphemeralIpAttach = useApiMutation(api.instanceEphemeralIpAttach, {
     onSuccess(ephemeralIp) {
@@ -66,8 +75,18 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
   })
 
   const form = useForm<{ pool: string; ipVersion: IpVersion }>({
-    defaultValues: { pool: '', ipVersion: 'v4' },
+    defaultValues: {
+      pool: '',
+      ipVersion: 'v4',
+    },
   })
+
+  // Update ipVersion if only one version is compatible
+  useEffect(() => {
+    if (compatibleVersions.length === 1) {
+      form.setValue('ipVersion', compatibleVersions[0])
+    }
+  }, [compatibleVersions, form])
   const pool = form.watch('pool')
   const ipVersion = form.watch('ipVersion')
 
@@ -84,38 +103,18 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
     <Modal isOpen title="Attach ephemeral IP" onDismiss={onDismiss}>
       <Modal.Body>
         <Modal.Section>
-          <form className="space-y-4">
-            <ListboxField
+          <form>
+            <IpPoolSelector
               control={form.control}
-              name="pool"
-              label="IP pool"
-              placeholder={
-                unicastPools.length === 0
-                  ? 'No unicast pools available'
-                  : hasDefaultUnicastPool
-                    ? 'Default pool'
-                    : 'Select a pool (no default available)'
-              }
-              description={
-                unicastPools.length === 0
-                  ? 'Contact your administrator to create a unicast IP pool'
-                  : undefined
-              }
-              items={unicastPools.map(toIpPoolItem)}
+              poolFieldName="pool"
+              ipVersionFieldName="ipVersion"
+              pools={unicastPools}
+              currentPool={pool}
+              currentIpVersion={ipVersion}
+              setValue={form.setValue}
+              disabled={unicastPools.length === 0}
+              compatibleVersions={compatibleVersions}
             />
-            {!pool && hasDualDefaults && (
-              <ListboxField
-                control={form.control}
-                name="ipVersion"
-                label="IP version"
-                description="Both IPv4 and IPv6 default pools exist; select a version"
-                items={[
-                  { label: 'IPv4', value: 'v4' },
-                  { label: 'IPv6', value: 'v6' },
-                ]}
-                required
-              />
-            )}
           </form>
         </Modal.Section>
       </Modal.Body>
@@ -131,9 +130,7 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
             query: { project },
             body: pool
               ? { poolSelector: { type: 'explicit', pool } }
-              : hasDualDefaults
-                ? { poolSelector: { type: 'auto', ipVersion } }
-                : { poolSelector: { type: 'auto' } },
+              : { poolSelector: { type: 'auto', ipVersion } },
           })
         }}
         onDismiss={onDismiss}

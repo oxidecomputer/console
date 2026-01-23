@@ -7,7 +7,13 @@
  */
 import * as Accordion from '@radix-ui/react-accordion'
 import { useEffect, useMemo, useState } from 'react'
-import { useController, useForm, useWatch, type Control } from 'react-hook-form'
+import {
+  useController,
+  useForm,
+  useWatch,
+  type Control,
+  type UseFormSetValue,
+} from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 import type { SetRequired } from 'type-fest'
 
@@ -50,8 +56,7 @@ import {
 } from '~/components/form/fields/DisksTableField'
 import { FileField } from '~/components/form/fields/FileField'
 import { BootDiskImageSelectField as ImageSelectField } from '~/components/form/fields/ImageSelectField'
-import { toIpPoolItem } from '~/components/form/fields/ip-pool-item'
-import { ListboxField } from '~/components/form/fields/ListboxField'
+import { IpPoolSelector } from '~/components/form/fields/IpPoolSelector'
 import { NameField } from '~/components/form/fields/NameField'
 import { NetworkInterfaceField } from '~/components/form/fields/NetworkInterfaceField'
 import { NumberField } from '~/components/form/fields/NumberField'
@@ -131,6 +136,8 @@ export type InstanceCreateInput = Assign<
     sshPublicKeys: NonNullable<InstanceCreate['sshPublicKeys']>
     // IP version for ephemeral IP when dual defaults exist
     ephemeralIpVersion: IpVersion
+    // Pool for ephemeral IP - used to sync with IpPoolSelector component
+    ephemeralIpPool: string
   }
 >
 
@@ -164,6 +171,7 @@ const baseDefaultValues: InstanceCreateInput = {
   userData: null,
   externalIps: [{ type: 'ephemeral' }],
   ephemeralIpVersion: 'v4',
+  ephemeralIpPool: '',
 }
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
@@ -239,15 +247,14 @@ export default function CreateInstanceForm() {
     return hasV4Default && hasV6Default
   }, [unicastPools])
 
-  // Only use a default pool if exactly one unicast default exists
-  // When dual defaults exist, we'll use { type: 'auto', ipVersion } instead
-  const defaultPool = useMemo(() => {
-    if (hasDualDefaults) return undefined
-    return unicastPools.find((p) => p.isDefault)?.name
-  }, [unicastPools, hasDualDefaults])
 
   const defaultSource =
     siloImages.length > 0 ? 'siloImage' : projectImages.length > 0 ? 'projectImage' : 'disk'
+
+  // Calculate if there's a single default pool (not dual defaults)
+  const singleDefaultPool = !hasDualDefaults
+    ? unicastPools.find((p) => p.isDefault)?.name
+    : undefined
 
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
@@ -256,8 +263,10 @@ export default function CreateInstanceForm() {
     bootDiskSize: diskSizeNearest10(defaultImage?.size / GiB),
     // When dual defaults exist and no explicit pool, default to v4 for dual_stack
     ephemeralIpVersion: 'v4',
-    externalIps: defaultPool
-      ? [{ type: 'ephemeral', poolSelector: { type: 'explicit', pool: defaultPool } }]
+    // Set ephemeralIpPool if there's a single default, otherwise leave empty (for radio "use default")
+    ephemeralIpPool: '',
+    externalIps: singleDefaultPool
+      ? [{ type: 'ephemeral', poolSelector: { type: 'explicit', pool: singleDefaultPool } }]
       : hasDualDefaults
         ? [{ type: 'ephemeral', poolSelector: { type: 'auto', ipVersion: 'v4' } }]
         : [{ type: 'ephemeral' }],
@@ -638,9 +647,8 @@ export default function CreateInstanceForm() {
           control={control}
           isSubmitting={isSubmitting}
           unicastPools={unicastPools}
-          hasDualDefaults={hasDualDefaults}
-          defaultPool={defaultPool}
           networkInterfaces={networkInterfaces}
+          setValue={setValue}
         />
         <Form.Actions>
           <Form.Submit loading={createInstance.isPending}>Create instance</Form.Submit>
@@ -677,16 +685,14 @@ const AdvancedAccordion = ({
   control,
   isSubmitting,
   unicastPools,
-  hasDualDefaults,
-  defaultPool,
   networkInterfaces,
+  setValue,
 }: {
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
   unicastPools: Array<SiloIpPool>
-  hasDualDefaults: boolean
-  defaultPool?: string
   networkInterfaces: InstanceCreate['networkInterfaces']
+  setValue: UseFormSetValue<InstanceCreateInput>
 }) => {
   // we track this state manually for the sole reason that we need to be able to
   // tell, inside AccordionItem, when an accordion is opened so we can scroll its
@@ -697,33 +703,60 @@ const AdvancedAccordion = ({
   const externalIps = useController({ control, name: 'externalIps' })
   const ephemeralIp = externalIps.field.value?.find((ip) => ip.type === 'ephemeral')
   const assignEphemeralIp = !!ephemeralIp
-  const selectedPool =
-    ephemeralIp?.poolSelector?.type === 'explicit'
-      ? ephemeralIp.poolSelector.pool
-      : undefined
   const attachedFloatingIps = (externalIps.field.value || []).filter(isFloating)
 
   const ephemeralIpVersionField = useController({ control, name: 'ephemeralIpVersion' })
+  const ephemeralIpPoolField = useController({ control, name: 'ephemeralIpPool' })
 
-  // Update externalIps when ephemeralIpVersion changes and no explicit pool is selected
+  const ephemeralIpPool = ephemeralIpPoolField.field.value
+
+  // Initialize ephemeralIpPool once on mount if externalIps already has an explicit pool
   useEffect(() => {
-    if (!hasDualDefaults || !assignEphemeralIp || selectedPool) return
+    const initialPool =
+      ephemeralIp?.poolSelector?.type === 'explicit'
+        ? ephemeralIp.poolSelector.pool
+        : undefined
+    if (initialPool && !ephemeralIpPool) {
+      ephemeralIpPoolField.field.onChange(initialPool)
+    }
+    // Only run on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
+  // Update externalIps when ephemeralIpPool or ephemeralIpVersion changes
+  useEffect(() => {
+    if (!assignEphemeralIp) return
+
+    const pool = ephemeralIpPoolField.field.value
     const ipVersion = ephemeralIpVersionField.field.value || 'v4'
-    const newExternalIps = externalIps.field.value?.map((ip) =>
-      ip.type === 'ephemeral'
-        ? { type: 'ephemeral', poolSelector: { type: 'auto', ipVersion } }
-        : ip
-    )
+
+    const newExternalIps = externalIps.field.value?.map((ip) => {
+      if (ip.type !== 'ephemeral') return ip
+
+      // Explicit pool selected
+      if (pool) {
+        return {
+          type: 'ephemeral',
+          poolSelector: { type: 'explicit', pool },
+        }
+      }
+
+      // No pool selected - use default with explicit IP version
+      // User selected v4 or v6 via radio button
+      return {
+        type: 'ephemeral',
+        poolSelector: { type: 'auto', ipVersion },
+      }
+    })
+
     if (newExternalIps) {
       externalIps.field.onChange(newExternalIps)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
+    ephemeralIpPoolField.field.value,
     ephemeralIpVersionField.field.value,
-    hasDualDefaults,
     assignEphemeralIp,
-    selectedPool,
     // NOTE: Do not include externalIps in deps - it would cause infinite loop
   ])
 
@@ -810,92 +843,50 @@ const AdvancedAccordion = ({
               it is deleted
             </TipIcon>
           </h2>
-          <Checkbox
-            id="assignEphemeralIp"
-            checked={assignEphemeralIp}
-            onChange={() => {
-              const newExternalIps = assignEphemeralIp
-                ? externalIps.field.value?.filter((ip) => ip.type !== 'ephemeral')
-                : [
-                    ...(externalIps.field.value || []),
-                    selectedPool || defaultPool
-                      ? {
-                          type: 'ephemeral',
-                          poolSelector: {
-                            type: 'explicit',
-                            pool: selectedPool || defaultPool,
-                          },
-                        }
-                      : hasDualDefaults
-                        ? {
-                            type: 'ephemeral',
-                            poolSelector: {
-                              type: 'auto',
-                              ipVersion: ephemeralIpVersionField.field.value || 'v4',
-                            },
-                          }
-                        : { type: 'ephemeral' },
-                  ]
-              externalIps.field.onChange(newExternalIps)
-            }}
-          >
-            Allocate and attach an ephemeral IP address
-          </Checkbox>
-          {assignEphemeralIp && (
-            <>
-              <Listbox
-                name="pools"
-                label="IP pool for ephemeral IP"
-                placeholder={defaultPool ? `${defaultPool} (default)` : 'Select a pool'}
-                selected={`${unicastPools.find((pool) => pool.name === selectedPool)?.name}`}
-                items={unicastPools.map(toIpPoolItem)}
-                disabled={!assignEphemeralIp || isSubmitting}
-                required
-                onChange={(value) => {
-                  const newExternalIps = externalIps.field.value?.map((ip) =>
-                    ip.type === 'ephemeral'
-                      ? {
-                          type: 'ephemeral',
-                          poolSelector: { type: 'explicit', pool: value },
-                        }
-                      : ip
-                  )
-                  externalIps.field.onChange(newExternalIps)
-                }}
-              />
 
-              {!selectedPool &&
-                hasDualDefaults &&
-                (() => {
-                  // Determine which IP versions are compatible with the NIC
-                  // Based on Omicron validation: external IP version must match NIC's private IP stack
-                  const nicType = networkInterfaces?.type
-                  const compatibleVersions: Array<{ label: string; value: 'v4' | 'v6' }> =
-                    []
+          {/* Calculate compatible IP versions based on NIC type */}
+          {(() => {
+            const nicType = networkInterfaces?.type
+            const compatibleVersions: IpVersion[] = []
 
-                  if (nicType === 'default_ipv4' || nicType === 'default_dual_stack') {
-                    compatibleVersions.push({ label: 'IPv4', value: 'v4' })
-                  }
-                  if (nicType === 'default_ipv6' || nicType === 'default_dual_stack') {
-                    compatibleVersions.push({ label: 'IPv6', value: 'v6' })
-                  }
+            if (nicType === 'default_ipv4' || nicType === 'default_dual_stack') {
+              compatibleVersions.push('v4')
+            }
+            if (nicType === 'default_ipv6' || nicType === 'default_dual_stack') {
+              compatibleVersions.push('v6')
+            }
 
-                  // Only show selector if there's a choice to make
-                  if (compatibleVersions.length <= 1) return null
-
-                  return (
-                    <ListboxField
-                      control={control}
-                      name="ephemeralIpVersion"
-                      label="IP version for ephemeral IP"
-                      items={compatibleVersions}
-                      required
-                      disabled={isSubmitting}
-                    />
-                  )
-                })()}
-            </>
-          )}
+            return (
+              <>
+                <Checkbox
+                  id="assignEphemeralIp"
+                  checked={assignEphemeralIp}
+                  onChange={() => {
+                    const newExternalIps = assignEphemeralIp
+                      ? externalIps.field.value?.filter((ip) => ip.type !== 'ephemeral')
+                      : [...(externalIps.field.value || []), { type: 'ephemeral' }]
+                    externalIps.field.onChange(newExternalIps)
+                    // The useEffect will update the poolSelector based on current form values
+                  }}
+                >
+                  Allocate and attach an ephemeral IP address
+                </Checkbox>
+                {assignEphemeralIp && (
+                  <IpPoolSelector
+                    control={control}
+                    poolFieldName="ephemeralIpPool"
+                    ipVersionFieldName="ephemeralIpVersion"
+                    pools={unicastPools}
+                    currentPool={ephemeralIpPool}
+                    currentIpVersion={ephemeralIpVersionField.field.value}
+                    setValue={setValue}
+                    disabled={isSubmitting}
+                    compatibleVersions={compatibleVersions}
+                  />
+                )}
+              </>
+            )
+          })()}
         </div>
 
         <div className="flex flex-1 flex-col gap-4">

@@ -22,15 +22,13 @@ import {
 
 import { AccordionItem } from '~/components/AccordionItem'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
-import { toIpPoolItem } from '~/components/form/fields/ip-pool-item'
-import { ListboxField } from '~/components/form/fields/ListboxField'
+import { IpPoolSelector } from '~/components/form/fields/IpPoolSelector'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { Message } from '~/ui/lib/Message'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
@@ -62,14 +60,6 @@ export default function CreateFloatingIpSideModalForm() {
     return allPools.items.filter((p) => p.poolType === 'unicast')
   }, [allPools])
 
-  // Detect if both IPv4 and IPv6 default unicast pools exist
-  const hasDualDefaults = useMemo(() => {
-    const defaultUnicastPools = unicastPools.filter((pool) => pool.isDefault)
-    const hasV4Default = defaultUnicastPools.some((p) => p.ipVersion === 'v4')
-    const hasV6Default = defaultUnicastPools.some((p) => p.ipVersion === 'v6')
-    return hasV4Default && hasV6Default
-  }, [unicastPools])
-
   const projectSelector = useProjectSelector()
   const navigate = useNavigate()
 
@@ -85,6 +75,7 @@ export default function CreateFloatingIpSideModalForm() {
 
   const form = useForm({ defaultValues })
   const pool = form.watch('pool')
+  const ipVersion = form.watch('ipVersion')
 
   const [openItems, setOpenItems] = useState<string[]>([])
 
@@ -102,12 +93,10 @@ export default function CreateFloatingIpSideModalForm() {
                 type: 'auto' as const,
                 poolSelector: { type: 'explicit' as const, pool },
               }
-            : hasDualDefaults
-              ? {
-                  type: 'auto' as const,
-                  poolSelector: { type: 'auto' as const, ipVersion },
-                }
-              : undefined,
+            : {
+                type: 'auto' as const,
+                poolSelector: { type: 'auto' as const, ipVersion },
+              },
         }
         createFloatingIp.mutate({ query: projectSelector, body })
       }}
@@ -128,32 +117,15 @@ export default function CreateFloatingIpSideModalForm() {
           label="Advanced"
           value="advanced"
         >
-          <Message
-            variant="info"
-            content="If you don’t specify a pool, the default will be used"
-          />
-
-          <ListboxField
-            name="pool"
-            items={unicastPools.map(toIpPoolItem)}
-            label="IP pool"
+          <IpPoolSelector
             control={form.control}
-            placeholder="Select a pool"
+            poolFieldName="pool"
+            ipVersionFieldName="ipVersion"
+            pools={unicastPools}
+            currentPool={pool}
+            currentIpVersion={ipVersion}
+            setValue={form.setValue}
           />
-
-          {!pool && hasDualDefaults && (
-            <ListboxField
-              control={form.control}
-              name="ipVersion"
-              label="IP version"
-              description="Both IPv4 and IPv6 default pools exist; select a version"
-              items={[
-                { label: 'IPv4', value: 'v4' },
-                { label: 'IPv6', value: 'v6' },
-              ]}
-              required
-            />
-          )}
         </AccordionItem>
       </Accordion.Root>
     </SideModalForm>
