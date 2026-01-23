@@ -224,24 +224,30 @@ export default function CreateInstanceForm() {
   const { data: siloPools } = usePrefetchedQuery(
     q(api.projectIpPoolList, { query: { limit: ALL_ISH } })
   )
-  const defaultPool = useMemo(
-    () => (siloPools ? siloPools.items.find((p) => p.isDefault)?.name : undefined),
+
+  // Only unicast pools can be used for ephemeral IPs
+  const unicastPools = useMemo(
+    () => siloPools?.items.filter((p) => p.poolType === 'unicast') || [],
     [siloPools]
   )
 
-  const defaultSource =
-    siloImages.length > 0 ? 'siloImage' : projectImages.length > 0 ? 'projectImage' : 'disk'
-
   // Detect if both IPv4 and IPv6 default unicast pools exist
   const hasDualDefaults = useMemo(() => {
-    if (!siloPools) return false
-    const defaultUnicastPools = siloPools.items.filter(
-      (pool) => pool.isDefault && pool.poolType === 'unicast'
-    )
+    const defaultUnicastPools = unicastPools.filter((pool) => pool.isDefault)
     const hasV4Default = defaultUnicastPools.some((p) => p.ipVersion === 'v4')
     const hasV6Default = defaultUnicastPools.some((p) => p.ipVersion === 'v6')
     return hasV4Default && hasV6Default
-  }, [siloPools])
+  }, [unicastPools])
+
+  // Only use a default pool if exactly one unicast default exists
+  // When dual defaults exist, we'll use { type: 'auto', ipVersion } instead
+  const defaultPool = useMemo(() => {
+    if (hasDualDefaults) return undefined
+    return unicastPools.find((p) => p.isDefault)?.name
+  }, [unicastPools, hasDualDefaults])
+
+  const defaultSource =
+    siloImages.length > 0 ? 'siloImage' : projectImages.length > 0 ? 'projectImage' : 'disk'
 
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
@@ -631,7 +637,7 @@ export default function CreateInstanceForm() {
         <AdvancedAccordion
           control={control}
           isSubmitting={isSubmitting}
-          siloPools={siloPools.items}
+          unicastPools={unicastPools}
           hasDualDefaults={hasDualDefaults}
           defaultPool={defaultPool}
         />
@@ -669,13 +675,13 @@ const FloatingIpLabel = ({ ip }: { ip: FloatingIp }) => (
 const AdvancedAccordion = ({
   control,
   isSubmitting,
-  siloPools,
+  unicastPools,
   hasDualDefaults,
   defaultPool,
 }: {
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
-  siloPools: Array<SiloIpPool>
+  unicastPools: Array<SiloIpPool>
   hasDualDefaults: boolean
   defaultPool?: string
 }) => {
@@ -709,12 +715,13 @@ const AdvancedAccordion = ({
     if (newExternalIps) {
       externalIps.field.onChange(newExternalIps)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     ephemeralIpVersionField.field.value,
     hasDualDefaults,
     assignEphemeralIp,
     selectedPool,
-    externalIps,
+    // NOTE: Do not include externalIps in deps - it would cause infinite loop
   ])
 
   const instanceName = useWatch({ control, name: 'name' })
@@ -837,14 +844,17 @@ const AdvancedAccordion = ({
                 name="pools"
                 label="IP pool for ephemeral IP"
                 placeholder={defaultPool ? `${defaultPool} (default)` : 'Select a pool'}
-                selected={`${siloPools.find((pool) => pool.name === selectedPool)?.name}`}
-                items={siloPools.map(toIpPoolItem)}
+                selected={`${unicastPools.find((pool) => pool.name === selectedPool)?.name}`}
+                items={unicastPools.map(toIpPoolItem)}
                 disabled={!assignEphemeralIp || isSubmitting}
                 required
                 onChange={(value) => {
                   const newExternalIps = externalIps.field.value?.map((ip) =>
                     ip.type === 'ephemeral'
-                      ? { type: 'ephemeral', poolSelector: { type: 'explicit', pool: value } }
+                      ? {
+                          type: 'ephemeral',
+                          poolSelector: { type: 'explicit', pool: value },
+                        }
                       : ip
                   )
                   externalIps.field.onChange(newExternalIps)
