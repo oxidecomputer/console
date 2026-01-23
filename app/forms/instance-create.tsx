@@ -851,16 +851,32 @@ const AdvancedAccordion = ({
             const nicType = networkInterfaces?.type
             let compatibleVersions: IpVersion[] | undefined = undefined
 
-            // Only set constraints for the default_* types
-            // For 'create' and 'none', leave undefined (treat as "unknown" - allow both)
+            // Set constraints based on primary NIC configuration
             if (nicType === 'default_ipv4') {
               compatibleVersions = ['v4']
             } else if (nicType === 'default_ipv6') {
               compatibleVersions = ['v6']
             } else if (nicType === 'default_dual_stack') {
               compatibleVersions = ['v4', 'v6']
+            } else if (
+              nicType === 'create' &&
+              networkInterfaces &&
+              networkInterfaces.params.length > 0
+            ) {
+              // Derive from the first NIC's ipConfig (first NIC becomes primary)
+              const primaryNicConfig = networkInterfaces.params[0].ipConfig
+              if (primaryNicConfig?.type === 'v4') {
+                compatibleVersions = ['v4']
+              } else if (primaryNicConfig?.type === 'v6') {
+                compatibleVersions = ['v6']
+              } else if (primaryNicConfig?.type === 'dual_stack') {
+                compatibleVersions = ['v4', 'v6']
+              } else {
+                // ipConfig not provided = defaults to dual-stack
+                compatibleVersions = ['v4', 'v6']
+              }
             }
-            // nicType === 'create' or 'none': compatibleVersions stays undefined
+            // nicType === 'none': compatibleVersions stays undefined (instance has no NICs)
 
             return (
               <>

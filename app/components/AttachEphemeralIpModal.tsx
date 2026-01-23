@@ -57,16 +57,10 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
     if (!primaryNic) return []
 
     const versions: IpVersion[] = []
-    if (
-      primaryNic.ipStack.type === 'v4' ||
-      primaryNic.ipStack.type === 'dual_stack'
-    ) {
+    if (primaryNic.ipStack.type === 'v4' || primaryNic.ipStack.type === 'dual_stack') {
       versions.push('v4')
     }
-    if (
-      primaryNic.ipStack.type === 'v6' ||
-      primaryNic.ipStack.type === 'dual_stack'
-    ) {
+    if (primaryNic.ipStack.type === 'v6' || primaryNic.ipStack.type === 'dual_stack') {
       versions.push('v6')
     }
     return versions
