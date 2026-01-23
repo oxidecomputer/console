@@ -66,7 +66,7 @@ const staticColumns = [
   // TODO: add version column when API supports v6 pools
   colHelper.display({
     header: 'IPs Remaining',
-    cell: (info) => <UtilizationCell pool={info.row.original.id} />,
+    cell: (info) => <UtilizationCell pool={info.row.original.name} />,
   }),
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
