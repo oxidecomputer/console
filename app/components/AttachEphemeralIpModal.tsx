@@ -43,24 +43,32 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
     return unicastPools.some((p) => p.isDefault)
   }, [unicastPools])
 
-  // Determine compatible IP versions based on instance's network interfaces
-  // External IP version must match the NIC's private IP stack
+  // Determine compatible IP versions based on instance's primary network interface
+  // External IPs route through the primary interface, so only its IP stack matters
+  // https://github.com/oxidecomputer/omicron/blob/d52aad0/nexus/db-queries/src/db/datastore/external_ip.rs#L544-L661
   const compatibleVersions: IpVersion[] | undefined = useMemo(() => {
     // Before NICs load, return undefined (treat as "unknown" - allow all)
     if (!nics) return undefined
 
     const nicItems = nics.items
-    const hasV4Nic = nicItems.some(
-      (nic) => nic.ipStack.type === 'v4' || nic.ipStack.type === 'dual_stack'
-    )
-    const hasV6Nic = nicItems.some(
-      (nic) => nic.ipStack.type === 'v6' || nic.ipStack.type === 'dual_stack'
-    )
+    const primaryNic = nicItems.find((nic) => nic.primary)
+
+    // If no primary NIC found (defensive), return empty array
+    if (!primaryNic) return []
 
     const versions: IpVersion[] = []
-    if (hasV4Nic) versions.push('v4')
-    if (hasV6Nic) versions.push('v6')
-    // Return the array (could be empty if instance has no NICs with compatible stacks)
+    if (
+      primaryNic.ipStack.type === 'v4' ||
+      primaryNic.ipStack.type === 'dual_stack'
+    ) {
+      versions.push('v4')
+    }
+    if (
+      primaryNic.ipStack.type === 'v6' ||
+      primaryNic.ipStack.type === 'dual_stack'
+    ) {
+      versions.push('v6')
+    }
     return versions
   }, [nics])
 
