@@ -127,6 +127,7 @@ export function IpPoolSelector({
         <ListboxField
           name={poolFieldName}
           items={filteredPools.map(toIpPoolItem)}
+          label="IP pool"
           control={control}
           placeholder="Select a pool"
           required

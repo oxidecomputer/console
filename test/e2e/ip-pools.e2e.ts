@@ -19,7 +19,7 @@ test('IP pool list', async ({ page }) => {
 
   const table = page.getByRole('table')
 
-  await expect(table.getByRole('row')).toHaveCount(5) // header + 4 rows
+  await expect(table.getByRole('row')).toHaveCount(7) // header + 6 rows (includes multicast pools)
 
   await expectRowVisible(table, {
     name: 'ip-pool-1',
@@ -35,6 +35,14 @@ test('IP pool list', async ({ page }) => {
   })
   await expectRowVisible(table, {
     name: 'ip-pool-4',
+    'IPs Remaining': '18.4e18 / 18.4e18',
+  })
+  await expectRowVisible(table, {
+    name: 'ip-pool-5-multicast-v4',
+    'IPs Remaining': '32 / 32',
+  })
+  await expectRowVisible(table, {
+    name: 'ip-pool-6-multicast-v6',
     'IPs Remaining': '18.4e18 / 18.4e18',
   })
 })

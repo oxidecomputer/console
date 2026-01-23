@@ -75,20 +75,36 @@ test('can create an instance', async ({ page }) => {
   const checkbox = page.getByRole('checkbox', {
     name: 'Allocate and attach an ephemeral IP address',
   })
-  const label = page.getByLabel('IP pool for ephemeral IP')
+  const customPoolRadio = page.getByRole('radio', { name: 'custom pool' })
+  const poolDropdown = page.getByLabel('IP pool')
 
-  // verify that the ip pool selector is visible and default is selected
+  // verify that the ephemeral IP checkbox is checked and default radio is selected
   await expect(checkbox).toBeChecked()
-  await label.click()
+  // IPv4 default should be selected by default
+  await expect(
+    page.getByRole('radio', { name: 'IPv4 default', checked: true })
+  ).toBeVisible()
+
+  // select custom pool to see the dropdown
+  await customPoolRadio.click()
+  await expect(poolDropdown).toBeVisible()
+  await poolDropdown.click()
   await expect(page.getByRole('option', { name: 'ip-pool-1' })).toBeEnabled()
 
-  // unchecking the box should disable the selector
+  // unchecking the box should hide the pool selector
   await checkbox.uncheck()
-  await expect(label).toBeHidden()
+  await expect(customPoolRadio).toBeHidden()
 
   // re-checking the box should re-enable the selector, and other options should be selectable
   await checkbox.check()
-  await selectOption(page, 'IP pool for ephemeral IP', 'ip-pool-2 default VPN IPs')
+  await customPoolRadio.click()
+  // Need to wait for the dropdown to be visible first
+  await expect(poolDropdown).toBeVisible()
+  // Click the dropdown to open it and wait for options to be available
+  await poolDropdown.click()
+  await expect(page.getByRole('option', { name: 'ip-pool-2' })).toBeVisible()
+  // Force click since there might be overlays
+  await page.getByRole('option', { name: 'ip-pool-2' }).click({ force: true })
 
   // should be visible in accordion
   await expect(page.getByRole('radiogroup', { name: 'Network interface' })).toBeVisible()

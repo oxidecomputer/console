@@ -264,10 +264,19 @@ test('Silo IP pools', async ({ page }) => {
   await page.goto('/system/silos/maze-war/ip-pools')
 
   const table = page.getByRole('table')
-  // Both pools start as default (one IPv4, one IPv6) - valid dual-default scenario
+  // Both unicast pools start as default (one IPv4, one IPv6) - valid dual-default scenario
   await expectRowVisible(table, { name: 'ip-pool-1', 'IP Version': 'v4default' })
   await expectRowVisible(table, { name: 'ip-pool-2', 'IP Version': 'v6default' })
-  await expect(table.getByRole('row')).toHaveCount(3) // header + 2
+  // Multicast pools are also linked as defaults
+  await expectRowVisible(table, {
+    name: 'ip-pool-5-multicast-v4',
+    'IP Version': 'v4default',
+  })
+  await expectRowVisible(table, {
+    name: 'ip-pool-6-multicast-v6',
+    'IP Version': 'v6default',
+  })
+  await expect(table.getByRole('row')).toHaveCount(5) // header + 4
 
   // clicking on pool goes to pool detail
   await page.getByRole('link', { name: 'ip-pool-1' }).click()
@@ -301,10 +310,19 @@ test('Silo IP pools link pool', async ({ page }) => {
   await page.goto('/system/silos/maze-war/ip-pools')
 
   const table = page.getByRole('table')
-  // Both pools start as default (one IPv4, one IPv6)
+  // Both unicast pools start as default (one IPv4, one IPv6)
   await expectRowVisible(table, { name: 'ip-pool-1', 'IP Version': 'v4default' })
   await expectRowVisible(table, { name: 'ip-pool-2', 'IP Version': 'v6default' })
-  await expect(table.getByRole('row')).toHaveCount(3) // header + 2
+  // Multicast pools are also linked
+  await expectRowVisible(table, {
+    name: 'ip-pool-5-multicast-v4',
+    'IP Version': 'v4default',
+  })
+  await expectRowVisible(table, {
+    name: 'ip-pool-6-multicast-v6',
+    'IP Version': 'v6default',
+  })
+  await expect(table.getByRole('row')).toHaveCount(5) // header + 4
 
   const modal = page.getByRole('dialog', { name: 'Link pool' })
   await expect(modal).toBeHidden()

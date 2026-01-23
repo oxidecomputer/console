@@ -142,6 +142,8 @@ test('Instance networking tab — Detach / Attach Ephemeral IPs', async ({ page 
   await attachEphemeralIpButton.click()
   modal = page.getByRole('dialog', { name: 'Attach ephemeral IP' })
   await expect(modal).toBeVisible()
+  // Select custom pool radio to show the dropdown
+  await page.getByRole('radio', { name: 'custom pool' }).click()
   await page.getByRole('button', { name: 'IP pool' }).click()
   await page.getByRole('option', { name: 'ip-pool-2' }).click()
   await page.getByRole('button', { name: 'Attach', exact: true }).click()

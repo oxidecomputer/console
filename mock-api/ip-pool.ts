@@ -150,7 +150,7 @@ export const ipPoolRanges: Json<IpPoolRange[]> = [
     ip_pool_id: ipPool5Multicast.id,
     range: {
       first: '224.0.0.1',
-      last: '224.0.0.20',
+      last: '224.0.0.32',
     },
     time_created: new Date().toISOString(),
   },
@@ -159,7 +159,7 @@ export const ipPoolRanges: Json<IpPoolRange[]> = [
     ip_pool_id: ipPool6Multicast.id,
     range: {
       first: 'ff00::1',
-      last: 'ff00::20',
+      last: 'ff00::ffff:ffff:ffff:ffff',
     },
     time_created: new Date().toISOString(),
   },
