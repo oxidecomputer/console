@@ -245,6 +245,8 @@ export default function CreateInstanceForm() {
 
   // Detect if both IPv4 and IPv6 default unicast pools exist
   const hasDualDefaults = hasV4Default && hasV6Default
+  // Use default version if available; fall back to v4
+  const ephemeralIpVersion: IpVersion = hasV4Default ? 'v4' : hasV6Default ? 'v6' : 'v4'
 
   const defaultSource =
     siloImages.length > 0 ? 'siloImage' : projectImages.length > 0 ? 'projectImage' : 'disk'
@@ -254,15 +256,22 @@ export default function CreateInstanceForm() {
     bootDiskSourceType: defaultSource,
     sshPublicKeys: allKeys,
     bootDiskSize: diskSizeNearest10(defaultImage?.size / GiB),
-    // When dual defaults exist and no explicit pool, default to v4 for dual_stack
-    ephemeralIpVersion: 'v4',
-    // Set ephemeralIpPool if there's a single default, otherwise leave empty (for radio "use default")
+    ephemeralIpVersion,
+    // Set ephemeralIpPool empty (for radio "use default")
     ephemeralIpPool: '',
-    externalIps: hasV4Default
-      ? [{ type: 'ephemeral', poolSelector: { type: 'auto', ipVersion: 'v4' } }]
-      : hasV6Default
-        ? [{ type: 'ephemeral', poolSelector: { type: 'auto', ipVersion: 'v6' } }]
-        : [{ type: 'ephemeral' }],
+    // API behavior:
+    // - Single default: { type: 'ephemeral' } → API auto-picks the one default
+    // - Dual defaults: { poolSelector: { type: 'auto', ipVersion } } → Must specify version
+    //     right now we default to 'v4' when both exist
+    // - No defaults: { type: 'ephemeral' } → Will fail, but user will see error
+    externalIps: hasDualDefaults
+      ? [
+          {
+            type: 'ephemeral',
+            poolSelector: { type: 'auto', ipVersion: 'v4' },
+          },
+        ]
+      : [{ type: 'ephemeral' }],
   }
 
   const form = useForm({ defaultValues })
