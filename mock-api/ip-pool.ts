@@ -51,7 +51,35 @@ export const ipPool4: Json<IpPool> = {
   pool_type: 'unicast',
 }
 
-export const ipPools: Json<IpPool>[] = [ipPool1, ipPool2, ipPool3, ipPool4]
+// Multicast pools for testing that they are NOT selected for ephemeral/floating IPs
+export const ipPool5Multicast: Json<IpPool> = {
+  id: 'b6c4a6b9-761e-4d28-94c0-fd3d7738ef1d',
+  name: 'ip-pool-5-multicast-v4',
+  description: 'Multicast v4 pool',
+  time_created: new Date().toISOString(),
+  time_modified: new Date().toISOString(),
+  ip_version: 'v4',
+  pool_type: 'multicast',
+}
+
+export const ipPool6Multicast: Json<IpPool> = {
+  id: 'c7d5b7ca-872f-4e39-95d1-fe4e8849fg2e',
+  name: 'ip-pool-6-multicast-v6',
+  description: 'Multicast v6 pool',
+  time_created: new Date().toISOString(),
+  time_modified: new Date().toISOString(),
+  ip_version: 'v6',
+  pool_type: 'multicast',
+}
+
+export const ipPools: Json<IpPool>[] = [
+  ipPool1,
+  ipPool2,
+  ipPool3,
+  ipPool4,
+  ipPool5Multicast,
+  ipPool6Multicast,
+]
 
 export const ipPoolSilos: Json<IpPoolSiloLink>[] = [
   {
@@ -62,7 +90,18 @@ export const ipPoolSilos: Json<IpPoolSiloLink>[] = [
   {
     ip_pool_id: ipPool2.id,
     silo_id: defaultSilo.id,
-    is_default: true, // Both v4 and v6 pools are default - valid dual-default scenario
+    is_default: true, // Both v4 and v6 unicast pools are default - valid dual-default scenario
+  },
+  // Make multicast pools also default to test that they are NOT selected
+  {
+    ip_pool_id: ipPool5Multicast.id,
+    silo_id: defaultSilo.id,
+    is_default: true,
+  },
+  {
+    ip_pool_id: ipPool6Multicast.id,
+    silo_id: defaultSilo.id,
+    is_default: true,
   },
 ]
 
@@ -102,6 +141,25 @@ export const ipPoolRanges: Json<IpPoolRange[]> = [
     range: {
       first: '::1',
       last: '::ffff:ffff:ffff:ffff',
+    },
+    time_created: new Date().toISOString(),
+  },
+  // Multicast pool ranges (should NOT be used for ephemeral/floating IPs)
+  {
+    id: 'e8f6c8db-983g-4f4a-a6e2-gf5f9960gh3f',
+    ip_pool_id: ipPool5Multicast.id,
+    range: {
+      first: '224.0.0.1',
+      last: '224.0.0.20',
+    },
+    time_created: new Date().toISOString(),
+  },
+  {
+    id: 'f9g7d9ec-a94h-5g5b-b7f3-hg6ga071hi4g',
+    ip_pool_id: ipPool6Multicast.id,
+    range: {
+      first: 'ff00::1',
+      last: 'ff00::20',
     },
     time_created: new Date().toISOString(),
   },

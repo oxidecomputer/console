@@ -640,6 +640,7 @@ export default function CreateInstanceForm() {
           unicastPools={unicastPools}
           hasDualDefaults={hasDualDefaults}
           defaultPool={defaultPool}
+          networkInterfaces={networkInterfaces}
         />
         <Form.Actions>
           <Form.Submit loading={createInstance.isPending}>Create instance</Form.Submit>
@@ -678,12 +679,14 @@ const AdvancedAccordion = ({
   unicastPools,
   hasDualDefaults,
   defaultPool,
+  networkInterfaces,
 }: {
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
   unicastPools: Array<SiloIpPool>
   hasDualDefaults: boolean
   defaultPool?: string
+  networkInterfaces: InstanceCreate['networkInterfaces']
 }) => {
   // we track this state manually for the sole reason that we need to be able to
   // tell, inside AccordionItem, when an accordion is opened so we can scroll its
@@ -861,20 +864,36 @@ const AdvancedAccordion = ({
                 }}
               />
 
-              {!selectedPool && hasDualDefaults && (
-                <ListboxField
-                  control={control}
-                  name="ephemeralIpVersion"
-                  label="IP version for ephemeral IP"
-                  description="Both IPv4 and IPv6 default pools exist; select a version"
-                  items={[
-                    { label: 'IPv4', value: 'v4' },
-                    { label: 'IPv6', value: 'v6' },
-                  ]}
-                  required
-                  disabled={isSubmitting}
-                />
-              )}
+              {!selectedPool &&
+                hasDualDefaults &&
+                (() => {
+                  // Determine which IP versions are compatible with the NIC
+                  // Based on Omicron validation: external IP version must match NIC's private IP stack
+                  const nicType = networkInterfaces?.type
+                  const compatibleVersions: Array<{ label: string; value: 'v4' | 'v6' }> =
+                    []
+
+                  if (nicType === 'default_ipv4' || nicType === 'default_dual_stack') {
+                    compatibleVersions.push({ label: 'IPv4', value: 'v4' })
+                  }
+                  if (nicType === 'default_ipv6' || nicType === 'default_dual_stack') {
+                    compatibleVersions.push({ label: 'IPv6', value: 'v6' })
+                  }
+
+                  // Only show selector if there's a choice to make
+                  if (compatibleVersions.length <= 1) return null
+
+                  return (
+                    <ListboxField
+                      control={control}
+                      name="ephemeralIpVersion"
+                      label="IP version for ephemeral IP"
+                      items={compatibleVersions}
+                      required
+                      disabled={isSubmitting}
+                    />
+                  )
+                })()}
             </>
           )}
         </div>

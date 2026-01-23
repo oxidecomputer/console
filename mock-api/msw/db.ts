@@ -10,7 +10,7 @@
 import * as R from 'remeda'
 import { validate as isUuid } from 'uuid'
 
-import type { ApiTypes as Api, IpVersion } from '@oxide/api'
+import type { ApiTypes as Api, IpPoolType, IpVersion } from '@oxide/api'
 import * as mock from '@oxide/api-mocks'
 
 import { json } from '~/api/__generated__/msw-handlers'
@@ -66,30 +66,39 @@ export const resolvePoolSelector = (
   poolSelector:
     | { pool: string; type: 'explicit' }
     | { type: 'auto'; ip_version?: IpVersion | null }
-    | undefined
+    | undefined,
+  poolType?: IpPoolType
 ) => {
   if (poolSelector?.type === 'explicit') {
     return lookup.ipPool({ pool: poolSelector.pool })
   }
 
-  // For 'auto' type, find the default pool for the specified IP version (or any default if not specified)
+  // For 'auto' type, find the default pool for the specified IP version and pool type
   const silo = lookup.silo({ silo: defaultSilo.id })
   const links = db.ipPoolSilos.filter((ips) => ips.silo_id === silo.id && ips.is_default)
 
-  if (poolSelector?.ip_version) {
-    // Find default pool matching the specified IP version
-    const link = links.find((ips) => {
-      const pool = db.ipPools.find((p) => p.id === ips.ip_pool_id)
-      return pool?.ip_version === poolSelector.ip_version
-    })
-    if (link) {
-      return lookupById(db.ipPools, link.ip_pool_id)
-    }
-  }
+  // Filter candidate pools by both IP version and pool type
+  const candidateLinks = links.filter((ips) => {
+    const pool = db.ipPools.find((p) => p.id === ips.ip_pool_id)
+    if (!pool) return false
 
-  // Fall back to any default pool (for backwards compatibility)
-  const link = links[0]
-  if (!link) throw notFoundErr(`default pool for silo '${defaultSilo.id}'`)
+    // If poolType specified, filter by it
+    if (poolType && pool.pool_type !== poolType) return false
+
+    // If IP version specified, filter by it
+    if (poolSelector?.ip_version && pool.ip_version !== poolSelector.ip_version) {
+      return false
+    }
+
+    return true
+  })
+
+  const link = candidateLinks[0]
+  if (!link) {
+    const typeStr = poolType ? ` ${poolType}` : ''
+    const versionStr = poolSelector?.ip_version ? ` ${poolSelector.ip_version}` : ''
+    throw notFoundErr(`default${typeStr}${versionStr} pool for silo '${defaultSilo.id}'`)
+  }
   return lookupById(db.ipPools, link.ip_pool_id)
 }
 

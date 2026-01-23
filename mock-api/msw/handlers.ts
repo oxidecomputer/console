@@ -308,11 +308,12 @@ export const handlers = makeHandlers({
     const addressAllocator = body.address_allocator || { type: 'auto' }
 
     // Determine the pool, respecting ipVersion when specified
+    // Floating IPs must use unicast pools
     let pool: Json<Api.IpPool>
     if (addressAllocator.type === 'explicit' && addressAllocator.pool) {
       pool = lookup.siloIpPool({ pool: addressAllocator.pool, silo: defaultSilo.id })
     } else if (addressAllocator.type === 'auto') {
-      pool = resolvePoolSelector(addressAllocator.pool_selector)
+      pool = resolvePoolSelector(addressAllocator.pool_selector, 'unicast')
     } else {
       pool = lookup.siloDefaultIpPool({ silo: defaultSilo.id })
     }
@@ -516,6 +517,14 @@ export const handlers = makeHandlers({
     }
 
     // validate floating IP attachments before we actually do anything
+    // Determine what IP stacks the instance will have based on network interfaces
+    const hasIpv4Nic =
+      body.network_interfaces?.type === 'default_ipv4' ||
+      body.network_interfaces?.type === 'default_dual_stack'
+    const hasIpv6Nic =
+      body.network_interfaces?.type === 'default_ipv6' ||
+      body.network_interfaces?.type === 'default_dual_stack'
+
     body.external_ips?.forEach((ip) => {
       if (ip.type === 'floating') {
         // throw if floating IP doesn't exist
@@ -531,8 +540,31 @@ export const handlers = makeHandlers({
         // if there are no ranges in the pool or if the pool doesn't exist,
         // which aren't quite as good as checking that there are actually IPs
         // available, but they are good things to check
-        const pool = resolvePoolSelector(ip.pool_selector)
+        // Ephemeral IPs must use unicast pools
+        const pool = resolvePoolSelector(ip.pool_selector, 'unicast')
         getIpFromPool(pool)
+
+        // Validate that external IP version matches NIC's IP stack
+        // Based on Omicron validation in nexus/db-queries/src/db/datastore/external_ip.rs:544-661
+        const ipVersion = pool.ip_version
+        if (ipVersion === 'v4' && !hasIpv4Nic) {
+          throw json(
+            {
+              error_code: 'InvalidRequest',
+              message: `The ephemeral external IP is an IPv4 address, but the instance with ID ${body.name} does not have a primary network interface with a VPC-private IPv4 address. Add a VPC-private IPv4 address to the interface, or attach a different IP address`,
+            },
+            { status: 400 }
+          )
+        }
+        if (ipVersion === 'v6' && !hasIpv6Nic) {
+          throw json(
+            {
+              error_code: 'InvalidRequest',
+              message: `The ephemeral external IP is an IPv6 address, but the instance with ID ${body.name} does not have a primary network interface with a VPC-private IPv6 address. Add a VPC-private IPv6 address to the interface, or attach a different IP address`,
+            },
+            { status: 400 }
+          )
+        }
       }
     })
 
@@ -642,7 +674,8 @@ export const handlers = makeHandlers({
         // we've already validated that the IP isn't attached
         floatingIp.instance_id = instanceId
       } else if (ip.type === 'ephemeral') {
-        const pool = resolvePoolSelector(ip.pool_selector)
+        // Ephemeral IPs must use unicast pools
+        const pool = resolvePoolSelector(ip.pool_selector, 'unicast')
         const firstAvailableAddress = getIpFromPool(pool)
 
         db.ephemeralIps.push({
@@ -824,7 +857,8 @@ export const handlers = makeHandlers({
   },
   instanceEphemeralIpAttach({ path, query: projectParams, body }) {
     const instance = lookup.instance({ ...path, ...projectParams })
-    const pool = resolvePoolSelector(body.pool_selector)
+    // Ephemeral IPs must use unicast pools
+    const pool = resolvePoolSelector(body.pool_selector, 'unicast')
     const ip = getIpFromPool(pool)
 
     const externalIp = { ip, ip_pool_id: pool.id, kind: 'ephemeral' as const }
