@@ -846,14 +846,18 @@ const AdvancedAccordion = ({
           {/* Calculate compatible IP versions based on NIC type */}
           {(() => {
             const nicType = networkInterfaces?.type
-            const compatibleVersions: IpVersion[] = []
+            let compatibleVersions: IpVersion[] | undefined = undefined
 
-            if (nicType === 'default_ipv4' || nicType === 'default_dual_stack') {
-              compatibleVersions.push('v4')
+            // Only set constraints for the default_* types
+            // For 'create' and 'none', leave undefined (treat as "unknown" - allow both)
+            if (nicType === 'default_ipv4') {
+              compatibleVersions = ['v4']
+            } else if (nicType === 'default_ipv6') {
+              compatibleVersions = ['v6']
+            } else if (nicType === 'default_dual_stack') {
+              compatibleVersions = ['v4', 'v6']
             }
-            if (nicType === 'default_ipv6' || nicType === 'default_dual_stack') {
-              compatibleVersions.push('v6')
-            }
+            // nicType === 'create' or 'none': compatibleVersions stays undefined
 
             return (
               <>
