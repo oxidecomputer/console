@@ -247,7 +247,6 @@ export default function CreateInstanceForm() {
     return hasV4Default && hasV6Default
   }, [unicastPools])
 
-
   const defaultSource =
     siloImages.length > 0 ? 'siloImage' : projectImages.length > 0 ? 'projectImage' : 'disk'
 

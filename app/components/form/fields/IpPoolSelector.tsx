@@ -50,6 +50,11 @@ export function IpPoolSelector({
   disabled = false,
   compatibleVersions,
 }: IpPoolSelectorProps) {
+  // Filter pools by compatible versions for custom pool dropdown
+  const filteredPools = compatibleVersions
+    ? pools.filter((p) => compatibleVersions.includes(p.ipVersion))
+    : pools
+
   // Determine which default pool versions exist
   const hasV4Default = pools.some((p) => p.isDefault && p.ipVersion === 'v4')
   const hasV6Default = pools.some((p) => p.isDefault && p.ipVersion === 'v6')
@@ -106,9 +111,9 @@ export function IpPoolSelector({
             value="custom"
             checked={currentSelection === 'custom'}
             onChange={() => {
-              // Set to first pool in list so the dropdown shows with a valid selection
-              if (pools.length > 0) {
-                setValue(poolFieldName, pools[0].name)
+              // Set to first compatible pool in list so the dropdown shows with a valid selection
+              if (filteredPools.length > 0) {
+                setValue(poolFieldName, filteredPools[0].name)
               }
             }}
             disabled={disabled}
@@ -121,7 +126,7 @@ export function IpPoolSelector({
       {currentSelection === 'custom' && (
         <ListboxField
           name={poolFieldName}
-          items={pools.map(toIpPoolItem)}
+          items={filteredPools.map(toIpPoolItem)}
           control={control}
           placeholder="Select a pool"
           required
