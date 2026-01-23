@@ -170,7 +170,7 @@ export function IpPoolSelector({
               }}
               disabled={disabled}
             >
-              select pool
+              custom pool
             </Radio>
           </div>
         )}
