@@ -44,6 +44,7 @@ import { addToast } from '~/stores/toast'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
+import { IpVersionCell } from '~/table/cells/IpVersionCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -237,6 +238,11 @@ const staticIpCols = [
       </>
     ),
     cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
+  }),
+  ipColHelper.accessor('ipPoolId', {
+    id: 'version',
+    header: 'Version',
+    cell: (info) => <IpVersionCell ipPoolId={info.getValue()} />,
   }),
   ipColHelper.accessor('ipPoolId', {
     header: 'IP pool',

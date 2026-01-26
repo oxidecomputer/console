@@ -59,11 +59,14 @@ const colHelper = createColumnHelper<IpPool>()
 const staticColumns = [
   colHelper.accessor('name', { cell: makeLinkCell((pool) => pb.ipPool({ pool })) }),
   colHelper.accessor('description', Columns.description),
+  colHelper.accessor('ipVersion', {
+    header: 'Version',
+    cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
+  }),
   colHelper.accessor('poolType', {
     header: 'Pool type',
     cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
   }),
-  // TODO: add version column when API supports v6 pools
   colHelper.display({
     header: 'IPs Remaining',
     cell: (info) => <UtilizationCell pool={info.row.original.name} />,
