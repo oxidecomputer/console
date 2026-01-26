@@ -162,7 +162,7 @@ const staticCols = [
 
       if (ipStack.type === 'dual_stack') {
         return (
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-0.5">
             <CopyableIp ip={ipStack.value.v4.ip} isLinked={false} />
             <CopyableIp ip={ipStack.value.v6.ip} isLinked={false} />
           </div>
@@ -587,6 +587,7 @@ export default function NetworkingTab() {
               aria-labelledby="nics-label"
               table={tableInstance}
               className="table-inline"
+              rowHeight="large"
             />
           ) : (
             <TableEmptyBox border={false}>
