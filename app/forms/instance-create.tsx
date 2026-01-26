@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import * as Accordion from '@radix-ui/react-accordion'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   useController,
   useForm,
@@ -83,6 +83,8 @@ import { Slash } from '~/ui/lib/Slash'
 import { Tabs } from '~/ui/lib/Tabs'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { TipIcon } from '~/ui/lib/TipIcon'
+import { Tooltip } from '~/ui/lib/Tooltip'
+import { Wrap } from '~/ui/util/wrap'
 import { ALL_ISH } from '~/util/consts'
 import { readBlobAsBase64 } from '~/util/file'
 import { docLinks, links } from '~/util/links'
@@ -783,6 +785,87 @@ const AdvancedAccordion = ({
     .map((ip) => attachableFloatingIps.find((fip) => fip.name === ip.floatingIp))
     .filter((ip) => !!ip)
 
+  // Calculate compatible IP versions based on NIC type
+  const compatibleVersions: IpVersion[] | undefined = useMemo(() => {
+    const nicType = networkInterfaces?.type
+    let versions: IpVersion[] | undefined = undefined
+
+    // Set constraints based on primary NIC configuration
+    if (nicType === 'default_ipv4') {
+      versions = ['v4']
+    } else if (nicType === 'default_ipv6') {
+      versions = ['v6']
+    } else if (nicType === 'default_dual_stack') {
+      versions = ['v4', 'v6']
+    } else if (
+      nicType === 'create' &&
+      networkInterfaces &&
+      networkInterfaces.params.length > 0
+    ) {
+      // Derive from the first NIC's ipConfig (first NIC becomes primary)
+      const primaryNicConfig = networkInterfaces.params[0].ipConfig
+      if (primaryNicConfig?.type === 'v4') {
+        versions = ['v4']
+      } else if (primaryNicConfig?.type === 'v6') {
+        versions = ['v6']
+      } else if (primaryNicConfig?.type === 'dual_stack') {
+        versions = ['v4', 'v6']
+      } else {
+        // ipConfig not provided = defaults to dual-stack
+        versions = ['v4', 'v6']
+      }
+    } else if (nicType === 'none') {
+      // Instance has no NICs, cannot attach external IPs
+      versions = []
+    } else if (
+      nicType === 'create' &&
+      networkInterfaces &&
+      networkInterfaces.params.length === 0
+    ) {
+      // Custom NICs selected but none added yet, cannot attach external IPs
+      versions = []
+    }
+
+    return versions
+  }, [networkInterfaces])
+
+  // Track previous compatible NICs state to detect transitions
+  const prevHasNicsRef = useRef<boolean | undefined>(undefined)
+
+  // Automatically manage ephemeral IP based on NIC availability
+  useEffect(() => {
+    const hasNics = compatibleVersions && compatibleVersions.length > 0
+    const prevHasNics = prevHasNicsRef.current
+
+    if (!hasNics && assignEphemeralIp) {
+      // Remove ephemeral IP when there are no compatible NICs
+      const newExternalIps = externalIps.field.value?.filter(
+        (ip) => ip.type !== 'ephemeral'
+      )
+      externalIps.field.onChange(newExternalIps)
+    } else if (hasNics && !prevHasNics && !assignEphemeralIp) {
+      // Add ephemeral IP only when transitioning from no NICs to having NICs
+      // (prevHasNics === false means we had no NICs before)
+      externalIps.field.onChange([
+        ...(externalIps.field.value || []),
+        { type: 'ephemeral' },
+      ])
+    }
+
+    prevHasNicsRef.current = hasNics
+  }, [compatibleVersions, assignEphemeralIp, externalIps])
+
+  // Update ephemeralIpVersion when compatibleVersions changes
+  useEffect(() => {
+    if (!compatibleVersions || compatibleVersions.length === 0) return
+
+    const currentVersion = ephemeralIpVersionField.field.value
+    // If current version is not compatible, switch to the first compatible version
+    if (!compatibleVersions.includes(currentVersion)) {
+      setValue('ephemeralIpVersion', compatibleVersions[0])
+    }
+  }, [compatibleVersions, ephemeralIpVersionField.field.value, setValue])
+
   const closeFloatingIpModal = () => {
     setFloatingIpModalOpen(false)
     setSelectedFloatingIp(undefined)
@@ -846,53 +929,30 @@ const AdvancedAccordion = ({
             </TipIcon>
           </h2>
 
-          {/* Calculate compatible IP versions based on NIC type */}
           {(() => {
-            const nicType = networkInterfaces?.type
-            let compatibleVersions: IpVersion[] | undefined = undefined
-
-            // Set constraints based on primary NIC configuration
-            if (nicType === 'default_ipv4') {
-              compatibleVersions = ['v4']
-            } else if (nicType === 'default_ipv6') {
-              compatibleVersions = ['v6']
-            } else if (nicType === 'default_dual_stack') {
-              compatibleVersions = ['v4', 'v6']
-            } else if (
-              nicType === 'create' &&
-              networkInterfaces &&
-              networkInterfaces.params.length > 0
-            ) {
-              // Derive from the first NIC's ipConfig (first NIC becomes primary)
-              const primaryNicConfig = networkInterfaces.params[0].ipConfig
-              if (primaryNicConfig?.type === 'v4') {
-                compatibleVersions = ['v4']
-              } else if (primaryNicConfig?.type === 'v6') {
-                compatibleVersions = ['v6']
-              } else if (primaryNicConfig?.type === 'dual_stack') {
-                compatibleVersions = ['v4', 'v6']
-              } else {
-                // ipConfig not provided = defaults to dual-stack
-                compatibleVersions = ['v4', 'v6']
-              }
-            }
-            // nicType === 'none': compatibleVersions stays undefined (instance has no NICs)
+            const hasCompatibleNics = compatibleVersions && compatibleVersions.length > 0
+            const disabledReason = hasCompatibleNics
+              ? undefined
+              : 'Add a compatible network interface to attach an ephemeral IP address'
 
             return (
               <>
-                <Checkbox
-                  id="assignEphemeralIp"
-                  checked={assignEphemeralIp}
-                  onChange={() => {
-                    const newExternalIps = assignEphemeralIp
-                      ? externalIps.field.value?.filter((ip) => ip.type !== 'ephemeral')
-                      : [...(externalIps.field.value || []), { type: 'ephemeral' }]
-                    externalIps.field.onChange(newExternalIps)
-                    // The useEffect will update the poolSelector based on current form values
-                  }}
-                >
-                  Allocate and attach an ephemeral IP address
-                </Checkbox>
+                <Wrap when={!!disabledReason} with={<Tooltip content={disabledReason} />}>
+                  <Checkbox
+                    id="assignEphemeralIp"
+                    checked={hasCompatibleNics && assignEphemeralIp}
+                    disabled={!hasCompatibleNics}
+                    onChange={() => {
+                      const newExternalIps = assignEphemeralIp
+                        ? externalIps.field.value?.filter((ip) => ip.type !== 'ephemeral')
+                        : [...(externalIps.field.value || []), { type: 'ephemeral' }]
+                      externalIps.field.onChange(newExternalIps)
+                      // The useEffect will update the poolSelector based on current form values
+                    }}
+                  >
+                    Allocate and attach an ephemeral IP address
+                  </Checkbox>
+                </Wrap>
                 {assignEphemeralIp && (
                   <IpPoolSelector
                     control={control}

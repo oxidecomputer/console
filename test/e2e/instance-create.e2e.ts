@@ -983,3 +983,85 @@ test('create instance with custom dual-stack NIC allows both IPv4 and IPv6 ephem
   await expect(page.getByRole('option', { name: 'ip-pool-1' })).toBeVisible()
   await expect(page.getByRole('option', { name: 'ip-pool-2' })).toBeVisible()
 })
+
+test('ephemeral IP checkbox disabled when no NICs configured', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+
+  const instanceName = 'ephemeral-ip-nic-test'
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await selectASiloImage(page, 'ubuntu-22-04')
+
+  // Open networking accordion
+  await page.getByRole('button', { name: 'Networking' }).click()
+
+  const ephemeralCheckbox = page.getByRole('checkbox', {
+    name: 'Allocate and attach an ephemeral IP address',
+  })
+  const defaultDualStackRadio = page.getByRole('radio', {
+    name: 'Default IPv4 & IPv6',
+    exact: true,
+  })
+  const noneRadio = page.getByRole('radio', { name: 'None', exact: true })
+  const customRadio = page.getByRole('radio', { name: 'Custom', exact: true }).first()
+
+  // Verify default state: "Default IPv4 & IPv6" is checked and Ephemeral IP checkbox is checked
+  await expect(defaultDualStackRadio).toBeChecked()
+  await expect(ephemeralCheckbox).toBeChecked()
+  await expect(ephemeralCheckbox).toBeEnabled()
+
+  // Select "None" radio → verify Ephemeral IP checkbox is unchecked and disabled
+  await noneRadio.click()
+  await expect(ephemeralCheckbox).not.toBeChecked()
+  await expect(ephemeralCheckbox).toBeDisabled()
+
+  // Hover over the disabled checkbox to verify tooltip appears
+  await ephemeralCheckbox.hover()
+  await expect(
+    page.getByText('Add a compatible network interface to attach an ephemeral IP address')
+  ).toBeVisible()
+
+  // Select "Custom" radio → verify Ephemeral IP checkbox is still unchecked and disabled
+  await customRadio.click()
+  await expect(ephemeralCheckbox).not.toBeChecked()
+  await expect(ephemeralCheckbox).toBeDisabled()
+
+  // Click "Add network interface" button to open modal
+  await page.getByRole('button', { name: 'Add network interface' }).click()
+
+  const modal = page.getByRole('dialog', { name: 'Add network interface' })
+  await expect(modal).toBeVisible()
+
+  // Create an IPv4 NIC named "new-v4-nic"
+  await modal.getByRole('textbox', { name: 'Name' }).fill('new-v4-nic')
+  await modal.getByLabel('VPC', { exact: true }).click()
+  await page.getByRole('option', { name: 'mock-vpc' }).click()
+  await modal.getByLabel('Subnet').click()
+  await page.getByRole('option', { name: 'mock-subnet' }).click()
+
+  // Select IPv4 IP configuration
+  await modal.getByRole('radio', { name: 'IPv4', exact: true }).click()
+
+  // Submit the modal
+  await modal.getByRole('button', { name: 'Add network interface' }).click()
+  await expect(modal).toBeHidden()
+
+  // Verify the NIC was added to the table
+  const nicTable = page.getByRole('table', { name: 'Network Interfaces' })
+  await expect(
+    nicTable.getByRole('cell', { name: 'new-v4-nic', exact: true })
+  ).toBeVisible()
+
+  // Verify Ephemeral IP checkbox is now checked and enabled
+  await expect(ephemeralCheckbox).toBeChecked()
+  await expect(ephemeralCheckbox).toBeEnabled()
+
+  // Delete the NIC using the remove button
+  await page.getByRole('button', { name: 'remove network interface new-v4-nic' }).click()
+
+  // Verify the NIC is no longer in the table
+  await expect(nicTable.getByRole('cell', { name: 'new-v4-nic', exact: true })).toBeHidden()
+
+  // Verify Ephemeral IP checkbox is once again unchecked and disabled
+  await expect(ephemeralCheckbox).not.toBeChecked()
+  await expect(ephemeralCheckbox).toBeDisabled()
+})
