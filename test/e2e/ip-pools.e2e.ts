@@ -212,22 +212,17 @@ test('IP pool edit', async ({ page }) => {
 
 // TODO: update this to reflect that a given pool is now v4 or v6 only
 test('IP range validation and add', async ({ page }) => {
-  await page.goto('/system/networking/ip-pools/ip-pool-2')
+  await page.goto('/system/networking/ip-pools/ip-pool-3')
 
-  // check the utilization bar
-  await expect(page.getByText('Allocated(IPs)')).toBeVisible()
-  await expect(page.getByText('Allocated0')).toBeVisible()
-  await expect(page.getByText('Capacity32')).toBeVisible()
-
-  await page.getByRole('link', { name: 'Add range' }).click()
+  await page.getByRole('link', { name: 'Add range' }).first().click()
 
   const dialog = page.getByRole('dialog', { name: 'Add IP range' })
   const first = dialog.getByRole('textbox', { name: 'First' })
   const last = dialog.getByRole('textbox', { name: 'Last' })
   const submit = dialog.getByRole('button', { name: 'Add IP range' })
   const invalidMsg = dialog.getByText('Not a valid IP address')
-  // exact to differentiate from same text in help message at the top of the form
-  const ipv6Msg = dialog.getByText('IPv6 ranges are not yet supported')
+  // ip-pool-3 is an IPv4 pool, so IPv6 addresses should be rejected
+  const ipv6Msg = dialog.getByText('IPv6 address not allowed in IPv4 pool')
 
   const v4Addr = '192.1.2.3'
   const v6Addr = '2001:db8::1234:5678'
@@ -240,12 +235,12 @@ test('IP range validation and add', async ({ page }) => {
 
   await expect(invalidMsg).toHaveCount(2)
 
-  // change last to v6, not allowed
+  // change last to v6, not allowed in IPv4 pool
   await last.fill(v6Addr)
   await expect(invalidMsg).toHaveCount(1)
   await expect(ipv6Msg).toHaveCount(1)
 
-  // change first to v6, still not allowed
+  // change first to v6, still not allowed in IPv4 pool
   await first.fill(v6Addr)
   await expect(ipv6Msg).toHaveCount(2)
   await expect(invalidMsg).toBeHidden()
@@ -265,16 +260,56 @@ test('IP range validation and add', async ({ page }) => {
   // now the utilization bar shows the single IP added
   await expect(page.getByText('Allocated(IPs)')).toBeVisible()
   await expect(page.getByText('Allocated0')).toBeVisible()
-  await expect(page.getByText('Capacity33')).toBeVisible()
+  await expect(page.getByText('Capacity1')).toBeVisible()
 
   // go back to the pool and verify the remaining/capacity columns changed
   // use the sidebar nav to get there
   const sidebar = page.getByRole('navigation', { name: 'Sidebar navigation' })
   await sidebar.getByRole('link', { name: 'IP Pools' }).click()
   await expectRowVisible(table, {
-    name: 'ip-pool-2',
-    'IPs Remaining': '33 / 33',
+    name: 'ip-pool-3',
+    'IPs Remaining': '1 / 1',
   })
+})
+
+test('IPv4 addresses cannot be added to IPv6 pool', async ({ page }) => {
+  // ip-pool-4 is an IPv6 pool
+  await page.goto('/system/networking/ip-pools/ip-pool-4')
+
+  await page.getByRole('link', { name: 'Add range' }).first().click()
+
+  const dialog = page.getByRole('dialog', { name: 'Add IP range' })
+  const first = dialog.getByRole('textbox', { name: 'First' })
+  const last = dialog.getByRole('textbox', { name: 'Last' })
+  const submit = dialog.getByRole('button', { name: 'Add IP range' })
+  // ip-pool-4 is an IPv6 pool, so IPv4 addresses should be rejected
+  const ipv4Msg = dialog.getByText('IPv4 address not allowed in IPv6 pool')
+
+  const v4Addr = '192.168.1.1'
+  const v6Addr = 'fd12:3456:789a:1::1'
+
+  await expect(dialog).toBeVisible()
+
+  // Try to add IPv4 address - should be rejected
+  await first.fill(v4Addr)
+  await last.fill(v4Addr)
+  await submit.click() // trigger validation
+  await expect(ipv4Msg).toHaveCount(2)
+
+  // Change first to v6
+  await first.fill(v6Addr)
+  await expect(ipv4Msg).toHaveCount(1)
+
+  // Change last to v6 - should now be valid
+  await last.fill(v6Addr)
+  await expect(ipv4Msg).toBeHidden()
+
+  // Submit successfully
+  await submit.click()
+  await expect(dialog).toBeHidden()
+
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { First: v6Addr, Last: v6Addr })
 })
 
 test('remove range', async ({ page }) => {
