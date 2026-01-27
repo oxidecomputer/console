@@ -34,8 +34,7 @@ const defaultValues: IpRange = {
 
 /**
  * Validates IP range addresses against the pool's IP version.
- * Ensures both addresses are valid IPs, match the pool's version,
- * and are the same version as each other.
+ * Ensures both addresses are valid IPs and match the pool's version.
  */
 function createResolver(poolVersion: IpVersion) {
   return (values: IpRange) => {
@@ -44,7 +43,7 @@ function createResolver(poolVersion: IpVersion) {
 
     const errors: FieldErrors<IpRange> = {}
 
-    // Validate first address
+    // Validate first address matches pool version
     if (first.type === 'error') {
       errors.first = { type: 'pattern', message: first.message }
     } else if (first.type === 'v4' && poolVersion === 'v6') {
@@ -59,7 +58,7 @@ function createResolver(poolVersion: IpVersion) {
       }
     }
 
-    // Validate last address
+    // Validate last address matches pool version
     if (last.type === 'error') {
       errors.last = { type: 'pattern', message: last.message }
     } else if (last.type === 'v4' && poolVersion === 'v6') {
@@ -72,16 +71,6 @@ function createResolver(poolVersion: IpVersion) {
         type: 'pattern',
         message: 'IPv6 address not allowed in IPv4 pool',
       }
-    }
-
-    // Check that both addresses are the same version
-    if (first.type !== 'error' && last.type !== 'error' && first.type !== last.type) {
-      const versionMismatchError = {
-        type: 'pattern',
-        message: 'Both addresses must be the same IP version',
-      }
-      errors.first = versionMismatchError
-      errors.last = versionMismatchError
     }
 
     // TODO: if we were really cool we could check first <= last but it would add

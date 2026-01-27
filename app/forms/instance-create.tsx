@@ -931,9 +931,13 @@ const AdvancedAccordion = ({
 
           {(() => {
             const hasCompatibleNics = compatibleVersions && compatibleVersions.length > 0
-            const disabledReason = hasCompatibleNics
-              ? undefined
-              : 'Add a compatible network interface to attach an ephemeral IP address'
+            const disabledReason = hasCompatibleNics ? undefined : (
+              <>
+                Add a compatible network interface
+                <br />
+                to attach an ephemeral IP address
+              </>
+            )
 
             return (
               <>
