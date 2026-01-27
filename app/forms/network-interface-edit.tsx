@@ -25,10 +25,11 @@ import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { Message } from '~/ui/lib/Message'
 import { ClearAndAddButtons, MiniTable } from '~/ui/lib/MiniTable'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
-import { validateIpNet } from '~/util/ip'
+import { parseIpNet, validateIpNet } from '~/util/ip'
 import { links } from '~/util/links'
 
 type EditNetworkInterfaceFormProps = {
@@ -65,6 +66,19 @@ export function EditNetworkInterfaceForm({
 
   const form = useForm({ defaultValues })
   const transitIps = form.watch('transitIps') || []
+
+  // Determine what IP versions this NIC supports
+  const { ipStack } = editing
+  const supportsV4 = ipStack.type === 'v4' || ipStack.type === 'dual_stack'
+  const supportsV6 = ipStack.type === 'v6' || ipStack.type === 'dual_stack'
+  const supportedVersions =
+    supportsV4 && supportsV6 ? 'both IPv4 and IPv6' : supportsV4 ? 'IPv4' : 'IPv6'
+  const exampleIPs =
+    supportsV4 && supportsV6
+      ? '192.168.0.0/16 or fd00::/64'
+      : supportsV4
+        ? '192.168.0.0/16'
+        : 'fd00::/64'
 
   const transitIpsForm = useForm({ defaultValues: { transitIp: '' } })
   const transitIpValue = transitIpsForm.watch('transitIp')
@@ -108,7 +122,8 @@ export function EditNetworkInterfaceForm({
             Transit IPs
           </FieldLabel>
           <TextInputHint id="transitIp-help-text" className="mb-2">
-            An IP network, like 192.168.0.0/16.{' '}
+            An IP network, like {exampleIPs}.
+            <br />
             <a href={links.transitIpsDocs} target="_blank" rel="noreferrer">
               Learn more about transit IPs.
             </a>
@@ -126,6 +141,15 @@ export function EditNetworkInterfaceForm({
             validate={(value) => {
               const error = validateIpNet(value)
               if (error) return error
+
+              // Check if Transit IP version matches NIC's supported versions
+              const parsed = parseIpNet(value)
+              if (parsed.type === 'v4' && !supportsV4) {
+                return 'IPv4 transit IP not supported by this network interface'
+              }
+              if (parsed.type === 'v6' && !supportsV6) {
+                return 'IPv6 transit IP not supported by this network interface'
+              }
 
               if (transitIps.includes(value)) return 'Transit IP already in list'
             }}
@@ -152,6 +176,10 @@ export function EditNetworkInterfaceForm({
           )
         }}
         removeLabel={(ip) => `remove IP ${ip}`}
+      />
+      <Message
+        variant="info"
+        content={`This network interface supports ${supportedVersions} transit IPs.`}
       />
     </SideModalForm>
   )

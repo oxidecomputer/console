@@ -172,6 +172,23 @@ const staticCols = [
       return <CopyableIp ip={ipStack.value.ip} isLinked={false} />
     },
   }),
+  colHelper.accessor('ipStack.value', {
+    header: 'IP Version',
+    cell: (info) => {
+      const nic = info.row.original
+      const { ipStack } = nic
+      return (
+        <div className="flex flex-col gap-1">
+          {(ipStack.type === 'v4' || ipStack.type === 'dual_stack') && (
+            <Badge color="neutral">v4</Badge>
+          )}
+          {(ipStack.type === 'v6' || ipStack.type === 'dual_stack') && (
+            <Badge color="neutral">v6</Badge>
+          )}
+        </div>
+      )
+    },
+  }),
   colHelper.accessor('vpcId', {
     header: 'vpc',
     cell: (info) => <VpcNameFromId value={info.getValue()} />,

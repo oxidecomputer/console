@@ -1016,9 +1016,8 @@ test('ephemeral IP checkbox disabled when no NICs configured', async ({ page }) 
 
   // Hover over the disabled checkbox to verify tooltip appears
   await ephemeralCheckbox.hover()
-  await expect(
-    page.getByText('Add a compatible network interface to attach an ephemeral IP address')
-  ).toBeVisible()
+  await expect(page.getByText('Add a compatible network interface')).toBeVisible()
+  await expect(page.getByText('to attach an ephemeral IP address')).toBeVisible()
 
   // Select "Custom" radio → verify Ephemeral IP checkbox is still unchecked and disabled
   await customRadio.click()
