@@ -301,26 +301,42 @@ export const handlers = makeHandlers({
 
     return 204
   },
+  externalSubnetList: NotImplemented,
+  externalSubnetCreate: NotImplemented,
+  externalSubnetView: NotImplemented,
+  externalSubnetUpdate: NotImplemented,
+  externalSubnetDelete: NotImplemented,
+  externalSubnetAttach: NotImplemented,
+  externalSubnetDetach: NotImplemented,
   floatingIpCreate({ body, query }) {
     const project = lookup.project(query)
     errIfExists(db.floatingIps, { name: body.name, project_id: project.id })
 
     const addressAllocator = body.address_allocator || { type: 'auto' }
 
-    // Determine the pool, respecting ipVersion when specified
+    // Determine the pool and IP
     // Floating IPs must use unicast pools
     let pool: Json<Api.IpPool>
-    if (addressAllocator.type === 'explicit' && addressAllocator.pool) {
-      pool = lookup.siloIpPool({ pool: addressAllocator.pool, silo: defaultSilo.id })
-    } else if (addressAllocator.type === 'auto') {
-      pool = resolvePoolSelector(addressAllocator.pool_selector, 'unicast')
-    } else {
-      pool = lookup.siloDefaultIpPool({ silo: defaultSilo.id })
-    }
+    let ip: string
 
-    // Generate IP from the pool (respects pool's IP version)
-    const ip =
-      (addressAllocator.type === 'explicit' && addressAllocator.ip) || getIpFromPool(pool)
+    if (addressAllocator.type === 'explicit') {
+      // Pool is inferred from the IP address since IP pools cannot have overlapping ranges
+      ip = addressAllocator.ip
+      // Find the pool that contains this IP by checking all ranges
+      const poolWithIp = db.ipPools.find((p) => {
+        if (p.pool_type !== 'unicast') return false
+        const ranges = db.ipPoolRanges.filter((r) => r.ip_pool_id === p.id)
+        return ranges.some(() => {
+          // Simple check - in real API this would do proper IP range comparison
+          return true // For mock purposes, just use first unicast pool
+        })
+      })
+      pool = poolWithIp || resolvePoolSelector(undefined, 'unicast')
+    } else {
+      // type === 'auto'
+      pool = resolvePoolSelector(addressAllocator.pool_selector, 'unicast')
+      ip = getIpFromPool(pool)
+    }
 
     const newFloatingIp: Json<Api.FloatingIp> = {
       id: uuid(),
@@ -2229,6 +2245,8 @@ export const handlers = makeHandlers({
   probeList: NotImplemented,
   probeView: NotImplemented,
   rackView: NotImplemented,
+  rackMembershipStatus: NotImplemented,
+  rackMembershipAddSleds: NotImplemented,
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
   siloUserList: NotImplemented,
@@ -2236,6 +2254,19 @@ export const handlers = makeHandlers({
   sledAdd: NotImplemented,
   sledListUninitialized: NotImplemented,
   sledSetProvisionPolicy: NotImplemented,
+  subnetPoolList: NotImplemented,
+  subnetPoolCreate: NotImplemented,
+  subnetPoolView: NotImplemented,
+  subnetPoolUpdate: NotImplemented,
+  subnetPoolDelete: NotImplemented,
+  subnetPoolMemberList: NotImplemented,
+  subnetPoolMemberAdd: NotImplemented,
+  subnetPoolMemberRemove: NotImplemented,
+  subnetPoolSiloList: NotImplemented,
+  subnetPoolSiloLink: NotImplemented,
+  subnetPoolSiloUnlink: NotImplemented,
+  subnetPoolSiloUpdate: NotImplemented,
+  subnetPoolUtilizationView: NotImplemented,
   supportBundleCreate: NotImplemented,
   supportBundleDelete: NotImplemented,
   supportBundleDownload: NotImplemented,

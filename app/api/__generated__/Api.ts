@@ -64,7 +64,7 @@ export type Address = {
 export type IpVersion = 'v4' | 'v6'
 
 /**
- * Specify which IP pool to allocate from.
+ * Specify which IP or external subnet pool to allocate from.
  */
 export type PoolSelector =
   /** Use the specified pool by name or ID. */
@@ -84,19 +84,17 @@ export type PoolSelector =
  * Specify how to allocate a floating IP address.
  */
 export type AddressAllocator =
-  /** Reserve a specific IP address. */
+  /** Reserve a specific IP address. The pool is inferred from the address since IP pools cannot have overlapping ranges. */
   | {
-      /** The IP address to reserve. Must be available in the pool. */
+      /** The IP address to reserve. */
       ip: string
-      /** The pool containing this address. If not specified, the default pool for the address's IP version is used. */
-      pool?: NameOrId | null
       type: 'explicit'
     }
-  /** Automatically allocate an IP address from a specified pool. */
+  /** Automatically allocate an IP address from a pool. */
   | {
       /** Pool selection.
 
-If omitted, this field uses the silo's default pool. If the silo has default pools for both IPv4 and IPv6, the request will fail unless `ip_version` is specified in the pool selector. */
+If omitted, the silo's default pool is used. If the silo has default pools for both IPv4 and IPv6, the request will fail unless `ip_version` is specified. */
       poolSelector?: PoolSelector
       type: 'auto'
     }
@@ -770,6 +768,18 @@ export type AuthzScope =
  * Properties that uniquely identify an Oxide hardware component
  */
 export type Baseboard = { part: string; revision: number; serial: string }
+
+/**
+ * A representation of a Baseboard ID as used in the inventory subsystem.
+ *
+ * This type is essentially the same as a `Baseboard` except it doesn't have a revision or HW type (Gimlet, PC, Unknown).
+ */
+export type BaseboardId = {
+  /** Oxide Part Number */
+  partNumber: string
+  /** Serial number (unique for a given part number) */
+  serialNumber: string
+}
 
 /**
  * BFD connection mode.
@@ -2059,6 +2069,86 @@ export type ExternalIpResultsPage = {
   /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
+
+/**
+ * An external subnet allocated from a subnet pool
+ */
+export type ExternalSubnet = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** The instance this subnet is attached to, if any */
+  instanceId?: string | null
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** The project this subnet belongs to */
+  projectId: string
+  /** The allocated subnet CIDR */
+  subnet: IpNet
+  /** The subnet pool this was allocated from */
+  subnetPoolId: string
+  /** The subnet pool member this subnet corresponds to */
+  subnetPoolMemberId: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Specify how to allocate an external subnet.
+ */
+export type ExternalSubnetAllocator =
+  /** Reserve a specific subnet. */
+  | {
+      /** The subnet CIDR to reserve. Must be available in the pool. */
+      subnet: IpNet
+      type: 'explicit'
+    }
+  /** Automatically allocate a subnet with the specified prefix length. */
+  | {
+      /** Pool selection.
+
+If omitted, this field uses the silo's default pool. If the silo has default pools for both IPv4 and IPv6, the request will fail unless `ip_version` is specified in the pool selector. */
+      poolSelector?: PoolSelector
+      /** The prefix length for the allocated subnet (e.g., 24 for a /24). */
+      prefixLen: number
+      type: 'auto'
+    }
+
+/**
+ * Attach an external subnet to an instance
+ */
+export type ExternalSubnetAttach = {
+  /** Name or ID of the instance to attach to */
+  instance: NameOrId
+}
+
+/**
+ * Create an external subnet
+ */
+export type ExternalSubnetCreate = {
+  /** Subnet allocation method. */
+  allocator: ExternalSubnetAllocator
+  description: string
+  name: Name
+}
+
+/**
+ * A single page of results
+ */
+export type ExternalSubnetResultsPage = {
+  /** list of items on this page of results */
+  items: ExternalSubnet[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
+ * Update an external subnet
+ */
+export type ExternalSubnetUpdate = { description?: string | null; name?: Name | null }
 
 /**
  * The `FieldType` identifies the data type of a target or metric field.
@@ -3682,6 +3772,32 @@ export type Rack = {
   timeModified: Date
 }
 
+export type RackMembershipAddSledsRequest = { sledIds: BaseboardId[] }
+
+export type RackMembershipChangeState = 'in_progress' | 'committed' | 'aborted'
+
+/**
+ * A unique, monotonically increasing number representing the set of active sleds in a rack at a given point in time.
+ */
+export type RackMembershipVersion = number
+
+/**
+ * Status of the rack membership uniquely identified by the (rack_id, version) pair
+ */
+export type RackMembershipStatus = {
+  /** All members of the rack for this version */
+  members: BaseboardId[]
+  rackId: string
+  state: RackMembershipChangeState
+  timeAborted?: Date | null
+  timeCommitted?: Date | null
+  timeCreated: Date
+  /** All members that have not yet confirmed this membership version */
+  unacknowledgedMembers: BaseboardId[]
+  /** Version that uniquely identifies the rack membership at a given point in time */
+  version: RackMembershipVersion
+}
+
 /**
  * A single page of results
  */
@@ -4353,6 +4469,156 @@ export type SshKeyResultsPage = {
   items: SshKey[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
+}
+
+/**
+ * A pool of subnets for external subnet allocation
+ */
+export type SubnetPool = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** The IP version for this pool */
+  ipVersion: IpVersion
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** Type of subnet pool (unicast or multicast) */
+  poolType: IpPoolType
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Create a subnet pool
+ */
+export type SubnetPoolCreate = {
+  description: string
+  /** The IP version for this pool (IPv4 or IPv6). All subnets in the pool must match this version. */
+  ipVersion: IpVersion
+  name: Name
+}
+
+/**
+ * Link a subnet pool to a silo
+ */
+export type SubnetPoolLinkSilo = {
+  /** Whether this is the default subnet pool for the silo. When true, external subnet allocations that don't specify a pool use this one. */
+  isDefault: boolean
+  /** The silo to link */
+  silo: NameOrId
+}
+
+/**
+ * A member (subnet) within a subnet pool
+ */
+export type SubnetPoolMember = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** Maximum prefix length for allocations from this subnet; a larger prefix means smaller allocations are allowed (e.g. a /24 prefix yields smaller subnet allocations than a /16 prefix). */
+  maxPrefixLength: number
+  /** Minimum prefix length for allocations from this subnet; a smaller prefix means larger allocations are allowed (e.g. a /16 prefix yields larger subnet allocations than a /24 prefix). */
+  minPrefixLength: number
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** The subnet CIDR */
+  subnet: IpNet
+  /** ID of the parent subnet pool */
+  subnetPoolId: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Add a member (subnet) to a subnet pool
+ */
+export type SubnetPoolMemberAdd = {
+  /** Maximum prefix length for allocations from this subnet; a larger prefix means smaller allocations are allowed (e.g. a /24 prefix yields smaller subnet allocations than a /16 prefix).
+
+Valid values: 0-32 for IPv4, 0-128 for IPv6. Default if not specified is 32 for IPv4 and 128 for IPv6. */
+  maxPrefixLength?: number | null
+  /** Minimum prefix length for allocations from this subnet; a smaller prefix means larger allocations are allowed (e.g. a /16 prefix yields larger subnet allocations than a /24 prefix).
+
+Valid values: 0-32 for IPv4, 0-128 for IPv6. Default if not specified is equal to the subnet's prefix length. */
+  minPrefixLength?: number | null
+  /** The subnet to add to the pool */
+  subnet: IpNet
+}
+
+/**
+ * Remove a subnet from a pool
+ */
+export type SubnetPoolMemberRemove = {
+  /** The subnet to remove from the pool. Must match an existing entry exactly. */
+  subnet: IpNet
+}
+
+/**
+ * A single page of results
+ */
+export type SubnetPoolMemberResultsPage = {
+  /** list of items on this page of results */
+  items: SubnetPoolMember[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
+ * A single page of results
+ */
+export type SubnetPoolResultsPage = {
+  /** list of items on this page of results */
+  items: SubnetPool[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
+ * A link between a subnet pool and a silo
+ */
+export type SubnetPoolSiloLink = {
+  isDefault: boolean
+  siloId: string
+  subnetPoolId: string
+}
+
+/**
+ * A single page of results
+ */
+export type SubnetPoolSiloLinkResultsPage = {
+  /** list of items on this page of results */
+  items: SubnetPoolSiloLink[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
+ * Update a subnet pool's silo link
+ */
+export type SubnetPoolSiloUpdate = {
+  /** Whether this is the default subnet pool for the silo */
+  isDefault: boolean
+}
+
+/**
+ * Update a subnet pool
+ */
+export type SubnetPoolUpdate = { description?: string | null; name?: Name | null }
+
+/**
+ * Utilization information for a subnet pool
+ */
+export type SubnetPoolUtilization = {
+  /** Number of addresses allocated from this pool */
+  allocated: number
+  /** Total capacity of this pool in addresses */
+  capacity: number
 }
 
 export type SupportBundleCreate = {
@@ -5754,6 +6020,57 @@ export interface DiskFinalizeImportQueryParams {
   project?: NameOrId
 }
 
+export interface ExternalSubnetListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface ExternalSubnetCreateQueryParams {
+  project: NameOrId
+}
+
+export interface ExternalSubnetViewPathParams {
+  externalSubnet: NameOrId
+}
+
+export interface ExternalSubnetViewQueryParams {
+  project?: NameOrId
+}
+
+export interface ExternalSubnetUpdatePathParams {
+  externalSubnet: NameOrId
+}
+
+export interface ExternalSubnetUpdateQueryParams {
+  project?: NameOrId
+}
+
+export interface ExternalSubnetDeletePathParams {
+  externalSubnet: NameOrId
+}
+
+export interface ExternalSubnetDeleteQueryParams {
+  project?: NameOrId
+}
+
+export interface ExternalSubnetAttachPathParams {
+  externalSubnet: NameOrId
+}
+
+export interface ExternalSubnetAttachQueryParams {
+  project?: NameOrId
+}
+
+export interface ExternalSubnetDetachPathParams {
+  externalSubnet: NameOrId
+}
+
+export interface ExternalSubnetDetachQueryParams {
+  project?: NameOrId
+}
+
 export interface FloatingIpListQueryParams {
   limit?: number | null
   pageToken?: string | null
@@ -5963,6 +6280,7 @@ export interface InstanceEphemeralIpDetachPathParams {
 }
 
 export interface InstanceEphemeralIpDetachQueryParams {
+  ipVersion?: IpVersion
   project?: NameOrId
 }
 
@@ -6344,6 +6662,18 @@ export interface RackViewPathParams {
   rackId: string
 }
 
+export interface RackMembershipStatusPathParams {
+  rackId: string
+}
+
+export interface RackMembershipStatusQueryParams {
+  version?: RackMembershipVersion
+}
+
+export interface RackMembershipAddSledsPathParams {
+  rackId: string
+}
+
 export interface SledListQueryParams {
   limit?: number | null
   pageToken?: string | null
@@ -6719,6 +7049,70 @@ export interface SiloQuotasUpdatePathParams {
   silo: NameOrId
 }
 
+export interface SubnetPoolListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: NameOrIdSortMode
+}
+
+export interface SubnetPoolViewPathParams {
+  pool: NameOrId
+}
+
+export interface SubnetPoolUpdatePathParams {
+  pool: NameOrId
+}
+
+export interface SubnetPoolDeletePathParams {
+  pool: NameOrId
+}
+
+export interface SubnetPoolMemberListPathParams {
+  pool: NameOrId
+}
+
+export interface SubnetPoolMemberListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: NameOrIdSortMode
+}
+
+export interface SubnetPoolMemberAddPathParams {
+  pool: NameOrId
+}
+
+export interface SubnetPoolMemberRemovePathParams {
+  pool: NameOrId
+}
+
+export interface SubnetPoolSiloListPathParams {
+  pool: NameOrId
+}
+
+export interface SubnetPoolSiloListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: IdSortMode
+}
+
+export interface SubnetPoolSiloLinkPathParams {
+  pool: NameOrId
+}
+
+export interface SubnetPoolSiloUpdatePathParams {
+  pool: NameOrId
+  silo: NameOrId
+}
+
+export interface SubnetPoolSiloUnlinkPathParams {
+  pool: NameOrId
+  silo: NameOrId
+}
+
+export interface SubnetPoolUtilizationViewPathParams {
+  pool: NameOrId
+}
+
 export interface SystemTimeseriesSchemaListQueryParams {
   limit?: number | null
   pageToken?: string | null
@@ -7043,7 +7437,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2026011600.0.0'
+  apiVersion = '2026012300.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host
@@ -8004,6 +8398,135 @@ export class Api {
       })
     },
     /**
+     * List external subnets in a project
+     */
+    externalSubnetList: (
+      { query = {} }: { query?: ExternalSubnetListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ExternalSubnetResultsPage>({
+        path: `/v1/external-subnets`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create an external subnet
+     */
+    externalSubnetCreate: (
+      {
+        query,
+        body,
+      }: { query: ExternalSubnetCreateQueryParams; body: ExternalSubnetCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ExternalSubnet>({
+        path: `/v1/external-subnets`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch an external subnet
+     */
+    externalSubnetView: (
+      {
+        path,
+        query = {},
+      }: { path: ExternalSubnetViewPathParams; query?: ExternalSubnetViewQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ExternalSubnet>({
+        path: `/v1/external-subnets/${path.externalSubnet}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Update an external subnet
+     */
+    externalSubnetUpdate: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: ExternalSubnetUpdatePathParams
+        query?: ExternalSubnetUpdateQueryParams
+        body: ExternalSubnetUpdate
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ExternalSubnet>({
+        path: `/v1/external-subnets/${path.externalSubnet}`,
+        method: 'PUT',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete an external subnet
+     */
+    externalSubnetDelete: (
+      {
+        path,
+        query = {},
+      }: { path: ExternalSubnetDeletePathParams; query?: ExternalSubnetDeleteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/external-subnets/${path.externalSubnet}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Attach an external subnet to an instance
+     */
+    externalSubnetAttach: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: ExternalSubnetAttachPathParams
+        query?: ExternalSubnetAttachQueryParams
+        body: ExternalSubnetAttach
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ExternalSubnet>({
+        path: `/v1/external-subnets/${path.externalSubnet}/attach`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Detach an external subnet from an instance
+     */
+    externalSubnetDetach: (
+      {
+        path,
+        query = {},
+      }: { path: ExternalSubnetDetachPathParams; query?: ExternalSubnetDetachQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ExternalSubnet>({
+        path: `/v1/external-subnets/${path.externalSubnet}/detach`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
      * List floating IPs
      */
     floatingIpList: (
@@ -8018,7 +8541,7 @@ export class Api {
       })
     },
     /**
-     * Create floating IP
+     * Create a floating IP
      */
     floatingIpCreate: (
       { query, body }: { query: FloatingIpCreateQueryParams; body: FloatingIpCreate },
@@ -9410,6 +9933,40 @@ export class Api {
       })
     },
     /**
+     * Retrieve the rack cluster membership status
+     */
+    rackMembershipStatus: (
+      {
+        path,
+        query = {},
+      }: { path: RackMembershipStatusPathParams; query?: RackMembershipStatusQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<RackMembershipStatus>({
+        path: `/v1/system/hardware/racks/${path.rackId}/membership`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Add new sleds to rack membership
+     */
+    rackMembershipAddSleds: (
+      {
+        path,
+        body,
+      }: { path: RackMembershipAddSledsPathParams; body: RackMembershipAddSledsRequest },
+      params: FetchParams = {}
+    ) => {
+      return this.request<RackMembershipStatus>({
+        path: `/v1/system/hardware/racks/${path.rackId}/membership/add`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
      * List sleds
      */
     sledList: (
@@ -10608,6 +11165,190 @@ export class Api {
         path: `/v1/system/silos/${path.silo}/quotas`,
         method: 'PUT',
         body,
+        ...params,
+      })
+    },
+    /**
+     * List subnet pools
+     */
+    subnetPoolList: (
+      { query = {} }: { query?: SubnetPoolListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPoolResultsPage>({
+        path: `/v1/system/subnet-pools`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create a subnet pool
+     */
+    subnetPoolCreate: ({ body }: { body: SubnetPoolCreate }, params: FetchParams = {}) => {
+      return this.request<SubnetPool>({
+        path: `/v1/system/subnet-pools`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Fetch a subnet pool
+     */
+    subnetPoolView: (
+      { path }: { path: SubnetPoolViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPool>({
+        path: `/v1/system/subnet-pools/${path.pool}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Update a subnet pool
+     */
+    subnetPoolUpdate: (
+      { path, body }: { path: SubnetPoolUpdatePathParams; body: SubnetPoolUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPool>({
+        path: `/v1/system/subnet-pools/${path.pool}`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Delete a subnet pool
+     */
+    subnetPoolDelete: (
+      { path }: { path: SubnetPoolDeletePathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/subnet-pools/${path.pool}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * List members in a subnet pool
+     */
+    subnetPoolMemberList: (
+      {
+        path,
+        query = {},
+      }: { path: SubnetPoolMemberListPathParams; query?: SubnetPoolMemberListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPoolMemberResultsPage>({
+        path: `/v1/system/subnet-pools/${path.pool}/members`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Add a member to a subnet pool
+     */
+    subnetPoolMemberAdd: (
+      { path, body }: { path: SubnetPoolMemberAddPathParams; body: SubnetPoolMemberAdd },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPoolMember>({
+        path: `/v1/system/subnet-pools/${path.pool}/members/add`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Remove a member from a subnet pool
+     */
+    subnetPoolMemberRemove: (
+      {
+        path,
+        body,
+      }: { path: SubnetPoolMemberRemovePathParams; body: SubnetPoolMemberRemove },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/subnet-pools/${path.pool}/members/remove`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * List silos linked to a subnet pool
+     */
+    subnetPoolSiloList: (
+      {
+        path,
+        query = {},
+      }: { path: SubnetPoolSiloListPathParams; query?: SubnetPoolSiloListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPoolSiloLinkResultsPage>({
+        path: `/v1/system/subnet-pools/${path.pool}/silos`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Link a subnet pool to a silo
+     */
+    subnetPoolSiloLink: (
+      { path, body }: { path: SubnetPoolSiloLinkPathParams; body: SubnetPoolLinkSilo },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPoolSiloLink>({
+        path: `/v1/system/subnet-pools/${path.pool}/silos`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Update a subnet pool's link to a silo
+     */
+    subnetPoolSiloUpdate: (
+      { path, body }: { path: SubnetPoolSiloUpdatePathParams; body: SubnetPoolSiloUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPoolSiloLink>({
+        path: `/v1/system/subnet-pools/${path.pool}/silos/${path.silo}`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Unlink a subnet pool from a silo
+     */
+    subnetPoolSiloUnlink: (
+      { path }: { path: SubnetPoolSiloUnlinkPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/subnet-pools/${path.pool}/silos/${path.silo}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * Fetch subnet pool utilization
+     */
+    subnetPoolUtilizationView: (
+      { path }: { path: SubnetPoolUtilizationViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPoolUtilization>({
+        path: `/v1/system/subnet-pools/${path.pool}/utilization`,
+        method: 'GET',
         ...params,
       })
     },

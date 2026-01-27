@@ -91,7 +91,7 @@ export const Address = z.preprocess(
 export const IpVersion = z.preprocess(processResponseBody, z.enum(['v4', 'v6']))
 
 /**
- * Specify which IP pool to allocate from.
+ * Specify which IP or external subnet pool to allocate from.
  */
 export const PoolSelector = z.preprocess(
   processResponseBody,
@@ -107,11 +107,7 @@ export const PoolSelector = z.preprocess(
 export const AddressAllocator = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({
-      ip: z.union([z.ipv4(), z.ipv6()]),
-      pool: NameOrId.nullable().optional(),
-      type: z.enum(['explicit']),
-    }),
+    z.object({ ip: z.union([z.ipv4(), z.ipv6()]), type: z.enum(['explicit']) }),
     z.object({
       poolSelector: PoolSelector.default({ ipVersion: null, type: 'auto' }),
       type: z.enum(['auto']),
@@ -719,6 +715,16 @@ export const Baseboard = z.preprocess(
     revision: z.number().min(0).max(4294967295),
     serial: z.string(),
   })
+)
+
+/**
+ * A representation of a Baseboard ID as used in the inventory subsystem.
+ *
+ * This type is essentially the same as a `Baseboard` except it doesn't have a revision or HW type (Gimlet, PC, Unknown).
+ */
+export const BaseboardId = z.preprocess(
+  processResponseBody,
+  z.object({ partNumber: z.string(), serialNumber: z.string() })
 )
 
 /**
@@ -1889,6 +1895,75 @@ export const ExternalIpCreate = z.preprocess(
 export const ExternalIpResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: ExternalIp.array(), nextPage: z.string().nullable().optional() })
+)
+
+/**
+ * An external subnet allocated from a subnet pool
+ */
+export const ExternalSubnet = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    id: z.uuid(),
+    instanceId: z.uuid().nullable().optional(),
+    name: Name,
+    projectId: z.uuid(),
+    subnet: IpNet,
+    subnetPoolId: z.uuid(),
+    subnetPoolMemberId: z.uuid(),
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
+)
+
+/**
+ * Specify how to allocate an external subnet.
+ */
+export const ExternalSubnetAllocator = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ subnet: IpNet, type: z.enum(['explicit']) }),
+    z.object({
+      poolSelector: PoolSelector.default({ ipVersion: null, type: 'auto' }),
+      prefixLen: z.number().min(0).max(255),
+      type: z.enum(['auto']),
+    }),
+  ])
+)
+
+/**
+ * Attach an external subnet to an instance
+ */
+export const ExternalSubnetAttach = z.preprocess(
+  processResponseBody,
+  z.object({ instance: NameOrId })
+)
+
+/**
+ * Create an external subnet
+ */
+export const ExternalSubnetCreate = z.preprocess(
+  processResponseBody,
+  z.object({ allocator: ExternalSubnetAllocator, description: z.string(), name: Name })
+)
+
+/**
+ * A single page of results
+ */
+export const ExternalSubnetResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: ExternalSubnet.array(), nextPage: z.string().nullable().optional() })
+)
+
+/**
+ * Update an external subnet
+ */
+export const ExternalSubnetUpdate = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string().nullable().optional(),
+    name: Name.nullable().optional(),
+  })
 )
 
 /**
@@ -3384,6 +3459,38 @@ export const Rack = z.preprocess(
   z.object({ id: z.uuid(), timeCreated: z.coerce.date(), timeModified: z.coerce.date() })
 )
 
+export const RackMembershipAddSledsRequest = z.preprocess(
+  processResponseBody,
+  z.object({ sledIds: BaseboardId.array().refine(...uniqueItems) })
+)
+
+export const RackMembershipChangeState = z.preprocess(
+  processResponseBody,
+  z.enum(['in_progress', 'committed', 'aborted'])
+)
+
+/**
+ * A unique, monotonically increasing number representing the set of active sleds in a rack at a given point in time.
+ */
+export const RackMembershipVersion = z.preprocess(processResponseBody, z.number().min(0))
+
+/**
+ * Status of the rack membership uniquely identified by the (rack_id, version) pair
+ */
+export const RackMembershipStatus = z.preprocess(
+  processResponseBody,
+  z.object({
+    members: BaseboardId.array().refine(...uniqueItems),
+    rackId: z.uuid(),
+    state: RackMembershipChangeState,
+    timeAborted: z.coerce.date().nullable().optional(),
+    timeCommitted: z.coerce.date().nullable().optional(),
+    timeCreated: z.coerce.date(),
+    unacknowledgedMembers: BaseboardId.array().refine(...uniqueItems),
+    version: RackMembershipVersion,
+  })
+)
+
 /**
  * A single page of results
  */
@@ -3949,6 +4056,138 @@ export const SshKeyCreate = z.preprocess(
 export const SshKeyResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: SshKey.array(), nextPage: z.string().nullable().optional() })
+)
+
+/**
+ * A pool of subnets for external subnet allocation
+ */
+export const SubnetPool = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    id: z.uuid(),
+    ipVersion: IpVersion,
+    name: Name,
+    poolType: IpPoolType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
+)
+
+/**
+ * Create a subnet pool
+ */
+export const SubnetPoolCreate = z.preprocess(
+  processResponseBody,
+  z.object({ description: z.string(), ipVersion: IpVersion, name: Name })
+)
+
+/**
+ * Link a subnet pool to a silo
+ */
+export const SubnetPoolLinkSilo = z.preprocess(
+  processResponseBody,
+  z.object({ isDefault: SafeBoolean, silo: NameOrId })
+)
+
+/**
+ * A member (subnet) within a subnet pool
+ */
+export const SubnetPoolMember = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    id: z.uuid(),
+    maxPrefixLength: z.number().min(0).max(255),
+    minPrefixLength: z.number().min(0).max(255),
+    name: Name,
+    subnet: IpNet,
+    subnetPoolId: z.uuid(),
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
+)
+
+/**
+ * Add a member (subnet) to a subnet pool
+ */
+export const SubnetPoolMemberAdd = z.preprocess(
+  processResponseBody,
+  z.object({
+    maxPrefixLength: z.number().min(0).max(255).nullable().optional(),
+    minPrefixLength: z.number().min(0).max(255).nullable().optional(),
+    subnet: IpNet,
+  })
+)
+
+/**
+ * Remove a subnet from a pool
+ */
+export const SubnetPoolMemberRemove = z.preprocess(
+  processResponseBody,
+  z.object({ subnet: IpNet })
+)
+
+/**
+ * A single page of results
+ */
+export const SubnetPoolMemberResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: SubnetPoolMember.array(), nextPage: z.string().nullable().optional() })
+)
+
+/**
+ * A single page of results
+ */
+export const SubnetPoolResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: SubnetPool.array(), nextPage: z.string().nullable().optional() })
+)
+
+/**
+ * A link between a subnet pool and a silo
+ */
+export const SubnetPoolSiloLink = z.preprocess(
+  processResponseBody,
+  z.object({ isDefault: SafeBoolean, siloId: z.uuid(), subnetPoolId: z.uuid() })
+)
+
+/**
+ * A single page of results
+ */
+export const SubnetPoolSiloLinkResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({
+    items: SubnetPoolSiloLink.array(),
+    nextPage: z.string().nullable().optional(),
+  })
+)
+
+/**
+ * Update a subnet pool's silo link
+ */
+export const SubnetPoolSiloUpdate = z.preprocess(
+  processResponseBody,
+  z.object({ isDefault: SafeBoolean })
+)
+
+/**
+ * Update a subnet pool
+ */
+export const SubnetPoolUpdate = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string().nullable().optional(),
+    name: Name.nullable().optional(),
+  })
+)
+
+/**
+ * Utilization information for a subnet pool
+ */
+export const SubnetPoolUtilization = z.preprocess(
+  processResponseBody,
+  z.object({ allocated: z.number(), capacity: z.number() })
 )
 
 export const SupportBundleCreate = z.preprocess(
@@ -5585,6 +5824,89 @@ export const DiskFinalizeImportParams = z.preprocess(
   })
 )
 
+export const ExternalSubnetListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const ExternalSubnetCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      project: NameOrId,
+    }),
+  })
+)
+
+export const ExternalSubnetViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      externalSubnet: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const ExternalSubnetUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      externalSubnet: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const ExternalSubnetDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      externalSubnet: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const ExternalSubnetAttachParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      externalSubnet: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const ExternalSubnetDetachParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      externalSubnet: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
 export const FloatingIpListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -5920,6 +6242,7 @@ export const InstanceEphemeralIpDetachParams = z.preprocess(
       instance: NameOrId,
     }),
     query: z.object({
+      ipVersion: IpVersion.optional(),
       project: NameOrId.optional(),
     }),
   })
@@ -6626,6 +6949,28 @@ export const RackListParams = z.preprocess(
 )
 
 export const RackViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      rackId: z.uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const RackMembershipStatusParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      rackId: z.uuid(),
+    }),
+    query: z.object({
+      version: RackMembershipVersion.optional(),
+    }),
+  })
+)
+
+export const RackMembershipAddSledsParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -7525,6 +7870,146 @@ export const SiloQuotasUpdateParams = z.preprocess(
   z.object({
     path: z.object({
       silo: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SubnetPoolListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const SubnetPoolCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const SubnetPoolViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SubnetPoolUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SubnetPoolDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SubnetPoolMemberListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const SubnetPoolMemberAddParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SubnetPoolMemberRemoveParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SubnetPoolSiloListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const SubnetPoolSiloLinkParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SubnetPoolSiloUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+      silo: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SubnetPoolSiloUnlinkParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+      silo: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SubnetPoolUtilizationViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
     }),
     query: z.object({}),
   })

@@ -431,6 +431,56 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/external-subnets` */
+  externalSubnetList: (params: {
+    query: Api.ExternalSubnetListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ExternalSubnetResultsPage>>
+  /** `POST /v1/external-subnets` */
+  externalSubnetCreate: (params: {
+    query: Api.ExternalSubnetCreateQueryParams
+    body: Json<Api.ExternalSubnetCreate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ExternalSubnet>>
+  /** `GET /v1/external-subnets/:externalSubnet` */
+  externalSubnetView: (params: {
+    path: Api.ExternalSubnetViewPathParams
+    query: Api.ExternalSubnetViewQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ExternalSubnet>>
+  /** `PUT /v1/external-subnets/:externalSubnet` */
+  externalSubnetUpdate: (params: {
+    path: Api.ExternalSubnetUpdatePathParams
+    query: Api.ExternalSubnetUpdateQueryParams
+    body: Json<Api.ExternalSubnetUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ExternalSubnet>>
+  /** `DELETE /v1/external-subnets/:externalSubnet` */
+  externalSubnetDelete: (params: {
+    path: Api.ExternalSubnetDeletePathParams
+    query: Api.ExternalSubnetDeleteQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `POST /v1/external-subnets/:externalSubnet/attach` */
+  externalSubnetAttach: (params: {
+    path: Api.ExternalSubnetAttachPathParams
+    query: Api.ExternalSubnetAttachQueryParams
+    body: Json<Api.ExternalSubnetAttach>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ExternalSubnet>>
+  /** `POST /v1/external-subnets/:externalSubnet/detach` */
+  externalSubnetDetach: (params: {
+    path: Api.ExternalSubnetDetachPathParams
+    query: Api.ExternalSubnetDetachQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ExternalSubnet>>
   /** `GET /v1/floating-ips` */
   floatingIpList: (params: {
     query: Api.FloatingIpListQueryParams
@@ -1015,6 +1065,20 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.Rack>>
+  /** `GET /v1/system/hardware/racks/:rackId/membership` */
+  rackMembershipStatus: (params: {
+    path: Api.RackMembershipStatusPathParams
+    query: Api.RackMembershipStatusQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.RackMembershipStatus>>
+  /** `POST /v1/system/hardware/racks/:rackId/membership/add` */
+  rackMembershipAddSleds: (params: {
+    path: Api.RackMembershipAddSledsPathParams
+    body: Json<Api.RackMembershipAddSledsRequest>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.RackMembershipStatus>>
   /** `GET /v1/system/hardware/sleds` */
   sledList: (params: {
     query: Api.SledListQueryParams
@@ -1548,6 +1612,91 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.SiloQuotas>>
+  /** `GET /v1/system/subnet-pools` */
+  subnetPoolList: (params: {
+    query: Api.SubnetPoolListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SubnetPoolResultsPage>>
+  /** `POST /v1/system/subnet-pools` */
+  subnetPoolCreate: (params: {
+    body: Json<Api.SubnetPoolCreate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SubnetPool>>
+  /** `GET /v1/system/subnet-pools/:pool` */
+  subnetPoolView: (params: {
+    path: Api.SubnetPoolViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SubnetPool>>
+  /** `PUT /v1/system/subnet-pools/:pool` */
+  subnetPoolUpdate: (params: {
+    path: Api.SubnetPoolUpdatePathParams
+    body: Json<Api.SubnetPoolUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SubnetPool>>
+  /** `DELETE /v1/system/subnet-pools/:pool` */
+  subnetPoolDelete: (params: {
+    path: Api.SubnetPoolDeletePathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/system/subnet-pools/:pool/members` */
+  subnetPoolMemberList: (params: {
+    path: Api.SubnetPoolMemberListPathParams
+    query: Api.SubnetPoolMemberListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SubnetPoolMemberResultsPage>>
+  /** `POST /v1/system/subnet-pools/:pool/members/add` */
+  subnetPoolMemberAdd: (params: {
+    path: Api.SubnetPoolMemberAddPathParams
+    body: Json<Api.SubnetPoolMemberAdd>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SubnetPoolMember>>
+  /** `POST /v1/system/subnet-pools/:pool/members/remove` */
+  subnetPoolMemberRemove: (params: {
+    path: Api.SubnetPoolMemberRemovePathParams
+    body: Json<Api.SubnetPoolMemberRemove>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/system/subnet-pools/:pool/silos` */
+  subnetPoolSiloList: (params: {
+    path: Api.SubnetPoolSiloListPathParams
+    query: Api.SubnetPoolSiloListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SubnetPoolSiloLinkResultsPage>>
+  /** `POST /v1/system/subnet-pools/:pool/silos` */
+  subnetPoolSiloLink: (params: {
+    path: Api.SubnetPoolSiloLinkPathParams
+    body: Json<Api.SubnetPoolLinkSilo>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SubnetPoolSiloLink>>
+  /** `PUT /v1/system/subnet-pools/:pool/silos/:silo` */
+  subnetPoolSiloUpdate: (params: {
+    path: Api.SubnetPoolSiloUpdatePathParams
+    body: Json<Api.SubnetPoolSiloUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SubnetPoolSiloLink>>
+  /** `DELETE /v1/system/subnet-pools/:pool/silos/:silo` */
+  subnetPoolSiloUnlink: (params: {
+    path: Api.SubnetPoolSiloUnlinkPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/system/subnet-pools/:pool/utilization` */
+  subnetPoolUtilizationView: (params: {
+    path: Api.SubnetPoolUtilizationViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SubnetPoolUtilization>>
   /** `POST /v1/system/timeseries/query` */
   systemTimeseriesQuery: (params: {
     body: Json<Api.TimeseriesQuery>
@@ -2297,6 +2446,46 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       )
     ),
     http.get(
+      '/v1/external-subnets',
+      handler(handlers['externalSubnetList'], schema.ExternalSubnetListParams, null)
+    ),
+    http.post(
+      '/v1/external-subnets',
+      handler(
+        handlers['externalSubnetCreate'],
+        schema.ExternalSubnetCreateParams,
+        schema.ExternalSubnetCreate
+      )
+    ),
+    http.get(
+      '/v1/external-subnets/:externalSubnet',
+      handler(handlers['externalSubnetView'], schema.ExternalSubnetViewParams, null)
+    ),
+    http.put(
+      '/v1/external-subnets/:externalSubnet',
+      handler(
+        handlers['externalSubnetUpdate'],
+        schema.ExternalSubnetUpdateParams,
+        schema.ExternalSubnetUpdate
+      )
+    ),
+    http.delete(
+      '/v1/external-subnets/:externalSubnet',
+      handler(handlers['externalSubnetDelete'], schema.ExternalSubnetDeleteParams, null)
+    ),
+    http.post(
+      '/v1/external-subnets/:externalSubnet/attach',
+      handler(
+        handlers['externalSubnetAttach'],
+        schema.ExternalSubnetAttachParams,
+        schema.ExternalSubnetAttach
+      )
+    ),
+    http.post(
+      '/v1/external-subnets/:externalSubnet/detach',
+      handler(handlers['externalSubnetDetach'], schema.ExternalSubnetDetachParams, null)
+    ),
+    http.get(
       '/v1/floating-ips',
       handler(handlers['floatingIpList'], schema.FloatingIpListParams, null)
     ),
@@ -2772,6 +2961,18 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['rackView'], schema.RackViewParams, null)
     ),
     http.get(
+      '/v1/system/hardware/racks/:rackId/membership',
+      handler(handlers['rackMembershipStatus'], schema.RackMembershipStatusParams, null)
+    ),
+    http.post(
+      '/v1/system/hardware/racks/:rackId/membership/add',
+      handler(
+        handlers['rackMembershipAddSleds'],
+        schema.RackMembershipAddSledsParams,
+        schema.RackMembershipAddSledsRequest
+      )
+    ),
+    http.get(
       '/v1/system/hardware/sleds',
       handler(handlers['sledList'], schema.SledListParams, null)
     ),
@@ -3239,6 +3440,82 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         handlers['siloQuotasUpdate'],
         schema.SiloQuotasUpdateParams,
         schema.SiloQuotasUpdate
+      )
+    ),
+    http.get(
+      '/v1/system/subnet-pools',
+      handler(handlers['subnetPoolList'], schema.SubnetPoolListParams, null)
+    ),
+    http.post(
+      '/v1/system/subnet-pools',
+      handler(handlers['subnetPoolCreate'], null, schema.SubnetPoolCreate)
+    ),
+    http.get(
+      '/v1/system/subnet-pools/:pool',
+      handler(handlers['subnetPoolView'], schema.SubnetPoolViewParams, null)
+    ),
+    http.put(
+      '/v1/system/subnet-pools/:pool',
+      handler(
+        handlers['subnetPoolUpdate'],
+        schema.SubnetPoolUpdateParams,
+        schema.SubnetPoolUpdate
+      )
+    ),
+    http.delete(
+      '/v1/system/subnet-pools/:pool',
+      handler(handlers['subnetPoolDelete'], schema.SubnetPoolDeleteParams, null)
+    ),
+    http.get(
+      '/v1/system/subnet-pools/:pool/members',
+      handler(handlers['subnetPoolMemberList'], schema.SubnetPoolMemberListParams, null)
+    ),
+    http.post(
+      '/v1/system/subnet-pools/:pool/members/add',
+      handler(
+        handlers['subnetPoolMemberAdd'],
+        schema.SubnetPoolMemberAddParams,
+        schema.SubnetPoolMemberAdd
+      )
+    ),
+    http.post(
+      '/v1/system/subnet-pools/:pool/members/remove',
+      handler(
+        handlers['subnetPoolMemberRemove'],
+        schema.SubnetPoolMemberRemoveParams,
+        schema.SubnetPoolMemberRemove
+      )
+    ),
+    http.get(
+      '/v1/system/subnet-pools/:pool/silos',
+      handler(handlers['subnetPoolSiloList'], schema.SubnetPoolSiloListParams, null)
+    ),
+    http.post(
+      '/v1/system/subnet-pools/:pool/silos',
+      handler(
+        handlers['subnetPoolSiloLink'],
+        schema.SubnetPoolSiloLinkParams,
+        schema.SubnetPoolLinkSilo
+      )
+    ),
+    http.put(
+      '/v1/system/subnet-pools/:pool/silos/:silo',
+      handler(
+        handlers['subnetPoolSiloUpdate'],
+        schema.SubnetPoolSiloUpdateParams,
+        schema.SubnetPoolSiloUpdate
+      )
+    ),
+    http.delete(
+      '/v1/system/subnet-pools/:pool/silos/:silo',
+      handler(handlers['subnetPoolSiloUnlink'], schema.SubnetPoolSiloUnlinkParams, null)
+    ),
+    http.get(
+      '/v1/system/subnet-pools/:pool/utilization',
+      handler(
+        handlers['subnetPoolUtilizationView'],
+        schema.SubnetPoolUtilizationViewParams,
+        null
       )
     ),
     http.post(
