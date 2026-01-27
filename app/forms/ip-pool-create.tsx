@@ -69,13 +69,13 @@ export default function CreateIpPoolSideModalForm() {
         column
         control={form.control}
         items={[
-          { value: 'v4', label: 'IPv4' },
-          { value: 'v6', label: 'IPv6' },
+          { value: 'v4', label: 'v4' },
+          { value: 'v6', label: 'v6' },
         ]}
       />
       <RadioField
         name="poolType"
-        label="Pool type"
+        label="Type"
         column
         control={form.control}
         items={[

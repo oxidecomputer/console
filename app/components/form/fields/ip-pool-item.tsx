@@ -8,6 +8,7 @@
 import { Badge } from '@oxide/design-system/ui'
 
 import type { SiloIpPool } from '~/api'
+import { IpVersionBadge } from '~/components/IpVersionBadge'
 
 export function toIpPoolItem(p: SiloIpPool) {
   const value = p.name
@@ -21,9 +22,7 @@ export function toIpPoolItem(p: SiloIpPool) {
             default
           </Badge>
         )}
-        <Badge className="ml-1.5" color="neutral">
-          {p.ipVersion}
-        </Badge>
+        <IpVersionBadge ipVersion={p.ipVersion} className="ml-1.5" />
       </div>
       {!!p.description && (
         <div className="text-secondary selected:text-accent-secondary">{p.description}</div>

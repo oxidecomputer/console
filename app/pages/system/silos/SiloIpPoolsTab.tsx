@@ -18,6 +18,7 @@ import { Badge } from '@oxide/design-system/ui'
 
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
+import { IpVersionBadge } from '~/components/IpVersionBadge'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
@@ -74,16 +75,21 @@ export default function SiloIpPoolsTab() {
 
   const staticCols = useMemo(
     () => [
-      colHelper.accessor('name', { cell: makeLinkCell((pool) => pb.ipPool({ pool })) }),
+      colHelper.accessor('name', {
+        cell: (info) => {
+          const LinkCell = makeLinkCell((pool) => pb.ipPool({ pool }))
+          return (
+            <div className="relative flex items-center gap-1">
+              <LinkCell {...info} />
+              {info.row.original.isDefault && <Badge className="relative">default</Badge>}
+            </div>
+          )
+        },
+      }),
       colHelper.accessor('description', Columns.description),
       colHelper.accessor('ipVersion', {
-        header: 'IP Version',
-        cell: (info) => (
-          <>
-            <Badge color="neutral">{info.getValue()}</Badge>
-            {info.row.original.isDefault && <Badge className="ml-1">default</Badge>}
-          </>
-        ),
+        header: 'Version',
+        cell: (info) => <IpVersionBadge ipVersion={info.getValue()} />,
       }),
       colHelper.accessor('poolType', {
         header: 'Type',

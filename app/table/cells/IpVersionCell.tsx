@@ -7,9 +7,8 @@
  */
 import { useQuery } from '@tanstack/react-query'
 
-import { Badge } from '@oxide/design-system/ui'
-
 import { api, qErrorsAllowed } from '~/api'
+import { IpVersionBadge } from '~/components/IpVersionBadge'
 
 import { EmptyCell, SkeletonCell } from './EmptyCell'
 
@@ -20,5 +19,5 @@ export const IpVersionCell = ({ ipPoolId }: { ipPoolId: string }) => {
   if (!result) return <SkeletonCell />
   if (result.type === 'error') return <EmptyCell />
   const pool = result.data
-  return <Badge color="neutral">{pool.ipVersion}</Badge>
+  return <IpVersionBadge ipVersion={pool.ipVersion} />
 }

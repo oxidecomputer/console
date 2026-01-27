@@ -163,13 +163,28 @@ const staticCols = [
       if (ipStack.type === 'dual_stack') {
         return (
           <div className="flex flex-col gap-0.5">
-            <CopyableIp ip={ipStack.value.v4.ip} isLinked={false} />
-            <CopyableIp ip={ipStack.value.v6.ip} isLinked={false} />
+            <div className="flex gap-0.5">
+              <Badge color="neutral" className="shrink-0">
+                v4
+              </Badge>
+              <CopyableIp ip={ipStack.value.v4.ip} isLinked={false} />
+            </div>
+            <div className="flex gap-0.5">
+              <Badge color="neutral" className="shrink-0">
+                v6
+              </Badge>
+              <CopyableIp ip={ipStack.value.v6.ip} isLinked={false} />
+            </div>
           </div>
         )
       }
 
-      return <CopyableIp ip={ipStack.value.ip} isLinked={false} />
+      return (
+        <div className="flex gap-0.5">
+          <Badge color="neutral">{ipStack.type}</Badge>
+          <CopyableIp ip={ipStack.value.ip} isLinked={false} />
+        </div>
+      )
     },
   }),
   colHelper.accessor('ipStack.value', {
