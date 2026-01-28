@@ -66,10 +66,17 @@ export function NetworkInterfaceField({
           }}
           disabled={disabled}
         >
-          <Radio value="default_dual_stack">Default IPv4 & IPv6</Radio>
+          {/*
+              Pre-selected default based on available IP pools, set in instance-create.
+              If both v4 and v6, default_dual_stack will be selected.
+              If only v4, default_ipv4 will be selected.
+              If only v6, default_ipv6 will be selected.
+          */}
           <Radio value="default_ipv4">Default IPv4</Radio>
           <Radio value="default_ipv6">Default IPv6</Radio>
+          <Radio value="default_dual_stack">Default IPv4 & IPv6</Radio>
           <Radio value="none">None</Radio>
+          {/* Custom follows None because of `Add network interface` button and table */}
           <Radio value="create">Custom</Radio>
         </RadioGroup>
         {value.type === 'create' && (

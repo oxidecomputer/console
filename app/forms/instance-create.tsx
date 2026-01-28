@@ -164,7 +164,7 @@ const baseDefaultValues: InstanceCreateInput = {
   diskSource: '',
 
   otherDisks: [],
-  networkInterfaces: { type: 'default_dual_stack' },
+  networkInterfaces: { type: 'default_ipv4' },
 
   sshPublicKeys: [],
 
@@ -188,6 +188,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     queryClient.prefetchQuery(
       q(api.floatingIpList, { query: { project, limit: ALL_ISH } })
     ),
+    queryClient.prefetchQuery(q(api.vpcList, { query: { project, limit: ALL_ISH } })),
   ])
   return null
 }
@@ -250,11 +251,30 @@ export default function CreateInstanceForm() {
   // Use default version if available; fall back to v4
   const ephemeralIpVersion: IpVersion = hasV4Default ? 'v4' : hasV6Default ? 'v6' : 'v4'
 
+  // Check if VPCs exist to determine default network interface type
+  const { data: vpcs } = usePrefetchedQuery(
+    q(api.vpcList, { query: { project, limit: ALL_ISH } })
+  )
+  const hasVpcs = vpcs.items.length > 0
+
+  // Determine default network interface type:
+  // - If VPCs exist: default to IPv4 (or IPv6 if only v6 default pool exists, or dual-stack if both)
+  // - If no VPCs exist: default to 'none' (user must create VPC first or use custom NICs)
+  const defaultNetworkInterfaceType: InstanceCreateInput['networkInterfaces']['type'] =
+    hasVpcs
+      ? hasV4Default && hasV6Default
+        ? 'default_dual_stack'
+        : hasV6Default && !hasV4Default
+          ? 'default_ipv6'
+          : 'default_ipv4'
+      : 'none'
+
   const defaultSource =
     siloImages.length > 0 ? 'siloImage' : projectImages.length > 0 ? 'projectImage' : 'disk'
 
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
+    networkInterfaces: { type: defaultNetworkInterfaceType },
     bootDiskSourceType: defaultSource,
     sshPublicKeys: allKeys,
     bootDiskSize: diskSizeNearest10(defaultImage?.size / GiB),
