@@ -534,12 +534,34 @@ export const handlers = makeHandlers({
 
     // validate floating IP attachments before we actually do anything
     // Determine what IP stacks the instance will have based on network interfaces
-    const hasIpv4Nic =
-      body.network_interfaces?.type === 'default_ipv4' ||
-      body.network_interfaces?.type === 'default_dual_stack'
-    const hasIpv6Nic =
-      body.network_interfaces?.type === 'default_ipv6' ||
-      body.network_interfaces?.type === 'default_dual_stack'
+    let hasIpv4Nic = false
+    let hasIpv6Nic = false
+
+    const nicType = body.network_interfaces?.type
+    if (nicType === 'default_ipv4') {
+      hasIpv4Nic = true
+    } else if (nicType === 'default_ipv6') {
+      hasIpv6Nic = true
+    } else if (nicType === 'default_dual_stack') {
+      hasIpv4Nic = true
+      hasIpv6Nic = true
+    } else if (nicType === 'create' && body.network_interfaces) {
+      // Derive from the first NIC's ip_config (first NIC becomes primary)
+      const primaryNicConfig = body.network_interfaces.params[0]?.ip_config
+      if (primaryNicConfig?.type === 'v4') {
+        hasIpv4Nic = true
+      } else if (primaryNicConfig?.type === 'v6') {
+        hasIpv6Nic = true
+      } else if (primaryNicConfig?.type === 'dual_stack') {
+        hasIpv4Nic = true
+        hasIpv6Nic = true
+      } else {
+        // ip_config not provided = defaults to dual-stack
+        hasIpv4Nic = true
+        hasIpv6Nic = true
+      }
+    }
+    // If nicType is 'none' or undefined, both remain false
 
     body.external_ips?.forEach((ip) => {
       if (ip.type === 'floating') {
