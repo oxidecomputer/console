@@ -17,6 +17,8 @@ import type {
   DiskType,
   Instance,
   InstanceState,
+  IpPoolType,
+  IpVersion,
   Measurement,
   SiloUtilization,
   Sled,
@@ -91,6 +93,35 @@ export const genName = (...parts: [string, ...string[]]) => {
       // generate random hex string of 6 characters
       .concat(`-${Math.random().toString(16).substring(2, 8)}`)
   )
+}
+
+/**
+ * Filter IP pools by compatible IP versions and pool type.
+ *
+ * @param pools - Array of IP pools to filter
+ * @param compatibleVersions - Optional array of compatible IP versions (v4/v6).
+ *                             If undefined, all versions are considered compatible.
+ *                             If empty array, no pools are compatible.
+ * @param poolType - Optional pool type filter (unicast/multicast).
+ *                   If undefined, all pool types are included.
+ * @returns Filtered array of pools matching the compatibility criteria
+ */
+export function getCompatiblePools<
+  T extends { ipVersion: IpVersion; poolType: IpPoolType },
+>(pools: T[], compatibleVersions?: IpVersion[], poolType?: IpPoolType): T[] {
+  return pools.filter((pool) => {
+    // Filter by pool type if specified
+    if (poolType !== undefined && pool.poolType !== poolType) {
+      return false
+    }
+
+    // Filter by compatible IP versions if specified
+    if (compatibleVersions !== undefined && !compatibleVersions.includes(pool.ipVersion)) {
+      return false
+    }
+
+    return true
+  })
 }
 
 const instanceActions = {

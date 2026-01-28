@@ -8,7 +8,7 @@
 import { useEffect } from 'react'
 import type { Control, UseFormSetValue } from 'react-hook-form'
 
-import type { IpVersion, SiloIpPool } from '@oxide/api'
+import { getCompatiblePools, type IpVersion, type SiloIpPool } from '@oxide/api'
 
 import { toIpPoolItem } from './ip-pool-item'
 import { ListboxField } from './ListboxField'
@@ -40,10 +40,8 @@ export function IpPoolSelector({
   disabled = false,
   compatibleVersions,
 }: IpPoolSelectorProps) {
-  // Filter pools by compatible versions
-  const filteredPools = compatibleVersions
-    ? pools.filter((p) => compatibleVersions.includes(p.ipVersion))
-    : pools
+  // Note: pools are already filtered by poolType before being passed to this component
+  const filteredPools = getCompatiblePools(pools, compatibleVersions)
 
   // Sort pools: v4 default first, then v6 default, then others alphabetically
   const sortedPools = [...filteredPools].sort((a, b) => {

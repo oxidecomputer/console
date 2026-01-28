@@ -11,6 +11,7 @@ import { useForm } from 'react-hook-form'
 
 import {
   api,
+  getCompatiblePools,
   q,
   queryClient,
   useApiMutation,
@@ -36,12 +37,8 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
   // Only unicast pools can be used for ephemeral IPs
   const unicastPools = useMemo(() => {
     if (!siloPools) return []
-    return siloPools.items.filter((p) => p.poolType === 'unicast')
+    return getCompatiblePools(siloPools.items, undefined, 'unicast')
   }, [siloPools])
-
-  const hasDefaultUnicastPool = useMemo(() => {
-    return unicastPools.some((p) => p.isDefault)
-  }, [unicastPools])
 
   // Determine compatible IP versions based on instance's primary network interface
   // External IPs route through the primary interface, so only its IP stack matters
@@ -65,6 +62,15 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
     }
     return versions
   }, [nics])
+
+  // Filter unicast pools by compatible IP versions
+  const compatibleUnicastPools = useMemo(() => {
+    return getCompatiblePools(unicastPools, compatibleVersions)
+  }, [unicastPools, compatibleVersions])
+
+  const hasDefaultCompatiblePool = useMemo(() => {
+    return compatibleUnicastPools.some((p) => p.isDefault)
+  }, [compatibleUnicastPools])
 
   const instanceEphemeralIpAttach = useApiMutation(api.instanceEphemeralIpAttach, {
     onSuccess(ephemeralIp) {
@@ -100,9 +106,11 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
     if (compatibleVersions && compatibleVersions.length === 0) {
       return 'Instance has no network interfaces with compatible IP stacks'
     }
-    if (unicastPools.length === 0) return 'No unicast pools available'
-    if (!pool && !hasDefaultUnicastPool) {
-      return 'No default pool available; select a pool to continue'
+    if (compatibleUnicastPools.length === 0) {
+      return 'No compatible unicast pools available for this instance'
+    }
+    if (!pool && !hasDefaultCompatiblePool) {
+      return 'No default compatible pool available; select a pool to continue'
     }
     return undefined
   }
@@ -116,10 +124,10 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
               control={form.control}
               poolFieldName="pool"
               ipVersionFieldName="ipVersion"
-              pools={unicastPools}
+              pools={compatibleUnicastPools}
               currentPool={pool}
               setValue={form.setValue}
-              disabled={unicastPools.length === 0}
+              disabled={compatibleUnicastPools.length === 0}
               compatibleVersions={compatibleVersions}
             />
           </form>
@@ -131,16 +139,20 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
           !siloPools ||
           !nics ||
           (compatibleVersions && compatibleVersions.length === 0) ||
-          unicastPools.length === 0 ||
-          (!pool && !hasDefaultUnicastPool)
+          compatibleUnicastPools.length === 0 ||
+          (!pool && !hasDefaultCompatiblePool)
         }
         disabledReason={getDisabledReason()}
         onAction={() => {
-          // When using default pool, derive ipVersion from available defaults
+          // When using default pool, derive ipVersion from available compatible defaults
           let effectiveIpVersion = ipVersion
           if (!pool) {
-            const v4Default = unicastPools.find((p) => p.isDefault && p.ipVersion === 'v4')
-            const v6Default = unicastPools.find((p) => p.isDefault && p.ipVersion === 'v6')
+            const v4Default = compatibleUnicastPools.find(
+              (p) => p.isDefault && p.ipVersion === 'v4'
+            )
+            const v6Default = compatibleUnicastPools.find(
+              (p) => p.isDefault && p.ipVersion === 'v6'
+            )
 
             // If only one default exists, use that version
             if (v4Default && !v6Default) {

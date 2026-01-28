@@ -21,6 +21,7 @@ import {
   api,
   diskCan,
   genName,
+  getCompatiblePools,
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
   q,
@@ -238,7 +239,7 @@ export default function CreateInstanceForm() {
 
   // Only unicast pools can be used for ephemeral IPs
   const unicastPools = useMemo(
-    () => siloPools?.items.filter((p) => p.poolType === 'unicast') || [],
+    () => getCompatiblePools(siloPools?.items || [], undefined, 'unicast'),
     [siloPools]
   )
 
@@ -849,22 +850,29 @@ const AdvancedAccordion = ({
     return versions
   }, [networkInterfaces])
 
+  // Filter unicast pools by compatible IP versions
+  const compatibleUnicastPools = useMemo(() => {
+    return getCompatiblePools(unicastPools, compatibleVersions)
+  }, [unicastPools, compatibleVersions])
+
   // Track previous compatible NICs state to detect transitions
   const prevHasNicsRef = useRef<boolean | undefined>(undefined)
 
-  // Automatically manage ephemeral IP based on NIC availability
+  // Automatically manage ephemeral IP based on NIC and pool availability
   useEffect(() => {
     const hasNics = compatibleVersions && compatibleVersions.length > 0
+    const hasPools = compatibleUnicastPools.length > 0
+    const canAttach = hasNics && hasPools
     const prevHasNics = prevHasNicsRef.current
 
-    if (!hasNics && assignEphemeralIp) {
-      // Remove ephemeral IP when there are no compatible NICs
+    if (!canAttach && assignEphemeralIp) {
+      // Remove ephemeral IP when there are no compatible NICs or pools
       const newExternalIps = externalIps.field.value?.filter(
         (ip) => ip.type !== 'ephemeral'
       )
       externalIps.field.onChange(newExternalIps)
-    } else if (hasNics && !prevHasNics && !assignEphemeralIp) {
-      // Add ephemeral IP only when transitioning from no NICs to having NICs
+    } else if (canAttach && !prevHasNics && !assignEphemeralIp) {
+      // Add ephemeral IP only when transitioning from no NICs/pools to having both
       // (prevHasNics === false means we had no NICs before)
       externalIps.field.onChange([
         ...(externalIps.field.value || []),
@@ -873,7 +881,7 @@ const AdvancedAccordion = ({
     }
 
     prevHasNicsRef.current = hasNics
-  }, [compatibleVersions, assignEphemeralIp, externalIps])
+  }, [compatibleVersions, compatibleUnicastPools, assignEphemeralIp, externalIps])
 
   // Update ephemeralIpVersion when compatibleVersions changes
   useEffect(() => {
@@ -951,21 +959,35 @@ const AdvancedAccordion = ({
 
           {(() => {
             const hasCompatibleNics = compatibleVersions && compatibleVersions.length > 0
-            const disabledReason = hasCompatibleNics ? undefined : (
-              <>
-                Add a compatible network interface
-                <br />
-                to attach an ephemeral IP address
-              </>
-            )
+            const hasCompatiblePools = compatibleUnicastPools.length > 0
+            const canAttachEphemeralIp = hasCompatibleNics && hasCompatiblePools
+
+            let disabledReason: React.ReactNode = undefined
+            if (!hasCompatibleNics) {
+              disabledReason = (
+                <>
+                  Add a compatible network interface
+                  <br />
+                  to attach an ephemeral IP address
+                </>
+              )
+            } else if (!hasCompatiblePools) {
+              disabledReason = (
+                <>
+                  No compatible IP pools available
+                  <br />
+                  for this network interface type
+                </>
+              )
+            }
 
             return (
               <>
                 <Wrap when={!!disabledReason} with={<Tooltip content={disabledReason} />}>
                   <Checkbox
                     id="assignEphemeralIp"
-                    checked={hasCompatibleNics && assignEphemeralIp}
-                    disabled={!hasCompatibleNics}
+                    checked={canAttachEphemeralIp && assignEphemeralIp}
+                    disabled={!canAttachEphemeralIp}
                     onChange={() => {
                       const newExternalIps = assignEphemeralIp
                         ? externalIps.field.value?.filter((ip) => ip.type !== 'ephemeral')
@@ -982,7 +1004,7 @@ const AdvancedAccordion = ({
                     control={control}
                     poolFieldName="ephemeralIpPool"
                     ipVersionFieldName="ephemeralIpVersion"
-                    pools={unicastPools}
+                    pools={compatibleUnicastPools}
                     currentPool={ephemeralIpPool}
                     setValue={setValue}
                     disabled={isSubmitting}
