@@ -319,6 +319,8 @@ test('add ssh key from instance create form', async ({ page }) => {
   // pop over to the real SSH keys page and see it there, why not
   await page.getByLabel('User menu').click()
   await page.getByRole('menuitem', { name: 'Settings' }).click()
+  // Confirm navigation away from the form with unsaved changes
+  await page.getByRole('button', { name: 'Leave this page' }).click()
   await page.getByRole('link', { name: 'SSH Keys' }).click()
   await expectRowVisible(page.getByRole('table'), { name: newKey, description: 'hi' })
 })
