@@ -64,7 +64,8 @@ export function IpPoolSelector({
   // Set default pool selection on mount if none selected, or if current pool is no longer valid
   useEffect(() => {
     if (sortedPools.length > 0) {
-      const currentPoolValid = currentPool && sortedPools.some((p) => p.name === currentPool)
+      const currentPoolValid =
+        currentPool && sortedPools.some((p) => p.name === currentPool)
 
       if (!currentPoolValid) {
         // Use the first pool in the sorted list (which will be a default if one exists)
