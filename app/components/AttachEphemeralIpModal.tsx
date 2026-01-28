@@ -34,12 +34,6 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
     q(api.instanceNetworkInterfaceList, { query: { project, instance } })
   )
 
-  // Only unicast pools can be used for ephemeral IPs
-  const unicastPools = useMemo(() => {
-    if (!siloPools) return []
-    return getCompatiblePools(siloPools.items, undefined, 'unicast')
-  }, [siloPools])
-
   // Determine compatible IP versions based on instance's primary network interface
   // External IPs route through the primary interface, so only its IP stack matters
   // https://github.com/oxidecomputer/omicron/blob/d52aad0/nexus/db-queries/src/db/datastore/external_ip.rs#L544-L661
@@ -50,7 +44,6 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
     const nicItems = nics.items
     const primaryNic = nicItems.find((nic) => nic.primary)
 
-    // If no primary NIC found (defensive), return empty array
     if (!primaryNic) return []
 
     const versions: IpVersion[] = []
@@ -63,10 +56,11 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
     return versions
   }, [nics])
 
-  // Filter unicast pools by compatible IP versions
+  // Only unicast pools can be used for ephemeral IPs
   const compatibleUnicastPools = useMemo(() => {
-    return getCompatiblePools(unicastPools, compatibleVersions)
-  }, [unicastPools, compatibleVersions])
+    if (!siloPools) return []
+    return getCompatiblePools(siloPools.items, compatibleVersions, 'unicast')
+  }, [siloPools, compatibleVersions])
 
   const hasDefaultCompatiblePool = useMemo(() => {
     return compatibleUnicastPools.some((p) => p.isDefault)
@@ -132,7 +126,6 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
   ])
 
   const getEffectiveIpVersion = useCallback(() => {
-    // If explicit pool selected, use form's ipVersion
     if (pool) return ipVersion
 
     const v4Default = compatibleUnicastPools.find(
@@ -142,11 +135,9 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
       (p) => p.isDefault && p.ipVersion === 'v6'
     )
 
-    // If only one default exists, use that version
     if (v4Default && !v6Default) return 'v4'
     if (v6Default && !v4Default) return 'v6'
 
-    // If both exist, use form's ipVersion (user's choice)
     return ipVersion
   }, [pool, ipVersion, compatibleUnicastPools])
 

@@ -41,18 +41,14 @@ export function IpPoolSelector({
   compatibleVersions,
 }: IpPoolSelectorProps) {
   // Note: pools are already filtered by poolType before being passed to this component
-  // Filter by compatible versions and sort in one pass
   const sortedPools = useMemo(() => {
     return getCompatiblePools(pools, compatibleVersions).sort((a, b) => {
-      // v4 default goes first
       if (a.isDefault && a.ipVersion === 'v4') return -1
       if (b.isDefault && b.ipVersion === 'v4') return 1
 
-      // v6 default goes second
       if (a.isDefault && a.ipVersion === 'v6') return -1
       if (b.isDefault && b.ipVersion === 'v6') return 1
 
-      // All others sorted alphabetically by name
       return a.name.localeCompare(b.name)
     })
   }, [pools, compatibleVersions])
