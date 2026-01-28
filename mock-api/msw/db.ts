@@ -93,6 +93,22 @@ export const resolvePoolSelector = (
     return true
   })
 
+  // Enforce API requirement: when type is 'auto' and ip_version is unset,
+  // reject if multiple default pools exist (ambiguous)
+  if (
+    poolSelector?.type === 'auto' &&
+    !poolSelector.ip_version &&
+    candidateLinks.length > 1
+  ) {
+    throw json(
+      {
+        error_code: 'InvalidRequest',
+        message: 'ip_version required when multiple default pools exist',
+      },
+      { status: 400 }
+    )
+  }
+
   const link = candidateLinks[0]
   if (!link) {
     const typeStr = poolType ? ` ${poolType}` : ''
