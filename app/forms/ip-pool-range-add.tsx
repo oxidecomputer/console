@@ -88,7 +88,6 @@ export default function IpPoolAddRange() {
   const navigate = useNavigate()
 
   const { data: poolData } = usePrefetchedQuery(q(api.ipPoolView, { path: { pool } }))
-  const poolVersion = poolData.ipVersion
 
   const onDismiss = () => navigate(pb.ipPool({ pool }))
 
@@ -102,7 +101,12 @@ export default function IpPoolAddRange() {
     },
   })
 
+  // poolData can be undefined briefly; use v4 as fallback until data arrives
+  const poolVersion = poolData?.ipVersion || 'v4'
   const form = useForm({ defaultValues, resolver: createResolver(poolVersion) })
+
+  // Guard against undefined poolData during initial load
+  if (!poolData) return null
 
   return (
     <SideModalForm

@@ -67,9 +67,10 @@ export function IpPoolSelector({
       const currentPoolValid =
         currentPool && sortedPools.some((p) => p.name === currentPool)
 
-      if (!currentPoolValid) {
-        // Use the first pool in the sorted list (which will be a default if one exists)
-        const defaultPool = sortedPools[0]
+      // Only auto-select when there's an actual default pool
+      const defaultPool = sortedPools.find((p) => p.isDefault)
+
+      if (!currentPoolValid && defaultPool) {
         setValue(poolFieldName, defaultPool.name)
         setValue(ipVersionFieldName, defaultPool.ipVersion)
       }
