@@ -964,7 +964,6 @@ const AdvancedAccordion = ({
                     ipVersionFieldName="ephemeralIpVersion"
                     pools={unicastPools}
                     currentPool={ephemeralIpPool}
-                    currentIpVersion={ephemeralIpVersionField.field.value}
                     setValue={setValue}
                     disabled={isSubmitting}
                     compatibleVersions={compatibleVersions}

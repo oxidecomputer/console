@@ -29,23 +29,19 @@ test('can create a floating IP', async ({ page }) => {
     .fill('A description for this Floating IP')
 
   const advancedAccordion = page.getByRole('button', { name: 'Advanced' })
-  const poolRadio = page.getByRole('radio', { name: 'custom pool' })
-  const poolDropdown = page.getByLabel('IP pool')
+  const poolDropdown = page.getByLabel('Pool')
 
   // accordion content should be hidden
-  await expect(poolRadio).toBeHidden()
+  await expect(poolDropdown).toBeHidden()
 
   // open accordion
   await advancedAccordion.click()
 
-  // accordion content should be visible
-  await expect(poolRadio).toBeVisible()
-
-  // select custom pool radio button
-  await poolRadio.click()
-
-  // now the IP pool dropdown should be visible
+  // pool dropdown should now be visible
   await expect(poolDropdown).toBeVisible()
+
+  // Default pool should be selected (ip-pool-1 is the v4 default)
+  await expect(poolDropdown).toContainText('ip-pool-1')
 
   // choose pool and submit
   await poolDropdown.click()

@@ -149,9 +149,11 @@ test('Instance networking tab — Detach / Attach Ephemeral IPs', async ({ page 
   await attachEphemeralIpButton.click()
   modal = page.getByRole('dialog', { name: 'Attach ephemeral IP' })
   await expect(modal).toBeVisible()
-  // Select custom pool radio to show the dropdown
-  await page.getByRole('radio', { name: 'custom pool' }).click()
-  await page.getByRole('button', { name: 'IP pool' }).click()
+  // Pool dropdown should be visible
+  const poolDropdown = page.getByLabel('Pool')
+  await expect(poolDropdown).toBeVisible()
+  // Select a different pool
+  await poolDropdown.click()
   await page.getByRole('option', { name: 'ip-pool-2' }).click()
   await page.getByRole('button', { name: 'Attach', exact: true }).click()
   await expect(modal).toBeHidden()
@@ -333,15 +335,15 @@ test('IPv4-only instance cannot attach IPv6 ephemeral IP', async ({ page }) => {
   const modal = page.getByRole('dialog', { name: 'Attach ephemeral IP' })
   await expect(modal).toBeVisible()
 
-  // Verify that IPv6 default radio is NOT shown (filtered out by compatibility check)
-  await expect(page.getByRole('radio', { name: 'IPv6 default' })).toBeHidden()
+  // Pool dropdown should be visible
+  const poolDropdown = page.getByLabel('Pool')
+  await expect(poolDropdown).toBeVisible()
 
-  // Verify IPv4 default radio IS shown
-  await expect(page.getByRole('radio', { name: 'IPv4 default' })).toBeVisible()
+  // IPv4 default pool should be selected by default
+  await expect(poolDropdown).toContainText('ip-pool-1')
 
-  // Check custom pool - IPv6 pools should be filtered out
-  await page.getByRole('radio', { name: 'custom pool' }).click()
-  await page.getByRole('button', { name: 'IP pool' }).click()
+  // Check pool options - IPv6 pools should be filtered out
+  await poolDropdown.click()
 
   // ip-pool-2 is IPv6, should not appear
   await expect(page.getByRole('option', { name: 'ip-pool-2' })).toBeHidden()
@@ -381,15 +383,15 @@ test('IPv6-only instance cannot attach IPv4 ephemeral IP', async ({ page }) => {
   const modal = page.getByRole('dialog', { name: 'Attach ephemeral IP' })
   await expect(modal).toBeVisible()
 
-  // Verify that IPv4 default radio is NOT shown (filtered out by compatibility check)
-  await expect(page.getByRole('radio', { name: 'IPv4 default' })).toBeHidden()
+  // Pool dropdown should be visible
+  const poolDropdown = page.getByLabel('Pool')
+  await expect(poolDropdown).toBeVisible()
 
-  // Verify IPv6 default radio IS shown
-  await expect(page.getByRole('radio', { name: 'IPv6 default' })).toBeVisible()
+  // IPv6 default pool should be selected by default
+  await expect(poolDropdown).toContainText('ip-pool-2')
 
-  // Check custom pool - IPv4 pools should be filtered out
-  await page.getByRole('radio', { name: 'custom pool' }).click()
-  await page.getByRole('button', { name: 'IP pool' }).click()
+  // Check pool options - IPv4 pools should be filtered out
+  await poolDropdown.click()
 
   // ip-pool-1 is IPv4, should not appear
   await expect(page.getByRole('option', { name: 'ip-pool-1' })).toBeHidden()
@@ -471,9 +473,12 @@ test('IPv6-only instance can attach IPv6 ephemeral IP', async ({ page }) => {
   const modal = page.getByRole('dialog', { name: 'Attach ephemeral IP' })
   await expect(modal).toBeVisible()
 
+  // Pool dropdown should be visible
+  const poolDropdown = page.getByLabel('Pool')
+  await expect(poolDropdown).toBeVisible()
+
   // Select IPv6 pool (ip-pool-2)
-  await page.getByRole('radio', { name: 'custom pool' }).click()
-  await page.getByRole('button', { name: 'IP pool' }).click()
+  await poolDropdown.click()
   await page.getByRole('option', { name: 'ip-pool-2' }).click()
 
   await page.getByRole('button', { name: 'Attach', exact: true }).click()

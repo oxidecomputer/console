@@ -75,7 +75,6 @@ export default function CreateFloatingIpSideModalForm() {
 
   const form = useForm({ defaultValues })
   const pool = form.watch('pool')
-  const ipVersion = form.watch('ipVersion')
 
   const [openItems, setOpenItems] = useState<string[]>([])
 
@@ -138,7 +137,6 @@ export default function CreateFloatingIpSideModalForm() {
             ipVersionFieldName="ipVersion"
             pools={unicastPools}
             currentPool={pool}
-            currentIpVersion={ipVersion}
             setValue={form.setValue}
           />
         </AccordionItem>

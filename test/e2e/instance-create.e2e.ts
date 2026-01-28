@@ -75,29 +75,25 @@ test('can create an instance', async ({ page }) => {
   const checkbox = page.getByRole('checkbox', {
     name: 'Allocate and attach an ephemeral IP address',
   })
-  const customPoolRadio = page.getByRole('radio', { name: 'custom pool' })
-  const poolDropdown = page.getByLabel('IP pool')
+  const poolDropdown = page.getByLabel('Pool')
 
-  // verify that the ephemeral IP checkbox is checked and default radio is selected
+  // verify that the ephemeral IP checkbox is checked and pool dropdown is visible
   await expect(checkbox).toBeChecked()
-  // IPv4 default should be selected by default
-  await expect(
-    page.getByRole('radio', { name: 'IPv4 default', checked: true })
-  ).toBeVisible()
-
-  // select custom pool to see the dropdown
-  await customPoolRadio.click()
   await expect(poolDropdown).toBeVisible()
+
+  // IPv4 default pool should be selected by default
+  await expect(poolDropdown).toContainText('ip-pool-1')
+
+  // click the dropdown to open it and verify options are available
   await poolDropdown.click()
   await expect(page.getByRole('option', { name: 'ip-pool-1' })).toBeEnabled()
 
   // unchecking the box should hide the pool selector
   await checkbox.uncheck()
-  await expect(customPoolRadio).toBeHidden()
+  await expect(poolDropdown).toBeHidden()
 
   // re-checking the box should re-enable the selector, and other options should be selectable
   await checkbox.check()
-  await customPoolRadio.click()
   // Need to wait for the dropdown to be visible first
   await expect(poolDropdown).toBeVisible()
   // Click the dropdown to open it and wait for options to be available
@@ -847,15 +843,15 @@ test('create instance with custom IPv4-only NIC constrains ephemeral IP to IPv4'
   })
   await expect(ephemeralCheckbox).toBeVisible()
 
-  // IPv4 default should be available
-  await expect(page.getByRole('radio', { name: 'IPv4 default' })).toBeVisible()
+  // Pool dropdown should be visible
+  const poolDropdown = page.getByLabel('Pool')
+  await expect(poolDropdown).toBeVisible()
 
-  // IPv6 default should NOT be available (filtered out)
-  await expect(page.getByRole('radio', { name: 'IPv6 default' })).toBeHidden()
+  // IPv4 default pool should be selected by default
+  await expect(poolDropdown).toContainText('ip-pool-1')
 
-  // Check custom pool - IPv6 pools should be filtered out
-  await page.getByRole('radio', { name: 'custom pool' }).click()
-  await page.getByRole('button', { name: 'IP pool' }).click()
+  // Open dropdown to check available options - IPv6 pools should be filtered out
+  await poolDropdown.click()
 
   // ip-pool-1 is IPv4, should appear
   await expect(page.getByRole('option', { name: 'ip-pool-1' })).toBeVisible()
@@ -909,15 +905,15 @@ test('create instance with custom IPv6-only NIC constrains ephemeral IP to IPv6'
   })
   await expect(ephemeralCheckbox).toBeVisible()
 
-  // IPv6 default should be available
-  await expect(page.getByRole('radio', { name: 'IPv6 default' })).toBeVisible()
+  // Pool dropdown should be visible
+  const poolDropdown = page.getByLabel('Pool')
+  await expect(poolDropdown).toBeVisible()
 
-  // IPv4 default should NOT be available (filtered out)
-  await expect(page.getByRole('radio', { name: 'IPv4 default' })).toBeHidden()
+  // IPv6 default pool should be selected by default
+  await expect(poolDropdown).toContainText('ip-pool-2')
 
-  // Check custom pool - IPv4 pools should be filtered out
-  await page.getByRole('radio', { name: 'custom pool' }).click()
-  await page.getByRole('button', { name: 'IP pool' }).click()
+  // Open dropdown to check available options - IPv4 pools should be filtered out
+  await poolDropdown.click()
 
   // ip-pool-2 is IPv6, should appear
   await expect(page.getByRole('option', { name: 'ip-pool-2' })).toBeVisible()
@@ -971,13 +967,15 @@ test('create instance with custom dual-stack NIC allows both IPv4 and IPv6 ephem
   })
   await expect(ephemeralCheckbox).toBeVisible()
 
-  // Both IPv4 and IPv6 defaults should be available
-  await expect(page.getByRole('radio', { name: 'IPv4 default' })).toBeVisible()
-  await expect(page.getByRole('radio', { name: 'IPv6 default' })).toBeVisible()
+  // Pool dropdown should be visible
+  const poolDropdown = page.getByLabel('Pool')
+  await expect(poolDropdown).toBeVisible()
 
-  // Check custom pool - both IPv4 and IPv6 pools should be available
-  await page.getByRole('radio', { name: 'custom pool' }).click()
-  await page.getByRole('button', { name: 'IP pool' }).click()
+  // IPv4 default pool should be selected by default (first in sorted order)
+  await expect(poolDropdown).toContainText('ip-pool-1')
+
+  // Open dropdown to check available options - both IPv4 and IPv6 pools should be available
+  await poolDropdown.click()
 
   // Both pools should appear
   await expect(page.getByRole('option', { name: 'ip-pool-1' })).toBeVisible()

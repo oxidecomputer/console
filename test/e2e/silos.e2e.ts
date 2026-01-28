@@ -265,16 +265,16 @@ test('Silo IP pools', async ({ page }) => {
 
   const table = page.getByRole('table')
   // Both unicast pools start as default (one IPv4, one IPv6) - valid dual-default scenario
-  await expectRowVisible(table, { name: 'ip-pool-1', 'IP Version': 'v4default' })
-  await expectRowVisible(table, { name: 'ip-pool-2', 'IP Version': 'v6default' })
+  await expectRowVisible(table, { name: 'ip-pool-1default', Version: 'v4' })
+  await expectRowVisible(table, { name: 'ip-pool-2default', Version: 'v6' })
   // Multicast pools are also linked as defaults
   await expectRowVisible(table, {
-    name: 'ip-pool-5-multicast-v4',
-    'IP Version': 'v4default',
+    name: 'ip-pool-5-multicast-v4default',
+    Version: 'v4',
   })
   await expectRowVisible(table, {
-    name: 'ip-pool-6-multicast-v6',
-    'IP Version': 'v6default',
+    name: 'ip-pool-6-multicast-v6default',
+    Version: 'v6',
   })
   await expect(table.getByRole('row')).toHaveCount(5) // header + 4
 
@@ -293,7 +293,7 @@ test('Silo IP pools', async ({ page }) => {
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(page.getByRole('cell', { name: 'ip-pool-1' })).toBeHidden()
   // ip-pool-2 should still be default
-  await expectRowVisible(table, { name: 'ip-pool-2', 'IP Version': 'v6default' })
+  await expectRowVisible(table, { name: 'ip-pool-2default', Version: 'v6' })
 
   // clear default for IPv6 pool
   await clickRowAction(page, 'ip-pool-2', 'Clear default')
@@ -303,7 +303,7 @@ test('Silo IP pools', async ({ page }) => {
       .getByText('Are you sure you want ip-pool-2 to stop being the default')
   ).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
-  await expectRowVisible(table, { name: 'ip-pool-2', 'IP Version': 'v6' })
+  await expectRowVisible(table, { name: 'ip-pool-2', Version: 'v6' })
 })
 
 test('Silo IP pools link pool', async ({ page }) => {
@@ -311,16 +311,16 @@ test('Silo IP pools link pool', async ({ page }) => {
 
   const table = page.getByRole('table')
   // Both unicast pools start as default (one IPv4, one IPv6)
-  await expectRowVisible(table, { name: 'ip-pool-1', 'IP Version': 'v4default' })
-  await expectRowVisible(table, { name: 'ip-pool-2', 'IP Version': 'v6default' })
+  await expectRowVisible(table, { name: 'ip-pool-1default', Version: 'v4' })
+  await expectRowVisible(table, { name: 'ip-pool-2default', Version: 'v6' })
   // Multicast pools are also linked
   await expectRowVisible(table, {
-    name: 'ip-pool-5-multicast-v4',
-    'IP Version': 'v4default',
+    name: 'ip-pool-5-multicast-v4default',
+    Version: 'v4',
   })
   await expectRowVisible(table, {
-    name: 'ip-pool-6-multicast-v6',
-    'IP Version': 'v6default',
+    name: 'ip-pool-6-multicast-v6default',
+    Version: 'v6',
   })
   await expect(table.getByRole('row')).toHaveCount(5) // header + 4
 
@@ -350,7 +350,7 @@ test('Silo IP pools link pool', async ({ page }) => {
 
   // modal closes and we see the thing in the table
   await expect(modal).toBeHidden()
-  await expectRowVisible(table, { name: 'ip-pool-3', 'IP Version': 'v4' })
+  await expectRowVisible(table, { name: 'ip-pool-3', Version: 'v4' })
 })
 
 // just a convenient form to test this with because it's tall

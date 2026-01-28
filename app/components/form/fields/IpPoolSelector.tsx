@@ -10,8 +10,6 @@ import type { Control, UseFormSetValue } from 'react-hook-form'
 
 import type { IpVersion, SiloIpPool } from '@oxide/api'
 
-import { Radio } from '~/ui/lib/Radio'
-
 import { toIpPoolItem } from './ip-pool-item'
 import { ListboxField } from './ListboxField'
 
@@ -20,10 +18,8 @@ type IpPoolSelectorProps = {
   poolFieldName: string
   ipVersionFieldName: string
   pools: SiloIpPool[]
-  /** Current value of the pool field - used to determine radio selection */
+  /** Current value of the pool field */
   currentPool: string | undefined
-  /** Current value of the IP version field - used to determine radio selection */
-  currentIpVersion: IpVersion
   /** Function to update form values */
   setValue: UseFormSetValue<any>
   disabled?: boolean
@@ -34,153 +30,72 @@ type IpPoolSelectorProps = {
   compatibleVersions?: IpVersion[]
 }
 
-/**
- * IP Pool selector with radio button pattern:
- * - "IPv4 default" (if v4 default exists and is compatible)
- * - "IPv6 default" (if v6 default exists and is compatible)
- * - "Use custom pool" (with pool dropdown)
- */
 export function IpPoolSelector({
   control,
   poolFieldName,
   ipVersionFieldName,
   pools,
   currentPool,
-  currentIpVersion,
   setValue,
   disabled = false,
   compatibleVersions,
 }: IpPoolSelectorProps) {
-  // Determine which default pool versions exist
-  const hasV4Default = pools.some((p) => p.isDefault && p.ipVersion === 'v4')
-  const hasV6Default = pools.some((p) => p.isDefault && p.ipVersion === 'v6')
-
-  // Filter default options by compatible versions
-  // undefined = no filtering, [] = filter out everything
-  const showV4Default =
-    hasV4Default && (!compatibleVersions || compatibleVersions.includes('v4'))
-  const showV6Default =
-    hasV6Default && (!compatibleVersions || compatibleVersions.includes('v6'))
-
-  // Filter pools by compatible versions for custom pool dropdown
+  // Filter pools by compatible versions
   const filteredPools = compatibleVersions
     ? pools.filter((p) => compatibleVersions.includes(p.ipVersion))
     : pools
 
-  // Derive current selection, ensuring it maps to a rendered option
-  type SelectionType = 'v4-default' | 'v6-default' | 'custom'
-  let currentSelection: SelectionType
+  // Sort pools: v4 default first, then v6 default, then others alphabetically
+  const sortedPools = [...filteredPools].sort((a, b) => {
+    // v4 default goes first
+    if (a.isDefault && a.ipVersion === 'v4') return -1
+    if (b.isDefault && b.ipVersion === 'v4') return 1
 
-  if (currentPool && filteredPools.some((p) => p.name === currentPool)) {
-    // Valid custom pool selected
-    currentSelection = 'custom'
-  } else if (!currentPool && currentIpVersion === 'v6' && showV6Default) {
-    // v6 default requested and available
-    currentSelection = 'v6-default'
-  } else if (!currentPool && showV4Default) {
-    // v4 default (explicit or fallback)
-    currentSelection = 'v4-default'
-  } else if (showV6Default) {
-    // Fallback to v6 default if rendered
-    currentSelection = 'v6-default'
-  } else if (showV4Default) {
-    // Fallback to v4 default if rendered
-    currentSelection = 'v4-default'
-  } else {
-    // Final fallback: custom radio is always rendered, so this is safe
-    currentSelection = 'custom'
-  }
+    // v6 default goes second
+    if (a.isDefault && a.ipVersion === 'v6') return -1
+    if (b.isDefault && b.ipVersion === 'v6') return 1
 
-  const hasNoPools = filteredPools.length === 0 && !showV4Default && !showV6Default
+    // All others sorted alphabetically by name
+    return a.name.localeCompare(b.name)
+  })
 
-  const radioName = `pool-selection-type-${poolFieldName}`
+  const hasNoPools = filteredPools.length === 0
 
-  // Auto-correct form state when compatibility filtering changes the selection
+  // Set default pool selection on mount if none selected, or if current pool is no longer valid
   useEffect(() => {
-    if (currentSelection === 'v4-default' && (currentPool || currentIpVersion !== 'v4')) {
-      setValue(poolFieldName, '')
-      setValue(ipVersionFieldName, 'v4')
-    } else if (
-      currentSelection === 'v6-default' &&
-      (currentPool || currentIpVersion !== 'v6')
-    ) {
-      setValue(poolFieldName, '')
-      setValue(ipVersionFieldName, 'v6')
-    } else if (currentSelection === 'custom' && !currentPool && filteredPools.length > 0) {
-      // Fell back to custom but no pool selected
-      setValue(poolFieldName, filteredPools[0].name)
+    if (sortedPools.length > 0) {
+      const currentPoolValid = currentPool && sortedPools.some((p) => p.name === currentPool)
+
+      if (!currentPoolValid) {
+        // Use the first pool in the sorted list (which will be a default if one exists)
+        const defaultPool = sortedPools[0]
+        setValue(poolFieldName, defaultPool.name)
+        setValue(ipVersionFieldName, defaultPool.ipVersion)
+      }
     }
-  }, [
-    currentSelection,
-    currentPool,
-    currentIpVersion,
-    filteredPools,
-    poolFieldName,
-    ipVersionFieldName,
-    setValue,
-  ])
+  }, [currentPool, sortedPools, poolFieldName, ipVersionFieldName, setValue])
+
+  // Update IP version when pool changes
+  useEffect(() => {
+    if (currentPool) {
+      const selectedPool = sortedPools.find((p) => p.name === currentPool)
+      if (selectedPool) {
+        setValue(ipVersionFieldName, selectedPool.ipVersion)
+      }
+    }
+  }, [currentPool, sortedPools, ipVersionFieldName, setValue])
 
   return (
     <div className="space-y-4">
-      <fieldset>
-        <legend className="text-sans-md mb-2">Select IP pool</legend>
-        {hasNoPools ? (
-          <div className="text-secondary">
-            No IP pools available for this network interface type
-          </div>
-        ) : (
-          <div className="flex flex-col space-y-2">
-            {showV4Default && (
-              <Radio
-                name={radioName}
-                value="v4-default"
-                checked={currentSelection === 'v4-default'}
-                onChange={() => {
-                  setValue(poolFieldName, '')
-                  setValue(ipVersionFieldName, 'v4')
-                }}
-                disabled={disabled}
-              >
-                IPv4 default
-              </Radio>
-            )}
-            {showV6Default && (
-              <Radio
-                name={radioName}
-                value="v6-default"
-                checked={currentSelection === 'v6-default'}
-                onChange={() => {
-                  setValue(poolFieldName, '')
-                  setValue(ipVersionFieldName, 'v6')
-                }}
-                disabled={disabled}
-              >
-                IPv6 default
-              </Radio>
-            )}
-            <Radio
-              name={radioName}
-              value="custom"
-              checked={currentSelection === 'custom'}
-              onChange={() => {
-                // Set to first compatible pool in list so the dropdown shows with a valid selection
-                if (filteredPools.length > 0) {
-                  setValue(poolFieldName, filteredPools[0].name)
-                }
-              }}
-              disabled={disabled}
-            >
-              custom pool
-            </Radio>
-          </div>
-        )}
-      </fieldset>
-
-      {currentSelection === 'custom' && filteredPools.length > 0 && (
+      {hasNoPools ? (
+        <div className="text-secondary">
+          No IP pools available for this network interface type
+        </div>
+      ) : (
         <ListboxField
           name={poolFieldName}
-          items={filteredPools.map(toIpPoolItem)}
-          label="IP pool"
+          items={sortedPools.map(toIpPoolItem)}
+          label={'Pool'}
           control={control}
           placeholder="Select a pool"
           required

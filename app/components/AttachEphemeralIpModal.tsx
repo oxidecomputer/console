@@ -118,7 +118,6 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
               ipVersionFieldName="ipVersion"
               pools={unicastPools}
               currentPool={pool}
-              currentIpVersion={ipVersion}
               setValue={form.setValue}
               disabled={unicastPools.length === 0}
               compatibleVersions={compatibleVersions}
