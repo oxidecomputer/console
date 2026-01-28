@@ -22,6 +22,7 @@ import {
   type ExternalIp,
   type InstanceNetworkInterface,
   type InstanceState,
+  type IpVersion,
 } from '@oxide/api'
 import { IpGlobal24Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
@@ -30,6 +31,7 @@ import { AttachEphemeralIpModal } from '~/components/AttachEphemeralIpModal'
 import { AttachFloatingIpModal } from '~/components/AttachFloatingIpModal'
 import { orderIps } from '~/components/ExternalIps'
 import { HL } from '~/components/HL'
+import { IpVersionBadge } from '~/components/IpVersionBadge'
 import { ListPlusCell } from '~/components/ListPlusCell'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
 import { EditNetworkInterfaceForm } from '~/forms/network-interface-edit'
@@ -98,6 +100,13 @@ const NonFloatingEmptyCell = ({ kind }: { kind: 'snat' | 'ephemeral' }) => (
   </Tooltip>
 )
 
+const PrivateIpCell = ({ ipVersion, ip }: { ipVersion: IpVersion; ip: string }) => (
+  <div className="flex items-center gap-1">
+    <IpVersionBadge ipVersion={ipVersion} />
+    <CopyableIp ip={ip} isLinked={false} />
+  </div>
+)
+
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await Promise.all([
@@ -162,46 +171,13 @@ const staticCols = [
 
       if (ipStack.type === 'dual_stack') {
         return (
-          <div className="flex flex-col gap-0.5">
-            <div className="flex gap-0.5">
-              <Badge color="neutral" className="shrink-0">
-                v4
-              </Badge>
-              <CopyableIp ip={ipStack.value.v4.ip} isLinked={false} />
-            </div>
-            <div className="flex gap-0.5">
-              <Badge color="neutral" className="shrink-0">
-                v6
-              </Badge>
-              <CopyableIp ip={ipStack.value.v6.ip} isLinked={false} />
-            </div>
+          <div className="flex flex-col gap-1">
+            <PrivateIpCell ipVersion="v4" ip={ipStack.value.v4.ip} />
+            <PrivateIpCell ipVersion="v6" ip={ipStack.value.v6.ip} />
           </div>
         )
       }
-
-      return (
-        <div className="flex gap-0.5">
-          <Badge color="neutral">{ipStack.type}</Badge>
-          <CopyableIp ip={ipStack.value.ip} isLinked={false} />
-        </div>
-      )
-    },
-  }),
-  colHelper.accessor('ipStack.value', {
-    header: 'IP Version',
-    cell: (info) => {
-      const nic = info.row.original
-      const { ipStack } = nic
-      return (
-        <div className="flex flex-col gap-1">
-          {(ipStack.type === 'v4' || ipStack.type === 'dual_stack') && (
-            <Badge color="neutral">v4</Badge>
-          )}
-          {(ipStack.type === 'v6' || ipStack.type === 'dual_stack') && (
-            <Badge color="neutral">v6</Badge>
-          )}
-        </div>
-      )
+      return <PrivateIpCell ipVersion={ipStack.type} ip={ipStack.value.ip} />
     },
   }),
   colHelper.accessor('vpcId', {
