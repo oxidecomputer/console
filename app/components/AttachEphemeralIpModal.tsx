@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 
 import {
@@ -100,20 +100,55 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
   const pool = form.watch('pool')
   const ipVersion = form.watch('ipVersion')
 
-  const getDisabledReason = () => {
-    if (!siloPools) return 'Loading pools...'
-    if (!nics) return 'Loading network interfaces...'
+  const disabledState = useMemo(() => {
+    if (!siloPools) return { disabled: true, reason: 'Loading pools...' }
+    if (!nics) return { disabled: true, reason: 'Loading network interfaces...' }
     if (compatibleVersions && compatibleVersions.length === 0) {
-      return 'Instance has no network interfaces with compatible IP stacks'
+      return {
+        disabled: true,
+        reason: 'Instance has no network interfaces with compatible IP stacks',
+      }
     }
     if (compatibleUnicastPools.length === 0) {
-      return 'No compatible unicast pools available for this instance'
+      return {
+        disabled: true,
+        reason: 'No compatible unicast pools available for this instance',
+      }
     }
     if (!pool && !hasDefaultCompatiblePool) {
-      return 'No default compatible pool available; select a pool to continue'
+      return {
+        disabled: true,
+        reason: 'No default compatible pool available; select a pool to continue',
+      }
     }
-    return undefined
-  }
+    return { disabled: false, reason: undefined }
+  }, [
+    siloPools,
+    nics,
+    compatibleVersions,
+    compatibleUnicastPools,
+    pool,
+    hasDefaultCompatiblePool,
+  ])
+
+  const getEffectiveIpVersion = useCallback(() => {
+    // If explicit pool selected, use form's ipVersion
+    if (pool) return ipVersion
+
+    const v4Default = compatibleUnicastPools.find(
+      (p) => p.isDefault && p.ipVersion === 'v4'
+    )
+    const v6Default = compatibleUnicastPools.find(
+      (p) => p.isDefault && p.ipVersion === 'v6'
+    )
+
+    // If only one default exists, use that version
+    if (v4Default && !v6Default) return 'v4'
+    if (v6Default && !v4Default) return 'v6'
+
+    // If both exist, use form's ipVersion (user's choice)
+    return ipVersion
+  }, [pool, ipVersion, compatibleUnicastPools])
 
   return (
     <Modal isOpen title="Attach ephemeral IP" onDismiss={onDismiss}>
@@ -135,33 +170,10 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
       </Modal.Body>
       <Modal.Footer
         actionText="Attach"
-        disabled={
-          !siloPools ||
-          !nics ||
-          (compatibleVersions && compatibleVersions.length === 0) ||
-          compatibleUnicastPools.length === 0 ||
-          (!pool && !hasDefaultCompatiblePool)
-        }
-        disabledReason={getDisabledReason()}
+        disabled={disabledState.disabled}
+        disabledReason={disabledState.reason}
         onAction={() => {
-          // When using default pool, derive ipVersion from available compatible defaults
-          let effectiveIpVersion = ipVersion
-          if (!pool) {
-            const v4Default = compatibleUnicastPools.find(
-              (p) => p.isDefault && p.ipVersion === 'v4'
-            )
-            const v6Default = compatibleUnicastPools.find(
-              (p) => p.isDefault && p.ipVersion === 'v6'
-            )
-
-            // If only one default exists, use that version
-            if (v4Default && !v6Default) {
-              effectiveIpVersion = 'v4'
-            } else if (v6Default && !v4Default) {
-              effectiveIpVersion = 'v6'
-            }
-            // If both exist, use form's ipVersion (user's choice)
-          }
+          const effectiveIpVersion = getEffectiveIpVersion()
 
           instanceEphemeralIpAttach.mutate({
             path: { instance },

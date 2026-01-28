@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import type { Control, UseFormSetValue } from 'react-hook-form'
 
 import { getCompatiblePools, type IpVersion, type SiloIpPool } from '@oxide/api'
@@ -41,23 +41,23 @@ export function IpPoolSelector({
   compatibleVersions,
 }: IpPoolSelectorProps) {
   // Note: pools are already filtered by poolType before being passed to this component
-  const filteredPools = getCompatiblePools(pools, compatibleVersions)
+  // Filter by compatible versions and sort in one pass
+  const sortedPools = useMemo(() => {
+    return getCompatiblePools(pools, compatibleVersions).sort((a, b) => {
+      // v4 default goes first
+      if (a.isDefault && a.ipVersion === 'v4') return -1
+      if (b.isDefault && b.ipVersion === 'v4') return 1
 
-  // Sort pools: v4 default first, then v6 default, then others alphabetically
-  const sortedPools = [...filteredPools].sort((a, b) => {
-    // v4 default goes first
-    if (a.isDefault && a.ipVersion === 'v4') return -1
-    if (b.isDefault && b.ipVersion === 'v4') return 1
+      // v6 default goes second
+      if (a.isDefault && a.ipVersion === 'v6') return -1
+      if (b.isDefault && b.ipVersion === 'v6') return 1
 
-    // v6 default goes second
-    if (a.isDefault && a.ipVersion === 'v6') return -1
-    if (b.isDefault && b.ipVersion === 'v6') return 1
+      // All others sorted alphabetically by name
+      return a.name.localeCompare(b.name)
+    })
+  }, [pools, compatibleVersions])
 
-    // All others sorted alphabetically by name
-    return a.name.localeCompare(b.name)
-  })
-
-  const hasNoPools = filteredPools.length === 0
+  const hasNoPools = sortedPools.length === 0
 
   // Set default pool selection on mount if none selected, or if current pool is no longer valid
   useEffect(() => {
