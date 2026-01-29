@@ -857,15 +857,15 @@ const AdvancedAccordion = ({
     return getCompatiblePools(unicastPools, compatibleVersions)
   }, [unicastPools, compatibleVersions])
 
-  // Track previous compatible NICs state to detect transitions
-  const prevHasNicsRef = useRef<boolean | undefined>(undefined)
+  // Track previous ability to attach ephemeral IP to detect transitions
+  const prevCanAttachRef = useRef<boolean | undefined>(undefined)
 
   // Automatically manage ephemeral IP based on NIC and pool availability
   useEffect(() => {
     const hasNics = compatibleVersions && compatibleVersions.length > 0
     const hasPools = compatibleUnicastPools.length > 0
     const canAttach = hasNics && hasPools
-    const prevHasNics = prevHasNicsRef.current
+    const prevCanAttach = prevCanAttachRef.current
 
     if (!canAttach && assignEphemeralIp) {
       // Remove ephemeral IP when there are no compatible NICs or pools
@@ -873,16 +873,16 @@ const AdvancedAccordion = ({
         (ip) => ip.type !== 'ephemeral'
       )
       externalIps.field.onChange(newExternalIps)
-    } else if (canAttach && !prevHasNics && !assignEphemeralIp) {
-      // Add ephemeral IP only when transitioning from no NICs/pools to having both
-      // (prevHasNics === false means we had no NICs before)
+    } else if (canAttach && prevCanAttach === false && !assignEphemeralIp) {
+      // Add ephemeral IP when transitioning from unable to able to attach
+      // (prevCanAttach === false means we couldn't attach before, either due to no NICs or no pools)
       externalIps.field.onChange([
         ...(externalIps.field.value || []),
         { type: 'ephemeral' },
       ])
     }
 
-    prevHasNicsRef.current = hasNics
+    prevCanAttachRef.current = canAttach
   }, [compatibleVersions, compatibleUnicastPools, assignEphemeralIp, externalIps])
 
   // Update ephemeralIpVersion when compatibleVersions changes

@@ -28,6 +28,12 @@ type IpPoolSelectorProps = {
    * If not provided, both v4 and v6 are allowed
    */
   compatibleVersions?: IpVersion[]
+  /**
+   * If true, automatically select a default pool when none is selected.
+   * If false, allow the field to remain empty to use API defaults.
+   * Default to false, to allow API to manage defaults / not send explicit values.
+   */
+  autoSelectDefault?: boolean
 }
 
 export function IpPoolSelector({
@@ -39,6 +45,7 @@ export function IpPoolSelector({
   setValue,
   disabled = false,
   compatibleVersions,
+  autoSelectDefault = false,
 }: IpPoolSelectorProps) {
   // Note: pools are already filtered by poolType before being passed to this component
   const sortedPools = useMemo(() => {
@@ -57,7 +64,7 @@ export function IpPoolSelector({
 
   // Set default pool selection on mount if none selected, or if current pool is no longer valid
   useEffect(() => {
-    if (sortedPools.length > 0) {
+    if (sortedPools.length > 0 && autoSelectDefault) {
       const currentPoolValid =
         currentPool && sortedPools.some((p) => p.name === currentPool)
 
@@ -69,7 +76,14 @@ export function IpPoolSelector({
         setValue(ipVersionFieldName, defaultPool.ipVersion)
       }
     }
-  }, [currentPool, sortedPools, poolFieldName, ipVersionFieldName, setValue])
+  }, [
+    currentPool,
+    sortedPools,
+    poolFieldName,
+    ipVersionFieldName,
+    setValue,
+    autoSelectDefault,
+  ])
 
   // Update IP version when pool changes
   useEffect(() => {
@@ -93,8 +107,8 @@ export function IpPoolSelector({
           items={sortedPools.map(toIpPoolItem)}
           label={'Pool'}
           control={control}
-          placeholder="Select a pool"
-          required
+          placeholder={autoSelectDefault ? 'Select a pool' : 'Use default pool'}
+          required={autoSelectDefault}
           disabled={disabled}
         />
       )}
