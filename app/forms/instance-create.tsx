@@ -14,7 +14,7 @@ import {
   type Control,
   type UseFormSetValue,
 } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
 import type { SetRequired } from 'type-fest'
 
 import {
@@ -702,6 +702,7 @@ export default function CreateInstanceForm() {
           isSubmitting={isSubmitting}
           unicastPools={unicastPools}
           networkInterfaces={networkInterfaces}
+          hasVpcs={hasVpcs}
           setValue={setValue}
         />
         <Form.Actions>
@@ -740,12 +741,14 @@ const AdvancedAccordion = ({
   isSubmitting,
   unicastPools,
   networkInterfaces,
+  hasVpcs,
   setValue,
 }: {
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
   unicastPools: Array<SiloIpPool>
   networkInterfaces: InstanceCreate['networkInterfaces']
+  hasVpcs: boolean
   setValue: UseFormSetValue<InstanceCreateInput>
 }) => {
   // we track this state manually for the sole reason that we need to be able to
@@ -956,7 +959,23 @@ const AdvancedAccordion = ({
         label="Networking"
         isOpen={openItems.includes('networking')}
       >
-        <NetworkInterfaceField control={control} disabled={isSubmitting} />
+        {!hasVpcs && (
+          <Message
+            className="mb-4"
+            variant="notice"
+            content={
+              <>
+                A VPC is required to add network interfaces.{' '}
+                <Link to={pb.vpcsNew({ project })}>Create a VPC</Link> to enable networking.
+              </>
+            }
+          />
+        )}
+        <NetworkInterfaceField
+          control={control}
+          disabled={isSubmitting}
+          hasVpcs={hasVpcs}
+        />
 
         <div className="py-2">
           <TextField
@@ -1043,8 +1062,22 @@ const AdvancedAccordion = ({
                 variant="secondary"
                 size="sm"
                 className="shrink-0"
-                disabled={availableFloatingIps.length === 0}
-                disabledReason="No floating IPs available"
+                disabled={
+                  availableFloatingIps.length === 0 ||
+                  !compatibleVersions ||
+                  compatibleVersions.length === 0
+                }
+                disabledReason={
+                  !compatibleVersions || compatibleVersions.length === 0 ? (
+                    <>
+                      A network interface is required
+                      <br />
+                      to attach a floating IP
+                    </>
+                  ) : availableFloatingIps.length === 0 ? (
+                    'No floating IPs available'
+                  ) : undefined
+                }
                 onClick={() => setFloatingIpModalOpen(true)}
               >
                 Attach floating IP

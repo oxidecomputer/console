@@ -1064,3 +1064,63 @@ test('ephemeral IP checkbox disabled when no NICs configured', async ({ page }) 
   await expect(ephemeralCheckbox).not.toBeChecked()
   await expect(ephemeralCheckbox).toBeDisabled()
 })
+
+test('floating IP button disabled when no NICs configured', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+
+  const instanceName = 'test-no-nics'
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await selectASiloImage(page, 'ubuntu-22-04')
+
+  // Open networking accordion
+  await page.getByRole('button', { name: 'Networking' }).click()
+
+  // Select "None" for network interface
+  const noneRadio = page.getByRole('radio', { name: 'None', exact: true })
+  await noneRadio.click()
+
+  // Verify the "Attach floating IP" button is disabled
+  const attachFloatingIpButton = page.getByRole('button', { name: 'Attach floating IP' })
+  await expect(attachFloatingIpButton).toBeDisabled()
+
+  // Hover to see the tooltip
+  await attachFloatingIpButton.hover()
+  await expect(page.getByText('A network interface is required')).toBeVisible()
+  await expect(page.getByText('to attach a floating IP')).toBeVisible()
+})
+
+test('network interface options disabled when no VPCs exist', async ({ page }) => {
+  // Use project-no-vpcs which has no VPCs by design for testing this scenario
+  await page.goto('/projects/project-no-vpcs/instances-new')
+
+  const instanceName = 'test-no-vpc-instance'
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await selectASiloImage(page, 'ubuntu-22-04')
+
+  // Open networking accordion
+  await page.getByRole('button', { name: 'Networking' }).click()
+
+  // Get radio button elements
+  const defaultIpv4Radio = page.getByRole('radio', { name: 'Default IPv4', exact: true })
+  const defaultIpv6Radio = page.getByRole('radio', { name: 'Default IPv6', exact: true })
+  const defaultDualStackRadio = page.getByRole('radio', {
+    name: 'Default IPv4 & IPv6',
+    exact: true,
+  })
+  const noneRadio = page.getByRole('radio', { name: 'None', exact: true })
+  const customRadio = page.getByRole('radio', { name: 'Custom', exact: true })
+
+  // Verify the message is visible (indicating no VPCs)
+  await expect(page.getByText('A VPC is required to add network interfaces.')).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Create a VPC' })).toBeVisible()
+
+  // Verify Default IPv4, Default IPv6, Default Dual Stack, and Custom are disabled
+  await expect(defaultIpv4Radio).toBeDisabled()
+  await expect(defaultIpv6Radio).toBeDisabled()
+  await expect(defaultDualStackRadio).toBeDisabled()
+  await expect(customRadio).toBeDisabled()
+
+  // Verify "None" is enabled and checked
+  await expect(noneRadio).toBeEnabled()
+  await expect(noneRadio).toBeChecked()
+})

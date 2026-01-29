@@ -25,9 +25,11 @@ import { RadioGroup } from '~/ui/lib/RadioGroup'
 export function NetworkInterfaceField({
   control,
   disabled,
+  hasVpcs,
 }: {
   control: Control<InstanceCreateInput>
   disabled: boolean
+  hasVpcs: boolean
 }) {
   const [showForm, setShowForm] = useState(false)
 
@@ -51,6 +53,7 @@ export function NetworkInterfaceField({
           column
           className="pt-1"
           defaultChecked={value.type}
+          disabled={disabled}
           onChange={(event) => {
             const newType = event.target.value
 
@@ -64,7 +67,6 @@ export function NetworkInterfaceField({
               onChange({ type: newType as typeof value.type })
             }
           }}
-          disabled={disabled}
         >
           {/*
               Pre-selected default based on available IP pools, set in instance-create.
@@ -72,12 +74,20 @@ export function NetworkInterfaceField({
               If only v4, default_ipv4 will be selected.
               If only v6, default_ipv6 will be selected.
           */}
-          <Radio value="default_ipv4">Default IPv4</Radio>
-          <Radio value="default_ipv6">Default IPv6</Radio>
-          <Radio value="default_dual_stack">Default IPv4 & IPv6</Radio>
+          <Radio value="default_ipv4" disabled={!hasVpcs}>
+            Default IPv4
+          </Radio>
+          <Radio value="default_ipv6" disabled={!hasVpcs}>
+            Default IPv6
+          </Radio>
+          <Radio value="default_dual_stack" disabled={!hasVpcs}>
+            Default IPv4 & IPv6
+          </Radio>
           <Radio value="none">None</Radio>
           {/* Custom follows None because of `Add network interface` button and table */}
-          <Radio value="create">Custom</Radio>
+          <Radio value="create" disabled={!hasVpcs}>
+            Custom
+          </Radio>
         </RadioGroup>
         {value.type === 'create' && (
           <>

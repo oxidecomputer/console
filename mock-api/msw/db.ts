@@ -18,6 +18,7 @@ import type * as Sel from '~/api/selectors'
 import { commaSeries } from '~/util/str'
 
 import type { Json } from '../json-type'
+import { projects } from '../project'
 import { defaultSilo, siloSettings } from '../silo'
 import { internalError } from './util'
 
@@ -557,7 +558,7 @@ const initDb = {
   ipPoolRanges: [...mock.ipPoolRanges],
   networkInterfaces: [mock.networkInterface],
   physicalDisks: [...mock.physicalDisks],
-  projects: [...mock.projects],
+  projects: [...projects],
   racks: [...mock.racks],
   roleAssignments: [...mock.roleAssignments],
   scimTokens: [...mock.scimTokens],
