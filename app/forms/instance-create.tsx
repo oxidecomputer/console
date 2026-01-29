@@ -57,7 +57,7 @@ import {
 } from '~/components/form/fields/DisksTableField'
 import { FileField } from '~/components/form/fields/FileField'
 import { BootDiskImageSelectField as ImageSelectField } from '~/components/form/fields/ImageSelectField'
-import { IpPoolSelector } from '~/components/form/fields/IpPoolSelector'
+import { IpPoolSelector, type UnicastIpPool } from '~/components/form/fields/IpPoolSelector'
 import { NameField } from '~/components/form/fields/NameField'
 import { NetworkInterfaceField } from '~/components/form/fields/NetworkInterfaceField'
 import { NumberField } from '~/components/form/fields/NumberField'
@@ -88,7 +88,7 @@ import { Tooltip } from '~/ui/lib/Tooltip'
 import { Wrap } from '~/ui/util/wrap'
 import { ALL_ISH } from '~/util/consts'
 import { readBlobAsBase64 } from '~/util/file'
-import { filterFloatingIpsByVersion } from '~/util/ip'
+import { filterFloatingIpsByVersion, getDefaultIps } from '~/util/ip'
 import { docLinks, links } from '~/util/links'
 import { diskSizeNearest10 } from '~/util/math'
 import { pb } from '~/util/path-builder'
@@ -269,16 +269,15 @@ export default function CreateInstanceForm() {
 
   // Only unicast pools can be used for ephemeral IPs
   const unicastPools = useMemo(
-    () => getCompatiblePools(siloPools?.items || [], undefined, 'unicast'),
+    () =>
+      getCompatiblePools(siloPools?.items || [], undefined, 'unicast') as UnicastIpPool[],
     [siloPools]
   )
 
-  const defaultUnicastPools = unicastPools.filter((pool) => pool.isDefault)
-  const hasV4Default = defaultUnicastPools.some((p) => p.ipVersion === 'v4')
-  const hasV6Default = defaultUnicastPools.some((p) => p.ipVersion === 'v6')
-
-  // Detect if both IPv4 and IPv6 default unicast pools exist
-  const hasDualDefaults = hasV4Default && hasV6Default
+  const { hasV4Default, hasV6Default, hasDualDefaults } = useMemo(
+    () => getDefaultIps(unicastPools),
+    [unicastPools]
+  )
   // Use default version if available; fall back to v4
   const ephemeralIpVersion: IpVersion = hasV4Default ? 'v4' : hasV6Default ? 'v6' : 'v4'
 
@@ -854,7 +853,7 @@ const AdvancedAccordion = ({
 
   // Filter unicast pools by compatible IP versions
   const compatibleUnicastPools = useMemo(() => {
-    return getCompatiblePools(unicastPools, compatibleVersions)
+    return getCompatiblePools(unicastPools, compatibleVersions) as UnicastIpPool[]
   }, [unicastPools, compatibleVersions])
 
   // Track previous ability to attach ephemeral IP to detect transitions

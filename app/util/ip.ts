@@ -7,6 +7,7 @@
  */
 
 import type { InstanceNetworkInterface, IpVersion } from '~/api'
+import type { UnicastIpPool } from '~/components/form/fields/IpPoolSelector'
 
 // Borrowed from Valibot. I tried some from Zod and an O'Reilly regex cookbook
 // but they didn't match results with std::net on simple test cases
@@ -125,4 +126,19 @@ export function filterFloatingIpsByVersion<T extends { ip: string }>(
     if (ipVersion.type === 'error') return false
     return compatibleVersions.includes(ipVersion.type)
   })
+}
+
+export const getDefaultIps = (pools: UnicastIpPool[]) => {
+  const defaultPools = pools.filter((pool) => pool.isDefault)
+  const v4Default = defaultPools.find((p) => p.ipVersion === 'v4')
+  const hasV4Default = !!v4Default
+  const v6Default = defaultPools.find((p) => p.ipVersion === 'v6')
+  const hasV6Default = !!v6Default
+  return {
+    v4Default,
+    v6Default,
+    hasV4Default,
+    hasV6Default,
+    hasDualDefaults: hasV4Default && hasV6Default,
+  }
 }

@@ -22,7 +22,10 @@ import {
 
 import { AccordionItem } from '~/components/AccordionItem'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
-import { IpPoolSelector } from '~/components/form/fields/IpPoolSelector'
+import {
+  IpPoolSelector,
+  type UnicastIpPool,
+} from '~/components/form/fields/IpPoolSelector'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
@@ -30,6 +33,7 @@ import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { ALL_ISH } from '~/util/consts'
+import { getDefaultIps } from '~/util/ip'
 import { pb } from '~/util/path-builder'
 
 type FloatingIpCreateFormData = {
@@ -57,7 +61,7 @@ export default function CreateFloatingIpSideModalForm() {
   // Only unicast pools can be used for floating IPs
   const unicastPools = useMemo(() => {
     if (!allPools) return []
-    return allPools.items.filter((p) => p.poolType === 'unicast')
+    return allPools.items.filter((p) => p.poolType === 'unicast') as UnicastIpPool[]
   }, [allPools])
 
   const projectSelector = useProjectSelector()
@@ -88,13 +92,12 @@ export default function CreateFloatingIpSideModalForm() {
         // When using default pool, derive ipVersion from available defaults
         let effectiveIpVersion = ipVersion
         if (!pool) {
-          const v4Default = unicastPools.find((p) => p.isDefault && p.ipVersion === 'v4')
-          const v6Default = unicastPools.find((p) => p.isDefault && p.ipVersion === 'v6')
+          const { hasV4Default, hasV6Default } = getDefaultIps(unicastPools)
 
           // If only one default exists, use that version
-          if (v4Default && !v6Default) {
+          if (hasV4Default && !hasV6Default) {
             effectiveIpVersion = 'v4'
-          } else if (v6Default && !v4Default) {
+          } else if (hasV6Default && !hasV4Default) {
             effectiveIpVersion = 'v6'
           }
           // If both exist, use form's ipVersion (user's choice)

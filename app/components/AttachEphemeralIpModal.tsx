@@ -18,12 +18,16 @@ import {
   usePrefetchedQuery,
   type IpVersion,
 } from '~/api'
-import { IpPoolSelector } from '~/components/form/fields/IpPoolSelector'
+import {
+  IpPoolSelector,
+  type UnicastIpPool,
+} from '~/components/form/fields/IpPoolSelector'
 import { HL } from '~/components/HL'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Modal } from '~/ui/lib/Modal'
 import { ALL_ISH } from '~/util/consts'
+import { getDefaultIps } from '~/util/ip'
 
 export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void }) => {
   const { project, instance } = useInstanceSelector()
@@ -59,7 +63,7 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
   // Only unicast pools can be used for ephemeral IPs
   const compatibleUnicastPools = useMemo(() => {
     if (!siloPools) return []
-    return getCompatiblePools(siloPools.items, compatibleVersions, 'unicast')
+    return getCompatiblePools(siloPools.items, compatibleVersions, 'unicast') as UnicastIpPool[]
   }, [siloPools, compatibleVersions])
 
   const hasDefaultCompatiblePool = useMemo(() => {
@@ -128,15 +132,10 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
   const getEffectiveIpVersion = useCallback(() => {
     if (pool) return ipVersion
 
-    const v4Default = compatibleUnicastPools.find(
-      (p) => p.isDefault && p.ipVersion === 'v4'
-    )
-    const v6Default = compatibleUnicastPools.find(
-      (p) => p.isDefault && p.ipVersion === 'v6'
-    )
+    const { hasV4Default, hasV6Default } = getDefaultIps(compatibleUnicastPools)
 
-    if (v4Default && !v6Default) return 'v4'
-    if (v6Default && !v4Default) return 'v6'
+    if (hasV4Default && !hasV6Default) return 'v4'
+    if (hasV6Default && !hasV4Default) return 'v6'
 
     return ipVersion
   }, [pool, ipVersion, compatibleUnicastPools])

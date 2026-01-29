@@ -13,11 +13,13 @@ import { getCompatiblePools, type IpVersion, type SiloIpPool } from '@oxide/api'
 import { toIpPoolItem } from './ip-pool-item'
 import { ListboxField } from './ListboxField'
 
+export type UnicastIpPool = SiloIpPool & { poolType: 'unicast' }
+
 type IpPoolSelectorProps = {
   control: Control<any>
   poolFieldName: string
   ipVersionFieldName: string
-  pools: SiloIpPool[]
+  pools: UnicastIpPool[]
   /** Current value of the pool field */
   currentPool: string | undefined
   /** Function to update form values */
@@ -45,6 +47,9 @@ export function IpPoolSelector({
   setValue,
   disabled = false,
   compatibleVersions,
+  // When both a default IPv4 and default IPv6 pool exist, the component picks the
+  // v4 default, to reduce user confusion. The selection is easily modified later
+  // (both in the form and later on the instance).
   autoSelectDefault = true,
 }: IpPoolSelectorProps) {
   // Note: pools are already filtered by poolType before being passed to this component

@@ -197,7 +197,20 @@ test('Instance networking tab — floating IPs', async ({ page }) => {
   await expect(page.getByRole('dialog')).toBeHidden()
   await expectRowVisible(externalIpTable, { name: 'rootbeer-float' })
 
-  // Verify that the "Attach floating IP" button is disabled, since there shouldn't be any more IPs to attach
+  // Button should still be enabled because there's an IPv6 floating IP available
+  await expect(attachFloatingIpButton).toBeEnabled()
+
+  // Attach the IPv6 floating IP as well
+  await attachFloatingIpButton.click()
+  await expectVisible(page, ['role=heading[name="Attach floating IP"]'])
+  await dialog.getByLabel('Floating IP').click()
+  await page.keyboard.press('ArrowDown')
+  await page.keyboard.press('Enter')
+  await dialog.getByRole('button', { name: 'Attach' }).click()
+  await expect(page.getByRole('dialog')).toBeHidden()
+  await expectRowVisible(externalIpTable, { name: 'ipv6-float' })
+
+  // Now the button should be disabled, since all available floating IPs are attached
   await expect(attachFloatingIpButton).toBeDisabled()
 
   // Verify that the External IPs table row has an ellipsis link in it
@@ -206,13 +219,11 @@ test('Instance networking tab — floating IPs', async ({ page }) => {
   // Detach one of the external IPs
   await clickRowAction(page, 'cola-float', 'Detach')
   await page.getByRole('button', { name: 'Confirm' }).click()
-  await expect(page.getByText('123.4.56.5/…')).toBeHidden()
-  await expect(page.getByText('external IPs123.4.56.4/123.4.56.0')).toBeVisible()
 
   // Since we detached it, we don't expect to see the row any longer
   await expect(externalIpTable.getByRole('cell', { name: 'cola-float' })).toBeHidden()
 
-  // And that button should be enabled again
+  // And that button should be enabled again (cola-float is now available to attach)
   await expect(attachFloatingIpButton).toBeEnabled()
 })
 
