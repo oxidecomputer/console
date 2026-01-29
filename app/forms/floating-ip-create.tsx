@@ -22,10 +22,7 @@ import {
 
 import { AccordionItem } from '~/components/AccordionItem'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
-import {
-  IpPoolSelector,
-  type UnicastIpPool,
-} from '~/components/form/fields/IpPoolSelector'
+import { IpPoolSelector, type UnicastIpPool } from '~/components/form/fields/IpPoolSelector'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'

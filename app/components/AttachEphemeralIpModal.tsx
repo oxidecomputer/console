@@ -18,10 +18,7 @@ import {
   usePrefetchedQuery,
   type IpVersion,
 } from '~/api'
-import {
-  IpPoolSelector,
-  type UnicastIpPool,
-} from '~/components/form/fields/IpPoolSelector'
+import { IpPoolSelector, type UnicastIpPool } from '~/components/form/fields/IpPoolSelector'
 import { HL } from '~/components/HL'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
@@ -63,7 +60,11 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
   // Only unicast pools can be used for ephemeral IPs
   const compatibleUnicastPools = useMemo(() => {
     if (!siloPools) return []
-    return getCompatiblePools(siloPools.items, compatibleVersions, 'unicast') as UnicastIpPool[]
+    return getCompatiblePools(
+      siloPools.items,
+      compatibleVersions,
+      'unicast'
+    ) as UnicastIpPool[]
   }, [siloPools, compatibleVersions])
 
   const hasDefaultCompatiblePool = useMemo(() => {
