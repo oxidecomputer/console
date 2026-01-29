@@ -88,6 +88,7 @@ import { Tooltip } from '~/ui/lib/Tooltip'
 import { Wrap } from '~/ui/util/wrap'
 import { ALL_ISH } from '~/util/consts'
 import { readBlobAsBase64 } from '~/util/file'
+import { filterFloatingIpsByVersion } from '~/util/ip'
 import { docLinks, links } from '~/util/links'
 import { diskSizeNearest10 } from '~/util/math'
 import { pb } from '~/util/path-builder'
@@ -832,19 +833,24 @@ const AdvancedAccordion = ({
     [floatingIpList]
   )
 
-  // To find available floating IPs, we remove the ones that are already committed to this instance
-  const availableFloatingIps = attachableFloatingIps.filter(
-    (ip) => !attachedFloatingIps.find((attachedIp) => attachedIp.floatingIp === ip.name)
-  )
-  const attachedFloatingIpsData = attachedFloatingIps
-    .map((ip) => attachableFloatingIps.find((fip) => fip.name === ip.floatingIp))
-    .filter((ip) => !!ip)
-
   // Calculate compatible IP versions based on NIC type
   const compatibleVersions: IpVersion[] | undefined = useMemo(
     () => getCompatibleVersionsFromNicType(networkInterfaces),
     [networkInterfaces]
   )
+
+  // To find available floating IPs, we remove the ones that are already committed to this instance
+  // and filter by IP version compatibility with configured NICs
+  const availableFloatingIps = useMemo(() => {
+    const notAttached = attachableFloatingIps.filter(
+      (ip) => !attachedFloatingIps.find((attachedIp) => attachedIp.floatingIp === ip.name)
+    )
+    return filterFloatingIpsByVersion(notAttached, compatibleVersions)
+  }, [attachableFloatingIps, attachedFloatingIps, compatibleVersions])
+
+  const attachedFloatingIpsData = attachedFloatingIps
+    .map((ip) => attachableFloatingIps.find((fip) => fip.name === ip.floatingIp))
+    .filter((ip) => !!ip)
 
   // Filter unicast pools by compatible IP versions
   const compatibleUnicastPools = useMemo(() => {

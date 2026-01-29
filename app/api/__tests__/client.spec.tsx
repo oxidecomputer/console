@@ -166,7 +166,7 @@ describe('useApiQuery', () => {
       const { result } = renderProjectList()
       await waitFor(() => {
         const items = result.current.data?.items
-        expect(items?.length).toEqual(2)
+        expect(items?.length).toEqual(3)
         expect(items?.[0].id).toEqual(project.id)
       })
     })

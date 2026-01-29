@@ -472,12 +472,26 @@ test('attaches a floating IP; disables button when no IPs available', async ({ p
     Name: floatingIp.name,
     IP: floatingIp.ip,
   })
+
+  // The button should still be enabled because there's still ipv6-float available
+  await expect(attachFloatingIpButton).toBeEnabled()
+
+  // Attach the IPv6 floating IP too
+  await attachFloatingIpButton.click()
+  await selectFloatingIpButton.click()
+  await page.getByRole('option', { name: 'ipv6-float' }).click()
+  await attachButton.click()
+
+  // Now the button should be disabled because both floating IPs are attached
   await expect(attachFloatingIpButton).toBeDisabled()
 
-  // removing the floating IP row should work, and should re-enable the "attach" button
+  // removing one floating IP row should work, and should re-enable the "attach" button
   await page.getByRole('button', { name: 'remove floating IP rootbeer-float' }).click()
   await expect(page.getByText(floatingIp.name)).toBeHidden()
   await expect(attachFloatingIpButton).toBeEnabled()
+
+  // Remove the IPv6 floating IP too
+  await page.getByRole('button', { name: 'remove floating IP ipv6-float' }).click()
 
   // re-attach the floating IP
   await attachFloatingIpButton.click()
@@ -1123,4 +1137,75 @@ test('network interface options disabled when no VPCs exist', async ({ page }) =
   // Verify "None" is enabled and checked
   await expect(noneRadio).toBeEnabled()
   await expect(noneRadio).toBeChecked()
+})
+
+test('floating IPs are filtered by NIC IP version', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+
+  // Open networking accordion
+  await page.getByRole('button', { name: 'Networking' }).click()
+
+  // Select IPv4-only networking
+  await page.getByRole('radio', { name: 'Default IPv4', exact: true }).click()
+
+  // Open the floating IP modal
+  await page.getByRole('button', { name: 'Attach floating IP' }).click()
+
+  // Wait for modal to open
+  await expect(page.getByRole('dialog', { name: 'Attach floating IP' })).toBeVisible()
+
+  // Get the listbox and open it
+  const listbox = page.getByRole('button', { name: 'Floating IP', exact: true })
+  await listbox.click()
+
+  // Verify only IPv4 floating IP is available (rootbeer-float with IP 123.4.56.4)
+  await expect(page.getByRole('option', { name: 'rootbeer-float' })).toBeVisible()
+  // IPv6 floating IP should not be in the list
+  await expect(page.getByRole('option', { name: 'ipv6-float' })).not.toBeVisible()
+
+  // Close the listbox dropdown first by pressing Escape
+  await page.keyboard.press('Escape')
+
+  // Close the modal
+  const dialog = page.getByRole('dialog', { name: 'Attach floating IP' })
+  await dialog.getByRole('button', { name: 'Cancel' }).click()
+
+  // Switch to IPv6-only networking
+  await page.getByRole('radio', { name: 'Default IPv6', exact: true }).click()
+
+  // Open the floating IP modal again
+  await page.getByRole('button', { name: 'Attach floating IP' }).click()
+
+  // Wait for modal to open
+  await expect(dialog).toBeVisible()
+
+  // Get the listbox and open it
+  await listbox.click()
+
+  // Verify only IPv6 floating IP is available (ipv6-float)
+  await expect(page.getByRole('option', { name: 'ipv6-float' })).toBeVisible()
+  // IPv4 floating IP should not be in the list
+  await expect(page.getByRole('option', { name: 'rootbeer-float' })).not.toBeVisible()
+
+  // Close the listbox dropdown first by pressing Escape
+  await page.keyboard.press('Escape')
+
+  // Close the modal
+  await dialog.getByRole('button', { name: 'Cancel' }).click()
+
+  // Switch to dual-stack networking
+  await page.getByRole('radio', { name: 'Default IPv4 & IPv6', exact: true }).click()
+
+  // Open the floating IP modal again
+  await page.getByRole('button', { name: 'Attach floating IP' }).click()
+
+  // Wait for modal to open
+  await expect(dialog).toBeVisible()
+
+  // Get the listbox and open it
+  await listbox.click()
+
+  // Verify both IPv4 and IPv6 floating IPs are available
+  await expect(page.getByRole('option', { name: 'rootbeer-float' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'ipv6-float' })).toBeVisible()
 })

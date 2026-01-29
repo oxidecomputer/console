@@ -41,4 +41,17 @@ export const floatingIp2: Json<FloatingIp> = {
   time_modified: new Date().toISOString(),
 }
 
-export const floatingIps = [floatingIp, floatingIp2]
+// An IPv6 floating IP for testing IP version filtering
+export const floatingIp3: Json<FloatingIp> = {
+  id: 'b1c2d3e4-5f6a-7b8c-9d0e-1f2a3b4c5d6e',
+  name: 'ipv6-float',
+  description: 'An IPv6 address.',
+  instance_id: undefined,
+  ip: 'fd00:1122:3344:101::1',
+  ip_pool_id: ipPool1.id,
+  project_id: project.id,
+  time_created: new Date().toISOString(),
+  time_modified: new Date().toISOString(),
+}
+
+export const floatingIps = [floatingIp, floatingIp2, floatingIp3]

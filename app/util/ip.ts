@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import type { IpVersion } from '~/api'
+import type { InstanceNetworkInterface, IpVersion } from '~/api'
 
 // Borrowed from Valibot. I tried some from Zod and an O'Reilly regex cookbook
 // but they didn't match results with std::net on simple test cases
@@ -85,4 +85,44 @@ export function parseIpNet(ipNet: string): ParsedIpNet {
 export function validateIpNet(ipNet: string): string | undefined {
   const result = parseIpNet(ipNet)
   if (result.type === 'error') return result.message
+}
+
+/**
+ * Get compatible IP versions from an instance's NICs. External IPs route
+ * through the primary interface, so only its IP stack matters.
+ */
+export function getCompatibleVersionsFromNics(
+  nics: InstanceNetworkInterface[]
+): IpVersion[] {
+  const primaryNic = nics.find((nic) => nic.primary)
+  if (!primaryNic) return []
+
+  const { ipStack } = primaryNic
+  if (ipStack.type === 'v4' || ipStack.type === 'v6') {
+    return [ipStack.type]
+  }
+  if (ipStack.type === 'dual_stack') {
+    return ['v4', 'v6']
+  }
+  return []
+}
+
+/**
+ * Filters floating IPs by compatible IP versions. Only IPs whose version
+ * matches one of the compatible versions are returned.
+ */
+export function filterFloatingIpsByVersion<T extends { ip: string }>(
+  floatingIps: T[],
+  compatibleVersions: IpVersion[] | undefined
+): T[] {
+  // If no compatible versions, no floating IPs are compatible
+  if (!compatibleVersions || compatibleVersions.length === 0) {
+    return []
+  }
+
+  return floatingIps.filter((floatingIp) => {
+    const ipVersion = parseIp(floatingIp.ip)
+    if (ipVersion.type === 'error') return false
+    return compatibleVersions.includes(ipVersion.type)
+  })
 }

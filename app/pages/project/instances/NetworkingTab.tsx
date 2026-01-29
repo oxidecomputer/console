@@ -59,6 +59,7 @@ import { TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { ALL_ISH } from '~/util/consts'
+import { filterFloatingIpsByVersion, getCompatibleVersionsFromNics } from '~/util/ip'
 import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './common'
@@ -290,8 +291,22 @@ export default function NetworkingTab() {
   const { data: ips } = usePrefetchedQuery(
     q(api.floatingIpList, { query: { project, limit: ALL_ISH } })
   )
-  // Filter out the IPs that are already attached to an instance
-  const availableIps = useMemo(() => ips.items.filter((ip) => !ip.instanceId), [ips])
+
+  const nics = usePrefetchedQuery(
+    q(api.instanceNetworkInterfaceList, {
+      query: { ...instanceSelector, limit: ALL_ISH },
+    })
+  ).data.items
+
+  // Determine compatible IP versions from the instance's primary NIC
+  // External IPs route through the primary interface, so only its IP stack matters
+  const compatibleVersions = useMemo(() => getCompatibleVersionsFromNics(nics), [nics])
+
+  // Filter out the IPs that are already attached to an instance and filter by IP version compatibility
+  const availableIps = useMemo(() => {
+    const notAttached = ips.items.filter((ip) => !ip.instanceId)
+    return filterFloatingIpsByVersion(notAttached, compatibleVersions)
+  }, [ips, compatibleVersions])
 
   const createNic = useApiMutation(api.instanceNetworkInterfaceCreate, {
     onSuccess() {
@@ -315,11 +330,6 @@ export default function NetworkingTab() {
   const { data: instance } = usePrefetchedQuery(
     q(api.instanceView, { path: { instance: instanceName }, query: { project } })
   )
-  const nics = usePrefetchedQuery(
-    q(api.instanceNetworkInterfaceList, {
-      query: { ...instanceSelector, limit: ALL_ISH },
-    })
-  ).data.items
 
   const multipleNics = nics.length > 1
 
