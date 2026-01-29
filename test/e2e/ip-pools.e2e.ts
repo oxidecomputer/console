@@ -27,7 +27,7 @@ test('IP pool list', async ({ page }) => {
   })
   await expectRowVisible(table, {
     name: 'ip-pool-2',
-    'IPs REMAINING': '32 / 32',
+    'IPs REMAINING': '31 / 32', // floatingIp3 uses one IP from this pool
   })
   await expectRowVisible(table, {
     name: 'ip-pool-3',

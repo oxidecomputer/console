@@ -1079,30 +1079,6 @@ test('ephemeral IP checkbox disabled when no NICs configured', async ({ page }) 
   await expect(ephemeralCheckbox).toBeDisabled()
 })
 
-test('floating IP button disabled when no NICs configured', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances-new')
-
-  const instanceName = 'test-no-nics'
-  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-  await selectASiloImage(page, 'ubuntu-22-04')
-
-  // Open networking accordion
-  await page.getByRole('button', { name: 'Networking' }).click()
-
-  // Select "None" for network interface
-  const noneRadio = page.getByRole('radio', { name: 'None', exact: true })
-  await noneRadio.click()
-
-  // Verify the "Attach floating IP" button is disabled
-  const attachFloatingIpButton = page.getByRole('button', { name: 'Attach floating IP' })
-  await expect(attachFloatingIpButton).toBeDisabled()
-
-  // Hover to see the tooltip
-  await attachFloatingIpButton.hover()
-  await expect(page.getByText('A network interface is required')).toBeVisible()
-  await expect(page.getByText('to attach a floating IP')).toBeVisible()
-})
-
 test('network interface options disabled when no VPCs exist', async ({ page }) => {
   // Use project-no-vpcs which has no VPCs by design for testing this scenario
   await page.goto('/projects/project-no-vpcs/instances-new')
@@ -1208,4 +1184,22 @@ test('floating IPs are filtered by NIC IP version', async ({ page }) => {
   // Verify both IPv4 and IPv6 floating IPs are available
   await expect(page.getByRole('option', { name: 'rootbeer-float' })).toBeVisible()
   await expect(page.getByRole('option', { name: 'ipv6-float' })).toBeVisible()
+
+  // Close the listbox dropdown first by pressing Escape
+  await page.keyboard.press('Escape')
+
+  // Close the modal
+  await dialog.getByRole('button', { name: 'Cancel' }).click()
+
+  // Switch to "None" networking
+  await page.getByRole('radio', { name: 'None' }).click()
+
+  // Verify the "Attach floating IP" button is disabled when no NICs are configured
+  const attachFloatingIpButton = page.getByRole('button', { name: 'Attach floating IP' })
+  await expect(attachFloatingIpButton).toBeDisabled()
+
+  // Verify the disabled reason tooltip
+  await attachFloatingIpButton.hover()
+  await expect(page.getByText('A network interface is required')).toBeVisible()
+  await expect(page.getByText('to attach a floating IP')).toBeVisible()
 })

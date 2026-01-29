@@ -9,11 +9,12 @@
 import type { FloatingIp } from '@oxide/api'
 
 import { instance } from './instance'
-import { ipPool1 } from './ip-pool'
+import { ipPool1, ipPool2 } from './ip-pool'
 import type { Json } from './json-type'
 import { project } from './project'
 
-// Note that these addresses should come from ranges in ip-pool-1
+// Note that IPv4 addresses should come from ranges in ip-pool-1
+// Note that IPv6 addresses should come from ranges in ip-pool-2
 
 // A floating IP from the default pool
 export const floatingIp: Json<FloatingIp> = {
@@ -41,14 +42,14 @@ export const floatingIp2: Json<FloatingIp> = {
   time_modified: new Date().toISOString(),
 }
 
-// An IPv6 floating IP for testing IP version filtering
+// An IPv6 floating IP for testing IP version filtering (from ip-pool-2)
 export const floatingIp3: Json<FloatingIp> = {
   id: 'b1c2d3e4-5f6a-7b8c-9d0e-1f2a3b4c5d6e',
   name: 'ipv6-float',
   description: 'An IPv6 address.',
   instance_id: undefined,
-  ip: 'fd00:1122:3344:101::1',
-  ip_pool_id: ipPool1.id,
+  ip: 'fd00::2',
+  ip_pool_id: ipPool2.id,
   project_id: project.id,
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),

@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useCallback } from 'react'
 import { useForm, type FieldErrors } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
@@ -101,9 +102,13 @@ export default function IpPoolAddRange() {
     },
   })
 
-  // poolData can be undefined briefly; use v4 as fallback until data arrives
-  const poolVersion = poolData?.ipVersion || 'v4'
-  const form = useForm({ defaultValues, resolver: createResolver(poolVersion) })
+  // Derive pool version at validation time to ensure correct IP version rules
+  const resolver = useCallback(
+    (values: IpRange) => createResolver(poolData?.ipVersion ?? 'v4')(values),
+    [poolData?.ipVersion]
+  )
+
+  const form = useForm({ defaultValues, resolver })
 
   // Guard against undefined poolData during initial load
   if (!poolData) return null
@@ -121,7 +126,7 @@ export default function IpPoolAddRange() {
     >
       <Message
         variant="info"
-        content={`This pool uses IP${poolVersion} addresses. Ranges are inclusive, and first must be less than or equal to last.`}
+        content={`This pool uses IP${poolData.ipVersion} addresses. Ranges are inclusive, and first must be less than or equal to last.`}
       />
       <TextField
         name="first"
