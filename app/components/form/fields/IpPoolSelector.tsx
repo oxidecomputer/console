@@ -31,7 +31,7 @@ type IpPoolSelectorProps = {
   /**
    * If true, automatically select a default pool when none is selected.
    * If false, allow the field to remain empty to use API defaults.
-   * Default to false, to allow API to manage defaults / not send explicit values.
+   * Default to true, to automatically select a default pool if available.
    */
   autoSelectDefault?: boolean
 }
@@ -45,7 +45,7 @@ export function IpPoolSelector({
   setValue,
   disabled = false,
   compatibleVersions,
-  autoSelectDefault = false,
+  autoSelectDefault = true,
 }: IpPoolSelectorProps) {
   // Note: pools are already filtered by poolType before being passed to this component
   const sortedPools = useMemo(() => {
