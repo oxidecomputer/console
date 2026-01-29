@@ -10,9 +10,12 @@ import type { ReactNode } from 'react'
 import { Link, Outlet } from 'react-router'
 
 import { useIsActivePath } from '~/hooks/use-is-active-path'
-import { KEYS } from '~/ui/util/keys'
+import { hasModifier, KEYS } from '~/ui/util/keys'
 
 const selectTab = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  // Don't intercept modified arrow keys (Cmd for browser back/forward, etc.)
+  if (hasModifier(e)) return
+
   const target = e.target as HTMLDivElement
   if (e.key === KEYS.left) {
     e.stopPropagation()
