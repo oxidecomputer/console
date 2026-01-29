@@ -102,7 +102,7 @@ const NonFloatingEmptyCell = ({ kind }: { kind: 'snat' | 'ephemeral' }) => (
 )
 
 const PrivateIpCell = ({ ipVersion, ip }: { ipVersion: IpVersion; ip: string }) => (
-  <div className="flex items-center gap-1">
+  <div className="flex items-center gap-2">
     <IpVersionBadge ipVersion={ipVersion} />
     <CopyableIp ip={ip} isLinked={false} />
   </div>

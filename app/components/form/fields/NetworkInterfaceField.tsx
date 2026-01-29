@@ -9,6 +9,7 @@ import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
 import type { InstanceNetworkInterfaceCreate } from '@oxide/api'
+import { Badge } from '@oxide/design-system/ui'
 
 import type { InstanceCreateInput } from '~/forms/instance-create'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
@@ -17,6 +18,7 @@ import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { MiniTable } from '~/ui/lib/MiniTable'
 import { Radio } from '~/ui/lib/Radio'
 import { RadioGroup } from '~/ui/lib/RadioGroup'
+import { TextInputHint } from '~/ui/lib/TextInput'
 
 /**
  * Designed less for reuse, more to encapsulate logic that would otherwise
@@ -46,6 +48,13 @@ export function NetworkInterfaceField({
   return (
     <div className="max-w-lg space-y-2">
       <FieldLabel id="network-interface-type-label">Network interface</FieldLabel>
+      <TextInputHint id="network-interface-type-hint">
+        Use the project’s{' '}
+        <Badge className="normal-case!" color="neutral">
+          default
+        </Badge>{' '}
+        VPC and Subnet, using the selected IP version(s)
+      </TextInputHint>
       <div className="space-y-4">
         <RadioGroup
           aria-labelledby="network-interface-type-label"
