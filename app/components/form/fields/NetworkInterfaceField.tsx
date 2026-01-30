@@ -78,10 +78,9 @@ export function NetworkInterfaceField({
           }}
         >
           {/*
-              Pre-selected default based on available IP pools, set in instance-create.
-              If both v4 and v6, default_dual_stack will be selected.
-              If only v4, default_ipv4 will be selected.
-              If only v6, default_ipv6 will be selected.
+              Pre-selected default is dual-stack when VPCs exist (set in instance-create).
+              This matches the API default and works with both IPv4 and IPv6 subnets.
+              User can manually select a specific IP version if needed.
           */}
           <Radio value="default_ipv4" disabled={!hasVpcs}>
             Default IPv4

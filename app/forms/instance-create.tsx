@@ -288,16 +288,11 @@ export default function CreateInstanceForm() {
   const hasVpcs = vpcs.items.length > 0
 
   // Determine default network interface type:
-  // - If VPCs exist: default to IPv4 (or IPv6 if only v6 default pool exists, or dual-stack if both)
+  // - If VPCs exist: default to dual-stack (API default, works with both IPv4 and IPv6 subnets)
   // - If no VPCs exist: default to 'none' (user must create VPC first or use custom NICs)
+  // Note: Decoupled from external IP pool configuration, as NIC IP stack and external IPs are separate concerns
   const defaultNetworkInterfaceType: InstanceCreateInput['networkInterfaces']['type'] =
-    hasVpcs
-      ? hasV4Default && hasV6Default
-        ? 'default_dual_stack'
-        : hasV6Default && !hasV4Default
-          ? 'default_ipv6'
-          : 'default_ipv4'
-      : 'none'
+    hasVpcs ? 'default_dual_stack' : 'none'
 
   const defaultSource =
     siloImages.length > 0 ? 'siloImage' : projectImages.length > 0 ? 'projectImage' : 'disk'
