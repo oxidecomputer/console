@@ -73,12 +73,17 @@ export function IpPoolSelector({
       const currentPoolValid =
         currentPool && sortedPools.some((p) => p.name === currentPool)
 
-      // Only auto-select when there's an actual default pool
-      const defaultPool = sortedPools.find((p) => p.isDefault)
+      if (!currentPoolValid) {
+        // Only auto-select when there's an actual default pool
+        const defaultPool = sortedPools.find((p) => p.isDefault)
 
-      if (!currentPoolValid && defaultPool) {
-        setValue(poolFieldName, defaultPool.name)
-        setValue(ipVersionFieldName, defaultPool.ipVersion)
+        if (defaultPool) {
+          setValue(poolFieldName, defaultPool.name)
+          setValue(ipVersionFieldName, defaultPool.ipVersion)
+        } else {
+          // Clear selection when current pool is invalid and no compatible default exists
+          setValue(poolFieldName, '')
+        }
       }
     }
   }, [
