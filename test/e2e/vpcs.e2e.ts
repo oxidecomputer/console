@@ -12,7 +12,9 @@ import { clickRowAction, expectRowVisible, getPageAsUser, selectOption } from '.
 test('can nav to VpcPage from /', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('table').getByRole('link', { name: 'mock-project' }).click()
+  await page.waitForURL('**/projects/mock-project/**')
   await page.getByRole('link', { name: 'VPCs' }).click()
+  await page.waitForURL('**/vpcs**')
 
   await expectRowVisible(page.getByRole('table'), {
     name: 'mock-vpc',
