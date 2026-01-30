@@ -46,7 +46,6 @@ import { addToast } from '~/stores/toast'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
-import { IpVersionCell } from '~/table/cells/IpVersionCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -59,7 +58,11 @@ import { TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { ALL_ISH } from '~/util/consts'
-import { filterFloatingIpsByVersion, getCompatibleVersionsFromNics } from '~/util/ip'
+import {
+  filterFloatingIpsByVersion,
+  getCompatibleVersionsFromNics,
+  parseIp,
+} from '~/util/ip'
 import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './common'
@@ -248,10 +251,14 @@ const staticIpCols = [
     ),
     cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
   }),
-  ipColHelper.accessor('ipPoolId', {
+  ipColHelper.accessor('ip', {
     id: 'version',
     header: 'Version',
-    cell: (info) => <IpVersionCell ipPoolId={info.getValue()} />,
+    cell: (info) => {
+      const parsed = parseIp(info.getValue())
+      if (parsed.type === 'error') return <EmptyCell />
+      return <IpVersionBadge ipVersion={parsed.type} />
+    },
   }),
   ipColHelper.accessor('ipPoolId', {
     header: 'IP pool',
