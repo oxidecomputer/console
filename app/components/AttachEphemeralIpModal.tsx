@@ -32,7 +32,7 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
     q(api.projectIpPoolList, { query: { limit: ALL_ISH } })
   )
   const { data: nics } = usePrefetchedQuery(
-    q(api.instanceNetworkInterfaceList, { query: { project, instance } })
+    q(api.instanceNetworkInterfaceList, { query: { limit: ALL_ISH, project, instance } })
   )
 
   // Determine compatible IP versions based on instance's primary network interface
