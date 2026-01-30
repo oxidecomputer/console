@@ -24,7 +24,7 @@ import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Modal } from '~/ui/lib/Modal'
 import { ALL_ISH } from '~/util/consts'
-import { getDefaultIps } from '~/util/ip'
+import { getCompatibleVersionsFromNics, getDefaultIps } from '~/util/ip'
 
 export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void }) => {
   const { project, instance } = useInstanceSelector()
@@ -39,22 +39,8 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
   // External IPs route through the primary interface, so only its IP stack matters
   // https://github.com/oxidecomputer/omicron/blob/d52aad0/nexus/db-queries/src/db/datastore/external_ip.rs#L544-L661
   const compatibleVersions: IpVersion[] | undefined = useMemo(() => {
-    // Before NICs load, return undefined (treat as "unknown" - allow all)
     if (!nics) return undefined
-
-    const nicItems = nics.items
-    const primaryNic = nicItems.find((nic) => nic.primary)
-
-    if (!primaryNic) return []
-
-    const versions: IpVersion[] = []
-    if (primaryNic.ipStack.type === 'v4' || primaryNic.ipStack.type === 'dual_stack') {
-      versions.push('v4')
-    }
-    if (primaryNic.ipStack.type === 'v6' || primaryNic.ipStack.type === 'dual_stack') {
-      versions.push('v6')
-    }
-    return versions
+    return getCompatibleVersionsFromNics(nics.items)
   }, [nics])
 
   // Only unicast pools can be used for ephemeral IPs
