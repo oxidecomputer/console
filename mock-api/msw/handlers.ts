@@ -974,6 +974,7 @@ export const handlers = makeHandlers({
     // endpoint is not paginated. or rather, it's fake paginated
     return { items: [...ephemeralIps, ...snatIps, ...floatingIps] }
   },
+  instanceExternalSubnetList: NotImplemented,
   instanceNetworkInterfaceList({ query }) {
     const instance = lookup.instance(query)
     const nics = db.networkInterfaces.filter((n) => n.instance_id === instance.id)

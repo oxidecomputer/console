@@ -678,6 +678,13 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/instances/:instance/external-subnets` */
+  instanceExternalSubnetList: (params: {
+    path: Api.InstanceExternalSubnetListPathParams
+    query: Api.InstanceExternalSubnetListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ExternalSubnetResultsPage>>
   /** `GET /v1/instances/:instance/multicast-groups` */
   instanceMulticastGroupList: (params: {
     path: Api.InstanceMulticastGroupListPathParams
@@ -2632,6 +2639,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(
         handlers['instanceEphemeralIpDetach'],
         schema.InstanceEphemeralIpDetachParams,
+        null
+      )
+    ),
+    http.get(
+      '/v1/instances/:instance/external-subnets',
+      handler(
+        handlers['instanceExternalSubnetList'],
+        schema.InstanceExternalSubnetListParams,
         null
       )
     ),

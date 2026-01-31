@@ -4068,7 +4068,6 @@ export const SubnetPool = z.preprocess(
     id: z.uuid(),
     ipVersion: IpVersion,
     name: Name,
-    poolType: IpPoolType,
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
   })
@@ -4096,15 +4095,12 @@ export const SubnetPoolLinkSilo = z.preprocess(
 export const SubnetPoolMember = z.preprocess(
   processResponseBody,
   z.object({
-    description: z.string(),
     id: z.uuid(),
     maxPrefixLength: z.number().min(0).max(255),
     minPrefixLength: z.number().min(0).max(255),
-    name: Name,
     subnet: IpNet,
     subnetPoolId: z.uuid(),
     timeCreated: z.coerce.date(),
-    timeModified: z.coerce.date(),
   })
 )
 
@@ -6248,6 +6244,18 @@ export const InstanceEphemeralIpDetachParams = z.preprocess(
   })
 )
 
+export const InstanceExternalSubnetListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      instance: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
 export const InstanceMulticastGroupListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -7934,7 +7942,6 @@ export const SubnetPoolMemberListParams = z.preprocess(
     query: z.object({
       limit: z.number().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
-      sortBy: NameOrIdSortMode.optional(),
     }),
   })
 )

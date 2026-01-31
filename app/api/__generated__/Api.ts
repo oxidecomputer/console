@@ -4483,8 +4483,6 @@ export type SubnetPool = {
   ipVersion: IpVersion
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** Type of subnet pool (unicast or multicast) */
-  poolType: IpPoolType
   /** timestamp when this resource was created */
   timeCreated: Date
   /** timestamp when this resource was last modified */
@@ -4515,24 +4513,18 @@ export type SubnetPoolLinkSilo = {
  * A member (subnet) within a subnet pool
  */
 export type SubnetPoolMember = {
-  /** human-readable free-form text about a resource */
-  description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** ID of the pool member */
   id: string
   /** Maximum prefix length for allocations from this subnet; a larger prefix means smaller allocations are allowed (e.g. a /24 prefix yields smaller subnet allocations than a /16 prefix). */
   maxPrefixLength: number
   /** Minimum prefix length for allocations from this subnet; a smaller prefix means larger allocations are allowed (e.g. a /16 prefix yields larger subnet allocations than a /24 prefix). */
   minPrefixLength: number
-  /** unique, mutable, user-controlled identifier for each resource */
-  name: Name
   /** The subnet CIDR */
   subnet: IpNet
   /** ID of the parent subnet pool */
   subnetPoolId: string
-  /** timestamp when this resource was created */
+  /** Time the pool member was created. */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
-  timeModified: Date
 }
 
 /**
@@ -6284,6 +6276,14 @@ export interface InstanceEphemeralIpDetachQueryParams {
   project?: NameOrId
 }
 
+export interface InstanceExternalSubnetListPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceExternalSubnetListQueryParams {
+  project?: NameOrId
+}
+
 export interface InstanceMulticastGroupListPathParams {
   instance: NameOrId
 }
@@ -7074,7 +7074,6 @@ export interface SubnetPoolMemberListPathParams {
 export interface SubnetPoolMemberListQueryParams {
   limit?: number | null
   pageToken?: string | null
-  sortBy?: NameOrIdSortMode
 }
 
 export interface SubnetPoolMemberAddPathParams {
@@ -7437,7 +7436,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2026012300.0.0'
+  apiVersion = '2026013000.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host
@@ -9012,6 +9011,26 @@ export class Api {
       return this.request<void>({
         path: `/v1/instances/${path.instance}/external-ips/ephemeral`,
         method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List external subnets attached to instance
+     */
+    instanceExternalSubnetList: (
+      {
+        path,
+        query = {},
+      }: {
+        path: InstanceExternalSubnetListPathParams
+        query?: InstanceExternalSubnetListQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ExternalSubnetResultsPage>({
+        path: `/v1/instances/${path.instance}/external-subnets`,
+        method: 'GET',
         query,
         ...params,
       })
