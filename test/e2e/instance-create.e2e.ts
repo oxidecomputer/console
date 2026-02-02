@@ -665,7 +665,7 @@ test('Validate CPU and RAM', async ({ page }) => {
 
   const submitButton = page.getByRole('button', { name: 'Create instance' })
 
-  const cpuMsg = page.getByText('Can be at most 64').first()
+  const cpuMsg = page.getByText('Can be at most 128').first()
   const memMsg = page.getByText('Can be at most 1536 GiB').first()
 
   await expect(cpuMsg).toBeHidden()
