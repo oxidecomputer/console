@@ -21,6 +21,7 @@ import {
   INSTANCE_MAX_RAM_GiB,
   isUnicastPool,
   poolHasIpVersion,
+  MAX_DISK_SIZE_GiB,
   q,
   queryClient,
   useApiMutation,
@@ -373,6 +374,8 @@ export default function CreateInstanceForm() {
         name="bootDiskSize"
         control={control}
         min={imageSizeGiB || 1}
+        // Max size applies: this disk can only be distributed
+        maxSize={MAX_DISK_SIZE_GiB}
         validate={(diskSizeGiB: number) => {
           if (imageSizeGiB && diskSizeGiB < imageSizeGiB) {
             return `Must be as large as selected image (min. ${imageSizeGiB} GiB)`

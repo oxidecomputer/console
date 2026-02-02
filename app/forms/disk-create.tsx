@@ -13,6 +13,7 @@ import { match } from 'ts-pattern'
 
 import {
   api,
+  MAX_DISK_SIZE_GiB,
   q,
   queryClient,
   useApiMutation,
@@ -203,6 +204,11 @@ export function CreateDiskSideModalForm({
       <DiskSizeField
         name="size"
         control={form.control}
+        // Local disk size is only capped by server capacity
+        maxSize={match(diskBackend)
+          .with({ type: 'local' }, () => undefined)
+          .with({ type: 'distributed' }, () => MAX_DISK_SIZE_GiB)
+          .exhaustive()}
         validate={(diskSizeGiB: number) => {
           if (validateSizeGiB && diskSizeGiB < validateSizeGiB) {
             return `Must be as large as selected ${diskSourceType} (min. ${validateSizeGiB} GiB)`

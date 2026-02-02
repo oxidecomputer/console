@@ -12,8 +12,6 @@ import type {
   ValidateResult,
 } from 'react-hook-form'
 
-import { MAX_DISK_SIZE_GiB } from '@oxide/api'
-
 import { NumberField } from './NumberField'
 import type { TextFieldProps } from './TextField'
 
@@ -22,6 +20,8 @@ interface DiskSizeProps<
   TName extends FieldPath<TFieldValues>,
 > extends TextFieldProps<TFieldValues, TName> {
   minSize?: number
+  /** Undefined means no client-side limit (e.g., for local disks) */
+  maxSize: number | undefined
   validate?(diskSizeGiB: number): ValidateResult
 }
 
@@ -32,6 +32,7 @@ export function DiskSizeField<
   required = true,
   name,
   minSize = 1,
+  maxSize,
   validate,
   ...props
 }: DiskSizeProps<TFieldValues, TName>) {
@@ -41,7 +42,7 @@ export function DiskSizeField<
       required={required}
       name={name}
       min={minSize}
-      max={MAX_DISK_SIZE_GiB}
+      max={maxSize}
       validate={(diskSizeGiB) => {
         // Run a number of default validators
         if (Number.isNaN(diskSizeGiB)) {
@@ -50,8 +51,8 @@ export function DiskSizeField<
         if (diskSizeGiB < minSize) {
           return `Must be at least ${minSize} GiB`
         }
-        if (diskSizeGiB > MAX_DISK_SIZE_GiB) {
-          return `Can be at most ${MAX_DISK_SIZE_GiB} GiB`
+        if (maxSize !== undefined && diskSizeGiB > maxSize) {
+          return `Can be at most ${maxSize} GiB`
         }
         // Run any additional validators passed in from the callsite
         return validate?.(diskSizeGiB)

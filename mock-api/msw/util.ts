@@ -166,7 +166,8 @@ export const errIfInvalidDiskSize = (disk: Json<DiskCreate>) => {
   if (disk.size < MIN_DISK_SIZE_GiB * GiB) {
     throw `Disk size must be greater than or equal to ${MIN_DISK_SIZE_GiB} GiB`
   }
-  if (disk.size > MAX_DISK_SIZE_GiB * GiB) {
+  // Local disk size is validated server-side against zpool capacity, not here
+  if (disk.disk_backend.type === 'distributed' && disk.size > MAX_DISK_SIZE_GiB * GiB) {
     throw `Disk size must be less than or equal to ${MAX_DISK_SIZE_GiB} GiB`
   }
   // Local disks have no source to validate against. Distributed disks from

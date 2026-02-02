@@ -175,6 +175,53 @@ test.describe('Disk create', () => {
   /* eslint-enable playwright/expect-expect */
 })
 
+test('Distributed disk clamps size to max of 1023 GiB', async ({ page }) => {
+  await page.goto('/projects/mock-project/disks-new')
+
+  const sizeInput = page.getByRole('textbox', { name: 'Size (GiB)' })
+  await sizeInput.fill('2000')
+  await sizeInput.blur()
+
+  // Value should be clamped to 1023
+  await expect(sizeInput).toHaveValue('1023')
+})
+
+test('Local disk has no max size limit', async ({ page }) => {
+  await page.goto('/projects/mock-project/disks-new')
+
+  await page.getByRole('radio', { name: 'Local' }).click()
+
+  const sizeInput = page.getByRole('textbox', { name: 'Size (GiB)' })
+  await sizeInput.fill('2000')
+  await sizeInput.blur()
+
+  // Should not show the max size error
+  await expect(page.getByText('Can be at most 1023 GiB')).toBeHidden()
+
+  // Value should remain 2000, not clamped to 1023
+  await expect(sizeInput).toHaveValue('2000')
+})
+
+test('Create local disk with size > 1023 GiB', async ({ page }) => {
+  await page.goto('/projects/mock-project/disks-new')
+
+  await page.getByRole('textbox', { name: 'Name' }).fill('big-local-disk')
+  await page.getByRole('radio', { name: 'Local' }).click()
+
+  const sizeInput = page.getByRole('textbox', { name: 'Size (GiB)' })
+  await sizeInput.fill('2000')
+
+  await page.getByRole('button', { name: 'Create disk' }).click()
+
+  await expect(page.getByRole('dialog', { name: 'Create disk' })).toBeHidden()
+  await expectToast(page, 'Disk big-local-disk created')
+  // 2000 GiB is displayed as 1.95 TiB (filesize formatting)
+  await expectRowVisible(page.getByRole('table'), {
+    name: 'big-local-disk',
+    size: '1.95 TiB',
+  })
+})
+
 test('Create disk from snapshot with read-only', async ({ page }) => {
   await page.goto('/projects/mock-project/disks-new')
   await page.getByRole('textbox', { name: 'Name' }).fill('a-new-disk')
