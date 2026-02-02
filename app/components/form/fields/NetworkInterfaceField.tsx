@@ -10,7 +10,6 @@ import { useController, type Control } from 'react-hook-form'
 
 import type { InstanceNetworkInterfaceCreate } from '@oxide/api'
 
-import { IpVersionBadge } from '~/components/IpVersionBadge'
 import type { InstanceCreateInput } from '~/forms/instance-create'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
 import { Button } from '~/ui/lib/Button'
@@ -39,14 +38,6 @@ export function NetworkInterfaceField({
    * change the radio selection
    */
   const [oldParams, setOldParams] = useState<InstanceNetworkInterfaceCreate[]>([])
-
-  const v4VersionBadge = <IpVersionBadge ipVersion="v4" />
-  const v6VersionBadge = <IpVersionBadge ipVersion="v6" />
-  const dualStackVersionBadge = (
-    <>
-      {v4VersionBadge}, {v6VersionBadge}
-    </>
-  )
 
   const {
     field: { value, onChange },
@@ -118,38 +109,43 @@ export function NetworkInterfaceField({
             Custom
           </Radio>
           {currentMode === 'create' && (
-            <div className="mb-2 ml-6 space-y-3">
-              <Button size="sm" onClick={() => setShowForm(true)}>
-                Add network interface
-              </Button>
-
-              {value.type === 'create' && value.params.length > 0 && (
-                <MiniTable
-                  ariaLabel="Network Interfaces"
-                  items={value.params}
-                  columns={[
-                    { header: 'Name', cell: (item) => item.name },
-                    { header: 'VPC', cell: (item) => item.vpcName },
-                    { header: 'Subnet', cell: (item) => item.subnetName },
-                    {
-                      header: 'Version',
-                      cell: (item) => {
-                        if (item.ipConfig === undefined) return '—'
-                        if (item.ipConfig.type === 'dual_stack')
-                          return dualStackVersionBadge
-                        return <IpVersionBadge ipVersion={item.ipConfig?.type} />
-                      },
-                    },
-                  ]}
-                  rowKey={(item) => item.name}
-                  onRemoveItem={(item) =>
-                    onChange({
-                      type: 'create',
-                      params: value.params.filter((i) => i.name !== item.name),
-                    })
-                  }
-                  removeLabel={(item) => `remove network interface ${item.name}`}
-                />
+            <div className="ml-6 space-y-3">
+              {value.type === 'create' && (
+                <>
+                  <MiniTable
+                    ariaLabel="Network Interfaces"
+                    items={value.params}
+                    columns={[
+                      { header: 'Name', cell: (item) => item.name },
+                      { header: 'VPC', cell: (item) => item.vpcName },
+                      { header: 'Subnet', cell: (item) => item.subnetName },
+                    ]}
+                    rowKey={(item) => item.name}
+                    onRemoveItem={(item) =>
+                      onChange({
+                        type: 'create',
+                        params: value.params.filter((i) => i.name !== item.name),
+                      })
+                    }
+                    removeLabel={(item) => `remove network interface ${item.name}`}
+                    emptyState={{
+                      title: 'No network interfaces added',
+                      body: 'Add a new network interface to attach it to the instance.',
+                    }}
+                  />
+                  <div className="flex justify-end gap-2.5">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onChange({ type: 'create', params: [] })}
+                    >
+                      Clear
+                    </Button>
+                    <Button size="sm" onClick={() => setShowForm(true)}>
+                      Add network interface
+                    </Button>
+                  </div>
+                </>
               )}
             </div>
           )}
