@@ -18,9 +18,7 @@ import {
   useApiMutation,
   type BlockSize,
   type Disk,
-  type DiskBackend,
   type DiskCreate,
-  type DiskSource,
   type Image,
 } from '@oxide/api'
 
@@ -43,12 +41,34 @@ import { toLocaleDateString } from '~/util/date'
 import { diskSizeNearest10 } from '~/util/math'
 import { bytesToGiB, GiB } from '~/util/units'
 
-const blankDiskSource: DiskSource = {
+/**
+ * Same as DiskSource but with image and snapshot ID optional, reflecting The
+ * fact that when you select the type, you do not have an image or snapshot
+ * selected.
+ */
+type DiskSourceForm =
+  | { type: 'blank'; blockSize: BlockSize }
+  | { type: 'importing_blocks'; blockSize: BlockSize }
+  | { type: 'image'; imageId?: string; readOnly: boolean }
+  | { type: 'snapshot'; snapshotId?: string; readOnly: boolean }
+
+type DiskBackendForm =
+  | { type: 'local' }
+  | { type: 'distributed'; diskSource: DiskSourceForm }
+
+type DiskCreateForm = {
+  name: string
+  description: string
+  size: number
+  diskBackend: DiskBackendForm
+}
+
+const blankDiskSource: DiskSourceForm = {
   type: 'blank',
   blockSize: 4096,
 }
 
-const defaultValues: DiskCreate = {
+const defaultValues: DiskCreateForm = {
   name: '',
   description: '',
   size: 10,
@@ -126,8 +146,41 @@ export function CreateDiskSideModalForm({
       formType="create"
       resourceName="disk"
       onDismiss={onDismiss}
-      onSubmit={({ size, ...rest }) => {
-        const body = { size: size * GiB, ...rest }
+      onSubmit={({ size, diskBackend, ...rest }) => {
+        const body: DiskCreate = {
+          ...rest,
+          size: size * GiB,
+          diskBackend: match(diskBackend)
+            .with({ type: 'local' }, () => ({ type: 'local' as const }))
+            .with({ type: 'distributed' }, ({ diskSource }) => ({
+              type: 'distributed' as const,
+              diskSource: match(diskSource)
+                .with({ type: 'blank' }, (source) => ({
+                  type: 'blank' as const,
+                  blockSize: source.blockSize,
+                }))
+                .with({ type: 'importing_blocks' }, (source) => ({
+                  type: 'importing_blocks' as const,
+                  blockSize: source.blockSize,
+                }))
+                .with({ type: 'image' }, (source) => ({
+                  type: 'image' as const,
+                  // image ID is validated by the form: it's required when the
+                  // field is present (i.e., when image type is selected)
+                  imageId: source.imageId!,
+                  readOnly: source.readOnly,
+                }))
+                .with({ type: 'snapshot' }, (source) => ({
+                  type: 'snapshot' as const,
+                  // snapshot ID is validated by the form: it's required when
+                  // the field is present (i.e., when snapshot type is selected)
+                  snapshotId: source.snapshotId!,
+                  readOnly: source.readOnly,
+                }))
+                .exhaustive(),
+            }))
+            .exhaustive(),
+        }
         if (onSubmit) {
           onSubmit(body)
         } else {
@@ -170,13 +223,16 @@ const DiskBackendField = ({
   images,
   areImagesLoading,
 }: {
-  control: Control<DiskCreate>
+  control: Control<DiskCreateForm>
   images: Image[]
   areImagesLoading: boolean
 }) => {
   const {
-    field: { value: diskBackend, onChange: setDiskBackend },
+    field: { value: diskBackend, onChange },
   } = useController({ control, name: 'diskBackend' })
+  // react-hook-form types onChange as (...event: any[]) => void
+  // https://github.com/react-hook-form/react-hook-form/issues/10466
+  const setDiskBackend = onChange as (value: DiskBackendForm) => void
   const diskSizeField = useController({ control, name: 'size' }).field
 
   return (
@@ -189,7 +245,7 @@ const DiskBackendField = ({
           column
           defaultChecked={diskBackend.type}
           onChange={(event) => {
-            const newType = event.target.value as DiskBackend['type']
+            const newType = event.target.value as DiskBackendForm['type']
             if (newType === 'local') {
               setDiskBackend({ type: 'local' })
             } else {
@@ -226,9 +282,9 @@ const DiskSourceField = ({
   images,
   areImagesLoading,
 }: {
-  control: Control<DiskCreate>
-  diskSource: DiskSource
-  setDiskSource: (source: DiskSource) => void
+  control: Control<DiskCreateForm>
+  diskSource: DiskSourceForm
+  setDiskSource: (source: DiskSourceForm) => void
   diskSizeField: { value: number; onChange: (value: number) => void }
   images: Image[]
   areImagesLoading: boolean
@@ -243,15 +299,18 @@ const DiskSourceField = ({
           column
           defaultChecked={diskSource.type}
           onChange={(event) => {
-            const newType = event.target.value as DiskSource['type']
+            const newType = event.target.value as DiskSourceForm['type']
             // need to include blockSize when switching back to blank. other
             // source types get their required fields from form inputs
             setDiskSource(
               match(newType)
                 .with('blank', () => blankDiskSource)
-                .with('snapshot', () => ({ type: 'snapshot', readOnly: false }) as DiskSource)
-                .with('image', () => ({ type: 'image', readOnly: false }) as DiskSource)
-                .with('importing_blocks', () => ({ type: 'importing_blocks' }) as DiskSource)
+                .with('snapshot', () => ({ type: 'snapshot' as const, readOnly: false }))
+                .with('image', () => ({ type: 'image' as const, readOnly: false }))
+                .with('importing_blocks', () => ({
+                  type: 'importing_blocks' as const,
+                  blockSize: blankDiskSource.blockSize,
+                }))
                 .exhaustive()
             )
           }}
@@ -327,7 +386,7 @@ const DiskNameFromId = ({ disk }: { disk: string }) => {
   return <> from {data.name}</>
 }
 
-const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
+const SnapshotSelectField = ({ control }: { control: Control<DiskCreateForm> }) => {
   const { project } = useProjectSelector()
   const snapshotsQuery = useQuery(q(api.snapshotList, { query: { project } }))
 
