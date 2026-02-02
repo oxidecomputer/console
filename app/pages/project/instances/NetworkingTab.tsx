@@ -175,7 +175,7 @@ const staticCols = [
 
       if (ipStack.type === 'dual_stack') {
         return (
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-0">
             <PrivateIpCell ipVersion="v4" ip={ipStack.value.v4.ip} />
             <PrivateIpCell ipVersion="v6" ip={ipStack.value.v6.ip} />
           </div>
