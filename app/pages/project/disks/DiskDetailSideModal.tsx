@@ -87,6 +87,9 @@ export function DiskDetailSideModal({
         <PropertiesTable.Row label="Snapshot ID">
           {disk.snapshotId ?? <EmptyCell />}
         </PropertiesTable.Row>
+        <PropertiesTable.Row label="Read only">
+          {disk.readOnly ? 'Yes' : 'No'}
+        </PropertiesTable.Row>
         <PropertiesTable.Row label="Block size">
           {disk.blockSize.toLocaleString()} bytes
         </PropertiesTable.Row>

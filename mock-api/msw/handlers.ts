@@ -158,14 +158,14 @@ export const handlers = makeHandlers({
     if (body.name === 'disk-create-500') throw 500
 
     const { name, description, size, disk_backend } = body
+    const diskSource = disk_backend.type === 'distributed' ? disk_backend.disk_source : null
     const newDisk: Json<Api.Disk> = {
       id: uuid(),
       project_id: project.id,
       // importing_blocks disks go to import_ready, all others go to detached
       // https://github.com/oxidecomputer/omicron/blob/dd74446/nexus/src/app/sagas/disk_create.rs#L805-L850
       state:
-        disk_backend.type === 'distributed' &&
-        disk_backend.disk_source.type === 'importing_blocks'
+        diskSource?.type === 'importing_blocks'
           ? { state: 'import_ready' }
           : { state: 'detached' },
       device_path: '/mnt/disk',
@@ -174,6 +174,11 @@ export const handlers = makeHandlers({
       size,
       block_size: getBlockSize(disk_backend),
       disk_type: disk_backend.type,
+      image_id: diskSource?.type === 'image' ? diskSource.image_id : null,
+      snapshot_id: diskSource?.type === 'snapshot' ? diskSource.snapshot_id : null,
+      read_only:
+        (diskSource?.type === 'snapshot' || diskSource?.type === 'image') &&
+        diskSource.read_only === true,
       ...getTimestamps(),
     }
     db.disks.push(newDisk)
@@ -584,6 +589,10 @@ export const handlers = makeHandlers({
           device_path: '/mnt/disk',
           block_size: getBlockSize(disk_backend),
           disk_type: disk_backend.type,
+          read_only:
+            disk_backend.type === 'distributed' &&
+            disk_backend.disk_source.type === 'snapshot' &&
+            disk_backend.disk_source.read_only === true,
           ...getTimestamps(),
         }
         db.disks.push(newDisk)
@@ -931,7 +940,6 @@ export const handlers = makeHandlers({
     // endpoint is not paginated. or rather, it's fake paginated
     return { items: [...ephemeralIps, ...snatIps, ...floatingIps] }
   },
-  instanceExternalSubnetList: NotImplemented,
   instanceNetworkInterfaceList({ query }) {
     const instance = lookup.instance(query)
     const nics = db.networkInterfaces.filter((n) => n.instance_id === instance.id)
@@ -2163,6 +2171,7 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
+  instanceExternalSubnetList: NotImplemented,
   instanceMulticastGroupJoin: NotImplemented,
   instanceMulticastGroupLeave: NotImplemented,
   instanceMulticastGroupList: NotImplemented,

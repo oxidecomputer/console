@@ -23,7 +23,7 @@ import { Storage16Icon, Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
-import { DiskStateBadge, DiskTypeBadge } from '~/components/StateBadge'
+import { DiskStateBadge, DiskTypeBadge, ReadOnlyBadge } from '~/components/StateBadge'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -147,7 +147,12 @@ export default function DisksPage() {
     useMemo(
       () => [
         colHelper.accessor('name', {
-          cell: makeLinkCell((name) => pb.disk({ project, disk: name })),
+          cell: (info) => (
+            <span className="flex items-center gap-2">
+              {makeLinkCell((name) => pb.disk({ project, disk: name }))(info)}
+              {info.row.original.readOnly && <ReadOnlyBadge />}
+            </span>
+          ),
         }),
         // sneaky: rather than looking at particular states, just look at
         // whether it has an instance field

@@ -23,6 +23,7 @@ import {
   type Image,
 } from '@oxide/api'
 
+import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { DiskSizeField } from '~/components/form/fields/DiskSizeField'
 import { toImageComboboxItem } from '~/components/form/fields/ImageSelectField'
@@ -245,7 +246,13 @@ const DiskSourceField = ({
             // need to include blockSize when switching back to blank. other
             // source types get their required fields from form inputs
             setDiskSource(
-              newType === 'blank' ? blankDiskSource : ({ type: newType } as DiskSource)
+              newType === 'blank'
+                ? blankDiskSource
+                : newType === 'snapshot'
+                  ? ({ type: 'snapshot', readOnly: false } as DiskSource)
+                  : newType === 'image'
+                    ? ({ type: 'image', readOnly: false } as DiskSource)
+                    : ({ type: newType } as DiskSource)
             )
           }}
         >
@@ -271,25 +278,41 @@ const DiskSourceField = ({
           />
         )}
         {diskSource.type === 'image' && (
-          <ListboxField
-            control={control}
-            name="diskBackend.diskSource.imageId"
-            label="Source image"
-            placeholder="Select an image"
-            isLoading={areImagesLoading}
-            items={images.map((i) => toImageComboboxItem(i, true))}
-            required
-            onChange={(id) => {
-              const image = images.find((i) => i.id === id)!
-              const imageSizeGiB = image.size / GiB
-              if (diskSizeField.value < imageSizeGiB) {
-                diskSizeField.onChange(diskSizeNearest10(imageSizeGiB))
-              }
-            }}
-          />
+          <>
+            <ListboxField
+              control={control}
+              name="diskBackend.diskSource.imageId"
+              label="Source image"
+              placeholder="Select an image"
+              isLoading={areImagesLoading}
+              items={images.map((i) => toImageComboboxItem(i, true))}
+              required
+              onChange={(id) => {
+                const image = images.find((i) => i.id === id)!
+                const imageSizeGiB = image.size / GiB
+                if (diskSizeField.value < imageSizeGiB) {
+                  diskSizeField.onChange(diskSizeNearest10(imageSizeGiB))
+                }
+              }}
+            />
+            <div className="mt-2">
+              <CheckboxField name="diskBackend.diskSource.readOnly" control={control}>
+                Make disk read-only
+              </CheckboxField>
+            </div>
+          </>
         )}
 
-        {diskSource.type === 'snapshot' && <SnapshotSelectField control={control} />}
+        {diskSource.type === 'snapshot' && (
+          <>
+            <SnapshotSelectField control={control} />
+            <div className="mt-2">
+              <CheckboxField name="diskBackend.diskSource.readOnly" control={control}>
+                Make disk read-only
+              </CheckboxField>
+            </div>
+          </>
+        )}
       </div>
     </>
   )

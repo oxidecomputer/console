@@ -90,3 +90,9 @@ export const DiskTypeBadge = (props: { diskType: DiskType; className?: string })
     {props.diskType}
   </Badge>
 )
+
+export const ReadOnlyBadge = () => (
+  <Badge color="neutral" className="relative">
+    Read only
+  </Badge>
+)

@@ -24,13 +24,42 @@ test('Disk detail side modal', async ({ page }) => {
   await expect(modal.getByText('disk-1')).toBeVisible()
   await expect(modal.getByText('2 GiB')).toBeVisible()
   await expect(modal.getByText('2,048 bytes')).toBeVisible() // block size
+  await expect(modal.getByText('Read only')).toBeVisible()
+  await expect(modal.getByText('No')).toBeVisible()
+})
+
+test('Read-only disk shows badge in table', async ({ page }) => {
+  await page.goto('/projects/mock-project/disks')
+
+  const table = page.getByRole('table')
+
+  // Verify the read-only disk has the badge
+  const readOnlyRow = table.getByRole('row', { name: /read-only-disk/ })
+  await expect(readOnlyRow).toBeVisible()
+  await expect(readOnlyRow.getByText('Read only', { exact: true })).toBeVisible()
+
+  // Verify a regular disk does not have the badge
+  const regularRow = table.getByRole('row', { name: /disk-1 db1/ })
+  await expect(regularRow).toBeVisible()
+  await expect(regularRow.getByText('Read only', { exact: true })).toBeHidden()
+})
+
+test('Read-only disk detail shows read-only status', async ({ page }) => {
+  await page.goto('/projects/mock-project/disks')
+
+  await page.getByRole('link', { name: 'read-only-disk' }).click()
+
+  const modal = page.getByRole('dialog', { name: 'Disk details' })
+  await expect(modal).toBeVisible()
+  await expect(modal.getByText('Read only')).toBeVisible()
+  await expect(modal.getByText('Yes')).toBeVisible()
 })
 
 test('List disks and snapshot', async ({ page }) => {
   await page.goto('/projects/mock-project/disks')
 
   const table = page.getByRole('table')
-  await expect(table.getByRole('row')).toHaveCount(13) // 12 + header
+  await expect(table.getByRole('row')).toHaveCount(14) // 13 + header
 
   // check one attached and one not attached
   await expectRowVisible(table, {
@@ -144,4 +173,44 @@ test.describe('Disk create', () => {
     await expect(blockSize).toBeHidden()
   })
   /* eslint-enable playwright/expect-expect */
+})
+
+test('Create disk from snapshot with read-only', async ({ page }) => {
+  await page.goto('/projects/mock-project/disks-new')
+  await page.getByRole('textbox', { name: 'Name' }).fill('a-new-disk')
+  await page.getByRole('radio', { name: 'Snapshot' }).click()
+  await page.getByRole('button', { name: 'Source snapshot' }).click()
+  await page.getByRole('option', { name: 'delete-500' }).click()
+  await page.getByRole('checkbox', { name: 'Make disk read-only' }).check()
+
+  await page.getByRole('button', { name: 'Create disk' }).click()
+  await expect(page.getByRole('dialog', { name: 'Create disk' })).toBeHidden()
+
+  const row = page.getByRole('row', { name: /a-new-disk/ })
+  await expect(row.getByText('Read only', { exact: true })).toBeVisible()
+
+  // Verify snapshot ID in detail modal
+  await page.getByRole('link', { name: 'a-new-disk' }).click()
+  const modal = page.getByRole('dialog', { name: 'Disk details' })
+  await expect(modal.getByText('e6c58826-62fb-4205-820e-620407cd04e7')).toBeVisible()
+})
+
+test('Create disk from image with read-only', async ({ page }) => {
+  await page.goto('/projects/mock-project/disks-new')
+  await page.getByRole('textbox', { name: 'Name' }).fill('a-new-disk')
+  await page.getByRole('radio', { name: 'Image' }).click()
+  await page.getByRole('button', { name: 'Source image' }).click()
+  await page.getByRole('option', { name: 'image-3' }).click()
+  await page.getByRole('checkbox', { name: 'Make disk read-only' }).check()
+
+  await page.getByRole('button', { name: 'Create disk' }).click()
+  await expect(page.getByRole('dialog', { name: 'Create disk' })).toBeHidden()
+
+  const row = page.getByRole('row', { name: /a-new-disk/ })
+  await expect(row.getByText('Read only', { exact: true })).toBeVisible()
+
+  // Verify image ID in detail modal
+  await page.getByRole('link', { name: 'a-new-disk' }).click()
+  const modal = page.getByRole('dialog', { name: 'Disk details' })
+  await expect(modal.getByText('4700ecf1-8f48-4ecf-b78e-816ddb76aaca')).toBeVisible()
 })
