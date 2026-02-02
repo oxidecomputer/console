@@ -1230,3 +1230,26 @@ test('floating IPs are filtered by NIC IP version', async ({ page }) => {
   await expect(page.getByText('A network interface is required')).toBeVisible()
   await expect(page.getByText('to attach a floating IP')).toBeVisible()
 })
+
+test('can create instance with read-only boot disk', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+
+  const instanceName = 'readonly-boot-instance'
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+
+  // Select a silo image
+  await selectASiloImage(page, 'ubuntu-22-04')
+
+  // Check the read-only checkbox
+  await page.getByRole('checkbox', { name: 'Make disk read-only' }).check()
+
+  await page.getByRole('button', { name: 'Create instance' }).click()
+  await closeToast(page)
+
+  // Wait for navigation to storage tab
+  await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
+
+  // Verify boot disk shows read-only badge
+  const bootDiskTable = page.getByRole('table', { name: 'Boot disk' })
+  await expect(bootDiskTable.getByText('read only')).toBeVisible()
+})

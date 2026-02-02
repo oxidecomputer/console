@@ -9,6 +9,7 @@ import { useQuery } from '@tanstack/react-query'
 import { filesize } from 'filesize'
 import { useMemo } from 'react'
 import { useController, useForm, type Control } from 'react-hook-form'
+import { match } from 'ts-pattern'
 
 import {
   api,
@@ -246,13 +247,12 @@ const DiskSourceField = ({
             // need to include blockSize when switching back to blank. other
             // source types get their required fields from form inputs
             setDiskSource(
-              newType === 'blank'
-                ? blankDiskSource
-                : newType === 'snapshot'
-                  ? ({ type: 'snapshot', readOnly: false } as DiskSource)
-                  : newType === 'image'
-                    ? ({ type: 'image', readOnly: false } as DiskSource)
-                    : ({ type: newType } as DiskSource)
+              match(newType)
+                .with('blank', () => blankDiskSource)
+                .with('snapshot', () => ({ type: 'snapshot', readOnly: false }) as DiskSource)
+                .with('image', () => ({ type: 'image', readOnly: false }) as DiskSource)
+                .with('importing_blocks', () => ({ type: 'importing_blocks' }) as DiskSource)
+                .exhaustive()
             )
           }}
         >
