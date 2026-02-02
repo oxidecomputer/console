@@ -18,7 +18,10 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { addToast } from '~/stores/toast'
+import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
+import { ModalLink, ModalLinks } from '~/ui/lib/ModalLinks'
+import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 type IpPoolCreateForm = SetRequired<IpPoolCreate, 'poolType' | 'ipVersion'>
@@ -83,6 +86,11 @@ export default function CreateIpPoolSideModalForm() {
           { value: 'multicast', label: 'Multicast' },
         ]}
       />
+      <FormDivider />
+      <ModalLinks heading="Relevant docs">
+        <ModalLink to={links.ipPoolCreateDocs} label="IP Pool Creation" />
+        <ModalLink to={links.ipPoolTypesDocs} label="IP Pool Types" />
+      </ModalLinks>
     </SideModalForm>
   )
 }
