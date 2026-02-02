@@ -9,16 +9,15 @@ import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
 import type { InstanceNetworkInterfaceCreate } from '@oxide/api'
-import { Badge } from '@oxide/design-system/ui'
 
+import { IpVersionBadge } from '~/components/IpVersionBadge'
 import type { InstanceCreateInput } from '~/forms/instance-create'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
 import { Button } from '~/ui/lib/Button'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { Listbox } from '~/ui/lib/Listbox'
 import { MiniTable } from '~/ui/lib/MiniTable'
 import { Radio } from '~/ui/lib/Radio'
-import { RadioGroup } from '~/ui/lib/RadioGroup'
-import { TextInputHint } from '~/ui/lib/TextInput'
 
 /**
  * Designed less for reuse, more to encapsulate logic that would otherwise
@@ -41,101 +40,145 @@ export function NetworkInterfaceField({
    */
   const [oldParams, setOldParams] = useState<InstanceNetworkInterfaceCreate[]>([])
 
+  const v4VersionBadge = <IpVersionBadge ipVersion="v4" />
+  const v6VersionBadge = <IpVersionBadge ipVersion="v6" />
+  const dualStackVersionBadge = (
+    <>
+      {v4VersionBadge}, {v6VersionBadge}
+    </>
+  )
+
   const {
     field: { value, onChange },
   } = useController({ control, name: 'networkInterfaces' })
 
+  // Determine the current "mode" (default, create, none)
+  const currentMode =
+    value.type === 'none' ? 'none' : value.type === 'create' ? 'create' : 'default'
+
+  // For default mode, use the actual type as the selected value
+  const defaultIpVersion = currentMode === 'default' ? value.type : 'default_dual_stack'
+
+  const handleModeChange = (newMode: string) => {
+    if (value.type === 'create') {
+      setOldParams(value.params)
+    }
+
+    if (newMode === 'default') {
+      onChange({ type: 'default_dual_stack' })
+    } else if (newMode === 'create') {
+      onChange({ type: 'create', params: oldParams })
+    } else if (newMode === 'none') {
+      onChange({ type: 'none' })
+    }
+  }
+
   return (
     <div className="max-w-lg space-y-2">
       <FieldLabel id="network-interface-type-label">Network interface</FieldLabel>
-      <TextInputHint id="network-interface-type-hint">
-        Use the project’s{' '}
-        <Badge className="normal-case!" color="neutral">
-          default
-        </Badge>{' '}
-        VPC and Subnet, using the selected IP version(s)
-      </TextInputHint>
-      <div className="space-y-4">
-        <RadioGroup
-          aria-labelledby="network-interface-type-label"
-          name="networkInterfaceType"
-          column
-          className="pt-1"
-          defaultChecked={value.type}
-          disabled={disabled}
-          onChange={(event) => {
-            const newType = event.target.value
+      <div
+        className="flex flex-col pt-1"
+        role="radiogroup"
+        aria-labelledby="network-interface-type-label"
+      >
+        <div className="space-y-2">
+          <Radio
+            name="networkInterfaceType"
+            value="default"
+            disabled={!hasVpcs || disabled}
+            defaultChecked={currentMode === 'default'}
+            onChange={(e) => handleModeChange(e.target.value)}
+          >
+            Default
+          </Radio>
+          {currentMode === 'default' && (
+            <div className="mb-2 ml-6">
+              <Listbox
+                name="defaultIpVersion"
+                items={[
+                  { value: 'default_dual_stack', label: 'IPv4 & IPv6' },
+                  { value: 'default_ipv4', label: 'IPv4' },
+                  { value: 'default_ipv6', label: 'IPv6' },
+                ]}
+                selected={defaultIpVersion}
+                onChange={(type) => onChange({ type })}
+              />
+            </div>
+          )}
+        </div>
 
-            if (value.type === 'create') {
-              setOldParams(value.params)
-            }
-
-            if (newType === 'create') {
-              onChange({ type: 'create', params: oldParams })
-            } else {
-              onChange({ type: newType as typeof value.type })
-            }
-          }}
-        >
-          {/*
-              Pre-selected default is dual-stack when VPCs exist (set in instance-create).
-              This matches the API default and works with both IPv4 and IPv6 subnets.
-              User can manually select a specific IP version if needed.
-          */}
-          <Radio value="default_ipv4" disabled={!hasVpcs}>
-            Default IPv4
-          </Radio>
-          <Radio value="default_ipv6" disabled={!hasVpcs}>
-            Default IPv6
-          </Radio>
-          <Radio value="default_dual_stack" disabled={!hasVpcs}>
-            Default IPv4 & IPv6
-          </Radio>
-          <Radio value="none">None</Radio>
-          {/* Custom follows None because of `Add network interface` button and table */}
-          <Radio value="create" disabled={!hasVpcs}>
+        <div className="space-y-2">
+          <Radio
+            name="networkInterfaceType"
+            value="create"
+            disabled={!hasVpcs || disabled}
+            defaultChecked={currentMode === 'create'}
+            onChange={(e) => handleModeChange(e.target.value)}
+          >
             Custom
           </Radio>
-        </RadioGroup>
-        {value.type === 'create' && (
-          <>
-            <MiniTable
-              className="pt-2"
-              ariaLabel="Network Interfaces"
-              items={value.params}
-              columns={[
-                { header: 'Name', cell: (item) => item.name },
-                { header: 'VPC', cell: (item) => item.vpcName },
-                { header: 'Subnet', cell: (item) => item.subnetName },
-              ]}
-              rowKey={(item) => item.name}
-              onRemoveItem={(item) =>
-                onChange({
-                  type: 'create',
-                  params: value.params.filter((i) => i.name !== item.name),
-                })
-              }
-              removeLabel={(item) => `remove network interface ${item.name}`}
-            />
-
-            {showForm && (
-              <CreateNetworkInterfaceForm
-                onSubmit={(networkInterface) => {
-                  onChange({
-                    type: 'create',
-                    params: [...value.params, networkInterface],
-                  })
-                  setShowForm(false)
-                }}
-                onDismiss={() => setShowForm(false)}
-              />
-            )}
-            <div className="space-x-3">
+          {currentMode === 'create' && (
+            <div className="mb-2 ml-6 space-y-3">
               <Button size="sm" onClick={() => setShowForm(true)}>
                 Add network interface
               </Button>
+
+              {value.type === 'create' && value.params.length > 0 && (
+                <MiniTable
+                  ariaLabel="Network Interfaces"
+                  items={value.params}
+                  columns={[
+                    { header: 'Name', cell: (item) => item.name },
+                    { header: 'VPC', cell: (item) => item.vpcName },
+                    { header: 'Subnet', cell: (item) => item.subnetName },
+                    {
+                      header: 'Version',
+                      cell: (item) => {
+                        if (item.ipConfig === undefined) return '—'
+                        if (item.ipConfig.type === 'dual_stack')
+                          return dualStackVersionBadge
+                        return <IpVersionBadge ipVersion={item.ipConfig?.type} />
+                      },
+                    },
+                  ]}
+                  rowKey={(item) => item.name}
+                  onRemoveItem={(item) =>
+                    onChange({
+                      type: 'create',
+                      params: value.params.filter((i) => i.name !== item.name),
+                    })
+                  }
+                  removeLabel={(item) => `remove network interface ${item.name}`}
+                />
+              )}
             </div>
-          </>
+          )}
+        </div>
+
+        <Radio
+          name="networkInterfaceType"
+          value="none"
+          disabled={disabled}
+          defaultChecked={currentMode === 'none'}
+          onChange={(e) => handleModeChange(e.target.value)}
+        >
+          None
+        </Radio>
+
+        {showForm && (
+          <CreateNetworkInterfaceForm
+            onSubmit={(networkInterface) => {
+              onChange({
+                type: 'create',
+                params: [
+                  ...(value.type === 'create' ? value.params : []),
+                  networkInterface,
+                ],
+              })
+              setShowForm(false)
+            }}
+            onDismiss={() => setShowForm(false)}
+          />
         )}
       </div>
     </div>

@@ -23,7 +23,7 @@ import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
-import { makeLinkCell } from '~/table/cells/LinkCell'
+import { LinkCell, makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -32,6 +32,7 @@ import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
+import { Tooltip } from '~/ui/lib/Tooltip'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
@@ -76,14 +77,23 @@ export default function SiloIpPoolsTab() {
   const staticCols = useMemo(
     () => [
       colHelper.accessor('name', {
+        cell: (info) => (
+          <LinkCell to={pb.ipPool({ pool: info.row.original.id })}>
+            {info.getValue()}
+            {info.row.original.isDefault && (
+              <Tooltip content="Default for version and type">
+                <span className="ml-2">
+                  <Badge>default</Badge>
+                </span>
+              </Tooltip>
+            )}
+          </LinkCell>
+        ),
+      }),
+      colHelper.accessor('name', {
         cell: (info) => {
           const LinkCell = makeLinkCell((pool) => pb.ipPool({ pool }))
-          return (
-            <div className="relative flex items-center gap-1">
-              <LinkCell {...info} />
-              {info.row.original.isDefault && <Badge className="relative">default</Badge>}
-            </div>
-          )
+          return <LinkCell {...info} />
         },
       }),
       colHelper.accessor('description', Columns.description),
@@ -148,8 +158,8 @@ export default function SiloIpPoolsTab() {
             })
           } else {
             const existingDefault = findDefaultForVersionType(pool.ipVersion, pool.poolType)
-            const versionLabel = pool.ipVersion === 'v4' ? 'IPv4' : 'IPv6'
-            const typeLabel = pool.poolType === 'unicast' ? 'unicast' : 'multicast'
+            const versionLabel = `IP${pool.ipVersion}`
+            const typeLabel = pool.poolType
 
             const modalContent = existingDefault ? (
               <p>

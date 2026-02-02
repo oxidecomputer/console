@@ -63,7 +63,6 @@ import { NetworkInterfaceField } from '~/components/form/fields/NetworkInterface
 import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioFieldDyn } from '~/components/form/fields/RadioField'
 import { SshKeysField } from '~/components/form/fields/SshKeysField'
-import { TextField } from '~/components/form/fields/TextField'
 import { Form } from '~/components/form/Form'
 import { FullPageForm } from '~/components/form/FullPageForm'
 import { HL } from '~/components/HL'
@@ -436,7 +435,7 @@ export default function CreateInstanceForm() {
             query: { project },
             body: {
               name: values.name,
-              hostname: values.hostname || values.name,
+              hostname: values.name,
               description: values.description,
               memory: instance.memory * GiB,
               ncpus: instance.ncpus,
@@ -814,8 +813,6 @@ const AdvancedAccordion = ({
     // NOTE: Do not include externalIps in deps - it would cause infinite loop
   ])
 
-  const instanceName = useWatch({ control, name: 'name' })
-
   const { project } = useProjectSelector()
   const { data: floatingIpList } = usePrefetchedQuery(
     q(api.floatingIpList, { query: { project, limit: ALL_ISH } })
@@ -976,16 +973,6 @@ const AdvancedAccordion = ({
           disabled={isSubmitting}
           hasVpcs={hasVpcs}
         />
-
-        <div className="py-2">
-          <TextField
-            name="hostname"
-            description="Will be set to instance name if left blank"
-            control={control}
-            disabled={isSubmitting}
-            placeholder={instanceName}
-          />
-        </div>
 
         <div className="flex flex-1 flex-col gap-4">
           <h2 className="text-sans-md flex items-center">

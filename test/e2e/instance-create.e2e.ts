@@ -104,11 +104,6 @@ test('can create an instance', async ({ page }) => {
 
   // should be visible in accordion
   await expect(page.getByRole('radiogroup', { name: 'Network interface' })).toBeVisible()
-  // we show the default hostname, instance name, as placeholder
-  await expect(page.getByRole('textbox', { name: 'Hostname' })).toHaveAttribute(
-    'placeholder',
-    instanceName
-  )
   await expect(page.getByLabel('User data')).toBeVisible()
 
   await page.getByRole('button', { name: 'Create instance' }).click()
@@ -715,8 +710,16 @@ test('create instance with IPv6-only networking', async ({ page }) => {
   // Open networking accordion
   await page.getByRole('button', { name: 'Networking' }).click()
 
-  // Select "Default IPv6" network interface
-  await page.getByRole('radio', { name: 'Default IPv6', exact: true }).click()
+  // Ensure "Default" network interface is selected
+  const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
+  if (!(await defaultRadio.isChecked())) {
+    await defaultRadio.click()
+  }
+  // Wait for and select from the IP version dropdown
+  const ipVersionButton = page.locator('[name="defaultIpVersion"]')
+  await ipVersionButton.waitFor({ state: 'visible' })
+  await ipVersionButton.click()
+  await page.getByRole('option', { name: 'IPv6', exact: true }).click()
 
   // Create instance
   await page.getByRole('button', { name: 'Create instance' }).click()
@@ -751,8 +754,16 @@ test('create instance with IPv4-only networking', async ({ page }) => {
   // Open networking accordion
   await page.getByRole('button', { name: 'Networking' }).click()
 
-  // Select "Default IPv4" network interface
-  await page.getByRole('radio', { name: 'Default IPv4', exact: true }).click()
+  // Ensure "Default" network interface is selected
+  const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
+  if (!(await defaultRadio.isChecked())) {
+    await defaultRadio.click()
+  }
+  // Wait for and select from the IP version dropdown
+  const ipVersionButton = page.locator('[name="defaultIpVersion"]')
+  await ipVersionButton.waitFor({ state: 'visible' })
+  await ipVersionButton.click()
+  await page.getByRole('option', { name: 'IPv4', exact: true }).click()
 
   // Create instance
   await page.getByRole('button', { name: 'Create instance' }).click()
@@ -1011,15 +1022,15 @@ test('ephemeral IP checkbox disabled when no NICs configured', async ({ page }) 
   const ephemeralCheckbox = page.getByRole('checkbox', {
     name: 'Allocate and attach an ephemeral IP address',
   })
-  const defaultDualStackRadio = page.getByRole('radio', {
-    name: 'Default IPv4 & IPv6',
+  const defaultRadio = page.getByRole('radio', {
+    name: 'Default',
     exact: true,
   })
   const noneRadio = page.getByRole('radio', { name: 'None', exact: true })
   const customRadio = page.getByRole('radio', { name: 'Custom', exact: true }).first()
 
-  // Verify default state: "Default IPv4 & IPv6" is checked and Ephemeral IP checkbox is checked
-  await expect(defaultDualStackRadio).toBeChecked()
+  // Verify default state: "Default" is checked and Ephemeral IP checkbox is checked
+  await expect(defaultRadio).toBeChecked()
   await expect(ephemeralCheckbox).toBeChecked()
   await expect(ephemeralCheckbox).toBeEnabled()
 
@@ -1091,12 +1102,7 @@ test('network interface options disabled when no VPCs exist', async ({ page }) =
   await page.getByRole('button', { name: 'Networking' }).click()
 
   // Get radio button elements
-  const defaultIpv4Radio = page.getByRole('radio', { name: 'Default IPv4', exact: true })
-  const defaultIpv6Radio = page.getByRole('radio', { name: 'Default IPv6', exact: true })
-  const defaultDualStackRadio = page.getByRole('radio', {
-    name: 'Default IPv4 & IPv6',
-    exact: true,
-  })
+  const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
   const noneRadio = page.getByRole('radio', { name: 'None', exact: true })
   const customRadio = page.getByRole('radio', { name: 'Custom', exact: true })
 
@@ -1104,10 +1110,8 @@ test('network interface options disabled when no VPCs exist', async ({ page }) =
   await expect(page.getByText('A VPC is required to add network interfaces.')).toBeVisible()
   await expect(page.getByRole('link', { name: 'Create a VPC' })).toBeVisible()
 
-  // Verify Default IPv4, Default IPv6, Default Dual Stack, and Custom are disabled
-  await expect(defaultIpv4Radio).toBeDisabled()
-  await expect(defaultIpv6Radio).toBeDisabled()
-  await expect(defaultDualStackRadio).toBeDisabled()
+  // Verify Default and Custom are disabled
+  await expect(defaultRadio).toBeDisabled()
   await expect(customRadio).toBeDisabled()
 
   // Verify "None" is enabled and checked
@@ -1122,7 +1126,15 @@ test('floating IPs are filtered by NIC IP version', async ({ page }) => {
   await page.getByRole('button', { name: 'Networking' }).click()
 
   // Select IPv4-only networking
-  await page.getByRole('radio', { name: 'Default IPv4', exact: true }).click()
+  const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
+  if (!(await defaultRadio.isChecked())) {
+    await defaultRadio.click()
+  }
+  // Wait for and select from the IP version dropdown
+  const ipVersionButton = page.locator('[name="defaultIpVersion"]')
+  await ipVersionButton.waitFor({ state: 'visible' })
+  await ipVersionButton.click()
+  await page.getByRole('option', { name: 'IPv4', exact: true }).click()
 
   // Open the floating IP modal
   await page.getByRole('button', { name: 'Attach floating IP' }).click()
@@ -1147,7 +1159,8 @@ test('floating IPs are filtered by NIC IP version', async ({ page }) => {
   await dialog.getByRole('button', { name: 'Cancel' }).click()
 
   // Switch to IPv6-only networking
-  await page.getByRole('radio', { name: 'Default IPv6', exact: true }).click()
+  await ipVersionButton.click()
+  await page.getByRole('option', { name: 'IPv6', exact: true }).click()
 
   // Open the floating IP modal again
   await page.getByRole('button', { name: 'Attach floating IP' }).click()
@@ -1170,7 +1183,8 @@ test('floating IPs are filtered by NIC IP version', async ({ page }) => {
   await dialog.getByRole('button', { name: 'Cancel' }).click()
 
   // Switch to dual-stack networking
-  await page.getByRole('radio', { name: 'Default IPv4 & IPv6', exact: true }).click()
+  await ipVersionButton.click()
+  await page.getByRole('option', { name: 'IPv4 & IPv6', exact: true }).click()
 
   // Open the floating IP modal again
   await page.getByRole('button', { name: 'Attach floating IP' }).click()

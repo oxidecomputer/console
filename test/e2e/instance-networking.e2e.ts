@@ -324,7 +324,14 @@ test('IPv4-only instance cannot attach IPv6 ephemeral IP', async ({ page }) => {
 
   // Open networking accordion and select IPv4-only
   await page.getByRole('button', { name: 'Networking' }).click()
-  await page.getByRole('radio', { name: 'Default IPv4', exact: true }).click()
+  const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
+  if (!(await defaultRadio.isChecked())) {
+    await defaultRadio.click()
+  }
+  const ipVersionButton = page.locator('[name="defaultIpVersion"]')
+  await ipVersionButton.waitFor({ state: 'visible' })
+  await ipVersionButton.click()
+  await page.getByRole('option', { name: 'IPv4', exact: true }).click()
 
   // Don't attach ephemeral IP at creation
   await page
@@ -372,7 +379,14 @@ test('IPv6-only instance cannot attach IPv4 ephemeral IP', async ({ page }) => {
 
   // Open networking accordion and select IPv6-only
   await page.getByRole('button', { name: 'Networking' }).click()
-  await page.getByRole('radio', { name: 'Default IPv6', exact: true }).click()
+  const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
+  if (!(await defaultRadio.isChecked())) {
+    await defaultRadio.click()
+  }
+  const ipVersionButton = page.locator('[name="defaultIpVersion"]')
+  await ipVersionButton.waitFor({ state: 'visible' })
+  await ipVersionButton.click()
+  await page.getByRole('option', { name: 'IPv6', exact: true }).click()
 
   // Don't attach ephemeral IP at creation
   await page
@@ -420,7 +434,14 @@ test('IPv4-only instance can attach IPv4 ephemeral IP', async ({ page }) => {
 
   // Open networking accordion and select IPv4-only
   await page.getByRole('button', { name: 'Networking' }).click()
-  await page.getByRole('radio', { name: 'Default IPv4', exact: true }).click()
+  const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
+  if (!(await defaultRadio.isChecked())) {
+    await defaultRadio.click()
+  }
+  const ipVersionButton = page.locator('[name="defaultIpVersion"]')
+  await ipVersionButton.waitFor({ state: 'visible' })
+  await ipVersionButton.click()
+  await page.getByRole('option', { name: 'IPv4', exact: true }).click()
 
   // Don't attach ephemeral IP at creation
   await page
@@ -462,7 +483,14 @@ test('IPv6-only instance can attach IPv6 ephemeral IP', async ({ page }) => {
 
   // Open networking accordion and select IPv6-only
   await page.getByRole('button', { name: 'Networking' }).click()
-  await page.getByRole('radio', { name: 'Default IPv6', exact: true }).click()
+  const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
+  if (!(await defaultRadio.isChecked())) {
+    await defaultRadio.click()
+  }
+  const ipVersionButton = page.locator('[name="defaultIpVersion"]')
+  await ipVersionButton.waitFor({ state: 'visible' })
+  await ipVersionButton.click()
+  await page.getByRole('option', { name: 'IPv6', exact: true }).click()
 
   // Don't attach ephemeral IP at creation
   await page
