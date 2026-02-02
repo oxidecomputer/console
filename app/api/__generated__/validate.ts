@@ -1734,6 +1734,7 @@ export const Disk = z.preprocess(
     imageId: z.uuid().nullable().optional(),
     name: Name,
     projectId: z.uuid(),
+    readOnly: SafeBoolean,
     size: ByteCount,
     snapshotId: z.uuid().nullable().optional(),
     state: DiskState,
@@ -1749,8 +1750,16 @@ export const DiskSource = z.preprocess(
   processResponseBody,
   z.union([
     z.object({ blockSize: BlockSize, type: z.enum(['blank']) }),
-    z.object({ snapshotId: z.uuid(), type: z.enum(['snapshot']) }),
-    z.object({ imageId: z.uuid(), type: z.enum(['image']) }),
+    z.object({
+      readOnly: SafeBoolean.default(false),
+      snapshotId: z.uuid(),
+      type: z.enum(['snapshot']),
+    }),
+    z.object({
+      imageId: z.uuid(),
+      readOnly: SafeBoolean.default(false),
+      type: z.enum(['image']),
+    }),
     z.object({ blockSize: BlockSize, type: z.enum(['importing_blocks']) }),
   ])
 )
