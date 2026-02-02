@@ -280,7 +280,7 @@ test('Silo IP pools', async ({ page }) => {
 
   // clicking on pool goes to pool detail
   await page.getByRole('link', { name: 'ip-pool-1' }).click()
-  await expect(page).toHaveURL('/system/networking/ip-pools/ip-pool-1')
+  await expect(page).toHaveURL(/\/system\/networking\/ip-pools\/[a-f0-9-]+/)
   await page.goBack()
 
   // unlink IPv4 pool

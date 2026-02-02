@@ -23,7 +23,7 @@ import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
-import { LinkCell, makeLinkCell } from '~/table/cells/LinkCell'
+import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -89,12 +89,6 @@ export default function SiloIpPoolsTab() {
             )}
           </LinkCell>
         ),
-      }),
-      colHelper.accessor('name', {
-        cell: (info) => {
-          const LinkCell = makeLinkCell((pool) => pb.ipPool({ pool }))
-          return <LinkCell {...info} />
-        },
       }),
       colHelper.accessor('description', Columns.description),
       colHelper.accessor('ipVersion', {
