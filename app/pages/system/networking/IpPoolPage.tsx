@@ -22,11 +22,7 @@ import {
   type IpPoolRange,
   type IpPoolSiloLink,
 } from '@oxide/api'
-import {
-  IpGlobal16Icon,
-  IpGlobal24Icon,
-  Success12Icon,
-} from '@oxide/design-system/icons/react'
+import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
 import { CapacityBar } from '~/components/CapacityBar'
@@ -322,7 +318,7 @@ function LinkedSilosTable() {
         header: () => {
           return (
             <span className="inline-flex items-center gap-2">
-              Pool is silo default
+              Silo default
               <TipIcon>
                 IPs are allocated from the default pool when users ask for an IP without
                 specifying a pool
@@ -330,13 +326,7 @@ function LinkedSilosTable() {
             </span>
           )
         },
-        cell: (info) =>
-          info.getValue() ? (
-            <>
-              <Success12Icon className="text-accent mr-1" />
-              <Badge>default</Badge>
-            </>
-          ) : null,
+        cell: (info) => (info.getValue() ? <Badge>default</Badge> : null),
       }),
     ],
     []
