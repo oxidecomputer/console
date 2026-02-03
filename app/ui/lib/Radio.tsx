@@ -42,7 +42,7 @@ export const Radio = ({ children, className, alignTop, ...inputProps }: RadioPro
 )
 
 const cardLabelStyles = `
-  text-sans-md border rounded border-default bg-default hover:border-hover
+  text-sans-md border rounded-md border-default bg-default hover:border-hover
   peer-focus:ring-2 peer-focus:ring-accent-secondary w-44 text-raise
 
   *:border-secondary *:p-3

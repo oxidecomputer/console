@@ -51,9 +51,9 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
       ? isSameDay(date, state.highlightedRange.end)
       : isSelected
 
-  // We add rounded corners on the left for the first day of the month,
+  // We add rounded-md corners on the left for the first day of the month,
   // the first day of each week, and the start date of the selection.
-  // We add rounded corners on the right for the last day of the month,
+  // We add rounded-md corners on the right for the last day of the month,
   // the last day of each week, and the end date of the selection.
   const { locale } = useLocale()
   const dayOfWeek = getDayOfWeek(date, locale)

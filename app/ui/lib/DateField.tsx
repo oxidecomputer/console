@@ -24,7 +24,7 @@ import {
   type DateSegment as DateSegmentType,
 } from 'react-stately'
 
-const dateTimeFieldStyles = 'flex items-center rounded border p-2'
+const dateTimeFieldStyles = 'flex items-center rounded-md border p-2'
 
 interface DateFieldProps extends AriaDateFieldProps<DateValue> {
   className?: string
@@ -129,7 +129,7 @@ function DateSegment({
           (segment.maxValue != null && String(segment.maxValue).length + 'ch') || undefined,
       }}
       className={cn(
-        'group box-content rounded px-px text-right tabular-nums outline-hidden',
+        'group box-content rounded-md px-px text-right tabular-nums outline-hidden',
         !readOnly && 'focus:text-raise focus:bg-accent-secondary-hover',
         segment.type === 'timeZoneName' ? 'text-sans-sm ml-1' : 'text-sans-md'
       )}

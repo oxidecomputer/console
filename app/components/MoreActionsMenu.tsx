@@ -40,7 +40,7 @@ export const MoreActionsMenu = ({
             variant === 'small' && 'h-6 w-6',
             variant === 'default' && 'h-8 w-8',
             (variant === 'default' || variant === 'small') &&
-              'border-default rounded border',
+              'border-default rounded-md border',
             variant === 'filled' && 'h-full w-full px-3'
           )}
         >
