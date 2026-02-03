@@ -88,7 +88,7 @@ import { Tooltip } from '~/ui/lib/Tooltip'
 import { Wrap } from '~/ui/util/wrap'
 import { ALL_ISH } from '~/util/consts'
 import { readBlobAsBase64 } from '~/util/file'
-import { filterFloatingIpsByVersion, getDefaultIps } from '~/util/ip'
+import { getDefaultIps, ipHasVersion } from '~/util/ip'
 import { docLinks, links } from '~/util/links'
 import { diskSizeNearest10 } from '~/util/math'
 import { pb } from '~/util/path-builder'
@@ -833,10 +833,9 @@ const AdvancedAccordion = ({
   // To find available floating IPs, we remove the ones that are already committed to this instance
   // and filter by IP version compatibility with configured NICs
   const availableFloatingIps = useMemo(() => {
-    const notAttached = attachableFloatingIps.filter(
-      (ip) => !attachedFloatingIps.find((attachedIp) => attachedIp.floatingIp === ip.name)
-    )
-    return filterFloatingIpsByVersion(notAttached, compatibleVersions)
+    return attachableFloatingIps
+      .filter((ip) => !attachedFloatingIps.find((attached) => attached.floatingIp === ip.name))
+      .filter(ipHasVersion(compatibleVersions))
   }, [attachableFloatingIps, attachedFloatingIps, compatibleVersions])
 
   const attachedFloatingIpsData = attachedFloatingIps

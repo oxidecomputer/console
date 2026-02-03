@@ -59,8 +59,8 @@ import { TipIcon } from '~/ui/lib/TipIcon'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { ALL_ISH } from '~/util/consts'
 import {
-  filterFloatingIpsByVersion,
   getCompatibleVersionsFromNics,
+  ipHasVersion,
   parseIp,
 } from '~/util/ip'
 import { pb } from '~/util/path-builder'
@@ -310,10 +310,10 @@ export default function NetworkingTab() {
   const compatibleVersions = useMemo(() => getCompatibleVersionsFromNics(nics), [nics])
 
   // Filter out the IPs that are already attached to an instance and filter by IP version compatibility
-  const availableIps = useMemo(() => {
-    const notAttached = ips.items.filter((ip) => !ip.instanceId)
-    return filterFloatingIpsByVersion(notAttached, compatibleVersions)
-  }, [ips, compatibleVersions])
+  const availableIps = useMemo(
+    () => ips.items.filter((ip) => !ip.instanceId).filter(ipHasVersion(compatibleVersions)),
+    [ips, compatibleVersions]
+  )
 
   const createNic = useApiMutation(api.instanceNetworkInterfaceCreate, {
     onSuccess() {

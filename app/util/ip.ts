@@ -108,20 +108,16 @@ export function getCompatibleVersionsFromNics(
 }
 
 /**
- * Filters floating IPs by compatible IP versions. Only IPs whose version
- * matches one of the compatible versions are returned.
+ * Curried predicate that checks if an item's IP address matches one of the
+ * given IP versions. Use with Array.filter to filter floating IPs, etc.
  */
-export function filterFloatingIpsByVersion<T extends { ip: string }>(
-  floatingIps: T[],
-  compatibleVersions: IpVersion[]
-): T[] {
-  if (compatibleVersions.length === 0) return []
-  return floatingIps.filter((floatingIp) => {
-    const ipVersion = parseIp(floatingIp.ip)
-    if (ipVersion.type === 'error') return false
-    return compatibleVersions.includes(ipVersion.type)
-  })
-}
+export const ipHasVersion =
+  (versions: IpVersion[]) =>
+  (item: { ip: string }): boolean => {
+    if (versions.length === 0) return false
+    const ipVersion = parseIp(item.ip)
+    return ipVersion.type !== 'error' && versions.includes(ipVersion.type)
+  }
 
 export const getDefaultIps = (pools: UnicastIpPool[]) => {
   const defaultPools = pools.filter((pool) => pool.isDefault)
@@ -130,8 +126,6 @@ export const getDefaultIps = (pools: UnicastIpPool[]) => {
   const v6Default = defaultPools.find((p) => p.ipVersion === 'v6')
   const hasV6Default = !!v6Default
   return {
-    v4Default,
-    v6Default,
     hasV4Default,
     hasV6Default,
     hasDualDefaults: hasV4Default && hasV6Default,
