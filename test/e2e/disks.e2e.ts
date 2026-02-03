@@ -11,6 +11,7 @@ import {
   expectNoToast,
   expectRowVisible,
   expectToast,
+  fillNumberInput,
   test,
 } from './utils'
 
@@ -178,22 +179,26 @@ test.describe('Disk create', () => {
 test('Distributed disk clamps size to max of 1023 GiB', async ({ page }) => {
   await page.goto('/projects/mock-project/disks-new')
 
-  const sizeInput = page.getByRole('textbox', { name: 'Size (GiB)' })
-  await sizeInput.fill('2000')
-  await sizeInput.blur()
+  // Wait for form to be hydrated by checking a field that renders after mount
+  await expect(page.getByRole('radiogroup', { name: 'Block size' })).toBeVisible()
 
-  // Value should be clamped to 1023
-  await expect(sizeInput).toHaveValue('1023')
+  const sizeInput = page.getByRole('textbox', { name: 'Size (GiB)' })
+  await fillNumberInput(sizeInput, '2000', '1023')
 })
 
 test('Local disk has no max size limit', async ({ page }) => {
   await page.goto('/projects/mock-project/disks-new')
 
+  // Wait for form to be hydrated by checking a field that renders after mount
+  await expect(page.getByRole('radiogroup', { name: 'Block size' })).toBeVisible()
+
   await page.getByRole('radio', { name: 'Local' }).click()
 
+  // Wait for form to update (Block size disappears in local mode)
+  await expect(page.getByRole('radiogroup', { name: 'Block size' })).toBeHidden()
+
   const sizeInput = page.getByRole('textbox', { name: 'Size (GiB)' })
-  await sizeInput.fill('2000')
-  await sizeInput.blur()
+  await fillNumberInput(sizeInput, '2000')
 
   // Should not show the max size error
   await expect(page.getByText('Can be at most 1023 GiB')).toBeHidden()
@@ -205,11 +210,17 @@ test('Local disk has no max size limit', async ({ page }) => {
 test('Create local disk with size > 1023 GiB', async ({ page }) => {
   await page.goto('/projects/mock-project/disks-new')
 
+  // Wait for form to be hydrated by checking a field that renders after mount
+  await expect(page.getByRole('radiogroup', { name: 'Block size' })).toBeVisible()
+
   await page.getByRole('textbox', { name: 'Name' }).fill('big-local-disk')
   await page.getByRole('radio', { name: 'Local' }).click()
 
+  // Wait for form to update (Block size disappears in local mode)
+  await expect(page.getByRole('radiogroup', { name: 'Block size' })).toBeHidden()
+
   const sizeInput = page.getByRole('textbox', { name: 'Size (GiB)' })
-  await sizeInput.fill('2000')
+  await fillNumberInput(sizeInput, '2000')
 
   await page.getByRole('button', { name: 'Create disk' }).click()
 
