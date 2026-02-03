@@ -145,6 +145,7 @@ const getMatches = (pathname: string) =>
         // not used
         id: '',
         data: undefined,
+        loaderData: undefined,
       }
     })
   )
