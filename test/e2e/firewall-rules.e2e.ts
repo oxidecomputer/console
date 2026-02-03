@@ -464,11 +464,8 @@ test('can update firewall rule', async ({ page }) => {
 
   // add host filter
   await selectOption(page, 'Host type', 'VPC subnet')
-  const subnetCombobox = page.getByRole('combobox', { name: 'Subnet name' })
-  await subnetCombobox.fill('edit-filter-subnet')
-  await subnetCombobox.press('Enter')
-  // Blur the combobox to ensure dropdown closes before clicking button (prevents Firefox flake)
-  await subnetCombobox.blur()
+  await page.getByRole('combobox', { name: 'Subnet name' }).fill('edit-filter-subnet')
+  await page.getByRole('combobox', { name: 'Subnet name' }).press('Enter')
   await page.getByRole('button', { name: 'Add host filter' }).click()
 
   // new host is added to hosts table

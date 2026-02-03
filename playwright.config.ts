@@ -27,6 +27,7 @@ export default {
   use: {
     trace: process.env.CI ? 'on-first-retry' : 'retain-on-failure',
     baseURL: 'http://localhost:4009',
+    reducedMotion: 'reduce',
   },
   projects: [
     {
