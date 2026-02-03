@@ -58,11 +58,7 @@ import { TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { ALL_ISH } from '~/util/consts'
-import {
-  getCompatibleVersionsFromNics,
-  ipHasVersion,
-  parseIp,
-} from '~/util/ip'
+import { getCompatibleVersionsFromNics, ipHasVersion, parseIp } from '~/util/ip'
 import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './common'

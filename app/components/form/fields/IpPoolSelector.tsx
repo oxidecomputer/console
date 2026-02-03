@@ -14,6 +14,8 @@ import { poolHasIpVersion, type IpVersion, type UnicastIpPool } from '@oxide/api
 import { toIpPoolItem } from './ip-pool-item'
 import { ListboxField } from './ListboxField'
 
+const ALL_IP_VERSIONS: IpVersion[] = ['v4', 'v6']
+
 type IpPoolSelectorProps = {
   control: Control<any>
   poolFieldName: string
@@ -42,7 +44,7 @@ export function IpPoolSelector({
   currentPool,
   setValue,
   disabled = false,
-  compatibleVersions = ['v4', 'v6'],
+  compatibleVersions = ALL_IP_VERSIONS,
   // When both a default IPv4 and default IPv6 pool exist, the component picks the
   // v4 default, to reduce user confusion. The selection is easily modified later
   // (both in the form and later on the instance).

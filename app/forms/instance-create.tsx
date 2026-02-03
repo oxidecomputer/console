@@ -15,6 +15,7 @@ import {
   type UseFormSetValue,
 } from 'react-hook-form'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { match, P } from 'ts-pattern'
 import type { SetRequired } from 'type-fest'
 
 import {
@@ -34,6 +35,7 @@ import {
   type Image,
   type InstanceCreate,
   type InstanceDiskAttachment,
+  type InstanceNetworkInterfaceAttachment,
   type IpVersion,
   type NameOrId,
   type UnicastIpPool,
@@ -150,28 +152,27 @@ export type InstanceCreateInput = Assign<
  * External IPs route through the primary interface, so only its IP stack matters.
  */
 function getCompatibleVersionsFromNicType(
-  networkInterfaces: InstanceCreate['networkInterfaces'] | undefined
+  networkInterfaces: InstanceNetworkInterfaceAttachment
 ): IpVersion[] {
-  const nicType = networkInterfaces?.type
-
-  if (nicType === 'default_ipv4') return ['v4']
-  if (nicType === 'default_ipv6') return ['v6']
-  if (nicType === 'default_dual_stack') return ['v4', 'v6']
-  if (nicType === 'none') return []
-
-  if (nicType === 'create' && networkInterfaces) {
-    if (networkInterfaces.params.length === 0) return []
-
-    // Derive from the first NIC's ipConfig (first NIC becomes primary)
-    const primaryNicConfig = networkInterfaces.params[0].ipConfig
-    if (primaryNicConfig?.type === 'v4') return ['v4']
-    if (primaryNicConfig?.type === 'v6') return ['v6']
-    if (primaryNicConfig?.type === 'dual_stack') return ['v4', 'v6']
-    // ipConfig not provided = defaults to dual-stack
-    return ['v4', 'v6']
-  }
-
-  return ['v4', 'v6']
+  return match(networkInterfaces)
+    .returnType<IpVersion[]>()
+    .with({ type: 'default_ipv4' }, () => ['v4'])
+    .with({ type: 'default_ipv6' }, () => ['v6'])
+    .with({ type: 'default_dual_stack' }, () => ['v4', 'v6'])
+    .with({ type: 'none' }, () => [])
+    .with({ type: 'create', params: [] }, () => [])
+    .with({ type: 'create', params: P.select() }, (params) =>
+      // Derive from the first NIC's ipConfig (first NIC becomes primary).
+      // ipConfig not provided = defaults to dual-stack
+      match(params[0].ipConfig?.type)
+        .returnType<IpVersion[]>()
+        .with('v4', () => ['v4'])
+        .with('v6', () => ['v6'])
+        .with('dual_stack', () => ['v4', 'v6'])
+        .with(P.nullish, () => ['v4', 'v6'])
+        .exhaustive()
+    )
+    .exhaustive()
 }
 
 const baseDefaultValues: InstanceCreateInput = {
@@ -741,7 +742,7 @@ const AdvancedAccordion = ({
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
   unicastPools: UnicastIpPool[]
-  networkInterfaces: InstanceCreate['networkInterfaces']
+  networkInterfaces: InstanceNetworkInterfaceAttachment
   hasVpcs: boolean
   setValue: UseFormSetValue<InstanceCreateInput>
 }) => {
@@ -834,7 +835,9 @@ const AdvancedAccordion = ({
   // and filter by IP version compatibility with configured NICs
   const availableFloatingIps = useMemo(() => {
     return attachableFloatingIps
-      .filter((ip) => !attachedFloatingIps.find((attached) => attached.floatingIp === ip.name))
+      .filter(
+        (ip) => !attachedFloatingIps.find((attached) => attached.floatingIp === ip.name)
+      )
       .filter(ipHasVersion(compatibleVersions))
   }, [attachableFloatingIps, attachedFloatingIps, compatibleVersions])
 
