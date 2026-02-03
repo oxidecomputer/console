@@ -6,8 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import type { InstanceNetworkInterface, IpVersion } from '~/api'
-import type { UnicastIpPool } from '~/components/form/fields/IpPoolSelector'
+import type { InstanceNetworkInterface, IpVersion, UnicastIpPool } from '~/api'
 
 // Borrowed from Valibot. I tried some from Zod and an O'Reilly regex cookbook
 // but they didn't match results with std::net on simple test cases
@@ -114,13 +113,9 @@ export function getCompatibleVersionsFromNics(
  */
 export function filterFloatingIpsByVersion<T extends { ip: string }>(
   floatingIps: T[],
-  compatibleVersions: IpVersion[] | undefined
+  compatibleVersions: IpVersion[]
 ): T[] {
-  // If no compatible versions, no floating IPs are compatible
-  if (!compatibleVersions || compatibleVersions.length === 0) {
-    return []
-  }
-
+  if (compatibleVersions.length === 0) return []
   return floatingIps.filter((floatingIp) => {
     const ipVersion = parseIp(floatingIp.ip)
     if (ipVersion.type === 'error') return false

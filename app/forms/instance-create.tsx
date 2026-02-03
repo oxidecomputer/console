@@ -21,9 +21,10 @@ import {
   api,
   diskCan,
   genName,
-  getCompatiblePools,
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
+  isUnicastPool,
+  poolHasIpVersion,
   q,
   queryClient,
   useApiMutation,
@@ -35,7 +36,7 @@ import {
   type InstanceDiskAttachment,
   type IpVersion,
   type NameOrId,
-  type SiloIpPool,
+  type UnicastIpPool,
 } from '@oxide/api'
 import {
   Images16Icon,
@@ -57,7 +58,7 @@ import {
 } from '~/components/form/fields/DisksTableField'
 import { FileField } from '~/components/form/fields/FileField'
 import { BootDiskImageSelectField as ImageSelectField } from '~/components/form/fields/ImageSelectField'
-import { IpPoolSelector, type UnicastIpPool } from '~/components/form/fields/IpPoolSelector'
+import { IpPoolSelector } from '~/components/form/fields/IpPoolSelector'
 import { NameField } from '~/components/form/fields/NameField'
 import { NetworkInterfaceField } from '~/components/form/fields/NetworkInterfaceField'
 import { NumberField } from '~/components/form/fields/NumberField'
@@ -150,7 +151,7 @@ export type InstanceCreateInput = Assign<
  */
 function getCompatibleVersionsFromNicType(
   networkInterfaces: InstanceCreate['networkInterfaces'] | undefined
-): IpVersion[] | undefined {
+): IpVersion[] {
   const nicType = networkInterfaces?.type
 
   if (nicType === 'default_ipv4') return ['v4']
@@ -170,7 +171,7 @@ function getCompatibleVersionsFromNicType(
     return ['v4', 'v6']
   }
 
-  return undefined
+  return ['v4', 'v6']
 }
 
 const baseDefaultValues: InstanceCreateInput = {
@@ -268,8 +269,7 @@ export default function CreateInstanceForm() {
 
   // Only unicast pools can be used for ephemeral IPs
   const unicastPools = useMemo(
-    () =>
-      getCompatiblePools(siloPools?.items || [], undefined, 'unicast') as UnicastIpPool[],
+    () => (siloPools?.items || []).filter(isUnicastPool),
     [siloPools]
   )
 
@@ -740,7 +740,7 @@ const AdvancedAccordion = ({
 }: {
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
-  unicastPools: Array<SiloIpPool>
+  unicastPools: UnicastIpPool[]
   networkInterfaces: InstanceCreate['networkInterfaces']
   hasVpcs: boolean
   setValue: UseFormSetValue<InstanceCreateInput>
@@ -825,7 +825,7 @@ const AdvancedAccordion = ({
   )
 
   // Calculate compatible IP versions based on NIC type
-  const compatibleVersions: IpVersion[] | undefined = useMemo(
+  const compatibleVersions = useMemo(
     () => getCompatibleVersionsFromNicType(networkInterfaces),
     [networkInterfaces]
   )
@@ -844,18 +844,19 @@ const AdvancedAccordion = ({
     .filter((ip) => !!ip)
 
   // Filter unicast pools by compatible IP versions
-  const compatibleUnicastPools = useMemo(() => {
-    return getCompatiblePools(unicastPools, compatibleVersions) as UnicastIpPool[]
-  }, [unicastPools, compatibleVersions])
+  const compatibleUnicastPools = useMemo(
+    () => unicastPools.filter(poolHasIpVersion(compatibleVersions)),
+    [unicastPools, compatibleVersions]
+  )
 
   // Track previous ability to attach ephemeral IP to detect transitions
   const prevCanAttachRef = useRef<boolean | undefined>(undefined)
 
   // Automatically manage ephemeral IP based on NIC and pool availability
   useEffect(() => {
-    const hasNics = compatibleVersions && compatibleVersions.length > 0
+    const hasCompatibleNics = compatibleVersions.length > 0
     const hasPools = compatibleUnicastPools.length > 0
-    const canAttach = hasNics && hasPools
+    const canAttach = hasCompatibleNics && hasPools
     const prevCanAttach = prevCanAttachRef.current
 
     if (!canAttach && assignEphemeralIp) {
@@ -878,7 +879,7 @@ const AdvancedAccordion = ({
 
   // Update ephemeralIpVersion when compatibleVersions changes
   useEffect(() => {
-    if (!compatibleVersions || compatibleVersions.length === 0) return
+    if (compatibleVersions.length === 0) return
 
     const currentVersion = ephemeralIpVersionField.field.value
     // If current version is not compatible, switch to the first compatible version
@@ -888,7 +889,7 @@ const AdvancedAccordion = ({
   }, [compatibleVersions, ephemeralIpVersionField.field.value, setValue])
 
   const ephemeralIpCheckboxState = useMemo(() => {
-    const hasCompatibleNics = compatibleVersions && compatibleVersions.length > 0
+    const hasCompatibleNics = compatibleVersions.length > 0
     const hasCompatiblePools = compatibleUnicastPools.length > 0
     const canAttachEphemeralIp = hasCompatibleNics && hasCompatiblePools
 
@@ -1050,12 +1051,10 @@ const AdvancedAccordion = ({
                 size="sm"
                 className="shrink-0"
                 disabled={
-                  availableFloatingIps.length === 0 ||
-                  !compatibleVersions ||
-                  compatibleVersions.length === 0
+                  availableFloatingIps.length === 0 || compatibleVersions.length === 0
                 }
                 disabledReason={
-                  !compatibleVersions || compatibleVersions.length === 0 ? (
+                  compatibleVersions.length === 0 ? (
                     <>
                       A network interface is required
                       <br />

@@ -17,9 +17,9 @@ import type {
   DiskType,
   Instance,
   InstanceState,
-  IpPoolType,
   IpVersion,
   Measurement,
+  SiloIpPool,
   SiloUtilization,
   Sled,
   VpcFirewallRule,
@@ -95,34 +95,15 @@ export const genName = (...parts: [string, ...string[]]) => {
   )
 }
 
-/**
- * Filter IP pools by compatible IP versions and pool type.
- *
- * @param pools - Array of IP pools to filter
- * @param compatibleVersions - Optional array of compatible IP versions (v4/v6).
- *                             If undefined, all versions are considered compatible.
- *                             If empty array, no pools are compatible.
- * @param poolType - Optional pool type filter (unicast/multicast).
- *                   If undefined, all pool types are included.
- * @returns Filtered array of pools matching the compatibility criteria
- */
-export function getCompatiblePools<
-  T extends { ipVersion: IpVersion; poolType: IpPoolType },
->(pools: T[], compatibleVersions?: IpVersion[], poolType?: IpPoolType): T[] {
-  return pools.filter((pool) => {
-    // Filter by pool type if specified
-    if (poolType !== undefined && pool.poolType !== poolType) {
-      return false
-    }
+export type UnicastIpPool = SiloIpPool & { poolType: 'unicast' }
 
-    // Filter by compatible IP versions if specified
-    if (compatibleVersions !== undefined && !compatibleVersions.includes(pool.ipVersion)) {
-      return false
-    }
+export const isUnicastPool = (pool: SiloIpPool): pool is UnicastIpPool =>
+  pool.poolType === 'unicast'
 
-    return true
-  })
-}
+export const poolHasIpVersion =
+  (versions: IpVersion[]) =>
+  (pool: { ipVersion: IpVersion }): boolean =>
+    versions.includes(pool.ipVersion)
 
 const instanceActions = {
   // NoVmm maps to to Stopped:

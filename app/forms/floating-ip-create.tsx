@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router'
 
 import {
   api,
+  isUnicastPool,
   q,
   queryClient,
   useApiMutation,
@@ -22,7 +23,7 @@ import {
 
 import { AccordionItem } from '~/components/AccordionItem'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
-import { IpPoolSelector, type UnicastIpPool } from '~/components/form/fields/IpPoolSelector'
+import { IpPoolSelector } from '~/components/form/fields/IpPoolSelector'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
@@ -56,10 +57,10 @@ export default function CreateFloatingIpSideModalForm() {
   )
 
   // Only unicast pools can be used for floating IPs
-  const unicastPools = useMemo(() => {
-    if (!allPools) return []
-    return allPools.items.filter((p) => p.poolType === 'unicast') as UnicastIpPool[]
-  }, [allPools])
+  const unicastPools = useMemo(
+    () => allPools?.items.filter(isUnicastPool) || [],
+    [allPools]
+  )
 
   const projectSelector = useProjectSelector()
   const navigate = useNavigate()

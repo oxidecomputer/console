@@ -9,12 +9,10 @@ import { useEffect, useMemo } from 'react'
 import type { Control, UseFormSetValue } from 'react-hook-form'
 import * as R from 'remeda'
 
-import { getCompatiblePools, type IpVersion, type SiloIpPool } from '@oxide/api'
+import { poolHasIpVersion, type IpVersion, type UnicastIpPool } from '@oxide/api'
 
 import { toIpPoolItem } from './ip-pool-item'
 import { ListboxField } from './ListboxField'
-
-export type UnicastIpPool = SiloIpPool & { poolType: 'unicast' }
 
 type IpPoolSelectorProps = {
   control: Control<any>
@@ -26,10 +24,7 @@ type IpPoolSelectorProps = {
   /** Function to update form values */
   setValue: UseFormSetValue<any>
   disabled?: boolean
-  /**
-   * Compatible IP versions based on network interface type
-   * If not provided, both v4 and v6 are allowed
-   */
+  /** Compatible IP versions based on network interface type */
   compatibleVersions?: IpVersion[]
   /**
    * If true, automatically select a default pool when none is selected.
@@ -47,7 +42,7 @@ export function IpPoolSelector({
   currentPool,
   setValue,
   disabled = false,
-  compatibleVersions,
+  compatibleVersions = ['v4', 'v6'],
   // When both a default IPv4 and default IPv6 pool exist, the component picks the
   // v4 default, to reduce user confusion. The selection is easily modified later
   // (both in the form and later on the instance).
@@ -55,9 +50,9 @@ export function IpPoolSelector({
 }: IpPoolSelectorProps) {
   // Note: pools are already filtered by poolType before being passed to this component
   const sortedPools = useMemo(() => {
-    const compat = getCompatiblePools(pools, compatibleVersions)
+    const compatPools = pools.filter(poolHasIpVersion(compatibleVersions))
     // sort defaults first, sort v4 first, then name as tiebreaker
-    return R.sortBy(compat, (p) => [!p.isDefault, p.ipVersion, p.name])
+    return R.sortBy(compatPools, (p) => [!p.isDefault, p.ipVersion, p.name])
   }, [pools, compatibleVersions])
 
   const hasNoPools = sortedPools.length === 0

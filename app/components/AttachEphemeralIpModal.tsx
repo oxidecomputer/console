@@ -11,14 +11,15 @@ import { useForm } from 'react-hook-form'
 
 import {
   api,
-  getCompatiblePools,
+  isUnicastPool,
+  poolHasIpVersion,
   q,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
   type IpVersion,
 } from '~/api'
-import { IpPoolSelector, type UnicastIpPool } from '~/components/form/fields/IpPoolSelector'
+import { IpPoolSelector } from '~/components/form/fields/IpPoolSelector'
 import { HL } from '~/components/HL'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
@@ -44,13 +45,11 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
   )
 
   // Only unicast pools can be used for ephemeral IPs
-  const compatibleUnicastPools = useMemo(() => {
-    return getCompatiblePools(
-      siloPools.items,
-      compatibleVersions,
-      'unicast'
-    ) as UnicastIpPool[]
-  }, [siloPools, compatibleVersions])
+  const compatibleUnicastPools = useMemo(
+    () =>
+      siloPools.items.filter(isUnicastPool).filter(poolHasIpVersion(compatibleVersions)),
+    [siloPools, compatibleVersions]
+  )
 
   const hasDefaultCompatiblePool = useMemo(() => {
     return compatibleUnicastPools.some((p) => p.isDefault)
@@ -77,7 +76,7 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
 
   // Update ipVersion if only one version is compatible
   useEffect(() => {
-    if (compatibleVersions && compatibleVersions.length === 1) {
+    if (compatibleVersions.length === 1) {
       form.setValue('ipVersion', compatibleVersions[0])
     }
   }, [compatibleVersions, form])
