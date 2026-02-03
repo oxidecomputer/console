@@ -225,7 +225,7 @@ export default function AntiAffinityPage() {
         <PropertiesTable.Row label="Members">{membersCount}</PropertiesTable.Row>
         <PropertiesTable.IdRow id={id} />
       </PropertiesTable>
-      <Divider className="my-10" />
+      <Divider className="my-8" />
       <CardBlock>
         <CardBlock.Header
           title="Members"
