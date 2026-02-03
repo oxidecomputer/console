@@ -7,6 +7,7 @@
  */
 import { useEffect, useMemo } from 'react'
 import type { Control, UseFormSetValue } from 'react-hook-form'
+import * as R from 'remeda'
 
 import { getCompatiblePools, type IpVersion, type SiloIpPool } from '@oxide/api'
 
@@ -54,15 +55,9 @@ export function IpPoolSelector({
 }: IpPoolSelectorProps) {
   // Note: pools are already filtered by poolType before being passed to this component
   const sortedPools = useMemo(() => {
-    return getCompatiblePools(pools, compatibleVersions).sort((a, b) => {
-      if (a.isDefault && a.ipVersion === 'v4') return -1
-      if (b.isDefault && b.ipVersion === 'v4') return 1
-
-      if (a.isDefault && a.ipVersion === 'v6') return -1
-      if (b.isDefault && b.ipVersion === 'v6') return 1
-
-      return a.name.localeCompare(b.name)
-    })
+    const compat = getCompatiblePools(pools, compatibleVersions)
+    // sort defaults first, sort v4 first, then name as tiebreaker
+    return R.sortBy(compat, (p) => [!p.isDefault, p.ipVersion, p.name])
   }, [pools, compatibleVersions])
 
   const hasNoPools = sortedPools.length === 0
