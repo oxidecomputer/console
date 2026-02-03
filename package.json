@@ -37,7 +37,7 @@
   "dependencies": {
     "@floating-ui/react": "^0.26.23",
     "@headlessui/react": "^2.2.9",
-    "@oxide/design-system": "^4.0.2",
+    "@oxide/design-system": "^4.1.0--canary.156.21631203537.0",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-tabs": "^1.1.0",
@@ -111,7 +111,7 @@
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.7.1",
     "resize-observer-polyfill": "^1.5.1",
-    "tailwindcss": "^4.1.14",
+    "tailwindcss": "^4.1.18",
     "tsx": "^4.19.2",
     "type-fest": "^5.2.0",
     "typescript": "~5.9.2",
