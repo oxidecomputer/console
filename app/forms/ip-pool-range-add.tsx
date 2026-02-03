@@ -110,9 +110,6 @@ export default function IpPoolAddRange() {
 
   const form = useForm({ defaultValues, resolver })
 
-  // Guard against undefined poolData during initial load
-  if (!poolData) return null
-
   return (
     <SideModalForm
       form={form}

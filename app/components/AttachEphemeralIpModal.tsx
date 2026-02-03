@@ -38,14 +38,13 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
   // Determine compatible IP versions based on instance's primary network interface
   // External IPs route through the primary interface, so only its IP stack matters
   // https://github.com/oxidecomputer/omicron/blob/d52aad0/nexus/db-queries/src/db/datastore/external_ip.rs#L544-L661
-  const compatibleVersions: IpVersion[] | undefined = useMemo(() => {
-    if (!nics) return undefined
-    return getCompatibleVersionsFromNics(nics.items)
-  }, [nics])
+  const compatibleVersions = useMemo(
+    () => getCompatibleVersionsFromNics(nics.items),
+    [nics]
+  )
 
   // Only unicast pools can be used for ephemeral IPs
   const compatibleUnicastPools = useMemo(() => {
-    if (!siloPools) return []
     return getCompatiblePools(
       siloPools.items,
       compatibleVersions,
@@ -86,9 +85,7 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
   const ipVersion = form.watch('ipVersion')
 
   const disabledState = useMemo(() => {
-    if (!siloPools) return { disabled: true, reason: 'Loading pools...' }
-    if (!nics) return { disabled: true, reason: 'Loading network interfaces...' }
-    if (compatibleVersions && compatibleVersions.length === 0) {
+    if (compatibleVersions.length === 0) {
       return {
         disabled: true,
         reason: 'Instance has no network interfaces with compatible IP stacks',
@@ -107,14 +104,7 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
       }
     }
     return { disabled: false, reason: undefined }
-  }, [
-    siloPools,
-    nics,
-    compatibleVersions,
-    compatibleUnicastPools,
-    pool,
-    hasDefaultCompatiblePool,
-  ])
+  }, [compatibleVersions, compatibleUnicastPools, pool, hasDefaultCompatiblePool])
 
   const getEffectiveIpVersion = useCallback(() => {
     if (pool) return ipVersion
