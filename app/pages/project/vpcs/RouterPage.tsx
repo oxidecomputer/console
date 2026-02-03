@@ -199,7 +199,7 @@ export default function RouterPage() {
         <PropertiesTable.DateRow date={routerData.timeCreated} label="Created" />
         <PropertiesTable.DateRow date={routerData.timeModified} label="Last Modified" />
       </PropertiesTable>
-      <Divider className="my-10" />
+      <Divider className="my-8" />
       <div className="mb-3 flex justify-end">
         {canCreateNewRoute ? (
           <CreateLink to={pb.vpcRouterRoutesNew({ project, vpc, router })}>
