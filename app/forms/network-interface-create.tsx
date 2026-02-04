@@ -28,14 +28,22 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
 import { FormDivider } from '~/ui/lib/Divider'
 
-type IpStackType = IpVersion | 'dual_stack'
+type NetworkInterfaceFormValues = {
+  name: string
+  description: string
+  subnetName: string
+  vpcName: string
+  ipStackType: IpVersion | 'dual_stack'
+  ipv4: string
+  ipv6: string
+}
 
-const defaultValues = {
+const defaultValues: NetworkInterfaceFormValues = {
   name: '',
   description: '',
   subnetName: '',
   vpcName: '',
-  ipStackType: 'dual_stack' as IpStackType,
+  ipStackType: 'dual_stack',
   ipv4: '',
   ipv6: '',
 }
