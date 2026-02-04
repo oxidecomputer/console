@@ -5,8 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import * as Accordion from '@radix-ui/react-accordion'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
@@ -20,7 +19,6 @@ import {
   type FloatingIpCreate,
 } from '@oxide/api'
 
-import { AccordionItem } from '~/components/AccordionItem'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { IpPoolSelector } from '~/components/form/fields/IpPoolSelector'
 import { NameField } from '~/components/form/fields/NameField'
@@ -74,8 +72,6 @@ export default function CreateFloatingIpSideModalForm() {
     },
   })
 
-  const [openItems, setOpenItems] = useState<string[]>([])
-
   return (
     <SideModalForm
       form={form}
@@ -104,25 +100,7 @@ export default function CreateFloatingIpSideModalForm() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-
-      <Accordion.Root
-        type="multiple"
-        className="mt-12 max-w-lg"
-        value={openItems}
-        onValueChange={setOpenItems}
-      >
-        <AccordionItem
-          isOpen={openItems.includes('advanced')}
-          label="Advanced"
-          value="advanced"
-        >
-          <IpPoolSelector
-            control={form.control}
-            poolFieldName="pool"
-            pools={unicastPools}
-          />
-        </AccordionItem>
-      </Accordion.Root>
+      <IpPoolSelector control={form.control} poolFieldName="pool" pools={unicastPools} />
     </SideModalForm>
   )
 }
