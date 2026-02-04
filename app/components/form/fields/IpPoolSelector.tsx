@@ -109,7 +109,7 @@ export function IpPoolSelector({
           items={sortedPools.map(toIpPoolItem)}
           label={'Pool'}
           control={control}
-          placeholder={autoSelectDefault ? 'Select a pool' : 'Use default pool'}
+          placeholder="Select a pool"
           required={autoSelectDefault}
           disabled={disabled}
         />
