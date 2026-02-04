@@ -144,6 +144,21 @@ test('can create an instance', async ({ page }) => {
   })
 })
 
+test('ephemeral pool selection tracks network interface IP version', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+  await page.getByRole('button', { name: 'Networking' }).click()
+
+  const poolDropdown = page.getByLabel('Pool')
+  await expect(poolDropdown).toBeVisible()
+  await expect(poolDropdown).toContainText('ip-pool-1')
+
+  await selectOption(page, page.getByRole('button', { name: 'IPv4 & IPv6' }), 'IPv6')
+  await expect(poolDropdown).toContainText('ip-pool-2')
+
+  await selectOption(page, page.getByRole('button', { name: 'IPv6' }), 'IPv4')
+  await expect(poolDropdown).toContainText('ip-pool-1')
+})
+
 test('duplicate instance name produces visible error', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
   await page.fill('input[name=name]', 'db1')

@@ -137,6 +137,11 @@ test('Instance networking tab — Detach / Attach Ephemeral IPs', async ({ page 
   await page.getByRole('button', { name: 'Attach', exact: true }).click()
   await expect(modal).toBeHidden()
   await expect(ephemeralCell).toBeVisible()
+  await expectRowVisible(externalIpTable, {
+    Kind: 'ephemeral',
+    Version: 'v4',
+    'IP pool': 'ip-pool-1',
+  })
 
   // The 'Attach ephemeral IP' button should be hidden after attaching an ephemeral IP
   await expect(attachEphemeralIpButton).toBeHidden()
@@ -158,6 +163,11 @@ test('Instance networking tab — Detach / Attach Ephemeral IPs', async ({ page 
   await page.getByRole('button', { name: 'Attach', exact: true }).click()
   await expect(modal).toBeHidden()
   await expect(ephemeralCell).toBeVisible()
+  await expectRowVisible(externalIpTable, {
+    Kind: 'ephemeral',
+    Version: 'v6',
+    'IP pool': 'ip-pool-2',
+  })
 
   // The 'Attach ephemeral IP' button should be hidden after attaching an ephemeral IP
   await expect(attachEphemeralIpButton).toBeHidden()
