@@ -23,12 +23,6 @@ type IpPoolSelectorProps = {
   disabled?: boolean
   /** Compatible IP versions based on network interface type */
   compatibleVersions?: IpVersion[]
-  /**
-   * If true, the pool field is required and defaults should be selected by
-   * the parent when available. If false, allow the field to remain empty to
-   * use API defaults.
-   */
-  autoSelectDefault?: boolean
 }
 
 export function IpPoolSelector({
@@ -37,10 +31,6 @@ export function IpPoolSelector({
   pools,
   disabled = false,
   compatibleVersions = ALL_IP_VERSIONS,
-  // When both a default IPv4 and default IPv6 pool exist, the component picks the
-  // v4 default, to reduce user confusion. The selection is easily modified later
-  // (both in the form and later on the instance).
-  autoSelectDefault = true,
 }: IpPoolSelectorProps) {
   // Note: pools are already filtered by poolType before being passed to this component
   const sortedPools = useMemo(() => {
@@ -64,7 +54,7 @@ export function IpPoolSelector({
           label={'Pool'}
           control={control}
           placeholder="Select a pool"
-          required={autoSelectDefault}
+          required
           disabled={disabled}
         />
       )}

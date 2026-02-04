@@ -129,11 +129,14 @@ test('Instance networking tab — Detach / Attach Ephemeral IPs', async ({ page 
   // The 'Attach ephemeral IP' button should be visible and enabled now that the existing ephemeral IP has been detached
   await expect(attachEphemeralIpButton).toBeEnabled()
 
-  // Attach a new ephemeral IP using the default pool (don't select a pool)
+  // Attach a new ephemeral IP — since db1 has a dual-stack NIC, both v4 and v6
+  // defaults are compatible, so no pool is preselected and we must choose one
   await attachEphemeralIpButton.click()
-  let modal = page.getByRole('dialog', { name: 'Attach ephemeral IP' })
+  const modal = page.getByRole('dialog', { name: 'Attach ephemeral IP' })
   await expect(modal).toBeVisible()
-  // Click Attach without selecting a pool - should use default pool
+  await expect(page.getByLabel('Pool')).toContainText('Select a pool')
+  await page.getByLabel('Pool').click()
+  await page.getByRole('option', { name: 'ip-pool-1' }).click()
   await page.getByRole('button', { name: 'Attach', exact: true }).click()
   await expect(modal).toBeHidden()
   await expect(ephemeralCell).toBeVisible()
@@ -152,13 +155,9 @@ test('Instance networking tab — Detach / Attach Ephemeral IPs', async ({ page 
   await expect(ephemeralCell).toBeHidden()
 
   await attachEphemeralIpButton.click()
-  modal = page.getByRole('dialog', { name: 'Attach ephemeral IP' })
   await expect(modal).toBeVisible()
-  // Pool dropdown should be visible
-  const poolDropdown = page.getByLabel('Pool')
-  await expect(poolDropdown).toBeVisible()
-  // Select a different pool
-  await poolDropdown.click()
+  await expect(page.getByLabel('Pool')).toContainText('Select a pool')
+  await page.getByLabel('Pool').click()
   await page.getByRole('option', { name: 'ip-pool-2' }).click()
   await page.getByRole('button', { name: 'Attach', exact: true }).click()
   await expect(modal).toBeHidden()

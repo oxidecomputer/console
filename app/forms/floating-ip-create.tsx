@@ -28,7 +28,6 @@ import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { ALL_ISH } from '~/util/consts'
-import { getDefaultIps } from '~/util/ip'
 import { pb } from '~/util/path-builder'
 
 const poolList = q(api.projectIpPoolList, { query: { limit: ALL_ISH } })
@@ -46,10 +45,12 @@ export default function CreateFloatingIpSideModalForm() {
   // Only unicast pools can be used for floating IPs
   const unicastPools = useMemo(() => allPools.items.filter(isUnicastPool), [allPools])
 
-  const defaultPool = useMemo(
-    () => unicastPools.find((p) => p.isDefault)?.name ?? '',
-    [unicastPools]
-  )
+  const defaultPool = useMemo(() => {
+    const defaults = unicastPools.filter((p) => p.isDefault)
+    // Only preselect if there's exactly one default; if both v4 and v6
+    // defaults exist, let the user choose
+    return defaults.length === 1 ? defaults[0].name : ''
+  }, [unicastPools])
 
   const projectSelector = useProjectSelector()
   const navigate = useNavigate()
@@ -79,18 +80,12 @@ export default function CreateFloatingIpSideModalForm() {
       resourceName="floating IP"
       onDismiss={() => navigate(pb.floatingIps(projectSelector))}
       onSubmit={({ pool, name, description }) => {
-        const { hasV4Default, hasV6Default } = getDefaultIps(unicastPools)
         const body: FloatingIpCreate = {
           name,
           description,
           addressAllocator: {
             type: 'auto',
-            poolSelector: pool
-              ? { type: 'explicit', pool }
-              : {
-                  type: 'auto',
-                  ipVersion: hasV4Default ? 'v4' : hasV6Default ? 'v6' : 'v4',
-                },
+            poolSelector: { type: 'explicit', pool },
           },
         }
         createFloatingIp.mutate({ query: projectSelector, body })

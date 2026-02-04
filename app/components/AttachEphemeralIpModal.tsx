@@ -24,7 +24,7 @@ import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Modal } from '~/ui/lib/Modal'
 import { ALL_ISH } from '~/util/consts'
-import { getCompatibleVersionsFromNics, getDefaultIps } from '~/util/ip'
+import { getCompatibleVersionsFromNics } from '~/util/ip'
 
 export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void }) => {
   const { project, instance } = useInstanceSelector()
@@ -50,14 +50,12 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
     [siloPools, compatibleVersions]
   )
 
-  const hasDefaultCompatiblePool = useMemo(() => {
-    return compatibleUnicastPools.some((p) => p.isDefault)
+  const defaultPool = useMemo(() => {
+    const defaults = compatibleUnicastPools.filter((p) => p.isDefault)
+    // Only preselect if there's exactly one compatible default; if both v4 and
+    // v6 defaults exist, let the user choose
+    return defaults.length === 1 ? defaults[0].name : ''
   }, [compatibleUnicastPools])
-
-  const defaultPool = useMemo(
-    () => compatibleUnicastPools.find((p) => p.isDefault)?.name ?? '',
-    [compatibleUnicastPools]
-  )
 
   const instanceEphemeralIpAttach = useApiMutation(api.instanceEphemeralIpAttach, {
     onSuccess(ephemeralIp) {
@@ -79,8 +77,8 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
       ? 'Instance has no network interfaces with compatible IP stacks'
       : compatibleUnicastPools.length === 0
         ? 'No compatible unicast pools available for this instance'
-        : !pool && !hasDefaultCompatiblePool
-          ? 'No default compatible pool available; select a pool to continue'
+        : !pool
+          ? 'Select a pool to continue'
           : undefined
 
   return (
@@ -103,19 +101,11 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
         disabled={!!disabledReason}
         disabledReason={disabledReason}
         onAction={() => {
-          const { hasV4Default, hasV6Default } = getDefaultIps(compatibleUnicastPools)
           instanceEphemeralIpAttach.mutate({
             path: { instance },
             query: { project },
             body: {
-              poolSelector: pool
-                ? { type: 'explicit', pool }
-                : {
-                    type: 'auto',
-                    // v4 fallback here should maybe be an error instead because
-                    // it probably won't work on the API side
-                    ipVersion: hasV4Default ? 'v4' : hasV6Default ? 'v6' : 'v4',
-                  },
+              poolSelector: { type: 'explicit', pool },
             },
           })
         }}
