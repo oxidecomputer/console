@@ -7,9 +7,10 @@
  */
 import * as Accordion from '@radix-ui/react-accordion'
 import { useQuery } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
+import * as R from 'remeda'
 
 import {
   api,
@@ -18,7 +19,6 @@ import {
   queryClient,
   useApiMutation,
   type FloatingIpCreate,
-  type IpVersion,
 } from '@oxide/api'
 
 import { AccordionItem } from '~/components/AccordionItem'
@@ -38,13 +38,11 @@ type FloatingIpCreateFormData = {
   name: string
   description: string
   pool?: string
-  ipVersion: IpVersion
 }
 
 const defaultValues: FloatingIpCreateFormData = {
   name: '',
   description: '',
-  ipVersion: 'v4',
 }
 
 export const handle = titleCrumb('New Floating IP')
@@ -76,9 +74,28 @@ export default function CreateFloatingIpSideModalForm() {
   })
 
   const form = useForm({ defaultValues })
+  const { setValue } = form
   const pool = form.watch('pool')
 
   const [openItems, setOpenItems] = useState<string[]>([])
+  const sortedPools = useMemo(
+    () => R.sortBy(unicastPools, (p) => [!p.isDefault, p.ipVersion, p.name]),
+    [unicastPools]
+  )
+
+  useEffect(() => {
+    if (sortedPools.length === 0) return
+
+    const currentPoolValid = pool && sortedPools.some((p) => p.name === pool)
+    if (currentPoolValid) return
+
+    const defaultPool = sortedPools.find((p) => p.isDefault)
+    if (defaultPool) {
+      setValue('pool', defaultPool.name)
+    } else {
+      setValue('pool', '')
+    }
+  }, [pool, setValue, sortedPools])
 
   return (
     <SideModalForm
@@ -86,32 +103,20 @@ export default function CreateFloatingIpSideModalForm() {
       formType="create"
       resourceName="floating IP"
       onDismiss={() => navigate(pb.floatingIps(projectSelector))}
-      onSubmit={({ pool, ipVersion, ...values }) => {
-        // When using default pool, derive ipVersion from available defaults
-        let effectiveIpVersion = ipVersion
-        if (!pool) {
-          const { hasV4Default, hasV6Default } = getDefaultIps(unicastPools)
-
-          // If only one default exists, use that version
-          if (hasV4Default && !hasV6Default) {
-            effectiveIpVersion = 'v4'
-          } else if (hasV6Default && !hasV4Default) {
-            effectiveIpVersion = 'v6'
-          }
-          // If both exist, use form's ipVersion (user's choice)
-        }
-
+      onSubmit={({ pool, name, description }) => {
+        const { hasV4Default, hasV6Default } = getDefaultIps(unicastPools)
         const body: FloatingIpCreate = {
-          ...values,
-          addressAllocator: pool
-            ? {
-                type: 'auto' as const,
-                poolSelector: { type: 'explicit' as const, pool },
-              }
-            : {
-                type: 'auto' as const,
-                poolSelector: { type: 'auto' as const, ipVersion: effectiveIpVersion },
-              },
+          name,
+          description,
+          addressAllocator: {
+            type: 'auto',
+            poolSelector: pool
+              ? { type: 'explicit', pool }
+              : {
+                  type: 'auto',
+                  ipVersion: hasV4Default ? 'v4' : hasV6Default ? 'v6' : 'v4',
+                },
+          },
         }
         createFloatingIp.mutate({ query: projectSelector, body })
       }}
@@ -135,10 +140,7 @@ export default function CreateFloatingIpSideModalForm() {
           <IpPoolSelector
             control={form.control}
             poolFieldName="pool"
-            ipVersionFieldName="ipVersion"
             pools={unicastPools}
-            currentPool={pool}
-            setValue={form.setValue}
           />
         </AccordionItem>
       </Accordion.Root>

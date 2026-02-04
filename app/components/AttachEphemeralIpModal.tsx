@@ -6,8 +6,9 @@
  * Copyright Oxide Computer Company
  */
 
-import { useCallback, useEffect, useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
+import * as R from 'remeda'
 
 import {
   api,
@@ -17,7 +18,6 @@ import {
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
-  type IpVersion,
 } from '~/api'
 import { IpPoolSelector } from '~/components/form/fields/IpPoolSelector'
 import { HL } from '~/components/HL'
@@ -67,21 +67,26 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
     },
   })
 
-  const form = useForm<{ pool: string; ipVersion: IpVersion }>({
-    defaultValues: {
-      pool: '',
-      ipVersion: 'v4',
-    },
-  })
-
-  // Update ipVersion if only one version is compatible
-  useEffect(() => {
-    if (compatibleVersions.length === 1) {
-      form.setValue('ipVersion', compatibleVersions[0])
-    }
-  }, [compatibleVersions, form])
+  const form = useForm({ defaultValues: { pool: '' } })
   const pool = form.watch('pool')
-  const ipVersion = form.watch('ipVersion')
+  const sortedPools = useMemo(
+    () => R.sortBy(compatibleUnicastPools, (p) => [!p.isDefault, p.ipVersion, p.name]),
+    [compatibleUnicastPools]
+  )
+
+  useEffect(() => {
+    if (sortedPools.length === 0) return
+
+    const currentPoolValid = pool && sortedPools.some((p) => p.name === pool)
+    if (currentPoolValid) return
+
+    const defaultPool = sortedPools.find((p) => p.isDefault)
+    if (defaultPool) {
+      form.setValue('pool', defaultPool.name)
+    } else {
+      form.setValue('pool', '')
+    }
+  }, [form, pool, sortedPools])
 
   const disabledState = useMemo(() => {
     if (compatibleVersions.length === 0) {
@@ -105,17 +110,6 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
     return { disabled: false, reason: undefined }
   }, [compatibleVersions, compatibleUnicastPools, pool, hasDefaultCompatiblePool])
 
-  const getEffectiveIpVersion = useCallback(() => {
-    if (pool) return ipVersion
-
-    const { hasV4Default, hasV6Default } = getDefaultIps(compatibleUnicastPools)
-
-    if (hasV4Default && !hasV6Default) return 'v4'
-    if (hasV6Default && !hasV4Default) return 'v6'
-
-    return ipVersion
-  }, [pool, ipVersion, compatibleUnicastPools])
-
   return (
     <Modal isOpen title="Attach ephemeral IP" onDismiss={onDismiss}>
       <Modal.Body>
@@ -124,10 +118,7 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
             <IpPoolSelector
               control={form.control}
               poolFieldName="pool"
-              ipVersionFieldName="ipVersion"
               pools={compatibleUnicastPools}
-              currentPool={pool}
-              setValue={form.setValue}
               disabled={compatibleUnicastPools.length === 0}
               compatibleVersions={compatibleVersions}
             />
@@ -139,14 +130,20 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
         disabled={disabledState.disabled}
         disabledReason={disabledState.reason}
         onAction={() => {
-          const effectiveIpVersion = getEffectiveIpVersion()
-
+          const { hasV4Default, hasV6Default } = getDefaultIps(compatibleUnicastPools)
           instanceEphemeralIpAttach.mutate({
             path: { instance },
             query: { project },
-            body: pool
-              ? { poolSelector: { type: 'explicit', pool } }
-              : { poolSelector: { type: 'auto', ipVersion: effectiveIpVersion } },
+            body: {
+              poolSelector: pool
+                ? { type: 'explicit', pool }
+                : {
+                    type: 'auto',
+                    // v4 fallback here should maybe be an error instead because
+                    // it probably won't work on the API side
+                    ipVersion: hasV4Default ? 'v4' : hasV6Default ? 'v6' : 'v4',
+                  },
+            },
           })
         }}
         onDismiss={onDismiss}
