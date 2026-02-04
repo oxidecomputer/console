@@ -63,6 +63,7 @@ import {
   requireFleetCollab,
   requireFleetViewer,
   requireRole,
+  resolveIpStack,
   unavailableErr,
   updateDesc,
   userHasRole,
@@ -72,57 +73,6 @@ import {
 // the snake-cased objects coming straight from the API before the generated
 // client camel-cases the keys and parses date fields. Inside the mock API everything
 // is *JSON type.
-
-// Helper to resolve IP assignment to actual IP string
-const resolveIp = (
-  assignment: { type: 'auto' } | { type: 'explicit'; value: string },
-  defaultIp = '127.0.0.1'
-) => (assignment.type === 'explicit' ? assignment.value : defaultIp)
-
-// Convert PrivateIpStackCreate to PrivateIpStack
-const resolveIpStack = (
-  config:
-    | { type: 'v4'; value: Api.PrivateIpv4StackCreate }
-    | { type: 'v6'; value: Api.PrivateIpv6StackCreate }
-    | {
-        type: 'dual_stack'
-        value: { v4: Api.PrivateIpv4StackCreate; v6: Api.PrivateIpv6StackCreate }
-      },
-  defaultV4Ip = '127.0.0.1',
-  defaultV6Ip = '::1'
-):
-  | { type: 'v4'; value: { ip: string; transit_ips: string[] } }
-  | { type: 'v6'; value: { ip: string; transit_ips: string[] } }
-  | {
-      type: 'dual_stack'
-      value: {
-        v4: { ip: string; transit_ips: string[] }
-        v6: { ip: string; transit_ips: string[] }
-      }
-    } => {
-  if (config.type === 'dual_stack') {
-    return {
-      type: 'dual_stack',
-      value: {
-        v4: {
-          ip: resolveIp(config.value.v4.ip, defaultV4Ip),
-          transit_ips: config.value.v4.transitIps || [],
-        },
-        v6: {
-          ip: resolveIp(config.value.v6.ip, defaultV6Ip),
-          transit_ips: config.value.v6.transitIps || [],
-        },
-      },
-    }
-  }
-  return {
-    type: config.type,
-    value: {
-      ip: resolveIp(config.value.ip, config.type === 'v6' ? defaultV6Ip : defaultV4Ip),
-      transit_ips: config.value.transitIps || [],
-    },
-  }
-}
 
 export const handlers = makeHandlers({
   logout: () => 204,
