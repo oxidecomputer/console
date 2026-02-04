@@ -56,14 +56,8 @@ test.describe('IP pool configuration: myriad silo (v4-only default)', () => {
     const page = await getPageAsUser(browser, 'Aryeh Kosman')
     await page.goto('/projects/kosman-project/floating-ips-new')
 
-    await page.getByRole('textbox', { name: 'Name', exact: true }).fill('test-fip')
-
-    // Open advanced accordion to see pool selector
-    await page.getByRole('button', { name: 'Advanced' }).click()
-
     // Pool dropdown should show IPv4 default pool
     const poolDropdown = page.getByLabel('Pool')
-    await expect(poolDropdown).toBeVisible()
     await expect(poolDropdown).toContainText('ip-pool-1')
   })
 })
@@ -109,14 +103,8 @@ test.describe('IP pool configuration: thrax silo (v6-only default)', () => {
     const page = await getPageAsUser(browser, 'Elizabeth Anscombe')
     await page.goto('/projects/anscombe-project/floating-ips-new')
 
-    await page.getByRole('textbox', { name: 'Name', exact: true }).fill('test-fip')
-
-    // Open advanced accordion to see pool selector
-    await page.getByRole('button', { name: 'Advanced' }).click()
-
     // Pool dropdown should show IPv6 default pool
     const poolDropdown = page.getByLabel('Pool')
-    await expect(poolDropdown).toBeVisible()
     await expect(poolDropdown).toContainText('ip-pool-2')
   })
 })
@@ -162,16 +150,8 @@ test.describe('IP pool configuration: pelerines silo (no defaults)', () => {
     const page = await getPageAsUser(browser, 'Theodor Adorno')
     await page.goto('/projects/adorno-project/floating-ips-new')
 
-    await page.getByRole('textbox', { name: 'Name', exact: true }).fill('test-fip')
-
-    // Open advanced accordion to see pool selector
-    await page.getByRole('button', { name: 'Advanced' }).click()
-
-    // Pool dropdown should be visible
-    const poolDropdown = page.getByLabel('Pool')
-    await expect(poolDropdown).toBeVisible()
-
     // User should be able to select from available pools
+    const poolDropdown = page.getByLabel('Pool')
     await poolDropdown.click()
     await expect(page.getByRole('option', { name: 'ip-pool-1' })).toBeVisible()
     await expect(page.getByRole('option', { name: 'ip-pool-2' })).toBeVisible()

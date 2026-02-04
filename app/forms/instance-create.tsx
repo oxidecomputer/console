@@ -15,6 +15,7 @@ import {
   type UseFormSetValue,
 } from 'react-hook-form'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import * as R from 'remeda'
 import { match, P } from 'ts-pattern'
 import type { SetRequired } from 'type-fest'
 
@@ -142,7 +143,7 @@ export type InstanceCreateInput = Assign<
     sshPublicKeys: NonNullable<InstanceCreate['sshPublicKeys']>
     // IP version for ephemeral IP when dual defaults exist
     ephemeralIpVersion: IpVersion
-    // Pool for ephemeral IP - used to sync with IpPoolSelector component
+    // Pool for ephemeral IP selection
     ephemeralIpPool: string
   }
 >
@@ -763,9 +764,9 @@ const AdvancedAccordion = ({
   const ephemeralIpPool = ephemeralIpPoolField.field.value
 
   // Initialize ephemeralIpPool once on mount if externalIps already has an explicit pool
-  const hasInitializedPoolRef = useRef(false)
+  const [poolInitDone, setPoolInitDone] = useState(false)
   useEffect(() => {
-    if (hasInitializedPoolRef.current) return
+    if (poolInitDone) return
 
     const initialPool =
       ephemeralIp?.poolSelector?.type === 'explicit'
@@ -774,8 +775,8 @@ const AdvancedAccordion = ({
     if (initialPool && !ephemeralIpPool) {
       ephemeralIpPoolField.field.onChange(initialPool)
     }
-    hasInitializedPoolRef.current = true
-  }, [ephemeralIp, ephemeralIpPool, ephemeralIpPoolField])
+    setPoolInitDone(true)
+  }, [ephemeralIp, ephemeralIpPool, ephemeralIpPoolField, poolInitDone])
 
   // Update externalIps when ephemeralIpPool or ephemeralIpVersion changes
   useEffect(() => {
@@ -850,6 +851,32 @@ const AdvancedAccordion = ({
     () => unicastPools.filter(poolHasIpVersion(compatibleVersions)),
     [unicastPools, compatibleVersions]
   )
+  const sortedPools = useMemo(
+    () => R.sortBy(compatibleUnicastPools, (p) => [!p.isDefault, p.ipVersion, p.name]),
+    [compatibleUnicastPools]
+  )
+
+  useEffect(() => {
+    if (!poolInitDone || !assignEphemeralIp || sortedPools.length === 0) return
+
+    const currentPoolValid =
+      ephemeralIpPool && sortedPools.some((p) => p.name === ephemeralIpPool)
+    if (currentPoolValid) return
+
+    const defaultPool = sortedPools.find((p) => p.isDefault)
+    if (defaultPool) {
+      ephemeralIpPoolField.field.onChange(defaultPool.name)
+    } else {
+      ephemeralIpPoolField.field.onChange('')
+    }
+  }, [
+    assignEphemeralIp,
+    ephemeralIpPool,
+    ephemeralIpPoolField,
+    poolInitDone,
+    setValue,
+    sortedPools,
+  ])
 
   // Track previous ability to attach ephemeral IP to detect transitions
   const prevCanAttachRef = useRef<boolean | undefined>(undefined)
@@ -1009,10 +1036,7 @@ const AdvancedAccordion = ({
             <IpPoolSelector
               control={control}
               poolFieldName="ephemeralIpPool"
-              ipVersionFieldName="ephemeralIpVersion"
               pools={compatibleUnicastPools}
-              currentPool={ephemeralIpPool}
-              setValue={setValue}
               disabled={isSubmitting}
               compatibleVersions={compatibleVersions}
             />

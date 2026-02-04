@@ -5,8 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useEffect, useMemo } from 'react'
-import type { Control, UseFormSetValue } from 'react-hook-form'
+import { useMemo } from 'react'
+import type { Control } from 'react-hook-form'
 import * as R from 'remeda'
 
 import { poolHasIpVersion, type IpVersion, type UnicastIpPool } from '@oxide/api'
@@ -19,19 +19,14 @@ const ALL_IP_VERSIONS: IpVersion[] = ['v4', 'v6']
 type IpPoolSelectorProps = {
   control: Control<any>
   poolFieldName: string
-  ipVersionFieldName: string
   pools: UnicastIpPool[]
-  /** Current value of the pool field */
-  currentPool: string | undefined
-  /** Function to update form values */
-  setValue: UseFormSetValue<any>
   disabled?: boolean
   /** Compatible IP versions based on network interface type */
   compatibleVersions?: IpVersion[]
   /**
-   * If true, automatically select a default pool when none is selected.
-   * If false, allow the field to remain empty to use API defaults.
-   * Default to true, to automatically select a default pool if available.
+   * If true, the pool field is required and defaults should be selected by
+   * the parent when available. If false, allow the field to remain empty to
+   * use API defaults.
    */
   autoSelectDefault?: boolean
 }
@@ -39,10 +34,7 @@ type IpPoolSelectorProps = {
 export function IpPoolSelector({
   control,
   poolFieldName,
-  ipVersionFieldName,
   pools,
-  currentPool,
-  setValue,
   disabled = false,
   compatibleVersions = ALL_IP_VERSIONS,
   // When both a default IPv4 and default IPv6 pool exist, the component picks the
@@ -58,44 +50,6 @@ export function IpPoolSelector({
   }, [pools, compatibleVersions])
 
   const hasNoPools = sortedPools.length === 0
-
-  // Set default pool selection on mount if none selected, or if current pool is no longer valid
-  useEffect(() => {
-    if (sortedPools.length > 0 && autoSelectDefault) {
-      const currentPoolValid =
-        currentPool && sortedPools.some((p) => p.name === currentPool)
-
-      if (!currentPoolValid) {
-        // Only auto-select when there's an actual default pool
-        const defaultPool = sortedPools.find((p) => p.isDefault)
-
-        if (defaultPool) {
-          setValue(poolFieldName, defaultPool.name)
-          setValue(ipVersionFieldName, defaultPool.ipVersion)
-        } else {
-          // Clear selection when current pool is invalid and no compatible default exists
-          setValue(poolFieldName, '')
-        }
-      }
-    }
-  }, [
-    currentPool,
-    sortedPools,
-    poolFieldName,
-    ipVersionFieldName,
-    setValue,
-    autoSelectDefault,
-  ])
-
-  // Update IP version when pool changes
-  useEffect(() => {
-    if (currentPool) {
-      const selectedPool = sortedPools.find((p) => p.name === currentPool)
-      if (selectedPool) {
-        setValue(ipVersionFieldName, selectedPool.ipVersion)
-      }
-    }
-  }, [currentPool, sortedPools, ipVersionFieldName, setValue])
 
   return (
     <div className="space-y-4">

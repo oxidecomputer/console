@@ -5,9 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import * as Accordion from '@radix-ui/react-accordion'
-import { useQuery } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
@@ -17,11 +15,10 @@ import {
   q,
   queryClient,
   useApiMutation,
+  usePrefetchedQuery,
   type FloatingIpCreate,
-  type IpVersion,
 } from '@oxide/api'
 
-import { AccordionItem } from '~/components/AccordionItem'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { IpPoolSelector } from '~/components/form/fields/IpPoolSelector'
 import { NameField } from '~/components/form/fields/NameField'
@@ -34,32 +31,24 @@ import { ALL_ISH } from '~/util/consts'
 import { getDefaultIps } from '~/util/ip'
 import { pb } from '~/util/path-builder'
 
-type FloatingIpCreateFormData = {
-  name: string
-  description: string
-  pool?: string
-  ipVersion: IpVersion
-}
+const poolList = q(api.projectIpPoolList, { query: { limit: ALL_ISH } })
 
-const defaultValues: FloatingIpCreateFormData = {
-  name: '',
-  description: '',
-  ipVersion: 'v4',
+export async function clientLoader() {
+  await queryClient.fetchQuery(poolList)
+  return null
 }
 
 export const handle = titleCrumb('New Floating IP')
 
 export default function CreateFloatingIpSideModalForm() {
-  // Fetch 1000 to we can be sure to get them all. Don't bother prefetching
-  // because the list is hidden under the Advanced accordion.
-  const { data: allPools } = useQuery(
-    q(api.projectIpPoolList, { query: { limit: ALL_ISH } })
-  )
+  const { data: allPools } = usePrefetchedQuery(poolList)
 
   // Only unicast pools can be used for floating IPs
-  const unicastPools = useMemo(
-    () => allPools?.items.filter(isUnicastPool) || [],
-    [allPools]
+  const unicastPools = useMemo(() => allPools.items.filter(isUnicastPool), [allPools])
+
+  const defaultPool = useMemo(
+    () => unicastPools.find((p) => p.isDefault)?.name ?? '',
+    [unicastPools]
   )
 
   const projectSelector = useProjectSelector()
@@ -75,10 +64,13 @@ export default function CreateFloatingIpSideModalForm() {
     },
   })
 
-  const form = useForm({ defaultValues })
-  const pool = form.watch('pool')
-
-  const [openItems, setOpenItems] = useState<string[]>([])
+  const form = useForm({
+    defaultValues: {
+      name: '',
+      description: '',
+      pool: defaultPool,
+    },
+  })
 
   return (
     <SideModalForm
@@ -86,32 +78,20 @@ export default function CreateFloatingIpSideModalForm() {
       formType="create"
       resourceName="floating IP"
       onDismiss={() => navigate(pb.floatingIps(projectSelector))}
-      onSubmit={({ pool, ipVersion, ...values }) => {
-        // When using default pool, derive ipVersion from available defaults
-        let effectiveIpVersion = ipVersion
-        if (!pool) {
-          const { hasV4Default, hasV6Default } = getDefaultIps(unicastPools)
-
-          // If only one default exists, use that version
-          if (hasV4Default && !hasV6Default) {
-            effectiveIpVersion = 'v4'
-          } else if (hasV6Default && !hasV4Default) {
-            effectiveIpVersion = 'v6'
-          }
-          // If both exist, use form's ipVersion (user's choice)
-        }
-
+      onSubmit={({ pool, name, description }) => {
+        const { hasV4Default, hasV6Default } = getDefaultIps(unicastPools)
         const body: FloatingIpCreate = {
-          ...values,
-          addressAllocator: pool
-            ? {
-                type: 'auto' as const,
-                poolSelector: { type: 'explicit' as const, pool },
-              }
-            : {
-                type: 'auto' as const,
-                poolSelector: { type: 'auto' as const, ipVersion: effectiveIpVersion },
-              },
+          name,
+          description,
+          addressAllocator: {
+            type: 'auto',
+            poolSelector: pool
+              ? { type: 'explicit', pool }
+              : {
+                  type: 'auto',
+                  ipVersion: hasV4Default ? 'v4' : hasV6Default ? 'v6' : 'v4',
+                },
+          },
         }
         createFloatingIp.mutate({ query: projectSelector, body })
       }}
@@ -120,28 +100,7 @@ export default function CreateFloatingIpSideModalForm() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-
-      <Accordion.Root
-        type="multiple"
-        className="mt-12 max-w-lg"
-        value={openItems}
-        onValueChange={setOpenItems}
-      >
-        <AccordionItem
-          isOpen={openItems.includes('advanced')}
-          label="Advanced"
-          value="advanced"
-        >
-          <IpPoolSelector
-            control={form.control}
-            poolFieldName="pool"
-            ipVersionFieldName="ipVersion"
-            pools={unicastPools}
-            currentPool={pool}
-            setValue={form.setValue}
-          />
-        </AccordionItem>
-      </Accordion.Root>
+      <IpPoolSelector control={form.control} poolFieldName="pool" pools={unicastPools} />
     </SideModalForm>
   )
 }
