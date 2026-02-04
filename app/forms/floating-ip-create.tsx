@@ -6,11 +6,9 @@
  * Copyright Oxide Computer Company
  */
 import * as Accordion from '@radix-ui/react-accordion'
-import { useQuery } from '@tanstack/react-query'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
-import * as R from 'remeda'
 
 import {
   api,
@@ -18,6 +16,7 @@ import {
   q,
   queryClient,
   useApiMutation,
+  usePrefetchedQuery,
   type FloatingIpCreate,
 } from '@oxide/api'
 
@@ -34,30 +33,24 @@ import { ALL_ISH } from '~/util/consts'
 import { getDefaultIps } from '~/util/ip'
 import { pb } from '~/util/path-builder'
 
-type FloatingIpCreateFormData = {
-  name: string
-  description: string
-  pool?: string
-}
+const poolList = q(api.projectIpPoolList, { query: { limit: ALL_ISH } })
 
-const defaultValues: FloatingIpCreateFormData = {
-  name: '',
-  description: '',
+export async function clientLoader() {
+  await queryClient.fetchQuery(poolList)
+  return null
 }
 
 export const handle = titleCrumb('New Floating IP')
 
 export default function CreateFloatingIpSideModalForm() {
-  // Fetch 1000 to we can be sure to get them all. Don't bother prefetching
-  // because the list is hidden under the Advanced accordion.
-  const { data: allPools } = useQuery(
-    q(api.projectIpPoolList, { query: { limit: ALL_ISH } })
-  )
+  const { data: allPools } = usePrefetchedQuery(poolList)
 
   // Only unicast pools can be used for floating IPs
-  const unicastPools = useMemo(
-    () => allPools?.items.filter(isUnicastPool) || [],
-    [allPools]
+  const unicastPools = useMemo(() => allPools.items.filter(isUnicastPool), [allPools])
+
+  const defaultPool = useMemo(
+    () => unicastPools.find((p) => p.isDefault)?.name ?? '',
+    [unicastPools]
   )
 
   const projectSelector = useProjectSelector()
@@ -73,29 +66,15 @@ export default function CreateFloatingIpSideModalForm() {
     },
   })
 
-  const form = useForm({ defaultValues })
-  const { setValue } = form
-  const pool = form.watch('pool')
+  const form = useForm({
+    defaultValues: {
+      name: '',
+      description: '',
+      pool: defaultPool,
+    },
+  })
 
   const [openItems, setOpenItems] = useState<string[]>([])
-  const sortedPools = useMemo(
-    () => R.sortBy(unicastPools, (p) => [!p.isDefault, p.ipVersion, p.name]),
-    [unicastPools]
-  )
-
-  useEffect(() => {
-    if (sortedPools.length === 0) return
-
-    const currentPoolValid = pool && sortedPools.some((p) => p.name === pool)
-    if (currentPoolValid) return
-
-    const defaultPool = sortedPools.find((p) => p.isDefault)
-    if (defaultPool) {
-      setValue('pool', defaultPool.name)
-    } else {
-      setValue('pool', '')
-    }
-  }, [pool, setValue, sortedPools])
 
   return (
     <SideModalForm

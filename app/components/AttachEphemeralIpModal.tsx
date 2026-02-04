@@ -6,9 +6,8 @@
  * Copyright Oxide Computer Company
  */
 
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
-import * as R from 'remeda'
 
 import {
   api,
@@ -55,6 +54,11 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
     return compatibleUnicastPools.some((p) => p.isDefault)
   }, [compatibleUnicastPools])
 
+  const defaultPool = useMemo(
+    () => compatibleUnicastPools.find((p) => p.isDefault)?.name ?? '',
+    [compatibleUnicastPools]
+  )
+
   const instanceEphemeralIpAttach = useApiMutation(api.instanceEphemeralIpAttach, {
     onSuccess(ephemeralIp) {
       queryClient.invalidateEndpoint('instanceExternalIpList')
@@ -67,48 +71,17 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
     },
   })
 
-  const form = useForm({ defaultValues: { pool: '' } })
+  const form = useForm({ defaultValues: { pool: defaultPool } })
   const pool = form.watch('pool')
-  const sortedPools = useMemo(
-    () => R.sortBy(compatibleUnicastPools, (p) => [!p.isDefault, p.ipVersion, p.name]),
-    [compatibleUnicastPools]
-  )
 
-  useEffect(() => {
-    if (sortedPools.length === 0) return
-
-    const currentPoolValid = pool && sortedPools.some((p) => p.name === pool)
-    if (currentPoolValid) return
-
-    const defaultPool = sortedPools.find((p) => p.isDefault)
-    if (defaultPool) {
-      form.setValue('pool', defaultPool.name)
-    } else {
-      form.setValue('pool', '')
-    }
-  }, [form, pool, sortedPools])
-
-  const disabledState = useMemo(() => {
-    if (compatibleVersions.length === 0) {
-      return {
-        disabled: true,
-        reason: 'Instance has no network interfaces with compatible IP stacks',
-      }
-    }
-    if (compatibleUnicastPools.length === 0) {
-      return {
-        disabled: true,
-        reason: 'No compatible unicast pools available for this instance',
-      }
-    }
-    if (!pool && !hasDefaultCompatiblePool) {
-      return {
-        disabled: true,
-        reason: 'No default compatible pool available; select a pool to continue',
-      }
-    }
-    return { disabled: false, reason: undefined }
-  }, [compatibleVersions, compatibleUnicastPools, pool, hasDefaultCompatiblePool])
+  const disabledReason =
+    compatibleVersions.length === 0
+      ? 'Instance has no network interfaces with compatible IP stacks'
+      : compatibleUnicastPools.length === 0
+        ? 'No compatible unicast pools available for this instance'
+        : !pool && !hasDefaultCompatiblePool
+          ? 'No default compatible pool available; select a pool to continue'
+          : undefined
 
   return (
     <Modal isOpen title="Attach ephemeral IP" onDismiss={onDismiss}>
@@ -127,8 +100,8 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
       </Modal.Body>
       <Modal.Footer
         actionText="Attach"
-        disabled={disabledState.disabled}
-        disabledReason={disabledState.reason}
+        disabled={!!disabledReason}
+        disabledReason={disabledReason}
         onAction={() => {
           const { hasV4Default, hasV6Default } = getDefaultIps(compatibleUnicastPools)
           instanceEphemeralIpAttach.mutate({
