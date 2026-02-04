@@ -7,9 +7,9 @@
  */
 import { FLEET_ID, type IdentityType, type RoleKey } from '@oxide/api'
 
-import { project } from './project'
-import { defaultSilo } from './silo'
-import { user1, user3, user5, user6 } from './user'
+import { project, projectAdorno, projectAnscombe, projectKosman } from './project'
+import { defaultSilo, myriadSilo, pelerinesSilo, thraxSilo } from './silo'
+import { user1, user3, user5, user6, userAdorno, userAnscombe, userKosman } from './user'
 import { userGroup2, userGroup3 } from './user-group'
 
 // For most other resources, we can store the API types directly in the DB. But
@@ -78,5 +78,51 @@ export const roleAssignments: DbRoleAssignment[] = [
     identity_id: user6.id, // Herbert Marcuse
     identity_type: 'silo_user',
     role_name: 'limited_collaborator',
+  },
+  // Role assignments for test silos (IP pool configuration testing)
+  // myriad silo: v4-only default pool
+  {
+    resource_type: 'silo',
+    resource_id: myriadSilo.id,
+    identity_id: userKosman.id,
+    identity_type: 'silo_user',
+    role_name: 'admin',
+  },
+  {
+    resource_type: 'project',
+    resource_id: projectKosman.id,
+    identity_id: userKosman.id,
+    identity_type: 'silo_user',
+    role_name: 'admin',
+  },
+  // thrax silo: v6-only default pool
+  {
+    resource_type: 'silo',
+    resource_id: thraxSilo.id,
+    identity_id: userAnscombe.id,
+    identity_type: 'silo_user',
+    role_name: 'admin',
+  },
+  {
+    resource_type: 'project',
+    resource_id: projectAnscombe.id,
+    identity_id: userAnscombe.id,
+    identity_type: 'silo_user',
+    role_name: 'admin',
+  },
+  // pelerines silo: no default pools
+  {
+    resource_type: 'silo',
+    resource_id: pelerinesSilo.id,
+    identity_id: userAdorno.id,
+    identity_type: 'silo_user',
+    role_name: 'admin',
+  },
+  {
+    resource_type: 'project',
+    resource_id: projectAdorno.id,
+    identity_id: userAdorno.id,
+    identity_type: 'silo_user',
+    role_name: 'admin',
   },
 ]

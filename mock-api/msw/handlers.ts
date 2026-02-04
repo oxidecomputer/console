@@ -138,20 +138,27 @@ export const handlers = makeHandlers({
     // no role on the silo (see error-pages.e2e.ts). requireRole checks for _at
     // least_ viewer, and viewer is the weakest role, so checking for viewer
     // effectively means "do I have any role at all"
-    requireRole(cookies, 'silo', defaultSilo.id, 'viewer')
-    return paginated(query, db.projects)
+    const user = currentUser(cookies)
+    requireRole(cookies, 'silo', user.silo_id, 'viewer')
+    // Filter projects by the current user's silo, strip internal silo_id field
+    const siloProjects = db.projects
+      .filter((p) => p.silo_id === user.silo_id)
+      .map((p) => R.omit(p, ['silo_id']))
+    return paginated(query, siloProjects)
   },
-  projectCreate({ body }) {
-    errIfExists(db.projects, { name: body.name }, 'project')
+  projectCreate({ body, cookies }) {
+    const user = currentUser(cookies)
+    errIfExists(db.projects, { name: body.name, silo_id: user.silo_id }, 'project')
 
-    const newProject: Json<Api.Project> = {
+    const newProject = {
       id: uuid(),
       ...body,
       ...getTimestamps(),
+      silo_id: user.silo_id,
     }
     db.projects.push(newProject)
 
-    return json(newProject, { status: 201 })
+    return json(R.omit(newProject, ['silo_id']), { status: 201 })
   },
   projectView: ({ path }) => {
     if (path.project.endsWith('error-503')) {
@@ -160,7 +167,7 @@ export const handlers = makeHandlers({
       throw forbiddenErr()
     }
 
-    return lookup.project({ ...path })
+    return R.omit(lookup.project({ ...path }), ['silo_id'])
   },
   projectUpdate({ body, path }) {
     const project = lookup.project({ ...path })
@@ -173,7 +180,7 @@ export const handlers = makeHandlers({
     }
     updateDesc(project, body)
 
-    return project
+    return R.omit(project, ['silo_id'])
   },
   projectDelete({ path }) {
     const project = lookup.project({ ...path })
@@ -1136,12 +1143,15 @@ export const handlers = makeHandlers({
     const pools = lookup.siloIpPools(path)
     return paginated(query, pools)
   },
-  projectIpPoolList({ query }) {
-    const pools = lookup.siloIpPools({ silo: defaultSilo.id })
+  projectIpPoolList({ query, cookies }) {
+    const user = currentUser(cookies)
+    const pools = lookup.siloIpPools({ silo: user.silo_id })
     return paginated(query, pools)
   },
-  projectIpPoolView: ({ path: { pool } }) =>
-    lookup.siloIpPool({ pool, silo: defaultSilo.id }),
+  projectIpPoolView: ({ path: { pool }, cookies }) => {
+    const user = currentUser(cookies)
+    return lookup.siloIpPool({ pool, silo: user.silo_id })
+  },
   // TODO: require admin permissions for system IP pool endpoints
   ipPoolView: ({ path }) => lookup.ipPool(path),
   ipPoolSiloList({ path /*query*/ }) {
@@ -1686,11 +1696,12 @@ export const handlers = makeHandlers({
   },
   currentUserView({ cookies }) {
     const user = currentUser(cookies)
+    const silo = db.silos.find((s) => s.id === user.silo_id)
     return {
       ...user,
-      silo_name: defaultSilo.name,
+      silo_name: silo?.name ?? 'unknown',
       fleet_viewer: userHasRole(user, 'fleet', FLEET_ID, 'viewer'),
-      silo_admin: userHasRole(user, 'silo', defaultSilo.id, 'admin'),
+      silo_admin: userHasRole(user, 'silo', user.silo_id, 'admin'),
     }
   },
   currentUserGroups({ cookies }) {

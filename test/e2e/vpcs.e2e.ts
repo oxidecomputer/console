@@ -77,10 +77,10 @@ test('can edit VPC', async ({ page }) => {
 test('can create and delete subnet', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc')
   await page.getByRole('tab', { name: 'Subnets' }).click()
-  // only one row in table, the default mock-subnet
+  // two rows in table: mock-subnet and mock-subnet-2
   const table = page.getByRole('table')
   const rows = page.getByRole('table').getByRole('row')
-  await expect(rows).toHaveCount(2)
+  await expect(rows).toHaveCount(3)
 
   await expectRowVisible(table, {
     name: 'mock-subnet',
@@ -94,8 +94,8 @@ test('can create and delete subnet', async ({ page }) => {
   const dialog = page.getByRole('dialog', { name: 'Create subnet' })
   await expect(dialog).toBeVisible()
 
-  await dialog.getByRole('textbox', { name: 'Name' }).fill('mock-subnet-2')
-  await dialog.getByRole('textbox', { name: 'IPv4 block' }).fill('10.1.1.2/24')
+  await dialog.getByRole('textbox', { name: 'Name' }).fill('mock-subnet-3')
+  await dialog.getByRole('textbox', { name: 'IPv4 block' }).fill('10.1.1.3/24')
 
   // little hack to catch a bug where we weren't handling empty input here properly
   await dialog.getByRole('textbox', { name: 'IPv6 block' }).fill('abc')
@@ -104,7 +104,7 @@ test('can create and delete subnet', async ({ page }) => {
   await dialog.getByRole('button', { name: 'Create subnet' }).click()
 
   await expect(dialog).toBeHidden()
-  await expect(rows).toHaveCount(3)
+  await expect(rows).toHaveCount(4)
 
   await expectRowVisible(table, {
     name: 'mock-subnet',
@@ -112,16 +112,16 @@ test('can create and delete subnet', async ({ page }) => {
     'IP Block': expect.stringContaining('10.1.1.1/24'),
   })
   await expectRowVisible(table, {
-    name: 'mock-subnet-2',
+    name: 'mock-subnet-3',
     'Custom Router': '—',
-    'IP Block': expect.stringContaining('10.1.1.2/24'),
+    'IP Block': expect.stringContaining('10.1.1.3/24'),
   })
 
   // click more button on row to get menu, then click Delete
-  await clickRowAction(page, 'mock-subnet-2', 'Delete')
+  await clickRowAction(page, 'mock-subnet-3', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
 
-  await expect(rows).toHaveCount(2)
+  await expect(rows).toHaveCount(3)
 })
 
 test('can create and update subnets with a custom router', async ({ page }) => {
@@ -130,7 +130,7 @@ test('can create and update subnets with a custom router', async ({ page }) => {
 
   const table = page.getByRole('table')
   const rows = table.getByRole('row')
-  await expect(rows).toHaveCount(2)
+  await expect(rows).toHaveCount(3)
   await expectRowVisible(table, {
     name: 'mock-subnet',
     'Custom Router': '—',
@@ -140,8 +140,8 @@ test('can create and update subnets with a custom router', async ({ page }) => {
   const dialog = page.getByRole('dialog', { name: 'Create subnet' })
   await expect(dialog).toBeVisible()
 
-  await page.getByRole('textbox', { name: 'Name' }).fill('mock-subnet-2')
-  await page.getByRole('textbox', { name: 'IPv4 block' }).fill('10.1.1.2/24')
+  await page.getByRole('textbox', { name: 'Name' }).fill('mock-subnet-3')
+  await page.getByRole('textbox', { name: 'IPv4 block' }).fill('10.1.1.3/24')
 
   await page.getByRole('button', { name: 'Custom router' }).click()
   await page.getByRole('option', { name: 'mock-custom-router' }).click()
@@ -149,22 +149,22 @@ test('can create and update subnets with a custom router', async ({ page }) => {
   await page.getByRole('button', { name: 'Create subnet' }).click()
   await expect(dialog).toBeHidden()
 
-  await expect(rows).toHaveCount(3)
+  await expect(rows).toHaveCount(4)
   await expectRowVisible(table, {
-    name: 'mock-subnet-2',
+    name: 'mock-subnet-3',
     'Custom Router': 'mock-custom-router',
-    'IP Block': expect.stringContaining('10.1.1.2/24'),
+    'IP Block': expect.stringContaining('10.1.1.3/24'),
   })
 
   // now remove the router
-  await page.getByRole('link', { name: 'mock-subnet-2' }).click()
+  await page.getByRole('link', { name: 'mock-subnet-3' }).click()
   await page.getByRole('button', { name: 'Custom router' }).click()
   await page.getByRole('option', { name: 'None' }).click()
   await page.getByRole('button', { name: 'Update subnet' }).click()
   await expect(dialog).toBeHidden()
 
   await expectRowVisible(table, {
-    name: 'mock-subnet-2',
+    name: 'mock-subnet-3',
     'Custom Router': '—',
   })
 })

@@ -23,7 +23,7 @@ test('can create a NIC with a specified IP address', async ({ page }) => {
   await page.getByLabel('VPC', { exact: true }).click()
   await page.getByRole('option', { name: 'mock-vpc' }).click()
   await page.getByRole('button', { name: 'Subnet' }).click()
-  await page.getByRole('option', { name: 'mock-subnet' }).click()
+  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
 
   // Select IPv4 only
   await page.getByRole('radio', { name: 'IPv4', exact: true }).click()
@@ -53,7 +53,7 @@ test('can create a NIC with a blank IP address', async ({ page }) => {
   await page.getByLabel('VPC', { exact: true }).click()
   await page.getByRole('option', { name: 'mock-vpc' }).click()
   await page.getByRole('button', { name: 'Subnet' }).click()
-  await page.getByRole('option', { name: 'mock-subnet' }).click()
+  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
 
   // Dual-stack is selected by default, so both fields should be visible
   // make sure the IPv4 address field has a non-conforming bit of text in it
@@ -93,7 +93,7 @@ test('can create a NIC with IPv6 only', async ({ page }) => {
   await page.getByLabel('VPC', { exact: true }).click()
   await page.getByRole('option', { name: 'mock-vpc' }).click()
   await page.getByRole('button', { name: 'Subnet' }).click()
-  await page.getByRole('option', { name: 'mock-subnet' }).click()
+  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
 
   // Select IPv6 only
   await page.getByRole('radio', { name: 'IPv6', exact: true }).click()
@@ -118,7 +118,7 @@ test('can create a NIC with dual-stack and explicit IPs', async ({ page }) => {
   await page.getByLabel('VPC', { exact: true }).click()
   await page.getByRole('option', { name: 'mock-vpc' }).click()
   await page.getByRole('button', { name: 'Subnet' }).click()
-  await page.getByRole('option', { name: 'mock-subnet' }).click()
+  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
 
   // Dual-stack is selected by default
   await page.getByLabel('IPv4 Address').fill('10.0.0.5')

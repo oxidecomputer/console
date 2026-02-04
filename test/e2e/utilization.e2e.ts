@@ -24,7 +24,7 @@ test.describe('System utilization', () => {
     await page.goto('/system/utilization')
 
     await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
-    await expect(page.getByText('Provisioned384 GiB')).toBeVisible()
+    await expect(page.getByText('Provisioned416 GiB')).toBeVisible()
 
     await expect(page.getByText('Provisioned / Quota')).toBeVisible()
 
@@ -88,6 +88,14 @@ test.describe('System utilization', () => {
     await clickRowAction(page, 'myriad', 'Delete')
     await confirm.click()
     await expect(page.getByRole('cell', { name: 'myriad' })).toBeHidden()
+
+    await clickRowAction(page, 'thrax', 'Delete')
+    await confirm.click()
+    await expect(page.getByRole('cell', { name: 'thrax' })).toBeHidden()
+
+    await clickRowAction(page, 'pelerines', 'Delete')
+    await confirm.click()
+    await expect(page.getByRole('cell', { name: 'pelerines' })).toBeHidden()
 
     await page.getByRole('link', { name: 'Utilization' }).click()
 

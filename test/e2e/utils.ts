@@ -197,6 +197,10 @@ export async function getPageAsUser(
     | 'Jacob Klein'
     | 'Jane Austen'
     | 'Herbert Marcuse'
+    // Test silo users for IP pool configuration testing
+    | 'Aryeh Kosman' // myriad silo: v4-only default pool
+    | 'Elizabeth Anscombe' // thrax silo: v6-only default pool
+    | 'Theodor Adorno' // pelerines silo: no default pools
 ): Promise<Page> {
   const browserContext = await browser.newContext()
   await browserContext.addCookies([

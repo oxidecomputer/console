@@ -18,7 +18,7 @@ import type * as Sel from '~/api/selectors'
 import { commaSeries } from '~/util/str'
 
 import type { Json } from '../json-type'
-import { projects } from '../project'
+import { projects, type DbProject } from '../project'
 import { defaultSilo, siloSettings } from '../silo'
 import { internalError } from './util'
 
@@ -167,7 +167,7 @@ export const lookup = {
     if (!antiAffinityGroup) throw notFoundErr(`anti-affinity group '${id}'`)
     return antiAffinityGroup
   },
-  project({ project: id }: Sel.Project): Json<Api.Project> {
+  project({ project: id }: Sel.Project): DbProject {
     if (!id) throw notFoundErr('no project specified')
 
     if (isUuid(id)) return lookupById(db.projects, id)
@@ -579,7 +579,7 @@ const initDb = {
   vpcRouters: [...mock.vpcRouters],
   vpcRouterRoutes: [...mock.routerRoutes],
   vpcs: [...mock.vpcs],
-  vpcSubnets: [mock.vpcSubnet],
+  vpcSubnets: [...mock.vpcSubnets],
 }
 
 export let db = structuredClone(initDb)

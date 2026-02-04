@@ -11,7 +11,7 @@ import { v4 as uuid } from 'uuid'
 import type { RouterRoute, Vpc, VpcFirewallRule, VpcRouter, VpcSubnet } from '@oxide/api'
 
 import type { Json } from './json-type'
-import { project, project2 } from './project'
+import { project, project2, projectAdorno, projectAnscombe, projectKosman } from './project'
 import { getTimestamps } from './util'
 
 const time_created = new Date(2021, 0, 1).toISOString()
@@ -43,7 +43,44 @@ export const vpc2: Json<Vpc> = {
   time_modified,
 }
 
-export const vpcs: Json<Vpc[]> = [vpc, vpc2]
+// VPCs for test silos (IP pool configuration testing)
+export const vpcKosman: Json<Vpc> = {
+  id: 'd1e2f3a4-b5c6-7890-abcd-ef1234567890',
+  name: 'kosman-vpc',
+  description: 'VPC in myriad silo',
+  dns_name: 'kosman-vpc',
+  project_id: projectKosman.id,
+  system_router_id: systemRouterId,
+  ipv6_prefix: 'fdf6:1818:b6e3::/48',
+  time_created,
+  time_modified,
+}
+
+export const vpcAnscombe: Json<Vpc> = {
+  id: 'e2f3a4b5-c6d7-8901-bcde-f12345678901',
+  name: 'anscombe-vpc',
+  description: 'VPC in thrax silo',
+  dns_name: 'anscombe-vpc',
+  project_id: projectAnscombe.id,
+  system_router_id: systemRouterId,
+  ipv6_prefix: 'fdf6:1818:b6e4::/48',
+  time_created,
+  time_modified,
+}
+
+export const vpcAdorno: Json<Vpc> = {
+  id: 'f3a4b5c6-d7e8-9012-cdef-123456789012',
+  name: 'adorno-vpc',
+  description: 'VPC in pelerines silo',
+  dns_name: 'adorno-vpc',
+  project_id: projectAdorno.id,
+  system_router_id: systemRouterId,
+  ipv6_prefix: 'fdf6:1818:b6e5::/48',
+  time_created,
+  time_modified,
+}
+
+export const vpcs: Json<Vpc[]> = [vpc, vpc2, vpcKosman, vpcAnscombe, vpcAdorno]
 
 export const defaultRouter: Json<VpcRouter> = {
   id: 'fc59fb4d-baad-44a8-b152-9a3c27ae8aa1',
@@ -173,6 +210,48 @@ export const vpcSubnet2: Json<VpcSubnet> = {
   ipv4_block: '10.1.1.2/24',
   custom_router_id: customRouter.id,
 }
+
+// Subnets for test silos
+export const subnetKosman: Json<VpcSubnet> = {
+  id: 'a1b2c3d4-e5f6-7890-1234-567890abcdef',
+  name: 'kosman-subnet',
+  description: 'subnet in myriad silo',
+  time_created,
+  time_modified,
+  vpc_id: vpcKosman.id,
+  ipv4_block: '10.2.1.0/24',
+  ipv6_block: 'fd9b:870a:4246::/64',
+}
+
+export const subnetAnscombe: Json<VpcSubnet> = {
+  id: 'b2c3d4e5-f6a7-8901-2345-67890abcdef1',
+  name: 'anscombe-subnet',
+  description: 'subnet in thrax silo',
+  time_created,
+  time_modified,
+  vpc_id: vpcAnscombe.id,
+  ipv4_block: '10.3.1.0/24',
+  ipv6_block: 'fd9b:870a:4247::/64',
+}
+
+export const subnetAdorno: Json<VpcSubnet> = {
+  id: 'c3d4e5f6-a7b8-9012-3456-7890abcdef12',
+  name: 'adorno-subnet',
+  description: 'subnet in pelerines silo',
+  time_created,
+  time_modified,
+  vpc_id: vpcAdorno.id,
+  ipv4_block: '10.4.1.0/24',
+  ipv6_block: 'fd9b:870a:4248::/64',
+}
+
+export const vpcSubnets: Json<VpcSubnet[]> = [
+  vpcSubnet,
+  vpcSubnet2,
+  subnetKosman,
+  subnetAnscombe,
+  subnetAdorno,
+]
 
 export function defaultFirewallRules(vpcId: string): Json<VpcFirewallRule[]> {
   return [

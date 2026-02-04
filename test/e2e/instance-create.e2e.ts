@@ -865,7 +865,7 @@ test('create instance with custom IPv4-only NIC constrains ephemeral IP to IPv4'
   await modal.getByLabel('VPC', { exact: true }).click()
   await page.getByRole('option', { name: 'mock-vpc' }).click()
   await modal.getByLabel('Subnet').click()
-  await page.getByRole('option', { name: 'mock-subnet' }).click()
+  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
 
   // Select IPv4-only IP configuration
   await modal.getByRole('radio', { name: 'IPv4', exact: true }).click()
@@ -927,7 +927,7 @@ test('create instance with custom IPv6-only NIC constrains ephemeral IP to IPv6'
   await modal.getByLabel('VPC', { exact: true }).click()
   await page.getByRole('option', { name: 'mock-vpc' }).click()
   await modal.getByLabel('Subnet').click()
-  await page.getByRole('option', { name: 'mock-subnet' }).click()
+  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
 
   // Select IPv6-only IP configuration
   await modal.getByRole('radio', { name: 'IPv6', exact: true }).click()
@@ -989,7 +989,7 @@ test('create instance with custom dual-stack NIC allows both IPv4 and IPv6 ephem
   await modal.getByLabel('VPC', { exact: true }).click()
   await page.getByRole('option', { name: 'mock-vpc' }).click()
   await modal.getByLabel('Subnet').click()
-  await page.getByRole('option', { name: 'mock-subnet' }).click()
+  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
 
   // Select dual-stack IP configuration (should be default)
   await modal.getByRole('radio', { name: 'IPv4 & IPv6', exact: true }).click()
@@ -1075,7 +1075,7 @@ test('ephemeral IP checkbox disabled when no NICs configured', async ({ page }) 
   await modal.getByLabel('VPC', { exact: true }).click()
   await page.getByRole('option', { name: 'mock-vpc' }).click()
   await modal.getByLabel('Subnet').click()
-  await page.getByRole('option', { name: 'mock-subnet' }).click()
+  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
 
   // Select IPv4 IP configuration
   await modal.getByRole('radio', { name: 'IPv4', exact: true }).click()

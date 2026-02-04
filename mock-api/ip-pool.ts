@@ -9,7 +9,7 @@
 import { type IpPool, type IpPoolRange, type IpPoolSiloLink } from '@oxide/api'
 
 import type { Json } from './json-type'
-import { defaultSilo } from './silo'
+import { defaultSilo, myriadSilo, pelerinesSilo, thraxSilo } from './silo'
 
 export const ipPool1: Json<IpPool> = {
   id: '69b5c583-74a9-451a-823d-0741c1ec66e2',
@@ -82,6 +82,7 @@ export const ipPools: Json<IpPool>[] = [
 ]
 
 export const ipPoolSilos: Json<IpPoolSiloLink>[] = [
+  // maze-war (default silo): both v4 and v6 defaults
   {
     ip_pool_id: ipPool1.id,
     silo_id: defaultSilo.id,
@@ -102,6 +103,42 @@ export const ipPoolSilos: Json<IpPoolSiloLink>[] = [
     ip_pool_id: ipPool6Multicast.id,
     silo_id: defaultSilo.id,
     is_default: true,
+  },
+
+  // myriad silo: v4-only default
+  {
+    ip_pool_id: ipPool1.id,
+    silo_id: myriadSilo.id,
+    is_default: true, // Single v4 default
+  },
+  {
+    ip_pool_id: ipPool3.id,
+    silo_id: myriadSilo.id,
+    is_default: false, // Extra v4 pool for selection tests
+  },
+
+  // thrax silo: v6-only default
+  {
+    ip_pool_id: ipPool2.id,
+    silo_id: thraxSilo.id,
+    is_default: true, // Single v6 default
+  },
+  {
+    ip_pool_id: ipPool4.id,
+    silo_id: thraxSilo.id,
+    is_default: false, // Extra v6 pool for selection tests
+  },
+
+  // pelerines silo: no defaults (for testing error/empty states)
+  {
+    ip_pool_id: ipPool1.id,
+    silo_id: pelerinesSilo.id,
+    is_default: false,
+  },
+  {
+    ip_pool_id: ipPool2.id,
+    silo_id: pelerinesSilo.id,
+    is_default: false,
   },
 ]
 
