@@ -131,9 +131,4 @@ export const TableEmptyBox = ({ children, border = true }: TableEmptyBoxProps) =
   </div>
 )
 
-/**
- * Used _outside_ of the `Table`, this element includes a soon-to-be-removed description of the resource inside the table,
- * along with a link to more info, and a button to take action on the resource listed in the table.
- */
-export const TableControls = classed.div`mb-4 flex items-end justify-between space-x-8`
 export const TableTitle = classed.div`text-sans-lg text-raise`

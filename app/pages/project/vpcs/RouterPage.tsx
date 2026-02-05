@@ -36,11 +36,12 @@ import { addToast } from '~/stores/toast'
 import { TypeValueCell } from '~/table/cells/TypeValueCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
+import { CardBlock } from '~/ui/lib/CardBlock'
 import { CreateButton, CreateLink } from '~/ui/lib/CreateButton'
+import { Divider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
-import { TableControls, TableTitle } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
@@ -199,22 +200,24 @@ export default function RouterPage() {
         <PropertiesTable.DateRow date={routerData.timeCreated} label="Created" />
         <PropertiesTable.DateRow date={routerData.timeModified} label="Last Modified" />
       </PropertiesTable>
-      <TableControls className="mb-3">
-        <TableTitle>Routes</TableTitle>
-        {canCreateNewRoute ? (
-          <CreateLink to={pb.vpcRouterRoutesNew({ project, vpc, router })}>
-            New route
-          </CreateLink>
-        ) : (
-          <CreateButton
-            disabled
-            disabledReason={routeFormMessage.noNewRoutesOnSystemRouter}
-          >
-            New route
-          </CreateButton>
-        )}
-      </TableControls>
-      {table}
+      <Divider className="my-8" />
+      <CardBlock>
+        <CardBlock.Header title="Routes" description="Rules for directing network traffic">
+          {canCreateNewRoute ? (
+            <CreateLink to={pb.vpcRouterRoutesNew({ project, vpc, router })}>
+              New route
+            </CreateLink>
+          ) : (
+            <CreateButton
+              disabled
+              disabledReason={routeFormMessage.noNewRoutesOnSystemRouter}
+            >
+              New route
+            </CreateButton>
+          )}
+        </CardBlock.Header>
+        <CardBlock.Body>{table}</CardBlock.Body>
+      </CardBlock>
       <Outlet />
     </>
   )
