@@ -19,6 +19,7 @@ import {
   Networking16Icon,
   Snapshots16Icon,
   Storage16Icon,
+  Subnet16Icon,
 } from '@oxide/design-system/icons/react'
 
 import { TopBar } from '~/components/TopBar'
@@ -68,6 +69,7 @@ export function ProjectLayoutBase({ overrideContentPane }: ProjectLayoutProps) {
         { value: 'Images', path: pb.projectImages(projectSelector) },
         { value: 'VPCs', path: pb.vpcs(projectSelector) },
         { value: 'Floating IPs', path: pb.floatingIps(projectSelector) },
+        { value: 'External Subnets', path: pb.externalSubnets(projectSelector) },
         { value: 'Affinity Groups', path: pb.affinity(projectSelector) },
         { value: 'Project Access', path: pb.projectAccess(projectSelector) },
       ]
@@ -111,6 +113,9 @@ export function ProjectLayoutBase({ overrideContentPane }: ProjectLayoutProps) {
           </NavLinkItem>
           <NavLinkItem to={pb.floatingIps(projectSelector)}>
             <IpGlobal16Icon /> Floating IPs
+          </NavLinkItem>
+          <NavLinkItem to={pb.externalSubnets(projectSelector)}>
+            <Subnet16Icon /> External Subnets
           </NavLinkItem>
           <NavLinkItem to={pb.affinity(projectSelector)}>
             <Affinity16Icon /> Affinity Groups

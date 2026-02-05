@@ -63,7 +63,7 @@ import { SshKeysField } from '~/components/form/fields/SshKeysField'
 import { Form } from '~/components/form/Form'
 import { FullPageForm } from '~/components/form/FullPageForm'
 import { HL } from '~/components/HL'
-import { toIpPoolItem } from '~/components/IpPoolListboxItem'
+import { toPoolItem } from '~/components/PoolListboxItem'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Button } from '~/ui/lib/Button'
@@ -335,7 +335,7 @@ function EphemeralIpCheckbox({
         <ListboxField
           name={poolFieldName}
           control={control}
-          items={pools.map(toIpPoolItem)}
+          items={pools.map(toPoolItem)}
           disabled={isSubmitting}
           required={checked}
           hideOptionalTag

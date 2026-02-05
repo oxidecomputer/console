@@ -220,6 +220,24 @@ export const lookup = {
 
     return disk
   },
+  externalSubnet({
+    externalSubnet: id,
+    ...projectSelector
+  }: Sel.ExternalSubnet): Json<Api.ExternalSubnet> {
+    if (!id) throw notFoundErr('no external subnet specified')
+
+    if (isUuid(id)) {
+      ensureNoParentSelectors('external subnet', projectSelector)
+      return lookupById(db.externalSubnets, id)
+    }
+
+    const project = lookup.project(projectSelector)
+    const externalSubnet = db.externalSubnets.find(
+      (s) => s.project_id === project.id && s.name === id
+    )
+    if (!externalSubnet) throw notFoundErr(`external subnet '${id}'`)
+    return externalSubnet
+  },
   floatingIp({ floatingIp: id, ...projectSelector }: Sel.FloatingIp): Json<Api.FloatingIp> {
     if (!id) throw notFoundErr('no floating IP specified')
 
@@ -384,6 +402,18 @@ export const lookup = {
     if (!image) throw notFoundErr(`image '${id}'`)
     return image
   },
+  subnetPool({ subnetPool: id }: Sel.SubnetPool): Json<Api.SiloSubnetPool> {
+    if (!id) throw notFoundErr('no subnet pool specified')
+    if (isUuid(id)) return lookupById(db.subnetPools, id)
+    const pool = db.subnetPools.find((p) => p.name === id)
+    if (!pool) throw notFoundErr(`subnet pool '${id}'`)
+    return pool
+  },
+  defaultSubnetPool(): Json<Api.SiloSubnetPool> {
+    const pool = db.subnetPools.find((p) => p.is_default)
+    if (!pool) throw notFoundErr('no default subnet pool configured')
+    return pool
+  },
   ipPool({ pool: id }: Sel.IpPool): Json<Api.IpPool> {
     if (!id) throw notFoundErr('no pool specified')
 
@@ -537,6 +567,9 @@ const initDb = {
   deviceTokens: [...mock.deviceTokens],
   disks: [...mock.disks],
   diskBulkImportState: new Map<string, DiskBulkImport>(),
+  externalSubnets: [...mock.externalSubnets],
+  subnetPools: [...mock.subnetPools],
+  subnetPoolMembers: [...mock.subnetPoolMembers],
   floatingIps: [...mock.floatingIps],
   userGroups: [...mock.userGroups],
   /** Join table for `users` and `userGroups` */

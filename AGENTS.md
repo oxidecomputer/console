@@ -64,6 +64,7 @@
 - Only implement what is necessary to exercise the UI; keep the db seeded via `mock-api/msw/db.ts`.
 - Store API response objects in the mock tables when possible so state persists across calls.
 - Enforce role checks with `requireFleetViewer`/`requireFleetCollab`/`requireFleetAdmin`, and return realistic errors (e.g. downgrade guard in `systemUpdateStatus`).
+- All UUIDs in `mock-api/` must be valid RFC 4122 (a safety test enforces this). Use `uuidgen` to generate them—do not hand-write UUIDs.
 
 # Routing
 

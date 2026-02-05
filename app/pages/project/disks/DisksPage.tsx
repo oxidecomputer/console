@@ -164,7 +164,7 @@ export default function DisksPage() {
         colHelper.accessor(
           (disk) => ('instance' in disk.state ? disk.state.instance : undefined),
           {
-            header: 'Attached to',
+            header: 'Instance',
             cell: (info) => (
               <InstanceLink instanceId={info.getValue()} tab="storage" cell />
             ),

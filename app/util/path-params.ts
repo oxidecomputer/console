@@ -19,6 +19,7 @@ export type Image = Required<Sel.Image>
 export type Snapshot = Required<Sel.Snapshot>
 export type SiloImage = Required<Sel.SiloImage>
 export type IpPool = Required<Sel.IpPool>
+export type ExternalSubnet = Required<Sel.ExternalSubnet>
 export type FloatingIp = Required<Sel.FloatingIp>
 export type FirewallRule = Required<Sel.FirewallRule>
 export type VpcRouter = Required<Sel.VpcRouter>

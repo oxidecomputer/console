@@ -284,6 +284,94 @@ export const handlers = makeHandlers({
 
     return 204
   },
+  externalSubnetList({ query }) {
+    const project = lookup.project(query)
+    const subnets = db.externalSubnets.filter((s) => s.project_id === project.id)
+    return paginated(query, subnets)
+  },
+  externalSubnetCreate({ body, query }) {
+    const project = lookup.project(query)
+    errIfExists(db.externalSubnets, { name: body.name, project_id: project.id })
+
+    const { pool, subnet } = match(body.allocator)
+      .with({ type: 'explicit' }, (a) => ({
+        // Real API infers pool from the subnet; mock just uses default
+        pool: lookup.defaultSubnetPool(),
+        subnet: a.subnet,
+      }))
+      .with({ type: 'auto' }, (a) => {
+        const pool = match(a.pool_selector)
+          .with({ type: 'explicit' }, (ps) => lookup.subnetPool({ subnetPool: ps.pool }))
+          .with({ type: 'auto' }, () => lookup.defaultSubnetPool())
+          .with(undefined, () => lookup.defaultSubnetPool())
+          .exhaustive()
+        const idx = db.externalSubnets.length + 1
+        return { pool, subnet: `10.128.${idx}.0/${a.prefix_len}` }
+      })
+      .exhaustive()
+
+    // Use first matching member; real API picks based on CIDR availability
+    const member = db.subnetPoolMembers.find((m) => m.subnet_pool_id === pool.id)
+    if (!member) throw notFoundErr(`subnet pool member for pool '${pool.id}'`)
+
+    const newSubnet: Json<Api.ExternalSubnet> = {
+      id: uuid(),
+      project_id: project.id,
+      instance_id: undefined,
+      name: body.name,
+      description: body.description,
+      subnet,
+      subnet_pool_id: pool.id,
+      subnet_pool_member_id: member.id,
+      ...getTimestamps(),
+    }
+    db.externalSubnets.push(newSubnet)
+    return json(newSubnet, { status: 201 })
+  },
+  externalSubnetView: ({ path, query }) => lookup.externalSubnet({ ...path, ...query }),
+  externalSubnetUpdate: ({ path, query, body }) => {
+    const externalSubnet = lookup.externalSubnet({ ...path, ...query })
+    if (body.name) {
+      if (body.name !== externalSubnet.name) {
+        errIfExists(db.externalSubnets, {
+          name: body.name,
+          project_id: externalSubnet.project_id,
+        })
+      }
+      externalSubnet.name = body.name
+    }
+    updateDesc(externalSubnet, body)
+    return externalSubnet
+  },
+  externalSubnetDelete({ path, query }) {
+    const externalSubnet = lookup.externalSubnet({ ...path, ...query })
+    if (externalSubnet.instance_id) {
+      throw invalidRequest(
+        'external subnet cannot be deleted while attached to an instance'
+      )
+    }
+    db.externalSubnets = db.externalSubnets.filter((s) => s.id !== externalSubnet.id)
+    return 204
+  },
+  externalSubnetAttach({ path: { externalSubnet }, query: { project }, body }) {
+    const dbSubnet = lookup.externalSubnet({ externalSubnet, project })
+    if (dbSubnet.instance_id) {
+      throw invalidRequest(
+        'external subnet cannot be attached to one instance while still attached to another'
+      )
+    }
+    const dbInstance = lookup.instance({
+      instance: body.instance,
+      project: isUuid(body.instance) ? undefined : project,
+    })
+    dbSubnet.instance_id = dbInstance.id
+    return dbSubnet
+  },
+  externalSubnetDetach({ path, query }) {
+    const externalSubnet = lookup.externalSubnet({ ...path, ...query })
+    externalSubnet.instance_id = undefined
+    return externalSubnet
+  },
   floatingIpCreate({ body, query }) {
     const project = lookup.project(query)
     errIfExists(db.floatingIps, { name: body.name, project_id: project.id })
@@ -961,6 +1049,11 @@ export const handlers = makeHandlers({
 
     // endpoint is not paginated. or rather, it's fake paginated
     return { items: [...ephemeralIps, ...snatIps, ...floatingIps] }
+  },
+  instanceExternalSubnetList({ path, query }) {
+    const instance = lookup.instance({ ...path, ...query })
+    const items = db.externalSubnets.filter((s) => s.instance_id === instance.id)
+    return { items, next_page: null }
   },
   instanceNetworkInterfaceList({ query }) {
     const instance = lookup.instance(query)
@@ -2229,16 +2322,10 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
-  subnetPoolList: NotImplemented,
-  subnetPoolView: NotImplemented,
-  externalSubnetList: NotImplemented,
-  externalSubnetCreate: NotImplemented,
-  externalSubnetView: NotImplemented,
-  externalSubnetUpdate: NotImplemented,
-  externalSubnetDelete: NotImplemented,
-  externalSubnetAttach: NotImplemented,
-  externalSubnetDetach: NotImplemented,
-  instanceExternalSubnetList: NotImplemented,
+  subnetPoolList({ query }) {
+    return paginated(query, db.subnetPools)
+  },
+  subnetPoolView: ({ path }) => lookup.subnetPool({ subnetPool: path.pool }),
   instanceMulticastGroupJoin: NotImplemented,
   instanceMulticastGroupLeave: NotImplemented,
   instanceMulticastGroupList: NotImplemented,
