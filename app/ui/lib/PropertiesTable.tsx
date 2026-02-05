@@ -75,9 +75,15 @@ PropertiesTable.IdRow = ({ id }: { id: string }) => (
   </PropertiesTable.Row>
 )
 
-PropertiesTable.DescriptionRow = ({ description }: { description: string }) => (
+PropertiesTable.DescriptionRow = ({
+  description,
+  sideModal,
+}: {
+  description: string
+  sideModal?: boolean
+}) => (
   <PropertiesTable.Row label="Description">
-    <DescriptionCell text={description} />
+    <DescriptionCell text={description} sideModal={sideModal} />
   </PropertiesTable.Row>
 )
 
