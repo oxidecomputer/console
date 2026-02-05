@@ -42,10 +42,66 @@ import { Rando } from './rando'
 interface PaginateOptions {
   limit?: number | null
   pageToken?: string | null
+  sortBy?:
+    | 'name_ascending'
+    | 'name_descending'
+    | 'id_ascending'
+    | 'time_and_id_ascending'
+    | 'time_and_id_descending'
 }
 export interface ResultsPage<I extends { id: string }> {
   items: I[]
   next_page: string | null
+}
+
+/**
+ * Sort items based on the sort mode. Implements default sorting behavior to
+ * match Omicron's pagination defaults.
+ * https://github.com/oxidecomputer/omicron/blob/cf38148/common/src/api/external/http_pagination.rs#L427-L428
+ * https://github.com/oxidecomputer/omicron/blob/cf38148/common/src/api/external/http_pagination.rs#L334-L335
+ * https://github.com/oxidecomputer/omicron/blob/cf38148/common/src/api/external/http_pagination.rs#L511-L512
+ */
+function sortItems<I extends { id: string }>(
+  items: I[],
+  sortBy:
+    | 'name_ascending'
+    | 'name_descending'
+    | 'id_ascending'
+    | 'time_and_id_ascending'
+    | 'time_and_id_descending'
+): I[] {
+  const sorted = [...items]
+
+  switch (sortBy) {
+    case 'name_ascending':
+      return sorted.sort((a, b) => {
+        const aName = 'name' in a ? String(a.name) : a.id
+        const bName = 'name' in b ? String(b.name) : b.id
+        return aName.localeCompare(bName)
+      })
+    case 'name_descending':
+      return sorted.sort((a, b) => {
+        const aName = 'name' in a ? String(a.name) : a.id
+        const bName = 'name' in b ? String(b.name) : b.id
+        return bName.localeCompare(aName)
+      })
+    case 'id_ascending':
+      return sorted.sort((a, b) => a.id.localeCompare(b.id))
+    case 'time_and_id_ascending':
+      return sorted.sort((a, b) => {
+        const aTime = 'time_created' in a ? String(a.time_created) : ''
+        const bTime = 'time_created' in b ? String(b.time_created) : ''
+        const timeCompare = aTime.localeCompare(bTime)
+        return timeCompare !== 0 ? timeCompare : a.id.localeCompare(b.id)
+      })
+    case 'time_and_id_descending':
+      return sorted.sort((a, b) => {
+        const aTime = 'time_created' in a ? String(a.time_created) : ''
+        const bTime = 'time_created' in b ? String(b.time_created) : ''
+        const timeCompare = bTime.localeCompare(aTime)
+        return timeCompare !== 0 ? timeCompare : b.id.localeCompare(a.id)
+      })
+  }
 }
 
 export const paginated = <P extends PaginateOptions, I extends { id: string }>(
@@ -55,26 +111,36 @@ export const paginated = <P extends PaginateOptions, I extends { id: string }>(
   const limit = params.limit || 100
   const pageToken = params.pageToken
 
-  let startIndex = pageToken ? items.findIndex((i) => i.id === pageToken) : 0
+  // Apply default sorting based on what fields are available, matching Omicron's defaults:
+  // - name_ascending for endpoints that support name/id sorting (most common)
+  // - id_ascending for endpoints that only support id sorting
+  // Note: time_and_id_ascending is only used when explicitly specified in sortBy
+  const sortBy =
+    params.sortBy ||
+    (items.length > 0 && 'name' in items[0] ? 'name_ascending' : 'id_ascending')
+
+  const sortedItems = sortItems(items, sortBy)
+
+  let startIndex = pageToken ? sortedItems.findIndex((i) => i.id === pageToken) : 0
   startIndex = startIndex < 0 ? 0 : startIndex
 
-  if (startIndex > items.length) {
+  if (startIndex > sortedItems.length) {
     return {
       items: [],
       next_page: null,
     }
   }
 
-  if (limit + startIndex >= items.length) {
+  if (limit + startIndex >= sortedItems.length) {
     return {
-      items: items.slice(startIndex),
+      items: sortedItems.slice(startIndex),
       next_page: null,
     }
   }
 
   return {
-    items: items.slice(startIndex, startIndex + limit),
-    next_page: `${items[startIndex + limit].id}`,
+    items: sortedItems.slice(startIndex, startIndex + limit),
+    next_page: `${sortedItems[startIndex + limit].id}`,
   }
 }
 
