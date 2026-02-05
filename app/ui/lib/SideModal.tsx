@@ -103,7 +103,7 @@ export function SideModal({
 
               {/* Close button is here at the end so we aren't automatically focusing on it when the side modal is opened. Positioned in the safe area at the top */}
               <Dialog.Close
-                className="hover:bg-hover absolute top-10 right-(--content-gutter) -m-2 flex rounded p-2"
+                className="hover:bg-hover absolute top-10 right-(--content-gutter) -m-2 flex rounded-md p-2"
                 aria-label="Close"
               >
                 <Close12Icon className="text-default" />

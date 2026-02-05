@@ -44,7 +44,7 @@ export default function LoginPage() {
     <>
       <div className="mb-3 flex items-end space-x-3">
         <Identicon
-          className="text-accent bg-accent-secondary-hover flex h-[34px] w-[34px] items-center justify-center rounded"
+          className="text-accent bg-accent-secondary-hover flex h-[34px] w-[34px] items-center justify-center rounded-md"
           name={silo}
         />
         <div className="text-sans-2xl text-raise">{silo}</div>

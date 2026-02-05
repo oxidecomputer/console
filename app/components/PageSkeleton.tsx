@@ -13,7 +13,7 @@ import { classed } from '~/util/classed'
 
 import { MswBanner } from './MswBanner'
 
-const Block = classed.div`motion-safe:animate-pulse2 rounded bg-tertiary`
+const Block = classed.div`motion-safe:animate-pulse2 rounded-md bg-tertiary`
 
 export function PageSkeleton({ skipPaths }: { skipPaths?: RegExp[] }) {
   const { pathname } = useLocation()

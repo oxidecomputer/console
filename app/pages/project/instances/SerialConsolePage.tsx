@@ -139,7 +139,7 @@ export default function SerialConsolePage() {
     <div className="mx-0! flex h-full max-h-[calc(100vh-var(--top-bar-height))] w-full! flex-col">
       <Link
         to={pb.instance(instanceSelector)}
-        className="bg-accent-secondary mx-3 mt-3 mb-6 flex h-10 shrink-0 items-center rounded px-3"
+        className="bg-accent-secondary mx-3 mt-3 mb-6 flex h-10 shrink-0 items-center rounded-md px-3"
       >
         <PrevArrow12Icon className="text-accent-tertiary" />
         <div className="text-mono-sm text-accent ml-2">

@@ -27,7 +27,7 @@ export const DocsPopoverLink = ({ href, linkText }: DocsPopoverLinkProps) => (
     rel="noreferrer"
   >
     <div className="border-secondary mx-2 border-b py-1.5">
-      <div className="text-sans-md text-raise group-hover:bg-tertiary relative -ml-2 inline-block rounded py-1 pr-7 pl-2">
+      <div className="text-sans-md text-raise group-hover:bg-tertiary relative -ml-2 inline-block rounded-md py-1 pr-7 pl-2">
         <span className="inline-block max-w-300 truncate align-middle">{linkText}</span>
         <OpenLink12Icon className="text-secondary absolute top-1.5 ml-2 translate-y-px" />
       </div>
@@ -47,7 +47,7 @@ export const DocsPopover = ({ heading, icon, summary, links }: DocsPopoverProps)
   const title = `Learn about ${heading}`
   return (
     <Popover>
-      <PopoverButton title={title} className="headless-hide-focus rounded">
+      <PopoverButton title={title} className="headless-hide-focus rounded-md">
         <div className={cn(buttonStyle({ size: 'sm', variant: 'ghost' }), 'w-8')}>
           <Info16Icon aria-hidden className="shrink-0" />
         </div>

@@ -92,7 +92,7 @@ function renderTooltip(props: TooltipProps<number, string>, unit?: string) {
   } = payload[0]
   if (!timestamp || typeof value !== 'number') return null
   return (
-    <div className="text-sans-md text-secondary bg-raise border-secondary elevation-2 rounded border outline-0">
+    <div className="text-sans-md text-secondary bg-raise border-secondary elevation-2 rounded-md border outline-0">
       <div className="border-secondary border-b px-3 py-2 pr-6">
         {longDateTime(timestamp)}
       </div>

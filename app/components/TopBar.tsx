@@ -132,7 +132,7 @@ function UserMenu() {
   const { me } = useCurrentUser()
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger aria-label="User menu" className="rounded">
+      <DropdownMenu.Trigger aria-label="User menu" className="rounded-md">
         <div
           className={cn(
             buttonStyle({ size: 'sm', variant: 'ghost' }),
@@ -163,9 +163,9 @@ function SiloSystemPicker({ level }: { level: 'silo' | 'system' }) {
     <DropdownMenu.Root>
       <DropdownMenu.Trigger
         aria-label="Switch between system and silo"
-        className="headless-hide-focus rounded"
+        className="headless-hide-focus rounded-md"
       >
-        <div className="active-clicked text-sans-md text-default border-secondary hover:bg-hover flex items-center rounded border px-2 py-1.5">
+        <div className="active-clicked text-sans-md text-default border-secondary hover:bg-hover flex items-center rounded-md border px-2 py-1.5">
           <div className="text-tertiary flex items-center">
             {level === 'system' ? <Servers16Icon /> : <Organization16Icon />}
           </div>

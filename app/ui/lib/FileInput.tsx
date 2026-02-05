@@ -80,7 +80,7 @@ export function FileInput({
       />
       <div
         className={cn(
-          'text-raise bg-default pointer-events-none relative z-1 flex flex-col items-center justify-center space-y-0.5 rounded border px-4 py-6',
+          'text-raise bg-default pointer-events-none relative z-1 flex flex-col items-center justify-center space-y-0.5 rounded-md border px-4 py-6',
           dragOver && 'bg-accent-secondary border-accent-secondary!',
           error
             ? 'border-error-secondary! group-hover:border-error'
@@ -89,7 +89,7 @@ export function FileInput({
       >
         <div
           className={cn(
-            'text-accent bg-accent-secondary flex items-center justify-center rounded p-1',
+            'text-accent bg-accent-secondary flex items-center justify-center rounded-md p-1',
             dragOver && 'bg-accent-secondary-hover'
           )}
         >
@@ -105,7 +105,7 @@ export function FileInput({
               <button
                 type="button"
                 onClick={handleResetInput}
-                className="hover:*:text-secondary pointer-events-auto ml-1 inline-flex rounded p-1"
+                className="hover:*:text-secondary pointer-events-auto ml-1 inline-flex rounded-md p-1"
                 aria-label="Clear file"
               >
                 <Error16Icon className="text-tertiary" />

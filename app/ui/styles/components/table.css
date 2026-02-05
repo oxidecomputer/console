@@ -86,7 +86,7 @@ table.ox-table {
   We hide the default border and background on the sticky
   cells. This is to stop anything underneath it showing through
   at the corner. By leaving the cell square, and instead applying
-  it to the div child which has a rounded corner we cover what's
+  it to the div child which has a rounded-md corner we cover what's
   below with a background colour and still keep the styling
   */
   & tr:last-of-type td:last-of-type.action-col {
@@ -166,7 +166,7 @@ table.ox-table {
   /* === Begin table selection styles === */
 
   /**
-   * Our table selection styles dictate complex behaviors like rounded selection corners,
+   * Our table selection styles dictate complex behaviors like rounded-md selection corners,
    * grouped selections, and seemless border overlap. To acheive this, `box-shadow` properties
    * are used for selection border styles. To make this effect possible, special classes were
    * added to the table. Those classes are:

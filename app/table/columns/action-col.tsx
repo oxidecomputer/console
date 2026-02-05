@@ -85,7 +85,7 @@ export const RowActions = ({ id, copyIdLabel = 'Copy ID', actions }: RowActionsP
     <DropdownMenu.Root>
       {/* stopPropagation prevents clicks from toggling row select in a single select table */}
       <DropdownMenu.Trigger
-        className="headless-hide-focus flex h-full w-full items-center justify-center rounded -outline-offset-2"
+        className="headless-hide-focus flex h-full w-full items-center justify-center rounded-md -outline-offset-2"
         aria-label="Row actions"
         onClick={(e) => e.stopPropagation()}
       >

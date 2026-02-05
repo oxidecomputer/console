@@ -83,7 +83,7 @@ export function Modal({
               </Dialog.Title>
               {children}
               <Dialog.Close
-                className="hover:bg-hover absolute top-3.5 right-2 flex items-center justify-center rounded p-2"
+                className="hover:bg-hover absolute top-3.5 right-2 flex items-center justify-center rounded-md p-2"
                 aria-label="Close"
               >
                 <Close12Icon className="text-default" />

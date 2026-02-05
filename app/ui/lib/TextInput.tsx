@@ -65,7 +65,7 @@ export function TextInput({
   return (
     <div
       className={cn(
-        'flex items-center rounded border',
+        'flex items-center rounded-md border',
         error
           ? 'border-error-secondary hover:border-error'
           : 'border-default hover:border-hover',
@@ -79,7 +79,7 @@ export function TextInput({
         type={type}
         value={value}
         className={cn(
-          `text-sans-md text-raise bg-default placeholder:text-tertiary disabled:text-secondary disabled:bg-disabled w-full rounded border-none px-3 py-2.75 outline-offset-1! disabled:cursor-not-allowed`,
+          `text-sans-md text-raise bg-default placeholder:text-tertiary disabled:text-secondary disabled:bg-disabled w-full rounded-md border-none px-3 py-2.75 outline-offset-1! disabled:cursor-not-allowed`,
           error && 'focus-error',
           fieldClassName,
           disabled && 'text-disabled bg-disabled',

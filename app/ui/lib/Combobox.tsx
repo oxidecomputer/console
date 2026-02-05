@@ -176,7 +176,7 @@ export const Combobox = ({
           )}
           <div
             className={cn(
-              `flex rounded border focus-within:ring-2`,
+              `flex rounded-md border focus-within:ring-2`,
               hasError
                 ? 'focus-error border-error-secondary focus-within:ring-error-secondary hover:border-error'
                 : 'border-default focus-within:ring-accent-secondary hover:border-hover',
@@ -228,7 +228,7 @@ export const Combobox = ({
               placeholder={placeholder}
               disabled={disabled || isLoading}
               className={cn(
-                `text-sans-md text-raise placeholder:text-tertiary h-10 w-full rounded border-none! px-3 py-2 outline-hidden!`,
+                `text-sans-md text-raise placeholder:text-tertiary h-10 w-full rounded-md border-none! px-3 py-2 outline-hidden!`,
                 disabled
                   ? 'text-disabled bg-disabled border-default! cursor-not-allowed'
                   : 'bg-default',
