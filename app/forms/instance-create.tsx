@@ -20,6 +20,7 @@ import {
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
   isUnicastPool,
+  MAX_DISK_SIZE_GiB,
   poolHasIpVersion,
   q,
   queryClient,
@@ -113,7 +114,11 @@ const getBootDiskAttachment = (
     size: values.bootDiskSize * GiB,
     diskBackend: {
       type: 'distributed',
-      diskSource: { type: 'image', imageId: source },
+      diskSource: {
+        type: 'image',
+        imageId: source,
+        readOnly: values.bootDiskReadOnly,
+      },
     },
   }
 }
@@ -134,6 +139,7 @@ export type InstanceCreateInput = Assign<
     siloImageSource: string
     projectImageSource: string
     diskSource: string
+    bootDiskReadOnly: boolean
 
     userData: File | null
     // ssh keys are always specified. we do not need the undefined case
@@ -201,6 +207,7 @@ const baseDefaultValues: InstanceCreateInput = {
   siloImageSource: '',
   projectImageSource: '',
   diskSource: '',
+  bootDiskReadOnly: false,
 
   otherDisks: [],
   networkInterfaces: { type: 'default_ipv4' },
@@ -360,13 +367,15 @@ export default function CreateInstanceForm() {
   // additional form elements for projectImage and siloImage tabs
   const bootDiskSizeAndName = (
     <>
-      <div key="divider" className="my-12! content-['a']" />
+      <div key="divider1" className="my-6! content-['a']" />
       <DiskSizeField
         key="diskSizeField"
         label="Disk size"
         name="bootDiskSize"
         control={control}
         min={imageSizeGiB || 1}
+        // Max size applies: this disk can only be distributed
+        max={MAX_DISK_SIZE_GiB}
         validate={(diskSizeGiB: number) => {
           if (imageSizeGiB && diskSizeGiB < imageSizeGiB) {
             return `Must be as large as selected image (min. ${imageSizeGiB} GiB)`
@@ -374,6 +383,7 @@ export default function CreateInstanceForm() {
         }}
         disabled={isSubmitting}
       />
+      <div key="divider2" className="my-6! content-['a']" />
       <NameField
         key="bootDiskName"
         name="bootDiskName"
@@ -390,6 +400,15 @@ export default function CreateInstanceForm() {
           }
         }}
       />
+      <div key="divider3" className="my-6! content-['a']" />
+      <CheckboxField
+        key="bootDiskReadOnly"
+        name="bootDiskReadOnly"
+        control={control}
+        disabled={isSubmitting}
+      >
+        Make disk read-only
+      </CheckboxField>
     </>
   )
 

@@ -1899,6 +1899,8 @@ export type Disk = {
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
   projectId: string
+  /** Whether or not this disk is read-only. */
+  readOnly: boolean
   size: ByteCount
   /** ID of snapshot from which disk was created, if any */
   snapshotId?: string | null
@@ -1920,9 +1922,19 @@ export type DiskSource =
       type: 'blank'
     }
   /** Create a disk from a disk snapshot */
-  | { snapshotId: string; type: 'snapshot' }
+  | {
+      /** If `true`, the disk created from this snapshot will be read-only. */
+      readOnly?: boolean
+      snapshotId: string
+      type: 'snapshot'
+    }
   /** Create a disk from an image */
-  | { imageId: string; type: 'image' }
+  | {
+      imageId: string
+      /** If `true`, the disk created from this image will be read-only. */
+      readOnly?: boolean
+      type: 'image'
+    }
   /** Create a blank disk that will accept bulk writes or pull blocks from an external source. */
   | { blockSize: BlockSize; type: 'importing_blocks' }
 
@@ -6670,6 +6682,10 @@ export interface RackMembershipStatusQueryParams {
   version?: RackMembershipVersion
 }
 
+export interface RackMembershipAbortPathParams {
+  rackId: string
+}
+
 export interface RackMembershipAddSledsPathParams {
   rackId: string
 }
@@ -7436,7 +7452,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2026013000.0.0'
+  apiVersion = '2026020200.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host
@@ -9965,6 +9981,19 @@ export class Api {
         path: `/v1/system/hardware/racks/${path.rackId}/membership`,
         method: 'GET',
         query,
+        ...params,
+      })
+    },
+    /**
+     * Abort the latest rack membership change
+     */
+    rackMembershipAbort: (
+      { path }: { path: RackMembershipAbortPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<RackMembershipStatus>({
+        path: `/v1/system/hardware/racks/${path.rackId}/membership/abort`,
+        method: 'POST',
         ...params,
       })
     },

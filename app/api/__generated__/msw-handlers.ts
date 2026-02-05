@@ -1079,6 +1079,12 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.RackMembershipStatus>>
+  /** `POST /v1/system/hardware/racks/:rackId/membership/abort` */
+  rackMembershipAbort: (params: {
+    path: Api.RackMembershipAbortPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.RackMembershipStatus>>
   /** `POST /v1/system/hardware/racks/:rackId/membership/add` */
   rackMembershipAddSleds: (params: {
     path: Api.RackMembershipAddSledsPathParams
@@ -2978,6 +2984,10 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.get(
       '/v1/system/hardware/racks/:rackId/membership',
       handler(handlers['rackMembershipStatus'], schema.RackMembershipStatusParams, null)
+    ),
+    http.post(
+      '/v1/system/hardware/racks/:rackId/membership/abort',
+      handler(handlers['rackMembershipAbort'], schema.RackMembershipAbortParams, null)
     ),
     http.post(
       '/v1/system/hardware/racks/:rackId/membership/add',

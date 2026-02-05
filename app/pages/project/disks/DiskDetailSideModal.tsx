@@ -9,6 +9,7 @@ import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import { api, q, queryClient, usePrefetchedQuery, type Disk } from '@oxide/api'
 import { Storage16Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { DiskStateBadge, DiskTypeBadge } from '~/components/StateBadge'
@@ -86,6 +87,9 @@ export function DiskDetailSideModal({
         </PropertiesTable.Row>
         <PropertiesTable.Row label="Snapshot ID">
           {disk.snapshotId ?? <EmptyCell />}
+        </PropertiesTable.Row>
+        <PropertiesTable.Row label="Read only">
+          <Badge color="neutral">{disk.readOnly ? 'True' : 'False'}</Badge>
         </PropertiesTable.Row>
         <PropertiesTable.Row label="Block size">
           {disk.blockSize.toLocaleString()} bytes
