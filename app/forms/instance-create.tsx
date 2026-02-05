@@ -7,13 +7,7 @@
  */
 import * as Accordion from '@radix-ui/react-accordion'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import {
-  useController,
-  useForm,
-  useWatch,
-  type Control,
-  type UseFormSetValue,
-} from 'react-hook-form'
+import { useController, useForm, useWatch, type Control } from 'react-hook-form'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 import { match, P } from 'ts-pattern'
@@ -141,8 +135,6 @@ export type InstanceCreateInput = Assign<
     userData: File | null
     // ssh keys are always specified. we do not need the undefined case
     sshPublicKeys: NonNullable<InstanceCreate['sshPublicKeys']>
-    // IP version for ephemeral IP when dual defaults exist
-    ephemeralIpVersion: IpVersion
     // Pool for ephemeral IP selection
     ephemeralIpPool: string
   }
@@ -205,7 +197,6 @@ const baseDefaultValues: InstanceCreateInput = {
 
   userData: null,
   externalIps: [{ type: 'ephemeral' }],
-  ephemeralIpVersion: 'v4',
   ephemeralIpPool: '',
 }
 
@@ -275,12 +266,7 @@ export default function CreateInstanceForm() {
     [siloPools]
   )
 
-  const { hasV4Default, hasV6Default, hasDualDefaults } = useMemo(
-    () => getDefaultIps(unicastPools),
-    [unicastPools]
-  )
-  // Use default version if available; fall back to v4
-  const ephemeralIpVersion: IpVersion = hasV4Default ? 'v4' : hasV6Default ? 'v6' : 'v4'
+  const { hasDualDefaults } = useMemo(() => getDefaultIps(unicastPools), [unicastPools])
 
   // Check if VPCs exist to determine default network interface type
   const { data: vpcs } = usePrefetchedQuery(
@@ -304,8 +290,6 @@ export default function CreateInstanceForm() {
     bootDiskSourceType: defaultSource,
     sshPublicKeys: allKeys,
     bootDiskSize: diskSizeNearest10(defaultImage?.size / GiB),
-    ephemeralIpVersion,
-    // Set ephemeralIpPool empty (for radio "use default")
     ephemeralIpPool: '',
     // API behavior:
     // - Single default: { type: 'ephemeral' } → API auto-picks the one default
@@ -344,20 +328,6 @@ export default function CreateInstanceForm() {
       setIsSubmitting(false)
     }
   }, [createInstance.error])
-
-  // Watch networkInterfaces and update ephemeralIpVersion when dual defaults exist
-  const networkInterfaces = useWatch({ control, name: 'networkInterfaces' })
-  useEffect(() => {
-    if (!hasDualDefaults) return
-
-    // Couple ephemeral IP version to network interface type when dual defaults exist
-    if (networkInterfaces.type === 'default_ipv6') {
-      setValue('ephemeralIpVersion', 'v6')
-    } else if (networkInterfaces.type === 'default_ipv4') {
-      setValue('ephemeralIpVersion', 'v4')
-    }
-    // For default_dual_stack, leave as-is (user can choose in UI)
-  }, [networkInterfaces, hasDualDefaults, setValue])
 
   const otherDisks = useWatch({ control, name: 'otherDisks' })
   const unavailableDiskNames = [
@@ -697,9 +667,7 @@ export default function CreateInstanceForm() {
           control={control}
           isSubmitting={isSubmitting}
           unicastPools={unicastPools}
-          networkInterfaces={networkInterfaces}
           hasVpcs={hasVpcs}
-          setValue={setValue}
         />
         <Form.Actions>
           <Form.Submit loading={createInstance.isPending}>Create instance</Form.Submit>
@@ -736,17 +704,14 @@ const AdvancedAccordion = ({
   control,
   isSubmitting,
   unicastPools,
-  networkInterfaces,
   hasVpcs,
-  setValue,
 }: {
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
   unicastPools: UnicastIpPool[]
-  networkInterfaces: InstanceNetworkInterfaceAttachment
   hasVpcs: boolean
-  setValue: UseFormSetValue<InstanceCreateInput>
 }) => {
+  const networkInterfaces = useWatch({ control, name: 'networkInterfaces' })
   // we track this state manually for the sole reason that we need to be able to
   // tell, inside AccordionItem, when an accordion is opened so we can scroll its
   // contents into view
@@ -758,7 +723,6 @@ const AdvancedAccordion = ({
   const assignEphemeralIp = !!ephemeralIp
   const attachedFloatingIps = (externalIps.field.value || []).filter(isFloating)
 
-  const ephemeralIpVersionField = useController({ control, name: 'ephemeralIpVersion' })
   const ephemeralIpPoolField = useController({ control, name: 'ephemeralIpPool' })
 
   const ephemeralIpPool = ephemeralIpPoolField.field.value
@@ -778,12 +742,18 @@ const AdvancedAccordion = ({
     setPoolInitDone(true)
   }, [ephemeralIp, ephemeralIpPool, ephemeralIpPoolField, poolInitDone])
 
-  // Update externalIps when ephemeralIpPool or ephemeralIpVersion changes
+  // Calculate compatible IP versions based on NIC type
+  const compatibleVersions = useMemo(
+    () => getCompatibleVersionsFromNicType(networkInterfaces),
+    [networkInterfaces]
+  )
+
+  // Update externalIps when ephemeralIpPool changes
   useEffect(() => {
     if (!assignEphemeralIp) return
 
     const pool = ephemeralIpPoolField.field.value
-    const ipVersion = ephemeralIpVersionField.field.value || 'v4'
+    const ipVersion = compatibleVersions[0] || 'v4'
 
     const newExternalIps = externalIps.field.value?.map((ip) => {
       if (ip.type !== 'ephemeral') return ip
@@ -810,7 +780,7 @@ const AdvancedAccordion = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     ephemeralIpPoolField.field.value,
-    ephemeralIpVersionField.field.value,
+    compatibleVersions,
     assignEphemeralIp,
     // NOTE: Do not include externalIps in deps - it would cause infinite loop
   ])
@@ -824,12 +794,6 @@ const AdvancedAccordion = ({
   const attachableFloatingIps = useMemo(
     () => floatingIpList.items.filter((ip) => !ip.instanceId),
     [floatingIpList]
-  )
-
-  // Calculate compatible IP versions based on NIC type
-  const compatibleVersions = useMemo(
-    () => getCompatibleVersionsFromNicType(networkInterfaces),
-    [networkInterfaces]
   )
 
   // To find available floating IPs, we remove the ones that are already committed to this instance
@@ -875,14 +839,7 @@ const AdvancedAccordion = ({
     } else {
       ephemeralIpPoolField.field.onChange('')
     }
-  }, [
-    assignEphemeralIp,
-    ephemeralIpPool,
-    ephemeralIpPoolField,
-    poolInitDone,
-    setValue,
-    sortedPools,
-  ])
+  }, [assignEphemeralIp, ephemeralIpPool, ephemeralIpPoolField, poolInitDone, sortedPools])
 
   // Track previous ability to attach ephemeral IP to detect transitions
   const prevCanAttachRef = useRef<boolean | undefined>(undefined)
@@ -911,17 +868,6 @@ const AdvancedAccordion = ({
 
     prevCanAttachRef.current = canAttach
   }, [compatibleVersions, compatibleUnicastPools, assignEphemeralIp, externalIps])
-
-  // Update ephemeralIpVersion when compatibleVersions changes
-  useEffect(() => {
-    if (compatibleVersions.length === 0) return
-
-    const currentVersion = ephemeralIpVersionField.field.value
-    // If current version is not compatible, switch to the first compatible version
-    if (!compatibleVersions.includes(currentVersion)) {
-      setValue('ephemeralIpVersion', compatibleVersions[0])
-    }
-  }, [compatibleVersions, ephemeralIpVersionField.field.value, setValue])
 
   const ephemeralIpCheckboxState = useMemo(() => {
     const hasCompatibleNics = compatibleVersions.length > 0
