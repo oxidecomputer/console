@@ -205,7 +205,7 @@ export function CreateDiskSideModalForm({
         name="size"
         control={form.control}
         // Local disk size is only capped by server capacity
-        maxSize={match(diskBackend)
+        max={match(diskBackend)
           .with({ type: 'local' }, () => undefined)
           .with({ type: 'distributed' }, () => MAX_DISK_SIZE_GiB)
           .exhaustive()}

@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import type {
-  FieldPath,
   FieldPathByValue,
   FieldValues,
   ValidateResult,
@@ -17,11 +16,12 @@ import type { TextFieldProps } from './TextField'
 
 interface DiskSizeProps<
   TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>,
-> extends TextFieldProps<TFieldValues, TName> {
-  minSize?: number
+  TName extends FieldPathByValue<TFieldValues, number>,
+> extends Omit<TextFieldProps<TFieldValues, TName>, 'min' | 'max' | 'validate'> {
+  // replace max and min with our own because original max/min allow string
+  min?: number
   /** Undefined means no client-side limit (e.g., for local disks) */
-  maxSize: number | undefined
+  max: number | undefined
   validate?(diskSizeGiB: number): ValidateResult
 }
 
@@ -31,8 +31,8 @@ export function DiskSizeField<
 >({
   required = true,
   name,
-  minSize = 1,
-  maxSize,
+  min = 1,
+  max,
   validate,
   ...props
 }: DiskSizeProps<TFieldValues, TName>) {
@@ -41,18 +41,18 @@ export function DiskSizeField<
       units="GiB"
       required={required}
       name={name}
-      min={minSize}
-      max={maxSize}
+      min={min}
+      max={max}
       validate={(diskSizeGiB) => {
         // Run a number of default validators
         if (Number.isNaN(diskSizeGiB)) {
           return 'Disk size is required'
         }
-        if (diskSizeGiB < minSize) {
-          return `Must be at least ${minSize} GiB`
+        if (diskSizeGiB < min) {
+          return `Must be at least ${min} GiB`
         }
-        if (maxSize !== undefined && diskSizeGiB > maxSize) {
-          return `Can be at most ${maxSize} GiB`
+        if (max !== undefined && diskSizeGiB > max) {
+          return `Can be at most ${max} GiB`
         }
         // Run any additional validators passed in from the callsite
         return validate?.(diskSizeGiB)

@@ -375,7 +375,7 @@ export default function CreateInstanceForm() {
         control={control}
         min={imageSizeGiB || 1}
         // Max size applies: this disk can only be distributed
-        maxSize={MAX_DISK_SIZE_GiB}
+        max={MAX_DISK_SIZE_GiB}
         validate={(diskSizeGiB: number) => {
           if (imageSizeGiB && diskSizeGiB < imageSizeGiB) {
             return `Must be as large as selected image (min. ${imageSizeGiB} GiB)`
