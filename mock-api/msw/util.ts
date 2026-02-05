@@ -86,20 +86,28 @@ function sortItems<I extends { id: string }>(
         return bName.localeCompare(aName)
       })
     case 'id_ascending':
-      return sorted.sort((a, b) => a.id.localeCompare(b.id))
+      // Use pure lexicographic comparison for UUIDs to match Rust's derived Ord
+      // and avoid locale-dependent behavior
+      return sorted.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
     case 'time_and_id_ascending':
       return sorted.sort((a, b) => {
-        const aTime = 'time_created' in a ? String(a.time_created) : ''
-        const bTime = 'time_created' in b ? String(b.time_created) : ''
-        const timeCompare = aTime.localeCompare(bTime)
-        return timeCompare !== 0 ? timeCompare : a.id.localeCompare(b.id)
+        // Compare timestamps numerically to handle Date objects and non-ISO formats
+        const aTime =
+          'time_created' in a ? new Date(a.time_created as string | Date).valueOf() : -Infinity
+        const bTime =
+          'time_created' in b ? new Date(b.time_created as string | Date).valueOf() : -Infinity
+        const timeCompare = aTime - bTime
+        return timeCompare !== 0 ? timeCompare : a.id < b.id ? -1 : a.id > b.id ? 1 : 0
       })
     case 'time_and_id_descending':
       return sorted.sort((a, b) => {
-        const aTime = 'time_created' in a ? String(a.time_created) : ''
-        const bTime = 'time_created' in b ? String(b.time_created) : ''
-        const timeCompare = bTime.localeCompare(aTime)
-        return timeCompare !== 0 ? timeCompare : b.id.localeCompare(a.id)
+        // Compare timestamps numerically to handle Date objects and non-ISO formats
+        const aTime =
+          'time_created' in a ? new Date(a.time_created as string | Date).valueOf() : -Infinity
+        const bTime =
+          'time_created' in b ? new Date(b.time_created as string | Date).valueOf() : -Infinity
+        const timeCompare = bTime - aTime
+        return timeCompare !== 0 ? timeCompare : b.id < a.id ? -1 : b.id > a.id ? 1 : 0
       })
   }
 }
