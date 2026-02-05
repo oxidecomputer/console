@@ -126,7 +126,7 @@ test.describe('IP pool configuration: pelerines silo (no defaults)', () => {
     // Open networking accordion
     await page.getByRole('button', { name: 'Networking' }).click()
 
-    // Verify ephemeral IP checkbox is checked by default
+    // Verify ephemeral IP checkbox is not checked by default
     const ephemeralCheckbox = page.getByRole('checkbox', {
       name: 'Allocate and attach an ephemeral IP address',
     })

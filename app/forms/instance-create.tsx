@@ -284,8 +284,9 @@ export default function CreateInstanceForm() {
   // - If VPCs exist: default to dual-stack (API default, works with both IPv4 and IPv6 subnets)
   // - If no VPCs exist: default to 'none' (user must create VPC first or use custom NICs)
   // Note: Decoupled from external IP pool configuration, as NIC IP stack and external IPs are separate concerns
-  const defaultNetworkInterfaceType: InstanceCreateInput['networkInterfaces']['type'] =
-    hasVpcs ? 'default_dual_stack' : 'none'
+  const defaultNetworkInterfaceType: InstanceNetworkInterfaceAttachment['type'] = hasVpcs
+    ? 'default_dual_stack'
+    : 'none'
 
   const defaultSource =
     siloImages.length > 0 ? 'siloImage' : projectImages.length > 0 ? 'projectImage' : 'disk'
@@ -293,9 +294,11 @@ export default function CreateInstanceForm() {
   const defaultCompatibleVersions = getCompatibleVersionsFromNicType({
     type: defaultNetworkInterfaceType,
   })
-  const hasDefaultCompatiblePool = unicastPools
+  const compatibleDefaultPools = unicastPools
     .filter(poolHasIpVersion(defaultCompatibleVersions))
-    .some((p) => p.isDefault)
+    .filter((p) => p.isDefault)
+  const defaultEphemeralIpPool =
+    compatibleDefaultPools.length === 1 ? compatibleDefaultPools[0].name : ''
 
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
@@ -303,8 +306,8 @@ export default function CreateInstanceForm() {
     bootDiskSourceType: defaultSource,
     sshPublicKeys: allKeys,
     bootDiskSize: diskSizeNearest10(defaultImage?.size / GiB),
-    ephemeralIpPool: '',
-    assignEphemeralIp: hasDefaultCompatiblePool,
+    ephemeralIpPool: defaultEphemeralIpPool || '',
+    assignEphemeralIp: !!defaultEphemeralIpPool,
     floatingIps: [],
   }
 
@@ -403,7 +406,6 @@ export default function CreateInstanceForm() {
 
           const assignEphemeralIp = values.assignEphemeralIp
           const ephemeralIpPool = values.ephemeralIpPool
-          const [ipVersion] = getCompatibleVersionsFromNicType(values.networkInterfaces)
 
           const externalIps: ExternalIpCreate[] = values.floatingIps.map((floatingIp) => ({
             type: 'floating' as const,
@@ -411,11 +413,29 @@ export default function CreateInstanceForm() {
           }))
 
           if (assignEphemeralIp) {
+            if (!ephemeralIpPool) {
+              // This is a defensive thing, maybe temporary until we get
+              // dual-stack ephemeral IPs working and we iron out the logic
+              // even more. In theory getting to submit with the ephemeral IP
+              // checkbox checked and no pool selected should be impossible
+              // due to the validation rule on the pool being required when the
+              // checkbox is checked. However, if you have _no_ pools, currently
+              // IpPoolSelector does not render the listbox, which means the
+              // requirement is not registered with RHF and thus not enforced.
+              // I think this needs to change anyway, because if the listbox
+              // isn't being rendered, then this error is not rendered. So
+              // the experience you have is of submitting the form and nothing
+              // visible happening.
+              form.setError('ephemeralIpPool', {
+                type: 'manual',
+                message: 'Select an IP pool to attach an ephemeral IP address',
+              })
+              setIsSubmitting(false)
+              return
+            }
             externalIps.push({
               type: 'ephemeral',
-              poolSelector: ephemeralIpPool
-                ? { type: 'explicit', pool: ephemeralIpPool }
-                : { type: 'auto', ipVersion: ipVersion || 'v4' },
+              poolSelector: { type: 'explicit', pool: ephemeralIpPool },
             })
           }
 
@@ -816,7 +836,12 @@ const AdvancedAccordion = ({
     if (!canAttach && assignEphemeralIp) {
       // Remove ephemeral IP when there are no compatible NICs or pools
       assignEphemeralIpField.field.onChange(false)
-    } else if (canAttach && hasDefaultPool && prevCanAttach === false && !assignEphemeralIp) {
+    } else if (
+      canAttach &&
+      hasDefaultPool &&
+      prevCanAttach === false &&
+      !assignEphemeralIp
+    ) {
       // Add ephemeral IP when transitioning from unable to able to attach
       // (prevCanAttach === false means we couldn't attach before, either due to no NICs or no pools)
       assignEphemeralIpField.field.onChange(true)
