@@ -33,7 +33,7 @@ import { pb } from '~/util/path-builder'
 const poolList = q(api.projectIpPoolList, { query: { limit: ALL_ISH } })
 
 export async function clientLoader() {
-  await queryClient.fetchQuery(poolList)
+  await queryClient.prefetchQuery(poolList)
   return null
 }
 

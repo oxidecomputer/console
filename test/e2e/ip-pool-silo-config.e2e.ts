@@ -130,11 +130,15 @@ test.describe('IP pool configuration: pelerines silo (no defaults)', () => {
     const ephemeralCheckbox = page.getByRole('checkbox', {
       name: 'Allocate and attach an ephemeral IP address',
     })
-    await expect(ephemeralCheckbox).toBeChecked()
+    await expect(ephemeralCheckbox).not.toBeChecked()
 
-    // Pool dropdown should be visible and user should be able to select a pool
-    // (even without a default, pools are still available)
+    // Pool dropdown should not be shown unless ephemeral IP is enabled.
     const poolDropdown = page.getByLabel('Pool')
+    await expect(poolDropdown).toBeHidden()
+
+    // Enabling ephemeral IP should allow selecting from available pools.
+    await ephemeralCheckbox.click()
+    await expect(ephemeralCheckbox).toBeChecked()
     await expect(poolDropdown).toBeVisible()
 
     // Open dropdown to verify available options

@@ -85,11 +85,14 @@ import { Tooltip } from '~/ui/lib/Tooltip'
 import { Wrap } from '~/ui/util/wrap'
 import { ALL_ISH } from '~/util/consts'
 import { readBlobAsBase64 } from '~/util/file'
-import { getDefaultIps, ipHasVersion } from '~/util/ip'
+import { ipHasVersion } from '~/util/ip'
 import { docLinks, links } from '~/util/links'
 import { diskSizeNearest10 } from '~/util/math'
 import { pb } from '~/util/path-builder'
 import { GiB } from '~/util/units'
+
+// for referential stability
+const EMPTY_NAME_OR_ID_LIST: NameOrId[] = []
 
 const getBootDiskAttachment = (
   values: InstanceCreateInput,
@@ -119,7 +122,7 @@ type BootDiskSourceType = 'siloImage' | 'projectImage' | 'disk'
 
 export type InstanceCreateInput = Assign<
   // API accepts undefined but it's easier if we don't
-  SetRequired<InstanceCreate, 'networkInterfaces'>,
+  SetRequired<Omit<InstanceCreate, 'externalIps'>, 'networkInterfaces'>,
   {
     presetId: (typeof PRESETS)[number]['id']
     otherDisks: DiskTableItem[]
@@ -137,6 +140,10 @@ export type InstanceCreateInput = Assign<
     sshPublicKeys: NonNullable<InstanceCreate['sshPublicKeys']>
     // Pool for ephemeral IP selection
     ephemeralIpPool: string
+    assignEphemeralIp: boolean
+
+    // Selected floating IPs to attach on create.
+    floatingIps: NameOrId[]
   }
 >
 
@@ -196,8 +203,9 @@ const baseDefaultValues: InstanceCreateInput = {
   start: true,
 
   userData: null,
-  externalIps: [{ type: 'ephemeral' }],
   ephemeralIpPool: '',
+  assignEphemeralIp: false,
+  floatingIps: [],
 }
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
@@ -266,8 +274,6 @@ export default function CreateInstanceForm() {
     [siloPools]
   )
 
-  const { hasDualDefaults } = useMemo(() => getDefaultIps(unicastPools), [unicastPools])
-
   // Check if VPCs exist to determine default network interface type
   const { data: vpcs } = usePrefetchedQuery(
     q(api.vpcList, { query: { project, limit: ALL_ISH } })
@@ -284,6 +290,13 @@ export default function CreateInstanceForm() {
   const defaultSource =
     siloImages.length > 0 ? 'siloImage' : projectImages.length > 0 ? 'projectImage' : 'disk'
 
+  const defaultCompatibleVersions = getCompatibleVersionsFromNicType({
+    type: defaultNetworkInterfaceType,
+  })
+  const hasDefaultCompatiblePool = unicastPools
+    .filter(poolHasIpVersion(defaultCompatibleVersions))
+    .some((p) => p.isDefault)
+
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
     networkInterfaces: { type: defaultNetworkInterfaceType },
@@ -291,19 +304,8 @@ export default function CreateInstanceForm() {
     sshPublicKeys: allKeys,
     bootDiskSize: diskSizeNearest10(defaultImage?.size / GiB),
     ephemeralIpPool: '',
-    // API behavior:
-    // - Single default: { type: 'ephemeral' } → API auto-picks the one default
-    // - Dual defaults: { poolSelector: { type: 'auto', ipVersion } } → Must specify version
-    //     right now we default to 'v4' when both exist
-    // - No defaults: { type: 'ephemeral' } → Will fail, but user will see error
-    externalIps: hasDualDefaults
-      ? [
-          {
-            type: 'ephemeral',
-            poolSelector: { type: 'auto', ipVersion: 'v4' },
-          },
-        ]
-      : [{ type: 'ephemeral' }],
+    assignEphemeralIp: hasDefaultCompatiblePool,
+    floatingIps: [],
   }
 
   const form = useForm({ defaultValues })
@@ -399,6 +401,24 @@ export default function CreateInstanceForm() {
 
           const bootDisk = getBootDiskAttachment(values, allImages)
 
+          const assignEphemeralIp = values.assignEphemeralIp
+          const ephemeralIpPool = values.ephemeralIpPool
+          const [ipVersion] = getCompatibleVersionsFromNicType(values.networkInterfaces)
+
+          const externalIps: ExternalIpCreate[] = values.floatingIps.map((floatingIp) => ({
+            type: 'floating' as const,
+            floatingIp,
+          }))
+
+          if (assignEphemeralIp) {
+            externalIps.push({
+              type: 'ephemeral',
+              poolSelector: ephemeralIpPool
+                ? { type: 'explicit', pool: ephemeralIpPool }
+                : { type: 'auto', ipVersion: ipVersion || 'v4' },
+            })
+          }
+
           const userData = values.userData
             ? await readBlobAsBase64(values.userData)
             : undefined
@@ -424,7 +444,7 @@ export default function CreateInstanceForm() {
                       }
               ),
               bootDisk,
-              externalIps: values.externalIps,
+              externalIps,
               start: values.start,
               networkInterfaces: values.networkInterfaces,
               sshPublicKeys: values.sshPublicKeys,
@@ -678,11 +698,6 @@ export default function CreateInstanceForm() {
   )
 }
 
-// `ip is …` guard is necessary until we upgrade to 5.5, which handles this automatically
-const isFloating = (
-  ip: ExternalIpCreate
-): ip is { type: 'floating'; floatingIp: NameOrId } => ip.type === 'floating'
-
 const FloatingIpLabel = ({ ip }: { ip: FloatingIp }) => (
   <div>
     <div>{ip.name}</div>
@@ -718,72 +733,20 @@ const AdvancedAccordion = ({
   const [openItems, setOpenItems] = useState<string[]>([])
   const [floatingIpModalOpen, setFloatingIpModalOpen] = useState(false)
   const [selectedFloatingIp, setSelectedFloatingIp] = useState<FloatingIp | undefined>()
-  const externalIps = useController({ control, name: 'externalIps' })
-  const ephemeralIp = externalIps.field.value?.find((ip) => ip.type === 'ephemeral')
-  const assignEphemeralIp = !!ephemeralIp
-  const attachedFloatingIps = (externalIps.field.value || []).filter(isFloating)
+  const assignEphemeralIpField = useController({ control, name: 'assignEphemeralIp' })
+  const floatingIpsField = useController({ control, name: 'floatingIps' })
+  const assignEphemeralIp = assignEphemeralIpField.field.value
+  const attachedFloatingIps = floatingIpsField.field.value ?? EMPTY_NAME_OR_ID_LIST
 
   const ephemeralIpPoolField = useController({ control, name: 'ephemeralIpPool' })
 
   const ephemeralIpPool = ephemeralIpPoolField.field.value
-
-  // Initialize ephemeralIpPool once on mount if externalIps already has an explicit pool
-  const [poolInitDone, setPoolInitDone] = useState(false)
-  useEffect(() => {
-    if (poolInitDone) return
-
-    const initialPool =
-      ephemeralIp?.poolSelector?.type === 'explicit'
-        ? ephemeralIp.poolSelector.pool
-        : undefined
-    if (initialPool && !ephemeralIpPool) {
-      ephemeralIpPoolField.field.onChange(initialPool)
-    }
-    setPoolInitDone(true)
-  }, [ephemeralIp, ephemeralIpPool, ephemeralIpPoolField, poolInitDone])
 
   // Calculate compatible IP versions based on NIC type
   const compatibleVersions = useMemo(
     () => getCompatibleVersionsFromNicType(networkInterfaces),
     [networkInterfaces]
   )
-
-  // Update externalIps when ephemeralIpPool changes
-  useEffect(() => {
-    if (!assignEphemeralIp) return
-
-    const pool = ephemeralIpPoolField.field.value
-    const ipVersion = compatibleVersions[0] || 'v4'
-
-    const newExternalIps = externalIps.field.value?.map((ip) => {
-      if (ip.type !== 'ephemeral') return ip
-
-      // Explicit pool selected
-      if (pool) {
-        return {
-          type: 'ephemeral',
-          poolSelector: { type: 'explicit', pool },
-        }
-      }
-
-      // No pool selected - use default with explicit IP version
-      // User selected v4 or v6 via radio button
-      return {
-        type: 'ephemeral',
-        poolSelector: { type: 'auto', ipVersion },
-      }
-    })
-
-    if (newExternalIps) {
-      externalIps.field.onChange(newExternalIps)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    ephemeralIpPoolField.field.value,
-    compatibleVersions,
-    assignEphemeralIp,
-    // NOTE: Do not include externalIps in deps - it would cause infinite loop
-  ])
 
   const { project } = useProjectSelector()
   const { data: floatingIpList } = usePrefetchedQuery(
@@ -800,14 +763,12 @@ const AdvancedAccordion = ({
   // and filter by IP version compatibility with configured NICs
   const availableFloatingIps = useMemo(() => {
     return attachableFloatingIps
-      .filter(
-        (ip) => !attachedFloatingIps.find((attached) => attached.floatingIp === ip.name)
-      )
+      .filter((ip) => !attachedFloatingIps.includes(ip.name))
       .filter(ipHasVersion(compatibleVersions))
   }, [attachableFloatingIps, attachedFloatingIps, compatibleVersions])
 
   const attachedFloatingIpsData = attachedFloatingIps
-    .map((ip) => attachableFloatingIps.find((fip) => fip.name === ip.floatingIp))
+    .map((floatingIp) => attachableFloatingIps.find((fip) => fip.name === floatingIp))
     .filter((ip) => !!ip)
 
   // Filter unicast pools by compatible IP versions
@@ -827,7 +788,7 @@ const AdvancedAccordion = ({
   )
 
   useEffect(() => {
-    if (!poolInitDone || !assignEphemeralIp || sortedPools.length === 0) return
+    if (!assignEphemeralIp || sortedPools.length === 0) return
 
     const currentPoolValid =
       ephemeralIpPool && sortedPools.some((p) => p.name === ephemeralIpPool)
@@ -839,7 +800,7 @@ const AdvancedAccordion = ({
     } else {
       ephemeralIpPoolField.field.onChange('')
     }
-  }, [assignEphemeralIp, ephemeralIpPool, ephemeralIpPoolField, poolInitDone, sortedPools])
+  }, [assignEphemeralIp, ephemeralIpPool, ephemeralIpPoolField, sortedPools])
 
   // Track previous ability to attach ephemeral IP to detect transitions
   const prevCanAttachRef = useRef<boolean | undefined>(undefined)
@@ -849,25 +810,25 @@ const AdvancedAccordion = ({
     const hasCompatibleNics = compatibleVersions.length > 0
     const hasPools = compatibleUnicastPools.length > 0
     const canAttach = hasCompatibleNics && hasPools
+    const hasDefaultPool = compatibleUnicastPools.some((p) => p.isDefault)
     const prevCanAttach = prevCanAttachRef.current
 
     if (!canAttach && assignEphemeralIp) {
       // Remove ephemeral IP when there are no compatible NICs or pools
-      const newExternalIps = externalIps.field.value?.filter(
-        (ip) => ip.type !== 'ephemeral'
-      )
-      externalIps.field.onChange(newExternalIps)
-    } else if (canAttach && prevCanAttach === false && !assignEphemeralIp) {
+      assignEphemeralIpField.field.onChange(false)
+    } else if (canAttach && hasDefaultPool && prevCanAttach === false && !assignEphemeralIp) {
       // Add ephemeral IP when transitioning from unable to able to attach
       // (prevCanAttach === false means we couldn't attach before, either due to no NICs or no pools)
-      externalIps.field.onChange([
-        ...(externalIps.field.value || []),
-        { type: 'ephemeral' },
-      ])
+      assignEphemeralIpField.field.onChange(true)
     }
 
     prevCanAttachRef.current = canAttach
-  }, [compatibleVersions, compatibleUnicastPools, assignEphemeralIp, externalIps])
+  }, [
+    assignEphemeralIp,
+    assignEphemeralIpField,
+    compatibleUnicastPools,
+    compatibleVersions,
+  ])
 
   const ephemeralIpCheckboxState = useMemo(() => {
     const hasCompatibleNics = compatibleVersions.length > 0
@@ -903,20 +864,18 @@ const AdvancedAccordion = ({
 
   const attachFloatingIp = () => {
     if (selectedFloatingIp) {
-      externalIps.field.onChange([
-        ...(externalIps.field.value || []),
-        { type: 'floating', floatingIp: selectedFloatingIp.name },
-      ])
+      const current = floatingIpsField.field.value || []
+      const next = current.includes(selectedFloatingIp.name)
+        ? current
+        : [...current, selectedFloatingIp.name]
+      floatingIpsField.field.onChange(next)
     }
     closeFloatingIpModal()
   }
 
   const detachFloatingIp = (name: string) => {
-    externalIps.field.onChange(
-      externalIps.field.value?.filter(
-        (ip) => !(ip.type === 'floating' && ip.floatingIp === name)
-      )
-    )
+    const current = floatingIpsField.field.value || []
+    floatingIpsField.field.onChange(current.filter((floatingIp) => floatingIp !== name))
   }
 
   const selectedFloatingIpMessage = (
@@ -974,11 +933,7 @@ const AdvancedAccordion = ({
               checked={ephemeralIpCheckboxState.canAttachEphemeralIp && assignEphemeralIp}
               disabled={!ephemeralIpCheckboxState.canAttachEphemeralIp}
               onChange={() => {
-                const newExternalIps = assignEphemeralIp
-                  ? externalIps.field.value?.filter((ip) => ip.type !== 'ephemeral')
-                  : [...(externalIps.field.value || []), { type: 'ephemeral' }]
-                externalIps.field.onChange(newExternalIps)
-                // The useEffect will update the poolSelector based on current form values
+                assignEphemeralIpField.field.onChange(!assignEphemeralIp)
               }}
             >
               Allocate and attach an ephemeral IP address
