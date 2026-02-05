@@ -65,7 +65,7 @@ test('Instance networking tab — NIC table', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Name' }).fill('nic-2')
   await page.getByLabel('VPC', { exact: true }).click()
   await page.getByRole('option', { name: 'mock-vpc' }).click()
-  await page.getByLabel('Subnet').click()
+  await page.getByRole('dialog').getByLabel('Subnet').click()
   await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
   await page
     .getByRole('dialog')

@@ -1,0 +1,5 @@
+- Does the instance need to be stopped to attach/detach subnets? no
+- Is there a hard coded limit in the API to the number of attached subnets?
+- Get form right: make sure it covers all possibilities
+- Add subnet detail side modal on list page (with URL) and on instance networking tab (no URL)
+- What's up with subnet pools? turns out they're like IP pools and they need their own entire UI

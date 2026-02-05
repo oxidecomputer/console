@@ -32,6 +32,7 @@ export type SystemUpdate = Readonly<{ version: string }>
 export type SshKey = Readonly<{ sshKey: string }>
 export type Sled = Readonly<{ sledId?: string }>
 export type IpPool = Readonly<{ pool?: string }>
+export type ExternalSubnet = Readonly<Merge<Project, { externalSubnet?: string }>>
 export type FloatingIp = Readonly<Merge<Project, { floatingIp?: string }>>
 
 export type Id = Readonly<{ id: string }>

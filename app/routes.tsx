@@ -481,6 +481,21 @@ export const routes = createRoutesFromElements(
           </Route>
           <Route
             lazy={() =>
+              import('./pages/project/external-subnets/ExternalSubnetsPage').then(convert)
+            }
+          >
+            <Route path="external-subnets" element={null} />
+            <Route
+              path="external-subnets-new"
+              lazy={() => import('./forms/external-subnet-create').then(convert)}
+            />
+            <Route
+              path="external-subnets/:externalSubnet/edit"
+              lazy={() => import('./forms/external-subnet-edit').then(convert)}
+            />
+          </Route>
+          <Route
+            lazy={() =>
               import('./pages/project/floating-ips/FloatingIpsPage').then(convert)
             }
           >

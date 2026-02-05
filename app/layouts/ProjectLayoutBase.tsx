@@ -68,6 +68,7 @@ export function ProjectLayoutBase({ overrideContentPane }: ProjectLayoutProps) {
           { value: 'Snapshots', path: pb.snapshots(projectSelector) },
           { value: 'Images', path: pb.projectImages(projectSelector) },
           { value: 'VPCs', path: pb.vpcs(projectSelector) },
+          { value: 'External Subnets', path: pb.externalSubnets(projectSelector) },
           { value: 'Floating IPs', path: pb.floatingIps(projectSelector) },
           { value: 'Affinity Groups', path: pb.affinity(projectSelector) },
           { value: 'Project Access', path: pb.projectAccess(projectSelector) },
@@ -110,6 +111,9 @@ export function ProjectLayoutBase({ overrideContentPane }: ProjectLayoutProps) {
           </NavLinkItem>
           <NavLinkItem to={pb.vpcs(projectSelector)}>
             <Networking16Icon /> VPCs
+          </NavLinkItem>
+          <NavLinkItem to={pb.externalSubnets(projectSelector)}>
+            <Networking16Icon /> External Subnets
           </NavLinkItem>
           <NavLinkItem to={pb.floatingIps(projectSelector)}>
             <IpGlobal16Icon /> Floating IPs
