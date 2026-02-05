@@ -91,8 +91,11 @@ export const DiskTypeBadge = (props: { diskType: DiskType; className?: string })
   </Badge>
 )
 
+// span is here to prevent it getting underlined in the LinkCell
 export const ReadOnlyBadge = () => (
-  <Badge color="neutral" className="relative">
-    Read only
-  </Badge>
+  <span>
+    <Badge color="neutral" className="relative">
+      Read only
+    </Badge>
+  </span>
 )

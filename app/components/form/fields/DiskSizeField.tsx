@@ -5,11 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import type {
-  FieldPathByValue,
-  FieldValues,
-  ValidateResult,
-} from 'react-hook-form'
+import type { FieldPathByValue, FieldValues, ValidateResult } from 'react-hook-form'
 
 import { NumberField } from './NumberField'
 import type { TextFieldProps } from './TextField'

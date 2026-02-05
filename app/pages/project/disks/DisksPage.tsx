@@ -29,7 +29,7 @@ import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
-import { makeLinkCell } from '~/table/cells/LinkCell'
+import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -148,10 +148,12 @@ export default function DisksPage() {
       () => [
         colHelper.accessor('name', {
           cell: (info) => (
-            <span className="flex items-center gap-2">
-              {makeLinkCell((name) => pb.disk({ project, disk: name }))(info)}
-              {info.row.original.readOnly && <ReadOnlyBadge />}
-            </span>
+            <LinkCell to={pb.disk({ project, disk: info.getValue() })}>
+              <span className="flex items-center gap-2">
+                {info.getValue()}
+                {info.row.original.readOnly && <ReadOnlyBadge />}
+              </span>
+            </LinkCell>
           ),
         }),
         // sneaky: rather than looking at particular states, just look at
