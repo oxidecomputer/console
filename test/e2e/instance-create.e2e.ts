@@ -13,8 +13,8 @@ import {
   expectNotVisible,
   expectRowVisible,
   expectVisible,
+  fillNumberInput,
   selectOption,
-  sleep,
   test,
   type Page,
 } from './utils'
@@ -590,25 +590,9 @@ test('create instance with additional disks', async ({ page }) => {
   // verify that an existing name can't be used
   await createForm.getByRole('textbox', { name: 'Name', exact: true }).fill('disk-6')
 
-  // If we try to fill the size field too soon after render (unnaturally fast --
-  // a real user would not be able to do it), the value gets quickly overwritten
-  // back to the default of 10, possibly because there are renders already in
-  // flight by the type we fill. This causes test flakes where the field is 10
-  // after we've filled 5 and the disk we're creating ends up with 10 GiB in
-  // the table. The flakes happened in Safari, but by adding a sleep _after_ the
-  // fill but before the check, we can force the failure in every browser.  By
-  // waiting a bit here _before_ the fill, we give those renders a chance to
-  // wrap up before we fill.
-  //
-  // This is a HACK -- logging in instance create and disk create shows that
-  // disk create does seem to render again a few hundred ms after the initial
-  // one, and it appears driven by renders in instance create (specifically the
-  // usePrefetchedApiQuery calls), but I wasn't able to fix it for real.
-  await sleep(1000)
-
   const sizeField = createForm.getByRole('textbox', { name: 'Size (GiB)' })
-  await sizeField.fill('5')
-  await expect(sizeField).toHaveValue('5')
+  // The size field can be overwritten by late renders in the parent form.
+  await fillNumberInput(sizeField, '5')
 
   await createForm.getByRole('button', { name: 'Create disk' }).click()
   await expect(createForm.getByText('Name is already in use')).toBeVisible()
@@ -1229,4 +1213,27 @@ test('floating IPs are filtered by NIC IP version', async ({ page }) => {
   await attachFloatingIpButton.hover()
   await expect(page.getByText('A network interface is required')).toBeVisible()
   await expect(page.getByText('to attach a floating IP')).toBeVisible()
+})
+
+test('can create instance with read-only boot disk', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+
+  const instanceName = 'readonly-boot-instance'
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+
+  // Select a silo image
+  await selectASiloImage(page, 'ubuntu-22-04')
+
+  // Check the read-only checkbox
+  await page.getByRole('checkbox', { name: 'Make disk read-only' }).check()
+
+  await page.getByRole('button', { name: 'Create instance' }).click()
+  await closeToast(page)
+
+  // Wait for navigation to storage tab
+  await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
+
+  // Verify boot disk shows read-only badge
+  const bootDiskTable = page.getByRole('table', { name: 'Boot disk' })
+  await expect(bootDiskTable.getByText('read only')).toBeVisible()
 })

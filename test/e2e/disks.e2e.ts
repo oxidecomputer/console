@@ -11,6 +11,8 @@ import {
   expectNoToast,
   expectRowVisible,
   expectToast,
+  fillNumberInput,
+  propertiesTableValue,
   test,
 } from './utils'
 
@@ -24,13 +26,33 @@ test('Disk detail side modal', async ({ page }) => {
   await expect(modal.getByText('disk-1')).toBeVisible()
   await expect(modal.getByText('2 GiB')).toBeVisible()
   await expect(modal.getByText('2,048 bytes')).toBeVisible() // block size
+  await expect(propertiesTableValue(modal, 'Read only')).toHaveText('False')
+})
+
+test('Read-only disk shows badge in table and detail', async ({ page }) => {
+  await page.goto('/projects/mock-project/disks')
+
+  const table = page.getByRole('table')
+
+  // The read-only disk has a "Read only" badge in the name cell
+  const readOnlyRow = table.getByRole('row', { name: /read-only-disk/ })
+  await expect(readOnlyRow.getByText('Read only', { exact: true })).toBeVisible()
+
+  // A regular disk does not
+  const regularRow = table.getByRole('row', { name: /disk-1 db1/ })
+  await expect(regularRow.getByText('Read only', { exact: true })).toBeHidden()
+
+  // Detail modal shows read-only as True
+  await page.getByRole('link', { name: 'read-only-disk' }).click()
+  const modal = page.getByRole('dialog', { name: 'Disk details' })
+  await expect(propertiesTableValue(modal, 'Read only')).toHaveText('True')
 })
 
 test('List disks and snapshot', async ({ page }) => {
   await page.goto('/projects/mock-project/disks')
 
   const table = page.getByRole('table')
-  await expect(table.getByRole('row')).toHaveCount(13) // 12 + header
+  await expect(table.getByRole('row')).toHaveCount(14) // 13 + header
 
   // check one attached and one not attached
   await expectRowVisible(table, {
@@ -144,4 +166,101 @@ test.describe('Disk create', () => {
     await expect(blockSize).toBeHidden()
   })
   /* eslint-enable playwright/expect-expect */
+})
+
+test('Distributed disk clamps size to max of 1023 GiB', async ({ page }) => {
+  await page.goto('/projects/mock-project/disks-new')
+
+  // Wait for form to be hydrated by checking a field that renders after mount
+  await expect(page.getByRole('radiogroup', { name: 'Block size' })).toBeVisible()
+
+  const sizeInput = page.getByRole('textbox', { name: 'Size (GiB)' })
+  await fillNumberInput(sizeInput, '2000', '1023')
+})
+
+test('Local disk has no max size limit', async ({ page }) => {
+  await page.goto('/projects/mock-project/disks-new')
+
+  // Wait for form to be hydrated by checking a field that renders after mount
+  await expect(page.getByRole('radiogroup', { name: 'Block size' })).toBeVisible()
+
+  await page.getByRole('radio', { name: 'Local' }).click()
+
+  // Wait for form to update (Block size disappears in local mode)
+  await expect(page.getByRole('radiogroup', { name: 'Block size' })).toBeHidden()
+
+  const sizeInput = page.getByRole('textbox', { name: 'Size (GiB)' })
+  await fillNumberInput(sizeInput, '2000')
+
+  // Should not show the max size error
+  await expect(page.getByText('Can be at most 1023 GiB')).toBeHidden()
+
+  // Value should remain 2000, not clamped to 1023
+  await expect(sizeInput).toHaveValue('2000')
+})
+
+test('Create local disk with size > 1023 GiB', async ({ page }) => {
+  await page.goto('/projects/mock-project/disks-new')
+
+  // Wait for form to be hydrated by checking a field that renders after mount
+  await expect(page.getByRole('radiogroup', { name: 'Block size' })).toBeVisible()
+
+  await page.getByRole('textbox', { name: 'Name' }).fill('big-local-disk')
+  await page.getByRole('radio', { name: 'Local' }).click()
+
+  // Wait for form to update (Block size disappears in local mode)
+  await expect(page.getByRole('radiogroup', { name: 'Block size' })).toBeHidden()
+
+  const sizeInput = page.getByRole('textbox', { name: 'Size (GiB)' })
+  await fillNumberInput(sizeInput, '2000')
+
+  await page.getByRole('button', { name: 'Create disk' }).click()
+
+  await expect(page.getByRole('dialog', { name: 'Create disk' })).toBeHidden()
+  await expectToast(page, 'Disk big-local-disk created')
+  // 2000 GiB is displayed as 1.95 TiB (filesize formatting)
+  await expectRowVisible(page.getByRole('table'), {
+    name: 'big-local-disk',
+    size: '1.95 TiB',
+  })
+})
+
+test('Create disk from snapshot with read-only', async ({ page }) => {
+  await page.goto('/projects/mock-project/disks-new')
+  await page.getByRole('textbox', { name: 'Name' }).fill('a-new-disk')
+  await page.getByRole('radio', { name: 'Snapshot' }).click()
+  await page.getByRole('button', { name: 'Source snapshot' }).click()
+  await page.getByRole('option', { name: 'delete-500' }).click()
+  await page.getByRole('checkbox', { name: 'Make disk read-only' }).check()
+
+  await page.getByRole('button', { name: 'Create disk' }).click()
+  await expect(page.getByRole('dialog', { name: 'Create disk' })).toBeHidden()
+
+  const row = page.getByRole('row', { name: /a-new-disk/ })
+  await expect(row.getByText('Read only', { exact: true })).toBeVisible()
+
+  // Verify snapshot ID in detail modal
+  await page.getByRole('link', { name: 'a-new-disk' }).click()
+  const modal = page.getByRole('dialog', { name: 'Disk details' })
+  await expect(modal.getByText('e6c58826-62fb-4205-820e-620407cd04e7')).toBeVisible()
+})
+
+test('Create disk from image with read-only', async ({ page }) => {
+  await page.goto('/projects/mock-project/disks-new')
+  await page.getByRole('textbox', { name: 'Name' }).fill('a-new-disk')
+  await page.getByRole('radio', { name: 'Image' }).click()
+  await page.getByRole('button', { name: 'Source image' }).click()
+  await page.getByRole('option', { name: 'image-3' }).click()
+  await page.getByRole('checkbox', { name: 'Make disk read-only' }).check()
+
+  await page.getByRole('button', { name: 'Create disk' }).click()
+  await expect(page.getByRole('dialog', { name: 'Create disk' })).toBeHidden()
+
+  const row = page.getByRole('row', { name: /a-new-disk/ })
+  await expect(row.getByText('Read only', { exact: true })).toBeVisible()
+
+  // Verify image ID in detail modal
+  await page.getByRole('link', { name: 'a-new-disk' }).click()
+  const modal = page.getByRole('dialog', { name: 'Disk details' })
+  await expect(modal.getByText('4700ecf1-8f48-4ecf-b78e-816ddb76aaca')).toBeVisible()
 })

@@ -51,6 +51,38 @@ export async function expectNotVisible(page: Page, selectors: Selector[]) {
   }
 }
 
+/**
+ * Locate the value cell next to a label in a PropertiesTable. The component
+ * renders label/value as adjacent sibling elements in a CSS grid, so we use
+ * the `+` combinator to hop from the label span to the value div. It's a
+ * little fragile, but if the HTML changes, we can just update this once.
+ */
+export function propertiesTableValue(container: Locator, label: string) {
+  return container.locator(`span:has-text("${label}") + div`)
+}
+
+// React Aria NumberInput can lose recent edits when the form re-renders. Commit
+// via blur and poll with short intervals until the value sticks. We consider
+// this safe for the e2es because it is working around the fact that Playwright
+// interacts with the form much faster than a real user would.
+export async function fillNumberInput(
+  input: Locator,
+  value: string,
+  expectedValue: string = value
+) {
+  await expect
+    .poll(
+      async () => {
+        await input.click()
+        await input.fill(value)
+        await input.blur()
+        return input.inputValue()
+      },
+      { intervals: [100, 250, 500] }
+    )
+    .toBe(expectedValue)
+}
+
 // Technically this has type AsymmetricMatcher, which is not exported by
 // Playwright and is (surprisingly) just Record<string, any>. Rather than use
 // that, I think it's smarter to do the following in case they ever make the

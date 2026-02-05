@@ -158,22 +158,46 @@ export const handlers = makeHandlers({
     if (body.name === 'disk-create-500') throw 500
 
     const { name, description, size, disk_backend } = body
+    const diskSource = disk_backend.type === 'distributed' ? disk_backend.disk_source : null
+    const { image_id, snapshot_id, read_only, state } = match(diskSource)
+      .with({ type: 'image' }, (s) => ({
+        image_id: s.image_id,
+        snapshot_id: null,
+        read_only: s.read_only === true,
+        state: { state: 'detached' } as const,
+      }))
+      .with({ type: 'snapshot' }, (s) => ({
+        image_id: null,
+        snapshot_id: s.snapshot_id,
+        read_only: s.read_only === true,
+        state: { state: 'detached' } as const,
+      }))
+      .with({ type: 'importing_blocks' }, () => ({
+        image_id: null,
+        snapshot_id: null,
+        read_only: false,
+        // https://github.com/oxidecomputer/omicron/blob/dd74446/nexus/src/app/sagas/disk_create.rs#L805-L850
+        state: { state: 'import_ready' } as const,
+      }))
+      .otherwise(() => ({
+        image_id: null,
+        snapshot_id: null,
+        read_only: false,
+        state: { state: 'detached' } as const,
+      }))
     const newDisk: Json<Api.Disk> = {
       id: uuid(),
       project_id: project.id,
-      // importing_blocks disks go to import_ready, all others go to detached
-      // https://github.com/oxidecomputer/omicron/blob/dd74446/nexus/src/app/sagas/disk_create.rs#L805-L850
-      state:
-        disk_backend.type === 'distributed' &&
-        disk_backend.disk_source.type === 'importing_blocks'
-          ? { state: 'import_ready' }
-          : { state: 'detached' },
+      state,
       device_path: '/mnt/disk',
       name,
       description,
       size,
       block_size: getBlockSize(disk_backend),
       disk_type: disk_backend.type,
+      image_id,
+      snapshot_id,
+      read_only,
       ...getTimestamps(),
     }
     db.disks.push(newDisk)
@@ -574,6 +598,12 @@ export const handlers = makeHandlers({
     for (const diskParams of allDisks) {
       if (diskParams.type === 'create') {
         const { size, name, description, disk_backend } = diskParams
+        const diskSource =
+          disk_backend.type === 'distributed' ? disk_backend.disk_source : null
+        const read_only = match(diskSource)
+          .with({ type: 'image', read_only: true }, () => true)
+          .with({ type: 'snapshot', read_only: true }, () => true)
+          .otherwise(() => false)
         const newDisk: Json<Api.Disk> = {
           id: uuid(),
           name,
@@ -584,6 +614,7 @@ export const handlers = makeHandlers({
           device_path: '/mnt/disk',
           block_size: getBlockSize(disk_backend),
           disk_type: disk_backend.type,
+          read_only,
           ...getTimestamps(),
         }
         db.disks.push(newDisk)
@@ -931,7 +962,6 @@ export const handlers = makeHandlers({
     // endpoint is not paginated. or rather, it's fake paginated
     return { items: [...ephemeralIps, ...snatIps, ...floatingIps] }
   },
-  instanceExternalSubnetList: NotImplemented,
   instanceNetworkInterfaceList({ query }) {
     const instance = lookup.instance(query)
     const nics = db.networkInterfaces.filter((n) => n.instance_id === instance.id)
@@ -2163,6 +2193,7 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
+  instanceExternalSubnetList: NotImplemented,
   instanceMulticastGroupJoin: NotImplemented,
   instanceMulticastGroupLeave: NotImplemented,
   instanceMulticastGroupList: NotImplemented,
@@ -2229,6 +2260,7 @@ export const handlers = makeHandlers({
   probeList: NotImplemented,
   probeView: NotImplemented,
   rackView: NotImplemented,
+  rackMembershipAbort: NotImplemented,
   rackMembershipStatus: NotImplemented,
   rackMembershipAddSleds: NotImplemented,
   siloPolicyUpdate: NotImplemented,
