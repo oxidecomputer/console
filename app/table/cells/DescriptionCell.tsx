@@ -13,7 +13,7 @@ export type Props = { text?: string; maxLength?: number; sideModal?: boolean }
 
 export const DescriptionCell = ({ text, maxLength, sideModal }: Props) =>
   text ? (
-    <Truncate text={text} maxLength={maxLength ?? (sideModal ? 40 : 48)} />
+    <Truncate text={text} maxLength={maxLength ?? (sideModal ? 38 : 48)} />
   ) : (
     <EmptyCell />
   )
