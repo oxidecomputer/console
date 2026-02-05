@@ -58,6 +58,20 @@ export interface ResultsPage<I extends { id: string }> {
 }
 
 /**
+ * Normalize a timestamp to a canonical string format for use in page tokens.
+ * Ensures consistency between token generation and parsing.
+ */
+function normalizeTime(t: unknown): string {
+  if (t instanceof Date) {
+    return t.toISOString()
+  }
+  if (typeof t === 'string') {
+    return t
+  }
+  return ''
+}
+
+/**
  * Sort items based on the sort mode. Implements default sorting behavior to
  * match Omicron's pagination defaults.
  * https://github.com/oxidecomputer/omicron/blob/cf38148/common/src/api/external/http_pagination.rs#L427-L428
@@ -140,7 +154,7 @@ function getPageToken<I extends { id: string }>(item: I, sortBy: SortMode): stri
     case 'time_and_id_descending':
       // ScanByTimeAndId uses (DateTime, Uuid) tuple as marker
       // Serialize as "timestamp|id" (using | since timestamps contain :)
-      const time = 'time_created' in item ? String(item.time_created) : ''
+      const time = 'time_created' in item ? normalizeTime(item.time_created) : ''
       return `${time}|${item.id}`
   }
 }
@@ -170,7 +184,8 @@ function findStartIndex<I extends { id: string }>(
       const [time, id] = pageToken.split('|', 2)
       return sortedItems.findIndex(
         (i) =>
-          i.id === id && ('time_created' in i ? String(i.time_created) === time : false)
+          i.id === id &&
+          ('time_created' in i ? normalizeTime(i.time_created) === time : false)
       )
   }
 }
