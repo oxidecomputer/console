@@ -91,9 +91,13 @@ function sortItems<I extends { id: string }>(items: I[], sortBy: SortMode): I[] 
         // Compare timestamps numerically to handle Date objects and non-ISO formats
         // Normalize NaN from invalid dates to -Infinity for deterministic ordering
         const aRaw =
-          'time_created' in a ? new Date(a.time_created as string | Date).valueOf() : -Infinity
+          'time_created' in a
+            ? new Date(a.time_created as string | Date).valueOf()
+            : -Infinity
         const bRaw =
-          'time_created' in b ? new Date(b.time_created as string | Date).valueOf() : -Infinity
+          'time_created' in b
+            ? new Date(b.time_created as string | Date).valueOf()
+            : -Infinity
         const aTime = Number.isFinite(aRaw) ? aRaw : -Infinity
         const bTime = Number.isFinite(bRaw) ? bRaw : -Infinity
         const timeCompare = aTime - bTime
@@ -104,9 +108,13 @@ function sortItems<I extends { id: string }>(items: I[], sortBy: SortMode): I[] 
         // Compare timestamps numerically to handle Date objects and non-ISO formats
         // Normalize NaN from invalid dates to -Infinity for deterministic ordering
         const aRaw =
-          'time_created' in a ? new Date(a.time_created as string | Date).valueOf() : -Infinity
+          'time_created' in a
+            ? new Date(a.time_created as string | Date).valueOf()
+            : -Infinity
         const bRaw =
-          'time_created' in b ? new Date(b.time_created as string | Date).valueOf() : -Infinity
+          'time_created' in b
+            ? new Date(b.time_created as string | Date).valueOf()
+            : -Infinity
         const aTime = Number.isFinite(aRaw) ? aRaw : -Infinity
         const bTime = Number.isFinite(bRaw) ? bRaw : -Infinity
         const timeCompare = bTime - aTime
@@ -150,7 +158,9 @@ function findStartIndex<I extends { id: string }>(
     case 'name_ascending':
     case 'name_descending':
       // Page token is a name - find first item with this name
-      return sortedItems.findIndex((i) => ('name' in i ? i.name === pageToken : i.id === pageToken))
+      return sortedItems.findIndex((i) =>
+        'name' in i ? i.name === pageToken : i.id === pageToken
+      )
     case 'id_ascending':
       // Page token is an ID
       return sortedItems.findIndex((i) => i.id === pageToken)
@@ -160,8 +170,7 @@ function findStartIndex<I extends { id: string }>(
       const [time, id] = pageToken.split('|', 2)
       return sortedItems.findIndex(
         (i) =>
-          i.id === id &&
-          ('time_created' in i ? String(i.time_created) === time : false)
+          i.id === id && ('time_created' in i ? String(i.time_created) === time : false)
       )
   }
 }
