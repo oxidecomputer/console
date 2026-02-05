@@ -964,15 +964,15 @@ const AdvancedAccordion = ({
               Allocate and attach an ephemeral IP address
             </Checkbox>
           </Wrap>
-          {assignEphemeralIp && (
-            <IpPoolSelector
-              control={control}
-              poolFieldName="ephemeralIpPool"
-              pools={compatibleUnicastPools}
-              disabled={isSubmitting}
-              compatibleVersions={compatibleVersions}
-            />
-          )}
+          <IpPoolSelector
+            className={assignEphemeralIp ? '' : 'hidden'}
+            control={control}
+            poolFieldName="ephemeralIpPool"
+            pools={compatibleUnicastPools}
+            disabled={isSubmitting}
+            compatibleVersions={compatibleVersions}
+            required={assignEphemeralIp}
+          />
         </div>
 
         <div className="flex flex-1 flex-col gap-4">

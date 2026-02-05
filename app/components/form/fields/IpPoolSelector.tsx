@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import cn from 'classnames'
 import { useMemo } from 'react'
 import type { Control } from 'react-hook-form'
 import * as R from 'remeda'
@@ -17,20 +18,24 @@ import { ListboxField } from './ListboxField'
 const ALL_IP_VERSIONS: IpVersion[] = ['v4', 'v6']
 
 type IpPoolSelectorProps = {
+  className?: string
   control: Control<any>
   poolFieldName: string
   pools: UnicastIpPool[]
   disabled?: boolean
   /** Compatible IP versions based on network interface type */
   compatibleVersions?: IpVersion[]
+  required?: boolean
 }
 
 export function IpPoolSelector({
+  className,
   control,
   poolFieldName,
   pools,
   disabled = false,
   compatibleVersions = ALL_IP_VERSIONS,
+  required = true,
 }: IpPoolSelectorProps) {
   // Note: pools are already filtered by poolType before being passed to this component
   const sortedPools = useMemo(() => {
@@ -46,7 +51,7 @@ export function IpPoolSelector({
   const hasNoPools = sortedPools.length === 0
 
   return (
-    <div className="space-y-4">
+    <div className={cn('space-y-4', className)}>
       {hasNoPools ? (
         <div className="text-secondary">
           No IP pools available for this network interface type
@@ -58,7 +63,7 @@ export function IpPoolSelector({
           label={'Pool'}
           control={control}
           placeholder="Select a pool"
-          required
+          required={required}
           disabled={disabled}
         />
       )}
