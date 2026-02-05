@@ -947,16 +947,24 @@ const AdvancedAccordion = ({
             when={!!ephemeralIpCheckboxState.disabledReason}
             with={<Tooltip content={ephemeralIpCheckboxState.disabledReason} />}
           >
-            <Checkbox
-              id="assignEphemeralIp"
-              checked={ephemeralIpCheckboxState.canAttachEphemeralIp && assignEphemeralIp}
-              disabled={!ephemeralIpCheckboxState.canAttachEphemeralIp}
-              onChange={() => {
-                assignEphemeralIpField.field.onChange(!assignEphemeralIp)
-              }}
-            >
-              Allocate and attach an ephemeral IP address
-            </Checkbox>
+            {/* TODO: Wrapping the checkbox in a <span> makes it so the tooltip
+             * shows up when you hover anywhere on the label or checkbox, not
+             * just the checkbox itself. The downside is the placement of the tooltip
+             * is a little weird (I'd like it better if it was anchored to the checkbox),
+             * but I think having it show up on label hover is worth it.
+             */}
+            <span>
+              <Checkbox
+                id="assignEphemeralIp"
+                checked={ephemeralIpCheckboxState.canAttachEphemeralIp && assignEphemeralIp}
+                disabled={!ephemeralIpCheckboxState.canAttachEphemeralIp}
+                onChange={() => {
+                  assignEphemeralIpField.field.onChange(!assignEphemeralIp)
+                }}
+              >
+                Allocate and attach an ephemeral IP address
+              </Checkbox>
+            </span>
           </Wrap>
           <IpPoolSelector
             className={assignEphemeralIp ? '' : 'hidden'}
