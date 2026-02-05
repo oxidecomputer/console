@@ -39,16 +39,19 @@ import { getMockOxqlInstanceData } from '../oxql-metrics'
 import { db, lookupById } from './db'
 import { Rando } from './rando'
 
+type SortMode =
+  | 'name_ascending'
+  | 'name_descending'
+  | 'id_ascending'
+  | 'time_and_id_ascending'
+  | 'time_and_id_descending'
+
 interface PaginateOptions {
   limit?: number | null
   pageToken?: string | null
-  sortBy?:
-    | 'name_ascending'
-    | 'name_descending'
-    | 'id_ascending'
-    | 'time_and_id_ascending'
-    | 'time_and_id_descending'
+  sortBy?: SortMode
 }
+
 export interface ResultsPage<I extends { id: string }> {
   items: I[]
   next_page: string | null
@@ -61,15 +64,7 @@ export interface ResultsPage<I extends { id: string }> {
  * https://github.com/oxidecomputer/omicron/blob/cf38148/common/src/api/external/http_pagination.rs#L334-L335
  * https://github.com/oxidecomputer/omicron/blob/cf38148/common/src/api/external/http_pagination.rs#L511-L512
  */
-function sortItems<I extends { id: string }>(
-  items: I[],
-  sortBy:
-    | 'name_ascending'
-    | 'name_descending'
-    | 'id_ascending'
-    | 'time_and_id_ascending'
-    | 'time_and_id_descending'
-): I[] {
+function sortItems<I extends { id: string }>(items: I[], sortBy: SortMode): I[] {
   const sorted = [...items]
 
   switch (sortBy) {
@@ -120,6 +115,57 @@ function sortItems<I extends { id: string }>(
   }
 }
 
+/**
+ * Get the page token value for an item based on the sort mode.
+ * Matches Omicron's marker types for each scan mode.
+ */
+function getPageToken<I extends { id: string }>(item: I, sortBy: SortMode): string {
+  switch (sortBy) {
+    case 'name_ascending':
+    case 'name_descending':
+      // ScanByNameOrId uses Name as marker for name-based sorting
+      return 'name' in item ? String(item.name) : item.id
+    case 'id_ascending':
+      // ScanById uses Uuid as marker
+      return item.id
+    case 'time_and_id_ascending':
+    case 'time_and_id_descending':
+      // ScanByTimeAndId uses (DateTime, Uuid) tuple as marker
+      // Serialize as "timestamp|id" (using | since timestamps contain :)
+      const time = 'time_created' in item ? String(item.time_created) : ''
+      return `${time}|${item.id}`
+  }
+}
+
+/**
+ * Find the start index for pagination based on the page token and sort mode.
+ * Handles different marker types matching Omicron's pagination behavior.
+ */
+function findStartIndex<I extends { id: string }>(
+  sortedItems: I[],
+  pageToken: string,
+  sortBy: SortMode
+): number {
+  switch (sortBy) {
+    case 'name_ascending':
+    case 'name_descending':
+      // Page token is a name - find first item with this name
+      return sortedItems.findIndex((i) => ('name' in i ? i.name === pageToken : i.id === pageToken))
+    case 'id_ascending':
+      // Page token is an ID
+      return sortedItems.findIndex((i) => i.id === pageToken)
+    case 'time_and_id_ascending':
+    case 'time_and_id_descending':
+      // Page token is "timestamp|id" - find item with matching timestamp and ID
+      const [time, id] = pageToken.split('|', 2)
+      return sortedItems.findIndex(
+        (i) =>
+          i.id === id &&
+          ('time_created' in i ? String(i.time_created) === time : false)
+      )
+  }
+}
+
 export const paginated = <P extends PaginateOptions, I extends { id: string }>(
   params: P,
   items: I[]
@@ -137,8 +183,13 @@ export const paginated = <P extends PaginateOptions, I extends { id: string }>(
 
   const sortedItems = sortItems(items, sortBy)
 
-  let startIndex = pageToken ? sortedItems.findIndex((i) => i.id === pageToken) : 0
-  startIndex = startIndex < 0 ? 0 : startIndex
+  let startIndex = pageToken ? findStartIndex(sortedItems, pageToken, sortBy) : 0
+
+  // Warn if page token not found - helps catch bugs in tests
+  if (pageToken && startIndex < 0) {
+    console.warn(`Page token "${pageToken}" not found, starting from beginning`)
+    startIndex = 0
+  }
 
   if (startIndex > sortedItems.length) {
     return {
@@ -156,7 +207,7 @@ export const paginated = <P extends PaginateOptions, I extends { id: string }>(
 
   return {
     items: sortedItems.slice(startIndex, startIndex + limit),
-    next_page: `${sortedItems[startIndex + limit].id}`,
+    next_page: getPageToken(sortedItems[startIndex + limit], sortBy),
   }
 }
 
