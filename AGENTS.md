@@ -117,3 +117,4 @@
 - Use `validateName` for resource names, `validateDescription` for descriptions, `validateIp`/`validateIpNet` for IPs.
 - Role helpers live in `app/api/roles.ts`.
 - Use ts-pattern exhaustive match when doing conditional logic on union types to make sure all arms are handled
+- Avoid type casts (`as`) where possible; prefer type-safe alternatives like `satisfies`, `.returnType<T>()` for ts-pattern, or `as const`

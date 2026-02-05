@@ -8,7 +8,7 @@
 import type { User } from '@oxide/api'
 
 import type { Json } from './json-type'
-import { defaultSilo } from './silo'
+import { defaultSilo, myriadSilo, noPoolsSilo, pelerinesSilo, thraxSilo } from './silo'
 
 export const user1: Json<User> = {
   id: '2e28576d-43e0-4e9e-9132-838a7b66f602',
@@ -46,4 +46,40 @@ export const user6: Json<User> = {
   silo_id: defaultSilo.id,
 }
 
-export const users = [user1, user2, user3, user4, user5, user6]
+// Users for test silos (different IP pool configurations)
+export const userKosman: Json<User> = {
+  id: '9a8b7c6d-5e4f-3a2b-1c0d-9e8f7a6b5c4d',
+  display_name: 'Aryeh Kosman',
+  silo_id: myriadSilo.id,
+}
+
+export const userAnscombe: Json<User> = {
+  id: 'a9b8c7d6-e5f4-a3b2-c1d0-e9f8a7b6c5d4',
+  display_name: 'Elizabeth Anscombe',
+  silo_id: thraxSilo.id,
+}
+
+export const userAdorno: Json<User> = {
+  id: 'b0c9d8e7-f6a5-b4c3-d2e1-f0a9b8c7d6e5',
+  display_name: 'Theodor Adorno',
+  silo_id: pelerinesSilo.id,
+}
+
+export const userNoPools: Json<User> = {
+  id: 'c1d0e9f8-a7b6-c5d4-e3f2-a1b0c9d8e7f6',
+  display_name: 'Antonio Gramsci',
+  silo_id: noPoolsSilo.id,
+}
+
+export const users = [
+  user1,
+  user2,
+  user3,
+  user4,
+  user5,
+  user6,
+  userKosman,
+  userAnscombe,
+  userAdorno,
+  userNoPools,
+]

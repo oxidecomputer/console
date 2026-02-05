@@ -18,14 +18,13 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { addToast } from '~/stores/toast'
+import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
+import { ModalLink, ModalLinks } from '~/ui/lib/ModalLinks'
+import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-// We are leaving the v4/v6 radio out for now because while you can
-// create a v6 pool, you can't actually add any ranges to it until
-// https://github.com/oxidecomputer/omicron/issues/8966
-
-type IpPoolCreateForm = SetRequired<IpPoolCreate, 'poolType'>
+type IpPoolCreateForm = SetRequired<IpPoolCreate, 'poolType' | 'ipVersion'>
 
 const defaultValues: IpPoolCreateForm = {
   name: '',
@@ -58,8 +57,8 @@ export default function CreateIpPoolSideModalForm() {
       formType="create"
       resourceName="IP pool"
       onDismiss={onDismiss}
-      onSubmit={({ name, description, poolType }) => {
-        createPool.mutate({ body: { name, description, poolType } })
+      onSubmit={({ name, description, ipVersion, poolType }) => {
+        createPool.mutate({ body: { name, description, ipVersion, poolType } })
       }}
       loading={createPool.isPending}
       submitError={createPool.error}
@@ -68,8 +67,18 @@ export default function CreateIpPoolSideModalForm() {
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <RadioField
+        name="ipVersion"
+        label="IP version"
+        column
+        control={form.control}
+        items={[
+          { value: 'v4', label: 'v4' },
+          { value: 'v6', label: 'v6' },
+        ]}
+      />
+      <RadioField
         name="poolType"
-        label="Pool type"
+        label="Type"
         column
         control={form.control}
         items={[
@@ -77,6 +86,11 @@ export default function CreateIpPoolSideModalForm() {
           { value: 'multicast', label: 'Multicast' },
         ]}
       />
+      <FormDivider />
+      <ModalLinks heading="Relevant docs">
+        <ModalLink to={links.ipPoolCreateDocs} label="IP Pool Creation" />
+        <ModalLink to={links.ipPoolTypesDocs} label="IP Pool Types" />
+      </ModalLinks>
     </SideModalForm>
   )
 }

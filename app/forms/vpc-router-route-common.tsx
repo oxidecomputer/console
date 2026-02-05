@@ -69,8 +69,8 @@ const destinationValuePlaceholder: Record<RouteDestination['type'], string | und
 }
 
 const destinationValueDescription: Record<RouteDestination['type'], string | undefined> = {
-  ip: 'An IP address, like 192.168.1.222',
-  ip_net: 'An IP network, like 192.168.0.0/16',
+  ip: 'An IP address, like 192.168.1.222 or fd00::1',
+  ip_net: 'An IP network, like 192.168.0.0/16 or fd00::/64',
   subnet: undefined,
   vpc: undefined,
 }
@@ -86,7 +86,7 @@ const targetValuePlaceholder: Record<RouteTarget['type'], string | undefined> = 
 }
 
 const targetValueDescription: Record<RouteTarget['type'], string | undefined> = {
-  ip: 'An IP address, like 10.0.1.5',
+  ip: 'An IP address, like 10.0.1.5 or fd00::2',
   instance: undefined,
   internet_gateway: undefined,
   drop: undefined,

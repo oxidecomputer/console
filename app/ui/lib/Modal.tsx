@@ -113,6 +113,7 @@ type FooterProps = {
   actionLoading?: boolean
   cancelText?: string
   disabled?: boolean
+  disabledReason?: React.ReactNode
   showCancel?: boolean
 } & MergeExclusive<{ formId: string }, { onAction: () => void }>
 
@@ -125,6 +126,7 @@ Modal.Footer = ({
   actionLoading,
   cancelText,
   disabled,
+  disabledReason,
   formId,
   showCancel = true,
 }: FooterProps) => (
@@ -143,6 +145,7 @@ Modal.Footer = ({
         variant={actionType}
         onClick={onAction}
         disabled={!!disabled}
+        disabledReason={disabledReason}
         loading={actionLoading}
       >
         {actionText}

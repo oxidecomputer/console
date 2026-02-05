@@ -5,10 +5,19 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useCallback } from 'react'
 import { useForm, type FieldErrors } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import { api, queryClient, useApiMutation, type IpRange } from '@oxide/api'
+import {
+  api,
+  q,
+  queryClient,
+  useApiMutation,
+  usePrefetchedQuery,
+  type IpRange,
+  type IpVersion,
+} from '@oxide/api'
 
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
@@ -24,40 +33,53 @@ const defaultValues: IpRange = {
   last: '',
 }
 
-const ipv6Error = { type: 'pattern', message: 'IPv6 ranges are not yet supported' }
-
 /**
- * Pretty straightforward -- make sure IPs are valid and both first and last
- * are the same version. Because we're putting the same version error on both
- * fields, this could also work as a regular validate() on each field, where
- * each field compares itself to the other. It seems silly to run the giant
- * regex twice, though.
+ * Validates IP range addresses against the pool's IP version.
+ * Ensures both addresses are valid IPs and match the pool's version.
  */
-function resolver(values: IpRange) {
-  const first = parseIp(values.first)
-  const last = parseIp(values.last)
+function createResolver(poolVersion: IpVersion) {
+  return (values: IpRange) => {
+    const first = parseIp(values.first)
+    const last = parseIp(values.last)
 
-  const errors: FieldErrors<IpRange> = {}
+    const errors: FieldErrors<IpRange> = {}
 
-  if (first.type === 'error') {
-    errors.first = { type: 'pattern', message: first.message }
-  } else if (first.type === 'v6') {
-    errors.first = ipv6Error
+    // Validate first address matches pool version
+    if (first.type === 'error') {
+      errors.first = { type: 'pattern', message: first.message }
+    } else if (first.type === 'v4' && poolVersion === 'v6') {
+      errors.first = {
+        type: 'pattern',
+        message: 'IPv4 address not allowed in IPv6 pool',
+      }
+    } else if (first.type === 'v6' && poolVersion === 'v4') {
+      errors.first = {
+        type: 'pattern',
+        message: 'IPv6 address not allowed in IPv4 pool',
+      }
+    }
+
+    // Validate last address matches pool version
+    if (last.type === 'error') {
+      errors.last = { type: 'pattern', message: last.message }
+    } else if (last.type === 'v4' && poolVersion === 'v6') {
+      errors.last = {
+        type: 'pattern',
+        message: 'IPv4 address not allowed in IPv6 pool',
+      }
+    } else if (last.type === 'v6' && poolVersion === 'v4') {
+      errors.last = {
+        type: 'pattern',
+        message: 'IPv6 address not allowed in IPv4 pool',
+      }
+    }
+
+    // TODO: if we were really cool we could check first <= last but it would add
+    // 6k gzipped to the bundle with ip-num
+
+    // no errors
+    return Object.keys(errors).length > 0 ? { values: {}, errors } : { values, errors: {} }
   }
-
-  if (last.type === 'error') {
-    errors.last = { type: 'pattern', message: last.message }
-  } else if (last.type === 'v6') {
-    errors.last = ipv6Error
-  }
-
-  // TODO: once we support IPv6 we need to check for version mismatch here
-
-  // TODO: if we were really cool we could check first <= last but it would add
-  // 6k gzipped to the bundle with ip-num
-
-  // no errors
-  return Object.keys(errors).length > 0 ? { values: {}, errors } : { values, errors: {} }
 }
 
 export const handle = titleCrumb('Add Range')
@@ -65,6 +87,8 @@ export const handle = titleCrumb('Add Range')
 export default function IpPoolAddRange() {
   const { pool } = useIpPoolSelector()
   const navigate = useNavigate()
+
+  const { data: poolData } = usePrefetchedQuery(q(api.ipPoolView, { path: { pool } }))
 
   const onDismiss = () => navigate(pb.ipPool({ pool }))
 
@@ -77,6 +101,12 @@ export default function IpPoolAddRange() {
       onDismiss()
     },
   })
+
+  // Derive pool version at validation time to ensure correct IP version rules
+  const resolver = useCallback(
+    (values: IpRange) => createResolver(poolData?.ipVersion ?? 'v4')(values),
+    [poolData?.ipVersion]
+  )
 
   const form = useForm({ defaultValues, resolver })
 
@@ -93,7 +123,7 @@ export default function IpPoolAddRange() {
     >
       <Message
         variant="info"
-        content="Only IPv4 ranges are currently supported. Ranges are inclusive, and first must be less than or equal to last."
+        content={`This pool uses IP${poolData.ipVersion} addresses. Ranges are inclusive, and first must be less than or equal to last.`}
       />
       <TextField
         name="first"

@@ -14,15 +14,16 @@ import { type LoaderFunctionArgs } from 'react-router'
 
 import { api, getListQFn, queryClient, useApiMutation, type SiloIpPool } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
+import { IpVersionBadge } from '~/components/IpVersionBadge'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
-import { DefaultPoolCell } from '~/table/cells/DefaultPoolCell'
-import { makeLinkCell } from '~/table/cells/LinkCell'
+import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -31,6 +32,7 @@ import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
+import { Tooltip } from '~/ui/lib/Tooltip'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
@@ -45,15 +47,6 @@ const EmptyState = () => (
 )
 
 const colHelper = createColumnHelper<SiloIpPool>()
-
-const staticCols = [
-  colHelper.accessor('name', { cell: makeLinkCell((pool) => pb.ipPool({ pool })) }),
-  colHelper.accessor('description', Columns.description),
-  colHelper.accessor('isDefault', {
-    header: 'Default',
-    cell: (info) => <DefaultPoolCell isDefault={info.getValue()} />,
-  }),
-]
 
 const allPoolsQuery = getListQFn(api.ipPoolList, { query: { limit: ALL_ISH } })
 
@@ -78,11 +71,44 @@ export default function SiloIpPoolsTab() {
   // because the prefetched one only gets 25 to match the query table. This req
   // is better to do async because they can't click make default that fast
   // anyway.
-  const { data: allPools } = useQuery(allSiloPoolsQuery(silo).optionsFn())
+  const { data: allPoolsData } = useQuery(allSiloPoolsQuery(silo).optionsFn())
+  const allPools = allPoolsData?.items
 
-  // used in change default confirm modal
-  const defaultPool = useMemo(
-    () => (allPools ? allPools.items.find((p) => p.isDefault)?.name : undefined),
+  const staticCols = useMemo(
+    () => [
+      colHelper.accessor('name', {
+        cell: (info) => (
+          <LinkCell to={pb.ipPool({ pool: info.row.original.id })}>
+            {info.getValue()}
+            {info.row.original.isDefault && (
+              <Tooltip content="Default for version and type">
+                <span className="ml-2">
+                  <Badge>default</Badge>
+                </span>
+              </Tooltip>
+            )}
+          </LinkCell>
+        ),
+      }),
+      colHelper.accessor('description', Columns.description),
+      colHelper.accessor('ipVersion', {
+        header: 'Version',
+        cell: (info) => <IpVersionBadge ipVersion={info.getValue()} />,
+      }),
+      colHelper.accessor('poolType', {
+        header: 'Type',
+        cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
+      }),
+    ],
+    []
+  )
+
+  // used in change default confirm modal - find existing default for same version/type
+  const findDefaultForVersionType = useCallback(
+    (ipVersion: string, poolType: string) =>
+      allPools?.find(
+        (p) => p.isDefault && p.ipVersion === ipVersion && p.poolType === poolType
+      )?.name,
     [allPools]
   )
 
@@ -125,18 +151,22 @@ export default function SiloIpPoolsTab() {
               actionType: 'danger',
             })
           } else {
-            const modalContent = defaultPool ? (
+            const existingDefault = findDefaultForVersionType(pool.ipVersion, pool.poolType)
+            const versionLabel = `IP${pool.ipVersion}`
+            const typeLabel = pool.poolType
+
+            const modalContent = existingDefault ? (
               <p>
-                Are you sure you want to change the default pool from <HL>{defaultPool}</HL>{' '}
-                to <HL>{pool.name}</HL>?
+                Are you sure you want to change the default {versionLabel} {typeLabel} pool
+                from <HL>{existingDefault}</HL> to <HL>{pool.name}</HL>?
               </p>
             ) : (
               <p>
-                Are you sure you want to make <HL>{pool.name}</HL> the default pool for this
-                silo?
+                Are you sure you want to make <HL>{pool.name}</HL> the default{' '}
+                {versionLabel} {typeLabel} pool for this silo?
               </p>
             )
-            const verb = defaultPool ? 'change' : 'make'
+            const verb = existingDefault ? 'change' : 'make'
             confirmAction({
               doAction: () =>
                 updatePoolLink({
@@ -171,7 +201,7 @@ export default function SiloIpPoolsTab() {
         },
       },
     ],
-    [defaultPool, silo, unlinkPool, updatePoolLink]
+    [findDefaultForVersionType, silo, unlinkPool, updatePoolLink]
   )
 
   const columns = useColsWithActions(staticCols, makeActions)

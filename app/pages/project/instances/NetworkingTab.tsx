@@ -22,6 +22,7 @@ import {
   type ExternalIp,
   type InstanceNetworkInterface,
   type InstanceState,
+  type IpVersion,
 } from '@oxide/api'
 import { IpGlobal24Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
@@ -30,6 +31,7 @@ import { AttachEphemeralIpModal } from '~/components/AttachEphemeralIpModal'
 import { AttachFloatingIpModal } from '~/components/AttachFloatingIpModal'
 import { orderIps } from '~/components/ExternalIps'
 import { HL } from '~/components/HL'
+import { IpVersionBadge } from '~/components/IpVersionBadge'
 import { ListPlusCell } from '~/components/ListPlusCell'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
 import { EditNetworkInterfaceForm } from '~/forms/network-interface-edit'
@@ -56,6 +58,7 @@ import { TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { ALL_ISH } from '~/util/consts'
+import { getCompatibleVersionsFromNics, ipHasVersion, parseIp } from '~/util/ip'
 import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './common'
@@ -95,6 +98,13 @@ const NonFloatingEmptyCell = ({ kind }: { kind: 'snat' | 'ephemeral' }) => (
       <EmptyCell />
     </div>
   </Tooltip>
+)
+
+const PrivateIpCell = ({ ipVersion, ip }: { ipVersion: IpVersion; ip: string }) => (
+  <div className="flex items-center gap-2">
+    <IpVersionBadge ipVersion={ipVersion} />
+    <CopyableIp ip={ip} isLinked={false} />
+  </div>
 )
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
@@ -152,9 +162,23 @@ const staticCols = [
     ),
   }),
   colHelper.accessor('description', Columns.description),
-  colHelper.accessor('ip', {
+  colHelper.display({
+    id: 'ip',
     header: 'Private IP',
-    cell: (info) => <CopyableIp ip={info.getValue()} isLinked={false} />,
+    cell: (info) => {
+      const nic = info.row.original
+      const { ipStack } = nic
+
+      if (ipStack.type === 'dual_stack') {
+        return (
+          <div className="flex flex-col gap-0">
+            <PrivateIpCell ipVersion="v4" ip={ipStack.value.v4.ip} />
+            <PrivateIpCell ipVersion="v6" ip={ipStack.value.v6.ip} />
+          </div>
+        )
+      }
+      return <PrivateIpCell ipVersion={ipStack.type} ip={ipStack.value.ip} />
+    },
   }),
   colHelper.accessor('vpcId', {
     header: 'vpc',
@@ -164,15 +188,28 @@ const staticCols = [
     header: 'subnet',
     cell: (info) => <SubnetNameFromId value={info.getValue()} />,
   }),
-  colHelper.accessor('transitIps', {
+  colHelper.display({
+    id: 'transitIps',
     header: 'Transit IPs',
-    cell: (info) => (
-      <ListPlusCell tooltipTitle="Other transit IPs">
-        {info.getValue()?.map((ip) => (
-          <div key={ip}>{ip}</div>
-        ))}
-      </ListPlusCell>
-    ),
+    cell: (info) => {
+      const nic = info.row.original
+      const { ipStack } = nic
+
+      let transitIps: string[] = []
+      if (ipStack.type === 'v4' || ipStack.type === 'v6') {
+        transitIps = ipStack.value.transitIps
+      } else if (ipStack.type === 'dual_stack') {
+        // Combine both v4 and v6 transit IPs for dual-stack
+        transitIps = [...ipStack.value.v4.transitIps, ...ipStack.value.v6.transitIps]
+      }
+      return (
+        <ListPlusCell tooltipTitle="Other transit IPs">
+          {transitIps?.map((ip) => (
+            <div key={ip}>{ip}</div>
+          ))}
+        </ListPlusCell>
+      )
+    },
   }),
 ]
 
@@ -209,6 +246,15 @@ const staticIpCols = [
       </>
     ),
     cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
+  }),
+  ipColHelper.accessor('ip', {
+    id: 'version',
+    header: 'Version',
+    cell: (info) => {
+      const parsed = parseIp(info.getValue())
+      if (parsed.type === 'error') return <EmptyCell />
+      return <IpVersionBadge ipVersion={parsed.type} />
+    },
   }),
   ipColHelper.accessor('ipPoolId', {
     header: 'IP pool',
@@ -248,8 +294,22 @@ export default function NetworkingTab() {
   const { data: ips } = usePrefetchedQuery(
     q(api.floatingIpList, { query: { project, limit: ALL_ISH } })
   )
-  // Filter out the IPs that are already attached to an instance
-  const availableIps = useMemo(() => ips.items.filter((ip) => !ip.instanceId), [ips])
+
+  const nics = usePrefetchedQuery(
+    q(api.instanceNetworkInterfaceList, {
+      query: { ...instanceSelector, limit: ALL_ISH },
+    })
+  ).data.items
+
+  // Determine compatible IP versions from the instance's primary NIC
+  // External IPs route through the primary interface, so only its IP stack matters
+  const compatibleVersions = useMemo(() => getCompatibleVersionsFromNics(nics), [nics])
+
+  // Filter out the IPs that are already attached to an instance and filter by IP version compatibility
+  const availableIps = useMemo(
+    () => ips.items.filter((ip) => !ip.instanceId).filter(ipHasVersion(compatibleVersions)),
+    [ips, compatibleVersions]
+  )
 
   const createNic = useApiMutation(api.instanceNetworkInterfaceCreate, {
     onSuccess() {
@@ -273,11 +333,6 @@ export default function NetworkingTab() {
   const { data: instance } = usePrefetchedQuery(
     q(api.instanceView, { path: { instance: instanceName }, query: { project } })
   )
-  const nics = usePrefetchedQuery(
-    q(api.instanceNetworkInterfaceList, {
-      query: { ...instanceSelector, limit: ALL_ISH },
-    })
-  ).data.items
 
   const multipleNics = nics.length > 1
 
@@ -553,6 +608,7 @@ export default function NetworkingTab() {
               aria-labelledby="nics-label"
               table={tableInstance}
               className="table-inline"
+              rowHeight="large"
             />
           ) : (
             <TableEmptyBox border={false}>

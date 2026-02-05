@@ -23,6 +23,7 @@ import {
   type IpPoolSiloLink,
 } from '@oxide/api'
 import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import { CapacityBar } from '~/components/CapacityBar'
 import { DocsPopover } from '~/components/DocsPopover'
@@ -35,7 +36,6 @@ import { getIpPoolSelector, useIpPoolSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import { DefaultPoolCell } from '~/table/cells/DefaultPoolCell'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -255,26 +255,6 @@ function SiloNameFromId({ value: siloId }: { value: string }) {
 }
 
 const silosColHelper = createColumnHelper<IpPoolSiloLink>()
-const silosStaticCols = [
-  silosColHelper.accessor('siloId', {
-    header: 'Silo',
-    cell: (info) => <SiloNameFromId value={info.getValue()} />,
-  }),
-  silosColHelper.accessor('isDefault', {
-    header: () => {
-      return (
-        <span className="inline-flex items-center gap-2">
-          Pool is silo default
-          <TipIcon>
-            IPs are allocated from the default pool when users ask for an IP without
-            specifying a pool
-          </TipIcon>
-        </span>
-      )
-    },
-    cell: (info) => <DefaultPoolCell isDefault={info.getValue()} />,
-  }),
-]
 
 function LinkedSilosTable() {
   const poolSelector = useIpPoolSelector()
@@ -328,7 +308,31 @@ function LinkedSilosTable() {
     />
   )
 
-  const columns = useColsWithActions(silosStaticCols, makeActions)
+  const silosCols = useMemo(
+    () => [
+      silosColHelper.accessor('siloId', {
+        header: 'Silo',
+        cell: (info) => <SiloNameFromId value={info.getValue()} />,
+      }),
+      silosColHelper.accessor('isDefault', {
+        header: () => {
+          return (
+            <span className="inline-flex items-center gap-2">
+              Silo default
+              <TipIcon>
+                IPs are allocated from the default pool when users ask for an IP without
+                specifying a pool
+              </TipIcon>
+            </span>
+          )
+        },
+        cell: (info) => (info.getValue() ? <Badge>default</Badge> : null),
+      }),
+    ],
+    []
+  )
+
+  const columns = useColsWithActions(silosCols, makeActions)
   const { table } = useQueryTable({
     query: ipPoolSiloList(poolSelector),
     columns,

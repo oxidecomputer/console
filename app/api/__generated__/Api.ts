@@ -59,6 +59,47 @@ export type Address = {
 }
 
 /**
+ * The IP address version.
+ */
+export type IpVersion = 'v4' | 'v6'
+
+/**
+ * Specify which IP or external subnet pool to allocate from.
+ */
+export type PoolSelector =
+  /** Use the specified pool by name or ID. */
+  | {
+      /** The pool to allocate from. */
+      pool: NameOrId
+      type: 'explicit'
+    }
+  /** Use the default pool for the silo. */
+  | {
+      /** IP version to use when multiple default pools exist. Required if both IPv4 and IPv6 default pools are configured. */
+      ipVersion?: IpVersion | null
+      type: 'auto'
+    }
+
+/**
+ * Specify how to allocate a floating IP address.
+ */
+export type AddressAllocator =
+  /** Reserve a specific IP address. The pool is inferred from the address since IP pools cannot have overlapping ranges. */
+  | {
+      /** The IP address to reserve. */
+      ip: string
+      type: 'explicit'
+    }
+  /** Automatically allocate an IP address from a pool. */
+  | {
+      /** Pool selection.
+
+If omitted, the silo's default pool is used. If the silo has default pools for both IPv4 and IPv6, the request will fail unless `ip_version` is specified. */
+      poolSelector?: PoolSelector
+      type: 'auto'
+    }
+
+/**
  * A set of addresses associated with a port configuration.
  */
 export type AddressConfig = {
@@ -633,6 +674,19 @@ export type AuditLogEntryActor =
   | { kind: 'unauthenticated' }
 
 /**
+ * Authentication method used for a request
+ */
+export type AuthMethod =
+  /** Console session cookie */
+  | 'session_cookie'
+
+  /** Device access token (OAuth 2.0 device authorization flow) */
+  | 'access_token'
+
+  /** SCIM client bearer token */
+  | 'scim_token'
+
+/**
  * Result of an audit log entry
  */
 export type AuditLogEntryResult =
@@ -658,8 +712,10 @@ export type AuditLogEntryResult =
  */
 export type AuditLogEntry = {
   actor: AuditLogEntryActor
-  /** How the user authenticated the request. Possible values are "session_cookie" and "access_token". Optional because it will not be defined on unauthenticated requests like login attempts. */
-  authMethod?: string | null
+  /** How the user authenticated the request (access token, session, or SCIM token). Null for unauthenticated requests like login attempts. */
+  authMethod?: AuthMethod | null
+  /** ID of the credential used for authentication. Null for unauthenticated requests. The value of `auth_method` indicates what kind of credential it is (access token, session, or SCIM token). */
+  credentialId?: string | null
   /** Unique identifier for the audit log entry */
   id: string
   /** API endpoint ID, e.g., `project_create` */
@@ -712,6 +768,18 @@ export type AuthzScope =
  * Properties that uniquely identify an Oxide hardware component
  */
 export type Baseboard = { part: string; revision: number; serial: string }
+
+/**
+ * A representation of a Baseboard ID as used in the inventory subsystem.
+ *
+ * This type is essentially the same as a `Baseboard` except it doesn't have a revision or HW type (Gimlet, PC, Unknown).
+ */
+export type BaseboardId = {
+  /** Oxide Part Number */
+  partNumber: string
+  /** Serial number (unique for a given part number) */
+  serialNumber: string
+}
 
 /**
  * BFD connection mode.
@@ -1934,8 +2002,8 @@ export type Distributionint64 = {
  * Parameters for creating an ephemeral IP address for an instance.
  */
 export type EphemeralIpCreate = {
-  /** Name or ID of the IP pool used to allocate an address. If unspecified, the default IP pool will be used. */
-  pool?: NameOrId | null
+  /** Pool to allocate from. */
+  poolSelector?: PoolSelector
 }
 
 export type ExternalIp =
@@ -1981,8 +2049,12 @@ SNAT addresses are ephemeral addresses used only for outbound connectivity. */
  * Parameters for creating an external IP address for instances.
  */
 export type ExternalIpCreate =
-  /** An IP address providing both inbound and outbound access. The address is automatically assigned from the provided IP pool or the default IP pool if not specified. */
-  | { pool?: NameOrId | null; type: 'ephemeral' }
+  /** An IP address providing both inbound and outbound access. The address is automatically assigned from a pool. */
+  | {
+      /** Pool to allocate from. */
+      poolSelector?: PoolSelector
+      type: 'ephemeral'
+    }
   /** An IP address providing both inbound and outbound access. The address is an existing floating IP object assigned to the current project.
 
 The floating IP must not be in use by another instance or service. */
@@ -1997,6 +2069,86 @@ export type ExternalIpResultsPage = {
   /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
 }
+
+/**
+ * An external subnet allocated from a subnet pool
+ */
+export type ExternalSubnet = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** The instance this subnet is attached to, if any */
+  instanceId?: string | null
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** The project this subnet belongs to */
+  projectId: string
+  /** The allocated subnet CIDR */
+  subnet: IpNet
+  /** The subnet pool this was allocated from */
+  subnetPoolId: string
+  /** The subnet pool member this subnet corresponds to */
+  subnetPoolMemberId: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Specify how to allocate an external subnet.
+ */
+export type ExternalSubnetAllocator =
+  /** Reserve a specific subnet. */
+  | {
+      /** The subnet CIDR to reserve. Must be available in the pool. */
+      subnet: IpNet
+      type: 'explicit'
+    }
+  /** Automatically allocate a subnet with the specified prefix length. */
+  | {
+      /** Pool selection.
+
+If omitted, this field uses the silo's default pool. If the silo has default pools for both IPv4 and IPv6, the request will fail unless `ip_version` is specified in the pool selector. */
+      poolSelector?: PoolSelector
+      /** The prefix length for the allocated subnet (e.g., 24 for a /24). */
+      prefixLen: number
+      type: 'auto'
+    }
+
+/**
+ * Attach an external subnet to an instance
+ */
+export type ExternalSubnetAttach = {
+  /** Name or ID of the instance to attach to */
+  instance: NameOrId
+}
+
+/**
+ * Create an external subnet
+ */
+export type ExternalSubnetCreate = {
+  /** Subnet allocation method. */
+  allocator: ExternalSubnetAllocator
+  description: string
+  name: Name
+}
+
+/**
+ * A single page of results
+ */
+export type ExternalSubnetResultsPage = {
+  /** list of items on this page of results */
+  items: ExternalSubnet[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
+ * Update an external subnet
+ */
+export type ExternalSubnetUpdate = { description?: string | null; name?: Name | null }
 
 /**
  * The `FieldType` identifies the data type of a target or metric field.
@@ -2126,12 +2278,10 @@ export type FloatingIpAttach = {
  * Parameters for creating a new floating IP address for instances.
  */
 export type FloatingIpCreate = {
+  /** IP address allocation method. */
+  addressAllocator?: AddressAllocator
   description: string
-  /** An IP address to reserve for use as a floating IP. This field is optional: when not set, an address will be automatically chosen from `pool`. If set, then the IP must be available in the resolved `pool`. */
-  ip?: string | null
   name: Name
-  /** The parent IP pool that a floating IP is pulled from. If unset, the default pool is selected. */
-  pool?: NameOrId | null
 }
 
 /**
@@ -2383,17 +2533,90 @@ export type InstanceDiskAttachment =
     }
 
 /**
+ * A multicast group identifier
+ *
+ * Can be a UUID, a name, or an IP address
+ */
+export type MulticastGroupIdentifier = string
+
+/**
+ * Specification for joining a multicast group with optional source filtering.
+ *
+ * Used in `InstanceCreate` and `InstanceUpdate` to specify multicast group membership along with per-member source IP configuration.
+ */
+export type MulticastGroupJoinSpec = {
+  /** The multicast group to join, specified by name, UUID, or IP address. */
+  group: MulticastGroupIdentifier
+  /** IP version for pool selection when creating a group by name. Required if both IPv4 and IPv6 default multicast pools are linked. */
+  ipVersion?: IpVersion | null
+  /** Source IPs for source-filtered multicast (SSM). Optional for ASM groups, required for SSM groups (232.0.0.0/8, ff3x::/32). */
+  sourceIps?: string[] | null
+}
+
+/**
+ * How a VPC-private IP address is assigned to a network interface.
+ */
+export type Ipv4Assignment =
+  /** Automatically assign an IP address from the VPC Subnet. */
+  | { type: 'auto' }
+  /** Explicitly assign a specific address, if available. */
+  | { type: 'explicit'; value: string }
+
+/**
+ * Configuration for a network interface's IPv4 addressing.
+ */
+export type PrivateIpv4StackCreate = {
+  /** The VPC-private address to assign to the interface. */
+  ip: Ipv4Assignment
+  /** Additional IP networks the interface can send / receive on. */
+  transitIps?: Ipv4Net[]
+}
+
+/**
+ * How a VPC-private IP address is assigned to a network interface.
+ */
+export type Ipv6Assignment =
+  /** Automatically assign an IP address from the VPC Subnet. */
+  | { type: 'auto' }
+  /** Explicitly assign a specific address, if available. */
+  | { type: 'explicit'; value: string }
+
+/**
+ * Configuration for a network interface's IPv6 addressing.
+ */
+export type PrivateIpv6StackCreate = {
+  /** The VPC-private address to assign to the interface. */
+  ip: Ipv6Assignment
+  /** Additional IP networks the interface can send / receive on. */
+  transitIps?: Ipv6Net[]
+}
+
+/**
+ * Create parameters for a network interface's IP stack.
+ */
+export type PrivateIpStackCreate =
+  /** The interface has only an IPv4 stack. */
+  | { type: 'v4'; value: PrivateIpv4StackCreate }
+  /** The interface has only an IPv6 stack. */
+  | { type: 'v6'; value: PrivateIpv6StackCreate }
+  /** The interface has both an IPv4 and IPv6 stack. */
+  | {
+      type: 'dual_stack'
+      value: { v4: PrivateIpv4StackCreate; v6: PrivateIpv6StackCreate }
+    }
+
+/**
  * Create-time parameters for an `InstanceNetworkInterface`
  */
 export type InstanceNetworkInterfaceCreate = {
   description: string
-  /** The IP address for the interface. One will be auto-assigned if not provided. */
-  ip?: string | null
+  /** The IP stack configuration for this interface.
+
+If not provided, a default configuration will be used, which creates a dual-stack IPv4 / IPv6 interface. */
+  ipConfig?: PrivateIpStackCreate
   name: Name
   /** The VPC Subnet in which to create the interface. */
   subnetName: Name
-  /** A set of additional networks that this interface may send and receive traffic on. */
-  transitIps?: IpNet[]
   /** The VPC in which to create the interface. */
   vpcName: Name
 }
@@ -2406,8 +2629,18 @@ export type InstanceNetworkInterfaceAttachment =
 
 If more than one interface is provided, then the first will be designated the primary interface for the instance. */
   | { params: InstanceNetworkInterfaceCreate[]; type: 'create' }
-  /** The default networking configuration for an instance is to create a single primary interface with an automatically-assigned IP address. The IP will be pulled from the Project's default VPC / VPC Subnet. */
-  | { type: 'default' }
+  /** Create a single primary interface with an automatically-assigned IPv4 address.
+
+The IP will be pulled from the Project's default VPC / VPC Subnet. */
+  | { type: 'default_ipv4' }
+  /** Create a single primary interface with an automatically-assigned IPv6 address.
+
+The IP will be pulled from the Project's default VPC / VPC Subnet. */
+  | { type: 'default_ipv6' }
+  /** Create a single primary interface with automatically-assigned IPv4 and IPv6 addresses.
+
+The IPs will be pulled from the Project's default VPC / VPC Subnet. */
+  | { type: 'default_dual_stack' }
   /** No network interfaces at all will be created for the instance. */
   | { type: 'none' }
 
@@ -2448,10 +2681,10 @@ By default, all instances have outbound connectivity, but no inbound connectivit
   hostname: Hostname
   /** The amount of RAM (in bytes) to be allocated to the instance */
   memory: ByteCount
-  /** The multicast groups this instance should join.
+  /** Multicast groups this instance should join at creation.
 
-The instance will be automatically added as a member of the specified multicast groups during creation, enabling it to send and receive multicast traffic for those groups. */
-  multicastGroups?: NameOrId[]
+Groups can be specified by name, UUID, or IP address. Non-existent groups are created automatically. */
+  multicastGroups?: MulticastGroupJoinSpec[]
   name: Name
   /** The number of vCPUs to be allocated to the instance */
   ncpus: InstanceCpuCount
@@ -2466,6 +2699,49 @@ If not provided, all SSH public keys from the user's profile will be sent. If an
   /** User data for instance initialization systems (such as cloud-init). Must be a Base64-encoded string, as specified in RFC 4648 § 4 (+ and / characters with padding). Maximum 32 KiB unencoded data. */
   userData?: string
 }
+
+/**
+ * Parameters for joining an instance to a multicast group.
+ *
+ * When joining by IP address, the pool containing the multicast IP is auto-discovered from all linked multicast pools.
+ */
+export type InstanceMulticastGroupJoin = {
+  /** IP version for pool selection when creating a group by name. Required if both IPv4 and IPv6 default multicast pools are linked. */
+  ipVersion?: IpVersion | null
+  /** Source IPs for source-filtered multicast (SSM). Optional for ASM groups, required for SSM groups (232.0.0.0/8, ff3x::/32). */
+  sourceIps?: string[] | null
+}
+
+/**
+ * The VPC-private IPv4 stack for a network interface
+ */
+export type PrivateIpv4Stack = {
+  /** The VPC-private IPv4 address for the interface. */
+  ip: string
+  /** A set of additional IPv4 networks that this interface may send and receive traffic on. */
+  transitIps: Ipv4Net[]
+}
+
+/**
+ * The VPC-private IPv6 stack for a network interface
+ */
+export type PrivateIpv6Stack = {
+  /** The VPC-private IPv6 address for the interface. */
+  ip: string
+  /** A set of additional IPv6 networks that this interface may send and receive traffic on. */
+  transitIps: Ipv6Net[]
+}
+
+/**
+ * The VPC-private IP stack for a network interface.
+ */
+export type PrivateIpStack =
+  /** The interface has only an IPv4 stack. */
+  | { type: 'v4'; value: PrivateIpv4Stack }
+  /** The interface has only an IPv6 stack. */
+  | { type: 'v6'; value: PrivateIpv6Stack }
+  /** The interface is dual-stack IPv4 and IPv6. */
+  | { type: 'dual_stack'; value: { v4: PrivateIpv4Stack; v6: PrivateIpv6Stack } }
 
 /**
  * A MAC address
@@ -2484,8 +2760,8 @@ export type InstanceNetworkInterface = {
   id: string
   /** The Instance to which the interface belongs. */
   instanceId: string
-  /** The IP address assigned to this interface. */
-  ip: string
+  /** The VPC-private IP stack for this interface. */
+  ipStack: PrivateIpStack
   /** The MAC address assigned to this interface. */
   mac: MacAddr
   /** unique, mutable, user-controlled identifier for each resource */
@@ -2498,8 +2774,6 @@ export type InstanceNetworkInterface = {
   timeCreated: Date
   /** timestamp when this resource was last modified */
   timeModified: Date
-  /** A set of additional networks that this interface may send and receive traffic on. */
-  transitIps?: IpNet[]
   /** The VPC to which the interface belongs. */
   vpcId: string
 }
@@ -2528,7 +2802,7 @@ If applied to a secondary interface, that interface will become the primary on t
 
 Note that this can only be used to select a new primary interface for an instance. Requests to change the primary interface into a secondary will return an error. */
   primary?: boolean
-  /** A set of additional networks that this interface may send and receive traffic on. */
+  /** A set of additional networks that this interface may send and receive traffic on */
   transitIps?: IpNet[]
 }
 
@@ -2576,8 +2850,10 @@ An instance that does not have a boot disk set will use the boot options specifi
 
 When specified, this replaces the instance's current multicast group membership with the new set of groups. The instance will leave any groups not listed here and join any new groups that are specified.
 
-If not provided (None), the instance's multicast group membership will not be changed. */
-  multicastGroups?: NameOrId[] | null
+Each entry can specify the group by name, UUID, or IP address, along with optional source IP filtering for SSM (Source-Specific Multicast). When a group doesn't exist, it will be implicitly created using the default multicast pool (or you can specify `ip_version` to disambiguate if needed).
+
+If not provided, the instance's multicast group membership will not be changed. */
+  multicastGroups?: MulticastGroupJoinSpec[] | null
   /** The number of vCPUs to be allocated to the instance */
   ncpus: InstanceCpuCount
 }
@@ -2699,11 +2975,6 @@ export type InternetGatewayResultsPage = {
 }
 
 /**
- * The IP address version.
- */
-export type IpVersion = 'v4' | 'v6'
-
-/**
  * Type of IP pool.
  */
 export type IpPoolType =
@@ -2727,7 +2998,7 @@ export type IpPool = {
   ipVersion: IpVersion
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** Type of IP pool (unicast or multicast) */
+  /** Type of IP pool (unicast or multicast). */
   poolType: IpPoolType
   /** timestamp when this resource was created */
   timeCreated: Date
@@ -2754,7 +3025,9 @@ The default is IPv4. */
 }
 
 export type IpPoolLinkSilo = {
-  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo. */
+  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified.
+
+A silo can have at most one default pool per combination of pool type (unicast or multicast) and IP version (IPv4 or IPv6), allowing up to 4 default pools total. */
   isDefault: boolean
   silo: NameOrId
 }
@@ -2807,7 +3080,9 @@ export type IpPoolResultsPage = {
  */
 export type IpPoolSiloLink = {
   ipPoolId: string
-  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo. */
+  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified.
+
+A silo can have at most one default pool per combination of pool type (unicast or multicast) and IP version (IPv4 or IPv6), allowing up to 4 default pools total. */
   isDefault: boolean
   siloId: string
 }
@@ -2823,7 +3098,9 @@ export type IpPoolSiloLinkResultsPage = {
 }
 
 export type IpPoolSiloUpdate = {
-  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo, so when a pool is made default, an existing default will remain linked but will no longer be the default. */
+  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified.
+
+A silo can have at most one default pool per combination of pool type (unicast or multicast) and IP version (IPv4 or IPv6), allowing up to 4 default pools total. When a pool is made default, an existing default of the same type and version will remain linked but will no longer be the default. */
   isDefault: boolean
 }
 
@@ -3103,7 +3380,9 @@ export type MulticastGroup = {
   mvlan?: number | null
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** Source IP addresses for Source-Specific Multicast (SSM). Empty array means any source is allowed. */
+  /** Union of all member source IP addresses (computed, read-only).
+
+This field shows the combined source IPs across all group members. Individual members may subscribe to different sources; this union reflects all sources that any member is subscribed to. Empty array means no members have source filtering enabled. */
   sourceIps: string[]
   /** Current state of the multicast group. */
   state: string
@@ -3111,26 +3390,6 @@ export type MulticastGroup = {
   timeCreated: Date
   /** timestamp when this resource was last modified */
   timeModified: Date
-}
-
-/**
- * Create-time parameters for a multicast group.
- */
-export type MulticastGroupCreate = {
-  description: string
-  /** The multicast IP address to allocate. If None, one will be allocated from the default pool. */
-  multicastIp?: string | null
-  /** Multicast VLAN (MVLAN) for egress multicast traffic to upstream networks. Tags packets leaving the rack to traverse VLAN-segmented upstream networks.
-
-Valid range: 2-4094 (VLAN IDs 0-1 are reserved by IEEE 802.1Q standard). */
-  mvlan?: number | null
-  name: Name
-  /** Name or ID of the IP pool to allocate from. If None, uses the default multicast pool. */
-  pool?: NameOrId | null
-  /** Source IP addresses for Source-Specific Multicast (SSM).
-
-None uses default behavior (Any-Source Multicast). Empty list explicitly allows any source (Any-Source Multicast). Non-empty list restricts to specific sources (SSM). */
-  sourceIps?: string[] | null
 }
 
 /**
@@ -3145,22 +3404,20 @@ export type MulticastGroupMember = {
   instanceId: string
   /** The ID of the multicast group this member belongs to. */
   multicastGroupId: string
+  /** The multicast IP address of the group this member belongs to. */
+  multicastIp: string
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
+  /** Source IP addresses for this member's multicast subscription.
+
+- **ASM**: Sources are optional. Empty array means any source is allowed. Non-empty array enables source filtering (IGMPv3/MLDv2). - **SSM**: Sources are required for SSM addresses (232/8, ff3x::/32). */
+  sourceIps: string[]
   /** Current state of the multicast group membership. */
   state: string
   /** timestamp when this resource was created */
   timeCreated: Date
   /** timestamp when this resource was last modified */
   timeModified: Date
-}
-
-/**
- * Parameters for adding an instance to a multicast group.
- */
-export type MulticastGroupMemberAdd = {
-  /** Name or ID of the instance to add to the multicast group */
-  instance: NameOrId
 }
 
 /**
@@ -3184,15 +3441,47 @@ export type MulticastGroupResultsPage = {
 }
 
 /**
- * Update-time parameters for a multicast group.
+ * VPC-private IPv4 configuration for a network interface.
  */
-export type MulticastGroupUpdate = {
-  description?: string | null
-  /** Multicast VLAN (MVLAN) for egress multicast traffic to upstream networks. Set to null to clear the MVLAN. Valid range: 2-4094 when provided. Omit the field to leave mvlan unchanged. */
-  mvlan?: number | null
-  name?: Name | null
-  sourceIps?: string[] | null
+export type PrivateIpv4Config = {
+  /** VPC-private IP address. */
+  ip: string
+  /** The IP subnet. */
+  subnet: Ipv4Net
+  /** Additional networks on which the interface can send / receive traffic. */
+  transitIps?: Ipv4Net[]
 }
+
+/**
+ * VPC-private IPv6 configuration for a network interface.
+ */
+export type PrivateIpv6Config = {
+  /** VPC-private IP address. */
+  ip: string
+  /** The IP subnet. */
+  subnet: Ipv6Net
+  /** Additional networks on which the interface can send / receive traffic. */
+  transitIps: Ipv6Net[]
+}
+
+/**
+ * VPC-private IP address configuration for a network interface.
+ */
+export type PrivateIpConfig =
+  /** The interface has only an IPv4 configuration. */
+  | { type: 'v4'; value: PrivateIpv4Config }
+  /** The interface has only an IPv6 configuration. */
+  | { type: 'v6'; value: PrivateIpv6Config }
+  /** The interface is dual-stack. */
+  | {
+      type: 'dual_stack'
+      value: {
+        /** The interface's IPv4 configuration. */
+        v4: PrivateIpv4Config
+        /** The interface's IPv6 configuration. */
+        v6: PrivateIpv6Config
+      }
+    }
 
 /**
  * The type of network interface
@@ -3215,14 +3504,12 @@ export type Vni = number
  */
 export type NetworkInterface = {
   id: string
-  ip: string
+  ipConfig: PrivateIpConfig
   kind: NetworkInterfaceKind
   mac: MacAddr
   name: Name
   primary: boolean
   slot: number
-  subnet: IpNet
-  transitIps?: IpNet[]
   vni: Vni
 }
 
@@ -3381,8 +3668,9 @@ export type Probe = {
  */
 export type ProbeCreate = {
   description: string
-  ipPool?: NameOrId | null
   name: Name
+  /** Pool to allocate from. */
+  poolSelector?: PoolSelector
   sled: string
 }
 
@@ -3482,6 +3770,32 @@ export type Rack = {
   timeCreated: Date
   /** timestamp when this resource was last modified */
   timeModified: Date
+}
+
+export type RackMembershipAddSledsRequest = { sledIds: BaseboardId[] }
+
+export type RackMembershipChangeState = 'in_progress' | 'committed' | 'aborted'
+
+/**
+ * A unique, monotonically increasing number representing the set of active sleds in a rack at a given point in time.
+ */
+export type RackMembershipVersion = number
+
+/**
+ * Status of the rack membership uniquely identified by the (rack_id, version) pair
+ */
+export type RackMembershipStatus = {
+  /** All members of the rack for this version */
+  members: BaseboardId[]
+  rackId: string
+  state: RackMembershipChangeState
+  timeAborted?: Date | null
+  timeCommitted?: Date | null
+  timeCreated: Date
+  /** All members that have not yet confirmed this membership version */
+  unacknowledgedMembers: BaseboardId[]
+  /** Version that uniquely identifies the rack membership at a given point in time */
+  version: RackMembershipVersion
 }
 
 /**
@@ -3820,10 +4134,16 @@ export type SiloIpPool = {
   description: string
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo. */
+  /** The IP version for the pool. */
+  ipVersion: IpVersion
+  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified.
+
+A silo can have at most one default pool per combination of pool type (unicast or multicast) and IP version (IPv4 or IPv6), allowing up to 4 default pools total. */
   isDefault: boolean
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
+  /** Type of IP pool (unicast or multicast). */
+  poolType: IpPoolType
   /** timestamp when this resource was created */
   timeCreated: Date
   /** timestamp when this resource was last modified */
@@ -4149,6 +4469,148 @@ export type SshKeyResultsPage = {
   items: SshKey[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string | null
+}
+
+/**
+ * A pool of subnets for external subnet allocation
+ */
+export type SubnetPool = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** The IP version for this pool */
+  ipVersion: IpVersion
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Create a subnet pool
+ */
+export type SubnetPoolCreate = {
+  description: string
+  /** The IP version for this pool (IPv4 or IPv6). All subnets in the pool must match this version. */
+  ipVersion: IpVersion
+  name: Name
+}
+
+/**
+ * Link a subnet pool to a silo
+ */
+export type SubnetPoolLinkSilo = {
+  /** Whether this is the default subnet pool for the silo. When true, external subnet allocations that don't specify a pool use this one. */
+  isDefault: boolean
+  /** The silo to link */
+  silo: NameOrId
+}
+
+/**
+ * A member (subnet) within a subnet pool
+ */
+export type SubnetPoolMember = {
+  /** ID of the pool member */
+  id: string
+  /** Maximum prefix length for allocations from this subnet; a larger prefix means smaller allocations are allowed (e.g. a /24 prefix yields smaller subnet allocations than a /16 prefix). */
+  maxPrefixLength: number
+  /** Minimum prefix length for allocations from this subnet; a smaller prefix means larger allocations are allowed (e.g. a /16 prefix yields larger subnet allocations than a /24 prefix). */
+  minPrefixLength: number
+  /** The subnet CIDR */
+  subnet: IpNet
+  /** ID of the parent subnet pool */
+  subnetPoolId: string
+  /** Time the pool member was created. */
+  timeCreated: Date
+}
+
+/**
+ * Add a member (subnet) to a subnet pool
+ */
+export type SubnetPoolMemberAdd = {
+  /** Maximum prefix length for allocations from this subnet; a larger prefix means smaller allocations are allowed (e.g. a /24 prefix yields smaller subnet allocations than a /16 prefix).
+
+Valid values: 0-32 for IPv4, 0-128 for IPv6. Default if not specified is 32 for IPv4 and 128 for IPv6. */
+  maxPrefixLength?: number | null
+  /** Minimum prefix length for allocations from this subnet; a smaller prefix means larger allocations are allowed (e.g. a /16 prefix yields larger subnet allocations than a /24 prefix).
+
+Valid values: 0-32 for IPv4, 0-128 for IPv6. Default if not specified is equal to the subnet's prefix length. */
+  minPrefixLength?: number | null
+  /** The subnet to add to the pool */
+  subnet: IpNet
+}
+
+/**
+ * Remove a subnet from a pool
+ */
+export type SubnetPoolMemberRemove = {
+  /** The subnet to remove from the pool. Must match an existing entry exactly. */
+  subnet: IpNet
+}
+
+/**
+ * A single page of results
+ */
+export type SubnetPoolMemberResultsPage = {
+  /** list of items on this page of results */
+  items: SubnetPoolMember[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
+ * A single page of results
+ */
+export type SubnetPoolResultsPage = {
+  /** list of items on this page of results */
+  items: SubnetPool[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
+ * A link between a subnet pool and a silo
+ */
+export type SubnetPoolSiloLink = {
+  isDefault: boolean
+  siloId: string
+  subnetPoolId: string
+}
+
+/**
+ * A single page of results
+ */
+export type SubnetPoolSiloLinkResultsPage = {
+  /** list of items on this page of results */
+  items: SubnetPoolSiloLink[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
+ * Update a subnet pool's silo link
+ */
+export type SubnetPoolSiloUpdate = {
+  /** Whether this is the default subnet pool for the silo */
+  isDefault: boolean
+}
+
+/**
+ * Update a subnet pool
+ */
+export type SubnetPoolUpdate = { description?: string | null; name?: Name | null }
+
+/**
+ * Utilization information for a subnet pool
+ */
+export type SubnetPoolUtilization = {
+  /** Number of addresses allocated from this pool */
+  allocated: number
+  /** Total capacity of this pool in addresses */
+  capacity: number
 }
 
 export type SupportBundleCreate = {
@@ -5550,6 +6012,57 @@ export interface DiskFinalizeImportQueryParams {
   project?: NameOrId
 }
 
+export interface ExternalSubnetListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface ExternalSubnetCreateQueryParams {
+  project: NameOrId
+}
+
+export interface ExternalSubnetViewPathParams {
+  externalSubnet: NameOrId
+}
+
+export interface ExternalSubnetViewQueryParams {
+  project?: NameOrId
+}
+
+export interface ExternalSubnetUpdatePathParams {
+  externalSubnet: NameOrId
+}
+
+export interface ExternalSubnetUpdateQueryParams {
+  project?: NameOrId
+}
+
+export interface ExternalSubnetDeletePathParams {
+  externalSubnet: NameOrId
+}
+
+export interface ExternalSubnetDeleteQueryParams {
+  project?: NameOrId
+}
+
+export interface ExternalSubnetAttachPathParams {
+  externalSubnet: NameOrId
+}
+
+export interface ExternalSubnetAttachQueryParams {
+  project?: NameOrId
+}
+
+export interface ExternalSubnetDetachPathParams {
+  externalSubnet: NameOrId
+}
+
+export interface ExternalSubnetDetachQueryParams {
+  project?: NameOrId
+}
+
 export interface FloatingIpListQueryParams {
   limit?: number | null
   pageToken?: string | null
@@ -5759,6 +6272,15 @@ export interface InstanceEphemeralIpDetachPathParams {
 }
 
 export interface InstanceEphemeralIpDetachQueryParams {
+  ipVersion?: IpVersion
+  project?: NameOrId
+}
+
+export interface InstanceExternalSubnetListPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceExternalSubnetListQueryParams {
   project?: NameOrId
 }
 
@@ -5767,12 +6289,15 @@ export interface InstanceMulticastGroupListPathParams {
 }
 
 export interface InstanceMulticastGroupListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
   project?: NameOrId
+  sortBy?: IdSortMode
 }
 
 export interface InstanceMulticastGroupJoinPathParams {
   instance: NameOrId
-  multicastGroup: NameOrId
+  multicastGroup: MulticastGroupIdentifier
 }
 
 export interface InstanceMulticastGroupJoinQueryParams {
@@ -5781,7 +6306,7 @@ export interface InstanceMulticastGroupJoinQueryParams {
 
 export interface InstanceMulticastGroupLeavePathParams {
   instance: NameOrId
-  multicastGroup: NameOrId
+  multicastGroup: MulticastGroupIdentifier
 }
 
 export interface InstanceMulticastGroupLeaveQueryParams {
@@ -5991,42 +6516,17 @@ export interface MulticastGroupListQueryParams {
 }
 
 export interface MulticastGroupViewPathParams {
-  multicastGroup: NameOrId
-}
-
-export interface MulticastGroupUpdatePathParams {
-  multicastGroup: NameOrId
-}
-
-export interface MulticastGroupDeletePathParams {
-  multicastGroup: NameOrId
+  multicastGroup: MulticastGroupIdentifier
 }
 
 export interface MulticastGroupMemberListPathParams {
-  multicastGroup: NameOrId
+  multicastGroup: MulticastGroupIdentifier
 }
 
 export interface MulticastGroupMemberListQueryParams {
   limit?: number | null
   pageToken?: string | null
   sortBy?: IdSortMode
-}
-
-export interface MulticastGroupMemberAddPathParams {
-  multicastGroup: NameOrId
-}
-
-export interface MulticastGroupMemberAddQueryParams {
-  project?: NameOrId
-}
-
-export interface MulticastGroupMemberRemovePathParams {
-  instance: NameOrId
-  multicastGroup: NameOrId
-}
-
-export interface MulticastGroupMemberRemoveQueryParams {
-  project?: NameOrId
 }
 
 export interface InstanceNetworkInterfaceListQueryParams {
@@ -6159,6 +6659,18 @@ export interface RackListQueryParams {
 }
 
 export interface RackViewPathParams {
+  rackId: string
+}
+
+export interface RackMembershipStatusPathParams {
+  rackId: string
+}
+
+export interface RackMembershipStatusQueryParams {
+  version?: RackMembershipVersion
+}
+
+export interface RackMembershipAddSledsPathParams {
   rackId: string
 }
 
@@ -6383,10 +6895,6 @@ export interface SystemMetricQueryParams {
   silo?: NameOrId
 }
 
-export interface LookupMulticastGroupByIpPathParams {
-  address: string
-}
-
 export interface NetworkingAddressLotListQueryParams {
   limit?: number | null
   pageToken?: string | null
@@ -6539,6 +7047,69 @@ export interface SiloQuotasViewPathParams {
 
 export interface SiloQuotasUpdatePathParams {
   silo: NameOrId
+}
+
+export interface SubnetPoolListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: NameOrIdSortMode
+}
+
+export interface SubnetPoolViewPathParams {
+  pool: NameOrId
+}
+
+export interface SubnetPoolUpdatePathParams {
+  pool: NameOrId
+}
+
+export interface SubnetPoolDeletePathParams {
+  pool: NameOrId
+}
+
+export interface SubnetPoolMemberListPathParams {
+  pool: NameOrId
+}
+
+export interface SubnetPoolMemberListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+}
+
+export interface SubnetPoolMemberAddPathParams {
+  pool: NameOrId
+}
+
+export interface SubnetPoolMemberRemovePathParams {
+  pool: NameOrId
+}
+
+export interface SubnetPoolSiloListPathParams {
+  pool: NameOrId
+}
+
+export interface SubnetPoolSiloListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: IdSortMode
+}
+
+export interface SubnetPoolSiloLinkPathParams {
+  pool: NameOrId
+}
+
+export interface SubnetPoolSiloUpdatePathParams {
+  pool: NameOrId
+  silo: NameOrId
+}
+
+export interface SubnetPoolSiloUnlinkPathParams {
+  pool: NameOrId
+  silo: NameOrId
+}
+
+export interface SubnetPoolUtilizationViewPathParams {
+  pool: NameOrId
 }
 
 export interface SystemTimeseriesSchemaListQueryParams {
@@ -6865,7 +7436,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2025121200.0.0'
+  apiVersion = '2026013000.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host
@@ -7014,7 +7585,7 @@ export class Api {
       })
     },
     /**
-     * View a support bundle
+     * View support bundle
      */
     supportBundleView: (
       { path }: { path: SupportBundleViewPathParams },
@@ -7697,7 +8268,7 @@ export class Api {
       })
     },
     /**
-     * Create a disk
+     * Create disk
      */
     diskCreate: (
       { query, body }: { query: DiskCreateQueryParams; body: DiskCreate },
@@ -7826,6 +8397,135 @@ export class Api {
       })
     },
     /**
+     * List external subnets in a project
+     */
+    externalSubnetList: (
+      { query = {} }: { query?: ExternalSubnetListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ExternalSubnetResultsPage>({
+        path: `/v1/external-subnets`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create an external subnet
+     */
+    externalSubnetCreate: (
+      {
+        query,
+        body,
+      }: { query: ExternalSubnetCreateQueryParams; body: ExternalSubnetCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ExternalSubnet>({
+        path: `/v1/external-subnets`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch an external subnet
+     */
+    externalSubnetView: (
+      {
+        path,
+        query = {},
+      }: { path: ExternalSubnetViewPathParams; query?: ExternalSubnetViewQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ExternalSubnet>({
+        path: `/v1/external-subnets/${path.externalSubnet}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Update an external subnet
+     */
+    externalSubnetUpdate: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: ExternalSubnetUpdatePathParams
+        query?: ExternalSubnetUpdateQueryParams
+        body: ExternalSubnetUpdate
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ExternalSubnet>({
+        path: `/v1/external-subnets/${path.externalSubnet}`,
+        method: 'PUT',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete an external subnet
+     */
+    externalSubnetDelete: (
+      {
+        path,
+        query = {},
+      }: { path: ExternalSubnetDeletePathParams; query?: ExternalSubnetDeleteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/external-subnets/${path.externalSubnet}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Attach an external subnet to an instance
+     */
+    externalSubnetAttach: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: ExternalSubnetAttachPathParams
+        query?: ExternalSubnetAttachQueryParams
+        body: ExternalSubnetAttach
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ExternalSubnet>({
+        path: `/v1/external-subnets/${path.externalSubnet}/attach`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Detach an external subnet from an instance
+     */
+    externalSubnetDetach: (
+      {
+        path,
+        query = {},
+      }: { path: ExternalSubnetDetachPathParams; query?: ExternalSubnetDetachQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ExternalSubnet>({
+        path: `/v1/external-subnets/${path.externalSubnet}/detach`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
      * List floating IPs
      */
     floatingIpList: (
@@ -7840,7 +8540,7 @@ export class Api {
       })
     },
     /**
-     * Create floating IP
+     * Create a floating IP
      */
     floatingIpCreate: (
       { query, body }: { query: FloatingIpCreateQueryParams; body: FloatingIpCreate },
@@ -8316,7 +9016,27 @@ export class Api {
       })
     },
     /**
-     * List multicast groups for instance
+     * List external subnets attached to instance
+     */
+    instanceExternalSubnetList: (
+      {
+        path,
+        query = {},
+      }: {
+        path: InstanceExternalSubnetListPathParams
+        query?: InstanceExternalSubnetListQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ExternalSubnetResultsPage>({
+        path: `/v1/instances/${path.instance}/external-subnets`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List multicast groups for an instance
      */
     instanceMulticastGroupList: (
       {
@@ -8336,27 +9056,30 @@ export class Api {
       })
     },
     /**
-     * Join multicast group.
+     * Join multicast group by name, IP address, or UUID
      */
     instanceMulticastGroupJoin: (
       {
         path,
         query = {},
+        body,
       }: {
         path: InstanceMulticastGroupJoinPathParams
         query?: InstanceMulticastGroupJoinQueryParams
+        body: InstanceMulticastGroupJoin
       },
       params: FetchParams = {}
     ) => {
       return this.request<MulticastGroupMember>({
         path: `/v1/instances/${path.instance}/multicast-groups/${path.multicastGroup}`,
         method: 'PUT',
+        body,
         query,
         ...params,
       })
     },
     /**
-     * Leave multicast group.
+     * Leave multicast group by name, IP address, or UUID
      */
     instanceMulticastGroupLeave: (
       {
@@ -8376,7 +9099,7 @@ export class Api {
       })
     },
     /**
-     * Reboot an instance
+     * Reboot instance
      */
     instanceReboot: (
       {
@@ -8816,7 +9539,7 @@ export class Api {
       })
     },
     /**
-     * List all multicast groups.
+     * List multicast groups
      */
     multicastGroupList: (
       { query = {} }: { query?: MulticastGroupListQueryParams },
@@ -8830,21 +9553,7 @@ export class Api {
       })
     },
     /**
-     * Create a multicast group.
-     */
-    multicastGroupCreate: (
-      { body }: { body: MulticastGroupCreate },
-      params: FetchParams = {}
-    ) => {
-      return this.request<MulticastGroup>({
-        path: `/v1/multicast-groups`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a multicast group.
+     * Fetch multicast group
      */
     multicastGroupView: (
       { path }: { path: MulticastGroupViewPathParams },
@@ -8857,34 +9566,7 @@ export class Api {
       })
     },
     /**
-     * Update a multicast group.
-     */
-    multicastGroupUpdate: (
-      { path, body }: { path: MulticastGroupUpdatePathParams; body: MulticastGroupUpdate },
-      params: FetchParams = {}
-    ) => {
-      return this.request<MulticastGroup>({
-        path: `/v1/multicast-groups/${path.multicastGroup}`,
-        method: 'PUT',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Delete a multicast group.
-     */
-    multicastGroupDelete: (
-      { path }: { path: MulticastGroupDeletePathParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/v1/multicast-groups/${path.multicastGroup}`,
-        method: 'DELETE',
-        ...params,
-      })
-    },
-    /**
-     * List members of a multicast group.
+     * List members of multicast group
      */
     multicastGroupMemberList: (
       {
@@ -8899,49 +9581,6 @@ export class Api {
       return this.request<MulticastGroupMemberResultsPage>({
         path: `/v1/multicast-groups/${path.multicastGroup}/members`,
         method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Add instance to a multicast group.
-     */
-    multicastGroupMemberAdd: (
-      {
-        path,
-        query = {},
-        body,
-      }: {
-        path: MulticastGroupMemberAddPathParams
-        query?: MulticastGroupMemberAddQueryParams
-        body: MulticastGroupMemberAdd
-      },
-      params: FetchParams = {}
-    ) => {
-      return this.request<MulticastGroupMember>({
-        path: `/v1/multicast-groups/${path.multicastGroup}/members`,
-        method: 'POST',
-        body,
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Remove instance from a multicast group.
-     */
-    multicastGroupMemberRemove: (
-      {
-        path,
-        query = {},
-      }: {
-        path: MulticastGroupMemberRemovePathParams
-        query?: MulticastGroupMemberRemoveQueryParams
-      },
-      params: FetchParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/v1/multicast-groups/${path.multicastGroup}/members/${path.instance}`,
-        method: 'DELETE',
         query,
         ...params,
       })
@@ -9111,7 +9750,7 @@ export class Api {
       })
     },
     /**
-     * Update a project
+     * Update project
      */
     projectUpdate: (
       { path, body }: { path: ProjectUpdatePathParams; body: ProjectUpdate },
@@ -9256,7 +9895,7 @@ export class Api {
       })
     },
     /**
-     * Get a physical disk
+     * Get physical disk
      */
     physicalDiskView: (
       { path }: { path: PhysicalDiskViewPathParams },
@@ -9309,6 +9948,40 @@ export class Api {
       return this.request<Rack>({
         path: `/v1/system/hardware/racks/${path.rackId}`,
         method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Retrieve the rack cluster membership status
+     */
+    rackMembershipStatus: (
+      {
+        path,
+        query = {},
+      }: { path: RackMembershipStatusPathParams; query?: RackMembershipStatusQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<RackMembershipStatus>({
+        path: `/v1/system/hardware/racks/${path.rackId}/membership`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Add new sleds to rack membership
+     */
+    rackMembershipAddSleds: (
+      {
+        path,
+        body,
+      }: { path: RackMembershipAddSledsPathParams; body: RackMembershipAddSledsRequest },
+      params: FetchParams = {}
+    ) => {
+      return this.request<RackMembershipStatus>({
+        path: `/v1/system/hardware/racks/${path.rackId}/membership/add`,
+        method: 'POST',
+        body,
         ...params,
       })
     },
@@ -9743,7 +10416,7 @@ export class Api {
       })
     },
     /**
-     * Add range to IP pool.
+     * Add range to an IP pool
      */
     ipPoolRangeAdd: (
       { path, body }: { path: IpPoolRangeAddPathParams; body: IpRange },
@@ -9905,19 +10578,6 @@ export class Api {
       })
     },
     /**
-     * Look up multicast group by IP address.
-     */
-    lookupMulticastGroupByIp: (
-      { path }: { path: LookupMulticastGroupByIpPathParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<MulticastGroup>({
-        path: `/v1/system/multicast-groups/by-ip/${path.address}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
      * List address lots
      */
     networkingAddressLotList: (
@@ -10016,7 +10676,7 @@ export class Api {
       })
     },
     /**
-     * Disable a BFD session
+     * Disable BFD session
      */
     networkingBfdDisable: (
       { body }: { body: BfdSessionDisable },
@@ -10030,7 +10690,7 @@ export class Api {
       })
     },
     /**
-     * Enable a BFD session
+     * Enable BFD session
      */
     networkingBfdEnable: (
       { body }: { body: BfdSessionEnable },
@@ -10426,7 +11086,7 @@ export class Api {
       })
     },
     /**
-     * Create a silo
+     * Create silo
      */
     siloCreate: ({ body }: { body: SiloCreate }, params: FetchParams = {}) => {
       return this.request<Silo>({
@@ -10447,7 +11107,7 @@ export class Api {
       })
     },
     /**
-     * Delete a silo
+     * Delete silo
      */
     siloDelete: ({ path }: { path: SiloDeletePathParams }, params: FetchParams = {}) => {
       return this.request<void>({
@@ -10524,6 +11184,190 @@ export class Api {
         path: `/v1/system/silos/${path.silo}/quotas`,
         method: 'PUT',
         body,
+        ...params,
+      })
+    },
+    /**
+     * List subnet pools
+     */
+    subnetPoolList: (
+      { query = {} }: { query?: SubnetPoolListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPoolResultsPage>({
+        path: `/v1/system/subnet-pools`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create a subnet pool
+     */
+    subnetPoolCreate: ({ body }: { body: SubnetPoolCreate }, params: FetchParams = {}) => {
+      return this.request<SubnetPool>({
+        path: `/v1/system/subnet-pools`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Fetch a subnet pool
+     */
+    subnetPoolView: (
+      { path }: { path: SubnetPoolViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPool>({
+        path: `/v1/system/subnet-pools/${path.pool}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Update a subnet pool
+     */
+    subnetPoolUpdate: (
+      { path, body }: { path: SubnetPoolUpdatePathParams; body: SubnetPoolUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPool>({
+        path: `/v1/system/subnet-pools/${path.pool}`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Delete a subnet pool
+     */
+    subnetPoolDelete: (
+      { path }: { path: SubnetPoolDeletePathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/subnet-pools/${path.pool}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * List members in a subnet pool
+     */
+    subnetPoolMemberList: (
+      {
+        path,
+        query = {},
+      }: { path: SubnetPoolMemberListPathParams; query?: SubnetPoolMemberListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPoolMemberResultsPage>({
+        path: `/v1/system/subnet-pools/${path.pool}/members`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Add a member to a subnet pool
+     */
+    subnetPoolMemberAdd: (
+      { path, body }: { path: SubnetPoolMemberAddPathParams; body: SubnetPoolMemberAdd },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPoolMember>({
+        path: `/v1/system/subnet-pools/${path.pool}/members/add`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Remove a member from a subnet pool
+     */
+    subnetPoolMemberRemove: (
+      {
+        path,
+        body,
+      }: { path: SubnetPoolMemberRemovePathParams; body: SubnetPoolMemberRemove },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/subnet-pools/${path.pool}/members/remove`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * List silos linked to a subnet pool
+     */
+    subnetPoolSiloList: (
+      {
+        path,
+        query = {},
+      }: { path: SubnetPoolSiloListPathParams; query?: SubnetPoolSiloListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPoolSiloLinkResultsPage>({
+        path: `/v1/system/subnet-pools/${path.pool}/silos`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Link a subnet pool to a silo
+     */
+    subnetPoolSiloLink: (
+      { path, body }: { path: SubnetPoolSiloLinkPathParams; body: SubnetPoolLinkSilo },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPoolSiloLink>({
+        path: `/v1/system/subnet-pools/${path.pool}/silos`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Update a subnet pool's link to a silo
+     */
+    subnetPoolSiloUpdate: (
+      { path, body }: { path: SubnetPoolSiloUpdatePathParams; body: SubnetPoolSiloUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPoolSiloLink>({
+        path: `/v1/system/subnet-pools/${path.pool}/silos/${path.silo}`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Unlink a subnet pool from a silo
+     */
+    subnetPoolSiloUnlink: (
+      { path }: { path: SubnetPoolSiloUnlinkPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/subnet-pools/${path.pool}/silos/${path.silo}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * Fetch subnet pool utilization
+     */
+    subnetPoolUtilizationView: (
+      { path }: { path: SubnetPoolUtilizationViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SubnetPoolUtilization>({
+        path: `/v1/system/subnet-pools/${path.pool}/utilization`,
+        method: 'GET',
         ...params,
       })
     },
@@ -11196,7 +12040,7 @@ export class Api {
       })
     },
     /**
-     * Update a VPC
+     * Update VPC
      */
     vpcUpdate: (
       {

@@ -30,6 +30,7 @@ import {
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
 import { instanceCan, OXQL_GROUP_BY_ERROR } from '~/api/util'
+import { parseIpNet } from '~/util/ip'
 import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
 
@@ -42,7 +43,7 @@ import {
   lookup,
   lookupById,
   notFoundErr,
-  resolveIpPool,
+  resolvePoolSelector,
   utilizationForSilo,
 } from './db'
 import {
@@ -62,6 +63,7 @@ import {
   requireFleetCollab,
   requireFleetViewer,
   requireRole,
+  resolveIpStack,
   unavailableErr,
   updateDesc,
   userHasRole,
@@ -86,20 +88,27 @@ export const handlers = makeHandlers({
     // no role on the silo (see error-pages.e2e.ts). requireRole checks for _at
     // least_ viewer, and viewer is the weakest role, so checking for viewer
     // effectively means "do I have any role at all"
-    requireRole(cookies, 'silo', defaultSilo.id, 'viewer')
-    return paginated(query, db.projects)
+    const user = currentUser(cookies)
+    requireRole(cookies, 'silo', user.silo_id, 'viewer')
+    // Filter projects by the current user's silo, strip internal silo_id field
+    const siloProjects = db.projects
+      .filter((p) => p.silo_id === user.silo_id)
+      .map((p) => R.omit(p, ['silo_id']))
+    return paginated(query, siloProjects)
   },
-  projectCreate({ body }) {
-    errIfExists(db.projects, { name: body.name }, 'project')
+  projectCreate({ body, cookies }) {
+    const user = currentUser(cookies)
+    errIfExists(db.projects, { name: body.name, silo_id: user.silo_id }, 'project')
 
-    const newProject: Json<Api.Project> = {
+    const newProject = {
       id: uuid(),
       ...body,
       ...getTimestamps(),
+      silo_id: user.silo_id,
     }
     db.projects.push(newProject)
 
-    return json(newProject, { status: 201 })
+    return json(R.omit(newProject, ['silo_id']), { status: 201 })
   },
   projectView: ({ path }) => {
     if (path.project.endsWith('error-503')) {
@@ -108,7 +117,7 @@ export const handlers = makeHandlers({
       throw forbiddenErr()
     }
 
-    return lookup.project({ ...path })
+    return R.omit(lookup.project({ ...path }), ['silo_id'])
   },
   projectUpdate({ body, path }) {
     const project = lookup.project({ ...path })
@@ -121,7 +130,7 @@ export const handlers = makeHandlers({
     }
     updateDesc(project, body)
 
-    return project
+    return R.omit(project, ['silo_id'])
   },
   projectDelete({ path }) {
     const project = lookup.project({ ...path })
@@ -249,24 +258,47 @@ export const handlers = makeHandlers({
 
     return 204
   },
+  externalSubnetList: NotImplemented,
+  externalSubnetCreate: NotImplemented,
+  externalSubnetView: NotImplemented,
+  externalSubnetUpdate: NotImplemented,
+  externalSubnetDelete: NotImplemented,
+  externalSubnetAttach: NotImplemented,
+  externalSubnetDetach: NotImplemented,
   floatingIpCreate({ body, query }) {
     const project = lookup.project(query)
     errIfExists(db.floatingIps, { name: body.name, project_id: project.id })
 
-    // TODO: when IP is specified, use ipInAnyRange to check that it is in the pool
-    const pool = body.pool
-      ? lookup.siloIpPool({ pool: body.pool, silo: defaultSilo.id })
-      : lookup.siloDefaultIpPool({ silo: defaultSilo.id })
+    const addressAllocator = body.address_allocator || { type: 'auto' }
+
+    // Determine the pool and IP
+    // Floating IPs must use unicast pools
+    let pool: Json<Api.IpPool>
+    let ip: string
+
+    if (addressAllocator.type === 'explicit') {
+      // Pool is inferred from the IP address since IP pools cannot have overlapping ranges
+      ip = addressAllocator.ip
+      // Find the pool that contains this IP by checking all ranges
+      const poolWithIp = db.ipPools.find((p) => {
+        if (p.pool_type !== 'unicast') return false
+        const ranges = db.ipPoolRanges.filter((r) => r.ip_pool_id === p.id)
+        return ranges.some(() => {
+          // Simple check - in real API this would do proper IP range comparison
+          return true // For mock purposes, just use first unicast pool
+        })
+      })
+      pool = poolWithIp || resolvePoolSelector(undefined, 'unicast')
+    } else {
+      // type === 'auto'
+      pool = resolvePoolSelector(addressAllocator.pool_selector, 'unicast')
+      ip = getIpFromPool(pool)
+    }
 
     const newFloatingIp: Json<Api.FloatingIp> = {
       id: uuid(),
       project_id: project.id,
-      // TODO: use ip-num to actually get the next available IP in the pool
-      ip:
-        body.ip ||
-        Array.from({ length: 4 })
-          .map(() => Math.floor(Math.random() * 256))
-          .join('.'),
+      ip,
       ip_pool_id: pool.id,
       description: body.description,
       name: body.name,
@@ -458,6 +490,36 @@ export const handlers = makeHandlers({
     }
 
     // validate floating IP attachments before we actually do anything
+    // Determine what IP stacks the instance will have based on network interfaces
+    let hasIpv4Nic = false
+    let hasIpv6Nic = false
+
+    const nicType = body.network_interfaces?.type
+    if (nicType === 'default_ipv4') {
+      hasIpv4Nic = true
+    } else if (nicType === 'default_ipv6') {
+      hasIpv6Nic = true
+    } else if (nicType === 'default_dual_stack') {
+      hasIpv4Nic = true
+      hasIpv6Nic = true
+    } else if (nicType === 'create' && body.network_interfaces) {
+      // Derive from the first NIC's ip_config (first NIC becomes primary)
+      const primaryNicConfig = body.network_interfaces.params[0]?.ip_config
+      if (primaryNicConfig?.type === 'v4') {
+        hasIpv4Nic = true
+      } else if (primaryNicConfig?.type === 'v6') {
+        hasIpv6Nic = true
+      } else if (primaryNicConfig?.type === 'dual_stack') {
+        hasIpv4Nic = true
+        hasIpv6Nic = true
+      } else {
+        // ip_config not provided = defaults to dual-stack
+        hasIpv4Nic = true
+        hasIpv6Nic = true
+      }
+    }
+    // If nicType is 'none' or undefined, both remain false
+
     body.external_ips?.forEach((ip) => {
       if (ip.type === 'floating') {
         // throw if floating IP doesn't exist
@@ -473,8 +535,31 @@ export const handlers = makeHandlers({
         // if there are no ranges in the pool or if the pool doesn't exist,
         // which aren't quite as good as checking that there are actually IPs
         // available, but they are good things to check
-        const pool = resolveIpPool(ip.pool)
+        // Ephemeral IPs must use unicast pools
+        const pool = resolvePoolSelector(ip.pool_selector, 'unicast')
         getIpFromPool(pool)
+
+        // Validate that external IP version matches NIC's IP stack
+        // Based on Omicron validation in nexus/db-queries/src/db/datastore/external_ip.rs:544-661
+        const ipVersion = pool.ip_version
+        if (ipVersion === 'v4' && !hasIpv4Nic) {
+          throw json(
+            {
+              error_code: 'InvalidRequest',
+              message: `The ephemeral external IP is an IPv4 address, but the instance with ID ${body.name} does not have a primary network interface with a VPC-private IPv4 address. Add a VPC-private IPv4 address to the interface, or attach a different IP address`,
+            },
+            { status: 400 }
+          )
+        }
+        if (ipVersion === 'v6' && !hasIpv6Nic) {
+          throw json(
+            {
+              error_code: 'InvalidRequest',
+              message: `The ephemeral external IP is an IPv6 address, but the instance with ID ${body.name} does not have a primary network interface with a VPC-private IPv6 address. Add a VPC-private IPv6 address to the interface, or attach a different IP address`,
+            },
+            { status: 400 }
+          )
+        }
       }
     })
 
@@ -517,14 +602,32 @@ export const handlers = makeHandlers({
     // a hack but not very important
     const anyVpc = db.vpcs.find((v) => v.project_id === project.id)
     const anySubnet = db.vpcSubnets.find((s) => s.vpc_id === anyVpc?.id)
-    if (body.network_interfaces?.type === 'default' && anyVpc && anySubnet) {
+    const niType = body.network_interfaces?.type
+    if (
+      (niType === 'default_ipv4' ||
+        niType === 'default_ipv6' ||
+        niType === 'default_dual_stack') &&
+      anyVpc &&
+      anySubnet
+    ) {
       db.networkInterfaces.push({
         id: uuid(),
         description: 'The default network interface',
         instance_id: instanceId,
         primary: true,
         mac: '00:00:00:00:00:00',
-        ip: '127.0.0.1',
+        ip_stack:
+          niType === 'default_dual_stack'
+            ? {
+                type: 'dual_stack',
+                value: {
+                  v4: { ip: '127.0.0.1', transit_ips: [] },
+                  v6: { ip: '::1', transit_ips: [] },
+                },
+              }
+            : niType === 'default_ipv6'
+              ? { type: 'v6', value: { ip: '::1', transit_ips: [] } }
+              : { type: 'v4', value: { ip: '127.0.0.1', transit_ips: [] } },
         name: 'default',
         vpc_id: anyVpc.id,
         subnet_id: anySubnet.id,
@@ -532,7 +635,7 @@ export const handlers = makeHandlers({
       })
     } else if (body.network_interfaces?.type === 'create') {
       body.network_interfaces.params.forEach(
-        ({ name, description, ip, subnet_name, vpc_name }, i) => {
+        ({ name, description, ip_config, subnet_name, vpc_name }, i) => {
           db.networkInterfaces.push({
             id: uuid(),
             name,
@@ -540,7 +643,12 @@ export const handlers = makeHandlers({
             instance_id: instanceId,
             primary: i === 0 ? true : false,
             mac: '00:00:00:00:00:00',
-            ip: ip || '127.0.0.1',
+            ip_stack: ip_config
+              ? resolveIpStack(ip_config)
+              : {
+                  type: 'v4',
+                  value: { ip: '127.0.0.1', transit_ips: [] },
+                },
             vpc_id: lookup.vpc({ ...query, vpc: vpc_name }).id,
             subnet_id: lookup.vpcSubnet({ ...query, vpc: vpc_name, subnet: subnet_name })
               .id,
@@ -561,7 +669,8 @@ export const handlers = makeHandlers({
         // we've already validated that the IP isn't attached
         floatingIp.instance_id = instanceId
       } else if (ip.type === 'ephemeral') {
-        const pool = resolveIpPool(ip.pool)
+        // Ephemeral IPs must use unicast pools
+        const pool = resolvePoolSelector(ip.pool_selector, 'unicast')
         const firstAvailableAddress = getIpFromPool(pool)
 
         db.ephemeralIps.push({
@@ -743,8 +852,47 @@ export const handlers = makeHandlers({
   },
   instanceEphemeralIpAttach({ path, query: projectParams, body }) {
     const instance = lookup.instance({ ...path, ...projectParams })
-    const pool = resolveIpPool(body.pool)
+    // Ephemeral IPs must use unicast pools
+    const pool = resolvePoolSelector(body.pool_selector, 'unicast')
     const ip = getIpFromPool(pool)
+
+    // Validate that external IP version matches primary NIC's IP stack
+    // Based on Omicron validation in nexus/db-queries/src/db/datastore/external_ip.rs:544-661
+    const nics = db.networkInterfaces.filter((n) => n.instance_id === instance.id)
+    const primaryNic = nics.find((n) => n.primary)
+
+    if (!primaryNic) {
+      throw json(
+        {
+          error_code: 'InvalidRequest',
+          message: `Instance ${instance.name} has no primary network interface`,
+        },
+        { status: 400 }
+      )
+    }
+
+    const ipVersion = pool.ip_version
+    const stackType = primaryNic.ip_stack.type
+
+    if (ipVersion === 'v4' && stackType !== 'v4' && stackType !== 'dual_stack') {
+      throw json(
+        {
+          error_code: 'InvalidRequest',
+          message: `The ephemeral external IP is an IPv4 address, but the instance with ID ${instance.name} does not have a primary network interface with a VPC-private IPv4 address. Add a VPC-private IPv4 address to the interface, or attach a different IP address`,
+        },
+        { status: 400 }
+      )
+    }
+
+    if (ipVersion === 'v6' && stackType !== 'v6' && stackType !== 'dual_stack') {
+      throw json(
+        {
+          error_code: 'InvalidRequest',
+          message: `The ephemeral external IP is an IPv6 address, but the instance with ID ${instance.name} does not have a primary network interface with a VPC-private IPv6 address. Add a VPC-private IPv6 address to the interface, or attach a different IP address`,
+        },
+        { status: 400 }
+      )
+    }
 
     const externalIp = { ip, ip_pool_id: pool.id, kind: 'ephemeral' as const }
     db.ephemeralIps.push({
@@ -783,6 +931,7 @@ export const handlers = makeHandlers({
     // endpoint is not paginated. or rather, it's fake paginated
     return { items: [...ephemeralIps, ...snatIps, ...floatingIps] }
   },
+  instanceExternalSubnetList: NotImplemented,
   instanceNetworkInterfaceList({ query }) {
     const instance = lookup.instance(query)
     const nics = db.networkInterfaces.filter((n) => n.instance_id === instance.id)
@@ -795,7 +944,7 @@ export const handlers = makeHandlers({
     )
     errIfExists(nicsForInstance, { name: body.name })
 
-    const { name, description, subnet_name, vpc_name, ip } = body
+    const { name, description, subnet_name, vpc_name, ip_config } = body
 
     const vpc = lookup.vpc({ ...query, vpc: vpc_name })
     const subnet = lookup.vpcSubnet({ ...query, vpc: vpc_name, subnet: subnet_name })
@@ -807,7 +956,16 @@ export const handlers = makeHandlers({
       instance_id: instance.id,
       name,
       description,
-      ip: ip || '123.45.68.8',
+      ip_stack: ip_config
+        ? resolveIpStack(ip_config, '123.45.68.8', 'fd12:3456::')
+        : // Default is dual-stack with auto-assigned IPs
+          {
+            type: 'dual_stack',
+            value: {
+              v4: { ip: '123.45.68.8', transit_ips: [] },
+              v6: { ip: 'fd12:3456::', transit_ips: [] },
+            },
+          },
       vpc_id: vpc.id,
       subnet_id: subnet.id,
       mac: '',
@@ -842,7 +1000,18 @@ export const handlers = makeHandlers({
     }
 
     if (body.transit_ips) {
-      nic.transit_ips = body.transit_ips
+      if (nic.ip_stack.type === 'dual_stack') {
+        // Parse and separate IPv4 and IPv6 transit IPs using proper IP parsing
+        // This matches how the real API routes IpNet[] to the appropriate stacks
+        const [v6TransitIps, v4TransitIps] = R.partition(body.transit_ips, (ipNet) => {
+          const parsed = parseIpNet(ipNet)
+          return parsed.type === 'v6'
+        })
+        nic.ip_stack.value.v4.transit_ips = v4TransitIps
+        nic.ip_stack.value.v6.transit_ips = v6TransitIps
+      } else {
+        nic.ip_stack.value.transit_ips = body.transit_ips
+      }
     }
 
     return nic
@@ -924,12 +1093,15 @@ export const handlers = makeHandlers({
     const pools = lookup.siloIpPools(path)
     return paginated(query, pools)
   },
-  projectIpPoolList({ query }) {
-    const pools = lookup.siloIpPools({ silo: defaultSilo.id })
+  projectIpPoolList({ query, cookies }) {
+    const user = currentUser(cookies)
+    const pools = lookup.siloIpPools({ silo: user.silo_id })
     return paginated(query, pools)
   },
-  projectIpPoolView: ({ path: { pool } }) =>
-    lookup.siloIpPool({ pool, silo: defaultSilo.id }),
+  projectIpPoolView: ({ path: { pool }, cookies }) => {
+    const user = currentUser(cookies)
+    return lookup.siloIpPool({ pool, silo: user.silo_id })
+  },
   // TODO: require admin permissions for system IP pool endpoints
   ipPoolView: ({ path }) => lookup.ipPool(path),
   ipPoolSiloList({ path /*query*/ }) {
@@ -976,11 +1148,22 @@ export const handlers = makeHandlers({
     const ipPoolSilo = lookup.ipPoolSiloLink(path)
 
     // if we're setting default, we need to set is_default false on the existing default
+    // for the same IP version and pool type (a silo can have separate defaults for v4/v6)
     if (body.is_default) {
       const silo = lookup.silo(path)
-      const existingDefault = db.ipPoolSilos.find(
-        (ips) => ips.silo_id === silo.id && ips.is_default
-      )
+      const currentPool = lookup.ipPool({ pool: ipPoolSilo.ip_pool_id })
+
+      // Find existing default with same version and type
+      const existingDefault = db.ipPoolSilos.find((ips) => {
+        if (ips.silo_id !== silo.id || !ips.is_default) return false
+        const pool = db.ipPools.find((p) => p.id === ips.ip_pool_id)
+        return (
+          pool &&
+          pool.ip_version === currentPool.ip_version &&
+          pool.pool_type === currentPool.pool_type
+        )
+      })
+
       if (existingDefault) {
         existingDefault.is_default = false
       }
@@ -1463,11 +1646,12 @@ export const handlers = makeHandlers({
   },
   currentUserView({ cookies }) {
     const user = currentUser(cookies)
+    const silo = db.silos.find((s) => s.id === user.silo_id)
     return {
       ...user,
-      silo_name: defaultSilo.name,
+      silo_name: silo?.name ?? 'unknown',
       fleet_viewer: userHasRole(user, 'fleet', FLEET_ID, 'viewer'),
-      silo_admin: userHasRole(user, 'silo', defaultSilo.id, 'admin'),
+      silo_admin: userHasRole(user, 'silo', user.silo_id, 'admin'),
     }
   },
   currentUserGroups({ cookies }) {
@@ -1999,14 +2183,8 @@ export const handlers = makeHandlers({
   localIdpUserDelete: NotImplemented,
   localIdpUserSetPassword: NotImplemented,
   loginSaml: NotImplemented,
-  lookupMulticastGroupByIp: NotImplemented,
-  multicastGroupCreate: NotImplemented,
-  multicastGroupDelete: NotImplemented,
   multicastGroupList: NotImplemented,
-  multicastGroupMemberAdd: NotImplemented,
   multicastGroupMemberList: NotImplemented,
-  multicastGroupMemberRemove: NotImplemented,
-  multicastGroupUpdate: NotImplemented,
   multicastGroupView: NotImplemented,
   networkingAddressLotBlockList: NotImplemented,
   networkingAddressLotCreate: NotImplemented,
@@ -2051,6 +2229,8 @@ export const handlers = makeHandlers({
   probeList: NotImplemented,
   probeView: NotImplemented,
   rackView: NotImplemented,
+  rackMembershipStatus: NotImplemented,
+  rackMembershipAddSleds: NotImplemented,
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
   siloUserList: NotImplemented,
@@ -2058,6 +2238,19 @@ export const handlers = makeHandlers({
   sledAdd: NotImplemented,
   sledListUninitialized: NotImplemented,
   sledSetProvisionPolicy: NotImplemented,
+  subnetPoolList: NotImplemented,
+  subnetPoolCreate: NotImplemented,
+  subnetPoolView: NotImplemented,
+  subnetPoolUpdate: NotImplemented,
+  subnetPoolDelete: NotImplemented,
+  subnetPoolMemberList: NotImplemented,
+  subnetPoolMemberAdd: NotImplemented,
+  subnetPoolMemberRemove: NotImplemented,
+  subnetPoolSiloList: NotImplemented,
+  subnetPoolSiloLink: NotImplemented,
+  subnetPoolSiloUnlink: NotImplemented,
+  subnetPoolSiloUpdate: NotImplemented,
+  subnetPoolUtilizationView: NotImplemented,
   supportBundleCreate: NotImplemented,
   supportBundleDelete: NotImplemented,
   supportBundleDownload: NotImplemented,

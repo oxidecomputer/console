@@ -26,7 +26,7 @@ test('Dropdown content in SidebarModal shows on screen', async ({ page }) => {
   await page.getByLabel('VPC', { exact: true }).click()
   await page.getByRole('option', { name: 'mock-vpc' }).click()
   await page.getByRole('button', { name: 'Subnet' }).click()
-  await page.getByRole('option', { name: 'mock-subnet' }).click()
+  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
 
   const sidebar = page.getByRole('dialog', { name: 'Add network interface' })
 

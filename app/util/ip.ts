@@ -6,6 +6,8 @@
  * Copyright Oxide Computer Company
  */
 
+import type { InstanceNetworkInterface, IpVersion, UnicastIpPool } from '~/api'
+
 // Borrowed from Valibot. I tried some from Zod and an O'Reilly regex cookbook
 // but they didn't match results with std::net on simple test cases
 // https://github.com/fabian-hiller/valibot/blob/2554aea5/library/src/regex.ts#L43-L54
@@ -16,7 +18,7 @@ const IPV4_REGEX =
 const IPV6_REGEX =
   /^(?:(?:[\da-f]{1,4}:){7}[\da-f]{1,4}|(?:[\da-f]{1,4}:){1,7}:|(?:[\da-f]{1,4}:){1,6}:[\da-f]{1,4}|(?:[\da-f]{1,4}:){1,5}(?::[\da-f]{1,4}){1,2}|(?:[\da-f]{1,4}:){1,4}(?::[\da-f]{1,4}){1,3}|(?:[\da-f]{1,4}:){1,3}(?::[\da-f]{1,4}){1,4}|(?:[\da-f]{1,4}:){1,2}(?::[\da-f]{1,4}){1,5}|[\da-f]{1,4}:(?::[\da-f]{1,4}){1,6}|:(?:(?::[\da-f]{1,4}){1,7}|:)|fe80:(?::[\da-f]{0,4}){0,4}%[\da-z]+|::(?:f{4}(?::0{1,4})?:)?(?:(?:25[0-5]|(?:2[0-4]|1?\d)?\d)\.){3}(?:25[0-5]|(?:2[0-4]|1?\d)?\d)|(?:[\da-f]{1,4}:){1,4}:(?:(?:25[0-5]|(?:2[0-4]|1?\d)?\d)\.){3}(?:25[0-5]|(?:2[0-4]|1?\d)?\d))$/iu
 
-type ParsedIp = { type: 'v4' | 'v6'; address: string } | { type: 'error'; message: string }
+type ParsedIp = { type: IpVersion; address: string } | { type: 'error'; message: string }
 
 export function parseIp(ip: string): ParsedIp {
   if (IPV4_REGEX.test(ip)) return { type: 'v4', address: ip }
@@ -38,7 +40,7 @@ export function validateIp(ip: string): string | undefined {
 // https://github.com/oxidecomputer/oxnet/blob/7dacd265f1bcd0f8b47bd4805250c4f0812da206/src/ipnet.rs#L217-L223
 
 type ParsedIpNet =
-  | { type: 'v4' | 'v6'; address: string; width: number }
+  | { type: IpVersion; address: string; width: number }
   | { type: 'error'; message: string }
 
 const nonsenseError = {
@@ -83,4 +85,49 @@ export function parseIpNet(ipNet: string): ParsedIpNet {
 export function validateIpNet(ipNet: string): string | undefined {
   const result = parseIpNet(ipNet)
   if (result.type === 'error') return result.message
+}
+
+/**
+ * Get compatible IP versions from an instance's NICs. External IPs route
+ * through the primary interface, so only its IP stack matters.
+ */
+export function getCompatibleVersionsFromNics(
+  nics: InstanceNetworkInterface[]
+): IpVersion[] {
+  const primaryNic = nics.find((nic) => nic.primary)
+  if (!primaryNic) return []
+
+  const { ipStack } = primaryNic
+  if (ipStack.type === 'v4' || ipStack.type === 'v6') {
+    return [ipStack.type]
+  }
+  if (ipStack.type === 'dual_stack') {
+    return ['v4', 'v6']
+  }
+  return []
+}
+
+/**
+ * Curried predicate that checks if an item's IP address matches one of the
+ * given IP versions. Use with Array.filter to filter floating IPs, etc.
+ */
+export const ipHasVersion =
+  (versions: IpVersion[]) =>
+  (item: { ip: string }): boolean => {
+    if (versions.length === 0) return false
+    const ipVersion = parseIp(item.ip)
+    return ipVersion.type !== 'error' && versions.includes(ipVersion.type)
+  }
+
+export const getDefaultIps = (pools: UnicastIpPool[]) => {
+  const defaultPools = pools.filter((pool) => pool.isDefault)
+  const v4Default = defaultPools.find((p) => p.ipVersion === 'v4')
+  const hasV4Default = !!v4Default
+  const v6Default = defaultPools.find((p) => p.ipVersion === 'v6')
+  const hasV6Default = !!v6Default
+  return {
+    hasV4Default,
+    hasV6Default,
+    hasDualDefaults: hasV4Default && hasV6Default,
+  }
 }

@@ -31,6 +31,10 @@ export const links = {
   instanceBootDiskDocs: 'https://docs.oxide.computer/guides/deploying-workloads',
   instanceUpdateDocs:
     'https://docs.oxide.computer/guides/managing-instances#_update_instances',
+  ipPoolCreateDocs:
+    'https://docs.oxide.computer/guides/operator/ip-pool-management#_create_ip_pools',
+  ipPoolTypesDocs:
+    'https://docs.oxide.computer/guides/operator/ip-pool-management#_ip_pool_types',
   keyConceptsIamPolicyDocs:
     'https://docs.oxide.computer/guides/key-entities-and-concepts#iam-policy',
   keyConceptsProjectsDocs:

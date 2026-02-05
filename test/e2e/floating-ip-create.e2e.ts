@@ -18,7 +18,6 @@ test('can create a floating IP', async ({ page }) => {
     'role=heading[name*="Create floating IP"]',
     'role=textbox[name="Name"]',
     'role=textbox[name="Description"]',
-    'role=button[name="Advanced"]',
     'role=button[name="Create floating IP"]',
   ])
 
@@ -28,19 +27,10 @@ test('can create a floating IP', async ({ page }) => {
     .getByRole('textbox', { name: 'Description' })
     .fill('A description for this Floating IP')
 
-  const label = page.getByLabel('IP pool')
-
-  // accordion content should be hidden
-  await expect(label).toBeHidden()
-
-  // open accordion
-  await page.getByRole('button', { name: 'Advanced' }).click()
-
-  // accordion content should be visible
-  await expect(label).toBeVisible()
-
-  // choose pool and submit
-  await label.click()
+  // Default silo has both v4 and v6 defaults, so no pool is preselected
+  const poolDropdown = page.getByLabel('Pool')
+  await expect(poolDropdown).toContainText('Select a pool')
+  await poolDropdown.click()
   await page.getByRole('option', { name: 'ip-pool-1' }).click()
   await page.getByRole('button', { name: 'Create floating IP' }).click()
 

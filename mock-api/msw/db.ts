@@ -10,7 +10,7 @@
 import * as R from 'remeda'
 import { validate as isUuid } from 'uuid'
 
-import type { ApiTypes as Api } from '@oxide/api'
+import type { ApiTypes as Api, IpPoolType, IpVersion } from '@oxide/api'
 import * as mock from '@oxide/api-mocks'
 
 import { json } from '~/api/__generated__/msw-handlers'
@@ -18,6 +18,7 @@ import type * as Sel from '~/api/selectors'
 import { commaSeries } from '~/util/str'
 
 import type { Json } from '../json-type'
+import { projects, type DbProject } from '../project'
 import { defaultSilo, siloSettings } from '../silo'
 import { internalError } from './util'
 
@@ -61,6 +62,62 @@ function ensureNoParentSelectors(
  */
 export const resolveIpPool = (pool: string | undefined | null) =>
   pool ? lookup.ipPool({ pool }) : lookup.siloDefaultIpPool({ silo: defaultSilo.id })
+
+export const resolvePoolSelector = (
+  poolSelector:
+    | { pool: string; type: 'explicit' }
+    | { type: 'auto'; ip_version?: IpVersion | null }
+    | undefined,
+  poolType?: IpPoolType
+) => {
+  if (poolSelector?.type === 'explicit') {
+    return lookup.ipPool({ pool: poolSelector.pool })
+  }
+
+  // For 'auto' type, find the default pool for the specified IP version and pool type
+  const silo = lookup.silo({ silo: defaultSilo.id })
+  const links = db.ipPoolSilos.filter((ips) => ips.silo_id === silo.id && ips.is_default)
+
+  // Filter candidate pools by both IP version and pool type
+  const candidateLinks = links.filter((ips) => {
+    const pool = db.ipPools.find((p) => p.id === ips.ip_pool_id)
+    if (!pool) return false
+
+    // If poolType specified, filter by it
+    if (poolType && pool.pool_type !== poolType) return false
+
+    // If IP version specified, filter by it
+    if (poolSelector?.ip_version && pool.ip_version !== poolSelector.ip_version) {
+      return false
+    }
+
+    return true
+  })
+
+  // Enforce API requirement: when type is 'auto' and ip_version is unset,
+  // reject if multiple default pools exist (ambiguous)
+  if (
+    poolSelector?.type === 'auto' &&
+    !poolSelector.ip_version &&
+    candidateLinks.length > 1
+  ) {
+    throw json(
+      {
+        error_code: 'InvalidRequest',
+        message: 'ip_version required when multiple default pools exist',
+      },
+      { status: 400 }
+    )
+  }
+
+  const link = candidateLinks[0]
+  if (!link) {
+    const typeStr = poolType ? ` ${poolType}` : ''
+    const versionStr = poolSelector?.ip_version ? ` ${poolSelector.ip_version}` : ''
+    throw notFoundErr(`default${typeStr}${versionStr} pool for silo '${defaultSilo.id}'`)
+  }
+  return lookupById(db.ipPools, link.ip_pool_id)
+}
 
 export const getIpFromPool = (pool: Json<Api.IpPool>) => {
   const ipPoolRange = db.ipPoolRanges.find((range) => range.ip_pool_id === pool.id)
@@ -110,7 +167,7 @@ export const lookup = {
     if (!antiAffinityGroup) throw notFoundErr(`anti-affinity group '${id}'`)
     return antiAffinityGroup
   },
-  project({ project: id }: Sel.Project): Json<Api.Project> {
+  project({ project: id }: Sel.Project): DbProject {
     if (!id) throw notFoundErr('no project specified')
 
     if (isUuid(id)) return lookupById(db.projects, id)
@@ -501,7 +558,7 @@ const initDb = {
   ipPoolRanges: [...mock.ipPoolRanges],
   networkInterfaces: [mock.networkInterface],
   physicalDisks: [...mock.physicalDisks],
-  projects: [...mock.projects],
+  projects: [...projects],
   racks: [...mock.racks],
   roleAssignments: [...mock.roleAssignments],
   scimTokens: [...mock.scimTokens],
@@ -522,7 +579,7 @@ const initDb = {
   vpcRouters: [...mock.vpcRouters],
   vpcRouterRoutes: [...mock.routerRoutes],
   vpcs: [...mock.vpcs],
-  vpcSubnets: [mock.vpcSubnet],
+  vpcSubnets: [...mock.vpcSubnets],
 }
 
 export let db = structuredClone(initDb)

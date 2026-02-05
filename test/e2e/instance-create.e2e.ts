@@ -75,28 +75,35 @@ test('can create an instance', async ({ page }) => {
   const checkbox = page.getByRole('checkbox', {
     name: 'Allocate and attach an ephemeral IP address',
   })
-  const label = page.getByLabel('IP pool for ephemeral IP')
+  const poolDropdown = page.getByLabel('Pool')
 
-  // verify that the ip pool selector is visible and default is selected
+  // verify that the ephemeral IP checkbox is checked and pool dropdown is visible
   await expect(checkbox).toBeChecked()
-  await label.click()
+  await expect(poolDropdown).toBeVisible()
+
+  // IPv4 default pool should be selected by default
+  await expect(poolDropdown).toContainText('ip-pool-1')
+
+  // click the dropdown to open it and verify options are available
+  await poolDropdown.click()
   await expect(page.getByRole('option', { name: 'ip-pool-1' })).toBeEnabled()
 
-  // unchecking the box should disable the selector
+  // unchecking the box should hide the pool selector
   await checkbox.uncheck()
-  await expect(label).toBeHidden()
+  await expect(poolDropdown).toBeHidden()
 
   // re-checking the box should re-enable the selector, and other options should be selectable
   await checkbox.check()
-  await selectOption(page, 'IP pool for ephemeral IP', 'ip-pool-2 VPN IPs')
+  // Need to wait for the dropdown to be visible first
+  await expect(poolDropdown).toBeVisible()
+  // Click the dropdown to open it and wait for options to be available
+  await poolDropdown.click()
+  await expect(page.getByRole('option', { name: 'ip-pool-2' })).toBeVisible()
+  // Force click since there might be overlays
+  await page.getByRole('option', { name: 'ip-pool-2' }).click({ force: true })
 
   // should be visible in accordion
   await expect(page.getByRole('radiogroup', { name: 'Network interface' })).toBeVisible()
-  // we show the default hostname, instance name, as placeholder
-  await expect(page.getByRole('textbox', { name: 'Hostname' })).toHaveAttribute(
-    'placeholder',
-    instanceName
-  )
   await expect(page.getByLabel('User data')).toBeVisible()
 
   await page.getByRole('button', { name: 'Create instance' }).click()
@@ -135,6 +142,21 @@ test('can create an instance', async ({ page }) => {
     vpc: 'mock-vpc',
     subnet: 'mock-subnet',
   })
+})
+
+test('ephemeral pool selection tracks network interface IP version', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+  await page.getByRole('button', { name: 'Networking' }).click()
+
+  const poolDropdown = page.getByLabel('Pool')
+  await expect(poolDropdown).toBeVisible()
+  await expect(poolDropdown).toContainText('ip-pool-1')
+
+  await selectOption(page, page.getByRole('button', { name: 'IPv4 & IPv6' }), 'IPv6')
+  await expect(poolDropdown).toContainText('ip-pool-2')
+
+  await selectOption(page, page.getByRole('button', { name: 'IPv6' }), 'IPv4')
+  await expect(poolDropdown).toContainText('ip-pool-1')
 })
 
 test('duplicate instance name produces visible error', async ({ page }) => {
@@ -458,12 +480,26 @@ test('attaches a floating IP; disables button when no IPs available', async ({ p
     Name: floatingIp.name,
     IP: floatingIp.ip,
   })
+
+  // The button should still be enabled because there's still ipv6-float available
+  await expect(attachFloatingIpButton).toBeEnabled()
+
+  // Attach the IPv6 floating IP too
+  await attachFloatingIpButton.click()
+  await selectFloatingIpButton.click()
+  await page.getByRole('option', { name: 'ipv6-float' }).click()
+  await attachButton.click()
+
+  // Now the button should be disabled because both floating IPs are attached
   await expect(attachFloatingIpButton).toBeDisabled()
 
-  // removing the floating IP row should work, and should re-enable the "attach" button
+  // removing one floating IP row should work, and should re-enable the "attach" button
   await page.getByRole('button', { name: 'remove floating IP rootbeer-float' }).click()
   await expect(page.getByText(floatingIp.name)).toBeHidden()
   await expect(attachFloatingIpButton).toBeEnabled()
+
+  // Remove the IPv6 floating IP too
+  await page.getByRole('button', { name: 'remove floating IP ipv6-float' }).click()
 
   // re-attach the floating IP
   await attachFloatingIpButton.click()
@@ -675,4 +711,522 @@ test('Validate CPU and RAM', async ({ page }) => {
 
   await expect(cpuMsg).toBeVisible()
   await expect(memMsg).toBeVisible()
+})
+
+test('create instance with IPv6-only networking', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+
+  const instanceName = 'ipv6-only-instance'
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await selectASiloImage(page, 'ubuntu-22-04')
+
+  // Open networking accordion
+  await page.getByRole('button', { name: 'Networking' }).click()
+
+  // Ensure "Default" network interface is selected
+  const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
+  if (!(await defaultRadio.isChecked())) {
+    await defaultRadio.click()
+  }
+  // Wait for and select from the IP version dropdown
+  const ipVersionButton = page.locator('[name="defaultIpVersion"]')
+  await ipVersionButton.waitFor({ state: 'visible' })
+  await ipVersionButton.click()
+  await page.getByRole('option', { name: 'IPv6', exact: true }).click()
+
+  // Create instance
+  await page.getByRole('button', { name: 'Create instance' }).click()
+
+  await expect(page).toHaveURL(/\/instances\/ipv6-only-instance/)
+
+  // Navigate to the Networking tab
+  await page.getByRole('tab', { name: 'Networking' }).click()
+
+  // Check that the network interfaces table shows up
+  const nicTable = page.getByRole('table', { name: 'Network interfaces' })
+  await expect(nicTable).toBeVisible()
+
+  // Verify the Private IP column exists and contains an IPv6 address
+  const privateIpCell = nicTable.getByRole('cell').filter({ hasText: /::/ })
+  await expect(privateIpCell.first()).toBeVisible()
+
+  // Verify no IPv4 address is shown (no periods in a dotted-decimal format within the Private IP)
+  // We check that the cell with IPv6 doesn't also contain IPv4
+  const cellText = await privateIpCell.first().textContent()
+  expect(cellText).toMatch(/::/)
+  expect(cellText).not.toMatch(/\d+\.\d+\.\d+\.\d+/)
+})
+
+test('create instance with IPv4-only networking', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+
+  const instanceName = 'ipv4-only-instance'
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await selectASiloImage(page, 'ubuntu-22-04')
+
+  // Open networking accordion
+  await page.getByRole('button', { name: 'Networking' }).click()
+
+  // Ensure "Default" network interface is selected
+  const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
+  if (!(await defaultRadio.isChecked())) {
+    await defaultRadio.click()
+  }
+  // Wait for and select from the IP version dropdown
+  const ipVersionButton = page.locator('[name="defaultIpVersion"]')
+  await ipVersionButton.waitFor({ state: 'visible' })
+  await ipVersionButton.click()
+  await page.getByRole('option', { name: 'IPv4', exact: true }).click()
+
+  // Create instance
+  await page.getByRole('button', { name: 'Create instance' }).click()
+
+  await expect(page).toHaveURL(/\/instances\/ipv4-only-instance/)
+
+  // Navigate to the Networking tab
+  await page.getByRole('tab', { name: 'Networking' }).click()
+
+  // Check that the network interfaces table shows up
+  const nicTable = page.getByRole('table', { name: 'Network interfaces' })
+  await expect(nicTable).toBeVisible()
+
+  // Verify the Private IP column exists and contains an IPv4 address
+  const privateIpCell = nicTable.getByRole('cell').filter({ hasText: /127\.0\.0\.1/ })
+  await expect(privateIpCell.first()).toBeVisible()
+
+  // Verify no IPv6 address is shown (no colons in IPv6 format within the Private IP)
+  const cellText = await privateIpCell.first().textContent()
+  expect(cellText).toMatch(/\d+\.\d+\.\d+\.\d+/)
+  expect(cellText).not.toMatch(/::/)
+})
+
+test('create instance with dual-stack networking shows both IPs', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+
+  const instanceName = 'dual-stack-instance'
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await selectASiloImage(page, 'ubuntu-22-04')
+
+  // Open networking accordion
+  await page.getByRole('button', { name: 'Networking' }).click()
+
+  // Default is already "Default IPv4 & IPv6", so no need to select it
+
+  // Create instance
+  await page.getByRole('button', { name: 'Create instance' }).click()
+
+  await expect(page).toHaveURL(/\/instances\/dual-stack-instance/)
+
+  // Navigate to the Networking tab
+  await page.getByRole('tab', { name: 'Networking' }).click()
+
+  // Check that the network interfaces table shows up
+  const nicTable = page.getByRole('table', { name: 'Network interfaces' })
+  await expect(nicTable).toBeVisible()
+
+  // Verify both IPv4 and IPv6 addresses are shown
+  const privateIpCells = nicTable
+    .locator('tbody tr')
+    .first()
+    .locator('td')
+    .filter({ hasText: /127\.0\.0\.1/ })
+  await expect(privateIpCells.first()).toBeVisible()
+
+  // Check that the same cell contains IPv6
+  const cellText = await privateIpCells.first().textContent()
+  expect(cellText).toMatch(/127\.0\.0\.1/) // IPv4
+  expect(cellText).toMatch(/::1/) // IPv6
+})
+
+test('create instance with custom IPv4-only NIC constrains ephemeral IP to IPv4', async ({
+  page,
+}) => {
+  await page.goto('/projects/mock-project/instances-new')
+
+  const instanceName = 'custom-ipv4-nic-test'
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await selectASiloImage(page, 'ubuntu-22-04')
+
+  // Open networking accordion
+  await page.getByRole('button', { name: 'Networking' }).click()
+
+  // Select "Custom" network interface (use exact match and first to disambiguate from "custom pool")
+  await page.getByRole('radio', { name: 'Custom', exact: true }).first().click()
+
+  // Add a custom NIC with IPv4-only configuration
+  await page.getByRole('button', { name: 'Add network interface' }).click()
+
+  const modal = page.getByRole('dialog', { name: 'Add network interface' })
+  await expect(modal).toBeVisible()
+
+  await modal.getByRole('textbox', { name: 'Name' }).fill('my-ipv4-nic')
+  await modal.getByLabel('VPC', { exact: true }).click()
+  await page.getByRole('option', { name: 'mock-vpc' }).click()
+  await modal.getByLabel('Subnet').click()
+  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
+
+  // Select IPv4-only IP configuration
+  await modal.getByRole('radio', { name: 'IPv4', exact: true }).click()
+
+  await modal.getByRole('button', { name: 'Add network interface' }).click()
+  await expect(modal).toBeHidden()
+
+  // Verify the NIC was added
+  const nicTable = page.getByRole('table', { name: 'Network Interfaces' })
+  await expect(
+    nicTable.getByRole('cell', { name: 'my-ipv4-nic', exact: true })
+  ).toBeVisible()
+
+  // Verify that ephemeral IP options are constrained to IPv4 only
+  const ephemeralCheckbox = page.getByRole('checkbox', {
+    name: 'Allocate and attach an ephemeral IP address',
+  })
+  await expect(ephemeralCheckbox).toBeVisible()
+
+  // Pool dropdown should be visible
+  const poolDropdown = page.getByLabel('Pool')
+  await expect(poolDropdown).toBeVisible()
+
+  // IPv4 default pool should be selected by default
+  await expect(poolDropdown).toContainText('ip-pool-1')
+
+  // Open dropdown to check available options - IPv6 pools should be filtered out
+  await poolDropdown.click()
+
+  // ip-pool-1 is IPv4, should appear
+  await expect(page.getByRole('option', { name: 'ip-pool-1' })).toBeVisible()
+
+  // ip-pool-2 is IPv6, should NOT appear
+  await expect(page.getByRole('option', { name: 'ip-pool-2' })).toBeHidden()
+})
+
+test('create instance with custom IPv6-only NIC constrains ephemeral IP to IPv6', async ({
+  page,
+}) => {
+  await page.goto('/projects/mock-project/instances-new')
+
+  const instanceName = 'custom-ipv6-nic-test'
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await selectASiloImage(page, 'ubuntu-22-04')
+
+  // Open networking accordion
+  await page.getByRole('button', { name: 'Networking' }).click()
+
+  // Select "Custom" network interface (use exact match and first to disambiguate from "custom pool")
+  await page.getByRole('radio', { name: 'Custom', exact: true }).first().click()
+
+  // Add a custom NIC with IPv6-only configuration
+  await page.getByRole('button', { name: 'Add network interface' }).click()
+
+  const modal = page.getByRole('dialog', { name: 'Add network interface' })
+  await expect(modal).toBeVisible()
+
+  await modal.getByRole('textbox', { name: 'Name' }).fill('my-ipv6-nic')
+  await modal.getByLabel('VPC', { exact: true }).click()
+  await page.getByRole('option', { name: 'mock-vpc' }).click()
+  await modal.getByLabel('Subnet').click()
+  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
+
+  // Select IPv6-only IP configuration
+  await modal.getByRole('radio', { name: 'IPv6', exact: true }).click()
+
+  await modal.getByRole('button', { name: 'Add network interface' }).click()
+  await expect(modal).toBeHidden()
+
+  // Verify the NIC was added
+  const nicTable = page.getByRole('table', { name: 'Network Interfaces' })
+  await expect(
+    nicTable.getByRole('cell', { name: 'my-ipv6-nic', exact: true })
+  ).toBeVisible()
+
+  // Verify that ephemeral IP options are constrained to IPv6 only
+  const ephemeralCheckbox = page.getByRole('checkbox', {
+    name: 'Allocate and attach an ephemeral IP address',
+  })
+  await expect(ephemeralCheckbox).toBeVisible()
+
+  // Pool dropdown should be visible
+  const poolDropdown = page.getByLabel('Pool')
+  await expect(poolDropdown).toBeVisible()
+
+  // IPv6 default pool should be selected by default
+  await expect(poolDropdown).toContainText('ip-pool-2')
+
+  // Open dropdown to check available options - IPv4 pools should be filtered out
+  await poolDropdown.click()
+
+  // ip-pool-2 is IPv6, should appear
+  await expect(page.getByRole('option', { name: 'ip-pool-2' })).toBeVisible()
+
+  // ip-pool-1 is IPv4, should NOT appear
+  await expect(page.getByRole('option', { name: 'ip-pool-1' })).toBeHidden()
+})
+
+test('create instance with custom dual-stack NIC allows both IPv4 and IPv6 ephemeral IPs', async ({
+  page,
+}) => {
+  await page.goto('/projects/mock-project/instances-new')
+
+  const instanceName = 'custom-dual-stack-nic-test'
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await selectASiloImage(page, 'ubuntu-22-04')
+
+  // Open networking accordion
+  await page.getByRole('button', { name: 'Networking' }).click()
+
+  // Select "Custom" network interface (use exact match and first to disambiguate from "custom pool")
+  await page.getByRole('radio', { name: 'Custom', exact: true }).first().click()
+
+  // Add a custom NIC with dual-stack configuration
+  await page.getByRole('button', { name: 'Add network interface' }).click()
+
+  const modal = page.getByRole('dialog', { name: 'Add network interface' })
+  await expect(modal).toBeVisible()
+
+  await modal.getByRole('textbox', { name: 'Name' }).fill('my-dual-stack-nic')
+  await modal.getByLabel('VPC', { exact: true }).click()
+  await page.getByRole('option', { name: 'mock-vpc' }).click()
+  await modal.getByLabel('Subnet').click()
+  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
+
+  // Select dual-stack IP configuration (should be default)
+  await modal.getByRole('radio', { name: 'IPv4 & IPv6', exact: true }).click()
+
+  await modal.getByRole('button', { name: 'Add network interface' }).click()
+  await expect(modal).toBeHidden()
+
+  // Verify the NIC was added
+  const nicTable = page.getByRole('table', { name: 'Network Interfaces' })
+  await expect(
+    nicTable.getByRole('cell', { name: 'my-dual-stack-nic', exact: true })
+  ).toBeVisible()
+
+  // Verify that both IPv4 and IPv6 ephemeral IP options are available
+  const ephemeralCheckbox = page.getByRole('checkbox', {
+    name: 'Allocate and attach an ephemeral IP address',
+  })
+  await expect(ephemeralCheckbox).toBeVisible()
+
+  // Pool dropdown should be visible
+  const poolDropdown = page.getByLabel('Pool')
+  await expect(poolDropdown).toBeVisible()
+
+  // IPv4 default pool should be selected by default (first in sorted order)
+  await expect(poolDropdown).toContainText('ip-pool-1')
+
+  // Open dropdown to check available options - both IPv4 and IPv6 pools should be available
+  await poolDropdown.click()
+
+  // Both pools should appear
+  await expect(page.getByRole('option', { name: 'ip-pool-1' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'ip-pool-2' })).toBeVisible()
+})
+
+test('ephemeral IP checkbox disabled when no NICs configured', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+
+  const instanceName = 'ephemeral-ip-nic-test'
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await selectASiloImage(page, 'ubuntu-22-04')
+
+  // Open networking accordion
+  await page.getByRole('button', { name: 'Networking' }).click()
+
+  const ephemeralCheckbox = page.getByRole('checkbox', {
+    name: 'Allocate and attach an ephemeral IP address',
+  })
+  const defaultRadio = page.getByRole('radio', {
+    name: 'Default',
+    exact: true,
+  })
+  const noneRadio = page.getByRole('radio', { name: 'None', exact: true })
+  const customRadio = page.getByRole('radio', { name: 'Custom', exact: true }).first()
+
+  // Verify default state: "Default" is checked and Ephemeral IP checkbox is checked
+  await expect(defaultRadio).toBeChecked()
+  await expect(ephemeralCheckbox).toBeChecked()
+  await expect(ephemeralCheckbox).toBeEnabled()
+
+  // Select "None" radio → verify Ephemeral IP checkbox is unchecked and disabled
+  await noneRadio.click()
+  await expect(ephemeralCheckbox).not.toBeChecked()
+  await expect(ephemeralCheckbox).toBeDisabled()
+
+  // Hover over the disabled checkbox to verify tooltip appears
+  await ephemeralCheckbox.hover()
+  await expect(page.getByText('Add a compatible network interface')).toBeVisible()
+  await expect(page.getByText('to attach an ephemeral IP address')).toBeVisible()
+
+  // Select "Custom" radio → verify Ephemeral IP checkbox is still unchecked and disabled
+  await customRadio.click()
+  await expect(ephemeralCheckbox).not.toBeChecked()
+  await expect(ephemeralCheckbox).toBeDisabled()
+
+  // Click "Add network interface" button to open modal
+  await page.getByRole('button', { name: 'Add network interface' }).click()
+
+  const modal = page.getByRole('dialog', { name: 'Add network interface' })
+  await expect(modal).toBeVisible()
+
+  // Create an IPv4 NIC named "new-v4-nic"
+  await modal.getByRole('textbox', { name: 'Name' }).fill('new-v4-nic')
+  await modal.getByLabel('VPC', { exact: true }).click()
+  await page.getByRole('option', { name: 'mock-vpc' }).click()
+  await modal.getByLabel('Subnet').click()
+  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
+
+  // Select IPv4 IP configuration
+  await modal.getByRole('radio', { name: 'IPv4', exact: true }).click()
+
+  // Submit the modal
+  await modal.getByRole('button', { name: 'Add network interface' }).click()
+  await expect(modal).toBeHidden()
+
+  // Verify the NIC was added to the table
+  const nicTable = page.getByRole('table', { name: 'Network Interfaces' })
+  await expect(
+    nicTable.getByRole('cell', { name: 'new-v4-nic', exact: true })
+  ).toBeVisible()
+
+  // Verify Ephemeral IP checkbox is now checked and enabled
+  await expect(ephemeralCheckbox).toBeChecked()
+  await expect(ephemeralCheckbox).toBeEnabled()
+
+  // Delete the NIC using the remove button
+  await page.getByRole('button', { name: 'remove network interface new-v4-nic' }).click()
+
+  // Verify the NIC is no longer in the table
+  await expect(nicTable.getByRole('cell', { name: 'new-v4-nic', exact: true })).toBeHidden()
+
+  // Verify Ephemeral IP checkbox is once again unchecked and disabled
+  await expect(ephemeralCheckbox).not.toBeChecked()
+  await expect(ephemeralCheckbox).toBeDisabled()
+})
+
+test('network interface options disabled when no VPCs exist', async ({ page }) => {
+  // Use project-no-vpcs which has no VPCs by design for testing this scenario
+  await page.goto('/projects/project-no-vpcs/instances-new')
+
+  const instanceName = 'test-no-vpc-instance'
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await selectASiloImage(page, 'ubuntu-22-04')
+
+  // Open networking accordion
+  await page.getByRole('button', { name: 'Networking' }).click()
+
+  // Get radio button elements
+  const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
+  const noneRadio = page.getByRole('radio', { name: 'None', exact: true })
+  const customRadio = page.getByRole('radio', { name: 'Custom', exact: true })
+
+  // Verify the message is visible (indicating no VPCs)
+  await expect(page.getByText('A VPC is required to add network interfaces.')).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Create a VPC' })).toBeVisible()
+
+  // Verify Default and Custom are disabled
+  await expect(defaultRadio).toBeDisabled()
+  await expect(customRadio).toBeDisabled()
+
+  // Verify "None" is enabled and checked
+  await expect(noneRadio).toBeEnabled()
+  await expect(noneRadio).toBeChecked()
+})
+
+test('floating IPs are filtered by NIC IP version', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+
+  // Open networking accordion
+  await page.getByRole('button', { name: 'Networking' }).click()
+
+  // Select IPv4-only networking
+  const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
+  if (!(await defaultRadio.isChecked())) {
+    await defaultRadio.click()
+  }
+  // Wait for and select from the IP version dropdown
+  const ipVersionButton = page.locator('[name="defaultIpVersion"]')
+  await ipVersionButton.waitFor({ state: 'visible' })
+  await ipVersionButton.click()
+  await page.getByRole('option', { name: 'IPv4', exact: true }).click()
+
+  // Open the floating IP modal
+  await page.getByRole('button', { name: 'Attach floating IP' }).click()
+
+  // Wait for modal to open
+  await expect(page.getByRole('dialog', { name: 'Attach floating IP' })).toBeVisible()
+
+  // Get the listbox and open it
+  const listbox = page.getByRole('button', { name: 'Floating IP', exact: true })
+  await listbox.click()
+
+  // Verify only IPv4 floating IP is available (rootbeer-float with IP 123.4.56.4)
+  await expect(page.getByRole('option', { name: 'rootbeer-float' })).toBeVisible()
+  // IPv6 floating IP should not be in the list
+  await expect(page.getByRole('option', { name: 'ipv6-float' })).not.toBeVisible()
+
+  // Close the listbox dropdown first by pressing Escape
+  await page.keyboard.press('Escape')
+
+  // Close the modal
+  const dialog = page.getByRole('dialog', { name: 'Attach floating IP' })
+  await dialog.getByRole('button', { name: 'Cancel' }).click()
+
+  // Switch to IPv6-only networking
+  await ipVersionButton.click()
+  await page.getByRole('option', { name: 'IPv6', exact: true }).click()
+
+  // Open the floating IP modal again
+  await page.getByRole('button', { name: 'Attach floating IP' }).click()
+
+  // Wait for modal to open
+  await expect(dialog).toBeVisible()
+
+  // Get the listbox and open it
+  await listbox.click()
+
+  // Verify only IPv6 floating IP is available (ipv6-float)
+  await expect(page.getByRole('option', { name: 'ipv6-float' })).toBeVisible()
+  // IPv4 floating IP should not be in the list
+  await expect(page.getByRole('option', { name: 'rootbeer-float' })).not.toBeVisible()
+
+  // Close the listbox dropdown first by pressing Escape
+  await page.keyboard.press('Escape')
+
+  // Close the modal
+  await dialog.getByRole('button', { name: 'Cancel' }).click()
+
+  // Switch to dual-stack networking
+  await ipVersionButton.click()
+  await page.getByRole('option', { name: 'IPv4 & IPv6', exact: true }).click()
+
+  // Open the floating IP modal again
+  await page.getByRole('button', { name: 'Attach floating IP' }).click()
+
+  // Wait for modal to open
+  await expect(dialog).toBeVisible()
+
+  // Get the listbox and open it
+  await listbox.click()
+
+  // Verify both IPv4 and IPv6 floating IPs are available
+  await expect(page.getByRole('option', { name: 'rootbeer-float' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'ipv6-float' })).toBeVisible()
+
+  // Close the listbox dropdown first by pressing Escape
+  await page.keyboard.press('Escape')
+
+  // Close the modal
+  await dialog.getByRole('button', { name: 'Cancel' }).click()
+
+  // Switch to "None" networking
+  await page.getByRole('radio', { name: 'None' }).click()
+
+  // Verify the "Attach floating IP" button is disabled when no NICs are configured
+  const attachFloatingIpButton = page.getByRole('button', { name: 'Attach floating IP' })
+  await expect(attachFloatingIpButton).toBeDisabled()
+
+  // Verify the disabled reason tooltip
+  await attachFloatingIpButton.hover()
+  await expect(page.getByText('A network interface is required')).toBeVisible()
+  await expect(page.getByText('to attach a floating IP')).toBeVisible()
 })

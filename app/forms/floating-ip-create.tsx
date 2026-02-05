@@ -5,42 +5,52 @@
  *
  * Copyright Oxide Computer Company
  */
-import * as Accordion from '@radix-ui/react-accordion'
-import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import { api, q, queryClient, useApiMutation, type FloatingIpCreate } from '@oxide/api'
+import {
+  api,
+  isUnicastPool,
+  q,
+  queryClient,
+  useApiMutation,
+  usePrefetchedQuery,
+  type FloatingIpCreate,
+} from '@oxide/api'
 
-import { AccordionItem } from '~/components/AccordionItem'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
-import { toIpPoolItem } from '~/components/form/fields/ip-pool-item'
-import { ListboxField } from '~/components/form/fields/ListboxField'
+import { IpPoolSelector } from '~/components/form/fields/IpPoolSelector'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { Message } from '~/ui/lib/Message'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
-const defaultValues: Omit<FloatingIpCreate, 'ip'> = {
-  name: '',
-  description: '',
-  pool: undefined,
+const poolList = q(api.projectIpPoolList, { query: { limit: ALL_ISH } })
+
+export async function clientLoader() {
+  await queryClient.prefetchQuery(poolList)
+  return null
 }
 
 export const handle = titleCrumb('New Floating IP')
 
 export default function CreateFloatingIpSideModalForm() {
-  // Fetch 1000 to we can be sure to get them all. Don't bother prefetching
-  // because the list is hidden under the Advanced accordion.
-  const { data: allPools } = useQuery(
-    q(api.projectIpPoolList, { query: { limit: ALL_ISH } })
-  )
+  const { data: allPools } = usePrefetchedQuery(poolList)
+
+  // Only unicast pools can be used for floating IPs
+  const unicastPools = useMemo(() => allPools.items.filter(isUnicastPool), [allPools])
+
+  const defaultPool = useMemo(() => {
+    const defaults = unicastPools.filter((p) => p.isDefault)
+    // Only preselect if there's exactly one default; if both v4 and v6
+    // defaults exist, let the user choose
+    return defaults.length === 1 ? defaults[0].name : ''
+  }, [unicastPools])
 
   const projectSelector = useProjectSelector()
   const navigate = useNavigate()
@@ -55,9 +65,13 @@ export default function CreateFloatingIpSideModalForm() {
     },
   })
 
-  const form = useForm({ defaultValues })
-
-  const [openItems, setOpenItems] = useState<string[]>([])
+  const form = useForm({
+    defaultValues: {
+      name: '',
+      description: '',
+      pool: defaultPool,
+    },
+  })
 
   return (
     <SideModalForm
@@ -65,38 +79,23 @@ export default function CreateFloatingIpSideModalForm() {
       formType="create"
       resourceName="floating IP"
       onDismiss={() => navigate(pb.floatingIps(projectSelector))}
-      onSubmit={(body) => createFloatingIp.mutate({ query: projectSelector, body })}
+      onSubmit={({ pool, name, description }) => {
+        const body: FloatingIpCreate = {
+          name,
+          description,
+          addressAllocator: {
+            type: 'auto',
+            poolSelector: { type: 'explicit', pool },
+          },
+        }
+        createFloatingIp.mutate({ query: projectSelector, body })
+      }}
       loading={createFloatingIp.isPending}
       submitError={createFloatingIp.error}
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-
-      <Accordion.Root
-        type="multiple"
-        className="mt-12 max-w-lg"
-        value={openItems}
-        onValueChange={setOpenItems}
-      >
-        <AccordionItem
-          isOpen={openItems.includes('advanced')}
-          label="Advanced"
-          value="advanced"
-        >
-          <Message
-            variant="info"
-            content="If you don’t specify a pool, the default will be used"
-          />
-
-          <ListboxField
-            name="pool"
-            items={(allPools?.items || []).map(toIpPoolItem)}
-            label="IP pool"
-            control={form.control}
-            placeholder="Select a pool"
-          />
-        </AccordionItem>
-      </Accordion.Root>
+      <IpPoolSelector control={form.control} poolFieldName="pool" pools={unicastPools} />
     </SideModalForm>
   )
 }

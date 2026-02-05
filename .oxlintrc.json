@@ -59,6 +59,8 @@
     ],
     "radix": "error",
 
+    "@typescript-eslint/no-explicit-any": "error",
+
     // TypeScript rules (currently disabled but available)
     "@typescript-eslint/no-floating-promises": "off",
     "@typescript-eslint/unbound-method": "off"
