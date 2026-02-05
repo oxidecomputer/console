@@ -10,10 +10,35 @@ import { useMemo } from 'react'
 import type { Control } from 'react-hook-form'
 import * as R from 'remeda'
 
-import { poolHasIpVersion, type IpVersion, type UnicastIpPool } from '@oxide/api'
+import {
+  poolHasIpVersion,
+  type IpVersion,
+  type SiloIpPool,
+  type UnicastIpPool,
+} from '@oxide/api'
+import { Badge } from '@oxide/design-system/ui'
 
-import { toIpPoolItem } from './ip-pool-item'
+import { IpVersionBadge } from '~/components/IpVersionBadge'
+
 import { ListboxField } from './ListboxField'
+
+function toIpPoolItem(p: SiloIpPool) {
+  const value = p.name
+  const selectedLabel = p.name
+  const label = (
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-1.5">
+        {p.name}
+        {p.isDefault && <Badge color="neutral">default</Badge>}
+        <IpVersionBadge ipVersion={p.ipVersion} />
+      </div>
+      {!!p.description && (
+        <div className="text-secondary selected:text-accent-secondary">{p.description}</div>
+      )}
+    </div>
+  )
+  return { value, selectedLabel, label }
+}
 
 const ALL_IP_VERSIONS: IpVersion[] = ['v4', 'v6']
 
