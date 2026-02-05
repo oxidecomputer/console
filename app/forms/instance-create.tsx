@@ -297,8 +297,10 @@ export default function CreateInstanceForm() {
   const compatibleDefaultPools = unicastPools
     .filter(poolHasIpVersion(defaultCompatibleVersions))
     .filter((p) => p.isDefault)
+  // TODO: when we switch to dual stack ephemeral IPs, this will need to change
+  // to handle selecting default pools for both v4 and v6
   const defaultEphemeralIpPool =
-    compatibleDefaultPools.length === 1 ? compatibleDefaultPools[0].name : ''
+    compatibleDefaultPools.length > 0 ? compatibleDefaultPools[0].name : ''
 
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
