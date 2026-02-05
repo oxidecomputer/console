@@ -12,6 +12,7 @@ import {
   expectRowVisible,
   expectToast,
   fillNumberInput,
+  propertiesTableValue,
   test,
 } from './utils'
 
@@ -25,35 +26,26 @@ test('Disk detail side modal', async ({ page }) => {
   await expect(modal.getByText('disk-1')).toBeVisible()
   await expect(modal.getByText('2 GiB')).toBeVisible()
   await expect(modal.getByText('2,048 bytes')).toBeVisible() // block size
-  await expect(modal.getByText('Read only')).toBeVisible()
-  await expect(modal.getByText('No')).toBeVisible()
+  await expect(propertiesTableValue(modal, 'Read only')).toHaveText('False')
 })
 
-test('Read-only disk shows badge in table', async ({ page }) => {
+test('Read-only disk shows badge in table and detail', async ({ page }) => {
   await page.goto('/projects/mock-project/disks')
 
   const table = page.getByRole('table')
 
-  // Verify the read-only disk has the badge
+  // The read-only disk has a "Read only" badge in the name cell
   const readOnlyRow = table.getByRole('row', { name: /read-only-disk/ })
-  await expect(readOnlyRow).toBeVisible()
   await expect(readOnlyRow.getByText('Read only', { exact: true })).toBeVisible()
 
-  // Verify a regular disk does not have the badge
+  // A regular disk does not
   const regularRow = table.getByRole('row', { name: /disk-1 db1/ })
-  await expect(regularRow).toBeVisible()
   await expect(regularRow.getByText('Read only', { exact: true })).toBeHidden()
-})
 
-test('Read-only disk detail shows read-only status', async ({ page }) => {
-  await page.goto('/projects/mock-project/disks')
-
+  // Detail modal shows read-only as True
   await page.getByRole('link', { name: 'read-only-disk' }).click()
-
   const modal = page.getByRole('dialog', { name: 'Disk details' })
-  await expect(modal).toBeVisible()
-  await expect(modal.getByText('Read only')).toBeVisible()
-  await expect(modal.getByText('Yes')).toBeVisible()
+  await expect(propertiesTableValue(modal, 'Read only')).toHaveText('True')
 })
 
 test('List disks and snapshot', async ({ page }) => {
