@@ -8,8 +8,17 @@
 import { FLEET_ID, type IdentityType, type RoleKey } from '@oxide/api'
 
 import { project, projectAdorno, projectAnscombe, projectKosman } from './project'
-import { defaultSilo, myriadSilo, pelerinesSilo, thraxSilo } from './silo'
-import { user1, user3, user5, user6, userAdorno, userAnscombe, userKosman } from './user'
+import { defaultSilo, myriadSilo, noPoolsSilo, pelerinesSilo, thraxSilo } from './silo'
+import {
+  user1,
+  user3,
+  user5,
+  user6,
+  userAdorno,
+  userAnscombe,
+  userKosman,
+  userNoPools,
+} from './user'
 import { userGroup2, userGroup3 } from './user-group'
 
 // For most other resources, we can store the API types directly in the DB. But
@@ -122,6 +131,14 @@ export const roleAssignments: DbRoleAssignment[] = [
     resource_type: 'project',
     resource_id: projectAdorno.id,
     identity_id: userAdorno.id,
+    identity_type: 'silo_user',
+    role_name: 'admin',
+  },
+  // no-pools silo: no IP pools
+  {
+    resource_type: 'silo',
+    resource_id: noPoolsSilo.id,
+    identity_id: userNoPools.id,
     identity_type: 'silo_user',
     role_name: 'admin',
   },

@@ -11,9 +11,12 @@
  * - myriad silo: v4-only default pool (user: Aryeh Kosman)
  * - thrax silo: v6-only default pool (user: Elizabeth Anscombe)
  * - pelerines silo: no default pools (user: Theodor Adorno)
+ * - no-pools silo: no IP pools (user: Antonio Gramsci)
  */
 
-import { expect, getPageAsUser, test } from './utils'
+import { floatingIp } from '@oxide/api-mocks'
+
+import { expect, expectRowVisible, getPageAsUser, test } from './utils'
 
 test.describe('IP pool configuration: myriad silo (v4-only default)', () => {
   test('instance create form shows IPv4 default pool preselected', async ({ browser }) => {
@@ -159,5 +162,63 @@ test.describe('IP pool configuration: pelerines silo (no defaults)', () => {
     await poolDropdown.click()
     await expect(page.getByRole('option', { name: 'ip-pool-1' })).toBeVisible()
     await expect(page.getByRole('option', { name: 'ip-pool-2' })).toBeVisible()
+  })
+})
+
+test.describe('IP pool configuration: no-pools silo (no IP pools)', () => {
+  test('instance create form disables ephemeral IP when no pools exist', async ({
+    browser,
+  }) => {
+    const page = await getPageAsUser(browser, 'Antonio Gramsci')
+    await page.goto('/projects/mock-project/instances-new')
+
+    await page.getByRole('textbox', { name: 'Name', exact: true }).fill('no-default-pool')
+
+    await page.getByRole('tab', { name: 'Silo images' }).click()
+    await page.getByPlaceholder('Select a silo image', { exact: true }).click()
+    await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
+
+    await page.getByRole('button', { name: 'Networking' }).click()
+
+    const defaultRadio = page.getByRole('radio', { name: 'Default' })
+    await expect(defaultRadio).toBeChecked()
+
+    const ephemeralCheckbox = page.getByRole('checkbox', {
+      name: 'Allocate and attach an ephemeral IP address',
+    })
+    await expect(ephemeralCheckbox).not.toBeChecked()
+    await expect(ephemeralCheckbox).toBeDisabled()
+
+    await ephemeralCheckbox.hover()
+    await expect(
+      page.getByRole('tooltip').filter({ hasText: /No compatible IP pools available/ })
+    ).toBeVisible()
+
+    const poolDropdown = page.getByLabel('Pool')
+    await expect(poolDropdown).toBeHidden()
+
+    const attachFloatingIpButton = page.getByRole('button', { name: 'Attach floating IP' })
+    const dialog = page.getByRole('dialog')
+    const selectFloatingIpButton = dialog.getByRole('button', { name: 'Floating IP' })
+    const rootbeerFloatOption = page.getByRole('option', { name: floatingIp.name })
+    const attachButton = dialog.getByRole('button', { name: 'Attach', exact: true })
+
+    await attachFloatingIpButton.click()
+    await selectFloatingIpButton.click()
+    await rootbeerFloatOption.click()
+    await attachButton.click()
+    await expectRowVisible(page.getByRole('table', { name: 'Floating IPs' }), {
+      Name: floatingIp.name,
+      IP: floatingIp.ip,
+    })
+
+    await page.getByRole('button', { name: 'Create instance' }).click()
+    await expect(
+      page.getByText('Not found: default IP pool for current silo')
+    ).toBeVisible()
+    await expectRowVisible(page.getByRole('table', { name: 'Floating IPs' }), {
+      Name: floatingIp.name,
+      IP: floatingIp.ip,
+    })
   })
 })

@@ -8,7 +8,7 @@
 import type { User } from '@oxide/api'
 
 import type { Json } from './json-type'
-import { defaultSilo, myriadSilo, pelerinesSilo, thraxSilo } from './silo'
+import { defaultSilo, myriadSilo, noPoolsSilo, pelerinesSilo, thraxSilo } from './silo'
 
 export const user1: Json<User> = {
   id: '2e28576d-43e0-4e9e-9132-838a7b66f602',
@@ -65,6 +65,12 @@ export const userAdorno: Json<User> = {
   silo_id: pelerinesSilo.id,
 }
 
+export const userNoPools: Json<User> = {
+  id: 'c1d0e9f8-a7b6-c5d4-e3f2-a1b0c9d8e7f6',
+  display_name: 'Antonio Gramsci',
+  silo_id: noPoolsSilo.id,
+}
+
 export const users = [
   user1,
   user2,
@@ -75,4 +81,5 @@ export const users = [
   userKosman,
   userAnscombe,
   userAdorno,
+  userNoPools,
 ]

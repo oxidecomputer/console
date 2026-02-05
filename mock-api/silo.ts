@@ -64,12 +64,23 @@ export const silos: Json<Silo[]> = [
     identity_mode: 'saml_jit',
     mapped_fleet_roles: {},
   },
+  {
+    id: '9c3d4e5f-6a7b-7c9d-8e1f-2a3b4c5d6e7f',
+    name: 'no-pools',
+    description: 'silo with no IP pools',
+    time_created: new Date(2024, 0, 11).toISOString(),
+    time_modified: new Date(2024, 0, 12).toISOString(),
+    discoverable: false,
+    identity_mode: 'saml_jit',
+    mapped_fleet_roles: {},
+  },
 ]
 
 export const defaultSilo = silos[0]
 export const myriadSilo = silos[1]
 export const thraxSilo = silos[2]
 export const pelerinesSilo = silos[3]
+export const noPoolsSilo = silos[4]
 
 export const siloQuotas: Json<SiloQuotas[]> = [
   {
@@ -92,6 +103,12 @@ export const siloQuotas: Json<SiloQuotas[]> = [
   },
   {
     silo_id: silos[3].id,
+    cpus: 20,
+    memory: 100 * GiB,
+    storage: 2 * TiB,
+  },
+  {
+    silo_id: silos[4].id,
     cpus: 20,
     memory: 100 * GiB,
     storage: 2 * TiB,
@@ -125,6 +142,12 @@ export const siloProvisioned: Json<SiloQuotas[]> = [
     cpus: 2,
     memory: 16 * GiB,
     storage: 0.5 * TiB,
+  },
+  {
+    silo_id: silos[4].id,
+    cpus: 0,
+    memory: 0,
+    storage: 0,
   },
 ]
 
@@ -182,6 +205,10 @@ export const siloSettings: Json<SiloAuthSettings>[] = [
   },
   {
     silo_id: silos[3].id,
+    device_token_max_ttl_seconds: 3600,
+  },
+  {
+    silo_id: silos[4].id,
     device_token_max_ttl_seconds: 3600,
   },
 ]

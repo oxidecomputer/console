@@ -85,6 +85,7 @@ describe('userHasRole', () => {
       ['Aryeh Kosman', false],
       ['Elizabeth Anscombe', false],
       ['Theodor Adorno', false],
+      ['Antonio Gramsci', false],
     ])
   })
 
@@ -101,6 +102,7 @@ describe('userHasRole', () => {
       ['Aryeh Kosman', false],
       ['Elizabeth Anscombe', false],
       ['Theodor Adorno', false],
+      ['Antonio Gramsci', false],
     ])
   })
 
@@ -117,6 +119,7 @@ describe('userHasRole', () => {
       ['Aryeh Kosman', false],
       ['Elizabeth Anscombe', false],
       ['Theodor Adorno', false],
+      ['Antonio Gramsci', false],
     ])
   })
 
@@ -136,6 +139,7 @@ describe('userHasRole', () => {
       ['Aryeh Kosman', false],
       ['Elizabeth Anscombe', false],
       ['Theodor Adorno', false],
+      ['Antonio Gramsci', false],
     ])
   })
 
@@ -155,6 +159,7 @@ describe('userHasRole', () => {
       ['Aryeh Kosman', false],
       ['Elizabeth Anscombe', false],
       ['Theodor Adorno', false],
+      ['Antonio Gramsci', false],
     ])
   })
 
@@ -171,6 +176,7 @@ describe('userHasRole', () => {
       ['Aryeh Kosman', false],
       ['Elizabeth Anscombe', false],
       ['Theodor Adorno', false],
+      ['Antonio Gramsci', false],
     ])
   })
 })

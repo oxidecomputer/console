@@ -324,16 +324,16 @@ export function handleMetrics({ path: { metricName }, query }: MetricParams) {
 export const MSW_USER_COOKIE = 'msw-user'
 
 /**
- * Look up user by display name in cookie. Return the first user if cookie empty
- * or name not found. We're using display name to make it easier to set the
- * cookie by hand, because there is no way yet to pick a user through the UI.
- *
- * If cookie is empty or name is not found, return the first user in the list,
- * who has admin on everything.
+ * Look up user by display name in cookie. If cookie is empty, return the first
+ * user in the list, who has admin on everything. Throw if name is set but not
+ * found so typos in test code get caught immediately.
  */
 export function currentUser(cookies: Record<string, string>): Json<User> {
   const name = cookies[MSW_USER_COOKIE]
-  return db.users.find((u) => u.display_name === name) ?? db.users[0]
+  if (!name) return db.users[0]
+  const user = db.users.find((u) => u.display_name === name)
+  if (!user) throw new Error(`No mock user with display name '${name}'`)
+  return user
 }
 
 /**
