@@ -852,7 +852,13 @@ const AdvancedAccordion = ({
     [unicastPools, compatibleVersions]
   )
   const sortedPools = useMemo(
-    () => R.sortBy(compatibleUnicastPools, (p) => [!p.isDefault, p.ipVersion, p.name]),
+    () =>
+      R.sortBy(
+        compatibleUnicastPools,
+        (p) => !p.isDefault, // false sorts first, so this defaults first
+        (p) => p.ipVersion, // sort v4 first
+        (p) => p.name
+      ),
     [compatibleUnicastPools]
   )
 

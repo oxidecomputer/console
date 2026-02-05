@@ -35,8 +35,12 @@ export function IpPoolSelector({
   // Note: pools are already filtered by poolType before being passed to this component
   const sortedPools = useMemo(() => {
     const compatPools = pools.filter(poolHasIpVersion(compatibleVersions))
-    // sort defaults first, sort v4 first, then name as tiebreaker
-    return R.sortBy(compatPools, (p) => [!p.isDefault, p.ipVersion, p.name])
+    return R.sortBy(
+      compatPools,
+      (p) => !p.isDefault, // false sorts first, so this defaults first
+      (p) => p.ipVersion, // sort v4 first
+      (p) => p.name
+    )
   }, [pools, compatibleVersions])
 
   const hasNoPools = sortedPools.length === 0
