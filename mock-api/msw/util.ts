@@ -75,15 +75,17 @@ function sortItems<I extends { id: string }>(
   switch (sortBy) {
     case 'name_ascending':
       return sorted.sort((a, b) => {
+        // Use byte-wise lexicographic comparison to match Rust's String ordering,
+        // not locale-aware localeCompare()
         const aName = 'name' in a ? String(a.name) : a.id
         const bName = 'name' in b ? String(b.name) : b.id
-        return aName.localeCompare(bName)
+        return aName < bName ? -1 : aName > bName ? 1 : 0
       })
     case 'name_descending':
       return sorted.sort((a, b) => {
         const aName = 'name' in a ? String(a.name) : a.id
         const bName = 'name' in b ? String(b.name) : b.id
-        return bName.localeCompare(aName)
+        return bName < aName ? -1 : bName > aName ? 1 : 0
       })
     case 'id_ascending':
       // Use pure lexicographic comparison for UUIDs to match Rust's derived Ord
@@ -92,20 +94,26 @@ function sortItems<I extends { id: string }>(
     case 'time_and_id_ascending':
       return sorted.sort((a, b) => {
         // Compare timestamps numerically to handle Date objects and non-ISO formats
-        const aTime =
+        // Normalize NaN from invalid dates to -Infinity for deterministic ordering
+        const aRaw =
           'time_created' in a ? new Date(a.time_created as string | Date).valueOf() : -Infinity
-        const bTime =
+        const bRaw =
           'time_created' in b ? new Date(b.time_created as string | Date).valueOf() : -Infinity
+        const aTime = Number.isFinite(aRaw) ? aRaw : -Infinity
+        const bTime = Number.isFinite(bRaw) ? bRaw : -Infinity
         const timeCompare = aTime - bTime
         return timeCompare !== 0 ? timeCompare : a.id < b.id ? -1 : a.id > b.id ? 1 : 0
       })
     case 'time_and_id_descending':
       return sorted.sort((a, b) => {
         // Compare timestamps numerically to handle Date objects and non-ISO formats
-        const aTime =
+        // Normalize NaN from invalid dates to -Infinity for deterministic ordering
+        const aRaw =
           'time_created' in a ? new Date(a.time_created as string | Date).valueOf() : -Infinity
-        const bTime =
+        const bRaw =
           'time_created' in b ? new Date(b.time_created as string | Date).valueOf() : -Infinity
+        const aTime = Number.isFinite(aRaw) ? aRaw : -Infinity
+        const bTime = Number.isFinite(bRaw) ? bRaw : -Infinity
         const timeCompare = bTime - aTime
         return timeCompare !== 0 ? timeCompare : b.id < a.id ? -1 : b.id > a.id ? 1 : 0
       })
