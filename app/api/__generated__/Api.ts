@@ -6682,6 +6682,10 @@ export interface RackMembershipStatusQueryParams {
   version?: RackMembershipVersion
 }
 
+export interface RackMembershipAbortPathParams {
+  rackId: string
+}
+
 export interface RackMembershipAddSledsPathParams {
   rackId: string
 }
@@ -7448,7 +7452,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2026013100.0.0'
+  apiVersion = '2026020200.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host
@@ -9977,6 +9981,19 @@ export class Api {
         path: `/v1/system/hardware/racks/${path.rackId}/membership`,
         method: 'GET',
         query,
+        ...params,
+      })
+    },
+    /**
+     * Abort the latest rack membership change
+     */
+    rackMembershipAbort: (
+      { path }: { path: RackMembershipAbortPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<RackMembershipStatus>({
+        path: `/v1/system/hardware/racks/${path.rackId}/membership/abort`,
+        method: 'POST',
         ...params,
       })
     },

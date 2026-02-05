@@ -6987,6 +6987,16 @@ export const RackMembershipStatusParams = z.preprocess(
   })
 )
 
+export const RackMembershipAbortParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      rackId: z.uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
 export const RackMembershipAddSledsParams = z.preprocess(
   processResponseBody,
   z.object({

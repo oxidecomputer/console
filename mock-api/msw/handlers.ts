@@ -2260,6 +2260,7 @@ export const handlers = makeHandlers({
   probeList: NotImplemented,
   probeView: NotImplemented,
   rackView: NotImplemented,
+  rackMembershipAbort: NotImplemented,
   rackMembershipStatus: NotImplemented,
   rackMembershipAddSleds: NotImplemented,
   siloPolicyUpdate: NotImplemented,
