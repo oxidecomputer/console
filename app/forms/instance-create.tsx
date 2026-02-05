@@ -275,9 +275,17 @@ export default function CreateInstanceForm() {
     q(api.projectIpPoolList, { query: { limit: ALL_ISH } })
   )
 
-  // Only unicast pools can be used for ephemeral IPs
+  // Only unicast pools can be used for ephemeral IPs. Sort once here so
+  // downstream filters (default pool pick, compatible pool list) preserve
+  // the order without needing to re-sort.
   const unicastPools = useMemo(
-    () => (siloPools?.items || []).filter(isUnicastPool),
+    () =>
+      R.sortBy(
+        (siloPools?.items || []).filter(isUnicastPool),
+        (p) => !p.isDefault, // defaults first
+        (p) => p.ipVersion, // v4 first
+        (p) => p.name
+      ),
     [siloPools]
   )
 
@@ -783,35 +791,27 @@ const AdvancedAccordion = ({
     .filter((ip) => !!ip)
 
   // Filter unicast pools by compatible IP versions
-  const compatibleUnicastPools = useMemo(
+  // unicastPools is already sorted (defaults first, v4 first, then by name),
+  // so filtering preserves that order
+  const compatiblePools = useMemo(
     () => unicastPools.filter(poolHasIpVersion(compatibleVersions)),
     [unicastPools, compatibleVersions]
   )
-  const sortedPools = useMemo(
-    () =>
-      R.sortBy(
-        compatibleUnicastPools,
-        (p) => !p.isDefault, // false sorts first, so this defaults first
-        (p) => p.ipVersion, // sort v4 first
-        (p) => p.name
-      ),
-    [compatibleUnicastPools]
-  )
 
   useEffect(() => {
-    if (!assignEphemeralIp || sortedPools.length === 0) return
+    if (!assignEphemeralIp || compatiblePools.length === 0) return
 
     const currentPoolValid =
-      ephemeralIpPool && sortedPools.some((p) => p.name === ephemeralIpPool)
+      ephemeralIpPool && compatiblePools.some((p) => p.name === ephemeralIpPool)
     if (currentPoolValid) return
 
-    const defaultPool = sortedPools.find((p) => p.isDefault)
+    const defaultPool = compatiblePools.find((p) => p.isDefault)
     if (defaultPool) {
       ephemeralIpPoolField.field.onChange(defaultPool.name)
     } else {
       ephemeralIpPoolField.field.onChange('')
     }
-  }, [assignEphemeralIp, ephemeralIpPool, ephemeralIpPoolField, sortedPools])
+  }, [assignEphemeralIp, ephemeralIpPool, ephemeralIpPoolField, compatiblePools])
 
   // Track previous ability to attach ephemeral IP to detect transitions
   const prevCanAttachRef = useRef<boolean | undefined>(undefined)
@@ -819,9 +819,9 @@ const AdvancedAccordion = ({
   // Automatically manage ephemeral IP based on NIC and pool availability
   useEffect(() => {
     const hasCompatibleNics = compatibleVersions.length > 0
-    const hasPools = compatibleUnicastPools.length > 0
+    const hasPools = compatiblePools.length > 0
     const canAttach = hasCompatibleNics && hasPools
-    const hasDefaultPool = compatibleUnicastPools.some((p) => p.isDefault)
+    const hasDefaultPool = compatiblePools.some((p) => p.isDefault)
     const prevCanAttach = prevCanAttachRef.current
 
     if (!canAttach && assignEphemeralIp) {
@@ -839,16 +839,11 @@ const AdvancedAccordion = ({
     }
 
     prevCanAttachRef.current = canAttach
-  }, [
-    assignEphemeralIp,
-    assignEphemeralIpField,
-    compatibleUnicastPools,
-    compatibleVersions,
-  ])
+  }, [assignEphemeralIp, assignEphemeralIpField, compatiblePools, compatibleVersions])
 
   const ephemeralIpCheckboxState = useMemo(() => {
     const hasCompatibleNics = compatibleVersions.length > 0
-    const hasCompatiblePools = compatibleUnicastPools.length > 0
+    const hasCompatiblePools = compatiblePools.length > 0
     const canAttachEphemeralIp = hasCompatibleNics && hasCompatiblePools
 
     let disabledReason: React.ReactNode = undefined
@@ -874,7 +869,7 @@ const AdvancedAccordion = ({
     }
 
     return { canAttachEphemeralIp, disabledReason }
-  }, [compatibleVersions, compatibleUnicastPools])
+  }, [compatibleVersions, compatiblePools])
 
   const closeFloatingIpModal = () => {
     setFloatingIpModalOpen(false)
@@ -970,7 +965,7 @@ const AdvancedAccordion = ({
             className={assignEphemeralIp ? '' : 'hidden'}
             control={control}
             poolFieldName="ephemeralIpPool"
-            pools={compatibleUnicastPools}
+            pools={compatiblePools}
             disabled={isSubmitting}
             compatibleVersions={compatibleVersions}
             required={assignEphemeralIp}

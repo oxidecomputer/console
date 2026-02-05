@@ -7,7 +7,7 @@
  */
 import cn from 'classnames'
 import { useMemo } from 'react'
-import type { Control } from 'react-hook-form'
+import type { Control, FieldPath, FieldValues } from 'react-hook-form'
 import * as R from 'remeda'
 
 import {
@@ -42,10 +42,13 @@ function toIpPoolItem(p: SiloIpPool) {
 
 const ALL_IP_VERSIONS: IpVersion[] = ['v4', 'v6']
 
-type IpPoolSelectorProps = {
+type IpPoolSelectorProps<
+  TFieldValues extends FieldValues,
+  TName extends FieldPath<TFieldValues>,
+> = {
   className?: string
-  control: Control<any>
-  poolFieldName: string
+  control: Control<TFieldValues>
+  poolFieldName: TName
   pools: UnicastIpPool[]
   disabled?: boolean
   /** Compatible IP versions based on network interface type */
@@ -53,7 +56,10 @@ type IpPoolSelectorProps = {
   required?: boolean
 }
 
-export function IpPoolSelector({
+export function IpPoolSelector<
+  TFieldValues extends FieldValues,
+  TName extends FieldPath<TFieldValues>,
+>({
   className,
   control,
   poolFieldName,
@@ -61,7 +67,7 @@ export function IpPoolSelector({
   disabled = false,
   compatibleVersions = ALL_IP_VERSIONS,
   required = true,
-}: IpPoolSelectorProps) {
+}: IpPoolSelectorProps<TFieldValues, TName>) {
   // Note: pools are already filtered by poolType before being passed to this component
   const sortedPools = useMemo(() => {
     const compatPools = pools.filter(poolHasIpVersion(compatibleVersions))

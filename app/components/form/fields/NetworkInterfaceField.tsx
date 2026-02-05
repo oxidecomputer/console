@@ -77,7 +77,7 @@ export function NetworkInterfaceField({
             name="networkInterfaceType"
             value="default"
             disabled={!hasVpcs || disabled}
-            defaultChecked={currentMode === 'default'}
+            checked={currentMode === 'default'}
             onChange={(e) => handleModeChange(e.target.value)}
           >
             Default
@@ -103,7 +103,7 @@ export function NetworkInterfaceField({
             name="networkInterfaceType"
             value="create"
             disabled={!hasVpcs || disabled}
-            defaultChecked={currentMode === 'create'}
+            checked={currentMode === 'create'}
             onChange={(e) => handleModeChange(e.target.value)}
           >
             Custom
@@ -155,7 +155,7 @@ export function NetworkInterfaceField({
           name="networkInterfaceType"
           value="none"
           disabled={disabled}
-          defaultChecked={currentMode === 'none'}
+          checked={currentMode === 'none'}
           onChange={(e) => handleModeChange(e.target.value)}
         >
           None
