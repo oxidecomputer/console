@@ -147,6 +147,13 @@ export type InstanceCreateInput = Assign<
   }
 >
 
+// Stable array refs to avoid useEffect churn when
+// getCompatibleVersionsFromNicType is used in dependency arrays
+const IP_VERSIONS_V4: IpVersion[] = ['v4']
+const IP_VERSIONS_V6: IpVersion[] = ['v6']
+const IP_VERSIONS_DUAL: IpVersion[] = ['v4', 'v6']
+const IP_VERSIONS_NONE: IpVersion[] = []
+
 /**
  * Determine compatible IP versions based on network interface configuration.
  * External IPs route through the primary interface, so only its IP stack matters.
@@ -156,20 +163,20 @@ function getCompatibleVersionsFromNicType(
 ): IpVersion[] {
   return match(networkInterfaces)
     .returnType<IpVersion[]>()
-    .with({ type: 'default_ipv4' }, () => ['v4'])
-    .with({ type: 'default_ipv6' }, () => ['v6'])
-    .with({ type: 'default_dual_stack' }, () => ['v4', 'v6'])
-    .with({ type: 'none' }, () => [])
-    .with({ type: 'create', params: [] }, () => [])
+    .with({ type: 'default_ipv4' }, () => IP_VERSIONS_V4)
+    .with({ type: 'default_ipv6' }, () => IP_VERSIONS_V6)
+    .with({ type: 'default_dual_stack' }, () => IP_VERSIONS_DUAL)
+    .with({ type: 'none' }, () => IP_VERSIONS_NONE)
+    .with({ type: 'create', params: [] }, () => IP_VERSIONS_NONE)
     .with({ type: 'create', params: P.select() }, (params) =>
       // Derive from the first NIC's ipConfig (first NIC becomes primary).
       // ipConfig not provided = defaults to dual-stack
       match(params[0].ipConfig?.type)
         .returnType<IpVersion[]>()
-        .with('v4', () => ['v4'])
-        .with('v6', () => ['v6'])
-        .with('dual_stack', () => ['v4', 'v6'])
-        .with(P.nullish, () => ['v4', 'v6'])
+        .with('v4', () => IP_VERSIONS_V4)
+        .with('v6', () => IP_VERSIONS_V6)
+        .with('dual_stack', () => IP_VERSIONS_DUAL)
+        .with(P.nullish, () => IP_VERSIONS_DUAL)
         .exhaustive()
     )
     .exhaustive()
