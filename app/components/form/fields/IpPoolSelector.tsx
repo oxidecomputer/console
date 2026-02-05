@@ -48,25 +48,18 @@ export function IpPoolSelector({
     )
   }, [pools, compatibleVersions])
 
-  const hasNoPools = sortedPools.length === 0
-
   return (
     <div className={cn('space-y-4', className)}>
-      {hasNoPools ? (
-        <div className="text-secondary">
-          No IP pools available for this network interface type
-        </div>
-      ) : (
-        <ListboxField
-          name={poolFieldName}
-          items={sortedPools.map(toIpPoolItem)}
-          label={'Pool'}
-          control={control}
-          placeholder="Select a pool"
-          required={required}
-          disabled={disabled}
-        />
-      )}
+      <ListboxField
+        name={poolFieldName}
+        items={sortedPools.map(toIpPoolItem)}
+        label="Pool"
+        noItemsPlaceholder="No pools available"
+        control={control}
+        placeholder="Select a pool"
+        required={required}
+        disabled={disabled}
+      />
     </div>
   )
 }

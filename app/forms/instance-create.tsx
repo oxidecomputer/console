@@ -422,28 +422,10 @@ export default function CreateInstanceForm() {
           }))
 
           if (assignEphemeralIp) {
-            if (!ephemeralIpPool) {
-              // This is a defensive thing, maybe temporary until we get
-              // dual-stack ephemeral IPs working and we iron out the logic
-              // even more. In theory getting to submit with the ephemeral IP
-              // checkbox checked and no pool selected should be impossible
-              // due to the validation rule on the pool being required when the
-              // checkbox is checked. However, if you have _no_ pools, currently
-              // IpPoolSelector does not render the listbox, which means the
-              // requirement is not registered with RHF and thus not enforced.
-              // I think this needs to change anyway, because if the listbox
-              // isn't being rendered, then this error is not rendered. So
-              // the experience you have is of submitting the form and nothing
-              // visible happening.
-              form.setError('ephemeralIpPool', {
-                type: 'manual',
-                message: 'Select an IP pool to attach an ephemeral IP address',
-              })
-              setIsSubmitting(false)
-              return
-            }
             externalIps.push({
               type: 'ephemeral',
+              // form validation is meant to ensure that pool is set when
+              // assignEphemeralIp checkbox is checked
               poolSelector: { type: 'explicit', pool: ephemeralIpPool },
             })
           }
@@ -879,6 +861,9 @@ const AdvancedAccordion = ({
         </>
       )
     } else if (!hasCompatiblePools) {
+      // TODO: "compatible" not clear enough. also this can happen if there are
+      // no pools at all as well as when there are no pools compatible withe
+      // the NIC stack. We could do a different messages for each.
       disabledReason = (
         <>
           No compatible IP pools available
