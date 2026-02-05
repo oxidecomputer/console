@@ -181,12 +181,12 @@ function findStartIndex<I extends { id: string }>(
     case 'time_and_id_ascending':
     case 'time_and_id_descending':
       // Page token is "timestamp|id" - find item with matching timestamp and ID
+      // Use same fallback as getPageToken for items without time_created
       const [time, id] = pageToken.split('|', 2)
-      return sortedItems.findIndex(
-        (i) =>
-          i.id === id &&
-          ('time_created' in i ? normalizeTime(i.time_created) === time : false)
-      )
+      return sortedItems.findIndex((i) => {
+        const itemTime = 'time_created' in i ? normalizeTime(i.time_created) : ''
+        return i.id === id && itemTime === time
+      })
   }
 }
 
