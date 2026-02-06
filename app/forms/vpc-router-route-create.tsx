@@ -16,7 +16,10 @@ import { RouteFormFields, type RouteFormValues } from '~/forms/vpc-router-route-
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { FormDivider } from '~/ui/lib/Divider'
+import { ModalLink, ModalLinks } from '~/ui/lib/ModalLinks'
 import { ALL_ISH } from '~/util/consts'
+import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const defaultValues: RouteFormValues = {
@@ -79,6 +82,11 @@ export default function CreateRouterRouteSideModalForm() {
       submitError={createRouterRoute.error}
     >
       <RouteFormFields form={form} />
+      <FormDivider />
+      <ModalLinks heading="Relevant docs">
+        <ModalLink to={links.routesDocs} label="VPC Subnet Routing" />
+        <ModalLink to={links.gatewaysDocs} label="Internet Gateways" />
+      </ModalLinks>
     </SideModalForm>
   )
 }

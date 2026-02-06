@@ -44,8 +44,11 @@ export const links = {
     `https://docs.oxide.computer/guides/metrics/timeseries-schemas#_${metric.replace(':', '')}`,
   projectsDocs: 'https://docs.oxide.computer/guides/onboarding-projects',
   quickStart: 'https://docs.oxide.computer/guides/quickstart',
+  routesDocs: 'https://docs.oxide.computer/guides/configuring-guest-networking#vpc-subnet',
   routersDocs:
     'https://docs.oxide.computer/guides/configuring-guest-networking#_custom_routers',
+  subnetsDocs:
+    'https://docs.oxide.computer/guides/configuring-guest-networking#_vpcs_and_subnets',
   scimDocs:
     'https://docs.oxide.computer/guides/operator/identity-providers#_saml_authentication_scim_user_provisioning',
   siloQuotasDocs:
@@ -97,6 +100,10 @@ export const docLinks = {
     href: links.floatingIpsDocs,
     linkText: 'Floating IPs',
   },
+  gateways: {
+    href: links.gatewaysDocs,
+    linkText: 'Internet Gateways',
+  },
   keyConceptsIam: {
     href: links.keyConceptsIamPolicyDocs,
     linkText: 'Key Concepts',
@@ -133,6 +140,10 @@ export const docLinks = {
     href: links.routersDocs,
     linkText: 'Custom Routers',
   },
+  routes: {
+    href: links.routesDocs,
+    linkText: 'VPC Subnet Routing',
+  },
   sleds: {
     href: links.sledDocs,
     linkText: 'Server Sleds',
@@ -144,6 +155,10 @@ export const docLinks = {
   sshKeys: {
     href: links.sshKeysDocs,
     linkText: 'SSH Keys',
+  },
+  subnets: {
+    href: links.subnetsDocs,
+    linkText: 'VPCs and Subnets',
   },
   storage: {
     href: links.storageDocs,

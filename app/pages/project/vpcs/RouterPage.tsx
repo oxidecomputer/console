@@ -184,8 +184,8 @@ export default function RouterPage() {
           <DocsPopover
             heading="routers"
             icon={<Networking16Icon />}
-            summary="Routers are collections of routes that direct traffic between VPCs and their subnets."
-            links={[docLinks.routers]}
+            summary="Routers contain routes that control how traffic is forwarded from instances to external networks and other VPC subnets."
+            links={[docLinks.routers, docLinks.routes]}
           />
           <MoreActionsMenu label="Router actions">
             <CopyIdItem id={routerData.id} />

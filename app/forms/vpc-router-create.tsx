@@ -17,6 +17,9 @@ import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { useVpcSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { FormDivider } from '~/ui/lib/Divider'
+import { ModalLink, ModalLinks } from '~/ui/lib/ModalLinks'
+import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const defaultValues: VpcRouterCreate = {
@@ -55,6 +58,10 @@ export default function RouterCreate() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
+      <FormDivider />
+      <ModalLinks heading="Relevant docs">
+        <ModalLink to={links.routersDocs} label="Custom Routers" />
+      </ModalLinks>
     </SideModalForm>
   )
 }
