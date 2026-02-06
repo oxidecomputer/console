@@ -67,12 +67,12 @@
 
   & thead tr:first-of-type th:first-of-type {
     border-top-left-radius: var(--radius-lg);
-    @apply border-l;
+    @apply overflow-hidden border-l;
   }
 
   & thead tr:first-of-type th:last-of-type {
     border-top-right-radius: var(--radius-lg);
-    @apply w-8 border-r;
+    @apply w-8 overflow-hidden border-r;
   }
 
   & tbody tr:last-of-type td:first-of-type {
