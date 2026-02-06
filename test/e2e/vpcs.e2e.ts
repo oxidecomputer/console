@@ -351,7 +351,8 @@ test('can view internet gateways', async ({ page }) => {
   await expect(page).toHaveURL(
     '/projects/mock-project/vpcs/mock-vpc/internet-gateways/internet-gateway-1'
   )
-  const sidemodal = page.getByLabel('Internet Gateway')
+  // Use getByRole instead of getByLabel to avoid matching truncated descriptions
+  const sidemodal = page.getByRole('dialog', { name: 'Internet gateway' })
 
   await expect(sidemodal.getByText('123.4.56.3')).toBeVisible()
 

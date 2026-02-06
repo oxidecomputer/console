@@ -15,7 +15,6 @@ import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { DiskStateBadge, DiskTypeBadge } from '~/components/StateBadge'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getDiskSelector, useDiskSelector } from '~/hooks/use-params'
-import { EmptyCell } from '~/table/cells/EmptyCell'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
 import { pb } from '~/util/path-builder'
@@ -73,7 +72,7 @@ export function DiskDetailSideModal({
     >
       <PropertiesTable>
         <PropertiesTable.IdRow id={disk.id} />
-        <PropertiesTable.DescriptionRow description={disk.description} />
+        <PropertiesTable.DescriptionRow description={disk.description} sideModal />
         <PropertiesTable.Row label="Size">{bytesToGiB(disk.size)} GiB</PropertiesTable.Row>
         <PropertiesTable.Row label="State">
           <DiskStateBadge state={disk.state.state} />
@@ -82,12 +81,8 @@ export function DiskDetailSideModal({
           <DiskTypeBadge diskType={disk.diskType} />
         </PropertiesTable.Row>
         {/* TODO: show attached instance by name like the table does? */}
-        <PropertiesTable.Row label="Image ID">
-          {disk.imageId ?? <EmptyCell />}
-        </PropertiesTable.Row>
-        <PropertiesTable.Row label="Snapshot ID">
-          {disk.snapshotId ?? <EmptyCell />}
-        </PropertiesTable.Row>
+        <PropertiesTable.IdRow id={disk.imageId} label="Image ID" />
+        <PropertiesTable.IdRow id={disk.snapshotId} label="Snapshot ID" />
         <PropertiesTable.Row label="Read only">
           <Badge color="neutral">{disk.readOnly ? 'True' : 'False'}</Badge>
         </PropertiesTable.Row>
