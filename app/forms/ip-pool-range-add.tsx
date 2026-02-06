@@ -26,9 +26,9 @@ import { useIpPoolSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
-import { ModalLink, ModalLinks } from '~/ui/lib/ModalLinks'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { parseIp } from '~/util/ip'
-import { links } from '~/util/links'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const defaultValues: IpRange = {
@@ -141,9 +141,7 @@ export default function IpPoolAddRange() {
         required
       />
       <FormDivider />
-      <ModalLinks heading="Relevant docs">
-        <ModalLink to={links.systemIpPoolsDocs} label="IP Pools" />
-      </ModalLinks>
+      <SideModalFormDocs docs={[docLinks.systemIpPools]} />
     </SideModalForm>
   )
 }

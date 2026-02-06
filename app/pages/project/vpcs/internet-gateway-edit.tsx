@@ -19,11 +19,11 @@ import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
-import { ModalLink, ModalLinks } from '~/ui/lib/ModalLinks'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel, SideModal } from '~/ui/lib/SideModal'
 import { Table } from '~/ui/lib/Table'
-import { links } from '~/util/links'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
@@ -202,9 +202,7 @@ export default function EditInternetGatewayForm() {
       </div>
 
       <FormDivider />
-      <ModalLinks heading="Relevant docs">
-        <ModalLink to={links.gatewaysDocs} label="Internet Gateways" />
-      </ModalLinks>
+      <SideModalFormDocs docs={[docLinks.gateways]} />
     </ReadOnlySideModalForm>
   )
 }
