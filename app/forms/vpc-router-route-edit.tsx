@@ -22,7 +22,6 @@ import {
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getVpcRouterRouteSelector, useVpcRouterRouteSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { FormDivider } from '~/ui/lib/Divider'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
@@ -101,7 +100,6 @@ export default function EditRouterRouteSideModalForm() {
       submitDisabled={disabled ? routeFormMessage.vpcSubnetNotModifiable : undefined}
     >
       <RouteFormFields form={form} disabled={disabled} />
-      <FormDivider />
       <RouteFormDocs />
     </SideModalForm>
   )

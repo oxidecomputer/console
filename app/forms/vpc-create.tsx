@@ -18,7 +18,6 @@ import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { FormDivider } from '~/ui/lib/Divider'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
@@ -66,7 +65,6 @@ export default function CreateVpcSideModalForm() {
       <DescriptionField name="description" control={form.control} />
       <NameField name="dnsName" label="DNS name" control={form.control} />
       <TextField name="ipv6Prefix" label="IPV6 prefix" control={form.control} />
-      <FormDivider />
       <SideModalFormDocs docs={[docLinks.vpcs]} />
     </SideModalForm>
   )

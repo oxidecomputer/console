@@ -16,6 +16,8 @@ import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { addToast } from '~/stores/toast'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const defaultValues: SshKeyCreate = {
@@ -66,6 +68,7 @@ export function SSHKeyCreate({ onDismiss, message }: Props) {
         control={form.control}
       />
       {message}
+      <SideModalFormDocs docs={[docLinks.sshKeys]} />
     </SideModalForm>
   )
 }
