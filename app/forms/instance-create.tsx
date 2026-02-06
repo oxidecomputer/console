@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import * as Accordion from '@radix-ui/react-accordion'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useController, useForm, useWatch, type Control } from 'react-hook-form'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
@@ -44,7 +43,6 @@ import {
   Storage16Icon,
 } from '@oxide/design-system/icons/react'
 
-import { AccordionItem } from '~/components/AccordionItem'
 import { DocsPopover } from '~/components/DocsPopover'
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
@@ -729,7 +727,14 @@ export default function CreateInstanceForm() {
         />
         <FormDivider />
         <Form.Heading id="advanced">Advanced</Form.Heading>
-        <AdvancedAccordion control={control} isSubmitting={isSubmitting} />
+        <FileField
+          id="user-data-input"
+          description={<UserDataDescription />}
+          name="userData"
+          label="User Data"
+          control={control}
+          disabled={isSubmitting}
+        />
         <Form.Actions>
           <Form.Submit loading={createInstance.isPending}>Create instance</Form.Submit>
           <Form.Cancel onClick={() => navigate(pb.instances({ project }))} />
@@ -755,43 +760,6 @@ const FloatingIpLabel = ({ ip }: { ip: FloatingIp }) => (
     </div>
   </div>
 )
-
-const AdvancedAccordion = ({
-  control,
-  isSubmitting,
-}: {
-  control: Control<InstanceCreateInput>
-  isSubmitting: boolean
-}) => {
-  // we track this state manually for the sole reason that we need to be able to
-  // tell, inside AccordionItem, when an accordion is opened so we can scroll its
-  // contents into view
-  const [openItems, setOpenItems] = useState<string[]>([])
-
-  return (
-    <Accordion.Root
-      type="multiple"
-      className="mt-12 max-w-lg"
-      value={openItems}
-      onValueChange={setOpenItems}
-    >
-      <AccordionItem
-        value="configuration"
-        label="Configuration"
-        isOpen={openItems.includes('configuration')}
-      >
-        <FileField
-          id="user-data-input"
-          description={<UserDataDescription />}
-          name="userData"
-          label="User Data"
-          control={control}
-          disabled={isSubmitting}
-        />
-      </AccordionItem>
-    </Accordion.Root>
-  )
-}
 
 const NetworkingSection = ({
   control,
