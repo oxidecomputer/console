@@ -226,6 +226,24 @@ export const lookup = {
 
     return disk
   },
+  externalSubnet({
+    externalSubnet: id,
+    ...projectSelector
+  }: Sel.ExternalSubnet): Json<Api.ExternalSubnet> {
+    if (!id) throw notFoundErr('no external subnet specified')
+
+    if (isUuid(id)) {
+      ensureNoParentSelectors('external subnet', projectSelector)
+      return lookupById(db.externalSubnets, id)
+    }
+
+    const project = lookup.project(projectSelector)
+    const externalSubnet = db.externalSubnets.find(
+      (s) => s.project_id === project.id && s.name === id
+    )
+    if (!externalSubnet) throw notFoundErr(`external subnet '${id}'`)
+    return externalSubnet
+  },
   floatingIp({ floatingIp: id, ...projectSelector }: Sel.FloatingIp): Json<Api.FloatingIp> {
     if (!id) throw notFoundErr('no floating IP specified')
 
@@ -543,6 +561,7 @@ const initDb = {
   deviceTokens: [...mock.deviceTokens],
   disks: [...mock.disks],
   diskBulkImportState: new Map<string, DiskBulkImport>(),
+  externalSubnets: [...mock.externalSubnets],
   floatingIps: [...mock.floatingIps],
   userGroups: [...mock.userGroups],
   /** Join table for `users` and `userGroups` */

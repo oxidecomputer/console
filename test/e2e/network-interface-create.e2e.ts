@@ -22,7 +22,7 @@ test('can create a NIC with a specified IP address', async ({ page }) => {
   await page.getByLabel('Name').fill('nic-1')
   await page.getByLabel('VPC', { exact: true }).click()
   await page.getByRole('option', { name: 'mock-vpc' }).click()
-  await page.getByRole('button', { name: 'Subnet' }).click()
+  await page.getByRole('dialog').getByRole('button', { name: 'Subnet' }).click()
   await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
 
   // Select IPv4 only
@@ -52,7 +52,7 @@ test('can create a NIC with a blank IP address', async ({ page }) => {
   await page.getByLabel('Name').fill('nic-2')
   await page.getByLabel('VPC', { exact: true }).click()
   await page.getByRole('option', { name: 'mock-vpc' }).click()
-  await page.getByRole('button', { name: 'Subnet' }).click()
+  await page.getByRole('dialog').getByRole('button', { name: 'Subnet' }).click()
   await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
 
   // Dual-stack is selected by default, so both fields should be visible
@@ -92,7 +92,7 @@ test('can create a NIC with IPv6 only', async ({ page }) => {
   await page.getByLabel('Name').fill('nic-3')
   await page.getByLabel('VPC', { exact: true }).click()
   await page.getByRole('option', { name: 'mock-vpc' }).click()
-  await page.getByRole('button', { name: 'Subnet' }).click()
+  await page.getByRole('dialog').getByRole('button', { name: 'Subnet' }).click()
   await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
 
   // Select IPv6 only
@@ -117,7 +117,7 @@ test('can create a NIC with dual-stack and explicit IPs', async ({ page }) => {
   await page.getByLabel('Name').fill('nic-4')
   await page.getByLabel('VPC', { exact: true }).click()
   await page.getByRole('option', { name: 'mock-vpc' }).click()
-  await page.getByRole('button', { name: 'Subnet' }).click()
+  await page.getByRole('dialog').getByRole('button', { name: 'Subnet' }).click()
   await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
 
   // Dual-stack is selected by default

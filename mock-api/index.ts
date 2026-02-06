@@ -9,6 +9,7 @@
 export * from './affinity-group'
 export * from './disk'
 export * from './external-ip'
+export * from './external-subnet'
 export * from './floating-ip'
 export * from './image'
 export * from './instance'

@@ -282,13 +282,93 @@ export const handlers = makeHandlers({
 
     return 204
   },
-  externalSubnetList: NotImplemented,
-  externalSubnetCreate: NotImplemented,
-  externalSubnetView: NotImplemented,
-  externalSubnetUpdate: NotImplemented,
-  externalSubnetDelete: NotImplemented,
-  externalSubnetAttach: NotImplemented,
-  externalSubnetDetach: NotImplemented,
+  externalSubnetList({ query }) {
+    const project = lookup.project(query)
+    const subnets = db.externalSubnets.filter((s) => s.project_id === project.id)
+    return paginated(query, subnets)
+  },
+  externalSubnetCreate({ body, query }) {
+    const project = lookup.project(query)
+    errIfExists(db.externalSubnets, { name: body.name, project_id: project.id })
+
+    // For mock purposes, derive a subnet CIDR from the allocator
+    let subnet: string
+    let subnetPoolId: string
+    let subnetPoolMemberId: string
+
+    if (body.allocator.type === 'explicit') {
+      subnet = body.allocator.subnet
+      // In the mock, just use the first known pool/member
+      subnetPoolId = db.externalSubnets[0]?.subnet_pool_id || 'unknown'
+      subnetPoolMemberId = db.externalSubnets[0]?.subnet_pool_member_id || 'unknown'
+    } else {
+      // type === 'auto': generate a CIDR based on prefix length
+      const prefixLen = body.allocator.prefix_len
+      const idx = db.externalSubnets.length + 1
+      subnet = `10.128.${idx}.0/${prefixLen}`
+      subnetPoolId = db.externalSubnets[0]?.subnet_pool_id || 'unknown'
+      subnetPoolMemberId = db.externalSubnets[0]?.subnet_pool_member_id || 'unknown'
+    }
+
+    const newSubnet: Json<Api.ExternalSubnet> = {
+      id: uuid(),
+      project_id: project.id,
+      name: body.name,
+      description: body.description,
+      subnet,
+      subnet_pool_id: subnetPoolId,
+      subnet_pool_member_id: subnetPoolMemberId,
+      ...getTimestamps(),
+    }
+    db.externalSubnets.push(newSubnet)
+    return json(newSubnet, { status: 201 })
+  },
+  externalSubnetView: ({ path, query }) => lookup.externalSubnet({ ...path, ...query }),
+  externalSubnetUpdate: ({ path, query, body }) => {
+    const externalSubnet = lookup.externalSubnet({ ...path, ...query })
+    if (body.name) {
+      if (body.name !== externalSubnet.name) {
+        errIfExists(db.externalSubnets, {
+          name: body.name,
+          project_id: externalSubnet.project_id,
+        })
+      }
+      externalSubnet.name = body.name
+    }
+    updateDesc(externalSubnet, body)
+    return externalSubnet
+  },
+  externalSubnetDelete({ path, query }) {
+    const externalSubnet = lookup.externalSubnet({ ...path, ...query })
+    db.externalSubnets = db.externalSubnets.filter((s) => s.id !== externalSubnet.id)
+    return 204
+  },
+  externalSubnetAttach({ path: { externalSubnet }, query: { project }, body }) {
+    const dbSubnet = lookup.externalSubnet({ externalSubnet, project })
+    if (dbSubnet.instance_id) {
+      throw json(
+        {
+          error_code: 'InvalidRequest',
+          message:
+            'external subnet cannot be attached to one instance while still attached to another',
+        },
+        { status: 400 }
+      )
+    }
+    const dbInstance = lookup.instance({
+      instance: body.instance,
+      project: isUuid(body.instance) ? undefined : project,
+    })
+    dbSubnet.instance_id = dbInstance.id
+    return dbSubnet
+  },
+  externalSubnetDetach({ path, query }) {
+    const externalSubnet = lookup.externalSubnet({ ...path, ...query })
+    db.externalSubnets = db.externalSubnets.map((s) =>
+      s.id !== externalSubnet.id ? s : { ...s, instance_id: undefined }
+    )
+    return externalSubnet
+  },
   floatingIpCreate({ body, query }) {
     const project = lookup.project(query)
     errIfExists(db.floatingIps, { name: body.name, project_id: project.id })
@@ -2193,7 +2273,11 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
-  instanceExternalSubnetList: NotImplemented,
+  instanceExternalSubnetList({ path, query }) {
+    const instance = lookup.instance({ ...path, ...query })
+    const items = db.externalSubnets.filter((s) => s.instance_id === instance.id)
+    return { items, next_page: null }
+  },
   instanceMulticastGroupJoin: NotImplemented,
   instanceMulticastGroupLeave: NotImplemented,
   instanceMulticastGroupList: NotImplemented,

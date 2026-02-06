@@ -129,6 +129,48 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/disks",
     },
   ],
+  "externalSubnetEdit (/projects/p/external-subnets/es/edit)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "External Subnets",
+      "path": "/projects/p/external-subnets",
+    },
+  ],
+  "externalSubnets (/projects/p/external-subnets)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "External Subnets",
+      "path": "/projects/p/external-subnets",
+    },
+  ],
+  "externalSubnetsNew (/projects/p/external-subnets-new)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "External Subnets",
+      "path": "/projects/p/external-subnets",
+    },
+  ],
   "floatingIpEdit (/projects/p/floating-ips/f/edit)": [
     {
       "label": "Projects",
