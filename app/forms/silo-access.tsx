@@ -18,7 +18,9 @@ import { Access16Icon } from '@oxide/design-system/icons/react'
 
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { ResourceLabel } from '~/ui/lib/SideModal'
+import { docLinks } from '~/util/links'
 
 import {
   actorToItem,
@@ -68,6 +70,7 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
         control={form.control}
       />
       <RoleRadioField name="roleName" control={form.control} scope="Silo" />
+      <SideModalFormDocs docs={[docLinks.access]} />
     </SideModalForm>
   )
 }
@@ -109,6 +112,7 @@ export function SiloAccessEditUserSideModal({
       onDismiss={onDismiss}
     >
       <RoleRadioField name="roleName" control={form.control} scope="Silo" />
+      <SideModalFormDocs docs={[docLinks.access]} />
     </SideModalForm>
   )
 }

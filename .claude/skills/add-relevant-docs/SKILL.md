@@ -107,7 +107,8 @@ import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { docLinks } from '~/util/links'
 
 // Inside the form, after form fields:
-<SideModalFormDocs docs={[docLinks.someLink]} />
+
+;<SideModalFormDocs docs={[docLinks.someLink]} />
 ```
 
 For custom links not in `docLinks`, use `ModalLinks` and `ModalLink` directly:
@@ -116,7 +117,7 @@ For custom links not in `docLinks`, use `ModalLinks` and `ModalLink` directly:
 import { ModalLink, ModalLinks } from '~/ui/lib/ModalLinks'
 import { links } from '~/util/links'
 
-<ModalLinks heading="Relevant docs">
+;<ModalLinks heading="Relevant docs">
   <ModalLink to={links.somePageDocs} label="Human-Readable Label" />
 </ModalLinks>
 ```

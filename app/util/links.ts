@@ -144,6 +144,10 @@ export const docLinks = {
     href: 'https://docs.oxide.computer/guides/operator/system-metrics',
     linkText: 'Metrics',
   },
+  systemSiloCreate: {
+    href: 'https://docs.oxide.computer/guides/system/completing-rack-config#_create_silo',
+    linkText: 'Create Silo',
+  },
   systemSilo: {
     href: 'https://docs.oxide.computer/guides/operator/silo-management',
     linkText: 'Silos',
@@ -155,6 +159,10 @@ export const docLinks = {
   instances: {
     href: 'https://docs.oxide.computer/guides/deploying-workloads',
     linkText: 'Instances',
+  },
+  networkInterfaces: {
+    href: 'https://docs.oxide.computer/guides/deploying-workloads#_virtual_nics',
+    linkText: 'Virtual NICs',
   },
   vpcs: {
     href: 'https://docs.oxide.computer/guides/configuring-guest-networking',
