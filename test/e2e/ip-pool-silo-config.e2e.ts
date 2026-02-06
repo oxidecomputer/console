@@ -14,9 +14,16 @@
  * - no-pools silo: no IP pools (user: Antonio Gramsci)
  */
 
-import { floatingIp } from '@oxide/api-mocks'
+import { floatingIp, floatingIpKosman } from '@oxide/api-mocks'
 
-import { expect, expectRowVisible, getPageAsUser, test } from './utils'
+import {
+  clickRowAction,
+  closeToast,
+  expect,
+  expectRowVisible,
+  getPageAsUser,
+  test,
+} from './utils'
 
 test.describe('IP pool configuration: myriad silo (v4-only default)', () => {
   test('instance create form shows IPv4 default pool preselected', async ({ browser }) => {
@@ -62,6 +69,135 @@ test.describe('IP pool configuration: myriad silo (v4-only default)', () => {
     // Pool dropdown should show IPv4 default pool
     const poolDropdown = page.getByLabel('Pool')
     await expect(poolDropdown).toContainText('ip-pool-1')
+  })
+
+  test('can create instance with v4-only default pool', async ({ browser }) => {
+    const page = await getPageAsUser(browser, 'Aryeh Kosman')
+    await page.goto('/projects/kosman-project/instances-new')
+
+    const instanceName = 'v4-silo-instance'
+    await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+
+    // Select a silo image for boot disk
+    await page.getByRole('tab', { name: 'Silo images' }).click()
+    await page.getByPlaceholder('Select a silo image', { exact: true }).click()
+    await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
+
+    // Open networking accordion and verify ephemeral IP defaults
+    await page.getByRole('button', { name: 'Networking' }).click()
+    const ephemeralCheckbox = page.getByRole('checkbox', {
+      name: 'Allocate and attach an ephemeral IP address',
+    })
+    await expect(ephemeralCheckbox).toBeChecked()
+    await expect(page.getByLabel('Pool')).toContainText('ip-pool-1')
+
+    // Create instance
+    await page.getByRole('button', { name: 'Create instance' }).click()
+    await closeToast(page)
+    await expect(page).toHaveURL(
+      `/projects/kosman-project/instances/${instanceName}/storage`
+    )
+
+    // Navigate to networking tab and verify ephemeral IP
+    await page.getByRole('tab', { name: 'Networking' }).click()
+    const externalIpTable = page.getByRole('table', { name: 'External IPs' })
+    await expectRowVisible(externalIpTable, {
+      Kind: 'ephemeral',
+      Version: 'v4',
+      'IP pool': 'ip-pool-1',
+    })
+  })
+
+  test('can detach and reattach ephemeral IP', async ({ browser }) => {
+    const page = await getPageAsUser(browser, 'Aryeh Kosman')
+    await page.goto('/projects/kosman-project/instances-new')
+
+    // Create instance with default ephemeral IP
+    await page.getByRole('textbox', { name: 'Name', exact: true }).fill('v4-ephemeral-test')
+    await page.getByRole('tab', { name: 'Silo images' }).click()
+    await page.getByPlaceholder('Select a silo image', { exact: true }).click()
+    await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
+    await page.getByRole('button', { name: 'Create instance' }).click()
+    await closeToast(page)
+    await expect(page).toHaveURL(/\/instances\/v4-ephemeral-test/)
+
+    await page.getByRole('tab', { name: 'Networking' }).click()
+    const externalIpTable = page.getByRole('table', { name: 'External IPs' })
+    const ephemeralCell = externalIpTable.getByRole('cell', { name: 'ephemeral' })
+    const attachEphemeralIpButton = page.getByRole('button', {
+      name: 'Attach ephemeral IP',
+    })
+
+    // Verify ephemeral IP is present and attach button is disabled
+    await expect(ephemeralCell).toBeVisible()
+    await expect(attachEphemeralIpButton).toBeDisabled()
+
+    // Detach the ephemeral IP
+    await clickRowAction(page, 'ephemeral', 'Detach')
+    await page.getByRole('button', { name: 'Confirm' }).click()
+    await expect(ephemeralCell).toBeHidden()
+    await expect(attachEphemeralIpButton).toBeEnabled()
+
+    // Reattach — ip-pool-1 should be preselected as the only v4 default
+    await attachEphemeralIpButton.click()
+    const modal = page.getByRole('dialog', { name: 'Attach ephemeral IP' })
+    await expect(modal).toBeVisible()
+    await expect(page.getByLabel('Pool')).toContainText('ip-pool-1')
+
+    // Verify v6 pools are not available
+    await page.getByLabel('Pool').click()
+    await expect(page.getByRole('option', { name: 'ip-pool-1' })).toBeVisible()
+    await expect(page.getByRole('option', { name: 'ip-pool-3' })).toBeVisible()
+    await expect(page.getByRole('option', { name: 'ip-pool-2' })).toBeHidden()
+    await expect(page.getByRole('option', { name: 'ip-pool-4' })).toBeHidden()
+
+    // Select ip-pool-1 (close dropdown first) and attach
+    await page.getByRole('option', { name: 'ip-pool-1' }).click()
+    await page.getByRole('button', { name: 'Attach', exact: true }).click()
+    await expect(modal).toBeHidden()
+
+    await expectRowVisible(externalIpTable, {
+      Kind: 'ephemeral',
+      Version: 'v4',
+      'IP pool': 'ip-pool-1',
+    })
+    await expect(attachEphemeralIpButton).toBeDisabled()
+  })
+
+  test('can attach floating IP', async ({ browser }) => {
+    const page = await getPageAsUser(browser, 'Aryeh Kosman')
+    await page.goto('/projects/kosman-project/instances-new')
+
+    // Create instance
+    await page.getByRole('textbox', { name: 'Name', exact: true }).fill('v4-floating-test')
+    await page.getByRole('tab', { name: 'Silo images' }).click()
+    await page.getByPlaceholder('Select a silo image', { exact: true }).click()
+    await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
+    await page.getByRole('button', { name: 'Create instance' }).click()
+    await closeToast(page)
+    await expect(page).toHaveURL(/\/instances\/v4-floating-test/)
+
+    await page.getByRole('tab', { name: 'Networking' }).click()
+    const externalIpTable = page.getByRole('table', { name: 'External IPs' })
+
+    // Attach the pre-seeded v4 floating IP
+    const attachFloatingIpButton = page.getByRole('button', { name: 'Attach floating IP' })
+    await attachFloatingIpButton.click()
+    const dialog = page.getByRole('dialog')
+    await expect(dialog).toBeVisible()
+    await dialog.getByLabel('Floating IP').click()
+    await page.keyboard.press('ArrowDown')
+    await page.keyboard.press('Enter')
+    await dialog.getByRole('button', { name: 'Attach' }).click()
+    await expect(dialog).toBeHidden()
+
+    await expectRowVisible(externalIpTable, {
+      name: floatingIpKosman.name,
+      Kind: 'floating',
+    })
+
+    // No more floating IPs available, button should be disabled
+    await expect(attachFloatingIpButton).toBeDisabled()
   })
 })
 

@@ -11,7 +11,7 @@ import type { FloatingIp } from '@oxide/api'
 import { instance } from './instance'
 import { ipPool1, ipPool2 } from './ip-pool'
 import type { Json } from './json-type'
-import { project } from './project'
+import { project, projectKosman } from './project'
 
 // Note that IPv4 addresses should come from ranges in ip-pool-1
 // Note that IPv6 addresses should come from ranges in ip-pool-2
@@ -55,4 +55,18 @@ export const floatingIp3: Json<FloatingIp> = {
   time_modified: new Date().toISOString(),
 }
 
-export const floatingIps = [floatingIp, floatingIp2, floatingIp3]
+// A v4 floating IP in the myriad silo (v4-only default pool) for testing
+// that floating IP operations work in silos without v6 pools
+export const floatingIpKosman: Json<FloatingIp> = {
+  id: 'd2e3f4a5-6b7c-4d9e-8f1a-2b3c4d5e6f7a',
+  name: 'kosman-float',
+  description: 'A v4 floating IP in the myriad silo.',
+  instance_id: undefined,
+  ip: '123.4.56.6',
+  ip_pool_id: ipPool1.id,
+  project_id: projectKosman.id,
+  time_created: new Date().toISOString(),
+  time_modified: new Date().toISOString(),
+}
+
+export const floatingIps = [floatingIp, floatingIp2, floatingIp3, floatingIpKosman]
