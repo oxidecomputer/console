@@ -46,7 +46,7 @@ import { Spinner } from '~/ui/lib/Spinner'
 import { anySignal } from '~/util/abort'
 import { readBlobAsBase64 } from '~/util/file'
 import { invariant } from '~/util/invariant'
-import { links } from '~/util/links'
+import { docLinks, links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import { isAllZeros } from '~/util/str'
 import { GiB, KiB } from '~/util/units'
@@ -575,8 +575,8 @@ export default function ImageCreate() {
         content={
           <>
             Read the{' '}
-            <a target="_blank" rel="noreferrer" href={links.imagesDocs}>
-              Images
+            <a target="_blank" rel="noreferrer" href={docLinks.images.href}>
+              {docLinks.images.linkText}
             </a>{' '}
             guide to learn more about image requirements.
           </>

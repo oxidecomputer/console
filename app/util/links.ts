@@ -8,13 +8,13 @@
 
 const remoteAccess = 'https://docs.oxide.computer/guides/remote-access'
 
+// URLs used in inline prose links where the label is chosen to fit the
+// surrounding sentence. For links with a canonical label, use docLinks instead.
 export const links = {
-  accessDocs: 'https://docs.oxide.computer/guides/configuring-access',
   cloudInitFormat: 'https://cloudinit.readthedocs.io/en/latest/explanation/format.html',
   cloudInitExamples: 'https://cloudinit.readthedocs.io/en/latest/reference/examples.html',
   firewallRulesDocs:
     'https://docs.oxide.computer/guides/configuring-guest-networking#_firewall_rules',
-  imagesDocs: 'https://docs.oxide.computer/guides/creating-and-sharing-images',
   preparingImagesDocs:
     'https://docs.oxide.computer/guides/creating-and-sharing-images#_preparing_images_for_import',
   identityProvidersDocs: 'https://docs.oxide.computer/guides/operator/identity-providers',
@@ -37,10 +37,10 @@ export const links = {
     'https://docs.oxide.computer/guides/operator/faq#_how_do_i_fix_the_something_went_wrong_error',
 }
 
-// These are links (and associated titles) to help documentation
+// Links with a canonical label, used in DocsPopover and SideModalFormDocs.
 export const docLinks = {
   access: {
-    href: links.accessDocs,
+    href: 'https://docs.oxide.computer/guides/configuring-access',
     linkText: 'Access Control',
   },
   affinity: {
@@ -76,7 +76,7 @@ export const docLinks = {
     linkText: 'Identity Providers',
   },
   images: {
-    href: links.imagesDocs,
+    href: 'https://docs.oxide.computer/guides/creating-and-sharing-images',
     linkText: 'Images',
   },
   instanceActions: {
