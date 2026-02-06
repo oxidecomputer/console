@@ -331,8 +331,8 @@ test('IPv4-only instance cannot attach IPv6 ephemeral IP', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   await selectASiloImage(page, 'ubuntu-22-04')
 
-  // Open networking accordion and select IPv4-only
-  await page.getByRole('button', { name: 'Networking' }).click()
+  // Select IPv4-only
+
   const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
   if (!(await defaultRadio.isChecked())) {
     await defaultRadio.click()
@@ -386,8 +386,8 @@ test('IPv6-only instance cannot attach IPv4 ephemeral IP', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   await selectASiloImage(page, 'ubuntu-22-04')
 
-  // Open networking accordion and select IPv6-only
-  await page.getByRole('button', { name: 'Networking' }).click()
+  // Select IPv6-only
+
   const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
   if (!(await defaultRadio.isChecked())) {
     await defaultRadio.click()
@@ -441,8 +441,8 @@ test('IPv4-only instance can attach IPv4 ephemeral IP', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   await selectASiloImage(page, 'ubuntu-22-04')
 
-  // Open networking accordion and select IPv4-only
-  await page.getByRole('button', { name: 'Networking' }).click()
+  // Select IPv4-only
+
   const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
   if (!(await defaultRadio.isChecked())) {
     await defaultRadio.click()
@@ -490,8 +490,8 @@ test('IPv6-only instance can attach IPv6 ephemeral IP', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   await selectASiloImage(page, 'ubuntu-22-04')
 
-  // Open networking accordion and select IPv6-only
-  await page.getByRole('button', { name: 'Networking' }).click()
+  // Select IPv6-only
+
   const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
   if (!(await defaultRadio.isChecked())) {
     await defaultRadio.click()

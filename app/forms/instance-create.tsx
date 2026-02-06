@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import * as Accordion from '@radix-ui/react-accordion'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useController, useForm, useWatch, type Control } from 'react-hook-form'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
@@ -44,7 +43,6 @@ import {
   Storage16Icon,
 } from '@oxide/design-system/icons/react'
 
-import { AccordionItem } from '~/components/AccordionItem'
 import { DocsPopover } from '~/components/DocsPopover'
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
@@ -720,12 +718,22 @@ export default function CreateInstanceForm() {
         <Form.Heading id="authentication">Authentication</Form.Heading>
         <SshKeysField control={control} isSubmitting={isSubmitting} />
         <FormDivider />
-        <Form.Heading id="advanced">Advanced</Form.Heading>
-        <AdvancedAccordion
+        <Form.Heading id="networking">Networking</Form.Heading>
+        <NetworkingSection
           control={control}
           isSubmitting={isSubmitting}
           unicastPools={unicastPools}
           hasVpcs={hasVpcs}
+        />
+        <FormDivider />
+        <Form.Heading id="advanced">Advanced</Form.Heading>
+        <FileField
+          id="user-data-input"
+          description={<UserDataDescription />}
+          name="userData"
+          label="User Data"
+          control={control}
+          disabled={isSubmitting}
         />
         <Form.Actions>
           <Form.Submit loading={createInstance.isPending}>Create instance</Form.Submit>
@@ -753,7 +761,7 @@ const FloatingIpLabel = ({ ip }: { ip: FloatingIp }) => (
   </div>
 )
 
-const AdvancedAccordion = ({
+const NetworkingSection = ({
   control,
   isSubmitting,
   unicastPools,
@@ -765,10 +773,6 @@ const AdvancedAccordion = ({
   hasVpcs: boolean
 }) => {
   const networkInterfaces = useWatch({ control, name: 'networkInterfaces' })
-  // we track this state manually for the sole reason that we need to be able to
-  // tell, inside AccordionItem, when an accordion is opened so we can scroll its
-  // contents into view
-  const [openItems, setOpenItems] = useState<string[]>([])
   const [floatingIpModalOpen, setFloatingIpModalOpen] = useState(false)
   const [selectedFloatingIp, setSelectedFloatingIp] = useState<FloatingIp | undefined>()
   const assignEphemeralIpField = useController({ control, name: 'assignEphemeralIp' })
@@ -919,184 +923,153 @@ const AdvancedAccordion = ({
   )
 
   return (
-    <Accordion.Root
-      type="multiple"
-      className="mt-12 max-w-lg"
-      value={openItems}
-      onValueChange={setOpenItems}
-    >
-      <AccordionItem
-        value="networking"
-        label="Networking"
-        isOpen={openItems.includes('networking')}
-      >
-        {!hasVpcs && (
-          <Message
-            className="mb-4"
-            variant="notice"
-            content={
-              <>
-                A VPC is required to add network interfaces.{' '}
-                <Link to={pb.vpcsNew({ project })}>Create a VPC</Link> to enable networking.
-              </>
-            }
-          />
+    <>
+      {!hasVpcs && (
+        <Message
+          className="mb-4"
+          variant="notice"
+          content={
+            <>
+              A VPC is required to add network interfaces.{' '}
+              <Link to={pb.vpcsNew({ project })}>Create a VPC</Link> to enable networking.
+            </>
+          }
+        />
+      )}
+      <NetworkInterfaceField control={control} disabled={isSubmitting} hasVpcs={hasVpcs} />
+
+      <div className="flex flex-1 flex-col gap-4">
+        <h2 className="text-sans-md flex items-center">
+          Ephemeral IP{' '}
+          <TipIcon className="ml-1.5">
+            Ephemeral IPs are allocated when the instance is created and deallocated when it
+            is deleted
+          </TipIcon>
+        </h2>
+
+        <Wrap
+          when={!!ephemeralIpCheckboxState.disabledReason}
+          with={<Tooltip content={ephemeralIpCheckboxState.disabledReason} />}
+        >
+          {/* TODO: Wrapping the checkbox in a <span> makes it so the tooltip
+           * shows up when you hover anywhere on the label or checkbox, not
+           * just the checkbox itself. The downside is the placement of the tooltip
+           * is a little weird (I'd like it better if it was anchored to the checkbox),
+           * but I think having it show up on label hover is worth it.
+           */}
+          <span>
+            <Checkbox
+              id="assignEphemeralIp"
+              checked={ephemeralIpCheckboxState.canAttachEphemeralIp && assignEphemeralIp}
+              disabled={!ephemeralIpCheckboxState.canAttachEphemeralIp}
+              onChange={() => {
+                assignEphemeralIpField.field.onChange(!assignEphemeralIp)
+              }}
+            >
+              Allocate and attach an ephemeral IP address
+            </Checkbox>
+          </span>
+        </Wrap>
+        <IpPoolSelector
+          className={assignEphemeralIp ? '' : 'hidden'}
+          control={control}
+          poolFieldName="ephemeralIpPool"
+          pools={compatiblePools}
+          disabled={isSubmitting}
+          compatibleVersions={compatibleVersions}
+          required={assignEphemeralIp}
+        />
+      </div>
+
+      <div className="flex flex-1 flex-col gap-4">
+        <h2 className="text-sans-md flex items-center">
+          Floating IPs{' '}
+          <TipIcon className="ml-1.5">
+            Floating IPs exist independently of instances and can be attached to and
+            detached from them as needed
+          </TipIcon>
+        </h2>
+        {floatingIpList.items.length === 0 ? (
+          <div className="border-default flex max-w-lg items-center justify-center rounded-lg border">
+            <EmptyMessage
+              icon={<IpGlobal16Icon />}
+              title="No floating IPs found"
+              body="Create a floating IP to attach it to this instance"
+            />
+          </div>
+        ) : (
+          <div className="flex flex-col items-start gap-3">
+            <MiniTable
+              ariaLabel="Floating IPs"
+              items={attachedFloatingIpsData}
+              columns={[
+                { header: 'Name', cell: (item) => item.name },
+                { header: 'IP', cell: (item) => item.ip },
+              ]}
+              rowKey={(item) => item.name}
+              onRemoveItem={(item) => detachFloatingIp(item.name)}
+              removeLabel={(item) => `remove floating IP ${item.name}`}
+            />
+            <Button
+              variant="secondary"
+              size="sm"
+              className="shrink-0"
+              disabled={
+                availableFloatingIps.length === 0 || compatibleVersions.length === 0
+              }
+              disabledReason={
+                compatibleVersions.length === 0 ? (
+                  <>
+                    A network interface is required
+                    <br />
+                    to attach a floating IP
+                  </>
+                ) : availableFloatingIps.length === 0 ? (
+                  'No floating IPs available'
+                ) : undefined
+              }
+              onClick={() => setFloatingIpModalOpen(true)}
+            >
+              Attach floating IP
+            </Button>
+          </div>
         )}
-        <NetworkInterfaceField
-          control={control}
-          disabled={isSubmitting}
-          hasVpcs={hasVpcs}
-        />
-
-        <div className="flex flex-1 flex-col gap-4">
-          <h2 className="text-sans-md flex items-center">
-            Ephemeral IP{' '}
-            <TipIcon className="ml-1.5">
-              Ephemeral IPs are allocated when the instance is created and deallocated when
-              it is deleted
-            </TipIcon>
-          </h2>
-
-          <Wrap
-            when={!!ephemeralIpCheckboxState.disabledReason}
-            with={<Tooltip content={ephemeralIpCheckboxState.disabledReason} />}
-          >
-            {/* TODO: Wrapping the checkbox in a <span> makes it so the tooltip
-             * shows up when you hover anywhere on the label or checkbox, not
-             * just the checkbox itself. The downside is the placement of the tooltip
-             * is a little weird (I'd like it better if it was anchored to the checkbox),
-             * but I think having it show up on label hover is worth it.
-             */}
-            <span>
-              <Checkbox
-                id="assignEphemeralIp"
-                checked={ephemeralIpCheckboxState.canAttachEphemeralIp && assignEphemeralIp}
-                disabled={!ephemeralIpCheckboxState.canAttachEphemeralIp}
-                onChange={() => {
-                  assignEphemeralIpField.field.onChange(!assignEphemeralIp)
-                }}
-              >
-                Allocate and attach an ephemeral IP address
-              </Checkbox>
-            </span>
-          </Wrap>
-          <IpPoolSelector
-            className={assignEphemeralIp ? '' : 'hidden'}
-            control={control}
-            poolFieldName="ephemeralIpPool"
-            pools={compatiblePools}
-            disabled={isSubmitting}
-            compatibleVersions={compatibleVersions}
-            required={assignEphemeralIp}
-          />
-        </div>
-
-        <div className="flex flex-1 flex-col gap-4">
-          <h2 className="text-sans-md flex items-center">
-            Floating IPs{' '}
-            <TipIcon className="ml-1.5">
-              Floating IPs exist independently of instances and can be attached to and
-              detached from them as needed
-            </TipIcon>
-          </h2>
-          {floatingIpList.items.length === 0 ? (
-            <div className="border-default flex max-w-lg items-center justify-center rounded-lg border">
-              <EmptyMessage
-                icon={<IpGlobal16Icon />}
-                title="No floating IPs found"
-                body="Create a floating IP to attach it to this instance"
-              />
-            </div>
-          ) : (
-            <div className="flex flex-col items-start gap-3">
-              <MiniTable
-                ariaLabel="Floating IPs"
-                items={attachedFloatingIpsData}
-                columns={[
-                  { header: 'Name', cell: (item) => item.name },
-                  { header: 'IP', cell: (item) => item.ip },
-                ]}
-                rowKey={(item) => item.name}
-                onRemoveItem={(item) => detachFloatingIp(item.name)}
-                removeLabel={(item) => `remove floating IP ${item.name}`}
-              />
-              <Button
-                variant="secondary"
-                size="sm"
-                className="shrink-0"
-                disabled={
-                  availableFloatingIps.length === 0 || compatibleVersions.length === 0
-                }
-                disabledReason={
-                  compatibleVersions.length === 0 ? (
-                    <>
-                      A network interface is required
-                      <br />
-                      to attach a floating IP
-                    </>
-                  ) : availableFloatingIps.length === 0 ? (
-                    'No floating IPs available'
-                  ) : undefined
-                }
-                onClick={() => setFloatingIpModalOpen(true)}
-              >
-                Attach floating IP
-              </Button>
-            </div>
-          )}
-          <Modal
-            isOpen={floatingIpModalOpen}
+        <Modal
+          isOpen={floatingIpModalOpen}
+          onDismiss={closeFloatingIpModal}
+          title="Attach floating IP"
+        >
+          <Modal.Body>
+            <Modal.Section>
+              <Message variant="info" content={selectedFloatingIpMessage} />
+              <form>
+                <Listbox
+                  name="floatingIp"
+                  items={availableFloatingIps.map((i) => ({
+                    value: i.name,
+                    label: <FloatingIpLabel ip={i} />,
+                    selectedLabel: `${i.name} (${i.ip})`,
+                  }))}
+                  label="Floating IP"
+                  onChange={(name) => {
+                    setSelectedFloatingIp(availableFloatingIps.find((i) => i.name === name))
+                  }}
+                  required
+                  placeholder="Select a floating IP"
+                  selected={selectedFloatingIp?.name || ''}
+                />
+              </form>
+            </Modal.Section>
+          </Modal.Body>
+          <Modal.Footer
+            actionText="Attach"
+            disabled={!selectedFloatingIp}
+            onAction={attachFloatingIp}
             onDismiss={closeFloatingIpModal}
-            title="Attach floating IP"
-          >
-            <Modal.Body>
-              <Modal.Section>
-                <Message variant="info" content={selectedFloatingIpMessage} />
-                <form>
-                  <Listbox
-                    name="floatingIp"
-                    items={availableFloatingIps.map((i) => ({
-                      value: i.name,
-                      label: <FloatingIpLabel ip={i} />,
-                      selectedLabel: `${i.name} (${i.ip})`,
-                    }))}
-                    label="Floating IP"
-                    onChange={(name) => {
-                      setSelectedFloatingIp(
-                        availableFloatingIps.find((i) => i.name === name)
-                      )
-                    }}
-                    required
-                    placeholder="Select a floating IP"
-                    selected={selectedFloatingIp?.name || ''}
-                  />
-                </form>
-              </Modal.Section>
-            </Modal.Body>
-            <Modal.Footer
-              actionText="Attach"
-              disabled={!selectedFloatingIp}
-              onAction={attachFloatingIp}
-              onDismiss={closeFloatingIpModal}
-            ></Modal.Footer>
-          </Modal>
-        </div>
-      </AccordionItem>
-      <AccordionItem
-        value="configuration"
-        label="Configuration"
-        isOpen={openItems.includes('configuration')}
-      >
-        <FileField
-          id="user-data-input"
-          description={<UserDataDescription />}
-          name="userData"
-          label="User Data"
-          control={control}
-          disabled={isSubmitting}
-        />
-      </AccordionItem>
-    </Accordion.Root>
+          ></Modal.Footer>
+        </Modal>
+      </div>
+    </>
   )
 }
 
