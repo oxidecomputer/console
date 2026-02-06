@@ -9,6 +9,7 @@ import { differenceInSeconds, subHours } from 'date-fns'
 // Works without the .js for dev server and prod build in MSW mode, but
 // playwright wants the .js. No idea why, let's just add the .js.
 import { IPv4, IPv6 } from 'ip-num/IPNumber.js'
+import * as R from 'remeda'
 import { match } from 'ts-pattern'
 
 import {
@@ -42,13 +43,140 @@ import { getMockOxqlInstanceData } from '../oxql-metrics'
 import { db, lookupById } from './db'
 import { Rando } from './rando'
 
+type SortMode =
+  | 'name_ascending'
+  | 'name_descending'
+  | 'id_ascending'
+  | 'time_and_id_ascending'
+  | 'time_and_id_descending'
+
 interface PaginateOptions {
   limit?: number | null
   pageToken?: string | null
+  sortBy?: SortMode
 }
+
 export interface ResultsPage<I extends { id: string }> {
   items: I[]
   next_page: string | null
+}
+
+/**
+ * Normalize a timestamp to a canonical string format for use in page tokens.
+ * Ensures consistency between token generation and parsing.
+ */
+function normalizeTime(t: unknown): string {
+  if (t instanceof Date) {
+    return t.toISOString()
+  }
+  if (typeof t === 'string') {
+    return t
+  }
+  return ''
+}
+
+/**
+ * Sort items based on the sort mode. Implements default sorting behavior to
+ * match Omicron's pagination defaults.
+ * https://github.com/oxidecomputer/omicron/blob/cf38148/common/src/api/external/http_pagination.rs#L427-L428
+ * https://github.com/oxidecomputer/omicron/blob/cf38148/common/src/api/external/http_pagination.rs#L334-L335
+ * https://github.com/oxidecomputer/omicron/blob/cf38148/common/src/api/external/http_pagination.rs#L511-L512
+ */
+function sortItems<I extends { id: string }>(items: I[], sortBy: SortMode): I[] {
+  // Extract time as number for sorting, with -Infinity fallback for items without time_created
+  const timeValue = (item: I) => {
+    const raw =
+      'time_created' in item
+        ? new Date(item.time_created as string | Date).valueOf()
+        : -Infinity
+    return Number.isFinite(raw) ? raw : -Infinity
+  }
+
+  switch (sortBy) {
+    case 'name_ascending':
+      // Use byte-wise lexicographic comparison to match Rust's String ordering
+      // Include ID as tiebreaker for stable pagination when names are equal
+      return R.sortBy(
+        items,
+        (item) => ('name' in item ? String(item.name) : item.id),
+        (item) => item.id
+      )
+    case 'name_descending':
+      return R.pipe(
+        items,
+        R.sortBy(
+          (item) => ('name' in item ? String(item.name) : item.id),
+          (item) => item.id
+        ),
+        R.reverse()
+      )
+    case 'id_ascending':
+      // Use pure lexicographic comparison for UUIDs to match Rust's derived Ord
+      return R.sortBy(items, (item) => item.id)
+    case 'time_and_id_ascending':
+      // Compare timestamps numerically to handle Date objects and non-ISO formats
+      // Normalize NaN from invalid dates to -Infinity for deterministic ordering
+      return R.sortBy(items, timeValue, (item) => item.id)
+    case 'time_and_id_descending':
+      return R.pipe(
+        items,
+        R.sortBy(timeValue, (item) => item.id),
+        R.reverse()
+      )
+  }
+}
+
+/**
+ * Get the page token value for an item based on the sort mode.
+ * Matches Omicron's marker types for each scan mode.
+ */
+function getPageToken<I extends { id: string }>(item: I, sortBy: SortMode): string {
+  switch (sortBy) {
+    case 'name_ascending':
+    case 'name_descending':
+      // ScanByNameOrId uses Name as marker for name-based sorting
+      return 'name' in item ? String(item.name) : item.id
+    case 'id_ascending':
+      // ScanById uses Uuid as marker
+      return item.id
+    case 'time_and_id_ascending':
+    case 'time_and_id_descending':
+      // ScanByTimeAndId uses (DateTime, Uuid) tuple as marker
+      // Serialize as "timestamp|id" (using | since timestamps contain :)
+      const time = 'time_created' in item ? normalizeTime(item.time_created) : ''
+      return `${time}|${item.id}`
+  }
+}
+
+/**
+ * Find the start index for pagination based on the page token and sort mode.
+ * Handles different marker types matching Omicron's pagination behavior.
+ */
+function findStartIndex<I extends { id: string }>(
+  sortedItems: I[],
+  pageToken: string,
+  sortBy: SortMode
+): number {
+  switch (sortBy) {
+    case 'name_ascending':
+    case 'name_descending':
+      // Page token is a name - find first item with this name
+      return sortedItems.findIndex((i) =>
+        'name' in i ? i.name === pageToken : i.id === pageToken
+      )
+    case 'id_ascending':
+      // Page token is an ID
+      return sortedItems.findIndex((i) => i.id === pageToken)
+    case 'time_and_id_ascending':
+    case 'time_and_id_descending':
+      // Page token is "timestamp|id" - find item with matching timestamp and ID
+      // Use same fallback as getPageToken for items without time_created
+      const [time, id] = pageToken.split('|', 2)
+      return sortedItems.findIndex((i) => {
+        const itemTime = 'time_created' in i ? normalizeTime(i.time_created) : ''
+        return i.id === id && itemTime === time
+      })
+  }
 }
 
 export const paginated = <P extends PaginateOptions, I extends { id: string }>(
@@ -58,26 +186,41 @@ export const paginated = <P extends PaginateOptions, I extends { id: string }>(
   const limit = params.limit || 100
   const pageToken = params.pageToken
 
-  let startIndex = pageToken ? items.findIndex((i) => i.id === pageToken) : 0
-  startIndex = startIndex < 0 ? 0 : startIndex
+  // Apply default sorting based on what fields are available, matching Omicron's defaults:
+  // - name_ascending for endpoints that support name/id sorting (most common)
+  // - id_ascending for endpoints that only support id sorting
+  // Note: time_and_id_ascending is only used when explicitly specified in sortBy
+  const sortBy =
+    params.sortBy ||
+    (items.length > 0 && 'name' in items[0] ? 'name_ascending' : 'id_ascending')
 
-  if (startIndex > items.length) {
+  const sortedItems = sortItems(items, sortBy)
+
+  let startIndex = pageToken ? findStartIndex(sortedItems, pageToken, sortBy) : 0
+
+  // Warn if page token not found - helps catch bugs in tests
+  if (pageToken && startIndex < 0) {
+    console.warn(`Page token "${pageToken}" not found, starting from beginning`)
+    startIndex = 0
+  }
+
+  if (startIndex > sortedItems.length) {
     return {
       items: [],
       next_page: null,
     }
   }
 
-  if (limit + startIndex >= items.length) {
+  if (limit + startIndex >= sortedItems.length) {
     return {
-      items: items.slice(startIndex),
+      items: sortedItems.slice(startIndex),
       next_page: null,
     }
   }
 
   return {
-    items: items.slice(startIndex, startIndex + limit),
-    next_page: `${items[startIndex + limit].id}`,
+    items: sortedItems.slice(startIndex, startIndex + limit),
+    next_page: getPageToken(sortedItems[startIndex + limit], sortBy),
   }
 }
 

@@ -27,8 +27,9 @@ test('pagination', async ({ page }) => {
   await expect(spinner).toBeHidden()
   await expect(prevButton).toBeDisabled() // we're on the first page
 
-  await expectCell(page, 'snapshot-1')
-  await expectCell(page, `disk-1-snapshot-${PAGE_SIZE}`)
+  // Items are sorted by name, so first page has: delete-500, disk-1-snapshot-10, ..., disk-1-snapshot-143
+  await expectCell(page, 'delete-500')
+  await expectCell(page, 'disk-1-snapshot-143')
   await expect(rows).toHaveCount(PAGE_SIZE)
 
   await scrollTo(page, 100)
@@ -42,18 +43,21 @@ test('pagination', async ({ page }) => {
   await expect(spinner).toBeHidden()
   await expectScrollTop(page, 0) // scroll resets to top on page change
 
-  await expectCell(page, `disk-1-snapshot-${PAGE_SIZE + 1}`)
-  await expectCell(page, `disk-1-snapshot-${2 * PAGE_SIZE}`)
+  // Page 2: disk-1-snapshot-144 to disk-1-snapshot-40
+  await expectCell(page, 'disk-1-snapshot-144')
+  await expectCell(page, 'disk-1-snapshot-40')
   await expect(rows).toHaveCount(PAGE_SIZE)
 
   await nextButton.click()
-  await expectCell(page, `disk-1-snapshot-${2 * PAGE_SIZE + 1}`)
-  await expectCell(page, `disk-1-snapshot-${3 * PAGE_SIZE}`)
+  // Page 3: disk-1-snapshot-41 to disk-1-snapshot-89
+  await expectCell(page, 'disk-1-snapshot-41')
+  await expectCell(page, 'disk-1-snapshot-89')
   await expect(rows).toHaveCount(PAGE_SIZE)
 
   await nextButton.click()
-  await expectCell(page, `disk-1-snapshot-${3 * PAGE_SIZE + 1}`)
-  await expectCell(page, 'disk-1-snapshot-167')
+  // Page 4: disk-1-snapshot-9 to snapshot-max-size (17 items)
+  await expectCell(page, 'disk-1-snapshot-9')
+  await expectCell(page, 'snapshot-max-size')
   await expect(rows).toHaveCount(17)
   await expect(nextButton).toBeDisabled() // no more pages
 
@@ -62,8 +66,9 @@ test('pagination', async ({ page }) => {
   await prevButton.click()
   await expect(spinner).toBeHidden({ timeout: 10 }) // no spinner, cached page
   await expect(rows).toHaveCount(PAGE_SIZE)
-  await expectCell(page, `disk-1-snapshot-${2 * PAGE_SIZE + 1}`)
-  await expectCell(page, `disk-1-snapshot-${3 * PAGE_SIZE}`)
+  // Back to page 3
+  await expectCell(page, 'disk-1-snapshot-41')
+  await expectCell(page, 'disk-1-snapshot-89')
   await expectScrollTop(page, 0) // scroll resets to top on prev too
 
   await nextButton.click()

@@ -24,8 +24,11 @@ describe('paginated', () => {
     const items = Array.from({ length: 200 }).map((_, i) => ({ id: 'i' + i }))
     const page = paginated({}, items)
     expect(page.items.length).toBe(100)
-    expect(page.items).toEqual(items.slice(0, 100))
-    expect(page.next_page).toBe('i100')
+    // Items are sorted by id lexicographically (matching Omicron's UUID sorting behavior)
+    // Use locale-agnostic comparison to match the implementation
+    const sortedItems = [...items].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
+    expect(page.items).toEqual(sortedItems.slice(0, 100))
+    expect(page.next_page).toBe(sortedItems[100].id)
   })
 
   it('should return page with null `next_page` if items equal page', () => {

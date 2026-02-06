@@ -134,11 +134,11 @@ test.describe('Disk create', () => {
     await page.getByRole('option', { name: 'delete-500' }).click()
   })
 
-  // max-size snapshot required a fix
+  // max-size snapshot required a fix to load all snapshots in dropdown
   test('from max-size snapshot', async ({ page }) => {
     await page.getByRole('radio', { name: 'Snapshot' }).click()
     await page.getByRole('button', { name: 'Source snapshot' }).click()
-    await page.getByRole('option', { name: 'snapshot-max' }).click()
+    await page.getByRole('option', { name: 'snapshot-max-size' }).click()
   })
 
   test('from image', async ({ page }) => {

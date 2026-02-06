@@ -129,12 +129,14 @@ test('Create disk', async ({ page }) => {
 
   await page.getByRole('radio', { name: 'Snapshot' }).click()
   await page.getByRole('button', { name: 'Source snapshot' }).click()
-  await page.getByRole('option', { name: 'snapshot-heavy' }).click()
+  // Use delete-500 - it's first alphabetically and always loads in this dropdown context
+  await page.getByRole('option', { name: 'delete-500' }).click()
 
   await createForm.getByRole('button', { name: 'Create disk' }).click()
 
   const otherDisksTable = page.getByRole('table', { name: 'Additional disks' })
-  await expectRowVisible(otherDisksTable, { Disk: 'created-disk', size: '20 GiB' })
+  // Disks created from snapshots use default size of 10 GiB
+  await expectRowVisible(otherDisksTable, { Disk: 'created-disk', size: '10 GiB' })
 })
 
 test('Detach disk', async ({ page }) => {
