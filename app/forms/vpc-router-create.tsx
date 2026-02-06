@@ -60,7 +60,7 @@ export default function RouterCreate() {
       <DescriptionField name="description" control={form.control} />
       <FormDivider />
       <ModalLinks heading="Relevant docs">
-        <ModalLink to={links.routersDocs} label="Custom Routers" />
+        <ModalLink to={links.customRoutersDocs} label="Custom Routers" />
       </ModalLinks>
     </SideModalForm>
   )

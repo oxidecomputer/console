@@ -41,10 +41,8 @@ export const links = {
   projectsDocs: 'https://docs.oxide.computer/guides/onboarding-projects',
   quickStart: 'https://docs.oxide.computer/guides/quickstart',
   routesDocs: 'https://docs.oxide.computer/guides/configuring-guest-networking#vpc-subnet',
-  routersDocs:
+  customRoutersDocs:
     'https://docs.oxide.computer/guides/configuring-guest-networking#_custom_routers',
-  subnetsDocs:
-    'https://docs.oxide.computer/guides/configuring-guest-networking#_vpcs_and_subnets',
   scimDocs:
     'https://docs.oxide.computer/guides/operator/identity-providers#_saml_authentication_scim_user_provisioning',
   siloQuotasDocs:
@@ -133,7 +131,7 @@ export const docLinks = {
     linkText: 'Remote Access',
   },
   routers: {
-    href: links.routersDocs,
+    href: links.customRoutersDocs,
     linkText: 'Custom Routers',
   },
   routes: {
@@ -151,10 +149,6 @@ export const docLinks = {
   sshKeys: {
     href: links.sshKeysDocs,
     linkText: 'SSH Keys',
-  },
-  subnets: {
-    href: links.subnetsDocs,
-    linkText: 'VPCs and Subnets',
   },
   storage: {
     href: links.storageDocs,
