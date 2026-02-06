@@ -1035,6 +1035,12 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/subnet-pools` */
+  currentSiloSubnetPoolList: (params: {
+    query: Api.CurrentSiloSubnetPoolListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SiloSubnetPoolResultsPage>>
   /** `GET /v1/system/audit-log` */
   auditLogList: (params: {
     query: Api.AuditLogListQueryParams
@@ -1625,6 +1631,13 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.SiloQuotas>>
+  /** `GET /v1/system/silos/:silo/subnet-pools` */
+  siloSubnetPoolList: (params: {
+    path: Api.SiloSubnetPoolListPathParams
+    query: Api.SiloSubnetPoolListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SiloSubnetPoolResultsPage>>
   /** `GET /v1/system/subnet-pools` */
   subnetPoolList: (params: {
     query: Api.SubnetPoolListQueryParams
@@ -2954,6 +2967,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['snapshotDelete'], schema.SnapshotDeleteParams, null)
     ),
     http.get(
+      '/v1/subnet-pools',
+      handler(
+        handlers['currentSiloSubnetPoolList'],
+        schema.CurrentSiloSubnetPoolListParams,
+        null
+      )
+    ),
+    http.get(
       '/v1/system/audit-log',
       handler(handlers['auditLogList'], schema.AuditLogListParams, null)
     ),
@@ -3466,6 +3487,10 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         schema.SiloQuotasUpdateParams,
         schema.SiloQuotasUpdate
       )
+    ),
+    http.get(
+      '/v1/system/silos/:silo/subnet-pools',
+      handler(handlers['siloSubnetPoolList'], schema.SiloSubnetPoolListParams, null)
     ),
     http.get(
       '/v1/system/subnet-pools',

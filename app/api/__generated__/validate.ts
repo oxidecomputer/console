@@ -3864,6 +3864,30 @@ export const SiloRolePolicy = z.preprocess(
 )
 
 /**
+ * A subnet pool in the context of a silo
+ */
+export const SiloSubnetPool = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    id: z.uuid(),
+    ipVersion: IpVersion,
+    isDefault: SafeBoolean,
+    name: Name,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const SiloSubnetPoolResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: SiloSubnetPool.array(), nextPage: z.string().nullable().optional() })
+)
+
+/**
  * A collection of resource counts used to describe capacity and utilization
  */
 export const VirtualResourceCounts = z.preprocess(
@@ -6901,6 +6925,18 @@ export const SnapshotDeleteParams = z.preprocess(
   })
 )
 
+export const CurrentSiloSubnetPoolListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
 export const AuditLogListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -7899,6 +7935,20 @@ export const SiloQuotasUpdateParams = z.preprocess(
       silo: NameOrId,
     }),
     query: z.object({}),
+  })
+)
+
+export const SiloSubnetPoolListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      silo: NameOrId,
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
   })
 )
 
