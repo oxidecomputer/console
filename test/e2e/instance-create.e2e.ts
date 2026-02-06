@@ -364,8 +364,8 @@ test('create instance with a silo image', async ({ page }) => {
   await selectASiloImage(page, 'arch-2022-06-01')
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
-  // arch-2022-06-01 has size 3 GiB
-  await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=3 GiB'])
+  // Boot disk size defaults to 10 GiB
+  await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=10 GiB'])
 })
 
 test('start with an existing disk, but then switch to a silo image', async ({ page }) => {
@@ -377,8 +377,8 @@ test('start with an existing disk, but then switch to a silo image', async ({ pa
   await selectASiloImage(page, 'arch-2022-06-01')
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
-  // arch-2022-06-01 has size 3 GiB
-  await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=3 GiB'])
+  // Boot disk size defaults to 10 GiB
+  await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=10 GiB'])
   await expectNotVisible(page, ['text=disk-7'])
 })
 

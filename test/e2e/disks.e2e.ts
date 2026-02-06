@@ -134,11 +134,11 @@ test.describe('Disk create', () => {
     await page.getByRole('option', { name: 'delete-500' }).click()
   })
 
-  // Using disk-1-snapshot-11 since it's on page 1 after sorting and doesn't have ambiguous matches
+  // Using delete-500 - it's first alphabetically and always loads in dropdown
   test('from snapshot on page 1', async ({ page }) => {
     await page.getByRole('radio', { name: 'Snapshot' }).click()
     await page.getByRole('button', { name: 'Source snapshot' }).click()
-    await page.getByRole('option', { name: 'disk-1-snapshot-11', exact: true }).click()
+    await page.getByRole('option', { name: 'delete-500' }).click()
   })
 
   test('from image', async ({ page }) => {

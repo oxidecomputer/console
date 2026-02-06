@@ -28,7 +28,7 @@ test.describe('IP pool configuration: myriad silo (v4-only default)', () => {
     // Select a silo image for boot disk
     await page.getByRole('tab', { name: 'Silo images' }).click()
     await page.getByPlaceholder('Select a silo image', { exact: true }).click()
-    await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
+    await page.getByRole('option', { name: 'arch-2022-06-01' }).click()
 
     // Open networking accordion
     await page.getByRole('button', { name: 'Networking' }).click()
@@ -75,7 +75,7 @@ test.describe('IP pool configuration: thrax silo (v6-only default)', () => {
     // Select a silo image for boot disk
     await page.getByRole('tab', { name: 'Silo images' }).click()
     await page.getByPlaceholder('Select a silo image', { exact: true }).click()
-    await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
+    await page.getByRole('option', { name: 'arch-2022-06-01' }).click()
 
     // Open networking accordion
     await page.getByRole('button', { name: 'Networking' }).click()
@@ -124,7 +124,7 @@ test.describe('IP pool configuration: pelerines silo (no defaults)', () => {
     // Select a silo image for boot disk
     await page.getByRole('tab', { name: 'Silo images' }).click()
     await page.getByPlaceholder('Select a silo image', { exact: true }).click()
-    await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
+    await page.getByRole('option', { name: 'arch-2022-06-01' }).click()
 
     // Open networking accordion
     await page.getByRole('button', { name: 'Networking' }).click()
@@ -176,7 +176,7 @@ test.describe('IP pool configuration: no-pools silo (no IP pools)', () => {
 
     await page.getByRole('tab', { name: 'Silo images' }).click()
     await page.getByPlaceholder('Select a silo image', { exact: true }).click()
-    await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
+    await page.getByRole('option', { name: 'arch-2022-06-01' }).click()
 
     await page.getByRole('button', { name: 'Networking' }).click()
 
