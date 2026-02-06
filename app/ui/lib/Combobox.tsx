@@ -151,8 +151,12 @@ export const Combobox = ({
       value={selectedItemValue}
       // fallback to '' allows clearing field to work
       onChange={(val) => onChange(val || '')}
-      // we only want to keep the query on close when arbitrary values are allowed
-      onClose={allowArbitraryValues ? undefined : () => setQuery('')}
+      // We only want to keep the query on close when arbitrary values are allowed.
+      // Only clear the query if the document still has focus, meaning this was a
+      // deliberate close (clicked outside, pressed Escape, selected item). If the
+      // document lost focus (user switched tabs/windows), preserve the query so
+      // it's still there when they return.
+      onClose={allowArbitraryValues ? undefined : () => document.hasFocus() && setQuery('')}
       disabled={disabled || isLoading}
       immediate
       {...props}
