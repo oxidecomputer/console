@@ -95,11 +95,19 @@ function sortItems<I extends { id: string }>(items: I[], sortBy: SortMode): I[] 
   switch (sortBy) {
     case 'name_ascending':
       // Use byte-wise lexicographic comparison to match Rust's String ordering
-      return R.sortBy(items, (item) => ('name' in item ? String(item.name) : item.id))
+      // Include ID as tiebreaker for stable pagination when names are equal
+      return R.sortBy(
+        items,
+        (item) => ('name' in item ? String(item.name) : item.id),
+        (item) => item.id
+      )
     case 'name_descending':
       return R.pipe(
         items,
-        R.sortBy((item) => ('name' in item ? String(item.name) : item.id)),
+        R.sortBy(
+          (item) => ('name' in item ? String(item.name) : item.id),
+          (item) => item.id
+        ),
         R.reverse()
       )
     case 'id_ascending':
