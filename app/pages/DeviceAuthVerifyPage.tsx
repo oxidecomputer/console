@@ -51,7 +51,7 @@ export default function DeviceAuthVerifyPage() {
       <AuthCodeInput
         onChange={(code) => setUserCode(code)}
         containerClassName="flex space-x-2 mb-6"
-        inputClassName="rounded border border-default bg-default w-full aspect-square flex items-center justify-center text-center text-default text-mono-md"
+        inputClassName="rounded-md border border-default bg-default w-full aspect-square flex items-center justify-center text-center text-default text-mono-md"
         length={8}
         dashAfterIdxs={DASH_AFTER_IDXS}
       />

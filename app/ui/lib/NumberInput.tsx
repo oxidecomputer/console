@@ -34,7 +34,7 @@ export function NumberInput(props: NumberInputProps) {
   return (
     <div
       className={cn(
-        'relative flex rounded border',
+        'relative flex rounded-md border',
         props.error
           ? 'border-error-secondary hover:border-error'
           : 'border-default hover:border-hover',
@@ -47,7 +47,7 @@ export function NumberInput(props: NumberInputProps) {
         {...inputProps}
         ref={mergeRefs([props.ref, inputRef])}
         className={cn(
-          `text-sans-md text-raise bg-default placeholder:text-tertiary disabled:text-secondary disabled:bg-disabled w-full rounded border-none px-3 py-2.75 outline-offset-1! focus:outline-hidden disabled:cursor-not-allowed`,
+          `text-sans-md text-raise bg-default placeholder:text-tertiary disabled:text-secondary disabled:bg-disabled w-full rounded-md border-none px-3 py-2.75 outline-offset-1! focus:outline-hidden disabled:cursor-not-allowed`,
           props.error && 'focus-error',
           props.isDisabled && 'text-disabled bg-disabled'
         )}

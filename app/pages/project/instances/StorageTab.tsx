@@ -24,7 +24,7 @@ import {
 import { Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { HL } from '~/components/HL'
-import { DiskStateBadge, DiskTypeBadge } from '~/components/StateBadge'
+import { DiskStateBadge, DiskTypeBadge, ReadOnlyBadge } from '~/components/StateBadge'
 import { AttachDiskModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
@@ -85,9 +85,12 @@ export default function StorageTab() {
       colHelper.accessor('name', {
         header: 'Disk',
         cell: (info) => (
-          <ButtonCell onClick={() => setSelectedDisk(info.row.original)}>
-            {info.getValue()}
-          </ButtonCell>
+          <span className="flex items-center gap-2">
+            <ButtonCell onClick={() => setSelectedDisk(info.row.original)}>
+              {info.getValue()}
+            </ButtonCell>
+            {info.row.original.readOnly && <ReadOnlyBadge />}
+          </span>
         ),
       }),
       colHelper.accessor('diskType', {
@@ -408,7 +411,11 @@ export default function StorageTab() {
       )}
       {showDiskAttach && (
         <AttachDiskModalForm
-          onDismiss={() => setShowDiskAttach(false)}
+          onDismiss={() => {
+            setShowDiskAttach(false)
+            // clear API errors on the mutation
+            attachDisk.reset()
+          }}
           onSubmit={({ name }) => {
             attachDisk.mutate({ ...instancePathQuery, body: { disk: name } })
           }}

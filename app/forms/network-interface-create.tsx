@@ -8,25 +8,60 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
-import type { SetNonNullable, SetRequired } from 'type-fest'
+import { match } from 'ts-pattern'
 
-import { api, q, type ApiError, type InstanceNetworkInterfaceCreate } from '@oxide/api'
+import {
+  api,
+  q,
+  type ApiError,
+  type InstanceNetworkInterfaceCreate,
+  type IpVersion,
+} from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
+import { RadioField } from '~/components/form/fields/RadioField'
 import { SubnetListbox } from '~/components/form/fields/SubnetListbox'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
 import { FormDivider } from '~/ui/lib/Divider'
 
-const defaultValues: SetRequired<SetNonNullable<InstanceNetworkInterfaceCreate>, 'ip'> = {
+type NetworkInterfaceFormValues = {
+  name: string
+  description: string
+  subnetName: string
+  vpcName: string
+  ipStackType: IpVersion | 'dual_stack'
+  ipv4: string
+  ipv6: string
+}
+
+const defaultValues: NetworkInterfaceFormValues = {
   name: '',
   description: '',
-  ip: '',
   subnetName: '',
   vpcName: '',
+  ipStackType: 'dual_stack',
+  ipv4: '',
+  ipv6: '',
+}
+
+// Helper to build IP assignment from string
+function buildIpAssignment(
+  ipString: string
+): { type: 'auto' } | { type: 'explicit'; value: string } {
+  const trimmed = ipString.trim()
+  return trimmed ? { type: 'explicit', value: trimmed } : { type: 'auto' }
+}
+
+// Helper to build a single IP stack (v4 or v6)
+function buildIpStack(ipString: string) {
+  return {
+    ip: buildIpAssignment(ipString),
+    transitIps: [],
+  }
 }
 
 type CreateNetworkInterfaceFormProps = {
@@ -52,6 +87,7 @@ export function CreateNetworkInterfaceForm({
   const vpcs = useMemo(() => vpcsData?.items || [], [vpcsData])
 
   const form = useForm({ defaultValues })
+  const ipStackType = form.watch('ipStackType')
 
   return (
     <SideModalForm
@@ -60,7 +96,27 @@ export function CreateNetworkInterfaceForm({
       resourceName="network interface"
       title="Add network interface"
       onDismiss={onDismiss}
-      onSubmit={({ ip, ...rest }) => onSubmit({ ip: ip.trim() || undefined, ...rest })}
+      onSubmit={({ ipStackType, ipv4, ipv6, ...rest }) => {
+        const ipConfig = match(ipStackType)
+          .with('v4', () => ({
+            type: 'v4' as const,
+            value: buildIpStack(ipv4),
+          }))
+          .with('v6', () => ({
+            type: 'v6' as const,
+            value: buildIpStack(ipv6),
+          }))
+          .with('dual_stack', () => ({
+            type: 'dual_stack' as const,
+            value: {
+              v4: buildIpStack(ipv4),
+              v6: buildIpStack(ipv6),
+            },
+          }))
+          .exhaustive()
+
+        onSubmit({ ...rest, ipConfig })
+      }}
       loading={loading}
       submitError={submitError}
     >
@@ -83,7 +139,45 @@ export function CreateNetworkInterfaceForm({
         required
         control={form.control}
       />
-      <TextField name="ip" label="IP Address" control={form.control} />
+
+      <RadioField
+        name="ipStackType"
+        label="IP configuration"
+        control={form.control}
+        column
+        items={[
+          {
+            value: 'dual_stack',
+            label: 'IPv4 & IPv6',
+          },
+          {
+            value: 'v4',
+            label: 'IPv4',
+          },
+          {
+            value: 'v6',
+            label: 'IPv6',
+          },
+        ]}
+      />
+
+      {(ipStackType === 'v4' || ipStackType === 'dual_stack') && (
+        <TextField
+          name="ipv4"
+          label="IPv4 Address"
+          control={form.control}
+          placeholder="Leave blank for auto-assignment"
+        />
+      )}
+
+      {(ipStackType === 'v6' || ipStackType === 'dual_stack') && (
+        <TextField
+          name="ipv6"
+          label="IPv6 Address"
+          control={form.control}
+          placeholder="Leave blank for auto-assignment"
+        />
+      )}
     </SideModalForm>
   )
 }

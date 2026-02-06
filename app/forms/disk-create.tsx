@@ -9,20 +9,21 @@ import { useQuery } from '@tanstack/react-query'
 import { filesize } from 'filesize'
 import { useMemo } from 'react'
 import { useController, useForm, type Control } from 'react-hook-form'
+import { match } from 'ts-pattern'
 
 import {
   api,
+  MAX_DISK_SIZE_GiB,
   q,
   queryClient,
   useApiMutation,
   type BlockSize,
   type Disk,
-  type DiskBackend,
   type DiskCreate,
-  type DiskSource,
   type Image,
 } from '@oxide/api'
 
+import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { DiskSizeField } from '~/components/form/fields/DiskSizeField'
 import { toImageComboboxItem } from '~/components/form/fields/ImageSelectField'
@@ -41,12 +42,34 @@ import { toLocaleDateString } from '~/util/date'
 import { diskSizeNearest10 } from '~/util/math'
 import { bytesToGiB, GiB } from '~/util/units'
 
-const blankDiskSource: DiskSource = {
+/**
+ * Same as DiskSource but with image and snapshot ID optional, reflecting The
+ * fact that when you select the type, you do not have an image or snapshot
+ * selected.
+ */
+type DiskSourceForm =
+  | { type: 'blank'; blockSize: BlockSize }
+  | { type: 'importing_blocks'; blockSize: BlockSize }
+  | { type: 'image'; imageId?: string; readOnly: boolean }
+  | { type: 'snapshot'; snapshotId?: string; readOnly: boolean }
+
+type DiskBackendForm =
+  | { type: 'local' }
+  | { type: 'distributed'; diskSource: DiskSourceForm }
+
+type DiskCreateForm = {
+  name: string
+  description: string
+  size: number
+  diskBackend: DiskBackendForm
+}
+
+const blankDiskSource: DiskSourceForm = {
   type: 'blank',
   blockSize: 4096,
 }
 
-const defaultValues: DiskCreate = {
+const defaultValues: DiskCreateForm = {
   name: '',
   description: '',
   size: 10,
@@ -124,8 +147,41 @@ export function CreateDiskSideModalForm({
       formType="create"
       resourceName="disk"
       onDismiss={onDismiss}
-      onSubmit={({ size, ...rest }) => {
-        const body = { size: size * GiB, ...rest }
+      onSubmit={({ size, diskBackend, ...rest }) => {
+        const body: DiskCreate = {
+          ...rest,
+          size: size * GiB,
+          diskBackend: match(diskBackend)
+            .with({ type: 'local' }, () => ({ type: 'local' as const }))
+            .with({ type: 'distributed' }, ({ diskSource }) => ({
+              type: 'distributed' as const,
+              diskSource: match(diskSource)
+                .with({ type: 'blank' }, (source) => ({
+                  type: 'blank' as const,
+                  blockSize: source.blockSize,
+                }))
+                .with({ type: 'importing_blocks' }, (source) => ({
+                  type: 'importing_blocks' as const,
+                  blockSize: source.blockSize,
+                }))
+                .with({ type: 'image' }, (source) => ({
+                  type: 'image' as const,
+                  // image ID is validated by the form: it's required when the
+                  // field is present (i.e., when image type is selected)
+                  imageId: source.imageId!,
+                  readOnly: source.readOnly,
+                }))
+                .with({ type: 'snapshot' }, (source) => ({
+                  type: 'snapshot' as const,
+                  // snapshot ID is validated by the form: it's required when
+                  // the field is present (i.e., when snapshot type is selected)
+                  snapshotId: source.snapshotId!,
+                  readOnly: source.readOnly,
+                }))
+                .exhaustive(),
+            }))
+            .exhaustive(),
+        }
         if (onSubmit) {
           onSubmit(body)
         } else {
@@ -148,6 +204,11 @@ export function CreateDiskSideModalForm({
       <DiskSizeField
         name="size"
         control={form.control}
+        // Local disk size is only capped by server capacity
+        max={match(diskBackend)
+          .with({ type: 'local' }, () => undefined)
+          .with({ type: 'distributed' }, () => MAX_DISK_SIZE_GiB)
+          .exhaustive()}
         validate={(diskSizeGiB: number) => {
           if (validateSizeGiB && diskSizeGiB < validateSizeGiB) {
             return `Must be as large as selected ${diskSourceType} (min. ${validateSizeGiB} GiB)`
@@ -168,13 +229,16 @@ const DiskBackendField = ({
   images,
   areImagesLoading,
 }: {
-  control: Control<DiskCreate>
+  control: Control<DiskCreateForm>
   images: Image[]
   areImagesLoading: boolean
 }) => {
   const {
-    field: { value: diskBackend, onChange: setDiskBackend },
+    field: { value: diskBackend, onChange },
   } = useController({ control, name: 'diskBackend' })
+  // react-hook-form types onChange as (...event: any[]) => void
+  // https://github.com/react-hook-form/react-hook-form/issues/10466
+  const setDiskBackend: (value: DiskBackendForm) => void = onChange
   const diskSizeField = useController({ control, name: 'size' }).field
 
   return (
@@ -187,7 +251,7 @@ const DiskBackendField = ({
           column
           defaultChecked={diskBackend.type}
           onChange={(event) => {
-            const newType = event.target.value as DiskBackend['type']
+            const newType = event.target.value as DiskBackendForm['type']
             if (newType === 'local') {
               setDiskBackend({ type: 'local' })
             } else {
@@ -224,9 +288,9 @@ const DiskSourceField = ({
   images,
   areImagesLoading,
 }: {
-  control: Control<DiskCreate>
-  diskSource: DiskSource
-  setDiskSource: (source: DiskSource) => void
+  control: Control<DiskCreateForm>
+  diskSource: DiskSourceForm
+  setDiskSource: (source: DiskSourceForm) => void
   diskSizeField: { value: number; onChange: (value: number) => void }
   images: Image[]
   areImagesLoading: boolean
@@ -241,11 +305,19 @@ const DiskSourceField = ({
           column
           defaultChecked={diskSource.type}
           onChange={(event) => {
-            const newType = event.target.value as DiskSource['type']
+            const newType = event.target.value as DiskSourceForm['type']
             // need to include blockSize when switching back to blank. other
             // source types get their required fields from form inputs
             setDiskSource(
-              newType === 'blank' ? blankDiskSource : ({ type: newType } as DiskSource)
+              match(newType)
+                .with('blank', () => blankDiskSource)
+                .with('snapshot', () => ({ type: 'snapshot' as const, readOnly: false }))
+                .with('image', () => ({ type: 'image' as const, readOnly: false }))
+                .with('importing_blocks', () => ({
+                  type: 'importing_blocks' as const,
+                  blockSize: blankDiskSource.blockSize,
+                }))
+                .exhaustive()
             )
           }}
         >
@@ -271,25 +343,41 @@ const DiskSourceField = ({
           />
         )}
         {diskSource.type === 'image' && (
-          <ListboxField
-            control={control}
-            name="diskBackend.diskSource.imageId"
-            label="Source image"
-            placeholder="Select an image"
-            isLoading={areImagesLoading}
-            items={images.map((i) => toImageComboboxItem(i, true))}
-            required
-            onChange={(id) => {
-              const image = images.find((i) => i.id === id)!
-              const imageSizeGiB = image.size / GiB
-              if (diskSizeField.value < imageSizeGiB) {
-                diskSizeField.onChange(diskSizeNearest10(imageSizeGiB))
-              }
-            }}
-          />
+          <>
+            <ListboxField
+              control={control}
+              name="diskBackend.diskSource.imageId"
+              label="Source image"
+              placeholder="Select an image"
+              isLoading={areImagesLoading}
+              items={images.map((i) => toImageComboboxItem(i, true))}
+              required
+              onChange={(id) => {
+                const image = images.find((i) => i.id === id)!
+                const imageSizeGiB = image.size / GiB
+                if (diskSizeField.value < imageSizeGiB) {
+                  diskSizeField.onChange(diskSizeNearest10(imageSizeGiB))
+                }
+              }}
+            />
+            <div className="mt-2">
+              <CheckboxField name="diskBackend.diskSource.readOnly" control={control}>
+                Make disk read-only
+              </CheckboxField>
+            </div>
+          </>
         )}
 
-        {diskSource.type === 'snapshot' && <SnapshotSelectField control={control} />}
+        {diskSource.type === 'snapshot' && (
+          <>
+            <SnapshotSelectField control={control} />
+            <div className="mt-2">
+              <CheckboxField name="diskBackend.diskSource.readOnly" control={control}>
+                Make disk read-only
+              </CheckboxField>
+            </div>
+          </>
+        )}
       </div>
     </>
   )
@@ -304,7 +392,7 @@ const DiskNameFromId = ({ disk }: { disk: string }) => {
   return <> from {data.name}</>
 }
 
-const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
+const SnapshotSelectField = ({ control }: { control: Control<DiskCreateForm> }) => {
   const { project } = useProjectSelector()
   const snapshotsQuery = useQuery(q(api.snapshotList, { query: { project } }))
 

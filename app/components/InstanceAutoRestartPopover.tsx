@@ -43,7 +43,7 @@ export const InstanceAutoRestartPopover = ({ instance }: { instance: Instance })
   return (
     <Popover>
       <PopoverButton
-        className="border-default hover:bg-hover group flex h-6 w-6 items-center justify-center rounded border"
+        className="border-default hover:bg-hover group flex h-6 w-6 items-center justify-center rounded-md border"
         aria-label="Auto-restart status"
       >
         <AutoRestart12Icon className="shrink-0" aria-hidden />
@@ -60,7 +60,7 @@ export const InstanceAutoRestartPopover = ({ instance }: { instance: Instance })
           <CloseButton
             as={Link}
             to={pb.instanceSettings(instanceSelector)}
-            className="group -m-1 flex w-full items-center justify-between rounded px-1"
+            className="group -m-1 flex w-full items-center justify-between rounded-md px-1"
           >
             {match(policy)
               .with('never', () => (

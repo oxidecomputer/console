@@ -15,7 +15,7 @@ import { classed } from '~/util/classed'
 
 import { AttachAddon } from './AttachAddon'
 
-const ScrollButton = classed.button`ml-4 flex h-8 w-8 items-center justify-center rounded border border-secondary hover:bg-hover`
+const ScrollButton = classed.button`ml-4 flex h-8 w-8 items-center justify-center rounded-md border border-secondary hover:bg-hover`
 
 function getOptions(): ITerminalOptions {
   const style = getComputedStyle(document.body)

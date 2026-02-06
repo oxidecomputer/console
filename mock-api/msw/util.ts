@@ -19,7 +19,10 @@ import {
   type DiskBackend,
   type DiskCreate,
   type IpRange,
+  type Ipv4Assignment,
+  type Ipv6Assignment,
   type OxqlQueryResult,
+  type PrivateIpStackCreate,
   type RoleKey,
   type Sled,
   type SystemMetricName,
@@ -320,7 +323,8 @@ export const errIfInvalidDiskSize = (disk: Json<DiskCreate>) => {
   if (disk.size < MIN_DISK_SIZE_GiB * GiB) {
     throw `Disk size must be greater than or equal to ${MIN_DISK_SIZE_GiB} GiB`
   }
-  if (disk.size > MAX_DISK_SIZE_GiB * GiB) {
+  // Local disk size is validated server-side against zpool capacity, not here
+  if (disk.disk_backend.type === 'distributed' && disk.size > MAX_DISK_SIZE_GiB * GiB) {
     throw `Disk size must be less than or equal to ${MAX_DISK_SIZE_GiB} GiB`
   }
   // Local disks have no source to validate against. Distributed disks from
@@ -478,16 +482,16 @@ export function handleMetrics({ path: { metricName }, query }: MetricParams) {
 export const MSW_USER_COOKIE = 'msw-user'
 
 /**
- * Look up user by display name in cookie. Return the first user if cookie empty
- * or name not found. We're using display name to make it easier to set the
- * cookie by hand, because there is no way yet to pick a user through the UI.
- *
- * If cookie is empty or name is not found, return the first user in the list,
- * who has admin on everything.
+ * Look up user by display name in cookie. If cookie is empty, return the first
+ * user in the list, who has admin on everything. Throw if name is set but not
+ * found so typos in test code get caught immediately.
  */
 export function currentUser(cookies: Record<string, string>): Json<User> {
   const name = cookies[MSW_USER_COOKIE]
-  return db.users.find((u) => u.display_name === name) ?? db.users[0]
+  if (!name) return db.users[0]
+  const user = db.users.find((u) => u.display_name === name)
+  if (!user) throw new Error(`No mock user with display name '${name}'`)
+  return user
 }
 
 /**
@@ -622,6 +626,38 @@ export function requireRole(
   // should it 404? I think the API is a mix
   if (!userHasRole(user, resourceType, resourceId, role)) throw forbiddenErr()
 }
+
+const resolveStack = (
+  stack: { ip: Ipv4Assignment | Ipv6Assignment; transit_ips?: string[] | null },
+  defaultIp: string
+) => ({
+  ip: stack.ip.type === 'explicit' ? stack.ip.value : defaultIp,
+  transit_ips: stack.transit_ips ?? [],
+})
+
+// Convert PrivateIpStackCreate to PrivateIpStack
+export const resolveIpStack = (
+  config: Json<PrivateIpStackCreate>,
+  defaultV4Ip = '127.0.0.1',
+  defaultV6Ip = '::1'
+) =>
+  match(config)
+    .with({ type: 'dual_stack' }, ({ value }) => ({
+      type: 'dual_stack' as const,
+      value: {
+        v4: resolveStack(value.v4, defaultV4Ip),
+        v6: resolveStack(value.v6, defaultV6Ip),
+      },
+    }))
+    .with({ type: 'v4' }, ({ value }) => ({
+      type: 'v4' as const,
+      value: resolveStack(value, defaultV4Ip),
+    }))
+    .with({ type: 'v6' }, ({ value }) => ({
+      type: 'v6' as const,
+      value: resolveStack(value, defaultV6Ip),
+    }))
+    .exhaustive()
 
 const ipToBigInt = (ip: string): bigint =>
   parseIp(ip).type === 'v4' ? new IPv4(ip).value : new IPv6(ip).value

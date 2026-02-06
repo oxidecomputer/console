@@ -17,6 +17,7 @@ import { Badge } from '@oxide/design-system/ui'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
+import { IpVersionBadge } from '~/components/IpVersionBadge'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -59,14 +60,18 @@ const colHelper = createColumnHelper<IpPool>()
 const staticColumns = [
   colHelper.accessor('name', { cell: makeLinkCell((pool) => pb.ipPool({ pool })) }),
   colHelper.accessor('description', Columns.description),
+  colHelper.accessor('ipVersion', {
+    header: 'Version',
+    cell: (info) => <IpVersionBadge ipVersion={info.getValue()} />,
+  }),
   colHelper.accessor('poolType', {
-    header: 'Pool type',
+    header: 'Type',
     cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
   }),
-  // TODO: add version column when API supports v6 pools
   colHelper.display({
-    header: 'IPs Remaining',
-    cell: (info) => <UtilizationCell pool={info.row.original.id} />,
+    header: 'IPs REMAINING',
+    meta: { thClassName: 'normal-case' },
+    cell: (info) => <UtilizationCell pool={info.row.original.name} />,
   }),
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]

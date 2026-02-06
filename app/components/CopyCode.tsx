@@ -46,7 +46,7 @@ export function CopyCodeModal({
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} title={modalTitle} width="free">
       <Modal.Section>
-        <pre className="text-mono-md bg-default border-secondary w-full rounded border px-4 py-3 tracking-normal! normal-case!">
+        <pre className="text-mono-md bg-default border-secondary w-full rounded-md border px-4 py-3 tracking-normal! normal-case!">
           {children}
         </pre>
       </Modal.Section>

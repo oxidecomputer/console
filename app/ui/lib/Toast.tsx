@@ -113,7 +113,7 @@ export const Toast = ({
           type="button"
           aria-label="Dismiss notification"
           className={cn(
-            'hover:bg-accent-secondary-hover -m-2 flex items-center rounded border-transparent! p-2',
+            'hover:bg-accent-secondary-hover -m-2 flex items-center rounded-md border-transparent! p-2',
             textColor[variant]
           )}
           onClick={onClose}

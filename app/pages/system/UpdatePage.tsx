@@ -214,7 +214,7 @@ export default function UpdatePage() {
               return (
                 <li
                   key={repo.hash}
-                  className="border-default @container flex items-center gap-2 rounded border pl-4"
+                  className="border-default @container flex items-center gap-2 rounded-md border pl-4"
                 >
                   <Images24Icon className="text-quaternary shrink-0" aria-hidden />
                   <div className="flex min-w-0 flex-1 flex-col flex-wrap items-start gap-x-4 gap-y-1 py-3 @md:flex-row @md:items-center">

@@ -17,7 +17,9 @@ import type {
   DiskType,
   Instance,
   InstanceState,
+  IpVersion,
   Measurement,
+  SiloIpPool,
   SiloUtilization,
   Sled,
   VpcFirewallRule,
@@ -95,6 +97,16 @@ export const genName = (...parts: [string, ...string[]]) => {
       .concat(`-${Math.random().toString(16).substring(2, 8)}`)
   )
 }
+
+export type UnicastIpPool = SiloIpPool & { poolType: 'unicast' }
+
+export const isUnicastPool = (pool: SiloIpPool): pool is UnicastIpPool =>
+  pool.poolType === 'unicast'
+
+export const poolHasIpVersion =
+  (versions: IpVersion[]) =>
+  (pool: { ipVersion: IpVersion }): boolean =>
+    versions.includes(pool.ipVersion)
 
 const instanceActions = {
   // NoVmm maps to to Stopped:

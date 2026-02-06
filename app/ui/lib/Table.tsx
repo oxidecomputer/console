@@ -21,7 +21,7 @@ export function Table({ className, ...props }: TableProps) {
     <SimpleBar
       scrollableNodeProps={{ ref: overflowRef }}
       className={cn(
-        'overflow-x-auto rounded pb-4',
+        'overflow-x-auto rounded-md pb-4',
         !scrollStart && 'scrolled',
         isOverflow && !scrollEnd && 'overflowing'
       )}

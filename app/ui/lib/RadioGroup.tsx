@@ -96,7 +96,8 @@ export const RadioGroup = ({
       React.cloneElement(radio, {
         name,
         required,
-        disabled,
+        // Merge disabled: RadioGroup disabled OR individual Radio disabled
+        disabled: disabled || radio.props.disabled,
         defaultChecked: radio.props.value === defaultChecked ? true : undefined,
       })
     )}
