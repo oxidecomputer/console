@@ -41,7 +41,6 @@ test('Disk button opens detail modal', async ({ page }) => {
 test('Confirm delete snapshot', async ({ page }) => {
   await page.goto('/projects/mock-project/snapshots')
 
-  // Use disk-1-snapshot-100 which is on page 1 after sorting
   const row = page.getByRole('row', { name: 'disk-1-snapshot-100' })
 
   // scroll so the dropdown menu isn't behind the pagination bar
@@ -98,7 +97,6 @@ test('Error on delete snapshot', async ({ page }) => {
 test('Create image from snapshot', async ({ page }) => {
   await page.goto('/projects/mock-project/snapshots')
 
-  // Use disk-1-snapshot-100 which is on page 1 after sorting
   await clickRowAction(page, 'disk-1-snapshot-100', 'Create image')
 
   await expectVisible(page, ['role=dialog[name="Create image from snapshot"]'])
@@ -122,7 +120,6 @@ test('Create image from snapshot', async ({ page }) => {
 test('Create image from snapshot, name taken', async ({ page }) => {
   await page.goto('/projects/mock-project/snapshots')
 
-  // Use disk-1-snapshot-100 which is on page 1 after sorting
   await clickRowAction(page, 'disk-1-snapshot-100', 'Create image')
 
   await expectVisible(page, ['role=dialog[name="Create image from snapshot"]'])

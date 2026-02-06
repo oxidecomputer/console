@@ -192,7 +192,6 @@ test('Instance networking tab — floating IPs', async ({ page }) => {
   await attachFloatingIpButton.click()
   await expectVisible(page, ['role=heading[name="Attach floating IP"]'])
 
-  // Select the first available floating IP (after sorting: 'cola-float')
   const dialog = page.getByRole('dialog')
   // TODO: this "select the option" syntax is awkward; it's working, but I suspect there's a better way
   await dialog.getByLabel('Floating IP').click()
