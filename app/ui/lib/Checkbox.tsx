@@ -46,24 +46,22 @@ export const Checkbox = ({
   className,
   ...inputProps
 }: CheckboxProps) => (
-  <label className="text-sans-md">
-    <div className="inline-flex h-lh shrink-0 grow-0 items-center">
-      <span className="relative h-4 w-4">
-        <input
-          className={cn(inputStyle, className)}
-          type="checkbox"
-          ref={(el) => {
-            if (el) {
-              el.indeterminate = !!indeterminate
-            }
-          }}
-          {...inputProps}
-        />
-        {inputProps.checked && !indeterminate && <Check />}
-        {indeterminate && <Indeterminate />}
-      </span>
+  <label className="items-top inline-flex">
+    <span className="relative h-4 w-4">
+      <input
+        className={cn(inputStyle, className)}
+        type="checkbox"
+        ref={(el) => {
+          if (el) {
+            el.indeterminate = !!indeterminate
+          }
+        }}
+        {...inputProps}
+      />
+      {inputProps.checked && !indeterminate && <Check />}
+      {indeterminate && <Indeterminate />}
+    </span>
 
-      {children && <span className="text-default ml-2.5">{children}</span>}
-    </div>
+    {children && <span className="text-sans-md text-default ml-2.5">{children}</span>}
   </label>
 )
