@@ -22,7 +22,7 @@ import type { Instance } from '~/api'
 import { instanceAutoRestartingSoon } from '~/api/util'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { Spinner } from '~/ui/lib/Spinner'
-import { links } from '~/util/links'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 /**
@@ -101,7 +101,7 @@ export const InstanceAutoRestartPopover = ({ instance }: { instance: Instance })
               : 'This instance will not automatically restart.'}
           </p>
           <a
-            href={links.instanceUpdateDocs}
+            href={docLinks.autoRestart.href}
             className="group"
             target="_blank"
             rel="noreferrer"
@@ -109,7 +109,7 @@ export const InstanceAutoRestartPopover = ({ instance }: { instance: Instance })
             <span className="inline-block max-w-300 truncate align-middle">
               Learn about{' '}
               <span className="group-hover:link-with-underline text-raise">
-                Instance Auto-Restart
+                {docLinks.autoRestart.linkText}
               </span>
             </span>
             <OpenLink12Icon className="text-secondary ml-1 translate-y-px" />
