@@ -20,8 +20,8 @@ import { titleCrumb } from '~/hooks/use-crumbs'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
-import { ModalLink, ModalLinks } from '~/ui/lib/ModalLinks'
-import { links } from '~/util/links'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 type IpPoolCreateForm = SetRequired<IpPoolCreate, 'poolType' | 'ipVersion'>
@@ -87,9 +87,7 @@ export default function CreateIpPoolSideModalForm() {
         ]}
       />
       <FormDivider />
-      <ModalLinks heading="Relevant docs">
-        <ModalLink to={links.systemIpPoolsDocs} label="IP Pools" />
-      </ModalLinks>
+      <SideModalFormDocs docs={[docLinks.systemIpPools]} />
     </SideModalForm>
   )
 }

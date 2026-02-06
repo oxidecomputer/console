@@ -28,9 +28,9 @@ import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
-import { ModalLink, ModalLinks } from '~/ui/lib/ModalLinks'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { ALL_ISH } from '~/util/consts'
-import { links } from '~/util/links'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const poolList = q(api.projectIpPoolList, { query: { limit: ALL_ISH } })
@@ -100,9 +100,7 @@ export default function CreateFloatingIpSideModalForm() {
       <DescriptionField name="description" control={form.control} />
       <IpPoolSelector control={form.control} poolFieldName="pool" pools={unicastPools} />
       <FormDivider />
-      <ModalLinks heading="Relevant docs">
-        <ModalLink to={links.floatingIpsDocs} label="Floating IPs" />
-      </ModalLinks>
+      <SideModalFormDocs docs={[docLinks.floatingIps]} />
     </SideModalForm>
   )
 }

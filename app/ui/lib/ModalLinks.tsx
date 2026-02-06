@@ -36,3 +36,13 @@ export const ModalLink = ({ to, label }: { to: string; label: string }) => (
     </a>
   </li>
 )
+
+type DocLink = { href: string; linkText: string }
+
+export const SideModalFormDocs = ({ docs }: { docs: DocLink[] }) => (
+  <ModalLinks heading="Relevant docs">
+    {docs.map(({ href, linkText }) => (
+      <ModalLink key={href} to={href} label={linkText} />
+    ))}
+  </ModalLinks>
+)
