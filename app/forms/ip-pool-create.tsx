@@ -88,8 +88,7 @@ export default function CreateIpPoolSideModalForm() {
       />
       <FormDivider />
       <ModalLinks heading="Relevant docs">
-        <ModalLink to={links.ipPoolCreateDocs} label="IP Pool Creation" />
-        <ModalLink to={links.ipPoolTypesDocs} label="IP Pool Types" />
+        <ModalLink to={links.systemIpPoolsDocs} label="IP Pools" />
       </ModalLinks>
     </SideModalForm>
   )

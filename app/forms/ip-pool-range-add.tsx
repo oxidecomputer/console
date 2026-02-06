@@ -142,8 +142,7 @@ export default function IpPoolAddRange() {
       />
       <FormDivider />
       <ModalLinks heading="Relevant docs">
-        <ModalLink to={links.ipPoolCreateDocs} label="Create IP Pools" />
-        <ModalLink to={links.systemIpPoolsDocs} label="IP Pool Management" />
+        <ModalLink to={links.systemIpPoolsDocs} label="IP Pools" />
       </ModalLinks>
     </SideModalForm>
   )
