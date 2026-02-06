@@ -62,16 +62,16 @@ CardBlock.Body = classed.div`px-5 py-4 space-y-4 [&>*:last-child[data-simplebar]
 
 CardBlock.Footer = classed.footer`flex items-center justify-between px-5 pt-4 text-secondary`
 
-export const LearnMore = ({ href, text }: { href: string; text: React.ReactNode }) => (
+export const LearnMore = ({ doc }: { doc: { href: string; linkText: string } }) => (
   <div className="text-sans-md">
     Learn more about{' '}
     <a
-      href={href}
+      href={doc.href}
       className="text-accent-secondary hover:text-accent inline-flex items-center"
       target="_blank"
       rel="noreferrer"
     >
-      {text}
+      {doc.linkText}
       <OpenLink12Icon className="ml-1 align-middle" />
     </a>
   </div>

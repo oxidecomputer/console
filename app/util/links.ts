@@ -20,17 +20,10 @@ export const links = {
   identityProvidersDocs: 'https://docs.oxide.computer/guides/operator/identity-providers',
   // TODO: link to section
   instanceBootDiskDocs: 'https://docs.oxide.computer/guides/deploying-workloads',
-  instanceUpdateDocs:
-    'https://docs.oxide.computer/guides/managing-instances#_update_instances',
-  oxqlDocs: 'https://docs.oxide.computer/guides/operator/system-metrics#_oxql_quickstart',
   oxqlSchemaDocs: (metric: string) =>
     `https://docs.oxide.computer/guides/metrics/timeseries-schemas#_${metric.replace(':', '')}`,
-  scimDocs:
-    'https://docs.oxide.computer/guides/operator/identity-providers#_saml_authentication_scim_user_provisioning',
   siloQuotasDocs:
     'https://docs.oxide.computer/guides/operator/silo-management#_silo_resource_quota_management',
-  serialConsoleDocs: remoteAccess + '#serial-console',
-  sshDocs: remoteAccess + '#ssh',
   transitIpsDocs:
     'https://docs.oxide.computer/guides/configuring-guest-networking#_example_4_software_routing_tunnels',
   troubleshootingAccess:
@@ -79,9 +72,17 @@ export const docLinks = {
     href: 'https://docs.oxide.computer/guides/creating-and-sharing-images',
     linkText: 'Images',
   },
+  autoRestart: {
+    href: 'https://docs.oxide.computer/guides/managing-instances#_update_instances',
+    linkText: 'Instance Auto-Restart',
+  },
   instanceActions: {
     href: 'https://docs.oxide.computer/guides/managing-instances',
     linkText: 'Instance Actions',
+  },
+  oxql: {
+    href: 'https://docs.oxide.computer/guides/operator/system-metrics#_oxql_quickstart',
+    linkText: 'OxQL',
   },
   keyConceptsProjects: {
     href: 'https://docs.oxide.computer/guides/key-entities-and-concepts#_projects',
@@ -99,6 +100,14 @@ export const docLinks = {
     href: remoteAccess,
     linkText: 'Remote Access',
   },
+  scim: {
+    href: 'https://docs.oxide.computer/guides/operator/identity-providers#_saml_authentication_scim_user_provisioning',
+    linkText: 'SCIM',
+  },
+  serialConsole: {
+    href: remoteAccess + '#serial-console',
+    linkText: 'Serial Console',
+  },
   routers: {
     href: 'https://docs.oxide.computer/guides/configuring-guest-networking#_custom_routers',
     linkText: 'Custom Routers',
@@ -114,6 +123,10 @@ export const docLinks = {
   snapshots: {
     href: 'https://docs.oxide.computer/guides/managing-disks-and-snapshots#_snapshots',
     linkText: 'Disks and Snapshots',
+  },
+  ssh: {
+    href: remoteAccess + '#ssh',
+    linkText: 'SSH',
   },
   sshKeys: {
     href: 'https://docs.oxide.computer/guides/user-settings#_ssh_keys',
