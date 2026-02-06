@@ -175,6 +175,74 @@ test('Snapshot disk', async ({ page }) => {
   })
 })
 
+test('Attach disk error clears when modal closes', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1')
+
+  await stopInstance(page)
+
+  // Attach disks until we hit the limit
+  const disksToAttach = [
+    'disk-3',
+    'disk-4',
+    'disk-5',
+    'disk-6',
+    'disk-7',
+    'disk-8',
+    'disk-9',
+    'disk-10',
+    'local-disk',
+    'read-only-disk',
+  ]
+
+  const attachModal = page.getByRole('dialog', { name: 'Attach disk' })
+
+  // Attach all available disks quickly to reach the 12 disk limit
+  for (const diskName of disksToAttach) {
+    await page.getByRole('button', { name: 'Attach existing disk' }).click()
+    await page.getByRole('combobox', { name: 'Disk name' }).click()
+    await page.getByRole('option', { name: diskName }).click()
+    await page.getByRole('button', { name: 'Attach disk' }).click()
+    await expect(attachModal).toBeHidden()
+  }
+
+  // Now try to attach one more and get an error
+  await page.getByRole('button', { name: 'Attach existing disk' }).click()
+  await expect(attachModal).toBeVisible()
+
+  await page.getByRole('combobox', { name: 'Disk name' }).click()
+  await page.getByRole('option', { name: 'disk-snapshot-error' }).click()
+  await page.getByRole('button', { name: 'Attach disk' }).click()
+
+  // Should see error about max disks
+  await expect(
+    page.getByText('Cannot attach more than 12 disks to an instance')
+  ).toBeVisible()
+
+  // Close the modal - this is the key part of the bug test
+  await page.keyboard.press('Escape')
+  await expect(attachModal).toBeHidden()
+
+  // Detach one disk to make room
+  await clickRowAction(page, 'disk-10', 'Detach')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+
+  // Try to attach again - error should be cleared (this was the bug)
+  await page.getByRole('button', { name: 'Attach existing disk' }).click()
+  await expect(attachModal).toBeVisible()
+
+  // The error should NOT be visible anymore
+  await expect(
+    page.getByText('Cannot attach more than 12 disks to an instance')
+  ).toBeHidden()
+
+  // Should be able to successfully attach now
+  await page.getByRole('combobox', { name: 'Disk name' }).click()
+  await page.getByRole('option', { name: 'disk-snapshot-error' }).click()
+  await page.getByRole('button', { name: 'Attach disk' }).click()
+
+  await expect(attachModal).toBeHidden()
+})
+
 test('Change boot disk', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
 
