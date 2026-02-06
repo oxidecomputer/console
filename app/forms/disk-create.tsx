@@ -39,6 +39,7 @@ import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { Radio } from '~/ui/lib/Radio'
 import { RadioGroup } from '~/ui/lib/RadioGroup'
 import { Slash } from '~/ui/lib/Slash'
+import { TipIcon } from '~/ui/lib/TipIcon'
 import { toLocaleDateString } from '~/util/date'
 import { docLinks } from '~/util/links'
 import { diskSizeNearest10 } from '~/util/math'
@@ -247,7 +248,13 @@ const DiskBackendField = ({
   return (
     <>
       <div className="max-w-lg space-y-2">
-        <FieldLabel id="disk-type-label">Disk type</FieldLabel>
+        <FieldLabel id="disk-type-label">
+          Disk type{' '}
+          <TipIcon className="ml-1.5">
+            Most workloads should use distributed disks, which are replicated for
+            resilience. Local disks are designed for fast I/O on temporary data.
+          </TipIcon>
+        </FieldLabel>
         <RadioGroup
           aria-labelledby="disk-type-label"
           name="diskBackendType"
