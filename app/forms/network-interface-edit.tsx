@@ -27,10 +27,11 @@ import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Message } from '~/ui/lib/Message'
 import { ClearAndAddButtons, MiniTable } from '~/ui/lib/MiniTable'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
 import { parseIpNet, validateIpNet } from '~/util/ip'
-import { links } from '~/util/links'
+import { docLinks, links } from '~/util/links'
 
 type EditNetworkInterfaceFormProps = {
   editing: InstanceNetworkInterface
@@ -181,6 +182,7 @@ export function EditNetworkInterfaceForm({
         variant="info"
         content={`This network interface supports ${supportedVersions} transit IPs.`}
       />
+      <SideModalFormDocs docs={[docLinks.networkInterfaces, docLinks.vpcs]} />
     </SideModalForm>
   )
 }

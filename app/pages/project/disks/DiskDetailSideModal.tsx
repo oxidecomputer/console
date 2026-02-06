@@ -15,7 +15,6 @@ import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { DiskStateBadge, DiskTypeBadge } from '~/components/StateBadge'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getDiskSelector, useDiskSelector } from '~/hooks/use-params'
-import { FormDivider } from '~/ui/lib/Divider'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
@@ -95,7 +94,6 @@ export function DiskDetailSideModal({
         <PropertiesTable.DateRow label="Created" date={disk.timeCreated} />
         <PropertiesTable.DateRow label="Last Modified" date={disk.timeModified} />
       </PropertiesTable>
-      <FormDivider />
       <SideModalFormDocs docs={[docLinks.disks]} />
     </ReadOnlySideModalForm>
   )

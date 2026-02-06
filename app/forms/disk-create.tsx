@@ -34,7 +34,6 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { Radio } from '~/ui/lib/Radio'
@@ -223,7 +222,6 @@ export function CreateDiskSideModalForm({
         images={images}
         areImagesLoading={areImagesLoading}
       />
-      <FormDivider />
       <SideModalFormDocs docs={[docLinks.disks]} />
     </SideModalForm>
   )

@@ -27,7 +27,6 @@ import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { FormDivider } from '~/ui/lib/Divider'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
@@ -99,7 +98,6 @@ export default function CreateFloatingIpSideModalForm() {
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <IpPoolSelector control={form.control} poolFieldName="pool" pools={unicastPools} />
-      <FormDivider />
       <SideModalFormDocs docs={[docLinks.floatingIps]} />
     </SideModalForm>
   )

@@ -26,6 +26,8 @@ import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Message } from '~/ui/lib/Message'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import { GiB } from '~/util/units'
 
@@ -181,6 +183,7 @@ export default function CreateSiloSideModalForm() {
       </div>
       <FormDivider />
       <TlsCertsField control={form.control} />
+      <SideModalFormDocs docs={[docLinks.systemSiloCreate, docLinks.systemSilo]} />
     </SideModalForm>
   )
 }

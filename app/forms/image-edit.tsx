@@ -15,8 +15,10 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
+import { docLinks } from '~/util/links'
 import { capitalize } from '~/util/str'
 import { bytesToGiB } from '~/util/units'
 
@@ -58,6 +60,7 @@ export function EditImageSideModalForm({
       <DescriptionField name="description" control={form.control} required disabled />
       <TextField name="os" label="OS" control={form.control} required disabled />
       <TextField name="version" control={form.control} required disabled />
+      <SideModalFormDocs docs={[docLinks.images]} />
     </ReadOnlySideModalForm>
   )
 }

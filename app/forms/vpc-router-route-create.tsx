@@ -20,7 +20,6 @@ import {
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { FormDivider } from '~/ui/lib/Divider'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
@@ -84,7 +83,6 @@ export default function CreateRouterRouteSideModalForm() {
       submitError={createRouterRoute.error}
     >
       <RouteFormFields form={form} />
-      <FormDivider />
       <RouteFormDocs />
     </SideModalForm>
   )

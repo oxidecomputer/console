@@ -18,7 +18,6 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { addToast } from '~/stores/toast'
-import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { docLinks } from '~/util/links'
@@ -86,7 +85,6 @@ export default function CreateIpPoolSideModalForm() {
           { value: 'multicast', label: 'Multicast' },
         ]}
       />
-      <FormDivider />
       <SideModalFormDocs docs={[docLinks.systemIpPools]} />
     </SideModalForm>
   )
