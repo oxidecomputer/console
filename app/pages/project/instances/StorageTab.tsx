@@ -411,7 +411,10 @@ export default function StorageTab() {
       )}
       {showDiskAttach && (
         <AttachDiskModalForm
-          onDismiss={() => setShowDiskAttach(false)}
+          onDismiss={() => {
+            setShowDiskAttach(false)
+            attachDisk.reset()
+          }}
           onSubmit={({ name }) => {
             attachDisk.mutate({ ...instancePathQuery, body: { disk: name } })
           }}
