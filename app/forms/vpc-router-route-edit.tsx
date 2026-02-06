@@ -14,6 +14,7 @@ import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import {
+  RouteFormDocs,
   RouteFormFields,
   routeFormMessage,
   type RouteFormValues,
@@ -22,9 +23,7 @@ import { titleCrumb } from '~/hooks/use-crumbs'
 import { getVpcRouterRouteSelector, useVpcRouterRouteSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
-import { ModalLink, ModalLinks } from '~/ui/lib/ModalLinks'
 import { ALL_ISH } from '~/util/consts'
-import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 export const handle = titleCrumb('Edit Route')
@@ -103,10 +102,7 @@ export default function EditRouterRouteSideModalForm() {
     >
       <RouteFormFields form={form} disabled={disabled} />
       <FormDivider />
-      <ModalLinks heading="Relevant docs">
-        <ModalLink to={links.routesDocs} label="VPC Subnet Routing" />
-        <ModalLink to={links.gatewaysDocs} label="Internet Gateways" />
-      </ModalLinks>
+      <RouteFormDocs />
     </SideModalForm>
   )
 }
