@@ -181,7 +181,18 @@ test('Attach disk error clears when modal closes', async ({ page }) => {
   await stopInstance(page)
 
   // Attach disks until we hit the limit
-  const disksToAttach = ['disk-3', 'disk-4', 'disk-5', 'disk-6', 'disk-7', 'disk-8', 'disk-9', 'disk-10', 'local-disk', 'read-only-disk']
+  const disksToAttach = [
+    'disk-3',
+    'disk-4',
+    'disk-5',
+    'disk-6',
+    'disk-7',
+    'disk-8',
+    'disk-9',
+    'disk-10',
+    'local-disk',
+    'read-only-disk',
+  ]
 
   const attachModal = page.getByRole('dialog', { name: 'Attach disk' })
 
@@ -203,7 +214,9 @@ test('Attach disk error clears when modal closes', async ({ page }) => {
   await page.getByRole('button', { name: 'Attach disk' }).click()
 
   // Should see error about max disks
-  await expect(page.getByText('Cannot attach more than 12 disks to an instance')).toBeVisible()
+  await expect(
+    page.getByText('Cannot attach more than 12 disks to an instance')
+  ).toBeVisible()
 
   // Close the modal - this is the key part of the bug test
   await page.keyboard.press('Escape')
@@ -218,7 +231,9 @@ test('Attach disk error clears when modal closes', async ({ page }) => {
   await expect(attachModal).toBeVisible()
 
   // The error should NOT be visible anymore
-  await expect(page.getByText('Cannot attach more than 12 disks to an instance')).toBeHidden()
+  await expect(
+    page.getByText('Cannot attach more than 12 disks to an instance')
+  ).toBeHidden()
 
   // Should be able to successfully attach now
   await page.getByRole('combobox', { name: 'Disk name' }).click()
