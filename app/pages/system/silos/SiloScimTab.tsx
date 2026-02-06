@@ -32,7 +32,6 @@ import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { CardBlock, LearnMore } from '~/ui/lib/CardBlock'
-import { docLinks } from '~/util/links'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { DateTime } from '~/ui/lib/DateTime'
@@ -41,6 +40,7 @@ import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { Truncate } from '~/ui/lib/Truncate'
+import { docLinks } from '~/util/links'
 
 export const handle = makeCrumb('SCIM')
 
