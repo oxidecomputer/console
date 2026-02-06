@@ -38,6 +38,7 @@ import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Radio } from '~/ui/lib/Radio'
 import { RadioGroup } from '~/ui/lib/RadioGroup'
 import { Slash } from '~/ui/lib/Slash'
+import { ALL_ISH } from '~/util/consts'
 import { toLocaleDateString } from '~/util/date'
 import { diskSizeNearest10 } from '~/util/math'
 import { bytesToGiB, GiB } from '~/util/units'
@@ -117,7 +118,9 @@ export function CreateDiskSideModalForm({
   )
   const areImagesLoading = projectImages.isPending || siloImages.isPending
 
-  const snapshotsQuery = useQuery(q(api.snapshotList, { query: { project } }))
+  const snapshotsQuery = useQuery(
+    q(api.snapshotList, { query: { project, limit: ALL_ISH } })
+  )
   const snapshots = snapshotsQuery.data?.items || []
 
   // validate disk source size
@@ -394,7 +397,9 @@ const DiskNameFromId = ({ disk }: { disk: string }) => {
 
 const SnapshotSelectField = ({ control }: { control: Control<DiskCreateForm> }) => {
   const { project } = useProjectSelector()
-  const snapshotsQuery = useQuery(q(api.snapshotList, { query: { project } }))
+  const snapshotsQuery = useQuery(
+    q(api.snapshotList, { query: { project, limit: ALL_ISH } })
+  )
 
   const snapshots = snapshotsQuery.data?.items || []
   const diskSizeField = useController({ control, name: 'size' }).field
