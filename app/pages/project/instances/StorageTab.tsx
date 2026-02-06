@@ -413,6 +413,7 @@ export default function StorageTab() {
         <AttachDiskModalForm
           onDismiss={() => {
             setShowDiskAttach(false)
+            // clear API errors on the mutation
             attachDisk.reset()
           }}
           onSubmit={({ name }) => {
