@@ -9,6 +9,7 @@ import cn from 'classnames'
 import type { ReactNode } from 'react'
 
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { isOneOf } from '~/util/children'
 import { invariant } from '~/util/invariant'
 
@@ -69,9 +70,9 @@ PropertiesTable.Row = ({ label, children }: PropertiesTableRowProps) => (
   </>
 )
 
-PropertiesTable.IdRow = ({ id }: { id: string }) => (
-  <PropertiesTable.Row label="ID">
-    <Truncate text={id} maxLength={32} hasCopyButton />
+PropertiesTable.IdRow = ({ id, label = 'ID' }: { id?: string | null; label?: string }) => (
+  <PropertiesTable.Row label={label}>
+    {id ? <Truncate text={id} maxLength={32} hasCopyButton /> : <EmptyCell />}
   </PropertiesTable.Row>
 )
 
