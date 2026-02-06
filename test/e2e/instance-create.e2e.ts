@@ -61,15 +61,10 @@ test('can create an instance', async ({ page }) => {
   // pick a project image just to show we can
   await selectAProjectImage(page, 'image-3')
 
-  // should be hidden in accordion
-  await expectNotVisible(page, [
-    'role=radiogroup[name="Network interface"]',
-    'role=textbox[name="Hostname"]',
-    'text="User Data"',
-  ])
+  // user data should be hidden in accordion
+  await expectNotVisible(page, ['role=textbox[name="Hostname"]', 'text="User Data"'])
 
-  // open networking and config accordions
-  await page.getByRole('button', { name: 'Networking' }).click()
+  // open config accordion
   await page.getByRole('button', { name: 'Configuration' }).click()
 
   const checkbox = page.getByRole('checkbox', {
@@ -102,7 +97,6 @@ test('can create an instance', async ({ page }) => {
   // Force click since there might be overlays
   await page.getByRole('option', { name: 'ip-pool-2' }).click({ force: true })
 
-  // should be visible in accordion
   await expect(page.getByRole('radiogroup', { name: 'Network interface' })).toBeVisible()
   await expect(page.getByLabel('User data')).toBeVisible()
 
@@ -146,7 +140,6 @@ test('can create an instance', async ({ page }) => {
 
 test('ephemeral pool selection tracks network interface IP version', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
-  await page.getByRole('button', { name: 'Networking' }).click()
 
   const poolDropdown = page.getByLabel('Pool')
   await expect(poolDropdown).toBeVisible()
@@ -443,7 +436,7 @@ test('does not attach an ephemeral IP when the checkbox is unchecked', async ({ 
   await page.goto('/projects/mock-project/instances-new')
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('no-ephemeral-ip')
   await selectAProjectImage(page, 'image-1')
-  await page.getByRole('button', { name: 'Networking' }).click()
+
   await page
     .getByRole('checkbox', { name: 'Allocate and attach an ephemeral IP address' })
     .uncheck()
@@ -463,7 +456,6 @@ test('attaches a floating IP; disables button when no IPs available', async ({ p
   await page.goto('/projects/mock-project/instances-new')
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   await selectAProjectImage(page, 'image-1')
-  await page.getByRole('button', { name: 'Networking' }).click()
 
   await attachFloatingIpButton.click()
   await expect(
@@ -531,7 +523,7 @@ test('attach a floating IP section has Empty version when no floating IPs exist 
   page,
 }) => {
   await page.goto('/projects/other-project/instances-new')
-  await page.getByRole('button', { name: 'Networking' }).click()
+
   await expect(page.getByRole('button', { name: 'Attach floating IP' })).toBeHidden()
   await expect(
     page.getByText('Create a floating IP to attach it to this instance')
@@ -704,8 +696,7 @@ test('create instance with IPv6-only networking', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   await selectASiloImage(page, 'ubuntu-22-04')
 
-  // Open networking accordion
-  await page.getByRole('button', { name: 'Networking' }).click()
+  // Configure networking
 
   // Ensure "Default" network interface is selected
   const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
@@ -748,8 +739,7 @@ test('create instance with IPv4-only networking', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   await selectASiloImage(page, 'ubuntu-22-04')
 
-  // Open networking accordion
-  await page.getByRole('button', { name: 'Networking' }).click()
+  // Configure networking
 
   // Ensure "Default" network interface is selected
   const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
@@ -791,8 +781,7 @@ test('create instance with dual-stack networking shows both IPs', async ({ page 
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   await selectASiloImage(page, 'ubuntu-22-04')
 
-  // Open networking accordion
-  await page.getByRole('button', { name: 'Networking' }).click()
+  // Configure networking
 
   // Default is already "Default IPv4 & IPv6", so no need to select it
 
@@ -831,8 +820,7 @@ test('create instance with custom IPv4-only NIC constrains ephemeral IP to IPv4'
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   await selectASiloImage(page, 'ubuntu-22-04')
 
-  // Open networking accordion
-  await page.getByRole('button', { name: 'Networking' }).click()
+  // Configure networking
 
   // Select "Custom" network interface (use exact match and first to disambiguate from "custom pool")
   await page.getByRole('radio', { name: 'Custom', exact: true }).first().click()
@@ -893,8 +881,7 @@ test('create instance with custom IPv6-only NIC constrains ephemeral IP to IPv6'
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   await selectASiloImage(page, 'ubuntu-22-04')
 
-  // Open networking accordion
-  await page.getByRole('button', { name: 'Networking' }).click()
+  // Configure networking
 
   // Select "Custom" network interface (use exact match and first to disambiguate from "custom pool")
   await page.getByRole('radio', { name: 'Custom', exact: true }).first().click()
@@ -955,8 +942,7 @@ test('create instance with custom dual-stack NIC allows both IPv4 and IPv6 ephem
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   await selectASiloImage(page, 'ubuntu-22-04')
 
-  // Open networking accordion
-  await page.getByRole('button', { name: 'Networking' }).click()
+  // Configure networking
 
   // Select "Custom" network interface (use exact match and first to disambiguate from "custom pool")
   await page.getByRole('radio', { name: 'Custom', exact: true }).first().click()
@@ -1013,8 +999,7 @@ test('ephemeral IP checkbox disabled when no NICs configured', async ({ page }) 
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   await selectASiloImage(page, 'ubuntu-22-04')
 
-  // Open networking accordion
-  await page.getByRole('button', { name: 'Networking' }).click()
+  // Configure networking
 
   const ephemeralCheckbox = page.getByRole('checkbox', {
     name: 'Allocate and attach an ephemeral IP address',
@@ -1095,8 +1080,7 @@ test('network interface options disabled when no VPCs exist', async ({ page }) =
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   await selectASiloImage(page, 'ubuntu-22-04')
 
-  // Open networking accordion
-  await page.getByRole('button', { name: 'Networking' }).click()
+  // Configure networking
 
   // Get radio button elements
   const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
@@ -1119,8 +1103,7 @@ test('network interface options disabled when no VPCs exist', async ({ page }) =
 test('floating IPs are filtered by NIC IP version', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
 
-  // Open networking accordion
-  await page.getByRole('button', { name: 'Networking' }).click()
+  // Configure networking
 
   // Select IPv4-only networking
   const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
