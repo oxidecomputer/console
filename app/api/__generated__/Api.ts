@@ -4241,6 +4241,38 @@ export type SiloRolePolicy = {
 }
 
 /**
+ * A subnet pool in the context of a silo
+ */
+export type SiloSubnetPool = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** The IP version for the pool. */
+  ipVersion: IpVersion
+  /** When a pool is the default for a silo, external subnet allocations will come from that pool when no other pool is specified.
+
+A silo can have at most one default pool per IP version (IPv4 or IPv6), allowing up to 2 default pools total. */
+  isDefault: boolean
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * A single page of results
+ */
+export type SiloSubnetPoolResultsPage = {
+  /** list of items on this page of results */
+  items: SiloSubnetPool[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string | null
+}
+
+/**
  * A collection of resource counts used to describe capacity and utilization
  */
 export type VirtualResourceCounts = {
@@ -6634,6 +6666,12 @@ export interface SnapshotDeleteQueryParams {
   project?: NameOrId
 }
 
+export interface CurrentSiloSubnetPoolListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: NameOrIdSortMode
+}
+
 export interface AuditLogListQueryParams {
   endTime?: Date | null
   limit?: number | null
@@ -7065,6 +7103,16 @@ export interface SiloQuotasUpdatePathParams {
   silo: NameOrId
 }
 
+export interface SiloSubnetPoolListPathParams {
+  silo: NameOrId
+}
+
+export interface SiloSubnetPoolListQueryParams {
+  limit?: number | null
+  pageToken?: string | null
+  sortBy?: NameOrIdSortMode
+}
+
 export interface SubnetPoolListQueryParams {
   limit?: number | null
   pageToken?: string | null
@@ -7452,7 +7500,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2026020200.0.0'
+  apiVersion = '2026020600.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host
@@ -9883,6 +9931,20 @@ export class Api {
       })
     },
     /**
+     * List subnet pools linked to the user's current silo
+     */
+    currentSiloSubnetPoolList: (
+      { query = {} }: { query?: CurrentSiloSubnetPoolListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloSubnetPoolResultsPage>({
+        path: `/v1/subnet-pools`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
      * View audit log
      */
     auditLogList: (
@@ -11213,6 +11275,23 @@ export class Api {
         path: `/v1/system/silos/${path.silo}/quotas`,
         method: 'PUT',
         body,
+        ...params,
+      })
+    },
+    /**
+     * List subnet pools linked to a silo
+     */
+    siloSubnetPoolList: (
+      {
+        path,
+        query = {},
+      }: { path: SiloSubnetPoolListPathParams; query?: SiloSubnetPoolListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloSubnetPoolResultsPage>({
+        path: `/v1/system/silos/${path.silo}/subnet-pools`,
+        method: 'GET',
+        query,
         ...params,
       })
     },
