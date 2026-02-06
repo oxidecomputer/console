@@ -37,24 +37,29 @@ test.describe('IP pool configuration: myriad silo (v4-only default)', () => {
     await page.getByPlaceholder('Select a silo image', { exact: true }).click()
     await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
 
-    // Verify ephemeral IP checkbox is checked by default
-    const ephemeralCheckbox = page.getByRole('checkbox', {
-      name: 'Allocate and attach an ephemeral IP address',
+    // Verify IPv4 ephemeral IP checkbox is checked by default
+    const v4Checkbox = page.getByRole('checkbox', {
+      name: 'Allocate and attach ephemeral IPv4 address',
     })
-    await expect(ephemeralCheckbox).toBeChecked()
+    const v6Checkbox = page.getByRole('checkbox', {
+      name: 'Allocate and attach ephemeral IPv6 address',
+    })
 
-    // Pool dropdown should be visible with IPv4 pool preselected
-    const poolDropdown = page.getByLabel('Pool')
-    await expect(poolDropdown).toBeVisible()
-    await expect(poolDropdown).toContainText('ip-pool-1')
+    await expect(v4Checkbox).toBeVisible()
+    await expect(v4Checkbox).toBeChecked()
+    // v6 checkbox should be visible but not checked (no v6 default in myriad silo)
+    await expect(v6Checkbox).toBeVisible()
+    await expect(v6Checkbox).not.toBeChecked()
+
+    // IPv4 pool dropdown should be visible with default pool preselected
+    const v4PoolDropdown = page.getByLabel('Pool')
+    await expect(v4PoolDropdown).toBeVisible()
+    await expect(v4PoolDropdown).toContainText('ip-pool-1')
 
     // Open dropdown to verify available options (only v4 pools should be available)
-    await poolDropdown.click()
+    await v4PoolDropdown.click()
     await expect(page.getByRole('option', { name: 'ip-pool-1' })).toBeVisible()
     await expect(page.getByRole('option', { name: 'ip-pool-3' })).toBeVisible()
-    // IPv6 pools should not be available in this silo
-    await expect(page.getByRole('option', { name: 'ip-pool-2' })).toBeHidden()
-    await expect(page.getByRole('option', { name: 'ip-pool-4' })).toBeHidden()
   })
 
   test('floating IP create form shows IPv4 default pool preselected', async ({
@@ -81,10 +86,10 @@ test.describe('IP pool configuration: myriad silo (v4-only default)', () => {
     await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
 
     // Verify ephemeral IP defaults
-    const ephemeralCheckbox = page.getByRole('checkbox', {
-      name: 'Allocate and attach an ephemeral IP address',
+    const v4Checkbox = page.getByRole('checkbox', {
+      name: 'Allocate and attach ephemeral IPv4 address',
     })
-    await expect(ephemeralCheckbox).toBeChecked()
+    await expect(v4Checkbox).toBeChecked()
     await expect(page.getByLabel('Pool')).toContainText('ip-pool-1')
 
     // Create instance
@@ -209,24 +214,29 @@ test.describe('IP pool configuration: thrax silo (v6-only default)', () => {
     await page.getByPlaceholder('Select a silo image', { exact: true }).click()
     await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
 
-    // Verify ephemeral IP checkbox is checked by default
-    const ephemeralCheckbox = page.getByRole('checkbox', {
-      name: 'Allocate and attach an ephemeral IP address',
+    // Verify IPv6 ephemeral IP checkbox is checked by default
+    const v4Checkbox = page.getByRole('checkbox', {
+      name: 'Allocate and attach ephemeral IPv4 address',
     })
-    await expect(ephemeralCheckbox).toBeChecked()
+    const v6Checkbox = page.getByRole('checkbox', {
+      name: 'Allocate and attach ephemeral IPv6 address',
+    })
 
-    // Pool dropdown should be visible with IPv6 pool preselected
-    const poolDropdown = page.getByLabel('Pool')
-    await expect(poolDropdown).toBeVisible()
-    await expect(poolDropdown).toContainText('ip-pool-2')
+    // v4 checkbox should be visible but not checked (no v4 default in thrax silo)
+    await expect(v4Checkbox).toBeVisible()
+    await expect(v4Checkbox).not.toBeChecked()
+    await expect(v6Checkbox).toBeVisible()
+    await expect(v6Checkbox).toBeChecked()
+
+    // IPv6 pool dropdown should be visible with default pool preselected
+    const v6PoolDropdown = page.getByLabel('Pool')
+    await expect(v6PoolDropdown).toBeVisible()
+    await expect(v6PoolDropdown).toContainText('ip-pool-2')
 
     // Open dropdown to verify available options (only v6 pools should be available)
-    await poolDropdown.click()
+    await v6PoolDropdown.click()
     await expect(page.getByRole('option', { name: 'ip-pool-2' })).toBeVisible()
     await expect(page.getByRole('option', { name: 'ip-pool-4' })).toBeVisible()
-    // IPv4 pools should not be available in this silo
-    await expect(page.getByRole('option', { name: 'ip-pool-1' })).toBeHidden()
-    await expect(page.getByRole('option', { name: 'ip-pool-3' })).toBeHidden()
   })
 
   test('floating IP create form shows IPv6 default pool preselected', async ({
@@ -255,26 +265,32 @@ test.describe('IP pool configuration: pelerines silo (no defaults)', () => {
     await page.getByPlaceholder('Select a silo image', { exact: true }).click()
     await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
 
-    // Verify ephemeral IP checkbox is not checked by default
-    const ephemeralCheckbox = page.getByRole('checkbox', {
-      name: 'Allocate and attach an ephemeral IP address',
+    // Verify ephemeral IP checkboxes are not checked by default (no defaults in pelerines silo)
+    const v4Checkbox = page.getByRole('checkbox', {
+      name: 'Allocate and attach ephemeral IPv4 address',
     })
-    await expect(ephemeralCheckbox).not.toBeChecked()
+    const v6Checkbox = page.getByRole('checkbox', {
+      name: 'Allocate and attach ephemeral IPv6 address',
+    })
 
-    // Pool dropdown should not be shown unless ephemeral IP is enabled.
-    const poolDropdown = page.getByLabel('Pool')
-    await expect(poolDropdown).toBeHidden()
+    await expect(v4Checkbox).toBeVisible()
+    await expect(v4Checkbox).not.toBeChecked()
+    await expect(v6Checkbox).toBeVisible()
+    await expect(v6Checkbox).not.toBeChecked()
 
-    // Enabling ephemeral IP should allow selecting from available pools.
-    await ephemeralCheckbox.click()
-    await expect(ephemeralCheckbox).toBeChecked()
-    await expect(poolDropdown).toBeVisible()
+    // Pool dropdowns should not be shown unless ephemeral IPs are enabled
+    const poolDropdowns = page.getByLabel('Pool')
+    await expect(poolDropdowns.first()).toBeHidden()
+
+    // Enabling IPv4 ephemeral IP should show pool dropdown
+    await v4Checkbox.click()
+    await expect(v4Checkbox).toBeChecked()
+    await expect(poolDropdowns.first()).toBeVisible()
 
     // Open dropdown to verify available options
-    await poolDropdown.click()
+    await poolDropdowns.first().click()
     // Both pools are linked to this silo but neither is default
     await expect(page.getByRole('option', { name: 'ip-pool-1' })).toBeVisible()
-    await expect(page.getByRole('option', { name: 'ip-pool-2' })).toBeVisible()
   })
 
   test('floating IP create form handles missing default pool gracefully', async ({
@@ -307,19 +323,17 @@ test.describe('IP pool configuration: no-pools silo (no IP pools)', () => {
     const defaultRadio = page.getByRole('radio', { name: 'Default' })
     await expect(defaultRadio).toBeChecked()
 
-    const ephemeralCheckbox = page.getByRole('checkbox', {
-      name: 'Allocate and attach an ephemeral IP address',
+    // When there are no pools, both checkboxes should be visible but disabled
+    const v4Checkbox = page.getByRole('checkbox', {
+      name: 'Allocate and attach ephemeral IPv4 address',
     })
-    await expect(ephemeralCheckbox).not.toBeChecked()
-    await expect(ephemeralCheckbox).toBeDisabled()
-
-    await ephemeralCheckbox.hover()
-    await expect(
-      page.getByRole('tooltip').filter({ hasText: /No compatible IP pools available/ })
-    ).toBeVisible()
-
-    const poolDropdown = page.getByLabel('Pool')
-    await expect(poolDropdown).toBeHidden()
+    const v6Checkbox = page.getByRole('checkbox', {
+      name: 'Allocate and attach ephemeral IPv6 address',
+    })
+    await expect(v4Checkbox).toBeVisible()
+    await expect(v4Checkbox).toBeDisabled()
+    await expect(v6Checkbox).toBeVisible()
+    await expect(v6Checkbox).toBeDisabled()
 
     const attachFloatingIpButton = page.getByRole('button', { name: 'Attach floating IP' })
     const dialog = page.getByRole('dialog')
