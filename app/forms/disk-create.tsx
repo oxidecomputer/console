@@ -34,11 +34,14 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { ModalLink, ModalLinks } from '~/ui/lib/ModalLinks'
 import { Radio } from '~/ui/lib/Radio'
 import { RadioGroup } from '~/ui/lib/RadioGroup'
 import { Slash } from '~/ui/lib/Slash'
 import { toLocaleDateString } from '~/util/date'
+import { links } from '~/util/links'
 import { diskSizeNearest10 } from '~/util/math'
 import { bytesToGiB, GiB } from '~/util/units'
 
@@ -220,6 +223,10 @@ export function CreateDiskSideModalForm({
         images={images}
         areImagesLoading={areImagesLoading}
       />
+      <FormDivider />
+      <ModalLinks heading="Relevant docs">
+        <ModalLink to={links.disksDocs} label="Disks and Snapshots" />
+      </ModalLinks>
     </SideModalForm>
   )
 }

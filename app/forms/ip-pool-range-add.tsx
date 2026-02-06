@@ -24,8 +24,11 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { useIpPoolSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
+import { ModalLink, ModalLinks } from '~/ui/lib/ModalLinks'
 import { parseIp } from '~/util/ip'
+import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const defaultValues: IpRange = {
@@ -137,6 +140,10 @@ export default function IpPoolAddRange() {
         control={form.control}
         required
       />
+      <FormDivider />
+      <ModalLinks heading="Relevant docs">
+        <ModalLink to={links.systemIpPoolsDocs} label="IP Pools" />
+      </ModalLinks>
     </SideModalForm>
   )
 }

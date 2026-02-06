@@ -14,6 +14,7 @@ import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import {
+  RouteFormDocs,
   RouteFormFields,
   routeFormMessage,
   type RouteFormValues,
@@ -21,6 +22,7 @@ import {
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getVpcRouterRouteSelector, useVpcRouterRouteSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { FormDivider } from '~/ui/lib/Divider'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
@@ -99,6 +101,8 @@ export default function EditRouterRouteSideModalForm() {
       submitDisabled={disabled ? routeFormMessage.vpcSubnetNotModifiable : undefined}
     >
       <RouteFormFields form={form} disabled={disabled} />
+      <FormDivider />
+      <RouteFormDocs />
     </SideModalForm>
   )
 }

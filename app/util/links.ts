@@ -31,10 +31,6 @@ export const links = {
   instanceBootDiskDocs: 'https://docs.oxide.computer/guides/deploying-workloads',
   instanceUpdateDocs:
     'https://docs.oxide.computer/guides/managing-instances#_update_instances',
-  ipPoolCreateDocs:
-    'https://docs.oxide.computer/guides/operator/ip-pool-management#_create_ip_pools',
-  ipPoolTypesDocs:
-    'https://docs.oxide.computer/guides/operator/ip-pool-management#_ip_pool_types',
   keyConceptsIamPolicyDocs:
     'https://docs.oxide.computer/guides/key-entities-and-concepts#iam-policy',
   keyConceptsProjectsDocs:
@@ -44,7 +40,8 @@ export const links = {
     `https://docs.oxide.computer/guides/metrics/timeseries-schemas#_${metric.replace(':', '')}`,
   projectsDocs: 'https://docs.oxide.computer/guides/onboarding-projects',
   quickStart: 'https://docs.oxide.computer/guides/quickstart',
-  routersDocs:
+  routesDocs: 'https://docs.oxide.computer/guides/configuring-guest-networking#vpc-subnet',
+  customRoutersDocs:
     'https://docs.oxide.computer/guides/configuring-guest-networking#_custom_routers',
   scimDocs:
     'https://docs.oxide.computer/guides/operator/identity-providers#_saml_authentication_scim_user_provisioning',
@@ -97,6 +94,10 @@ export const docLinks = {
     href: links.floatingIpsDocs,
     linkText: 'Floating IPs',
   },
+  gateways: {
+    href: links.gatewaysDocs,
+    linkText: 'Internet Gateways',
+  },
   keyConceptsIam: {
     href: links.keyConceptsIamPolicyDocs,
     linkText: 'Key Concepts',
@@ -130,8 +131,12 @@ export const docLinks = {
     linkText: 'Remote Access',
   },
   routers: {
-    href: links.routersDocs,
+    href: links.customRoutersDocs,
     linkText: 'Custom Routers',
+  },
+  routes: {
+    href: links.routesDocs,
+    linkText: 'VPC Subnet Routing',
   },
   sleds: {
     href: links.sledDocs,
