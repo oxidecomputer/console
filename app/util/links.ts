@@ -33,6 +33,8 @@ export const links = {
     'https://docs.oxide.computer/guides/managing-instances#_update_instances',
   ipPoolCreateDocs:
     'https://docs.oxide.computer/guides/operator/ip-pool-management#_create_ip_pools',
+  ipPoolDefaultsDocs:
+    'https://docs.oxide.computer/guides/operator/ip-pool-management#_default_ip_pools',
   ipPoolTypesDocs:
     'https://docs.oxide.computer/guides/operator/ip-pool-management#_ip_pool_types',
   keyConceptsIamPolicyDocs:
@@ -119,6 +121,14 @@ export const docLinks = {
   instanceActions: {
     href: links.instanceActionsDocs,
     linkText: 'Instance Actions',
+  },
+  ipPoolDefaults: {
+    href: links.ipPoolDefaultsDocs,
+    linkText: 'Default IP Pools',
+  },
+  ipPoolTypes: {
+    href: links.ipPoolTypesDocs,
+    linkText: 'IP Pool Types',
   },
   keyConceptsProjects: {
     href: links.keyConceptsProjectsDocs,

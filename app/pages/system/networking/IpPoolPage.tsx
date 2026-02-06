@@ -110,7 +110,7 @@ export default function IpPoolpage() {
             heading="IP pools"
             icon={<IpGlobal16Icon />}
             summary="IP pools are collections of external IPs you can assign to silos. When a pool is linked to a silo, users in that silo can allocate IPs from the pool for their instances."
-            links={[docLinks.systemIpPools]}
+            links={[docLinks.systemIpPools, docLinks.ipPoolTypes]}
           />
           <MoreActionsMenu label="IP pool actions">
             <Dropdown.LinkItem to={pb.ipPoolEdit(poolSelector)}>Edit</Dropdown.LinkItem>
