@@ -46,8 +46,8 @@ export const Checkbox = ({
   className,
   ...inputProps
 }: CheckboxProps) => (
-  <label className="items-top inline-flex">
-    <span className="relative h-4 w-4">
+  <label className="text-sans-md items-top inline-flex">
+    <span className="relative mt-[calc((1lh-16px)/2)] h-4 w-4">
       <input
         className={cn(inputStyle, className)}
         type="checkbox"
