@@ -12,24 +12,24 @@ test('Click through snapshots', async ({ page }) => {
   await page.click('role=link[name*="Snapshots"]')
   await expectVisible(page, [
     'role=heading[name*="Snapshots"]',
-    'role=cell[name="snapshot-1"]',
-    'role=cell[name="snapshot-2"]',
     'role=cell[name="delete-500"]',
-    'role=cell[name="snapshot-4"]',
-    'role=cell[name="snapshot-disk-deleted"]',
+    'role=cell[name="disk-1-snapshot-10"]',
+    'role=cell[name="disk-1-snapshot-100"]',
+    'role=cell[name="disk-1-snapshot-11"]',
+    'role=cell[name="disk-1-snapshot-12"]',
   ])
 
   // test async disk name fetch
   const table = page.getByRole('table')
-  await expectRowVisible(table, { name: 'snapshot-1', disk: 'disk-1' })
-  await expectRowVisible(table, { name: 'snapshot-disk-deleted', disk: 'Deleted' })
+  await expectRowVisible(table, { name: 'disk-1-snapshot-10', disk: 'disk-1' })
+  await expectRowVisible(table, { name: 'delete-500', disk: 'disk-1' })
 })
 
 test('Disk button opens detail modal', async ({ page }) => {
   await page.goto('/projects/mock-project/snapshots')
 
   const table = page.getByRole('table')
-  await expectRowVisible(table, { name: 'snapshot-1', disk: 'disk-1' })
+  await expectRowVisible(table, { name: 'disk-1-snapshot-10', disk: 'disk-1' })
 
   await page.getByRole('button', { name: 'disk-1' }).first().click()
 
@@ -41,7 +41,8 @@ test('Disk button opens detail modal', async ({ page }) => {
 test('Confirm delete snapshot', async ({ page }) => {
   await page.goto('/projects/mock-project/snapshots')
 
-  const row = page.getByRole('row', { name: 'disk-1-snapshot-10' })
+  // Use disk-1-snapshot-100 which is on page 1 after sorting
+  const row = page.getByRole('row', { name: 'disk-1-snapshot-100' })
 
   // scroll so the dropdown menu isn't behind the pagination bar
   await row.scrollIntoViewIfNeeded()
@@ -97,11 +98,12 @@ test('Error on delete snapshot', async ({ page }) => {
 test('Create image from snapshot', async ({ page }) => {
   await page.goto('/projects/mock-project/snapshots')
 
-  await clickRowAction(page, 'disk-1-snapshot-8', 'Create image')
+  // Use disk-1-snapshot-100 which is on page 1 after sorting
+  await clickRowAction(page, 'disk-1-snapshot-100', 'Create image')
 
   await expectVisible(page, ['role=dialog[name="Create image from snapshot"]'])
 
-  await page.fill('role=textbox[name="Name"]', 'image-from-snapshot-8')
+  await page.fill('role=textbox[name="Name"]', 'image-from-snapshot-100')
   await page.fill('role=textbox[name="Description"]', 'image description')
   await page.fill('role=textbox[name="OS"]', 'Ubuntu')
   await page.fill('role=textbox[name="Version"]', '20.02')
@@ -112,7 +114,7 @@ test('Create image from snapshot', async ({ page }) => {
 
   await page.click('role=link[name*="Images"]')
   await expectRowVisible(page.getByRole('table'), {
-    name: 'image-from-snapshot-8',
+    name: 'image-from-snapshot-100',
     description: 'image description',
   })
 })
@@ -120,7 +122,8 @@ test('Create image from snapshot', async ({ page }) => {
 test('Create image from snapshot, name taken', async ({ page }) => {
   await page.goto('/projects/mock-project/snapshots')
 
-  await clickRowAction(page, 'disk-1-snapshot-8', 'Create image')
+  // Use disk-1-snapshot-100 which is on page 1 after sorting
+  await clickRowAction(page, 'disk-1-snapshot-100', 'Create image')
 
   await expectVisible(page, ['role=dialog[name="Create image from snapshot"]'])
 

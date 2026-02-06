@@ -86,7 +86,9 @@ function sortItems<I extends { id: string }>(items: I[], sortBy: SortMode): I[] 
   // Extract time as number for sorting, with -Infinity fallback for items without time_created
   const timeValue = (item: I) => {
     const raw =
-      'time_created' in item ? new Date(item.time_created as string | Date).valueOf() : -Infinity
+      'time_created' in item
+        ? new Date(item.time_created as string | Date).valueOf()
+        : -Infinity
     return Number.isFinite(raw) ? raw : -Infinity
   }
 
@@ -108,7 +110,11 @@ function sortItems<I extends { id: string }>(items: I[], sortBy: SortMode): I[] 
       // Normalize NaN from invalid dates to -Infinity for deterministic ordering
       return R.sortBy(items, timeValue, (item) => item.id)
     case 'time_and_id_descending':
-      return R.pipe(items, R.sortBy(timeValue, (item) => item.id), R.reverse())
+      return R.pipe(
+        items,
+        R.sortBy(timeValue, (item) => item.id),
+        R.reverse()
+      )
   }
 }
 

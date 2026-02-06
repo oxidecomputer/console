@@ -129,12 +129,14 @@ test('Create disk', async ({ page }) => {
 
   await page.getByRole('radio', { name: 'Snapshot' }).click()
   await page.getByRole('button', { name: 'Source snapshot' }).click()
-  await page.getByRole('option', { name: 'snapshot-heavy' }).click()
+  // Use disk-1-snapshot-11 since it's on page 1 after sorting and doesn't have ambiguous matches
+  await page.getByRole('option', { name: 'disk-1-snapshot-11', exact: true }).click()
 
   await createForm.getByRole('button', { name: 'Create disk' }).click()
 
   const otherDisksTable = page.getByRole('table', { name: 'Additional disks' })
-  await expectRowVisible(otherDisksTable, { Disk: 'created-disk', size: '20 GiB' })
+  // disk-1-snapshot-11 has size 4 KiB (index 3, so 1024 * 4)
+  await expectRowVisible(otherDisksTable, { Disk: 'created-disk', size: '4 KiB' })
 })
 
 test('Detach disk', async ({ page }) => {
