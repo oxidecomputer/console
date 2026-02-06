@@ -20,7 +20,7 @@ import {
   type ExternalSubnet,
   type Instance,
 } from '@oxide/api'
-import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
+import { Subnet16Icon, Subnet24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { ListboxField } from '~/components/form/fields/ListboxField'
@@ -44,7 +44,7 @@ import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
   <EmptyMessage
-    icon={<Networking24Icon />}
+    icon={<Subnet24Icon />}
     title="No external subnets"
     body="Create an external subnet to see it here"
     buttonText="New External Subnet"
@@ -191,10 +191,10 @@ export default function ExternalSubnetsPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Networking24Icon />}>External Subnets</PageTitle>
+        <PageTitle icon={<Subnet24Icon />}>External Subnets</PageTitle>
         <DocsPopover
           heading="external subnets"
-          icon={<Networking16Icon />}
+          icon={<Subnet16Icon />}
           summary="External subnets provide a range of IP addresses from a subnet pool that can be attached to instances."
           links={[]}
         />

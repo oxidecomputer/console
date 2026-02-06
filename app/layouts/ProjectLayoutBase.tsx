@@ -19,6 +19,7 @@ import {
   Networking16Icon,
   Snapshots16Icon,
   Storage16Icon,
+  Subnet16Icon,
 } from '@oxide/design-system/icons/react'
 
 import { TopBar } from '~/components/TopBar'
@@ -113,7 +114,7 @@ export function ProjectLayoutBase({ overrideContentPane }: ProjectLayoutProps) {
             <Networking16Icon /> VPCs
           </NavLinkItem>
           <NavLinkItem to={pb.externalSubnets(projectSelector)}>
-            <Networking16Icon /> External Subnets
+            <Subnet16Icon /> External Subnets
           </NavLinkItem>
           <NavLinkItem to={pb.floatingIps(projectSelector)}>
             <IpGlobal16Icon /> Floating IPs
