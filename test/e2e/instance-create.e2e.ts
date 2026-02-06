@@ -61,11 +61,8 @@ test('can create an instance', async ({ page }) => {
   // pick a project image just to show we can
   await selectAProjectImage(page, 'image-3')
 
-  // user data should be hidden in accordion
-  await expectNotVisible(page, ['role=textbox[name="Hostname"]', 'text="User Data"'])
-
-  // open config accordion
-  await page.getByRole('button', { name: 'Configuration' }).click()
+  // hostname field should not exist
+  await expectNotVisible(page, ['role=textbox[name="Hostname"]'])
 
   const checkbox = page.getByRole('checkbox', {
     name: 'Allocate and attach an ephemeral IP address',

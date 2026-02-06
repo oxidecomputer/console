@@ -37,9 +37,6 @@ test.describe('IP pool configuration: myriad silo (v4-only default)', () => {
     await page.getByPlaceholder('Select a silo image', { exact: true }).click()
     await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
 
-    // Open networking accordion
-    await page.getByRole('button', { name: 'Networking' }).click()
-
     // Verify ephemeral IP checkbox is checked by default
     const ephemeralCheckbox = page.getByRole('checkbox', {
       name: 'Allocate and attach an ephemeral IP address',
@@ -83,8 +80,7 @@ test.describe('IP pool configuration: myriad silo (v4-only default)', () => {
     await page.getByPlaceholder('Select a silo image', { exact: true }).click()
     await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
 
-    // Open networking accordion and verify ephemeral IP defaults
-    await page.getByRole('button', { name: 'Networking' }).click()
+    // Verify ephemeral IP defaults
     const ephemeralCheckbox = page.getByRole('checkbox', {
       name: 'Allocate and attach an ephemeral IP address',
     })
@@ -213,9 +209,6 @@ test.describe('IP pool configuration: thrax silo (v6-only default)', () => {
     await page.getByPlaceholder('Select a silo image', { exact: true }).click()
     await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
 
-    // Open networking accordion
-    await page.getByRole('button', { name: 'Networking' }).click()
-
     // Verify ephemeral IP checkbox is checked by default
     const ephemeralCheckbox = page.getByRole('checkbox', {
       name: 'Allocate and attach an ephemeral IP address',
@@ -261,9 +254,6 @@ test.describe('IP pool configuration: pelerines silo (no defaults)', () => {
     await page.getByRole('tab', { name: 'Silo images' }).click()
     await page.getByPlaceholder('Select a silo image', { exact: true }).click()
     await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
-
-    // Open networking accordion
-    await page.getByRole('button', { name: 'Networking' }).click()
 
     // Verify ephemeral IP checkbox is not checked by default
     const ephemeralCheckbox = page.getByRole('checkbox', {
@@ -313,8 +303,6 @@ test.describe('IP pool configuration: no-pools silo (no IP pools)', () => {
     await page.getByRole('tab', { name: 'Silo images' }).click()
     await page.getByPlaceholder('Select a silo image', { exact: true }).click()
     await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
-
-    await page.getByRole('button', { name: 'Networking' }).click()
 
     const defaultRadio = page.getByRole('radio', { name: 'Default' })
     await expect(defaultRadio).toBeChecked()
