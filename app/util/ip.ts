@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import type { InstanceNetworkInterface, IpVersion, UnicastIpPool } from '~/api'
+import type { ExternalIp, InstanceNetworkInterface, IpVersion, UnicastIpPool } from '~/api'
 
 // Borrowed from Valibot. I tried some from Zod and an O'Reilly regex cookbook
 // but they didn't match results with std::net on simple test cases
@@ -118,6 +118,58 @@ export const ipHasVersion =
     const ipVersion = parseIp(item.ip)
     return ipVersion.type !== 'error' && versions.includes(ipVersion.type)
   }
+
+export type EphemeralIpSlots = {
+  availableVersions: IpVersion[]
+  disabledReason: string | null
+}
+
+/**
+ * Determine which ephemeral IP versions can still be attached and whether the
+ * attach button should be disabled. The API allows one ephemeral IP per IP
+ * version supported by the primary NIC (e.g., a dual-stack instance can have
+ * both a v4 and a v6 ephemeral IP).
+ */
+export function getEphemeralIpSlots(
+  compatibleVersions: IpVersion[],
+  attachedEphemeralIps: ExternalIp[],
+  unicastPools: UnicastIpPool[]
+): EphemeralIpSlots {
+  if (compatibleVersions.length === 0) {
+    return { availableVersions: [], disabledReason: 'Instance has no network interfaces' }
+  }
+
+  const attachedVersions = new Set<IpVersion>()
+  for (const eip of attachedEphemeralIps) {
+    const parsed = parseIp(eip.ip)
+    if (parsed.type !== 'error') attachedVersions.add(parsed.type)
+  }
+
+  const openVersions = compatibleVersions.filter(
+    (version) => !attachedVersions.has(version)
+  )
+
+  if (openVersions.length === 0) {
+    const msg =
+      compatibleVersions.length === 1
+        ? 'Instance already has an ephemeral IP'
+        : 'Instance already has ephemeral IPs for all supported address types'
+    return { availableVersions: [], disabledReason: msg }
+  }
+
+  const poolVersions = new Set(unicastPools.map((pool) => pool.ipVersion))
+  const availableVersions = openVersions.filter((version) => poolVersions.has(version))
+
+  if (availableVersions.length === 0) {
+    const versionLabel = openVersions.map((version) => version.toUpperCase()).join('/')
+    return {
+      availableVersions: [],
+      disabledReason: `No ${versionLabel} pools available for ephemeral IPs`,
+    }
+  }
+
+  return { availableVersions, disabledReason: null }
+}
 
 export const getDefaultIps = (pools: UnicastIpPool[]) => {
   const defaultPools = pools.filter((pool) => pool.isDefault)

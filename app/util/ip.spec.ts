@@ -6,9 +6,152 @@
  * Copyright Oxide Computer Company
  */
 
-import { expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
-import { parseIp, parseIpNet } from './ip'
+import type { ExternalIp, IpVersion, UnicastIpPool } from '~/api'
+
+import { getEphemeralIpSlots, parseIp, parseIpNet } from './ip'
+
+const makePool = (ipVersion: IpVersion, name = `pool-${ipVersion}`): UnicastIpPool => ({
+  id: `id-${name}`,
+  name,
+  description: '',
+  ipVersion,
+  isDefault: false,
+  poolType: 'unicast',
+  timeCreated: new Date(),
+  timeModified: new Date(),
+})
+
+const v4Pool = makePool('v4')
+const v6Pool = makePool('v6')
+
+const v4Ephemeral: ExternalIp = { ip: '10.0.0.1', ipPoolId: 'p1', kind: 'ephemeral' }
+const v6Ephemeral: ExternalIp = { ip: 'fd00::1', ipPoolId: 'p2', kind: 'ephemeral' }
+
+describe('getEphemeralIpSlots', () => {
+  test('no NICs', () => {
+    expect(getEphemeralIpSlots([], [], [v4Pool, v6Pool])).toEqual({
+      availableVersions: [],
+      disabledReason: 'Instance has no network interfaces',
+    })
+  })
+
+  test('v4-only, no attached ephemeral', () => {
+    expect(getEphemeralIpSlots(['v4'], [], [v4Pool])).toEqual({
+      availableVersions: ['v4'],
+      disabledReason: null,
+    })
+  })
+
+  test('v4-only, v4 attached', () => {
+    expect(getEphemeralIpSlots(['v4'], [v4Ephemeral], [v4Pool])).toEqual({
+      availableVersions: [],
+      disabledReason: 'Instance already has an ephemeral IP',
+    })
+  })
+
+  test('v6-only, no attached ephemeral', () => {
+    expect(getEphemeralIpSlots(['v6'], [], [v6Pool])).toEqual({
+      availableVersions: ['v6'],
+      disabledReason: null,
+    })
+  })
+
+  test('v6-only, v6 attached', () => {
+    expect(getEphemeralIpSlots(['v6'], [v6Ephemeral], [v6Pool])).toEqual({
+      availableVersions: [],
+      disabledReason: 'Instance already has an ephemeral IP',
+    })
+  })
+
+  test('dual-stack, no attached', () => {
+    expect(getEphemeralIpSlots(['v4', 'v6'], [], [v4Pool, v6Pool])).toEqual({
+      availableVersions: ['v4', 'v6'],
+      disabledReason: null,
+    })
+  })
+
+  test('dual-stack, v4 attached, v6 pools available', () => {
+    expect(getEphemeralIpSlots(['v4', 'v6'], [v4Ephemeral], [v4Pool, v6Pool])).toEqual({
+      availableVersions: ['v6'],
+      disabledReason: null,
+    })
+  })
+
+  test('dual-stack, v6 attached, v4 pools available', () => {
+    expect(getEphemeralIpSlots(['v4', 'v6'], [v6Ephemeral], [v4Pool, v6Pool])).toEqual({
+      availableVersions: ['v4'],
+      disabledReason: null,
+    })
+  })
+
+  test('dual-stack, both attached', () => {
+    expect(
+      getEphemeralIpSlots(['v4', 'v6'], [v4Ephemeral, v6Ephemeral], [v4Pool, v6Pool])
+    ).toEqual({
+      availableVersions: [],
+      disabledReason: 'Instance already has ephemeral IPs for all supported address types',
+    })
+  })
+
+  test('dual-stack, no attached, only v4 pools available', () => {
+    expect(getEphemeralIpSlots(['v4', 'v6'], [], [v4Pool])).toEqual({
+      availableVersions: ['v4'],
+      disabledReason: null,
+    })
+  })
+
+  test('dual-stack, no attached, only v6 pools available', () => {
+    expect(getEphemeralIpSlots(['v4', 'v6'], [], [v6Pool])).toEqual({
+      availableVersions: ['v6'],
+      disabledReason: null,
+    })
+  })
+
+  test('dual-stack, v4 attached, no v6 pools', () => {
+    expect(getEphemeralIpSlots(['v4', 'v6'], [v4Ephemeral], [v4Pool])).toEqual({
+      availableVersions: [],
+      disabledReason: 'No V6 pools available for ephemeral IPs',
+    })
+  })
+
+  test('dual-stack, v6 attached, no v4 pools', () => {
+    expect(getEphemeralIpSlots(['v4', 'v6'], [v6Ephemeral], [v6Pool])).toEqual({
+      availableVersions: [],
+      disabledReason: 'No V4 pools available for ephemeral IPs',
+    })
+  })
+
+  test('dual-stack, no attached, no pools at all', () => {
+    expect(getEphemeralIpSlots(['v4', 'v6'], [], [])).toEqual({
+      availableVersions: [],
+      disabledReason: 'No V4/V6 pools available for ephemeral IPs',
+    })
+  })
+
+  test('v4-only, no pools available', () => {
+    expect(getEphemeralIpSlots(['v4'], [], [v6Pool])).toEqual({
+      availableVersions: [],
+      disabledReason: 'No V4 pools available for ephemeral IPs',
+    })
+  })
+
+  test('v4-only, v6 attached (ignored)', () => {
+    expect(getEphemeralIpSlots(['v4'], [v6Ephemeral], [v4Pool])).toEqual({
+      availableVersions: ['v4'],
+      disabledReason: null,
+    })
+  })
+
+  test('dual-stack, invalid attached IP is ignored', () => {
+    const invalidIp: ExternalIp = { ip: 'not-an-ip', ipPoolId: 'p3', kind: 'ephemeral' }
+    expect(getEphemeralIpSlots(['v4', 'v6'], [invalidIp], [v4Pool, v6Pool])).toEqual({
+      availableVersions: ['v4', 'v6'],
+      disabledReason: null,
+    })
+  })
+})
 
 // Small Rust project where we validate that the built-in Ipv4Addr and Ipv6Addr
 // and oxnet's Ipv4Net and Ipv6Net have the same validation behavior as our code.
