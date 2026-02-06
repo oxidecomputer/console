@@ -9,6 +9,7 @@ import { differenceInSeconds, subHours } from 'date-fns'
 // Works without the .js for dev server and prod build in MSW mode, but
 // playwright wants the .js. No idea why, let's just add the .js.
 import { IPv4, IPv6 } from 'ip-num/IPNumber.js'
+import * as R from 'remeda'
 import { match } from 'ts-pattern'
 
 import {
@@ -82,61 +83,32 @@ function normalizeTime(t: unknown): string {
  * https://github.com/oxidecomputer/omicron/blob/cf38148/common/src/api/external/http_pagination.rs#L511-L512
  */
 function sortItems<I extends { id: string }>(items: I[], sortBy: SortMode): I[] {
-  const sorted = [...items]
+  // Extract time as number for sorting, with -Infinity fallback for items without time_created
+  const timeValue = (item: I) => {
+    const raw =
+      'time_created' in item ? new Date(item.time_created as string | Date).valueOf() : -Infinity
+    return Number.isFinite(raw) ? raw : -Infinity
+  }
 
   switch (sortBy) {
     case 'name_ascending':
-      return sorted.sort((a, b) => {
-        // Use byte-wise lexicographic comparison to match Rust's String ordering,
-        // not locale-aware localeCompare()
-        const aName = 'name' in a ? String(a.name) : a.id
-        const bName = 'name' in b ? String(b.name) : b.id
-        return aName < bName ? -1 : aName > bName ? 1 : 0
-      })
+      // Use byte-wise lexicographic comparison to match Rust's String ordering
+      return R.sortBy(items, (item) => ('name' in item ? String(item.name) : item.id))
     case 'name_descending':
-      return sorted.sort((a, b) => {
-        const aName = 'name' in a ? String(a.name) : a.id
-        const bName = 'name' in b ? String(b.name) : b.id
-        return bName < aName ? -1 : bName > aName ? 1 : 0
-      })
+      return R.pipe(
+        items,
+        R.sortBy((item) => ('name' in item ? String(item.name) : item.id)),
+        R.reverse()
+      )
     case 'id_ascending':
       // Use pure lexicographic comparison for UUIDs to match Rust's derived Ord
-      // and avoid locale-dependent behavior
-      return sorted.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
+      return R.sortBy(items, (item) => item.id)
     case 'time_and_id_ascending':
-      return sorted.sort((a, b) => {
-        // Compare timestamps numerically to handle Date objects and non-ISO formats
-        // Normalize NaN from invalid dates to -Infinity for deterministic ordering
-        const aRaw =
-          'time_created' in a
-            ? new Date(a.time_created as string | Date).valueOf()
-            : -Infinity
-        const bRaw =
-          'time_created' in b
-            ? new Date(b.time_created as string | Date).valueOf()
-            : -Infinity
-        const aTime = Number.isFinite(aRaw) ? aRaw : -Infinity
-        const bTime = Number.isFinite(bRaw) ? bRaw : -Infinity
-        const timeCompare = aTime - bTime
-        return timeCompare !== 0 ? timeCompare : a.id < b.id ? -1 : a.id > b.id ? 1 : 0
-      })
+      // Compare timestamps numerically to handle Date objects and non-ISO formats
+      // Normalize NaN from invalid dates to -Infinity for deterministic ordering
+      return R.sortBy(items, timeValue, (item) => item.id)
     case 'time_and_id_descending':
-      return sorted.sort((a, b) => {
-        // Compare timestamps numerically to handle Date objects and non-ISO formats
-        // Normalize NaN from invalid dates to -Infinity for deterministic ordering
-        const aRaw =
-          'time_created' in a
-            ? new Date(a.time_created as string | Date).valueOf()
-            : -Infinity
-        const bRaw =
-          'time_created' in b
-            ? new Date(b.time_created as string | Date).valueOf()
-            : -Infinity
-        const aTime = Number.isFinite(aRaw) ? aRaw : -Infinity
-        const bTime = Number.isFinite(bRaw) ? bRaw : -Infinity
-        const timeCompare = bTime - aTime
-        return timeCompare !== 0 ? timeCompare : b.id < a.id ? -1 : b.id > a.id ? 1 : 0
-      })
+      return R.pipe(items, R.sortBy(timeValue, (item) => item.id), R.reverse())
   }
 }
 
