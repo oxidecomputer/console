@@ -118,8 +118,8 @@ test('Instance networking tab — Detach / Attach Ephemeral IPs', async ({ page 
   // We start out with an ephemeral IP attached
   await expect(ephemeralCell).toBeVisible()
 
-  // The 'Attach ephemeral IP' button should be hidden when there is still an existing ephemeral IP
-  await expect(attachEphemeralIpButton).toBeHidden()
+  // The 'Attach ephemeral IP' button should be disabled when there is already an ephemeral IP
+  await expect(attachEphemeralIpButton).toBeDisabled()
 
   // Detach the existing ephemeral IP
   await clickRowAction(page, 'ephemeral', 'Detach')
@@ -146,8 +146,8 @@ test('Instance networking tab — Detach / Attach Ephemeral IPs', async ({ page 
     'IP pool': 'ip-pool-1',
   })
 
-  // The 'Attach ephemeral IP' button should be hidden after attaching an ephemeral IP
-  await expect(attachEphemeralIpButton).toBeHidden()
+  // The 'Attach ephemeral IP' button should be disabled after attaching an ephemeral IP
+  await expect(attachEphemeralIpButton).toBeDisabled()
 
   // Detach and test with explicit pool selection
   await clickRowAction(page, 'ephemeral', 'Detach')
@@ -168,8 +168,8 @@ test('Instance networking tab — Detach / Attach Ephemeral IPs', async ({ page 
     'IP pool': 'ip-pool-2',
   })
 
-  // The 'Attach ephemeral IP' button should be hidden after attaching an ephemeral IP
-  await expect(attachEphemeralIpButton).toBeHidden()
+  // The 'Attach ephemeral IP' button should be disabled after attaching an ephemeral IP
+  await expect(attachEphemeralIpButton).toBeDisabled()
 })
 
 test('Instance networking tab — floating IPs', async ({ page }) => {

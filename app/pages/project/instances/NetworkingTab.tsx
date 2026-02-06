@@ -517,10 +517,12 @@ export default function NetworkingTab() {
     getCoreRowModel: getCoreRowModel(),
   })
 
-  // If there's already an ephemeral IP, or if there are no network interfaces,
-  // they shouldn't be able to attach an ephemeral IP
-  const enableEphemeralAttachButton =
-    eips.items.filter((ip) => ip.kind === 'ephemeral').length === 0 && nics.length > 0
+  const ephemeralDisabledReason =
+    nics.length === 0
+      ? 'Instance has no network interfaces'
+      : eips.items.some((ip) => ip.kind === 'ephemeral')
+        ? 'Instance already has an ephemeral IP'
+        : null
 
   const floatingDisabledReason =
     eips.items.filter((ip) => ip.kind === 'floating').length >= 32
@@ -534,16 +536,14 @@ export default function NetworkingTab() {
       <CardBlock>
         <CardBlock.Header title="External IPs" titleId="attached-ips-label">
           <div className="flex gap-3">
-            {/*
-                We normally wouldn't hide this button and would just have a disabled state on it,
-                but it is very rare for this button to be necessary, and it would be disabled
-                most of the time, for most users. To reduce clutter on the screen, we're hiding it.
-               */}
-            {enableEphemeralAttachButton && (
-              <Button size="sm" onClick={() => setAttachEphemeralModalOpen(true)}>
-                Attach ephemeral IP
-              </Button>
-            )}
+            <Button
+              size="sm"
+              onClick={() => setAttachEphemeralModalOpen(true)}
+              disabled={!!ephemeralDisabledReason}
+              disabledReason={ephemeralDisabledReason}
+            >
+              Attach ephemeral IP
+            </Button>
             <Button
               size="sm"
               onClick={() => setAttachFloatingModalOpen(true)}
