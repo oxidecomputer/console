@@ -239,10 +239,11 @@ test('Create disk from snapshot with read-only', async ({ page }) => {
   const row = page.getByRole('row', { name: /a-new-disk/ })
   await expect(row.getByText('Read only', { exact: true })).toBeVisible()
 
-  // Verify snapshot ID in detail modal
+  // Verify snapshot ID in detail modal (now truncated)
   await page.getByRole('link', { name: 'a-new-disk' }).click()
   const modal = page.getByRole('dialog', { name: 'Disk details' })
-  await expect(modal.getByText('e6c58826-62fb-4205-820e-620407cd04e7')).toBeVisible()
+  // The ID is truncated to 32 chars, but full ID is in aria-label
+  await expect(modal.getByLabel('e6c58826-62fb-4205-820e-620407cd04e7')).toBeVisible()
 })
 
 test('Create disk from image with read-only', async ({ page }) => {
@@ -259,8 +260,9 @@ test('Create disk from image with read-only', async ({ page }) => {
   const row = page.getByRole('row', { name: /a-new-disk/ })
   await expect(row.getByText('Read only', { exact: true })).toBeVisible()
 
-  // Verify image ID in detail modal
+  // Verify image ID in detail modal (now truncated)
   await page.getByRole('link', { name: 'a-new-disk' }).click()
   const modal = page.getByRole('dialog', { name: 'Disk details' })
-  await expect(modal.getByText('4700ecf1-8f48-4ecf-b78e-816ddb76aaca')).toBeVisible()
+  // The ID is truncated to 32 chars, but full ID is in aria-label
+  await expect(modal.getByLabel('4700ecf1-8f48-4ecf-b78e-816ddb76aaca')).toBeVisible()
 })
