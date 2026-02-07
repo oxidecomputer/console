@@ -39,10 +39,10 @@ test.describe('IP pool configuration: myriad silo (v4-only default)', () => {
 
     // Verify IPv4 ephemeral IP checkbox is checked by default
     const v4Checkbox = page.getByRole('checkbox', {
-      name: 'Allocate and attach ephemeral IPv4 address',
+      name: 'Allocate and attach an ephemeral IPv4 address',
     })
     const v6Checkbox = page.getByRole('checkbox', {
-      name: 'Allocate and attach ephemeral IPv6 address',
+      name: 'Allocate and attach an ephemeral IPv6 address',
     })
 
     await expect(v4Checkbox).toBeVisible()
@@ -87,7 +87,7 @@ test.describe('IP pool configuration: myriad silo (v4-only default)', () => {
 
     // Verify ephemeral IP defaults
     const v4Checkbox = page.getByRole('checkbox', {
-      name: 'Allocate and attach ephemeral IPv4 address',
+      name: 'Allocate and attach an ephemeral IPv4 address',
     })
     await expect(v4Checkbox).toBeChecked()
     await expect(page.getByLabel('Pool')).toContainText('ip-pool-1')
@@ -216,10 +216,10 @@ test.describe('IP pool configuration: thrax silo (v6-only default)', () => {
 
     // Verify IPv6 ephemeral IP checkbox is checked by default
     const v4Checkbox = page.getByRole('checkbox', {
-      name: 'Allocate and attach ephemeral IPv4 address',
+      name: 'Allocate and attach an ephemeral IPv4 address',
     })
     const v6Checkbox = page.getByRole('checkbox', {
-      name: 'Allocate and attach ephemeral IPv6 address',
+      name: 'Allocate and attach an ephemeral IPv6 address',
     })
 
     // v4 checkbox should be visible but not checked (no v4 default in thrax silo)
@@ -267,10 +267,10 @@ test.describe('IP pool configuration: pelerines silo (no defaults)', () => {
 
     // Verify ephemeral IP checkboxes are not checked by default (no defaults in pelerines silo)
     const v4Checkbox = page.getByRole('checkbox', {
-      name: 'Allocate and attach ephemeral IPv4 address',
+      name: 'Allocate and attach an ephemeral IPv4 address',
     })
     const v6Checkbox = page.getByRole('checkbox', {
-      name: 'Allocate and attach ephemeral IPv6 address',
+      name: 'Allocate and attach an ephemeral IPv6 address',
     })
 
     await expect(v4Checkbox).toBeVisible()
@@ -325,10 +325,10 @@ test.describe('IP pool configuration: no-pools silo (no IP pools)', () => {
 
     // When there are no pools, both checkboxes should be visible but disabled
     const v4Checkbox = page.getByRole('checkbox', {
-      name: 'Allocate and attach ephemeral IPv4 address',
+      name: 'Allocate and attach an ephemeral IPv4 address',
     })
     const v6Checkbox = page.getByRole('checkbox', {
-      name: 'Allocate and attach ephemeral IPv6 address',
+      name: 'Allocate and attach an ephemeral IPv6 address',
     })
     await expect(v4Checkbox).toBeVisible()
     await expect(v4Checkbox).toBeDisabled()

@@ -322,8 +322,15 @@ export default function CreateInstanceForm() {
     .filter((p) => p.isDefault)
 
   // Compute defaults for dual ephemeral IP support
-  const hasV4Default = compatibleDefaultPools.some((p) => p.ipVersion === 'v4')
-  const hasV6Default = compatibleDefaultPools.some((p) => p.ipVersion === 'v6')
+  // Check ALL default pools in silo (not just compatible ones) to determine
+  // if ipVersion is needed in auto selectors (API requires it when multiple defaults exist)
+  const allDefaultPools = unicastPools.filter((p) => p.isDefault)
+  const hasV4Default = allDefaultPools.some((p) => p.ipVersion === 'v4')
+  const hasV6Default = allDefaultPools.some((p) => p.ipVersion === 'v6')
+
+  // Check compatible defaults for checkbox initialization
+  const hasCompatibleV4Default = compatibleDefaultPools.some((p) => p.ipVersion === 'v4')
+  const hasCompatibleV6Default = compatibleDefaultPools.some((p) => p.ipVersion === 'v6')
 
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
@@ -331,9 +338,9 @@ export default function CreateInstanceForm() {
     bootDiskSourceType: defaultSource,
     sshPublicKeys: allKeys,
     bootDiskSize: diskSizeNearest10(defaultImage?.size / GiB),
-    ephemeralIpv4: hasV4Default && defaultCompatibleVersions.includes('v4'),
+    ephemeralIpv4: hasCompatibleV4Default && defaultCompatibleVersions.includes('v4'),
     ephemeralIpv4Pool: '',
-    ephemeralIpv6: hasV6Default && defaultCompatibleVersions.includes('v6'),
+    ephemeralIpv6: hasCompatibleV6Default && defaultCompatibleVersions.includes('v6'),
     ephemeralIpv6Pool: '',
     floatingIps: [],
   }
@@ -444,8 +451,9 @@ export default function CreateInstanceForm() {
           const bootDisk = getBootDiskAttachment(values, allImages)
 
           // Construct external IPs: ephemeral IPs first (v4 before v6), then floating IPs
-          // Only include ipVersion when requesting BOTH ephemeral IPs with auto selectors
-          const requestingBothEphemeralIps = values.ephemeralIpv4 && values.ephemeralIpv6
+          // Include ipVersion when using auto selectors IF multiple default pools exist
+          // (API requires ipVersion to disambiguate when both v4 and v6 defaults exist)
+          const multipleDefaultPools = hasV4Default && hasV6Default
           const externalIps: ExternalIpCreate[] = [
             // v4 ephemeral if enabled (order: v4 before v6)
             ...(values.ephemeralIpv4
@@ -454,7 +462,7 @@ export default function CreateInstanceForm() {
                     type: 'ephemeral' as const,
                     poolSelector: values.ephemeralIpv4Pool
                       ? { type: 'explicit' as const, pool: values.ephemeralIpv4Pool }
-                      : requestingBothEphemeralIps
+                      : multipleDefaultPools
                         ? { type: 'auto' as const, ipVersion: 'v4' as const }
                         : { type: 'auto' as const },
                   },
@@ -467,7 +475,7 @@ export default function CreateInstanceForm() {
                     type: 'ephemeral' as const,
                     poolSelector: values.ephemeralIpv6Pool
                       ? { type: 'explicit' as const, pool: values.ephemeralIpv6Pool }
-                      : requestingBothEphemeralIps
+                      : multipleDefaultPools
                         ? { type: 'auto' as const, ipVersion: 'v6' as const }
                         : { type: 'auto' as const },
                   },
@@ -1032,7 +1040,7 @@ const NetworkingSection = ({
         <Wrap when={!!disabledReason} with={<Tooltip content={disabledReason} />}>
           <span>
             <CheckboxField control={control} name={checkboxName} disabled={!canAttach}>
-              Allocate and attach ephemeral {displayVersion} address
+              Allocate and attach an ephemeral {displayVersion} address
             </CheckboxField>
           </span>
         </Wrap>
