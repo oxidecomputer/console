@@ -344,7 +344,7 @@ test('IPv4-only instance cannot attach IPv6 ephemeral IP', async ({ page }) => {
 
   // Don't attach ephemeral IP at creation
   await page
-    .getByRole('checkbox', { name: 'Allocate and attach an ephemeral IP address' })
+    .getByRole('checkbox', { name: 'Allocate and attach an ephemeral IPv4 address' })
     .uncheck()
 
   // Create instance
@@ -399,7 +399,7 @@ test('IPv6-only instance cannot attach IPv4 ephemeral IP', async ({ page }) => {
 
   // Don't attach ephemeral IP at creation
   await page
-    .getByRole('checkbox', { name: 'Allocate and attach an ephemeral IP address' })
+    .getByRole('checkbox', { name: 'Allocate and attach an ephemeral IPv6 address' })
     .uncheck()
 
   // Create instance
@@ -454,7 +454,7 @@ test('IPv4-only instance can attach IPv4 ephemeral IP', async ({ page }) => {
 
   // Don't attach ephemeral IP at creation
   await page
-    .getByRole('checkbox', { name: 'Allocate and attach an ephemeral IP address' })
+    .getByRole('checkbox', { name: 'Allocate and attach an ephemeral IPv4 address' })
     .uncheck()
 
   // Create instance
@@ -503,7 +503,7 @@ test('IPv6-only instance can attach IPv6 ephemeral IP', async ({ page }) => {
 
   // Don't attach ephemeral IP at creation
   await page
-    .getByRole('checkbox', { name: 'Allocate and attach an ephemeral IP address' })
+    .getByRole('checkbox', { name: 'Allocate and attach an ephemeral IPv6 address' })
     .uncheck()
 
   // Create instance

@@ -321,14 +321,7 @@ export default function CreateInstanceForm() {
     .filter(poolHasIpVersion(defaultCompatibleVersions))
     .filter((p) => p.isDefault)
 
-  // Compute defaults for dual ephemeral IP support
-  // Check ALL default pools in silo (not just compatible ones) to determine
-  // if ipVersion is needed in auto selectors (API requires it when multiple defaults exist)
-  const allDefaultPools = unicastPools.filter((p) => p.isDefault)
-  const hasV4Default = allDefaultPools.some((p) => p.ipVersion === 'v4')
-  const hasV6Default = allDefaultPools.some((p) => p.ipVersion === 'v6')
-
-  // Check compatible defaults for checkbox initialization
+  // Check for compatible defaults to determine checkbox initialization
   const hasCompatibleV4Default = compatibleDefaultPools.some((p) => p.ipVersion === 'v4')
   const hasCompatibleV6Default = compatibleDefaultPools.some((p) => p.ipVersion === 'v6')
 
@@ -451,9 +444,8 @@ export default function CreateInstanceForm() {
           const bootDisk = getBootDiskAttachment(values, allImages)
 
           // Construct external IPs: ephemeral IPs first (v4 before v6), then floating IPs
-          // Include ipVersion when using auto selectors IF multiple default pools exist
-          // (API requires ipVersion to disambiguate when both v4 and v6 defaults exist)
-          const multipleDefaultPools = hasV4Default && hasV6Default
+          // Always include ipVersion in auto selectors to match user intent and satisfy
+          // API requirements (dual-stack requests MUST specify ipVersion on each)
           const externalIps: ExternalIpCreate[] = [
             // v4 ephemeral if enabled (order: v4 before v6)
             ...(values.ephemeralIpv4
@@ -462,9 +454,7 @@ export default function CreateInstanceForm() {
                     type: 'ephemeral' as const,
                     poolSelector: values.ephemeralIpv4Pool
                       ? { type: 'explicit' as const, pool: values.ephemeralIpv4Pool }
-                      : multipleDefaultPools
-                        ? { type: 'auto' as const, ipVersion: 'v4' as const }
-                        : { type: 'auto' as const },
+                      : { type: 'auto' as const, ipVersion: 'v4' as const },
                   },
                 ]
               : []),
@@ -475,9 +465,7 @@ export default function CreateInstanceForm() {
                     type: 'ephemeral' as const,
                     poolSelector: values.ephemeralIpv6Pool
                       ? { type: 'explicit' as const, pool: values.ephemeralIpv6Pool }
-                      : multipleDefaultPools
-                        ? { type: 'auto' as const, ipVersion: 'v6' as const }
-                        : { type: 'auto' as const },
+                      : { type: 'auto' as const, ipVersion: 'v6' as const },
                   },
                 ]
               : []),
