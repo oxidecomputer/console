@@ -15,7 +15,7 @@ import {
 } from '@headlessui/react'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
-import { useEffect, useId, useState, type ReactNode, type Ref } from 'react'
+import { useEffect, useId, useRef, useState, type ReactNode, type Ref } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
@@ -145,19 +145,35 @@ export const Combobox = ({
   }
   const zIndex = usePopoverZIndex()
   const id = useId()
+  // Tracks whether the dropdown is open so the onKeyDown handler can
+  // distinguish Enter-to-select (dropdown open, let HUI handle it) from
+  // Enter-to-submit (dropdown closed, fire onEnter). We use a ref instead
+  // of HUI's `open` render prop because our handler runs before HUI's
+  // (useRender merges user props first) and the render prop can be stale.
+  // The ref stays current because onClose sets it synchronously during
+  // HUI's own keydown handler. With the stale render prop, the handler
+  // could see the combobox as closed one keydown too late, firing onEnter
+  // instead of letting HUI select — hard to notice manually but caused
+  // consistent e2e flakes in Firefox.
+  const isOpenRef = useRef(false)
   return (
     <HCombobox
       // necessary, as the displayed "value" is not the same as the actual selected item's *value*
       value={selectedItemValue}
       // fallback to '' allows clearing field to work
       onChange={(val) => onChange(val || '')}
-      // we only want to keep the query on close when arbitrary values are allowed
-      onClose={allowArbitraryValues ? undefined : () => setQuery('')}
+      onClose={() => {
+        isOpenRef.current = false
+        if (!allowArbitraryValues) setQuery('')
+      }}
       disabled={disabled || isLoading}
       immediate
       {...props}
     >
-      {({ open }) => (
+      {({ open }) => {
+        // Sync open state to ref on render (handles the opening side)
+        if (open) isOpenRef.current = true
+        return (
         <div>
           {label && (
             // TODO: FieldLabel needs a real ID
@@ -213,14 +229,10 @@ export const Combobox = ({
                 onInputChange?.(value)
               }}
               onKeyDown={(e) => {
-                // When the combobox is open, Enter is handled internally by
-                // Headless UI (selects the highlighted item). When closed,
-                // we need to prevent the default behavior to avoid submitting
-                // the containing form. We also considered always preventing
-                // default on Enter regardless of open status, but it appears
-                // to break the combobox handling. Headless UI likely checks
-                // e.defaultPrevented before processing item selection.
-                if (e.key === 'Enter' && !open) {
+                // When the dropdown is open, Enter should select the
+                // highlighted option (HUI handles this). When closed,
+                // Enter should submit the subform via onEnter.
+                if (e.key === 'Enter' && !isOpenRef.current) {
                   e.preventDefault()
                   onEnter?.(e)
                 }
@@ -284,7 +296,8 @@ export const Combobox = ({
             </ComboboxOptions>
           )}
         </div>
-      )}
+        )
+      }}
     </HCombobox>
   )
 }
