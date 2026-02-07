@@ -54,6 +54,7 @@ type IpPoolSelectorProps<
   /** Compatible IP versions based on network interface type */
   compatibleVersions?: IpVersion[]
   required?: boolean
+  hideOptionalTag?: boolean
 }
 
 export function IpPoolSelector<
@@ -67,6 +68,7 @@ export function IpPoolSelector<
   disabled = false,
   compatibleVersions = ALL_IP_VERSIONS,
   required = true,
+  hideOptionalTag = false,
 }: IpPoolSelectorProps<TFieldValues, TName>) {
   // Note: pools are already filtered by poolType before being passed to this component
   const sortedPools = useMemo(() => {
@@ -90,6 +92,7 @@ export function IpPoolSelector<
         placeholder="Select a pool"
         required={required}
         disabled={disabled}
+        hideOptionalTag={hideOptionalTag}
       />
     </div>
   )

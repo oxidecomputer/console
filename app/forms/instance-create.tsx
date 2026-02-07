@@ -321,9 +321,9 @@ export default function CreateInstanceForm() {
     .filter(poolHasIpVersion(defaultCompatibleVersions))
     .filter((p) => p.isDefault)
 
-  // Check for compatible defaults to determine checkbox initialization
-  const hasCompatibleV4Default = compatibleDefaultPools.some((p) => p.ipVersion === 'v4')
-  const hasCompatibleV6Default = compatibleDefaultPools.some((p) => p.ipVersion === 'v6')
+  // Get default pools for initial values
+  const defaultV4Pool = compatibleDefaultPools.find((p) => p.ipVersion === 'v4')
+  const defaultV6Pool = compatibleDefaultPools.find((p) => p.ipVersion === 'v6')
 
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
@@ -331,10 +331,10 @@ export default function CreateInstanceForm() {
     bootDiskSourceType: defaultSource,
     sshPublicKeys: allKeys,
     bootDiskSize: diskSizeNearest10(defaultImage?.size / GiB),
-    ephemeralIpv4: hasCompatibleV4Default && defaultCompatibleVersions.includes('v4'),
-    ephemeralIpv4Pool: '',
-    ephemeralIpv6: hasCompatibleV6Default && defaultCompatibleVersions.includes('v6'),
-    ephemeralIpv6Pool: '',
+    ephemeralIpv4: !!defaultV4Pool && defaultCompatibleVersions.includes('v4'),
+    ephemeralIpv4Pool: defaultV4Pool?.name || '',
+    ephemeralIpv6: !!defaultV6Pool && defaultCompatibleVersions.includes('v6'),
+    ephemeralIpv6Pool: defaultV6Pool?.name || '',
     floatingIps: [],
   }
 
@@ -803,9 +803,7 @@ const NetworkingSection = ({
   const floatingIpsField = useController({ control, name: 'floatingIps' })
 
   const ephemeralIpv4 = ephemeralIpv4Field.field.value
-  const ephemeralIpv4Pool = ephemeralIpv4PoolField.field.value
   const ephemeralIpv6 = ephemeralIpv6Field.field.value
-  const ephemeralIpv6Pool = ephemeralIpv6PoolField.field.value
   const attachedFloatingIps = floatingIpsField.field.value ?? EMPTY_NAME_OR_ID_LIST
 
   // Calculate compatible IP versions based on NIC type
@@ -854,37 +852,6 @@ const NetworkingSection = ({
     .map((floatingIp) => attachableFloatingIps.find((fip) => fip.name === floatingIp))
     .filter((ip) => !!ip)
 
-  // IPv4 pool auto-selection
-  useEffect(() => {
-    if (!ephemeralIpv4 || v4Pools.length === 0) return
-
-    // If current pool is valid, keep it
-    if (ephemeralIpv4Pool && v4Pools.some((p) => p.name === ephemeralIpv4Pool)) return
-
-    // Otherwise, try to select default
-    const v4Default = v4Pools.find((p) => p.isDefault)
-    if (v4Default) {
-      ephemeralIpv4PoolField.field.onChange(v4Default.name)
-    } else {
-      // No default: clear the pool (user must select)
-      ephemeralIpv4PoolField.field.onChange('')
-    }
-  }, [ephemeralIpv4, ephemeralIpv4Pool, ephemeralIpv4PoolField, v4Pools])
-
-  // IPv6 pool auto-selection
-  useEffect(() => {
-    if (!ephemeralIpv6 || v6Pools.length === 0) return
-
-    if (ephemeralIpv6Pool && v6Pools.some((p) => p.name === ephemeralIpv6Pool)) return
-
-    const v6Default = v6Pools.find((p) => p.isDefault)
-    if (v6Default) {
-      ephemeralIpv6PoolField.field.onChange(v6Default.name)
-    } else {
-      ephemeralIpv6PoolField.field.onChange('')
-    }
-  }, [ephemeralIpv6, ephemeralIpv6Pool, ephemeralIpv6PoolField, v6Pools])
-
   // Clean up incompatible ephemeral IP selections when NIC changes
   useEffect(() => {
     // When NIC changes, uncheck and clear incompatible options
@@ -906,7 +873,7 @@ const NetworkingSection = ({
     ephemeralIpv6PoolField,
   ])
 
-  // Track previous canAttach state to detect transitions
+  // Track previous canAttach state to detect transitions for auto-enabling
   const prevCanAttachV4Ref = useRef<boolean | undefined>(undefined)
   const prevCanAttachV6Ref = useRef<boolean | undefined>(undefined)
 
@@ -1039,6 +1006,8 @@ const NetworkingSection = ({
               poolFieldName={poolFieldName}
               pools={pools}
               disabled={isSubmitting}
+              required={false}
+              hideOptionalTag
             />
           </div>
         )}
