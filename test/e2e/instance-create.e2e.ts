@@ -1025,8 +1025,8 @@ test('create instance with custom dual-stack NIC allows both IPv4 and IPv6 ephem
   await expect(ephemeralRows).toHaveCount(2)
 
   // Verify one is IPv4 and one is IPv6
-  await expect(externalIpsTable.getByText('IPv4')).toBeVisible()
-  await expect(externalIpsTable.getByText('IPv6')).toBeVisible()
+  await expect(externalIpsTable.getByText('v4')).toBeVisible()
+  await expect(externalIpsTable.getByText('v6')).toBeVisible()
 })
 
 test('ephemeral IP checkbox disabled when no NICs configured', async ({ page }) => {
