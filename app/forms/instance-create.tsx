@@ -880,27 +880,31 @@ const NetworkingSection = ({
   // Auto-enable ephemeral IPs when NICs are added that support them
   useEffect(() => {
     const prevCanAttachV4 = prevCanAttachV4Ref.current
-    const hasV4Default = v4Pools.some((p) => p.isDefault)
+    const v4Default = v4Pools.find((p) => p.isDefault)
 
     // Auto-enable v4 when transitioning from unable to able (e.g., NIC added)
-    if (canAttachV4 && hasV4Default && prevCanAttachV4 === false && !ephemeralIpv4) {
+    if (canAttachV4 && v4Default && prevCanAttachV4 === false && !ephemeralIpv4) {
       ephemeralIpv4Field.field.onChange(true)
+      // Also populate the pool field with the default
+      ephemeralIpv4PoolField.field.onChange(v4Default.name)
     }
 
     prevCanAttachV4Ref.current = canAttachV4
-  }, [canAttachV4, v4Pools, ephemeralIpv4, ephemeralIpv4Field])
+  }, [canAttachV4, v4Pools, ephemeralIpv4, ephemeralIpv4Field, ephemeralIpv4PoolField])
 
   useEffect(() => {
     const prevCanAttachV6 = prevCanAttachV6Ref.current
-    const hasV6Default = v6Pools.some((p) => p.isDefault)
+    const v6Default = v6Pools.find((p) => p.isDefault)
 
     // Auto-enable v6 when transitioning from unable to able (e.g., NIC added)
-    if (canAttachV6 && hasV6Default && prevCanAttachV6 === false && !ephemeralIpv6) {
+    if (canAttachV6 && v6Default && prevCanAttachV6 === false && !ephemeralIpv6) {
       ephemeralIpv6Field.field.onChange(true)
+      // Also populate the pool field with the default
+      ephemeralIpv6PoolField.field.onChange(v6Default.name)
     }
 
     prevCanAttachV6Ref.current = canAttachV6
-  }, [canAttachV6, v6Pools, ephemeralIpv6, ephemeralIpv6Field])
+  }, [canAttachV6, v6Pools, ephemeralIpv6, ephemeralIpv6Field, ephemeralIpv6PoolField])
 
   const noNicMessage = (version: IpVersion) => (
     <>
