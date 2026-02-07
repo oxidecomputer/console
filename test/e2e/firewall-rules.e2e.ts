@@ -10,6 +10,19 @@ import { expect, test, type Locator, type Page } from '@playwright/test'
 
 import { clickRowAction, expectRowVisible, selectOption } from './utils'
 
+/**
+ * Fill a combobox and click a dropdown option. Scrolls the combobox toward the
+ * center of the viewport first so the Floating UI anchored dropdown has room to
+ * render on-screen. Without this, Safari/WebKit can place the dropdown outside
+ * the viewport when the combobox is near the bottom of a tall form, causing
+ * Playwright's click to fail.
+ */
+async function fillAndSelect(input: Locator, page: Page, text: string, optionName: string) {
+  await input.evaluate((el) => el.scrollIntoView({ block: 'center' }))
+  await input.fill(text)
+  await page.getByRole('option', { name: optionName }).click()
+}
+
 const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp']
 
 test('can create firewall rule', async ({ page }) => {
@@ -166,14 +179,12 @@ test('firewall rule form targets table', async ({ page }) => {
 
   // add targets with overlapping names and types to test delete
 
-  await targetVpcNameField.fill('abc')
-  await page.getByRole('option', { name: 'Custom: abc' }).click()
+  await fillAndSelect(targetVpcNameField, page, 'abc', 'Custom: abc')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'vpc', Value: 'abc' })
 
   // enter a VPC called 'mock-subnet', even if that doesn't make sense here, to test dropdown later
-  await targetVpcNameField.fill('mock-subnet')
-  await page.getByRole('option', { name: 'mock-subnet' }).click()
+  await fillAndSelect(targetVpcNameField, page, 'mock-subnet', 'mock-subnet')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'vpc', Value: 'mock-subnet' })
 
@@ -193,8 +204,7 @@ test('firewall rule form targets table', async ({ page }) => {
   // now add a subnet by entering text
   await selectOption(page, 'Target type', 'VPC subnet')
   // test that the name typed in is normalized
-  await subnetNameField.fill('abc-123')
-  await page.getByRole('option', { name: 'Custom: abc-123' }).click()
+  await fillAndSelect(subnetNameField, page, 'abc-123', 'Custom: abc-123')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'subnet', Value: 'abc-123' })
 
@@ -227,8 +237,7 @@ test('firewall rule form target validation', async ({ page }) => {
 
   // Enter invalid VPC name
   const vpcNameField = page.getByRole('combobox', { name: 'VPC name' }).first()
-  await vpcNameField.fill('ab-')
-  await page.getByRole('option', { name: 'Custom: ab-' }).click()
+  await fillAndSelect(vpcNameField, page, 'ab-', 'Custom: ab-')
   await addButton.click()
   await expect(nameError).toBeVisible()
 
@@ -292,8 +301,7 @@ test('firewall rule form host validation', async ({ page }) => {
 
   // Enter invalid VPC name
   const vpcNameField = page.getByRole('combobox', { name: 'VPC name' }).nth(1)
-  await vpcNameField.fill('ab-')
-  await page.getByRole('option', { name: 'Custom: ab-' }).click()
+  await fillAndSelect(vpcNameField, page, 'ab-', 'Custom: ab-')
   await addButton.click()
   await expect(nameError).toBeVisible()
 
@@ -360,13 +368,11 @@ test('firewall rule form hosts table', async ({ page }) => {
 
   // add hosts with overlapping names and types to test delete
 
-  await hostFiltersVpcNameField.fill('abc')
-  await page.getByRole('option', { name: 'Custom: abc' }).click()
+  await fillAndSelect(hostFiltersVpcNameField, page, 'abc', 'Custom: abc')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'vpc', Value: 'abc' })
 
-  await hostFiltersVpcNameField.fill('def')
-  await page.getByRole('option', { name: 'Custom: def' }).click()
+  await fillAndSelect(hostFiltersVpcNameField, page, 'def', 'Custom: def')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'vpc', Value: 'def' })
 
@@ -376,8 +382,8 @@ test('firewall rule form hosts table', async ({ page }) => {
   await expectRowVisible(hosts, { Type: 'subnet', Value: 'mock-subnet' })
 
   await selectOption(page, 'Host type', 'VPC subnet')
-  await page.getByRole('combobox', { name: 'Subnet name' }).fill('abc')
-  await page.getByRole('option', { name: 'Custom: abc' }).click()
+  const subnetNameField2 = page.getByRole('combobox', { name: 'Subnet name' })
+  await fillAndSelect(subnetNameField2, page, 'abc', 'Custom: abc')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'subnet', Value: 'abc' })
 
@@ -435,8 +441,8 @@ test('can update firewall rule', async ({ page }) => {
 
   // add a new ICMP protocol filter with type 3 and code 0
   await selectOption(page, 'Protocol filters', 'ICMP')
-  await page.getByRole('combobox', { name: 'ICMP Type' }).fill('3')
-  await page.getByRole('option', { name: '3 - Destination Unreachable' }).click()
+  const icmpTypeField = page.getByRole('combobox', { name: 'ICMP Type' })
+  await fillAndSelect(icmpTypeField, page, '3', '3 - Destination Unreachable')
   await page.getByRole('textbox', { name: 'ICMP Code' }).fill('0')
   await page.getByRole('button', { name: 'Add protocol' }).click()
 
@@ -445,8 +451,8 @@ test('can update firewall rule', async ({ page }) => {
 
   // add host filter
   await selectOption(page, 'Host type', 'VPC subnet')
-  await page.getByRole('combobox', { name: 'Subnet name' }).fill('edit-filter-subnet')
-  await page.getByRole('option', { name: 'Custom: edit-filter-subnet' }).click()
+  const editSubnetField = page.getByRole('combobox', { name: 'Subnet name' })
+  await fillAndSelect(editSubnetField, page, 'edit-filter-subnet', 'Custom: edit-filter-subnet')
   await page.getByRole('button', { name: 'Add host filter' }).click()
 
   // new host is added to hosts table
