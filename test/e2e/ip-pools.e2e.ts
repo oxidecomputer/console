@@ -59,9 +59,9 @@ test.describe('german locale', () => {
     })
   })
 
-  test('IP pool CapacityBar renders bignum with correct locale', async ({ page }) => {
+  test('IP pool properties table renders bignum with correct locale', async ({ page }) => {
     await page.goto('/system/networking/ip-pools/ip-pool-4')
-    await expect(page.getByText('Capacity18,4e18')).toBeVisible()
+    await expect(page.getByText('18,4e18 / 18,4e18')).toBeVisible()
   })
 })
 
@@ -122,6 +122,65 @@ test('IP pool link silo', async ({ page }) => {
   // modal closes and we see the thing in the table
   await expect(modal).toBeHidden()
   await expectRowVisible(table, { Silo: 'thrax', 'Silo default': '' })
+})
+
+test('IP pool silo make default (no existing default)', async ({ page }) => {
+  // pelerines has ip-pool-1 linked but not as default, and has no v4 unicast default
+  await page.goto('/system/networking/ip-pools/ip-pool-1?tab=silos')
+
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { Silo: 'pelerines', 'Silo default': '' })
+
+  await clickRowAction(page, 'pelerines', 'Make default')
+
+  const dialog = page.getByRole('dialog', { name: 'Confirm make default' })
+  await expect(
+    dialog.getByText(
+      'Are you sure you want to make ip-pool-1 the default IPv4 unicast pool for silo pelerines?'
+    )
+  ).toBeVisible()
+
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expectRowVisible(table, { Silo: 'pelerines', 'Silo default': 'default' })
+})
+
+test('IP pool silo make default (with existing default)', async ({ page }) => {
+  // ip-pool-3 is linked to myriad but not as default; ip-pool-1 is the v4 unicast default for myriad
+  await page.goto('/system/networking/ip-pools/ip-pool-3?tab=silos')
+
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { Silo: 'myriad', 'Silo default': '' })
+
+  await clickRowAction(page, 'myriad', 'Make default')
+
+  const dialog = page.getByRole('dialog', { name: 'Confirm change default' })
+  await expect(
+    dialog.getByText(
+      'Are you sure you want to change the default IPv4 unicast pool for silo myriad from ip-pool-1 to ip-pool-3?'
+    )
+  ).toBeVisible()
+
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expectRowVisible(table, { Silo: 'myriad', 'Silo default': 'default' })
+})
+
+test('IP pool silo clear default', async ({ page }) => {
+  await page.goto('/system/networking/ip-pools/ip-pool-1?tab=silos')
+
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { Silo: 'maze-war', 'Silo default': 'default' })
+
+  await clickRowAction(page, 'maze-war', 'Clear default')
+
+  const dialog = page.getByRole('dialog', { name: 'Confirm clear default' })
+  await expect(
+    dialog.getByText(
+      'Are you sure you want ip-pool-1 to stop being the default IPv4 unicast pool for silo maze-war?'
+    )
+  ).toBeVisible()
+
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expectRowVisible(table, { Silo: 'maze-war', 'Silo default': '' })
 })
 
 test('IP pool delete from IP Pools list page', async ({ page }) => {
@@ -257,10 +316,8 @@ test('IP range validation and add', async ({ page }) => {
   const table = page.getByRole('table')
   await expectRowVisible(table, { First: v4Addr, Last: v4Addr })
 
-  // now the utilization bar shows the single IP added
-  await expect(page.getByText('Allocated(IPs)')).toBeVisible()
-  await expect(page.getByText('Allocated0')).toBeVisible()
-  await expect(page.getByText('Capacity1')).toBeVisible()
+  // now the properties table shows the single IP added
+  await expect(page.getByText('1 / 1')).toBeVisible()
 
   // go back to the pool and verify the remaining/capacity columns changed
   // use the sidebar nav to get there
@@ -333,10 +390,8 @@ test('remove range', async ({ page }) => {
   await expect(table.getByRole('cell', { name: '10.0.0.20' })).toBeHidden()
   await expect(table.getByRole('row')).toHaveCount(2)
 
-  // utilization updates
-  await expect(page.getByText('Allocated(IPs)')).toBeVisible()
-  await expect(page.getByText('Allocated8')).toBeVisible()
-  await expect(page.getByText('Capacity21')).toBeVisible()
+  // utilization updates in properties table
+  await expect(page.getByText('13 / 21')).toBeVisible()
 
   // go back to the pool and verify the remaining/capacity columns changed
   // use the topbar breadcrumb to get there
@@ -374,26 +429,16 @@ test('deleting floating IP decrements utilization', async ({ page }) => {
   })
 })
 
-test('no ranges means no utilization bar', async ({ page }) => {
-  await page.goto('/system/networking/ip-pools/ip-pool-1')
-  await expect(page.getByRole('heading', { name: 'ip-pool-1' })).toBeVisible()
-  await expect(page.getByText('Allocated(IPs)')).toBeVisible()
-
-  await page.goto('/system/networking/ip-pools/ip-pool-2')
-  await expect(page.getByRole('heading', { name: 'ip-pool-2' })).toBeVisible()
-  await expect(page.getByText('Allocated(IPs)')).toBeVisible()
-
+test('IPs remaining in properties table', async ({ page }) => {
+  // pool with no ranges shows 0 / 0
   await page.goto('/system/networking/ip-pools/ip-pool-3')
-  await expect(page.getByRole('heading', { name: 'ip-pool-3' })).toBeVisible()
-  await expect(page.getByText('Allocated(IPs)')).toBeHidden()
+  await expect(page.getByText('0 / 0')).toBeVisible()
 
+  // pool with ranges shows remaining / capacity
+  await page.goto('/system/networking/ip-pools/ip-pool-1')
+  await expect(page.getByText('16 / 24')).toBeVisible()
+
+  // large IPv6 pool shows abbreviated bignum
   await page.goto('/system/networking/ip-pools/ip-pool-4')
-  await expect(page.getByRole('heading', { name: 'ip-pool-4' })).toBeVisible()
-  await expect(page.getByText('Allocated(IPs)')).toBeVisible()
-
-  await clickRowAction(page, '::1', 'Remove')
-  const confirmModal = page.getByRole('dialog', { name: 'Confirm remove range' })
-  await confirmModal.getByRole('button', { name: 'Confirm' }).click()
-
-  await expect(page.getByText('Allocated(IPs)')).toBeHidden()
+  await expect(page.getByText('18.4e18 / 18.4e18')).toBeVisible()
 })

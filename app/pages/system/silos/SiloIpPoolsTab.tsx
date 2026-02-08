@@ -115,11 +115,13 @@ export default function SiloIpPoolsTab() {
   const { mutateAsync: updatePoolLink } = useApiMutation(api.ipPoolSiloUpdate, {
     onSuccess() {
       queryClient.invalidateEndpoint('siloIpPoolList')
+      queryClient.invalidateEndpoint('ipPoolSiloList')
     },
   })
   const { mutateAsync: unlinkPool } = useApiMutation(api.ipPoolSiloUnlink, {
     onSuccess() {
       queryClient.invalidateEndpoint('siloIpPoolList')
+      queryClient.invalidateEndpoint('ipPoolSiloList')
       // We only have the ID, so will show a generic confirmation message
       addToast({ content: 'IP pool unlinked' })
     },
@@ -132,6 +134,9 @@ export default function SiloIpPoolsTab() {
         label: pool.isDefault ? 'Clear default' : 'Make default',
         className: pool.isDefault ? 'destructive' : undefined,
         onActivate() {
+          const versionLabel = `IP${pool.ipVersion}`
+          const typeLabel = pool.poolType
+
           if (pool.isDefault) {
             confirmAction({
               doAction: () =>
@@ -142,9 +147,9 @@ export default function SiloIpPoolsTab() {
               modalTitle: 'Confirm clear default',
               modalContent: (
                 <p>
-                  Are you sure you want <HL>{pool.name}</HL> to stop being the default pool
-                  for this silo? If there is no default, users in this silo will have to
-                  specify a pool when allocating IPs.
+                  Are you sure you want <HL>{pool.name}</HL> to stop being the default{' '}
+                  {versionLabel} {typeLabel} pool for this silo? If there is no default,
+                  users in this silo will have to specify a pool when allocating IPs.
                 </p>
               ),
               errorTitle: 'Could not clear default',
@@ -152,8 +157,6 @@ export default function SiloIpPoolsTab() {
             })
           } else {
             const existingDefault = findDefaultForVersionType(pool.ipVersion, pool.poolType)
-            const versionLabel = `IP${pool.ipVersion}`
-            const typeLabel = pool.poolType
 
             const modalContent = existingDefault ? (
               <p>
@@ -237,6 +240,7 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
   const linkPool = useApiMutation(api.ipPoolSiloLink, {
     onSuccess() {
       queryClient.invalidateEndpoint('siloIpPoolList')
+      queryClient.invalidateEndpoint('ipPoolSiloList')
     },
     onError(err) {
       addToast({ title: 'Could not link pool', content: err.message, variant: 'error' })
