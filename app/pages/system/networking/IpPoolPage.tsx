@@ -266,6 +266,15 @@ function SiloNameFromId({ value: siloId }: { value: string }) {
 
 const silosColHelper = createColumnHelper<IpPoolSiloLink>()
 
+/** Look up silo name from query cache and return a label for use in modals. */
+function getSiloLabel(siloId: string) {
+  const siloName = queryClient.getQueryData<Silo>(siloView({ silo: siloId }).queryKey)?.name
+  // prettier-ignore
+  return siloName
+    ? <>silo <HL>{siloName}</HL></>
+    : 'that silo'
+}
+
 function LinkedSilosTable() {
   const poolSelector = useIpPoolSelector()
   const { data: pool } = usePrefetchedQuery(ipPoolView(poolSelector))
@@ -288,16 +297,7 @@ function LinkedSilosTable() {
         label: link.isDefault ? 'Clear default' : 'Make default',
         className: link.isDefault ? 'destructive' : undefined,
         onActivate() {
-          const silo = queryClient.getQueryData<Silo>(
-            siloView({ silo: link.siloId }).queryKey
-          )
-          // in order to hit this fallback, the user would have to have more
-          // than 1000 silos and be working on the 1001th
-          const siloName = silo?.name
-          // prettier-ignore
-          const siloLabel = siloName
-            ? <>silo <HL>{siloName}</HL></>
-            : 'that silo'
+          const siloLabel = getSiloLabel(link.siloId)
           const poolKind = `IP${pool.ipVersion} ${pool.poolType}`
 
           if (link.isDefault) {
@@ -372,15 +372,16 @@ function LinkedSilosTable() {
         label: 'Unlink',
         className: 'destructive',
         onActivate() {
+          const siloLabel = getSiloLabel(link.siloId)
           confirmAction({
             doAction: () =>
               unlinkSilo({ path: { silo: link.siloId, pool: link.ipPoolId } }),
             modalTitle: 'Confirm unlink silo',
             modalContent: (
               <p>
-                Are you sure you want to unlink the silo? Users in this silo will no longer
-                be able to allocate IPs from this pool. Unlink will fail if there are any
-                IPs from the pool in use in this silo.
+                Are you sure you want to unlink {siloLabel} from <HL>{pool.name}</HL>? Users
+                in the silo will no longer be able to allocate IPs from this pool. Unlink
+                will fail if there are any IPs from the pool in use in the silo.
               </p>
             ),
             errorTitle: 'Could not unlink silo',
