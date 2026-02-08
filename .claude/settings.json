@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | xargs ./node_modules/.bin/prettier --write --ignore-unknown",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
