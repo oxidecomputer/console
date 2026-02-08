@@ -21,6 +21,7 @@ import {
   usePrefetchedQuery,
   type IpPoolRange,
   type IpPoolSiloLink,
+  type Silo,
 } from '@oxide/api'
 import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
@@ -64,14 +65,25 @@ const ipPoolSiloList = ({ pool }: PP.IpPool) =>
   getListQFn(api.ipPoolSiloList, { path: { pool } })
 const ipPoolRangeList = ({ pool }: PP.IpPool) =>
   getListQFn(api.ipPoolRangeList, { path: { pool } })
-const siloList = q(api.siloList, { query: { limit: 200 } })
+const siloList = q(api.siloList, { query: { limit: ALL_ISH } })
 const siloView = ({ silo }: PP.Silo) => q(api.siloView, { path: { silo } })
+const siloIpPoolList = (silo: string) =>
+  q(api.siloIpPoolList, { path: { silo }, query: { limit: ALL_ISH } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const selector = getIpPoolSelector(params)
   await Promise.all([
     queryClient.prefetchQuery(ipPoolView(selector)),
-    queryClient.prefetchQuery(ipPoolSiloList(selector).optionsFn()),
+    // prefetch silo pool lists so "Make default" can show existing default name.
+    // fire-and-forget: don't block page load, the action handler fetches on
+    // demand if these haven't completed yet
+    queryClient.fetchQuery(ipPoolSiloList(selector).optionsFn()).then((links) => {
+      // only do first 50 to avoid kicking of a ridiculous number of requests if
+      // the user has 500 silos for some reason
+      for (const link of links.items.slice(0, 50)) {
+        queryClient.prefetchQuery(siloIpPoolList(link.siloId))
+      }
+    }),
     queryClient.prefetchQuery(ipPoolRangeList(selector).optionsFn()),
     queryClient.prefetchQuery(ipPoolUtilizationView(selector)),
 
@@ -275,11 +287,17 @@ function LinkedSilosTable() {
       {
         label: link.isDefault ? 'Clear default' : 'Make default',
         className: link.isDefault ? 'destructive' : undefined,
-        async onActivate() {
-          const silo = await queryClient.fetchQuery(
-            q(api.siloView, { path: { silo: link.siloId } })
+        onActivate() {
+          const silo = queryClient.getQueryData<Silo>(
+            siloView({ silo: link.siloId }).queryKey
           )
-
+          // in order to hit this fallback, the user would have to have more
+          // than 1000 silos and be working on the 1001th
+          const siloName = silo?.name
+          // prettier-ignore
+          const siloLabel = siloName
+            ? <>silo <HL>{siloName}</HL></>
+            : 'that silo'
           const poolKind = `IP${pool.ipVersion} ${pool.poolType}`
 
           if (link.isDefault) {
@@ -293,53 +311,60 @@ function LinkedSilosTable() {
               modalContent: (
                 <p>
                   Are you sure you want <HL>{pool.name}</HL> to stop being the default{' '}
-                  {poolKind} pool for silo <HL>{silo.name}</HL>? If there is no default,
-                  users in this silo will have to specify a pool when allocating IPs.
+                  {poolKind} pool for {siloLabel}? If there is no default, users in this
+                  silo will have to specify a pool when allocating IPs.
                 </p>
               ),
               errorTitle: 'Could not clear default',
               actionType: 'danger',
             })
           } else {
-            // find existing default for same version/type to warn the user
-            const siloPools = await queryClient.ensureQueryData(
-              q(api.siloIpPoolList, {
-                path: { silo: link.siloId },
-                query: { limit: ALL_ISH },
+            // fetch on demand (usually already cached by loader prefetch). on
+            // failure, fall back to simpler modal copy. don't await, handle
+            // errors internally to minimize blast radius of failure.
+            void queryClient
+              // ensureQueryData makes sure we use cached data, at the expense
+              // of it possibly being stale. but you can't even change a silo
+              // name, so it should be fine
+              .ensureQueryData(siloIpPoolList(link.siloId))
+              .catch(() => null)
+              .then((siloPools) => {
+                const existingDefaultName = siloPools?.items.find(
+                  (p) =>
+                    p.isDefault &&
+                    p.ipVersion === pool.ipVersion &&
+                    p.poolType === pool.poolType
+                )?.name
+
+                // all this conditional stuff is just to handle the remote but
+                // real possibility of the fetch failing
+                const modalContent = existingDefaultName ? (
+                  <p>
+                    Are you sure you want to change the default {poolKind} pool for{' '}
+                    {siloLabel} from <HL>{existingDefaultName}</HL> to <HL>{pool.name}</HL>?
+                  </p>
+                ) : (
+                  <p>
+                    Are you sure you want to make <HL>{pool.name}</HL> the default{' '}
+                    {poolKind} pool for {siloLabel}?
+                  </p>
+                )
+
+                const verb = existingDefaultName ? 'change' : 'make'
+                confirmAction({
+                  doAction: () =>
+                    updateSiloLink({
+                      path: { silo: link.siloId, pool: link.ipPoolId },
+                      body: { isDefault: true },
+                    }),
+                  modalTitle: `Confirm ${verb} default`,
+                  modalContent,
+                  errorTitle: `Could not ${verb} default`,
+                  actionType: 'primary',
+                })
               })
-            )
-            const existingDefault = siloPools.items.find(
-              (p) =>
-                p.isDefault &&
-                p.ipVersion === pool.ipVersion &&
-                p.poolType === pool.poolType
-            )
-
-            const modalContent = existingDefault ? (
-              <p>
-                Are you sure you want to change the default {poolKind} pool for silo{' '}
-                <HL>{silo.name}</HL> from <HL>{existingDefault.name}</HL> to{' '}
-                <HL>{pool.name}</HL>?
-              </p>
-            ) : (
-              <p>
-                Are you sure you want to make <HL>{pool.name}</HL> the default {poolKind}{' '}
-                pool for silo <HL>{silo.name}</HL>?
-              </p>
-            )
-
-            const verb = existingDefault ? 'change' : 'make'
-            confirmAction({
-              doAction: () =>
-                updateSiloLink({
-                  path: { silo: link.siloId, pool: link.ipPoolId },
-                  body: { isDefault: true },
-                }),
-              modalTitle: `Confirm ${verb} default`,
-              modalContent,
-              errorTitle: `Could not ${verb} default`,
-              actionType: 'primary',
-            })
+              // be extra sure we don't have any unhandled promise rejections
+              .catch(() => null)
           }
         },
       },
