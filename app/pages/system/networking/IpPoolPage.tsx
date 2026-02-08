@@ -280,6 +280,8 @@ function LinkedSilosTable() {
             q(api.siloView, { path: { silo: link.siloId } })
           )
 
+          const poolKind = `IP${pool.ipVersion} ${pool.poolType}`
+
           if (link.isDefault) {
             confirmAction({
               doAction: () =>
@@ -290,9 +292,9 @@ function LinkedSilosTable() {
               modalTitle: 'Confirm clear default',
               modalContent: (
                 <p>
-                  Are you sure you want <HL>{pool.name}</HL> to stop being the default pool
-                  for silo <HL>{silo.name}</HL>? If there is no default, users in this silo
-                  will have to specify a pool when allocating IPs.
+                  Are you sure you want <HL>{pool.name}</HL> to stop being the default{' '}
+                  {poolKind} pool for silo <HL>{silo.name}</HL>? If there is no default,
+                  users in this silo will have to specify a pool when allocating IPs.
                 </p>
               ),
               errorTitle: 'Could not clear default',
@@ -315,14 +317,14 @@ function LinkedSilosTable() {
 
             const modalContent = existingDefault ? (
               <p>
-                The current default pool for silo <HL>{silo.name}</HL> is{' '}
+                The current default {poolKind} pool for silo <HL>{silo.name}</HL> is{' '}
                 <HL>{existingDefault.name}</HL>. Are you sure you want to make{' '}
                 <HL>{pool.name}</HL> the default instead?
               </p>
             ) : (
               <p>
-                Are you sure you want to make <HL>{pool.name}</HL> the default pool for silo{' '}
-                <HL>{silo.name}</HL>?
+                Are you sure you want to make <HL>{pool.name}</HL> the default {poolKind}{' '}
+                pool for silo <HL>{silo.name}</HL>?
               </p>
             )
 

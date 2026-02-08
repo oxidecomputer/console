@@ -136,7 +136,7 @@ test('IP pool silo make default (no existing default)', async ({ page }) => {
   const dialog = page.getByRole('dialog', { name: 'Confirm make default' })
   await expect(
     dialog.getByText(
-      'Are you sure you want to make ip-pool-1 the default pool for silo pelerines?'
+      'Are you sure you want to make ip-pool-1 the default IPv4 unicast pool for silo pelerines?'
     )
   ).toBeVisible()
 
@@ -155,7 +155,7 @@ test('IP pool silo make default (with existing default)', async ({ page }) => {
 
   const dialog = page.getByRole('dialog', { name: 'Confirm change default' })
   await expect(
-    dialog.getByText('The current default pool for silo myriad is ip-pool-1.')
+    dialog.getByText('The current default IPv4 unicast pool for silo myriad is ip-pool-1.')
   ).toBeVisible()
 
   await page.getByRole('button', { name: 'Confirm' }).click()
@@ -173,7 +173,7 @@ test('IP pool silo clear default', async ({ page }) => {
   const dialog = page.getByRole('dialog', { name: 'Confirm clear default' })
   await expect(
     dialog.getByText(
-      'Are you sure you want ip-pool-1 to stop being the default pool for silo maze-war?'
+      'Are you sure you want ip-pool-1 to stop being the default IPv4 unicast pool for silo maze-war?'
     )
   ).toBeVisible()
 

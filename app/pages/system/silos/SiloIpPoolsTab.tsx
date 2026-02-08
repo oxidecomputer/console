@@ -132,6 +132,9 @@ export default function SiloIpPoolsTab() {
         label: pool.isDefault ? 'Clear default' : 'Make default',
         className: pool.isDefault ? 'destructive' : undefined,
         onActivate() {
+          const versionLabel = `IP${pool.ipVersion}`
+          const typeLabel = pool.poolType
+
           if (pool.isDefault) {
             confirmAction({
               doAction: () =>
@@ -142,9 +145,9 @@ export default function SiloIpPoolsTab() {
               modalTitle: 'Confirm clear default',
               modalContent: (
                 <p>
-                  Are you sure you want <HL>{pool.name}</HL> to stop being the default pool
-                  for this silo? If there is no default, users in this silo will have to
-                  specify a pool when allocating IPs.
+                  Are you sure you want <HL>{pool.name}</HL> to stop being the default{' '}
+                  {versionLabel} {typeLabel} pool for this silo? If there is no default,
+                  users in this silo will have to specify a pool when allocating IPs.
                 </p>
               ),
               errorTitle: 'Could not clear default',
@@ -152,8 +155,6 @@ export default function SiloIpPoolsTab() {
             })
           } else {
             const existingDefault = findDefaultForVersionType(pool.ipVersion, pool.poolType)
-            const versionLabel = `IP${pool.ipVersion}`
-            const typeLabel = pool.poolType
 
             const modalContent = existingDefault ? (
               <p>
