@@ -124,6 +124,63 @@ test('IP pool link silo', async ({ page }) => {
   await expectRowVisible(table, { Silo: 'thrax', 'Silo default': '' })
 })
 
+test('IP pool silo make default (no existing default)', async ({ page }) => {
+  // pelerines has ip-pool-1 linked but not as default, and has no v4 unicast default
+  await page.goto('/system/networking/ip-pools/ip-pool-1?tab=silos')
+
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { Silo: 'pelerines', 'Silo default': '' })
+
+  await clickRowAction(page, 'pelerines', 'Make default')
+
+  const dialog = page.getByRole('dialog', { name: 'Confirm make default' })
+  await expect(
+    dialog.getByText(
+      'Are you sure you want to make ip-pool-1 the default pool for silo pelerines?'
+    )
+  ).toBeVisible()
+
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expectRowVisible(table, { Silo: 'pelerines', 'Silo default': 'default' })
+})
+
+test('IP pool silo make default (with existing default)', async ({ page }) => {
+  // ip-pool-3 is linked to myriad but not as default; ip-pool-1 is the v4 unicast default for myriad
+  await page.goto('/system/networking/ip-pools/ip-pool-3?tab=silos')
+
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { Silo: 'myriad', 'Silo default': '' })
+
+  await clickRowAction(page, 'myriad', 'Make default')
+
+  const dialog = page.getByRole('dialog', { name: 'Confirm change default' })
+  await expect(
+    dialog.getByText('The current default pool for silo myriad is ip-pool-1.')
+  ).toBeVisible()
+
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expectRowVisible(table, { Silo: 'myriad', 'Silo default': 'default' })
+})
+
+test('IP pool silo clear default', async ({ page }) => {
+  await page.goto('/system/networking/ip-pools/ip-pool-1?tab=silos')
+
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { Silo: 'maze-war', 'Silo default': 'default' })
+
+  await clickRowAction(page, 'maze-war', 'Clear default')
+
+  const dialog = page.getByRole('dialog', { name: 'Confirm clear default' })
+  await expect(
+    dialog.getByText(
+      'Are you sure you want ip-pool-1 to stop being the default pool for silo maze-war?'
+    )
+  ).toBeVisible()
+
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expectRowVisible(table, { Silo: 'maze-war', 'Silo default': '' })
+})
+
 test('IP pool delete from IP Pools list page', async ({ page }) => {
   await page.goto('/system/networking/ip-pools')
 

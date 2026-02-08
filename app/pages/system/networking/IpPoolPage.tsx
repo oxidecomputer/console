@@ -258,15 +258,91 @@ const silosColHelper = createColumnHelper<IpPoolSiloLink>()
 
 function LinkedSilosTable() {
   const poolSelector = useIpPoolSelector()
+  const { data: pool } = usePrefetchedQuery(ipPoolView(poolSelector))
 
   const { mutateAsync: unlinkSilo } = useApiMutation(api.ipPoolSiloUnlink, {
     onSuccess() {
       queryClient.invalidateEndpoint('ipPoolSiloList')
     },
   })
+  const { mutateAsync: updateSiloLink } = useApiMutation(api.ipPoolSiloUpdate, {
+    onSuccess() {
+      queryClient.invalidateEndpoint('ipPoolSiloList')
+      queryClient.invalidateEndpoint('siloIpPoolList')
+    },
+  })
 
   const makeActions = useCallback(
     (link: IpPoolSiloLink): MenuAction[] => [
+      {
+        label: link.isDefault ? 'Clear default' : 'Make default',
+        className: link.isDefault ? 'destructive' : undefined,
+        async onActivate() {
+          const silo = await queryClient.fetchQuery(
+            q(api.siloView, { path: { silo: link.siloId } })
+          )
+
+          if (link.isDefault) {
+            confirmAction({
+              doAction: () =>
+                updateSiloLink({
+                  path: { silo: link.siloId, pool: link.ipPoolId },
+                  body: { isDefault: false },
+                }),
+              modalTitle: 'Confirm clear default',
+              modalContent: (
+                <p>
+                  Are you sure you want <HL>{pool.name}</HL> to stop being the default pool
+                  for silo <HL>{silo.name}</HL>? If there is no default, users in this silo
+                  will have to specify a pool when allocating IPs.
+                </p>
+              ),
+              errorTitle: 'Could not clear default',
+              actionType: 'danger',
+            })
+          } else {
+            // find existing default for same version/type to warn the user
+            const siloPools = await queryClient.ensureQueryData(
+              q(api.siloIpPoolList, {
+                path: { silo: link.siloId },
+                query: { limit: ALL_ISH },
+              })
+            )
+            const existingDefault = siloPools.items.find(
+              (p) =>
+                p.isDefault &&
+                p.ipVersion === pool.ipVersion &&
+                p.poolType === pool.poolType
+            )
+
+            const modalContent = existingDefault ? (
+              <p>
+                The current default pool for silo <HL>{silo.name}</HL> is{' '}
+                <HL>{existingDefault.name}</HL>. Are you sure you want to make{' '}
+                <HL>{pool.name}</HL> the default instead?
+              </p>
+            ) : (
+              <p>
+                Are you sure you want to make <HL>{pool.name}</HL> the default pool for silo{' '}
+                <HL>{silo.name}</HL>?
+              </p>
+            )
+
+            const verb = existingDefault ? 'change' : 'make'
+            confirmAction({
+              doAction: () =>
+                updateSiloLink({
+                  path: { silo: link.siloId, pool: link.ipPoolId },
+                  body: { isDefault: true },
+                }),
+              modalTitle: `Confirm ${verb} default`,
+              modalContent,
+              errorTitle: `Could not ${verb} default`,
+              actionType: 'primary',
+            })
+          }
+        },
+      },
       {
         label: 'Unlink',
         className: 'destructive',
@@ -275,11 +351,6 @@ function LinkedSilosTable() {
             doAction: () =>
               unlinkSilo({ path: { silo: link.siloId, pool: link.ipPoolId } }),
             modalTitle: 'Confirm unlink silo',
-            // Would be nice to reference the silo by name like we reference the
-            // pool by name on unlink in the silo pools list, but it's a pain to
-            // get the name here. Could use useQueries to get all the names, and
-            // RQ would dedupe the requests since they're already being fetched
-            // for the table. Not worth it right now.
             modalContent: (
               <p>
                 Are you sure you want to unlink the silo? Users in this silo will no longer
@@ -293,7 +364,7 @@ function LinkedSilosTable() {
         },
       },
     ],
-    [unlinkSilo]
+    [pool, unlinkSilo, updateSiloLink]
   )
 
   const [showLinkModal, setShowLinkModal] = useState(false)
