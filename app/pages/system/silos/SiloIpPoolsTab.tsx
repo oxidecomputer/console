@@ -115,11 +115,13 @@ export default function SiloIpPoolsTab() {
   const { mutateAsync: updatePoolLink } = useApiMutation(api.ipPoolSiloUpdate, {
     onSuccess() {
       queryClient.invalidateEndpoint('siloIpPoolList')
+      queryClient.invalidateEndpoint('ipPoolSiloList')
     },
   })
   const { mutateAsync: unlinkPool } = useApiMutation(api.ipPoolSiloUnlink, {
     onSuccess() {
       queryClient.invalidateEndpoint('siloIpPoolList')
+      queryClient.invalidateEndpoint('ipPoolSiloList')
       // We only have the ID, so will show a generic confirmation message
       addToast({ content: 'IP pool unlinked' })
     },
@@ -238,6 +240,7 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
   const linkPool = useApiMutation(api.ipPoolSiloLink, {
     onSuccess() {
       queryClient.invalidateEndpoint('siloIpPoolList')
+      queryClient.invalidateEndpoint('ipPoolSiloList')
     },
     onError(err) {
       addToast({ title: 'Could not link pool', content: err.message, variant: 'error' })
