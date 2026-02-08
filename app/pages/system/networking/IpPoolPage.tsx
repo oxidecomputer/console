@@ -317,9 +317,9 @@ function LinkedSilosTable() {
 
             const modalContent = existingDefault ? (
               <p>
-                The current default {poolKind} pool for silo <HL>{silo.name}</HL> is{' '}
-                <HL>{existingDefault.name}</HL>. Are you sure you want to make{' '}
-                <HL>{pool.name}</HL> the default instead?
+                Are you sure you want to change the default {poolKind} pool for silo{' '}
+                <HL>{silo.name}</HL> from <HL>{existingDefault.name}</HL> to{' '}
+                <HL>{pool.name}</HL>?
               </p>
             ) : (
               <p>

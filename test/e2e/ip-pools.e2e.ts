@@ -155,7 +155,9 @@ test('IP pool silo make default (with existing default)', async ({ page }) => {
 
   const dialog = page.getByRole('dialog', { name: 'Confirm change default' })
   await expect(
-    dialog.getByText('The current default IPv4 unicast pool for silo myriad is ip-pool-1.')
+    dialog.getByText(
+      'Are you sure you want to change the default IPv4 unicast pool for silo myriad from ip-pool-1 to ip-pool-3?'
+    )
   ).toBeVisible()
 
   await page.getByRole('button', { name: 'Confirm' }).click()
