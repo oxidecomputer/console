@@ -59,9 +59,9 @@ test.describe('german locale', () => {
     })
   })
 
-  test('IP pool CapacityBar renders bignum with correct locale', async ({ page }) => {
+  test('IP pool properties table renders bignum with correct locale', async ({ page }) => {
     await page.goto('/system/networking/ip-pools/ip-pool-4')
-    await expect(page.getByText('Capacity18,4e18')).toBeVisible()
+    await expect(page.getByText('18,4e18 / 18,4e18')).toBeVisible()
   })
 })
 
@@ -314,10 +314,8 @@ test('IP range validation and add', async ({ page }) => {
   const table = page.getByRole('table')
   await expectRowVisible(table, { First: v4Addr, Last: v4Addr })
 
-  // now the utilization bar shows the single IP added
-  await expect(page.getByText('Allocated(IPs)')).toBeVisible()
-  await expect(page.getByText('Allocated0')).toBeVisible()
-  await expect(page.getByText('Capacity1')).toBeVisible()
+  // now the properties table shows the single IP added
+  await expect(page.getByText('1 / 1')).toBeVisible()
 
   // go back to the pool and verify the remaining/capacity columns changed
   // use the sidebar nav to get there
@@ -390,10 +388,8 @@ test('remove range', async ({ page }) => {
   await expect(table.getByRole('cell', { name: '10.0.0.20' })).toBeHidden()
   await expect(table.getByRole('row')).toHaveCount(2)
 
-  // utilization updates
-  await expect(page.getByText('Allocated(IPs)')).toBeVisible()
-  await expect(page.getByText('Allocated8')).toBeVisible()
-  await expect(page.getByText('Capacity21')).toBeVisible()
+  // utilization updates in properties table
+  await expect(page.getByText('13 / 21')).toBeVisible()
 
   // go back to the pool and verify the remaining/capacity columns changed
   // use the topbar breadcrumb to get there
@@ -431,26 +427,16 @@ test('deleting floating IP decrements utilization', async ({ page }) => {
   })
 })
 
-test('no ranges means no utilization bar', async ({ page }) => {
-  await page.goto('/system/networking/ip-pools/ip-pool-1')
-  await expect(page.getByRole('heading', { name: 'ip-pool-1' })).toBeVisible()
-  await expect(page.getByText('Allocated(IPs)')).toBeVisible()
-
-  await page.goto('/system/networking/ip-pools/ip-pool-2')
-  await expect(page.getByRole('heading', { name: 'ip-pool-2' })).toBeVisible()
-  await expect(page.getByText('Allocated(IPs)')).toBeVisible()
-
+test('IPs remaining in properties table', async ({ page }) => {
+  // pool with no ranges shows 0 / 0
   await page.goto('/system/networking/ip-pools/ip-pool-3')
-  await expect(page.getByRole('heading', { name: 'ip-pool-3' })).toBeVisible()
-  await expect(page.getByText('Allocated(IPs)')).toBeHidden()
+  await expect(page.getByText('0 / 0')).toBeVisible()
 
+  // pool with ranges shows remaining / capacity
+  await page.goto('/system/networking/ip-pools/ip-pool-1')
+  await expect(page.getByText('16 / 24')).toBeVisible()
+
+  // large IPv6 pool shows abbreviated bignum
   await page.goto('/system/networking/ip-pools/ip-pool-4')
-  await expect(page.getByRole('heading', { name: 'ip-pool-4' })).toBeVisible()
-  await expect(page.getByText('Allocated(IPs)')).toBeVisible()
-
-  await clickRowAction(page, '::1', 'Remove')
-  const confirmModal = page.getByRole('dialog', { name: 'Confirm remove range' })
-  await confirmModal.getByRole('button', { name: 'Confirm' }).click()
-
-  await expect(page.getByText('Allocated(IPs)')).toBeHidden()
+  await expect(page.getByText('18.4e18 / 18.4e18')).toBeVisible()
 })

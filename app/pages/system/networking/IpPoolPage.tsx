@@ -25,10 +25,10 @@ import {
 import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
-import { CapacityBar } from '~/components/CapacityBar'
 import { DocsPopover } from '~/components/DocsPopover'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
+import { IpVersionBadge } from '~/components/IpVersionBadge'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { makeCrumb } from '~/hooks/use-crumbs'
@@ -41,6 +41,7 @@ import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
+import { BigNum } from '~/ui/lib/BigNum'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { CreateButton, CreateLink } from '~/ui/lib/CreateButton'
 import * as Dropdown from '~/ui/lib/DropdownMenu'
@@ -48,6 +49,7 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { Tabs } from '~/ui/lib/Tabs'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { ALL_ISH } from '~/util/consts'
@@ -129,7 +131,7 @@ export default function IpPoolpage() {
           </MoreActionsMenu>
         </div>
       </PageHeader>
-      <UtilizationBars />
+      <PoolProperties />
       <QueryParamTabs className="full-width" defaultValue="ranges">
         <Tabs.List>
           <Tabs.Trigger value="ranges">IP ranges</Tabs.Trigger>
@@ -147,34 +149,30 @@ export default function IpPoolpage() {
   )
 }
 
-function UtilizationBars() {
+function PoolProperties() {
   const poolSelector = useIpPoolSelector()
-  const { data } = usePrefetchedQuery(ipPoolUtilizationView(poolSelector))
-  const { capacity, remaining } = data
-
-  if (capacity === 0) return null
+  const { data: pool } = usePrefetchedQuery(ipPoolView(poolSelector))
+  const { data: utilization } = usePrefetchedQuery(ipPoolUtilizationView(poolSelector))
 
   return (
-    <div className="1000:flex-row -mt-8 mb-8 flex min-w-min flex-col gap-3">
-      {capacity > 0 && (
-        <CapacityBar
-          icon={<IpGlobal16Icon />}
-          title="ALLOCATED"
-          // TODO: this is potentially broken in the case of large IPv6 numbers
-          // due to lack of full precision. This should be fine and useful
-          // for IPv4 pools, but for IPv6 we should probably just show the two
-          // numbers. For now there are no IPv6 pools.
-          // https://github.com/oxidecomputer/omicron/issues/8966
-          // https://github.com/oxidecomputer/omicron/issues/9004
-          provisioned={Math.max(capacity - remaining, 0)}
-          capacity={capacity}
-          provisionedLabel="Allocated"
-          capacityLabel="Capacity"
-          unit="IPs"
-          includeUnit={false}
-        />
-      )}
-    </div>
+    <PropertiesTable columns={2} className="-mt-8 mb-8">
+      <PropertiesTable.IdRow id={pool.id} />
+      <PropertiesTable.DescriptionRow description={pool.description} />
+      <PropertiesTable.Row label="IP version">
+        <IpVersionBadge ipVersion={pool.ipVersion} />
+      </PropertiesTable.Row>
+      <PropertiesTable.Row label="Type">
+        <Badge color="neutral">{pool.poolType}</Badge>
+      </PropertiesTable.Row>
+      <PropertiesTable.Row label="IPs remaining">
+        <span>
+          <BigNum className="text-raise" num={utilization.remaining} />
+          {' / '}
+          <BigNum className="text-secondary" num={utilization.capacity} />
+        </span>
+      </PropertiesTable.Row>
+      <PropertiesTable.DateRow date={pool.timeCreated} label="Created" />
+    </PropertiesTable>
   )
 }
 
@@ -391,8 +389,8 @@ function LinkedSilosTable() {
             <span className="inline-flex items-center gap-2">
               Silo default
               <TipIcon>
-                IPs are allocated from the default pool when users ask for an IP without
-                specifying a pool
+                When no pool is specified, IPs are allocated from the silo's default pool
+                for the relevant version and type.
               </TipIcon>
             </span>
           )
