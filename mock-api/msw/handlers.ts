@@ -1074,8 +1074,12 @@ export const handlers = makeHandlers({
 
     return json(instance, { status: 202 })
   },
-  systemIpPoolList: ({ query }) => paginated(query, db.ipPools),
-  systemIpPoolUtilizationView({ path }) {
+  systemIpPoolList: ({ query, cookies }) => {
+    requireFleetViewer(cookies)
+    return paginated(query, db.ipPools)
+  },
+  systemIpPoolUtilizationView({ path, cookies }) {
+    requireFleetViewer(cookies)
     // note: a given pool is either all IPv4 or all IPv6, but the logic is the
     // same. we do everything in bigints and then convert to float at the end,
     // like the API
@@ -1112,7 +1116,8 @@ export const handlers = makeHandlers({
       remaining: Number(exactRemaining),
     }
   },
-  siloIpPoolList({ path, query }) {
+  siloIpPoolList({ path, query, cookies }) {
+    requireFleetViewer(cookies)
     const pools = lookup.siloIpPools(path)
     return paginated(query, pools)
   },
@@ -1125,9 +1130,12 @@ export const handlers = makeHandlers({
     const user = currentUser(cookies)
     return lookup.siloIpPool({ pool, silo: user.silo_id })
   },
-  // TODO: require admin permissions for system IP pool endpoints
-  systemIpPoolView: ({ path }) => lookup.ipPool(path),
-  systemIpPoolSiloList({ path /*query*/ }) {
+  systemIpPoolView: ({ path, cookies }) => {
+    requireFleetViewer(cookies)
+    return lookup.ipPool(path)
+  },
+  systemIpPoolSiloList({ path, cookies /*query*/ }) {
+    requireFleetViewer(cookies)
     // TODO: paginated wants an id field, but this is a join table, so it  has a
     // composite pk
     // return paginated(query, db.ipPoolResources)
@@ -1136,7 +1144,8 @@ export const handlers = makeHandlers({
     const assocs = db.ipPoolSilos.filter((ipr) => ipr.ip_pool_id === pool.id)
     return { items: assocs }
   },
-  systemIpPoolSiloLink({ path, body }) {
+  systemIpPoolSiloLink({ path, body, cookies }) {
+    requireFleetAdmin(cookies)
     const pool = lookup.ipPool(path)
     const silo_id = lookup.silo({ silo: body.silo }).id
 
@@ -1156,7 +1165,8 @@ export const handlers = makeHandlers({
 
     return assoc
   },
-  systemIpPoolSiloUnlink({ path }) {
+  systemIpPoolSiloUnlink({ path, cookies }) {
+    requireFleetAdmin(cookies)
     const pool = lookup.ipPool(path)
     const silo = lookup.silo(path)
 
@@ -1167,7 +1177,8 @@ export const handlers = makeHandlers({
 
     return 204
   },
-  systemIpPoolSiloUpdate: ({ path, body }) => {
+  systemIpPoolSiloUpdate: ({ path, body, cookies }) => {
+    requireFleetAdmin(cookies)
     const ipPoolSilo = lookup.ipPoolSiloLink(path)
 
     // if we're setting default, we need to set is_default false on the existing default
@@ -1196,12 +1207,14 @@ export const handlers = makeHandlers({
 
     return ipPoolSilo
   },
-  systemIpPoolRangeList({ path, query }) {
+  systemIpPoolRangeList({ path, query, cookies }) {
+    requireFleetViewer(cookies)
     const pool = lookup.ipPool(path)
     const ranges = db.ipPoolRanges.filter((r) => r.ip_pool_id === pool.id)
     return paginated(query, ranges)
   },
-  systemIpPoolRangeAdd({ path, body }) {
+  systemIpPoolRangeAdd({ path, body, cookies }) {
+    requireFleetAdmin(cookies)
     const pool = lookup.ipPool(path)
 
     // TODO: reject IPv6 ranges to match API behavior, but designate a special
@@ -1219,7 +1232,8 @@ export const handlers = makeHandlers({
 
     return json(newRange, { status: 201 })
   },
-  systemIpPoolRangeRemove({ path, body }) {
+  systemIpPoolRangeRemove({ path, body, cookies }) {
+    requireFleetAdmin(cookies)
     const pool = lookup.ipPool(path)
 
     // TODO: use ips in range helpers to refuse to remove a range with IPs
@@ -1241,7 +1255,8 @@ export const handlers = makeHandlers({
 
     return 204
   },
-  systemIpPoolCreate({ body }) {
+  systemIpPoolCreate({ body, cookies }) {
+    requireFleetAdmin(cookies)
     errIfExists(db.ipPools, { name: body.name }, 'IP pool')
 
     const newPool: Json<Api.IpPool> = {
@@ -1261,7 +1276,8 @@ export const handlers = makeHandlers({
 
     return json(newPool, { status: 201 })
   },
-  systemIpPoolDelete({ path }) {
+  systemIpPoolDelete({ path, cookies }) {
+    requireFleetAdmin(cookies)
     const pool = lookup.ipPool(path)
 
     if (db.ipPoolRanges.some((r) => r.ip_pool_id === pool.id)) {
@@ -1274,7 +1290,8 @@ export const handlers = makeHandlers({
 
     return 204
   },
-  systemIpPoolUpdate({ path, body }) {
+  systemIpPoolUpdate({ path, body, cookies }) {
+    requireFleetAdmin(cookies)
     const pool = lookup.ipPool(path)
 
     if (body.name) {
