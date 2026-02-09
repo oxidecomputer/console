@@ -90,15 +90,14 @@ export default function IpPoolAddRange() {
   const { pool } = useIpPoolSelector()
   const navigate = useNavigate()
 
-  const { data: poolData } = usePrefetchedQuery(q(api.ipPoolView, { path: { pool } }))
+  const { data: poolData } = usePrefetchedQuery(q(api.systemIpPoolView, { path: { pool } }))
 
   const onDismiss = () => navigate(pb.ipPool({ pool }))
 
-  const addRange = useApiMutation(api.ipPoolRangeAdd, {
+  const addRange = useApiMutation(api.systemIpPoolRangeAdd, {
     onSuccess(_range) {
-      // refetch list of projects in sidebar
-      queryClient.invalidateEndpoint('ipPoolRangeList')
-      queryClient.invalidateEndpoint('ipPoolUtilizationView')
+      queryClient.invalidateEndpoint('systemIpPoolRangeList')
+      queryClient.invalidateEndpoint('systemIpPoolUtilizationView')
       addToast({ content: 'IP range added' })
       onDismiss()
     },

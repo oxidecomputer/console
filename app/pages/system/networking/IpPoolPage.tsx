@@ -58,13 +58,13 @@ import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
-const ipPoolView = ({ pool }: PP.IpPool) => q(api.ipPoolView, { path: { pool } })
+const ipPoolView = ({ pool }: PP.IpPool) => q(api.systemIpPoolView, { path: { pool } })
 const ipPoolUtilizationView = ({ pool }: PP.IpPool) =>
-  q(api.ipPoolUtilizationView, { path: { pool } })
+  q(api.systemIpPoolUtilizationView, { path: { pool } })
 const ipPoolSiloList = ({ pool }: PP.IpPool) =>
-  getListQFn(api.ipPoolSiloList, { path: { pool } })
+  getListQFn(api.systemIpPoolSiloList, { path: { pool } })
 const ipPoolRangeList = ({ pool }: PP.IpPool) =>
-  getListQFn(api.ipPoolRangeList, { path: { pool } })
+  getListQFn(api.systemIpPoolRangeList, { path: { pool } })
 const siloList = q(api.siloList, { query: { limit: ALL_ISH } })
 const siloView = ({ silo }: PP.Silo) => q(api.siloView, { path: { silo } })
 const siloIpPoolList = (silo: string) =>
@@ -106,9 +106,9 @@ export default function IpPoolpage() {
   const { data: pool } = usePrefetchedQuery(ipPoolView(poolSelector))
   const { data: ranges } = usePrefetchedQuery(ipPoolRangeList(poolSelector).optionsFn())
   const navigate = useNavigate()
-  const { mutateAsync: deletePool } = useApiMutation(api.ipPoolDelete, {
+  const { mutateAsync: deletePool } = useApiMutation(api.systemIpPoolDelete, {
     onSuccess(_data, variables) {
-      queryClient.invalidateEndpoint('ipPoolList')
+      queryClient.invalidateEndpoint('systemIpPoolList')
       navigate(pb.ipPools())
       // prettier-ignore
       addToast(<>Pool <HL>{variables.path.pool}</HL> deleted</>)
@@ -198,10 +198,10 @@ const ipRangesStaticCols = [
 function IpRangesTable() {
   const { pool } = useIpPoolSelector()
 
-  const { mutateAsync: removeRange } = useApiMutation(api.ipPoolRangeRemove, {
+  const { mutateAsync: removeRange } = useApiMutation(api.systemIpPoolRangeRemove, {
     onSuccess() {
-      queryClient.invalidateEndpoint('ipPoolRangeList')
-      queryClient.invalidateEndpoint('ipPoolUtilizationView')
+      queryClient.invalidateEndpoint('systemIpPoolRangeList')
+      queryClient.invalidateEndpoint('systemIpPoolUtilizationView')
     },
   })
   const emptyState = (
@@ -279,14 +279,14 @@ function LinkedSilosTable() {
   const poolSelector = useIpPoolSelector()
   const { data: pool } = usePrefetchedQuery(ipPoolView(poolSelector))
 
-  const { mutateAsync: unlinkSilo } = useApiMutation(api.ipPoolSiloUnlink, {
+  const { mutateAsync: unlinkSilo } = useApiMutation(api.systemIpPoolSiloUnlink, {
     onSuccess() {
-      queryClient.invalidateEndpoint('ipPoolSiloList')
+      queryClient.invalidateEndpoint('systemIpPoolSiloList')
     },
   })
-  const { mutateAsync: updateSiloLink } = useApiMutation(api.ipPoolSiloUpdate, {
+  const { mutateAsync: updateSiloLink } = useApiMutation(api.systemIpPoolSiloUpdate, {
     onSuccess() {
-      queryClient.invalidateEndpoint('ipPoolSiloList')
+      queryClient.invalidateEndpoint('systemIpPoolSiloList')
       queryClient.invalidateEndpoint('siloIpPoolList')
     },
   })
@@ -458,9 +458,9 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
   const { pool } = useIpPoolSelector()
   const { control, handleSubmit } = useForm({ defaultValues })
 
-  const linkSilo = useApiMutation(api.ipPoolSiloLink, {
+  const linkSilo = useApiMutation(api.systemIpPoolSiloLink, {
     onSuccess() {
-      queryClient.invalidateEndpoint('ipPoolSiloList')
+      queryClient.invalidateEndpoint('systemIpPoolSiloList')
     },
     onError(err) {
       addToast({ title: 'Could not link silo', content: err.message, variant: 'error' })
@@ -474,7 +474,7 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
   }
 
   const linkedSilos = useQuery(
-    q(api.ipPoolSiloList, { path: { pool }, query: { limit: ALL_ISH } })
+    q(api.systemIpPoolSiloList, { path: { pool }, query: { limit: ALL_ISH } })
   )
   const allSilos = useQuery(q(api.siloList, { query: { limit: ALL_ISH } }))
 
