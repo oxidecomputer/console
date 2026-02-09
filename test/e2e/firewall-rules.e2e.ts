@@ -8,7 +8,20 @@
 
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
-import { clickRowAction, expectRowVisible, selectOption, sleep } from './utils'
+import { clickRowAction, expectRowVisible, selectOption } from './utils'
+
+/**
+ * Fill a combobox and click a dropdown option. Scrolls the combobox toward the
+ * center of the viewport first so the Floating UI anchored dropdown has room to
+ * render on-screen. Without this, Safari/WebKit can place the dropdown outside
+ * the viewport when the combobox is near the bottom of a tall form, causing
+ * Playwright's click to fail.
+ */
+async function fillAndSelect(input: Locator, page: Page, text: string, optionName: string) {
+  await input.evaluate((el) => el.scrollIntoView({ block: 'center' }))
+  await input.fill(text)
+  await page.getByRole('option', { name: optionName }).click()
+}
 
 const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp']
 
@@ -149,13 +162,7 @@ const deleteRowAndVerifyRowCount = async (table: Locator, expectedCount: number)
   await expect(rows).toHaveCount(expectedCount)
 }
 
-test('firewall rule form targets table', async ({ page, browserName }) => {
-  // eslint-disable-next-line playwright/no-skipped-test
-  test.skip(
-    browserName === 'firefox',
-    'This test flakes too much in Firefox and we are totally changing this form very soon.'
-  )
-
+test('firewall rule form targets table', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc')
   await page.getByRole('tab', { name: 'Firewall Rules' }).click()
 
@@ -172,21 +179,12 @@ test('firewall rule form targets table', async ({ page, browserName }) => {
 
   // add targets with overlapping names and types to test delete
 
-  await targetVpcNameField.fill('abc')
-  // hit enter one time to choose the custom value
-  await targetVpcNameField.press('Enter')
-
-  // pressing enter twice here in quick succession causes test flake in firefox
-  // specifically and this fixes it
-  await sleep(300)
-
-  // hit enter a second time to submit the subform
-  await targetVpcNameField.press('Enter')
+  await fillAndSelect(targetVpcNameField, page, 'abc', 'Custom: abc')
+  await addButton.click()
   await expectRowVisible(targets, { Type: 'vpc', Value: 'abc' })
 
   // enter a VPC called 'mock-subnet', even if that doesn't make sense here, to test dropdown later
-  await targetVpcNameField.fill('mock-subnet')
-  await targetVpcNameField.press('Enter')
+  await fillAndSelect(targetVpcNameField, page, 'mock-subnet', 'mock-subnet')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'vpc', Value: 'mock-subnet' })
 
@@ -206,15 +204,8 @@ test('firewall rule form targets table', async ({ page, browserName }) => {
   // now add a subnet by entering text
   await selectOption(page, 'Target type', 'VPC subnet')
   // test that the name typed in is normalized
-  await subnetNameField.fill('abc-123')
-  // hit enter to submit the subform
-  await subnetNameField.press('Enter')
-
-  // pressing enter twice here in quick succession causes test flake in firefox
-  // specifically and this fixes it
-  await sleep(300)
-
-  await subnetNameField.press('Enter')
+  await fillAndSelect(subnetNameField, page, 'abc-123', 'Custom: abc-123')
+  await addButton.click()
   await expectRowVisible(targets, { Type: 'subnet', Value: 'abc-123' })
 
   // add IP target
@@ -246,8 +237,7 @@ test('firewall rule form target validation', async ({ page }) => {
 
   // Enter invalid VPC name
   const vpcNameField = page.getByRole('combobox', { name: 'VPC name' }).first()
-  await vpcNameField.fill('ab-')
-  await vpcNameField.press('Enter')
+  await fillAndSelect(vpcNameField, page, 'ab-', 'Custom: ab-')
   await addButton.click()
   await expect(nameError).toBeVisible()
 
@@ -311,8 +301,7 @@ test('firewall rule form host validation', async ({ page }) => {
 
   // Enter invalid VPC name
   const vpcNameField = page.getByRole('combobox', { name: 'VPC name' }).nth(1)
-  await vpcNameField.fill('ab-')
-  await vpcNameField.press('Enter')
+  await fillAndSelect(vpcNameField, page, 'ab-', 'Custom: ab-')
   await addButton.click()
   await expect(nameError).toBeVisible()
 
@@ -379,13 +368,11 @@ test('firewall rule form hosts table', async ({ page }) => {
 
   // add hosts with overlapping names and types to test delete
 
-  await hostFiltersVpcNameField.fill('abc')
-  await hostFiltersVpcNameField.press('Enter')
+  await fillAndSelect(hostFiltersVpcNameField, page, 'abc', 'Custom: abc')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'vpc', Value: 'abc' })
 
-  await hostFiltersVpcNameField.fill('def')
-  await hostFiltersVpcNameField.press('Enter')
+  await fillAndSelect(hostFiltersVpcNameField, page, 'def', 'Custom: def')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'vpc', Value: 'def' })
 
@@ -395,8 +382,8 @@ test('firewall rule form hosts table', async ({ page }) => {
   await expectRowVisible(hosts, { Type: 'subnet', Value: 'mock-subnet' })
 
   await selectOption(page, 'Host type', 'VPC subnet')
-  await page.getByRole('combobox', { name: 'Subnet name' }).fill('abc')
-  await page.getByRole('combobox', { name: 'Subnet name' }).press('Enter')
+  const subnetNameField2 = page.getByRole('combobox', { name: 'Subnet name' })
+  await fillAndSelect(subnetNameField2, page, 'abc', 'Custom: abc')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'subnet', Value: 'abc' })
 
@@ -454,8 +441,8 @@ test('can update firewall rule', async ({ page }) => {
 
   // add a new ICMP protocol filter with type 3 and code 0
   await selectOption(page, 'Protocol filters', 'ICMP')
-  await page.getByRole('combobox', { name: 'ICMP Type' }).fill('3')
-  await page.getByRole('combobox', { name: 'ICMP Type' }).press('Enter')
+  const icmpTypeField = page.getByRole('combobox', { name: 'ICMP Type' })
+  await fillAndSelect(icmpTypeField, page, '3', '3 - Destination Unreachable')
   await page.getByRole('textbox', { name: 'ICMP Code' }).fill('0')
   await page.getByRole('button', { name: 'Add protocol' }).click()
 
@@ -464,9 +451,13 @@ test('can update firewall rule', async ({ page }) => {
 
   // add host filter
   await selectOption(page, 'Host type', 'VPC subnet')
-  await page.getByRole('combobox', { name: 'Subnet name' }).fill('edit-filter-subnet')
-  await page.getByRole('combobox', { name: 'Subnet name' }).press('Enter')
-  await page.getByRole('combobox', { name: 'Subnet name' }).blur()
+  const editSubnetField = page.getByRole('combobox', { name: 'Subnet name' })
+  await fillAndSelect(
+    editSubnetField,
+    page,
+    'edit-filter-subnet',
+    'Custom: edit-filter-subnet'
+  )
   await page.getByRole('button', { name: 'Add host filter' }).click()
 
   // new host is added to hosts table
@@ -668,6 +659,32 @@ test('arbitrary values combobox', async ({ page }) => {
   await expect(error).toBeHidden()
   await page.getByRole('button', { name: 'Add protocol filter' }).click()
   await expect(error).toBeVisible()
+})
+
+// Regression test: when typing a partial match in an arbitrary-values combobox,
+// arrowing to a dropdown option, and pressing Enter, the selected option's value
+// should end up in the field — not the raw typed query.
+test('combobox Enter selects highlighted item, not raw query', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules-new')
+
+  const targets = page.getByRole('table', { name: 'Targets' })
+  const vpcInput = page.getByRole('combobox', { name: 'VPC name' }).first()
+
+  // Type "mock" — dropdown shows mock-vpc and Custom: mock
+  await vpcInput.fill('mock')
+  await expect(page.getByRole('option', { name: 'mock-vpc' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'Custom: mock' })).toBeVisible()
+
+  // Arrow up to highlight mock-vpc and press Enter to select it
+  await page.keyboard.press('ArrowUp')
+  await page.keyboard.press('Enter')
+
+  // The selected value should be mock-vpc, not the raw query "mock"
+  await expect(vpcInput).toHaveValue('mock-vpc')
+
+  // Verify it can be submitted to the targets table
+  await page.getByRole('button', { name: 'Add target' }).click()
+  await expectRowVisible(targets, { Type: 'vpc', Value: 'mock-vpc' })
 })
 
 test("esc in combobox doesn't close form", async ({ page }) => {
