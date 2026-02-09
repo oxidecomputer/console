@@ -39,9 +39,9 @@ export default function CreateIpPoolSideModalForm() {
 
   const onDismiss = () => navigate(pb.ipPools())
 
-  const createPool = useApiMutation(api.ipPoolCreate, {
+  const createPool = useApiMutation(api.systemIpPoolCreate, {
     onSuccess(_pool) {
-      queryClient.invalidateEndpoint('ipPoolList')
+      queryClient.invalidateEndpoint('systemIpPoolList')
       // prettier-ignore
       addToast(<>IP pool <HL>{_pool.name}</HL> created</>)
       navigate(pb.ipPools())

@@ -1074,8 +1074,8 @@ export const handlers = makeHandlers({
 
     return json(instance, { status: 202 })
   },
-  ipPoolList: ({ query }) => paginated(query, db.ipPools),
-  ipPoolUtilizationView({ path }) {
+  systemIpPoolList: ({ query }) => paginated(query, db.ipPools),
+  systemIpPoolUtilizationView({ path }) {
     // note: a given pool is either all IPv4 or all IPv6, but the logic is the
     // same. we do everything in bigints and then convert to float at the end,
     // like the API
@@ -1116,18 +1116,18 @@ export const handlers = makeHandlers({
     const pools = lookup.siloIpPools(path)
     return paginated(query, pools)
   },
-  projectIpPoolList({ query, cookies }) {
+  ipPoolList({ query, cookies }) {
     const user = currentUser(cookies)
     const pools = lookup.siloIpPools({ silo: user.silo_id })
     return paginated(query, pools)
   },
-  projectIpPoolView: ({ path: { pool }, cookies }) => {
+  ipPoolView: ({ path: { pool }, cookies }) => {
     const user = currentUser(cookies)
     return lookup.siloIpPool({ pool, silo: user.silo_id })
   },
   // TODO: require admin permissions for system IP pool endpoints
-  ipPoolView: ({ path }) => lookup.ipPool(path),
-  ipPoolSiloList({ path /*query*/ }) {
+  systemIpPoolView: ({ path }) => lookup.ipPool(path),
+  systemIpPoolSiloList({ path /*query*/ }) {
     // TODO: paginated wants an id field, but this is a join table, so it  has a
     // composite pk
     // return paginated(query, db.ipPoolResources)
@@ -1136,7 +1136,7 @@ export const handlers = makeHandlers({
     const assocs = db.ipPoolSilos.filter((ipr) => ipr.ip_pool_id === pool.id)
     return { items: assocs }
   },
-  ipPoolSiloLink({ path, body }) {
+  systemIpPoolSiloLink({ path, body }) {
     const pool = lookup.ipPool(path)
     const silo_id = lookup.silo({ silo: body.silo }).id
 
@@ -1156,7 +1156,7 @@ export const handlers = makeHandlers({
 
     return assoc
   },
-  ipPoolSiloUnlink({ path }) {
+  systemIpPoolSiloUnlink({ path }) {
     const pool = lookup.ipPool(path)
     const silo = lookup.silo(path)
 
@@ -1167,7 +1167,7 @@ export const handlers = makeHandlers({
 
     return 204
   },
-  ipPoolSiloUpdate: ({ path, body }) => {
+  systemIpPoolSiloUpdate: ({ path, body }) => {
     const ipPoolSilo = lookup.ipPoolSiloLink(path)
 
     // if we're setting default, we need to set is_default false on the existing default
@@ -1196,12 +1196,12 @@ export const handlers = makeHandlers({
 
     return ipPoolSilo
   },
-  ipPoolRangeList({ path, query }) {
+  systemIpPoolRangeList({ path, query }) {
     const pool = lookup.ipPool(path)
     const ranges = db.ipPoolRanges.filter((r) => r.ip_pool_id === pool.id)
     return paginated(query, ranges)
   },
-  ipPoolRangeAdd({ path, body }) {
+  systemIpPoolRangeAdd({ path, body }) {
     const pool = lookup.ipPool(path)
 
     // TODO: reject IPv6 ranges to match API behavior, but designate a special
@@ -1219,7 +1219,7 @@ export const handlers = makeHandlers({
 
     return json(newRange, { status: 201 })
   },
-  ipPoolRangeRemove({ path, body }) {
+  systemIpPoolRangeRemove({ path, body }) {
     const pool = lookup.ipPool(path)
 
     // TODO: use ips in range helpers to refuse to remove a range with IPs
@@ -1241,7 +1241,7 @@ export const handlers = makeHandlers({
 
     return 204
   },
-  ipPoolCreate({ body }) {
+  systemIpPoolCreate({ body }) {
     errIfExists(db.ipPools, { name: body.name }, 'IP pool')
 
     const newPool: Json<Api.IpPool> = {
@@ -1261,7 +1261,7 @@ export const handlers = makeHandlers({
 
     return json(newPool, { status: 201 })
   },
-  ipPoolDelete({ path }) {
+  systemIpPoolDelete({ path }) {
     const pool = lookup.ipPool(path)
 
     if (db.ipPoolRanges.some((r) => r.ip_pool_id === pool.id)) {
@@ -1274,7 +1274,7 @@ export const handlers = makeHandlers({
 
     return 204
   },
-  ipPoolUpdate({ path, body }) {
+  systemIpPoolUpdate({ path, body }) {
     const pool = lookup.ipPool(path)
 
     if (body.name) {
@@ -2186,7 +2186,8 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
-  currentSiloSubnetPoolList: NotImplemented,
+  subnetPoolList: NotImplemented,
+  subnetPoolView: NotImplemented,
   externalSubnetList: NotImplemented,
   externalSubnetCreate: NotImplemented,
   externalSubnetView: NotImplemented,
@@ -2207,10 +2208,10 @@ export const handlers = makeHandlers({
   internetGatewayIpAddressDelete: NotImplemented,
   internetGatewayIpPoolCreate: NotImplemented,
   internetGatewayIpPoolDelete: NotImplemented,
-  ipPoolServiceRangeAdd: NotImplemented,
-  ipPoolServiceRangeList: NotImplemented,
-  ipPoolServiceRangeRemove: NotImplemented,
-  ipPoolServiceView: NotImplemented,
+  systemIpPoolServiceRangeAdd: NotImplemented,
+  systemIpPoolServiceRangeList: NotImplemented,
+  systemIpPoolServiceRangeRemove: NotImplemented,
+  systemIpPoolServiceView: NotImplemented,
   localIdpUserCreate: NotImplemented,
   localIdpUserDelete: NotImplemented,
   localIdpUserSetPassword: NotImplemented,
@@ -2272,19 +2273,19 @@ export const handlers = makeHandlers({
   sledAdd: NotImplemented,
   sledListUninitialized: NotImplemented,
   sledSetProvisionPolicy: NotImplemented,
-  subnetPoolCreate: NotImplemented,
-  subnetPoolDelete: NotImplemented,
-  subnetPoolList: NotImplemented,
-  subnetPoolMemberAdd: NotImplemented,
-  subnetPoolMemberList: NotImplemented,
-  subnetPoolMemberRemove: NotImplemented,
-  subnetPoolSiloLink: NotImplemented,
-  subnetPoolSiloList: NotImplemented,
-  subnetPoolSiloUnlink: NotImplemented,
-  subnetPoolSiloUpdate: NotImplemented,
-  subnetPoolUpdate: NotImplemented,
-  subnetPoolUtilizationView: NotImplemented,
-  subnetPoolView: NotImplemented,
+  systemSubnetPoolCreate: NotImplemented,
+  systemSubnetPoolDelete: NotImplemented,
+  systemSubnetPoolList: NotImplemented,
+  systemSubnetPoolMemberAdd: NotImplemented,
+  systemSubnetPoolMemberList: NotImplemented,
+  systemSubnetPoolMemberRemove: NotImplemented,
+  systemSubnetPoolSiloLink: NotImplemented,
+  systemSubnetPoolSiloList: NotImplemented,
+  systemSubnetPoolSiloUnlink: NotImplemented,
+  systemSubnetPoolSiloUpdate: NotImplemented,
+  systemSubnetPoolUpdate: NotImplemented,
+  systemSubnetPoolUtilizationView: NotImplemented,
+  systemSubnetPoolView: NotImplemented,
   supportBundleCreate: NotImplemented,
   supportBundleDelete: NotImplemented,
   supportBundleDownload: NotImplemented,

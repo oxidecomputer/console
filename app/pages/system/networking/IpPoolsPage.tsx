@@ -45,7 +45,7 @@ const EmptyState = () => (
 )
 
 function UtilizationCell({ pool }: { pool: string }) {
-  const { data } = useQuery(q(api.ipPoolUtilizationView, { path: { pool } }))
+  const { data } = useQuery(q(api.systemIpPoolUtilizationView, { path: { pool } }))
   if (!data) return <SkeletonCell />
   return (
     <div>
@@ -76,7 +76,7 @@ const staticColumns = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-const ipPoolList = getListQFn(api.ipPoolList, {})
+const ipPoolList = getListQFn(api.systemIpPoolList, {})
 
 export async function clientLoader() {
   await queryClient.prefetchQuery(ipPoolList.optionsFn())
@@ -88,9 +88,9 @@ export const handle = { crumb: 'IP Pools' }
 export default function IpPoolsPage() {
   const navigate = useNavigate()
 
-  const { mutateAsync: deletePool } = useApiMutation(api.ipPoolDelete, {
+  const { mutateAsync: deletePool } = useApiMutation(api.systemIpPoolDelete, {
     onSuccess(_data, variables) {
-      queryClient.invalidateEndpoint('ipPoolList')
+      queryClient.invalidateEndpoint('systemIpPoolList')
       // prettier-ignore
       addToast(<>Pool <HL>{variables.path.pool}</HL> deleted</>)
     },
@@ -103,7 +103,7 @@ export default function IpPoolsPage() {
         onActivate: () => {
           // the edit view has its own loader, but we can make the modal open
           // instantaneously by preloading the fetch result
-          const ipPoolView = q(api.ipPoolView, { path: { pool: pool.name } })
+          const ipPoolView = q(api.systemIpPoolView, { path: { pool: pool.name } })
           queryClient.setQueryData(ipPoolView.queryKey, pool)
           navigate(pb.ipPoolEdit({ pool: pool.name }))
         },
