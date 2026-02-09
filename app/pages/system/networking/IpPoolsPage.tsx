@@ -134,7 +134,7 @@ export default function IpPoolsPage() {
       () => [
         {
           value: 'New IP pool',
-          onSelect: () => navigate(pb.projectsNew()),
+          onSelect: () => navigate(pb.ipPoolsNew()),
         },
         ...(pools?.items || []).map((p) => ({
           value: p.name,
