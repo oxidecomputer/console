@@ -231,7 +231,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     queryClient.prefetchQuery(q(api.imageList, {})),
     queryClient.prefetchQuery(q(api.diskList, { query: { project, limit: ALL_ISH } })),
     queryClient.prefetchQuery(q(api.currentUserSshKeyList, {})),
-    queryClient.prefetchQuery(q(api.projectIpPoolList, { query: { limit: ALL_ISH } })),
+    queryClient.prefetchQuery(q(api.ipPoolList, { query: { limit: ALL_ISH } })),
     queryClient.prefetchQuery(
       q(api.floatingIpList, { query: { project, limit: ALL_ISH } })
     ),
@@ -278,9 +278,9 @@ export default function CreateInstanceForm() {
   const { data: sshKeys } = usePrefetchedQuery(q(api.currentUserSshKeyList, {}))
   const allKeys = useMemo(() => sshKeys.items.map((key) => key.id), [sshKeys])
 
-  // projectIpPoolList fetches the pools linked to the current silo
+  // ipPoolList fetches the pools linked to the current silo
   const { data: siloPools } = usePrefetchedQuery(
-    q(api.projectIpPoolList, { query: { limit: ALL_ISH } })
+    q(api.ipPoolList, { query: { limit: ALL_ISH } })
   )
 
   // Only unicast pools can be used for ephemeral IPs. Sort once here so

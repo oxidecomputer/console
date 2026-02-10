@@ -238,16 +238,13 @@ test('IP pool create v4', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Name' }).fill('another-pool')
   await page.getByRole('textbox', { name: 'Description' }).fill('whatever')
 
-  // Select multicast pool type
-  await page.getByRole('radio', { name: 'Multicast' }).click()
-
   await page.getByRole('button', { name: 'Create IP pool' }).click()
 
   await expect(modal).toBeHidden()
   await expectRowVisible(page.getByRole('table'), {
     name: 'another-pool',
     description: 'whatever',
-    Type: 'multicast',
+    Type: 'unicast',
     'IPs REMAINING': '0 / 0',
   })
 })

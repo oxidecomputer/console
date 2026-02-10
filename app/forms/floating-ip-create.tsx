@@ -32,7 +32,7 @@ import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-const poolList = q(api.projectIpPoolList, { query: { limit: ALL_ISH } })
+const poolList = q(api.ipPoolList, { query: { limit: ALL_ISH } })
 
 export async function clientLoader() {
   await queryClient.prefetchQuery(poolList)
@@ -60,7 +60,7 @@ export default function CreateFloatingIpSideModalForm() {
   const createFloatingIp = useApiMutation(api.floatingIpCreate, {
     onSuccess(floatingIp) {
       queryClient.invalidateEndpoint('floatingIpList')
-      queryClient.invalidateEndpoint('ipPoolUtilizationView')
+      queryClient.invalidateEndpoint('systemIpPoolUtilizationView')
       // prettier-ignore
       addToast(<>Floating IP <HL>{floatingIp.name}</HL> created</>)
       navigate(pb.floatingIps(projectSelector))

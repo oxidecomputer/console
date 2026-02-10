@@ -6496,13 +6496,13 @@ export interface InternetGatewayDeleteQueryParams {
   vpc?: NameOrId
 }
 
-export interface ProjectIpPoolListQueryParams {
+export interface IpPoolListQueryParams {
   limit?: number | null
   pageToken?: string | null
   sortBy?: NameOrIdSortMode
 }
 
-export interface ProjectIpPoolViewPathParams {
+export interface IpPoolViewPathParams {
   pool: NameOrId
 }
 
@@ -6666,10 +6666,14 @@ export interface SnapshotDeleteQueryParams {
   project?: NameOrId
 }
 
-export interface CurrentSiloSubnetPoolListQueryParams {
+export interface SubnetPoolListQueryParams {
   limit?: number | null
   pageToken?: string | null
   sortBy?: NameOrIdSortMode
+}
+
+export interface SubnetPoolViewPathParams {
+  pool: NameOrId
 }
 
 export interface AuditLogListQueryParams {
@@ -6868,70 +6872,70 @@ export interface SamlIdentityProviderViewQueryParams {
   silo?: NameOrId
 }
 
-export interface IpPoolListQueryParams {
+export interface SystemIpPoolListQueryParams {
   limit?: number | null
   pageToken?: string | null
   sortBy?: NameOrIdSortMode
 }
 
-export interface IpPoolViewPathParams {
+export interface SystemIpPoolViewPathParams {
   pool: NameOrId
 }
 
-export interface IpPoolUpdatePathParams {
+export interface SystemIpPoolUpdatePathParams {
   pool: NameOrId
 }
 
-export interface IpPoolDeletePathParams {
+export interface SystemIpPoolDeletePathParams {
   pool: NameOrId
 }
 
-export interface IpPoolRangeListPathParams {
+export interface SystemIpPoolRangeListPathParams {
   pool: NameOrId
 }
 
-export interface IpPoolRangeListQueryParams {
+export interface SystemIpPoolRangeListQueryParams {
   limit?: number | null
   pageToken?: string | null
 }
 
-export interface IpPoolRangeAddPathParams {
+export interface SystemIpPoolRangeAddPathParams {
   pool: NameOrId
 }
 
-export interface IpPoolRangeRemovePathParams {
+export interface SystemIpPoolRangeRemovePathParams {
   pool: NameOrId
 }
 
-export interface IpPoolSiloListPathParams {
+export interface SystemIpPoolSiloListPathParams {
   pool: NameOrId
 }
 
-export interface IpPoolSiloListQueryParams {
+export interface SystemIpPoolSiloListQueryParams {
   limit?: number | null
   pageToken?: string | null
   sortBy?: IdSortMode
 }
 
-export interface IpPoolSiloLinkPathParams {
+export interface SystemIpPoolSiloLinkPathParams {
   pool: NameOrId
 }
 
-export interface IpPoolSiloUpdatePathParams {
-  pool: NameOrId
-  silo: NameOrId
-}
-
-export interface IpPoolSiloUnlinkPathParams {
+export interface SystemIpPoolSiloUpdatePathParams {
   pool: NameOrId
   silo: NameOrId
 }
 
-export interface IpPoolUtilizationViewPathParams {
+export interface SystemIpPoolSiloUnlinkPathParams {
+  pool: NameOrId
+  silo: NameOrId
+}
+
+export interface SystemIpPoolUtilizationViewPathParams {
   pool: NameOrId
 }
 
-export interface IpPoolServiceRangeListQueryParams {
+export interface SystemIpPoolServiceRangeListQueryParams {
   limit?: number | null
   pageToken?: string | null
 }
@@ -7113,66 +7117,66 @@ export interface SiloSubnetPoolListQueryParams {
   sortBy?: NameOrIdSortMode
 }
 
-export interface SubnetPoolListQueryParams {
+export interface SystemSubnetPoolListQueryParams {
   limit?: number | null
   pageToken?: string | null
   sortBy?: NameOrIdSortMode
 }
 
-export interface SubnetPoolViewPathParams {
+export interface SystemSubnetPoolViewPathParams {
   pool: NameOrId
 }
 
-export interface SubnetPoolUpdatePathParams {
+export interface SystemSubnetPoolUpdatePathParams {
   pool: NameOrId
 }
 
-export interface SubnetPoolDeletePathParams {
+export interface SystemSubnetPoolDeletePathParams {
   pool: NameOrId
 }
 
-export interface SubnetPoolMemberListPathParams {
+export interface SystemSubnetPoolMemberListPathParams {
   pool: NameOrId
 }
 
-export interface SubnetPoolMemberListQueryParams {
+export interface SystemSubnetPoolMemberListQueryParams {
   limit?: number | null
   pageToken?: string | null
 }
 
-export interface SubnetPoolMemberAddPathParams {
+export interface SystemSubnetPoolMemberAddPathParams {
   pool: NameOrId
 }
 
-export interface SubnetPoolMemberRemovePathParams {
+export interface SystemSubnetPoolMemberRemovePathParams {
   pool: NameOrId
 }
 
-export interface SubnetPoolSiloListPathParams {
+export interface SystemSubnetPoolSiloListPathParams {
   pool: NameOrId
 }
 
-export interface SubnetPoolSiloListQueryParams {
+export interface SystemSubnetPoolSiloListQueryParams {
   limit?: number | null
   pageToken?: string | null
   sortBy?: IdSortMode
 }
 
-export interface SubnetPoolSiloLinkPathParams {
+export interface SystemSubnetPoolSiloLinkPathParams {
   pool: NameOrId
 }
 
-export interface SubnetPoolSiloUpdatePathParams {
-  pool: NameOrId
-  silo: NameOrId
-}
-
-export interface SubnetPoolSiloUnlinkPathParams {
+export interface SystemSubnetPoolSiloUpdatePathParams {
   pool: NameOrId
   silo: NameOrId
 }
 
-export interface SubnetPoolUtilizationViewPathParams {
+export interface SystemSubnetPoolSiloUnlinkPathParams {
+  pool: NameOrId
+  silo: NameOrId
+}
+
+export interface SystemSubnetPoolUtilizationViewPathParams {
   pool: NameOrId
 }
 
@@ -7500,7 +7504,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2026020600.0.0'
+  apiVersion = '2026020900.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host
@@ -9435,8 +9439,8 @@ export class Api {
     /**
      * List IP pools
      */
-    projectIpPoolList: (
-      { query = {} }: { query?: ProjectIpPoolListQueryParams },
+    ipPoolList: (
+      { query = {} }: { query?: IpPoolListQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<SiloIpPoolResultsPage>({
@@ -9449,10 +9453,7 @@ export class Api {
     /**
      * Fetch IP pool
      */
-    projectIpPoolView: (
-      { path }: { path: ProjectIpPoolViewPathParams },
-      params: FetchParams = {}
-    ) => {
+    ipPoolView: ({ path }: { path: IpPoolViewPathParams }, params: FetchParams = {}) => {
       return this.request<SiloIpPool>({
         path: `/v1/ip-pools/${path.pool}`,
         method: 'GET',
@@ -9931,16 +9932,29 @@ export class Api {
       })
     },
     /**
-     * List subnet pools linked to the user's current silo
+     * List subnet pools
      */
-    currentSiloSubnetPoolList: (
-      { query = {} }: { query?: CurrentSiloSubnetPoolListQueryParams },
+    subnetPoolList: (
+      { query = {} }: { query?: SubnetPoolListQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<SiloSubnetPoolResultsPage>({
         path: `/v1/subnet-pools`,
         method: 'GET',
         query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch subnet pool
+     */
+    subnetPoolView: (
+      { path }: { path: SubnetPoolViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloSubnetPool>({
+        path: `/v1/subnet-pools/${path.pool}`,
+        method: 'GET',
         ...params,
       })
     },
@@ -10430,8 +10444,8 @@ export class Api {
     /**
      * List IP pools
      */
-    ipPoolList: (
-      { query = {} }: { query?: IpPoolListQueryParams },
+    systemIpPoolList: (
+      { query = {} }: { query?: SystemIpPoolListQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<IpPoolResultsPage>({
@@ -10444,7 +10458,7 @@ export class Api {
     /**
      * Create IP pool
      */
-    ipPoolCreate: ({ body }: { body: IpPoolCreate }, params: FetchParams = {}) => {
+    systemIpPoolCreate: ({ body }: { body: IpPoolCreate }, params: FetchParams = {}) => {
       return this.request<IpPool>({
         path: `/v1/system/ip-pools`,
         method: 'POST',
@@ -10455,7 +10469,10 @@ export class Api {
     /**
      * Fetch IP pool
      */
-    ipPoolView: ({ path }: { path: IpPoolViewPathParams }, params: FetchParams = {}) => {
+    systemIpPoolView: (
+      { path }: { path: SystemIpPoolViewPathParams },
+      params: FetchParams = {}
+    ) => {
       return this.request<IpPool>({
         path: `/v1/system/ip-pools/${path.pool}`,
         method: 'GET',
@@ -10465,8 +10482,8 @@ export class Api {
     /**
      * Update IP pool
      */
-    ipPoolUpdate: (
-      { path, body }: { path: IpPoolUpdatePathParams; body: IpPoolUpdate },
+    systemIpPoolUpdate: (
+      { path, body }: { path: SystemIpPoolUpdatePathParams; body: IpPoolUpdate },
       params: FetchParams = {}
     ) => {
       return this.request<IpPool>({
@@ -10479,8 +10496,8 @@ export class Api {
     /**
      * Delete IP pool
      */
-    ipPoolDelete: (
-      { path }: { path: IpPoolDeletePathParams },
+    systemIpPoolDelete: (
+      { path }: { path: SystemIpPoolDeletePathParams },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -10492,11 +10509,14 @@ export class Api {
     /**
      * List ranges for IP pool
      */
-    ipPoolRangeList: (
+    systemIpPoolRangeList: (
       {
         path,
         query = {},
-      }: { path: IpPoolRangeListPathParams; query?: IpPoolRangeListQueryParams },
+      }: {
+        path: SystemIpPoolRangeListPathParams
+        query?: SystemIpPoolRangeListQueryParams
+      },
       params: FetchParams = {}
     ) => {
       return this.request<IpPoolRangeResultsPage>({
@@ -10507,10 +10527,10 @@ export class Api {
       })
     },
     /**
-     * Add range to an IP pool
+     * Add range to IP pool
      */
-    ipPoolRangeAdd: (
-      { path, body }: { path: IpPoolRangeAddPathParams; body: IpRange },
+    systemIpPoolRangeAdd: (
+      { path, body }: { path: SystemIpPoolRangeAddPathParams; body: IpRange },
       params: FetchParams = {}
     ) => {
       return this.request<IpPoolRange>({
@@ -10523,8 +10543,8 @@ export class Api {
     /**
      * Remove range from IP pool
      */
-    ipPoolRangeRemove: (
-      { path, body }: { path: IpPoolRangeRemovePathParams; body: IpRange },
+    systemIpPoolRangeRemove: (
+      { path, body }: { path: SystemIpPoolRangeRemovePathParams; body: IpRange },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -10537,11 +10557,11 @@ export class Api {
     /**
      * List IP pool's linked silos
      */
-    ipPoolSiloList: (
+    systemIpPoolSiloList: (
       {
         path,
         query = {},
-      }: { path: IpPoolSiloListPathParams; query?: IpPoolSiloListQueryParams },
+      }: { path: SystemIpPoolSiloListPathParams; query?: SystemIpPoolSiloListQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<IpPoolSiloLinkResultsPage>({
@@ -10554,8 +10574,8 @@ export class Api {
     /**
      * Link IP pool to silo
      */
-    ipPoolSiloLink: (
-      { path, body }: { path: IpPoolSiloLinkPathParams; body: IpPoolLinkSilo },
+    systemIpPoolSiloLink: (
+      { path, body }: { path: SystemIpPoolSiloLinkPathParams; body: IpPoolLinkSilo },
       params: FetchParams = {}
     ) => {
       return this.request<IpPoolSiloLink>({
@@ -10568,8 +10588,8 @@ export class Api {
     /**
      * Make IP pool default for silo
      */
-    ipPoolSiloUpdate: (
-      { path, body }: { path: IpPoolSiloUpdatePathParams; body: IpPoolSiloUpdate },
+    systemIpPoolSiloUpdate: (
+      { path, body }: { path: SystemIpPoolSiloUpdatePathParams; body: IpPoolSiloUpdate },
       params: FetchParams = {}
     ) => {
       return this.request<IpPoolSiloLink>({
@@ -10582,8 +10602,8 @@ export class Api {
     /**
      * Unlink IP pool from silo
      */
-    ipPoolSiloUnlink: (
-      { path }: { path: IpPoolSiloUnlinkPathParams },
+    systemIpPoolSiloUnlink: (
+      { path }: { path: SystemIpPoolSiloUnlinkPathParams },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -10595,8 +10615,8 @@ export class Api {
     /**
      * Fetch IP pool utilization
      */
-    ipPoolUtilizationView: (
-      { path }: { path: IpPoolUtilizationViewPathParams },
+    systemIpPoolUtilizationView: (
+      { path }: { path: SystemIpPoolUtilizationViewPathParams },
       params: FetchParams = {}
     ) => {
       return this.request<IpPoolUtilization>({
@@ -10608,7 +10628,7 @@ export class Api {
     /**
      * Fetch Oxide service IP pool
      */
-    ipPoolServiceView: (_: EmptyObj, params: FetchParams = {}) => {
+    systemIpPoolServiceView: (_: EmptyObj, params: FetchParams = {}) => {
       return this.request<IpPool>({
         path: `/v1/system/ip-pools-service`,
         method: 'GET',
@@ -10618,8 +10638,8 @@ export class Api {
     /**
      * List IP ranges for the Oxide service pool
      */
-    ipPoolServiceRangeList: (
-      { query = {} }: { query?: IpPoolServiceRangeListQueryParams },
+    systemIpPoolServiceRangeList: (
+      { query = {} }: { query?: SystemIpPoolServiceRangeListQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<IpPoolRangeResultsPage>({
@@ -10632,7 +10652,10 @@ export class Api {
     /**
      * Add IP range to Oxide service pool
      */
-    ipPoolServiceRangeAdd: ({ body }: { body: IpRange }, params: FetchParams = {}) => {
+    systemIpPoolServiceRangeAdd: (
+      { body }: { body: IpRange },
+      params: FetchParams = {}
+    ) => {
       return this.request<IpPoolRange>({
         path: `/v1/system/ip-pools-service/ranges/add`,
         method: 'POST',
@@ -10643,7 +10666,10 @@ export class Api {
     /**
      * Remove IP range from Oxide service pool
      */
-    ipPoolServiceRangeRemove: ({ body }: { body: IpRange }, params: FetchParams = {}) => {
+    systemIpPoolServiceRangeRemove: (
+      { body }: { body: IpRange },
+      params: FetchParams = {}
+    ) => {
       return this.request<void>({
         path: `/v1/system/ip-pools-service/ranges/remove`,
         method: 'POST',
@@ -11298,8 +11324,8 @@ export class Api {
     /**
      * List subnet pools
      */
-    subnetPoolList: (
-      { query = {} }: { query?: SubnetPoolListQueryParams },
+    systemSubnetPoolList: (
+      { query = {} }: { query?: SystemSubnetPoolListQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<SubnetPoolResultsPage>({
@@ -11310,9 +11336,12 @@ export class Api {
       })
     },
     /**
-     * Create a subnet pool
+     * Create subnet pool
      */
-    subnetPoolCreate: ({ body }: { body: SubnetPoolCreate }, params: FetchParams = {}) => {
+    systemSubnetPoolCreate: (
+      { body }: { body: SubnetPoolCreate },
+      params: FetchParams = {}
+    ) => {
       return this.request<SubnetPool>({
         path: `/v1/system/subnet-pools`,
         method: 'POST',
@@ -11321,10 +11350,10 @@ export class Api {
       })
     },
     /**
-     * Fetch a subnet pool
+     * Fetch subnet pool
      */
-    subnetPoolView: (
-      { path }: { path: SubnetPoolViewPathParams },
+    systemSubnetPoolView: (
+      { path }: { path: SystemSubnetPoolViewPathParams },
       params: FetchParams = {}
     ) => {
       return this.request<SubnetPool>({
@@ -11334,10 +11363,10 @@ export class Api {
       })
     },
     /**
-     * Update a subnet pool
+     * Update subnet pool
      */
-    subnetPoolUpdate: (
-      { path, body }: { path: SubnetPoolUpdatePathParams; body: SubnetPoolUpdate },
+    systemSubnetPoolUpdate: (
+      { path, body }: { path: SystemSubnetPoolUpdatePathParams; body: SubnetPoolUpdate },
       params: FetchParams = {}
     ) => {
       return this.request<SubnetPool>({
@@ -11348,10 +11377,10 @@ export class Api {
       })
     },
     /**
-     * Delete a subnet pool
+     * Delete subnet pool
      */
-    subnetPoolDelete: (
-      { path }: { path: SubnetPoolDeletePathParams },
+    systemSubnetPoolDelete: (
+      { path }: { path: SystemSubnetPoolDeletePathParams },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -11361,13 +11390,16 @@ export class Api {
       })
     },
     /**
-     * List members in a subnet pool
+     * List members in subnet pool
      */
-    subnetPoolMemberList: (
+    systemSubnetPoolMemberList: (
       {
         path,
         query = {},
-      }: { path: SubnetPoolMemberListPathParams; query?: SubnetPoolMemberListQueryParams },
+      }: {
+        path: SystemSubnetPoolMemberListPathParams
+        query?: SystemSubnetPoolMemberListQueryParams
+      },
       params: FetchParams = {}
     ) => {
       return this.request<SubnetPoolMemberResultsPage>({
@@ -11378,10 +11410,13 @@ export class Api {
       })
     },
     /**
-     * Add a member to a subnet pool
+     * Add member to subnet pool
      */
-    subnetPoolMemberAdd: (
-      { path, body }: { path: SubnetPoolMemberAddPathParams; body: SubnetPoolMemberAdd },
+    systemSubnetPoolMemberAdd: (
+      {
+        path,
+        body,
+      }: { path: SystemSubnetPoolMemberAddPathParams; body: SubnetPoolMemberAdd },
       params: FetchParams = {}
     ) => {
       return this.request<SubnetPoolMember>({
@@ -11392,13 +11427,13 @@ export class Api {
       })
     },
     /**
-     * Remove a member from a subnet pool
+     * Remove member from subnet pool
      */
-    subnetPoolMemberRemove: (
+    systemSubnetPoolMemberRemove: (
       {
         path,
         body,
-      }: { path: SubnetPoolMemberRemovePathParams; body: SubnetPoolMemberRemove },
+      }: { path: SystemSubnetPoolMemberRemovePathParams; body: SubnetPoolMemberRemove },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -11409,13 +11444,16 @@ export class Api {
       })
     },
     /**
-     * List silos linked to a subnet pool
+     * List silos linked to subnet pool
      */
-    subnetPoolSiloList: (
+    systemSubnetPoolSiloList: (
       {
         path,
         query = {},
-      }: { path: SubnetPoolSiloListPathParams; query?: SubnetPoolSiloListQueryParams },
+      }: {
+        path: SystemSubnetPoolSiloListPathParams
+        query?: SystemSubnetPoolSiloListQueryParams
+      },
       params: FetchParams = {}
     ) => {
       return this.request<SubnetPoolSiloLinkResultsPage>({
@@ -11426,10 +11464,13 @@ export class Api {
       })
     },
     /**
-     * Link a subnet pool to a silo
+     * Link subnet pool to silo
      */
-    subnetPoolSiloLink: (
-      { path, body }: { path: SubnetPoolSiloLinkPathParams; body: SubnetPoolLinkSilo },
+    systemSubnetPoolSiloLink: (
+      {
+        path,
+        body,
+      }: { path: SystemSubnetPoolSiloLinkPathParams; body: SubnetPoolLinkSilo },
       params: FetchParams = {}
     ) => {
       return this.request<SubnetPoolSiloLink>({
@@ -11440,10 +11481,13 @@ export class Api {
       })
     },
     /**
-     * Update a subnet pool's link to a silo
+     * Update subnet pool's link to silo
      */
-    subnetPoolSiloUpdate: (
-      { path, body }: { path: SubnetPoolSiloUpdatePathParams; body: SubnetPoolSiloUpdate },
+    systemSubnetPoolSiloUpdate: (
+      {
+        path,
+        body,
+      }: { path: SystemSubnetPoolSiloUpdatePathParams; body: SubnetPoolSiloUpdate },
       params: FetchParams = {}
     ) => {
       return this.request<SubnetPoolSiloLink>({
@@ -11454,10 +11498,10 @@ export class Api {
       })
     },
     /**
-     * Unlink a subnet pool from a silo
+     * Unlink subnet pool from silo
      */
-    subnetPoolSiloUnlink: (
-      { path }: { path: SubnetPoolSiloUnlinkPathParams },
+    systemSubnetPoolSiloUnlink: (
+      { path }: { path: SystemSubnetPoolSiloUnlinkPathParams },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -11469,8 +11513,8 @@ export class Api {
     /**
      * Fetch subnet pool utilization
      */
-    subnetPoolUtilizationView: (
-      { path }: { path: SubnetPoolUtilizationViewPathParams },
+    systemSubnetPoolUtilizationView: (
+      { path }: { path: SystemSubnetPoolUtilizationViewPathParams },
       params: FetchParams = {}
     ) => {
       return this.request<SubnetPoolUtilization>({

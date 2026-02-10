@@ -48,7 +48,7 @@ const EmptyState = () => (
 
 const colHelper = createColumnHelper<SiloIpPool>()
 
-const allPoolsQuery = getListQFn(api.ipPoolList, { query: { limit: ALL_ISH } })
+const allPoolsQuery = getListQFn(api.systemIpPoolList, { query: { limit: ALL_ISH } })
 
 const allSiloPoolsQuery = (silo: string) =>
   getListQFn(api.siloIpPoolList, { path: { silo }, query: { limit: ALL_ISH } })
@@ -112,16 +112,16 @@ export default function SiloIpPoolsTab() {
     [allPools]
   )
 
-  const { mutateAsync: updatePoolLink } = useApiMutation(api.ipPoolSiloUpdate, {
+  const { mutateAsync: updatePoolLink } = useApiMutation(api.systemIpPoolSiloUpdate, {
     onSuccess() {
       queryClient.invalidateEndpoint('siloIpPoolList')
-      queryClient.invalidateEndpoint('ipPoolSiloList')
+      queryClient.invalidateEndpoint('systemIpPoolSiloList')
     },
   })
-  const { mutateAsync: unlinkPool } = useApiMutation(api.ipPoolSiloUnlink, {
+  const { mutateAsync: unlinkPool } = useApiMutation(api.systemIpPoolSiloUnlink, {
     onSuccess() {
       queryClient.invalidateEndpoint('siloIpPoolList')
-      queryClient.invalidateEndpoint('ipPoolSiloList')
+      queryClient.invalidateEndpoint('systemIpPoolSiloList')
       // We only have the ID, so will show a generic confirmation message
       addToast({ content: 'IP pool unlinked' })
     },
@@ -237,10 +237,10 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
   const { silo } = useSiloSelector()
   const { control, handleSubmit } = useForm({ defaultValues })
 
-  const linkPool = useApiMutation(api.ipPoolSiloLink, {
+  const linkPool = useApiMutation(api.systemIpPoolSiloLink, {
     onSuccess() {
       queryClient.invalidateEndpoint('siloIpPoolList')
-      queryClient.invalidateEndpoint('ipPoolSiloList')
+      queryClient.invalidateEndpoint('systemIpPoolSiloList')
     },
     onError(err) {
       addToast({ title: 'Could not link pool', content: err.message, variant: 'error' })
