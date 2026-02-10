@@ -817,14 +817,7 @@ const NetworkingSection = ({
     () => unicastPools.filter(poolHasIpVersion(compatibleVersions)),
     [unicastPools, compatibleVersions]
   )
-  const v4Pools = useMemo(
-    () => compatiblePools.filter((p) => p.ipVersion === 'v4'),
-    [compatiblePools]
-  )
-  const v6Pools = useMemo(
-    () => compatiblePools.filter((p) => p.ipVersion === 'v6'),
-    [compatiblePools]
-  )
+  const [v4Pools, v6Pools] = R.partition(compatiblePools, (p) => p.ipVersion === 'v4')
 
   const canAttachV4 = compatibleVersions.includes('v4') && v4Pools.length > 0
   const canAttachV6 = compatibleVersions.includes('v6') && v6Pools.length > 0
@@ -848,9 +841,11 @@ const NetworkingSection = ({
       .filter(ipHasVersion(compatibleVersions))
   }, [attachableFloatingIps, attachedFloatingIps, compatibleVersions])
 
-  const attachedFloatingIpsData = attachedFloatingIps
-    .map((floatingIp) => attachableFloatingIps.find((fip) => fip.name === floatingIp))
-    .filter((ip) => !!ip)
+  const attachedFloatingIpsData = R.compact(
+    attachedFloatingIps.map((floatingIp) =>
+      attachableFloatingIps.find((fip) => fip.name === floatingIp)
+    )
+  )
 
   // Clean up incompatible ephemeral IP selections when NIC changes
   useEffect(() => {
