@@ -841,11 +841,9 @@ const NetworkingSection = ({
       .filter(ipHasVersion(compatibleVersions))
   }, [attachableFloatingIps, attachedFloatingIps, compatibleVersions])
 
-  const attachedFloatingIpsData = R.compact(
-    attachedFloatingIps.map((floatingIp) =>
-      attachableFloatingIps.find((fip) => fip.name === floatingIp)
-    )
-  )
+  const attachedFloatingIpsData = attachedFloatingIps
+    .map((floatingIp) => attachableFloatingIps.find((fip) => fip.name === floatingIp))
+    .filter((ip): ip is FloatingIp => !!ip)
 
   // Clean up incompatible ephemeral IP selections when NIC changes
   useEffect(() => {
