@@ -23,7 +23,6 @@ import { routes } from './routes'
 // this is the only allowed css import
 // eslint-disable-next-line no-restricted-imports
 import '~/ui/styles/index.css'
-
 import { SkipLink } from '~/ui/lib/SkipLink'
 
 if (process.env.SHA) {

@@ -84,7 +84,6 @@ Used on list pages and detail pages inside `<PageHeader>`.
 ```tsx
 import { DocsPopover } from '~/components/DocsPopover'
 import { docLinks } from '~/util/links'
-
 ;<PageHeader>
   <PageTitle icon={<SomeIcon24 />}>Page Title</PageTitle>
   <DocsPopover
@@ -107,7 +106,6 @@ import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { docLinks } from '~/util/links'
 
 // Inside the form, after form fields:
-
 ;<SideModalFormDocs docs={[docLinks.someLink]} />
 ```
 
@@ -116,7 +114,6 @@ For custom links not in `docLinks`, use `ModalLinks` and `ModalLink` directly:
 ```tsx
 import { ModalLink, ModalLinks } from '~/ui/lib/ModalLinks'
 import { links } from '~/util/links'
-
 ;<ModalLinks heading="Relevant docs">
   <ModalLink to={links.somePageDocs} label="Human-Readable Label" />
 </ModalLinks>

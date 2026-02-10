@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.tool_input.file_path' | xargs ./node_modules/.bin/prettier --write --ignore-unknown",
+            "command": "jq -r '.tool_input.file_path' | xargs ./node_modules/.bin/oxfmt --no-error-on-unmatched-pattern",
             "timeout": 10
           }
         ]
