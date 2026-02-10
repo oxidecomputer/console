@@ -153,6 +153,11 @@ test('ephemeral pool selection tracks network interface IP version', async ({ pa
   await expect(v6Checkbox).toBeEnabled()
   await expect(v6Checkbox).toBeChecked()
 
+  // Verify disabled v4 checkbox shows tooltip
+  await v4Checkbox.hover()
+  await expect(page.getByText('Add an IPv4 network interface')).toBeVisible()
+  await expect(page.getByText('to attach an ephemeral IPv4 address')).toBeVisible()
+
   // Change to IPv4-only NIC - v6 checkbox should become disabled and unchecked
   await selectOption(page, page.getByRole('button', { name: 'IPv6' }), 'IPv4')
   await expect(v4Checkbox).toBeVisible()
@@ -161,6 +166,11 @@ test('ephemeral pool selection tracks network interface IP version', async ({ pa
   await expect(v6Checkbox).toBeVisible()
   await expect(v6Checkbox).toBeDisabled()
   await expect(v6Checkbox).not.toBeChecked()
+
+  // Verify disabled v6 checkbox shows tooltip
+  await v6Checkbox.hover()
+  await expect(page.getByText('Add an IPv6 network interface')).toBeVisible()
+  await expect(page.getByText('to attach an ephemeral IPv6 address')).toBeVisible()
 })
 
 test('duplicate instance name produces visible error', async ({ page }) => {
@@ -1070,6 +1080,16 @@ test('ephemeral IP checkbox disabled when no NICs configured', async ({ page }) 
   await expect(v6Checkbox).toBeDisabled()
   await expect(v6Checkbox).not.toBeChecked()
 
+  // Verify tooltip shows disabled reason for IPv4
+  await v4Checkbox.hover()
+  await expect(page.getByText('Add an IPv4 network interface')).toBeVisible()
+  await expect(page.getByText('to attach an ephemeral IPv4 address')).toBeVisible()
+
+  // Verify tooltip shows disabled reason for IPv6
+  await v6Checkbox.hover()
+  await expect(page.getByText('Add an IPv6 network interface')).toBeVisible()
+  await expect(page.getByText('to attach an ephemeral IPv6 address')).toBeVisible()
+
   // Select "Custom" radio → verify ephemeral IP checkboxes are still disabled and unchecked
   await customRadio.click()
   await expect(v4Checkbox).toBeVisible()
@@ -1078,6 +1098,11 @@ test('ephemeral IP checkbox disabled when no NICs configured', async ({ page }) 
   await expect(v6Checkbox).toBeVisible()
   await expect(v6Checkbox).toBeDisabled()
   await expect(v6Checkbox).not.toBeChecked()
+
+  // Verify tooltip still shows disabled reason when in Custom mode with no NICs
+  await v4Checkbox.hover()
+  await expect(page.getByText('Add an IPv4 network interface')).toBeVisible()
+  await expect(page.getByText('to attach an ephemeral IPv4 address')).toBeVisible()
 
   // Click "Add network interface" button to open modal
   await page.getByRole('button', { name: 'Add network interface' }).click()

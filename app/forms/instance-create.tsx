@@ -995,7 +995,11 @@ const NetworkingSection = ({
       <div className="max-w-lg space-y-2">
         <Wrap when={!!disabledReason} with={<Tooltip content={disabledReason} />}>
           <span>
-            <CheckboxField control={control} name={checkboxName} disabled={!canAttach}>
+            <CheckboxField
+              control={control}
+              name={checkboxName}
+              disabled={!canAttach || isSubmitting}
+            >
               Allocate and attach an ephemeral {displayVersion} address
             </CheckboxField>
           </span>
