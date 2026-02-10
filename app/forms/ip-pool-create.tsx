@@ -75,6 +75,9 @@ export default function CreateIpPoolSideModalForm() {
           { value: 'v6', label: 'v6' },
         ]}
       />
+      {/*
+      // leaving this out for now because multicast is only partly supported
+      // field default value is unicast, so that will go out with all creates
       <RadioField
         name="poolType"
         label="Type"
@@ -85,6 +88,7 @@ export default function CreateIpPoolSideModalForm() {
           { value: 'multicast', label: 'Multicast' },
         ]}
       />
+      */}
       <SideModalFormDocs docs={[docLinks.systemIpPools]} />
     </SideModalForm>
   )
