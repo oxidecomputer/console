@@ -8,6 +8,7 @@
 import { execSync } from 'child_process'
 import fs from 'fs'
 import path from 'path'
+
 import { expect, it } from 'vitest'
 
 it('Generated API client version matches API version specified for deployment', () => {

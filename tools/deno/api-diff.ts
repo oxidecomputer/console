@@ -130,7 +130,7 @@ async function ensureClient(schemaPath: string, force: boolean) {
   if (force || !(await exists(clientPath))) {
     console.error(`Generating client...`)
     await $`npx @oxide/openapi-gen-ts@latest ${schemaPath} ${dir}`
-    await $`npx prettier --write --log-level error ${dir}`
+    await $`npx oxfmt ${dir}`
   }
   return clientPath
 }
