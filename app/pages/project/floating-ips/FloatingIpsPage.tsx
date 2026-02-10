@@ -99,7 +99,7 @@ const staticCols = [
     cell: (info) => <IpPoolCell ipPoolId={info.getValue()} />,
   }),
   colHelper.accessor('instanceId', {
-    header: 'Attached to instance',
+    header: 'Instance',
     cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,
   }),
 ]
