@@ -159,7 +159,7 @@ test('ephemeral pool selection tracks network interface IP version', async ({ pa
   await expect(page.getByText('to attach an ephemeral IPv4 address')).toBeVisible()
 
   // Change to IPv4-only NIC - v6 checkbox should become disabled and unchecked
-  await selectOption(page, page.getByRole('button', { name: 'IPv6' }), 'IPv4')
+  await selectOption(page, page.getByRole('button', { name: 'IPv6', exact: true }), 'IPv4')
   await expect(v4Checkbox).toBeVisible()
   await expect(v4Checkbox).toBeEnabled()
   await expect(v4Checkbox).toBeChecked()
