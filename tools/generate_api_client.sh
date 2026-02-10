@@ -35,7 +35,7 @@ for f in Api.ts msw-handlers.ts validate.ts; do
   mv "$GEN_DIR/$f.tmp" "$GEN_DIR/$f"
 done
 
-npm run prettier -- --write --log-level error "$GEN_DIR"
+npm run fmt
 
 cat > $GEN_DIR/OMICRON_VERSION <<EOF
 # generated file. do not update manually. see docs/update-pinned-api.md
