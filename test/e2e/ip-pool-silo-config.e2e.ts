@@ -52,7 +52,7 @@ test.describe('IP pool configuration: myriad silo (v4-only default)', () => {
     await expect(v6Checkbox).not.toBeChecked()
 
     // IPv4 pool dropdown should be visible with default pool preselected
-    const v4PoolDropdown = page.getByLabel('Pool')
+    const v4PoolDropdown = page.getByLabel('IPv4 pool')
     await expect(v4PoolDropdown).toBeVisible()
     await expect(v4PoolDropdown).toContainText('ip-pool-1')
 
@@ -90,7 +90,7 @@ test.describe('IP pool configuration: myriad silo (v4-only default)', () => {
       name: 'Allocate and attach an ephemeral IPv4 address',
     })
     await expect(v4Checkbox).toBeChecked()
-    await expect(page.getByLabel('Pool')).toContainText('ip-pool-1')
+    await expect(page.getByLabel('IPv4 pool')).toContainText('ip-pool-1')
 
     // Create instance
     await page.getByRole('button', { name: 'Create instance' }).click()
@@ -229,7 +229,7 @@ test.describe('IP pool configuration: thrax silo (v6-only default)', () => {
     await expect(v6Checkbox).toBeChecked()
 
     // IPv6 pool dropdown should be visible with default pool preselected
-    const v6PoolDropdown = page.getByLabel('Pool')
+    const v6PoolDropdown = page.getByLabel('IPv6 pool')
     await expect(v6PoolDropdown).toBeVisible()
     await expect(v6PoolDropdown).toContainText('ip-pool-2')
 
@@ -279,16 +279,16 @@ test.describe('IP pool configuration: pelerines silo (no defaults)', () => {
     await expect(v6Checkbox).not.toBeChecked()
 
     // Pool dropdowns should not be shown unless ephemeral IPs are enabled
-    const poolDropdowns = page.getByLabel('Pool')
-    await expect(poolDropdowns.first()).toBeHidden()
+    const v4PoolDropdown = page.getByLabel('IPv4 pool')
+    await expect(v4PoolDropdown).toBeHidden()
 
     // Enabling IPv4 ephemeral IP should show pool dropdown
     await v4Checkbox.click()
     await expect(v4Checkbox).toBeChecked()
-    await expect(poolDropdowns.first()).toBeVisible()
+    await expect(v4PoolDropdown).toBeVisible()
 
     // Open dropdown to verify available options
-    await poolDropdowns.first().click()
+    await v4PoolDropdown.click()
     // Both pools are linked to this silo but neither is default
     await expect(page.getByRole('option', { name: 'ip-pool-1' })).toBeVisible()
   })

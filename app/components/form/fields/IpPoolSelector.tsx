@@ -55,6 +55,7 @@ type IpPoolSelectorProps<
   compatibleVersions?: IpVersion[]
   required?: boolean
   hideOptionalTag?: boolean
+  label?: string
 }
 
 export function IpPoolSelector<
@@ -69,6 +70,7 @@ export function IpPoolSelector<
   compatibleVersions = ALL_IP_VERSIONS,
   required = true,
   hideOptionalTag = false,
+  label = 'Pool',
 }: IpPoolSelectorProps<TFieldValues, TName>) {
   // Note: pools are already filtered by poolType before being passed to this component
   const sortedPools = useMemo(() => {
@@ -86,7 +88,7 @@ export function IpPoolSelector<
       <ListboxField
         name={poolFieldName}
         items={sortedPools.map(toIpPoolItem)}
-        label="Pool"
+        label={label}
         noItemsPlaceholder="No pools available"
         control={control}
         placeholder="Select a pool"

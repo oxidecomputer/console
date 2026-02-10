@@ -812,12 +812,15 @@ const NetworkingSection = ({
     [networkInterfaces]
   )
 
-  // Filter pools by compatibility and version
-  const compatiblePools = useMemo(
-    () => unicastPools.filter(poolHasIpVersion(compatibleVersions)),
+  // Filter pools by compatibility and partition by IP version
+  const [v4Pools, v6Pools] = useMemo(
+    () =>
+      R.partition(
+        unicastPools.filter(poolHasIpVersion(compatibleVersions)),
+        (p) => p.ipVersion === 'v4'
+      ),
     [unicastPools, compatibleVersions]
   )
-  const [v4Pools, v6Pools] = R.partition(compatiblePools, (p) => p.ipVersion === 'v4')
 
   const canAttachV4 = compatibleVersions.includes('v4') && v4Pools.length > 0
   const canAttachV6 = compatibleVersions.includes('v6') && v6Pools.length > 0
@@ -845,19 +848,20 @@ const NetworkingSection = ({
     .map((floatingIp) => attachableFloatingIps.find((fip) => fip.name === floatingIp))
     .filter((ip): ip is FloatingIp => !!ip)
 
-  // Clean up incompatible ephemeral IP selections when NIC changes
+  // Clean up incompatible ephemeral IP selections when NIC or pool availability changes
   useEffect(() => {
-    // When NIC changes, uncheck and clear incompatible options
-    if (ephemeralIpv4 && !compatibleVersions.includes('v4')) {
+    // Uncheck and clear when version incompatible or pools unavailable
+    if (ephemeralIpv4 && !canAttachV4) {
       ephemeralIpv4Field.field.onChange(false)
       ephemeralIpv4PoolField.field.onChange('')
     }
-    if (ephemeralIpv6 && !compatibleVersions.includes('v6')) {
+    if (ephemeralIpv6 && !canAttachV6) {
       ephemeralIpv6Field.field.onChange(false)
       ephemeralIpv6PoolField.field.onChange('')
     }
   }, [
-    compatibleVersions,
+    canAttachV4,
+    canAttachV6,
     ephemeralIpv4,
     ephemeralIpv4Field,
     ephemeralIpv4PoolField,
@@ -1005,6 +1009,7 @@ const NetworkingSection = ({
               disabled={isSubmitting}
               required={false}
               hideOptionalTag
+              label={`${displayVersion} pool`}
             />
           </div>
         )}

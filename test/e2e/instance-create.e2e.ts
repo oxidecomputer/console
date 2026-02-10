@@ -76,12 +76,12 @@ test('can create an instance', async ({ page }) => {
   await expect(v6Checkbox).toBeChecked()
 
   // IPv4 default pool should be selected
-  const v4PoolDropdown = page.getByLabel('Pool').first()
+  const v4PoolDropdown = page.getByLabel('IPv4 pool')
   await expect(v4PoolDropdown).toBeVisible()
   await expect(v4PoolDropdown).toContainText('ip-pool-1')
 
   // IPv6 default pool should be selected
-  const v6PoolDropdown = page.getByLabel('Pool').last()
+  const v6PoolDropdown = page.getByLabel('IPv6 pool')
   await expect(v6PoolDropdown).toBeVisible()
   await expect(v6PoolDropdown).toContainText('ip-pool-2')
 
@@ -880,7 +880,7 @@ test('create instance with custom IPv4-only NIC constrains ephemeral IP to IPv4'
   await expect(v6Checkbox).toBeDisabled()
 
   // IPv4 pool dropdown should be visible with default selected
-  const v4PoolDropdown = page.getByLabel('Pool')
+  const v4PoolDropdown = page.getByLabel('IPv4 pool')
   await expect(v4PoolDropdown).toBeVisible()
   await expect(v4PoolDropdown).toContainText('ip-pool-1')
 
@@ -942,7 +942,7 @@ test('create instance with custom IPv6-only NIC constrains ephemeral IP to IPv6'
   await expect(v6Checkbox).toBeChecked()
 
   // IPv6 pool dropdown should be visible with default selected
-  const v6PoolDropdown = page.getByLabel('Pool')
+  const v6PoolDropdown = page.getByLabel('IPv6 pool')
   await expect(v6PoolDropdown).toBeVisible()
   await expect(v6PoolDropdown).toContainText('ip-pool-2')
 
@@ -1003,11 +1003,12 @@ test('create instance with custom dual-stack NIC allows both IPv4 and IPv6 ephem
   await expect(v6Checkbox).toBeChecked()
 
   // Both pool dropdowns should be visible with defaults selected
-  const poolDropdowns = page.getByLabel('Pool')
-  await expect(poolDropdowns.first()).toBeVisible()
-  await expect(poolDropdowns.first()).toContainText('ip-pool-1')
-  await expect(poolDropdowns.last()).toBeVisible()
-  await expect(poolDropdowns.last()).toContainText('ip-pool-2')
+  const v4PoolDropdown = page.getByLabel('IPv4 pool')
+  const v6PoolDropdown = page.getByLabel('IPv6 pool')
+  await expect(v4PoolDropdown).toBeVisible()
+  await expect(v4PoolDropdown).toContainText('ip-pool-1')
+  await expect(v6PoolDropdown).toBeVisible()
+  await expect(v6PoolDropdown).toContainText('ip-pool-2')
 
   // Create the instance
   await page.getByRole('button', { name: 'Create instance' }).click()
