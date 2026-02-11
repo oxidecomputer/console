@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import * as R from 'remeda'
 import { describe, expect, test } from 'vitest'
 
 import type { OxqlQueryResult } from '~/api'
@@ -164,6 +165,70 @@ const utilizationQueryResult1: OxqlQueryResult = {
 
 const timeseries1 = utilizationQueryResult1.tables[0].timeseries[0]
 
+const utilizationQueryResult2: OxqlQueryResult = {
+  tables: [
+    {
+      name: 'virtual_machine:vcpu_usage',
+      timeseries: [
+        {
+          fields: {
+            vcpuId: {
+              type: 'u32',
+              value: 0,
+            },
+          },
+          points: {
+            timestamps: [
+              new Date('2025-02-21T19:28:43Z'),
+              new Date('2025-02-21T19:29:43Z'),
+              new Date('2025-02-21T19:30:43Z'),
+              new Date('2025-02-21T19:31:43Z'),
+              new Date('2025-02-21T19:32:43Z'),
+              new Date('2025-02-21T19:33:43Z'),
+              new Date('2025-02-21T19:34:43Z'),
+              new Date('2025-02-21T19:35:43Z'),
+            ],
+            values: [
+              {
+                values: {
+                  type: 'double',
+                  values: R.range(1, 9).map((value) => value * 1000000),
+                },
+                metricType: 'gauge',
+              },
+            ],
+          },
+        },
+        {
+          fields: {
+            vcpuId: {
+              type: 'u32',
+              value: 1,
+            },
+          },
+          points: {
+            timestamps: [
+              new Date('2025-02-21T19:32:43Z'),
+              new Date('2025-02-21T19:33:43Z'),
+              new Date('2025-02-21T19:34:43Z'),
+              new Date('2025-02-21T19:35:43Z'),
+            ],
+            values: [
+              {
+                values: {
+                  type: 'double',
+                  values: R.range(1, 5).map((value) => value * 1000000),
+                },
+                metricType: 'gauge',
+              },
+            ],
+          },
+        },
+      ],
+    },
+  ],
+}
+
 test('sumValues', () => {
   expect(sumValues([], 0)).toEqual([])
   expect(sumValues([timeseries1], 4)).toEqual([
@@ -205,7 +270,41 @@ const composedUtilizationData = {
       value: null,
     },
   ],
-  timeseriesCount: 1,
+  valueCounts: [1, 1, 1, 0],
+}
+
+const composedUtilizationData2 = {
+  chartData: [
+    {
+      timestamp: 1740166183000,
+      value: 4000000,
+    },
+    {
+      timestamp: 1740166243000,
+      value: 6000000,
+    },
+    {
+      timestamp: 1740166303000,
+      value: 8000000,
+    },
+    {
+      timestamp: 1740166363000,
+      value: 5000000,
+    },
+    {
+      timestamp: 1740166423000,
+      value: 6000000,
+    },
+    {
+      timestamp: 1740166483000,
+      value: 7000000,
+    },
+    {
+      timestamp: 1740166543000,
+      value: 8000000,
+    },
+  ],
+  valueCounts: [2, 2, 2, 2, 1, 1, 1, 1],
 }
 
 // As above, we've removed the first value from the original data
@@ -241,15 +340,45 @@ const utilizationChartData4 = [
   },
 ]
 
+// These are the exepcted values if the vcpu count changed mid-query.
+// As above, we've discarded the first value from the original data
+const utilizationChartData5 = [
+  {
+    timestamp: 1740166183000,
+    value: 100.04612223059189,
+  },
+  {
+    timestamp: 1740166243000,
+    value: 25.028739852939403,
+  },
+  {
+    timestamp: 1740166303000,
+    value: null,
+  },
+]
+
 test('get utilization chart data and process it for chart display', () => {
   const composedData = composeOxqlData(utilizationQueryResult1)
   expect(composedData).toEqual(composedUtilizationData)
-  const { data: chartData } = getUtilizationChartProps(composedUtilizationData.chartData, 1)
+
+  const composedData2 = composeOxqlData(utilizationQueryResult2)
+  expect(composedData2).toEqual(composedUtilizationData2)
+
+  const { data: chartData } = getUtilizationChartProps(
+    composedUtilizationData.chartData,
+    [1, 1, 1, 0]
+  )
   expect(chartData).toEqual(utilizationChartData)
   // Testing the same data, but for a 4-vcpu instance
   const { data: chartData4 } = getUtilizationChartProps(
     composedUtilizationData.chartData,
-    4
+    [4, 4, 4, 4]
   )
   expect(chartData4).toEqual(utilizationChartData4)
+  // Testing the same data, but where the cpu count changed mid-results
+  const { data: chartData5 } = getUtilizationChartProps(
+    composedUtilizationData.chartData,
+    [1, 4, 4, 4]
+  )
+  expect(chartData5).toEqual(utilizationChartData5)
 })
