@@ -8,12 +8,12 @@
 
 import {
   http,
-  HttpResponse,
   type HttpHandler,
-  type PathParams,
+  HttpResponse,
   type StrictResponse,
+  type PathParams,
 } from 'msw'
-import type { Promisable, SnakeCasedPropertiesDeep as Snakify } from 'type-fest'
+import type { SnakeCasedPropertiesDeep as Snakify, Promisable } from 'type-fest'
 import { type ZodType } from 'zod/v4'
 
 import type * as Api from './Api'

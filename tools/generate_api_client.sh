@@ -35,7 +35,10 @@ for f in Api.ts msw-handlers.ts validate.ts; do
   mv "$GEN_DIR/$f.tmp" "$GEN_DIR/$f"
 done
 
-npm run prettier -- --write --log-level error "$GEN_DIR"
+npm run fmt
+# second fmt is temporary. see https://github.com/oxidecomputer/console/pull/3067
+# and https://github.com/oxc-project/oxc/issues/19240
+npm run fmt
 
 cat > $GEN_DIR/OMICRON_VERSION <<EOF
 # generated file. do not update manually. see docs/update-pinned-api.md
