@@ -5,6 +5,13 @@
  *
  * Copyright Oxide Computer Company
  */
+// Read-only disk creation is disabled pending a propolis fix. To re-enable:
+// 1. Uncomment CheckboxField import and JSX in this file
+// 2. Uncomment CheckboxField JSX in app/forms/instance-create.tsx
+// 3. Use `values.bootDiskReadOnly` instead of hardcoded `false` in instance-create.tsx getBootDisk
+// 4. Use `source.readOnly` instead of hardcoded `false` in the onSubmit handler below
+// 5. Unskip e2e tests in test/e2e/disks.e2e.ts and test/e2e/instance-create.e2e.ts
+// https://github.com/oxidecomputer/console/issues/3071
 import { useQuery } from '@tanstack/react-query'
 import { filesize } from 'filesize'
 import { useMemo } from 'react'
@@ -23,7 +30,7 @@ import {
   type Image,
 } from '@oxide/api'
 
-import { CheckboxField } from '~/components/form/fields/CheckboxField'
+// import { CheckboxField } from '~/components/form/fields/CheckboxField' // re-enable with #3071
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { DiskSizeField } from '~/components/form/fields/DiskSizeField'
 import { toImageComboboxItem } from '~/components/form/fields/ImageSelectField'
@@ -172,14 +179,14 @@ export function CreateDiskSideModalForm({
                   // image ID is validated by the form: it's required when the
                   // field is present (i.e., when image type is selected)
                   imageId: source.imageId!,
-                  readOnly: source.readOnly,
+                  readOnly: false,
                 }))
                 .with({ type: 'snapshot' }, (source) => ({
                   type: 'snapshot' as const,
                   // snapshot ID is validated by the form: it's required when
                   // the field is present (i.e., when snapshot type is selected)
                   snapshotId: source.snapshotId!,
-                  readOnly: source.readOnly,
+                  readOnly: false,
                 }))
                 .exhaustive(),
             }))
@@ -370,22 +377,28 @@ const DiskSourceField = ({
                 }
               }}
             />
+            {/* Read-only disk creation disabled pending propolis fix
+                https://github.com/oxidecomputer/console/issues/3071
             <div className="mt-2">
               <CheckboxField name="diskBackend.diskSource.readOnly" control={control}>
                 Make disk read-only
               </CheckboxField>
             </div>
+            */}
           </>
         )}
 
         {diskSource.type === 'snapshot' && (
           <>
             <SnapshotSelectField control={control} />
+            {/* Read-only disk creation disabled pending propolis fix
+                https://github.com/oxidecomputer/console/issues/3071
             <div className="mt-2">
               <CheckboxField name="diskBackend.diskSource.readOnly" control={control}>
                 Make disk read-only
               </CheckboxField>
             </div>
+            */}
           </>
         )}
       </div>
