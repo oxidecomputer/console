@@ -36,8 +36,8 @@ type DiffTarget = {
 const SPEC_DIR_URL = (commit: string) =>
   `https://api.github.com/repos/oxidecomputer/omicron/contents/openapi/nexus?ref=${commit}`
 
-const SPEC_RAW_URL = (commit: string, filename: string) =>
-  `https://raw.githubusercontent.com/oxidecomputer/omicron/${commit}/openapi/nexus/${filename}`
+const SPEC_RAW_URL = (ref: string, path: string) =>
+  `https://raw.githubusercontent.com/oxidecomputer/omicron/${ref}/${path}`
 
 async function resolveCommit(ref?: string | number): Promise<string> {
   if (ref === undefined) return resolveCommit(await pickPr())
@@ -60,20 +60,23 @@ async function resolveCommit(ref?: string | number): Promise<string> {
 const normalizeRef = (ref?: string | number) =>
   typeof ref === 'string' && /^\d{1,5}$/.test(ref) ? parseInt(ref, 10) : ref
 
+const LEGACY_SPEC_PATH = 'openapi/nexus.json'
+
 async function listSchemaDir(ref: string) {
   console.error(`Fetching schema list for ${ref}...`)
   try {
     return await $`gh api ${SPEC_DIR_URL(ref)}`.stderr('null').json()
   } catch {
-    throw new Error(
-      `Could not list openapi/nexus/ at ref '${ref}'. ` +
-        `This ref may predate the versioned schema directory.`
-    )
+    return null
   }
 }
 
 async function getLatestSchema(ref: string) {
   const contents = await listSchemaDir(ref)
+  if (!contents) {
+    console.error(`No openapi/nexus/ dir at ${ref}, falling back to ${LEGACY_SPEC_PATH}`)
+    return LEGACY_SPEC_PATH
+  }
   const schemaFiles = contents
     .map((f: { name: string }) => f.name)
     .filter((n: string) => n.startsWith('nexus-'))
@@ -85,12 +88,19 @@ async function getLatestSchema(ref: string) {
         `Available schemas: ${schemaFiles.join(', ') || '(none)'}`
     )
   }
-  return (await fetch(latestLink.download_url).then((r) => r.text())).trim()
+  const latest = (await fetch(latestLink.download_url).then((r) => r.text())).trim()
+  return `openapi/nexus/${latest}`
 }
 
 /** When diffing a single ref, we diff its latest schema against the previous one */
 async function getLatestAndPreviousSchema(ref: string) {
   const contents = await listSchemaDir(ref)
+  if (!contents) {
+    throw new Error(
+      `No openapi/nexus/ dir at ref '${ref}'. ` +
+        `Single-ref mode requires the versioned schema directory.`
+    )
+  }
 
   const latestLink = contents.find((f: { name: string }) => f.name === 'nexus-latest.json')
   const schemaFiles = contents
@@ -113,7 +123,10 @@ async function getLatestAndPreviousSchema(ref: string) {
     throw new Error(`Latest schema ${latest} not found in dir at ref '${ref}'`)
   if (latestIndex === 0) throw new Error(`No previous schema version found at ref '${ref}'`)
 
-  return { previous: schemaFiles[latestIndex - 1], latest }
+  return {
+    previous: `openapi/nexus/${schemaFiles[latestIndex - 1]}`,
+    latest: `openapi/nexus/${latest}`,
+  }
 }
 
 async function resolveTarget(ref1?: string | number, ref2?: string): Promise<DiffTarget> {
