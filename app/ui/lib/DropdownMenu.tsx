@@ -40,7 +40,7 @@ export function Content({ className, children, anchor = 'bottom end', gap }: Con
       anchor={anchor}
       // goofy gap because tailwind hates string interpolation
       className={cn(
-        'dropdown-menu-content elevation-2 outline-hidden',
+        'dropdown-menu-content shadow-menu outline-hidden',
         gap === 8 && `[--anchor-gap:8px]`,
         className
       )}

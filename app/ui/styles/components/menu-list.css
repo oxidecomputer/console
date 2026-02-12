@@ -7,7 +7,7 @@
  */
 
 .ox-menu {
-  @apply bg-raise border-secondary elevation-2 !max-h-[17.5rem] overflow-y-auto rounded-md border;
+  @apply bg-raise shadow-menu !max-h-[17.5rem] overflow-y-auto rounded-md;
 }
 
 .ox-menu-item {
@@ -19,15 +19,15 @@
 }
 
 .ox-menu-item.is-highlighted.is-selected {
-  @apply bg-accent-secondary-hover;
+  @apply bg-accent-hover;
 }
 
 .ox-menu-item.is-selected[data-highlighted] {
-  @apply bg-accent-secondary-hover;
+  @apply bg-accent-hover;
 }
 
 .ox-menu-item.is-selected {
-  @apply text-accent bg-accent-secondary hover:bg-accent-secondary-hover border-0;
+  @apply text-accent bg-accent hover:bg-accent-hover border-0;
   .ox-badge {
     @apply text-inverse bg-accent ring-0;
   }

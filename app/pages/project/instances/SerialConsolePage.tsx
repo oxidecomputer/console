@@ -139,7 +139,7 @@ export default function SerialConsolePage() {
     <div className="mx-0! flex h-full max-h-[calc(100vh-var(--top-bar-height))] w-full! flex-col">
       <Link
         to={pb.instance(instanceSelector)}
-        className="bg-accent-secondary mx-3 mt-3 mb-6 flex h-10 shrink-0 items-center rounded-md px-3"
+        className="bg-accent mx-3 mt-3 mb-6 flex h-10 shrink-0 items-center rounded-md px-3"
       >
         <PrevArrow12Icon className="text-accent-tertiary" />
         <div className="text-mono-sm text-accent ml-2">
@@ -199,7 +199,7 @@ function SerialSkeleton({ children, animate }: SkeletonProps) {
           background: 'linear-gradient(180deg, rgba(8, 15, 17, 0) 0%, #080F11 100%)',
         }}
       />
-      <div className="bg-raise! border-secondary elevation-3 absolute top-1/2 left-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-lg border p-12">
+      <div className="bg-raise! shadow-modal absolute top-1/2 left-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-lg p-12">
         {children}
       </div>
     </div>

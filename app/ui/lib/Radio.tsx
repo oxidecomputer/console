@@ -24,8 +24,8 @@ export type RadioProps = Omit<React.ComponentProps<'input'>, 'type'> & {
 
 const fieldStyles = `
   peer appearance-none absolute outline-hidden
-  border border-default h-4 w-4 rounded-full bg-default hover:border-hover checked:hover:border-accent
-  checked:bg-accent-secondary checked:border-accent-secondary disabled:bg-disabled hover:disabled:bg-disabled
+  border border-default h-4 w-4 rounded-full bg-default hover:border-raise checked:hover:border-accent-secondary checked:hover:light:border-accent
+  checked:bg-accent checked:border-accent-secondary disabled:bg-disabled hover:disabled:bg-disabled
   disabled:hover:bg-transparent
 `
 
@@ -34,7 +34,7 @@ export const Radio = ({ children, className, alignTop, ...inputProps }: RadioPro
     <span className="relative h-4 w-4 shrink-0">
       <input className={cn(fieldStyles, className)} type="radio" {...inputProps} />
       {/* the dot in the middle. hide by default, use peer-checked to show if checked */}
-      <div className="bg-accent pointer-events-none absolute top-1 left-1 hidden h-2 w-2 rounded-full peer-checked:block" />
+      <div className="bg-accent light:bg-green-600 pointer-events-none absolute top-1 left-1 hidden h-2 w-2 rounded-full peer-checked:block" />
     </span>
 
     {children && <span className="text-sans-md text-default ml-2.5">{children}</span>}
@@ -42,18 +42,18 @@ export const Radio = ({ children, className, alignTop, ...inputProps }: RadioPro
 )
 
 const cardLabelStyles = `
-  text-sans-md border rounded-md border-default bg-default hover:border-hover
+  text-sans-md border rounded-md border-default bg-default hover:border-raise
   peer-focus:ring-2 peer-focus:ring-accent-secondary w-44 text-raise
 
   *:border-secondary *:p-3
   cursor-pointer
 
-  peer-checked:bg-accent-secondary
+  peer-checked:bg-accent
   peer-checked:border-accent-secondary peer-checked:hover:border-accent peer-checked:*:border-accent peer-checked:*:border-accent-secondary
   peer-checked:text-accent peer-checked:[&>*_.text-default]:text-accent-secondary
 
   peer-disabled:cursor-not-allowed
-  peer-disabled:bg-disabled peer-disabled:peer-checked:bg-accent-secondary
+  peer-disabled:bg-disabled peer-disabled:peer-checked:bg-accent
   peer-checked:peer-disabled:hover:border-accent-secondary peer-disabled:hover:border-default
   peer-disabled:[&>*_.text-default]:text-disabled peer-disabled:text-disabled peer-disabled:peer-checked:text-accent-disabled peer-disabled:peer-checked:[&>*_.text-default]:text-accent-disabled
 `

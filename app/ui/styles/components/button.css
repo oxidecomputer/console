@@ -8,43 +8,57 @@
 
 .ox-button {
   @apply relative;
-}
-.active-clicked:active:not(.visually-disabled) {
-  @apply motion-safe:translate-y-px;
-}
-.ox-button:after {
-  content: '';
-  @apply absolute top-0 right-0 bottom-0 left-0 rounded-md border border-current opacity-[0.05];
-}
-.btn-primary {
-  @apply text-accent bg-accent-secondary hover:bg-accent-secondary-hover disabled:text-accent-disabled disabled:bg-accent-secondary;
-}
-.btn-primary:disabled > .spinner,
-.btn-primary.visually-disabled > .spinner {
-  @apply text-accent;
-}
 
-.btn-secondary {
-  @apply text-default bg-secondary hover:bg-hover disabled:text-disabled disabled:bg-secondary;
-}
-.btn-secondary:disabled > .spinner,
-.btn-secondary.visually-disabled > .spinner {
-  @apply text-default;
-}
+  &:after {
+    content: '';
+    @apply absolute top-0 right-0 bottom-0 left-0 rounded-md border border-current/5;
+  }
+  &.btn-primary {
+    @apply text-accent bg-accent hover:bg-accent-hover disabled:text-accent/35 disabled:bg-accent;
+  }
+  &.btn-primary:disabled > .spinner,
+  &.btn-primary.visually-disabled > .spinner {
+    @apply text-accent;
+  }
 
-.btn-danger {
-  @apply text-destructive bg-destructive-secondary hover:bg-destructive-secondary-hover disabled:text-destructive-disabled disabled:bg-destructive-secondary;
-}
-.btn-danger:disabled > .spinner,
-.btn-danger.visually-disabled > .spinner {
-  @apply text-destructive;
-}
+  &.btn-secondary {
+    @apply text-secondary bg-secondary hover:bg-hover disabled:text-secondary/35 disabled:bg-secondary;
+  }
+  &.btn-secondary:disabled > .spinner,
+  &.btn-secondary.visually-disabled > .spinner {
+    @apply text-secondary;
+  }
 
-.btn-ghost {
-  @apply text-default border-default hover:bg-hover disabled:text-disabled border disabled:bg-transparent;
-}
-.btn-ghost:after {
-  @apply hidden;
+  &.btn-danger {
+    @apply text-destructive bg-destructive hover:bg-destructive-hover disabled:text-destructive/35 disabled:bg-destructive;
+  }
+  &.btn-danger:disabled > .spinner,
+  &.btn-danger.visually-disabled > .spinner {
+    @apply text-destructive;
+  }
+
+  &.btn-ghost {
+    @apply text-secondary hover:bg-hover disabled:text-secondary/35 disabled:bg-transparent;
+  }
+  &.btn-ghost:after {
+    @apply border-current/20;
+  }
+
+  &.btn-accent-ghost {
+    @apply text-accent border-accent-secondary hover:bg-accent-hover border;
+  }
+
+  &.btn-accent-ghost:after {
+    @apply hidden;
+  }
+
+  &.btn-accent-solid {
+    @apply text-inverse bg-accent-inverse;
+  }
+
+  &.btn-accent-solid:after {
+    @apply hidden;
+  }
 }
 
 /**

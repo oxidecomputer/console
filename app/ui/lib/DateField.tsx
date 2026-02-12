@@ -130,7 +130,7 @@ function DateSegment({
       }}
       className={cn(
         'group box-content rounded-md px-px text-right tabular-nums outline-hidden',
-        !readOnly && 'focus:text-raise focus:bg-accent-secondary-hover',
+        !readOnly && 'focus:text-raise focus:bg-accent-hover',
         segment.type === 'timeZoneName' ? 'text-sans-sm ml-1' : 'text-sans-md'
       )}
       // Segment props turns this into a focusable element

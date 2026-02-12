@@ -55,6 +55,17 @@ table.ox-table {
     @apply bg-default sticky left-0 z-10;
   }
 
+  /* Border between sticky first column and second column:
+     first column owns the right border, second column drops its left border */
+  & td:first-of-type > div,
+  & th:first-of-type > div {
+    @apply border-r;
+  }
+  & td:nth-of-type(2) > div,
+  & th:nth-of-type(2) > div {
+    @apply border-l-0;
+  }
+
   /*
   Last column is sticky if it
   is a more actions cell
@@ -306,30 +317,42 @@ table.ox-table {
 Drop shadow appears if content is below a sticky
 cell and the table is overflowing
 */
+td:first-of-type,
+th:first-of-type,
+td:last-of-type.action-col,
+th:last-of-type.action-col {
+  transition-property: box-shadow;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 250ms;
+}
+
 .scrolled td:first-of-type,
-.scrolled th:first-of-type,
+.scrolled th:first-of-type {
+  box-shadow: 6px 0 8px -2px oklch(0 0 0 / 0.2);
+}
 .overflowing td:last-of-type.action-col,
 .overflowing th:last-of-type.action-col {
-  @apply elevation-2;
+  box-shadow: -6px 0 8px -2px oklch(0 0 0 / 0.2);
+}
+.light .scrolled td:first-of-type,
+.light .scrolled th:first-of-type {
+  box-shadow: 6px 0 8px -2px oklch(0 0 0 / 0.05);
+}
+.light .overflowing td:last-of-type.action-col,
+.light .overflowing th:last-of-type.action-col {
+  box-shadow: -6px 0 8px -2px oklch(0 0 0 / 0.05);
 }
 
 /*
   Stops shadow from overflowing below
-  -1px helps with a visual glitch when a bit
-  underneath shows through
 */
 .scrolled td:first-of-type,
 .scrolled th:first-of-type {
-  clip-path: inset(0px -40px 0px -1px);
+  clip-path: inset(0px -40px 0px 0px);
 }
 .overflowing td:last-of-type.action-col,
 .overflowing th:last-of-type.action-col {
-  clip-path: inset(0px -1px 0px -40px);
-}
-
-.scrolled td:first-of-type:before,
-.scrolled th:first-of-type:before {
-  @apply border-r-secondary absolute top-0 right-0 bottom-0 border-r content-[''];
+  clip-path: inset(0px 0px 0px -40px);
 }
 
 .simplebar-scrollbar {

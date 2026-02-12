@@ -101,7 +101,7 @@ Table.Cell = ({ height = 'small', className, children, ...props }: TableCellProp
   >
     <div
       className={cn(
-        'border-secondary relative -mr-[2px] flex items-center overflow-hidden border-b border-l px-3 py-2',
+        'border-secondary relative flex items-center overflow-hidden border-b border-l px-3 py-2',
         { 'h-11': height === 'small', 'h-14': height === 'large' }
       )}
     >

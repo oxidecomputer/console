@@ -22,7 +22,7 @@ export function ContentPane() {
   return (
     <div
       ref={ref}
-      className="flex flex-col overflow-auto"
+      className="light:bg-raise flex flex-col overflow-auto"
       id="scroll-container"
       data-testid="scroll-container"
     >

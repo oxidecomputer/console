@@ -19,7 +19,7 @@ const linkStyles = (isActive = false) =>
   cn(
     'flex h-7 items-center rounded-md px-2 text-sans-md [&>svg]:mr-2',
     isActive
-      ? 'text-accent bg-accent-secondary hover:bg-accent-secondary-hover [&>svg]:text-accent-tertiary'
+      ? 'text-accent bg-accent hover:bg-accent-hover [&>svg]:text-accent-tertiary'
       : 'hover:bg-hover [&>svg]:text-quaternary text-default'
   )
 

@@ -49,7 +49,7 @@ const defaultTitle: Record<Variant, string> = {
 }
 
 const color: Record<Variant, string> = {
-  success: 'bg-accent-secondary',
+  success: 'bg-accent',
   error: 'bg-error-secondary',
   info: 'bg-notice-secondary',
 }
@@ -84,7 +84,7 @@ export const Toast = ({
   return (
     <div
       className={cn(
-        'elevation-2 relative flex w-96 items-start overflow-hidden rounded-lg p-4',
+        'shadow-toast relative flex w-96 items-start overflow-hidden rounded-lg border border-current/10 p-4',
         color[variant],
         textColor[variant]
       )}
@@ -113,7 +113,7 @@ export const Toast = ({
           type="button"
           aria-label="Dismiss notification"
           className={cn(
-            'hover:bg-accent-secondary-hover -m-2 flex items-center rounded-md border-transparent! p-2',
+            'hover:bg-accent-hover -m-2 flex items-center rounded-md border-transparent! p-2',
             textColor[variant]
           )}
           onClick={onClose}

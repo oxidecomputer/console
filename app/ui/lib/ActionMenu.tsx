@@ -117,7 +117,7 @@ export function ActionMenu(props: ActionMenuProps) {
           >
             <div
               className={cn(
-                'bg-raise border-secondary elevation-3 flex h-14 w-full overflow-y-auto rounded-lg border'
+                'bg-raise shadow-modal flex h-14 w-full overflow-y-auto rounded-lg'
               )}
             >
               <input
@@ -158,7 +158,7 @@ export function ActionMenu(props: ActionMenuProps) {
             </div>
 
             {items.length > 0 && (
-              <div className="elevation-3 relative mt-5 transform-gpu overflow-hidden rounded-lg">
+              <div className="shadow-modal relative mt-5 transform-gpu overflow-hidden rounded-lg">
                 <div
                   className="overflow-y-auto"
                   ref={divRef}
@@ -189,7 +189,7 @@ export function ActionMenu(props: ActionMenuProps) {
                               className={cn(
                                 'text-sans-md border-secondary box-border block h-full w-full cursor-pointer overflow-visible border p-4 select-none',
                                 item.value === selectedItem?.value
-                                  ? 'text-accent bg-accent-secondary hover:bg-accent-secondary-hover'
+                                  ? 'text-accent bg-accent hover:bg-accent-hover'
                                   : 'text-default bg-raise hover:bg-hover'
                               )}
                               aria-selected={item.value === selectedItem?.value}

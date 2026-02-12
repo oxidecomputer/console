@@ -50,7 +50,7 @@ export const InstanceAutoRestartPopover = ({ instance }: { instance: Instance })
       </PopoverButton>
       <PopoverPanel
         // popover-panel needed for enter animation
-        className="popover-panel bg-raise border-secondary elevation-2 z-10 w-96 rounded-lg border"
+        className="popover-panel bg-raise shadow-menu z-10 w-96 rounded-lg"
         anchor={{ to: 'bottom start', gap: 12 }}
       >
         <PopoverRow label="Auto Restart">

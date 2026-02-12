@@ -69,7 +69,7 @@ export function SideModal({
               initial={{ x: animate ? 40 : 0 }}
               animate={{ x: 0 }}
               transition={{ type: 'spring', duration: 0.4, bounce: 0 }}
-              className="DialogContent ox-side-modal bg-raise border-secondary elevation-2 pointer-events-auto fixed top-0 right-0 bottom-0 z-(--z-side-modal) m-0 flex w-lg flex-col justify-between border-l p-0"
+              className="DialogContent ox-side-modal bg-raise shadow-modal pointer-events-auto fixed top-0 right-0 bottom-0 z-(--z-side-modal) m-0 flex w-lg flex-col justify-between p-0"
             >
               <div className="items-top mt-8 mb-4">
                 <Dialog.Title className="text-sans-2xl text-raise flex w-full items-center justify-between pr-8 break-words">

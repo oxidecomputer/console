@@ -675,7 +675,7 @@ export default function ImageCreate() {
                   label="Image uploaded successfully"
                   className={
                     allDone
-                      ? 'bg-accent-secondary *:text-accent transition-colors'
+                      ? 'bg-accent *:text-accent transition-colors'
                       : 'transition-colors'
                   }
                 />

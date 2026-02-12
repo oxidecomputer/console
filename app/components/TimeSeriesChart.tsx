@@ -92,7 +92,7 @@ function renderTooltip(props: TooltipProps<number, string>, unit?: string) {
   } = payload[0]
   if (!timestamp || typeof value !== 'number') return null
   return (
-    <div className="text-sans-md text-secondary bg-raise border-secondary elevation-2 rounded-md border outline-0">
+    <div className="text-sans-md text-secondary bg-raise shadow-tooltip rounded-md outline-0">
       <div className="border-secondary border-b px-3 py-2 pr-6">
         {longDateTime(timestamp)}
       </div>
@@ -315,10 +315,10 @@ const MetricsMessage = ({
       </div>
     </div>
     <div
-      className="bg-accent-secondary absolute inset-x-0 top-1 bottom-12"
+      className="bg-accent absolute inset-x-0 top-1 bottom-12"
       style={{
         background:
-          'radial-gradient(197.76% 54.9% at 50% 50%, var(--surface-default) 0%, rgba(8, 15, 17, 0.00) 100%)',
+          'radial-gradient(200% 100% at 50% 100%, var(--surface-default) 0%, var(--surface-secondary) 100%)',
       }}
     />
   </>

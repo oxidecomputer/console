@@ -85,7 +85,7 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
           isSelected && !isDisabled
             ? isInvalid
               ? 'text-error bg-error-secondary'
-              : 'text-accent-secondary bg-accent-secondary'
+              : 'text-accent-secondary bg-accent'
             : 'text-secondary hover:bg-tertiary',
           isRoundedLeft && 'rounded-l',
           isRoundedRight && 'rounded-r',
@@ -104,7 +104,7 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
             isSelected && !isDisabled
               ? isInvalid
                 ? 'group-hover:bg-error-secondary-hover'
-                : 'group-hover:bg-accent-secondary-hover'
+                : 'group-hover:bg-accent-hover'
               : '',
             !isSelected && !isDisabled ? 'hover:bg-tertiary' : ''
           )}

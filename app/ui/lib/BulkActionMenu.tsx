@@ -18,7 +18,7 @@ export interface BulkActionMenuProps {
 export function BulkActionMenu({ children, selectedCount }: BulkActionMenuProps) {
   const actionButtons = flattenChildren(children)
   return (
-    <div className="bg-accent-secondary border-accent flex w-fit rounded-md border *:items-center *:space-x-2 *:p-3">
+    <div className="bg-accent border-accent flex w-fit rounded-md border *:items-center *:space-x-2 *:p-3">
       <div className="border-accent-tertiary flex border-r">{actionButtons}</div>
       <div className="flex">
         <span className="text-sans-sm text-accent">{selectedCount} selected</span>

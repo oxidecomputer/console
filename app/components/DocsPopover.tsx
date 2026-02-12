@@ -54,7 +54,7 @@ export const DocsPopover = ({ heading, icon, summary, links }: DocsPopoverProps)
       </PopoverButton>
       <PopoverPanel
         // popover-panel needed for enter animation
-        className="popover-panel bg-raise border-secondary elevation-2 z-10 w-96 rounded-lg border"
+        className="popover-panel bg-raise light:bg-default shadow-menu z-10 w-96 rounded-lg"
         anchor={{ to: 'bottom end', gap: 12 }}
       >
         <div className="px-4">

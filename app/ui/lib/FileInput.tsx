@@ -81,16 +81,16 @@ export function FileInput({
       <div
         className={cn(
           'text-raise bg-default pointer-events-none relative z-1 flex flex-col items-center justify-center space-y-0.5 rounded-md border px-4 py-6',
-          dragOver && 'bg-accent-secondary border-accent-secondary!',
+          dragOver && 'bg-accent border-accent-secondary!',
           error
             ? 'border-error-secondary! group-hover:border-error'
-            : 'border-default group-hover:border-hover'
+            : 'border-default group-hover:border-raise'
         )}
       >
         <div
           className={cn(
-            'text-accent bg-accent-secondary flex items-center justify-center rounded-md p-1',
-            dragOver && 'bg-accent-secondary-hover'
+            'text-accent bg-accent flex items-center justify-center rounded-md p-1',
+            dragOver && 'bg-accent-hover'
           )}
         >
           <Document16Icon className="h-4 w-4" />

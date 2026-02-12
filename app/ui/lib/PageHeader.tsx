@@ -17,9 +17,9 @@ interface PageTitleProps {
 }
 export const PageTitle = ({ children: title, icon }: PageTitleProps) => {
   return (
-    <h1 className="text-sans-3xl text-accent-secondary inline-flex items-center space-x-2">
+    <h1 className="text-sans-3xl text-accent-secondary light:text-quaternary inline-flex items-center space-x-2">
       {icon}
-      <span className="text-accent">{title}</span>
+      <span className="text-accent light:text-default">{title}</span>
     </h1>
   )
 }

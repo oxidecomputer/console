@@ -33,7 +33,7 @@ export default function DeviceAuthVerifyPage() {
 
   return (
     <form
-      className="bg-raise! border-secondary elevation-3 w-full max-w-[470px] rounded-lg border p-9 text-center"
+      className="bg-raise! shadow-modal w-full max-w-[470px] rounded-lg p-9 text-center"
       onSubmit={(event) => {
         event.preventDefault()
 

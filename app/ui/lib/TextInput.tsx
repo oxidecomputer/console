@@ -68,7 +68,7 @@ export function TextInput({
         'flex items-center rounded-md border',
         error
           ? 'border-error-secondary hover:border-error'
-          : 'border-default hover:border-hover',
+          : 'border-default hover:border-raise',
         disabled && 'border-default!',
         className
       )}

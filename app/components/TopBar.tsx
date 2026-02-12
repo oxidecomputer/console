@@ -53,10 +53,7 @@ export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
 const bigIconBox = 'flex h-[34px] w-[34px] items-center justify-center rounded'
 
 const BigIdenticon = ({ name }: { name: string }) => (
-  <Identicon
-    className={cn(bigIconBox, 'text-accent bg-accent-secondary-hover')}
-    name={name}
-  />
+  <Identicon className={cn(bigIconBox, 'text-accent bg-accent-hover')} name={name} />
 )
 
 const SystemIcon = () => (

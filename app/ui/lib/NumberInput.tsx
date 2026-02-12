@@ -37,7 +37,7 @@ export function NumberInput(props: NumberInputProps) {
         'relative flex rounded-md border',
         props.error
           ? 'border-error-secondary hover:border-error'
-          : 'border-default hover:border-hover',
+          : 'border-default hover:border-raise',
         props.isDisabled && 'border-default!',
         props.className
       )}

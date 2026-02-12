@@ -179,7 +179,7 @@ export const Combobox = ({
               `flex rounded-md border focus-within:ring-2`,
               hasError
                 ? 'focus-error border-error-secondary focus-within:ring-error-secondary hover:border-error'
-                : 'border-default focus-within:ring-accent-secondary hover:border-hover',
+                : 'border-default focus-within:ring-accent-secondary hover:border-raise',
               disabled
                 ? 'text-disabled bg-disabled border-default! cursor-not-allowed'
                 : 'bg-default',

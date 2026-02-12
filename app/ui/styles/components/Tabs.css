@@ -6,94 +6,62 @@
  * Copyright Oxide Computer Company
  */
 
-/* Tab list container styles */
+.ox-tabs.full-width {
+  @apply !mx-0 !w-full;
+}
+
+.ox-tabs.full-width .ox-tabs-panel {
+  @apply mx-(--content-gutter);
+}
+
 .ox-tabs-list {
   @apply mb-8 flex bg-transparent;
 }
 
 .ox-tabs-list:after {
   @apply border-secondary block w-full border-b;
-  content: '';
+  content: ' ';
+}
+.ox-tabs.full-width .ox-tabs-list:before {
+  @apply border-secondary block w-10 min-w-max shrink-0 border-b;
+  content: ' ';
 }
 
-/* Panel styles */
 .ox-tabs-panel:focus-visible {
   @apply outline-accent-secondary outline-2 outline-offset-[1rem];
 }
 
-/* Base tab styles */
 .ox-tab {
-  @apply text-mono-sm text-secondary border-secondary h-10 space-x-2 border-b px-1.5 pt-2 pb-1 whitespace-nowrap uppercase !no-underline;
+  @apply text-mono-sm text-tertiary border-secondary h-10 space-x-2 border-b px-1.5 pt-2 pb-1 whitespace-nowrap uppercase no-underline!;
 }
 
-.ox-tabs-list .ox-tab > * {
+.ox-tab[data-state='active'],
+.ox-tab.is-selected {
+  @apply text-accent border-accent light:border-green-800 light:text-raise;
+}
+
+.ox-tab > * {
   @apply rounded-md bg-transparent px-1.5 py-1;
 }
-
-/* Hover states */
-.ox-tabs-list .ox-tab:hover > * {
+.ox-tab:hover > * {
   @apply bg-hover;
 }
 
-/* Active states */
-.ox-tab[data-state='active'] {
-  @apply text-accent border-accent;
+.ox-tab[data-state='active']:hover > *,
+.ox-tab.is-selected:hover > * {
+  @apply !bg-accent light:bg-hover!;
 }
 
-.ox-tabs-list .ox-tab[data-state='active']:hover > * {
-  @apply bg-accent-secondary;
-}
-
-/* Badge styles */
 .ox-tab > .ox-badge {
   @apply -mt-1 text-current select-none;
 }
 
-.ox-tab[data-state='inactive'] > .ox-badge {
+.ox-tab[data-state='inactive'] > .ox-badge,
+.ox-tab:not(.is-selected) > .ox-badge {
   @apply bg-disabled;
 }
 
-.ox-tab[data-state='active'] > .ox-badge {
-  @apply bg-accent-secondary-hover;
-}
-
-/* Full width variants */
-.ox-tabs.full-width {
-  @apply !mx-0 !w-full;
-}
-
-.ox-tabs.full-width > .ox-tabs-panel {
-  @apply mx-[var(--content-gutter)];
-}
-
-.ox-tabs.full-width .ox-tabs-list:before {
-  @apply border-secondary block w-10 min-w-max flex-shrink-0 border-b;
-  content: '';
-}
-
-/* Side tabs styles */
-.ox-side-tabs-list {
-  @apply sticky top-10 flex w-[180px] flex-shrink-0 flex-col gap-0.5 self-start;
-}
-
-.ox-side-tabs-list .ox-tab {
-  @apply text-sans-md text-secondary h-auto rounded-md p-2 py-1.5 whitespace-nowrap normal-case !no-underline;
-  border-bottom: none;
-}
-
-.ox-side-tabs-list .ox-tab[data-state='active'] {
-  @apply text-accent bg-accent-secondary;
-  border: none;
-}
-
-.ox-side-tabs .ox-tabs-panel {
-  @apply mx-0 ml-4;
-}
-
-.ox-side-tabs-list .ox-tab[data-state='active']:hover {
-  @apply bg-accent-secondary-hover;
-}
-
-.ox-side-tabs-list .ox-tab:not([data-state='active']):hover {
-  @apply text-default bg-hover;
+.ox-tab[data-state='active'] > .ox-badge,
+.ox-tab.is-selected > .ox-badge {
+  @apply bg-accent;
 }
