@@ -1349,9 +1349,10 @@ export const handlers = makeHandlers({
 
     const disk = lookup.disk({ ...query, disk: body.disk })
     if (!diskCan.snapshot(disk)) {
+      if (disk.read_only) throw "Read-only disks don't support snapshots"
       throw match(disk.disk_type)
         .with('distributed', () => 'Cannot snapshot disk in state ' + disk.state.state)
-        .with('local', () => 'Only distributed disks support snapshots')
+        .with('local', () => "Local disks don't support snapshots")
         .exhaustive()
     }
 
