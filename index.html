@@ -13,14 +13,25 @@
     <title>Oxide Console</title>
 
     <meta name="viewport" content="width=1050" />
-    <!-- todo: Replace with dynamic theme -->
-    <meta name="color-scheme" content="light" />
+    <meta name="color-scheme" content="dark light" />
 
     <link rel="icon" type="image/svg+xml" href="./app/assets/favicon.svg" />
     <link rel="icon" type="image/png" href="./app/assets/favicon.png" />
+
+    <!-- Set theme before first paint to prevent flash. Mirrors logic in app/stores/theme.ts. -->
+    <script>
+      ;(function () {
+        var p = 'dark'
+        try {
+          p = localStorage.getItem('theme-preference') || 'dark'
+        } catch (e) {}
+        if (p === 'system')
+          p = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+        document.documentElement.dataset.theme = p
+      })()
+    </script>
   </head>
-  <!-- todo: Replace with dynamic theme -->
-  <body class="light" data-theme="light">
+  <body>
     <div id="root"></div>
     <noscript>
       <div class="grid min-h-screen place-content-center">

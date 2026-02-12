@@ -11,6 +11,7 @@ import { Outlet, useNavigation } from 'react-router'
 import { MswBanner } from '~/components/MswBanner'
 import { ToastStack } from '~/components/ToastStack'
 import { useCrumbs } from '~/hooks/use-crumbs'
+import { useApplyTheme } from '~/stores/theme'
 
 /**
  * non top-level route: Instances / mock-project / Projects / maze-war / Oxide Console
@@ -28,6 +29,7 @@ const useTitle = () =>
  * anything to actually belong here.
  */
 export default function RootLayout() {
+  useApplyTheme()
   const title = useTitle()
   useEffect(() => {
     document.title = title

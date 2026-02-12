@@ -25,7 +25,7 @@
       @apply text-destructive-disabled;
     }
 
-    &[data-focus] {
+    &[data-highlighted] {
       outline: none;
       @apply bg-tertiary;
     }
