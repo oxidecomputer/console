@@ -39,7 +39,7 @@ export function Popover(props: PopoverProps) {
       <div
         {...popoverProps}
         ref={ref}
-        className="bg-raise shadow-menu absolute top-full z-(--z-popover) mt-2 rounded-lg"
+        className="bg-raise light:bg-default shadow-menu absolute top-full z-(--z-popover) mt-2 rounded-lg"
       >
         <DismissButton onDismiss={state.close} />
         {children}

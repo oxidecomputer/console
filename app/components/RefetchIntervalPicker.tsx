@@ -52,7 +52,7 @@ export function useIntervalPicker({ enabled, isLoading, fn, className }: Props) 
         <button
           type="button"
           className={cn(
-            'border-default flex w-10 items-center justify-center rounded-l border-t border-b border-l disabled:cursor-default',
+            'border-default bg-default flex w-10 items-center justify-center rounded-l-md border-t border-b border-l disabled:cursor-default',
             isLoading && 'hover:bg-hover',
             !enabled && 'bg-disabled cursor-not-allowed'
           )}

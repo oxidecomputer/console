@@ -64,9 +64,9 @@ const longDateTime = (ts: number) => format(new Date(ts), 'MMM d, yyyy HH:mm:ss 
 
 const GRID_GRAY = 'var(--stroke-secondary)'
 const CURSOR = 'var(--chart-stroke-item)'
-const GREEN_400 = 'var(--theme-accent-400)'
-const GREEN_600 = 'var(--theme-accent-600)'
-const GREEN_800 = 'var(--theme-accent-800)'
+const GREEN_400 = 'var(--surface-accent-secondary)'
+const GREEN_600 = 'var(--content-accent-tertiary)'
+const GREEN_800 = 'var(--content-accent)'
 
 // TODO: figure out how to do this with TW classes instead. As far as I can tell
 // ticks only take direct styling
@@ -344,7 +344,7 @@ const MetricsEmpty = () => (
     description="There is no data for this time period."
   />
 )
-export const ChartContainer = classed.div`flex w-full grow flex-col rounded-lg border border-default`
+export const ChartContainer = classed.div`flex w-full grow flex-col rounded-lg border border-default bg-default`
 
 type ChartHeaderProps = {
   title: string

@@ -176,7 +176,7 @@ export const Combobox = ({
           )}
           <div
             className={cn(
-              `flex rounded-md border focus-within:ring-2`,
+              `bg-default flex rounded-md border focus-within:ring-2`,
               hasError
                 ? 'focus-error border-error-secondary focus-within:ring-error-secondary hover:border-error'
                 : 'border-default focus-within:ring-accent-secondary hover:border-raise',
