@@ -100,7 +100,7 @@ export async function expectRowVisible(
   expectedRow: Record<string, string | StringMatcher>
 ) {
   // wait for header and rows to avoid flake town
-  const headerLoc = table.locator('thead >> role=cell')
+  const headerLoc = table.locator('thead >> role=columnheader')
   // unlike most things, waitFor has no timeout by default
   await headerLoc.first().waitFor({ timeout: 10_000 }) // nth=0 bc error if there's more than 1
 
