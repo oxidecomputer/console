@@ -67,6 +67,15 @@ async function listSchemaDir(ref: string) {
   try {
     return await $`gh api ${SPEC_DIR_URL(ref)}`.stderr('null').json()
   } catch {
+    // Verify the ref exists — if it doesn't, error out instead of
+    // falling back to legacy path for a nonexistent ref
+    try {
+      await $`gh api repos/oxidecomputer/omicron/commits/${ref}`
+        .stderr('null')
+        .stdout('null')
+    } catch {
+      throw new Error(`Ref '${ref}' not found in oxidecomputer/omicron`)
+    }
     return null
   }
 }
@@ -163,7 +172,13 @@ async function ensureSchema(commit: string, specFilename: string, force: boolean
   if (force || !(await exists(schemaPath))) {
     await $`mkdir -p ${dir}`
     console.error(`Downloading ${specFilename}...`)
-    const content = await fetch(SPEC_RAW_URL(commit, specFilename)).then((r) => r.text())
+    const resp = await fetch(SPEC_RAW_URL(commit, specFilename))
+    if (!resp.ok) {
+      throw new Error(
+        `Failed to download ${specFilename} at ${commit}: ${resp.status} ${resp.statusText}`
+      )
+    }
+    const content = await resp.text()
     await Deno.writeTextFile(schemaPath, content)
   }
   return schemaPath
