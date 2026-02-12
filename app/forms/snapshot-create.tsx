@@ -84,7 +84,7 @@ export default function SnapshotCreate() {
       <ComboboxField
         label="Disk"
         name="disk"
-        description="Only disks that can be snapshotted are listed"
+        description="Only disks that support snapshots are listed"
         placeholder="Select a disk"
         items={diskItemsForCombobox}
         required

@@ -101,8 +101,21 @@ test('Local disk snapshot disabled', async ({ page }) => {
 
   // hover to see tooltip with disabled reason
   await snapshotItem.hover()
+  await expect(page.getByRole('tooltip')).toHaveText("Local disks don't support snapshots")
+})
+
+test('Read-only disk snapshot disabled', async ({ page }) => {
+  await page.goto('/projects/mock-project/disks')
+
+  const row = page.getByRole('row', { name: 'read-only-disk', exact: false })
+  await row.getByRole('button', { name: 'Row actions' }).click()
+
+  const snapshotItem = page.getByRole('menuitem', { name: 'Snapshot' })
+  await expect(snapshotItem).toBeDisabled()
+
+  await snapshotItem.hover()
   await expect(page.getByRole('tooltip')).toHaveText(
-    'Only distributed disks support snapshots'
+    "Read-only disks don't support snapshots"
   )
 })
 
