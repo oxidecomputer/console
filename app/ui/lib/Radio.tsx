@@ -34,7 +34,7 @@ export const Radio = ({ children, className, alignTop, ...inputProps }: RadioPro
     <span className="relative h-4 w-4 shrink-0">
       <input className={cn(fieldStyles, className)} type="radio" {...inputProps} />
       {/* the dot in the middle. hide by default, use peer-checked to show if checked */}
-      <div className="bg-accent light:bg-green-600 pointer-events-none absolute top-1 left-1 hidden h-2 w-2 rounded-full peer-checked:block" />
+      <div className="bg-accent light:bg-(--theme-accent-600) pointer-events-none absolute top-1 left-1 hidden h-2 w-2 rounded-full peer-checked:block" />
     </span>
 
     {children && <span className="text-sans-md text-default ml-2.5">{children}</span>}

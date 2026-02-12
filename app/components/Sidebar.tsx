@@ -84,7 +84,7 @@ Sidebar.Nav = ({ children, heading }: SidebarNav) => (
       </div>
     )}
     <nav aria-label="Sidebar navigation">
-      <ul className="space-y-0.5">{children}</ul>
+      <ul className="space-y-px">{children}</ul>
     </nav>
   </div>
 )

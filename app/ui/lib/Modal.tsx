@@ -74,7 +74,7 @@ export function Modal({
               animate={{ x: '-50%', y: '-50%' }}
               transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
               className={cn(
-                'bg-raise shadow-modal pointer-events-auto fixed top-[min(50%,500px)] left-1/2 z-(--z-modal) m-0 flex max-h-[min(800px,80vh)] flex-col justify-between rounded-lg p-0',
+                'bg-raise light:bg-default shadow-modal pointer-events-auto fixed top-[min(50%,500px)] left-1/2 z-(--z-modal) m-0 flex max-h-[min(800px,80vh)] flex-col justify-between overflow-hidden rounded-lg p-0',
                 widthClass[width]
               )}
             >
