@@ -183,7 +183,7 @@ function SerialSkeleton({ children, animate }: SkeletonProps) {
         {[...Array(200)].map((_e, i) => (
           <div
             key={i}
-            className={cn('bg-tertiary h-4 rounded', {
+            className={cn('bg-tertiary h-4 rounded-md', {
               'motion-safe:animate-pulse': animate,
             })}
             style={{

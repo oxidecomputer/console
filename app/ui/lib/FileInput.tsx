@@ -69,7 +69,7 @@ export function FileInput({
         type="file"
         name="file"
         className={cn(
-          'absolute inset-0 -z-1 w-full cursor-pointer rounded',
+          'absolute inset-0 -z-1 w-full cursor-pointer rounded-md',
           error && 'focus-error'
         )}
         {...inputProps}

@@ -29,10 +29,7 @@ export const MoreActionsMenu = ({
     <DropdownMenu.Root>
       <DropdownMenu.Trigger
         aria-label={label}
-        className={cn(
-          'headless-hide-focus rounded',
-          variant === 'filled' && 'h-full w-full'
-        )}
+        className={cn('rounded-md', variant === 'filled' && 'h-full w-full')}
       >
         <div
           className={cn(

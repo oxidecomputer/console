@@ -87,10 +87,10 @@ function Bar({ pct }: { pct: number }) {
   return (
     <div className="flex w-full gap-0.5">
       <div
-        className="bg-accent border-accent-secondary h-3 rounded-l border"
+        className="bg-accent border-accent-secondary h-3 rounded-l-md border"
         style={{ width: `${pct.toFixed(2)}%` }}
       ></div>
-      <div className="bg-info-secondary border-info-secondary h-3 grow rounded-r border"></div>
+      <div className="bg-info-secondary border-info-secondary h-3 grow rounded-r-md border"></div>
     </div>
   )
 }

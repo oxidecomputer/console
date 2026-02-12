@@ -54,7 +54,7 @@ export const CopyToClipboard = ({
   return (
     <button
       className={cn(
-        'active-clicked relative h-5 w-5 rounded',
+        'active-clicked relative h-5 w-5 rounded-md',
         hasCopied
           ? 'text-accent bg-accent'
           : 'text-tertiary hover:text-default hover:bg-hover',

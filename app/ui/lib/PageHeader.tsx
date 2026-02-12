@@ -19,7 +19,7 @@ export const PageTitle = ({ children: title, icon }: PageTitleProps) => {
   return (
     <h1 className="text-sans-3xl text-accent-secondary light:text-(--theme-accent-1100) inline-flex items-center space-x-2">
       {icon}
-      <span className="text-accent light:text-default">{title}</span>
+      <span className="text-accent light:text-raise">{title}</span>
     </h1>
   )
 }

@@ -206,7 +206,7 @@ export function ActionMenu(props: ActionMenuProps) {
                     ))}
                   </ul>
                 </div>
-                <div className="text-default bg-tertiary flex justify-between rounded-b-[3px] px-4 py-2">
+                <div className="text-default bg-tertiary flex justify-between rounded-b-md px-4 py-2">
                   <ActionMenuHotkey keys={['Enter']} action="submit" />
                   <ActionMenuHotkey keys={['Arrow Up', 'Arrow Down']} action="select" />
                   <ActionMenuHotkey keys={['Esc']} action="close" />

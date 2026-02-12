@@ -77,7 +77,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
               </div>
             )}
           </div>
-          <div className="border-default -ml-px flex h-[calc(100%-12px)] w-10 items-center justify-center rounded-r border-l outline-hidden">
+          <div className="border-default -ml-px flex h-[calc(100%-12px)] w-10 items-center justify-center rounded-r-md border-l outline-hidden">
             <Calendar16Icon className="text-secondary h-4 w-4" />
           </div>
         </button>
