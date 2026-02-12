@@ -51,9 +51,19 @@ async function resolveCommit(ref?: string | number): Promise<string> {
     const pr = await $`gh api graphql -f query=${query}`.json()
     return pr.data.repository.pullRequest.headRefOid
   }
-  // Tags, branches, and SHAs are passed through directly — the GitHub
-  // contents API accepts any ref in the ?ref= param
-  return ref
+  // Full SHA is already resolved
+  if (/^[0-9a-f]{40}$/.test(ref)) return ref
+  // Resolve branches, tags, and short SHAs to a full commit SHA so the
+  // cache directory is keyed by immutable commit, not a moving ref
+  console.error(`Resolving ${ref} to commit...`)
+  try {
+    const sha = await $`gh api repos/oxidecomputer/omicron/commits/${ref} --jq .sha`
+      .stderr('null')
+      .text()
+    return sha.trim()
+  } catch {
+    throw new Error(`Ref '${ref}' not found in oxidecomputer/omicron`)
+  }
 }
 
 /** 5 or fewer digits is a PR number; longer digit strings are short SHAs */
@@ -63,19 +73,9 @@ const normalizeRef = (ref?: string | number) =>
 const LEGACY_SPEC_PATH = 'openapi/nexus.json'
 
 async function listSchemaDir(ref: string) {
-  console.error(`Fetching schema list for ${ref}...`)
   try {
     return await $`gh api ${SPEC_DIR_URL(ref)}`.stderr('null').json()
   } catch {
-    // Verify the ref exists — if it doesn't, error out instead of
-    // falling back to legacy path for a nonexistent ref
-    try {
-      await $`gh api repos/oxidecomputer/omicron/commits/${ref}`
-        .stderr('null')
-        .stdout('null')
-    } catch {
-      throw new Error(`Ref '${ref}' not found in oxidecomputer/omicron`)
-    }
     return null
   }
 }
@@ -215,7 +215,7 @@ async function runDiff(
 
   // use -L to set labels, extracting version from spec filename (e.g., nexus-2026010300.0.0-7599dd.json)
   const getVersion = (spec: string) =>
-    spec.match(/nexus-([^.]+\.[^.]+\.[^.]+)/)?.[1] ?? spec
+    spec.match(/nexus-([^.]+\.[^.]+\.[^.]+)/)?.[1] ?? 'unversioned'
   const baseLabel = `a/${getVersion(baseVersion)}/${filename}`
   const headLabel = `b/${getVersion(headVersion)}/${filename}`
   // diff exits 1 when files differ, so noThrow() to avoid breaking the pipe
