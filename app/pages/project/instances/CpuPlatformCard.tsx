@@ -79,7 +79,7 @@ export function CpuPlatformCard() {
           <ListboxField
             control={form.control}
             name="cpuPlatform"
-            label="Preference"
+            label="Required CPU"
             description="If a CPU platform is specified, the instance will only be placed on compatible hosts."
             items={cpuPlatformItems}
             className="max-w-lg"

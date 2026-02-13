@@ -18,9 +18,9 @@ test('can update CPU platform preference', async ({ page }) => {
   const save = page.getByRole('button', { name: 'Save' })
   await expect(save).toBeDisabled()
 
-  // verify initial state is "No preference"
-  const platformListbox = page.getByRole('button', { name: 'Preference' })
-  await expect(platformListbox).toContainText('No preference')
+  // verify initial state is "No requirement"
+  const platformListbox = page.getByRole('button', { name: 'Required CPU' })
+  await expect(platformListbox).toContainText('No requirement')
 
   // change to AMD Milan
   await platformListbox.click()
@@ -42,13 +42,13 @@ test('can update CPU platform preference', async ({ page }) => {
   await expect(platformListbox).toContainText('AMD Turin')
   await expect(save).toBeDisabled()
 
-  // change back to No preference
+  // change back to No requirement
   await platformListbox.click()
-  await page.getByRole('option', { name: 'No preference' }).click()
+  await page.getByRole('option', { name: 'No requirement' }).click()
   await expect(save).toBeEnabled()
   await save.click()
 
   await expectToast(page, 'CPU platform preference updated')
-  await expect(platformListbox).toContainText('No preference')
+  await expect(platformListbox).toContainText('No requirement')
   await expect(save).toBeDisabled()
 })

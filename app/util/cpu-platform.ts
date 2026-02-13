@@ -11,7 +11,7 @@ import type { ListboxItem } from '~/ui/lib/Listbox'
 export type FormCpuPlatform = InstanceCpuPlatform | 'none'
 
 export const cpuPlatformItems: ListboxItem<FormCpuPlatform>[] = [
-  { value: 'none', label: 'No preference' },
+  { value: 'none', label: 'No requirement' },
   { value: 'amd_milan', label: 'AMD Milan' },
   { value: 'amd_turin', label: 'AMD Turin' },
 ]

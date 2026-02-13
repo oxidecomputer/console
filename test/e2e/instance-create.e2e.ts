@@ -694,7 +694,7 @@ test('can create instance with CPU platform preference', async ({ page }) => {
 
   // Select CPU platform
   const cpuPlatformDropdown = page.getByRole('button', { name: 'CPU platform' })
-  await expect(cpuPlatformDropdown).toContainText('No preference')
+  await expect(cpuPlatformDropdown).toContainText('No requirement')
   await cpuPlatformDropdown.click()
   await page.getByRole('option', { name: 'AMD Milan' }).click()
   await expect(cpuPlatformDropdown).toContainText('AMD Milan')
@@ -707,7 +707,7 @@ test('can create instance with CPU platform preference', async ({ page }) => {
 
   // Navigate to settings tab to verify CPU platform was set
   await page.getByRole('tab', { name: 'settings' }).click()
-  const settingsCpuPlatformDropdown = page.getByRole('button', { name: 'Preference' })
+  const settingsCpuPlatformDropdown = page.getByRole('button', { name: 'Required CPU' })
   await expect(settingsCpuPlatformDropdown).toContainText('AMD Milan')
 })
 
