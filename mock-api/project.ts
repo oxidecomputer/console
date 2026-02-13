@@ -56,7 +56,7 @@ export const projectNoVpcs: DbProject = {
 
 // Projects for test silos (different IP pool configurations)
 export const projectKosman: DbProject = {
-  id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+  id: 'a1b2c3d4-e5f6-4890-abcd-ef1234567890',
   name: 'kosman-project',
   description: 'project in myriad silo (v4-only default pool)',
   time_created: new Date(2024, 0, 5).toISOString(),
@@ -65,7 +65,7 @@ export const projectKosman: DbProject = {
 }
 
 export const projectAnscombe: DbProject = {
-  id: 'b2c3d4e5-f6a7-8901-bcde-f12345678901',
+  id: 'b2c3d4e5-f6a7-4901-bcde-f12345678901',
   name: 'anscombe-project',
   description: 'project in thrax silo (v6-only default pool)',
   time_created: new Date(2024, 0, 7).toISOString(),
@@ -74,7 +74,7 @@ export const projectAnscombe: DbProject = {
 }
 
 export const projectAdorno: DbProject = {
-  id: 'c3d4e5f6-a7b8-9012-cdef-123456789012',
+  id: '738c46df-35b1-44a2-ae1f-31005a0cbfee',
   name: 'adorno-project',
   description: 'project in pelerines silo (no default pools)',
   time_created: new Date(2024, 0, 9).toISOString(),
