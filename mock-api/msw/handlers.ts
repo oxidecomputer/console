@@ -665,7 +665,7 @@ export const handlers = makeHandlers({
             name,
             description,
             instance_id: instanceId,
-            primary: i === 0 ? true : false,
+            primary: i === 0,
             mac: '00:00:00:00:00:00',
             ip_stack: ip_config
               ? resolveIpStack(ip_config)
@@ -1349,9 +1349,10 @@ export const handlers = makeHandlers({
 
     const disk = lookup.disk({ ...query, disk: body.disk })
     if (!diskCan.snapshot(disk)) {
+      if (disk.read_only) throw "Read-only disks don't support snapshots"
       throw match(disk.disk_type)
         .with('distributed', () => 'Cannot snapshot disk in state ' + disk.state.state)
-        .with('local', () => 'Only distributed disks support snapshots')
+        .with('local', () => "Local disks don't support snapshots")
         .exhaustive()
     }
 

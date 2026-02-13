@@ -114,7 +114,7 @@ const getBootDiskAttachment = (
       diskSource: {
         type: 'image',
         imageId: source,
-        readOnly: values.bootDiskReadOnly,
+        readOnly: false,
       },
     },
   }
@@ -482,6 +482,8 @@ export default function CreateInstanceForm() {
           }
         }}
       />
+      {/* Read-only disk creation disabled pending propolis fix
+          https://github.com/oxidecomputer/console/issues/3071
       <div key="divider3" className="my-6! content-['a']" />
       <CheckboxField
         key="bootDiskReadOnly"
@@ -491,6 +493,7 @@ export default function CreateInstanceForm() {
       >
         Make disk read-only
       </CheckboxField>
+      */}
     </>
   )
 

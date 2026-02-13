@@ -36,12 +36,13 @@ type DiffTarget = {
 const SPEC_DIR_URL = (commit: string) =>
   `https://api.github.com/repos/oxidecomputer/omicron/contents/openapi/nexus?ref=${commit}`
 
-const SPEC_RAW_URL = (commit: string, filename: string) =>
-  `https://raw.githubusercontent.com/oxidecomputer/omicron/${commit}/openapi/nexus/${filename}`
+const SPEC_RAW_URL = (ref: string, path: string) =>
+  `https://raw.githubusercontent.com/oxidecomputer/omicron/${ref}/${path}`
 
 async function resolveCommit(ref?: string | number): Promise<string> {
   if (ref === undefined) return resolveCommit(await pickPr())
   if (typeof ref === 'number') {
+    console.error(`Resolving PR #${ref} to commit...`)
     const query = `{
       repository(owner: "oxidecomputer", name: "omicron") {
         pullRequest(number: ${ref}) { headRefOid }
@@ -50,27 +51,67 @@ async function resolveCommit(ref?: string | number): Promise<string> {
     const pr = await $`gh api graphql -f query=${query}`.json()
     return pr.data.repository.pullRequest.headRefOid
   }
-  return ref
+  // Full SHA is already resolved
+  if (/^[0-9a-f]{40}$/.test(ref)) return ref
+  // Resolve branches, tags, and short SHAs to a full commit SHA so the
+  // cache directory is keyed by immutable commit, not a moving ref
+  console.error(`Resolving ${ref} to commit...`)
+  try {
+    const sha = await $`gh api repos/oxidecomputer/omicron/commits/${ref} --jq .sha`
+      .stderr('null')
+      .text()
+    return sha.trim()
+  } catch {
+    throw new Error(`Ref '${ref}' not found in oxidecomputer/omicron`)
+  }
 }
 
+/** 5 or fewer digits is a PR number; longer digit strings are short SHAs */
 const normalizeRef = (ref?: string | number) =>
-  typeof ref === 'string' && /^\d+$/.test(ref) ? parseInt(ref, 10) : ref
+  typeof ref === 'string' && /^\d{1,5}$/.test(ref) ? parseInt(ref, 10) : ref
 
-async function getLatestSchema(commit: string) {
-  const contents = await $`gh api ${SPEC_DIR_URL(commit)}`.json()
-  const latestLink = contents.find((f: { name: string }) => f.name === 'nexus-latest.json')
-  if (!latestLink) throw new Error('nexus-latest.json not found')
-  return (await fetch(latestLink.download_url).then((r) => r.text())).trim()
+const LEGACY_SPEC_PATH = 'openapi/nexus.json'
+
+async function listSchemaDir(ref: string) {
+  try {
+    return await $`gh api ${SPEC_DIR_URL(ref)}`.stderr('null').json()
+  } catch {
+    return null
+  }
 }
 
-/** When diffing a single commit, we diff its latest schema against the previous one */
-async function getLatestAndPreviousSchema(commit: string) {
-  const contents = await $`gh api ${SPEC_DIR_URL(commit)}`.json()
+async function getLatestSchema(ref: string) {
+  const contents = await listSchemaDir(ref)
+  if (!contents) {
+    console.error(`No openapi/nexus/ dir at ${ref}, falling back to ${LEGACY_SPEC_PATH}`)
+    return LEGACY_SPEC_PATH
+  }
+  const schemaFiles = contents
+    .map((f: { name: string }) => f.name)
+    .filter((n: string) => n.startsWith('nexus-'))
+    .sort()
+  const latestLink = contents.find((f: { name: string }) => f.name === 'nexus-latest.json')
+  if (!latestLink) {
+    throw new Error(
+      `nexus-latest.json not found at ref '${ref}'. ` +
+        `Available schemas: ${schemaFiles.join(', ') || '(none)'}`
+    )
+  }
+  const latest = (await fetch(latestLink.download_url).then((r) => r.text())).trim()
+  return `openapi/nexus/${latest}`
+}
+
+/** When diffing a single ref, we diff its latest schema against the previous one */
+async function getLatestAndPreviousSchema(ref: string) {
+  const contents = await listSchemaDir(ref)
+  if (!contents) {
+    throw new Error(
+      `No openapi/nexus/ dir at ref '${ref}'. ` +
+        `Single-ref mode requires the versioned schema directory.`
+    )
+  }
 
   const latestLink = contents.find((f: { name: string }) => f.name === 'nexus-latest.json')
-  if (!latestLink) throw new Error('nexus-latest.json not found')
-  const latest = (await fetch(latestLink.download_url).then((r) => r.text())).trim()
-
   const schemaFiles = contents
     .filter(
       (f: { name: string }) => f.name.startsWith('nexus-') && f.name !== 'nexus-latest.json'
@@ -78,11 +119,23 @@ async function getLatestAndPreviousSchema(commit: string) {
     .map((f: { name: string }) => f.name)
     .sort()
 
-  const latestIndex = schemaFiles.indexOf(latest)
-  if (latestIndex === -1) throw new Error(`Latest schema ${latest} not found in dir`)
-  if (latestIndex === 0) throw new Error('No previous schema version found')
+  if (!latestLink) {
+    throw new Error(
+      `nexus-latest.json not found at ref '${ref}'. ` +
+        `Available schemas: ${schemaFiles.join(', ') || '(none)'}`
+    )
+  }
+  const latest = (await fetch(latestLink.download_url).then((r) => r.text())).trim()
 
-  return { previous: schemaFiles[latestIndex - 1], latest }
+  const latestIndex = schemaFiles.indexOf(latest)
+  if (latestIndex === -1)
+    throw new Error(`Latest schema ${latest} not found in dir at ref '${ref}'`)
+  if (latestIndex === 0) throw new Error(`No previous schema version found at ref '${ref}'`)
+
+  return {
+    previous: `openapi/nexus/${schemaFiles[latestIndex - 1]}`,
+    latest: `openapi/nexus/${latest}`,
+  }
 }
 
 async function resolveTarget(ref1?: string | number, ref2?: string): Promise<DiffTarget> {
@@ -90,24 +143,25 @@ async function resolveTarget(ref1?: string | number, ref2?: string): Promise<Dif
   if (ref2 !== undefined) {
     if (ref1 === undefined)
       throw new ValidationError('Provide a base ref when passing two refs')
-    const [baseCommit, headCommit] = await Promise.all([
+    const [baseRef, headRef] = await Promise.all([
       resolveCommit(normalizeRef(ref1)),
       resolveCommit(normalizeRef(ref2)),
     ])
+    console.error(`Comparing ${baseRef} vs ${headRef}`)
     const [baseSchema, headSchema] = await Promise.all([
-      getLatestSchema(baseCommit),
-      getLatestSchema(headCommit),
+      getLatestSchema(baseRef),
+      getLatestSchema(headRef),
     ])
-    return { baseCommit, baseSchema, headCommit, headSchema }
+    return { baseCommit: baseRef, baseSchema, headCommit: headRef, headSchema }
   }
 
-  // Single ref: compare previous schema to latest within that commit
-  const commit = await resolveCommit(normalizeRef(ref1))
-  const { previous, latest } = await getLatestAndPreviousSchema(commit)
+  // Single ref: compare previous schema to latest within that ref
+  const ref = await resolveCommit(normalizeRef(ref1))
+  const { previous, latest } = await getLatestAndPreviousSchema(ref)
   return {
-    baseCommit: commit,
+    baseCommit: ref,
     baseSchema: previous,
-    headCommit: commit,
+    headCommit: ref,
     headSchema: latest,
   }
 }
@@ -118,7 +172,13 @@ async function ensureSchema(commit: string, specFilename: string, force: boolean
   if (force || !(await exists(schemaPath))) {
     await $`mkdir -p ${dir}`
     console.error(`Downloading ${specFilename}...`)
-    const content = await fetch(SPEC_RAW_URL(commit, specFilename)).then((r) => r.text())
+    const resp = await fetch(SPEC_RAW_URL(commit, specFilename))
+    if (!resp.ok) {
+      throw new Error(
+        `Failed to download ${specFilename} at ${commit}: ${resp.status} ${resp.statusText}`
+      )
+    }
+    const content = await resp.text()
     await Deno.writeTextFile(schemaPath, content)
   }
   return schemaPath
@@ -155,7 +215,7 @@ async function runDiff(
 
   // use -L to set labels, extracting version from spec filename (e.g., nexus-2026010300.0.0-7599dd.json)
   const getVersion = (spec: string) =>
-    spec.match(/nexus-([^.]+\.[^.]+\.[^.]+)/)?.[1] ?? spec
+    spec.match(/nexus-([^.]+\.[^.]+\.[^.]+)/)?.[1] ?? 'unversioned'
   const baseLabel = `a/${getVersion(baseVersion)}/${filename}`
   const headLabel = `b/${getVersion(headVersion)}/${filename}`
   // diff exits 1 when files differ, so noThrow() to avoid breaking the pipe
@@ -170,9 +230,8 @@ await new Command()
 
 Arguments:
   No args          Interactive PR picker
-  <pr>             PR number (e.g., 1234)
-  <commit>         Commit SHA
-  <base> <head>    Two refs (commits or PRs), compare latest schema on each
+  <ref>            PR number, commit SHA, branch, or tag
+  <base> <head>    Two refs, compare latest schema on each
 
 Dependencies:
   - Deno
@@ -193,22 +252,27 @@ Dependencies:
   })
   .arguments('[ref1:string] [ref2:string]')
   .action(async (options, ref?: string, ref2?: string) => {
-    const target = await resolveTarget(ref, ref2)
-    const force = options.force ?? false
+    try {
+      const target = await resolveTarget(ref, ref2)
+      const force = options.force ?? false
 
-    const [baseSchema, headSchema] = await Promise.all([
-      ensureSchema(target.baseCommit, target.baseSchema, force),
-      ensureSchema(target.headCommit, target.headSchema, force),
-    ])
-
-    if (options.format === 'schema') {
-      await runDiff(baseSchema, headSchema, target.baseSchema, target.headSchema)
-    } else {
-      const [baseClient, headClient] = await Promise.all([
-        ensureClient(baseSchema, force),
-        ensureClient(headSchema, force),
+      const [baseSchema, headSchema] = await Promise.all([
+        ensureSchema(target.baseCommit, target.baseSchema, force),
+        ensureSchema(target.headCommit, target.headSchema, force),
       ])
-      await runDiff(baseClient, headClient, target.baseSchema, target.headSchema)
+
+      if (options.format === 'schema') {
+        await runDiff(baseSchema, headSchema, target.baseSchema, target.headSchema)
+      } else {
+        const [baseClient, headClient] = await Promise.all([
+          ensureClient(baseSchema, force),
+          ensureClient(headSchema, force),
+        ])
+        await runDiff(baseClient, headClient, target.baseSchema, target.headSchema)
+      }
+    } catch (e) {
+      console.error(`error: ${e instanceof Error ? e.message : String(e)}`)
+      Deno.exit(1)
     }
   })
   .parse(Deno.args)

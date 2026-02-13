@@ -1278,7 +1278,9 @@ test('floating IPs are filtered by NIC IP version', async ({ page }) => {
   await expect(page.getByText('to attach a floating IP')).toBeVisible()
 })
 
-test('can create instance with read-only boot disk', async ({ page }) => {
+// Read-only disk creation disabled pending propolis fix
+// https://github.com/oxidecomputer/console/issues/3071
+test.skip('can create instance with read-only boot disk', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
 
   const instanceName = 'readonly-boot-instance'

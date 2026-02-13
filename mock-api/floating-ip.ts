@@ -44,7 +44,7 @@ export const floatingIp2: Json<FloatingIp> = {
 
 // An IPv6 floating IP for testing IP version filtering (from ip-pool-2)
 export const floatingIp3: Json<FloatingIp> = {
-  id: 'b1c2d3e4-5f6a-7b8c-9d0e-1f2a3b4c5d6e',
+  id: 'b1c2d3e4-5f6a-4b8c-9d0e-1f2a3b4c5d6e',
   name: 'ipv6-float',
   description: 'An IPv6 address.',
   instance_id: undefined,

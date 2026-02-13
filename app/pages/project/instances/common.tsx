@@ -23,13 +23,14 @@ export const fancifyStates = (states: string[]) =>
   intersperse(states.map(white), <>, </>, <> or </>)
 
 /** Returns a disabled reason if the disk cannot be snapshotted, false otherwise */
-export function snapshotDisabledReason(disk: Pick<Disk, 'state' | 'diskType'>): ReactNode {
+export function snapshotDisabledReason(disk: Disk): ReactNode {
   if (diskCan.snapshot(disk)) return false
+  if (disk.readOnly) return "Read-only disks don't support snapshots"
   return match(disk.diskType)
     .with('distributed', () => (
-      <>Only disks in state {fancifyStates(diskCan.snapshot.states)} can be snapshotted</>
+      <>Only disks in state {fancifyStates(diskCan.snapshot.states)} support snapshots</>
     ))
-    .with('local', () => 'Only distributed disks support snapshots')
+    .with('local', () => "Local disks don't support snapshots")
     .exhaustive()
 }
 
