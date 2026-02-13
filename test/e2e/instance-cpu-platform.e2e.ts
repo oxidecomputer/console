@@ -15,11 +15,16 @@ test('can update CPU platform preference', async ({ page }) => {
   // go to settings tab
   await page.getByRole('tab', { name: 'settings' }).click()
 
-  const save = page.getByRole('button', { name: 'Save' })
+  // Scope to the CPU platform card to avoid ambiguity with other Save buttons
+  const cpuPlatformSection = page
+    .getByRole('heading', { name: 'CPU platform' })
+    .locator('..')
+  const save = cpuPlatformSection.getByRole('button', { name: 'Save' })
+  const platformListbox = cpuPlatformSection.getByRole('button', { name: 'Required CPU' })
+
   await expect(save).toBeDisabled()
 
   // verify initial state is "No requirement"
-  const platformListbox = page.getByRole('button', { name: 'Required CPU' })
   await expect(platformListbox).toContainText('No requirement')
 
   // change to AMD Milan

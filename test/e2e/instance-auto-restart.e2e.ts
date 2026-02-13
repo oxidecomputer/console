@@ -27,13 +27,17 @@ test('Auto restart policy on failed instance', async ({ page }) => {
   await expect(page.getByText(/Cooldown expiration.+, 202\d.+\(5 minutes\)/)).toBeVisible()
   await expect(page.getByText(/Last auto-restarted.+, 202\d/)).toBeVisible()
 
-  const save = page.getByRole('button', { name: 'Save' })
-  await expect(save).toBeDisabled()
+  // Scope to the Auto-restart card to avoid ambiguity with other Save buttons
+  const autoRestartSection = page
+    .getByRole('heading', { name: 'Auto-restart' })
+    .locator('..')
+  const save = autoRestartSection.getByRole('button', { name: 'Save' })
+  const policyListbox = autoRestartSection.getByRole('button', { name: 'Policy' })
 
-  const policyListbox = page.getByRole('button', { name: 'Policy' })
+  await expect(save).toBeDisabled()
   await expect(policyListbox).toContainText('Default')
 
-  await page.getByRole('button', { name: 'Policy' }).click()
+  await policyListbox.click()
   await page.getByRole('option', { name: 'Never' }).click()
   await save.click()
 
@@ -56,14 +60,17 @@ test('Auto restart policy on running instance', async ({ page }) => {
   await expect(page.getByText('Cooldown expirationN/A')).toBeVisible()
   await expect(page.getByText('Last auto-restartedN/A')).toBeVisible()
 
-  // await expect(page.getByRole('button', { name: 'Policy' }))
-  const save = page.getByRole('button', { name: 'Save' })
-  await expect(save).toBeDisabled()
+  // Scope to the Auto-restart card to avoid ambiguity with other Save buttons
+  const autoRestartSection = page
+    .getByRole('heading', { name: 'Auto-restart' })
+    .locator('..')
+  const save = autoRestartSection.getByRole('button', { name: 'Save' })
+  const policyListbox = autoRestartSection.getByRole('button', { name: 'Policy' })
 
-  const policyListbox = page.getByRole('button', { name: 'Policy' })
+  await expect(save).toBeDisabled()
   await expect(policyListbox).toContainText('Default')
 
-  await page.getByRole('button', { name: 'Policy' }).click()
+  await policyListbox.click()
   await page.getByRole('option', { name: 'Never' }).click()
   await save.click()
 
@@ -92,9 +99,15 @@ test('Auto restart popover, restarting soon', async ({ page }) => {
   ).toBeVisible()
   await expect(page.getByText(/Last auto-restarted.+, 202\d/)).toBeVisible()
 
-  const policyListbox = page.getByRole('button', { name: 'Policy' })
+  // Scope to the Auto-restart card to avoid ambiguity with other Save buttons
+  const autoRestartSection = page
+    .getByRole('heading', { name: 'Auto-restart' })
+    .locator('..')
+  const policyListbox = autoRestartSection.getByRole('button', { name: 'Policy' })
+  const save = autoRestartSection.getByRole('button', { name: 'Save' })
+
   await expect(policyListbox).toContainText('Default')
-  await expect(page.getByRole('button', { name: 'Save' })).toBeDisabled()
+  await expect(save).toBeDisabled()
 })
 
 test('Auto restart popover, policy never', async ({ page }) => {
@@ -114,9 +127,15 @@ test('Auto restart popover, policy never', async ({ page }) => {
   await expect(page.getByText(/Cooldown expiration.+, 202\d.+/)).toBeVisible()
   await expect(page.getByText(/Last auto-restarted.+, 202\d/)).toBeVisible()
 
-  const policyListbox = page.getByRole('button', { name: 'Policy' })
+  // Scope to the Auto-restart card to avoid ambiguity with other Save buttons
+  const autoRestartSection = page
+    .getByRole('heading', { name: 'Auto-restart' })
+    .locator('..')
+  const policyListbox = autoRestartSection.getByRole('button', { name: 'Policy' })
+  const save = autoRestartSection.getByRole('button', { name: 'Save' })
+
   await expect(policyListbox).toContainText('Never')
-  await expect(page.getByRole('button', { name: 'Save' })).toBeDisabled()
+  await expect(save).toBeDisabled()
 })
 
 test('Auto restart popover, cooled, policy never, cooled', async ({ page }) => {
@@ -137,7 +156,13 @@ test('Auto restart popover, cooled, policy never, cooled', async ({ page }) => {
   await expect(page.getByText('restarting soon')).toBeHidden()
   await expect(page.getByText(/Last auto-restarted.+, 202\d/)).toBeVisible()
 
-  const policyListbox = page.getByRole('button', { name: 'Policy' })
+  // Scope to the Auto-restart card to avoid ambiguity with other Save buttons
+  const autoRestartSection = page
+    .getByRole('heading', { name: 'Auto-restart' })
+    .locator('..')
+  const policyListbox = autoRestartSection.getByRole('button', { name: 'Policy' })
+  const save = autoRestartSection.getByRole('button', { name: 'Save' })
+
   await expect(policyListbox).toContainText('Never')
-  await expect(page.getByRole('button', { name: 'Save' })).toBeDisabled()
+  await expect(save).toBeDisabled()
 })
