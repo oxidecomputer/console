@@ -16,9 +16,9 @@ test('can update CPU platform preference', async ({ page }) => {
   await page.getByRole('tab', { name: 'settings' }).click()
 
   // Scope to the CPU platform card to avoid ambiguity with other Save buttons
-  const cpuPlatformSection = page
-    .getByRole('heading', { name: 'CPU platform' })
-    .locator('..')
+  const cpuPlatformSection = page.locator('form', {
+    has: page.getByRole('heading', { name: 'CPU platform' }),
+  })
   const save = cpuPlatformSection.getByRole('button', { name: 'Save' })
   const platformListbox = cpuPlatformSection.getByRole('button', { name: 'Required CPU' })
 
