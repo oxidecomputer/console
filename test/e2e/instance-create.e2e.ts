@@ -65,10 +65,10 @@ test('can create an instance', async ({ page }) => {
   await expectNotVisible(page, ['role=textbox[name="Hostname"]'])
 
   const v4Checkbox = page.getByRole('checkbox', {
-    name: 'Allocate and attach an ephemeral IPv4 address',
+    name: 'Allocate IPv4 address',
   })
   const v6Checkbox = page.getByRole('checkbox', {
-    name: 'Allocate and attach an ephemeral IPv6 address',
+    name: 'Allocate IPv6 address',
   })
 
   // verify that the IPv4 ephemeral IP checkbox is checked by default
@@ -130,10 +130,10 @@ test('ephemeral pool selection tracks network interface IP version', async ({ pa
   await page.goto('/projects/mock-project/instances-new')
 
   const v4Checkbox = page.getByRole('checkbox', {
-    name: 'Allocate and attach an ephemeral IPv4 address',
+    name: 'Allocate IPv4 address',
   })
   const v6Checkbox = page.getByRole('checkbox', {
-    name: 'Allocate and attach an ephemeral IPv6 address',
+    name: 'Allocate IPv6 address',
   })
 
   // Default NIC is dual-stack, both checkboxes should be visible, enabled, and checked
@@ -459,12 +459,8 @@ test('does not attach an ephemeral IP when the checkbox is unchecked', async ({ 
   await selectAProjectImage(page, 'image-1')
 
   // Uncheck both ephemeral IP checkboxes
-  await page
-    .getByRole('checkbox', { name: 'Allocate and attach an ephemeral IPv4 address' })
-    .uncheck()
-  await page
-    .getByRole('checkbox', { name: 'Allocate and attach an ephemeral IPv6 address' })
-    .uncheck()
+  await page.getByRole('checkbox', { name: 'Allocate IPv4 address' }).uncheck()
+  await page.getByRole('checkbox', { name: 'Allocate IPv6 address' }).uncheck()
 
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL('/projects/mock-project/instances/no-ephemeral-ip/storage')
@@ -877,10 +873,10 @@ test('create instance with custom IPv4-only NIC constrains ephemeral IP to IPv4'
 
   // Verify that only IPv4 ephemeral IP is enabled
   const v4Checkbox = page.getByRole('checkbox', {
-    name: 'Allocate and attach an ephemeral IPv4 address',
+    name: 'Allocate IPv4 address',
   })
   const v6Checkbox = page.getByRole('checkbox', {
-    name: 'Allocate and attach an ephemeral IPv6 address',
+    name: 'Allocate IPv6 address',
   })
 
   await expect(v4Checkbox).toBeVisible()
@@ -939,10 +935,10 @@ test('create instance with custom IPv6-only NIC constrains ephemeral IP to IPv6'
 
   // Verify that only IPv6 ephemeral IP is enabled
   const v4Checkbox = page.getByRole('checkbox', {
-    name: 'Allocate and attach an ephemeral IPv4 address',
+    name: 'Allocate IPv4 address',
   })
   const v6Checkbox = page.getByRole('checkbox', {
-    name: 'Allocate and attach an ephemeral IPv6 address',
+    name: 'Allocate IPv6 address',
   })
 
   await expect(v4Checkbox).toBeVisible()
@@ -1001,10 +997,10 @@ test('create instance with custom dual-stack NIC allows both IPv4 and IPv6 ephem
 
   // Verify that both IPv4 and IPv6 ephemeral IP checkboxes are available
   const v4Checkbox = page.getByRole('checkbox', {
-    name: 'Allocate and attach an ephemeral IPv4 address',
+    name: 'Allocate IPv4 address',
   })
   const v6Checkbox = page.getByRole('checkbox', {
-    name: 'Allocate and attach an ephemeral IPv6 address',
+    name: 'Allocate IPv6 address',
   })
 
   await expect(v4Checkbox).toBeVisible()
@@ -1050,10 +1046,10 @@ test('ephemeral IP checkbox disabled when no NICs configured', async ({ page }) 
   // Configure networking
 
   const v4Checkbox = page.getByRole('checkbox', {
-    name: 'Allocate and attach an ephemeral IPv4 address',
+    name: 'Allocate IPv4 address',
   })
   const v6Checkbox = page.getByRole('checkbox', {
-    name: 'Allocate and attach an ephemeral IPv6 address',
+    name: 'Allocate IPv6 address',
   })
   const defaultRadio = page.getByRole('radio', {
     name: 'Default',

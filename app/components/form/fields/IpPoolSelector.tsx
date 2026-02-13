@@ -56,6 +56,8 @@ type IpPoolSelectorProps<
   required?: boolean
   hideOptionalTag?: boolean
   label?: string
+  /** Hide visible label, using it as aria-label instead */
+  hideLabel?: boolean
 }
 
 export function IpPoolSelector<
@@ -71,6 +73,7 @@ export function IpPoolSelector<
   required = true,
   hideOptionalTag = false,
   label = 'Pool',
+  hideLabel = false,
 }: IpPoolSelectorProps<TFieldValues, TName>) {
   // Note: pools are already filtered by poolType before being passed to this component
   const sortedPools = useMemo(() => {
@@ -89,6 +92,7 @@ export function IpPoolSelector<
         name={poolFieldName}
         items={sortedPools.map(toIpPoolItem)}
         label={label}
+        hideLabel={hideLabel}
         noItemsPlaceholder="No pools available"
         control={control}
         placeholder="Select a pool"

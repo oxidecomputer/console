@@ -300,11 +300,12 @@ function EphemeralIpCheckbox({
             name={checkboxName}
             disabled={!canAttach || isSubmitting}
           >
-            Allocate and attach an ephemeral {displayVersion} address
+            Allocate {displayVersion} address
+            {checked && ' from pool:'}
           </CheckboxField>
         </span>
       </Wrap>
-      <div className={`ml-6 ${checked ? '' : 'hidden'}`}>
+      <div className={`my-2 ml-6 ${checked ? '' : 'hidden'}`}>
         <IpPoolSelector
           control={control}
           poolFieldName={poolFieldName}
@@ -313,6 +314,7 @@ function EphemeralIpCheckbox({
           required={checked}
           hideOptionalTag
           label={`${displayVersion} pool`}
+          hideLabel
         />
       </div>
     </div>
