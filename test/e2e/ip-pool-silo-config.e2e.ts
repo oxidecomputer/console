@@ -293,6 +293,51 @@ test.describe('IP pool configuration: pelerines silo (no defaults)', () => {
     await expect(page.getByRole('option', { name: 'ip-pool-1' })).toBeVisible()
   })
 
+  test('submitting with ephemeral IP checked but no pool selected is blocked', async ({
+    browser,
+  }) => {
+    const page = await getPageAsUser(browser, 'Theodor Adorno')
+    await page.goto('/projects/adorno-project/instances-new')
+
+    await page.getByRole('textbox', { name: 'Name', exact: true }).fill('no-pool-test')
+
+    // Select a silo image for boot disk
+    await page.getByRole('tab', { name: 'Silo images' }).click()
+    await page.getByPlaceholder('Select a silo image', { exact: true }).click()
+    await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
+
+    // Check the v4 ephemeral IP checkbox — no default pool will be pre-selected
+    // because pelerines has no default pools
+    const v4Checkbox = page.getByRole('checkbox', {
+      name: 'Allocate and attach an ephemeral IPv4 address',
+    })
+    await v4Checkbox.click()
+    await expect(v4Checkbox).toBeChecked()
+
+    // Verify no pool is selected
+    const v4PoolDropdown = page.getByLabel('IPv4 pool')
+    await expect(v4PoolDropdown).toBeVisible()
+    await expect(v4PoolDropdown).toContainText('Select a pool')
+
+    // Try to submit — pool is required when checkbox is checked, so form
+    // validation should prevent the request from being sent
+    await page.getByRole('button', { name: 'Create instance' }).click()
+
+    // RHF required validation should show an error on the pool field
+    await expect(
+      page.getByTestId('scroll-container').getByText('IPv4 pool is required')
+    ).toBeVisible()
+
+    // Should still be on the create page
+    await expect(page).toHaveURL('/projects/adorno-project/instances-new')
+
+    // Now select a pool and verify the form submits successfully
+    await v4PoolDropdown.click()
+    await page.getByRole('option', { name: 'ip-pool-1' }).click()
+    await page.getByRole('button', { name: 'Create instance' }).click()
+    await expect(page).toHaveURL(/\/instances\/no-pool-test/)
+  })
+
   test('floating IP create form handles missing default pool gracefully', async ({
     browser,
   }) => {

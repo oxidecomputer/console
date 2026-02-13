@@ -304,19 +304,17 @@ function EphemeralIpCheckbox({
           </CheckboxField>
         </span>
       </Wrap>
-      {checked && (
-        <div className="ml-6">
-          <IpPoolSelector
-            control={control}
-            poolFieldName={poolFieldName}
-            pools={pools}
-            disabled={isSubmitting}
-            required={false}
-            hideOptionalTag
-            label={`${displayVersion} pool`}
-          />
-        </div>
-      )}
+      <div className={`ml-6 ${checked ? '' : 'hidden'}`}>
+        <IpPoolSelector
+          control={control}
+          poolFieldName={poolFieldName}
+          pools={pools}
+          disabled={isSubmitting}
+          required={checked}
+          hideOptionalTag
+          label={`${displayVersion} pool`}
+        />
+      </div>
     </div>
   )
 }
