@@ -301,7 +301,7 @@ const icmpTypeItems = [
   ...Object.entries(ICMP_TYPES).map(([type, name]) => ({
     value: type,
     label: `${type} - ${name}`,
-    selectedLabel: `${type}`,
+    selectedLabel: type,
   })),
 ]
 

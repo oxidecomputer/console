@@ -665,7 +665,7 @@ export const handlers = makeHandlers({
             name,
             description,
             instance_id: instanceId,
-            primary: i === 0 ? true : false,
+            primary: i === 0,
             mac: '00:00:00:00:00:00',
             ip_stack: ip_config
               ? resolveIpStack(ip_config)
