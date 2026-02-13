@@ -271,7 +271,7 @@ Dependencies:
         await runDiff(baseClient, headClient, target.baseSchema, target.headSchema)
       }
     } catch (e) {
-      console.error(`error: ${e instanceof Error ? e.message : e}`)
+      console.error(`error: ${e instanceof Error ? e.message : String(e)}`)
       Deno.exit(1)
     }
   })
