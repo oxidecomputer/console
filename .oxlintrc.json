@@ -60,6 +60,24 @@
     "radix": "error",
 
     "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/consistent-type-assertions": "error",
+    "prefer-const": "error",
+    "import/no-nodejs-modules": "error",
+    "react/no-this-in-sfc": "error",
+    "@typescript-eslint/no-invalid-void-type": "error",
+    "unicorn/relative-url-style": "error",
+
+    // suspicious rules (cherry-picked)
+    "no-extra-bind": "error",
+    "no-unneeded-ternary": "error",
+    "no-useless-concat": "error",
+    "no-useless-constructor": "error",
+    "import/no-absolute-path": "error",
+    "import/no-self-import": "error",
+    "@typescript-eslint/no-unnecessary-type-assertion": "error",
+    "@typescript-eslint/no-unnecessary-type-constraint": "error",
+    "@typescript-eslint/no-unnecessary-template-expression": "error",
+    "@typescript-eslint/no-confusing-non-null-assertion": "error",
 
     // TypeScript rules (currently disabled but available)
     "@typescript-eslint/no-floating-promises": "off",
@@ -78,6 +96,12 @@
       ],
       "rules": {
         "import/no-default-export": "off"
+      }
+    },
+    {
+      "files": ["**/*.spec.ts", "**/*.config.ts", "**/*.config.mjs", "tools/**/*"],
+      "rules": {
+        "import/no-nodejs-modules": "off"
       }
     },
     {
