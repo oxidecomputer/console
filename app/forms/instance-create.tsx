@@ -55,6 +55,7 @@ import {
 import { FileField } from '~/components/form/fields/FileField'
 import { BootDiskImageSelectField as ImageSelectField } from '~/components/form/fields/ImageSelectField'
 import { IpPoolSelector } from '~/components/form/fields/IpPoolSelector'
+import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { NetworkInterfaceField } from '~/components/form/fields/NetworkInterfaceField'
 import { NumberField } from '~/components/form/fields/NumberField'
@@ -83,6 +84,7 @@ import { TipIcon } from '~/ui/lib/TipIcon'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { Wrap } from '~/ui/util/wrap'
 import { ALL_ISH } from '~/util/consts'
+import { cpuPlatformItems, type FormCpuPlatform } from '~/util/cpu-platform'
 import { readBlobAsBase64 } from '~/util/file'
 import { ipHasVersion } from '~/util/ip'
 import { docLinks, links } from '~/util/links'
@@ -148,6 +150,9 @@ export type InstanceCreateInput = Assign<
 
     // Selected floating IPs to attach on create.
     floatingIps: NameOrId[]
+
+    // CPU platform preference
+    cpuPlatform: FormCpuPlatform
   }
 >
 
@@ -218,6 +223,7 @@ const baseDefaultValues: InstanceCreateInput = {
   ephemeralIpPool: '',
   assignEphemeralIp: false,
   floatingIps: [],
+  cpuPlatform: 'none',
 }
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
@@ -470,6 +476,7 @@ export default function CreateInstanceForm() {
               description: values.description,
               memory: instance.memory * GiB,
               ncpus: instance.ncpus,
+              cpuPlatform: values.cpuPlatform === 'none' ? null : values.cpuPlatform,
               disks: values.otherDisks.map(
                 (d): InstanceDiskAttachment =>
                   d.action === 'attach'
@@ -730,6 +737,15 @@ export default function CreateInstanceForm() {
         />
         <FormDivider />
         <Form.Heading id="advanced">Advanced</Form.Heading>
+        <ListboxField
+          control={control}
+          name="cpuPlatform"
+          label="CPU platform"
+          description="If a CPU platform is specified, the instance will only be placed on compatible hosts."
+          items={cpuPlatformItems}
+          className="max-w-lg"
+          disabled={isSubmitting}
+        />
         <FileField
           id="user-data-input"
           description={<UserDataDescription />}

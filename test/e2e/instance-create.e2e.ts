@@ -686,6 +686,31 @@ test('Validate CPU and RAM', async ({ page }) => {
   await expect(memMsg).toBeVisible()
 })
 
+test('can create instance with CPU platform preference', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+
+  const instanceName = 'cpu-platform-instance'
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+
+  // Select CPU platform
+  const cpuPlatformDropdown = page.getByRole('button', { name: 'CPU platform' })
+  await expect(cpuPlatformDropdown).toContainText('No preference')
+  await cpuPlatformDropdown.click()
+  await page.getByRole('option', { name: 'AMD Milan' }).click()
+  await expect(cpuPlatformDropdown).toContainText('AMD Milan')
+
+  await page.getByRole('button', { name: 'Create instance' }).click()
+  await closeToast(page)
+
+  // Wait for navigation to storage tab
+  await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
+
+  // Navigate to settings tab to verify CPU platform was set
+  await page.getByRole('tab', { name: 'settings' }).click()
+  const settingsCpuPlatformDropdown = page.getByRole('button', { name: 'Preference' })
+  await expect(settingsCpuPlatformDropdown).toContainText('AMD Milan')
+})
+
 test('create instance with IPv6-only networking', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
 
