@@ -78,7 +78,7 @@ export function Modal({
                 widthClass[width]
               )}
             >
-              <Dialog.Title className="text-sans-semi-lg bg-raise border-b-secondary border-b px-4 py-4">
+              <Dialog.Title className="text-sans-semi-lg bg-secondary light:bg-raise border-b-secondary border-b px-4 py-4">
                 {title}
               </Dialog.Title>
               {children}

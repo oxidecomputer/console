@@ -163,7 +163,7 @@ function ThemeSubmenu() {
       <DropdownMenu.SubmenuTrigger className="DropdownMenuItem ox-menu-item border-secondary border-b">
         <span className="flex w-full items-center justify-between">
           Theme
-          <DirectionRightIcon className="text-quaternary absolute right-2" aria-hidden />
+          <DirectionRightIcon className="text-quaternary absolute right-3" aria-hidden />
         </span>
       </DropdownMenu.SubmenuTrigger>
       <DropdownMenu.SubContent>
@@ -211,10 +211,10 @@ function ThemeRadioItem({
       value={value}
       className={cn('DropdownMenuItem ox-menu-item', selected && 'is-selected')}
     >
-      <span className="flex w-full items-center gap-1.5">
-        {icon}
+      <span className="flex w-full items-center gap-2">
+        <span className="text-quaternary">{icon}</span>
         <span>{label}</span>
-        {selected && <Success12Icon className="absolute right-2" />}
+        {selected && <Success12Icon className="absolute right-3" />}
       </span>
     </DropdownMenu.RadioItem>
   )

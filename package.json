@@ -38,7 +38,7 @@
     "@base-ui/react": "^1.1.0",
     "@floating-ui/react": "^0.26.23",
     "@headlessui/react": "^2.2.9",
-    "@oxide/design-system": "^5.0.0--canary.163.21953913576.0",
+    "@oxide/design-system": "^5.0.0--canary.163.21985709465.0",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-tabs": "^1.1.0",

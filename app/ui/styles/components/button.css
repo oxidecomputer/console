@@ -53,7 +53,7 @@
   }
 
   &.btn-accent-solid {
-    @apply text-inverse bg-accent-inverse;
+    @apply text-inverse bg-(--theme-accent-800);
   }
 
   &.btn-accent-solid:after {

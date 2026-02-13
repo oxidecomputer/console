@@ -7,7 +7,7 @@
  */
 
 .ox-menu {
-  @apply bg-raise shadow-menu !max-h-[17.5rem] overflow-y-auto rounded-md;
+  @apply bg-raise !max-h-[17.5rem] rounded-md p-px;
 }
 
 .ox-menu-item {

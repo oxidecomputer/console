@@ -145,7 +145,7 @@ export const Listbox = <Value extends string = string>({
               anchor={{ gap: 12, to: 'bottom start' }}
               className={cn(
                 zIndex,
-                'ox-menu pointer-events-auto overflow-y-auto outline-hidden!',
+                'ox-menu shadow-menu-inset pointer-events-auto',
                 !hideSelected ? 'w-(--button-width)' : 'min-w-24'
               )}
               // This is to prevent the `useOthersInert` call in ListboxOptions.

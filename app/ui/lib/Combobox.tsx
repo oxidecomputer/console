@@ -228,7 +228,7 @@ export const Combobox = ({
               placeholder={placeholder}
               disabled={disabled || isLoading}
               className={cn(
-                `text-sans-md text-raise placeholder:text-tertiary h-10 w-full rounded-md border-none! px-3 py-2 outline-hidden!`,
+                `text-sans-md text-raise placeholder:text-tertiary h-10 w-full rounded-md border-none! px-3 py-2 outline-hidden`,
                 disabled
                   ? 'text-disabled bg-disabled border-default! cursor-not-allowed'
                   : 'bg-default',
@@ -251,7 +251,7 @@ export const Combobox = ({
             <ComboboxOptions
               anchor="bottom start"
               // 13px gap is presumably because it's measured from inside the outline or something
-              className={`ox-menu pointer-events-auto ${zIndex} border-secondary relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border outline-hidden! [--anchor-gap:13px] empty:hidden`}
+              className={`ox-menu shadow-menu-inset pointer-events-auto ${zIndex} border-secondary relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border [--anchor-gap:13px] empty:hidden`}
               modal={false}
             >
               {filteredItems.map((item) => (
