@@ -107,6 +107,7 @@
 
 - Reach for primitives in `app/ui` before inventing page-specific widgets; that directory holds router-agnostic building blocks.
 - When you just need Tailwind classes on a DOM element, use the `classed` helper instead of creating one-off wrappers (`app/util/classed.ts`).
+- Define helper components at the module level, not inside other components' render functions—the `react/no-unstable-nested-components` eslint rule enforces this to prevent performance issues and broken component identity. Extract nested components to the top level and pass any needed values as props.
 - Reuse utility components for consistent formatting—`TimeAgo`, `EmptyMessage`, `CardBlock`, `DocsPopover`, `PropertiesTable`, etc.
 - Import icons from `@oxide/design-system/icons/react` with size suffixes: `16` for inline/table, `24` for headers/buttons, `12` for tiny indicators.
 - Keep help URLs in `links`/`docLinks` (`app/util/links.ts`).
