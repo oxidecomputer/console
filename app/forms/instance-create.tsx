@@ -1001,7 +1001,7 @@ const NetworkingSection = ({
             />
           </div>
         ) : (
-          <div className="flex flex-col items-start gap-3">
+          <div className="flex max-w-lg flex-col items-start gap-3">
             <MiniTable
               ariaLabel="Floating IPs"
               items={attachedFloatingIpsData}
