@@ -192,8 +192,7 @@ export const paginated = <P extends PaginateOptions, I extends { id: string }>(
   // - id_ascending for endpoints that only support id sorting
   // Note: time_and_id_ascending is only used when explicitly specified in sortBy
   const sortBy =
-    params.sortBy ||
-    (items.some((i) => 'name' in i) ? 'name_ascending' : 'id_ascending')
+    params.sortBy || (items.some((i) => 'name' in i) ? 'name_ascending' : 'id_ascending')
 
   const sortedItems = sortItems(items, sortBy)
 

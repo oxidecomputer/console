@@ -83,7 +83,9 @@ describe('paginated', () => {
 
   it('pages through id_ascending with no overlap and no gap', () => {
     // Items a..j; token is the first item of the next page (inclusive marker)
-    const items = Array.from({ length: 10 }, (_, i) => ({ id: String.fromCharCode(97 + i) }))
+    const items = Array.from({ length: 10 }, (_, i) => ({
+      id: String.fromCharCode(97 + i),
+    }))
     const p1 = paginated({ limit: 3 }, items)
     expect(p1.items.map((i) => i.id)).toEqual(['a', 'b', 'c'])
     expect(p1.next_page).toBe('c')
@@ -124,7 +126,10 @@ describe('paginated', () => {
     // next_page token format is "name|id" — last item on page, not first of next
     expect(p1.next_page).toBe('yak|c')
 
-    const p2 = paginated({ sortBy: 'name_descending', limit: 2, pageToken: p1.next_page }, items)
+    const p2 = paginated(
+      { sortBy: 'name_descending', limit: 2, pageToken: p1.next_page },
+      items
+    )
     expect(p2.items.map((i) => i.name)).toEqual(['xerox', 'walrus'])
     expect(p2.next_page).toBeNull()
   })
@@ -154,7 +159,10 @@ describe('paginated', () => {
     // next_page token format is "timestamp|id" — last item on page, not first of next
     expect(p1.next_page).toBe(`${t1}|c`)
 
-    const p2 = paginated({ sortBy: 'time_and_id_ascending', limit: 2, pageToken: p1.next_page }, items)
+    const p2 = paginated(
+      { sortBy: 'time_and_id_ascending', limit: 2, pageToken: p1.next_page },
+      items
+    )
     expect(p2.items.map((i) => i.id)).toEqual(['b'])
     expect(p2.next_page).toBeNull()
   })
@@ -172,7 +180,10 @@ describe('paginated', () => {
     expect(p1.items.map((i) => i.id)).toEqual(['b', 'a'])
     expect(p1.next_page).toBe(`${t1}|a`)
 
-    const p2 = paginated({ sortBy: 'time_and_id_descending', limit: 2, pageToken: p1.next_page }, items)
+    const p2 = paginated(
+      { sortBy: 'time_and_id_descending', limit: 2, pageToken: p1.next_page },
+      items
+    )
     expect(p2.items.map((i) => i.id)).toEqual(['c'])
     expect(p2.next_page).toBeNull()
   })
