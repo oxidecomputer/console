@@ -70,7 +70,9 @@ function normalizeTime(t: unknown): string {
     return t.toISOString()
   }
   if (typeof t === 'string') {
-    return t
+    // Canonicalize to ISO so tokens are stable across different string representations
+    const d = new Date(t)
+    return Number.isFinite(d.getTime()) ? d.toISOString() : t
   }
   return ''
 }
@@ -102,13 +104,11 @@ function sortItems<I extends { id: string }>(items: I[], sortBy: SortMode): I[] 
         (item) => item.id
       )
     case 'name_descending':
-      return R.pipe(
+      // name descending, id ascending — keeps scan direction stable for the tiebreaker
+      return R.sortBy(
         items,
-        R.sortBy(
-          (item) => ('name' in item ? String(item.name) : item.id),
-          (item) => item.id
-        ),
-        R.reverse()
+        [(item) => ('name' in item ? String(item.name) : item.id), 'desc'],
+        (item) => item.id
       )
     case 'id_ascending':
       // Use pure lexicographic comparison for UUIDs to match Rust's derived Ord
@@ -118,11 +118,8 @@ function sortItems<I extends { id: string }>(items: I[], sortBy: SortMode): I[] 
       // Normalize NaN from invalid dates to -Infinity for deterministic ordering
       return R.sortBy(items, timeValue, (item) => item.id)
     case 'time_and_id_descending':
-      return R.pipe(
-        items,
-        R.sortBy(timeValue, (item) => item.id),
-        R.reverse()
-      )
+      // time descending, id ascending — keeps scan direction stable for the tiebreaker
+      return R.sortBy(items, [timeValue, 'desc'], (item) => item.id)
   }
 }
 
@@ -134,8 +131,8 @@ function getPageToken<I extends { id: string }>(item: I, sortBy: SortMode): stri
   switch (sortBy) {
     case 'name_ascending':
     case 'name_descending':
-      // ScanByNameOrId uses Name as marker for name-based sorting
-      return 'name' in item ? String(item.name) : item.id
+      // Include ID so the token is unambiguous when multiple items share the same name
+      return `${'name' in item ? String(item.name) : item.id}|${item.id}`
     case 'id_ascending':
       // ScanById uses Uuid as marker
       return item.id
@@ -159,11 +156,13 @@ function findStartIndex<I extends { id: string }>(
 ): number {
   switch (sortBy) {
     case 'name_ascending':
-    case 'name_descending':
-      // Page token is a name - find first item with this name
-      return sortedItems.findIndex((i) =>
-        'name' in i ? i.name === pageToken : i.id === pageToken
+    case 'name_descending': {
+      // Page token is "name|id" — match both to handle duplicate names
+      const [tokenName, tokenId] = pageToken.split('|', 2)
+      return sortedItems.findIndex(
+        (i) => ('name' in i ? String(i.name) : i.id) === tokenName && i.id === tokenId
       )
+    }
     case 'id_ascending':
       // Page token is an ID
       return sortedItems.findIndex((i) => i.id === pageToken)
@@ -183,7 +182,7 @@ export const paginated = <P extends PaginateOptions, I extends { id: string }>(
   params: P,
   items: I[]
 ) => {
-  const limit = params.limit || 100
+  const limit = params.limit ?? 100
   const pageToken = params.pageToken
 
   // Apply default sorting based on what fields are available, matching Omicron's defaults:
@@ -196,12 +195,12 @@ export const paginated = <P extends PaginateOptions, I extends { id: string }>(
 
   const sortedItems = sortItems(items, sortBy)
 
-  let startIndex = pageToken ? findStartIndex(sortedItems, pageToken, sortBy) : 0
+  const startIndex = pageToken ? findStartIndex(sortedItems, pageToken, sortBy) : 0
 
-  // Warn if page token not found - helps catch bugs in tests
   if (pageToken && startIndex < 0) {
-    console.warn(`Page token "${pageToken}" not found, starting from beginning`)
-    startIndex = 0
+    // Token not found: return empty rather than silently restarting, which could cause
+    // infinite loops in tests or mask bugs from stale tokens
+    return { items: [], next_page: null }
   }
 
   if (startIndex > sortedItems.length) {
