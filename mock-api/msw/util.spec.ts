@@ -28,7 +28,7 @@ describe('paginated', () => {
     // Use locale-agnostic comparison to match the implementation
     const sortedItems = [...items].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
     expect(page.items).toEqual(sortedItems.slice(0, 100))
-    expect(page.next_page).toBe(sortedItems[100].id)
+    expect(page.next_page).toBe(sortedItems[99].id)
   })
 
   it('should return page with null `next_page` if items equal page', () => {
@@ -62,12 +62,13 @@ describe('paginated', () => {
     const page = paginated({ limit: 5 }, items)
     expect(page.items.length).toBe(5)
     expect(page.items).toEqual(items.slice(0, 5))
-    expect(page.next_page).toBe('f')
+    expect(page.next_page).toBe('e')
   })
 
   it('should return the second page when given a `page_token`', () => {
     const items = [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }]
-    const page = paginated({ pageToken: 'b' }, items)
+    // token 'a' is exclusive: start after 'a'
+    const page = paginated({ pageToken: 'a' }, items)
     expect(page.items.length).toBe(3)
     expect(page.items).toEqual([{ id: 'b' }, { id: 'c' }, { id: 'd' }])
     expect(page.next_page).toBeNull()
@@ -85,15 +86,15 @@ describe('paginated', () => {
     const items = Array.from({ length: 10 }, (_, i) => ({ id: String.fromCharCode(97 + i) }))
     const p1 = paginated({ limit: 3 }, items)
     expect(p1.items.map((i) => i.id)).toEqual(['a', 'b', 'c'])
-    expect(p1.next_page).toBe('d')
+    expect(p1.next_page).toBe('c')
 
     const p2 = paginated({ limit: 3, pageToken: p1.next_page }, items)
     expect(p2.items.map((i) => i.id)).toEqual(['d', 'e', 'f'])
-    expect(p2.next_page).toBe('g')
+    expect(p2.next_page).toBe('f')
 
     const p3 = paginated({ limit: 3, pageToken: p2.next_page }, items)
     expect(p3.items.map((i) => i.id)).toEqual(['g', 'h', 'i'])
-    expect(p3.next_page).toBe('j')
+    expect(p3.next_page).toBe('i')
 
     const p4 = paginated({ limit: 3, pageToken: p3.next_page }, items)
     expect(p4.items.map((i) => i.id)).toEqual(['j'])
@@ -120,8 +121,8 @@ describe('paginated', () => {
     ]
     const p1 = paginated({ sortBy: 'name_descending', limit: 2 }, items)
     expect(p1.items.map((i) => i.name)).toEqual(['zest', 'yak'])
-    // next_page token format is "name|id"
-    expect(p1.next_page).toBe('xerox|b')
+    // next_page token format is "name|id" — last item on page, not first of next
+    expect(p1.next_page).toBe('yak|c')
 
     const p2 = paginated({ sortBy: 'name_descending', limit: 2, pageToken: p1.next_page }, items)
     expect(p2.items.map((i) => i.name)).toEqual(['xerox', 'walrus'])
@@ -150,8 +151,8 @@ describe('paginated', () => {
     ]
     const p1 = paginated({ sortBy: 'time_and_id_ascending', limit: 2 }, items)
     expect(p1.items.map((i) => i.id)).toEqual(['a', 'c'])
-    // next_page token format is "timestamp|id"
-    expect(p1.next_page).toBe(`${t2}|b`)
+    // next_page token format is "timestamp|id" — last item on page, not first of next
+    expect(p1.next_page).toBe(`${t1}|c`)
 
     const p2 = paginated({ sortBy: 'time_and_id_ascending', limit: 2, pageToken: p1.next_page }, items)
     expect(p2.items.map((i) => i.id)).toEqual(['b'])
@@ -169,7 +170,7 @@ describe('paginated', () => {
     // Descending by time: t2 first, then t1 items by id ascending
     const p1 = paginated({ sortBy: 'time_and_id_descending', limit: 2 }, items)
     expect(p1.items.map((i) => i.id)).toEqual(['b', 'a'])
-    expect(p1.next_page).toBe(`${t1}|c`)
+    expect(p1.next_page).toBe(`${t1}|a`)
 
     const p2 = paginated({ sortBy: 'time_and_id_descending', limit: 2, pageToken: p1.next_page }, items)
     expect(p2.items.map((i) => i.id)).toEqual(['c'])

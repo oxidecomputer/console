@@ -197,13 +197,17 @@ export const paginated = <P extends PaginateOptions, I extends { id: string }>(
 
   const sortedItems = sortItems(items, sortBy)
 
-  const startIndex = pageToken ? findStartIndex(sortedItems, pageToken, sortBy) : 0
+  // markerIndex is -1 when there's no token (first page). With exclusive semantics,
+  // startIndex is one past the marker — so -1 + 1 = 0 for the first page.
+  const markerIndex = pageToken ? findStartIndex(sortedItems, pageToken, sortBy) : -1
 
-  if (pageToken && startIndex < 0) {
+  if (pageToken && markerIndex < 0) {
     // Token not found: return empty rather than silently restarting, which could cause
     // infinite loops in tests or mask bugs from stale tokens
     return { items: [], next_page: null }
   }
+
+  const startIndex = markerIndex + 1
 
   if (startIndex > sortedItems.length) {
     return {
@@ -221,7 +225,8 @@ export const paginated = <P extends PaginateOptions, I extends { id: string }>(
 
   return {
     items: sortedItems.slice(startIndex, startIndex + limit),
-    next_page: getPageToken(sortedItems[startIndex + limit], sortBy),
+    // Marker is the last item of the current page, matching Omicron/Dropshot semantics
+    next_page: getPageToken(sortedItems[startIndex + limit - 1], sortBy),
   }
 }
 

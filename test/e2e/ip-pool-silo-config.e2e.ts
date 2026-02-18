@@ -23,7 +23,6 @@ import {
   expectRowVisible,
   getPageAsUser,
   selectASiloImage,
-  selectOption,
   test,
 } from './utils'
 
@@ -175,7 +174,8 @@ test.describe('IP pool configuration: myriad silo (v4-only default)', () => {
     await attachFloatingIpButton.click()
     const dialog = page.getByRole('dialog')
     await expect(dialog).toBeVisible()
-    await selectOption(page, dialog.getByLabel('Floating IP'), floatingIpKosman.name)
+    await dialog.getByLabel('Floating IP').click()
+    await page.getByRole('option', { name: floatingIpKosman.name }).click()
     await dialog.getByRole('button', { name: 'Attach' }).click()
     await expect(dialog).toBeHidden()
 

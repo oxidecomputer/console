@@ -13,7 +13,6 @@ import {
   expectRowVisible,
   expectVisible,
   selectASiloImage,
-  selectOption,
   stopInstance,
 } from './utils'
 
@@ -188,7 +187,8 @@ test('Instance networking tab — floating IPs', async ({ page }) => {
   await expectVisible(page, ['role=heading[name="Attach floating IP"]'])
 
   const dialog = page.getByRole('dialog')
-  await selectOption(page, dialog.getByLabel('Floating IP'), 'rootbeer-float')
+  await dialog.getByLabel('Floating IP').click()
+  await page.getByRole('option', { name: 'rootbeer-float' }).click()
   await dialog.getByRole('button', { name: 'Attach' }).click()
 
   // Confirm the modal is gone and the new row is showing on the page
@@ -201,7 +201,8 @@ test('Instance networking tab — floating IPs', async ({ page }) => {
   // Attach the IPv6 floating IP as well
   await attachFloatingIpButton.click()
   await expectVisible(page, ['role=heading[name="Attach floating IP"]'])
-  await selectOption(page, dialog.getByLabel('Floating IP'), 'ipv6-float')
+  await dialog.getByLabel('Floating IP').click()
+  await page.getByRole('option', { name: 'ipv6-float' }).click()
   await dialog.getByRole('button', { name: 'Attach' }).click()
   await expect(page.getByRole('dialog')).toBeHidden()
   await expectRowVisible(externalIpTable, { name: 'ipv6-float' })
