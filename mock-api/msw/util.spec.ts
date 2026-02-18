@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import * as R from 'remeda'
 import { describe, expect, it } from 'vitest'
 
 import { FLEET_ID } from '@oxide/api'
@@ -26,7 +27,7 @@ describe('paginated', () => {
     expect(page.items.length).toBe(100)
     // Items are sorted by id lexicographically (matching Omicron's UUID sorting behavior)
     // Use locale-agnostic comparison to match the implementation
-    const sortedItems = [...items].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
+    const sortedItems = R.sortBy([...items], (i) => i.id)
     expect(page.items).toEqual(sortedItems.slice(0, 100))
     expect(page.next_page).toBe(sortedItems[99].id)
   })

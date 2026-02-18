@@ -199,9 +199,6 @@ export async function clickRowAction(page: Page, rowName: string, actionName: st
   await page.getByRole('menuitem', { name: actionName }).click()
 }
 
-/**
- * Select a silo image
- */
 export const selectASiloImage = async (page: Page, name: string) => {
   await page.getByRole('tab', { name: 'Silo images' }).click()
   await page.getByPlaceholder('Select a silo image', { exact: true }).click()
