@@ -14,28 +14,12 @@ import {
   expectRowVisible,
   expectVisible,
   fillNumberInput,
+  selectAProjectImage,
+  selectASiloImage,
+  selectAnExistingDisk,
   selectOption,
   test,
-  type Page,
 } from './utils'
-
-const selectASiloImage = async (page: Page, name: string) => {
-  await page.getByRole('tab', { name: 'Silo images' }).click()
-  await page.getByPlaceholder('Select a silo image', { exact: true }).click()
-  await page.getByRole('option', { name }).click()
-}
-
-const selectAProjectImage = async (page: Page, name: string) => {
-  await page.getByRole('tab', { name: 'Project images' }).click()
-  await page.getByPlaceholder('Select a project image', { exact: true }).click()
-  await page.getByRole('option', { name }).click()
-}
-
-const selectAnExistingDisk = async (page: Page, name: string) => {
-  await page.getByRole('tab', { name: 'Existing disks' }).click()
-  await page.getByRole('combobox', { name: 'Disk' }).click()
-  await page.getByRole('option', { name }).click()
-}
 
 test('can create an instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
@@ -350,7 +334,6 @@ test('create instance with a silo image', async ({ page }) => {
   const instanceName = 'my-existing-disk-2'
   await page.goto('/projects/mock-project/instances-new')
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-  // Use arch-2022-06-01 - first silo image after sorting
   await selectASiloImage(page, 'arch-2022-06-01')
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
@@ -363,7 +346,6 @@ test('start with an existing disk, but then switch to a silo image', async ({ pa
   await page.goto('/projects/mock-project/instances-new')
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   await selectAnExistingDisk(page, 'disk-7')
-  // Use arch-2022-06-01 - first silo image after sorting
   await selectASiloImage(page, 'arch-2022-06-01')
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
@@ -660,7 +642,6 @@ test('Validate CPU and RAM', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
 
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('db2')
-  // Use arch-2022-06-01 - first silo image after sorting
   await selectASiloImage(page, 'arch-2022-06-01')
 
   await page.getByRole('tab', { name: 'Custom' }).click()

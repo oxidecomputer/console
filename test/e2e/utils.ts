@@ -200,6 +200,27 @@ export async function clickRowAction(page: Page, rowName: string, actionName: st
 }
 
 /**
+ * Select a silo image
+ */
+export const selectASiloImage = async (page: Page, name: string) => {
+  await page.getByRole('tab', { name: 'Silo images' }).click()
+  await page.getByPlaceholder('Select a silo image', { exact: true }).click()
+  await page.getByRole('option', { name }).click()
+}
+
+export const selectAProjectImage = async (page: Page, name: string) => {
+  await page.getByRole('tab', { name: 'Project images' }).click()
+  await page.getByPlaceholder('Select a project image', { exact: true }).click()
+  await page.getByRole('option', { name }).click()
+}
+
+export const selectAnExistingDisk = async (page: Page, name: string) => {
+  await page.getByRole('tab', { name: 'Existing disks' }).click()
+  await page.getByRole('combobox', { name: 'Disk' }).click()
+  await page.getByRole('option', { name }).click()
+}
+
+/**
  * Select an option from a dropdown
  * labelLocator can either be the dropdown's label text or a more elaborate Locator
  * optionLocator can either be the dropdown's option text or a more elaborate Locator

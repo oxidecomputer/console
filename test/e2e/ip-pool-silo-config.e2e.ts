@@ -22,6 +22,7 @@ import {
   expect,
   expectRowVisible,
   getPageAsUser,
+  selectASiloImage,
   test,
 } from './utils'
 
@@ -33,9 +34,7 @@ test.describe('IP pool configuration: myriad silo (v4-only default)', () => {
     await page.getByRole('textbox', { name: 'Name', exact: true }).fill('test-instance')
 
     // Select a silo image for boot disk
-    await page.getByRole('tab', { name: 'Silo images' }).click()
-    await page.getByPlaceholder('Select a silo image', { exact: true }).click()
-    await page.getByRole('option', { name: 'arch-2022-06-01' }).click()
+    await selectASiloImage(page, 'arch-2022-06-01')
 
     // Verify ephemeral IP checkbox is checked by default
     const ephemeralCheckbox = page.getByRole('checkbox', {
@@ -76,9 +75,7 @@ test.describe('IP pool configuration: myriad silo (v4-only default)', () => {
     await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
 
     // Select a silo image for boot disk
-    await page.getByRole('tab', { name: 'Silo images' }).click()
-    await page.getByPlaceholder('Select a silo image', { exact: true }).click()
-    await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
+    await selectASiloImage(page, 'arch-2022-06-01')
 
     // Verify ephemeral IP defaults
     const ephemeralCheckbox = page.getByRole('checkbox', {
@@ -110,9 +107,7 @@ test.describe('IP pool configuration: myriad silo (v4-only default)', () => {
 
     // Create instance with default ephemeral IP
     await page.getByRole('textbox', { name: 'Name', exact: true }).fill('v4-ephemeral-test')
-    await page.getByRole('tab', { name: 'Silo images' }).click()
-    await page.getByPlaceholder('Select a silo image', { exact: true }).click()
-    await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
+    await selectASiloImage(page, 'arch-2022-06-01')
     await page.getByRole('button', { name: 'Create instance' }).click()
     await closeToast(page)
     await expect(page).toHaveURL(/\/instances\/v4-ephemeral-test/)
@@ -166,9 +161,7 @@ test.describe('IP pool configuration: myriad silo (v4-only default)', () => {
 
     // Create instance
     await page.getByRole('textbox', { name: 'Name', exact: true }).fill('v4-floating-test')
-    await page.getByRole('tab', { name: 'Silo images' }).click()
-    await page.getByPlaceholder('Select a silo image', { exact: true }).click()
-    await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
+    await selectASiloImage(page, 'arch-2022-06-01')
     await page.getByRole('button', { name: 'Create instance' }).click()
     await closeToast(page)
     await expect(page).toHaveURL(/\/instances\/v4-floating-test/)
@@ -205,9 +198,7 @@ test.describe('IP pool configuration: thrax silo (v6-only default)', () => {
     await page.getByRole('textbox', { name: 'Name', exact: true }).fill('test-instance')
 
     // Select a silo image for boot disk
-    await page.getByRole('tab', { name: 'Silo images' }).click()
-    await page.getByPlaceholder('Select a silo image', { exact: true }).click()
-    await page.getByRole('option', { name: 'arch-2022-06-01' }).click()
+    await selectASiloImage(page, 'arch-2022-06-01')
 
     // Verify ephemeral IP checkbox is checked by default
     const ephemeralCheckbox = page.getByRole('checkbox', {
@@ -251,9 +242,7 @@ test.describe('IP pool configuration: pelerines silo (no defaults)', () => {
     await page.getByRole('textbox', { name: 'Name', exact: true }).fill('test-instance')
 
     // Select a silo image for boot disk
-    await page.getByRole('tab', { name: 'Silo images' }).click()
-    await page.getByPlaceholder('Select a silo image', { exact: true }).click()
-    await page.getByRole('option', { name: 'arch-2022-06-01' }).click()
+    await selectASiloImage(page, 'arch-2022-06-01')
 
     // Verify ephemeral IP checkbox is not checked by default
     const ephemeralCheckbox = page.getByRole('checkbox', {
@@ -300,9 +289,7 @@ test.describe('IP pool configuration: no-pools silo (no IP pools)', () => {
 
     await page.getByRole('textbox', { name: 'Name', exact: true }).fill('no-default-pool')
 
-    await page.getByRole('tab', { name: 'Silo images' }).click()
-    await page.getByPlaceholder('Select a silo image', { exact: true }).click()
-    await page.getByRole('option', { name: 'arch-2022-06-01' }).click()
+    await selectASiloImage(page, 'arch-2022-06-01')
 
     const defaultRadio = page.getByRole('radio', { name: 'Default' })
     await expect(defaultRadio).toBeChecked()

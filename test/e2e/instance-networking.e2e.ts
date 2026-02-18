@@ -12,15 +12,9 @@ import {
   clickRowActions,
   expectRowVisible,
   expectVisible,
+  selectASiloImage,
   stopInstance,
-  type Page,
 } from './utils'
-
-const selectASiloImage = async (page: Page, name: string) => {
-  await page.getByRole('tab', { name: 'Silo images' }).click()
-  await page.getByPlaceholder('Select a silo image', { exact: true }).click()
-  await page.getByRole('option', { name }).click()
-}
 
 test('Instance networking tab — NIC table', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
