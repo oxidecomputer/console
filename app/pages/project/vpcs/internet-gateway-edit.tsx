@@ -19,10 +19,11 @@ import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel, SideModal } from '~/ui/lib/SideModal'
 import { Table } from '~/ui/lib/Table'
-import { links } from '~/util/links'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
@@ -117,20 +118,7 @@ export default function EditInternetGatewayForm() {
     >
       <Message
         variant="info"
-        content={
-          <>
-            For now, gateways can only be modified through the API. Learn more in the{' '}
-            <a
-              href={links.gatewaysDocs}
-              className="underline"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Networking
-            </a>{' '}
-            guide.
-          </>
-        }
+        content="Gateways can only be modified through the CLI or API."
       />
       <PropertiesTable key={internetGateway.id}>
         <PropertiesTable.Row label="Name">{internetGateway.name}</PropertiesTable.Row>
@@ -167,7 +155,7 @@ export default function EditInternetGatewayForm() {
             {'This internet gateway does not have any IP addresses attached. '}
             {hasAttachedPool
               ? 'It will use an address from the attached IP pool.'
-              : 'Use the CLI to attach an IP pool or IP address to this gateway.'}
+              : 'Attach an IP pool or IP address via the CLI or API.'}
           </div>
         )}
       </div>
@@ -212,6 +200,8 @@ export default function EditInternetGatewayForm() {
           </Table.Body>
         </Table>
       </div>
+
+      <SideModalFormDocs docs={[docLinks.gateways]} />
     </ReadOnlySideModalForm>
   )
 }

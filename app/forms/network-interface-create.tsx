@@ -27,6 +27,8 @@ import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
 import { FormDivider } from '~/ui/lib/Divider'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { docLinks } from '~/util/links'
 
 type NetworkInterfaceFormValues = {
   name: string
@@ -178,6 +180,7 @@ export function CreateNetworkInterfaceForm({
           placeholder="Leave blank for auto-assignment"
         />
       )}
+      <SideModalFormDocs docs={[docLinks.networkInterfaces, docLinks.vpcs]} />
     </SideModalForm>
   )
 }

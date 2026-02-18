@@ -151,22 +151,46 @@ test('diskCan', () => {
   expect(diskCan.delete({ state: { state: 'attached', instance: 'xyz' } })).toBe(false)
   expect(diskCan.delete({ state: { state: 'detached' } })).toBe(true)
 
-  // snapshot requires distributed disk type
-  expect(diskCan.snapshot({ state: { state: 'detached' }, diskType: 'distributed' })).toBe(
-    true
-  )
+  // snapshot requires distributed, non-read-only disk type
+  expect(
+    diskCan.snapshot({
+      state: { state: 'detached' },
+      diskType: 'distributed',
+      readOnly: false,
+    })
+  ).toBe(true)
   expect(
     diskCan.snapshot({
       state: { state: 'attached', instance: 'x' },
       diskType: 'distributed',
+      readOnly: false,
     })
   ).toBe(true)
-  expect(diskCan.snapshot({ state: { state: 'creating' }, diskType: 'distributed' })).toBe(
-    false
-  )
-  expect(diskCan.snapshot({ state: { state: 'detached' }, diskType: 'local' })).toBe(false)
   expect(
-    diskCan.snapshot({ state: { state: 'attached', instance: 'x' }, diskType: 'local' })
+    diskCan.snapshot({
+      state: { state: 'creating' },
+      diskType: 'distributed',
+      readOnly: false,
+    })
+  ).toBe(false)
+  expect(
+    diskCan.snapshot({ state: { state: 'detached' }, diskType: 'local', readOnly: false })
+  ).toBe(false)
+  expect(
+    diskCan.snapshot({
+      state: { state: 'attached', instance: 'x' },
+      diskType: 'local',
+      readOnly: false,
+    })
+  ).toBe(false)
+
+  // read-only disks cannot be snapshotted
+  expect(
+    diskCan.snapshot({
+      state: { state: 'detached' },
+      diskType: 'distributed',
+      readOnly: true,
+    })
   ).toBe(false)
 
   // @ts-expect-error typechecker rejects actions that don't exist

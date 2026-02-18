@@ -41,12 +41,13 @@ import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { Progress } from '~/ui/lib/Progress'
 import { Spinner } from '~/ui/lib/Spinner'
 import { anySignal } from '~/util/abort'
 import { readBlobAsBase64 } from '~/util/file'
 import { invariant } from '~/util/invariant'
-import { links } from '~/util/links'
+import { docLinks, links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import { isAllZeros } from '~/util/str'
 import { GiB, KiB } from '~/util/units'
@@ -570,18 +571,6 @@ export default function ImageCreate() {
       submitError={formError}
       submitLabel={allDone ? 'Done' : 'Upload image'}
     >
-      <Message
-        variant="info"
-        content={
-          <>
-            Read the{' '}
-            <a target="_blank" rel="noreferrer" href={links.imagesDocs}>
-              Images
-            </a>{' '}
-            guide to learn more about image requirements.
-          </>
-        }
-      />
       <NameField name="imageName" label="Name" control={form.control} />
       <DescriptionField
         name="imageDescription"
@@ -691,6 +680,7 @@ export default function ImageCreate() {
           />
         </Modal>
       )}
+      <SideModalFormDocs docs={[docLinks.images]} />
     </SideModalForm>
   )
 }

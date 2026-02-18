@@ -18,8 +18,10 @@ import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getIdpSelector, useIdpSelector } from '~/hooks/use-params'
 import { FormDivider } from '~/ui/lib/Divider'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel, SideModal } from '~/ui/lib/SideModal'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
@@ -115,6 +117,7 @@ export default function EditIdpSideModalForm() {
         control={form.control}
         disabled
       />
+      <SideModalFormDocs docs={[docLinks.identityProviders]} />
     </ReadOnlySideModalForm>
   )
 }

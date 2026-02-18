@@ -14,7 +14,7 @@ import { EmptyCell, SkeletonCell } from './EmptyCell'
 
 export const IpPoolCell = ({ ipPoolId }: { ipPoolId: string }) => {
   const { data: result } = useQuery(
-    qErrorsAllowed(api.projectIpPoolView, { path: { pool: ipPoolId } })
+    qErrorsAllowed(api.ipPoolView, { path: { pool: ipPoolId } })
   )
   if (!result) return <SkeletonCell />
   // this should essentially never happen, but it's probably better than blowing

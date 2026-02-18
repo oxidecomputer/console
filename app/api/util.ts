@@ -209,16 +209,18 @@ const diskStateActions = {
 
 // snapshot has a type check in addition to state check
 // https://github.com/oxidecomputer/omicron/blob/078f636/nexus/src/app/snapshot.rs#L100-L109
-// NOTE: .states only captures the state requirement; local disks cannot be
-// snapshotted regardless of state
+// NOTE: .states only captures the state requirement; local and read-only disks
+// cannot be snapshotted regardless of state
 const snapshotStates: DiskState['state'][] = ['attached', 'detached']
 // accept both camelCase (Disk) and snake_case (Json<Disk>) for use in MSW handlers
 type SnapshotDisk =
-  | Pick<Disk, 'state' | 'diskType'>
-  | { state: DiskState; disk_type: DiskType }
+  | Pick<Disk, 'state' | 'diskType' | 'readOnly'>
+  | { state: DiskState; disk_type: DiskType; read_only: boolean }
 const canSnapshot = (d: SnapshotDisk) => {
   const diskType = 'diskType' in d ? d.diskType : d.disk_type
+  const readOnly = 'readOnly' in d ? d.readOnly : d.read_only
   return (
+    !readOnly &&
     snapshotStates.includes(d.state.state) &&
     match(diskType)
       .with('distributed', () => true)

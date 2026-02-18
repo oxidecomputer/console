@@ -40,7 +40,7 @@ import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { Truncate } from '~/ui/lib/Truncate'
-import { links } from '~/util/links'
+import { docLinks } from '~/util/links'
 
 export const handle = makeCrumb('SCIM')
 
@@ -123,7 +123,7 @@ export default function SiloScimTab() {
             .exhaustive()}
         </CardBlock.Body>
         <CardBlock.Footer>
-          <LearnMore href={links.scimDocs} text="SCIM" />
+          <LearnMore doc={docLinks.scim} />
         </CardBlock.Footer>
       </CardBlock>
 

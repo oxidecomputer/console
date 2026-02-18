@@ -117,7 +117,7 @@ function DateSegment({
     placeholder = segment.placeholder
   }
 
-  const readOnly = segmentProps['aria-readonly'] ? true : false
+  const readOnly = !!segmentProps['aria-readonly']
 
   return (
     <div
@@ -135,7 +135,7 @@ function DateSegment({
       )}
       // Segment props turns this into a focusable element
       // @ts-expect-error
-      disabled={readOnly ? true : false}
+      disabled={readOnly}
     >
       {/* Always reserve space for the placeholder, to prevent layout shift when editing. */}
       <span

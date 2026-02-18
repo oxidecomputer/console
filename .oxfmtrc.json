@@ -1,0 +1,29 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 92,
+  "singleQuote": true,
+  "semi": false,
+  "trailingComma": "es5",
+  "experimentalTailwindcss": {},
+  "experimentalSortImports": {
+    "internalPattern": ["~/", "app/"],
+    "partitionByComment": true,
+    "customGroups": [{ "groupName": "oxide", "elementNamePattern": ["@oxide/**"] }],
+    "groups": [
+      "builtin",
+      "external",
+      "oxide",
+      "internal",
+      ["parent", "sibling", "index"],
+      "unknown"
+    ]
+  },
+  "experimentalSortPackageJson": false,
+  "ignorePatterns": [
+    "dist/**",
+    "coverage/**",
+    "templates/**",
+    "mockServiceWorker.js",
+    "index.html"
+  ]
+}

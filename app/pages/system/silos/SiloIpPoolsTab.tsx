@@ -48,7 +48,7 @@ const EmptyState = () => (
 
 const colHelper = createColumnHelper<SiloIpPool>()
 
-const allPoolsQuery = getListQFn(api.ipPoolList, { query: { limit: ALL_ISH } })
+const allPoolsQuery = getListQFn(api.systemIpPoolList, { query: { limit: ALL_ISH } })
 
 const allSiloPoolsQuery = (silo: string) =>
   getListQFn(api.siloIpPoolList, { path: { silo }, query: { limit: ALL_ISH } })
@@ -112,14 +112,16 @@ export default function SiloIpPoolsTab() {
     [allPools]
   )
 
-  const { mutateAsync: updatePoolLink } = useApiMutation(api.ipPoolSiloUpdate, {
+  const { mutateAsync: updatePoolLink } = useApiMutation(api.systemIpPoolSiloUpdate, {
     onSuccess() {
       queryClient.invalidateEndpoint('siloIpPoolList')
+      queryClient.invalidateEndpoint('systemIpPoolSiloList')
     },
   })
-  const { mutateAsync: unlinkPool } = useApiMutation(api.ipPoolSiloUnlink, {
+  const { mutateAsync: unlinkPool } = useApiMutation(api.systemIpPoolSiloUnlink, {
     onSuccess() {
       queryClient.invalidateEndpoint('siloIpPoolList')
+      queryClient.invalidateEndpoint('systemIpPoolSiloList')
       // We only have the ID, so will show a generic confirmation message
       addToast({ content: 'IP pool unlinked' })
     },
@@ -132,6 +134,9 @@ export default function SiloIpPoolsTab() {
         label: pool.isDefault ? 'Clear default' : 'Make default',
         className: pool.isDefault ? 'destructive' : undefined,
         onActivate() {
+          const versionLabel = `IP${pool.ipVersion}`
+          const typeLabel = pool.poolType
+
           if (pool.isDefault) {
             confirmAction({
               doAction: () =>
@@ -142,9 +147,9 @@ export default function SiloIpPoolsTab() {
               modalTitle: 'Confirm clear default',
               modalContent: (
                 <p>
-                  Are you sure you want <HL>{pool.name}</HL> to stop being the default pool
-                  for this silo? If there is no default, users in this silo will have to
-                  specify a pool when allocating IPs.
+                  Are you sure you want <HL>{pool.name}</HL> to stop being the default{' '}
+                  {versionLabel} {typeLabel} pool for this silo? If there is no default,
+                  users in this silo will have to specify a pool when allocating IPs.
                 </p>
               ),
               errorTitle: 'Could not clear default',
@@ -152,8 +157,6 @@ export default function SiloIpPoolsTab() {
             })
           } else {
             const existingDefault = findDefaultForVersionType(pool.ipVersion, pool.poolType)
-            const versionLabel = `IP${pool.ipVersion}`
-            const typeLabel = pool.poolType
 
             const modalContent = existingDefault ? (
               <p>
@@ -234,9 +237,10 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
   const { silo } = useSiloSelector()
   const { control, handleSubmit } = useForm({ defaultValues })
 
-  const linkPool = useApiMutation(api.ipPoolSiloLink, {
+  const linkPool = useApiMutation(api.systemIpPoolSiloLink, {
     onSuccess() {
       queryClient.invalidateEndpoint('siloIpPoolList')
+      queryClient.invalidateEndpoint('systemIpPoolSiloList')
     },
     onError(err) {
       addToast({ title: 'Could not link pool', content: err.message, variant: 'error' })

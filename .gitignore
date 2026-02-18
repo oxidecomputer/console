@@ -23,6 +23,7 @@ deno.lock
 
 .env
 .eslintcache
+*.tsbuildinfo
 
 # System Files
 .DS_Store

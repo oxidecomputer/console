@@ -29,7 +29,7 @@ import { getCompatibleVersionsFromNics } from '~/util/ip'
 export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void }) => {
   const { project, instance } = useInstanceSelector()
   const { data: siloPools } = usePrefetchedQuery(
-    q(api.projectIpPoolList, { query: { limit: ALL_ISH } })
+    q(api.ipPoolList, { query: { limit: ALL_ISH } })
   )
   const { data: nics } = usePrefetchedQuery(
     q(api.instanceNetworkInterfaceList, { query: { limit: ALL_ISH, project, instance } })

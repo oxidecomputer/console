@@ -12,8 +12,8 @@ import { describe, expect, it, vi } from 'vitest'
 import { project } from '@oxide/api-mocks'
 
 import { api, q, useApiMutation } from '..'
-import type { DiskCreate } from '../__generated__/Api'
 import { overrideOnce } from '../../../test/unit/server'
+import type { DiskCreate } from '../__generated__/Api'
 
 // TODO: rethink whether these tests need to exist when they are so well-covered
 // by playwright tests

@@ -5,6 +5,13 @@
  *
  * Copyright Oxide Computer Company
  */
+// Read-only disk creation is disabled pending a propolis fix. To re-enable:
+// 1. Uncomment CheckboxField import and JSX in this file
+// 2. Uncomment CheckboxField JSX in app/forms/instance-create.tsx
+// 3. Use `values.bootDiskReadOnly` instead of hardcoded `false` in instance-create.tsx getBootDisk
+// 4. Use `source.readOnly` instead of hardcoded `false` in the onSubmit handler below
+// 5. Unskip e2e tests in test/e2e/disks.e2e.ts and test/e2e/instance-create.e2e.ts
+// https://github.com/oxidecomputer/console/issues/3071
 import { useQuery } from '@tanstack/react-query'
 import { filesize } from 'filesize'
 import { useMemo } from 'react'
@@ -23,7 +30,7 @@ import {
   type Image,
 } from '@oxide/api'
 
-import { CheckboxField } from '~/components/form/fields/CheckboxField'
+// import { CheckboxField } from '~/components/form/fields/CheckboxField' // re-enable with #3071
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { DiskSizeField } from '~/components/form/fields/DiskSizeField'
 import { toImageComboboxItem } from '~/components/form/fields/ImageSelectField'
@@ -35,11 +42,14 @@ import { HL } from '~/components/HL'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { Radio } from '~/ui/lib/Radio'
 import { RadioGroup } from '~/ui/lib/RadioGroup'
 import { Slash } from '~/ui/lib/Slash'
+import { TipIcon } from '~/ui/lib/TipIcon'
 import { ALL_ISH } from '~/util/consts'
 import { toLocaleDateString } from '~/util/date'
+import { docLinks } from '~/util/links'
 import { diskSizeNearest10 } from '~/util/math'
 import { bytesToGiB, GiB } from '~/util/units'
 
@@ -172,14 +182,14 @@ export function CreateDiskSideModalForm({
                   // image ID is validated by the form: it's required when the
                   // field is present (i.e., when image type is selected)
                   imageId: source.imageId!,
-                  readOnly: source.readOnly,
+                  readOnly: false,
                 }))
                 .with({ type: 'snapshot' }, (source) => ({
                   type: 'snapshot' as const,
                   // snapshot ID is validated by the form: it's required when
                   // the field is present (i.e., when snapshot type is selected)
                   snapshotId: source.snapshotId!,
-                  readOnly: source.readOnly,
+                  readOnly: false,
                 }))
                 .exhaustive(),
             }))
@@ -223,6 +233,7 @@ export function CreateDiskSideModalForm({
         images={images}
         areImagesLoading={areImagesLoading}
       />
+      <SideModalFormDocs docs={[docLinks.disks]} />
     </SideModalForm>
   )
 }
@@ -247,7 +258,13 @@ const DiskBackendField = ({
   return (
     <>
       <div className="max-w-lg space-y-2">
-        <FieldLabel id="disk-type-label">Disk type</FieldLabel>
+        <FieldLabel id="disk-type-label">
+          Disk type{' '}
+          <TipIcon className="ml-1.5">
+            Most workloads should use distributed disks, which are replicated for
+            resilience. Local disks are designed for fast I/O on temporary data.
+          </TipIcon>
+        </FieldLabel>
         <RadioGroup
           aria-labelledby="disk-type-label"
           name="diskBackendType"
@@ -363,22 +380,28 @@ const DiskSourceField = ({
                 }
               }}
             />
+            {/* Read-only disk creation disabled pending propolis fix
+                https://github.com/oxidecomputer/console/issues/3071
             <div className="mt-2">
               <CheckboxField name="diskBackend.diskSource.readOnly" control={control}>
                 Make disk read-only
               </CheckboxField>
             </div>
+            */}
           </>
         )}
 
         {diskSource.type === 'snapshot' && (
           <>
             <SnapshotSelectField control={control} />
+            {/* Read-only disk creation disabled pending propolis fix
+                https://github.com/oxidecomputer/console/issues/3071
             <div className="mt-2">
               <CheckboxField name="diskBackend.diskSource.readOnly" control={control}>
                 Make disk read-only
               </CheckboxField>
             </div>
+            */}
           </>
         )}
       </div>
@@ -414,7 +437,7 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreateForm> }) 
         const formattedSize = filesize(i.size, { base: 2, output: 'object' })
         return {
           value: i.id,
-          selectedLabel: `${i.name}`,
+          selectedLabel: i.name,
           label: (
             <>
               <div>{i.name}</div>
