@@ -96,7 +96,7 @@ function sortItems<I extends { id: string }>(items: I[], sortBy: SortMode): I[] 
 
   switch (sortBy) {
     case 'name_ascending':
-      // Use byte-wise lexicographic comparison to match Rust's String ordering
+      // ASCII-safe lexicographic comparison (matches Rust for ASCII identifiers)
       // Include ID as tiebreaker for stable pagination when names are equal
       return R.sortBy(
         items,
@@ -183,6 +183,8 @@ export const paginated = <P extends PaginateOptions, I extends { id: string }>(
   items: I[]
 ) => {
   const limit = params.limit ?? 100
+  if (limit < 1) return { items: [], next_page: null }
+
   const pageToken = params.pageToken
 
   // Apply default sorting based on what fields are available, matching Omicron's defaults:
@@ -191,7 +193,7 @@ export const paginated = <P extends PaginateOptions, I extends { id: string }>(
   // Note: time_and_id_ascending is only used when explicitly specified in sortBy
   const sortBy =
     params.sortBy ||
-    (items.length > 0 && 'name' in items[0] ? 'name_ascending' : 'id_ascending')
+    (items.some((i) => 'name' in i) ? 'name_ascending' : 'id_ascending')
 
   const sortedItems = sortItems(items, sortBy)
 
