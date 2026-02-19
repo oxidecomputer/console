@@ -27,7 +27,7 @@ describe('paginated', () => {
     expect(page.items.length).toBe(100)
     // Items are sorted by id lexicographically (matching Omicron's UUID sorting behavior)
     // Use locale-agnostic comparison to match the implementation
-    const sortedItems = R.sortBy([...items], (i) => i.id)
+    const sortedItems = R.sortBy(items, (i) => i.id)
     expect(page.items).toEqual(sortedItems.slice(0, 100))
     expect(page.next_page).toBe(sortedItems[99].id)
   })
