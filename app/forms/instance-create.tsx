@@ -526,8 +526,6 @@ export default function CreateInstanceForm() {
           const bootDisk = getBootDiskAttachment(values, allImages)
 
           // Construct external IPs: ephemeral IPs first (v4 before v6), then floating IPs
-          // Always include ipVersion in auto selectors to match user intent and satisfy
-          // API requirements (dual-stack requests MUST specify ipVersion on each)
           const externalIps: ExternalIpCreate[] = [
             // v4 ephemeral if enabled (order: v4 before v6)
             ...(values.ephemeralIpv4
