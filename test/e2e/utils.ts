@@ -199,16 +199,26 @@ export async function clickRowAction(page: Page, rowName: string, actionName: st
   await page.getByRole('menuitem', { name: actionName }).click()
 }
 
-export const selectASiloImage = async (page: Page, name: string) => {
+/** Select a silo image by name, or the first one if no name is provided */
+export const selectASiloImage = async (page: Page, name?: string) => {
   await page.getByRole('tab', { name: 'Silo images' }).click()
   await page.getByPlaceholder('Select a silo image', { exact: true }).click()
-  await page.getByRole('option', { name }).click()
+  if (name) {
+    await page.getByRole('option', { name }).click()
+  } else {
+    await page.getByRole('option').first().click()
+  }
 }
 
-export const selectAProjectImage = async (page: Page, name: string) => {
+/** Select a project image by name, or the first one if no name is provided */
+export const selectAProjectImage = async (page: Page, name?: string) => {
   await page.getByRole('tab', { name: 'Project images' }).click()
   await page.getByPlaceholder('Select a project image', { exact: true }).click()
-  await page.getByRole('option', { name }).click()
+  if (name) {
+    await page.getByRole('option', { name }).click()
+  } else {
+    await page.getByRole('option').first().click()
+  }
 }
 
 export const selectAnExistingDisk = async (page: Page, name: string) => {

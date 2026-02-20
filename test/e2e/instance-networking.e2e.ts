@@ -317,7 +317,7 @@ test('IPv4-only instance cannot attach IPv6 ephemeral IP', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
   const instanceName = 'ipv4-only-test'
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-  await selectASiloImage(page, 'arch-2022-06-01')
+  await selectASiloImage(page)
 
   // Select IPv4-only
 
@@ -372,7 +372,7 @@ test('IPv6-only instance cannot attach IPv4 ephemeral IP', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
   const instanceName = 'ipv6-only-test'
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-  await selectASiloImage(page, 'arch-2022-06-01')
+  await selectASiloImage(page)
 
   // Select IPv6-only
 
@@ -427,7 +427,7 @@ test('IPv4-only instance can attach IPv4 ephemeral IP', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
   const instanceName = 'ipv4-success-test'
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-  await selectASiloImage(page, 'arch-2022-06-01')
+  await selectASiloImage(page)
 
   // Select IPv4-only
 
@@ -476,7 +476,7 @@ test('IPv6-only instance can attach IPv6 ephemeral IP', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
   const instanceName = 'ipv6-success-test'
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-  await selectASiloImage(page, 'arch-2022-06-01')
+  await selectASiloImage(page)
 
   // Select IPv6-only
 
