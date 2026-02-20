@@ -83,7 +83,7 @@ describe('paginated', () => {
   })
 
   it('pages through id_ascending with no overlap and no gap', () => {
-    // Items a..j; token is the first item of the next page (inclusive marker)
+    // Items a..j; next_page is the last item on each page (exclusive cursor per Dropshot)
     const items = Array.from({ length: 10 }, (_, i) => ({
       id: String.fromCharCode(97 + i),
     }))
