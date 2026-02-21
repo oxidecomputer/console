@@ -21,6 +21,17 @@ describe('paginated', () => {
     expect(page.next_page).toBeNull()
   })
 
+  it('defaults to name_ascending for items with a name field', () => {
+    const items = [
+      { id: 'z', name: 'zebra' },
+      { id: 'a', name: 'antelope' },
+      { id: 'm', name: 'moose' },
+    ]
+    const page = paginated({}, items)
+    expect(page.items.map((i) => i.name)).toEqual(['antelope', 'moose', 'zebra'])
+    expect(page.next_page).toBeNull()
+  })
+
   it('should return the first 100 items with no limit passed', () => {
     const items = Array.from({ length: 200 }).map((_, i) => ({ id: 'i' + i }))
     const page = paginated({}, items)

@@ -22,12 +22,14 @@ import {
   type IpRange,
   type Ipv4Assignment,
   type Ipv6Assignment,
+  type NameOrIdSortMode,
   type OxqlQueryResult,
   type PrivateIpStackCreate,
   type RoleKey,
   type Sled,
   type SystemMetricName,
   type SystemMetricQueryParams,
+  type TimeAndIdSortMode,
   type TimeseriesQuery,
   type User,
 } from '@oxide/api'
@@ -43,12 +45,7 @@ import { getMockOxqlInstanceData } from '../oxql-metrics'
 import { db, lookupById } from './db'
 import { Rando } from './rando'
 
-type SortMode =
-  | 'name_ascending'
-  | 'name_descending'
-  | 'id_ascending'
-  | 'time_and_id_ascending'
-  | 'time_and_id_descending'
+type SortMode = NameOrIdSortMode | TimeAndIdSortMode
 
 interface PaginateOptions {
   limit?: number | null
