@@ -7,7 +7,7 @@
  */
 
 .ox-menu {
-  @apply bg-raise !max-h-[17.5rem] rounded-md p-px;
+  @apply bg-raise light:bg-default !max-h-[17.5rem] rounded-md p-px;
 }
 
 .ox-menu-item {

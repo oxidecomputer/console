@@ -25,6 +25,9 @@
 
 @import '@oxide/design-system/styles/tailwind.css';
 @import '@oxide/design-system/styles/main.css';
+@import '@oxide/design-system/styles/dark.css';
+@import '@oxide/design-system/styles/light.css';
+@import '@oxide/design-system/styles/preflight.css' layer(base);
 @import 'simplebar-react/dist/simplebar.min.css' layer(components);
 
 @import './fonts.css' layer(base);

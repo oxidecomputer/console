@@ -334,12 +334,12 @@ th:last-of-type.action-col {
 .overflowing th:last-of-type.action-col {
   box-shadow: -6px 0 8px -2px oklch(0 0 0 / 0.2);
 }
-.light .scrolled td:first-of-type,
-.light .scrolled th:first-of-type {
+[data-theme='light'] .scrolled td:first-of-type,
+[data-theme='light'] .scrolled th:first-of-type {
   box-shadow: 6px 0 8px -2px oklch(0 0 0 / 0.05);
 }
-.light .overflowing td:last-of-type.action-col,
-.light .overflowing th:last-of-type.action-col {
+[data-theme='light'] .overflowing td:last-of-type.action-col,
+[data-theme='light'] .overflowing th:last-of-type.action-col {
   box-shadow: -6px 0 8px -2px oklch(0 0 0 / 0.05);
 }
 

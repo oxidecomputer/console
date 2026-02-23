@@ -7,7 +7,8 @@
  */
 
 .ox-tooltip {
-  @apply text-sans-md text-default bg-raise shadow-tooltip rounded-md p-2;
+  @apply text-sans-md text-default bg-raise rounded-md p-2;
+  box-shadow: var(--shadow-tooltip);
 }
 
 .ox-tooltip-arrow {

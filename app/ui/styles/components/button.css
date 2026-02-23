@@ -14,7 +14,7 @@
     @apply absolute top-0 right-0 bottom-0 left-0 rounded-md border border-current/5;
   }
   &.btn-primary {
-    @apply text-accent bg-accent hover:bg-accent-hover disabled:text-accent/35 disabled:bg-accent;
+    @apply text-accent bg-accent hover:bg-accent-hover disabled:text-accent/40 disabled:bg-accent;
   }
   &.btn-primary:disabled > .spinner,
   &.btn-primary.visually-disabled > .spinner {
@@ -38,7 +38,7 @@
   }
 
   &.btn-ghost {
-    @apply text-secondary hover:bg-hover disabled:text-secondary/35 disabled:bg-transparent;
+    @apply text-secondary hover:bg-hover disabled:text-default/40 disabled:bg-transparent;
   }
   &.btn-ghost:after {
     @apply border-current/20;
