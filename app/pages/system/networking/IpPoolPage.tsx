@@ -461,11 +461,11 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
   const linkSilo = useApiMutation(api.systemIpPoolSiloLink, {
     onSuccess() {
       queryClient.invalidateEndpoint('systemIpPoolSiloList')
+      onDismiss()
     },
     onError(err) {
       addToast({ title: 'Could not link silo', content: err.message, variant: 'error' })
     },
-    onSettled: onDismiss,
   })
 
   function onSubmit({ silo }: LinkSiloFormValues) {

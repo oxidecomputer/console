@@ -11,7 +11,6 @@ import {
   closeToast,
   expect,
   expectRowVisible,
-  expectToast,
   test,
   type Page,
 } from './utils'
