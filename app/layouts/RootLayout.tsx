@@ -138,7 +138,7 @@ function LoadingBar() {
 
   return (
     <div className="fixed top-0 right-0 left-0 z-50">
-      <div ref={barRef} className="global-loading-bar bg-accent h-px" />
+      <div ref={barRef} className="global-loading-bar bg-accent-inverse h-px" />
     </div>
   )
 }
