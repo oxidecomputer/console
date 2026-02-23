@@ -60,6 +60,7 @@ export function Content({ className, children, anchor = 'bottom end', gap }: Con
   return (
     <Menu.Portal>
       <Menu.Positioner
+        className="z-(--z-top-bar-dropdown)"
         side={side}
         align={align}
         sideOffset={sideOffset}
@@ -83,7 +84,7 @@ type SubContentProps = {
 export function SubContent({ className, children }: SubContentProps) {
   return (
     <Menu.Portal>
-      <Menu.Positioner sideOffset={1}>
+      <Menu.Positioner className="z-(--z-top-bar-dropdown)" sideOffset={1}>
         <Menu.Popup
           className={cn('dropdown-menu-content shadow-menu outline-hidden', className)}
         >
