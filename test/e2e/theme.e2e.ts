@@ -8,6 +8,9 @@
 import { expect, test } from './utils'
 
 test('Theme picker changes data-theme on <html>', async ({ page }) => {
+  // default is light in Playwright, but don't rely on that
+  await page.emulateMedia({ colorScheme: 'light' })
+
   await page.goto('/projects')
   const html = page.locator('html')
 
@@ -24,8 +27,9 @@ test('Theme picker changes data-theme on <html>', async ({ page }) => {
   await page.getByRole('menuitemradio', { name: 'Light' }).click()
   await expectTheme('light')
 
-  // dismiss, reload, and confirm the choice persisted
-  await page.reload()
+  // navigate fresh and confirm the choice persisted via localStorage
+  // (page.reload() didn't work in Firefox)
+  await page.goto('/projects')
   await expectTheme('light')
 
   // reopen and pick Dark
@@ -36,11 +40,10 @@ test('Theme picker changes data-theme on <html>', async ({ page }) => {
 
   // pick System — resolves to the emulated scheme
   await page.getByRole('menuitemradio', { name: 'System' }).click()
-  // Playwright defaults to prefers-color-scheme: light
   await expectTheme('light')
 
   // dismiss, emulate dark system preference, and confirm page is reactive
-  await page.getByRole('heading', { name: 'Projects' }).click()
+  await page.keyboard.press('Escape')
   await page.emulateMedia({ colorScheme: 'dark' })
   await expectTheme('dark')
 })

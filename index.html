@@ -23,7 +23,8 @@
       ;(function () {
         var p = 'dark'
         try {
-          var stored = JSON.parse(localStorage.getItem('theme-preference'))
+          var raw = localStorage.getItem('theme-preference')
+          var stored = raw ? JSON.parse(raw) : null
           // match zustand persist format
           if (stored && stored.state && stored.state.theme) p = stored.state.theme
         } catch (e) {}
