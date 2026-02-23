@@ -11,6 +11,7 @@ import {
   closeToast,
   expect,
   expectRowVisible,
+  expectToast,
   test,
   type Page,
 } from './utils'
@@ -204,6 +205,27 @@ test('can resize a failed or stopped instance', async ({ page }) => {
     Memory: '16 GiB',
     state: expect.stringMatching(/^stopped\d+s$/),
   })
+})
+
+test('resize modal stays open on server error', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances')
+
+  // 'instance-update-error' is a failed instance whose mock handler rejects updates
+  await clickRowAction(page, 'instance-update-error', 'Resize')
+  const resizeModal = page.getByRole('dialog', { name: 'Resize instance' })
+  await expect(resizeModal).toBeVisible()
+
+  await resizeModal.getByRole('textbox', { name: 'vCPUs' }).fill('10')
+  await resizeModal.getByRole('textbox', { name: 'Memory' }).fill('20')
+  await resizeModal.getByRole('button', { name: 'Resize' }).click()
+
+  // Wait for the error toast, which confirms the mutation has completed
+  await expect(page.getByTestId('Toasts')).toContainText('Cannot update instance')
+
+  // Modal should stay open so the user can see the error and adjust values
+  await expect(resizeModal).toBeVisible()
+
+  await closeToast(page)
 })
 
 test('delete from instance detail', async ({ page }) => {

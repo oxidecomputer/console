@@ -737,6 +737,10 @@ export const handlers = makeHandlers({
   instanceUpdate({ path, query, body }) {
     const instance = lookup.instance({ ...path, ...query })
 
+    if (instance.name === 'instance-update-error') {
+      throw 'Cannot update instance'
+    }
+
     const resize = body.ncpus !== instance.ncpus || body.memory !== instance.memory
     if (resize && !instanceCan.resize({ runState: instance.run_state })) {
       const states = instanceCan.resize.states

@@ -107,6 +107,18 @@ const failedCooledRestartNever: Json<Instance> = {
   time_last_auto_restarted: addMinutes(new Date(), -65).toISOString(), // 65 minutes ago
 }
 
+export const instanceUpdateError: Json<Instance> = {
+  ...base,
+  id: '7a6c58e0-2b5a-4f69-b4d1-1e0e9a3f5c17',
+  name: 'instance-update-error',
+  ncpus: 2,
+  memory: 4 * GiB,
+  description: 'triggers error on update',
+  hostname: 'oxide.com',
+  project_id: project.id,
+  run_state: 'failed',
+}
+
 export const instanceDb2: Json<Instance> = {
   ...base,
   id: 'e78b49c0-e534-400c-adca-a18cc9ab0d8c',
@@ -125,5 +137,6 @@ export const instances: Json<Instance>[] = [
   failedRestartingSoon,
   failedRestartNever,
   failedCooledRestartNever,
+  instanceUpdateError,
   instanceDb2,
 ]
