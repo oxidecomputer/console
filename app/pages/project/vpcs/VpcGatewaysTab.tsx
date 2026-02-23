@@ -37,7 +37,7 @@ export const handle = { crumb: 'Internet Gateways' }
 
 const gatewayList = ({ project, vpc }: PP.Vpc) =>
   getListQFn(api.internetGatewayList, { query: { project, vpc, limit: ALL_ISH } })
-const projectIpPoolList = getListQFn(api.projectIpPoolList, {
+const projectIpPoolList = getListQFn(api.ipPoolList, {
   query: { limit: ALL_ISH },
 })
 
@@ -83,7 +83,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     ),
     queryClient.fetchQuery(projectIpPoolList.optionsFn()).then((pools) => {
       for (const pool of pools.items) {
-        const { queryKey } = q(api.projectIpPoolView, {
+        const { queryKey } = q(api.ipPoolView, {
           path: { pool: pool.id },
         })
         queryClient.setQueryData(queryKey, pool)

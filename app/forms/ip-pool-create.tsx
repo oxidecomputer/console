@@ -18,7 +18,6 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { addToast } from '~/stores/toast'
-import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { docLinks } from '~/util/links'
@@ -40,9 +39,9 @@ export default function CreateIpPoolSideModalForm() {
 
   const onDismiss = () => navigate(pb.ipPools())
 
-  const createPool = useApiMutation(api.ipPoolCreate, {
+  const createPool = useApiMutation(api.systemIpPoolCreate, {
     onSuccess(_pool) {
-      queryClient.invalidateEndpoint('ipPoolList')
+      queryClient.invalidateEndpoint('systemIpPoolList')
       // prettier-ignore
       addToast(<>IP pool <HL>{_pool.name}</HL> created</>)
       navigate(pb.ipPools())
@@ -76,6 +75,9 @@ export default function CreateIpPoolSideModalForm() {
           { value: 'v6', label: 'v6' },
         ]}
       />
+      {/*
+      // leaving this out for now because multicast is only partly supported
+      // field default value is unicast, so that will go out with all creates
       <RadioField
         name="poolType"
         label="Type"
@@ -86,7 +88,7 @@ export default function CreateIpPoolSideModalForm() {
           { value: 'multicast', label: 'Multicast' },
         ]}
       />
-      <FormDivider />
+      */}
       <SideModalFormDocs docs={[docLinks.systemIpPools]} />
     </SideModalForm>
   )

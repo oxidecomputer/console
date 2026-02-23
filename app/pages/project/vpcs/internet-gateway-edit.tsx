@@ -201,7 +201,6 @@ export default function EditInternetGatewayForm() {
         </Table>
       </div>
 
-      <FormDivider />
       <SideModalFormDocs docs={[docLinks.gateways]} />
     </ReadOnlySideModalForm>
   )

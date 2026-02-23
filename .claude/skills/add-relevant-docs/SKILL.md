@@ -84,7 +84,6 @@ Used on list pages and detail pages inside `<PageHeader>`.
 ```tsx
 import { DocsPopover } from '~/components/DocsPopover'
 import { docLinks } from '~/util/links'
-
 ;<PageHeader>
   <PageTitle icon={<SomeIcon24 />}>Page Title</PageTitle>
   <DocsPopover
@@ -96,26 +95,29 @@ import { docLinks } from '~/util/links'
 </PageHeader>
 ```
 
-### 5. Add ModalLinks to side modal forms
+### 5. Add SideModalFormDocs to side modal forms
 
-Used at the bottom of `SideModalForm` and `ReadOnlySideModalForm` content, after a `FormDivider`.
+Used at the bottom of `SideModalForm` and `ReadOnlySideModalForm` content. The component renders a `FormDivider` automatically before the links.
 
 **File**: `app/ui/lib/ModalLinks.tsx`
 
 ```tsx
-import { FormDivider } from '~/ui/lib/Divider'
-import { ModalLink, ModalLinks } from '~/ui/lib/ModalLinks'
-import { links } from '~/util/links'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { docLinks } from '~/util/links'
 
 // Inside the form, after form fields:
-<FormDivider />
-<ModalLinks heading="Relevant docs">
-  <ModalLink to={links.somePageDocs} label="Human-Readable Label" />
-  <ModalLink to={links.anotherPageDocs} label="Another Label" />
-</ModalLinks>
+;<SideModalFormDocs docs={[docLinks.someLink]} />
 ```
 
-Note: `ModalLink` uses `links.*` (raw URLs), not `docLinks.*` (which are `{href, linkText}` objects for DocsPopover).
+For custom links not in `docLinks`, use `ModalLinks` and `ModalLink` directly:
+
+```tsx
+import { ModalLink, ModalLinks } from '~/ui/lib/ModalLinks'
+import { links } from '~/util/links'
+;<ModalLinks heading="Relevant docs">
+  <ModalLink to={links.somePageDocs} label="Human-Readable Label" />
+</ModalLinks>
+```
 
 ### 6. Write good microcopy
 

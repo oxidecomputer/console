@@ -127,12 +127,12 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     // Fetch IP Pools and preload into RQ cache so fetches by ID in
     // IpPoolCell and AttachFloatingIpModal can be mostly instant
     queryClient
-      .fetchQuery(q(api.projectIpPoolList, { query: { limit: ALL_ISH } }))
+      .fetchQuery(q(api.ipPoolList, { query: { limit: ALL_ISH } }))
       .then((pools) => {
         for (const pool of pools.items) {
           // both IpPoolCell and the fetch in the model use errors-allowed
           // versions to avoid blowing up in the unlikely event of an error
-          const { queryKey } = qErrorsAllowed(api.projectIpPoolView, {
+          const { queryKey } = qErrorsAllowed(api.ipPoolView, {
             path: { pool: pool.id },
           })
           queryClient.setQueryData(queryKey, { type: 'success', data: pool })

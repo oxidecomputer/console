@@ -73,10 +73,10 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     // IpPoolCell can be mostly instant yet gracefully fall back to
     // fetching individually if we don't fetch them all here
     queryClient
-      .fetchQuery(q(api.projectIpPoolList, { query: { limit: ALL_ISH } }))
+      .fetchQuery(q(api.ipPoolList, { query: { limit: ALL_ISH } }))
       .then((pools) => {
         for (const pool of pools.items) {
-          const { queryKey } = q(api.projectIpPoolView, {
+          const { queryKey } = q(api.ipPoolView, {
             path: { pool: pool.id },
           })
           queryClient.setQueryData(queryKey, pool)
@@ -99,7 +99,7 @@ const staticCols = [
     cell: (info) => <IpPoolCell ipPoolId={info.getValue()} />,
   }),
   colHelper.accessor('instanceId', {
-    header: 'Attached to instance',
+    header: 'Instance',
     cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,
   }),
 ]
@@ -123,7 +123,7 @@ export default function FloatingIpsPage() {
   const { mutateAsync: deleteFloatingIp } = useApiMutation(api.floatingIpDelete, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('floatingIpList')
-      queryClient.invalidateEndpoint('ipPoolUtilizationView')
+      queryClient.invalidateEndpoint('systemIpPoolUtilizationView')
       // prettier-ignore
       addToast(<>Floating IP <HL>{variables.path.floatingIp}</HL> deleted</>)
     },

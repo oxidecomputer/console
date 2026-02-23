@@ -24,7 +24,6 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { useIpPoolSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { parseIp } from '~/util/ip'
@@ -91,15 +90,14 @@ export default function IpPoolAddRange() {
   const { pool } = useIpPoolSelector()
   const navigate = useNavigate()
 
-  const { data: poolData } = usePrefetchedQuery(q(api.ipPoolView, { path: { pool } }))
+  const { data: poolData } = usePrefetchedQuery(q(api.systemIpPoolView, { path: { pool } }))
 
   const onDismiss = () => navigate(pb.ipPool({ pool }))
 
-  const addRange = useApiMutation(api.ipPoolRangeAdd, {
+  const addRange = useApiMutation(api.systemIpPoolRangeAdd, {
     onSuccess(_range) {
-      // refetch list of projects in sidebar
-      queryClient.invalidateEndpoint('ipPoolRangeList')
-      queryClient.invalidateEndpoint('ipPoolUtilizationView')
+      queryClient.invalidateEndpoint('systemIpPoolRangeList')
+      queryClient.invalidateEndpoint('systemIpPoolUtilizationView')
       addToast({ content: 'IP range added' })
       onDismiss()
     },
@@ -140,7 +138,6 @@ export default function IpPoolAddRange() {
         control={form.control}
         required
       />
-      <FormDivider />
       <SideModalFormDocs docs={[docLinks.systemIpPools]} />
     </SideModalForm>
   )

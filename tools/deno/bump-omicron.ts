@@ -160,7 +160,15 @@ async function makeOmicronPR(
 // wrapped in a function so we can do early returns rather than early
 // Deno.exits, which mess up the worktree cleanup
 async function run(commitIsh: string, dryRun: boolean, messageArg: string | undefined) {
-  await $`git fetch`.cwd(OMICRON_DIR)
+  // Ensure local main matches the remote so we don't bump to a stale commit
+  if (commitIsh === 'main') {
+    const localMain = await $`git rev-parse main`.text()
+    const remoteMain = await $`git ls-remote origin main`.text()
+    const remoteMainSha = remoteMain.split('\t')[0]
+    if (localMain !== remoteMainSha) {
+      throw new Error('Local main does not match remote. Fetch main and try again.')
+    }
+  }
 
   const oldConsoleCommit = await getOldCommit()
   const newConsoleCommit = await $`git rev-parse ${commitIsh}`.text()

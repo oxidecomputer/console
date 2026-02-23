@@ -17,7 +17,6 @@ import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { useVpcSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { FormDivider } from '~/ui/lib/Divider'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
@@ -58,7 +57,6 @@ export default function RouterCreate() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <FormDivider />
       <SideModalFormDocs docs={[docLinks.routers]} />
     </SideModalForm>
   )
