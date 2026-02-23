@@ -23,7 +23,9 @@
       ;(function () {
         var p = 'dark'
         try {
-          p = localStorage.getItem('theme-preference') || 'dark'
+          var stored = JSON.parse(localStorage.getItem('theme-preference'))
+          // match zustand persist format
+          if (stored && stored.state && stored.state.theme) p = stored.state.theme
         } catch (e) {}
         if (p === 'system')
           p = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'

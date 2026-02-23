@@ -23,7 +23,7 @@ import {
 
 import { useCrumbs } from '~/hooks/use-crumbs'
 import { useCurrentUser } from '~/hooks/use-current-user'
-import { setThemePreference, useThemeStore, type ThemePreference } from '~/stores/theme'
+import { useThemeStore, type Theme } from '~/stores/theme'
 import { buttonStyle } from '~/ui/lib/Button'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 import { Identicon } from '~/ui/lib/Identicon'
@@ -157,7 +157,7 @@ function UserMenu() {
 }
 
 function ThemeSubmenu() {
-  const { preference } = useThemeStore()
+  const { theme, setTheme } = useThemeStore()
   return (
     <DropdownMenu.Submenu>
       <DropdownMenu.SubmenuTrigger className="DropdownMenuItem ox-menu-item border-secondary border-b">
@@ -167,27 +167,24 @@ function ThemeSubmenu() {
         </span>
       </DropdownMenu.SubmenuTrigger>
       <DropdownMenu.SubContent>
-        <DropdownMenu.RadioGroup
-          value={preference}
-          onValueChange={(v) => setThemePreference(v as ThemePreference)}
-        >
+        <DropdownMenu.RadioGroup value={theme} onValueChange={setTheme}>
           <ThemeRadioItem
             value="light"
             icon={<Sun12Icon />}
             label="Light"
-            selected={preference === 'light'}
+            selected={theme === 'light'}
           />
           <ThemeRadioItem
             value="dark"
             icon={<Moon12Icon />}
             label="Dark"
-            selected={preference === 'dark'}
+            selected={theme === 'dark'}
           />
           <ThemeRadioItem
             value="system"
             icon={<Monitor12Icon />}
             label="System"
-            selected={preference === 'system'}
+            selected={theme === 'system'}
           />
         </DropdownMenu.RadioGroup>
       </DropdownMenu.SubContent>
@@ -201,7 +198,7 @@ function ThemeRadioItem({
   label,
   selected,
 }: {
-  value: ThemePreference
+  value: Theme
   icon: React.ReactNode
   label: string
   selected: boolean

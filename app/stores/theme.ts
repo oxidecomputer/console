@@ -7,35 +7,24 @@
  */
 import { useEffect, useSyncExternalStore } from 'react'
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
-export type ThemePreference = 'dark' | 'light' | 'system'
+export type Theme = 'dark' | 'light' | 'system'
 
-const STORAGE_KEY = 'theme-preference'
-
-function getStoredPreference(): ThemePreference {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored === 'dark' || stored === 'light' || stored === 'system') return stored
-  } catch {
-    // localStorage unavailable
-  }
-  return 'dark'
+type ThemeStore = {
+  theme: Theme
+  setTheme: (pref: Theme) => void
 }
 
-export const useThemeStore = create<{ preference: ThemePreference }>(() => ({
-  preference: getStoredPreference(),
-}))
-
-export function setThemePreference(pref: ThemePreference) {
-  localStorage.setItem(STORAGE_KEY, pref)
-  useThemeStore.setState({ preference: pref })
-}
-
-/** Resolve preference to actual theme, accounting for system media query */
-function resolveTheme(pref: ThemePreference, systemIsLight: boolean): 'dark' | 'light' {
-  if (pref === 'system') return systemIsLight ? 'light' : 'dark'
-  return pref
-}
+export const useThemeStore = create<ThemeStore>()(
+  persist(
+    (set) => ({
+      theme: 'dark',
+      setTheme: (pref) => set({ theme: pref }),
+    }),
+    { name: 'theme-preference' }
+  )
+)
 
 function subscribeToMediaQuery(cb: () => void) {
   const mql = window.matchMedia('(prefers-color-scheme: light)')
@@ -52,9 +41,9 @@ function getSystemIsLight() {
  * so it runs on every page.
  */
 export function useApplyTheme() {
-  const { preference } = useThemeStore()
+  const { theme: pref } = useThemeStore()
   const systemIsLight = useSyncExternalStore(subscribeToMediaQuery, getSystemIsLight)
-  const theme = resolveTheme(preference, systemIsLight)
+  const theme = pref === 'system' ? (systemIsLight ? 'light' : 'dark') : pref
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
