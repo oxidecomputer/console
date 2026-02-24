@@ -38,10 +38,10 @@ const defaultIcon: Record<Variant, ReactElement> = {
 }
 
 const color: Record<Variant, string> = {
-  success: 'bg-accent-secondary border-accent/10',
-  error: 'bg-error-secondary border-destructive/10',
-  notice: 'bg-notice-secondary border-notice/10',
-  info: 'bg-info-secondary border-blue-800/10',
+  success: 'bg-accent',
+  error: 'bg-error',
+  notice: 'bg-notice',
+  info: 'bg-info',
 }
 
 const textColor: Record<Variant, string> = {
@@ -77,7 +77,7 @@ export const Message = ({
   return (
     <div
       className={cn(
-        'elevation-1 relative flex items-start gap-2 overflow-hidden rounded-lg border p-3 pr-5',
+        'relative flex items-start gap-2 overflow-hidden rounded-md p-3 pr-5 ring ring-current/15',
         color[variant],
         textColor[variant],
         className

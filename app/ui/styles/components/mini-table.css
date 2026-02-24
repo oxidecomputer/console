@@ -43,12 +43,12 @@
 
   /* first cell's div */
   & td:first-child > div {
-    @apply ml-2 rounded-l border-l;
+    @apply ml-2 rounded-l-md border-l;
   }
 
   /* second-to-last cell's div */
   & td:nth-last-child(2) > div {
-    @apply rounded-r border-r;
+    @apply rounded-r-md border-r;
   }
 
   /* last cell's div (the div for the delete button) */

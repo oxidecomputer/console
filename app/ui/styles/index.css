@@ -25,6 +25,9 @@
 
 @import '@oxide/design-system/styles/tailwind.css';
 @import '@oxide/design-system/styles/main.css';
+@import '@oxide/design-system/styles/dark.css';
+@import '@oxide/design-system/styles/light.css';
+@import '@oxide/design-system/styles/preflight.css' layer(base);
 @import 'simplebar-react/dist/simplebar.min.css' layer(components);
 
 @import './fonts.css' layer(base);
@@ -47,6 +50,7 @@
 
 @import '@xterm/xterm/css/xterm.css' layer(components);
 @source '../../../node_modules/@oxide/design-system/dist';
+@custom-variant light (&:where([data-theme=light], [data-theme=light] *));
 
 @theme {
   --animate-spin-slow: spin 5s linear infinite;

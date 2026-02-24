@@ -10,15 +10,20 @@ import { Link } from 'react-router'
 
 import { api, navToLogin, useApiMutation } from '@oxide/api'
 import {
+  DirectionRightIcon,
+  Monitor12Icon,
+  Moon12Icon,
   Organization16Icon,
   Profile16Icon,
   SelectArrows6Icon,
   Servers16Icon,
   Success12Icon,
+  Sun12Icon,
 } from '@oxide/design-system/icons/react'
 
 import { useCrumbs } from '~/hooks/use-crumbs'
 import { useCurrentUser } from '~/hooks/use-current-user'
+import { useThemeStore, type Theme } from '~/stores/theme'
 import { buttonStyle } from '~/ui/lib/Button'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 import { Identicon } from '~/ui/lib/Identicon'
@@ -50,13 +55,10 @@ export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
   )
 }
 
-const bigIconBox = 'flex h-[34px] w-[34px] items-center justify-center rounded'
+const bigIconBox = 'flex h-[34px] w-[34px] items-center justify-center rounded-md'
 
 const BigIdenticon = ({ name }: { name: string }) => (
-  <Identicon
-    className={cn(bigIconBox, 'text-accent bg-accent-secondary-hover')}
-    name={name}
-  />
+  <Identicon className={cn(bigIconBox, 'text-accent bg-accent-hover')} name={name} />
 )
 
 const SystemIcon = () => (
@@ -136,7 +138,7 @@ function UserMenu() {
         <div
           className={cn(
             buttonStyle({ size: 'sm', variant: 'ghost' }),
-            'border-secondary! flex items-center gap-1.5 px-2!'
+            'flex items-center gap-1.5 px-2!'
           )}
         >
           <Profile16Icon className="text-tertiary" />
@@ -147,9 +149,71 @@ function UserMenu() {
       </DropdownMenu.Trigger>
       <DropdownMenu.Content gap={8}>
         <DropdownMenu.LinkItem to={pb.profile()}>Settings</DropdownMenu.LinkItem>
+        <ThemeSubmenu />
         <DropdownMenu.Item onSelect={() => logout.mutate({})} label="Sign out" />
       </DropdownMenu.Content>
     </DropdownMenu.Root>
+  )
+}
+
+function ThemeSubmenu() {
+  const { theme, setTheme } = useThemeStore()
+  return (
+    <DropdownMenu.Submenu>
+      <DropdownMenu.SubmenuTrigger className="DropdownMenuItem ox-menu-item border-secondary border-b">
+        <span className="flex w-full items-center justify-between">
+          Theme
+          <DirectionRightIcon className="text-quaternary absolute right-3" aria-hidden />
+        </span>
+      </DropdownMenu.SubmenuTrigger>
+      <DropdownMenu.SubContent>
+        <DropdownMenu.RadioGroup value={theme} onValueChange={setTheme}>
+          <ThemeRadioItem
+            value="light"
+            icon={<Sun12Icon />}
+            label="Light"
+            selected={theme === 'light'}
+          />
+          <ThemeRadioItem
+            value="dark"
+            icon={<Moon12Icon />}
+            label="Dark"
+            selected={theme === 'dark'}
+          />
+          <ThemeRadioItem
+            value="system"
+            icon={<Monitor12Icon />}
+            label="System"
+            selected={theme === 'system'}
+          />
+        </DropdownMenu.RadioGroup>
+      </DropdownMenu.SubContent>
+    </DropdownMenu.Submenu>
+  )
+}
+
+function ThemeRadioItem({
+  value,
+  icon,
+  label,
+  selected,
+}: {
+  value: Theme
+  icon: React.ReactNode
+  label: string
+  selected: boolean
+}) {
+  return (
+    <DropdownMenu.RadioItem
+      value={value}
+      className={cn('DropdownMenuItem ox-menu-item', selected && 'is-selected')}
+    >
+      <span className="flex w-full items-center gap-2">
+        <span className="text-quaternary">{icon}</span>
+        <span>{label}</span>
+        {selected && <Success12Icon className="absolute right-3" />}
+      </span>
+    </DropdownMenu.RadioItem>
   )
 }
 
@@ -161,20 +225,24 @@ function UserMenu() {
 function SiloSystemPicker({ level }: { level: 'silo' | 'system' }) {
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger
-        aria-label="Switch between system and silo"
-        className="headless-hide-focus rounded-md"
-      >
-        <div className="active-clicked text-sans-md text-default border-secondary hover:bg-hover flex items-center rounded-md border px-2 py-1.5">
+      <DropdownMenu.Trigger aria-label="Switch between system and silo">
+        <div
+          className={cn(
+            buttonStyle({ size: 'sm', variant: 'ghost' }),
+            'flex items-center gap-1.5 px-2!'
+          )}
+        >
           <div className="text-tertiary flex items-center">
             {level === 'system' ? <Servers16Icon /> : <Organization16Icon />}
           </div>
-          <div className="mr-3 ml-1.5">{level === 'system' ? 'System' : 'Silo'}</div>
+          <span className="text-sans-md text-default normal-case">
+            {level === 'system' ? 'System' : 'Silo'}
+          </span>
           {/* aria-hidden is a tip from the Reach docs */}
-          <SelectArrows6Icon className="text-quaternary" aria-hidden />
+          <SelectArrows6Icon className="text-quaternary ml-3 w-1.5!" aria-hidden />
         </div>
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content className="mt-2 max-h-80 overflow-y-auto" anchor="bottom start">
+      <DropdownMenu.Content className="mt-2" anchor="bottom start">
         <SystemSiloItem to={pb.silos()} label="System" isSelected={level === 'system'} />
         <SystemSiloItem to={pb.projects()} label="Silo" isSelected={level === 'silo'} />
       </DropdownMenu.Content>

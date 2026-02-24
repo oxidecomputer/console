@@ -23,7 +23,7 @@
 
 /* Base tab styles */
 .ox-tab {
-  @apply text-mono-sm text-secondary border-secondary h-10 space-x-2 border-b px-1.5 pt-2 pb-1 whitespace-nowrap uppercase !no-underline;
+  @apply text-mono-sm text-tertiary border-secondary h-10 space-x-2 border-b px-1.5 pt-2 pb-1 whitespace-nowrap uppercase !no-underline;
 }
 
 .ox-tabs-list .ox-tab > * {
@@ -37,11 +37,7 @@
 
 /* Active states */
 .ox-tab[data-state='active'] {
-  @apply text-accent border-accent;
-}
-
-.ox-tabs-list .ox-tab[data-state='active']:hover > * {
-  @apply bg-accent-secondary;
+  @apply text-accent border-accent light:border-green-800 light:text-raise;
 }
 
 /* Badge styles */
@@ -54,7 +50,7 @@
 }
 
 .ox-tab[data-state='active'] > .ox-badge {
-  @apply bg-accent-secondary-hover;
+  @apply bg-accent;
 }
 
 /* Full width variants */
@@ -82,16 +78,12 @@
 }
 
 .ox-side-tabs-list .ox-tab[data-state='active'] {
-  @apply text-accent bg-accent-secondary;
+  @apply text-accent bg-accent;
   border: none;
 }
 
-.ox-side-tabs .ox-tabs-panel {
-  @apply mx-0 ml-4;
-}
-
 .ox-side-tabs-list .ox-tab[data-state='active']:hover {
-  @apply bg-accent-secondary-hover;
+  @apply bg-accent-hover;
 }
 
 .ox-side-tabs-list .ox-tab:not([data-state='active']):hover {

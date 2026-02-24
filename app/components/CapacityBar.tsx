@@ -34,7 +34,7 @@ export const CapacityBar = <T extends number | bigint>({
   const unitElt = includeUnit ? <>&nbsp;{unit}</> : null
 
   return (
-    <div className="border-default 1000:max-w-1/2 w-full min-w-min rounded-lg border">
+    <div className="border-default bg-default 1000:max-w-1/2 w-full min-w-min rounded-lg border">
       <div className="flex justify-between p-3">
         <TitleCell icon={icon} title={title} unit={unit} />
         <PctCell pct={pct} />
@@ -55,7 +55,9 @@ function TitleCell({ icon, title, unit }: TitleCellProps) {
   return (
     <div>
       <div className="flex grow items-center">
-        <span className="text-accent mr-2 flex h-4 w-4 items-center">{icon}</span>
+        <span className="text-accent light:text-accent-tertiary mr-2 flex h-4 w-4 items-center">
+          {icon}
+        </span>
         <span className="text-mono-sm text-default normal-case!">{title}</span>
         <span className="text-mono-sm text-tertiary ml-1 normal-case!">({unit})</span>
       </div>
@@ -87,10 +89,10 @@ function Bar({ pct }: { pct: number }) {
   return (
     <div className="flex w-full gap-0.5">
       <div
-        className="bg-accent-secondary border-accent-secondary h-3 rounded-l border"
+        className="bg-accent-secondary border-accent-secondary h-3 rounded-l-md border"
         style={{ width: `${pct.toFixed(2)}%` }}
       ></div>
-      <div className="bg-info-secondary border-info-secondary h-3 grow rounded-r border"></div>
+      <div className="bg-info-secondary border-info-secondary h-3 grow rounded-r-md border"></div>
     </div>
   )
 }
