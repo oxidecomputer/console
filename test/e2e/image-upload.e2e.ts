@@ -44,7 +44,7 @@ async function fillForm(page: Page, name: string) {
   await page.fill('role=textbox[name="Description"]', 'image description')
   await page.fill('role=textbox[name="OS"]', 'Ubuntu')
   await page.fill('role=textbox[name="Version"]', 'Dapper Drake')
-  await chooseFile(page, page.getByLabel('Image file'))
+  await chooseFile(page.getByLabel('Image file'))
 }
 
 test.describe('Image upload', () => {
@@ -114,7 +114,7 @@ test.describe('Image upload', () => {
     await expectNotVisible(page, [nameRequired])
 
     // now set the file, clear it, and submit again
-    await chooseFile(page, page.getByLabel('Image file'))
+    await chooseFile(page.getByLabel('Image file'))
     await expectNotVisible(page, [fileRequired])
 
     await page.click('role=button[name="Clear file"]')
