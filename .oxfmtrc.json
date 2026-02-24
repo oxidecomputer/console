@@ -19,11 +19,5 @@
     ]
   },
   "experimentalSortPackageJson": false,
-  "ignorePatterns": [
-    "dist/**",
-    "coverage/**",
-    "templates/**",
-    "mockServiceWorker.js",
-    "index.html"
-  ]
+  "ignorePatterns": ["dist/**", "coverage/**", "templates/**", "mockServiceWorker.js"]
 }
