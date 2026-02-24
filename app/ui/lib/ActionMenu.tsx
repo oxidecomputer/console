@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import * as Dialog from '@radix-ui/react-dialog'
+import { Dialog as BaseDialog } from '@base-ui/react/dialog'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
 import { useRef, useState } from 'react'
@@ -83,16 +83,18 @@ export function ActionMenu(props: ActionMenuProps) {
   }
 
   return (
-    <Dialog.Root
-      aria-label={props['aria-label']}
+    <BaseDialog.Root
       open={props.isOpen}
       onOpenChange={(open) => {
         if (!open) onDismiss()
       }}
     >
-      <Dialog.Portal>
+      <BaseDialog.Portal>
         <DialogOverlay />
-        <Dialog.Content className="fixed inset-0 z-(--z-modal) mx-auto mt-[20vh] w-184 bg-transparent p-0">
+        <BaseDialog.Popup
+          aria-label={props['aria-label']}
+          className="fixed inset-0 z-(--z-modal) mx-auto mt-[20vh] w-184 bg-transparent p-0"
+        >
           <div
             onKeyDown={(e) => {
               const lastIdx = itemsInOrder.length - 1
@@ -214,9 +216,9 @@ export function ActionMenu(props: ActionMenuProps) {
               </div>
             )}
           </div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+        </BaseDialog.Popup>
+      </BaseDialog.Portal>
+    </BaseDialog.Root>
   )
 }
 
