@@ -142,7 +142,7 @@ export type AddressLotBlock = {
 }
 
 /**
- * Parameters for creating an address lot block. Fist and last addresses are inclusive.
+ * Parameters for creating an address lot block. First and last addresses are inclusive.
  */
 export type AddressLotBlockCreate = {
   /** The first address in the lot (inclusive). */
@@ -509,6 +509,7 @@ export type AlertReceiverKind = {
   /** The URL that webhook notification requests are sent to. */
   endpoint: string
   kind: 'webhook'
+  /** A list containing the IDs of the secret keys used to sign payloads sent to this receiver. */
   secrets: WebhookSecret[]
 }
 
@@ -869,6 +870,8 @@ export type BgpAnnouncement = {
   network: IpNet
 }
 
+export type MaxPathConfig = number
+
 /**
  * A base BGP configuration.
  */
@@ -879,6 +882,8 @@ export type BgpConfig = {
   description: string
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
+  /** Maximum number of paths to use when multiple "best paths" exist */
+  maxPaths: MaxPathConfig
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** timestamp when this resource was created */
@@ -890,13 +895,15 @@ export type BgpConfig = {
 }
 
 /**
- * Parameters for creating a BGP configuration. This includes and autonomous system number (ASN) and a virtual routing and forwarding (VRF) identifier.
+ * Parameters for creating a BGP configuration. This includes an autonomous system number (ASN) and a virtual routing and forwarding (VRF) identifier.
  */
 export type BgpConfigCreate = {
   /** The autonomous system number of this BGP configuration. */
   asn: number
   bgpAnnounceSetId: NameOrId
   description: string
+  /** Maximum number of paths to use when multiple "best paths" exist */
+  maxPaths?: MaxPathConfig
   name: Name
   /** Optional virtual routing and forwarding identifier for this BGP configuration. */
   vrf?: Name | null
@@ -913,23 +920,27 @@ export type BgpConfigResultsPage = {
 }
 
 /**
- * The current status of a BGP peer.
+ * Route exported to a peer.
  */
 export type BgpExported = {
-  /** Exported routes indexed by peer address. */
-  exports: Record<string, Ipv4Net[]>
+  /** Identifier for the BGP peer. */
+  peerId: string
+  /** The destination network prefix. */
+  prefix: IpNet
+  /** Switch the route is exported from. */
+  switch: SwitchLocation
 }
 
 /**
  * A route imported from a BGP peer.
  */
-export type BgpImportedRouteIpv4 = {
+export type BgpImported = {
   /** BGP identifier of the originating router. */
   id: number
   /** The nexthop the prefix is reachable through. */
   nexthop: string
   /** The destination network prefix. */
-  prefix: Ipv4Net
+  prefix: IpNet
   /** Switch the route is imported into. */
   switch: SwitchLocation
 }
@@ -944,8 +955,8 @@ export type ImportExportPolicy = /** Do not perform any filtering. */
  * A BGP peer configuration for an interface. Includes the set of announcements that will be advertised to the peer identified by `addr`. The `bgp_config` parameter is a reference to global BGP parameters. The `interface_name` indicates what interface the peer should be contacted on.
  */
 export type BgpPeer = {
-  /** The address of the host to peer with. */
-  addr: string
+  /** The address of the host to peer with. If not provided, this is an unnumbered BGP session that will be established over the interface specified by `interface_name`. */
+  addr?: string | null
   /** Define export policy for a peer. */
   allowedExport: ImportExportPolicy
   /** Define import policy for a peer. */
@@ -978,6 +989,8 @@ export type BgpPeer = {
   multiExitDiscriminator?: number | null
   /** Require that a peer has a specified ASN. */
   remoteAsn?: number | null
+  /** Router lifetime in seconds for unnumbered BGP peers. */
+  routerLifetime: number
   /** Associate a VLAN ID with a peer. */
   vlanId?: number | null
 }
@@ -1024,6 +1037,8 @@ export type BgpPeerStatus = {
   addr: string
   /** Local autonomous system number. */
   localAsn: number
+  /** Interface name */
+  peerId: string
   /** Remote autonomous system number. */
   remoteAsn: number
   /** State of the peer. */
@@ -1255,7 +1270,7 @@ export type Binuint8 = {
 }
 
 /**
- * disk block size in bytes
+ * Disk block size in bytes
  */
 export type BlockSize = 512 | 2048 | 4096
 
@@ -1778,9 +1793,9 @@ export type Datum =
   | { datum: MissingDatum; type: 'missing' }
 
 export type DerEncodedKeyPair = {
-  /** request signing RSA private key in PKCS#1 format (base64 encoded der file) */
+  /** Request signing RSA private key in PKCS#1 format (base64 encoded DER file) */
   privateKey: string
-  /** request signing public certificate (base64 encoded der file) */
+  /** Request signing public certificate (base64 encoded DER file) */
   publicCert: string
 }
 
@@ -1788,7 +1803,9 @@ export type DerEncodedKeyPair = {
  * View of a device access token
  */
 export type DeviceAccessToken = {
-  /** A unique, immutable, system-controlled identifier for the token. Note that this ID is not the bearer token itself, which starts with "oxide-token-" */
+  /** A unique, immutable, system-controlled identifier for the token.
+
+Note that this ID is not the bearer token itself, which starts with "oxide-token-". */
   id: string
   timeCreated: Date
   /** Expiration timestamp. A null value means the token does not automatically expire. */
@@ -1888,7 +1905,7 @@ export type Disk = {
  */
 export type DiskSource = /** Create a blank disk */
 | {
-    /** size of blocks for this Disk. valid values are: 512, 2048, or 4096 */
+    /** Size of blocks for this disk. Valid values are: 512, 2048, or 4096. */
     blockSize: BlockSize
     type: 'blank'
   }
@@ -2355,7 +2372,7 @@ export type IdpMetadataSource =
  * If `project_id` is present then the image is only visible inside that project. If it's not present then the image is visible to all projects in the silo.
  */
 export type Image = {
-  /** size of blocks in bytes */
+  /** Size of blocks in bytes */
   blockSize: ByteCount
   /** human-readable free-form text about a resource */
   description: string
@@ -2369,7 +2386,7 @@ export type Image = {
   os: string
   /** ID of the parent project if the image is a project image */
   projectId?: string | null
-  /** total size in bytes */
+  /** Total size in bytes */
   size: ByteCount
   /** timestamp when this resource was created */
   timeCreated: Date
@@ -2622,7 +2639,7 @@ The IPs will be pulled from the Project's default VPC / VPC Subnet. */
  * Create-time parameters for an `Instance`
  */
 export type InstanceCreate = {
-  /** Anti-Affinity groups which this instance should be added. */
+  /** Anti-affinity groups to which this instance should be added. */
   antiAffinityGroups?: NameOrId[]
   /** The auto-restart policy for this instance.
 
@@ -2863,13 +2880,13 @@ export type InternetGatewayCreate = { description: string; name: Name }
  * An IP address that is attached to an internet gateway
  */
 export type InternetGatewayIpAddress = {
-  /** The associated IP address, */
+  /** The associated IP address */
   address: string
   /** human-readable free-form text about a resource */
   description: string
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** The associated internet gateway. */
+  /** The associated internet gateway */
   internetGatewayId: string
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
@@ -2959,7 +2976,7 @@ All ranges in a multicast pool must be either ASM or SSM (not mixed). */
 | 'multicast'
 
 /**
- * A collection of IP ranges. If a pool is linked to a silo, IP addresses from the pool can be allocated within that silo
+ * A collection of IP ranges. If a pool is linked to a silo, IP addresses from the pool can be allocated within that silo.
  */
 export type IpPool = {
   /** human-readable free-form text about a resource */
@@ -3286,7 +3303,9 @@ export type LoopbackAddressCreate = {
   address: string
   /** The name or id of the address lot this loopback address will pull an address from. */
   addressLot: NameOrId
-  /** Address is an anycast address. This allows the address to be assigned to multiple locations simultaneously. */
+  /** Address is an anycast address.
+
+This allows the address to be assigned to multiple locations simultaneously. */
   anycast: boolean
   /** The subnet mask to use for the address. */
   mask: number
@@ -3728,7 +3747,7 @@ export type ProjectRolePolicy = {
 export type ProjectUpdate = { description?: string | null; name?: Name | null }
 
 /**
- * View of an Rack
+ * View of a Rack
  */
 export type Rack = {
   /** unique, immutable, system-controlled identifier for each resource */
@@ -3948,23 +3967,23 @@ export type SamlIdentityProvider = {
  * Create-time identity-related parameters
  */
 export type SamlIdentityProviderCreate = {
-  /** service provider endpoint where the response will be sent */
+  /** Service provider endpoint where the response will be sent */
   acsUrl: string
   description: string
   /** If set, SAML attributes with this name will be considered to denote a user's group membership, where the attribute value(s) should be a comma-separated list of group names. */
   groupAttributeName?: string | null
-  /** idp's entity id */
+  /** IdP's entity ID */
   idpEntityId: string
-  /** the source of an identity provider metadata descriptor */
+  /** The source of an identity provider metadata descriptor */
   idpMetadataSource: IdpMetadataSource
   name: Name
-  /** request signing key pair */
+  /** Request signing key pair */
   signingKeypair?: DerEncodedKeyPair | null
-  /** service provider endpoint where the idp should send log out requests */
+  /** Service provider endpoint where the IdP should send log out requests */
   sloUrl: string
-  /** sp's client id */
+  /** SP's client ID */
   spClientId: string
-  /** customer's technical contact for saml configuration */
+  /** Customer's technical contact for SAML configuration */
   technicalContactEmail: string
 }
 
@@ -4242,9 +4261,11 @@ export type VirtualResourceCounts = {
  * View of a silo's resource utilization and capacity
  */
 export type SiloUtilization = {
-  /** Accounts for the total amount of resources reserved for silos via their quotas */
+  /** Accounts for the total amount of resources reserved for silos via their quotas. */
   allocated: VirtualResourceCounts
-  /** Accounts for resources allocated by in silos like CPU or memory for running instances and storage for disks and snapshots Note that CPU and memory resources associated with a stopped instances are not counted here */
+  /** Accounts for the total resources allocated by the silo, including CPU and memory for running instances and storage for disks and snapshots.
+
+Note that CPU and memory resources associated with stopped instances are not counted here. */
   provisioned: VirtualResourceCounts
   siloId: string
   siloName: Name
@@ -5230,9 +5251,9 @@ export type UserPassword = /** Sets the user's password to the provided value */
  * Create-time parameters for a `User`
  */
 export type UserCreate = {
-  /** username used to log in */
+  /** Username used to log in */
   externalId: UserId
-  /** how to set the user's login password */
+  /** How to set the user's login password */
   password: UserPassword
 }
 
@@ -5255,9 +5276,11 @@ export type UsernamePasswordCredentials = { password: Password; username: UserId
  * View of the current silo's resource utilization and capacity
  */
 export type Utilization = {
-  /** The total amount of resources that can be provisioned in this silo Actions that would exceed this limit will fail */
+  /** The total amount of resources that can be provisioned in this silo. Actions that would exceed this limit will fail. */
   capacity: VirtualResourceCounts
-  /** Accounts for resources allocated to running instances or storage allocated via disks or snapshots Note that CPU and memory resources associated with a stopped instances are not counted here whereas associated disks will still be counted */
+  /** Accounts for resources allocated to running instances or storage allocated via disks or snapshots.
+
+Note that CPU and memory resources associated with stopped instances are not counted here, whereas associated disks will still be counted. */
   provisioned: VirtualResourceCounts
 }
 
@@ -5275,9 +5298,9 @@ export type Vpc = {
   ipv6Prefix: Ipv6Net
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** id for the project containing this VPC */
+  /** ID for the project containing this VPC */
   projectId: string
-  /** id for the system router where subnet default routes are registered */
+  /** ID for the system router where subnet default routes are registered */
   systemRouterId: string
   /** timestamp when this resource was created */
   timeCreated: Date
@@ -5469,7 +5492,7 @@ export type VpcRouterResultsPage = {
 export type VpcRouterUpdate = { description?: string | null; name?: Name | null }
 
 /**
- * A VPC subnet represents a logical grouping for instances that allows network traffic between them, within a IPv4 subnetwork or optionally an IPv6 subnetwork.
+ * A VPC subnet represents a logical grouping for instances that allows network traffic between them, within an IPv4 subnetwork or optionally an IPv6 subnetwork.
  */
 export type VpcSubnet = {
   /** ID for an attached custom router. */
@@ -5569,6 +5592,7 @@ export type WebhookReceiver = {
   id: string
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
+  /** A list containing the IDs of the secret keys used to sign payloads sent to this receiver. */
   secrets: WebhookSecret[]
   /** The list of alert classes to which this receiver is subscribed. */
   subscriptions: AlertSubscription[]
@@ -6948,11 +6972,11 @@ export interface NetworkingBgpAnnouncementListPathParams {
   announceSet: NameOrId
 }
 
-export interface NetworkingBgpMessageHistoryQueryParams {
+export interface NetworkingBgpImportedQueryParams {
   asn: number
 }
 
-export interface NetworkingBgpImportedRoutesIpv4QueryParams {
+export interface NetworkingBgpMessageHistoryQueryParams {
   asn: number
 }
 
@@ -7451,7 +7475,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2026020900.0.0'
+  apiVersion = '2026021301.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host
@@ -10874,12 +10898,26 @@ export class Api {
       })
     },
     /**
-     * Get BGP exported routes
+     * List BGP exported routes
      */
     networkingBgpExported: (_: EmptyObj, params: FetchParams = {}) => {
-      return this.request<BgpExported>({
+      return this.request<BgpExported[]>({
         path: `/v1/system/networking/bgp-exported`,
         method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Get imported IPv4 BGP routes
+     */
+    networkingBgpImported: (
+      { query }: { query: NetworkingBgpImportedQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<BgpImported[]>({
+        path: `/v1/system/networking/bgp-imported`,
+        method: 'GET',
+        query,
         ...params,
       })
     },
@@ -10892,20 +10930,6 @@ export class Api {
     ) => {
       return this.request<AggregateBgpMessageHistory>({
         path: `/v1/system/networking/bgp-message-history`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Get imported IPv4 BGP routes
-     */
-    networkingBgpImportedRoutesIpv4: (
-      { query }: { query: NetworkingBgpImportedRoutesIpv4QueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<BgpImportedRouteIpv4[]>({
-        path: `/v1/system/networking/bgp-routes-ipv4`,
         method: 'GET',
         query,
         ...params,

@@ -156,7 +156,7 @@ export const AddressLotBlock = z.preprocess(
 )
 
 /**
- * Parameters for creating an address lot block. Fist and last addresses are inclusive.
+ * Parameters for creating an address lot block. First and last addresses are inclusive.
  */
 export const AddressLotBlockCreate = z.preprocess(
   processResponseBody,
@@ -818,6 +818,8 @@ export const BgpAnnouncement = z.preprocess(
   z.object({ addressLotBlockId: z.uuid(), announceSetId: z.uuid(), network: IpNet })
 )
 
+export const MaxPathConfig = z.preprocess(processResponseBody, z.number().min(1).max(32))
+
 /**
  * A base BGP configuration.
  */
@@ -827,6 +829,7 @@ export const BgpConfig = z.preprocess(
     asn: z.number().min(0).max(4294967295),
     description: z.string(),
     id: z.uuid(),
+    maxPaths: MaxPathConfig,
     name: Name,
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
@@ -835,7 +838,7 @@ export const BgpConfig = z.preprocess(
 )
 
 /**
- * Parameters for creating a BGP configuration. This includes and autonomous system number (ASN) and a virtual routing and forwarding (VRF) identifier.
+ * Parameters for creating a BGP configuration. This includes an autonomous system number (ASN) and a virtual routing and forwarding (VRF) identifier.
  */
 export const BgpConfigCreate = z.preprocess(
   processResponseBody,
@@ -843,6 +846,7 @@ export const BgpConfigCreate = z.preprocess(
     asn: z.number().min(0).max(4294967295),
     bgpAnnounceSetId: NameOrId,
     description: z.string(),
+    maxPaths: MaxPathConfig.default(1),
     name: Name,
     vrf: Name.nullable().optional(),
   })
@@ -857,22 +861,22 @@ export const BgpConfigResultsPage = z.preprocess(
 )
 
 /**
- * The current status of a BGP peer.
+ * Route exported to a peer.
  */
 export const BgpExported = z.preprocess(
   processResponseBody,
-  z.object({ exports: z.record(z.string(), Ipv4Net.array()) })
+  z.object({ peerId: z.string(), prefix: IpNet, switch: SwitchLocation })
 )
 
 /**
  * A route imported from a BGP peer.
  */
-export const BgpImportedRouteIpv4 = z.preprocess(
+export const BgpImported = z.preprocess(
   processResponseBody,
   z.object({
     id: z.number().min(0).max(4294967295),
-    nexthop: z.ipv4(),
-    prefix: Ipv4Net,
+    nexthop: z.union([z.ipv4(), z.ipv6()]),
+    prefix: IpNet,
     switch: SwitchLocation,
   })
 )
@@ -894,7 +898,7 @@ export const ImportExportPolicy = z.preprocess(
 export const BgpPeer = z.preprocess(
   processResponseBody,
   z.object({
-    addr: z.union([z.ipv4(), z.ipv6()]),
+    addr: z.union([z.ipv4(), z.ipv6()]).nullable().optional(),
     allowedExport: ImportExportPolicy,
     allowedImport: ImportExportPolicy,
     bgpConfig: NameOrId,
@@ -911,6 +915,7 @@ export const BgpPeer = z.preprocess(
     minTtl: z.number().min(0).max(255).nullable().optional(),
     multiExitDiscriminator: z.number().min(0).max(4294967295).nullable().optional(),
     remoteAsn: z.number().min(0).max(4294967295).nullable().optional(),
+    routerLifetime: z.number().min(0).max(65535),
     vlanId: z.number().min(0).max(65535).nullable().optional(),
   })
 )
@@ -945,6 +950,7 @@ export const BgpPeerStatus = z.preprocess(
   z.object({
     addr: z.union([z.ipv4(), z.ipv6()]),
     localAsn: z.number().min(0).max(4294967295),
+    peerId: z.string(),
     remoteAsn: z.number().min(0).max(4294967295),
     state: BgpPeerState,
     stateDurationMillis: z.number().min(0),
@@ -1203,7 +1209,7 @@ export const Binuint8 = z.preprocess(
 )
 
 /**
- * disk block size in bytes
+ * Disk block size in bytes
  */
 export const BlockSize = z.preprocess(
   processResponseBody,
@@ -2744,7 +2750,7 @@ export const IpPoolType = z.preprocess(
 )
 
 /**
- * A collection of IP ranges. If a pool is linked to a silo, IP addresses from the pool can be allocated within that silo
+ * A collection of IP ranges. If a pool is linked to a silo, IP addresses from the pool can be allocated within that silo.
  */
 export const IpPool = z.preprocess(
   processResponseBody,
@@ -3461,7 +3467,7 @@ export const ProjectUpdate = z.preprocess(
 )
 
 /**
- * View of an Rack
+ * View of a Rack
  */
 export const Rack = z.preprocess(
   processResponseBody,
@@ -5016,7 +5022,7 @@ export const VpcRouterUpdate = z.preprocess(
 )
 
 /**
- * A VPC subnet represents a logical grouping for instances that allows network traffic between them, within a IPv4 subnetwork or optionally an IPv6 subnetwork.
+ * A VPC subnet represents a logical grouping for instances that allows network traffic between them, within an IPv4 subnetwork or optionally an IPv6 subnetwork.
  */
 export const VpcSubnet = z.preprocess(
   processResponseBody,
@@ -7664,7 +7670,7 @@ export const NetworkingBgpExportedParams = z.preprocess(
   })
 )
 
-export const NetworkingBgpMessageHistoryParams = z.preprocess(
+export const NetworkingBgpImportedParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
@@ -7674,7 +7680,7 @@ export const NetworkingBgpMessageHistoryParams = z.preprocess(
   })
 )
 
-export const NetworkingBgpImportedRoutesIpv4Params = z.preprocess(
+export const NetworkingBgpMessageHistoryParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
