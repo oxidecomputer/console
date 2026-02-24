@@ -304,7 +304,6 @@ export function ResizeInstanceModal({
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
-    onSettled: onDismiss,
   })
 
   const form = useForm({
