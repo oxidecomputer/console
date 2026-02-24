@@ -36,7 +36,7 @@
 }
 
 /* Active states */
-.ox-tab[data-state='active'] {
+.ox-tab[data-active] {
   @apply text-accent border-accent light:border-green-800 light:text-raise;
 }
 
@@ -45,11 +45,11 @@
   @apply -mt-1 text-current select-none;
 }
 
-.ox-tab[data-state='inactive'] > .ox-badge {
+.ox-tab:not([data-active]) > .ox-badge {
   @apply bg-disabled;
 }
 
-.ox-tab[data-state='active'] > .ox-badge {
+.ox-tab[data-active] > .ox-badge {
   @apply bg-accent;
 }
 
@@ -77,15 +77,15 @@
   border-bottom: none;
 }
 
-.ox-side-tabs-list .ox-tab[data-state='active'] {
+.ox-side-tabs-list .ox-tab[data-active] {
   @apply text-accent bg-accent;
   border: none;
 }
 
-.ox-side-tabs-list .ox-tab[data-state='active']:hover {
+.ox-side-tabs-list .ox-tab[data-active]:hover {
   @apply bg-accent-hover;
 }
 
-.ox-side-tabs-list .ox-tab:not([data-state='active']):hover {
+.ox-side-tabs-list .ox-tab:not([data-active]):hover {
   @apply text-default bg-hover;
 }

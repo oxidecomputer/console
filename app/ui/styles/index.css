@@ -246,3 +246,14 @@
     outline: none !important;
   }
 }
+
+/* CSPProvider disableStyleElements suppresses Base UI's inline <style> tags
+   to avoid CSP violations. We provide the CSS it would otherwise inject. */
+@layer components {
+  .base-ui-disable-scrollbar {
+    scrollbar-width: none;
+  }
+  .base-ui-disable-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}

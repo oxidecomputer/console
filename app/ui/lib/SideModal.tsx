@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import * as Dialog from '@radix-ui/react-dialog'
+import { Dialog as BaseDialog } from '@base-ui/react/dialog'
 import cn from 'classnames'
 import * as m from 'motion/react-m'
 import { useRef, type ReactNode } from 'react'
@@ -54,64 +54,65 @@ export function SideModal({
 }: SideModalProps) {
   return (
     <SideModalContext.Provider value>
-      <Dialog.Root
+      <BaseDialog.Root
         open
         onOpenChange={(open) => {
           if (!open) onDismiss()
         }}
-        // https://github.com/radix-ui/primitives/issues/1159#issuecomment-1559813266
         modal={false}
       >
-        <Dialog.Portal>
+        <BaseDialog.Portal>
           <DialogOverlay />
-          <Dialog.Content asChild>
-            <m.div
-              initial={{ x: animate ? 40 : 0 }}
-              animate={{ x: 0 }}
-              transition={{ type: 'spring', duration: 0.4, bounce: 0 }}
-              className="DialogContent ox-side-modal bg-raise shadow-modal pointer-events-auto fixed top-0 right-0 bottom-0 z-(--z-side-modal) m-0 flex w-lg flex-col justify-between p-0"
-            >
-              <div className="items-top mt-8 mb-4">
-                <Dialog.Title className="text-sans-2xl text-raise flex w-full items-center justify-between pr-8 break-words">
-                  {title}
-                </Dialog.Title>
-                {subtitle}
+          <BaseDialog.Popup
+            render={
+              <m.div
+                initial={{ x: animate ? 40 : 0 }}
+                animate={{ x: 0 }}
+                transition={{ type: 'spring', duration: 0.4, bounce: 0 }}
+                className="ox-side-modal bg-raise shadow-modal pointer-events-auto fixed top-0 right-0 bottom-0 z-(--z-side-modal) m-0 flex w-lg flex-col justify-between p-0"
+              />
+            }
+          >
+            <div className="items-top mt-8 mb-4">
+              <BaseDialog.Title className="text-sans-2xl text-raise flex w-full items-center justify-between pr-8 break-words">
+                {title}
+              </BaseDialog.Title>
+              {subtitle}
+            </div>
+            {errors && errors.length > 0 && (
+              <div className="mb-6">
+                <Message
+                  variant="error"
+                  content={
+                    errors.length === 1 ? (
+                      errors[0]
+                    ) : (
+                      <>
+                        <div>{errors.length} issues:</div>
+                        <ul className="ml-4 list-disc">
+                          {errors.map((error, idx) => (
+                            <li key={idx}>{error}</li>
+                          ))}
+                        </ul>
+                      </>
+                    )
+                  }
+                  title={errors.length > 1 ? 'Errors' : 'Error'}
+                />
               </div>
-              {errors && errors.length > 0 && (
-                <div className="mb-6">
-                  <Message
-                    variant="error"
-                    content={
-                      errors.length === 1 ? (
-                        errors[0]
-                      ) : (
-                        <>
-                          <div>{errors.length} issues:</div>
-                          <ul className="ml-4 list-disc">
-                            {errors.map((error, idx) => (
-                              <li key={idx}>{error}</li>
-                            ))}
-                          </ul>
-                        </>
-                      )
-                    }
-                    title={errors.length > 1 ? 'Errors' : 'Error'}
-                  />
-                </div>
-              )}
-              {children}
+            )}
+            {children}
 
-              {/* Close button is here at the end so we aren't automatically focusing on it when the side modal is opened. Positioned in the safe area at the top */}
-              <Dialog.Close
-                className="hover:bg-hover absolute top-10 right-(--content-gutter) -m-2 flex rounded-md p-2"
-                aria-label="Close"
-              >
-                <Close12Icon className="text-default" />
-              </Dialog.Close>
-            </m.div>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
+            {/* Close button is here at the end so we aren't automatically focusing on it when the side modal is opened. Positioned in the safe area at the top */}
+            <BaseDialog.Close
+              className="hover:bg-hover absolute top-10 right-(--content-gutter) -m-2 flex rounded-md p-2"
+              aria-label="Close"
+            >
+              <Close12Icon className="text-default" />
+            </BaseDialog.Close>
+          </BaseDialog.Popup>
+        </BaseDialog.Portal>
+      </BaseDialog.Root>
     </SideModalContext.Provider>
   )
 }

@@ -12,7 +12,6 @@ import tailwindcss from '@tailwindcss/vite'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 import react from '@vitejs/plugin-react-swc'
 import { defineConfig } from 'vite'
-import { createHtmlPlugin } from 'vite-plugin-html'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import { z } from 'zod/v4'
 
@@ -47,22 +46,21 @@ if (apiMode === 'remote' && !process.env.EXT_HOST) {
 
 const EXT_HOST = process.env.EXT_HOST
 
-const previewAnalyticsTag = {
-  injectTo: 'head' as const,
-  tag: 'script',
-  attrs: {
-    'data-domain':
-      process.env.VERCEL_ENV === 'production'
-        ? 'oxide-console-preview.vercel.app'
-        : // not a real domain. we're only using it to distinguish prod
-          // from preview traffic in plausible
-          'console-pr-preview.vercel.app',
-    defer: true,
-    src: '/viewscript.js',
+const previewTags = [
+  {
+    injectTo: 'head' as const,
+    tag: 'script',
+    attrs: {
+      'data-domain':
+        process.env.VERCEL_ENV === 'production'
+          ? 'oxide-console-preview.vercel.app'
+          : // not a real domain. we're only using it to distinguish prod
+            // from preview traffic in plausible
+            'console-pr-preview.vercel.app',
+      defer: true,
+      src: '/viewscript.js',
+    },
   },
-}
-
-const previewMetaTag = [
   {
     injectTo: 'head' as const,
     tag: 'meta',
@@ -128,11 +126,10 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     tailwindcss(),
     tsconfigPaths(),
-    createHtmlPlugin({
-      inject: {
-        tags: process.env.VERCEL ? [previewAnalyticsTag, ...previewMetaTag] : [],
-      },
-    }),
+    {
+      name: 'inject-html-tags',
+      transformIndexHtml: () => (process.env.VERCEL ? previewTags : []),
+    },
     react(),
     apiMode === 'remote' && basicSsl(),
   ],

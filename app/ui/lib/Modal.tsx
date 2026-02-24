@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import * as Dialog from '@radix-ui/react-dialog'
+import { Dialog as BaseDialog } from '@base-ui/react/dialog'
 import cn from 'classnames'
 import * as m from 'motion/react-m'
 import type { MergeExclusive } from 'type-fest'
@@ -51,47 +51,44 @@ export function Modal({
 }: ModalProps) {
   return (
     <ModalContext.Provider value>
-      <Dialog.Root
+      <BaseDialog.Root
         open={isOpen}
-        onOpenChange={(open) => {
-          if (!open) onDismiss()
+        onOpenChange={(open, { reason }) => {
+          // Ignore focus-out to prevent a dismiss loop when a native confirm()
+          // dialog steals and returns focus (same role as the old Radix
+          // onFocusOutside preventDefault). See oxidecomputer/console#1745.
+          if (!open && reason !== 'focus-out') onDismiss()
         }}
         modal={false}
       >
-        <Dialog.Portal>
+        <BaseDialog.Portal>
           {overlay && <DialogOverlay />}
-          <Dialog.Content
-            asChild // Prevents cancel loop on clicking on background over side
-            // modal to get out of image upload modal. Canceling out of
-            // confirm dialog returns focus to the dismissable layer,
-            // which triggers onDismiss again. And again.
-            // https://github.com/oxidecomputer/console/issues/1745
-            onFocusOutside={(e) => e.preventDefault()}
-            aria-describedby={undefined} // radix warns without this
+          <BaseDialog.Popup
+            render={
+              <m.div
+                initial={{ x: '-50%', y: 'calc(-50% - 25px)' }}
+                animate={{ x: '-50%', y: '-50%' }}
+                transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
+                className={cn(
+                  'bg-raise light:bg-default shadow-modal pointer-events-auto fixed top-[min(50%,500px)] left-1/2 z-(--z-modal) m-0 flex max-h-[min(800px,80vh)] flex-col justify-between overflow-hidden rounded-lg p-0',
+                  widthClass[width]
+                )}
+              />
+            }
           >
-            <m.div
-              initial={{ x: '-50%', y: 'calc(-50% - 25px)' }}
-              animate={{ x: '-50%', y: '-50%' }}
-              transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
-              className={cn(
-                'bg-raise light:bg-default shadow-modal pointer-events-auto fixed top-[min(50%,500px)] left-1/2 z-(--z-modal) m-0 flex max-h-[min(800px,80vh)] flex-col justify-between overflow-hidden rounded-lg p-0',
-                widthClass[width]
-              )}
+            <BaseDialog.Title className="text-sans-semi-lg bg-secondary light:bg-raise border-b-secondary border-b px-4 py-4">
+              {title}
+            </BaseDialog.Title>
+            {children}
+            <BaseDialog.Close
+              className="hover:bg-hover absolute top-3.5 right-2 flex items-center justify-center rounded-md p-2"
+              aria-label="Close"
             >
-              <Dialog.Title className="text-sans-semi-lg bg-secondary light:bg-raise border-b-secondary border-b px-4 py-4">
-                {title}
-              </Dialog.Title>
-              {children}
-              <Dialog.Close
-                className="hover:bg-hover absolute top-3.5 right-2 flex items-center justify-center rounded-md p-2"
-                aria-label="Close"
-              >
-                <Close12Icon className="text-default" />
-              </Dialog.Close>
-            </m.div>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
+              <Close12Icon className="text-default" />
+            </BaseDialog.Close>
+          </BaseDialog.Popup>
+        </BaseDialog.Portal>
+      </BaseDialog.Root>
     </ModalContext.Provider>
   )
 }
