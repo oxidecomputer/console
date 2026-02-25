@@ -9,6 +9,29 @@ Use this skill when investigating flaky Playwright E2E test failures from CI.
 
 ## Workflow
 
+### 0. Catalogue recent CI flakes (optional)
+
+When asked to survey recent failures rather than debug a specific one, build a
+table of all Playwright flakes across recent CI runs.
+
+```bash
+# List recent failed runs
+gh run list --limit 80 --json databaseId,headBranch,conclusion,displayTitle,createdAt \
+  | jq -r '.[] | select(.conclusion == "failure") | "\(.databaseId)\t\(.headBranch)\t\(.displayTitle)\t\(.createdAt)"'
+
+# For each failed run, find which Playwright jobs failed
+gh run view <RUN_ID> --json jobs \
+  | jq -r '.jobs[] | select(.conclusion == "failure") | "\(.name)\t\(.conclusion)"'
+
+# Extract test names and error summaries from failed runs
+gh run view <RUN_ID> --log-failed 2>&1 | rg '› .*e2e\.ts.*›' | rg -v 'Retry'
+```
+
+Produce a markdown table with columns: Test, Browser, Run ID, Date.
+Sort by most recent first. Distinguish real flakes from bugs that were fixed
+between pushes (a test that fails across all browsers in one run and then
+disappears was likely a real bug, not a flake).
+
 ### 1. Get CI failure details
 
 ```bash

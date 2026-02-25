@@ -241,11 +241,11 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
     onSuccess() {
       queryClient.invalidateEndpoint('siloIpPoolList')
       queryClient.invalidateEndpoint('systemIpPoolSiloList')
+      onDismiss()
     },
     onError(err) {
       addToast({ title: 'Could not link pool', content: err.message, variant: 'error' })
     },
-    onSettled: onDismiss,
   })
 
   function onSubmit({ pool }: LinkPoolFormValues) {

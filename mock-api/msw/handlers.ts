@@ -744,6 +744,10 @@ export const handlers = makeHandlers({
   instanceUpdate({ path, query, body }) {
     const instance = lookup.instance({ ...path, ...query })
 
+    if (instance.name === 'instance-update-error') {
+      throw 'Cannot update instance'
+    }
+
     const resize = body.ncpus !== instance.ncpus || body.memory !== instance.memory
     if (resize && !instanceCan.resize({ runState: instance.run_state })) {
       const states = instanceCan.resize.states
@@ -2262,7 +2266,7 @@ export const handlers = makeHandlers({
   networkingBgpConfigDelete: NotImplemented,
   networkingBgpConfigList: NotImplemented,
   networkingBgpExported: NotImplemented,
-  networkingBgpImportedRoutesIpv4: NotImplemented,
+  networkingBgpImported: NotImplemented,
   networkingBgpMessageHistory: NotImplemented,
   networkingBgpStatus: NotImplemented,
   networkingInboundIcmpUpdate: NotImplemented,

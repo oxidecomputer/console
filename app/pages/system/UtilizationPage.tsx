@@ -77,7 +77,7 @@ export default function SystemUtilizationPage() {
         provisioned={totalProvisioned}
         allocatedLabel="Quota (Total)"
       />
-      <QueryParamTabs defaultValue="summary" className="full-width">
+      <QueryParamTabs defaultValue="summary" className="full-width mt-8">
         <Tabs.List>
           <Tabs.Trigger value="summary">Summary</Tabs.Trigger>
           <Tabs.Trigger value="metrics">Metrics</Tabs.Trigger>

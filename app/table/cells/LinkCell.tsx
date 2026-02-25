@@ -13,7 +13,7 @@ import { classed } from '~/util/classed'
 const linkClass = 'link-with-underline group flex h-full w-full items-center text-sans-md'
 
 /** Pushes out the link area to the entire cell for improved clickability™ */
-const Pusher = classed.div`absolute inset-0 w-[calc(100%-2px)] right-[2px] group-hover:bg-raise`
+const Pusher = classed.div`absolute inset-0 group-hover:bg-raise`
 
 /**
  * Because this returns a component, it should only be used in a static context

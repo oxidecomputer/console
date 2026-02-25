@@ -7,7 +7,7 @@
  */
 
 .ox-menu {
-  @apply bg-raise border-secondary elevation-2 !max-h-[17.5rem] overflow-y-auto rounded-md border;
+  @apply bg-raise light:bg-default !max-h-[17.5rem] rounded-md p-px;
 }
 
 .ox-menu-item {
@@ -19,15 +19,15 @@
 }
 
 .ox-menu-item.is-highlighted.is-selected {
-  @apply bg-accent-secondary-hover;
+  @apply bg-accent-hover;
 }
 
 .ox-menu-item.is-selected[data-highlighted] {
-  @apply bg-accent-secondary-hover;
+  @apply bg-accent-hover;
 }
 
 .ox-menu-item.is-selected {
-  @apply text-accent bg-accent-secondary hover:bg-accent-secondary-hover border-0;
+  @apply text-accent bg-accent hover:bg-accent-hover;
   .ox-badge {
     @apply text-inverse bg-accent ring-0;
   }
@@ -36,5 +36,5 @@
 /* beautiful ring */
 .ox-menu-item.is-selected:after {
   content: '';
-  @apply border-accent absolute top-0 right-0 bottom-0 left-0 block rounded-md border;
+  @apply ring-accent absolute inset-0 z-10 block rounded-sm ring;
 }

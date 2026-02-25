@@ -130,11 +130,11 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
       // prettier-ignore
       addToast(<>Image <HL>{data.name}</HL> promoted</>)
       queryClient.invalidateEndpoint('imageList')
+      onDismiss()
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
-    onSettled: onDismiss,
   })
 
   const projects = useQuery(q(api.projectList, {}))
@@ -226,11 +226,11 @@ const DemoteImageModal = ({
       })
 
       queryClient.invalidateEndpoint('imageList')
+      onDismiss()
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
-    onSettled: onDismiss,
   })
 
   const projects = useQuery(q(api.projectList, {}))

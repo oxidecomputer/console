@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import * as Dialog from '@radix-ui/react-dialog'
+import { Dialog as BaseDialog } from '@base-ui/react/dialog'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
 import { useRef, useState } from 'react'
@@ -83,16 +83,18 @@ export function ActionMenu(props: ActionMenuProps) {
   }
 
   return (
-    <Dialog.Root
-      aria-label={props['aria-label']}
+    <BaseDialog.Root
       open={props.isOpen}
       onOpenChange={(open) => {
         if (!open) onDismiss()
       }}
     >
-      <Dialog.Portal>
+      <BaseDialog.Portal>
         <DialogOverlay />
-        <Dialog.Content className="fixed inset-0 z-(--z-modal) mx-auto mt-[20vh] w-184 bg-transparent p-0">
+        <BaseDialog.Popup
+          aria-label={props['aria-label']}
+          className="fixed inset-0 z-(--z-modal) mx-auto mt-[20vh] w-184 bg-transparent p-0"
+        >
           <div
             onKeyDown={(e) => {
               const lastIdx = itemsInOrder.length - 1
@@ -117,7 +119,7 @@ export function ActionMenu(props: ActionMenuProps) {
           >
             <div
               className={cn(
-                'bg-raise border-secondary elevation-3 flex h-14 w-full overflow-y-auto rounded-lg border'
+                'bg-raise shadow-modal flex h-14 w-full overflow-y-auto rounded-lg'
               )}
             >
               <input
@@ -158,7 +160,7 @@ export function ActionMenu(props: ActionMenuProps) {
             </div>
 
             {items.length > 0 && (
-              <div className="elevation-3 relative mt-5 transform-gpu overflow-hidden rounded-lg">
+              <div className="shadow-modal relative mt-5 transform-gpu overflow-hidden rounded-lg">
                 <div
                   className="overflow-y-auto"
                   ref={divRef}
@@ -189,7 +191,7 @@ export function ActionMenu(props: ActionMenuProps) {
                               className={cn(
                                 'text-sans-md border-secondary box-border block h-full w-full cursor-pointer overflow-visible border p-4 select-none',
                                 item.value === selectedItem?.value
-                                  ? 'text-accent bg-accent-secondary hover:bg-accent-secondary-hover'
+                                  ? 'text-accent bg-accent hover:bg-accent-hover'
                                   : 'text-default bg-raise hover:bg-hover'
                               )}
                               aria-selected={item.value === selectedItem?.value}
@@ -206,7 +208,7 @@ export function ActionMenu(props: ActionMenuProps) {
                     ))}
                   </ul>
                 </div>
-                <div className="text-default bg-tertiary flex justify-between rounded-b-[3px] px-4 py-2">
+                <div className="text-default bg-tertiary flex justify-between rounded-b-md px-4 py-2">
                   <ActionMenuHotkey keys={['Enter']} action="submit" />
                   <ActionMenuHotkey keys={['Arrow Up', 'Arrow Down']} action="select" />
                   <ActionMenuHotkey keys={['Esc']} action="close" />
@@ -214,9 +216,9 @@ export function ActionMenu(props: ActionMenuProps) {
               </div>
             )}
           </div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+        </BaseDialog.Popup>
+      </BaseDialog.Portal>
+    </BaseDialog.Root>
   )
 }
 

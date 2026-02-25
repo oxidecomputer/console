@@ -192,10 +192,10 @@ export const Combobox = ({
             )}
             <div
               className={cn(
-                `flex rounded-md border focus-within:ring-2`,
+                `bg-default flex rounded-md border focus-within:ring-2`,
                 hasError
                   ? 'focus-error border-error-secondary focus-within:ring-error-secondary hover:border-error'
-                  : 'border-default focus-within:ring-accent-secondary hover:border-hover',
+                  : 'border-default focus-within:ring-accent-secondary hover:border-raise',
                 disabled
                   ? 'text-disabled bg-disabled border-default! cursor-not-allowed'
                   : 'bg-default',
@@ -265,7 +265,7 @@ export const Combobox = ({
               <ComboboxOptions
                 anchor="bottom start"
                 // 13px gap is presumably because it's measured from inside the outline or something
-                className={`ox-menu pointer-events-auto ${zIndex} border-secondary relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border outline-hidden! [--anchor-gap:13px] empty:hidden`}
+                className={`ox-menu shadow-menu-inset pointer-events-auto ${zIndex} border-secondary relative w-[calc(var(--input-width)+var(--button-width))] overflow-y-auto border [--anchor-gap:13px] empty:hidden`}
                 modal={false}
               >
                 {filteredItems.map((item) => (

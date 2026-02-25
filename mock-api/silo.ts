@@ -45,7 +45,7 @@ export const silos: Json<Silo[]> = [
   },
   // Test silos for IP pool configuration scenarios
   {
-    id: '7a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d',
+    id: '7a1b2c3d-4e5f-4a7b-8c9d-0e1f2a3b4c5d',
     name: 'thrax',
     description: 'silo with v6-only default pool',
     time_created: new Date(2024, 0, 1).toISOString(),
@@ -55,7 +55,7 @@ export const silos: Json<Silo[]> = [
     mapped_fleet_roles: {},
   },
   {
-    id: '8b2c3d4e-5f6a-7b8c-9d0e-1f2a3b4c5d6e',
+    id: '8b2c3d4e-5f6a-4b8c-9d0e-1f2a3b4c5d6e',
     name: 'pelerines',
     description: 'silo with no default pools',
     time_created: new Date(2024, 0, 3).toISOString(),
@@ -65,7 +65,7 @@ export const silos: Json<Silo[]> = [
     mapped_fleet_roles: {},
   },
   {
-    id: '9c3d4e5f-6a7b-7c9d-8e1f-2a3b4c5d6e7f',
+    id: '9c3d4e5f-6a7b-4c9d-8e1f-2a3b4c5d6e7f',
     name: 'no-pools',
     description: 'silo with no IP pools',
     time_created: new Date(2024, 0, 11).toISOString(),
@@ -218,13 +218,13 @@ type DbScimToken = Json<ScimClientBearerToken> & { siloId: string }
 
 export const scimTokens: DbScimToken[] = [
   {
-    id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+    id: 'a1b2c3d4-e5f6-4890-abcd-ef1234567890',
     time_created: new Date(2025, 8, 15).toISOString(),
     time_expires: null,
     siloId: defaultSilo.id,
   },
   {
-    id: 'b2c3d4e5-f6a7-8901-bcde-f12345678901',
+    id: 'b2c3d4e5-f6a7-4901-bcde-f12345678901',
     time_created: new Date(2025, 8, 20).toISOString(),
     time_expires: null,
     siloId: defaultSilo.id,

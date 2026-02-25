@@ -316,7 +316,7 @@ export const useApiMutation = <Params, Data>(
     // the underscores make it virtually impossible for this to conflict with an
     // actual API field
     UseMutationOptions<Data, ApiError, Params & { __signal?: AbortSignal }>,
-    'mutationFn'
+    'mutationFn' | 'onSettled'
   >
 ) =>
   useMutation({

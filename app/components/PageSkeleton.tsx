@@ -52,7 +52,7 @@ export function PageSkeleton({ skipPaths }: { skipPaths?: RegExp[] }) {
             <Block className="h-4 w-14" />
           </div>
         </div>
-        <div className="" />
+        <div className="light:bg-raise" />
       </PageContainer>
     </>
   )

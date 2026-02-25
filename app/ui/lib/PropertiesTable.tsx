@@ -41,7 +41,7 @@ export function PropertiesTable({
       aria-label="Properties table"
       className={cn(
         className,
-        'properties-table border-default min-w-min basis-6/12 rounded-lg border',
+        'properties-table bg-default border-default min-w-min basis-6/12 rounded-lg border',
         '*:border-secondary *:border-t *:pr-6 *:pl-3 [&>*:nth-child(-n+2)]:border-t-0!',
         'grid grid-cols-[minmax(min-content,1fr)_3fr]',
         {
