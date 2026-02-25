@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { AnimatePresence, useReducedMotion } from 'motion/react'
+import { AnimatePresence } from 'motion/react'
 import * as m from 'motion/react-m'
 
 import { removeToast, useToastStore } from '~/stores/toast'
@@ -13,7 +13,6 @@ import { Toast } from '~/ui/lib/Toast'
 
 export function ToastStack() {
   const toasts = useToastStore((state) => state.toasts)
-  const prefersReducedMotion = useReducedMotion()
 
   return (
     <div
@@ -24,9 +23,9 @@ export function ToastStack() {
         {toasts.map((toast) => (
           <m.div
             key={toast.id}
-            initial={prefersReducedMotion ? false : { opacity: 0, y: 20, scale: 0.95 }}
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={prefersReducedMotion ? false : { opacity: 0, y: 20, scale: 0.95 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: 'spring', duration: 0.2, bounce: 0 }}
           >
             <Toast
