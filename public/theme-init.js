@@ -1,3 +1,11 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+
 // Set theme before first paint to prevent flash of wrong color scheme.
 // Mirrors logic in app/stores/theme.ts. Must stay in sync.
 ;(function () {

@@ -18,9 +18,7 @@
     <link rel="icon" type="image/svg+xml" href="./app/assets/favicon.svg" />
     <link rel="icon" type="image/png" href="./app/assets/favicon.png" />
 
-    <!-- Set theme before first paint to prevent flash. Mirrors logic in app/stores/theme.ts. -->
-    <!-- External script so it passes CSP default-src 'self' (inline scripts are blocked) -->
-    <script src="./theme-init.js"></script>
+    <!-- theme-init.js injected by vite plugin to avoid Vite trying to bundle it -->
   </head>
   <body>
     <div id="root"></div>
