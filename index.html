@@ -18,21 +18,7 @@
     <link rel="icon" type="image/svg+xml" href="./app/assets/favicon.svg" />
     <link rel="icon" type="image/png" href="./app/assets/favicon.png" />
 
-    <!-- Set theme before first paint to prevent flash. Mirrors logic in app/stores/theme.ts. -->
-    <script>
-      ;(function () {
-        var p = 'dark'
-        try {
-          var raw = localStorage.getItem('theme-preference')
-          var stored = raw ? JSON.parse(raw) : null
-          // match zustand persist format
-          if (stored && stored.state && stored.state.theme) p = stored.state.theme
-        } catch (e) {}
-        if (p === 'system')
-          p = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
-        document.documentElement.dataset.theme = p
-      })()
-    </script>
+    <!-- theme-init.js injected by vite plugin to avoid Vite trying to bundle it -->
   </head>
   <body>
     <div id="root"></div>

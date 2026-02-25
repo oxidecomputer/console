@@ -5,7 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import { randomBytes } from 'crypto'
+import { createHash, randomBytes } from 'crypto'
+import { readFileSync } from 'fs'
 import { resolve } from 'path'
 
 import tailwindcss from '@tailwindcss/vite'
@@ -129,6 +130,27 @@ export default defineConfig(({ mode }) => ({
     {
       name: 'inject-html-tags',
       transformIndexHtml: () => (process.env.VERCEL ? previewTags : []),
+    },
+    {
+      // Inject theme-init.js as a classic (non-module) render-blocking script
+      // so it sets data-theme before first paint. It lives in public/ so it
+      // passes CSP default-src 'self'. We inject it here rather than putting
+      // it in index.html because Vite tries to bundle any <script src> it finds
+      // there. Content hash query param handles cache-busting since public/
+      // files aren't fingerprinted by Vite. We cache static assets for a year,
+      // so we need the hash.
+      name: 'theme-init',
+      transformIndexHtml() {
+        const content = readFileSync(resolve(__dirname, 'public/theme-init.js'))
+        const hash = createHash('sha256').update(content).digest('hex').slice(0, 8)
+        return [
+          {
+            injectTo: 'head-prepend',
+            tag: 'script',
+            attrs: { src: `/theme-init.js?v=${hash}` },
+          },
+        ]
+      },
     },
     react(),
     apiMode === 'remote' && basicSsl(),
