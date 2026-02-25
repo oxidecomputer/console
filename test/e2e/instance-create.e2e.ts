@@ -692,6 +692,8 @@ test('can create instance with CPU platform preference', async ({ page }) => {
   const instanceName = 'cpu-platform-instance'
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
 
+  await selectASiloImage(page, 'ubuntu-22-04')
+
   // Select CPU platform
   const cpuPlatformDropdown = page.getByRole('button', { name: 'CPU platform' })
   await expect(cpuPlatformDropdown).toContainText('No requirement')
