@@ -28,7 +28,7 @@ export const tagColors: Record<TagVariant, Partial<Record<TagColor, string>>> = 
     notice: 'bg-notice text-inverse',
   },
   secondary: {
-    default: 'bg-accent-secondary text-accent',
+    default: 'bg-accent text-accent',
     destructive: 'bg-destructive-secondary text-destructive',
     notice: 'bg-notice-secondary text-notice',
     neutral: 'bg-secondary text-default',

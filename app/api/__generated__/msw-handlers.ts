@@ -1466,19 +1466,19 @@ export interface MSWHandlers {
   networkingBgpExported: (params: {
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.BgpExported>>
+  }) => Promisable<HandlerResult<Api.BgpExported[]>>
+  /** `GET /v1/system/networking/bgp-imported` */
+  networkingBgpImported: (params: {
+    query: Api.NetworkingBgpImportedQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.BgpImported[]>>
   /** `GET /v1/system/networking/bgp-message-history` */
   networkingBgpMessageHistory: (params: {
     query: Api.NetworkingBgpMessageHistoryQueryParams
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.AggregateBgpMessageHistory>>
-  /** `GET /v1/system/networking/bgp-routes-ipv4` */
-  networkingBgpImportedRoutesIpv4: (params: {
-    query: Api.NetworkingBgpImportedRoutesIpv4QueryParams
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.BgpImportedRouteIpv4[]>>
   /** `GET /v1/system/networking/bgp-status` */
   networkingBgpStatus: (params: {
     req: Request
@@ -3365,18 +3365,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['networkingBgpExported'], null, null)
     ),
     http.get(
+      '/v1/system/networking/bgp-imported',
+      handler(handlers['networkingBgpImported'], schema.NetworkingBgpImportedParams, null)
+    ),
+    http.get(
       '/v1/system/networking/bgp-message-history',
       handler(
         handlers['networkingBgpMessageHistory'],
         schema.NetworkingBgpMessageHistoryParams,
-        null
-      )
-    ),
-    http.get(
-      '/v1/system/networking/bgp-routes-ipv4',
-      handler(
-        handlers['networkingBgpImportedRoutesIpv4'],
-        schema.NetworkingBgpImportedRoutesIpv4Params,
         null
       )
     ),

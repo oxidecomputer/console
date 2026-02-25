@@ -151,11 +151,11 @@ const PromoteImageModal = ({ onDismiss, imageName }: PromoteModalProps) => {
         },
       })
       queryClient.invalidateEndpoint('imageList')
+      onDismiss()
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
-    onSettled: onDismiss,
   })
 
   const onAction = () => {

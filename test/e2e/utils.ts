@@ -254,15 +254,8 @@ export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve
 const bigFile = Buffer.alloc(3 * MiB, 'a')
 const smallFile = Buffer.alloc(0.1 * MiB, 'a')
 
-export async function chooseFile(
-  page: Page,
-  inputLocator: Locator,
-  size: 'large' | 'small' = 'large'
-) {
-  const fileChooserPromise = page.waitForEvent('filechooser')
-  await inputLocator.click({ force: true })
-  const fileChooser = await fileChooserPromise
-  await fileChooser.setFiles({
+export async function chooseFile(input: Locator, size: 'large' | 'small' = 'large') {
+  await input.setInputFiles({
     name: 'my-image.iso',
     mimeType: 'application/octet-stream',
     // fill with nonzero content, otherwise we'll skip the whole thing, which
@@ -288,8 +281,8 @@ export async function addTlsCert(page: Page) {
     .getByRole('dialog', { name: 'Add TLS certificate' })
     .getByRole('textbox', { name: 'Name' })
     .fill('test-cert')
-  await chooseFile(page, page.getByLabel('Cert', { exact: true }), 'small')
-  await chooseFile(page, page.getByLabel('Key'), 'small')
+  await chooseFile(page.getByLabel('Cert', { exact: true }), 'small')
+  await chooseFile(page.getByLabel('Key'), 'small')
   await page.getByRole('button', { name: 'Add Certificate' }).click()
 }
 
