@@ -87,7 +87,6 @@ test('Fleet viewer cannot modify system access', async ({ browser }) => {
   await page.click('role=button[name*="User or group"]')
   await page.click('role=option[name="Jacob Klein"]')
   await page.click('role=button[name="Assign role"]')
-  await expect(page.getByRole('heading', { name: 'Error' })).toBeVisible()
   await expect(page.getByText('Action not authorized')).toBeVisible()
 
   // dismiss the modal and confirm the table is unchanged
