@@ -7,7 +7,7 @@
  */
 import { user3 } from '@oxide/api-mocks'
 
-import { expect, expectRowVisible, test } from './utils'
+import { expect, expectRowVisible, expectToast, getPageAsUser, test } from './utils'
 
 test('Click through system access page', async ({ page }) => {
   await page.goto('/system/access')
@@ -72,4 +72,23 @@ test('Click through system access page', async ({ page }) => {
   await page.getByRole('menuitem', { name: 'Delete' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(user3Row).toBeHidden()
+})
+
+test('Fleet viewer cannot modify system access', async ({ browser }) => {
+  const page = await getPageAsUser(browser, 'Jane Austen')
+  await page.goto('/system/access')
+
+  const table = page.locator('role=table')
+  await expect(page.getByRole('heading', { name: /System Access/ })).toBeVisible()
+  await expectRowVisible(table, { Name: 'Hannah Arendt', Role: 'fleet.admin' })
+
+  // attempt to add a user — the submit should fail with 403
+  await page.click('role=button[name="Add user or group"]')
+  await page.click('role=button[name*="User or group"]')
+  await page.click('role=option[name="Jacob Klein"]')
+  await page.click('role=button[name="Assign role"]')
+  await expectToast(page, 'Action not authorized')
+
+  // table is unchanged
+  await expect(page.getByRole('cell', { name: 'Jacob Klein' })).toBeHidden()
 })
