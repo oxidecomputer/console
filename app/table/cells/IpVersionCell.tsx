@@ -18,7 +18,10 @@ export const IpVersionCell = ({ ipPoolId }: { ipPoolId: string }) => {
       api.ipPoolView,
       { path: { pool: ipPoolId } },
       {
-        errorsExpected: 'the referenced IP pool may have been deleted.',
+        errorsExpected: {
+          explanation: 'the referenced IP pool may have been deleted.',
+          statusCode: 404,
+        },
       }
     )
   )

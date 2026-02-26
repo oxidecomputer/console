@@ -82,13 +82,27 @@ export type ResultsPage<TItem> = { items: TItem[]; nextPage?: string | null }
 
 type HandledResult<T> = { type: 'success'; data: T } | { type: 'error'; data: ApiError }
 
+type ExpectedError = {
+  /**
+   * Why this error response is expected at the call site.
+   * Logged after "This error is expected: ", so this should be a sentence
+   * fragment starting lowercase and ending with punctuation, e.g.,
+   * "404 means the image name is not taken."
+   */
+  explanation: string
+  /** Expected HTTP status for the handled error case */
+  statusCode: number
+}
+
+const expectedErrorLabel = ({ statusCode }: ExpectedError) => `status ${statusCode}`
+
 // method: keyof Api would be strictly more correct, but making it a string
 // means we can call this directly in all the spots below instead of having to
 // make it generic over Api, which requires passing it as an argument to
 // getUseApiQuery, etc. This is fine because it is only being called inside
 // functions where `method` is already required to be an API method.
 const handleResult =
-  ({ method, errorsExpected }: { method: string; errorsExpected?: string }) =>
+  ({ method, errorsExpected }: { method: string; errorsExpected?: ExpectedError }) =>
   <Data>(result: ApiResult<Data>): HandledResult<Data> => {
     if (result.type === 'success') return { type: 'success', data: result.data }
 
@@ -111,16 +125,19 @@ const handleResult =
       const consolePage = window.location.pathname + window.location.search
       // TODO: need to change oxide.ts to put the HTTP method on the result in
       // order to log it here
-      const logFn = errorsExpected ? console.info : console.error
+      const matchesExpectedError =
+        !!errorsExpected && error.statusCode === errorsExpected.statusCode
+      const logFn = matchesExpectedError ? console.info : console.error
       const details = `API URL:        ${result.response.url}
 Request ID:     ${error.requestId}
 Error code:     ${error.errorCode}
 Error message:  ${error.message.replace(/\n/g, '\n' + ' '.repeat('Error message:  '.length))}`
-      if (errorsExpected) {
+      if (matchesExpectedError) {
         logFn(
           `API ${error.statusCode || 'error'} on ${consolePage}
 
-%cThis error is expected: %c${errorsExpected}
+%cThis error is expected: %c${errorsExpected.explanation}
+Expected:       ${expectedErrorLabel(errorsExpected)}
 
 ${details}
 `,
@@ -128,10 +145,17 @@ ${details}
           'font-weight: normal'
         )
       } else {
+        const mismatchDetails = errorsExpected
+          ? `
+Expected:       ${expectedErrorLabel(errorsExpected)}
+Reason:         ${errorsExpected.explanation}
+`
+          : ''
         logFn(
           `More info about API ${error.statusCode || 'error'} on ${consolePage}
 
-${details}
+${mismatchDetails}${details}
+
 `
         )
       }
@@ -251,11 +275,11 @@ export const q = <Params, Data>(
   params: Params,
   options: UseQueryOtherOptions<Data> & {
     /**
-     * When set, errors are logged as `console.info` instead of
-     * `console.error`. Appears after "This error is expected: " in the
-     * console, e.g., `"404 means the image name is not taken."`
+     * Expected error details. Matching errors are logged as `console.info`
+     * with the explanation; mismatches remain `console.error`.
+     * The explanation is rendered after "This error is expected: ".
      */
-    errorsExpected?: string
+    errorsExpected?: ExpectedError
   } = {}
 ) => {
   const { errorsExpected, ...rqOptions } = options
@@ -308,12 +332,11 @@ export const qErrorsAllowed = <Params, Data>(
   params: Params,
   options: UseQueryOtherOptions<HandledResult<Data>> & {
     /**
-     * Explanation of why errors from this endpoint are expected, logged as
-     * `console.info` instead of `console.error`. Should be a sentence
-     * fragment explaining why the error is expected, e.g.,
-     * `"404 means the image name is not taken"`.
+     * Expected error details. Matching errors are logged as `console.info`
+     * with the explanation; mismatches remain `console.error`.
+     * The explanation is rendered after "This error is expected: ".
      */
-    errorsExpected: string
+    errorsExpected: ExpectedError
   }
 ) => {
   const { errorsExpected, ...rqOptions } = options

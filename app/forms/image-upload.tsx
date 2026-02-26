@@ -521,7 +521,10 @@ export default function ImageCreate() {
               api.imageView,
               { path: { image: values.imageName }, query: { project } },
               {
-                errorsExpected: '404 means the image name is not taken.',
+                errorsExpected: {
+                  explanation: 'the image name may not exist yet.',
+                  statusCode: 404,
+                },
               }
             )
           )

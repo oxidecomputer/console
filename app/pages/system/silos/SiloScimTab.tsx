@@ -44,6 +44,18 @@ import { docLinks } from '~/util/links'
 
 export const handle = makeCrumb('SCIM')
 
+const scimTokenListErrorsAllowedQ = (silo: string) =>
+  qErrorsAllowed(
+    api.scimTokenList,
+    { query: { silo } },
+    {
+      errorsExpected: {
+        explanation: 'the current user may not have permission to list SCIM tokens.',
+        statusCode: 403,
+      },
+    }
+  )
+
 const colHelper = createColumnHelper<ScimClientBearerToken>()
 const staticColumns = [
   colHelper.accessor('id', {
@@ -74,15 +86,7 @@ const EmptyState = () => (
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { silo } = getSiloSelector(params)
   // Use errors-allowed approach so 403s don't throw and break the loader
-  await queryClient.prefetchQuery(
-    qErrorsAllowed(
-      api.scimTokenList,
-      { query: { silo } },
-      {
-        errorsExpected: 'the current user may not have permission to list SCIM tokens.',
-      }
-    )
-  )
+  await queryClient.prefetchQuery(scimTokenListErrorsAllowedQ(silo))
   return null
 }
 
@@ -94,13 +98,7 @@ type ModalState =
 export default function SiloScimTab() {
   const siloSelector = useSiloSelector()
   const { data: tokensResult } = usePrefetchedQuery(
-    qErrorsAllowed(
-      api.scimTokenList,
-      { query: siloSelector },
-      {
-        errorsExpected: 'the current user may not have permission to list SCIM tokens.',
-      }
-    )
+    scimTokenListErrorsAllowedQ(siloSelector.silo)
   )
 
   const [modalState, setModalState] = useState<ModalState>(false)
