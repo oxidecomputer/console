@@ -48,7 +48,15 @@ const DiskNameFromId = ({
   value: string
   onClick: (disk: Disk) => void
 }) => {
-  const { data } = useQuery(qErrorsAllowed(api.diskView, { path: { disk: value } }))
+  const { data } = useQuery(
+    qErrorsAllowed(
+      api.diskView,
+      { path: { disk: value } },
+      {
+        errorsExpected: 'the source disk may have been deleted.',
+      }
+    )
+  )
 
   if (!data) return <SkeletonCell />
   if (data.type === 'error') return <Badge color="neutral">Deleted</Badge>
@@ -86,7 +94,13 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
       .then((disks) => {
         for (const disk of disks.items) {
           queryClient.setQueryData(
-            qErrorsAllowed(api.diskView, { path: { disk: disk.id } }).queryKey,
+            qErrorsAllowed(
+              api.diskView,
+              { path: { disk: disk.id } },
+              {
+                errorsExpected: 'the source disk may have been deleted.',
+              }
+            ).queryKey,
             { type: 'success', data: disk }
           )
         }

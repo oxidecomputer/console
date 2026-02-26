@@ -27,7 +27,13 @@ import { ModalForm } from './form/ModalForm'
 
 function IpPoolName({ ipPoolId }: { ipPoolId: string }) {
   const { data: result } = useQuery(
-    qErrorsAllowed(api.ipPoolView, { path: { pool: ipPoolId } })
+    qErrorsAllowed(
+      api.ipPoolView,
+      { path: { pool: ipPoolId } },
+      {
+        errorsExpected: 'the referenced IP pool may have been deleted.',
+      }
+    )
   )
   // As with IpPoolCell, this should never happen, but to be safe …
   if (!result || result.type === 'error') return null

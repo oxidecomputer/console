@@ -517,19 +517,17 @@ export default function ImageCreate() {
         // check that image name isn't taken before starting the whole thing
         const image = await queryClient
           .fetchQuery(
-            q(api.imageView, {
-              path: { image: values.imageName },
-              query: { project },
-            })
+            q(
+              api.imageView,
+              { path: { image: values.imageName }, query: { project } },
+              {
+                errorsExpected: '404 means the image name is not taken.',
+              }
+            )
           )
           .catch((e) => {
             // eat a 404 since that's what we want. anything else should still blow up
-            if (e.statusCode === 404) {
-              console.info(
-                '/v1/images 404 is expected. It means the image name is not taken.'
-              )
-              return null
-            }
+            if (e.statusCode === 404) return null
             throw e
           })
         if (image) {

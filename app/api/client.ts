@@ -88,7 +88,7 @@ type HandledResult<T> = { type: 'success'; data: T } | { type: 'error'; data: Ap
 // getUseApiQuery, etc. This is fine because it is only being called inside
 // functions where `method` is already required to be an API method.
 const handleResult =
-  (method: string) =>
+  ({ method, errorsExpected }: { method: string; errorsExpected?: string }) =>
   <Data>(result: ApiResult<Data>): HandledResult<Data> => {
     if (result.type === 'success') return { type: 'success', data: result.data }
 
@@ -111,15 +111,30 @@ const handleResult =
       const consolePage = window.location.pathname + window.location.search
       // TODO: need to change oxide.ts to put the HTTP method on the result in
       // order to log it here
-      console.error(
-        `More info about API ${error.statusCode || 'error'} on ${consolePage}
-
-API URL:        ${result.response.url}
+      const logFn = errorsExpected ? console.info : console.error
+      const details = `API URL:        ${result.response.url}
 Request ID:     ${error.requestId}
 Error code:     ${error.errorCode}
-Error message:  ${error.message.replace(/\n/g, '\n' + ' '.repeat('Error message:  '.length))}
+Error message:  ${error.message.replace(/\n/g, '\n' + ' '.repeat('Error message:  '.length))}`
+      if (errorsExpected) {
+        logFn(
+          `API ${error.statusCode || 'error'} on ${consolePage}
+
+%cThis error is expected: %c${errorsExpected}
+
+${details}
+`,
+          'font-weight: bold',
+          'font-weight: normal'
+        )
+      } else {
+        logFn(
+          `More info about API ${error.statusCode || 'error'} on ${consolePage}
+
+${details}
 `
-      )
+        )
+      }
     }
 
     return { type: 'error', data: error }
@@ -234,9 +249,17 @@ export function ensurePrefetched<TData, TError>(
 export const q = <Params, Data>(
   f: (p: Params) => Promise<ApiResult<Data>>,
   params: Params,
-  options: UseQueryOtherOptions<Data> = {}
-) =>
-  queryOptions({
+  options: UseQueryOtherOptions<Data> & {
+    /**
+     * When set, errors are logged as `console.info` instead of
+     * `console.error`. Appears after "This error is expected: " in the
+     * console, e.g., `"404 means the image name is not taken."`
+     */
+    errorsExpected?: string
+  } = {}
+) => {
+  const { errorsExpected, ...rqOptions } = options
+  return queryOptions({
     // method name first means we can invalidate all calls to this endpoint by
     // invalidating [f.name] (see invalidateEndpoint)
     queryKey: [f.name, params],
@@ -248,7 +271,7 @@ export const q = <Params, Data>(
     // in the middle of prefetching
     queryFn: () =>
       f(params)
-        .then(handleResult(f.name))
+        .then(handleResult({ method: f.name, errorsExpected }))
         .then((result) => {
           if (result.type === 'success') return result.data
           throw result.data
@@ -258,8 +281,9 @@ export const q = <Params, Data>(
     // up as `error` state instead, pass `throwOnError: false` as an
     // option from the calling component and it will override this
     throwOnError: (err) => err.statusCode === 404,
-    ...options,
+    ...rqOptions,
   })
+}
 
 const ERRORS_ALLOWED = 'errors-allowed'
 
@@ -282,21 +306,31 @@ const ERRORS_ALLOWED = 'errors-allowed'
 export const qErrorsAllowed = <Params, Data>(
   f: (p: Params) => Promise<ApiResult<Data>>,
   params: Params,
-  options: UseQueryOtherOptions<HandledResult<Data>> = {}
-) =>
-  queryOptions({
+  options: UseQueryOtherOptions<HandledResult<Data>> & {
+    /**
+     * Explanation of why errors from this endpoint are expected, logged as
+     * `console.info` instead of `console.error`. Should be a sentence
+     * fragment explaining why the error is expected, e.g.,
+     * `"404 means the image name is not taken"`.
+     */
+    errorsExpected: string
+  }
+) => {
+  const { errorsExpected, ...rqOptions } = options
+  return queryOptions({
     // extra bit of key is important to distinguish from normal query. if we
     // hit a given endpoint twice on the same page, once the normal way and
     // once with errors allowed the responses have different shapes, so we do
     // not want to share the cache and mix them up
     queryKey: [f.name, params, ERRORS_ALLOWED],
-    queryFn: () => f(params).then(handleResult(f.name)),
+    queryFn: () => f(params).then(handleResult({ method: f.name, errorsExpected })),
     // No point having throwOnError because errors do not throw. Worth
     // considering still throwing for particular errors: sometimes we expect
     // a 403, other times we expect 404s. We could take a list of acceptable
     // status codes.
-    ...options,
+    ...rqOptions,
   })
+}
 
 // Unlike the query one, we don't need this to go through an options object
 // because we are not calling the mutation in two spots and sharing the options
@@ -326,7 +360,7 @@ export const useApiMutation = <Params, Data>(
       // us back Params, but TS can't prove Omit<Params & {signal?}, 'signal'>
       // === Params structurally.
       f(params as Params, { signal: __signal })
-        .then(handleResult(f.name))
+        .then(handleResult({ method: f.name }))
         .then((result) => {
           if (result.type === 'success') return result.data
           throw result.data

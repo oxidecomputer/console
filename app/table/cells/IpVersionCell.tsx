@@ -14,7 +14,13 @@ import { EmptyCell, SkeletonCell } from './EmptyCell'
 
 export const IpVersionCell = ({ ipPoolId }: { ipPoolId: string }) => {
   const { data: result } = useQuery(
-    qErrorsAllowed(api.ipPoolView, { path: { pool: ipPoolId } })
+    qErrorsAllowed(
+      api.ipPoolView,
+      { path: { pool: ipPoolId } },
+      {
+        errorsExpected: 'the referenced IP pool may have been deleted.',
+      }
+    )
   )
   if (!result) return <SkeletonCell />
   if (result.type === 'error') return <EmptyCell />

@@ -15,6 +15,14 @@ import {
   sleep,
 } from './utils'
 
+/** Assert that a console message matching `msg` was logged at the given level. */
+async function expectConsoleMessage(page: Page, msg: string, type: string) {
+  const messages = await page.consoleMessages()
+  const match = messages.find((m) => m.text().includes(msg))
+  expect(match, `expected console message containing "${msg}"`).toBeTruthy()
+  expect(match!.type()).toBe(type)
+}
+
 // playwright isn't quick enough to catch each step going from ready to running
 // to complete in time, so we just assert that they all start out ready and end
 // up complete
@@ -68,6 +76,9 @@ test.describe('Image upload', () => {
 
     // now the modal pops open and the thing starts going
     await expectUploadProcess(page)
+
+    // the image name check 404 should be logged as info, not error
+    await expectConsoleMessage(page, 'This error is expected', 'info')
 
     await expect(page).toHaveURL('/projects/mock-project/images')
     await expectRowVisible(page.locator('role=table'), {
