@@ -74,7 +74,7 @@ type UserRow = {
   id: string
   identityType: IdentityType
   name: string
-  fleetRole: FleetRole | undefined
+  fleetRole: FleetRole
 }
 
 const colHelper = createColumnHelper<UserRow>()
@@ -90,9 +90,7 @@ export default function SystemAccessPage() {
   const rows = useMemo(() => {
     return groupBy(fleetRows, (u) => u.id)
       .map(([userId, userAssignments]) => {
-        const fleetRole = userAssignments.find((a) => a.roleSource === 'fleet')?.roleName
-
-        const { name, identityType } = userAssignments[0]
+        const { name, identityType, roleName: fleetRole } = userAssignments[0]
 
         const row: UserRow = {
           id: userId,
@@ -124,7 +122,7 @@ export default function SystemAccessPage() {
         header: 'Role',
         cell: (info) => {
           const role = info.getValue()
-          return role ? <Badge color={roleColor[role]}>fleet.{role}</Badge> : null
+          return <Badge color={roleColor[role]}>fleet.{role}</Badge>
         },
       }),
       getActionsCol((row: UserRow) => [
@@ -175,13 +173,13 @@ export default function SystemAccessPage() {
       <TableActions>
         <CreateButton onClick={() => setAddModalOpen(true)}>Add user or group</CreateButton>
       </TableActions>
-      {fleetPolicy && addModalOpen && (
+      {addModalOpen && (
         <SystemAccessAddUserSideModal
           onDismiss={() => setAddModalOpen(false)}
           policy={fleetPolicy}
         />
       )}
-      {fleetPolicy && editingUserRow?.fleetRole && (
+      {editingUserRow && (
         <SystemAccessEditUserSideModal
           onDismiss={() => setEditingUserRow(null)}
           policy={fleetPolicy}

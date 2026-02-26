@@ -179,13 +179,13 @@ export default function SiloAccessPage() {
       <TableActions>
         <CreateButton onClick={() => setAddModalOpen(true)}>Add user or group</CreateButton>
       </TableActions>
-      {siloPolicy && addModalOpen && (
+      {addModalOpen && (
         <SiloAccessAddUserSideModal
           onDismiss={() => setAddModalOpen(false)}
           policy={siloPolicy}
         />
       )}
-      {siloPolicy && editingUserRow?.siloRole && (
+      {editingUserRow?.siloRole && (
         <SiloAccessEditUserSideModal
           onDismiss={() => setEditingUserRow(null)}
           policy={siloPolicy}
