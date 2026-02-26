@@ -7,7 +7,7 @@
  */
 import { user3 } from '@oxide/api-mocks'
 
-import { expect, expectRowVisible, expectToast, getPageAsUser, test } from './utils'
+import { expect, expectRowVisible, getPageAsUser, test } from './utils'
 
 test('Click through system access page', async ({ page }) => {
   await page.goto('/system/access')
@@ -87,8 +87,10 @@ test('Fleet viewer cannot modify system access', async ({ browser }) => {
   await page.click('role=button[name*="User or group"]')
   await page.click('role=option[name="Jacob Klein"]')
   await page.click('role=button[name="Assign role"]')
-  await expectToast(page, 'Action not authorized')
+  await expect(page.getByRole('heading', { name: 'Error' })).toBeVisible()
+  await expect(page.getByText('Action not authorized')).toBeVisible()
 
-  // table is unchanged
+  // dismiss the modal and confirm the table is unchanged
+  await page.click('role=button[name="Cancel"]')
   await expect(page.getByRole('cell', { name: 'Jacob Klein' })).toBeHidden()
 })
