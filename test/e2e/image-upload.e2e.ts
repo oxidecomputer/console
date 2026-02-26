@@ -9,19 +9,12 @@ import { expect, test, type Page } from '@playwright/test'
 
 import {
   chooseFile,
+  expectConsoleMessage,
   expectNotVisible,
   expectRowVisible,
   expectVisible,
   sleep,
 } from './utils'
-
-/** Assert that a console message matching `msg` was logged at the given level. */
-async function expectConsoleMessage(page: Page, msg: string, type: string) {
-  const messages = await page.consoleMessages()
-  const match = messages.find((m) => m.text().includes(msg))
-  expect(match, `expected console message containing "${msg}"`).toBeTruthy()
-  expect(match!.type()).toBe(type)
-}
 
 // playwright isn't quick enough to catch each step going from ready to running
 // to complete in time, so we just assert that they all start out ready and end

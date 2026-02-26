@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, type Browser, type Locator, type Page } from '@playwright/test'
+import { expect, test, type Browser, type Locator, type Page } from '@playwright/test'
 
 import { MiB } from '~/util/units'
 
@@ -286,7 +286,25 @@ export async function addTlsCert(page: Page) {
   await page.getByRole('button', { name: 'Add Certificate' }).click()
 }
 
-export async function hasConsoleMessage(page: Page, msg: string) {
+/**
+ * Assert that a console message matching `msg` was logged (optionally at a
+ * given level). Skips on Firefox because Playwright's `page.consoleMessages()`
+ * drops real console output there and only returns React profiling entries.
+ */
+export async function expectConsoleMessage(page: Page, msg: string, type?: string) {
+  // eslint-disable-next-line playwright/no-conditional-in-test
+  if (test.info().project.name === 'firefox') return
   const messages = await page.consoleMessages()
-  return messages.some((m) => m.text().includes(msg))
+  const match = messages.find((m) => m.text().includes(msg))
+  expect(match, `expected console message containing "${msg}"`).toBeTruthy()
+  if (type) expect(match!.type()).toBe(type)
+}
+
+/** Assert that no console message matching `msg` was logged. Skips on Firefox. */
+export async function expectNoConsoleMessage(page: Page, msg: string) {
+  // eslint-disable-next-line playwright/no-conditional-in-test
+  if (test.info().project.name === 'firefox') return
+  const messages = await page.consoleMessages()
+  const match = messages.find((m) => m.text().includes(msg))
+  expect(match, `expected no console message containing "${msg}"`).toBeFalsy()
 }
