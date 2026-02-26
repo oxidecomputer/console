@@ -29,6 +29,7 @@ import {
   SystemAccessAddUserSideModal,
   SystemAccessEditUserSideModal,
 } from '~/forms/system-access'
+import { useCurrentUser } from '~/hooks/use-current-user'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { getActionsCol } from '~/table/columns/action-col'
@@ -82,6 +83,7 @@ export default function SystemAccessPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
 
+  const { me } = useCurrentUser()
   const { data: fleetPolicy } = usePrefetchedQuery(systemPolicyView)
   const fleetRows = useUserRows(fleetPolicy.roleAssignments, 'fleet')
 
@@ -143,11 +145,13 @@ export default function SystemAccessPage() {
                 the <HL>{row.fleetRole}</HL> role for <HL>{row.name}</HL>
               </span>
             ),
+            extraContent:
+              row.id === me.id ? 'This will remove your own fleet access.' : undefined,
           }),
         },
       ]),
     ],
-    [fleetPolicy, updatePolicy]
+    [fleetPolicy, updatePolicy, me]
   )
 
   const tableInstance = useReactTable({
