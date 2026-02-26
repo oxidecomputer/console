@@ -30,6 +30,7 @@ import {
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
 import { instanceCan, OXQL_GROUP_BY_ERROR } from '~/api/util'
+import { fleetRoles } from '~/forms/access-util'
 import { parseIpNet } from '~/util/ip'
 import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
@@ -1875,7 +1876,6 @@ export const handlers = makeHandlers({
   systemPolicyView({ cookies }) {
     requireFleetViewer(cookies)
 
-    const fleetRoles: FleetRole[] = ['admin', 'collaborator', 'viewer']
     const role_assignments = db.roleAssignments
       .filter((r) => r.resource_type === 'fleet' && r.resource_id === FLEET_ID)
       .filter((r) => fleetRoles.includes(r.role_name as FleetRole))
@@ -2322,7 +2322,6 @@ export const handlers = makeHandlers({
   systemPolicyUpdate({ body, cookies }) {
     requireFleetAdmin(cookies)
 
-    const fleetRoles: FleetRole[] = ['admin', 'collaborator', 'viewer']
     const newAssignments = body.role_assignments
       .filter((r) => fleetRoles.includes(r.role_name))
       .map((r) => ({

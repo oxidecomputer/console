@@ -12,7 +12,6 @@ import {
   api,
   byGroupThenName,
   deleteRole,
-  getEffectiveRole,
   q,
   queryClient,
   useApiMutation,
@@ -74,7 +73,6 @@ type UserRow = {
   identityType: IdentityType
   name: string
   siloRole: RoleKey | undefined
-  effectiveRole: RoleKey
 }
 
 const colHelper = createColumnHelper<UserRow>()
@@ -91,8 +89,6 @@ export default function SiloAccessPage() {
       .map(([userId, userAssignments]) => {
         const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
 
-        const roles = siloRole ? [siloRole] : []
-
         const { name, identityType } = userAssignments[0]
 
         const row: UserRow = {
@@ -100,8 +96,6 @@ export default function SiloAccessPage() {
           identityType,
           name,
           siloRole,
-          // we know there has to be at least one
-          effectiveRole: getEffectiveRole(roles)!,
         }
 
         return row

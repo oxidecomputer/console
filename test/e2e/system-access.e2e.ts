@@ -7,7 +7,7 @@
  */
 import { user3 } from '@oxide/api-mocks'
 
-import { expect, expectNotVisible, expectRowVisible, expectVisible, test } from './utils'
+import { expect, expectRowVisible, test } from './utils'
 
 test('Click through system access page', async ({ page }) => {
   await page.goto('/system/access')
@@ -15,7 +15,7 @@ test('Click through system access page', async ({ page }) => {
   const table = page.locator('role=table')
 
   // initial fleet role assignments: Hannah Arendt (admin), Jane Austen (viewer)
-  await expectVisible(page, ['role=heading[name*="Access"]'])
+  await expect(page.getByRole('heading', { name: /Access/ })).toBeVisible()
   await expectRowVisible(table, {
     Name: 'Hannah Arendt',
     Type: 'User',
@@ -26,20 +26,18 @@ test('Click through system access page', async ({ page }) => {
     Type: 'User',
     Role: 'fleet.viewer',
   })
-  await expectNotVisible(page, [`role=cell[name="${user3.display_name}"]`])
+  await expect(page.getByRole('cell', { name: user3.display_name })).toBeHidden()
 
   // Add user 3 as collaborator
   await page.click('role=button[name="Add user or group"]')
-  await expectVisible(page, ['role=heading[name*="Add user or group"]'])
+  await expect(page.getByRole('heading', { name: /Add user or group/ })).toBeVisible()
 
   await page.click('role=button[name*="User or group"]')
   // users already assigned should not be in the list
-  await expectNotVisible(page, ['role=option[name="Hannah Arendt"]'])
-  await expectVisible(page, [
-    'role=option[name="Jacob Klein"]',
-    'role=option[name="Hans Jonas"]',
-    'role=option[name="Simone de Beauvoir"]',
-  ])
+  await expect(page.getByRole('option', { name: 'Hannah Arendt' })).toBeHidden()
+  await expect(page.getByRole('option', { name: 'Jacob Klein' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'Hans Jonas' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'Simone de Beauvoir' })).toBeVisible()
 
   await page.click('role=option[name="Jacob Klein"]')
   await page.getByRole('radio', { name: /^Collaborator / }).click()
@@ -59,7 +57,7 @@ test('Click through system access page', async ({ page }) => {
     .click()
   await page.click('role=menuitem[name="Change role"]')
 
-  await expectVisible(page, ['role=heading[name*="Edit role"]'])
+  await expect(page.getByRole('heading', { name: /Edit role/ })).toBeVisible()
   await expect(page.getByRole('radio', { name: /^Collaborator / })).toBeChecked()
 
   await page.getByRole('radio', { name: /^Viewer / }).click()

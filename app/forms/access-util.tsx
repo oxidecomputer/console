@@ -26,7 +26,7 @@ import { docLinks } from '~/util/links'
 import { capitalize } from '~/util/str'
 
 // Fleet roles don't include limited_collaborator
-const fleetRoles: FleetRole[] = ['admin', 'collaborator', 'viewer']
+export const fleetRoles: FleetRole[] = ['admin', 'collaborator', 'viewer']
 
 type AddUserValues = {
   identityId: string

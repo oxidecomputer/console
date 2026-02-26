@@ -12,7 +12,6 @@ import {
   api,
   byGroupThenName,
   deleteRole,
-  getEffectiveRole,
   q,
   queryClient,
   useApiMutation,
@@ -75,7 +74,6 @@ type UserRow = {
   identityType: IdentityType
   name: string
   fleetRole: RoleKey | undefined
-  effectiveRole: RoleKey
 }
 
 const colHelper = createColumnHelper<UserRow>()
@@ -92,8 +90,6 @@ export default function SystemAccessPage() {
       .map(([userId, userAssignments]) => {
         const fleetRole = userAssignments.find((a) => a.roleSource === 'fleet')?.roleName
 
-        const roles = fleetRole ? [fleetRole] : []
-
         const { name, identityType } = userAssignments[0]
 
         const row: UserRow = {
@@ -101,8 +97,6 @@ export default function SystemAccessPage() {
           identityType,
           name,
           fleetRole,
-          // we know there has to be at least one
-          effectiveRole: getEffectiveRole(roles)!,
         }
 
         return row
