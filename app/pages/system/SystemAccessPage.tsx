@@ -12,6 +12,7 @@ import {
   api,
   byGroupThenName,
   deleteRole,
+  getEffectiveRole,
   q,
   queryClient,
   useApiMutation,
@@ -90,7 +91,10 @@ export default function SystemAccessPage() {
   const rows = useMemo(() => {
     return groupBy(fleetRows, (u) => u.id)
       .map(([userId, userAssignments]) => {
-        const { name, identityType, roleName: fleetRole } = userAssignments[0]
+        const { name, identityType } = userAssignments[0]
+        // non-null: userAssignments is non-empty (groupBy only creates groups for existing items)
+        // getEffectiveRole needed because API allows multiple fleet role assignments for the same user, even though that's probably rare
+        const fleetRole = getEffectiveRole(userAssignments.map((a) => a.roleName))!
 
         const row: UserRow = {
           id: userId,

@@ -103,7 +103,7 @@ export function RoleRadioField<
   control: Control<TFieldValues>
   scope: 'Fleet' | 'Silo' | 'Project'
 }) {
-  const roles = scope === 'Fleet' ? fleetRoles : R.reverse(allRoles)
+  const roles = R.reverse(scope === 'Fleet' ? fleetRoles : allRoles)
   const roleDescriptions: Partial<Record<RoleKey, string>> =
     scope === 'Fleet'
       ? fleetRoleDescriptions
