@@ -10,6 +10,7 @@ import * as R from 'remeda'
 
 import {
   allRoles,
+  fleetRoles,
   type Actor,
   type FleetRole,
   type IdentityType,
@@ -24,9 +25,6 @@ import { Message } from '~/ui/lib/Message'
 import { Radio } from '~/ui/lib/Radio'
 import { docLinks } from '~/util/links'
 import { capitalize } from '~/util/str'
-
-// Fleet roles don't include limited_collaborator
-export const fleetRoles: FleetRole[] = ['admin', 'collaborator', 'viewer']
 
 type AddUserValues = {
   identityId: string
@@ -76,16 +74,16 @@ export const actorToItem = (actor: Actor): ListboxItem => ({
   selectedLabel: actor.displayName,
 })
 
-export type AddRoleModalProps = {
+export type AddRoleModalProps<R extends RoleKey = RoleKey> = {
   onDismiss: () => void
-  policy: Policy
+  policy: Policy<R>
 }
 
-export type EditRoleModalProps = AddRoleModalProps & {
+export type EditRoleModalProps<R extends RoleKey = RoleKey> = AddRoleModalProps<R> & {
   name?: string
   identityId: string
   identityType: IdentityType
-  defaultValues: { roleName: RoleKey }
+  defaultValues: { roleName: R }
 }
 
 const AccessDocs = () => (

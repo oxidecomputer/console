@@ -17,9 +17,8 @@ import {
   useApiMutation,
   usePrefetchedQuery,
   useUserRows,
-  type FleetRolePolicy,
+  type FleetRole,
   type IdentityType,
-  type RoleKey,
 } from '@oxide/api'
 import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
@@ -73,7 +72,7 @@ type UserRow = {
   id: string
   identityType: IdentityType
   name: string
-  fleetRole: RoleKey | undefined
+  fleetRole: FleetRole | undefined
 }
 
 const colHelper = createColumnHelper<UserRow>()
@@ -83,7 +82,7 @@ export default function SystemAccessPage() {
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
 
   const { data: fleetPolicy } = usePrefetchedQuery(systemPolicyView)
-  const fleetRows = useUserRows(fleetPolicy.roleAssignments, 'fleet')
+  const fleetRows = useUserRows(fleetPolicy?.roleAssignments ?? [], 'fleet')
 
   const rows = useMemo(() => {
     return groupBy(fleetRows, (u) => u.id)
@@ -126,8 +125,6 @@ export default function SystemAccessPage() {
         {
           label: 'Change role',
           onActivate: () => setEditingUserRow(row),
-          disabled:
-            !row.fleetRole && "You don't have permission to change this user's role",
         },
         {
           label: 'Delete',
@@ -135,8 +132,7 @@ export default function SystemAccessPage() {
             doDelete: () =>
               updatePolicy({
                 // we know policy is there, otherwise there's no row to display
-                // Fleet roles are a subset of RoleKey, so this cast is safe
-                body: deleteRole(row.id, fleetPolicy) as FleetRolePolicy,
+                body: deleteRole(row.id, fleetPolicy),
               }),
             label: (
               <span>
@@ -144,7 +140,6 @@ export default function SystemAccessPage() {
               </span>
             ),
           }),
-          disabled: !row.fleetRole && "You don't have permission to delete this user",
         },
       ]),
     ],

@@ -13,7 +13,7 @@ import {
   updateRole,
   useActorsNotInPolicy,
   useApiMutation,
-  type FleetRolePolicy,
+  type FleetRole,
 } from '@oxide/api'
 import { Access16Icon } from '@oxide/design-system/icons/react'
 
@@ -25,13 +25,15 @@ import { docLinks } from '~/util/links'
 
 import {
   actorToItem,
-  defaultValues,
   RoleRadioField,
   type AddRoleModalProps,
   type EditRoleModalProps,
 } from './access-util'
 
-export function SystemAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
+export function SystemAccessAddUserSideModal({
+  onDismiss,
+  policy,
+}: AddRoleModalProps<FleetRole>) {
   const actors = useActorsNotInPolicy(policy)
 
   const updatePolicy = useApiMutation(api.systemPolicyUpdate, {
@@ -41,7 +43,9 @@ export function SystemAccessAddUserSideModal({ onDismiss, policy }: AddRoleModal
     },
   })
 
-  const form = useForm({ defaultValues })
+  const form = useForm<{ identityId: string; roleName: FleetRole }>({
+    defaultValues: { identityId: '', roleName: 'viewer' },
+  })
 
   return (
     <SideModalForm
@@ -59,12 +63,7 @@ export function SystemAccessAddUserSideModal({ onDismiss, policy }: AddRoleModal
         const identityType = actors.find((a) => a.id === identityId)!.identityType
 
         updatePolicy.mutate({
-          // Fleet roles are a subset of RoleKey; the UI restricts role selection
-          // to fleet roles only, so this cast is safe
-          body: updateRole(
-            { identityId, identityType, roleName },
-            policy
-          ) as FleetRolePolicy,
+          body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}
       loading={updatePolicy.isPending}
@@ -90,7 +89,7 @@ export function SystemAccessEditUserSideModal({
   identityType,
   policy,
   defaultValues,
-}: EditRoleModalProps) {
+}: EditRoleModalProps<FleetRole>) {
   const updatePolicy = useApiMutation(api.systemPolicyUpdate, {
     onSuccess: () => {
       queryClient.invalidateEndpoint('systemPolicyView')
@@ -112,12 +111,7 @@ export function SystemAccessEditUserSideModal({
       }
       onSubmit={({ roleName }) => {
         updatePolicy.mutate({
-          // Fleet roles are a subset of RoleKey; the UI restricts role selection
-          // to fleet roles only, so this cast is safe
-          body: updateRole(
-            { identityId, identityType, roleName },
-            policy
-          ) as FleetRolePolicy,
+          body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}
       loading={updatePolicy.isPending}

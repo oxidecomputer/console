@@ -14,6 +14,7 @@ import { validate as isUuid, v4 as uuid } from 'uuid'
 
 import {
   diskCan,
+  fleetRoles,
   FLEET_ID,
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
@@ -30,7 +31,6 @@ import {
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
 import { instanceCan, OXQL_GROUP_BY_ERROR } from '~/api/util'
-import { fleetRoles } from '~/forms/access-util'
 import { parseIpNet } from '~/util/ip'
 import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
@@ -1878,7 +1878,7 @@ export const handlers = makeHandlers({
 
     const role_assignments = db.roleAssignments
       .filter((r) => r.resource_type === 'fleet' && r.resource_id === FLEET_ID)
-      .filter((r) => fleetRoles.includes(r.role_name as FleetRole))
+      .filter((r) => fleetRoles.some((role) => role === r.role_name))
       .map((r) => ({
         identity_id: r.identity_id,
         identity_type: r.identity_type,
@@ -2323,7 +2323,7 @@ export const handlers = makeHandlers({
     requireFleetAdmin(cookies)
 
     const newAssignments = body.role_assignments
-      .filter((r) => fleetRoles.includes(r.role_name))
+      .filter((r) => fleetRoles.some((role) => role === r.role_name))
       .map((r) => ({
         resource_type: 'fleet' as const,
         resource_id: FLEET_ID,
