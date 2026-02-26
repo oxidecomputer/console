@@ -56,7 +56,7 @@ export default function SystemLayout() {
       { value: 'Inventory', path: pb.sledInventory() },
       { value: 'IP Pools', path: pb.ipPools() },
       { value: 'System Update', path: pb.systemUpdate() },
-      { value: 'Access', path: pb.systemAccess() },
+      { value: 'System Access', path: pb.systemAccess() },
     ]
       // filter out the entry for the path we're currently on
       .filter((i) => i.path !== pathname)
@@ -104,7 +104,7 @@ export default function SystemLayout() {
             <SoftwareUpdate16Icon /> System Update
           </NavLinkItem>
           <NavLinkItem to={pb.systemAccess()}>
-            <Access16Icon /> Access
+            <Access16Icon /> System Access
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>

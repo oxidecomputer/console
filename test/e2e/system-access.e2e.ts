@@ -15,7 +15,7 @@ test('Click through system access page', async ({ page }) => {
   const table = page.locator('role=table')
 
   // initial fleet role assignments: Hannah Arendt (admin), Jane Austen (viewer)
-  await expect(page.getByRole('heading', { name: /Access/ })).toBeVisible()
+  await expect(page.getByRole('heading', { name: /System Access/ })).toBeVisible()
   await expectRowVisible(table, {
     Name: 'Hannah Arendt',
     Type: 'User',
