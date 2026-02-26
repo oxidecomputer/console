@@ -74,16 +74,16 @@ export const actorToItem = (actor: Actor): ListboxItem => ({
   selectedLabel: actor.displayName,
 })
 
-export type AddRoleModalProps<R extends RoleKey = RoleKey> = {
+export type AddRoleModalProps<Role extends RoleKey = RoleKey> = {
   onDismiss: () => void
-  policy: Policy<R>
+  policy: Policy<Role>
 }
 
-export type EditRoleModalProps<R extends RoleKey = RoleKey> = AddRoleModalProps<R> & {
+export type EditRoleModalProps<Role extends RoleKey = RoleKey> = AddRoleModalProps<Role> & {
   name?: string
   identityId: string
   identityType: IdentityType
-  defaultValues: { roleName: R }
+  defaultValues: { roleName: Role }
 }
 
 const AccessDocs = () => (
