@@ -82,7 +82,7 @@ export default function SystemAccessPage() {
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
 
   const { data: fleetPolicy } = usePrefetchedQuery(systemPolicyView)
-  const fleetRows = useUserRows(fleetPolicy?.roleAssignments ?? [], 'fleet')
+  const fleetRows = useUserRows(fleetPolicy.roleAssignments, 'fleet')
 
   const rows = useMemo(() => {
     return groupBy(fleetRows, (u) => u.id)
