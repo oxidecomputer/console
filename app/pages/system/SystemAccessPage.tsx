@@ -30,6 +30,7 @@ import {
   SystemAccessEditUserSideModal,
 } from '~/forms/system-access'
 import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
 import { CreateButton } from '~/ui/lib/CreateButton'
@@ -104,7 +105,10 @@ export default function SystemAccessPage() {
   }, [fleetRows])
 
   const { mutateAsync: updatePolicy } = useApiMutation(api.systemPolicyUpdate, {
-    onSuccess: () => queryClient.invalidateEndpoint('systemPolicyView'),
+    onSuccess: () => {
+      queryClient.invalidateEndpoint('systemPolicyView')
+      addToast({ content: 'Access removed' })
+    },
   })
 
   const columns = useMemo(

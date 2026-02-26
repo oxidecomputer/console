@@ -104,7 +104,6 @@ export function RoleRadioField<
   scope: 'Fleet' | 'Silo' | 'Project'
 }) {
   const roles = scope === 'Fleet' ? fleetRoles : R.reverse(allRoles)
-  // Explicit annotation widens the type so indexing with RoleKey works for all scopes
   const roleDescriptions: Partial<Record<RoleKey, string>> =
     scope === 'Fleet'
       ? fleetRoleDescriptions

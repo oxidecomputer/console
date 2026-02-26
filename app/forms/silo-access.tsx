@@ -49,7 +49,10 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
       resourceName="role"
       title="Add user or group"
       submitLabel="Assign role"
-      onDismiss={onDismiss}
+      onDismiss={() => {
+        updatePolicy.reset() // clear API error state so it doesn't persist on next open
+        onDismiss()
+      }}
       onSubmit={({ identityId, roleName }) => {
         // TODO: DRY logic
         // actor is guaranteed to be in the list because it came from there
@@ -109,7 +112,10 @@ export function SiloAccessEditUserSideModal({
       }}
       loading={updatePolicy.isPending}
       submitError={updatePolicy.error}
-      onDismiss={onDismiss}
+      onDismiss={() => {
+        updatePolicy.reset() // clear API error state so it doesn't persist on next open
+        onDismiss()
+      }}
     >
       <RoleRadioField name="roleName" control={form.control} scope="Silo" />
       <SideModalFormDocs docs={[docLinks.access]} />
