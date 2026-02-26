@@ -41,7 +41,9 @@ export const roleOrder: Record<RoleKey, number> = {
 export const allRoles = flatRoles(roleOrder)
 
 // Fleet roles don't include limited_collaborator
-export const fleetRoles = allRoles.filter((r) => r !== 'limited_collaborator')
+export const fleetRoles = allRoles.filter(
+  (r): r is FleetRole => r !== 'limited_collaborator'
+)
 
 /** Given a list of roles, get the most permissive one */
 export const getEffectiveRole = <Role extends RoleKey>(roles: Role[]): Role | undefined =>
