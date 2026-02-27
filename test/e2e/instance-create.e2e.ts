@@ -893,6 +893,20 @@ test('create instance with custom IPv4-only NIC constrains ephemeral IP to IPv4'
   // Open dropdown to check available options - only IPv4 pools should appear
   await v4PoolDropdown.click()
   await expect(page.getByRole('option', { name: 'ip-pool-1' })).toBeVisible()
+  // Close dropdown to avoid obscuring subsequent interactions
+  await page.keyboard.press('Escape')
+
+  // Create the instance
+  await page.getByRole('button', { name: 'Create instance' }).click()
+  await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
+
+  // Verify exactly one ephemeral IP row exists, and it is IPv4
+  await page.getByRole('tab', { name: 'Networking' }).click()
+  const externalIpsTable = page.getByRole('table', { name: /external ips/i })
+  const ephemeralRows = externalIpsTable.getByRole('row').filter({ hasText: 'ephemeral' })
+  await expect(ephemeralRows).toHaveCount(1)
+  await expect(externalIpsTable.getByText('v4')).toBeVisible()
+  await expect(externalIpsTable.getByText('v6')).toBeHidden()
 })
 
 test('create instance with custom IPv6-only NIC constrains ephemeral IP to IPv6', async ({
@@ -955,6 +969,20 @@ test('create instance with custom IPv6-only NIC constrains ephemeral IP to IPv6'
   // Open dropdown to check available options - only IPv6 pools should appear
   await v6PoolDropdown.click()
   await expect(page.getByRole('option', { name: 'ip-pool-2' })).toBeVisible()
+  // Close dropdown to avoid obscuring subsequent interactions
+  await page.keyboard.press('Escape')
+
+  // Create the instance
+  await page.getByRole('button', { name: 'Create instance' }).click()
+  await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
+
+  // Verify exactly one ephemeral IP row exists, and it is IPv6
+  await page.getByRole('tab', { name: 'Networking' }).click()
+  const externalIpsTable = page.getByRole('table', { name: /external ips/i })
+  const ephemeralRows = externalIpsTable.getByRole('row').filter({ hasText: 'ephemeral' })
+  await expect(ephemeralRows).toHaveCount(1)
+  await expect(externalIpsTable.getByText('v4')).toBeHidden()
+  await expect(externalIpsTable.getByText('v6')).toBeVisible()
 })
 
 test('create instance with custom dual-stack NIC allows both IPv4 and IPv6 ephemeral IPs', async ({

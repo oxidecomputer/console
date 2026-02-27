@@ -50,6 +50,9 @@ test.describe('IP pool configuration: myriad silo (v4-only default)', () => {
     // v6 checkbox should be visible but not checked (no v6 default in myriad silo)
     await expect(v6Checkbox).toBeVisible()
     await expect(v6Checkbox).not.toBeChecked()
+    await expect(v6Checkbox).toBeDisabled()
+    await v6Checkbox.hover()
+    await expect(page.getByText('No IPv6 pools available')).toBeVisible()
 
     // IPv4 pool dropdown should be visible with default pool preselected
     const v4PoolDropdown = page.getByLabel('IPv4 pool')
@@ -225,6 +228,9 @@ test.describe('IP pool configuration: thrax silo (v6-only default)', () => {
     // v4 checkbox should be visible but not checked (no v4 default in thrax silo)
     await expect(v4Checkbox).toBeVisible()
     await expect(v4Checkbox).not.toBeChecked()
+    await expect(v4Checkbox).toBeDisabled()
+    await v4Checkbox.hover()
+    await expect(page.getByText('No IPv4 pools available')).toBeVisible()
     await expect(v6Checkbox).toBeVisible()
     await expect(v6Checkbox).toBeChecked()
 
@@ -336,6 +342,51 @@ test.describe('IP pool configuration: pelerines silo (no defaults)', () => {
     await page.getByRole('option', { name: 'ip-pool-1' }).click()
     await page.getByRole('button', { name: 'Create instance' }).click()
     await expect(page).toHaveURL(/\/instances\/no-pool-test/)
+  })
+
+  test('submitting with IPv6 ephemeral IP checked but no pool selected is blocked', async ({
+    browser,
+  }) => {
+    const page = await getPageAsUser(browser, 'Theodor Adorno')
+    await page.goto('/projects/adorno-project/instances-new')
+
+    await page.getByRole('textbox', { name: 'Name', exact: true }).fill('no-v6-pool-test')
+
+    // Select a silo image for boot disk
+    await page.getByRole('tab', { name: 'Silo images' }).click()
+    await page.getByPlaceholder('Select a silo image', { exact: true }).click()
+    await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
+
+    // Check the v6 ephemeral IP checkbox — no default pool will be pre-selected
+    // because pelerines has no default pools
+    const v6Checkbox = page.getByRole('checkbox', {
+      name: 'Allocate IPv6 address',
+    })
+    await v6Checkbox.click()
+    await expect(v6Checkbox).toBeChecked()
+
+    // Verify no pool is selected
+    const v6PoolDropdown = page.getByLabel('IPv6 pool')
+    await expect(v6PoolDropdown).toBeVisible()
+    await expect(v6PoolDropdown).toContainText('Select a pool')
+
+    // Try to submit — pool is required when checkbox is checked, so form
+    // validation should prevent the request from being sent
+    await page.getByRole('button', { name: 'Create instance' }).click()
+
+    // RHF required validation should show an error on the pool field
+    await expect(
+      page.getByTestId('scroll-container').getByText('IPv6 pool is required')
+    ).toBeVisible()
+
+    // Should still be on the create page
+    await expect(page).toHaveURL('/projects/adorno-project/instances-new')
+
+    // Now select a pool and verify the form submits successfully
+    await v6PoolDropdown.click()
+    await page.getByRole('option', { name: 'ip-pool-2' }).click()
+    await page.getByRole('button', { name: 'Create instance' }).click()
+    await expect(page).toHaveURL(/\/instances\/no-v6-pool-test/)
   })
 
   test('floating IP create form handles missing default pool gracefully', async ({
