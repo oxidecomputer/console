@@ -242,58 +242,83 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 
 export const handle = { crumb: 'New instance' }
 
-function getDisabledReason(
-  canAttach: boolean,
-  version: IpVersion,
-  compatibleVersions: IpVersion[],
-  pools: UnicastIpPool[]
-): React.ReactNode {
-  if (canAttach) return undefined
-  if (!compatibleVersions.includes(version)) {
-    return (
-      <>
-        Add an IP{version} network interface
-        <br />
-        to attach an ephemeral IP{version} address
-      </>
-    )
-  }
-  if (pools.length === 0) {
-    return (
-      <>
-        No IP{version} pools available
-        <br />
-        for this instance’s network interfaces
-      </>
-    )
-  }
-  return undefined
-}
+const EPHEMERAL_IP_FIELDS = {
+  v4: {
+    checkboxName: 'ephemeralIpv4',
+    poolFieldName: 'ephemeralIpv4Pool',
+    displayVersion: 'IPv4',
+  },
+  v6: {
+    checkboxName: 'ephemeralIpv6',
+    poolFieldName: 'ephemeralIpv6Pool',
+    displayVersion: 'IPv6',
+  },
+} as const
 
 function EphemeralIpCheckbox({
   control,
   ipVersion,
-  checked,
-  pools,
-  canAttach,
-  disabledReason,
+  compatibleVersions,
+  unicastPools,
   isSubmitting,
 }: {
   control: Control<InstanceCreateInput>
   ipVersion: IpVersion
-  checked: boolean
-  pools: UnicastIpPool[]
-  canAttach: boolean
-  disabledReason: React.ReactNode
+  compatibleVersions: IpVersion[]
+  unicastPools: UnicastIpPool[]
   isSubmitting: boolean
 }) {
-  const checkboxName = ipVersion === 'v4' ? 'ephemeralIpv4' : 'ephemeralIpv6'
-  const poolFieldName = ipVersion === 'v4' ? 'ephemeralIpv4Pool' : 'ephemeralIpv6Pool'
-  const displayVersion = `IP${ipVersion}`
+  const { checkboxName, poolFieldName, displayVersion } = EPHEMERAL_IP_FIELDS[ipVersion]
+  const ephemeralIpField = useController({ control, name: checkboxName })
+  const ephemeralIpPoolField = useController({ control, name: poolFieldName })
+  const checked = ephemeralIpField.field.value
+
+  const pools = useMemo(
+    () => unicastPools.filter((pool) => pool.ipVersion === ipVersion),
+    [unicastPools, ipVersion]
+  )
+  const isCompatible = compatibleVersions.includes(ipVersion)
+  const hasPools = pools.length > 0
+  const canAttach = isCompatible && hasPools
+  let disabledReason: React.ReactNode
+  if (!canAttach) {
+    disabledReason = isCompatible ? (
+      <>
+        No IP{ipVersion} pools available
+        <br />
+        for this instance’s network interfaces
+      </>
+    ) : (
+      <>
+        Add an IP{ipVersion} network interface
+        <br />
+        to attach an ephemeral IP{ipVersion} address
+      </>
+    )
+  }
+
+  // Track previous canAttach to detect false→true transitions (NIC type
+  // change re-enabling this IP version). A ref because we need to compare
+  // across renders without triggering re-renders when we update it.
+  const prevCanAttachRef = useRef<boolean | undefined>(undefined)
+  useEffect(() => {
+    if (checked && !canAttach) {
+      ephemeralIpField.field.onChange(false)
+      ephemeralIpPoolField.field.onChange('')
+    } else if (canAttach && prevCanAttachRef.current === false && !checked) {
+      const defaultPool = pools.find((p) => p.isDefault)
+      if (defaultPool) {
+        ephemeralIpField.field.onChange(true)
+        ephemeralIpPoolField.field.onChange(defaultPool.name)
+      }
+    }
+    prevCanAttachRef.current = canAttach
+  }, [canAttach, checked, pools, ephemeralIpField, ephemeralIpPoolField])
 
   return (
     <div className="max-w-lg space-y-2">
       <Wrap when={!!disabledReason} with={<Tooltip content={disabledReason} />}>
+        {/* span makes tooltip show on label hover, not just the checkbox */}
         <span>
           <CheckboxField
             control={control}
@@ -862,14 +887,8 @@ const NetworkingSection = ({
   const networkInterfaces = useWatch({ control, name: 'networkInterfaces' })
   const [floatingIpModalOpen, setFloatingIpModalOpen] = useState(false)
   const [selectedFloatingIp, setSelectedFloatingIp] = useState<FloatingIp | undefined>()
-  const ephemeralIpv4Field = useController({ control, name: 'ephemeralIpv4' })
-  const ephemeralIpv4PoolField = useController({ control, name: 'ephemeralIpv4Pool' })
-  const ephemeralIpv6Field = useController({ control, name: 'ephemeralIpv6' })
-  const ephemeralIpv6PoolField = useController({ control, name: 'ephemeralIpv6Pool' })
   const floatingIpsField = useController({ control, name: 'floatingIps' })
 
-  const ephemeralIpv4 = ephemeralIpv4Field.field.value
-  const ephemeralIpv6 = ephemeralIpv6Field.field.value
   const attachedFloatingIpNames = floatingIpsField.field.value ?? EMPTY_NAME_OR_ID_LIST
 
   // Calculate compatible IP versions based on NIC type
@@ -877,19 +896,6 @@ const NetworkingSection = ({
     () => getCompatibleVersionsFromNicType(networkInterfaces),
     [networkInterfaces]
   )
-
-  // Filter pools by compatibility and partition by IP version
-  const [v4Pools, v6Pools] = useMemo(
-    () =>
-      R.partition(
-        unicastPools.filter(poolHasIpVersion(compatibleVersions)),
-        (p) => p.ipVersion === 'v4'
-      ),
-    [unicastPools, compatibleVersions]
-  )
-
-  const canAttachV4 = compatibleVersions.includes('v4') && v4Pools.length > 0
-  const canAttachV6 = compatibleVersions.includes('v6') && v6Pools.length > 0
 
   const { project } = useProjectSelector()
   const { data: floatingIpList } = usePrefetchedQuery(
@@ -917,43 +923,6 @@ const NetworkingSection = ({
 
     return { attachedFloatingIps, availableFloatingIps }
   }, [floatingIpList.items, attachedFloatingIpNames, compatibleVersions])
-
-  const prevCanAttachV4Ref = useRef<boolean | undefined>(undefined)
-  const prevCanAttachV6Ref = useRef<boolean | undefined>(undefined)
-
-  // Disable v4 ephemeral IP when incompatible, auto-enable on NIC transition
-  useEffect(() => {
-    if (ephemeralIpv4 && !canAttachV4) {
-      ephemeralIpv4Field.field.onChange(false)
-      ephemeralIpv4PoolField.field.onChange('')
-    } else if (canAttachV4 && prevCanAttachV4Ref.current === false && !ephemeralIpv4) {
-      const v4Default = v4Pools.find((p) => p.isDefault)
-      if (v4Default) {
-        ephemeralIpv4Field.field.onChange(true)
-        ephemeralIpv4PoolField.field.onChange(v4Default.name)
-      }
-    }
-    prevCanAttachV4Ref.current = canAttachV4
-  }, [canAttachV4, v4Pools, ephemeralIpv4, ephemeralIpv4Field, ephemeralIpv4PoolField])
-
-  // Disable v6 ephemeral IP when incompatible, auto-enable on NIC transition
-  useEffect(() => {
-    if (ephemeralIpv6 && !canAttachV6) {
-      ephemeralIpv6Field.field.onChange(false)
-      ephemeralIpv6PoolField.field.onChange('')
-    } else if (canAttachV6 && prevCanAttachV6Ref.current === false && !ephemeralIpv6) {
-      const v6Default = v6Pools.find((p) => p.isDefault)
-      if (v6Default) {
-        ephemeralIpv6Field.field.onChange(true)
-        ephemeralIpv6PoolField.field.onChange(v6Default.name)
-      }
-    }
-    prevCanAttachV6Ref.current = canAttachV6
-  }, [canAttachV6, v6Pools, ephemeralIpv6, ephemeralIpv6Field, ephemeralIpv6PoolField])
-
-  // Calculate disabled reasons for ephemeral IP checkboxes
-  const v4DisabledReason = getDisabledReason(canAttachV4, 'v4', compatibleVersions, v4Pools)
-  const v6DisabledReason = getDisabledReason(canAttachV6, 'v6', compatibleVersions, v6Pools)
 
   const closeFloatingIpModal = () => {
     setFloatingIpModalOpen(false)
@@ -1012,19 +981,15 @@ const NetworkingSection = ({
           <EphemeralIpCheckbox
             control={control}
             ipVersion="v4"
-            checked={ephemeralIpv4}
-            pools={v4Pools}
-            canAttach={canAttachV4}
-            disabledReason={v4DisabledReason}
+            compatibleVersions={compatibleVersions}
+            unicastPools={unicastPools}
             isSubmitting={isSubmitting}
           />
           <EphemeralIpCheckbox
             control={control}
             ipVersion="v6"
-            checked={ephemeralIpv6}
-            pools={v6Pools}
-            canAttach={canAttachV6}
-            disabledReason={v6DisabledReason}
+            compatibleVersions={compatibleVersions}
+            unicastPools={unicastPools}
             isSubmitting={isSubmitting}
           />
         </div>
