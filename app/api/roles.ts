@@ -149,7 +149,9 @@ export type Actor = {
  * Fetch lists of users and groups, filtering out the ones that are already in
  * the given policy.
  */
-export function useActorsNotInPolicy(policy: Policy): Actor[] {
+export function useActorsNotInPolicy<Role extends RoleKey = RoleKey>(
+  policy: Policy<Role>
+): Actor[] {
   const { data: users } = usePrefetchedQuery(q(api.userList, {}))
   const { data: groups } = usePrefetchedQuery(q(api.groupList, {}))
   return useMemo(() => {

@@ -29,6 +29,7 @@ import {
   SiloAccessAddUserSideModal,
   SiloAccessEditUserSideModal,
 } from '~/forms/silo-access'
+import { useCurrentUser } from '~/hooks/use-current-user'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { getActionsCol } from '~/table/columns/action-col'
@@ -82,6 +83,7 @@ export default function SiloAccessPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
 
+  const { me } = useCurrentUser()
   const { data: siloPolicy } = usePrefetchedQuery(policyView)
   const siloRows = useUserRows(siloPolicy.roleAssignments, 'silo')
 
@@ -150,12 +152,14 @@ export default function SiloAccessPage() {
                 the <HL>{row.siloRole}</HL> role for <HL>{row.name}</HL>
               </span>
             ),
+            extraContent:
+              row.id === me.id ? 'This will remove your own silo access.' : undefined,
           }),
           disabled: !row.siloRole && "You don't have permission to delete this user",
         },
       ]),
     ],
-    [siloPolicy, updatePolicy]
+    [siloPolicy, updatePolicy, me]
   )
 
   const tableInstance = useReactTable({
