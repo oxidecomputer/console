@@ -54,6 +54,10 @@ type IpPoolSelectorProps<
   /** Compatible IP versions based on network interface type */
   compatibleVersions?: IpVersion[]
   required?: boolean
+  hideOptionalTag?: boolean
+  label?: string
+  /** Hide visible label, using it as aria-label instead */
+  hideLabel?: boolean
 }
 
 export function IpPoolSelector<
@@ -67,6 +71,9 @@ export function IpPoolSelector<
   disabled = false,
   compatibleVersions = ALL_IP_VERSIONS,
   required = true,
+  hideOptionalTag = false,
+  label = 'Pool',
+  hideLabel = false,
 }: IpPoolSelectorProps<TFieldValues, TName>) {
   // Note: pools are already filtered by poolType before being passed to this component
   const sortedPools = useMemo(() => {
@@ -84,12 +91,14 @@ export function IpPoolSelector<
       <ListboxField
         name={poolFieldName}
         items={sortedPools.map(toIpPoolItem)}
-        label="Pool"
+        label={label}
+        hideLabel={hideLabel}
         noItemsPlaceholder="No pools available"
         control={control}
         placeholder="Select a pool"
         required={required}
         disabled={disabled}
+        hideOptionalTag={hideOptionalTag}
       />
     </div>
   )
