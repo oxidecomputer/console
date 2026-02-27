@@ -886,7 +886,7 @@ const NetworkingSection = ({
 
   const ephemeralIpv4 = ephemeralIpv4Field.field.value
   const ephemeralIpv6 = ephemeralIpv6Field.field.value
-  const attachedFloatingIps = floatingIpsField.field.value ?? EMPTY_NAME_OR_ID_LIST
+  const attachedFloatingIpNames = floatingIpsField.field.value ?? EMPTY_NAME_OR_ID_LIST
 
   // Calculate compatible IP versions based on NIC type
   const compatibleVersions = useMemo(
@@ -912,25 +912,30 @@ const NetworkingSection = ({
     q(api.floatingIpList, { query: { project, limit: ALL_ISH } })
   )
 
-  // Filter out the IPs that are already attached to an instance
-  const attachableFloatingIps = useMemo(
-    () => floatingIpList.items.filter((ip) => !ip.instanceId),
-    [floatingIpList]
-  )
+  // Derive attached+available lists from one indexed pass to avoid repeated
+  // lookups
+  const { attachedFloatingIps, availableFloatingIps } = useMemo(() => {
+    // Filter out the IPs that are already attached to an instance
+    const attachableFloatingIps = floatingIpList.items.filter((ip) => !ip.instanceId)
+    const attachedNames = new Set(attachedFloatingIpNames)
+    const attachableByName = new Map(
+      attachableFloatingIps.map((ip) => [ip.name, ip] as const)
+    )
+    const attachedFloatingIps = attachedFloatingIpNames
+      .map((name) => attachableByName.get(name))
+      .filter((ip) => !!ip)
 
-  // To find available floating IPs, we remove the ones that are already committed to this instance
-  // and filter by IP version compatibility with configured NICs
-  const availableFloatingIps = useMemo(() => {
-    return attachableFloatingIps
-      .filter((ip) => !attachedFloatingIps.includes(ip.name))
+    // To find available floating IPs, remove the ones already committed to this
+    // instance and filter by IP version compatibility with configured NICs.
+    const availableFloatingIps = attachableFloatingIps
+      .filter((ip) => !attachedNames.has(ip.name))
       .filter(ipHasVersion(compatibleVersions))
-  }, [attachableFloatingIps, attachedFloatingIps, compatibleVersions])
 
-  const attachedFloatingIpsData = attachedFloatingIps.map(
-    (floatingIp) => attachableFloatingIps.find((fip) => fip.name === floatingIp)!
-  )
+    return { attachedFloatingIps, availableFloatingIps }
+  }, [floatingIpList.items, attachedFloatingIpNames, compatibleVersions])
 
-  // Clean up incompatible ephemeral IP selections when NIC or pool availability changes
+  // Clean up incompatible ephemeral IP selections when NIC or pool availability
+  // changes
   useEffect(() => {
     // Uncheck and clear when version incompatible or pools unavailable
     if (ephemeralIpv4 && !canAttachV4) {
@@ -1091,7 +1096,7 @@ const NetworkingSection = ({
           <div className="flex max-w-lg flex-col items-start gap-3">
             <MiniTable
               ariaLabel="Floating IPs"
-              items={attachedFloatingIpsData}
+              items={attachedFloatingIps}
               columns={[
                 { header: 'Name', cell: (item) => item.name },
                 { header: 'IP', cell: (item) => item.ip },
