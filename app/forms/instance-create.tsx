@@ -525,38 +525,22 @@ export default function CreateInstanceForm() {
 
           const bootDisk = getBootDiskAttachment(values, allImages)
 
-          // Construct external IPs: ephemeral IPs first (v4 before v6), then floating IPs
-          const externalIps: ExternalIpCreate[] = [
-            // v4 ephemeral if enabled (order: v4 before v6)
-            ...(values.ephemeralIpv4
-              ? [
-                  {
-                    type: 'ephemeral' as const,
-                    poolSelector: {
-                      type: 'explicit' as const,
-                      pool: values.ephemeralIpv4Pool,
-                    },
-                  },
-                ]
-              : []),
-            // v6 ephemeral if enabled
-            ...(values.ephemeralIpv6
-              ? [
-                  {
-                    type: 'ephemeral' as const,
-                    poolSelector: {
-                      type: 'explicit' as const,
-                      pool: values.ephemeralIpv6Pool,
-                    },
-                  },
-                ]
-              : []),
-            // floating IPs (can coexist with ephemeral)
-            ...values.floatingIps.map((floatingIp) => ({
-              type: 'floating' as const,
-              floatingIp,
-            })),
-          ]
+          const externalIps: ExternalIpCreate[] = []
+          if (values.ephemeralIpv4) {
+            externalIps.push({
+              type: 'ephemeral',
+              poolSelector: { type: 'explicit', pool: values.ephemeralIpv4Pool },
+            })
+          }
+          if (values.ephemeralIpv6) {
+            externalIps.push({
+              type: 'ephemeral',
+              poolSelector: { type: 'explicit', pool: values.ephemeralIpv6Pool },
+            })
+          }
+          for (const floatingIp of values.floatingIps) {
+            externalIps.push({ type: 'floating', floatingIp })
+          }
 
           const userData = values.userData
             ? await readBlobAsBase64(values.userData)
@@ -934,72 +918,42 @@ const NetworkingSection = ({
     return { attachedFloatingIps, availableFloatingIps }
   }, [floatingIpList.items, attachedFloatingIpNames, compatibleVersions])
 
-  // Clean up incompatible ephemeral IP selections when NIC or pool availability
-  // changes
-  useEffect(() => {
-    // Uncheck and clear when version incompatible or pools unavailable
-    if (ephemeralIpv4 && !canAttachV4) {
-      ephemeralIpv4Field.field.onChange(false)
-      ephemeralIpv4PoolField.field.onChange('')
-    }
-    if (ephemeralIpv6 && !canAttachV6) {
-      ephemeralIpv6Field.field.onChange(false)
-      ephemeralIpv6PoolField.field.onChange('')
-    }
-  }, [
-    canAttachV4,
-    canAttachV6,
-    ephemeralIpv4,
-    ephemeralIpv4Field,
-    ephemeralIpv4PoolField,
-    ephemeralIpv6,
-    ephemeralIpv6Field,
-    ephemeralIpv6PoolField,
-  ])
-
-  // Track previous canAttach state to detect transitions for auto-enabling
   const prevCanAttachV4Ref = useRef<boolean | undefined>(undefined)
   const prevCanAttachV6Ref = useRef<boolean | undefined>(undefined)
 
-  // Auto-enable ephemeral IPs when NICs are added that support them
+  // Disable v4 ephemeral IP when incompatible, auto-enable on NIC transition
   useEffect(() => {
-    const prevCanAttachV4 = prevCanAttachV4Ref.current
-    const v4Default = v4Pools.find((p) => p.isDefault)
-
-    // Auto-enable v4 when transitioning from unable to able (e.g., NIC added)
-    if (canAttachV4 && v4Default && prevCanAttachV4 === false && !ephemeralIpv4) {
-      ephemeralIpv4Field.field.onChange(true)
-      // Also populate the pool field with the default
-      ephemeralIpv4PoolField.field.onChange(v4Default.name)
+    if (ephemeralIpv4 && !canAttachV4) {
+      ephemeralIpv4Field.field.onChange(false)
+      ephemeralIpv4PoolField.field.onChange('')
+    } else if (canAttachV4 && prevCanAttachV4Ref.current === false && !ephemeralIpv4) {
+      const v4Default = v4Pools.find((p) => p.isDefault)
+      if (v4Default) {
+        ephemeralIpv4Field.field.onChange(true)
+        ephemeralIpv4PoolField.field.onChange(v4Default.name)
+      }
     }
-
     prevCanAttachV4Ref.current = canAttachV4
   }, [canAttachV4, v4Pools, ephemeralIpv4, ephemeralIpv4Field, ephemeralIpv4PoolField])
 
+  // Disable v6 ephemeral IP when incompatible, auto-enable on NIC transition
   useEffect(() => {
-    const prevCanAttachV6 = prevCanAttachV6Ref.current
-    const v6Default = v6Pools.find((p) => p.isDefault)
-
-    // Auto-enable v6 when transitioning from unable to able (e.g., NIC added)
-    if (canAttachV6 && v6Default && prevCanAttachV6 === false && !ephemeralIpv6) {
-      ephemeralIpv6Field.field.onChange(true)
-      // Also populate the pool field with the default
-      ephemeralIpv6PoolField.field.onChange(v6Default.name)
+    if (ephemeralIpv6 && !canAttachV6) {
+      ephemeralIpv6Field.field.onChange(false)
+      ephemeralIpv6PoolField.field.onChange('')
+    } else if (canAttachV6 && prevCanAttachV6Ref.current === false && !ephemeralIpv6) {
+      const v6Default = v6Pools.find((p) => p.isDefault)
+      if (v6Default) {
+        ephemeralIpv6Field.field.onChange(true)
+        ephemeralIpv6PoolField.field.onChange(v6Default.name)
+      }
     }
-
     prevCanAttachV6Ref.current = canAttachV6
   }, [canAttachV6, v6Pools, ephemeralIpv6, ephemeralIpv6Field, ephemeralIpv6PoolField])
 
   // Calculate disabled reasons for ephemeral IP checkboxes
-  const v4DisabledReason = useMemo(
-    () => getDisabledReason(canAttachV4, 'v4', compatibleVersions, v4Pools),
-    [canAttachV4, compatibleVersions, v4Pools]
-  )
-
-  const v6DisabledReason = useMemo(
-    () => getDisabledReason(canAttachV6, 'v6', compatibleVersions, v6Pools),
-    [canAttachV6, compatibleVersions, v6Pools]
-  )
+  const v4DisabledReason = getDisabledReason(canAttachV4, 'v4', compatibleVersions, v4Pools)
+  const v6DisabledReason = getDisabledReason(canAttachV6, 'v6', compatibleVersions, v6Pools)
 
   const closeFloatingIpModal = () => {
     setFloatingIpModalOpen(false)
