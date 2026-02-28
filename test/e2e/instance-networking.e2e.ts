@@ -12,15 +12,9 @@ import {
   clickRowActions,
   expectRowVisible,
   expectVisible,
+  selectASiloImage,
   stopInstance,
-  type Page,
 } from './utils'
-
-const selectASiloImage = async (page: Page, name: string) => {
-  await page.getByRole('tab', { name: 'Silo images' }).click()
-  await page.getByPlaceholder('Select a silo image', { exact: true }).click()
-  await page.getByRole('option', { name }).click()
-}
 
 test('Instance networking tab — NIC table', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
@@ -192,14 +186,9 @@ test('Instance networking tab — floating IPs', async ({ page }) => {
   await attachFloatingIpButton.click()
   await expectVisible(page, ['role=heading[name="Attach floating IP"]'])
 
-  // Select the 'rootbeer-float' option
   const dialog = page.getByRole('dialog')
-  // TODO: this "select the option" syntax is awkward; it's working, but I suspect there's a better way
   await dialog.getByLabel('Floating IP').click()
-  await page.keyboard.press('ArrowDown')
-  await page.keyboard.press('Enter')
-  // await dialog.getByRole('button', { name: 'rootbeer-float' }).click()
-  // await dialog.getByRole('button', { name: 'rootbeer-float123.4.56.4/A classic.' }).click()
+  await page.getByRole('option', { name: 'rootbeer-float' }).click()
   await dialog.getByRole('button', { name: 'Attach' }).click()
 
   // Confirm the modal is gone and the new row is showing on the page
@@ -213,8 +202,7 @@ test('Instance networking tab — floating IPs', async ({ page }) => {
   await attachFloatingIpButton.click()
   await expectVisible(page, ['role=heading[name="Attach floating IP"]'])
   await dialog.getByLabel('Floating IP').click()
-  await page.keyboard.press('ArrowDown')
-  await page.keyboard.press('Enter')
+  await page.getByRole('option', { name: 'ipv6-float' }).click()
   await dialog.getByRole('button', { name: 'Attach' }).click()
   await expect(page.getByRole('dialog')).toBeHidden()
   await expectRowVisible(externalIpTable, { name: 'ipv6-float' })
@@ -329,7 +317,7 @@ test('IPv4-only instance cannot attach IPv6 ephemeral IP', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
   const instanceName = 'ipv4-only-test'
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-  await selectASiloImage(page, 'ubuntu-22-04')
+  await selectASiloImage(page)
 
   // Select IPv4-only
 
@@ -382,7 +370,7 @@ test('IPv6-only instance cannot attach IPv4 ephemeral IP', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
   const instanceName = 'ipv6-only-test'
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-  await selectASiloImage(page, 'ubuntu-22-04')
+  await selectASiloImage(page)
 
   // Select IPv6-only
 
@@ -435,7 +423,7 @@ test('IPv4-only instance can attach IPv4 ephemeral IP', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
   const instanceName = 'ipv4-success-test'
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-  await selectASiloImage(page, 'ubuntu-22-04')
+  await selectASiloImage(page)
 
   // Select IPv4-only
 
@@ -482,7 +470,7 @@ test('IPv6-only instance can attach IPv6 ephemeral IP', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
   const instanceName = 'ipv6-success-test'
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-  await selectASiloImage(page, 'ubuntu-22-04')
+  await selectASiloImage(page)
 
   // Select IPv6-only
 

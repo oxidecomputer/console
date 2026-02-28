@@ -51,11 +51,12 @@ test('Sled inventory page', async ({ page }) => {
     state: 'decommissioned',
   })
 
-  // Visit the sled detail page of the first sled
+  // Visit the sled detail page of the first sled (after sorting by ID, it's the sled with ID 1ec7df9d)
   await sledsTable.getByRole('link').first().click()
 
   await expectVisible(page, ['role=heading[name*="Sled"]'])
-  await expect(page.getByText('serialBRM02222869')).toBeVisible()
+  // After sorting by ID, first sled has serial BRM02222870
+  await expect(page.getByText('serialBRM02222870')).toBeVisible()
 
   const instancesTab = page.getByRole('tab', { name: 'Instances' })
   await expect(instancesTab).toBeVisible()

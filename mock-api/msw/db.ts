@@ -68,14 +68,15 @@ export const resolvePoolSelector = (
     | { pool: string; type: 'explicit' }
     | { type: 'auto'; ip_version?: IpVersion | null }
     | undefined,
-  poolType?: IpPoolType
+  poolType?: IpPoolType,
+  siloId: string = defaultSilo.id
 ) => {
   if (poolSelector?.type === 'explicit') {
     return lookup.ipPool({ pool: poolSelector.pool })
   }
 
   // For 'auto' type, find the default pool for the specified IP version and pool type
-  const silo = lookup.silo({ silo: defaultSilo.id })
+  const silo = lookup.silo({ silo: siloId })
   const links = db.ipPoolSilos.filter((ips) => ips.silo_id === silo.id && ips.is_default)
 
   // Filter candidate pools by both IP version and pool type
@@ -114,7 +115,7 @@ export const resolvePoolSelector = (
   if (!link) {
     const typeStr = poolType ? ` ${poolType}` : ''
     const versionStr = poolSelector?.ip_version ? ` ${poolSelector.ip_version}` : ''
-    throw notFoundErr(`default${typeStr}${versionStr} pool for silo '${defaultSilo.id}'`)
+    throw notFoundErr(`default${typeStr}${versionStr} pool for silo '${siloId}'`)
   }
   return lookupById(db.ipPools, link.ip_pool_id)
 }

@@ -305,10 +305,10 @@ export const handlers = makeHandlers({
           return true // For mock purposes, just use first unicast pool
         })
       })
-      pool = poolWithIp || resolvePoolSelector(undefined, 'unicast')
+      pool = poolWithIp || resolvePoolSelector(undefined, 'unicast', project.silo_id)
     } else {
       // type === 'auto'
-      pool = resolvePoolSelector(addressAllocator.pool_selector, 'unicast')
+      pool = resolvePoolSelector(addressAllocator.pool_selector, 'unicast', project.silo_id)
       ip = getIpFromPool(pool)
     }
 
@@ -553,7 +553,7 @@ export const handlers = makeHandlers({
         // which aren't quite as good as checking that there are actually IPs
         // available, but they are good things to check
         // Ephemeral IPs must use unicast pools
-        const pool = resolvePoolSelector(ip.pool_selector, 'unicast')
+        const pool = resolvePoolSelector(ip.pool_selector, 'unicast', project.silo_id)
         getIpFromPool(pool)
 
         // Validate that external IP version matches NIC's IP stack
@@ -694,7 +694,7 @@ export const handlers = makeHandlers({
         floatingIp.instance_id = instanceId
       } else if (ip.type === 'ephemeral') {
         // Ephemeral IPs must use unicast pools
-        const pool = resolvePoolSelector(ip.pool_selector, 'unicast')
+        const pool = resolvePoolSelector(ip.pool_selector, 'unicast', project.silo_id)
         const firstAvailableAddress = getIpFromPool(pool)
 
         db.ephemeralIps.push({
@@ -880,8 +880,9 @@ export const handlers = makeHandlers({
   },
   instanceEphemeralIpAttach({ path, query: projectParams, body }) {
     const instance = lookup.instance({ ...path, ...projectParams })
+    const instanceProject = lookup.project(projectParams)
     // Ephemeral IPs must use unicast pools
-    const pool = resolvePoolSelector(body.pool_selector, 'unicast')
+    const pool = resolvePoolSelector(body.pool_selector, 'unicast', instanceProject.silo_id)
     const ip = getIpFromPool(pool)
 
     // Validate that external IP version matches primary NIC's IP stack

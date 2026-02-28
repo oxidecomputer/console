@@ -14,28 +14,12 @@ import {
   expectRowVisible,
   expectVisible,
   fillNumberInput,
+  selectAProjectImage,
+  selectASiloImage,
+  selectAnExistingDisk,
   selectOption,
   test,
-  type Page,
 } from './utils'
-
-const selectASiloImage = async (page: Page, name: string) => {
-  await page.getByRole('tab', { name: 'Silo images' }).click()
-  await page.getByPlaceholder('Select a silo image', { exact: true }).click()
-  await page.getByRole('option', { name }).click()
-}
-
-const selectAProjectImage = async (page: Page, name: string) => {
-  await page.getByRole('tab', { name: 'Project images' }).click()
-  await page.getByPlaceholder('Select a project image', { exact: true }).click()
-  await page.getByRole('option', { name }).click()
-}
-
-const selectAnExistingDisk = async (page: Page, name: string) => {
-  await page.getByRole('tab', { name: 'Existing disks' }).click()
-  await page.getByRole('combobox', { name: 'Disk' }).click()
-  await page.getByRole('option', { name }).click()
-}
 
 test('can create an instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
@@ -374,9 +358,10 @@ test('create instance with a silo image', async ({ page }) => {
   const instanceName = 'my-existing-disk-2'
   await page.goto('/projects/mock-project/instances-new')
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-  await selectASiloImage(page, 'ubuntu-22-04')
+  await selectASiloImage(page, 'arch-2022-06-01')
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
+  // Boot disk size defaults to 10 GiB
   await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=10 GiB'])
 })
 
@@ -385,10 +370,11 @@ test('start with an existing disk, but then switch to a silo image', async ({ pa
   await page.goto('/projects/mock-project/instances-new')
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   await selectAnExistingDisk(page, 'disk-7')
-  await selectASiloImage(page, 'ubuntu-22-04')
+  await selectASiloImage(page, 'arch-2022-06-01')
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
-  await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=8 GiB'])
+  // Boot disk size defaults to 10 GiB
+  await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=10 GiB'])
   await expectNotVisible(page, ['text=disk-7'])
 })
 
@@ -681,7 +667,7 @@ test('Validate CPU and RAM', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
 
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('db2')
-  await selectASiloImage(page, 'ubuntu-22-04')
+  await selectASiloImage(page, 'arch-2022-06-01')
 
   await page.getByRole('tab', { name: 'Custom' }).click()
 
@@ -716,7 +702,7 @@ test('create instance with IPv6-only networking', async ({ page }) => {
 
   const instanceName = 'ipv6-only-instance'
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-  await selectASiloImage(page, 'ubuntu-22-04')
+  await selectASiloImage(page, 'arch-2022-06-01')
 
   // Configure networking
 
@@ -759,7 +745,7 @@ test('create instance with IPv4-only networking', async ({ page }) => {
 
   const instanceName = 'ipv4-only-instance'
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-  await selectASiloImage(page, 'ubuntu-22-04')
+  await selectASiloImage(page, 'arch-2022-06-01')
 
   // Configure networking
 
@@ -801,7 +787,7 @@ test('create instance with dual-stack networking shows both IPs', async ({ page 
 
   const instanceName = 'dual-stack-instance'
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-  await selectASiloImage(page, 'ubuntu-22-04')
+  await selectASiloImage(page, 'arch-2022-06-01')
 
   // Configure networking
 
@@ -840,7 +826,7 @@ test('create instance with custom IPv4-only NIC constrains ephemeral IP to IPv4'
 
   const instanceName = 'custom-ipv4-nic-test'
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-  await selectASiloImage(page, 'ubuntu-22-04')
+  await selectASiloImage(page, 'arch-2022-06-01')
 
   // Configure networking
 
@@ -916,7 +902,7 @@ test('create instance with custom IPv6-only NIC constrains ephemeral IP to IPv6'
 
   const instanceName = 'custom-ipv6-nic-test'
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-  await selectASiloImage(page, 'ubuntu-22-04')
+  await selectASiloImage(page, 'arch-2022-06-01')
 
   // Configure networking
 
@@ -992,7 +978,7 @@ test('create instance with custom dual-stack NIC allows both IPv4 and IPv6 ephem
 
   const instanceName = 'custom-dual-stack-nic-test'
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-  await selectASiloImage(page, 'ubuntu-22-04')
+  await selectASiloImage(page, 'arch-2022-06-01')
 
   // Configure networking
 
@@ -1069,7 +1055,7 @@ test('ephemeral IP checkbox disabled when no NICs configured', async ({ page }) 
 
   const instanceName = 'ephemeral-ip-nic-test'
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-  await selectASiloImage(page, 'ubuntu-22-04')
+  await selectASiloImage(page, 'arch-2022-06-01')
 
   // Configure networking
 
@@ -1182,7 +1168,7 @@ test('network interface options disabled when no VPCs exist', async ({ page }) =
 
   const instanceName = 'test-no-vpc-instance'
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-  await selectASiloImage(page, 'ubuntu-22-04')
+  await selectASiloImage(page, 'arch-2022-06-01')
 
   // Configure networking
 
@@ -1311,7 +1297,7 @@ test.skip('can create instance with read-only boot disk', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
 
   // Select a silo image
-  await selectASiloImage(page, 'ubuntu-22-04')
+  await selectASiloImage(page, 'arch-2022-06-01')
 
   // Check the read-only checkbox
   await page.getByRole('checkbox', { name: 'Make disk read-only' }).check()

@@ -22,6 +22,7 @@ import {
   expect,
   expectRowVisible,
   getPageAsUser,
+  selectASiloImage,
   test,
 } from './utils'
 
@@ -33,9 +34,7 @@ test.describe('IP pool configuration: myriad silo (v4-only default)', () => {
     await page.getByRole('textbox', { name: 'Name', exact: true }).fill('test-instance')
 
     // Select a silo image for boot disk
-    await page.getByRole('tab', { name: 'Silo images' }).click()
-    await page.getByPlaceholder('Select a silo image', { exact: true }).click()
-    await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
+    await selectASiloImage(page)
 
     // Verify IPv4 ephemeral IP checkbox is checked by default
     const v4Checkbox = page.getByRole('checkbox', {
@@ -84,9 +83,7 @@ test.describe('IP pool configuration: myriad silo (v4-only default)', () => {
     await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
 
     // Select a silo image for boot disk
-    await page.getByRole('tab', { name: 'Silo images' }).click()
-    await page.getByPlaceholder('Select a silo image', { exact: true }).click()
-    await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
+    await selectASiloImage(page)
 
     // Verify ephemeral IP defaults
     const v4Checkbox = page.getByRole('checkbox', {
@@ -118,9 +115,7 @@ test.describe('IP pool configuration: myriad silo (v4-only default)', () => {
 
     // Create instance with default ephemeral IP
     await page.getByRole('textbox', { name: 'Name', exact: true }).fill('v4-ephemeral-test')
-    await page.getByRole('tab', { name: 'Silo images' }).click()
-    await page.getByPlaceholder('Select a silo image', { exact: true }).click()
-    await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
+    await selectASiloImage(page)
     await page.getByRole('button', { name: 'Create instance' }).click()
     await closeToast(page)
     await expect(page).toHaveURL(/\/instances\/v4-ephemeral-test/)
@@ -174,9 +169,7 @@ test.describe('IP pool configuration: myriad silo (v4-only default)', () => {
 
     // Create instance
     await page.getByRole('textbox', { name: 'Name', exact: true }).fill('v4-floating-test')
-    await page.getByRole('tab', { name: 'Silo images' }).click()
-    await page.getByPlaceholder('Select a silo image', { exact: true }).click()
-    await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
+    await selectASiloImage(page)
     await page.getByRole('button', { name: 'Create instance' }).click()
     await closeToast(page)
     await expect(page).toHaveURL(/\/instances\/v4-floating-test/)
@@ -190,8 +183,7 @@ test.describe('IP pool configuration: myriad silo (v4-only default)', () => {
     const dialog = page.getByRole('dialog')
     await expect(dialog).toBeVisible()
     await dialog.getByLabel('Floating IP').click()
-    await page.keyboard.press('ArrowDown')
-    await page.keyboard.press('Enter')
+    await page.getByRole('option', { name: floatingIpKosman.name }).click()
     await dialog.getByRole('button', { name: 'Attach' }).click()
     await expect(dialog).toBeHidden()
 
@@ -213,9 +205,7 @@ test.describe('IP pool configuration: thrax silo (v6-only default)', () => {
     await page.getByRole('textbox', { name: 'Name', exact: true }).fill('test-instance')
 
     // Select a silo image for boot disk
-    await page.getByRole('tab', { name: 'Silo images' }).click()
-    await page.getByPlaceholder('Select a silo image', { exact: true }).click()
-    await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
+    await selectASiloImage(page)
 
     // Verify IPv6 ephemeral IP checkbox is checked by default
     const v4Checkbox = page.getByRole('checkbox', {
@@ -267,9 +257,7 @@ test.describe('IP pool configuration: pelerines silo (no defaults)', () => {
     await page.getByRole('textbox', { name: 'Name', exact: true }).fill('test-instance')
 
     // Select a silo image for boot disk
-    await page.getByRole('tab', { name: 'Silo images' }).click()
-    await page.getByPlaceholder('Select a silo image', { exact: true }).click()
-    await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
+    await selectASiloImage(page)
 
     // Verify ephemeral IP checkboxes are not checked by default (no defaults in pelerines silo)
     const v4Checkbox = page.getByRole('checkbox', {
@@ -412,9 +400,7 @@ test.describe('IP pool configuration: no-pools silo (no IP pools)', () => {
 
     await page.getByRole('textbox', { name: 'Name', exact: true }).fill('no-default-pool')
 
-    await page.getByRole('tab', { name: 'Silo images' }).click()
-    await page.getByPlaceholder('Select a silo image', { exact: true }).click()
-    await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
+    await selectASiloImage(page)
 
     const defaultRadio = page.getByRole('radio', { name: 'Default' })
     await expect(defaultRadio).toBeChecked()

@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import * as R from 'remeda'
 import { describe, expect, it } from 'vitest'
 
 import { FLEET_ID } from '@oxide/api'
@@ -20,12 +21,26 @@ describe('paginated', () => {
     expect(page.next_page).toBeNull()
   })
 
+  it('defaults to name_ascending for items with a name field', () => {
+    const items = [
+      { id: 'z', name: 'zebra' },
+      { id: 'a', name: 'antelope' },
+      { id: 'm', name: 'moose' },
+    ]
+    const page = paginated({}, items)
+    expect(page.items.map((i) => i.name)).toEqual(['antelope', 'moose', 'zebra'])
+    expect(page.next_page).toBeNull()
+  })
+
   it('should return the first 100 items with no limit passed', () => {
     const items = Array.from({ length: 200 }).map((_, i) => ({ id: 'i' + i }))
     const page = paginated({}, items)
     expect(page.items.length).toBe(100)
-    expect(page.items).toEqual(items.slice(0, 100))
-    expect(page.next_page).toBe('i100')
+    // Items are sorted by id lexicographically (matching Omicron's UUID sorting behavior)
+    // Use locale-agnostic comparison to match the implementation
+    const sortedItems = R.sortBy(items, (i) => i.id)
+    expect(page.items).toEqual(sortedItems.slice(0, 100))
+    expect(page.next_page).toBe(sortedItems[99].id)
   })
 
   it('should return page with null `next_page` if items equal page', () => {
@@ -59,15 +74,130 @@ describe('paginated', () => {
     const page = paginated({ limit: 5 }, items)
     expect(page.items.length).toBe(5)
     expect(page.items).toEqual(items.slice(0, 5))
-    expect(page.next_page).toBe('f')
+    expect(page.next_page).toBe('e')
   })
 
   it('should return the second page when given a `page_token`', () => {
     const items = [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }]
-    const page = paginated({ pageToken: 'b' }, items)
+    // token 'a' is exclusive: start after 'a'
+    const page = paginated({ pageToken: 'a' }, items)
     expect(page.items.length).toBe(3)
     expect(page.items).toEqual([{ id: 'b' }, { id: 'c' }, { id: 'd' }])
     expect(page.next_page).toBeNull()
+  })
+
+  it('returns empty page for limit 0', () => {
+    const items = [{ id: 'a' }, { id: 'b' }]
+    const page = paginated({ limit: 0 }, items)
+    expect(page.items).toEqual([])
+    expect(page.next_page).toBeNull()
+  })
+
+  it('pages through id_ascending with no overlap and no gap', () => {
+    // Items a..j; next_page is the last item on each page (exclusive cursor per Dropshot)
+    const items = Array.from({ length: 10 }, (_, i) => ({
+      id: String.fromCharCode(97 + i),
+    }))
+    const p1 = paginated({ limit: 3 }, items)
+    expect(p1.items.map((i) => i.id)).toEqual(['a', 'b', 'c'])
+    expect(p1.next_page).toBe('c')
+
+    const p2 = paginated({ limit: 3, pageToken: p1.next_page }, items)
+    expect(p2.items.map((i) => i.id)).toEqual(['d', 'e', 'f'])
+    expect(p2.next_page).toBe('f')
+
+    const p3 = paginated({ limit: 3, pageToken: p2.next_page }, items)
+    expect(p3.items.map((i) => i.id)).toEqual(['g', 'h', 'i'])
+    expect(p3.next_page).toBe('i')
+
+    const p4 = paginated({ limit: 3, pageToken: p3.next_page }, items)
+    expect(p4.items.map((i) => i.id)).toEqual(['j'])
+    expect(p4.next_page).toBeNull()
+  })
+
+  it('sorts name_descending with id ascending as tiebreaker', () => {
+    const items = [
+      { id: 'z', name: 'beta' },
+      { id: 'a', name: 'alpha' },
+      { id: 'b', name: 'alpha' }, // same name, id 'a' < 'b'
+    ]
+    const page = paginated({ sortBy: 'name_descending' }, items)
+    // beta descends first, then alpha items sorted ascending by id
+    expect(page.items.map((i) => i.id)).toEqual(['z', 'a', 'b'])
+  })
+
+  it('pages through name_descending with no overlap and no gap', () => {
+    const items = [
+      { id: 'd', name: 'zest' },
+      { id: 'c', name: 'yak' },
+      { id: 'b', name: 'xerox' },
+      { id: 'a', name: 'walrus' },
+    ]
+    const p1 = paginated({ sortBy: 'name_descending', limit: 2 }, items)
+    expect(p1.items.map((i) => i.name)).toEqual(['zest', 'yak'])
+    // next_page token format is "name|id" — last item on page, not first of next
+    expect(p1.next_page).toBe('yak|c')
+
+    const p2 = paginated(
+      { sortBy: 'name_descending', limit: 2, pageToken: p1.next_page },
+      items
+    )
+    expect(p2.items.map((i) => i.name)).toEqual(['xerox', 'walrus'])
+    expect(p2.next_page).toBeNull()
+  })
+
+  it('sorts time_and_id_ascending with id tiebreaker', () => {
+    const t1 = '2024-01-01T00:00:00.000Z'
+    const t2 = '2024-02-01T00:00:00.000Z'
+    const items = [
+      { id: 'b', time_created: t2 },
+      { id: 'c', time_created: t1 }, // same time as 'a', id 'a' < 'c'
+      { id: 'a', time_created: t1 },
+    ]
+    const page = paginated({ sortBy: 'time_and_id_ascending' }, items)
+    expect(page.items.map((i) => i.id)).toEqual(['a', 'c', 'b'])
+  })
+
+  it('pages through time_and_id_ascending with no overlap and no gap', () => {
+    const t1 = '2024-01-01T00:00:00.000Z'
+    const t2 = '2024-02-01T00:00:00.000Z'
+    const items = [
+      { id: 'b', time_created: t2 },
+      { id: 'c', time_created: t1 },
+      { id: 'a', time_created: t1 },
+    ]
+    const p1 = paginated({ sortBy: 'time_and_id_ascending', limit: 2 }, items)
+    expect(p1.items.map((i) => i.id)).toEqual(['a', 'c'])
+    // next_page token format is "timestamp|id" — last item on page, not first of next
+    expect(p1.next_page).toBe(`${t1}|c`)
+
+    const p2 = paginated(
+      { sortBy: 'time_and_id_ascending', limit: 2, pageToken: p1.next_page },
+      items
+    )
+    expect(p2.items.map((i) => i.id)).toEqual(['b'])
+    expect(p2.next_page).toBeNull()
+  })
+
+  it('pages through time_and_id_descending with no overlap and no gap', () => {
+    const t1 = '2024-01-01T00:00:00.000Z'
+    const t2 = '2024-02-01T00:00:00.000Z'
+    const items = [
+      { id: 'b', time_created: t2 },
+      { id: 'c', time_created: t1 },
+      { id: 'a', time_created: t1 },
+    ]
+    // Descending by time: t2 first, then t1 items by id ascending
+    const p1 = paginated({ sortBy: 'time_and_id_descending', limit: 2 }, items)
+    expect(p1.items.map((i) => i.id)).toEqual(['b', 'a'])
+    expect(p1.next_page).toBe(`${t1}|a`)
+
+    const p2 = paginated(
+      { sortBy: 'time_and_id_descending', limit: 2, pageToken: p1.next_page },
+      items
+    )
+    expect(p2.items.map((i) => i.id)).toEqual(['c'])
+    expect(p2.next_page).toBeNull()
   })
 })
 
