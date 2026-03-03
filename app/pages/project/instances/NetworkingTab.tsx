@@ -538,6 +538,7 @@ export default function NetworkingTab() {
   const {
     availableVersions: ephemeralAvailableVersions,
     disabledReason: ephemeralDisabledReason,
+    infoMessage: ephemeralInfoMessage,
   } = useMemo(
     () => getEphemeralIpSlots(compatibleVersions, attachedEphemeralIps, unicastPools),
     [compatibleVersions, attachedEphemeralIps, unicastPools]
@@ -595,6 +596,7 @@ export default function NetworkingTab() {
         {attachEphemeralModalOpen && (
           <AttachEphemeralIpModal
             availableVersions={ephemeralAvailableVersions}
+            infoMessage={ephemeralInfoMessage}
             onDismiss={() => setAttachEphemeralModalOpen(false)}
           />
         )}

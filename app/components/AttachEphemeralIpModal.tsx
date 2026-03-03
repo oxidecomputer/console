@@ -29,11 +29,13 @@ import { ALL_ISH } from '~/util/consts'
 
 type AttachEphemeralIpModalProps = {
   availableVersions: IpVersion[]
+  infoMessage: string | null
   onDismiss: () => void
 }
 
 export const AttachEphemeralIpModal = ({
   availableVersions,
+  infoMessage,
   onDismiss,
 }: AttachEphemeralIpModalProps) => {
   const { project, instance } = useInstanceSelector()
@@ -76,18 +78,11 @@ export const AttachEphemeralIpModal = ({
         ? 'Select a pool to continue'
         : undefined
 
-  const message =
-    availableVersions.length === 1
-      ? `Only ${availableVersions[0]} pools are shown because this instance already has a ${availableVersions[0] === 'v4' ? 'v6' : 'v4'} ephemeral IP.`
-      : availableVersions.length === 2
-        ? 'Dual-stack network interfaces support one ephemeral IP per version.'
-        : undefined
-
   return (
     <Modal isOpen title="Attach ephemeral IP" onDismiss={onDismiss}>
       <Modal.Body>
         <Modal.Section>
-          {message && <Message variant="info" content={message} />}
+          {infoMessage && <Message variant="info" content={infoMessage} />}
           <form>
             <IpPoolSelector
               control={form.control}

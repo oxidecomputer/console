@@ -25,130 +25,156 @@ const makePool = (ipVersion: IpVersion, name = `pool-${ipVersion}`): UnicastIpPo
 
 const v4Pool = makePool('v4')
 const v6Pool = makePool('v6')
+const noVersions = new Set<IpVersion>()
+const v4Only = new Set<IpVersion>(['v4'])
+const v6Only = new Set<IpVersion>(['v6'])
+const dualStack = new Set<IpVersion>(['v4', 'v6'])
 
 const v4Ephemeral: ExternalIp = { ip: '10.0.0.1', ipPoolId: 'p1', kind: 'ephemeral' }
 const v6Ephemeral: ExternalIp = { ip: 'fd00::1', ipPoolId: 'p2', kind: 'ephemeral' }
 
 describe('getEphemeralIpSlots', () => {
   test('no NICs', () => {
-    expect(getEphemeralIpSlots([], [], [v4Pool, v6Pool])).toEqual({
+    expect(getEphemeralIpSlots(noVersions, [], [v4Pool, v6Pool])).toEqual({
       availableVersions: [],
       disabledReason: 'Instance has no network interfaces',
+      infoMessage: null,
     })
   })
 
   test('v4-only, no attached ephemeral', () => {
-    expect(getEphemeralIpSlots(['v4'], [], [v4Pool])).toEqual({
+    expect(getEphemeralIpSlots(v4Only, [], [v4Pool])).toEqual({
       availableVersions: ['v4'],
       disabledReason: null,
+      infoMessage:
+        'Only v4 pools are shown because the primary network interface is IPv4-only.',
     })
   })
 
   test('v4-only, v4 attached', () => {
-    expect(getEphemeralIpSlots(['v4'], [v4Ephemeral], [v4Pool])).toEqual({
+    expect(getEphemeralIpSlots(v4Only, [v4Ephemeral], [v4Pool])).toEqual({
       availableVersions: [],
       disabledReason: 'Instance already has an ephemeral IP',
+      infoMessage: null,
     })
   })
 
   test('v6-only, no attached ephemeral', () => {
-    expect(getEphemeralIpSlots(['v6'], [], [v6Pool])).toEqual({
+    expect(getEphemeralIpSlots(v6Only, [], [v6Pool])).toEqual({
       availableVersions: ['v6'],
       disabledReason: null,
+      infoMessage:
+        'Only v6 pools are shown because the primary network interface is IPv6-only.',
     })
   })
 
   test('v6-only, v6 attached', () => {
-    expect(getEphemeralIpSlots(['v6'], [v6Ephemeral], [v6Pool])).toEqual({
+    expect(getEphemeralIpSlots(v6Only, [v6Ephemeral], [v6Pool])).toEqual({
       availableVersions: [],
       disabledReason: 'Instance already has an ephemeral IP',
+      infoMessage: null,
     })
   })
 
   test('dual-stack, no attached', () => {
-    expect(getEphemeralIpSlots(['v4', 'v6'], [], [v4Pool, v6Pool])).toEqual({
+    expect(getEphemeralIpSlots(dualStack, [], [v4Pool, v6Pool])).toEqual({
       availableVersions: ['v4', 'v6'],
       disabledReason: null,
+      infoMessage: 'Dual-stack network interfaces support one ephemeral IP per version.',
     })
   })
 
   test('dual-stack, v4 attached, v6 pools available', () => {
-    expect(getEphemeralIpSlots(['v4', 'v6'], [v4Ephemeral], [v4Pool, v6Pool])).toEqual({
+    expect(getEphemeralIpSlots(dualStack, [v4Ephemeral], [v4Pool, v6Pool])).toEqual({
       availableVersions: ['v6'],
       disabledReason: null,
+      infoMessage:
+        'Only v6 pools are shown because this instance already has a v4 ephemeral IP.',
     })
   })
 
   test('dual-stack, v6 attached, v4 pools available', () => {
-    expect(getEphemeralIpSlots(['v4', 'v6'], [v6Ephemeral], [v4Pool, v6Pool])).toEqual({
+    expect(getEphemeralIpSlots(dualStack, [v6Ephemeral], [v4Pool, v6Pool])).toEqual({
       availableVersions: ['v4'],
       disabledReason: null,
+      infoMessage:
+        'Only v4 pools are shown because this instance already has a v6 ephemeral IP.',
     })
   })
 
   test('dual-stack, both attached', () => {
     expect(
-      getEphemeralIpSlots(['v4', 'v6'], [v4Ephemeral, v6Ephemeral], [v4Pool, v6Pool])
+      getEphemeralIpSlots(dualStack, [v4Ephemeral, v6Ephemeral], [v4Pool, v6Pool])
     ).toEqual({
       availableVersions: [],
-      disabledReason: 'Instance already has ephemeral IPs for all supported address types',
+      disabledReason: 'Instance already has v4 and v6 ephemeral IPs',
+      infoMessage: null,
     })
   })
 
   test('dual-stack, no attached, only v4 pools available', () => {
-    expect(getEphemeralIpSlots(['v4', 'v6'], [], [v4Pool])).toEqual({
+    expect(getEphemeralIpSlots(dualStack, [], [v4Pool])).toEqual({
       availableVersions: ['v4'],
       disabledReason: null,
+      infoMessage: 'Only v4 pools are shown because no v6 pools are available.',
     })
   })
 
   test('dual-stack, no attached, only v6 pools available', () => {
-    expect(getEphemeralIpSlots(['v4', 'v6'], [], [v6Pool])).toEqual({
+    expect(getEphemeralIpSlots(dualStack, [], [v6Pool])).toEqual({
       availableVersions: ['v6'],
       disabledReason: null,
+      infoMessage: 'Only v6 pools are shown because no v4 pools are available.',
     })
   })
 
   test('dual-stack, v4 attached, no v6 pools', () => {
-    expect(getEphemeralIpSlots(['v4', 'v6'], [v4Ephemeral], [v4Pool])).toEqual({
+    expect(getEphemeralIpSlots(dualStack, [v4Ephemeral], [v4Pool])).toEqual({
       availableVersions: [],
-      disabledReason: 'No V6 pools available for ephemeral IPs',
+      disabledReason: 'No v6 pools available for ephemeral IPs',
+      infoMessage: null,
     })
   })
 
   test('dual-stack, v6 attached, no v4 pools', () => {
-    expect(getEphemeralIpSlots(['v4', 'v6'], [v6Ephemeral], [v6Pool])).toEqual({
+    expect(getEphemeralIpSlots(dualStack, [v6Ephemeral], [v6Pool])).toEqual({
       availableVersions: [],
-      disabledReason: 'No V4 pools available for ephemeral IPs',
+      disabledReason: 'No v4 pools available for ephemeral IPs',
+      infoMessage: null,
     })
   })
 
   test('dual-stack, no attached, no pools at all', () => {
-    expect(getEphemeralIpSlots(['v4', 'v6'], [], [])).toEqual({
+    expect(getEphemeralIpSlots(dualStack, [], [])).toEqual({
       availableVersions: [],
-      disabledReason: 'No V4/V6 pools available for ephemeral IPs',
+      disabledReason: 'No v4 or v6 pools available for ephemeral IPs',
+      infoMessage: null,
     })
   })
 
   test('v4-only, no pools available', () => {
-    expect(getEphemeralIpSlots(['v4'], [], [v6Pool])).toEqual({
+    expect(getEphemeralIpSlots(v4Only, [], [v6Pool])).toEqual({
       availableVersions: [],
-      disabledReason: 'No V4 pools available for ephemeral IPs',
+      disabledReason: 'No v4 pools available for ephemeral IPs',
+      infoMessage: null,
     })
   })
 
   test('v4-only, v6 attached (ignored)', () => {
-    expect(getEphemeralIpSlots(['v4'], [v6Ephemeral], [v4Pool])).toEqual({
+    expect(getEphemeralIpSlots(v4Only, [v6Ephemeral], [v4Pool])).toEqual({
       availableVersions: ['v4'],
       disabledReason: null,
+      infoMessage:
+        'Only v4 pools are shown because the primary network interface is IPv4-only.',
     })
   })
 
   test('dual-stack, invalid attached IP is ignored', () => {
     const invalidIp: ExternalIp = { ip: 'not-an-ip', ipPoolId: 'p3', kind: 'ephemeral' }
-    expect(getEphemeralIpSlots(['v4', 'v6'], [invalidIp], [v4Pool, v6Pool])).toEqual({
+    expect(getEphemeralIpSlots(dualStack, [invalidIp], [v4Pool, v6Pool])).toEqual({
       availableVersions: ['v4', 'v6'],
       disabledReason: null,
+      infoMessage: 'Dual-stack network interfaces support one ephemeral IP per version.',
     })
   })
 })
