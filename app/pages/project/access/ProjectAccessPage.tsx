@@ -40,6 +40,7 @@ import { addToast } from '~/stores/toast'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
 import { CreateButton } from '~/ui/lib/CreateButton'
+import { DateTime } from '~/ui/lib/DateTime'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
@@ -87,6 +88,8 @@ type UserRow = {
   name: string
   projectRole: RoleKey | undefined
   roleBadges: { roleSource: string; roleName: RoleKey }[]
+  timeCreated: Date | undefined
+  timeModified: Date | undefined
 }
 
 const colHelper = createColumnHelper<UserRow>()
@@ -121,6 +124,8 @@ export default function ProjectAccessPage() {
           name,
           projectRole: projectAccessRow?.roleName,
           roleBadges,
+          timeCreated: userAssignments[0].timeCreated,
+          timeModified: userAssignments[0].timeModified,
         } satisfies UserRow
       })
       .sort(byGroupThenName)
@@ -163,6 +168,21 @@ export default function ProjectAccessPage() {
             ))}
           </ListPlusCell>
         ),
+      }),
+
+      colHelper.accessor('timeCreated', {
+        header: 'created',
+        cell: (info) => {
+          const date = info.getValue()
+          return date ? <DateTime date={date} /> : null
+        },
+      }),
+      colHelper.accessor('timeModified', {
+        header: 'updated',
+        cell: (info) => {
+          const date = info.getValue()
+          return date ? <DateTime date={date} /> : null
+        },
       }),
 
       // TODO: tooltips on disabled elements explaining why

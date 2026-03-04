@@ -83,6 +83,8 @@ type UserAccessRow = {
   name: string
   roleName: RoleKey
   roleSource: string
+  timeCreated: Date | undefined
+  timeModified: Date | undefined
 }
 
 /**
@@ -110,6 +112,8 @@ export function useUserRows(
       name: usersDict[ra.identityId]?.displayName || '', // placeholder until we get names, obviously
       roleName: ra.roleName,
       roleSource,
+      timeCreated: usersDict[ra.identityId]?.timeCreated,
+      timeModified: usersDict[ra.identityId]?.timeModified,
     }))
   }, [roleAssignments, roleSource, users, groups])
 }

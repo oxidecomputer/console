@@ -34,6 +34,7 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
 import { CreateButton } from '~/ui/lib/CreateButton'
+import { DateTime } from '~/ui/lib/DateTime'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
@@ -75,6 +76,8 @@ type UserRow = {
   name: string
   siloRole: RoleKey | undefined
   effectiveRole: RoleKey
+  timeCreated: Date | undefined
+  timeModified: Date | undefined
 }
 
 const colHelper = createColumnHelper<UserRow>()
@@ -102,6 +105,8 @@ export default function SiloAccessPage() {
           siloRole,
           // we know there has to be at least one
           effectiveRole: getEffectiveRole(roles)!,
+          timeCreated: userAssignments[0].timeCreated,
+          timeModified: userAssignments[0].timeModified,
         }
 
         return row
@@ -129,6 +134,20 @@ export default function SiloAccessPage() {
         cell: (info) => {
           const role = info.getValue()
           return role ? <Badge color={roleColor[role]}>silo.{role}</Badge> : null
+        },
+      }),
+      colHelper.accessor('timeCreated', {
+        header: 'created',
+        cell: (info) => {
+          const date = info.getValue()
+          return date ? <DateTime date={date} /> : null
+        },
+      }),
+      colHelper.accessor('timeModified', {
+        header: 'updated',
+        cell: (info) => {
+          const date = info.getValue()
+          return date ? <DateTime date={date} /> : null
         },
       }),
       // TODO: tooltips on disabled elements explaining why
