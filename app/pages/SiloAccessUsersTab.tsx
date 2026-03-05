@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQueries } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 
@@ -14,14 +15,18 @@ import {
   getListQFn,
   q,
   queryClient,
+  roleOrder,
   useApiMutation,
   usePrefetchedQuery,
+  userRoleFromPolicies,
+  type Group,
   type User,
 } from '@oxide/api'
 import { Person24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
 import { HL } from '~/components/HL'
+import { ListPlusCell } from '~/components/ListPlusCell'
 import { SiloAccessEditUserSideModal } from '~/forms/silo-access'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -29,15 +34,22 @@ import { EmptyCell } from '~/table/cells/EmptyCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { TipIcon } from '~/ui/lib/TipIcon'
 import { roleColor } from '~/util/access'
+import { ALL_ISH } from '~/util/consts'
 
 const policyView = q(api.policyView, {})
 const userList = getListQFn(api.userList, {})
+const groupListAll = q(api.groupList, { query: { limit: ALL_ISH } })
 
 export async function clientLoader() {
+  const groups = await queryClient.fetchQuery(groupListAll)
   await Promise.all([
     queryClient.prefetchQuery(policyView),
     queryClient.prefetchQuery(userList.optionsFn()),
+    ...groups.items.map((g) =>
+      queryClient.prefetchQuery(q(api.userList, { query: { group: g.id, limit: ALL_ISH } }))
+    ),
   ])
   return null
 }
@@ -60,15 +72,35 @@ export default function SiloAccessUsersTab() {
   const [editingUser, setEditingUser] = useState<User | null>(null)
 
   const { data: siloPolicy } = usePrefetchedQuery(policyView)
+  const { data: groups } = usePrefetchedQuery(groupListAll)
 
   const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
     onSuccess: () => queryClient.invalidateEndpoint('policyView'),
   })
 
+  // direct role assignments by identity ID, used for action menu
   const siloRoleById = useMemo(
     () => new Map(siloPolicy.roleAssignments.map((a) => [a.identityId, a.roleName])),
     [siloPolicy]
   )
+
+  const groupMemberQueries = useQueries({
+    queries: groups.items.map((g) =>
+      q(api.userList, { query: { group: g.id, limit: ALL_ISH } })
+    ),
+  })
+
+  // map from user ID to the groups they belong to
+  const groupsByUserId = useMemo(() => {
+    const map = new Map<string, Group[]>()
+    groups.items.forEach((group, i) => {
+      const members = groupMemberQueries[i]?.data?.items ?? []
+      members.forEach((member) => {
+        map.set(member.id, [...(map.get(member.id) ?? []), group])
+      })
+    })
+    return map
+  }, [groups, groupMemberQueries])
 
   const siloRoleCol = useMemo(
     () =>
@@ -76,14 +108,63 @@ export default function SiloAccessUsersTab() {
         id: 'siloRole',
         header: 'Silo Role',
         cell: ({ row }) => {
-          const role = siloRoleById.get(row.original.id)
-          return role ? <Badge color={roleColor[role]}>silo.{role}</Badge> : <EmptyCell />
+          const userGroups = groupsByUserId.get(row.original.id) ?? []
+          const role = userRoleFromPolicies(row.original, userGroups, [siloPolicy])
+          if (!role) return <EmptyCell />
+          const directRole = siloRoleById.get(row.original.id)
+          // groups that have a role at least as strong as the effective role,
+          // only relevant when a group is boosting beyond the user's direct assignment
+          const viaGroups =
+            !directRole || roleOrder[role] < roleOrder[directRole]
+              ? userGroups.filter((g) => {
+                  const gr = siloRoleById.get(g.id)
+                  return gr !== undefined && roleOrder[gr] <= roleOrder[role]
+                })
+              : []
+          return (
+            <div className="flex items-center gap-1.5">
+              <Badge color={roleColor[role]}>silo.{role}</Badge>
+              {viaGroups.length > 0 && (
+                <TipIcon>
+                  via{' '}
+                  {viaGroups.map((g, i) => (
+                    <span key={g.id}>
+                      {i > 0 && ', '}
+                      <Badge color="neutral">{g.displayName}</Badge>
+                    </span>
+                  ))}
+                </TipIcon>
+              )}
+            </div>
+          )
         },
       }),
-    [siloRoleById]
+    [groupsByUserId, siloPolicy, siloRoleById]
   )
 
-  const staticColumns = useMemo(() => [displayNameCol, siloRoleCol], [siloRoleCol])
+  const groupsCol = useMemo(
+    () =>
+      colHelper.display({
+        id: 'groups',
+        header: 'Groups',
+        cell: ({ row }) => {
+          const userGroups = groupsByUserId.get(row.original.id) ?? []
+          return (
+            <ListPlusCell tooltipTitle="Groups">
+              {userGroups.map((g) => (
+                <span key={g.id}>{g.displayName}</span>
+              ))}
+            </ListPlusCell>
+          )
+        },
+      }),
+    [groupsByUserId]
+  )
+
+  const staticColumns = useMemo(
+    () => [displayNameCol, siloRoleCol, groupsCol],
+    [siloRoleCol, groupsCol]
+  )
 
   const makeActions = useCallback(
     (user: User): MenuAction[] => {
@@ -100,7 +181,7 @@ export default function SiloAccessUsersTab() {
               </span>
             ),
           }),
-          disabled: !role && 'This user has no role to remove',
+          disabled: !role && 'This user has no direct role to remove',
         },
       ]
     },

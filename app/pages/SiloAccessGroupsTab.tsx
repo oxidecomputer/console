@@ -137,12 +137,12 @@ export default function SiloAccessGroupsTab() {
           </ButtonCell>
         ),
       }),
+      siloRoleCol,
       colHelper.display({
         id: 'memberCount',
-        header: 'Members',
+        header: 'Users',
         cell: ({ row }) => <MemberCountCell groupId={row.original.id} />,
       }),
-      siloRoleCol,
     ],
     [siloRoleCol]
   )

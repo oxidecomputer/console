@@ -185,12 +185,12 @@ export default function ProjectAccessGroupsTab() {
           </ButtonCell>
         ),
       }),
+      rolesCol,
       colHelper.display({
         id: 'memberCount',
-        header: 'Members',
+        header: 'Users',
         cell: ({ row }) => <MemberCountCell groupId={row.original.id} />,
       }),
-      rolesCol,
     ],
     [rolesCol]
   )
