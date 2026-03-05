@@ -6,27 +6,33 @@
  * Copyright Oxide Computer Company
  */
 import { createColumnHelper } from '@tanstack/react-table'
-import { useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 
 import {
   api,
+  deleteRole,
   getListQFn,
   q,
   queryClient,
   roleOrder,
+  useApiMutation,
   usePrefetchedQuery,
   type User,
 } from '@oxide/api'
 import { Person24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
+import { HL } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
+import { ProjectAccessEditUserSideModal } from '~/forms/project-access'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
-import { Columns } from '~/table/columns/common'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TipIcon } from '~/ui/lib/TipIcon'
@@ -52,6 +58,8 @@ export const handle = titleCrumb('Users')
 
 const colHelper = createColumnHelper<User>()
 
+const displayNameCol = colHelper.accessor('displayName', { header: 'Name' })
+
 const EmptyState = () => (
   <EmptyMessage
     icon={<Person24Icon />}
@@ -61,9 +69,19 @@ const EmptyState = () => (
 )
 
 export default function ProjectAccessUsersTab() {
+  const [editingUser, setEditingUser] = useState<User | null>(null)
   const projectSelector = useProjectSelector()
+  const { project } = projectSelector
+
   const { data: siloPolicy } = usePrefetchedQuery(policyView)
   const { data: projectPolicy } = usePrefetchedQuery(projectPolicyView(projectSelector))
+
+  const { mutateAsync: updatePolicy } = useApiMutation(api.projectPolicyUpdate, {
+    onSuccess: () => {
+      queryClient.invalidateEndpoint('projectPolicyView')
+      addToast({ content: 'Role updated' })
+    },
+  })
 
   const siloRoleById = useMemo(
     () => new Map(siloPolicy.roleAssignments.map((a) => [a.identityId, a.roleName])),
@@ -74,9 +92,8 @@ export default function ProjectAccessUsersTab() {
     [projectPolicy]
   )
 
-  const columns = useMemo(
-    () => [
-      colHelper.accessor('displayName', { header: 'Name' }),
+  const rolesCol = useMemo(
+    () =>
       colHelper.display({
         id: 'roles',
         header: () => (
@@ -111,11 +128,51 @@ export default function ProjectAccessUsersTab() {
           )
         },
       }),
-      colHelper.accessor('id', Columns.id),
-    ],
     [siloRoleById, projectRoleById]
   )
 
+  const staticColumns = useMemo(() => [displayNameCol, rolesCol], [rolesCol])
+
+  const makeActions = useCallback(
+    (user: User): MenuAction[] => {
+      const projectRole = projectRoleById.get(user.id)
+      return [
+        { label: 'Change role', onActivate: () => setEditingUser(user) },
+        {
+          label: 'Remove role',
+          onActivate: confirmDelete({
+            doDelete: () =>
+              updatePolicy({ path: { project }, body: deleteRole(user.id, projectPolicy) }),
+            label: (
+              <span>
+                the <HL>{projectRole}</HL> role for <HL>{user.displayName}</HL>
+              </span>
+            ),
+          }),
+          disabled: !projectRole && 'This user has no project role to remove',
+        },
+      ]
+    },
+    [projectRoleById, projectPolicy, project, updatePolicy]
+  )
+
+  const columns = useColsWithActions(staticColumns, makeActions)
+
   const { table } = useQueryTable({ query: userList, columns, emptyState: <EmptyState /> })
-  return table
+
+  return (
+    <>
+      {table}
+      {editingUser && (
+        <ProjectAccessEditUserSideModal
+          name={editingUser.displayName}
+          identityId={editingUser.id}
+          identityType="silo_user"
+          policy={projectPolicy}
+          defaultValues={{ roleName: projectRoleById.get(editingUser.id) }}
+          onDismiss={() => setEditingUser(null)}
+        />
+      )}
+    </>
+  )
 }

@@ -28,7 +28,6 @@ export default function SiloAccessPage() {
         />
       </PageHeader>
       <RouteTabs fullWidth>
-        <Tab to={pb.siloAccessRoles()}>Roles</Tab>
         <Tab to={pb.siloAccessUsers()}>Silo Users</Tab>
         <Tab to={pb.siloAccessGroups()}>Silo Groups</Tab>
       </RouteTabs>

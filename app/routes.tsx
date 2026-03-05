@@ -277,11 +277,7 @@ export const routes = createRoutesFromElements(
         </Route>
 
         <Route path="access" lazy={() => import('./pages/SiloAccessPage').then(convert)}>
-          <Route index element={<Navigate to="roles" replace />} />
-          <Route
-            path="roles"
-            lazy={() => import('./pages/SiloAccessRolesTab').then(convert)}
-          />
+          <Route index element={<Navigate to="users" replace />} />
           <Route
             path="users"
             lazy={() => import('./pages/SiloAccessUsersTab').then(convert)}
@@ -547,13 +543,7 @@ export const routes = createRoutesFromElements(
             path="access"
             lazy={() => import('./pages/project/access/ProjectAccessPage').then(convert)}
           >
-            <Route index element={<Navigate to="roles" replace />} />
-            <Route
-              path="roles"
-              lazy={() =>
-                import('./pages/project/access/ProjectAccessRolesTab').then(convert)
-              }
-            />
+            <Route index element={<Navigate to="users" replace />} />
             <Route
               path="users"
               lazy={() =>

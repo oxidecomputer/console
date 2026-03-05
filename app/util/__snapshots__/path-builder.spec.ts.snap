@@ -473,20 +473,6 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/access",
     },
   ],
-  "projectAccessRoles (/projects/p/access/roles)": [
-    {
-      "label": "Projects",
-      "path": "/projects",
-    },
-    {
-      "label": "p",
-      "path": "/projects/p/instances",
-    },
-    {
-      "label": "Project Access",
-      "path": "/projects/p/access",
-    },
-  ],
   "projectAccessUsers (/projects/p/access/users)": [
     {
       "label": "Projects",
@@ -618,12 +604,6 @@ exports[`breadcrumbs 2`] = `
     },
   ],
   "siloAccessGroups (/access/groups)": [
-    {
-      "label": "Silo Access",
-      "path": "/access",
-    },
-  ],
-  "siloAccessRoles (/access/roles)": [
     {
       "label": "Silo Access",
       "path": "/access",

@@ -7,16 +7,18 @@
  */
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 
 import {
   api,
+  deleteRole,
   getListQFn,
   q,
   queryClient,
   roleOrder,
+  useApiMutation,
   usePrefetchedQuery,
   type Group,
   type User,
@@ -25,12 +27,16 @@ import { PersonGroup24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
+import { HL } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
+import { ProjectAccessEditUserSideModal } from '~/forms/project-access'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { ButtonCell } from '~/table/cells/LinkCell'
-import { Columns } from '~/table/columns/common'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TipIcon } from '~/ui/lib/TipIcon'
@@ -56,7 +62,6 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 export const handle = titleCrumb('Groups')
 
 const colHelper = createColumnHelper<Group>()
-const idColumn = colHelper.accessor('id', Columns.id)
 
 function MemberCountCell({ groupId }: { groupId: string }) {
   const { data } = useQuery(q(api.userList, { query: { group: groupId, limit: ALL_ISH } }))
@@ -108,10 +113,19 @@ function GroupMembersSideModal({ group, onDismiss }: GroupMembersSideModalProps)
 
 export default function ProjectAccessGroupsTab() {
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null)
+  const [editingGroup, setEditingGroup] = useState<Group | null>(null)
   const projectSelector = useProjectSelector()
+  const { project } = projectSelector
 
   const { data: siloPolicy } = usePrefetchedQuery(policyView)
   const { data: projectPolicy } = usePrefetchedQuery(projectPolicyView(projectSelector))
+
+  const { mutateAsync: updatePolicy } = useApiMutation(api.projectPolicyUpdate, {
+    onSuccess: () => {
+      queryClient.invalidateEndpoint('projectPolicyView')
+      addToast({ content: 'Role updated' })
+    },
+  })
 
   const siloRoleById = useMemo(
     () => new Map(siloPolicy.roleAssignments.map((a) => [a.identityId, a.roleName])),
@@ -122,21 +136,8 @@ export default function ProjectAccessGroupsTab() {
     [projectPolicy]
   )
 
-  const columns = useMemo(
-    () => [
-      colHelper.accessor('displayName', {
-        header: 'Name',
-        cell: (info) => (
-          <ButtonCell onClick={() => setSelectedGroup(info.row.original)}>
-            {info.getValue()}
-          </ButtonCell>
-        ),
-      }),
-      colHelper.display({
-        id: 'memberCount',
-        header: 'Members',
-        cell: ({ row }) => <MemberCountCell groupId={row.original.id} />,
-      }),
+  const rolesCol = useMemo(
+    () =>
       colHelper.display({
         id: 'roles',
         header: () => (
@@ -171,10 +172,56 @@ export default function ProjectAccessGroupsTab() {
           )
         },
       }),
-      idColumn,
-    ],
-    [setSelectedGroup, siloRoleById, projectRoleById]
+    [siloRoleById, projectRoleById]
   )
+
+  const staticColumns = useMemo(
+    () => [
+      colHelper.accessor('displayName', {
+        header: 'Name',
+        cell: (info) => (
+          <ButtonCell onClick={() => setSelectedGroup(info.row.original)}>
+            {info.getValue()}
+          </ButtonCell>
+        ),
+      }),
+      colHelper.display({
+        id: 'memberCount',
+        header: 'Members',
+        cell: ({ row }) => <MemberCountCell groupId={row.original.id} />,
+      }),
+      rolesCol,
+    ],
+    [rolesCol]
+  )
+
+  const makeActions = useCallback(
+    (group: Group): MenuAction[] => {
+      const projectRole = projectRoleById.get(group.id)
+      return [
+        { label: 'Change role', onActivate: () => setEditingGroup(group) },
+        {
+          label: 'Remove role',
+          onActivate: confirmDelete({
+            doDelete: () =>
+              updatePolicy({
+                path: { project },
+                body: deleteRole(group.id, projectPolicy),
+              }),
+            label: (
+              <span>
+                the <HL>{projectRole}</HL> role for <HL>{group.displayName}</HL>
+              </span>
+            ),
+          }),
+          disabled: !projectRole && 'This group has no project role to remove',
+        },
+      ]
+    },
+    [projectRoleById, projectPolicy, project, updatePolicy]
+  )
+
+  const columns = useColsWithActions(staticColumns, makeActions)
 
   const { table } = useQueryTable({
     query: groupList,
@@ -189,6 +236,16 @@ export default function ProjectAccessGroupsTab() {
         <GroupMembersSideModal
           group={selectedGroup}
           onDismiss={() => setSelectedGroup(null)}
+        />
+      )}
+      {editingGroup && (
+        <ProjectAccessEditUserSideModal
+          name={editingGroup.displayName}
+          identityId={editingGroup.id}
+          identityType="silo_group"
+          policy={projectPolicy}
+          defaultValues={{ roleName: projectRoleById.get(editingGroup.id) }}
+          onDismiss={() => setEditingGroup(null)}
         />
       )}
     </>

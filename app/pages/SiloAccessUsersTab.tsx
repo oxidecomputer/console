@@ -6,15 +6,27 @@
  * Copyright Oxide Computer Company
  */
 import { createColumnHelper } from '@tanstack/react-table'
-import { useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
-import { api, getListQFn, q, queryClient, usePrefetchedQuery, type User } from '@oxide/api'
+import {
+  api,
+  deleteRole,
+  getListQFn,
+  q,
+  queryClient,
+  useApiMutation,
+  usePrefetchedQuery,
+  type User,
+} from '@oxide/api'
 import { Person24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
+import { HL } from '~/components/HL'
+import { SiloAccessEditUserSideModal } from '~/forms/silo-access'
 import { titleCrumb } from '~/hooks/use-crumbs'
+import { confirmDelete } from '~/stores/confirm-delete'
 import { EmptyCell } from '~/table/cells/EmptyCell'
-import { Columns } from '~/table/columns/common'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { roleColor } from '~/util/access'
@@ -34,6 +46,8 @@ export const handle = titleCrumb('Users')
 
 const colHelper = createColumnHelper<User>()
 
+const displayNameCol = colHelper.accessor('displayName', { header: 'Name' })
+
 const EmptyState = () => (
   <EmptyMessage
     icon={<Person24Icon />}
@@ -43,29 +57,73 @@ const EmptyState = () => (
 )
 
 export default function SiloAccessUsersTab() {
+  const [editingUser, setEditingUser] = useState<User | null>(null)
+
   const { data: siloPolicy } = usePrefetchedQuery(policyView)
 
-  const roleById = useMemo(
+  const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
+    onSuccess: () => queryClient.invalidateEndpoint('policyView'),
+  })
+
+  const siloRoleById = useMemo(
     () => new Map(siloPolicy.roleAssignments.map((a) => [a.identityId, a.roleName])),
     [siloPolicy]
   )
 
-  const columns = useMemo(
-    () => [
-      colHelper.accessor('displayName', { header: 'Name' }),
+  const siloRoleCol = useMemo(
+    () =>
       colHelper.display({
         id: 'siloRole',
         header: 'Silo Role',
         cell: ({ row }) => {
-          const role = roleById.get(row.original.id)
+          const role = siloRoleById.get(row.original.id)
           return role ? <Badge color={roleColor[role]}>silo.{role}</Badge> : <EmptyCell />
         },
       }),
-      colHelper.accessor('id', Columns.id),
-    ],
-    [roleById]
+    [siloRoleById]
   )
 
+  const staticColumns = useMemo(() => [displayNameCol, siloRoleCol], [siloRoleCol])
+
+  const makeActions = useCallback(
+    (user: User): MenuAction[] => {
+      const role = siloRoleById.get(user.id)
+      return [
+        { label: 'Change role', onActivate: () => setEditingUser(user) },
+        {
+          label: 'Remove role',
+          onActivate: confirmDelete({
+            doDelete: () => updatePolicy({ body: deleteRole(user.id, siloPolicy) }),
+            label: (
+              <span>
+                the <HL>{role}</HL> role for <HL>{user.displayName}</HL>
+              </span>
+            ),
+          }),
+          disabled: !role && 'This user has no role to remove',
+        },
+      ]
+    },
+    [siloRoleById, siloPolicy, updatePolicy]
+  )
+
+  const columns = useColsWithActions(staticColumns, makeActions)
+
   const { table } = useQueryTable({ query: userList, columns, emptyState: <EmptyState /> })
-  return table
+
+  return (
+    <>
+      {table}
+      {editingUser && (
+        <SiloAccessEditUserSideModal
+          name={editingUser.displayName}
+          identityId={editingUser.id}
+          identityType="silo_user"
+          policy={siloPolicy}
+          defaultValues={{ roleName: siloRoleById.get(editingUser.id) }}
+          onDismiss={() => setEditingUser(null)}
+        />
+      )}
+    </>
+  )
 }
