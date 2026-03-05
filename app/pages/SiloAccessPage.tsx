@@ -142,11 +142,7 @@ export default function SiloAccessPage() {
         {
           label: 'Delete',
           onActivate: confirmDelete({
-            doDelete: () =>
-              updatePolicy({
-                // we know policy is there, otherwise there's no row to display
-                body: deleteRole(row.id, siloPolicy),
-              }),
+            doDelete: () => updatePolicy({ body: deleteRole(row.id, siloPolicy) }),
             label: (
               <span>
                 the <HL>{row.siloRole}</HL> role for <HL>{row.name}</HL>

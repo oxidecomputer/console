@@ -137,11 +137,7 @@ export default function SystemAccessPage() {
         {
           label: 'Delete',
           onActivate: confirmDelete({
-            doDelete: () =>
-              updatePolicy({
-                // we know policy is there, otherwise there's no row to display
-                body: deleteRole(row.id, fleetPolicy),
-              }),
+            doDelete: () => updatePolicy({ body: deleteRole(row.id, fleetPolicy) }),
             label: (
               <span>
                 the <HL>{row.fleetRole}</HL> role for <HL>{row.name}</HL>

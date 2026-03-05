@@ -7,7 +7,7 @@
  */
 import { user3 } from '@oxide/api-mocks'
 
-import { expect, expectRowVisible, getPageAsUser, test } from './utils'
+import { expect, expectRowVisible, expectToast, getPageAsUser, test } from './utils'
 
 test('Click through system access page', async ({ page }) => {
   await page.goto('/system/access')
@@ -71,7 +71,49 @@ test('Click through system access page', async ({ page }) => {
   await user3Row.getByRole('button', { name: 'Row actions' }).click()
   await page.getByRole('menuitem', { name: 'Delete' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
+  await expectToast(page, 'Access removed')
   await expect(user3Row).toBeHidden()
+})
+
+test('Add a group to system access', async ({ page }) => {
+  await page.goto('/system/access')
+
+  const table = page.locator('role=table')
+
+  // groups should not already be in the table
+  await expect(page.getByRole('cell', { name: 'web-devs' })).toBeHidden()
+
+  await page.click('role=button[name="Add user or group"]')
+  await page.click('role=button[name*="User or group"]')
+
+  // groups appear before users in the picker, with a "Group" badge
+  await expect(page.getByRole('option', { name: /web-devs/ })).toBeVisible()
+  await expect(page.getByRole('option', { name: /kernel-devs/ })).toBeVisible()
+
+  await page.getByRole('option', { name: /web-devs/ }).click()
+  await page.getByRole('radio', { name: /^Viewer / }).click()
+  await page.click('role=button[name="Assign role"]')
+
+  await expectRowVisible(table, {
+    Name: 'web-devs',
+    Type: 'Group',
+    Role: 'fleet.viewer',
+  })
+})
+
+test('Self-removal warning on delete', async ({ page }) => {
+  await page.goto('/system/access')
+
+  // Hannah Arendt is the logged-in user with fleet admin
+  const hannahRow = page.getByRole('row', { name: 'Hannah Arendt', exact: false })
+  await hannahRow.getByRole('button', { name: 'Row actions' }).click()
+  await page.getByRole('menuitem', { name: 'Delete' }).click()
+
+  // confirm dialog should show the self-removal warning
+  await expect(page.getByText('This will remove your own fleet access.')).toBeVisible()
+
+  // cancel instead of confirming
+  await page.getByRole('button', { name: 'Cancel' }).click()
 })
 
 test('Fleet viewer cannot modify system access', async ({ browser }) => {
