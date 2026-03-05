@@ -14,6 +14,7 @@ import { match } from 'ts-pattern'
 import {
   api,
   instanceCan,
+  isUnicastPool,
   q,
   qErrorsAllowed,
   queryClient,
@@ -58,7 +59,12 @@ import { TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { ALL_ISH } from '~/util/consts'
-import { getCompatibleVersionsFromNics, ipHasVersion, parseIp } from '~/util/ip'
+import {
+  getCompatibleVersionsFromNics,
+  getEphemeralIpSlots,
+  ipHasVersion,
+  parseIp,
+} from '~/util/ip'
 import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './common'
@@ -301,6 +307,11 @@ export default function NetworkingTab() {
     })
   ).data.items
 
+  const { data: siloPools } = usePrefetchedQuery(
+    q(api.ipPoolList, { query: { limit: ALL_ISH } })
+  )
+  const unicastPools = useMemo(() => siloPools.items.filter(isUnicastPool), [siloPools])
+
   // Determine compatible IP versions from the instance's primary NIC
   // External IPs route through the primary interface, so only its IP stack matters
   const compatibleVersions = useMemo(() => getCompatibleVersionsFromNics(nics), [nics])
@@ -466,11 +477,14 @@ export default function NetworkingTab() {
       }
 
       const doDetach = match(externalIp)
-        .with(
-          { kind: 'ephemeral' },
-          () => () =>
-            ephemeralIpDetach({ path: { instance: instanceName }, query: { project } })
-        )
+        .with({ kind: 'ephemeral' }, () => () => {
+          const parsed = parseIp(externalIp.ip)
+          const ipVersion = parsed.type === 'error' ? undefined : parsed.type
+          return ephemeralIpDetach({
+            path: { instance: instanceName },
+            query: { project, ipVersion },
+          })
+        })
         .with(
           { kind: 'floating' },
           ({ name }) =>
@@ -517,12 +531,18 @@ export default function NetworkingTab() {
     getCoreRowModel: getCoreRowModel(),
   })
 
-  const ephemeralDisabledReason =
-    nics.length === 0
-      ? 'Instance has no network interfaces'
-      : eips.items.some((ip) => ip.kind === 'ephemeral')
-        ? 'Instance already has an ephemeral IP'
-        : null
+  const attachedEphemeralIps = useMemo(
+    () => eips.items.filter((ip) => ip.kind === 'ephemeral'),
+    [eips]
+  )
+  const {
+    availableVersions: ephemeralAvailableVersions,
+    disabledReason: ephemeralDisabledReason,
+    infoMessage: ephemeralInfoMessage,
+  } = useMemo(
+    () => getEphemeralIpSlots(compatibleVersions, attachedEphemeralIps, unicastPools),
+    [compatibleVersions, attachedEphemeralIps, unicastPools]
+  )
 
   const floatingDisabledReason =
     eips.items.filter((ip) => ip.kind === 'floating').length >= 32
@@ -574,7 +594,11 @@ export default function NetworkingTab() {
         </CardBlock.Body>
 
         {attachEphemeralModalOpen && (
-          <AttachEphemeralIpModal onDismiss={() => setAttachEphemeralModalOpen(false)} />
+          <AttachEphemeralIpModal
+            availableVersions={ephemeralAvailableVersions}
+            infoMessage={ephemeralInfoMessage}
+            onDismiss={() => setAttachEphemeralModalOpen(false)}
+          />
         )}
         {attachFloatingModalOpen && (
           <AttachFloatingIpModal
