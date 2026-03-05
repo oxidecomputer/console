@@ -84,7 +84,8 @@ export default function ProjectAccessUsersTab() {
             Role
             <TipIcon className="ml-2">
               A user&apos;s effective role for this project is the strongest role on either
-              the silo or project
+              the silo or project. Users without an assigned role have no access to this
+              project.
             </TipIcon>
           </span>
         ),

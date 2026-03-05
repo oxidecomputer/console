@@ -24,7 +24,7 @@ export default function SiloAccessPage() {
           heading="access"
           icon={<Access16Icon />}
           summary="Roles determine who can view, edit, or administer this silo and the projects within it. If a user or group has both a silo and project role, the stronger role takes precedence."
-          links={[docLinks.keyConceptsIam, docLinks.access]}
+          links={[docLinks.keyConceptsIam, docLinks.access, docLinks.identityProviders]}
         />
       </PageHeader>
       <RouteTabs fullWidth>

@@ -144,7 +144,8 @@ export default function ProjectAccessGroupsTab() {
             Role
             <TipIcon className="ml-2">
               A group&apos;s effective role for this project is the strongest role on either
-              the silo or project
+              the silo or project. Groups without an assigned role have no access to this
+              project.
             </TipIcon>
           </span>
         ),
