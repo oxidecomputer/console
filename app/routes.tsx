@@ -282,10 +282,13 @@ export const routes = createRoutesFromElements(
             path="roles"
             lazy={() => import('./pages/SiloAccessRolesTab').then(convert)}
           />
-          <Route path="users" lazy={() => import('./pages/AccessUsersTab').then(convert)} />
+          <Route
+            path="users"
+            lazy={() => import('./pages/SiloAccessUsersTab').then(convert)}
+          />
           <Route
             path="groups"
-            lazy={() => import('./pages/AccessGroupsTab').then(convert)}
+            lazy={() => import('./pages/SiloAccessGroupsTab').then(convert)}
           />
         </Route>
       </Route>
@@ -553,11 +556,15 @@ export const routes = createRoutesFromElements(
             />
             <Route
               path="users"
-              lazy={() => import('./pages/AccessUsersTab').then(convert)}
+              lazy={() =>
+                import('./pages/project/access/ProjectAccessUsersTab').then(convert)
+              }
             />
             <Route
               path="groups"
-              lazy={() => import('./pages/AccessGroupsTab').then(convert)}
+              lazy={() =>
+                import('./pages/project/access/ProjectAccessGroupsTab').then(convert)
+              }
             />
           </Route>
           <Route

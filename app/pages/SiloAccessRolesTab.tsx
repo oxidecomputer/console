@@ -35,7 +35,7 @@ import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
+import { TableEmptyBox } from '~/ui/lib/Table'
 import { identityTypeLabel, roleColor } from '~/util/access'
 import { groupBy } from '~/util/array'
 
@@ -166,9 +166,9 @@ export default function SiloAccessRolesTab() {
 
   return (
     <>
-      <TableActions>
+      <div className="mb-3 flex justify-end">
         <CreateButton onClick={() => setAddModalOpen(true)}>Add user or group</CreateButton>
-      </TableActions>
+      </div>
       {siloPolicy && addModalOpen && (
         <SiloAccessAddUserSideModal
           onDismiss={() => setAddModalOpen(false)}
