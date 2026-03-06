@@ -83,7 +83,9 @@ async function refreshData() {
     queryClient.invalidateEndpoint('instanceExternalIpList'),
     queryClient.invalidateEndpoint('instanceNetworkInterfaceList'),
     queryClient.invalidateEndpoint('instanceDiskList'), // storage tab
-    queryClient.invalidateEndpoint('antiAffinityGroupMemberList'),
+    queryClient.invalidateEndpoint('instanceAntiAffinityGroupList'), // settings tab
+    queryClient.invalidateEndpoint('antiAffinityGroupList'), // settings tab
+    queryClient.invalidateEndpoint('antiAffinityGroupMemberList'), // settings tab
     // note that we do not include timeseriesQuery because the charts on the
     // metrics tab will manage their own refresh intervals when we turn that
     // back on
@@ -302,7 +304,6 @@ export function ResizeInstanceModal({
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
-    onSettled: onDismiss,
   })
 
   const form = useForm({

@@ -64,9 +64,9 @@ const longDateTime = (ts: number) => format(new Date(ts), 'MMM d, yyyy HH:mm:ss 
 
 const GRID_GRAY = 'var(--stroke-secondary)'
 const CURSOR = 'var(--chart-stroke-item)'
-const GREEN_400 = 'var(--theme-accent-400)'
-const GREEN_600 = 'var(--theme-accent-600)'
-const GREEN_800 = 'var(--theme-accent-800)'
+const GREEN_400 = 'var(--surface-accent-secondary)'
+const GREEN_600 = 'var(--content-accent-tertiary)'
+const GREEN_800 = 'var(--content-accent)'
 
 // TODO: figure out how to do this with TW classes instead. As far as I can tell
 // ticks only take direct styling
@@ -92,7 +92,7 @@ function renderTooltip(props: TooltipProps<number, string>, unit?: string) {
   } = payload[0]
   if (!timestamp || typeof value !== 'number') return null
   return (
-    <div className="text-sans-md text-secondary bg-raise border-secondary elevation-2 rounded-md border outline-0">
+    <div className="text-sans-md text-secondary bg-raise shadow-tooltip rounded-md outline-0">
       <div className="border-secondary border-b px-3 py-2 pr-6">
         {longDateTime(timestamp)}
       </div>
@@ -315,10 +315,10 @@ const MetricsMessage = ({
       </div>
     </div>
     <div
-      className="bg-accent-secondary absolute inset-x-0 top-1 bottom-12"
+      className="bg-accent absolute inset-x-0 top-1 bottom-12"
       style={{
         background:
-          'radial-gradient(197.76% 54.9% at 50% 50%, var(--surface-default) 0%, rgba(8, 15, 17, 0.00) 100%)',
+          'radial-gradient(200% 100% at 50% 100%, var(--surface-default) 0%, var(--surface-secondary) 100%)',
       }}
     />
   </>
@@ -344,7 +344,7 @@ const MetricsEmpty = () => (
     description="There is no data for this time period."
   />
 )
-export const ChartContainer = classed.div`flex w-full grow flex-col rounded-lg border border-default`
+export const ChartContainer = classed.div`flex w-full grow flex-col rounded-lg border border-default bg-default`
 
 type ChartHeaderProps = {
   title: string

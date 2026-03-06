@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import * as Accordion from '@radix-ui/react-accordion'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useController, useForm, useWatch, type Control } from 'react-hook-form'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
@@ -44,7 +43,6 @@ import {
   Storage16Icon,
 } from '@oxide/design-system/icons/react'
 
-import { AccordionItem } from '~/components/AccordionItem'
 import { DocsPopover } from '~/components/DocsPopover'
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
@@ -68,7 +66,6 @@ import { HL } from '~/components/HL'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Button } from '~/ui/lib/Button'
-import { Checkbox } from '~/ui/lib/Checkbox'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -117,7 +114,7 @@ const getBootDiskAttachment = (
       diskSource: {
         type: 'image',
         imageId: source,
-        readOnly: values.bootDiskReadOnly,
+        readOnly: false,
       },
     },
   }
@@ -144,9 +141,11 @@ export type InstanceCreateInput = Assign<
     userData: File | null
     // ssh keys are always specified. we do not need the undefined case
     sshPublicKeys: NonNullable<InstanceCreate['sshPublicKeys']>
-    // Pool for ephemeral IP selection
-    ephemeralIpPool: string
-    assignEphemeralIp: boolean
+    // Ephemeral IP fields (dual stack support)
+    ephemeralIpv4: boolean
+    ephemeralIpv4Pool: string
+    ephemeralIpv6: boolean
+    ephemeralIpv6Pool: string
 
     // Selected floating IPs to attach on create.
     floatingIps: NameOrId[]
@@ -217,8 +216,10 @@ const baseDefaultValues: InstanceCreateInput = {
   start: true,
 
   userData: null,
-  ephemeralIpPool: '',
-  assignEphemeralIp: false,
+  ephemeralIpv4: false,
+  ephemeralIpv4Pool: '',
+  ephemeralIpv6: false,
+  ephemeralIpv6Pool: '',
   floatingIps: [],
 }
 
@@ -230,7 +231,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     queryClient.prefetchQuery(q(api.imageList, {})),
     queryClient.prefetchQuery(q(api.diskList, { query: { project, limit: ALL_ISH } })),
     queryClient.prefetchQuery(q(api.currentUserSshKeyList, {})),
-    queryClient.prefetchQuery(q(api.projectIpPoolList, { query: { limit: ALL_ISH } })),
+    queryClient.prefetchQuery(q(api.ipPoolList, { query: { limit: ALL_ISH } })),
     queryClient.prefetchQuery(
       q(api.floatingIpList, { query: { project, limit: ALL_ISH } })
     ),
@@ -240,6 +241,110 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 }
 
 export const handle = { crumb: 'New instance' }
+
+const EPHEMERAL_IP_FIELDS = {
+  v4: {
+    checkboxName: 'ephemeralIpv4',
+    poolFieldName: 'ephemeralIpv4Pool',
+    displayVersion: 'IPv4',
+  },
+  v6: {
+    checkboxName: 'ephemeralIpv6',
+    poolFieldName: 'ephemeralIpv6Pool',
+    displayVersion: 'IPv6',
+  },
+} as const
+
+function EphemeralIpCheckbox({
+  control,
+  ipVersion,
+  compatibleVersions,
+  unicastPools,
+  isSubmitting,
+}: {
+  control: Control<InstanceCreateInput>
+  ipVersion: IpVersion
+  compatibleVersions: IpVersion[]
+  unicastPools: UnicastIpPool[]
+  isSubmitting: boolean
+}) {
+  const { checkboxName, poolFieldName, displayVersion } = EPHEMERAL_IP_FIELDS[ipVersion]
+  const ephemeralIpField = useController({ control, name: checkboxName })
+  const ephemeralIpPoolField = useController({ control, name: poolFieldName })
+  const checked = ephemeralIpField.field.value
+
+  const pools = useMemo(
+    () => unicastPools.filter((pool) => pool.ipVersion === ipVersion),
+    [unicastPools, ipVersion]
+  )
+  const isCompatible = compatibleVersions.includes(ipVersion)
+  const hasPools = pools.length > 0
+  const canAttach = isCompatible && hasPools
+  let disabledReason: React.ReactNode
+  if (!canAttach) {
+    disabledReason = isCompatible ? (
+      <>
+        No IP{ipVersion} pools available
+        <br />
+        for this instance’s network interfaces
+      </>
+    ) : (
+      <>
+        Add an IP{ipVersion} network interface
+        <br />
+        to attach an ephemeral IP{ipVersion} address
+      </>
+    )
+  }
+
+  // Track previous canAttach to detect false→true transitions (NIC type
+  // change re-enabling this IP version). A ref because we need to compare
+  // across renders without triggering re-renders when we update it.
+  const prevCanAttachRef = useRef<boolean | undefined>(undefined)
+  useEffect(() => {
+    if (checked && !canAttach) {
+      ephemeralIpField.field.onChange(false)
+      ephemeralIpPoolField.field.onChange('')
+    } else if (canAttach && prevCanAttachRef.current === false && !checked) {
+      const defaultPool = pools.find((p) => p.isDefault)
+      if (defaultPool) {
+        ephemeralIpField.field.onChange(true)
+        ephemeralIpPoolField.field.onChange(defaultPool.name)
+      }
+    }
+    prevCanAttachRef.current = canAttach
+  }, [canAttach, checked, pools, ephemeralIpField, ephemeralIpPoolField])
+
+  return (
+    <div className="max-w-lg space-y-2">
+      <Wrap when={!!disabledReason} with={<Tooltip content={disabledReason} />}>
+        {/* span makes tooltip show on label hover, not just the checkbox */}
+        <span>
+          <CheckboxField
+            control={control}
+            name={checkboxName}
+            disabled={!canAttach || isSubmitting}
+          >
+            Allocate {displayVersion} address
+            {checked && ' from pool:'}
+          </CheckboxField>
+        </span>
+      </Wrap>
+      <div className={`my-2 ml-6 ${checked ? '' : 'hidden'}`}>
+        <IpPoolSelector
+          control={control}
+          poolFieldName={poolFieldName}
+          pools={pools}
+          disabled={isSubmitting}
+          required={checked}
+          hideOptionalTag
+          label={`${displayVersion} pool`}
+          hideLabel
+        />
+      </div>
+    </div>
+  )
+}
 
 export default function CreateInstanceForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -277,9 +382,9 @@ export default function CreateInstanceForm() {
   const { data: sshKeys } = usePrefetchedQuery(q(api.currentUserSshKeyList, {}))
   const allKeys = useMemo(() => sshKeys.items.map((key) => key.id), [sshKeys])
 
-  // projectIpPoolList fetches the pools linked to the current silo
+  // ipPoolList fetches the pools linked to the current silo
   const { data: siloPools } = usePrefetchedQuery(
-    q(api.projectIpPoolList, { query: { limit: ALL_ISH } })
+    q(api.ipPoolList, { query: { limit: ALL_ISH } })
   )
 
   // Only unicast pools can be used for ephemeral IPs. Sort once here so
@@ -319,10 +424,10 @@ export default function CreateInstanceForm() {
   const compatibleDefaultPools = unicastPools
     .filter(poolHasIpVersion(defaultCompatibleVersions))
     .filter((p) => p.isDefault)
-  // TODO: when we switch to dual stack ephemeral IPs, this will need to change
-  // to handle selecting default pools for both v4 and v6
-  const defaultEphemeralIpPool =
-    compatibleDefaultPools.length > 0 ? compatibleDefaultPools[0].name : ''
+
+  // Get default pools for initial values
+  const defaultV4Pool = compatibleDefaultPools.find((p) => p.ipVersion === 'v4')
+  const defaultV6Pool = compatibleDefaultPools.find((p) => p.ipVersion === 'v6')
 
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
@@ -330,8 +435,10 @@ export default function CreateInstanceForm() {
     bootDiskSourceType: defaultSource,
     sshPublicKeys: allKeys,
     bootDiskSize: diskSizeNearest10(defaultImage?.size / GiB),
-    ephemeralIpPool: defaultEphemeralIpPool || '',
-    assignEphemeralIp: !!defaultEphemeralIpPool,
+    ephemeralIpv4: !!defaultV4Pool && defaultCompatibleVersions.includes('v4'),
+    ephemeralIpv4Pool: defaultV4Pool?.name || '',
+    ephemeralIpv6: !!defaultV6Pool && defaultCompatibleVersions.includes('v6'),
+    ephemeralIpv6Pool: defaultV6Pool?.name || '',
     floatingIps: [],
   }
 
@@ -400,6 +507,8 @@ export default function CreateInstanceForm() {
           }
         }}
       />
+      {/* Read-only disk creation disabled pending propolis fix
+          https://github.com/oxidecomputer/console/issues/3071
       <div key="divider3" className="my-6! content-['a']" />
       <CheckboxField
         key="bootDiskReadOnly"
@@ -409,6 +518,7 @@ export default function CreateInstanceForm() {
       >
         Make disk read-only
       </CheckboxField>
+      */}
     </>
   )
 
@@ -440,21 +550,21 @@ export default function CreateInstanceForm() {
 
           const bootDisk = getBootDiskAttachment(values, allImages)
 
-          const assignEphemeralIp = values.assignEphemeralIp
-          const ephemeralIpPool = values.ephemeralIpPool
-
-          const externalIps: ExternalIpCreate[] = values.floatingIps.map((floatingIp) => ({
-            type: 'floating' as const,
-            floatingIp,
-          }))
-
-          if (assignEphemeralIp) {
+          const externalIps: ExternalIpCreate[] = []
+          if (values.ephemeralIpv4) {
             externalIps.push({
               type: 'ephemeral',
-              // form validation is meant to ensure that pool is set when
-              // assignEphemeralIp checkbox is checked
-              poolSelector: { type: 'explicit', pool: ephemeralIpPool },
+              poolSelector: { type: 'explicit', pool: values.ephemeralIpv4Pool },
             })
+          }
+          if (values.ephemeralIpv6) {
+            externalIps.push({
+              type: 'ephemeral',
+              poolSelector: { type: 'explicit', pool: values.ephemeralIpv6Pool },
+            })
+          }
+          for (const floatingIp of values.floatingIps) {
+            externalIps.push({ type: 'floating', floatingIp })
           }
 
           const userData = values.userData
@@ -720,12 +830,22 @@ export default function CreateInstanceForm() {
         <Form.Heading id="authentication">Authentication</Form.Heading>
         <SshKeysField control={control} isSubmitting={isSubmitting} />
         <FormDivider />
-        <Form.Heading id="advanced">Advanced</Form.Heading>
-        <AdvancedAccordion
+        <Form.Heading id="networking">Networking</Form.Heading>
+        <NetworkingSection
           control={control}
           isSubmitting={isSubmitting}
           unicastPools={unicastPools}
           hasVpcs={hasVpcs}
+        />
+        <FormDivider />
+        <Form.Heading id="advanced">Advanced</Form.Heading>
+        <FileField
+          id="user-data-input"
+          description={<UserDataDescription />}
+          name="userData"
+          label="User Data"
+          control={control}
+          disabled={isSubmitting}
         />
         <Form.Actions>
           <Form.Submit loading={createInstance.isPending}>Create instance</Form.Submit>
@@ -753,7 +873,7 @@ const FloatingIpLabel = ({ ip }: { ip: FloatingIp }) => (
   </div>
 )
 
-const AdvancedAccordion = ({
+const NetworkingSection = ({
   control,
   isSubmitting,
   unicastPools,
@@ -765,20 +885,11 @@ const AdvancedAccordion = ({
   hasVpcs: boolean
 }) => {
   const networkInterfaces = useWatch({ control, name: 'networkInterfaces' })
-  // we track this state manually for the sole reason that we need to be able to
-  // tell, inside AccordionItem, when an accordion is opened so we can scroll its
-  // contents into view
-  const [openItems, setOpenItems] = useState<string[]>([])
   const [floatingIpModalOpen, setFloatingIpModalOpen] = useState(false)
   const [selectedFloatingIp, setSelectedFloatingIp] = useState<FloatingIp | undefined>()
-  const assignEphemeralIpField = useController({ control, name: 'assignEphemeralIp' })
   const floatingIpsField = useController({ control, name: 'floatingIps' })
-  const assignEphemeralIp = assignEphemeralIpField.field.value
-  const attachedFloatingIps = floatingIpsField.field.value ?? EMPTY_NAME_OR_ID_LIST
 
-  const ephemeralIpPoolField = useController({ control, name: 'ephemeralIpPool' })
-
-  const ephemeralIpPool = ephemeralIpPoolField.field.value
+  const attachedFloatingIpNames = floatingIpsField.field.value ?? EMPTY_NAME_OR_ID_LIST
 
   // Calculate compatible IP versions based on NIC type
   const compatibleVersions = useMemo(
@@ -791,104 +902,27 @@ const AdvancedAccordion = ({
     q(api.floatingIpList, { query: { project, limit: ALL_ISH } })
   )
 
-  // Filter out the IPs that are already attached to an instance
-  const attachableFloatingIps = useMemo(
-    () => floatingIpList.items.filter((ip) => !ip.instanceId),
-    [floatingIpList]
-  )
+  // Derive attached+available lists from one indexed pass to avoid repeated
+  // lookups
+  const { attachedFloatingIps, availableFloatingIps } = useMemo(() => {
+    // Filter out the IPs that are already attached to an instance
+    const attachableFloatingIps = floatingIpList.items.filter((ip) => !ip.instanceId)
+    const attachedNames = new Set(attachedFloatingIpNames)
+    const attachableByName = new Map(
+      attachableFloatingIps.map((ip) => [ip.name, ip] as const)
+    )
+    const attachedFloatingIps = attachedFloatingIpNames
+      .map((name) => attachableByName.get(name))
+      .filter((ip) => !!ip)
 
-  // To find available floating IPs, we remove the ones that are already committed to this instance
-  // and filter by IP version compatibility with configured NICs
-  const availableFloatingIps = useMemo(() => {
-    return attachableFloatingIps
-      .filter((ip) => !attachedFloatingIps.includes(ip.name))
+    // To find available floating IPs, remove the ones already committed to this
+    // instance and filter by IP version compatibility with configured NICs.
+    const availableFloatingIps = attachableFloatingIps
+      .filter((ip) => !attachedNames.has(ip.name))
       .filter(ipHasVersion(compatibleVersions))
-  }, [attachableFloatingIps, attachedFloatingIps, compatibleVersions])
 
-  const attachedFloatingIpsData = attachedFloatingIps
-    .map((floatingIp) => attachableFloatingIps.find((fip) => fip.name === floatingIp))
-    .filter((ip) => !!ip)
-
-  // Filter unicast pools by compatible IP versions
-  // unicastPools is already sorted (defaults first, v4 first, then by name),
-  // so filtering preserves that order
-  const compatiblePools = useMemo(
-    () => unicastPools.filter(poolHasIpVersion(compatibleVersions)),
-    [unicastPools, compatibleVersions]
-  )
-
-  useEffect(() => {
-    if (!assignEphemeralIp || compatiblePools.length === 0) return
-
-    const currentPoolValid =
-      ephemeralIpPool && compatiblePools.some((p) => p.name === ephemeralIpPool)
-    if (currentPoolValid) return
-
-    const defaultPool = compatiblePools.find((p) => p.isDefault)
-    if (defaultPool) {
-      ephemeralIpPoolField.field.onChange(defaultPool.name)
-    } else {
-      ephemeralIpPoolField.field.onChange('')
-    }
-  }, [assignEphemeralIp, ephemeralIpPool, ephemeralIpPoolField, compatiblePools])
-
-  // Track previous ability to attach ephemeral IP to detect transitions
-  const prevCanAttachRef = useRef<boolean | undefined>(undefined)
-
-  // Automatically manage ephemeral IP based on NIC and pool availability
-  useEffect(() => {
-    const hasCompatibleNics = compatibleVersions.length > 0
-    const hasPools = compatiblePools.length > 0
-    const canAttach = hasCompatibleNics && hasPools
-    const hasDefaultPool = compatiblePools.some((p) => p.isDefault)
-    const prevCanAttach = prevCanAttachRef.current
-
-    if (!canAttach && assignEphemeralIp) {
-      // Remove ephemeral IP when there are no compatible NICs or pools
-      assignEphemeralIpField.field.onChange(false)
-    } else if (
-      canAttach &&
-      hasDefaultPool &&
-      prevCanAttach === false &&
-      !assignEphemeralIp
-    ) {
-      // Add ephemeral IP when transitioning from unable to able to attach
-      // (prevCanAttach === false means we couldn't attach before, either due to no NICs or no pools)
-      assignEphemeralIpField.field.onChange(true)
-    }
-
-    prevCanAttachRef.current = canAttach
-  }, [assignEphemeralIp, assignEphemeralIpField, compatiblePools, compatibleVersions])
-
-  const ephemeralIpCheckboxState = useMemo(() => {
-    const hasCompatibleNics = compatibleVersions.length > 0
-    const hasCompatiblePools = compatiblePools.length > 0
-    const canAttachEphemeralIp = hasCompatibleNics && hasCompatiblePools
-
-    let disabledReason: React.ReactNode = undefined
-    if (!hasCompatibleNics) {
-      disabledReason = (
-        <>
-          Add a compatible network interface
-          <br />
-          to attach an ephemeral IP address
-        </>
-      )
-    } else if (!hasCompatiblePools) {
-      // TODO: "compatible" not clear enough. also this can happen if there are
-      // no pools at all as well as when there are no pools compatible withe
-      // the NIC stack. We could do a different messages for each.
-      disabledReason = (
-        <>
-          No compatible IP pools available
-          <br />
-          for this network interface type
-        </>
-      )
-    }
-
-    return { canAttachEphemeralIp, disabledReason }
-  }, [compatibleVersions, compatiblePools])
+    return { attachedFloatingIps, availableFloatingIps }
+  }, [floatingIpList.items, attachedFloatingIpNames, compatibleVersions])
 
   const closeFloatingIpModal = () => {
     setFloatingIpModalOpen(false)
@@ -919,184 +953,137 @@ const AdvancedAccordion = ({
   )
 
   return (
-    <Accordion.Root
-      type="multiple"
-      className="mt-12 max-w-lg"
-      value={openItems}
-      onValueChange={setOpenItems}
-    >
-      <AccordionItem
-        value="networking"
-        label="Networking"
-        isOpen={openItems.includes('networking')}
-      >
-        {!hasVpcs && (
-          <Message
-            className="mb-4"
-            variant="notice"
-            content={
-              <>
-                A VPC is required to add network interfaces.{' '}
-                <Link to={pb.vpcsNew({ project })}>Create a VPC</Link> to enable networking.
-              </>
-            }
-          />
-        )}
-        <NetworkInterfaceField
-          control={control}
-          disabled={isSubmitting}
-          hasVpcs={hasVpcs}
+    <>
+      {!hasVpcs && (
+        <Message
+          className="mb-4"
+          variant="notice"
+          content={
+            <>
+              A VPC is required to add network interfaces.{' '}
+              <Link to={pb.vpcsNew({ project })}>Create a VPC</Link> to enable networking.
+            </>
+          }
         />
+      )}
+      <NetworkInterfaceField control={control} disabled={isSubmitting} hasVpcs={hasVpcs} />
 
-        <div className="flex flex-1 flex-col gap-4">
-          <h2 className="text-sans-md flex items-center">
-            Ephemeral IP{' '}
-            <TipIcon className="ml-1.5">
-              Ephemeral IPs are allocated when the instance is created and deallocated when
-              it is deleted
-            </TipIcon>
-          </h2>
+      <div className="flex flex-1 flex-col gap-4">
+        <h2 className="text-sans-md flex items-center">
+          Ephemeral IP{' '}
+          <TipIcon className="ml-1.5">
+            Ephemeral IPs are allocated when the instance is created and deallocated when it
+            is deleted
+          </TipIcon>
+        </h2>
 
-          <Wrap
-            when={!!ephemeralIpCheckboxState.disabledReason}
-            with={<Tooltip content={ephemeralIpCheckboxState.disabledReason} />}
-          >
-            {/* TODO: Wrapping the checkbox in a <span> makes it so the tooltip
-             * shows up when you hover anywhere on the label or checkbox, not
-             * just the checkbox itself. The downside is the placement of the tooltip
-             * is a little weird (I'd like it better if it was anchored to the checkbox),
-             * but I think having it show up on label hover is worth it.
-             */}
-            <span>
-              <Checkbox
-                id="assignEphemeralIp"
-                checked={ephemeralIpCheckboxState.canAttachEphemeralIp && assignEphemeralIp}
-                disabled={!ephemeralIpCheckboxState.canAttachEphemeralIp}
-                onChange={() => {
-                  assignEphemeralIpField.field.onChange(!assignEphemeralIp)
-                }}
-              >
-                Allocate and attach an ephemeral IP address
-              </Checkbox>
-            </span>
-          </Wrap>
-          <IpPoolSelector
-            className={assignEphemeralIp ? '' : 'hidden'}
+        <div className="flex flex-col gap-2">
+          <EphemeralIpCheckbox
             control={control}
-            poolFieldName="ephemeralIpPool"
-            pools={compatiblePools}
-            disabled={isSubmitting}
+            ipVersion="v4"
             compatibleVersions={compatibleVersions}
-            required={assignEphemeralIp}
+            unicastPools={unicastPools}
+            isSubmitting={isSubmitting}
+          />
+          <EphemeralIpCheckbox
+            control={control}
+            ipVersion="v6"
+            compatibleVersions={compatibleVersions}
+            unicastPools={unicastPools}
+            isSubmitting={isSubmitting}
           />
         </div>
+      </div>
 
-        <div className="flex flex-1 flex-col gap-4">
-          <h2 className="text-sans-md flex items-center">
-            Floating IPs{' '}
-            <TipIcon className="ml-1.5">
-              Floating IPs exist independently of instances and can be attached to and
-              detached from them as needed
-            </TipIcon>
-          </h2>
-          {floatingIpList.items.length === 0 ? (
-            <div className="border-default flex max-w-lg items-center justify-center rounded-lg border">
-              <EmptyMessage
-                icon={<IpGlobal16Icon />}
-                title="No floating IPs found"
-                body="Create a floating IP to attach it to this instance"
-              />
-            </div>
-          ) : (
-            <div className="flex flex-col items-start gap-3">
-              <MiniTable
-                ariaLabel="Floating IPs"
-                items={attachedFloatingIpsData}
-                columns={[
-                  { header: 'Name', cell: (item) => item.name },
-                  { header: 'IP', cell: (item) => item.ip },
-                ]}
-                rowKey={(item) => item.name}
-                onRemoveItem={(item) => detachFloatingIp(item.name)}
-                removeLabel={(item) => `remove floating IP ${item.name}`}
-              />
-              <Button
-                variant="secondary"
-                size="sm"
-                className="shrink-0"
-                disabled={
-                  availableFloatingIps.length === 0 || compatibleVersions.length === 0
-                }
-                disabledReason={
-                  compatibleVersions.length === 0 ? (
-                    <>
-                      A network interface is required
-                      <br />
-                      to attach a floating IP
-                    </>
-                  ) : availableFloatingIps.length === 0 ? (
-                    'No floating IPs available'
-                  ) : undefined
-                }
-                onClick={() => setFloatingIpModalOpen(true)}
-              >
-                Attach floating IP
-              </Button>
-            </div>
-          )}
-          <Modal
-            isOpen={floatingIpModalOpen}
+      <div className="flex flex-1 flex-col gap-4">
+        <h2 className="text-sans-md flex items-center">
+          Floating IPs{' '}
+          <TipIcon className="ml-1.5">
+            Floating IPs exist independently of instances and can be attached to and
+            detached from them as needed
+          </TipIcon>
+        </h2>
+        {floatingIpList.items.length === 0 ? (
+          <div className="border-default flex max-w-lg items-center justify-center rounded-lg border">
+            <EmptyMessage
+              icon={<IpGlobal16Icon />}
+              title="No floating IPs found"
+              body="Create a floating IP to attach it to this instance"
+            />
+          </div>
+        ) : (
+          <div className="flex max-w-lg flex-col items-start gap-3">
+            <MiniTable
+              ariaLabel="Floating IPs"
+              items={attachedFloatingIps}
+              columns={[
+                { header: 'Name', cell: (item) => item.name },
+                { header: 'IP', cell: (item) => item.ip },
+              ]}
+              rowKey={(item) => item.name}
+              onRemoveItem={(item) => detachFloatingIp(item.name)}
+              removeLabel={(item) => `remove floating IP ${item.name}`}
+            />
+            <Button
+              variant="secondary"
+              size="sm"
+              className="shrink-0"
+              disabled={
+                availableFloatingIps.length === 0 || compatibleVersions.length === 0
+              }
+              disabledReason={
+                compatibleVersions.length === 0 ? (
+                  <>
+                    A network interface is required
+                    <br />
+                    to attach a floating IP
+                  </>
+                ) : availableFloatingIps.length === 0 ? (
+                  'No floating IPs available'
+                ) : undefined
+              }
+              onClick={() => setFloatingIpModalOpen(true)}
+            >
+              Attach floating IP
+            </Button>
+          </div>
+        )}
+        <Modal
+          isOpen={floatingIpModalOpen}
+          onDismiss={closeFloatingIpModal}
+          title="Attach floating IP"
+        >
+          <Modal.Body>
+            <Modal.Section>
+              <Message variant="info" content={selectedFloatingIpMessage} />
+              <form>
+                <Listbox
+                  name="floatingIp"
+                  items={availableFloatingIps.map((i) => ({
+                    value: i.name,
+                    label: <FloatingIpLabel ip={i} />,
+                    selectedLabel: `${i.name} (${i.ip})`,
+                  }))}
+                  label="Floating IP"
+                  onChange={(name) => {
+                    setSelectedFloatingIp(availableFloatingIps.find((i) => i.name === name))
+                  }}
+                  required
+                  placeholder="Select a floating IP"
+                  selected={selectedFloatingIp?.name || ''}
+                />
+              </form>
+            </Modal.Section>
+          </Modal.Body>
+          <Modal.Footer
+            actionText="Attach"
+            disabled={!selectedFloatingIp}
+            onAction={attachFloatingIp}
             onDismiss={closeFloatingIpModal}
-            title="Attach floating IP"
-          >
-            <Modal.Body>
-              <Modal.Section>
-                <Message variant="info" content={selectedFloatingIpMessage} />
-                <form>
-                  <Listbox
-                    name="floatingIp"
-                    items={availableFloatingIps.map((i) => ({
-                      value: i.name,
-                      label: <FloatingIpLabel ip={i} />,
-                      selectedLabel: `${i.name} (${i.ip})`,
-                    }))}
-                    label="Floating IP"
-                    onChange={(name) => {
-                      setSelectedFloatingIp(
-                        availableFloatingIps.find((i) => i.name === name)
-                      )
-                    }}
-                    required
-                    placeholder="Select a floating IP"
-                    selected={selectedFloatingIp?.name || ''}
-                  />
-                </form>
-              </Modal.Section>
-            </Modal.Body>
-            <Modal.Footer
-              actionText="Attach"
-              disabled={!selectedFloatingIp}
-              onAction={attachFloatingIp}
-              onDismiss={closeFloatingIpModal}
-            ></Modal.Footer>
-          </Modal>
-        </div>
-      </AccordionItem>
-      <AccordionItem
-        value="configuration"
-        label="Configuration"
-        isOpen={openItems.includes('configuration')}
-      >
-        <FileField
-          id="user-data-input"
-          description={<UserDataDescription />}
-          name="userData"
-          label="User Data"
-          control={control}
-          disabled={isSubmitting}
-        />
-      </AccordionItem>
-    </Accordion.Root>
+          ></Modal.Footer>
+        </Modal>
+      </div>
+    </>
   )
 }
 

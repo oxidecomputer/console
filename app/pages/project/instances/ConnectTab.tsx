@@ -14,7 +14,7 @@ import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { buttonStyle } from '~/ui/lib/Button'
 import { CardBlock, LearnMore } from '~/ui/lib/CardBlock'
 import { InlineCode } from '~/ui/lib/InlineCode'
-import { links } from '~/util/links'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
@@ -59,7 +59,7 @@ export default function ConnectTab() {
           </Link>
         </CardBlock.Header>
         <CardBlock.Footer>
-          <LearnMore href={links.serialConsoleDocs} text="Serial Console" />
+          <LearnMore doc={docLinks.serialConsole} />
         </CardBlock.Footer>
       </CardBlock>
 
@@ -88,7 +88,7 @@ export default function ConnectTab() {
           }
         />
         <CardBlock.Footer>
-          <LearnMore href={links.sshDocs} text="SSH" />
+          <LearnMore doc={docLinks.ssh} />
         </CardBlock.Footer>
       </CardBlock>
     </div>

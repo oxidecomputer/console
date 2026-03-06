@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, type Browser, type Locator, type Page } from '@playwright/test'
+import { expect, test, type Browser, type Locator, type Page } from '@playwright/test'
 
 import { MiB } from '~/util/units'
 
@@ -100,7 +100,7 @@ export async function expectRowVisible(
   expectedRow: Record<string, string | StringMatcher>
 ) {
   // wait for header and rows to avoid flake town
-  const headerLoc = table.locator('thead >> role=cell')
+  const headerLoc = table.locator('thead >> role=columnheader')
   // unlike most things, waitFor has no timeout by default
   await headerLoc.first().waitFor({ timeout: 10_000 }) // nth=0 bc error if there's more than 1
 
@@ -254,15 +254,8 @@ export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve
 const bigFile = Buffer.alloc(3 * MiB, 'a')
 const smallFile = Buffer.alloc(0.1 * MiB, 'a')
 
-export async function chooseFile(
-  page: Page,
-  inputLocator: Locator,
-  size: 'large' | 'small' = 'large'
-) {
-  const fileChooserPromise = page.waitForEvent('filechooser')
-  await inputLocator.click({ force: true })
-  const fileChooser = await fileChooserPromise
-  await fileChooser.setFiles({
+export async function chooseFile(input: Locator, size: 'large' | 'small' = 'large') {
+  await input.setInputFiles({
     name: 'my-image.iso',
     mimeType: 'application/octet-stream',
     // fill with nonzero content, otherwise we'll skip the whole thing, which
@@ -288,12 +281,30 @@ export async function addTlsCert(page: Page) {
     .getByRole('dialog', { name: 'Add TLS certificate' })
     .getByRole('textbox', { name: 'Name' })
     .fill('test-cert')
-  await chooseFile(page, page.getByLabel('Cert', { exact: true }), 'small')
-  await chooseFile(page, page.getByLabel('Key'), 'small')
+  await chooseFile(page.getByLabel('Cert', { exact: true }), 'small')
+  await chooseFile(page.getByLabel('Key'), 'small')
   await page.getByRole('button', { name: 'Add Certificate' }).click()
 }
 
-export async function hasConsoleMessage(page: Page, msg: string) {
+/**
+ * Assert that a console message matching `msg` was logged (optionally at a
+ * given level). Skips on Firefox because Playwright's `page.consoleMessages()`
+ * drops real console output there and only returns React profiling entries.
+ */
+export async function expectConsoleMessage(page: Page, msg: string, type?: string) {
+  // eslint-disable-next-line playwright/no-conditional-in-test
+  if (test.info().project.name === 'firefox') return
   const messages = await page.consoleMessages()
-  return messages.some((m) => m.text().includes(msg))
+  const match = messages.find((m) => m.text().includes(msg))
+  expect(match, `expected console message containing "${msg}"`).toBeTruthy()
+  if (type) expect(match!.type()).toBe(type)
+}
+
+/** Assert that no console message matching `msg` was logged. Skips on Firefox. */
+export async function expectNoConsoleMessage(page: Page, msg: string) {
+  // eslint-disable-next-line playwright/no-conditional-in-test
+  if (test.info().project.name === 'firefox') return
+  const messages = await page.consoleMessages()
+  const match = messages.find((m) => m.text().includes(msg))
+  expect(match, `expected no console message containing "${msg}"`).toBeFalsy()
 }

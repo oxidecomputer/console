@@ -18,6 +18,8 @@ import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 import { policyHelpText } from './affinity-util'
@@ -77,6 +79,7 @@ export default function CreateAntiAffinityGroupForm() {
           { value: 'fail', label: 'Fail' },
         ]}
       />
+      <SideModalFormDocs docs={[docLinks.affinity]} />
     </SideModalForm>
   )
 }

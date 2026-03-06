@@ -41,7 +41,7 @@ jobs:
           path: node_modules
           key: modules-${{ hashFiles('package-lock.json', 'patches/**') }}
       - name: Typecheck
-        run: npx tsc
+        run: npx tsgo
       - name: Lint
         run: npm run lint
       - name: Check formatting

@@ -156,7 +156,7 @@ export const AddressLotBlock = z.preprocess(
 )
 
 /**
- * Parameters for creating an address lot block. Fist and last addresses are inclusive.
+ * Parameters for creating an address lot block. First and last addresses are inclusive.
  */
 export const AddressLotBlockCreate = z.preprocess(
   processResponseBody,
@@ -818,6 +818,8 @@ export const BgpAnnouncement = z.preprocess(
   z.object({ addressLotBlockId: z.uuid(), announceSetId: z.uuid(), network: IpNet })
 )
 
+export const MaxPathConfig = z.preprocess(processResponseBody, z.number().min(1).max(32))
+
 /**
  * A base BGP configuration.
  */
@@ -827,6 +829,7 @@ export const BgpConfig = z.preprocess(
     asn: z.number().min(0).max(4294967295),
     description: z.string(),
     id: z.uuid(),
+    maxPaths: MaxPathConfig,
     name: Name,
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
@@ -835,7 +838,7 @@ export const BgpConfig = z.preprocess(
 )
 
 /**
- * Parameters for creating a BGP configuration. This includes and autonomous system number (ASN) and a virtual routing and forwarding (VRF) identifier.
+ * Parameters for creating a BGP configuration. This includes an autonomous system number (ASN) and a virtual routing and forwarding (VRF) identifier.
  */
 export const BgpConfigCreate = z.preprocess(
   processResponseBody,
@@ -843,6 +846,7 @@ export const BgpConfigCreate = z.preprocess(
     asn: z.number().min(0).max(4294967295),
     bgpAnnounceSetId: NameOrId,
     description: z.string(),
+    maxPaths: MaxPathConfig.default(1),
     name: Name,
     vrf: Name.nullable().optional(),
   })
@@ -857,22 +861,22 @@ export const BgpConfigResultsPage = z.preprocess(
 )
 
 /**
- * The current status of a BGP peer.
+ * Route exported to a peer.
  */
 export const BgpExported = z.preprocess(
   processResponseBody,
-  z.object({ exports: z.record(z.string(), Ipv4Net.array()) })
+  z.object({ peerId: z.string(), prefix: IpNet, switch: SwitchLocation })
 )
 
 /**
  * A route imported from a BGP peer.
  */
-export const BgpImportedRouteIpv4 = z.preprocess(
+export const BgpImported = z.preprocess(
   processResponseBody,
   z.object({
     id: z.number().min(0).max(4294967295),
-    nexthop: z.ipv4(),
-    prefix: Ipv4Net,
+    nexthop: z.union([z.ipv4(), z.ipv6()]),
+    prefix: IpNet,
     switch: SwitchLocation,
   })
 )
@@ -894,7 +898,7 @@ export const ImportExportPolicy = z.preprocess(
 export const BgpPeer = z.preprocess(
   processResponseBody,
   z.object({
-    addr: z.union([z.ipv4(), z.ipv6()]),
+    addr: z.union([z.ipv4(), z.ipv6()]).nullable().optional(),
     allowedExport: ImportExportPolicy,
     allowedImport: ImportExportPolicy,
     bgpConfig: NameOrId,
@@ -911,6 +915,7 @@ export const BgpPeer = z.preprocess(
     minTtl: z.number().min(0).max(255).nullable().optional(),
     multiExitDiscriminator: z.number().min(0).max(4294967295).nullable().optional(),
     remoteAsn: z.number().min(0).max(4294967295).nullable().optional(),
+    routerLifetime: z.number().min(0).max(65535),
     vlanId: z.number().min(0).max(65535).nullable().optional(),
   })
 )
@@ -945,6 +950,7 @@ export const BgpPeerStatus = z.preprocess(
   z.object({
     addr: z.union([z.ipv4(), z.ipv6()]),
     localAsn: z.number().min(0).max(4294967295),
+    peerId: z.string(),
     remoteAsn: z.number().min(0).max(4294967295),
     state: BgpPeerState,
     stateDurationMillis: z.number().min(0),
@@ -1203,7 +1209,7 @@ export const Binuint8 = z.preprocess(
 )
 
 /**
- * disk block size in bytes
+ * Disk block size in bytes
  */
 export const BlockSize = z.preprocess(
   processResponseBody,
@@ -2744,7 +2750,7 @@ export const IpPoolType = z.preprocess(
 )
 
 /**
- * A collection of IP ranges. If a pool is linked to a silo, IP addresses from the pool can be allocated within that silo
+ * A collection of IP ranges. If a pool is linked to a silo, IP addresses from the pool can be allocated within that silo.
  */
 export const IpPool = z.preprocess(
   processResponseBody,
@@ -3461,7 +3467,7 @@ export const ProjectUpdate = z.preprocess(
 )
 
 /**
- * View of an Rack
+ * View of a Rack
  */
 export const Rack = z.preprocess(
   processResponseBody,
@@ -3861,6 +3867,30 @@ export const SiloRoleRoleAssignment = z.preprocess(
 export const SiloRolePolicy = z.preprocess(
   processResponseBody,
   z.object({ roleAssignments: SiloRoleRoleAssignment.array() })
+)
+
+/**
+ * A subnet pool in the context of a silo
+ */
+export const SiloSubnetPool = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    id: z.uuid(),
+    ipVersion: IpVersion,
+    isDefault: SafeBoolean,
+    name: Name,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const SiloSubnetPoolResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: SiloSubnetPool.array(), nextPage: z.string().nullable().optional() })
 )
 
 /**
@@ -4992,7 +5022,7 @@ export const VpcRouterUpdate = z.preprocess(
 )
 
 /**
- * A VPC subnet represents a logical grouping for instances that allows network traffic between them, within a IPv4 subnetwork or optionally an IPv6 subnetwork.
+ * A VPC subnet represents a logical grouping for instances that allows network traffic between them, within an IPv4 subnetwork or optionally an IPv6 subnetwork.
  */
 export const VpcSubnet = z.preprocess(
   processResponseBody,
@@ -6521,7 +6551,7 @@ export const InternetGatewayDeleteParams = z.preprocess(
   })
 )
 
-export const ProjectIpPoolListParams = z.preprocess(
+export const IpPoolListParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
@@ -6533,7 +6563,7 @@ export const ProjectIpPoolListParams = z.preprocess(
   })
 )
 
-export const ProjectIpPoolViewParams = z.preprocess(
+export const IpPoolViewParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -6901,6 +6931,28 @@ export const SnapshotDeleteParams = z.preprocess(
   })
 )
 
+export const SubnetPoolListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const SubnetPoolViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
 export const AuditLogListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -7255,7 +7307,7 @@ export const SamlIdentityProviderViewParams = z.preprocess(
   })
 )
 
-export const IpPoolListParams = z.preprocess(
+export const SystemIpPoolListParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
@@ -7267,7 +7319,7 @@ export const IpPoolListParams = z.preprocess(
   })
 )
 
-export const IpPoolCreateParams = z.preprocess(
+export const SystemIpPoolCreateParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
@@ -7275,7 +7327,7 @@ export const IpPoolCreateParams = z.preprocess(
   })
 )
 
-export const IpPoolViewParams = z.preprocess(
+export const SystemIpPoolViewParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -7285,7 +7337,7 @@ export const IpPoolViewParams = z.preprocess(
   })
 )
 
-export const IpPoolUpdateParams = z.preprocess(
+export const SystemIpPoolUpdateParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -7295,7 +7347,7 @@ export const IpPoolUpdateParams = z.preprocess(
   })
 )
 
-export const IpPoolDeleteParams = z.preprocess(
+export const SystemIpPoolDeleteParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -7305,7 +7357,7 @@ export const IpPoolDeleteParams = z.preprocess(
   })
 )
 
-export const IpPoolRangeListParams = z.preprocess(
+export const SystemIpPoolRangeListParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -7318,7 +7370,7 @@ export const IpPoolRangeListParams = z.preprocess(
   })
 )
 
-export const IpPoolRangeAddParams = z.preprocess(
+export const SystemIpPoolRangeAddParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -7328,7 +7380,7 @@ export const IpPoolRangeAddParams = z.preprocess(
   })
 )
 
-export const IpPoolRangeRemoveParams = z.preprocess(
+export const SystemIpPoolRangeRemoveParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -7338,7 +7390,7 @@ export const IpPoolRangeRemoveParams = z.preprocess(
   })
 )
 
-export const IpPoolSiloListParams = z.preprocess(
+export const SystemIpPoolSiloListParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -7352,7 +7404,7 @@ export const IpPoolSiloListParams = z.preprocess(
   })
 )
 
-export const IpPoolSiloLinkParams = z.preprocess(
+export const SystemIpPoolSiloLinkParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -7362,18 +7414,7 @@ export const IpPoolSiloLinkParams = z.preprocess(
   })
 )
 
-export const IpPoolSiloUpdateParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      pool: NameOrId,
-      silo: NameOrId,
-    }),
-    query: z.object({}),
-  })
-)
-
-export const IpPoolSiloUnlinkParams = z.preprocess(
+export const SystemIpPoolSiloUpdateParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -7384,7 +7425,18 @@ export const IpPoolSiloUnlinkParams = z.preprocess(
   })
 )
 
-export const IpPoolUtilizationViewParams = z.preprocess(
+export const SystemIpPoolSiloUnlinkParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+      silo: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SystemIpPoolUtilizationViewParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -7394,7 +7446,7 @@ export const IpPoolUtilizationViewParams = z.preprocess(
   })
 )
 
-export const IpPoolServiceViewParams = z.preprocess(
+export const SystemIpPoolServiceViewParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
@@ -7402,7 +7454,7 @@ export const IpPoolServiceViewParams = z.preprocess(
   })
 )
 
-export const IpPoolServiceRangeListParams = z.preprocess(
+export const SystemIpPoolServiceRangeListParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
@@ -7413,7 +7465,7 @@ export const IpPoolServiceRangeListParams = z.preprocess(
   })
 )
 
-export const IpPoolServiceRangeAddParams = z.preprocess(
+export const SystemIpPoolServiceRangeAddParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
@@ -7421,7 +7473,7 @@ export const IpPoolServiceRangeAddParams = z.preprocess(
   })
 )
 
-export const IpPoolServiceRangeRemoveParams = z.preprocess(
+export const SystemIpPoolServiceRangeRemoveParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
@@ -7618,7 +7670,7 @@ export const NetworkingBgpExportedParams = z.preprocess(
   })
 )
 
-export const NetworkingBgpMessageHistoryParams = z.preprocess(
+export const NetworkingBgpImportedParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
@@ -7628,7 +7680,7 @@ export const NetworkingBgpMessageHistoryParams = z.preprocess(
   })
 )
 
-export const NetworkingBgpImportedRoutesIpv4Params = z.preprocess(
+export const NetworkingBgpMessageHistoryParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
@@ -7902,7 +7954,21 @@ export const SiloQuotasUpdateParams = z.preprocess(
   })
 )
 
-export const SubnetPoolListParams = z.preprocess(
+export const SiloSubnetPoolListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      silo: NameOrId,
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).nullable().optional(),
+      pageToken: z.string().nullable().optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const SystemSubnetPoolListParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
@@ -7914,7 +7980,7 @@ export const SubnetPoolListParams = z.preprocess(
   })
 )
 
-export const SubnetPoolCreateParams = z.preprocess(
+export const SystemSubnetPoolCreateParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
@@ -7922,7 +7988,7 @@ export const SubnetPoolCreateParams = z.preprocess(
   })
 )
 
-export const SubnetPoolViewParams = z.preprocess(
+export const SystemSubnetPoolViewParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -7932,7 +7998,7 @@ export const SubnetPoolViewParams = z.preprocess(
   })
 )
 
-export const SubnetPoolUpdateParams = z.preprocess(
+export const SystemSubnetPoolUpdateParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -7942,7 +8008,7 @@ export const SubnetPoolUpdateParams = z.preprocess(
   })
 )
 
-export const SubnetPoolDeleteParams = z.preprocess(
+export const SystemSubnetPoolDeleteParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -7952,7 +8018,7 @@ export const SubnetPoolDeleteParams = z.preprocess(
   })
 )
 
-export const SubnetPoolMemberListParams = z.preprocess(
+export const SystemSubnetPoolMemberListParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -7965,7 +8031,7 @@ export const SubnetPoolMemberListParams = z.preprocess(
   })
 )
 
-export const SubnetPoolMemberAddParams = z.preprocess(
+export const SystemSubnetPoolMemberAddParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -7975,7 +8041,7 @@ export const SubnetPoolMemberAddParams = z.preprocess(
   })
 )
 
-export const SubnetPoolMemberRemoveParams = z.preprocess(
+export const SystemSubnetPoolMemberRemoveParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -7985,7 +8051,7 @@ export const SubnetPoolMemberRemoveParams = z.preprocess(
   })
 )
 
-export const SubnetPoolSiloListParams = z.preprocess(
+export const SystemSubnetPoolSiloListParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -7999,7 +8065,7 @@ export const SubnetPoolSiloListParams = z.preprocess(
   })
 )
 
-export const SubnetPoolSiloLinkParams = z.preprocess(
+export const SystemSubnetPoolSiloLinkParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -8009,18 +8075,7 @@ export const SubnetPoolSiloLinkParams = z.preprocess(
   })
 )
 
-export const SubnetPoolSiloUpdateParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      pool: NameOrId,
-      silo: NameOrId,
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SubnetPoolSiloUnlinkParams = z.preprocess(
+export const SystemSubnetPoolSiloUpdateParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -8031,7 +8086,18 @@ export const SubnetPoolSiloUnlinkParams = z.preprocess(
   })
 )
 
-export const SubnetPoolUtilizationViewParams = z.preprocess(
+export const SystemSubnetPoolSiloUnlinkParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+      silo: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SystemSubnetPoolUtilizationViewParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({

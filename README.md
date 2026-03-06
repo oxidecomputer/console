@@ -122,7 +122,7 @@ To debug end-to-end failures on CI, check out the branch with the failure and ru
 | `npm test`               | Vitest unit tests                                                                  |
 | `npm run e2ec`           | Run Playwright E2E tests in Chrome only                                            |
 | `npm run lint`           | ESLint                                                                             |
-| `npx tsc`                | Check types                                                                        |
+| `npm run tsc`            | Check types                                                                        |
 | `npm run ci`             | Lint, tests (unit and e2e), and types                                              |
 | `npm run fmt`            | Format everything. Rarely necessary thanks to editor integration                   |
 | `npm run gen-api`        | Generate API client (see [`docs/update-pinned-api.md`](docs/update-pinned-api.md)) |

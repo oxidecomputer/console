@@ -18,8 +18,10 @@ import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getSshKeySelector, useSshKeySelector } from '~/hooks/use-params'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
@@ -72,6 +74,7 @@ export default function EditSSHKeySideModalForm() {
           disabled
         />
       </div>
+      <SideModalFormDocs docs={[docLinks.sshKeys]} />
     </ReadOnlySideModalForm>
   )
 }

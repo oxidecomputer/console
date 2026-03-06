@@ -41,12 +41,13 @@ import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { Progress } from '~/ui/lib/Progress'
 import { Spinner } from '~/ui/lib/Spinner'
 import { anySignal } from '~/util/abort'
 import { readBlobAsBase64 } from '~/util/file'
 import { invariant } from '~/util/invariant'
-import { links } from '~/util/links'
+import { docLinks, links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import { isAllZeros } from '~/util/str'
 import { GiB, KiB } from '~/util/units'
@@ -516,19 +517,20 @@ export default function ImageCreate() {
         // check that image name isn't taken before starting the whole thing
         const image = await queryClient
           .fetchQuery(
-            q(api.imageView, {
-              path: { image: values.imageName },
-              query: { project },
-            })
+            q(
+              api.imageView,
+              { path: { image: values.imageName }, query: { project } },
+              {
+                errorsExpected: {
+                  explanation: 'the image name may not exist yet.',
+                  statusCode: 404,
+                },
+              }
+            )
           )
           .catch((e) => {
             // eat a 404 since that's what we want. anything else should still blow up
-            if (e.statusCode === 404) {
-              console.info(
-                '/v1/images 404 is expected. It means the image name is not taken.'
-              )
-              return null
-            }
+            if (e.statusCode === 404) return null
             throw e
           })
         if (image) {
@@ -570,18 +572,6 @@ export default function ImageCreate() {
       submitError={formError}
       submitLabel={allDone ? 'Done' : 'Upload image'}
     >
-      <Message
-        variant="info"
-        content={
-          <>
-            Read the{' '}
-            <a target="_blank" rel="noreferrer" href={links.imagesDocs}>
-              Images
-            </a>{' '}
-            guide to learn more about image requirements.
-          </>
-        }
-      />
       <NameField name="imageName" label="Name" control={form.control} />
       <DescriptionField
         name="imageDescription"
@@ -675,7 +665,7 @@ export default function ImageCreate() {
                   label="Image uploaded successfully"
                   className={
                     allDone
-                      ? 'bg-accent-secondary *:text-accent transition-colors'
+                      ? 'bg-accent *:text-accent transition-colors'
                       : 'transition-colors'
                   }
                 />
@@ -691,6 +681,7 @@ export default function ImageCreate() {
           />
         </Modal>
       )}
+      <SideModalFormDocs docs={[docLinks.images]} />
     </SideModalForm>
   )
 }

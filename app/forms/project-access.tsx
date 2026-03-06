@@ -20,7 +20,9 @@ import { ListboxField } from '~/components/form/fields/ListboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { ResourceLabel } from '~/ui/lib/SideModal'
+import { docLinks } from '~/util/links'
 
 import {
   actorToItem,
@@ -74,6 +76,7 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
         control={form.control}
       />
       <RoleRadioField name="roleName" control={form.control} scope="Project" />
+      <SideModalFormDocs docs={[docLinks.access]} />
     </SideModalForm>
   )
 }
@@ -120,6 +123,7 @@ export function ProjectAccessEditUserSideModal({
       onDismiss={onDismiss}
     >
       <RoleRadioField name="roleName" control={form.control} scope="Project" />
+      <SideModalFormDocs docs={[docLinks.access]} />
     </SideModalForm>
   )
 }

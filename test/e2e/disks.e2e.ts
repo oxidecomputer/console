@@ -101,8 +101,21 @@ test('Local disk snapshot disabled', async ({ page }) => {
 
   // hover to see tooltip with disabled reason
   await snapshotItem.hover()
+  await expect(page.getByRole('tooltip')).toHaveText("Local disks don't support snapshots")
+})
+
+test('Read-only disk snapshot disabled', async ({ page }) => {
+  await page.goto('/projects/mock-project/disks')
+
+  const row = page.getByRole('row', { name: 'read-only-disk', exact: false })
+  await row.getByRole('button', { name: 'Row actions' }).click()
+
+  const snapshotItem = page.getByRole('menuitem', { name: 'Snapshot' })
+  await expect(snapshotItem).toBeDisabled()
+
+  await snapshotItem.hover()
   await expect(page.getByRole('tooltip')).toHaveText(
-    'Only distributed disks support snapshots'
+    "Read-only disks don't support snapshots"
   )
 })
 
@@ -225,7 +238,9 @@ test('Create local disk with size > 1023 GiB', async ({ page }) => {
   })
 })
 
-test('Create disk from snapshot with read-only', async ({ page }) => {
+// Read-only disk creation disabled pending propolis fix
+// https://github.com/oxidecomputer/console/issues/3071
+test.skip('Create disk from snapshot with read-only', async ({ page }) => {
   await page.goto('/projects/mock-project/disks-new')
   await page.getByRole('textbox', { name: 'Name' }).fill('a-new-disk')
   await page.getByRole('radio', { name: 'Snapshot' }).click()
@@ -246,7 +261,9 @@ test('Create disk from snapshot with read-only', async ({ page }) => {
   await expect(modal.getByLabel('e6c58826-62fb-4205-820e-620407cd04e7')).toBeVisible()
 })
 
-test('Create disk from image with read-only', async ({ page }) => {
+// Read-only disk creation disabled pending propolis fix
+// https://github.com/oxidecomputer/console/issues/3071
+test.skip('Create disk from image with read-only', async ({ page }) => {
   await page.goto('/projects/mock-project/disks-new')
   await page.getByRole('textbox', { name: 'Name' }).fill('a-new-disk')
   await page.getByRole('radio', { name: 'Image' }).click()

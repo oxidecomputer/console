@@ -23,7 +23,7 @@ import { getInstanceSelector, useProjectSelector } from '~/hooks/use-params'
 import { LearnMore } from '~/ui/lib/CardBlock'
 import * as Dropdown from '~/ui/lib/DropdownMenu'
 import { classed } from '~/util/classed'
-import { links } from '~/util/links'
+import { docLinks, links } from '~/util/links'
 
 import { ChartContainer, ChartHeader, TimeSeriesChart } from '../TimeSeriesChart'
 import { HighlightedOxqlQuery, toOxqlStr } from './HighlightedOxqlQuery'
@@ -101,7 +101,7 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
           code={query}
           copyButtonText="Copy query"
           modalTitle="OxQL query"
-          footer={<LearnMore href={links.oxqlDocs} text="OxQL" />}
+          footer={<LearnMore doc={docLinks.oxql} />}
         >
           <HighlightedOxqlQuery {...queryObj} />
         </CopyCodeModal>

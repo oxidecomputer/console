@@ -8,7 +8,7 @@
 import type { JSX, ReactElement } from 'react'
 import { expect, test } from 'vitest'
 
-import { groupBy, intersperse, isSetEqual, setDiff } from './array'
+import { groupBy, intersperse, isSetEqual, setDiff, setIntersection } from './array'
 
 test('groupBy', () => {
   expect(
@@ -79,5 +79,14 @@ test('setDiff', () => {
   expect(setDiff(new Set(), new Set(['a']))).toEqual(new Set())
   expect(setDiff(new Set(['b', 'a', 'c']), new Set(['b', 'd']))).toEqual(
     new Set(['a', 'c'])
+  )
+})
+
+test('setIntersection', () => {
+  expect(setIntersection(new Set(), new Set())).toEqual(new Set())
+  expect(setIntersection(new Set(['a']), new Set())).toEqual(new Set())
+  expect(setIntersection(new Set(), new Set(['a']))).toEqual(new Set())
+  expect(setIntersection(new Set(['b', 'a', 'c']), new Set(['b', 'd']))).toEqual(
+    new Set(['b'])
   )
 })

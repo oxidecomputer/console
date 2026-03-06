@@ -12,7 +12,7 @@ import { Success12Icon } from '@oxide/design-system/icons/react'
  */
 export default function DeviceAuthSuccessPage() {
   return (
-    <div className="bg-raise! border-secondary elevation-3 flex w-full max-w-[470px] flex-col items-center rounded-lg border p-9 text-center">
+    <div className="bg-raise! shadow-modal flex w-full max-w-[470px] flex-col items-center rounded-lg p-9 text-center">
       <div className="my-2 flex h-12 w-12 items-center justify-center">
         <div className="bg-accent absolute h-12 w-12 rounded-full opacity-20 motion-safe:animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
         <Success12Icon className="text-accent relative h-8 w-8" />

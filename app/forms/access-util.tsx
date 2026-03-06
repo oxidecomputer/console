@@ -21,7 +21,7 @@ import { RadioFieldDyn } from '~/components/form/fields/RadioField'
 import { type ListboxItem } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { Radio } from '~/ui/lib/Radio'
-import { links } from '~/util/links'
+import { docLinks } from '~/util/links'
 import { capitalize } from '~/util/str'
 
 type AddUserValues = {
@@ -78,8 +78,8 @@ export type EditRoleModalProps = AddRoleModalProps & {
 }
 
 const AccessDocs = () => (
-  <a href={links.accessDocs} target="_blank" rel="noreferrer">
-    Access Control
+  <a href={docLinks.access.href} target="_blank" rel="noreferrer">
+    {docLinks.access.linkText}
   </a>
 )
 export function RoleRadioField<

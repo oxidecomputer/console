@@ -12,7 +12,14 @@ import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { type LoaderFunctionArgs } from 'react-router'
 
-import { api, getListQFn, queryClient, useApiMutation, type SiloIpPool } from '@oxide/api'
+import {
+  api,
+  getListQFn,
+  queryClient,
+  useApiMutation,
+  type IpPool,
+  type SiloIpPool,
+} from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
@@ -27,7 +34,7 @@ import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
-import { toComboboxItems } from '~/ui/lib/Combobox'
+import type { ComboboxItem } from '~/ui/lib/Combobox'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
@@ -35,6 +42,20 @@ import { Modal } from '~/ui/lib/Modal'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
+
+function toIpPoolComboboxItem(p: IpPool): ComboboxItem {
+  return {
+    value: p.name,
+    selectedLabel: p.name,
+    label: (
+      <div className="flex items-center gap-1.5">
+        {p.name}
+        <IpVersionBadge ipVersion={p.ipVersion} />
+        <Badge color="neutral">{p.poolType}</Badge>
+      </div>
+    ),
+  }
+}
 
 const EmptyState = () => (
   <EmptyMessage
@@ -48,7 +69,7 @@ const EmptyState = () => (
 
 const colHelper = createColumnHelper<SiloIpPool>()
 
-const allPoolsQuery = getListQFn(api.ipPoolList, { query: { limit: ALL_ISH } })
+const allPoolsQuery = getListQFn(api.systemIpPoolList, { query: { limit: ALL_ISH } })
 
 const allSiloPoolsQuery = (silo: string) =>
   getListQFn(api.siloIpPoolList, { path: { silo }, query: { limit: ALL_ISH } })
@@ -112,14 +133,16 @@ export default function SiloIpPoolsTab() {
     [allPools]
   )
 
-  const { mutateAsync: updatePoolLink } = useApiMutation(api.ipPoolSiloUpdate, {
+  const { mutateAsync: updatePoolLink } = useApiMutation(api.systemIpPoolSiloUpdate, {
     onSuccess() {
       queryClient.invalidateEndpoint('siloIpPoolList')
+      queryClient.invalidateEndpoint('systemIpPoolSiloList')
     },
   })
-  const { mutateAsync: unlinkPool } = useApiMutation(api.ipPoolSiloUnlink, {
+  const { mutateAsync: unlinkPool } = useApiMutation(api.systemIpPoolSiloUnlink, {
     onSuccess() {
       queryClient.invalidateEndpoint('siloIpPoolList')
+      queryClient.invalidateEndpoint('systemIpPoolSiloList')
       // We only have the ID, so will show a generic confirmation message
       addToast({ content: 'IP pool unlinked' })
     },
@@ -132,6 +155,9 @@ export default function SiloIpPoolsTab() {
         label: pool.isDefault ? 'Clear default' : 'Make default',
         className: pool.isDefault ? 'destructive' : undefined,
         onActivate() {
+          const versionLabel = `IP${pool.ipVersion}`
+          const typeLabel = pool.poolType
+
           if (pool.isDefault) {
             confirmAction({
               doAction: () =>
@@ -142,9 +168,9 @@ export default function SiloIpPoolsTab() {
               modalTitle: 'Confirm clear default',
               modalContent: (
                 <p>
-                  Are you sure you want <HL>{pool.name}</HL> to stop being the default pool
-                  for this silo? If there is no default, users in this silo will have to
-                  specify a pool when allocating IPs.
+                  Are you sure you want <HL>{pool.name}</HL> to stop being the default{' '}
+                  {versionLabel} {typeLabel} pool for this silo? If there is no default,
+                  users in this silo will have to specify a pool when allocating IPs.
                 </p>
               ),
               errorTitle: 'Could not clear default',
@@ -152,8 +178,6 @@ export default function SiloIpPoolsTab() {
             })
           } else {
             const existingDefault = findDefaultForVersionType(pool.ipVersion, pool.poolType)
-            const versionLabel = `IP${pool.ipVersion}`
-            const typeLabel = pool.poolType
 
             const modalContent = existingDefault ? (
               <p>
@@ -234,14 +258,15 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
   const { silo } = useSiloSelector()
   const { control, handleSubmit } = useForm({ defaultValues })
 
-  const linkPool = useApiMutation(api.ipPoolSiloLink, {
+  const linkPool = useApiMutation(api.systemIpPoolSiloLink, {
     onSuccess() {
       queryClient.invalidateEndpoint('siloIpPoolList')
+      queryClient.invalidateEndpoint('systemIpPoolSiloList')
+      onDismiss()
     },
     onError(err) {
       addToast({ title: 'Could not link pool', content: err.message, variant: 'error' })
     },
-    onSettled: onDismiss,
   })
 
   function onSubmit({ pool }: LinkPoolFormValues) {
@@ -263,7 +288,9 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
   const unlinkedPoolItems = useMemo(
     () =>
       allPools.data && linkedPoolIds
-        ? toComboboxItems(allPools.data.items.filter((p) => !linkedPoolIds.has(p.id)))
+        ? allPools.data.items
+            .filter((p) => !linkedPoolIds.has(p.id))
+            .map(toIpPoolComboboxItem)
         : [],
     [allPools, linkedPoolIds]
   )

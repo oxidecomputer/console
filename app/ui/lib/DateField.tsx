@@ -117,7 +117,7 @@ function DateSegment({
     placeholder = segment.placeholder
   }
 
-  const readOnly = segmentProps['aria-readonly'] ? true : false
+  const readOnly = !!segmentProps['aria-readonly']
 
   return (
     <div
@@ -130,12 +130,12 @@ function DateSegment({
       }}
       className={cn(
         'group box-content rounded-md px-px text-right tabular-nums outline-hidden',
-        !readOnly && 'focus:text-raise focus:bg-accent-secondary-hover',
+        !readOnly && 'focus:text-raise focus:bg-accent-hover',
         segment.type === 'timeZoneName' ? 'text-sans-sm ml-1' : 'text-sans-md'
       )}
       // Segment props turns this into a focusable element
       // @ts-expect-error
-      disabled={readOnly ? true : false}
+      disabled={readOnly}
     >
       {/* Always reserve space for the placeholder, to prevent layout shift when editing. */}
       <span

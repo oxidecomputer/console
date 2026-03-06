@@ -36,7 +36,9 @@ export interface ListboxProps<Value extends string = string> {
   disabled?: boolean
   hasError?: boolean
   name?: string
-  label?: React.ReactNode
+  label?: string
+  /** Hide visible label, using it as aria-label on the button instead */
+  hideLabel?: boolean
   description?: React.ReactNode
   required?: boolean
   isLoading?: boolean
@@ -63,6 +65,7 @@ export const Listbox = <Value extends string = string>({
   buttonRef,
   hideOptionalTag,
   hideSelected = false,
+  hideLabel = false,
   ...props
 }: ListboxProps<Value>) => {
   const selectedItem = selected && items.find((i) => i.value === selected)
@@ -83,7 +86,7 @@ export const Listbox = <Value extends string = string>({
       >
         {({ open }) => (
           <div>
-            {label && (
+            {label && !hideLabel && (
               <div className="mb-2 max-w-lg">
                 <FieldLabel
                   id={`${id}-label`}
@@ -104,7 +107,7 @@ export const Listbox = <Value extends string = string>({
                 `text-sans-md flex h-11 items-center justify-between rounded-md border`,
                 hasError
                   ? 'focus-error border-error-secondary hover:border-error'
-                  : 'border-default hover:border-hover',
+                  : 'border-default hover:border-raise',
                 open && 'ring-accent-secondary ring-2',
                 open && hasError && 'ring-error-secondary',
                 isDisabled
@@ -114,6 +117,7 @@ export const Listbox = <Value extends string = string>({
                 hideSelected ? 'w-auto' : 'w-full'
               )}
               ref={buttonRef}
+              aria-label={hideLabel ? label : undefined}
               {...props}
             >
               {!hideSelected && (
@@ -145,7 +149,7 @@ export const Listbox = <Value extends string = string>({
               anchor={{ gap: 12, to: 'bottom start' }}
               className={cn(
                 zIndex,
-                'ox-menu pointer-events-auto overflow-y-auto outline-hidden!',
+                'ox-menu shadow-menu-inset pointer-events-auto',
                 !hideSelected ? 'w-(--button-width)' : 'min-w-24'
               )}
               // This is to prevent the `useOthersInert` call in ListboxOptions.

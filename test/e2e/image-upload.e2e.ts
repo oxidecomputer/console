@@ -9,6 +9,7 @@ import { expect, test, type Page } from '@playwright/test'
 
 import {
   chooseFile,
+  expectConsoleMessage,
   expectNotVisible,
   expectRowVisible,
   expectVisible,
@@ -44,7 +45,7 @@ async function fillForm(page: Page, name: string) {
   await page.fill('role=textbox[name="Description"]', 'image description')
   await page.fill('role=textbox[name="OS"]', 'Ubuntu')
   await page.fill('role=textbox[name="Version"]', 'Dapper Drake')
-  await chooseFile(page, page.getByLabel('Image file'))
+  await chooseFile(page.getByLabel('Image file'))
 }
 
 test.describe('Image upload', () => {
@@ -68,6 +69,10 @@ test.describe('Image upload', () => {
 
     // now the modal pops open and the thing starts going
     await expectUploadProcess(page)
+
+    // the image name check 404 should be logged as expected-info, with context
+    await expectConsoleMessage(page, 'This error is expected', 'info')
+    await expectConsoleMessage(page, 'the image name may not exist yet.', 'info')
 
     await expect(page).toHaveURL('/projects/mock-project/images')
     await expectRowVisible(page.locator('role=table'), {
@@ -114,7 +119,7 @@ test.describe('Image upload', () => {
     await expectNotVisible(page, [nameRequired])
 
     // now set the file, clear it, and submit again
-    await chooseFile(page, page.getByLabel('Image file'))
+    await chooseFile(page.getByLabel('Image file'))
     await expectNotVisible(page, [fileRequired])
 
     await page.click('role=button[name="Clear file"]')

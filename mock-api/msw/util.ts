@@ -77,7 +77,7 @@ export const paginated = <P extends PaginateOptions, I extends { id: string }>(
 
   return {
     items: items.slice(startIndex, startIndex + limit),
-    next_page: `${items[startIndex + limit].id}`,
+    next_page: items[startIndex + limit].id,
   }
 }
 

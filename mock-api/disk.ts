@@ -229,7 +229,7 @@ export const disks: Json<Disk>[] = [
     read_only: false,
   },
   {
-    id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+    id: 'a1b2c3d4-e5f6-4890-abcd-ef1234567890',
     name: 'read-only-disk',
     description: 'A read-only disk created from a snapshot',
     project_id: project.id,

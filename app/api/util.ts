@@ -26,16 +26,15 @@ import type {
   VpcFirewallRuleUpdate,
 } from './__generated__/Api'
 
-// API limits encoded in https://github.com/oxidecomputer/omicron/blob/44e65c3/nexus/src/app/mod.rs#L130-L161
+// API limits encoded in https://github.com/oxidecomputer/omicron/blob/9dd23096de93c7d6d05ea21f6323de4410060652/nexus/src/app/mod.rs#L142
 
 // These are not actually used in app code, just the mock server. In the app we
 // can rely on API errors to communicate these limits.
 export const MAX_NICS_PER_INSTANCE = 8
 export const MAX_DISKS_PER_INSTANCE = 12
 
-// Limit is 254 on the backend but we haven't shipped any hardware that supports
-// that, so let's do 128 for now
-export const INSTANCE_MAX_CPU = 128
+// Limit is 254 on the backend.
+export const INSTANCE_MAX_CPU = 254
 
 export const INSTANCE_MIN_RAM_GiB = 1
 export const INSTANCE_MAX_RAM_GiB = 1536
@@ -103,10 +102,10 @@ export type UnicastIpPool = SiloIpPool & { poolType: 'unicast' }
 export const isUnicastPool = (pool: SiloIpPool): pool is UnicastIpPool =>
   pool.poolType === 'unicast'
 
-export const poolHasIpVersion =
-  (versions: IpVersion[]) =>
-  (pool: { ipVersion: IpVersion }): boolean =>
-    versions.includes(pool.ipVersion)
+export const poolHasIpVersion = (versions: Iterable<IpVersion>) => {
+  const versionSet = new Set(versions)
+  return (pool: { ipVersion: IpVersion }): boolean => versionSet.has(pool.ipVersion)
+}
 
 const instanceActions = {
   // NoVmm maps to to Stopped:
@@ -209,16 +208,18 @@ const diskStateActions = {
 
 // snapshot has a type check in addition to state check
 // https://github.com/oxidecomputer/omicron/blob/078f636/nexus/src/app/snapshot.rs#L100-L109
-// NOTE: .states only captures the state requirement; local disks cannot be
-// snapshotted regardless of state
+// NOTE: .states only captures the state requirement; local and read-only disks
+// cannot be snapshotted regardless of state
 const snapshotStates: DiskState['state'][] = ['attached', 'detached']
 // accept both camelCase (Disk) and snake_case (Json<Disk>) for use in MSW handlers
 type SnapshotDisk =
-  | Pick<Disk, 'state' | 'diskType'>
-  | { state: DiskState; disk_type: DiskType }
+  | Pick<Disk, 'state' | 'diskType' | 'readOnly'>
+  | { state: DiskState; disk_type: DiskType; read_only: boolean }
 const canSnapshot = (d: SnapshotDisk) => {
   const diskType = 'diskType' in d ? d.diskType : d.disk_type
+  const readOnly = 'readOnly' in d ? d.readOnly : d.read_only
   return (
+    !readOnly &&
     snapshotStates.includes(d.state.state) &&
     match(diskType)
       .with('distributed', () => true)

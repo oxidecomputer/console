@@ -6,9 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import Mousetrap from 'mousetrap'
-
 import 'mousetrap/plugins/global-bind/mousetrap-global-bind'
-
 import { useEffect, useRef } from 'react'
 
 type Key = Parameters<typeof Mousetrap.bind>[0]

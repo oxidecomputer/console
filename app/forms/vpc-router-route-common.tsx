@@ -26,8 +26,10 @@ import { TextField } from '~/components/form/fields/TextField'
 import { useVpcRouterSelector } from '~/hooks/use-params'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { Message } from '~/ui/lib/Message'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { ALL_ISH } from '~/util/consts'
 import { validateIp, validateIpNet } from '~/util/ip'
+import { docLinks } from '~/util/links'
 
 export type RouteFormValues =
   | RouterRouteCreate
@@ -219,3 +221,7 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
     </>
   )
 }
+
+export const RouteFormDocs = () => (
+  <SideModalFormDocs docs={[docLinks.routes, docLinks.gateways]} />
+)

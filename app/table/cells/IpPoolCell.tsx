@@ -14,7 +14,16 @@ import { EmptyCell, SkeletonCell } from './EmptyCell'
 
 export const IpPoolCell = ({ ipPoolId }: { ipPoolId: string }) => {
   const { data: result } = useQuery(
-    qErrorsAllowed(api.projectIpPoolView, { path: { pool: ipPoolId } })
+    qErrorsAllowed(
+      api.ipPoolView,
+      { path: { pool: ipPoolId } },
+      {
+        errorsExpected: {
+          explanation: 'the referenced IP pool may have been deleted.',
+          statusCode: 404,
+        },
+      }
+    )
   )
   if (!result) return <SkeletonCell />
   // this should essentially never happen, but it's probably better than blowing

@@ -14,6 +14,7 @@ import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import {
+  RouteFormDocs,
   RouteFormFields,
   routeFormMessage,
   type RouteFormValues,
@@ -99,6 +100,7 @@ export default function EditRouterRouteSideModalForm() {
       submitDisabled={disabled ? routeFormMessage.vpcSubnetNotModifiable : undefined}
     >
       <RouteFormFields form={form} disabled={disabled} />
+      <RouteFormDocs />
     </SideModalForm>
   )
 }
