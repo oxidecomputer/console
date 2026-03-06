@@ -107,7 +107,7 @@ function Step({ children, state, label, className }: StepProps) {
   return (
     // data-status used only for e2e testing
     <div
-      className={cn('upload-step items-top flex gap-2 px-4 py-3', className)}
+      className={cn('upload-step flex gap-2 px-4 py-3', className)}
       data-testid={`upload-step: ${label}`}
       data-status={status}
     >

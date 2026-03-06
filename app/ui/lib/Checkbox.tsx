@@ -44,8 +44,11 @@ export const Checkbox = ({
   className,
   ...inputProps
 }: CheckboxProps) => (
-  <label className="text-sans-md items-top inline-flex">
-    <span className="relative mt-[calc((1lh-16px)/2)] h-4 w-4">
+  <label className="text-sans-md inline-flex items-start">
+    {/* Center the 1rem (h-4) checkbox with the first line of text.
+        1lh is the line height, so (1lh - 1rem) / 2 is the top offset
+        that vertically centers the indicator within that line. */}
+    <span className="relative mt-[calc((1lh-1rem)/2)] h-4 w-4">
       <input
         className={cn(inputStyle, className)}
         type="checkbox"
