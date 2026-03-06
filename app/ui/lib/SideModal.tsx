@@ -73,8 +73,8 @@ export function SideModal({
               />
             }
           >
-            <div className="items-top mt-8 mb-4">
-              <BaseDialog.Title className="text-sans-2xl text-raise flex w-full items-center justify-between pr-8 break-words">
+            <div className="mt-8 mb-4">
+              <BaseDialog.Title className="text-sans-2xl text-raise flex w-full items-center justify-between pr-8 wrap-break-word">
                 {title}
               </BaseDialog.Title>
               {subtitle}

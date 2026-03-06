@@ -17,10 +17,7 @@ import cn from 'classnames'
 import type { ComponentProps } from 'react'
 
 // input type is fixed to "radio"
-export type RadioProps = Omit<React.ComponentProps<'input'>, 'type'> & {
-  /** Align radio button with top of content instead of center (useful for multi-line content) */
-  alignTop?: boolean
-}
+export type RadioProps = Omit<React.ComponentProps<'input'>, 'type'>
 
 const fieldStyles = `
   peer appearance-none absolute outline-hidden
@@ -29,15 +26,18 @@ const fieldStyles = `
   disabled:hover:bg-transparent
 `
 
-export const Radio = ({ children, className, alignTop, ...inputProps }: RadioProps) => (
-  <label className={cn('inline-flex', alignTop ? 'items-start' : 'items-center')}>
-    <span className="relative h-4 w-4 shrink-0">
+export const Radio = ({ children, className, ...inputProps }: RadioProps) => (
+  <label className="text-sans-md inline-flex items-start">
+    {/* Center the 1rem (h-4) radio button with the first line of text.
+        1lh is the line height, so (1lh - 1rem) / 2 is the top offset
+        that vertically centers the indicator within that line. */}
+    <span className="relative mt-[calc((1lh-1rem)/2)] h-4 w-4 shrink-0">
       <input className={cn(fieldStyles, className)} type="radio" {...inputProps} />
       {/* the dot in the middle. hide by default, use peer-checked to show if checked */}
       <div className="bg-accent-inverse light:bg-(--theme-accent-600) pointer-events-none absolute top-1 left-1 hidden h-2 w-2 rounded-full peer-checked:block" />
     </span>
 
-    {children && <span className="text-sans-md text-default ml-2.5">{children}</span>}
+    {children && <span className="text-default ml-2.5">{children}</span>}
   </label>
 )
 
