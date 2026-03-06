@@ -23,7 +23,7 @@ import {
   type Group,
   type User,
 } from '@oxide/api'
-import { PersonGroup24Icon } from '@oxide/design-system/icons/react'
+import { PersonGroup16Icon, PersonGroup24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
@@ -40,6 +40,7 @@ import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { ResourceLabel } from '~/ui/lib/SideModal'
 import { Table } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { roleColor } from '~/util/access'
@@ -90,7 +91,11 @@ function GroupMembersSideModal({ group, onDismiss }: GroupMembersSideModalProps)
   return (
     <ReadOnlySideModalForm
       title="Group members"
-      subtitle={group.displayName}
+      subtitle={
+        <ResourceLabel>
+          <PersonGroup16Icon /> {group.displayName}
+        </ResourceLabel>
+      }
       onDismiss={onDismiss}
       animate
     >
