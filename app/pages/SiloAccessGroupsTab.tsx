@@ -33,6 +33,8 @@ import { ButtonCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { Table } from '~/ui/lib/Table'
 import { roleColor } from '~/util/access'
 import { ALL_ISH } from '~/util/consts'
 
@@ -80,21 +82,33 @@ function GroupMembersSideModal({ group, onDismiss }: GroupMembersSideModalProps)
       onDismiss={onDismiss}
       animate
     >
-      {members.length === 0 ? (
-        <EmptyMessage
-          icon={<PersonGroup24Icon />}
-          title="No members"
-          body="This group has no members"
-        />
-      ) : (
-        <ul className="space-y-2">
-          {members.map((member: User) => (
-            <li key={member.id} className="text-default">
-              {member.displayName}
-            </li>
-          ))}
-        </ul>
-      )}
+      <PropertiesTable>
+        <PropertiesTable.IdRow id={group.id} />
+      </PropertiesTable>
+      <div className="mt-6">
+        {members.length === 0 ? (
+          <EmptyMessage
+            icon={<PersonGroup24Icon />}
+            title="No members"
+            body="This group has no members"
+          />
+        ) : (
+          <table className="ox-table text-sans-md w-full border-separate">
+            <Table.Header>
+              <Table.HeaderRow>
+                <Table.HeadCell>Name</Table.HeadCell>
+              </Table.HeaderRow>
+            </Table.Header>
+            <Table.Body>
+              {members.map((member: User) => (
+                <Table.Row key={member.id}>
+                  <Table.Cell>{member.displayName}</Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </table>
+        )}
+      </div>
     </ReadOnlySideModalForm>
   )
 }
