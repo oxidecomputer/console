@@ -77,7 +77,7 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { RadioCard } from '~/ui/lib/Radio'
 import { Slash } from '~/ui/lib/Slash'
 import { Tabs } from '~/ui/lib/Tabs'
-import { TextInputHint } from '~/ui/lib/TextInput'
+import { HintLink, TextInputHint } from '~/ui/lib/TextInput'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { Wrap } from '~/ui/util/wrap'
@@ -1122,12 +1122,8 @@ const PRESETS = [
 const UserDataDescription = () => (
   <>
     Data or scripts to be passed to cloud-init as{' '}
-    <a href={links.cloudInitFormat} target="_blank" rel="noreferrer">
-      user data
-    </a>{' '}
-    <a href={links.cloudInitExamples} target="_blank" rel="noreferrer">
-      (examples)
-    </a>{' '}
-    if the selected boot image supports it. Maximum size 32 KiB.
+    <HintLink href={links.cloudInitFormat}>user data</HintLink>{' '}
+    <HintLink href={links.cloudInitExamples}>(examples)</HintLink> if the selected boot
+    image supports it. Maximum size 32 KiB.
   </>
 )
