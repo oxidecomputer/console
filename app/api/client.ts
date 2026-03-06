@@ -82,13 +82,27 @@ export type ResultsPage<TItem> = { items: TItem[]; nextPage?: string | null }
 
 type HandledResult<T> = { type: 'success'; data: T } | { type: 'error'; data: ApiError }
 
+type ExpectedError = {
+  /**
+   * Why this error response is expected at the call site.
+   * Logged after "This error is expected: ", so this should be a sentence
+   * fragment starting lowercase and ending with punctuation, e.g.,
+   * "404 means the image name is not taken."
+   */
+  explanation: string
+  /** Expected HTTP status for the handled error case */
+  statusCode: number
+}
+
+const expectedErrorLabel = ({ statusCode }: ExpectedError) => `status ${statusCode}`
+
 // method: keyof Api would be strictly more correct, but making it a string
 // means we can call this directly in all the spots below instead of having to
 // make it generic over Api, which requires passing it as an argument to
 // getUseApiQuery, etc. This is fine because it is only being called inside
 // functions where `method` is already required to be an API method.
 const handleResult =
-  (method: string) =>
+  ({ method, errorsExpected }: { method: string; errorsExpected?: ExpectedError }) =>
   <Data>(result: ApiResult<Data>): HandledResult<Data> => {
     if (result.type === 'success') return { type: 'success', data: result.data }
 
@@ -111,15 +125,40 @@ const handleResult =
       const consolePage = window.location.pathname + window.location.search
       // TODO: need to change oxide.ts to put the HTTP method on the result in
       // order to log it here
-      console.error(
-        `More info about API ${error.statusCode || 'error'} on ${consolePage}
-
-API URL:        ${result.response.url}
+      const matchesExpectedError =
+        !!errorsExpected && error.statusCode === errorsExpected.statusCode
+      const logFn = matchesExpectedError ? console.info : console.error
+      const details = `API URL:        ${result.response.url}
 Request ID:     ${error.requestId}
 Error code:     ${error.errorCode}
-Error message:  ${error.message.replace(/\n/g, '\n' + ' '.repeat('Error message:  '.length))}
+Error message:  ${error.message.replace(/\n/g, '\n' + ' '.repeat('Error message:  '.length))}`
+      if (matchesExpectedError) {
+        logFn(
+          `API ${error.statusCode || 'error'} on ${consolePage}
+
+%cThis error is expected: %c${errorsExpected.explanation}
+Expected:       ${expectedErrorLabel(errorsExpected)}
+
+${details}
+`,
+          'font-weight: bold',
+          'font-weight: normal'
+        )
+      } else {
+        const mismatchDetails = errorsExpected
+          ? `
+Expected:       ${expectedErrorLabel(errorsExpected)}
+Reason:         ${errorsExpected.explanation}
 `
-      )
+          : ''
+        logFn(
+          `More info about API ${error.statusCode || 'error'} on ${consolePage}
+
+${mismatchDetails}${details}
+
+`
+        )
+      }
     }
 
     return { type: 'error', data: error }
@@ -234,9 +273,17 @@ export function ensurePrefetched<TData, TError>(
 export const q = <Params, Data>(
   f: (p: Params) => Promise<ApiResult<Data>>,
   params: Params,
-  options: UseQueryOtherOptions<Data> = {}
-) =>
-  queryOptions({
+  options: UseQueryOtherOptions<Data> & {
+    /**
+     * Expected error details. Matching errors are logged as `console.info`
+     * with the explanation; mismatches remain `console.error`.
+     * The explanation is rendered after "This error is expected: ".
+     */
+    errorsExpected?: ExpectedError
+  } = {}
+) => {
+  const { errorsExpected, ...rqOptions } = options
+  return queryOptions({
     // method name first means we can invalidate all calls to this endpoint by
     // invalidating [f.name] (see invalidateEndpoint)
     queryKey: [f.name, params],
@@ -248,7 +295,7 @@ export const q = <Params, Data>(
     // in the middle of prefetching
     queryFn: () =>
       f(params)
-        .then(handleResult(f.name))
+        .then(handleResult({ method: f.name, errorsExpected }))
         .then((result) => {
           if (result.type === 'success') return result.data
           throw result.data
@@ -258,8 +305,9 @@ export const q = <Params, Data>(
     // up as `error` state instead, pass `throwOnError: false` as an
     // option from the calling component and it will override this
     throwOnError: (err) => err.statusCode === 404,
-    ...options,
+    ...rqOptions,
   })
+}
 
 const ERRORS_ALLOWED = 'errors-allowed'
 
@@ -282,21 +330,30 @@ const ERRORS_ALLOWED = 'errors-allowed'
 export const qErrorsAllowed = <Params, Data>(
   f: (p: Params) => Promise<ApiResult<Data>>,
   params: Params,
-  options: UseQueryOtherOptions<HandledResult<Data>> = {}
-) =>
-  queryOptions({
+  options: UseQueryOtherOptions<HandledResult<Data>> & {
+    /**
+     * Expected error details. Matching errors are logged as `console.info`
+     * with the explanation; mismatches remain `console.error`.
+     * The explanation is rendered after "This error is expected: ".
+     */
+    errorsExpected: ExpectedError
+  }
+) => {
+  const { errorsExpected, ...rqOptions } = options
+  return queryOptions({
     // extra bit of key is important to distinguish from normal query. if we
     // hit a given endpoint twice on the same page, once the normal way and
     // once with errors allowed the responses have different shapes, so we do
     // not want to share the cache and mix them up
     queryKey: [f.name, params, ERRORS_ALLOWED],
-    queryFn: () => f(params).then(handleResult(f.name)),
+    queryFn: () => f(params).then(handleResult({ method: f.name, errorsExpected })),
     // No point having throwOnError because errors do not throw. Worth
     // considering still throwing for particular errors: sometimes we expect
     // a 403, other times we expect 404s. We could take a list of acceptable
     // status codes.
-    ...options,
+    ...rqOptions,
   })
+}
 
 // Unlike the query one, we don't need this to go through an options object
 // because we are not calling the mutation in two spots and sharing the options
@@ -326,7 +383,7 @@ export const useApiMutation = <Params, Data>(
       // us back Params, but TS can't prove Omit<Params & {signal?}, 'signal'>
       // === Params structurally.
       f(params as Params, { signal: __signal })
-        .then(handleResult(f.name))
+        .then(handleResult({ method: f.name }))
         .then((result) => {
           if (result.type === 'success') return result.data
           throw result.data

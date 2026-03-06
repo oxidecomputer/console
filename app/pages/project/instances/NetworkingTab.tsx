@@ -136,11 +136,18 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
       .fetchQuery(q(api.ipPoolList, { query: { limit: ALL_ISH } }))
       .then((pools) => {
         for (const pool of pools.items) {
-          // both IpPoolCell and the fetch in the model use errors-allowed
+          // both IpPoolCell and the fetch in the modal use errors-allowed
           // versions to avoid blowing up in the unlikely event of an error
-          const { queryKey } = qErrorsAllowed(api.ipPoolView, {
-            path: { pool: pool.id },
-          })
+          const { queryKey } = qErrorsAllowed(
+            api.ipPoolView,
+            { path: { pool: pool.id } },
+            {
+              errorsExpected: {
+                explanation: 'the referenced IP pool may have been deleted.',
+                statusCode: 404,
+              },
+            }
+          )
           queryClient.setQueryData(queryKey, { type: 'success', data: pool })
         }
       }),
