@@ -36,6 +36,7 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TipIcon } from '~/ui/lib/TipIcon'
@@ -68,6 +69,7 @@ export const handle = titleCrumb('Users')
 const colHelper = createColumnHelper<User>()
 
 const displayNameCol = colHelper.accessor('displayName', { header: 'Name' })
+const timeCreatedCol = colHelper.accessor('timeCreated', Columns.timeCreated)
 
 const EmptyState = () => (
   <EmptyMessage
@@ -232,7 +234,7 @@ export default function ProjectAccessUsersTab() {
   )
 
   const staticColumns = useMemo(
-    () => [displayNameCol, rolesCol, groupsCol],
+    () => [displayNameCol, rolesCol, groupsCol, timeCreatedCol],
     [rolesCol, groupsCol]
   )
 

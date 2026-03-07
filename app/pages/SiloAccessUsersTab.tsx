@@ -32,6 +32,7 @@ import { titleCrumb } from '~/hooks/use-crumbs'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TipIcon } from '~/ui/lib/TipIcon'
@@ -59,6 +60,7 @@ export const handle = titleCrumb('Users')
 const colHelper = createColumnHelper<User>()
 
 const displayNameCol = colHelper.accessor('displayName', { header: 'Name' })
+const timeCreatedCol = colHelper.accessor('timeCreated', Columns.timeCreated)
 
 const EmptyState = () => (
   <EmptyMessage
@@ -162,7 +164,7 @@ export default function SiloAccessUsersTab() {
   )
 
   const staticColumns = useMemo(
-    () => [displayNameCol, siloRoleCol, groupsCol],
+    () => [displayNameCol, siloRoleCol, groupsCol, timeCreatedCol],
     [siloRoleCol, groupsCol]
   )
 
