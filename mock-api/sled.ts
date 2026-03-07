@@ -25,7 +25,7 @@ export const sleds: Json<Sled[]> = [
       serial: 'BRM02222869',
       revision: 0,
     },
-    usable_hardware_threads: 128,
+    usable_hardware_threads: 254,
     usable_physical_ram: 1_099_511_627_776,
   },
   {
@@ -43,7 +43,7 @@ export const sleds: Json<Sled[]> = [
       serial: 'BRM02222870',
       revision: 0,
     },
-    usable_hardware_threads: 128,
+    usable_hardware_threads: 254,
     usable_physical_ram: 1_099_511_627_776,
   },
   {
@@ -60,7 +60,7 @@ export const sleds: Json<Sled[]> = [
       serial: 'BRM02222868',
       revision: 0,
     },
-    usable_hardware_threads: 128,
+    usable_hardware_threads: 254,
     usable_physical_ram: 1_099_511_627_776,
   },
   {
@@ -77,7 +77,7 @@ export const sleds: Json<Sled[]> = [
       serial: 'BRM02222867',
       revision: 0,
     },
-    usable_hardware_threads: 128,
+    usable_hardware_threads: 254,
     usable_physical_ram: 1_099_511_627_776,
   },
 ]

@@ -1383,6 +1383,10 @@ export type CurrentUser = {
   siloId: string
   /** Name of the silo to which this user belongs. */
   siloName: Name
+  /** Timestamp when this user was created */
+  timeCreated: Date
+  /** Timestamp when this user was last modified */
+  timeModified: Date
 }
 
 /**
@@ -2306,6 +2310,10 @@ export type Group = {
   id: string
   /** Uuid of the silo to which this group belongs */
   siloId: string
+  /** Timestamp when this group was created */
+  timeCreated: Date
+  /** Timestamp when this group was last modified */
+  timeModified: Date
 }
 
 /**
@@ -4344,11 +4352,6 @@ export type Sled = {
 }
 
 /**
- * The unique ID of a sled.
- */
-export type SledId = { id: string }
-
-/**
  * An operator's view of an instance running on a given sled
  */
 export type SledInstance = {
@@ -5134,11 +5137,6 @@ export type TufRepoUpload = { repo: TufRepo; status: TufRepoUploadStatus }
 export type UninitializedSled = { baseboard: Baseboard; cubby: number; rackId: string }
 
 /**
- * The unique hardware ID for a sled
- */
-export type UninitializedSledId = { part: string; serial: string }
-
-/**
  * A single page of results
  */
 export type UninitializedSledResultsPage = {
@@ -5202,6 +5200,10 @@ export type User = {
   id: string
   /** Uuid of the silo to which this user belongs */
   siloId: string
+  /** Timestamp when this user was created */
+  timeCreated: Date
+  /** Timestamp when this user was last modified */
+  timeModified: Date
 }
 
 /**
@@ -7475,7 +7477,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2026021301.0.0'
+  apiVersion = '2026030200.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host
@@ -10076,17 +10078,6 @@ export class Api {
       })
     },
     /**
-     * Add sled to initialized rack
-     */
-    sledAdd: ({ body }: { body: UninitializedSledId }, params: FetchParams = {}) => {
-      return this.request<SledId>({
-        path: `/v1/system/hardware/sleds`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
      * Fetch sled
      */
     sledView: ({ path }: { path: SledViewPathParams }, params: FetchParams = {}) => {
@@ -11519,6 +11510,20 @@ export class Api {
         path: `/v1/system/timeseries/schemas`,
         method: 'GET',
         query,
+        ...params,
+      })
+    },
+    /**
+     * Instructs the system that a system recovery operation ("mupdate") was
+     */
+    systemUpdateRecoveryFinish: (
+      { body }: { body: SetTargetReleaseParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/update/recovery-finish`,
+        method: 'PUT',
+        body,
         ...params,
       })
     },

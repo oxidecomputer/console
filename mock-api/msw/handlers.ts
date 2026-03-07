@@ -886,7 +886,7 @@ export const handlers = makeHandlers({
     const ip = getIpFromPool(pool)
 
     // Validate that external IP version matches primary NIC's IP stack
-    // Based on Omicron validation in nexus/db-queries/src/db/datastore/external_ip.rs:544-661
+    // https://github.com/oxidecomputer/omicron/blob/558f89e/nexus/db-queries/src/db/datastore/external_ip.rs#L673-L687
     const nics = db.networkInterfaces.filter((n) => n.instance_id === instance.id)
     const primaryNic = nics.find((n) => n.primary)
 
@@ -932,12 +932,42 @@ export const handlers = makeHandlers({
     return externalIp
   },
   instanceEphemeralIpDetach({ path, query }) {
-    const instance = lookup.instance({ ...path, ...query })
-    // match API logic: find/remove first ephemeral ip attached to instance
-    // https://github.com/oxidecomputer/omicron/blob/d52aad0/nexus/db-queries/src/db/datastore/external_ip.rs#L782-L794
-    // https://github.com/oxidecomputer/omicron/blob/d52aad0/nexus/src/app/sagas/instance_ip_detach.rs#L79-L82
-    const ip = db.ephemeralIps.find((eip) => eip.instance_id === instance.id)
-    if (!ip) throw notFoundErr(`ephemeral IP for instance ${instance.name}`)
+    // When an instance has both IPv4 and IPv6 ephemeral IPs attached, Omicron
+    // requires an explicit `ipVersion` query param to disambiguate which to
+    // detach.
+    // https://github.com/oxidecomputer/omicron/blob/558f89e/nexus/types/src/external_api/params.rs#L267-L277
+    // https://github.com/oxidecomputer/omicron/blob/558f89e/nexus/src/app/sagas/instance_ip_detach.rs#L75-L99
+    // https://github.com/oxidecomputer/omicron/blob/558f89e/nexus/src/external_api/http_entrypoints.rs#L4913-L4939
+    const { ipVersion, ...instanceQuery } = query
+    const instance = lookup.instance({ ...path, ...instanceQuery })
+
+    const attachedIps = db.ephemeralIps.filter((eip) => eip.instance_id === instance.id)
+    if (attachedIps.length === 0) {
+      throw notFoundErr(`ephemeral IP for instance ${instance.name}`)
+    }
+
+    const versionOf = (ip: string) => (ip.includes(':') ? 'v6' : 'v4')
+    const attachedVersions = new Set(
+      attachedIps.map((eip) => versionOf(eip.external_ip.ip))
+    )
+
+    if (attachedVersions.size > 1 && !ipVersion) {
+      throw json(
+        {
+          error_code: 'InvalidRequest',
+          message: `Instance ${instance.name} has both IPv4 and IPv6 ephemeral IPs; ipVersion is required to detach one`,
+        },
+        { status: 400 }
+      )
+    }
+
+    const ip =
+      ipVersion === undefined
+        ? attachedIps[0]
+        : attachedIps.find((eip) => versionOf(eip.external_ip.ip) === ipVersion)
+
+    if (!ip) throw notFoundErr(`ephemeral IP (${ipVersion}) for instance ${instance.name}`)
+
     db.ephemeralIps = db.ephemeralIps.filter((eip) => eip !== ip)
     return 204
   },
@@ -2292,7 +2322,6 @@ export const handlers = makeHandlers({
   siloSubnetPoolList: NotImplemented,
   siloUserList: NotImplemented,
   siloUserView: NotImplemented,
-  sledAdd: NotImplemented,
   sledListUninitialized: NotImplemented,
   sledSetProvisionPolicy: NotImplemented,
   systemSubnetPoolCreate: NotImplemented,
@@ -2340,6 +2369,7 @@ export const handlers = makeHandlers({
   },
   systemQuotasList: NotImplemented,
   systemTimeseriesSchemaList: NotImplemented,
+  systemUpdateRecoveryFinish: NotImplemented,
   systemUpdateRepositoryView: NotImplemented,
   systemUpdateTrustRootCreate: NotImplemented,
   systemUpdateTrustRootDelete: NotImplemented,

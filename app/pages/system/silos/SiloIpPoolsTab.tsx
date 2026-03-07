@@ -12,7 +12,14 @@ import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { type LoaderFunctionArgs } from 'react-router'
 
-import { api, getListQFn, queryClient, useApiMutation, type SiloIpPool } from '@oxide/api'
+import {
+  api,
+  getListQFn,
+  queryClient,
+  useApiMutation,
+  type IpPool,
+  type SiloIpPool,
+} from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
@@ -27,7 +34,7 @@ import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
-import { toComboboxItems } from '~/ui/lib/Combobox'
+import type { ComboboxItem } from '~/ui/lib/Combobox'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
@@ -35,6 +42,20 @@ import { Modal } from '~/ui/lib/Modal'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
+
+function toIpPoolComboboxItem(p: IpPool): ComboboxItem {
+  return {
+    value: p.name,
+    selectedLabel: p.name,
+    label: (
+      <div className="flex items-center gap-1.5">
+        {p.name}
+        <IpVersionBadge ipVersion={p.ipVersion} />
+        <Badge color="neutral">{p.poolType}</Badge>
+      </div>
+    ),
+  }
+}
 
 const EmptyState = () => (
   <EmptyMessage
@@ -267,7 +288,9 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
   const unlinkedPoolItems = useMemo(
     () =>
       allPools.data && linkedPoolIds
-        ? toComboboxItems(allPools.data.items.filter((p) => !linkedPoolIds.has(p.id)))
+        ? allPools.data.items
+            .filter((p) => !linkedPoolIds.has(p.id))
+            .map(toIpPoolComboboxItem)
         : [],
     [allPools, linkedPoolIds]
   )
