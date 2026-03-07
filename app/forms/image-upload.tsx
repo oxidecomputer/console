@@ -107,7 +107,7 @@ function Step({ children, state, label, className }: StepProps) {
   return (
     // data-status used only for e2e testing
     <div
-      className={cn('upload-step items-top flex gap-2 px-4 py-3', className)}
+      className={cn('upload-step flex gap-2 px-4 py-3', className)}
       data-testid={`upload-step: ${label}`}
       data-status={status}
     >
@@ -517,19 +517,20 @@ export default function ImageCreate() {
         // check that image name isn't taken before starting the whole thing
         const image = await queryClient
           .fetchQuery(
-            q(api.imageView, {
-              path: { image: values.imageName },
-              query: { project },
-            })
+            q(
+              api.imageView,
+              { path: { image: values.imageName }, query: { project } },
+              {
+                errorsExpected: {
+                  explanation: 'the image name may not exist yet.',
+                  statusCode: 404,
+                },
+              }
+            )
           )
           .catch((e) => {
             // eat a 404 since that's what we want. anything else should still blow up
-            if (e.statusCode === 404) {
-              console.info(
-                '/v1/images 404 is expected. It means the image name is not taken.'
-              )
-              return null
-            }
+            if (e.statusCode === 404) return null
             throw e
           })
         if (image) {

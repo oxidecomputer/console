@@ -111,15 +111,18 @@ type HintProps = {
  * Pass id here and include that ID in aria-describedby on the TextField
  */
 export const TextInputHint = ({ id, children, className }: HintProps) => (
-  <div
-    id={id}
-    className={cn(
-      'text-sans-sm text-secondary hover:[&_>_a]:text-raise mt-1 [&_>_a]:underline',
-      className
-    )}
-  >
+  <div id={id} className={cn('text-sans-sm text-secondary mt-1', className)}>
     {children}
   </div>
+)
+
+export type HintLinkProps = { href: string; children: React.ReactNode }
+
+/** External link styled for use inside a TextInputHint */
+export const HintLink = ({ href, children }: HintLinkProps) => (
+  <a href={href} target="_blank" rel="noreferrer" className="hover:text-raise underline">
+    {children}
+  </a>
 )
 
 export const TextInputError = ({ children }: { children: string }) => {

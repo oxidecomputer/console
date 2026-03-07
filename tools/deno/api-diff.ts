@@ -166,13 +166,34 @@ async function resolveTarget(ref1?: string | number, ref2?: string): Promise<Dif
   }
 }
 
+/** Resolve the raw URL for a spec file, following gitstub references */
+async function resolveSpecUrl(commit: string, specFilename: string): Promise<string> {
+  if (!specFilename.endsWith('.gitstub')) {
+    return SPEC_RAW_URL(commit, specFilename)
+  }
+  // gitstub files contain "<commit>:<path>\n" — follow the reference
+  const stubResp = await fetch(SPEC_RAW_URL(commit, specFilename))
+  if (!stubResp.ok) {
+    throw new Error(
+      `Failed to download stub ${specFilename} at ${commit}: ${stubResp.status} ${stubResp.statusText}`
+    )
+  }
+  const stub = (await stubResp.text()).trim()
+  const match = stub.match(/^([0-9a-f]+):(.+)$/)
+  if (!match) throw new Error(`Unexpected gitstub format in ${specFilename}: ${stub}`)
+  const [, stubCommit, stubPath] = match
+  console.error(`  Resolved gitstub → ${stubCommit.slice(0, 10)}:${stubPath}`)
+  return SPEC_RAW_URL(stubCommit, stubPath)
+}
+
 async function ensureSchema(commit: string, specFilename: string, force: boolean) {
   const dir = `/tmp/api-diff/${commit}/${specFilename}`
   const schemaPath = `${dir}/spec.json`
   if (force || !(await exists(schemaPath))) {
     await $`mkdir -p ${dir}`
     console.error(`Downloading ${specFilename}...`)
-    const resp = await fetch(SPEC_RAW_URL(commit, specFilename))
+    const url = await resolveSpecUrl(commit, specFilename)
+    const resp = await fetch(url)
     if (!resp.ok) {
       throw new Error(
         `Failed to download ${specFilename} at ${commit}: ${resp.status} ${resp.statusText}`

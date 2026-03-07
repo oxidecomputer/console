@@ -7,6 +7,7 @@
  */
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
+import { match } from 'ts-pattern'
 
 import {
   api,
@@ -28,7 +29,7 @@ import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Message } from '~/ui/lib/Message'
 import { ClearAndAddButtons, MiniTable } from '~/ui/lib/MiniTable'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
-import { TextInputHint } from '~/ui/lib/TextInput'
+import { HintLink, TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
 import { parseIpNet, validateIpNet } from '~/util/ip'
 import { docLinks, links } from '~/util/links'
@@ -70,16 +71,14 @@ export function EditNetworkInterfaceForm({
 
   // Determine what IP versions this NIC supports
   const { ipStack } = editing
-  const supportsV4 = ipStack.type === 'v4' || ipStack.type === 'dual_stack'
-  const supportsV6 = ipStack.type === 'v6' || ipStack.type === 'dual_stack'
-  const supportedVersions =
-    supportsV4 && supportsV6 ? 'both IPv4 and IPv6' : supportsV4 ? 'IPv4' : 'IPv6'
-  const exampleIPs =
-    supportsV4 && supportsV6
-      ? '192.168.0.0/16 or fd00::/64'
-      : supportsV4
-        ? '192.168.0.0/16'
-        : 'fd00::/64'
+  const { supportedVersions, exampleIPs } = match(ipStack.type)
+    .with('v4', () => ({ supportedVersions: 'IPv4', exampleIPs: '192.168.0.0/16' }))
+    .with('v6', () => ({ supportedVersions: 'IPv6', exampleIPs: 'fd00::/64' }))
+    .with('dual_stack', () => ({
+      supportedVersions: 'both IPv4 and IPv6',
+      exampleIPs: '192.168.0.0/16 or fd00::/64',
+    }))
+    .exhaustive()
 
   const transitIpsForm = useForm({ defaultValues: { transitIp: '' } })
   const transitIpValue = transitIpsForm.watch('transitIp')
@@ -123,11 +122,8 @@ export function EditNetworkInterfaceForm({
             Transit IPs
           </FieldLabel>
           <TextInputHint id="transitIp-help-text" className="mb-2">
-            An IP network, like {exampleIPs}.
-            <br />
-            <a href={links.transitIpsDocs} target="_blank" rel="noreferrer">
-              Learn more about transit IPs.
-            </a>
+            These allow an instance to opt into traffic from a wider address range. Learn
+            more in the <HintLink href={links.transitIpsDocs}>Networking</HintLink> guide.
           </TextInputHint>
           <TextFieldInner
             id="transitIp"
@@ -143,18 +139,18 @@ export function EditNetworkInterfaceForm({
               const error = validateIpNet(value)
               if (error) return error
 
-              // Check if Transit IP version matches NIC's supported versions
+              // Check if transit IP version matches NIC's stack type
               const parsed = parseIpNet(value)
-              if (parsed.type === 'v4' && !supportsV4) {
+              if (parsed.type === 'v4' && ipStack.type === 'v6') {
                 return 'IPv4 transit IP not supported by this network interface'
               }
-              if (parsed.type === 'v6' && !supportsV6) {
+              if (parsed.type === 'v6' && ipStack.type === 'v4') {
                 return 'IPv6 transit IP not supported by this network interface'
               }
 
               if (transitIps.includes(value)) return 'Transit IP already in list'
             }}
-            placeholder="Enter an IP network"
+            placeholder={`An IP network, e.g., ${exampleIPs}`}
           />
         </div>
         <ClearAndAddButtons
