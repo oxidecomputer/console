@@ -15,12 +15,14 @@ import {
   poolHasIpVersion,
   q,
   queryClient,
+  sortPools,
   useApiMutation,
   usePrefetchedQuery,
   type IpVersion,
 } from '~/api'
-import { IpPoolSelector } from '~/components/form/fields/IpPoolSelector'
+import { ListboxField } from '~/components/form/fields/ListboxField'
 import { HL } from '~/components/HL'
+import { toIpPoolItem } from '~/components/IpPoolListboxItem'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Message } from '~/ui/lib/Message'
@@ -84,12 +86,14 @@ export const AttachEphemeralIpModal = ({
         <Modal.Section>
           {infoMessage && <Message variant="info" content={infoMessage} />}
           <form>
-            <IpPoolSelector
+            <ListboxField
+              name="pool"
+              label="Pool"
               control={form.control}
-              poolFieldName="pool"
-              pools={compatibleUnicastPools}
+              items={sortPools(compatibleUnicastPools).map(toIpPoolItem)}
               disabled={compatibleUnicastPools.length === 0}
-              compatibleVersions={availableVersions}
+              placeholder="Select a pool"
+              noItemsPlaceholder="No pools available"
             />
           </form>
         </Modal.Section>

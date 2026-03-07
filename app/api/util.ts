@@ -107,6 +107,15 @@ export const poolHasIpVersion = (versions: Iterable<IpVersion>) => {
   return (pool: { ipVersion: IpVersion }): boolean => versionSet.has(pool.ipVersion)
 }
 
+/** Sort pools: defaults first, then v4 before v6, then by name */
+export const sortPools = <T extends SiloIpPool>(pools: T[]) =>
+  R.sortBy(
+    pools,
+    (p) => !p.isDefault, // false sorts first → defaults first
+    (p) => p.ipVersion, // v4 before v6
+    (p) => p.name
+  )
+
 const instanceActions = {
   // NoVmm maps to to Stopped:
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-model/src/instance_state.rs#L55
