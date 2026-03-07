@@ -121,7 +121,7 @@ export function RoleRadioField<
         className="mt-2"
       >
         {roles.map((role) => (
-          <Radio name="roleName" key={role} value={role} alignTop>
+          <Radio name="roleName" key={role} value={role}>
             <div className="text-sans-md text-raise">
               {capitalize(role).replace('_', ' ')}
             </div>
