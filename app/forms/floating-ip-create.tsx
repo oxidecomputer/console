@@ -104,6 +104,7 @@ export default function CreateFloatingIpSideModalForm() {
         label="Pool"
         control={form.control}
         items={sortPools(unicastPools).map(toIpPoolItem)}
+        required
         placeholder="Select a pool"
         noItemsPlaceholder="No pools available"
       />
