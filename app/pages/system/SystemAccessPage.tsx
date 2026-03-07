@@ -45,28 +45,23 @@ import { groupBy } from '~/util/array'
 import { docLinks } from '~/util/links'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
-  <>
-    <TableEmptyBox>
-      <EmptyMessage
-        icon={<Access24Icon />}
-        title="No authorized users"
-        body="Give permission to view, edit, or administer this fleet"
-        buttonText="Add user or group"
-        onClick={onClick}
-      />
-    </TableEmptyBox>
-    <Message
-      variant="info"
-      className="mt-4"
-      content={
-        <>
-          Users may also have fleet access through silo role mappings. Check each silo's{' '}
-          Fleet Roles tab to see whether permissions granted through Fleet roles apply to
-          Silos and Projects.
-        </>
+  <TableEmptyBox>
+    <EmptyMessage
+      icon={<Access24Icon />}
+      title="No authorized users"
+      body={
+        <div className="flex flex-col gap-2">
+          <p>Give permission to view, edit, or administer this fleet.</p>
+          <p>
+            Note: Depending on silo fleet role mappings, silo admins could have fleet
+            permissions, even if not listed here.
+          </p>
+        </div>
       }
+      buttonText="Add user or group"
+      onClick={onClick}
     />
-  </>
+  </TableEmptyBox>
 )
 
 const systemPolicyView = q(api.systemPolicyView, {})
@@ -180,21 +175,25 @@ export default function SystemAccessPage() {
           heading="access"
           icon={<Access16Icon />}
           summary="Roles determine who can view, edit, or administer this fleet."
-          links={[docLinks.keyConceptsIam, docLinks.access]}
+          links={[docLinks.keyConceptsIam, docLinks.access, docLinks.fleetRoleMappings]}
         />
       </PageHeader>
 
-      <Message
-        variant="info"
-        className="mb-6"
-        content={
-          <>
-            Users may also have fleet access through silo role mappings. Check each silo’s{' '}
-            Fleet Roles tab to see whether permissions granted through Fleet roles apply to
-            Silos and Projects.
-          </>
-        }
-      />
+      {rows.length >= 0 && (
+        <div className="pb-4">
+          <Message
+            variant="info"
+            className="mb-6"
+            content={
+              <>
+                Silos can also be configured with <code>mapped_fleet_roles</code>, which
+                grant fleet-level roles to users based on their silo-level roles. Check each
+                silo’s Fleet Roles tab for more.
+              </>
+            }
+          />
+        </div>
+      )}
       <TableActions>
         <CreateButton onClick={() => setAddModalOpen(true)}>Add user or group</CreateButton>
       </TableActions>
