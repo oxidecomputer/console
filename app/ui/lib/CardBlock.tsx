@@ -47,9 +47,9 @@ type HeaderProps = {
 CardBlock.Header = ({ title, description, children, titleId }: HeaderProps) => (
   <header className="text-secondary flex items-start justify-between px-5 pb-4">
     <div className="flex flex-col gap-0.5">
-      <div className="text-sans-semi-lg text-raise" id={titleId}>
+      <h3 className="text-sans-semi-lg text-raise" id={titleId}>
         {title}
-      </div>
+      </h3>
       {description && <div className="text-secondary">{description}</div>}
     </div>
 

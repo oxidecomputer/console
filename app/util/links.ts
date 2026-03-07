@@ -76,6 +76,11 @@ export const docLinks = {
     href: 'https://docs.oxide.computer/guides/managing-instances#_update_instances',
     linkText: 'Instance Auto-Restart',
   },
+  cpuPlatform: {
+    // TODO: Add a proper CPU Platform section to https://docs.oxide.computer/guides/deploying-workloads
+    href: 'https://docs.oxide.computer/api/instance_create',
+    linkText: 'CPU Platforms',
+  },
   instanceActions: {
     href: 'https://docs.oxide.computer/guides/managing-instances',
     linkText: 'Instance Actions',

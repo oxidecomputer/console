@@ -15,6 +15,7 @@ import { getInstanceSelector } from '~/hooks/use-params'
 
 import { AntiAffinityCard, instanceAntiAffinityGroups } from './AntiAffinityCard'
 import { AutoRestartCard } from './AutoRestartCard'
+import { CpuPlatformCard } from './CpuPlatformCard'
 
 export const handle = { crumb: 'Settings' }
 
@@ -30,6 +31,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 export default function SettingsTab() {
   return (
     <div className="space-y-6">
+      <CpuPlatformCard />
       <AntiAffinityCard />
       <AutoRestartCard />
     </div>
