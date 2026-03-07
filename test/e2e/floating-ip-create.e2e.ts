@@ -30,6 +30,13 @@ test('can create a floating IP', async ({ page }) => {
   // Default silo has both v4 and v6 defaults, so no pool is preselected
   const poolDropdown = page.getByLabel('Pool')
   await expect(poolDropdown).toContainText('Select a pool')
+
+  // Pool selection is required when no default can be chosen automatically
+  const dialog = page.getByRole('dialog', { name: 'Create floating IP' })
+  await page.getByRole('button', { name: 'Create floating IP' }).click()
+  await expect(dialog).toBeVisible()
+  await expect(dialog.getByText('Pool is required')).toBeVisible()
+
   await poolDropdown.click()
   await page.getByRole('option', { name: 'ip-pool-1' }).click()
   await page.getByRole('button', { name: 'Create floating IP' }).click()
