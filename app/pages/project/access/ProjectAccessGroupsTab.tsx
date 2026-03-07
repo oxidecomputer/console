@@ -102,6 +102,7 @@ function GroupMembersSideModal({ group, onDismiss }: GroupMembersSideModalProps)
     >
       <PropertiesTable>
         <PropertiesTable.IdRow id={group.id} />
+        <PropertiesTable.DateRow label="Created" date={group.timeCreated} />
       </PropertiesTable>
       <div className="mt-6">
         {members.length === 0 ? (

@@ -24,9 +24,10 @@ import {
   type Group,
   type User,
 } from '@oxide/api'
-import { Person24Icon } from '@oxide/design-system/icons/react'
+import { Person16Icon, Person24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
+import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { HL } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
 import { ProjectAccessEditUserSideModal } from '~/forms/project-access'
@@ -35,10 +36,13 @@ import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
+import { ButtonCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { ResourceLabel } from '~/ui/lib/SideModal'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { roleColor } from '~/util/access'
 import { ALL_ISH } from '~/util/consts'
@@ -68,8 +72,32 @@ export const handle = titleCrumb('Users')
 
 const colHelper = createColumnHelper<User>()
 
-const displayNameCol = colHelper.accessor('displayName', { header: 'Name' })
 const timeCreatedCol = colHelper.accessor('timeCreated', Columns.timeCreated)
+
+type UserDetailsSideModalProps = {
+  user: User
+  onDismiss: () => void
+}
+
+function UserDetailsSideModal({ user, onDismiss }: UserDetailsSideModalProps) {
+  return (
+    <ReadOnlySideModalForm
+      title="User details"
+      subtitle={
+        <ResourceLabel>
+          <Person16Icon /> {user.displayName}
+        </ResourceLabel>
+      }
+      onDismiss={onDismiss}
+      animate
+    >
+      <PropertiesTable>
+        <PropertiesTable.IdRow id={user.id} />
+        <PropertiesTable.DateRow label="Created" date={user.timeCreated} />
+      </PropertiesTable>
+    </ReadOnlySideModalForm>
+  )
+}
 
 const EmptyState = () => (
   <EmptyMessage
@@ -80,6 +108,7 @@ const EmptyState = () => (
 )
 
 export default function ProjectAccessUsersTab() {
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const projectSelector = useProjectSelector()
   const { project } = projectSelector
@@ -233,9 +262,22 @@ export default function ProjectAccessUsersTab() {
     [groupsByUserId]
   )
 
+  const displayNameCol = useMemo(
+    () =>
+      colHelper.accessor('displayName', {
+        header: 'Name',
+        cell: (info) => (
+          <ButtonCell onClick={() => setSelectedUser(info.row.original)}>
+            {info.getValue()}
+          </ButtonCell>
+        ),
+      }),
+    []
+  )
+
   const staticColumns = useMemo(
     () => [displayNameCol, rolesCol, groupsCol, timeCreatedCol],
-    [rolesCol, groupsCol]
+    [displayNameCol, rolesCol, groupsCol]
   )
 
   const makeActions = useCallback(
@@ -268,6 +310,9 @@ export default function ProjectAccessUsersTab() {
   return (
     <>
       {table}
+      {selectedUser && (
+        <UserDetailsSideModal user={selectedUser} onDismiss={() => setSelectedUser(null)} />
+      )}
       {editingUser && (
         <ProjectAccessEditUserSideModal
           name={editingUser.displayName}
