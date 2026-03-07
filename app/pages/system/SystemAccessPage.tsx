@@ -37,6 +37,7 @@ import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { Message } from '~/ui/lib/Message'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
 import { identityTypeLabel, roleColor } from '~/util/access'
@@ -44,15 +45,28 @@ import { groupBy } from '~/util/array'
 import { docLinks } from '~/util/links'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
-  <TableEmptyBox>
-    <EmptyMessage
-      icon={<Access24Icon />}
-      title="No authorized users"
-      body="Give permission to view, edit, or administer this fleet"
-      buttonText="Add user or group"
-      onClick={onClick}
+  <>
+    <TableEmptyBox>
+      <EmptyMessage
+        icon={<Access24Icon />}
+        title="No authorized users"
+        body="Give permission to view, edit, or administer this fleet"
+        buttonText="Add user or group"
+        onClick={onClick}
+      />
+    </TableEmptyBox>
+    <Message
+      variant="info"
+      className="mt-4"
+      content={
+        <>
+          Users may also have fleet access through silo role mappings. Check each silo's{' '}
+          Fleet Roles tab to see whether permissions granted through Fleet roles apply to
+          Silos and Projects.
+        </>
+      }
     />
-  </TableEmptyBox>
+  </>
 )
 
 const systemPolicyView = q(api.systemPolicyView, {})
@@ -170,6 +184,17 @@ export default function SystemAccessPage() {
         />
       </PageHeader>
 
+      <Message
+        variant="info"
+        className="mb-6"
+        content={
+          <>
+            Users may also have fleet access through silo role mappings. Check each silo’s{' '}
+            Fleet Roles tab to see whether permissions granted through Fleet roles apply to
+            Silos and Projects.
+          </>
+        }
+      />
       <TableActions>
         <CreateButton onClick={() => setAddModalOpen(true)}>Add user or group</CreateButton>
       </TableActions>
