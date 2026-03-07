@@ -791,7 +791,7 @@ exports[`breadcrumbs 2`] = `
   ],
   "systemAccess (/system/access)": [
     {
-      "label": "System Access",
+      "label": "Fleet Access",
       "path": "/system/access",
     },
   ],

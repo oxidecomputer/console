@@ -15,7 +15,7 @@ test('Click through system access page', async ({ page }) => {
   const table = page.getByRole('table')
 
   // initial fleet role assignments: Hannah Arendt (admin), Jane Austen (viewer)
-  await expect(page.getByRole('heading', { name: /System Access/ })).toBeVisible()
+  await expect(page.getByRole('heading', { name: /Fleet Access/ })).toBeVisible()
   await expectRowVisible(table, {
     Name: 'Hannah Arendt',
     Type: 'User',
@@ -121,7 +121,7 @@ test('Fleet viewer cannot modify system access', async ({ browser }) => {
   await page.goto('/system/access')
 
   const table = page.getByRole('table')
-  await expect(page.getByRole('heading', { name: /System Access/ })).toBeVisible()
+  await expect(page.getByRole('heading', { name: /Fleet Access/ })).toBeVisible()
   await expectRowVisible(table, { Name: 'Hannah Arendt', Role: 'fleet.admin' })
 
   // attempt to add a user — the submit should fail with 403
