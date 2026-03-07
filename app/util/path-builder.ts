@@ -27,6 +27,8 @@ export const pb = {
   projectEdit: (params: PP.Project) => `${projectBase(params)}/edit`,
 
   projectAccess: (params: PP.Project) => `${projectBase(params)}/access`,
+  projectAccessUsers: (params: PP.Project) => `${projectBase(params)}/access/users`,
+  projectAccessGroups: (params: PP.Project) => `${projectBase(params)}/access/groups`,
   projectImages: (params: PP.Project) => `${projectBase(params)}/images`,
   projectImagesNew: (params: PP.Project) => `${projectBase(params)}/images-new`,
   projectImageEdit: (params: PP.Image) =>
@@ -107,6 +109,8 @@ export const pb = {
 
   siloUtilization: () => '/utilization',
   siloAccess: () => '/access',
+  siloAccessUsers: () => '/access/users',
+  siloAccessGroups: () => '/access/groups',
   siloImages: () => '/images',
   siloImageEdit: (params: PP.SiloImage) => `${pb.siloImages()}/${params.image}/edit`,
 
