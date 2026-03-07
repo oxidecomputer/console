@@ -14,16 +14,18 @@ import {
   isUnicastPool,
   q,
   queryClient,
+  sortPools,
   useApiMutation,
   usePrefetchedQuery,
   type FloatingIpCreate,
 } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
-import { IpPoolSelector } from '~/components/form/fields/IpPoolSelector'
+import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { toIpPoolItem } from '~/components/IpPoolListboxItem'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
@@ -97,7 +99,14 @@ export default function CreateFloatingIpSideModalForm() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <IpPoolSelector control={form.control} poolFieldName="pool" pools={unicastPools} />
+      <ListboxField
+        name="pool"
+        label="Pool"
+        control={form.control}
+        items={sortPools(unicastPools).map(toIpPoolItem)}
+        placeholder="Select a pool"
+        noItemsPlaceholder="No pools available"
+      />
       <SideModalFormDocs docs={[docLinks.floatingIps]} />
     </SideModalForm>
   )

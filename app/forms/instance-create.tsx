@@ -54,7 +54,7 @@ import {
 } from '~/components/form/fields/DisksTableField'
 import { FileField } from '~/components/form/fields/FileField'
 import { BootDiskImageSelectField as ImageSelectField } from '~/components/form/fields/ImageSelectField'
-import { IpPoolSelector } from '~/components/form/fields/IpPoolSelector'
+import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { NetworkInterfaceField } from '~/components/form/fields/NetworkInterfaceField'
 import { NumberField } from '~/components/form/fields/NumberField'
@@ -63,6 +63,7 @@ import { SshKeysField } from '~/components/form/fields/SshKeysField'
 import { Form } from '~/components/form/Form'
 import { FullPageForm } from '~/components/form/FullPageForm'
 import { HL } from '~/components/HL'
+import { toIpPoolItem } from '~/components/IpPoolListboxItem'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Button } from '~/ui/lib/Button'
@@ -331,15 +332,17 @@ function EphemeralIpCheckbox({
         </span>
       </Wrap>
       <div className={`my-2 ml-6 ${checked ? '' : 'hidden'}`}>
-        <IpPoolSelector
+        <ListboxField
+          name={poolFieldName}
           control={control}
-          poolFieldName={poolFieldName}
-          pools={pools}
+          items={pools.map(toIpPoolItem)}
           disabled={isSubmitting}
           required={checked}
           hideOptionalTag
           label={`${displayVersion} pool`}
           hideLabel
+          placeholder="Select a pool"
+          noItemsPlaceholder="No pools available"
         />
       </div>
     </div>
