@@ -1327,6 +1327,8 @@ export const CurrentUser = z.preprocess(
     siloAdmin: SafeBoolean,
     siloId: z.uuid(),
     siloName: Name,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
@@ -2152,7 +2154,13 @@ export const FloatingIpUpdate = z.preprocess(
  */
 export const Group = z.preprocess(
   processResponseBody,
-  z.object({ displayName: z.string(), id: z.uuid(), siloId: z.uuid() })
+  z.object({
+    displayName: z.string(),
+    id: z.uuid(),
+    siloId: z.uuid(),
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
 )
 
 /**
@@ -3970,11 +3978,6 @@ export const Sled = z.preprocess(
 )
 
 /**
- * The unique ID of a sled.
- */
-export const SledId = z.preprocess(processResponseBody, z.object({ id: z.uuid() }))
-
-/**
  * An operator's view of an instance running on a given sled
  */
 export const SledInstance = z.preprocess(
@@ -4672,14 +4675,6 @@ export const UninitializedSled = z.preprocess(
 )
 
 /**
- * The unique hardware ID for a sled
- */
-export const UninitializedSledId = z.preprocess(
-  processResponseBody,
-  z.object({ part: z.string(), serial: z.string() })
-)
-
-/**
  * A single page of results
  */
 export const UninitializedSledResultsPage = z.preprocess(
@@ -4722,7 +4717,13 @@ export const UpdatesTrustRootResultsPage = z.preprocess(
  */
 export const User = z.preprocess(
   processResponseBody,
-  z.object({ displayName: z.string(), id: z.uuid(), siloId: z.uuid() })
+  z.object({
+    displayName: z.string(),
+    id: z.uuid(),
+    siloId: z.uuid(),
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
 )
 
 /**
@@ -7071,14 +7072,6 @@ export const SledListParams = z.preprocess(
   })
 )
 
-export const SledAddParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({}),
-  })
-)
-
 export const SledViewParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -8123,6 +8116,14 @@ export const SystemTimeseriesSchemaListParams = z.preprocess(
       limit: z.number().min(1).max(4294967295).nullable().optional(),
       pageToken: z.string().nullable().optional(),
     }),
+  })
+)
+
+export const SystemUpdateRecoveryFinishParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
   })
 )
 
