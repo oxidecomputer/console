@@ -14,6 +14,7 @@ import { validate as isUuid, v4 as uuid } from 'uuid'
 
 import {
   diskCan,
+  fleetRoles,
   FLEET_ID,
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
@@ -1905,10 +1906,9 @@ export const handlers = makeHandlers({
   systemPolicyView({ cookies }) {
     requireFleetViewer(cookies)
 
-    const fleetRoles: FleetRole[] = ['admin', 'collaborator', 'viewer']
     const role_assignments = db.roleAssignments
       .filter((r) => r.resource_type === 'fleet' && r.resource_id === FLEET_ID)
-      .filter((r) => fleetRoles.includes(r.role_name as FleetRole))
+      .filter((r) => fleetRoles.some((role) => role === r.role_name))
       .map((r) => ({
         identity_id: r.identity_id,
         identity_type: r.identity_type,
@@ -2348,7 +2348,25 @@ export const handlers = makeHandlers({
   supportBundleUpdate: NotImplemented,
   supportBundleView: NotImplemented,
   switchView: NotImplemented,
-  systemPolicyUpdate: NotImplemented,
+  systemPolicyUpdate({ body, cookies }) {
+    requireFleetAdmin(cookies)
+
+    const newAssignments = body.role_assignments
+      .filter((r) => fleetRoles.some((role) => role === r.role_name))
+      .map((r) => ({
+        resource_type: 'fleet' as const,
+        resource_id: FLEET_ID,
+        ...R.pick(r, ['identity_id', 'identity_type', 'role_name']),
+      }))
+
+    const unrelatedAssignments = db.roleAssignments.filter(
+      (r) => !(r.resource_type === 'fleet' && r.resource_id === FLEET_ID)
+    )
+
+    db.roleAssignments = [...unrelatedAssignments, ...newAssignments]
+
+    return body
+  },
   systemQuotasList: NotImplemented,
   systemTimeseriesSchemaList: NotImplemented,
   systemUpdateRecoveryFinish: NotImplemented,

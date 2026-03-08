@@ -13,6 +13,7 @@ import {
   updateRole,
   useActorsNotInPolicy,
   useApiMutation,
+  type FleetRole,
 } from '@oxide/api'
 import { Access16Icon } from '@oxide/design-system/icons/react'
 
@@ -24,23 +25,27 @@ import { docLinks } from '~/util/links'
 
 import {
   actorToItem,
-  defaultValues,
   RoleRadioField,
   type AddRoleModalProps,
   type EditRoleModalProps,
 } from './access-util'
 
-export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
+export function SystemAccessAddUserSideModal({
+  onDismiss,
+  policy,
+}: AddRoleModalProps<FleetRole>) {
   const actors = useActorsNotInPolicy(policy)
 
-  const updatePolicy = useApiMutation(api.policyUpdate, {
+  const updatePolicy = useApiMutation(api.systemPolicyUpdate, {
     onSuccess: () => {
-      queryClient.invalidateEndpoint('policyView')
+      queryClient.invalidateEndpoint('systemPolicyView')
       onDismiss()
     },
   })
 
-  const form = useForm({ defaultValues })
+  const form = useForm<{ identityId: string; roleName: FleetRole }>({
+    defaultValues: { identityId: '', roleName: 'viewer' },
+  })
 
   return (
     <SideModalForm
@@ -54,7 +59,6 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
         onDismiss()
       }}
       onSubmit={({ identityId, roleName }) => {
-        // TODO: DRY logic
         // actor is guaranteed to be in the list because it came from there
         const identityType = actors.find((a) => a.id === identityId)!.identityType
 
@@ -72,23 +76,23 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
         required
         control={form.control}
       />
-      <RoleRadioField name="roleName" control={form.control} scope="Silo" />
+      <RoleRadioField name="roleName" control={form.control} scope="Fleet" />
       <SideModalFormDocs docs={[docLinks.access]} />
     </SideModalForm>
   )
 }
 
-export function SiloAccessEditUserSideModal({
+export function SystemAccessEditUserSideModal({
   onDismiss,
   name,
   identityId,
   identityType,
   policy,
   defaultValues,
-}: EditRoleModalProps) {
-  const updatePolicy = useApiMutation(api.policyUpdate, {
+}: EditRoleModalProps<FleetRole>) {
+  const updatePolicy = useApiMutation(api.systemPolicyUpdate, {
     onSuccess: () => {
-      queryClient.invalidateEndpoint('policyView')
+      queryClient.invalidateEndpoint('systemPolicyView')
       onDismiss()
     },
   })
@@ -117,7 +121,7 @@ export function SiloAccessEditUserSideModal({
         onDismiss()
       }}
     >
-      <RoleRadioField name="roleName" control={form.control} scope="Silo" />
+      <RoleRadioField name="roleName" control={form.control} scope="Fleet" />
       <SideModalFormDocs docs={[docLinks.access]} />
     </SideModalForm>
   )

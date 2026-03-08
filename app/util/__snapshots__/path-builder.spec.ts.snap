@@ -789,6 +789,12 @@ exports[`breadcrumbs 2`] = `
       "path": "/settings/ssh-keys",
     },
   ],
+  "systemAccess (/system/access)": [
+    {
+      "label": "Fleet Access",
+      "path": "/system/access",
+    },
+  ],
   "systemUpdate (/system/update)": [
     {
       "label": "System Update",

@@ -10,6 +10,7 @@ import { useLocation, useNavigate } from 'react-router'
 
 import { api, q, queryClient } from '@oxide/api'
 import {
+  Access16Icon,
   Cloud16Icon,
   IpGlobal16Icon,
   Metrics16Icon,
@@ -55,6 +56,7 @@ export default function SystemLayout() {
       { value: 'Inventory', path: pb.sledInventory() },
       { value: 'IP Pools', path: pb.ipPools() },
       { value: 'System Update', path: pb.systemUpdate() },
+      { value: 'Fleet Access', path: pb.systemAccess() },
     ]
       // filter out the entry for the path we're currently on
       .filter((i) => i.path !== pathname)
@@ -100,6 +102,9 @@ export default function SystemLayout() {
           </NavLinkItem>
           <NavLinkItem to={pb.systemUpdate()}>
             <SoftwareUpdate16Icon /> System Update
+          </NavLinkItem>
+          <NavLinkItem to={pb.systemAccess()}>
+            <Access16Icon /> Fleet Access
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>

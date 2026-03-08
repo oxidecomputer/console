@@ -40,25 +40,35 @@ export const roleOrder: Record<RoleKey, number> = {
 /** `roleOrder` record converted to a sorted array of roles. */
 export const allRoles = flatRoles(roleOrder)
 
+// Fleet roles don't include limited_collaborator
+export const fleetRoles = allRoles.filter(
+  (r): r is FleetRole => r !== 'limited_collaborator'
+)
+
 /** Given a list of roles, get the most permissive one */
-export const getEffectiveRole = (roles: RoleKey[]): RoleKey | undefined =>
+export const getEffectiveRole = <Role extends RoleKey>(roles: Role[]): Role | undefined =>
   R.firstBy(roles, (role) => roleOrder[role])
 
 ////////////////////////////
 // Policy helpers
 ////////////////////////////
 
-type RoleAssignment = {
+type RoleAssignment<Role extends RoleKey = RoleKey> = {
   identityId: string
   identityType: IdentityType
-  roleName: RoleKey
+  roleName: Role
 }
-export type Policy = { roleAssignments: RoleAssignment[] }
+export type Policy<Role extends RoleKey = RoleKey> = {
+  roleAssignments: RoleAssignment<Role>[]
+}
 
 /**
  * Returns a new updated policy. Does not modify the passed-in policy.
  */
-export function updateRole(newAssignment: RoleAssignment, policy: Policy): Policy {
+export function updateRole<Role extends RoleKey>(
+  newAssignment: RoleAssignment<Role>,
+  policy: Policy<Role>
+): Policy<Role> {
   const roleAssignments = policy.roleAssignments.filter(
     (ra) => ra.identityId !== newAssignment.identityId
   )
@@ -70,18 +80,21 @@ export function updateRole(newAssignment: RoleAssignment, policy: Policy): Polic
  * Delete any role assignments for user or group ID. Returns a new updated
  * policy. Does not modify the passed-in policy.
  */
-export function deleteRole(identityId: string, policy: Policy): Policy {
+export function deleteRole<Role extends RoleKey>(
+  identityId: string,
+  policy: Policy<Role>
+): Policy<Role> {
   const roleAssignments = policy.roleAssignments.filter(
     (ra) => ra.identityId !== identityId
   )
   return { roleAssignments }
 }
 
-type UserAccessRow = {
+type UserAccessRow<Role extends RoleKey = RoleKey> = {
   id: string
   identityType: IdentityType
   name: string
-  roleName: RoleKey
+  roleName: Role
   roleSource: string
 }
 
@@ -92,10 +105,10 @@ type UserAccessRow = {
  * of an API request for the list of users. It's a bit awkward, but the logic is
  * identical between projects and orgs so it is worth sharing.
  */
-export function useUserRows(
-  roleAssignments: RoleAssignment[],
+export function useUserRows<Role extends RoleKey = RoleKey>(
+  roleAssignments: RoleAssignment<Role>[],
   roleSource: string
-): UserAccessRow[] {
+): UserAccessRow<Role>[] {
   // HACK: because the policy has no names, we are fetching ~all the users,
   // putting them in a dictionary, and adding the names to the rows
   const { data: users } = usePrefetchedQuery(q(api.userList, {}))
@@ -136,7 +149,9 @@ export type Actor = {
  * Fetch lists of users and groups, filtering out the ones that are already in
  * the given policy.
  */
-export function useActorsNotInPolicy(policy: Policy): Actor[] {
+export function useActorsNotInPolicy<Role extends RoleKey = RoleKey>(
+  policy: Policy<Role>
+): Actor[] {
   const { data: users } = usePrefetchedQuery(q(api.userList, {}))
   const { data: groups } = usePrefetchedQuery(q(api.groupList, {}))
   return useMemo(() => {

@@ -10,7 +10,9 @@ import * as R from 'remeda'
 
 import {
   allRoles,
+  fleetRoles,
   type Actor,
+  type FleetRole,
   type IdentityType,
   type Policy,
   type RoleKey,
@@ -50,6 +52,13 @@ const siloRoleDescriptions: Record<RoleKey, string> = {
   viewer: 'View resources within the silo',
 }
 
+// Role descriptions for fleet-level roles
+const fleetRoleDescriptions: Record<FleetRole, string> = {
+  admin: 'Control all aspects of the fleet',
+  collaborator: 'Administer silos and fleet-level resources',
+  viewer: 'View fleet-level resources',
+}
+
 export const actorToItem = (actor: Actor): ListboxItem => ({
   value: actor.id,
   label: (
@@ -65,16 +74,16 @@ export const actorToItem = (actor: Actor): ListboxItem => ({
   selectedLabel: actor.displayName,
 })
 
-export type AddRoleModalProps = {
+export type AddRoleModalProps<Role extends RoleKey = RoleKey> = {
   onDismiss: () => void
-  policy: Policy
+  policy: Policy<Role>
 }
 
-export type EditRoleModalProps = AddRoleModalProps & {
+export type EditRoleModalProps<Role extends RoleKey = RoleKey> = AddRoleModalProps<Role> & {
   name?: string
   identityId: string
   identityType: IdentityType
-  defaultValues: { roleName: RoleKey }
+  defaultValues: { roleName: Role }
 }
 
 const AccessDocs = () => (
@@ -92,9 +101,15 @@ export function RoleRadioField<
 }: {
   name: TName
   control: Control<TFieldValues>
-  scope: 'Silo' | 'Project'
+  scope: 'Fleet' | 'Silo' | 'Project'
 }) {
-  const roleDescriptions = scope === 'Silo' ? siloRoleDescriptions : projectRoleDescriptions
+  const roles = R.reverse(scope === 'Fleet' ? fleetRoles : allRoles)
+  const roleDescriptions: Partial<Record<RoleKey, string>> =
+    scope === 'Fleet'
+      ? fleetRoleDescriptions
+      : scope === 'Silo'
+        ? siloRoleDescriptions
+        : projectRoleDescriptions
   return (
     <>
       <RadioFieldDyn
@@ -105,7 +120,7 @@ export function RoleRadioField<
         column
         className="mt-2"
       >
-        {R.reverse(allRoles).map((role) => (
+        {roles.map((role) => (
           <Radio name="roleName" key={role} value={role}>
             <div className="text-sans-md text-raise">
               {capitalize(role).replace('_', ' ')}
@@ -117,7 +132,13 @@ export function RoleRadioField<
       <Message
         variant="info"
         content={
-          scope === 'Silo' ? (
+          scope === 'Fleet' ? (
+            <>
+              Fleet roles grant access to fleet-level resources and administration. To
+              maintain tenancy separation between silos, fleet roles do not cascade into
+              silos. Learn more in the <AccessDocs /> guide.
+            </>
+          ) : scope === 'Silo' ? (
             <>
               Silo roles are inherited by all projects in the silo and override weaker
               roles. For example, a silo viewer is <em>at least</em> a viewer on all

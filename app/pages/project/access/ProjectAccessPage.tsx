@@ -180,7 +180,6 @@ export default function ProjectAccessPage() {
             doDelete: () =>
               updatePolicy({
                 path: { project: projectSelector.project },
-                // we know policy is there, otherwise there's no row to display
                 body: deleteRole(row.id, projectPolicy),
               }),
             // TODO: explain that this will not affect the role inherited from

@@ -12,13 +12,14 @@ import {
   api,
   byGroupThenName,
   deleteRole,
+  getEffectiveRole,
   q,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
   useUserRows,
+  type FleetRole,
   type IdentityType,
-  type RoleKey,
 } from '@oxide/api'
 import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
@@ -26,9 +27,9 @@ import { Badge } from '@oxide/design-system/ui'
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import {
-  SiloAccessAddUserSideModal,
-  SiloAccessEditUserSideModal,
-} from '~/forms/silo-access'
+  SystemAccessAddUserSideModal,
+  SystemAccessEditUserSideModal,
+} from '~/forms/system-access'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -36,6 +37,7 @@ import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { Message } from '~/ui/lib/Message'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
 import { identityTypeLabel, roleColor } from '~/util/access'
@@ -47,20 +49,28 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
     <EmptyMessage
       icon={<Access24Icon />}
       title="No authorized users"
-      body="Give permission to view, edit, or administer this silo"
+      body={
+        <div className="flex flex-col gap-2">
+          <p>Give permission to view, edit, or administer this fleet.</p>
+          <p>
+            Note: Depending on silo fleet role mappings, silo admins could have fleet
+            permissions, even if not listed here.
+          </p>
+        </div>
+      }
       buttonText="Add user or group"
       onClick={onClick}
     />
   </TableEmptyBox>
 )
 
-const policyView = q(api.policyView, {})
+const systemPolicyView = q(api.systemPolicyView, {})
 const userList = q(api.userList, {})
 const groupList = q(api.groupList, {})
 
 export async function clientLoader() {
   await Promise.all([
-    queryClient.prefetchQuery(policyView),
+    queryClient.prefetchQuery(systemPolicyView),
     // used to resolve user names
     queryClient.prefetchQuery(userList),
     queryClient.prefetchQuery(groupList),
@@ -68,54 +78,51 @@ export async function clientLoader() {
   return null
 }
 
-export const handle = { crumb: 'Silo Access' }
+export const handle = { crumb: 'Fleet Access' }
 
 type UserRow = {
   id: string
   identityType: IdentityType
   name: string
-  siloRole: RoleKey | undefined
+  fleetRole: FleetRole
 }
 
 const colHelper = createColumnHelper<UserRow>()
 
-export default function SiloAccessPage() {
+export default function SystemAccessPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
 
   const { me } = useCurrentUser()
-  const { data: siloPolicy } = usePrefetchedQuery(policyView)
-  const siloRows = useUserRows(siloPolicy.roleAssignments, 'silo')
+  const { data: fleetPolicy } = usePrefetchedQuery(systemPolicyView)
+  const fleetRows = useUserRows(fleetPolicy.roleAssignments, 'fleet')
 
   const rows = useMemo(() => {
-    return groupBy(siloRows, (u) => u.id)
+    return groupBy(fleetRows, (u) => u.id)
       .map(([userId, userAssignments]) => {
-        const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
-
         const { name, identityType } = userAssignments[0]
+        // non-null: userAssignments is non-empty (groupBy only creates groups for existing items)
+        // getEffectiveRole needed because API allows multiple fleet role assignments for the same user, even though that's probably rare
+        const fleetRole = getEffectiveRole(userAssignments.map((a) => a.roleName))!
 
         const row: UserRow = {
           id: userId,
           identityType,
           name,
-          siloRole,
+          fleetRole,
         }
 
         return row
       })
       .sort(byGroupThenName)
-  }, [siloRows])
+  }, [fleetRows])
 
-  const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
+  const { mutateAsync: updatePolicy } = useApiMutation(api.systemPolicyUpdate, {
     onSuccess: () => {
-      queryClient.invalidateEndpoint('policyView')
+      queryClient.invalidateEndpoint('systemPolicyView')
       addToast({ content: 'Access removed' })
     },
-    // TODO: handle 403
   })
-
-  // TODO: checkboxes and bulk delete? not sure
-  // TODO: disable delete on permissions you can't delete
 
   const columns = useMemo(
     () => [
@@ -124,38 +131,34 @@ export default function SiloAccessPage() {
         header: 'Type',
         cell: (info) => identityTypeLabel[info.getValue()],
       }),
-      colHelper.accessor('siloRole', {
+      colHelper.accessor('fleetRole', {
         header: 'Role',
         cell: (info) => {
           const role = info.getValue()
-          return role ? <Badge color={roleColor[role]}>silo.{role}</Badge> : null
+          return <Badge color={roleColor[role]}>fleet.{role}</Badge>
         },
       }),
-      // TODO: tooltips on disabled elements explaining why
       getActionsCol((row: UserRow) => [
         {
           label: 'Change role',
           onActivate: () => setEditingUserRow(row),
-          disabled: !row.siloRole && "You don't have permission to change this user's role",
         },
-        // TODO: only show if you have permission to do this
         {
           label: 'Delete',
           onActivate: confirmDelete({
-            doDelete: () => updatePolicy({ body: deleteRole(row.id, siloPolicy) }),
+            doDelete: () => updatePolicy({ body: deleteRole(row.id, fleetPolicy) }),
             label: (
               <span>
-                the <HL>{row.siloRole}</HL> role for <HL>{row.name}</HL>
+                the <HL>{row.fleetRole}</HL> role for <HL>{row.name}</HL>
               </span>
             ),
             extraContent:
-              row.id === me.id ? 'This will remove your own silo access.' : undefined,
+              row.id === me.id ? 'This will remove your own fleet access.' : undefined,
           }),
-          disabled: !row.siloRole && "You don't have permission to delete this user",
         },
       ]),
     ],
-    [siloPolicy, updatePolicy, me]
+    [fleetPolicy, updatePolicy, me]
   )
 
   const tableInstance = useReactTable({
@@ -167,32 +170,47 @@ export default function SiloAccessPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Access24Icon />}>Silo Access</PageTitle>
+        <PageTitle icon={<Access24Icon />}>Fleet Access</PageTitle>
         <DocsPopover
           heading="access"
           icon={<Access16Icon />}
-          summary="Roles determine who can view, edit, or administer this silo and the projects within it. If a user or group has both a silo and project role, the stronger role takes precedence."
-          links={[docLinks.keyConceptsIam, docLinks.access]}
+          summary="Roles determine who can view, edit, or administer this fleet."
+          links={[docLinks.keyConceptsIam, docLinks.access, docLinks.fleetRoleMappings]}
         />
       </PageHeader>
 
+      {rows.length >= 0 && (
+        <div className="pb-4">
+          <Message
+            variant="info"
+            className="mb-6"
+            content={
+              <>
+                Silos can also be configured with <code>mapped_fleet_roles</code>, which
+                grant fleet-level roles to users based on their silo-level roles. Check each
+                silo’s Fleet Roles tab for more.
+              </>
+            }
+          />
+        </div>
+      )}
       <TableActions>
         <CreateButton onClick={() => setAddModalOpen(true)}>Add user or group</CreateButton>
       </TableActions>
       {addModalOpen && (
-        <SiloAccessAddUserSideModal
+        <SystemAccessAddUserSideModal
           onDismiss={() => setAddModalOpen(false)}
-          policy={siloPolicy}
+          policy={fleetPolicy}
         />
       )}
-      {editingUserRow?.siloRole && (
-        <SiloAccessEditUserSideModal
+      {editingUserRow && (
+        <SystemAccessEditUserSideModal
           onDismiss={() => setEditingUserRow(null)}
-          policy={siloPolicy}
+          policy={fleetPolicy}
           name={editingUserRow.name}
           identityId={editingUserRow.id}
           identityType={editingUserRow.identityType}
-          defaultValues={{ roleName: editingUserRow.siloRole }}
+          defaultValues={{ roleName: editingUserRow.fleetRole }}
         />
       )}
       {rows.length === 0 ? (
