@@ -113,63 +113,97 @@ test('Instance networking tab — Detach / Attach Ephemeral IPs', async ({ page 
 
   const attachEphemeralIpButton = page.getByRole('button', { name: 'Attach ephemeral IP' })
   const externalIpTable = page.getByRole('table', { name: 'External IPs' })
-  const ephemeralCell = externalIpTable.getByRole('cell', { name: 'ephemeral' })
+  const ephemeralCells = externalIpTable.getByRole('cell', { name: 'ephemeral' })
 
-  // We start out with an ephemeral IP attached
-  await expect(ephemeralCell).toBeVisible()
-
-  // The 'Attach ephemeral IP' button should be disabled when there is already an ephemeral IP
-  await expect(attachEphemeralIpButton).toBeDisabled()
-
-  // Detach the existing ephemeral IP
-  await clickRowAction(page, 'ephemeral', 'Detach')
-  await page.getByRole('button', { name: 'Confirm' }).click()
-  await expect(ephemeralCell).toBeHidden()
-
-  // The 'Attach ephemeral IP' button should be visible and enabled now that the existing ephemeral IP has been detached
+  // db1 starts with one v4 ephemeral IP and a dual-stack NIC, so the v6 slot
+  // is still open and the button should be enabled
+  await expect(ephemeralCells).toHaveCount(1)
   await expect(attachEphemeralIpButton).toBeEnabled()
 
-  // Attach a new ephemeral IP — since db1 has a dual-stack NIC, both v4 and v6
-  // defaults are compatible, so no pool is preselected and we must choose one
+  // Attach a v6 ephemeral IP to fill the remaining slot. Since only the v6
+  // slot is open, only v6 pools should appear and the v6 default is preselected.
   await attachEphemeralIpButton.click()
   const modal = page.getByRole('dialog', { name: 'Attach ephemeral IP' })
   await expect(modal).toBeVisible()
-  await expect(page.getByLabel('Pool')).toContainText('Select a pool')
-  await page.getByLabel('Pool').click()
-  await page.getByRole('option', { name: 'ip-pool-1' }).click()
+  await expect(page.getByLabel('Pool')).toContainText('ip-pool-2')
   await page.getByRole('button', { name: 'Attach', exact: true }).click()
   await expect(modal).toBeHidden()
-  await expect(ephemeralCell).toBeVisible()
+
+  // Both v4 and v6 ephemeral IPs are now attached
   await expectRowVisible(externalIpTable, {
     Kind: 'ephemeral',
     Version: 'v4',
     'IP pool': 'ip-pool-1',
   })
-
-  // The 'Attach ephemeral IP' button should be disabled after attaching an ephemeral IP
-  await expect(attachEphemeralIpButton).toBeDisabled()
-
-  // Detach and test with explicit pool selection
-  await clickRowAction(page, 'ephemeral', 'Detach')
-  await page.getByRole('button', { name: 'Confirm' }).click()
-  await expect(ephemeralCell).toBeHidden()
-
-  await attachEphemeralIpButton.click()
-  await expect(modal).toBeVisible()
-  await expect(page.getByLabel('Pool')).toContainText('Select a pool')
-  await page.getByLabel('Pool').click()
-  await page.getByRole('option', { name: 'ip-pool-2' }).click()
-  await page.getByRole('button', { name: 'Attach', exact: true }).click()
-  await expect(modal).toBeHidden()
-  await expect(ephemeralCell).toBeVisible()
   await expectRowVisible(externalIpTable, {
     Kind: 'ephemeral',
     Version: 'v6',
     'IP pool': 'ip-pool-2',
   })
 
-  // The 'Attach ephemeral IP' button should be disabled after attaching an ephemeral IP
+  // Button should be disabled now that both slots are filled
   await expect(attachEphemeralIpButton).toBeDisabled()
+
+  // Detach the v6 ephemeral IP while both versions are attached (requires
+  // an explicit ipVersion selector), then reattach it.
+  await clickRowAction(page, 'fd00::1', 'Detach')
+  const confirmDetachDialog = page.getByRole('dialog', {
+    name: 'Confirm detach ephemeral IP',
+  })
+  await expect(confirmDetachDialog).toBeVisible()
+  await confirmDetachDialog.getByRole('button', { name: 'Confirm' }).click()
+  await expect(confirmDetachDialog).toBeHidden()
+  await expect(attachEphemeralIpButton).toBeEnabled()
+
+  await attachEphemeralIpButton.click()
+  await expect(modal).toBeVisible()
+  await expect(page.getByLabel('Pool')).toContainText('ip-pool-2')
+  await page.getByRole('button', { name: 'Attach', exact: true }).click()
+  await expect(modal).toBeHidden()
+  await expect(attachEphemeralIpButton).toBeDisabled()
+
+  // Detach the v4 ephemeral IP — button should re-enable for v4
+  await clickRowAction(page, '123.4.56.0', 'Detach')
+  await expect(confirmDetachDialog).toBeVisible()
+  await confirmDetachDialog.getByRole('button', { name: 'Confirm' }).click()
+  await expect(confirmDetachDialog).toBeHidden()
+  await expect(attachEphemeralIpButton).toBeEnabled()
+
+  // Attach a v4 ephemeral IP — only v4 pools should be available
+  await attachEphemeralIpButton.click()
+  await expect(modal).toBeVisible()
+  await expect(page.getByLabel('Pool')).toContainText('ip-pool-1')
+  await page.getByRole('button', { name: 'Attach', exact: true }).click()
+  await expect(modal).toBeHidden()
+  await expect(attachEphemeralIpButton).toBeDisabled()
+
+  // Detach both ephemeral IPs
+  await clickRowAction(page, '123.4.56.0', 'Detach')
+  await expect(confirmDetachDialog).toBeVisible()
+  await confirmDetachDialog.getByRole('button', { name: 'Confirm' }).click()
+  await expect(confirmDetachDialog).toBeHidden()
+  // Use a more specific locator since we're targeting the v6 row
+  await clickRowAction(page, 'fd00::1', 'Detach')
+  await expect(confirmDetachDialog).toBeVisible()
+  await confirmDetachDialog.getByRole('button', { name: 'Confirm' }).click()
+  await expect(confirmDetachDialog).toBeHidden()
+  await expect(ephemeralCells).toHaveCount(0)
+
+  // With no ephemeral IPs and a dual-stack NIC, both v4 and v6 pools should
+  // be available, meaning no default is preselected
+  await expect(attachEphemeralIpButton).toBeEnabled()
+  await attachEphemeralIpButton.click()
+  await expect(modal).toBeVisible()
+  await expect(page.getByLabel('Pool')).toContainText('Select a pool')
+  await page.getByLabel('Pool').click()
+  await page.getByRole('option', { name: 'ip-pool-1' }).click()
+  await page.getByRole('button', { name: 'Attach', exact: true }).click()
+  await expect(modal).toBeHidden()
+  await expectRowVisible(externalIpTable, {
+    Kind: 'ephemeral',
+    Version: 'v4',
+    'IP pool': 'ip-pool-1',
+  })
 })
 
 test('Instance networking tab — floating IPs', async ({ page }) => {
@@ -343,9 +377,7 @@ test('IPv4-only instance cannot attach IPv6 ephemeral IP', async ({ page }) => {
   await page.getByRole('option', { name: 'IPv4', exact: true }).click()
 
   // Don't attach ephemeral IP at creation
-  await page
-    .getByRole('checkbox', { name: 'Allocate and attach an ephemeral IP address' })
-    .uncheck()
+  await page.getByRole('checkbox', { name: 'Allocate IPv4 address' }).uncheck()
 
   // Create instance
   await page.getByRole('button', { name: 'Create instance' }).click()
@@ -398,9 +430,7 @@ test('IPv6-only instance cannot attach IPv4 ephemeral IP', async ({ page }) => {
   await page.getByRole('option', { name: 'IPv6', exact: true }).click()
 
   // Don't attach ephemeral IP at creation
-  await page
-    .getByRole('checkbox', { name: 'Allocate and attach an ephemeral IP address' })
-    .uncheck()
+  await page.getByRole('checkbox', { name: 'Allocate IPv6 address' }).uncheck()
 
   // Create instance
   await page.getByRole('button', { name: 'Create instance' }).click()
@@ -453,9 +483,7 @@ test('IPv4-only instance can attach IPv4 ephemeral IP', async ({ page }) => {
   await page.getByRole('option', { name: 'IPv4', exact: true }).click()
 
   // Don't attach ephemeral IP at creation
-  await page
-    .getByRole('checkbox', { name: 'Allocate and attach an ephemeral IP address' })
-    .uncheck()
+  await page.getByRole('checkbox', { name: 'Allocate IPv4 address' }).uncheck()
 
   // Create instance
   await page.getByRole('button', { name: 'Create instance' }).click()
@@ -502,9 +530,7 @@ test('IPv6-only instance can attach IPv6 ephemeral IP', async ({ page }) => {
   await page.getByRole('option', { name: 'IPv6', exact: true }).click()
 
   // Don't attach ephemeral IP at creation
-  await page
-    .getByRole('checkbox', { name: 'Allocate and attach an ephemeral IP address' })
-    .uncheck()
+  await page.getByRole('checkbox', { name: 'Allocate IPv6 address' }).uncheck()
 
   // Create instance
   await page.getByRole('button', { name: 'Create instance' }).click()

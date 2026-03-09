@@ -1110,12 +1110,6 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.SledResultsPage>>
-  /** `POST /v1/system/hardware/sleds` */
-  sledAdd: (params: {
-    body: Json<Api.UninitializedSledId>
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.SledId>>
   /** `GET /v1/system/hardware/sleds/:sledId` */
   sledView: (params: {
     path: Api.SledViewPathParams
@@ -1741,6 +1735,12 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.TimeseriesSchemaResultsPage>>
+  /** `PUT /v1/system/update/recovery-finish` */
+  systemUpdateRecoveryFinish: (params: {
+    body: Json<Api.SetTargetReleaseParams>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `GET /v1/system/update/repositories` */
   systemUpdateRepositoryList: (params: {
     query: Api.SystemUpdateRepositoryListQueryParams
@@ -3028,10 +3028,6 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       '/v1/system/hardware/sleds',
       handler(handlers['sledList'], schema.SledListParams, null)
     ),
-    http.post(
-      '/v1/system/hardware/sleds',
-      handler(handlers['sledAdd'], null, schema.UninitializedSledId)
-    ),
     http.get(
       '/v1/system/hardware/sleds/:sledId',
       handler(handlers['sledView'], schema.SledViewParams, null)
@@ -3613,6 +3609,10 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         schema.SystemTimeseriesSchemaListParams,
         null
       )
+    ),
+    http.put(
+      '/v1/system/update/recovery-finish',
+      handler(handlers['systemUpdateRecoveryFinish'], null, schema.SetTargetReleaseParams)
     ),
     http.get(
       '/v1/system/update/repositories',

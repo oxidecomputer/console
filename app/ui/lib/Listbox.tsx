@@ -36,7 +36,9 @@ export interface ListboxProps<Value extends string = string> {
   disabled?: boolean
   hasError?: boolean
   name?: string
-  label?: React.ReactNode
+  label?: string
+  /** Hide visible label, using it as aria-label on the button instead */
+  hideLabel?: boolean
   description?: React.ReactNode
   required?: boolean
   isLoading?: boolean
@@ -63,6 +65,7 @@ export const Listbox = <Value extends string = string>({
   buttonRef,
   hideOptionalTag,
   hideSelected = false,
+  hideLabel = false,
   ...props
 }: ListboxProps<Value>) => {
   const selectedItem = selected && items.find((i) => i.value === selected)
@@ -83,7 +86,7 @@ export const Listbox = <Value extends string = string>({
       >
         {({ open }) => (
           <div>
-            {label && (
+            {label && !hideLabel && (
               <div className="mb-2 max-w-lg">
                 <FieldLabel
                   id={`${id}-label`}
@@ -114,6 +117,7 @@ export const Listbox = <Value extends string = string>({
                 hideSelected ? 'w-auto' : 'w-full'
               )}
               ref={buttonRef}
+              aria-label={hideLabel ? label : undefined}
               {...props}
             >
               {!hideSelected && (

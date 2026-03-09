@@ -50,6 +50,11 @@ export function isSetEqual<T>(a: Set<T>, b: Set<T>): boolean {
 }
 
 /** Set `a - b` */
-export function setDiff<T>(a: Set<T>, b: Set<T>): Set<T> {
+export function setDiff<T>(a: ReadonlySet<T>, b: ReadonlySet<T>): Set<T> {
   return new Set([...a].filter((x) => !b.has(x)))
+}
+
+/** Set `a ∩ b` */
+export function setIntersection<T>(a: ReadonlySet<T>, b: ReadonlySet<T>): Set<T> {
+  return new Set([...a].filter((x) => b.has(x)))
 }

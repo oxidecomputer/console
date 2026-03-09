@@ -26,16 +26,15 @@ import type {
   VpcFirewallRuleUpdate,
 } from './__generated__/Api'
 
-// API limits encoded in https://github.com/oxidecomputer/omicron/blob/44e65c3/nexus/src/app/mod.rs#L130-L161
+// API limits encoded in https://github.com/oxidecomputer/omicron/blob/9dd23096de93c7d6d05ea21f6323de4410060652/nexus/src/app/mod.rs#L142
 
 // These are not actually used in app code, just the mock server. In the app we
 // can rely on API errors to communicate these limits.
 export const MAX_NICS_PER_INSTANCE = 8
 export const MAX_DISKS_PER_INSTANCE = 12
 
-// Limit is 254 on the backend but we haven't shipped any hardware that supports
-// that, so let's do 128 for now
-export const INSTANCE_MAX_CPU = 128
+// Limit is 254 on the backend.
+export const INSTANCE_MAX_CPU = 254
 
 export const INSTANCE_MIN_RAM_GiB = 1
 export const INSTANCE_MAX_RAM_GiB = 1536
@@ -103,10 +102,19 @@ export type UnicastIpPool = SiloIpPool & { poolType: 'unicast' }
 export const isUnicastPool = (pool: SiloIpPool): pool is UnicastIpPool =>
   pool.poolType === 'unicast'
 
-export const poolHasIpVersion =
-  (versions: IpVersion[]) =>
-  (pool: { ipVersion: IpVersion }): boolean =>
-    versions.includes(pool.ipVersion)
+export const poolHasIpVersion = (versions: Iterable<IpVersion>) => {
+  const versionSet = new Set(versions)
+  return (pool: { ipVersion: IpVersion }): boolean => versionSet.has(pool.ipVersion)
+}
+
+/** Sort pools: defaults first, then v4 before v6, then by name */
+export const sortPools = <T extends SiloIpPool>(pools: T[]) =>
+  R.sortBy(
+    pools,
+    (p) => !p.isDefault, // false sorts first → defaults first
+    (p) => p.ipVersion, // v4 before v6
+    (p) => p.name
+  )
 
 const instanceActions = {
   // NoVmm maps to to Stopped:

@@ -41,6 +41,18 @@ import { TableActions } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
+const diskViewErrorsAllowedQ = (disk: string) =>
+  qErrorsAllowed(
+    api.diskView,
+    { path: { disk } },
+    {
+      errorsExpected: {
+        explanation: 'the source disk may have been deleted.',
+        statusCode: 404,
+      },
+    }
+  )
+
 const DiskNameFromId = ({
   value,
   onClick,
@@ -48,7 +60,7 @@ const DiskNameFromId = ({
   value: string
   onClick: (disk: Disk) => void
 }) => {
-  const { data } = useQuery(qErrorsAllowed(api.diskView, { path: { disk: value } }))
+  const { data } = useQuery(diskViewErrorsAllowedQ(value))
 
   if (!data) return <SkeletonCell />
   if (data.type === 'error') return <Badge color="neutral">Deleted</Badge>
@@ -85,10 +97,10 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
       .fetchQuery(q(api.diskList, { query: { project, limit: 200 } }))
       .then((disks) => {
         for (const disk of disks.items) {
-          queryClient.setQueryData(
-            qErrorsAllowed(api.diskView, { path: { disk: disk.id } }).queryKey,
-            { type: 'success', data: disk }
-          )
+          queryClient.setQueryData(diskViewErrorsAllowedQ(disk.id).queryKey, {
+            type: 'success',
+            data: disk,
+          })
         }
       }),
   ])
