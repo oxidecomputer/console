@@ -18,8 +18,8 @@ import type { FleetRole, IdentityType, ProjectRole, SiloRole } from './__generat
 import { api, q, usePrefetchedQuery } from './client'
 
 /**
- * Union of all the specific roles, which are all the same, which makes making
- * our methods generic on the *Role type is pointless (until they stop being the same).
+ * Union of all the specific roles, which used to all be the same until we added
+ * limited collaborator to silo.
  */
 export type RoleKey = FleetRole | SiloRole | ProjectRole
 
@@ -120,6 +120,10 @@ export function useUserRows<Role extends RoleKey = RoleKey>(
     return roleAssignments.map((ra) => ({
       id: ra.identityId,
       identityType: ra.identityType,
+      // A user might not appear here if they are not in the current user's
+      // silo. This could happen in a fleet policy, which might have users from
+      // different silos. Hence the ID fallback. The code that displays this
+      // detects when we've fallen back and includes an explanatory tooltip.
       name: usersDict[ra.identityId]?.displayName || ra.identityId,
       roleName: ra.roleName,
       roleSource,
