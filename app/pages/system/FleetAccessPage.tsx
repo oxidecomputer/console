@@ -8,6 +8,7 @@
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
+import { match } from 'ts-pattern'
 
 import {
   api,
@@ -47,11 +48,13 @@ import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
+// It should be impossible to see this empty state because if you can see this
+// view at all, it means you're at least a fleet viewer.
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
     <EmptyMessage
       icon={<Access24Icon />}
-      title="No fleet access"
+      title="No fleet roles assigned"
       body="Give permission to view, edit, or administer this fleet."
       buttonText="Add user or group"
       onClick={onClick}
@@ -106,8 +109,8 @@ export default function FleetAccessPage() {
   const { data: silos } = usePrefetchedQuery(siloList)
   const fleetRows = useUserRows(fleetPolicy.roleAssignments, 'fleet')
 
-  const assignmentRows: AssignmentRow[] = useMemo(() => {
-    return groupBy(fleetRows, (u) => u.id)
+  const rows: AccessRow[] = useMemo(() => {
+    const assignmentRows: AssignmentRow[] = groupBy(fleetRows, (u) => u.id)
       .map(([userId, userAssignments]) => {
         const { name, identityType } = userAssignments[0]
         // non-null: userAssignments is non-empty (groupBy only creates groups for existing items)
@@ -116,29 +119,22 @@ export default function FleetAccessPage() {
         return { kind: 'assignment' as const, id: userId, identityType, name, fleetRole }
       })
       .sort(byGroupThenName)
-  }, [fleetRows])
 
-  const mappingRows: MappingRow[] = useMemo(
-    () =>
-      silos.items
-        .filter((s) => Object.keys(s.mappedFleetRoles).length > 0)
-        .flatMap((silo) =>
-          Object.entries(silo.mappedFleetRoles).flatMap(([siloRole, fleetRoles]) =>
-            fleetRoles.map((fleetRole) => ({
-              kind: 'mapping' as const,
-              siloName: silo.name,
-              siloRole,
-              fleetRole,
-            }))
-          )
-        ),
-    [silos]
-  )
+    const mappingRows: MappingRow[] = silos.items
+      .filter((s) => Object.keys(s.mappedFleetRoles).length > 0)
+      .flatMap((silo) =>
+        Object.entries(silo.mappedFleetRoles).flatMap(([siloRole, fleetRoles]) =>
+          fleetRoles.map((fleetRole) => ({
+            kind: 'mapping' as const,
+            siloName: silo.name,
+            siloRole,
+            fleetRole,
+          }))
+        )
+      )
 
-  const rows: AccessRow[] = useMemo(
-    () => [...assignmentRows, ...mappingRows],
-    [assignmentRows, mappingRows]
-  )
+    return [...assignmentRows, ...mappingRows]
+  }, [fleetRows, silos])
 
   const { mutateAsync: updatePolicy } = useApiMutation(api.systemPolicyUpdate, {
     onSuccess: () => {
@@ -152,41 +148,42 @@ export default function FleetAccessPage() {
       colHelper.display({
         id: 'name',
         header: 'Name',
-        cell: (info) => {
-          const row = info.row.original
-          if (row.kind === 'assignment') return row.name
-          return (
-            <span className="flex items-center gap-1.5">
-              <Badge color={roleColor[row.siloRole as FleetRole] || 'default'}>
-                silo.{row.siloRole}
-              </Badge>{' '}
-              in{' '}
-              <Link
-                className="link-with-underline"
-                to={pb.siloFleetRoles({ silo: row.siloName })}
-              >
-                {row.siloName}
-              </Link>
-            </span>
-          )
-        },
+        cell: (info) =>
+          match(info.row.original)
+            .with({ kind: 'assignment' }, (row) => row.name)
+            .with({ kind: 'mapping' }, (row) => (
+              <span className="flex items-center gap-1.5">
+                Any{' '}
+                <Badge color={roleColor[row.siloRole as FleetRole] || 'default'}>
+                  silo.{row.siloRole}
+                </Badge>{' '}
+                in{' '}
+                <Link
+                  className="link-with-underline"
+                  to={pb.siloFleetRoles({ silo: row.siloName })}
+                >
+                  {row.siloName}
+                </Link>
+              </span>
+            ))
+            .exhaustive(),
       }),
       colHelper.display({
         id: 'type',
         header: 'Type',
-        cell: (info) => {
-          const row = info.row.original
-          if (row.kind === 'assignment') return identityTypeLabel[row.identityType]
-          return (
-            <span className="flex items-center">
-              Role mapping
-              <TipIcon className="ml-1.5">
-                <code>mapped_fleet_roles</code> on the silo grants fleet roles to users with
-                certain silo roles
-              </TipIcon>
-            </span>
-          )
-        },
+        cell: (info) =>
+          match(info.row.original)
+            .with({ kind: 'assignment' }, (row) => identityTypeLabel[row.identityType])
+            .with({ kind: 'mapping' }, () => (
+              <span className="flex items-center">
+                Role mapping
+                <TipIcon className="ml-1.5">
+                  <code>mapped_fleet_roles</code> on the silo grants fleet roles to users
+                  with certain silo roles
+                </TipIcon>
+              </span>
+            ))
+            .exhaustive(),
       }),
       colHelper.accessor('fleetRole', {
         header: 'Fleet role',
@@ -195,35 +192,35 @@ export default function FleetAccessPage() {
           return <Badge color={roleColor[role]}>fleet.{role}</Badge>
         },
       }),
-      getActionsCol((row: AccessRow) => {
-        if (row.kind === 'mapping') {
-          return [
+      getActionsCol((row: AccessRow) =>
+        match(row)
+          .with({ kind: 'mapping' }, (row) => [
             {
               label: 'View silo',
               onActivate: () => navigate(pb.siloFleetRoles({ silo: row.siloName })),
             },
-          ]
-        }
-        return [
-          {
-            label: 'Change role',
-            onActivate: () => setEditingUserRow(row),
-          },
-          {
-            label: 'Delete',
-            onActivate: confirmDelete({
-              doDelete: () => updatePolicy({ body: deleteRole(row.id, fleetPolicy) }),
-              label: (
-                <span>
-                  the <HL>{row.fleetRole}</HL> role for <HL>{row.name}</HL>
-                </span>
-              ),
-              extraContent:
-                row.id === me.id ? 'This will remove your own fleet access.' : undefined,
-            }),
-          },
-        ]
-      }),
+          ])
+          .with({ kind: 'assignment' }, (row) => [
+            {
+              label: 'Change role',
+              onActivate: () => setEditingUserRow(row),
+            },
+            {
+              label: 'Delete',
+              onActivate: confirmDelete({
+                doDelete: () => updatePolicy({ body: deleteRole(row.id, fleetPolicy) }),
+                label: (
+                  <span>
+                    the <HL>{row.fleetRole}</HL> role for <HL>{row.name}</HL>
+                  </span>
+                ),
+                extraContent:
+                  row.id === me.id ? 'This will remove your own fleet access.' : undefined,
+              }),
+            },
+          ])
+          .exhaustive()
+      ),
     ],
     [fleetPolicy, updatePolicy, me, navigate]
   )
