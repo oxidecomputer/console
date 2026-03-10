@@ -39,6 +39,7 @@ it('mock-api is only referenced in test files', () => {
       "AGENTS.md",
       "app/api/__tests__/client.spec.tsx",
       "mock-api/msw/db.ts",
+      "test/e2e/fleet-access.e2e.ts",
       "test/e2e/instance-create.e2e.ts",
       "test/e2e/inventory.e2e.ts",
       "test/e2e/ip-pool-silo-config.e2e.ts",

@@ -52,6 +52,7 @@ test('path builder', () => {
         "diskInventory": "/system/inventory/disks",
         "disks": "/projects/p/disks",
         "disksNew": "/projects/p/disks-new",
+        "fleetAccess": "/system/access",
         "floatingIpEdit": "/projects/p/floating-ips/f/edit",
         "floatingIps": "/projects/p/floating-ips",
         "floatingIpsNew": "/projects/p/floating-ips-new",

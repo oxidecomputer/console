@@ -30,7 +30,7 @@ export const silos: Json<Silo[]> = [
     discoverable: true,
     identity_mode: 'saml_jit',
     mapped_fleet_roles: {
-      admin: ['admin'],
+      collaborator: ['admin'],
     },
   },
   {
@@ -41,7 +41,9 @@ export const silos: Json<Silo[]> = [
     time_modified: new Date(2023, 6, 12).toISOString(),
     discoverable: true,
     identity_mode: 'saml_jit',
-    mapped_fleet_roles: {},
+    mapped_fleet_roles: {
+      viewer: ['viewer'],
+    },
   },
   // Test silos for IP pool configuration scenarios
   {
