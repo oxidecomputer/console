@@ -236,7 +236,7 @@ export const routes = createRoutesFromElements(
         />
         <Route
           path="access"
-          lazy={() => import('./pages/system/SystemAccessPage').then(convert)}
+          lazy={() => import('./pages/system/FleetAccessPage').then(convert)}
         />
       </Route>
 

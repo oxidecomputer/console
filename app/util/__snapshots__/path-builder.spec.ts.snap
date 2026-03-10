@@ -129,6 +129,12 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/disks",
     },
   ],
+  "fleetAccess (/system/access)": [
+    {
+      "label": "Fleet Access",
+      "path": "/system/access",
+    },
+  ],
   "floatingIpEdit (/projects/p/floating-ips/f/edit)": [
     {
       "label": "Projects",
@@ -787,12 +793,6 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "SSH Keys",
       "path": "/settings/ssh-keys",
-    },
-  ],
-  "systemAccess (/system/access)": [
-    {
-      "label": "Fleet Access",
-      "path": "/system/access",
     },
   ],
   "systemUpdate (/system/update)": [

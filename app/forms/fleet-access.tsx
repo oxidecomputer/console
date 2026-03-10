@@ -30,7 +30,7 @@ import {
   type EditRoleModalProps,
 } from './access-util'
 
-export function SystemAccessAddUserSideModal({
+export function FleetAccessAddUserSideModal({
   onDismiss,
   policy,
 }: AddRoleModalProps<FleetRole>) {
@@ -82,7 +82,7 @@ export function SystemAccessAddUserSideModal({
   )
 }
 
-export function SystemAccessEditUserSideModal({
+export function FleetAccessEditUserSideModal({
   onDismiss,
   name,
   identityId,

@@ -27,9 +27,9 @@ import { Badge } from '@oxide/design-system/ui'
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import {
-  SystemAccessAddUserSideModal,
-  SystemAccessEditUserSideModal,
-} from '~/forms/system-access'
+  FleetAccessAddUserSideModal,
+  FleetAccessEditUserSideModal,
+} from '~/forms/fleet-access'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -37,7 +37,6 @@ import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { Message } from '~/ui/lib/Message'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
 import { identityTypeLabel, roleColor } from '~/util/access'
@@ -89,7 +88,7 @@ type UserRow = {
 
 const colHelper = createColumnHelper<UserRow>()
 
-export default function SystemAccessPage() {
+export default function FleetAccessPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
 
@@ -179,32 +178,17 @@ export default function SystemAccessPage() {
         />
       </PageHeader>
 
-      {rows.length >= 0 && (
-        <div className="pb-4">
-          <Message
-            variant="info"
-            className="mb-6"
-            content={
-              <>
-                Silos can also be configured with <code>mapped_fleet_roles</code>, which
-                grant fleet-level roles to users based on their silo-level roles. Check each
-                silo’s Fleet Roles tab for more.
-              </>
-            }
-          />
-        </div>
-      )}
       <TableActions>
         <CreateButton onClick={() => setAddModalOpen(true)}>Add user or group</CreateButton>
       </TableActions>
       {addModalOpen && (
-        <SystemAccessAddUserSideModal
+        <FleetAccessAddUserSideModal
           onDismiss={() => setAddModalOpen(false)}
           policy={fleetPolicy}
         />
       )}
       {editingUserRow && (
-        <SystemAccessEditUserSideModal
+        <FleetAccessEditUserSideModal
           onDismiss={() => setEditingUserRow(null)}
           policy={fleetPolicy}
           name={editingUserRow.name}
