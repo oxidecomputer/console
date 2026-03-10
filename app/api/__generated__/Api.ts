@@ -328,7 +328,7 @@ export type BgpMessageHistory = Record<string, unknown>
 /**
  * Identifies switch physical location
  */
-export type SwitchLocation = /** Switch in upper slot */
+export type SwitchSlot = /** Switch in upper slot */
 | 'switch0'
 
 /** Switch in lower slot */
@@ -341,7 +341,7 @@ export type SwitchBgpHistory = {
   /** Message history indexed by peer address. */
   history: Record<string, BgpMessageHistory>
   /** Switch this message history is associated with. */
-  switch: SwitchLocation
+  switch: SwitchSlot
 }
 
 /**
@@ -928,7 +928,7 @@ export type BgpExported = {
   /** The destination network prefix. */
   prefix: IpNet
   /** Switch the route is exported from. */
-  switch: SwitchLocation
+  switch: SwitchSlot
 }
 
 /**
@@ -942,7 +942,7 @@ export type BgpImported = {
   /** The destination network prefix. */
   prefix: IpNet
   /** Switch the route is imported into. */
-  switch: SwitchLocation
+  switch: SwitchSlot
 }
 
 /**
@@ -1046,7 +1046,7 @@ export type BgpPeerStatus = {
   /** Time of last state change. */
   stateDurationMillis: number
   /** Switch with the peer session. */
-  switch: SwitchLocation
+  switch: SwitchSlot
 }
 
 /**
@@ -7477,7 +7477,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2026030200.0.0'
+  apiVersion = '2026030600.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host
