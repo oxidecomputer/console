@@ -42,7 +42,7 @@ test('Click through fleet access page', async ({ page }) => {
 
   // role mapping rows from silos with mapped_fleet_roles
   await expectRowVisible(table, {
-    Name: 'Any silo.admin in maze-war',
+    Name: 'Any silo.collaborator in maze-war',
     Type: 'Role mapping',
     'Fleet role': 'fleet.admin',
   })
@@ -189,4 +189,6 @@ test('Role mapping row links to silo fleet roles', async ({ page }) => {
   // click the silo name link in a mapping row
   await page.getByRole('link', { name: 'maze-war' }).click()
   await expect(page).toHaveURL(/\/system\/silos\/maze-war\/fleet-roles/)
+  await expect(page.getByText('Silo collaboratorFleet admin')).toBeVisible()
+  await expect(page.getByText('Silo adminFleet collaborator')).toBeHidden()
 })

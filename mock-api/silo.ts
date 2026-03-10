@@ -30,7 +30,7 @@ export const silos: Json<Silo[]> = [
     discoverable: true,
     identity_mode: 'saml_jit',
     mapped_fleet_roles: {
-      admin: ['admin'],
+      collaborator: ['admin'],
     },
   },
   {
