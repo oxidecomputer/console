@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { user3 } from '@oxide/api-mocks'
+import { crossSiloGroupId, crossSiloUserId, user3 } from '@oxide/api-mocks'
 
 import { expect, expectRowVisible, expectToast, getPageAsUser, test } from './utils'
 
@@ -28,14 +28,26 @@ test('Click through fleet access page', async ({ page }) => {
   })
   await expect(page.getByRole('cell', { name: user3.display_name })).toBeHidden()
 
+  // cross-silo user and group show UUID fallback since names can't be resolved
+  await expectRowVisible(table, {
+    Name: crossSiloUserId,
+    Type: 'User',
+    'Fleet role': 'fleet.collaborator',
+  })
+  await expectRowVisible(table, {
+    Name: crossSiloGroupId,
+    Type: 'Group',
+    'Fleet role': 'fleet.viewer',
+  })
+
   // role mapping rows from silos with mapped_fleet_roles
   await expectRowVisible(table, {
-    Name: 'silo.admin in maze-war',
+    Name: 'Any silo.admin in maze-war',
     Type: 'Role mapping',
     'Fleet role': 'fleet.admin',
   })
   await expectRowVisible(table, {
-    Name: 'silo.viewer in myriad',
+    Name: 'Any silo.viewer in myriad',
     Type: 'Role mapping',
     'Fleet role': 'fleet.viewer',
   })
@@ -146,6 +158,29 @@ test('Fleet viewer cannot modify fleet access', async ({ browser }) => {
   // dismiss the modal and confirm the table is unchanged
   await page.getByRole('button', { name: 'Cancel' }).click()
   await expect(page.getByRole('cell', { name: 'Jacob Klein' })).toBeHidden()
+})
+
+test('Cross-silo user shows UUID with tooltip', async ({ page }) => {
+  await page.goto('/system/access')
+
+  // cross-silo user's name can't be resolved, so UUID is shown
+  const userCell = page.getByRole('cell', { name: crossSiloUserId })
+  await expect(userCell).toBeVisible()
+  await userCell.getByRole('button', { name: 'Tip' }).hover()
+  await expect(
+    page.getByText("Can't resolve name because user is not in your silo")
+  ).toBeVisible()
+
+  // dismiss the first tooltip before checking the group's
+  await page.getByRole('heading', { name: /Fleet Access/ }).click()
+
+  // same for a cross-silo group
+  const groupCell = page.getByRole('cell', { name: crossSiloGroupId })
+  await expect(groupCell).toBeVisible()
+  await groupCell.getByRole('button', { name: 'Tip' }).hover()
+  await expect(
+    page.getByText("Can't resolve name because group is not in your silo")
+  ).toBeVisible()
 })
 
 test('Role mapping row links to silo fleet roles', async ({ page }) => {

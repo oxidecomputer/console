@@ -120,7 +120,7 @@ export function useUserRows<Role extends RoleKey = RoleKey>(
     return roleAssignments.map((ra) => ({
       id: ra.identityId,
       identityType: ra.identityType,
-      name: usersDict[ra.identityId]?.displayName || '', // placeholder until we get names, obviously
+      name: usersDict[ra.identityId]?.displayName || ra.identityId,
       roleName: ra.roleName,
       roleSource,
     }))

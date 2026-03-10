@@ -168,21 +168,14 @@ test('Create silo', async ({ page }) => {
   await expect(otherSiloCell).toBeHidden()
 })
 
-test('Default silo', async ({ page }) => {
+test('Silo with no fleet role mappings', async ({ page }) => {
   await page.goto('/system/silos')
-  await page.getByRole('link', { name: 'myriad' }).click()
+  await page.getByRole('link', { name: 'thrax' }).click()
 
-  await expect(page.getByRole('heading', { name: 'myriad' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'thrax' })).toBeVisible()
   await page.getByRole('tab', { name: 'Fleet roles' }).click()
 
-  await expect(
-    page.getByText('Silo roles can automatically grant a fleet role.')
-  ).toBeVisible()
-
-  await expectNotVisible(page, [
-    page.getByText('Silo adminFleet admin'),
-    page.getByText('Silo viewerFleet viewer'),
-  ])
+  await expect(page.getByText('This silo has no role mappings configured.')).toBeVisible()
 })
 
 test('Identity providers', async ({ page }) => {

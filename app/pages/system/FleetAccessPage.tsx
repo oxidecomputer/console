@@ -150,7 +150,20 @@ export default function FleetAccessPage() {
         header: 'Name',
         cell: (info) =>
           match(info.row.original)
-            .with({ kind: 'assignment' }, (row) => row.name)
+            .with({ kind: 'assignment' }, (row) =>
+              row.name === row.id ? (
+                <span className="flex items-center gap-1">
+                  {row.id}
+                  <TipIcon>
+                    Can't resolve name because{' '}
+                    {row.identityType === 'silo_user' ? 'user' : 'group'} is not in your
+                    silo
+                  </TipIcon>
+                </span>
+              ) : (
+                row.name
+              )
+            )
             .with({ kind: 'mapping' }, (row) => (
               <span className="flex items-center gap-1.5">
                 Any{' '}
