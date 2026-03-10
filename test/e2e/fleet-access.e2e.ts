@@ -9,7 +9,7 @@ import { user3 } from '@oxide/api-mocks'
 
 import { expect, expectRowVisible, expectToast, getPageAsUser, test } from './utils'
 
-test('Click through system access page', async ({ page }) => {
+test('Click through fleet access page', async ({ page }) => {
   await page.goto('/system/access')
 
   const table = page.getByRole('table')
@@ -19,14 +19,26 @@ test('Click through system access page', async ({ page }) => {
   await expectRowVisible(table, {
     Name: 'Hannah Arendt',
     Type: 'User',
-    Role: 'fleet.admin',
+    'Fleet role': 'fleet.admin',
   })
   await expectRowVisible(table, {
     Name: 'Jane Austen',
     Type: 'User',
-    Role: 'fleet.viewer',
+    'Fleet role': 'fleet.viewer',
   })
   await expect(page.getByRole('cell', { name: user3.display_name })).toBeHidden()
+
+  // role mapping rows from silos with mapped_fleet_roles
+  await expectRowVisible(table, {
+    Name: 'silo.admin in maze-war',
+    Type: 'Role mapping',
+    'Fleet role': 'fleet.admin',
+  })
+  await expectRowVisible(table, {
+    Name: 'silo.viewer in myriad',
+    Type: 'Role mapping',
+    'Fleet role': 'fleet.viewer',
+  })
 
   // Add user 3 as collaborator
   await page.getByRole('button', { name: 'Add user or group' }).click()
@@ -47,7 +59,7 @@ test('Click through system access page', async ({ page }) => {
   await expectRowVisible(table, {
     Name: 'Jacob Klein',
     Type: 'User',
-    Role: 'fleet.collaborator',
+    'Fleet role': 'fleet.collaborator',
   })
 
   // change user 3's role from collaborator to viewer
@@ -63,7 +75,7 @@ test('Click through system access page', async ({ page }) => {
   await page.getByRole('radio', { name: /^Viewer / }).click()
   await page.getByRole('button', { name: 'Update role' }).click()
 
-  await expectRowVisible(table, { Name: user3.display_name, Role: 'fleet.viewer' })
+  await expectRowVisible(table, { Name: user3.display_name, 'Fleet role': 'fleet.viewer' })
 
   // delete user 3
   const user3Row = page.getByRole('row', { name: user3.display_name, exact: false })
@@ -75,7 +87,7 @@ test('Click through system access page', async ({ page }) => {
   await expect(user3Row).toBeHidden()
 })
 
-test('Add a group to system access', async ({ page }) => {
+test('Add a group to fleet access', async ({ page }) => {
   await page.goto('/system/access')
 
   const table = page.getByRole('table')
@@ -97,7 +109,7 @@ test('Add a group to system access', async ({ page }) => {
   await expectRowVisible(table, {
     Name: 'web-devs',
     Type: 'Group',
-    Role: 'fleet.viewer',
+    'Fleet role': 'fleet.viewer',
   })
 })
 
@@ -116,13 +128,13 @@ test('Self-removal warning on delete', async ({ page }) => {
   await page.getByRole('button', { name: 'Cancel' }).click()
 })
 
-test('Fleet viewer cannot modify system access', async ({ browser }) => {
+test('Fleet viewer cannot modify fleet access', async ({ browser }) => {
   const page = await getPageAsUser(browser, 'Jane Austen')
   await page.goto('/system/access')
 
   const table = page.getByRole('table')
   await expect(page.getByRole('heading', { name: /Fleet Access/ })).toBeVisible()
-  await expectRowVisible(table, { Name: 'Hannah Arendt', Role: 'fleet.admin' })
+  await expectRowVisible(table, { Name: 'Hannah Arendt', 'Fleet role': 'fleet.admin' })
 
   // attempt to add a user — the submit should fail with 403
   await page.getByRole('button', { name: 'Add user or group' }).click()
@@ -134,4 +146,12 @@ test('Fleet viewer cannot modify system access', async ({ browser }) => {
   // dismiss the modal and confirm the table is unchanged
   await page.getByRole('button', { name: 'Cancel' }).click()
   await expect(page.getByRole('cell', { name: 'Jacob Klein' })).toBeHidden()
+})
+
+test('Role mapping row links to silo fleet roles', async ({ page }) => {
+  await page.goto('/system/access')
+
+  // click the silo name link in a mapping row
+  await page.getByRole('link', { name: 'maze-war' }).click()
+  await expect(page).toHaveURL(/\/system\/silos\/maze-war\/fleet-roles/)
 })
