@@ -77,7 +77,7 @@ export const Message = ({
   return (
     <div
       className={cn(
-        'relative flex items-start gap-2 overflow-hidden rounded-md p-3 pr-5 ring ring-current/15',
+        'relative flex items-start gap-2 overflow-hidden rounded-md p-3 pr-5 ring ring-current/10',
         color[variant],
         textColor[variant],
         className
