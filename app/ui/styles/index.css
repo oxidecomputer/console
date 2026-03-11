@@ -69,6 +69,15 @@
   }
 }
 
+::-moz-selection {
+  /* Code for Firefox */
+  @apply text-accent bg-accent;
+}
+
+::selection {
+  @apply text-accent bg-accent;
+}
+
 @custom-variant selected {
   .is-selected & {
     @slot;

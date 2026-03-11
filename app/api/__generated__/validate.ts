@@ -327,17 +327,14 @@ export const BgpMessageHistory = z.preprocess(
 /**
  * Identifies switch physical location
  */
-export const SwitchLocation = z.preprocess(
-  processResponseBody,
-  z.enum(['switch0', 'switch1'])
-)
+export const SwitchSlot = z.preprocess(processResponseBody, z.enum(['switch0', 'switch1']))
 
 /**
  * BGP message history for a particular switch.
  */
 export const SwitchBgpHistory = z.preprocess(
   processResponseBody,
-  z.object({ history: z.record(z.string(), BgpMessageHistory), switch: SwitchLocation })
+  z.object({ history: z.record(z.string(), BgpMessageHistory), switch: SwitchSlot })
 )
 
 /**
@@ -865,7 +862,7 @@ export const BgpConfigResultsPage = z.preprocess(
  */
 export const BgpExported = z.preprocess(
   processResponseBody,
-  z.object({ peerId: z.string(), prefix: IpNet, switch: SwitchLocation })
+  z.object({ peerId: z.string(), prefix: IpNet, switch: SwitchSlot })
 )
 
 /**
@@ -877,7 +874,7 @@ export const BgpImported = z.preprocess(
     id: z.number().min(0).max(4294967295),
     nexthop: z.union([z.ipv4(), z.ipv6()]),
     prefix: IpNet,
-    switch: SwitchLocation,
+    switch: SwitchSlot,
   })
 )
 
@@ -954,7 +951,7 @@ export const BgpPeerStatus = z.preprocess(
     remoteAsn: z.number().min(0).max(4294967295),
     state: BgpPeerState,
     stateDurationMillis: z.number().min(0),
-    switch: SwitchLocation,
+    switch: SwitchSlot,
   })
 )
 

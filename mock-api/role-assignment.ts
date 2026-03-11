@@ -38,6 +38,12 @@ type DbRoleAssignment = {
   role_name: RoleKey
 }
 
+// Simulate a user and group from another silo who have been granted fleet
+// roles. They won't appear in the current silo's userList/groupList, so the
+// UI must fall back to displaying their UUIDs.
+export const crossSiloUserId = 'd4e5f6a7-b8c9-4d0e-a1f2-b3c4d5e6f7a8'
+export const crossSiloGroupId = 'e5f6a7b8-c9d0-4e1f-b2a3-c4d5e6f7a8b9'
+
 export const roleAssignments: DbRoleAssignment[] = [
   {
     resource_type: 'fleet',
@@ -51,6 +57,20 @@ export const roleAssignments: DbRoleAssignment[] = [
     resource_id: FLEET_ID,
     identity_id: user5.id, // Jane Austen
     identity_type: 'silo_user',
+    role_name: 'viewer',
+  },
+  {
+    resource_type: 'fleet',
+    resource_id: FLEET_ID,
+    identity_id: crossSiloUserId,
+    identity_type: 'silo_user',
+    role_name: 'collaborator',
+  },
+  {
+    resource_type: 'fleet',
+    resource_id: FLEET_ID,
+    identity_id: crossSiloGroupId,
+    identity_type: 'silo_group',
     role_name: 'viewer',
   },
   {

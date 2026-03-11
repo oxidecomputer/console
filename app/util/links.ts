@@ -52,6 +52,10 @@ export const docLinks = {
     href: links.firewallRulesDocs,
     linkText: 'Firewall Rules',
   },
+  fleetRoleMappings: {
+    href: 'https://docs.oxide.computer/guides/configuring-access#_silo_admin_group_and_mapped_fleet_roles',
+    linkText: 'Fleet Role Mappings',
+  },
   floatingIps: {
     href: 'https://docs.oxide.computer/guides/managing-floating-ips',
     linkText: 'Floating IPs',
