@@ -15,9 +15,12 @@ import {
   getListQFn,
   q,
   queryClient,
+  roleOrder,
   useApiMutation,
   usePrefetchedQuery,
   type Group,
+  type Policy,
+  type RoleKey,
   type User,
 } from '@oxide/api'
 import { PersonGroup16Icon, PersonGroup24Icon } from '@oxide/design-system/icons/react'
@@ -71,15 +74,39 @@ const GroupEmptyState = () => (
 type GroupMembersSideModalProps = {
   group: Group
   onDismiss: () => void
+  siloPolicy: Policy
 }
 
-function GroupMembersSideModal({ group, onDismiss }: GroupMembersSideModalProps) {
+type SiloGroupRoleEntry = {
+  scope: 'silo'
+  roleName: RoleKey
+  source: { type: 'direct' }
+}
+
+function GroupMembersSideModal({
+  group,
+  onDismiss,
+  siloPolicy,
+}: GroupMembersSideModalProps) {
   const { data } = useQuery(q(api.userList, { query: { group: group.id, limit: ALL_ISH } }))
   const members = data?.items ?? []
 
+  const roleEntries: SiloGroupRoleEntry[] = []
+  const directAssignment = siloPolicy.roleAssignments.find(
+    (ra) => ra.identityId === group.id
+  )
+  if (directAssignment) {
+    roleEntries.push({
+      scope: 'silo',
+      roleName: directAssignment.roleName,
+      source: { type: 'direct' },
+    })
+  }
+  roleEntries.sort((a, b) => roleOrder[a.roleName] - roleOrder[b.roleName])
+
   return (
     <ReadOnlySideModalForm
-      title="Group members"
+      title="Silo Group"
       subtitle={
         <ResourceLabel>
           <PersonGroup16Icon /> {group.displayName}
@@ -93,6 +120,36 @@ function GroupMembersSideModal({ group, onDismiss }: GroupMembersSideModalProps)
         <PropertiesTable.DateRow label="Created" date={group.timeCreated} />
       </PropertiesTable>
       <div className="mt-6">
+        <table className="ox-table text-sans-md w-full border-separate">
+          <Table.Header>
+            <Table.HeaderRow>
+              <Table.HeadCell>Role</Table.HeadCell>
+              <Table.HeadCell>Source</Table.HeadCell>
+            </Table.HeaderRow>
+          </Table.Header>
+          <Table.Body>
+            {roleEntries.length === 0 ? (
+              <Table.Row>
+                <Table.Cell colSpan={2} className="text-secondary">
+                  No roles assigned
+                </Table.Cell>
+              </Table.Row>
+            ) : (
+              roleEntries.map(({ scope, roleName }, i) => (
+                <Table.Row key={i}>
+                  <Table.Cell>
+                    <Badge color={roleColor[roleName]}>
+                      {scope}.{roleName}
+                    </Badge>
+                  </Table.Cell>
+                  <Table.Cell>Assigned</Table.Cell>
+                </Table.Row>
+              ))
+            )}
+          </Table.Body>
+        </table>
+      </div>
+      <div className="mt-6">
         {members.length === 0 ? (
           <EmptyMessage
             icon={<PersonGroup24Icon />}
@@ -103,7 +160,7 @@ function GroupMembersSideModal({ group, onDismiss }: GroupMembersSideModalProps)
           <table className="ox-table text-sans-md w-full border-separate">
             <Table.Header>
               <Table.HeaderRow>
-                <Table.HeadCell>Name</Table.HeadCell>
+                <Table.HeadCell>Members</Table.HeadCell>
               </Table.HeaderRow>
             </Table.Header>
             <Table.Body>
@@ -206,6 +263,7 @@ export default function SiloAccessGroupsTab() {
         <GroupMembersSideModal
           group={selectedGroup}
           onDismiss={() => setSelectedGroup(null)}
+          siloPolicy={siloPolicy}
         />
       )}
       {editingGroup && (
