@@ -11,10 +11,19 @@
  * layer and not in app/ because we are experimenting with it to decide whether
  * it belongs in the API proper.
  */
+import { useQueries } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import * as R from 'remeda'
 
-import type { FleetRole, IdentityType, ProjectRole, SiloRole } from './__generated__/Api'
+import { ALL_ISH } from '~/util/consts'
+
+import type {
+  FleetRole,
+  Group,
+  IdentityType,
+  ProjectRole,
+  SiloRole,
+} from './__generated__/Api'
 import { api, q, usePrefetchedQuery } from './client'
 
 /**
@@ -215,4 +224,31 @@ export function userScopedRoleEntries(
     }
   }
   return entries
+}
+
+/**
+ * Builds a map from user ID to the list of groups that user belongs to.
+ * It has to be a hook because it fires one query per group to fetch members.
+ * The logic is shared between the silo and project access user tabs.
+ */
+export function useGroupsByUserId(groups: Group[]): Map<string, Group[]> {
+  const groupMemberQueries = useQueries({
+    queries: groups.map((g) => q(api.userList, { query: { group: g.id, limit: ALL_ISH } })),
+  })
+
+  return useMemo(() => {
+    const map = new Map<string, Group[]>()
+    groups.forEach((group, i) => {
+      const members = groupMemberQueries[i]?.data?.items ?? []
+      members.forEach((member) => {
+        const existing = map.get(member.id)
+        if (existing) existing.push(group)
+        else map.set(member.id, [group])
+      })
+    })
+    return map
+    // groupMemberQueries is a new array reference every render; depend on individual
+    // query data objects instead, which are stable references until data actually changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [groups, ...groupMemberQueries.map((q) => q.data)])
 }

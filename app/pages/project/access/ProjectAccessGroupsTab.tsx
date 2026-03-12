@@ -38,6 +38,7 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { ButtonCell } from '~/table/cells/LinkCell'
+import { MemberCountCell } from '~/table/cells/MemberCountCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -68,11 +69,6 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 export const handle = titleCrumb('Groups')
 
 const colHelper = createColumnHelper<Group>()
-
-function MemberCountCell({ groupId }: { groupId: string }) {
-  const { data } = useQuery(q(api.userList, { query: { group: groupId, limit: ALL_ISH } }))
-  return data ? <>{data.items.length}</> : null
-}
 
 const GroupEmptyState = () => (
   <EmptyMessage

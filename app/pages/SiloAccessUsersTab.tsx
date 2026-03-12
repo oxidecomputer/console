@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useQueries } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 
@@ -17,6 +16,7 @@ import {
   queryClient,
   roleOrder,
   useApiMutation,
+  useGroupsByUserId,
   usePrefetchedQuery,
   userRoleFromPolicies,
   type Group,
@@ -216,23 +216,7 @@ export default function SiloAccessUsersTab() {
     [siloPolicy]
   )
 
-  const groupMemberQueries = useQueries({
-    queries: groups.items.map((g) =>
-      q(api.userList, { query: { group: g.id, limit: ALL_ISH } })
-    ),
-  })
-
-  // map from user ID to the groups they belong to
-  const groupsByUserId = useMemo(() => {
-    const map = new Map<string, Group[]>()
-    groups.items.forEach((group, i) => {
-      const members = groupMemberQueries[i]?.data?.items ?? []
-      members.forEach((member) => {
-        map.set(member.id, [...(map.get(member.id) ?? []), group])
-      })
-    })
-    return map
-  }, [groups, groupMemberQueries])
+  const groupsByUserId = useGroupsByUserId(groups.items)
 
   const siloRoleCol = useMemo(
     () =>
