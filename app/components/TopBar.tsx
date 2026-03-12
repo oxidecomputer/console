@@ -147,7 +147,7 @@ function UserMenu() {
           </span>
         </div>
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content gap={8}>
+      <DropdownMenu.Content gap={8} sameWidth>
         <DropdownMenu.LinkItem className="pl-8" to={pb.profile()}>
           Settings
         </DropdownMenu.LinkItem>
