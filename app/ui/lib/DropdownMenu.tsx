@@ -53,23 +53,14 @@ type ContentProps = {
   anchor?: AnchorProp
   /** Spacing in px between trigger and menu */
   gap?: 8
-  /** Match the width of the trigger element */
-  sameWidth?: boolean
 }
 
-export function Content({
-  className,
-  children,
-  anchor = 'bottom end',
-  gap,
-  sameWidth,
-}: ContentProps) {
+export function Content({ className, children, anchor = 'bottom end', gap }: ContentProps) {
   const { side, align, sideOffset, alignOffset } = parseAnchor(anchor, gap)
   return (
     <Menu.Portal>
       <Menu.Positioner
         className="z-(--z-top-bar-dropdown)"
-        style={sameWidth ? { minWidth: 'var(--anchor-width)' } : undefined}
         side={side}
         align={align}
         sideOffset={sideOffset}

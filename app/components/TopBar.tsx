@@ -138,7 +138,7 @@ function UserMenu() {
         <div
           className={cn(
             buttonStyle({ size: 'sm', variant: 'ghost' }),
-            'flex items-center gap-1.5 pl-2! pr-[10px]!'
+            'flex items-center gap-1.5 px-2!'
           )}
         >
           <Profile16Icon className="text-tertiary" />
@@ -147,7 +147,7 @@ function UserMenu() {
           </span>
         </div>
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content gap={8} sameWidth>
+      <DropdownMenu.Content gap={8}>
         <DropdownMenu.LinkItem className="pl-8" to={pb.profile()}>
           Settings
         </DropdownMenu.LinkItem>
