@@ -10,7 +10,7 @@ import { Link } from 'react-router'
 
 import { api, navToLogin, useApiMutation } from '@oxide/api'
 import {
-  DirectionRightIcon,
+  DirectionLeftIcon,
   Monitor12Icon,
   Moon12Icon,
   Organization16Icon,
@@ -138,7 +138,7 @@ function UserMenu() {
         <div
           className={cn(
             buttonStyle({ size: 'sm', variant: 'ghost' }),
-            'flex items-center gap-1.5 px-2!'
+            'flex items-center gap-1.5 pl-2! pr-[10px]!'
           )}
         >
           <Profile16Icon className="text-tertiary" />
@@ -148,9 +148,15 @@ function UserMenu() {
         </div>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content gap={8}>
-        <DropdownMenu.LinkItem to={pb.profile()}>Settings</DropdownMenu.LinkItem>
+        <DropdownMenu.LinkItem className="pl-8" to={pb.profile()}>
+          Settings
+        </DropdownMenu.LinkItem>
         <ThemeSubmenu />
-        <DropdownMenu.Item onSelect={() => logout.mutate({})} label="Sign out" />
+        <DropdownMenu.Item
+          className="pl-8"
+          onSelect={() => logout.mutate({})}
+          label="Sign out"
+        />
       </DropdownMenu.Content>
     </DropdownMenu.Root>
   )
@@ -160,11 +166,12 @@ function ThemeSubmenu() {
   const { theme, setTheme } = useThemeStore()
   return (
     <DropdownMenu.Submenu>
-      <DropdownMenu.SubmenuTrigger className="DropdownMenuItem ox-menu-item border-secondary border-b">
-        <span className="flex w-full items-center justify-between">
-          Theme
-          <DirectionRightIcon className="text-quaternary absolute right-3" aria-hidden />
-        </span>
+      <DropdownMenu.SubmenuTrigger className="DropdownMenuItem ox-menu-item border-secondary border-b pl-8">
+        <DirectionLeftIcon
+          className="text-quaternary absolute top-1/2 left-2 -translate-y-1/2"
+          aria-hidden
+        />
+        Theme
       </DropdownMenu.SubmenuTrigger>
       <DropdownMenu.SubContent>
         <DropdownMenu.RadioGroup value={theme} onValueChange={setTheme}>
