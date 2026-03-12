@@ -20,10 +20,9 @@ import {
   roleOrder,
   useApiMutation,
   usePrefetchedQuery,
-  userRoleFromPolicies,
+  userScopedRoleEntries,
   type Group,
   type Policy,
-  type RoleKey,
   type User,
 } from '@oxide/api'
 import { Person16Icon, Person24Icon } from '@oxide/design-system/icons/react'
@@ -85,12 +84,6 @@ type UserDetailsSideModalProps = {
   userGroups: Group[]
 }
 
-type ProjectRoleEntry = {
-  scope: 'silo' | 'project'
-  roleName: RoleKey
-  source: { type: 'direct' } | { type: 'silo' } | { type: 'group'; group: Group }
-}
-
 function UserDetailsSideModal({
   user,
   onDismiss,
@@ -98,59 +91,18 @@ function UserDetailsSideModal({
   projectPolicy,
   userGroups,
 }: UserDetailsSideModalProps) {
-  const roleEntries: ProjectRoleEntry[] = []
-
-  const directProjectAssignment = projectPolicy.roleAssignments.find(
-    (ra) => ra.identityId === user.id
+  const roleEntries = userScopedRoleEntries(user.id, userGroups, [
+    { scope: 'silo', policy: siloPolicy },
+    { scope: 'project', policy: projectPolicy },
+  ]).sort(
+    (a, b) =>
+      roleOrder[a.roleName] - roleOrder[b.roleName] ||
+      (a.scope === 'silo' ? -1 : 1) - (b.scope === 'silo' ? -1 : 1)
   )
-  if (directProjectAssignment) {
-    roleEntries.push({
-      scope: 'project',
-      roleName: directProjectAssignment.roleName,
-      source: { type: 'direct' },
-    })
-  }
-
-  const directSiloAssignment = siloPolicy.roleAssignments.find(
-    (ra) => ra.identityId === user.id
-  )
-  if (directSiloAssignment) {
-    roleEntries.push({
-      scope: 'silo',
-      roleName: directSiloAssignment.roleName,
-      source: { type: 'silo' },
-    })
-  }
-
-  for (const group of userGroups) {
-    const groupProjectAssignment = projectPolicy.roleAssignments.find(
-      (ra) => ra.identityId === group.id
-    )
-    if (groupProjectAssignment) {
-      roleEntries.push({
-        scope: 'project',
-        roleName: groupProjectAssignment.roleName,
-        source: { type: 'group', group },
-      })
-    }
-
-    const groupSiloAssignment = siloPolicy.roleAssignments.find(
-      (ra) => ra.identityId === group.id
-    )
-    if (groupSiloAssignment) {
-      roleEntries.push({
-        scope: 'silo',
-        roleName: groupSiloAssignment.roleName,
-        source: { type: 'group', group },
-      })
-    }
-  }
-
-  roleEntries.sort((a, b) => roleOrder[a.roleName] - roleOrder[b.roleName])
 
   return (
     <ReadOnlySideModalForm
-      title="User details"
+      title="User"
       subtitle={
         <ResourceLabel>
           <Person16Icon /> {user.displayName}
@@ -188,9 +140,7 @@ function UserDetailsSideModal({
                   </Table.Cell>
                   <Table.Cell>
                     {source.type === 'direct' && 'Assigned'}
-                    {source.type === 'silo' && 'Inherited from silo'}
-                    {source.type === 'group' &&
-                      `Inherited from ${source.group.displayName}`}
+                    {source.type === 'group' && `via ${source.group.displayName}`}
                   </Table.Cell>
                 </Table.Row>
               ))
@@ -251,12 +201,7 @@ export default function ProjectAccessUsersTab() {
     },
   })
 
-  // direct role assignments by identity ID — siloRoleById used for via-group detection,
-  // projectRoleById also used for action menu
-  const siloRoleById = useMemo(
-    () => new Map(siloPolicy.roleAssignments.map((a) => [a.identityId, a.roleName])),
-    [siloPolicy]
-  )
+  // direct role assignments by identity ID, used for action menu
   const projectRoleById = useMemo(
     () => new Map(projectPolicy.roleAssignments.map((a) => [a.identityId, a.roleName])),
     [projectPolicy]
@@ -296,68 +241,27 @@ export default function ProjectAccessUsersTab() {
         ),
         cell: ({ row }) => {
           const userGroups = groupsByUserId.get(row.original.id) ?? []
-          const siloRole = userRoleFromPolicies(row.original, userGroups, [siloPolicy])
-          const projectRole = userRoleFromPolicies(row.original, userGroups, [
-            projectPolicy,
-          ])
-
-          const viaGroups = (
-            effectiveRole: ReturnType<typeof userRoleFromPolicies>,
-            directRole: ReturnType<typeof siloRoleById.get>,
-            roleMap: typeof siloRoleById
-          ) => {
-            if (!effectiveRole) return []
-            if (directRole && roleOrder[directRole] <= roleOrder[effectiveRole]) return []
-            return userGroups.filter((g) => {
-              const gr = roleMap.get(g.id)
-              return gr !== undefined && roleOrder[gr] <= roleOrder[effectiveRole]
-            })
-          }
-
-          const siloViaGroups = viaGroups(
-            siloRole,
-            siloRoleById.get(row.original.id),
-            siloRoleById
-          )
-          const projectViaGroups = viaGroups(
-            projectRole,
-            projectRoleById.get(row.original.id),
-            projectRoleById
-          )
-
           const roles = R.sortBy(
-            [
-              siloRole && {
-                roleName: siloRole,
-                roleSource: 'silo' as const,
-                viaGroups: siloViaGroups,
-              },
-              projectRole && {
-                roleName: projectRole,
-                roleSource: 'project' as const,
-                viaGroups: projectViaGroups,
-              },
-            ].filter((r) => !!r),
-            (r) => roleOrder[r.roleName]
+            userScopedRoleEntries(row.original.id, userGroups, [
+              { scope: 'silo', policy: siloPolicy },
+              { scope: 'project', policy: projectPolicy },
+            ]),
+            (e) => roleOrder[e.roleName]
           )
           if (roles.length === 0) return <EmptyCell />
           return (
             <ListPlusCell tooltipTitle="Other roles">
-              {roles.map(({ roleName, roleSource, viaGroups }, i) => (
-                <span key={roleSource} className="inline-flex items-center gap-1">
+              {roles.map(({ scope, roleName, source }, i) => (
+                <span
+                  key={`${scope}-${roleName}-${source.type === 'group' ? source.group.id : 'direct'}`}
+                  className="inline-flex items-center gap-1"
+                >
                   <Badge color={roleColor[roleName]}>
-                    {roleSource}.{roleName}
+                    {scope}.{roleName}
                   </Badge>
-                  {i === 0 && viaGroups.length > 0 && (
-                    <TipIcon>
-                      via{' '}
-                      {viaGroups.map((g, i) => (
-                        <span key={g.id}>
-                          {i > 0 && ', '}
-                          <Badge color="neutral">{g.displayName}</Badge>
-                        </span>
-                      ))}
-                    </TipIcon>
+                  {i > 0 && source.type === 'group' && ` via ${source.group.displayName}`}
+                  {i === 0 && source.type === 'group' && (
+                    <TipIcon>via {source.group.displayName}</TipIcon>
                   )}
                 </span>
               ))}
@@ -365,7 +269,7 @@ export default function ProjectAccessUsersTab() {
           )
         },
       }),
-    [groupsByUserId, siloPolicy, projectPolicy, siloRoleById, projectRoleById]
+    [groupsByUserId, siloPolicy, projectPolicy]
   )
 
   const groupsCol = useMemo(
@@ -378,9 +282,7 @@ export default function ProjectAccessUsersTab() {
           return (
             <ListPlusCell tooltipTitle="Groups">
               {userGroups.map((g) => (
-                <Badge color="neutral" key={g.id}>
-                  {g.displayName}
-                </Badge>
+                <span key={g.id}>{g.displayName}</span>
               ))}
             </ListPlusCell>
           )

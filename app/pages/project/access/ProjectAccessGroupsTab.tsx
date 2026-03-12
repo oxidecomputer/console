@@ -132,7 +132,7 @@ function GroupMembersSideModal({
 
   return (
     <ReadOnlySideModalForm
-      title="Project Group"
+      title="Group"
       subtitle={
         <ResourceLabel>
           <PersonGroup16Icon /> {group.displayName}

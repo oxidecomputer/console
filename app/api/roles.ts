@@ -186,3 +186,33 @@ export function userRoleFromPolicies(
     .map((ra) => ra.roleName)
   return getEffectiveRole(myRoles) || null
 }
+
+export type ScopedRoleEntry = {
+  scope: 'silo' | 'project'
+  roleName: RoleKey
+  source: { type: 'direct' } | { type: 'group'; group: { id: string; displayName: string } }
+}
+
+/**
+ * Enumerate all role assignments relevant to a user — one entry per direct
+ * assignment and one per group assignment — across one or more scoped policies.
+ * Callers are responsible for sorting and any display-layer merging.
+ */
+export function userScopedRoleEntries(
+  userId: string,
+  userGroups: { id: string; displayName: string }[],
+  scopedPolicies: Array<{ scope: 'silo' | 'project'; policy: Policy }>
+): ScopedRoleEntry[] {
+  const entries: ScopedRoleEntry[] = []
+  for (const { scope, policy } of scopedPolicies) {
+    const direct = policy.roleAssignments.find((ra) => ra.identityId === userId)
+    if (direct)
+      entries.push({ scope, roleName: direct.roleName, source: { type: 'direct' } })
+    for (const group of userGroups) {
+      const via = policy.roleAssignments.find((ra) => ra.identityId === group.id)
+      if (via)
+        entries.push({ scope, roleName: via.roleName, source: { type: 'group', group } })
+    }
+  }
+  return entries
+}

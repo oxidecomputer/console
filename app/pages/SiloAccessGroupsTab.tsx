@@ -106,7 +106,7 @@ function GroupMembersSideModal({
 
   return (
     <ReadOnlySideModalForm
-      title="Silo Group"
+      title="Group"
       subtitle={
         <ResourceLabel>
           <PersonGroup16Icon /> {group.displayName}

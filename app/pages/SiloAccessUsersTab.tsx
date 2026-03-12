@@ -117,7 +117,7 @@ function UserDetailsSideModal({
 
   return (
     <ReadOnlySideModalForm
-      title="User details"
+      title="User"
       subtitle={
         <ResourceLabel>
           <Person16Icon /> {user.displayName}
@@ -155,8 +155,7 @@ function UserDetailsSideModal({
                   </Table.Cell>
                   <Table.Cell>
                     {source.type === 'direct' && 'Assigned'}
-                    {source.type === 'group' &&
-                      `Inherited from ${source.group.displayName}`}
+                    {source.type === 'group' && `via ${source.group.displayName}`}
                   </Table.Cell>
                 </Table.Row>
               ))
@@ -263,7 +262,7 @@ export default function SiloAccessUsersTab() {
                   {viaGroups.map((g, i) => (
                     <span key={g.id}>
                       {i > 0 && ', '}
-                      <Badge color="neutral">{g.displayName}</Badge>
+                      {g.displayName}
                     </span>
                   ))}
                 </TipIcon>
