@@ -38,7 +38,7 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { ButtonCell } from '~/table/cells/LinkCell'
-import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { RowActions, useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -153,12 +153,13 @@ function UserDetailsSideModal({
           <Table.Header>
             <Table.HeaderRow>
               <Table.HeadCell>Groups</Table.HeadCell>
+              <Table.HeadCell />
             </Table.HeaderRow>
           </Table.Header>
           <Table.Body>
             {userGroups.length === 0 ? (
               <Table.Row>
-                <Table.Cell className="text-secondary">
+                <Table.Cell colSpan={2} className="text-secondary">
                   Not a member of any groups
                 </Table.Cell>
               </Table.Row>
@@ -166,6 +167,9 @@ function UserDetailsSideModal({
               userGroups.map((group) => (
                 <Table.Row key={group.id}>
                   <Table.Cell>{group.displayName}</Table.Cell>
+                  <Table.Cell className="action-col w-10 *:p-0">
+                    <RowActions id={group.id} />
+                  </Table.Cell>
                 </Table.Row>
               ))
             )}

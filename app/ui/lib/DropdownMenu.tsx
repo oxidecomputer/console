@@ -14,6 +14,7 @@ import { Link } from 'react-router'
 import { OpenLink12Icon } from '@oxide/design-system/icons/react'
 
 import { Wrap } from '../util/wrap'
+import { useIsInModal, useIsInSideModal } from './modal-context'
 import { Tooltip } from './Tooltip'
 
 // Re-export Root with modal={false} default to prevent scroll locking
@@ -57,10 +58,17 @@ type ContentProps = {
 
 export function Content({ className, children, anchor = 'bottom end', gap }: ContentProps) {
   const { side, align, sideOffset, alignOffset } = parseAnchor(anchor, gap)
+  const isInModal = useIsInModal()
+  const isInSideModal = useIsInSideModal()
+  const zClass = isInModal
+    ? 'z-(--z-modal-dropdown)'
+    : isInSideModal
+      ? 'z-(--z-side-modal-dropdown)'
+      : 'z-(--z-top-bar-dropdown)'
   return (
     <Menu.Portal>
       <Menu.Positioner
-        className="z-(--z-top-bar-dropdown)"
+        className={zClass}
         side={side}
         align={align}
         sideOffset={sideOffset}

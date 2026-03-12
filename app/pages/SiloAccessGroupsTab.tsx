@@ -36,7 +36,7 @@ import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { ButtonCell } from '~/table/cells/LinkCell'
 import { MemberCountCell } from '~/table/cells/MemberCountCell'
-import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { RowActions, useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -159,12 +159,16 @@ function GroupMembersSideModal({
             <Table.Header>
               <Table.HeaderRow>
                 <Table.HeadCell>Members</Table.HeadCell>
+                <Table.HeadCell />
               </Table.HeaderRow>
             </Table.Header>
             <Table.Body>
               {members.map((member: User) => (
                 <Table.Row key={member.id}>
                   <Table.Cell>{member.displayName}</Table.Cell>
+                  <Table.Cell className="action-col w-10 *:p-0">
+                    <RowActions id={member.id} />
+                  </Table.Cell>
                 </Table.Row>
               ))}
             </Table.Body>
