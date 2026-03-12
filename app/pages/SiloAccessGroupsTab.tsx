@@ -8,6 +8,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
+import * as R from 'remeda'
 
 import {
   api,
@@ -31,6 +32,7 @@ import { HL } from '~/components/HL'
 import { SiloAccessEditUserSideModal } from '~/forms/silo-access'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { ButtonCell } from '~/table/cells/LinkCell'
 import { MemberCountCell } from '~/table/cells/MemberCountCell'
@@ -98,7 +100,7 @@ function GroupMembersSideModal({
       source: { type: 'direct' },
     })
   }
-  roleEntries.sort((a, b) => roleOrder[a.roleName] - roleOrder[b.roleName])
+  const sortedRoleEntries = R.sortBy(roleEntries, (e) => roleOrder[e.roleName])
 
   return (
     <ReadOnlySideModalForm
@@ -124,14 +126,14 @@ function GroupMembersSideModal({
             </Table.HeaderRow>
           </Table.Header>
           <Table.Body>
-            {roleEntries.length === 0 ? (
+            {sortedRoleEntries.length === 0 ? (
               <Table.Row>
                 <Table.Cell colSpan={2} className="text-secondary">
                   No roles assigned
                 </Table.Cell>
               </Table.Row>
             ) : (
-              roleEntries.map(({ scope, roleName }, i) => (
+              sortedRoleEntries.map(({ scope, roleName }, i) => (
                 <Table.Row key={i}>
                   <Table.Cell>
                     <Badge color={roleColor[roleName]}>
@@ -180,7 +182,10 @@ export default function SiloAccessGroupsTab() {
   const { data: siloPolicy } = usePrefetchedQuery(policyView)
 
   const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
-    onSuccess: () => queryClient.invalidateEndpoint('policyView'),
+    onSuccess: () => {
+      queryClient.invalidateEndpoint('policyView')
+      addToast({ content: 'Role updated' })
+    },
   })
 
   const siloRoleById = useMemo(

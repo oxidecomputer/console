@@ -7,6 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
+import * as R from 'remeda'
 
 import {
   api,
@@ -19,9 +20,9 @@ import {
   useGroupsByUserId,
   usePrefetchedQuery,
   userRoleFromPolicies,
+  userScopedRoleEntries,
   type Group,
   type Policy,
-  type RoleKey,
   type User,
 } from '@oxide/api'
 import { Person16Icon, Person24Icon } from '@oxide/design-system/icons/react'
@@ -33,6 +34,7 @@ import { ListPlusCell } from '~/components/ListPlusCell'
 import { SiloAccessEditUserSideModal } from '~/forms/silo-access'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { ButtonCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -75,45 +77,16 @@ type UserDetailsSideModalProps = {
   userGroups: Group[]
 }
 
-type SiloRoleEntry = {
-  scope: 'silo'
-  roleName: RoleKey
-  source: { type: 'direct' } | { type: 'group'; group: Group }
-}
-
 function UserDetailsSideModal({
   user,
   onDismiss,
   siloPolicy,
   userGroups,
 }: UserDetailsSideModalProps) {
-  const roleEntries: SiloRoleEntry[] = []
-
-  const directAssignment = siloPolicy.roleAssignments.find(
-    (ra) => ra.identityId === user.id
+  const roleEntries = R.sortBy(
+    userScopedRoleEntries(user.id, userGroups, [{ scope: 'silo', policy: siloPolicy }]),
+    (e) => roleOrder[e.roleName]
   )
-  if (directAssignment) {
-    roleEntries.push({
-      scope: 'silo',
-      roleName: directAssignment.roleName,
-      source: { type: 'direct' },
-    })
-  }
-
-  for (const group of userGroups) {
-    const groupAssignment = siloPolicy.roleAssignments.find(
-      (ra) => ra.identityId === group.id
-    )
-    if (groupAssignment) {
-      roleEntries.push({
-        scope: 'silo',
-        roleName: groupAssignment.roleName,
-        source: { type: 'group', group },
-      })
-    }
-  }
-
-  roleEntries.sort((a, b) => roleOrder[a.roleName] - roleOrder[b.roleName])
 
   return (
     <ReadOnlySideModalForm
@@ -207,7 +180,10 @@ export default function SiloAccessUsersTab() {
   const { data: groups } = usePrefetchedQuery(groupListAll)
 
   const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
-    onSuccess: () => queryClient.invalidateEndpoint('policyView'),
+    onSuccess: () => {
+      queryClient.invalidateEndpoint('policyView')
+      addToast({ content: 'Role updated' })
+    },
   })
 
   // direct role assignments by identity ID, used for action menu

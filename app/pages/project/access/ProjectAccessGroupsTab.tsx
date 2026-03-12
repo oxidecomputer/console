@@ -74,7 +74,7 @@ const GroupEmptyState = () => (
   <EmptyMessage
     icon={<PersonGroup24Icon />}
     title="No groups"
-    body="No groups have been added to this silo"
+    body="No groups have been added to this project"
   />
 )
 
@@ -124,7 +124,7 @@ function GroupMembersSideModal({
     })
   }
 
-  roleEntries.sort((a, b) => roleOrder[a.roleName] - roleOrder[b.roleName])
+  const sortedRoleEntries = R.sortBy(roleEntries, (e) => roleOrder[e.roleName])
 
   return (
     <ReadOnlySideModalForm
@@ -150,14 +150,14 @@ function GroupMembersSideModal({
             </Table.HeaderRow>
           </Table.Header>
           <Table.Body>
-            {roleEntries.length === 0 ? (
+            {sortedRoleEntries.length === 0 ? (
               <Table.Row>
                 <Table.Cell colSpan={2} className="text-secondary">
                   No roles assigned
                 </Table.Cell>
               </Table.Row>
             ) : (
-              roleEntries.map(({ scope, roleName, source }, i) => (
+              sortedRoleEntries.map(({ scope, roleName, source }, i) => (
                 <Table.Row key={i}>
                   <Table.Cell>
                     <Badge color={roleColor[roleName]}>

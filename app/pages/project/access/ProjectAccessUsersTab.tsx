@@ -91,13 +91,13 @@ function UserDetailsSideModal({
   projectPolicy,
   userGroups,
 }: UserDetailsSideModalProps) {
-  const roleEntries = userScopedRoleEntries(user.id, userGroups, [
-    { scope: 'silo', policy: siloPolicy },
-    { scope: 'project', policy: projectPolicy },
-  ]).sort(
-    (a, b) =>
-      roleOrder[a.roleName] - roleOrder[b.roleName] ||
-      (a.scope === 'silo' ? -1 : 1) - (b.scope === 'silo' ? -1 : 1)
+  const roleEntries = R.sortBy(
+    userScopedRoleEntries(user.id, userGroups, [
+      { scope: 'silo', policy: siloPolicy },
+      { scope: 'project', policy: projectPolicy },
+    ]),
+    (e) => roleOrder[e.roleName],
+    (e) => (e.scope === 'silo' ? 0 : 1)
   )
 
   return (
