@@ -17,8 +17,6 @@ import { z } from 'zod/v4'
 
 import vercelConfig from './vercel.json'
 
-const KiB = 1024
-
 const ApiMode = z.enum(['msw', 'remote', 'nexus'])
 
 function bail(msg: string): never {
@@ -104,12 +102,24 @@ export default defineConfig(({ mode }) => ({
     rolldownOptions: {
       // default entrypoint for vite is '<root>/index.html', so we don't have to set it
       output: {
-        // React Router automatically splits any route module into its own file,
-        // but some end up being like 300 bytes. It feels silly to have several
-        // hundred of those, so we set a minimum size to end up with fewer.
-        // https://rolldown.rs/in-depth/advanced-chunks
+        // Merge tiny shared chunks to reduce the number of requests.
+        // Rolldown has this instead of Rollup's experimentalMinChunkSize;
+        // https://github.com/rolldown/rolldown/issues/4788
         codeSplitting: {
-          groups: [{ name: 'small-chunks', minSize: 30 * KiB }],
+          groups: [
+            {
+              name: 'vendor',
+              test: /\/node_modules\//,
+              minSize: 4096,
+              maxSize: 1000 * 1000,
+            },
+            {
+              name: 'shared',
+              minSize: 4096,
+              maxSize: 1000 * 1000,
+              minShareCount: 2,
+            },
+          ],
         },
       },
     },
