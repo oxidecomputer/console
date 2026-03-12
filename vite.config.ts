@@ -11,9 +11,8 @@ import { resolve } from 'path'
 
 import tailwindcss from '@tailwindcss/vite'
 import basicSsl from '@vitejs/plugin-basic-ssl'
-import react from '@vitejs/plugin-react-swc'
+import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
-import tsconfigPaths from 'vite-tsconfig-paths'
 import { z } from 'zod/v4'
 
 import vercelConfig from './vercel.json'
@@ -102,14 +101,16 @@ export default defineConfig(({ mode }) => ({
     emptyOutDir: true,
     sourcemap: true,
     // minify: false, // uncomment for debugging
-    rollupOptions: {
+    rolldownOptions: {
       // default entrypoint for vite is '<root>/index.html', so we don't have to set it
       output: {
         // React Router automatically splits any route module into its own file,
         // but some end up being like 300 bytes. It feels silly to have several
         // hundred of those, so we set a minimum size to end up with fewer.
-        // https://rollupjs.org/configuration-options/#output-experimentalminchunksize
-        experimentalMinChunkSize: 30 * KiB,
+        // https://rolldown.rs/in-depth/advanced-chunks
+        codeSplitting: {
+          groups: [{ name: 'small-chunks', minSize: 30 * KiB }],
+        },
       },
     },
     // prevent inlining assets as `data:`, which is not permitted by our Content-Security-Policy
@@ -126,7 +127,6 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     tailwindcss(),
-    tsconfigPaths(),
     {
       name: 'inject-html-tags',
       transformIndexHtml: () => (process.env.VERCEL ? previewTags : []),
@@ -171,6 +171,7 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
+  resolve: { tsconfigPaths: true },
   preview: { headers },
   test: {
     environment: 'jsdom',
