@@ -10,7 +10,6 @@ import { Link } from 'react-router'
 
 import { api, navToLogin, useApiMutation } from '@oxide/api'
 import {
-  DirectionRightIcon,
   Monitor12Icon,
   Moon12Icon,
   Organization16Icon,
@@ -161,10 +160,7 @@ function ThemeSubmenu() {
   return (
     <DropdownMenu.Submenu>
       <DropdownMenu.SubmenuTrigger className="DropdownMenuItem ox-menu-item border-secondary border-b">
-        <span className="flex w-full items-center justify-between">
-          Theme
-          <DirectionRightIcon className="text-quaternary absolute right-3" aria-hidden />
-        </span>
+        Theme
       </DropdownMenu.SubmenuTrigger>
       <DropdownMenu.SubContent>
         <DropdownMenu.RadioGroup value={theme} onValueChange={setTheme}>
