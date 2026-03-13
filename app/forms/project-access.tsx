@@ -113,6 +113,7 @@ export function ProjectAccessEditUserSideModal({
         </ResourceLabel>
       }
       onSubmit={({ roleName }) => {
+        if (!roleName) return
         updatePolicy.mutate({
           path: { project },
           body: updateRole({ identityId, identityType, roleName }, policy),

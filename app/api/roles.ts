@@ -11,10 +11,19 @@
  * layer and not in app/ because we are experimenting with it to decide whether
  * it belongs in the API proper.
  */
+import { useQueries } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import * as R from 'remeda'
 
-import type { FleetRole, IdentityType, ProjectRole, SiloRole } from './__generated__/Api'
+import { ALL_ISH } from '~/util/consts'
+
+import type {
+  FleetRole,
+  Group,
+  IdentityType,
+  ProjectRole,
+  SiloRole,
+} from './__generated__/Api'
 import { api, q, usePrefetchedQuery } from './client'
 
 /**
@@ -185,4 +194,61 @@ export function userRoleFromPolicies(
     .filter((ra) => myIds.has(ra.identityId))
     .map((ra) => ra.roleName)
   return getEffectiveRole(myRoles) || null
+}
+
+export type ScopedRoleEntry = {
+  scope: 'silo' | 'project'
+  roleName: RoleKey
+  source: { type: 'direct' } | { type: 'group'; group: { id: string; displayName: string } }
+}
+
+/**
+ * Enumerate all role assignments relevant to a user — one entry per direct
+ * assignment and one per group assignment — across one or more scoped policies.
+ * Callers are responsible for sorting and any display-layer merging.
+ */
+export function userScopedRoleEntries(
+  userId: string,
+  userGroups: { id: string; displayName: string }[],
+  scopedPolicies: Array<{ scope: 'silo' | 'project'; policy: Policy }>
+): ScopedRoleEntry[] {
+  const entries: ScopedRoleEntry[] = []
+  for (const { scope, policy } of scopedPolicies) {
+    const direct = policy.roleAssignments.find((ra) => ra.identityId === userId)
+    if (direct)
+      entries.push({ scope, roleName: direct.roleName, source: { type: 'direct' } })
+    for (const group of userGroups) {
+      const via = policy.roleAssignments.find((ra) => ra.identityId === group.id)
+      if (via)
+        entries.push({ scope, roleName: via.roleName, source: { type: 'group', group } })
+    }
+  }
+  return entries
+}
+
+/**
+ * Builds a map from user ID to the list of groups that user belongs to.
+ * It has to be a hook because it fires one query per group to fetch members.
+ * The logic is shared between the silo and project access user tabs.
+ */
+export function useGroupsByUserId(groups: Group[]): Map<string, Group[]> {
+  const groupMemberQueries = useQueries({
+    queries: groups.map((g) => q(api.userList, { query: { group: g.id, limit: ALL_ISH } })),
+  })
+
+  return useMemo(() => {
+    const map = new Map<string, Group[]>()
+    groups.forEach((group, i) => {
+      const members = groupMemberQueries[i]?.data?.items ?? []
+      members.forEach((member) => {
+        const existing = map.get(member.id)
+        if (existing) existing.push(group)
+        else map.set(member.id, [group])
+      })
+    })
+    return map
+    // groupMemberQueries is a new array reference every render; depend on individual
+    // query data objects instead, which are stable references until data actually changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [groups, ...groupMemberQueries.map((q) => q.data)])
 }

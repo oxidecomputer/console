@@ -110,6 +110,7 @@ export function FleetAccessEditUserSideModal({
         </ResourceLabel>
       }
       onSubmit={({ roleName }) => {
+        if (!roleName) return
         updatePolicy.mutate({
           body: updateRole({ identityId, identityType, roleName }, policy),
         })

@@ -5,56 +5,52 @@
  *
  * Copyright Oxide Computer Company
  */
-import { user3, user4 } from '@oxide/api-mocks'
+import { user3 } from '@oxide/api-mocks'
 
-import { expect, expectNotVisible, expectRowVisible, expectVisible, test } from './utils'
+import { expect, expectRowVisible, expectVisible, test } from './utils'
 
 test('Click through silo access page', async ({ page }) => {
   await page.goto('/')
 
-  const table = page.locator('role=table')
-
-  // page is there; we see user 1 and 2 but not 3
   await page.click('role=link[name*="Access"]')
 
   await expectVisible(page, ['role=heading[name*="Access"]'])
-  await expectRowVisible(table, {
-    Name: 'real-estate-devs',
-    Type: 'Group',
-    Role: 'silo.collaborator',
-  })
+
+  // Users tab is shown by default
+  const table = page.locator('role=table')
   await expectRowVisible(table, {
     Name: 'Hannah Arendt',
-    Type: 'User',
-    Role: 'silo.admin',
+    'Silo Role': 'silo.admin',
   })
-  await expectNotVisible(page, [`role=cell[name="${user4.display_name}"]`])
 
-  // Add user 2 as collab
-  await page.click('role=button[name="Add user or group"]')
-  await expectVisible(page, ['role=heading[name*="Add user or group"]'])
+  // Navigate to Groups tab to check groups
+  await page.getByRole('tab', { name: 'Silo Groups' }).click()
+  await expectRowVisible(table, {
+    Name: 'real-estate-devs',
+    'Silo Role': 'silo.collaborator',
+  })
 
-  await page.click('role=button[name*="User or group"]')
-  // only users not already on the org should be visible
-  await expectNotVisible(page, ['role=option[name="Hannah Arendt"]'])
-  await expectVisible(page, [
-    'role=option[name="Hans Jonas"]',
-    'role=option[name="Jacob Klein"]',
-    'role=option[name="Simone de Beauvoir"]',
-  ])
+  // Go back to Users tab to assign a role to Jacob Klein
+  await page.getByRole('tab', { name: 'Silo Users' }).click()
 
-  await page.click('role=option[name="Jacob Klein"]')
+  // Assign collaborator role to Jacob Klein via Change role action
+  await page
+    .locator('role=row', { hasText: user3.display_name })
+    .locator('role=button[name="Row actions"]')
+    .click()
+  await page.click('role=menuitem[name="Change role"]')
+
+  await expectVisible(page, ['role=heading[name*="Edit role"]'])
   await page.getByRole('radio', { name: /^Collaborator / }).click()
-  await page.click('role=button[name="Assign role"]')
+  await page.click('role=button[name="Update role"]')
 
-  // User 3 shows up in the table
+  // Jacob Klein shows up with collaborator role
   await expectRowVisible(table, {
     Name: 'Jacob Klein',
-    Role: 'silo.collaborator',
-    Type: 'User',
+    'Silo Role': 'silo.collaborator',
   })
 
-  // now change user 3's role from collab to viewer
+  // now change Jacob Klein's role from collab to viewer
   await page
     .locator('role=row', { hasText: user3.display_name })
     .locator('role=button[name="Row actions"]')
@@ -70,13 +66,15 @@ test('Click through silo access page', async ({ page }) => {
   await page.getByRole('radio', { name: /^Viewer / }).click()
   await page.click('role=button[name="Update role"]')
 
-  await expectRowVisible(table, { Name: user3.display_name, Role: 'silo.viewer' })
+  await expectRowVisible(table, { Name: user3.display_name, 'Silo Role': 'silo.viewer' })
 
-  // now delete user 3
+  // now remove Jacob Klein's silo role
   const user3Row = page.getByRole('row', { name: user3.display_name, exact: false })
   await expect(user3Row).toBeVisible()
   await user3Row.getByRole('button', { name: 'Row actions' }).click()
-  await page.getByRole('menuitem', { name: 'Delete' }).click()
+  await page.getByRole('menuitem', { name: 'Remove role' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
-  await expect(user3Row).toBeHidden()
+
+  // Row is still visible but silo role is now empty
+  await expectRowVisible(table, { Name: user3.display_name, 'Silo Role': '—' })
 })
