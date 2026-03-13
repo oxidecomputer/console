@@ -737,7 +737,7 @@ export const BfdMode = z.preprocess(
  */
 export const BfdSessionDisable = z.preprocess(
   processResponseBody,
-  z.object({ remote: z.union([z.ipv4(), z.ipv6()]), switch: Name })
+  z.object({ remote: z.union([z.ipv4(), z.ipv6()]), switchSlot: SwitchSlot })
 )
 
 /**
@@ -751,7 +751,7 @@ export const BfdSessionEnable = z.preprocess(
     mode: BfdMode,
     remote: z.union([z.ipv4(), z.ipv6()]),
     requiredRx: z.number().min(0),
-    switch: Name,
+    switchSlot: SwitchSlot,
   })
 )
 
@@ -769,7 +769,7 @@ export const BfdStatus = z.preprocess(
     peer: z.union([z.ipv4(), z.ipv6()]),
     requiredRx: z.number().min(0),
     state: BfdState,
-    switch: Name,
+    switchSlot: SwitchSlot,
   })
 )
 
@@ -3035,7 +3035,7 @@ export const LoopbackAddress = z.preprocess(
     addressLotBlockId: z.uuid(),
     id: z.uuid(),
     rackId: z.uuid(),
-    switchLocation: z.string(),
+    switchSlot: SwitchSlot,
   })
 )
 
@@ -3050,7 +3050,7 @@ export const LoopbackAddressCreate = z.preprocess(
     anycast: SafeBoolean,
     mask: z.number().min(0).max(255),
     rackId: z.uuid(),
-    switchLocation: Name,
+    switchSlot: SwitchSlot,
   })
 )
 
@@ -4331,7 +4331,7 @@ export const SwitchPort = z.preprocess(
     portName: Name,
     portSettingsId: z.uuid().nullable().optional(),
     rackId: z.uuid(),
-    switchLocation: z.string(),
+    switchSlot: SwitchSlot,
   })
 )
 
@@ -6993,7 +6993,7 @@ export const NetworkingSwitchPortLldpNeighborsParams = z.preprocess(
     path: z.object({
       port: Name,
       rackId: z.uuid(),
-      switchLocation: Name,
+      switchSlot: SwitchSlot,
     }),
     query: z.object({
       limit: z.number().min(1).max(4294967295).nullable().optional(),
@@ -7149,7 +7149,7 @@ export const NetworkingSwitchPortLldpConfigViewParams = z.preprocess(
     }),
     query: z.object({
       rackId: z.uuid(),
-      switchLocation: Name,
+      switchSlot: SwitchSlot,
     }),
   })
 )
@@ -7162,7 +7162,7 @@ export const NetworkingSwitchPortLldpConfigUpdateParams = z.preprocess(
     }),
     query: z.object({
       rackId: z.uuid(),
-      switchLocation: Name,
+      switchSlot: SwitchSlot,
     }),
   })
 )
@@ -7175,7 +7175,7 @@ export const NetworkingSwitchPortApplySettingsParams = z.preprocess(
     }),
     query: z.object({
       rackId: z.uuid(),
-      switchLocation: Name,
+      switchSlot: SwitchSlot,
     }),
   })
 )
@@ -7188,7 +7188,7 @@ export const NetworkingSwitchPortClearSettingsParams = z.preprocess(
     }),
     query: z.object({
       rackId: z.uuid(),
-      switchLocation: Name,
+      switchSlot: SwitchSlot,
     }),
   })
 )
@@ -7201,7 +7201,7 @@ export const NetworkingSwitchPortStatusParams = z.preprocess(
     }),
     query: z.object({
       rackId: z.uuid(),
-      switchLocation: Name,
+      switchSlot: SwitchSlot,
     }),
   })
 )
@@ -7731,7 +7731,7 @@ export const NetworkingLoopbackAddressDeleteParams = z.preprocess(
       address: z.union([z.ipv4(), z.ipv6()]),
       rackId: z.uuid(),
       subnetMask: z.number().min(0).max(255),
-      switchLocation: Name,
+      switchSlot: SwitchSlot,
     }),
     query: z.object({}),
   })

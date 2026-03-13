@@ -778,8 +778,8 @@ export type BfdMode = 'single_hop' | 'multi_hop'
 export type BfdSessionDisable = {
   /** Address of the remote peer to disable a BFD session for. */
   remote: string
-  /** The switch to enable this session on. Must be `switch0` or `switch1`. */
-  switch: Name
+  /** The slot of the switch within the rack to disable this session on. */
+  switchSlot: SwitchSlot
 }
 
 /**
@@ -796,8 +796,8 @@ export type BfdSessionEnable = {
   remote: string
   /** The minimum interval, in microseconds, between received BFD Control packets that this system requires */
   requiredRx: number
-  /** The switch to enable this session on. Must be `switch0` or `switch1`. */
-  switch: Name
+  /** The slot of the switch within the rack to enable this session on. */
+  switchSlot: SwitchSlot
 }
 
 export type BfdState = /** A stable down state. Non-responsive to incoming messages. */
@@ -819,7 +819,7 @@ export type BfdStatus = {
   peer: string
   requiredRx: number
   state: BfdState
-  switch: Name
+  switchSlot: SwitchSlot
 }
 
 /**
@@ -3299,8 +3299,8 @@ export type LoopbackAddress = {
   id: string
   /** The id of the rack where this loopback address is assigned. */
   rackId: string
-  /** Switch location where this loopback address is assigned. */
-  switchLocation: string
+  /** The slot of the switch within the rack where this loopback address is assigned. */
+  switchSlot: SwitchSlot
 }
 
 /**
@@ -3319,8 +3319,8 @@ This allows the address to be assigned to multiple locations simultaneously. */
   mask: number
   /** The rack containing the switch this loopback address will be configured on. */
   rackId: string
-  /** The location of the switch within the rack this loopback address will be configured on. */
-  switchLocation: Name
+  /** The slot of the switch within the rack this loopback address will be configured on. */
+  switchSlot: SwitchSlot
 }
 
 /**
@@ -4767,8 +4767,8 @@ export type SwitchPort = {
   portSettingsId?: string | null
   /** The rack this switch port belongs to. */
   rackId: string
-  /** The switch location of this switch port. */
-  switchLocation: string
+  /** The slot of the switch within the rack of this switch port. */
+  switchSlot: SwitchSlot
 }
 
 /**
@@ -6670,7 +6670,7 @@ export interface PhysicalDiskViewPathParams {
 export interface NetworkingSwitchPortLldpNeighborsPathParams {
   port: Name
   rackId: string
-  switchLocation: Name
+  switchSlot: SwitchSlot
 }
 
 export interface NetworkingSwitchPortLldpNeighborsQueryParams {
@@ -6757,7 +6757,7 @@ export interface NetworkingSwitchPortLldpConfigViewPathParams {
 
 export interface NetworkingSwitchPortLldpConfigViewQueryParams {
   rackId: string
-  switchLocation: Name
+  switchSlot: SwitchSlot
 }
 
 export interface NetworkingSwitchPortLldpConfigUpdatePathParams {
@@ -6766,7 +6766,7 @@ export interface NetworkingSwitchPortLldpConfigUpdatePathParams {
 
 export interface NetworkingSwitchPortLldpConfigUpdateQueryParams {
   rackId: string
-  switchLocation: Name
+  switchSlot: SwitchSlot
 }
 
 export interface NetworkingSwitchPortApplySettingsPathParams {
@@ -6775,7 +6775,7 @@ export interface NetworkingSwitchPortApplySettingsPathParams {
 
 export interface NetworkingSwitchPortApplySettingsQueryParams {
   rackId: string
-  switchLocation: Name
+  switchSlot: SwitchSlot
 }
 
 export interface NetworkingSwitchPortClearSettingsPathParams {
@@ -6784,7 +6784,7 @@ export interface NetworkingSwitchPortClearSettingsPathParams {
 
 export interface NetworkingSwitchPortClearSettingsQueryParams {
   rackId: string
-  switchLocation: Name
+  switchSlot: SwitchSlot
 }
 
 export interface NetworkingSwitchPortStatusPathParams {
@@ -6793,7 +6793,7 @@ export interface NetworkingSwitchPortStatusPathParams {
 
 export interface NetworkingSwitchPortStatusQueryParams {
   rackId: string
-  switchLocation: Name
+  switchSlot: SwitchSlot
 }
 
 export interface SwitchListQueryParams {
@@ -6992,7 +6992,7 @@ export interface NetworkingLoopbackAddressDeletePathParams {
   address: string
   rackId: string
   subnetMask: number
-  switchLocation: Name
+  switchSlot: SwitchSlot
 }
 
 export interface NetworkingSwitchPortSettingsListQueryParams {
@@ -7477,7 +7477,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2026030600.0.0'
+  apiVersion = '2026030601.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host
@@ -9986,7 +9986,7 @@ export class Api {
       params: FetchParams = {}
     ) => {
       return this.request<LldpNeighborResultsPage>({
-        path: `/v1/system/hardware/rack-switch-port/${path.rackId}/${path.switchLocation}/${path.port}/lldp/neighbors`,
+        path: `/v1/system/hardware/rack-switch-port/${path.rackId}/${path.switchSlot}/${path.port}/lldp/neighbors`,
         method: 'GET',
         query,
         ...params,
@@ -10996,7 +10996,7 @@ export class Api {
       params: FetchParams = {}
     ) => {
       return this.request<void>({
-        path: `/v1/system/networking/loopback-address/${path.rackId}/${path.switchLocation}/${path.address}/${path.subnetMask}`,
+        path: `/v1/system/networking/loopback-address/${path.rackId}/${path.switchSlot}/${path.address}/${path.subnetMask}`,
         method: 'DELETE',
         ...params,
       })

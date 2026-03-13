@@ -1065,7 +1065,7 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.PhysicalDisk>>
-  /** `GET /v1/system/hardware/rack-switch-port/:rackId/:switchLocation/:port/lldp/neighbors` */
+  /** `GET /v1/system/hardware/rack-switch-port/:rackId/:switchSlot/:port/lldp/neighbors` */
   networkingSwitchPortLldpNeighbors: (params: {
     path: Api.NetworkingSwitchPortLldpNeighborsPathParams
     query: Api.NetworkingSwitchPortLldpNeighborsQueryParams
@@ -1501,7 +1501,7 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.LoopbackAddress>>
-  /** `DELETE /v1/system/networking/loopback-address/:rackId/:switchLocation/:address/:subnetMask` */
+  /** `DELETE /v1/system/networking/loopback-address/:rackId/:switchSlot/:address/:subnetMask` */
   networkingLoopbackAddressDelete: (params: {
     path: Api.NetworkingLoopbackAddressDeletePathParams
     req: Request
@@ -2993,7 +2993,7 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['physicalDiskView'], schema.PhysicalDiskViewParams, null)
     ),
     http.get(
-      '/v1/system/hardware/rack-switch-port/:rackId/:switchLocation/:port/lldp/neighbors',
+      '/v1/system/hardware/rack-switch-port/:rackId/:switchSlot/:port/lldp/neighbors',
       handler(
         handlers['networkingSwitchPortLldpNeighbors'],
         schema.NetworkingSwitchPortLldpNeighborsParams,
@@ -3401,7 +3401,7 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       )
     ),
     http.delete(
-      '/v1/system/networking/loopback-address/:rackId/:switchLocation/:address/:subnetMask',
+      '/v1/system/networking/loopback-address/:rackId/:switchSlot/:address/:subnetMask',
       handler(
         handlers['networkingLoopbackAddressDelete'],
         schema.NetworkingLoopbackAddressDeleteParams,
