@@ -40,7 +40,7 @@
     "@oxide/design-system": "^6.0.1",
     "@react-aria/live-announcer": "^3.3.4",
     "@tailwindcss/container-queries": "^0.1.1",
-    "@tailwindcss/vite": "^4.1.17",
+    "@tailwindcss/vite": "^4.2.1",
     "@tanstack/react-query": "^5.90.7",
     "@tanstack/react-query-devtools": "^5.90.2",
     "@tanstack/react-table": "^8.20.5",
@@ -93,8 +93,8 @@
     "@types/semver": "^7.7.1",
     "@types/uuid": "^10.0.0",
     "@typescript/native-preview": "^7.0.0-dev.20260212.1",
-    "@vitejs/plugin-basic-ssl": "^2.1.0",
-    "@vitejs/plugin-react-swc": "^4.2.1",
+    "@vitejs/plugin-basic-ssl": "^2.2.0",
+    "@vitejs/plugin-react": "^6.0.0",
     "autoprefixer": "^10.4.20",
     "eslint-plugin-playwright": "^2.3.0",
     "husky": "^9.1.7",
@@ -111,9 +111,13 @@
     "tsx": "^4.19.2",
     "type-fest": "^5.2.0",
     "typescript": "~5.9.2",
-    "vite": "^7.2.2",
-    "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^4.0.8"
+    "vite": "^8.0.0",
+    "vitest": "^4.1.0"
+  },
+  "overrides": {
+    "@tailwindcss/vite": {
+      "vite": "$vite"
+    }
   },
   "browserslist": [
     "defaults"
