@@ -61,7 +61,7 @@ async function streamBootLog(socket: WebSocket, text: string) {
     if (line === '' || line.startsWith('Welcome to') || line.includes('login:')) {
       await sleep(200)
     } else if (line.startsWith('[  OK  ]') || line.startsWith('         Starting')) {
-      await sleep(50)
+      await sleep(30)
     } else {
       await sleep(15)
     }
