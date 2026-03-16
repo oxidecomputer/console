@@ -7,6 +7,32 @@
  */
 import { expect, test } from './utils'
 
+test('Serial console terminal updates colors on theme change', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1/serial-console')
+
+  const xterm = page.getByRole('application')
+  await expect(xterm).toContainText('oxide-instance login:', { timeout: 15_000 })
+
+  // xterm.js sets background-color inline on the .xterm-viewport element
+  const viewport = page.locator('.xterm-viewport')
+  const getBg = () => viewport.evaluate((el) => getComputedStyle(el).backgroundColor)
+
+  const darkBg = await getBg()
+
+  // switch to light via the user menu
+  await page.getByRole('button', { name: 'User menu' }).click()
+  await page.getByRole('menuitem', { name: 'Theme' }).click()
+  await page.getByRole('menuitemradio', { name: 'Light' }).click()
+
+  const lightBg = await getBg()
+  expect(lightBg).not.toEqual(darkBg)
+
+  // switch back to dark (menu is still open)
+  await page.getByRole('menuitemradio', { name: 'Dark' }).click()
+
+  expect(await getBg()).toEqual(darkBg)
+})
+
 test('Theme picker changes data-theme on <html>', async ({ page }) => {
   // default is light in Playwright, but don't rely on that
   await page.emulateMedia({ colorScheme: 'light' })
