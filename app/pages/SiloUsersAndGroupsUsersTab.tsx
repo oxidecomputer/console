@@ -6,17 +6,15 @@
  * Copyright Oxide Computer Company
  */
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import {
   api,
-  deleteRole,
   getListQFn,
   q,
   queryClient,
   roleOrder,
   rolesByIdFromPolicy,
-  useApiMutation,
   useGroupsByUserId,
   usePrefetchedQuery,
   userRoleFromPolicies,
@@ -26,15 +24,10 @@ import { Person24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
 import { UserDetailsSideModal } from '~/components/access/UserDetailsSideModal'
-import { HL } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
-import { SiloAccessEditUserSideModal } from '~/forms/silo-access'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { confirmDelete } from '~/stores/confirm-delete'
-import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { ButtonCell } from '~/table/cells/LinkCell'
-import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -74,19 +67,10 @@ const EmptyState = () => (
 
 export default function SiloUsersAndGroupsUsersTab() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
-  const [editingUser, setEditingUser] = useState<User | null>(null)
 
   const { data: siloPolicy } = usePrefetchedQuery(policyView)
   const { data: groups } = usePrefetchedQuery(groupListAll)
 
-  const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
-    onSuccess: () => {
-      queryClient.invalidateEndpoint('policyView')
-      addToast({ content: 'Role updated' })
-    },
-  })
-
-  // direct role assignments by identity ID, used for action menu
   const siloRoleById = useMemo(() => rolesByIdFromPolicy(siloPolicy), [siloPolicy])
 
   const groupsByUserId = useGroupsByUserId(groups.items)
@@ -150,8 +134,8 @@ export default function SiloUsersAndGroupsUsersTab() {
     [groupsByUserId]
   )
 
-  const displayNameCol = useMemo(
-    () =>
+  const columns = useMemo(
+    () => [
       colHelper.accessor('displayName', {
         header: 'Name',
         cell: (info) => (
@@ -160,37 +144,12 @@ export default function SiloUsersAndGroupsUsersTab() {
           </ButtonCell>
         ),
       }),
-    []
+      siloRoleCol,
+      groupsCol,
+      timeCreatedCol,
+    ],
+    [siloRoleCol, groupsCol]
   )
-
-  const staticColumns = useMemo(
-    () => [displayNameCol, siloRoleCol, groupsCol, timeCreatedCol],
-    [displayNameCol, siloRoleCol, groupsCol]
-  )
-
-  const makeActions = useCallback(
-    (user: User): MenuAction[] => {
-      const role = siloRoleById.get(user.id)
-      return [
-        { label: 'Change role', onActivate: () => setEditingUser(user) },
-        {
-          label: 'Remove role',
-          onActivate: confirmDelete({
-            doDelete: () => updatePolicy({ body: deleteRole(user.id, siloPolicy) }),
-            label: (
-              <span>
-                the <HL>{role}</HL> role for <HL>{user.displayName}</HL>
-              </span>
-            ),
-          }),
-          disabled: !role && 'This user has no direct role to remove',
-        },
-      ]
-    },
-    [siloRoleById, siloPolicy, updatePolicy]
-  )
-
-  const columns = useColsWithActions(staticColumns, makeActions)
 
   const { table } = useQueryTable({ query: userList, columns, emptyState: <EmptyState /> })
 
@@ -203,16 +162,6 @@ export default function SiloUsersAndGroupsUsersTab() {
           onDismiss={() => setSelectedUser(null)}
           scopedPolicies={[{ scope: 'silo', policy: siloPolicy }]}
           userGroups={groupsByUserId.get(selectedUser.id) ?? []}
-        />
-      )}
-      {editingUser && (
-        <SiloAccessEditUserSideModal
-          name={editingUser.displayName}
-          identityId={editingUser.id}
-          identityType="silo_user"
-          policy={siloPolicy}
-          defaultValues={{ roleName: siloRoleById.get(editingUser.id) }}
-          onDismiss={() => setEditingUser(null)}
         />
       )}
     </>

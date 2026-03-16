@@ -48,6 +48,7 @@ import { docLinks } from '~/util/links'
 
 const policyView = q(api.policyView, {})
 const userListQ = q(api.userList, {})
+const groupList = q(api.groupList, {})
 const groupListAll = q(api.groupList, { query: { limit: ALL_ISH } })
 
 export async function clientLoader() {
@@ -62,6 +63,7 @@ export async function clientLoader() {
   )
   await Promise.all([
     queryClient.prefetchQuery(userListQ),
+    queryClient.prefetchQuery(groupList),
     ...groups.items
       .filter((g) => groupsWithRoles.has(g.id))
       .map((g) =>

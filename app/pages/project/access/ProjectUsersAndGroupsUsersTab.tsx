@@ -6,19 +6,16 @@
  * Copyright Oxide Computer Company
  */
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 
 import {
   api,
-  deleteRole,
   getListQFn,
   q,
   queryClient,
   roleOrder,
-  rolesByIdFromPolicy,
-  useApiMutation,
   useGroupsByUserId,
   usePrefetchedQuery,
   userScopedRoleEntries,
@@ -28,16 +25,11 @@ import { Person24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
 import { UserDetailsSideModal } from '~/components/access/UserDetailsSideModal'
-import { HL } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
-import { ProjectAccessEditUserSideModal } from '~/forms/project-access'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
-import { confirmDelete } from '~/stores/confirm-delete'
-import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { ButtonCell } from '~/table/cells/LinkCell'
-import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -76,29 +68,17 @@ const EmptyState = () => (
   <EmptyMessage
     icon={<Person24Icon />}
     title="No users"
-    body="No users have been added to this silo"
+    body="No users have been added to this project"
   />
 )
 
 export default function ProjectUsersAndGroupsUsersTab() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
-  const [editingUser, setEditingUser] = useState<User | null>(null)
   const projectSelector = useProjectSelector()
-  const { project } = projectSelector
 
   const { data: siloPolicy } = usePrefetchedQuery(policyView)
   const { data: projectPolicy } = usePrefetchedQuery(projectPolicyView(projectSelector))
   const { data: groups } = usePrefetchedQuery(groupListAll)
-
-  const { mutateAsync: updatePolicy } = useApiMutation(api.projectPolicyUpdate, {
-    onSuccess: () => {
-      queryClient.invalidateEndpoint('projectPolicyView')
-      addToast({ content: 'Role updated' })
-    },
-  })
-
-  // direct role assignments by identity ID, used for action menu
-  const projectRoleById = useMemo(() => rolesByIdFromPolicy(projectPolicy), [projectPolicy])
 
   const groupsByUserId = useGroupsByUserId(groups.items)
 
@@ -168,8 +148,8 @@ export default function ProjectUsersAndGroupsUsersTab() {
     [groupsByUserId]
   )
 
-  const displayNameCol = useMemo(
-    () =>
+  const columns = useMemo(
+    () => [
       colHelper.accessor('displayName', {
         header: 'Name',
         cell: (info) => (
@@ -178,38 +158,12 @@ export default function ProjectUsersAndGroupsUsersTab() {
           </ButtonCell>
         ),
       }),
-    []
+      rolesCol,
+      groupsCol,
+      timeCreatedCol,
+    ],
+    [rolesCol, groupsCol]
   )
-
-  const staticColumns = useMemo(
-    () => [displayNameCol, rolesCol, groupsCol, timeCreatedCol],
-    [displayNameCol, rolesCol, groupsCol]
-  )
-
-  const makeActions = useCallback(
-    (user: User): MenuAction[] => {
-      const projectRole = projectRoleById.get(user.id)
-      return [
-        { label: 'Change role', onActivate: () => setEditingUser(user) },
-        {
-          label: 'Remove role',
-          onActivate: confirmDelete({
-            doDelete: () =>
-              updatePolicy({ path: { project }, body: deleteRole(user.id, projectPolicy) }),
-            label: (
-              <span>
-                the <HL>{projectRole}</HL> role for <HL>{user.displayName}</HL>
-              </span>
-            ),
-          }),
-          disabled: !projectRole && 'This user has no direct project role to remove',
-        },
-      ]
-    },
-    [projectRoleById, projectPolicy, project, updatePolicy]
-  )
-
-  const columns = useColsWithActions(staticColumns, makeActions)
 
   const { table } = useQueryTable({ query: userList, columns, emptyState: <EmptyState /> })
 
@@ -225,16 +179,6 @@ export default function ProjectUsersAndGroupsUsersTab() {
             { scope: 'project', policy: projectPolicy },
           ]}
           userGroups={groupsByUserId.get(selectedUser.id) ?? []}
-        />
-      )}
-      {editingUser && (
-        <ProjectAccessEditUserSideModal
-          name={editingUser.displayName}
-          identityId={editingUser.id}
-          identityType="silo_user"
-          policy={projectPolicy}
-          defaultValues={{ roleName: projectRoleById.get(editingUser.id) }}
-          onDismiss={() => setEditingUser(null)}
         />
       )}
     </>

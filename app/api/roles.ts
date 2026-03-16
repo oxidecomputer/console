@@ -12,7 +12,7 @@
  * it belongs in the API proper.
  */
 import { useQueries } from '@tanstack/react-query'
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import * as R from 'remeda'
 
 import { ALL_ISH } from '~/util/consts'
@@ -234,16 +234,27 @@ export function userScopedRoleEntries(
 }
 
 /**
- * Builds a map from user ID to the list of groups that user belongs to.
- * It has to be a hook because it fires one query per group to fetch members.
- * The logic is shared between the silo and project access user tabs.
+ * Builds a map from user ID to the list of groups that user belongs to,
+ * firing one query per group to fetch members. Shared between user tabs.
  */
 export function useGroupsByUserId(groups: Group[]): Map<string, Group[]> {
   const groupMemberQueries = useQueries({
     queries: groups.map((g) => q(api.userList, { query: { group: g.id, limit: ALL_ISH } })),
   })
 
-  return useMemo(() => {
+  // Use refs to return a stable Map reference when the underlying data hasn't
+  // changed. Without this, a new Map on every render causes downstream useMemos
+  // to recompute continuously, which destabilizes table rows in Playwright.
+  const mapRef = useRef<Map<string, Group[]>>(new Map())
+  const versionRef = useRef<string>('')
+
+  const version = [
+    groups.map((g) => g.id).join(','),
+    ...groupMemberQueries.map((q) => q.dataUpdatedAt),
+  ].join('|')
+
+  if (version !== versionRef.current) {
+    versionRef.current = version
     const map = new Map<string, Group[]>()
     groups.forEach((group, i) => {
       const members = groupMemberQueries[i]?.data?.items ?? []
@@ -253,9 +264,8 @@ export function useGroupsByUserId(groups: Group[]): Map<string, Group[]> {
         else map.set(member.id, [group])
       })
     })
-    return map
-    // groupMemberQueries is a new array reference every render; depend on individual
-    // query data objects instead, which are stable references until data actually changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groups, ...groupMemberQueries.map((q) => q.data)])
+    mapRef.current = map
+  }
+
+  return mapRef.current
 }

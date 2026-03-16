@@ -53,6 +53,7 @@ const policyView = q(api.policyView, {})
 const projectPolicyView = ({ project }: PP.Project) =>
   q(api.projectPolicyView, { path: { project } })
 const userListQ = q(api.userList, {})
+const groupList = q(api.groupList, {})
 const groupListAll = q(api.groupList, { query: { limit: ALL_ISH } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
@@ -73,6 +74,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   ])
   await Promise.all([
     queryClient.prefetchQuery(userListQ),
+    queryClient.prefetchQuery(groupList),
     ...groups.items
       .filter((g) => groupsWithAnyRole.has(g.id))
       .map((g) =>

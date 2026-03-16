@@ -6,19 +6,17 @@
  * Copyright Oxide Computer Company
  */
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 
 import {
   api,
-  deleteRole,
   getListQFn,
   q,
   queryClient,
   roleOrder,
   rolesByIdFromPolicy,
-  useApiMutation,
   usePrefetchedQuery,
   type Group,
 } from '@oxide/api'
@@ -26,17 +24,12 @@ import { PersonGroup24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
 import { GroupMembersSideModal } from '~/components/access/GroupMembersSideModal'
-import { HL } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
-import { ProjectAccessEditUserSideModal } from '~/forms/project-access'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
-import { confirmDelete } from '~/stores/confirm-delete'
-import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { ButtonCell } from '~/table/cells/LinkCell'
 import { MemberCountCell } from '~/table/cells/MemberCountCell'
-import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -73,19 +66,10 @@ const GroupEmptyState = () => (
 
 export default function ProjectUsersAndGroupsGroupsTab() {
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null)
-  const [editingGroup, setEditingGroup] = useState<Group | null>(null)
   const projectSelector = useProjectSelector()
-  const { project } = projectSelector
 
   const { data: siloPolicy } = usePrefetchedQuery(policyView)
   const { data: projectPolicy } = usePrefetchedQuery(projectPolicyView(projectSelector))
-
-  const { mutateAsync: updatePolicy } = useApiMutation(api.projectPolicyUpdate, {
-    onSuccess: () => {
-      queryClient.invalidateEndpoint('projectPolicyView')
-      addToast({ content: 'Role updated' })
-    },
-  })
 
   const siloRoleById = useMemo(() => rolesByIdFromPolicy(siloPolicy), [siloPolicy])
   const projectRoleById = useMemo(() => rolesByIdFromPolicy(projectPolicy), [projectPolicy])
@@ -150,33 +134,7 @@ export default function ProjectUsersAndGroupsGroupsTab() {
     [rolesCol]
   )
 
-  const makeActions = useCallback(
-    (group: Group): MenuAction[] => {
-      const projectRole = projectRoleById.get(group.id)
-      return [
-        { label: 'Change role', onActivate: () => setEditingGroup(group) },
-        {
-          label: 'Remove role',
-          onActivate: confirmDelete({
-            doDelete: () =>
-              updatePolicy({
-                path: { project },
-                body: deleteRole(group.id, projectPolicy),
-              }),
-            label: (
-              <span>
-                the <HL>{projectRole}</HL> role for <HL>{group.displayName}</HL>
-              </span>
-            ),
-          }),
-          disabled: !projectRole && 'This group has no project role to remove',
-        },
-      ]
-    },
-    [projectRoleById, projectPolicy, project, updatePolicy]
-  )
-
-  const columns = useColsWithActions(staticColumns, makeActions)
+  const columns = staticColumns
 
   const { table } = useQueryTable({
     query: groupList,
@@ -195,16 +153,6 @@ export default function ProjectUsersAndGroupsGroupsTab() {
             { scope: 'project', policy: projectPolicy, sourceLabel: 'Assigned' },
             { scope: 'silo', policy: siloPolicy, sourceLabel: 'Inherited from silo' },
           ]}
-        />
-      )}
-      {editingGroup && (
-        <ProjectAccessEditUserSideModal
-          name={editingGroup.displayName}
-          identityId={editingGroup.id}
-          identityType="silo_group"
-          policy={projectPolicy}
-          defaultValues={{ roleName: projectRoleById.get(editingGroup.id) }}
-          onDismiss={() => setEditingGroup(null)}
         />
       )}
     </>
