@@ -7,7 +7,6 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import * as R from 'remeda'
 
 import {
   api,
@@ -16,19 +15,17 @@ import {
   q,
   queryClient,
   roleOrder,
+  rolesByIdFromPolicy,
   useApiMutation,
   useGroupsByUserId,
   usePrefetchedQuery,
   userRoleFromPolicies,
-  userScopedRoleEntries,
-  type Group,
-  type Policy,
   type User,
 } from '@oxide/api'
-import { Person16Icon, Person24Icon } from '@oxide/design-system/icons/react'
+import { Person24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
-import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
+import { UserDetailsSideModal } from '~/components/access/UserDetailsSideModal'
 import { HL } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
 import { SiloAccessEditUserSideModal } from '~/forms/silo-access'
@@ -37,13 +34,10 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { ButtonCell } from '~/table/cells/LinkCell'
-import { RowActions, useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { PropertiesTable } from '~/ui/lib/PropertiesTable'
-import { ResourceLabel } from '~/ui/lib/SideModal'
-import { Table } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { roleColor } from '~/util/access'
 import { ALL_ISH } from '~/util/consts'
@@ -70,104 +64,6 @@ const colHelper = createColumnHelper<User>()
 
 const timeCreatedCol = colHelper.accessor('timeCreated', Columns.timeCreated)
 
-type UserDetailsSideModalProps = {
-  user: User
-  onDismiss: () => void
-  siloPolicy: Policy
-  userGroups: Group[]
-}
-
-function UserDetailsSideModal({
-  user,
-  onDismiss,
-  siloPolicy,
-  userGroups,
-}: UserDetailsSideModalProps) {
-  const roleEntries = R.sortBy(
-    userScopedRoleEntries(user.id, userGroups, [{ scope: 'silo', policy: siloPolicy }]),
-    (e) => roleOrder[e.roleName]
-  )
-
-  return (
-    <ReadOnlySideModalForm
-      title="User"
-      subtitle={
-        <ResourceLabel>
-          <Person16Icon /> {user.displayName}
-        </ResourceLabel>
-      }
-      onDismiss={onDismiss}
-      animate
-    >
-      <PropertiesTable>
-        <PropertiesTable.IdRow id={user.id} />
-        <PropertiesTable.DateRow label="Created" date={user.timeCreated} />
-      </PropertiesTable>
-      <div className="mt-6">
-        <table className="ox-table text-sans-md w-full border-separate">
-          <Table.Header>
-            <Table.HeaderRow>
-              <Table.HeadCell>Role</Table.HeadCell>
-              <Table.HeadCell>Source</Table.HeadCell>
-            </Table.HeaderRow>
-          </Table.Header>
-          <Table.Body>
-            {roleEntries.length === 0 ? (
-              <Table.Row>
-                <Table.Cell colSpan={2} className="text-secondary">
-                  No roles assigned
-                </Table.Cell>
-              </Table.Row>
-            ) : (
-              roleEntries.map(({ scope, roleName, source }, i) => (
-                <Table.Row key={i}>
-                  <Table.Cell>
-                    <Badge color={roleColor[roleName]}>
-                      {scope}.{roleName}
-                    </Badge>
-                  </Table.Cell>
-                  <Table.Cell>
-                    {source.type === 'direct' && 'Assigned'}
-                    {source.type === 'group' && `via ${source.group.displayName}`}
-                  </Table.Cell>
-                </Table.Row>
-              ))
-            )}
-          </Table.Body>
-        </table>
-      </div>
-      <div className="mt-6">
-        <table className="ox-table text-sans-md w-full border-separate">
-          <Table.Header>
-            <Table.HeaderRow>
-              <Table.HeadCell>Groups</Table.HeadCell>
-              <Table.HeadCell />
-            </Table.HeaderRow>
-          </Table.Header>
-          <Table.Body>
-            {userGroups.length === 0 ? (
-              <Table.Row>
-                <Table.Cell colSpan={2} className="text-secondary">
-                  Not a member of any groups
-                </Table.Cell>
-              </Table.Row>
-            ) : (
-              userGroups.map((group) => (
-                <Table.Row key={group.id}>
-                  <Table.Cell>{group.displayName}</Table.Cell>
-                  <Table.Cell className="action-col w-10 *:p-0">
-                    <RowActions id={group.id} />
-                  </Table.Cell>
-                </Table.Row>
-              ))
-            )}
-          </Table.Body>
-        </table>
-      </div>
-    </ReadOnlySideModalForm>
-  )
-}
-
 const EmptyState = () => (
   <EmptyMessage
     icon={<Person24Icon />}
@@ -191,10 +87,7 @@ export default function SiloUsersAndGroupsUsersTab() {
   })
 
   // direct role assignments by identity ID, used for action menu
-  const siloRoleById = useMemo(
-    () => new Map(siloPolicy.roleAssignments.map((a) => [a.identityId, a.roleName])),
-    [siloPolicy]
-  )
+  const siloRoleById = useMemo(() => rolesByIdFromPolicy(siloPolicy), [siloPolicy])
 
   const groupsByUserId = useGroupsByUserId(groups.items)
 
@@ -308,7 +201,7 @@ export default function SiloUsersAndGroupsUsersTab() {
         <UserDetailsSideModal
           user={selectedUser}
           onDismiss={() => setSelectedUser(null)}
-          siloPolicy={siloPolicy}
+          scopedPolicies={[{ scope: 'silo', policy: siloPolicy }]}
           userGroups={groupsByUserId.get(selectedUser.id) ?? []}
         />
       )}

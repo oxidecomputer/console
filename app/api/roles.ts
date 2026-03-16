@@ -85,6 +85,13 @@ export function updateRole<Role extends RoleKey>(
   return { roleAssignments }
 }
 
+/** Map from identity ID to role name for quick lookup. */
+export function rolesByIdFromPolicy<Role extends RoleKey>(
+  policy: Policy<Role>
+): Map<string, Role> {
+  return new Map(policy.roleAssignments.map((a) => [a.identityId, a.roleName]))
+}
+
 /**
  * Delete any role assignments for user or group ID. Returns a new updated
  * policy. Does not modify the passed-in policy.

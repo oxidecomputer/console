@@ -18,6 +18,7 @@ import {
   queryClient,
   roleOrder,
   useApiMutation,
+  rolesByIdFromPolicy,
   useGroupsByUserId,
   usePrefetchedQuery,
   type Group,
@@ -129,14 +130,8 @@ export default function ProjectAccessPage() {
     },
   })
 
-  const siloRoleById = useMemo(
-    () => new Map(siloPolicy.roleAssignments.map((a) => [a.identityId, a.roleName])),
-    [siloPolicy]
-  )
-  const projectRoleById = useMemo(
-    () => new Map(projectPolicy.roleAssignments.map((a) => [a.identityId, a.roleName])),
-    [projectPolicy]
-  )
+  const siloRoleById = useMemo(() => rolesByIdFromPolicy(siloPolicy), [siloPolicy])
+  const projectRoleById = useMemo(() => rolesByIdFromPolicy(projectPolicy), [projectPolicy])
 
   // Fetch memberships for groups with roles in either policy
   const groupsWithAnyRole = useMemo(

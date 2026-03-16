@@ -17,6 +17,7 @@ import {
   queryClient,
   roleOrder,
   useApiMutation,
+  rolesByIdFromPolicy,
   useGroupsByUserId,
   usePrefetchedQuery,
   type Group,
@@ -114,10 +115,7 @@ export default function SiloAccessPage() {
     },
   })
 
-  const siloRoleById = useMemo(
-    () => new Map(siloPolicy.roleAssignments.map((a) => [a.identityId, a.roleName])),
-    [siloPolicy]
-  )
+  const siloRoleById = useMemo(() => rolesByIdFromPolicy(siloPolicy), [siloPolicy])
 
   // Only fetch memberships for groups that have silo roles — their members have group-based access
   const groupsWithRoles = useMemo(
