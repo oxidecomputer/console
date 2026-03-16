@@ -79,11 +79,6 @@ export default function SerialConsolePage() {
   const initialState = canConnect ? 'connecting' : 'closed'
   const [connectionStatus, setConnectionStatus] = useState<WsState>(initialState)
 
-  // Ensure the connecting skeleton shows for at least 1s so users see
-  // the connection is being established rather than a brief flash
-  const connectingAt = useRef(canConnect ? Date.now() : 0)
-  const MIN_CONNECTING_MS = 1000
-
   // In dev, React 18 strict mode fires all effects twice for lulz, even ones
   // with no dependencies. In order to prevent the websocket from being killed
   // before it's even connected, in the cleanup callback we check not only that
@@ -125,12 +120,7 @@ export default function SerialConsolePage() {
   useEffect(() => {
     if (!canConnect) return // don't bother if instance is not running
 
-    let openTimer: ReturnType<typeof setTimeout>
-    const setOpen = () => {
-      const elapsed = Date.now() - connectingAt.current
-      const remaining = Math.max(0, MIN_CONNECTING_MS - elapsed)
-      openTimer = setTimeout(() => setConnectionStatus('open'), remaining)
-    }
+    const setOpen = () => setConnectionStatus('open')
     const setClosed = () => setConnectionStatus('closed')
     const setError = () => setConnectionStatus('error')
 
@@ -139,7 +129,6 @@ export default function SerialConsolePage() {
     ws.current?.addEventListener('error', setError)
 
     return () => {
-      clearTimeout(openTimer)
       ws.current?.removeEventListener('open', setOpen)
       ws.current?.removeEventListener('close', setClosed)
       ws.current?.removeEventListener('error', setError)

@@ -103,7 +103,9 @@ export function Terminal({ ws }: TerminalProps) {
 
     window.addEventListener('resize', resize)
 
-    // Update terminal colors when the theme changes
+    // Update terminal colors when the theme changes. getComputedStyle in
+    // getTheme() forces a synchronous style recalc, so the CSS custom
+    // properties already reflect the new theme by the time we read them.
     const observer = new MutationObserver(() => {
       newTerm.options.theme = getTheme()
     })
