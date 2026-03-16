@@ -205,7 +205,7 @@ function GroupMembersSideModal({
   )
 }
 
-export default function ProjectAccessGroupsTab() {
+export default function ProjectUsersAndGroupsGroupsTab() {
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null)
   const [editingGroup, setEditingGroup] = useState<Group | null>(null)
   const projectSelector = useProjectSelector()

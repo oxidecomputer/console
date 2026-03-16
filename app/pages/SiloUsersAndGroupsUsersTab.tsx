@@ -7,7 +7,6 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import type { LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 
 import {
@@ -20,6 +19,7 @@ import {
   useApiMutation,
   useGroupsByUserId,
   usePrefetchedQuery,
+  userRoleFromPolicies,
   userScopedRoleEntries,
   type Group,
   type Policy,
@@ -31,9 +31,8 @@ import { Badge } from '@oxide/design-system/ui'
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { HL } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
-import { ProjectAccessEditUserSideModal } from '~/forms/project-access'
+import { SiloAccessEditUserSideModal } from '~/forms/silo-access'
 import { titleCrumb } from '~/hooks/use-crumbs'
-import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
@@ -48,20 +47,15 @@ import { Table } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { roleColor } from '~/util/access'
 import { ALL_ISH } from '~/util/consts'
-import type * as PP from '~/util/path-params'
 
 const policyView = q(api.policyView, {})
-const projectPolicyView = ({ project }: PP.Project) =>
-  q(api.projectPolicyView, { path: { project } })
 const userList = getListQFn(api.userList, {})
 const groupListAll = q(api.groupList, { query: { limit: ALL_ISH } })
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const selector = getProjectSelector(params)
+export async function clientLoader() {
   const groups = await queryClient.fetchQuery(groupListAll)
   await Promise.all([
     queryClient.prefetchQuery(policyView),
-    queryClient.prefetchQuery(projectPolicyView(selector)),
     queryClient.prefetchQuery(userList.optionsFn()),
     ...groups.items.map((g) =>
       queryClient.prefetchQuery(q(api.userList, { query: { group: g.id, limit: ALL_ISH } }))
@@ -80,7 +74,6 @@ type UserDetailsSideModalProps = {
   user: User
   onDismiss: () => void
   siloPolicy: Policy
-  projectPolicy: Policy
   userGroups: Group[]
 }
 
@@ -88,16 +81,11 @@ function UserDetailsSideModal({
   user,
   onDismiss,
   siloPolicy,
-  projectPolicy,
   userGroups,
 }: UserDetailsSideModalProps) {
   const roleEntries = R.sortBy(
-    userScopedRoleEntries(user.id, userGroups, [
-      { scope: 'silo', policy: siloPolicy },
-      { scope: 'project', policy: projectPolicy },
-    ]),
-    (e) => roleOrder[e.roleName],
-    (e) => (e.scope === 'silo' ? 0 : 1)
+    userScopedRoleEntries(user.id, userGroups, [{ scope: 'silo', policy: siloPolicy }]),
+    (e) => roleOrder[e.roleName]
   )
 
   return (
@@ -188,76 +176,66 @@ const EmptyState = () => (
   />
 )
 
-export default function ProjectAccessUsersTab() {
+export default function SiloUsersAndGroupsUsersTab() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [editingUser, setEditingUser] = useState<User | null>(null)
-  const projectSelector = useProjectSelector()
-  const { project } = projectSelector
 
   const { data: siloPolicy } = usePrefetchedQuery(policyView)
-  const { data: projectPolicy } = usePrefetchedQuery(projectPolicyView(projectSelector))
   const { data: groups } = usePrefetchedQuery(groupListAll)
 
-  const { mutateAsync: updatePolicy } = useApiMutation(api.projectPolicyUpdate, {
+  const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
     onSuccess: () => {
-      queryClient.invalidateEndpoint('projectPolicyView')
+      queryClient.invalidateEndpoint('policyView')
       addToast({ content: 'Role updated' })
     },
   })
 
   // direct role assignments by identity ID, used for action menu
-  const projectRoleById = useMemo(
-    () => new Map(projectPolicy.roleAssignments.map((a) => [a.identityId, a.roleName])),
-    [projectPolicy]
+  const siloRoleById = useMemo(
+    () => new Map(siloPolicy.roleAssignments.map((a) => [a.identityId, a.roleName])),
+    [siloPolicy]
   )
 
   const groupsByUserId = useGroupsByUserId(groups.items)
 
-  const rolesCol = useMemo(
+  const siloRoleCol = useMemo(
     () =>
       colHelper.display({
-        id: 'roles',
-        header: () => (
-          <span className="inline-flex items-center">
-            Role
-            <TipIcon className="ml-2">
-              A user&apos;s effective role for this project is the strongest role on either
-              the silo or project, including roles inherited via group membership. Users
-              without any assigned role have no access to this project.
-            </TipIcon>
-          </span>
-        ),
+        id: 'siloRole',
+        header: 'Silo Role',
         cell: ({ row }) => {
           const userGroups = groupsByUserId.get(row.original.id) ?? []
-          const roles = R.sortBy(
-            userScopedRoleEntries(row.original.id, userGroups, [
-              { scope: 'silo', policy: siloPolicy },
-              { scope: 'project', policy: projectPolicy },
-            ]),
-            (e) => roleOrder[e.roleName]
-          )
-          if (roles.length === 0) return <EmptyCell />
+          const role = userRoleFromPolicies(row.original, userGroups, [siloPolicy])
+          if (!role) return <EmptyCell />
+          const directRole = siloRoleById.get(row.original.id)
+          // groups that have a role at least as strong as the effective role,
+          // only relevant when a group is boosting beyond the user's direct assignment
+          const viaGroups =
+            !directRole || roleOrder[role] < roleOrder[directRole]
+              ? userGroups.filter((g) => {
+                  const gr = siloRoleById.get(g.id)
+                  return gr !== undefined && roleOrder[gr] <= roleOrder[role]
+                })
+              : []
           return (
-            <ListPlusCell tooltipTitle="Other roles">
-              {roles.map(({ scope, roleName, source }, i) => (
-                <span
-                  key={`${scope}-${roleName}-${source.type === 'group' ? source.group.id : 'direct'}`}
-                  className="inline-flex items-center gap-1"
-                >
-                  <Badge color={roleColor[roleName]}>
-                    {scope}.{roleName}
-                  </Badge>
-                  {i > 0 && source.type === 'group' && ` via ${source.group.displayName}`}
-                  {i === 0 && source.type === 'group' && (
-                    <TipIcon>via {source.group.displayName}</TipIcon>
-                  )}
-                </span>
-              ))}
-            </ListPlusCell>
+            <div className="flex items-center gap-1.5">
+              <Badge color={roleColor[role]}>silo.{role}</Badge>
+              {viaGroups.length > 0 && (
+                <TipIcon>
+                  via{' '}
+                  {viaGroups.map((g, i) => (
+                    <span key={g.id}>
+                      {i > 0 && ', '}
+                      {g.displayName}
+                    </span>
+                  ))}
+                </TipIcon>
+              )}
+            </div>
           )
         },
       }),
-    [groupsByUserId, siloPolicy, projectPolicy]
+    [groupsByUserId, siloPolicy, siloRoleById]
   )
 
   const groupsCol = useMemo(
@@ -293,31 +271,30 @@ export default function ProjectAccessUsersTab() {
   )
 
   const staticColumns = useMemo(
-    () => [displayNameCol, rolesCol, groupsCol, timeCreatedCol],
-    [displayNameCol, rolesCol, groupsCol]
+    () => [displayNameCol, siloRoleCol, groupsCol, timeCreatedCol],
+    [displayNameCol, siloRoleCol, groupsCol]
   )
 
   const makeActions = useCallback(
     (user: User): MenuAction[] => {
-      const projectRole = projectRoleById.get(user.id)
+      const role = siloRoleById.get(user.id)
       return [
         { label: 'Change role', onActivate: () => setEditingUser(user) },
         {
           label: 'Remove role',
           onActivate: confirmDelete({
-            doDelete: () =>
-              updatePolicy({ path: { project }, body: deleteRole(user.id, projectPolicy) }),
+            doDelete: () => updatePolicy({ body: deleteRole(user.id, siloPolicy) }),
             label: (
               <span>
-                the <HL>{projectRole}</HL> role for <HL>{user.displayName}</HL>
+                the <HL>{role}</HL> role for <HL>{user.displayName}</HL>
               </span>
             ),
           }),
-          disabled: !projectRole && 'This user has no direct project role to remove',
+          disabled: !role && 'This user has no direct role to remove',
         },
       ]
     },
-    [projectRoleById, projectPolicy, project, updatePolicy]
+    [siloRoleById, siloPolicy, updatePolicy]
   )
 
   const columns = useColsWithActions(staticColumns, makeActions)
@@ -332,17 +309,16 @@ export default function ProjectAccessUsersTab() {
           user={selectedUser}
           onDismiss={() => setSelectedUser(null)}
           siloPolicy={siloPolicy}
-          projectPolicy={projectPolicy}
           userGroups={groupsByUserId.get(selectedUser.id) ?? []}
         />
       )}
       {editingUser && (
-        <ProjectAccessEditUserSideModal
+        <SiloAccessEditUserSideModal
           name={editingUser.displayName}
           identityId={editingUser.id}
           identityType="silo_user"
-          policy={projectPolicy}
-          defaultValues={{ roleName: projectRoleById.get(editingUser.id) }}
+          policy={siloPolicy}
+          defaultValues={{ roleName: siloRoleById.get(editingUser.id) }}
           onDismiss={() => setEditingUser(null)}
         />
       )}

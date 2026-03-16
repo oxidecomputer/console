@@ -179,7 +179,7 @@ function GroupMembersSideModal({
   )
 }
 
-export default function SiloAccessGroupsTab() {
+export default function SiloUsersAndGroupsGroupsTab() {
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null)
   const [editingGroup, setEditingGroup] = useState<Group | null>(null)
 

@@ -13,6 +13,7 @@ import {
   Folder16Icon,
   Images16Icon,
   Metrics16Icon,
+  Person16Icon,
 } from '@oxide/design-system/icons/react'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '~/components/Sidebar'
@@ -37,6 +38,7 @@ export default function SiloLayout() {
           { value: 'Images', path: pb.siloImages() },
           { value: 'Utilization', path: pb.siloUtilization() },
           { value: 'Silo Access', path: pb.siloAccess() },
+          { value: 'Users & Groups', path: pb.siloUsersAndGroups() },
         ]
           // filter out the entry for the path we're currently on
           .filter((i) => i.path !== pathname)
@@ -66,6 +68,9 @@ export default function SiloLayout() {
           </NavLinkItem>
           <NavLinkItem to={pb.siloUtilization()}>
             <Metrics16Icon /> Utilization
+          </NavLinkItem>
+          <NavLinkItem to={pb.siloUsersAndGroups()}>
+            <Person16Icon /> Users & Groups
           </NavLinkItem>
           <NavLinkItem to={pb.siloAccess()}>
             <Access16Icon /> Silo Access

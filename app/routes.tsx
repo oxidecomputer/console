@@ -280,15 +280,19 @@ export const routes = createRoutesFromElements(
           />
         </Route>
 
-        <Route path="access" lazy={() => import('./pages/SiloAccessPage').then(convert)}>
+        <Route path="access" lazy={() => import('./pages/SiloAccessPage').then(convert)} />
+        <Route
+          path="users-and-groups"
+          lazy={() => import('./pages/SiloUsersAndGroupsPage').then(convert)}
+        >
           <Route index element={<Navigate to="users" replace />} />
           <Route
             path="users"
-            lazy={() => import('./pages/SiloAccessUsersTab').then(convert)}
+            lazy={() => import('./pages/SiloUsersAndGroupsUsersTab').then(convert)}
           />
           <Route
             path="groups"
-            lazy={() => import('./pages/SiloAccessGroupsTab').then(convert)}
+            lazy={() => import('./pages/SiloUsersAndGroupsGroupsTab').then(convert)}
           />
         </Route>
       </Route>
@@ -546,18 +550,26 @@ export const routes = createRoutesFromElements(
           <Route
             path="access"
             lazy={() => import('./pages/project/access/ProjectAccessPage').then(convert)}
+          />
+          <Route
+            path="users-and-groups"
+            lazy={() =>
+              import('./pages/project/access/ProjectUsersAndGroupsPage').then(convert)
+            }
           >
             <Route index element={<Navigate to="users" replace />} />
             <Route
               path="users"
               lazy={() =>
-                import('./pages/project/access/ProjectAccessUsersTab').then(convert)
+                import('./pages/project/access/ProjectUsersAndGroupsUsersTab').then(convert)
               }
             />
             <Route
               path="groups"
               lazy={() =>
-                import('./pages/project/access/ProjectAccessGroupsTab').then(convert)
+                import('./pages/project/access/ProjectUsersAndGroupsGroupsTab').then(
+                  convert
+                )
               }
             />
           </Route>
