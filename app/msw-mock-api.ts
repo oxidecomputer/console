@@ -110,19 +110,6 @@ export async function startMockAPI() {
         client.send(event.data.toString() === '13' ? '\r\n' : event.data)
       })
       await sleep(1000) // make sure everything is ready first (especially a problem in CI)
-
-      // ANSI color test to verify terminal theme
-      const ESC = '\x1b['
-      const colorTest = [
-        `Terminal theme test:`,
-        `${ESC}31mred${ESC}0m ${ESC}32mgreen${ESC}0m ${ESC}33myellow${ESC}0m ${ESC}34mblue${ESC}0m ${ESC}35mmagenta${ESC}0m ${ESC}36mcyan${ESC}0m ${ESC}37mwhite${ESC}0m`,
-        `${ESC}91mbright-red${ESC}0m ${ESC}92mbright-green${ESC}0m ${ESC}93mbright-yellow${ESC}0m ${ESC}94mbright-blue${ESC}0m ${ESC}95mbright-magenta${ESC}0m ${ESC}96mbright-cyan${ESC}0m ${ESC}97mbright-white${ESC}0m ${ESC}90mbright-black${ESC}0m`,
-        '',
-      ]
-      for (const line of colorTest) {
-        client.socket.send(line + '\r\n')
-      }
-
       await streamBootLog(client.socket, serialConsoleText)
     })
   ).start({
