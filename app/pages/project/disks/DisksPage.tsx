@@ -7,7 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
-import { Outlet, type LoaderFunctionArgs } from 'react-router'
+import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
   api,
@@ -26,6 +26,7 @@ import { HL } from '~/components/HL'
 import { DiskStateBadge, DiskTypeBadge, ReadOnlyBadge } from '~/components/StateBadge'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
@@ -185,6 +186,19 @@ export default function DisksPage() {
     columns,
     emptyState: <EmptyState />,
   })
+
+  const navigate = useNavigate()
+  useQuickActions(
+    useMemo(
+      () => [
+        {
+          value: 'New disk',
+          onSelect: () => navigate(pb.disksNew({ project })),
+        },
+      ],
+      [navigate, project]
+    )
+  )
 
   return (
     <>

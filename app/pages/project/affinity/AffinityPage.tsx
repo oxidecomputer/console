@@ -7,8 +7,8 @@
  */
 
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
-import { useCallback } from 'react'
-import { Outlet, type LoaderFunctionArgs } from 'react-router'
+import { useCallback, useMemo } from 'react'
+import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
   api,
@@ -25,6 +25,7 @@ import { AffinityDocsPopover, AffinityPolicyHeader } from '~/components/Affinity
 import { HL } from '~/components/HL'
 import { antiAffinityGroupList, antiAffinityGroupMemberList } from '~/forms/affinity-util'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
@@ -137,6 +138,19 @@ export default function AffinityPage() {
     data: antiAffinityGroups,
     getCoreRowModel: getCoreRowModel(),
   })
+
+  const navigate = useNavigate()
+  useQuickActions(
+    useMemo(
+      () => [
+        {
+          value: 'New group',
+          onSelect: () => navigate(pb.affinityNew({ project })),
+        },
+      ],
+      [navigate, project]
+    )
+  )
 
   return (
     <>

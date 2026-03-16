@@ -5,8 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
@@ -28,6 +29,7 @@ import { ModalForm } from '~/components/form/ModalForm'
 import { HL } from '~/components/HL'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -210,6 +212,26 @@ export default function FloatingIpsPage() {
     columns,
     emptyState: <EmptyState />,
   })
+
+  const { data: allFips } = useQuery(
+    q(api.floatingIpList, { query: { project, limit: ALL_ISH } })
+  )
+  useQuickActions(
+    useMemo(
+      () => [
+        {
+          value: 'New floating IP',
+          onSelect: () => navigate(pb.floatingIpsNew({ project })),
+        },
+        ...(allFips?.items || []).map((f) => ({
+          value: f.name,
+          onSelect: () => navigate(pb.floatingIpEdit({ project, floatingIp: f.name })),
+          navGroup: 'Go to floating IP',
+        })),
+      ],
+      [project, navigate, allFips]
+    )
+  )
 
   return (
     <>

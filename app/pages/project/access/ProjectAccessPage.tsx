@@ -35,6 +35,7 @@ import {
   ProjectAccessEditUserSideModal,
 } from '~/forms/project-access'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { getActionsCol } from '~/table/columns/action-col'
@@ -204,6 +205,18 @@ export default function ProjectAccessPage() {
     data: rows,
     getCoreRowModel: getCoreRowModel(),
   })
+
+  useQuickActions(
+    useMemo(
+      () => [
+        {
+          value: 'Add user or group',
+          onSelect: () => setAddModalOpen(true),
+        },
+      ],
+      []
+    )
+  )
 
   return (
     <>

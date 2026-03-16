@@ -30,6 +30,7 @@ import {
   SiloAccessEditUserSideModal,
 } from '~/forms/silo-access'
 import { useCurrentUser } from '~/hooks/use-current-user'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { getActionsCol } from '~/table/columns/action-col'
@@ -163,6 +164,18 @@ export default function SiloAccessPage() {
     data: rows,
     getCoreRowModel: getCoreRowModel(),
   })
+
+  useQuickActions(
+    useMemo(
+      () => [
+        {
+          value: 'Add user or group',
+          onSelect: () => setAddModalOpen(true),
+        },
+      ],
+      []
+    )
+  )
 
   return (
     <>
