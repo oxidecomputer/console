@@ -79,6 +79,11 @@ export default function SerialConsolePage() {
   const initialState = canConnect ? 'connecting' : 'closed'
   const [connectionStatus, setConnectionStatus] = useState<WsState>(initialState)
 
+  // Ensure the connecting skeleton shows for at least 1s so users see
+  // the connection is being established rather than a brief flash
+  const connectingAt = useRef(canConnect ? Date.now() : 0)
+  const MIN_CONNECTING_MS = 1000
+
   // In dev, React 18 strict mode fires all effects twice for lulz, even ones
   // with no dependencies. In order to prevent the websocket from being killed
   // before it's even connected, in the cleanup callback we check not only that
@@ -120,7 +125,12 @@ export default function SerialConsolePage() {
   useEffect(() => {
     if (!canConnect) return // don't bother if instance is not running
 
-    const setOpen = () => setConnectionStatus('open')
+    let openTimer: ReturnType<typeof setTimeout>
+    const setOpen = () => {
+      const elapsed = Date.now() - connectingAt.current
+      const remaining = Math.max(0, MIN_CONNECTING_MS - elapsed)
+      openTimer = setTimeout(() => setConnectionStatus('open'), remaining)
+    }
     const setClosed = () => setConnectionStatus('closed')
     const setError = () => setConnectionStatus('error')
 
@@ -129,6 +139,7 @@ export default function SerialConsolePage() {
     ws.current?.addEventListener('error', setError)
 
     return () => {
+      clearTimeout(openTimer)
       ws.current?.removeEventListener('open', setOpen)
       ws.current?.removeEventListener('close', setClosed)
       ws.current?.removeEventListener('error', setError)
@@ -178,7 +189,7 @@ type SkeletonProps = {
 
 function SerialSkeleton({ children, animate }: SkeletonProps) {
   return (
-    <div className="relative h-full shrink grow overflow-hidden">
+    <div className="bg-default relative h-full shrink grow overflow-hidden">
       <div className="h-full space-y-2 overflow-hidden">
         {[...Array(200)].map((_e, i) => (
           <div
@@ -193,13 +204,15 @@ function SerialSkeleton({ children, animate }: SkeletonProps) {
         ))}
       </div>
 
+      {/* gradient uses the surface-default token so it works in both themes */}
       <div
         className="absolute bottom-0 h-full w-full"
         style={{
-          background: 'linear-gradient(180deg, rgba(8, 15, 17, 0) 0%, #080F11 100%)',
+          background:
+            'linear-gradient(180deg, transparent 0%, var(--surface-default) 100%)',
         }}
       />
-      <div className="bg-raise! shadow-modal absolute top-1/2 left-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-lg p-12">
+      <div className="bg-raise shadow-modal absolute top-1/2 left-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-lg p-12">
         {children}
       </div>
     </div>
@@ -221,7 +234,7 @@ const CannotConnect = ({ instance }: { instance: Instance }) => (
       <span>The instance is </span>
       <InstanceStateBadge className="ml-1.5" state={instance.runState} />
     </p>
-    <p className="text-default mt-2 text-center text-balance">
+    <p className="text-default text-sans-md mt-2 text-center text-balance">
       {isStarting(instance)
         ? 'Waiting for the instance to start before connecting.'
         : 'You can only connect to the serial console on a running instance.'}
