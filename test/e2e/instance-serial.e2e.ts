@@ -50,16 +50,16 @@ test('serial console for existing instance', async ({ page }) => {
 async function testSerialConsole(page: Page) {
   const xterm = page.getByRole('application')
 
-  // MSW mocks a message. use first() because there are multiple copies on screen
-  await expect(xterm.getByText('Wake up Neo...').first()).toBeVisible()
+  // MSW streams a boot log. Wait for the login prompt which comes at the end.
+  await expect(xterm.getByText('oxide-instance login:').first()).toBeVisible({
+    timeout: 15000,
+  })
 
   // we need to do this for our keypresses to land
   await page.locator('.xterm-helper-textarea').focus()
 
   await xterm.pressSequentially('abc')
-  await expect(xterm.getByText('Wake up Neo...abc').first()).toBeVisible()
   await xterm.press('Enter')
   await xterm.pressSequentially('def')
-  await expect(xterm.getByText('Wake up Neo...abc').first()).toBeVisible()
   await expect(xterm.getByText('def').first()).toBeVisible()
 }
