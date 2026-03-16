@@ -96,11 +96,13 @@ export default function ProjectsPage() {
   )
 
   const columns = useColsWithActions(staticCols, makeActions)
-  const { table } = useQueryTable({ query: projectList, columns, emptyState: <EmptyState /> })
+  const { table } = useQueryTable({
+    query: projectList,
+    columns,
+    emptyState: <EmptyState />,
+  })
 
-  const { data: allProjects } = useQuery(
-    q(api.projectList, { query: { limit: ALL_ISH } })
-  )
+  const { data: allProjects } = useQuery(q(api.projectList, { query: { limit: ALL_ISH } }))
   useQuickActions(
     useMemo(
       () => [
