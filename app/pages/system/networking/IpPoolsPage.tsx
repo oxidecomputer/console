@@ -129,7 +129,9 @@ export default function IpPoolsPage() {
     emptyState: <EmptyState />,
   })
 
-  const { data: allPools } = useQuery(q(api.ipPoolList, { query: { limit: ALL_ISH } }))
+  const { data: allPools } = useQuery(
+    q(api.systemIpPoolList, { query: { limit: ALL_ISH } })
+  )
   useQuickActions(
     useMemo(
       () => [
