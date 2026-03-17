@@ -60,17 +60,15 @@ export default function SystemLayout() {
       // filter out the entry for the path we're currently on
       .filter((i) => i.path !== pathname)
       .map((i) => ({
-        kind: 'link' as const,
         navGroup: 'System',
         value: i.value,
-        to: i.path,
+        action: i.path,
       }))
 
     const backToSilo: QuickActionItem = {
-      kind: 'link',
       navGroup: `Back to silo '${me.siloName}'`,
       value: 'Projects',
-      to: pb.projects(),
+      action: pb.projects(),
     }
     return [...systemLinks, backToSilo]
   }, [pathname, me.siloName])

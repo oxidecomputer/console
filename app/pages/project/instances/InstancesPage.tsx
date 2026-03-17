@@ -202,15 +202,13 @@ export default function InstancesPage() {
     useMemo(
       () => [
         {
-          kind: 'link',
           value: 'New instance',
           navGroup: 'Actions',
-          to: pb.instancesNew({ project }),
+          action: pb.instancesNew({ project }),
         },
         ...(allInstances?.items || []).map((i) => ({
-          kind: 'link' as const,
           value: i.name,
-          to: pb.instance({ project, instance: i.name }),
+          action: pb.instance({ project, instance: i.name }),
           navGroup: 'Go to instance',
         })),
       ],

@@ -40,10 +40,9 @@ export default function SettingsLayout() {
           // filter out the entry for the path we're currently on
           .filter((i) => i.path !== pathname)
           .map((i) => ({
-            kind: 'link',
             navGroup: `Settings`,
             value: i.value,
-            to: i.path,
+            action: i.path,
           })),
       [pathname]
     )

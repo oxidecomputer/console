@@ -74,10 +74,9 @@ export function ProjectLayoutBase({ overrideContentPane }: ProjectLayoutProps) {
           // filter out the entry for the path we're currently on
           .filter((i) => i.path !== pathname)
           .map((i) => ({
-            kind: 'link',
             navGroup: `Project '${project.name}'`,
             value: i.value,
-            to: i.path,
+            action: i.path,
           })),
       [pathname, project.name, projectSelector]
     )

@@ -20,9 +20,12 @@ import { classed } from '~/util/classed'
 import { DialogOverlay } from './DialogOverlay'
 import { useSteppedScroll } from './use-stepped-scroll'
 
-export type QuickActionItem =
-  | { kind: 'link'; value: string; to: string; navGroup: string }
-  | { kind: 'action'; value: string; onSelect: () => void; navGroup: string }
+export type QuickActionItem = {
+  value: string
+  navGroup: string
+  /** Path string to navigate to or callback to invoke */
+  action: string | (() => void)
+}
 
 export interface ActionMenuProps {
   isOpen: boolean
@@ -96,10 +99,10 @@ export function ActionMenu(props: ActionMenuProps) {
               const lastIdx = itemsInOrder.length - 1
               if (e.key === KEYS.enter) {
                 if (selectedItem) {
-                  if (selectedItem.kind === 'action') {
-                    selectedItem.onSelect()
+                  if (typeof selectedItem.action === 'function') {
+                    selectedItem.action()
                   } else {
-                    navigate(selectedItem.to)
+                    navigate(selectedItem.action)
                   }
                   e.preventDefault()
                   onDismiss()
@@ -171,19 +174,20 @@ export function ActionMenu(props: ActionMenuProps) {
                   <ul ref={ulRef}>
                     {allGroups.map(([label, groupItems]) => (
                       <div key={label}>
-                        <h3 className="text-mono-sm text-default bg-tertiary sticky top-0 z-20 h-[32px] px-4 py-2">
+                        <h3 className="text-mono-sm text-default bg-tertiary sticky top-0 z-20 h-8 px-4 py-2">
                           {label}
                         </h3>
                         {groupItems.map((item) => {
                           const idx = itemsInOrder.indexOf(item)
                           const isSelected = idx === selectedIdx
+                          const { action } = item
                           return (
                             <div
                               key={`${item.navGroup}/${item.value}`}
                               className="relative -mt-px first-of-type:mt-0"
                             >
                               {isSelected && <Outline />}
-                              {item.kind === 'link' ? (
+                              {typeof action === 'string' ? (
                                 <li
                                   role="option"
                                   className={cn(
@@ -193,7 +197,7 @@ export function ActionMenu(props: ActionMenuProps) {
                                   aria-selected={isSelected}
                                 >
                                   <Link
-                                    to={item.to}
+                                    to={action}
                                     className="block p-4"
                                     tabIndex={-1}
                                     onClick={(e) => {
@@ -217,7 +221,7 @@ export function ActionMenu(props: ActionMenuProps) {
                                   )}
                                   aria-selected={isSelected}
                                   onClick={() => {
-                                    item.onSelect()
+                                    action()
                                     onDismiss()
                                   }}
                                 >

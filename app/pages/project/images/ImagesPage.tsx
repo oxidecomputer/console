@@ -116,15 +116,13 @@ export default function ImagesPage() {
     useMemo(
       () => [
         {
-          kind: 'link',
           value: 'Upload image',
           navGroup: 'Actions',
-          to: pb.projectImagesNew({ project }),
+          action: pb.projectImagesNew({ project }),
         },
         ...(allImages?.items || []).map((i) => ({
-          kind: 'link' as const,
           value: i.name,
-          to: pb.projectImageEdit({ project, image: i.name }),
+          action: pb.projectImageEdit({ project, image: i.name }),
           navGroup: 'Go to project image',
         })),
       ],

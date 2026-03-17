@@ -196,15 +196,13 @@ export default function DisksPage() {
     useMemo(
       () => [
         {
-          kind: 'link',
           value: 'New disk',
           navGroup: 'Actions',
-          to: pb.disksNew({ project }),
+          action: pb.disksNew({ project }),
         },
         ...(allDisks?.items || []).map((d) => ({
-          kind: 'link' as const,
           value: d.name,
-          to: pb.disk({ project, disk: d.name }),
+          action: pb.disk({ project, disk: d.name }),
           navGroup: 'Go to disk',
         })),
       ],

@@ -140,15 +140,13 @@ export default function VpcsPage() {
     useMemo(
       () => [
         {
-          kind: 'link',
           value: 'New VPC',
           navGroup: 'Actions',
-          to: pb.vpcsNew({ project }),
+          action: pb.vpcsNew({ project }),
         },
         ...(allVpcs?.items || []).map((v) => ({
-          kind: 'link' as const,
           value: v.name,
-          to: pb.vpc({ project, vpc: v.name }),
+          action: pb.vpc({ project, vpc: v.name }),
           navGroup: 'Go to VPC',
         })),
       ],

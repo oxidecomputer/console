@@ -40,10 +40,9 @@ export default function SiloLayout() {
           // filter out the entry for the path we're currently on
           .filter((i) => i.path !== pathname)
           .map((i) => ({
-            kind: 'link',
             navGroup: `Silo '${me.siloName}'`,
             value: i.value,
-            to: i.path,
+            action: i.path,
           })),
       [pathname, me.siloName]
     )

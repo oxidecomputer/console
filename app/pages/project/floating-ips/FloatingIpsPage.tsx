@@ -220,15 +220,13 @@ export default function FloatingIpsPage() {
     useMemo(
       () => [
         {
-          kind: 'link',
           value: 'New floating IP',
           navGroup: 'Actions',
-          to: pb.floatingIpsNew({ project }),
+          action: pb.floatingIpsNew({ project }),
         },
         ...(allFips?.items || []).map((f) => ({
-          kind: 'link' as const,
           value: f.name,
-          to: pb.floatingIpEdit({ project, floatingIp: f.name }),
+          action: pb.floatingIpEdit({ project, floatingIp: f.name }),
           navGroup: 'Go to floating IP',
         })),
       ],

@@ -136,15 +136,13 @@ export default function IpPoolsPage() {
     useMemo(
       () => [
         {
-          kind: 'link',
           value: 'New IP pool',
           navGroup: 'Actions',
-          to: pb.ipPoolsNew(),
+          action: pb.ipPoolsNew(),
         },
         ...(allPools?.items || []).map((p) => ({
-          kind: 'link' as const,
           value: p.name,
-          to: pb.ipPool({ pool: p.name }),
+          action: pb.ipPool({ pool: p.name }),
           navGroup: 'Go to IP pool',
         })),
       ],

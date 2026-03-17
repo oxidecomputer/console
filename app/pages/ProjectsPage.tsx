@@ -107,15 +107,13 @@ export default function ProjectsPage() {
     useMemo(
       () => [
         {
-          kind: 'link',
           value: 'New project',
           navGroup: 'Actions',
-          to: pb.projectsNew(),
+          action: pb.projectsNew(),
         },
         ...(allProjects?.items || []).map((p) => ({
-          kind: 'link' as const,
           value: p.name,
-          to: pb.project({ project: p.name }),
+          action: pb.project({ project: p.name }),
           navGroup: 'Go to project',
         })),
       ],

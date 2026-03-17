@@ -101,15 +101,13 @@ export default function SiloImagesPage() {
     useMemo(
       () => [
         {
-          kind: 'action',
           value: 'Promote image',
           navGroup: 'Actions',
-          onSelect: () => setShowModal(true),
+          action: () => setShowModal(true),
         },
         ...(allImages?.items || []).map((i) => ({
-          kind: 'link' as const,
           value: i.name,
-          to: pb.siloImageEdit({ image: i.name }),
+          action: pb.siloImageEdit({ image: i.name }),
           navGroup: 'Go to silo image',
         })),
       ],

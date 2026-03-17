@@ -68,18 +68,16 @@ function useGlobalActions(): QuickActionItem[] {
     const actions: QuickActionItem[] = []
     if (me.fleetViewer && !location.pathname.startsWith('/system/')) {
       actions.push({
-        kind: 'link',
         navGroup: 'System',
         value: 'Manage system',
-        to: pb.silos(),
+        action: pb.silos(),
       })
     }
     if (!location.pathname.startsWith('/settings/')) {
       actions.push({
-        kind: 'link',
         navGroup: 'User',
         value: 'Settings',
-        to: pb.profile(),
+        action: pb.profile(),
       })
     }
     return actions
@@ -95,9 +93,8 @@ function useParentActions(): QuickActionItem[] {
     // Everything except the last crumb (the current page)
     const parentCrumbs = navCrumbs.slice(0, -1)
     return parentCrumbs.map((c) => ({
-      kind: 'link',
       value: c.label,
-      to: c.path,
+      action: c.path,
       navGroup: 'Go up',
     }))
   }, [crumbs])

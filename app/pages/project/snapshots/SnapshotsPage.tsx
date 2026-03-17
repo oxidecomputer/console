@@ -170,10 +170,9 @@ export default function SnapshotsPage() {
     useMemo(
       () => [
         {
-          kind: 'link',
           value: 'New snapshot',
           navGroup: 'Actions',
-          to: pb.snapshotsNew({ project }),
+          action: pb.snapshotsNew({ project }),
         },
       ],
       [project]

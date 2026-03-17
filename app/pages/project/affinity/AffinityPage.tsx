@@ -143,15 +143,13 @@ export default function AffinityPage() {
     useMemo(
       () => [
         {
-          kind: 'link',
           value: 'New anti-affinity group',
           navGroup: 'Actions',
-          to: pb.affinityNew({ project }),
+          action: pb.affinityNew({ project }),
         },
         ...antiAffinityGroups.map((g) => ({
-          kind: 'link' as const,
           value: g.name,
-          to: pb.antiAffinityGroup({ project, antiAffinityGroup: g.name }),
+          action: pb.antiAffinityGroup({ project, antiAffinityGroup: g.name }),
           navGroup: 'Go to anti-affinity group',
         })),
       ],
