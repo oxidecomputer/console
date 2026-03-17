@@ -21,7 +21,8 @@ const getSelectedItem = (page: Page) => page.getByRole('option', { selected: tru
 test('Enter key does not prematurely submit a linked form', async ({ page }) => {
   await page.goto('/system/silos')
   await openActionMenu(page)
-  // "New silo" is the first item in the list, so we can just hit enter to open the modal
+  // wait for page-level quick actions to register before pressing Enter
+  await expect(page.getByRole('option', { name: 'New silo' })).toBeVisible()
   await page.keyboard.press('Enter')
   await expect(page.getByRole('dialog', { name: 'Create silo' })).toBeVisible()
   // make sure error text is not visible
@@ -71,6 +72,9 @@ test('Arrow keys navigate up and down', async ({ page }) => {
 test('search filters items', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
   await openActionMenu(page)
+
+  // wait for instance list items to load before searching
+  await expect(page.getByRole('option', { name: 'db1' })).toBeVisible()
 
   // type a search query that matches a specific instance
   await page.keyboard.type('db1')
