@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Outlet, useNavigate } from 'react-router'
+import { Outlet } from 'react-router'
 
 import { api, getListQFn, q, queryClient, useApiMutation, type Image } from '@oxide/api'
 import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
@@ -96,22 +96,23 @@ export default function SiloImagesPage() {
   const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({ query: imageList, columns, emptyState: <EmptyState /> })
 
-  const navigate = useNavigate()
   const { data: allImages } = useQuery(q(api.imageList, { query: { limit: ALL_ISH } }))
   useQuickActions(
     useMemo(
       () => [
         {
+          kind: 'action',
           value: 'Promote image',
           onSelect: () => setShowModal(true),
         },
         ...(allImages?.items || []).map((i) => ({
+          kind: 'link' as const,
           value: i.name,
-          onSelect: () => navigate(pb.siloImageEdit({ image: i.name })),
+          to: pb.siloImageEdit({ image: i.name }),
           navGroup: 'Go to silo image',
         })),
       ],
-      [navigate, allImages]
+      [allImages]
     )
   )
 

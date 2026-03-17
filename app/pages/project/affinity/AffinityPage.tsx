@@ -8,7 +8,7 @@
 
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
-import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
 import {
   api,
@@ -139,22 +139,22 @@ export default function AffinityPage() {
     getCoreRowModel: getCoreRowModel(),
   })
 
-  const navigate = useNavigate()
   useQuickActions(
     useMemo(
       () => [
         {
+          kind: 'link',
           value: 'New anti-affinity group',
-          onSelect: () => navigate(pb.affinityNew({ project })),
+          to: pb.affinityNew({ project }),
         },
         ...antiAffinityGroups.map((g) => ({
+          kind: 'link' as const,
           value: g.name,
-          onSelect: () =>
-            navigate(pb.antiAffinityGroup({ project, antiAffinityGroup: g.name })),
+          to: pb.antiAffinityGroup({ project, antiAffinityGroup: g.name }),
           navGroup: 'Go to anti-affinity group',
         })),
       ],
-      [navigate, project, antiAffinityGroups]
+      [project, antiAffinityGroups]
     )
   )
 

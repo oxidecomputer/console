@@ -9,6 +9,7 @@ import { Dialog as BaseDialog } from '@base-ui/react/dialog'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
 import { useRef, useState } from 'react'
+import { Link, useNavigate } from 'react-router'
 
 import { Close12Icon } from '@oxide/design-system/icons/react'
 
@@ -19,13 +20,9 @@ import { classed } from '~/util/classed'
 import { DialogOverlay } from './DialogOverlay'
 import { useSteppedScroll } from './use-stepped-scroll'
 
-export interface QuickActionItem {
-  value: string
-  // strings are paths to navigate() to
-  // onSelect: string | (() => void)
-  onSelect: () => void
-  navGroup?: string
-}
+export type QuickActionItem =
+  | { kind: 'link'; value: string; to: string; navGroup?: string }
+  | { kind: 'action'; value: string; onSelect: () => void; navGroup?: string }
 
 export interface ActionMenuProps {
   isOpen: boolean
@@ -40,7 +37,13 @@ const LIST_HEIGHT = 384
 
 const Outline = classed.div`absolute z-10 h-full w-full border border-accent pointer-events-none`
 
+const liBase =
+  'text-sans-md border-secondary box-border block h-full w-full cursor-pointer overflow-visible border select-none'
+const liSelected = 'text-accent bg-accent hover:bg-accent-hover'
+const liDefault = 'text-default bg-raise hover:bg-hover'
+
 export function ActionMenu(props: ActionMenuProps) {
+  const navigate = useNavigate()
   const [input, setInput] = useState('')
   // TODO: filter by both nav group and item value
   const items = matchSorter(props.items, input, {
@@ -66,6 +69,11 @@ export function ActionMenu(props: ActionMenuProps) {
   const itemsInOrder = ([] as QuickActionItem[]).concat(
     ...allGroups.map(([_, items]) => items)
   )
+
+  // Map each item to its global index for selection tracking. We use this
+  // instead of comparing by value because values are not unique across owners.
+  const itemIndex = new Map<QuickActionItem, number>()
+  itemsInOrder.forEach((item, i) => itemIndex.set(item, i))
 
   const [selectedIdx, setSelectedIdx] = useState(0)
   const selectedItem = itemsInOrder[selectedIdx] as QuickActionItem | undefined
@@ -100,7 +108,11 @@ export function ActionMenu(props: ActionMenuProps) {
               const lastIdx = itemsInOrder.length - 1
               if (e.key === KEYS.enter) {
                 if (selectedItem) {
-                  selectedItem.onSelect()
+                  if (selectedItem.kind === 'action') {
+                    selectedItem.onSelect()
+                  } else {
+                    navigate(selectedItem.to)
+                  }
                   e.preventDefault()
                   onDismiss()
                 }
@@ -169,43 +181,61 @@ export function ActionMenu(props: ActionMenuProps) {
                   style={{ maxHeight: LIST_HEIGHT }}
                 >
                   <ul ref={ulRef}>
-                    {allGroups.map(([label, items]) => (
+                    {allGroups.map(([label, groupItems]) => (
                       <div key={label}>
                         <h3 className="text-mono-sm text-default bg-tertiary sticky top-0 z-20 h-[32px] px-4 py-2">
                           {label}
                         </h3>
-                        {items.map((item) => (
-                          <div
-                            key={item.value}
-                            className="relative -mt-px first-of-type:mt-0"
-                          >
-                            {item.value === selectedItem?.value && <Outline />}
-
-                            {/*
-                          TODO: there is probably a more correct way of fixing this reasonable lint error.
-                          Putting a button inside the <li> is not a great solution because it becomes
-                          focusable separate from the item selection
-                        */}
-
-                            {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
-                            <li
-                              role="option"
-                              className={cn(
-                                'text-sans-md border-secondary box-border block h-full w-full cursor-pointer overflow-visible border p-4 select-none',
-                                item.value === selectedItem?.value
-                                  ? 'text-accent bg-accent hover:bg-accent-hover'
-                                  : 'text-default bg-raise hover:bg-hover'
+                        {groupItems.map((item) => {
+                          const idx = itemIndex.get(item)!
+                          const isSelected = idx === selectedIdx
+                          return (
+                            <div key={idx} className="relative -mt-px first-of-type:mt-0">
+                              {isSelected && <Outline />}
+                              {item.kind === 'link' ? (
+                                <li
+                                  role="option"
+                                  className={cn(
+                                    liBase,
+                                    isSelected ? liSelected : liDefault
+                                  )}
+                                  aria-selected={isSelected}
+                                >
+                                  <Link
+                                    to={item.to}
+                                    className="block p-4"
+                                    tabIndex={-1}
+                                    onClick={(e) => {
+                                      if (!e.metaKey && !e.ctrlKey && !e.shiftKey) {
+                                        onDismiss()
+                                      }
+                                    }}
+                                  >
+                                    {item.value}
+                                  </Link>
+                                </li>
+                              ) : (
+                                // Keyboard events handled by combobox div above
+                                // eslint-disable-next-line jsx-a11y/click-events-have-key-events
+                                <li
+                                  role="option"
+                                  className={cn(
+                                    liBase,
+                                    'p-4',
+                                    isSelected ? liSelected : liDefault
+                                  )}
+                                  aria-selected={isSelected}
+                                  onClick={() => {
+                                    item.onSelect()
+                                    onDismiss()
+                                  }}
+                                >
+                                  {item.value}
+                                </li>
                               )}
-                              aria-selected={item.value === selectedItem?.value}
-                              onClick={() => {
-                                item.onSelect()
-                                onDismiss()
-                              }}
-                            >
-                              {item.value}
-                            </li>
-                          </div>
-                        ))}
+                            </div>
+                          )
+                        })}
                       </div>
                     ))}
                   </ul>

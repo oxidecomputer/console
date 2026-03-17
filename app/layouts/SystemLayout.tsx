@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useMemo } from 'react'
-import { useLocation, useNavigate } from 'react-router'
+import { useLocation } from 'react-router'
 
 import { api, q, queryClient } from '@oxide/api'
 import {
@@ -22,7 +22,7 @@ import { trigger404 } from '~/components/ErrorBoundary'
 import { DocsLinkItem, NavLinkItem, Sidebar } from '~/components/Sidebar'
 import { TopBar } from '~/components/TopBar'
 import { useCurrentUser } from '~/hooks/use-current-user'
-import { useQuickActions } from '~/hooks/use-quick-actions'
+import { useQuickActions, type QuickActionItem } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
 import { inventoryBase, pb } from '~/util/path-builder'
 
@@ -44,7 +44,6 @@ export default function SystemLayout() {
   // robust way of doing this would be to make a separate layout for the
   // silo-specific routes in the route config, but it's overkill considering
   // this is a one-liner. Switch to that approach at the first sign of trouble.
-  const navigate = useNavigate()
   const { pathname } = useLocation()
 
   const { me } = useCurrentUser()
@@ -61,18 +60,20 @@ export default function SystemLayout() {
       // filter out the entry for the path we're currently on
       .filter((i) => i.path !== pathname)
       .map((i) => ({
+        kind: 'link' as const,
         navGroup: 'System',
         value: i.value,
-        onSelect: () => navigate(i.path),
+        to: i.path,
       }))
 
-    const backToSilo = {
+    const backToSilo: QuickActionItem = {
+      kind: 'link',
       navGroup: `Back to silo '${me.siloName}'`,
       value: 'Projects',
-      onSelect: () => navigate(pb.projects()),
+      to: pb.projects(),
     }
     return [...systemLinks, backToSilo]
-  }, [pathname, navigate, me.siloName])
+  }, [pathname, me.siloName])
 
   useQuickActions(actions)
 

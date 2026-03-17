@@ -5,46 +5,51 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useEffect, useMemo } from 'react'
-import { useLocation, useNavigate } from 'react-router'
+import { useEffect, useId, useMemo } from 'react'
+import { useLocation } from 'react-router'
 import { create } from 'zustand'
 
 import { useCrumbs } from '~/hooks/use-crumbs'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { ActionMenu, type QuickActionItem } from '~/ui/lib/ActionMenu'
-import { invariant } from '~/util/invariant'
 import { pb } from '~/util/path-builder'
 
 import { useKey } from './use-key'
 
-type Items = QuickActionItem[]
+export type { QuickActionItem }
 
 type StoreState = {
-  items: Items
+  // Multiple useQuickActions() hooks are active simultaneously — e.g., a
+  // layout registers "Create project" while a nested page registers "Create
+  // instance." Each caller is called a source and gets its own slot keyed by
+  // React useId(), so when a page unmounts, its cleanup removes only its items,
+  // leaving the layout's items intact. The map is flattened into a single list
+  // at render time.
+  itemsBySource: Map<string, QuickActionItem[]>
   isOpen: boolean
 }
 
-// TODO: dedupe by group and value together so we can have, e.g., both silo and
-// system utilization at the same time
-
-// removeByValue dedupes items so they can be added as many times as we want
-// without appearing in the menu multiple times
-const removeByValue = (items: Items, toRemove: Items) => {
-  const valuesToRemove = new Set(toRemove.map((i) => i.value))
-  return items.filter((i) => !valuesToRemove.has(i.value))
-}
-
-const useStore = create<StoreState>(() => ({ items: [], isOpen: false }))
+const useStore = create<StoreState>(() => ({ itemsBySource: new Map(), isOpen: false }))
 
 // zustand docs say it's fine not to put your setters in the store
 // https://github.com/pmndrs/zustand/blob/0426978/docs/guides/practice-with-no-store-actions.md
 
-function addActions(toAdd: Items) {
-  useStore.setState(({ items }) => ({ items: removeByValue(items, toAdd).concat(toAdd) }))
+// These create a new Map each time because zustand uses reference equality to
+// detect changes — mutating in place wouldn't trigger a re-render.
+function setSourceItems(sourceId: string, items: QuickActionItem[]) {
+  useStore.setState(({ itemsBySource }) => {
+    const next = new Map(itemsBySource)
+    next.set(sourceId, items)
+    return { itemsBySource: next }
+  })
 }
 
-function removeActions(toRemove: Items) {
-  useStore.setState(({ items }) => ({ items: removeByValue(items, toRemove) }))
+function clearSource(sourceId: string) {
+  useStore.setState(({ itemsBySource }) => {
+    const next = new Map(itemsBySource)
+    next.delete(sourceId)
+    return { itemsBySource: next }
+  })
 }
 
 export function openQuickActions() {
@@ -55,79 +60,69 @@ function closeQuickActions() {
   useStore.setState({ isOpen: false })
 }
 
-function useGlobalActions() {
+function useGlobalActions(): QuickActionItem[] {
   const location = useLocation()
-  const navigate = useNavigate()
   const { me } = useCurrentUser()
 
   return useMemo(() => {
-    const actions = []
-    // only add settings link if we're not on a settings page
-    if (!location.pathname.startsWith('/settings/')) {
-      actions.push({
-        navGroup: 'User',
-        value: 'Settings',
-        onSelect: () => navigate(pb.profile()),
-      })
-    }
+    const actions: QuickActionItem[] = []
     if (me.fleetViewer && !location.pathname.startsWith('/system/')) {
       actions.push({
+        kind: 'link',
         navGroup: 'System',
         value: 'Manage system',
-        onSelect: () => navigate(pb.silos()),
+        to: pb.silos(),
+      })
+    }
+    if (!location.pathname.startsWith('/settings/')) {
+      actions.push({
+        kind: 'link',
+        navGroup: 'User',
+        value: 'Settings',
+        to: pb.profile(),
       })
     }
     return actions
-  }, [location.pathname, navigate, me.fleetViewer])
+  }, [location.pathname, me.fleetViewer])
 }
 
 /** Derive "Go up" actions from breadcrumb ancestors of the current page */
-function useParentActions() {
+function useParentActions(): QuickActionItem[] {
   const crumbs = useCrumbs()
-  const navigate = useNavigate()
 
   return useMemo(() => {
     const navCrumbs = crumbs.filter((c) => !c.titleOnly)
     // Everything except the last crumb (the current page)
     const parentCrumbs = navCrumbs.slice(0, -1)
     return parentCrumbs.map((c) => ({
+      kind: 'link',
       value: c.label,
-      onSelect: () => navigate(c.path),
+      to: c.path,
       navGroup: 'Go up',
     }))
-  }, [crumbs, navigate])
+  }, [crumbs])
 }
 
 /**
- * Register action items with the global quick actions menu. `itemsToAdd` must
+ * Register action items with the global quick actions menu. `items` must
  * be memoized by the caller, otherwise the effect will run too often.
  *
- * The idea here is that any component in the tree can register actions to go in
- * the menu and having them appear when the component is mounted and not appear
- * when the component is unmounted Just Works.
+ * Each component instance gets its own source slot (via useId), so items are
+ * cleaned up automatically when the component unmounts without affecting
+ * other sources' registrations.
  */
-export function useQuickActions(itemsToAdd: QuickActionItem[]) {
-  const location = useLocation()
-
-  // Add routes without declaring them in every `useQuickActions` call
-  const globalItems = useGlobalActions()
-  const parentItems = useParentActions()
+export function useQuickActions(items: QuickActionItem[]) {
+  const sourceId = useId()
 
   useEffect(() => {
-    const allItems = [...itemsToAdd, ...globalItems, ...parentItems]
-    invariant(
-      allItems.length === new Set(allItems.map((i) => i.value)).size,
-      'Items being added to the list of quick actions must have unique `value` values.'
-    )
-    addActions(allItems)
-    return () => removeActions(allItems)
-  }, [itemsToAdd, globalItems, parentItems, location.pathname])
+    setSourceItems(sourceId, items)
+    return () => clearSource(sourceId)
+  }, [sourceId, items])
 }
 
 function toggleDialog(e: Mousetrap.ExtendedKeyboardEvent) {
-  const { items, isOpen } = useStore.getState()
-
-  if (items.length > 0 && !isOpen) {
+  const { itemsBySource, isOpen } = useStore.getState()
+  if (itemsBySource.size > 0 && !isOpen) {
     e.preventDefault()
     openQuickActions()
   } else {
@@ -136,8 +131,22 @@ function toggleDialog(e: Mousetrap.ExtendedKeyboardEvent) {
 }
 
 export function QuickActions() {
-  const items = useStore((state) => state.items)
+  const itemsBySource = useStore((state) => state.itemsBySource)
   const isOpen = useStore((state) => state.isOpen)
+
+  // Ambient items (global nav + breadcrumb ancestors) are computed inline
+  // rather than stored, so QuickActions never writes to the store it reads.
+  const globalItems = useGlobalActions()
+  const parentItems = useParentActions()
+
+  // Flatten: page items first, then layout items, then breadcrumb ancestors,
+  // then global nav. Pages register after their parent layouts (a fact about
+  // React Router, I think), so reversing itemsBySource puts page-level items
+  // before layout-level items.
+  const items = useMemo(
+    () => [...itemsBySource.values()].reverse().flat().concat(parentItems, globalItems),
+    [itemsBySource, globalItems, parentItems]
+  )
 
   useKey('mod+k', toggleDialog, { global: true })
 

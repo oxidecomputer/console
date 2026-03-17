@@ -9,7 +9,7 @@ import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { filesize } from 'filesize'
 import { useMemo, useRef, useState } from 'react'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { type LoaderFunctionArgs } from 'react-router'
 
 import {
   api,
@@ -198,21 +198,22 @@ export default function InstancesPage() {
   const { data: allInstances } = useQuery(
     q(api.instanceList, { query: { project, limit: ALL_ISH } })
   )
-  const navigate = useNavigate()
   useQuickActions(
     useMemo(
       () => [
         {
+          kind: 'link',
           value: 'New instance',
-          onSelect: () => navigate(pb.instancesNew({ project })),
+          to: pb.instancesNew({ project }),
         },
         ...(allInstances?.items || []).map((i) => ({
+          kind: 'link' as const,
           value: i.name,
-          onSelect: () => navigate(pb.instance({ project, instance: i.name })),
+          to: pb.instance({ project, instance: i.name }),
           navGroup: 'Go to instance',
         })),
       ],
-      [project, allInstances, navigate]
+      [project, allInstances]
     )
   )
 

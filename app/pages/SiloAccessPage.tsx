@@ -169,6 +169,7 @@ export default function SiloAccessPage() {
     useMemo(
       () => [
         {
+          kind: 'action',
           value: 'Add user or group',
           onSelect: () => setAddModalOpen(true),
         },

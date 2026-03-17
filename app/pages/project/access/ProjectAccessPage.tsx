@@ -210,6 +210,7 @@ export default function ProjectAccessPage() {
     useMemo(
       () => [
         {
+          kind: 'action',
           value: 'Add user or group',
           onSelect: () => setAddModalOpen(true),
         },
