@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMemo, type ReactElement } from 'react'
+import type { ReactElement } from 'react'
 import { useLocation, type LoaderFunctionArgs } from 'react-router'
 
 import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
@@ -58,28 +58,27 @@ export function ProjectLayoutBase({ overrideContentPane }: ProjectLayoutProps) {
   const { data: project } = usePrefetchedQuery(projectView(projectSelector))
 
   const { pathname } = useLocation()
+
   useQuickActions(
-    useMemo(
-      () =>
-        [
-          { value: 'Instances', path: pb.instances(projectSelector) },
-          { value: 'Disks', path: pb.disks(projectSelector) },
-          { value: 'Snapshots', path: pb.snapshots(projectSelector) },
-          { value: 'Images', path: pb.projectImages(projectSelector) },
-          { value: 'VPCs', path: pb.vpcs(projectSelector) },
-          { value: 'Floating IPs', path: pb.floatingIps(projectSelector) },
-          { value: 'Affinity Groups', path: pb.affinity(projectSelector) },
-          { value: 'Project Access', path: pb.projectAccess(projectSelector) },
-        ]
-          // filter out the entry for the path we're currently on
-          .filter((i) => i.path !== pathname)
-          .map((i) => ({
-            navGroup: `Project '${project.name}'`,
-            value: i.value,
-            action: i.path,
-          })),
-      [pathname, project.name, projectSelector]
-    )
+    () =>
+      [
+        { value: 'Instances', path: pb.instances(projectSelector) },
+        { value: 'Disks', path: pb.disks(projectSelector) },
+        { value: 'Snapshots', path: pb.snapshots(projectSelector) },
+        { value: 'Images', path: pb.projectImages(projectSelector) },
+        { value: 'VPCs', path: pb.vpcs(projectSelector) },
+        { value: 'Floating IPs', path: pb.floatingIps(projectSelector) },
+        { value: 'Affinity Groups', path: pb.affinity(projectSelector) },
+        { value: 'Project Access', path: pb.projectAccess(projectSelector) },
+      ]
+        // filter out the entry for the path we're currently on
+        .filter((i) => i.path !== pathname)
+        .map((i) => ({
+          navGroup: `Project '${project.name}'`,
+          value: i.value,
+          action: i.path,
+        })),
+    [pathname, project.name, projectSelector]
   )
 
   return (

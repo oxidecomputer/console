@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMemo } from 'react'
 import { useLocation } from 'react-router'
 
 import { api, q, queryClient } from '@oxide/api'
@@ -48,7 +47,7 @@ export default function SystemLayout() {
 
   const { me } = useCurrentUser()
 
-  const actions = useMemo(() => {
+  useQuickActions(() => {
     const systemLinks = [
       { value: 'Silos', path: pb.silos() },
       { value: 'Utilization', path: pb.systemUtilization() },
@@ -72,8 +71,6 @@ export default function SystemLayout() {
     }
     return [...systemLinks, backToSilo]
   }, [pathname, me.siloName])
-
-  useQuickActions(actions)
 
   return (
     <PageContainer>

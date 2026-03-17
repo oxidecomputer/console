@@ -36,7 +36,7 @@
     "react/button-has-type": "error",
     "react/jsx-boolean-value": "error",
 
-    "react-hooks/exhaustive-deps": "error",
+    "react-hooks/exhaustive-deps": ["error", { "additionalHooks": "useQuickActions" }],
     "react-hooks/rules-of-hooks": "error",
     "import/no-default-export": "error",
     "consistent-type-imports": "error",

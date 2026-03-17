@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMemo } from 'react'
 import { useLocation } from 'react-router'
 
 import {
@@ -30,22 +29,20 @@ export default function SettingsLayout() {
   const { pathname } = useLocation()
 
   useQuickActions(
-    useMemo(
-      () =>
-        [
-          { value: 'Profile', path: pb.profile() },
-          { value: 'SSH Keys', path: pb.sshKeys() },
-          { value: 'Access Tokens', path: pb.accessTokens() },
-        ]
-          // filter out the entry for the path we're currently on
-          .filter((i) => i.path !== pathname)
-          .map((i) => ({
-            navGroup: `Settings`,
-            value: i.value,
-            action: i.path,
-          })),
-      [pathname]
-    )
+    () =>
+      [
+        { value: 'Profile', path: pb.profile() },
+        { value: 'SSH Keys', path: pb.sshKeys() },
+        { value: 'Access Tokens', path: pb.accessTokens() },
+      ]
+        // filter out the entry for the path we're currently on
+        .filter((i) => i.path !== pathname)
+        .map((i) => ({
+          navGroup: `Settings`,
+          value: i.value,
+          action: i.path,
+        })),
+    [pathname]
   )
 
   return (

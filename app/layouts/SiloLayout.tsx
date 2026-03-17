@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMemo } from 'react'
 import { useLocation } from 'react-router'
 
 import {
@@ -29,23 +28,21 @@ export default function SiloLayout() {
   const { me } = useCurrentUser()
 
   useQuickActions(
-    useMemo(
-      () =>
-        [
-          { value: 'Projects', path: pb.projects() },
-          { value: 'Images', path: pb.siloImages() },
-          { value: 'Utilization', path: pb.siloUtilization() },
-          { value: 'Silo Access', path: pb.siloAccess() },
-        ]
-          // filter out the entry for the path we're currently on
-          .filter((i) => i.path !== pathname)
-          .map((i) => ({
-            navGroup: `Silo '${me.siloName}'`,
-            value: i.value,
-            action: i.path,
-          })),
-      [pathname, me.siloName]
-    )
+    () =>
+      [
+        { value: 'Projects', path: pb.projects() },
+        { value: 'Images', path: pb.siloImages() },
+        { value: 'Utilization', path: pb.siloUtilization() },
+        { value: 'Silo Access', path: pb.siloAccess() },
+      ]
+        // filter out the entry for the path we're currently on
+        .filter((i) => i.path !== pathname)
+        .map((i) => ({
+          navGroup: `Silo '${me.siloName}'`,
+          value: i.value,
+          action: i.path,
+        })),
+    [pathname, me.siloName]
   )
 
   return (

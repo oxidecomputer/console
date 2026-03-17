@@ -101,15 +101,22 @@ function useParentActions(): QuickActionItem[] {
 }
 
 /**
- * Register action items with the global quick actions menu. `items` must
- * be memoized by the caller, otherwise the effect will run too often.
+ * Register action items with the global quick actions menu. Takes a factory
+ * and deps array like useMemo — the linter checks deps via additionalHooks.
  *
  * Each component instance gets its own source slot (via useId), so items are
  * cleaned up automatically when the component unmounts without affecting
  * other sources' registrations.
  */
-export function useQuickActions(items: QuickActionItem[]) {
+export function useQuickActions(
+  factory: () => QuickActionItem[],
+  deps: React.DependencyList
+) {
   const sourceId = useId()
+  // Deps are checked by the linter at call sites via the additionalHooks
+  // option in .oxlintrc.json, so we can safely forward them here.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const items = useMemo(factory, deps)
 
   useEffect(() => {
     setSourceItems(sourceId, items)

@@ -112,22 +112,21 @@ export default function ImagesPage() {
   const { data: allImages } = useQuery(
     q(api.imageList, { query: { project, limit: ALL_ISH } })
   )
+
   useQuickActions(
-    useMemo(
-      () => [
-        {
-          value: 'Upload image',
-          navGroup: 'Actions',
-          action: pb.projectImagesNew({ project }),
-        },
-        ...(allImages?.items || []).map((i) => ({
-          value: i.name,
-          action: pb.projectImageEdit({ project, image: i.name }),
-          navGroup: 'Go to project image',
-        })),
-      ],
-      [project, allImages]
-    )
+    () => [
+      {
+        value: 'Upload image',
+        navGroup: 'Actions',
+        action: pb.projectImagesNew({ project }),
+      },
+      ...(allImages?.items || []).map((i) => ({
+        value: i.name,
+        action: pb.projectImageEdit({ project, image: i.name }),
+        navGroup: 'Go to project image',
+      })),
+    ],
+    [project, allImages]
   )
 
   return (

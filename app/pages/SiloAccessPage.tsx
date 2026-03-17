@@ -166,16 +166,14 @@ export default function SiloAccessPage() {
   })
 
   useQuickActions(
-    useMemo(
-      () => [
-        {
-          value: 'Add user or group',
-          navGroup: 'Actions',
-          action: () => setAddModalOpen(true),
-        },
-      ],
-      []
-    )
+    () => [
+      {
+        value: 'Add user or group',
+        navGroup: 'Actions',
+        action: () => setAddModalOpen(true),
+      },
+    ],
+    []
   )
 
   return (

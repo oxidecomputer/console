@@ -192,22 +192,21 @@ export default function DisksPage() {
   const { data: allDisks } = useQuery(
     q(api.diskList, { query: { project, limit: ALL_ISH } })
   )
+
   useQuickActions(
-    useMemo(
-      () => [
-        {
-          value: 'New disk',
-          navGroup: 'Actions',
-          action: pb.disksNew({ project }),
-        },
-        ...(allDisks?.items || []).map((d) => ({
-          value: d.name,
-          action: pb.disk({ project, disk: d.name }),
-          navGroup: 'Go to disk',
-        })),
-      ],
-      [project, allDisks]
-    )
+    () => [
+      {
+        value: 'New disk',
+        navGroup: 'Actions',
+        action: pb.disksNew({ project }),
+      },
+      ...(allDisks?.items || []).map((d) => ({
+        value: d.name,
+        action: pb.disk({ project, disk: d.name }),
+        navGroup: 'Go to disk',
+      })),
+    ],
+    [project, allDisks]
   )
 
   return (

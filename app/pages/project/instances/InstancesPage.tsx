@@ -198,22 +198,21 @@ export default function InstancesPage() {
   const { data: allInstances } = useQuery(
     q(api.instanceList, { query: { project, limit: ALL_ISH } })
   )
+
   useQuickActions(
-    useMemo(
-      () => [
-        {
-          value: 'New instance',
-          navGroup: 'Actions',
-          action: pb.instancesNew({ project }),
-        },
-        ...(allInstances?.items || []).map((i) => ({
-          value: i.name,
-          action: pb.instance({ project, instance: i.name }),
-          navGroup: 'Go to instance',
-        })),
-      ],
-      [project, allInstances]
-    )
+    () => [
+      {
+        value: 'New instance',
+        navGroup: 'Actions',
+        action: pb.instancesNew({ project }),
+      },
+      ...(allInstances?.items || []).map((i) => ({
+        value: i.name,
+        action: pb.instance({ project, instance: i.name }),
+        navGroup: 'Go to instance',
+      })),
+    ],
+    [project, allInstances]
   )
 
   return (

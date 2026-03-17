@@ -136,22 +136,21 @@ export default function VpcsPage() {
   })
 
   const { data: allVpcs } = useQuery(q(api.vpcList, { query: { project, limit: ALL_ISH } }))
+
   useQuickActions(
-    useMemo(
-      () => [
-        {
-          value: 'New VPC',
-          navGroup: 'Actions',
-          action: pb.vpcsNew({ project }),
-        },
-        ...(allVpcs?.items || []).map((v) => ({
-          value: v.name,
-          action: pb.vpc({ project, vpc: v.name }),
-          navGroup: 'Go to VPC',
-        })),
-      ],
-      [project, allVpcs]
-    )
+    () => [
+      {
+        value: 'New VPC',
+        navGroup: 'Actions',
+        action: pb.vpcsNew({ project }),
+      },
+      ...(allVpcs?.items || []).map((v) => ({
+        value: v.name,
+        action: pb.vpc({ project, vpc: v.name }),
+        navGroup: 'Go to VPC',
+      })),
+    ],
+    [project, allVpcs]
   )
 
   return (

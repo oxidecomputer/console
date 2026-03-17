@@ -7,7 +7,7 @@
  */
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
@@ -167,16 +167,14 @@ export default function SnapshotsPage() {
   })
 
   useQuickActions(
-    useMemo(
-      () => [
-        {
-          value: 'New snapshot',
-          navGroup: 'Actions',
-          action: pb.snapshotsNew({ project }),
-        },
-      ],
-      [project]
-    )
+    () => [
+      {
+        value: 'New snapshot',
+        navGroup: 'Actions',
+        action: pb.snapshotsNew({ project }),
+      },
+    ],
+    [project]
   )
 
   return (

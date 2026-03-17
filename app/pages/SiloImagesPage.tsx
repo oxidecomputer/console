@@ -97,22 +97,21 @@ export default function SiloImagesPage() {
   const { table } = useQueryTable({ query: imageList, columns, emptyState: <EmptyState /> })
 
   const { data: allImages } = useQuery(q(api.imageList, { query: { limit: ALL_ISH } }))
+
   useQuickActions(
-    useMemo(
-      () => [
-        {
-          value: 'Promote image',
-          navGroup: 'Actions',
-          action: () => setShowModal(true),
-        },
-        ...(allImages?.items || []).map((i) => ({
-          value: i.name,
-          action: pb.siloImageEdit({ image: i.name }),
-          navGroup: 'Go to silo image',
-        })),
-      ],
-      [allImages]
-    )
+    () => [
+      {
+        value: 'Promote image',
+        navGroup: 'Actions',
+        action: () => setShowModal(true),
+      },
+      ...(allImages?.items || []).map((i) => ({
+        value: i.name,
+        action: pb.siloImageEdit({ image: i.name }),
+        navGroup: 'Go to silo image',
+      })),
+    ],
+    [allImages]
   )
 
   return (

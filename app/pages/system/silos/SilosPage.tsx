@@ -7,7 +7,7 @@
  */
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { Outlet } from 'react-router'
 
 import { api, getListQFn, q, queryClient, useApiMutation, type Silo } from '@oxide/api'
@@ -98,18 +98,17 @@ export default function SilosPage() {
   })
 
   const { data: allSilos } = useQuery(q(api.siloList, { query: { limit: ALL_ISH } }))
+
   useQuickActions(
-    useMemo(
-      () => [
-        { value: 'New silo', navGroup: 'Actions', action: pb.silosNew() },
-        ...(allSilos?.items || []).map((o) => ({
-          value: o.name,
-          action: pb.silo({ silo: o.name }),
-          navGroup: 'Go to silo',
-        })),
-      ],
-      [allSilos]
-    )
+    () => [
+      { value: 'New silo', navGroup: 'Actions', action: pb.silosNew() },
+      ...(allSilos?.items || []).map((o) => ({
+        value: o.name,
+        action: pb.silo({ silo: o.name }),
+        navGroup: 'Go to silo',
+      })),
+    ],
+    [allSilos]
   )
 
   return (

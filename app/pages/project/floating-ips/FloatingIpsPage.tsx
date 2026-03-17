@@ -7,7 +7,7 @@
  */
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
@@ -216,22 +216,21 @@ export default function FloatingIpsPage() {
   const { data: allFips } = useQuery(
     q(api.floatingIpList, { query: { project, limit: ALL_ISH } })
   )
+
   useQuickActions(
-    useMemo(
-      () => [
-        {
-          value: 'New floating IP',
-          navGroup: 'Actions',
-          action: pb.floatingIpsNew({ project }),
-        },
-        ...(allFips?.items || []).map((f) => ({
-          value: f.name,
-          action: pb.floatingIpEdit({ project, floatingIp: f.name }),
-          navGroup: 'Go to floating IP',
-        })),
-      ],
-      [project, allFips]
-    )
+    () => [
+      {
+        value: 'New floating IP',
+        navGroup: 'Actions',
+        action: pb.floatingIpsNew({ project }),
+      },
+      ...(allFips?.items || []).map((f) => ({
+        value: f.name,
+        action: pb.floatingIpEdit({ project, floatingIp: f.name }),
+        navGroup: 'Go to floating IP',
+      })),
+    ],
+    [project, allFips]
   )
 
   return (

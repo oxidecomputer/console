@@ -8,7 +8,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { Outlet, useNavigate } from 'react-router'
 
 import { api, getListQFn, q, queryClient, useApiMutation, type IpPool } from '@oxide/api'
@@ -132,22 +132,21 @@ export default function IpPoolsPage() {
   const { data: allPools } = useQuery(
     q(api.systemIpPoolList, { query: { limit: ALL_ISH } })
   )
+
   useQuickActions(
-    useMemo(
-      () => [
-        {
-          value: 'New IP pool',
-          navGroup: 'Actions',
-          action: pb.ipPoolsNew(),
-        },
-        ...(allPools?.items || []).map((p) => ({
-          value: p.name,
-          action: pb.ipPool({ pool: p.name }),
-          navGroup: 'Go to IP pool',
-        })),
-      ],
-      [allPools]
-    )
+    () => [
+      {
+        value: 'New IP pool',
+        navGroup: 'Actions',
+        action: pb.ipPoolsNew(),
+      },
+      ...(allPools?.items || []).map((p) => ({
+        value: p.name,
+        action: pb.ipPool({ pool: p.name }),
+        navGroup: 'Go to IP pool',
+      })),
+    ],
+    [allPools]
   )
 
   return (
