@@ -132,7 +132,7 @@ export default function ProjectsPage() {
         />
       </PageHeader>
       <TableActions>
-        <CreateLink to={pb.projectsNew()}>New Project</CreateLink>
+        <CreateLink to={pb.projectsNew()}>New project</CreateLink>
       </TableActions>
       {table}
       <Outlet />

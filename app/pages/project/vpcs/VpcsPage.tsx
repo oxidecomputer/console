@@ -160,7 +160,7 @@ export default function VpcsPage() {
         <VpcDocsPopover />
       </PageHeader>
       <TableActions>
-        <CreateLink to={pb.vpcsNew({ project })}>New Vpc</CreateLink>
+        <CreateLink to={pb.vpcsNew({ project })}>New VPC</CreateLink>
       </TableActions>
       {table}
       <Outlet />

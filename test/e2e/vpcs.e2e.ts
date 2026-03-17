@@ -425,7 +425,7 @@ test('collaborator can create VPC', async ({ browser }) => {
   const table = page.getByRole('table')
 
   // Create a new VPC
-  await page.getByRole('link', { name: 'New Vpc' }).click()
+  await page.getByRole('link', { name: 'New VPC' }).click()
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('collab-test-vpc')
   await page.getByRole('textbox', { name: 'DNS name' }).fill('collab-test-vpc')
   await page.getByRole('button', { name: 'Create VPC' }).click()
@@ -453,7 +453,7 @@ test('user in group with silo collaborator role can create VPC', async ({ browse
   const table = page.getByRole('table')
 
   // Create a new VPC
-  await page.getByRole('link', { name: 'New Vpc' }).click()
+  await page.getByRole('link', { name: 'New VPC' }).click()
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('group-test-vpc')
   await page.getByRole('textbox', { name: 'DNS name' }).fill('group-test-vpc')
   await page.getByRole('button', { name: 'Create VPC' }).click()
@@ -477,7 +477,7 @@ test('limited collaborator cannot create VPC', async ({ browser }) => {
   await page.goto('/projects/mock-project/vpcs')
 
   // Try to create a new VPC
-  await page.getByRole('link', { name: 'New Vpc' }).click()
+  await page.getByRole('link', { name: 'New VPC' }).click()
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('limited-test-vpc')
   await page.getByRole('textbox', { name: 'DNS name' }).fill('limited-test-vpc')
   await page.getByRole('button', { name: 'Create VPC' }).click()

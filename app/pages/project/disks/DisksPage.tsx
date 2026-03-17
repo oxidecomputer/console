@@ -212,7 +212,7 @@ export default function DisksPage() {
         />
       </PageHeader>
       <TableActions>
-        <CreateLink to={pb.disksNew({ project })}>New Disk</CreateLink>
+        <CreateLink to={pb.disksNew({ project })}>New disk</CreateLink>
       </TableActions>
       {table}
       <Outlet />
