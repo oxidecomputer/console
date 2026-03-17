@@ -101,7 +101,7 @@ export default function SilosPage() {
   useQuickActions(
     useMemo(
       () => [
-        { kind: 'link', value: 'New silo', to: pb.silosNew() },
+        { kind: 'link', value: 'New silo', navGroup: 'Actions', to: pb.silosNew() },
         ...(allSilos?.items || []).map((o) => ({
           kind: 'link' as const,
           value: o.name,

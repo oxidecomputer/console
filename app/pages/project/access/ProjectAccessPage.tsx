@@ -212,6 +212,7 @@ export default function ProjectAccessPage() {
         {
           kind: 'action',
           value: 'Add user or group',
+          navGroup: 'Actions',
           onSelect: () => setAddModalOpen(true),
         },
       ],

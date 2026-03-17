@@ -109,6 +109,7 @@ export default function ProjectsPage() {
         {
           kind: 'link',
           value: 'New project',
+          navGroup: 'Actions',
           to: pb.projectsNew(),
         },
         ...(allProjects?.items || []).map((p) => ({

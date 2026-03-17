@@ -171,6 +171,7 @@ export default function SiloAccessPage() {
         {
           kind: 'action',
           value: 'Add user or group',
+          navGroup: 'Actions',
           onSelect: () => setAddModalOpen(true),
         },
       ],

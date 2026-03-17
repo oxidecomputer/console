@@ -32,14 +32,16 @@ test('Ctrl+N/P navigate up and down', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
   await openActionMenu(page)
 
+  // wait for instance list to load so the items don't shift mid-test
+  await expect(page.getByRole('option', { name: 'db1' })).toBeVisible()
+
   const selected = getSelectedItem(page)
   // first item is selected by default
   await expect(selected).toHaveText('New instance')
 
   // Ctrl+N moves down
   await page.keyboard.press('Control+n')
-  await expect(selected).not.toHaveText('New instance')
-  const secondItem = await selected.textContent()
+  await expect(selected).toHaveText('db1')
 
   // Ctrl+P moves back up
   await page.keyboard.press('Control+p')
@@ -47,18 +49,20 @@ test('Ctrl+N/P navigate up and down', async ({ page }) => {
 
   // Ctrl+N again gets the same second item
   await page.keyboard.press('Control+n')
-  await expect(selected).toHaveText(secondItem!)
+  await expect(selected).toHaveText('db1')
 })
 
 test('Arrow keys navigate up and down', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
   await openActionMenu(page)
 
+  await expect(page.getByRole('option', { name: 'db1' })).toBeVisible()
+
   const selected = getSelectedItem(page)
   await expect(selected).toHaveText('New instance')
 
   await page.keyboard.press('ArrowDown')
-  await expect(selected).not.toHaveText('New instance')
+  await expect(selected).toHaveText('db1')
 
   await page.keyboard.press('ArrowUp')
   await expect(selected).toHaveText('New instance')

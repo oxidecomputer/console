@@ -222,6 +222,7 @@ export default function FloatingIpsPage() {
         {
           kind: 'link',
           value: 'New floating IP',
+          navGroup: 'Actions',
           to: pb.floatingIpsNew({ project }),
         },
         ...(allFips?.items || []).map((f) => ({

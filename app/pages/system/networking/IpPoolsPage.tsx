@@ -138,6 +138,7 @@ export default function IpPoolsPage() {
         {
           kind: 'link',
           value: 'New IP pool',
+          navGroup: 'Actions',
           to: pb.ipPoolsNew(),
         },
         ...(allPools?.items || []).map((p) => ({

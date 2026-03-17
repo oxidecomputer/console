@@ -103,6 +103,7 @@ export default function SiloImagesPage() {
         {
           kind: 'action',
           value: 'Promote image',
+          navGroup: 'Actions',
           onSelect: () => setShowModal(true),
         },
         ...(allImages?.items || []).map((i) => ({

@@ -204,6 +204,7 @@ export default function InstancesPage() {
         {
           kind: 'link',
           value: 'New instance',
+          navGroup: 'Actions',
           to: pb.instancesNew({ project }),
         },
         ...(allInstances?.items || []).map((i) => ({

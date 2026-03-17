@@ -198,6 +198,7 @@ export default function DisksPage() {
         {
           kind: 'link',
           value: 'New disk',
+          navGroup: 'Actions',
           to: pb.disksNew({ project }),
         },
         ...(allDisks?.items || []).map((d) => ({

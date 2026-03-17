@@ -172,6 +172,7 @@ export default function SnapshotsPage() {
         {
           kind: 'link',
           value: 'New snapshot',
+          navGroup: 'Actions',
           to: pb.snapshotsNew({ project }),
         },
       ],

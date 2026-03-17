@@ -10,19 +10,19 @@ import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
 import { useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
+import * as R from 'remeda'
 
 import { Close12Icon } from '@oxide/design-system/icons/react'
 
 import { KEYS } from '~/ui/util/keys'
-import { groupBy } from '~/util/array'
 import { classed } from '~/util/classed'
 
 import { DialogOverlay } from './DialogOverlay'
 import { useSteppedScroll } from './use-stepped-scroll'
 
 export type QuickActionItem =
-  | { kind: 'link'; value: string; to: string; navGroup?: string }
-  | { kind: 'action'; value: string; onSelect: () => void; navGroup?: string }
+  | { kind: 'link'; value: string; to: string; navGroup: string }
+  | { kind: 'action'; value: string; onSelect: () => void; navGroup: string }
 
 export interface ActionMenuProps {
   isOpen: boolean
@@ -52,31 +52,19 @@ export function ActionMenu(props: ActionMenuProps) {
     baseSort: (a, b) => (a.index < b.index ? -1 : 1),
   })
 
-  // items without a navGroup label are considered actions and rendered first
-  const actions = items.filter((i) => !i.navGroup)
-
-  // TODO: repent. this is horrible
-  const groupedItems = groupBy(
-    items.filter((i) => i.navGroup),
-    (i) => i.navGroup!
+  const allGroups = R.pipe(
+    items,
+    R.groupBy((i) => i.navGroup),
+    R.entries(),
+    // "Actions" first so page-level create/add actions are always at the top.
+    // Other sorting by group that we've already done in the calling code is
+    // preserved.
+    R.sortBy(([key]) => key !== 'Actions')
   )
-
-  const allGroups: [string, QuickActionItem[]][] =
-    actions.length > 0
-      ? [['Actions', items.filter((i) => !i.navGroup)], ...groupedItems]
-      : groupedItems
-
-  const itemsInOrder = ([] as QuickActionItem[]).concat(
-    ...allGroups.map(([_, items]) => items)
-  )
-
-  // Map each item to its global index for selection tracking. We use this
-  // instead of comparing by value because values are not unique across owners.
-  const itemIndex = new Map<QuickActionItem, number>()
-  itemsInOrder.forEach((item, i) => itemIndex.set(item, i))
+  const itemsInOrder = allGroups.flatMap(([_, items]) => items)
 
   const [selectedIdx, setSelectedIdx] = useState(0)
-  const selectedItem = itemsInOrder[selectedIdx] as QuickActionItem | undefined
+  const selectedItem = itemsInOrder.at(selectedIdx)
 
   const divRef = useRef<HTMLDivElement>(null)
   const ulRef = useRef<HTMLUListElement>(null)
@@ -187,10 +175,13 @@ export function ActionMenu(props: ActionMenuProps) {
                           {label}
                         </h3>
                         {groupItems.map((item) => {
-                          const idx = itemIndex.get(item)!
+                          const idx = itemsInOrder.indexOf(item)
                           const isSelected = idx === selectedIdx
                           return (
-                            <div key={idx} className="relative -mt-px first-of-type:mt-0">
+                            <div
+                              key={`${item.navGroup}/${item.value}`}
+                              className="relative -mt-px first-of-type:mt-0"
+                            >
                               {isSelected && <Outline />}
                               {item.kind === 'link' ? (
                                 <li

@@ -142,6 +142,7 @@ export default function VpcsPage() {
         {
           kind: 'link',
           value: 'New VPC',
+          navGroup: 'Actions',
           to: pb.vpcsNew({ project }),
         },
         ...(allVpcs?.items || []).map((v) => ({

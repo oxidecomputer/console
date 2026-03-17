@@ -118,6 +118,7 @@ export default function ImagesPage() {
         {
           kind: 'link',
           value: 'Upload image',
+          navGroup: 'Actions',
           to: pb.projectImagesNew({ project }),
         },
         ...(allImages?.items || []).map((i) => ({

@@ -145,6 +145,7 @@ export default function AffinityPage() {
         {
           kind: 'link',
           value: 'New anti-affinity group',
+          navGroup: 'Actions',
           to: pb.affinityNew({ project }),
         },
         ...antiAffinityGroups.map((g) => ({
