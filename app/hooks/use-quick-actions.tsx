@@ -9,6 +9,7 @@ import { useEffect, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { create } from 'zustand'
 
+import { useCrumbs } from '~/hooks/use-crumbs'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { ActionMenu, type QuickActionItem } from '~/ui/lib/ActionMenu'
 import { invariant } from '~/util/invariant'
@@ -80,6 +81,23 @@ function useGlobalActions() {
   }, [location.pathname, navigate, me.fleetViewer])
 }
 
+/** Derive "Go up" actions from breadcrumb ancestors of the current page */
+function useParentActions() {
+  const crumbs = useCrumbs()
+  const navigate = useNavigate()
+
+  return useMemo(() => {
+    const navCrumbs = crumbs.filter((c) => !c.titleOnly)
+    // Everything except the last crumb (the current page)
+    const parentCrumbs = navCrumbs.slice(0, -1)
+    return parentCrumbs.map((c) => ({
+      value: c.label,
+      onSelect: () => navigate(c.path),
+      navGroup: 'Go up',
+    }))
+  }, [crumbs, navigate])
+}
+
 /**
  * Register action items with the global quick actions menu. `itemsToAdd` must
  * be memoized by the caller, otherwise the effect will run too often.
@@ -93,16 +111,17 @@ export function useQuickActions(itemsToAdd: QuickActionItem[]) {
 
   // Add routes without declaring them in every `useQuickActions` call
   const globalItems = useGlobalActions()
+  const parentItems = useParentActions()
 
   useEffect(() => {
-    const allItems = [...itemsToAdd, ...globalItems]
+    const allItems = [...itemsToAdd, ...globalItems, ...parentItems]
     invariant(
       allItems.length === new Set(allItems.map((i) => i.value)).size,
       'Items being added to the list of quick actions must have unique `value` values.'
     )
     addActions(allItems)
     return () => removeActions(allItems)
-  }, [itemsToAdd, globalItems, location.pathname])
+  }, [itemsToAdd, globalItems, parentItems, location.pathname])
 }
 
 function toggleDialog(e: Mousetrap.ExtendedKeyboardEvent) {
