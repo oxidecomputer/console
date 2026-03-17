@@ -144,11 +144,17 @@ export default function AffinityPage() {
     useMemo(
       () => [
         {
-          value: 'New group',
+          value: 'New anti-affinity group',
           onSelect: () => navigate(pb.affinityNew({ project })),
         },
+        ...antiAffinityGroups.map((g) => ({
+          value: g.name,
+          onSelect: () =>
+            navigate(pb.antiAffinityGroup({ project, antiAffinityGroup: g.name })),
+          navGroup: 'Go to anti-affinity group',
+        })),
       ],
-      [navigate, project]
+      [navigate, project, antiAffinityGroups]
     )
   )
 

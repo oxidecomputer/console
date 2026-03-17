@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
@@ -38,6 +39,7 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
@@ -188,6 +190,9 @@ export default function DisksPage() {
   })
 
   const navigate = useNavigate()
+  const { data: allDisks } = useQuery(
+    q(api.diskList, { query: { project, limit: ALL_ISH } })
+  )
   useQuickActions(
     useMemo(
       () => [
@@ -195,8 +200,13 @@ export default function DisksPage() {
           value: 'New disk',
           onSelect: () => navigate(pb.disksNew({ project })),
         },
+        ...(allDisks?.items || []).map((d) => ({
+          value: d.name,
+          onSelect: () => navigate(pb.disk({ project, disk: d.name })),
+          navGroup: 'Go to disk',
+        })),
       ],
-      [navigate, project]
+      [navigate, project, allDisks]
     )
   )
 

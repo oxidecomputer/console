@@ -5,8 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { type UseQueryOptions } from '@tanstack/react-query'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { filesize } from 'filesize'
 import { useMemo, useRef, useState } from 'react'
