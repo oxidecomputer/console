@@ -104,10 +104,12 @@ export function ActionMenu(props: ActionMenuProps) {
                   e.preventDefault()
                   onDismiss()
                 }
-              } else if (e.key === KEYS.down) {
+              } else if (e.key === KEYS.down || (e.ctrlKey && e.key === 'n')) {
+                e.preventDefault()
                 const newIdx = selectedIdx === lastIdx ? 0 : selectedIdx + 1
                 setSelectedIdx(newIdx)
-              } else if (e.key === KEYS.up) {
+              } else if (e.key === KEYS.up || (e.ctrlKey && e.key === 'p')) {
+                e.preventDefault()
                 const newIdx = selectedIdx === 0 ? lastIdx : selectedIdx - 1
                 setSelectedIdx(newIdx)
               }
