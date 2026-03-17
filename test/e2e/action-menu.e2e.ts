@@ -91,6 +91,31 @@ test('"Go up" actions derived from breadcrumbs', async ({ page }) => {
   await expect(page).toHaveURL('/projects')
 })
 
+test('Enter navigates to selected item', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances')
+  await openActionMenu(page)
+
+  // search for a specific instance and hit Enter
+  await page.keyboard.type('db1')
+  await expect(getSelectedItem(page)).toHaveText('db1')
+  await page.keyboard.press('Enter')
+  await expect(page).toHaveURL('/projects/mock-project/instances/db1/storage')
+})
+
+test('items from page and layout sources coexist', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances')
+  await openActionMenu(page)
+
+  // page-level actions (from InstancesPage)
+  await expect(page.getByRole('option', { name: 'New instance' })).toBeVisible()
+  // page-level "Go to" group (from InstancesPage)
+  await expect(page.getByText('Go to instance')).toBeVisible()
+  await expect(page.getByRole('option', { name: 'db1' })).toBeVisible()
+  // layout-level group (from ProjectLayoutBase)
+  await expect(page.getByText("Project 'mock-project'")).toBeVisible()
+  await expect(page.getByRole('option', { name: 'Disks' })).toBeVisible()
+})
+
 test('dismiss with Escape', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
   await openActionMenu(page)
