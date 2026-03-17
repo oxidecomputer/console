@@ -65,6 +65,8 @@ export function ActionMenu(props: ActionMenuProps) {
     R.sortBy(([key]) => key !== 'Actions')
   )
   const itemsInOrder = allGroups.flatMap(([_, items]) => items)
+  // Map each item to its global index for O(1) lookup during render
+  const itemIndex = new Map(itemsInOrder.map((item, i) => [item, i]))
 
   const [selectedIdx, setSelectedIdx] = useState(0)
   const selectedItem = itemsInOrder.at(selectedIdx)
@@ -178,7 +180,7 @@ export function ActionMenu(props: ActionMenuProps) {
                           {label}
                         </h3>
                         {groupItems.map((item) => {
-                          const idx = itemsInOrder.indexOf(item)
+                          const idx = itemIndex.get(item)!
                           const isSelected = idx === selectedIdx
                           const { action } = item
                           return (
