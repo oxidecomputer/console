@@ -5,9 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
-import { Outlet, type LoaderFunctionArgs } from 'react-router'
+import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
   api,
@@ -26,6 +27,7 @@ import { HL } from '~/components/HL'
 import { DiskStateBadge, DiskTypeBadge, ReadOnlyBadge } from '~/components/StateBadge'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
@@ -37,6 +39,7 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
@@ -186,6 +189,27 @@ export default function DisksPage() {
     emptyState: <EmptyState />,
   })
 
+  const navigate = useNavigate()
+  const { data: allDisks } = useQuery(
+    q(api.diskList, { query: { project, limit: ALL_ISH } })
+  )
+  useQuickActions(
+    useMemo(
+      () => [
+        {
+          value: 'New disk',
+          onSelect: () => navigate(pb.disksNew({ project })),
+        },
+        ...(allDisks?.items || []).map((d) => ({
+          value: d.name,
+          onSelect: () => navigate(pb.disk({ project, disk: d.name })),
+          navGroup: 'Go to disk',
+        })),
+      ],
+      [navigate, project, allDisks]
+    )
+  )
+
   return (
     <>
       <PageHeader>
@@ -198,7 +222,7 @@ export default function DisksPage() {
         />
       </PageHeader>
       <TableActions>
-        <CreateLink to={pb.disksNew({ project })}>New Disk</CreateLink>
+        <CreateLink to={pb.disksNew({ project })}>New disk</CreateLink>
       </TableActions>
       {table}
       <Outlet />

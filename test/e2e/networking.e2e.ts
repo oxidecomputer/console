@@ -31,7 +31,7 @@ test('Create and edit VPC', async ({ page }) => {
   await expect(table.getByRole('row')).toHaveCount(2) // header plus row
 
   // New VPC form
-  await page.getByRole('link', { name: 'New Vpc' }).click()
+  await page.getByRole('link', { name: 'New VPC' }).click()
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('another-vpc')
   await page.getByRole('textbox', { name: 'DNS name' }).fill('another-vpc')
   await page.getByRole('button', { name: 'Create VPC' }).click()

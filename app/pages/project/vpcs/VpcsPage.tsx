@@ -29,6 +29,7 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
@@ -128,23 +129,27 @@ export default function VpcsPage() {
     [project, makeActions]
   )
 
-  const { table, query } = useQueryTable({
+  const { table } = useQueryTable({
     query: vpcList(project),
     columns,
     emptyState: <EmptyState />,
   })
 
-  const { data: vpcs } = query
-
+  const { data: allVpcs } = useQuery(q(api.vpcList, { query: { project, limit: ALL_ISH } }))
   useQuickActions(
     useMemo(
-      () =>
-        (vpcs?.items || []).map((v) => ({
+      () => [
+        {
+          value: 'New VPC',
+          onSelect: () => navigate(pb.vpcsNew({ project })),
+        },
+        ...(allVpcs?.items || []).map((v) => ({
           value: v.name,
           onSelect: () => navigate(pb.vpc({ project, vpc: v.name })),
           navGroup: 'Go to VPC',
         })),
-      [project, vpcs, navigate]
+      ],
+      [project, allVpcs, navigate]
     )
   )
 
@@ -155,7 +160,7 @@ export default function VpcsPage() {
         <VpcDocsPopover />
       </PageHeader>
       <TableActions>
-        <CreateLink to={pb.vpcsNew({ project })}>New Vpc</CreateLink>
+        <CreateLink to={pb.vpcsNew({ project })}>New VPC</CreateLink>
       </TableActions>
       {table}
       <Outlet />

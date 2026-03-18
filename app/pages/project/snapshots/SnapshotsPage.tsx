@@ -7,7 +7,7 @@
  */
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
@@ -27,6 +27,7 @@ import { DocsPopover } from '~/components/DocsPopover'
 import { SnapshotStateBadge } from '~/components/StateBadge'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { DiskDetailSideModal } from '~/pages/project/disks/DiskDetailSideModal'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
@@ -164,6 +165,19 @@ export default function SnapshotsPage() {
     columns,
     emptyState: <EmptyState />,
   })
+
+  useQuickActions(
+    useMemo(
+      () => [
+        {
+          value: 'New snapshot',
+          onSelect: () => navigate(pb.snapshotsNew({ project })),
+        },
+      ],
+      [navigate, project]
+    )
+  )
+
   return (
     <>
       <PageHeader>

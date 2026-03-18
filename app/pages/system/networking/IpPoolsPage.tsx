@@ -31,6 +31,7 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -120,15 +121,17 @@ export default function IpPoolsPage() {
   )
 
   const columns = useColsWithActions(staticColumns, makeActions)
-  const { table, query } = useQueryTable({
+  const { table } = useQueryTable({
     query: ipPoolList,
     columns,
     // turn this back on if we expect to see IPv6 ranges regularly
     // rowHeight: 'large',
     emptyState: <EmptyState />,
   })
-  const { data: pools } = query
 
+  const { data: allPools } = useQuery(
+    q(api.systemIpPoolList, { query: { limit: ALL_ISH } })
+  )
   useQuickActions(
     useMemo(
       () => [
@@ -136,13 +139,13 @@ export default function IpPoolsPage() {
           value: 'New IP pool',
           onSelect: () => navigate(pb.ipPoolsNew()),
         },
-        ...(pools?.items || []).map((p) => ({
+        ...(allPools?.items || []).map((p) => ({
           value: p.name,
           onSelect: () => navigate(pb.ipPool({ pool: p.name })),
           navGroup: 'Go to IP pool',
         })),
       ],
-      [navigate, pools]
+      [navigate, allPools]
     )
   )
 

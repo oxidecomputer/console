@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Outlet } from 'react-router'
+import { Outlet, useNavigate } from 'react-router'
 
 import { api, getListQFn, q, queryClient, useApiMutation, type Image } from '@oxide/api'
 import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
@@ -20,6 +20,7 @@ import { toImageComboboxItem } from '~/components/form/fields/ImageSelectField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { ModalForm } from '~/components/form/ModalForm'
 import { HL } from '~/components/HL'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
@@ -32,6 +33,7 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -93,6 +95,26 @@ export default function SiloImagesPage() {
 
   const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({ query: imageList, columns, emptyState: <EmptyState /> })
+
+  const navigate = useNavigate()
+  const { data: allImages } = useQuery(q(api.imageList, { query: { limit: ALL_ISH } }))
+  useQuickActions(
+    useMemo(
+      () => [
+        {
+          value: 'Promote image',
+          onSelect: () => setShowModal(true),
+        },
+        ...(allImages?.items || []).map((i) => ({
+          value: i.name,
+          onSelect: () => navigate(pb.siloImageEdit({ image: i.name })),
+          navGroup: 'Go to silo image',
+        })),
+      ],
+      [navigate, allImages]
+    )
+  )
+
   return (
     <>
       <PageHeader>

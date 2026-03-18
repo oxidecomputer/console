@@ -5,17 +5,19 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import { Outlet, type LoaderFunctionArgs } from 'react-router'
+import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
-import { api, getListQFn, queryClient, useApiMutation, type Image } from '@oxide/api'
+import { api, getListQFn, q, queryClient, useApiMutation, type Image } from '@oxide/api'
 import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
@@ -28,6 +30,7 @@ import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
@@ -105,6 +108,27 @@ export default function ImagesPage() {
     columns,
     emptyState: <EmptyState />,
   })
+
+  const navigate = useNavigate()
+  const { data: allImages } = useQuery(
+    q(api.imageList, { query: { project, limit: ALL_ISH } })
+  )
+  useQuickActions(
+    useMemo(
+      () => [
+        {
+          value: 'Upload image',
+          onSelect: () => navigate(pb.projectImagesNew({ project })),
+        },
+        ...(allImages?.items || []).map((i) => ({
+          value: i.name,
+          onSelect: () => navigate(pb.projectImageEdit({ project, image: i.name })),
+          navGroup: 'Go to project image',
+        })),
+      ],
+      [project, navigate, allImages]
+    )
+  )
 
   return (
     <>

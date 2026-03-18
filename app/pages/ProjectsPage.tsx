@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet, useNavigate } from 'react-router'
@@ -24,6 +25,7 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -94,11 +96,13 @@ export default function ProjectsPage() {
   )
 
   const columns = useColsWithActions(staticCols, makeActions)
-  const {
-    table,
-    query: { data: projects },
-  } = useQueryTable({ query: projectList, columns, emptyState: <EmptyState /> })
+  const { table } = useQueryTable({
+    query: projectList,
+    columns,
+    emptyState: <EmptyState />,
+  })
 
+  const { data: allProjects } = useQuery(q(api.projectList, { query: { limit: ALL_ISH } }))
   useQuickActions(
     useMemo(
       () => [
@@ -106,13 +110,13 @@ export default function ProjectsPage() {
           value: 'New project',
           onSelect: () => navigate(pb.projectsNew()),
         },
-        ...(projects?.items || []).map((p) => ({
+        ...(allProjects?.items || []).map((p) => ({
           value: p.name,
           onSelect: () => navigate(pb.project({ project: p.name })),
           navGroup: 'Go to project',
         })),
       ],
-      [navigate, projects]
+      [navigate, allProjects]
     )
   )
 
@@ -128,7 +132,7 @@ export default function ProjectsPage() {
         />
       </PageHeader>
       <TableActions>
-        <CreateLink to={pb.projectsNew()}>New Project</CreateLink>
+        <CreateLink to={pb.projectsNew()}>New project</CreateLink>
       </TableActions>
       {table}
       <Outlet />

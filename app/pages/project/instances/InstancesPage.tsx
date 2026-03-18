@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { type UseQueryOptions } from '@tanstack/react-query'
+import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { filesize } from 'filesize'
 import { useMemo, useRef, useState } from 'react'
@@ -14,6 +14,7 @@ import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 import {
   api,
   getListQFn,
+  q,
   queryClient,
   type ApiError,
   type Instance,
@@ -37,6 +38,7 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { setDiff } from '~/util/array'
+import { ALL_ISH } from '~/util/consts'
 import { toLocaleTimeString } from '~/util/date'
 import { pb } from '~/util/path-builder'
 import { pluralize } from '~/util/str'
@@ -191,8 +193,11 @@ export default function InstancesPage() {
     emptyState: <EmptyState />,
   })
 
-  const { data: instances, dataUpdatedAt } = query
+  const { dataUpdatedAt } = query
 
+  const { data: allInstances } = useQuery(
+    q(api.instanceList, { query: { project, limit: ALL_ISH } })
+  )
   const navigate = useNavigate()
   useQuickActions(
     useMemo(
@@ -201,13 +206,13 @@ export default function InstancesPage() {
           value: 'New instance',
           onSelect: () => navigate(pb.instancesNew({ project })),
         },
-        ...(instances?.items || []).map((i) => ({
+        ...(allInstances?.items || []).map((i) => ({
           value: i.name,
           onSelect: () => navigate(pb.instance({ project, instance: i.name })),
           navGroup: 'Go to instance',
         })),
       ],
-      [project, instances, navigate]
+      [project, allInstances, navigate]
     )
   )
 

@@ -54,10 +54,17 @@ const randomStatus = () => {
 
 const sleep = async (ms: number) => new Promise((res) => setTimeout(res, ms))
 
-async function streamString(socket: WebSocket, s: string, delayMs = 50) {
-  for (const c of s) {
-    socket.send(c)
-    await sleep(delayMs)
+/** Stream boot log line-by-line with realistic timing */
+async function streamBootLog(socket: WebSocket, text: string) {
+  for (const line of text.split('\n')) {
+    socket.send(line + '\r\n')
+    if (line === '' || line.startsWith('Welcome to') || line.includes('login:')) {
+      await sleep(200)
+    } else if (line.startsWith('[  OK  ]') || line.startsWith('         Starting')) {
+      await sleep(30)
+    } else {
+      await sleep(15)
+    }
   }
 }
 
@@ -66,6 +73,7 @@ export async function startMockAPI() {
   const { handlers } = await import('../mock-api/msw/handlers')
   const { http, HttpResponse, ws } = await import('msw')
   const { setupWorker } = await import('msw/browser')
+  const serialConsoleText = (await import('../mock-api/serial-console.txt?raw')).default
 
   // defined in here because it depends on the dynamic import
   const interceptAll = http.all('/v1/*', async () => {
@@ -102,7 +110,7 @@ export async function startMockAPI() {
         client.send(event.data.toString() === '13' ? '\r\n' : event.data)
       })
       await sleep(1000) // make sure everything is ready first (especially a problem in CI)
-      await streamString(client.socket, 'Wake up Neo...')
+      await streamBootLog(client.socket, serialConsoleText)
     })
   ).start({
     quiet: true, // don't log successfully handled requests
