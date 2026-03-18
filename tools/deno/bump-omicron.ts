@@ -140,53 +140,6 @@ async function makeOmicronPR(
   await $`git branch -D ${branchName}`.cwd(OMICRON_DIR)
 }
 
-// wrapped in a function so we can do early returns rather than early
-// Deno.exits, which mess up the worktree cleanup
-async function run(commitIsh: string) {
-  // Ensure local main matches the remote so we don't bump to a stale commit
-  if (commitIsh === 'main') {
-    const localMain = await $`git rev-parse main`.text()
-    const remoteMain = await $`git ls-remote origin main`.text()
-    const remoteMainSha = remoteMain.split('\t')[0]
-    if (localMain !== remoteMainSha) {
-      throw new Error('Local main does not match remote. Fetch main and try again.')
-    }
-  }
-
-  const oldConsoleCommit = await getOldCommit()
-  const newConsoleCommit = await $`git rev-parse ${commitIsh}`.text()
-
-  if (oldConsoleCommit === newConsoleCommit) {
-    console.info(`Nothing to update: Omicron already has ${newConsoleCommit} pinned`)
-    return
-  }
-
-  const commitRange = `${oldConsoleCommit.slice(0, 8)}...${newConsoleCommit.slice(0, 8)}`
-  const commits = await $`git log --graph --oneline ${commitRange}`.text()
-  const changesLink = `https://github.com/oxidecomputer/console/compare/${commitRange}`
-
-  console.info(`\n${changesLink}\n\n${commits}\n`)
-
-  const message = (await Input.prompt({ message: 'Description? (enter to skip)' })).trim()
-  const prTitle = 'Bump web console' + (message ? ` (${message})` : '')
-  console.info(`\nPR title: ${prTitle}\n`)
-
-  const go = await Confirm.prompt({ message: 'Make Omicron PR?' })
-  if (!go) return
-
-  if (!$.commandExistsSync('gh')) throw new Error(GH_MISSING)
-
-  const consoleDir = Deno.cwd() // save it so we can change back
-
-  await makeOmicronPR(newConsoleCommit, prTitle, changesLink, commits)
-
-  // bump omicron tag in console to current commit
-  Deno.chdir(consoleDir)
-  console.info('Bumping omicron tag in console')
-  await $`git tag -f -a omicron -m 'pinned commit on omicron main' ${commitIsh}`
-  await $`git push -f origin tag omicron`
-}
-
 if (!existsSync(OMICRON_DIR)) {
   throw new Error(`Omicron repo not found at ${OMICRON_DIR}`)
 }
@@ -202,8 +155,49 @@ Requirements:
   - GitHub CLI installed
   - Omicron is a sibling dir to console`
   )
-  .arguments('[commit-ish:string]')
-  .action(async (_options, commitIsh?: string) => {
-    await run(commitIsh ?? 'main')
+  .argument('[commit:string]', 'Console commit (default: main)', { default: 'main' })
+  .action(async (_options, commitIsh) => {
+    // Ensure local main matches the remote so we don't bump to a stale commit
+    if (commitIsh === 'main') {
+      const localMain = await $`git rev-parse main`.text()
+      const remoteMain = await $`git ls-remote origin main`.text()
+      const remoteMainSha = remoteMain.split('\t')[0]
+      if (localMain !== remoteMainSha) {
+        throw new Error('Local main does not match remote. Fetch main and try again.')
+      }
+    }
+
+    const oldConsoleCommit = await getOldCommit()
+    const newConsoleCommit = await $`git rev-parse ${commitIsh}`.text()
+
+    if (oldConsoleCommit === newConsoleCommit) {
+      console.info(`Nothing to update: Omicron already has ${newConsoleCommit} pinned`)
+      return
+    }
+
+    const commitRange = `${oldConsoleCommit.slice(0, 8)}...${newConsoleCommit.slice(0, 8)}`
+    const commits = await $`git log --graph --oneline ${commitRange}`.text()
+    const changesLink = `https://github.com/oxidecomputer/console/compare/${commitRange}`
+
+    console.info(`\n${changesLink}\n\n${commits}\n`)
+
+    const message = (await Input.prompt({ message: 'Description? (enter to skip)' })).trim()
+    const prTitle = 'Bump web console' + (message ? ` (${message})` : '')
+    console.info(`\nPR title: ${prTitle}\n`)
+
+    const go = await Confirm.prompt({ message: 'Make Omicron PR?' })
+    if (!go) return
+
+    if (!$.commandExistsSync('gh')) throw new Error(GH_MISSING)
+
+    const consoleDir = Deno.cwd() // save it so we can change back
+
+    await makeOmicronPR(newConsoleCommit, prTitle, changesLink, commits)
+
+    // bump omicron tag in console to current commit
+    Deno.chdir(consoleDir)
+    console.info('Bumping omicron tag in console')
+    await $`git tag -f -a omicron -m 'pinned commit on omicron main' ${commitIsh}`
+    await $`git push -f origin tag omicron`
   })
   .parse(Deno.args)
