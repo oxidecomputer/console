@@ -115,17 +115,17 @@ export type AddressLotKind =
  * Represents an address lot object, containing the id of the lot that can be used in other API calls.
  */
 export type AddressLot = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** Desired use of `AddressLot` */
   kind: AddressLotKind
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -226,18 +226,18 @@ This enables a "best-effort" attempt to satisfy the affinity policy. */
  * View of an Affinity Group
  */
 export type AffinityGroup = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
   failureDomain: FailureDomain
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   policy: AffinityPolicy
   projectId: string
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -524,19 +524,19 @@ export type AlertSubscription = string
  * The configuration for an alert receiver.
  */
 export type AlertReceiver = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** Configuration specific to the kind of alert receiver that this is. */
   kind: AlertReceiverKind
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** The list of alert classes to which this receiver is subscribed. */
   subscriptions: AlertSubscription[]
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -594,18 +594,18 @@ export type AllowListUpdate = {
  * View of an Anti-Affinity Group
  */
 export type AntiAffinityGroup = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
   failureDomain: FailureDomain
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   policy: AffinityPolicy
   projectId: string
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -826,15 +826,15 @@ export type BfdStatus = {
  * Represents a BGP announce set by id. The id can be used with other API calls to view and manage the announce set.
  */
 export type BgpAnnounceSet = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -878,17 +878,17 @@ export type MaxPathConfig = number
 export type BgpConfig = {
   /** The autonomous system number of this BGP configuration. */
   asn: number
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** Maximum number of paths to use when multiple "best paths" exist */
   maxPaths: MaxPathConfig
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
   /** Optional virtual routing and forwarding identifier for this BGP configuration. */
   vrf?: string | null
@@ -1290,17 +1290,17 @@ export type ServiceUsingCertificate = 'external_api'
 export type Certificate = {
   /** PEM-formatted string containing public certificate chain */
   cert: string
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** The service using this certificate */
   service: ServiceUsingCertificate
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -1881,15 +1881,15 @@ export type DiskState = /** Disk is being initialized */
  */
 export type Disk = {
   blockSize: ByteCount
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
   devicePath: string
   diskType: DiskType
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** ID of image from which disk was created, if any */
   imageId?: string | null
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   projectId: string
   /** Whether or not this disk is read-only. */
@@ -1898,9 +1898,9 @@ export type Disk = {
   /** ID of snapshot from which disk was created, if any */
   snapshotId?: string | null
   state: DiskState
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -2027,9 +2027,9 @@ SNAT addresses are ephemeral addresses used only for outbound connectivity. */
 | { ip: string; ipPoolId: string; kind: 'ephemeral' }
 /** A Floating IP is a well-known IP address which can be attached and detached from instances. */
 | {
-    /** human-readable free-form text about a resource */
+    /** Human-readable free-form text about a resource */
     description: string
-    /** unique, immutable, system-controlled identifier for each resource */
+    /** Unique, immutable, system-controlled identifier for each resource */
     id: string
     /** The ID of the instance that this Floating IP is attached to, if it is presently in use. */
     instanceId?: string | null
@@ -2038,13 +2038,13 @@ SNAT addresses are ephemeral addresses used only for outbound connectivity. */
     /** The ID of the IP pool this resource belongs to. */
     ipPoolId: string
     kind: 'floating'
-    /** unique, mutable, user-controlled identifier for each resource */
+    /** Unique, mutable, user-controlled identifier for each resource */
     name: Name
     /** The project this resource exists within. */
     projectId: string
-    /** timestamp when this resource was created */
+    /** Timestamp when this resource was created */
     timeCreated: Date
-    /** timestamp when this resource was last modified */
+    /** Timestamp when this resource was last modified */
     timeModified: Date
   }
 
@@ -2077,13 +2077,13 @@ export type ExternalIpResultsPage = {
  * An external subnet allocated from a subnet pool
  */
 export type ExternalSubnet = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** The instance this subnet is attached to, if any */
   instanceId?: string | null
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** The project this subnet belongs to */
   projectId: string
@@ -2093,9 +2093,9 @@ export type ExternalSubnet = {
   subnetPoolId: string
   /** The subnet pool member this subnet corresponds to */
   subnetPoolMemberId: string
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -2241,9 +2241,9 @@ export type FleetRolePolicy = {
  * A Floating IP is a well-known IP address which can be attached and detached from instances.
  */
 export type FloatingIp = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** The ID of the instance that this Floating IP is attached to, if it is presently in use. */
   instanceId?: string | null
@@ -2251,13 +2251,13 @@ export type FloatingIp = {
   ip: string
   /** The ID of the IP pool this resource belongs to. */
   ipPoolId: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** The project this resource exists within. */
   projectId: string
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -2346,17 +2346,17 @@ export type IdentityProviderType = 'saml'
  * View of an Identity Provider
  */
 export type IdentityProvider = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** Identity provider type */
   providerType: IdentityProviderType
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -2382,13 +2382,13 @@ export type IdpMetadataSource =
 export type Image = {
   /** Size of blocks in bytes */
   blockSize: ByteCount
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
   /** Hash of the image contents, if applicable */
   digest?: Digest | null
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** The family of the operating system like Debian, Ubuntu, etc. */
   os: string
@@ -2396,9 +2396,9 @@ export type Image = {
   projectId?: string | null
   /** Total size in bytes */
   size: ByteCount
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
   /** Version of the operating system */
   version: string
@@ -2486,32 +2486,32 @@ If this is not present, then either the instance has never been automatically re
 
 This policy determines whether the instance should be automatically restarted by the control plane on failure. If this is `null`, the control plane will use the default policy when determining whether or not to automatically restart this instance, which may or may not allow it to be restarted. The value of the `auto_restart_enabled` field indicates whether the instance will be auto-restarted, based on its current policy or the default if it has no configured policy. */
   autoRestartPolicy?: InstanceAutoRestartPolicy | null
-  /** the ID of the disk used to boot this Instance, if a specific one is assigned. */
+  /** The ID of the disk used to boot this instance, if a specific one is assigned */
   bootDiskId?: string | null
   /** The CPU platform for this instance. If this is `null`, the instance requires no particular CPU platform. */
   cpuPlatform?: InstanceCpuPlatform | null
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** RFC1035-compliant hostname for the Instance. */
+  /** RFC1035-compliant hostname for the instance */
   hostname: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** memory allocated for this Instance */
+  /** Memory allocated for this instance */
   memory: ByteCount
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** number of CPUs allocated for this Instance */
+  /** Number of CPUs allocated for this instance */
   ncpus: InstanceCpuCount
-  /** id for the project containing this Instance */
+  /** ID for the project containing this instance */
   projectId: string
   runState: InstanceState
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
   /** The timestamp of the most recent time this instance was automatically restarted by the control plane.
 
 If this is not present, then this instance has not been automatically restarted. */
   timeLastAutoRestarted?: Date | null
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
   timeRunStateUpdated: Date
 }
@@ -2752,9 +2752,9 @@ export type MacAddr = string
  * An `InstanceNetworkInterface` represents a virtual network interface device attached to an instance.
  */
 export type InstanceNetworkInterface = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** The Instance to which the interface belongs. */
   instanceId: string
@@ -2762,15 +2762,15 @@ export type InstanceNetworkInterface = {
   ipStack: PrivateIpStack
   /** The MAC address assigned to this interface. */
   mac: MacAddr
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** True if this interface is the primary for the instance to which it's attached. */
   primary: boolean
   /** The subnet to which the interface belongs. */
   subnetId: string
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
   /** The VPC to which the interface belongs. */
   vpcId: string
@@ -2865,15 +2865,15 @@ export type InterfaceNum =
  * An internet gateway provides a path between VPC networks and external networks.
  */
 export type InternetGateway = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
   /** The VPC to which the gateway belongs. */
   vpcId: string
@@ -2890,17 +2890,17 @@ export type InternetGatewayCreate = { description: string; name: Name }
 export type InternetGatewayIpAddress = {
   /** The associated IP address */
   address: string
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** The associated internet gateway */
   internetGatewayId: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -2927,19 +2927,19 @@ export type InternetGatewayIpAddressResultsPage = {
  * An IP pool that is attached to an internet gateway
  */
 export type InternetGatewayIpPool = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** The associated internet gateway. */
   internetGatewayId: string
   /** The associated IP pool. */
   ipPoolId: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -2987,19 +2987,19 @@ All ranges in a multicast pool must be either ASM or SSM (not mixed). */
  * A collection of IP ranges. If a pool is linked to a silo, IP addresses from the pool can be allocated within that silo.
  */
 export type IpPool = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** The IP version for the pool. */
   ipVersion: IpVersion
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** Type of IP pool (unicast or multicast). */
   poolType: IpPoolType
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -3364,9 +3364,9 @@ export type MetricType = /** The value represents an instantaneous measurement i
  * View of a Multicast Group
  */
 export type MulticastGroup = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** The ID of the IP pool this resource belongs to. */
   ipPoolId: string
@@ -3374,7 +3374,7 @@ export type MulticastGroup = {
   multicastIp: string
   /** Multicast VLAN (MVLAN) for egress multicast traffic to upstream networks. None means no VLAN tagging on egress. */
   mvlan?: number | null
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** Union of all member source IP addresses (computed, read-only).
 
@@ -3382,9 +3382,9 @@ This field shows the combined source IPs across all group members. Individual me
   sourceIps: string[]
   /** Current state of the multicast group. */
   state: string
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -3392,9 +3392,9 @@ This field shows the combined source IPs across all group members. Individual me
  * View of a Multicast Group Member (instance belonging to a multicast group)
  */
 export type MulticastGroupMember = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** The ID of the instance that is a member of this group. */
   instanceId: string
@@ -3402,7 +3402,7 @@ export type MulticastGroupMember = {
   multicastGroupId: string
   /** The multicast IP address of the group this member belongs to. */
   multicastIp: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** Source IP addresses for this member's multicast subscription.
 
@@ -3410,9 +3410,9 @@ export type MulticastGroupMember = {
   sourceIps: string[]
   /** Current state of the multicast group membership. */
   state: string
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -3606,7 +3606,7 @@ This is a terminal state: once a particular disk ID is decommissioned, it will n
  */
 export type PhysicalDisk = {
   formFactor: PhysicalDiskKind
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   model: string
   /** The operator-defined policy for a physical disk. */
@@ -3616,9 +3616,9 @@ export type PhysicalDisk = {
   sledId?: string | null
   /** The current state Nexus believes the disk to be in. */
   state: PhysicalDiskState
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
   vendor: string
 }
@@ -3644,16 +3644,16 @@ export type Ping = {
  * Identity-related metadata that's included in nearly all public API objects
  */
 export type Probe = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   sled: string
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -3699,15 +3699,15 @@ export type ProbeInfoResultsPage = {
  * View of a Project
  */
 export type Project = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -3758,11 +3758,11 @@ export type ProjectUpdate = { description?: string | null; name?: Name | null }
  * View of a Rack
  */
 export type Rack = {
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -3887,21 +3887,21 @@ export type RouterRouteKind =
  * A route defines a rule that governs where traffic should be sent based on its destination.
  */
 export type RouterRoute = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
   /** Selects which traffic this routing rule will apply to */
   destination: RouteDestination
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** Describes the kind of router. Set at creation. `read-only` */
   kind: RouterRouteKind
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** The location that matched packets should be forwarded to */
   target: RouteTarget
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
   /** The ID of the VPC Router to which the route belongs */
   vpcRouterId: string
@@ -3947,15 +3947,15 @@ export type RouterRouteUpdate = {
 export type SamlIdentityProvider = {
   /** Service provider endpoint where the response will be sent */
   acsUrl: string
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
   /** If set, attributes with this name will be considered to denote a user's group membership, where the values will be the group names. */
   groupAttributeName?: string | null
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** IdP's entity id */
   idpEntityId: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** Optional request signing public certificate (base64 encoded der file) */
   publicCert?: string | null
@@ -3965,9 +3965,9 @@ export type SamlIdentityProvider = {
   spClientId: string
   /** Customer's technical contact for saml configuration */
   technicalContactEmail: string
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -4048,11 +4048,11 @@ export type SiloIdentityMode =
 export type Silo = {
   /** Optionally, silos can have a group name that is automatically granted the silo admin role. */
   adminGroupName?: string | null
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
   /** A silo where discoverable is false can be retrieved only by its id - it will not be part of the "list all silos" output. */
   discoverable: boolean
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** How users and groups are managed in this Silo */
   identityMode: SiloIdentityMode
@@ -4060,11 +4060,11 @@ export type Silo = {
 
 The default is that no Fleet roles are conferred by any Silo roles unless there's a corresponding entry in this map. */
   mappedFleetRoles: Record<string, FleetRole[]>
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -4123,9 +4123,9 @@ The default is that no Fleet roles are conferred by any Silo roles unless there'
  * An IP pool in the context of a silo
  */
 export type SiloIpPool = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** The IP version for the pool. */
   ipVersion: IpVersion
@@ -4133,13 +4133,13 @@ export type SiloIpPool = {
 
 A silo can have at most one default pool per combination of pool type (unicast or multicast) and IP version (IPv4 or IPv6), allowing up to 4 default pools total. */
   isDefault: boolean
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** Type of IP pool (unicast or multicast). */
   poolType: IpPoolType
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -4225,9 +4225,9 @@ export type SiloRolePolicy = {
  * A subnet pool in the context of a silo
  */
 export type SiloSubnetPool = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** The IP version for the pool. */
   ipVersion: IpVersion
@@ -4235,11 +4235,11 @@ export type SiloSubnetPool = {
 
 A silo can have at most one default pool per IP version (IPv4 or IPv6), allowing up to 2 default pools total. */
   isDefault: boolean
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -4333,7 +4333,7 @@ This is a terminal state: once a particular sled ID is decommissioned, it will n
  */
 export type Sled = {
   baseboard: Baseboard
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** The operator-defined policy of a sled. */
   policy: SledPolicy
@@ -4341,9 +4341,9 @@ export type Sled = {
   rackId: string
   /** The current state of the sled. */
   state: SledState
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
   /** The number of hardware threads which can execute on this sled */
   usableHardwareThreads: number
@@ -4356,7 +4356,7 @@ export type Sled = {
  */
 export type SledInstance = {
   activeSledId: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   memory: number
   migrationId?: string | null
@@ -4365,9 +4365,9 @@ export type SledInstance = {
   projectName: Name
   siloName: Name
   state: InstanceState
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -4415,19 +4415,19 @@ export type SnapshotState = 'creating' | 'ready' | 'faulted' | 'destroyed'
  * View of a Snapshot
  */
 export type Snapshot = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
   diskId: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   projectId: string
   size: ByteCount
   state: SnapshotState
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -4455,19 +4455,19 @@ export type SnapshotResultsPage = {
  * View of an SSH Key
  */
 export type SshKey = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** SSH public key, e.g., `"ssh-ed25519 AAAAC3NzaC..."` */
   publicKey: string
   /** The user to whom this key belongs */
   siloUserId: string
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -4495,17 +4495,17 @@ export type SshKeyResultsPage = {
  * A pool of subnets for external subnet allocation
  */
 export type SubnetPool = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** The IP version for this pool */
   ipVersion: IpVersion
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -4687,13 +4687,13 @@ export type SupportBundleUpdate = {
  */
 export type Switch = {
   baseboard: Baseboard
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** The rack to which this Switch is currently attached */
   rackId: string
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -4937,25 +4937,25 @@ export type SwitchPortSettings = {
   addresses: SwitchPortAddressView[]
   /** BGP peer settings. */
   bgpPeers: BgpPeer[]
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
   /** Switch port settings included from other switch port settings groups. */
   groups: SwitchPortSettingsGroups[]
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** Layer 3 interface settings. */
   interfaces: SwitchInterfaceConfig[]
   /** Layer 2 link settings. */
   links: SwitchPortLinkConfig[]
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** Layer 1 physical port settings. */
   port: SwitchPortConfig
   /** IP route settings. */
   routes: SwitchPortRouteConfig[]
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
   /** Vlan interface settings. */
   vlanInterfaces: SwitchVlanInterfaceConfig[]
@@ -4985,15 +4985,15 @@ export type SwitchPortSettingsCreate = {
  * A switch port settings identity whose id may be used to view additional details.
  */
 export type SwitchPortSettingsIdentity = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -5212,15 +5212,15 @@ export type User = {
  * Built-in users are identities internal to the system, used when the control plane performs actions autonomously
  */
 export type UserBuiltin = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -5290,23 +5290,23 @@ Note that CPU and memory resources associated with stopped instances are not cou
  * View of a VPC
  */
 export type Vpc = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
   /** The name used for the VPC in DNS. */
   dnsName: Name
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** The unique local IPv6 address range for subnets in this VPC */
   ipv6Prefix: Ipv6Net
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** ID for the project containing this VPC */
   projectId: string
   /** ID for the system router where subnet default routes are registered */
   systemRouterId: string
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -5386,15 +5386,15 @@ export type VpcFirewallRuleTarget = /** The rule applies to all instances in the
 export type VpcFirewallRule = {
   /** Whether traffic matching the rule should be allowed or dropped */
   action: VpcFirewallRuleAction
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
   /** Whether this rule is for incoming or outgoing traffic */
   direction: VpcFirewallRuleDirection
   /** Reductions on the scope of the rule */
   filters: VpcFirewallRuleFilter
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** The relative priority of this rule */
   priority: number
@@ -5402,9 +5402,9 @@ export type VpcFirewallRule = {
   status: VpcFirewallRuleStatus
   /** Determine the set of instances that the rule applies to */
   targets: VpcFirewallRuleTarget[]
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
   /** The VPC to which this rule belongs */
   vpcId: string
@@ -5458,16 +5458,16 @@ export type VpcRouterKind = 'system' | 'custom'
  * A VPC router defines a series of rules that indicate where traffic should be sent depending on its destination.
  */
 export type VpcRouter = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   kind: VpcRouterKind
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
   /** The VPC to which the router belongs. */
   vpcId: string
@@ -5499,19 +5499,19 @@ export type VpcRouterUpdate = { description?: string | null; name?: Name | null 
 export type VpcSubnet = {
   /** ID for an attached custom router. */
   customRouterId?: string | null
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** The IPv4 subnet CIDR block. */
   ipv4Block: Ipv4Net
   /** The IPv6 subnet CIDR block. */
   ipv6Block: Ipv6Net
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
   /** The VPC to which the subnet belongs. */
   vpcId: string
@@ -5586,21 +5586,21 @@ If this list is empty or is not included in the request body, the webhook will n
  * The configuration for a webhook alert receiver.
  */
 export type WebhookReceiver = {
-  /** human-readable free-form text about a resource */
+  /** Human-readable free-form text about a resource */
   description: string
   /** The URL that webhook notification requests are sent to. */
   endpoint: string
-  /** unique, immutable, system-controlled identifier for each resource */
+  /** Unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** unique, mutable, user-controlled identifier for each resource */
+  /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** A list containing the IDs of the secret keys used to sign payloads sent to this receiver. */
   secrets: WebhookSecret[]
   /** The list of alert classes to which this receiver is subscribed. */
   subscriptions: AlertSubscription[]
-  /** timestamp when this resource was created */
+  /** Timestamp when this resource was created */
   timeCreated: Date
-  /** timestamp when this resource was last modified */
+  /** Timestamp when this resource was last modified */
   timeModified: Date
 }
 
@@ -5627,23 +5627,23 @@ export type WebhookSecrets = { secrets: WebhookSecret[] }
 /**
  * Supported set of sort modes for scanning by name or id
  */
-export type NameOrIdSortMode = /** sort in increasing order of "name" */
+export type NameOrIdSortMode = /** Sort in increasing order of "name" */
 | 'name_ascending'
 
-/** sort in decreasing order of "name" */
+/** Sort in decreasing order of "name" */
 | 'name_descending'
 
-/** sort in increasing order of "id" */
+/** Sort in increasing order of "id" */
 | 'id_ascending'
 
 /**
  * Supported set of sort modes for scanning by timestamp and ID
  */
 export type TimeAndIdSortMode =
-  /** sort in increasing order of timestamp and ID, i.e., earliest first */
+  /** Sort in increasing order of timestamp and ID, i.e., earliest first */
   | 'time_and_id_ascending'
 
-  /** sort in increasing order of timestamp and ID, i.e., most recent first */
+  /** Sort in increasing order of timestamp and ID, i.e., most recent first */
   | 'time_and_id_descending'
 
 /**
@@ -7477,7 +7477,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2026030601.0.0'
+  apiVersion = '2026031200.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host
@@ -7612,7 +7612,7 @@ export class Api {
       })
     },
     /**
-     * Create a new support bundle
+     * Create support bundle
      */
     supportBundleCreate: (
       { body }: { body: SupportBundleCreate },
@@ -7639,7 +7639,7 @@ export class Api {
       })
     },
     /**
-     * Update a support bundle
+     * Update support bundle
      */
     supportBundleUpdate: (
       { path, body }: { path: SupportBundleUpdatePathParams; body: SupportBundleUpdate },
@@ -7653,7 +7653,7 @@ export class Api {
       })
     },
     /**
-     * Delete an existing support bundle
+     * Delete support bundle
      */
     supportBundleDelete: (
       { path }: { path: SupportBundleDeletePathParams },
@@ -7666,7 +7666,7 @@ export class Api {
       })
     },
     /**
-     * Download the contents of a support bundle
+     * Download support bundle contents
      */
     supportBundleDownload: (
       { path }: { path: SupportBundleDownloadPathParams },
@@ -7679,7 +7679,7 @@ export class Api {
       })
     },
     /**
-     * Download the metadata of a support bundle
+     * Download support bundle metadata
      */
     supportBundleHead: (
       { path }: { path: SupportBundleHeadPathParams },
@@ -7692,7 +7692,7 @@ export class Api {
       })
     },
     /**
-     * Download a file within a support bundle
+     * Download file from support bundle
      */
     supportBundleDownloadFile: (
       { path }: { path: SupportBundleDownloadFilePathParams },
@@ -7705,7 +7705,7 @@ export class Api {
       })
     },
     /**
-     * Download the metadata of a file within the support bundle
+     * Download metadata of file in support bundle
      */
     supportBundleHeadFile: (
       { path }: { path: SupportBundleHeadFilePathParams },
@@ -7718,7 +7718,7 @@ export class Api {
       })
     },
     /**
-     * Download the index of a support bundle
+     * Download support bundle index
      */
     supportBundleIndex: (
       { path }: { path: SupportBundleIndexPathParams },
@@ -7731,7 +7731,7 @@ export class Api {
       })
     },
     /**
-     * Authenticate a user via SAML
+     * Authenticate user via SAML
      */
     loginSaml: ({ path }: { path: LoginSamlPathParams }, params: FetchParams = {}) => {
       return this.request<void>({
@@ -8255,7 +8255,7 @@ export class Api {
       })
     },
     /**
-     * Create new system-wide x.509 certificate
+     * Create system-wide x.509 certificate
      */
     certificateCreate: (
       { body }: { body: CertificateCreate },
@@ -8438,7 +8438,7 @@ export class Api {
       })
     },
     /**
-     * List external subnets in a project
+     * List external subnets
      */
     externalSubnetList: (
       { query = {} }: { query?: ExternalSubnetListQueryParams },
@@ -8452,7 +8452,7 @@ export class Api {
       })
     },
     /**
-     * Create an external subnet
+     * Create external subnet
      */
     externalSubnetCreate: (
       {
@@ -8470,7 +8470,7 @@ export class Api {
       })
     },
     /**
-     * Fetch an external subnet
+     * Fetch external subnet
      */
     externalSubnetView: (
       {
@@ -8487,7 +8487,7 @@ export class Api {
       })
     },
     /**
-     * Update an external subnet
+     * Update external subnet
      */
     externalSubnetUpdate: (
       {
@@ -8510,7 +8510,7 @@ export class Api {
       })
     },
     /**
-     * Delete an external subnet
+     * Delete external subnet
      */
     externalSubnetDelete: (
       {
@@ -8527,7 +8527,7 @@ export class Api {
       })
     },
     /**
-     * Attach an external subnet to an instance
+     * Attach external subnet to instance
      */
     externalSubnetAttach: (
       {
@@ -8550,7 +8550,7 @@ export class Api {
       })
     },
     /**
-     * Detach an external subnet from an instance
+     * Detach external subnet from instance
      */
     externalSubnetDetach: (
       {
@@ -8581,7 +8581,7 @@ export class Api {
       })
     },
     /**
-     * Create a floating IP
+     * Create floating IP
      */
     floatingIpCreate: (
       { query, body }: { query: FloatingIpCreateQueryParams; body: FloatingIpCreate },
@@ -9434,7 +9434,7 @@ export class Api {
       })
     },
     /**
-     * Authenticate a user via username and password
+     * Authenticate user via username and password
      */
     loginLocal: (
       { path, body }: { path: LoginLocalPathParams; body: UsernamePasswordCredentials },
@@ -9973,7 +9973,7 @@ export class Api {
       })
     },
     /**
-     * Fetch the LLDP neighbors seen on a switch port
+     * Fetch LLDP neighbors for switch port
      */
     networkingSwitchPortLldpNeighbors: (
       {
@@ -10017,7 +10017,7 @@ export class Api {
       })
     },
     /**
-     * Retrieve the rack cluster membership status
+     * Fetch rack cluster membership status
      */
     rackMembershipStatus: (
       {
@@ -10167,7 +10167,7 @@ export class Api {
       })
     },
     /**
-     * Fetch the LLDP configuration for a switch port
+     * Fetch LLDP configuration for switch port
      */
     networkingSwitchPortLldpConfigView: (
       {
@@ -10187,7 +10187,7 @@ export class Api {
       })
     },
     /**
-     * Update the LLDP configuration for a switch port
+     * Update LLDP configuration for switch port
      */
     networkingSwitchPortLldpConfigUpdate: (
       {
@@ -10807,7 +10807,7 @@ export class Api {
       })
     },
     /**
-     * Create new BGP configuration
+     * Create BGP configuration
      */
     networkingBgpConfigCreate: (
       { body }: { body: BgpConfigCreate },
@@ -11137,7 +11137,7 @@ export class Api {
       })
     },
     /**
-     * Lists resource quotas for all silos
+     * List resource quotas for all silos
      */
     systemQuotasList: (
       { query = {} }: { query?: SystemQuotasListQueryParams },
@@ -11514,7 +11514,7 @@ export class Api {
       })
     },
     /**
-     * Instructs the system that a system recovery operation ("mupdate") was
+     * Clear system recovery status
      */
     systemUpdateRecoveryFinish: (
       { body }: { body: SetTargetReleaseParams },
