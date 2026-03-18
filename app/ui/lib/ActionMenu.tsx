@@ -9,22 +9,22 @@ import { Dialog as BaseDialog } from '@base-ui/react/dialog'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
 import { useRef, useState } from 'react'
+import { Link, useNavigate } from 'react-router'
+import * as R from 'remeda'
 
 import { Close12Icon } from '@oxide/design-system/icons/react'
 
 import { KEYS } from '~/ui/util/keys'
-import { groupBy } from '~/util/array'
 import { classed } from '~/util/classed'
 
 import { DialogOverlay } from './DialogOverlay'
 import { useSteppedScroll } from './use-stepped-scroll'
 
-export interface QuickActionItem {
+export type QuickActionItem = {
   value: string
-  // strings are paths to navigate() to
-  // onSelect: string | (() => void)
-  onSelect: () => void
-  navGroup?: string
+  navGroup: string
+  /** Path string to navigate to or callback to invoke */
+  action: string | (() => void)
 }
 
 export interface ActionMenuProps {
@@ -40,7 +40,13 @@ const LIST_HEIGHT = 384
 
 const Outline = classed.div`absolute z-10 h-full w-full border border-accent pointer-events-none`
 
+const liBase =
+  'text-sans-md border-secondary box-border block h-full w-full cursor-pointer overflow-visible border select-none'
+const liSelected = 'text-accent bg-accent hover:bg-accent-hover'
+const liDefault = 'text-default bg-raise hover:bg-hover'
+
 export function ActionMenu(props: ActionMenuProps) {
+  const navigate = useNavigate()
   const [input, setInput] = useState('')
   // TODO: filter by both nav group and item value
   const items = matchSorter(props.items, input, {
@@ -49,26 +55,21 @@ export function ActionMenu(props: ActionMenuProps) {
     baseSort: (a, b) => (a.index < b.index ? -1 : 1),
   })
 
-  // items without a navGroup label are considered actions and rendered first
-  const actions = items.filter((i) => !i.navGroup)
-
-  // TODO: repent. this is horrible
-  const groupedItems = groupBy(
-    items.filter((i) => i.navGroup),
-    (i) => i.navGroup!
+  const allGroups = R.pipe(
+    items,
+    R.groupBy((i) => i.navGroup),
+    R.entries(),
+    // "Actions" first so page-level create/add actions are always at the top.
+    // Other sorting by group that we've already done in the calling code is
+    // preserved.
+    R.sortBy(([key]) => key !== 'Actions')
   )
-
-  const allGroups: [string, QuickActionItem[]][] =
-    actions.length > 0
-      ? [['Actions', items.filter((i) => !i.navGroup)], ...groupedItems]
-      : groupedItems
-
-  const itemsInOrder = ([] as QuickActionItem[]).concat(
-    ...allGroups.map(([_, items]) => items)
-  )
+  const itemsInOrder = allGroups.flatMap(([_, items]) => items)
+  // Map each item to its global index for O(1) lookup during render
+  const itemIndex = new Map(itemsInOrder.map((item, i) => [item, i]))
 
   const [selectedIdx, setSelectedIdx] = useState(0)
-  const selectedItem = itemsInOrder[selectedIdx] as QuickActionItem | undefined
+  const selectedItem = itemsInOrder.at(selectedIdx)
 
   const divRef = useRef<HTMLDivElement>(null)
   const ulRef = useRef<HTMLUListElement>(null)
@@ -100,14 +101,20 @@ export function ActionMenu(props: ActionMenuProps) {
               const lastIdx = itemsInOrder.length - 1
               if (e.key === KEYS.enter) {
                 if (selectedItem) {
-                  selectedItem.onSelect()
+                  if (typeof selectedItem.action === 'function') {
+                    selectedItem.action()
+                  } else {
+                    navigate(selectedItem.action)
+                  }
                   e.preventDefault()
                   onDismiss()
                 }
-              } else if (e.key === KEYS.down) {
+              } else if (e.key === KEYS.down || (e.ctrlKey && e.key === 'n')) {
+                e.preventDefault()
                 const newIdx = selectedIdx === lastIdx ? 0 : selectedIdx + 1
                 setSelectedIdx(newIdx)
-              } else if (e.key === KEYS.up) {
+              } else if (e.key === KEYS.up || (e.ctrlKey && e.key === 'p')) {
+                e.preventDefault()
                 const newIdx = selectedIdx === 0 ? lastIdx : selectedIdx - 1
                 setSelectedIdx(newIdx)
               }
@@ -123,6 +130,12 @@ export function ActionMenu(props: ActionMenuProps) {
               )}
             >
               <input
+                // jsx-ally no-autofocus rule contradicts WAI-ARIA guidelines on
+                // modal dialogs
+                // https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/816
+                // https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
+                // oxlint-disable-next-line jsx-a11y/no-autofocus
+                autoFocus
                 ref={inputRef}
                 className={cn(
                   'mousetrap text-sans-xl w-full bg-transparent px-4 caret-gray-100 focus:outline-hidden',
@@ -167,43 +180,65 @@ export function ActionMenu(props: ActionMenuProps) {
                   style={{ maxHeight: LIST_HEIGHT }}
                 >
                   <ul ref={ulRef}>
-                    {allGroups.map(([label, items]) => (
+                    {allGroups.map(([label, groupItems]) => (
                       <div key={label}>
-                        <h3 className="text-mono-sm text-default bg-tertiary sticky top-0 z-20 h-[32px] px-4 py-2">
+                        <h3 className="text-mono-sm text-default bg-tertiary sticky top-0 z-20 h-8 px-4 py-2">
                           {label}
                         </h3>
-                        {items.map((item) => (
-                          <div
-                            key={item.value}
-                            className="relative -mt-px first-of-type:mt-0"
-                          >
-                            {item.value === selectedItem?.value && <Outline />}
-
-                            {/*
-                          TODO: there is probably a more correct way of fixing this reasonable lint error.
-                          Putting a button inside the <li> is not a great solution because it becomes
-                          focusable separate from the item selection
-                        */}
-
-                            {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
-                            <li
-                              role="option"
-                              className={cn(
-                                'text-sans-md border-secondary box-border block h-full w-full cursor-pointer overflow-visible border p-4 select-none',
-                                item.value === selectedItem?.value
-                                  ? 'text-accent bg-accent hover:bg-accent-hover'
-                                  : 'text-default bg-raise hover:bg-hover'
-                              )}
-                              aria-selected={item.value === selectedItem?.value}
-                              onClick={() => {
-                                item.onSelect()
-                                onDismiss()
-                              }}
+                        {groupItems.map((item) => {
+                          const idx = itemIndex.get(item)!
+                          const isSelected = idx === selectedIdx
+                          const { action } = item
+                          return (
+                            <div
+                              key={`${item.navGroup}/${item.value}`}
+                              className="relative -mt-px first-of-type:mt-0"
                             >
-                              {item.value}
-                            </li>
-                          </div>
-                        ))}
+                              {isSelected && <Outline />}
+                              {typeof action === 'string' ? (
+                                <li
+                                  role="option"
+                                  className={cn(
+                                    liBase,
+                                    isSelected ? liSelected : liDefault
+                                  )}
+                                  aria-selected={isSelected}
+                                >
+                                  <Link
+                                    to={action}
+                                    className="block p-4"
+                                    tabIndex={-1}
+                                    onClick={(e) => {
+                                      if (!e.metaKey && !e.ctrlKey && !e.shiftKey) {
+                                        onDismiss()
+                                      }
+                                    }}
+                                  >
+                                    {item.value}
+                                  </Link>
+                                </li>
+                              ) : (
+                                // Keyboard events handled by combobox div above
+                                // eslint-disable-next-line jsx-a11y/click-events-have-key-events
+                                <li
+                                  role="option"
+                                  className={cn(
+                                    liBase,
+                                    'p-4',
+                                    isSelected ? liSelected : liDefault
+                                  )}
+                                  aria-selected={isSelected}
+                                  onClick={() => {
+                                    action()
+                                    onDismiss()
+                                  }}
+                                >
+                                  {item.value}
+                                </li>
+                              )}
+                            </div>
+                          )
+                        })}
                       </div>
                     ))}
                   </ul>

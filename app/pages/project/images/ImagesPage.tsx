@@ -8,7 +8,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
 import { api, getListQFn, q, queryClient, useApiMutation, type Image } from '@oxide/api'
 import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
@@ -109,25 +109,24 @@ export default function ImagesPage() {
     emptyState: <EmptyState />,
   })
 
-  const navigate = useNavigate()
   const { data: allImages } = useQuery(
     q(api.imageList, { query: { project, limit: ALL_ISH } })
   )
+
   useQuickActions(
-    useMemo(
-      () => [
-        {
-          value: 'Upload image',
-          onSelect: () => navigate(pb.projectImagesNew({ project })),
-        },
-        ...(allImages?.items || []).map((i) => ({
-          value: i.name,
-          onSelect: () => navigate(pb.projectImageEdit({ project, image: i.name })),
-          navGroup: 'Go to project image',
-        })),
-      ],
-      [project, navigate, allImages]
-    )
+    () => [
+      {
+        value: 'Upload image',
+        navGroup: 'Actions',
+        action: pb.projectImagesNew({ project }),
+      },
+      ...(allImages?.items || []).map((i) => ({
+        value: i.name,
+        action: pb.projectImageEdit({ project, image: i.name }),
+        navGroup: 'Go to project image',
+      })),
+    ],
+    [project, allImages]
   )
 
   return (

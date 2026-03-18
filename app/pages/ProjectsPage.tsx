@@ -7,7 +7,7 @@
  */
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { Outlet, useNavigate } from 'react-router'
 
 import { api, getListQFn, q, queryClient, useApiMutation, type Project } from '@oxide/api'
@@ -103,21 +103,21 @@ export default function ProjectsPage() {
   })
 
   const { data: allProjects } = useQuery(q(api.projectList, { query: { limit: ALL_ISH } }))
+
   useQuickActions(
-    useMemo(
-      () => [
-        {
-          value: 'New project',
-          onSelect: () => navigate(pb.projectsNew()),
-        },
-        ...(allProjects?.items || []).map((p) => ({
-          value: p.name,
-          onSelect: () => navigate(pb.project({ project: p.name })),
-          navGroup: 'Go to project',
-        })),
-      ],
-      [navigate, allProjects]
-    )
+    () => [
+      {
+        value: 'New project',
+        navGroup: 'Actions',
+        action: pb.projectsNew(),
+      },
+      ...(allProjects?.items || []).map((p) => ({
+        value: p.name,
+        action: pb.project({ project: p.name }),
+        navGroup: 'Go to project',
+      })),
+    ],
+    [allProjects]
   )
 
   return (

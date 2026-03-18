@@ -354,15 +354,14 @@ export default function ProjectAccessPage() {
   })
 
   useQuickActions(
-    useMemo(
-      () => [
-        {
-          value: 'Add user or group',
-          onSelect: () => setAddModalOpen(true),
-        },
-      ],
-      []
-    )
+    () => [
+      {
+        value: 'Add user or group',
+        navGroup: 'Actions',
+        action: () => setAddModalOpen(true),
+      },
+    ],
+    []
   )
 
   return (

@@ -7,8 +7,8 @@
  */
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback, useMemo } from 'react'
-import { Outlet, useNavigate } from 'react-router'
+import { useCallback } from 'react'
+import { Outlet } from 'react-router'
 
 import { api, getListQFn, q, queryClient, useApiMutation, type Silo } from '@oxide/api'
 import { Cloud16Icon, Cloud24Icon } from '@oxide/design-system/icons/react'
@@ -69,8 +69,6 @@ export async function clientLoader() {
 export const handle = makeCrumb('Silos', pb.silos())
 
 export default function SilosPage() {
-  const navigate = useNavigate()
-
   const { mutateAsync: deleteSilo } = useApiMutation(api.siloDelete, {
     onSuccess(_silo, { path }) {
       queryClient.invalidateEndpoint('siloList')
@@ -100,18 +98,17 @@ export default function SilosPage() {
   })
 
   const { data: allSilos } = useQuery(q(api.siloList, { query: { limit: ALL_ISH } }))
+
   useQuickActions(
-    useMemo(
-      () => [
-        { value: 'New silo', onSelect: () => navigate(pb.silosNew()) },
-        ...(allSilos?.items || []).map((o) => ({
-          value: o.name,
-          onSelect: () => navigate(pb.silo({ silo: o.name })),
-          navGroup: 'Go to silo',
-        })),
-      ],
-      [navigate, allSilos]
-    )
+    () => [
+      { value: 'New silo', navGroup: 'Actions', action: pb.silosNew() },
+      ...(allSilos?.items || []).map((o) => ({
+        value: o.name,
+        action: pb.silo({ silo: o.name }),
+        navGroup: 'Go to silo',
+      })),
+    ],
+    [allSilos]
   )
 
   return (

@@ -5,8 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMemo, type ReactElement } from 'react'
-import { useLocation, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import type { ReactElement } from 'react'
+import { useLocation, type LoaderFunctionArgs } from 'react-router'
 
 import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 import {
@@ -54,35 +54,33 @@ export async function projectLayoutLoader({ params }: LoaderFunctionArgs) {
 }
 
 export function ProjectLayoutBase({ overrideContentPane }: ProjectLayoutProps) {
-  const navigate = useNavigate()
   // project will always be there, instance may not
   const projectSelector = useProjectSelector()
   const { data: project } = usePrefetchedQuery(projectView(projectSelector))
 
   const { pathname } = useLocation()
+
   useQuickActions(
-    useMemo(
-      () =>
-        [
-          { value: 'Instances', path: pb.instances(projectSelector) },
-          { value: 'Disks', path: pb.disks(projectSelector) },
-          { value: 'Snapshots', path: pb.snapshots(projectSelector) },
-          { value: 'Images', path: pb.projectImages(projectSelector) },
-          { value: 'VPCs', path: pb.vpcs(projectSelector) },
-          { value: 'Floating IPs', path: pb.floatingIps(projectSelector) },
-          { value: 'Affinity Groups', path: pb.affinity(projectSelector) },
-          { value: 'Project Access', path: pb.projectAccess(projectSelector) },
-          { value: 'Users & Groups', path: pb.projectUsersAndGroups(projectSelector) },
-        ]
-          // filter out the entry for the path we're currently on
-          .filter((i) => i.path !== pathname)
-          .map((i) => ({
-            navGroup: `Project '${project.name}'`,
-            value: i.value,
-            onSelect: () => navigate(i.path),
-          })),
-      [pathname, navigate, project.name, projectSelector]
-    )
+    () =>
+      [
+        { value: 'Instances', path: pb.instances(projectSelector) },
+        { value: 'Disks', path: pb.disks(projectSelector) },
+        { value: 'Snapshots', path: pb.snapshots(projectSelector) },
+        { value: 'Images', path: pb.projectImages(projectSelector) },
+        { value: 'VPCs', path: pb.vpcs(projectSelector) },
+        { value: 'Floating IPs', path: pb.floatingIps(projectSelector) },
+        { value: 'Affinity Groups', path: pb.affinity(projectSelector) },
+        { value: 'Project Access', path: pb.projectAccess(projectSelector) },
+        { value: 'Users & Groups', path: pb.projectUsersAndGroups(projectSelector) },
+      ]
+        // filter out the entry for the path we're currently on
+        .filter((i) => i.path !== pathname)
+        .map((i) => ({
+          navGroup: `Project '${project.name}'`,
+          value: i.value,
+          action: i.path,
+        })),
+    [pathname, project.name, projectSelector]
   )
 
   return (
