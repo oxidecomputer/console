@@ -35,7 +35,7 @@
 @keyframes slide-down {
   0% {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(5px);
   }
   100% {
     opacity: 1;
@@ -45,7 +45,7 @@
 
 .dropdown-menu-content,
 .popover-panel {
-  animation: slide-down 0.2s var(--ease-out-quad);
+  animation: slide-down 0.1s var(--ease-out-quad);
 }
 
 @media (prefers-reduced-motion) {
