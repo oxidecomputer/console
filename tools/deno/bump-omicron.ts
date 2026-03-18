@@ -142,7 +142,7 @@ async function makeOmicronPR(
 
 // wrapped in a function so we can do early returns rather than early
 // Deno.exits, which mess up the worktree cleanup
-async function run(commitIsh: string, dryRun: boolean) {
+async function run(commitIsh: string) {
   // Ensure local main matches the remote so we don't bump to a stale commit
   if (commitIsh === 'main') {
     const localMain = await $`git rev-parse main`.text()
@@ -166,8 +166,6 @@ async function run(commitIsh: string, dryRun: boolean) {
   const changesLink = `https://github.com/oxidecomputer/console/compare/${commitRange}`
 
   console.info(`\n${changesLink}\n\n${commits}\n`)
-
-  if (dryRun) return
 
   const message = (await Input.prompt({ message: 'Description? (enter to skip)' })).trim()
   const prTitle = 'Bump web console' + (message ? ` (${message})` : '')
@@ -204,10 +202,8 @@ Requirements:
   - GitHub CLI installed
   - Omicron is a sibling dir to console`
   )
-  .helpOption('-h, --help', 'Show help')
-  .option('-d, --dry-run', 'Dry run, showing changes without creating PR')
   .arguments('[commit-ish:string]')
-  .action(async (options, commitIsh?: string) => {
-    await run(commitIsh ?? 'main', options.dryRun ?? false)
+  .action(async (_options, commitIsh?: string) => {
+    await run(commitIsh ?? 'main')
   })
   .parse(Deno.args)
