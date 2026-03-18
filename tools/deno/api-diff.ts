@@ -9,7 +9,7 @@
  */
 import { exists } from 'https://deno.land/std@0.208.0/fs/mod.ts'
 import { $ } from 'https://deno.land/x/dax@0.39.1/mod.ts'
-import { Command, ValidationError } from 'jsr:@cliffy/command@1.0.0-rc.8'
+import { Command, ValidationError } from 'jsr:@cliffy/command@1.0.0'
 
 // fzf picker keeps UX quick without requiring people to wire up shell helpers
 async function pickPr(): Promise<number> {

@@ -7,27 +7,11 @@
  *
  * Copyright Oxide Computer Company
  */
-import * as flags from 'https://deno.land/std@0.159.0/flags/mod.ts'
 import * as path from 'https://deno.land/std@0.159.0/path/mod.ts'
 import $ from 'https://deno.land/x/dax@0.39.2/mod.ts'
+import { Command } from 'jsr:@cliffy/command@1.0.0'
+import { Confirm, Input } from 'jsr:@cliffy/prompt@1.0.0'
 import { existsSync } from 'jsr:@std/fs@1.0'
-
-const HELP = `
-Update tools/console_version in ../omicron to the specified console
-commit and create PR in Omicron with that change. We use a git worktree
-to avoid touching your Omicron clone.
-
-Requirements:
-  - GitHub CLI installed
-  - Omicron is a sibling dir to console
-
-Usage:
-  ./tools/deno/bump-omicron.ts [commit-ish=main] [options]
-
-Options:
-  -d, --dry-run        Dry run, showing changes without creating PR
-  -h, --help           Show this help message
-`
 
 const OMICRON_DIR = path.resolve('../omicron')
 const GH_MISSING = 'GitHub CLI not found. Please install it and try again.'
@@ -185,11 +169,11 @@ async function run(commitIsh: string, dryRun: boolean) {
 
   if (dryRun) return
 
-  const message = await $.prompt({ message: 'Description? (enter to skip)', noClear: true })
+  const message = (await Input.prompt({ message: 'Description? (enter to skip)' })).trim()
   const prTitle = 'Bump web console' + (message ? ` (${message})` : '')
   console.info(`\nPR title: ${prTitle}\n`)
 
-  const go = await $.confirm({ message: 'Make Omicron PR?', noClear: true })
+  const go = await Confirm.prompt({ message: 'Make Omicron PR?' })
   if (!go) return
 
   if (!$.commandExistsSync('gh')) throw new Error(GH_MISSING)
@@ -205,21 +189,25 @@ async function run(commitIsh: string, dryRun: boolean) {
   await $`git push -f origin tag omicron`
 }
 
-// script starts here
-
-const args = flags.parse(Deno.args, {
-  alias: { dryRun: ['d', 'dry-run'], h: 'help' },
-  boolean: ['dryRun', 'help'],
-})
-
-if (args.help) {
-  console.info(HELP)
-  Deno.exit()
-}
-
 if (!existsSync(OMICRON_DIR)) {
   throw new Error(`Omicron repo not found at ${OMICRON_DIR}`)
 }
 
-const commitIsh = args._[0]?.toString() || 'main'
-await run(commitIsh, args.dryRun)
+await new Command()
+  .name('bump-omicron')
+  .description(
+    `Update tools/console_version in ../omicron to the specified console
+commit and create PR in Omicron with that change. We use a git worktree
+to avoid touching your Omicron clone.
+
+Requirements:
+  - GitHub CLI installed
+  - Omicron is a sibling dir to console`
+  )
+  .helpOption('-h, --help', 'Show help')
+  .option('-d, --dry-run', 'Dry run, showing changes without creating PR')
+  .arguments('[commit-ish:string]')
+  .action(async (options, commitIsh?: string) => {
+    await run(commitIsh ?? 'main', options.dryRun ?? false)
+  })
+  .parse(Deno.args)
