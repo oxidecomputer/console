@@ -130,6 +130,12 @@ export function ActionMenu(props: ActionMenuProps) {
               )}
             >
               <input
+                // jsx-ally no-autofocus rule contradicts WAI-ARIA guidelines on
+                // modal dialogs
+                // https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/816
+                // https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
+                // oxlint-disable-next-line jsx-a11y/no-autofocus
+                autoFocus
                 ref={inputRef}
                 className={cn(
                   'mousetrap text-sans-xl w-full bg-transparent px-4 caret-gray-100 focus:outline-hidden',
