@@ -27,7 +27,6 @@ Usage:
 Options:
   -d, --dry-run        Dry run, showing changes without creating PR
   -h, --help           Show this help message
-  -m, --message <msg>  Add message to PR title: 'Bump web console (<msg>)'
 `
 
 const OMICRON_DIR = path.resolve('../omicron')
@@ -159,7 +158,7 @@ async function makeOmicronPR(
 
 // wrapped in a function so we can do early returns rather than early
 // Deno.exits, which mess up the worktree cleanup
-async function run(commitIsh: string, dryRun: boolean, messageArg: string | undefined) {
+async function run(commitIsh: string, dryRun: boolean) {
   // Ensure local main matches the remote so we don't bump to a stale commit
   if (commitIsh === 'main') {
     const localMain = await $`git rev-parse main`.text()
@@ -186,9 +185,7 @@ async function run(commitIsh: string, dryRun: boolean, messageArg: string | unde
 
   if (dryRun) return
 
-  const message =
-    messageArg ||
-    (await $.prompt({ message: 'Description? (enter to skip)', noClear: true }))
+  const message = await $.prompt({ message: 'Description? (enter to skip)', noClear: true })
   const prTitle = 'Bump web console' + (message ? ` (${message})` : '')
   console.info(`\nPR title: ${prTitle}\n`)
 
@@ -211,9 +208,8 @@ async function run(commitIsh: string, dryRun: boolean, messageArg: string | unde
 // script starts here
 
 const args = flags.parse(Deno.args, {
-  alias: { dryRun: ['d', 'dry-run'], h: 'help', m: 'message' },
+  alias: { dryRun: ['d', 'dry-run'], h: 'help' },
   boolean: ['dryRun', 'help'],
-  string: ['message'],
 })
 
 if (args.help) {
@@ -226,4 +222,4 @@ if (!existsSync(OMICRON_DIR)) {
 }
 
 const commitIsh = args._[0]?.toString() || 'main'
-await run(commitIsh, args.dryRun, args.message)
+await run(commitIsh, args.dryRun)
