@@ -28,19 +28,13 @@ type Props = {
   user: User
   onDismiss: () => void
   userGroups: Group[]
-  scopedPolicies: Array<{ scope: 'silo' | 'project'; policy: Policy }>
+  policy: Policy
 }
 
-export function UserDetailsSideModal({
-  user,
-  onDismiss,
-  userGroups,
-  scopedPolicies,
-}: Props) {
+export function UserDetailsSideModal({ user, onDismiss, userGroups, policy }: Props) {
   const roleEntries = R.sortBy(
-    userScopedRoleEntries(user.id, userGroups, scopedPolicies),
-    (e) => roleOrder[e.roleName],
-    (e) => (e.scope === 'silo' ? 0 : 1)
+    userScopedRoleEntries(user.id, userGroups, policy),
+    (e) => roleOrder[e.roleName]
   )
 
   return (
@@ -74,12 +68,10 @@ export function UserDetailsSideModal({
                 </Table.Cell>
               </Table.Row>
             ) : (
-              roleEntries.map(({ scope, roleName, source }, i) => (
+              roleEntries.map(({ roleName, source }, i) => (
                 <Table.Row key={i}>
                   <Table.Cell>
-                    <Badge color={roleColor[roleName]}>
-                      {scope}.{roleName}
-                    </Badge>
+                    <Badge color={roleColor[roleName]}>silo.{roleName}</Badge>
                   </Table.Cell>
                   <Table.Cell>
                     {source.type === 'direct' && 'Assigned'}

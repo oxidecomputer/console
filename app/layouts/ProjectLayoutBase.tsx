@@ -17,7 +17,6 @@ import {
   Instances16Icon,
   IpGlobal16Icon,
   Networking16Icon,
-  Person16Icon,
   Snapshots16Icon,
   Storage16Icon,
 } from '@oxide/design-system/icons/react'
@@ -71,7 +70,6 @@ export function ProjectLayoutBase({ overrideContentPane }: ProjectLayoutProps) {
         { value: 'Floating IPs', path: pb.floatingIps(projectSelector) },
         { value: 'Affinity Groups', path: pb.affinity(projectSelector) },
         { value: 'Project Access', path: pb.projectAccess(projectSelector) },
-        { value: 'Users & Groups', path: pb.projectUsersAndGroups(projectSelector) },
       ]
         // filter out the entry for the path we're currently on
         .filter((i) => i.path !== pathname)
@@ -116,9 +114,6 @@ export function ProjectLayoutBase({ overrideContentPane }: ProjectLayoutProps) {
           </NavLinkItem>
           <NavLinkItem to={pb.affinity(projectSelector)}>
             <Affinity16Icon /> Affinity Groups
-          </NavLinkItem>
-          <NavLinkItem to={pb.projectUsersAndGroups(projectSelector)}>
-            <Person16Icon /> Users & Groups
           </NavLinkItem>
           <NavLinkItem to={pb.projectAccess(projectSelector)}>
             <Access16Icon /> Project Access

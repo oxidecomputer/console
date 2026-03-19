@@ -109,7 +109,7 @@ export default function SiloUsersAndGroupsGroupsTab() {
         <GroupMembersSideModal
           group={selectedGroup}
           onDismiss={() => setSelectedGroup(null)}
-          scopedPolicies={[{ scope: 'silo', policy: siloPolicy, sourceLabel: 'Assigned' }]}
+          policy={siloPolicy}
         />
       )}
     </>

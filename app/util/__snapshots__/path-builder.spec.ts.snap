@@ -513,48 +513,6 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/images",
     },
   ],
-  "projectUsersAndGroups (/projects/p/users-and-groups)": [
-    {
-      "label": "Projects",
-      "path": "/projects",
-    },
-    {
-      "label": "p",
-      "path": "/projects/p/instances",
-    },
-    {
-      "label": "Users & Groups",
-      "path": "/projects/p/users-and-groups",
-    },
-  ],
-  "projectUsersAndGroupsGroups (/projects/p/users-and-groups/groups)": [
-    {
-      "label": "Projects",
-      "path": "/projects",
-    },
-    {
-      "label": "p",
-      "path": "/projects/p/instances",
-    },
-    {
-      "label": "Users & Groups",
-      "path": "/projects/p/users-and-groups",
-    },
-  ],
-  "projectUsersAndGroupsUsers (/projects/p/users-and-groups/users)": [
-    {
-      "label": "Projects",
-      "path": "/projects",
-    },
-    {
-      "label": "p",
-      "path": "/projects/p/instances",
-    },
-    {
-      "label": "Users & Groups",
-      "path": "/projects/p/users-and-groups",
-    },
-  ],
   "projects (/projects)": [
     {
       "label": "Projects",

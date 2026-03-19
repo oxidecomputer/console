@@ -82,7 +82,7 @@ export default function SiloUsersAndGroupsUsersTab() {
         header: 'Silo Role',
         cell: ({ row }) => {
           const userGroups = groupsByUserId.get(row.original.id) ?? []
-          const role = userRoleFromPolicies(row.original, userGroups, [siloPolicy])
+          const role = userRoleFromPolicies(row.original, userGroups, siloPolicy)
           if (!role) return <EmptyCell />
           const directRole = siloRoleById.get(row.original.id)
           // groups that have a role at least as strong as the effective role,
@@ -160,7 +160,7 @@ export default function SiloUsersAndGroupsUsersTab() {
         <UserDetailsSideModal
           user={selectedUser}
           onDismiss={() => setSelectedUser(null)}
-          scopedPolicies={[{ scope: 'silo', policy: siloPolicy }]}
+          policy={siloPolicy}
           userGroups={groupsByUserId.get(selectedUser.id) ?? []}
         />
       )}

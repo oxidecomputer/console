@@ -27,11 +27,6 @@ export const pb = {
   projectEdit: (params: PP.Project) => `${projectBase(params)}/edit`,
 
   projectAccess: (params: PP.Project) => `${projectBase(params)}/access`,
-  projectUsersAndGroups: (params: PP.Project) => `${projectBase(params)}/users-and-groups`,
-  projectUsersAndGroupsUsers: (params: PP.Project) =>
-    `${projectBase(params)}/users-and-groups/users`,
-  projectUsersAndGroupsGroups: (params: PP.Project) =>
-    `${projectBase(params)}/users-and-groups/groups`,
   projectImages: (params: PP.Project) => `${projectBase(params)}/images`,
   projectImagesNew: (params: PP.Project) => `${projectBase(params)}/images-new`,
   projectImageEdit: (params: PP.Image) =>

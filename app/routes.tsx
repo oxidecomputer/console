@@ -552,28 +552,6 @@ export const routes = createRoutesFromElements(
             lazy={() => import('./pages/project/access/ProjectAccessPage').then(convert)}
           />
           <Route
-            path="users-and-groups"
-            lazy={() =>
-              import('./pages/project/access/ProjectUsersAndGroupsPage').then(convert)
-            }
-          >
-            <Route index element={<Navigate to="users" replace />} />
-            <Route
-              path="users"
-              lazy={() =>
-                import('./pages/project/access/ProjectUsersAndGroupsUsersTab').then(convert)
-              }
-            />
-            <Route
-              path="groups"
-              lazy={() =>
-                import('./pages/project/access/ProjectUsersAndGroupsGroupsTab').then(
-                  convert
-                )
-              }
-            />
-          </Route>
-          <Route
             lazy={() => import('./pages/project/affinity/AffinityPage').then(convert)}
             handle={{ crumb: 'Affinity Groups' }}
           >

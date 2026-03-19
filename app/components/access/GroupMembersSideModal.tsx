@@ -6,9 +6,8 @@
  * Copyright Oxide Computer Company
  */
 import { useQuery } from '@tanstack/react-query'
-import * as R from 'remeda'
 
-import { api, q, roleOrder, type Group, type Policy, type User } from '@oxide/api'
+import { api, q, type Group, type Policy, type User } from '@oxide/api'
 import { PersonGroup16Icon, PersonGroup24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
@@ -21,30 +20,17 @@ import { Table } from '~/ui/lib/Table'
 import { roleColor } from '~/util/access'
 import { ALL_ISH } from '~/util/consts'
 
-type ScopedGroupPolicy = {
-  scope: 'silo' | 'project'
-  policy: Policy
-  /** Label for the Source column, e.g. "Assigned" or "Inherited from silo" */
-  sourceLabel: string
-}
-
 type Props = {
   group: Group
   onDismiss: () => void
-  scopedPolicies: ScopedGroupPolicy[]
+  policy: Policy
 }
 
-export function GroupMembersSideModal({ group, onDismiss, scopedPolicies }: Props) {
+export function GroupMembersSideModal({ group, onDismiss, policy }: Props) {
   const { data } = useQuery(q(api.userList, { query: { group: group.id, limit: ALL_ISH } }))
   const members = data?.items ?? []
 
-  const roleEntries = R.sortBy(
-    scopedPolicies.flatMap(({ scope, policy, sourceLabel }) => {
-      const assignment = policy.roleAssignments.find((ra) => ra.identityId === group.id)
-      return assignment ? [{ scope, roleName: assignment.roleName, sourceLabel }] : []
-    }),
-    (e) => roleOrder[e.roleName]
-  )
+  const assignment = policy.roleAssignments.find((ra) => ra.identityId === group.id)
 
   return (
     <ReadOnlySideModalForm
@@ -70,23 +56,21 @@ export function GroupMembersSideModal({ group, onDismiss, scopedPolicies }: Prop
             </Table.HeaderRow>
           </Table.Header>
           <Table.Body>
-            {roleEntries.length === 0 ? (
+            {!assignment ? (
               <Table.Row>
                 <Table.Cell colSpan={2} className="text-secondary">
                   No roles assigned
                 </Table.Cell>
               </Table.Row>
             ) : (
-              roleEntries.map(({ scope, roleName, sourceLabel }, i) => (
-                <Table.Row key={i}>
-                  <Table.Cell>
-                    <Badge color={roleColor[roleName]}>
-                      {scope}.{roleName}
-                    </Badge>
-                  </Table.Cell>
-                  <Table.Cell>{sourceLabel}</Table.Cell>
-                </Table.Row>
-              ))
+              <Table.Row>
+                <Table.Cell>
+                  <Badge color={roleColor[assignment.roleName]}>
+                    silo.{assignment.roleName}
+                  </Badge>
+                </Table.Cell>
+                <Table.Cell>Assigned</Table.Cell>
+              </Table.Row>
             )}
           </Table.Body>
         </table>
