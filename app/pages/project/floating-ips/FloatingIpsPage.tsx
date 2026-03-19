@@ -33,7 +33,7 @@ import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
+import { InstanceLink } from '~/table/cells/InstanceLinkCell'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -102,7 +102,7 @@ const staticCols = [
   }),
   colHelper.accessor('instanceId', {
     header: 'Instance',
-    cell: (info) => <InstanceLinkCell instanceId={info.getValue()} tab="networking" />,
+    cell: (info) => <InstanceLink instanceId={info.getValue()} tab="networking" cell />,
   }),
 ]
 

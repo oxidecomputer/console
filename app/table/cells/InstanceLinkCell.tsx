@@ -8,7 +8,6 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router'
-import { match } from 'ts-pattern'
 
 import { api, q } from '@oxide/api'
 
@@ -21,45 +20,28 @@ import { LinkCell } from './LinkCell'
 type InstanceLinkProps = {
   instanceId?: string | null
   tab: 'storage' | 'networking'
+  /** Use table cell styling with hover highlight. */
+  cell?: boolean
 }
 
-type InstanceLinkResult =
-  | { status: 'empty' }
-  | { status: 'loading' }
-  | { status: 'success'; to: string; name: string }
-
-function useInstanceLink({ instanceId, tab }: InstanceLinkProps): InstanceLinkResult {
+export const InstanceLink = ({ instanceId, tab, cell }: InstanceLinkProps) => {
   const { project } = useProjectSelector()
   const { data: instance } = useQuery(
     q(api.instanceView, { path: { instance: instanceId! } }, { enabled: !!instanceId })
   )
 
-  if (!instanceId) return { status: 'empty' }
-  if (!instance) return { status: 'loading' }
+  if (!instanceId) return <EmptyCell />
+  if (!instance) return <SkeletonCell />
 
   const params = { project, instance: instance.name }
   const to =
     tab === 'networking' ? pb.instanceNetworking(params) : pb.instanceStorage(params)
 
-  return { status: 'success', to, name: instance.name }
+  return cell ? (
+    <LinkCell to={to}>{instance.name}</LinkCell>
+  ) : (
+    <Link to={to} className="link-with-underline text-sans-md">
+      {instance.name}
+    </Link>
+  )
 }
-
-/** Plain link for use outside tables (e.g., PropertiesTable in side modals). */
-export const InstanceLink = (props: InstanceLinkProps) =>
-  match(useInstanceLink(props))
-    .with({ status: 'empty' }, () => <EmptyCell />)
-    .with({ status: 'loading' }, () => <SkeletonCell />)
-    .with({ status: 'success' }, ({ to, name }) => (
-      <Link to={to} className="link-with-underline text-sans-md">
-        {name}
-      </Link>
-    ))
-    .exhaustive()
-
-/** Table cell with hover highlight. Use in column definitions. */
-export const InstanceLinkCell = (props: InstanceLinkProps) =>
-  match(useInstanceLink(props))
-    .with({ status: 'empty' }, () => <EmptyCell />)
-    .with({ status: 'loading' }, () => <SkeletonCell />)
-    .with({ status: 'success' }, ({ to, name }) => <LinkCell to={to}>{name}</LinkCell>)
-    .exhaustive()

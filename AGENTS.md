@@ -4,7 +4,7 @@
 - Favor well-supported libraries, avoid premature abstractions, and use routes to capture state.
 - Before starting a feature, skim an existing page or form with similar behavior and mirror the conventions—this codebase is intentionally conventional. Look for similar pages in `app/pages` and forms in `app/forms` to use as templates.
 - `@oxide/api` is at `app/api` and `@oxide/api-mocks` is at `mock-api/index.ts`.
-- The language server often has out of date errors. tsgo is extremely fast, so confirm errors that come from the language server by running the `ts` alias
+- The language server often has out of date errors. tsgo is extremely fast, so confirm errors that come from the language server by running `npm run tsc`
 - Use Node.js 22+, then install deps and start the mock-backed dev server (skip if `npm run dev` is already running in another terminal):
 
   ```sh
