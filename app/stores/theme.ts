@@ -10,9 +10,11 @@ import { useLocation } from 'react-router'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-/** Pages that should always render in dark mode.
- *  Keep in sync with the early-return in public/theme-init.js. */
-const FORCE_DARK_PATTERNS = [/^\/login\//, /^\/device\//]
+/**
+ * Pages that should always render in dark mode. Keep in sync with
+ *  public/theme-init.js.
+ */
+const FORCE_DARK_PATHS = ['/login/', '/device/']
 
 export type Theme = 'dark' | 'light' | 'system'
 
@@ -47,16 +49,13 @@ function getSystemIsLight() {
  */
 export function useApplyTheme() {
   const { theme: pref } = useThemeStore()
-  const { pathname } = useLocation()
   const systemIsLight = useSyncExternalStore(subscribeToMediaQuery, getSystemIsLight)
-  const forceDark = FORCE_DARK_PATTERNS.some((re) => re.test(pathname))
-  const theme = forceDark
-    ? 'dark'
-    : pref === 'system'
-      ? systemIsLight
-        ? 'light'
-        : 'dark'
-      : pref
+  const resolvedPref = pref === 'system' ? (systemIsLight ? 'light' : 'dark') : pref
+
+  const { pathname } = useLocation()
+  const forceDark = FORCE_DARK_PATHS.some((p) => pathname.startsWith(p))
+
+  const theme = forceDark ? 'dark' : resolvedPref
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme

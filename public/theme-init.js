@@ -9,25 +9,20 @@
 // Set theme before first paint to prevent flash of wrong color scheme.
 // Mirrors logic in app/stores/theme.ts. Must stay in sync.
 ;(function () {
-  // Keep in sync with FORCE_DARK_PATTERNS in app/stores/theme.ts
-  var forceDarkPaths = ['/login/', '/device/']
-  var path = location.pathname
-  if (
-    forceDarkPaths.some(function (p) {
-      return path.startsWith(p)
-    })
-  ) {
-    document.documentElement.dataset.theme = 'dark'
-    return
-  }
-  var p = 'dark'
+  // Resolve preference from localStorage (zustand persist format)
+  var pref = 'dark'
   try {
     var raw = localStorage.getItem('theme-preference')
     var stored = raw ? JSON.parse(raw) : null
-    // match zustand persist format
-    if (stored && stored.state && stored.state.theme) p = stored.state.theme
+    if (stored && stored.state && stored.state.theme) pref = stored.state.theme
   } catch (_e) {}
-  if (p === 'system')
-    p = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
-  document.documentElement.dataset.theme = p
+
+  var systemIsLight = matchMedia('(prefers-color-scheme: light)').matches
+  var resolvedPref = pref === 'system' ? (systemIsLight ? 'light' : 'dark') : pref
+
+  // Keep in sync with FORCE_DARK_PATHS in app/stores/theme.ts
+  var forceDarkPaths = ['/login/', '/device/']
+  var forceDark = forceDarkPaths.some((p) => location.pathname.startsWith(p))
+
+  document.documentElement.dataset.theme = forceDark ? 'dark' : resolvedPref
 })()

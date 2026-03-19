@@ -7,6 +7,26 @@
  */
 import { expect, test } from './utils'
 
+test('Login and device pages force dark theme even when preference is light', async ({
+  page,
+}) => {
+  // Set theme to light via the UI
+  await page.goto('/projects')
+  await page.getByRole('button', { name: 'User menu' }).click()
+  await page.getByRole('menuitem', { name: 'Theme' }).click()
+  await page.getByRole('menuitemradio', { name: 'Light' }).click()
+  await page.keyboard.press('Escape')
+
+  const html = page.locator('html')
+  await expect(html).toHaveAttribute('data-theme', 'light')
+
+  await page.goto('/login/default-silo/saml/mock-idp')
+  await expect(html).toHaveAttribute('data-theme', 'dark')
+
+  await page.goto('/device/verify')
+  await expect(html).toHaveAttribute('data-theme', 'dark')
+})
+
 test('Serial console terminal updates colors on theme change', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1/serial-console')
 
