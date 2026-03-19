@@ -19,8 +19,6 @@ test('Click through silo access page', async ({ page }) => {
     'Silo Role': 'silo.collaborator',
   })
   await expectRowVisible(table, { Name: 'Hannah Arendt', 'Silo Role': 'silo.admin' })
-  // Hans Jonas is a member of real-estate-devs, so gets collaborator via group
-  await expectRowVisible(table, { Name: 'Hans Jonas', 'Silo Role': 'silo.collaborator' })
 
   // Change real-estate-devs role from collaborator to viewer
   await table
@@ -41,30 +39,4 @@ test('Click through silo access page', async ({ page }) => {
   await page.click('role=menuitem[name="Remove role"]')
   await page.click('role=button[name="Confirm"]')
   await expect(table.locator('role=row', { hasText: 'real-estate-devs' })).toBeHidden()
-})
-
-test('Group role change propagates to user effective role', async ({ page }) => {
-  await page.goto('/')
-  await page.click('role=link[name*="Access"]')
-
-  const table = page.locator('role=table')
-  // Jane Austen has collaborator via real-estate-devs group
-  await expectRowVisible(table, { Name: 'Jane Austen', 'Silo Role': 'silo.collaborator' })
-
-  // Verify her role tip shows via real-estate-devs
-  const janeRow = table.locator('role=row', { hasText: 'Jane Austen' })
-  await janeRow.getByRole('button', { name: 'Tip' }).hover()
-  await expect(page.locator('.ox-tooltip')).toContainText('real-estate-devs')
-
-  // Change real-estate-devs role to admin
-  await table
-    .locator('role=row', { hasText: 'real-estate-devs' })
-    .locator('role=button[name="Row actions"]')
-    .click()
-  await page.click('role=menuitem[name="Change role"]')
-  await page.getByRole('radio', { name: /^Admin / }).click()
-  await page.click('role=button[name="Update role"]')
-
-  // Jane Austen now shows admin as effective role (inherited via real-estate-devs)
-  await expectRowVisible(table, { Name: 'Jane Austen', 'Silo Role': 'silo.admin' })
 })

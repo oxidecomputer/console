@@ -19,9 +19,7 @@ import {
   roleOrder,
   useApiMutation,
   rolesByIdFromPolicy,
-  useGroupsByUserId,
   usePrefetchedQuery,
-  type Group,
   type IdentityType,
   type RoleKey,
 } from '@oxide/api'
@@ -59,30 +57,12 @@ const groupListAll = q(api.groupList, { query: { limit: ALL_ISH } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const selector = getProjectSelector(params)
-  const [groups, siloPolicy, projectPolicy] = await Promise.all([
-    queryClient.fetchQuery(groupListAll),
-    queryClient.fetchQuery(policyView),
-    queryClient.fetchQuery(projectPolicyView(selector)),
-  ])
-  // Fetch group memberships for groups with roles in either policy
-  const groupsWithAnyRole = new Set([
-    ...siloPolicy.roleAssignments
-      .filter((ra) => ra.identityType === 'silo_group')
-      .map((ra) => ra.identityId),
-    ...projectPolicy.roleAssignments
-      .filter((ra) => ra.identityType === 'silo_group')
-      .map((ra) => ra.identityId),
-  ])
   await Promise.all([
+    queryClient.prefetchQuery(policyView),
+    queryClient.prefetchQuery(projectPolicyView(selector)),
     queryClient.prefetchQuery(userListQ),
+    queryClient.prefetchQuery(groupListAll),
     queryClient.prefetchQuery(groupList),
-    ...groups.items
-      .filter((g) => groupsWithAnyRole.has(g.id))
-      .map((g) =>
-        queryClient.prefetchQuery(
-          q(api.userList, { query: { group: g.id, limit: ALL_ISH } })
-        )
-      ),
   ])
   return null
 }
@@ -95,7 +75,6 @@ type AccessRow = {
   identityType: IdentityType
   effectiveScope: 'silo' | 'project'
   effectiveRole: RoleKey
-  viaGroups: Group[]
   /** Direct project-level role only — the only one manageable on this page. */
   directProjectRole: RoleKey | undefined
 }
@@ -136,13 +115,6 @@ export default function ProjectAccessPage() {
   const siloRoleById = useMemo(() => rolesByIdFromPolicy(siloPolicy), [siloPolicy])
   const projectRoleById = useMemo(() => rolesByIdFromPolicy(projectPolicy), [projectPolicy])
 
-  // Fetch memberships for groups with roles in either policy
-  const groupsWithAnyRole = useMemo(
-    () => groups.items.filter((g) => siloRoleById.has(g.id) || projectRoleById.has(g.id)),
-    [groups, siloRoleById, projectRoleById]
-  )
-  const groupsByUserId = useGroupsByUserId(groupsWithAnyRole)
-
   const rows: AccessRow[] = useMemo(() => {
     const userById = new Map(users.items.map((u) => [u.id, u]))
     const groupById = new Map(groups.items.map((g) => [g.id, g]))
@@ -152,7 +124,6 @@ export default function ProjectAccessPage() {
       name: string
       directSiloRole: RoleKey | undefined
       directProjectRole: RoleKey | undefined
-      memberOfGroups: Group[]
     }
 
     const intermediateUserRows = new Map<string, IntermediateUserRow>()
@@ -165,7 +136,6 @@ export default function ProjectAccessPage() {
         name: userById.get(userId)?.displayName ?? userId,
         directSiloRole: undefined,
         directProjectRole: undefined,
-        memberOfGroups: [],
       }
       intermediateUserRows.set(userId, row)
       return row
@@ -179,60 +149,22 @@ export default function ProjectAccessPage() {
       if (ra.identityType === 'silo_user')
         ensureUserRow(ra.identityId).directProjectRole = ra.roleName
     }
-    for (const [userId, memberGroups] of groupsByUserId) {
-      ensureUserRow(userId).memberOfGroups = memberGroups
-    }
 
     const userRows: AccessRow[] = []
     for (const row of intermediateUserRows.values()) {
-      const groupRoles: RoleKey[] = row.memberOfGroups.flatMap((g) => {
-        const sr = siloRoleById.get(g.id)
-        const pr = projectRoleById.get(g.id)
-        return [sr, pr].filter((r): r is RoleKey => r !== undefined)
-      })
-
       const allRoles: RoleKey[] = [
         ...(row.directSiloRole ? [row.directSiloRole] : []),
         ...(row.directProjectRole ? [row.directProjectRole] : []),
-        ...groupRoles,
       ]
       const effectiveRole = getEffectiveRole(allRoles)
       if (!effectiveRole) continue
 
-      // Scope is 'silo' if the silo policy provides a role at least as strong as effective
-      const siloRoles: RoleKey[] = [
-        ...(row.directSiloRole ? [row.directSiloRole] : []),
-        ...row.memberOfGroups
-          .map((g) => siloRoleById.get(g.id))
-          .filter((r): r is RoleKey => r !== undefined),
-      ]
-      const effectiveSiloRole = getEffectiveRole(siloRoles)
+      // Scope is 'silo' if the direct silo role is at least as strong as the effective role
       const effectiveScope: 'silo' | 'project' =
-        effectiveSiloRole !== undefined &&
-        roleOrder[effectiveSiloRole] <= roleOrder[effectiveRole]
+        row.directSiloRole !== undefined &&
+        roleOrder[row.directSiloRole] <= roleOrder[effectiveRole]
           ? 'silo'
           : 'project'
-
-      // Show viaGroups when a group provides or boosts the effective role beyond direct assignments
-      const directRoles: RoleKey[] = [
-        ...(row.directSiloRole ? [row.directSiloRole] : []),
-        ...(row.directProjectRole ? [row.directProjectRole] : []),
-      ]
-      const effectiveDirectRole = getEffectiveRole(directRoles)
-      const viaGroups =
-        !effectiveDirectRole || roleOrder[effectiveRole] < roleOrder[effectiveDirectRole]
-          ? row.memberOfGroups.filter((g) => {
-              const groupBestRole = getEffectiveRole(
-                [siloRoleById.get(g.id), projectRoleById.get(g.id)].filter(
-                  (r): r is RoleKey => r !== undefined
-                )
-              )
-              return (
-                groupBestRole !== undefined &&
-                roleOrder[groupBestRole] <= roleOrder[effectiveRole]
-              )
-            })
-          : []
 
       userRows.push({
         id: row.id,
@@ -240,7 +172,6 @@ export default function ProjectAccessPage() {
         identityType: 'silo_user',
         effectiveScope,
         effectiveRole,
-        viaGroups,
         directProjectRole: row.directProjectRole,
       })
     }
@@ -273,21 +204,12 @@ export default function ProjectAccessPage() {
         identityType: 'silo_group' as IdentityType,
         effectiveScope,
         effectiveRole,
-        viaGroups: [],
         directProjectRole: projectRole,
       }
     })
 
     return [...groupRows, ...userRows].sort(byGroupThenName)
-  }, [
-    siloPolicy,
-    projectPolicy,
-    users,
-    groups,
-    groupsByUserId,
-    siloRoleById,
-    projectRoleById,
-  ])
+  }, [siloPolicy, projectPolicy, users, groups, siloRoleById, projectRoleById])
 
   const columns = useMemo(
     () => [
@@ -298,26 +220,21 @@ export default function ProjectAccessPage() {
       }),
       colHelper.display({
         id: 'effectiveRole',
-        header: 'Role',
+        header: () => (
+          <div className="flex items-center gap-1">
+            Role
+            <TipIcon>
+              A user or group&apos;s effective role for this project is the strongest role
+              on either the silo or project
+            </TipIcon>
+          </div>
+        ),
         cell: ({ row }) => {
-          const { effectiveScope, effectiveRole, viaGroups } = row.original
+          const { effectiveScope, effectiveRole } = row.original
           return (
-            <div className="flex items-center gap-1.5">
-              <Badge color={roleColor[effectiveRole]}>
-                {effectiveScope}.{effectiveRole}
-              </Badge>
-              {viaGroups.length > 0 && (
-                <TipIcon>
-                  via{' '}
-                  {viaGroups.map((g, i) => (
-                    <span key={g.id}>
-                      {i > 0 && ', '}
-                      {g.displayName}
-                    </span>
-                  ))}
-                </TipIcon>
-              )}
-            </div>
+            <Badge color={roleColor[effectiveRole]}>
+              {effectiveScope}.{effectiveRole}
+            </Badge>
           )
         },
       }),

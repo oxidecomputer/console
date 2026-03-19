@@ -12,15 +12,10 @@ import {
   api,
   byGroupThenName,
   deleteRole,
-  getEffectiveRole,
   q,
   queryClient,
-  roleOrder,
   useApiMutation,
-  rolesByIdFromPolicy,
-  useGroupsByUserId,
   usePrefetchedQuery,
-  type Group,
   type IdentityType,
   type SiloRole,
 } from '@oxide/api'
@@ -42,7 +37,6 @@ import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
-import { TipIcon } from '~/ui/lib/TipIcon'
 import { identityTypeLabel, roleColor } from '~/util/access'
 import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
@@ -53,25 +47,11 @@ const groupList = q(api.groupList, {})
 const groupListAll = q(api.groupList, { query: { limit: ALL_ISH } })
 
 export async function clientLoader() {
-  const [groups, policy] = await Promise.all([
-    queryClient.fetchQuery(groupListAll),
-    queryClient.fetchQuery(policyView),
-  ])
-  const groupsWithRoles = new Set(
-    policy.roleAssignments
-      .filter((ra) => ra.identityType === 'silo_group')
-      .map((ra) => ra.identityId)
-  )
   await Promise.all([
+    queryClient.prefetchQuery(policyView),
     queryClient.prefetchQuery(userListQ),
+    queryClient.prefetchQuery(groupListAll),
     queryClient.prefetchQuery(groupList),
-    ...groups.items
-      .filter((g) => groupsWithRoles.has(g.id))
-      .map((g) =>
-        queryClient.prefetchQuery(
-          q(api.userList, { query: { group: g.id, limit: ALL_ISH } })
-        )
-      ),
   ])
   return null
 }
@@ -82,11 +62,7 @@ type AccessRow = {
   id: string
   name: string
   identityType: IdentityType
-  effectiveRole: SiloRole
-  /** Groups that provide or boost the effective role. Empty if role is purely direct. */
-  viaGroups: Group[]
-  /** Undefined if access is only via a group, no direct role assignment. */
-  directRole: SiloRole | undefined
+  role: SiloRole
 }
 
 const colHelper = createColumnHelper<AccessRow>()
@@ -118,103 +94,30 @@ export default function SiloAccessPage() {
     },
   })
 
-  const siloRoleById = useMemo(() => rolesByIdFromPolicy(siloPolicy), [siloPolicy])
-
-  // Only fetch memberships for groups that have silo roles — their members have group-based access
-  const groupsWithRoles = useMemo(
-    () => groups.items.filter((g) => siloRoleById.has(g.id)),
-    [groups, siloRoleById]
-  )
-
-  // userId → groups[] (only role-bearing groups, so only users with group-based access appear)
-  const groupsByUserId = useGroupsByUserId(groupsWithRoles)
-
   const rows: AccessRow[] = useMemo(() => {
     const userById = new Map(users.items.map((u) => [u.id, u]))
     const groupById = new Map(groups.items.map((g) => [g.id, g]))
 
-    type IntermediateUserRow = {
-      id: string
-      name: string
-      directRole: SiloRole | undefined
-      memberOfGroups: Group[]
-    }
+    const userRows: AccessRow[] = siloPolicy.roleAssignments
+      .filter((ra) => ra.identityType === 'silo_user')
+      .map((ra) => ({
+        id: ra.identityId,
+        name: userById.get(ra.identityId)?.displayName ?? ra.identityId,
+        identityType: 'silo_user' as IdentityType,
+        role: ra.roleName,
+      }))
 
-    const intermediateUserRows = new Map<string, IntermediateUserRow>()
-
-    // Collect directly assigned users
-    for (const ra of siloPolicy.roleAssignments) {
-      if (ra.identityType === 'silo_user') {
-        intermediateUserRows.set(ra.identityId, {
-          id: ra.identityId,
-          name: userById.get(ra.identityId)?.displayName ?? ra.identityId,
-          directRole: ra.roleName,
-          memberOfGroups: [],
-        })
-      }
-    }
-
-    // Merge in users who have access via groups
-    for (const [userId, memberGroups] of groupsByUserId) {
-      const existing = intermediateUserRows.get(userId)
-      if (existing) {
-        existing.memberOfGroups = memberGroups
-      } else {
-        intermediateUserRows.set(userId, {
-          id: userId,
-          name: userById.get(userId)?.displayName ?? userId,
-          directRole: undefined,
-          memberOfGroups: memberGroups,
-        })
-      }
-    }
-
-    // Build final user rows with effective roles
-    const userRows: AccessRow[] = []
-    for (const row of intermediateUserRows.values()) {
-      const groupRoles = row.memberOfGroups
-        .map((g) => siloRoleById.get(g.id))
-        .filter((r): r is SiloRole => r !== undefined)
-      const allRoles: SiloRole[] = [
-        ...(row.directRole ? [row.directRole] : []),
-        ...groupRoles,
-      ]
-      const effectiveRole = getEffectiveRole(allRoles)
-      if (!effectiveRole) continue
-
-      // Show viaGroups when effective role comes from or is boosted by a group
-      const viaGroups =
-        !row.directRole || roleOrder[effectiveRole] < roleOrder[row.directRole]
-          ? row.memberOfGroups.filter((g) => {
-              const gr = siloRoleById.get(g.id)
-              return gr !== undefined && roleOrder[gr] <= roleOrder[effectiveRole]
-            })
-          : []
-
-      userRows.push({
-        id: row.id,
-        name: row.name,
-        identityType: 'silo_user',
-        effectiveRole,
-        viaGroups,
-        directRole: row.directRole,
-      })
-    }
-
-    // Group rows from direct policy assignments
     const groupRows: AccessRow[] = siloPolicy.roleAssignments
       .filter((ra) => ra.identityType === 'silo_group')
       .map((ra) => ({
         id: ra.identityId,
         name: groupById.get(ra.identityId)?.displayName ?? ra.identityId,
         identityType: 'silo_group' as IdentityType,
-        effectiveRole: ra.roleName,
-        viaGroups: [],
-        directRole: ra.roleName,
+        role: ra.roleName,
       }))
 
     return [...groupRows, ...userRows].sort(byGroupThenName)
-  }, [siloPolicy, users, groups, groupsByUserId, siloRoleById])
+  }, [siloPolicy, users, groups])
 
   const columns = useMemo(
     () => [
@@ -223,34 +126,16 @@ export default function SiloAccessPage() {
         header: 'Type',
         cell: (info) => identityTypeLabel[info.getValue()],
       }),
-      colHelper.display({
-        id: 'effectiveRole',
+      colHelper.accessor('role', {
         header: 'Silo Role',
-        cell: ({ row }) => {
-          const { effectiveRole, viaGroups } = row.original
-          return (
-            <div className="flex items-center gap-1.5">
-              <Badge color={roleColor[effectiveRole]}>silo.{effectiveRole}</Badge>
-              {viaGroups.length > 0 && (
-                <TipIcon>
-                  via{' '}
-                  {viaGroups.map((g, i) => (
-                    <span key={g.id}>
-                      {i > 0 && ', '}
-                      {g.displayName}
-                    </span>
-                  ))}
-                </TipIcon>
-              )}
-            </div>
-          )
-        },
+        cell: (info) => (
+          <Badge color={roleColor[info.getValue()]}>silo.{info.getValue()}</Badge>
+        ),
       }),
       getActionsCol((row: AccessRow) => [
         {
           label: 'Change role',
           onActivate: () => setEditingRow(row),
-          disabled: !row.directRole && 'This identity has no direct role to change',
         },
         {
           label: 'Remove role',
@@ -258,11 +143,10 @@ export default function SiloAccessPage() {
             doDelete: () => updatePolicy({ body: deleteRole(row.id, siloPolicy) }),
             label: (
               <span>
-                the <HL>{row.directRole}</HL> role for <HL>{row.name}</HL>
+                the <HL>{row.role}</HL> role for <HL>{row.name}</HL>
               </span>
             ),
           }),
-          disabled: !row.directRole && 'This identity has no direct role to remove',
         },
       ]),
     ],
@@ -313,7 +197,7 @@ export default function SiloAccessPage() {
           name={editingRow.name}
           identityId={editingRow.id}
           identityType={editingRow.identityType}
-          defaultValues={{ roleName: editingRow.directRole }}
+          defaultValues={{ roleName: editingRow.role }}
         />
       )}
       {rows.length === 0 ? (

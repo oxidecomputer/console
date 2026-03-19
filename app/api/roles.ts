@@ -106,47 +106,6 @@ export function deleteRole<Role extends RoleKey>(
   return { roleAssignments }
 }
 
-type UserAccessRow<Role extends RoleKey = RoleKey> = {
-  id: string
-  identityType: IdentityType
-  name: string
-  roleName: Role
-  roleSource: string
-}
-
-/**
- * Role assignments come from the API in (user, role) pairs without display
- * names and without info about which resource the role came from. This tags
- * each row with that info. It has to be a hook because it depends on the result
- * of an API request for the list of users. It's a bit awkward, but the logic is
- * identical between projects and orgs so it is worth sharing.
- */
-export function useUserRows<Role extends RoleKey = RoleKey>(
-  roleAssignments: RoleAssignment<Role>[],
-  roleSource: string
-): UserAccessRow<Role>[] {
-  // HACK: because the policy has no names, we are fetching ~all the users,
-  // putting them in a dictionary, and adding the names to the rows
-  const { data: users } = usePrefetchedQuery(q(api.userList, {}))
-  const { data: groups } = usePrefetchedQuery(q(api.groupList, {}))
-  return useMemo(() => {
-    const userItems = users?.items || []
-    const groupItems = groups?.items || []
-    const usersDict = Object.fromEntries(userItems.concat(groupItems).map((u) => [u.id, u]))
-    return roleAssignments.map((ra) => ({
-      id: ra.identityId,
-      identityType: ra.identityType,
-      // A user might not appear here if they are not in the current user's
-      // silo. This could happen in a fleet policy, which might have users from
-      // different silos. Hence the ID fallback. The code that displays this
-      // detects when we've fallen back and includes an explanatory tooltip.
-      name: usersDict[ra.identityId]?.displayName || ra.identityId,
-      roleName: ra.roleName,
-      roleSource,
-    }))
-  }, [roleAssignments, roleSource, users, groups])
-}
-
 type SortableUserRow = { identityType: IdentityType; name: string }
 
 /**
