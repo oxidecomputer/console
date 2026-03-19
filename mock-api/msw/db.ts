@@ -20,7 +20,7 @@ import { commaSeries } from '~/util/str'
 import type { Json } from '../json-type'
 import { projects, type DbProject } from '../project'
 import { defaultSilo, siloSettings } from '../silo'
-import { internalError } from './util'
+import { internalError, invalidRequest } from './util'
 
 export const notFoundErr = (msg: string) => {
   const message = `not found: ${msg}`
@@ -52,7 +52,7 @@ function ensureNoParentSelectors(
     .map(([k]) => k)
   if (keysWithValues.length > 0) {
     const message = `when ${resourceLabel} is specified by ID, ${commaSeries(keysWithValues, 'and')} should not be specified`
-    throw json({ error_code: 'InvalidRequest', message }, { status: 400 })
+    throw invalidRequest(message)
   }
 }
 
@@ -101,13 +101,7 @@ export const resolvePoolSelector = (
     !poolSelector.ip_version &&
     candidateLinks.length > 1
   ) {
-    throw json(
-      {
-        error_code: 'InvalidRequest',
-        message: 'ip_version required when multiple default pools exist',
-      },
-      { status: 400 }
-    )
+    throw invalidRequest('ip_version required when multiple default pools exist')
   }
 
   const link = candidateLinks[0]

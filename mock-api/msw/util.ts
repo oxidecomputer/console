@@ -110,6 +110,9 @@ export const NotImplemented = () => {
   throw json({ error_code: 'NotImplemented' }, { status: 501 })
 }
 
+export const invalidRequest = (message: string) =>
+  json({ error_code: 'InvalidRequest', message }, { status: 400 })
+
 export const internalError = (message: string) =>
   json({ error_code: 'InternalError', message }, { status: 500 })
 

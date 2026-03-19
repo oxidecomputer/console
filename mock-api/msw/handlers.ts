@@ -55,6 +55,7 @@ import {
   getBlockSize,
   handleMetrics,
   handleOxqlMetrics,
+  invalidRequest,
   ipRangeLen,
   NotImplemented,
   paginated,
@@ -558,21 +559,13 @@ export const handlers = makeHandlers({
         // Based on Omicron validation in nexus/db-queries/src/db/datastore/external_ip.rs:544-661
         const ipVersion = pool.ip_version
         if (ipVersion === 'v4' && !hasIpv4Nic) {
-          throw json(
-            {
-              error_code: 'InvalidRequest',
-              message: `The ephemeral external IP is an IPv4 address, but the instance with ID ${body.name} does not have a primary network interface with a VPC-private IPv4 address. Add a VPC-private IPv4 address to the interface, or attach a different IP address`,
-            },
-            { status: 400 }
+          throw invalidRequest(
+            `The ephemeral external IP is an IPv4 address, but the instance with ID ${body.name} does not have a primary network interface with a VPC-private IPv4 address. Add a VPC-private IPv4 address to the interface, or attach a different IP address`
           )
         }
         if (ipVersion === 'v6' && !hasIpv6Nic) {
-          throw json(
-            {
-              error_code: 'InvalidRequest',
-              message: `The ephemeral external IP is an IPv6 address, but the instance with ID ${body.name} does not have a primary network interface with a VPC-private IPv6 address. Add a VPC-private IPv6 address to the interface, or attach a different IP address`,
-            },
-            { status: 400 }
+          throw invalidRequest(
+            `The ephemeral external IP is an IPv6 address, but the instance with ID ${body.name} does not have a primary network interface with a VPC-private IPv6 address. Add a VPC-private IPv6 address to the interface, or attach a different IP address`
           )
         }
       }
@@ -888,35 +881,21 @@ export const handlers = makeHandlers({
     const primaryNic = nics.find((n) => n.primary)
 
     if (!primaryNic) {
-      throw json(
-        {
-          error_code: 'InvalidRequest',
-          message: `Instance ${instance.name} has no primary network interface`,
-        },
-        { status: 400 }
-      )
+      throw invalidRequest(`Instance ${instance.name} has no primary network interface`)
     }
 
     const ipVersion = pool.ip_version
     const stackType = primaryNic.ip_stack.type
 
     if (ipVersion === 'v4' && stackType !== 'v4' && stackType !== 'dual_stack') {
-      throw json(
-        {
-          error_code: 'InvalidRequest',
-          message: `The ephemeral external IP is an IPv4 address, but the instance with ID ${instance.name} does not have a primary network interface with a VPC-private IPv4 address. Add a VPC-private IPv4 address to the interface, or attach a different IP address`,
-        },
-        { status: 400 }
+      throw invalidRequest(
+        `The ephemeral external IP is an IPv4 address, but the instance with ID ${instance.name} does not have a primary network interface with a VPC-private IPv4 address. Add a VPC-private IPv4 address to the interface, or attach a different IP address`
       )
     }
 
     if (ipVersion === 'v6' && stackType !== 'v6' && stackType !== 'dual_stack') {
-      throw json(
-        {
-          error_code: 'InvalidRequest',
-          message: `The ephemeral external IP is an IPv6 address, but the instance with ID ${instance.name} does not have a primary network interface with a VPC-private IPv6 address. Add a VPC-private IPv6 address to the interface, or attach a different IP address`,
-        },
-        { status: 400 }
+      throw invalidRequest(
+        `The ephemeral external IP is an IPv6 address, but the instance with ID ${instance.name} does not have a primary network interface with a VPC-private IPv6 address. Add a VPC-private IPv6 address to the interface, or attach a different IP address`
       )
     }
 
@@ -949,12 +928,8 @@ export const handlers = makeHandlers({
     )
 
     if (attachedVersions.size > 1 && !ipVersion) {
-      throw json(
-        {
-          error_code: 'InvalidRequest',
-          message: `Instance ${instance.name} has both IPv4 and IPv6 ephemeral IPs; ipVersion is required to detach one`,
-        },
-        { status: 400 }
+      throw invalidRequest(
+        `Instance ${instance.name} has both IPv4 and IPv6 ephemeral IPs; ipVersion is required to detach one`
       )
     }
 
