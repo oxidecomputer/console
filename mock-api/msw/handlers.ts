@@ -225,7 +225,7 @@ export const handlers = makeHandlers({
       throw 'Can only enter state importing_from_bulk_write from import_ready'
     }
 
-    await delay(2000) // slow it down for the tests
+    await delay(process.env.FAST_MOCK ? 1000 : 2000)
 
     db.diskBulkImportState.set(disk.id, { blocks: {} })
     disk.state = { state: 'importing_from_bulk_writes' }
@@ -239,7 +239,7 @@ export const handlers = makeHandlers({
     if (disk.state.state !== 'importing_from_bulk_writes') {
       throw 'Can only stop import for disk in state importing_from_bulk_write'
     }
-    await delay(2000) // slow it down for the tests
+    await delay(process.env.FAST_MOCK ? 1000 : 2000)
 
     db.diskBulkImportState.delete(disk.id)
     disk.state = { state: 'import_ready' }
@@ -249,7 +249,7 @@ export const handlers = makeHandlers({
     const disk = lookup.disk({ ...path, ...query })
     const diskImport = db.diskBulkImportState.get(disk.id)
     if (!diskImport) throw notFoundErr(`disk import for disk '${disk.id}'`)
-    await delay(1000) // slow it down for the tests
+    await delay(1000)
     // if (Math.random() < 0.01) throw 400
     diskImport.blocks[body.offset] = true
     return 204
@@ -1932,7 +1932,7 @@ export const handlers = makeHandlers({
     // https://github.com/oxidecomputer/omicron/blob/cf38148d/nexus/src/app/metrics.rs#L154-L179
 
     // timeseries queries are slower than most other queries
-    await delay(1000)
+    await delay(process.env.FAST_MOCK ? 400 : 1000)
     const data = handleOxqlMetrics(body)
 
     // we use other-project to test certain response cases
@@ -1955,7 +1955,7 @@ export const handlers = makeHandlers({
   async systemTimeseriesQuery({ cookies, body }) {
     requireFleetViewer(cookies)
     // timeseries queries are slower than most other queries
-    await delay(1000)
+    await delay(process.env.FAST_MOCK ? 400 : 1000)
     return handleOxqlMetrics(body)
   },
   siloMetric: handleMetrics,

@@ -28,9 +28,9 @@ test('scroll restore', async ({ page }) => {
   await expectScrollTop(page, 143)
 
   // sleep required to get the scroll position to stick
-  await sleep(1000)
+  await sleep(500)
   await scrollTo(page, 190)
-  await sleep(1000)
+  await sleep(500)
 
   // go forward to snapshots, now scroll it
   await page.goForward()
@@ -42,7 +42,7 @@ test('scroll restore', async ({ page }) => {
   // catch the 30 scroll position. This became necessary with RR v7's use of
   // startTransition. Extra oddly, with a value of 500 it passes rarely, but
   // with 1000 it passes every time.
-  await sleep(1000)
+  await sleep(500)
 
   // new nav to disks
   await page.getByRole('link', { name: 'Disks' }).click()
@@ -63,7 +63,7 @@ test('scroll restore', async ({ page }) => {
   // back again to disks, newer scroll value is restored
   await page.goBack()
   await expect(page).toHaveURL('/projects/mock-project/disks')
-  await sleep(1000)
+  await sleep(500)
   await expectScrollTop(page, 190)
 
   // forward again to newest disks history entry, scroll remains 0
