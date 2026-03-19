@@ -102,7 +102,7 @@ const staticCols = [
   }),
   colHelper.accessor('instanceId', {
     header: 'Instance',
-    cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,
+    cell: (info) => <InstanceLinkCell instanceId={info.getValue()} tab="networking" />,
   }),
 ]
 
@@ -227,7 +227,7 @@ export default function FloatingIpsPage() {
       ...(allFips?.items || []).map((f) => ({
         value: f.name,
         action: pb.floatingIpEdit({ project, floatingIp: f.name }),
-        navGroup: 'Go to floating IP',
+        navGroup: 'Edit floating IP',
       })),
     ],
     [project, allFips]

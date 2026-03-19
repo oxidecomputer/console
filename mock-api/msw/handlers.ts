@@ -368,10 +368,7 @@ export const handlers = makeHandlers({
   },
   floatingIpDetach({ path, query }) {
     const floatingIp = lookup.floatingIp({ ...path, ...query })
-    db.floatingIps = db.floatingIps.map((ip) =>
-      ip.id !== floatingIp.id ? ip : { ...ip, instance_id: undefined }
-    )
-
+    floatingIp.instance_id = undefined
     return floatingIp
   },
   imageList({ query }) {
@@ -1917,6 +1914,25 @@ export const handlers = makeHandlers({
 
     return { role_assignments }
   },
+  systemPolicyUpdate({ body, cookies }) {
+    requireFleetAdmin(cookies)
+
+    const newAssignments = body.role_assignments
+      .filter((r) => fleetRoles.some((role) => role === r.role_name))
+      .map((r) => ({
+        resource_type: 'fleet' as const,
+        resource_id: FLEET_ID,
+        ...R.pick(r, ['identity_id', 'identity_type', 'role_name']),
+      }))
+
+    const unrelatedAssignments = db.roleAssignments.filter(
+      (r) => !(r.resource_type === 'fleet' && r.resource_id === FLEET_ID)
+    )
+
+    db.roleAssignments = [...unrelatedAssignments, ...newAssignments]
+
+    return body
+  },
   systemMetric(params) {
     requireFleetViewer(params.cookies)
     return handleMetrics(params)
@@ -2348,25 +2364,6 @@ export const handlers = makeHandlers({
   supportBundleUpdate: NotImplemented,
   supportBundleView: NotImplemented,
   switchView: NotImplemented,
-  systemPolicyUpdate({ body, cookies }) {
-    requireFleetAdmin(cookies)
-
-    const newAssignments = body.role_assignments
-      .filter((r) => fleetRoles.some((role) => role === r.role_name))
-      .map((r) => ({
-        resource_type: 'fleet' as const,
-        resource_id: FLEET_ID,
-        ...R.pick(r, ['identity_id', 'identity_type', 'role_name']),
-      }))
-
-    const unrelatedAssignments = db.roleAssignments.filter(
-      (r) => !(r.resource_type === 'fleet' && r.resource_id === FLEET_ID)
-    )
-
-    db.roleAssignments = [...unrelatedAssignments, ...newAssignments]
-
-    return body
-  },
   systemQuotasList: NotImplemented,
   systemTimeseriesSchemaList: NotImplemented,
   systemUpdateRecoveryFinish: NotImplemented,

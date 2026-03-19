@@ -7,6 +7,8 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
+import { Link } from 'react-router'
+import { match } from 'ts-pattern'
 
 import { api, q } from '@oxide/api'
 
@@ -16,19 +18,48 @@ import { pb } from '~/util/path-builder'
 import { EmptyCell, SkeletonCell } from './EmptyCell'
 import { LinkCell } from './LinkCell'
 
-export const InstanceLinkCell = ({ instanceId }: { instanceId?: string | null }) => {
+type InstanceLinkProps = {
+  instanceId?: string | null
+  tab: 'storage' | 'networking'
+}
+
+type InstanceLinkResult =
+  | { status: 'empty' }
+  | { status: 'loading' }
+  | { status: 'success'; to: string; name: string }
+
+function useInstanceLink({ instanceId, tab }: InstanceLinkProps): InstanceLinkResult {
   const { project } = useProjectSelector()
   const { data: instance } = useQuery(
     q(api.instanceView, { path: { instance: instanceId! } }, { enabled: !!instanceId })
   )
 
-  // has to be after the hooks because hooks can't be executed conditionally
-  if (!instanceId) return <EmptyCell />
-  if (!instance) return <SkeletonCell />
+  if (!instanceId) return { status: 'empty' }
+  if (!instance) return { status: 'loading' }
 
-  return (
-    <LinkCell to={pb.instance({ project, instance: instance.name })}>
-      {instance.name}
-    </LinkCell>
-  )
+  const params = { project, instance: instance.name }
+  const to =
+    tab === 'networking' ? pb.instanceNetworking(params) : pb.instanceStorage(params)
+
+  return { status: 'success', to, name: instance.name }
 }
+
+/** Plain link for use outside tables (e.g., PropertiesTable in side modals). */
+export const InstanceLink = (props: InstanceLinkProps) =>
+  match(useInstanceLink(props))
+    .with({ status: 'empty' }, () => <EmptyCell />)
+    .with({ status: 'loading' }, () => <SkeletonCell />)
+    .with({ status: 'success' }, ({ to, name }) => (
+      <Link to={to} className="link-with-underline text-sans-md">
+        {name}
+      </Link>
+    ))
+    .exhaustive()
+
+/** Table cell with hover highlight. Use in column definitions. */
+export const InstanceLinkCell = (props: InstanceLinkProps) =>
+  match(useInstanceLink(props))
+    .with({ status: 'empty' }, () => <EmptyCell />)
+    .with({ status: 'loading' }, () => <SkeletonCell />)
+    .with({ status: 'success' }, ({ to, name }) => <LinkCell to={to}>{name}</LinkCell>)
+    .exhaustive()

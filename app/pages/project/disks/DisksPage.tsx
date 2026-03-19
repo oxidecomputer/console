@@ -165,7 +165,7 @@ export default function DisksPage() {
           (disk) => ('instance' in disk.state ? disk.state.instance : undefined),
           {
             header: 'Attached to',
-            cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,
+            cell: (info) => <InstanceLinkCell instanceId={info.getValue()} tab="storage" />,
           }
         ),
         colHelper.accessor('diskType', {
