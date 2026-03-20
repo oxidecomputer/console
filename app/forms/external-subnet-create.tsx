@@ -25,6 +25,7 @@ import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { ALL_ISH } from '~/util/consts'
+import { validateIpNet } from '~/util/ip'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -76,6 +77,15 @@ export default function CreateExternalSubnetSideModalForm() {
   })
 
   const allocationType = form.watch('allocationType')
+  const selectedPoolName = form.watch('pool')
+  const selectedPool = pools.items.find((p) => p.name === selectedPoolName)
+  // In auto allocation, the requested prefix length is matched against pool
+  // members whose min/max prefix range includes it, then a subnet is carved
+  // out of the first member with a large enough gap. Reproducing this member
+  // resolution logic is more or less impossible, so we just enforce a max by
+  // IP version.
+  // https://github.com/oxidecomputer/omicron/blob/e7d260a/nexus/db-queries/src/db/queries/external_subnet.rs#L906-L908
+  const prefixLenMax = !selectedPool || selectedPool.ipVersion === 'v6' ? 128 : 32
 
   return (
     <SideModalForm
@@ -118,10 +128,9 @@ export default function CreateExternalSubnetSideModalForm() {
             label="Prefix length"
             required
             control={form.control}
-            // TODO: these min and max are wrong! Pools have an IP version and the min and max depend on that.
-            min={8}
-            max={32}
-            description="The prefix length for the allocated subnet (e.g., 24 for a /24). Minimum 8."
+            min={1}
+            max={prefixLenMax}
+            description={`Prefix length for the allocated subnet (e.g., 24 for a /24). Range: 1–${prefixLenMax}.`}
           />
           <ListboxField
             name="pool"
@@ -140,6 +149,7 @@ export default function CreateExternalSubnetSideModalForm() {
           label="Subnet CIDR"
           required
           control={form.control}
+          validate={validateIpNet}
           description="The subnet to reserve, e.g., 10.128.1.0/24"
         />
       )}

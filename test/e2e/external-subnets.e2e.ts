@@ -338,6 +338,38 @@ test('edit form works via direct URL for unattached subnet', async ({ page }) =>
   await expect(page.getByRole('textbox', { name: 'Name' })).toHaveValue('web-subnet')
 })
 
+test('create form validates explicit subnet CIDR', async ({ page }) => {
+  await page.goto(`${externalSubnetsPage}-new`)
+
+  await page.getByRole('textbox', { name: 'Name' }).fill('bad-cidr-subnet')
+  await page.getByRole('radio', { name: 'Explicit' }).click()
+
+  const dialog = page.getByRole('dialog')
+  const subnetField = page.getByRole('textbox', { name: 'Subnet CIDR' })
+  const submitButton = page.getByRole('button', { name: 'Create external subnet' })
+  const cidrError = dialog.getByText(
+    'Must contain an IP address and a width, separated by a /'
+  )
+
+  // Invalid CIDR shows error on submit
+  await subnetField.fill('not-a-cidr')
+  await submitButton.click()
+  await expect(cidrError).toBeVisible()
+
+  // Valid CIDR clears the error and submits successfully
+  await subnetField.fill('10.128.6.0/24')
+  await submitButton.click()
+  await expect(cidrError).toBeHidden()
+  await expectToast(page, 'External subnet bad-cidr-subnet created')
+})
+
+test('create form prefix length description reflects pool IP version', async ({ page }) => {
+  await page.goto(`${externalSubnetsPage}-new`)
+
+  // Default pool is IPv4, so description should show range 1–32
+  await expect(page.getByText('Range: 1–32.')).toBeVisible()
+})
+
 test('create form toggles between auto and explicit fields', async ({ page }) => {
   await page.goto(`${externalSubnetsPage}-new`)
 
