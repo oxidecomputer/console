@@ -58,8 +58,8 @@ test('Instance networking tab — NIC table', async ({ page }) => {
   await expectVisible(page, [
     'role=heading[name="Add network interface"]',
     'role=textbox[name="Description"]',
-    'role=textbox[name="IPv4 Address"]',
-    'role=textbox[name="IPv6 Address"]',
+    'role=textbox[name="IPv4 address"]',
+    'role=textbox[name="IPv6 address"]',
   ])
 
   await page.getByRole('textbox', { name: 'Name' }).fill('nic-2')

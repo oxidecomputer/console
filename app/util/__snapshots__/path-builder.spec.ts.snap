@@ -1195,7 +1195,7 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/vpcs/v/firewall-rules",
     },
     {
-      "label": "Subnets",
+      "label": "VPC Subnets",
       "path": "/projects/p/vpcs/v/",
     },
   ],
@@ -1217,7 +1217,7 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/vpcs/v/firewall-rules",
     },
     {
-      "label": "Subnets",
+      "label": "VPC Subnets",
       "path": "/projects/p/vpcs/v/",
     },
   ],
@@ -1239,7 +1239,7 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/vpcs/v/firewall-rules",
     },
     {
-      "label": "Subnets",
+      "label": "VPC Subnets",
       "path": "/projects/p/vpcs/v/",
     },
   ],

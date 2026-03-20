@@ -22,12 +22,12 @@ test('can create a NIC with a specified IP address', async ({ page }) => {
   await page.getByLabel('Name').fill('nic-1')
   await page.getByLabel('VPC', { exact: true }).click()
   await page.getByRole('option', { name: 'mock-vpc' }).click()
-  await page.getByRole('dialog').getByRole('button', { name: 'Subnet' }).click()
+  await page.getByRole('dialog').getByRole('button', { name: 'VPC subnet' }).click()
   await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
 
   // Select IPv4 only
   await page.getByRole('radio', { name: 'IPv4', exact: true }).click()
-  await page.getByLabel('IPv4 Address').fill('1.2.3.4')
+  await page.getByLabel('IPv4 address').fill('1.2.3.4')
 
   const sidebar = page.getByRole('dialog', { name: 'Add network interface' })
 
@@ -52,12 +52,12 @@ test('can create a NIC with a blank IP address', async ({ page }) => {
   await page.getByLabel('Name').fill('nic-2')
   await page.getByLabel('VPC', { exact: true }).click()
   await page.getByRole('option', { name: 'mock-vpc' }).click()
-  await page.getByRole('dialog').getByRole('button', { name: 'Subnet' }).click()
+  await page.getByRole('dialog').getByRole('button', { name: 'VPC subnet' }).click()
   await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
 
   // Dual-stack is selected by default, so both fields should be visible
   // make sure the IPv4 address field has a non-conforming bit of text in it
-  await page.getByLabel('IPv4 Address').fill('x')
+  await page.getByLabel('IPv4 address').fill('x')
 
   // try to submit it
   const sidebar = page.getByRole('dialog', { name: 'Add network interface' })
@@ -67,8 +67,8 @@ test('can create a NIC with a blank IP address', async ({ page }) => {
   await expect(sidebar.getByText('Zod error for body')).toBeVisible()
 
   // make sure both IP address fields have spaces in them
-  await page.getByLabel('IPv4 Address').fill('    ')
-  await page.getByLabel('IPv6 Address').fill('    ')
+  await page.getByLabel('IPv4 address').fill('    ')
+  await page.getByLabel('IPv6 address').fill('    ')
 
   // test that the form can be submitted and a new network interface is created
   await sidebar.getByRole('button', { name: 'Add network interface' }).click()
@@ -92,12 +92,12 @@ test('can create a NIC with IPv6 only', async ({ page }) => {
   await page.getByLabel('Name').fill('nic-3')
   await page.getByLabel('VPC', { exact: true }).click()
   await page.getByRole('option', { name: 'mock-vpc' }).click()
-  await page.getByRole('dialog').getByRole('button', { name: 'Subnet' }).click()
+  await page.getByRole('dialog').getByRole('button', { name: 'VPC subnet' }).click()
   await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
 
   // Select IPv6 only
   await page.getByRole('radio', { name: 'IPv6', exact: true }).click()
-  await page.getByLabel('IPv6 Address').fill('::1')
+  await page.getByLabel('IPv6 address').fill('::1')
 
   const sidebar = page.getByRole('dialog', { name: 'Add network interface' })
   await sidebar.getByRole('button', { name: 'Add network interface' }).click()
@@ -117,12 +117,12 @@ test('can create a NIC with dual-stack and explicit IPs', async ({ page }) => {
   await page.getByLabel('Name').fill('nic-4')
   await page.getByLabel('VPC', { exact: true }).click()
   await page.getByRole('option', { name: 'mock-vpc' }).click()
-  await page.getByRole('dialog').getByRole('button', { name: 'Subnet' }).click()
+  await page.getByRole('dialog').getByRole('button', { name: 'VPC subnet' }).click()
   await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
 
   // Dual-stack is selected by default
-  await page.getByLabel('IPv4 Address').fill('10.0.0.5')
-  await page.getByLabel('IPv6 Address').fill('fd00::5')
+  await page.getByLabel('IPv4 address').fill('10.0.0.5')
+  await page.getByLabel('IPv6 address').fill('fd00::5')
 
   const sidebar = page.getByRole('dialog', { name: 'Add network interface' })
   await sidebar.getByRole('button', { name: 'Add network interface' }).click()

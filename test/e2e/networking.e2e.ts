@@ -7,13 +7,7 @@
  */
 import { expect, test } from '@playwright/test'
 
-import {
-  clickRowAction,
-  closeToast,
-  expectNotVisible,
-  expectRowVisible,
-  expectVisible,
-} from './utils'
+import { clickRowAction, closeToast, expectRowVisible, expectVisible } from './utils'
 
 test('Create and edit VPC', async ({ page }) => {
   await page.goto('/projects/mock-project')
@@ -84,42 +78,36 @@ test('Create and edit subnet', async ({ page }) => {
     'role=cell[name="allow-icmp"]',
   ])
 
-  await page.getByRole('tab', { name: 'Subnets' }).click()
+  await page.getByRole('tab', { name: 'VPC Subnets' }).click()
 
   // Create subnet
-  await page.click('role=link[name="New subnet"]')
-  await expectVisible(page, [
-    'role=heading[name="Create subnet"]',
-    'role=button[name="Create subnet"]',
-  ])
-  await page.fill('role=textbox[name="Name"]', 'new-subnet')
-  await page.fill('role=textbox[name="IPv4 block"]', '10.1.1.1/24')
-  await page.click('role=button[name="Create subnet"]')
+  await page.getByRole('link', { name: 'New VPC subnet' }).click()
+  const createDialog = page.getByRole('dialog', { name: 'Create VPC subnet' })
+  await expect(createDialog).toBeVisible()
+  await expect(
+    createDialog.getByRole('button', { name: 'Create VPC subnet' })
+  ).toBeVisible()
+  await createDialog.getByRole('textbox', { name: 'Name' }).fill('new-subnet')
+  await createDialog.getByRole('textbox', { name: 'IPv4 block' }).fill('10.1.1.1/24')
+  await createDialog.getByRole('button', { name: 'Create VPC subnet' }).click()
 
   // Edit subnet
-  await expectVisible(page, ['role=cell[name="new-subnet"]'])
-  await page
-    .locator('role=row', { hasText: 'new-subnet' })
-    .locator('role=button[name="Row actions"]')
-    .click()
-  await page.click('role=menuitem[name="Edit"]')
+  await expect(page.getByRole('cell', { name: 'new-subnet' })).toBeVisible()
+  await clickRowAction(page, 'new-subnet', 'Edit')
 
-  await expectVisible(page, [
-    'role=heading[name="Edit subnet"]',
-    'role=button[name="Update subnet"]',
-  ])
-  await page.fill('role=textbox[name="Name"]', 'edited-subnet')
-  await page.fill('role=textbox[name="Description"]', 'behold')
-  await page.click('role=button[name="Update subnet"]')
+  const editDialog = page.getByRole('dialog', { name: 'Edit VPC subnet' })
+  await expect(editDialog).toBeVisible()
+  await expect(editDialog.getByRole('button', { name: 'Update VPC subnet' })).toBeVisible()
+  await editDialog.getByRole('textbox', { name: 'Name' }).fill('edited-subnet')
+  await editDialog.getByRole('textbox', { name: 'Description' }).fill('behold')
+  await editDialog.getByRole('button', { name: 'Update VPC subnet' }).click()
 
-  await expectNotVisible(page, ['role=cell[name="new-subnet"]'])
-  await expectVisible(page, ['role=cell[name="edited-subnet"]'])
+  await expect(page.getByRole('cell', { name: 'new-subnet' })).toBeHidden()
+  await expect(page.getByRole('cell', { name: 'edited-subnet' })).toBeVisible()
 
   // Firewall rules
-  await page.click('role=tab[name="Firewall Rules"]')
-  await expectVisible(page, [
-    'role=cell[name="allow-icmp"]',
-    'role=cell[name="allow-internal-inbound"]',
-    'role=cell[name="allow-ssh"]',
-  ])
+  await page.getByRole('tab', { name: 'Firewall Rules' }).click()
+  await expect(page.getByRole('cell', { name: 'allow-icmp' })).toBeVisible()
+  await expect(page.getByRole('cell', { name: 'allow-internal-inbound' })).toBeVisible()
+  await expect(page.getByRole('cell', { name: 'allow-ssh' })).toBeVisible()
 })
