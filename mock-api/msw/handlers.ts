@@ -1263,7 +1263,7 @@ export const handlers = makeHandlers({
     // could be different. Need to fix that. Should 400 or 409 on conflict.
     if (!alreadyThere) db.ipPoolSilos.push(assoc)
 
-    return assoc
+    return json(assoc, { status: 201 })
   },
   systemIpPoolSiloUnlink({ path, cookies }) {
     requireFleetAdmin(cookies)
@@ -2299,6 +2299,243 @@ export const handlers = makeHandlers({
     db.scimTokens = db.scimTokens.filter((t) => t.id !== token.id)
     return 204
   },
+  subnetPoolList({ query, cookies }) {
+    const user = currentUser(cookies)
+    const pools = lookup.siloSubnetPools({ silo: user.silo_id })
+    return paginated(query, pools)
+  },
+  subnetPoolView: ({ path: { pool }, cookies }) => {
+    const user = currentUser(cookies)
+    return lookup.siloSubnetPool({ subnetPool: pool, silo: user.silo_id })
+  },
+  systemSubnetPoolList({ query, cookies }) {
+    requireFleetViewer(cookies)
+    // Return system-scoped pools (without is_default)
+    const pools = db.subnetPools.map(({ is_default: _, ...p }) => p)
+    return paginated(query, pools)
+  },
+  systemSubnetPoolView({ path, cookies }) {
+    requireFleetViewer(cookies)
+    return lookup.systemSubnetPool({ subnetPool: path.pool })
+  },
+  systemSubnetPoolCreate({ body, cookies }) {
+    requireFleetAdmin(cookies)
+    errIfExists(db.subnetPools, { name: body.name }, 'subnet pool')
+
+    const newPool: Json<Api.SiloSubnetPool> = {
+      id: uuid(),
+      description: body.description,
+      name: body.name,
+      ip_version: body.ip_version,
+      is_default: false,
+      ...getTimestamps(),
+    }
+    db.subnetPools.push(newPool)
+
+    const { is_default: _, ...systemPool } = newPool
+    return json(systemPool, { status: 201 })
+  },
+  systemSubnetPoolUpdate({ path, body, cookies }) {
+    requireFleetAdmin(cookies)
+    const pool = lookup.subnetPool({ subnetPool: path.pool })
+
+    if (body.name) {
+      if (body.name !== pool.name) {
+        errIfExists(db.subnetPools, { name: body.name })
+      }
+      pool.name = body.name
+    }
+
+    updateDesc(pool, body)
+
+    const { is_default: _, ...systemPool } = pool
+    return systemPool
+  },
+  systemSubnetPoolDelete({ path, cookies }) {
+    requireFleetAdmin(cookies)
+    const pool = lookup.subnetPool({ subnetPool: path.pool })
+
+    if (db.subnetPoolMembers.some((m) => m.subnet_pool_id === pool.id)) {
+      throw 'Subnet pool cannot be deleted while it contains members'
+    }
+
+    db.subnetPools = db.subnetPools.filter((p) => p.id !== pool.id)
+    db.subnetPoolSilos = db.subnetPoolSilos.filter((s) => s.subnet_pool_id !== pool.id)
+
+    return 204
+  },
+  systemSubnetPoolMemberList({ path, query, cookies }) {
+    requireFleetViewer(cookies)
+    const pool = lookup.subnetPool({ subnetPool: path.pool })
+    const members = db.subnetPoolMembers.filter((m) => m.subnet_pool_id === pool.id)
+    return paginated(query, members)
+  },
+  systemSubnetPoolMemberAdd({ path, body, cookies }) {
+    requireFleetAdmin(cookies)
+    const pool = lookup.subnetPool({ subnetPool: path.pool })
+
+    const parsed = parseIpNet(body.subnet)
+    if (parsed.type === 'error') {
+      throw `Invalid subnet CIDR: ${parsed.message}`
+    }
+    if (parsed.type !== pool.ip_version) {
+      throw `IP${parsed.type} subnet not allowed in IP${pool.ip_version} pool`
+    }
+
+    const maxBound = pool.ip_version === 'v4' ? 32 : 128
+    const minPL = body.min_prefix_length ?? parsed.width
+    const maxPL = body.max_prefix_length ?? maxBound
+
+    if (minPL > maxPL) {
+      throw 'min_prefix_length must be <= max_prefix_length'
+    }
+    if (minPL < parsed.width || maxPL < parsed.width) {
+      throw `Prefix lengths must be >= subnet prefix length (${parsed.width})`
+    }
+
+    // reject overlapping members within the same pool
+    const existing = db.subnetPoolMembers.filter((m) => m.subnet_pool_id === pool.id)
+    for (const m of existing) {
+      if (m.subnet === body.subnet) {
+        throw `Overlapping member: ${body.subnet} already exists in pool`
+      }
+    }
+
+    const newMember: Json<Api.SubnetPoolMember> = {
+      id: uuid(),
+      subnet_pool_id: pool.id,
+      subnet: body.subnet,
+      min_prefix_length: minPL,
+      max_prefix_length: maxPL,
+      time_created: new Date().toISOString(),
+    }
+
+    db.subnetPoolMembers.push(newMember)
+
+    return json(newMember, { status: 201 })
+  },
+  systemSubnetPoolMemberRemove({ path, body, cookies }) {
+    requireFleetAdmin(cookies)
+    const pool = lookup.subnetPool({ subnetPool: path.pool })
+
+    const memberIdsToDelete = db.subnetPoolMembers
+      .filter((m) => m.subnet_pool_id === pool.id && m.subnet === body.subnet)
+      .map((m) => m.id)
+
+    if (memberIdsToDelete.length === 0) throw notFoundErr(`subnet member ${body.subnet}`)
+
+    const inUse = db.externalSubnets.some((s) =>
+      memberIdsToDelete.includes(s.subnet_pool_member_id)
+    )
+    if (inUse) {
+      throw 'Subnet pool member cannot be removed while subnets are allocated from it'
+    }
+
+    db.subnetPoolMembers = db.subnetPoolMembers.filter(
+      (m) => !memberIdsToDelete.includes(m.id)
+    )
+
+    return 204
+  },
+  systemSubnetPoolSiloList({ path, cookies }) {
+    requireFleetViewer(cookies)
+    const pool = lookup.subnetPool({ subnetPool: path.pool })
+    const assocs = db.subnetPoolSilos.filter((sps) => sps.subnet_pool_id === pool.id)
+    return { items: assocs }
+  },
+  systemSubnetPoolSiloLink({ path, body, cookies }) {
+    requireFleetAdmin(cookies)
+    const pool = lookup.subnetPool({ subnetPool: path.pool })
+    const silo_id = lookup.silo({ silo: body.silo }).id
+
+    const assoc: Json<Api.SubnetPoolSiloLink> = {
+      subnet_pool_id: pool.id,
+      silo_id,
+      is_default: body.is_default,
+    }
+
+    const alreadyThere = db.subnetPoolSilos.find(
+      (sps) => sps.subnet_pool_id === pool.id && sps.silo_id === silo_id
+    )
+
+    if (!alreadyThere) db.subnetPoolSilos.push(assoc)
+
+    return json(assoc, { status: 201 })
+  },
+  systemSubnetPoolSiloUnlink({ path, cookies }) {
+    requireFleetAdmin(cookies)
+    const pool = lookup.subnetPool({ subnetPool: path.pool })
+    const silo = lookup.silo(path)
+
+    // Reject if any external subnets from this pool are in projects owned by this silo
+    const siloProjectIds = new Set(
+      db.projects.filter((p) => p.silo_id === silo.id).map((p) => p.id)
+    )
+    const hasAllocatedSubnets = db.externalSubnets.some(
+      (s) => s.subnet_pool_id === pool.id && siloProjectIds.has(s.project_id)
+    )
+    if (hasAllocatedSubnets) {
+      throw 'Cannot unlink silo: external subnets from this pool are still allocated in the silo'
+    }
+
+    db.subnetPoolSilos = db.subnetPoolSilos.filter(
+      (sps) => !(sps.subnet_pool_id === pool.id && sps.silo_id === silo.id)
+    )
+
+    return 204
+  },
+  systemSubnetPoolSiloUpdate({ path, body, cookies }) {
+    requireFleetAdmin(cookies)
+    const link = lookup.subnetPoolSiloLink({ subnetPool: path.pool, ...path })
+
+    // if setting default, clear existing default for same IP version
+    if (body.is_default) {
+      const silo = lookup.silo(path)
+      const currentPool = lookup.subnetPool({ subnetPool: link.subnet_pool_id })
+
+      const existingDefault = db.subnetPoolSilos.find((sps) => {
+        if (sps.silo_id !== silo.id || !sps.is_default) return false
+        const pool = db.subnetPools.find((p) => p.id === sps.subnet_pool_id)
+        return pool && pool.ip_version === currentPool.ip_version
+      })
+
+      if (existingDefault) {
+        existingDefault.is_default = false
+      }
+    }
+
+    link.is_default = body.is_default
+
+    return link
+  },
+  systemSubnetPoolUtilizationView({ path, cookies }) {
+    requireFleetViewer(cookies)
+    const pool = lookup.subnetPool({ subnetPool: path.pool })
+
+    // TODO: figure out why subnet pool utilization can't list remaining
+    // addresses like IP pools do and make this mock match omicron's behavior.
+    // Also, Math.pow(2, bits - prefix) overflows to Infinity for IPv6.
+    const members = db.subnetPoolMembers.filter((m) => m.subnet_pool_id === pool.id)
+
+    let capacity = 0
+    for (const member of members) {
+      const prefixMatch = member.subnet.match(/\/(\d+)$/)
+      const prefix = prefixMatch ? Number(prefixMatch[1]) : 0
+      const bits = pool.ip_version === 'v4' ? 32 : 128
+      capacity += Math.pow(2, bits - prefix)
+    }
+
+    const allocated = db.externalSubnets.filter(
+      (es) => es.subnet_pool_id === pool.id
+    ).length
+
+    return { allocated, capacity }
+  },
+  siloSubnetPoolList({ path, query, cookies }) {
+    requireFleetViewer(cookies)
+    const pools = lookup.siloSubnetPools(path)
+    return paginated(query, pools)
+  },
 
   // Misc endpoints we're not using yet in the console
   affinityGroupCreate: NotImplemented,
@@ -2322,10 +2559,6 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
-  subnetPoolList({ query }) {
-    return paginated(query, db.subnetPools)
-  },
-  subnetPoolView: ({ path }) => lookup.subnetPool({ subnetPool: path.pool }),
   instanceMulticastGroupJoin: NotImplemented,
   instanceMulticastGroupLeave: NotImplemented,
   instanceMulticastGroupList: NotImplemented,
@@ -2397,24 +2630,10 @@ export const handlers = makeHandlers({
   rackView: NotImplemented,
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
-  siloSubnetPoolList: NotImplemented,
   siloUserList: NotImplemented,
   siloUserView: NotImplemented,
   sledListUninitialized: NotImplemented,
   sledSetProvisionPolicy: NotImplemented,
-  systemSubnetPoolCreate: NotImplemented,
-  systemSubnetPoolDelete: NotImplemented,
-  systemSubnetPoolList: NotImplemented,
-  systemSubnetPoolMemberAdd: NotImplemented,
-  systemSubnetPoolMemberList: NotImplemented,
-  systemSubnetPoolMemberRemove: NotImplemented,
-  systemSubnetPoolSiloLink: NotImplemented,
-  systemSubnetPoolSiloList: NotImplemented,
-  systemSubnetPoolSiloUnlink: NotImplemented,
-  systemSubnetPoolSiloUpdate: NotImplemented,
-  systemSubnetPoolUpdate: NotImplemented,
-  systemSubnetPoolUtilizationView: NotImplemented,
-  systemSubnetPoolView: NotImplemented,
   supportBundleCreate: NotImplemented,
   supportBundleDelete: NotImplemented,
   supportBundleDownload: NotImplemented,

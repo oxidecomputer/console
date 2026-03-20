@@ -719,6 +719,20 @@ exports[`breadcrumbs 2`] = `
       "path": "/system/silos/s/scim",
     },
   ],
+  "siloSubnetPools (/system/silos/s/subnet-pools)": [
+    {
+      "label": "Silos",
+      "path": "/system/silos",
+    },
+    {
+      "label": "s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "Subnet Pools",
+      "path": "/system/silos/s/subnet-pools",
+    },
+  ],
   "siloUtilization (/utilization)": [
     {
       "label": "Utilization",
@@ -835,6 +849,52 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "SSH Keys",
       "path": "/settings/ssh-keys",
+    },
+  ],
+  "subnetPool (/system/networking/subnet-pools/sp)": [
+    {
+      "label": "Subnet Pools",
+      "path": "/system/networking/subnet-pools",
+    },
+    {
+      "label": "sp",
+      "path": "/system/networking/subnet-pools/sp",
+    },
+  ],
+  "subnetPoolEdit (/system/networking/subnet-pools/sp/edit)": [
+    {
+      "label": "Subnet Pools",
+      "path": "/system/networking/subnet-pools",
+    },
+    {
+      "label": "sp",
+      "path": "/system/networking/subnet-pools/sp",
+    },
+    {
+      "label": "Edit subnet pool",
+      "path": "/system/networking/subnet-pools/sp/edit",
+    },
+  ],
+  "subnetPoolMemberAdd (/system/networking/subnet-pools/sp/members-add)": [
+    {
+      "label": "Subnet Pools",
+      "path": "/system/networking/subnet-pools",
+    },
+    {
+      "label": "sp",
+      "path": "/system/networking/subnet-pools/sp",
+    },
+  ],
+  "subnetPools (/system/networking/subnet-pools)": [
+    {
+      "label": "Subnet Pools",
+      "path": "/system/networking/",
+    },
+  ],
+  "subnetPoolsNew (/system/networking/subnet-pools-new)": [
+    {
+      "label": "Subnet Pools",
+      "path": "/system/networking/",
     },
   ],
   "systemUpdate (/system/update)": [

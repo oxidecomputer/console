@@ -65,6 +65,7 @@
 - Store API response objects in the mock tables when possible so state persists across calls.
 - Enforce role checks with `requireFleetViewer`/`requireFleetCollab`/`requireFleetAdmin`, and return realistic errors (e.g. downgrade guard in `systemUpdateStatus`).
 - All UUIDs in `mock-api/` must be valid RFC 4122 (a safety test enforces this). Use `uuidgen` to generate them—do not hand-write UUIDs.
+- MSW starts fresh with a new db on every page load, so in E2E tests, use client-side navigation (click links/breadcrumbs) after mutations instead of `page.goto` to preserve db state within a test.
 
 # Routing
 
