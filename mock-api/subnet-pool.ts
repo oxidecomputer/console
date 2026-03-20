@@ -34,7 +34,17 @@ export const subnetPool2: Json<SiloSubnetPool> = {
   time_modified: new Date().toISOString(),
 }
 
-export const subnetPools = [subnetPool1, subnetPool2]
+export const subnetPool3: Json<SiloSubnetPool> = {
+  id: 'c7bdc035-dfe2-40d0-9794-76f78b4898c2',
+  name: 'ipv6-subnet-pool',
+  description: 'IPv6 subnet pool',
+  ip_version: 'v6',
+  is_default: false,
+  time_created: new Date().toISOString(),
+  time_modified: new Date().toISOString(),
+}
+
+export const subnetPools = [subnetPool1, subnetPool2, subnetPool3]
 
 export const subnetPoolMember1: Json<SubnetPoolMember> = {
   id: '0466eafd-2922-4360-a0ee-e4c99b370c04',
@@ -55,4 +65,13 @@ export const subnetPoolMember2: Json<SubnetPoolMember> = {
   time_created: new Date().toISOString(),
 }
 
-export const subnetPoolMembers = [subnetPoolMember1, subnetPoolMember2]
+export const subnetPoolMember3: Json<SubnetPoolMember> = {
+  id: 'b60cb98d-0f52-4367-834a-9ca37edce66d',
+  subnet_pool_id: subnetPool3.id,
+  subnet: 'fd00:1000::/32',
+  min_prefix_length: 48,
+  max_prefix_length: 64,
+  time_created: new Date().toISOString(),
+}
+
+export const subnetPoolMembers = [subnetPoolMember1, subnetPoolMember2, subnetPoolMember3]

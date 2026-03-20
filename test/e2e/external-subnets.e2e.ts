@@ -363,11 +363,29 @@ test('create form validates explicit subnet CIDR', async ({ page }) => {
   await expectToast(page, 'External subnet bad-cidr-subnet created')
 })
 
-test('create form prefix length description reflects pool IP version', async ({ page }) => {
+test('create form prefix length max changes with pool IP version', async ({ page }) => {
   await page.goto(`${externalSubnetsPage}-new`)
 
-  // Default pool is IPv4, so description should show range 1–32
-  await expect(page.getByText('Range: 1–32.')).toBeVisible()
+  await expect(page.getByText('Max is 32 for IPv4 pools, 128 for IPv6.')).toBeVisible()
+
+  const prefixLen = page.getByRole('textbox', { name: 'Prefix length' })
+  const v6Pool = page.getByRole('option', { name: 'ipv6-subnet-pool' })
+  const v4Pool = page.getByRole('option', { name: 'default-v4-subnet-pool' })
+
+  // With v4 pool selected, typing 64 should be clamped to 32
+  await prefixLen.fill('64')
+  await prefixLen.blur()
+  await expect(prefixLen).toHaveValue('32')
+
+  // Switch to v6 pool — 64 should now be accepted
+  await selectOption(page, 'Subnet pool', v6Pool)
+  await prefixLen.fill('64')
+  await prefixLen.blur()
+  await expect(prefixLen).toHaveValue('64')
+
+  // Switch back to v4 — value should clamp back to 32
+  await selectOption(page, 'Subnet pool', v4Pool)
+  await expect(prefixLen).toHaveValue('32')
 })
 
 test('create form toggles between auto and explicit fields', async ({ page }) => {

@@ -123,15 +123,6 @@ export default function CreateExternalSubnetSideModalForm() {
       />
       {allocationType === 'auto' ? (
         <>
-          <NumberField
-            name="prefixLen"
-            label="Prefix length"
-            required
-            control={form.control}
-            min={1}
-            max={prefixLenMax}
-            description={`Prefix length for the allocated subnet (e.g., 24 for a /24). Range: 1–${prefixLenMax}.`}
-          />
           <ListboxField
             name="pool"
             label="Subnet pool"
@@ -141,6 +132,15 @@ export default function CreateExternalSubnetSideModalForm() {
             items={pools.items.map(toPoolItem)}
             required
             description="Subnet pool to allocate from"
+          />
+          <NumberField
+            name="prefixLen"
+            label="Prefix length"
+            required
+            control={form.control}
+            min={1}
+            max={prefixLenMax}
+            description="Prefix length for the allocated subnet (e.g., 24 for a /24). Max is 32 for IPv4 pools, 128 for IPv6."
           />
         </>
       ) : (
