@@ -44,6 +44,7 @@ import { Message } from '~/ui/lib/Message'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
 import { ALL_ISH } from '~/util/consts'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -222,8 +223,7 @@ export default function ExternalSubnetsPage() {
           heading="external subnets"
           icon={<Subnet16Icon />}
           summary="External subnets provide a range of IP addresses from a subnet pool that can be attached to instances."
-          // TODO: add doc links when external subnet docs exist
-          links={[]}
+          links={[docLinks.externalSubnets]}
         />
       </PageHeader>
       <TableActions>

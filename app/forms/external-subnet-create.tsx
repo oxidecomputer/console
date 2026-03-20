@@ -23,7 +23,9 @@ import { toPoolItem } from '~/components/PoolListboxItem'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { ALL_ISH } from '~/util/consts'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const poolList = q(api.subnetPoolList, { query: { limit: ALL_ISH } })
@@ -141,6 +143,7 @@ export default function CreateExternalSubnetSideModalForm() {
           description="The subnet to reserve, e.g., 10.128.1.0/24"
         />
       )}
+      <SideModalFormDocs docs={[docLinks.externalSubnets]} />
     </SideModalForm>
   )
 }
