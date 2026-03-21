@@ -97,6 +97,8 @@ async function makeOmicronPR(
   {
     // create git worktree for latest main in temp dir. `using` ensures this gets
     // cleaned up at the end of the block
+    // oxlint doesn't understand `await using` syntax — the `await` is for the async dispose
+    // eslint-disable-next-line @typescript-eslint/await-thenable
     await using worktree = await makeOmicronWorktree()
 
     const newSha2 = await fetchTarballSha(consoleCommit)
