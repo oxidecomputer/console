@@ -78,6 +78,7 @@
     "zustand": "^5.0.3"
   },
   "devDependencies": {
+    "@antithesishq/bombadil": "^0.3.2",
     "@mswjs/http-middleware": "^0.10.3",
     "@oxide/openapi-gen-ts": "~0.14.0",
     "@playwright/test": "^1.58.2",
