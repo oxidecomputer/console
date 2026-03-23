@@ -487,7 +487,7 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
                   control={protocolForm.control}
                   description={
                     <>
-                      Enter a code (0) or range (e.g. 1&ndash;3). Leave blank for all
+                      Enter a code (0) or range (e.g., 1&ndash;3). Leave blank for all
                       traffic of type {selectedIcmpType}.
                     </>
                   }

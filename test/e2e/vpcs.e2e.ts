@@ -76,7 +76,7 @@ test('can edit VPC', async ({ page }) => {
 
 test('can create and delete subnet', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc')
-  await page.getByRole('tab', { name: 'Subnets' }).click()
+  await page.getByRole('tab', { name: 'VPC Subnets' }).click()
   // two rows in table: mock-subnet and mock-subnet-2
   const table = page.getByRole('table')
   const rows = page.getByRole('table').getByRole('row')
@@ -89,9 +89,9 @@ test('can create and delete subnet', async ({ page }) => {
   })
 
   // open modal, fill out form, submit
-  await page.getByRole('link', { name: 'New subnet' }).click()
+  await page.getByRole('link', { name: 'New VPC subnet' }).click()
 
-  const dialog = page.getByRole('dialog', { name: 'Create subnet' })
+  const dialog = page.getByRole('dialog', { name: 'Create VPC subnet' })
   await expect(dialog).toBeVisible()
 
   await dialog.getByRole('textbox', { name: 'Name' }).fill('mock-subnet-3')
@@ -101,7 +101,7 @@ test('can create and delete subnet', async ({ page }) => {
   await dialog.getByRole('textbox', { name: 'IPv6 block' }).fill('abc')
   await dialog.getByRole('textbox', { name: 'IPv6 block' }).clear()
 
-  await dialog.getByRole('button', { name: 'Create subnet' }).click()
+  await dialog.getByRole('button', { name: 'Create VPC subnet' }).click()
 
   await expect(dialog).toBeHidden()
   await expect(rows).toHaveCount(4)
@@ -126,7 +126,7 @@ test('can create and delete subnet', async ({ page }) => {
 
 test('can create and update subnets with a custom router', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc/subnets')
-  await page.getByRole('link', { name: 'New subnet' }).click()
+  await page.getByRole('link', { name: 'New VPC subnet' }).click()
 
   const table = page.getByRole('table')
   const rows = table.getByRole('row')
@@ -137,7 +137,7 @@ test('can create and update subnets with a custom router', async ({ page }) => {
     'IP Block': expect.stringContaining('10.1.1.1/24'),
   })
 
-  const dialog = page.getByRole('dialog', { name: 'Create subnet' })
+  const dialog = page.getByRole('dialog', { name: 'Create VPC subnet' })
   await expect(dialog).toBeVisible()
 
   await page.getByRole('textbox', { name: 'Name' }).fill('mock-subnet-3')
@@ -146,7 +146,7 @@ test('can create and update subnets with a custom router', async ({ page }) => {
   await page.getByRole('button', { name: 'Custom router' }).click()
   await page.getByRole('option', { name: 'mock-custom-router' }).click()
 
-  await page.getByRole('button', { name: 'Create subnet' }).click()
+  await page.getByRole('button', { name: 'Create VPC subnet' }).click()
   await expect(dialog).toBeHidden()
 
   await expect(rows).toHaveCount(4)
@@ -160,7 +160,7 @@ test('can create and update subnets with a custom router', async ({ page }) => {
   await page.getByRole('link', { name: 'mock-subnet-3' }).click()
   await page.getByRole('button', { name: 'Custom router' }).click()
   await page.getByRole('option', { name: 'None' }).click()
-  await page.getByRole('button', { name: 'Update subnet' }).click()
+  await page.getByRole('button', { name: 'Update VPC subnet' }).click()
   await expect(dialog).toBeHidden()
 
   await expectRowVisible(table, {

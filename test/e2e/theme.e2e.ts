@@ -5,7 +5,98 @@
  *
  * Copyright Oxide Computer Company
  */
+import type { Page } from '@playwright/test'
+
 import { expect, test } from './utils'
+
+/** Seed theme preference into localStorage before any page loads. */
+async function seedTheme(page: Page, theme: string) {
+  await page.addInitScript((t) => {
+    localStorage.setItem(
+      'theme-preference',
+      JSON.stringify({ state: { theme: t }, version: 0 })
+    )
+  }, theme)
+}
+
+/**
+ * Block the app entry so React never boots. This isolates theme-init.js,
+ * letting us test the pre-hydration theme. The #root empty check in tests
+ * ensures this block is still working.
+ */
+async function blockReact(page: Page) {
+  await page.route('**/app/main.tsx*', (route) => route.abort('blockedbyclient'))
+}
+
+test.describe('theme-init.js (pre-hydration)', () => {
+  test('defaults to dark with no stored preference', async ({ page }) => {
+    await blockReact(page)
+    await page.goto('/projects', { waitUntil: 'domcontentloaded' })
+    await expect(page.locator('#root')).toBeEmpty()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+  })
+
+  test('respects stored light preference', async ({ page }) => {
+    await seedTheme(page, 'light')
+    await blockReact(page)
+    await page.goto('/projects', { waitUntil: 'domcontentloaded' })
+    await expect(page.locator('#root')).toBeEmpty()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
+  })
+
+  test('respects stored dark preference', async ({ page }) => {
+    await seedTheme(page, 'dark')
+    await blockReact(page)
+    await page.goto('/projects', { waitUntil: 'domcontentloaded' })
+    await expect(page.locator('#root')).toBeEmpty()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+  })
+
+  test('system preference resolves to emulated color scheme', async ({ page }) => {
+    await seedTheme(page, 'system')
+    await blockReact(page)
+
+    await page.emulateMedia({ colorScheme: 'light' })
+    await page.goto('/projects', { waitUntil: 'domcontentloaded' })
+    await expect(page.locator('#root')).toBeEmpty()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
+
+    await page.emulateMedia({ colorScheme: 'dark' })
+    await page.goto('/projects', { waitUntil: 'domcontentloaded' })
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+  })
+
+  test('forces dark on auth pages regardless of preference', async ({ page }) => {
+    await seedTheme(page, 'light')
+    await blockReact(page)
+
+    for (const path of ['/login/default-silo/saml/mock-idp', '/device/verify']) {
+      await page.goto(path, { waitUntil: 'domcontentloaded' })
+      await expect(page.locator('#root')).toBeEmpty()
+      await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+    }
+  })
+})
+
+test('Login and device pages force dark theme even when preference is light', async ({
+  page,
+}) => {
+  // Set theme to light via the UI
+  await page.goto('/projects')
+  await page.getByRole('button', { name: 'User menu' }).click()
+  await page.getByRole('menuitem', { name: 'Theme' }).click()
+  await page.getByRole('menuitemradio', { name: 'Light' }).click()
+  await page.keyboard.press('Escape')
+
+  const html = page.locator('html')
+  await expect(html).toHaveAttribute('data-theme', 'light')
+
+  await page.goto('/login/default-silo/saml/mock-idp')
+  await expect(html).toHaveAttribute('data-theme', 'dark')
+
+  await page.goto('/device/verify')
+  await expect(html).toHaveAttribute('data-theme', 'dark')
+})
 
 test('Serial console terminal updates colors on theme change', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1/serial-console')

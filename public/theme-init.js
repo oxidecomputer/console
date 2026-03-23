@@ -9,14 +9,20 @@
 // Set theme before first paint to prevent flash of wrong color scheme.
 // Mirrors logic in app/stores/theme.ts. Must stay in sync.
 ;(function () {
-  var p = 'dark'
+  // Resolve preference from localStorage (zustand persist format)
+  let pref = 'dark'
   try {
-    var raw = localStorage.getItem('theme-preference')
-    var stored = raw ? JSON.parse(raw) : null
-    // match zustand persist format
-    if (stored && stored.state && stored.state.theme) p = stored.state.theme
+    const raw = localStorage.getItem('theme-preference')
+    const stored = raw ? JSON.parse(raw) : null
+    if (stored && stored.state && stored.state.theme) pref = stored.state.theme
   } catch (_e) {}
-  if (p === 'system')
-    p = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
-  document.documentElement.dataset.theme = p
+
+  const systemIsLight = matchMedia('(prefers-color-scheme: light)').matches
+  const resolvedPref = pref === 'system' ? (systemIsLight ? 'light' : 'dark') : pref
+
+  // Keep in sync with FORCE_DARK_PATHS in app/stores/theme.ts
+  const forceDarkPaths = ['/login/', '/device/']
+  const forceDark = forceDarkPaths.some((p) => location.pathname.startsWith(p))
+
+  document.documentElement.dataset.theme = forceDark ? 'dark' : resolvedPref
 })()

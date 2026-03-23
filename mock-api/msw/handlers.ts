@@ -55,6 +55,7 @@ import {
   getBlockSize,
   handleMetrics,
   handleOxqlMetrics,
+  invalidRequest,
   ipRangeLen,
   NotImplemented,
   paginated,
@@ -283,6 +284,94 @@ export const handlers = makeHandlers({
 
     return 204
   },
+  externalSubnetList({ query }) {
+    const project = lookup.project(query)
+    const subnets = db.externalSubnets.filter((s) => s.project_id === project.id)
+    return paginated(query, subnets)
+  },
+  externalSubnetCreate({ body, query }) {
+    const project = lookup.project(query)
+    errIfExists(db.externalSubnets, { name: body.name, project_id: project.id })
+
+    const { pool, subnet } = match(body.allocator)
+      .with({ type: 'explicit' }, (a) => ({
+        // Real API infers pool from the subnet; mock just uses default
+        pool: lookup.defaultSubnetPool(),
+        subnet: a.subnet,
+      }))
+      .with({ type: 'auto' }, (a) => {
+        const pool = match(a.pool_selector)
+          .with({ type: 'explicit' }, (ps) => lookup.subnetPool({ subnetPool: ps.pool }))
+          .with({ type: 'auto' }, () => lookup.defaultSubnetPool())
+          .with(undefined, () => lookup.defaultSubnetPool())
+          .exhaustive()
+        const idx = db.externalSubnets.length + 1
+        return { pool, subnet: `10.128.${idx}.0/${a.prefix_len}` }
+      })
+      .exhaustive()
+
+    // Use first matching member; real API picks based on CIDR availability
+    const member = db.subnetPoolMembers.find((m) => m.subnet_pool_id === pool.id)
+    if (!member) throw notFoundErr(`subnet pool member for pool '${pool.id}'`)
+
+    const newSubnet: Json<Api.ExternalSubnet> = {
+      id: uuid(),
+      project_id: project.id,
+      instance_id: undefined,
+      name: body.name,
+      description: body.description,
+      subnet,
+      subnet_pool_id: pool.id,
+      subnet_pool_member_id: member.id,
+      ...getTimestamps(),
+    }
+    db.externalSubnets.push(newSubnet)
+    return json(newSubnet, { status: 201 })
+  },
+  externalSubnetView: ({ path, query }) => lookup.externalSubnet({ ...path, ...query }),
+  externalSubnetUpdate: ({ path, query, body }) => {
+    const externalSubnet = lookup.externalSubnet({ ...path, ...query })
+    if (body.name) {
+      if (body.name !== externalSubnet.name) {
+        errIfExists(db.externalSubnets, {
+          name: body.name,
+          project_id: externalSubnet.project_id,
+        })
+      }
+      externalSubnet.name = body.name
+    }
+    updateDesc(externalSubnet, body)
+    return externalSubnet
+  },
+  externalSubnetDelete({ path, query }) {
+    const externalSubnet = lookup.externalSubnet({ ...path, ...query })
+    if (externalSubnet.instance_id) {
+      throw invalidRequest(
+        'external subnet cannot be deleted while attached to an instance'
+      )
+    }
+    db.externalSubnets = db.externalSubnets.filter((s) => s.id !== externalSubnet.id)
+    return 204
+  },
+  externalSubnetAttach({ path: { externalSubnet }, query: { project }, body }) {
+    const dbSubnet = lookup.externalSubnet({ externalSubnet, project })
+    if (dbSubnet.instance_id) {
+      throw invalidRequest(
+        'external subnet cannot be attached to one instance while still attached to another'
+      )
+    }
+    const dbInstance = lookup.instance({
+      instance: body.instance,
+      project: isUuid(body.instance) ? undefined : project,
+    })
+    dbSubnet.instance_id = dbInstance.id
+    return dbSubnet
+  },
+  externalSubnetDetach({ path, query }) {
+    const externalSubnet = lookup.externalSubnet({ ...path, ...query })
+    externalSubnet.instance_id = undefined
+    return externalSubnet
+  },
   floatingIpCreate({ body, query }) {
     const project = lookup.project(query)
     errIfExists(db.floatingIps, { name: body.name, project_id: project.id })
@@ -368,10 +457,7 @@ export const handlers = makeHandlers({
   },
   floatingIpDetach({ path, query }) {
     const floatingIp = lookup.floatingIp({ ...path, ...query })
-    db.floatingIps = db.floatingIps.map((ip) =>
-      ip.id !== floatingIp.id ? ip : { ...ip, instance_id: undefined }
-    )
-
+    floatingIp.instance_id = undefined
     return floatingIp
   },
   imageList({ query }) {
@@ -561,21 +647,13 @@ export const handlers = makeHandlers({
         // Based on Omicron validation in nexus/db-queries/src/db/datastore/external_ip.rs:544-661
         const ipVersion = pool.ip_version
         if (ipVersion === 'v4' && !hasIpv4Nic) {
-          throw json(
-            {
-              error_code: 'InvalidRequest',
-              message: `The ephemeral external IP is an IPv4 address, but the instance with ID ${body.name} does not have a primary network interface with a VPC-private IPv4 address. Add a VPC-private IPv4 address to the interface, or attach a different IP address`,
-            },
-            { status: 400 }
+          throw invalidRequest(
+            `The ephemeral external IP is an IPv4 address, but the instance with ID ${body.name} does not have a primary network interface with a VPC-private IPv4 address. Add a VPC-private IPv4 address to the interface, or attach a different IP address`
           )
         }
         if (ipVersion === 'v6' && !hasIpv6Nic) {
-          throw json(
-            {
-              error_code: 'InvalidRequest',
-              message: `The ephemeral external IP is an IPv6 address, but the instance with ID ${body.name} does not have a primary network interface with a VPC-private IPv6 address. Add a VPC-private IPv6 address to the interface, or attach a different IP address`,
-            },
-            { status: 400 }
+          throw invalidRequest(
+            `The ephemeral external IP is an IPv6 address, but the instance with ID ${body.name} does not have a primary network interface with a VPC-private IPv6 address. Add a VPC-private IPv6 address to the interface, or attach a different IP address`
           )
         }
       }
@@ -891,35 +969,21 @@ export const handlers = makeHandlers({
     const primaryNic = nics.find((n) => n.primary)
 
     if (!primaryNic) {
-      throw json(
-        {
-          error_code: 'InvalidRequest',
-          message: `Instance ${instance.name} has no primary network interface`,
-        },
-        { status: 400 }
-      )
+      throw invalidRequest(`Instance ${instance.name} has no primary network interface`)
     }
 
     const ipVersion = pool.ip_version
     const stackType = primaryNic.ip_stack.type
 
     if (ipVersion === 'v4' && stackType !== 'v4' && stackType !== 'dual_stack') {
-      throw json(
-        {
-          error_code: 'InvalidRequest',
-          message: `The ephemeral external IP is an IPv4 address, but the instance with ID ${instance.name} does not have a primary network interface with a VPC-private IPv4 address. Add a VPC-private IPv4 address to the interface, or attach a different IP address`,
-        },
-        { status: 400 }
+      throw invalidRequest(
+        `The ephemeral external IP is an IPv4 address, but the instance with ID ${instance.name} does not have a primary network interface with a VPC-private IPv4 address. Add a VPC-private IPv4 address to the interface, or attach a different IP address`
       )
     }
 
     if (ipVersion === 'v6' && stackType !== 'v6' && stackType !== 'dual_stack') {
-      throw json(
-        {
-          error_code: 'InvalidRequest',
-          message: `The ephemeral external IP is an IPv6 address, but the instance with ID ${instance.name} does not have a primary network interface with a VPC-private IPv6 address. Add a VPC-private IPv6 address to the interface, or attach a different IP address`,
-        },
-        { status: 400 }
+      throw invalidRequest(
+        `The ephemeral external IP is an IPv6 address, but the instance with ID ${instance.name} does not have a primary network interface with a VPC-private IPv6 address. Add a VPC-private IPv6 address to the interface, or attach a different IP address`
       )
     }
 
@@ -952,12 +1016,8 @@ export const handlers = makeHandlers({
     )
 
     if (attachedVersions.size > 1 && !ipVersion) {
-      throw json(
-        {
-          error_code: 'InvalidRequest',
-          message: `Instance ${instance.name} has both IPv4 and IPv6 ephemeral IPs; ipVersion is required to detach one`,
-        },
-        { status: 400 }
+      throw invalidRequest(
+        `Instance ${instance.name} has both IPv4 and IPv6 ephemeral IPs; ipVersion is required to detach one`
       )
     }
 
@@ -989,6 +1049,11 @@ export const handlers = makeHandlers({
 
     // endpoint is not paginated. or rather, it's fake paginated
     return { items: [...ephemeralIps, ...snatIps, ...floatingIps] }
+  },
+  instanceExternalSubnetList({ path, query }) {
+    const instance = lookup.instance({ ...path, ...query })
+    const items = db.externalSubnets.filter((s) => s.instance_id === instance.id)
+    return { items, next_page: null }
   },
   instanceNetworkInterfaceList({ query }) {
     const instance = lookup.instance(query)
@@ -1917,6 +1982,25 @@ export const handlers = makeHandlers({
 
     return { role_assignments }
   },
+  systemPolicyUpdate({ body, cookies }) {
+    requireFleetAdmin(cookies)
+
+    const newAssignments = body.role_assignments
+      .filter((r) => fleetRoles.some((role) => role === r.role_name))
+      .map((r) => ({
+        resource_type: 'fleet' as const,
+        resource_id: FLEET_ID,
+        ...R.pick(r, ['identity_id', 'identity_type', 'role_name']),
+      }))
+
+    const unrelatedAssignments = db.roleAssignments.filter(
+      (r) => !(r.resource_type === 'fleet' && r.resource_id === FLEET_ID)
+    )
+
+    db.roleAssignments = [...unrelatedAssignments, ...newAssignments]
+
+    return body
+  },
   systemMetric(params) {
     requireFleetViewer(params.cookies)
     return handleMetrics(params)
@@ -2238,16 +2322,10 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
-  subnetPoolList: NotImplemented,
-  subnetPoolView: NotImplemented,
-  externalSubnetList: NotImplemented,
-  externalSubnetCreate: NotImplemented,
-  externalSubnetView: NotImplemented,
-  externalSubnetUpdate: NotImplemented,
-  externalSubnetDelete: NotImplemented,
-  externalSubnetAttach: NotImplemented,
-  externalSubnetDetach: NotImplemented,
-  instanceExternalSubnetList: NotImplemented,
+  subnetPoolList({ query }) {
+    return paginated(query, db.subnetPools)
+  },
+  subnetPoolView: ({ path }) => lookup.subnetPool({ subnetPool: path.pool }),
   instanceMulticastGroupJoin: NotImplemented,
   instanceMulticastGroupLeave: NotImplemented,
   instanceMulticastGroupList: NotImplemented,
@@ -2348,25 +2426,6 @@ export const handlers = makeHandlers({
   supportBundleUpdate: NotImplemented,
   supportBundleView: NotImplemented,
   switchView: NotImplemented,
-  systemPolicyUpdate({ body, cookies }) {
-    requireFleetAdmin(cookies)
-
-    const newAssignments = body.role_assignments
-      .filter((r) => fleetRoles.some((role) => role === r.role_name))
-      .map((r) => ({
-        resource_type: 'fleet' as const,
-        resource_id: FLEET_ID,
-        ...R.pick(r, ['identity_id', 'identity_type', 'role_name']),
-      }))
-
-    const unrelatedAssignments = db.roleAssignments.filter(
-      (r) => !(r.resource_type === 'fleet' && r.resource_id === FLEET_ID)
-    )
-
-    db.roleAssignments = [...unrelatedAssignments, ...newAssignments]
-
-    return body
-  },
   systemQuotasList: NotImplemented,
   systemTimeseriesSchemaList: NotImplemented,
   systemUpdateRecoveryFinish: NotImplemented,

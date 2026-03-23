@@ -4,8 +4,11 @@
     {
       "name": "playwright",
       "specifier": "eslint-plugin-playwright"
+    },
+    {
+      "name": "react-hook-form",
+      "specifier": "eslint-plugin-react-hook-form"
     }
-    // eslint-plugin-react-hook-form won't work — all its rules use context.getScope()
   ],
   "plugins": [
     "import",
@@ -38,6 +41,9 @@
 
     "react-hooks/exhaustive-deps": ["error", { "additionalHooks": "useQuickActions" }],
     "react-hooks/rules-of-hooks": "error",
+    "react-hook-form/destructuring-formstate": "error",
+    // no-access-control uses context.getScope() which oxlint doesn't support
+    "react-hook-form/no-nested-object-setvalue": "error",
     "import/no-default-export": "error",
     "consistent-type-imports": "error",
 

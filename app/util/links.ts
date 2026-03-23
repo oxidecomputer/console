@@ -44,6 +44,10 @@ export const docLinks = {
     href: 'https://docs.oxide.computer/guides/working-with-api-and-sdk#_device_token_setup',
     linkText: 'Access Tokens',
   },
+  externalSubnets: {
+    href: 'https://docs.oxide.computer/guides/operator/ip-pool-management#_using_subnet_pools',
+    linkText: 'Subnet Pools',
+  },
   disks: {
     href: 'https://docs.oxide.computer/guides/managing-disks-and-snapshots',
     linkText: 'Disks and Snapshots',

@@ -129,6 +129,48 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/disks",
     },
   ],
+  "externalSubnetEdit (/projects/p/external-subnets/es/edit)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "External Subnets",
+      "path": "/projects/p/external-subnets",
+    },
+  ],
+  "externalSubnets (/projects/p/external-subnets)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "External Subnets",
+      "path": "/projects/p/external-subnets",
+    },
+  ],
+  "externalSubnetsNew (/projects/p/external-subnets-new)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "External Subnets",
+      "path": "/projects/p/external-subnets",
+    },
+  ],
   "fleetAccess (/system/access)": [
     {
       "label": "Fleet Access",
@@ -1171,7 +1213,7 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/vpcs/v/firewall-rules",
     },
     {
-      "label": "Subnets",
+      "label": "VPC Subnets",
       "path": "/projects/p/vpcs/v/",
     },
   ],
@@ -1193,7 +1235,7 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/vpcs/v/firewall-rules",
     },
     {
-      "label": "Subnets",
+      "label": "VPC Subnets",
       "path": "/projects/p/vpcs/v/",
     },
   ],
@@ -1215,7 +1257,7 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/vpcs/v/firewall-rules",
     },
     {
-      "label": "Subnets",
+      "label": "VPC Subnets",
       "path": "/projects/p/vpcs/v/",
     },
   ],

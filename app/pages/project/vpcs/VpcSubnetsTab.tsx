@@ -35,7 +35,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-export const handle = { crumb: 'Subnets' }
+export const handle = { crumb: 'VPC Subnets' }
 
 export default function VpcSubnetsTab() {
   const vpcSelector = useVpcSelector()
@@ -44,7 +44,7 @@ export default function VpcSubnetsTab() {
     onSuccess() {
       queryClient.invalidateEndpoint('vpcSubnetList')
       // We only have the ID, so will show a generic confirmation message
-      addToast({ content: 'Subnet deleted' })
+      addToast({ content: 'VPC subnet deleted' })
     },
   })
 
@@ -90,8 +90,8 @@ export default function VpcSubnetsTab() {
   const emptyState = (
     <EmptyMessage
       title="No VPC subnets"
-      body="Create a subnet to see it here"
-      buttonText="New subnet"
+      body="Create a VPC subnet to see it here"
+      buttonText="New VPC subnet"
       buttonTo={pb.vpcSubnetsNew(vpcSelector)}
     />
   )
@@ -106,7 +106,7 @@ export default function VpcSubnetsTab() {
   return (
     <>
       <div className="mb-3 flex justify-end space-x-2">
-        <CreateLink to={pb.vpcSubnetsNew(vpcSelector)}>New subnet</CreateLink>
+        <CreateLink to={pb.vpcSubnetsNew(vpcSelector)}>New VPC subnet</CreateLink>
       </div>
       {table}
       <Outlet />

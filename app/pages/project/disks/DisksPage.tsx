@@ -30,7 +30,7 @@ import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
+import { InstanceLink } from '~/table/cells/InstanceLinkCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -68,7 +68,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     queryClient.prefetchQuery(diskList({ project }).optionsFn()),
 
     // fetch instances and preload into RQ cache so fetches by ID in
-    // InstanceLinkCell can be mostly instant yet gracefully fall back to
+    // InstanceLink can be mostly instant yet gracefully fall back to
     // fetching individually if we don't fetch them all here
     queryClient.fetchQuery(instanceList({ project }).optionsFn()).then((instances) => {
       for (const instance of instances.items) {
@@ -164,8 +164,10 @@ export default function DisksPage() {
         colHelper.accessor(
           (disk) => ('instance' in disk.state ? disk.state.instance : undefined),
           {
-            header: 'Attached to',
-            cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,
+            header: 'Instance',
+            cell: (info) => (
+              <InstanceLink instanceId={info.getValue()} tab="storage" cell />
+            ),
           }
         ),
         colHelper.accessor('diskType', {

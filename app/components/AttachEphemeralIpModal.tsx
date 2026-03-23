@@ -22,7 +22,7 @@ import {
 } from '~/api'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { HL } from '~/components/HL'
-import { toIpPoolItem } from '~/components/IpPoolListboxItem'
+import { toPoolItem } from '~/components/PoolListboxItem'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Message } from '~/ui/lib/Message'
@@ -90,7 +90,7 @@ export const AttachEphemeralIpModal = ({
               name="pool"
               label="Pool"
               control={form.control}
-              items={sortPools(compatibleUnicastPools).map(toIpPoolItem)}
+              items={sortPools(compatibleUnicastPools).map(toPoolItem)}
               disabled={compatibleUnicastPools.length === 0}
               placeholder="Select a pool"
               noItemsPlaceholder="No pools available"

@@ -6,14 +6,22 @@
  * Copyright Oxide Computer Company
  */
 
-import type { SiloIpPool } from '@oxide/api'
+import type { IpVersion } from '@oxide/api'
 import { Badge } from '@oxide/design-system/ui'
 
 import { IpVersionBadge } from '~/components/IpVersionBadge'
 import type { ListboxItem } from '~/ui/lib/Listbox'
 
-/** Format a SiloIpPool for use as a ListboxField item */
-export function toIpPoolItem(p: SiloIpPool): ListboxItem {
+/** Common fields of SiloIpPool and SiloSubnetPool used for display */
+type PoolLike = {
+  name: string
+  isDefault: boolean
+  ipVersion: IpVersion
+  description: string
+}
+
+/** Format a pool for use as a ListboxField item */
+export function toPoolItem(p: PoolLike): ListboxItem {
   const value = p.name
   const selectedLabel = p.name
   const label = (

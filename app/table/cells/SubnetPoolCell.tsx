@@ -12,14 +12,14 @@ import { Tooltip } from '~/ui/lib/Tooltip'
 
 import { EmptyCell, SkeletonCell } from './EmptyCell'
 
-export const IpPoolCell = ({ ipPoolId }: { ipPoolId: string }) => {
+export const SubnetPoolCell = ({ subnetPoolId }: { subnetPoolId: string }) => {
   const { data: result } = useQuery(
     qErrorsAllowed(
-      api.ipPoolView,
-      { path: { pool: ipPoolId } },
+      api.subnetPoolView,
+      { path: { pool: subnetPoolId } },
       {
         errorsExpected: {
-          explanation: 'the referenced IP pool may have been deleted.',
+          explanation: 'the referenced subnet pool may have been deleted.',
           statusCode: 404,
         },
       }

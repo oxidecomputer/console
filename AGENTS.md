@@ -4,6 +4,7 @@
 - Favor well-supported libraries, avoid premature abstractions, and use routes to capture state.
 - Before starting a feature, skim an existing page or form with similar behavior and mirror the conventions—this codebase is intentionally conventional. Look for similar pages in `app/pages` and forms in `app/forms` to use as templates.
 - `@oxide/api` is at `app/api` and `@oxide/api-mocks` is at `mock-api/index.ts`.
+- The language server often has out of date errors. tsgo is extremely fast, so confirm errors that come from the language server by running `npm run tsc`
 - Use Node.js 22+, then install deps and start the mock-backed dev server (skip if `npm run dev` is already running in another terminal):
 
   ```sh
@@ -24,7 +25,7 @@
 
 - Run local checks before sending PRs: `npm run lint`, `npm run tsc`, `npm test run`, and `npm run e2ec`.
 - You don't usually need to run all the e2e tests, so try to filter by file and tes t name like `npm run e2ec -- instance -g 'boot disk'`. CI will run the full set.
-- Keep Playwright specs focused on user-visible behavior—use accessible locators (`getByRole`, `getByLabel`), the helpers in `test/e2e/utils.ts` (`expectToast`, `expectRowVisible`, `selectOption`, `clickRowAction`), and close toasts so follow-on assertions aren’t blocked. Avoid Playwright’s legacy string selector syntax like `page.click(‘role=button[name="..."]’)`; prefer `page.getByRole(‘button’, { name: ‘...’ }).click()` and friends.
+- Keep Playwright specs focused on user-visible behavior—use accessible locators (`getByRole`, `getByLabel`), the helpers in `test/e2e/utils.ts` (`expectToast`, `expectRowVisible`, `selectOption`, `clickRowAction`), and close toasts so follow-on assertions aren’t blocked. Avoid Playwright’s legacy string selector syntax like `page.click(‘role=button[name="..."]’)`; prefer `page.getByRole(‘button’, { name: ‘...’ }).click()` and friends. Avoid `getByTestId` in e2e tests—prefer scoping with accessible locators like `page.getByRole(‘dialog’)` when possible.
 - Cover role-gated flows by logging in with `getPageAsUser`; exercise negative paths (e.g., forbidden actions) alongside happy paths as shown in `test/e2e/system-update.e2e.ts`.
 - Consider `expectVisible` and `expectNotVisible` deprecated: prefer `expect().toBeVisible()` and `toBeHidden()` in new code.
 - When UI needs new mock behavior, extend the MSW handlers/db minimally so E2E tests stay deterministic; prefer storing full API responses so subsequent calls see the updated state (`mock-api/msw/db.ts`, `mock-api/msw/handlers.ts`).
@@ -63,6 +64,7 @@
 - Only implement what is necessary to exercise the UI; keep the db seeded via `mock-api/msw/db.ts`.
 - Store API response objects in the mock tables when possible so state persists across calls.
 - Enforce role checks with `requireFleetViewer`/`requireFleetCollab`/`requireFleetAdmin`, and return realistic errors (e.g. downgrade guard in `systemUpdateStatus`).
+- All UUIDs in `mock-api/` must be valid RFC 4122 (a safety test enforces this). Use `uuidgen` to generate them—do not hand-write UUIDs.
 
 # Routing
 
