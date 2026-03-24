@@ -101,6 +101,37 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 
 export const handle = makeCrumb((p) => p.pool!)
 
+function SiloNameFromId({ value: siloId }: { value: string }) {
+  const { data: silo } = useQuery(q(api.siloView, { path: { silo: siloId } }))
+
+  if (!silo) return <SkeletonCell />
+
+  return <LinkCell to={pb.siloIpPools({ silo: silo.name })}>{silo.name}</LinkCell>
+}
+
+const silosColHelper = createColumnHelper<IpPoolSiloLink>()
+
+const silosCols = [
+  silosColHelper.accessor('siloId', {
+    header: 'Silo',
+    cell: (info) => <SiloNameFromId value={info.getValue()} />,
+  }),
+  silosColHelper.accessor('isDefault', {
+    header: () => {
+      return (
+        <span className="inline-flex items-center gap-2">
+          Silo default
+          <TipIcon>
+            When no pool is specified, IPs are allocated from the silo's default pool for
+            the relevant version and type.
+          </TipIcon>
+        </span>
+      )
+    },
+    cell: (info) => (info.getValue() ? <Badge>default</Badge> : null),
+  }),
+]
+
 export default function IpPoolpage() {
   const poolSelector = useIpPoolSelector()
   const { data: pool } = usePrefetchedQuery(ipPoolView(poolSelector))
@@ -256,16 +287,6 @@ function IpRangesTable() {
   )
 }
 
-function SiloNameFromId({ value: siloId }: { value: string }) {
-  const { data: silo } = useQuery(q(api.siloView, { path: { silo: siloId } }))
-
-  if (!silo) return <SkeletonCell />
-
-  return <LinkCell to={pb.siloIpPools({ silo: silo.name })}>{silo.name}</LinkCell>
-}
-
-const silosColHelper = createColumnHelper<IpPoolSiloLink>()
-
 /** Look up silo name from query cache and return a label for use in modals. */
 function getSiloLabel(siloId: string) {
   const siloName = queryClient.getQueryData<Silo>(siloView({ silo: siloId }).queryKey)?.name
@@ -403,30 +424,6 @@ function LinkedSilosTable() {
       buttonText="Link silo"
       onClick={() => setShowLinkModal(true)}
     />
-  )
-
-  const silosCols = useMemo(
-    () => [
-      silosColHelper.accessor('siloId', {
-        header: 'Silo',
-        cell: (info) => <SiloNameFromId value={info.getValue()} />,
-      }),
-      silosColHelper.accessor('isDefault', {
-        header: () => {
-          return (
-            <span className="inline-flex items-center gap-2">
-              Silo default
-              <TipIcon>
-                When no pool is specified, IPs are allocated from the silo's default pool
-                for the relevant version and type.
-              </TipIcon>
-            </span>
-          )
-        },
-        cell: (info) => (info.getValue() ? <Badge>default</Badge> : null),
-      }),
-    ],
-    []
   )
 
   const columns = useColsWithActions(silosCols, makeActions)
