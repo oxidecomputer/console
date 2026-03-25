@@ -75,7 +75,11 @@ export default function EditIpPoolSideModalForm() {
       <IpPoolVisibilityMessage />
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <SideModalFormDocs docs={[docLinks.systemIpPools]} />
+      <SideModalFormDocs
+        docs={[docLinks.systemIpPools]}
+        apiOp="system_ip_pool_update"
+        cliCmd="system/networking/ip-pool/update"
+      />
     </SideModalForm>
   )
 }

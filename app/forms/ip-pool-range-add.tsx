@@ -138,7 +138,11 @@ export default function IpPoolAddRange() {
         control={form.control}
         required
       />
-      <SideModalFormDocs docs={[docLinks.systemIpPools]} />
+      <SideModalFormDocs
+        docs={[docLinks.systemIpPools]}
+        apiOp="system_ip_pool_range_add"
+        cliCmd="system/networking/ip-pool/range/add"
+      />
     </SideModalForm>
   )
 }

@@ -11,6 +11,8 @@ import { OpenLink12Icon } from '@oxide/design-system/icons/react'
 
 import { FormDivider } from '~/ui/lib/Divider'
 
+const DOC_BASE = 'https://docs.oxide.computer'
+
 export const ModalLinks = ({
   heading,
   children,
@@ -41,13 +43,59 @@ export const ModalLink = ({ to, label }: { to: string; label: string }) => (
 
 type DocLink = { href: string; linkText: string }
 
-export const SideModalFormDocs = ({ docs }: { docs: DocLink[] }) => (
+/**
+ * `apiOp` is a snake_case operation ID, e.g., "project_create".
+ * `cliCmd` is a slash-delimited CLI path, e.g., "project/create".
+ */
+export const SideModalFormDocs = ({
+  docs,
+  apiOp,
+  cliCmd,
+}: {
+  docs: DocLink[]
+  apiOp?: string
+  cliCmd?: string
+}) => (
   <>
     <FormDivider />
     <ModalLinks heading="Relevant docs">
       {docs.map(({ href, linkText }) => (
         <ModalLink key={href} to={href} label={linkText} />
       ))}
+      {apiOp && (
+        <li>
+          <a
+            href={`${DOC_BASE}/api/${apiOp}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-center space-x-2"
+          >
+            <OpenLink12Icon className="text-accent group-hover:text-accent" />
+            <span className="group-hover:text-raise">
+              API:{' '}
+              <code className="text-mono-sm tracking-normal! normal-case!">{apiOp}</code>
+            </span>
+          </a>
+        </li>
+      )}
+      {cliCmd && (
+        <li>
+          <a
+            href={`${DOC_BASE}/cli/${cliCmd}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-center space-x-2"
+          >
+            <OpenLink12Icon className="text-accent group-hover:text-accent" />
+            <span className="group-hover:text-raise">
+              CLI:{' '}
+              <code className="text-mono-sm tracking-normal! normal-case!">
+                oxide {cliCmd.replaceAll('/', ' ')}
+              </code>
+            </span>
+          </a>
+        </li>
+      )}
     </ModalLinks>
   </>
 )

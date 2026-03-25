@@ -78,7 +78,7 @@ export default function EditVpcSideModalForm() {
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <NameField name="dnsName" label="DNS name" required={false} control={form.control} />
-      <SideModalFormDocs docs={[docLinks.vpcs]} />
+      <SideModalFormDocs docs={[docLinks.vpcs]} apiOp="vpc_update" cliCmd="vpc/update" />
     </SideModalForm>
   )
 }

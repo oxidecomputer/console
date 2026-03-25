@@ -73,7 +73,11 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
         control={form.control}
       />
       <RoleRadioField name="roleName" control={form.control} scope="Silo" />
-      <SideModalFormDocs docs={[docLinks.access]} />
+      <SideModalFormDocs
+        docs={[docLinks.access]}
+        apiOp="policy_update"
+        cliCmd="policy/update"
+      />
     </SideModalForm>
   )
 }
@@ -118,7 +122,11 @@ export function SiloAccessEditUserSideModal({
       }}
     >
       <RoleRadioField name="roleName" control={form.control} scope="Silo" />
-      <SideModalFormDocs docs={[docLinks.access]} />
+      <SideModalFormDocs
+        docs={[docLinks.access]}
+        apiOp="policy_update"
+        cliCmd="policy/update"
+      />
     </SideModalForm>
   )
 }

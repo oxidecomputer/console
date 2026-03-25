@@ -102,7 +102,11 @@ export default function CreateImageFromSnapshotSideModalForm() {
       <DescriptionField name="description" control={form.control} required />
       <TextField name="os" label="OS" control={form.control} required />
       <TextField name="version" control={form.control} required />
-      <SideModalFormDocs docs={[docLinks.images]} />
+      <SideModalFormDocs
+        docs={[docLinks.images]}
+        apiOp="image_create"
+        cliCmd="image/create"
+      />
     </SideModalForm>
   )
 }

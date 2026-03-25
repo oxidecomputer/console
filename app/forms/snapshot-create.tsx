@@ -90,7 +90,11 @@ export default function SnapshotCreate() {
         required
         control={form.control}
       />
-      <SideModalFormDocs docs={[docLinks.snapshots]} />
+      <SideModalFormDocs
+        docs={[docLinks.snapshots]}
+        apiOp="snapshot_create"
+        cliCmd="snapshot/create"
+      />
     </SideModalForm>
   )
 }

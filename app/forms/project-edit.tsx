@@ -70,7 +70,11 @@ export default function EditProjectSideModalForm() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <SideModalFormDocs docs={[docLinks.projects]} />
+      <SideModalFormDocs
+        docs={[docLinks.projects]}
+        apiOp="project_update"
+        cliCmd="project/update"
+      />
     </SideModalForm>
   )
 }

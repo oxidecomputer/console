@@ -153,7 +153,11 @@ export default function CreateExternalSubnetSideModalForm() {
           description="The subnet to reserve, e.g., 10.128.1.0/24"
         />
       )}
-      <SideModalFormDocs docs={[docLinks.externalSubnets]} />
+      <SideModalFormDocs
+        docs={[docLinks.externalSubnets]}
+        apiOp="external_subnet_create"
+        cliCmd="external-subnet/create"
+      />
     </SideModalForm>
   )
 }

@@ -230,7 +230,7 @@ export function CreateDiskSideModalForm({
         images={images}
         areImagesLoading={areImagesLoading}
       />
-      <SideModalFormDocs docs={[docLinks.disks]} />
+      <SideModalFormDocs docs={[docLinks.disks]} apiOp="disk_create" cliCmd="disk/create" />
     </SideModalForm>
   )
 }
