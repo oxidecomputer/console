@@ -96,7 +96,11 @@ export default function CreateSubnetForm() {
         control={form.control}
         required
       />
-      <SideModalFormDocs docs={[docLinks.vpcs]} />
+      <SideModalFormDocs
+        docs={[docLinks.vpcs]}
+        apiOp="vpc_subnet_create"
+        cliCmd="vpc/subnet/create"
+      />
     </SideModalForm>
   )
 }

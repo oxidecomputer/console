@@ -709,7 +709,11 @@ export default function ImageCreate() {
           />
         </Modal>
       )}
-      <SideModalFormDocs docs={[docLinks.images]} />
+      <SideModalFormDocs
+        docs={[docLinks.images]}
+        apiOp="image_create"
+        cliCmd="image/create"
+      />
     </SideModalForm>
   )
 }

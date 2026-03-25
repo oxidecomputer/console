@@ -74,7 +74,11 @@ export default function EditSSHKeySideModalForm() {
           disabled
         />
       </div>
-      <SideModalFormDocs docs={[docLinks.sshKeys]} />
+      <SideModalFormDocs
+        docs={[docLinks.sshKeys]}
+        apiOp="current_user_ssh_key_view"
+        cliCmd="current-user/ssh-key/view"
+      />
     </ReadOnlySideModalForm>
   )
 }

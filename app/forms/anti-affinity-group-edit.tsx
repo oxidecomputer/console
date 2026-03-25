@@ -83,7 +83,11 @@ export default function EditAntiAffintyGroupForm() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <SideModalFormDocs docs={[docLinks.affinity]} />
+      <SideModalFormDocs
+        docs={[docLinks.affinity]}
+        apiOp="anti_affinity_group_update"
+        cliCmd="instance/anti-affinity/update"
+      />
     </SideModalForm>
   )
 }

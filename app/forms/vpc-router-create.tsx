@@ -57,7 +57,11 @@ export default function RouterCreate() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <SideModalFormDocs docs={[docLinks.routers]} />
+      <SideModalFormDocs
+        docs={[docLinks.routers]}
+        apiOp="vpc_router_create"
+        cliCmd="vpc/router/create"
+      />
     </SideModalForm>
   )
 }

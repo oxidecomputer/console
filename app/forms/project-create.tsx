@@ -61,7 +61,11 @@ export default function ProjectCreateSideModalForm() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <SideModalFormDocs docs={[docLinks.projects]} />
+      <SideModalFormDocs
+        docs={[docLinks.projects]}
+        apiOp="project_create"
+        cliCmd="project/create"
+      />
     </SideModalForm>
   )
 }
