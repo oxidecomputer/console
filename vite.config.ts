@@ -158,7 +158,15 @@ export default defineConfig(({ mode }) => ({
     },
   },
   resolve: { tsconfigPaths: true },
-  preview: { headers },
+  preview: {
+    headers,
+    proxy: {
+      '/v1': {
+        target: 'http://localhost:12220',
+        changeOrigin: true,
+      },
+    },
+  },
   test: {
     environment: 'jsdom',
     setupFiles: ['test/unit/setup.ts'],
