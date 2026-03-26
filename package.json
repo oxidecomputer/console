@@ -22,6 +22,7 @@
     "update-snapshots": "npm test run -- -u",
     "e2e": "playwright test",
     "e2ec": "playwright test --project=chrome",
+    "bombadil": "rm -rf test/bombadil/output && bombadil test http://localhost:4174/projects test/bombadil/spec.ts --headless --output-path test/bombadil/output",
     "visual:baseline": "./tools/generate-visual-baseline.sh",
     "visual:compare": "playwright test -c playwright.visual.config.ts",
     "lint": "oxlint --type-aware",
