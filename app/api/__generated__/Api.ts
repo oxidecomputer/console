@@ -2115,7 +2115,7 @@ export type ExternalSubnetAllocator = /** Reserve a specific subnet. */
 If omitted, this field uses the silo's default pool. If the silo has default pools for both IPv4 and IPv6, the request will fail unless `ip_version` is specified in the pool selector. */
     poolSelector?: PoolSelector
     /** The prefix length for the allocated subnet (e.g., 24 for a /24). */
-    prefixLen: number
+    prefixLength: number
     type: 'auto'
   }
 
@@ -3366,19 +3366,21 @@ export type MetricType = /** The value represents an instantaneous measurement i
 export type MulticastGroup = {
   /** Human-readable free-form text about a resource */
   description: string
+  /** True if any member joined without specifying source IPs (any-source).
+
+When true, at least one member receives traffic from any source rather than filtering to specific sources. */
+  hasAnySourceMember: boolean
   /** Unique, immutable, system-controlled identifier for each resource */
   id: string
   /** The ID of the IP pool this resource belongs to. */
   ipPoolId: string
   /** The multicast IP address held by this resource. */
   multicastIp: string
-  /** Multicast VLAN (MVLAN) for egress multicast traffic to upstream networks. None means no VLAN tagging on egress. */
-  mvlan?: number | null
   /** Unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** Union of all member source IP addresses (computed, read-only).
+  /** Deduplicated union of source IPs specified by members.
 
-This field shows the combined source IPs across all group members. Individual members may subscribe to different sources; this union reflects all sources that any member is subscribed to. Empty array means no members have source filtering enabled. */
+Contains only sources from members that joined with explicit `source_ips`. Members using any-source multicast (empty `source_ips`) do not contribute, so a non-empty value does not imply all members use source filtering. For SSM addresses (232/8, ff3x::/32), this is always non-empty. */
   sourceIps: string[]
   /** Current state of the multicast group. */
   state: string
@@ -5351,6 +5353,7 @@ export type VpcFirewallRuleProtocol =
   | { type: 'tcp' }
   | { type: 'udp' }
   | { type: 'icmp'; value: VpcFirewallIcmpFilter | null }
+  | { type: 'icmp6'; value: VpcFirewallIcmpFilter | null }
 
 /**
  * Filters reduce the scope of a firewall rule. Without filters, the rule applies to all packets to the targets (or from the targets, if it's an outbound rule). With multiple filters, the rule applies only to packets matching ALL filters. The maximum number of each type of filter is 256.
@@ -7477,7 +7480,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2026031200.0.0'
+  apiVersion = '2026032400.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host

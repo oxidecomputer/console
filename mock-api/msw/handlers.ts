@@ -306,7 +306,7 @@ export const handlers = makeHandlers({
           .with(undefined, () => lookup.defaultSubnetPool())
           .exhaustive()
         const idx = db.externalSubnets.length + 1
-        return { pool, subnet: `10.128.${idx}.0/${a.prefix_len}` }
+        return { pool, subnet: `10.128.${idx}.0/${a.prefix_length}` }
       })
       .exhaustive()
 

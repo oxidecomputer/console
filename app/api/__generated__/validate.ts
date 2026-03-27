@@ -1939,7 +1939,7 @@ export const ExternalSubnetAllocator = z.preprocess(
     z.object({ subnet: IpNet, type: z.enum(['explicit']) }),
     z.object({
       poolSelector: PoolSelector.default({ ipVersion: null, type: 'auto' }),
-      prefixLen: z.number().min(0).max(255),
+      prefixLength: z.number().min(0).max(255),
       type: z.enum(['auto']),
     }),
   ])
@@ -3093,10 +3093,10 @@ export const MulticastGroup = z.preprocess(
   processResponseBody,
   z.object({
     description: z.string(),
+    hasAnySourceMember: SafeBoolean,
     id: z.uuid(),
     ipPoolId: z.uuid(),
     multicastIp: z.union([z.ipv4(), z.ipv6()]),
-    mvlan: z.number().min(0).max(65535).nullable().optional(),
     name: Name,
     sourceIps: z.union([z.ipv4(), z.ipv6()]).array(),
     state: z.string(),
@@ -4878,6 +4878,7 @@ export const VpcFirewallRuleProtocol = z.preprocess(
     z.object({ type: z.enum(['tcp']) }),
     z.object({ type: z.enum(['udp']) }),
     z.object({ type: z.enum(['icmp']), value: VpcFirewallIcmpFilter.nullable() }),
+    z.object({ type: z.enum(['icmp6']), value: VpcFirewallIcmpFilter.nullable() }),
   ])
 )
 
