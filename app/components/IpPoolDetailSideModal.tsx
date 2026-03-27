@@ -11,8 +11,10 @@ import { Badge } from '@oxide/design-system/ui'
 
 import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { IpVersionBadge } from '~/components/IpVersionBadge'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
+import { docLinks } from '~/util/links'
 
 type IpPoolDetailSideModalProps = {
   pool: IpPool
@@ -43,6 +45,7 @@ export function IpPoolDetailSideModal({ pool, onDismiss }: IpPoolDetailSideModal
         <PropertiesTable.DateRow label="Created" date={pool.timeCreated} />
         <PropertiesTable.DateRow label="Last Modified" date={pool.timeModified} />
       </PropertiesTable>
+      <SideModalFormDocs docs={[docLinks.systemIpPools]} />
     </ReadOnlySideModalForm>
   )
 }
