@@ -173,7 +173,7 @@ export default function EditInternetGatewayForm() {
               <PropertiesTable.Row label="Name">{gatewayIpPool.name}</PropertiesTable.Row>
               <PropertiesTable.DescriptionRow description={gatewayIpPool.description} />
               <PropertiesTable.Row label="IP Pool Name">
-                <IpPoolCell ipPoolId={gatewayIpPool.ipPoolId} />
+                <IpPoolCell ipPoolId={gatewayIpPool.ipPoolId} showPoolInfo={false} />
               </PropertiesTable.Row>
             </PropertiesTable>
           ))
