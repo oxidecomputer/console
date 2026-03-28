@@ -1,4 +1,3 @@
-import { useQuery } from '@tanstack/react-query'
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -6,6 +5,7 @@ import { useQuery } from '@tanstack/react-query'
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 
 import { api, qErrorsAllowed } from '~/api'
