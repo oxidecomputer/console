@@ -238,9 +238,7 @@ test('Create local disk with size > 1023 GiB', async ({ page }) => {
   })
 })
 
-// Read-only disk creation disabled pending propolis fix
-// https://github.com/oxidecomputer/console/issues/3071
-test.skip('Create disk from snapshot with read-only', async ({ page }) => {
+test('Create disk from snapshot with read-only', async ({ page }) => {
   await page.goto('/projects/mock-project/disks-new')
   await page.getByRole('textbox', { name: 'Name' }).fill('a-new-disk')
   await page.getByRole('radio', { name: 'Snapshot' }).click()
@@ -261,9 +259,7 @@ test.skip('Create disk from snapshot with read-only', async ({ page }) => {
   await expect(modal.getByLabel('e6c58826-62fb-4205-820e-620407cd04e7')).toBeVisible()
 })
 
-// Read-only disk creation disabled pending propolis fix
-// https://github.com/oxidecomputer/console/issues/3071
-test.skip('Create disk from image with read-only', async ({ page }) => {
+test('Create disk from image with read-only', async ({ page }) => {
   await page.goto('/projects/mock-project/disks-new')
   await page.getByRole('textbox', { name: 'Name' }).fill('a-new-disk')
   await page.getByRole('radio', { name: 'Image' }).click()
