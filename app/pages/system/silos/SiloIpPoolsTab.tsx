@@ -67,7 +67,7 @@ function EmptyState({ onLinkPool }: { onLinkPool: () => void }) {
         onClick: onLinkPool,
       }
     : {
-        body: 'Create an IP pool to see it here',
+        body: 'Create and link an IP pool to see it here',
         buttonText: 'New IP pool',
         buttonTo: pb.ipPoolsNew(),
       }

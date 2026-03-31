@@ -66,7 +66,7 @@ function EmptyState({ onLinkPool }: { onLinkPool: () => void }) {
         onClick: onLinkPool,
       }
     : {
-        body: 'Create a subnet pool to see it here',
+        body: 'Create and link a subnet pool to see it here',
         buttonText: 'New subnet pool',
         buttonTo: pb.subnetPoolsNew(),
       }
