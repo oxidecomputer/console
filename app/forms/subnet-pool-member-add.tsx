@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMemo } from 'react'
 import { useForm, type FieldErrors } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
@@ -42,6 +41,10 @@ const defaultValues: MemberAddForm = {
   maxPrefixLength: NaN,
 }
 
+// Using a resolver overrides all field-level validation (required, min, max,
+// etc.), so this function must cover everything. Field-level props like
+// `required` on subnet and `min`/`max` on NumberFields still affect UI display
+// and stepper behavior, but their RHF validation rules are inert.
 export function createResolver(poolVersion: IpVersion) {
   return (values: MemberAddForm) => {
     const errors: FieldErrors<MemberAddForm> = {}
@@ -119,9 +122,11 @@ export default function SubnetPoolMemberAdd() {
     },
   })
 
-  const resolver = useMemo(() => createResolver(poolData.ipVersion), [poolData.ipVersion])
-
-  const form = useForm<MemberAddForm>({ defaultValues, resolver })
+  const form = useForm<MemberAddForm>({
+    defaultValues,
+    // doesn't need to be memoized, doesn't trigger renders
+    resolver: createResolver(poolData.ipVersion),
+  })
 
   const maxBound = poolData.ipVersion === 'v4' ? 32 : 128
 
