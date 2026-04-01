@@ -38,7 +38,7 @@
   }
 
   &.btn-ghost {
-    @apply text-secondary hover:bg-hover disabled:text-default/40 disabled:bg-transparent;
+    @apply text-secondary hover:bg-hover disabled:text-default/50 disabled:bg-transparent;
   }
   &.btn-ghost:after {
     @apply border-current/20;
