@@ -117,7 +117,7 @@
 
 @utility tint-underline {
   text-decoration: underline;
-  text-decoration-color: color-mix(in srgb, currentColor 50%, transparent);
+  text-decoration-color: color-mix(in srgb, currentColor 60%, transparent);
 
   &:hover {
     text-decoration-color: color-mix(in srgb, currentColor 80%, transparent);
