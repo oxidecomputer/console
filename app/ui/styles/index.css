@@ -30,6 +30,10 @@
 @import '@oxide/design-system/styles/preflight.css' layer(base);
 @import 'simplebar-react/dist/simplebar.min.css' layer(components);
 
+@import '@oxide/design-system/styles/red.css';
+@import '@oxide/design-system/styles/yellow.css';
+@import '@oxide/design-system/styles/blue.css';
+
 @import './fonts.css' layer(base);
 @import './vars.css' layer(base);
 @import './components/button.css' layer(components);
