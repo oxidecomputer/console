@@ -113,9 +113,6 @@ export default function StorageTab() {
       // prettier-ignore
       addToast(<>Disk <HL>{disk.name}</HL> detached</>)
     },
-    onError(err) {
-      addToast({ title: 'Failed to detach disk', content: err.message, variant: 'error' })
-    },
   })
   const { mutate: createSnapshot } = useApiMutation(api.snapshotCreate, {
     onSuccess(snapshot) {

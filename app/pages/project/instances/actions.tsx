@@ -63,12 +63,6 @@ export const useMakeInstanceActions = (
                 startInstanceAsync(instanceParams, {
                   // prettier-ignore
                   onSuccess: () => addToast(<>Starting instance <HL>{instance.name}</HL></>),
-                  onError: (error) =>
-                    addToast({
-                      variant: 'error',
-                      title: `Error starting instance '${instance.name}'`,
-                      content: error.message,
-                    }),
                 }),
               modalTitle: 'Confirm start instance',
               modalContent: (
@@ -76,7 +70,7 @@ export const useMakeInstanceActions = (
                   Are you sure you want to start <HL>{instance.name}</HL>?
                 </p>
               ),
-              errorTitle: `Error starting ${instance.name}`,
+              errorTitle: `Error starting instance '${instance.name}'`,
             })
           },
           disabled: !instanceCan.start(instance) && (
