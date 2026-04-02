@@ -25,10 +25,22 @@ test('Subnet pool list', async ({ page }) => {
   const table = page.getByRole('table')
   await expect(table.getByRole('row')).toHaveCount(5) // header + 4 pools
 
-  await expectRowVisible(table, { name: 'default-v4-subnet-pool' })
-  await expectRowVisible(table, { name: 'ipv6-subnet-pool' })
-  await expectRowVisible(table, { name: 'myriad-v4-subnet-pool' })
-  await expectRowVisible(table, { name: 'secondary-v4-subnet-pool' })
+  await expectRowVisible(table, {
+    name: 'default-v4-subnet-pool',
+    'Addresses remaining': '65,008 / 65,536',
+  })
+  await expectRowVisible(table, {
+    name: 'ipv6-subnet-pool',
+    'Addresses remaining': '79.2e27 / 79.2e27',
+  })
+  await expectRowVisible(table, {
+    name: 'myriad-v4-subnet-pool',
+    'Addresses remaining': '65,536 / 65,536',
+  })
+  await expectRowVisible(table, {
+    name: 'secondary-v4-subnet-pool',
+    'Addresses remaining': '65,536 / 65,536',
+  })
 })
 
 test('Subnet pool create', async ({ page }) => {
@@ -55,10 +67,25 @@ test('Subnet pool detail and members', async ({ page }) => {
 
   // Check properties table
   await expect(page.getByText('Default IPv4 subnet pool')).toBeVisible()
+  await expect(page.getByText('65,008 / 65,536')).toBeVisible()
 
   // Members tab should show existing member
   const membersTable = page.getByRole('table')
   await expectRowVisible(membersTable, { Subnet: '10.128.0.0/16' })
+})
+
+test('Addresses remaining in properties table', async ({ page }) => {
+  // pool with no allocations shows full capacity
+  await page.goto('/system/networking/subnet-pools/secondary-v4-subnet-pool')
+  await expect(page.getByText('65,536 / 65,536')).toBeVisible()
+
+  // pool with allocations shows remaining / capacity
+  await page.goto('/system/networking/subnet-pools/default-v4-subnet-pool')
+  await expect(page.getByText('65,008 / 65,536')).toBeVisible()
+
+  // large IPv6 pool shows abbreviated bignum
+  await page.goto('/system/networking/subnet-pools/ipv6-subnet-pool')
+  await expect(page.getByText('79.2e27 / 79.2e27')).toBeVisible()
 })
 
 test('Subnet pool add member', async ({ page }) => {
@@ -76,6 +103,9 @@ test('Subnet pool add member', async ({ page }) => {
 
   await expectToast(page, 'Member added')
 
+  // utilization updates: /12 adds 2^20 = 1,048,576 addresses, pushing totals over 1M
+  await expect(page.getByText('1.1M / 1.1M')).toBeVisible()
+
   const table = page.getByRole('table')
   await expectRowVisible(table, { Subnet: '172.16.0.0/12' })
 })
@@ -90,6 +120,9 @@ test('Subnet pool remove member', async ({ page }) => {
 
   // The row should be gone
   await expect(page.getByRole('cell', { name: '172.20.0.0/16' })).toBeHidden()
+
+  // utilization drops to 0 / 0 after removing only member
+  await expect(page.getByText('0 / 0')).toBeVisible()
 })
 
 test('Subnet pool linked silos', async ({ page }) => {

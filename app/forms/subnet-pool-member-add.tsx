@@ -117,6 +117,7 @@ export default function SubnetPoolMemberAdd() {
   const addMember = useApiMutation(api.systemSubnetPoolMemberAdd, {
     onSuccess() {
       queryClient.invalidateEndpoint('systemSubnetPoolMemberList')
+      queryClient.invalidateEndpoint('systemSubnetPoolUtilizationView')
       addToast({ content: 'Member added' })
       onDismiss()
     },
