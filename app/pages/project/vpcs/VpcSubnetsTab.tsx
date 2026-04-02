@@ -12,6 +12,7 @@ import { Outlet, type LoaderFunctionArgs } from 'react-router'
 import { api, getListQFn, queryClient, useApiMutation, type VpcSubnet } from '@oxide/api'
 
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
@@ -96,12 +97,28 @@ export default function VpcSubnetsTab() {
     />
   )
 
-  const { table } = useQueryTable({
+  const { table, query } = useQueryTable({
     query: subnetList(vpcSelector),
     columns,
     emptyState,
     rowHeight: 'large',
   })
+
+  useQuickActions(
+    () => [
+      {
+        value: 'New VPC subnet',
+        navGroup: 'Actions',
+        action: pb.vpcSubnetsNew(vpcSelector),
+      },
+      ...(query.data?.items || []).map((s) => ({
+        value: s.name,
+        navGroup: 'Edit VPC subnet',
+        action: pb.vpcSubnetsEdit({ ...vpcSelector, subnet: s.name }),
+      })),
+    ],
+    [vpcSelector, query.data]
+  )
 
   return (
     <>
