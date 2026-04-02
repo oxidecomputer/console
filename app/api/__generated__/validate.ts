@@ -4218,11 +4218,13 @@ export const SubnetPoolUpdate = z.preprocess(
 )
 
 /**
- * Utilization information for a subnet pool
+ * Utilization of addresses in a subnet pool.
+ *
+ * Note that both the count of remaining addresses and the total capacity are integers, reported as floating point numbers. This accommodates allocations larger than a 64-bit integer, which is common with IPv6 address spaces. With very large subnet pools (> 2**53 addresses), integer precision will be lost, in exchange for representing the entire range. In such a case the pool still has many available addresses.
  */
 export const SubnetPoolUtilization = z.preprocess(
   processResponseBody,
-  z.object({ allocated: z.number(), capacity: z.number() })
+  z.object({ capacity: z.number(), remaining: z.number() })
 )
 
 export const SupportBundleCreate = z.preprocess(

@@ -42,7 +42,7 @@ import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
-import { BigNum } from '~/ui/lib/BigNum'
+import { UtilizationFraction } from '~/ui/lib/BigNum'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { CreateButton, CreateLink } from '~/ui/lib/CreateButton'
 import * as Dropdown from '~/ui/lib/DropdownMenu'
@@ -209,9 +209,7 @@ function PoolProperties() {
       </PropertiesTable.Row>
       <PropertiesTable.Row label="IPs remaining">
         <span>
-          <BigNum className="text-raise" num={utilization.remaining} />
-          {' / '}
-          <BigNum className="text-secondary" num={utilization.capacity} />
+          <UtilizationFraction {...utilization} />
         </span>
       </PropertiesTable.Row>
       <PropertiesTable.DateRow date={pool.timeCreated} label="Created" />

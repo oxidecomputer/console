@@ -4626,13 +4626,15 @@ export type SubnetPoolSiloUpdate = {
 export type SubnetPoolUpdate = { description?: string | null; name?: Name | null }
 
 /**
- * Utilization information for a subnet pool
+ * Utilization of addresses in a subnet pool.
+ *
+ * Note that both the count of remaining addresses and the total capacity are integers, reported as floating point numbers. This accommodates allocations larger than a 64-bit integer, which is common with IPv6 address spaces. With very large subnet pools (> 2**53 addresses), integer precision will be lost, in exchange for representing the entire range. In such a case the pool still has many available addresses.
  */
 export type SubnetPoolUtilization = {
-  /** Number of addresses allocated from this pool */
-  allocated: number
-  /** Total capacity of this pool in addresses */
+  /** The total number of addresses in the pool. */
   capacity: number
+  /** The number of remaining addresses in the pool. */
+  remaining: number
 }
 
 export type SupportBundleCreate = {
@@ -7480,7 +7482,7 @@ export class Api {
    * Pulled from info.version in the OpenAPI schema. Sent in the
    * `api-version` header on all requests.
    */
-  apiVersion = '2026032400.0.0'
+  apiVersion = '2026032500.0.0'
 
   constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
     this.host = host

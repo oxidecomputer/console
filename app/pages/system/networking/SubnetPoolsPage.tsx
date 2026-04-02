@@ -27,10 +27,12 @@ import { IpVersionBadge } from '~/components/IpVersionBadge'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
+import { UtilizationFraction } from '~/ui/lib/BigNum'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -49,10 +51,18 @@ const EmptyState = () => (
   />
 )
 
+function UtilizationCell({ pool }: { pool: string }) {
+  const { data } = useQuery(q(api.systemSubnetPoolUtilizationView, { path: { pool } }))
+  if (!data) return <SkeletonCell />
+  return (
+    <div>
+      <UtilizationFraction {...data} />
+    </div>
+  )
+}
+
 const colHelper = createColumnHelper<SubnetPool>()
 
-// TODO: add utilization column once Nexus endpoint is implemented
-// https://github.com/oxidecomputer/omicron/issues/10109
 const staticColumns = [
   colHelper.accessor('name', {
     cell: makeLinkCell((pool) => pb.subnetPool({ subnetPool: pool })),
@@ -61,6 +71,10 @@ const staticColumns = [
   colHelper.accessor('ipVersion', {
     header: 'Version',
     cell: (info) => <IpVersionBadge ipVersion={info.getValue()} />,
+  }),
+  colHelper.display({
+    header: 'Addresses remaining',
+    cell: (info) => <UtilizationCell pool={info.row.original.name} />,
   }),
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]

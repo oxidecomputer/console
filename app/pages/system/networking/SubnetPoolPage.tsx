@@ -42,6 +42,7 @@ import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
+import { UtilizationFraction } from '~/ui/lib/BigNum'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { CreateButton, CreateLink } from '~/ui/lib/CreateButton'
 import * as Dropdown from '~/ui/lib/DropdownMenu'
@@ -65,6 +66,8 @@ const subnetPoolMemberList = ({ subnetPool }: PP.SubnetPool) =>
   getListQFn(api.systemSubnetPoolMemberList, { path: { pool: subnetPool } })
 const siloList = q(api.siloList, { query: { limit: ALL_ISH } })
 const siloView = ({ silo }: PP.Silo) => q(api.siloView, { path: { silo } })
+const subnetPoolUtilizationView = ({ subnetPool }: PP.SubnetPool) =>
+  q(api.systemSubnetPoolUtilizationView, { path: { pool: subnetPool } })
 const siloSubnetPoolList = (silo: string) =>
   q(api.siloSubnetPoolList, { path: { silo }, query: { limit: ALL_ISH } })
 
@@ -78,6 +81,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
       }
     }),
     queryClient.prefetchQuery(subnetPoolMemberList(selector).optionsFn()),
+    queryClient.prefetchQuery(subnetPoolUtilizationView(selector)),
     queryClient.fetchQuery(siloList).then((silos) => {
       for (const silo of silos.items) {
         queryClient.setQueryData(siloView({ silo: silo.id }).queryKey, silo)
@@ -154,6 +158,7 @@ export default function SubnetPoolPage() {
 function PoolProperties() {
   const poolSelector = useSubnetPoolSelector()
   const { data: pool } = usePrefetchedQuery(subnetPoolView(poolSelector))
+  const { data: utilization } = usePrefetchedQuery(subnetPoolUtilizationView(poolSelector))
 
   return (
     <PropertiesTable columns={2} className="-mt-8 mb-8">
@@ -162,9 +167,13 @@ function PoolProperties() {
       <PropertiesTable.Row label="IP version">
         <IpVersionBadge ipVersion={pool.ipVersion} />
       </PropertiesTable.Row>
-      {/* TODO: add utilization row once Nexus endpoint is implemented
-          https://github.com/oxidecomputer/omicron/issues/10109 */}
+      <PropertiesTable.Row label="Addresses remaining">
+        <span>
+          <UtilizationFraction {...utilization} />
+        </span>
+      </PropertiesTable.Row>
       <PropertiesTable.DateRow date={pool.timeCreated} label="Created" />
+      <PropertiesTable.DateRow date={pool.timeModified} label="Last Modified" />
     </PropertiesTable>
   )
 }
@@ -183,6 +192,7 @@ function MembersTable() {
   const { mutateAsync: removeMember } = useApiMutation(api.systemSubnetPoolMemberRemove, {
     onSuccess() {
       queryClient.invalidateEndpoint('systemSubnetPoolMemberList')
+      queryClient.invalidateEndpoint('systemSubnetPoolUtilizationView')
     },
   })
   const emptyState = (

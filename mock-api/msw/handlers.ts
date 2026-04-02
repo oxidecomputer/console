@@ -2511,25 +2511,31 @@ export const handlers = makeHandlers({
   systemSubnetPoolUtilizationView({ path, cookies }) {
     requireFleetViewer(cookies)
     const pool = lookup.subnetPool({ subnetPool: path.pool })
+    const bits = pool.ip_version === 'v4' ? 32 : 128
 
-    // TODO: figure out why subnet pool utilization can't list remaining
-    // addresses like IP pools do and make this mock match omicron's behavior.
-    // Also, Math.pow(2, bits - prefix) overflows to Infinity for IPv6.
-    const members = db.subnetPoolMembers.filter((m) => m.subnet_pool_id === pool.id)
-
-    let capacity = 0
-    for (const member of members) {
-      const prefixMatch = member.subnet.match(/\/(\d+)$/)
-      const prefix = prefixMatch ? Number(prefixMatch[1]) : 0
-      const bits = pool.ip_version === 'v4' ? 32 : 128
-      capacity += Math.pow(2, bits - prefix)
+    // Unlike IP pool utilization (which uses bigint arithmetic because IP
+    // ranges have arbitrary sizes), subnet sizes are always powers of 2, which
+    // are exactly representable as f64 up to 2^1023. So Math.pow is exact for
+    // each term and we don't need bigint intermediate arithmetic.
+    const subnetSize = (cidr: string) => {
+      const parsed = parseIpNet(cidr)
+      // mock data is always valid, so this is just for the type narrowing
+      if (parsed.type === 'error') return 0
+      return Math.pow(2, bits - parsed.width)
     }
 
-    const allocated = db.externalSubnets.filter(
-      (es) => es.subnet_pool_id === pool.id
-    ).length
+    const capacity = R.pipe(
+      db.subnetPoolMembers,
+      R.filter((m) => m.subnet_pool_id === pool.id),
+      R.sumBy((m) => subnetSize(m.subnet))
+    )
+    const allocated = R.pipe(
+      db.externalSubnets,
+      R.filter((s) => s.subnet_pool_id === pool.id),
+      R.sumBy((s) => subnetSize(s.subnet))
+    )
 
-    return { allocated, capacity }
+    return { capacity, remaining: capacity - allocated }
   },
   siloSubnetPoolList({ path, query, cookies }) {
     requireFleetViewer(cookies)
