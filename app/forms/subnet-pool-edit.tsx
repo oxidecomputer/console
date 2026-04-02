@@ -16,47 +16,43 @@ import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { makeCrumb } from '~/hooks/use-crumbs'
-import { getIpPoolSelector, useIpPoolSelector } from '~/hooks/use-params'
+import { getSubnetPoolSelector, useSubnetPoolSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
-import { IpPoolVisibilityMessage } from './ip-pool-create'
+import { SubnetPoolVisibilityMessage } from './subnet-pool-create'
 
-const ipPoolView = ({ pool }: PP.IpPool) => q(api.systemIpPoolView, { path: { pool } })
+const subnetPoolView = ({ subnetPool }: PP.SubnetPool) =>
+  q(api.systemSubnetPoolView, { path: { pool: subnetPool } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const selector = getIpPoolSelector(params)
-  await queryClient.prefetchQuery(ipPoolView(selector))
+  const selector = getSubnetPoolSelector(params)
+  await queryClient.prefetchQuery(subnetPoolView(selector))
   return null
 }
 
-export const handle = makeCrumb('Edit IP pool')
+export const handle = makeCrumb('Edit subnet pool')
 
-export default function EditIpPoolSideModalForm() {
+export default function EditSubnetPoolSideModalForm() {
   const navigate = useNavigate()
-  const poolSelector = useIpPoolSelector()
+  const poolSelector = useSubnetPoolSelector()
 
-  const { data: pool } = usePrefetchedQuery(ipPoolView(poolSelector))
+  const { data: pool } = usePrefetchedQuery(subnetPoolView(poolSelector))
 
   const form = useForm({ defaultValues: R.pick(pool, ['name', 'description']) })
 
-  const editPool = useApiMutation(api.systemIpPoolUpdate, {
+  const editPool = useApiMutation(api.systemSubnetPoolUpdate, {
     onSuccess(updatedPool) {
-      queryClient.invalidateEndpoint('systemIpPoolList')
-      navigate(pb.ipPool({ pool: updatedPool.name }))
+      queryClient.invalidateEndpoint('systemSubnetPoolList')
+      navigate(pb.subnetPool({ subnetPool: updatedPool.name }))
       // prettier-ignore
-      addToast(<>IP pool <HL>{updatedPool.name}</HL> updated</>)
+      addToast(<>Subnet pool <HL>{updatedPool.name}</HL> updated</>)
 
-      // Only invalidate if we're staying on the same page. If the name
-      // _has_ changed, invalidating ipPoolView causes an error page to flash
-      // while the loader for the target page is running because the current
-      // page's pool gets cleared out while we're still on the page. If we're
-      // navigating to a different page, its query will fetch anew regardless.
       if (pool.name === updatedPool.name) {
-        queryClient.invalidateEndpoint('systemIpPoolView')
+        queryClient.invalidateEndpoint('systemSubnetPoolView')
       }
     },
   })
@@ -65,18 +61,21 @@ export default function EditIpPoolSideModalForm() {
     <SideModalForm
       form={form}
       formType="edit"
-      resourceName="IP pool"
-      onDismiss={() => navigate(pb.ipPool({ pool: poolSelector.pool }))}
+      resourceName="subnet pool"
+      onDismiss={() => navigate(pb.subnetPool({ subnetPool: poolSelector.subnetPool }))}
       onSubmit={({ name, description }) => {
-        editPool.mutate({ path: poolSelector, body: { name, description } })
+        editPool.mutate({
+          path: { pool: poolSelector.subnetPool },
+          body: { name, description },
+        })
       }}
       loading={editPool.isPending}
       submitError={editPool.error}
     >
-      <IpPoolVisibilityMessage />
+      <SubnetPoolVisibilityMessage />
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <SideModalFormDocs docs={[docLinks.systemIpPools]} />
+      <SideModalFormDocs docs={[docLinks.subnetPools]} />
     </SideModalForm>
   )
 }
