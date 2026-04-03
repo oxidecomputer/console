@@ -28,6 +28,7 @@ import { DiskStateBadge, DiskTypeBadge, ReadOnlyBadge } from '~/components/State
 import { AttachDiskModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { DiskDetailSideModal } from '~/pages/project/disks/DiskDetailSideModal'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
@@ -338,6 +339,26 @@ export default function StorageTab() {
     ),
     getCoreRowModel: getCoreRowModel(),
   })
+
+  const canAttachDisk = instanceCan.attachDisk(instance)
+  useQuickActions(
+    () =>
+      canAttachDisk
+        ? [
+            {
+              value: 'Attach existing disk',
+              navGroup: 'Actions',
+              action: () => setShowDiskAttach(true),
+            },
+            {
+              value: 'Create disk',
+              navGroup: 'Actions',
+              action: () => setShowDiskCreate(true),
+            },
+          ]
+        : [],
+    [canAttachDisk]
+  )
 
   return (
     <div className="space-y-5">

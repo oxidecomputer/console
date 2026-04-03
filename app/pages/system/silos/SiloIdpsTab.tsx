@@ -15,6 +15,7 @@ import { Badge } from '@oxide/design-system/ui'
 import { api, getListQFn, queryClient, type IdentityProvider } from '~/api'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -55,6 +56,13 @@ export default function SiloIdpsTab() {
         cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
       }),
       colHelper.accessor('timeCreated', Columns.timeCreated),
+    ],
+    [silo]
+  )
+
+  useQuickActions(
+    () => [
+      { value: 'New provider', navGroup: 'Actions', action: pb.siloIdpsNew({ silo }) },
     ],
     [silo]
   )
