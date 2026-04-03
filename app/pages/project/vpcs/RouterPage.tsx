@@ -182,7 +182,7 @@ export default function RouterPage() {
       canCreateNewRoute
         ? [
             {
-              value: 'New route',
+              value: 'Add route',
               navGroup: 'Actions',
               action: pb.vpcRouterRoutesNew({ project, vpc, router }),
             },
@@ -220,14 +220,14 @@ export default function RouterPage() {
         <CardBlock.Header title="Routes" description="Rules for directing network traffic">
           {canCreateNewRoute ? (
             <CreateLink to={pb.vpcRouterRoutesNew({ project, vpc, router })}>
-              New route
+              Add route
             </CreateLink>
           ) : (
             <CreateButton
               disabled
               disabledReason={routeFormMessage.noNewRoutesOnSystemRouter}
             >
-              New route
+              Add route
             </CreateButton>
           )}
         </CardBlock.Header>
