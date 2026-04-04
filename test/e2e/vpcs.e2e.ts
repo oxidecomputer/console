@@ -207,7 +207,7 @@ test('can’t create or delete Routes on system routers', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc/routers/mock-system-router')
 
   // verify that the "new route" link isn't present, since users can't add routes to system routers
-  await expect(page.getByRole('link', { name: 'New route' })).toBeHidden()
+  await expect(page.getByRole('link', { name: 'Add route' })).toBeHidden()
 
   // expect to see table of routes
   const table = page.getByRole('table')
@@ -237,7 +237,7 @@ test('create router route', async ({ page }) => {
   )
 
   // create a new route
-  await page.getByRole('link', { name: 'New route' }).click()
+  await page.getByRole('link', { name: 'Add route' }).click()
   await nameInput.fill('new-route')
 
   // Test IP validation for destination
@@ -391,7 +391,7 @@ test('internet gateway shows proper list of routes targeting it', async ({ page 
 
   await page.getByRole('link', { name: 'mock-custom-router' }).click()
   // create a new route
-  await page.getByRole('link', { name: 'New route' }).click()
+  await page.getByRole('link', { name: 'Add route' }).click()
   await page.getByRole('textbox', { name: 'Name' }).fill('new-route')
   await page.getByRole('textbox', { name: 'Destination value' }).fill('1.2.3.4')
   await selectOption(page, 'Target type', 'Internet gateway')
