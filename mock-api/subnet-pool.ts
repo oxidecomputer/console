@@ -6,13 +6,10 @@
  * Copyright Oxide Computer Company
  */
 
-import type { SiloSubnetPool, SubnetPoolMember } from '@oxide/api'
+import type { SiloSubnetPool, SubnetPoolMember, SubnetPoolSiloLink } from '@oxide/api'
 
 import type { Json } from './json-type'
-
-// Minimal subnet pool seed data for external subnet allocation.
-// There's no UI for subnet pools themselves yet, but external subnets
-// reference them.
+import { defaultSilo, myriadSilo } from './silo'
 
 export const subnetPool1: Json<SiloSubnetPool> = {
   id: '41e54fcd-c45b-43ed-90fb-4b9faf24e167',
@@ -44,7 +41,17 @@ export const subnetPool3: Json<SiloSubnetPool> = {
   time_modified: new Date().toISOString(),
 }
 
-export const subnetPools = [subnetPool1, subnetPool2, subnetPool3]
+export const subnetPool4: Json<SiloSubnetPool> = {
+  id: 'b68e8311-8809-4e12-bdd6-0ba1cf39d892',
+  name: 'myriad-v4-subnet-pool',
+  description: 'IPv4 subnet pool for myriad silo',
+  ip_version: 'v4',
+  is_default: false,
+  time_created: new Date().toISOString(),
+  time_modified: new Date().toISOString(),
+}
+
+export const subnetPools = [subnetPool1, subnetPool2, subnetPool3, subnetPool4]
 
 export const subnetPoolMember1: Json<SubnetPoolMember> = {
   id: '0466eafd-2922-4360-a0ee-e4c99b370c04',
@@ -74,4 +81,58 @@ export const subnetPoolMember3: Json<SubnetPoolMember> = {
   time_created: new Date().toISOString(),
 }
 
-export const subnetPoolMembers = [subnetPoolMember1, subnetPoolMember2, subnetPoolMember3]
+export const subnetPoolMember4: Json<SubnetPoolMember> = {
+  id: '1f138054-4db0-45cb-8cf7-0a4027d7e6b4',
+  subnet_pool_id: subnetPool4.id,
+  subnet: '192.168.0.0/16',
+  min_prefix_length: 20,
+  max_prefix_length: 28,
+  time_created: new Date().toISOString(),
+}
+
+export const subnetPoolMembers = [
+  subnetPoolMember1,
+  subnetPoolMember2,
+  subnetPoolMember3,
+  subnetPoolMember4,
+]
+
+// Link pools to mock silo
+export const subnetPoolSilo1: Json<SubnetPoolSiloLink> = {
+  subnet_pool_id: subnetPool1.id,
+  silo_id: defaultSilo.id,
+  is_default: true,
+}
+
+export const subnetPoolSilo2: Json<SubnetPoolSiloLink> = {
+  subnet_pool_id: subnetPool2.id,
+  silo_id: defaultSilo.id,
+  is_default: false,
+}
+
+export const subnetPoolSilo3: Json<SubnetPoolSiloLink> = {
+  subnet_pool_id: subnetPool3.id,
+  silo_id: defaultSilo.id,
+  is_default: false,
+}
+
+// myriad silo: pool1 as default, pool4 as non-default
+export const subnetPoolSilo4: Json<SubnetPoolSiloLink> = {
+  subnet_pool_id: subnetPool1.id,
+  silo_id: myriadSilo.id,
+  is_default: true,
+}
+
+export const subnetPoolSilo5: Json<SubnetPoolSiloLink> = {
+  subnet_pool_id: subnetPool4.id,
+  silo_id: myriadSilo.id,
+  is_default: false,
+}
+
+export const subnetPoolSilos = [
+  subnetPoolSilo1,
+  subnetPoolSilo2,
+  subnetPoolSilo3,
+  subnetPoolSilo4,
+  subnetPoolSilo5,
+]

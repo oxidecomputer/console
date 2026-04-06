@@ -30,6 +30,10 @@
 @import '@oxide/design-system/styles/preflight.css' layer(base);
 @import 'simplebar-react/dist/simplebar.min.css' layer(components);
 
+@import '@oxide/design-system/styles/red.css';
+@import '@oxide/design-system/styles/yellow.css';
+@import '@oxide/design-system/styles/blue.css';
+
 @import './fonts.css' layer(base);
 @import './vars.css' layer(base);
 @import './components/button.css' layer(components);
@@ -113,7 +117,7 @@
 
 @utility tint-underline {
   text-decoration: underline;
-  text-decoration-color: color-mix(in srgb, currentColor 50%, transparent);
+  text-decoration-color: color-mix(in srgb, currentColor 60%, transparent);
 
   &:hover {
     text-decoration-color: color-mix(in srgb, currentColor 80%, transparent);

@@ -11,9 +11,15 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback } from 'react'
 import { Outlet, useNavigate } from 'react-router'
 
-import { api, getListQFn, q, queryClient, useApiMutation, type IpPool } from '@oxide/api'
-import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
-import { Badge } from '@oxide/design-system/ui'
+import {
+  api,
+  getListQFn,
+  q,
+  queryClient,
+  useApiMutation,
+  type SubnetPool,
+} from '@oxide/api'
+import { Subnet16Icon, Subnet24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
@@ -37,16 +43,16 @@ import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
   <EmptyMessage
-    icon={<IpGlobal24Icon />}
-    title="No IP pools"
-    body="Create an IP pool to see it here"
-    buttonText="New IP pool"
-    buttonTo={pb.ipPoolsNew()}
+    icon={<Subnet24Icon />}
+    title="No subnet pools"
+    body="Create a subnet pool to see it here"
+    buttonText="New subnet pool"
+    buttonTo={pb.subnetPoolsNew()}
   />
 )
 
 function UtilizationCell({ pool }: { pool: string }) {
-  const { data } = useQuery(q(api.systemIpPoolUtilizationView, { path: { pool } }))
+  const { data } = useQuery(q(api.systemSubnetPoolUtilizationView, { path: { pool } }))
   if (!data) return <SkeletonCell />
   return (
     <div>
@@ -55,57 +61,54 @@ function UtilizationCell({ pool }: { pool: string }) {
   )
 }
 
-const colHelper = createColumnHelper<IpPool>()
+const colHelper = createColumnHelper<SubnetPool>()
 
 const staticColumns = [
-  colHelper.accessor('name', { cell: makeLinkCell((pool) => pb.ipPool({ pool })) }),
+  colHelper.accessor('name', {
+    cell: makeLinkCell((pool) => pb.subnetPool({ subnetPool: pool })),
+  }),
   colHelper.accessor('description', Columns.description),
   colHelper.accessor('ipVersion', {
     header: 'Version',
     cell: (info) => <IpVersionBadge ipVersion={info.getValue()} />,
   }),
-  colHelper.accessor('poolType', {
-    header: 'Type',
-    cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
-  }),
   colHelper.display({
-    header: 'IPs REMAINING',
-    meta: { thClassName: 'normal-case' },
+    header: 'Addresses remaining',
     cell: (info) => <UtilizationCell pool={info.row.original.name} />,
   }),
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-const ipPoolList = getListQFn(api.systemIpPoolList, {})
+const subnetPoolList = getListQFn(api.systemSubnetPoolList, {})
 
 export async function clientLoader() {
-  await queryClient.prefetchQuery(ipPoolList.optionsFn())
+  await queryClient.prefetchQuery(subnetPoolList.optionsFn())
   return null
 }
 
-export const handle = { crumb: 'IP Pools' }
+export const handle = { crumb: 'Subnet Pools' }
 
-export default function IpPoolsPage() {
+export default function SubnetPoolsPage() {
   const navigate = useNavigate()
 
-  const { mutateAsync: deletePool } = useApiMutation(api.systemIpPoolDelete, {
+  const { mutateAsync: deletePool } = useApiMutation(api.systemSubnetPoolDelete, {
     onSuccess(_data, variables) {
-      queryClient.invalidateEndpoint('systemIpPoolList')
+      queryClient.invalidateEndpoint('systemSubnetPoolList')
       // prettier-ignore
-      addToast(<>Pool <HL>{variables.path.pool}</HL> deleted</>)
+      addToast(<>Subnet pool <HL>{variables.path.pool}</HL> deleted</>)
     },
   })
 
   const makeActions = useCallback(
-    (pool: IpPool): MenuAction[] => [
+    (pool: SubnetPool): MenuAction[] => [
       {
         label: 'Edit',
         onActivate: () => {
-          // the edit view has its own loader, but we can make the modal open
-          // instantaneously by preloading the fetch result
-          const ipPoolView = q(api.systemIpPoolView, { path: { pool: pool.name } })
-          queryClient.setQueryData(ipPoolView.queryKey, pool)
-          navigate(pb.ipPoolEdit({ pool: pool.name }))
+          const poolView = q(api.systemSubnetPoolView, {
+            path: { pool: pool.name },
+          })
+          queryClient.setQueryData(poolView.queryKey, pool)
+          navigate(pb.subnetPoolEdit({ subnetPool: pool.name }))
         },
       },
       {
@@ -121,28 +124,26 @@ export default function IpPoolsPage() {
 
   const columns = useColsWithActions(staticColumns, makeActions)
   const { table } = useQueryTable({
-    query: ipPoolList,
+    query: subnetPoolList,
     columns,
-    // turn this back on if we expect to see IPv6 ranges regularly
-    // rowHeight: 'large',
     emptyState: <EmptyState />,
   })
 
   const { data: allPools } = useQuery(
-    q(api.systemIpPoolList, { query: { limit: ALL_ISH } })
+    q(api.systemSubnetPoolList, { query: { limit: ALL_ISH } })
   )
 
   useQuickActions(
     () => [
       {
-        value: 'New IP pool',
+        value: 'New subnet pool',
         navGroup: 'Actions',
-        action: pb.ipPoolsNew(),
+        action: pb.subnetPoolsNew(),
       },
       ...(allPools?.items || []).map((p) => ({
         value: p.name,
-        action: pb.ipPool({ pool: p.name }),
-        navGroup: 'Go to IP pool',
+        action: pb.subnetPool({ subnetPool: p.name }),
+        navGroup: 'Go to subnet pool',
       })),
     ],
     [allPools]
@@ -151,16 +152,16 @@ export default function IpPoolsPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<IpGlobal24Icon />}>IP Pools</PageTitle>
+        <PageTitle icon={<Subnet24Icon />}>Subnet Pools</PageTitle>
         <DocsPopover
-          heading="IP pools"
-          icon={<IpGlobal16Icon />}
-          summary="IP pools are collections of external IPs you can assign to silos. When a pool is linked to a silo, users in that silo can allocate IPs from the pool for their instances."
-          links={[docLinks.systemIpPools]}
+          heading="Subnet pools"
+          icon={<Subnet16Icon />}
+          summary="Subnet pools are collections of IP subnets you can assign to silos. When a pool is linked to a silo, users in that silo can allocate external subnets from the pool."
+          links={[docLinks.subnetPools]}
         />
       </PageHeader>
       <TableActions>
-        <CreateLink to={pb.ipPoolsNew()}>New IP Pool</CreateLink>
+        <CreateLink to={pb.subnetPoolsNew()}>New Subnet Pool</CreateLink>
       </TableActions>
       {table}
       <Outlet />

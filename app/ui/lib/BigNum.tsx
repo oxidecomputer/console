@@ -23,3 +23,20 @@ export function BigNum({ num, className }: { num: number | bigint; className?: s
 
   return <Tooltip content={num.toLocaleString()}>{inner}</Tooltip>
 }
+
+/** Display `remaining / capacity` with BigNum formatting. */
+export function UtilizationFraction({
+  remaining,
+  capacity,
+}: {
+  remaining: number | bigint
+  capacity: number | bigint
+}) {
+  return (
+    <>
+      <BigNum className="text-raise" num={remaining} />
+      {' / '}
+      <BigNum className="text-secondary" num={capacity} />
+    </>
+  )
+}
