@@ -99,20 +99,6 @@ export default defineConfig(({ mode }) => ({
     emptyOutDir: true,
     sourcemap: true,
     // minify: false, // uncomment for debugging
-    rolldownOptions: {
-      // default entrypoint for vite is '<root>/index.html', so we don't have to set it
-      output: {
-        // Merge tiny shared chunks to reduce the number of requests.
-        // Rolldown's equivalent of Rollup's experimentalMinChunkSize.
-        // https://rolldown.rs/in-depth/advanced-chunks
-        codeSplitting: {
-          groups: [
-            { name: 'vendor', test: /\/node_modules\//, minSize: 4096 },
-            { name: 'shared', minSize: 4096, minShareCount: 2 },
-          ],
-        },
-      },
-    },
     // prevent inlining assets as `data:`, which is not permitted by our Content-Security-Policy
     assetsInlineLimit: 0,
   },
