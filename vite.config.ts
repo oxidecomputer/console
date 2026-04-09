@@ -133,21 +133,21 @@ export default defineConfig(({ mode }) => ({
     },
     {
       // Inject theme-init.js as a classic (non-module) render-blocking script
-      // so it sets data-theme before first paint. It lives in public/ so it
-      // passes CSP default-src 'self'. We inject it here rather than putting
-      // it in index.html because Vite tries to bundle any <script src> it finds
-      // there. Content hash query param handles cache-busting since public/
-      // files aren't fingerprinted by Vite. We cache static assets for a year,
-      // so we need the hash.
+      // so it sets data-theme before first paint. It lives in public/assets/
+      // so it passes CSP default-src 'self' and is served by the /assets/*
+      // route in Nexus. We inject it here rather than putting it in index.html
+      // because Vite tries to bundle any <script src> it finds there. Content
+      // hash query param handles cache-busting since public/ files aren't
+      // fingerprinted by Vite.
       name: 'theme-init',
       transformIndexHtml() {
-        const content = readFileSync(resolve(__dirname, 'public/theme-init.js'))
+        const content = readFileSync(resolve(__dirname, 'public/assets/theme-init.js'))
         const hash = createHash('sha256').update(content).digest('hex').slice(0, 8)
         return [
           {
             injectTo: 'head-prepend',
             tag: 'script',
-            attrs: { src: `/theme-init.js?v=${hash}` },
+            attrs: { src: `/assets/theme-init.js?v=${hash}` },
           },
         ]
       },
