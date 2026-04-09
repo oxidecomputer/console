@@ -140,6 +140,7 @@ export function SshKeysField({
       {showAddSshKey && (
         <SSHKeyCreate
           onDismiss={() => setShowAddSshKey(false)}
+          onSuccess={(sshKey) => onChange([...value, sshKey.id])}
           message={
             <Message
               variant="info"
