@@ -55,11 +55,11 @@ export function SshKeysField({
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
 }) {
-  const keys = usePrefetchedQuery(q(api.currentUserSshKeyList, {})).data?.items || []
+  const allKeys = usePrefetchedQuery(q(api.currentUserSshKeyList, {})).data.items
   const [showAddSshKey, setShowAddSshKey] = useState(false)
 
   const {
-    field: { value, onChange },
+    field: { value: selectedKeys, onChange },
     fieldState: { error },
   } = useController({
     control,
@@ -73,6 +73,8 @@ export function SshKeysField({
     },
   })
 
+  const allAreSelected = allKeys.length === selectedKeys.length
+
   return (
     <div className="max-w-lg">
       <div className="mb-2">
@@ -81,11 +83,11 @@ export function SshKeysField({
           SSH keys can be added and removed in your user settings
         </TextInputHint>
       </div>
-      {keys.length > 0 ? (
+      {allKeys.length > 0 ? (
         <>
           <div className="space-y-2">
             <div className="flex flex-col space-y-2">
-              {keys.map((key) => (
+              {allKeys.map((key) => (
                 <CheckboxField
                   name="sshPublicKeys"
                   control={control}
@@ -102,12 +104,10 @@ export function SshKeysField({
 
             <Divider />
             <Checkbox
-              checked={value.length === keys.length}
-              indeterminate={value.length > 0 && value.length < keys.length}
+              checked={allAreSelected}
+              indeterminate={selectedKeys.length > 0 && !allAreSelected}
               // if fewer than all are checked, check all. if all are checked, check none
-              onChange={() =>
-                onChange(value.length < keys.length ? keys.map((key) => key.id) : [])
-              }
+              onChange={() => onChange(allAreSelected ? [] : allKeys.map((key) => key.id))}
               disabled={isSubmitting}
             >
               <span className="select-none">Select all</span>
@@ -140,7 +140,7 @@ export function SshKeysField({
       {showAddSshKey && (
         <SSHKeyCreate
           onDismiss={() => setShowAddSshKey(false)}
-          onSuccess={(sshKey) => onChange([...value, sshKey.id])}
+          onSuccess={(sshKey) => onChange([...selectedKeys, sshKey.id])}
           message={
             <Message
               variant="info"
