@@ -20,6 +20,7 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Message } from '~/ui/lib/Message'
 import { TextInputHint } from '~/ui/lib/TextInput'
+import { isSubset } from '~/util/array'
 
 import { CheckboxField } from './CheckboxField'
 import { ErrorMessage } from './ErrorMessage'
@@ -73,7 +74,16 @@ export function SshKeysField({
     },
   })
 
-  const allAreSelected = allKeys.length === selectedKeys.length
+  // do this with a subset instead of just counting the items because there's a
+  // weird window right after adding but before the invalidate has gone through
+  // where you can have the new one selected but it's not in the list of all
+  // keys, which can cause the counts to match even though the sets don't
+  const allAreSelected =
+    allKeys.length > 0 &&
+    isSubset(
+      allKeys.map((k) => k.id),
+      new Set(selectedKeys)
+    )
 
   return (
     <div className="max-w-lg">
