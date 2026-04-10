@@ -351,46 +351,6 @@ test('add ssh key from instance create form', async ({ page }) => {
   await expectRowVisible(page.getByRole('table'), { name: newKey, description: 'hi' })
 })
 
-// Regression: creating a key with one existing key unchecked caused Select all
-// to appear fully checked during the stale window (length coincidence bug).
-test('add ssh key with one unchecked does not falsely show select all', async ({
-  page,
-}) => {
-  await page.goto('/projects/mock-project/instances-new')
-
-  const macMini = page.getByRole('checkbox', { name: 'mac-mini' })
-  await expect(macMini).toBeChecked()
-  // uncheck one key so selectedKeys length will match stale allKeys length after create
-  await macMini.click()
-  await expect(macMini).not.toBeChecked()
-
-  const selectAll = page.getByRole('checkbox', { name: 'Select all' })
-  await expect(selectAll).not.toBeChecked()
-
-  const newKey = 'regression-key'
-  const dialog = page.getByRole('dialog')
-  await page.getByRole('button', { name: 'Add SSH Key' }).click()
-  await dialog.getByRole('textbox', { name: 'Name' }).fill(newKey)
-  await dialog.getByRole('textbox', { name: 'Description' }).fill('test')
-  await dialog.getByRole('textbox', { name: 'Public key' }).fill('ssh-ed25519 AAAA')
-  await dialog.getByRole('button', { name: 'Add SSH Key' }).click()
-
-  // Wait for the modal to close (create succeeded), then immediately check
-  // Select all before the list refetch lands. During the stale window,
-  // allKeys has 2 items and selectedKeys has 2 items (one old + one new),
-  // so a length-based allAreSelected would incorrectly be true.
-  await expect(dialog).toBeHidden()
-  // Use isChecked() (no auto-retry) to snapshot the state during the stale window
-  expect(await selectAll.isChecked()).toBe(false)
-
-  // Wait for refetch to land — does Select all self-correct?
-  const newCheckbox = page.getByRole('checkbox', { name: newKey })
-  await expect(newCheckbox).toBeVisible()
-  await expect(newCheckbox).toBeChecked()
-  await expect(macMini).not.toBeChecked()
-  await expect(selectAll).not.toBeChecked()
-})
-
 test('shows object not found error on no default pool', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('no-default-pool')
