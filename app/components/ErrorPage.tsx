@@ -41,7 +41,7 @@ export function ErrorPage({ children }: Props) {
         </Link>
         <SignOutButton className="mt-4 mr-6" />
       </div>
-      <div className="bg-raise! shadow-modal absolute top-1/2 left-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded-lg p-8">
+      <div className="bg-raise! shadow-modal max-1000:w-[calc(100%-var(--content-gutter)*2)] absolute top-1/2 left-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded-lg p-8">
         <div className="my-2 flex h-12 w-12 items-center justify-center">
           <div className="bg-destructive-inverse absolute h-10 w-10 rounded-full opacity-40 motion-safe:animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
           <Error12Icon className="text-error light:text-error-secondary relative h-8 w-8" />

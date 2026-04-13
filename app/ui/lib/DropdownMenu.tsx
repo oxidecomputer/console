@@ -65,6 +65,7 @@ export function Content({ className, children, anchor = 'bottom end', gap }: Con
         align={align}
         sideOffset={sideOffset}
         alignOffset={alignOffset}
+        collisionPadding={12}
       >
         <Menu.Popup
           className={cn('dropdown-menu-content shadow-menu outline-hidden', className)}

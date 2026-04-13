@@ -125,10 +125,10 @@ export function Terminal({ ws }: TerminalProps) {
     <>
       <div
         role="application"
-        className="text-mono-code h-full w-[calc(100%-3rem)]"
+        className="text-mono-code 1000:w-[calc(100%-3rem)] h-full w-full"
         ref={terminalRef}
       />
-      <div className="text-default absolute top-0 right-0 space-y-2">
+      <div className="text-default max-1000:hidden absolute top-0 right-0 space-y-2">
         <ScrollButton onClick={() => term?.scrollToTop()} aria-label="Scroll to top">
           <DirectionUpIcon aria-hidden />
         </ScrollButton>

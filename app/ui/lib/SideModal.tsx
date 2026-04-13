@@ -69,7 +69,7 @@ export function SideModal({
                 initial={{ x: animate ? 40 : 0 }}
                 animate={{ x: 0 }}
                 transition={{ type: 'spring', duration: 0.4, bounce: 0 }}
-                className="ox-side-modal bg-raise shadow-modal pointer-events-auto fixed top-0 right-0 bottom-0 z-(--z-side-modal) m-0 flex w-lg flex-col justify-between p-0"
+                className="ox-side-modal bg-raise shadow-modal 1000:w-lg pointer-events-auto fixed top-0 right-0 bottom-0 z-(--z-side-modal) m-0 flex w-full flex-col justify-between p-0"
               />
             }
           >

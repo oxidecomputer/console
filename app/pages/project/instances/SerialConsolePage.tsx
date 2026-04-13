@@ -157,7 +157,7 @@ export default function SerialConsolePage() {
         {ws.current && <Terminal ws={ws.current} />}
       </div>
       <div className="bg-default border-secondary shrink-0 justify-between overflow-hidden border-t empty:border-t-0">
-        <div className="gutter flex h-20 items-center justify-between">
+        <div className="gutter 1000:h-20 max-1000:py-4 flex items-center justify-between">
           <div>
             <EquivalentCliCommand project={project} instance={instance} />
           </div>
