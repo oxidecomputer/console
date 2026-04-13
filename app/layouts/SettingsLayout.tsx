@@ -7,12 +7,7 @@
  */
 import { useLocation } from 'react-router'
 
-import {
-  AccessToken16Icon,
-  Folder16Icon,
-  Key16Icon,
-  Profile16Icon,
-} from '@oxide/design-system/icons/react'
+import { AccessToken16Icon, Folder16Icon } from '@oxide/design-system/icons/react'
 
 import { TopBar } from '~/components/TopBar'
 import { makeCrumb } from '~/hooks/use-crumbs'
@@ -20,7 +15,7 @@ import { useQuickActions } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
 
-import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
+import { DocsLinkItem, NavLinkItem, ProfileLinks, Sidebar } from '../components/Sidebar'
 import { ContentPane, PageContainer } from './helpers'
 
 export const handle = makeCrumb('Settings', pb.profile())
@@ -56,13 +51,8 @@ export default function SettingsLayout() {
           <DocsLinkItem />
         </Sidebar.Nav>
         <Divider />
-        <Sidebar.Nav heading="User">
-          <NavLinkItem to={pb.profile()}>
-            <Profile16Icon /> Profile
-          </NavLinkItem>
-          <NavLinkItem to={pb.sshKeys()}>
-            <Key16Icon /> SSH Keys
-          </NavLinkItem>
+        <ProfileLinks />
+        <Sidebar.Nav>
           <NavLinkItem to={pb.accessTokens()}>
             <AccessToken16Icon /> Access Tokens
           </NavLinkItem>

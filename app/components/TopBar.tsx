@@ -10,6 +10,8 @@ import { Link } from 'react-router'
 
 import { api, navToLogin, useApiMutation } from '@oxide/api'
 import {
+  MenuClose12Icon,
+  MenuOpen12Icon,
   Monitor12Icon,
   Moon12Icon,
   Organization16Icon,
@@ -22,6 +24,7 @@ import {
 
 import { useCrumbs } from '~/hooks/use-crumbs'
 import { useCurrentUser } from '~/hooks/use-current-user'
+import { toggleSidebar, useMenuState } from '~/hooks/use-menu-state'
 import { useThemeStore, type Theme } from '~/stores/theme'
 import { buttonStyle } from '~/ui/lib/Button'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
@@ -33,20 +36,43 @@ import { pb } from '~/util/path-builder'
 export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
   const { me } = useCurrentUser()
   return (
-    <div className="bg-default border-secondary fixed top-0 right-0 left-0 z-(--z-top-bar) grid h-(--top-bar-height) grid-cols-[var(--sidebar-width)_1fr] border-b">
-      <div className="border-secondary flex items-center border-r px-2">
+    <div className="bg-default border-secondary max-1000:grid-cols-[min-content_1fr] fixed top-0 right-0 left-0 z-(--z-top-bar) grid h-(--top-bar-height) grid-cols-[var(--sidebar-width)_1fr] border-b">
+      <div className="border-secondary max-1000:hidden flex items-center border-r px-2">
         <HomeButton level={systemOrSilo} />
       </div>
+      <MobileMenuButton className="1000:hidden" />
       <div className="flex items-center justify-between gap-4 px-3">
-        <div className="flex flex-1 gap-2.5">
+        <div className="flex flex-1 gap-2.5 overflow-hidden">
           <Breadcrumbs />
         </div>
         <div className="flex items-center gap-2">
           {me.fleetViewer && <SiloSystemPicker level={systemOrSilo} />}
-          <UserMenu />
+          {/* Hidden on mobile — sign out and settings are in the sidebar drawer */}
+          <UserMenu className="max-1000:hidden" />
         </div>
       </div>
     </div>
+  )
+}
+
+function MobileMenuButton({ className }: { className?: string }) {
+  const { isOpen } = useMenuState()
+  return (
+    <button
+      type="button"
+      className={cn(
+        'border-secondary flex items-center justify-center border-r px-3',
+        className
+      )}
+      onClick={toggleSidebar}
+      aria-label={isOpen ? 'Close menu' : 'Open menu'}
+    >
+      {isOpen ? (
+        <MenuClose12Icon className="text-default" />
+      ) : (
+        <MenuOpen12Icon className="text-default" />
+      )}
+    </button>
   )
 }
 
@@ -121,7 +147,7 @@ function Breadcrumbs() {
   )
 }
 
-function UserMenu() {
+function UserMenu({ className }: { className?: string }) {
   const logout = useApiMutation(api.logout, {
     onSuccess: () => navToLogin({ includeCurrent: false }),
   })
@@ -129,7 +155,7 @@ function UserMenu() {
   const { me } = useCurrentUser()
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger aria-label="User menu" className="rounded-md">
+      <DropdownMenu.Trigger aria-label="User menu" className={cn('rounded-md', className)}>
         <div
           className={cn(
             buttonStyle({ size: 'sm', variant: 'ghost' }),

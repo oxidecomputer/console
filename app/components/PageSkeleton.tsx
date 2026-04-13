@@ -28,8 +28,8 @@ export function PageSkeleton({ skipPaths }: { skipPaths?: RegExp[] }) {
       {process.env.MSW_BANNER ? <MswBanner disableButton /> : null}
       <div className="min-h-full pt-(--top-bar-height)">
         {/* TopBar skeleton */}
-        <div className="bg-default border-secondary fixed top-0 right-0 left-0 z-(--z-top-bar) grid h-(--top-bar-height) grid-cols-[var(--sidebar-width)_1fr] border-b">
-          <div className="border-secondary flex items-center gap-2 border-r p-3">
+        <div className="bg-default border-secondary max-1000:grid-cols-1 fixed top-0 right-0 left-0 z-(--z-top-bar) grid h-(--top-bar-height) grid-cols-[var(--sidebar-width)_1fr] border-b">
+          <div className="border-secondary max-1000:hidden flex items-center gap-2 border-r p-3">
             <Block className="h-8 w-8" />
             <Block className="h-4 w-24" />
           </div>
@@ -42,7 +42,7 @@ export function PageSkeleton({ skipPaths }: { skipPaths?: RegExp[] }) {
           </div>
         </div>
         {/* Sidebar skeleton */}
-        <div className="border-secondary fixed top-(--top-bar-height) bottom-0 left-0 w-(--sidebar-width) border-r p-4">
+        <div className="border-secondary max-1000:hidden fixed top-(--top-bar-height) bottom-0 left-0 w-(--sidebar-width) border-r p-4">
           <Block className="mb-10 h-4 w-full" />
           <div className="mb-6 space-y-2">
             <Block className="h-4 w-32" />
@@ -56,7 +56,7 @@ export function PageSkeleton({ skipPaths }: { skipPaths?: RegExp[] }) {
           </div>
         </div>
         {/* Content skeleton */}
-        <div className="light:bg-raise ml-(--sidebar-width)" />
+        <div className="light:bg-raise 1000:ml-(--sidebar-width)" />
       </div>
     </>
   )
