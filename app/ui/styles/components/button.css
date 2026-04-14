@@ -69,6 +69,9 @@
   background: repeating-linear-gradient(45deg, yellow, yellow 10px, black 10px, black 20px);
 }
 
-.active-clicked:active:not(.visually-disabled) {
-  @apply motion-safe:translate-y-px;
+/* Disable the click-depression effect on touch devices where it feels wrong */
+@media (min-width: 1000px) {
+  .active-clicked:active:not(.visually-disabled) {
+    @apply motion-safe:translate-y-px;
+  }
 }

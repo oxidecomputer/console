@@ -77,7 +77,7 @@ export default function SystemLayout() {
   return (
     <PageContainer>
       <TopBar systemOrSilo="system" />
-      <Sidebar>
+      <Sidebar systemOrSilo="system">
         <Sidebar.Nav>
           <DocsLinkItem />
         </Sidebar.Nav>

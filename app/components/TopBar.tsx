@@ -46,7 +46,9 @@ export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
           <Breadcrumbs />
         </div>
         <div className="flex items-center gap-2">
-          {me.fleetViewer && <SiloSystemPicker level={systemOrSilo} />}
+          {me.fleetViewer && (
+            <SiloSystemPicker level={systemOrSilo} className="max-1000:hidden" />
+          )}
           {/* Hidden on mobile — sign out and settings are in the sidebar drawer */}
           <UserMenu className="max-1000:hidden" />
         </div>
@@ -240,10 +242,19 @@ function ThemeRadioItem({
  * have access to system routes (i.e., if /v1/me has fleetViewer: false) show
  * the current silo.
  */
-function SiloSystemPicker({ level }: { level: 'silo' | 'system' }) {
+function SiloSystemPicker({
+  level,
+  className,
+}: {
+  level: 'silo' | 'system'
+  className?: string
+}) {
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger aria-label="Switch between system and silo">
+      <DropdownMenu.Trigger
+        aria-label="Switch between system and silo"
+        className={className}
+      >
         <div
           className={cn(
             buttonStyle({ size: 'sm', variant: 'ghost' }),

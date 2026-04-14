@@ -15,15 +15,19 @@ import {
   Action16Icon,
   Document16Icon,
   Key16Icon,
+  Organization16Icon,
   Profile16Icon,
+  Servers16Icon,
   SignOut16Icon,
 } from '@oxide/design-system/icons/react'
 
+import { useCurrentUser } from '~/hooks/use-current-user'
 import { useIsActivePath } from '~/hooks/use-is-active-path'
 import { closeSidebar, useMenuState } from '~/hooks/use-menu-state'
 import { openQuickActions } from '~/hooks/use-quick-actions'
 import { Button } from '~/ui/lib/Button'
 import { Divider } from '~/ui/lib/Divider'
+import { Identicon } from '~/ui/lib/Identicon'
 import { Truncate } from '~/ui/lib/Truncate'
 import { pb } from '~/util/path-builder'
 
@@ -105,7 +109,63 @@ export function ProfileLinks({ className }: { className?: string }) {
 
 const sidebarContent = 'text-sans-md text-raise flex flex-col'
 
-export function Sidebar({ children }: { children: React.ReactNode }) {
+const iconBox = 'flex h-[34px] w-[34px] items-center justify-center rounded-md'
+
+function SiloIdentity({ level }: { level: 'system' | 'silo' }) {
+  const { me } = useCurrentUser()
+  const config =
+    level === 'silo'
+      ? {
+          to: pb.projects(),
+          icon: (
+            <Identicon
+              className={cn(iconBox, 'text-accent bg-accent-hover')}
+              name={me.siloName}
+            />
+          ),
+          label: me.siloName,
+        }
+      : {
+          to: pb.silos(),
+          icon: (
+            <div className={cn(iconBox, 'text-quaternary bg-tertiary')}>
+              <Servers16Icon />
+            </div>
+          ),
+          label: 'System',
+        }
+
+  const switchTo =
+    level === 'silo'
+      ? { to: pb.silos(), icon: <Servers16Icon />, label: 'System' }
+      : { to: pb.projects(), icon: <Organization16Icon />, label: 'Silo' }
+
+  return (
+    <div className="mx-3 mt-4 space-y-1">
+      <Link
+        to={config.to}
+        className="hover:bg-hover flex items-center gap-2 rounded-lg p-1"
+      >
+        {config.icon}
+        <div className="text-sans-md text-raise overflow-hidden text-ellipsis whitespace-nowrap">
+          {config.label}
+        </div>
+      </Link>
+      {me.fleetViewer && (
+        <Link to={switchTo.to} className={cn(linkStyles(), 'text-tertiary')}>
+          {switchTo.icon} {switchTo.label}
+        </Link>
+      )}
+    </div>
+  )
+}
+
+type SidebarProps = {
+  children: React.ReactNode
+  systemOrSilo?: 'system' | 'silo'
+}
+
+export function Sidebar({ children, systemOrSilo }: SidebarProps) {
   const { isOpen, isSmallScreen } = useMenuState()
 
   if (isSmallScreen) {
@@ -136,7 +196,8 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
             >
-              <div className="mx-3 mt-4">
+              {systemOrSilo && <SiloIdentity level={systemOrSilo} />}
+              <div className="max-1000:hidden mx-3 mt-4">
                 <JumpToButton />
               </div>
               {children}
