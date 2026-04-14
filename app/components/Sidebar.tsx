@@ -6,14 +6,26 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
+import { AnimatePresence } from 'motion/react'
+import * as m from 'motion/react-m'
 import { Link, useLocation } from 'react-router'
 
-import { Action16Icon, Document16Icon } from '@oxide/design-system/icons/react'
+import { api, navToLogin, useApiMutation } from '@oxide/api'
+import {
+  Action16Icon,
+  Document16Icon,
+  Key16Icon,
+  Profile16Icon,
+  SignOut16Icon,
+} from '@oxide/design-system/icons/react'
 
 import { useIsActivePath } from '~/hooks/use-is-active-path'
+import { closeSidebar, useMenuState } from '~/hooks/use-menu-state'
 import { openQuickActions } from '~/hooks/use-quick-actions'
 import { Button } from '~/ui/lib/Button'
+import { Divider } from '~/ui/lib/Divider'
 import { Truncate } from '~/ui/lib/Truncate'
+import { pb } from '~/util/path-builder'
 
 const linkStyles = (isActive = false) =>
   cn(
@@ -60,9 +72,90 @@ const JumpToButton = () => {
   )
 }
 
-export function Sidebar({ children }: { children: React.ReactNode }) {
+/** Profile, SSH Keys, and Sign Out links shown in the mobile sidebar */
+export function ProfileLinks({ className }: { className?: string }) {
+  const logout = useApiMutation(api.logout, {
+    onSuccess: () => navToLogin({ includeCurrent: false }),
+  })
   return (
-    <div className="text-sans-md text-raise border-secondary fixed top-(--top-bar-height) bottom-0 left-0 flex w-(--sidebar-width) flex-col overflow-y-auto border-r">
+    <div className={cn('mx-3 my-4 space-y-1', className)}>
+      <div className="text-mono-sm text-tertiary mb-2">User</div>
+      <nav aria-label="User navigation">
+        <ul className="space-y-px">
+          <NavLinkItem to={pb.profile()}>
+            <Profile16Icon /> Profile
+          </NavLinkItem>
+          <NavLinkItem to={pb.sshKeys()}>
+            <Key16Icon /> SSH Keys
+          </NavLinkItem>
+          <li>
+            <button
+              type="button"
+              className={linkStyles()}
+              onClick={() => logout.mutate({})}
+            >
+              <SignOut16Icon /> Sign out
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  )
+}
+
+const sidebarContent = 'text-sans-md text-raise flex flex-col'
+
+export function Sidebar({ children }: { children: React.ReactNode }) {
+  const { isOpen, isSmallScreen } = useMenuState()
+
+  if (isSmallScreen) {
+    return (
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            {/* Scrim overlay */}
+            <m.div
+              key="scrim"
+              className="fixed inset-0 z-(--z-popover) bg-black/50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={closeSidebar}
+              aria-hidden
+            />
+            {/* Drawer */}
+            <m.div
+              key="drawer"
+              className={cn(
+                sidebarContent,
+                'bg-default border-secondary fixed top-(--top-bar-height) bottom-0 left-0 z-(--z-popover) w-(--sidebar-width) overflow-y-auto border-r'
+              )}
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
+            >
+              <div className="mx-3 mt-4">
+                <JumpToButton />
+              </div>
+              {children}
+              <Divider />
+              <ProfileLinks />
+            </m.div>
+          </>
+        )}
+      </AnimatePresence>
+    )
+  }
+
+  return (
+    <div
+      className={cn(
+        sidebarContent,
+        'border-secondary fixed top-(--top-bar-height) bottom-0 left-0 w-(--sidebar-width) overflow-y-auto border-r max-1000:hidden'
+      )}
+    >
       <div className="mx-3 mt-4">
         <JumpToButton />
       </div>

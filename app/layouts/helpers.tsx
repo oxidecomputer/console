@@ -19,7 +19,7 @@ export function ContentPane() {
   useScrollRestoration()
   return (
     <div
-      className="light:bg-raise ml-(--sidebar-width) flex min-h-[calc(100vh-var(--top-bar-height))] flex-col"
+      className="light:bg-raise 1000:ml-(--sidebar-width) flex min-h-[calc(100vh-var(--top-bar-height))] flex-col"
       id="scroll-container"
       data-testid="scroll-container"
     >
@@ -44,7 +44,7 @@ export function ContentPane() {
  * `<div>` because we don't need it.
  */
 export const SerialConsoleContentPane = () => (
-  <div className="ml-(--sidebar-width) flex h-[calc(100vh-var(--top-bar-height))] flex-col overflow-hidden">
+  <div className="1000:ml-(--sidebar-width) flex h-[calc(100vh-var(--top-bar-height))] flex-col overflow-hidden">
     <SkipLinkTarget />
     <main className="*:gutter h-full">
       <Outlet />

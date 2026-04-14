@@ -11,6 +11,17 @@
   @apply mb-8 flex bg-transparent;
 }
 
+/* Horizontal scroll for tabs on small screens */
+@media (max-width: 999px) {
+  .ox-tabs-list {
+    overflow-x: auto;
+    scrollbar-width: none; /* Firefox */
+  }
+  .ox-tabs-list::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+}
+
 .ox-tabs-list:after {
   @apply border-secondary block w-full border-b;
   content: '';
