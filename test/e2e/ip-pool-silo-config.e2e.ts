@@ -330,7 +330,9 @@ test.describe('IP pool configuration: pelerines silo (no defaults)', () => {
     await page.getByRole('button', { name: 'Create instance' }).click()
 
     // RHF required validation should show an error on the pool field
-    await expect(page.getByText('IPv4 pool is required')).toBeVisible()
+    await expect(
+      page.locator('#create-instance-form').getByText('IPv4 pool is required')
+    ).toBeVisible()
 
     // Should still be on the create page
     await expect(page).toHaveURL('/projects/adorno-project/instances-new')
@@ -373,7 +375,9 @@ test.describe('IP pool configuration: pelerines silo (no defaults)', () => {
     await page.getByRole('button', { name: 'Create instance' }).click()
 
     // RHF required validation should show an error on the pool field
-    await expect(page.getByText('IPv6 pool is required')).toBeVisible()
+    await expect(
+      page.locator('#create-instance-form').getByText('IPv6 pool is required')
+    ).toBeVisible()
 
     // Should still be on the create page
     await expect(page).toHaveURL('/projects/adorno-project/instances-new')
