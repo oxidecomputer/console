@@ -161,7 +161,7 @@ export function MiniTable<T>({
           items.map((item, index) => (
             <Row tabIndex={0} aria-rowindex={index + 1} key={rowKey(item, index)}>
               {columns.map((column, colIndex) => (
-                <Cell key={colIndex} className={colIndex === 0 && 'w-full'}>
+                <Cell key={colIndex} className={colIndex === 0 ? 'w-full' : ''}>
                   {column.cell(item, index)}
                 </Cell>
               ))}
