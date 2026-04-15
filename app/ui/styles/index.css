@@ -130,9 +130,10 @@
     --top-bar-height: 54px;
     --sidebar-width: 14.25rem;
 
-  @media (max-width: 767px) {
-    :root {
-      --content-gutter: 1.5rem;
+    @media (max-width: 767px) {
+      :root {
+        --content-gutter: 1.5rem;
+      }
     }
   }
 
