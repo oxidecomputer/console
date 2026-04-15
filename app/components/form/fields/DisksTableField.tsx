@@ -16,8 +16,7 @@ import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import type { InstanceCreateInput } from '~/forms/instance-create'
 import { sizeCellInner } from '~/table/columns/common'
 import { Button } from '~/ui/lib/Button'
-import { MiniTable } from '~/ui/lib/MiniTable'
-import { Truncate } from '~/ui/lib/Truncate'
+import { MiniTable, TruncateNameCell } from '~/ui/lib/MiniTable'
 
 export type DiskTableItem =
   | (DiskCreate & { action: 'create' })
@@ -52,7 +51,7 @@ export function DisksTableField({
           columns={[
             {
               header: 'Name',
-              cell: (item) => <Truncate text={item.name} maxLength={35} />,
+              cell: (item) => <TruncateNameCell name={item.name} />,
             },
             {
               header: 'Action',

@@ -1,3 +1,5 @@
+import { type ReactNode } from 'react'
+
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -29,10 +31,10 @@ const Body = classed.tbody``
 
 const Row = classed.tr`*:border-default last:*:border-b *:first:border-l *:last:border-r`
 
-const Cell = ({ children }: Children) => {
+const Cell = ({ children, className }: { children: ReactNode; className?: string }) => {
   return (
-    <td>
-      <div>{children}</div>
+    <td className={className}>
+      <div className="relative">{children}</div>
     </td>
   )
 }
@@ -76,6 +78,12 @@ const RemoveCell = ({ onClick, label }: { onClick: () => void; label: string }) 
       <Error16Icon aria-hidden focusable="false" />
     </button>
   </Cell>
+)
+
+export const TruncateNameCell = ({ name }: { name: string }) => (
+  <div className="flex h-full w-full items-center justify-center">
+    <div className="absolute inset-x-3 truncate">{name}</div>
+  </div>
 )
 
 type ClearAndAddButtonsProps = {
@@ -153,7 +161,9 @@ export function MiniTable<T>({
           items.map((item, index) => (
             <Row tabIndex={0} aria-rowindex={index + 1} key={rowKey(item, index)}>
               {columns.map((column, colIndex) => (
-                <Cell key={colIndex}>{column.cell(item, index)}</Cell>
+                <Cell key={colIndex} className={colIndex === 0 && 'w-full'}>
+                  {column.cell(item, index)}
+                </Cell>
               ))}
 
               <RemoveCell
