@@ -38,7 +38,7 @@ function getTheme(): ITerminalOptions['theme'] {
     brightCyan: style.getPropertyValue('--content-accent'),
     magenta: style.getPropertyValue('--content-accent-alt-secondary'),
     brightMagenta: style.getPropertyValue('--content-accent-alt'),
-    selectionBackground: style.getPropertyValue('--surface-tertiary'),
+    selectionBackground: style.getPropertyValue('--surface-accent'),
     cursor: style.getPropertyValue('--content-default'),
     cursorAccent: style.getPropertyValue('--surface-default'),
   }
