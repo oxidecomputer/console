@@ -171,7 +171,6 @@
 
   body {
     @apply text-default bg-default font-sans;
-    overscroll-behavior-y: none;
   }
 
   /* https://github.com/tailwindlabs/tailwindcss/blob/v2.2.4/src/plugins/css/preflight.css#L57 */
