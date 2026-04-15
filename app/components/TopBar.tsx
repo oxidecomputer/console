@@ -142,7 +142,7 @@ function UserMenu() {
           </span>
         </div>
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content gap={8}>
+      <DropdownMenu.Content gap={8} zIndex="topBar">
         <DropdownMenu.LinkItem to={pb.profile()}>Settings</DropdownMenu.LinkItem>
         <ThemeSubmenu />
         <DropdownMenu.Item onSelect={() => logout.mutate({})} label="Sign out" />
@@ -234,7 +234,7 @@ function SiloSystemPicker({ level }: { level: 'silo' | 'system' }) {
           <SelectArrows6Icon className="text-quaternary ml-3 w-1.5!" aria-hidden />
         </div>
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content className="mt-2" anchor="bottom start">
+      <DropdownMenu.Content className="mt-2" anchor="bottom start" zIndex="topBar">
         <SystemSiloItem to={pb.silos()} label="System" isSelected={level === 'system'} />
         <SystemSiloItem to={pb.projects()} label="Silo" isSelected={level === 'silo'} />
       </DropdownMenu.Content>

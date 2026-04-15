@@ -47,20 +47,36 @@ function parseAnchor(
   return { side, align, sideOffset, alignOffset }
 }
 
+const zIndexClass = {
+  dropdown: 'z-(--z-content-dropdown)',
+  topBar: 'z-(--z-top-bar-dropdown)',
+  modal: 'z-(--z-modal-dropdown)',
+  sideModal: 'z-(--z-side-modal-dropdown)',
+} as const
+
+type ZIndex = keyof typeof zIndexClass
+
 type ContentProps = {
   className?: string
   children: ReactNode
   anchor?: AnchorProp
   /** Spacing in px between trigger and menu */
   gap?: 8
+  zIndex?: ZIndex
 }
 
-export function Content({ className, children, anchor = 'bottom end', gap }: ContentProps) {
+export function Content({
+  className,
+  children,
+  anchor = 'bottom end',
+  gap,
+  zIndex = 'dropdown',
+}: ContentProps) {
   const { side, align, sideOffset, alignOffset } = parseAnchor(anchor, gap)
   return (
     <Menu.Portal>
       <Menu.Positioner
-        className="z-(--z-top-bar-dropdown)"
+        className={zIndexClass[zIndex]}
         side={side}
         align={align}
         sideOffset={sideOffset}
