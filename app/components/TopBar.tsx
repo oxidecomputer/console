@@ -32,16 +32,12 @@ import { pb } from '~/util/path-builder'
 
 export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
   const { me } = useCurrentUser()
-  // The height of this component is governed by the `PageContainer`
-  // It's important that this component returns two distinct elements (wrapped in a fragment).
-  // Each element will occupy one of the top column slots provided by `PageContainer`.
   return (
-    <>
-      <div className="border-secondary flex items-center border-r border-b px-2">
+    <div className="bg-default border-secondary fixed top-0 right-0 left-0 z-(--z-top-bar) grid h-(--top-bar-height) grid-cols-[var(--sidebar-width)_1fr] border-b">
+      <div className="border-secondary flex items-center border-r px-2">
         <HomeButton level={systemOrSilo} />
       </div>
-      {/* Height is governed by PageContainer grid */}
-      <div className="bg-default border-secondary flex items-center justify-between gap-4 border-b px-3">
+      <div className="flex items-center justify-between gap-4 px-3">
         <div className="flex flex-1 gap-2.5">
           <Breadcrumbs />
         </div>
@@ -50,7 +46,7 @@ export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
           <UserMenu />
         </div>
       </div>
-    </>
+    </div>
   )
 }
 

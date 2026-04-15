@@ -28,18 +28,22 @@ export function PageSkeleton({ skipPaths }: { skipPaths?: RegExp[] }) {
     <>
       {process.env.MSW_BANNER ? <MswBanner disableButton /> : null}
       <PageContainer>
-        <div className="border-secondary flex items-center gap-2 border-r border-b p-3">
-          <Block className="h-8 w-8" />
-          <Block className="h-4 w-24" />
-        </div>
-        <div className="border-secondary flex items-center justify-between gap-2 border-b p-3">
-          <Block className="h-4 w-24" />
-          <div className="flex items-center gap-2">
-            <Block className="h-6 w-16" />
-            <Block className="h-6 w-32" />
+        {/* TopBar skeleton */}
+        <div className="bg-default border-secondary fixed top-0 right-0 left-0 z-(--z-top-bar) grid h-(--top-bar-height) grid-cols-[var(--sidebar-width)_1fr] border-b">
+          <div className="border-secondary flex items-center gap-2 border-r p-3">
+            <Block className="h-8 w-8" />
+            <Block className="h-4 w-24" />
+          </div>
+          <div className="flex items-center justify-between gap-2 p-3">
+            <Block className="h-4 w-24" />
+            <div className="flex items-center gap-2">
+              <Block className="h-6 w-16" />
+              <Block className="h-6 w-32" />
+            </div>
           </div>
         </div>
-        <div className="border-secondary border-r p-4">
+        {/* Sidebar skeleton */}
+        <div className="border-secondary fixed top-(--top-bar-height) bottom-0 left-0 w-(--sidebar-width) border-r p-4">
           <Block className="mb-10 h-4 w-full" />
           <div className="mb-6 space-y-2">
             <Block className="h-4 w-32" />
@@ -52,7 +56,8 @@ export function PageSkeleton({ skipPaths }: { skipPaths?: RegExp[] }) {
             <Block className="h-4 w-14" />
           </div>
         </div>
-        <div className="light:bg-raise" />
+        {/* Content skeleton */}
+        <div className="light:bg-raise ml-(--sidebar-width)" />
       </PageContainer>
     </>
   )
