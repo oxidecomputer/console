@@ -18,11 +18,7 @@ export const PageContainer = classed.div`min-h-full pt-(--top-bar-height)`
 export function ContentPane() {
   useScrollRestoration()
   return (
-    <div
-      className="light:bg-raise ml-(--sidebar-width) flex min-h-[calc(100vh-var(--top-bar-height))] flex-col"
-      id="scroll-container"
-      data-testid="scroll-container"
-    >
+    <div className="light:bg-raise ml-(--sidebar-width) flex min-h-[calc(100vh-var(--top-bar-height))] flex-col">
       <div className="flex grow flex-col pb-8">
         <SkipLinkTarget />
         <main className="*:gutter">
