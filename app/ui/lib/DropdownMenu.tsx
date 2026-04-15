@@ -63,6 +63,7 @@ type ContentProps = {
   /** Spacing in px between trigger and menu */
   gap?: 8
   zIndex?: ZIndex
+  collisionPadding?: React.ComponentProps<typeof Menu.Positioner>['collisionPadding']
 }
 
 export function Content({
@@ -71,6 +72,7 @@ export function Content({
   anchor = 'bottom end',
   gap,
   zIndex = 'dropdown',
+  collisionPadding,
 }: ContentProps) {
   const { side, align, sideOffset, alignOffset } = parseAnchor(anchor, gap)
   return (
@@ -81,6 +83,7 @@ export function Content({
         align={align}
         sideOffset={sideOffset}
         alignOffset={alignOffset}
+        collisionPadding={collisionPadding}
       >
         <Menu.Popup
           className={cn('dropdown-menu-content shadow-menu outline-hidden', className)}
