@@ -93,7 +93,7 @@ export function Modal({
   )
 }
 
-Modal.Body = classed.div`py-2 overflow-y-auto`
+Modal.Body = classed.div`py-2 overflow-y-auto overscroll-none`
 
 Modal.Section = classed.div`p-4 space-y-4 border-b border-secondary text-default last-of-type:border-none text-sans-md`
 
