@@ -1,4 +1,4 @@
-import { type ReactNode, useMemo } from 'react'
+import { useRef, useState, type ReactNode, useMemo } from 'react'
 
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -15,6 +15,7 @@ import { Button } from './Button'
 import { EmptyMessage } from './EmptyMessage'
 import { Table as BigTable } from './Table'
 import { textWidth } from './text-width'
+import { Tooltip } from './Tooltip'
 
 type Children = { children: React.ReactNode }
 
@@ -89,11 +90,35 @@ const RemoveCell = ({ onClick, label }: { onClick: () => void; label: string }) 
   </Cell>
 )
 
-const TruncateCell = ({ text }: { text: string }) => (
-  <div className="flex h-full w-full items-center justify-center">
-    <div className="absolute inset-x-3 truncate">{text}</div>
-  </div>
-)
+const TruncateCell = ({ text }: { text: string }) => {
+  const ref = useRef<HTMLDivElement>(null)
+  const [isTruncated, setIsTruncated] = useState(false)
+
+  const inner = (
+    <div
+      ref={ref}
+      className="absolute inset-x-3 truncate"
+      onMouseEnter={() => {
+        const el = ref.current
+        setIsTruncated(!!el && el.scrollWidth > el.clientWidth)
+      }}
+    >
+      {text}
+    </div>
+  )
+
+  return (
+    <div className="flex h-full w-full items-center justify-center">
+      {isTruncated ? (
+        <Tooltip content={text} placement="bottom">
+          {inner}
+        </Tooltip>
+      ) : (
+        inner
+      )}
+    </div>
+  )
+}
 
 type ClearAndAddButtonsProps = {
   addButtonCopy: string
