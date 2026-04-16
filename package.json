@@ -111,7 +111,7 @@
     "tailwindcss": "^4.1.18",
     "tsx": "^4.19.2",
     "type-fest": "^5.2.0",
-    "typescript": "~5.9.2",
+    "typescript": "~6.0.0",
     "vite": "^7.2.2",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^4.0.8"
