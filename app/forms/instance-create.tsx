@@ -1017,8 +1017,8 @@ const NetworkingSection = ({
               ariaLabel="Floating IPs"
               items={attachedFloatingIps}
               columns={[
-                { header: 'Name', cell: (item) => item.name },
-                { header: 'IP', cell: (item) => item.ip },
+                { header: 'Name', text: (item) => item.name },
+                { header: 'IP', text: (item) => item.ip },
               ]}
               rowKey={(item) => item.name}
               onRemoveItem={(item) => detachFloatingIp(item.name)}
