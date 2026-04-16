@@ -6,21 +6,33 @@
  * Copyright Oxide Computer Company
  */
 
-import { monoWidth, sansDefaultWidth, sansWidths } from './font-widths.gen'
+let ctx: CanvasRenderingContext2D | null = null
+
+function getContext(): CanvasRenderingContext2D {
+  if (!ctx) {
+    const canvas = document.createElement('canvas')
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- offscreen canvas always has 2d context
+    ctx = canvas.getContext('2d')!
+  }
+  return ctx
+}
+
+const cache = new Map<string, number>()
 
 /**
- * Estimate the rendered width of `text` in our sans or mono font, returned
- * as a unitless number proportional to actual pixel width. Multiply by
- * font-size (in px) for an approximate pixel value.
- *
- * Uses pre-generated per-character advance-width ratios from the actual font
- * files — no Canvas or DOM measurement needed.
+ * Measure the rendered pixel width of `text` using Canvas `measureText`.
+ * Accounts for font shaping, kerning, and letter-spacing. Reuses a single
+ * offscreen canvas context and caches results.
  */
-export function textWidth(text: string, font: 'sans' | 'mono' = 'sans'): number {
-  if (font === 'mono') return text.length * monoWidth
-  let width = 0
-  for (const char of text) {
-    width += sansWidths[char] ?? sansDefaultWidth
-  }
+export function textWidth(text: string, font: string, letterSpacing = '0px'): number {
+  const key = font + '\0' + letterSpacing + '\0' + text
+  const cached = cache.get(key)
+  if (cached != null) return cached
+
+  const context = getContext()
+  context.font = font
+  context.letterSpacing = letterSpacing
+  const width = context.measureText(text).width
+  cache.set(key, width)
   return width
 }

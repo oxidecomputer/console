@@ -167,12 +167,15 @@ function useColumnWidths<T>(columns: Column<T>[], items: T[]) {
       return columns.map((_, i) => (i === 0 ? 'w-full' : undefined))
     }
 
-    // Measure max natural text width per text column
+    // Measure max natural text width per text column.
+    // text-sans-md = 400 14px/1.125rem SuisseIntl, letter-spacing 0.03rem
+    const font = '400 14px SuisseIntl'
+    const letterSpacing = '0.03rem'
     const maxWidths = columns.map((col) => {
       if (!isTextColumn(col)) return 0
       let max = 0
       for (const item of items) {
-        const w = textWidth(col.text(item))
+        const w = textWidth(col.text(item), font, letterSpacing)
         if (w > max) max = w
       }
       return max
@@ -184,12 +187,13 @@ function useColumnWidths<T>(columns: Column<T>[], items: T[]) {
       return columns.map((_, i) => (i === 0 ? 'w-full' : undefined))
     }
 
-    // How much wider the widest text column can be vs the narrowest.
+    // Max ratio between widest and narrowest text column.
     // 1 = all equal, higher = more variation.
     const maxWidthRatio = 5 / 2
     const equalShare = totalTextWidth / textColCount
-    const floor = equalShare
-    const ceiling = equalShare * maxWidthRatio
+    const spread = Math.sqrt(maxWidthRatio)
+    const floor = equalShare / spread
+    const ceiling = equalShare * spread
     const clamped = maxWidths.map((w) =>
       w > 0 ? Math.min(Math.max(w, floor), ceiling) : 0
     )
