@@ -101,6 +101,52 @@ test.describe('Image upload', () => {
     // TODO: changing name alone should cause error to disappear
   })
 
+  test('block size validation', async ({ page, browserName }) => {
+    // eslint-disable-next-line playwright/no-skipped-test
+    test.skip(browserName === 'webkit', 'safari. stop this')
+
+    await page.goto('/projects/mock-project/images-new')
+
+    await page.getByRole('textbox', { name: 'Name' }).fill('new-image')
+    await page.getByRole('textbox', { name: 'Description' }).fill('image description')
+    await page.getByRole('textbox', { name: 'OS' }).fill('Ubuntu')
+    await page.getByRole('textbox', { name: 'Version' }).fill('Dapper Drake')
+
+    const sideModal = page.getByRole('dialog', { name: 'Upload image' })
+    const uploadError = sideModal.getByText(/must be a multiple of the block size/i)
+    const submit = page.getByRole('button', { name: 'Upload image' })
+    const progressModal = page.getByRole('dialog', { name: 'Image upload progress' })
+
+    // 1000 bytes is not a multiple of any supported block size (512/2048/4096)
+    await page.getByLabel('Image file').setInputFiles({
+      name: 'my-image.iso',
+      mimeType: 'application/octet-stream',
+      buffer: Buffer.alloc(1000, 'a'),
+    })
+
+    await expect(uploadError).toBeVisible()
+
+    // clicking submit does nothing — validation blocks it and the progress
+    // modal never opens
+    await submit.click()
+    await expect(progressModal).toBeHidden()
+    await expect(uploadError).toBeVisible()
+
+    // replace with an aligned file — error clears
+    await page.getByLabel('Image file').setInputFiles({
+      name: 'my-image.iso',
+      mimeType: 'application/octet-stream',
+      buffer: Buffer.alloc(2048, 'a'),
+    })
+
+    await expect(uploadError).toBeHidden()
+
+    // switching block size to one that no longer divides the file brings it
+    // back (exercises the cross-field `deps` re-validation path)
+    await page.getByLabel('4096').click()
+    await expect(uploadError).toBeVisible()
+  })
+
   test('form validation', async ({ page, browserName }) => {
     // eslint-disable-next-line playwright/no-skipped-test
     test.skip(browserName === 'webkit', 'safari. stop this')

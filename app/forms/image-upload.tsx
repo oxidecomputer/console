@@ -495,7 +495,9 @@ export default function ImageCreate() {
     setAllDone(true)
   }
 
-  const form = useForm({ defaultValues })
+  // onChange mode so the file-size / block-size cross-validation surfaces
+  // inline as soon as the user picks a file or changes block size
+  const form = useForm({ defaultValues, mode: 'onChange' })
   const file = form.watch('imageFile')
   const blockSize = form.watch('blockSize')
 
@@ -590,6 +592,8 @@ export default function ImageCreate() {
           units="Bytes"
           control={form.control}
           parseValue={(val) => parseInt(val, 10) as BlockSize}
+          // re-run imageFile validation when block size changes
+          rules={{ deps: ['imageFile'] }}
           items={[
             { label: '512', value: 512 },
             { label: '2048', value: 2048 },
@@ -605,6 +609,13 @@ export default function ImageCreate() {
           label="Image file"
           required
           control={form.control}
+          // Crucible rejects bulk-write imports whose total size isn't a
+          // multiple of the block size, so catch it before the long upload.
+          validate={(f, { blockSize }) => {
+            if (f && f.size % blockSize !== 0) {
+              return `File size must be a multiple of the block size (${blockSize} bytes)`
+            }
+          }}
         />
         {imageValidation && <BootableNotice {...imageValidation} />}
       </div>
