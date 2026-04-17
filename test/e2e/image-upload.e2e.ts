@@ -114,8 +114,15 @@ test.describe('Image upload', () => {
 
     const sideModal = page.getByRole('dialog', { name: 'Upload image' })
     const uploadError = sideModal.getByText(/must be a multiple of the block size/i)
+    const fileRequired = sideModal.getByText('Image file is required')
     const submit = page.getByRole('button', { name: 'Upload image' })
     const progressModal = page.getByRole('dialog', { name: 'Image upload progress' })
+
+    // with no file picked, changing block size should not trigger a required
+    // error on the file field
+    await page.getByLabel('4096').click()
+    await expect(fileRequired).toBeHidden()
+    await page.getByLabel('512').click()
 
     // 1000 bytes is not a multiple of any supported block size (512/2048/4096)
     await page.getByLabel('Image file').setInputFiles({
@@ -141,9 +148,11 @@ test.describe('Image upload', () => {
 
     await expect(uploadError).toBeHidden()
 
-    // switching block size to one that no longer divides the file brings it
-    // back (exercises the cross-field `deps` re-validation path)
+    // switching block size to one that no longer divides the file doesn't
+    // surface the error live, but submit-time validation still catches it
     await page.getByLabel('4096').click()
+    await submit.click()
+    await expect(progressModal).toBeHidden()
     await expect(uploadError).toBeVisible()
   })
 

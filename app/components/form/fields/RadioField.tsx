@@ -13,7 +13,6 @@ import {
   type FieldPath,
   type FieldValues,
   type PathValue,
-  type RegisterOptions,
 } from 'react-hook-form'
 
 import { FieldLabel } from '~/ui/lib/FieldLabel'
@@ -42,9 +41,6 @@ export type RadioFieldProps<
   units?: string
   control: Control<TFieldValues>
   items: { value: PathValue<TFieldValues, TName>; label: string }[]
-  /** Forwarded to react-hook-form's `useController`; use `deps` to trigger
-   * validation on other fields when this one changes. */
-  rules?: Pick<RegisterOptions<TFieldValues, TName>, 'deps'>
 } & (PathValue<TFieldValues, TName> extends string // this is wild lmao
     ? { parseValue?: never }
     : {
@@ -67,11 +63,10 @@ export function RadioField<
   control,
   items,
   parseValue,
-  rules,
   ...props
 }: RadioFieldProps<TFieldValues, TName>) {
   const id = useId()
-  const { field } = useController({ name, control, rules })
+  const { field } = useController({ name, control })
   return (
     <div>
       <div className="mb-2">

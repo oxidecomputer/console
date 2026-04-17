@@ -592,8 +592,6 @@ export default function ImageCreate() {
           units="Bytes"
           control={form.control}
           parseValue={(val) => parseInt(val, 10) as BlockSize}
-          // re-run imageFile validation when block size changes
-          rules={{ deps: ['imageFile'] }}
           items={[
             { label: '512', value: 512 },
             { label: '2048', value: 2048 },
