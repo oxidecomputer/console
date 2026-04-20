@@ -68,7 +68,7 @@ export const resolvePoolSelector = (
     | { pool: string; type: 'explicit' }
     | { type: 'auto'; ip_version?: IpVersion | null }
     | undefined,
-  poolType?: IpPoolType,
+  poolType: IpPoolType,
   siloId: string = defaultSilo.id
 ) => {
   if (poolSelector?.type === 'explicit') {
@@ -84,8 +84,7 @@ export const resolvePoolSelector = (
     const pool = db.ipPools.find((p) => p.id === ips.ip_pool_id)
     if (!pool) return false
 
-    // If poolType specified, filter by it
-    if (poolType && pool.pool_type !== poolType) return false
+    if (pool.pool_type !== poolType) return false
 
     // If IP version specified, filter by it
     if (poolSelector?.ip_version && pool.ip_version !== poolSelector.ip_version) {
