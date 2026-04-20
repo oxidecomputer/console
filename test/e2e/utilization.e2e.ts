@@ -24,7 +24,7 @@ test.describe('System utilization', () => {
     await page.goto('/system/utilization')
 
     await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
-    await expect(page.getByText('Provisioned384 GiB')).toBeVisible()
+    await expect(page.getByText('Provisioned416 GiB')).toBeVisible()
 
     await expect(page.getByText('Provisioned / Quota')).toBeVisible()
 
@@ -64,7 +64,7 @@ test.describe('System utilization', () => {
 
   test('zero over zero', async ({ page }) => {
     // easiest way to test this is to create a silo with zero quotas and delete
-    // the other two silos so it's the only one shown on system utilization.
+    // all other silos so it's the only one shown on system utilization.
     // Otherwise we'd have to create a user in the silo to see the utilization
     // inside the silo
 
@@ -79,15 +79,17 @@ test.describe('System utilization', () => {
 
     await closeToast(page)
 
+    // delete every silo except all-zeros so it's the only one contributing
     const confirm = page.getByRole('button', { name: 'Confirm' })
-
-    await clickRowAction(page, 'maze-war', 'Delete')
-    await confirm.click()
-    await expect(page.getByRole('cell', { name: 'maze-war' })).toBeHidden()
-
-    await clickRowAction(page, 'myriad', 'Delete')
-    await confirm.click()
-    await expect(page.getByRole('cell', { name: 'myriad' })).toBeHidden()
+    const table = page.getByRole('table')
+    const siloLinks = table.getByRole('link')
+    const names = await siloLinks.allTextContents()
+    for (const name of names) {
+      if (name === 'all-zeros') continue
+      await clickRowAction(page, name, 'Delete')
+      await confirm.click()
+      await expect(table.getByRole('link', { name })).toBeHidden()
+    }
 
     await page.getByRole('link', { name: 'Utilization' }).click()
 

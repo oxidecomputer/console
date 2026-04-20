@@ -7,9 +7,18 @@
  */
 import { FLEET_ID, type IdentityType, type RoleKey } from '@oxide/api'
 
-import { project } from './project'
-import { defaultSilo } from './silo'
-import { user1, user3 } from './user'
+import { project, projectAdorno, projectAnscombe, projectKosman } from './project'
+import { defaultSilo, myriadSilo, noPoolsSilo, pelerinesSilo, thraxSilo } from './silo'
+import {
+  user1,
+  user3,
+  user5,
+  user6,
+  userAdorno,
+  userAnscombe,
+  userKosman,
+  userNoPools,
+} from './user'
 import { userGroup2, userGroup3 } from './user-group'
 
 // For most other resources, we can store the API types directly in the DB. But
@@ -29,40 +38,128 @@ type DbRoleAssignment = {
   role_name: RoleKey
 }
 
+// Simulate a user and group from another silo who have been granted fleet
+// roles. They won't appear in the current silo's userList/groupList, so the
+// UI must fall back to displaying their UUIDs.
+export const crossSiloUserId = 'd4e5f6a7-b8c9-4d0e-a1f2-b3c4d5e6f7a8'
+export const crossSiloGroupId = 'e5f6a7b8-c9d0-4e1f-b2a3-c4d5e6f7a8b9'
+
 export const roleAssignments: DbRoleAssignment[] = [
   {
     resource_type: 'fleet',
     resource_id: FLEET_ID,
-    identity_id: user1.id,
+    identity_id: user1.id, // Hannah Arendt
     identity_type: 'silo_user',
     role_name: 'admin',
   },
   {
-    resource_type: 'silo',
-    resource_id: defaultSilo.id,
-    identity_id: userGroup3.id,
-    identity_type: 'silo_group',
-    role_name: 'collaborator',
-  },
-  {
-    resource_type: 'silo',
-    resource_id: defaultSilo.id,
-    identity_id: user1.id,
+    resource_type: 'fleet',
+    resource_id: FLEET_ID,
+    identity_id: user5.id, // Jane Austen
     identity_type: 'silo_user',
-    role_name: 'admin',
+    role_name: 'viewer',
   },
   {
-    resource_type: 'project',
-    resource_id: project.id,
-    identity_id: user3.id,
+    resource_type: 'fleet',
+    resource_id: FLEET_ID,
+    identity_id: crossSiloUserId,
     identity_type: 'silo_user',
     role_name: 'collaborator',
   },
   {
-    resource_type: 'project',
-    resource_id: project.id,
-    identity_id: userGroup2.id,
+    resource_type: 'fleet',
+    resource_id: FLEET_ID,
+    identity_id: crossSiloGroupId,
     identity_type: 'silo_group',
     role_name: 'viewer',
+  },
+  {
+    resource_type: 'silo',
+    resource_id: defaultSilo.id,
+    identity_id: userGroup3.id, // real-estate-devs
+    identity_type: 'silo_group',
+    role_name: 'collaborator',
+  },
+  {
+    resource_type: 'silo',
+    resource_id: defaultSilo.id,
+    identity_id: user1.id, // Hannah Arendt
+    identity_type: 'silo_user',
+    role_name: 'admin',
+  },
+  {
+    resource_type: 'project',
+    resource_id: project.id,
+    identity_id: user3.id, // Jacob Klein
+    identity_type: 'silo_user',
+    role_name: 'collaborator',
+  },
+  {
+    resource_type: 'project',
+    resource_id: project.id,
+    identity_id: userGroup2.id, // kernel-devs
+    identity_type: 'silo_group',
+    role_name: 'viewer',
+  },
+  {
+    resource_type: 'project',
+    resource_id: project.id,
+    identity_id: user6.id, // Herbert Marcuse
+    identity_type: 'silo_user',
+    role_name: 'limited_collaborator',
+  },
+  // Role assignments for test silos (IP pool configuration testing)
+  // myriad silo: v4-only default pool
+  {
+    resource_type: 'silo',
+    resource_id: myriadSilo.id,
+    identity_id: userKosman.id,
+    identity_type: 'silo_user',
+    role_name: 'admin',
+  },
+  {
+    resource_type: 'project',
+    resource_id: projectKosman.id,
+    identity_id: userKosman.id,
+    identity_type: 'silo_user',
+    role_name: 'admin',
+  },
+  // thrax silo: v6-only default pool
+  {
+    resource_type: 'silo',
+    resource_id: thraxSilo.id,
+    identity_id: userAnscombe.id,
+    identity_type: 'silo_user',
+    role_name: 'admin',
+  },
+  {
+    resource_type: 'project',
+    resource_id: projectAnscombe.id,
+    identity_id: userAnscombe.id,
+    identity_type: 'silo_user',
+    role_name: 'admin',
+  },
+  // pelerines silo: no default pools
+  {
+    resource_type: 'silo',
+    resource_id: pelerinesSilo.id,
+    identity_id: userAdorno.id,
+    identity_type: 'silo_user',
+    role_name: 'admin',
+  },
+  {
+    resource_type: 'project',
+    resource_id: projectAdorno.id,
+    identity_id: userAdorno.id,
+    identity_type: 'silo_user',
+    role_name: 'admin',
+  },
+  // no-pools silo: no IP pools
+  {
+    resource_type: 'silo',
+    resource_id: noPoolsSilo.id,
+    identity_id: userNoPools.id,
+    identity_type: 'silo_user',
+    role_name: 'admin',
   },
 ]

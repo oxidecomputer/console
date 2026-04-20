@@ -9,11 +9,12 @@ import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
-  apiQueryClient,
+  api,
   firewallRuleGetToPut,
+  q,
+  queryClient,
   useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
 } from '@oxide/api'
 
 import { trigger404 } from '~/components/ErrorBoundary'
@@ -39,12 +40,12 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc, rule } = getFirewallRuleSelector(params)
 
   const [firewallRules] = await Promise.all([
-    apiQueryClient.fetchQuery('vpcFirewallRulesView', { query: { project, vpc } }),
-    apiQueryClient.prefetchQuery('instanceList', { query: { project, limit: ALL_ISH } }),
-    apiQueryClient.prefetchQuery('vpcList', { query: { project, limit: ALL_ISH } }),
-    apiQueryClient.prefetchQuery('vpcSubnetList', {
-      query: { project, vpc, limit: ALL_ISH },
-    }),
+    queryClient.fetchQuery(q(api.vpcFirewallRulesView, { query: { project, vpc } })),
+    queryClient.prefetchQuery(q(api.instanceList, { query: { project, limit: ALL_ISH } })),
+    queryClient.prefetchQuery(q(api.vpcList, { query: { project, limit: ALL_ISH } })),
+    queryClient.prefetchQuery(
+      q(api.vpcSubnetList, { query: { project, vpc, limit: ALL_ISH } })
+    ),
   ])
 
   const originalRule = firewallRules.rules.find((r) => r.name === rule)
@@ -56,11 +57,10 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 export default function EditFirewallRuleForm() {
   const { project, vpc, rule } = useFirewallRuleSelector()
   const vpcSelector = useVpcSelector()
-  const queryClient = useApiQueryClient()
 
-  const { data: firewallRules } = usePrefetchedApiQuery('vpcFirewallRulesView', {
-    query: { project, vpc },
-  })
+  const { data: firewallRules } = usePrefetchedQuery(
+    q(api.vpcFirewallRulesView, { query: { project, vpc } })
+  )
 
   const originalRule = firewallRules.rules.find((r) => r.name === rule)
 
@@ -70,14 +70,14 @@ export default function EditFirewallRuleForm() {
   const navigate = useNavigate()
   const onDismiss = () => navigate(pb.vpcFirewallRules(vpcSelector))
 
-  const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
+  const updateRules = useApiMutation(api.vpcFirewallRulesUpdate, {
     onSuccess(_updatedRules, { body }) {
       // Nav before the invalidate because I once saw the above invariant fail
       // briefly after successful edit (error page flashed but then we land
       // on the rules list ok) and I think it was a race condition where the
       // invalidate managed to complete while the modal was still open.
       onDismiss()
-      queryClient.invalidateQueries('vpcFirewallRulesView')
+      queryClient.invalidateEndpoint('vpcFirewallRulesView')
 
       // We are pretty sure here that there is a rule in the list because we are
       // in the form updating it. We also know the one being updated is last in
@@ -85,7 +85,8 @@ export default function EditFirewallRuleForm() {
       // the response because the server could change the order.
       const updatedRule = body.rules?.at(-1)
       if (updatedRule) {
-        addToast(<>Firewall rule <HL>{updatedRule.name}</HL> updated</>) // prettier-ignore
+        // prettier-ignore
+        addToast(<>Firewall rule <HL>{updatedRule.name}</HL> updated</>)
       }
     },
   })

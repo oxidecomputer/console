@@ -7,7 +7,7 @@
  */
 import { expect, test, type Page } from '@playwright/test'
 
-import { PAGE_SIZE } from '~/api/hooks'
+import { PAGE_SIZE } from '~/api/client'
 
 import { expectScrollTop, scrollTo } from './utils'
 

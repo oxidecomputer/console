@@ -8,7 +8,6 @@
 
 // for convenience so we can do `import type { ApiTypes } from '@oxide/api'`
 import type * as ApiTypes from './__generated__/Api'
-
 import './window.ts'
 
 export * from './client'
@@ -19,6 +18,5 @@ export * from './__generated__/Api'
 
 export type { ApiTypes }
 
-export { ensurePrefetched, type PaginatedQuery, type ResultsPage } from './hooks'
 export type { ApiError } from './errors'
 export { navToLogin } from './nav-to-login'

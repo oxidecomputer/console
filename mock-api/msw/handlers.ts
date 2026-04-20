@@ -8,25 +8,30 @@
 import { addHours } from 'date-fns'
 import { delay } from 'msw'
 import * as R from 'remeda'
+import { lt as semverLessThan, rcompare as semverRCompare } from 'semver'
 import { match } from 'ts-pattern'
 import { validate as isUuid, v4 as uuid } from 'uuid'
 
 import {
   diskCan,
+  fleetRoles,
   FLEET_ID,
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
   INSTANCE_MIN_RAM_GiB,
+  MAX_DISKS_PER_INSTANCE,
   MAX_NICS_PER_INSTANCE,
   type AffinityGroupMember,
   type AntiAffinityGroupMember,
   type ApiTypes as Api,
+  type FleetRole,
   type InstanceDiskAttachment,
   type SamlIdentityProvider,
 } from '@oxide/api'
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
 import { instanceCan, OXQL_GROUP_BY_ERROR } from '~/api/util'
+import { parseIpNet } from '~/util/ip'
 import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
 
@@ -39,7 +44,7 @@ import {
   lookup,
   lookupById,
   notFoundErr,
-  resolveIpPool,
+  resolvePoolSelector,
   utilizationForSilo,
 } from './db'
 import {
@@ -47,14 +52,20 @@ import {
   errIfExists,
   errIfInvalidDiskSize,
   forbiddenErr,
+  getBlockSize,
   handleMetrics,
   handleOxqlMetrics,
+  invalidRequest,
   ipRangeLen,
   NotImplemented,
   paginated,
+  randomHex,
+  requireFleetAdmin,
+  requireFleetAdminOrSiloAdmin,
   requireFleetCollab,
   requireFleetViewer,
   requireRole,
+  resolveIpStack,
   unavailableErr,
   updateDesc,
   userHasRole,
@@ -79,20 +90,27 @@ export const handlers = makeHandlers({
     // no role on the silo (see error-pages.e2e.ts). requireRole checks for _at
     // least_ viewer, and viewer is the weakest role, so checking for viewer
     // effectively means "do I have any role at all"
-    requireRole(cookies, 'silo', defaultSilo.id, 'viewer')
-    return paginated(query, db.projects)
+    const user = currentUser(cookies)
+    requireRole(cookies, 'silo', user.silo_id, 'viewer')
+    // Filter projects by the current user's silo, strip internal silo_id field
+    const siloProjects = db.projects
+      .filter((p) => p.silo_id === user.silo_id)
+      .map((p) => R.omit(p, ['silo_id']))
+    return paginated(query, siloProjects)
   },
-  projectCreate({ body }) {
-    errIfExists(db.projects, { name: body.name }, 'project')
+  projectCreate({ body, cookies }) {
+    const user = currentUser(cookies)
+    errIfExists(db.projects, { name: body.name, silo_id: user.silo_id }, 'project')
 
-    const newProject: Json<Api.Project> = {
+    const newProject = {
       id: uuid(),
       ...body,
       ...getTimestamps(),
+      silo_id: user.silo_id,
     }
     db.projects.push(newProject)
 
-    return json(newProject, { status: 201 })
+    return json(R.omit(newProject, ['silo_id']), { status: 201 })
   },
   projectView: ({ path }) => {
     if (path.project.endsWith('error-503')) {
@@ -101,7 +119,7 @@ export const handlers = makeHandlers({
       throw forbiddenErr()
     }
 
-    return lookup.project({ ...path })
+    return R.omit(lookup.project({ ...path }), ['silo_id'])
   },
   projectUpdate({ body, path }) {
     const project = lookup.project({ ...path })
@@ -114,7 +132,7 @@ export const handlers = makeHandlers({
     }
     updateDesc(project, body)
 
-    return project
+    return R.omit(project, ['silo_id'])
   },
   projectDelete({ path }) {
     const project = lookup.project({ ...path })
@@ -141,21 +159,47 @@ export const handlers = makeHandlers({
 
     if (body.name === 'disk-create-500') throw 500
 
-    const { name, description, size, disk_source } = body
+    const { name, description, size, disk_backend } = body
+    const diskSource = disk_backend.type === 'distributed' ? disk_backend.disk_source : null
+    const { image_id, snapshot_id, read_only, state } = match(diskSource)
+      .with({ type: 'image' }, (s) => ({
+        image_id: s.image_id,
+        snapshot_id: null,
+        read_only: s.read_only === true,
+        state: { state: 'detached' } as const,
+      }))
+      .with({ type: 'snapshot' }, (s) => ({
+        image_id: null,
+        snapshot_id: s.snapshot_id,
+        read_only: s.read_only === true,
+        state: { state: 'detached' } as const,
+      }))
+      .with({ type: 'importing_blocks' }, () => ({
+        image_id: null,
+        snapshot_id: null,
+        read_only: false,
+        // https://github.com/oxidecomputer/omicron/blob/dd74446/nexus/src/app/sagas/disk_create.rs#L805-L850
+        state: { state: 'import_ready' } as const,
+      }))
+      .otherwise(() => ({
+        image_id: null,
+        snapshot_id: null,
+        read_only: false,
+        state: { state: 'detached' } as const,
+      }))
     const newDisk: Json<Api.Disk> = {
       id: uuid(),
       project_id: project.id,
-      state:
-        disk_source.type === 'importing_blocks'
-          ? { state: 'import_ready' }
-          : { state: 'detached' },
+      state,
       device_path: '/mnt/disk',
       name,
       description,
       size,
-      // TODO: for non-blank disk sources, look up image or snapshot by ID and
-      // pull block size from there
-      block_size: disk_source.type === 'blank' ? disk_source.block_size : 512,
+      block_size: getBlockSize(disk_backend),
+      disk_type: disk_backend.type,
+      image_id,
+      snapshot_id,
+      read_only,
       ...getTimestamps(),
     }
     db.disks.push(newDisk)
@@ -240,24 +284,128 @@ export const handlers = makeHandlers({
 
     return 204
   },
+  externalSubnetList({ query }) {
+    const project = lookup.project(query)
+    const subnets = db.externalSubnets.filter((s) => s.project_id === project.id)
+    return paginated(query, subnets)
+  },
+  externalSubnetCreate({ body, query }) {
+    const project = lookup.project(query)
+    errIfExists(db.externalSubnets, { name: body.name, project_id: project.id })
+
+    const { pool, subnet } = match(body.allocator)
+      .with({ type: 'explicit' }, (a) => ({
+        // Real API infers pool from the subnet; mock just uses default
+        pool: lookup.defaultSubnetPool(),
+        subnet: a.subnet,
+      }))
+      .with({ type: 'auto' }, (a) => {
+        const pool = match(a.pool_selector)
+          .with({ type: 'explicit' }, (ps) => lookup.subnetPool({ subnetPool: ps.pool }))
+          .with({ type: 'auto' }, () => lookup.defaultSubnetPool())
+          .with(undefined, () => lookup.defaultSubnetPool())
+          .exhaustive()
+        const idx = db.externalSubnets.length + 1
+        return { pool, subnet: `10.128.${idx}.0/${a.prefix_length}` }
+      })
+      .exhaustive()
+
+    // Use first matching member; real API picks based on CIDR availability
+    const member = db.subnetPoolMembers.find((m) => m.subnet_pool_id === pool.id)
+    if (!member) throw notFoundErr(`subnet pool member for pool '${pool.id}'`)
+
+    const newSubnet: Json<Api.ExternalSubnet> = {
+      id: uuid(),
+      project_id: project.id,
+      instance_id: undefined,
+      name: body.name,
+      description: body.description,
+      subnet,
+      subnet_pool_id: pool.id,
+      subnet_pool_member_id: member.id,
+      ...getTimestamps(),
+    }
+    db.externalSubnets.push(newSubnet)
+    return json(newSubnet, { status: 201 })
+  },
+  externalSubnetView: ({ path, query }) => lookup.externalSubnet({ ...path, ...query }),
+  externalSubnetUpdate: ({ path, query, body }) => {
+    const externalSubnet = lookup.externalSubnet({ ...path, ...query })
+    if (body.name) {
+      if (body.name !== externalSubnet.name) {
+        errIfExists(db.externalSubnets, {
+          name: body.name,
+          project_id: externalSubnet.project_id,
+        })
+      }
+      externalSubnet.name = body.name
+    }
+    updateDesc(externalSubnet, body)
+    return externalSubnet
+  },
+  externalSubnetDelete({ path, query }) {
+    const externalSubnet = lookup.externalSubnet({ ...path, ...query })
+    if (externalSubnet.instance_id) {
+      throw invalidRequest(
+        'external subnet cannot be deleted while attached to an instance'
+      )
+    }
+    db.externalSubnets = db.externalSubnets.filter((s) => s.id !== externalSubnet.id)
+    return 204
+  },
+  externalSubnetAttach({ path: { externalSubnet }, query: { project }, body }) {
+    const dbSubnet = lookup.externalSubnet({ externalSubnet, project })
+    if (dbSubnet.instance_id) {
+      throw invalidRequest(
+        'external subnet cannot be attached to one instance while still attached to another'
+      )
+    }
+    const dbInstance = lookup.instance({
+      instance: body.instance,
+      project: isUuid(body.instance) ? undefined : project,
+    })
+    dbSubnet.instance_id = dbInstance.id
+    return dbSubnet
+  },
+  externalSubnetDetach({ path, query }) {
+    const externalSubnet = lookup.externalSubnet({ ...path, ...query })
+    externalSubnet.instance_id = undefined
+    return externalSubnet
+  },
   floatingIpCreate({ body, query }) {
     const project = lookup.project(query)
     errIfExists(db.floatingIps, { name: body.name, project_id: project.id })
 
-    // TODO: when IP is specified, use ipInAnyRange to check that it is in the pool
-    const pool = body.pool
-      ? lookup.siloIpPool({ pool: body.pool, silo: defaultSilo.id })
-      : lookup.siloDefaultIpPool({ silo: defaultSilo.id })
+    const addressAllocator = body.address_allocator || { type: 'auto' }
+
+    // Determine the pool and IP
+    // Floating IPs must use unicast pools
+    let pool: Json<Api.IpPool>
+    let ip: string
+
+    if (addressAllocator.type === 'explicit') {
+      // Pool is inferred from the IP address since IP pools cannot have overlapping ranges
+      ip = addressAllocator.ip
+      // Find the pool that contains this IP by checking all ranges
+      const poolWithIp = db.ipPools.find((p) => {
+        if (p.pool_type !== 'unicast') return false
+        const ranges = db.ipPoolRanges.filter((r) => r.ip_pool_id === p.id)
+        return ranges.some(() => {
+          // Simple check - in real API this would do proper IP range comparison
+          return true // For mock purposes, just use first unicast pool
+        })
+      })
+      pool = poolWithIp || resolvePoolSelector(undefined, 'unicast', project.silo_id)
+    } else {
+      // type === 'auto'
+      pool = resolvePoolSelector(addressAllocator.pool_selector, 'unicast', project.silo_id)
+      ip = getIpFromPool(pool)
+    }
 
     const newFloatingIp: Json<Api.FloatingIp> = {
       id: uuid(),
       project_id: project.id,
-      // TODO: use ip-num to actually get the next available IP in the pool
-      ip:
-        body.ip ||
-        Array.from({ length: 4 })
-          .map(() => Math.floor(Math.random() * 256))
-          .join('.'),
+      ip,
       ip_pool_id: pool.id,
       description: body.description,
       name: body.name,
@@ -309,10 +457,7 @@ export const handlers = makeHandlers({
   },
   floatingIpDetach({ path, query }) {
     const floatingIp = lookup.floatingIp({ ...path, ...query })
-    db.floatingIps = db.floatingIps.map((ip) =>
-      ip.id !== floatingIp.id ? ip : { ...ip, instance_id: undefined }
-    )
-
+    floatingIp.instance_id = undefined
     return floatingIp
   },
   imageList({ query }) {
@@ -419,6 +564,10 @@ export const handlers = makeHandlers({
     if (body.disks) allDisks.push(...body.disks)
     if (body.boot_disk) allDisks.push(body.boot_disk)
 
+    if (allDisks.length > MAX_DISKS_PER_INSTANCE) {
+      throw `Cannot attach more than ${MAX_DISKS_PER_INSTANCE} disks to an instance`
+    }
+
     for (const diskParams of allDisks) {
       if (diskParams.type === 'create') {
         errIfExists(db.disks, { name: diskParams.name, project_id: project.id }, 'disk')
@@ -445,6 +594,36 @@ export const handlers = makeHandlers({
     }
 
     // validate floating IP attachments before we actually do anything
+    // Determine what IP stacks the instance will have based on network interfaces
+    let hasIpv4Nic = false
+    let hasIpv6Nic = false
+
+    const nicType = body.network_interfaces?.type
+    if (nicType === 'default_ipv4') {
+      hasIpv4Nic = true
+    } else if (nicType === 'default_ipv6') {
+      hasIpv6Nic = true
+    } else if (nicType === 'default_dual_stack') {
+      hasIpv4Nic = true
+      hasIpv6Nic = true
+    } else if (nicType === 'create' && body.network_interfaces) {
+      // Derive from the first NIC's ip_config (first NIC becomes primary)
+      const primaryNicConfig = body.network_interfaces.params[0]?.ip_config
+      if (primaryNicConfig?.type === 'v4') {
+        hasIpv4Nic = true
+      } else if (primaryNicConfig?.type === 'v6') {
+        hasIpv6Nic = true
+      } else if (primaryNicConfig?.type === 'dual_stack') {
+        hasIpv4Nic = true
+        hasIpv6Nic = true
+      } else {
+        // ip_config not provided = defaults to dual-stack
+        hasIpv4Nic = true
+        hasIpv6Nic = true
+      }
+    }
+    // If nicType is 'none' or undefined, both remain false
+
     body.external_ips?.forEach((ip) => {
       if (ip.type === 'floating') {
         // throw if floating IP doesn't exist
@@ -460,8 +639,23 @@ export const handlers = makeHandlers({
         // if there are no ranges in the pool or if the pool doesn't exist,
         // which aren't quite as good as checking that there are actually IPs
         // available, but they are good things to check
-        const pool = resolveIpPool(ip.pool)
+        // Ephemeral IPs must use unicast pools
+        const pool = resolvePoolSelector(ip.pool_selector, 'unicast', project.silo_id)
         getIpFromPool(pool)
+
+        // Validate that external IP version matches NIC's IP stack
+        // Based on Omicron validation in nexus/db-queries/src/db/datastore/external_ip.rs:544-661
+        const ipVersion = pool.ip_version
+        if (ipVersion === 'v4' && !hasIpv4Nic) {
+          throw invalidRequest(
+            `The ephemeral external IP is an IPv4 address, but the instance with ID ${body.name} does not have a primary network interface with a VPC-private IPv4 address. Add a VPC-private IPv4 address to the interface, or attach a different IP address`
+          )
+        }
+        if (ipVersion === 'v6' && !hasIpv6Nic) {
+          throw invalidRequest(
+            `The ephemeral external IP is an IPv6 address, but the instance with ID ${body.name} does not have a primary network interface with a VPC-private IPv6 address. Add a VPC-private IPv6 address to the interface, or attach a different IP address`
+          )
+        }
       }
     })
 
@@ -475,7 +669,13 @@ export const handlers = makeHandlers({
 
     for (const diskParams of allDisks) {
       if (diskParams.type === 'create') {
-        const { size, name, description, disk_source } = diskParams
+        const { size, name, description, disk_backend } = diskParams
+        const diskSource =
+          disk_backend.type === 'distributed' ? disk_backend.disk_source : null
+        const read_only = match(diskSource)
+          .with({ type: 'image', read_only: true }, () => true)
+          .with({ type: 'snapshot', read_only: true }, () => true)
+          .otherwise(() => false)
         const newDisk: Json<Api.Disk> = {
           id: uuid(),
           name,
@@ -484,7 +684,9 @@ export const handlers = makeHandlers({
           project_id: project.id,
           state: { state: 'attached', instance: instanceId },
           device_path: '/mnt/disk',
-          block_size: disk_source.type === 'blank' ? disk_source.block_size : 4096,
+          block_size: getBlockSize(disk_backend),
+          disk_type: disk_backend.type,
+          read_only,
           ...getTimestamps(),
         }
         db.disks.push(newDisk)
@@ -503,14 +705,32 @@ export const handlers = makeHandlers({
     // a hack but not very important
     const anyVpc = db.vpcs.find((v) => v.project_id === project.id)
     const anySubnet = db.vpcSubnets.find((s) => s.vpc_id === anyVpc?.id)
-    if (body.network_interfaces?.type === 'default' && anyVpc && anySubnet) {
+    const niType = body.network_interfaces?.type
+    if (
+      (niType === 'default_ipv4' ||
+        niType === 'default_ipv6' ||
+        niType === 'default_dual_stack') &&
+      anyVpc &&
+      anySubnet
+    ) {
       db.networkInterfaces.push({
         id: uuid(),
         description: 'The default network interface',
         instance_id: instanceId,
         primary: true,
         mac: '00:00:00:00:00:00',
-        ip: '127.0.0.1',
+        ip_stack:
+          niType === 'default_dual_stack'
+            ? {
+                type: 'dual_stack',
+                value: {
+                  v4: { ip: '127.0.0.1', transit_ips: [] },
+                  v6: { ip: '::1', transit_ips: [] },
+                },
+              }
+            : niType === 'default_ipv6'
+              ? { type: 'v6', value: { ip: '::1', transit_ips: [] } }
+              : { type: 'v4', value: { ip: '127.0.0.1', transit_ips: [] } },
         name: 'default',
         vpc_id: anyVpc.id,
         subnet_id: anySubnet.id,
@@ -518,15 +738,20 @@ export const handlers = makeHandlers({
       })
     } else if (body.network_interfaces?.type === 'create') {
       body.network_interfaces.params.forEach(
-        ({ name, description, ip, subnet_name, vpc_name }, i) => {
+        ({ name, description, ip_config, subnet_name, vpc_name }, i) => {
           db.networkInterfaces.push({
             id: uuid(),
             name,
             description,
             instance_id: instanceId,
-            primary: i === 0 ? true : false,
+            primary: i === 0,
             mac: '00:00:00:00:00:00',
-            ip: ip || '127.0.0.1',
+            ip_stack: ip_config
+              ? resolveIpStack(ip_config)
+              : {
+                  type: 'v4',
+                  value: { ip: '127.0.0.1', transit_ips: [] },
+                },
             vpc_id: lookup.vpc({ ...query, vpc: vpc_name }).id,
             subnet_id: lookup.vpcSubnet({ ...query, vpc: vpc_name, subnet: subnet_name })
               .id,
@@ -547,7 +772,8 @@ export const handlers = makeHandlers({
         // we've already validated that the IP isn't attached
         floatingIp.instance_id = instanceId
       } else if (ip.type === 'ephemeral') {
-        const pool = resolveIpPool(ip.pool)
+        // Ephemeral IPs must use unicast pools
+        const pool = resolvePoolSelector(ip.pool_selector, 'unicast', project.silo_id)
         const firstAvailableAddress = getIpFromPool(pool)
 
         db.ephemeralIps.push({
@@ -589,6 +815,10 @@ export const handlers = makeHandlers({
   instanceView: ({ path, query }) => lookup.instance({ ...path, ...query }),
   instanceUpdate({ path, query, body }) {
     const instance = lookup.instance({ ...path, ...query })
+
+    if (instance.name === 'instance-update-error') {
+      throw 'Cannot update instance'
+    }
 
     const resize = body.ncpus !== instance.ncpus || body.memory !== instance.memory
     if (resize && !instanceCan.resize({ runState: instance.run_state })) {
@@ -696,6 +926,12 @@ export const handlers = makeHandlers({
     if (instance.run_state !== 'stopped') {
       throw 'Cannot attach disk to instance that is not stopped'
     }
+    const attachedDisks = db.disks.filter(
+      (d) => 'instance' in d.state && d.state.instance === instance.id
+    )
+    if (attachedDisks.length >= MAX_DISKS_PER_INSTANCE) {
+      throw `Cannot attach more than ${MAX_DISKS_PER_INSTANCE} disks to an instance`
+    }
     const disk = lookup.disk({ ...projectParams, disk: body.disk })
     disk.state = {
       state: 'attached',
@@ -723,8 +959,34 @@ export const handlers = makeHandlers({
   },
   instanceEphemeralIpAttach({ path, query: projectParams, body }) {
     const instance = lookup.instance({ ...path, ...projectParams })
-    const pool = resolveIpPool(body.pool)
+    const instanceProject = lookup.project(projectParams)
+    // Ephemeral IPs must use unicast pools
+    const pool = resolvePoolSelector(body.pool_selector, 'unicast', instanceProject.silo_id)
     const ip = getIpFromPool(pool)
+
+    // Validate that external IP version matches primary NIC's IP stack
+    // https://github.com/oxidecomputer/omicron/blob/558f89e/nexus/db-queries/src/db/datastore/external_ip.rs#L673-L687
+    const nics = db.networkInterfaces.filter((n) => n.instance_id === instance.id)
+    const primaryNic = nics.find((n) => n.primary)
+
+    if (!primaryNic) {
+      throw invalidRequest(`Instance ${instance.name} has no primary network interface`)
+    }
+
+    const ipVersion = pool.ip_version
+    const stackType = primaryNic.ip_stack.type
+
+    if (ipVersion === 'v4' && stackType !== 'v4' && stackType !== 'dual_stack') {
+      throw invalidRequest(
+        `The ephemeral external IP is an IPv4 address, but the instance with ID ${instance.name} does not have a primary network interface with a VPC-private IPv4 address. Add a VPC-private IPv4 address to the interface, or attach a different IP address`
+      )
+    }
+
+    if (ipVersion === 'v6' && stackType !== 'v6' && stackType !== 'dual_stack') {
+      throw invalidRequest(
+        `The ephemeral external IP is an IPv6 address, but the instance with ID ${instance.name} does not have a primary network interface with a VPC-private IPv6 address. Add a VPC-private IPv6 address to the interface, or attach a different IP address`
+      )
+    }
 
     const externalIp = { ip, ip_pool_id: pool.id, kind: 'ephemeral' as const }
     db.ephemeralIps.push({
@@ -735,12 +997,38 @@ export const handlers = makeHandlers({
     return externalIp
   },
   instanceEphemeralIpDetach({ path, query }) {
-    const instance = lookup.instance({ ...path, ...query })
-    // match API logic: find/remove first ephemeral ip attached to instance
-    // https://github.com/oxidecomputer/omicron/blob/d52aad0/nexus/db-queries/src/db/datastore/external_ip.rs#L782-L794
-    // https://github.com/oxidecomputer/omicron/blob/d52aad0/nexus/src/app/sagas/instance_ip_detach.rs#L79-L82
-    const ip = db.ephemeralIps.find((eip) => eip.instance_id === instance.id)
-    if (!ip) throw notFoundErr(`ephemeral IP for instance ${instance.name}`)
+    // When an instance has both IPv4 and IPv6 ephemeral IPs attached, Omicron
+    // requires an explicit `ipVersion` query param to disambiguate which to
+    // detach.
+    // https://github.com/oxidecomputer/omicron/blob/558f89e/nexus/types/src/external_api/params.rs#L267-L277
+    // https://github.com/oxidecomputer/omicron/blob/558f89e/nexus/src/app/sagas/instance_ip_detach.rs#L75-L99
+    // https://github.com/oxidecomputer/omicron/blob/558f89e/nexus/src/external_api/http_entrypoints.rs#L4913-L4939
+    const { ipVersion, ...instanceQuery } = query
+    const instance = lookup.instance({ ...path, ...instanceQuery })
+
+    const attachedIps = db.ephemeralIps.filter((eip) => eip.instance_id === instance.id)
+    if (attachedIps.length === 0) {
+      throw notFoundErr(`ephemeral IP for instance ${instance.name}`)
+    }
+
+    const versionOf = (ip: string) => (ip.includes(':') ? 'v6' : 'v4')
+    const attachedVersions = new Set(
+      attachedIps.map((eip) => versionOf(eip.external_ip.ip))
+    )
+
+    if (attachedVersions.size > 1 && !ipVersion) {
+      throw invalidRequest(
+        `Instance ${instance.name} has both IPv4 and IPv6 ephemeral IPs; ipVersion is required to detach one`
+      )
+    }
+
+    const ip =
+      ipVersion === undefined
+        ? attachedIps[0]
+        : attachedIps.find((eip) => versionOf(eip.external_ip.ip) === ipVersion)
+
+    if (!ip) throw notFoundErr(`ephemeral IP (${ipVersion}) for instance ${instance.name}`)
+
     db.ephemeralIps = db.ephemeralIps.filter((eip) => eip !== ip)
     return 204
   },
@@ -763,6 +1051,11 @@ export const handlers = makeHandlers({
     // endpoint is not paginated. or rather, it's fake paginated
     return { items: [...ephemeralIps, ...snatIps, ...floatingIps] }
   },
+  instanceExternalSubnetList({ path, query }) {
+    const instance = lookup.instance({ ...path, ...query })
+    const items = db.externalSubnets.filter((s) => s.instance_id === instance.id)
+    return { items, next_page: null }
+  },
   instanceNetworkInterfaceList({ query }) {
     const instance = lookup.instance(query)
     const nics = db.networkInterfaces.filter((n) => n.instance_id === instance.id)
@@ -775,7 +1068,7 @@ export const handlers = makeHandlers({
     )
     errIfExists(nicsForInstance, { name: body.name })
 
-    const { name, description, subnet_name, vpc_name, ip } = body
+    const { name, description, subnet_name, vpc_name, ip_config } = body
 
     const vpc = lookup.vpc({ ...query, vpc: vpc_name })
     const subnet = lookup.vpcSubnet({ ...query, vpc: vpc_name, subnet: subnet_name })
@@ -787,7 +1080,16 @@ export const handlers = makeHandlers({
       instance_id: instance.id,
       name,
       description,
-      ip: ip || '123.45.68.8',
+      ip_stack: ip_config
+        ? resolveIpStack(ip_config, '123.45.68.8', 'fd12:3456::')
+        : // Default is dual-stack with auto-assigned IPs
+          {
+            type: 'dual_stack',
+            value: {
+              v4: { ip: '123.45.68.8', transit_ips: [] },
+              v6: { ip: 'fd12:3456::', transit_ips: [] },
+            },
+          },
       vpc_id: vpc.id,
       subnet_id: subnet.id,
       mac: '',
@@ -822,7 +1124,18 @@ export const handlers = makeHandlers({
     }
 
     if (body.transit_ips) {
-      nic.transit_ips = body.transit_ips
+      if (nic.ip_stack.type === 'dual_stack') {
+        // Parse and separate IPv4 and IPv6 transit IPs using proper IP parsing
+        // This matches how the real API routes IpNet[] to the appropriate stacks
+        const [v6TransitIps, v4TransitIps] = R.partition(body.transit_ips, (ipNet) => {
+          const parsed = parseIpNet(ipNet)
+          return parsed.type === 'v6'
+        })
+        nic.ip_stack.value.v4.transit_ips = v4TransitIps
+        nic.ip_stack.value.v6.transit_ips = v6TransitIps
+      } else {
+        nic.ip_stack.value.transit_ips = body.transit_ips
+      }
     }
 
     return nic
@@ -862,8 +1175,12 @@ export const handlers = makeHandlers({
 
     return json(instance, { status: 202 })
   },
-  ipPoolList: ({ query }) => paginated(query, db.ipPools),
-  ipPoolUtilizationView({ path }) {
+  systemIpPoolList: ({ query, cookies }) => {
+    requireFleetViewer(cookies)
+    return paginated(query, db.ipPools)
+  },
+  systemIpPoolUtilizationView({ path, cookies }) {
+    requireFleetViewer(cookies)
     // note: a given pool is either all IPv4 or all IPv6, but the logic is the
     // same. we do everything in bigints and then convert to float at the end,
     // like the API
@@ -900,19 +1217,26 @@ export const handlers = makeHandlers({
       remaining: Number(exactRemaining),
     }
   },
-  siloIpPoolList({ path, query }) {
+  siloIpPoolList({ path, query, cookies }) {
+    requireFleetViewer(cookies)
     const pools = lookup.siloIpPools(path)
     return paginated(query, pools)
   },
-  projectIpPoolList({ query }) {
-    const pools = lookup.siloIpPools({ silo: defaultSilo.id })
+  ipPoolList({ query, cookies }) {
+    const user = currentUser(cookies)
+    const pools = lookup.siloIpPools({ silo: user.silo_id })
     return paginated(query, pools)
   },
-  projectIpPoolView: ({ path: { pool } }) =>
-    lookup.siloIpPool({ pool, silo: defaultSilo.id }),
-  // TODO: require admin permissions for system IP pool endpoints
-  ipPoolView: ({ path }) => lookup.ipPool(path),
-  ipPoolSiloList({ path /*query*/ }) {
+  ipPoolView: ({ path: { pool }, cookies }) => {
+    const user = currentUser(cookies)
+    return lookup.siloIpPool({ pool, silo: user.silo_id })
+  },
+  systemIpPoolView: ({ path, cookies }) => {
+    requireFleetViewer(cookies)
+    return lookup.ipPool(path)
+  },
+  systemIpPoolSiloList({ path, cookies /*query*/ }) {
+    requireFleetViewer(cookies)
     // TODO: paginated wants an id field, but this is a join table, so it  has a
     // composite pk
     // return paginated(query, db.ipPoolResources)
@@ -921,7 +1245,8 @@ export const handlers = makeHandlers({
     const assocs = db.ipPoolSilos.filter((ipr) => ipr.ip_pool_id === pool.id)
     return { items: assocs }
   },
-  ipPoolSiloLink({ path, body }) {
+  systemIpPoolSiloLink({ path, body, cookies }) {
+    requireFleetAdmin(cookies)
     const pool = lookup.ipPool(path)
     const silo_id = lookup.silo({ silo: body.silo }).id
 
@@ -939,9 +1264,10 @@ export const handlers = makeHandlers({
     // could be different. Need to fix that. Should 400 or 409 on conflict.
     if (!alreadyThere) db.ipPoolSilos.push(assoc)
 
-    return assoc
+    return json(assoc, { status: 201 })
   },
-  ipPoolSiloUnlink({ path }) {
+  systemIpPoolSiloUnlink({ path, cookies }) {
+    requireFleetAdmin(cookies)
     const pool = lookup.ipPool(path)
     const silo = lookup.silo(path)
 
@@ -952,15 +1278,27 @@ export const handlers = makeHandlers({
 
     return 204
   },
-  ipPoolSiloUpdate: ({ path, body }) => {
+  systemIpPoolSiloUpdate: ({ path, body, cookies }) => {
+    requireFleetAdmin(cookies)
     const ipPoolSilo = lookup.ipPoolSiloLink(path)
 
     // if we're setting default, we need to set is_default false on the existing default
+    // for the same IP version and pool type (a silo can have separate defaults for v4/v6)
     if (body.is_default) {
       const silo = lookup.silo(path)
-      const existingDefault = db.ipPoolSilos.find(
-        (ips) => ips.silo_id === silo.id && ips.is_default
-      )
+      const currentPool = lookup.ipPool({ pool: ipPoolSilo.ip_pool_id })
+
+      // Find existing default with same version and type
+      const existingDefault = db.ipPoolSilos.find((ips) => {
+        if (ips.silo_id !== silo.id || !ips.is_default) return false
+        const pool = db.ipPools.find((p) => p.id === ips.ip_pool_id)
+        return (
+          pool &&
+          pool.ip_version === currentPool.ip_version &&
+          pool.pool_type === currentPool.pool_type
+        )
+      })
+
       if (existingDefault) {
         existingDefault.is_default = false
       }
@@ -970,12 +1308,14 @@ export const handlers = makeHandlers({
 
     return ipPoolSilo
   },
-  ipPoolRangeList({ path, query }) {
+  systemIpPoolRangeList({ path, query, cookies }) {
+    requireFleetViewer(cookies)
     const pool = lookup.ipPool(path)
     const ranges = db.ipPoolRanges.filter((r) => r.ip_pool_id === pool.id)
     return paginated(query, ranges)
   },
-  ipPoolRangeAdd({ path, body }) {
+  systemIpPoolRangeAdd({ path, body, cookies }) {
+    requireFleetAdmin(cookies)
     const pool = lookup.ipPool(path)
 
     // TODO: reject IPv6 ranges to match API behavior, but designate a special
@@ -993,7 +1333,8 @@ export const handlers = makeHandlers({
 
     return json(newRange, { status: 201 })
   },
-  ipPoolRangeRemove({ path, body }) {
+  systemIpPoolRangeRemove({ path, body, cookies }) {
+    requireFleetAdmin(cookies)
     const pool = lookup.ipPool(path)
 
     // TODO: use ips in range helpers to refuse to remove a range with IPs
@@ -1015,7 +1356,8 @@ export const handlers = makeHandlers({
 
     return 204
   },
-  ipPoolCreate({ body }) {
+  systemIpPoolCreate({ body, cookies }) {
+    requireFleetAdmin(cookies)
     errIfExists(db.ipPools, { name: body.name }, 'IP pool')
 
     const newPool: Json<Api.IpPool> = {
@@ -1028,13 +1370,15 @@ export const handlers = makeHandlers({
       // undefined.
       // See https://zod.dev/v4/changelog?id=defaults-applied-within-optional-fields#defaults-applied-within-optional-fields
       ip_version: body.ip_version || 'v4',
+      pool_type: body.pool_type || 'unicast',
       ...getTimestamps(),
     }
     db.ipPools.push(newPool)
 
     return json(newPool, { status: 201 })
   },
-  ipPoolDelete({ path }) {
+  systemIpPoolDelete({ path, cookies }) {
+    requireFleetAdmin(cookies)
     const pool = lookup.ipPool(path)
 
     if (db.ipPoolRanges.some((r) => r.ip_pool_id === pool.id)) {
@@ -1047,7 +1391,8 @@ export const handlers = makeHandlers({
 
     return 204
   },
-  ipPoolUpdate({ path, body }) {
+  systemIpPoolUpdate({ path, body, cookies }) {
+    requireFleetAdmin(cookies)
     const pool = lookup.ipPool(path)
 
     if (body.name) {
@@ -1105,7 +1450,11 @@ export const handlers = makeHandlers({
 
     const disk = lookup.disk({ ...query, disk: body.disk })
     if (!diskCan.snapshot(disk)) {
-      throw 'Cannot snapshot disk in state ' + disk.state.state
+      if (disk.read_only) throw "Read-only disks don't support snapshots"
+      throw match(disk.disk_type)
+        .with('distributed', () => 'Cannot snapshot disk in state ' + disk.state.state)
+        .with('local', () => "Local disks don't support snapshots")
+        .exhaustive()
     }
 
     const newSnapshot: Json<Api.Snapshot> = {
@@ -1138,10 +1487,10 @@ export const handlers = makeHandlers({
     return utilizationForSilo(silo)
   },
   siloUtilizationList({ query }) {
-    const { items: silos, nextPage } = paginated(query, db.silos)
+    const { items: silos, next_page } = paginated(query, db.silos)
     return {
       items: silos.map(utilizationForSilo),
-      nextPage,
+      next_page,
     }
   },
   vpcList({ query }) {
@@ -1149,8 +1498,9 @@ export const handlers = makeHandlers({
     const vpcs = db.vpcs.filter((v) => v.project_id === project.id)
     return paginated(query, vpcs)
   },
-  vpcCreate({ body, query }) {
+  vpcCreate({ body, query, cookies }) {
     const project = lookup.project(query)
+    requireRole(cookies, 'project', project.id, 'collaborator')
     errIfExists(db.vpcs, { name: body.name, project_id: project.id })
 
     const newVpc: Json<Api.Vpc> = {
@@ -1438,11 +1788,12 @@ export const handlers = makeHandlers({
   },
   currentUserView({ cookies }) {
     const user = currentUser(cookies)
+    const silo = db.silos.find((s) => s.id === user.silo_id)
     return {
       ...user,
-      silo_name: defaultSilo.name,
+      silo_name: silo?.name ?? 'unknown',
       fleet_viewer: userHasRole(user, 'fleet', FLEET_ID, 'viewer'),
-      silo_admin: userHasRole(user, 'silo', defaultSilo.id, 'admin'),
+      silo_admin: userHasRole(user, 'silo', user.silo_id, 'admin'),
     }
   },
   currentUserGroups({ cookies }) {
@@ -1623,9 +1974,33 @@ export const handlers = makeHandlers({
 
     const role_assignments = db.roleAssignments
       .filter((r) => r.resource_type === 'fleet' && r.resource_id === FLEET_ID)
-      .map((r) => R.pick(r, ['identity_id', 'identity_type', 'role_name']))
+      .filter((r) => fleetRoles.some((role) => role === r.role_name))
+      .map((r) => ({
+        identity_id: r.identity_id,
+        identity_type: r.identity_type,
+        role_name: r.role_name as FleetRole,
+      }))
 
     return { role_assignments }
+  },
+  systemPolicyUpdate({ body, cookies }) {
+    requireFleetAdmin(cookies)
+
+    const newAssignments = body.role_assignments
+      .filter((r) => fleetRoles.some((role) => role === r.role_name))
+      .map((r) => ({
+        resource_type: 'fleet' as const,
+        resource_id: FLEET_ID,
+        ...R.pick(r, ['identity_id', 'identity_type', 'role_name']),
+      }))
+
+    const unrelatedAssignments = db.roleAssignments.filter(
+      (r) => !(r.resource_type === 'fleet' && r.resource_id === FLEET_ID)
+    )
+
+    db.roleAssignments = [...unrelatedAssignments, ...newAssignments]
+
+    return body
   },
   systemMetric(params) {
     requireFleetViewer(params.cookies)
@@ -1669,6 +2044,84 @@ export const handlers = makeHandlers({
     return handleOxqlMetrics(body)
   },
   siloMetric: handleMetrics,
+  systemUpdateRepositoryList: ({ cookies }) => {
+    requireFleetViewer(cookies)
+    // we could sort based on the query params, but it's unnecessary as long as
+    // default sort is what the console relies on
+
+    // no real pagination because pagination helper works on IDs, and these are
+    // paginated by version
+    return {
+      // sort by version descending
+      items: R.sort(db.tufRepos, (a, b) =>
+        semverRCompare(a.system_version, b.system_version)
+      ),
+    }
+  },
+  systemUpdateRepositoryUpload: ({ query, cookies }) => {
+    requireFleetCollab(cookies)
+    const { fileName } = query
+
+    // TODO: imitate API error messages more closely
+    if (!fileName.endsWith('.zip')) {
+      throw 'Must be a .zip file'
+    }
+
+    // Generate a simple hash based on the file name for mock purposes
+    const hash = fileName
+      .split('')
+      .reduce((acc, char) => ((acc << 5) - acc + char.charCodeAt(0)) | 0, 0)
+      .toString(16)
+
+    // Check if repo with this hash already exists
+    const existingRepo = db.tufRepos.find((r) => r.hash === hash)
+
+    if (existingRepo) {
+      return json(
+        { repo: existingRepo, status: 'already_exists' as const },
+        { status: 200 }
+      )
+    }
+
+    // Extract version from filename (e.g., "rack-1.2.0.zip" -> "1.2.0")
+    const versionMatch = fileName.match(/(\d+\.\d+\.\d+)/)
+    const systemVersion = versionMatch ? versionMatch[1] : '0.0.0'
+
+    const newRepo: Json<Api.TufRepo> = {
+      system_version: systemVersion,
+      file_name: fileName,
+      hash,
+      time_created: new Date().toISOString(),
+    }
+
+    db.tufRepos.push(newRepo)
+
+    return json({ repo: newRepo, status: 'inserted' as const }, { status: 201 })
+  },
+  systemUpdateStatus: ({ cookies }) => {
+    requireFleetViewer(cookies)
+    return db.updateStatus
+  },
+  targetReleaseUpdate: ({ body, cookies }) => {
+    requireFleetAdmin(cookies)
+
+    if (db.updateStatus.target_release) {
+      const currentVersion = db.updateStatus.target_release.version
+      const newVersion = body.system_version
+      // new version must be greater than or equal to current version
+      if (semverLessThan(newVersion, currentVersion)) {
+        throw `Requested target release (${newVersion}) must not be older than current target release (${currentVersion}).`
+      }
+    }
+
+    db.updateStatus.target_release = {
+      version: body.system_version,
+      time_requested: new Date().toISOString(),
+    }
+    db.updateStatus.time_last_step_planned = new Date().toISOString()
+
+    return 204
+  },
   affinityGroupList: ({ query }) => {
     const project = lookup.project({ ...query })
     const affinityGroups = db.affinityGroups.filter((i) => i.project_id === project.id)
@@ -1824,6 +2277,290 @@ export const handlers = makeHandlers({
 
     return paginated(query, filteredLogs)
   },
+
+  // SCIM token endpoints
+  scimTokenList({ query, cookies }) {
+    const silo = lookup.silo({ silo: query.silo })
+    requireFleetAdminOrSiloAdmin(cookies, silo.id)
+    // Filter by silo and strip out the siloId before returning
+    const tokens = db.scimTokens
+      .filter((t) => t.siloId === silo.id)
+      .map(({ siloId: _siloId, ...token }) => token)
+    return tokens
+  },
+  scimTokenCreate({ query, cookies }) {
+    const silo = lookup.silo({ silo: query.silo })
+    requireFleetAdminOrSiloAdmin(cookies, silo.id)
+
+    const newToken: Json<Api.ScimClientBearerTokenValue> = {
+      id: uuid(),
+      bearer_token: `oxide-scim-${randomHex(40)}`,
+      time_created: new Date().toISOString(),
+    }
+
+    // Store without the bearer_token but with siloId for filtering
+    const { bearer_token: _bearerToken, ...tokenWithoutBearer } = newToken
+    db.scimTokens.push({ ...tokenWithoutBearer, siloId: silo.id })
+
+    return json(newToken, { status: 201 })
+  },
+  scimTokenView({ path, cookies }) {
+    const token = lookupById(db.scimTokens, path.tokenId)
+    requireFleetAdminOrSiloAdmin(cookies, token.siloId)
+    // Strip out siloId before returning
+    const { siloId: _siloId, ...tokenResponse } = token
+    return tokenResponse
+  },
+  scimTokenDelete({ path, cookies }) {
+    const token = lookupById(db.scimTokens, path.tokenId)
+    requireFleetAdminOrSiloAdmin(cookies, token.siloId)
+    db.scimTokens = db.scimTokens.filter((t) => t.id !== token.id)
+    return 204
+  },
+  subnetPoolList({ query, cookies }) {
+    const user = currentUser(cookies)
+    const pools = lookup.siloSubnetPools({ silo: user.silo_id })
+    return paginated(query, pools)
+  },
+  subnetPoolView: ({ path: { pool }, cookies }) => {
+    const user = currentUser(cookies)
+    return lookup.siloSubnetPool({ subnetPool: pool, silo: user.silo_id })
+  },
+  systemSubnetPoolList({ query, cookies }) {
+    requireFleetViewer(cookies)
+    // Return system-scoped pools (without is_default)
+    const pools = db.subnetPools.map(({ is_default: _, ...p }) => p)
+    return paginated(query, pools)
+  },
+  systemSubnetPoolView({ path, cookies }) {
+    requireFleetViewer(cookies)
+    return lookup.systemSubnetPool({ subnetPool: path.pool })
+  },
+  systemSubnetPoolCreate({ body, cookies }) {
+    requireFleetAdmin(cookies)
+    errIfExists(db.subnetPools, { name: body.name }, 'subnet pool')
+
+    const newPool: Json<Api.SiloSubnetPool> = {
+      id: uuid(),
+      description: body.description,
+      name: body.name,
+      ip_version: body.ip_version,
+      is_default: false,
+      ...getTimestamps(),
+    }
+    db.subnetPools.push(newPool)
+
+    const { is_default: _, ...systemPool } = newPool
+    return json(systemPool, { status: 201 })
+  },
+  systemSubnetPoolUpdate({ path, body, cookies }) {
+    requireFleetAdmin(cookies)
+    const pool = lookup.subnetPool({ subnetPool: path.pool })
+
+    if (body.name) {
+      if (body.name !== pool.name) {
+        errIfExists(db.subnetPools, { name: body.name })
+      }
+      pool.name = body.name
+    }
+
+    updateDesc(pool, body)
+
+    const { is_default: _, ...systemPool } = pool
+    return systemPool
+  },
+  systemSubnetPoolDelete({ path, cookies }) {
+    requireFleetAdmin(cookies)
+    const pool = lookup.subnetPool({ subnetPool: path.pool })
+
+    if (db.subnetPoolMembers.some((m) => m.subnet_pool_id === pool.id)) {
+      throw 'Subnet pool cannot be deleted while it contains members'
+    }
+
+    db.subnetPools = db.subnetPools.filter((p) => p.id !== pool.id)
+    db.subnetPoolSilos = db.subnetPoolSilos.filter((s) => s.subnet_pool_id !== pool.id)
+
+    return 204
+  },
+  systemSubnetPoolMemberList({ path, query, cookies }) {
+    requireFleetViewer(cookies)
+    const pool = lookup.subnetPool({ subnetPool: path.pool })
+    const members = db.subnetPoolMembers.filter((m) => m.subnet_pool_id === pool.id)
+    return paginated(query, members)
+  },
+  systemSubnetPoolMemberAdd({ path, body, cookies }) {
+    requireFleetAdmin(cookies)
+    const pool = lookup.subnetPool({ subnetPool: path.pool })
+
+    const parsed = parseIpNet(body.subnet)
+    if (parsed.type === 'error') {
+      throw `Invalid subnet CIDR: ${parsed.message}`
+    }
+    if (parsed.type !== pool.ip_version) {
+      throw `IP${parsed.type} subnet not allowed in IP${pool.ip_version} pool`
+    }
+
+    const maxBound = pool.ip_version === 'v4' ? 32 : 128
+    const minPL = body.min_prefix_length ?? parsed.width
+    const maxPL = body.max_prefix_length ?? maxBound
+
+    if (minPL > maxPL) {
+      throw 'min_prefix_length must be <= max_prefix_length'
+    }
+    if (minPL < parsed.width || maxPL < parsed.width) {
+      throw `Prefix lengths must be >= subnet prefix length (${parsed.width})`
+    }
+
+    // reject overlapping members within the same pool
+    const existing = db.subnetPoolMembers.filter((m) => m.subnet_pool_id === pool.id)
+    for (const m of existing) {
+      if (m.subnet === body.subnet) {
+        throw `Overlapping member: ${body.subnet} already exists in pool`
+      }
+    }
+
+    const newMember: Json<Api.SubnetPoolMember> = {
+      id: uuid(),
+      subnet_pool_id: pool.id,
+      subnet: body.subnet,
+      min_prefix_length: minPL,
+      max_prefix_length: maxPL,
+      time_created: new Date().toISOString(),
+    }
+
+    db.subnetPoolMembers.push(newMember)
+
+    return json(newMember, { status: 201 })
+  },
+  systemSubnetPoolMemberRemove({ path, body, cookies }) {
+    requireFleetAdmin(cookies)
+    const pool = lookup.subnetPool({ subnetPool: path.pool })
+
+    const memberIdsToDelete = db.subnetPoolMembers
+      .filter((m) => m.subnet_pool_id === pool.id && m.subnet === body.subnet)
+      .map((m) => m.id)
+
+    if (memberIdsToDelete.length === 0) throw notFoundErr(`subnet member ${body.subnet}`)
+
+    const inUse = db.externalSubnets.some((s) =>
+      memberIdsToDelete.includes(s.subnet_pool_member_id)
+    )
+    if (inUse) {
+      throw 'Subnet pool member cannot be removed while subnets are allocated from it'
+    }
+
+    db.subnetPoolMembers = db.subnetPoolMembers.filter(
+      (m) => !memberIdsToDelete.includes(m.id)
+    )
+
+    return 204
+  },
+  systemSubnetPoolSiloList({ path, cookies }) {
+    requireFleetViewer(cookies)
+    const pool = lookup.subnetPool({ subnetPool: path.pool })
+    const assocs = db.subnetPoolSilos.filter((sps) => sps.subnet_pool_id === pool.id)
+    return { items: assocs }
+  },
+  systemSubnetPoolSiloLink({ path, body, cookies }) {
+    requireFleetAdmin(cookies)
+    const pool = lookup.subnetPool({ subnetPool: path.pool })
+    const silo_id = lookup.silo({ silo: body.silo }).id
+
+    const assoc: Json<Api.SubnetPoolSiloLink> = {
+      subnet_pool_id: pool.id,
+      silo_id,
+      is_default: body.is_default,
+    }
+
+    const alreadyThere = db.subnetPoolSilos.find(
+      (sps) => sps.subnet_pool_id === pool.id && sps.silo_id === silo_id
+    )
+
+    if (!alreadyThere) db.subnetPoolSilos.push(assoc)
+
+    return json(assoc, { status: 201 })
+  },
+  systemSubnetPoolSiloUnlink({ path, cookies }) {
+    requireFleetAdmin(cookies)
+    const pool = lookup.subnetPool({ subnetPool: path.pool })
+    const silo = lookup.silo(path)
+
+    // Reject if any external subnets from this pool are in projects owned by this silo
+    const siloProjectIds = new Set(
+      db.projects.filter((p) => p.silo_id === silo.id).map((p) => p.id)
+    )
+    const hasAllocatedSubnets = db.externalSubnets.some(
+      (s) => s.subnet_pool_id === pool.id && siloProjectIds.has(s.project_id)
+    )
+    if (hasAllocatedSubnets) {
+      throw 'Cannot unlink silo: external subnets from this pool are still allocated in the silo'
+    }
+
+    db.subnetPoolSilos = db.subnetPoolSilos.filter(
+      (sps) => !(sps.subnet_pool_id === pool.id && sps.silo_id === silo.id)
+    )
+
+    return 204
+  },
+  systemSubnetPoolSiloUpdate({ path, body, cookies }) {
+    requireFleetAdmin(cookies)
+    const link = lookup.subnetPoolSiloLink({ subnetPool: path.pool, ...path })
+
+    // if setting default, clear existing default for same IP version
+    if (body.is_default) {
+      const silo = lookup.silo(path)
+      const currentPool = lookup.subnetPool({ subnetPool: link.subnet_pool_id })
+
+      const existingDefault = db.subnetPoolSilos.find((sps) => {
+        if (sps.silo_id !== silo.id || !sps.is_default) return false
+        const pool = db.subnetPools.find((p) => p.id === sps.subnet_pool_id)
+        return pool && pool.ip_version === currentPool.ip_version
+      })
+
+      if (existingDefault) {
+        existingDefault.is_default = false
+      }
+    }
+
+    link.is_default = body.is_default
+
+    return link
+  },
+  systemSubnetPoolUtilizationView({ path, cookies }) {
+    requireFleetViewer(cookies)
+    const pool = lookup.subnetPool({ subnetPool: path.pool })
+    const bits = pool.ip_version === 'v4' ? 32 : 128
+
+    // Unlike IP pool utilization (which uses bigint arithmetic because IP
+    // ranges have arbitrary sizes), subnet sizes are always powers of 2, which
+    // are exactly representable as f64 up to 2^1023. So Math.pow is exact for
+    // each term and we don't need bigint intermediate arithmetic.
+    const subnetSize = (cidr: string) => {
+      const parsed = parseIpNet(cidr)
+      // mock data is always valid, so this is just for the type narrowing
+      if (parsed.type === 'error') return 0
+      return Math.pow(2, bits - parsed.width)
+    }
+
+    const capacity = R.pipe(
+      db.subnetPoolMembers,
+      R.filter((m) => m.subnet_pool_id === pool.id),
+      R.sumBy((m) => subnetSize(m.subnet))
+    )
+    const allocated = R.pipe(
+      db.externalSubnets,
+      R.filter((s) => s.subnet_pool_id === pool.id),
+      R.sumBy((s) => subnetSize(s.subnet))
+    )
+
+    return { capacity, remaining: capacity - allocated }
+  },
+  siloSubnetPoolList({ path, query, cookies }) {
+    requireFleetViewer(cookies)
+    const pools = lookup.siloSubnetPools(path)
+    return paginated(query, pools)
+  },
+
   // Misc endpoints we're not using yet in the console
   affinityGroupCreate: NotImplemented,
   affinityGroupDelete: NotImplemented,
@@ -1845,6 +2582,9 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
+  instanceMulticastGroupJoin: NotImplemented,
+  instanceMulticastGroupLeave: NotImplemented,
+  instanceMulticastGroupList: NotImplemented,
   instanceSerialConsole: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
   instanceSshPublicKeyList: NotImplemented,
@@ -1854,14 +2594,17 @@ export const handlers = makeHandlers({
   internetGatewayIpAddressDelete: NotImplemented,
   internetGatewayIpPoolCreate: NotImplemented,
   internetGatewayIpPoolDelete: NotImplemented,
-  ipPoolServiceRangeAdd: NotImplemented,
-  ipPoolServiceRangeList: NotImplemented,
-  ipPoolServiceRangeRemove: NotImplemented,
-  ipPoolServiceView: NotImplemented,
+  systemIpPoolServiceRangeAdd: NotImplemented,
+  systemIpPoolServiceRangeList: NotImplemented,
+  systemIpPoolServiceRangeRemove: NotImplemented,
+  systemIpPoolServiceView: NotImplemented,
   localIdpUserCreate: NotImplemented,
   localIdpUserDelete: NotImplemented,
   localIdpUserSetPassword: NotImplemented,
   loginSaml: NotImplemented,
+  multicastGroupList: NotImplemented,
+  multicastGroupMemberList: NotImplemented,
+  multicastGroupView: NotImplemented,
   networkingAddressLotBlockList: NotImplemented,
   networkingAddressLotCreate: NotImplemented,
   networkingAddressLotDelete: NotImplemented,
@@ -1880,7 +2623,7 @@ export const handlers = makeHandlers({
   networkingBgpConfigDelete: NotImplemented,
   networkingBgpConfigList: NotImplemented,
   networkingBgpExported: NotImplemented,
-  networkingBgpImportedRoutesIpv4: NotImplemented,
+  networkingBgpImported: NotImplemented,
   networkingBgpMessageHistory: NotImplemented,
   networkingBgpStatus: NotImplemented,
   networkingInboundIcmpUpdate: NotImplemented,
@@ -1904,12 +2647,14 @@ export const handlers = makeHandlers({
   probeDelete: NotImplemented,
   probeList: NotImplemented,
   probeView: NotImplemented,
+  rackMembershipAbort: NotImplemented,
+  rackMembershipAddSleds: NotImplemented,
+  rackMembershipStatus: NotImplemented,
   rackView: NotImplemented,
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
   siloUserList: NotImplemented,
   siloUserView: NotImplemented,
-  sledAdd: NotImplemented,
   sledListUninitialized: NotImplemented,
   sledSetProvisionPolicy: NotImplemented,
   supportBundleCreate: NotImplemented,
@@ -1923,17 +2668,14 @@ export const handlers = makeHandlers({
   supportBundleUpdate: NotImplemented,
   supportBundleView: NotImplemented,
   switchView: NotImplemented,
-  systemPolicyUpdate: NotImplemented,
   systemQuotasList: NotImplemented,
   systemTimeseriesSchemaList: NotImplemented,
-  systemUpdateGetRepository: NotImplemented,
-  systemUpdatePutRepository: NotImplemented,
+  systemUpdateRecoveryFinish: NotImplemented,
+  systemUpdateRepositoryView: NotImplemented,
   systemUpdateTrustRootCreate: NotImplemented,
   systemUpdateTrustRootDelete: NotImplemented,
   systemUpdateTrustRootList: NotImplemented,
   systemUpdateTrustRootView: NotImplemented,
-  targetReleaseUpdate: NotImplemented,
-  targetReleaseView: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
   userLogout: NotImplemented,

@@ -5,16 +5,18 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { filesize } from 'filesize'
 import { useId, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
-  apiQueryClient,
+  api,
+  q,
+  queryClient,
   useApiMutation,
-  useApiQuery,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
   type Instance,
   type InstanceNetworkInterface,
 } from '@oxide/api'
@@ -50,14 +52,24 @@ import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
-import { Spinner } from '~/ui/lib/Spinner'
-import { Tooltip } from '~/ui/lib/Tooltip'
 import { truncate } from '~/ui/lib/Truncate'
 import { instanceMetricsBase, pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 import { pluralize } from '~/util/str'
 import { GiB } from '~/util/units'
 
 import { useMakeInstanceActions } from './actions'
+
+const instanceView = ({ project, instance }: PP.Instance) =>
+  q(api.instanceView, { path: { instance }, query: { project } })
+
+const instanceExternalIpList = ({ project, instance }: PP.Instance) =>
+  q(api.instanceExternalIpList, { path: { instance }, query: { project } })
+
+const instanceNetworkInterfaceList = (query: PP.Instance) =>
+  q(api.instanceNetworkInterfaceList, { query })
+
+const vpcView = (vpc: string) => q(api.vpcView, { path: { vpc } })
 
 function getPrimaryVpcId(nics: InstanceNetworkInterface[]) {
   const nic = nics.find((nic) => nic.primary)
@@ -67,11 +79,13 @@ function getPrimaryVpcId(nics: InstanceNetworkInterface[]) {
 // this is meant to cover everything that we fetch in the page
 async function refreshData() {
   await Promise.all([
-    apiQueryClient.invalidateQueries('instanceView'),
-    apiQueryClient.invalidateQueries('instanceExternalIpList'),
-    apiQueryClient.invalidateQueries('instanceNetworkInterfaceList'),
-    apiQueryClient.invalidateQueries('instanceDiskList'), // storage tab
-    apiQueryClient.invalidateQueries('antiAffinityGroupMemberList'),
+    queryClient.invalidateEndpoint('instanceView'),
+    queryClient.invalidateEndpoint('instanceExternalIpList'),
+    queryClient.invalidateEndpoint('instanceNetworkInterfaceList'),
+    queryClient.invalidateEndpoint('instanceDiskList'), // storage tab
+    queryClient.invalidateEndpoint('instanceAntiAffinityGroupList'), // settings tab
+    queryClient.invalidateEndpoint('antiAffinityGroupList'), // settings tab
+    queryClient.invalidateEndpoint('antiAffinityGroupMemberList'), // settings tab
     // note that we do not include timeseriesQuery because the charts on the
     // metrics tab will manage their own refresh intervals when we turn that
     // back on
@@ -79,16 +93,10 @@ async function refreshData() {
 }
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { project, instance } = getInstanceSelector(params)
+  const selector = getInstanceSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('instanceView', {
-      path: { instance },
-      query: { project },
-    }),
-    apiQueryClient.prefetchQuery('instanceExternalIpList', {
-      path: { instance },
-      query: { project },
-    }),
+    queryClient.prefetchQuery(instanceView(selector)),
+    queryClient.prefetchQuery(instanceExternalIpList(selector)),
     // The VPC fetch here ensures that the VPC shows up at pageload time without
     // a loading state. This is an unusual prefetch in that
     //
@@ -99,15 +107,11 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     // Using .then() like this instead of doing the NICs call before the
     // entire Promise.all() means this whole *pair* of requests can happen in
     // parallel with the other two instead of only the second one.
-    apiQueryClient
-      .fetchQuery('instanceNetworkInterfaceList', {
-        query: { project, instance },
-      })
-      .then((nics) => {
-        const vpc = getPrimaryVpcId(nics.items)
-        if (!vpc) return Promise.resolve()
-        return apiQueryClient.prefetchQuery('vpcView', { path: { vpc } })
-      }),
+    queryClient.fetchQuery(instanceNetworkInterfaceList(selector)).then((nics) => {
+      const vpc = getPrimaryVpcId(nics.items)
+      if (!vpc) return Promise.resolve()
+      return queryClient.prefetchQuery(vpcView(vpc))
+    }),
   ])
   return null
 }
@@ -116,14 +120,6 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 const sec = 1000 // ms, obviously
 const POLL_INTERVAL_FAST = 2 * sec
 const POLL_INTERVAL_SLOW = 30 * sec
-
-const PollingSpinner = () => (
-  <Tooltip content="Auto-refreshing while state changes" delay={150}>
-    <button type="button">
-      <Spinner className="ml-2" />
-    </button>
-  </Tooltip>
-)
 
 export default function InstancePage() {
   const instanceSelector = useInstanceSelector()
@@ -135,54 +131,42 @@ export default function InstancePage() {
     onSuccess: refreshData,
     // go to project instances list since there's no more instance
     onDelete: () => {
-      apiQueryClient.invalidateQueries('instanceList')
+      queryClient.invalidateEndpoint('instanceList')
       navigate(pb.instances(instanceSelector))
     },
     onResizeClick: () => setResizeInstance(true),
   })
 
-  const { data: instance } = usePrefetchedApiQuery(
-    'instanceView',
-    {
-      path: { instance: instanceSelector.instance },
-      query: { project: instanceSelector.project },
-    },
-    {
-      // We're using this logic here on instance detail, but not on instance
-      // list. Instance list will only poll for the transitioning case. We don't
-      // show anything about auto-restart on the instance list, so the only point
-      // of polling would be to catch a restart when it happens. But with the
-      // cooldown period being an hour, we'd be doing a _lot_ of unnecessary
-      // polling on the list page.
-      refetchInterval: ({ state: { data: instance } }) => {
-        if (!instance) return false
-        if (instanceTransitioning(instance)) return POLL_INTERVAL_FAST
+  const { data: instance } = usePrefetchedQuery({
+    ...instanceView(instanceSelector),
+    // We're using this logic here on instance detail, but not on instance
+    // list. Instance list will only poll for the transitioning case. We don't
+    // show anything about auto-restart on the instance list, so the only point
+    // of polling would be to catch a restart when it happens. But with the
+    // cooldown period being an hour, we'd be doing a _lot_ of unnecessary
+    // polling on the list page.
+    refetchInterval: ({ state: { data: instance } }) => {
+      if (!instance) return false
+      if (instanceTransitioning(instance.runState)) return POLL_INTERVAL_FAST
 
-        if (instance.runState === 'failed' && instance.autoRestartEnabled) {
-          return instanceAutoRestartingSoon(instance)
-            ? POLL_INTERVAL_FAST
-            : POLL_INTERVAL_SLOW
-        }
-      },
-    }
-  )
-
-  const { data: nics } = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
-    query: {
-      project: instanceSelector.project,
-      instance: instanceSelector.instance,
+      if (instance.runState === 'failed' && instance.autoRestartEnabled) {
+        return instanceAutoRestartingSoon(instance)
+          ? POLL_INTERVAL_FAST
+          : POLL_INTERVAL_SLOW
+      }
     },
   })
+
+  const { data: nics } = usePrefetchedQuery(instanceNetworkInterfaceList(instanceSelector))
   const primaryVpcId = getPrimaryVpcId(nics.items)
 
   // a little funny, as noted in the loader -- this should always be prefetched
   // when primaryVpcId is defined, but primaryVpcId might not be defined, so
-  // we can't use usePrefetchedApiQuery
-  const { data: vpc } = useApiQuery(
-    'vpcView',
-    { path: { vpc: primaryVpcId! } },
-    { enabled: !!primaryVpcId }
-  )
+  // we can't use usePrefetchedQuery
+  const { data: vpc } = useQuery({
+    ...vpcView(primaryVpcId!),
+    enabled: !!primaryVpcId,
+  })
 
   const memory = filesize(instance.memory, { output: 'object', base: 2 })
 
@@ -193,7 +177,7 @@ export default function InstancePage() {
         <div className="inline-flex gap-2">
           <RefreshButton onClick={refreshData} />
           <InstanceDocsPopover />
-          <div className="flex space-x-2 border-l pl-2 border-default">
+          <div className="border-default flex space-x-2 border-l pl-2">
             {makeButtonActions(instance).map((action) => (
               <Button
                 key={action.label}
@@ -234,23 +218,22 @@ export default function InstancePage() {
       <PropertiesTable columns={2} className="-mt-8 mb-8">
         <PropertiesTable.Row label="cpu">
           <span className="text-default">{instance.ncpus}</span>
-          <span className="ml-1 text-tertiary">{pluralize(' vCPU', instance.ncpus)}</span>
+          <span className="text-tertiary ml-1">{pluralize(' vCPU', instance.ncpus)}</span>
         </PropertiesTable.Row>
         <PropertiesTable.Row label="ram">
           <span className="text-default">{memory.value}</span>
-          <span className="ml-1 text-tertiary"> {memory.unit}</span>
+          <span className="text-tertiary ml-1"> {memory.unit}</span>
         </PropertiesTable.Row>
         <PropertiesTable.Row label="state">
           <div className="flex items-center gap-2">
             <InstanceStateBadge state={instance.runState} />
-            {instanceTransitioning(instance) && <PollingSpinner />}
             <InstanceAutoRestartPopover instance={instance} />
           </div>
         </PropertiesTable.Row>
         <PropertiesTable.Row label="vpc">
           {vpc ? (
             <Link
-              className="link-with-underline group text-sans-md"
+              className="link-with-underline text-sans-md group"
               to={pb.vpc({ project: instanceSelector.project, vpc: vpc.name })}
             >
               {vpc.name}
@@ -298,10 +281,10 @@ export function ResizeInstanceModal({
   onListView?: boolean
 }) {
   const { project } = useProjectSelector()
-  const instanceUpdate = useApiMutation('instanceUpdate', {
+  const instanceUpdate = useApiMutation(api.instanceUpdate, {
     onSuccess(_updatedInstance) {
-      apiQueryClient.invalidateQueries('instanceList')
-      apiQueryClient.invalidateQueries('instanceView')
+      queryClient.invalidateEndpoint('instanceList')
+      queryClient.invalidateEndpoint('instanceView')
 
       onDismiss()
       addToast({
@@ -321,7 +304,6 @@ export function ResizeInstanceModal({
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
-    onSettled: onDismiss,
   })
 
   const form = useForm({
@@ -408,7 +390,7 @@ export function ResizeInstanceModal({
             />
           </form>
           {instanceUpdate.error && (
-            <p className="mt-4 text-error">{instanceUpdate.error.message}</p>
+            <p className="text-error mt-4">{instanceUpdate.error.message}</p>
           )}
         </Modal.Section>
       </Modal.Body>

@@ -11,25 +11,27 @@ import type { LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 
 import {
-  apiQueryClient,
-  diskCan,
+  api,
   genName,
   instanceCan,
+  q,
+  queryClient,
   useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
   type Disk,
   type InstanceState,
 } from '@oxide/api'
 import { Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { HL } from '~/components/HL'
-import { DiskStateBadge } from '~/components/StateBadge'
+import { DiskStateBadge, DiskTypeBadge, ReadOnlyBadge } from '~/components/StateBadge'
 import { AttachDiskModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
+import { DiskDetailSideModal } from '~/pages/project/disks/DiskDetailSideModal'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
+import { ButtonCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
@@ -39,7 +41,7 @@ import { EMBody, EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { links } from '~/util/links'
 
-import { fancifyStates } from './common'
+import { snapshotDisabledReason } from './common'
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
@@ -48,10 +50,10 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     // don't bother with page size because this will never paginate. max disks
     // per instance is 8
     // https://github.com/oxidecomputer/omicron/blob/40fc3835/nexus/db-queries/src/db/queries/disk.rs#L16-L21
-    apiQueryClient.prefetchQuery('instanceDiskList', selector),
+    queryClient.prefetchQuery(q(api.instanceDiskList, selector)),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
-    apiQueryClient.prefetchQuery('instanceView', selector),
+    queryClient.prefetchQuery(q(api.instanceView, selector)),
   ])
   return null
 }
@@ -65,15 +67,6 @@ type InstanceDisk = Disk & {
 }
 
 const colHelper = createColumnHelper<InstanceDisk>()
-const staticCols = [
-  colHelper.accessor('name', { header: 'Disk' }),
-  colHelper.accessor('size', Columns.size),
-  colHelper.accessor((row) => row.state.state, {
-    header: 'state',
-    cell: (info) => <DiskStateBadge state={info.getValue()} />,
-  }),
-  colHelper.accessor('timeCreated', Columns.timeCreated),
-]
 
 export const handle = { crumb: 'Storage' }
 
@@ -81,30 +74,51 @@ export default function StorageTab() {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
   const [showDiskAttach, setShowDiskAttach] = useState(false)
 
-  const queryClient = useApiQueryClient()
   const { instance: instanceName, project } = useInstanceSelector()
   const instancePathQuery = useMemo(
     () => ({ path: { instance: instanceName }, query: { project } }),
     [instanceName, project]
   )
 
-  const { mutateAsync: detachDisk } = useApiMutation('instanceDiskDetach', {
+  const staticCols = useMemo(
+    () => [
+      colHelper.accessor('name', {
+        header: 'Disk',
+        cell: (info) => (
+          <span className="flex items-center gap-2">
+            <ButtonCell onClick={() => setSelectedDisk(info.row.original)}>
+              {info.getValue()}
+            </ButtonCell>
+            {info.row.original.readOnly && <ReadOnlyBadge />}
+          </span>
+        ),
+      }),
+      colHelper.accessor('diskType', {
+        header: 'Type',
+        cell: (info) => <DiskTypeBadge diskType={info.getValue()} />,
+      }),
+      colHelper.accessor('size', Columns.size),
+      colHelper.accessor((row) => row.state.state, {
+        header: 'state',
+        cell: (info) => <DiskStateBadge state={info.getValue()} />,
+      }),
+      colHelper.accessor('timeCreated', Columns.timeCreated),
+    ],
+    []
+  )
+
+  const { mutateAsync: detachDisk } = useApiMutation(api.instanceDiskDetach, {
     onSuccess(disk) {
-      queryClient.invalidateQueries('instanceDiskList')
-      addToast(<>Disk <HL>{disk.name}</HL> detached</>) // prettier-ignore
-    },
-    onError(err) {
-      addToast({
-        title: 'Failed to detach disk',
-        content: err.message,
-        variant: 'error',
-      })
+      queryClient.invalidateEndpoint('instanceDiskList')
+      // prettier-ignore
+      addToast(<>Disk <HL>{disk.name}</HL> detached</>)
     },
   })
-  const { mutate: createSnapshot } = useApiMutation('snapshotCreate', {
+  const { mutate: createSnapshot } = useApiMutation(api.snapshotCreate, {
     onSuccess(snapshot) {
-      queryClient.invalidateQueries('snapshotList')
-      addToast(<>Snapshot <HL>{snapshot.name}</HL> created</>) // prettier-ignore
+      queryClient.invalidateEndpoint('snapshotList')
+      // prettier-ignore
+      addToast(<>Snapshot <HL>{snapshot.name}</HL> created</>)
     },
     onError(err) {
       addToast({
@@ -115,21 +129,24 @@ export default function StorageTab() {
     },
   })
 
-  const { data: instance } = usePrefetchedApiQuery('instanceView', instancePathQuery)
+  const { data: instance } = usePrefetchedQuery(
+    q(api.instanceView, { path: { instance: instanceName }, query: { project } })
+  )
 
-  const { mutateAsync: instanceUpdate } = useApiMutation('instanceUpdate', {
+  const { mutateAsync: instanceUpdate } = useApiMutation(api.instanceUpdate, {
     onSuccess() {
-      apiQueryClient.invalidateQueries('instanceView')
+      queryClient.invalidateEndpoint('instanceView')
     },
   })
+
+  // for showing disk detail side modal
+  const [selectedDisk, setSelectedDisk] = useState<Disk | null>(null)
 
   // shared between boot and other disks
   const getSnapshotAction = useCallback(
     (disk: InstanceDisk) => ({
       label: 'Snapshot',
-      disabled: !diskCan.snapshot(disk) && (
-        <>Only disks in state {fancifyStates(diskCan.snapshot.states)} can be snapshotted</>
-      ),
+      disabled: snapshotDisabledReason(disk),
       onActivate() {
         createSnapshot({
           query: { project },
@@ -140,7 +157,7 @@ export default function StorageTab() {
     [createSnapshot, project]
   )
 
-  const { data: disks } = usePrefetchedApiQuery('instanceDiskList', instancePathQuery)
+  const { data: disks } = usePrefetchedQuery(q(api.instanceDiskList, instancePathQuery))
 
   const [bootDisks, otherDisks] = useMemo(
     () => R.partition(disks.items, (d) => d.id === instance.bootDiskId),
@@ -270,7 +287,8 @@ export default function StorageTab() {
               detachDisk({ body: { disk: disk.name }, path: { instance: instance.id } }),
             errorTitle: 'Could not detach disk',
             modalTitle: 'Confirm detach disk',
-            modalContent: <p>Are you sure you want to detach <HL>{disk.name}</HL>?</p>, // prettier-ignore
+            // prettier-ignore
+            modalContent: <p>Are you sure you want to detach <HL>{disk.name}</HL>?</p>,
             actionType: 'danger',
           }),
       },
@@ -290,13 +308,13 @@ export default function StorageTab() {
     ]
   )
 
-  const attachDisk = useApiMutation('instanceDiskAttach', {
+  const attachDisk = useApiMutation(api.instanceDiskAttach, {
     onSuccess(disk) {
-      queryClient.invalidateQueries('instanceDiskList')
-      // cover all our bases. this is called by both modals
+      queryClient.invalidateEndpoint('instanceDiskList')
       setShowDiskCreate(false)
       setShowDiskAttach(false)
-      addToast(<>Disk <HL>{disk.name}</HL> attached</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Disk <HL>{disk.name}</HL> attached</>)
     },
   })
 
@@ -390,12 +408,23 @@ export default function StorageTab() {
       )}
       {showDiskAttach && (
         <AttachDiskModalForm
-          onDismiss={() => setShowDiskAttach(false)}
+          onDismiss={() => {
+            setShowDiskAttach(false)
+            // clear API errors on the mutation
+            attachDisk.reset()
+          }}
           onSubmit={({ name }) => {
             attachDisk.mutate({ ...instancePathQuery, body: { disk: name } })
           }}
           loading={attachDisk.isPending}
           submitError={attachDisk.error}
+        />
+      )}
+      {selectedDisk && (
+        <DiskDetailSideModal
+          disk={selectedDisk}
+          onDismiss={() => setSelectedDisk(null)}
+          animate
         />
       )}
     </div>

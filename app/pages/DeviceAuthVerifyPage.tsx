@@ -8,7 +8,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 
-import { useApiMutation } from '@oxide/api'
+import { api, useApiMutation } from '@oxide/api'
 import { Warning12Icon } from '@oxide/design-system/icons/react'
 
 import { AuthCodeInput } from '~/ui/lib/AuthCodeInput'
@@ -23,7 +23,7 @@ const DASH_AFTER_IDXS = [3]
  */
 export default function DeviceAuthVerifyPage() {
   const navigate = useNavigate()
-  const confirmPost = useApiMutation('deviceAuthConfirm', {
+  const confirmPost = useApiMutation(api.deviceAuthConfirm, {
     onSuccess: () => {
       navigate(pb.deviceSuccess())
     },
@@ -33,7 +33,7 @@ export default function DeviceAuthVerifyPage() {
 
   return (
     <form
-      className="w-full max-w-[470px] rounded-lg border p-9 text-center !bg-raise border-secondary elevation-3"
+      className="bg-raise! shadow-modal w-full max-w-[470px] rounded-lg p-9 text-center"
       onSubmit={(event) => {
         event.preventDefault()
 
@@ -44,19 +44,19 @@ export default function DeviceAuthVerifyPage() {
         }
       }}
     >
-      <h1 className="mb-1 text-sans-2xl text-accent">Device Authentication</h1>
-      <p className="mb-8 text-sans-lg text-secondary">
+      <h1 className="text-sans-2xl text-accent mb-1">Device Authentication</h1>
+      <p className="text-sans-lg text-secondary mb-8">
         Enter the code shown on your device
       </p>
       <AuthCodeInput
         onChange={(code) => setUserCode(code)}
         containerClassName="flex space-x-2 mb-6"
-        inputClassName="rounded border border-default bg-default w-full aspect-square flex items-center justify-center text-center text-default text-mono-md"
+        inputClassName="rounded-md border border-default bg-default w-full aspect-square flex items-center justify-center text-center text-default text-mono-md"
         length={8}
         dashAfterIdxs={DASH_AFTER_IDXS}
       />
       <Button
-        className="w-full !text-mono-sm"
+        className="text-mono-sm! w-full"
         type="submit"
         loading={confirmPost.isPending}
         disabled={confirmPost.isPending || confirmPost.isSuccess || userCode.length < 8}
@@ -64,7 +64,7 @@ export default function DeviceAuthVerifyPage() {
         Log in on device
       </Button>
       {confirmPost.isError && (
-        <div className="mt-3 flex items-center justify-center text-sans-md text-error">
+        <div className="text-sans-md text-error mt-3 flex items-center justify-center">
           <Warning12Icon /> <div className="ml-1">Code is invalid</div>
         </div>
       )}

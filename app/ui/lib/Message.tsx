@@ -37,32 +37,11 @@ const defaultIcon: Record<Variant, ReactElement> = {
   info: <Error12Icon className="rotate-180" />,
 }
 
-const color: Record<Variant, string> = {
-  success: 'bg-accent-secondary',
-  error: 'bg-error-secondary',
-  notice: 'bg-notice-secondary',
-  info: 'bg-info-secondary',
-}
-
-const textColor: Record<Variant, string> = {
-  success: 'text-accent children:text-accent',
-  error: 'text-error children:text-error',
-  notice: 'text-notice children:text-notice',
-  info: 'text-info children:text-info',
-}
-
-const secondaryTextColor: Record<Variant, string> = {
-  success: 'text-accent-secondary',
-  error: 'text-error-secondary',
-  notice: 'text-notice-secondary',
-  info: 'text-info-secondary',
-}
-
-const linkColor: Record<Variant, string> = {
-  success: 'text-accent-secondary hover:text-accent',
-  error: 'text-error-secondary hover:text-error',
-  notice: 'text-notice-secondary hover:text-notice',
-  info: 'text-info-secondary hover:text-info',
+const themeClass: Record<Variant, string> = {
+  success: '',
+  error: 'red-theme',
+  notice: 'yellow-theme',
+  info: 'blue-theme',
 }
 
 export const Message = ({
@@ -77,32 +56,27 @@ export const Message = ({
   return (
     <div
       className={cn(
-        'relative flex items-start gap-2.5 overflow-hidden rounded-lg p-4 elevation-1',
-        color[variant],
-        textColor[variant],
+        'relative flex items-start gap-2 overflow-hidden rounded-md p-3 pr-5 ring ring-inset ring-current/10',
+        'bg-accent text-accent',
+        themeClass[variant],
         className
       )}
     >
       {showIcon && (
-        <div className="mt-[2px] flex [&>svg]:h-3 [&>svg]:w-3">{defaultIcon[variant]}</div>
+        <div className="text-accent mt-0.5 flex [&>svg]:h-3 [&>svg]:w-3">
+          {defaultIcon[variant]}
+        </div>
       )}
       <div className="flex-1">
         {title && <div className="text-sans-semi-md">{title}</div>}
-        <div
-          className={cn(
-            'text-sans-md [&>a]:underline',
-            title ? secondaryTextColor[variant] : textColor[variant]
-          )}
-        >
+        {/* group gives HL the right color */}
+        <div className="text-sans-md text-accent-secondary [&>a]:tint-underline group">
           {content}
         </div>
 
         {cta && (
           <Link
-            className={cn(
-              'mt-1 flex items-center underline text-sans-md',
-              linkColor[variant]
-            )}
+            className="text-sans-md text-accent-secondary hover:text-accent mt-1 flex items-center underline"
             to={cta.link}
           >
             {cta.text}

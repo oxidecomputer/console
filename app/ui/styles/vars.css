@@ -1,0 +1,21 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+
+:root {
+  --z-toast: 50;
+  --z-modal-dropdown: 50;
+  --z-modal: 40;
+  --z-side-modal-dropdown: 40;
+  --z-side-modal: 30;
+  --z-modal-overlay: 25;
+  --z-top-bar-dropdown: 20;
+  --z-top-bar: 15;
+  --z-popover: 10;
+  --z-content-dropdown: 10;
+  --z-content: 0;
+}

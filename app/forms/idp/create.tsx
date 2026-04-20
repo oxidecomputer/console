@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { api, queryClient, useApiMutation } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { FileField } from '~/components/form/fields/FileField'
@@ -55,16 +55,16 @@ export const handle = titleCrumb('New Identity Provider')
 
 export default function CreateIdpSideModalForm() {
   const navigate = useNavigate()
-  const queryClient = useApiQueryClient()
 
   const { silo } = useSiloSelector()
 
   const onDismiss = () => navigate(pb.silo({ silo }))
 
-  const createIdp = useApiMutation('samlIdentityProviderCreate', {
+  const createIdp = useApiMutation(api.samlIdentityProviderCreate, {
     onSuccess(idp) {
-      queryClient.invalidateQueries('siloIdentityProviderList')
-      addToast(<>IdP <HL>{idp.name}</HL> created</>) // prettier-ignore
+      queryClient.invalidateEndpoint('siloIdentityProviderList')
+      // prettier-ignore
+      addToast(<>IdP <HL>{idp.name}</HL> created</>)
       onDismiss()
     },
   })
@@ -185,7 +185,7 @@ export default function CreateIdpSideModalForm() {
           name="acsUrl"
           label="ACS URL"
           description={
-            <div className="children:inline-block">
+            <div className="*:inline-block">
               <span>
                 Oxide endpoint for the identity provider to send the SAML response.{' '}
               </span>

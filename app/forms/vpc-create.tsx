@@ -8,7 +8,7 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import { useApiMutation, useApiQueryClient, type VpcCreate } from '@oxide/api'
+import { api, q, queryClient, useApiMutation, type VpcCreate } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -18,6 +18,8 @@ import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const defaultValues: VpcCreate = {
@@ -30,19 +32,19 @@ export const handle = titleCrumb('New VPC')
 
 export default function CreateVpcSideModalForm() {
   const projectSelector = useProjectSelector()
-  const queryClient = useApiQueryClient()
   const navigate = useNavigate()
 
-  const createVpc = useApiMutation('vpcCreate', {
+  const createVpc = useApiMutation(api.vpcCreate, {
     onSuccess(vpc) {
-      queryClient.invalidateQueries('vpcList')
+      queryClient.invalidateEndpoint('vpcList')
       // avoid the vpc fetch when the vpc page loads since we have the data
-      queryClient.setQueryData(
-        'vpcView',
-        { path: { vpc: vpc.name }, query: projectSelector },
-        vpc
-      )
-      addToast(<>VPC <HL>{vpc.name}</HL> created</>) // prettier-ignore
+      const vpcView = q(api.vpcView, {
+        path: { vpc: vpc.name },
+        query: projectSelector,
+      })
+      queryClient.setQueryData(vpcView.queryKey, vpc)
+      // prettier-ignore
+      addToast(<>VPC <HL>{vpc.name}</HL> created</>)
       navigate(pb.vpc({ vpc: vpc.name, ...projectSelector }))
     },
   })
@@ -63,6 +65,7 @@ export default function CreateVpcSideModalForm() {
       <DescriptionField name="description" control={form.control} />
       <NameField name="dnsName" label="DNS name" control={form.control} />
       <TextField name="ipv6Prefix" label="IPV6 prefix" control={form.control} />
+      <SideModalFormDocs docs={[docLinks.vpcs]} />
     </SideModalForm>
   )
 }

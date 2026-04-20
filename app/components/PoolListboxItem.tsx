@@ -1,0 +1,40 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+
+import type { IpVersion } from '@oxide/api'
+import { Badge } from '@oxide/design-system/ui'
+
+import { IpVersionBadge } from '~/components/IpVersionBadge'
+import type { ListboxItem } from '~/ui/lib/Listbox'
+
+/** Common fields of SiloIpPool and SiloSubnetPool used for display */
+type PoolLike = {
+  name: string
+  isDefault: boolean
+  ipVersion: IpVersion
+  description: string
+}
+
+/** Format a pool for use as a ListboxField item */
+export function toPoolItem(p: PoolLike): ListboxItem {
+  const value = p.name
+  const selectedLabel = p.name
+  const label = (
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-1.5">
+        {p.name}
+        {p.isDefault && <Badge color="neutral">default</Badge>}
+        <IpVersionBadge ipVersion={p.ipVersion} />
+      </div>
+      {!!p.description && (
+        <div className="text-secondary selected:text-accent-secondary">{p.description}</div>
+      )}
+    </div>
+  )
+  return { value, selectedLabel, label }
+}

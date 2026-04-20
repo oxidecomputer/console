@@ -10,19 +10,14 @@ import cn from 'classnames'
 import { useEffect, type ReactElement, type ReactNode } from 'react'
 import { Link, type To } from 'react-router'
 
-import {
-  Close12Icon,
-  Error12Icon,
-  Success12Icon,
-  Warning12Icon,
-} from '@oxide/design-system/icons/react'
+import { Close12Icon, Error12Icon, Success12Icon } from '@oxide/design-system/icons/react'
 
 import { extractText } from '~/util/str'
 
 import { TimeoutIndicator } from './TimeoutIndicator'
 import { Truncate } from './Truncate'
 
-type Variant = 'success' | 'error' | 'info'
+type Variant = 'success' | 'error'
 
 export interface ToastProps {
   title?: string
@@ -39,31 +34,16 @@ export interface ToastProps {
 const icon: Record<Variant, ReactElement> = {
   success: <Success12Icon />,
   error: <Error12Icon />,
-  info: <Warning12Icon />,
 }
 
 const defaultTitle: Record<Variant, string> = {
   success: 'Success',
   error: 'Error',
-  info: 'Note',
 }
 
-const color: Record<Variant, string> = {
-  success: 'bg-accent-secondary',
-  error: 'bg-error-secondary',
-  info: 'bg-notice-secondary',
-}
-
-const textColor: Record<Variant, string> = {
-  success: 'text-accent children:text-accent',
-  error: 'text-error children:text-error',
-  info: 'text-notice children:text-notice',
-}
-
-const secondaryTextColor: Record<Variant, string> = {
-  success: 'text-accent-secondary',
-  error: 'text-error-secondary',
-  info: 'text-notice-secondary',
+const themeClass: Record<Variant, string> = {
+  success: '',
+  error: 'red-theme',
 }
 
 export const Toast = ({
@@ -84,9 +64,9 @@ export const Toast = ({
   return (
     <div
       className={cn(
-        'relative flex w-96 items-start overflow-hidden rounded-lg p-4 elevation-2',
-        color[variant],
-        textColor[variant]
+        'shadow-toast relative flex w-96 items-start overflow-hidden rounded-lg border border-current/10 p-4',
+        'bg-accent text-accent *:text-accent',
+        themeClass[variant]
       )}
     >
       <div className="mt-[2px] flex [&>svg]:h-3 [&>svg]:w-3">{icon[variant]}</div>
@@ -95,27 +75,22 @@ export const Toast = ({
           <div className="text-sans-semi-md">{title || defaultTitle[variant]}</div>
         )}
         {/* 'group' is necessary for HL color trick to work. see HL.tsx */}
-        <div className={cn('group text-sans-md', secondaryTextColor[variant])}>
-          {content}
-        </div>
+        <div className="text-sans-md group text-accent-secondary">{content}</div>
 
         {cta && (
           <Link
-            className="mt-3 block text-mono-sm text-accent-secondary hover:text-accent"
+            className="text-mono-sm text-accent-secondary hover:text-accent mt-3 block"
             to={cta.link}
           >
             <Truncate text={cta.text} maxLength={36} />
           </Link>
         )}
       </div>
-      <div className="mr-[2px] mt-[3px] flex items-center self-baseline">
+      <div className="mt-[3px] mr-[2px] flex items-center self-baseline">
         <button
           type="button"
           aria-label="Dismiss notification"
-          className={cn(
-            '-m-2 flex items-center rounded !border-transparent p-2 hover:bg-accent-secondary-hover',
-            textColor[variant]
-          )}
+          className="hover:bg-accent-hover text-accent *:text-accent -m-2 flex items-center rounded-md border-transparent! p-2"
           onClick={onClose}
         >
           <Close12Icon />

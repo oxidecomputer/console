@@ -12,10 +12,12 @@ import { useForm } from 'react-hook-form'
 import { match } from 'ts-pattern'
 
 import {
-  apiQueryClient,
+  api,
   instanceAutoRestartingSoon,
+  q,
+  queryClient,
   useApiMutation,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
 } from '~/api'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { useInstanceSelector } from '~/hooks/use-params'
@@ -25,7 +27,7 @@ import { CardBlock, LearnMore } from '~/ui/lib/CardBlock'
 import { type ListboxItem } from '~/ui/lib/Listbox'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { toLocaleDateTimeString } from '~/util/date'
-import { links } from '~/util/links'
+import { docLinks } from '~/util/links'
 
 type FormPolicy = 'default' | 'never' | 'best_effort'
 
@@ -42,14 +44,16 @@ type FormValues = {
 export function AutoRestartCard() {
   const instanceSelector = useInstanceSelector()
 
-  const { data: instance } = usePrefetchedApiQuery('instanceView', {
-    path: { instance: instanceSelector.instance },
-    query: { project: instanceSelector.project },
-  })
+  const { data: instance } = usePrefetchedQuery(
+    q(api.instanceView, {
+      path: { instance: instanceSelector.instance },
+      query: { project: instanceSelector.project },
+    })
+  )
 
-  const instanceUpdate = useApiMutation('instanceUpdate', {
+  const instanceUpdate = useApiMutation(api.instanceUpdate, {
     onSuccess() {
-      apiQueryClient.invalidateQueries('instanceView')
+      queryClient.invalidateEndpoint('instanceView')
       addToast({ content: 'Instance auto-restart policy updated' })
     },
     onError(err) {
@@ -139,7 +143,7 @@ export function AutoRestartCard() {
           </FormMeta>
         </CardBlock.Body>
         <CardBlock.Footer>
-          <LearnMore href={links.instanceUpdateDocs} text="Auto-Restart" />
+          <LearnMore doc={docLinks.autoRestart} />
           <Button size="sm" type="submit" disabled={disableSubmit}>
             Save
           </Button>
@@ -157,7 +161,7 @@ type FormMetaProps = {
 
 const FormMeta = ({ label, tip, children }: FormMetaProps) => (
   <div>
-    <div className="mb-2 flex items-center gap-1 border-b pb-2 text-sans-md text-raise border-secondary">
+    <div className="text-sans-md text-raise border-secondary mb-2 flex items-center gap-1 border-b pb-2">
       <div>{label}</div>
       {tip && <TipIcon>{tip}</TipIcon>}
     </div>

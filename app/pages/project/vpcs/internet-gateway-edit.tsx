@@ -7,23 +7,23 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
-import { useForm } from 'react-hook-form'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import { Gateway16Icon } from '@oxide/design-system/icons/react'
 
-import { apiQueryClient, queryClient, usePrefetchedApiQuery } from '~/api'
-import { SideModalForm } from '~/components/form/SideModalForm'
+import { api, q, queryClient, usePrefetchedQuery } from '~/api'
+import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getInternetGatewaySelector, useInternetGatewaySelector } from '~/hooks/use-params'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel, SideModal } from '~/ui/lib/SideModal'
 import { Table } from '~/ui/lib/Table'
-import { links } from '~/util/links'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
@@ -39,7 +39,7 @@ export const handle = titleCrumb('Edit Internet Gateway')
 
 const RoutesEmpty = () => (
   <Table.Row>
-    <Table.Cell colSpan={2} className="!bg-raise">
+    <Table.Cell colSpan={2} className="bg-raise!">
       No VPC router routes target this gateway.
     </Table.Cell>
   </Table.Row>
@@ -53,7 +53,7 @@ function RouteRows({ project, vpc, gateway }: PP.VpcInternetGateway) {
 
   return matchingRoutes.map(([router, route]) => (
     <Table.Row key={route.id}>
-      <Table.Cell className="!bg-raise">
+      <Table.Cell className="bg-raise!">
         <Link
           to={pb.vpcRouter({ project, vpc, router })}
           className="link-with-underline text-sans-md"
@@ -61,7 +61,7 @@ function RouteRows({ project, vpc, gateway }: PP.VpcInternetGateway) {
           {router}
         </Link>
       </Table.Cell>
-      <Table.Cell className="!bg-raise">{route.name}</Table.Cell>
+      <Table.Cell className="bg-raise!">{route.name}</Table.Cell>
     </Table.Row>
   ))
 }
@@ -69,10 +69,12 @@ function RouteRows({ project, vpc, gateway }: PP.VpcInternetGateway) {
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc, gateway } = getInternetGatewaySelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('internetGatewayView', {
-      query: { project, vpc },
-      path: { gateway },
-    }),
+    queryClient.prefetchQuery(
+      q(api.internetGatewayView, {
+        query: { project, vpc },
+        path: { gateway },
+      })
+    ),
     queryClient.prefetchQuery(gatewayIpPoolList({ project, vpc, gateway }).optionsFn()),
     queryClient.prefetchQuery(gatewayIpAddressList({ project, vpc, gateway }).optionsFn()),
     ...(await queryClient.fetchQuery(routerList({ project, vpc }).optionsFn())).items.map(
@@ -89,10 +91,12 @@ export default function EditInternetGatewayForm() {
   const navigate = useNavigate()
   const { project, vpc, gateway } = useInternetGatewaySelector()
   const onDismiss = () => navigate(pb.vpcInternetGateways({ project, vpc }))
-  const { data: internetGateway } = usePrefetchedApiQuery('internetGatewayView', {
-    query: { project, vpc },
-    path: { gateway },
-  })
+  const { data: internetGateway } = usePrefetchedQuery(
+    q(api.internetGatewayView, {
+      query: { project, vpc },
+      path: { gateway },
+    })
+  )
   const { data: { items: gatewayIpPools } = {} } = useQuery(
     gatewayIpPoolList({ project, vpc, gateway }).optionsFn()
   )
@@ -100,46 +104,28 @@ export default function EditInternetGatewayForm() {
     gatewayIpAddressList({ project, vpc, gateway }).optionsFn()
   )
 
-  const form = useForm({})
-
   const hasAttachedPool = gatewayIpPools && gatewayIpPools.length > 0
 
   return (
-    <SideModalForm
+    <ReadOnlySideModalForm
       title="Internet gateway"
-      formType="edit"
-      resourceName="internet gateway"
       onDismiss={onDismiss}
       subtitle={
         <ResourceLabel>
           <Gateway16Icon /> {internetGateway.name}
         </ResourceLabel>
       }
-      form={form}
-      // TODO: pass actual error when this form is hooked up
-      submitError={null}
-      loading={false}
     >
       <Message
         variant="info"
-        content={
-          <>
-            For now, gateways can only be modified through the API. Learn more in the{' '}
-            <a
-              href={links.gatewaysDocs}
-              className="underline"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Networking
-            </a>{' '}
-            guide.
-          </>
-        }
+        content="Gateways can only be modified through the CLI or API."
       />
       <PropertiesTable key={internetGateway.id}>
         <PropertiesTable.Row label="Name">{internetGateway.name}</PropertiesTable.Row>
-        <PropertiesTable.DescriptionRow description={internetGateway.description} />
+        <PropertiesTable.DescriptionRow
+          description={internetGateway.description}
+          sideModal
+        />
         <PropertiesTable.IdRow id={internetGateway.id} />
       </PropertiesTable>
 
@@ -155,7 +141,10 @@ export default function EditInternetGatewayForm() {
               <PropertiesTable.Row label="Name">
                 {gatewayIpAddress.name}
               </PropertiesTable.Row>
-              <PropertiesTable.DescriptionRow description={gatewayIpAddress.description} />
+              <PropertiesTable.DescriptionRow
+                description={gatewayIpAddress.description}
+                sideModal
+              />
               <PropertiesTable.Row label="IP Address">
                 <CopyableIp ip={gatewayIpAddress.address} />
               </PropertiesTable.Row>
@@ -166,7 +155,7 @@ export default function EditInternetGatewayForm() {
             {'This internet gateway does not have any IP addresses attached. '}
             {hasAttachedPool
               ? 'It will use an address from the attached IP pool.'
-              : 'Use the CLI to attach an IP pool or IP address to this gateway.'}
+              : 'Attach an IP pool or IP address via the CLI or API.'}
           </div>
         )}
       </div>
@@ -211,6 +200,8 @@ export default function EditInternetGatewayForm() {
           </Table.Body>
         </Table>
       </div>
-    </SideModalForm>
+
+      <SideModalFormDocs docs={[docLinks.gateways]} />
+    </ReadOnlySideModalForm>
   )
 }

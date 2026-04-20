@@ -9,13 +9,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
-import {
-  apiQueryClient,
-  getListQFn,
-  queryClient,
-  useApiMutation,
-  type VpcRouter,
-} from '@oxide/api'
+import { api, getListQFn, q, queryClient, useApiMutation, type VpcRouter } from '@oxide/api'
 
 import { HL } from '~/components/HL'
 import { routeFormMessage } from '~/forms/vpc-router-route-common'
@@ -33,7 +27,7 @@ import type * as PP from '~/util/path-params'
 
 const colHelper = createColumnHelper<VpcRouter>()
 
-const vpcRouterList = (query: PP.Vpc) => getListQFn('vpcRouterList', { query })
+const vpcRouterList = (query: PP.Vpc) => getListQFn(api.vpcRouterList, { query })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcSelector(params)
@@ -68,10 +62,11 @@ export default function VpcRoutersTab() {
     [vpcSelector]
   )
 
-  const { mutateAsync: deleteRouter } = useApiMutation('vpcRouterDelete', {
+  const { mutateAsync: deleteRouter } = useApiMutation(api.vpcRouterDelete, {
     onSuccess(_data, variables) {
-      apiQueryClient.invalidateQueries('vpcRouterList')
-      addToast(<>Router <HL>{variables.path.router}</HL> deleted</>) // prettier-ignore
+      queryClient.invalidateEndpoint('vpcRouterList')
+      // prettier-ignore
+      addToast(<>Router <HL>{variables.path.router}</HL> deleted</>)
     },
   })
 
@@ -82,11 +77,10 @@ export default function VpcRoutersTab() {
         onActivate: () => {
           // the edit view has its own loader, but we can make the modal open
           // instantaneously by preloading the fetch result
-          apiQueryClient.setQueryData(
-            'vpcRouterView',
-            { path: { router: router.name } },
-            router
-          )
+          const { queryKey } = q(api.vpcRouterView, {
+            path: { router: router.name },
+          })
+          queryClient.setQueryData(queryKey, router)
           navigate(pb.vpcRouterEdit({ project, vpc, router: router.name }))
         },
       },

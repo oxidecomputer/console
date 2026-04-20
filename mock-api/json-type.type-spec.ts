@@ -15,7 +15,8 @@ import type { Json } from './json-type'
 // are not equal. There's no point in wrapping this in a real test because it
 // will always pass.
 
-let val: any // eslint-disable-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const val: any = undefined
 
 // just checking :)
 assertType<1>(val as 1)

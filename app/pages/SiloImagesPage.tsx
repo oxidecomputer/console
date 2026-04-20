@@ -5,19 +5,13 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Outlet } from 'react-router'
 
-import {
-  getListQFn,
-  queryClient,
-  useApiMutation,
-  useApiQuery,
-  useApiQueryClient,
-  type Image,
-} from '@oxide/api'
+import { api, getListQFn, q, queryClient, useApiMutation, type Image } from '@oxide/api'
 import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -26,6 +20,7 @@ import { toImageComboboxItem } from '~/components/form/fields/ImageSelectField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { ModalForm } from '~/components/form/ModalForm'
 import { HL } from '~/components/HL'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
@@ -38,6 +33,7 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -49,7 +45,7 @@ const EmptyState = () => (
   />
 )
 
-const imageList = getListQFn('imageList', {})
+const imageList = getListQFn(api.imageList, {})
 
 export async function clientLoader() {
   await queryClient.prefetchQuery(imageList.optionsFn())
@@ -72,11 +68,11 @@ export default function SiloImagesPage() {
   const [showModal, setShowModal] = useState(false)
   const [demoteImage, setDemoteImage] = useState<Image | null>(null)
 
-  const queryClient = useApiQueryClient()
-  const { mutateAsync: deleteImage } = useApiMutation('imageDelete', {
+  const { mutateAsync: deleteImage } = useApiMutation(api.imageDelete, {
     onSuccess(_data, variables) {
-      addToast(<>Image <HL>{variables.path.image}</HL> deleted</>) // prettier-ignore
-      queryClient.invalidateQueries('imageList')
+      // prettier-ignore
+      addToast(<>Image <HL>{variables.path.image}</HL> deleted</>)
+      queryClient.invalidateEndpoint('imageList')
     },
   })
 
@@ -99,6 +95,25 @@ export default function SiloImagesPage() {
 
   const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({ query: imageList, columns, emptyState: <EmptyState /> })
+
+  const { data: allImages } = useQuery(q(api.imageList, { query: { limit: ALL_ISH } }))
+
+  useQuickActions(
+    () => [
+      {
+        value: 'Promote image',
+        navGroup: 'Actions',
+        action: () => setShowModal(true),
+      },
+      ...(allImages?.items || []).map((i) => ({
+        value: i.name,
+        action: pb.siloImageEdit({ image: i.name }),
+        navGroup: 'Go to silo image',
+      })),
+    ],
+    [allImages]
+  )
+
   return (
     <>
       <PageHeader>
@@ -131,28 +146,29 @@ const defaultValues: Values = { project: null, image: null }
 const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
   const form = useForm({ defaultValues })
 
-  const queryClient = useApiQueryClient()
-
-  const promoteImage = useApiMutation('imagePromote', {
+  const promoteImage = useApiMutation(api.imagePromote, {
     onSuccess(data) {
-      addToast(<>Image <HL>{data.name}</HL> promoted</>) // prettier-ignore
-      queryClient.invalidateQueries('imageList')
+      // prettier-ignore
+      addToast(<>Image <HL>{data.name}</HL> promoted</>)
+      queryClient.invalidateEndpoint('imageList')
+      onDismiss()
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
-    onSettled: onDismiss,
   })
 
-  const projects = useApiQuery('projectList', {})
+  const projects = useQuery(q(api.projectList, {}))
   const projectItems = useMemo(() => toComboboxItems(projects.data?.items), [projects.data])
   const selectedProject = form.watch('project')
 
   // can only fetch images if a project is selected
-  const images = useApiQuery(
-    'imageList',
-    { query: { project: selectedProject! } },
-    { enabled: !!selectedProject }
+  const images = useQuery(
+    q(
+      api.imageList,
+      { query: { project: selectedProject! } },
+      { enabled: !!selectedProject }
+    )
   )
   const imageItems = useMemo(
     () => (images.data?.items || []).map((i) => toImageComboboxItem(i)),
@@ -217,12 +233,11 @@ const DemoteImageModal = ({
 
   const selectedProject: string | undefined = form.watch('project')
 
-  const queryClient = useApiQueryClient()
-
-  const demoteImage = useApiMutation('imageDemote', {
+  const demoteImage = useApiMutation(api.imageDemote, {
     onSuccess(data) {
       addToast({
-        content: <>Image <HL>{data.name}</HL> demoted</>, // prettier-ignore
+        // prettier-ignore
+        content: <>Image <HL>{data.name}</HL> demoted</>,
         cta: selectedProject
           ? {
               text: `View images in ${selectedProject}`,
@@ -231,15 +246,15 @@ const DemoteImageModal = ({
           : undefined,
       })
 
-      queryClient.invalidateQueries('imageList')
+      queryClient.invalidateEndpoint('imageList')
+      onDismiss()
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
-    onSettled: onDismiss,
   })
 
-  const projects = useApiQuery('projectList', {})
+  const projects = useQuery(q(api.projectList, {}))
   const projectItems = useMemo(() => toComboboxItems(projects.data?.items), [projects.data])
 
   return (

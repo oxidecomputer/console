@@ -46,7 +46,7 @@ export function FileField<
     fieldState: { error },
   } = useController({ name, control, rules: { required } })
   return (
-    <div>
+    <div className="max-w-lg">
       <div className="mb-2">
         <FieldLabel id={`${id}-label`} htmlFor={id} optional={!required}>
           {label}

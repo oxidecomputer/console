@@ -17,7 +17,7 @@ describe('paginated', () => {
     const items = [{ id: 'a' }, { id: 'b' }, { id: 'c' }]
     const page = paginated({}, items)
     expect(page.items).toEqual([{ id: 'a' }, { id: 'b' }, { id: 'c' }])
-    expect(page.nextPage).toBeNull()
+    expect(page.next_page).toBeNull()
   })
 
   it('should return the first 100 items with no limit passed', () => {
@@ -25,10 +25,10 @@ describe('paginated', () => {
     const page = paginated({}, items)
     expect(page.items.length).toBe(100)
     expect(page.items).toEqual(items.slice(0, 100))
-    expect(page.nextPage).toBe('i100')
+    expect(page.next_page).toBe('i100')
   })
 
-  it('should return page with null `nextPage` if items equal page', () => {
+  it('should return page with null `next_page` if items equal page', () => {
     const items = [
       { id: 'a' },
       { id: 'b' },
@@ -44,7 +44,7 @@ describe('paginated', () => {
     const page = paginated({}, items)
     expect(page.items.length).toBe(10)
     expect(page.items).toEqual(items.slice(0, 10))
-    expect(page.nextPage).toBeNull()
+    expect(page.next_page).toBeNull()
   })
 
   it('should return 5 items with a limit of 5', () => {
@@ -59,7 +59,7 @@ describe('paginated', () => {
     const page = paginated({ limit: 5 }, items)
     expect(page.items.length).toBe(5)
     expect(page.items).toEqual(items.slice(0, 5))
-    expect(page.nextPage).toBe('f')
+    expect(page.next_page).toBe('f')
   })
 
   it('should return the second page when given a `page_token`', () => {
@@ -67,7 +67,7 @@ describe('paginated', () => {
     const page = paginated({ pageToken: 'b' }, items)
     expect(page.items.length).toBe(3)
     expect(page.items).toEqual([{ id: 'b' }, { id: 'c' }, { id: 'd' }])
-    expect(page.nextPage).toBeNull()
+    expect(page.next_page).toBeNull()
   })
 })
 
@@ -80,6 +80,66 @@ describe('userHasRole', () => {
       ['Hans Jonas', false],
       ['Jacob Klein', false],
       ['Simone de Beauvoir', false],
+      ['Jane Austen', true],
+      ['Herbert Marcuse', false],
+      ['Aryeh Kosman', false],
+      ['Elizabeth Anscombe', false],
+      ['Theodor Adorno', false],
+      ['Antonio Gramsci', false],
+    ])
+  })
+
+  it('fleet admin', () => {
+    expect(
+      users.map((u) => [u.display_name, userHasRole(u, 'fleet', FLEET_ID, 'admin')])
+    ).toEqual([
+      ['Hannah Arendt', true],
+      ['Hans Jonas', false],
+      ['Jacob Klein', false],
+      ['Simone de Beauvoir', false],
+      ['Jane Austen', false],
+      ['Herbert Marcuse', false],
+      ['Aryeh Kosman', false],
+      ['Elizabeth Anscombe', false],
+      ['Theodor Adorno', false],
+      ['Antonio Gramsci', false],
+    ])
+  })
+
+  it('silo viewer', () => {
+    expect(
+      users.map((u) => [u.display_name, userHasRole(u, 'silo', defaultSilo.id, 'viewer')])
+    ).toEqual([
+      ['Hannah Arendt', true],
+      ['Hans Jonas', true],
+      ['Jacob Klein', false],
+      ['Simone de Beauvoir', false],
+      ['Jane Austen', true],
+      ['Herbert Marcuse', false],
+      ['Aryeh Kosman', false],
+      ['Elizabeth Anscombe', false],
+      ['Theodor Adorno', false],
+      ['Antonio Gramsci', false],
+    ])
+  })
+
+  it('silo limited_collaborator', () => {
+    expect(
+      users.map((u) => [
+        u.display_name,
+        userHasRole(u, 'silo', defaultSilo.id, 'limited_collaborator'),
+      ])
+    ).toEqual([
+      ['Hannah Arendt', true],
+      ['Hans Jonas', true],
+      ['Jacob Klein', false],
+      ['Simone de Beauvoir', false],
+      ['Jane Austen', true],
+      ['Herbert Marcuse', false],
+      ['Aryeh Kosman', false],
+      ['Elizabeth Anscombe', false],
+      ['Theodor Adorno', false],
+      ['Antonio Gramsci', false],
     ])
   })
 
@@ -94,6 +154,29 @@ describe('userHasRole', () => {
       ['Hans Jonas', true],
       ['Jacob Klein', false],
       ['Simone de Beauvoir', false],
+      ['Jane Austen', true],
+      ['Herbert Marcuse', false],
+      ['Aryeh Kosman', false],
+      ['Elizabeth Anscombe', false],
+      ['Theodor Adorno', false],
+      ['Antonio Gramsci', false],
+    ])
+  })
+
+  it('silo admin', () => {
+    expect(
+      users.map((u) => [u.display_name, userHasRole(u, 'silo', defaultSilo.id, 'admin')])
+    ).toEqual([
+      ['Hannah Arendt', true],
+      ['Hans Jonas', false],
+      ['Jacob Klein', false],
+      ['Simone de Beauvoir', false],
+      ['Jane Austen', false],
+      ['Herbert Marcuse', false],
+      ['Aryeh Kosman', false],
+      ['Elizabeth Anscombe', false],
+      ['Theodor Adorno', false],
+      ['Antonio Gramsci', false],
     ])
   })
 })

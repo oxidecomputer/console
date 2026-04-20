@@ -18,6 +18,7 @@ const vpcBase = ({ project, vpc }: PP.Vpc) => `${pb.vpcs({ project })}/${vpc}`
 export const instanceMetricsBase = ({ project, instance }: PP.Instance) =>
   `${instanceBase({ project, instance })}/metrics`
 export const inventoryBase = () => '/system/inventory'
+const siloBase = ({ silo }: PP.Silo) => `/system/silos/${silo}`
 
 export const pb = {
   projects: () => `/projects`,
@@ -54,6 +55,7 @@ export const pb = {
 
   disksNew: (params: PP.Project) => `${projectBase(params)}/disks-new`,
   disks: (params: PP.Project) => `${projectBase(params)}/disks`,
+  disk: (params: PP.Disk) => `${pb.disks(params)}/${params.disk}`,
 
   snapshotsNew: (params: PP.Project) => `${projectBase(params)}/snapshots-new`,
   snapshots: (params: PP.Project) => `${projectBase(params)}/snapshots`,
@@ -91,6 +93,11 @@ export const pb = {
     `${pb.vpcInternetGateways(params)}/${params.gateway}`,
   // vpcInternetGatewaysNew: (params: Vpc) => `${vpcBase(params)}/internet-gateways-new`,
   //
+  externalSubnets: (params: PP.Project) => `${projectBase(params)}/external-subnets`,
+  externalSubnetsNew: (params: PP.Project) => `${projectBase(params)}/external-subnets-new`,
+  externalSubnetEdit: (params: PP.ExternalSubnet) =>
+    `${pb.externalSubnets(params)}/${params.externalSubnet}/edit`,
+
   floatingIps: (params: PP.Project) => `${projectBase(params)}/floating-ips`,
   floatingIpsNew: (params: PP.Project) => `${projectBase(params)}/floating-ips-new`,
   floatingIpEdit: (params: PP.FloatingIp) =>
@@ -108,6 +115,7 @@ export const pb = {
   siloImages: () => '/images',
   siloImageEdit: (params: PP.SiloImage) => `${pb.siloImages()}/${params.image}/edit`,
 
+  fleetAccess: () => '/system/access',
   systemUtilization: () => '/system/utilization',
 
   ipPools: () => '/system/networking/ip-pools',
@@ -116,17 +124,31 @@ export const pb = {
   ipPoolEdit: (params: PP.IpPool) => `${pb.ipPool(params)}/edit`,
   ipPoolRangeAdd: (params: PP.IpPool) => `${pb.ipPool(params)}/ranges-add`,
 
+  subnetPools: () => '/system/networking/subnet-pools',
+  subnetPoolsNew: () => '/system/networking/subnet-pools-new',
+  subnetPool: (params: PP.SubnetPool) => `${pb.subnetPools()}/${params.subnetPool}`,
+  subnetPoolEdit: (params: PP.SubnetPool) => `${pb.subnetPool(params)}/edit`,
+  subnetPoolMemberAdd: (params: PP.SubnetPool) => `${pb.subnetPool(params)}/members-add`,
+
   sledInventory: () => `${inventoryBase()}/sleds`,
   diskInventory: () => `${inventoryBase()}/disks`,
   sledInstances: ({ sledId }: PP.Sled) => `${pb.sledInventory()}/${sledId}/instances`,
 
   silos: () => '/system/silos',
   silosNew: () => '/system/silos-new',
-  silo: ({ silo }: PP.Silo) => `/system/silos/${silo}`,
-  siloIpPools: (params: PP.Silo) => `${pb.silo(params)}?tab=ip-pools`,
-  siloIdpsNew: (params: PP.Silo) => `${pb.silo(params)}/idps-new`,
+  // canonical route for silo is first tab
+  silo: (params: PP.Silo) => pb.siloIdps(params),
+  siloIdps: (params: PP.Silo) => `${siloBase(params)}/idps`,
+  siloIdpsNew: (params: PP.Silo) => `${siloBase(params)}/idps-new`,
+  siloIpPools: (params: PP.Silo) => `${siloBase(params)}/ip-pools`,
+  siloSubnetPools: (params: PP.Silo) => `${siloBase(params)}/subnet-pools`,
+  siloQuotas: (params: PP.Silo) => `${siloBase(params)}/quotas`,
+  siloFleetRoles: (params: PP.Silo) => `${siloBase(params)}/fleet-roles`,
+  siloScim: (params: PP.Silo) => `${siloBase(params)}/scim`,
   samlIdp: (params: PP.IdentityProvider) =>
-    `${pb.silo(params)}/idps/saml/${params.provider}`,
+    `${siloBase(params)}/idps/saml/${params.provider}`,
+
+  systemUpdate: () => '/system/update',
 
   auditLog: () => '/system/audit-log',
 

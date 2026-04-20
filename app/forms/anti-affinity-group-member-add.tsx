@@ -9,7 +9,7 @@
 import { useId } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { instanceCan, queryClient, useApiMutation, type Instance } from '~/api'
+import { api, instanceCan, queryClient, useApiMutation, type Instance } from '~/api'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
 import { useAntiAffinityGroupSelector } from '~/hooks/use-params'
@@ -30,21 +30,25 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
   const form = useForm({ defaultValues })
   const formId = useId()
 
-  const { mutateAsync: addMember } = useApiMutation('antiAffinityGroupMemberInstanceAdd', {
-    onSuccess(_data, variables) {
-      onDismiss()
-      queryClient.invalidateEndpoint('antiAffinityGroupMemberList')
-      queryClient.invalidateEndpoint('instanceAntiAffinityGroupList')
-      addToast(<>Instance <HL>{variables.path.instance}</HL> added to anti-affinity group <HL>{antiAffinityGroup}</HL></>) // prettier-ignore
-    },
-    onError(error) {
-      addToast({
-        title: 'Failed to add instance to group',
-        content: error.message,
-        variant: 'error',
-      })
-    },
-  })
+  const { mutateAsync: addMember } = useApiMutation(
+    api.antiAffinityGroupMemberInstanceAdd,
+    {
+      onSuccess(_data, variables) {
+        onDismiss()
+        queryClient.invalidateEndpoint('antiAffinityGroupMemberList')
+        queryClient.invalidateEndpoint('instanceAntiAffinityGroupList')
+        // prettier-ignore
+        addToast(<>Instance <HL>{variables.path.instance}</HL> added to anti-affinity group <HL>{antiAffinityGroup}</HL></>)
+      },
+      onError(error) {
+        addToast({
+          title: 'Failed to add instance to group',
+          content: error.message,
+          variant: 'error',
+        })
+      },
+    }
+  )
 
   const onSubmit = form.handleSubmit(({ instance }) => {
     addMember({
@@ -63,9 +67,9 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
     <Modal isOpen onDismiss={onDismiss} title="Add instance to group">
       <Modal.Body>
         <Modal.Section>
-          <p className="text-sm text-gray-500">
+          <p>
             Select an instance to add to the anti-affinity group{' '}
-            <HL>{antiAffinityGroup}</HL>. Only stopped instances can be added to the group.
+            <HL>{antiAffinityGroup}</HL>.
           </p>
           <form id={formId} onSubmit={onSubmit}>
             <ComboboxField
@@ -77,10 +81,10 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
               control={form.control}
             />
           </form>
-          {!canAddInstance && (
+          {selectedInstance && !canAddInstance && (
             <Message
               variant="notice"
-              content="An instance must be stopped to add it to a group"
+              content="This instance must be stopped to add it to a group"
             />
           )}
         </Modal.Section>
@@ -89,7 +93,7 @@ export default function AddAntiAffinityGroupMemberForm({ instances, onDismiss }:
         onDismiss={onDismiss}
         actionText="Add to group"
         formId={formId}
-        disabled={!canAddInstance}
+        disabled={!selectedInstance || !canAddInstance}
       />
     </Modal>
   )

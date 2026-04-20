@@ -6,10 +6,11 @@
  * Copyright Oxide Computer Company
  */
 
+import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router'
 import * as R from 'remeda'
 
-import { useApiQuery, type ExternalIp } from '@oxide/api'
+import { api, q, type ExternalIp } from '@oxide/api'
 
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
@@ -23,10 +24,9 @@ const IP_ORDER = { floating: 0, ephemeral: 1, snat: 2 } as const
 export const orderIps = (ips: ExternalIp[]) => R.sortBy(ips, (a) => IP_ORDER[a.kind])
 
 export function ExternalIps({ project, instance }: PP.Instance) {
-  const { data, isPending } = useApiQuery('instanceExternalIpList', {
-    path: { instance },
-    query: { project },
-  })
+  const { data, isPending } = useQuery(
+    q(api.instanceExternalIpList, { path: { instance }, query: { project } })
+  )
   if (isPending) return <SkeletonCell />
 
   // Exclude SNAT IPs from the properties table because they are rarely going
@@ -44,14 +44,14 @@ export function ExternalIps({ project, instance }: PP.Instance) {
 
   return (
     <div className="flex max-w-full items-center">
-      {intersperse(links, <Slash className="ml-0.5 mr-1.5" />)}
+      {intersperse(links, <Slash className="mr-1.5 ml-0.5" />)}
       {/* if there are more than 2 ips, add a link to the instance networking page */}
       {overflowCount > 0 && (
         <>
-          <Slash className="ml-0.5 mr-1.5" />
+          <Slash className="mr-1.5 ml-0.5" />
           <Link
             to={pb.instanceNetworking({ project, instance })}
-            className="hover:link-with-underline -m-2 self-center p-2 text-tertiary"
+            className="hover:link-with-underline text-tertiary -m-2 self-center p-2"
           >
             …
           </Link>

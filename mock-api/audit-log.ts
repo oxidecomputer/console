@@ -59,7 +59,12 @@ const mockOperations = [
   'ssh_key_delete',
 ]
 
-const mockAuthMethod = ['session_cookie', 'api_token', null]
+const mockAuthMethod: Json<AuditLogEntry>['auth_method'][] = [
+  'session_cookie',
+  'access_token',
+  'scim_token',
+  null,
+]
 
 const mockHttpStatusCodes = [200, 201, 204, 400, 401, 403, 404, 409, 500, 502, 503]
 
@@ -130,7 +135,7 @@ export const auditLog: Json<AuditLogEntry[]> = [
   },
   {
     id: uuid(),
-    auth_method: 'api_token',
+    auth_method: 'access_token',
     actor: {
       kind: 'silo_user',
       silo_id: defaultSilo.id,

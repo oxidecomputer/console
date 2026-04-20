@@ -9,8 +9,12 @@
 import { useEffect, type ReactNode } from 'react'
 import { useController, useForm, type Control } from 'react-hook-form'
 
+import { Badge } from '@oxide/design-system/ui'
+
 import {
-  usePrefetchedApiQuery,
+  api,
+  q,
+  usePrefetchedQuery,
   type ApiError,
   type Instance,
   type Vpc,
@@ -37,7 +41,6 @@ import {
   ProtocolCodeCell,
   ProtocolTypeCell,
 } from '~/table/cells/ProtocolCell'
-import { Badge } from '~/ui/lib/Badge'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
@@ -67,6 +70,7 @@ import { type FirewallRuleValues } from './firewall-rules-util'
 
 type TargetAndHostFilterType =
   | VpcFirewallRuleTarget['type']
+  // oxlint-disable-next-line @typescript-eslint/no-duplicate-type-constituents
   | VpcFirewallRuleHostFilter['type']
 
 type TargetAndHostFormValues = {
@@ -107,13 +111,13 @@ const TargetAndHostFilterSubform = ({
   // prefetchedApiQueries below are prefetched in firewall-rules-create and -edit
   const {
     data: { items: instances },
-  } = usePrefetchedApiQuery('instanceList', { query: { project, limit: ALL_ISH } })
+  } = usePrefetchedQuery(q(api.instanceList, { query: { project, limit: ALL_ISH } }))
   const {
     data: { items: vpcs },
-  } = usePrefetchedApiQuery('vpcList', { query: { project, limit: ALL_ISH } })
+  } = usePrefetchedQuery(q(api.vpcList, { query: { project, limit: ALL_ISH } }))
   const {
     data: { items: vpcSubnets },
-  } = usePrefetchedApiQuery('vpcSubnetList', { query: { project, vpc, limit: ALL_ISH } })
+  } = usePrefetchedQuery(q(api.vpcSubnetList, { query: { project, vpc, limit: ALL_ISH } }))
 
   const subform = useForm({ defaultValues: targetAndHostDefaultValues })
   const field = useController({ name: `${sectionType}s`, control }).field
@@ -297,7 +301,7 @@ const icmpTypeItems = [
   ...Object.entries(ICMP_TYPES).map(([type, name]) => ({
     value: type,
     label: `${type} - ${name}`,
-    selectedLabel: `${type}`,
+    selectedLabel: type,
   })),
 ]
 
@@ -483,13 +487,19 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
                   control={protocolForm.control}
                   description={
                     <>
-                      Enter a code (0) or range (e.g. 1&ndash;3). Leave blank for all
+                      Enter a code (0) or range (e.g., 1&ndash;3). Leave blank for all
                       traffic of type {selectedIcmpType}.
                     </>
                   }
                   placeholder=""
                   validate={icmpCodeValidation}
                   transform={normalizeDashes}
+                  onKeyDown={(e) => {
+                    if (e.key === KEYS.enter) {
+                      e.preventDefault() // prevent full form submission
+                      submitProtocol(e)
+                    }
+                  }}
                 />
               )}
             </>
@@ -624,8 +634,8 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
               apply the rule to traffic going to all matching instances.
             </p>
             <p className="mt-2">
-              Targets are additive: the rule applies to instances matching{' '}
-              <span className="underline">any</span> target.
+              Targets are additive: the rule applies to instances matching <em>any</em>{' '}
+              target.
             </p>
           </>
         }
@@ -641,7 +651,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
             Filters reduce the scope of this rule. Without filters, the rule applies to all
             traffic to the targets (or from the targets, if it&rsquo;s an outbound rule).
             With multiple filter types, the rule applies to traffic matching at least one
-            filter of <span className="underline">every</span> type.
+            filter of <em>every</em> type.
           </>
         }
       />

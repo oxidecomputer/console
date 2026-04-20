@@ -23,12 +23,12 @@ import {
   NextArrow12Icon,
   PrevArrow12Icon,
 } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
 import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
 import { EmptyCell } from '~/table/cells/EmptyCell'
-import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { Divider } from '~/ui/lib/Divider'
@@ -161,7 +161,7 @@ const HighlightJSON = memo(({ json, depth = 0 }: { json: JsonValue; depth?: numb
 
 const ErrorState = ({ error, onDismiss }: { error: string; onDismiss: () => void }) => {
   return (
-    <div className="flex h-10 items-center justify-between px-[var(--content-gutter)] text-sans-md text-error bg-error-secondary">
+    <div className="text-sans-md text-error bg-error-secondary flex h-10 items-center justify-between px-[var(--content-gutter)]">
       <div className="-ml-[18px] flex items-center gap-1.5">
         <Error12Icon className="flex-shrink-0" />
         {error}
@@ -169,7 +169,7 @@ const ErrorState = ({ error, onDismiss }: { error: string; onDismiss: () => void
       <button
         type="button"
         onClick={onDismiss}
-        className="absolute right-2 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded hover:bg-destructive-secondary-hover"
+        className="hover:bg-destructive-secondary-hover absolute right-2 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded"
         aria-label="Dismiss error"
       >
         <Close12Icon />
@@ -180,7 +180,7 @@ const ErrorState = ({ error, onDismiss }: { error: string; onDismiss: () => void
 
 const LoadingState = () => {
   return (
-    <div className="h-full w-full overflow-hidden border-t border-secondary">
+    <div className="border-secondary h-full w-full overflow-hidden border-t">
       {/* Generate skeleton rows */}
       <div className="w-full">
         {[...Array(50)].map((_, i) => (
@@ -193,14 +193,14 @@ const LoadingState = () => {
             style={{ ...colWidths, animationDelay: `${i * 0.1}s` }}
           >
             {/* Time column */}
-            <div className="h-4 rounded bg-tertiary" style={{ width: '80%' }} />
+            <div className="bg-tertiary h-4 rounded" style={{ width: '80%' }} />
 
             {/* Status column */}
-            <div className="h-4 rounded bg-tertiary" style={{ width: '60%' }} />
+            <div className="bg-tertiary h-4 rounded" style={{ width: '60%' }} />
 
             {/* Operation column */}
             <div
-              className="h-4 rounded bg-tertiary"
+              className="bg-tertiary h-4 rounded"
               style={{
                 width: `${deterRandom(i, 60, 10)}%`,
               }}
@@ -208,7 +208,7 @@ const LoadingState = () => {
 
             {/* Actor ID column */}
             <div
-              className="h-4 rounded bg-tertiary"
+              className="bg-tertiary h-4 rounded"
               style={{
                 width: `${deterRandom(i, 80, 10)}%`,
               }}
@@ -216,7 +216,7 @@ const LoadingState = () => {
 
             {/* Auth Method column */}
             <div
-              className="h-4 rounded bg-tertiary"
+              className="bg-tertiary h-4 rounded"
               style={{
                 width: `${deterRandom(i, 60, 20)}%`,
               }}
@@ -224,7 +224,7 @@ const LoadingState = () => {
 
             {/* Silo ID column */}
             <div
-              className="h-4 rounded bg-tertiary"
+              className="bg-tertiary h-4 rounded"
               style={{
                 width: `${deterRandom(i, 80, 10)}%`,
               }}
@@ -232,7 +232,7 @@ const LoadingState = () => {
 
             {/* Duration column */}
             <div
-              className="h-4 rounded bg-tertiary"
+              className="bg-tertiary h-4 rounded"
               style={{
                 width: `${deterRandom(i, 20, 5)}%`,
               }}
@@ -299,7 +299,7 @@ export default function SiloAuditLogsPage() {
   } = useInfiniteQuery({
     queryKey: ['auditLogList', { query: queryParams }],
     queryFn: ({ pageParam }) =>
-      api.methods
+      api
         .auditLogList({ query: { ...queryParams, pageToken: pageParam } })
         .then((result) => {
           if (result.type === 'success') return result.data
@@ -354,13 +354,14 @@ export default function SiloAuditLogsPage() {
           const [userId, siloId] = match(log.actor)
             .with({ kind: 'silo_user' }, (actor) => [actor.siloUserId, actor.siloId])
             .with({ kind: 'user_builtin' }, (actor) => [actor.userBuiltinId, undefined])
+            .with({ kind: 'scim' }, (actor) => [undefined, actor.siloId])
             .with({ kind: 'unauthenticated' }, () => [undefined, undefined])
             .exhaustive()
 
           return (
             <div
               key={virtualRow.index}
-              className="absolute left-0 right-0 top-0 w-full"
+              className="absolute top-0 right-0 left-0 w-full"
               style={{
                 height: `${virtualRow.size}px`,
                 transform: `translateY(${virtualRow.start}px)`,
@@ -386,7 +387,7 @@ export default function SiloAuditLogsPage() {
                 tabIndex={0}
               >
                 {/* TODO: might be especially useful here to get the original UTC timestamp in a tooltip */}
-                <div className="overflow-hidden whitespace-nowrap text-mono-sm">
+                <div className="text-mono-sm overflow-hidden whitespace-nowrap">
                   <span className="text-tertiary">
                     {toSyslogDateString(log.timeCompleted)}
                   </span>{' '}
@@ -443,7 +444,7 @@ export default function SiloAuditLogsPage() {
           )
         })}
       </div>
-      <div className="flex justify-center border-t px-[var(--content-gutter)] py-4 border-secondary">
+      <div className="border-secondary flex justify-center border-t px-[var(--content-gutter)] py-4">
         {!hasNextPage && !isFetching && !isPending && allItems.length > 0 ? (
           <div className="text-mono-sm text-quaternary">
             No more logs to show within selected timeline
@@ -457,7 +458,7 @@ export default function SiloAuditLogsPage() {
             type="button"
           >
             <div className="flex items-center gap-2">
-              {isFetchingNextPage && <Spinner variant="secondary" />} Load More
+              {isFetchingNextPage && <Spinner variant="neutral" />} Load More
             </div>
           </Button>
         )}
@@ -483,7 +484,7 @@ export default function SiloAuditLogsPage() {
           />
         </PageHeader>
 
-        <div className="mb-3 mt-8 flex flex-wrap justify-between gap-3 border-b px-[var(--content-gutter)] pb-4 border-secondary">
+        <div className="border-secondary mt-8 mb-3 flex flex-wrap justify-between gap-3 border-b px-[var(--content-gutter)] pb-4">
           {intervalPicker}
           <div className="flex items-center gap-2">{dateTimeRangePicker}</div>
         </div>
@@ -491,7 +492,7 @@ export default function SiloAuditLogsPage() {
 
       <div className="relative !mx-0 !w-full flex-grow overflow-x-clip">
         <div className="w-full flex-1" ref={parentRef}>
-          <div className="sticky top-0 z-10 px-[var(--content-gutter)] pb-2 pt-4 bg-default">
+          <div className="bg-default sticky top-0 z-10 px-[var(--content-gutter)] pt-4 pb-2">
             <div style={colWidths} className="grid items-center gap-8">
               <HeaderCell>Time Completed</HeaderCell>
               <HeaderCell>Status</HeaderCell>
@@ -509,6 +510,7 @@ export default function SiloAuditLogsPage() {
                     actor.userBuiltinId,
                     undefined,
                   ])
+                  .with({ kind: 'scim' }, (actor) => [undefined, actor.siloId])
                   .with({ kind: 'unauthenticated' }, () => [undefined, undefined])
                   .exhaustive()
 
@@ -569,13 +571,13 @@ const ExpandedItem = ({
           : 'h-[calc(100dvh-var(--top-bar-height)-40px)]'
       )}
     >
-      <div className="flex items-center justify-between border-b px-2 py-2 bg-raise border-secondary">
+      <div className="bg-raise border-secondary flex items-center justify-between border-b px-2 py-2">
         <div className="flex items-center">
           <button
             type="button"
             onClick={() => currentIndex > 0 && onNavigate(currentIndex - 1)}
             disabled={currentIndex === 0}
-            className="flex h-6 w-6 flex-shrink-0 rotate-90 items-center justify-center rounded hover:bg-hover disabled:cursor-default disabled:opacity-50 disabled:hover:bg-raise"
+            className="hover:bg-hover disabled:hover:bg-raise flex h-6 w-6 flex-shrink-0 rotate-90 items-center justify-center rounded disabled:cursor-default disabled:opacity-50"
           >
             {/* support arrow keys and keep centered autoscroll to element */}
             <PrevArrow12Icon />
@@ -584,11 +586,11 @@ const ExpandedItem = ({
             type="button"
             onClick={() => currentIndex < totalCount - 1 && onNavigate(currentIndex + 1)}
             disabled={currentIndex === totalCount - 1}
-            className="flex h-6 w-6 flex-shrink-0 rotate-90 items-center justify-center rounded hover:bg-hover disabled:cursor-default disabled:opacity-50 disabled:hover:bg-raise"
+            className="hover:bg-hover disabled:hover:bg-raise flex h-6 w-6 flex-shrink-0 rotate-90 items-center justify-center rounded disabled:cursor-default disabled:opacity-50"
           >
             <NextArrow12Icon />
           </button>
-          <h3 className="ml-2 mr-1">
+          <h3 className="mr-1 ml-2">
             <Badge color="neutral">{item.operationId.split('_').join(' ')}</Badge>
           </h3>
           {match(item.result)
@@ -601,7 +603,7 @@ const ExpandedItem = ({
         <button
           type="button"
           onClick={onClose}
-          className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded hover:bg-hover"
+          className="hover:bg-hover flex h-6 w-6 flex-shrink-0 items-center justify-center rounded"
         >
           <Close12Icon />
         </button>
@@ -655,7 +657,7 @@ const ExpandedItem = ({
           <h4 className="text-mono-sm text-tertiary">Raw JSON</h4>
           <CopyToClipboard text={json} />
         </div>
-        <div className="overflow-x-auto rounded border px-3 py-2 bg-raise border-secondary">
+        <div className="bg-raise border-secondary overflow-x-auto rounded border px-3 py-2">
           <pre className="text-mono-code ![font-size:13px] ![line-height:18px]">
             <HighlightJSON json={snakeJson as JsonValue} />
           </pre>

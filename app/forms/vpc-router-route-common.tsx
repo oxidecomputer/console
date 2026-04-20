@@ -10,7 +10,9 @@ import type { UseFormReturn } from 'react-hook-form'
 import type { SetNonNullable } from 'type-fest'
 
 import {
-  usePrefetchedApiQuery,
+  api,
+  q,
+  usePrefetchedQuery,
   type RouteDestination,
   type RouterRouteCreate,
   type RouterRouteUpdate,
@@ -24,8 +26,10 @@ import { TextField } from '~/components/form/fields/TextField'
 import { useVpcRouterSelector } from '~/hooks/use-params'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { Message } from '~/ui/lib/Message'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { ALL_ISH } from '~/util/consts'
 import { validateIp, validateIpNet } from '~/util/ip'
+import { docLinks } from '~/util/links'
 
 export type RouteFormValues =
   | RouterRouteCreate
@@ -62,13 +66,13 @@ const targetTypes: Record<Exclude<RouteTarget['type'], 'subnet' | 'vpc'>, string
 const destinationValuePlaceholder: Record<RouteDestination['type'], string | undefined> = {
   ip: 'Enter an IP',
   ip_net: 'Enter an IP network',
-  subnet: 'Select a subnet',
+  subnet: 'Select a VPC subnet',
   vpc: undefined,
 }
 
 const destinationValueDescription: Record<RouteDestination['type'], string | undefined> = {
-  ip: 'An IP address, like 192.168.1.222',
-  ip_net: 'An IP network, like 192.168.0.0/16',
+  ip: 'An IP address, like 192.168.1.222 or fd00::1',
+  ip_net: 'An IP network, like 192.168.0.0/16 or fd00::/64',
   subnet: undefined,
   vpc: undefined,
 }
@@ -84,7 +88,7 @@ const targetValuePlaceholder: Record<RouteTarget['type'], string | undefined> = 
 }
 
 const targetValueDescription: Record<RouteTarget['type'], string | undefined> = {
-  ip: 'An IP address, like 10.0.1.5',
+  ip: 'An IP address, like 10.0.1.5 or fd00::2',
   instance: undefined,
   internet_gateway: undefined,
   drop: undefined,
@@ -102,18 +106,20 @@ type RouteFormFieldsProps = {
 export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
   const routerSelector = useVpcRouterSelector()
   const { project, vpc } = routerSelector
-  // usePrefetchedApiQuery items below are initially fetched in the loaders in vpc-router-route-create and -edit
+  // usePrefetchedQuery items below are initially fetched in the loaders in vpc-router-route-create and -edit
   const {
     data: { items: vpcSubnets },
-  } = usePrefetchedApiQuery('vpcSubnetList', { query: { project, vpc, limit: ALL_ISH } })
+  } = usePrefetchedQuery(q(api.vpcSubnetList, { query: { project, vpc, limit: ALL_ISH } }))
   const {
     data: { items: instances },
-  } = usePrefetchedApiQuery('instanceList', { query: { project, limit: ALL_ISH } })
+  } = usePrefetchedQuery(q(api.instanceList, { query: { project, limit: ALL_ISH } }))
   const {
     data: { items: internetGateways },
-  } = usePrefetchedApiQuery('internetGatewayList', {
-    query: { project, vpc, limit: ALL_ISH },
-  })
+  } = usePrefetchedQuery(
+    q(api.internetGatewayList, {
+      query: { project, vpc, limit: ALL_ISH },
+    })
+  )
 
   const { control } = form
   const destinationType = form.watch('destination.type')
@@ -215,3 +221,7 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
     </>
   )
 }
+
+export const RouteFormDocs = () => (
+  <SideModalFormDocs docs={[docLinks.routes, docLinks.gateways]} />
+)

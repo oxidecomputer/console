@@ -5,23 +5,25 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMemo } from 'react'
-import { useLocation, useNavigate } from 'react-router'
+import { useLocation } from 'react-router'
 
-import { apiQueryClient } from '@oxide/api'
+import { api, q, queryClient } from '@oxide/api'
 import {
+  Access16Icon,
   Cloud16Icon,
   IpGlobal16Icon,
   Logs16Icon,
   Metrics16Icon,
   Servers16Icon,
+  SoftwareUpdate16Icon,
+  Subnet16Icon,
 } from '@oxide/design-system/icons/react'
 
 import { trigger404 } from '~/components/ErrorBoundary'
 import { DocsLinkItem, NavLinkItem, Sidebar } from '~/components/Sidebar'
 import { TopBar } from '~/components/TopBar'
 import { useCurrentUser } from '~/hooks/use-current-user'
-import { useQuickActions } from '~/hooks/use-quick-actions'
+import { useQuickActions, type QuickActionItem } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
 import { inventoryBase, pb } from '~/util/path-builder'
 
@@ -33,7 +35,7 @@ import { ContentPane, PageContainer } from './helpers'
  * doesn't return the result.
  */
 export async function clientLoader() {
-  const me = await apiQueryClient.fetchQuery('currentUserView', {})
+  const me = await queryClient.fetchQuery(q(api.currentUserView, {}))
   if (!me.fleetViewer) throw trigger404
   return null
 }
@@ -43,17 +45,19 @@ export default function SystemLayout() {
   // robust way of doing this would be to make a separate layout for the
   // silo-specific routes in the route config, but it's overkill considering
   // this is a one-liner. Switch to that approach at the first sign of trouble.
-  const navigate = useNavigate()
   const { pathname } = useLocation()
 
   const { me } = useCurrentUser()
 
-  const actions = useMemo(() => {
+  useQuickActions(() => {
     const systemLinks = [
       { value: 'Silos', path: pb.silos() },
       { value: 'Utilization', path: pb.systemUtilization() },
       { value: 'Inventory', path: pb.sledInventory() },
       { value: 'IP Pools', path: pb.ipPools() },
+      { value: 'Subnet Pools', path: pb.subnetPools() },
+      { value: 'System Update', path: pb.systemUpdate() },
+      { value: 'Fleet Access', path: pb.fleetAccess() },
       { value: 'Audit Log', path: pb.auditLog() },
     ]
       // filter out the entry for the path we're currently on
@@ -61,18 +65,16 @@ export default function SystemLayout() {
       .map((i) => ({
         navGroup: 'System',
         value: i.value,
-        onSelect: () => navigate(i.path),
+        action: i.path,
       }))
 
-    const backToSilo = {
+    const backToSilo: QuickActionItem = {
       navGroup: `Back to silo '${me.siloName}'`,
       value: 'Projects',
-      onSelect: () => navigate(pb.projects()),
+      action: pb.projects(),
     }
     return [...systemLinks, backToSilo]
-  }, [pathname, navigate, me.siloName])
-
-  useQuickActions(actions)
+  }, [pathname, me.siloName])
 
   return (
     <PageContainer>
@@ -97,6 +99,15 @@ export default function SystemLayout() {
           </NavLinkItem>
           <NavLinkItem to={pb.ipPools()}>
             <IpGlobal16Icon /> IP Pools
+          </NavLinkItem>
+          <NavLinkItem to={pb.subnetPools()}>
+            <Subnet16Icon /> Subnet Pools
+          </NavLinkItem>
+          <NavLinkItem to={pb.systemUpdate()}>
+            <SoftwareUpdate16Icon /> System Update
+          </NavLinkItem>
+          <NavLinkItem to={pb.fleetAccess()}>
+            <Access16Icon /> Fleet Access
           </NavLinkItem>
           <NavLinkItem to={pb.auditLog()}>
             <Logs16Icon /> Audit Log

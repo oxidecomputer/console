@@ -16,7 +16,7 @@ import { parseArgs } from 'jsr:@std/cli@0.224.7'
 // StrictHostKeyChecking no
 // UserKnownHostsFile /dev/null
 // User root
-// ProxyCommand ssh castle.eng.oxide.computer pilot tp nc any $(echo "%h" | sed s/gc//) %p
+// ProxyCommand ssh castle.eng.oxide.computer pilot -r rack2 tp nc any $(echo "%h" | sed s/gc//) %p
 // ServerAliveInterval 15
 // ForwardAgent yes
 //

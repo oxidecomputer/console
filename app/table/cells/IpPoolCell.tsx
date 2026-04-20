@@ -7,18 +7,27 @@
  */
 import { useQuery } from '@tanstack/react-query'
 
-import { apiqErrorsAllowed } from '~/api'
+import { api, qErrorsAllowed } from '~/api'
 import { Tooltip } from '~/ui/lib/Tooltip'
 
 import { EmptyCell, SkeletonCell } from './EmptyCell'
 
 export const IpPoolCell = ({ ipPoolId }: { ipPoolId: string }) => {
   const { data: result } = useQuery(
-    apiqErrorsAllowed('projectIpPoolView', { path: { pool: ipPoolId } })
+    qErrorsAllowed(
+      api.ipPoolView,
+      { path: { pool: ipPoolId } },
+      {
+        errorsExpected: {
+          explanation: 'the referenced IP pool may have been deleted.',
+          statusCode: 404,
+        },
+      }
+    )
   )
   if (!result) return <SkeletonCell />
-  // this should essentially never happen, but it's probably better than blowing
-  // up the whole page if the pool is not found
+  // Defensive: the error case should never happen in practice. It should not be
+  // possible for a resource to reference a pool without that pool existing.
   if (result.type === 'error') return <EmptyCell />
   const pool = result.data
   return (

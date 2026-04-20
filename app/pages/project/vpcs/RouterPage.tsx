@@ -11,11 +11,12 @@ import { useCallback } from 'react'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import {
-  apiq,
-  apiQueryClient,
+  api,
   getListQFn,
+  q,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -35,12 +36,12 @@ import { addToast } from '~/stores/toast'
 import { TypeValueCell } from '~/table/cells/TypeValueCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
-import { Badge } from '~/ui/lib/Badge'
+import { CardBlock } from '~/ui/lib/CardBlock'
 import { CreateButton, CreateLink } from '~/ui/lib/CreateButton'
+import { Divider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
-import { TableControls, TableTitle } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
@@ -48,9 +49,9 @@ import type * as PP from '~/util/path-params'
 export const handle = makeCrumb((p) => p.router!)
 
 const routerView = ({ project, vpc, router }: PP.VpcRouter) =>
-  apiq('vpcRouterView', { path: { router }, query: { vpc, project } })
+  q(api.vpcRouterView, { path: { router }, query: { vpc, project } })
 
-const routeList = (query: PP.VpcRouter) => getListQFn('vpcRouterRouteList', { query })
+const routeList = (query: PP.VpcRouter) => getListQFn(api.vpcRouterRouteList, { query })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const routerSelector = getVpcRouterSelector(params)
@@ -90,9 +91,9 @@ export default function RouterPage() {
   const { project, vpc, router } = useVpcRouterSelector()
   const { data: routerData } = usePrefetchedQuery(routerView({ project, vpc, router }))
 
-  const { mutateAsync: deleteRouterRoute } = useApiMutation('vpcRouterRouteDelete', {
+  const { mutateAsync: deleteRouterRoute } = useApiMutation(api.vpcRouterRouteDelete, {
     onSuccess() {
-      apiQueryClient.invalidateQueries('vpcRouterRouteList')
+      queryClient.invalidateEndpoint('vpcRouterRouteList')
       // We only have the ID, so will show a generic confirmation message
       addToast({ content: 'Route deleted' })
     },
@@ -134,11 +135,11 @@ export default function RouterPage() {
         onActivate: () => {
           // the edit view has its own loader, but we can make the modal open
           // instantaneously by preloading the fetch result
-          apiQueryClient.setQueryData(
-            'vpcRouterRouteView',
-            { path: { route: routerRoute.name }, query: { project, vpc, router } },
-            routerRoute
-          )
+          const { queryKey } = q(api.vpcRouterRouteView, {
+            path: { route: routerRoute.name },
+            query: { project, vpc, router },
+          })
+          queryClient.setQueryData(queryKey, routerRoute)
           navigate(pb.vpcRouterRouteEdit({ project, vpc, router, route: routerRoute.name }))
         },
         disabled:
@@ -183,8 +184,8 @@ export default function RouterPage() {
           <DocsPopover
             heading="routers"
             icon={<Networking16Icon />}
-            summary="Routers are collections of routes that direct traffic between VPCs and their subnets."
-            links={[docLinks.routers]}
+            summary="A router is a collection of routes that control where traffic leaving a VPC subnet is forwarded based on its destination."
+            links={[docLinks.routers, docLinks.routes]}
           />
           <MoreActionsMenu label="Router actions">
             <CopyIdItem id={routerData.id} />
@@ -199,22 +200,24 @@ export default function RouterPage() {
         <PropertiesTable.DateRow date={routerData.timeCreated} label="Created" />
         <PropertiesTable.DateRow date={routerData.timeModified} label="Last Modified" />
       </PropertiesTable>
-      <TableControls className="mb-3">
-        <TableTitle>Routes</TableTitle>
-        {canCreateNewRoute ? (
-          <CreateLink to={pb.vpcRouterRoutesNew({ project, vpc, router })}>
-            New route
-          </CreateLink>
-        ) : (
-          <CreateButton
-            disabled
-            disabledReason={routeFormMessage.noNewRoutesOnSystemRouter}
-          >
-            New route
-          </CreateButton>
-        )}
-      </TableControls>
-      {table}
+      <Divider className="my-8" />
+      <CardBlock>
+        <CardBlock.Header title="Routes" description="Rules for directing network traffic">
+          {canCreateNewRoute ? (
+            <CreateLink to={pb.vpcRouterRoutesNew({ project, vpc, router })}>
+              New route
+            </CreateLink>
+          ) : (
+            <CreateButton
+              disabled
+              disabledReason={routeFormMessage.noNewRoutesOnSystemRouter}
+            >
+              New route
+            </CreateButton>
+          )}
+        </CardBlock.Header>
+        <CardBlock.Body>{table}</CardBlock.Body>
+      </CardBlock>
       <Outlet />
     </>
   )

@@ -83,6 +83,20 @@ exports[`breadcrumbs 2`] = `
     },
   ],
   "deviceSuccess (/device/success)": [],
+  "disk (/projects/p/disks/d)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Disks",
+      "path": "/projects/p/disks",
+    },
+  ],
   "diskInventory (/system/inventory/disks)": [
     {
       "label": "Inventory",
@@ -119,6 +133,54 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "Disks",
       "path": "/projects/p/disks",
+    },
+  ],
+  "externalSubnetEdit (/projects/p/external-subnets/es/edit)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "External Subnets",
+      "path": "/projects/p/external-subnets",
+    },
+  ],
+  "externalSubnets (/projects/p/external-subnets)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "External Subnets",
+      "path": "/projects/p/external-subnets",
+    },
+  ],
+  "externalSubnetsNew (/projects/p/external-subnets-new)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "External Subnets",
+      "path": "/projects/p/external-subnets",
+    },
+  ],
+  "fleetAccess (/system/access)": [
+    {
+      "label": "Fleet Access",
+      "path": "/system/access",
     },
   ],
   "floatingIpEdit (/projects/p/floating-ips/f/edit)": [
@@ -518,7 +580,11 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "s",
-      "path": "/system/silos/s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "Identity Providers",
+      "path": "/system/silos/s/idps",
     },
   ],
   "serialConsole (/projects/p/instances/i/serial-console)": [
@@ -543,20 +609,52 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/instances/i/serial-console",
     },
   ],
-  "silo (/system/silos/s)": [
+  "silo (/system/silos/s/idps)": [
     {
       "label": "Silos",
       "path": "/system/silos",
     },
     {
       "label": "s",
-      "path": "/system/silos/s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "Identity Providers",
+      "path": "/system/silos/s/idps",
     },
   ],
   "siloAccess (/access)": [
     {
       "label": "Silo Access",
       "path": "/access",
+    },
+  ],
+  "siloFleetRoles (/system/silos/s/fleet-roles)": [
+    {
+      "label": "Silos",
+      "path": "/system/silos",
+    },
+    {
+      "label": "s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "Fleet Roles",
+      "path": "/system/silos/s/fleet-roles",
+    },
+  ],
+  "siloIdps (/system/silos/s/idps)": [
+    {
+      "label": "Silos",
+      "path": "/system/silos",
+    },
+    {
+      "label": "s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "Identity Providers",
+      "path": "/system/silos/s/idps",
     },
   ],
   "siloIdpsNew (/system/silos/s/idps-new)": [
@@ -566,7 +664,11 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "s",
-      "path": "/system/silos/s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "Identity Providers",
+      "path": "/system/silos/s/idps",
     },
   ],
   "siloImageEdit (/images/im/edit)": [
@@ -581,14 +683,60 @@ exports[`breadcrumbs 2`] = `
       "path": "/images",
     },
   ],
-  "siloIpPools (/system/silos/s?tab=ip-pools)": [
+  "siloIpPools (/system/silos/s/ip-pools)": [
     {
       "label": "Silos",
       "path": "/system/silos",
     },
     {
       "label": "s",
-      "path": "/system/silos/s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "IP Pools",
+      "path": "/system/silos/s/ip-pools",
+    },
+  ],
+  "siloQuotas (/system/silos/s/quotas)": [
+    {
+      "label": "Silos",
+      "path": "/system/silos",
+    },
+    {
+      "label": "s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "Quotas",
+      "path": "/system/silos/s/quotas",
+    },
+  ],
+  "siloScim (/system/silos/s/scim)": [
+    {
+      "label": "Silos",
+      "path": "/system/silos",
+    },
+    {
+      "label": "s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "SCIM",
+      "path": "/system/silos/s/scim",
+    },
+  ],
+  "siloSubnetPools (/system/silos/s/subnet-pools)": [
+    {
+      "label": "Silos",
+      "path": "/system/silos",
+    },
+    {
+      "label": "s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "Subnet Pools",
+      "path": "/system/silos/s/subnet-pools",
     },
   ],
   "siloUtilization (/utilization)": [
@@ -707,6 +855,58 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "SSH Keys",
       "path": "/settings/ssh-keys",
+    },
+  ],
+  "subnetPool (/system/networking/subnet-pools/sp)": [
+    {
+      "label": "Subnet Pools",
+      "path": "/system/networking/subnet-pools",
+    },
+    {
+      "label": "sp",
+      "path": "/system/networking/subnet-pools/sp",
+    },
+  ],
+  "subnetPoolEdit (/system/networking/subnet-pools/sp/edit)": [
+    {
+      "label": "Subnet Pools",
+      "path": "/system/networking/subnet-pools",
+    },
+    {
+      "label": "sp",
+      "path": "/system/networking/subnet-pools/sp",
+    },
+    {
+      "label": "Edit subnet pool",
+      "path": "/system/networking/subnet-pools/sp/edit",
+    },
+  ],
+  "subnetPoolMemberAdd (/system/networking/subnet-pools/sp/members-add)": [
+    {
+      "label": "Subnet Pools",
+      "path": "/system/networking/subnet-pools",
+    },
+    {
+      "label": "sp",
+      "path": "/system/networking/subnet-pools/sp",
+    },
+  ],
+  "subnetPools (/system/networking/subnet-pools)": [
+    {
+      "label": "Subnet Pools",
+      "path": "/system/networking/",
+    },
+  ],
+  "subnetPoolsNew (/system/networking/subnet-pools-new)": [
+    {
+      "label": "Subnet Pools",
+      "path": "/system/networking/",
+    },
+  ],
+  "systemUpdate (/system/update)": [
+    {
+      "label": "System Update",
+      "path": "/system/update",
     },
   ],
   "systemUtilization (/system/utilization)": [
@@ -1061,7 +1261,7 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/vpcs/v/firewall-rules",
     },
     {
-      "label": "Subnets",
+      "label": "VPC Subnets",
       "path": "/projects/p/vpcs/v/",
     },
   ],
@@ -1083,7 +1283,7 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/vpcs/v/firewall-rules",
     },
     {
-      "label": "Subnets",
+      "label": "VPC Subnets",
       "path": "/projects/p/vpcs/v/",
     },
   ],
@@ -1105,7 +1305,7 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/vpcs/v/firewall-rules",
     },
     {
-      "label": "Subnets",
+      "label": "VPC Subnets",
       "path": "/projects/p/vpcs/v/",
     },
   ],

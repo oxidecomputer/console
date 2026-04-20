@@ -7,26 +7,35 @@
  */
 
 import * as R from 'remeda'
+import { match } from 'ts-pattern'
 
 import { bytesToGiB } from '~/util/units'
 
 import type {
   Disk,
   DiskState,
+  DiskType,
   Instance,
   InstanceState,
+  IpVersion,
   Measurement,
+  SiloIpPool,
   SiloUtilization,
   Sled,
   VpcFirewallRule,
   VpcFirewallRuleUpdate,
 } from './__generated__/Api'
 
-// API limits encoded in https://github.com/oxidecomputer/omicron/blob/aec3cd8d/nexus/src/app/mod.rs
+// API limits encoded in https://github.com/oxidecomputer/omicron/blob/9dd23096de93c7d6d05ea21f6323de4410060652/nexus/src/app/mod.rs#L142
 
+// These are not actually used in app code, just the mock server. In the app we
+// can rely on API errors to communicate these limits.
 export const MAX_NICS_PER_INSTANCE = 8
+export const MAX_DISKS_PER_INSTANCE = 12
 
-export const INSTANCE_MAX_CPU = 64
+// Limit is 254 on the backend.
+export const INSTANCE_MAX_CPU = 254
+
 export const INSTANCE_MIN_RAM_GiB = 1
 export const INSTANCE_MAX_RAM_GiB = 1536
 
@@ -88,6 +97,25 @@ export const genName = (...parts: [string, ...string[]]) => {
   )
 }
 
+export type UnicastIpPool = SiloIpPool & { poolType: 'unicast' }
+
+export const isUnicastPool = (pool: SiloIpPool): pool is UnicastIpPool =>
+  pool.poolType === 'unicast'
+
+export const poolHasIpVersion = (versions: Iterable<IpVersion>) => {
+  const versionSet = new Set(versions)
+  return (pool: { ipVersion: IpVersion }): boolean => versionSet.has(pool.ipVersion)
+}
+
+/** Sort pools: defaults first, then v4 before v6, then by name */
+export const sortPools = <T extends SiloIpPool>(pools: T[]) =>
+  R.sortBy(
+    pools,
+    (p) => !p.isDefault, // false sorts first → defaults first
+    (p) => p.ipVersion, // v4 before v6
+    (p) => p.name
+  )
+
 const instanceActions = {
   // NoVmm maps to to Stopped:
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-model/src/instance_state.rs#L55
@@ -145,12 +173,13 @@ export const instanceCan = R.mapValues(instanceActions, (states: InstanceState[]
   return test
 })
 
-export function instanceTransitioning({ runState }: Instance) {
+export function instanceTransitioning(runState: InstanceState) {
   return (
     runState === 'creating' ||
     runState === 'starting' ||
-    runState === 'stopping' ||
-    runState === 'rebooting'
+    runState === 'rebooting' ||
+    runState === 'migrating' ||
+    runState === 'stopping'
   )
 }
 
@@ -172,14 +201,12 @@ export function instanceAutoRestartingSoon(i: Instance) {
   )
 }
 
-const diskActions = {
+const diskStateActions = {
   // this is a weird one because the list of states is dynamic and it includes
   // 'creating' in the unwind of the disk create saga, but does not include
   // 'creating' in the disk delete saga, which is what we care about
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/src/app/sagas/disk_delete.rs?plain=1#L110
   delete: ['detached', 'faulted'],
-  // TODO: link to API source. It's hard to determine from the saga code what the rule is here.
-  snapshot: ['attached', 'detached'],
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/disk.rs#L173-L176
   attach: ['creating', 'detached'],
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/disk.rs#L313-L314
@@ -188,13 +215,48 @@ const diskActions = {
   setAsBootDisk: ['attached'],
 } satisfies Record<string, DiskState['state'][]>
 
-export const diskCan = R.mapValues(diskActions, (states: DiskState['state'][]) => {
-  // only have to Pick because we want this to work for both Disk and
-  // Json<Disk>, which we pass to it in the MSW handlers
-  const test = (d: Pick<Disk, 'state'>) => states.includes(d.state.state)
-  test.states = states
-  return test
-})
+// snapshot has a type check in addition to state check
+// https://github.com/oxidecomputer/omicron/blob/078f636/nexus/src/app/snapshot.rs#L100-L109
+// NOTE: .states only captures the state requirement; local and read-only disks
+// cannot be snapshotted regardless of state
+const snapshotStates: DiskState['state'][] = ['attached', 'detached']
+// accept both camelCase (Disk) and snake_case (Json<Disk>) for use in MSW handlers
+type SnapshotDisk =
+  | Pick<Disk, 'state' | 'diskType' | 'readOnly'>
+  | { state: DiskState; disk_type: DiskType; read_only: boolean }
+const canSnapshot = (d: SnapshotDisk) => {
+  const diskType = 'diskType' in d ? d.diskType : d.disk_type
+  const readOnly = 'readOnly' in d ? d.readOnly : d.read_only
+  return (
+    !readOnly &&
+    snapshotStates.includes(d.state.state) &&
+    match(diskType)
+      .with('distributed', () => true)
+      .with('local', () => false)
+      .exhaustive()
+  )
+}
+canSnapshot.states = snapshotStates
+
+export function diskTransitioning(diskState: DiskState['state']) {
+  return (
+    diskState === 'attaching' ||
+    diskState === 'creating' ||
+    diskState === 'detaching' ||
+    diskState === 'finalizing'
+  )
+}
+
+export const diskCan = {
+  ...R.mapValues(diskStateActions, (states: DiskState['state'][]) => {
+    // only have to Pick because we want this to work for both Disk and
+    // Json<Disk>, which we pass to it in the MSW handlers
+    const test = (d: Pick<Disk, 'state'>) => states.includes(d.state.state)
+    test.states = states
+    return test
+  }),
+  snapshot: canSnapshot,
+}
 
 /** Hard coded in the API, so we can hard code it here. */
 export const FLEET_ID = '001de000-1334-4000-8000-000000000000'

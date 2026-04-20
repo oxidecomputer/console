@@ -11,7 +11,7 @@ export const CopyableIp = ({ ip, isLinked = true }: { ip: string; isLinked?: boo
   <span className="flex max-w-full items-center gap-0.5">
     {isLinked ? (
       <a
-        className="link-with-underline truncate text-sans-md"
+        className="link-with-underline text-sans-md truncate"
         href={`https://${ip}`}
         target="_blank"
         rel="noreferrer"

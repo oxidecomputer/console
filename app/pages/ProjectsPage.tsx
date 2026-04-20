@@ -5,11 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { Outlet, useNavigate } from 'react-router'
 
-import { apiq, getListQFn, queryClient, useApiMutation, type Project } from '@oxide/api'
+import { api, getListQFn, q, queryClient, useApiMutation, type Project } from '@oxide/api'
 import { Folder16Icon, Folder24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -24,6 +25,7 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -37,7 +39,7 @@ const EmptyState = () => (
   />
 )
 
-const projectList = getListQFn('projectList', {})
+const projectList = getListQFn(api.projectList, {})
 
 export async function clientLoader() {
   // fetchQuery instead of prefetchQuery means errors blow up here instead of
@@ -62,7 +64,7 @@ const staticCols = [
 export default function ProjectsPage() {
   const navigate = useNavigate()
 
-  const { mutateAsync: deleteProject } = useApiMutation('projectDelete', {
+  const { mutateAsync: deleteProject } = useApiMutation(api.projectDelete, {
     onSuccess() {
       queryClient.invalidateEndpoint('projectList')
     },
@@ -75,7 +77,9 @@ export default function ProjectsPage() {
         onActivate: () => {
           // the edit view has its own loader, but we can make the modal open
           // instantaneously by preloading the fetch result
-          const { queryKey } = apiq('projectView', { path: { project: project.name } })
+          const { queryKey } = q(api.projectView, {
+            path: { project: project.name },
+          })
           queryClient.setQueryData(queryKey, project)
           navigate(pb.projectEdit({ project: project.name }))
         },
@@ -92,26 +96,28 @@ export default function ProjectsPage() {
   )
 
   const columns = useColsWithActions(staticCols, makeActions)
-  const {
-    table,
-    query: { data: projects },
-  } = useQueryTable({ query: projectList, columns, emptyState: <EmptyState /> })
+  const { table } = useQueryTable({
+    query: projectList,
+    columns,
+    emptyState: <EmptyState />,
+  })
+
+  const { data: allProjects } = useQuery(q(api.projectList, { query: { limit: ALL_ISH } }))
 
   useQuickActions(
-    useMemo(
-      () => [
-        {
-          value: 'New project',
-          onSelect: () => navigate(pb.projectsNew()),
-        },
-        ...(projects?.items || []).map((p) => ({
-          value: p.name,
-          onSelect: () => navigate(pb.project({ project: p.name })),
-          navGroup: 'Go to project',
-        })),
-      ],
-      [navigate, projects]
-    )
+    () => [
+      {
+        value: 'New project',
+        navGroup: 'Actions',
+        action: pb.projectsNew(),
+      },
+      ...(allProjects?.items || []).map((p) => ({
+        value: p.name,
+        action: pb.project({ project: p.name }),
+        navGroup: 'Go to project',
+      })),
+    ],
+    [allProjects]
   )
 
   return (
@@ -126,7 +132,7 @@ export default function ProjectsPage() {
         />
       </PageHeader>
       <TableActions>
-        <CreateLink to={pb.projectsNew()}>New Project</CreateLink>
+        <CreateLink to={pb.projectsNew()}>New project</CreateLink>
       </TableActions>
       {table}
       <Outlet />

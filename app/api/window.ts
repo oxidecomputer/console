@@ -38,12 +38,12 @@ function logHeading(s: string) {
 }
 
 if (typeof window !== 'undefined') {
-  // @ts-expect-error
-  window.oxide = api.methods
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ;(window as any).oxide = api
   // @ts-expect-error
   window.oxql = {
     query: async (q: string) => {
-      const result = await api.methods.systemTimeseriesQuery({ body: { query: q } })
+      const result = await api.systemTimeseriesQuery({ body: { query: q } })
       const data = handleResult(result).tables
       logHeading(data.length + ' timeseries returned')
       for (const table of data) {
@@ -60,7 +60,7 @@ if (typeof window !== 'undefined') {
       return data
     },
     schemas: async (search?: string) => {
-      const result = await api.methods.systemTimeseriesSchemaList({
+      const result = await api.systemTimeseriesSchemaList({
         query: { limit: ALL_ISH },
       })
       const data = handleResult(result)

@@ -9,7 +9,7 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate, useSearchParams } from 'react-router'
 
-import { useApiMutation, type UsernamePasswordCredentials } from '@oxide/api'
+import { api, useApiMutation, type UsernamePasswordCredentials } from '@oxide/api'
 
 import { TextFieldInner } from '~/components/form/fields/TextField'
 import { useSiloSelector } from '~/hooks/use-params'
@@ -31,7 +31,7 @@ export default function LoginPage() {
 
   const form = useForm({ defaultValues })
 
-  const loginPost = useApiMutation('loginLocal')
+  const loginPost = useApiMutation(api.loginLocal)
 
   useEffect(() => {
     if (loginPost.isSuccess) {
@@ -44,13 +44,13 @@ export default function LoginPage() {
     <>
       <div className="mb-3 flex items-end space-x-3">
         <Identicon
-          className="flex h-[34px] w-[34px] items-center justify-center rounded text-accent bg-accent-secondary-hover"
+          className="text-accent bg-accent-hover flex h-[34px] w-[34px] items-center justify-center rounded-md"
           name={silo}
         />
         <div className="text-sans-2xl text-raise">{silo}</div>
       </div>
 
-      <hr className="my-6 w-full border-0 border-b border-b-secondary" />
+      <hr className="border-b-secondary my-6 w-full border-0 border-b" />
 
       <form
         className="w-full space-y-4"
@@ -80,7 +80,7 @@ export default function LoginPage() {
           Sign in
         </Button>
         {loginPost.isError && (
-          <div className="text-center text-error">Could not sign in. Please try again.</div>
+          <div className="text-error text-center">Could not sign in. Please try again.</div>
         )}
       </form>
     </>

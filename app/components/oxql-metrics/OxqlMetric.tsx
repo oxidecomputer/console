@@ -15,7 +15,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Children, useMemo, useState, type ReactNode } from 'react'
 import type { LoaderFunctionArgs } from 'react-router'
 
-import { apiq, OXQL_GROUP_BY_ERROR, queryClient } from '@oxide/api'
+import { api, OXQL_GROUP_BY_ERROR, q, queryClient } from '@oxide/api'
 
 import { CopyCodeModal } from '~/components/CopyCode'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
@@ -23,7 +23,7 @@ import { getInstanceSelector, useProjectSelector } from '~/hooks/use-params'
 import { LearnMore } from '~/ui/lib/CardBlock'
 import * as Dropdown from '~/ui/lib/DropdownMenu'
 import { classed } from '~/util/classed'
-import { links } from '~/util/links'
+import { docLinks, links } from '~/util/links'
 
 import { ChartContainer, ChartHeader, TimeSeriesChart } from '../TimeSeriesChart'
 import { HighlightedOxqlQuery, toOxqlStr } from './HighlightedOxqlQuery'
@@ -38,7 +38,7 @@ import {
 export async function loader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
   await queryClient.prefetchQuery(
-    apiq('instanceView', { path: { instance }, query: { project } })
+    q(api.instanceView, { path: { instance }, query: { project } })
   )
   return null
 }
@@ -57,7 +57,7 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
     error,
     isLoading,
   } = useQuery(
-    apiq('timeseriesQuery', { body: { query }, query: { project } })
+    q(api.timeseriesQuery, { body: { query }, query: { project } })
     // avoid graphs flashing blank while loading when you change the time
     // { placeholderData: (x) => x }
   )
@@ -89,7 +89,7 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
   return (
     <ChartContainer>
       <ChartHeader title={title} label={label} description={description}>
-        <MoreActionsMenu label="Instance actions" isSmall>
+        <MoreActionsMenu label="Instance actions" variant="small">
           <Dropdown.LinkItem to={links.oxqlSchemaDocs(queryObj.metricName)}>
             About this metric
           </Dropdown.LinkItem>
@@ -101,7 +101,7 @@ export function OxqlMetric({ title, description, unit, ...queryObj }: OxqlMetric
           code={query}
           copyButtonText="Copy query"
           modalTitle="OxQL query"
-          footer={<LearnMore href={links.oxqlDocs} text="OxQL" />}
+          footer={<LearnMore doc={docLinks.oxql} />}
         >
           <HighlightedOxqlQuery {...queryObj} />
         </CopyCodeModal>

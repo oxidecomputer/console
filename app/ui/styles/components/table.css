@@ -9,10 +9,10 @@
 table.ox-table {
   border-spacing: 0px;
 
-  --table-border-radius: var(--border-radius-lg);
+  --table-border-radius: var(--radius-lg);
 
   &.table-inline {
-    --table-border-radius: var(--border-radius);
+    --table-border-radius: var(--radius);
   }
 
   /*
@@ -52,19 +52,38 @@ table.ox-table {
   /* First column is sticky */
   & th:first-of-type,
   & td:first-of-type {
-    @apply sticky left-0 z-10 bg-default;
+    @apply bg-default sticky left-0 z-10;
+  }
+
+  /* Border between sticky first column and second column:
+     first column owns the right border, second column drops its left border */
+  & td:first-of-type > div,
+  & th:first-of-type > div {
+    @apply border-r;
+  }
+  & td:nth-of-type(2) > div,
+  & th:nth-of-type(2) > div {
+    @apply border-l-0;
   }
 
   /*
   Last column is sticky if it
   is a more actions cell
   */
-  & th:last-of-type.action-col,
-  & td:last-of-type.action-col {
-    @apply sticky right-0 bg-default;
+  & th.action-col,
+  & td.action-col {
+    @apply bg-default sticky right-0 w-10;
   }
-  & th:last-of-type.action-col {
+  & th.action-col {
     @apply bg-secondary;
+  }
+  & th.action-col > div,
+  & td.action-col > div {
+    @apply !m-0 w-10 !p-0;
+  }
+
+  & td:last-of-type > div {
+    @apply -m-px;
   }
 
   /*
@@ -78,11 +97,11 @@ table.ox-table {
   We hide the default border and background on the sticky
   cells. This is to stop anything underneath it showing through
   at the corner. By leaving the cell square, and instead applying
-  it to the div child which has a rounded corner we cover what's
+  it to the div child which has a rounded-md corner we cover what's
   below with a background colour and still keep the styling
   */
   & tr:last-of-type td:last-of-type.action-col {
-    @apply border-b-0 border-r-0;
+    @apply border-r-0 border-b-0 pr-px;
   }
 
   & tr:last-of-type td:last-of-type.action-col > div {
@@ -95,7 +114,7 @@ table.ox-table {
 
   & tr:last-of-type td:last-of-type.action-col:after {
     border-bottom-right-radius: var(--table-border-radius);
-    @apply pointer-events-none absolute bottom-0 left-0 right-0 top-0 border-b border-r content-[''] border-default;
+    @apply border-default pointer-events-none absolute top-0 right-0 bottom-0 left-0 z-0 border-r border-b content-[''];
   }
 
   & tr:last-of-type td:last-of-type:not(.action-col) {
@@ -108,25 +127,25 @@ table.ox-table {
 
   & tr:last-of-type td:first-of-type:after {
     border-bottom-left-radius: var(--table-border-radius);
-    @apply pointer-events-none absolute bottom-0 left-0 right-0 top-0 border-b border-l content-[''] border-default;
+    @apply border-default pointer-events-none absolute top-0 right-0 bottom-0 left-0 border-b border-l content-[''];
   }
 
   & th:first-of-type {
-    @apply border-l-0 border-t-0 !bg-default;
+    @apply !bg-default border-t-0 border-l-0;
   }
 
   & th:first-of-type > div {
     border-top-left-radius: var(--table-border-radius);
-    @apply w-[calc(100%+1px)] bg-secondary;
+    @apply bg-secondary w-[calc(100%+1px)];
   }
 
   & th:first-of-type:after {
     border-top-left-radius: var(--table-border-radius);
-    @apply pointer-events-none absolute bottom-0 left-0 right-0 top-0 border-l border-t content-[''] border-default;
+    @apply border-default pointer-events-none absolute top-0 right-0 bottom-0 left-0 border-t border-l content-[''];
   }
 
   & th:last-of-type.action-col {
-    @apply !border-r-0 !border-t-0 !bg-default;
+    @apply !bg-default !border-t-0 !border-r-0;
   }
 
   & th:last-of-type.action-col > div {
@@ -136,7 +155,7 @@ table.ox-table {
 
   & th:last-of-type.action-col:after {
     border-top-right-radius: var(--table-border-radius);
-    @apply pointer-events-none absolute bottom-0 left-0 right-0 top-0 border-r border-t content-[''] border-default;
+    @apply border-default pointer-events-none absolute top-0 right-0 bottom-0 left-0 border-t border-r content-[''];
   }
 
   & th:last-of-type:not(.action-col) {
@@ -158,7 +177,7 @@ table.ox-table {
   /* === Begin table selection styles === */
 
   /**
-   * Our table selection styles dictate complex behaviors like rounded selection corners,
+   * Our table selection styles dictate complex behaviors like rounded-md selection corners,
    * grouped selections, and seemless border overlap. To acheive this, `box-shadow` properties
    * are used for selection border styles. To make this effect possible, special classes were
    * added to the table. Those classes are:
@@ -286,7 +305,7 @@ table.ox-table {
 
   & .selection-end td:last-child > div,
   & .is-selected:not(.multi-selection) td:last-child > div {
-    @apply relative -ml-0.5 border-l-0 before:absolute before:bottom-1 before:left-0.5 before:top-0 before:block before:h-full before:border-l before:border-accent-tertiary;
+    @apply before:border-accent-tertiary relative -ml-0.5 border-l-0 before:absolute before:top-0 before:bottom-1 before:left-0.5 before:block before:h-full before:border-l;
     /* Avoid layout shift caused by the border being inline with the content */
     padding-left: calc(1rem - 1px);
   }
@@ -298,30 +317,42 @@ table.ox-table {
 Drop shadow appears if content is below a sticky
 cell and the table is overflowing
 */
+td:first-of-type,
+th:first-of-type,
+td:last-of-type.action-col,
+th:last-of-type.action-col {
+  transition-property: box-shadow;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 250ms;
+}
+
 .scrolled td:first-of-type,
-.scrolled th:first-of-type,
+.scrolled th:first-of-type {
+  box-shadow: 6px 0 8px -2px oklch(0 0 0 / 0.2);
+}
 .overflowing td:last-of-type.action-col,
 .overflowing th:last-of-type.action-col {
-  box-shadow: var(--elevation-2);
+  box-shadow: -6px 0 8px -2px oklch(0 0 0 / 0.2);
+}
+[data-theme='light'] .scrolled td:first-of-type,
+[data-theme='light'] .scrolled th:first-of-type {
+  box-shadow: 6px 0 8px -2px oklch(0 0 0 / 0.05);
+}
+[data-theme='light'] .overflowing td:last-of-type.action-col,
+[data-theme='light'] .overflowing th:last-of-type.action-col {
+  box-shadow: -6px 0 8px -2px oklch(0 0 0 / 0.05);
 }
 
 /*
   Stops shadow from overflowing below
-  -1px helps with a visual glitch when a bit
-  underneath shows through
 */
 .scrolled td:first-of-type,
 .scrolled th:first-of-type {
-  clip-path: inset(0px -40px 0px -1px);
+  clip-path: inset(0px -40px 0px 0px);
 }
 .overflowing td:last-of-type.action-col,
 .overflowing th:last-of-type.action-col {
-  clip-path: inset(0px -1px 0px -40px);
-}
-
-.scrolled td:first-of-type:before,
-.scrolled th:first-of-type:before {
-  @apply absolute bottom-0 right-0 top-0 border-r content-[''] border-r-secondary;
+  clip-path: inset(0px 0px 0px -40px);
 }
 
 .simplebar-scrollbar {

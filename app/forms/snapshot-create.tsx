@@ -5,15 +5,17 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
 import {
+  api,
   diskCan,
+  q,
+  queryClient,
   useApiMutation,
-  useApiQuery,
-  useApiQueryClient,
   type SnapshotCreate,
 } from '@oxide/api'
 
@@ -26,14 +28,14 @@ import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { toComboboxItems } from '~/ui/lib/Combobox'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { ALL_ISH } from '~/util/consts'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
 const useSnapshotDiskItems = ({ project }: PP.Project) => {
-  const { data: disks } = useApiQuery('diskList', {
-    query: { project, limit: ALL_ISH },
-  })
+  const { data: disks } = useQuery(q(api.diskList, { query: { project, limit: ALL_ISH } }))
   return disks?.items.filter(diskCan.snapshot)
 }
 
@@ -46,7 +48,6 @@ const defaultValues: SnapshotCreate = {
 export const handle = titleCrumb('New snapshot')
 
 export default function SnapshotCreate() {
-  const queryClient = useApiQueryClient()
   const projectSelector = useProjectSelector()
   const navigate = useNavigate()
 
@@ -55,10 +56,11 @@ export default function SnapshotCreate() {
 
   const onDismiss = () => navigate(pb.snapshots(projectSelector))
 
-  const createSnapshot = useApiMutation('snapshotCreate', {
+  const createSnapshot = useApiMutation(api.snapshotCreate, {
     onSuccess(snapshot) {
-      queryClient.invalidateQueries('snapshotList')
-      addToast(<>Snapshot <HL>{snapshot.name}</HL> created</>) // prettier-ignore
+      queryClient.invalidateEndpoint('snapshotList')
+      // prettier-ignore
+      addToast(<>Snapshot <HL>{snapshot.name}</HL> created</>)
       onDismiss()
     },
   })
@@ -82,11 +84,13 @@ export default function SnapshotCreate() {
       <ComboboxField
         label="Disk"
         name="disk"
+        description="Only disks that support snapshots are listed"
         placeholder="Select a disk"
         items={diskItemsForCombobox}
         required
         control={form.control}
       />
+      <SideModalFormDocs docs={[docLinks.snapshots]} />
     </SideModalForm>
   )
 }

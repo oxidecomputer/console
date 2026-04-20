@@ -8,7 +8,7 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
-import { apiq, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
+import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -17,10 +17,12 @@ import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
-const projectView = ({ project }: PP.Project) => apiq('projectView', { path: { project } })
+const projectView = ({ project }: PP.Project) => q(api.projectView, { path: { project } })
 
 export const handle = titleCrumb('Edit project')
 
@@ -39,14 +41,15 @@ export default function EditProjectSideModalForm() {
 
   const { data: project } = usePrefetchedQuery(projectView(projectSelector))
 
-  const editProject = useApiMutation('projectUpdate', {
+  const editProject = useApiMutation(api.projectUpdate, {
     onSuccess(project) {
       // refetch list of projects in sidebar
       queryClient.invalidateEndpoint('projectList')
       // avoid the project fetch when the project page loads since we have the data
       const { queryKey } = projectView({ project: project.name })
       queryClient.setQueryData(queryKey, project)
-      addToast(<>Project <HL>{project.name}</HL> updated</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Project <HL>{project.name}</HL> updated</>)
       onDismiss()
     },
   })
@@ -67,6 +70,7 @@ export default function EditProjectSideModalForm() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
+      <SideModalFormDocs docs={[docLinks.projects]} />
     </SideModalForm>
   )
 }

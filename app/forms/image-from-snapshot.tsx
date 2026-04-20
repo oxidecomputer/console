@@ -10,7 +10,8 @@ import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
-  apiq,
+  api,
+  q,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -25,7 +26,9 @@ import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getProjectSnapshotSelector, useProjectSnapshotSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
@@ -37,7 +40,7 @@ const defaultValues: Omit<ImageCreate, 'source'> = {
 }
 
 const snapshotView = ({ project, snapshot }: PP.Snapshot) =>
-  apiq('snapshotView', { path: { snapshot }, query: { project } })
+  q(api.snapshotView, { path: { snapshot }, query: { project } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, snapshot } = getProjectSnapshotSelector(params)
@@ -54,10 +57,11 @@ export default function CreateImageFromSnapshotSideModalForm() {
 
   const onDismiss = () => navigate(pb.snapshots({ project }))
 
-  const createImage = useApiMutation('imageCreate', {
+  const createImage = useApiMutation(api.imageCreate, {
     onSuccess(image) {
       queryClient.invalidateEndpoint('imageList')
-      addToast(<>Image <HL>{image.name}</HL> created</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Image <HL>{image.name}</HL> created</>)
       onDismiss()
     },
   })
@@ -98,6 +102,7 @@ export default function CreateImageFromSnapshotSideModalForm() {
       <DescriptionField name="description" control={form.control} required />
       <TextField name="os" label="OS" control={form.control} required />
       <TextField name="version" control={form.control} required />
+      <SideModalFormDocs docs={[docLinks.images]} />
     </SideModalForm>
   )
 }

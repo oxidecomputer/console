@@ -1,0 +1,141 @@
+Terminal theme test:
+[31mred[0m [32mgreen[0m [33myellow[0m [34mblue[0m [35mmagenta[0m [36mcyan[0m [37mwhite[0m
+[91mbright-red[0m [92mbright-green[0m [93mbright-yellow[0m [94mbright-blue[0m [95mbright-magenta[0m [96mbright-cyan[0m [97mbright-white[0m [90mbright-black[0m
+
+Booting `Debian GNU/Linux'
+
+Loading Linux 6.12.38+deb13-amd64 ...
+Loading initial ramdisk ...
+EFI stub: Loaded initrd from LINUX_EFI_INITRD_MEDIA_GUID device path
+[    0.000000] Linux version 6.12.38+deb13-amd64 (debian-kernel@lists.debian.org) (x86_64-linux-gnu-gcc-14 (Debian 14.2.0-19) 14.2.0, GNU ld (GNU Binutils for Debian) 2.44) #1 SMP PREEMPT_DYNAMIC Debian 6.12.38-1 (2025-07-16)
+[    0.000000] Command line: BOOT_IMAGE=/boot/vmlinuz-6.12.38+deb13-amd64 root=PARTUUID=3fa1e012-eadc-4f00-b183-2619d1d2321b ro console=tty0 console=ttyS0,115200n8
+[    0.000000] BIOS-provided physical RAM map:
+[    0.000000] BIOS-e820: [mem 0x0000000000000000-0x000000000009ffff] usable
+[    0.000000] BIOS-e820: [mem 0x0000000000100000-0x00000000bea59fff] usable
+[    0.000000] BIOS-e820: [mem 0x00000000bea5a000-0x00000000bed59fff] reserved
+[    0.000000] BIOS-e820: [mem 0x0000000100000000-0x000000023fffffff] usable
+[    0.000000] NX (Execute Disable) protection: active
+[    0.000000] DMI: Oxide OxVM, BIOS v0.8 The Aftermath 30, 3185 YOLD
+[    0.000000] tsc: Detected 1996.096 MHz processor
+[    0.103404] percpu: Embedded 66 pages/cpu s233472 r8192 d28672 u1048576
+[    0.116419] Built 1 zonelists, mobility grouping on.  Total pages: 2064887
+[    0.118081] Policy zone: Normal
+[    0.118583] Kernel command line: BOOT_IMAGE=/boot/vmlinuz-6.12.38+deb13-amd64 root=PARTUUID=3fa1e012-eadc-4f00-b183-2619d1d2321b ro console=tty0 console=ttyS0,115200n8
+[    0.151479] Memory: 8016340K/8259548K available (18432K kernel code, 4484K rwdata, 12340K rodata, 3892K init, 7620K bss, 243208K reserved, 0K cma-reserved)
+[    0.295826] rcu: Hierarchical SRCU implementation.
+[    0.350553] smpboot: CPU0: AMD EPYC-Rome Processor (family: 0x17, model: 0x31, stepping: 0x0)
+[    0.620003] smp: Brought up 1 node, 2 CPUs
+[    0.673460] pci 0000:00:10.0: [01de:0000] type 00 class 0x010802 conventional PCI endpoint
+[    0.789199] MPTCP token hash table entries: 8192 (order: 5, 196608 bytes, linear)
+[    0.841359] Key type asymmetric registered
+[    1.113771] input: AT Translated Set 2 keyboard as /devices/platform/i8042/serio0/input/input0
+[    1.565161] nvme nvme0: pci function 0000:00:10.0
+[    1.849427] tsc: Refined TSC clocksource calibration: 1996.214 MHz
+[    1.935044] EXT4-fs (nvme0n1p1): mounted filesystem dced5a54-4fb7-4dda-abd6-4ea8f50bfe92 ro with ordered data mode. Quota mode: none.
+[    2.403361]  nvme0n1: p1 p14 p15
+GROWROOT: CHANGED: partition=1 start=262144 old: size=6027264 end=6289407 new: size=20709343 end=20971486
+[    2.850589] systemd[1]: Inserted module 'autofs4'
+[    2.915923] systemd[1]: systemd 257.7-1 running in system mode (+PAM +AUDIT +SELINUX +APPARMOR +IMA +SMACK +SECCOMP +GCRYPT +OPENSSL +ACL +BLKID +CURL +ELFUTILS +FIDO2 +IDN2 +IPTC +KMOD +LIBCRYPTSETUP +LIBFDISK +PCRE2 +PWQUALITY +ZSTD +BPF_FRAMEWORK +XKBCOMMON +SYSVINIT)
+[    2.919095] systemd[1]: Detected virtualization bhyve.
+[    2.920733] systemd[1]: Detected architecture x86-64.
+
+Welcome to Debian GNU/Linux 13 (trixie)!
+
+[    2.941482] systemd[1]: Hostname set to <oxide-instance>.
+[  [32mOK[0m  ] Created slice system-getty.slice - Slice /system/getty.
+[  [32mOK[0m  ] Created slice system-modprobe.slice - Slice /system/modprobe.
+[  [32mOK[0m  ] Created slice system-serial\x2dget…slice - Slice /system/serial-getty.
+[  [32mOK[0m  ] Created slice user.slice - User and Session Slice.
+[  [32mOK[0m  ] Started systemd-ask-password-conso…equests to Console Directory Watch.
+[  [32mOK[0m  ] Reached target paths.target - Path Units.
+[  [32mOK[0m  ] Reached target remote-fs.target - Remote File Systems.
+[  [32mOK[0m  ] Reached target slices.target - Slice Units.
+[  [32mOK[0m  ] Reached target swap.target - Swaps.
+[  [32mOK[0m  ] Listening on systemd-journald.socket - Journal Sockets.
+[  [32mOK[0m  ] Listening on systemd-networkd.socket - Network Service Netlink Socket.
+[  [32mOK[0m  ] Listening on systemd-udevd-control.socket - udev Control Socket.
+[  [32mOK[0m  ] Listening on systemd-udevd-kernel.socket - udev Kernel Socket.
+         Mounting dev-hugepages.mount - Huge Pages File System...
+         Mounting dev-mqueue.mount - POSIX Message Queue File System...
+         Starting kmod-static-nodes.service…eate List of Static Device Nodes...
+         Starting modprobe@configfs.service - Load Kernel Module configfs...
+         Starting modprobe@drm.service - Load Kernel Module drm...
+         Starting systemd-journald.service - Journal Service...
+         Starting systemd-modules-load.service - Load Kernel Modules...
+[  [32mOK[0m  ] Mounted dev-hugepages.mount - Huge Pages File System.
+[  [32mOK[0m  ] Mounted dev-mqueue.mount - POSIX Message Queue File System.
+[  [32mOK[0m  ] Mounted tmp.mount - Temporary Directory /tmp.
+[  [32mOK[0m  ] Finished kmod-static-nodes.service…Create List of Static Device Nodes.
+[  [32mOK[0m  ] Finished modprobe@configfs.service - Load Kernel Module configfs.
+[  [32mOK[0m  ] Finished modprobe@drm.service - Load Kernel Module drm.
+[  [32mOK[0m  ] Started systemd-journald.service - Journal Service.
+[  [32mOK[0m  ] Finished modprobe@efi_pstore.service - Load Kernel Module efi_pstore.
+[  [32mOK[0m  ] Finished modprobe@fuse.service - Load Kernel Module fuse.
+[  [32mOK[0m  ] Finished systemd-fsck-root.service - File System Check on Root Device.
+[  [32mOK[0m  ] Finished systemd-modules-load.service - Load Kernel Modules.
+[    4.288341] EXT4-fs (nvme0n1p1): re-mounted dced5a54-4fb7-4dda-abd6-4ea8f50bfe92 r/w.
+[  [32mOK[0m  ] Finished systemd-remount-fs.servic…mount Root and Kernel File Systems.
+[  [32mOK[0m  ] Finished systemd-sysctl.service - Apply Kernel Variables.
+         Starting cloud-init-main.service - Cloud-init: Single Process...
+         Starting systemd-growfs-root.service - Grow Root File System...
+         Starting systemd-random-seed.service - Load/Save OS Random Seed...
+[    4.602163] EXT4-fs (nvme0n1p1): resized filesystem to 2588667
+[  [32mOK[0m  ] Finished systemd-random-seed.service - Load/Save OS Random Seed.
+[  [32mOK[0m  ] Finished systemd-growfs-root.service - Grow Root File System.
+[  [32mOK[0m  ] Finished systemd-sysusers.service - Create System Users.
+         Starting systemd-resolved.service - Network Name Resolution...
+         Starting systemd-timesyncd.service - Network Time Synchronization...
+[  [32mOK[0m  ] Started systemd-timesyncd.service - Network Time Synchronization.
+[  [32mOK[0m  ] Reached target time-set.target - System Time Set.
+[  [32mOK[0m  ] Started systemd-udevd.service - Ru…anager for Device Events and Files.
+[  [32mOK[0m  ] Started systemd-resolved.service - Network Name Resolution.
+[  [32mOK[0m  ] Found device dev-ttyS0.device - /dev/ttyS0.
+[  [32mOK[0m  ] Reached target local-fs.target - Local File Systems.
+         Starting apparmor.service - Load AppArmor profiles...
+         Starting systemd-tmpfiles-setup.se…ate System Files and Directories...
+[  [32mOK[0m  ] Finished systemd-tmpfiles-setup.se…reate System Files and Directories.
+[  [32mOK[0m  ] Started cloud-init-main.service - Cloud-init: Single Process.
+         Starting cloud-init-local.service …-init: Local Stage (pre-network)...
+[  [32mOK[0m  ] Finished cloud-init-local.service …ud-init: Local Stage (pre-network).
+[  [32mOK[0m  ] Reached target network-pre.target - Preparation for Network.
+         Starting systemd-networkd.service - Network Configuration...
+[  [32mOK[0m  ] Started systemd-networkd.service - Network Configuration.
+[  [32mOK[0m  ] Reached target network.target - Network.
+[  [32mOK[0m  ] Finished systemd-networkd-wait-onl… Wait for Network to be Configured.
+         Starting cloud-init-network.service - Cloud-init: Network Stage...
+[  [32mOK[0m  ] Finished cloud-init-network.service - Cloud-init: Network Stage.
+[  [32mOK[0m  ] Reached target network-online.target - Network is Online.
+[  [32mOK[0m  ] Reached target sysinit.target - System Initialization.
+[  [32mOK[0m  ] Started apt-daily.timer - Daily apt download activities.
+[  [32mOK[0m  ] Started dpkg-db-backup.timer - Daily dpkg database backup timer.
+[  [32mOK[0m  ] Started fstrim.timer - Discard unused filesystem blocks once a week.
+[  [32mOK[0m  ] Started systemd-tmpfiles-clean.tim…y Cleanup of Temporary Directories.
+[  [32mOK[0m  ] Reached target timers.target - Timer Units.
+[  [32mOK[0m  ] Listening on dbus.socket - D-Bus System Message Bus Socket.
+[  [32mOK[0m  ] Reached target sockets.target - Socket Units.
+[  [32mOK[0m  ] Reached target basic.target - Basic System.
+         Starting cloud-config.service - Cloud-init: Config Stage...
+         Starting dbus.service - D-Bus System Message Bus...
+         Starting ssh.service - OpenBSD Secure Shell server...
+         Starting systemd-logind.service - User Login Management...
+         Starting systemd-user-sessions.service - Permit User Sessions...
+[  [32mOK[0m  ] Started dbus.service - D-Bus System Message Bus.
+[  [32mOK[0m  ] Finished systemd-user-sessions.service - Permit User Sessions.
+[  [32mOK[0m  ] Started getty@tty1.service - Getty on tty1.
+[  [32mOK[0m  ] Started serial-getty@ttyS0.service - Serial Getty on ttyS0.
+[  [32mOK[0m  ] Reached target getty.target - Login Prompts.
+[  [32mOK[0m  ] Started ssh.service - OpenBSD Secure Shell server.
+[  [32mOK[0m  ] Started systemd-logind.service - User Login Management.
+[  [32mOK[0m  ] Finished cloud-config.service - Cloud-init: Config Stage.
+[  [32mOK[0m  ] Finished grub-common.service - Record successful boot for GRUB.
+[  [32mOK[0m  ] Started unattended-upgrades.service - Unattended Upgrades Shutdown.
+[  [32mOK[0m  ] Reached target multi-user.target - Multi-User System.
+[  [32mOK[0m  ] Reached target graphical.target - Graphical Interface.
+         Starting cloud-final.service - Cloud-init: Final Stage...
+[  [32mOK[0m  ] Finished cloud-final.service - Cloud-init: Final Stage.
+[  [32mOK[0m  ] Reached target cloud-init.target - Cloud-init target.
+[  [32mOK[0m  ] Started polkit.service - Authorization Manager.
+
+Debian GNU/Linux 13 oxide-instance ttyS0
+
+oxide-instance login:

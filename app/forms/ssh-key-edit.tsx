@@ -8,23 +8,29 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
-import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
+import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 import { Key16Icon } from '@oxide/design-system/icons/react'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
-import { SideModalForm } from '~/components/form/SideModalForm'
+import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getSshKeySelector, useSshKeySelector } from '~/hooks/use-params'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
+
+const sshKeyView = ({ sshKey }: PP.SshKey) =>
+  q(api.currentUserSshKeyView, { path: { sshKey } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const { sshKey } = getSshKeySelector(params)
-  await apiQueryClient.prefetchQuery('currentUserSshKeyView', { path: { sshKey } })
+  const selector = getSshKeySelector(params)
+  await queryClient.prefetchQuery(sshKeyView(selector))
   return null
 }
 
@@ -32,29 +38,22 @@ export const handle = titleCrumb('View SSH Key')
 
 export default function EditSSHKeySideModalForm() {
   const navigate = useNavigate()
-  const { sshKey } = useSshKeySelector()
+  const selector = useSshKeySelector()
 
-  const { data } = usePrefetchedApiQuery('currentUserSshKeyView', {
-    path: { sshKey },
-  })
+  const { data } = usePrefetchedQuery(sshKeyView(selector))
 
   const form = useForm({ defaultValues: data })
+  const onDismiss = () => navigate(pb.sshKeys())
 
   return (
-    <SideModalForm
-      form={form}
-      formType="edit"
-      resourceName="SSH key"
+    <ReadOnlySideModalForm
       title="View SSH key"
-      onDismiss={() => navigate(pb.sshKeys())}
+      onDismiss={onDismiss}
       subtitle={
         <ResourceLabel>
           <Key16Icon /> {data.name}
         </ResourceLabel>
       }
-      // TODO: pass actual error when this form is hooked up
-      loading={false}
-      submitError={null}
     >
       <PropertiesTable>
         <PropertiesTable.IdRow id={data.id} />
@@ -64,7 +63,7 @@ export default function EditSSHKeySideModalForm() {
       <NameField name="name" control={form.control} disabled />
       <DescriptionField name="description" control={form.control} disabled />
       <div className="relative">
-        <CopyToClipboard className="!absolute right-0 top-0" text={data.publicKey} />
+        <CopyToClipboard className="absolute! top-0 right-0" text={data.publicKey} />
         <TextField
           as="textarea"
           name="publicKey"
@@ -75,6 +74,7 @@ export default function EditSSHKeySideModalForm() {
           disabled
         />
       </div>
-    </SideModalForm>
+      <SideModalFormDocs docs={[docLinks.sshKeys]} />
+    </ReadOnlySideModalForm>
   )
 }

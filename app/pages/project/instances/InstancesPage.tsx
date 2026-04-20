@@ -5,15 +5,16 @@
  *
  * Copyright Oxide Computer Company
  */
-import { type UseQueryOptions } from '@tanstack/react-query'
+import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { filesize } from 'filesize'
 import { useMemo, useRef, useState } from 'react'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { type LoaderFunctionArgs } from 'react-router'
 
 import {
-  apiQueryClient,
+  api,
   getListQFn,
+  q,
   queryClient,
   type ApiError,
   type Instance,
@@ -37,6 +38,7 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { setDiff } from '~/util/array'
+import { ALL_ISH } from '~/util/consts'
 import { toLocaleTimeString } from '~/util/date'
 import { pb } from '~/util/path-builder'
 import { pluralize } from '~/util/str'
@@ -61,7 +63,7 @@ const instanceList = (
   // kinda gnarly, but we need refetchInterval in the component but not in the loader.
   // pick refetchInterval to avoid annoying type conflicts on the full object
   options?: Pick<UseQueryOptions<InstanceResultsPage, ApiError>, 'refetchInterval'>
-) => getListQFn('instanceList', { query: { project } }, options)
+) => getListQFn(api.instanceList, { query: { project } }, options)
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
@@ -71,8 +73,8 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 
 const refetchInstances = () =>
   Promise.all([
-    apiQueryClient.invalidateQueries('instanceList'),
-    apiQueryClient.invalidateQueries('antiAffinityGroupMemberList'),
+    queryClient.invalidateEndpoint('instanceList'),
+    queryClient.invalidateEndpoint('antiAffinityGroupMemberList'),
   ])
 
 const sec = 1000 // ms, obviously
@@ -104,7 +106,7 @@ export default function InstancesPage() {
         cell: (info) => (
           <>
             {info.getValue()}{' '}
-            <span className="ml-1 text-tertiary">{pluralize('vCPU', info.getValue())}</span>
+            <span className="text-tertiary ml-1">{pluralize('vCPU', info.getValue())}</span>
           </>
         ),
       }),
@@ -114,7 +116,7 @@ export default function InstancesPage() {
           const memory = filesize(info.getValue(), { output: 'object', base: 2 })
           return (
             <>
-              {memory.value} <span className="ml-1 text-tertiary">{memory.unit}</span>
+              {memory.value} <span className="text-tertiary ml-1">{memory.unit}</span>
             </>
           )
         },
@@ -157,7 +159,7 @@ export default function InstancesPage() {
         const nextTransitioning = new Set(
           // Data will never actually be undefined because of the prefetch but whatever
           (data?.items || [])
-            .filter(instanceTransitioning)
+            .filter((instance) => instanceTransitioning(instance.runState))
             // These are strings of instance ID + current state. This is done because
             // of the case where an instance is stuck in starting (for example), polling
             // times out, and then you manually stop it. Without putting the state in the
@@ -191,24 +193,26 @@ export default function InstancesPage() {
     emptyState: <EmptyState />,
   })
 
-  const { data: instances, dataUpdatedAt } = query
+  const { dataUpdatedAt } = query
 
-  const navigate = useNavigate()
+  const { data: allInstances } = useQuery(
+    q(api.instanceList, { query: { project, limit: ALL_ISH } })
+  )
+
   useQuickActions(
-    useMemo(
-      () => [
-        {
-          value: 'New instance',
-          onSelect: () => navigate(pb.instancesNew({ project })),
-        },
-        ...(instances?.items || []).map((i) => ({
-          value: i.name,
-          onSelect: () => navigate(pb.instance({ project, instance: i.name })),
-          navGroup: 'Go to instance',
-        })),
-      ],
-      [project, instances, navigate]
-    )
+    () => [
+      {
+        value: 'New instance',
+        navGroup: 'Actions',
+        action: pb.instancesNew({ project }),
+      },
+      ...(allInstances?.items || []).map((i) => ({
+        value: i.name,
+        action: pb.instance({ project, instance: i.name }),
+        navGroup: 'Go to instance',
+      })),
+    ],
+    [project, allInstances]
   )
 
   return (
@@ -219,7 +223,7 @@ export default function InstancesPage() {
       </PageHeader>
       {/* Avoid changing justify-end on TableActions for this one case. We can
        * fix this properly when we add refresh and filtering for all tables. */}
-      <TableActions className="!justify-between">
+      <TableActions className="justify-between!">
         <div className="flex items-center gap-2">
           <RefreshButton onClick={refetchInstances} />
           <Tooltip

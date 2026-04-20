@@ -11,8 +11,10 @@ import { useCallback, useState } from 'react'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import { Affinity24Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import {
+  api,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -40,7 +42,6 @@ import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
-import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { CardBlock } from '~/ui/lib/CardBlock'
 import { Divider } from '~/ui/lib/Divider'
@@ -96,23 +97,25 @@ export default function AntiAffinityPage() {
   )
 
   const { mutateAsync: removeMember } = useApiMutation(
-    'antiAffinityGroupMemberInstanceDelete',
+    api.antiAffinityGroupMemberInstanceDelete,
     {
       onSuccess(_data, variables) {
         queryClient.invalidateEndpoint('antiAffinityGroupMemberList')
         queryClient.invalidateEndpoint('instanceAntiAffinityGroupList')
-        addToast(<>Member <HL>{variables.path.instance}</HL> removed from anti-affinity group <HL>{group.name}</HL></>) // prettier-ignore
+        // prettier-ignore
+        addToast(<>Member <HL>{variables.path.instance}</HL> removed from anti-affinity group <HL>{group.name}</HL></>)
       },
     }
   )
 
   const navigate = useNavigate()
 
-  const { mutateAsync: deleteGroup } = useApiMutation('antiAffinityGroupDelete', {
+  const { mutateAsync: deleteGroup } = useApiMutation(api.antiAffinityGroupDelete, {
     onSuccess() {
       navigate(pb.affinity({ project }))
       queryClient.invalidateEndpoint('antiAffinityGroupList')
-      addToast(<>Anti-affinity group <HL>{group.name}</HL> deleted</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Anti-affinity group <HL>{group.name}</HL> deleted</>)
     },
   })
 
@@ -222,7 +225,7 @@ export default function AntiAffinityPage() {
         <PropertiesTable.Row label="Members">{membersCount}</PropertiesTable.Row>
         <PropertiesTable.IdRow id={id} />
       </PropertiesTable>
-      <Divider className="mb-10" />
+      <Divider className="my-8" />
       <CardBlock>
         <CardBlock.Header
           title="Members"

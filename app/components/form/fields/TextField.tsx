@@ -67,7 +67,7 @@ export function TextField<
     <div className="max-w-lg">
       <div className="mb-2">
         <FieldLabel htmlFor={id} id={`${id}-label`} optional={!required}>
-          {label} {units && <span className="ml-1 text-default">({units})</span>}
+          {label} {units && <span className="text-default ml-1">({units})</span>}
         </FieldLabel>
         {description && (
           <TextInputHint id={`${id}-help-text`} className="mb-2">
@@ -117,6 +117,7 @@ export const TextFieldInner = <
         title={label}
         type={type}
         error={!!error}
+        // oxlint-disable-next-line jsx-a11y/aria-proptypes -- https://github.com/oxc-project/oxc/issues/17465
         aria-labelledby={`${id}-label ${id}-help-text`}
         onChange={(e) => onChange(transform ? transform(e.target.value) : e.target.value)}
         {...fieldRest}

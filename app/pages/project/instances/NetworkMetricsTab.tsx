@@ -10,8 +10,10 @@ import { useMemo, useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router'
 
 import {
-  apiQueryClient,
-  usePrefetchedApiQuery,
+  api,
+  q,
+  queryClient,
+  usePrefetchedQuery,
   type InstanceNetworkInterface,
 } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
@@ -32,9 +34,11 @@ import { useMetricsContext } from './common'
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
-  await apiQueryClient.prefetchQuery('instanceNetworkInterfaceList', {
-    query: { project, instance, limit: ALL_ISH },
-  })
+  await queryClient.prefetchQuery(
+    q(api.instanceNetworkInterfaceList, {
+      query: { project, instance, limit: ALL_ISH },
+    })
+  )
   return null
 }
 
@@ -42,9 +46,11 @@ const groupByInstanceId = { cols: ['instance_id'], op: 'sum' } as const
 
 export default function NetworkMetricsTab() {
   const { project, instance } = useInstanceSelector()
-  const { data: nics } = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
-    query: { project, instance, limit: ALL_ISH },
-  })
+  const { data: nics } = usePrefetchedQuery(
+    q(api.instanceNetworkInterfaceList, {
+      query: { project, instance, limit: ALL_ISH },
+    })
+  )
 
   if (nics.items.length === 0) {
     return (
@@ -63,10 +69,9 @@ export default function NetworkMetricsTab() {
 
 function NetworkMetrics({ nics }: { nics: InstanceNetworkInterface[] }) {
   const { project, instance } = useInstanceSelector()
-  const { data: instanceData } = usePrefetchedApiQuery('instanceView', {
-    path: { instance },
-    query: { project },
-  })
+  const { data: instanceData } = usePrefetchedQuery(
+    q(api.instanceView, { path: { instance }, query: { project } })
+  )
   const { startTime, endTime, dateTimeRangePicker } = useMetricsContext()
 
   const nicItems = useMemo(

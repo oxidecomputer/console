@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { Badge } from '~/ui/lib/Badge'
+import { Badge } from '@oxide/design-system/ui'
 
 export type TypeValue = {
   type: string
@@ -16,7 +16,7 @@ export type TypeValue = {
 export const TypeValueCell = ({ type, value }: TypeValue) => (
   <div className="space-x-0.5">
     <Badge>{type}</Badge>
-    <Badge variant="solid" className="!normal-case">
+    <Badge variant="solid" className="normal-case!">
       {value}
     </Badge>
   </div>

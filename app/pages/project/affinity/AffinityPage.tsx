@@ -11,6 +11,7 @@ import { useCallback } from 'react'
 import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
 import {
+  api,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -18,11 +19,13 @@ import {
   type AntiAffinityGroup,
 } from '@oxide/api'
 import { Affinity24Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import { AffinityDocsPopover, AffinityPolicyHeader } from '~/components/AffinityDocsPopover'
 import { HL } from '~/components/HL'
 import { antiAffinityGroupList, antiAffinityGroupMemberList } from '~/forms/affinity-util'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
@@ -30,7 +33,6 @@ import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
-import { Badge } from '~/ui/lib/Badge'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -56,7 +58,8 @@ const colHelper = createColumnHelper<AntiAffinityGroup>()
 
 export const AffinityGroupPolicyBadge = ({ policy }: { policy: AffinityPolicy }) => {
   const variant = { allow: 'default' as const, fail: 'solid' as const }[policy]
-  return <Badge color="neutral" variant={variant}>{policy}</Badge> // prettier-ignore
+  // prettier-ignore
+  return <Badge color="neutral" variant={variant}>{policy}</Badge>
 }
 
 const staticCols = [
@@ -81,7 +84,7 @@ export default function AffinityPage() {
     data: { items: antiAffinityGroups },
   } = usePrefetchedQuery(antiAffinityGroupList({ project }))
 
-  const { mutateAsync: deleteGroup } = useApiMutation('antiAffinityGroupDelete', {
+  const { mutateAsync: deleteGroup } = useApiMutation(api.antiAffinityGroupDelete, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('antiAffinityGroupList')
       addToast(
@@ -135,6 +138,22 @@ export default function AffinityPage() {
     data: antiAffinityGroups,
     getCoreRowModel: getCoreRowModel(),
   })
+
+  useQuickActions(
+    () => [
+      {
+        value: 'New anti-affinity group',
+        navGroup: 'Actions',
+        action: pb.affinityNew({ project }),
+      },
+      ...antiAffinityGroups.map((g) => ({
+        value: g.name,
+        action: pb.antiAffinityGroup({ project, antiAffinityGroup: g.name }),
+        navGroup: 'Go to anti-affinity group',
+      })),
+    ],
+    [project, antiAffinityGroups]
+  )
 
   return (
     <>

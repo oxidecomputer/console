@@ -10,9 +10,12 @@ import type { ReactNode } from 'react'
 import { Link, Outlet } from 'react-router'
 
 import { useIsActivePath } from '~/hooks/use-is-active-path'
-import { KEYS } from '~/ui/util/keys'
+import { hasModifier, KEYS } from '~/ui/util/keys'
 
 const selectTab = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  // Don't intercept modified arrow keys (Cmd for browser back/forward, etc.)
+  if (hasModifier(e)) return
+
   const target = e.target as HTMLDivElement
   if (e.key === KEYS.left) {
     e.stopPropagation()
@@ -67,7 +70,7 @@ export function RouteTabs({
       </div>
 
       <div
-        className={cn('ox-tabs-panel @container', { 'ml-5 flex-grow': sideTabs })}
+        className={cn('ox-tabs-panel @container', { 'ml-5 grow': sideTabs })}
         role="tabpanel"
         tabIndex={0}
       >
@@ -96,7 +99,7 @@ export const Tab = ({ to, activePrefix, children }: TabProps) => {
       className={cn('ox-tab', { 'is-selected': isActive })}
       tabIndex={isActive ? 0 : -1}
       aria-selected={isActive}
-      data-state={isActive ? 'active' : 'inactive'}
+      data-active={isActive ? '' : undefined}
     >
       <div>{children}</div>
     </Link>

@@ -8,7 +8,7 @@
 import cn from 'classnames'
 
 export const Slash = ({ className }: { className?: string }) => (
-  <span className={cn('mx-1 text-quaternary selected:text-accent-disabled', className)}>
+  <span className={cn('text-quaternary selected:text-accent-disabled mx-1', className)}>
     /
   </span>
 )

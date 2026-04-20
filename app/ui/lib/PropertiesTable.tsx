@@ -9,6 +9,7 @@ import cn from 'classnames'
 import type { ReactNode } from 'react'
 
 import { DescriptionCell } from '~/table/cells/DescriptionCell'
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { isOneOf } from '~/util/children'
 import { invariant } from '~/util/invariant'
 
@@ -37,13 +38,14 @@ export function PropertiesTable({
   )
   return (
     <div
+      aria-label="Properties table"
       className={cn(
         className,
-        'properties-table min-w-min basis-6/12 rounded-lg border border-default',
-        'children:border-t children:pl-3 children:pr-6 children:border-secondary [&>*:nth-child(-n+2)]:!border-t-0',
+        'properties-table bg-default border-default min-w-min basis-6/12 rounded-lg border',
+        '*:border-secondary *:border-t *:pr-6 *:pl-3 [&>*:nth-child(-n+2)]:border-t-0!',
         'grid grid-cols-[minmax(min-content,1fr)_3fr]',
         {
-          'lg+:grid-cols-[minmax(min-content,1fr)_3fr_minmax(min-content,1fr)_3fr] lg+:[&>*:nth-child(-n+4)]:!border-t-0 lg+:[&>*:nth-child(4n-2)]:border-r':
+          '1000:grid-cols-[minmax(min-content,1fr)_3fr_minmax(min-content,1fr)_3fr] 1000:[&>*:nth-child(-n+4)]:border-t-0! 1000:[&>*:nth-child(4n-2)]:border-r':
             columns === 2,
         }
       )}
@@ -59,24 +61,30 @@ interface PropertiesTableRowProps {
 }
 PropertiesTable.Row = ({ label, children }: PropertiesTableRowProps) => (
   <>
-    <span className="flex items-center whitespace-nowrap text-mono-sm text-secondary">
+    <span className="text-mono-sm text-secondary flex items-center whitespace-nowrap">
       {label}
     </span>
-    <div className="flex h-[38px] items-center overflow-hidden whitespace-nowrap pr-4 text-sans-md text-default">
+    <div className="text-sans-md text-default flex h-[38px] items-center overflow-hidden pr-4 whitespace-nowrap">
       {children}
     </div>
   </>
 )
 
-PropertiesTable.IdRow = ({ id }: { id: string }) => (
-  <PropertiesTable.Row label="ID">
-    <Truncate text={id} maxLength={32} hasCopyButton />
+PropertiesTable.IdRow = ({ id, label = 'ID' }: { id?: string | null; label?: string }) => (
+  <PropertiesTable.Row label={label}>
+    {id ? <Truncate text={id} maxLength={32} hasCopyButton /> : <EmptyCell />}
   </PropertiesTable.Row>
 )
 
-PropertiesTable.DescriptionRow = ({ description }: { description: string }) => (
+PropertiesTable.DescriptionRow = ({
+  description,
+  sideModal,
+}: {
+  description: string
+  sideModal?: boolean
+}) => (
   <PropertiesTable.Row label="Description">
-    <DescriptionCell text={description} />
+    <DescriptionCell text={description} sideModal={sideModal} />
   </PropertiesTable.Row>
 )
 

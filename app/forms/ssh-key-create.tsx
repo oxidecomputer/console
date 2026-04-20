@@ -8,7 +8,13 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import { useApiMutation, useApiQueryClient, type SshKeyCreate } from '@oxide/api'
+import {
+  api,
+  queryClient,
+  useApiMutation,
+  type SshKey,
+  type SshKeyCreate,
+} from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -16,6 +22,8 @@ import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { addToast } from '~/stores/toast'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const defaultValues: SshKeyCreate = {
@@ -26,20 +34,22 @@ const defaultValues: SshKeyCreate = {
 
 type Props = {
   onDismiss?: () => void
+  onSuccess?: (sshKey: SshKey) => void
   message?: React.ReactNode
 }
 
-export function SSHKeyCreate({ onDismiss, message }: Props) {
-  const queryClient = useApiQueryClient()
+export function SSHKeyCreate({ onDismiss, onSuccess, message }: Props) {
   const navigate = useNavigate()
 
   const handleDismiss = onDismiss ? onDismiss : () => navigate(pb.sshKeys())
 
-  const createSshKey = useApiMutation('currentUserSshKeyCreate', {
+  const createSshKey = useApiMutation(api.currentUserSshKeyCreate, {
     onSuccess(sshKey) {
-      queryClient.invalidateQueries('currentUserSshKeyList')
+      queryClient.invalidateEndpoint('currentUserSshKeyList')
+      onSuccess?.(sshKey)
       handleDismiss()
-      addToast(<>SSH key <HL>{sshKey.name}</HL> created</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>SSH key <HL>{sshKey.name}</HL> created</>)
     },
   })
   const form = useForm({ defaultValues })
@@ -66,6 +76,7 @@ export function SSHKeyCreate({ onDismiss, message }: Props) {
         control={form.control}
       />
       {message}
+      <SideModalFormDocs docs={[docLinks.sshKeys]} />
     </SideModalForm>
   )
 }

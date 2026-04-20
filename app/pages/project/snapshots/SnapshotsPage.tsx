@@ -7,30 +7,34 @@
  */
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
-  apiqErrorsAllowed,
-  apiQueryClient,
+  api,
   getListQFn,
+  q,
+  qErrorsAllowed,
   queryClient,
   useApiMutation,
-  useApiQueryClient,
+  type Disk,
   type Snapshot,
 } from '@oxide/api'
 import { Snapshots16Icon, Snapshots24Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { SnapshotStateBadge } from '~/components/StateBadge'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
+import { DiskDetailSideModal } from '~/pages/project/disks/DiskDetailSideModal'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
+import { ButtonCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
-import { Badge } from '~/ui/lib/Badge'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -38,12 +42,30 @@ import { TableActions } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-const DiskNameFromId = ({ value }: { value: string }) => {
-  const { data } = useQuery(apiqErrorsAllowed('diskView', { path: { disk: value } }))
+const diskViewErrorsAllowedQ = (disk: string) =>
+  qErrorsAllowed(
+    api.diskView,
+    { path: { disk } },
+    {
+      errorsExpected: {
+        explanation: 'the source disk may have been deleted.',
+        statusCode: 404,
+      },
+    }
+  )
+
+const DiskNameFromId = ({
+  value,
+  onClick,
+}: {
+  value: string
+  onClick: (disk: Disk) => void
+}) => {
+  const { data } = useQuery(diskViewErrorsAllowedQ(value))
 
   if (!data) return <SkeletonCell />
   if (data.type === 'error') return <Badge color="neutral">Deleted</Badge>
-  return <span className="text-default">{data.data.name}</span>
+  return <ButtonCell onClick={() => onClick(data.data)}>{data.data.name}</ButtonCell>
 }
 
 const EmptyState = () => (
@@ -56,7 +78,8 @@ const EmptyState = () => (
   />
 )
 
-const snapshotList = (project: string) => getListQFn('snapshotList', { query: { project } })
+const snapshotList = (project: string) =>
+  getListQFn(api.snapshotList, { query: { project } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
@@ -71,15 +94,14 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     // data is just never found in the cache. Note that the disks that error
     // (delete disks) are not prefetched here because they are (obviously) not
     // in the disk list response.
-    apiQueryClient
-      .fetchQuery('diskList', { query: { project, limit: 200 } })
+    queryClient
+      .fetchQuery(q(api.diskList, { query: { project, limit: 200 } }))
       .then((disks) => {
         for (const disk of disks.items) {
-          apiQueryClient.setQueryDataErrorsAllowed(
-            'diskView',
-            { path: { disk: disk.id } },
-            { type: 'success', data: disk }
-          )
+          queryClient.setQueryData(diskViewErrorsAllowedQ(disk.id).queryKey, {
+            type: 'success',
+            data: disk,
+          })
         }
       }),
   ])
@@ -89,28 +111,29 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 export const handle = makeCrumb('Snapshots', (p) => pb.snapshots(getProjectSelector(p)))
 
 const colHelper = createColumnHelper<Snapshot>()
-const staticCols = [
-  colHelper.accessor('name', {}),
-  colHelper.accessor('description', Columns.description),
-  colHelper.accessor('diskId', {
-    header: 'disk',
-    cell: (info) => <DiskNameFromId value={info.getValue()} />,
-  }),
-  colHelper.accessor('state', {
-    cell: (info) => <SnapshotStateBadge state={info.getValue()} />,
-  }),
-  colHelper.accessor('size', Columns.size),
-  colHelper.accessor('timeCreated', Columns.timeCreated),
-]
 
 export default function SnapshotsPage() {
-  const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
   const navigate = useNavigate()
+  const [selectedDisk, setSelectedDisk] = useState<Disk | null>(null)
 
-  const { mutateAsync: deleteSnapshot } = useApiMutation('snapshotDelete', {
+  const staticCols = [
+    colHelper.accessor('name', {}),
+    colHelper.accessor('description', Columns.description),
+    colHelper.accessor('diskId', {
+      header: 'disk',
+      cell: (info) => <DiskNameFromId value={info.getValue()} onClick={setSelectedDisk} />,
+    }),
+    colHelper.accessor('state', {
+      cell: (info) => <SnapshotStateBadge state={info.getValue()} />,
+    }),
+    colHelper.accessor('size', Columns.size),
+    colHelper.accessor('timeCreated', Columns.timeCreated),
+  ]
+
+  const { mutateAsync: deleteSnapshot } = useApiMutation(api.snapshotDelete, {
     onSuccess() {
-      queryClient.invalidateQueries('snapshotList')
+      queryClient.invalidateEndpoint('snapshotList')
     },
   })
 
@@ -142,6 +165,18 @@ export default function SnapshotsPage() {
     columns,
     emptyState: <EmptyState />,
   })
+
+  useQuickActions(
+    () => [
+      {
+        value: 'New snapshot',
+        navGroup: 'Actions',
+        action: pb.snapshotsNew({ project }),
+      },
+    ],
+    [project]
+  )
+
   return (
     <>
       <PageHeader>
@@ -158,6 +193,13 @@ export default function SnapshotsPage() {
       </TableActions>
       {table}
       <Outlet />
+      {selectedDisk && (
+        <DiskDetailSideModal
+          disk={selectedDisk}
+          onDismiss={() => setSelectedDisk(null)}
+          animate
+        />
+      )}
     </>
   )
 }

@@ -5,15 +5,18 @@
  *
  * Copyright Oxide Computer Company
  */
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
 import { act, render, renderHook, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 import { project } from '@oxide/api-mocks'
 
-import { useApiMutation, useApiQuery } from '..'
-import type { DiskCreate } from '../__generated__/Api'
+import { api, q, useApiMutation } from '..'
 import { overrideOnce } from '../../../test/unit/server'
+import type { DiskCreate } from '../__generated__/Api'
+
+// TODO: rethink whether these tests need to exist when they are so well-covered
+// by playwright tests
 
 // because useApiQuery and useApiMutation are almost entirely typed wrappers
 // around React Query's useQuery and useMutation, these tests are mostly about
@@ -32,16 +35,17 @@ export function Wrapper({ children }: { children: React.ReactNode }) {
 
 const config = { wrapper: Wrapper }
 
-const renderProjectList = () => renderHook(() => useApiQuery('projectList', {}), config)
+const renderProjectList = () => renderHook(() => useQuery(q(api.projectList, {})), config)
 
 // 503 is a special key in the MSW server that returns a 503
 const renderGetProject503 = () =>
   renderHook(
-    () => useApiQuery('projectView', { path: { project: 'project-error-503' } }),
+    () => useQuery(q(api.projectView, { path: { project: 'project-error-503' } })),
     config
   )
 
-const renderCreateProject = () => renderHook(() => useApiMutation('projectCreate'), config)
+const renderCreateProject = () =>
+  renderHook(() => useApiMutation(api.projectCreate), config)
 
 const createParams = {
   body: { name: 'abc', description: '', hello: 'a' },
@@ -116,9 +120,8 @@ describe('useApiQuery', () => {
 
       function BadApiCall() {
         try {
-          // this disable is for for oxlint
-          // eslint-disable-next-line react-hooks/rules-of-hooks
-          useApiQuery('projectView', { path: { project: 'nonexistent' } })
+          // oxlint-disable-next-line react-hooks/rules-of-hooks
+          useQuery(q(api.projectView, { path: { project: 'nonexistent' } }))
         } catch (e) {
           onError(e)
         }
@@ -140,10 +143,12 @@ describe('useApiQuery', () => {
     it('default throw behavior can be overridden to use query error state', async () => {
       const { result } = renderHook(
         () =>
-          useApiQuery(
-            'projectView',
-            { path: { project: 'nonexistent' } },
-            { throwOnError: false } // <----- the point
+          useQuery(
+            q(
+              api.projectView,
+              { path: { project: 'nonexistent' } },
+              { throwOnError: false }
+            )
           ),
         config
       )
@@ -161,7 +166,7 @@ describe('useApiQuery', () => {
       const { result } = renderProjectList()
       await waitFor(() => {
         const items = result.current.data?.items
-        expect(items?.length).toEqual(2)
+        expect(items?.length).toEqual(3)
         expect(items?.[0].id).toEqual(project.id)
       })
     })
@@ -192,7 +197,10 @@ describe('useApiMutation', () => {
     const diskCreate: DiskCreate = {
       name: 'will-fail',
       description: '',
-      diskSource: { type: 'blank', blockSize: 512 },
+      diskBackend: {
+        type: 'distributed',
+        diskSource: { type: 'blank', blockSize: 512 },
+      },
       size: 10,
     }
     const diskCreate404Params = {
@@ -201,7 +209,7 @@ describe('useApiMutation', () => {
     }
 
     it('passes through raw response', async () => {
-      const { result } = renderHook(() => useApiMutation('diskCreate'), config)
+      const { result } = renderHook(() => useApiMutation(api.diskCreate), config)
 
       act(() => result.current.mutate(diskCreate404Params))
 
@@ -215,7 +223,7 @@ describe('useApiMutation', () => {
     })
 
     it('parses error json if possible', async () => {
-      const { result } = renderHook(() => useApiMutation('diskCreate'), config)
+      const { result } = renderHook(() => useApiMutation(api.diskCreate), config)
 
       act(() => result.current.mutate(diskCreate404Params))
 
@@ -281,4 +289,13 @@ describe('useApiMutation', () => {
       })
     })
   })
+})
+
+// we're relying on the name property of the API method for the queryKey, so we
+// need to make sure nothing changes in the generated client to cause the API
+// methods to not have a name
+it('apiq queryKey', () => {
+  const params = { path: { silo: 'abc' } }
+  const queryOptions = q(api.siloView, { path: { silo: 'abc' } })
+  expect(queryOptions.queryKey).toEqual(['siloView', params])
 })

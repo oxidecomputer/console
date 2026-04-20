@@ -31,6 +31,12 @@ test('can update a floating IP', async ({ page }) => {
   await clickRowAction(page, 'cola-float', 'Edit')
   await expectVisible(page, expectedFormElements)
 
+  // Properties table should show resolved instance and pool names
+  const dialog = page.getByRole('dialog')
+  await expect(dialog.getByText('ip-pool-1')).toBeVisible()
+  // cola-float is attached to db1
+  await expect(dialog.getByRole('link', { name: 'db1' })).toBeVisible()
+
   await page.fill('input[name=name]', updatedName)
   await page.getByRole('textbox', { name: 'Description' }).fill(updatedDescription)
   await page.getByRole('button', { name: 'Update floating IP' }).click()

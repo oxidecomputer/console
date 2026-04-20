@@ -50,7 +50,7 @@ test('Create silo', async ({ page }) => {
   await expect(page.getByRole('checkbox', { name: 'Grant fleet admin' })).toBeChecked()
   await page.getByRole('radio', { name: 'Local only' }).click()
   await expect(page.getByRole('textbox', { name: 'Admin group name' })).toBeHidden()
-  await page.getByRole('radio', { name: 'SAML' }).click()
+  await page.getByRole('radio', { name: 'SAML + JIT' }).click()
   await expect(page.getByRole('textbox', { name: 'Admin group name' })).toHaveValue('')
   await expect(page.getByRole('checkbox', { name: 'Grant fleet admin' })).toBeChecked()
   await page.getByRole('textbox', { name: 'Admin group name' }).fill('admins')
@@ -97,8 +97,8 @@ test('Create silo', async ({ page }) => {
   // Validation error for missing name + key and cert files
   await expectVisible(page, [certRequired, keyRequired, nameRequired])
 
-  await chooseFile(page, page.getByLabel('Cert', { exact: true }), 'small')
-  await chooseFile(page, page.getByLabel('Key'), 'small')
+  await chooseFile(page.getByLabel('Cert', { exact: true }), 'small')
+  await chooseFile(page.getByLabel('Key'), 'small')
   const certName = certDialog.getByRole('textbox', { name: 'Name' })
   await certName.fill('test-cert')
 
@@ -118,8 +118,8 @@ test('Create silo', async ({ page }) => {
 
   // Change the name so it's unique
   await certName.fill('test-cert-2')
-  await chooseFile(page, page.getByLabel('Cert', { exact: true }), 'small')
-  await chooseFile(page, page.getByLabel('Key'), 'small')
+  await chooseFile(page.getByLabel('Cert', { exact: true }), 'small')
+  await chooseFile(page.getByLabel('Key'), 'small')
   await certSubmit.click()
   await expect(page.getByRole('cell', { name: 'test-cert-2', exact: true })).toBeVisible()
 
@@ -155,7 +155,11 @@ test('Create silo', async ({ page }) => {
   await expectRowVisible(table, { Resource: 'Memory', Quota: '58 GiB' })
   await expectRowVisible(table, { Resource: 'Storage', Quota: '735 GiB' })
 
-  await page.goBack()
+  // Go back to the silos list page to delete the silo using breadcrumbs
+  await page
+    .getByRole('navigation', { name: 'Breadcrumbs' })
+    .getByRole('link', { name: 'Silos' })
+    .click()
 
   // now delete it
   await clickRowAction(page, 'other-silo', 'Delete')
@@ -164,21 +168,14 @@ test('Create silo', async ({ page }) => {
   await expect(otherSiloCell).toBeHidden()
 })
 
-test('Default silo', async ({ page }) => {
+test('Silo with no fleet role mappings', async ({ page }) => {
   await page.goto('/system/silos')
-  await page.getByRole('link', { name: 'myriad' }).click()
+  await page.getByRole('link', { name: 'thrax' }).click()
 
-  await expect(page.getByRole('heading', { name: 'myriad' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'thrax' })).toBeVisible()
   await page.getByRole('tab', { name: 'Fleet roles' }).click()
 
-  await expect(
-    page.getByText('Silo roles can automatically grant a fleet role.')
-  ).toBeVisible()
-
-  await expectNotVisible(page, [
-    page.getByText('Silo adminFleet admin'),
-    page.getByText('Silo viewerFleet viewer'),
-  ])
+  await expect(page.getByText('This silo has no role mappings configured.')).toBeVisible()
 })
 
 test('Identity providers', async ({ page }) => {
@@ -200,7 +197,7 @@ test('Identity providers', async ({ page }) => {
     'groups'
   )
 
-  await page.getByRole('button', { name: 'Close' }).click()
+  await page.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
 
   await expect(dialog).toBeHidden()
 
@@ -257,32 +254,29 @@ test('Identity providers', async ({ page }) => {
 })
 
 test('Silo IP pools', async ({ page }) => {
-  await page.goto('/system/silos/maze-war?tab=ip-pools')
+  await page.goto('/system/silos/maze-war/ip-pools')
 
   const table = page.getByRole('table')
-  await expectRowVisible(table, { name: 'ip-pool-1', Default: 'default' })
-  await expectRowVisible(table, { name: 'ip-pool-2', Default: '' })
-  await expect(table.getByRole('row')).toHaveCount(3) // header + 2
+  // Both unicast pools start as default (one IPv4, one IPv6) - valid dual-default scenario
+  await expectRowVisible(table, { name: 'ip-pool-1default', Version: 'v4' })
+  await expectRowVisible(table, { name: 'ip-pool-2default', Version: 'v6' })
+  // Multicast pools are also linked as defaults
+  await expectRowVisible(table, {
+    name: 'ip-pool-5-multicast-v4default',
+    Version: 'v4',
+  })
+  await expectRowVisible(table, {
+    name: 'ip-pool-6-multicast-v6default',
+    Version: 'v6',
+  })
+  await expect(table.getByRole('row')).toHaveCount(5) // header + 4
 
   // clicking on pool goes to pool detail
   await page.getByRole('link', { name: 'ip-pool-1' }).click()
-  await expect(page).toHaveURL('/system/networking/ip-pools/ip-pool-1')
+  await expect(page).toHaveURL(/\/system\/networking\/ip-pools\/[a-f0-9-]+/)
   await page.goBack()
 
-  // make default
-  await clickRowAction(page, 'ip-pool-2', 'Make default')
-  await expect(
-    page
-      .getByRole('dialog', { name: 'Confirm change default' })
-      .getByText(
-        'Are you sure you want to change the default pool from ip-pool-1 to ip-pool-2?'
-      )
-  ).toBeVisible()
-  await page.getByRole('button', { name: 'Confirm' }).click()
-  await expectRowVisible(table, { name: 'ip-pool-1', Default: '' })
-  await expectRowVisible(table, { name: 'ip-pool-2', Default: 'default' })
-
-  // unlink
+  // unlink IPv4 pool
   await clickRowAction(page, 'ip-pool-1', 'Unlink')
   await expect(
     page
@@ -291,9 +285,10 @@ test('Silo IP pools', async ({ page }) => {
   ).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(page.getByRole('cell', { name: 'ip-pool-1' })).toBeHidden()
-  await expectRowVisible(table, { name: 'ip-pool-2', Default: 'default' })
+  // ip-pool-2 should still be default
+  await expectRowVisible(table, { name: 'ip-pool-2default', Version: 'v6' })
 
-  // clear default
+  // clear default for IPv6 pool
   await clickRowAction(page, 'ip-pool-2', 'Clear default')
   await expect(
     page
@@ -301,16 +296,26 @@ test('Silo IP pools', async ({ page }) => {
       .getByText('Are you sure you want ip-pool-2 to stop being the default')
   ).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
-  await expectRowVisible(table, { name: 'ip-pool-2', Default: '' })
+  await expectRowVisible(table, { name: 'ip-pool-2', Version: 'v6' })
 })
 
 test('Silo IP pools link pool', async ({ page }) => {
-  await page.goto('/system/silos/maze-war?tab=ip-pools')
+  await page.goto('/system/silos/maze-war/ip-pools')
 
   const table = page.getByRole('table')
-  await expectRowVisible(table, { name: 'ip-pool-1', Default: 'default' })
-  await expectRowVisible(table, { name: 'ip-pool-2', Default: '' })
-  await expect(table.getByRole('row')).toHaveCount(3) // header + 2
+  // Both unicast pools start as default (one IPv4, one IPv6)
+  await expectRowVisible(table, { name: 'ip-pool-1default', Version: 'v4' })
+  await expectRowVisible(table, { name: 'ip-pool-2default', Version: 'v6' })
+  // Multicast pools are also linked
+  await expectRowVisible(table, {
+    name: 'ip-pool-5-multicast-v4default',
+    Version: 'v4',
+  })
+  await expectRowVisible(table, {
+    name: 'ip-pool-6-multicast-v6default',
+    Version: 'v6',
+  })
+  await expect(table.getByRole('row')).toHaveCount(5) // header + 4
 
   const modal = page.getByRole('dialog', { name: 'Link pool' })
   await expect(modal).toBeHidden()
@@ -338,7 +343,7 @@ test('Silo IP pools link pool', async ({ page }) => {
 
   // modal closes and we see the thing in the table
   await expect(modal).toBeHidden()
-  await expectRowVisible(table, { name: 'ip-pool-3', Default: '' })
+  await expectRowVisible(table, { name: 'ip-pool-3', Version: 'v4' })
 })
 
 // just a convenient form to test this with because it's tall

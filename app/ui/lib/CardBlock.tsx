@@ -28,7 +28,7 @@ export function CardBlock({ children, width = 'full' }: CardBlockProps) {
   return (
     <div
       className={cn(
-        'flex flex-col rounded-lg border py-5 text-sans-md border-default children:border-b children:border-b-secondary last:children:border-0 last:children:pb-0',
+        'text-sans-md border-default *:border-b-secondary bg-default flex flex-col rounded-lg border py-5 *:border-b *:last:border-0 *:last:pb-0',
         widthClass[width]
       )}
     >
@@ -45,7 +45,7 @@ type HeaderProps = {
 }
 
 CardBlock.Header = ({ title, description, children, titleId }: HeaderProps) => (
-  <header className="flex items-start justify-between px-5 pb-4 text-secondary">
+  <header className="text-secondary flex items-start justify-between px-5 pb-4">
     <div className="flex flex-col gap-0.5">
       <div className="text-sans-semi-lg text-raise" id={titleId}>
         {title}
@@ -62,16 +62,16 @@ CardBlock.Body = classed.div`px-5 py-4 space-y-4 [&>*:last-child[data-simplebar]
 
 CardBlock.Footer = classed.footer`flex items-center justify-between px-5 pt-4 text-secondary`
 
-export const LearnMore = ({ href, text }: { href: string; text: React.ReactNode }) => (
+export const LearnMore = ({ doc }: { doc: { href: string; linkText: string } }) => (
   <div className="text-sans-md">
     Learn more about{' '}
     <a
-      href={href}
-      className="inline-flex items-center text-accent-secondary hover:text-accent"
+      href={doc.href}
+      className="text-accent-secondary hover:text-accent inline-flex items-center"
       target="_blank"
       rel="noreferrer"
     >
-      {text}
+      {doc.linkText}
       <OpenLink12Icon className="ml-1 align-middle" />
     </a>
   </div>

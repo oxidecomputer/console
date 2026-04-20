@@ -16,7 +16,7 @@ export function ToastStack() {
 
   return (
     <div
-      className="pointer-events-auto fixed bottom-4 left-4 z-toast flex flex-col items-end space-y-2"
+      className="pointer-events-auto fixed bottom-4 left-4 z-(--z-toast) flex flex-col items-end space-y-2"
       data-testid="Toasts"
     >
       <AnimatePresence>

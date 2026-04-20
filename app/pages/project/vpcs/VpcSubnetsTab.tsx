@@ -9,13 +9,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
-import {
-  getListQFn,
-  queryClient,
-  useApiMutation,
-  useApiQueryClient,
-  type VpcSubnet,
-} from '@oxide/api'
+import { api, getListQFn, queryClient, useApiMutation, type VpcSubnet } from '@oxide/api'
 
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -33,7 +27,7 @@ import type * as PP from '~/util/path-params'
 
 const colHelper = createColumnHelper<VpcSubnet>()
 
-const subnetList = (params: PP.Vpc) => getListQFn('vpcSubnetList', { query: params })
+const subnetList = (params: PP.Vpc) => getListQFn(api.vpcSubnetList, { query: params })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcSelector(params)
@@ -41,17 +35,16 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
   return null
 }
 
-export const handle = { crumb: 'Subnets' }
+export const handle = { crumb: 'VPC Subnets' }
 
 export default function VpcSubnetsTab() {
   const vpcSelector = useVpcSelector()
-  const queryClient = useApiQueryClient()
 
-  const { mutateAsync: deleteSubnet } = useApiMutation('vpcSubnetDelete', {
+  const { mutateAsync: deleteSubnet } = useApiMutation(api.vpcSubnetDelete, {
     onSuccess() {
-      queryClient.invalidateQueries('vpcSubnetList')
+      queryClient.invalidateEndpoint('vpcSubnetList')
       // We only have the ID, so will show a generic confirmation message
-      addToast({ content: 'Subnet deleted' })
+      addToast({ content: 'VPC subnet deleted' })
     },
   })
 
@@ -97,8 +90,8 @@ export default function VpcSubnetsTab() {
   const emptyState = (
     <EmptyMessage
       title="No VPC subnets"
-      body="Create a subnet to see it here"
-      buttonText="New subnet"
+      body="Create a VPC subnet to see it here"
+      buttonText="New VPC subnet"
       buttonTo={pb.vpcSubnetsNew(vpcSelector)}
     />
   )
@@ -113,7 +106,7 @@ export default function VpcSubnetsTab() {
   return (
     <>
       <div className="mb-3 flex justify-end space-x-2">
-        <CreateLink to={pb.vpcSubnetsNew(vpcSelector)}>New subnet</CreateLink>
+        <CreateLink to={pb.vpcSubnetsNew(vpcSelector)}>New VPC subnet</CreateLink>
       </div>
       {table}
       <Outlet />

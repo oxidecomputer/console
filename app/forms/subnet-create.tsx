@@ -9,7 +9,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 import type { SetNonNullable } from 'type-fest'
 
-import { useApiMutation, useApiQueryClient, type VpcSubnetCreate } from '@oxide/api'
+import { api, queryClient, useApiMutation, type VpcSubnetCreate } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
@@ -26,6 +26,8 @@ import { titleCrumb } from '~/hooks/use-crumbs'
 import { useVpcSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const defaultValues: SetNonNullable<Required<VpcSubnetCreate>> = {
@@ -42,16 +44,16 @@ export const handle = titleCrumb('New Subnet')
 
 export default function CreateSubnetForm() {
   const vpcSelector = useVpcSelector()
-  const queryClient = useApiQueryClient()
 
   const navigate = useNavigate()
   const onDismiss = () => navigate(pb.vpcSubnets(vpcSelector))
 
-  const createSubnet = useApiMutation('vpcSubnetCreate', {
+  const createSubnet = useApiMutation(api.vpcSubnetCreate, {
     onSuccess(subnet) {
-      queryClient.invalidateQueries('vpcSubnetList')
+      queryClient.invalidateEndpoint('vpcSubnetList')
       onDismiss()
-      addToast(<>Subnet <HL>{subnet.name}</HL> created</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Subnet <HL>{subnet.name}</HL> created</>)
     },
   })
 
@@ -62,7 +64,7 @@ export default function CreateSubnetForm() {
     <SideModalForm
       form={form}
       formType="create"
-      resourceName="subnet"
+      resourceName="VPC subnet"
       onDismiss={onDismiss}
       onSubmit={({ name, description, ipv4Block, ipv6Block, customRouter }) =>
         createSubnet.mutate({
@@ -94,6 +96,7 @@ export default function CreateSubnetForm() {
         control={form.control}
         required
       />
+      <SideModalFormDocs docs={[docLinks.vpcs]} />
     </SideModalForm>
   )
 }

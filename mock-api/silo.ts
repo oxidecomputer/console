@@ -10,6 +10,7 @@ import * as R from 'remeda'
 import type {
   IdentityProvider,
   SamlIdentityProvider,
+  ScimClientBearerToken,
   Silo,
   SiloAuthSettings,
   SiloQuotas,
@@ -29,7 +30,7 @@ export const silos: Json<Silo[]> = [
     discoverable: true,
     identity_mode: 'saml_jit',
     mapped_fleet_roles: {
-      admin: ['admin'],
+      collaborator: ['admin'],
     },
   },
   {
@@ -40,11 +41,48 @@ export const silos: Json<Silo[]> = [
     time_modified: new Date(2023, 6, 12).toISOString(),
     discoverable: true,
     identity_mode: 'saml_jit',
+    mapped_fleet_roles: {
+      viewer: ['viewer'],
+    },
+  },
+  // Test silos for IP pool configuration scenarios
+  {
+    id: '7a1b2c3d-4e5f-4a7b-8c9d-0e1f2a3b4c5d',
+    name: 'thrax',
+    description: 'silo with v6-only default pool',
+    time_created: new Date(2024, 0, 1).toISOString(),
+    time_modified: new Date(2024, 0, 2).toISOString(),
+    discoverable: false,
+    identity_mode: 'saml_jit',
+    mapped_fleet_roles: {},
+  },
+  {
+    id: '8b2c3d4e-5f6a-4b8c-9d0e-1f2a3b4c5d6e',
+    name: 'pelerines',
+    description: 'silo with no default pools',
+    time_created: new Date(2024, 0, 3).toISOString(),
+    time_modified: new Date(2024, 0, 4).toISOString(),
+    discoverable: false,
+    identity_mode: 'saml_jit',
+    mapped_fleet_roles: {},
+  },
+  {
+    id: '9c3d4e5f-6a7b-4c9d-8e1f-2a3b4c5d6e7f',
+    name: 'no-pools',
+    description: 'silo with no IP pools',
+    time_created: new Date(2024, 0, 11).toISOString(),
+    time_modified: new Date(2024, 0, 12).toISOString(),
+    discoverable: false,
+    identity_mode: 'saml_jit',
     mapped_fleet_roles: {},
   },
 ]
 
 export const defaultSilo = silos[0]
+export const myriadSilo = silos[1]
+export const thraxSilo = silos[2]
+export const pelerinesSilo = silos[3]
+export const noPoolsSilo = silos[4]
 
 export const siloQuotas: Json<SiloQuotas[]> = [
   {
@@ -58,6 +96,24 @@ export const siloQuotas: Json<SiloQuotas[]> = [
     cpus: 34,
     memory: 500 * GiB,
     storage: 9 * TiB,
+  },
+  {
+    silo_id: silos[2].id,
+    cpus: 20,
+    memory: 100 * GiB,
+    storage: 2 * TiB,
+  },
+  {
+    silo_id: silos[3].id,
+    cpus: 20,
+    memory: 100 * GiB,
+    storage: 2 * TiB,
+  },
+  {
+    silo_id: silos[4].id,
+    cpus: 20,
+    memory: 100 * GiB,
+    storage: 2 * TiB,
   },
 ]
 
@@ -76,6 +132,24 @@ export const siloProvisioned: Json<SiloQuotas[]> = [
     cpus: 8,
     memory: 150 * GiB,
     storage: 2 * TiB,
+  },
+  {
+    silo_id: silos[2].id,
+    cpus: 2,
+    memory: 16 * GiB,
+    storage: 0.5 * TiB,
+  },
+  {
+    silo_id: silos[3].id,
+    cpus: 2,
+    memory: 16 * GiB,
+    storage: 0.5 * TiB,
+  },
+  {
+    silo_id: silos[4].id,
+    cpus: 0,
+    memory: 0,
+    storage: 0,
   },
 ]
 
@@ -126,5 +200,35 @@ export const siloSettings: Json<SiloAuthSettings>[] = [
   {
     silo_id: silos[1].id,
     device_token_max_ttl_seconds: 7200, // 2 hours in seconds
+  },
+  {
+    silo_id: silos[2].id,
+    device_token_max_ttl_seconds: 3600,
+  },
+  {
+    silo_id: silos[3].id,
+    device_token_max_ttl_seconds: 3600,
+  },
+  {
+    silo_id: silos[4].id,
+    device_token_max_ttl_seconds: 3600,
+  },
+]
+
+// SCIM tokens are stored with siloId for filtering, similar to identity providers
+type DbScimToken = Json<ScimClientBearerToken> & { siloId: string }
+
+export const scimTokens: DbScimToken[] = [
+  {
+    id: 'a1b2c3d4-e5f6-4890-abcd-ef1234567890',
+    time_created: new Date(2025, 8, 15).toISOString(),
+    time_expires: null,
+    siloId: defaultSilo.id,
+  },
+  {
+    id: 'b2c3d4e5-f6a7-4901-bcde-f12345678901',
+    time_created: new Date(2025, 8, 20).toISOString(),
+    time_expires: null,
+    siloId: defaultSilo.id,
   },
 ]

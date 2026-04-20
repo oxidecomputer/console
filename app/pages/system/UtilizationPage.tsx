@@ -10,6 +10,7 @@ import { useIsFetching } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 
 import {
+  api,
   FLEET_ID,
   getListQFn,
   queryClient,
@@ -37,10 +38,10 @@ import { round } from '~/util/math'
 import { pb } from '~/util/path-builder'
 import { bytesToGiB, bytesToTiB } from '~/util/units'
 
-const siloList = getListQFn('siloList', {
+const siloList = getListQFn(api.siloList, {
   query: { limit: ALL_ISH },
 })
-const siloUtilList = getListQFn('siloUtilizationList', {
+const siloUtilList = getListQFn(api.siloUtilizationList, {
   query: { limit: ALL_ISH },
 })
 
@@ -76,7 +77,7 @@ export default function SystemUtilizationPage() {
         provisioned={totalProvisioned}
         allocatedLabel="Quota (Total)"
       />
-      <QueryParamTabs defaultValue="summary" className="full-width">
+      <QueryParamTabs defaultValue="summary" className="full-width mt-8">
         <Tabs.List>
           <Tabs.Trigger value="summary">Summary</Tabs.Trigger>
           <Tabs.Trigger value="metrics">Metrics</Tabs.Trigger>
@@ -125,7 +126,7 @@ const MetricsTab = () => {
 
   return (
     <>
-      <div className="mb-3 mt-8 flex flex-wrap justify-between gap-3">
+      <div className="mt-8 mb-3 flex flex-wrap justify-between gap-3">
         <div className="flex gap-2">
           {intervalPicker}
 
@@ -240,7 +241,7 @@ function UsageTab() {
                 unit="TiB"
               />
             </Table.Cell>
-            <Table.Cell className="action-col w-10 children:p-0" height="large">
+            <Table.Cell className="action-col w-10 *:p-0" height="large">
               <RowActions id={silo.siloId} copyIdLabel="Copy silo ID" />
             </Table.Cell>
           </Table.Row>
@@ -259,7 +260,7 @@ const UsageCell = ({
   allocated: number
   unit?: string
 }) => (
-  <div className="flex flex-col text-secondary">
+  <div className="text-secondary flex flex-col">
     <div>
       <span className="text-raise">{provisioned}</span> /
     </div>

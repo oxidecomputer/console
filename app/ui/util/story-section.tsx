@@ -23,8 +23,8 @@ export const Section = ({
   children: ReactNode
   className?: string
 }) => (
-  <section className={cn(className, 'mb-8 mr-8')}>
-    <h2 className="mb-4 border-b pb-4 text-sans-2xl text-accent border-accent-secondary">
+  <section className={cn(className, 'mr-8 mb-8')}>
+    <h2 className="text-sans-2xl text-accent border-accent-secondary mb-4 border-b pb-4">
       {capitalize(title)}
     </h2>
     {children}

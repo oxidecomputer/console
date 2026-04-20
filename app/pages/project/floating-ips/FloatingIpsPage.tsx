@@ -5,14 +5,16 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
-  apiq,
+  api,
   getListQFn,
+  q,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -27,10 +29,11 @@ import { ModalForm } from '~/components/form/ModalForm'
 import { HL } from '~/components/HL'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
+import { InstanceLink } from '~/table/cells/InstanceLinkCell'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -55,9 +58,9 @@ const EmptyState = () => (
   />
 )
 
-const fipList = (project: string) => getListQFn('floatingIpList', { query: { project } })
+const fipList = (project: string) => getListQFn(api.floatingIpList, { query: { project } })
 const instanceList = (project: string) =>
-  getListQFn('instanceList', { query: { project, limit: ALL_ISH } })
+  getListQFn(api.instanceList, { query: { project, limit: ALL_ISH } })
 
 export const handle = makeCrumb('Floating IPs', (p) =>
   pb.floatingIps(getProjectSelector(p))
@@ -72,10 +75,12 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     // IpPoolCell can be mostly instant yet gracefully fall back to
     // fetching individually if we don't fetch them all here
     queryClient
-      .fetchQuery(apiq('projectIpPoolList', { query: { limit: ALL_ISH } }))
+      .fetchQuery(q(api.ipPoolList, { query: { limit: ALL_ISH } }))
       .then((pools) => {
         for (const pool of pools.items) {
-          const { queryKey } = apiq('projectIpPoolView', { path: { pool: pool.id } })
+          const { queryKey } = q(api.ipPoolView, {
+            path: { pool: pool.id },
+          })
           queryClient.setQueryData(queryKey, pool)
         }
       }),
@@ -96,8 +101,8 @@ const staticCols = [
     cell: (info) => <IpPoolCell ipPoolId={info.getValue()} />,
   }),
   colHelper.accessor('instanceId', {
-    header: 'Attached to instance',
-    cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,
+    header: 'Instance',
+    cell: (info) => <InstanceLink instanceId={info.getValue()} tab="networking" cell />,
   }),
 ]
 
@@ -107,20 +112,19 @@ export default function FloatingIpsPage() {
   const { data: instances } = usePrefetchedQuery(instanceList(project).optionsFn())
   const navigate = useNavigate()
 
-  const { mutateAsync: floatingIpDetach } = useApiMutation('floatingIpDetach', {
+  const { mutateAsync: floatingIpDetach } = useApiMutation(api.floatingIpDetach, {
     onSuccess(floatingIp) {
       queryClient.invalidateEndpoint('floatingIpList')
-      addToast(<>Floating IP <HL>{floatingIp.name}</HL> detached</>) // prettier-ignore
-    },
-    onError: (err) => {
-      addToast({ title: 'Error', content: err.message, variant: 'error' })
+      // prettier-ignore
+      addToast(<>Floating IP <HL>{floatingIp.name}</HL> detached</>)
     },
   })
-  const { mutateAsync: deleteFloatingIp } = useApiMutation('floatingIpDelete', {
+  const { mutateAsync: deleteFloatingIp } = useApiMutation(api.floatingIpDelete, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('floatingIpList')
-      queryClient.invalidateEndpoint('ipPoolUtilizationView')
-      addToast(<>Floating IP <HL>{variables.path.floatingIp}</HL> deleted</>) // prettier-ignore
+      queryClient.invalidateEndpoint('systemIpPoolUtilizationView')
+      // prettier-ignore
+      addToast(<>Floating IP <HL>{variables.path.floatingIp}</HL> deleted</>)
     },
   })
 
@@ -171,7 +175,7 @@ export default function FloatingIpsPage() {
         {
           label: 'Edit',
           onActivate: () => {
-            const { queryKey } = apiq('floatingIpView', {
+            const { queryKey } = q(api.floatingIpView, {
               path: { floatingIp: floatingIp.name },
               query: { project },
             })
@@ -205,6 +209,26 @@ export default function FloatingIpsPage() {
     columns,
     emptyState: <EmptyState />,
   })
+
+  const { data: allFips } = useQuery(
+    q(api.floatingIpList, { query: { project, limit: ALL_ISH } })
+  )
+
+  useQuickActions(
+    () => [
+      {
+        value: 'New floating IP',
+        navGroup: 'Actions',
+        action: pb.floatingIpsNew({ project }),
+      },
+      ...(allFips?.items || []).map((f) => ({
+        value: f.name,
+        action: pb.floatingIpEdit({ project, floatingIp: f.name }),
+        navGroup: 'Edit floating IP',
+      })),
+    ],
+    [project, allFips]
+  )
 
   return (
     <>
@@ -248,10 +272,11 @@ const AttachFloatingIpModal = ({
   project: string
   onDismiss: () => void
 }) => {
-  const floatingIpAttach = useApiMutation('floatingIpAttach', {
+  const floatingIpAttach = useApiMutation(api.floatingIpAttach, {
     onSuccess(floatingIp) {
       queryClient.invalidateEndpoint('floatingIpList')
-      addToast(<>Floating IP <HL>{floatingIp.name}</HL> attached</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Floating IP <HL>{floatingIp.name}</HL> attached</>)
       onDismiss()
     },
     onError: (err) => {

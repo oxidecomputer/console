@@ -6,8 +6,9 @@
  * Copyright Oxide Computer Company
  */
 
+import { Badge } from '@oxide/design-system/ui'
+
 import type { VpcFirewallRuleProtocol } from '~/api'
-import { Badge } from '~/ui/lib/Badge'
 import { Tooltip } from '~/ui/lib/Tooltip'
 
 import { EmptyCell } from './EmptyCell'

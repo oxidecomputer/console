@@ -5,28 +5,35 @@
  *
  * Copyright Oxide Computer Company
  */
-import * as Accordion from '@radix-ui/react-accordion'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useController, useForm, useWatch, type Control } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import * as R from 'remeda'
+import { match, P } from 'ts-pattern'
 import type { SetRequired } from 'type-fest'
 
 import {
-  apiQueryClient,
+  api,
   diskCan,
   genName,
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
+  isUnicastPool,
+  MAX_DISK_SIZE_GiB,
+  poolHasIpVersion,
+  q,
+  queryClient,
   useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
   type ExternalIpCreate,
   type FloatingIp,
   type Image,
   type InstanceCreate,
   type InstanceDiskAttachment,
+  type InstanceNetworkInterfaceAttachment,
+  type IpVersion,
   type NameOrId,
-  type SiloIpPool,
+  type UnicastIpPool,
 } from '@oxide/api'
 import {
   Images16Icon,
@@ -36,7 +43,6 @@ import {
   Storage16Icon,
 } from '@oxide/design-system/icons/react'
 
-import { AccordionItem } from '~/components/AccordionItem'
 import { DocsPopover } from '~/components/DocsPopover'
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
@@ -48,20 +54,19 @@ import {
 } from '~/components/form/fields/DisksTableField'
 import { FileField } from '~/components/form/fields/FileField'
 import { BootDiskImageSelectField as ImageSelectField } from '~/components/form/fields/ImageSelectField'
-import { toIpPoolItem } from '~/components/form/fields/ip-pool-item'
+import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { NetworkInterfaceField } from '~/components/form/fields/NetworkInterfaceField'
 import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioFieldDyn } from '~/components/form/fields/RadioField'
 import { SshKeysField } from '~/components/form/fields/SshKeysField'
-import { TextField } from '~/components/form/fields/TextField'
 import { Form } from '~/components/form/Form'
 import { FullPageForm } from '~/components/form/FullPageForm'
 import { HL } from '~/components/HL'
+import { toPoolItem } from '~/components/PoolListboxItem'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Button } from '~/ui/lib/Button'
-import { Checkbox } from '~/ui/lib/Checkbox'
 import { toComboboxItems } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -73,14 +78,20 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { RadioCard } from '~/ui/lib/Radio'
 import { Slash } from '~/ui/lib/Slash'
 import { Tabs } from '~/ui/lib/Tabs'
-import { TextInputHint } from '~/ui/lib/TextInput'
+import { HintLink, TextInputHint } from '~/ui/lib/TextInput'
 import { TipIcon } from '~/ui/lib/TipIcon'
+import { Tooltip } from '~/ui/lib/Tooltip'
+import { Wrap } from '~/ui/util/wrap'
 import { ALL_ISH } from '~/util/consts'
 import { readBlobAsBase64 } from '~/util/file'
+import { ipHasVersion } from '~/util/ip'
 import { docLinks, links } from '~/util/links'
 import { diskSizeNearest10 } from '~/util/math'
 import { pb } from '~/util/path-builder'
 import { GiB } from '~/util/units'
+
+// for referential stability
+const EMPTY_NAME_OR_ID_LIST: NameOrId[] = []
 
 const getBootDiskAttachment = (
   values: InstanceCreateInput,
@@ -99,7 +110,14 @@ const getBootDiskAttachment = (
     name: values.bootDiskName || genName(values.name, sourceName || source),
     description: `Created as a boot disk for ${values.name}`,
     size: values.bootDiskSize * GiB,
-    diskSource: { type: 'image', imageId: source },
+    diskBackend: {
+      type: 'distributed',
+      diskSource: {
+        type: 'image',
+        imageId: source,
+        readOnly: values.bootDiskReadOnly,
+      },
+    },
   }
 }
 
@@ -107,7 +125,7 @@ type BootDiskSourceType = 'siloImage' | 'projectImage' | 'disk'
 
 export type InstanceCreateInput = Assign<
   // API accepts undefined but it's easier if we don't
-  SetRequired<InstanceCreate, 'networkInterfaces'>,
+  SetRequired<Omit<InstanceCreate, 'externalIps'>, 'networkInterfaces'>,
   {
     presetId: (typeof PRESETS)[number]['id']
     otherDisks: DiskTableItem[]
@@ -119,12 +137,56 @@ export type InstanceCreateInput = Assign<
     siloImageSource: string
     projectImageSource: string
     diskSource: string
+    bootDiskReadOnly: boolean
 
     userData: File | null
     // ssh keys are always specified. we do not need the undefined case
     sshPublicKeys: NonNullable<InstanceCreate['sshPublicKeys']>
+    // Ephemeral IP fields (dual stack support)
+    ephemeralIpv4: boolean
+    ephemeralIpv4Pool: string
+    ephemeralIpv6: boolean
+    ephemeralIpv6Pool: string
+
+    // Selected floating IPs to attach on create.
+    floatingIps: NameOrId[]
   }
 >
+
+// Stable array refs to avoid useEffect churn when
+// getCompatibleVersionsFromNicType is used in dependency arrays
+const IP_VERSIONS_V4: IpVersion[] = ['v4']
+const IP_VERSIONS_V6: IpVersion[] = ['v6']
+const IP_VERSIONS_DUAL: IpVersion[] = ['v4', 'v6']
+const IP_VERSIONS_NONE: IpVersion[] = []
+
+/**
+ * Determine compatible IP versions based on network interface configuration.
+ * External IPs route through the primary interface, so only its IP stack matters.
+ */
+function getCompatibleVersionsFromNicType(
+  networkInterfaces: InstanceNetworkInterfaceAttachment
+): IpVersion[] {
+  return match(networkInterfaces)
+    .returnType<IpVersion[]>()
+    .with({ type: 'default_ipv4' }, () => IP_VERSIONS_V4)
+    .with({ type: 'default_ipv6' }, () => IP_VERSIONS_V6)
+    .with({ type: 'default_dual_stack' }, () => IP_VERSIONS_DUAL)
+    .with({ type: 'none' }, () => IP_VERSIONS_NONE)
+    .with({ type: 'create', params: [] }, () => IP_VERSIONS_NONE)
+    .with({ type: 'create', params: P.select() }, (params) =>
+      // Derive from the first NIC's ipConfig (first NIC becomes primary).
+      // ipConfig not provided = defaults to dual-stack
+      match(params[0].ipConfig?.type)
+        .returnType<IpVersion[]>()
+        .with('v4', () => IP_VERSIONS_V4)
+        .with('v6', () => IP_VERSIONS_V6)
+        .with('dual_stack', () => IP_VERSIONS_DUAL)
+        .with(P.nullish, () => IP_VERSIONS_DUAL)
+        .exhaustive()
+    )
+    .exhaustive()
+}
 
 const baseDefaultValues: InstanceCreateInput = {
   name: '',
@@ -145,90 +207,242 @@ const baseDefaultValues: InstanceCreateInput = {
   siloImageSource: '',
   projectImageSource: '',
   diskSource: '',
+  bootDiskReadOnly: false,
 
   otherDisks: [],
-  networkInterfaces: { type: 'default' },
+  networkInterfaces: { type: 'default_ipv4' },
 
   sshPublicKeys: [],
 
   start: true,
 
   userData: null,
-  externalIps: [{ type: 'ephemeral' }],
+  ephemeralIpv4: false,
+  ephemeralIpv4Pool: '',
+  ephemeralIpv6: false,
+  ephemeralIpv6Pool: '',
+  floatingIps: [],
 }
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
   await Promise.all([
     // fetch both project and silo images
-    apiQueryClient.prefetchQuery('imageList', { query: { project } }),
-    apiQueryClient.prefetchQuery('imageList', {}),
-    apiQueryClient.prefetchQuery('diskList', {
-      query: { project, limit: ALL_ISH },
-    }),
-    apiQueryClient.prefetchQuery('currentUserSshKeyList', {}),
-    apiQueryClient.prefetchQuery('projectIpPoolList', { query: { limit: ALL_ISH } }),
-    apiQueryClient.prefetchQuery('floatingIpList', { query: { project, limit: ALL_ISH } }),
+    queryClient.prefetchQuery(q(api.imageList, { query: { project } })),
+    queryClient.prefetchQuery(q(api.imageList, {})),
+    queryClient.prefetchQuery(q(api.diskList, { query: { project, limit: ALL_ISH } })),
+    queryClient.prefetchQuery(q(api.currentUserSshKeyList, {})),
+    queryClient.prefetchQuery(q(api.ipPoolList, { query: { limit: ALL_ISH } })),
+    queryClient.prefetchQuery(
+      q(api.floatingIpList, { query: { project, limit: ALL_ISH } })
+    ),
+    queryClient.prefetchQuery(q(api.vpcList, { query: { project, limit: ALL_ISH } })),
   ])
   return null
 }
 
 export const handle = { crumb: 'New instance' }
 
+const EPHEMERAL_IP_FIELDS = {
+  v4: {
+    checkboxName: 'ephemeralIpv4',
+    poolFieldName: 'ephemeralIpv4Pool',
+    displayVersion: 'IPv4',
+  },
+  v6: {
+    checkboxName: 'ephemeralIpv6',
+    poolFieldName: 'ephemeralIpv6Pool',
+    displayVersion: 'IPv6',
+  },
+} as const
+
+function EphemeralIpCheckbox({
+  control,
+  ipVersion,
+  compatibleVersions,
+  unicastPools,
+  isSubmitting,
+}: {
+  control: Control<InstanceCreateInput>
+  ipVersion: IpVersion
+  compatibleVersions: IpVersion[]
+  unicastPools: UnicastIpPool[]
+  isSubmitting: boolean
+}) {
+  const { checkboxName, poolFieldName, displayVersion } = EPHEMERAL_IP_FIELDS[ipVersion]
+  const ephemeralIpField = useController({ control, name: checkboxName })
+  const ephemeralIpPoolField = useController({ control, name: poolFieldName })
+  const checked = ephemeralIpField.field.value
+
+  const pools = useMemo(
+    () => unicastPools.filter((pool) => pool.ipVersion === ipVersion),
+    [unicastPools, ipVersion]
+  )
+  const isCompatible = compatibleVersions.includes(ipVersion)
+  const hasPools = pools.length > 0
+  const canAttach = isCompatible && hasPools
+  let disabledReason: React.ReactNode
+  if (!canAttach) {
+    disabledReason = isCompatible ? (
+      <>
+        No IP{ipVersion} pools available
+        <br />
+        for this instance’s network interfaces
+      </>
+    ) : (
+      <>
+        Add an IP{ipVersion} network interface
+        <br />
+        to attach an ephemeral IP{ipVersion} address
+      </>
+    )
+  }
+
+  // Track previous canAttach to detect false→true transitions (NIC type
+  // change re-enabling this IP version). A ref because we need to compare
+  // across renders without triggering re-renders when we update it.
+  const prevCanAttachRef = useRef<boolean | undefined>(undefined)
+  useEffect(() => {
+    if (checked && !canAttach) {
+      ephemeralIpField.field.onChange(false)
+      ephemeralIpPoolField.field.onChange('')
+    } else if (canAttach && prevCanAttachRef.current === false && !checked) {
+      const defaultPool = pools.find((p) => p.isDefault)
+      if (defaultPool) {
+        ephemeralIpField.field.onChange(true)
+        ephemeralIpPoolField.field.onChange(defaultPool.name)
+      }
+    }
+    prevCanAttachRef.current = canAttach
+  }, [canAttach, checked, pools, ephemeralIpField, ephemeralIpPoolField])
+
+  return (
+    <div className="max-w-lg space-y-2">
+      <Wrap when={!!disabledReason} with={<Tooltip content={disabledReason} />}>
+        {/* span makes tooltip show on label hover, not just the checkbox */}
+        <span>
+          <CheckboxField
+            control={control}
+            name={checkboxName}
+            disabled={!canAttach || isSubmitting}
+          >
+            Allocate {displayVersion} address
+            {checked && ' from pool:'}
+          </CheckboxField>
+        </span>
+      </Wrap>
+      <div className={`my-2 ml-6 ${checked ? '' : 'hidden'}`}>
+        <ListboxField
+          name={poolFieldName}
+          control={control}
+          items={pools.map(toPoolItem)}
+          disabled={isSubmitting}
+          required={checked}
+          hideOptionalTag
+          label={`${displayVersion} pool`}
+          hideLabel
+          placeholder="Select a pool"
+          noItemsPlaceholder="No pools available"
+        />
+      </div>
+    </div>
+  )
+}
+
 export default function CreateInstanceForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
   const navigate = useNavigate()
 
-  const createInstance = useApiMutation('instanceCreate', {
+  const createInstance = useApiMutation(api.instanceCreate, {
     onSuccess(instance) {
       // refetch list of instances
-      queryClient.invalidateQueries('instanceList')
+      queryClient.invalidateEndpoint('instanceList')
       // avoid the instance fetch when the instance page loads since we have the data
-      queryClient.setQueryData(
-        'instanceView',
-        { path: { instance: instance.name }, query: { project } },
-        instance
-      )
-      addToast(<>Instance <HL>{instance.name}</HL> created</>) // prettier-ignore
+      const instanceView = q(api.instanceView, {
+        path: { instance: instance.name },
+        query: { project },
+      })
+      queryClient.setQueryData(instanceView.queryKey, instance)
+      // prettier-ignore
+      addToast(<>Instance <HL>{instance.name}</HL> created</>)
       navigate(pb.instance({ project, instance: instance.name }))
     },
   })
 
-  const siloImages = usePrefetchedApiQuery('imageList', {}).data.items
-  const projectImages = usePrefetchedApiQuery('imageList', { query: { project } }).data
+  const siloImages = usePrefetchedQuery(q(api.imageList, {})).data.items
+  const projectImages = usePrefetchedQuery(q(api.imageList, { query: { project } })).data
     .items
   const allImages = [...siloImages, ...projectImages]
 
   const defaultImage = allImages[0]
 
-  const allDisks = usePrefetchedApiQuery('diskList', {
-    query: { project, limit: ALL_ISH },
-  }).data.items
+  const allDisks = usePrefetchedQuery(
+    q(api.diskList, { query: { project, limit: ALL_ISH } })
+  ).data.items
   const disks = useMemo(() => toComboboxItems(allDisks.filter(diskCan.attach)), [allDisks])
 
-  const { data: sshKeys } = usePrefetchedApiQuery('currentUserSshKeyList', {})
+  const { data: sshKeys } = usePrefetchedQuery(q(api.currentUserSshKeyList, {}))
   const allKeys = useMemo(() => sshKeys.items.map((key) => key.id), [sshKeys])
 
-  // projectIpPoolList fetches the pools linked to the current silo
-  const { data: siloPools } = usePrefetchedApiQuery('projectIpPoolList', {
-    query: { limit: ALL_ISH },
-  })
-  const defaultPool = useMemo(
-    () => (siloPools ? siloPools.items.find((p) => p.isDefault)?.name : undefined),
+  // ipPoolList fetches the pools linked to the current silo
+  const { data: siloPools } = usePrefetchedQuery(
+    q(api.ipPoolList, { query: { limit: ALL_ISH } })
+  )
+
+  // Only unicast pools can be used for ephemeral IPs. Sort once here so
+  // downstream filters (default pool pick, compatible pool list) preserve
+  // the order without needing to re-sort.
+  const unicastPools = useMemo(
+    () =>
+      R.sortBy(
+        (siloPools?.items || []).filter(isUnicastPool),
+        (p) => !p.isDefault, // defaults first
+        (p) => p.ipVersion, // v4 first
+        (p) => p.name
+      ),
     [siloPools]
   )
+
+  // Check if VPCs exist to determine default network interface type
+  const { data: vpcs } = usePrefetchedQuery(
+    q(api.vpcList, { query: { project, limit: ALL_ISH } })
+  )
+  const hasVpcs = vpcs.items.length > 0
+
+  // Determine default network interface type:
+  // - If VPCs exist: default to dual-stack (API default, works with both IPv4 and IPv6 subnets)
+  // - If no VPCs exist: default to 'none' (user must create VPC first or use custom NICs)
+  // Note: Decoupled from external IP pool configuration, as NIC IP stack and external IPs are separate concerns
+  const defaultNetworkInterfaceType: InstanceNetworkInterfaceAttachment['type'] = hasVpcs
+    ? 'default_dual_stack'
+    : 'none'
 
   const defaultSource =
     siloImages.length > 0 ? 'siloImage' : projectImages.length > 0 ? 'projectImage' : 'disk'
 
+  const defaultCompatibleVersions = getCompatibleVersionsFromNicType({
+    type: defaultNetworkInterfaceType,
+  })
+  const compatibleDefaultPools = unicastPools
+    .filter(poolHasIpVersion(defaultCompatibleVersions))
+    .filter((p) => p.isDefault)
+
+  // Get default pools for initial values
+  const defaultV4Pool = compatibleDefaultPools.find((p) => p.ipVersion === 'v4')
+  const defaultV6Pool = compatibleDefaultPools.find((p) => p.ipVersion === 'v6')
+
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
+    networkInterfaces: { type: defaultNetworkInterfaceType },
     bootDiskSourceType: defaultSource,
     sshPublicKeys: allKeys,
     bootDiskSize: diskSizeNearest10(defaultImage?.size / GiB),
-    externalIps: [{ type: 'ephemeral', pool: defaultPool }],
+    ephemeralIpv4: !!defaultV4Pool && defaultCompatibleVersions.includes('v4'),
+    ephemeralIpv4Pool: defaultV4Pool?.name || '',
+    ephemeralIpv6: !!defaultV6Pool && defaultCompatibleVersions.includes('v6'),
+    ephemeralIpv6Pool: defaultV6Pool?.name || '',
+    floatingIps: [],
   }
 
   const form = useForm({ defaultValues })
@@ -257,19 +471,21 @@ export default function CreateInstanceForm() {
   const otherDisks = useWatch({ control, name: 'otherDisks' })
   const unavailableDiskNames = [
     ...allDisks, // existing disks from the API
-    ...otherDisks.filter((disk) => disk.type === 'create'), // disks being created here
+    ...otherDisks.filter((disk) => disk.action === 'create'), // disks being created here
   ].map((d) => d.name)
 
   // additional form elements for projectImage and siloImage tabs
   const bootDiskSizeAndName = (
     <>
-      <div key="divider" className="!my-12 content-['a']" />
+      <div key="divider1" className="my-6! content-['a']" />
       <DiskSizeField
         key="diskSizeField"
         label="Disk size"
         name="bootDiskSize"
         control={control}
         min={imageSizeGiB || 1}
+        // Max size applies: this disk can only be distributed
+        max={MAX_DISK_SIZE_GiB}
         validate={(diskSizeGiB: number) => {
           if (imageSizeGiB && diskSizeGiB < imageSizeGiB) {
             return `Must be as large as selected image (min. ${imageSizeGiB} GiB)`
@@ -277,6 +493,7 @@ export default function CreateInstanceForm() {
         }}
         disabled={isSubmitting}
       />
+      <div key="divider2" className="my-6! content-['a']" />
       <NameField
         key="bootDiskName"
         name="bootDiskName"
@@ -293,6 +510,15 @@ export default function CreateInstanceForm() {
           }
         }}
       />
+      <div key="divider3" className="my-6! content-['a']" />
+      <CheckboxField
+        key="bootDiskReadOnly"
+        name="bootDiskReadOnly"
+        control={control}
+        disabled={isSubmitting}
+      >
+        Make disk read-only
+      </CheckboxField>
     </>
   )
 
@@ -324,6 +550,23 @@ export default function CreateInstanceForm() {
 
           const bootDisk = getBootDiskAttachment(values, allImages)
 
+          const externalIps: ExternalIpCreate[] = []
+          if (values.ephemeralIpv4) {
+            externalIps.push({
+              type: 'ephemeral',
+              poolSelector: { type: 'explicit', pool: values.ephemeralIpv4Pool },
+            })
+          }
+          if (values.ephemeralIpv6) {
+            externalIps.push({
+              type: 'ephemeral',
+              poolSelector: { type: 'explicit', pool: values.ephemeralIpv6Pool },
+            })
+          }
+          for (const floatingIp of values.floatingIps) {
+            externalIps.push({ type: 'floating', floatingIp })
+          }
+
           const userData = values.userData
             ? await readBlobAsBase64(values.userData)
             : undefined
@@ -332,13 +575,24 @@ export default function CreateInstanceForm() {
             query: { project },
             body: {
               name: values.name,
-              hostname: values.hostname || values.name,
+              hostname: values.name,
               description: values.description,
               memory: instance.memory * GiB,
               ncpus: instance.ncpus,
-              disks: values.otherDisks,
+              disks: values.otherDisks.map(
+                (d): InstanceDiskAttachment =>
+                  d.action === 'attach'
+                    ? { type: 'attach', name: d.name }
+                    : {
+                        type: 'create',
+                        name: d.name,
+                        description: d.description,
+                        size: d.size,
+                        diskBackend: d.diskBackend,
+                      }
+              ),
               bootDisk,
-              externalIps: values.externalIps,
+              externalIps,
               start: values.start,
               networkInterfaces: values.networkInterfaces,
               sshPublicKeys: values.sshPublicKeys,
@@ -361,7 +615,7 @@ export default function CreateInstanceForm() {
         </CheckboxField>
         <FormDivider />
         <Form.Heading id="hardware">Hardware</Form.Heading>
-        <TextInputHint id="hw-gp-help-text" className="mb-12 max-w-xl text-sans-md">
+        <TextInputHint id="hw-gp-help-text" className="text-sans-md mb-12 max-w-xl">
           Pick a pre-configured machine type that offers balanced vCPU and memory for most
           workloads or create a custom machine.
         </TextInputHint>
@@ -394,34 +648,19 @@ export default function CreateInstanceForm() {
             </Tabs.Trigger>
           </Tabs.List>
           <Tabs.Content value="general">
-            <RadioFieldDyn
-              name="presetId"
-              label=""
-              control={control}
-              disabled={isSubmitting}
-            >
+            <RadioFieldDyn name="presetId" control={control} disabled={isSubmitting}>
               {renderLargeRadioCards('general')}
             </RadioFieldDyn>
           </Tabs.Content>
 
           <Tabs.Content value="highCPU">
-            <RadioFieldDyn
-              name="presetId"
-              label=""
-              control={control}
-              disabled={isSubmitting}
-            >
+            <RadioFieldDyn name="presetId" control={control} disabled={isSubmitting}>
               {renderLargeRadioCards('highCPU')}
             </RadioFieldDyn>
           </Tabs.Content>
 
           <Tabs.Content value="highMemory">
-            <RadioFieldDyn
-              name="presetId"
-              label=""
-              control={control}
-              disabled={isSubmitting}
-            >
+            <RadioFieldDyn name="presetId" control={control} disabled={isSubmitting}>
               {renderLargeRadioCards('highMemory')}
             </RadioFieldDyn>
           </Tabs.Content>
@@ -510,7 +749,7 @@ export default function CreateInstanceForm() {
             className="space-y-4"
           >
             {siloImages.length === 0 ? (
-              <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
+              <div className="border-default flex max-w-lg items-center justify-center rounded-lg border p-6">
                 <EmptyMessage
                   icon={<Images16Icon />}
                   title="No silo images found"
@@ -534,7 +773,7 @@ export default function CreateInstanceForm() {
             className="space-y-4"
           >
             {projectImages.length === 0 ? (
-              <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
+              <div className="border-default flex max-w-lg items-center justify-center rounded-lg border p-6">
                 <EmptyMessage
                   icon={<Images16Icon />}
                   title="No project images found"
@@ -558,7 +797,7 @@ export default function CreateInstanceForm() {
 
           <Tabs.Content value={'disk' satisfies BootDiskSourceType} className="space-y-4">
             {disks.length === 0 ? (
-              <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
+              <div className="border-default flex max-w-lg items-center justify-center rounded-lg border p-6">
                 <EmptyMessage
                   icon={<Storage16Icon />}
                   title="No detached disks found"
@@ -591,11 +830,22 @@ export default function CreateInstanceForm() {
         <Form.Heading id="authentication">Authentication</Form.Heading>
         <SshKeysField control={control} isSubmitting={isSubmitting} />
         <FormDivider />
-        <Form.Heading id="advanced">Advanced</Form.Heading>
-        <AdvancedAccordion
+        <Form.Heading id="networking">Networking</Form.Heading>
+        <NetworkingSection
           control={control}
           isSubmitting={isSubmitting}
-          siloPools={siloPools.items}
+          unicastPools={unicastPools}
+          hasVpcs={hasVpcs}
+        />
+        <FormDivider />
+        <Form.Heading id="advanced">Advanced</Form.Heading>
+        <FileField
+          id="user-data-input"
+          description={<UserDataDescription />}
+          name="userData"
+          label="User Data"
+          control={control}
+          disabled={isSubmitting}
         />
         <Form.Actions>
           <Form.Submit loading={createInstance.isPending}>Create instance</Form.Submit>
@@ -606,20 +856,15 @@ export default function CreateInstanceForm() {
   )
 }
 
-// `ip is …` guard is necessary until we upgrade to 5.5, which handles this automatically
-const isFloating = (
-  ip: ExternalIpCreate
-): ip is { type: 'floating'; floatingIp: NameOrId } => ip.type === 'floating'
-
 const FloatingIpLabel = ({ ip }: { ip: FloatingIp }) => (
   <div>
     <div>{ip.name}</div>
-    <div className="flex gap-0.5 text-secondary selected:text-accent-secondary">
+    <div className="text-secondary selected:text-accent-secondary flex gap-0.5">
       <div>{ip.ip}</div>
       {ip.description && (
         <>
           <Slash />
-          <div className="grow overflow-hidden overflow-ellipsis whitespace-pre text-left">
+          <div className="grow overflow-hidden text-left text-ellipsis whitespace-pre">
             {ip.description}
           </div>
         </>
@@ -628,48 +873,56 @@ const FloatingIpLabel = ({ ip }: { ip: FloatingIp }) => (
   </div>
 )
 
-const AdvancedAccordion = ({
+const NetworkingSection = ({
   control,
   isSubmitting,
-  siloPools,
+  unicastPools,
+  hasVpcs,
 }: {
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
-  siloPools: Array<SiloIpPool>
+  unicastPools: UnicastIpPool[]
+  hasVpcs: boolean
 }) => {
-  // we track this state manually for the sole reason that we need to be able to
-  // tell, inside AccordionItem, when an accordion is opened so we can scroll its
-  // contents into view
-  const [openItems, setOpenItems] = useState<string[]>([])
+  const networkInterfaces = useWatch({ control, name: 'networkInterfaces' })
   const [floatingIpModalOpen, setFloatingIpModalOpen] = useState(false)
   const [selectedFloatingIp, setSelectedFloatingIp] = useState<FloatingIp | undefined>()
-  const externalIps = useController({ control, name: 'externalIps' })
-  const ephemeralIp = externalIps.field.value?.find((ip) => ip.type === 'ephemeral')
-  const assignEphemeralIp = !!ephemeralIp
-  const selectedPool = ephemeralIp && 'pool' in ephemeralIp ? ephemeralIp.pool : undefined
-  const defaultPool = siloPools.find((pool) => pool.isDefault)?.name
-  const attachedFloatingIps = (externalIps.field.value || []).filter(isFloating)
+  const floatingIpsField = useController({ control, name: 'floatingIps' })
 
-  const instanceName = useWatch({ control, name: 'name' })
+  const attachedFloatingIpNames = floatingIpsField.field.value ?? EMPTY_NAME_OR_ID_LIST
+
+  // Calculate compatible IP versions based on NIC type
+  const compatibleVersions = useMemo(
+    () => getCompatibleVersionsFromNicType(networkInterfaces),
+    [networkInterfaces]
+  )
 
   const { project } = useProjectSelector()
-  const { data: floatingIpList } = usePrefetchedApiQuery('floatingIpList', {
-    query: { project, limit: ALL_ISH },
-  })
-
-  // Filter out the IPs that are already attached to an instance
-  const attachableFloatingIps = useMemo(
-    () => floatingIpList.items.filter((ip) => !ip.instanceId),
-    [floatingIpList]
+  const { data: floatingIpList } = usePrefetchedQuery(
+    q(api.floatingIpList, { query: { project, limit: ALL_ISH } })
   )
 
-  // To find available floating IPs, we remove the ones that are already committed to this instance
-  const availableFloatingIps = attachableFloatingIps.filter(
-    (ip) => !attachedFloatingIps.find((attachedIp) => attachedIp.floatingIp === ip.name)
-  )
-  const attachedFloatingIpsData = attachedFloatingIps
-    .map((ip) => attachableFloatingIps.find((fip) => fip.name === ip.floatingIp))
-    .filter((ip) => !!ip)
+  // Derive attached+available lists from one indexed pass to avoid repeated
+  // lookups
+  const { attachedFloatingIps, availableFloatingIps } = useMemo(() => {
+    // Filter out the IPs that are already attached to an instance
+    const attachableFloatingIps = floatingIpList.items.filter((ip) => !ip.instanceId)
+    const attachedNames = new Set(attachedFloatingIpNames)
+    const attachableByName = new Map(
+      attachableFloatingIps.map((ip) => [ip.name, ip] as const)
+    )
+    const attachedFloatingIps = attachedFloatingIpNames
+      .map((name) => attachableByName.get(name))
+      .filter((ip) => !!ip)
+
+    // To find available floating IPs, remove the ones already committed to this
+    // instance and filter by IP version compatibility with configured NICs.
+    const availableFloatingIps = attachableFloatingIps
+      .filter((ip) => !attachedNames.has(ip.name))
+      .filter(ipHasVersion(compatibleVersions))
+
+    return { attachedFloatingIps, availableFloatingIps }
+  }, [floatingIpList.items, attachedFloatingIpNames, compatibleVersions])
 
   const closeFloatingIpModal = () => {
     setFloatingIpModalOpen(false)
@@ -678,20 +931,18 @@ const AdvancedAccordion = ({
 
   const attachFloatingIp = () => {
     if (selectedFloatingIp) {
-      externalIps.field.onChange([
-        ...(externalIps.field.value || []),
-        { type: 'floating', floatingIp: selectedFloatingIp.name },
-      ])
+      const current = floatingIpsField.field.value || []
+      const next = current.includes(selectedFloatingIp.name)
+        ? current
+        : [...current, selectedFloatingIp.name]
+      floatingIpsField.field.onChange(next)
     }
     closeFloatingIpModal()
   }
 
   const detachFloatingIp = (name: string) => {
-    externalIps.field.onChange(
-      externalIps.field.value?.filter(
-        (ip) => !(ip.type === 'floating' && ip.floatingIp === name)
-      )
-    )
+    const current = floatingIpsField.field.value || []
+    floatingIpsField.field.onChange(current.filter((floatingIp) => floatingIp !== name))
   }
 
   const selectedFloatingIpMessage = (
@@ -702,165 +953,137 @@ const AdvancedAccordion = ({
   )
 
   return (
-    <Accordion.Root
-      type="multiple"
-      className="mt-12 max-w-lg"
-      value={openItems}
-      onValueChange={setOpenItems}
-    >
-      <AccordionItem
-        value="networking"
-        label="Networking"
-        isOpen={openItems.includes('networking')}
-      >
-        <NetworkInterfaceField control={control} disabled={isSubmitting} />
+    <>
+      {!hasVpcs && (
+        <Message
+          className="mb-4"
+          variant="notice"
+          content={
+            <>
+              A VPC is required to add network interfaces.{' '}
+              <Link to={pb.vpcsNew({ project })}>Create a VPC</Link> to enable networking.
+            </>
+          }
+        />
+      )}
+      <NetworkInterfaceField control={control} disabled={isSubmitting} hasVpcs={hasVpcs} />
 
-        <div className="py-2">
-          <TextField
-            name="hostname"
-            description="Will be set to instance name if left blank"
+      <div className="flex flex-1 flex-col gap-4">
+        <h2 className="text-sans-md flex items-center">
+          Ephemeral IP{' '}
+          <TipIcon className="ml-1.5">
+            Ephemeral IPs are allocated when the instance is created and deallocated when it
+            is deleted
+          </TipIcon>
+        </h2>
+
+        <div className="flex flex-col gap-2">
+          <EphemeralIpCheckbox
             control={control}
-            disabled={isSubmitting}
-            placeholder={instanceName}
+            ipVersion="v4"
+            compatibleVersions={compatibleVersions}
+            unicastPools={unicastPools}
+            isSubmitting={isSubmitting}
+          />
+          <EphemeralIpCheckbox
+            control={control}
+            ipVersion="v6"
+            compatibleVersions={compatibleVersions}
+            unicastPools={unicastPools}
+            isSubmitting={isSubmitting}
           />
         </div>
+      </div>
 
-        <div className="flex flex-1 flex-col gap-4">
-          <h2 className="flex items-center text-sans-md">
-            Ephemeral IP{' '}
-            <TipIcon className="ml-1.5">
-              Ephemeral IPs are allocated when the instance is created and deallocated when
-              it is deleted
-            </TipIcon>
-          </h2>
-          <Checkbox
-            id="assignEphemeralIp"
-            checked={assignEphemeralIp}
-            onChange={() => {
-              const newExternalIps = assignEphemeralIp
-                ? externalIps.field.value?.filter((ip) => ip.type !== 'ephemeral')
-                : [
-                    ...(externalIps.field.value || []),
-                    { type: 'ephemeral', pool: selectedPool || defaultPool },
-                  ]
-              externalIps.field.onChange(newExternalIps)
-            }}
-          >
-            Allocate and attach an ephemeral IP address
-          </Checkbox>
-          {assignEphemeralIp && (
-            <Listbox
-              name="pools"
-              label="IP pool for ephemeral IP"
-              placeholder={defaultPool ? `${defaultPool} (default)` : 'Select a pool'}
-              selected={`${siloPools.find((pool) => pool.name === selectedPool)?.name}`}
-              items={siloPools.map(toIpPoolItem)}
-              disabled={!assignEphemeralIp || isSubmitting}
-              required
-              onChange={(value) => {
-                const newExternalIps = externalIps.field.value?.map((ip) =>
-                  ip.type === 'ephemeral' ? { ...ip, pool: value } : ip
-                )
-                externalIps.field.onChange(newExternalIps)
-              }}
+      <div className="flex flex-1 flex-col gap-4">
+        <h2 className="text-sans-md flex items-center">
+          Floating IPs{' '}
+          <TipIcon className="ml-1.5">
+            Floating IPs exist independently of instances and can be attached to and
+            detached from them as needed
+          </TipIcon>
+        </h2>
+        {floatingIpList.items.length === 0 ? (
+          <div className="border-default flex max-w-lg items-center justify-center rounded-lg border">
+            <EmptyMessage
+              icon={<IpGlobal16Icon />}
+              title="No floating IPs found"
+              body="Create a floating IP to attach it to this instance"
             />
-          )}
-        </div>
-
-        <div className="flex flex-1 flex-col gap-4">
-          <h2 className="flex items-center text-sans-md">
-            Floating IPs{' '}
-            <TipIcon className="ml-1.5">
-              Floating IPs exist independently of instances and can be attached to and
-              detached from them as needed
-            </TipIcon>
-          </h2>
-          {floatingIpList.items.length === 0 ? (
-            <div className="flex max-w-lg items-center justify-center rounded-lg border border-default">
-              <EmptyMessage
-                icon={<IpGlobal16Icon />}
-                title="No floating IPs found"
-                body="Create a floating IP to attach it to this instance"
-              />
-            </div>
-          ) : (
-            <div className="flex flex-col items-start gap-3">
-              <MiniTable
-                ariaLabel="Floating IPs"
-                items={attachedFloatingIpsData}
-                columns={[
-                  { header: 'Name', cell: (item) => item.name },
-                  { header: 'IP', cell: (item) => item.ip },
-                ]}
-                rowKey={(item) => item.name}
-                onRemoveItem={(item) => detachFloatingIp(item.name)}
-                removeLabel={(item) => `remove floating IP ${item.name}`}
-              />
-              <Button
-                variant="secondary"
-                size="sm"
-                className="shrink-0"
-                disabled={availableFloatingIps.length === 0}
-                disabledReason="No floating IPs available"
-                onClick={() => setFloatingIpModalOpen(true)}
-              >
-                Attach floating IP
-              </Button>
-            </div>
-          )}
-          <Modal
-            isOpen={floatingIpModalOpen}
+          </div>
+        ) : (
+          <div className="flex max-w-lg flex-col items-start gap-3">
+            <MiniTable
+              ariaLabel="Floating IPs"
+              items={attachedFloatingIps}
+              columns={[
+                { header: 'Name', cell: (item) => item.name },
+                { header: 'IP', cell: (item) => item.ip },
+              ]}
+              rowKey={(item) => item.name}
+              onRemoveItem={(item) => detachFloatingIp(item.name)}
+              removeLabel={(item) => `remove floating IP ${item.name}`}
+            />
+            <Button
+              variant="secondary"
+              size="sm"
+              className="shrink-0"
+              disabled={
+                availableFloatingIps.length === 0 || compatibleVersions.length === 0
+              }
+              disabledReason={
+                compatibleVersions.length === 0 ? (
+                  <>
+                    A network interface is required
+                    <br />
+                    to attach a floating IP
+                  </>
+                ) : availableFloatingIps.length === 0 ? (
+                  'No floating IPs available'
+                ) : undefined
+              }
+              onClick={() => setFloatingIpModalOpen(true)}
+            >
+              Attach floating IP
+            </Button>
+          </div>
+        )}
+        <Modal
+          isOpen={floatingIpModalOpen}
+          onDismiss={closeFloatingIpModal}
+          title="Attach floating IP"
+        >
+          <Modal.Body>
+            <Modal.Section>
+              <Message variant="info" content={selectedFloatingIpMessage} />
+              <form>
+                <Listbox
+                  name="floatingIp"
+                  items={availableFloatingIps.map((i) => ({
+                    value: i.name,
+                    label: <FloatingIpLabel ip={i} />,
+                    selectedLabel: `${i.name} (${i.ip})`,
+                  }))}
+                  label="Floating IP"
+                  onChange={(name) => {
+                    setSelectedFloatingIp(availableFloatingIps.find((i) => i.name === name))
+                  }}
+                  required
+                  placeholder="Select a floating IP"
+                  selected={selectedFloatingIp?.name || ''}
+                />
+              </form>
+            </Modal.Section>
+          </Modal.Body>
+          <Modal.Footer
+            actionText="Attach"
+            disabled={!selectedFloatingIp}
+            onAction={attachFloatingIp}
             onDismiss={closeFloatingIpModal}
-            title="Attach floating IP"
-          >
-            <Modal.Body>
-              <Modal.Section>
-                <Message variant="info" content={selectedFloatingIpMessage} />
-                <form>
-                  <Listbox
-                    name="floatingIp"
-                    items={availableFloatingIps.map((i) => ({
-                      value: i.name,
-                      label: <FloatingIpLabel ip={i} />,
-                      selectedLabel: `${i.name} (${i.ip})`,
-                    }))}
-                    label="Floating IP"
-                    onChange={(name) => {
-                      setSelectedFloatingIp(
-                        availableFloatingIps.find((i) => i.name === name)
-                      )
-                    }}
-                    required
-                    placeholder="Select a floating IP"
-                    selected={selectedFloatingIp?.name || ''}
-                  />
-                </form>
-              </Modal.Section>
-            </Modal.Body>
-            <Modal.Footer
-              actionText="Attach"
-              disabled={!selectedFloatingIp}
-              onAction={attachFloatingIp}
-              onDismiss={closeFloatingIpModal}
-            ></Modal.Footer>
-          </Modal>
-        </div>
-      </AccordionItem>
-      <AccordionItem
-        value="configuration"
-        label="Configuration"
-        isOpen={openItems.includes('configuration')}
-      >
-        <FileField
-          id="user-data-input"
-          description={<UserDataDescription />}
-          name="userData"
-          label="User Data"
-          control={control}
-          disabled={isSubmitting}
-        />
-      </AccordionItem>
-    </Accordion.Root>
+          ></Modal.Footer>
+        </Modal>
+      </div>
+    </>
   )
 }
 
@@ -899,12 +1122,8 @@ const PRESETS = [
 const UserDataDescription = () => (
   <>
     Data or scripts to be passed to cloud-init as{' '}
-    <a href={links.cloudInitFormat} target="_blank" rel="noreferrer">
-      user data
-    </a>{' '}
-    <a href={links.cloudInitExamples} target="_blank" rel="noreferrer">
-      (examples)
-    </a>{' '}
-    if the selected boot image supports it. Maximum size 32 KiB.
+    <HintLink href={links.cloudInitFormat}>user data</HintLink>{' '}
+    <HintLink href={links.cloudInitExamples}>(examples)</HintLink> if the selected boot
+    image supports it. Maximum size 32 KiB.
   </>
 )

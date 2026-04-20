@@ -5,8 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMemo } from 'react'
-import { useLocation, useNavigate } from 'react-router'
+import { useLocation } from 'react-router'
 
 import {
   Access16Icon,
@@ -25,28 +24,25 @@ import { pb } from '~/util/path-builder'
 import { ContentPane, PageContainer } from './helpers'
 
 export default function SiloLayout() {
-  const navigate = useNavigate()
   const { pathname } = useLocation()
   const { me } = useCurrentUser()
 
   useQuickActions(
-    useMemo(
-      () =>
-        [
-          { value: 'Projects', path: pb.projects() },
-          { value: 'Images', path: pb.siloImages() },
-          { value: 'Utilization', path: pb.siloUtilization() },
-          { value: 'Silo Access', path: pb.siloAccess() },
-        ]
-          // filter out the entry for the path we're currently on
-          .filter((i) => i.path !== pathname)
-          .map((i) => ({
-            navGroup: `Silo '${me.siloName}'`,
-            value: i.value,
-            onSelect: () => navigate(i.path),
-          })),
-      [pathname, navigate, me.siloName]
-    )
+    () =>
+      [
+        { value: 'Projects', path: pb.projects() },
+        { value: 'Images', path: pb.siloImages() },
+        { value: 'Utilization', path: pb.siloUtilization() },
+        { value: 'Silo Access', path: pb.siloAccess() },
+      ]
+        // filter out the entry for the path we're currently on
+        .filter((i) => i.path !== pathname)
+        .map((i) => ({
+          navGroup: `Silo '${me.siloName}'`,
+          value: i.value,
+          action: i.path,
+        })),
+    [pathname, me.siloName]
   )
 
   return (

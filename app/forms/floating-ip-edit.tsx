@@ -6,11 +6,12 @@
  * Copyright Oxide Computer Company
  */
 import { useForm } from 'react-hook-form'
-import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
-  apiq,
-  getListQFn,
+  api,
+  q,
+  qErrorsAllowed,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -23,24 +24,40 @@ import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getFloatingIpSelector, useFloatingIpSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
-import { EmptyCell } from '~/table/cells/EmptyCell'
+import { InstanceLink } from '~/table/cells/InstanceLinkCell'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
-import { ALL_ISH } from '~/util/consts'
+import { docLinks } from '~/util/links'
+import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
-import { pb } from 'app/util/path-builder'
 
 const floatingIpView = ({ project, floatingIp }: PP.FloatingIp) =>
-  apiq('floatingIpView', { path: { floatingIp }, query: { project } })
-const instanceList = (project: string) =>
-  getListQFn('instanceList', { query: { project, limit: ALL_ISH } })
+  q(api.floatingIpView, { path: { floatingIp }, query: { project } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const selector = getFloatingIpSelector(params)
+  const fip = await queryClient.fetchQuery(floatingIpView(selector))
   await Promise.all([
-    queryClient.fetchQuery(floatingIpView(selector)),
-    queryClient.fetchQuery(instanceList(selector.project).optionsFn()),
+    queryClient.prefetchQuery(
+      // ip pool cell uses errors allowed, so we have to do that here to match
+      qErrorsAllowed(
+        api.ipPoolView,
+        { path: { pool: fip.ipPoolId } },
+        {
+          errorsExpected: {
+            explanation: 'the referenced IP pool may have been deleted.',
+            statusCode: 404,
+          },
+        }
+      )
+    ),
+    fip.instanceId
+      ? queryClient.prefetchQuery(
+          q(api.instanceView, { path: { instance: fip.instanceId } })
+        )
+      : null,
   ])
   return null
 }
@@ -55,15 +72,12 @@ export default function EditFloatingIpSideModalForm() {
   const onDismiss = () => navigate(pb.floatingIps({ project: floatingIpSelector.project }))
 
   const { data: floatingIp } = usePrefetchedQuery(floatingIpView(floatingIpSelector))
-  const { data: instances } = usePrefetchedQuery(
-    instanceList(floatingIpSelector.project).optionsFn()
-  )
-  const instanceName = instances.items.find((i) => i.id === floatingIp.instanceId)?.name
 
-  const editFloatingIp = useApiMutation('floatingIpUpdate', {
+  const editFloatingIp = useApiMutation(api.floatingIpUpdate, {
     onSuccess(_floatingIp) {
       queryClient.invalidateEndpoint('floatingIpList')
-      addToast(<>Floating IP <HL>{_floatingIp.name}</HL> updated</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Floating IP <HL>{_floatingIp.name}</HL> updated</>)
       onDismiss()
     },
   })
@@ -96,23 +110,12 @@ export default function EditFloatingIpSideModalForm() {
           <IpPoolCell ipPoolId={floatingIp.ipPoolId} />
         </PropertiesTable.Row>
         <PropertiesTable.Row label="Instance">
-          {instanceName ? (
-            <Link
-              to={pb.instanceNetworking({
-                project: floatingIpSelector.project,
-                instance: instanceName,
-              })}
-              className="link-with-underline group text-sans-md"
-            >
-              {instanceName}
-            </Link>
-          ) : (
-            <EmptyCell />
-          )}
+          <InstanceLink instanceId={floatingIp.instanceId} tab="networking" />
         </PropertiesTable.Row>
       </PropertiesTable>
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
+      <SideModalFormDocs docs={[docLinks.floatingIps]} />
     </SideModalForm>
   )
 }

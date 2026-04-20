@@ -8,21 +8,23 @@
 
 import { Link, type LoaderFunctionArgs } from 'react-router'
 
-import { apiQueryClient, usePrefetchedApiQuery } from '~/api'
+import { api, q, queryClient, usePrefetchedQuery } from '~/api'
 import { EquivalentCliCommand } from '~/components/CopyCode'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { buttonStyle } from '~/ui/lib/Button'
 import { CardBlock, LearnMore } from '~/ui/lib/CardBlock'
 import { InlineCode } from '~/ui/lib/InlineCode'
-import { links } from '~/util/links'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
-  await apiQueryClient.prefetchQuery('instanceExternalIpList', {
-    path: { instance },
-    query: { project },
-  })
+  await queryClient.prefetchQuery(
+    q(api.instanceExternalIpList, {
+      path: { instance },
+      query: { project },
+    })
+  )
   return null
 }
 
@@ -30,10 +32,12 @@ export const handle = { crumb: 'Connect' }
 
 export default function ConnectTab() {
   const { project, instance } = useInstanceSelector()
-  const { data: externalIps } = usePrefetchedApiQuery('instanceExternalIpList', {
-    path: { instance },
-    query: { project },
-  })
+  const { data: externalIps } = usePrefetchedQuery(
+    q(api.instanceExternalIpList, {
+      path: { instance },
+      query: { project },
+    })
+  )
   const floatingIp = externalIps.items.find((ip) => ip.kind === 'floating')
   const ephemeralIp = externalIps.items.find((ip) => ip.kind === 'ephemeral')
   // prefer floating, fall back to ephemeral
@@ -55,7 +59,7 @@ export default function ConnectTab() {
           </Link>
         </CardBlock.Header>
         <CardBlock.Footer>
-          <LearnMore href={links.serialConsoleDocs} text="Serial Console" />
+          <LearnMore doc={docLinks.serialConsole} />
         </CardBlock.Footer>
       </CardBlock>
 
@@ -84,7 +88,7 @@ export default function ConnectTab() {
           }
         />
         <CardBlock.Footer>
-          <LearnMore href={links.sshDocs} text="SSH" />
+          <LearnMore doc={docLinks.ssh} />
         </CardBlock.Footer>
       </CardBlock>
     </div>

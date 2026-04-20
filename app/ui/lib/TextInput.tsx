@@ -65,11 +65,11 @@ export function TextInput({
   return (
     <div
       className={cn(
-        'flex items-center rounded border',
+        'flex items-center rounded-md border',
         error
           ? 'border-error-secondary hover:border-error'
-          : 'border-default hover:border-hover',
-        disabled && '!border-default',
+          : 'border-default hover:border-raise',
+        disabled && 'border-default!',
         className
       )}
     >
@@ -79,7 +79,7 @@ export function TextInput({
         type={type}
         value={value}
         className={cn(
-          `w-full rounded border-none px-3 py-[0.6875rem] !outline-offset-1 text-sans-md text-raise bg-default placeholder:text-tertiary focus:outline-none disabled:cursor-not-allowed disabled:text-secondary disabled:bg-disabled`,
+          `text-sans-md text-raise bg-default placeholder:text-tertiary disabled:text-secondary disabled:bg-disabled w-full rounded-md border-none px-3 py-2.75 outline-offset-1! disabled:cursor-not-allowed`,
           error && 'focus-error',
           fieldClassName,
           disabled && 'text-disabled bg-disabled',
@@ -93,7 +93,7 @@ export function TextInput({
       {copyable && (
         <CopyToClipboard
           text={value || ''}
-          className="!h-10 rounded-none border-l border-solid px-4 bg-disabled border-default"
+          className="bg-disabled border-default h-10! rounded-none border-l border-solid px-4"
         />
       )}
     </div>
@@ -111,18 +111,21 @@ type HintProps = {
  * Pass id here and include that ID in aria-describedby on the TextField
  */
 export const TextInputHint = ({ id, children, className }: HintProps) => (
-  <div
-    id={id}
-    className={cn(
-      'mt-1 text-sans-sm text-secondary [&_>_a]:underline hover:[&_>_a]:text-raise',
-      className
-    )}
-  >
+  <div id={id} className={cn('text-sans-sm text-secondary mt-1', className)}>
     {children}
   </div>
 )
 
+export type HintLinkProps = { href: string; children: React.ReactNode }
+
+/** External link styled for use inside a TextInputHint */
+export const HintLink = ({ href, children }: HintLinkProps) => (
+  <a href={href} target="_blank" rel="noreferrer" className="hover:text-raise underline">
+    {children}
+  </a>
+)
+
 export const TextInputError = ({ children }: { children: string }) => {
   useEffect(() => announce(children, 'assertive'), [children])
-  return <div className="ml-px py-2 text-sans-md text-destructive">{children}</div>
+  return <div className="text-sans-md text-destructive ml-px py-2">{children}</div>
 }

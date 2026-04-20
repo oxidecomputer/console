@@ -1,0 +1,60 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+
+import { api, q, usePrefetchedQuery } from '@oxide/api'
+import { Cloud24Icon, NextArrow12Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
+
+import { makeCrumb } from '~/hooks/use-crumbs'
+import { useSiloSelector } from '~/hooks/use-params'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { TableEmptyBox } from '~/ui/lib/Table'
+import type * as PP from '~/util/path-params'
+
+const siloView = ({ silo }: PP.Silo) => q(api.siloView, { path: { silo } })
+
+export default function SiloFleetRolesTab() {
+  const siloSelector = useSiloSelector()
+  const { data: silo } = usePrefetchedQuery(siloView(siloSelector))
+
+  // `mappedFleetRoles` is keyed by silo role, with each value listing the
+  // fleet roles granted to actors who have that silo role.
+  const roleMapPairs: [string, string][] = Object.entries(silo.mappedFleetRoles).flatMap(
+    ([siloRole, fleetRoles]) => fleetRoles.map((fleetRole) => [siloRole, fleetRole])
+  )
+
+  if (roleMapPairs.length === 0) {
+    return (
+      <TableEmptyBox>
+        <EmptyMessage
+          icon={<Cloud24Icon />}
+          title="Mapped fleet roles"
+          // TODO: better empty state explaining that no roles are mapped so nothing will happen
+          body="Silo roles can automatically grant a fleet role. This silo has no role mappings configured."
+        />
+      </TableEmptyBox>
+    )
+  }
+
+  return (
+    <>
+      <p className="text-default mb-4">Silo roles can automatically grant a fleet role.</p>
+      <ul className="space-y-3">
+        {roleMapPairs.map(([siloRole, fleetRole]) => (
+          <li key={siloRole + '|' + fleetRole} className="flex items-center">
+            <Badge>Silo {siloRole}</Badge>
+            <NextArrow12Icon className="text-default mx-3" aria-label="maps to" />
+            <span className="text-sans-md text-default">Fleet {fleetRole}</span>
+          </li>
+        ))}
+      </ul>
+    </>
+  )
+}
+
+export const handle = makeCrumb('Fleet Roles')

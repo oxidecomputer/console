@@ -9,7 +9,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import type { LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 
-import { getListQFn, queryClient, type SledInstance } from '@oxide/api'
+import { api, getListQFn, queryClient, type SledInstance } from '@oxide/api'
 import { Instances24Icon } from '@oxide/design-system/icons/react'
 
 import { InstanceStateBadge } from '~/components/StateBadge'
@@ -21,7 +21,7 @@ import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 
 const sledInstanceList = (sledId: string) =>
-  getListQFn('sledInstanceList', { path: { sledId } })
+  getListQFn(api.sledInstanceList, { path: { sledId } })
 
 const EmptyState = () => {
   return (

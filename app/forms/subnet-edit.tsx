@@ -10,7 +10,8 @@ import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 import type { SetNonNullable } from 'type-fest'
 
 import {
-  apiq,
+  api,
+  q,
   queryClient,
   useApiMutation,
   usePrefetchedQuery,
@@ -31,11 +32,13 @@ import { titleCrumb } from '~/hooks/use-crumbs'
 import { getVpcSubnetSelector, useVpcSubnetSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
 const subnetView = ({ project, vpc, subnet }: PP.VpcSubnet) =>
-  apiq('vpcSubnetView', { query: { project, vpc }, path: { subnet } })
+  q(api.vpcSubnetView, { query: { project, vpc }, path: { subnet } })
 
 export const handle = titleCrumb('Edit Subnet')
 
@@ -54,10 +57,11 @@ export default function EditSubnetForm() {
 
   const { data: subnet } = usePrefetchedQuery(subnetView(subnetSelector))
 
-  const updateSubnet = useApiMutation('vpcSubnetUpdate', {
+  const updateSubnet = useApiMutation(api.vpcSubnetUpdate, {
     onSuccess(subnet) {
       queryClient.invalidateEndpoint('vpcSubnetList')
-      addToast(<>Subnet <HL>{subnet.name}</HL> updated</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Subnet <HL>{subnet.name}</HL> updated</>)
       onDismiss()
     },
   })
@@ -75,7 +79,7 @@ export default function EditSubnetForm() {
     <SideModalForm
       form={form}
       formType="edit"
-      resourceName="subnet"
+      resourceName="VPC subnet"
       onDismiss={onDismiss}
       onSubmit={(body) => {
         updateSubnet.mutate({
@@ -103,6 +107,7 @@ export default function EditSubnetForm() {
         control={form.control}
         required
       />
+      <SideModalFormDocs docs={[docLinks.vpcs]} />
     </SideModalForm>
   )
 }

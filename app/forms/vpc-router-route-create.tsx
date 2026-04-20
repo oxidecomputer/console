@@ -8,11 +8,15 @@
 import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
-import { apiQueryClient, useApiMutation, useApiQueryClient } from '@oxide/api'
+import { api, q, queryClient, useApiMutation } from '@oxide/api'
 
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
-import { RouteFormFields, type RouteFormValues } from '~/forms/vpc-router-route-common'
+import {
+  RouteFormDocs,
+  RouteFormFields,
+  type RouteFormValues,
+} from '~/forms/vpc-router-route-common'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
@@ -31,30 +35,28 @@ export const handle = titleCrumb('New Route')
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcRouterSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('vpcSubnetList', {
-      query: { project, vpc, limit: ALL_ISH },
-    }),
-    apiQueryClient.prefetchQuery('instanceList', {
-      query: { project, limit: ALL_ISH },
-    }),
-    apiQueryClient.prefetchQuery('internetGatewayList', {
-      query: { project, vpc, limit: ALL_ISH },
-    }),
+    queryClient.prefetchQuery(
+      q(api.vpcSubnetList, { query: { project, vpc, limit: ALL_ISH } })
+    ),
+    queryClient.prefetchQuery(q(api.instanceList, { query: { project, limit: ALL_ISH } })),
+    queryClient.prefetchQuery(
+      q(api.internetGatewayList, { query: { project, vpc, limit: ALL_ISH } })
+    ),
   ])
   return null
 }
 
 export default function CreateRouterRouteSideModalForm() {
-  const queryClient = useApiQueryClient()
   const routerSelector = useVpcRouterSelector()
   const navigate = useNavigate()
 
   const form = useForm({ defaultValues })
 
-  const createRouterRoute = useApiMutation('vpcRouterRouteCreate', {
+  const createRouterRoute = useApiMutation(api.vpcRouterRouteCreate, {
     onSuccess(route) {
-      queryClient.invalidateQueries('vpcRouterRouteList')
-      addToast(<>Route <HL>{route.name}</HL> created</>) // prettier-ignore
+      queryClient.invalidateEndpoint('vpcRouterRouteList')
+      // prettier-ignore
+      addToast(<>Route <HL>{route.name}</HL> created</>)
       navigate(pb.vpcRouter(routerSelector))
     },
   })
@@ -81,6 +83,7 @@ export default function CreateRouterRouteSideModalForm() {
       submitError={createRouterRoute.error}
     >
       <RouteFormFields form={form} />
+      <RouteFormDocs />
     </SideModalForm>
   )
 }

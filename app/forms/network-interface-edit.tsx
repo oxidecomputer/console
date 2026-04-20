@@ -7,11 +7,12 @@
  */
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import * as R from 'remeda'
+import { match } from 'ts-pattern'
 
 import {
+  api,
+  queryClient,
   useApiMutation,
-  useApiQueryClient,
   type InstanceNetworkInterface,
   type InstanceNetworkInterfaceUpdate,
 } from '@oxide/api'
@@ -25,11 +26,13 @@ import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { Message } from '~/ui/lib/Message'
 import { ClearAndAddButtons, MiniTable } from '~/ui/lib/MiniTable'
-import { TextInputHint } from '~/ui/lib/TextInput'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { HintLink, TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
-import { validateIpNet } from '~/util/ip'
-import { links } from '~/util/links'
+import { parseIpNet, validateIpNet } from '~/util/ip'
+import { docLinks, links } from '~/util/links'
 
 type EditNetworkInterfaceFormProps = {
   editing: InstanceNetworkInterface
@@ -40,25 +43,42 @@ export function EditNetworkInterfaceForm({
   onDismiss,
   editing,
 }: EditNetworkInterfaceFormProps) {
-  const queryClient = useApiQueryClient()
   const instanceSelector = useInstanceSelector()
 
-  const editNetworkInterface = useApiMutation('instanceNetworkInterfaceUpdate', {
+  const editNetworkInterface = useApiMutation(api.instanceNetworkInterfaceUpdate, {
     onSuccess(nic) {
-      queryClient.invalidateQueries('instanceNetworkInterfaceList')
-      addToast(<>Network interface <HL>{nic.name}</HL> updated</>) // prettier-ignore
+      queryClient.invalidateEndpoint('instanceNetworkInterfaceList')
+      // prettier-ignore
+      addToast(<>Network interface <HL>{nic.name}</HL> updated</>)
       onDismiss()
     },
   })
 
-  const defaultValues = R.pick(editing, [
-    'name',
-    'description',
-    'transitIps',
-  ]) satisfies InstanceNetworkInterfaceUpdate
+  // Extract transitIps from ipStack for the form
+  const extractedTransitIps =
+    editing.ipStack.type === 'dual_stack'
+      ? [...editing.ipStack.value.v4.transitIps, ...editing.ipStack.value.v6.transitIps]
+      : editing.ipStack.value.transitIps
+
+  const defaultValues = {
+    name: editing.name,
+    description: editing.description,
+    transitIps: extractedTransitIps,
+  } satisfies InstanceNetworkInterfaceUpdate
 
   const form = useForm({ defaultValues })
   const transitIps = form.watch('transitIps') || []
+
+  // Determine what IP versions this NIC supports
+  const { ipStack } = editing
+  const { supportedVersions, exampleIPs } = match(ipStack.type)
+    .with('v4', () => ({ supportedVersions: 'IPv4', exampleIPs: '192.168.0.0/16' }))
+    .with('v6', () => ({ supportedVersions: 'IPv6', exampleIPs: 'fd00::/64' }))
+    .with('dual_stack', () => ({
+      supportedVersions: 'both IPv4 and IPv6',
+      exampleIPs: '192.168.0.0/16 or fd00::/64',
+    }))
+    .exhaustive()
 
   const transitIpsForm = useForm({ defaultValues: { transitIp: '' } })
   const transitIpValue = transitIpsForm.watch('transitIp')
@@ -102,10 +122,8 @@ export function EditNetworkInterfaceForm({
             Transit IPs
           </FieldLabel>
           <TextInputHint id="transitIp-help-text" className="mb-2">
-            An IP network, like 192.168.0.0/16.{' '}
-            <a href={links.transitIpsDocs} target="_blank" rel="noreferrer">
-              Learn more about transit IPs.
-            </a>
+            These allow an instance to opt into traffic from a wider address range. Learn
+            more in the <HintLink href={links.transitIpsDocs}>Networking</HintLink> guide.
           </TextInputHint>
           <TextFieldInner
             id="transitIp"
@@ -121,9 +139,18 @@ export function EditNetworkInterfaceForm({
               const error = validateIpNet(value)
               if (error) return error
 
+              // Check if transit IP version matches NIC's stack type
+              const parsed = parseIpNet(value)
+              if (parsed.type === 'v4' && ipStack.type === 'v6') {
+                return 'IPv4 transit IP not supported by this network interface'
+              }
+              if (parsed.type === 'v6' && ipStack.type === 'v4') {
+                return 'IPv6 transit IP not supported by this network interface'
+              }
+
               if (transitIps.includes(value)) return 'Transit IP already in list'
             }}
-            placeholder="Enter an IP network"
+            placeholder={`An IP network, e.g., ${exampleIPs}`}
           />
         </div>
         <ClearAndAddButtons
@@ -147,6 +174,11 @@ export function EditNetworkInterfaceForm({
         }}
         removeLabel={(ip) => `remove IP ${ip}`}
       />
+      <Message
+        variant="info"
+        content={`This network interface supports ${supportedVersions} transit IPs.`}
+      />
+      <SideModalFormDocs docs={[docLinks.networkInterfaces, docLinks.vpcs]} />
     </SideModalForm>
   )
 }

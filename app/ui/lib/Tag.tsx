@@ -28,7 +28,7 @@ export const tagColors: Record<TagVariant, Partial<Record<TagColor, string>>> = 
     notice: 'bg-notice text-inverse',
   },
   secondary: {
-    default: 'bg-accent-secondary text-accent',
+    default: 'bg-accent text-accent',
     destructive: 'bg-destructive-secondary text-destructive',
     notice: 'bg-notice-secondary text-notice',
     neutral: 'bg-secondary text-default',
@@ -48,7 +48,7 @@ export const Tag = ({
       className={cn(
         'ox-tag',
         `variant-${variant}`,
-        'inline-flex items-center whitespace-nowrap rounded px-1 text-mono-sm',
+        'text-mono-sm inline-flex items-center rounded-md px-1 whitespace-nowrap',
         tagColors[variant][color],
         narrow ? 'h-4' : 'h-6',
         className

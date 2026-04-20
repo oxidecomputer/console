@@ -8,19 +8,24 @@
 import { useForm } from 'react-hook-form'
 
 import {
+  api,
+  queryClient,
   updateRole,
   useActorsNotInPolicy,
   useApiMutation,
-  useApiQueryClient,
 } from '@oxide/api'
+import { Access16Icon } from '@oxide/design-system/icons/react'
 
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { ResourceLabel } from '~/ui/lib/SideModal'
+import { docLinks } from '~/util/links'
 
 import {
   actorToItem,
   defaultValues,
-  roleItems,
+  RoleRadioField,
   type AddRoleModalProps,
   type EditRoleModalProps,
 } from './access-util'
@@ -28,10 +33,9 @@ import {
 export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
   const actors = useActorsNotInPolicy(policy)
 
-  const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('policyUpdate', {
+  const updatePolicy = useApiMutation(api.policyUpdate, {
     onSuccess: () => {
-      queryClient.invalidateQueries('policyView')
+      queryClient.invalidateEndpoint('policyView')
       onDismiss()
     },
   })
@@ -44,12 +48,12 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
       formType="create"
       resourceName="role"
       title="Add user or group"
-      onDismiss={onDismiss}
+      submitLabel="Assign role"
+      onDismiss={() => {
+        updatePolicy.reset() // clear API error state so it doesn't persist on next open
+        onDismiss()
+      }}
       onSubmit={({ identityId, roleName }) => {
-        // can't happen because roleName is validated not to be '', but TS
-        // wants to be sure
-        if (roleName === '') return
-
         // TODO: DRY logic
         // actor is guaranteed to be in the list because it came from there
         const identityType = actors.find((a) => a.id === identityId)!.identityType
@@ -60,7 +64,6 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
       }}
       loading={updatePolicy.isPending}
       submitError={updatePolicy.error}
-      submitLabel="Assign role"
     >
       <ListboxField
         name="identityId"
@@ -69,13 +72,8 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
         required
         control={form.control}
       />
-      <ListboxField
-        name="roleName"
-        label="Role"
-        items={roleItems}
-        required
-        control={form.control}
-      />
+      <RoleRadioField name="roleName" control={form.control} scope="Silo" />
+      <SideModalFormDocs docs={[docLinks.access]} />
     </SideModalForm>
   )
 }
@@ -88,10 +86,9 @@ export function SiloAccessEditUserSideModal({
   policy,
   defaultValues,
 }: EditRoleModalProps) {
-  const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('policyUpdate', {
+  const updatePolicy = useApiMutation(api.policyUpdate, {
     onSuccess: () => {
-      queryClient.invalidateQueries('policyView')
+      queryClient.invalidateEndpoint('policyView')
       onDismiss()
     },
   })
@@ -99,11 +96,15 @@ export function SiloAccessEditUserSideModal({
 
   return (
     <SideModalForm
-      // TODO: show user name in header or SOMEWHERE
       form={form}
       formType="edit"
       resourceName="role"
-      title={`Change silo role for ${name}`}
+      title="Edit role"
+      subtitle={
+        <ResourceLabel>
+          <Access16Icon /> {name}
+        </ResourceLabel>
+      }
       onSubmit={({ roleName }) => {
         updatePolicy.mutate({
           body: updateRole({ identityId, identityType, roleName }, policy),
@@ -111,15 +112,13 @@ export function SiloAccessEditUserSideModal({
       }}
       loading={updatePolicy.isPending}
       submitError={updatePolicy.error}
-      onDismiss={onDismiss}
+      onDismiss={() => {
+        updatePolicy.reset() // clear API error state so it doesn't persist on next open
+        onDismiss()
+      }}
     >
-      <ListboxField
-        name="roleName"
-        label="Role"
-        items={roleItems}
-        required
-        control={form.control}
-      />
+      <RoleRadioField name="roleName" control={form.control} scope="Silo" />
+      <SideModalFormDocs docs={[docLinks.access]} />
     </SideModalForm>
   )
 }

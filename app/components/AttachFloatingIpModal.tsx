@@ -10,9 +10,10 @@ import { useQuery } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 
 import {
-  apiqErrorsAllowed,
+  api,
+  qErrorsAllowed,
+  queryClient,
   useApiMutation,
-  useApiQueryClient,
   type FloatingIp,
   type Instance,
 } from '~/api'
@@ -26,7 +27,16 @@ import { ModalForm } from './form/ModalForm'
 
 function IpPoolName({ ipPoolId }: { ipPoolId: string }) {
   const { data: result } = useQuery(
-    apiqErrorsAllowed('projectIpPoolView', { path: { pool: ipPoolId } })
+    qErrorsAllowed(
+      api.ipPoolView,
+      { path: { pool: ipPoolId } },
+      {
+        errorsExpected: {
+          explanation: 'the referenced IP pool may have been deleted.',
+          statusCode: 404,
+        },
+      }
+    )
   )
   // As with IpPoolCell, this should never happen, but to be safe …
   if (!result || result.type === 'error') return null
@@ -48,7 +58,7 @@ function FloatingIpLabel({ fip }: { fip: FloatingIp }) {
         {fip.description && (
           <>
             <Slash />
-            <div className="grow overflow-hidden overflow-ellipsis whitespace-pre text-left">
+            <div className="grow overflow-hidden text-left text-ellipsis whitespace-pre">
               {fip.description}
             </div>
           </>
@@ -67,12 +77,12 @@ export const AttachFloatingIpModal = ({
   instance: Instance
   onDismiss: () => void
 }) => {
-  const queryClient = useApiQueryClient()
-  const floatingIpAttach = useApiMutation('floatingIpAttach', {
+  const floatingIpAttach = useApiMutation(api.floatingIpAttach, {
     onSuccess(floatingIp) {
-      queryClient.invalidateQueries('floatingIpList')
-      queryClient.invalidateQueries('instanceExternalIpList')
-      addToast(<>IP <HL>{floatingIp.name}</HL> attached</>) // prettier-ignore
+      queryClient.invalidateEndpoint('floatingIpList')
+      queryClient.invalidateEndpoint('instanceExternalIpList')
+      // prettier-ignore
+      addToast(<>IP <HL>{floatingIp.name}</HL> attached</>)
       onDismiss()
     },
     onError: (err) => {
