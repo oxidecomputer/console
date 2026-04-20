@@ -106,9 +106,8 @@ export const resolvePoolSelector = (
 
   const link = candidateLinks[0]
   if (!link) {
-    const typeStr = poolType ? ` ${poolType}` : ''
     const versionStr = poolSelector?.ip_version ? ` ${poolSelector.ip_version}` : ''
-    throw notFoundErr(`default${typeStr}${versionStr} pool for silo '${siloId}'`)
+    throw notFoundErr(`default ${poolType}${versionStr} pool for silo '${siloId}'`)
   }
   return lookupById(db.ipPools, link.ip_pool_id)
 }
