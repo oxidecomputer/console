@@ -218,13 +218,10 @@ test('resize modal stays open on server error', async ({ page }) => {
   await resizeModal.getByRole('textbox', { name: 'Memory' }).fill('20')
   await resizeModal.getByRole('button', { name: 'Resize' }).click()
 
-  // Wait for the error toast, which confirms the mutation has completed
-  await expect(page.getByTestId('Toasts')).toContainText('Cannot update instance')
-
-  // Modal should stay open so the user can see the error and adjust values
+  // Error renders inline inside the modal; modal stays open so the user can
+  // see the error and adjust values.
+  await expect(resizeModal).toContainText('Cannot update instance')
   await expect(resizeModal).toBeVisible()
-
-  await closeToast(page)
 })
 
 test('delete from instance detail', async ({ page }) => {
