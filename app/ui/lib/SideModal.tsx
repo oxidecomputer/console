@@ -59,7 +59,6 @@ export function SideModal({
         onOpenChange={(open) => {
           if (!open) onDismiss()
         }}
-        modal={false}
       >
         <BaseDialog.Portal>
           <DialogOverlay />

@@ -37,9 +37,8 @@ export type ModalProps = {
   overlay?: boolean
 }
 
-// Note that the overlay has z-index 30 and content has 40. This is to make sure
-// both land on top of a side modal in the regrettable case where we have both
-// on screen at once.
+// Overlay sits above --z-side-modal and content above that, so the Modal fully
+// covers a SideModal in the regrettable case where both are on screen at once.
 
 export function Modal({
   children,
@@ -59,7 +58,6 @@ export function Modal({
           // onFocusOutside preventDefault). See oxidecomputer/console#1745.
           if (!open && reason !== 'focus-out') onDismiss()
         }}
-        modal={false}
       >
         <BaseDialog.Portal>
           {overlay && <DialogOverlay />}
