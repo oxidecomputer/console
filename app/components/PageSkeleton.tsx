@@ -6,9 +6,15 @@
  * Copyright Oxide Computer Company
  */
 
+import cn from 'classnames'
 import { useLocation } from 'react-router'
 
-import { ContentPane, PageContainer } from '~/layouts/helpers'
+import {
+  ContentPane,
+  PageContainer,
+  sidebarWrapperClass,
+  topBarWrapperClass,
+} from '~/layouts/helpers'
 import { classed } from '~/util/classed'
 
 import { MswBanner } from './MswBanner'
@@ -29,7 +35,7 @@ export function PageSkeleton({ skipPaths }: { skipPaths?: RegExp[] }) {
       {process.env.MSW_BANNER ? <MswBanner disableButton /> : null}
       <PageContainer>
         {/* TopBar */}
-        <div className="bg-default border-secondary fixed inset-x-0 top-0 z-(--z-top-bar) grid h-(--top-bar-height) grid-cols-[var(--sidebar-width)_1fr] border-b">
+        <div className={topBarWrapperClass}>
           <div className="border-secondary flex items-center gap-2 border-r p-3">
             <Block className="h-8 w-8" />
             <Block className="h-4 w-24" />
@@ -43,7 +49,7 @@ export function PageSkeleton({ skipPaths }: { skipPaths?: RegExp[] }) {
           </div>
         </div>
         {/* Sidebar */}
-        <div className="border-secondary fixed top-(--top-bar-height) bottom-0 left-0 w-(--sidebar-width) border-r p-4">
+        <div className={cn(sidebarWrapperClass, 'p-4')}>
           <Block className="mb-10 h-4 w-full" />
           <div className="mb-6 space-y-2">
             <Block className="h-4 w-32" />

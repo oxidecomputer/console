@@ -22,6 +22,7 @@ import {
 
 import { useCrumbs } from '~/hooks/use-crumbs'
 import { useCurrentUser } from '~/hooks/use-current-user'
+import { topBarWrapperClass } from '~/layouts/helpers'
 import { useThemeStore, type Theme } from '~/stores/theme'
 import { buttonStyle } from '~/ui/lib/Button'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
@@ -33,7 +34,7 @@ import { pb } from '~/util/path-builder'
 export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
   const { me } = useCurrentUser()
   return (
-    <div className="bg-default border-secondary fixed top-0 right-0 left-0 z-(--z-top-bar) grid h-(--top-bar-height) grid-cols-[var(--sidebar-width)_1fr] border-b">
+    <div className={topBarWrapperClass}>
       <div className="border-secondary flex items-center border-r px-2">
         <HomeButton level={systemOrSilo} />
       </div>
