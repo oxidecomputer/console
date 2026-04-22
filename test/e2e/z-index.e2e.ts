@@ -30,8 +30,10 @@ test('Dropdown content in SidebarModal shows on screen', async ({ page }) => {
 
   const sidebar = page.getByRole('dialog', { name: 'Add network interface' })
 
-  // verify that the SideModal header is positioned above the TopBar
-  await expectObscured(page.getByRole('button', { name: 'User menu' }))
+  // verify that the SideModal header is positioned above the TopBar. CSS
+  // locator instead of getByRole because base-ui sets aria-hidden on outside
+  // content while the dialog is open.
+  await expectObscured(page.locator('button[aria-label="User menu"]'))
 
   // test that the form can be submitted and a new network interface is created
   await sidebar.getByRole('button', { name: 'Add network interface' }).click()
