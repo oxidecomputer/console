@@ -252,7 +252,7 @@ export const Combobox = ({
               {items.length > 0 && (
                 <ComboboxButton
                   className={cn(
-                    'border-secondary my-1.5 flex items-center border-l px-3',
+                    'relative flex items-center px-3 before:absolute before:inset-y-1.5 before:left-0 before:w-px before:content-[""] before:bg-(--stroke-secondary)',
                     disabled ? 'bg-disabled cursor-not-allowed' : 'bg-default'
                   )}
                   aria-hidden

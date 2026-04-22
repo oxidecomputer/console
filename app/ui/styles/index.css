@@ -75,11 +75,11 @@
 
 ::-moz-selection {
   /* Code for Firefox */
-  @apply text-accent bg-accent;
+  @apply bg-accent-inverse/30;
 }
 
 ::selection {
-  @apply text-accent bg-accent;
+  @apply bg-accent-inverse/30;
 }
 
 @custom-variant selected {

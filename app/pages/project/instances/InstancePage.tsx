@@ -301,9 +301,6 @@ export function ResizeInstanceModal({
           : undefined, // Only link to the instance if we're not already on that page
       })
     },
-    onError: (err) => {
-      addToast({ title: 'Error', content: err.message, variant: 'error' })
-    },
   })
 
   const form = useForm({
