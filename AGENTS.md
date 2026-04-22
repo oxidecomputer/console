@@ -32,6 +32,7 @@
 - Co-locate Vitest specs next to the code they cover; use Testing Library utilities (`render`, `renderHook`, `fireEvent`, fake timers) to assert observable output rather than implementation details (`app/ui/lib/FileInput.spec.tsx`, `app/hooks/use-pagination.spec.ts`).
 - For sweeping styling changes, coordinate with the visual regression harness and follow `test/visual/README.md` for the workflow.
 - Fix root causes of flaky timing rather than adding `sleep()` workarounds in tests.
+- Local Playwright runs write a compact plain-text report to `.e2e-logs/` (gitignored, one timestamped `.log` per run, last 10 kept) via the custom reporter at `test/e2e/compact-reporter.ts`. Top line is `status: ... total=N passed=N ...`; each failure is a `── UNEXPECTED|FLAKY file:line title` block followed by the error (ANSI stripped). Latest run: `ls .e2e-logs | tail -1` — Read it directly, no parsing needed.
 
 # Data fetching pattern
 
