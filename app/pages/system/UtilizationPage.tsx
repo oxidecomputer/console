@@ -133,7 +133,8 @@ const MetricsTab = () => {
           <Listbox
             selected={filterId}
             className="w-52"
-            aria-labelledby="filter-id-label"
+            label="Filter by silo"
+            hideLabel
             name="filter-id"
             items={siloItems}
             onChange={setFilterId}

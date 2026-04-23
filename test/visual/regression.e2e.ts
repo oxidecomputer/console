@@ -59,7 +59,6 @@ const pages = [
     heading: 'Silo image',
     exact: true,
   },
-  { name: 'silo utilization', url: '/utilization', heading: 'Utilization' },
   { name: 'silo access', url: '/access', heading: 'Silo Access' },
 
   // Project - Instances
@@ -142,11 +141,6 @@ const pages = [
 
   // System - Utilization
   { name: 'system utilization', url: '/system/utilization', heading: 'Utilization' },
-  {
-    name: 'system utilization metrics tab',
-    url: '/system/utilization?tab=metrics',
-    heading: 'Utilization',
-  },
 
   // System - Networking
   { name: 'system ip pools', url: '/system/networking/ip-pools', heading: 'IP Pools' },
@@ -236,5 +230,30 @@ test.describe('Visual Regression', { tag: '@visual' }, () => {
     await page.keyboard.press(`ControlOrMeta+k`)
     await page.waitForLoadState('networkidle')
     await expect(page).toHaveScreenshot('command-menu.png', fullPage)
+  })
+
+  // Utilization pages render charts and include the refetch interval picker —
+  // wait for the chart, then mask the refresh button so the spinner state
+  // doesn't cause flaky diffs.
+  test('silo utilization', async ({ page }) => {
+    await page.goto('/utilization', { waitUntil: 'networkidle' })
+    await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
+    await expect(page.locator('.recharts-curve').first()).toBeVisible()
+    await expect(page).toHaveScreenshot('silo-utilization.png', {
+      fullPage: true,
+      mask: [page.getByTestId('refetch-interval-refresh')],
+      maskColor: '#0b0e14',
+    })
+  })
+
+  test('system utilization metrics tab', async ({ page }) => {
+    await page.goto('/system/utilization?tab=metrics', { waitUntil: 'networkidle' })
+    await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
+    await expect(page.locator('.recharts-curve').first()).toBeVisible()
+    await expect(page).toHaveScreenshot('system-utilization-metrics-tab.png', {
+      fullPage: true,
+      mask: [page.getByTestId('refetch-interval-refresh')],
+      maskColor: '#0b0e14',
+    })
   })
 })
