@@ -100,7 +100,13 @@ test('Instance networking tab — NIC table', async ({ page }) => {
   await clickRowAction(page, 'my-nic', 'Delete')
   await expect(page.getByText('Are you sure you want to delete my-nic?')).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
-  await expect(page.getByRole('cell', { name: 'my-nic' })).toBeHidden()
+  // Wait for the NIC list refetch to land before opening nic-3's menu.
+  // Otherwise `multipleNics` is still true, Delete renders disabled (wrapped
+  // in a tooltip), and the unwrap when the refetch lands detaches the
+  // menuitem and closes the menu on Safari/FF. Row count (vs. checking my-nic
+  // is gone) because any absence check passes transiently while the confirm
+  // modal closes and the page is inert.
+  await expect(nicTable.getByRole('row')).toHaveCount(2) // header + nic-3
 
   // Now the primary NIC is deletable
   await clickRowAction(page, 'nic-3', 'Delete')
