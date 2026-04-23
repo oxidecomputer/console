@@ -19,11 +19,17 @@ import { expect, test } from '../e2e/utils'
 // set a fixed time to avoid diffs due to irrelevant time differences
 test.beforeEach(async ({ page }) => {
   await page.clock.setFixedTime(new Date('2025-10-23T12:34:56.000Z'))
-  // TODO: revert to default viewport once we've confirmed no visual regressions
-  // from the grid layout change. The tall viewport forces all content to render
-  // without scrolling, so fullPage screenshots are comparable between the old
-  // contained-scroll layout and the new document-scroll layout.
-  await page.setViewportSize({ width: 1280, height: 3100 })
+  // seed Math.random so mock data (e.g. metrics charts) is deterministic
+  await page.addInitScript(() => {
+    let seed = 0x12345678
+    Math.random = () => {
+      seed |= 0
+      seed = (seed + 0x6d2b79f5) | 0
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+    }
+  })
 })
 
 const fullPage = { fullPage: true }
@@ -53,7 +59,6 @@ const pages = [
     heading: 'Silo image',
     exact: true,
   },
-  { name: 'silo utilization', url: '/utilization', heading: 'Utilization' },
   { name: 'silo access', url: '/access', heading: 'Silo Access' },
 
   // Project - Instances
@@ -136,11 +141,6 @@ const pages = [
 
   // System - Utilization
   { name: 'system utilization', url: '/system/utilization', heading: 'Utilization' },
-  {
-    name: 'system utilization metrics tab',
-    url: '/system/utilization?tab=metrics',
-    heading: 'Utilization',
-  },
 
   // System - Networking
   { name: 'system ip pools', url: '/system/networking/ip-pools', heading: 'IP Pools' },
@@ -230,5 +230,30 @@ test.describe('Visual Regression', { tag: '@visual' }, () => {
     await page.keyboard.press(`ControlOrMeta+k`)
     await page.waitForLoadState('networkidle')
     await expect(page).toHaveScreenshot('command-menu.png', fullPage)
+  })
+
+  // Utilization pages render charts and include the refetch interval picker —
+  // wait for the chart, then mask the refresh button so the spinner state
+  // doesn't cause flaky diffs.
+  test('silo utilization', async ({ page }) => {
+    await page.goto('/utilization', { waitUntil: 'networkidle' })
+    await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
+    await expect(page.locator('.recharts-curve').first()).toBeVisible()
+    await expect(page).toHaveScreenshot('silo-utilization.png', {
+      fullPage: true,
+      mask: [page.getByTestId('refetch-interval-refresh')],
+      maskColor: '#0b0e14',
+    })
+  })
+
+  test('system utilization metrics tab', async ({ page }) => {
+    await page.goto('/system/utilization?tab=metrics', { waitUntil: 'networkidle' })
+    await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
+    await expect(page.locator('.recharts-curve').first()).toBeVisible()
+    await expect(page).toHaveScreenshot('system-utilization-metrics-tab.png', {
+      fullPage: true,
+      mask: [page.getByTestId('refetch-interval-refresh')],
+      maskColor: '#0b0e14',
+    })
   })
 })
