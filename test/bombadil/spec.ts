@@ -13,7 +13,7 @@
 // `setupWorker().start()` never resolves and React never mounts. See:
 //   https://github.com/antithesishq/bombadil/issues/98
 //   https://github.com/antithesishq/bombadil/issues/105
-import { extract, always, eventually, now } from '@antithesishq/bombadil'
+import { extract, always, eventually, next, now } from '@antithesishq/bombadil'
 // Cherry-pick defaults: skip noConsoleErrors (console intentionally logs API
 // errors) and noHttpErrorCodes (some API calls legitimately 404).
 export {
@@ -52,10 +52,15 @@ const mainText = extract((state) => {
   return main?.textContent?.trim() ?? ''
 })
 
-const toastCount = extract((state) => {
+const toastTexts = extract((state) => {
   const container = state.document.querySelector('[data-testid="Toasts"]')
-  return container?.children.length ?? 0
+  if (!container) return []
+  return Array.from(container.children).map((el) => el.textContent?.trim() ?? '')
 })
+
+const menuOpen = extract((state) => state.document.querySelector('[role="menu"]') !== null)
+
+const lastActionWasWait = extract((state) => state.lastAction === 'Wait')
 
 // --- Safety properties (must always hold) ---
 
@@ -86,7 +91,27 @@ export const mainContentAppears = always(
 // Toasts auto-dismiss: success after 5s, error after 15s. If toasts
 // are on screen, they should all be gone within 20s.
 export const toastsClear = always(
-  now(() => toastCount.current > 0).implies(
-    eventually(() => toastCount.current === 0).within(20, 'seconds')
+  now(() => toastTexts.current.length > 0).implies(
+    eventually(() => toastTexts.current.length === 0).within(20, 'seconds')
+  )
+)
+
+// No two toasts with identical text should be visible simultaneously.
+// Targets bug class from console#3167 (double error toasts when both
+// `onError` and a confirm-modal catch fire for the same mutation). Since
+// bombadil clicks consume their target resource, legitimate same-text
+// toasts shouldn't stack.
+export const noDuplicateToasts = always(() => {
+  const texts = toastTexts.current
+  return new Set(texts).size === texts.length
+})
+
+// If a dropdown menu is open and the next step is a Wait (no user
+// interaction), the menu should still be open. Background polling or
+// unrelated re-renders shouldn't close open menus. Targets bug class
+// from console#2618 (instance disk menus closing on poll).
+export const menuSurvivesWait = always(
+  now(() => menuOpen.current).implies(
+    next(() => !lastActionWasWait.current || menuOpen.current)
   )
 )
