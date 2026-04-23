@@ -59,7 +59,6 @@ export function SideModal({
         onOpenChange={(open) => {
           if (!open) onDismiss()
         }}
-        modal={false}
       >
         <BaseDialog.Portal>
           <DialogOverlay />
@@ -129,7 +128,7 @@ function SideModalBody({ children }: { children?: ReactNode }) {
     <div
       ref={overflowRef}
       className={cn(
-        'body relative h-full overflow-y-auto pt-8 pb-12',
+        'body relative h-full overflow-y-auto pt-8 pb-12 overscroll-none',
         !scrollStart && 'border-t-secondary border-t'
       )}
       data-testid="sidemodal-scroll-container"

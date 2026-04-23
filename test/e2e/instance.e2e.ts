@@ -11,6 +11,7 @@ import {
   closeToast,
   expect,
   expectRowVisible,
+  fillNumberInput,
   test,
   type Page,
 } from './utils'
@@ -168,8 +169,8 @@ test('can resize a failed or stopped instance', async ({ page }) => {
   await clickRowAction(page, 'you-fail', 'Resize')
   const resizeModal = page.getByRole('dialog', { name: 'Resize instance' })
   await expect(resizeModal).toBeVisible()
-  await resizeModal.getByRole('textbox', { name: 'vCPUs' }).fill('10')
-  await resizeModal.getByRole('textbox', { name: 'Memory' }).fill('20')
+  await fillNumberInput(resizeModal.getByRole('textbox', { name: 'vCPUs' }), '10')
+  await fillNumberInput(resizeModal.getByRole('textbox', { name: 'Memory' }), '20')
   await resizeModal.getByRole('button', { name: 'Resize' }).click()
   await expectRowVisible(table, {
     name: 'you-fail',
@@ -195,8 +196,8 @@ test('can resize a failed or stopped instance', async ({ page }) => {
   await expect(resizeModal).toBeVisible()
   await expect(resizeModal.getByText('Current (db1): 2 vCPUs / 4 GiB')).toBeVisible()
 
-  await resizeModal.getByRole('textbox', { name: 'vCPUs' }).fill('8')
-  await resizeModal.getByRole('textbox', { name: 'Memory' }).fill('16')
+  await fillNumberInput(resizeModal.getByRole('textbox', { name: 'vCPUs' }), '8')
+  await fillNumberInput(resizeModal.getByRole('textbox', { name: 'Memory' }), '16')
   await resizeModal.getByRole('button', { name: 'Resize' }).click()
   await expectRowVisible(table, {
     name: 'db1',
@@ -214,17 +215,14 @@ test('resize modal stays open on server error', async ({ page }) => {
   const resizeModal = page.getByRole('dialog', { name: 'Resize instance' })
   await expect(resizeModal).toBeVisible()
 
-  await resizeModal.getByRole('textbox', { name: 'vCPUs' }).fill('10')
-  await resizeModal.getByRole('textbox', { name: 'Memory' }).fill('20')
+  await fillNumberInput(resizeModal.getByRole('textbox', { name: 'vCPUs' }), '10')
+  await fillNumberInput(resizeModal.getByRole('textbox', { name: 'Memory' }), '20')
   await resizeModal.getByRole('button', { name: 'Resize' }).click()
 
-  // Wait for the error toast, which confirms the mutation has completed
-  await expect(page.getByTestId('Toasts')).toContainText('Cannot update instance')
-
-  // Modal should stay open so the user can see the error and adjust values
+  // Error renders inline inside the modal; modal stays open so the user can
+  // see the error and adjust values.
+  await expect(resizeModal).toContainText('Cannot update instance')
   await expect(resizeModal).toBeVisible()
-
-  await closeToast(page)
 })
 
 test('delete from instance detail', async ({ page }) => {

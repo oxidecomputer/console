@@ -331,7 +331,7 @@ test.describe('IP pool configuration: pelerines silo (no defaults)', () => {
 
     // RHF required validation should show an error on the pool field
     await expect(
-      page.getByTestId('scroll-container').getByText('IPv4 pool is required')
+      page.locator('#create-instance-form').getByText('IPv4 pool is required')
     ).toBeVisible()
 
     // Should still be on the create page
@@ -376,7 +376,7 @@ test.describe('IP pool configuration: pelerines silo (no defaults)', () => {
 
     // RHF required validation should show an error on the pool field
     await expect(
-      page.getByTestId('scroll-container').getByText('IPv6 pool is required')
+      page.locator('#create-instance-form').getByText('IPv6 pool is required')
     ).toBeVisible()
 
     // Should still be on the create page

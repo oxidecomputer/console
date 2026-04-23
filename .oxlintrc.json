@@ -98,14 +98,21 @@
         "app/layouts/**/*",
         "app/forms/**/*",
         "*.config.ts",
-        "*.config.mjs"
+        "*.config.mjs",
+        "test/e2e/compact-reporter.ts"
       ],
       "rules": {
         "import/no-default-export": "off"
       }
     },
     {
-      "files": ["**/*.spec.ts", "**/*.config.ts", "**/*.config.mjs", "tools/**/*"],
+      "files": [
+        "**/*.spec.ts",
+        "**/*.config.ts",
+        "**/*.config.mjs",
+        "tools/**/*",
+        "test/e2e/compact-reporter.ts"
+      ],
       "rules": {
         "import/no-nodejs-modules": "off"
       }
