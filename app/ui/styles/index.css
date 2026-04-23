@@ -128,6 +128,11 @@
   :root {
     --content-gutter: 2.5rem;
     --top-bar-height: 54px;
+    --sidebar-width: 14.25rem;
+
+    @media (max-width: 767px) {
+      --content-gutter: 1.5rem;
+    }
 
     /* Nicer easing from: https://twitter.com/bdc */
     --ease-in-quad: cubic-bezier(0.55, 0.085, 0.68, 0.53);
@@ -154,8 +159,14 @@
 }
 
 @layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
   body {
-    @apply text-default bg-default overflow-y-hidden font-sans;
+    @apply text-default bg-default font-sans;
   }
 
   /* https://github.com/tailwindlabs/tailwindcss/blob/v2.2.4/src/plugins/css/preflight.css#L57 */

@@ -46,7 +46,7 @@ function useScrollReset(triggerDep: string | undefined) {
   const resetRequested = useRef(false)
   useEffect(() => {
     if (resetRequested.current) {
-      document.querySelector('#scroll-container')?.scrollTo(0, 0)
+      window.scrollTo(0, 0)
       resetRequested.current = false
     }
   }, [triggerDep])
