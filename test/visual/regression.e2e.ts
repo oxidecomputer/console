@@ -19,6 +19,17 @@ import { expect, test } from '../e2e/utils'
 // set a fixed time to avoid diffs due to irrelevant time differences
 test.beforeEach(async ({ page }) => {
   await page.clock.setFixedTime(new Date('2025-10-23T12:34:56.000Z'))
+  // seed Math.random so mock data (e.g. metrics charts) is deterministic
+  await page.addInitScript(() => {
+    let seed = 0x12345678
+    Math.random = () => {
+      seed |= 0
+      seed = (seed + 0x6d2b79f5) | 0
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+    }
+  })
 })
 
 test.describe('Visual Regression', { tag: '@visual' }, () => {
@@ -89,6 +100,7 @@ test.describe('Visual Regression', { tag: '@visual' }, () => {
   test('system utilization', async ({ page }) => {
     await page.goto('/utilization')
     await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
+    await expect(page.locator('.recharts-curve').first()).toBeVisible()
     await expect(page).toHaveScreenshot('system-utilization.png', { fullPage: true })
   })
 
