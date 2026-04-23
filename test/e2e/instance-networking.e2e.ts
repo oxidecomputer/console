@@ -225,7 +225,7 @@ test('Attach ephemeral IP — error renders in modal, not toast', async ({ page 
   await page.getByRole('option', { name: 'attach-fail' }).click()
   await page.getByRole('button', { name: 'Attach', exact: true }).click()
 
-  const errorText = 'Mock attach failure: pool sentinel triggered'
+  const errorText = 'Cannot attach ephemeral IP'
   await expect(modal.getByText(errorText)).toBeVisible()
   await expect(page.getByTestId('Toasts')).not.toContainText(errorText)
   // Modal stays open so the user can retry or dismiss
