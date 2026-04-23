@@ -212,6 +212,26 @@ test('Instance networking tab — Detach / Attach Ephemeral IPs', async ({ page 
   })
 })
 
+test('Attach ephemeral IP — error renders in modal, not toast', async ({ page }) => {
+  // Selecting the sentinel `attach-fail` pool causes the mock handler to 500.
+  // See ipPoolEphemeralAttachFail.
+  await page.goto('/projects/mock-project/instances/db1/networking')
+  await page.getByRole('button', { name: 'Attach ephemeral IP' }).click()
+
+  const modal = page.getByRole('dialog', { name: 'Attach ephemeral IP' })
+  await expect(modal).toBeVisible()
+
+  await page.getByLabel('Pool').click()
+  await page.getByRole('option', { name: 'attach-fail' }).click()
+  await page.getByRole('button', { name: 'Attach', exact: true }).click()
+
+  const errorText = 'Mock attach failure: pool sentinel triggered'
+  await expect(modal.getByText(errorText)).toBeVisible()
+  await expect(page.getByTestId('Toasts')).not.toContainText(errorText)
+  // Modal stays open so the user can retry or dismiss
+  await expect(modal).toBeVisible()
+})
+
 test('Instance networking tab — floating IPs', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1/networking')
   const externalIpTable = page.getByRole('table', { name: 'External IPs' })
