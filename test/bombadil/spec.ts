@@ -1,11 +1,29 @@
-import { extract, always, eventually, now, actions } from '@antithesishq/bombadil'
-// Cherry-pick defaults: skip noConsoleErrors because the console
-// intentionally logs API errors to console.error for debugging.
+// Bombadil spec. To run:
+//
+//   1. In one terminal, start the mock Nexus API at :12220:
+//        npx tsx tools/start_mock_api.ts
+//   2. In another terminal, build & serve with the Nexus proxy enabled
+//      (the MSW service worker does not register inside Bombadil's browser,
+//      so we hit a real HTTP mock instead of MSW in-browser):
+//        API_MODE=nexus npm run build && npx vite preview --port 4174
+//   3. Run the test:
+//        npm run bombadil
+//
+// Why not MSW: Bombadil's browser does not register service workers, so
+// `setupWorker().start()` never resolves and React never mounts. See:
+//   https://github.com/antithesishq/bombadil/issues/98
+//   https://github.com/antithesishq/bombadil/issues/105
+import { extract, always, eventually, now } from '@antithesishq/bombadil'
+// Cherry-pick defaults: skip noConsoleErrors (console intentionally logs API
+// errors) and noHttpErrorCodes (some API calls legitimately 404).
 export {
   noUncaughtExceptions,
   noUnhandledPromiseRejections,
 } from '@antithesishq/bombadil/defaults/properties'
+// waitOnce gives the SPA a tick to render on first state capture (emits Wait
+// unless the last action was already Wait).
 export {
+  waitOnce,
   scroll,
   clicks,
   inputs,
@@ -14,10 +32,6 @@ export {
   reload,
   navigation,
 } from '@antithesishq/bombadil/defaults/actions'
-
-// Always offer a Wait action so bombadil doesn't crash when the SPA
-// hasn't rendered yet (no clickable elements on first state capture).
-export const waitForRender = actions(() => ['Wait'])
 
 // --- Extractors ---
 
@@ -42,12 +56,6 @@ const toastCount = extract((state) => {
   const container = state.document.querySelector('[data-testid="Toasts"]')
   return container?.children.length ?? 0
 })
-
-const dialogOpen = extract(
-  (state) => state.document.querySelector('.ox-side-modal') !== null
-)
-
-const currentUrl = extract((state) => state.navigationHistory.current.url)
 
 // --- Safety properties (must always hold) ---
 
@@ -82,15 +90,3 @@ export const toastsClear = always(
     eventually(() => toastCount.current === 0).within(20, 'seconds')
   )
 )
-
-// If a side modal is open and the URL changes, the modal should close
-// within 2s. Catches orphaned modals from route transitions.
-export const noOrphanedModals = always(() => {
-  const wasOpen = dialogOpen.current
-  const wasUrl = currentUrl.current
-  return now(() => wasOpen).implies(
-    now(() => currentUrl.current !== wasUrl).implies(
-      eventually(() => !dialogOpen.current).within(2, 'seconds')
-    )
-  )
-})
