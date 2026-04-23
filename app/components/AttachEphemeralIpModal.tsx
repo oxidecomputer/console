@@ -70,13 +70,20 @@ export const AttachEphemeralIpModal = ({
   const form = useForm({ defaultValues: { pool: defaultPool } })
   const pool = form.watch('pool')
 
+  const submitDisabled =
+    compatibleUnicastPools.length === 0
+      ? 'No compatible unicast pools available for this instance'
+      : !pool
+        ? 'Select a pool'
+        : undefined
+
   return (
     <ModalForm
       form={form}
       title="Attach ephemeral IP"
       onDismiss={onDismiss}
       submitLabel="Attach"
-      submitDisabled={!pool}
+      submitDisabled={submitDisabled}
       submitError={instanceEphemeralIpAttach.error}
       loading={instanceEphemeralIpAttach.isPending}
       onSubmit={({ pool }) => {
