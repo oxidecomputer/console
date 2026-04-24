@@ -338,11 +338,15 @@ test('add ssh key from instance create form', async ({ page }) => {
   await dialog.getByRole('button', { name: 'Add SSH Key' }).click()
 
   await expect(newCheckbox).toBeVisible()
-  await expect(newCheckbox).not.toBeChecked()
+  await expect(newCheckbox).toBeChecked()
+
+  await closeToast(page)
 
   // pop over to the real SSH keys page and see it there, why not
   await page.getByLabel('User menu').click()
   await page.getByRole('menuitem', { name: 'Settings' }).click()
+  // the new key being auto-checked makes the form dirty, which triggers confirm leave
+  await page.getByRole('button', { name: 'Leave this page' }).click()
   await page.getByRole('link', { name: 'SSH Keys' }).click()
   await expectRowVisible(page.getByRole('table'), { name: newKey, description: 'hi' })
 })
@@ -1302,9 +1306,7 @@ test('floating IPs are filtered by NIC IP version', async ({ page }) => {
   await expect(page.getByText('to attach a floating IP')).toBeVisible()
 })
 
-// Read-only disk creation disabled pending propolis fix
-// https://github.com/oxidecomputer/console/issues/3071
-test.skip('can create instance with read-only boot disk', async ({ page }) => {
+test('can create instance with read-only boot disk', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
 
   const instanceName = 'readonly-boot-instance'

@@ -65,9 +65,6 @@ export const AttachEphemeralIpModal = ({
       addToast(<>IP <HL>{ephemeralIp.ip}</HL> attached</>)
       onDismiss()
     },
-    onError: (err) => {
-      addToast({ title: 'Error', content: err.message, variant: 'error' })
-    },
   })
 
   const form = useForm({ defaultValues: { pool: defaultPool } })
@@ -96,6 +93,9 @@ export const AttachEphemeralIpModal = ({
               noItemsPlaceholder="No pools available"
             />
           </form>
+          {instanceEphemeralIpAttach.error && (
+            <p className="text-error mt-4">{instanceEphemeralIpAttach.error.message}</p>
+          )}
         </Modal.Section>
       </Modal.Body>
       <Modal.Footer

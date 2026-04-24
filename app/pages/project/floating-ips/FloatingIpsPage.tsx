@@ -118,9 +118,6 @@ export default function FloatingIpsPage() {
       // prettier-ignore
       addToast(<>Floating IP <HL>{floatingIp.name}</HL> detached</>)
     },
-    onError: (err) => {
-      addToast({ title: 'Error', content: err.message, variant: 'error' })
-    },
   })
   const { mutateAsync: deleteFloatingIp } = useApiMutation(api.floatingIpDelete, {
     onSuccess(_data, variables) {

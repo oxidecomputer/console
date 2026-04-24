@@ -25,7 +25,7 @@ export const Progress = (props: ProgressProps) => (
     {...ariaLabel(props)}
   >
     <div
-      className="bg-accent h-1 rounded-[1px]"
+      className="bg-accent-inverse h-1 rounded-[1px]"
       style={{
         width: `${props.value}%`,
         transition:

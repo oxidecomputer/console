@@ -479,9 +479,6 @@ export default function NetworkingTab() {
       queryClient.invalidateEndpoint('instanceExternalIpList')
       addToast({ content: 'Ephemeral IP detached' })
     },
-    onError: (err) => {
-      addToast({ title: 'Error', content: err.message, variant: 'error' })
-    },
   })
 
   const { mutateAsync: floatingIpDetach } = useApiMutation(api.floatingIpDetach, {
@@ -490,9 +487,6 @@ export default function NetworkingTab() {
       queryClient.invalidateEndpoint('instanceExternalIpList')
       // prettier-ignore
       addToast(<>Floating IP <HL>{variables.path.floatingIp}</HL> detached</>)
-    },
-    onError: (err) => {
-      addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
   })
 

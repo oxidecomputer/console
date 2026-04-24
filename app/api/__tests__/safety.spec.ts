@@ -82,6 +82,18 @@ it('e2e tests are only in test/e2e or test/visual', () => {
   }
 })
 
+// In production, Nexus only serves /assets/* and /index.html — files at other
+// paths under public/ would work in Vite dev but 404 in production.
+// https://github.com/oxidecomputer/omicron/blob/b2b1e39/nexus/src/external_api/console_api.rs#L409-L439
+it('public/ only contains assets/', () => {
+  const entries = fs.readdirSync(path.resolve(__dirname, '../../../public'))
+  expect(entries).toMatchInlineSnapshot(`
+    [
+      "assets",
+    ]
+  `)
+})
+
 // 8-4-4-4-12 hex digits
 const UUID_RE = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
 

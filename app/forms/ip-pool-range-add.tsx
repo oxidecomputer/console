@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useCallback } from 'react'
 import { useForm, type FieldErrors } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
@@ -34,6 +33,11 @@ const defaultValues: IpRange = {
   first: '',
   last: '',
 }
+
+// Using a resolver overrides all field-level validation (required, min, max,
+// etc.), so this function must cover everything. Field-level `required` props
+// still affect UI display (hiding the "optional" label) but are inert for
+// validation.
 
 /**
  * Validates IP range addresses against the pool's IP version.
@@ -103,13 +107,10 @@ export default function IpPoolAddRange() {
     },
   })
 
-  // Derive pool version at validation time to ensure correct IP version rules
-  const resolver = useCallback(
-    (values: IpRange) => createResolver(poolData?.ipVersion ?? 'v4')(values),
-    [poolData?.ipVersion]
-  )
-
-  const form = useForm({ defaultValues, resolver })
+  const form = useForm({
+    defaultValues,
+    resolver: createResolver(poolData.ipVersion),
+  })
 
   return (
     <SideModalForm

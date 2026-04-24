@@ -42,7 +42,7 @@ type FormValues = {
   name: string
   description: string
   allocationType: 'auto' | 'explicit'
-  prefixLen: number
+  prefixLength: number
   pool: string
   subnet: string
 }
@@ -51,7 +51,7 @@ const defaultFormValues: Omit<FormValues, 'pool'> = {
   name: '',
   description: '',
   allocationType: 'auto',
-  prefixLen: 24,
+  prefixLength: 24,
   subnet: '',
 }
 
@@ -93,12 +93,12 @@ export default function CreateExternalSubnetSideModalForm() {
       formType="create"
       resourceName="external subnet"
       onDismiss={() => navigate(pb.externalSubnets(projectSelector))}
-      onSubmit={({ name, description, allocationType, prefixLen, pool, subnet }) => {
+      onSubmit={({ name, description, allocationType, prefixLength, pool, subnet }) => {
         const allocator = match(allocationType)
           .with('explicit', () => ({ type: 'explicit' as const, subnet }))
           .with('auto', () => ({
             type: 'auto' as const,
-            prefixLen,
+            prefixLength,
             poolSelector: { type: 'explicit' as const, pool },
           }))
           .exhaustive()
@@ -134,7 +134,7 @@ export default function CreateExternalSubnetSideModalForm() {
             description="Subnet pool to allocate from"
           />
           <NumberField
-            name="prefixLen"
+            name="prefixLength"
             label="Prefix length"
             required
             control={form.control}

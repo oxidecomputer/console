@@ -127,6 +127,12 @@ export const pb = {
   ipPoolEdit: (params: PP.IpPool) => `${pb.ipPool(params)}/edit`,
   ipPoolRangeAdd: (params: PP.IpPool) => `${pb.ipPool(params)}/ranges-add`,
 
+  subnetPools: () => '/system/networking/subnet-pools',
+  subnetPoolsNew: () => '/system/networking/subnet-pools-new',
+  subnetPool: (params: PP.SubnetPool) => `${pb.subnetPools()}/${params.subnetPool}`,
+  subnetPoolEdit: (params: PP.SubnetPool) => `${pb.subnetPool(params)}/edit`,
+  subnetPoolMemberAdd: (params: PP.SubnetPool) => `${pb.subnetPool(params)}/members-add`,
+
   sledInventory: () => `${inventoryBase()}/sleds`,
   diskInventory: () => `${inventoryBase()}/disks`,
   sledInstances: ({ sledId }: PP.Sled) => `${pb.sledInventory()}/${sledId}/instances`,
@@ -138,6 +144,7 @@ export const pb = {
   siloIdps: (params: PP.Silo) => `${siloBase(params)}/idps`,
   siloIdpsNew: (params: PP.Silo) => `${siloBase(params)}/idps-new`,
   siloIpPools: (params: PP.Silo) => `${siloBase(params)}/ip-pools`,
+  siloSubnetPools: (params: PP.Silo) => `${siloBase(params)}/subnet-pools`,
   siloQuotas: (params: PP.Silo) => `${siloBase(params)}/quotas`,
   siloFleetRoles: (params: PP.Silo) => `${siloBase(params)}/fleet-roles`,
   siloScim: (params: PP.Silo) => `${siloBase(params)}/scim`,

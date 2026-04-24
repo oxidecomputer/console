@@ -22,6 +22,7 @@ import {
 
 import { useCrumbs } from '~/hooks/use-crumbs'
 import { useCurrentUser } from '~/hooks/use-current-user'
+import { topBarWrapperClass } from '~/layouts/helpers'
 import { useThemeStore, type Theme } from '~/stores/theme'
 import { buttonStyle } from '~/ui/lib/Button'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
@@ -32,16 +33,12 @@ import { pb } from '~/util/path-builder'
 
 export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
   const { me } = useCurrentUser()
-  // The height of this component is governed by the `PageContainer`
-  // It's important that this component returns two distinct elements (wrapped in a fragment).
-  // Each element will occupy one of the top column slots provided by `PageContainer`.
   return (
-    <>
-      <div className="border-secondary flex items-center border-r border-b px-2">
+    <div className={topBarWrapperClass}>
+      <div className="border-secondary flex items-center border-r px-2">
         <HomeButton level={systemOrSilo} />
       </div>
-      {/* Height is governed by PageContainer grid */}
-      <div className="bg-default border-secondary flex items-center justify-between gap-4 border-b px-3">
+      <div className="flex items-center justify-between gap-4 px-3">
         <div className="flex flex-1 gap-2.5">
           <Breadcrumbs />
         </div>
@@ -50,7 +47,7 @@ export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
           <UserMenu />
         </div>
       </div>
-    </>
+    </div>
   )
 }
 
@@ -146,7 +143,7 @@ function UserMenu() {
           </span>
         </div>
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content gap={8}>
+      <DropdownMenu.Content gap={8} zIndex="topBar">
         <DropdownMenu.LinkItem to={pb.profile()}>Settings</DropdownMenu.LinkItem>
         <ThemeSubmenu />
         <DropdownMenu.Item onSelect={() => logout.mutate({})} label="Sign out" />
@@ -238,7 +235,7 @@ function SiloSystemPicker({ level }: { level: 'silo' | 'system' }) {
           <SelectArrows6Icon className="text-quaternary ml-3 w-1.5!" aria-hidden />
         </div>
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content className="mt-2" anchor="bottom start">
+      <DropdownMenu.Content className="mt-2" anchor="bottom start" zIndex="topBar">
         <SystemSiloItem to={pb.silos()} label="System" isSelected={level === 'system'} />
         <SystemSiloItem to={pb.projects()} label="Silo" isSelected={level === 'silo'} />
       </DropdownMenu.Content>

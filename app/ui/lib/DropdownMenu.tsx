@@ -48,31 +48,51 @@ function parseAnchor(
   return { side, align, sideOffset, alignOffset }
 }
 
+const zIndexClass = {
+  dropdown: 'z-(--z-content-dropdown)',
+  topBar: 'z-(--z-top-bar-dropdown)',
+  modal: 'z-(--z-modal-dropdown)',
+  sideModal: 'z-(--z-side-modal-dropdown)',
+} as const
+
+type ZIndex = keyof typeof zIndexClass
+
 type ContentProps = {
   className?: string
   children: ReactNode
   anchor?: AnchorProp
   /** Spacing in px between trigger and menu */
   gap?: 8
+  /** Overrides the default, which is derived from modal context */
+  zIndex?: ZIndex
+  collisionPadding?: React.ComponentProps<typeof Menu.Positioner>['collisionPadding']
 }
 
-export function Content({ className, children, anchor = 'bottom end', gap }: ContentProps) {
+export function Content({
+  className,
+  children,
+  anchor = 'bottom end',
+  gap,
+  zIndex,
+  collisionPadding,
+}: ContentProps) {
   const { side, align, sideOffset, alignOffset } = parseAnchor(anchor, gap)
   const isInModal = useIsInModal()
   const isInSideModal = useIsInSideModal()
-  const zClass = isInModal
-    ? 'z-(--z-modal-dropdown)'
+  const contextZIndex: ZIndex = isInModal
+    ? 'modal'
     : isInSideModal
-      ? 'z-(--z-side-modal-dropdown)'
-      : 'z-(--z-top-bar-dropdown)'
+      ? 'sideModal'
+      : 'dropdown'
   return (
     <Menu.Portal>
       <Menu.Positioner
-        className={zClass}
+        className={zIndexClass[zIndex ?? contextZIndex]}
         side={side}
         align={align}
         sideOffset={sideOffset}
         alignOffset={alignOffset}
+        collisionPadding={collisionPadding}
       >
         <Menu.Popup
           className={cn('dropdown-menu-content shadow-menu outline-hidden', className)}

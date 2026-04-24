@@ -104,9 +104,9 @@ test('Serial console terminal updates colors on theme change', async ({ page }) 
   const xterm = page.getByRole('application')
   await expect(xterm).toContainText('oxide-instance login:', { timeout: 15_000 })
 
-  // xterm.js sets background-color inline on the .xterm-viewport element
-  const viewport = page.locator('.xterm-viewport')
-  const getBg = () => viewport.evaluate((el) => getComputedStyle(el).backgroundColor)
+  // xterm.js 6+ sets background-color inline on the .xterm-scrollable-element
+  const scrollable = page.locator('.xterm-scrollable-element')
+  const getBg = () => scrollable.evaluate((el) => getComputedStyle(el).backgroundColor)
 
   const darkBg = await getBg()
 
