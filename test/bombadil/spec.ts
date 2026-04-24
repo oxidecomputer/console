@@ -57,6 +57,17 @@ const hasNotFound = extract(
   (state) => state.document.body.textContent?.includes('Page not found') ?? false
 )
 
+// `/login` is served by the Nexus backend in prod but has no SPA route, so
+// `hasNotFound` fires on it under `API_MODE=nexus`. Sign out navigates there
+// via `navToLogin` in app/api/nav-to-login.ts. Not a real bug; exempt the path.
+const atLoginPath = extract((state) => {
+  try {
+    return new URL(state.navigationHistory.current.url).pathname === '/login'
+  } catch {
+    return false
+  }
+})
+
 const hasSpinner = extract(
   (state) => state.document.querySelector('[aria-label="Spinner"]') !== null
 )
@@ -82,8 +93,9 @@ const lastActionWasWait = extract((state) => state.lastAction === 'Wait')
 export const noErrorBoundary = always(() => !hasErrorBoundary.current)
 
 // Bombadil only clicks links that exist in the DOM, so it should
-// never land on a route that renders the Not Found page.
-export const noNotFound = always(() => !hasNotFound.current)
+// never land on a route that renders the Not Found page. Exempt `/login`,
+// which is backend-served in prod but has no SPA route.
+export const noNotFound = always(() => !hasNotFound.current || atLoginPath.current)
 
 // --- Liveness properties (things that must eventually happen) ---
 
