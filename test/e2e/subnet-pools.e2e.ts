@@ -110,6 +110,22 @@ test('Subnet pool add member', async ({ page }) => {
   await expectRowVisible(table, { Subnet: '172.16.0.0/12' })
 })
 
+test('Subnet pool add member shows prefix length validation errors', async ({ page }) => {
+  await page.goto('/system/networking/subnet-pools/default-v4-subnet-pool/members-add')
+
+  await page.getByRole('textbox', { name: 'Subnet' }).fill('172.16.0.0/12')
+  await fillNumberInput(page.getByRole('textbox', { name: 'Min prefix length' }), '28')
+  await fillNumberInput(page.getByRole('textbox', { name: 'Max prefix length' }), '20')
+
+  const dialog = page.getByRole('dialog', { name: 'Add member' })
+  await dialog.getByRole('button', { name: 'Add member' }).click()
+
+  await expect(dialog).toBeVisible()
+  await expect(
+    page.getByText('Min prefix length must be ≤ max prefix length')
+  ).toBeVisible()
+})
+
 test('Subnet pool remove member', async ({ page }) => {
   // Use secondary pool — default pool's member has external subnets allocated from it
   await page.goto('/system/networking/subnet-pools/secondary-v4-subnet-pool')
