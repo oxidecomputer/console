@@ -189,11 +189,12 @@ aimed at reaching code with past bugs.
    prod but has no SPA route). Removes the 12 noise violations run 3 hit
    after bombadil clicked "Sign out".
 
-2. Still to do: make action weights overridable per process via env so
-   parallel slots can use different mixes without copying the spec. Read
-   `BOMBADIL_WEIGHTS` as JSON mapping action name → weight at module
-   load; fall back to current defaults. Keys: `inputs`, `clicks`,
-   `navigation`, `scroll`, `back`, `forward`, `reload`, `waitOnce`.
+2. **Done.** Named weight profiles in `spec.ts`, selected by
+   `BOMBADIL_PROFILE=<name>`. Current profiles: `balanced` (default),
+   `form-heavy`, `form-pinned`, `menus`, `breadth`, `create-and-revisit`.
+   Add new profiles by editing the `profiles` object in the spec so they
+   show up in git history. If the set grows past ~10 names, switch to
+   splitting specs by file instead.
 
 ### Iteration strategy
 
@@ -222,24 +223,25 @@ each time — the jq one-liners in "Post-run inspection" above are enough.
 
 ### Proposed round-2 matrix (5 parallel slots)
 
-Run all five concurrently via `run-slot.sh <slot> <url> <tag>` with
-different `BOMBADIL_WEIGHTS`. **90s** for 2a, **3m** for 2b, **10m** for
-2c (on survivors). `run-slot.sh` takes `time_limit` as its 4th arg.
+Run all five concurrently via `run-slot.sh <slot> <url> <tag> <time>` with
+`BOMBADIL_PROFILE=<name>` set per slot. **90s** for 2a, **3m** for 2b,
+**10m** for 2c (on survivors).
 
-| Slot | Start URL                                                 | Weight profile                                                                          | Hypothesis / what it's probing                                                                                                                                                                                                              |
-| ---- | --------------------------------------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 5    | `/projects/mock-project/instances-new`                    | `{inputs:8, clicks:4, navigation:1, scroll:0, back:0, forward:0, reload:0, waitOnce:1}` | Force form completion on the biggest form surface. Zero history churn so bombadil can't abandon the form mid-fill. Should drive real creates → real toasts → exercise `noDuplicateToasts`.                                                  |
-| 6    | `/projects/mock-project/instances`                        | `{inputs:2, clicks:6, navigation:2, scroll:0, back:0, forward:0, reload:0, waitOnce:4}` | Row-actions + menus page; `menuSurvivesWait` and background-polling races are the target. Eliminate Reload/Back/Forward to isolate polling-vs-nav causes for run-2-style spinner stalls. High `waitOnce` exercises the menu-close property. |
-| 7    | `/projects`                                               | `{inputs:3, clicks:3, navigation:8, scroll:0, back:1, forward:0, reload:1, waitOnce:1}` | Breadth run. Heavy navigation to escape the subtree lock-in from run 1. Expect to actually reach `mock-project` and system pages. Compare URL-visit distribution vs run 1.                                                                  |
-| 8    | `/projects/mock-project/vpcs/mock-vpc/firewall-rules-new` | `{inputs:8, clicks:3, navigation:0, scroll:1, back:0, forward:0, reload:0, waitOnce:1}` | Targets console#2851 class (firewall rule render bugs). `navigation:0` pins to this form; rule forms have nested repeating groups that stress validation.                                                                                   |
-| 9    | `/projects/mock-project/disks`                            | `{inputs:5, clicks:5, navigation:2, scroll:1, back:0, forward:1, reload:0, waitOnce:1}` | Disk/snapshot area (console#3038, #3071, #3068). Moderate mix; `forward:1` kept only to let bombadil revisit a freshly-created disk's detail page after a create.                                                                           |
+| Slot | Start URL                                                 | Profile              | Hypothesis / what it's probing                                                                                                                                                                                                              |
+| ---- | --------------------------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 5    | `/projects/mock-project/instances-new`                    | `form-heavy`         | Force form completion on the biggest form surface. Zero history churn so bombadil can't abandon the form mid-fill. Should drive real creates → real toasts → exercise `noDuplicateToasts`.                                                  |
+| 6    | `/projects/mock-project/instances`                        | `menus`              | Row-actions + menus page; `menuSurvivesWait` and background-polling races are the target. Eliminate Reload/Back/Forward to isolate polling-vs-nav causes for run-2-style spinner stalls. High `waitOnce` exercises the menu-close property. |
+| 7    | `/projects`                                               | `breadth`            | Heavy navigation to escape the subtree lock-in from run 1. Expect to actually reach `mock-project` and system pages. Compare URL-visit distribution vs run 1.                                                                               |
+| 8    | `/projects/mock-project/vpcs/mock-vpc/firewall-rules-new` | `form-pinned`        | Targets console#2851 class (firewall rule render bugs). `navigation:0` pins to this form; rule forms have nested repeating groups that stress validation.                                                                                   |
+| 9    | `/projects/mock-project/disks`                            | `create-and-revisit` | Disk/snapshot area (console#3038, #3071, #3068). Moderate mix; a little `forward` so bombadil revisits a freshly-created disk's detail page after a create.                                                                                 |
 
-Rationale for the common patterns: **history weights ≈ 0** except where a
-specific revisit flow is wanted (slot 7 keeps a little for breadth, slot 9
-keeps `forward` to revisit post-create). **`inputs` ≥ `clicks`** when the
-start URL is itself a form (5, 8) so fields get filled before something
-clicks Cancel. **`navigation` large only when breadth is the goal** (slot 7) and zero when we want bombadil to stay on a form (5, 8). **`waitOnce`
-boosted** only for slot 6 where the goal is probing polling/menu timing.
+Rationale for the profile designs: **history weights ≈ 0** except where a
+specific revisit flow is wanted (`breadth` keeps a little, `create-and-revisit`
+keeps `forward`). **`inputs` ≥ `clicks`** when the start URL is itself a form
+(`form-heavy`, `form-pinned`) so fields get filled before something clicks
+Cancel. **`navigation` large only when breadth is the goal** and zero when we
+want to stay on a form. **`waitOnce` boosted** only for `menus` where the goal
+is probing polling/menu timing.
 
 ### Record (round 2)
 
@@ -256,19 +258,19 @@ output directory is discoverable.
 # Build once (API_MODE=nexus npm run build) before kicking off slots.
 # Then, in parallel:
 
-BOMBADIL_WEIGHTS='{"inputs":8,"clicks":4,"navigation":1,"scroll":0,"back":0,"forward":0,"reload":0,"waitOnce":1}' \
+BOMBADIL_PROFILE=form-heavy \
   test/bombadil/run-slot.sh 5 /projects/mock-project/instances-new 2a-05-instances-new 90s &
 
-BOMBADIL_WEIGHTS='{"inputs":2,"clicks":6,"navigation":2,"scroll":0,"back":0,"forward":0,"reload":0,"waitOnce":4}' \
+BOMBADIL_PROFILE=menus \
   test/bombadil/run-slot.sh 6 /projects/mock-project/instances 2a-06-instances-menus 90s &
 
-BOMBADIL_WEIGHTS='{"inputs":3,"clicks":3,"navigation":8,"scroll":0,"back":1,"forward":0,"reload":1,"waitOnce":1}' \
+BOMBADIL_PROFILE=breadth \
   test/bombadil/run-slot.sh 7 /projects 2a-07-breadth 90s &
 
-BOMBADIL_WEIGHTS='{"inputs":8,"clicks":3,"navigation":0,"scroll":1,"back":0,"forward":0,"reload":0,"waitOnce":1}' \
+BOMBADIL_PROFILE=form-pinned \
   test/bombadil/run-slot.sh 8 /projects/mock-project/vpcs/mock-vpc/firewall-rules-new 2a-08-fw-rules 90s &
 
-BOMBADIL_WEIGHTS='{"inputs":5,"clicks":5,"navigation":2,"scroll":1,"back":0,"forward":1,"reload":0,"waitOnce":1}' \
+BOMBADIL_PROFILE=create-and-revisit \
   test/bombadil/run-slot.sh 9 /projects/mock-project/disks 2a-09-disks 90s &
 
 wait
