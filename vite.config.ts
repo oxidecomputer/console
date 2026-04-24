@@ -44,6 +44,8 @@ if (apiMode === 'remote' && !process.env.EXT_HOST) {
 
 const EXT_HOST = process.env.EXT_HOST
 
+const mockApiPort = Number(process.env.MOCK_API_PORT ?? 12220)
+
 const previewTags = [
   {
     injectTo: 'head' as const,
@@ -152,7 +154,8 @@ export default defineConfig(({ mode }) => ({
     // these only get hit when MSW doesn't intercept the request
     proxy: {
       '/v1': {
-        target: apiMode === 'remote' ? `https://${EXT_HOST}` : 'http://localhost:12220',
+        target:
+          apiMode === 'remote' ? `https://${EXT_HOST}` : `http://localhost:${mockApiPort}`,
         changeOrigin: true,
       },
     },
@@ -162,7 +165,7 @@ export default defineConfig(({ mode }) => ({
     headers,
     proxy: {
       '/v1': {
-        target: 'http://localhost:12220',
+        target: `http://localhost:${mockApiPort}`,
         changeOrigin: true,
       },
     },
