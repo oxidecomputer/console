@@ -43,11 +43,13 @@ const profiles = {
     waitOnce: 1,
   },
   // Force form completion on a form-heavy start URL. Zero history churn so
-  // bombadil can't abandon the form mid-fill.
+  // bombadil can't abandon the form mid-fill. `navigation` is a back/forward/
+  // reload composite (not URL nav) so it's zero here — URL nav, if any,
+  // happens through `clicks` on sidebar links.
   'form-heavy': {
     inputs: 8,
     clicks: 4,
-    navigation: 1,
+    navigation: 0,
     scroll: 0,
     back: 0,
     forward: 0,
@@ -66,32 +68,37 @@ const profiles = {
     waitOnce: 1,
   },
   // Row-actions + menus page; probes `menuSurvivesWait` and polling races.
+  // No history churn — stay on the page so menus actually get exercised.
   menus: {
     inputs: 2,
     clicks: 6,
-    navigation: 2,
+    navigation: 0,
     scroll: 0,
     back: 0,
     forward: 0,
     reload: 0,
     waitOnce: 4,
   },
-  // Heavy navigation to escape subtree lock-in seen in round-1 baseline.
+  // Broad URL coverage. In bombadil, `clicks` drives real URL navigation
+  // (sidebar, breadcrumbs, row links), so bump it heavily rather than
+  // `navigation` (which is a history-churn composite).
   breadth: {
     inputs: 3,
-    clicks: 3,
-    navigation: 8,
+    clicks: 10,
+    navigation: 0,
     scroll: 0,
-    back: 1,
+    back: 0,
     forward: 0,
-    reload: 1,
+    reload: 0,
     waitOnce: 1,
   },
-  // Moderate mix with a little `forward` to revisit freshly-created resources.
+  // Form-focused with a little `forward` so bombadil can revisit freshly
+  // created resources. Start URL should be a `-new` form page so `inputs`
+  // has something to fire on from step 1.
   'create-and-revisit': {
-    inputs: 5,
+    inputs: 8,
     clicks: 5,
-    navigation: 2,
+    navigation: 0,
     scroll: 1,
     back: 0,
     forward: 1,
