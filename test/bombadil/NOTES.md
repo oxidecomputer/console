@@ -341,6 +341,14 @@ just that slot at 90s before including it in 2b.
 
 ## Open questions / follow-ups
 
+- Mutations aren't happening often enough from pure randomized exploration
+  (most 2b slots produced 0 toasts). See
+  [notes-llm-guided-fuzzing.md](./notes-llm-guided-fuzzing.md) for a
+  sketch of a hybrid where an LLM agent records deterministic preludes
+  that bombadil replays before flipping to random exploration, paired
+  with a `/__test/seed` endpoint on mock-api for db state. Requires
+  verifying bombadil's `ActionGenerator` composition API before
+  committing.
 - For 5m+ runs, consider using `bombadil inspect <output-path>` to visually
   review the trace (opens a local web UI).
 - If a single run finds a violation, copy the trace to a stable location
