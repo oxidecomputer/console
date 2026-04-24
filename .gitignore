@@ -37,4 +37,5 @@ playwright-report/
 # Visual regression snapshots
 test/visual/**/*-snapshots/
 test/visual/**/*.png
-test/bombadil/output
+test/bombadil/output*
+test/bombadil/repros
