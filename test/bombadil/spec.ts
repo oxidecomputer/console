@@ -13,25 +13,39 @@
 // `setupWorker().start()` never resolves and React never mounts. See:
 //   https://github.com/antithesishq/bombadil/issues/98
 //   https://github.com/antithesishq/bombadil/issues/105
-import { extract, always, eventually, next, now } from '@antithesishq/bombadil'
+import { extract, always, eventually, next, now, weighted } from '@antithesishq/bombadil'
+import {
+  back,
+  clicks,
+  forward,
+  inputs,
+  navigation,
+  reload,
+  scroll,
+  waitOnce,
+} from '@antithesishq/bombadil/defaults/actions'
 // Cherry-pick defaults: skip noConsoleErrors (console intentionally logs API
 // errors) and noHttpErrorCodes (some API calls legitimately 404).
 export {
   noUncaughtExceptions,
   noUnhandledPromiseRejections,
 } from '@antithesishq/bombadil/defaults/properties'
-// waitOnce gives the SPA a tick to render on first state capture (emits Wait
-// unless the last action was already Wait).
-export {
-  waitOnce,
-  scroll,
-  clicks,
-  inputs,
-  back,
-  forward,
-  reload,
-  navigation,
-} from '@antithesishq/bombadil/defaults/actions'
+
+// Most of this app is forms, and bombadil's `inputs` generator only produces
+// actions when a focusable input is present — so weighting it high just
+// biases toward form-filling when there's a form around, and is effectively
+// a no-op elsewhere. Without this, random exploration tends to click away
+// from forms before filling enough fields to submit.
+export const actionMix = weighted([
+  [5, inputs],
+  [3, clicks],
+  [2, navigation],
+  [1, scroll],
+  [1, back],
+  [1, forward],
+  [1, reload],
+  [1, waitOnce],
+])
 
 // --- Extractors ---
 
