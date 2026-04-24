@@ -1,12 +1,11 @@
 // Shared extractors and safety/liveness properties for the bombadil specs.
-// Each profile has its own spec file (spec.ts, spec-form-heavy.ts, etc.)
-// that re-exports from here via `export *` and adds an `actionMix` built
-// from a chosen profile.
+// Each variant has its own spec file (spec.ts, spec-form-heavy.ts, etc.)
+// that re-exports from here via `export *` and declares its own
+// `defaultActions` via `weighted(...)` inline.
 //
 // Only exports compatible with bombadil's spec contract (properties and
-// related) live here — the profiles + `makeActionMix` helper are in
-// profiles.ts, imported explicitly by each spec file, so they don't leak
-// into the re-exports.
+// related) live here — action mixes are declared per-spec so they don't
+// leak into the re-exports.
 import { extract, always, eventually, next, now } from '@antithesishq/bombadil'
 
 // Cherry-pick defaults: skip noConsoleErrors (console intentionally logs API

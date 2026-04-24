@@ -189,19 +189,19 @@ aimed at reaching code with past bugs.
    prod but has no SPA route). Removes the 12 noise violations run 3 hit
    after bombadil clicked "Sign out".
 
-2. **Done.** Named weight profiles, one spec file per profile. Bombadil
-   runs specs in embedded V8 (no Node, no `process.env`) so env-var
-   selection doesn't work; instead each profile gets a tiny spec file
-   (`spec-form-heavy.ts`, `spec-menus.ts`, etc.) that imports from
-   `profiles.ts` (weights + factory) and `spec-shared.ts` (extractors +
-   properties). Current profiles: `balanced` (default), `form-heavy`,
-   `form-pinned`, `menus`, `breadth`, `create-and-revisit`. Add new
-   profiles by editing `profiles.ts` and creating a matching
-   `spec-<name>.ts`. Exports must be typed as
+2. **Done.** One spec file per action mix. Bombadil runs specs in embedded
+   V8 (no Node, no `process.env`) so env-var selection doesn't work;
+   instead each variant is its own tiny spec file (`spec-form-heavy.ts`,
+   `spec-menus.ts`, etc.) that declares its `weighted(...)` inline and
+   re-exports properties from `spec-shared.ts`. Current variants:
+   `spec.ts` (balanced default), `spec-form-heavy.ts`,
+   `spec-form-pinned.ts`, `spec-menus.ts`, `spec-breadth.ts`,
+   `spec-create-and-revisit.ts`. Add a new variant by copying one and
+   tweaking the weights. Exports must be typed as
    `ActionGenerator | Formula` — bombadil rejects unknown-typed exports
-   via `export *`, so only the properties+`defaultActions` live in
-   per-profile specs, and they must use the **export name
-   `defaultActions`** (not `actionMix`) for bombadil to pick them up.
+   via `export *`, so only the properties+`defaultActions` live in each
+   spec, and they must use the **export name `defaultActions`** (not
+   `actionMix`) for bombadil to pick them up.
 
 ### Gotcha: `navigation` is a history composite, not URL navigation
 
@@ -244,8 +244,8 @@ each time — the jq one-liners in "Post-run inspection" above are enough.
 
 ### Proposed round-2 matrix (5 parallel slots)
 
-Run all five concurrently via `run-slot.sh <slot> <url> <tag> <time>` with
-`BOMBADIL_PROFILE=<name>` set per slot. **90s** for 2a, **3m** for 2b,
+Run all five concurrently via `run-slot.sh <slot> <url> <tag> <time> <spec_path>`
+with the variant's spec path passed in. **90s** for 2a, **3m** for 2b,
 **10m** for 2c (on survivors).
 
 | Slot | Start URL                                                 | Profile              | Hypothesis / what it's probing                                                                                                                                                                                                              |
