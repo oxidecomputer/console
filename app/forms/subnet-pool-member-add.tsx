@@ -43,7 +43,23 @@ const defaultValues: MemberAddForm = {
 
 type ValidationErrors = Partial<Record<keyof MemberAddForm, string>>
 
-export function validateMember(poolVersion: IpVersion, values: MemberAddForm) {
+/**
+ * This function is a sneaky way to back into cross-field validation while only
+ * hooking into the field-level `validate` callback. This function looks at all
+ * the form `values` together and sets errors for each field in the form, and
+ * then the callsites look like this: they all call it the same way and just
+ * pluck their own error off the result.
+ *
+ * ```ts
+ * validate={(_maxPrefixLength, values) =>
+ *   validateMember(poolData.ipVersion, values).maxPrefixLength
+ * }
+ * ```
+ */
+export function validateMember(
+  poolVersion: IpVersion,
+  values: MemberAddForm
+): ValidationErrors {
   const maxBound = poolVersion === 'v4' ? 32 : 128
   const parsed = parseIpNet(values.subnet)
   const { minPrefixLength: minPL, maxPrefixLength: maxPL } = values
