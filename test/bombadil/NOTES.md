@@ -189,12 +189,33 @@ aimed at reaching code with past bugs.
    prod but has no SPA route). Removes the 12 noise violations run 3 hit
    after bombadil clicked "Sign out".
 
-2. **Done.** Named weight profiles in `spec.ts`, selected by
-   `BOMBADIL_PROFILE=<name>`. Current profiles: `balanced` (default),
-   `form-heavy`, `form-pinned`, `menus`, `breadth`, `create-and-revisit`.
-   Add new profiles by editing the `profiles` object in the spec so they
-   show up in git history. If the set grows past ~10 names, switch to
-   splitting specs by file instead.
+2. **Done.** Named weight profiles, one spec file per profile. Bombadil
+   runs specs in embedded V8 (no Node, no `process.env`) so env-var
+   selection doesn't work; instead each profile gets a tiny spec file
+   (`spec-form-heavy.ts`, `spec-menus.ts`, etc.) that imports from
+   `profiles.ts` (weights + factory) and `spec-shared.ts` (extractors +
+   properties). Current profiles: `balanced` (default), `form-heavy`,
+   `form-pinned`, `menus`, `breadth`, `create-and-revisit`. Add new
+   profiles by editing `profiles.ts` and creating a matching
+   `spec-<name>.ts`. Exports must be typed as
+   `ActionGenerator | Formula` — bombadil rejects unknown-typed exports
+   via `export *`, so only the properties+`defaultActions` live in
+   per-profile specs, and they must use the **export name
+   `defaultActions`** (not `actionMix`) for bombadil to pick them up.
+
+### Gotcha: `navigation` is a history composite, not URL navigation
+
+Bombadil's built-in `navigation` action is **internally** `weighted([[10, back], [1, forward], [1, reload]])` — it's a history-churn composite,
+not a "navigate to new URL" action. Actual URL navigation happens through
+`clicks` (sidebar links, breadcrumbs, row links). Practical consequences:
+
+- Profiles with `navigation > 0` produce Back/Forward/Reload even when
+  `back`, `forward`, and `reload` are listed as weight 0 directly.
+- To truly pin bombadil to a page (no history churn), set
+  `navigation: 0`. Even then, `clicks` can click a sidebar link and
+  leave the page.
+- To bias toward breadth (discovering new routes), boost `clicks`, not
+  `navigation`. `navigation` just replays the history you already have.
 
 ### Iteration strategy
 
@@ -245,12 +266,27 @@ is probing polling/menu timing.
 
 ### Record (round 2)
 
-Add a row per slot per round (2a / 2b / 2c). Include the tag so the
-output directory is discoverable.
+| Slot | Round | Profile            | Duration | Violations | Action histogram                                                 | Top 3 URLs                                                                                                                             | Notable                                                                                                                                                                                                         |
+| ---- | ----- | ------------------ | -------- | ---------- | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 5    | 2a    | form-heavy         | 90s      | 0          | Click 59, Back 19, Wait 11, TypeText 5, Reload 2 (n=99)          | `/projects` (17), `/mock-project/disks` (14), `/other-project/external-subnets-new` (12)                                               | Only 10/99 on start URL; `navigation:1` leaked Back (19) so profile failed its "zero history churn" intent.                                                                                                     |
+| 6    | 2a    | menus              | 90s      | 0          | Click 75, Wait 30, Back 12, Reload 2 (n=121)                     | `/projects` (29), `/access` (15), `/other-project/disks` (14)                                                                          | Left instances page almost immediately. `navigation:2` leaked 12 Back. 30 Wait good for menuSurvivesWait but didn't trigger it because menus rarely opened.                                                     |
+| 7    | 2a    | breadth            | 90s      | 0          | Back 21, Forward 16, Reload 13, Click 9, Wait 7 (n=67)           | `/projects` (41), `/images` (17), `/mock-project/instances` (6)                                                                        | Did escape the other-project subtree lock-in (hit mock-project/instances, images). But 50/67 actions were history churn from `navigation:8` — breadth didn't materialize. Fewest entries of any slot.           |
+| 8    | 2a    | form-pinned        | 90s      | 0          | Click 93, Wait 23, TypeText 19, ScrollDown 4, PressKey 3 (n=144) | `/project-no-vpcs/disks-new` (30), `/mock-project/vpcs/mock-vpc/firewall-rules-new` (23), `/project-no-vpcs/external-subnets-new` (12) | Best TypeText rate (13%) of the round. 0 Back/Forward/Reload confirmed `navigation:0` works. But clicks on sidebar links still carried bombadil off to disks-new and external-subnets-new — couldn't fully pin. |
+| 9    | 2a    | create-and-revisit | 90s      | 0          | Click 44, Back 20, Wait 15, ScrollDown 6, Forward 4 (n=91)       | `/mock-project/disks` (28), `/projects` (11), `/utilization` (8)                                                                       | Visited `disks/disk-10` 7× (revisit signal good). Zero TypeText — no create attempted. Disk list has few inputs, so `inputs` sat empty most of the run.                                                         |
 
-| Slot | Round | Tag | Duration | Violations | Action histogram | Top 3 URLs | Notable |
-| ---- | ----- | --- | -------- | ---------- | ---------------- | ---------- | ------- |
-|      |       |     |          |            |                  |            |         |
+**Round 2a verdict:** all clean, no violations, `/login` fix held. But no toasts (no mutations completed) in any slot, so `toastsClear`/`noDuplicateToasts` are still vacuous. Main learning: `navigation` is history churn, not URL nav — rework profiles before 2b.
+
+### Round 2b — adjustments
+
+Before running 2b, fix the profiles based on 2a findings:
+
+- **form-heavy**: set `navigation: 0` (currently 1). The profile's intent is "no history churn"; `navigation:1` leaked 19 Back in 99 entries. Match form-pinned's zero-nav setting but keep `clicks:4` so bombadil can click into fields.
+- **menus**: set `navigation: 0` (currently 2). Purpose is probing menu polling races; wandering off the page defeats that.
+- **breadth**: swap `navigation:8` for `clicks:8`. `clicks` is what drives real URL navigation (sidebar, links). Drop `back`/`reload` to 0 too since they just replay.
+- **form-pinned**: keep as-is. Winner of 2a. The sidebar-leak is intrinsic to the app layout and clicks can't be filtered without a custom generator.
+- **create-and-revisit**: bump `inputs:5 → 8` and consider starting on `/disks-new` instead of `/disks` so bombadil lands on a form with inputs ready; otherwise `inputs` remains empty most of the run.
+
+Re-run 2b at **3m** per slot to give forms time to submit and mutations time to complete. A successful 2b should show ≥1 toast somewhere.
 
 ### Running round 2a (90s smoke)
 
@@ -258,21 +294,11 @@ output directory is discoverable.
 # Build once (API_MODE=nexus npm run build) before kicking off slots.
 # Then, in parallel:
 
-BOMBADIL_PROFILE=form-heavy \
-  test/bombadil/run-slot.sh 5 /projects/mock-project/instances-new 2a-05-instances-new 90s &
-
-BOMBADIL_PROFILE=menus \
-  test/bombadil/run-slot.sh 6 /projects/mock-project/instances 2a-06-instances-menus 90s &
-
-BOMBADIL_PROFILE=breadth \
-  test/bombadil/run-slot.sh 7 /projects 2a-07-breadth 90s &
-
-BOMBADIL_PROFILE=form-pinned \
-  test/bombadil/run-slot.sh 8 /projects/mock-project/vpcs/mock-vpc/firewall-rules-new 2a-08-fw-rules 90s &
-
-BOMBADIL_PROFILE=create-and-revisit \
-  test/bombadil/run-slot.sh 9 /projects/mock-project/disks 2a-09-disks 90s &
-
+test/bombadil/run-slot.sh 5 /projects/mock-project/instances-new 2a-05-form-heavy 90s test/bombadil/spec-form-heavy.ts &
+test/bombadil/run-slot.sh 6 /projects/mock-project/instances 2a-06-menus 90s test/bombadil/spec-menus.ts &
+test/bombadil/run-slot.sh 7 /projects 2a-07-breadth 90s test/bombadil/spec-breadth.ts &
+test/bombadil/run-slot.sh 8 /projects/mock-project/vpcs/mock-vpc/firewall-rules-new 2a-08-form-pinned 90s test/bombadil/spec-form-pinned.ts &
+test/bombadil/run-slot.sh 9 /projects/mock-project/disks 2a-09-create-revisit 90s test/bombadil/spec-create-and-revisit.ts &
 wait
 ```
 

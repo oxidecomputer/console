@@ -3,11 +3,12 @@
 # own mock-api (12220+slot) and its own vite preview (4174+slot), so multiple
 # slots can run in parallel without sharing state.
 #
-# Usage: run-slot.sh <slot> <start_path> <output_tag> [time_limit]
+# Usage: run-slot.sh <slot> <start_path> <output_tag> [time_limit] [spec_path]
 #   slot:        integer >=1
 #   start_path:  path under the preview origin, e.g. "/projects"
 #   output_tag:  suffix for test/bombadil/output-<tag>
 #   time_limit:  bombadil --time-limit (default 5m)
+#   spec_path:   path to spec file (default test/bombadil/spec.ts)
 #
 # Expects: API_MODE=nexus npm run build has already produced dist/
 set -euo pipefail
@@ -16,6 +17,7 @@ slot="${1:?slot required}"
 start_path="${2:?start_path required}"
 tag="${3:?output_tag required}"
 time_limit="${4:-5m}"
+spec_path="${5:-test/bombadil/spec.ts}"
 
 repo_root="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$repo_root"
@@ -59,7 +61,7 @@ fi
 
 node_modules/.bin/bombadil test \
   "http://localhost:${preview_port}${start_path}" \
-  test/bombadil/spec.ts \
+  "$spec_path" \
   --headless \
   --output-path "$output_dir" \
   --time-limit "$time_limit" \
