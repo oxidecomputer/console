@@ -37,8 +37,14 @@ const atLoginPath = extract((state) => {
   }
 })
 
+// Exclude `.spinner-sm`: state-badge transition indicators (creating
+// snapshots, starting instances, attaching disks) use size="sm", and the
+// mock API never transitions them, so they'd false-positive forever. Real
+// loading spinners (Pagination, SpinnerLoader) use the default size.
+// See notes-snapshots-spinner.md.
 const hasSpinner = extract(
-  (state) => state.document.querySelector('[aria-label="Spinner"]') !== null
+  (state) =>
+    state.document.querySelector('[aria-label="Spinner"]:not(.spinner-sm)') !== null
 )
 
 const mainText = extract((state) => {
