@@ -962,6 +962,10 @@ export const handlers = makeHandlers({
     const instanceProject = lookup.project(projectParams)
     // Ephemeral IPs must use unicast pools
     const pool = resolvePoolSelector(body.pool_selector, 'unicast', instanceProject.silo_id)
+
+    // Sentinel: see ipPoolEphemeralAttachFail in ../ip-pool.ts
+    if (pool.name === 'attach-fail') throw 'Cannot attach ephemeral IP'
+
     const ip = getIpFromPool(pool)
 
     // Validate that external IP version matches primary NIC's IP stack

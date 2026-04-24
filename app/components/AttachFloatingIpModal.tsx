@@ -103,7 +103,7 @@ export const AttachFloatingIpModal = ({
           body: { kind: 'instance', parent: instance.id },
         })
       }
-      submitDisabled={!floatingIp}
+      submitDisabled={!floatingIp ? 'Select a floating IP' : undefined}
     >
       <Message
         variant="info"
