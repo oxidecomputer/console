@@ -122,7 +122,7 @@ test('Subnet pool add member shows prefix length validation errors', async ({ pa
 
   await expect(dialog).toBeVisible()
   await expect(
-    page.getByText('Min prefix length must be ≤ max prefix length')
+    dialog.getByText('Min prefix length must be ≤ max prefix length')
   ).toBeVisible()
 })
 

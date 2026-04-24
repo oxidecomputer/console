@@ -7,22 +7,24 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import { validateForm } from './subnet-pool-member-add'
+import { validateMember } from './subnet-pool-member-add'
 
-const validate = (values: Parameters<typeof validateForm>[1]) => validateForm('v4', values)
-const validate6 = (values: Parameters<typeof validateForm>[1]) => validateForm('v6', values)
+const validate = (values: Parameters<typeof validateMember>[1]) =>
+  validateMember('v4', values)
+const validate6 = (values: Parameters<typeof validateMember>[1]) =>
+  validateMember('v6', values)
 
 const valid = { subnet: '10.0.0.0/16', minPrefixLength: 20, maxPrefixLength: 28 }
 
 type Field = 'subnet' | 'minPrefixLength' | 'maxPrefixLength'
 
 function errMsg(result: ReturnType<typeof validate>, field: Field) {
-  return result === true ? undefined : result[field]?.message
+  return result[field]
 }
 
-describe('validateForm', () => {
+describe('validateMember', () => {
   it('accepts valid v4 input', () => {
-    expect(validate(valid)).toBe(true)
+    expect(validate(valid)).toEqual({})
   })
 
   it('accepts valid v6 input', () => {
@@ -31,7 +33,7 @@ describe('validateForm', () => {
       minPrefixLength: 48,
       maxPrefixLength: 64,
     })
-    expect(result).toBe(true)
+    expect(result).toEqual({})
   })
 
   it('accepts omitted prefix lengths', () => {
@@ -40,7 +42,7 @@ describe('validateForm', () => {
       minPrefixLength: NaN,
       maxPrefixLength: NaN,
     })
-    expect(result).toBe(true)
+    expect(result).toEqual({})
   })
 
   it('rejects invalid CIDR', () => {
