@@ -1,0 +1,14 @@
+{
+  "disk-attach-limit": {
+    "startPath": "/projects/mock-project/instances/db1/storage",
+    "specPath": "test/bombadil/spec-scenario-disk-attach.ts",
+    "timeLimit": "30s",
+    "mockApiScenario": "bombadil-disk-attach-limit"
+  },
+  "nonfleet-instance-metrics": {
+    "startPath": "/projects/mock-project/instances/db1/metrics/cpu",
+    "specPath": "test/bombadil/spec-scenario-local.ts",
+    "timeLimit": "30s",
+    "user": "Hans Jonas"
+  }
+}

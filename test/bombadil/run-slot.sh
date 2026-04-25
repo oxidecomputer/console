@@ -28,6 +28,7 @@ output_dir="test/bombadil/output-${tag}"
 mock_log="${output_dir}/mock-api.log"
 preview_log="${output_dir}/preview.log"
 
+rm -rf "$output_dir"
 mkdir -p "$output_dir"
 : > "$mock_log" "$preview_log"
 

@@ -1,5 +1,26 @@
 # 2026-04-23 — Bombadil: try different starting pages, record what each hits
 
+## Current direction
+
+The broad page-start matrix below was useful for learning Bombadil's behavior,
+but it should not be the main investment going forward. Useful console coverage
+should be scenario-centered: start from a deliberately interesting mock API
+state, user identity, and URL, then run a short local fuzz window with shared
+runtime/DOM invariants.
+
+The first scenario-fixture experiments validate the basic harness direction:
+server-start mock DB patches work, per-run mock user selection works, and
+scenario JSON is enough to describe early runs. They also confirm the main
+limitation: generic `clicks` leave the intended surface quickly, and fixed
+coordinate preludes are brittle for comboboxes and failed-submit states.
+
+Before adding many more scenarios, harden the runner so each run reports
+non-vacuity: whether the target state was reached, a modal/menu opened, a
+mutation was attempted, an expected error/toast appeared, a spinner/progress UI
+was observed, and which routes were visited. See
+[notes-scenario-strategy.md](./notes-scenario-strategy.md) for the current
+assessment and recommended operating model.
+
 ## Goal
 
 Find bugs with the bombadil spec at `test/bombadil/spec.ts` by varying the

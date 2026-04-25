@@ -8,8 +8,10 @@
 import { createServer } from '@mswjs/http-middleware'
 
 import { handlers } from '../mock-api/msw/handlers'
+import { applyMockApiScenario } from '../mock-api/msw/scenarios'
 
 const port = Number(process.argv[2] ?? process.env.MOCK_API_PORT ?? 12220)
+applyMockApiScenario(process.env.MOCK_API_SCENARIO)
 createServer(...handlers).listen(port)
 
 console.info(`Mock Nexus API running at http://localhost:${port}`)

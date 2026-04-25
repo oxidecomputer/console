@@ -333,7 +333,8 @@ export const MSW_USER_COOKIE = 'msw-user'
  * found so typos in test code get caught immediately.
  */
 export function currentUser(cookies: Record<string, string>): Json<User> {
-  const name = cookies[MSW_USER_COOKIE]
+  const envUser = typeof process !== 'undefined' ? process.env.MOCK_API_USER : undefined
+  const name = cookies[MSW_USER_COOKIE] ?? envUser
   if (!name) return db.users[0]
   const user = db.users.find((u) => u.display_name === name)
   if (!user) throw new Error(`No mock user with display name '${name}'`)
