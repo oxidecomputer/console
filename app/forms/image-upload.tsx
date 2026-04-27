@@ -495,8 +495,8 @@ export default function ImageCreate() {
     setAllDone(true)
   }
 
-  // onChange mode so the file-size / block-size cross-validation surfaces
-  // inline as soon as the user picks a file or changes block size
+  // Surface file validation as soon as the user picks a file. Block-size
+  // changes are still validated on submit.
   const form = useForm({ defaultValues, mode: 'onChange' })
   const file = form.watch('imageFile')
   const blockSize = form.watch('blockSize')
