@@ -8,25 +8,46 @@
 import cn from 'classnames'
 import type { ReactNode } from 'react'
 
-import { Badge } from '~/ui/lib/Badge'
+import { DescriptionCell } from '~/table/cells/DescriptionCell'
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { isOneOf } from '~/util/children'
 import { invariant } from '~/util/invariant'
+
+import { DateTime } from './DateTime'
+import { Truncate } from './Truncate'
 
 export interface PropertiesTableProps {
   className?: string
   children: ReactNode
+  columns?: 1 | 2
 }
 
-export function PropertiesTable({ className, children }: PropertiesTableProps) {
+export function PropertiesTable({
+  className,
+  children,
+  columns = 1,
+}: PropertiesTableProps) {
   invariant(
-    isOneOf(children, [PropertiesTable.Row]),
-    'PropertiesTable can only have PropertiesTable.Row as a child'
+    isOneOf(children, [
+      PropertiesTable.Row,
+      PropertiesTable.IdRow,
+      PropertiesTable.DescriptionRow,
+      PropertiesTable.DateRow,
+    ]),
+    'PropertiesTable only accepts specific Row components as children'
   )
   return (
     <div
+      aria-label="Properties table"
       className={cn(
         className,
-        'properties-table grid min-w-min basis-6/12 divide-y rounded-lg border border-default children:pl-3 children:pr-6 children:border-secondary'
+        'properties-table bg-default border-default min-w-min basis-6/12 rounded-lg border',
+        '*:border-secondary *:border-t *:pr-6 *:pl-3 [&>*:nth-child(-n+2)]:border-t-0!',
+        'grid grid-cols-[minmax(min-content,1fr)_3fr]',
+        {
+          '1000:grid-cols-[minmax(min-content,1fr)_3fr_minmax(min-content,1fr)_3fr] 1000:[&>*:nth-child(-n+4)]:border-t-0! 1000:[&>*:nth-child(4n-2)]:border-r':
+            columns === 2,
+        }
       )}
     >
       {children}
@@ -35,38 +56,46 @@ export function PropertiesTable({ className, children }: PropertiesTableProps) {
 }
 
 interface PropertiesTableRowProps {
-  label: string
+  label: ReactNode
   children: ReactNode
 }
 PropertiesTable.Row = ({ label, children }: PropertiesTableRowProps) => (
   <>
-    <span className="flex items-center">
-      <Badge>{label}</Badge>
+    <span className="text-mono-sm text-secondary flex items-center whitespace-nowrap">
+      {label}
     </span>
-    <div className="flex h-11 items-center overflow-hidden whitespace-nowrap pr-4 text-sans-md text-secondary">
+    <div className="text-sans-md text-default flex h-[38px] items-center overflow-hidden pr-4 whitespace-nowrap">
       {children}
     </div>
   </>
 )
 
-interface PropertiesTableGroupProps {
-  children: ReactNode
-  className?: string
-}
+PropertiesTable.IdRow = ({ id, label = 'ID' }: { id?: string | null; label?: string }) => (
+  <PropertiesTable.Row label={label}>
+    {id ? <Truncate text={id} maxLength={32} hasCopyButton /> : <EmptyCell />}
+  </PropertiesTable.Row>
+)
 
-PropertiesTable.Group = ({ children, className }: PropertiesTableGroupProps) => {
-  invariant(
-    isOneOf(children, [PropertiesTable]),
-    'PropertiesTable can only have PropertiesTable as a child'
-  )
-  return (
-    <div
-      className={cn(
-        className,
-        'flex min-w-min md-:flex-col md-:first:children:rounded-b-none md-:first:children:border-b-secondary md-:last:children:rounded-t-none md-:last:children:border-t-0 lg+:gap-x-4'
-      )}
-    >
-      {children}
-    </div>
-  )
-}
+PropertiesTable.DescriptionRow = ({
+  description,
+  sideModal,
+}: {
+  description: string
+  sideModal?: boolean
+}) => (
+  <PropertiesTable.Row label="Description">
+    <DescriptionCell text={description} sideModal={sideModal} />
+  </PropertiesTable.Row>
+)
+
+PropertiesTable.DateRow = ({
+  date,
+  label,
+}: {
+  date: Date
+  label: 'Created' | 'Updated' | 'Last Modified'
+}) => (
+  <PropertiesTable.Row label={label}>
+    <DateTime date={date} />
+  </PropertiesTable.Row>
+)

@@ -8,6 +8,8 @@
 
 import * as R from 'remeda'
 
+import { MAX_DISK_SIZE_GiB } from '~/api'
+
 /**
  * Get the two parts of a number (before decimal and after-and-including
  * decimal) as strings. Round to 2 decimal points if necessary.
@@ -48,11 +50,19 @@ export function percentage<T extends number | bigint>(top: T, bottom: T): number
   return Number(((top as bigint) * 10_000n) / (bottom as bigint)) / 100
 }
 
-export function round(num: number, digits: number) {
+// there are a lot more options, but let's only include the ones we need.
+// halfExpand is the default when nothing/undefined is passed in. trunc is like floor
+// except it always rounds toward zero, so, e.g., -0.99 rounds to -0.9 instead
+// of -1.0
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat/NumberFormat#roundingmode
+type RoundingMode = 'trunc'
+
+export function round(num: number, digits: number, roundingMode?: RoundingMode) {
   // unlike with splitDecimal, we hard-code en-US to ensure that Number() will
   // be able to parse the result
   const nf = Intl.NumberFormat('en-US', {
     maximumFractionDigits: digits,
+    roundingMode,
     // very important, otherwise turning back into number will fail on n >= 1000
     // due to commas
     useGrouping: false,
@@ -94,8 +104,11 @@ export function displayBigNum(
 }
 
 /**
- * Gets the closest multiple of 10 larger than the passed-in number
+ * Calculate disk size based on image or snapshot size. We round up to the
+ * nearest 10, but also cap it at the max disk size so that, for example, a 1023
+ * GiB image doesn't produce a 1030 GiB disk, which is not valid.
  */
-export function nearest10(num: number): number {
-  return Math.ceil(num / 10) * 10
+export function diskSizeNearest10(imageSizeGiB: number) {
+  const nearest10 = Math.ceil(imageSizeGiB / 10) * 10
+  return Math.min(nearest10, MAX_DISK_SIZE_GiB)
 }

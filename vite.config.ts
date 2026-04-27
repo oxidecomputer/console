@@ -5,24 +5,29 @@
  *
  * Copyright Oxide Computer Company
  */
-import { randomBytes } from 'crypto'
+import { createHash, randomBytes } from 'crypto'
+import { readFileSync } from 'fs'
 import { resolve } from 'path'
+
+import tailwindcss from '@tailwindcss/vite'
 import basicSsl from '@vitejs/plugin-basic-ssl'
-import react from '@vitejs/plugin-react-swc'
+import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
-import { createHtmlPlugin } from 'vite-plugin-html'
-import tsconfigPaths from 'vite-tsconfig-paths'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 import vercelConfig from './vercel.json'
 
-const ApiMode = z.enum(['msw', 'dogfood', 'nexus'])
+const ApiMode = z.enum(['msw', 'remote', 'nexus'])
+
+function bail(msg: string): never {
+  console.error(msg)
+  process.exit(1)
+}
 
 const apiModeResult = ApiMode.default('nexus').safeParse(process.env.API_MODE)
 if (!apiModeResult.success) {
   const options = ApiMode.options.join(', ')
-  console.error(`Error: API_MODE must be one of: [${options}]. If unset, default is "msw".`)
-  process.exit(1)
+  bail(`Error: API_MODE must be one of: [${options}]. If unset, default is "msw".`)
 }
 /**
  * What API are we talking to? Only relevant in development mode.
@@ -33,25 +38,27 @@ if (!apiModeResult.success) {
  */
 const apiMode = apiModeResult.data
 
-// if you want a different host you can override it with EXT_HOST
-const DOGFOOD_HOST = process.env.EXT_HOST || 'oxide.sys.rack2.eng.oxide.computer'
-
-const previewAnalyticsTag = {
-  injectTo: 'head' as const,
-  tag: 'script',
-  attrs: {
-    'data-domain':
-      process.env.VERCEL_ENV === 'production'
-        ? 'oxide-console-preview.vercel.app'
-        : // not a real domain. we're only using it to distinguish prod
-          // from preview traffic in plausible
-          'console-pr-preview.vercel.app',
-    defer: true,
-    src: '/viewscript.js',
-  },
+if (apiMode === 'remote' && !process.env.EXT_HOST) {
+  bail(`Error: EXT_HOST is required when API_MODE=remote. See package.json for examples.`)
 }
 
-const previewMetaTag = [
+const EXT_HOST = process.env.EXT_HOST
+
+const previewTags = [
+  {
+    injectTo: 'head' as const,
+    tag: 'script',
+    attrs: {
+      'data-domain':
+        process.env.VERCEL_ENV === 'production'
+          ? 'oxide-console-preview.vercel.app'
+          : // not a real domain. we're only using it to distinguish prod
+            // from preview traffic in plausible
+            'console-pr-preview.vercel.app',
+      defer: true,
+      src: '/viewscript.js',
+    },
+  },
   {
     injectTo: 'head' as const,
     tag: 'meta',
@@ -92,11 +99,6 @@ export default defineConfig(({ mode }) => ({
     emptyOutDir: true,
     sourcemap: true,
     // minify: false, // uncomment for debugging
-    rollupOptions: {
-      input: {
-        app: 'index.html',
-      },
-    },
     // prevent inlining assets as `data:`, which is not permitted by our Content-Security-Policy
     assetsInlineLimit: 0,
   },
@@ -110,14 +112,34 @@ export default defineConfig(({ mode }) => ({
     'process.env.CHAOS': JSON.stringify(mode !== 'production' && process.env.CHAOS),
   },
   plugins: [
-    tsconfigPaths(),
-    createHtmlPlugin({
-      inject: {
-        tags: process.env.VERCEL ? [previewAnalyticsTag, ...previewMetaTag] : [],
+    tailwindcss(),
+    {
+      name: 'inject-html-tags',
+      transformIndexHtml: () => (process.env.VERCEL ? previewTags : []),
+    },
+    {
+      // Inject theme-init.js as a classic (non-module) render-blocking script
+      // so it sets data-theme before first paint. It lives in public/assets/
+      // so it passes CSP default-src 'self' and is served by the /assets/*
+      // route in Nexus. We inject it here rather than putting it in index.html
+      // because Vite tries to bundle any <script src> it finds there. Content
+      // hash query param handles cache-busting since public/ files aren't
+      // fingerprinted by Vite.
+      name: 'theme-init',
+      transformIndexHtml() {
+        const content = readFileSync(resolve(__dirname, 'public/assets/theme-init.js'))
+        const hash = createHash('sha256').update(content).digest('hex').slice(0, 8)
+        return [
+          {
+            injectTo: 'head-prepend',
+            tag: 'script',
+            attrs: { src: `/assets/theme-init.js?v=${hash}` },
+          },
+        ]
       },
-    }),
+    },
     react(),
-    apiMode === 'dogfood' && basicSsl(),
+    apiMode === 'remote' && basicSsl(),
   ],
   html: {
     // don't include a placeholder nonce in production.
@@ -130,21 +152,12 @@ export default defineConfig(({ mode }) => ({
     // these only get hit when MSW doesn't intercept the request
     proxy: {
       '/v1': {
-        target:
-          apiMode === 'dogfood' ? `https://${DOGFOOD_HOST}` : 'http://localhost:12220',
+        target: apiMode === 'remote' ? `https://${EXT_HOST}` : 'http://localhost:12220',
         changeOrigin: true,
-      },
-      '^/v1/instances/[^/]+/serial-console/stream': {
-        target:
-          // in msw mode, serial console is served by tools/deno/mock-serial-console.ts
-          apiMode === 'dogfood'
-            ? `wss://${DOGFOOD_HOST}`
-            : 'ws://127.0.0.1:' + (apiMode === 'msw' ? 6036 : 12220),
-        changeOrigin: true,
-        ws: true,
       },
     },
   },
+  resolve: { tsconfigPaths: true },
   preview: { headers },
   test: {
     environment: 'jsdom',

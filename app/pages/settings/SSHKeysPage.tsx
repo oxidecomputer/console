@@ -5,24 +5,21 @@
  *
  * Copyright Oxide Computer Company
  */
-import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback } from 'react'
-import { Link, Outlet, useNavigate } from 'react-router-dom'
 
-import {
-  getListQFn,
-  queryClient,
-  useApiMutation,
-  useApiQueryClient,
-  type SshKey,
-} from '@oxide/api'
+import { createColumnHelper } from '@tanstack/react-table'
+import { useCallback, useMemo } from 'react'
+import { Link, Outlet, useNavigate } from 'react-router'
+
+import { api, getListQFn, queryClient, useApiMutation, type SshKey } from '@oxide/api'
 import { Key16Icon, Key24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { makeLinkCell } from '~/table/cells/LinkCell'
+import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
@@ -32,34 +29,35 @@ import { TableActions } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-const sshKeyList = () => getListQFn('currentUserSshKeyList', {})
-export async function loader() {
-  await queryClient.prefetchQuery(sshKeyList().optionsFn())
+const sshKeyList = getListQFn(api.currentUserSshKeyList, {})
+export const handle = makeCrumb('SSH Keys', pb.sshKeys)
+
+export async function clientLoader() {
+  await queryClient.prefetchQuery(sshKeyList.optionsFn())
   return null
 }
 
 const colHelper = createColumnHelper<SshKey>()
-const staticCols = [
-  colHelper.accessor('name', {}),
-  colHelper.accessor('description', Columns.description),
-  colHelper.accessor('timeModified', Columns.timeModified),
-]
 
-Component.displayName = 'SSHKeysPage'
-export function Component() {
+export default function SSHKeysPage() {
   const navigate = useNavigate()
 
-  const queryClient = useApiQueryClient()
-
-  const { mutateAsync: deleteSshKey } = useApiMutation('currentUserSshKeyDelete', {
+  const { mutateAsync: deleteSshKey } = useApiMutation(api.currentUserSshKeyDelete, {
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries('currentUserSshKeyList')
-      addToast(<>SSH key <HL>{variables.path.sshKey}</HL> deleted</>) // prettier-ignore
+      queryClient.invalidateEndpoint('currentUserSshKeyList')
+      // prettier-ignore
+      addToast(<>SSH key <HL>{variables.path.sshKey}</HL> deleted</>)
     },
   })
 
   const makeActions = useCallback(
     (sshKey: SshKey): MenuAction[] => [
+      {
+        label: 'Copy public key',
+        onActivate() {
+          window.navigator.clipboard.writeText(sshKey.publicKey)
+        },
+      },
       {
         label: 'Delete',
         onActivate: confirmDelete({
@@ -71,17 +69,26 @@ export function Component() {
     [deleteSshKey]
   )
 
+  const columns = useMemo(() => {
+    return [
+      colHelper.accessor('name', {
+        cell: makeLinkCell((sshKey) => pb.sshKeyEdit({ sshKey: sshKey })),
+      }),
+      colHelper.accessor('description', Columns.description),
+      getActionsCol(makeActions),
+    ]
+  }, [makeActions])
+
   const emptyState = (
     <EmptyMessage
       icon={<Key16Icon />}
       title="No SSH keys"
-      body="Add a SSH key to see it here"
+      body="Add an SSH key to see it here"
       buttonText="Add SSH key"
       onClick={() => navigate(pb.sshKeysNew())}
     />
   )
-  const columns = useColsWithActions(staticCols, makeActions)
-  const { table } = useQueryTable({ query: sshKeyList(), columns, emptyState })
+  const { table } = useQueryTable({ query: sshKeyList, columns, emptyState })
 
   return (
     <>

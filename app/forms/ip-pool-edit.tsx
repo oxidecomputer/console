@@ -6,46 +6,49 @@
  * Copyright Oxide Computer Company
  */
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router'
+import * as R from 'remeda'
 
-import {
-  apiQueryClient,
-  useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
-} from '@oxide/api'
+import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { getIpPoolSelector, useIpPoolSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
 import { IpPoolVisibilityMessage } from './ip-pool-create'
 
-export async function loader({ params }: LoaderFunctionArgs) {
-  const { pool } = getIpPoolSelector(params)
-  await apiQueryClient.prefetchQuery('ipPoolView', { path: { pool } })
+const ipPoolView = ({ pool }: PP.IpPool) => q(api.systemIpPoolView, { path: { pool } })
+
+export async function clientLoader({ params }: LoaderFunctionArgs) {
+  const selector = getIpPoolSelector(params)
+  await queryClient.prefetchQuery(ipPoolView(selector))
   return null
 }
 
-Component.displayName = 'EditIpPoolSideModalForm'
-export function Component() {
-  const queryClient = useApiQueryClient()
+export const handle = makeCrumb('Edit IP pool')
+
+export default function EditIpPoolSideModalForm() {
   const navigate = useNavigate()
   const poolSelector = useIpPoolSelector()
 
-  const { data: pool } = usePrefetchedApiQuery('ipPoolView', { path: poolSelector })
+  const { data: pool } = usePrefetchedQuery(ipPoolView(poolSelector))
 
-  const form = useForm({ defaultValues: pool })
+  const form = useForm({ defaultValues: R.pick(pool, ['name', 'description']) })
 
-  const editPool = useApiMutation('ipPoolUpdate', {
+  const editPool = useApiMutation(api.systemIpPoolUpdate, {
     onSuccess(updatedPool) {
-      queryClient.invalidateQueries('ipPoolList')
+      queryClient.invalidateEndpoint('systemIpPoolList')
       navigate(pb.ipPool({ pool: updatedPool.name }))
-      addToast(<>IP pool <HL>{updatedPool.name}</HL> updated</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>IP pool <HL>{updatedPool.name}</HL> updated</>)
 
       // Only invalidate if we're staying on the same page. If the name
       // _has_ changed, invalidating ipPoolView causes an error page to flash
@@ -53,7 +56,7 @@ export function Component() {
       // page's pool gets cleared out while we're still on the page. If we're
       // navigating to a different page, its query will fetch anew regardless.
       if (pool.name === updatedPool.name) {
-        queryClient.invalidateQueries('ipPoolView')
+        queryClient.invalidateEndpoint('systemIpPoolView')
       }
     },
   })
@@ -70,9 +73,10 @@ export function Component() {
       loading={editPool.isPending}
       submitError={editPool.error}
     >
+      <IpPoolVisibilityMessage />
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <IpPoolVisibilityMessage />
+      <SideModalFormDocs docs={[docLinks.systemIpPools]} />
     </SideModalForm>
   )
 }

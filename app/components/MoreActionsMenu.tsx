@@ -5,40 +5,46 @@
  *
  * Copyright Oxide Computer Company
  */
+import cn from 'classnames'
+import { type ReactNode } from 'react'
+
 import { More12Icon } from '@oxide/design-system/icons/react'
 
-import type { MenuAction } from '~/table/columns/action-col'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
-import { Tooltip } from '~/ui/lib/Tooltip'
-import { Wrap } from '~/ui/util/wrap'
 
 interface MoreActionsMenuProps {
   /** The accessible name for the menu button */
   label: string
-  actions: MenuAction[]
+  variant?: 'default' | 'small' | 'filled'
+  /** Dropdown items only */
+  children?: ReactNode
 }
-export const MoreActionsMenu = ({ actions, label }: MoreActionsMenuProps) => {
+
+export const MoreActionsMenu = ({
+  label,
+  variant = 'default',
+  children,
+}: MoreActionsMenuProps) => {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger
         aria-label={label}
-        className="flex h-8 w-8 items-center justify-center rounded border border-default hover:bg-tertiary"
+        className={cn('rounded-md', variant === 'filled' && 'h-full w-full')}
       >
-        <More12Icon className="text-tertiary" />
+        <div
+          className={cn(
+            'active-clicked hover:bg-tertiary flex items-center justify-center',
+            variant === 'small' && 'h-6 w-6',
+            variant === 'default' && 'h-8 w-8',
+            (variant === 'default' || variant === 'small') &&
+              'border-default rounded-md border',
+            variant === 'filled' && 'h-full w-full px-3'
+          )}
+        >
+          <More12Icon />
+        </div>
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content className="mt-2">
-        {actions.map((a) => (
-          <Wrap key={a.label} when={!!a.disabled} with={<Tooltip content={a.disabled} />}>
-            <DropdownMenu.Item
-              className={a.className}
-              disabled={!!a.disabled}
-              onSelect={a.onActivate}
-            >
-              {a.label}
-            </DropdownMenu.Item>
-          </Wrap>
-        ))}
-      </DropdownMenu.Content>
+      <DropdownMenu.Content className="mt-2">{children}</DropdownMenu.Content>
     </DropdownMenu.Root>
   )
 }

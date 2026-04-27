@@ -12,7 +12,7 @@ import type { Image } from '@oxide/api'
 import type { InstanceCreateInput } from '~/forms/instance-create'
 import type { ComboboxItem } from '~/ui/lib/Combobox'
 import { Slash } from '~/ui/lib/Slash'
-import { nearest10 } from '~/util/math'
+import { diskSizeNearest10 } from '~/util/math'
 import { bytesToGiB, GiB } from '~/util/units'
 
 import { ComboboxField } from './ComboboxField'
@@ -50,7 +50,7 @@ export function BootDiskImageSelectField({
         if (!image) return
         const imageSizeGiB = image.size / GiB
         if (diskSizeField.value < imageSizeGiB) {
-          diskSizeField.onChange(nearest10(imageSizeGiB))
+          diskSizeField.onChange(diskSizeNearest10(imageSizeGiB))
         }
       }}
     />
@@ -82,7 +82,7 @@ export function toImageComboboxItem(
     label: (
       <div className="flex flex-col gap-1">
         <div>{name}</div>
-        <div className="text-tertiary selected:text-accent-secondary">{itemMetadata}</div>
+        <div className="text-secondary selected:text-accent-secondary">{itemMetadata}</div>
       </div>
     ),
   }

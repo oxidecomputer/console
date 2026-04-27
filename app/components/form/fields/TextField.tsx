@@ -12,6 +12,7 @@ import {
   type FieldPath,
   type FieldPathValue,
   type FieldValues,
+  type RegisterOptions,
   type Validate,
 } from 'react-hook-form'
 
@@ -45,6 +46,7 @@ export interface TextFieldProps<
   placeholder?: string
   units?: string
   validate?: Validate<FieldPathValue<TFieldValues, TName>, TFieldValues>
+  deps?: RegisterOptions<TFieldValues, TName>['deps']
   control: Control<TFieldValues>
   /** Alters the value of the input during the field's onChange event. */
   transform?: (value: string) => string
@@ -67,7 +69,7 @@ export function TextField<
     <div className="max-w-lg">
       <div className="mb-2">
         <FieldLabel htmlFor={id} id={`${id}-label`} optional={!required}>
-          {label} {units && <span className="ml-1 text-secondary">({units})</span>}
+          {label} {units && <span className="text-default ml-1">({units})</span>}
         </FieldLabel>
         {description && (
           <TextInputHint id={`${id}-help-text`} className="mb-2">
@@ -98,6 +100,7 @@ export const TextFieldInner = <
   type = 'text',
   label = capitalize(name),
   validate,
+  deps,
   control,
   required,
   id: idProp,
@@ -109,7 +112,7 @@ export const TextFieldInner = <
   const {
     field: { onChange, ...fieldRest },
     fieldState: { error },
-  } = useController({ name, control, rules: { required, validate } })
+  } = useController({ name, control, rules: { required, validate, deps } })
   return (
     <>
       <UITextField
@@ -117,6 +120,7 @@ export const TextFieldInner = <
         title={label}
         type={type}
         error={!!error}
+        // oxlint-disable-next-line jsx-a11y/aria-proptypes -- https://github.com/oxc-project/oxc/issues/17465
         aria-labelledby={`${id}-label ${id}-help-text`}
         onChange={(e) => onChange(transform ? transform(e.target.value) : e.target.value)}
         {...fieldRest}

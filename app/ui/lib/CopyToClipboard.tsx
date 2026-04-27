@@ -6,8 +6,9 @@
  * Copyright Oxide Computer Company
  */
 
-import { animated, config, useTransition } from '@react-spring/web'
 import cn from 'classnames'
+import { AnimatePresence } from 'motion/react'
+import * as m from 'motion/react-m'
 import { useState } from 'react'
 
 import { Copy12Icon, Success12Icon } from '@oxide/design-system/icons/react'
@@ -20,6 +21,11 @@ type Props = {
   className?: string
 }
 
+const variants = {
+  hidden: { opacity: 0, scale: 0.75 },
+  visible: { opacity: 1, scale: 1 },
+}
+
 export const CopyToClipboard = ({
   ariaLabel = 'Click to copy',
   text,
@@ -29,28 +35,29 @@ export const CopyToClipboard = ({
 
   useTimeout(() => setHasCopied(false), hasCopied ? 2000 : null)
 
-  const handleCopy = () => {
+  const handleCopy = (event: React.MouseEvent) => {
+    event.stopPropagation()
     window.navigator.clipboard.writeText(text).then(() => {
       setHasCopied(true)
     })
   }
 
-  const transitions = useTransition(hasCopied, {
-    from: { opacity: 0, transform: 'scale(0.8)' },
-    enter: { opacity: 1, transform: 'scale(1)' },
-    leave: { opacity: 0, transform: 'scale(0.8)' },
-    config: config.stiff,
-    trail: 100,
-    initial: null,
-  })
+  const animateProps = {
+    className: 'absolute inset-0 flex items-center justify-center',
+    variants,
+    initial: 'hidden',
+    animate: 'visible',
+    exit: 'hidden',
+    transition: { type: 'spring', duration: 0.2, bounce: 0 },
+  }
 
   return (
     <button
       className={cn(
-        'relative h-5 w-5 rounded',
+        'active-clicked relative h-5 w-5 rounded-md',
         hasCopied
-          ? 'text-accent bg-accent-secondary'
-          : 'text-quaternary hover:text-secondary hover:bg-hover',
+          ? 'text-accent bg-accent'
+          : 'text-tertiary hover:text-default hover:bg-hover',
 
         className
       )}
@@ -58,14 +65,17 @@ export const CopyToClipboard = ({
       type="button"
       aria-label={hasCopied ? 'Copied' : ariaLabel}
     >
-      {transitions((styles, item) => (
-        <animated.div
-          style={styles}
-          className="absolute inset-0 flex items-center justify-center"
-        >
-          {item ? <Success12Icon /> : <Copy12Icon />}
-        </animated.div>
-      ))}
+      <AnimatePresence mode="wait" initial={false}>
+        {hasCopied ? (
+          <m.span key="checkmark" {...animateProps}>
+            <Success12Icon />
+          </m.span>
+        ) : (
+          <m.span key="copy" {...animateProps}>
+            <Copy12Icon />
+          </m.span>
+        )}
+      </AnimatePresence>
     </button>
   )
 }

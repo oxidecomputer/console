@@ -5,16 +5,17 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import {
+  api,
   diskCan,
+  q,
+  queryClient,
   useApiMutation,
-  useApiQuery,
-  useApiQueryClient,
-  type PathParams as PP,
   type SnapshotCreate,
 } from '@oxide/api'
 
@@ -23,16 +24,18 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { toComboboxItems } from '~/ui/lib/Combobox'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { ALL_ISH } from '~/util/consts'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
-const useSnapshotDiskItems = (projectSelector: PP.Project) => {
-  const { data: disks } = useApiQuery('diskList', {
-    query: { ...projectSelector, limit: ALL_ISH },
-  })
+const useSnapshotDiskItems = ({ project }: PP.Project) => {
+  const { data: disks } = useQuery(q(api.diskList, { query: { project, limit: ALL_ISH } }))
   return disks?.items.filter(diskCan.snapshot)
 }
 
@@ -42,9 +45,9 @@ const defaultValues: SnapshotCreate = {
   name: '',
 }
 
-Component.displayName = 'SnapshotCreate'
-export function Component() {
-  const queryClient = useApiQueryClient()
+export const handle = titleCrumb('New snapshot')
+
+export default function SnapshotCreate() {
   const projectSelector = useProjectSelector()
   const navigate = useNavigate()
 
@@ -53,10 +56,11 @@ export function Component() {
 
   const onDismiss = () => navigate(pb.snapshots(projectSelector))
 
-  const createSnapshot = useApiMutation('snapshotCreate', {
+  const createSnapshot = useApiMutation(api.snapshotCreate, {
     onSuccess(snapshot) {
-      queryClient.invalidateQueries('snapshotList')
-      addToast(<>Snapshot <HL>{snapshot.name}</HL> created</>) // prettier-ignore
+      queryClient.invalidateEndpoint('snapshotList')
+      // prettier-ignore
+      addToast(<>Snapshot <HL>{snapshot.name}</HL> created</>)
       onDismiss()
     },
   })
@@ -80,11 +84,13 @@ export function Component() {
       <ComboboxField
         label="Disk"
         name="disk"
+        description="Only disks that support snapshots are listed"
         placeholder="Select a disk"
         items={diskItemsForCombobox}
         required
         control={form.control}
       />
+      <SideModalFormDocs docs={[docLinks.snapshots]} />
     </SideModalForm>
   )
 }

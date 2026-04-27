@@ -35,7 +35,7 @@ export function NumberField<
     <div className="max-w-lg">
       <div className="mb-2">
         <FieldLabel htmlFor={id} id={`${id}-label`} optional={!required}>
-          {label} {units && <span className="ml-1 text-secondary">({units})</span>}
+          {label} {units && <span className="text-default ml-1">({units})</span>}
         </FieldLabel>
         {description && (
           <TextInputHint id={`${id}-help-text`} className="mb-2">
@@ -65,6 +65,7 @@ export const NumberFieldInner = <
   name,
   label = capitalize(name),
   validate,
+  deps,
   control,
   required,
   id: idProp,
@@ -83,6 +84,7 @@ export const NumberFieldInner = <
     control,
     rules: {
       required,
+      deps,
       // it seems we need special logic to enforce required on NaN
       validate(value, values) {
         if (required && Number.isNaN(value)) return `${label} is required`

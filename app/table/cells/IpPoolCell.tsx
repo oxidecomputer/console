@@ -5,14 +5,31 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useApiQuery } from '~/api'
+import { useQuery } from '@tanstack/react-query'
+
+import { api, qErrorsAllowed } from '~/api'
 import { Tooltip } from '~/ui/lib/Tooltip'
 
-import { EmptyCell } from './EmptyCell'
+import { EmptyCell, SkeletonCell } from './EmptyCell'
 
 export const IpPoolCell = ({ ipPoolId }: { ipPoolId: string }) => {
-  const pool = useApiQuery('projectIpPoolView', { path: { pool: ipPoolId } }).data
-  if (!pool) return <EmptyCell />
+  const { data: result } = useQuery(
+    qErrorsAllowed(
+      api.ipPoolView,
+      { path: { pool: ipPoolId } },
+      {
+        errorsExpected: {
+          explanation: 'the referenced IP pool may have been deleted.',
+          statusCode: 404,
+        },
+      }
+    )
+  )
+  if (!result) return <SkeletonCell />
+  // Defensive: the error case should never happen in practice. It should not be
+  // possible for a resource to reference a pool without that pool existing.
+  if (result.type === 'error') return <EmptyCell />
+  const pool = result.data
   return (
     <Tooltip content={pool.description} placement="right">
       <span>{pool.name}</span>

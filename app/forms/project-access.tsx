@@ -8,21 +8,26 @@
 import { useForm } from 'react-hook-form'
 
 import {
+  api,
+  queryClient,
   updateRole,
   useActorsNotInPolicy,
   useApiMutation,
-  useApiQueryClient,
 } from '@oxide/api'
+import { Access16Icon } from '@oxide/design-system/icons/react'
 
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { ResourceLabel } from '~/ui/lib/SideModal'
+import { docLinks } from '~/util/links'
 
 import {
   actorToItem,
   defaultValues,
-  roleItems,
+  RoleRadioField,
   type AddRoleModalProps,
   type EditRoleModalProps,
 } from './access-util'
@@ -32,10 +37,9 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
 
   const actors = useActorsNotInPolicy(policy)
 
-  const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('projectPolicyUpdate', {
+  const updatePolicy = useApiMutation(api.projectPolicyUpdate, {
     onSuccess: () => {
-      queryClient.invalidateQueries('projectPolicyView')
+      queryClient.invalidateEndpoint('projectPolicyView')
       // We don't have the name of the user or group, so we'll just have a generic message
       addToast({ content: 'Role assigned' })
       onDismiss()
@@ -50,11 +54,8 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
       resourceName="role"
       form={form}
       formType="create"
+      submitLabel="Assign role"
       onSubmit={({ identityId, roleName }) => {
-        // can't happen because roleName is validated not to be '', but TS
-        // wants to be sure
-        if (roleName === '') return
-
         // actor is guaranteed to be in the list because it came from there
         const identityType = actors.find((a) => a.id === identityId)!.identityType
 
@@ -65,7 +66,6 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
       }}
       loading={updatePolicy.isPending}
       submitError={updatePolicy.error}
-      submitLabel="Assign role"
       onDismiss={onDismiss}
     >
       <ListboxField
@@ -75,13 +75,8 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
         required
         control={form.control}
       />
-      <ListboxField
-        name="roleName"
-        label="Role"
-        items={roleItems}
-        required
-        control={form.control}
-      />
+      <RoleRadioField name="roleName" control={form.control} scope="Project" />
+      <SideModalFormDocs docs={[docLinks.access]} />
     </SideModalForm>
   )
 }
@@ -96,10 +91,9 @@ export function ProjectAccessEditUserSideModal({
 }: EditRoleModalProps) {
   const { project } = useProjectSelector()
 
-  const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('projectPolicyUpdate', {
+  const updatePolicy = useApiMutation(api.projectPolicyUpdate, {
     onSuccess: () => {
-      queryClient.invalidateQueries('projectPolicyView')
+      queryClient.invalidateEndpoint('projectPolicyView')
       addToast({ content: 'Role updated' })
       onDismiss()
     },
@@ -109,11 +103,15 @@ export function ProjectAccessEditUserSideModal({
 
   return (
     <SideModalForm
-      // TODO: show user name in header or SOMEWHERE
       form={form}
       formType="edit"
       resourceName="role"
-      title={`Change project role for ${name}`}
+      title="Edit role"
+      subtitle={
+        <ResourceLabel>
+          <Access16Icon /> {name}
+        </ResourceLabel>
+      }
       onSubmit={({ roleName }) => {
         updatePolicy.mutate({
           path: { project },
@@ -124,13 +122,8 @@ export function ProjectAccessEditUserSideModal({
       submitError={updatePolicy.error}
       onDismiss={onDismiss}
     >
-      <ListboxField
-        name="roleName"
-        label="Role"
-        items={roleItems}
-        required
-        control={form.control}
-      />
+      <RoleRadioField name="roleName" control={form.control} scope="Project" />
+      <SideModalFormDocs docs={[docLinks.access]} />
     </SideModalForm>
   )
 }

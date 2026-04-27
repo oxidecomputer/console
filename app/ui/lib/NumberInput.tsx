@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import React, { useRef } from 'react'
+import { useRef, type Ref } from 'react'
 import {
   useButton,
   useLocale,
@@ -17,15 +17,13 @@ import {
 import { mergeRefs } from 'react-merge-refs'
 import { useNumberFieldState } from 'react-stately'
 
-export type NumberInputProps = {
+type NumberInputProps = AriaNumberFieldProps & {
   className?: string
   error?: boolean
+  ref?: Ref<HTMLInputElement>
 }
 
-export const NumberInput = React.forwardRef<
-  HTMLInputElement,
-  AriaNumberFieldProps & NumberInputProps
->((props: AriaNumberFieldProps & NumberInputProps, forwardedRef) => {
+export function NumberInput(props: NumberInputProps) {
   const { locale } = useLocale()
   const state = useNumberFieldState({ ...props, locale })
 
@@ -36,36 +34,36 @@ export const NumberInput = React.forwardRef<
   return (
     <div
       className={cn(
-        'relative flex rounded border',
+        'relative flex rounded-md border',
         props.error
           ? 'border-error-secondary hover:border-error'
-          : 'border-default hover:border-hover',
-        props.isDisabled && '!border-default',
+          : 'border-default hover:border-raise',
+        props.isDisabled && 'border-default!',
         props.className
       )}
       {...groupProps}
     >
       <input
         {...inputProps}
-        ref={mergeRefs([forwardedRef, inputRef])}
+        ref={mergeRefs([props.ref, inputRef])}
         className={cn(
-          `w-full rounded border-none px-3 py-[0.6875rem] !outline-offset-1 text-sans-md text-default bg-default placeholder:text-quaternary focus:outline-none disabled:cursor-not-allowed disabled:text-tertiary disabled:bg-disabled`,
+          `text-sans-md text-raise bg-default placeholder:text-tertiary disabled:text-secondary disabled:bg-disabled w-full rounded-md border-none px-3 py-2.75 outline-offset-1! focus:outline-hidden disabled:cursor-not-allowed`,
           props.error && 'focus-error',
           props.isDisabled && 'text-disabled bg-disabled'
         )}
       />
-      <div className="absolute bottom-0 right-0 top-0 flex flex-col border-l border-default">
+      <div className="border-default absolute top-0 right-0 bottom-0 flex flex-col border-l">
         <IncrementButton {...incrementButtonProps}>
           <InputArrowIcon />
         </IncrementButton>
-        <div className="h-[1px] w-full border-t border-t-default" />
+        <div className="border-t-default h-px w-full border-t" />
         <IncrementButton {...decrementButtonProps}>
           <InputArrowIcon className="rotate-180" />
         </IncrementButton>
       </div>
     </div>
   )
-})
+}
 
 function IncrementButton(props: AriaButtonProps<'button'> & { className?: string }) {
   const ref = useRef(null)
@@ -76,8 +74,8 @@ function IncrementButton(props: AriaButtonProps<'button'> & { className?: string
       type="button"
       {...buttonProps}
       className={cn(
-        'flex h-1/2 w-8 items-center justify-center hover:bg-hover',
-        buttonProps.disabled ? 'text-quaternary bg-disabled' : 'bg-default'
+        'hover:bg-hover flex h-1/2 w-8 items-center justify-center',
+        buttonProps.disabled ? 'text-tertiary bg-disabled' : 'bg-default'
       )}
       ref={ref}
     >

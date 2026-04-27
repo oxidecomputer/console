@@ -25,7 +25,7 @@ export const sleds: Json<Sled[]> = [
       serial: 'BRM02222869',
       revision: 0,
     },
-    usable_hardware_threads: 128,
+    usable_hardware_threads: 254,
     usable_physical_ram: 1_099_511_627_776,
   },
   {
@@ -35,7 +35,7 @@ export const sleds: Json<Sled[]> = [
     rack_id: '759a1c80-4bff-4d0b-97ce-b482ca936724',
     policy: {
       kind: 'in_service',
-      provision_policy: 'provisionable',
+      provision_policy: 'non_provisionable',
     },
     state: 'active',
     baseboard: {
@@ -43,7 +43,7 @@ export const sleds: Json<Sled[]> = [
       serial: 'BRM02222870',
       revision: 0,
     },
-    usable_hardware_threads: 128,
+    usable_hardware_threads: 254,
     usable_physical_ram: 1_099_511_627_776,
   },
   {
@@ -60,7 +60,7 @@ export const sleds: Json<Sled[]> = [
       serial: 'BRM02222868',
       revision: 0,
     },
-    usable_hardware_threads: 128,
+    usable_hardware_threads: 254,
     usable_physical_ram: 1_099_511_627_776,
   },
   {
@@ -77,7 +77,7 @@ export const sleds: Json<Sled[]> = [
       serial: 'BRM02222867',
       revision: 0,
     },
-    usable_hardware_threads: 128,
+    usable_hardware_threads: 254,
     usable_physical_ram: 1_099_511_627_776,
   },
 ]

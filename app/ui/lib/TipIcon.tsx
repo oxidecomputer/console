@@ -21,8 +21,9 @@ export function TipIcon({ children, className }: TipIconProps) {
       <button
         className={cn('inline-flex [&>svg]:pointer-events-none', className)}
         type="button"
+        aria-label="Tip"
       >
-        <Question12Icon className="text-quinary" />
+        <Question12Icon className="text-quaternary" />
       </button>
     </Tooltip>
   )

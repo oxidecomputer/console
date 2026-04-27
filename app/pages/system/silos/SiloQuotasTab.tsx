@@ -8,31 +8,43 @@
 
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { type LoaderFunctionArgs } from 'react-router'
+import type { SetNonNullable } from 'type-fest'
 
 import {
-  apiQueryClient,
+  api,
+  q,
+  queryClient,
   useApiMutation,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
   type SiloQuotasUpdate,
 } from '~/api'
 import { NumberField } from '~/components/form/fields/NumberField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useSiloSelector } from '~/hooks/use-params'
+import { makeCrumb } from '~/hooks/use-crumbs'
+import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Button } from '~/ui/lib/Button'
 import { Message } from '~/ui/lib/Message'
 import { Table } from '~/ui/lib/Table'
 import { classed } from '~/util/classed'
 import { links } from '~/util/links'
+import type * as PP from '~/util/path-params'
 import { bytesToGiB, GiB } from '~/util/units'
 
-const Unit = classed.span`ml-1 text-tertiary`
+const Unit = classed.span`ml-1 text-secondary`
 
-export function SiloQuotasTab() {
+const siloUtil = ({ silo }: PP.Silo) => q(api.siloUtilizationView, { path: { silo } })
+
+export async function clientLoader({ params }: LoaderFunctionArgs) {
+  const { silo } = getSiloSelector(params)
+  await queryClient.prefetchQuery(siloUtil({ silo }))
+  return null
+}
+
+export default function SiloQuotasTab() {
   const { silo } = useSiloSelector()
-  const { data: utilization } = usePrefetchedApiQuery('siloUtilizationView', {
-    path: { silo: silo },
-  })
+  const { data: utilization } = usePrefetchedQuery(siloUtil({ silo }))
 
   const { allocated: quotas, provisioned } = utilization
 
@@ -88,15 +100,15 @@ export function SiloQuotasTab() {
   )
 }
 
+export const handle = makeCrumb('Quotas')
+
 function EditQuotasForm({ onDismiss }: { onDismiss: () => void }) {
   const { silo } = useSiloSelector()
-  const { data: utilization } = usePrefetchedApiQuery('siloUtilizationView', {
-    path: { silo: silo },
-  })
+  const { data: utilization } = usePrefetchedQuery(siloUtil({ silo }))
   const quotas = utilization.allocated
 
   // required because we need to rule out undefined because NumberField hates that
-  const defaultValues: Required<SiloQuotasUpdate> = {
+  const defaultValues: SetNonNullable<Required<SiloQuotasUpdate>> = {
     cpus: quotas.cpus,
     memory: bytesToGiB(quotas.memory),
     storage: bytesToGiB(quotas.storage),
@@ -104,9 +116,9 @@ function EditQuotasForm({ onDismiss }: { onDismiss: () => void }) {
 
   const form = useForm({ defaultValues })
 
-  const updateQuotas = useApiMutation('siloQuotasUpdate', {
+  const updateQuotas = useApiMutation(api.siloQuotasUpdate, {
     onSuccess() {
-      apiQueryClient.invalidateQueries('siloUtilizationView')
+      queryClient.invalidateEndpoint('siloUtilizationView')
       addToast({ content: 'Quotas updated' })
       onDismiss()
     },

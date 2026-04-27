@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import React, { useId } from 'react'
+import { useId } from 'react'
 import {
   useController,
   type Control,
@@ -16,9 +16,11 @@ import {
 } from 'react-hook-form'
 
 import { FieldLabel } from '~/ui/lib/FieldLabel'
-import { Radio } from '~/ui/lib/Radio'
+import { Radio, RadioCard, type RadioProps } from '~/ui/lib/Radio'
 import { RadioGroup, type RadioGroupProps } from '~/ui/lib/RadioGroup'
 import { TextInputHint } from '~/ui/lib/TextInput'
+import { isOneOf } from '~/util/children'
+import { invariant } from '~/util/invariant'
 import { capitalize } from '~/util/str'
 
 export type RadioFieldProps<
@@ -70,7 +72,7 @@ export function RadioField<
       <div className="mb-2">
         {label && (
           <FieldLabel id={`${id}-label`}>
-            {label} {units && <span className="ml-1 text-secondary">({units})</span>}
+            {label} {units && <span className="text-default ml-1">({units})</span>}
           </FieldLabel>
         )}
         {/* TODO: Figure out where this hint field def should live */}
@@ -78,6 +80,7 @@ export function RadioField<
       </div>
       <RadioGroup
         defaultChecked={field.value}
+        // oxlint-disable-next-line jsx-a11y/aria-proptypes -- https://github.com/oxc-project/oxc/issues/17465
         aria-labelledby={`${id}-label`}
         onChange={(e) =>
           parseValue ? field.onChange(parseValue(e.target.value)) : field.onChange(e)
@@ -97,11 +100,25 @@ export function RadioField<
   )
 }
 
+type RadioElt = React.ReactElement<RadioProps>
+
+// we do not extend RadioFieldProps here because it limits our ability to type
+// components like RoleRadioField. see https://tsplay.dev/ND13Om
+
 export type RadioFieldDynProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
-> = Omit<RadioFieldProps<TFieldValues, TName>, 'parseValue' | 'items'> & {
-  children: React.ReactElement | React.ReactElement[]
+> = {
+  name: TName
+  label?: string
+  description?: string | React.ReactNode
+  units?: string
+  control: Control<TFieldValues>
+  children: RadioElt | RadioElt[]
+  column?: boolean
+  className?: string
+  required?: boolean
+  disabled?: boolean
 }
 
 /**
@@ -115,7 +132,7 @@ export function RadioFieldDyn<
   TName extends FieldPath<TFieldValues>,
 >({
   name,
-  label = capitalize(name),
+  label,
   description,
   units,
   control,
@@ -124,12 +141,16 @@ export function RadioFieldDyn<
 }: RadioFieldDynProps<TFieldValues, TName>) {
   const id = useId()
   const { field } = useController({ name, control })
+  invariant(
+    isOneOf(children, [Radio, RadioCard]),
+    'Children of RadioFieldDyn must be Radio or RadioCard'
+  )
   return (
     <div>
-      <div className="mb-2">
+      <div className="mb-3">
         {label && (
           <FieldLabel id={`${id}-label`}>
-            {label} {units && <span className="ml-1 text-secondary">({units})</span>}
+            {label} {units && <span className="text-default ml-1">({units})</span>}
           </FieldLabel>
         )}
         {/* TODO: Figure out where this hint field def should live */}

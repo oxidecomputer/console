@@ -7,14 +7,16 @@
  */
 import { useCallback } from 'react'
 
-import { instanceCan, useApiMutation, type Instance } from '@oxide/api'
+import { api, instanceCan, useApiMutation, type Instance } from '@oxide/api'
 
 import { HL } from '~/components/HL'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import type { MenuAction, MenuActionItem } from '~/table/columns/action-col'
+import { pb } from '~/util/path-builder'
 
-import { fancifyStates } from './instance/tabs/common'
+import { fancifyStates } from './common'
 
 type Options = {
   onSuccess?: () => void
@@ -37,18 +39,19 @@ export const useMakeInstanceActions = (
   // while the whole useMutation result object is not. The async ones are used
   // when we need to confirm because the confirm modals want that.
   const opts = { onSuccess: options.onSuccess }
-  const { mutateAsync: startInstanceAsync } = useApiMutation('instanceStart', opts)
-  const { mutateAsync: stopInstanceAsync } = useApiMutation('instanceStop', opts)
-  const { mutateAsync: rebootInstanceAsync } = useApiMutation('instanceReboot', opts)
+  const { mutateAsync: startInstanceAsync } = useApiMutation(api.instanceStart, opts)
+  const { mutateAsync: stopInstanceAsync } = useApiMutation(api.instanceStop, opts)
+  const { mutateAsync: rebootInstanceAsync } = useApiMutation(api.instanceReboot, opts)
   // delete has its own
-  const { mutateAsync: deleteInstanceAsync } = useApiMutation('instanceDelete', {
+  const { mutateAsync: deleteInstanceAsync } = useApiMutation(api.instanceDelete, {
     onSuccess: options.onDelete,
   })
 
   const { onResizeClick } = options
 
   const makeButtonActions = useCallback(
-    (instance: Instance) => {
+    // restrict to items for now so we don't have to handle links in the calling code
+    (instance: Instance): MenuActionItem[] => {
       const instanceParams = { path: { instance: instance.name }, query: { project } }
       return [
         {
@@ -58,13 +61,8 @@ export const useMakeInstanceActions = (
               actionType: 'primary',
               doAction: () =>
                 startInstanceAsync(instanceParams, {
-                  onSuccess: () => addToast(<>Starting instance <HL>{instance.name}</HL></>), // prettier-ignore
-                  onError: (error) =>
-                    addToast({
-                      variant: 'error',
-                      title: `Error starting instance '${instance.name}'`,
-                      content: error.message,
-                    }),
+                  // prettier-ignore
+                  onSuccess: () => addToast(<>Starting instance <HL>{instance.name}</HL></>),
                 }),
               modalTitle: 'Confirm start instance',
               modalContent: (
@@ -72,7 +70,7 @@ export const useMakeInstanceActions = (
                   Are you sure you want to start <HL>{instance.name}</HL>?
                 </p>
               ),
-              errorTitle: `Error starting ${instance.name}`,
+              errorTitle: `Error starting instance '${instance.name}'`,
             })
           },
           disabled: !instanceCan.start(instance) && (
@@ -87,7 +85,8 @@ export const useMakeInstanceActions = (
               doAction: () =>
                 stopInstanceAsync(instanceParams, {
                   onSuccess: () =>
-                    addToast(<>Stopping instance <HL>{instance.name}</HL></>), // prettier-ignore
+                    // prettier-ignore
+                    addToast(<>Stopping instance <HL>{instance.name}</HL></>),
                 }),
               modalTitle: 'Confirm stop instance',
               modalContent: (
@@ -115,7 +114,7 @@ export const useMakeInstanceActions = (
   )
 
   const makeMenuActions = useCallback(
-    (instance: Instance) => {
+    (instance: Instance): MenuAction[] => {
       const instanceParams = { path: { instance: instance.name }, query: { project } }
       return [
         {
@@ -126,7 +125,8 @@ export const useMakeInstanceActions = (
               doAction: () =>
                 rebootInstanceAsync(instanceParams, {
                   onSuccess: () =>
-                    addToast(<>Rebooting instance <HL>{instance.name}</HL></>), // prettier-ignore
+                    // prettier-ignore
+                    addToast(<>Rebooting instance <HL>{instance.name}</HL></>),
                 }),
               modalTitle: 'Confirm reboot instance',
               modalContent: (
@@ -144,9 +144,13 @@ export const useMakeInstanceActions = (
         {
           label: 'Resize',
           onActivate: () => onResizeClick?.(instance),
-          disabled: !instanceCan.update(instance) && (
-            <>Only {fancifyStates(instanceCan.update.states)} instances can be resized</>
+          disabled: !instanceCan.resize(instance) && (
+            <>Only {fancifyStates(instanceCan.resize.states)} instances can be resized</>
           ),
+        },
+        {
+          label: 'View serial console',
+          to: pb.serialConsole({ project, instance: instance.name }),
         },
         {
           label: 'Delete',
@@ -154,7 +158,8 @@ export const useMakeInstanceActions = (
             doDelete: () =>
               deleteInstanceAsync(instanceParams, {
                 onSuccess: () =>
-                  addToast(<>Deleting instance <HL>{instance.name}</HL></>), // prettier-ignore
+                  // prettier-ignore
+                  addToast(<>Deleting instance <HL>{instance.name}</HL></>),
               }),
             label: instance.name,
             resourceKind: 'instance',

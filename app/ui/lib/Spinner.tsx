@@ -8,26 +8,61 @@
 import cn from 'classnames'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 
-export const spinnerSizes = ['base', 'lg'] as const
-export const spinnerVariants = ['primary', 'secondary', 'ghost', 'danger'] as const
+import { type BadgeColor } from '@oxide/design-system/ui'
+
+export const spinnerSizes = ['sm', 'base', 'md', 'lg'] as const
 export type SpinnerSize = (typeof spinnerSizes)[number]
-export type SpinnerVariant = (typeof spinnerVariants)[number]
 
 interface SpinnerProps {
   className?: string
   size?: SpinnerSize
-  variant?: SpinnerVariant
+  variant?: BadgeColor
+}
+
+const SPINNER_DIMENSIONS = {
+  sm: {
+    frameSize: 10,
+    center: 5,
+    radius: 4,
+    strokeWidth: 1.5,
+  },
+  base: {
+    frameSize: 12,
+    center: 6,
+    radius: 5,
+    strokeWidth: 2,
+  },
+  md: {
+    frameSize: 24,
+    center: 12,
+    radius: 10,
+    strokeWidth: 2,
+  },
+  lg: {
+    frameSize: 36,
+    center: 18,
+    radius: 16,
+    strokeWidth: 3,
+  },
+} as const
+
+const SPINNER_COLORS: Record<BadgeColor, string> = {
+  default: 'text-accent-secondary',
+  neutral: 'text-secondary',
+  destructive: 'text-destructive-secondary',
+  notice: 'text-notice-secondary',
+  purple: 'text-(--base-purple-700)',
+  blue: 'text-(--base-blue-700)',
 }
 
 export const Spinner = ({
   className,
   size = 'base',
-  variant = 'primary',
+  variant = 'default',
 }: SpinnerProps) => {
-  const frameSize = size === 'lg' ? 36 : 12
-  const center = size === 'lg' ? 18 : 6
-  const radius = size === 'lg' ? 16 : 5
-  const strokeWidth = size === 'lg' ? 3 : 2
+  const dimensions = SPINNER_DIMENSIONS[size]
+  const { frameSize, center, radius, strokeWidth } = dimensions
+
   return (
     <svg
       width={frameSize}
@@ -36,7 +71,7 @@ export const Spinner = ({
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-label="Spinner"
-      className={cn('spinner', `spinner-${variant}`, `spinner-${size}`, className)}
+      className={cn('spinner', SPINNER_COLORS[variant], `spinner-${size}`, className)}
     >
       <circle
         fill="none"
@@ -71,7 +106,7 @@ type Props = {
 /** Loading spinner that shows for a minimum of `minTime` */
 export const SpinnerLoader = ({ isLoading, children = null, minTime = 500 }: Props) => {
   const [isVisible, setIsVisible] = useState(isLoading)
-  const hideTimeout = useRef<NodeJS.Timeout | null>(null)
+  const hideTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   const loadingStartTime = useRef<number>(0)
 
   useEffect(() => {

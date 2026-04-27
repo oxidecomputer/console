@@ -6,17 +6,18 @@
  * Copyright Oxide Computer Company
  */
 import { useEffect, useRef } from 'react'
-import { Outlet, useNavigation } from 'react-router-dom'
+import { Outlet, useNavigation } from 'react-router'
 
 import { MswBanner } from '~/components/MswBanner'
 import { ToastStack } from '~/components/ToastStack'
 import { useCrumbs } from '~/hooks/use-crumbs'
+import { useApplyTheme } from '~/stores/theme'
 
 /**
  * non top-level route: Instances / mock-project / Projects / maze-war / Oxide Console
  * top-level route: Oxide Console
  */
-export const useTitle = () =>
+const useTitle = () =>
   useCrumbs()
     .map((c) => c.label)
     .reverse()
@@ -27,7 +28,8 @@ export const useTitle = () =>
  * Root layout that applies to the entire app. Modify sparingly. It's rare for
  * anything to actually belong here.
  */
-export function RootLayout() {
+export default function RootLayout() {
+  useApplyTheme()
   const title = useTitle()
   useEffect(() => {
     document.title = title
@@ -135,8 +137,8 @@ function LoadingBar() {
   }, [navigation])
 
   return (
-    <div className="fixed left-0 right-0 top-0 z-50">
-      <div ref={barRef} className="global-loading-bar h-px bg-accent" />
+    <div className="fixed top-0 right-0 left-0 z-50">
+      <div ref={barRef} className="global-loading-bar bg-accent-inverse h-px" />
     </div>
   )
 }

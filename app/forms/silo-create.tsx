@@ -7,9 +7,10 @@
  */
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
+import { match } from 'ts-pattern'
 
-import { useApiMutation, useApiQueryClient, type SiloCreate } from '@oxide/api'
+import { api, q, queryClient, useApiMutation, type SiloCreate } from '@oxide/api'
 
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -20,10 +21,13 @@ import { TextField } from '~/components/form/fields/TextField'
 import { TlsCertsField } from '~/components/form/fields/TlsCertsField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Message } from '~/ui/lib/Message'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import { GiB } from '~/util/units'
 
@@ -48,17 +52,20 @@ const defaultValues: SiloCreateFormValues = {
   },
 }
 
-export function CreateSiloSideModalForm() {
+export const handle = titleCrumb('New Silo')
+
+export default function CreateSiloSideModalForm() {
   const navigate = useNavigate()
-  const queryClient = useApiQueryClient()
 
   const onDismiss = () => navigate(pb.silos())
 
-  const createSilo = useApiMutation('siloCreate', {
+  const createSilo = useApiMutation(api.siloCreate, {
     onSuccess(silo) {
-      queryClient.invalidateQueries('siloList')
-      queryClient.setQueryData('siloView', { path: { silo: silo.name } }, silo)
-      addToast(<>Silo <HL>{silo.name}</HL> created</>) // prettier-ignore
+      queryClient.invalidateEndpoint('siloList')
+      const siloView = q(api.siloView, { path: { silo: silo.name } })
+      queryClient.setQueryData(siloView.queryKey, silo)
+      // prettier-ignore
+      addToast(<>Silo <HL>{silo.name}</HL> created</>)
       onDismiss()
     },
   })
@@ -144,15 +151,20 @@ export function CreateSiloSideModalForm() {
         column
         control={form.control}
         items={[
-          { value: 'saml_jit', label: 'SAML' },
+          { value: 'saml_jit', label: 'SAML + JIT' },
+          { value: 'saml_scim', label: 'SAML + SCIM' },
           { value: 'local_only', label: 'Local only' },
         ]}
       />
-      {identityMode === 'saml_jit' && (
+      {match(identityMode)
+        .with('saml_jit', () => true)
+        .with('saml_scim', () => true)
+        .with('local_only', () => false)
+        .exhaustive() && (
         <TextField
           name="adminGroupName"
           label="Admin group name"
-          description="This group will be created and granted the Silo Admin role."
+          description="This group will be created and granted the admin role on the silo."
           control={form.control}
         />
       )}
@@ -172,6 +184,7 @@ export function CreateSiloSideModalForm() {
       </div>
       <FormDivider />
       <TlsCertsField control={form.control} siloName={siloName} />
+      <SideModalFormDocs docs={[docLinks.systemSiloCreate, docLinks.systemSilo]} />
     </SideModalForm>
   )
 }

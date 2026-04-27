@@ -12,11 +12,13 @@ import pMap from 'p-map'
 import pRetry from 'p-retry'
 import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import {
+  api,
+  q,
+  queryClient,
   useApiMutation,
-  useApiQueryClient,
   type ApiError,
   type BlockSize,
   type Disk,
@@ -35,15 +37,17 @@ import { NameField } from '~/components/form/fields/NameField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { Progress } from '~/ui/lib/Progress'
 import { Spinner } from '~/ui/lib/Spinner'
 import { anySignal } from '~/util/abort'
 import { readBlobAsBase64 } from '~/util/file'
 import { invariant } from '~/util/invariant'
-import { links } from '~/util/links'
+import { docLinks, links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import { isAllZeros } from '~/util/str'
 import { GiB, KiB } from '~/util/units'
@@ -103,15 +107,13 @@ function Step({ children, state, label, className }: StepProps) {
   return (
     // data-status used only for e2e testing
     <div
-      className={cn('upload-step items-top flex gap-2 px-4 py-3', className)}
+      className={cn('upload-step flex gap-2 px-4 py-3', className)}
       data-testid={`upload-step: ${label}`}
       data-status={status}
     >
       {/* padding on icon to align it with text since everything is aligned to top */}
       <div className="pt-px">{icon}</div>
-      <div
-        className={cn('w-full space-y-2', state.isError ? 'text-error' : 'text-default')}
-      >
+      <div className={cn('w-full space-y-2', state.isError ? 'text-error' : 'text-raise')}>
         <div>{label}</div>
         {children}
       </div>
@@ -177,20 +179,14 @@ const CHUNK_SIZE_BYTES = 512 * KiB
 // TODO: make sure cleanup, cancelEverything, and resetMainFlow are called in
 // the right places
 
-Component.displayName = 'ImageCreate'
+export const handle = titleCrumb('Upload image')
+
 /**
  * Upload an image. Opens a second modal to show upload progress.
  */
-export function Component() {
+export default function ImageCreate() {
   const navigate = useNavigate()
-  const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
-
-  // Note: abort currently only works if it fires during the upload file step.
-  // We could make it work between the other steps by calling
-  // `abortController.throwIfAborted()` after each one. We could technically
-  // plumb through the signal to the requests themselves, but they complete so
-  // quickly it's probably not necessary.
 
   // The state in this component is very complex because we are doing a bunch of
   // requests in order, all of which can fail, plus the whole thing can be
@@ -214,25 +210,25 @@ export function Component() {
   // done with everything, ready to close the modal
   const [allDone, setAllDone] = useState(false)
 
-  const createDisk = useApiMutation('diskCreate')
-  const startImport = useApiMutation('diskBulkWriteImportStart')
+  const createDisk = useApiMutation(api.diskCreate)
+  const startImport = useApiMutation(api.diskBulkWriteImportStart)
 
   // gcTime: 0 prevents the mutation cache from holding onto all the chunks for
   // 5 minutes. It can be a ton of memory. To be honest, I don't even understand
   // why the mutation cache exists. It's not like the query cache, which dedupes
   // identical queries made around the same time.
   // https://tanstack.com/query/v5/docs/reference/MutationCache
-  const uploadChunk = useApiMutation('diskBulkWriteImport', { gcTime: 0 })
+  const uploadChunk = useApiMutation(api.diskBulkWriteImport, { gcTime: 0 })
 
   // synthetic state for upload step because it consists of multiple requests
   const [syntheticUploadState, setSyntheticUploadState] =
     useState<MutationState>(initSyntheticState)
 
-  const stopImport = useApiMutation('diskBulkWriteImportStop')
-  const finalizeDisk = useApiMutation('diskFinalizeImport')
-  const createImage = useApiMutation('imageCreate')
-  const deleteDisk = useApiMutation('diskDelete')
-  const deleteSnapshot = useApiMutation('snapshotDelete')
+  const stopImport = useApiMutation(api.diskBulkWriteImportStop)
+  const finalizeDisk = useApiMutation(api.diskFinalizeImport)
+  const createImage = useApiMutation(api.imageCreate)
+  const deleteDisk = useApiMutation(api.diskDelete)
+  const deleteSnapshot = useApiMutation(api.snapshotDelete)
 
   // TODO: Distinguish cleanup mutations being called after successful run vs.
   // due to error. In the former case, they have their own steps to highlight as
@@ -250,10 +246,21 @@ export function Component() {
   ]
 
   // separate so we can distinguish between cleanup due to error vs. cleanup after success
-  const stopImportCleanup = useApiMutation('diskBulkWriteImportStop')
-  const finalizeDiskCleanup = useApiMutation('diskFinalizeImport')
-  const deleteDiskCleanup = useApiMutation('diskDelete')
-  const deleteSnapshotCleanup = useApiMutation('snapshotDelete')
+  const stopImportCleanup = useApiMutation(api.diskBulkWriteImportStop)
+  const finalizeDiskCleanup = useApiMutation(api.diskFinalizeImport)
+  // in production these invalidations are unlikely to matter, but they help a
+  // lot in the tests when we check the disk list after canceling to make sure
+  // the temp resources got deleted
+  const deleteDiskCleanup = useApiMutation(api.diskDelete, {
+    onSuccess() {
+      queryClient.invalidateEndpoint('diskList')
+    },
+  })
+  const deleteSnapshotCleanup = useApiMutation(api.snapshotDelete, {
+    onSuccess() {
+      queryClient.invalidateEndpoint('snapshotList')
+    },
+  })
 
   const cleanupMutations = [
     stopImportCleanup,
@@ -272,31 +279,36 @@ export function Component() {
   const snapshot = useRef<Snapshot | null>(null)
   const disk = useRef<Disk | null>(null)
 
-  // if closeModal runs during bulk upload due to a cancel, cancelEverything
-  // causes an abort of the bulk upload, which throws an error to onSubmit's
-  // catch, which calls `cleanup`. so when we call cleanup here, it will be a
-  // double cleanup. we could get rid of this one, but for the rare cancel *not*
-  // during bulk upload we will still want to call cleanup. rather than
-  // coordinating when to cleanup, we make cleanup idempotent by having it check
-  // whether it has already been run, or more concretely before each action,
-  // check whether it needs to be done
   function closeModal() {
     if (allDone) {
       backToImages()
       return
     }
 
-    // if we're still going, need to confirm cancelation. if we have an error,
+    // if we're still going, need to confirm cancellation. if we have an error,
     // everything is already stopped
     if (modalError || confirm('Are you sure? Closing the modal will cancel the upload.')) {
+      // Note we don't run cleanup() here -- cancelEverything triggers an
+      // abort, which gets caught by the try/catch in the onSubmit on the upload
+      // form, which does the cleanup. We used to call cleanup here and used
+      // error-prone state logic to avoid it running twice.
+      //
+      // Because we are working with a closed-over copy of allDone, there is
+      // a possibility that the upload finishes while the user is looking at
+      // the confirm modal, in which case cancelEverything simply won't do
+      // anything. The finally{} in onSubmit clears out the abortController so
+      // cancelEverything() is a noop.
       cancelEverything()
-      // TODO: probably shouldn't await this, but we do need to catch errors
-      cleanup()
       resetMainFlow()
       setModalOpen(false)
     }
   }
 
+  // Aborting works for steps other than file upload despite the
+  // signal not being used directly in the former because we call
+  // `abortController.throwIfAborted()` after each step. We could technically
+  // plumb through the signal to the requests themselves, but they complete so
+  // quickly it's probably not necessary.
   function cancelEverything() {
     abortController.current?.abort(ABORT_ERROR)
   }
@@ -308,14 +320,8 @@ export function Component() {
     setSyntheticUploadState(initSyntheticState)
   }
 
-  const cleaningUp = useRef(false)
-
   /** If a snapshot or disk was created, clean it up*/
   async function cleanup() {
-    // don't run if already running
-    if (cleaningUp.current) return
-    cleaningUp.current = true
-
     if (snapshot.current) {
       await deleteSnapshotCleanup.mutateAsync({ path: { snapshot: snapshot.current.id } })
       snapshot.current = null
@@ -324,7 +330,7 @@ export function Component() {
     if (disk.current) {
       // we won't be able to delete the disk unless it's out of import mode
       const path = { disk: disk.current.id }
-      const freshDisk = await queryClient.fetchQuery('diskView', { path })
+      const freshDisk = await queryClient.fetchQuery(q(api.diskView, { path }))
       const diskState = freshDisk.state.state
       if (diskState === 'importing_from_bulk_writes') {
         await stopImportCleanup.mutateAsync({ path })
@@ -337,7 +343,6 @@ export function Component() {
       await deleteDiskCleanup.mutateAsync({ path: { disk: disk.current.id } })
       disk.current = null
     }
-    cleaningUp.current = false
   }
 
   async function onSubmit({
@@ -366,7 +371,10 @@ export function Component() {
       body: {
         name: diskName,
         description: `temporary disk for importing image ${imageName}`,
-        diskSource: { type: 'importing_blocks', blockSize },
+        diskBackend: {
+          type: 'distributed',
+          diskSource: { type: 'importing_blocks', blockSize },
+        },
         size: Math.ceil(imageFile.size / GiB) * GiB,
       },
     })
@@ -407,7 +415,7 @@ export function Component() {
             path,
             body: { offset, base64EncodedData },
             // use both the abort signal for the whole upload and a per-request timeout
-            signal: anySignal([
+            __signal: anySignal([
               AbortSignal.timeout(30000),
               abortController.current?.signal,
             ]),
@@ -452,10 +460,12 @@ export function Component() {
 
     // diskFinalizeImport does not return the snapshot, but create image
     // requires an ID
-    snapshot.current = await queryClient.fetchQuery('snapshotView', {
-      path: { snapshot: snapshotName },
-      query: { project },
-    })
+    snapshot.current = await queryClient.fetchQuery(
+      q(api.snapshotView, {
+        path: { snapshot: snapshotName },
+        query: { project },
+      })
+    )
     abortController.current?.signal.throwIfAborted()
 
     // TODO: we checked at the beginning that the image name was free, but it
@@ -475,7 +485,7 @@ export function Component() {
     })
     abortController.current?.signal.throwIfAborted()
 
-    queryClient.invalidateQueries('imageList')
+    queryClient.invalidateEndpoint('imageList')
 
     // now delete the snapshot and the disk. don't use cleanup() because that
     // uses different mutations
@@ -502,26 +512,25 @@ export function Component() {
       title="Upload image"
       onDismiss={backToImages}
       onSubmit={async (values) => {
-        // every submit needs its own AbortController because they can't be
-        // reset
-        abortController.current = new AbortController()
-
         setFormError(null)
 
         // check that image name isn't taken before starting the whole thing
         const image = await queryClient
-          .fetchQuery('imageView', {
-            path: { image: values.imageName },
-            query: { project },
-          })
+          .fetchQuery(
+            q(
+              api.imageView,
+              { path: { image: values.imageName }, query: { project } },
+              {
+                errorsExpected: {
+                  explanation: 'the image name may not exist yet.',
+                  statusCode: 404,
+                },
+              }
+            )
+          )
           .catch((e) => {
             // eat a 404 since that's what we want. anything else should still blow up
-            if (e.statusCode === 404) {
-              console.log(
-                '/v1/images 404 is expected. It means the image name is not taken.'
-              )
-              return null
-            }
+            if (e.statusCode === 404) return null
             throw e
           })
         if (image) {
@@ -534,34 +543,35 @@ export function Component() {
           return
         }
 
+        // every submit needs its own AbortController because they can't be
+        // reset
+        abortController.current = new AbortController()
+
         try {
           await onSubmit(values)
         } catch (e) {
           if (e !== ABORT_ERROR) {
+            console.error(e)
             setModalError('Something went wrong. Please try again.')
+            // abort anything in flight in case
+            cancelEverything()
           }
-          cancelEverything()
           // user canceled
           await cleanup()
           // TODO: if we get here, show failure state in the upload modal
+        } finally {
+          // Clear the abort controller. This is aimed at the case where the
+          // user clicks cancel and then stares at the confirm modal without
+          // clicking for so long that the upload manages to finish, which means
+          // there's no longer anything to cancel. If abortController is gone,
+          // cancelEverything is a noop.
+          abortController.current = null
         }
       }}
       loading={formLoading}
       submitError={formError}
       submitLabel={allDone ? 'Done' : 'Upload image'}
     >
-      <Message
-        variant="info"
-        content={
-          <>
-            Read the{' '}
-            <a target="_blank" rel="noreferrer" href={links.imagesDocs}>
-              Images
-            </a>{' '}
-            guide to learn more about image requirements.
-          </>
-        }
-      />
       <NameField name="imageName" label="Name" control={form.control} />
       <DescriptionField
         name="imageDescription"
@@ -600,30 +610,30 @@ export function Component() {
       </div>
       {file && modalOpen && (
         <Modal isOpen onDismiss={closeModal} title="Image upload progress">
-          <Modal.Body className="!p-0">
-            <Modal.Section className="!p-0">
-              <div className="children:border-b children:border-b-secondary last:children:border-b-0">
+          <Modal.Body className="p-0!">
+            <Modal.Section className="p-0!">
+              <div className="*:border-b-secondary *:border-b last:*:border-b-0">
                 {modalError && (
                   <Message
                     variant="error"
                     title="Error"
                     content={modalError}
-                    className="!rounded-none !shadow-none"
+                    className="rounded-none! shadow-none!"
                   />
                 )}
                 <Step state={createDisk} label="Create temporary disk" />
                 <Step state={startImport} label="Put disk in import mode" />
                 <Step state={syntheticUploadState} label="Upload image file">
-                  <div className="rounded-lg border bg-default border-default">
-                    <div className="flex justify-between border-b p-3 pb-2 border-b-secondary">
-                      <div className="text-sans-md text-default">{file.name}</div>
+                  <div className="bg-default border-default rounded-lg border">
+                    <div className="border-b-secondary flex justify-between border-b p-3 pb-2">
+                      <div className="text-sans-md text-raise">{file.name}</div>
                       {/* cancel and/or pause buttons could go here */}
                     </div>
                     <div className="p-3 pt-2">
-                      <div className="flex justify-between text-mono-sm">
-                        <div className="!normal-case text-secondary">
+                      <div className="text-mono-sm flex justify-between">
+                        <div className="text-default normal-case!">
                           {fsize((uploadProgress / 100) * file.size)}{' '}
-                          <span className="text-quinary">/</span> {fsize(file.size)}
+                          <span className="text-quaternary">/</span> {fsize(file.size)}
                         </div>
                         <div className="text-accent">{uploadProgress}%</div>
                       </div>
@@ -655,7 +665,7 @@ export function Component() {
                   label="Image uploaded successfully"
                   className={
                     allDone
-                      ? 'transition-colors bg-accent-secondary children:text-accent'
+                      ? 'bg-accent *:text-accent transition-colors'
                       : 'transition-colors'
                   }
                 />
@@ -671,6 +681,7 @@ export function Component() {
           />
         </Modal>
       )}
+      <SideModalFormDocs docs={[docLinks.images]} />
     </SideModalForm>
   )
 }
@@ -759,7 +770,7 @@ function BootableNotice({
     <Message
       variant="info"
       title="This image might not be bootable"
-      className="[&>*]:space-y-2"
+      className="*:space-y-2"
       content={content}
     />
   )

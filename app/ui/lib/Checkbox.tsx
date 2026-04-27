@@ -12,17 +12,17 @@ import { Checkmark12Icon } from '@oxide/design-system/icons/react'
 import { classed } from '~/util/classed'
 
 const Check = () => (
-  <Checkmark12Icon className="pointer-events-none absolute left-0.5 top-0.5 h-3 w-3 fill-current text-accent" />
+  <Checkmark12Icon className="text-accent light:text-(--theme-accent-600) pointer-events-none absolute top-0.5 left-0.5 h-3 w-3 fill-current" />
 )
 
-const Indeterminate = classed.div`absolute w-2 h-0.5 left-1 top-[7px] bg-accent pointer-events-none`
+const Indeterminate = classed.div`absolute w-2 h-0.5 left-1 top-[7px] bg-(--theme-accent-800) light:bg-(--theme-accent-600) pointer-events-none`
 
 const inputStyle = `
   appearance-none border border-default bg-default h-4 w-4 rounded-sm absolute left-0 outline-none
   disabled:cursor-not-allowed
-  hover:border-hover hover:cursor-pointer
-  checked:bg-accent-secondary checked:border-accent-secondary checked:hover:border-accent
-  indeterminate:bg-accent-secondary indeterminate:border-accent hover:indeterminate:bg-accent-secondary-hover
+  hover:border-raise hover:cursor-pointer
+  checked:bg-accent checked:border-accent-tertiary checked:hover:border-accent-secondary checked:hover:light:border-accent
+  indeterminate:bg-accent indeterminate:border-accent-tertiary indeterminate:hover:light:border-accent indeterminate:hover:border-accent-secondary
 `
 
 export type CheckboxProps = {
@@ -44,18 +44,25 @@ export const Checkbox = ({
   className,
   ...inputProps
 }: CheckboxProps) => (
-  <label className="items-top inline-flex">
-    <span className="relative h-4 w-4">
+  <label className="text-sans-md inline-flex items-start">
+    {/* Center the 1rem (h-4) checkbox with the first line of text.
+        1lh is the line height, so (1lh - 1rem) / 2 is the top offset
+        that vertically centers the indicator within that line. */}
+    <span className="relative mt-[calc((1lh-1rem)/2)] h-4 w-4">
       <input
         className={cn(inputStyle, className)}
         type="checkbox"
-        ref={(el) => el && (el.indeterminate = !!indeterminate)}
+        ref={(el) => {
+          if (el) {
+            el.indeterminate = !!indeterminate
+          }
+        }}
         {...inputProps}
       />
       {inputProps.checked && !indeterminate && <Check />}
       {indeterminate && <Indeterminate />}
     </span>
 
-    {children && <span className="ml-2.5 text-sans-md text-secondary">{children}</span>}
+    {children && <span className="text-sans-md text-default ml-2.5">{children}</span>}
   </label>
 )

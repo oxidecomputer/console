@@ -6,14 +6,13 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
-import { Refresh16Icon, Time16Icon } from '@oxide/design-system/icons/react'
+import { Refresh16Icon } from '@oxide/design-system/icons/react'
 
 import { Listbox, type ListboxItem } from '~/ui/lib/Listbox'
 import { SpinnerLoader } from '~/ui/lib/Spinner'
 import { useInterval } from '~/ui/lib/use-interval'
-import { toLocaleTimeString } from '~/util/date'
 
 const intervalPresets = {
   Off: undefined,
@@ -37,15 +36,11 @@ type Props = {
   enabled: boolean
   isLoading: boolean
   fn: () => void
+  className?: string
 }
 
-export function useIntervalPicker({ enabled, isLoading, fn }: Props) {
+export function useIntervalPicker({ enabled, isLoading, fn, className }: Props) {
   const [intervalPreset, setIntervalPreset] = useState<IntervalPreset>('10s')
-
-  const [lastFetched, setLastFetched] = useState(new Date())
-  useEffect(() => {
-    if (isLoading) setLastFetched(new Date())
-  }, [isLoading])
 
   const delay = enabled ? intervalPresets[intervalPreset] : null
   useInterval({ fn, delay })
@@ -53,34 +48,33 @@ export function useIntervalPicker({ enabled, isLoading, fn }: Props) {
   return {
     intervalMs: (enabled && intervalPresets[intervalPreset]) || undefined,
     intervalPicker: (
-      <div className="mb-12 flex items-center justify-between">
-        <div className="hidden items-center gap-2 text-right text-mono-sm text-quaternary lg+:flex">
-          <Time16Icon className="text-quinary" /> Refreshed{' '}
-          {toLocaleTimeString(lastFetched)}
-        </div>
-        <div className="flex">
-          <button
-            type="button"
-            className={cn(
-              'flex w-10 items-center justify-center rounded-l border-b border-l border-t border-default disabled:cursor-default',
-              isLoading && 'hover:bg-hover',
-              !enabled && 'cursor-not-allowed bg-disabled'
-            )}
-            onClick={fn}
-            disabled={isLoading || !enabled}
-          >
-            <SpinnerLoader isLoading={isLoading}>
-              <Refresh16Icon className="text-tertiary" />
-            </SpinnerLoader>
-          </button>
-          <Listbox
-            selected={enabled ? intervalPreset : 'Off'}
-            className="w-24 [&>button]:!rounded-l-none"
-            items={intervalItems}
-            onChange={setIntervalPreset}
-            disabled={!enabled}
-          />
-        </div>
+      <div className={cn('flex', className)}>
+        <button
+          type="button"
+          aria-label="Refresh data"
+          data-testid="refetch-interval-refresh"
+          className={cn(
+            'border-default bg-default flex w-10 items-center justify-center rounded-l-md border-t border-b border-l disabled:cursor-default',
+            isLoading && 'hover:bg-hover',
+            !enabled && 'bg-disabled cursor-not-allowed'
+          )}
+          onClick={fn}
+          disabled={isLoading || !enabled}
+        >
+          <SpinnerLoader isLoading={isLoading}>
+            <Refresh16Icon className="text-secondary" />
+          </SpinnerLoader>
+        </button>
+        <Listbox
+          selected={enabled ? intervalPreset : 'Off'}
+          className="[&_button]:rounded-l-none!"
+          items={intervalItems}
+          onChange={setIntervalPreset}
+          disabled={!enabled}
+          label="Refresh interval"
+          hideLabel
+          hideSelected
+        />
       </div>
     ),
   }

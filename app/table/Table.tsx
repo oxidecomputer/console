@@ -7,6 +7,7 @@
  */
 import { flexRender, type Table as TableInstance } from '@tanstack/react-table'
 import cn from 'classnames'
+import type { JSX } from 'react'
 
 import { Table as UITable } from '~/ui/lib/Table'
 
@@ -35,8 +36,17 @@ export const Table = <TData,>({
             <UITable.HeadCell
               key={header.id}
               className={header.column.columnDef.meta?.thClassName}
+              colSpan={header.colSpan}
             >
-              {flexRender(header.column.columnDef.header, header.getContext())}
+              {
+                // Placeholder concept is for when grouped columns are
+                // combined with regular columns. The regular column only
+                // needs one entry in the stack of header cells, so the others
+                // have isPlacholder=true. See sleds table for an example.
+                header.isPlaceholder
+                  ? null
+                  : flexRender(header.column.columnDef.header, header.getContext())
+              }
             </UITable.HeadCell>
           ))}
         </UITable.HeaderRow>

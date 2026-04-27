@@ -6,44 +6,45 @@
  * Copyright Oxide Computer Company
  */
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
-import {
-  apiQueryClient,
-  useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
-} from '@oxide/api'
+import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
-EditVpcSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
+export const handle = titleCrumb('Edit VPC')
+
+const vpcView = ({ project, vpc }: PP.Vpc) =>
+  q(api.vpcView, { path: { vpc }, query: { project } })
+
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcSelector(params)
-  await apiQueryClient.prefetchQuery('vpcView', { path: { vpc }, query: { project } })
+  await queryClient.prefetchQuery(vpcView({ project, vpc }))
   return null
 }
 
-export function EditVpcSideModalForm() {
+export default function EditVpcSideModalForm() {
   const { vpc: vpcName, project } = useVpcSelector()
-  const queryClient = useApiQueryClient()
   const navigate = useNavigate()
 
-  const { data: vpc } = usePrefetchedApiQuery('vpcView', {
-    path: { vpc: vpcName },
-    query: { project },
-  })
+  const { data: vpc } = usePrefetchedQuery(vpcView({ project, vpc: vpcName }))
 
-  const editVpc = useApiMutation('vpcUpdate', {
+  const editVpc = useApiMutation(api.vpcUpdate, {
     onSuccess(updatedVpc) {
-      queryClient.invalidateQueries('vpcList')
+      queryClient.invalidateEndpoint('vpcList')
       navigate(pb.vpc({ project, vpc: updatedVpc.name }))
-      addToast(<>VPC <HL>{updatedVpc.name}</HL> updated</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>VPC <HL>{updatedVpc.name}</HL> updated</>)
 
       // Only invalidate if we're staying on the same page. If the name
       // _has_ changed, invalidating vpcView causes an error page to flash
@@ -51,7 +52,7 @@ export function EditVpcSideModalForm() {
       // page's VPC gets cleared out while we're still on the page. If we're
       // navigating to a different page, its query will fetch anew regardless.
       if (vpc.name === updatedVpc.name) {
-        queryClient.invalidateQueries('vpcView')
+        queryClient.invalidateEndpoint('vpcView')
       }
     },
   })
@@ -77,6 +78,7 @@ export function EditVpcSideModalForm() {
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <NameField name="dnsName" label="DNS name" required={false} control={form.control} />
+      <SideModalFormDocs docs={[docLinks.vpcs]} />
     </SideModalForm>
   )
 }

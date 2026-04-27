@@ -7,13 +7,14 @@
  */
 import { filesize } from 'filesize'
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
-  apiQueryClient,
+  api,
+  q,
+  queryClient,
   useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
   type ImageCreate,
 } from '@oxide/api'
 
@@ -22,10 +23,14 @@ import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { getProjectSnapshotSelector, useProjectSnapshotSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
 const defaultValues: Omit<ImageCreate, 'source'> = {
   name: '',
@@ -34,30 +39,29 @@ const defaultValues: Omit<ImageCreate, 'source'> = {
   version: '',
 }
 
-CreateImageFromSnapshotSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
+const snapshotView = ({ project, snapshot }: PP.Snapshot) =>
+  q(api.snapshotView, { path: { snapshot }, query: { project } })
+
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, snapshot } = getProjectSnapshotSelector(params)
-  await apiQueryClient.prefetchQuery('snapshotView', {
-    path: { snapshot },
-    query: { project },
-  })
+  await queryClient.prefetchQuery(snapshotView({ project, snapshot }))
   return null
 }
 
-export function CreateImageFromSnapshotSideModalForm() {
+export const handle = titleCrumb('Create image from snapshot')
+
+export default function CreateImageFromSnapshotSideModalForm() {
   const { snapshot, project } = useProjectSnapshotSelector()
-  const { data } = usePrefetchedApiQuery('snapshotView', {
-    path: { snapshot },
-    query: { project },
-  })
+  const { data } = usePrefetchedQuery(snapshotView({ project, snapshot }))
   const navigate = useNavigate()
-  const queryClient = useApiQueryClient()
 
   const onDismiss = () => navigate(pb.snapshots({ project }))
 
-  const createImage = useApiMutation('imageCreate', {
+  const createImage = useApiMutation(api.imageCreate, {
     onSuccess(image) {
-      queryClient.invalidateQueries('imageList')
-      addToast(<>Image <HL>{image.name}</HL> created</>) // prettier-ignore
+      queryClient.invalidateEndpoint('imageList')
+      // prettier-ignore
+      addToast(<>Image <HL>{image.name}</HL> created</>)
       onDismiss()
     },
   })
@@ -98,6 +102,7 @@ export function CreateImageFromSnapshotSideModalForm() {
       <DescriptionField name="description" control={form.control} required />
       <TextField name="os" label="OS" control={form.control} required />
       <TextField name="version" control={form.control} required />
+      <SideModalFormDocs docs={[docLinks.images]} />
     </SideModalForm>
   )
 }

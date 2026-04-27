@@ -6,8 +6,9 @@
  * Copyright Oxide Computer Company
  */
 
+import { type BadgeColor } from '@oxide/design-system/ui'
+
 import type { IdentityType, RoleKey } from '~/api'
-import type { BadgeColor } from '~/ui/lib/Badge'
 
 export const identityTypeLabel: Record<IdentityType, string> = {
   silo_group: 'Group',
@@ -17,5 +18,6 @@ export const identityTypeLabel: Record<IdentityType, string> = {
 export const roleColor: Record<RoleKey, BadgeColor> = {
   admin: 'default',
   collaborator: 'purple',
+  limited_collaborator: 'purple',
   viewer: 'blue',
 }

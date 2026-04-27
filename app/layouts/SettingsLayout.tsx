@@ -5,12 +5,17 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMemo } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router'
 
-import { Folder16Icon, Key16Icon, Profile16Icon } from '@oxide/design-system/icons/react'
+import {
+  AccessToken16Icon,
+  Folder16Icon,
+  Key16Icon,
+  Profile16Icon,
+} from '@oxide/design-system/icons/react'
 
 import { TopBar } from '~/components/TopBar'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
@@ -18,26 +23,26 @@ import { pb } from '~/util/path-builder'
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { ContentPane, PageContainer } from './helpers'
 
-export function SettingsLayout() {
-  const navigate = useNavigate()
+export const handle = makeCrumb('Settings', pb.profile())
+
+export default function SettingsLayout() {
   const { pathname } = useLocation()
 
   useQuickActions(
-    useMemo(
-      () =>
-        [
-          { value: 'Profile', path: pb.profile() },
-          { value: 'SSH Keys', path: pb.sshKeys() },
-        ]
-          // filter out the entry for the path we're currently on
-          .filter((i) => i.path !== pathname)
-          .map((i) => ({
-            navGroup: `Settings`,
-            value: i.value,
-            onSelect: () => navigate(i.path),
-          })),
-      [pathname, navigate]
-    )
+    () =>
+      [
+        { value: 'Profile', path: pb.profile() },
+        { value: 'SSH Keys', path: pb.sshKeys() },
+        { value: 'Access Tokens', path: pb.accessTokens() },
+      ]
+        // filter out the entry for the path we're currently on
+        .filter((i) => i.path !== pathname)
+        .map((i) => ({
+          navGroup: `Settings`,
+          value: i.value,
+          action: i.path,
+        })),
+    [pathname]
   )
 
   return (
@@ -57,6 +62,9 @@ export function SettingsLayout() {
           </NavLinkItem>
           <NavLinkItem to={pb.sshKeys()}>
             <Key16Icon /> SSH Keys
+          </NavLinkItem>
+          <NavLinkItem to={pb.accessTokens()}>
+            <AccessToken16Icon /> Access Tokens
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>

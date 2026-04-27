@@ -1,4 +1,4 @@
-#! /usr/bin/env -S deno run --allow-run=gh,git --allow-net --allow-read --allow-write --allow-env
+#! /usr/bin/env -S deno run --allow-run=gh,git,mktemp --allow-net --allow-read --allow-write --allow-env
 
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -7,32 +7,14 @@
  *
  * Copyright Oxide Computer Company
  */
-import * as flags from 'https://deno.land/std@0.159.0/flags/mod.ts'
 import * as path from 'https://deno.land/std@0.159.0/path/mod.ts'
 import $ from 'https://deno.land/x/dax@0.39.2/mod.ts'
+import { Command } from 'jsr:@cliffy/command@1.0.0'
+import { Confirm, Input } from 'jsr:@cliffy/prompt@1.0.0'
+import { existsSync } from 'jsr:@std/fs@1.0'
 
-const HELP = `
-Update tools/console_version in ../omicron with current console commit
-hash and tarball hash and create PR in Omicron with that change.
-
-Requirements:
-  - GitHub CLI installed
-  - Omicron is a sibling dir to console
-
-Usage:
-  ./tools/deno/bump-omicron.ts [options]
-
-Options:
-  -d, --dry-run        Dry run, showing changes without creating PR
-  -h, --help           Show this help message
-  -m, --message <msg>  Add message to PR title: 'Bump web console (<msg>)'
-`
-
-const OMICRON_DIR = '../omicron'
-const VERSION_FILE = path.join(OMICRON_DIR, 'tools/console_version')
-
+const OMICRON_DIR = path.resolve('../omicron')
 const GH_MISSING = 'GitHub CLI not found. Please install it and try again.'
-const VERSION_FILE_MISSING = `Omicron console version file at '${VERSION_FILE}' not found. This script assumes Omicron is cloned in a sibling directory next to Console.`
 
 /**
  * These lines get printed in an Omicron PR, so any references to commits or
@@ -56,29 +38,28 @@ function linkifyGitLog(line: string): string {
   return `* ${shaLink} ${rest}`
 }
 
-// script starts here
+async function makeOmicronWorktree() {
+  const tmpDir = await $`mktemp -d`.text()
+  await $`git worktree add ${tmpDir} origin/main`.cwd(OMICRON_DIR).quiet('stdout')
 
-const args = flags.parse(Deno.args, {
-  alias: { dryRun: ['d', 'dry-run'], h: 'help', m: 'message' },
-  boolean: ['dryRun', 'help'],
-  string: ['message'],
-})
-
-if (args.help) {
-  console.log(HELP)
-  Deno.exit()
+  return {
+    dir: tmpDir,
+    [Symbol.asyncDispose]: async function () {
+      console.info('Cleaning up worktree')
+      await $`git worktree remove ${tmpDir}`.cwd(OMICRON_DIR).quiet('stdout')
+    },
+  }
 }
 
-const newCommit = await $`git rev-parse HEAD`.text()
+async function fetchTarballSha(commit: string) {
+  const shaUrl = `https://dl.oxide.computer/releases/console/${commit}.sha256.txt`
+  const shaResp = await fetch(shaUrl)
 
-const shaUrl = `https://dl.oxide.computer/releases/console/${newCommit}.sha256.txt`
-const shaResp = await fetch(shaUrl)
-
-if (!shaResp.ok) {
-  const workflowId =
-    await $`gh run list -L 1 -w 'Upload assets to dl.oxide.computer' --json databaseId --jq '.[0].databaseId'`.text()
-  console.error(
-    `
+  if (!shaResp.ok) {
+    const workflowId =
+      await $`gh run list -L 1 -w 'Upload assets to dl.oxide.computer' --json databaseId --jq '.[0].databaseId'`.text()
+    console.error(
+      `
 Failed to fetch console tarball SHA. Either the current commit is not on origin/main or the asset upload job is still running.
 
 Status: ${shaResp.status}
@@ -87,94 +68,139 @@ Body: ${await shaResp.text()}
 
 Running 'gh run watch ${workflowId}' to watch the current upload action.
 `
+    )
+    await $`gh run watch ${workflowId}`
+    return Deno.exit(1)
+  }
+
+  return (await shaResp.text()).trim()
+}
+
+async function getOldCommit() {
+  const oldVersionFile = await $`git show origin/main:tools/console_version`
+    .cwd(OMICRON_DIR)
+    .text()
+
+  const oldCommit = /COMMIT="?([a-f0-9]+)"?/.exec(oldVersionFile)?.[1]
+  if (!oldCommit) throw new Error('Could not parse existing version file')
+  return oldCommit
+}
+
+async function makeOmicronPR(
+  consoleCommit: string,
+  prTitle: string,
+  changesLink: string,
+  commits: string
+) {
+  const branchName = 'bump-console-' + consoleCommit.slice(0, 8)
+
+  {
+    // create git worktree for latest main in temp dir. `using` ensures this gets
+    // cleaned up at the end of the block
+    // tools/deno is excluded from tsconfig so oxlint lacks types and wrongly
+    // flags `await makeOmicronWorktree()` as not async-disposable
+    // eslint-disable-next-line @typescript-eslint/await-thenable
+    await using worktree = await makeOmicronWorktree()
+
+    const newSha2 = await fetchTarballSha(consoleCommit)
+    const newVersionFile = `COMMIT="${consoleCommit}"\nSHA2="${newSha2}"\n`
+
+    const versionFileAbsPath = path.resolve(worktree.dir, 'tools/console_version')
+    await Deno.writeTextFile(versionFileAbsPath, newVersionFile)
+    console.info('Updated ', versionFileAbsPath)
+
+    // cd to omicron, pull main, create new branch, commit changes, push, PR it, go back to
+    // main, delete branch
+    Deno.chdir(worktree.dir)
+    await $`git checkout -b ${branchName}`
+    console.info('Created branch', branchName)
+
+    await $`git add tools/console_version`
+
+    // commits are console commits, so they won't auto-link in omicron
+    const commitsMarkdown = commits.split('\n').map(linkifyGitLog).join('\n')
+    const prBody = `${changesLink}\n\n${commitsMarkdown}`
+    await $`git commit -m ${prTitle} -m ${prBody}`
+
+    await $`git push --set-upstream origin ${branchName}`
+    console.info('Committed changes and pushed')
+
+    // create PR
+    const prUrl = await $`gh pr create --title ${prTitle} --body ${prBody}`.text()
+    console.info('PR created:', prUrl)
+
+    // set it to auto merge
+    const prNum = prUrl.match(/\d+$/)![0]
+    await $`gh pr merge ${prNum} --auto --squash`
+    console.info('PR set to auto-merge when CI passes')
+
+    // change dir back to omicron before worktree cleanup because Deno gets
+    // confused later when it tries to do anything while still in the deleted dir
+    Deno.chdir(OMICRON_DIR)
+  }
+
+  // worktree has been cleaned up, so branch delete is allowed
+  await $`git branch -D ${branchName}`.cwd(OMICRON_DIR)
+}
+
+if (!existsSync(OMICRON_DIR)) {
+  throw new Error(`Omicron repo not found at ${OMICRON_DIR}`)
+}
+
+await new Command()
+  .name('bump-omicron')
+  .description(
+    `Update tools/console_version in ../omicron to the specified console
+commit and create PR in Omicron with that change. We use a git worktree
+to avoid touching your Omicron clone.
+
+Requirements:
+  - GitHub CLI installed
+  - Omicron is a sibling dir to console`
   )
-  await $`gh run watch ${workflowId}`
-  Deno.exit(1)
-}
+  .argument('[commit:string]', 'Console commit (default: main)', { default: 'main' })
+  .action(async (_options, commitIsh) => {
+    // Ensure local main matches the remote so we don't bump to a stale commit
+    if (commitIsh === 'main') {
+      const localMain = await $`git rev-parse main`.text()
+      const remoteMain = await $`git ls-remote origin main`.text()
+      const remoteMainSha = remoteMain.split('\t')[0]
+      if (localMain !== remoteMainSha) {
+        throw new Error('Local main does not match remote. Fetch main and try again.')
+      }
+    }
 
-const newSha2 = (await shaResp.text()).trim()
-const newVersionFile = `COMMIT="${newCommit}"\nSHA2="${newSha2}"\n`
+    const oldConsoleCommit = await getOldCommit()
+    const newConsoleCommit = await $`git rev-parse ${commitIsh}`.text()
 
-const oldVersionFile = await Deno.readTextFile(VERSION_FILE).catch(() => {
-  throw Error(VERSION_FILE_MISSING)
-})
+    if (oldConsoleCommit === newConsoleCommit) {
+      console.info(`Nothing to update: Omicron already has ${newConsoleCommit} pinned`)
+      return
+    }
 
-const oldCommit = /COMMIT="?([a-f0-9]+)"?/.exec(oldVersionFile)?.[1]
-if (!oldCommit) throw Error('Could not parse existing version file')
+    const commitRange = `${oldConsoleCommit.slice(0, 8)}...${newConsoleCommit.slice(0, 8)}`
+    const commits = await $`git log --graph --oneline ${commitRange}`.text()
+    const changesLink = `https://github.com/oxidecomputer/console/compare/${commitRange}`
 
-if (oldCommit === newCommit) {
-  console.log('Nothing to update: Omicron already has the current commit pinned')
-  Deno.exit()
-}
+    console.info(`\n${changesLink}\n\n${commits}\n`)
 
-const commitRange = `${oldCommit.slice(0, 8)}...${newCommit.slice(0, 8)}`
+    const message = (await Input.prompt({ message: 'Description? (enter to skip)' })).trim()
+    const prTitle = 'Bump web console' + (message ? ` (${message})` : '')
+    console.info(`\nPR title: ${prTitle}\n`)
 
-const commits = await $`git log --graph --oneline ${commitRange}`.text()
-// commits are console commits, so they won't auto-link in omicron
-const commitsMarkdown = commits.split('\n').map(linkifyGitLog).join('\n')
+    const go = await Confirm.prompt({ message: 'Make Omicron PR?' })
+    if (!go) return
 
-const changesLine = `https://github.com/oxidecomputer/console/compare/${commitRange}`
+    if (!$.commandExistsSync('gh')) throw new Error(GH_MISSING)
 
-const branchName = 'bump-console-' + newCommit.slice(0, 8)
-const prTitle = 'Bump web console' + (args.message ? ` (${args.message})` : '')
-const prBody = `${changesLine}\n\n${commitsMarkdown}`
+    const consoleDir = Deno.cwd() // save it so we can change back
 
-// markdown links make the inline preview unreadable, so leave them out
-const prBodyPreview = `${changesLine}\n\n${commits}`
+    await makeOmicronPR(newConsoleCommit, prTitle, changesLink, commits)
 
-console.log(`
-New contents of <omicron>/tools/console_version:
-
-${newVersionFile}
-
-Branch:    ${branchName}
-PR title:  ${prTitle}
-
---------
-PR body
---------
-  
-${prBodyPreview}`)
-
-if (args.dryRun || !confirm('\nMake Omicron PR with these changes?')) {
-  Deno.exit()
-}
-
-if (!$.commandExistsSync('gh')) throw Error(GH_MISSING)
-
-await Deno.writeTextFile(VERSION_FILE, newVersionFile)
-console.log('Updated ', VERSION_FILE)
-
-const consoleDir = Deno.cwd()
-
-// cd to omicron, pull main, create new branch, commit changes, push, PR it, go back to
-// main, delete branch
-Deno.chdir(OMICRON_DIR)
-await $`git checkout main`
-await $`git pull`
-await $`git checkout -b ${branchName}`
-console.log('Created branch', branchName)
-
-await $`git add tools/console_version`
-await $`git commit -m ${prTitle} -m ${prBody}`
-await $`git push --set-upstream origin ${branchName}`
-console.log('Committed changes and pushed')
-
-// create PR
-const prUrl = await $`gh pr create --title ${prTitle} --body ${prBody}`.text()
-console.log('PR created:', prUrl)
-
-// set it to auto merge
-const prNum = prUrl.match(/\d+$/)![0]
-await $`gh pr merge ${prNum} --auto --squash`
-console.log('PR set to auto-merge when CI passes')
-
-await $`git checkout main`
-await $`git branch -D ${branchName}`
-console.log('Checked out omicron main, deleted branch', branchName)
-
-// bump omicron tag in console to current commit
-Deno.chdir(consoleDir)
-console.log('Bumping omicron tag in console')
-await $`git tag -f -a omicron -m 'pinned commit on omicron main'`
-await $`git push -f origin tag omicron`
+    // bump omicron tag in console to current commit
+    Deno.chdir(consoleDir)
+    console.info('Bumping omicron tag in console')
+    await $`git tag -f -a omicron -m 'pinned commit on omicron main' ${commitIsh}`
+    await $`git push -f origin tag omicron`
+  })
+  .parse(Deno.args)

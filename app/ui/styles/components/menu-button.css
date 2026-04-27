@@ -2,30 +2,30 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at https://mozilla.org/MPL/2.0/.
- *  
+ *
  * Copyright Oxide Computer Company
  */
 
-.DropdownMenuContent {
+.dropdown-menu-content {
   /* we want menu popover to be on top of top bar and pagination bar too */
-  @apply z-topBarDropdown min-w-36 rounded border p-0 bg-raise border-secondary;
+  @apply bg-raise light:bg-default z-(--z-top-bar-dropdown) min-w-36 rounded-md p-0;
 
   & .DropdownMenuItem {
-    @apply block w-full cursor-pointer select-none border-b py-2 pl-3 pr-6 text-left text-sans-md text-secondary border-secondary last:border-b-0;
+    @apply text-sans-md text-default border-secondary flex w-full cursor-pointer items-center border-b py-2 pr-6 pl-3 text-left select-none last:border-b-0;
 
     &.destructive {
       @apply text-destructive;
     }
 
     &[data-disabled] {
-      @apply cursor-not-allowed text-disabled;
+      @apply text-disabled cursor-not-allowed;
     }
 
     &.destructive[data-disabled] {
       @apply text-destructive-disabled;
     }
 
-    &[data-focus] {
+    &[data-highlighted] {
       outline: none;
       @apply bg-tertiary;
     }
@@ -35,7 +35,7 @@
 @keyframes slide-down {
   0% {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(5px);
   }
   100% {
     opacity: 1;
@@ -43,14 +43,14 @@
   }
 }
 
-.DropdownMenuContent,
-.DocsPopoverPanel {
-  animation: slide-down 0.2s ease;
+.dropdown-menu-content,
+.popover-panel {
+  animation: slide-down 0.1s var(--ease-out-quad);
 }
 
 @media (prefers-reduced-motion) {
-  .DropdownMenuContent,
-  .DocsPopoverPanel {
+  .dropdown-menu-content,
+  .popover-panel {
     animation-name: none;
   }
 }

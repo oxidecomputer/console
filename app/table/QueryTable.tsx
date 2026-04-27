@@ -7,7 +7,7 @@
  */
 import { useQuery } from '@tanstack/react-query'
 import { getCoreRowModel, useReactTable, type ColumnDef } from '@tanstack/react-table'
-import React, { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 
 import { ensurePrefetched, type PaginatedQuery, type ResultsPage } from '@oxide/api'
 
@@ -46,7 +46,7 @@ function useScrollReset(triggerDep: string | undefined) {
   const resetRequested = useRef(false)
   useEffect(() => {
     if (resetRequested.current) {
-      document.querySelector('#scroll-container')?.scrollTo(0, 0)
+      window.scrollTo(0, 0)
       resetRequested.current = false
     }
   }, [triggerDep])

@@ -5,12 +5,13 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { useEffect, useId, useState, type ReactNode } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
-import { NavigationType, useNavigationType } from 'react-router-dom'
 
 import type { ApiError } from '@oxide/api'
 
+import { useShouldAnimateModal } from '~/hooks/use-should-animate-modal'
 import { Button } from '~/ui/lib/Button'
 import { Modal } from '~/ui/lib/Modal'
 import { SideModal } from '~/ui/lib/SideModal'
@@ -29,14 +30,6 @@ type EditFormProps = {
 
 type SideModalFormProps<TFieldValues extends FieldValues> = {
   form: UseFormReturn<TFieldValues>
-  /**
-   * A function that returns the fields.
-   *
-   * Implemented as a function so we can pass `control` to the fields in the
-   * calling code. We could do that internally with `cloneElement` instead, but
-   * then in the calling code, the field would not infer `TFieldValues` and
-   * constrain the `name` prop to paths in the values object.
-   */
   children: ReactNode
   onDismiss: () => void
   resourceName: string
@@ -55,16 +48,6 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
   subtitle?: ReactNode
   onSubmit?: (values: TFieldValues) => void
 } & (CreateFormProps | EditFormProps)
-
-/**
- * Only animate the modal in when we're navigating by a client-side click.
- * Don't animate on a fresh pageload or on back/forward. The latter may be
- * slightly awkward but it also makes some sense. I do not believe there is
- * any way to distinguish between fresh pageload and back/forward.
- */
-function useShouldAnimateModal() {
-  return useNavigationType() === NavigationType.Push
-}
 
 export function SideModalForm<TFieldValues extends FieldValues>({
   form,
@@ -111,7 +94,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
       <SideModal.Body>
         <form
           id={id}
-          className="ox-form is-side-modal"
+          className="ox-form"
           autoComplete="off"
           onSubmit={(e) => {
             if (!onSubmit) return
@@ -127,11 +110,11 @@ export function SideModalForm<TFieldValues extends FieldValues>({
           {children}
         </form>
       </SideModal.Body>
-      <SideModal.Footer error={!!submitError}>
-        <Button variant="ghost" size="sm" onClick={onDismiss}>
-          Cancel
-        </Button>
-        {onSubmit && (
+      {onSubmit && (
+        <SideModal.Footer error={!!submitError}>
+          <Button variant="ghost" size="sm" onClick={onDismiss}>
+            Cancel
+          </Button>
           <Button
             type="submit"
             size="sm"
@@ -142,15 +125,15 @@ export function SideModalForm<TFieldValues extends FieldValues>({
           >
             {label}
           </Button>
-        )}
-      </SideModal.Footer>
+        </SideModal.Footer>
+      )}
 
       {showNavGuard && (
         <Modal
           isOpen
           onDismiss={() => setShowNavGuard(false)}
           title="Confirm navigation"
-          narrow
+          width="narrow"
           overlay={false}
         >
           <Modal.Section>

@@ -19,7 +19,7 @@ const PageInput = ({ number, className }: PageInputProps) => {
   return (
     <span
       className={cn(
-        'h-4 whitespace-nowrap rounded px-[3px] pb-[3px] pt-[1px] ring-1 ring-inset text-mono-sm text-secondary bg-tertiary ring-secondary',
+        'text-mono-sm text-default bg-tertiary ring-secondary h-4 rounded-md px-[3px] pt-px pb-[3px] whitespace-nowrap ring ring-inset',
         className
       )}
     >
@@ -32,7 +32,7 @@ export interface PaginationProps {
   pageSize: number
   hasNext: boolean
   hasPrev: boolean
-  nextPage: string | undefined
+  nextPage: string | undefined | null
   onNext: (nextPage: string) => void
   onPrev: () => void
   className?: string
@@ -53,11 +53,11 @@ export const Pagination = ({
       <nav
         aria-label="Pagination"
         className={cn(
-          'flex items-center justify-between text-mono-sm text-default bg-default',
+          'text-mono-sm text-raise bg-default flex items-center justify-between',
           className
         )}
       >
-        <span className="flex-inline grow text-tertiary">
+        <span className="flex-inline text-secondary grow">
           rows per page <PageInput number={pageSize} />
         </span>
         <span className="flex items-center space-x-3">
@@ -65,22 +65,22 @@ export const Pagination = ({
           <button
             type="button"
             className={cn(
-              hasPrev ? 'text-secondary hover:text-default' : 'text-disabled',
-              'flex items-center text-mono-sm'
+              hasPrev ? 'text-default hover:text-raise' : 'text-disabled',
+              'text-mono-sm flex items-center'
             )}
             disabled={!hasPrev}
             onClick={onPrev}
           >
             <DirectionLeftIcon
-              className={cn('mr-1', hasPrev ? 'text-secondary' : 'text-disabled')}
+              className={cn('mr-1', hasPrev ? 'text-default' : 'text-disabled')}
             />
             prev
           </button>
           <button
             type="button"
             className={cn(
-              hasNext ? 'text-secondary hover:text-default' : 'text-disabled',
-              'flex items-center text-mono-sm'
+              hasNext ? 'text-default hover:text-raise' : 'text-disabled',
+              'text-mono-sm flex items-center'
             )}
             disabled={!hasNext}
             // nextPage will be defined if hasNext is true
@@ -88,7 +88,7 @@ export const Pagination = ({
           >
             next
             <DirectionRightIcon
-              className={cn('ml-1', hasNext ? 'text-secondary' : 'text-disabled')}
+              className={cn('ml-1', hasNext ? 'text-default' : 'text-disabled')}
             />
           </button>
         </span>

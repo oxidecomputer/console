@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, test } from '@playwright/test'
+import { expect, expectConsoleMessage, getPageAsUser, test } from './utils'
 
 test('Shows 404 page when a resource is not found', async ({ page }) => {
   await page.goto('/nonexistent')
@@ -18,21 +18,16 @@ test('Shows 404 page when a resource is not found', async ({ page }) => {
 })
 
 test('Shows something went wrong page on other errors', async ({ page }) => {
-  const errors: Error[] = []
-  // listen for 'pageerror' instead of 'console' because firefox wasn't including
-  // the desired event in 'console'
-  page.on('pageerror', (e) => errors.push(e))
-
   await page.goto('/projects/error-503') // specially handled in mock server
   await expect(page.getByText('Something went wrong')).toBeVisible()
 
   // Invariant failed doesn't show up in the page...
   await expect(page.getByText('Invariant failed')).toBeHidden()
 
-  // but we do see it in the browser console
+  // But we do see it in the browser console
   const error =
     'Expected query to be prefetched.\nKey: ["projectView",{"path":{"project":"error-503"}}]'
-  expect(errors.some((e) => e.message.includes(error))).toBeTruthy()
+  await expectConsoleMessage(page, error)
 
   // test clicking sign out
   await page.getByRole('button', { name: 'Sign out' }).click()
@@ -41,4 +36,11 @@ test('Shows something went wrong page on other errors', async ({ page }) => {
   // without getting elaborate with middleware), so this is a 404, but we do end
   // up at the right URL
   await expect(page).toHaveURL('/login')
+})
+
+test('error page for user with no groups or silo role', async ({ browser }) => {
+  const page = await getPageAsUser(browser, 'Jacob Klein')
+  await page.goto('/projects')
+  await expect(page.getByText('Something went wrong')).toBeVisible()
+  await expect(page.getByText('identity provider is not set up correctly')).toBeVisible()
 })

@@ -33,16 +33,16 @@ export const ResourceMeter = ({
   const label = `${usagePercent} used`
   // prettier-ignore
   const fg =
-    value > errorThreshold ? 'bg-destructive'
-    : value > warningThreshold ? 'bg-notice'
-    : 'bg-accent'
+    value > errorThreshold ? 'bg-destructive-inverse'
+    : value > warningThreshold ? 'bg-notice-inverse'
+    : 'bg-accent-inverse'
 
   const bg =
     value > errorThreshold
       ? 'bg-destructive-secondary'
       : value > warningThreshold
         ? 'bg-notice-secondary'
-        : 'bg-accent-secondary'
+        : 'bg-accent'
   return (
     <Tooltip content={label} placement="top">
       <div

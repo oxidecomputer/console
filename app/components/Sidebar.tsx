@@ -6,23 +6,30 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { NavLink, useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router'
 
 import { Action16Icon, Document16Icon } from '@oxide/design-system/icons/react'
 
+import { useIsActivePath } from '~/hooks/use-is-active-path'
 import { openQuickActions } from '~/hooks/use-quick-actions'
+import { sidebarWrapperClass } from '~/layouts/helpers'
 import { Button } from '~/ui/lib/Button'
 import { Truncate } from '~/ui/lib/Truncate'
 
-const linkStyles =
-  'flex h-7 items-center rounded px-2 text-sans-md hover:bg-hover [&>svg]:mr-2 [&>svg]:text-quinary text-secondary'
+const linkStyles = (isActive = false) =>
+  cn(
+    'flex h-7 items-center rounded-md px-2 text-sans-md [&>svg]:mr-2',
+    isActive
+      ? 'text-accent bg-accent hover:bg-accent-hover [&>svg]:text-accent-tertiary'
+      : 'hover:bg-hover [&>svg]:text-quaternary text-default'
+  )
 
 // TODO: this probably doesn't go to the docs root. maybe it even opens a
 // menu with links to several relevant docs for the page
 export const DocsLinkItem = () => (
   <li>
     <a
-      className={linkStyles}
+      className={linkStyles()}
       href="https://docs.oxide.computer"
       target="_blank"
       rel="noreferrer"
@@ -42,12 +49,12 @@ const JumpToButton = () => {
       variant="ghost"
       size="sm"
       onClick={openQuickActions}
-      className="w-full !px-2"
+      className="w-full px-2!"
       // TODO: the more I use innerClassName the wronger it feels
-      innerClassName="w-full justify-between text-quaternary"
+      innerClassName="w-full justify-between text-tertiary"
     >
       <span className="flex items-center">
-        <Action16Icon className="mr-2 text-quinary" /> Jump to
+        <Action16Icon className="text-quaternary mr-2" /> Jump to
       </span>
       <div className="text-mono-xs">{modKey}+K</div>
     </Button>
@@ -56,7 +63,12 @@ const JumpToButton = () => {
 
 export function Sidebar({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col border-r text-sans-md text-default border-secondary">
+    <div
+      className={cn(
+        sidebarWrapperClass,
+        'text-sans-md text-raise flex flex-col overflow-y-auto overscroll-none'
+      )}
+    >
       <div className="mx-3 mt-4">
         <JumpToButton />
       </div>
@@ -73,39 +85,48 @@ interface SidebarNav {
 Sidebar.Nav = ({ children, heading }: SidebarNav) => (
   <div className="mx-3 my-4 space-y-1">
     {heading && (
-      <div className="mb-2 text-mono-sm text-quaternary">
+      <div className="text-mono-sm text-tertiary mb-2">
         <Truncate text={heading} maxLength={24} />
       </div>
     )}
     <nav aria-label="Sidebar navigation">
-      <ul className="space-y-0.5">{children}</ul>
+      <ul className="space-y-px">{children}</ul>
     </nav>
   </div>
 )
 
-export const NavLinkItem = (props: {
+type NavLinkProps = {
   to: string
   children: React.ReactNode
   end?: boolean
   disabled?: boolean
-}) => {
+  // Only for cases where we want to spoof the path and pretend 'isActive'
+  activePrefix?: string
+}
+
+export const NavLinkItem = ({
+  to,
+  children,
+  end,
+  disabled,
+  activePrefix,
+}: NavLinkProps) => {
   // If the current page is the create form for this NavLinkItem's resource, highlight the NavLink in the sidebar
-  const currentPathIsCreateForm = useLocation().pathname.startsWith(`${props.to}-new`)
+  const currentPathIsCreateForm = useLocation().pathname.startsWith(`${to}-new`)
+  // We aren't using NavLink, as we need to occasionally use an activePrefix to create an active state for matching root paths
+  // so we also recreate the isActive logic here
+  const isActive = useIsActivePath({ to: activePrefix || to, end })
   return (
     <li>
-      <NavLink
-        to={props.to}
-        className={({ isActive }) =>
-          cn(linkStyles, {
-            'text-accent !bg-accent-secondary hover:!bg-accent-secondary-hover [&>svg]:!text-accent-tertiary':
-              isActive || currentPathIsCreateForm,
-            'pointer-events-none text-disabled': props.disabled,
-          })
-        }
-        end={props.end}
+      <Link
+        to={to}
+        className={cn(linkStyles(isActive || currentPathIsCreateForm), {
+          'text-disabled pointer-events-none': disabled,
+        })}
+        aria-current={isActive ? 'page' : undefined}
       >
-        {props.children}
-      </NavLink>
+        {children}
+      </Link>
     </li>
   )
 }

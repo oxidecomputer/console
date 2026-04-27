@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import { getLocalTimeZone, type DateValue } from '@internationalized/date'
-import type { TimeValue } from '@react-types/datepicker'
 import cn from 'classnames'
 import { useMemo, useRef } from 'react'
 import { useButton, useDateFormatter, useDatePicker } from 'react-aria'
@@ -36,7 +35,7 @@ export function DatePicker(props: DatePickerProps) {
   const formatter = useDateFormatter({
     dateStyle: 'short',
     timeStyle: 'short',
-    hourCycle: 'h24',
+    hourCycle: 'h23',
   })
 
   const label = useMemo(() => {
@@ -44,12 +43,6 @@ export function DatePicker(props: DatePickerProps) {
       ? formatter.format(state.dateValue.toDate(getLocalTimeZone()))
       : ''
   }, [state, formatter])
-
-  const handleSetTime = (v: TimeValue) => {
-    if (v !== null) {
-      state.setTimeValue(v)
-    }
-  }
 
   return (
     <div
@@ -62,27 +55,27 @@ export function DatePicker(props: DatePickerProps) {
           type="button"
           className={cn(
             state.isOpen && 'z-10 ring-2',
-            'relative flex h-11 items-center rounded-l rounded-r border text-sans-md border-default focus-within:ring-2 hover:border-raise focus:z-10',
+            'text-sans-md border-default hover:border-raise bg-default relative flex h-11 items-center rounded-l-md rounded-r-md border focus-within:ring-2 focus:z-10',
             state.isInvalid
               ? 'focus-error border-error ring-error-secondary'
               : 'border-default ring-accent-secondary'
           )}
         >
-          <div className={cn('relative flex w-[10rem] items-center px-3 text-sans-md')}>
+          <div className={cn('text-sans-md relative flex w-40 items-center px-3')}>
             {label}
             {state.isInvalid && (
-              <div className="absolute bottom-0 right-2 top-0 flex items-center text-error">
+              <div className="text-error absolute top-0 right-2 bottom-0 flex items-center">
                 <Error12Icon className="h-3 w-3" />
               </div>
             )}
           </div>
-          <div className="-ml-px flex h-[calc(100%-12px)] w-10 items-center justify-center rounded-r border-l outline-none border-default">
-            <Calendar16Icon className="h-4 w-4 text-tertiary" />
+          <div className="border-default -ml-px flex h-[calc(100%-12px)] w-10 items-center justify-center rounded-r-md border-l outline-hidden">
+            <Calendar16Icon className="text-secondary h-4 w-4" />
           </div>
         </button>
       </div>
       {state.isInvalid && (
-        <p {...errorMessageProps} className="py-2 text-sans-md text-error">
+        <p {...errorMessageProps} className="text-sans-md text-error py-2">
           Date is invalid
         </p>
       )}
@@ -90,10 +83,12 @@ export function DatePicker(props: DatePickerProps) {
         <Popover triggerRef={ref} state={state} placement="bottom start">
           <Dialog {...dialogProps}>
             <Calendar {...calendarProps} />
-            <div className="flex items-center space-x-2 border-t p-4 border-t-secondary">
+            <div className="border-t-secondary flex items-center space-x-2 border-t p-4">
               <TimeField
                 value={state.timeValue}
-                onChange={handleSetTime}
+                onChange={(v) => {
+                  if (v !== null) state.setTimeValue(v)
+                }}
                 hourCycle={24}
                 className="grow"
               />

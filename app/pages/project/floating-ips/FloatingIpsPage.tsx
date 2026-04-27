@@ -5,17 +5,18 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
-  apiQueryClient,
+  api,
   getListQFn,
+  q,
   queryClient,
   useApiMutation,
-  useApiQueryClient,
   usePrefetchedQuery,
   type FloatingIp,
   type Instance,
@@ -24,12 +25,15 @@ import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { ListboxField } from '~/components/form/fields/ListboxField'
+import { ModalForm } from '~/components/form/ModalForm'
 import { HL } from '~/components/HL'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
+import { InstanceLink } from '~/table/cells/InstanceLinkCell'
 import { IpPoolCell } from '~/table/cells/IpPoolCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -38,7 +42,6 @@ import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
-import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
 import { ALL_ISH } from '~/util/consts'
@@ -55,27 +58,30 @@ const EmptyState = () => (
   />
 )
 
-const fipList = (project: string) => getListQFn('floatingIpList', { query: { project } })
+const fipList = (project: string) => getListQFn(api.floatingIpList, { query: { project } })
 const instanceList = (project: string) =>
-  getListQFn('instanceList', { query: { project, limit: ALL_ISH } })
+  getListQFn(api.instanceList, { query: { project, limit: ALL_ISH } })
 
-FloatingIpsPage.loader = async ({ params }: LoaderFunctionArgs) => {
+export const handle = makeCrumb('Floating IPs', (p) =>
+  pb.floatingIps(getProjectSelector(p))
+)
+
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
   await Promise.all([
-    queryClient.prefetchQuery(fipList(project).optionsFn()),
-    queryClient.prefetchQuery(instanceList(project).optionsFn()),
+    queryClient.fetchQuery(fipList(project).optionsFn()),
+    queryClient.fetchQuery(instanceList(project).optionsFn()),
     // fetch IP Pools and preload into RQ cache so fetches by ID in
     // IpPoolCell can be mostly instant yet gracefully fall back to
     // fetching individually if we don't fetch them all here
-    apiQueryClient
-      .fetchQuery('projectIpPoolList', { query: { limit: ALL_ISH } })
+    queryClient
+      .fetchQuery(q(api.ipPoolList, { query: { limit: ALL_ISH } }))
       .then((pools) => {
         for (const pool of pools.items) {
-          apiQueryClient.setQueryData(
-            'projectIpPoolView',
-            { path: { pool: pool.id } },
-            pool
-          )
+          const { queryKey } = q(api.ipPoolView, {
+            path: { pool: pool.id },
+          })
+          queryClient.setQueryData(queryKey, pool)
         }
       }),
   ])
@@ -95,32 +101,30 @@ const staticCols = [
     cell: (info) => <IpPoolCell ipPoolId={info.getValue()} />,
   }),
   colHelper.accessor('instanceId', {
-    header: 'Attached to instance',
-    cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,
+    header: 'Instance',
+    cell: (info) => <InstanceLink instanceId={info.getValue()} tab="networking" cell />,
   }),
 ]
 
-export function FloatingIpsPage() {
+export default function FloatingIpsPage() {
   const [floatingIpToModify, setFloatingIpToModify] = useState<FloatingIp | null>(null)
-  const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
   const { data: instances } = usePrefetchedQuery(instanceList(project).optionsFn())
   const navigate = useNavigate()
 
-  const { mutateAsync: floatingIpDetach } = useApiMutation('floatingIpDetach', {
+  const { mutateAsync: floatingIpDetach } = useApiMutation(api.floatingIpDetach, {
     onSuccess(floatingIp) {
-      queryClient.invalidateQueries('floatingIpList')
-      addToast(<>Floating IP <HL>{floatingIp.name}</HL> detached</>) // prettier-ignore
-    },
-    onError: (err) => {
-      addToast({ title: 'Error', content: err.message, variant: 'error' })
+      queryClient.invalidateEndpoint('floatingIpList')
+      // prettier-ignore
+      addToast(<>Floating IP <HL>{floatingIp.name}</HL> detached</>)
     },
   })
-  const { mutateAsync: deleteFloatingIp } = useApiMutation('floatingIpDelete', {
+  const { mutateAsync: deleteFloatingIp } = useApiMutation(api.floatingIpDelete, {
     onSuccess(_data, variables) {
-      queryClient.invalidateQueries('floatingIpList')
-      queryClient.invalidateQueries('ipPoolUtilizationView')
-      addToast(<>Floating IP <HL>{variables.path.floatingIp}</HL> deleted</>) // prettier-ignore
+      queryClient.invalidateEndpoint('floatingIpList')
+      queryClient.invalidateEndpoint('systemIpPoolUtilizationView')
+      // prettier-ignore
+      addToast(<>Floating IP <HL>{variables.path.floatingIp}</HL> deleted</>)
     },
   })
 
@@ -171,14 +175,11 @@ export function FloatingIpsPage() {
         {
           label: 'Edit',
           onActivate: () => {
-            apiQueryClient.setQueryData(
-              'floatingIpView',
-              {
-                path: { floatingIp: floatingIp.name },
-                query: { project },
-              },
-              floatingIp
-            )
+            const { queryKey } = q(api.floatingIpView, {
+              path: { floatingIp: floatingIp.name },
+              query: { project },
+            })
+            queryClient.setQueryData(queryKey, floatingIp)
             navigate(pb.floatingIpEdit({ project, floatingIp: floatingIp.name }))
           },
         },
@@ -208,6 +209,26 @@ export function FloatingIpsPage() {
     columns,
     emptyState: <EmptyState />,
   })
+
+  const { data: allFips } = useQuery(
+    q(api.floatingIpList, { query: { project, limit: ALL_ISH } })
+  )
+
+  useQuickActions(
+    () => [
+      {
+        value: 'New floating IP',
+        navGroup: 'Actions',
+        action: pb.floatingIpsNew({ project }),
+      },
+      ...(allFips?.items || []).map((f) => ({
+        value: f.name,
+        action: pb.floatingIpEdit({ project, floatingIp: f.name }),
+        navGroup: 'Edit floating IP',
+      })),
+    ],
+    [project, allFips]
+  )
 
   return (
     <>
@@ -251,56 +272,52 @@ const AttachFloatingIpModal = ({
   project: string
   onDismiss: () => void
 }) => {
-  const queryClient = useApiQueryClient()
-  const floatingIpAttach = useApiMutation('floatingIpAttach', {
+  const floatingIpAttach = useApiMutation(api.floatingIpAttach, {
     onSuccess(floatingIp) {
-      queryClient.invalidateQueries('floatingIpList')
-      addToast(<>Floating IP <HL>{floatingIp.name}</HL> attached</>) // prettier-ignore
+      queryClient.invalidateEndpoint('floatingIpList')
+      // prettier-ignore
+      addToast(<>Floating IP <HL>{floatingIp.name}</HL> attached</>)
       onDismiss()
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
   })
+
   const form = useForm({ defaultValues: { instanceId: '' } })
-  const instanceId = form.watch('instanceId')
 
   return (
-    <Modal isOpen title="Attach floating IP" onDismiss={onDismiss}>
-      <Modal.Body>
-        <Modal.Section>
-          <Message
-            variant="info"
-            content={
-              <>
-                The selected instance will be reachable at <HL>{address}</HL>
-              </>
-            }
-          />
-          <form>
-            <ListboxField
-              control={form.control}
-              name="instanceId"
-              items={instances.map((i) => ({ value: i.id, label: i.name }))}
-              label="Instance"
-              required
-              placeholder="Select an instance"
-            />
-          </form>
-        </Modal.Section>
-      </Modal.Body>
-      <Modal.Footer
-        actionText="Attach"
-        disabled={!instanceId}
-        onAction={() =>
-          floatingIpAttach.mutate({
-            path: { floatingIp },
-            query: { project },
-            body: { kind: 'instance', parent: instanceId },
-          })
+    <ModalForm
+      title="Attach floating IP"
+      form={form}
+      onSubmit={({ instanceId }) => {
+        floatingIpAttach.mutate({
+          path: { floatingIp },
+          query: { project },
+          body: { kind: 'instance', parent: instanceId },
+        })
+      }}
+      submitLabel="Attach"
+      submitError={floatingIpAttach.error}
+      loading={floatingIpAttach.isPending}
+      onDismiss={onDismiss}
+    >
+      <Message
+        variant="info"
+        content={
+          <>
+            The selected instance will be reachable at <HL>{address}</HL>
+          </>
         }
-        onDismiss={onDismiss}
-      ></Modal.Footer>
-    </Modal>
+      />
+      <ListboxField
+        control={form.control}
+        name="instanceId"
+        items={instances.map((i) => ({ value: i.id, label: i.name }))}
+        label="Instance"
+        required
+        placeholder="Select an instance"
+      />
+    </ModalForm>
   )
 }

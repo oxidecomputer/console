@@ -6,29 +6,42 @@
  * Copyright Oxide Computer Company
  */
 
-import { useApiQuery } from '@oxide/api'
+import { useQuery } from '@tanstack/react-query'
+import { Link } from 'react-router'
+
+import { api, q } from '@oxide/api'
 
 import { useProjectSelector } from '~/hooks/use-params'
 import { pb } from '~/util/path-builder'
 
-import { SkeletonCell } from './EmptyCell'
+import { EmptyCell, SkeletonCell } from './EmptyCell'
 import { LinkCell } from './LinkCell'
 
-export const InstanceLinkCell = ({ instanceId }: { instanceId?: string }) => {
+type InstanceLinkProps = {
+  instanceId?: string | null
+  tab: 'storage' | 'networking'
+  /** Use table cell styling with hover highlight. */
+  cell?: boolean
+}
+
+export const InstanceLink = ({ instanceId, tab, cell }: InstanceLinkProps) => {
   const { project } = useProjectSelector()
-  const { data: instance } = useApiQuery(
-    'instanceView',
-    { path: { instance: instanceId! } },
-    { enabled: !!instanceId }
+  const { data: instance } = useQuery(
+    q(api.instanceView, { path: { instance: instanceId! } }, { enabled: !!instanceId })
   )
 
-  // has to be after the hooks because hooks can't be executed conditionally
-  if (!instanceId) return null
+  if (!instanceId) return <EmptyCell />
   if (!instance) return <SkeletonCell />
 
-  return (
-    <LinkCell to={pb.instance({ project, instance: instance.name })}>
+  const params = { project, instance: instance.name }
+  const to =
+    tab === 'networking' ? pb.instanceNetworking(params) : pb.instanceStorage(params)
+
+  return cell ? (
+    <LinkCell to={to}>{instance.name}</LinkCell>
+  ) : (
+    <Link to={to} className="link-with-underline text-sans-md">
       {instance.name}
-    </LinkCell>
+    </Link>
   )
 }

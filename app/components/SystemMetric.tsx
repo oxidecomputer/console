@@ -5,18 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
-import React, { Suspense, useMemo, useRef } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { useMemo, useRef } from 'react'
 
-import {
-  synthesizeData,
-  useApiQuery,
-  type ChartDatum,
-  type SystemMetricName,
-} from '@oxide/api'
+import { api, q, synthesizeData, type ChartDatum, type SystemMetricName } from '@oxide/api'
 
-import { Spinner } from '~/ui/lib/Spinner'
-
-const TimeSeriesChart = React.lazy(() => import('./TimeSeriesChart'))
+import { ChartContainer, ChartHeader, TimeSeriesChart } from './TimeSeriesChart'
 
 // The difference between system metric and silo metric is
 //   1. different endpoints
@@ -24,7 +18,7 @@ const TimeSeriesChart = React.lazy(() => import('./TimeSeriesChart'))
 
 type MetricProps = {
   title: string
-  unit?: string
+  unit: string
   startTime: Date
   endTime: Date
   metricName: SystemMetricName
@@ -55,23 +49,21 @@ export function SiloMetric({
 }: SiloMetricProps) {
   // TODO: we're only pulling the first page. Should we bump the cap to 10k?
   // Fetch multiple pages if 10k is not enough? That's a bit much.
-  const inRange = useApiQuery(
-    'siloMetric',
-    {
-      path: { metricName },
-      query: { project, startTime, endTime, limit: 3000 },
-    },
-    { placeholderData: (x) => x }
+  const inRange = useQuery(
+    q(
+      api.siloMetric,
+      { path: { metricName }, query: { project, startTime, endTime, limit: 3000 } },
+      { placeholderData: (x) => x }
+    )
   )
 
   // get last point before startTime to use as first point in graph
-  const beforeStart = useApiQuery(
-    'siloMetric',
-    {
-      path: { metricName },
-      query: { project, endTime: startTime, ...staticParams },
-    },
-    { placeholderData: (x) => x }
+  const beforeStart = useQuery(
+    q(
+      api.siloMetric,
+      { path: { metricName }, query: { project, endTime: startTime, ...staticParams } },
+      { placeholderData: (x) => x }
+    )
   )
 
   const ref = useRef<ChartDatum[] | undefined>(undefined)
@@ -93,27 +85,20 @@ export function SiloMetric({
   // in the tooltip. could be just once on the end of the x-axis like GCP
 
   return (
-    <div>
-      <h2 className="flex items-center gap-1.5 px-3 text-mono-sm text-secondary">
-        {title} {unit && <span className="text-quaternary">({unit})</span>}{' '}
-        {(inRange.isPending || beforeStart.isPending) && <Spinner />}
-      </h2>
-      {/* TODO: proper skeleton for empty chart */}
-      <Suspense fallback={<div />}>
-        <div className="mt-3 h-[300px]">
-          <TimeSeriesChart
-            data={data}
-            title={title}
-            width={480}
-            height={240}
-            interpolation="stepAfter"
-            startTime={startTime}
-            endTime={endTime}
-            unit={unit !== 'count' ? unit : undefined}
-          />
-        </div>
-      </Suspense>
-    </div>
+    <ChartContainer>
+      <ChartHeader title={title} label={`(${unit})`} />
+      <TimeSeriesChart
+        data={data}
+        title={title}
+        interpolation="stepAfter"
+        startTime={startTime}
+        endTime={endTime}
+        unit={unit !== 'Count' ? unit : undefined}
+        // note use of loading, not fetching, which is only true on first fetch.
+        // otherwise we get loading states on refetches
+        loading={inRange.isLoading || beforeStart.isLoading}
+      />
+    </ChartContainer>
   )
 }
 
@@ -133,23 +118,21 @@ export function SystemMetric({
 }: SystemMetricProps) {
   // TODO: we're only pulling the first page. Should we bump the cap to 10k?
   // Fetch multiple pages if 10k is not enough? That's a bit much.
-  const inRange = useApiQuery(
-    'systemMetric',
-    {
-      path: { metricName },
-      query: { silo, startTime, endTime, limit: 3000 },
-    },
-    { placeholderData: (x) => x }
+  const inRange = useQuery(
+    q(
+      api.systemMetric,
+      { path: { metricName }, query: { silo, startTime, endTime, limit: 3000 } },
+      { placeholderData: (x) => x }
+    )
   )
 
   // get last point before startTime to use as first point in graph
-  const beforeStart = useApiQuery(
-    'systemMetric',
-    {
-      path: { metricName },
-      query: { silo, endTime: startTime, ...staticParams },
-    },
-    { placeholderData: (x) => x }
+  const beforeStart = useQuery(
+    q(
+      api.systemMetric,
+      { path: { metricName }, query: { silo, endTime: startTime, ...staticParams } },
+      { placeholderData: (x) => x }
+    )
   )
 
   const ref = useRef<ChartDatum[] | undefined>(undefined)
@@ -171,26 +154,19 @@ export function SystemMetric({
   // in the tooltip. could be just once on the end of the x-axis like GCP
 
   return (
-    <div>
-      <h2 className="flex items-center gap-1.5 px-3 text-mono-sm text-secondary">
-        {title} {unit && <span className="text-quaternary">({unit})</span>}{' '}
-        {(inRange.isPending || beforeStart.isPending) && <Spinner />}
-      </h2>
-      {/* TODO: proper skeleton for empty chart */}
-      <Suspense fallback={<div />}>
-        <div className="mt-3 h-[300px]">
-          <TimeSeriesChart
-            data={data}
-            title={title}
-            width={480}
-            height={240}
-            interpolation="stepAfter"
-            startTime={startTime}
-            endTime={endTime}
-            unit={unit !== 'count' ? unit : undefined}
-          />
-        </div>
-      </Suspense>
-    </div>
+    <ChartContainer>
+      <ChartHeader title={title} label={`(${unit})`} />
+      <TimeSeriesChart
+        data={data}
+        title={title}
+        interpolation="stepAfter"
+        startTime={startTime}
+        endTime={endTime}
+        unit={unit !== 'Count' ? unit : undefined}
+        // note use of loading, not fetching, which is only true on first fetch.
+        // otherwise we get loading states on refetches
+        loading={inRange.isLoading || beforeStart.isLoading}
+      />
+    </ChartContainer>
   )
 }

@@ -5,21 +5,30 @@
  *
  * Copyright Oxide Computer Company
  */
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, test } from 'vitest'
 
 import {
+  addDashes,
   camelCase,
   capitalize,
   commaSeries,
   extractText,
   kebabCase,
-  normalizeName,
+  pluralize,
   titleCase,
 } from './str'
 
 describe('capitalize', () => {
   it('capitalizes the first letter', () => {
     expect(capitalize('this is a sentence')).toEqual('This is a sentence')
+  })
+})
+
+describe('pluralize', () => {
+  it('pluralizes correctly', () => {
+    expect(pluralize('item', 0)).toBe('items')
+    expect(pluralize('item', 1)).toBe('item')
+    expect(pluralize('item', 2)).toBe('items')
   })
 })
 
@@ -51,8 +60,9 @@ it('commaSeries', () => {
   expect(commaSeries([], 'or')).toBe('')
   expect(commaSeries(['a'], 'or')).toBe('a')
   expect(commaSeries(['a', 'b'], 'or')).toBe('a or b')
-  expect(commaSeries(['a', 'b'], 'or')).toBe('a or b')
+  expect(commaSeries(['a', 'b'], 'and')).toBe('a and b')
   expect(commaSeries(['a', 'b', 'c'], 'or')).toBe('a, b, or c')
+  expect(commaSeries(['a', 'b', 'c'], 'and')).toBe('a, b, and c')
 })
 
 describe('titleCase', () => {
@@ -112,39 +122,10 @@ describe('extractText', () => {
   })
 })
 
-describe('normalizeName', () => {
-  it('converts to lowercase', () => {
-    expect(normalizeName('Hello')).toBe('hello')
-  })
-
-  it('replaces spaces with dashes', () => {
-    expect(normalizeName('Hello World')).toBe('hello-world')
-  })
-
-  it('removes non-alphanumeric characters', () => {
-    expect(normalizeName('Hello, World!')).toBe('hello-world')
-  })
-
-  it('caps at 63 characters', () => {
-    expect(normalizeName('aaa')).toBe('aaa')
-    expect(normalizeName('aaaaaaaaa')).toBe('aaaaaaaaa')
-    expect(normalizeName('a'.repeat(63))).toBe('a'.repeat(63))
-    expect(normalizeName('a'.repeat(64))).toBe('a'.repeat(63))
-  })
-
-  it('can optionally start with numbers', () => {
-    expect(normalizeName('123abc')).toBe('abc')
-    expect(normalizeName('123abc', false)).toBe('abc')
-    expect(normalizeName('123abc', true)).toBe('123abc')
-  })
-
-  it('can optionally start with a dash', () => {
-    expect(normalizeName('-abc')).toBe('abc')
-    expect(normalizeName('-abc', false)).toBe('abc')
-    expect(normalizeName('-abc', true)).toBe('-abc')
-  })
-
-  it('does not complain when multiple dashes are present', () => {
-    expect(normalizeName('a--b')).toBe('a--b')
-  })
+test('addDashes', () => {
+  expect(addDashes([], 'abcdefgh')).toEqual('abcdefgh')
+  expect(addDashes([3], 'abcdefgh')).toEqual('abcd-efgh')
+  expect(addDashes([2, 5], 'abcdefgh')).toEqual('abc-def-gh')
+  // too-high idxs are ignored
+  expect(addDashes([7], 'abcd')).toEqual('abcd')
 })

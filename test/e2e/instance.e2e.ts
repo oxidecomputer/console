@@ -7,9 +7,11 @@
  */
 import {
   clickRowAction,
+  clickRowActions,
+  closeToast,
   expect,
   expectRowVisible,
-  openRowActions,
+  fillNumberInput,
   test,
   type Page,
 } from './utils'
@@ -28,7 +30,7 @@ test('can delete a failed instance', async ({ page }) => {
 
   const cell = page.getByRole('cell', { name: 'you-fail' })
   await expect(cell).toBeVisible() // just to match hidden check at the end
-  expectInstanceState(page, 'you-fail', 'failed')
+  await expectInstanceState(page, 'you-fail', 'failed')
 
   await clickRowAction(page, 'you-fail', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
@@ -40,7 +42,7 @@ test('can start a failed instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
 
   // check the start button disabled message on a running instance
-  await openRowActions(page, 'db1')
+  await clickRowActions(page, 'db1')
   await page.getByRole('menuitem', { name: 'Start' }).hover()
   await expect(
     page.getByText('Only stopped or failed instances can be started')
@@ -117,14 +119,14 @@ test('can reboot a running instance', async ({ page }) => {
 test('cannot reboot a failed instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
   await expectInstanceState(page, 'you-fail', 'failed')
-  await openRowActions(page, 'you-fail')
+  await clickRowActions(page, 'you-fail')
   await expect(page.getByRole('menuitem', { name: 'Reboot' })).toBeDisabled()
 })
 
 test('cannot reboot a starting instance, or a stopped instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
   await expectInstanceState(page, 'not-there-yet', 'starting')
-  await openRowActions(page, 'not-there-yet')
+  await clickRowActions(page, 'not-there-yet')
   await expect(page.getByRole('menuitem', { name: 'Reboot' })).toBeDisabled()
   // hit escape to close the menu so clickRowAction succeeds
   await page.keyboard.press('Escape')
@@ -135,7 +137,7 @@ test('cannot reboot a starting instance, or a stopped instance', async ({ page }
   await expectInstanceState(page, 'not-there-yet', 'stopping')
   await expectInstanceState(page, 'not-there-yet', 'stopped')
   // reboot is still disabled for a stopped instance
-  await openRowActions(page, 'not-there-yet')
+  await clickRowActions(page, 'not-there-yet')
   await expect(page.getByRole('menuitem', { name: 'Reboot' })).toBeDisabled()
 })
 
@@ -143,13 +145,13 @@ test('cannot resize a running or starting instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
 
   await expectInstanceState(page, 'db1', 'running')
-  await openRowActions(page, 'db1')
+  await clickRowActions(page, 'db1')
   await expect(page.getByRole('menuitem', { name: 'Resize' })).toBeDisabled()
 
   await page.keyboard.press('Escape') // get out of the menu
 
   await expectInstanceState(page, 'not-there-yet', 'starting')
-  await openRowActions(page, 'not-there-yet')
+  await clickRowActions(page, 'not-there-yet')
   await expect(page.getByRole('menuitem', { name: 'Resize' })).toBeDisabled()
 })
 
@@ -160,19 +162,19 @@ test('can resize a failed or stopped instance', async ({ page }) => {
   // resize 'you-fail', currently in a failed state
   await expectRowVisible(table, {
     name: 'you-fail',
-    CPU: '4 vCPU',
+    CPU: '4 vCPUs',
     Memory: '6 GiB',
     state: expect.stringMatching(/^failed\d+s$/),
   })
   await clickRowAction(page, 'you-fail', 'Resize')
   const resizeModal = page.getByRole('dialog', { name: 'Resize instance' })
   await expect(resizeModal).toBeVisible()
-  await resizeModal.getByRole('textbox', { name: 'vCPUs' }).fill('10')
-  await resizeModal.getByRole('textbox', { name: 'Memory' }).fill('20')
+  await fillNumberInput(resizeModal.getByRole('textbox', { name: 'vCPUs' }), '10')
+  await fillNumberInput(resizeModal.getByRole('textbox', { name: 'Memory' }), '20')
   await resizeModal.getByRole('button', { name: 'Resize' }).click()
   await expectRowVisible(table, {
     name: 'you-fail',
-    CPU: '10 vCPU',
+    CPU: '10 vCPUs',
     Memory: '20 GiB',
     state: expect.stringMatching(/^failed\d+s$/),
   })
@@ -180,7 +182,7 @@ test('can resize a failed or stopped instance', async ({ page }) => {
   // resize 'db1', which needs to be stopped first
   await expectRowVisible(table, {
     name: 'db1',
-    CPU: '2 vCPU',
+    CPU: '2 vCPUs',
     Memory: '4 GiB',
     state: expect.stringMatching(/^running\d+s$/),
   })
@@ -194,15 +196,33 @@ test('can resize a failed or stopped instance', async ({ page }) => {
   await expect(resizeModal).toBeVisible()
   await expect(resizeModal.getByText('Current (db1): 2 vCPUs / 4 GiB')).toBeVisible()
 
-  await resizeModal.getByRole('textbox', { name: 'vCPUs' }).fill('8')
-  await resizeModal.getByRole('textbox', { name: 'Memory' }).fill('16')
+  await fillNumberInput(resizeModal.getByRole('textbox', { name: 'vCPUs' }), '8')
+  await fillNumberInput(resizeModal.getByRole('textbox', { name: 'Memory' }), '16')
   await resizeModal.getByRole('button', { name: 'Resize' }).click()
   await expectRowVisible(table, {
     name: 'db1',
-    CPU: '8 vCPU',
+    CPU: '8 vCPUs',
     Memory: '16 GiB',
     state: expect.stringMatching(/^stopped\d+s$/),
   })
+})
+
+test('resize modal stays open on server error', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances')
+
+  // 'instance-update-error' is a failed instance whose mock handler rejects updates
+  await clickRowAction(page, 'instance-update-error', 'Resize')
+  const resizeModal = page.getByRole('dialog', { name: 'Resize instance' })
+  await expect(resizeModal).toBeVisible()
+
+  await fillNumberInput(resizeModal.getByRole('textbox', { name: 'vCPUs' }), '10')
+  await fillNumberInput(resizeModal.getByRole('textbox', { name: 'Memory' }), '20')
+  await resizeModal.getByRole('button', { name: 'Resize' }).click()
+
+  // Error renders inline inside the modal; modal stays open so the user can
+  // see the error and adjust values.
+  await expect(resizeModal).toContainText('Cannot update instance')
+  await expect(resizeModal).toBeVisible()
 })
 
 test('delete from instance detail', async ({ page }) => {
@@ -223,20 +243,88 @@ test('instance table', async ({ page }) => {
   const table = page.getByRole('table')
   await expectRowVisible(table, {
     name: 'db1',
-    CPU: '2 vCPU',
+    CPU: '2 vCPUs',
     Memory: '4 GiB',
     state: expect.stringMatching(/^running\d+s$/),
   })
   await expectRowVisible(table, {
     name: 'you-fail',
-    CPU: '4 vCPU',
+    CPU: '4 vCPUs',
     Memory: '6 GiB',
     state: expect.stringMatching(/^failed\d+s$/),
   })
   await expectRowVisible(table, {
     name: 'not-there-yet',
-    CPU: '2 vCPU',
+    CPU: '2 vCPUs',
     Memory: '8 GiB',
     state: expect.stringMatching(/^starting\d+s$/),
   })
+})
+
+async function expectRowMenuStaysOpen(page: Page, rowSelector: string) {
+  // stop, but don't wait until the state has changed
+  await page.getByRole('button', { name: 'Stop' }).click()
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await closeToast(page)
+
+  const menu = page.getByRole('menu')
+  const stopped = page.getByText('statestopped')
+
+  await expect(menu).toBeHidden()
+  await expect(stopped).toBeHidden()
+
+  await clickRowActions(page, rowSelector)
+  await expect(stopped).toBeHidden() // still not stopped yet
+  await expect(menu).toBeVisible()
+
+  // now we're stopped, which means polling has happened, but the
+  // menu remains visible
+  await expect(stopped).toBeVisible()
+  await expect(menu).toBeVisible()
+}
+
+// silly tests, but we've reintroduced this bug like 3 times
+
+test("polling doesn't close row actions: IPs table", async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1/networking')
+  await expectRowMenuStaysOpen(page, '123.4.56.0')
+})
+
+test("polling doesn't close row actions: NICs table", async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1/networking')
+  await expectRowMenuStaysOpen(page, 'my-nic')
+})
+
+test("polling doesn't close row actions: boot disk", async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1')
+  await expectRowMenuStaysOpen(page, 'disk-1')
+})
+
+test("polling doesn't close row actions: other disk", async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1')
+  await expectRowMenuStaysOpen(page, 'disk-2')
+})
+
+test("polling doesn't close row actions: instances", async ({ page }) => {
+  await page.goto('/projects/mock-project/instances')
+
+  // can't use the cool function because it's *slightly* different
+  await clickRowAction(page, 'db1', 'Stop')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await closeToast(page)
+
+  const menu = page.getByRole('menu')
+  const stopped = page.getByText('stopped')
+
+  await expect(menu).toBeHidden()
+  await expect(stopped).toBeHidden()
+
+  await clickRowActions(page, 'db1')
+  await expect(stopped).toBeHidden() // still not stopped yet
+  await expect(menu).toBeVisible()
+
+  // now we're stopped, which means polling has happened, but the
+  // menu remains visible
+  await expect(stopped).toBeVisible()
+  await expect(menu).toBeVisible()
 })

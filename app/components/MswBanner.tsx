@@ -26,22 +26,40 @@ function ExternalLink({ href, children }: { href: string; children: ReactNode })
   )
 }
 
-export function MswBanner() {
+type Props = {
+  /**
+   * HACK to avoid the user opening the modal while on the loading skeleton
+   * -- it immediately closes when the page finishes loading because the
+   * banner is dropped when the HydrateFallback unmounts and re-rendered in
+   * RootLayout. A more ideal solution would be to render the banner outside
+   * the RouterProvider and therefore have it be the same banner in both the
+   * HydrateFallback and normal page situations, but it's a lot more work to
+   * get the layout right in that case with respect to things like the loading
+   * bar. When we switch to framework mode, we can manage all this in the root
+   * route using the Layout export. In the meantime, this is tolerable and only
+   * applies to the preview deploys, and only burdens someone who manages to
+   * click the Learn More button in the half second before the content loads.
+   */
+  disableButton?: boolean
+}
+
+export function MswBanner({ disableButton }: Props) {
   const [isOpen, setIsOpen] = useState(false)
   const closeModal = () => setIsOpen(false)
   return (
     <>
       {/* The [&+*]:pt-10 style is to ensure the page container isn't pushed out of screen as it uses 100vh for layout */}
-      <label className="absolute z-topBar flex h-10 w-full items-center justify-center text-sans-md text-info-secondary bg-info-secondary [&+*]:pt-10">
+      <aside className="text-sans-md text-info bg-info absolute z-(--z-top-bar) flex h-10 w-full items-center justify-center [&+*]:pt-10">
         <Info16Icon className="mr-2" /> This is a technical preview.
         <button
           type="button"
-          className="ml-2 flex items-center gap-0.5 text-sans-md hover:text-info"
+          className="text-sans-md hover:text-info ml-2 flex items-center gap-0.5"
           onClick={() => setIsOpen(true)}
+          disabled={disableButton}
         >
           Learn more <NextArrow12Icon />
         </button>
-      </label>
+      </aside>
       <Modal isOpen={isOpen} onDismiss={closeModal} title="Console Technical Preview">
         <Modal.Section>
           <p>
@@ -73,7 +91,7 @@ export function MswBanner() {
             />
           </ModalLinks>
         </Modal.Section>
-        <footer className="flex items-center justify-end border-t px-3 py-3 border-secondary">
+        <footer className="border-secondary flex items-center justify-end border-t px-3 py-3">
           <Button size="sm" onClick={closeModal}>
             Close
           </Button>

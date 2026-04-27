@@ -9,6 +9,8 @@ import type { ReactNode } from 'react'
 
 import { OpenLink12Icon } from '@oxide/design-system/icons/react'
 
+import { FormDivider } from '~/ui/lib/Divider'
+
 export const ModalLinks = ({
   heading,
   children,
@@ -17,8 +19,8 @@ export const ModalLinks = ({
   children: ReactNode
 }) => (
   <div>
-    <h3 className="mb-2 text-sans-semi-md text-default">{heading}</h3>
-    <ul className="space-y-1 text-sans-md text-tertiary">{children}</ul>
+    <h3 className="text-sans-semi-md text-raise mb-2">{heading}</h3>
+    <ul className="text-sans-md text-secondary space-y-1">{children}</ul>
   </div>
 )
 
@@ -32,7 +34,20 @@ export const ModalLink = ({ to, label }: { to: string; label: string }) => (
       className="group flex items-center space-x-2"
     >
       <OpenLink12Icon className="text-accent group-hover:text-accent" />
-      <span className="group-hover:text-default">{label}</span>
+      <span className="group-hover:text-raise">{label}</span>
     </a>
   </li>
+)
+
+type DocLink = { href: string; linkText: string }
+
+export const SideModalFormDocs = ({ docs }: { docs: DocLink[] }) => (
+  <>
+    <FormDivider />
+    <ModalLinks heading="Relevant docs">
+      {docs.map(({ href, linkText }) => (
+        <ModalLink key={href} to={href} label={linkText} />
+      ))}
+    </ModalLinks>
+  </>
 )

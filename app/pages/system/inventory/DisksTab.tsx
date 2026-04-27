@@ -8,6 +8,7 @@
 import { createColumnHelper } from '@tanstack/react-table'
 
 import {
+  api,
   getListQFn,
   queryClient,
   type PhysicalDisk,
@@ -15,9 +16,9 @@ import {
   type PhysicalDiskState,
 } from '@oxide/api'
 import { Servers24Icon } from '@oxide/design-system/icons/react'
+import { Badge, type BadgeColor } from '@oxide/design-system/ui'
 
 import { useQueryTable } from '~/table/QueryTable'
-import { Badge, type BadgeColor } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 
 const POLICY_KIND_BADGE_COLORS: Record<PhysicalDiskPolicy['kind'], BadgeColor> = {
@@ -38,12 +39,14 @@ const EmptyState = () => (
   />
 )
 
-const diskList = getListQFn('physicalDiskList', {})
+const diskList = getListQFn(api.physicalDiskList, {})
 
-export async function loader() {
+export async function clientLoader() {
   await queryClient.prefetchQuery(diskList.optionsFn())
   return null
 }
+
+export const handle = { crumb: 'Disks' }
 
 const colHelper = createColumnHelper<PhysicalDisk>()
 const staticCols = [
@@ -69,8 +72,7 @@ const staticCols = [
   }),
 ]
 
-Component.displayName = 'DisksTab'
-export function Component() {
+export default function DisksTab() {
   const emptyState = <EmptyState />
   const { table } = useQueryTable({ query: diskList, columns: staticCols, emptyState })
   return table

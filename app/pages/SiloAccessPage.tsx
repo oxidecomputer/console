@@ -9,18 +9,19 @@ import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/re
 import { useMemo, useState } from 'react'
 
 import {
-  apiQueryClient,
+  api,
   byGroupThenName,
   deleteRole,
-  getEffectiveRole,
+  q,
+  queryClient,
   useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
   useUserRows,
   type IdentityType,
   type RoleKey,
 } from '@oxide/api'
 import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
@@ -28,10 +29,12 @@ import {
   SiloAccessAddUserSideModal,
   SiloAccessEditUserSideModal,
 } from '~/forms/silo-access'
+import { useCurrentUser } from '~/hooks/use-current-user'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
-import { Badge } from '~/ui/lib/Badge'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -52,40 +55,43 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
   </TableEmptyBox>
 )
 
-export async function loader() {
+const policyView = q(api.policyView, {})
+const userList = q(api.userList, {})
+const groupList = q(api.groupList, {})
+
+export async function clientLoader() {
   await Promise.all([
-    apiQueryClient.prefetchQuery('policyView', {}),
+    queryClient.prefetchQuery(policyView),
     // used to resolve user names
-    apiQueryClient.prefetchQuery('userList', {}),
-    apiQueryClient.prefetchQuery('groupList', {}),
+    queryClient.prefetchQuery(userList),
+    queryClient.prefetchQuery(groupList),
   ])
   return null
 }
+
+export const handle = { crumb: 'Silo Access' }
 
 type UserRow = {
   id: string
   identityType: IdentityType
   name: string
   siloRole: RoleKey | undefined
-  effectiveRole: RoleKey
 }
 
 const colHelper = createColumnHelper<UserRow>()
 
-Component.displayName = 'SiloAccessPage'
-export function Component() {
+export default function SiloAccessPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
 
-  const { data: siloPolicy } = usePrefetchedApiQuery('policyView', {})
+  const { me } = useCurrentUser()
+  const { data: siloPolicy } = usePrefetchedQuery(policyView)
   const siloRows = useUserRows(siloPolicy.roleAssignments, 'silo')
 
   const rows = useMemo(() => {
     return groupBy(siloRows, (u) => u.id)
       .map(([userId, userAssignments]) => {
         const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
-
-        const roles = siloRole ? [siloRole] : []
 
         const { name, identityType } = userAssignments[0]
 
@@ -94,8 +100,6 @@ export function Component() {
           identityType,
           name,
           siloRole,
-          // we know there has to be at least one
-          effectiveRole: getEffectiveRole(roles)!,
         }
 
         return row
@@ -103,9 +107,11 @@ export function Component() {
       .sort(byGroupThenName)
   }, [siloRows])
 
-  const queryClient = useApiQueryClient()
-  const { mutateAsync: updatePolicy } = useApiMutation('policyUpdate', {
-    onSuccess: () => queryClient.invalidateQueries('policyView'),
+  const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
+    onSuccess: () => {
+      queryClient.invalidateEndpoint('policyView')
+      addToast({ content: 'Access removed' })
+    },
     // TODO: handle 403
   })
 
@@ -137,22 +143,20 @@ export function Component() {
         {
           label: 'Delete',
           onActivate: confirmDelete({
-            doDelete: () =>
-              updatePolicy({
-                // we know policy is there, otherwise there's no row to display
-                body: deleteRole(row.id, siloPolicy),
-              }),
+            doDelete: () => updatePolicy({ body: deleteRole(row.id, siloPolicy) }),
             label: (
               <span>
                 the <HL>{row.siloRole}</HL> role for <HL>{row.name}</HL>
               </span>
             ),
+            extraContent:
+              row.id === me.id ? 'This will remove your own silo access.' : undefined,
           }),
           disabled: !row.siloRole && "You don't have permission to delete this user",
         },
       ]),
     ],
-    [siloPolicy, updatePolicy]
+    [siloPolicy, updatePolicy, me]
   )
 
   const tableInstance = useReactTable({
@@ -161,10 +165,21 @@ export function Component() {
     getCoreRowModel: getCoreRowModel(),
   })
 
+  useQuickActions(
+    () => [
+      {
+        value: 'Add user or group',
+        navGroup: 'Actions',
+        action: () => setAddModalOpen(true),
+      },
+    ],
+    []
+  )
+
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Access24Icon />}>Access</PageTitle>
+        <PageTitle icon={<Access24Icon />}>Silo Access</PageTitle>
         <DocsPopover
           heading="access"
           icon={<Access16Icon />}
@@ -176,13 +191,13 @@ export function Component() {
       <TableActions>
         <CreateButton onClick={() => setAddModalOpen(true)}>Add user or group</CreateButton>
       </TableActions>
-      {siloPolicy && addModalOpen && (
+      {addModalOpen && (
         <SiloAccessAddUserSideModal
           onDismiss={() => setAddModalOpen(false)}
           policy={siloPolicy}
         />
       )}
-      {siloPolicy && editingUserRow?.siloRole && (
+      {editingUserRow?.siloRole && (
         <SiloAccessEditUserSideModal
           onDismiss={() => setEditingUserRow(null)}
           policy={siloPolicy}

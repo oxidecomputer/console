@@ -2,7 +2,7 @@
   ~ This Source Code Form is subject to the terms of the Mozilla Public
   ~ License, v. 2.0. If a copy of the MPL was not distributed with this
   ~ file, you can obtain one at https://mozilla.org/MPL/2.0/.
-  ~  
+  ~
   ~ Copyright Oxide Computer Company
 -->
 
@@ -12,13 +12,31 @@
     <meta charset="utf-8" />
     <title>Oxide Console</title>
 
-    <meta name="viewport" content="width=1050" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark light" />
 
     <link rel="icon" type="image/svg+xml" href="./app/assets/favicon.svg" />
     <link rel="icon" type="image/png" href="./app/assets/favicon.png" />
+
+    <!-- theme-init.js injected by vite plugin to avoid Vite trying to bundle it -->
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <div class="grid min-h-screen place-content-center">
+        <p class="max-w-lg p-8 text-center text-balance">
+          This site requires JavaScript. If you don't want to enable JavaScript, see the
+          <a
+            href="https://docs.oxide.computer/"
+            class="external-link"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Oxide docs</a
+          >
+          to learn about accessing the API through the CLI or SDKs.
+        </p>
+      </div>
+    </noscript>
     <script type="module" src="./app/main.tsx"></script>
   </body>
 </html>

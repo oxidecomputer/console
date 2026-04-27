@@ -6,19 +6,21 @@
  * Copyright Oxide Computer Company
  */
 import { useForm } from 'react-hook-form'
-import { useNavigate, useParams, type LoaderFunctionArgs } from 'react-router-dom'
+import { useNavigate, useParams, type LoaderFunctionArgs } from 'react-router'
 
 import {
-  apiQueryClient,
+  api,
   firewallRuleGetToPut,
+  q,
+  queryClient,
   useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
   type VpcFirewallRule,
 } from '@oxide/api'
 
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { ALL_ISH } from '~/util/consts'
@@ -26,6 +28,8 @@ import { pb } from '~/util/path-builder'
 
 import { CommonFields } from './firewall-rules-common'
 import { valuesToRuleUpdate, type FirewallRuleValues } from './firewall-rules-util'
+
+export const handle = titleCrumb('New Rule')
 
 /** Empty form for when we're not creating from an existing rule */
 const defaultValuesEmpty: FirewallRuleValues = {
@@ -55,37 +59,38 @@ const ruleToValues = (rule: VpcFirewallRule): FirewallRuleValues => ({
   hosts: rule.filters.hosts || [],
 })
 
-CreateFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc } = getVpcSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('vpcFirewallRulesView', { query: { project, vpc } }),
-    apiQueryClient.prefetchQuery('instanceList', { query: { project, limit: ALL_ISH } }),
-    apiQueryClient.prefetchQuery('vpcList', { query: { project, limit: ALL_ISH } }),
-    apiQueryClient.prefetchQuery('vpcSubnetList', {
-      query: { project, vpc, limit: ALL_ISH },
-    }),
+    queryClient.prefetchQuery(q(api.vpcFirewallRulesView, { query: { project, vpc } })),
+    queryClient.prefetchQuery(q(api.instanceList, { query: { project, limit: ALL_ISH } })),
+    queryClient.prefetchQuery(q(api.vpcList, { query: { project, limit: ALL_ISH } })),
+    queryClient.prefetchQuery(
+      q(api.vpcSubnetList, { query: { project, vpc, limit: ALL_ISH } })
+    ),
   ])
 
   return null
 }
 
-export function CreateFirewallRuleForm() {
+export default function CreateFirewallRuleForm() {
   const vpcSelector = useVpcSelector()
-  const queryClient = useApiQueryClient()
 
   const navigate = useNavigate()
   const onDismiss = () => navigate(pb.vpcFirewallRules(vpcSelector))
 
-  const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
+  const updateRules = useApiMutation(api.vpcFirewallRulesUpdate, {
     onSuccess(updatedRules) {
-      const newRule = updatedRules.rules[updatedRules.rules.length - 1]
-      queryClient.invalidateQueries('vpcFirewallRulesView')
-      addToast(<>Firewall rule <HL>{newRule.name}</HL> created</>) // prettier-ignore
+      // We just appended a rule, so the response list is non-empty
+      const newRule = updatedRules.rules.at(-1)!
+      queryClient.invalidateEndpoint('vpcFirewallRulesView')
+      // prettier-ignore
+      addToast(<>Firewall rule <HL>{newRule.name}</HL> created</>)
       navigate(pb.vpcFirewallRules(vpcSelector))
     },
   })
 
-  const { data } = usePrefetchedApiQuery('vpcFirewallRulesView', { query: vpcSelector })
+  const { data } = usePrefetchedQuery(q(api.vpcFirewallRulesView, { query: vpcSelector }))
   const existingRules = data.rules
 
   // The :rule path param is optional. If it is present, we are creating a

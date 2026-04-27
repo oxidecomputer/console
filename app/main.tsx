@@ -5,24 +5,25 @@
  *
  * Copyright Oxide Computer Company
  */
+import { CSPProvider } from '@base-ui/react/csp-provider'
 import { QueryClientProvider } from '@tanstack/react-query'
+import { LazyMotion, MotionConfig } from 'motion/react'
 // import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter } from 'react-router'
+import { RouterProvider } from 'react-router/dom'
 
 import { queryClient } from '@oxide/api'
 
 import { ConfirmActionModal } from './components/ConfirmActionModal'
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { ReduceMotion } from './hooks/use-reduce-motion'
 // stripped out by rollup in production
 import { startMockAPI } from './msw-mock-api'
 import { routes } from './routes'
 // this is the only allowed css import
 // eslint-disable-next-line no-restricted-imports
 import '~/ui/styles/index.css'
-
 import { SkipLink } from '~/ui/lib/SkipLink'
 
 if (process.env.SHA) {
@@ -32,6 +33,8 @@ if (process.env.SHA) {
   )
 }
 
+const loadFeatures = () => import('./util/motion-features').then((res) => res.domAnimation)
+
 const root = createRoot(document.getElementById('root')!)
 
 function render() {
@@ -40,34 +43,24 @@ function render() {
   // matching. I asked about this on Discord and they said it's intentional.
   // This means RR is best thought of as an external store that runs
   // independently of the React render lifecycle.
-  const router = createBrowserRouter(routes, {
-    // https://reactrouter.com/en/6.24.0/upgrading/future
-    future: {
-      v7_fetcherPersist: true,
-      v7_normalizeFormMethod: true,
-      v7_partialHydration: true,
-      v7_relativeSplatPath: true,
-      v7_skipActionErrorRevalidation: true,
-    },
-  })
+  const router = createBrowserRouter(routes)
 
   root.render(
     <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <ErrorBoundary>
-          <ConfirmActionModal />
-          <SkipLink id="skip-nav" />
-          <ReduceMotion />
-          <RouterProvider
-            router={router}
-            // this breaks the scroll restore test. turn it on after we change
-            // the layout so the whole page scrolls and switch back to RR's
-            // built in useScrollRestoration
-            // future={{ v7_startTransition: true }}
-          />
-        </ErrorBoundary>
-        {/* <ReactQueryDevtools initialIsOpen={false} /> */}
-      </QueryClientProvider>
+      <CSPProvider disableStyleElements>
+        <QueryClientProvider client={queryClient}>
+          <LazyMotion strict features={loadFeatures}>
+            <MotionConfig reducedMotion="user">
+              <ErrorBoundary>
+                <ConfirmActionModal />
+                <SkipLink id="skip-nav" />
+                <RouterProvider router={router} />
+              </ErrorBoundary>
+            </MotionConfig>
+          </LazyMotion>
+          {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+        </QueryClientProvider>
+      </CSPProvider>
     </StrictMode>
   )
 }

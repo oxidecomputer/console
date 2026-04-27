@@ -13,7 +13,7 @@ import { Refresh16Icon } from '@oxide/design-system/icons/react'
 import { Button } from '~/ui/lib/Button'
 import { SpinnerLoader } from '~/ui/lib/Spinner'
 
-export function RefreshButton({ onClick }: { onClick: () => Promise<void> }) {
+export function RefreshButton({ onClick }: { onClick: () => Promise<unknown> }) {
   const [refreshing, setRefreshing] = useState(false)
 
   async function refresh() {

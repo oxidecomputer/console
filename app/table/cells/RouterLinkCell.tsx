@@ -6,20 +6,21 @@
  * Copyright Oxide Computer Company
  */
 
-import { useApiQuery } from '~/api'
+import { useQuery } from '@tanstack/react-query'
+
+import { api, q } from '@oxide/api'
+import { Badge } from '@oxide/design-system/ui'
+
 import { useVpcSelector } from '~/hooks/use-params'
-import { Badge } from '~/ui/lib/Badge'
 import { pb } from '~/util/path-builder'
 
 import { EmptyCell, SkeletonCell } from './EmptyCell'
 import { LinkCell } from './LinkCell'
 
-export const RouterLinkCell = ({ routerId }: { routerId?: string }) => {
+export const RouterLinkCell = ({ routerId }: { routerId?: string | null }) => {
   const { project, vpc } = useVpcSelector()
-  const { data: router, isError } = useApiQuery(
-    'vpcRouterView',
-    { path: { router: routerId! } }, // it's an ID, so no parent selector
-    { enabled: !!routerId }
+  const { data: router, isError } = useQuery(
+    q(api.vpcRouterView, { path: { router: routerId! } }, { enabled: !!routerId })
   )
   if (!routerId) return <EmptyCell />
   // probably not possible but let’s be safe

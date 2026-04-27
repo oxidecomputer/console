@@ -5,21 +5,18 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback, useMemo } from 'react'
-import { Outlet, useNavigate } from 'react-router-dom'
+import { useCallback } from 'react'
+import { Outlet } from 'react-router'
 
-import {
-  getListQFn,
-  queryClient,
-  useApiMutation,
-  useApiQueryClient,
-  type Silo,
-} from '@oxide/api'
+import { api, getListQFn, q, queryClient, useApiMutation, type Silo } from '@oxide/api'
 import { Cloud16Icon, Cloud24Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -28,15 +25,15 @@ import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
-import { Badge } from '~/ui/lib/Badge'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-const siloList = () => getListQFn('siloList', {})
+const siloList = () => getListQFn(api.siloList, {})
 
 const EmptyState = () => (
   <EmptyMessage
@@ -64,20 +61,19 @@ const staticCols = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-export async function loader() {
+export async function clientLoader() {
   await queryClient.prefetchQuery(siloList().optionsFn())
   return null
 }
 
-Component.displayName = 'SilosPage'
-export function Component() {
-  const navigate = useNavigate()
+export const handle = makeCrumb('Silos', pb.silos())
 
-  const queryClient = useApiQueryClient()
-  const { mutateAsync: deleteSilo } = useApiMutation('siloDelete', {
-    onSuccess(silo, { path }) {
-      queryClient.invalidateQueries('siloList')
-      addToast(<>Silo <HL>{path.silo}</HL> deleted</>) // prettier-ignore
+export default function SilosPage() {
+  const { mutateAsync: deleteSilo } = useApiMutation(api.siloDelete, {
+    onSuccess(_silo, { path }) {
+      queryClient.invalidateEndpoint('siloList')
+      // prettier-ignore
+      addToast(<>Silo <HL>{path.silo}</HL> deleted</>)
     },
   })
 
@@ -95,25 +91,24 @@ export function Component() {
   )
 
   const columns = useColsWithActions(staticCols, makeActions)
-  const { table, query } = useQueryTable({
+  const { table } = useQueryTable({
     query: siloList(),
     columns,
     emptyState: <EmptyState />,
   })
-  const { data: silos } = query
+
+  const { data: allSilos } = useQuery(q(api.siloList, { query: { limit: ALL_ISH } }))
 
   useQuickActions(
-    useMemo(
-      () => [
-        { value: 'New silo', onSelect: () => navigate(pb.silosNew()) },
-        ...(silos?.items || []).map((o) => ({
-          value: o.name,
-          onSelect: () => navigate(pb.silo({ silo: o.name })),
-          navGroup: 'Silo detail',
-        })),
-      ],
-      [navigate, silos]
-    )
+    () => [
+      { value: 'New silo', navGroup: 'Actions', action: pb.silosNew() },
+      ...(allSilos?.items || []).map((o) => ({
+        value: o.name,
+        action: pb.silo({ silo: o.name }),
+        navGroup: 'Go to silo',
+      })),
+    ],
+    [allSilos]
   )
 
   return (

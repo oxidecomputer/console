@@ -11,12 +11,15 @@
  * in this file does _not_ impact end-to-end tests.
  */
 import '@testing-library/jest-dom/vitest'
-
 import { cleanup } from '@testing-library/react'
 import { afterAll, afterEach, beforeAll } from 'vitest'
 
 import { resetDb } from '../../mock-api/msw/db'
 import { server } from './server'
+
+// xterm calls this when it's imported, so defining it here suppresses
+// an error that the method is not implemented
+HTMLCanvasElement.prototype.getContext = () => null
 
 beforeAll(() => server.listen())
 afterEach(() => {

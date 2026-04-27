@@ -13,7 +13,6 @@ import { Radio } from '~/ui/lib/Radio'
 // only needs to be a function because of the generic params
 export const getSelectCol = <TData,>() => ({
   id: 'select',
-  meta: { thClassName: 'w-10' },
   header: '',
   cell: ({ row }: { row: Row<TData> }) => {
     // `onChange` is empty to suppress react warning. Actual trigger happens in `Table.tsx`
@@ -23,7 +22,6 @@ export const getSelectCol = <TData,>() => ({
 
 export const getMultiSelectCol = <TData,>() => ({
   id: 'select',
-  meta: { thClassName: 'w-10' },
   header: ({ table }: { table: Table<TData> }) => (
     <div className="flex">
       <Checkbox

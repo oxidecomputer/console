@@ -24,19 +24,19 @@ export function CalendarGrid({ state, ...props }: CalendarGridProps) {
   const weeksInMonth = getWeeksInMonth(state.visibleRange.start, locale)
 
   return (
-    <div className="pb-4 pl-4 pr-4">
+    <div className="pr-4 pb-4 pl-4">
       <table {...gridProps} cellPadding="0" className="flex-1">
         <thead {...headerProps}>
           <tr>
             {weekDays.map((day, index) => (
-              <th className="h-8 w-10 text-center text-mono-md text-quaternary" key={index}>
+              <th className="text-mono-md text-tertiary h-8 w-10 text-center" key={index}>
                 {day}
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {[...new Array(weeksInMonth).keys()].map((weekIndex) => (
+          {[...Array.from({ length: weeksInMonth }).keys()].map((weekIndex) => (
             <tr key={weekIndex}>
               {state
                 .getDatesInWeek(weekIndex)

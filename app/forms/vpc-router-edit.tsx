@@ -6,17 +6,14 @@
  * Copyright Oxide Computer Company
  */
 import { useForm } from 'react-hook-form'
-import {
-  useNavigate,
-  type LoaderFunctionArgs,
-  type NavigateFunction,
-} from 'react-router-dom'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
-  apiQueryClient,
+  api,
+  q,
+  queryClient,
   useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
   type VpcRouterUpdate,
 } from '@oxide/api'
 
@@ -24,37 +21,36 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
-EditRouterSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  const { router, project, vpc } = getVpcRouterSelector(params)
-  await apiQueryClient.prefetchQuery('vpcRouterView', {
-    path: { router },
-    query: { project, vpc },
-  })
+const routerView = ({ project, vpc, router }: PP.VpcRouter) =>
+  q(api.vpcRouterView, { path: { router }, query: { project, vpc } })
+
+export async function clientLoader({ params }: LoaderFunctionArgs) {
+  const selector = getVpcRouterSelector(params)
+  await queryClient.prefetchQuery(routerView(selector))
   return null
 }
 
-export function EditRouterSideModalForm() {
-  const queryClient = useApiQueryClient()
+export const handle = titleCrumb('Edit Router')
+
+export default function EditRouterSideModalForm() {
   const routerSelector = useVpcRouterSelector()
   const { project, vpc, router } = routerSelector
-  const { data: routerData } = usePrefetchedApiQuery('vpcRouterView', {
-    path: { router },
-    query: { project, vpc },
-  })
+  const { data: routerData } = usePrefetchedQuery(routerView(routerSelector))
   const navigate = useNavigate()
 
-  const onDismiss = (navigate: NavigateFunction) => {
-    navigate(pb.vpcRouters({ project, vpc }))
-  }
-
-  const editRouter = useApiMutation('vpcRouterUpdate', {
+  const editRouter = useApiMutation(api.vpcRouterUpdate, {
     onSuccess(updatedRouter) {
-      queryClient.invalidateQueries('vpcRouterList')
-      addToast(<>Router <HL>{updatedRouter.name}</HL> updated</>) // prettier-ignore
+      queryClient.invalidateEndpoint('vpcRouterList')
+      // prettier-ignore
+      addToast(<>Router <HL>{updatedRouter.name}</HL> updated</>)
       navigate(pb.vpcRouters({ project, vpc }))
     },
   })
@@ -71,7 +67,7 @@ export function EditRouterSideModalForm() {
       form={form}
       formType="edit"
       resourceName="router"
-      onDismiss={() => onDismiss(navigate)}
+      onDismiss={() => navigate(pb.vpcRouters({ project, vpc }))}
       onSubmit={(body) =>
         editRouter.mutate({
           path: { router },
@@ -84,6 +80,7 @@ export function EditRouterSideModalForm() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
+      <SideModalFormDocs docs={[docLinks.routers]} />
     </SideModalForm>
   )
 }

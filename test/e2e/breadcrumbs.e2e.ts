@@ -9,10 +9,10 @@
 import { expect, test, type Page } from '@playwright/test'
 
 async function getCrumbs(page: Page) {
-  const links = await page
-    .getByRole('navigation', { name: 'Breadcrumbs' })
-    .getByRole('link')
-    .all()
+  // CSS locator instead of getByRole so we can still read breadcrumbs while a
+  // dialog is open — base-ui sets aria-hidden on outside content, which hides
+  // the nav from the accessibility tree.
+  const links = await page.locator('nav[aria-label="Breadcrumbs"] a').all()
   return Promise.all(
     links.map(async (link) => [await link.textContent(), await link.getAttribute('href')])
   )
@@ -65,13 +65,23 @@ test('breadcrumbs', async ({ page }) => {
   await page.goto('/system/silos/maze-war')
   const siloCrumbs: Pair[] = [
     ['Silos', '/system/silos'],
-    ['maze-war', '/system/silos/maze-war'],
+    ['maze-war', '/system/silos/maze-war/idps'],
+    ['Identity Providers', '/system/silos/maze-war/idps'],
   ]
   await expectCrumbs(page, siloCrumbs)
   // same crumbs on IdP detail side modal
   await page.getByRole('link', { name: 'mock-idp' }).click()
   await expect(page).toHaveURL('/system/silos/maze-war/idps/saml/mock-idp')
   await expectCrumbs(page, siloCrumbs)
+
+  await page.keyboard.press('Escape')
+  await page.getByRole('tab', { name: 'Fleet Roles' }).click()
+  await expect(page).toHaveURL('/system/silos/maze-war/fleet-roles')
+  await expectCrumbs(page, [
+    ['Silos', '/system/silos'],
+    ['maze-war', '/system/silos/maze-war/idps'],
+    ['Fleet Roles', '/system/silos/maze-war/fleet-roles'],
+  ])
 
   await page.goto('/system/networking/ip-pools/ip-pool-1')
   const poolCrumbs: Pair[] = [

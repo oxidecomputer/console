@@ -6,10 +6,10 @@
  * Copyright Oxide Computer Company
  */
 import { createColumnHelper } from '@tanstack/react-table'
-import type { LoaderFunctionArgs } from 'react-router-dom'
+import type { LoaderFunctionArgs } from 'react-router'
 import * as R from 'remeda'
 
-import { getListQFn, queryClient, type SledInstance } from '@oxide/api'
+import { api, getListQFn, queryClient, type SledInstance } from '@oxide/api'
 import { Instances24Icon } from '@oxide/design-system/icons/react'
 
 import { InstanceStateBadge } from '~/components/StateBadge'
@@ -21,7 +21,7 @@ import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 
 const sledInstanceList = (sledId: string) =>
-  getListQFn('sledInstanceList', { path: { sledId } })
+  getListQFn(api.sledInstanceList, { path: { sledId } })
 
 const EmptyState = () => {
   return (
@@ -33,11 +33,13 @@ const EmptyState = () => {
   )
 }
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { sledId } = requireSledParams(params)
   await queryClient.prefetchQuery(sledInstanceList(sledId).optionsFn())
   return null
 }
+
+export const handle = { crumb: 'Instances' }
 
 // passing in empty function because we still want the copy ID button
 const makeActions = (): MenuAction[] => []
@@ -50,8 +52,8 @@ const staticCols = [
       const value = info.getValue()
       return (
         <div className="space-y-0.5">
-          <div className="text-quaternary">{`${value.siloName} / ${value.projectName}`}</div>
-          <div className="text-default">{value.name}</div>
+          <div className="text-tertiary">{`${value.siloName} / ${value.projectName}`}</div>
+          <div className="text-raise">{value.name}</div>
         </div>
       )
     },
@@ -69,8 +71,7 @@ const staticCols = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-Component.displayName = 'SledInstancesTab'
-export function Component() {
+export default function SledInstancesTab() {
   const { sledId } = useSledParams()
   const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({

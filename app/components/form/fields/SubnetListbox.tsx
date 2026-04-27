@@ -5,9 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { useWatch, type FieldPath, type FieldValues } from 'react-hook-form'
 
-import { useApiQuery } from '@oxide/api'
+import { api, q } from '@oxide/api'
 
 import { useProjectSelector } from '~/hooks/use-params'
 
@@ -40,10 +41,12 @@ export function SubnetListbox<
 
   // TODO: error handling other than fallback to empty list?
   const subnets =
-    useApiQuery(
-      'vpcSubnetList',
-      { query: { ...projectSelector, vpc: vpcName } },
-      { enabled: vpcExists, throwOnError: false }
+    useQuery(
+      q(
+        api.vpcSubnetList,
+        { query: { ...projectSelector, vpc: vpcName } },
+        { enabled: vpcExists, throwOnError: false }
+      )
     ).data?.items || []
 
   return (
@@ -52,7 +55,7 @@ export function SubnetListbox<
       items={subnets.map(({ name }) => ({ value: name, label: name }))}
       disabled={!vpcExists}
       control={control}
-      placeholder="Select a subnet"
+      placeholder="Select a VPC subnet"
       noItemsPlaceholder={vpcName ? 'No subnets found' : 'Select a VPC to see subnets'}
     />
   )

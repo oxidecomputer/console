@@ -5,85 +5,74 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMemo } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router'
 
-import { apiQueryClient } from '@oxide/api'
+import { api, q, queryClient } from '@oxide/api'
 import {
+  Access16Icon,
   Cloud16Icon,
   IpGlobal16Icon,
   Metrics16Icon,
   Servers16Icon,
+  SoftwareUpdate16Icon,
+  Subnet16Icon,
 } from '@oxide/design-system/icons/react'
 
 import { trigger404 } from '~/components/ErrorBoundary'
 import { DocsLinkItem, NavLinkItem, Sidebar } from '~/components/Sidebar'
 import { TopBar } from '~/components/TopBar'
-import { useQuickActions } from '~/hooks/use-quick-actions'
+import { useCurrentUser } from '~/hooks/use-current-user'
+import { useQuickActions, type QuickActionItem } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
-import { pb } from '~/util/path-builder'
+import { inventoryBase, pb } from '~/util/path-builder'
 
-import { useCurrentUser } from './AuthenticatedLayout'
 import { ContentPane, PageContainer } from './helpers'
 
 /**
- * If we can see the policy, we're a fleet viewer, and we need to be a fleet
- * viewer in order to see any of the routes under this layout. We need to
- * `fetchQuery` instead of `prefetchQuery` because the latter doesn't return the
- * result, and then we need to `.catch()` because `fetchQuery` throws on request
- * error. We're being a little cavalier here with the error. If it's something
- * other than a 403, that would be strange and we would want to know.
+ * We need to be a fleet viewer in order to see any of the routes under this
+ * layout. We need to `fetchQuery` instead of `prefetchQuery` because the latter
+ * doesn't return the result.
  */
-export async function loader() {
-  // we don't need to use the ErrorsAllowed version here because we're 404ing
-  // immediately on error, so we don't need to pick the result up from the cache
-  const isFleetViewer = await apiQueryClient
-    .fetchQuery('systemPolicyView', {})
-    .then(() => true)
-    .catch(() => false)
-
-  // TODO: make sure 404 is the desired behavior. This situation should be
-  // pretty unlikely.
-  if (!isFleetViewer) throw trigger404
-
+export async function clientLoader() {
+  const me = await queryClient.fetchQuery(q(api.currentUserView, {}))
+  if (!me.fleetViewer) throw trigger404
   return null
 }
 
-Component.displayName = 'SystemLayout'
-export function Component() {
+export default function SystemLayout() {
   // Only show silo picker if we are looking at a particular silo. The more
   // robust way of doing this would be to make a separate layout for the
   // silo-specific routes in the route config, but it's overkill considering
   // this is a one-liner. Switch to that approach at the first sign of trouble.
-  const navigate = useNavigate()
   const { pathname } = useLocation()
 
   const { me } = useCurrentUser()
 
-  const actions = useMemo(() => {
+  useQuickActions(() => {
     const systemLinks = [
       { value: 'Silos', path: pb.silos() },
       { value: 'Utilization', path: pb.systemUtilization() },
       { value: 'Inventory', path: pb.sledInventory() },
       { value: 'IP Pools', path: pb.ipPools() },
+      { value: 'Subnet Pools', path: pb.subnetPools() },
+      { value: 'System Update', path: pb.systemUpdate() },
+      { value: 'Fleet Access', path: pb.fleetAccess() },
     ]
       // filter out the entry for the path we're currently on
       .filter((i) => i.path !== pathname)
       .map((i) => ({
         navGroup: 'System',
         value: i.value,
-        onSelect: () => navigate(i.path),
+        action: i.path,
       }))
 
-    const backToSilo = {
+    const backToSilo: QuickActionItem = {
       navGroup: `Back to silo '${me.siloName}'`,
       value: 'Projects',
-      onSelect: () => navigate(pb.projects()),
+      action: pb.projects(),
     }
     return [...systemLinks, backToSilo]
-  }, [pathname, navigate, me.siloName])
-
-  useQuickActions(actions)
+  }, [pathname, me.siloName])
 
   return (
     <PageContainer>
@@ -103,11 +92,20 @@ export function Component() {
           <NavLinkItem to={pb.systemUtilization()}>
             <Metrics16Icon /> Utilization
           </NavLinkItem>
-          <NavLinkItem to={pb.sledInventory()}>
+          <NavLinkItem to={pb.sledInventory()} activePrefix={inventoryBase()}>
             <Servers16Icon /> Inventory
           </NavLinkItem>
           <NavLinkItem to={pb.ipPools()}>
             <IpGlobal16Icon /> IP Pools
+          </NavLinkItem>
+          <NavLinkItem to={pb.subnetPools()}>
+            <Subnet16Icon /> Subnet Pools
+          </NavLinkItem>
+          <NavLinkItem to={pb.systemUpdate()}>
+            <SoftwareUpdate16Icon /> System Update
+          </NavLinkItem>
+          <NavLinkItem to={pb.fleetAccess()}>
+            <Access16Icon /> Fleet Access
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>

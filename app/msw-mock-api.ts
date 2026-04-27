@@ -15,7 +15,7 @@ function getChaos() {
 const chaos = getChaos()
 
 if (process.env.NODE_ENV !== 'production' && chaos) {
-  console.log(`
+  console.info(`
    ▄████████    ▄█    █▄       ▄████████  ▄██████▄     ▄████████
   ███    ███   ███    ███     ███    ███ ███    ███   ███    ███
   ███    █▀    ███    ███     ███    ███ ███    ███   ███    █▀
@@ -34,7 +34,7 @@ if (process.env.NODE_ENV !== 'production' && chaos) {
    ███   ███   ███ ███    ███ ███   ▄███   ███    ███
     ▀█   ███   █▀   ▀██████▀  ████████▀    ██████████
   `)
-  console.log(`Running MSW in CHAOS MODE with ${chaos}% likelihood of random failure`)
+  console.info(`Running MSW in CHAOS MODE with ${chaos}% likelihood of random failure`)
 }
 
 /** Return true for failure with a given likelihood */
@@ -54,11 +54,26 @@ const randomStatus = () => {
 
 const sleep = async (ms: number) => new Promise((res) => setTimeout(res, ms))
 
+/** Stream boot log line-by-line with realistic timing */
+async function streamBootLog(socket: WebSocket, text: string) {
+  for (const line of text.split('\n')) {
+    socket.send(line + '\r\n')
+    if (line === '' || line.startsWith('Welcome to') || line.includes('login:')) {
+      await sleep(200)
+    } else if (line.startsWith('[  OK  ]') || line.startsWith('         Starting')) {
+      await sleep(30)
+    } else {
+      await sleep(15)
+    }
+  }
+}
+
 export async function startMockAPI() {
   // dynamic imports to make extremely sure none of this code ends up in the prod bundle
   const { handlers } = await import('../mock-api/msw/handlers')
-  const { http, HttpResponse } = await import('msw')
+  const { http, HttpResponse, ws } = await import('msw')
   const { setupWorker } = await import('msw/browser')
+  const serialConsoleText = (await import('../mock-api/serial-console.txt?raw')).default
 
   // defined in here because it depends on the dynamic import
   const interceptAll = http.all('/v1/*', async () => {
@@ -77,8 +92,27 @@ export async function startMockAPI() {
     // don't return anything means fall through to the real handlers
   })
 
+  // serial console
+  const secure = window.location.protocol === 'https:'
+  const protocol = secure ? 'wss' : 'ws'
+  const serialConsole = `${protocol}://${window.location.host}/v1/instances/:instance/serial-console/stream`
+
   // https://mswjs.io/docs/api/setup-worker/start#options
-  await setupWorker(interceptAll, ...handlers).start({
+  await setupWorker(
+    interceptAll,
+    ...handlers,
+
+    ws.link(serialConsole).addEventListener('connection', async ({ client }) => {
+      client.addEventListener('message', (event) => {
+        // Mirror client messages back (lets you type in the terminal). If it's
+        // an enter key, send a newline.
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
+        client.send(event.data.toString() === '13' ? '\r\n' : event.data)
+      })
+      await sleep(1000) // make sure everything is ready first (especially a problem in CI)
+      await streamBootLog(client.socket, serialConsoleText)
+    })
+  ).start({
     quiet: true, // don't log successfully handled requests
     // custom handler only to make logging less noisy. unhandled requests still
     // pass through to the server

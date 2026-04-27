@@ -5,10 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
-import * as Dialog from '@radix-ui/react-dialog'
-import { animated, useTransition } from '@react-spring/web'
+import { Dialog as BaseDialog } from '@base-ui/react/dialog'
 import cn from 'classnames'
-import React, { forwardRef, useId } from 'react'
+import * as m from 'motion/react-m'
+import type { MergeExclusive } from 'type-fest'
 
 import { Close12Icon } from '@oxide/design-system/icons/react'
 
@@ -18,112 +18,99 @@ import { Button } from './Button'
 import { DialogOverlay } from './DialogOverlay'
 import { ModalContext } from './modal-context'
 
+type Width = 'narrow' | 'medium' | 'free'
+
+const widthClass: Record<Width, string> = {
+  narrow: 'w-full max-w-[24rem]',
+  medium: 'w-full max-w-md',
+  free: 'min-w-[24rem] max-w-3xl', // give it a big max just to be safe
+}
+
 export type ModalProps = {
   title: string
   isOpen: boolean
   children?: React.ReactNode
   onDismiss: () => void
-  /** Default false. Only needed in a couple of spots. */
-  narrow?: true
+  /** Default medium. Only needed in a couple of spots. */
+  width?: Width
   /** Default true. We only need to hide it for the rare case of modal on top of modal. */
   overlay?: boolean
 }
 
-// Note that the overlay has z-index 30 and content has 40. This is to make sure
-// both land on top of a side modal in the regrettable case where we have both
-// on screen at once.
+// Overlay sits above --z-side-modal and content above that, so the Modal fully
+// covers a SideModal in the regrettable case where both are on screen at once.
 
 export function Modal({
   children,
   onDismiss,
   title,
   isOpen,
-  narrow,
+  width = 'medium',
   overlay = true,
 }: ModalProps) {
-  const titleId = useId()
-  const AnimatedDialogContent = animated(Dialog.Content)
-
-  const config = { tension: 650, mass: 0.125 }
-
-  const transitions = useTransition(isOpen, {
-    from: { y: -5 },
-    enter: { y: 0 },
-    config: isOpen ? config : { duration: 0 },
-  })
-
   return (
     <ModalContext.Provider value>
-      {transitions(
-        ({ y }, item) =>
-          item && (
-            <Dialog.Root
-              open
-              onOpenChange={(open) => {
-                if (!open) onDismiss()
-              }}
-              // https://github.com/radix-ui/primitives/issues/1159#issuecomment-1559813266
-              modal={false}
+      <BaseDialog.Root
+        open={isOpen}
+        onOpenChange={(open, { reason }) => {
+          // Ignore focus-out to prevent a dismiss loop when a native confirm()
+          // dialog steals and returns focus (same role as the old Radix
+          // onFocusOutside preventDefault). See oxidecomputer/console#1745.
+          if (!open && reason !== 'focus-out') onDismiss()
+        }}
+      >
+        <BaseDialog.Portal>
+          {overlay && <DialogOverlay />}
+          <BaseDialog.Popup
+            render={
+              <m.div
+                initial={{ x: '-50%', y: 'calc(-50% - 25px)' }}
+                animate={{ x: '-50%', y: '-50%' }}
+                transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
+                className={cn(
+                  'bg-raise light:bg-default shadow-modal pointer-events-auto fixed top-[min(50%,500px)] left-1/2 z-(--z-modal) m-0 flex max-h-[min(800px,80vh)] flex-col justify-between overflow-hidden rounded-lg p-0',
+                  widthClass[width]
+                )}
+              />
+            }
+          >
+            <BaseDialog.Title className="text-sans-semi-lg bg-secondary light:bg-raise border-b-secondary border-b px-4 py-4">
+              {title}
+            </BaseDialog.Title>
+            {children}
+            <BaseDialog.Close
+              className="hover:bg-hover absolute top-3.5 right-2 flex items-center justify-center rounded-md p-2"
+              aria-label="Close"
             >
-              <Dialog.Portal>
-                {overlay && <DialogOverlay />}
-
-                <AnimatedDialogContent
-                  className={cn(
-                    'pointer-events-auto fixed left-1/2 top-1/2 z-modal m-0 flex max-h-[min(800px,80vh)] w-full flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2',
-                    narrow ? 'max-w-[24rem]' : 'max-w-[28rem]'
-                  )}
-                  aria-labelledby={titleId}
-                  style={{
-                    transform: y.to((value) => `translate3d(-50%, ${-50 + value}%, 0px)`),
-                  }}
-                  // Prevents cancel loop on clicking on background over side
-                  // modal to get out of image upload modal. Canceling out of
-                  // confirm dialog returns focus to the dismissable layer,
-                  // which triggers onDismiss again. And again.
-                  // https://github.com/oxidecomputer/console/issues/1745
-                  onFocusOutside={(e) => e.preventDefault()}
-                >
-                  <Dialog.Title asChild>
-                    <ModalTitle id={titleId}>{title}</ModalTitle>
-                  </Dialog.Title>
-                  {children}
-                  <Dialog.Close
-                    className="absolute right-2 top-4 flex items-center justify-center rounded p-2 hover:bg-hover"
-                    aria-label="Close"
-                  >
-                    <Close12Icon className="text-secondary" />
-                  </Dialog.Close>
-                </AnimatedDialogContent>
-              </Dialog.Portal>
-            </Dialog.Root>
-          )
-      )}
+              <Close12Icon className="text-default" />
+            </BaseDialog.Close>
+          </BaseDialog.Popup>
+        </BaseDialog.Portal>
+      </BaseDialog.Root>
     </ModalContext.Provider>
   )
 }
 
-interface ModalTitleProps {
+Modal.Body = classed.div`py-2 overflow-y-auto overscroll-none`
+
+Modal.Section = classed.div`p-4 space-y-4 border-b border-secondary text-default last-of-type:border-none text-sans-md`
+
+/**
+ * `formId` and `onAction` are mutually exclusive. If there is a form associated,
+ * the button becomes a submit button for that form, and the action is assumed to
+ * be hooked up in the form's `onSubmit`.
+ */
+type FooterProps = {
   children?: React.ReactNode
-  id?: string
-}
-
-// not exported because we want to use the `title` prop on Modal so the aria
-// label gets hooked up properly
-const ModalTitle = forwardRef<HTMLDivElement, ModalTitleProps>(({ children, id }, ref) => (
-  <div
-    ref={ref}
-    className="flex items-center justify-between border-b px-4 py-4 bg-secondary border-b-secondary"
-  >
-    <h2 className="text-sans-semi-lg" id={id}>
-      {children}
-    </h2>
-  </div>
-))
-
-Modal.Body = classed.div`py-2 overflow-y-auto`
-
-Modal.Section = classed.div`p-4 space-y-4 border-b border-secondary text-secondary last-of-type:border-none text-sans-md`
+  onDismiss: () => void
+  actionType?: 'primary' | 'danger'
+  actionText: React.ReactNode
+  actionLoading?: boolean
+  cancelText?: string
+  disabled?: boolean
+  disabledReason?: React.ReactNode
+  showCancel?: boolean
+} & MergeExclusive<{ formId: string }, { onAction: () => void }>
 
 Modal.Footer = ({
   children,
@@ -133,28 +120,27 @@ Modal.Footer = ({
   actionText,
   actionLoading,
   cancelText,
-  disabled = false,
-}: {
-  children?: React.ReactNode
-  onDismiss: () => void
-  onAction: () => void
-  actionType?: 'primary' | 'danger'
-  actionText: React.ReactNode
-  actionLoading?: boolean
-  cancelText?: string
-  disabled?: boolean
-}) => (
-  <footer className="flex items-center justify-between border-t px-3 py-3 border-secondary">
+  disabled,
+  disabledReason,
+  formId,
+  showCancel = true,
+}: FooterProps) => (
+  <footer className="border-secondary flex items-center justify-between border-t px-4 py-3">
     <div className="mr-4">{children}</div>
     <div className="space-x-2">
-      <Button variant="secondary" size="sm" onClick={onDismiss}>
-        {cancelText || 'Cancel'}
-      </Button>
+      {showCancel && (
+        <Button variant="secondary" size="sm" onClick={onDismiss}>
+          {cancelText || 'Cancel'}
+        </Button>
+      )}
       <Button
+        type={formId ? 'submit' : 'button'}
+        form={formId}
         size="sm"
         variant={actionType}
         onClick={onAction}
-        disabled={disabled}
+        disabled={!!disabled}
+        disabledReason={disabledReason}
         loading={actionLoading}
       >
         {actionText}

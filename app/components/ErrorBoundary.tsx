@@ -5,28 +5,75 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { ErrorBoundary as BaseErrorBoundary } from 'react-error-boundary'
-import { useRouteError } from 'react-router-dom'
+import { useRouteError } from 'react-router'
 
+import { api, q } from '~/api'
 import { type ApiError } from '~/api/errors'
+import { Message } from '~/ui/lib/Message'
+import { links } from '~/util/links'
 
 import { ErrorPage, NotFound } from './ErrorPage'
+
+const IdpMisconfig = () => (
+  <Message
+    variant="notice"
+    className="mt-6!"
+    showIcon={false}
+    content={
+      <p>
+        You are not in any groups and have no role on the silo. This usually means the
+        identity provider is not set up correctly. Read the{' '}
+        <a
+          href={links.troubleshootingAccess}
+          className="underline"
+          target="_blank"
+          rel="noreferrer"
+        >
+          docs
+        </a>{' '}
+        for more information.
+      </p>
+    }
+  />
+)
+
+function useDetectNoSiloRole(enabled: boolean): boolean {
+  // this is kind of a hail mary, so if any of this goes wrong we need to ignore it
+  const options = { enabled, throwOnError: false }
+  const { data: me } = useQuery(q(api.currentUserView, {}, options))
+  const { data: myGroups } = useQuery(q(api.currentUserGroups, {}, options))
+  const { data: siloPolicy } = useQuery(q(api.policyView, {}, options))
+
+  if (!me || !myGroups || !siloPolicy) return false
+
+  const noGroups = myGroups.items.length === 0
+  const hasDirectRoleOnSilo = siloPolicy.roleAssignments.some((r) => r.identityId === me.id)
+  return noGroups && !hasDirectRoleOnSilo
+}
 
 export const trigger404 = { type: 'error', statusCode: 404 }
 
 type Props = { error: Error | ApiError }
 
 function ErrorFallback({ error }: Props) {
-  if ('statusCode' in error && error.statusCode === 404) {
-    return <NotFound />
-  }
+  console.error(error)
+  const statusCode = 'statusCode' in error ? error.statusCode : undefined
+
+  // if the error is a 403, make API calls to check whether the user has any
+  // groups or any roles directly on the silo
+  const showIdpMisconfig = useDetectNoSiloRole(statusCode === 403)
+
+  if (statusCode === 404) return <NotFound />
 
   return (
     <ErrorPage>
       <h1 className="text-sans-2xl">Something went wrong</h1>
-      <p className="text-tertiary">
+      <p className="text-secondary">
         Please try again. If the problem persists, contact your administrator.
       </p>
+      {showIdpMisconfig && <IdpMisconfig />}
     </ErrorPage>
   )
 }
@@ -38,6 +85,5 @@ export const ErrorBoundary = (props: { children: React.ReactNode }) => (
 export function RouterDataErrorBoundary() {
   // TODO: validate this unknown at runtime _before_ passing to ErrorFallback
   const error = useRouteError() as Props['error']
-  console.error(error)
   return <ErrorFallback error={error} />
 }

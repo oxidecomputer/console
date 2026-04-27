@@ -36,13 +36,16 @@ export interface ListboxProps<Value extends string = string> {
   disabled?: boolean
   hasError?: boolean
   name?: string
-  label?: React.ReactNode
+  label?: string
+  /** Hide visible label, using it as aria-label on the button instead */
+  hideLabel?: boolean
   description?: React.ReactNode
   required?: boolean
   isLoading?: boolean
   /** Necessary if you want RHF to be able to focus it on error */
   buttonRef?: Ref<HTMLButtonElement>
   hideOptionalTag?: boolean
+  hideSelected?: boolean
 }
 
 export const Listbox = <Value extends string = string>({
@@ -61,6 +64,8 @@ export const Listbox = <Value extends string = string>({
   isLoading = false,
   buttonRef,
   hideOptionalTag,
+  hideSelected = false,
+  hideLabel = false,
   ...props
 }: ListboxProps<Value>) => {
   const selectedItem = selected && items.find((i) => i.value === selected)
@@ -80,9 +85,9 @@ export const Listbox = <Value extends string = string>({
         disabled={isDisabled || isLoading}
       >
         {({ open }) => (
-          <>
-            {label && (
-              <div className="mb-2">
+          <div>
+            {label && !hideLabel && (
+              <div className="mb-2 max-w-lg">
                 <FieldLabel
                   id={`${id}-label`}
                   htmlFor={id}
@@ -99,41 +104,54 @@ export const Listbox = <Value extends string = string>({
               id={id}
               name={name}
               className={cn(
-                `flex h-11 w-full items-center justify-between rounded border text-sans-md`,
+                `text-sans-md flex h-11 items-center justify-between rounded-md border`,
                 hasError
                   ? 'focus-error border-error-secondary hover:border-error'
-                  : 'border-default hover:border-hover',
-                open && 'ring-2 ring-accent-secondary',
+                  : 'border-default hover:border-raise',
+                open && 'ring-accent-secondary ring-2',
                 open && hasError && 'ring-error-secondary',
                 isDisabled
-                  ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
+                  ? 'text-disabled bg-disabled border-default! cursor-not-allowed'
                   : 'bg-default',
-                isDisabled && hasError && '!border-error-secondary'
+                isDisabled && hasError && 'border-error-secondary!',
+                hideSelected ? 'w-auto' : 'w-full'
               )}
               ref={buttonRef}
+              aria-label={hideLabel ? label : undefined}
               {...props}
             >
-              <div className="w-full overflow-hidden overflow-ellipsis whitespace-pre px-3 text-left">
-                {selectedItem ? (
-                  // selectedLabel is one line, which is what we need when label is a ReactNode
-                  selectedItem.selectedLabel || selectedItem.label
-                ) : (
-                  <span className="text-quaternary">
-                    {noItems ? noItemsPlaceholder : placeholder}
-                  </span>
-                )}
-              </div>
-              {!isDisabled && <SpinnerLoader isLoading={isLoading} />}
+              {!hideSelected && (
+                <>
+                  <div className="w-full overflow-hidden px-3 text-left text-ellipsis whitespace-pre">
+                    {selectedItem ? (
+                      // selectedLabel is one line, which is what we need when label is a ReactNode
+                      selectedItem.selectedLabel || selectedItem.label
+                    ) : (
+                      <span className="text-tertiary">
+                        {noItems ? noItemsPlaceholder : placeholder}
+                      </span>
+                    )}
+                  </div>
+                  {!isDisabled && <SpinnerLoader isLoading={isLoading} />}
+                </>
+              )}
               <div
-                className="flex h-[calc(100%-12px)] items-center border-l px-3 border-secondary"
+                className={cn(
+                  'border-secondary flex h-[calc(100%-12px)] items-center px-3',
+                  !hideSelected && 'border-l'
+                )}
                 aria-hidden
               >
-                <SelectArrows6Icon title="Select" className="w-2 text-tertiary" />
+                <SelectArrows6Icon title="Select" className="text-secondary w-2" />
               </div>
             </ListboxButton>
             <ListboxOptions
-              anchor={{ gap: 12 }}
-              className={`ox-menu pointer-events-auto ${zIndex} w-[var(--button-width)] overflow-y-auto !outline-none`}
+              anchor={{ gap: 12, to: 'bottom start' }}
+              className={cn(
+                zIndex,
+                'ox-menu shadow-menu-inset pointer-events-auto',
+                !hideSelected ? 'w-(--button-width)' : 'min-w-24'
+              )}
               // This is to prevent the `useOthersInert` call in ListboxOptions.
               // Without this, when the listbox options box scrolls under the
               // top bar (for example) you can click through the top bar to the
@@ -148,7 +166,7 @@ export const Listbox = <Value extends string = string>({
                 <ListboxOption
                   key={item.value}
                   value={item.value}
-                  className="relative border-b border-secondary last:border-0"
+                  className="border-secondary relative border-b last:border-0"
                 >
                   {({ focus, selected }) => (
                     <div
@@ -163,7 +181,7 @@ export const Listbox = <Value extends string = string>({
                 </ListboxOption>
               ))}
             </ListboxOptions>
-          </>
+          </div>
         )}
       </HListbox>
     </div>

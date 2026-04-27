@@ -6,16 +6,19 @@
  * Copyright Oxide Computer Company
  */
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
-import { useApiMutation, useApiQueryClient, type VpcRouterCreate } from '@oxide/api'
+import { api, queryClient, useApiMutation, type VpcRouterCreate } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { useVpcSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const defaultValues: VpcRouterCreate = {
@@ -23,18 +26,19 @@ const defaultValues: VpcRouterCreate = {
   description: '',
 }
 
-Component.displayName = 'RouterCreate'
-export function Component() {
-  const queryClient = useApiQueryClient()
+export const handle = titleCrumb('New Router')
+
+export default function RouterCreate() {
   const vpcSelector = useVpcSelector()
   const navigate = useNavigate()
 
   const onDismiss = () => navigate(pb.vpcRouters(vpcSelector))
 
-  const createRouter = useApiMutation('vpcRouterCreate', {
+  const createRouter = useApiMutation(api.vpcRouterCreate, {
     onSuccess(router) {
-      queryClient.invalidateQueries('vpcRouterList')
-      addToast(<>Router <HL>{router.name}</HL> created</>) // prettier-ignore
+      queryClient.invalidateEndpoint('vpcRouterList')
+      // prettier-ignore
+      addToast(<>Router <HL>{router.name}</HL> created</>)
       onDismiss()
     },
   })
@@ -53,6 +57,7 @@ export function Component() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
+      <SideModalFormDocs docs={[docLinks.routers]} />
     </SideModalForm>
   )
 }

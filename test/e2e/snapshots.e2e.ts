@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, expectNotVisible, expectRowVisible, expectVisible, test } from './utils'
+import { clickRowAction, expect, expectRowVisible, expectVisible, test } from './utils'
 
 test('Click through snapshots', async ({ page }) => {
   await page.goto('/projects/mock-project')
@@ -25,14 +25,26 @@ test('Click through snapshots', async ({ page }) => {
   await expectRowVisible(table, { name: 'snapshot-disk-deleted', disk: 'Deleted' })
 })
 
+test('Disk button opens detail modal', async ({ page }) => {
+  await page.goto('/projects/mock-project/snapshots')
+
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { name: 'snapshot-1', disk: 'disk-1' })
+
+  await page.getByRole('button', { name: 'disk-1' }).first().click()
+
+  const modal = page.getByRole('dialog', { name: 'Disk details' })
+  await expect(modal).toBeVisible()
+  await expect(modal.getByText('disk-1')).toBeVisible()
+})
+
 test('Confirm delete snapshot', async ({ page }) => {
   await page.goto('/projects/mock-project/snapshots')
 
-  const row = page.getByRole('row', { name: 'disk-1-snapshot-7' })
+  const row = page.getByRole('row', { name: 'disk-1-snapshot-10' })
 
-  // scroll a little so the dropdown menu isn't behind the pagination bar
-  await page.getByRole('table').click() // focus the content pane
-  await page.mouse.wheel(0, 200)
+  // scroll so the dropdown menu isn't behind the pagination bar
+  await row.scrollIntoViewIfNeeded()
 
   async function clickDelete() {
     await row.getByRole('button', { name: 'Row actions' }).click()
@@ -53,7 +65,8 @@ test('Confirm delete snapshot', async ({ page }) => {
   await page.getByRole('button', { name: 'Confirm' }).click()
 
   // modal closes, row is gone
-  await expectNotVisible(page, [modal, row])
+  await expect(modal).toBeHidden()
+  await expect(row).toBeHidden()
 })
 
 test('Error on delete snapshot', async ({ page }) => {
@@ -84,13 +97,11 @@ test('Error on delete snapshot', async ({ page }) => {
 test('Create image from snapshot', async ({ page }) => {
   await page.goto('/projects/mock-project/snapshots')
 
-  const row = page.getByRole('row', { name: 'snapshot-4' })
-  await row.getByRole('button', { name: 'Row actions' }).click()
-  await page.getByRole('menuitem', { name: 'Create image' }).click()
+  await clickRowAction(page, 'disk-1-snapshot-8', 'Create image')
 
   await expectVisible(page, ['role=dialog[name="Create image from snapshot"]'])
 
-  await page.fill('role=textbox[name="Name"]', 'image-from-snapshot-4')
+  await page.fill('role=textbox[name="Name"]', 'image-from-snapshot-8')
   await page.fill('role=textbox[name="Description"]', 'image description')
   await page.fill('role=textbox[name="OS"]', 'Ubuntu')
   await page.fill('role=textbox[name="Version"]', '20.02')
@@ -101,7 +112,7 @@ test('Create image from snapshot', async ({ page }) => {
 
   await page.click('role=link[name*="Images"]')
   await expectRowVisible(page.getByRole('table'), {
-    name: 'image-from-snapshot-4',
+    name: 'image-from-snapshot-8',
     description: 'image description',
   })
 })
@@ -109,9 +120,7 @@ test('Create image from snapshot', async ({ page }) => {
 test('Create image from snapshot, name taken', async ({ page }) => {
   await page.goto('/projects/mock-project/snapshots')
 
-  const row = page.getByRole('row', { name: 'snapshot-4' })
-  await row.getByRole('button', { name: 'Row actions' }).click()
-  await page.getByRole('menuitem', { name: 'Create image' }).click()
+  await clickRowAction(page, 'disk-1-snapshot-8', 'Create image')
 
   await expectVisible(page, ['role=dialog[name="Create image from snapshot"]'])
 

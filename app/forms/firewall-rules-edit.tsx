@@ -6,19 +6,21 @@
  * Copyright Oxide Computer Company
  */
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
 import {
-  apiQueryClient,
+  api,
   firewallRuleGetToPut,
+  q,
+  queryClient,
   useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
 } from '@oxide/api'
 
 import { trigger404 } from '~/components/ErrorBoundary'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import {
   getFirewallRuleSelector,
   useFirewallRuleSelector,
@@ -32,16 +34,18 @@ import { pb } from '~/util/path-builder'
 import { CommonFields } from './firewall-rules-common'
 import { valuesToRuleUpdate, type FirewallRuleValues } from './firewall-rules-util'
 
-EditFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
+export const handle = titleCrumb('Edit Rule')
+
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, vpc, rule } = getFirewallRuleSelector(params)
 
   const [firewallRules] = await Promise.all([
-    apiQueryClient.fetchQuery('vpcFirewallRulesView', { query: { project, vpc } }),
-    apiQueryClient.prefetchQuery('instanceList', { query: { project, limit: ALL_ISH } }),
-    apiQueryClient.prefetchQuery('vpcList', { query: { project, limit: ALL_ISH } }),
-    apiQueryClient.prefetchQuery('vpcSubnetList', {
-      query: { project, vpc, limit: ALL_ISH },
-    }),
+    queryClient.fetchQuery(q(api.vpcFirewallRulesView, { query: { project, vpc } })),
+    queryClient.prefetchQuery(q(api.instanceList, { query: { project, limit: ALL_ISH } })),
+    queryClient.prefetchQuery(q(api.vpcList, { query: { project, limit: ALL_ISH } })),
+    queryClient.prefetchQuery(
+      q(api.vpcSubnetList, { query: { project, vpc, limit: ALL_ISH } })
+    ),
   ])
 
   const originalRule = firewallRules.rules.find((r) => r.name === rule)
@@ -50,14 +54,13 @@ EditFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-export function EditFirewallRuleForm() {
+export default function EditFirewallRuleForm() {
   const { project, vpc, rule } = useFirewallRuleSelector()
   const vpcSelector = useVpcSelector()
-  const queryClient = useApiQueryClient()
 
-  const { data: firewallRules } = usePrefetchedApiQuery('vpcFirewallRulesView', {
-    query: { project, vpc },
-  })
+  const { data: firewallRules } = usePrefetchedQuery(
+    q(api.vpcFirewallRulesView, { query: { project, vpc } })
+  )
 
   const originalRule = firewallRules.rules.find((r) => r.name === rule)
 
@@ -67,16 +70,24 @@ export function EditFirewallRuleForm() {
   const navigate = useNavigate()
   const onDismiss = () => navigate(pb.vpcFirewallRules(vpcSelector))
 
-  const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
-    onSuccess(updatedRules, { body }) {
+  const updateRules = useApiMutation(api.vpcFirewallRulesUpdate, {
+    onSuccess(_updatedRules, { body }) {
       // Nav before the invalidate because I once saw the above invariant fail
       // briefly after successful edit (error page flashed but then we land
       // on the rules list ok) and I think it was a race condition where the
       // invalidate managed to complete while the modal was still open.
       onDismiss()
-      queryClient.invalidateQueries('vpcFirewallRulesView')
-      const updatedRule = body.rules[body.rules.length - 1]
-      addToast(<>Firewall rule <HL>{updatedRule.name}</HL> updated</>) // prettier-ignore
+      queryClient.invalidateEndpoint('vpcFirewallRulesView')
+
+      // We are pretty sure here that there is a rule in the list because we are
+      // in the form updating it. We also know the one being updated is last in
+      // the body because we put it it here. We use the request body instead of
+      // the response because the server could change the order.
+      const updatedRule = body.rules?.at(-1)
+      if (updatedRule) {
+        // prettier-ignore
+        addToast(<>Firewall rule <HL>{updatedRule.name}</HL> updated</>)
+      }
     },
   })
 
@@ -85,15 +96,14 @@ export function EditFirewallRuleForm() {
     name: originalRule.name,
     description: originalRule.description,
 
-    priority: originalRule.priority,
     action: originalRule.action,
     direction: originalRule.direction,
+    priority: originalRule.priority,
 
-    protocols: originalRule.filters.protocols || [],
-
-    ports: originalRule.filters.ports || [],
-    hosts: originalRule.filters.hosts || [],
     targets: originalRule.targets,
+    ports: originalRule.filters.ports || [],
+    protocols: originalRule.filters.protocols || [],
+    hosts: originalRule.filters.hosts || [],
   }
 
   const form = useForm({ defaultValues })

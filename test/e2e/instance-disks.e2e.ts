@@ -17,6 +17,17 @@ import {
   test,
 } from './utils'
 
+test('Disk detail side modal', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1')
+
+  await page.getByRole('button', { name: 'disk-1' }).click()
+
+  const modal = page.getByRole('dialog', { name: 'Disk details' })
+  await expect(modal).toBeVisible()
+  await expect(modal.getByText('disk-1')).toBeVisible()
+  await expect(modal.getByText('2 GiB')).toBeVisible()
+})
+
 test('Disabled actions', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
 
@@ -122,7 +133,7 @@ test('Create disk', async ({ page }) => {
 
   await createForm.getByRole('button', { name: 'Create disk' }).click()
 
-  const otherDisksTable = page.getByRole('table', { name: 'Other disks' })
+  const otherDisksTable = page.getByRole('table', { name: 'Additional disks' })
   await expectRowVisible(otherDisksTable, { Disk: 'created-disk', size: '20 GiB' })
 })
 
@@ -138,6 +149,7 @@ test('Detach disk', async ({ page }) => {
   await expect(successMsg).toBeHidden()
 
   await clickRowAction(page, 'disk-2', 'Detach')
+  await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(successMsg).toBeVisible()
   await expect(row).toBeHidden() // disk row goes away
 })
@@ -163,12 +175,80 @@ test('Snapshot disk', async ({ page }) => {
   })
 })
 
+test('Attach disk error clears when modal closes', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1')
+
+  await stopInstance(page)
+
+  // Attach disks until we hit the limit
+  const disksToAttach = [
+    'disk-3',
+    'disk-4',
+    'disk-5',
+    'disk-6',
+    'disk-7',
+    'disk-8',
+    'disk-9',
+    'disk-10',
+    'local-disk',
+    'read-only-disk',
+  ]
+
+  const attachModal = page.getByRole('dialog', { name: 'Attach disk' })
+
+  // Attach all available disks quickly to reach the 12 disk limit
+  for (const diskName of disksToAttach) {
+    await page.getByRole('button', { name: 'Attach existing disk' }).click()
+    await page.getByRole('combobox', { name: 'Disk name' }).click()
+    await page.getByRole('option', { name: diskName }).click()
+    await page.getByRole('button', { name: 'Attach disk' }).click()
+    await expect(attachModal).toBeHidden()
+  }
+
+  // Now try to attach one more and get an error
+  await page.getByRole('button', { name: 'Attach existing disk' }).click()
+  await expect(attachModal).toBeVisible()
+
+  await page.getByRole('combobox', { name: 'Disk name' }).click()
+  await page.getByRole('option', { name: 'disk-snapshot-error' }).click()
+  await page.getByRole('button', { name: 'Attach disk' }).click()
+
+  // Should see error about max disks
+  await expect(
+    page.getByText('Cannot attach more than 12 disks to an instance')
+  ).toBeVisible()
+
+  // Close the modal - this is the key part of the bug test
+  await page.keyboard.press('Escape')
+  await expect(attachModal).toBeHidden()
+
+  // Detach one disk to make room
+  await clickRowAction(page, 'disk-10', 'Detach')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+
+  // Try to attach again - error should be cleared (this was the bug)
+  await page.getByRole('button', { name: 'Attach existing disk' }).click()
+  await expect(attachModal).toBeVisible()
+
+  // The error should NOT be visible anymore
+  await expect(
+    page.getByText('Cannot attach more than 12 disks to an instance')
+  ).toBeHidden()
+
+  // Should be able to successfully attach now
+  await page.getByRole('combobox', { name: 'Disk name' }).click()
+  await page.getByRole('option', { name: 'disk-snapshot-error' }).click()
+  await page.getByRole('button', { name: 'Attach disk' }).click()
+
+  await expect(attachModal).toBeHidden()
+})
+
 test('Change boot disk', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
 
   // assert disk-1 is boot disk, disk-2 also there
   const bootDiskTable = page.getByRole('table', { name: 'Boot disk' })
-  const otherDisksTable = page.getByRole('table', { name: 'Other disks' })
+  const otherDisksTable = page.getByRole('table', { name: 'Additional disks' })
   const confirm = page.getByRole('button', { name: 'Confirm' })
   const noBootDisk = page.getByText('No boot disk set')
   const noOtherDisks = page.getByText('No other disks')
@@ -202,6 +282,7 @@ test('Change boot disk', async ({ page }) => {
 
   // detach disk so there's only one
   await clickRowAction(page, 'disk-2', 'Detach')
+  await page.getByRole('button', { name: 'Confirm' }).click()
 
   await expect(page.getByText('Instance will boot from disk-1')).toBeVisible()
 
@@ -219,6 +300,8 @@ test('Change boot disk', async ({ page }) => {
   await expectRowVisible(otherDisksTable, disk1)
 
   await clickRowAction(page, 'disk-1', 'Detach')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+
   await expect(noBootDisk).toBeVisible()
   await expect(noOtherDisks).toBeVisible()
 

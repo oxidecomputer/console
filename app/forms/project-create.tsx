@@ -6,15 +6,18 @@
  * Copyright Oxide Computer Company
  */
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
-import { useApiMutation, useApiQueryClient, type ProjectCreate } from '@oxide/api'
+import { api, q, queryClient, useApiMutation, type ProjectCreate } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { addToast } from '~/stores/toast'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const defaultValues: ProjectCreate = {
@@ -22,20 +25,22 @@ const defaultValues: ProjectCreate = {
   description: '',
 }
 
-Component.displayName = 'ProjectCreateSideModalForm'
-export function Component() {
+export const handle = titleCrumb('New project')
+
+export default function ProjectCreateSideModalForm() {
   const navigate = useNavigate()
-  const queryClient = useApiQueryClient()
 
   const onDismiss = () => navigate(pb.projects())
 
-  const createProject = useApiMutation('projectCreate', {
+  const createProject = useApiMutation(api.projectCreate, {
     onSuccess(project) {
       // refetch list of projects in sidebar
-      queryClient.invalidateQueries('projectList')
+      queryClient.invalidateEndpoint('projectList')
       // avoid the project fetch when the project page loads since we have the data
-      queryClient.setQueryData('projectView', { path: { project: project.name } }, project)
-      addToast(<>Project <HL>{project.name}</HL> created</>) // prettier-ignore
+      const projectView = q(api.projectView, { path: { project: project.name } })
+      queryClient.setQueryData(projectView.queryKey, project)
+      // prettier-ignore
+      addToast(<>Project <HL>{project.name}</HL> created</>)
       navigate(pb.project({ project: project.name }))
     },
   })
@@ -56,6 +61,7 @@ export function Component() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
+      <SideModalFormDocs docs={[docLinks.projects]} />
     </SideModalForm>
   )
 }

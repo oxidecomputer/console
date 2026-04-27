@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import type { Placement } from '@floating-ui/react'
+import type { JSX } from 'react'
 
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { timeAgoAbbr, toLocaleDateTimeString } from '~/util/date'
@@ -21,13 +22,13 @@ export const TimeAgo = ({
 }): JSX.Element => {
   const content = (
     <div className="flex flex-col">
-      <span className="text-tertiary">{tooltipText}</span>
+      <span className="text-secondary">{tooltipText}</span>
       <span>{toLocaleDateTimeString(datetime)}</span>
     </div>
   )
   return (
     <Tooltip content={content} placement={placement}>
-      <span className="text-sans-sm text-tertiary">{timeAgoAbbr(datetime)}</span>
+      <span className="text-sans-sm text-secondary min-w-6">{timeAgoAbbr(datetime)}</span>
     </Tooltip>
   )
 }

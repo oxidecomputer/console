@@ -29,17 +29,26 @@ test.describe('Project create', () => {
     await expect(page).toHaveURL('/projects/mock-project-2/instances')
   })
 
-  test('shows field-level validation error and does not POST', async ({ page }) => {
-    const input = page.getByRole('textbox', { name: 'Name' })
-    await input.pressSequentially('no sPoNgEbOb_CaSe or spaces')
-    await expect(input).toHaveValue('no-spongebob-case-or-spaces')
-    await input.fill('no-ending-dash-')
-    // submit to trigger validation
-    await page.getByRole('button', { name: 'Create project' }).click()
+  test('clicking the scrim dismisses the side modal', async ({ page }) => {
+    const dialog = page.getByRole('dialog', { name: /Create project/ })
+    await expect(dialog).toBeVisible()
+    // click well to the left of the side modal panel — that's the scrim
+    await page.mouse.click(50, 50)
+    await expect(dialog).toBeHidden()
+  })
 
-    await expect(
-      page.getByText('Must end with a letter or number', { exact: true }).nth(0)
-    ).toBeVisible()
+  test('shows field-level validation error and does not POST', async ({ page }) => {
+    const expectInputError = async (text: string, error: string) => {
+      await page.getByRole('textbox', { name: 'Name' }).fill(text)
+      await page.getByRole('button', { name: 'Create project' }).click()
+      await expect(page.getByText(error).first()).toBeVisible()
+    }
+    await expectInputError('', 'Name is required')
+    await expectInputError('no spaces', 'Can only contain lower-case')
+    await expectInputError('no-UPPERCASE', 'Can only contain lower-case')
+    await expectInputError('no-ending-dash-', 'Must end with a letter or number')
+    await expectInputError('123-oops', 'Must start with a lower-case letter')
+    await expectInputError('HULK-SMASH', 'Can only contain lower-case')
   })
 
   test('shows form-level error for known server error', async ({ page }) => {

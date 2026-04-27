@@ -7,9 +7,9 @@
  */
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { api, queryClient, useApiMutation } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { FileField } from '~/components/form/fields/FileField'
@@ -17,6 +17,7 @@ import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { useSiloSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Checkbox } from '~/ui/lib/Checkbox'
@@ -50,18 +51,20 @@ const defaultValues: IdpCreateFormValues = {
   },
 }
 
-export function CreateIdpSideModalForm() {
+export const handle = titleCrumb('New Identity Provider')
+
+export default function CreateIdpSideModalForm() {
   const navigate = useNavigate()
-  const queryClient = useApiQueryClient()
 
   const { silo } = useSiloSelector()
 
   const onDismiss = () => navigate(pb.silo({ silo }))
 
-  const createIdp = useApiMutation('samlIdentityProviderCreate', {
+  const createIdp = useApiMutation(api.samlIdentityProviderCreate, {
     onSuccess(idp) {
-      queryClient.invalidateQueries('siloIdentityProviderList')
-      addToast(<>IdP <HL>{idp.name}</HL> created</>) // prettier-ignore
+      queryClient.invalidateEndpoint('siloIdentityProviderList')
+      // prettier-ignore
+      addToast(<>IdP <HL>{idp.name}</HL> created</>)
       onDismiss()
     },
   })
@@ -182,7 +185,7 @@ export function CreateIdpSideModalForm() {
           name="acsUrl"
           label="ACS URL"
           description={
-            <div className="children:inline-block">
+            <div className="*:inline-block">
               <span>
                 Oxide endpoint for the identity provider to send the SAML response.{' '}
               </span>
@@ -232,7 +235,7 @@ export function CreateIdpSideModalForm() {
 
       <FormDivider />
 
-      <SideModal.Heading>Identity Provider</SideModal.Heading>
+      <SideModal.Heading>Identity provider</SideModal.Heading>
       {/* TODO: help text */}
       <TextField name="idpEntityId" label="Entity ID" required control={form.control} />
       <TextField

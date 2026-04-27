@@ -7,7 +7,7 @@
  */
 import { cloneElement, useEffect, type ReactNode } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
-import { useBlocker, type Blocker } from 'react-router-dom'
+import { useBlocker, type Blocker } from 'react-router'
 
 import type { ApiError } from '@oxide/api'
 
@@ -126,7 +126,7 @@ const ConfirmNavigation = ({ blocker }: { blocker: Blocker }) => (
     isOpen={blocker.state === 'blocked'}
     onDismiss={() => blocker.reset?.()}
     title="Confirm navigation"
-    narrow
+    width="narrow"
   >
     <Modal.Section>
       Are you sure you want to leave this page?

@@ -10,14 +10,17 @@
 import * as R from 'remeda'
 import { validate as isUuid } from 'uuid'
 
-import type { ApiTypes as Api, PathParams as PP } from '@oxide/api'
+import type { ApiTypes as Api, IpPoolType, IpVersion } from '@oxide/api'
 import * as mock from '@oxide/api-mocks'
 
 import { json } from '~/api/__generated__/msw-handlers'
+import type * as Sel from '~/api/selectors'
 import { commaSeries } from '~/util/str'
 
 import type { Json } from '../json-type'
-import { internalError } from './util'
+import { projects, type DbProject } from '../project'
+import { defaultSilo, siloSettings } from '../silo'
+import { internalError, invalidRequest } from './util'
 
 export const notFoundErr = (msg: string) => {
   const message = `not found: ${msg}`
@@ -29,6 +32,8 @@ export const lookupById = <T extends { id: string }>(table: T[], id: string) => 
   if (!item) throw notFoundErr(`by id ${id}`)
   return item
 }
+
+const paginationParams = ['limit', 'page_token', 'sort_by']
 
 /**
  * Given an object representing (potentially) parent selectors for a resource,
@@ -43,18 +48,73 @@ function ensureNoParentSelectors(
   parentSelector: Record<string, string | undefined>
 ) {
   const keysWithValues = Object.entries(parentSelector)
-    .filter(([_, v]) => v)
+    .filter(([k, v]) => v && !paginationParams.includes(k))
     .map(([k]) => k)
   if (keysWithValues.length > 0) {
     const message = `when ${resourceLabel} is specified by ID, ${commaSeries(keysWithValues, 'and')} should not be specified`
-    throw json({ error_code: 'InvalidRequest', message }, { status: 400 })
+    throw invalidRequest(message)
   }
 }
 
-export const getIpFromPool = (poolName: string | undefined) => {
-  const pool = lookup.ipPool({ pool: poolName })
+/**
+ * If pool name or ID is given, look it up. Otherwise use silo default pool,
+ * (and error if the silo doesn't have one).
+ */
+export const resolveIpPool = (pool: string | undefined | null) =>
+  pool ? lookup.ipPool({ pool }) : lookup.siloDefaultIpPool({ silo: defaultSilo.id })
+
+export const resolvePoolSelector = (
+  poolSelector:
+    | { pool: string; type: 'explicit' }
+    | { type: 'auto'; ip_version?: IpVersion | null }
+    | undefined,
+  poolType: IpPoolType,
+  siloId: string = defaultSilo.id
+) => {
+  if (poolSelector?.type === 'explicit') {
+    return lookup.ipPool({ pool: poolSelector.pool })
+  }
+
+  // For 'auto' type, find the default pool for the specified IP version and pool type
+  const silo = lookup.silo({ silo: siloId })
+  const links = db.ipPoolSilos.filter((ips) => ips.silo_id === silo.id && ips.is_default)
+
+  // Filter candidate pools by both IP version and pool type
+  const candidateLinks = links.filter((ips) => {
+    const pool = db.ipPools.find((p) => p.id === ips.ip_pool_id)
+    if (!pool) return false
+
+    if (pool.pool_type !== poolType) return false
+
+    // If IP version specified, filter by it
+    if (poolSelector?.ip_version && pool.ip_version !== poolSelector.ip_version) {
+      return false
+    }
+
+    return true
+  })
+
+  // Enforce API requirement: when type is 'auto' and ip_version is unset,
+  // reject if multiple default pools exist (ambiguous)
+  if (
+    poolSelector?.type === 'auto' &&
+    !poolSelector.ip_version &&
+    candidateLinks.length > 1
+  ) {
+    throw invalidRequest('ip_version required when multiple default pools exist')
+  }
+
+  const link = candidateLinks[0]
+  if (!link) {
+    const versionStr = poolSelector?.ip_version ? ` ${poolSelector.ip_version}` : ''
+    throw notFoundErr(`default ${poolType}${versionStr} pool for silo '${siloId}'`)
+  }
+  return lookupById(db.ipPools, link.ip_pool_id)
+}
+
+export const getIpFromPool = (pool: Json<Api.IpPool>) => {
   const ipPoolRange = db.ipPoolRanges.find((range) => range.ip_pool_id === pool.id)
-  if (!ipPoolRange) throw notFoundErr(`IP range for pool '${poolName}'`)
+  if (!ipPoolRange) throw notFoundErr(`IP range for pool '${pool.name}'`)
 
   // right now, we're just using the first address in the range, but we'll
   // want to filter the list of available IPs for the first unused address
@@ -64,7 +124,43 @@ export const getIpFromPool = (poolName: string | undefined) => {
 }
 
 export const lookup = {
-  project({ project: id }: PP.Project): Json<Api.Project> {
+  affinityGroup({
+    affinityGroup: id,
+    ...projectSelector
+  }: Sel.AffinityGroup): Json<Api.AffinityGroup> {
+    if (!id) throw notFoundErr('no affinity group specified')
+
+    if (isUuid(id)) {
+      ensureNoParentSelectors('affinity group', projectSelector)
+      return lookupById(db.affinityGroups, id)
+    }
+
+    const project = lookup.project(projectSelector)
+    const affinityGroup = db.affinityGroups.find(
+      (a) => a.project_id === project.id && a.name === id
+    )
+    if (!affinityGroup) throw notFoundErr(`affinity group '${id}'`)
+    return affinityGroup
+  },
+  antiAffinityGroup({
+    antiAffinityGroup: id,
+    ...projectSelector
+  }: Sel.AntiAffinityGroup): Json<Api.AntiAffinityGroup> {
+    if (!id) throw notFoundErr('no anti-affinity group specified')
+
+    if (isUuid(id)) {
+      ensureNoParentSelectors('anti-affinity group', projectSelector)
+      return lookupById(db.antiAffinityGroups, id)
+    }
+
+    const project = lookup.project(projectSelector)
+    const antiAffinityGroup = db.antiAffinityGroups.find(
+      (a) => a.project_id === project.id && a.name === id
+    )
+    if (!antiAffinityGroup) throw notFoundErr(`anti-affinity group '${id}'`)
+    return antiAffinityGroup
+  },
+  project({ project: id }: Sel.Project): DbProject {
     if (!id) throw notFoundErr('no project specified')
 
     if (isUuid(id)) return lookupById(db.projects, id)
@@ -74,7 +170,7 @@ export const lookup = {
 
     return project
   },
-  instance({ instance: id, ...projectSelector }: PP.Instance): Json<Api.Instance> {
+  instance({ instance: id, ...projectSelector }: Sel.Instance): Json<Api.Instance> {
     if (!id) throw notFoundErr('no instance specified')
 
     if (isUuid(id)) {
@@ -91,7 +187,7 @@ export const lookup = {
   networkInterface({
     interface: id,
     ...instanceSelector
-  }: PP.NetworkInterface): Json<Api.InstanceNetworkInterface> {
+  }: Sel.NetworkInterface): Json<Api.InstanceNetworkInterface> {
     if (!id) throw notFoundErr('no NIC specified')
 
     if (isUuid(id)) {
@@ -108,7 +204,7 @@ export const lookup = {
 
     return nic
   },
-  disk({ disk: id, ...projectSelector }: PP.Disk): Json<Api.Disk> {
+  disk({ disk: id, ...projectSelector }: Sel.Disk): Json<Api.Disk> {
     if (!id) throw notFoundErr('no disk specified')
 
     if (isUuid(id)) {
@@ -123,7 +219,25 @@ export const lookup = {
 
     return disk
   },
-  floatingIp({ floatingIp: id, ...projectSelector }: PP.FloatingIp): Json<Api.FloatingIp> {
+  externalSubnet({
+    externalSubnet: id,
+    ...projectSelector
+  }: Sel.ExternalSubnet): Json<Api.ExternalSubnet> {
+    if (!id) throw notFoundErr('no external subnet specified')
+
+    if (isUuid(id)) {
+      ensureNoParentSelectors('external subnet', projectSelector)
+      return lookupById(db.externalSubnets, id)
+    }
+
+    const project = lookup.project(projectSelector)
+    const externalSubnet = db.externalSubnets.find(
+      (s) => s.project_id === project.id && s.name === id
+    )
+    if (!externalSubnet) throw notFoundErr(`external subnet '${id}'`)
+    return externalSubnet
+  },
+  floatingIp({ floatingIp: id, ...projectSelector }: Sel.FloatingIp): Json<Api.FloatingIp> {
     if (!id) throw notFoundErr('no floating IP specified')
 
     if (isUuid(id)) {
@@ -139,7 +253,7 @@ export const lookup = {
 
     return floatingIp
   },
-  snapshot({ snapshot: id, ...projectSelector }: PP.Snapshot): Json<Api.Snapshot> {
+  snapshot({ snapshot: id, ...projectSelector }: Sel.Snapshot): Json<Api.Snapshot> {
     if (!id) throw notFoundErr('no snapshot specified')
 
     if (isUuid(id)) {
@@ -153,7 +267,7 @@ export const lookup = {
 
     return snapshot
   },
-  vpc({ vpc: id, ...projectSelector }: PP.Vpc): Json<Api.Vpc> {
+  vpc({ vpc: id, ...projectSelector }: Sel.Vpc): Json<Api.Vpc> {
     if (!id) throw notFoundErr('no VPC specified')
 
     if (isUuid(id)) {
@@ -167,7 +281,7 @@ export const lookup = {
 
     return vpc
   },
-  vpcRouter({ router: id, ...vpcSelector }: PP.VpcRouter): Json<Api.VpcRouter> {
+  vpcRouter({ router: id, ...vpcSelector }: Sel.VpcRouter): Json<Api.VpcRouter> {
     if (!id) throw notFoundErr('no router specified')
 
     if (isUuid(id)) {
@@ -184,7 +298,7 @@ export const lookup = {
   vpcRouterRoute({
     route: id,
     ...routerSelector
-  }: PP.VpcRouterRoute): Json<Api.RouterRoute> {
+  }: Sel.VpcRouterRoute): Json<Api.RouterRoute> {
     if (!id) throw notFoundErr('no route specified')
 
     if (isUuid(id)) {
@@ -200,7 +314,7 @@ export const lookup = {
 
     return route
   },
-  vpcSubnet({ subnet: id, ...vpcSelector }: PP.VpcSubnet): Json<Api.VpcSubnet> {
+  vpcSubnet({ subnet: id, ...vpcSelector }: Sel.VpcSubnet): Json<Api.VpcSubnet> {
     if (!id) throw notFoundErr('no subnet specified')
 
     if (isUuid(id)) {
@@ -214,7 +328,45 @@ export const lookup = {
 
     return subnet
   },
-  image({ image: id, project: projectId }: PP.Image): Json<Api.Image> {
+  internetGateway({
+    gateway: id,
+    ...vpcSelector
+  }: Sel.InternetGateway): Json<Api.InternetGateway> {
+    if (!id) throw notFoundErr('no internet gateway specified')
+
+    if (isUuid(id)) {
+      ensureNoParentSelectors('internet gateway', vpcSelector)
+      return lookupById(db.internetGateways, id)
+    }
+
+    const vpc = lookup.vpc(vpcSelector)
+    const internetGateway = db.internetGateways.find(
+      (ig) => ig.vpc_id === vpc.id && ig.name === id
+    )
+    if (!internetGateway) throw notFoundErr(`internet gateway '${id}'`)
+
+    return internetGateway
+  },
+  internetGatewayIpAddress({
+    address: id,
+    ...gatewaySelector
+  }: Sel.InternetGatewayIpAddress): Json<Api.InternetGatewayIpAddress> {
+    if (!id) throw notFoundErr('no IP address specified')
+
+    if (isUuid(id)) {
+      ensureNoParentSelectors('IP address', gatewaySelector)
+      return lookupById(db.internetGatewayIpAddresses, id)
+    }
+
+    const gateway = lookup.internetGateway(gatewaySelector)
+    const ip = db.internetGatewayIpAddresses.find(
+      (i) => i.internet_gateway_id === gateway.id && i.name === id
+    )
+    if (!ip) throw notFoundErr(`IP address '${id}'`)
+
+    return ip
+  },
+  image({ image: id, project: projectId }: Sel.Image): Json<Api.Image> {
     if (!id) throw notFoundErr('no image specified')
 
     // We match the API logic:
@@ -249,7 +401,62 @@ export const lookup = {
     if (!image) throw notFoundErr(`image '${id}'`)
     return image
   },
-  ipPool({ pool: id }: PP.IpPool): Json<Api.IpPool> {
+  subnetPool({ subnetPool: id }: Sel.SubnetPool): Json<Api.SiloSubnetPool> {
+    if (!id) throw notFoundErr('no subnet pool specified')
+    if (isUuid(id)) return lookupById(db.subnetPools, id)
+    const pool = db.subnetPools.find((p) => p.name === id)
+    if (!pool) throw notFoundErr(`subnet pool '${id}'`)
+    return pool
+  },
+  defaultSubnetPool(): Json<Api.SiloSubnetPool> {
+    const pool = db.subnetPools.find((p) => p.is_default)
+    if (!pool) throw notFoundErr('no default subnet pool configured')
+    return pool
+  },
+  /** System-scoped subnet pool view (no is_default) */
+  systemSubnetPool({ subnetPool: id }: Sel.SubnetPool): Json<Api.SubnetPool> {
+    const pool = lookup.subnetPool({ subnetPool: id })
+    // Strip is_default for system-scoped view
+    const { is_default: _, ...systemPool } = pool
+    return systemPool
+  },
+  siloSubnetPool(path: Sel.SubnetPool & Sel.Silo): Json<Api.SiloSubnetPool> {
+    const silo = lookup.silo(path)
+    const pool = lookup.subnetPool(path)
+    const link = db.subnetPoolSilos.find(
+      (sps) => sps.subnet_pool_id === pool.id && sps.silo_id === silo.id
+    )
+    if (!link) {
+      throw notFoundErr(`link for subnet pool '${path.subnetPool}' and silo '${path.silo}'`)
+    }
+    return { ...pool, is_default: link.is_default }
+  },
+  siloSubnetPools(path: Sel.Silo): Json<Api.SiloSubnetPool>[] {
+    const silo = lookup.silo(path)
+    return db.subnetPoolSilos
+      .filter((link) => link.silo_id === silo.id)
+      .map((link) => {
+        const pool = db.subnetPools.find((p) => p.id === link.subnet_pool_id)
+        if (!pool) {
+          const linkStr = JSON.stringify(link)
+          const message = `Found subnet pool-silo link without corresponding pool: ${linkStr}`
+          throw json({ message }, { status: 500 })
+        }
+        return { ...pool, is_default: link.is_default }
+      })
+  },
+  subnetPoolSiloLink(path: Sel.SubnetPool & Sel.Silo): Json<Api.SubnetPoolSiloLink> {
+    const pool = lookup.subnetPool(path)
+    const silo = lookup.silo(path)
+    const link = db.subnetPoolSilos.find(
+      (sps) => sps.subnet_pool_id === pool.id && sps.silo_id === silo.id
+    )
+    if (!link) {
+      throw notFoundErr(`link for subnet pool '${path.subnetPool}' and silo '${path.silo}'`)
+    }
+    return link
+  },
+  ipPool({ pool: id }: Sel.IpPool): Json<Api.IpPool> {
     if (!id) throw notFoundErr('no pool specified')
 
     if (isUuid(id)) return lookupById(db.ipPools, id)
@@ -263,7 +470,7 @@ export const lookup = {
   ipPoolSiloLink({
     pool: poolId,
     silo: siloId,
-  }: PP.IpPool & PP.Silo): Json<Api.IpPoolSiloLink> {
+  }: Sel.IpPool & Sel.Silo): Json<Api.IpPoolSiloLink> {
     const pool = lookup.ipPool({ pool: poolId })
     const silo = lookup.silo({ silo: siloId })
 
@@ -275,7 +482,7 @@ export const lookup = {
     return ipPoolSilo
   },
   // unusual because it returns a list, but we need it for multiple endpoints
-  siloIpPools(path: PP.Silo): Json<Api.SiloIpPool>[] {
+  siloIpPools(path: Sel.Silo): Json<Api.SiloIpPool>[] {
     const silo = lookup.silo(path)
 
     // effectively join db.ipPools and db.ipPoolSilos on ip_pool_id
@@ -294,7 +501,7 @@ export const lookup = {
         return { ...pool, is_default: link.is_default }
       })
   },
-  siloIpPool(path: PP.Silo & PP.IpPool): Json<Api.SiloIpPool> {
+  siloIpPool(path: Sel.Silo & Sel.IpPool): Json<Api.SiloIpPool> {
     const silo = lookup.silo(path)
     const pool = lookup.ipPool(path)
 
@@ -308,7 +515,7 @@ export const lookup = {
 
     return { ...pool, is_default: ipPoolSilo.is_default }
   },
-  siloDefaultIpPool(path: PP.Silo): Json<Api.IpPool> {
+  siloDefaultIpPool(path: Sel.Silo): Json<Api.IpPool> {
     const silo = lookup.silo(path)
 
     const link = db.ipPoolSilos.find((ips) => ips.silo_id === silo.id && ips.is_default)
@@ -316,7 +523,7 @@ export const lookup = {
 
     return lookupById(db.ipPools, link.ip_pool_id)
   },
-  samlIdp({ provider: id, silo }: PP.IdentityProvider): Json<Api.SamlIdentityProvider> {
+  samlIdp({ provider: id, silo }: Sel.IdentityProvider): Json<Api.SamlIdentityProvider> {
     if (!id) throw notFoundErr('no IdP specified')
 
     if (isUuid(id)) {
@@ -337,7 +544,7 @@ export const lookup = {
 
     return dbIdp.provider
   },
-  silo({ silo: id }: PP.Silo): Json<Api.Silo> {
+  silo({ silo: id }: Sel.Silo): Json<Api.Silo> {
     if (!id) throw notFoundErr('silo not specified')
 
     if (isUuid(id)) return lookupById(db.silos, id)
@@ -346,17 +553,17 @@ export const lookup = {
     if (!silo) throw notFoundErr(`silo '${id}'`)
     return silo
   },
-  siloQuotas(params: PP.Silo): Json<Api.SiloQuotas> {
+  siloQuotas(params: Sel.Silo): Json<Api.SiloQuotas> {
     const silo = lookup.silo(params)
     const quotas = db.siloQuotas.find((q) => q.silo_id === silo.id)
     if (!quotas) throw internalError(`Silo ${silo.name} has no quotas`)
     return quotas
   },
-  sled({ sledId: id }: PP.Sled): Json<Api.Sled> {
+  sled({ sledId: id }: Sel.Sled): Json<Api.Sled> {
     if (!id) throw notFoundErr('sled not specified')
     return lookupById(db.sleds, id)
   },
-  sshKey({ sshKey: id }: PP.SshKey): Json<Api.SshKey> {
+  sshKey({ sshKey: id }: Sel.SshKey): Json<Api.SshKey> {
     // we don't have a concept of mock session. assume the user is user1
     const userSshKeys = db.sshKeys.filter((key) => key.silo_user_id === mock.user1.id)
 
@@ -395,8 +602,17 @@ type DiskBulkImport = {
 }
 
 const initDb = {
+  affinityGroups: [...mock.affinityGroups],
+  affinityGroupMemberLists: [...mock.affinityGroupMemberLists],
+  antiAffinityGroups: [...mock.antiAffinityGroups],
+  antiAffinityGroupMemberLists: [...mock.antiAffinityGroupMemberLists],
+  deviceTokens: [...mock.deviceTokens],
   disks: [...mock.disks],
   diskBulkImportState: new Map<string, DiskBulkImport>(),
+  externalSubnets: [...mock.externalSubnets],
+  subnetPools: [...mock.subnetPools],
+  subnetPoolMembers: [...mock.subnetPoolMembers],
+  subnetPoolSilos: [...mock.subnetPoolSilos],
   floatingIps: [...mock.floatingIps],
   userGroups: [...mock.userGroups],
   /** Join table for `users` and `userGroups` */
@@ -404,27 +620,36 @@ const initDb = {
   images: [...mock.images],
   ephemeralIps: [...mock.ephemeralIps],
   instances: [...mock.instances],
+  internetGatewayIpAddresses: [...mock.internetGatewayIpAddresses],
+  internetGatewayIpPools: [...mock.internetGatewayIpPools],
+  internetGateways: [...mock.internetGateways],
   ipPools: [...mock.ipPools],
   ipPoolSilos: [...mock.ipPoolSilos],
   ipPoolRanges: [...mock.ipPoolRanges],
   networkInterfaces: [mock.networkInterface],
   physicalDisks: [...mock.physicalDisks],
-  projects: [...mock.projects],
+  projects: [...projects],
   racks: [...mock.racks],
   roleAssignments: [...mock.roleAssignments],
+  scimTokens: [...mock.scimTokens],
   silos: [...mock.silos],
   siloQuotas: [...mock.siloQuotas],
   siloProvisioned: [...mock.siloProvisioned],
+  siloSettings: [...siloSettings],
   identityProviders: [...mock.identityProviders],
   sleds: [...mock.sleds],
+  switches: [...mock.switches],
   snapshots: [...mock.snapshots],
+  snatIps: [...mock.snatIps],
   sshKeys: [...mock.sshKeys],
+  tufRepos: [...mock.tufRepos],
+  updateStatus: mock.updateStatus,
   users: [...mock.users],
   vpcFirewallRules: [...mock.firewallRules],
   vpcRouters: [...mock.vpcRouters],
   vpcRouterRoutes: [...mock.routerRoutes],
   vpcs: [...mock.vpcs],
-  vpcSubnets: [mock.vpcSubnet],
+  vpcSubnets: [...mock.vpcSubnets],
 }
 
 export let db = structuredClone(initDb)

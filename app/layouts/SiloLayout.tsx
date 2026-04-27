@@ -5,8 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMemo } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router'
 
 import {
   Access16Icon,
@@ -17,36 +16,33 @@ import {
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '~/components/Sidebar'
 import { TopBar } from '~/components/TopBar'
+import { useCurrentUser } from '~/hooks/use-current-user'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
 
-import { useCurrentUser } from './AuthenticatedLayout'
 import { ContentPane, PageContainer } from './helpers'
 
-export function SiloLayout() {
-  const navigate = useNavigate()
+export default function SiloLayout() {
   const { pathname } = useLocation()
   const { me } = useCurrentUser()
 
   useQuickActions(
-    useMemo(
-      () =>
-        [
-          { value: 'Projects', path: pb.projects() },
-          { value: 'Images', path: pb.siloImages() },
-          { value: 'Utilization', path: pb.siloUtilization() },
-          { value: 'Access', path: pb.siloAccess() },
-        ]
-          // filter out the entry for the path we're currently on
-          .filter((i) => i.path !== pathname)
-          .map((i) => ({
-            navGroup: `Silo '${me.siloName}'`,
-            value: i.value,
-            onSelect: () => navigate(i.path),
-          })),
-      [pathname, navigate, me.siloName]
-    )
+    () =>
+      [
+        { value: 'Projects', path: pb.projects() },
+        { value: 'Images', path: pb.siloImages() },
+        { value: 'Utilization', path: pb.siloUtilization() },
+        { value: 'Silo Access', path: pb.siloAccess() },
+      ]
+        // filter out the entry for the path we're currently on
+        .filter((i) => i.path !== pathname)
+        .map((i) => ({
+          navGroup: `Silo '${me.siloName}'`,
+          value: i.value,
+          action: i.path,
+        })),
+    [pathname, me.siloName]
   )
 
   return (
@@ -68,7 +64,7 @@ export function SiloLayout() {
             <Metrics16Icon /> Utilization
           </NavLinkItem>
           <NavLinkItem to={pb.siloAccess()}>
-            <Access16Icon /> Access
+            <Access16Icon /> Silo Access
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>

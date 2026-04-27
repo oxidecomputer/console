@@ -10,10 +10,12 @@ import { useIsFetching } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 
 import {
-  apiQueryClient,
+  api,
   FLEET_ID,
+  getListQFn,
+  queryClient,
   totalUtilization,
-  usePrefetchedApiQuery,
+  usePrefetchedQuery,
 } from '@oxide/api'
 import { Metrics16Icon, Metrics24Icon } from '@oxide/design-system/icons/react'
 
@@ -30,22 +32,31 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { ResourceMeter } from '~/ui/lib/ResourceMeter'
 import { Table } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { round } from '~/util/math'
 import { pb } from '~/util/path-builder'
 import { bytesToGiB, bytesToTiB } from '~/util/units'
 
-export async function loader() {
+const siloList = getListQFn(api.siloList, {
+  query: { limit: ALL_ISH },
+})
+const siloUtilList = getListQFn(api.siloUtilizationList, {
+  query: { limit: ALL_ISH },
+})
+
+export async function clientLoader() {
   await Promise.all([
-    apiQueryClient.prefetchQuery('siloList', {}),
-    apiQueryClient.prefetchQuery('siloUtilizationList', {}),
+    queryClient.prefetchQuery(siloList.optionsFn()),
+    queryClient.prefetchQuery(siloUtilList.optionsFn()),
   ])
   return null
 }
 
-Component.displayName = 'SystemUtilizationPage'
-export function Component() {
-  const { data: siloUtilizationList } = usePrefetchedApiQuery('siloUtilizationList', {})
+export const handle = { crumb: 'Utilization' }
+
+export default function SystemUtilizationPage() {
+  const { data: siloUtilizationList } = usePrefetchedQuery(siloUtilList.optionsFn())
 
   const { totalAllocated, totalProvisioned } = totalUtilization(siloUtilizationList.items)
 
@@ -66,7 +77,7 @@ export function Component() {
         provisioned={totalProvisioned}
         allocatedLabel="Quota (Total)"
       />
-      <QueryParamTabs defaultValue="summary" className="full-width">
+      <QueryParamTabs defaultValue="summary" className="full-width mt-8">
         <Tabs.List>
           <Tabs.Trigger value="summary">Summary</Tabs.Trigger>
           <Tabs.Trigger value="metrics">Metrics</Tabs.Trigger>
@@ -83,7 +94,7 @@ export function Component() {
 }
 
 const MetricsTab = () => {
-  const { data: silos } = usePrefetchedApiQuery('siloList', {})
+  const { data: silos } = usePrefetchedQuery(siloList.optionsFn())
 
   const siloItems = useMemo(() => {
     const items = silos?.items.map((silo) => ({ label: silo.name, value: silo.id })) || []
@@ -115,27 +126,28 @@ const MetricsTab = () => {
 
   return (
     <>
-      <div className="mb-3 mt-8 flex justify-between gap-3">
-        <Listbox
-          selected={filterId}
-          className="w-64"
-          aria-labelledby="filter-id-label"
-          name="filter-id"
-          items={siloItems}
-          onChange={setFilterId}
-        />
+      <div className="mt-8 mb-3 flex flex-wrap justify-between gap-3">
+        <div className="flex gap-2">
+          {intervalPicker}
 
+          <Listbox
+            selected={filterId}
+            className="w-52"
+            label="Filter by silo"
+            hideLabel
+            name="filter-id"
+            items={siloItems}
+            onChange={setFilterId}
+          />
+        </div>
         <div className="flex items-center gap-2">{dateTimeRangePicker}</div>
       </div>
-
-      {intervalPicker}
-
-      <div className="mb-12 space-y-12">
+      <div className="mb-4 space-y-4">
         <SystemMetric
           {...commonProps}
           metricName="cpus_provisioned"
           title="CPU"
-          unit="count"
+          unit="Count"
         />
         <SystemMetric
           {...commonProps}
@@ -157,12 +169,13 @@ const MetricsTab = () => {
 }
 
 function UsageTab() {
-  const { data: siloUtilizations } = usePrefetchedApiQuery('siloUtilizationList', {})
+  const { data: siloUtilizations } = usePrefetchedQuery(siloUtilList.optionsFn())
+
   return (
     <Table className="w-full">
       <Table.Header>
         <Table.HeaderRow>
-          <Table.HeadCell>Silo</Table.HeadCell>
+          <Table.HeadCell data-test-ignore></Table.HeadCell>
           {/* data-test-ignore makes the row asserts work in the e2e tests */}
           <Table.HeadCell colSpan={3} data-test-ignore>
             Provisioned / Quota
@@ -173,7 +186,7 @@ function UsageTab() {
           <Table.HeadCell data-test-ignore></Table.HeadCell>
         </Table.HeaderRow>
         <Table.HeaderRow>
-          <Table.HeadCell data-test-ignore></Table.HeadCell>
+          <Table.HeadCell>Silo</Table.HeadCell>
           <Table.HeadCell>CPU</Table.HeadCell>
           <Table.HeadCell>Memory</Table.HeadCell>
           <Table.HeadCell>Storage</Table.HeadCell>
@@ -229,7 +242,7 @@ function UsageTab() {
                 unit="TiB"
               />
             </Table.Cell>
-            <Table.Cell className="action-col w-10 children:p-0" height="large">
+            <Table.Cell className="action-col w-10 *:p-0" height="large">
               <RowActions id={silo.siloId} copyIdLabel="Copy silo ID" />
             </Table.Cell>
           </Table.Row>
@@ -248,12 +261,12 @@ const UsageCell = ({
   allocated: number
   unit?: string
 }) => (
-  <div className="flex flex-col text-tertiary">
+  <div className="text-secondary flex flex-col">
     <div>
-      <span className="text-default">{provisioned}</span> /
+      <span className="text-raise">{provisioned}</span> /
     </div>
-    <div className="text-tertiary">
-      {allocated} {unit && <span className="text-quaternary">{unit}</span>}
+    <div className="text-secondary">
+      {allocated} {unit && <span className="text-tertiary">{unit}</span>}
     </div>
   </div>
 )
@@ -272,7 +285,7 @@ const AvailableCell = ({
     <div className="flex w-full items-center justify-between">
       <div>
         {round(allocated - provisioned, 2)}
-        {unit && <span className="text-tertiary"> {unit}</span>}
+        {unit && <span className="text-secondary"> {unit}</span>}
       </div>
       {/* We only show the ResourceMeter if the percent crosses the warning threshold (66%) */}
       {usagePercent > 66 && (

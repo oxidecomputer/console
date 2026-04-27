@@ -5,10 +5,17 @@
  *
  * Copyright Oxide Computer Company
  */
-import { type ReactElement } from 'react'
+import type { JSX, ReactElement } from 'react'
 import { expect, test } from 'vitest'
 
-import { groupBy, intersperse, isSetEqual, setDiff } from './array'
+import {
+  groupBy,
+  intersperse,
+  isSetEqual,
+  isSubset,
+  setDiff,
+  setIntersection,
+} from './array'
 
 test('groupBy', () => {
   expect(
@@ -41,7 +48,7 @@ test('intersperse', () => {
   const comma = <>,</>
   const or = <>or</>
 
-  const getText = (el: ReactElement) => el.props.children
+  const getText = (el: JSX.Element) => el.props.children
   const getKey = (el: ReactElement) => el.key
 
   expect(intersperse([a], comma).map(getText)).toEqual(['a'])
@@ -73,11 +80,31 @@ test('isSetEqual', () => {
   expect(isSetEqual(new Set([{}]), new Set([{}]))).toBe(false)
 })
 
+test('isSubset', () => {
+  expect(isSubset(new Set(), new Set())).toBe(true)
+  expect(isSubset(new Set(), new Set(['a']))).toBe(true)
+  expect(isSubset(new Set(['a']), new Set(['a', 'b']))).toBe(true)
+  expect(isSubset(new Set(['a', 'b']), new Set(['a', 'b']))).toBe(true)
+
+  expect(isSubset(new Set(['a']), new Set())).toBe(false)
+  expect(isSubset(new Set(['a', 'b']), new Set(['a']))).toBe(false)
+  expect(isSubset(new Set(['c']), new Set(['a', 'b']))).toBe(false)
+})
+
 test('setDiff', () => {
   expect(setDiff(new Set(), new Set())).toEqual(new Set())
   expect(setDiff(new Set(['a']), new Set())).toEqual(new Set(['a']))
   expect(setDiff(new Set(), new Set(['a']))).toEqual(new Set())
   expect(setDiff(new Set(['b', 'a', 'c']), new Set(['b', 'd']))).toEqual(
     new Set(['a', 'c'])
+  )
+})
+
+test('setIntersection', () => {
+  expect(setIntersection(new Set(), new Set())).toEqual(new Set())
+  expect(setIntersection(new Set(['a']), new Set())).toEqual(new Set())
+  expect(setIntersection(new Set(), new Set(['a']))).toEqual(new Set())
+  expect(setIntersection(new Set(['b', 'a', 'c']), new Set(['b', 'd']))).toEqual(
+    new Set(['b'])
   )
 })

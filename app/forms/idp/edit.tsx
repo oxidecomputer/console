@@ -6,38 +6,39 @@
  * Copyright Oxide Computer Company
  */
 import { useForm } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router'
 
-import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
+import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 import { Access16Icon } from '@oxide/design-system/icons/react'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
-import { SideModalForm } from '~/components/form/SideModalForm'
+import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
+import { titleCrumb } from '~/hooks/use-crumbs'
 import { getIdpSelector, useIdpSelector } from '~/hooks/use-params'
-import { DateTime } from '~/ui/lib/DateTime'
 import { FormDivider } from '~/ui/lib/Divider'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel, SideModal } from '~/ui/lib/SideModal'
-import { Truncate } from '~/ui/lib/Truncate'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-EditIdpSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { silo, provider } = getIdpSelector(params)
-  await apiQueryClient.prefetchQuery('samlIdentityProviderView', {
-    path: { provider },
-    query: { silo },
-  })
+  await queryClient.prefetchQuery(
+    q(api.samlIdentityProviderView, { path: { provider }, query: { silo } })
+  )
   return null
 }
 
-export function EditIdpSideModalForm() {
+export const handle = titleCrumb('Edit Identity Provider')
+
+export default function EditIdpSideModalForm() {
   const { silo, provider } = useIdpSelector()
-  const { data: idp } = usePrefetchedApiQuery('samlIdentityProviderView', {
-    path: { provider },
-    query: { silo },
-  })
+  const { data: idp } = usePrefetchedQuery(
+    q(api.samlIdentityProviderView, { path: { provider }, query: { silo } })
+  )
 
   const navigate = useNavigate()
   const onDismiss = () => navigate(pb.silo({ silo }))
@@ -45,10 +46,7 @@ export function EditIdpSideModalForm() {
   const form = useForm({ defaultValues: idp })
 
   return (
-    <SideModalForm
-      form={form}
-      formType="edit"
-      resourceName="identity provider"
+    <ReadOnlySideModalForm
       title="Identity provider"
       onDismiss={onDismiss}
       subtitle={
@@ -56,20 +54,11 @@ export function EditIdpSideModalForm() {
           <Access16Icon /> {idp.name}
         </ResourceLabel>
       }
-      // TODO: pass actual error when this form is hooked up
-      submitError={null}
-      loading={false}
     >
       <PropertiesTable>
-        <PropertiesTable.Row label="ID">
-          <Truncate text={idp.id} maxLength={32} hasCopyButton />
-        </PropertiesTable.Row>
-        <PropertiesTable.Row label="Created">
-          <DateTime date={idp.timeCreated} />
-        </PropertiesTable.Row>
-        <PropertiesTable.Row label="Updated">
-          <DateTime date={idp.timeModified} />
-        </PropertiesTable.Row>
+        <PropertiesTable.IdRow id={idp.id} />
+        <PropertiesTable.DateRow date={idp.timeCreated} label="Created" />
+        <PropertiesTable.DateRow date={idp.timeModified} label="Updated" />
       </PropertiesTable>
 
       <NameField name="name" control={form.control} disabled />
@@ -86,7 +75,6 @@ export function EditIdpSideModalForm() {
       <FormDivider />
 
       <SideModal.Heading>Service provider</SideModal.Heading>
-      {/* TODO: help text */}
       <TextField
         name="spClientId"
         label="Service provider client ID"
@@ -113,8 +101,7 @@ export function EditIdpSideModalForm() {
 
       <FormDivider />
 
-      <SideModal.Heading>Identity Provider</SideModal.Heading>
-      {/* TODO: help text */}
+      <SideModal.Heading>Identity provider</SideModal.Heading>
       <TextField
         name="idpEntityId"
         label="Entity ID"
@@ -130,6 +117,7 @@ export function EditIdpSideModalForm() {
         control={form.control}
         disabled
       />
-    </SideModalForm>
+      <SideModalFormDocs docs={[docLinks.identityProviders]} />
+    </ReadOnlySideModalForm>
   )
 }

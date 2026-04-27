@@ -17,11 +17,12 @@ import type { SiloCreateFormValues } from '~/forms/silo-create'
 import { Button } from '~/ui/lib/Button'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Message } from '~/ui/lib/Message'
-import * as MiniTable from '~/ui/lib/MiniTable'
+import { MiniTable } from '~/ui/lib/MiniTable'
 import { Modal } from '~/ui/lib/Modal'
-import { links } from '~/util/links'
+import { docLinks } from '~/util/links'
 
 import { DescriptionField } from './DescriptionField'
+import { ErrorMessage } from './ErrorMessage'
 import { FileField } from './FileField'
 import { validateName } from './NameField'
 import { TextField } from './TextField'
@@ -36,8 +37,18 @@ export function TlsCertsField({
   const [showAddCert, setShowAddCert] = useState(false)
 
   const {
-    field: { value: items, onChange },
-  } = useController({ control, name: 'tlsCertificates' })
+    field: { value: items, onChange, ref },
+    fieldState: { error },
+  } = useController({
+    control,
+    name: 'tlsCertificates',
+    rules: {
+      // docs recommend validate over required for array-valued field
+      // https://react-hook-form.com/docs/useform/register
+      validate: (certs) =>
+        certs.length < 1 ? 'At least one certificate is required' : undefined,
+    },
+  })
 
   return (
     <>
@@ -45,35 +56,21 @@ export function TlsCertsField({
         <FieldLabel id="tls-certificates-label" className="mb-3">
           TLS Certificates
         </FieldLabel>
-        {!!items.length && (
-          <MiniTable.Table className="mb-4">
-            <MiniTable.Header>
-              <MiniTable.HeadCell>Name</MiniTable.HeadCell>
-              {/* For remove button */}
-              <MiniTable.HeadCell className="w-12" />
-            </MiniTable.Header>
-            <MiniTable.Body>
-              {items.map((item, index) => (
-                <MiniTable.Row
-                  tabIndex={0}
-                  aria-rowindex={index + 1}
-                  aria-label={`Name: ${item.name}, Description: ${item.description}`}
-                  key={item.name}
-                >
-                  <MiniTable.Cell>{item.name}</MiniTable.Cell>
-                  <MiniTable.RemoveCell
-                    onClick={() => onChange(items.filter((i) => i.name !== item.name))}
-                    label={`remove cert ${item.name}`}
-                  />
-                </MiniTable.Row>
-              ))}
-            </MiniTable.Body>
-          </MiniTable.Table>
-        )}
+        <MiniTable
+          className="mb-4"
+          ariaLabel="TLS Certificates"
+          items={items}
+          columns={[{ header: 'Name', cell: (item) => item.name }]}
+          rowKey={(item) => item.name}
+          onRemoveItem={(item) => onChange(items.filter((i) => i.name !== item.name))}
+          removeLabel={(item) => `remove cert ${item.name}`}
+        />
 
-        <Button size="sm" onClick={() => setShowAddCert(true)}>
+        {/* ref on button element allows scrollTo to work when the form has a "missing TLS cert" error */}
+        <Button size="sm" onClick={() => setShowAddCert(true)} ref={ref}>
           Add TLS certificate
         </Button>
+        <ErrorMessage error={error} label="TLS certificate" />
       </div>
 
       {showAddCert && (
@@ -176,9 +173,8 @@ const AddCertModal = ({ onDismiss, onSubmit, allNames, siloName }: AddCertModalP
 
 export async function parseCertificate(certPem: string) {
   // dynamic import to keep 50k gzipped out of the main bundle
-  const { SubjectAlternativeNameExtension, X509Certificate } = await import(
-    '@peculiar/x509'
-  )
+  const { SubjectAlternativeNameExtension, X509Certificate } =
+    await import('@peculiar/x509')
   try {
     const cert = new X509Certificate(certPem)
     const nameItems = cert.getExtension(SubjectAlternativeNameExtension)?.names.items || []
@@ -249,7 +245,7 @@ function CertDomainNotice({
               <a
                 target="_blank"
                 rel="noreferrer"
-                href={links.systemSiloDocs} // would need updating
+                href={docLinks.systemSilo.href}
                 className="inline-flex items-center underline"
               >
                 silo certs
@@ -295,7 +291,7 @@ function CertDomainNotice({
             <a
               target="_blank"
               rel="noreferrer"
-              href={links.systemSiloDocs} // would need updating
+              href={docLinks.systemSilo.href}
               className="inline-flex items-center underline"
             >
               silo certs

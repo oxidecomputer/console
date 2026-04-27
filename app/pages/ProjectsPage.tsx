@@ -5,20 +5,16 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback, useMemo } from 'react'
-import { Outlet, useNavigate } from 'react-router-dom'
+import { useCallback } from 'react'
+import { Outlet, useNavigate } from 'react-router'
 
-import {
-  apiQueryClient,
-  getListQFn,
-  queryClient,
-  useApiMutation,
-  type Project,
-} from '@oxide/api'
+import { api, getListQFn, q, queryClient, useApiMutation, type Project } from '@oxide/api'
 import { Folder16Icon, Folder24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { makeLinkCell } from '~/table/cells/LinkCell'
@@ -29,6 +25,7 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -42,12 +39,18 @@ const EmptyState = () => (
   />
 )
 
-const projectList = getListQFn('projectList', {})
+const projectList = getListQFn(api.projectList, {})
 
-export async function loader() {
-  await queryClient.prefetchQuery(projectList.optionsFn())
+export async function clientLoader() {
+  // fetchQuery instead of prefetchQuery means errors blow up here instead of
+  // waiting to hit the invariant in the useQuery call. We may end up doing this
+  // everywhere, but here in particular it is needed to trigger the silo group
+  // misconfig detection case in ErrorBoundary.
+  await queryClient.fetchQuery(projectList.optionsFn())
   return null
 }
+
+export const handle = makeCrumb('Projects', pb.projects())
 
 const colHelper = createColumnHelper<Project>()
 const staticCols = [
@@ -58,15 +61,12 @@ const staticCols = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-Component.displayName = 'ProjectsPage'
-export function Component() {
+export default function ProjectsPage() {
   const navigate = useNavigate()
 
-  const { mutateAsync: deleteProject } = useApiMutation('projectDelete', {
+  const { mutateAsync: deleteProject } = useApiMutation(api.projectDelete, {
     onSuccess() {
-      // TODO: figure out if this is invalidating as expected, can we leave out the query
-      // altogether, etc. Look at whether limit param matters.
-      apiQueryClient.invalidateQueries('projectList')
+      queryClient.invalidateEndpoint('projectList')
     },
   })
 
@@ -77,11 +77,10 @@ export function Component() {
         onActivate: () => {
           // the edit view has its own loader, but we can make the modal open
           // instantaneously by preloading the fetch result
-          apiQueryClient.setQueryData(
-            'projectView',
-            { path: { project: project.name } },
-            project
-          )
+          const { queryKey } = q(api.projectView, {
+            path: { project: project.name },
+          })
+          queryClient.setQueryData(queryKey, project)
           navigate(pb.projectEdit({ project: project.name }))
         },
       },
@@ -97,26 +96,28 @@ export function Component() {
   )
 
   const columns = useColsWithActions(staticCols, makeActions)
-  const {
-    table,
-    query: { data: projects },
-  } = useQueryTable({ query: projectList, columns, emptyState: <EmptyState /> })
+  const { table } = useQueryTable({
+    query: projectList,
+    columns,
+    emptyState: <EmptyState />,
+  })
+
+  const { data: allProjects } = useQuery(q(api.projectList, { query: { limit: ALL_ISH } }))
 
   useQuickActions(
-    useMemo(
-      () => [
-        {
-          value: 'New project',
-          onSelect: () => navigate(pb.projectsNew()),
-        },
-        ...(projects?.items || []).map((p) => ({
-          value: p.name,
-          onSelect: () => navigate(pb.project({ project: p.name })),
-          navGroup: 'Go to project',
-        })),
-      ],
-      [navigate, projects]
-    )
+    () => [
+      {
+        value: 'New project',
+        navGroup: 'Actions',
+        action: pb.projectsNew(),
+      },
+      ...(allProjects?.items || []).map((p) => ({
+        value: p.name,
+        action: pb.project({ project: p.name }),
+        navGroup: 'Go to project',
+      })),
+    ],
+    [allProjects]
   )
 
   return (
@@ -131,7 +132,7 @@ export function Component() {
         />
       </PageHeader>
       <TableActions>
-        <CreateLink to={pb.projectsNew()}>New Project</CreateLink>
+        <CreateLink to={pb.projectsNew()}>New project</CreateLink>
       </TableActions>
       {table}
       <Outlet />

@@ -5,23 +5,17 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
-import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router'
 
-import {
-  apiQueryClient,
-  getListQFn,
-  queryClient,
-  useApiMutation,
-  useApiQuery,
-  useApiQueryClient,
-  type Vpc,
-} from '@oxide/api'
+import { api, getListQFn, q, queryClient, useApiMutation, type Vpc } from '@oxide/api'
 import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -35,10 +29,12 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
-const vpcList = (project: string) => getListQFn('vpcList', { query: { project } })
+const vpcList = (project: string) => getListQFn(api.vpcList, { query: { project } })
 
 const EmptyState = () => (
   <EmptyMessage
@@ -59,8 +55,8 @@ export const VpcDocsPopover = () => (
   />
 )
 
-const FirewallRuleCount = ({ project, vpc }: { project: string; vpc: string }) => {
-  const { data } = useApiQuery('vpcFirewallRulesView', { query: { project, vpc } })
+const FirewallRuleCount = ({ project, vpc }: PP.Vpc) => {
+  const { data } = useQuery(q(api.vpcFirewallRulesView, { query: { project, vpc } }))
 
   if (!data) return <SkeletonCell /> // loading
 
@@ -71,21 +67,23 @@ const colHelper = createColumnHelper<Vpc>()
 
 // just as in the vpcList call for the quick actions menu, include limit to make
 // sure it matches the call in the QueryTable
-VpcsPage.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project } = getProjectSelector(params)
   await queryClient.prefetchQuery(vpcList(project).optionsFn())
   return null
 }
 
-export function VpcsPage() {
-  const queryClient = useApiQueryClient()
+export const handle = makeCrumb('VPCs', (p) => pb.vpcs(getProjectSelector(p)))
+
+export default function VpcsPage() {
   const { project } = useProjectSelector()
   const navigate = useNavigate()
 
-  const { mutateAsync: deleteVpc } = useApiMutation('vpcDelete', {
+  const { mutateAsync: deleteVpc } = useApiMutation(api.vpcDelete, {
     onSuccess(_data, variables) {
-      queryClient.invalidateQueries('vpcList')
-      addToast(<>VPC <HL>{variables.path.vpc}</HL> deleted</>) // prettier-ignore
+      queryClient.invalidateEndpoint('vpcList')
+      // prettier-ignore
+      addToast(<>VPC <HL>{variables.path.vpc}</HL> deleted</>)
     },
   })
 
@@ -94,9 +92,8 @@ export function VpcsPage() {
       {
         label: 'Edit',
         onActivate() {
-          apiQueryClient.setQueryData(
-            'vpcView',
-            { path: { vpc: vpc.name }, query: { project } },
+          queryClient.setQueryData(
+            q(api.vpcView, { path: { vpc: vpc.name }, query: { project } }).queryKey,
             vpc
           )
           navigate(pb.vpcEdit({ project, vpc: vpc.name }), { state: vpc })
@@ -132,24 +129,28 @@ export function VpcsPage() {
     [project, makeActions]
   )
 
-  const { table, query } = useQueryTable({
+  const { table } = useQueryTable({
     query: vpcList(project),
     columns,
     emptyState: <EmptyState />,
   })
 
-  const { data: vpcs } = query
+  const { data: allVpcs } = useQuery(q(api.vpcList, { query: { project, limit: ALL_ISH } }))
 
   useQuickActions(
-    useMemo(
-      () =>
-        (vpcs?.items || []).map((v) => ({
-          value: v.name,
-          onSelect: () => navigate(pb.vpc({ project, vpc: v.name })),
-          navGroup: 'Go to VPC',
-        })),
-      [project, vpcs, navigate]
-    )
+    () => [
+      {
+        value: 'New VPC',
+        navGroup: 'Actions',
+        action: pb.vpcsNew({ project }),
+      },
+      ...(allVpcs?.items || []).map((v) => ({
+        value: v.name,
+        action: pb.vpc({ project, vpc: v.name }),
+        navGroup: 'Go to VPC',
+      })),
+    ],
+    [project, allVpcs]
   )
 
   return (
@@ -159,7 +160,7 @@ export function VpcsPage() {
         <VpcDocsPopover />
       </PageHeader>
       <TableActions>
-        <CreateLink to={pb.vpcsNew({ project })}>New Vpc</CreateLink>
+        <CreateLink to={pb.vpcsNew({ project })}>New VPC</CreateLink>
       </TableActions>
       {table}
       <Outlet />

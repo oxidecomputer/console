@@ -2,7 +2,95 @@
 
 exports[`breadcrumbs 2`] = `
 {
+  "accessTokens (/settings/access-tokens)": [
+    {
+      "label": "Settings",
+      "path": "/settings/profile",
+    },
+    {
+      "label": "Access Tokens",
+      "path": "/settings/access-tokens",
+    },
+  ],
+  "affinity (/projects/p/affinity)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Affinity Groups",
+      "path": "/projects/p/affinity",
+    },
+  ],
+  "affinityNew (/projects/p/affinity-new)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Affinity Groups",
+      "path": "/projects/p/",
+    },
+  ],
+  "antiAffinityGroup (/projects/p/affinity/aag)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Affinity Groups",
+      "path": "/projects/p/affinity",
+    },
+    {
+      "label": "aag",
+      "path": "/projects/p/affinity/aag",
+    },
+  ],
+  "antiAffinityGroupEdit (/projects/p/affinity/aag/edit)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Affinity Groups",
+      "path": "/projects/p/affinity",
+    },
+    {
+      "label": "aag",
+      "path": "/projects/p/affinity/aag",
+    },
+  ],
   "deviceSuccess (/device/success)": [],
+  "disk (/projects/p/disks/d)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Disks",
+      "path": "/projects/p/disks",
+    },
+  ],
   "diskInventory (/system/inventory/disks)": [
     {
       "label": "Inventory",
@@ -39,6 +127,54 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "Disks",
       "path": "/projects/p/disks",
+    },
+  ],
+  "externalSubnetEdit (/projects/p/external-subnets/es/edit)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "External Subnets",
+      "path": "/projects/p/external-subnets",
+    },
+  ],
+  "externalSubnets (/projects/p/external-subnets)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "External Subnets",
+      "path": "/projects/p/external-subnets",
+    },
+  ],
+  "externalSubnetsNew (/projects/p/external-subnets-new)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "External Subnets",
+      "path": "/projects/p/external-subnets",
+    },
+  ],
+  "fleetAccess (/system/access)": [
+    {
+      "label": "Fleet Access",
+      "path": "/system/access",
     },
   ],
   "floatingIpEdit (/projects/p/floating-ips/f/edit)": [
@@ -127,7 +263,51 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/instances/i/connect",
     },
   ],
-  "instanceMetrics (/projects/p/instances/i/metrics)": [
+  "instanceCpuMetrics (/projects/p/instances/i/metrics/cpu)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Instances",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "i",
+      "path": "/projects/p/instances/i/storage",
+    },
+    {
+      "label": "Metrics",
+      "path": "/projects/p/instances/i/metrics",
+    },
+  ],
+  "instanceDiskMetrics (/projects/p/instances/i/metrics/disk)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Instances",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "i",
+      "path": "/projects/p/instances/i/storage",
+    },
+    {
+      "label": "Metrics",
+      "path": "/projects/p/instances/i/metrics",
+    },
+  ],
+  "instanceNetworkMetrics (/projects/p/instances/i/metrics/network)": [
     {
       "label": "Projects",
       "path": "/projects",
@@ -169,6 +349,28 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "Networking",
       "path": "/projects/p/instances/i/networking",
+    },
+  ],
+  "instanceSettings (/projects/p/instances/i/settings)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "Instances",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "i",
+      "path": "/projects/p/instances/i/storage",
+    },
+    {
+      "label": "Settings",
+      "path": "/projects/p/instances/i/settings",
     },
   ],
   "instanceStorage (/projects/p/instances/i/storage)": [
@@ -301,7 +503,7 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/instances",
     },
     {
-      "label": "Access",
+      "label": "Project Access",
       "path": "/projects/p/access",
     },
   ],
@@ -372,7 +574,11 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "s",
-      "path": "/system/silos/s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "Identity Providers",
+      "path": "/system/silos/s/idps",
     },
   ],
   "serialConsole (/projects/p/instances/i/serial-console)": [
@@ -397,20 +603,52 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/instances/i/serial-console",
     },
   ],
-  "silo (/system/silos/s)": [
+  "silo (/system/silos/s/idps)": [
     {
       "label": "Silos",
       "path": "/system/silos",
     },
     {
       "label": "s",
-      "path": "/system/silos/s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "Identity Providers",
+      "path": "/system/silos/s/idps",
     },
   ],
   "siloAccess (/access)": [
     {
-      "label": "Access",
+      "label": "Silo Access",
       "path": "/access",
+    },
+  ],
+  "siloFleetRoles (/system/silos/s/fleet-roles)": [
+    {
+      "label": "Silos",
+      "path": "/system/silos",
+    },
+    {
+      "label": "s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "Fleet Roles",
+      "path": "/system/silos/s/fleet-roles",
+    },
+  ],
+  "siloIdps (/system/silos/s/idps)": [
+    {
+      "label": "Silos",
+      "path": "/system/silos",
+    },
+    {
+      "label": "s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "Identity Providers",
+      "path": "/system/silos/s/idps",
     },
   ],
   "siloIdpsNew (/system/silos/s/idps-new)": [
@@ -420,7 +658,11 @@ exports[`breadcrumbs 2`] = `
     },
     {
       "label": "s",
-      "path": "/system/silos/s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "Identity Providers",
+      "path": "/system/silos/s/idps",
     },
   ],
   "siloImageEdit (/images/im/edit)": [
@@ -435,14 +677,60 @@ exports[`breadcrumbs 2`] = `
       "path": "/images",
     },
   ],
-  "siloIpPools (/system/silos/s?tab=ip-pools)": [
+  "siloIpPools (/system/silos/s/ip-pools)": [
     {
       "label": "Silos",
       "path": "/system/silos",
     },
     {
       "label": "s",
-      "path": "/system/silos/s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "IP Pools",
+      "path": "/system/silos/s/ip-pools",
+    },
+  ],
+  "siloQuotas (/system/silos/s/quotas)": [
+    {
+      "label": "Silos",
+      "path": "/system/silos",
+    },
+    {
+      "label": "s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "Quotas",
+      "path": "/system/silos/s/quotas",
+    },
+  ],
+  "siloScim (/system/silos/s/scim)": [
+    {
+      "label": "Silos",
+      "path": "/system/silos",
+    },
+    {
+      "label": "s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "SCIM",
+      "path": "/system/silos/s/scim",
+    },
+  ],
+  "siloSubnetPools (/system/silos/s/subnet-pools)": [
+    {
+      "label": "Silos",
+      "path": "/system/silos",
+    },
+    {
+      "label": "s",
+      "path": "/system/silos/s/idps",
+    },
+    {
+      "label": "Subnet Pools",
+      "path": "/system/silos/s/subnet-pools",
     },
   ],
   "siloUtilization (/utilization)": [
@@ -461,24 +749,6 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "Silos",
       "path": "/system/silos",
-    },
-  ],
-  "sled (/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances)": [
-    {
-      "label": "Inventory",
-      "path": "/system/inventory",
-    },
-    {
-      "label": "Sleds",
-      "path": "/system/inventory/sleds",
-    },
-    {
-      "label": "5c56b…ec3e0",
-      "path": "/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances",
-    },
-    {
-      "label": "Instances",
-      "path": "/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances",
     },
   ],
   "sledInstances (/system/inventory/sleds/5c56b522-c9b8-49e4-9f9a-8d52a89ec3e0/instances)": [
@@ -551,6 +821,16 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/snapshots",
     },
   ],
+  "sshKeyEdit (/settings/ssh-keys/ss/edit)": [
+    {
+      "label": "Settings",
+      "path": "/settings/profile",
+    },
+    {
+      "label": "SSH Keys",
+      "path": "/settings/ssh-keys",
+    },
+  ],
   "sshKeys (/settings/ssh-keys)": [
     {
       "label": "Settings",
@@ -569,6 +849,58 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "SSH Keys",
       "path": "/settings/ssh-keys",
+    },
+  ],
+  "subnetPool (/system/networking/subnet-pools/sp)": [
+    {
+      "label": "Subnet Pools",
+      "path": "/system/networking/subnet-pools",
+    },
+    {
+      "label": "sp",
+      "path": "/system/networking/subnet-pools/sp",
+    },
+  ],
+  "subnetPoolEdit (/system/networking/subnet-pools/sp/edit)": [
+    {
+      "label": "Subnet Pools",
+      "path": "/system/networking/subnet-pools",
+    },
+    {
+      "label": "sp",
+      "path": "/system/networking/subnet-pools/sp",
+    },
+    {
+      "label": "Edit subnet pool",
+      "path": "/system/networking/subnet-pools/sp/edit",
+    },
+  ],
+  "subnetPoolMemberAdd (/system/networking/subnet-pools/sp/members-add)": [
+    {
+      "label": "Subnet Pools",
+      "path": "/system/networking/subnet-pools",
+    },
+    {
+      "label": "sp",
+      "path": "/system/networking/subnet-pools/sp",
+    },
+  ],
+  "subnetPools (/system/networking/subnet-pools)": [
+    {
+      "label": "Subnet Pools",
+      "path": "/system/networking/",
+    },
+  ],
+  "subnetPoolsNew (/system/networking/subnet-pools-new)": [
+    {
+      "label": "Subnet Pools",
+      "path": "/system/networking/",
+    },
+  ],
+  "systemUpdate (/system/update)": [
+    {
+      "label": "System Update",
+      "path": "/system/update",
     },
   ],
   "systemUtilization (/system/utilization)": [
@@ -615,10 +947,6 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "v",
       "path": "/projects/p/vpcs/v/firewall-rules",
-    },
-    {
-      "label": "Edit VPC",
-      "path": "/projects/p/vpcs/v/edit",
     },
   ],
   "vpcFirewallRuleClone (/projects/p/vpcs/v/firewall-rules-new/fr)": [
@@ -707,6 +1035,50 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "Firewall Rules",
       "path": "/projects/p/vpcs/v/",
+    },
+  ],
+  "vpcInternetGateway (/projects/p/vpcs/v/internet-gateways/g)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v/firewall-rules",
+    },
+    {
+      "label": "Internet Gateways",
+      "path": "/projects/p/vpcs/v/internet-gateways",
+    },
+  ],
+  "vpcInternetGateways (/projects/p/vpcs/v/internet-gateways)": [
+    {
+      "label": "Projects",
+      "path": "/projects",
+    },
+    {
+      "label": "p",
+      "path": "/projects/p/instances",
+    },
+    {
+      "label": "VPCs",
+      "path": "/projects/p/vpcs",
+    },
+    {
+      "label": "v",
+      "path": "/projects/p/vpcs/v/firewall-rules",
+    },
+    {
+      "label": "Internet Gateways",
+      "path": "/projects/p/vpcs/v/internet-gateways",
     },
   ],
   "vpcRouter (/projects/p/vpcs/v/routers/r)": [
@@ -883,7 +1255,7 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/vpcs/v/firewall-rules",
     },
     {
-      "label": "Subnets",
+      "label": "VPC Subnets",
       "path": "/projects/p/vpcs/v/",
     },
   ],
@@ -905,7 +1277,7 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/vpcs/v/firewall-rules",
     },
     {
-      "label": "Subnets",
+      "label": "VPC Subnets",
       "path": "/projects/p/vpcs/v/",
     },
   ],
@@ -927,7 +1299,7 @@ exports[`breadcrumbs 2`] = `
       "path": "/projects/p/vpcs/v/firewall-rules",
     },
     {
-      "label": "Subnets",
+      "label": "VPC Subnets",
       "path": "/projects/p/vpcs/v/",
     },
   ],

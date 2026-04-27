@@ -51,9 +51,9 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
       ? isSameDay(date, state.highlightedRange.end)
       : isSelected
 
-  // We add rounded corners on the left for the first day of the month,
+  // We add rounded-md corners on the left for the first day of the month,
   // the first day of each week, and the start date of the selection.
-  // We add rounded corners on the right for the last day of the month,
+  // We add rounded-md corners on the right for the last day of the month,
   // the last day of each week, and the end date of the selection.
   const { locale } = useLocale()
   const dayOfWeek = getDayOfWeek(date, locale)
@@ -75,36 +75,36 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
         hidden={isOutsideVisibleRange}
         className={cn(
           'group relative',
-          'focus:outline-none',
-          'my-0.5 h-8 w-10 text-center text-mono-md',
+          'focus:outline-hidden',
+          'text-mono-md my-0.5 h-8 w-10 text-center',
           isSelectionStart || isSelectionEnd
             ? isInvalid
-              ? '!text-error'
-              : '!text-accent'
+              ? 'text-error!'
+              : 'text-accent!'
             : '',
           isSelected && !isDisabled
             ? isInvalid
               ? 'text-error bg-error-secondary'
-              : 'text-accent-secondary bg-accent-secondary'
-            : 'text-tertiary hover:bg-tertiary',
+              : 'text-accent-secondary bg-accent'
+            : 'text-secondary hover:bg-tertiary',
           isRoundedLeft && 'rounded-l',
-          isRoundedRight && 'rounded-r',
+          isRoundedRight && 'rounded-r-md',
           // Hover state for non-selected cells.
-          !isSelected && !isDisabled ? 'rounded' : ''
+          !isSelected && !isDisabled ? 'rounded-md' : ''
         )}
       >
         <div
           className={cn(
-            'pointer-events-none absolute bottom-[0] left-px right-px top-[0] rounded',
+            'pointer-events-none absolute top-[0] right-px bottom-[0] left-px rounded-md',
             isSelectionStart || isSelectionEnd
               ? isInvalid
-                ? 'border border-error-secondary'
-                : 'border border-accent-secondary'
+                ? 'border-error-secondary border'
+                : 'border-accent-secondary border'
               : '',
             isSelected && !isDisabled
               ? isInvalid
                 ? 'group-hover:bg-error-secondary-hover'
-                : 'group-hover:bg-accent-secondary-hover'
+                : 'group-hover:bg-accent-hover'
               : '',
             !isSelected && !isDisabled ? 'hover:bg-tertiary' : ''
           )}
@@ -113,7 +113,7 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
           className={cn(
             'relative z-10 flex h-full w-full items-center justify-center',
             isDisabled && !isInvalid
-              ? 'disabled cursor-not-allowed text-disabled !bg-raise'
+              ? 'disabled text-disabled bg-raise! cursor-not-allowed'
               : ''
           )}
         >
@@ -121,7 +121,12 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
         </div>
 
         {cellIsToday && (
-          <div className="absolute bottom-[5px] left-1/2 h-[3px] w-[3px] -translate-x-1/2 rounded-full bg-[var(--content-accent-tertiary)] content-['']" />
+          <div
+            className={cn(
+              "absolute bottom-[5px] left-1/2 h-[3px] w-[3px] -translate-x-1/2 rounded-full content-['']",
+              isInvalid ? 'bg-(--content-error-tertiary)' : 'bg-(--content-accent-tertiary)'
+            )}
+          />
         )}
       </div>
     </td>

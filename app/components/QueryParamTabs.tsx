@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 
 import { Tabs, type TabsRootProps } from '~/ui/lib/Tabs'
 
@@ -19,11 +19,11 @@ export function QueryParamTabs(props: TabsRootProps) {
   const [searchParams, setSearchParams] = useSearchParams()
   const value = searchParams.get('tab') || props.defaultValue
 
-  function onValueChange(newValue: string) {
+  function onValueChange(newValue: string | number | null) {
     if (newValue === props.defaultValue) {
       searchParams.delete('tab')
     } else {
-      searchParams.set('tab', newValue)
+      searchParams.set('tab', String(newValue))
     }
     setSearchParams(searchParams, { replace: true })
   }

@@ -7,75 +7,61 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 
-import {
-  getListQFn,
-  queryClient,
-  type Sled,
-  type SledPolicy,
-  type SledState,
-} from '@oxide/api'
+import { api, getListQFn, queryClient, type Sled } from '@oxide/api'
 import { Servers24Icon } from '@oxide/design-system/icons/react'
 
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useQueryTable } from '~/table/QueryTable'
-import { Badge, type BadgeColor } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pb } from '~/util/path-builder'
 
-const POLICY_KIND_BADGE_COLORS: Record<SledPolicy['kind'], BadgeColor> = {
-  in_service: 'default',
-  expunged: 'neutral',
-}
+import { ProvisionPolicyBadge, SledKindBadge, SledStateBadge } from './sled/SledBadges'
 
-const STATE_BADGE_COLORS: Record<SledState, BadgeColor> = {
-  active: 'default',
-  decommissioned: 'neutral',
-}
+const sledList = getListQFn(api.sledList, {})
 
-const EmptyState = () => {
-  return (
-    <EmptyMessage
-      icon={<Servers24Icon />}
-      title="Something went wrong"
-      body="We expected some racks here, but none were found"
-    />
-  )
-}
-
-const sledList = getListQFn('sledList', {})
-
-export async function loader() {
-  await queryClient.prefetchQuery(sledList.optionsFn())
+export async function clientLoader() {
+  await queryClient.fetchQuery(sledList.optionsFn())
   return null
 }
+
+export const handle = { crumb: 'Sleds' }
 
 const colHelper = createColumnHelper<Sled>()
 const staticCols = [
   colHelper.accessor('id', {
-    cell: makeLinkCell((sledId) => pb.sled({ sledId })),
+    cell: makeLinkCell((sledId) => pb.sledInstances({ sledId })),
   }),
   // TODO: colHelper.accessor('baseboard.serviceAddress', { header: 'service address' }),
-  colHelper.accessor('baseboard.part', { header: 'part number' }),
-  colHelper.accessor('baseboard.serial', { header: 'serial number' }),
-  colHelper.accessor('baseboard.revision', { header: 'revision' }),
-  colHelper.accessor('policy.kind', {
-    header: 'policy',
-    cell: (info) => (
-      <Badge color={POLICY_KIND_BADGE_COLORS[info.getValue()]}>
-        {info.getValue().replace(/_/g, ' ')}
-      </Badge>
-    ),
+  colHelper.group({
+    id: 'baseboard',
+    header: 'Baseboard',
+    columns: [
+      colHelper.accessor('baseboard.part', { header: 'part number' }),
+      colHelper.accessor('baseboard.serial', { header: 'serial number' }),
+      colHelper.accessor('baseboard.revision', { header: 'revision' }),
+    ],
+  }),
+  colHelper.group({
+    id: 'policy',
+    header: 'Policy',
+    columns: [
+      colHelper.accessor('policy', {
+        header: 'Kind',
+        cell: (info) => <SledKindBadge policy={info.getValue()} />,
+      }),
+      colHelper.accessor('policy', {
+        header: 'Provision policy',
+        cell: (info) => <ProvisionPolicyBadge policy={info.getValue()} />,
+      }),
+    ],
   }),
   colHelper.accessor('state', {
-    cell: (info) => (
-      <Badge color={STATE_BADGE_COLORS[info.getValue()]}>{info.getValue()}</Badge>
-    ),
+    cell: (info) => <SledStateBadge state={info.getValue()} />,
   }),
 ]
 
-Component.displayName = 'SledsTab'
-export function Component() {
-  const emptyState = <EmptyState />
+export default function SledsTab() {
+  const emptyState = <EmptyMessage icon={<Servers24Icon />} title="No sleds found" />
   const { table } = useQueryTable({ query: sledList, columns: staticCols, emptyState })
   return table
 }

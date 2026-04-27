@@ -7,7 +7,7 @@
  */
 
 import cn from 'classnames'
-import { Link, type LinkProps } from 'react-router-dom'
+import { Link, type LinkProps } from 'react-router'
 
 import { AddRoundel12Icon } from '@oxide/design-system/icons/react'
 
@@ -26,7 +26,7 @@ export const CreateButton = ({ children, ...props }: ButtonProps) => (
 
 export const CreateLink = ({ children, ...rest }: LinkProps) => (
   <Link className={buttonStyle({ size: 'sm' })} {...rest}>
-    <AddRoundel12Icon className="mr-2 text-accent-secondary" />
+    <AddRoundel12Icon className="text-accent-secondary mr-2" />
     {children}
   </Link>
 )

@@ -7,7 +7,20 @@
  */
 import { expect, test } from '@playwright/test'
 
-import { clickRowAction, expectRowVisible, expectVisible, stopInstance } from './utils'
+import {
+  clickRowAction,
+  clickRowActions,
+  expectRowVisible,
+  expectVisible,
+  stopInstance,
+  type Page,
+} from './utils'
+
+const selectASiloImage = async (page: Page, name: string) => {
+  await page.getByRole('tab', { name: 'Silo images' }).click()
+  await page.getByPlaceholder('Select a silo image', { exact: true }).click()
+  await page.getByRole('option', { name }).click()
+}
 
 test('Instance networking tab — NIC table', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
@@ -45,14 +58,15 @@ test('Instance networking tab — NIC table', async ({ page }) => {
   await expectVisible(page, [
     'role=heading[name="Add network interface"]',
     'role=textbox[name="Description"]',
-    'role=textbox[name="IP Address"]',
+    'role=textbox[name="IPv4 address"]',
+    'role=textbox[name="IPv6 address"]',
   ])
 
   await page.getByRole('textbox', { name: 'Name' }).fill('nic-2')
   await page.getByLabel('VPC', { exact: true }).click()
   await page.getByRole('option', { name: 'mock-vpc' }).click()
-  await page.getByLabel('Subnet').click()
-  await page.getByRole('option', { name: 'mock-subnet' }).click()
+  await page.getByRole('dialog').getByLabel('Subnet').click()
+  await page.getByRole('option', { name: 'mock-subnet', exact: true }).click()
   await page
     .getByRole('dialog')
     .getByRole('button', { name: 'Add network interface' })
@@ -72,7 +86,29 @@ test('Instance networking tab — NIC table', async ({ page }) => {
   const nic3 = page.getByRole('cell', { name: 'nic-3' })
   await expect(nic3).toBeVisible()
 
-  // Delete just-added network interface
+  // See that the primary NIC cannot be deleted when other NICs exist
+  await clickRowActions(page, 'nic-3')
+  const deleteButton = page.getByRole('menuitem', { name: 'Delete' })
+  await expect(deleteButton).toBeDisabled()
+  await deleteButton.hover()
+  await expect(page.getByText('The primary interface can’t')).toBeVisible()
+
+  // close the menu for nic-3, without the next line fails in FF and Safari (but not Chrome)
+  await clickRowActions(page, 'nic-3')
+
+  // Delete the non-primary NIC
+  await clickRowAction(page, 'my-nic', 'Delete')
+  await expect(page.getByText('Are you sure you want to delete my-nic?')).toBeVisible()
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  // Wait for the NIC list refetch to land before opening nic-3's menu.
+  // Otherwise `multipleNics` is still true, Delete renders disabled (wrapped
+  // in a tooltip), and the unwrap when the refetch lands detaches the
+  // menuitem and closes the menu on Safari/FF. Row count (vs. checking my-nic
+  // is gone) because any absence check passes transiently while the confirm
+  // modal closes and the page is inert.
+  await expect(nicTable.getByRole('row')).toHaveCount(2) // header + nic-3
+
+  // Now the primary NIC is deletable
   await clickRowAction(page, 'nic-3', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(nic3).toBeHidden()
@@ -83,34 +119,117 @@ test('Instance networking tab — Detach / Attach Ephemeral IPs', async ({ page 
 
   const attachEphemeralIpButton = page.getByRole('button', { name: 'Attach ephemeral IP' })
   const externalIpTable = page.getByRole('table', { name: 'External IPs' })
-  const ephemeralCell = externalIpTable.getByRole('cell', { name: 'ephemeral' })
+  const ephemeralCells = externalIpTable.getByRole('cell', { name: 'ephemeral' })
 
-  // We start out with an ephemeral IP attached
-  await expect(ephemeralCell).toBeVisible()
-
-  // The 'Attach ephemeral IP' button should be hidden when there is still an existing ephemeral IP
-  await expect(attachEphemeralIpButton).toBeHidden()
-
-  // Detach the existing ephemeral IP
-  await clickRowAction(page, 'ephemeral', 'Detach')
-  await page.getByRole('button', { name: 'Confirm' }).click()
-  await expect(ephemeralCell).toBeHidden()
-
-  // The 'Attach ephemeral IP' button should be visible and enabled now that the existing ephemeral IP has been detached
+  // db1 starts with one v4 ephemeral IP and a dual-stack NIC, so the v6 slot
+  // is still open and the button should be enabled
+  await expect(ephemeralCells).toHaveCount(1)
   await expect(attachEphemeralIpButton).toBeEnabled()
 
-  // Attach a new ephemeral IP
+  // Attach a v6 ephemeral IP to fill the remaining slot. Since only the v6
+  // slot is open, only v6 pools should appear and the v6 default is preselected.
   await attachEphemeralIpButton.click()
   const modal = page.getByRole('dialog', { name: 'Attach ephemeral IP' })
   await expect(modal).toBeVisible()
-  await page.getByRole('button', { name: 'IP pool' }).click()
-  await page.getByRole('option', { name: 'ip-pool-2' }).click()
+  await expect(page.getByLabel('Pool')).toContainText('ip-pool-2')
   await page.getByRole('button', { name: 'Attach', exact: true }).click()
   await expect(modal).toBeHidden()
-  await expect(ephemeralCell).toBeVisible()
 
-  // The 'Attach ephemeral IP' button should be hidden after attaching an ephemeral IP
-  await expect(attachEphemeralIpButton).toBeHidden()
+  // Both v4 and v6 ephemeral IPs are now attached
+  await expectRowVisible(externalIpTable, {
+    Kind: 'ephemeral',
+    Version: 'v4',
+    'IP pool': 'ip-pool-1',
+  })
+  await expectRowVisible(externalIpTable, {
+    Kind: 'ephemeral',
+    Version: 'v6',
+    'IP pool': 'ip-pool-2',
+  })
+
+  // Button should be disabled now that both slots are filled
+  await expect(attachEphemeralIpButton).toBeDisabled()
+
+  // Detach the v6 ephemeral IP while both versions are attached (requires
+  // an explicit ipVersion selector), then reattach it.
+  await clickRowAction(page, 'fd00::1', 'Detach')
+  const confirmDetachDialog = page.getByRole('dialog', {
+    name: 'Confirm detach ephemeral IP',
+  })
+  await expect(confirmDetachDialog).toBeVisible()
+  await confirmDetachDialog.getByRole('button', { name: 'Confirm' }).click()
+  await expect(confirmDetachDialog).toBeHidden()
+  await expect(attachEphemeralIpButton).toBeEnabled()
+
+  await attachEphemeralIpButton.click()
+  await expect(modal).toBeVisible()
+  await expect(page.getByLabel('Pool')).toContainText('ip-pool-2')
+  await page.getByRole('button', { name: 'Attach', exact: true }).click()
+  await expect(modal).toBeHidden()
+  await expect(attachEphemeralIpButton).toBeDisabled()
+
+  // Detach the v4 ephemeral IP — button should re-enable for v4
+  await clickRowAction(page, '123.4.56.0', 'Detach')
+  await expect(confirmDetachDialog).toBeVisible()
+  await confirmDetachDialog.getByRole('button', { name: 'Confirm' }).click()
+  await expect(confirmDetachDialog).toBeHidden()
+  await expect(attachEphemeralIpButton).toBeEnabled()
+
+  // Attach a v4 ephemeral IP — only v4 pools should be available
+  await attachEphemeralIpButton.click()
+  await expect(modal).toBeVisible()
+  await expect(page.getByLabel('Pool')).toContainText('ip-pool-1')
+  await page.getByRole('button', { name: 'Attach', exact: true }).click()
+  await expect(modal).toBeHidden()
+  await expect(attachEphemeralIpButton).toBeDisabled()
+
+  // Detach both ephemeral IPs
+  await clickRowAction(page, '123.4.56.0', 'Detach')
+  await expect(confirmDetachDialog).toBeVisible()
+  await confirmDetachDialog.getByRole('button', { name: 'Confirm' }).click()
+  await expect(confirmDetachDialog).toBeHidden()
+  // Use a more specific locator since we're targeting the v6 row
+  await clickRowAction(page, 'fd00::1', 'Detach')
+  await expect(confirmDetachDialog).toBeVisible()
+  await confirmDetachDialog.getByRole('button', { name: 'Confirm' }).click()
+  await expect(confirmDetachDialog).toBeHidden()
+  await expect(ephemeralCells).toHaveCount(0)
+
+  // With no ephemeral IPs and a dual-stack NIC, both v4 and v6 pools should
+  // be available, meaning no default is preselected
+  await expect(attachEphemeralIpButton).toBeEnabled()
+  await attachEphemeralIpButton.click()
+  await expect(modal).toBeVisible()
+  await expect(page.getByLabel('Pool')).toContainText('Select a pool')
+  await page.getByLabel('Pool').click()
+  await page.getByRole('option', { name: 'ip-pool-1' }).click()
+  await page.getByRole('button', { name: 'Attach', exact: true }).click()
+  await expect(modal).toBeHidden()
+  await expectRowVisible(externalIpTable, {
+    Kind: 'ephemeral',
+    Version: 'v4',
+    'IP pool': 'ip-pool-1',
+  })
+})
+
+test('Attach ephemeral IP — error renders in modal, not toast', async ({ page }) => {
+  // Selecting the sentinel `attach-fail` pool causes the mock handler to 500.
+  // See ipPoolEphemeralAttachFail.
+  await page.goto('/projects/mock-project/instances/db1/networking')
+  await page.getByRole('button', { name: 'Attach ephemeral IP' }).click()
+
+  const modal = page.getByRole('dialog', { name: 'Attach ephemeral IP' })
+  await expect(modal).toBeVisible()
+
+  await page.getByLabel('Pool').click()
+  await page.getByRole('option', { name: 'attach-fail' }).click()
+  await page.getByRole('button', { name: 'Attach', exact: true }).click()
+
+  const errorText = 'Cannot attach ephemeral IP'
+  await expect(modal.getByText(errorText)).toBeVisible()
+  await expect(page.getByTestId('Toasts')).not.toContainText(errorText)
+  // Modal stays open so the user can retry or dismiss
+  await expect(modal).toBeVisible()
 })
 
 test('Instance networking tab — floating IPs', async ({ page }) => {
@@ -121,6 +240,13 @@ test('Instance networking tab — floating IPs', async ({ page }) => {
   // See list of external IPs
   await expectRowVisible(externalIpTable, { ip: '123.4.56.0', Kind: 'ephemeral' })
   await expectRowVisible(externalIpTable, { ip: '123.4.56.5', Kind: 'floating' })
+  await expectRowVisible(externalIpTable, { ip: '123.4.56.100–16383', Kind: 'snat' })
+
+  await expect(page.getByText('external IPs123.4.56.5/123.4.56.0')).toBeVisible()
+
+  // The list of IPs at the top of the page should not show the SNAT IP
+  await expect(page.getByText('external IPs123.4.56.5/123.4.56.0')).toBeVisible()
+  await expect(page.getByText('external IPs123.4.56.5/123.4.56.0/')).toBeHidden()
 
   // Attach a new external IP
   await attachFloatingIpButton.click()
@@ -140,8 +266,24 @@ test('Instance networking tab — floating IPs', async ({ page }) => {
   await expect(page.getByRole('dialog')).toBeHidden()
   await expectRowVisible(externalIpTable, { name: 'rootbeer-float' })
 
-  // Verify that the "Attach floating IP" button is disabled, since there shouldn't be any more IPs to attach
+  // Button should still be enabled because there's an IPv6 floating IP available
+  await expect(attachFloatingIpButton).toBeEnabled()
+
+  // Attach the IPv6 floating IP as well
+  await attachFloatingIpButton.click()
+  await expectVisible(page, ['role=heading[name="Attach floating IP"]'])
+  await dialog.getByLabel('Floating IP').click()
+  await page.keyboard.press('ArrowDown')
+  await page.keyboard.press('Enter')
+  await dialog.getByRole('button', { name: 'Attach' }).click()
+  await expect(page.getByRole('dialog')).toBeHidden()
+  await expectRowVisible(externalIpTable, { name: 'ipv6-float' })
+
+  // Now the button should be disabled, since all available floating IPs are attached
   await expect(attachFloatingIpButton).toBeDisabled()
+
+  // Verify that the External IPs table row has an ellipsis link in it
+  await expect(page.getByText('123.4.56.5/…')).toBeVisible()
 
   // Detach one of the external IPs
   await clickRowAction(page, 'cola-float', 'Detach')
@@ -150,8 +292,27 @@ test('Instance networking tab — floating IPs', async ({ page }) => {
   // Since we detached it, we don't expect to see the row any longer
   await expect(externalIpTable.getByRole('cell', { name: 'cola-float' })).toBeHidden()
 
-  // And that button should be enabled again
+  // And that button should be enabled again (cola-float is now available to attach)
   await expect(attachFloatingIpButton).toBeEnabled()
+})
+
+test('Instance networking tab — SNAT IPs', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1/networking')
+  const externalIpTable = page.getByRole('table', { name: 'External IPs' })
+  const snatRow = externalIpTable.locator('tr').filter({ hasText: 'snat' })
+  await expect(snatRow).toBeVisible()
+
+  // expect the SNAT IP to have a port range badge
+  await expect(snatRow).toContainText('0–16383')
+
+  const actionsButton = snatRow.getByRole('button', { name: 'Row actions' })
+  await actionsButton.click()
+
+  // Should have "Copy IP address" action, just for consistency with other IP rows
+  await expect(page.getByRole('menuitem', { name: 'Copy IP address' })).toBeVisible()
+
+  // Should have a disabled "Detach" action
+  await expect(page.getByRole('menuitem', { name: 'Detach' })).toBeDisabled()
 })
 
 test('Edit network interface - Transit IPs', async ({ page }) => {
@@ -213,11 +374,219 @@ test('Edit network interface - Transit IPs', async ({ page }) => {
   await modal.getByRole('button', { name: 'Update network interface' }).click()
 
   // Assert the transit IP is in the NICs table
+  // The NIC now has 3 transit IPs: 172.30.0.0/22 (v4), 192.168.0.0/16 (v4), and ::/64 (v6)
   const nicTable = page.getByRole('table', { name: 'Network interfaces' })
-  await expectRowVisible(nicTable, { 'Transit IPs': '172.30.0.0/22+1' })
+  await expectRowVisible(nicTable, { 'Transit IPs': '172.30.0.0/22+2' })
 
-  await page.getByText('+1').hover()
+  await page.getByText('+2').hover()
   await expect(
-    page.getByRole('tooltip', { name: 'Other transit IPs 192.168.0.0/16' })
+    page.getByRole('tooltip', { name: 'Other transit IPs 192.168.0.0/16 ::/64' })
   ).toBeVisible()
+})
+
+test('IPv4-only instance cannot attach IPv6 ephemeral IP', async ({ page }) => {
+  // Create an IPv4-only instance
+  await page.goto('/projects/mock-project/instances-new')
+  const instanceName = 'ipv4-only-test'
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await selectASiloImage(page, 'ubuntu-22-04')
+
+  // Select IPv4-only
+
+  const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
+  if (!(await defaultRadio.isChecked())) {
+    await defaultRadio.click()
+  }
+  const ipVersionButton = page.locator('[name="defaultIpVersion"]')
+  await ipVersionButton.waitFor({ state: 'visible' })
+  await ipVersionButton.click()
+  await page.getByRole('option', { name: 'IPv4', exact: true }).click()
+
+  // Don't attach ephemeral IP at creation
+  await page.getByRole('checkbox', { name: 'Allocate IPv4 address' }).uncheck()
+
+  // Create instance
+  await page.getByRole('button', { name: 'Create instance' }).click()
+  await expect(page).toHaveURL(/\/instances\/ipv4-only-test/)
+
+  // Navigate to networking tab
+  await page.getByRole('tab', { name: 'Networking' }).click()
+
+  // Try to attach ephemeral IP
+  const attachButton = page.getByRole('button', { name: 'Attach ephemeral IP' })
+  await expect(attachButton).toBeEnabled()
+  await attachButton.click()
+
+  const modal = page.getByRole('dialog', { name: 'Attach ephemeral IP' })
+  await expect(modal).toBeVisible()
+
+  // Pool dropdown should be visible
+  const poolDropdown = page.getByLabel('Pool')
+  await expect(poolDropdown).toBeVisible()
+
+  // IPv4 default pool should be selected by default
+  await expect(poolDropdown).toContainText('ip-pool-1')
+
+  // Check pool options - IPv6 pools should be filtered out
+  await poolDropdown.click()
+
+  // ip-pool-2 is IPv6, should not appear
+  await expect(page.getByRole('option', { name: 'ip-pool-2' })).toBeHidden()
+
+  // ip-pool-1 is IPv4, should appear
+  await expect(page.getByRole('option', { name: 'ip-pool-1' })).toBeVisible()
+})
+
+test('IPv6-only instance cannot attach IPv4 ephemeral IP', async ({ page }) => {
+  // Create an IPv6-only instance
+  await page.goto('/projects/mock-project/instances-new')
+  const instanceName = 'ipv6-only-test'
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await selectASiloImage(page, 'ubuntu-22-04')
+
+  // Select IPv6-only
+
+  const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
+  if (!(await defaultRadio.isChecked())) {
+    await defaultRadio.click()
+  }
+  const ipVersionButton = page.locator('[name="defaultIpVersion"]')
+  await ipVersionButton.waitFor({ state: 'visible' })
+  await ipVersionButton.click()
+  await page.getByRole('option', { name: 'IPv6', exact: true }).click()
+
+  // Don't attach ephemeral IP at creation
+  await page.getByRole('checkbox', { name: 'Allocate IPv6 address' }).uncheck()
+
+  // Create instance
+  await page.getByRole('button', { name: 'Create instance' }).click()
+  await expect(page).toHaveURL(/\/instances\/ipv6-only-test/)
+
+  // Navigate to networking tab
+  await page.getByRole('tab', { name: 'Networking' }).click()
+
+  // Try to attach ephemeral IP
+  const attachButton = page.getByRole('button', { name: 'Attach ephemeral IP' })
+  await expect(attachButton).toBeEnabled()
+  await attachButton.click()
+
+  const modal = page.getByRole('dialog', { name: 'Attach ephemeral IP' })
+  await expect(modal).toBeVisible()
+
+  // Pool dropdown should be visible
+  const poolDropdown = page.getByLabel('Pool')
+  await expect(poolDropdown).toBeVisible()
+
+  // IPv6 default pool should be selected by default
+  await expect(poolDropdown).toContainText('ip-pool-2')
+
+  // Check pool options - IPv4 pools should be filtered out
+  await poolDropdown.click()
+
+  // ip-pool-1 is IPv4, should not appear
+  await expect(page.getByRole('option', { name: 'ip-pool-1' })).toBeHidden()
+
+  // ip-pool-2 is IPv6, should appear
+  await expect(page.getByRole('option', { name: 'ip-pool-2' })).toBeVisible()
+})
+
+test('IPv4-only instance can attach IPv4 ephemeral IP', async ({ page }) => {
+  // Create an IPv4-only instance
+  await page.goto('/projects/mock-project/instances-new')
+  const instanceName = 'ipv4-success-test'
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await selectASiloImage(page, 'ubuntu-22-04')
+
+  // Select IPv4-only
+
+  const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
+  if (!(await defaultRadio.isChecked())) {
+    await defaultRadio.click()
+  }
+  const ipVersionButton = page.locator('[name="defaultIpVersion"]')
+  await ipVersionButton.waitFor({ state: 'visible' })
+  await ipVersionButton.click()
+  await page.getByRole('option', { name: 'IPv4', exact: true }).click()
+
+  // Don't attach ephemeral IP at creation
+  await page.getByRole('checkbox', { name: 'Allocate IPv4 address' }).uncheck()
+
+  // Create instance
+  await page.getByRole('button', { name: 'Create instance' }).click()
+  await expect(page).toHaveURL(/\/instances\/ipv4-success-test/)
+
+  // Navigate to networking tab
+  await page.getByRole('tab', { name: 'Networking' }).click()
+
+  // Attach IPv4 ephemeral IP (using default pool)
+  const attachButton = page.getByRole('button', { name: 'Attach ephemeral IP' })
+  await expect(attachButton).toBeEnabled()
+  await attachButton.click()
+
+  const modal = page.getByRole('dialog', { name: 'Attach ephemeral IP' })
+  await expect(modal).toBeVisible()
+
+  // Use default IPv4 pool
+  await page.getByRole('button', { name: 'Attach', exact: true }).click()
+
+  // Modal should close and IP should be attached
+  await expect(modal).toBeHidden()
+
+  // Verify ephemeral IP appears in table
+  const externalIpTable = page.getByRole('table', { name: 'External IPs' })
+  await expect(externalIpTable.getByRole('cell', { name: 'ephemeral' })).toBeVisible()
+})
+
+test('IPv6-only instance can attach IPv6 ephemeral IP', async ({ page }) => {
+  // Create an IPv6-only instance
+  await page.goto('/projects/mock-project/instances-new')
+  const instanceName = 'ipv6-success-test'
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await selectASiloImage(page, 'ubuntu-22-04')
+
+  // Select IPv6-only
+
+  const defaultRadio = page.getByRole('radio', { name: 'Default', exact: true })
+  if (!(await defaultRadio.isChecked())) {
+    await defaultRadio.click()
+  }
+  const ipVersionButton = page.locator('[name="defaultIpVersion"]')
+  await ipVersionButton.waitFor({ state: 'visible' })
+  await ipVersionButton.click()
+  await page.getByRole('option', { name: 'IPv6', exact: true }).click()
+
+  // Don't attach ephemeral IP at creation
+  await page.getByRole('checkbox', { name: 'Allocate IPv6 address' }).uncheck()
+
+  // Create instance
+  await page.getByRole('button', { name: 'Create instance' }).click()
+  await expect(page).toHaveURL(/\/instances\/ipv6-success-test/)
+
+  // Navigate to networking tab
+  await page.getByRole('tab', { name: 'Networking' }).click()
+
+  // Attach IPv6 ephemeral IP
+  const attachButton = page.getByRole('button', { name: 'Attach ephemeral IP' })
+  await expect(attachButton).toBeEnabled()
+  await attachButton.click()
+
+  const modal = page.getByRole('dialog', { name: 'Attach ephemeral IP' })
+  await expect(modal).toBeVisible()
+
+  // Pool dropdown should be visible
+  const poolDropdown = page.getByLabel('Pool')
+  await expect(poolDropdown).toBeVisible()
+
+  // Select IPv6 pool (ip-pool-2)
+  await poolDropdown.click()
+  await page.getByRole('option', { name: 'ip-pool-2' }).click()
+
+  await page.getByRole('button', { name: 'Attach', exact: true }).click()
+
+  // Modal should close and IP should be attached
+  await expect(modal).toBeHidden()
+
+  // Verify ephemeral IP appears in table
+  const externalIpTable = page.getByRole('table', { name: 'External IPs' })
+  await expect(externalIpTable.getByRole('cell', { name: 'ephemeral' })).toBeVisible()
 })

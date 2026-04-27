@@ -34,20 +34,20 @@ function handleResult<T>(result: ApiResult<T>): T {
 }
 
 function logHeading(s: string) {
-  console.log(`%c${s}`, 'font-size: 16px; font-weight: bold;')
+  console.info(`%c${s}`, 'font-size: 16px; font-weight: bold;')
 }
 
 if (typeof window !== 'undefined') {
-  // @ts-expect-error
-  window.oxide = api.methods
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ;(window as any).oxide = api
   // @ts-expect-error
   window.oxql = {
     query: async (q: string) => {
-      const result = await api.methods.systemTimeseriesQuery({ body: { query: q } })
+      const result = await api.systemTimeseriesQuery({ body: { query: q } })
       const data = handleResult(result).tables
       logHeading(data.length + ' timeseries returned')
       for (const table of data) {
-        for (const ts of Object.values(table.timeseries)) {
+        for (const ts of table.timeseries) {
           const fields = Object.entries(ts.fields)
             .map(([k, v]) => `${k}: ${v.value}`)
             .join(', ')
@@ -60,7 +60,7 @@ if (typeof window !== 'undefined') {
       return data
     },
     schemas: async (search?: string) => {
-      const result = await api.methods.systemTimeseriesSchemaList({
+      const result = await api.systemTimeseriesSchemaList({
         query: { limit: ALL_ISH },
       })
       const data = handleResult(result)

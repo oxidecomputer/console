@@ -5,7 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, test } from './utils'
+import { expect, test, type Page } from '@playwright/test'
+
+import { clickRowAction } from './utils'
 
 test('serial console can connect while starting', async ({ page }) => {
   // create an instance
@@ -17,7 +19,8 @@ test('serial console can connect while starting', async ({ page }) => {
   await page.getByRole('button', { name: 'Create instance' }).click()
 
   // now go starting to its serial console page while it's starting up
-  await expect(page).toHaveURL('/projects/mock-project/instances/abc/storage')
+  // don't check for URL before clicking because it takes too long, causing
+  // us to miss the creating state
   await page.getByRole('tab', { name: 'Connect' }).click()
   await page.getByRole('main').getByRole('link', { name: 'Connect' }).click()
 
@@ -28,6 +31,33 @@ test('serial console can connect while starting', async ({ page }) => {
   await expect(page.getByText('The instance is starting')).toBeVisible()
   await expect(page.getByText('The instance is')).toBeHidden()
 
-  // Here it would be nice to test that the serial console connects, but we
-  // can't mock websockets with MSW yet: https://github.com/mswjs/msw/pull/2011
+  await testSerialConsole(page)
 })
+
+test('serial console for existing instance', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances')
+  await clickRowAction(page, 'db1', 'View serial console')
+  await expect(page).toHaveURL('/projects/mock-project/instances/db1/serial-console')
+
+  await page.goto('/projects/mock-project/instances/db1')
+  await page.getByRole('button', { name: 'Instance actions' }).click()
+  await page.getByRole('menuitem', { name: 'View serial console' }).click()
+  await expect(page).toHaveURL('/projects/mock-project/instances/db1/serial-console')
+
+  await testSerialConsole(page)
+})
+
+async function testSerialConsole(page: Page) {
+  const xterm = page.getByRole('application')
+  const input = page.getByRole('textbox', { name: 'Terminal input' })
+
+  // Wait for the boot log to finish so typed input does not interleave with it.
+  await expect(xterm).toContainText('oxide-instance login:', { timeout: 15_000 })
+
+  await input.focus()
+  await expect(input).toBeFocused()
+
+  await input.press('Enter')
+  await input.pressSequentially('def')
+  await expect(xterm).toContainText('def')
+}

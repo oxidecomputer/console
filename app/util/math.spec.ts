@@ -7,10 +7,10 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import { displayBigNum, nearest10, percentage, round, splitDecimal } from './math'
+import { diskSizeNearest10, displayBigNum, percentage, round, splitDecimal } from './math'
 import { GiB } from './units'
 
-function roundTest() {
+it('round', () => {
   expect(round(1, 2)).toEqual(1)
   expect(round(100, 2)).toEqual(100)
   expect(round(999, 2)).toEqual(999)
@@ -30,9 +30,22 @@ function roundTest() {
   expect(round(4.997, 2)).toEqual(5)
   expect(round(5 / 2, 2)).toEqual(2.5) // math expressions are resolved
   expect(round(1879048192 / GiB, 2)).toEqual(1.75) // constants can be evaluated
-}
+})
 
-it('round', roundTest)
+it('round trunc', () => {
+  expect(round(0.456, 2, 'trunc')).toEqual(0.45)
+  expect(round(-0.456, 2, 'trunc')).toEqual(-0.45)
+  expect(round(123.456, 2, 'trunc')).toEqual(123.45)
+  expect(round(1.9, 0, 'trunc')).toEqual(1)
+  expect(round(4.997, 2, 'trunc')).toEqual(4.99)
+  expect(round(1438972340398.648, 2, 'trunc')).toEqual(1438972340398.64)
+  expect(round(123.0001, 3, 'trunc')).toEqual(123)
+  expect(round(5 / 2, 2, 'trunc')).toEqual(2.5)
+  expect(round(1879048192 / GiB, 2, 'trunc')).toEqual(1.75)
+  expect(round(99.999, 2, 'trunc')).toEqual(99.99)
+  expect(round(0.999, 0, 'trunc')).toEqual(0)
+  expect(round(-3.14159, 3, 'trunc')).toEqual(-3.141)
+})
 
 it.each([
   [2, 5, 40],
@@ -207,6 +220,9 @@ it.each([
   [109, 110],
   [110, 110],
   [111, 120],
-])('nearest10 %d → %d', (input, output) => {
-  expect(nearest10(input)).toEqual(output)
+  // clamped at max disk size
+  [1021, 1023],
+  [1023, 1023],
+])('diskSizeNearest10 %d → %d', (input, output) => {
+  expect(diskSizeNearest10(input)).toEqual(output)
 })

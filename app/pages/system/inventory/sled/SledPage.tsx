@@ -6,29 +6,37 @@
  * Copyright Oxide Computer Company
  */
 import { filesize } from 'filesize'
-import type { LoaderFunctionArgs } from 'react-router-dom'
+import type { LoaderFunctionArgs } from 'react-router'
 
-import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
+import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 import { Servers24Icon } from '@oxide/design-system/icons/react'
 
 import { RouteTabs, Tab } from '~/components/RouteTabs'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { requireSledParams, useSledParams } from '~/hooks/use-params'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { truncate } from '~/ui/lib/Truncate'
 import { pb } from '~/util/path-builder'
+import type * as PP from '~/util/path-params'
 
-export async function loader({ params }: LoaderFunctionArgs) {
-  const { sledId } = requireSledParams(params)
-  await apiQueryClient.prefetchQuery('sledView', {
-    path: { sledId },
-  })
+import { ProvisionPolicyBadge, SledKindBadge, SledStateBadge } from './SledBadges'
+
+const sledView = ({ sledId }: PP.Sled) => q(api.sledView, { path: { sledId } })
+
+export async function clientLoader({ params }: LoaderFunctionArgs) {
+  const selector = requireSledParams(params)
+  await queryClient.fetchQuery(sledView(selector))
   return null
 }
+export const handle = makeCrumb(
+  (p) => truncate(p.sledId!, 12, 'middle'),
+  (p) => pb.sledInstances({ sledId: p.sledId! })
+)
 
-Component.displayName = 'SledPage'
-export function Component() {
+export default function SledPage() {
   const { sledId } = useSledParams()
-  const { data: sled } = usePrefetchedApiQuery('sledView', { path: { sledId } })
+  const { data: sled } = usePrefetchedQuery(sledView({ sledId }))
 
   const ram = filesize(sled.usablePhysicalRam, { output: 'object', base: 2 })
 
@@ -38,37 +46,39 @@ export function Component() {
         <PageTitle icon={<Servers24Icon />}>Sled</PageTitle>
       </PageHeader>
 
-      <PropertiesTable.Group className="-mt-8 mb-16">
-        <PropertiesTable>
-          <PropertiesTable.Row label="sled id">
-            <span className="text-secondary">{sled.id}</span>
-          </PropertiesTable.Row>
-          <PropertiesTable.Row label="part">
-            <span className="text-secondary">{sled.baseboard.part}</span>
-          </PropertiesTable.Row>
-          <PropertiesTable.Row label="serial">
-            <span className="text-secondary">{sled.baseboard.serial}</span>
-          </PropertiesTable.Row>
-          <PropertiesTable.Row label="revision">
-            <span className="text-secondary">{sled.baseboard.revision}</span>
-          </PropertiesTable.Row>
-        </PropertiesTable>
-        <PropertiesTable>
-          <PropertiesTable.Row label="rack id">
-            <span className="text-secondary">{sled.rackId}</span>
-          </PropertiesTable.Row>
-          <PropertiesTable.Row label="location">
-            <span className="text-disabled">Coming soon</span>
-          </PropertiesTable.Row>
-          <PropertiesTable.Row label="usable hardware threads">
-            <span className="text-secondary">{sled.usableHardwareThreads}</span>
-          </PropertiesTable.Row>
-          <PropertiesTable.Row label="usable physical ram">
-            <span className="pr-0.5 text-secondary">{ram.value}</span>
-            <span className="text-quaternary">{ram.unit}</span>
-          </PropertiesTable.Row>
-        </PropertiesTable>
-      </PropertiesTable.Group>
+      <PropertiesTable columns={2} className="-mt-8 mb-8">
+        <PropertiesTable.Row label="sled id">
+          <span className="text-default">{sled.id}</span>
+        </PropertiesTable.Row>
+        <PropertiesTable.Row label="policy kind">
+          <SledKindBadge policy={sled.policy} />
+        </PropertiesTable.Row>
+        <PropertiesTable.Row label="part">
+          <span className="text-default">{sled.baseboard.part}</span>
+        </PropertiesTable.Row>
+        <PropertiesTable.Row label="provision policy">
+          <ProvisionPolicyBadge policy={sled.policy} />
+        </PropertiesTable.Row>
+        <PropertiesTable.Row label="serial">
+          <span className="text-default">{sled.baseboard.serial}</span>
+        </PropertiesTable.Row>
+        <PropertiesTable.Row label="state">
+          <SledStateBadge state={sled.state} />
+        </PropertiesTable.Row>
+        <PropertiesTable.Row label="revision">
+          <span className="text-default">{sled.baseboard.revision}</span>
+        </PropertiesTable.Row>
+        <PropertiesTable.Row label="usable hardware threads">
+          <span className="text-default">{sled.usableHardwareThreads}</span>
+        </PropertiesTable.Row>
+        <PropertiesTable.Row label="rack id">
+          <span className="text-default">{sled.rackId}</span>
+        </PropertiesTable.Row>
+        <PropertiesTable.Row label="usable physical ram">
+          <span className="text-default pr-0.5">{ram.value}</span>
+          <span className="text-tertiary">{ram.unit}</span>
+        </PropertiesTable.Row>
+      </PropertiesTable>
 
       <RouteTabs fullWidth>
         <Tab to={pb.sledInstances({ sledId })}>Instances</Tab>

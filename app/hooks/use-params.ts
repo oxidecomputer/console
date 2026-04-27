@@ -7,7 +7,7 @@
  */
 import { hashKey } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { useParams, type Params } from 'react-router-dom'
+import { useParams, type Params } from 'react-router'
 
 import { invariant } from '~/util/invariant'
 
@@ -21,7 +21,7 @@ type AllParams = Readonly<Params<string>>
 export const requireParams =
   <K extends string = never>(...requiredKeys: K[]) =>
   (params: AllParams) => {
-    const requiredParams: { [k in K]?: string } = {}
+    const requiredParams: Partial<Record<K, string>> = {}
     for (const k of requiredKeys) {
       const value = params[k]
       if (process.env.NODE_ENV !== 'production') {
@@ -29,10 +29,11 @@ export const requireParams =
       }
       requiredParams[k] = value
     }
-    return requiredParams as { readonly [k in K]: string }
+    return requiredParams as Readonly<Record<K, string>>
   }
 
 export const getProjectSelector = requireParams('project')
+export const getExternalSubnetSelector = requireParams('project', 'externalSubnet')
 export const getFloatingIpSelector = requireParams('project', 'floatingIp')
 export const getInstanceSelector = requireParams('project', 'instance')
 export const getVpcSelector = requireParams('project', 'vpc')
@@ -40,14 +41,20 @@ export const getFirewallRuleSelector = requireParams('project', 'vpc', 'rule')
 export const getVpcRouterSelector = requireParams('project', 'vpc', 'router')
 export const getVpcRouterRouteSelector = requireParams('project', 'vpc', 'router', 'route')
 export const getVpcSubnetSelector = requireParams('project', 'vpc', 'subnet')
+export const getInternetGatewaySelector = requireParams('project', 'vpc', 'gateway')
 export const getSiloSelector = requireParams('silo')
 export const getSiloImageSelector = requireParams('image')
+export const getSshKeySelector = requireParams('sshKey')
 export const getIdpSelector = requireParams('silo', 'provider')
 export const getProjectImageSelector = requireParams('project', 'image')
+export const getDiskSelector = requireParams('project', 'disk')
 export const getProjectSnapshotSelector = requireParams('project', 'snapshot')
 export const requireSledParams = requireParams('sledId')
 export const requireUpdateParams = requireParams('version')
 export const getIpPoolSelector = requireParams('pool')
+export const getSubnetPoolSelector = requireParams('subnetPool')
+export const getAffinityGroupSelector = requireParams('project', 'affinityGroup')
+export const getAntiAffinityGroupSelector = requireParams('project', 'antiAffinityGroup')
 
 /**
  * Turn `getThingSelector`, a pure function on a params object, into a hook
@@ -74,9 +81,12 @@ function useSelectedParams<T>(getSelector: (params: AllParams) => T) {
 // params are present. Only the specified keys end up in the result object, but
 // we do not error if there are other params present in the query string.
 
+export const useExternalSubnetSelector = () => useSelectedParams(getExternalSubnetSelector)
 export const useFloatingIpSelector = () => useSelectedParams(getFloatingIpSelector)
 export const useProjectSelector = () => useSelectedParams(getProjectSelector)
 export const useProjectImageSelector = () => useSelectedParams(getProjectImageSelector)
+export const useDiskSelector = () => useSelectedParams(getDiskSelector)
+export const useSshKeySelector = () => useSelectedParams(getSshKeySelector)
 export const useProjectSnapshotSelector = () =>
   useSelectedParams(getProjectSnapshotSelector)
 export const useInstanceSelector = () => useSelectedParams(getInstanceSelector)
@@ -84,6 +94,8 @@ export const useVpcSelector = () => useSelectedParams(getVpcSelector)
 export const useVpcRouterSelector = () => useSelectedParams(getVpcRouterSelector)
 export const useVpcRouterRouteSelector = () => useSelectedParams(getVpcRouterRouteSelector)
 export const useVpcSubnetSelector = () => useSelectedParams(getVpcSubnetSelector)
+export const useInternetGatewaySelector = () =>
+  useSelectedParams(getInternetGatewaySelector)
 export const useFirewallRuleSelector = () => useSelectedParams(getFirewallRuleSelector)
 export const useSiloSelector = () => useSelectedParams(getSiloSelector)
 export const useSiloImageSelector = () => useSelectedParams(getSiloImageSelector)
@@ -91,3 +103,7 @@ export const useIdpSelector = () => useSelectedParams(getIdpSelector)
 export const useSledParams = () => useSelectedParams(requireSledParams)
 export const useUpdateParams = () => useSelectedParams(requireUpdateParams)
 export const useIpPoolSelector = () => useSelectedParams(getIpPoolSelector)
+export const useSubnetPoolSelector = () => useSelectedParams(getSubnetPoolSelector)
+export const useAffinityGroupSelector = () => useSelectedParams(getAffinityGroupSelector)
+export const useAntiAffinityGroupSelector = () =>
+  useSelectedParams(getAntiAffinityGroupSelector)

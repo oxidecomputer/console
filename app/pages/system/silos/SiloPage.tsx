@@ -5,49 +5,35 @@
  *
  * Copyright Oxide Computer Company
  */
-import { type LoaderFunctionArgs } from 'react-router-dom'
+import { type LoaderFunctionArgs } from 'react-router'
 
-import { apiQueryClient, queryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { Cloud16Icon, Cloud24Icon, NextArrow12Icon } from '@oxide/design-system/icons/react'
+import { Cloud16Icon, Cloud24Icon } from '@oxide/design-system/icons/react'
 
+import { api, q, queryClient, usePrefetchedQuery } from '~/api'
 import { DocsPopover } from '~/components/DocsPopover'
-import { QueryParamTabs } from '~/components/QueryParamTabs'
+import { RouteTabs, Tab } from '~/components/RouteTabs'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
-import { DescriptionCell } from '~/table/cells/DescriptionCell'
-import { Badge } from '~/ui/lib/Badge'
-import { DateTime } from '~/ui/lib/DateTime'
-import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
-import { TableEmptyBox } from '~/ui/lib/Table'
-import { Tabs } from '~/ui/lib/Tabs'
 import { docLinks } from '~/util/links'
+import { pb } from '~/util/path-builder'
 
-import { siloIdpList, SiloIdpsTab } from './SiloIdpsTab'
-import { siloIpPoolsQuery, SiloIpPoolsTab } from './SiloIpPoolsTab'
-import { SiloQuotasTab } from './SiloQuotasTab'
-
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { silo } = getSiloSelector(params)
-  await Promise.all([
-    apiQueryClient.prefetchQuery('siloView', { path: { silo } }),
-    apiQueryClient.prefetchQuery('siloUtilizationView', { path: { silo } }),
-    queryClient.prefetchQuery(siloIdpList(silo).optionsFn()),
-    queryClient.prefetchQuery(siloIpPoolsQuery(silo).optionsFn()),
-  ])
+  await queryClient.prefetchQuery(q(api.siloView, { path: { silo } }))
   return null
 }
 
-Component.displayName = 'SiloPage'
-export function Component() {
+export const handle = makeCrumb(
+  (p) => p.silo!,
+  (p) => pb.silo(getSiloSelector(p))
+)
+
+export default function SiloPage() {
   const siloSelector = useSiloSelector()
 
-  const { data: silo } = usePrefetchedApiQuery('siloView', { path: siloSelector })
-
-  const roleMapPairs = Object.entries(silo.mappedFleetRoles).flatMap(
-    ([fleetRole, siloRoles]) =>
-      siloRoles.map((siloRole) => [siloRole, fleetRole] as [string, string])
-  )
+  const { data: silo } = usePrefetchedQuery(q(api.siloView, { path: siloSelector }))
 
   return (
     <>
@@ -66,67 +52,21 @@ export function Component() {
         />
       </PageHeader>
 
-      <PropertiesTable.Group className="mb-16">
-        <PropertiesTable>
-          <PropertiesTable.Row label="ID">{silo.id}</PropertiesTable.Row>
-          <PropertiesTable.Row label="Description">
-            <DescriptionCell text={silo.description} />
-          </PropertiesTable.Row>
-        </PropertiesTable>
-        <PropertiesTable>
-          <PropertiesTable.Row label="Created">
-            <DateTime date={silo.timeCreated} />
-          </PropertiesTable.Row>
-          <PropertiesTable.Row label="Last Modified">
-            <DateTime date={silo.timeModified} />
-          </PropertiesTable.Row>
-        </PropertiesTable>
-      </PropertiesTable.Group>
+      <PropertiesTable columns={2} className="-mt-8 mb-8">
+        <PropertiesTable.IdRow id={silo.id} />
+        <PropertiesTable.DescriptionRow description={silo.description} />
+        <PropertiesTable.DateRow date={silo.timeCreated} label="Created" />
+        <PropertiesTable.DateRow date={silo.timeModified} label="Last Modified" />
+      </PropertiesTable>
 
-      <QueryParamTabs className="full-width" defaultValue="idps">
-        <Tabs.List>
-          <Tabs.Trigger value="idps">Identity Providers</Tabs.Trigger>
-          <Tabs.Trigger value="ip-pools">IP Pools</Tabs.Trigger>
-          <Tabs.Trigger value="quotas">Quotas</Tabs.Trigger>
-          <Tabs.Trigger value="fleet-roles">Fleet roles</Tabs.Trigger>
-        </Tabs.List>
-        <Tabs.Content value="idps">
-          <SiloIdpsTab />
-        </Tabs.Content>
-        <Tabs.Content value="ip-pools">
-          <SiloIpPoolsTab />
-        </Tabs.Content>
-        <Tabs.Content value="quotas">
-          <SiloQuotasTab />
-        </Tabs.Content>
-        <Tabs.Content value="fleet-roles">
-          {/* TODO: better empty state explaining that no roles are mapped so nothing will happen */}
-          {roleMapPairs.length === 0 ? (
-            <TableEmptyBox>
-              <EmptyMessage
-                icon={<Cloud24Icon />}
-                title="Mapped fleet roles"
-                body="Silo roles can automatically grant a fleet role. This silo has no role mappings configured."
-              />
-            </TableEmptyBox>
-          ) : (
-            <>
-              <p className="mb-4 text-secondary">
-                Silo roles can automatically grant a fleet role.
-              </p>
-              <ul className="space-y-3">
-                {roleMapPairs.map(([siloRole, fleetRole]) => (
-                  <li key={siloRole + '|' + fleetRole} className="flex items-center">
-                    <Badge>Silo {siloRole}</Badge>
-                    <NextArrow12Icon className="mx-3 text-secondary" aria-label="maps to" />
-                    <span className="text-sans-md text-secondary">Fleet {fleetRole}</span>
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
-        </Tabs.Content>
-      </QueryParamTabs>
+      <RouteTabs fullWidth>
+        <Tab to={pb.siloIdps(siloSelector)}>Identity Providers</Tab>
+        <Tab to={pb.siloIpPools(siloSelector)}>IP Pools</Tab>
+        <Tab to={pb.siloSubnetPools(siloSelector)}>Subnet Pools</Tab>
+        <Tab to={pb.siloQuotas(siloSelector)}>Quotas</Tab>
+        <Tab to={pb.siloFleetRoles(siloSelector)}>Fleet roles</Tab>
+        <Tab to={pb.siloScim(siloSelector)}>SCIM</Tab>
+      </RouteTabs>
     </>
   )
 }

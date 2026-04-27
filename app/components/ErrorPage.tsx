@@ -6,21 +6,21 @@
  * Copyright Oxide Computer Company
  */
 import type { ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 
 import { Error12Icon, PrevArrow12Icon } from '@oxide/design-system/icons/react'
 
-import { useApiMutation } from '~/api/client'
+import { api, useApiMutation } from '~/api/client'
 import { navToLogin } from '~/api/nav-to-login'
 import { Button } from '~/ui/lib/Button'
 
 const GradientBackground = () => (
   <div
     // negative z-index avoids covering MSW warning banner
-    className="fixed bottom-0 left-0 right-0 top-0 -z-10"
+    className="fixed top-0 right-0 bottom-0 left-0 -z-10"
     style={{
       background:
-        'radial-gradient(200% 100% at 50% 100%, var(--surface-default) 0%, #161B1D 100%)',
+        'radial-gradient(200% 100% at 50% 100%, var(--surface-default) 0%, var(--surface-secondary) 100%)',
     }}
   />
 )
@@ -34,17 +34,17 @@ export function ErrorPage({ children }: Props) {
       <div className="relative flex w-full justify-between">
         <Link
           to="/"
-          className="flex items-center p-6 text-mono-sm text-secondary hover:text-default"
+          className="text-mono-sm text-default hover:text-raise flex items-center p-6"
         >
-          <PrevArrow12Icon title="Select" className="mr-2 text-tertiary" />
+          <PrevArrow12Icon title="Select" className="text-secondary mr-2" />
           Back to console
         </Link>
-        <SignOutButton className="mr-6 mt-4" />
+        <SignOutButton className="mt-4 mr-6" />
       </div>
-      <div className="absolute left-1/2 top-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded-lg border p-8 !bg-raise border-secondary elevation-3">
+      <div className="bg-raise! shadow-modal absolute top-1/2 left-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded-lg p-8">
         <div className="my-2 flex h-12 w-12 items-center justify-center">
-          <div className="absolute h-12 w-12 rounded-full opacity-20 bg-destructive motion-safe:animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
-          <Error12Icon className="relative h-8 w-8 text-error" />
+          <div className="bg-destructive-inverse absolute h-10 w-10 rounded-full opacity-40 motion-safe:animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
+          <Error12Icon className="text-error light:text-error-secondary relative h-8 w-8" />
         </div>
 
         <div className="space-y-2 text-center">{children}</div>
@@ -57,7 +57,7 @@ export function NotFound() {
   return (
     <ErrorPage>
       <h1 className="text-sans-2xl">Page not found</h1>
-      <p className="text-tertiary">
+      <p className="text-secondary">
         The page you are looking for doesn&apos;t exist or you may not have access to it.
       </p>
     </ErrorPage>
@@ -65,7 +65,7 @@ export function NotFound() {
 }
 
 export function SignOutButton({ className }: { className?: string }) {
-  const logout = useApiMutation('logout', {
+  const logout = useApiMutation(api.logout, {
     onSuccess: () => navToLogin({ includeCurrent: false }),
   })
   return (

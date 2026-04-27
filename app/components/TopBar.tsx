@@ -6,19 +6,24 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 
-import { navToLogin, useApiMutation } from '@oxide/api'
+import { api, navToLogin, useApiMutation } from '@oxide/api'
 import {
+  Monitor12Icon,
+  Moon12Icon,
   Organization16Icon,
   Profile16Icon,
   SelectArrows6Icon,
   Servers16Icon,
   Success12Icon,
+  Sun12Icon,
 } from '@oxide/design-system/icons/react'
 
 import { useCrumbs } from '~/hooks/use-crumbs'
-import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
+import { useCurrentUser } from '~/hooks/use-current-user'
+import { topBarWrapperClass } from '~/layouts/helpers'
+import { useThemeStore, type Theme } from '~/stores/theme'
 import { buttonStyle } from '~/ui/lib/Button'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 import { Identicon } from '~/ui/lib/Identicon'
@@ -27,40 +32,33 @@ import { intersperse } from '~/util/array'
 import { pb } from '~/util/path-builder'
 
 export function TopBar({ systemOrSilo }: { systemOrSilo: 'system' | 'silo' }) {
-  const { isFleetViewer } = useCurrentUser()
-  // The height of this component is governed by the `PageContainer`
-  // It's important that this component returns two distinct elements (wrapped in a fragment).
-  // Each element will occupy one of the top column slots provided by `PageContainer`.
+  const { me } = useCurrentUser()
   return (
-    <>
-      <div className="flex items-center border-b border-r px-2 border-secondary">
+    <div className={topBarWrapperClass}>
+      <div className="border-secondary flex items-center border-r px-2">
         <HomeButton level={systemOrSilo} />
       </div>
-      {/* Height is governed by PageContainer grid */}
-      <div className="flex items-center justify-between gap-4 border-b px-3 bg-default border-secondary">
+      <div className="flex items-center justify-between gap-4 px-3">
         <div className="flex flex-1 gap-2.5">
           <Breadcrumbs />
         </div>
         <div className="flex items-center gap-2">
-          {isFleetViewer && <SiloSystemPicker level={systemOrSilo} />}
+          {me.fleetViewer && <SiloSystemPicker level={systemOrSilo} />}
           <UserMenu />
         </div>
       </div>
-    </>
+    </div>
   )
 }
 
-const bigIconBox = 'flex h-[34px] w-[34px] items-center justify-center rounded'
+const bigIconBox = 'flex h-[34px] w-[34px] items-center justify-center rounded-md'
 
 const BigIdenticon = ({ name }: { name: string }) => (
-  <Identicon
-    className={cn(bigIconBox, 'text-accent bg-accent-secondary-hover')}
-    name={name}
-  />
+  <Identicon className={cn(bigIconBox, 'text-accent bg-accent-hover')} name={name} />
 )
 
 const SystemIcon = () => (
-  <div className={cn(bigIconBox, 'text-quinary bg-tertiary')}>
+  <div className={cn(bigIconBox, 'text-quaternary bg-tertiary')}>
     <Servers16Icon />
   </div>
 )
@@ -84,12 +82,12 @@ function HomeButton({ level }: { level: 'system' | 'silo' }) {
         }
 
   return (
-    <Link to={config.to} className="w-full grow rounded-lg p-1 hover:bg-hover">
+    <Link to={config.to} className="hover:bg-hover w-full grow rounded-lg p-1">
       <div className="flex w-full items-center">
         <div className="mr-2">{config.icon}</div>
         <div className="min-w-0 flex-1">
-          <div className="text-mono-xs text-quaternary">{config.heading}</div>
-          <div className="overflow-hidden text-ellipsis whitespace-nowrap text-sans-md text-secondary">
+          <div className="text-mono-xs text-tertiary">{config.heading}</div>
+          <div className="text-sans-md text-raise overflow-hidden text-ellipsis whitespace-nowrap">
             {config.label}
           </div>
         </div>
@@ -102,7 +100,7 @@ function Breadcrumbs() {
   const crumbs = useCrumbs().filter((c) => !c.titleOnly)
   return (
     <nav
-      className="flex items-center gap-0.5 overflow-clip text-sans-md"
+      className="text-sans-md flex items-center gap-0.5 overflow-clip"
       aria-label="Breadcrumbs"
     >
       {intersperse(
@@ -110,8 +108,8 @@ function Breadcrumbs() {
           <Link
             to={path}
             className={cn(
-              'whitespace-nowrap text-sans-md hover:text-secondary',
-              i === crumbs.length - 1 ? 'text-secondary' : 'text-tertiary'
+              'text-sans-md whitespace-nowrap',
+              i === crumbs.length - 1 ? 'text-raise' : 'text-secondary hover:text-default'
             )}
             key={`${label}|${path}`}
           >
@@ -125,53 +123,119 @@ function Breadcrumbs() {
 }
 
 function UserMenu() {
-  const logout = useApiMutation('logout', {
+  const logout = useApiMutation(api.logout, {
     onSuccess: () => navToLogin({ includeCurrent: false }),
   })
   // fetch happens in loader wrapping all authed pages
   const { me } = useCurrentUser()
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger
-        className={cn(
-          buttonStyle({ size: 'sm', variant: 'ghost' }),
-          'flex items-center gap-1.5 !px-2 !border-secondary'
-        )}
-        aria-label="User menu"
-      >
-        <Profile16Icon className="text-quaternary" />
-        <span className="normal-case text-sans-md text-secondary">
-          {me.displayName || 'User'}
-        </span>
+      <DropdownMenu.Trigger aria-label="User menu" className="rounded-md">
+        <div
+          className={cn(
+            buttonStyle({ size: 'sm', variant: 'ghost' }),
+            'flex items-center gap-1.5 px-2!'
+          )}
+        >
+          <Profile16Icon className="text-tertiary" />
+          <span className="text-sans-md text-default normal-case">
+            {me.displayName || 'User'}
+          </span>
+        </div>
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content gap={8}>
+      <DropdownMenu.Content gap={8} zIndex="topBar">
         <DropdownMenu.LinkItem to={pb.profile()}>Settings</DropdownMenu.LinkItem>
-        <DropdownMenu.Item onSelect={() => logout.mutate({})}>Sign out</DropdownMenu.Item>
+        <ThemeSubmenu />
+        <DropdownMenu.Item onSelect={() => logout.mutate({})} label="Sign out" />
       </DropdownMenu.Content>
     </DropdownMenu.Root>
   )
 }
 
+function ThemeSubmenu() {
+  const { theme, setTheme } = useThemeStore()
+  return (
+    <DropdownMenu.Submenu>
+      <DropdownMenu.SubmenuTrigger className="DropdownMenuItem ox-menu-item border-secondary border-b">
+        Theme
+      </DropdownMenu.SubmenuTrigger>
+      <DropdownMenu.SubContent>
+        <DropdownMenu.RadioGroup value={theme} onValueChange={setTheme}>
+          <ThemeRadioItem
+            value="light"
+            icon={<Sun12Icon />}
+            label="Light"
+            selected={theme === 'light'}
+          />
+          <ThemeRadioItem
+            value="dark"
+            icon={<Moon12Icon />}
+            label="Dark"
+            selected={theme === 'dark'}
+          />
+          <ThemeRadioItem
+            value="system"
+            icon={<Monitor12Icon />}
+            label="System"
+            selected={theme === 'system'}
+          />
+        </DropdownMenu.RadioGroup>
+      </DropdownMenu.SubContent>
+    </DropdownMenu.Submenu>
+  )
+}
+
+function ThemeRadioItem({
+  value,
+  icon,
+  label,
+  selected,
+}: {
+  value: Theme
+  icon: React.ReactNode
+  label: string
+  selected: boolean
+}) {
+  return (
+    <DropdownMenu.RadioItem
+      value={value}
+      className={cn('DropdownMenuItem ox-menu-item', selected && 'is-selected')}
+    >
+      <span className="flex w-full items-center gap-2">
+        <span className="text-quaternary">{icon}</span>
+        <span>{label}</span>
+        {selected && <Success12Icon className="absolute right-3" />}
+      </span>
+    </DropdownMenu.RadioItem>
+  )
+}
+
 /**
  * Choose between System and Silo-scoped route trees, or if the user doesn't
- * have access to system routes (i.e., if systemPolicyView 403s) show the
- * current silo.
+ * have access to system routes (i.e., if /v1/me has fleetViewer: false) show
+ * the current silo.
  */
 function SiloSystemPicker({ level }: { level: 'silo' | 'system' }) {
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger
-        className="flex items-center rounded border px-2 py-1.5 text-sans-md text-secondary border-secondary hover:bg-hover"
-        aria-label="Switch between system and silo"
-      >
-        <div className="flex items-center text-quaternary">
-          {level === 'system' ? <Servers16Icon /> : <Organization16Icon />}
+      <DropdownMenu.Trigger aria-label="Switch between system and silo">
+        <div
+          className={cn(
+            buttonStyle({ size: 'sm', variant: 'ghost' }),
+            'flex items-center gap-1.5 px-2!'
+          )}
+        >
+          <div className="text-tertiary flex items-center">
+            {level === 'system' ? <Servers16Icon /> : <Organization16Icon />}
+          </div>
+          <span className="text-sans-md text-default normal-case">
+            {level === 'system' ? 'System' : 'Silo'}
+          </span>
+          {/* aria-hidden is a tip from the Reach docs */}
+          <SelectArrows6Icon className="text-quaternary ml-3 w-1.5!" aria-hidden />
         </div>
-        <div className="ml-1.5 mr-3">{level === 'system' ? 'System' : 'Silo'}</div>
-        {/* aria-hidden is a tip from the Reach docs */}
-        <SelectArrows6Icon className="text-quinary" aria-hidden />
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content className="mt-2 max-h-80 overflow-y-auto" anchor="bottom start">
+      <DropdownMenu.Content className="mt-2" anchor="bottom start" zIndex="topBar">
         <SystemSiloItem to={pb.silos()} label="System" isSelected={level === 'system'} />
         <SystemSiloItem to={pb.projects()} label="Silo" isSelected={level === 'silo'} />
       </DropdownMenu.Content>
@@ -183,10 +247,10 @@ function SystemSiloItem(props: { label: string; to: string; isSelected: boolean 
   return (
     <DropdownMenu.LinkItem
       to={props.to}
-      className={cn('!pr-3', { 'is-selected': props.isSelected })}
+      className={cn('pr-3!', { 'is-selected': props.isSelected })}
     >
       <div className="flex w-full items-center gap-2">
-        <div className="flex-grow">{props.label}</div>
+        <div className="grow">{props.label}</div>
         {props.isSelected && <Success12Icon className="block" />}
       </div>
     </DropdownMenu.LinkItem>

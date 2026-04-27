@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import { getLocalTimeZone } from '@internationalized/date'
-import type { TimeValue } from '@react-types/datepicker'
 import cn from 'classnames'
 import { useMemo, useRef } from 'react'
 import { useButton, useDateFormatter, useDateRangePicker } from 'react-aria'
@@ -36,7 +35,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
   const formatter = useDateFormatter({
     dateStyle: 'short',
     timeStyle: 'short',
-    hourCycle: 'h24',
+    hourCycle: 'h23',
   })
 
   const label = useMemo(() => {
@@ -44,11 +43,13 @@ export function DateRangePicker(props: DateRangePickerProps) {
     // because we always pass a value to this component and there is no way to
     // unset the value through the UI.
     if (!state.dateRange) return 'No range selected'
+    if (!state.dateRange.start) return 'No start date selected'
+    if (!state.dateRange.end) return 'No end date selected'
 
-    return formatter.formatRange(
-      state.dateRange.start.toDate(getLocalTimeZone()),
-      state.dateRange.end.toDate(getLocalTimeZone())
-    )
+    const from = state.dateRange.start.toDate(getLocalTimeZone())
+    const to = state.dateRange.end.toDate(getLocalTimeZone())
+
+    return formatter.formatRange(from, to)
   }, [state.dateRange, formatter])
 
   return (
@@ -62,51 +63,54 @@ export function DateRangePicker(props: DateRangePickerProps) {
           type="button"
           className={cn(
             state.isOpen && 'z-10 ring-2',
-            'relative flex h-11 items-center rounded-l rounded-r border text-sans-md border-default focus-within:ring-2 hover:border-raise focus:z-10',
+            'text-sans-md border-default hover:border-raise bg-default relative flex h-11 items-center rounded-l-md rounded-r-md border focus-within:ring-2 focus:z-10',
             state.isInvalid
-              ? 'focus-error border-error ring-error-secondary'
+              ? 'focus-error border-error ring-error-secondary hover:border-error'
               : 'border-default ring-accent-secondary'
           )}
         >
-          <div className={cn('relative flex w-[17rem] items-center px-3 text-sans-md')}>
-            {label}
+          <div className="text-sans-md relative flex w-[16rem] items-center px-3">
+            <div className="truncate">{label}</div>
             {state.isInvalid && (
-              <div className="absolute bottom-0 right-2 top-0 flex items-center text-error">
+              <div className="text-error absolute top-0 right-2 bottom-0 flex items-center">
                 <Error12Icon className="h-3 w-3" />
               </div>
             )}
           </div>
-          <div className="-ml-px flex h-[calc(100%-12px)] w-10 items-center justify-center rounded-r border-l outline-none border-default">
-            <Calendar16Icon className="h-4 w-4 text-tertiary" />
+          <div className="border-default -ml-px flex h-[calc(100%-12px)] w-10 items-center justify-center rounded-r-md border-l outline-hidden">
+            <Calendar16Icon className="text-secondary h-4 w-4" />
           </div>
         </button>
       </div>
-      {state.isInvalid && (
-        <p {...errorMessageProps} className="py-2 text-sans-md text-error">
-          Date range is invalid
-        </p>
-      )}
       {state.isOpen && (
         <Popover triggerRef={ref} state={state} placement="bottom start">
           <Dialog {...dialogProps}>
             <RangeCalendar {...calendarProps} />
-            <div className="flex items-center space-x-2 border-t p-4 border-t-secondary">
-              <TimeField
-                label="Start time"
-                value={state.timeRange?.start || null}
-                onChange={(v: TimeValue) => state.setTime('start', v)}
-                hourCycle={24}
-                className="shrink-0 grow basis-0"
-              />
-              <div className="text-quinary">–</div>
-              <TimeField
-                label="End time"
-                value={state.timeRange?.end || null}
-                onChange={(v: TimeValue) => state.setTime('end', v)}
-                hourCycle={24}
-                className="shrink-0 grow basis-0"
-              />
+            <div className="border-t-secondary flex flex-col items-center gap-3 border-t p-4">
+              <div className="flex w-full items-center space-x-2">
+                <TimeField
+                  label="Start time"
+                  value={state.timeRange?.start || null}
+                  onChange={(v) => state.setTime('start', v)}
+                  hourCycle={24}
+                  className="shrink-0 grow basis-0"
+                />
+                <div className="text-quaternary">–</div>
+                <TimeField
+                  label="End time"
+                  value={state.timeRange?.end || null}
+                  onChange={(v) => state.setTime('end', v)}
+                  hourCycle={24}
+                  className="shrink-0 grow basis-0"
+                />
+              </div>
+              {state.isInvalid && (
+                <p {...errorMessageProps} className="text-sans-md text-error">
+                  Date range is invalid
+                </p>
+              )}
             </div>
+            <div className="border-t-secondary flex items-center justify-center space-x-2 px-4"></div>
           </Dialog>
         </Popover>
       )}

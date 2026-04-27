@@ -5,10 +5,14 @@ on:
     branches: [main]
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
 jobs:
   install:
     timeout-minutes: 60
-    runs-on: macos-14
+    runs-on: macos-15-xlarge
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -20,13 +24,13 @@ jobs:
         id: cache-node-modules
         with:
           path: node_modules
-          key: modules-${{ hashFiles('package-lock.json') }}
+          key: modules-${{ hashFiles('package-lock.json', 'patches/**') }}
       - name: npm install
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: npm install
   ci:
     timeout-minutes: 5
-    runs-on: macos-14
+    runs-on: macos-15-xlarge
     needs: install
     steps:
       - uses: actions/checkout@v4
@@ -39,11 +43,13 @@ jobs:
         id: cache-node-modules
         with:
           path: node_modules
-          key: modules-${{ hashFiles('package-lock.json') }}
+          key: modules-${{ hashFiles('package-lock.json', 'patches/**') }}
       - name: Typecheck
-        run: npx tsc
+        run: npx tsgo
       - name: Lint
         run: npm run lint
+      - name: Check formatting
+        run: npm run fmt:check
       - name: Test
         run: npm test run
       - name: Build
@@ -51,7 +57,7 @@ jobs:
   playwright:
     name: Playwright (${{ matrix.browser }})
     timeout-minutes: 20
-    runs-on: macos-14
+    runs-on: macos-15-xlarge
     needs: install
     strategy:
       fail-fast: false
@@ -67,7 +73,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: node_modules
-          key: modules-${{ hashFiles('package-lock.json') }}
+          key: modules-${{ hashFiles('package-lock.json', 'patches/**') }}
       - name: Set env.PLAYWRIGHT_VERSION
         run: |
           PLAYWRIGHT_VERSION=$(npm ls --json @playwright/test | jq --raw-output '.dependencies["@playwright/test"].version')
