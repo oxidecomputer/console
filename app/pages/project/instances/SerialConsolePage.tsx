@@ -139,7 +139,7 @@ export default function SerialConsolePage() {
     <div className="mx-0! flex h-full max-h-[calc(100vh-var(--top-bar-height))] w-full! flex-col">
       <Link
         to={pb.instance(instanceSelector)}
-        className="bg-accent-secondary mx-3 mt-3 mb-6 flex h-10 shrink-0 items-center rounded px-3"
+        className="bg-accent mx-3 mt-3 mb-6 flex h-10 shrink-0 items-center rounded-md px-3"
       >
         <PrevArrow12Icon className="text-accent-tertiary" />
         <div className="text-mono-sm text-accent ml-2">
@@ -178,12 +178,12 @@ type SkeletonProps = {
 
 function SerialSkeleton({ children, animate }: SkeletonProps) {
   return (
-    <div className="relative h-full shrink grow overflow-hidden">
+    <div className="bg-default relative h-full shrink grow overflow-hidden">
       <div className="h-full space-y-2 overflow-hidden">
         {[...Array(200)].map((_e, i) => (
           <div
             key={i}
-            className={cn('bg-tertiary h-4 rounded', {
+            className={cn('bg-tertiary h-4 rounded-md', {
               'motion-safe:animate-pulse': animate,
             })}
             style={{
@@ -193,13 +193,15 @@ function SerialSkeleton({ children, animate }: SkeletonProps) {
         ))}
       </div>
 
+      {/* gradient uses the surface-default token so it works in both themes */}
       <div
         className="absolute bottom-0 h-full w-full"
         style={{
-          background: 'linear-gradient(180deg, rgba(8, 15, 17, 0) 0%, #080F11 100%)',
+          background:
+            'linear-gradient(180deg, transparent 0%, var(--surface-default) 100%)',
         }}
       />
-      <div className="bg-raise! border-secondary elevation-3 absolute top-1/2 left-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-lg border p-12">
+      <div className="bg-raise shadow-modal absolute top-1/2 left-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-lg p-12">
         {children}
       </div>
     </div>
@@ -221,7 +223,7 @@ const CannotConnect = ({ instance }: { instance: Instance }) => (
       <span>The instance is </span>
       <InstanceStateBadge className="ml-1.5" state={instance.runState} />
     </p>
-    <p className="text-default mt-2 text-center text-balance">
+    <p className="text-default text-sans-md mt-2 text-center text-balance">
       {isStarting(instance)
         ? 'Waiting for the instance to start before connecting.'
         : 'You can only connect to the serial console on a running instance.'}

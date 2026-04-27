@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { CSPProvider } from '@base-ui/react/csp-provider'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { LazyMotion, MotionConfig } from 'motion/react'
 // import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
@@ -23,7 +24,6 @@ import { routes } from './routes'
 // this is the only allowed css import
 // eslint-disable-next-line no-restricted-imports
 import '~/ui/styles/index.css'
-
 import { SkipLink } from '~/ui/lib/SkipLink'
 
 if (process.env.SHA) {
@@ -47,18 +47,20 @@ function render() {
 
   root.render(
     <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <LazyMotion strict features={loadFeatures}>
-          <MotionConfig reducedMotion="user">
-            <ErrorBoundary>
-              <ConfirmActionModal />
-              <SkipLink id="skip-nav" />
-              <RouterProvider router={router} />
-            </ErrorBoundary>
-          </MotionConfig>
-        </LazyMotion>
-        {/* <ReactQueryDevtools initialIsOpen={false} /> */}
-      </QueryClientProvider>
+      <CSPProvider disableStyleElements>
+        <QueryClientProvider client={queryClient}>
+          <LazyMotion strict features={loadFeatures}>
+            <MotionConfig reducedMotion="user">
+              <ErrorBoundary>
+                <ConfirmActionModal />
+                <SkipLink id="skip-nav" />
+                <RouterProvider router={router} />
+              </ErrorBoundary>
+            </MotionConfig>
+          </LazyMotion>
+          {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+        </QueryClientProvider>
+      </CSPProvider>
     </StrictMode>
   )
 }

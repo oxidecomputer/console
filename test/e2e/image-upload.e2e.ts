@@ -9,6 +9,7 @@ import { expect, test, type Page } from '@playwright/test'
 
 import {
   chooseFile,
+  expectConsoleMessage,
   expectNotVisible,
   expectRowVisible,
   expectVisible,
@@ -44,7 +45,7 @@ async function fillForm(page: Page, name: string) {
   await page.fill('role=textbox[name="Description"]', 'image description')
   await page.fill('role=textbox[name="OS"]', 'Ubuntu')
   await page.fill('role=textbox[name="Version"]', 'Dapper Drake')
-  await chooseFile(page, page.getByLabel('Image file'))
+  await chooseFile(page.getByLabel('Image file'))
 }
 
 test.describe('Image upload', () => {
@@ -68,6 +69,10 @@ test.describe('Image upload', () => {
 
     // now the modal pops open and the thing starts going
     await expectUploadProcess(page)
+
+    // the image name check 404 should be logged as expected-info, with context
+    await expectConsoleMessage(page, 'This error is expected', 'info')
+    await expectConsoleMessage(page, 'the image name may not exist yet.', 'info')
 
     await expect(page).toHaveURL('/projects/mock-project/images')
     await expectRowVisible(page.locator('role=table'), {
@@ -114,7 +119,7 @@ test.describe('Image upload', () => {
     await expectNotVisible(page, [nameRequired])
 
     // now set the file, clear it, and submit again
-    await chooseFile(page, page.getByLabel('Image file'))
+    await chooseFile(page.getByLabel('Image file'))
     await expectNotVisible(page, [fileRequired])
 
     await page.click('role=button[name="Clear file"]')
@@ -177,9 +182,9 @@ test.describe('Image upload', () => {
 
     let confirmCount = 0
 
-    page.on('dialog', (dialog) => {
+    page.on('dialog', async (dialog) => {
       confirmCount += 1
-      dialog.dismiss()
+      await dialog.dismiss()
     }) // click cancel on the are you sure prompt
 
     await progressModal.getByRole('button', { name: 'Cancel' }).click()
@@ -188,13 +193,40 @@ test.describe('Image upload', () => {
     await expect(progressModal).toBeVisible()
     expect(confirmCount).toEqual(1)
 
-    // now let's try canceling by clicking out on the background over the side modal
-    await page.getByLabel('4096').click()
+    // now try dismissing by clicking the scrim outside the progress modal
+    await page.mouse.click(50, 50)
 
     await sleep(300)
 
     // without the onFocusOutside fix this is a higher number
     expect(confirmCount).toEqual(2)
+  })
+
+  // regression test for the nested-dialog scrim: the progress modal's backdrop
+  // must cover the SideModal behind it. Without forceRender on Dialog.Backdrop,
+  // base-ui hides a nested backdrop by default, leaving the SideModal
+  // interactive through the "overlay". Without raising --z-modal-overlay above
+  // --z-side-modal, the overlay sits below the SideModal and doesn't cover it.
+  test('progress modal scrim covers the side modal underneath', async ({
+    page,
+    browserName,
+  }) => {
+    // eslint-disable-next-line playwright/no-skipped-test
+    test.skip(browserName === 'webkit', 'safari. stop this')
+
+    await fillForm(page, 'new-image')
+
+    const progressModal = page.getByRole('dialog', { name: 'Image upload progress' })
+    await page.getByRole('button', { name: 'Upload image' }).click()
+    await expect(progressModal).toBeVisible()
+
+    // 4096 is a block-size radio in the SideModal behind the progress modal.
+    // Playwright's actionability check should fail here: the scrim intercepts
+    // pointer events, so the click can't land on the radio. Without the fix,
+    // nothing covers the radio and the click would succeed.
+    await expect(page.getByLabel('4096').click({ timeout: 2000 })).rejects.toThrow(
+      /intercepts pointer events/
+    )
   })
 
   test('Image upload cancel and retry', async ({ page, browserName }) => {

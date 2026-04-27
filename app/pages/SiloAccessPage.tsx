@@ -12,7 +12,6 @@ import {
   api,
   byGroupThenName,
   deleteRole,
-  getEffectiveRole,
   q,
   queryClient,
   useApiMutation,
@@ -30,7 +29,10 @@ import {
   SiloAccessAddUserSideModal,
   SiloAccessEditUserSideModal,
 } from '~/forms/silo-access'
+import { useCurrentUser } from '~/hooks/use-current-user'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
 import { CreateButton } from '~/ui/lib/CreateButton'
@@ -74,7 +76,6 @@ type UserRow = {
   identityType: IdentityType
   name: string
   siloRole: RoleKey | undefined
-  effectiveRole: RoleKey
 }
 
 const colHelper = createColumnHelper<UserRow>()
@@ -83,6 +84,7 @@ export default function SiloAccessPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
 
+  const { me } = useCurrentUser()
   const { data: siloPolicy } = usePrefetchedQuery(policyView)
   const siloRows = useUserRows(siloPolicy.roleAssignments, 'silo')
 
@@ -91,8 +93,6 @@ export default function SiloAccessPage() {
       .map(([userId, userAssignments]) => {
         const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
 
-        const roles = siloRole ? [siloRole] : []
-
         const { name, identityType } = userAssignments[0]
 
         const row: UserRow = {
@@ -100,8 +100,6 @@ export default function SiloAccessPage() {
           identityType,
           name,
           siloRole,
-          // we know there has to be at least one
-          effectiveRole: getEffectiveRole(roles)!,
         }
 
         return row
@@ -110,7 +108,10 @@ export default function SiloAccessPage() {
   }, [siloRows])
 
   const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
-    onSuccess: () => queryClient.invalidateEndpoint('policyView'),
+    onSuccess: () => {
+      queryClient.invalidateEndpoint('policyView')
+      addToast({ content: 'Access removed' })
+    },
     // TODO: handle 403
   })
 
@@ -142,22 +143,20 @@ export default function SiloAccessPage() {
         {
           label: 'Delete',
           onActivate: confirmDelete({
-            doDelete: () =>
-              updatePolicy({
-                // we know policy is there, otherwise there's no row to display
-                body: deleteRole(row.id, siloPolicy),
-              }),
+            doDelete: () => updatePolicy({ body: deleteRole(row.id, siloPolicy) }),
             label: (
               <span>
                 the <HL>{row.siloRole}</HL> role for <HL>{row.name}</HL>
               </span>
             ),
+            extraContent:
+              row.id === me.id ? 'This will remove your own silo access.' : undefined,
           }),
           disabled: !row.siloRole && "You don't have permission to delete this user",
         },
       ]),
     ],
-    [siloPolicy, updatePolicy]
+    [siloPolicy, updatePolicy, me]
   )
 
   const tableInstance = useReactTable({
@@ -165,6 +164,17 @@ export default function SiloAccessPage() {
     data: rows,
     getCoreRowModel: getCoreRowModel(),
   })
+
+  useQuickActions(
+    () => [
+      {
+        value: 'Add user or group',
+        navGroup: 'Actions',
+        action: () => setAddModalOpen(true),
+      },
+    ],
+    []
+  )
 
   return (
     <>
@@ -181,13 +191,13 @@ export default function SiloAccessPage() {
       <TableActions>
         <CreateButton onClick={() => setAddModalOpen(true)}>Add user or group</CreateButton>
       </TableActions>
-      {siloPolicy && addModalOpen && (
+      {addModalOpen && (
         <SiloAccessAddUserSideModal
           onDismiss={() => setAddModalOpen(false)}
           policy={siloPolicy}
         />
       )}
-      {siloPolicy && editingUserRow?.siloRole && (
+      {editingUserRow?.siloRole && (
         <SiloAccessEditUserSideModal
           onDismiss={() => setEditingUserRow(null)}
           policy={siloPolicy}

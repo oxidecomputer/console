@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { type LoaderFunctionArgs } from 'react-router'
+import type { LoaderFunctionArgs } from 'react-router'
 
 import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
 

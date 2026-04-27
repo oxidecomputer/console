@@ -9,15 +9,20 @@ import { differenceInSeconds, subHours } from 'date-fns'
 // Works without the .js for dev server and prod build in MSW mode, but
 // playwright wants the .js. No idea why, let's just add the .js.
 import { IPv4, IPv6 } from 'ip-num/IPNumber.js'
+import { match } from 'ts-pattern'
 
 import {
   FLEET_ID,
   MAX_DISK_SIZE_GiB,
   MIN_DISK_SIZE_GiB,
   totalCapacity,
+  type DiskBackend,
   type DiskCreate,
   type IpRange,
+  type Ipv4Assignment,
+  type Ipv6Assignment,
   type OxqlQueryResult,
+  type PrivateIpStackCreate,
   type RoleKey,
   type Sled,
   type SystemMetricName,
@@ -34,7 +39,7 @@ import { GiB, TiB } from '~/util/units'
 import type { DbRoleAssignmentResourceType } from '..'
 import { genI64Data } from '../metrics'
 import { getMockOxqlInstanceData } from '../oxql-metrics'
-import { db } from './db'
+import { db, lookupById } from './db'
 import { Rando } from './rando'
 
 interface PaginateOptions {
@@ -43,7 +48,7 @@ interface PaginateOptions {
 }
 export interface ResultsPage<I extends { id: string }> {
   items: I[]
-  nextPage: string | null
+  next_page: string | null
 }
 
 export const paginated = <P extends PaginateOptions, I extends { id: string }>(
@@ -59,20 +64,20 @@ export const paginated = <P extends PaginateOptions, I extends { id: string }>(
   if (startIndex > items.length) {
     return {
       items: [],
-      nextPage: null,
+      next_page: null,
     }
   }
 
   if (limit + startIndex >= items.length) {
     return {
       items: items.slice(startIndex),
-      nextPage: null,
+      next_page: null,
     }
   }
 
   return {
     items: items.slice(startIndex, startIndex + limit),
-    nextPage: `${items[startIndex + limit].id}`,
+    next_page: items[startIndex + limit].id,
   }
 }
 
@@ -105,6 +110,9 @@ export const NotImplemented = () => {
   throw json({ error_code: 'NotImplemented' }, { status: 501 })
 }
 
+export const invalidRequest = (message: string) =>
+  json({ error_code: 'InvalidRequest', message }, { status: 400 })
+
 export const internalError = (message: string) =>
   json({ error_code: 'InternalError', message }, { status: 500 })
 
@@ -134,24 +142,59 @@ export const errIfExists = <T extends Record<string, unknown>>(
   }
 }
 
+/**
+ * Get block size for a disk based on its backend type.
+ * https://github.com/oxidecomputer/omicron/blob/dd74446/nexus/src/app/sagas/disk_create.rs#L292-L304
+ * https://github.com/oxidecomputer/omicron/blob/dd74446/nexus/src/app/disk.rs#L159-L174
+ */
+export function getBlockSize(backend: Json<DiskBackend>): number {
+  return match(backend)
+    .with({ type: 'local' }, () => 4096) // All local disks use 4k block size (AdvancedFormat)
+    .with({ type: 'distributed' }, ({ disk_source: source }) =>
+      match(source)
+        .with({ type: 'blank' }, (s) => s.block_size)
+        .with({ type: 'importing_blocks' }, (s) => s.block_size)
+        .with({ type: 'snapshot' }, (s) => {
+          // Look up the snapshot's source disk to get block_size (throws 404 if not found)
+          const snapshot = lookupById(db.snapshots, s.snapshot_id)
+          return lookupById(db.disks, snapshot.disk_id).block_size
+        })
+        .with({ type: 'image' }, (s) => lookupById(db.images, s.image_id).block_size)
+        .exhaustive()
+    )
+    .exhaustive()
+}
+
 export const errIfInvalidDiskSize = (disk: Json<DiskCreate>) => {
-  const source = disk.disk_source
   if (disk.size < MIN_DISK_SIZE_GiB * GiB) {
     throw `Disk size must be greater than or equal to ${MIN_DISK_SIZE_GiB} GiB`
   }
-  if (disk.size > MAX_DISK_SIZE_GiB * GiB) {
+  // Local disk size is validated server-side against zpool capacity, not here
+  if (disk.disk_backend.type === 'distributed' && disk.size > MAX_DISK_SIZE_GiB * GiB) {
     throw `Disk size must be less than or equal to ${MAX_DISK_SIZE_GiB} GiB`
   }
-  if (source.type === 'snapshot') {
-    const snapshotSize = db.snapshots.find((s) => source.snapshot_id === s.id)?.size ?? 0
-    if (disk.size >= snapshotSize) return
-    throw 'Disk size must be greater than or equal to the snapshot size'
-  }
-  if (source.type === 'image') {
-    const imageSize = db.images.find((i) => source.image_id === i.id)?.size ?? 0
-    if (disk.size >= imageSize) return
-    throw 'Disk size must be greater than or equal to the image size'
-  }
+  // Local disks have no source to validate against. Distributed disks from
+  // image or snapshot must be at least as large as the source.
+  match(disk.disk_backend)
+    .with({ type: 'local' }, () => {})
+    .with({ type: 'distributed', disk_source: { type: 'blank' } }, () => {})
+    .with({ type: 'distributed', disk_source: { type: 'importing_blocks' } }, () => {})
+    .with(
+      { type: 'distributed', disk_source: { type: 'snapshot' } },
+      ({ disk_source: s }) => {
+        const snapshot = lookupById(db.snapshots, s.snapshot_id)
+        if (disk.size < snapshot.size) {
+          throw 'Disk size must be greater than or equal to the snapshot size'
+        }
+      }
+    )
+    .with({ type: 'distributed', disk_source: { type: 'image' } }, ({ disk_source: s }) => {
+      const image = lookupById(db.images, s.image_id)
+      if (disk.size < image.size) {
+        throw 'Disk size must be greater than or equal to the image size'
+      }
+    })
+    .exhaustive()
 }
 
 export function generateUtilization(
@@ -285,16 +328,16 @@ export function handleMetrics({ path: { metricName }, query }: MetricParams) {
 export const MSW_USER_COOKIE = 'msw-user'
 
 /**
- * Look up user by display name in cookie. Return the first user if cookie empty
- * or name not found. We're using display name to make it easier to set the
- * cookie by hand, because there is no way yet to pick a user through the UI.
- *
- * If cookie is empty or name is not found, return the first user in the list,
- * who has admin on everything.
+ * Look up user by display name in cookie. If cookie is empty, return the first
+ * user in the list, who has admin on everything. Throw if name is set but not
+ * found so typos in test code get caught immediately.
  */
 export function currentUser(cookies: Record<string, string>): Json<User> {
   const name = cookies[MSW_USER_COOKIE]
-  return db.users.find((u) => u.display_name === name) ?? db.users[0]
+  if (!name) return db.users[0]
+  const user = db.users.find((u) => u.display_name === name)
+  if (!user) throw new Error(`No mock user with display name '${name}'`)
+  return user
 }
 
 /**
@@ -429,6 +472,38 @@ export function requireRole(
   // should it 404? I think the API is a mix
   if (!userHasRole(user, resourceType, resourceId, role)) throw forbiddenErr()
 }
+
+const resolveStack = (
+  stack: { ip: Ipv4Assignment | Ipv6Assignment; transit_ips?: string[] | null },
+  defaultIp: string
+) => ({
+  ip: stack.ip.type === 'explicit' ? stack.ip.value : defaultIp,
+  transit_ips: stack.transit_ips ?? [],
+})
+
+// Convert PrivateIpStackCreate to PrivateIpStack
+export const resolveIpStack = (
+  config: Json<PrivateIpStackCreate>,
+  defaultV4Ip = '127.0.0.1',
+  defaultV6Ip = '::1'
+) =>
+  match(config)
+    .with({ type: 'dual_stack' }, ({ value }) => ({
+      type: 'dual_stack' as const,
+      value: {
+        v4: resolveStack(value.v4, defaultV4Ip),
+        v6: resolveStack(value.v6, defaultV6Ip),
+      },
+    }))
+    .with({ type: 'v4' }, ({ value }) => ({
+      type: 'v4' as const,
+      value: resolveStack(value, defaultV4Ip),
+    }))
+    .with({ type: 'v6' }, ({ value }) => ({
+      type: 'v6' as const,
+      value: resolveStack(value, defaultV6Ip),
+    }))
+    .exhaustive()
 
 const ipToBigInt = (ip: string): bigint =>
   parseIp(ip).type === 'v4' ? new IPv4(ip).value : new IPv6(ip).value

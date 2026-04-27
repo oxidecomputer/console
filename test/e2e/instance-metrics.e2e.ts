@@ -10,7 +10,7 @@ import { expect, test } from '@playwright/test'
 
 import { OXQL_GROUP_BY_ERROR } from '~/api'
 
-import { getPageAsUser, hasConsoleMessage } from './utils'
+import { expectConsoleMessage, expectNoConsoleMessage, getPageAsUser } from './utils'
 
 test('Click through instance metrics', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1/metrics/cpu')
@@ -67,14 +67,14 @@ test('empty and loading states', async ({ page }) => {
   await expect(noData).toBeVisible()
 
   // idle state returns group_by must be aligned error, treated as empty
-  expect(await hasConsoleMessage(page, OXQL_GROUP_BY_ERROR)).toBe(false) // error not in console
+  await expectNoConsoleMessage(page, OXQL_GROUP_BY_ERROR)
   await statePicker.click()
   await page.getByRole('option', { name: 'State: Idle' }).click()
   await expect(loading).toBeVisible()
   await expect(loading).toBeHidden()
   await expect(page.getByText('Something went wrong')).toBeHidden()
   await expect(noData).toBeVisible()
-  expect(await hasConsoleMessage(page, OXQL_GROUP_BY_ERROR)).toBe(true) // error present in console
+  await expectConsoleMessage(page, OXQL_GROUP_BY_ERROR)
 
   // make sure empty state goes away again for the first one
   await statePicker.click()

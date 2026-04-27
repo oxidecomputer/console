@@ -26,6 +26,8 @@ import { titleCrumb } from '~/hooks/use-crumbs'
 import { useVpcSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const defaultValues: SetNonNullable<Required<VpcSubnetCreate>> = {
@@ -50,7 +52,8 @@ export default function CreateSubnetForm() {
     onSuccess(subnet) {
       queryClient.invalidateEndpoint('vpcSubnetList')
       onDismiss()
-      addToast(<>Subnet <HL>{subnet.name}</HL> created</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Subnet <HL>{subnet.name}</HL> created</>)
     },
   })
 
@@ -61,7 +64,7 @@ export default function CreateSubnetForm() {
     <SideModalForm
       form={form}
       formType="create"
-      resourceName="subnet"
+      resourceName="VPC subnet"
       onDismiss={onDismiss}
       onSubmit={({ name, description, ipv4Block, ipv6Block, customRouter }) =>
         createSubnet.mutate({
@@ -93,6 +96,7 @@ export default function CreateSubnetForm() {
         control={form.control}
         required
       />
+      <SideModalFormDocs docs={[docLinks.vpcs]} />
     </SideModalForm>
   )
 }

@@ -14,12 +14,14 @@ import { Access16Icon } from '@oxide/design-system/icons/react'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
-import { SideModalForm } from '~/components/form/SideModalForm'
+import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getIdpSelector, useIdpSelector } from '~/hooks/use-params'
 import { FormDivider } from '~/ui/lib/Divider'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel, SideModal } from '~/ui/lib/SideModal'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
@@ -44,10 +46,7 @@ export default function EditIdpSideModalForm() {
   const form = useForm({ defaultValues: idp })
 
   return (
-    <SideModalForm
-      form={form}
-      formType="edit"
-      resourceName="identity provider"
+    <ReadOnlySideModalForm
       title="Identity provider"
       onDismiss={onDismiss}
       subtitle={
@@ -55,9 +54,6 @@ export default function EditIdpSideModalForm() {
           <Access16Icon /> {idp.name}
         </ResourceLabel>
       }
-      // TODO: pass actual error when this form is hooked up
-      submitError={null}
-      loading={false}
     >
       <PropertiesTable>
         <PropertiesTable.IdRow id={idp.id} />
@@ -79,7 +75,6 @@ export default function EditIdpSideModalForm() {
       <FormDivider />
 
       <SideModal.Heading>Service provider</SideModal.Heading>
-      {/* TODO: help text */}
       <TextField
         name="spClientId"
         label="Service provider client ID"
@@ -107,7 +102,6 @@ export default function EditIdpSideModalForm() {
       <FormDivider />
 
       <SideModal.Heading>Identity provider</SideModal.Heading>
-      {/* TODO: help text */}
       <TextField
         name="idpEntityId"
         label="Entity ID"
@@ -123,6 +117,7 @@ export default function EditIdpSideModalForm() {
         control={form.control}
         disabled
       />
-    </SideModalForm>
+      <SideModalFormDocs docs={[docLinks.identityProviders]} />
+    </ReadOnlySideModalForm>
   )
 }

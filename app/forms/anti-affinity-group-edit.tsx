@@ -27,6 +27,8 @@ import {
   useAntiAffinityGroupSelector,
 } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 import { antiAffinityGroupView } from './affinity-util'
@@ -49,7 +51,8 @@ export default function EditAntiAffintyGroupForm() {
       queryClient.invalidateEndpoint('antiAffinityGroupView')
       queryClient.invalidateEndpoint('antiAffinityGroupList')
       navigate(pb.antiAffinityGroup({ project, antiAffinityGroup: updatedGroup.name }))
-      addToast(<>Anti-affinity group <HL>{updatedGroup.name}</HL> updated</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Anti-affinity group <HL>{updatedGroup.name}</HL> updated</>)
     },
   })
 
@@ -80,6 +83,7 @@ export default function EditAntiAffintyGroupForm() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
+      <SideModalFormDocs docs={[docLinks.affinity]} />
     </SideModalForm>
   )
 }

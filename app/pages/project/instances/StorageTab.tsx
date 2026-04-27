@@ -12,7 +12,6 @@ import * as R from 'remeda'
 
 import {
   api,
-  diskCan,
   genName,
   instanceCan,
   q,
@@ -25,12 +24,14 @@ import {
 import { Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { HL } from '~/components/HL'
-import { DiskStateBadge } from '~/components/StateBadge'
+import { DiskStateBadge, DiskTypeBadge, ReadOnlyBadge } from '~/components/StateBadge'
 import { AttachDiskModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
+import { DiskDetailSideModal } from '~/pages/project/disks/DiskDetailSideModal'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
+import { ButtonCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
@@ -40,7 +41,7 @@ import { EMBody, EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { links } from '~/util/links'
 
-import { fancifyStates } from './common'
+import { snapshotDisabledReason } from './common'
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { project, instance } = getInstanceSelector(params)
@@ -66,15 +67,6 @@ type InstanceDisk = Disk & {
 }
 
 const colHelper = createColumnHelper<InstanceDisk>()
-const staticCols = [
-  colHelper.accessor('name', { header: 'Disk' }),
-  colHelper.accessor('size', Columns.size),
-  colHelper.accessor((row) => row.state.state, {
-    header: 'state',
-    cell: (info) => <DiskStateBadge state={info.getValue()} />,
-  }),
-  colHelper.accessor('timeCreated', Columns.timeCreated),
-]
 
 export const handle = { crumb: 'Storage' }
 
@@ -88,19 +80,45 @@ export default function StorageTab() {
     [instanceName, project]
   )
 
+  const staticCols = useMemo(
+    () => [
+      colHelper.accessor('name', {
+        header: 'Disk',
+        cell: (info) => (
+          <span className="flex items-center gap-2">
+            <ButtonCell onClick={() => setSelectedDisk(info.row.original)}>
+              {info.getValue()}
+            </ButtonCell>
+            {info.row.original.readOnly && <ReadOnlyBadge />}
+          </span>
+        ),
+      }),
+      colHelper.accessor('diskType', {
+        header: 'Type',
+        cell: (info) => <DiskTypeBadge diskType={info.getValue()} />,
+      }),
+      colHelper.accessor('size', Columns.size),
+      colHelper.accessor((row) => row.state.state, {
+        header: 'state',
+        cell: (info) => <DiskStateBadge state={info.getValue()} />,
+      }),
+      colHelper.accessor('timeCreated', Columns.timeCreated),
+    ],
+    []
+  )
+
   const { mutateAsync: detachDisk } = useApiMutation(api.instanceDiskDetach, {
     onSuccess(disk) {
       queryClient.invalidateEndpoint('instanceDiskList')
-      addToast(<>Disk <HL>{disk.name}</HL> detached</>) // prettier-ignore
-    },
-    onError(err) {
-      addToast({ title: 'Failed to detach disk', content: err.message, variant: 'error' })
+      // prettier-ignore
+      addToast(<>Disk <HL>{disk.name}</HL> detached</>)
     },
   })
   const { mutate: createSnapshot } = useApiMutation(api.snapshotCreate, {
     onSuccess(snapshot) {
       queryClient.invalidateEndpoint('snapshotList')
-      addToast(<>Snapshot <HL>{snapshot.name}</HL> created</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Snapshot <HL>{snapshot.name}</HL> created</>)
     },
     onError(err) {
       addToast({
@@ -121,13 +139,14 @@ export default function StorageTab() {
     },
   })
 
+  // for showing disk detail side modal
+  const [selectedDisk, setSelectedDisk] = useState<Disk | null>(null)
+
   // shared between boot and other disks
   const getSnapshotAction = useCallback(
     (disk: InstanceDisk) => ({
       label: 'Snapshot',
-      disabled: !diskCan.snapshot(disk) && (
-        <>Only disks in state {fancifyStates(diskCan.snapshot.states)} can be snapshotted</>
-      ),
+      disabled: snapshotDisabledReason(disk),
       onActivate() {
         createSnapshot({
           query: { project },
@@ -268,7 +287,8 @@ export default function StorageTab() {
               detachDisk({ body: { disk: disk.name }, path: { instance: instance.id } }),
             errorTitle: 'Could not detach disk',
             modalTitle: 'Confirm detach disk',
-            modalContent: <p>Are you sure you want to detach <HL>{disk.name}</HL>?</p>, // prettier-ignore
+            // prettier-ignore
+            modalContent: <p>Are you sure you want to detach <HL>{disk.name}</HL>?</p>,
             actionType: 'danger',
           }),
       },
@@ -293,7 +313,8 @@ export default function StorageTab() {
       queryClient.invalidateEndpoint('instanceDiskList')
       setShowDiskCreate(false)
       setShowDiskAttach(false)
-      addToast(<>Disk <HL>{disk.name}</HL> attached</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Disk <HL>{disk.name}</HL> attached</>)
     },
   })
 
@@ -387,12 +408,23 @@ export default function StorageTab() {
       )}
       {showDiskAttach && (
         <AttachDiskModalForm
-          onDismiss={() => setShowDiskAttach(false)}
+          onDismiss={() => {
+            setShowDiskAttach(false)
+            // clear API errors on the mutation
+            attachDisk.reset()
+          }}
           onSubmit={({ name }) => {
             attachDisk.mutate({ ...instancePathQuery, body: { disk: name } })
           }}
           loading={attachDisk.isPending}
           submitError={attachDisk.error}
+        />
+      )}
+      {selectedDisk && (
+        <DiskDetailSideModal
+          disk={selectedDisk}
+          onDismiss={() => setSelectedDisk(null)}
+          animate
         />
       )}
     </div>

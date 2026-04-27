@@ -147,6 +147,10 @@ export const routes = createRoutesFromElements(
               lazy={() => import('./pages/system/silos/SiloIpPoolsTab').then(convert)}
             />
             <Route
+              path="subnet-pools"
+              lazy={() => import('./pages/system/silos/SiloSubnetPoolsTab').then(convert)}
+            />
+            <Route
               path="quotas"
               lazy={() => import('./pages/system/silos/SiloQuotasTab').then(convert)}
             />
@@ -217,6 +221,15 @@ export const routes = createRoutesFromElements(
               lazy={() => import('./forms/ip-pool-create').then(convert)}
             />
           </Route>
+          <Route
+            lazy={() => import('./pages/system/networking/SubnetPoolsPage').then(convert)}
+          >
+            <Route path="subnet-pools" element={null} />
+            <Route
+              path="subnet-pools-new"
+              lazy={() => import('./forms/subnet-pool-create').then(convert)}
+            />
+          </Route>
         </Route>
         <Route path="networking/ip-pools" handle={{ crumb: 'IP Pools' }}>
           <Route
@@ -230,9 +243,28 @@ export const routes = createRoutesFromElements(
             />
           </Route>
         </Route>
+        <Route path="networking/subnet-pools" handle={{ crumb: 'Subnet Pools' }}>
+          <Route
+            path=":subnetPool"
+            lazy={() => import('./pages/system/networking/SubnetPoolPage').then(convert)}
+          >
+            <Route
+              path="edit"
+              lazy={() => import('./forms/subnet-pool-edit').then(convert)}
+            />
+            <Route
+              path="members-add"
+              lazy={() => import('./forms/subnet-pool-member-add').then(convert)}
+            />
+          </Route>
+        </Route>
         <Route
           path="update"
           lazy={() => import('./pages/system/UpdatePage').then(convert)}
+        />
+        <Route
+          path="access"
+          lazy={() => import('./pages/system/FleetAccessPage').then(convert)}
         />
       </Route>
 
@@ -481,6 +513,21 @@ export const routes = createRoutesFromElements(
           </Route>
           <Route
             lazy={() =>
+              import('./pages/project/external-subnets/ExternalSubnetsPage').then(convert)
+            }
+          >
+            <Route path="external-subnets" element={null} />
+            <Route
+              path="external-subnets-new"
+              lazy={() => import('./forms/external-subnet-create').then(convert)}
+            />
+            <Route
+              path="external-subnets/:externalSubnet/edit"
+              lazy={() => import('./forms/external-subnet-edit').then(convert)}
+            />
+          </Route>
+          <Route
+            lazy={() =>
               import('./pages/project/floating-ips/FloatingIpsPage').then(convert)
             }
           >
@@ -499,6 +546,10 @@ export const routes = createRoutesFromElements(
             <Route
               path="disks-new"
               lazy={() => import('./pages/project/disks/DiskCreate').then(convert)}
+            />
+            <Route
+              path="disks/:disk"
+              lazy={() => import('./pages/project/disks/DiskDetailSideModal').then(convert)}
             />
           </Route>
           <Route

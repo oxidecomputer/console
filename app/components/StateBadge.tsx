@@ -11,6 +11,7 @@ import {
   diskTransitioning,
   instanceTransitioning,
   type DiskState,
+  type DiskType,
   type InstanceState,
   type SnapshotState,
 } from '@oxide/api'
@@ -82,4 +83,19 @@ export const SnapshotStateBadge = (props: { state: SnapshotState; className?: st
     )}
     {props.state}
   </Badge>
+)
+
+export const DiskTypeBadge = (props: { diskType: DiskType; className?: string }) => (
+  <Badge color="neutral" className={props.className}>
+    {props.diskType}
+  </Badge>
+)
+
+// span is here to prevent it getting underlined in the LinkCell
+export const ReadOnlyBadge = () => (
+  <span>
+    <Badge color="neutral" className="relative">
+      Read only
+    </Badge>
+  </span>
 )

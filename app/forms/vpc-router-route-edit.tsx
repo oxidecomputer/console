@@ -14,6 +14,7 @@ import { api, q, queryClient, useApiMutation, usePrefetchedQuery } from '@oxide/
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import {
+  RouteFormDocs,
   RouteFormFields,
   routeFormMessage,
   type RouteFormValues,
@@ -69,7 +70,8 @@ export default function EditRouterRouteSideModalForm() {
     onSuccess(updatedRoute) {
       queryClient.invalidateEndpoint('vpcRouterRouteList')
       queryClient.invalidateEndpoint('vpcRouterRouteView')
-      addToast(<>Route <HL>{updatedRoute.name}</HL> updated</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Route <HL>{updatedRoute.name}</HL> updated</>)
       navigate(pb.vpcRouter(routerSelector))
     },
   })
@@ -98,6 +100,7 @@ export default function EditRouterRouteSideModalForm() {
       submitDisabled={disabled ? routeFormMessage.vpcSubnetNotModifiable : undefined}
     >
       <RouteFormFields form={form} disabled={disabled} />
+      <RouteFormDocs />
     </SideModalForm>
   )
 }

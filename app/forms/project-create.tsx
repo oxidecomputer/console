@@ -16,6 +16,8 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { addToast } from '~/stores/toast'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const defaultValues: ProjectCreate = {
@@ -37,7 +39,8 @@ export default function ProjectCreateSideModalForm() {
       // avoid the project fetch when the project page loads since we have the data
       const projectView = q(api.projectView, { path: { project: project.name } })
       queryClient.setQueryData(projectView.queryKey, project)
-      addToast(<>Project <HL>{project.name}</HL> created</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Project <HL>{project.name}</HL> created</>)
       navigate(pb.project({ project: project.name }))
     },
   })
@@ -58,6 +61,7 @@ export default function ProjectCreateSideModalForm() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
+      <SideModalFormDocs docs={[docLinks.projects]} />
     </SideModalForm>
   )
 }

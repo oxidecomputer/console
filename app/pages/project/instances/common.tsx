@@ -6,6 +6,9 @@
  * Copyright Oxide Computer Company
  */
 import { createContext, useContext, type ReactNode } from 'react'
+import { match } from 'ts-pattern'
+
+import { diskCan, type Disk } from '@oxide/api'
 
 import { intersperse } from '~/util/array'
 import { invariant } from '~/util/invariant'
@@ -18,6 +21,18 @@ const white = (s: string) => (
 
 export const fancifyStates = (states: string[]) =>
   intersperse(states.map(white), <>, </>, <> or </>)
+
+/** Returns a disabled reason if the disk cannot be snapshotted, false otherwise */
+export function snapshotDisabledReason(disk: Disk): ReactNode {
+  if (diskCan.snapshot(disk)) return false
+  if (disk.readOnly) return "Read-only disks don't support snapshots"
+  return match(disk.diskType)
+    .with('distributed', () => (
+      <>Only disks in state {fancifyStates(diskCan.snapshot.states)} support snapshots</>
+    ))
+    .with('local', () => "Local disks don't support snapshots")
+    .exhaustive()
+}
 
 type MetricsContextValue = {
   startTime: Date

@@ -25,14 +25,26 @@ test('Click through snapshots', async ({ page }) => {
   await expectRowVisible(table, { name: 'snapshot-disk-deleted', disk: 'Deleted' })
 })
 
+test('Disk button opens detail modal', async ({ page }) => {
+  await page.goto('/projects/mock-project/snapshots')
+
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { name: 'snapshot-1', disk: 'disk-1' })
+
+  await page.getByRole('button', { name: 'disk-1' }).first().click()
+
+  const modal = page.getByRole('dialog', { name: 'Disk details' })
+  await expect(modal).toBeVisible()
+  await expect(modal.getByText('disk-1')).toBeVisible()
+})
+
 test('Confirm delete snapshot', async ({ page }) => {
   await page.goto('/projects/mock-project/snapshots')
 
   const row = page.getByRole('row', { name: 'disk-1-snapshot-10' })
 
-  // scroll a little so the dropdown menu isn't behind the pagination bar
-  await page.getByRole('table').click() // focus the content pane
-  await page.mouse.wheel(0, 200)
+  // scroll so the dropdown menu isn't behind the pagination bar
+  await row.scrollIntoViewIfNeeded()
 
   async function clickDelete() {
     await row.getByRole('button', { name: 'Row actions' }).click()

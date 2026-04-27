@@ -5,19 +5,17 @@
  *
  * Copyright Oxide Computer Company
  */
-import { randomBytes } from 'crypto'
+import { createHash, randomBytes } from 'crypto'
+import { readFileSync } from 'fs'
 import { resolve } from 'path'
+
 import tailwindcss from '@tailwindcss/vite'
 import basicSsl from '@vitejs/plugin-basic-ssl'
-import react from '@vitejs/plugin-react-swc'
+import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
-import { createHtmlPlugin } from 'vite-plugin-html'
-import tsconfigPaths from 'vite-tsconfig-paths'
 import { z } from 'zod/v4'
 
 import vercelConfig from './vercel.json'
-
-const KiB = 1024
 
 const ApiMode = z.enum(['msw', 'remote', 'nexus'])
 
@@ -46,22 +44,21 @@ if (apiMode === 'remote' && !process.env.EXT_HOST) {
 
 const EXT_HOST = process.env.EXT_HOST
 
-const previewAnalyticsTag = {
-  injectTo: 'head' as const,
-  tag: 'script',
-  attrs: {
-    'data-domain':
-      process.env.VERCEL_ENV === 'production'
-        ? 'oxide-console-preview.vercel.app'
-        : // not a real domain. we're only using it to distinguish prod
-          // from preview traffic in plausible
-          'console-pr-preview.vercel.app',
-    defer: true,
-    src: '/viewscript.js',
+const previewTags = [
+  {
+    injectTo: 'head' as const,
+    tag: 'script',
+    attrs: {
+      'data-domain':
+        process.env.VERCEL_ENV === 'production'
+          ? 'oxide-console-preview.vercel.app'
+          : // not a real domain. we're only using it to distinguish prod
+            // from preview traffic in plausible
+            'console-pr-preview.vercel.app',
+      defer: true,
+      src: '/viewscript.js',
+    },
   },
-}
-
-const previewMetaTag = [
   {
     injectTo: 'head' as const,
     tag: 'meta',
@@ -102,16 +99,6 @@ export default defineConfig(({ mode }) => ({
     emptyOutDir: true,
     sourcemap: true,
     // minify: false, // uncomment for debugging
-    rollupOptions: {
-      // default entrypoint for vite is '<root>/index.html', so we don't have to set it
-      output: {
-        // React Router automatically splits any route module into its own file,
-        // but some end up being like 300 bytes. It feels silly to have several
-        // hundred of those, so we set a minimum size to end up with fewer.
-        // https://rollupjs.org/configuration-options/#output-experimentalminchunksize
-        experimentalMinChunkSize: 30 * KiB,
-      },
-    },
     // prevent inlining assets as `data:`, which is not permitted by our Content-Security-Policy
     assetsInlineLimit: 0,
   },
@@ -126,12 +113,31 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     tailwindcss(),
-    tsconfigPaths(),
-    createHtmlPlugin({
-      inject: {
-        tags: process.env.VERCEL ? [previewAnalyticsTag, ...previewMetaTag] : [],
+    {
+      name: 'inject-html-tags',
+      transformIndexHtml: () => (process.env.VERCEL ? previewTags : []),
+    },
+    {
+      // Inject theme-init.js as a classic (non-module) render-blocking script
+      // so it sets data-theme before first paint. It lives in public/assets/
+      // so it passes CSP default-src 'self' and is served by the /assets/*
+      // route in Nexus. We inject it here rather than putting it in index.html
+      // because Vite tries to bundle any <script src> it finds there. Content
+      // hash query param handles cache-busting since public/ files aren't
+      // fingerprinted by Vite.
+      name: 'theme-init',
+      transformIndexHtml() {
+        const content = readFileSync(resolve(__dirname, 'public/assets/theme-init.js'))
+        const hash = createHash('sha256').update(content).digest('hex').slice(0, 8)
+        return [
+          {
+            injectTo: 'head-prepend',
+            tag: 'script',
+            attrs: { src: `/assets/theme-init.js?v=${hash}` },
+          },
+        ]
       },
-    }),
+    },
     react(),
     apiMode === 'remote' && basicSsl(),
   ],
@@ -151,6 +157,7 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
+  resolve: { tsconfigPaths: true },
   preview: { headers },
   test: {
     environment: 'jsdom',

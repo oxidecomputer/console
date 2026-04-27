@@ -12,7 +12,9 @@ import { clickRowAction, expectRowVisible, getPageAsUser, selectOption } from '.
 test('can nav to VpcPage from /', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('table').getByRole('link', { name: 'mock-project' }).click()
+  await page.waitForURL('**/projects/mock-project/**')
   await page.getByRole('link', { name: 'VPCs' }).click()
+  await page.waitForURL('**/vpcs**')
 
   await expectRowVisible(page.getByRole('table'), {
     name: 'mock-vpc',
@@ -74,11 +76,11 @@ test('can edit VPC', async ({ page }) => {
 
 test('can create and delete subnet', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc')
-  await page.getByRole('tab', { name: 'Subnets' }).click()
-  // only one row in table, the default mock-subnet
+  await page.getByRole('tab', { name: 'VPC Subnets' }).click()
+  // two rows in table: mock-subnet and mock-subnet-2
   const table = page.getByRole('table')
   const rows = page.getByRole('table').getByRole('row')
-  await expect(rows).toHaveCount(2)
+  await expect(rows).toHaveCount(3)
 
   await expectRowVisible(table, {
     name: 'mock-subnet',
@@ -87,22 +89,22 @@ test('can create and delete subnet', async ({ page }) => {
   })
 
   // open modal, fill out form, submit
-  await page.getByRole('link', { name: 'New subnet' }).click()
+  await page.getByRole('link', { name: 'New VPC subnet' }).click()
 
-  const dialog = page.getByRole('dialog', { name: 'Create subnet' })
+  const dialog = page.getByRole('dialog', { name: 'Create VPC subnet' })
   await expect(dialog).toBeVisible()
 
-  await dialog.getByRole('textbox', { name: 'Name' }).fill('mock-subnet-2')
-  await dialog.getByRole('textbox', { name: 'IPv4 block' }).fill('10.1.1.2/24')
+  await dialog.getByRole('textbox', { name: 'Name' }).fill('mock-subnet-3')
+  await dialog.getByRole('textbox', { name: 'IPv4 block' }).fill('10.1.1.3/24')
 
   // little hack to catch a bug where we weren't handling empty input here properly
   await dialog.getByRole('textbox', { name: 'IPv6 block' }).fill('abc')
   await dialog.getByRole('textbox', { name: 'IPv6 block' }).clear()
 
-  await dialog.getByRole('button', { name: 'Create subnet' }).click()
+  await dialog.getByRole('button', { name: 'Create VPC subnet' }).click()
 
   await expect(dialog).toBeHidden()
-  await expect(rows).toHaveCount(3)
+  await expect(rows).toHaveCount(4)
 
   await expectRowVisible(table, {
     name: 'mock-subnet',
@@ -110,59 +112,61 @@ test('can create and delete subnet', async ({ page }) => {
     'IP Block': expect.stringContaining('10.1.1.1/24'),
   })
   await expectRowVisible(table, {
-    name: 'mock-subnet-2',
+    name: 'mock-subnet-3',
     'Custom Router': '—',
-    'IP Block': expect.stringContaining('10.1.1.2/24'),
+    'IP Block': expect.stringContaining('10.1.1.3/24'),
   })
 
   // click more button on row to get menu, then click Delete
-  await clickRowAction(page, 'mock-subnet-2', 'Delete')
+  await clickRowAction(page, 'mock-subnet-3', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
 
-  await expect(rows).toHaveCount(2)
+  await expect(rows).toHaveCount(3)
 })
 
 test('can create and update subnets with a custom router', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc/subnets')
-  await page.getByRole('link', { name: 'New subnet' }).click()
 
+  // Check initial table state before opening the dialog — once it's open the
+  // table is aria-hidden and role-based locators won't find it.
   const table = page.getByRole('table')
   const rows = table.getByRole('row')
-  await expect(rows).toHaveCount(2)
+  await expect(rows).toHaveCount(3)
   await expectRowVisible(table, {
     name: 'mock-subnet',
     'Custom Router': '—',
     'IP Block': expect.stringContaining('10.1.1.1/24'),
   })
 
-  const dialog = page.getByRole('dialog', { name: 'Create subnet' })
+  await page.getByRole('link', { name: 'New VPC subnet' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Create VPC subnet' })
   await expect(dialog).toBeVisible()
 
-  await page.getByRole('textbox', { name: 'Name' }).fill('mock-subnet-2')
-  await page.getByRole('textbox', { name: 'IPv4 block' }).fill('10.1.1.2/24')
+  await page.getByRole('textbox', { name: 'Name' }).fill('mock-subnet-3')
+  await page.getByRole('textbox', { name: 'IPv4 block' }).fill('10.1.1.3/24')
 
   await page.getByRole('button', { name: 'Custom router' }).click()
   await page.getByRole('option', { name: 'mock-custom-router' }).click()
 
-  await page.getByRole('button', { name: 'Create subnet' }).click()
+  await page.getByRole('button', { name: 'Create VPC subnet' }).click()
   await expect(dialog).toBeHidden()
 
-  await expect(rows).toHaveCount(3)
+  await expect(rows).toHaveCount(4)
   await expectRowVisible(table, {
-    name: 'mock-subnet-2',
+    name: 'mock-subnet-3',
     'Custom Router': 'mock-custom-router',
-    'IP Block': expect.stringContaining('10.1.1.2/24'),
+    'IP Block': expect.stringContaining('10.1.1.3/24'),
   })
 
   // now remove the router
-  await page.getByRole('link', { name: 'mock-subnet-2' }).click()
+  await page.getByRole('link', { name: 'mock-subnet-3' }).click()
   await page.getByRole('button', { name: 'Custom router' }).click()
   await page.getByRole('option', { name: 'None' }).click()
-  await page.getByRole('button', { name: 'Update subnet' }).click()
+  await page.getByRole('button', { name: 'Update VPC subnet' }).click()
   await expect(dialog).toBeHidden()
 
   await expectRowVisible(table, {
-    name: 'mock-subnet-2',
+    name: 'mock-subnet-3',
     'Custom Router': '—',
   })
 })
@@ -349,12 +353,13 @@ test('can view internet gateways', async ({ page }) => {
   await expect(page).toHaveURL(
     '/projects/mock-project/vpcs/mock-vpc/internet-gateways/internet-gateway-1'
   )
-  const sidemodal = page.getByLabel('Internet Gateway')
+  // Use getByRole instead of getByLabel to avoid matching truncated descriptions
+  const sidemodal = page.getByRole('dialog', { name: 'Internet gateway' })
 
   await expect(sidemodal.getByText('123.4.56.3')).toBeVisible()
 
   // close the sidemodal
-  await sidemodal.getByRole('button', { name: 'Close' }).click()
+  await page.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
   await expect(sidemodal).toBeHidden()
 
   await page.getByRole('link', { name: 'internet-gateway-2' }).click()
@@ -373,7 +378,7 @@ test('internet gateway shows proper list of routes targeting it', async ({ page 
   await expect(table.locator('tbody >> tr')).toHaveCount(1)
 
   // close the sidemodal
-  await sidemodal.getByRole('button', { name: 'Close' }).click()
+  await page.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
   await expect(sidemodal).toBeHidden()
   // check for the route count; which should be 1
   await expect(page.getByRole('link', { name: '1', exact: true })).toBeVisible()
@@ -422,7 +427,7 @@ test('collaborator can create VPC', async ({ browser }) => {
   const table = page.getByRole('table')
 
   // Create a new VPC
-  await page.getByRole('link', { name: 'New Vpc' }).click()
+  await page.getByRole('link', { name: 'New VPC' }).click()
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('collab-test-vpc')
   await page.getByRole('textbox', { name: 'DNS name' }).fill('collab-test-vpc')
   await page.getByRole('button', { name: 'Create VPC' }).click()
@@ -450,7 +455,7 @@ test('user in group with silo collaborator role can create VPC', async ({ browse
   const table = page.getByRole('table')
 
   // Create a new VPC
-  await page.getByRole('link', { name: 'New Vpc' }).click()
+  await page.getByRole('link', { name: 'New VPC' }).click()
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('group-test-vpc')
   await page.getByRole('textbox', { name: 'DNS name' }).fill('group-test-vpc')
   await page.getByRole('button', { name: 'Create VPC' }).click()
@@ -474,7 +479,7 @@ test('limited collaborator cannot create VPC', async ({ browser }) => {
   await page.goto('/projects/mock-project/vpcs')
 
   // Try to create a new VPC
-  await page.getByRole('link', { name: 'New Vpc' }).click()
+  await page.getByRole('link', { name: 'New VPC' }).click()
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('limited-test-vpc')
   await page.getByRole('textbox', { name: 'DNS name' }).fill('limited-test-vpc')
   await page.getByRole('button', { name: 'Create VPC' }).click()

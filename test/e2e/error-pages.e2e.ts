@@ -5,9 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, test } from '@playwright/test'
-
-import { getPageAsUser, hasConsoleMessage } from './utils'
+import { expect, expectConsoleMessage, getPageAsUser, test } from './utils'
 
 test('Shows 404 page when a resource is not found', async ({ page }) => {
   await page.goto('/nonexistent')
@@ -19,22 +17,17 @@ test('Shows 404 page when a resource is not found', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible()
 })
 
-test('Shows something went wrong page on other errors', async ({ page, browserName }) => {
+test('Shows something went wrong page on other errors', async ({ page }) => {
   await page.goto('/projects/error-503') // specially handled in mock server
   await expect(page.getByText('Something went wrong')).toBeVisible()
 
   // Invariant failed doesn't show up in the page...
   await expect(page.getByText('Invariant failed')).toBeHidden()
 
-  // But we do see it in the browser console. Skip Firefox because it handles
-  // these errors differently and it's hard to get the error text out.
-  // eslint-disable-next-line playwright/no-conditional-in-test
-  if (browserName !== 'firefox') {
-    const error =
-      'Expected query to be prefetched.\nKey: ["projectView",{"path":{"project":"error-503"}}]'
-    // eslint-disable-next-line playwright/no-conditional-expect
-    expect(await hasConsoleMessage(page, error)).toBeTruthy()
-  }
+  // But we do see it in the browser console
+  const error =
+    'Expected query to be prefetched.\nKey: ["projectView",{"path":{"project":"error-503"}}]'
+  await expectConsoleMessage(page, error)
 
   // test clicking sign out
   await page.getByRole('button', { name: 'Sign out' }).click()

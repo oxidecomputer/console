@@ -8,7 +8,7 @@
 import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
-import type { DiskCreate } from '@oxide/api'
+import type { DiskCreate, DiskType } from '@oxide/api'
 import { Badge } from '@oxide/design-system/ui'
 
 import { AttachDiskModalForm } from '~/forms/disk-attach'
@@ -20,8 +20,8 @@ import { MiniTable } from '~/ui/lib/MiniTable'
 import { Truncate } from '~/ui/lib/Truncate'
 
 export type DiskTableItem =
-  | (DiskCreate & { type: 'create' })
-  | { name: string; type: 'attach'; size: number }
+  | (DiskCreate & { action: 'create' })
+  | { name: string; action: 'attach'; size: number; diskType: DiskType }
 
 /**
  * Designed less for reuse, more to encapsulate logic that would otherwise
@@ -55,8 +55,16 @@ export function DisksTableField({
               cell: (item) => <Truncate text={item.name} maxLength={35} />,
             },
             {
+              header: 'Action',
+              cell: (item) => <Badge color="neutral">{item.action}</Badge>,
+            },
+            {
               header: 'Type',
-              cell: (item) => <Badge>{item.type}</Badge>,
+              cell: (item) => (
+                <Badge color="neutral">
+                  {item.action === 'create' ? item.diskBackend.type : item.diskType}
+                </Badge>
+              ),
             },
             {
               header: 'Size',
@@ -87,7 +95,7 @@ export function DisksTableField({
       {showDiskCreate && (
         <CreateDiskSideModalForm
           onSubmit={(values) => {
-            onChange([...items, { type: 'create', ...values }])
+            onChange([...items, { action: 'create', ...values }])
             setShowDiskCreate(false)
           }}
           unavailableDiskNames={unavailableDiskNames}
@@ -97,11 +105,14 @@ export function DisksTableField({
       {showDiskAttach && (
         <AttachDiskModalForm
           onDismiss={() => setShowDiskAttach(false)}
-          onSubmit={({ name, size }: { name: string; size: number }) => {
-            onChange([...items, { type: 'attach', name, size } satisfies DiskTableItem])
+          onSubmit={({ name, size, diskType }) => {
+            onChange([
+              ...items,
+              { action: 'attach', name, size, diskType } satisfies DiskTableItem,
+            ])
             setShowDiskAttach(false)
           }}
-          diskNamesToExclude={items.filter((i) => i.type === 'attach').map((i) => i.name)}
+          diskNamesToExclude={items.filter((i) => i.action === 'attach').map((i) => i.name)}
         />
       )}
     </>

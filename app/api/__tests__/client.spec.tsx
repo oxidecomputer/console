@@ -12,8 +12,8 @@ import { describe, expect, it, vi } from 'vitest'
 import { project } from '@oxide/api-mocks'
 
 import { api, q, useApiMutation } from '..'
-import type { DiskCreate } from '../__generated__/Api'
 import { overrideOnce } from '../../../test/unit/server'
+import type { DiskCreate } from '../__generated__/Api'
 
 // TODO: rethink whether these tests need to exist when they are so well-covered
 // by playwright tests
@@ -166,7 +166,7 @@ describe('useApiQuery', () => {
       const { result } = renderProjectList()
       await waitFor(() => {
         const items = result.current.data?.items
-        expect(items?.length).toEqual(2)
+        expect(items?.length).toEqual(3)
         expect(items?.[0].id).toEqual(project.id)
       })
     })
@@ -197,7 +197,10 @@ describe('useApiMutation', () => {
     const diskCreate: DiskCreate = {
       name: 'will-fail',
       description: '',
-      diskSource: { type: 'blank', blockSize: 512 },
+      diskBackend: {
+        type: 'distributed',
+        diskSource: { type: 'blank', blockSize: 512 },
+      },
       size: 10,
     }
     const diskCreate404Params = {

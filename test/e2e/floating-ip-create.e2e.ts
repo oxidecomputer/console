@@ -18,7 +18,6 @@ test('can create a floating IP', async ({ page }) => {
     'role=heading[name*="Create floating IP"]',
     'role=textbox[name="Name"]',
     'role=textbox[name="Description"]',
-    'role=button[name="Advanced"]',
     'role=button[name="Create floating IP"]',
   ])
 
@@ -28,19 +27,17 @@ test('can create a floating IP', async ({ page }) => {
     .getByRole('textbox', { name: 'Description' })
     .fill('A description for this Floating IP')
 
-  const label = page.getByLabel('IP pool')
+  // Default silo has both v4 and v6 defaults, so no pool is preselected
+  const poolDropdown = page.getByLabel('Pool')
+  await expect(poolDropdown).toContainText('Select a pool')
 
-  // accordion content should be hidden
-  await expect(label).toBeHidden()
+  // Pool selection is required when no default can be chosen automatically
+  const dialog = page.getByRole('dialog', { name: 'Create floating IP' })
+  await page.getByRole('button', { name: 'Create floating IP' }).click()
+  await expect(dialog).toBeVisible()
+  await expect(dialog.getByText('Pool is required')).toBeVisible()
 
-  // open accordion
-  await page.getByRole('button', { name: 'Advanced' }).click()
-
-  // accordion content should be visible
-  await expect(label).toBeVisible()
-
-  // choose pool and submit
-  await label.click()
+  await poolDropdown.click()
   await page.getByRole('option', { name: 'ip-pool-1' }).click()
   await page.getByRole('button', { name: 'Create floating IP' }).click()
 
@@ -64,7 +61,7 @@ test('can detach and attach a floating IP', async ({ page }) => {
   await expectRowVisible(page.getByRole('table'), {
     name: 'cola-float',
     'IP address': '123.4.56.5',
-    'Attached to instance': 'db1',
+    Instance: 'db1',
   })
   await clickRowAction(page, 'cola-float', 'Detach')
   await page.getByRole('button', { name: 'Confirm' }).click()
@@ -93,6 +90,6 @@ test('can detach and attach a floating IP', async ({ page }) => {
   await expectRowVisible(page.getByRole('table'), {
     name: 'cola-float',
     'IP address': '123.4.56.5',
-    'Attached to instance': 'db1',
+    Instance: 'db1',
   })
 })

@@ -20,7 +20,7 @@ const GradientBackground = () => (
     className="fixed top-0 right-0 bottom-0 left-0 -z-10"
     style={{
       background:
-        'radial-gradient(200% 100% at 50% 100%, var(--surface-default) 0%, #161B1D 100%)',
+        'radial-gradient(200% 100% at 50% 100%, var(--surface-default) 0%, var(--surface-secondary) 100%)',
     }}
   />
 )
@@ -41,10 +41,10 @@ export function ErrorPage({ children }: Props) {
         </Link>
         <SignOutButton className="mt-4 mr-6" />
       </div>
-      <div className="bg-raise! border-secondary elevation-3 absolute top-1/2 left-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded-lg border p-8">
+      <div className="bg-raise! shadow-modal absolute top-1/2 left-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded-lg p-8">
         <div className="my-2 flex h-12 w-12 items-center justify-center">
-          <div className="bg-destructive absolute h-12 w-12 rounded-full opacity-20 motion-safe:animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
-          <Error12Icon className="text-error relative h-8 w-8" />
+          <div className="bg-destructive-inverse absolute h-10 w-10 rounded-full opacity-40 motion-safe:animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
+          <Error12Icon className="text-error light:text-error-secondary relative h-8 w-8" />
         </div>
 
         <div className="space-y-2 text-center">{children}</div>

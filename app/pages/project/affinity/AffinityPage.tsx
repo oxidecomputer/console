@@ -25,6 +25,7 @@ import { AffinityDocsPopover, AffinityPolicyHeader } from '~/components/Affinity
 import { HL } from '~/components/HL'
 import { antiAffinityGroupList, antiAffinityGroupMemberList } from '~/forms/affinity-util'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
@@ -57,7 +58,8 @@ const colHelper = createColumnHelper<AntiAffinityGroup>()
 
 export const AffinityGroupPolicyBadge = ({ policy }: { policy: AffinityPolicy }) => {
   const variant = { allow: 'default' as const, fail: 'solid' as const }[policy]
-  return <Badge color="neutral" variant={variant}>{policy}</Badge> // prettier-ignore
+  // prettier-ignore
+  return <Badge color="neutral" variant={variant}>{policy}</Badge>
 }
 
 const staticCols = [
@@ -136,6 +138,22 @@ export default function AffinityPage() {
     data: antiAffinityGroups,
     getCoreRowModel: getCoreRowModel(),
   })
+
+  useQuickActions(
+    () => [
+      {
+        value: 'New anti-affinity group',
+        navGroup: 'Actions',
+        action: pb.affinityNew({ project }),
+      },
+      ...antiAffinityGroups.map((g) => ({
+        value: g.name,
+        action: pb.antiAffinityGroup({ project, antiAffinityGroup: g.name }),
+        navGroup: 'Go to anti-affinity group',
+      })),
+    ],
+    [project, antiAffinityGroups]
+  )
 
   return (
     <>

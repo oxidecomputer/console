@@ -5,8 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Outlet, type LoaderFunctionArgs } from 'react-router'
 
 import {
@@ -23,12 +24,14 @@ import { Storage16Icon, Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
-import { DiskStateBadge } from '~/components/StateBadge'
+import { DiskStateBadge, DiskTypeBadge, ReadOnlyBadge } from '~/components/StateBadge'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
+import { InstanceLink } from '~/table/cells/InstanceLinkCell'
+import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
@@ -36,11 +39,12 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
-import { fancifyStates } from '../instances/common'
+import { fancifyStates, snapshotDisabledReason } from '../instances/common'
 
 export const handle = makeCrumb('Disks', (p) => pb.disks(getProjectSelector(p)))
 
@@ -64,7 +68,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     queryClient.prefetchQuery(diskList({ project }).optionsFn()),
 
     // fetch instances and preload into RQ cache so fetches by ID in
-    // InstanceLinkCell can be mostly instant yet gracefully fall back to
+    // InstanceLink can be mostly instant yet gracefully fall back to
     // fetching individually if we don't fetch them all here
     queryClient.fetchQuery(instanceList({ project }).optionsFn()).then((instances) => {
       for (const instance of instances.items) {
@@ -80,39 +84,22 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 
 const colHelper = createColumnHelper<Disk>()
 
-const staticCols = [
-  colHelper.accessor('name', {}),
-  // sneaky: rather than looking at particular states, just look at
-  // whether it has an instance field
-  colHelper.accessor(
-    (disk) => ('instance' in disk.state ? disk.state.instance : undefined),
-    {
-      header: 'Attached to',
-      cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,
-    }
-  ),
-  colHelper.accessor('size', Columns.size),
-  colHelper.accessor('state.state', {
-    header: 'state',
-    cell: (info) => <DiskStateBadge state={info.getValue()} />,
-  }),
-  colHelper.accessor('timeCreated', Columns.timeCreated),
-]
-
 export default function DisksPage() {
   const { project } = useProjectSelector()
 
   const { mutateAsync: deleteDisk } = useApiMutation(api.diskDelete, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('diskList')
-      addToast(<>Disk <HL>{variables.path.disk}</HL> deleted</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Disk <HL>{variables.path.disk}</HL> deleted</>)
     },
   })
 
   const { mutate: createSnapshot } = useApiMutation(api.snapshotCreate, {
     onSuccess(_data, variables) {
       queryClient.invalidateEndpoint('snapshotList')
-      addToast(<>Snapshot <HL>{variables.body.name}</HL> created</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Snapshot <HL>{variables.body.name}</HL> created</>)
     },
     onError(err) {
       addToast({
@@ -128,7 +115,8 @@ export default function DisksPage() {
       {
         label: 'Snapshot',
         onActivate() {
-          addToast(<>Creating snapshot of disk <HL>{disk.name}</HL></>) // prettier-ignore
+          // prettier-ignore
+          addToast(<>Creating snapshot of disk <HL>{disk.name}</HL></>)
           createSnapshot({
             query: { project },
             body: {
@@ -138,11 +126,7 @@ export default function DisksPage() {
             },
           })
         },
-        disabled: !diskCan.snapshot(disk) && (
-          <>
-            Only disks in state {fancifyStates(diskCan.snapshot.states)} can be snapshotted
-          </>
-        ),
+        disabled: snapshotDisabledReason(disk),
       },
       {
         label: 'Delete',
@@ -162,12 +146,70 @@ export default function DisksPage() {
     [createSnapshot, deleteDisk, project]
   )
 
-  const columns = useColsWithActions(staticCols, makeActions)
+  const columns = useColsWithActions(
+    useMemo(
+      () => [
+        colHelper.accessor('name', {
+          cell: (info) => (
+            <LinkCell to={pb.disk({ project, disk: info.getValue() })}>
+              <span className="flex items-center gap-2">
+                {info.getValue()}
+                {info.row.original.readOnly && <ReadOnlyBadge />}
+              </span>
+            </LinkCell>
+          ),
+        }),
+        // sneaky: rather than looking at particular states, just look at
+        // whether it has an instance field
+        colHelper.accessor(
+          (disk) => ('instance' in disk.state ? disk.state.instance : undefined),
+          {
+            header: 'Instance',
+            cell: (info) => (
+              <InstanceLink instanceId={info.getValue()} tab="storage" cell />
+            ),
+          }
+        ),
+        colHelper.accessor('diskType', {
+          header: 'Type',
+          cell: (info) => <DiskTypeBadge diskType={info.getValue()} />,
+        }),
+        colHelper.accessor('size', Columns.size),
+        colHelper.accessor('state.state', {
+          header: 'state',
+          cell: (info) => <DiskStateBadge state={info.getValue()} />,
+        }),
+        colHelper.accessor('timeCreated', Columns.timeCreated),
+      ],
+      [project]
+    ),
+    makeActions
+  )
   const { table } = useQueryTable({
     query: diskList({ project }),
     columns,
     emptyState: <EmptyState />,
   })
+
+  const { data: allDisks } = useQuery(
+    q(api.diskList, { query: { project, limit: ALL_ISH } })
+  )
+
+  useQuickActions(
+    () => [
+      {
+        value: 'New disk',
+        navGroup: 'Actions',
+        action: pb.disksNew({ project }),
+      },
+      ...(allDisks?.items || []).map((d) => ({
+        value: d.name,
+        action: pb.disk({ project, disk: d.name }),
+        navGroup: 'Go to disk',
+      })),
+    ],
+    [project, allDisks]
+  )
 
   return (
     <>
@@ -181,7 +223,7 @@ export default function DisksPage() {
         />
       </PageHeader>
       <TableActions>
-        <CreateLink to={pb.disksNew({ project })}>New Disk</CreateLink>
+        <CreateLink to={pb.disksNew({ project })}>New disk</CreateLink>
       </TableActions>
       {table}
       <Outlet />

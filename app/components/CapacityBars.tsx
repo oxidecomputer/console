@@ -23,7 +23,7 @@ export const CapacityBars = ({
   allocatedLabel: string
 }) => {
   return (
-    <div className="1000:flex-row mb-12 flex min-w-min flex-col gap-3">
+    <div className="1000:flex-row flex min-w-min flex-col gap-3">
       <CapacityBar
         icon={<Cpu16Icon />}
         title="CPU"

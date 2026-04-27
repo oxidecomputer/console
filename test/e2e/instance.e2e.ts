@@ -11,6 +11,7 @@ import {
   closeToast,
   expect,
   expectRowVisible,
+  fillNumberInput,
   test,
   type Page,
 } from './utils'
@@ -29,7 +30,7 @@ test('can delete a failed instance', async ({ page }) => {
 
   const cell = page.getByRole('cell', { name: 'you-fail' })
   await expect(cell).toBeVisible() // just to match hidden check at the end
-  expectInstanceState(page, 'you-fail', 'failed')
+  await expectInstanceState(page, 'you-fail', 'failed')
 
   await clickRowAction(page, 'you-fail', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
@@ -168,8 +169,8 @@ test('can resize a failed or stopped instance', async ({ page }) => {
   await clickRowAction(page, 'you-fail', 'Resize')
   const resizeModal = page.getByRole('dialog', { name: 'Resize instance' })
   await expect(resizeModal).toBeVisible()
-  await resizeModal.getByRole('textbox', { name: 'vCPUs' }).fill('10')
-  await resizeModal.getByRole('textbox', { name: 'Memory' }).fill('20')
+  await fillNumberInput(resizeModal.getByRole('textbox', { name: 'vCPUs' }), '10')
+  await fillNumberInput(resizeModal.getByRole('textbox', { name: 'Memory' }), '20')
   await resizeModal.getByRole('button', { name: 'Resize' }).click()
   await expectRowVisible(table, {
     name: 'you-fail',
@@ -195,8 +196,8 @@ test('can resize a failed or stopped instance', async ({ page }) => {
   await expect(resizeModal).toBeVisible()
   await expect(resizeModal.getByText('Current (db1): 2 vCPUs / 4 GiB')).toBeVisible()
 
-  await resizeModal.getByRole('textbox', { name: 'vCPUs' }).fill('8')
-  await resizeModal.getByRole('textbox', { name: 'Memory' }).fill('16')
+  await fillNumberInput(resizeModal.getByRole('textbox', { name: 'vCPUs' }), '8')
+  await fillNumberInput(resizeModal.getByRole('textbox', { name: 'Memory' }), '16')
   await resizeModal.getByRole('button', { name: 'Resize' }).click()
   await expectRowVisible(table, {
     name: 'db1',
@@ -204,6 +205,24 @@ test('can resize a failed or stopped instance', async ({ page }) => {
     Memory: '16 GiB',
     state: expect.stringMatching(/^stopped\d+s$/),
   })
+})
+
+test('resize modal stays open on server error', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances')
+
+  // 'instance-update-error' is a failed instance whose mock handler rejects updates
+  await clickRowAction(page, 'instance-update-error', 'Resize')
+  const resizeModal = page.getByRole('dialog', { name: 'Resize instance' })
+  await expect(resizeModal).toBeVisible()
+
+  await fillNumberInput(resizeModal.getByRole('textbox', { name: 'vCPUs' }), '10')
+  await fillNumberInput(resizeModal.getByRole('textbox', { name: 'Memory' }), '20')
+  await resizeModal.getByRole('button', { name: 'Resize' }).click()
+
+  // Error renders inline inside the modal; modal stays open so the user can
+  // see the error and adjust values.
+  await expect(resizeModal).toContainText('Cannot update instance')
+  await expect(resizeModal).toBeVisible()
 })
 
 test('delete from instance detail', async ({ page }) => {

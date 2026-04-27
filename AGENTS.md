@@ -3,6 +3,8 @@
 - Keep the console a thin client over the Oxide API: minimize client-only state, surface API concepts, and bias toward simple, predictable UI that works everywhere.
 - Favor well-supported libraries, avoid premature abstractions, and use routes to capture state.
 - Before starting a feature, skim an existing page or form with similar behavior and mirror the conventions—this codebase is intentionally conventional. Look for similar pages in `app/pages` and forms in `app/forms` to use as templates.
+- `@oxide/api` is at `app/api` and `@oxide/api-mocks` is at `mock-api/index.ts`.
+- The language server often has out of date errors. tsgo is extremely fast, so confirm errors that come from the language server by running `npm run tsc`
 - Use Node.js 22+, then install deps and start the mock-backed dev server (skip if `npm run dev` is already running in another terminal):
 
   ```sh
@@ -12,37 +14,45 @@
 
 # Comment style
 
-- Prefer comments that spell out the motivation, constraints, or quirks behind a block—avoid narrating what the code already says. Good examples call out browser limits, backend caps, or sequencing expectations so future readers know the context, not just the mechanics.
+- Comment the _why_, not the _what_. If a line's purpose isn't obvious from context, give a short reason (e.g., `// clear API error state`)
 
 # API utilities & constants
 
-- Treat `app/api/util.ts` (and friends) as a thin translation layer: mirror backend rules only when the UI needs them, keep the client copy minimal, and always link to the authoritative Omicron source so reviewers can verify the behavior.
-- API constants live in `app/api/util.ts:25-38` with links to Omicron source: `MAX_NICS_PER_INSTANCE` (8), `INSTANCE_MAX_CPU` (64), `INSTANCE_MAX_RAM_GiB` (1536), `MIN_DISK_SIZE_GiB` (1), `MAX_DISK_SIZE_GiB` (1023), etc.
-- Use `ALL_ISH` (1000) from `app/util/consts.ts` when UI needs "approximately everything" for non-paginated queries—convention is to use this constant rather than magic numbers.
+- Treat `app/api/util.ts` (and friends) as a thin translation layer: mirror backend rules only when the UI needs them, keep the client copy minimal, and always link to the authoritative Omicron source so reviewers can verify the behavior. Only keep 7 chars of the commit hash in the URL.
+- API constants live in `app/api/util.ts` with links to Omicron source.
 
 # Testing code
 
-- Run local checks before sending PRs: `npm run lint`, `npm run tsc`, `npm test run`, and `npm run e2ec`; pass `-- --ui` for Playwright UI mode or project/name filters like `npm run e2ec -- instance -g 'boot disk'`.
-- Keep Playwright specs focused on user-visible behavior—use accessible locators (`getByRole`, `getByLabel`), the helpers in `test/e2e/utils.ts` (`expectToast`, `expectRowVisible`, `selectOption`, `clickRowAction`), and close toasts so follow-on assertions aren’t blocked.
+- Run local checks before sending PRs: `npm run lint`, `npm run tsc`, `npm test run`, and `npm run e2ec`.
+- You don't usually need to run all the e2e tests, so try to filter by file and tes t name like `npm run e2ec -- instance -g 'boot disk'`. CI will run the full set.
+- Keep Playwright specs focused on user-visible behavior—use accessible locators (`getByRole`, `getByLabel`), the helpers in `test/e2e/utils.ts` (`expectToast`, `expectRowVisible`, `selectOption`, `clickRowAction`), and close toasts so follow-on assertions aren’t blocked. Avoid Playwright’s legacy string selector syntax like `page.click(‘role=button[name="..."]’)`; prefer `page.getByRole(‘button’, { name: ‘...’ }).click()` and friends. Avoid `getByTestId` in e2e tests—prefer scoping with accessible locators like `page.getByRole(‘dialog’)` when possible.
 - Cover role-gated flows by logging in with `getPageAsUser`; exercise negative paths (e.g., forbidden actions) alongside happy paths as shown in `test/e2e/system-update.e2e.ts`.
+- Consider `expectVisible` and `expectNotVisible` deprecated: prefer `expect().toBeVisible()` and `toBeHidden()` in new code.
 - When UI needs new mock behavior, extend the MSW handlers/db minimally so E2E tests stay deterministic; prefer storing full API responses so subsequent calls see the updated state (`mock-api/msw/db.ts`, `mock-api/msw/handlers.ts`).
 - Co-locate Vitest specs next to the code they cover; use Testing Library utilities (`render`, `renderHook`, `fireEvent`, fake timers) to assert observable output rather than implementation details (`app/ui/lib/FileInput.spec.tsx`, `app/hooks/use-pagination.spec.ts`).
 - For sweeping styling changes, coordinate with the visual regression harness and follow `test/visual/README.md` for the workflow.
+- Fix root causes of flaky timing rather than adding `sleep()` workarounds in tests.
+- Local Playwright runs write a compact plain-text report to `.e2e-logs/` (gitignored, one timestamped `.log` per run, last 10 kept) via the custom reporter at `test/e2e/compact-reporter.ts`. Top line is `status: ... total=N passed=N ...`; each failure is a `── UNEXPECTED|FLAKY file:line title` block followed by the error (ANSI stripped). Latest run: `ls .e2e-logs | tail -1` — Read it directly, no parsing needed.
 
 # Data fetching pattern
 
-- Define endpoints with `apiq`, prefetch them in a `clientLoader`, then read data with `usePrefetchedQuery`.
-- Use `ALL_ISH` when the UI needs every item (e.g. release lists) and rely on `queryClient.invalidateEndpoint`—it now returns the `invalidateQueries` promise so it can be awaited (see `app/pages/system/UpdatePage.tsx`).
+- Data from `usePrefetchedQuery` is guaranteed to be defined (the loader ensures it and the hook throws if it's not present). Do not add `if (!data) return` guards on these values.
+- Define queries with `q(api.endpoint, params)` for single items or `getListQFn(api.listEndpoint, params)` for lists. Prefetch in `clientLoader` and read with `usePrefetchedQuery`; for on-demand fetches (modals, secondary data), use `useQuery` directly.
+- Use `ALL_ISH` from `app/util/consts.ts` when UI needs "all" items. Use `queryClient.invalidateEndpoint` to invalidate queries.
 - For paginated tables, compose `getListQFn` with `useQueryTable`; the helper wraps `limit`/`pageToken` handling and keeps placeholder data stable (`app/api/hooks.ts:123-188`, `app/pages/ProjectsPage.tsx:40-132`).
-- When a loader needs dependent data, fetch the primary list with `queryClient.fetchQuery`, prefetch its per-item queries, and only await a bounded batch so render isn’t blocked (see `app/pages/project/affinity/AffinityPage.tsx`).
+- When a loader needs dependent data, fetch the primary list with `queryClient.fetchQuery`, prefetch its per-item queries, and only await a bounded batch so render isn't blocked (see `app/pages/project/affinity/AffinityPage.tsx`).
+- When modals need async data, fetch with `queryClient.ensureQueryData` before opening the modal so cached data is reused and there's no content pop-in.
+- Use `qErrorsAllowed` in loaders for endpoints where some users may lack permission, so the page degrades gracefully instead of the loader throwing (see `SiloScimTab.tsx`).
 
 # Mutations & UI flow
 
 - Wrap writes in `useApiMutation`, use `confirmAction` to guard destructive intent, and surface results with `addToast`.
+- Mutation error display depends on context. In forms, errors display inline via `submitError={mutation.error}` — do not add `onError` with a toast to the `useApiMutation` call. In `confirmAction`/`confirmDelete` flows, the confirm modal catches the error and shows a toast using `errorTitle` — do not also add `onError` on the mutation, or the user will see two toasts. For standalone actions (fire-and-forget `mutate` calls not wrapped in a confirm modal or form), use `onError` on the mutation to show an error toast.
 - Keep page scaffolding consistent: `PageHeader`, `PageTitle`, `DocsPopover`, `RefreshButton`, `PropertiesTable`, and `CardBlock` provide the expected layout for new system pages.
 - When a page should be discoverable from the command palette, extend `useQuickActions` with the new entry so it appears in the quick actions menu (see `app/pages/ProjectsPage.tsx:100-115`).
 - Gate per-resource actions with capability helpers: `instanceCan.start(instance)`, `diskCan.delete(disk)`, etc. (`app/api/util.ts:91-207`)—these return booleans and have `.states` properties listing valid states. Always use these instead of inline state checks; they centralize business logic and link to Omicron source explaining restrictions.
-- Pass `disabledReason` prop (accepts ReactNode) when disabling buttons so the UI explains why the action is unavailable.
+- Prefer disabling buttons with `disabledReason` over hiding them so users can discover the action exists. Compute `disabledReason` as a `string | undefined` ternary chain and derive `disabled` from `!!disabledReason`.
+- When closing a modal that uses `useApiMutation`, call `mutation.reset()` in the dismiss handler to clear stale error state so it doesn't persist on next open.
 
 # Upgrading pinned omicron version
 
@@ -56,6 +66,9 @@
 - Only implement what is necessary to exercise the UI; keep the db seeded via `mock-api/msw/db.ts`.
 - Store API response objects in the mock tables when possible so state persists across calls.
 - Enforce role checks with `requireFleetViewer`/`requireFleetCollab`/`requireFleetAdmin`, and return realistic errors (e.g. downgrade guard in `systemUpdateStatus`).
+- All UUIDs in `mock-api/` must be valid RFC 4122 (a safety test enforces this). Use `uuidgen` to generate them—do not hand-write UUIDs.
+- To test error paths in e2e tests, do **not** use `page.route` to intercept API calls. Instead, add a sentinel (a well-known name, id, or fixture value) to the mock handler that makes it return the desired error, and drive the test through the real UI. Branch on an input the user controls (e.g., `if (body.name === '<sentinel>') throw 500`) or, if no such input is available, add a sentinel fixture that is otherwise inert. Keeping the mock backend authoritative means the failure path is reproducible in the dev server too, not only from tests.
+- MSW starts fresh with a new db on every page load, so in E2E tests, use client-side navigation (click links/breadcrumbs) after mutations instead of `page.goto` to preserve db state within a test.
 
 # Routing
 
@@ -71,6 +84,12 @@
 - Use `react-hook-form` with the shared shells (`SideModalForm`, `ModalForm`, `FullPageForm`) so UX and submit handling stay consistent (`app/components/form/SideModalForm.tsx:32-140`).
 - Wire submissions through `useApiMutation`, invalidate or seed queries with `useApiQueryClient`, and surface success with toasts/navigation (`app/forms/project-create.tsx:34-55`).
 - Prefer the existing field components (`app/components/form/fields`) and only introduce new ones when the design system requires it.
+- Let form state mirror the form's UI structure, not the API request shape. Transform to the API shape in the `onSubmit` handler. This keeps fields, validation, and conditional logic straightforward.
+- Use react-hook-form's `watch` and conditional rendering to keep fields in sync. Avoid `useEffect` to propagate form values between fields—it causes extra renders and subtle ordering bugs. Reset related fields in change handlers instead. Compute default values up front in `useForm({ defaultValues })` rather than using `useEffect` + `setValue`.
+- Never access react-hook-form internals like `control._formValues`; use `useWatch` or restructure so you don't need the value.
+- In nested form contexts (sub-forms inside a page form), `preventDefault()` on Enter in text inputs to avoid accidental outer-form submission.
+- In submit handlers, prefer early return over `invariant` for states that form validation should have prevented—crashing the app is worse than a silent noop for an edge case no user can reach.
+- In general, use `useEffect` as a last resort! Try to figure out a non-useEffect version first. See https://react.dev/learn/you-might-not-need-an-effect.md when thinking about difficult cases.
 
 # Tables & detail views
 
@@ -79,19 +98,19 @@
 - `getActionsCol` automatically includes "Copy ID" if row has `id` field, and actions labeled "delete" get destructive styling. Pass `disabled` prop with ReactNode for tooltip explaining why action is unavailable (`app/table/columns/action-col.tsx`).
 - Let `useQueryTable` drive pagination, scroll reset, and placeholder loading states instead of reimplementing TanStack Table plumbing (`app/table/QueryTable.tsx`).
 - Use `PropertiesTable` compound component for detail views: `PropertiesTable.Row`, `PropertiesTable.IdRow` (truncated ID with copy), `PropertiesTable.DescriptionRow`, `PropertiesTable.DateRow` (`app/ui/lib/PropertiesTable.tsx`).
+- Hoist static column definitions to module scope; `useMemo` with an empty dependency array is a code smell indicating the value doesn't belong inside the component. More generally, don't reach for `useMemo` for simple ternary/conditional logic; reserve it for genuinely expensive computation or when referential identity matters for downstream deps.
 
 # Layout & accessibility
 
-- Build pages inside the shared `PageContainer`/`ContentPane` so you inherit the skip link, sticky footer, pagination target, and scroll restoration tied to `#scroll-container` (`app/layouts/helpers.tsx`, `app/hooks/use-scroll-restoration.ts`).
-- Surface page-level buttons and pagination via the `PageActions` and `Pagination` tunnels from `tunnel-rat`; anything rendered through `.In` components lands in the footer `.Target` automatically (`app/components/PageActions.tsx`, `app/components/Pagination.tsx`). This tunnel pattern is preferred over React portals for maintaining component co-location.
+- Build pages inside the shared `PageContainer`/`ContentPane` so you inherit the skip link, sticky footer, pagination target, and scroll restoration (`app/layouts/helpers.tsx`, `app/hooks/use-scroll-restoration.ts`).
+- Surface page-level buttons and pagination via the `PageActions` and `Pagination` tunnels from `tunnel-rat`; anything rendered through `.In` lands in `.Target` automatically.
 - For global loading states, reuse `PageSkeleton`—it keeps the MSW banner and grid layout stable, and `skipPaths` lets you opt-out for routes with custom layouts (`app/components/PageSkeleton.tsx`).
 - Enforce accessibility at the type level: use `AriaLabel` type from `app/ui/util/aria.ts` which requires exactly one of `aria-label` or `aria-labelledby` on custom interactive components.
 
 # Route params & loaders
 
 - Wrap `useParams` with the provided selectors (`useProjectSelector`, `useInstanceSelector`, etc.) so required params throw during dev and produce memoized results safe for dependency arrays (`app/hooks/use-params.ts`).
-- Param selectors use React Query's `hashKey` internally to ensure stable object references across renders—same values = same object identity, preventing unnecessary re-renders.
-- Prefer `queryClient.fetchQuery` inside `clientLoader` blocks when the page needs data up front, and throw `trigger404` on real misses so the shared error boundary can render Not Found or the 403 IDP guidance (`app/pages/ProjectsPage.tsx`, `app/layouts/SystemLayout.tsx`, `app/components/ErrorBoundary.tsx`).
+- Prefer `queryClient.fetchQuery` inside `clientLoader` blocks when the page needs data up front, and throw `trigger404` on real misses so the error boundary renders Not Found.
 
 # Global stores & modals
 
@@ -100,47 +119,34 @@
 
 # UI components & styling
 
-- Reach for primitives in `app/ui` before inventing page-specific widgets; that directory intentionally holds router-agnostic building blocks (`app/ui/README.md`).
+- Reach for primitives in `app/ui` before inventing page-specific widgets; that directory holds router-agnostic building blocks.
 - When you just need Tailwind classes on a DOM element, use the `classed` helper instead of creating one-off wrappers (`app/util/classed.ts`).
-- Reuse utility components for consistent formatting—`TimeAgo`, `EmptyMessage`, `CardBlock`, `DocsPopover`, `PropertiesTable`, and friends exist so pages stay visually aligned (`app/components/TimeAgo.tsx`, `app/ui/lib`).
-
-# Docs & external links
-
-- Keep help URLs centralized: add new docs to `links`/`docLinks` and reference them when wiring `DocsPopover` or help badges (`app/util/links.ts`).
+- Define helper components at the module level, not inside other components' render functions—the `react/no-unstable-nested-components` eslint rule enforces this to prevent performance issues and broken component identity. Extract nested components to the top level and pass any needed values as props.
+- Reuse utility components for consistent formatting—`TimeAgo`, `EmptyMessage`, `CardBlock`, `DocsPopover`, `PropertiesTable`, etc.
+- Import icons from `@oxide/design-system/icons/react` with size suffixes: `16` for inline/table, `24` for headers/buttons, `12` for tiny indicators.
+- Keep help URLs in `links`/`docLinks` (`app/util/links.ts`).
+- Prefer flexbox `gap` for spacing between inline elements over margin utilities like `ml-*`.
+- Use proper casing in badge and label source text even when CSS `text-transform` changes display, since screen readers and clipboard copy use the source.
+- Keep UI microcopy concise and imperative ("Manage resources" not "Can manage resources"); avoid semicolons.
+- Don't use default prop values that force callers to pass empty strings to opt out; make props truly optional.
 
 # Error handling
 
-- All API errors flow through `processServerError` in `app/api/errors.ts`, which transforms raw errors into user-friendly messages with special handling for common cases (Forbidden, ObjectNotFound, ObjectAlreadyExists).
-- On 401 errors, requests auto-redirect to `/login?redirect_uri=...` except for `loginLocal` endpoint which handles 401 in-page (`app/api/hooks.ts:49-57`).
-- On 403 errors, the error boundary automatically checks if the user has no groups and no silo role, displaying IDP misconfiguration guidance when detected (`app/components/ErrorBoundary.tsx:42-54`).
-- Throw `trigger404` (an object `{ type: 'error', statusCode: 404 }`) in loaders when resources don't exist; the error boundary will render `<NotFound />` (`app/components/ErrorBoundary.tsx`).
+- All API errors flow through `processServerError` in `app/api/errors.ts`, which transforms raw errors into user-friendly messages.
+- On 401 errors, requests auto-redirect to `/login`. On 403, the error boundary checks for IDP misconfiguration.
+- Throw `trigger404` in loaders when resources don't exist; the error boundary will render Not Found.
 
-# Validation patterns
+# Utilities & helpers
 
-- Resource name validation: use `validateName` from `app/components/form/fields/NameField.tsx:44-60` (max 63 chars, lowercase letters/numbers/dashes, must start with letter, must end with letter or number). This matches backend validation.
-- Description validation: use `validateDescription` for max 512 char limit (`app/components/form/fields/DescriptionField.tsx`).
-- IP validation: use `validateIp` and `validateIpNet` from `app/util/ip.ts` for IPv4/IPv6 and CIDR notation—regexes match Rust `std::net` behavior for consistency.
-- All validation functions return `string | undefined` for react-hook-form compatibility.
-
-# Type utilities
-
-- Check `types/util.d.ts` for `NoExtraKeys` (catches accidental extra properties) and other type helpers.
-- Prefer `type-fest` utilities for advanced type manipulation.
-- Route param types in `app/util/path-params.ts` use `Required<Sel.X>` pattern to distinguish required path params from optional query params.
-
-# Utility functions
-
-- Check `app/util/*` for string formatting, date handling, math, IP parsing, arrays, and file utilities. Use existing helpers before writing new ones.
-
-# Icons & visual feedback
-
-- Import icons from `@oxide/design-system/icons/react` with size suffixes: `16` for inline/table use, `24` for headers/buttons, `12` for tiny indicators.
-- Use `StateBadge` for resource states, `EmptyMessage` for empty states, `HL` for highlighted text in messages.
-
-# Role & permission patterns
-
-- Role helpers in `app/api/roles.ts`: `getEffectiveRole` determines most permissive role from a list, `roleOrder` defines hierarchy (admin > collaborator > viewer).
-- Use `useUserRows` hook to enrich role assignments with user/group names, sorted via `byGroupThenName` (groups first, then alphabetically).
-- Use `useActorsNotInPolicy` to fetch users/groups not already in a policy (for add-user forms).
-- Policy transformations: `updateRole` and `deleteRole` produce new policies immutably.
-- Check `userRoleFromPolicies` to determine effective user role across multiple policies (e.g., project + silo).
+- Check `app/util/*` for string formatting, date handling, IP parsing, etc. Check `types/util.d.ts` for type helpers.
+- Use `validateName` for resource names, `validateDescription` for descriptions, `validateIp`/`validateIpNet` for IPs.
+- Role helpers live in `app/api/roles.ts`.
+- Use ts-pattern exhaustive match when doing conditional logic on union types to make sure all arms are handled
+- Avoid type casts (`as`) where possible; prefer type-safe alternatives like `satisfies`, `.returnType<T>()` for ts-pattern, or `as const`
+- Use `remeda` (imported as `R`) for sorting and data transformations—e.g., `R.sortBy(items, (x) => x.key1, (x) => x.key2)` instead of manual `.sort()` comparators.
+- Prefer small composable predicates (e.g., `poolHasIpVersion(versions)`) that chain with `.filter()` over monolithic filter functions with multiple optional parameters.
+- When using `!` (non-null assertion), add a comment justifying why the value is guaranteed to exist.
+- When multiple boolean states control mutually exclusive UI, consolidate into a single discriminated union type (pairs with ts-pattern exhaustive matching).
+- Use generated API types from `@oxide/api` rather than redeclaring their shape as inline object types.
+- Add explicit type annotations on `.then`/`.catch` callbacks in generic API wrappers to prevent `any` from leaking.
+- Use `satisfies` to catch type errors masked by `any`-typed callbacks (e.g., react-hook-form's `onChange`). The assertion costs nothing at runtime but catches mismatches at build time.

@@ -22,7 +22,7 @@ import type { Instance } from '~/api'
 import { instanceAutoRestartingSoon } from '~/api/util'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { Spinner } from '~/ui/lib/Spinner'
-import { links } from '~/util/links'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 /**
@@ -43,14 +43,14 @@ export const InstanceAutoRestartPopover = ({ instance }: { instance: Instance })
   return (
     <Popover>
       <PopoverButton
-        className="border-default hover:bg-hover group flex h-6 w-6 items-center justify-center rounded border"
+        className="border-default hover:bg-hover group flex h-6 w-6 items-center justify-center rounded-md border"
         aria-label="Auto-restart status"
       >
         <AutoRestart12Icon className="shrink-0" aria-hidden />
       </PopoverButton>
       <PopoverPanel
         // popover-panel needed for enter animation
-        className="popover-panel bg-raise border-secondary elevation-2 z-10 w-96 rounded-lg border"
+        className="popover-panel bg-raise light:bg-default shadow-menu z-10 w-96 rounded-lg"
         anchor={{ to: 'bottom start', gap: 12 }}
       >
         <PopoverRow label="Auto Restart">
@@ -60,7 +60,7 @@ export const InstanceAutoRestartPopover = ({ instance }: { instance: Instance })
           <CloseButton
             as={Link}
             to={pb.instanceSettings(instanceSelector)}
-            className="group -m-1 flex w-full items-center justify-between rounded px-1"
+            className="group -m-1 flex w-full items-center justify-between rounded-md px-1"
           >
             {match(policy)
               .with('never', () => (
@@ -101,7 +101,7 @@ export const InstanceAutoRestartPopover = ({ instance }: { instance: Instance })
               : 'This instance will not automatically restart.'}
           </p>
           <a
-            href={links.instanceUpdateDocs}
+            href={docLinks.autoRestart.href}
             className="group"
             target="_blank"
             rel="noreferrer"
@@ -109,7 +109,7 @@ export const InstanceAutoRestartPopover = ({ instance }: { instance: Instance })
             <span className="inline-block max-w-300 truncate align-middle">
               Learn about{' '}
               <span className="group-hover:link-with-underline text-raise">
-                Instance Auto-Restart
+                {docLinks.autoRestart.linkText}
               </span>
             </span>
             <OpenLink12Icon className="text-secondary ml-1 translate-y-px" />

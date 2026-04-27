@@ -12,50 +12,73 @@ import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { type LoaderFunctionArgs } from 'react-router'
 
-import { api, getListQFn, queryClient, useApiMutation, type SiloIpPool } from '@oxide/api'
+import {
+  api,
+  getListQFn,
+  queryClient,
+  useApiMutation,
+  usePrefetchedQuery,
+  type IpPool,
+  type SiloIpPool,
+} from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
+import { Badge } from '@oxide/design-system/ui'
 
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
+import { IpVersionBadge } from '~/components/IpVersionBadge'
 import { makeCrumb } from '~/hooks/use-crumbs'
 import { getSiloSelector, useSiloSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
-import { DefaultPoolCell } from '~/table/cells/DefaultPoolCell'
-import { makeLinkCell } from '~/table/cells/LinkCell'
+import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
-import { toComboboxItems } from '~/ui/lib/Combobox'
+import type { ComboboxItem } from '~/ui/lib/Combobox'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
+import { Tooltip } from '~/ui/lib/Tooltip'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
-const EmptyState = () => (
-  <EmptyMessage
-    icon={<Networking24Icon />}
-    title="No IP pools"
-    body="Create an IP pool to see it here"
-    buttonText="New IP pool"
-    buttonTo={pb.ipPoolsNew()}
-  />
-)
+function toIpPoolComboboxItem(p: IpPool): ComboboxItem {
+  return {
+    value: p.name,
+    selectedLabel: p.name,
+    label: (
+      <div className="flex items-center gap-1.5">
+        {p.name}
+        <IpVersionBadge ipVersion={p.ipVersion} />
+        <Badge color="neutral">{p.poolType}</Badge>
+      </div>
+    ),
+  }
+}
+
+function EmptyState({ onLinkPool }: { onLinkPool: () => void }) {
+  const { data: allPools } = usePrefetchedQuery(allPoolsQuery.optionsFn())
+  const emptyProps = allPools.items.length
+    ? {
+        body: 'Link an IP pool to this silo to see it here',
+        buttonText: 'Link pool',
+        onClick: onLinkPool,
+      }
+    : {
+        body: 'Create and link an IP pool to see it here',
+        buttonText: 'New IP pool',
+        buttonTo: pb.ipPoolsNew(),
+      }
+  return (
+    <EmptyMessage icon={<Networking24Icon />} title="No linked IP pools" {...emptyProps} />
+  )
+}
 
 const colHelper = createColumnHelper<SiloIpPool>()
 
-const staticCols = [
-  colHelper.accessor('name', { cell: makeLinkCell((pool) => pb.ipPool({ pool })) }),
-  colHelper.accessor('description', Columns.description),
-  colHelper.accessor('isDefault', {
-    header: 'Default',
-    cell: (info) => <DefaultPoolCell isDefault={info.getValue()} />,
-  }),
-]
-
-const allPoolsQuery = getListQFn(api.ipPoolList, { query: { limit: ALL_ISH } })
+const allPoolsQuery = getListQFn(api.systemIpPoolList, { query: { limit: ALL_ISH } })
 
 const allSiloPoolsQuery = (silo: string) =>
   getListQFn(api.siloIpPoolList, { path: { silo }, query: { limit: ALL_ISH } })
@@ -66,7 +89,10 @@ export const siloIpPoolsQuery = (silo: string) =>
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { silo } = getSiloSelector(params)
-  await queryClient.prefetchQuery(siloIpPoolsQuery(silo).optionsFn())
+  await Promise.all([
+    queryClient.prefetchQuery(siloIpPoolsQuery(silo).optionsFn()),
+    queryClient.prefetchQuery(allPoolsQuery.optionsFn()),
+  ])
   return null
 }
 
@@ -78,22 +104,57 @@ export default function SiloIpPoolsTab() {
   // because the prefetched one only gets 25 to match the query table. This req
   // is better to do async because they can't click make default that fast
   // anyway.
-  const { data: allPools } = useQuery(allSiloPoolsQuery(silo).optionsFn())
+  const { data: allPoolsData } = useQuery(allSiloPoolsQuery(silo).optionsFn())
+  const allPools = allPoolsData?.items
 
-  // used in change default confirm modal
-  const defaultPool = useMemo(
-    () => (allPools ? allPools.items.find((p) => p.isDefault)?.name : undefined),
+  const staticCols = useMemo(
+    () => [
+      colHelper.accessor('name', {
+        cell: (info) => (
+          <LinkCell to={pb.ipPool({ pool: info.row.original.id })}>
+            {info.getValue()}
+            {info.row.original.isDefault && (
+              <Tooltip content="Default for version and type">
+                <span className="ml-2">
+                  <Badge>default</Badge>
+                </span>
+              </Tooltip>
+            )}
+          </LinkCell>
+        ),
+      }),
+      colHelper.accessor('description', Columns.description),
+      colHelper.accessor('ipVersion', {
+        header: 'Version',
+        cell: (info) => <IpVersionBadge ipVersion={info.getValue()} />,
+      }),
+      colHelper.accessor('poolType', {
+        header: 'Type',
+        cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
+      }),
+    ],
+    []
+  )
+
+  // used in change default confirm modal - find existing default for same version/type
+  const findDefaultForVersionType = useCallback(
+    (ipVersion: string, poolType: string) =>
+      allPools?.find(
+        (p) => p.isDefault && p.ipVersion === ipVersion && p.poolType === poolType
+      )?.name,
     [allPools]
   )
 
-  const { mutateAsync: updatePoolLink } = useApiMutation(api.ipPoolSiloUpdate, {
+  const { mutateAsync: updatePoolLink } = useApiMutation(api.systemIpPoolSiloUpdate, {
     onSuccess() {
       queryClient.invalidateEndpoint('siloIpPoolList')
+      queryClient.invalidateEndpoint('systemIpPoolSiloList')
     },
   })
-  const { mutateAsync: unlinkPool } = useApiMutation(api.ipPoolSiloUnlink, {
+  const { mutateAsync: unlinkPool } = useApiMutation(api.systemIpPoolSiloUnlink, {
     onSuccess() {
       queryClient.invalidateEndpoint('siloIpPoolList')
+      queryClient.invalidateEndpoint('systemIpPoolSiloList')
       // We only have the ID, so will show a generic confirmation message
       addToast({ content: 'IP pool unlinked' })
     },
@@ -106,6 +167,9 @@ export default function SiloIpPoolsTab() {
         label: pool.isDefault ? 'Clear default' : 'Make default',
         className: pool.isDefault ? 'destructive' : undefined,
         onActivate() {
+          const versionLabel = `IP${pool.ipVersion}`
+          const typeLabel = pool.poolType
+
           if (pool.isDefault) {
             confirmAction({
               doAction: () =>
@@ -116,27 +180,29 @@ export default function SiloIpPoolsTab() {
               modalTitle: 'Confirm clear default',
               modalContent: (
                 <p>
-                  Are you sure you want <HL>{pool.name}</HL> to stop being the default pool
-                  for this silo? If there is no default, users in this silo will have to
-                  specify a pool when allocating IPs.
+                  Are you sure you want <HL>{pool.name}</HL> to stop being the default{' '}
+                  {versionLabel} {typeLabel} pool for this silo? If there is no default,
+                  users in this silo will have to specify a pool when allocating IPs.
                 </p>
               ),
               errorTitle: 'Could not clear default',
               actionType: 'danger',
             })
           } else {
-            const modalContent = defaultPool ? (
+            const existingDefault = findDefaultForVersionType(pool.ipVersion, pool.poolType)
+
+            const modalContent = existingDefault ? (
               <p>
-                Are you sure you want to change the default pool from <HL>{defaultPool}</HL>{' '}
-                to <HL>{pool.name}</HL>?
+                Are you sure you want to change the default {versionLabel} {typeLabel} pool
+                from <HL>{existingDefault}</HL> to <HL>{pool.name}</HL>?
               </p>
             ) : (
               <p>
-                Are you sure you want to make <HL>{pool.name}</HL> the default pool for this
-                silo?
+                Are you sure you want to make <HL>{pool.name}</HL> the default{' '}
+                {versionLabel} {typeLabel} pool for this silo?
               </p>
             )
-            const verb = defaultPool ? 'change' : 'make'
+            const verb = existingDefault ? 'change' : 'make'
             confirmAction({
               doAction: () =>
                 updatePoolLink({
@@ -171,14 +237,14 @@ export default function SiloIpPoolsTab() {
         },
       },
     ],
-    [defaultPool, silo, unlinkPool, updatePoolLink]
+    [findDefaultForVersionType, silo, unlinkPool, updatePoolLink]
   )
 
   const columns = useColsWithActions(staticCols, makeActions)
   const { table } = useQueryTable({
     query: siloIpPoolsQuery(silo),
     columns,
-    emptyState: <EmptyState />,
+    emptyState: <EmptyState onLinkPool={() => setShowLinkModal(true)} />,
   })
 
   return (
@@ -204,14 +270,15 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
   const { silo } = useSiloSelector()
   const { control, handleSubmit } = useForm({ defaultValues })
 
-  const linkPool = useApiMutation(api.ipPoolSiloLink, {
+  const linkPool = useApiMutation(api.systemIpPoolSiloLink, {
     onSuccess() {
       queryClient.invalidateEndpoint('siloIpPoolList')
+      queryClient.invalidateEndpoint('systemIpPoolSiloList')
+      onDismiss()
     },
     onError(err) {
       addToast({ title: 'Could not link pool', content: err.message, variant: 'error' })
     },
-    onSettled: onDismiss,
   })
 
   function onSubmit({ pool }: LinkPoolFormValues) {
@@ -233,7 +300,9 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
   const unlinkedPoolItems = useMemo(
     () =>
       allPools.data && linkedPoolIds
-        ? toComboboxItems(allPools.data.items.filter((p) => !linkedPoolIds.has(p.id)))
+        ? allPools.data.items
+            .filter((p) => !linkedPoolIds.has(p.id))
+            .map(toIpPoolComboboxItem)
         : [],
     [allPools, linkedPoolIds]
   )

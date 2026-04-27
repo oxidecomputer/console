@@ -63,7 +63,8 @@ export default function CreateIdpSideModalForm() {
   const createIdp = useApiMutation(api.samlIdentityProviderCreate, {
     onSuccess(idp) {
       queryClient.invalidateEndpoint('siloIdentityProviderList')
-      addToast(<>IdP <HL>{idp.name}</HL> created</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>IdP <HL>{idp.name}</HL> created</>)
       onDismiss()
     },
   })

@@ -301,7 +301,7 @@ const icmpTypeItems = [
   ...Object.entries(ICMP_TYPES).map(([type, name]) => ({
     value: type,
     label: `${type} - ${name}`,
-    selectedLabel: `${type}`,
+    selectedLabel: type,
   })),
 ]
 
@@ -487,13 +487,19 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
                   control={protocolForm.control}
                   description={
                     <>
-                      Enter a code (0) or range (e.g. 1&ndash;3). Leave blank for all
+                      Enter a code (0) or range (e.g., 1&ndash;3). Leave blank for all
                       traffic of type {selectedIcmpType}.
                     </>
                   }
                   placeholder=""
                   validate={icmpCodeValidation}
                   transform={normalizeDashes}
+                  onKeyDown={(e) => {
+                    if (e.key === KEYS.enter) {
+                      e.preventDefault() // prevent full form submission
+                      submitProtocol(e)
+                    }
+                  }}
                 />
               )}
             </>

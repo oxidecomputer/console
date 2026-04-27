@@ -17,6 +17,8 @@ import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
@@ -41,7 +43,8 @@ export default function EditVpcSideModalForm() {
     onSuccess(updatedVpc) {
       queryClient.invalidateEndpoint('vpcList')
       navigate(pb.vpc({ project, vpc: updatedVpc.name }))
-      addToast(<>VPC <HL>{updatedVpc.name}</HL> updated</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>VPC <HL>{updatedVpc.name}</HL> updated</>)
 
       // Only invalidate if we're staying on the same page. If the name
       // _has_ changed, invalidating vpcView causes an error page to flash
@@ -75,6 +78,7 @@ export default function EditVpcSideModalForm() {
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <NameField name="dnsName" label="DNS name" required={false} control={form.control} />
+      <SideModalFormDocs docs={[docLinks.vpcs]} />
     </SideModalForm>
   )
 }

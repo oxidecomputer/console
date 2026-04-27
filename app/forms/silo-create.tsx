@@ -26,6 +26,8 @@ import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Message } from '~/ui/lib/Message'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import { GiB } from '~/util/units'
 
@@ -62,7 +64,8 @@ export default function CreateSiloSideModalForm() {
       queryClient.invalidateEndpoint('siloList')
       const siloView = q(api.siloView, { path: { silo: silo.name } })
       queryClient.setQueryData(siloView.queryKey, silo)
-      addToast(<>Silo <HL>{silo.name}</HL> created</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Silo <HL>{silo.name}</HL> created</>)
       onDismiss()
     },
   })
@@ -180,6 +183,7 @@ export default function CreateSiloSideModalForm() {
       </div>
       <FormDivider />
       <TlsCertsField control={form.control} />
+      <SideModalFormDocs docs={[docLinks.systemSiloCreate, docLinks.systemSilo]} />
     </SideModalForm>
   )
 }

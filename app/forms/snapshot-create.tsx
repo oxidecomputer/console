@@ -28,7 +28,9 @@ import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { toComboboxItems } from '~/ui/lib/Combobox'
+import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { ALL_ISH } from '~/util/consts'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
 
@@ -57,7 +59,8 @@ export default function SnapshotCreate() {
   const createSnapshot = useApiMutation(api.snapshotCreate, {
     onSuccess(snapshot) {
       queryClient.invalidateEndpoint('snapshotList')
-      addToast(<>Snapshot <HL>{snapshot.name}</HL> created</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Snapshot <HL>{snapshot.name}</HL> created</>)
       onDismiss()
     },
   })
@@ -81,11 +84,13 @@ export default function SnapshotCreate() {
       <ComboboxField
         label="Disk"
         name="disk"
+        description="Only disks that support snapshots are listed"
         placeholder="Select a disk"
         items={diskItemsForCombobox}
         required
         control={form.control}
       />
+      <SideModalFormDocs docs={[docLinks.snapshots]} />
     </SideModalForm>
   )
 }

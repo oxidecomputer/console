@@ -61,13 +61,8 @@ export const useMakeInstanceActions = (
               actionType: 'primary',
               doAction: () =>
                 startInstanceAsync(instanceParams, {
-                  onSuccess: () => addToast(<>Starting instance <HL>{instance.name}</HL></>), // prettier-ignore
-                  onError: (error) =>
-                    addToast({
-                      variant: 'error',
-                      title: `Error starting instance '${instance.name}'`,
-                      content: error.message,
-                    }),
+                  // prettier-ignore
+                  onSuccess: () => addToast(<>Starting instance <HL>{instance.name}</HL></>),
                 }),
               modalTitle: 'Confirm start instance',
               modalContent: (
@@ -75,7 +70,7 @@ export const useMakeInstanceActions = (
                   Are you sure you want to start <HL>{instance.name}</HL>?
                 </p>
               ),
-              errorTitle: `Error starting ${instance.name}`,
+              errorTitle: `Error starting instance '${instance.name}'`,
             })
           },
           disabled: !instanceCan.start(instance) && (
@@ -90,7 +85,8 @@ export const useMakeInstanceActions = (
               doAction: () =>
                 stopInstanceAsync(instanceParams, {
                   onSuccess: () =>
-                    addToast(<>Stopping instance <HL>{instance.name}</HL></>), // prettier-ignore
+                    // prettier-ignore
+                    addToast(<>Stopping instance <HL>{instance.name}</HL></>),
                 }),
               modalTitle: 'Confirm stop instance',
               modalContent: (
@@ -129,7 +125,8 @@ export const useMakeInstanceActions = (
               doAction: () =>
                 rebootInstanceAsync(instanceParams, {
                   onSuccess: () =>
-                    addToast(<>Rebooting instance <HL>{instance.name}</HL></>), // prettier-ignore
+                    // prettier-ignore
+                    addToast(<>Rebooting instance <HL>{instance.name}</HL></>),
                 }),
               modalTitle: 'Confirm reboot instance',
               modalContent: (
@@ -161,7 +158,8 @@ export const useMakeInstanceActions = (
             doDelete: () =>
               deleteInstanceAsync(instanceParams, {
                 onSuccess: () =>
-                  addToast(<>Deleting instance <HL>{instance.name}</HL></>), // prettier-ignore
+                  // prettier-ignore
+                  addToast(<>Deleting instance <HL>{instance.name}</HL></>),
               }),
             label: instance.name,
             resourceKind: 'instance',

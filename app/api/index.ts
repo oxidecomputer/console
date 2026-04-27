@@ -8,7 +8,6 @@
 
 // for convenience so we can do `import type { ApiTypes } from '@oxide/api'`
 import type * as ApiTypes from './__generated__/Api'
-
 import './window.ts'
 
 export * from './client'

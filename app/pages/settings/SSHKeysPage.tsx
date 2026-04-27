@@ -45,7 +45,8 @@ export default function SSHKeysPage() {
   const { mutateAsync: deleteSshKey } = useApiMutation(api.currentUserSshKeyDelete, {
     onSuccess: (_data, variables) => {
       queryClient.invalidateEndpoint('currentUserSshKeyList')
-      addToast(<>SSH key <HL>{variables.path.sshKey}</HL> deleted</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>SSH key <HL>{variables.path.sshKey}</HL> deleted</>)
     },
   })
 

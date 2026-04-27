@@ -35,6 +35,7 @@ import {
   ProjectAccessEditUserSideModal,
 } from '~/forms/project-access'
 import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { getActionsCol } from '~/table/columns/action-col'
@@ -180,7 +181,6 @@ export default function ProjectAccessPage() {
             doDelete: () =>
               updatePolicy({
                 path: { project: projectSelector.project },
-                // we know policy is there, otherwise there's no row to display
                 body: deleteRole(row.id, projectPolicy),
               }),
             // TODO: explain that this will not affect the role inherited from
@@ -205,6 +205,17 @@ export default function ProjectAccessPage() {
     data: rows,
     getCoreRowModel: getCoreRowModel(),
   })
+
+  useQuickActions(
+    () => [
+      {
+        value: 'Add user or group',
+        navGroup: 'Actions',
+        action: () => setAddModalOpen(true),
+      },
+    ],
+    []
+  )
 
   return (
     <>

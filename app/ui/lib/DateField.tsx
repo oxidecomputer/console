@@ -24,7 +24,7 @@ import {
   type DateSegment as DateSegmentType,
 } from 'react-stately'
 
-const dateTimeFieldStyles = 'flex items-center rounded border p-2'
+const dateTimeFieldStyles = 'flex items-center rounded-md border p-2'
 
 interface DateFieldProps extends AriaDateFieldProps<DateValue> {
   className?: string
@@ -117,7 +117,7 @@ function DateSegment({
     placeholder = segment.placeholder
   }
 
-  const readOnly = segmentProps['aria-readonly'] ? true : false
+  const readOnly = !!segmentProps['aria-readonly']
 
   return (
     <div
@@ -129,13 +129,13 @@ function DateSegment({
           (segment.maxValue != null && String(segment.maxValue).length + 'ch') || undefined,
       }}
       className={cn(
-        'group box-content rounded px-px text-right tabular-nums outline-hidden',
-        !readOnly && 'focus:text-raise focus:bg-accent-secondary-hover',
+        'group box-content rounded-md px-px text-right tabular-nums outline-hidden',
+        !readOnly && 'focus:text-raise focus:bg-accent-hover',
         segment.type === 'timeZoneName' ? 'text-sans-sm ml-1' : 'text-sans-md'
       )}
       // Segment props turns this into a focusable element
       // @ts-expect-error
-      disabled={readOnly ? true : false}
+      disabled={readOnly}
     >
       {/* Always reserve space for the placeholder, to prevent layout shift when editing. */}
       <span

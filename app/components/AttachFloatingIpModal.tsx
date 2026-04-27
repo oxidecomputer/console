@@ -27,7 +27,16 @@ import { ModalForm } from './form/ModalForm'
 
 function IpPoolName({ ipPoolId }: { ipPoolId: string }) {
   const { data: result } = useQuery(
-    qErrorsAllowed(api.projectIpPoolView, { path: { pool: ipPoolId } })
+    qErrorsAllowed(
+      api.ipPoolView,
+      { path: { pool: ipPoolId } },
+      {
+        errorsExpected: {
+          explanation: 'the referenced IP pool may have been deleted.',
+          statusCode: 404,
+        },
+      }
+    )
   )
   // As with IpPoolCell, this should never happen, but to be safe …
   if (!result || result.type === 'error') return null
@@ -72,11 +81,9 @@ export const AttachFloatingIpModal = ({
     onSuccess(floatingIp) {
       queryClient.invalidateEndpoint('floatingIpList')
       queryClient.invalidateEndpoint('instanceExternalIpList')
-      addToast(<>IP <HL>{floatingIp.name}</HL> attached</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>IP <HL>{floatingIp.name}</HL> attached</>)
       onDismiss()
-    },
-    onError: (err) => {
-      addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
   })
   const form = useForm({ defaultValues: { floatingIp: '' } })
@@ -96,7 +103,7 @@ export const AttachFloatingIpModal = ({
           body: { kind: 'instance', parent: instance.id },
         })
       }
-      submitDisabled={!floatingIp}
+      submitDisabled={!floatingIp ? 'Select a floating IP' : undefined}
     >
       <Message
         variant="info"

@@ -85,7 +85,8 @@ export default function EditFirewallRuleForm() {
       // the response because the server could change the order.
       const updatedRule = body.rules?.at(-1)
       if (updatedRule) {
-        addToast(<>Firewall rule <HL>{updatedRule.name}</HL> updated</>) // prettier-ignore
+        // prettier-ignore
+        addToast(<>Firewall rule <HL>{updatedRule.name}</HL> updated</>)
       }
     },
   })

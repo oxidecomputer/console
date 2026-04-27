@@ -51,9 +51,9 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
       ? isSameDay(date, state.highlightedRange.end)
       : isSelected
 
-  // We add rounded corners on the left for the first day of the month,
+  // We add rounded-md corners on the left for the first day of the month,
   // the first day of each week, and the start date of the selection.
-  // We add rounded corners on the right for the last day of the month,
+  // We add rounded-md corners on the right for the last day of the month,
   // the last day of each week, and the end date of the selection.
   const { locale } = useLocale()
   const dayOfWeek = getDayOfWeek(date, locale)
@@ -85,17 +85,17 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
           isSelected && !isDisabled
             ? isInvalid
               ? 'text-error bg-error-secondary'
-              : 'text-accent-secondary bg-accent-secondary'
+              : 'text-accent-secondary bg-accent'
             : 'text-secondary hover:bg-tertiary',
           isRoundedLeft && 'rounded-l',
-          isRoundedRight && 'rounded-r',
+          isRoundedRight && 'rounded-r-md',
           // Hover state for non-selected cells.
-          !isSelected && !isDisabled ? 'rounded' : ''
+          !isSelected && !isDisabled ? 'rounded-md' : ''
         )}
       >
         <div
           className={cn(
-            'pointer-events-none absolute top-[0] right-px bottom-[0] left-px rounded',
+            'pointer-events-none absolute top-[0] right-px bottom-[0] left-px rounded-md',
             isSelectionStart || isSelectionEnd
               ? isInvalid
                 ? 'border-error-secondary border'
@@ -104,7 +104,7 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
             isSelected && !isDisabled
               ? isInvalid
                 ? 'group-hover:bg-error-secondary-hover'
-                : 'group-hover:bg-accent-secondary-hover'
+                : 'group-hover:bg-accent-hover'
               : '',
             !isSelected && !isDisabled ? 'hover:bg-tertiary' : ''
           )}

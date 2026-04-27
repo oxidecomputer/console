@@ -1,11 +1,22 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "jsPlugins": [
+    {
+      "name": "playwright",
+      "specifier": "eslint-plugin-playwright"
+    },
+    {
+      "name": "react-hook-form",
+      "specifier": "eslint-plugin-react-hook-form"
+    }
+  ],
   "plugins": [
     "import",
     "react",
     "jsx-a11y",
     "promise",
     // defaults (see https://oxc.rs/docs/guide/usage/linter/plugins.html#supported-plugins)
+    "eslint",
     "unicorn",
     "typescript",
     "oxc"
@@ -28,8 +39,11 @@
     "react/button-has-type": "error",
     "react/jsx-boolean-value": "error",
 
-    "react-hooks/exhaustive-deps": "error",
+    "react-hooks/exhaustive-deps": ["error", { "additionalHooks": "useQuickActions" }],
     "react-hooks/rules-of-hooks": "error",
+    "react-hook-form/destructuring-formstate": "error",
+    // no-access-control uses context.getScope() which oxlint doesn't support
+    "react-hook-form/no-nested-object-setvalue": "error",
     "import/no-default-export": "error",
     "consistent-type-imports": "error",
 
@@ -51,6 +65,26 @@
     ],
     "radix": "error",
 
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/consistent-type-assertions": "error",
+    "prefer-const": "error",
+    "import/no-nodejs-modules": "error",
+    "react/no-this-in-sfc": "error",
+    "@typescript-eslint/no-invalid-void-type": "error",
+    "unicorn/relative-url-style": "error",
+
+    // suspicious rules (cherry-picked)
+    "no-extra-bind": "error",
+    "no-unneeded-ternary": "error",
+    "no-useless-concat": "error",
+    "no-useless-constructor": "error",
+    "import/no-absolute-path": "error",
+    "import/no-self-import": "error",
+    "@typescript-eslint/no-unnecessary-type-assertion": "error",
+    "@typescript-eslint/no-unnecessary-type-constraint": "error",
+    "@typescript-eslint/no-unnecessary-template-expression": "error",
+    "@typescript-eslint/no-confusing-non-null-assertion": "error",
+
     // TypeScript rules (currently disabled but available)
     "@typescript-eslint/no-floating-promises": "off",
     "@typescript-eslint/unbound-method": "off"
@@ -64,10 +98,42 @@
         "app/layouts/**/*",
         "app/forms/**/*",
         "*.config.ts",
-        "*.config.mjs"
+        "*.config.mjs",
+        "test/e2e/compact-reporter.ts"
       ],
       "rules": {
         "import/no-default-export": "off"
+      }
+    },
+    {
+      "files": [
+        "**/*.spec.ts",
+        "**/*.config.ts",
+        "**/*.config.mjs",
+        "tools/**/*",
+        "test/e2e/compact-reporter.ts"
+      ],
+      "rules": {
+        "import/no-nodejs-modules": "off"
+      }
+    },
+    {
+      // catch unawaited Playwright calls in e2e tests
+      "files": ["test/e2e/**/*.ts"],
+      "rules": {
+        "@typescript-eslint/no-floating-promises": "error",
+        "playwright/expect-expect": [
+          "warn",
+          {
+            "assertFunctionNames": [
+              "expectVisible",
+              "expectRowVisible",
+              "expectOptions",
+              "expectRowMenuStaysOpen"
+            ]
+          }
+        ],
+        "playwright/no-force-option": "off"
       }
     }
   ],

@@ -12,7 +12,11 @@ import { api, q, queryClient, useApiMutation } from '@oxide/api'
 
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { HL } from '~/components/HL'
-import { RouteFormFields, type RouteFormValues } from '~/forms/vpc-router-route-common'
+import {
+  RouteFormDocs,
+  RouteFormFields,
+  type RouteFormValues,
+} from '~/forms/vpc-router-route-common'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
@@ -51,7 +55,8 @@ export default function CreateRouterRouteSideModalForm() {
   const createRouterRoute = useApiMutation(api.vpcRouterRouteCreate, {
     onSuccess(route) {
       queryClient.invalidateEndpoint('vpcRouterRouteList')
-      addToast(<>Route <HL>{route.name}</HL> created</>) // prettier-ignore
+      // prettier-ignore
+      addToast(<>Route <HL>{route.name}</HL> created</>)
       navigate(pb.vpcRouter(routerSelector))
     },
   })
@@ -78,6 +83,7 @@ export default function CreateRouterRouteSideModalForm() {
       submitError={createRouterRoute.error}
     >
       <RouteFormFields form={form} />
+      <RouteFormDocs />
     </SideModalForm>
   )
 }
