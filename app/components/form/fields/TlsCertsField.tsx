@@ -19,7 +19,7 @@ import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Message } from '~/ui/lib/Message'
 import { MiniTable } from '~/ui/lib/MiniTable'
 import { Modal } from '~/ui/lib/Modal'
-import { docLinks } from '~/util/links'
+import { links } from '~/util/links'
 
 import { DescriptionField } from './DescriptionField'
 import { ErrorMessage } from './ErrorMessage'
@@ -151,13 +151,11 @@ const AddCertModal = ({ onDismiss, onSubmit, allNames, siloName }: AddCertModalP
               required
               control={control}
             />
-            {siloName && (
-              <CertDomainNotice
-                {...certValidation}
-                siloName={siloName}
-                domain="r2.oxide-preview.com"
-              />
-            )}
+            <CertDomainNotice
+              {...certValidation}
+              siloName={siloName}
+              domain="r2.oxide-preview.com"
+            />
             <FileField id="key-input" name="key" label="Key" required control={control} />
           </Modal.Section>
         </form>
@@ -237,15 +235,13 @@ function CertDomainNotice({
         title="Could not be parsed"
         content={
           <div className="flex flex-col space-y-2">
-            <div>
-              Certificate may not be valid, a silo expects a X.509 cert in PEM format.
-            </div>
+            <div>Expected an X.509 certificate in PEM format.</div>
             <div>
               Learn more about{' '}
               <a
                 target="_blank"
                 rel="noreferrer"
-                href={docLinks.systemSilo.href}
+                href={links.siloTlsCertsDocs}
                 className="inline-flex items-center underline"
               >
                 silo certs
@@ -257,6 +253,9 @@ function CertDomainNotice({
       />
     )
   }
+
+  // Domain matching needs a silo name to compare against
+  if (!siloName) return null
 
   if (commonName.length === 0 && subjectAltNames.length === 0) {
     return null
@@ -291,7 +290,7 @@ function CertDomainNotice({
             <a
               target="_blank"
               rel="noreferrer"
-              href={docLinks.systemSilo.href}
+              href={links.siloTlsCertsDocs}
               className="inline-flex items-center underline"
             >
               silo certs

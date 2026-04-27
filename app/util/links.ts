@@ -24,6 +24,8 @@ export const links = {
     `https://docs.oxide.computer/guides/metrics/timeseries-schemas#_${metric.replace(':', '')}`,
   siloQuotasDocs:
     'https://docs.oxide.computer/guides/operator/silo-management#_silo_resource_quota_management',
+  siloTlsCertsDocs:
+    'https://docs.oxide.computer/guides/system/system-setup#tls-certificate',
   transitIpsDocs:
     'https://docs.oxide.computer/guides/configuring-guest-networking#_example_4_software_routing_tunnels',
   troubleshootingAccess:

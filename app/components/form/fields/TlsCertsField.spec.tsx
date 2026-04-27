@@ -21,7 +21,7 @@ describe('matchesDomain', () => {
     expect(matchesDomain('example.com', 'www.example.com')).toBe(false)
   })
 
-  it('matches multiple subdomains', () => {
+  it('only matches one level of wildcard', () => {
     expect(matchesDomain('*.example.com', 'sub.sub.example.com')).toBe(false)
     expect(matchesDomain('*.example.com', 'sub.sub.sub.example.com')).toBe(false)
   })
@@ -31,9 +31,26 @@ describe('matchesDomain', () => {
     expect(matchesDomain('example.com', 'EXAMPLE.COM')).toBe(true)
   })
 
-  it('does not match incorrect wildcards', () => {
+  it('does not match wildcards in non-leading positions', () => {
     expect(matchesDomain('test.*', 'test.com')).toBe(false)
-    expect(matchesDomain('test.*', 'test.net')).toBe(false)
+    expect(matchesDomain('test.*.com', 'test.foo.com')).toBe(false)
+    expect(matchesDomain('a.*.b.com', 'a.x.b.com')).toBe(false)
+  })
+
+  it('handles silo-style expected domains', () => {
+    expect(
+      matchesDomain('foo.sys.r2.oxide-preview.com', 'foo.sys.r2.oxide-preview.com')
+    ).toBe(true)
+    expect(
+      matchesDomain('*.sys.r2.oxide-preview.com', 'foo.sys.r2.oxide-preview.com')
+    ).toBe(true)
+    expect(
+      matchesDomain('*.sys.r2.oxide-preview.com', 'bar.sys.r2.oxide-preview.com')
+    ).toBe(true)
+    // wildcard must not match a sibling segment
+    expect(
+      matchesDomain('*.sys.r2.oxide-preview.com', 'foo.bar.r2.oxide-preview.com')
+    ).toBe(false)
   })
 })
 
@@ -60,6 +77,24 @@ describe('parseCertificate', () => {
   it('returns invalid for invalid certificate', async () => {
     const result = await parseCertificate(invalidCert)
     expect(result).toEqual({
+      commonName: [],
+      subjectAltNames: [],
+      isValid: false,
+    })
+  })
+
+  it('returns invalid for empty input', async () => {
+    expect(await parseCertificate('')).toEqual({
+      commonName: [],
+      subjectAltNames: [],
+      isValid: false,
+    })
+  })
+
+  it('returns invalid for binary garbage', async () => {
+    // simulates a non-PEM file (e.g. PNG) read as text
+    const garbage = '\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR'
+    expect(await parseCertificate(garbage)).toEqual({
       commonName: [],
       subjectAltNames: [],
       isValid: false,
