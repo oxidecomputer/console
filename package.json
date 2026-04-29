@@ -56,7 +56,6 @@
     "motion": "^11.16.2",
     "mousetrap": "^1.6.5",
     "p-map": "^7.0.2",
-    "p-retry": "^6.2.0",
     "react": "^19.2.0",
     "react-aria": "^3.44.0",
     "react-dom": "^19.2.0",

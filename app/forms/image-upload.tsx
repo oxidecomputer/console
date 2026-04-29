@@ -7,10 +7,9 @@
  */
 import { skipToken, useQuery } from '@tanstack/react-query'
 import cn from 'classnames'
-import { Effect } from 'effect'
+import { Effect, Schedule } from 'effect'
 import { filesize } from 'filesize'
 import pMap from 'p-map'
-import pRetry from 'p-retry'
 import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
@@ -411,8 +410,8 @@ export default function ImageCreate() {
       // Disk space is all zeros by default, so we can skip any chunks that are
       // all zeros. It turns out this happens a lot.
       if (!isAllZeros(base64EncodedData)) {
-        // Step 1: leaf wrapped as Effect, run back to a Promise. p-retry/p-map
-        // still drive retry/concurrency outside.
+        // Step 2: retry lives inside the Effect via Schedule.recurs(2).
+        // p-map still drives concurrency outside.
         await Effect.runPromise(
           Effect.tryPromise({
             try: () =>
@@ -425,9 +424,8 @@ export default function ImageCreate() {
                   abortController.current?.signal,
                 ]),
               }),
-            // pRetry expects a regular Error
             catch: () => new Error(`Chunk ${i} (offset ${offset}) failed`),
-          })
+          }).pipe(Effect.retry(Schedule.recurs(2)))
         )
       }
       chunksProcessed++
@@ -443,7 +441,7 @@ export default function ImageCreate() {
     try {
       await pMap(
         genChunks(),
-        (i) => pRetry(() => postChunk(i), { retries: 2 }),
+        (i) => postChunk(i),
         // browser can only do 6 fetches at once, so we only read 6 chunks at once
         { concurrency: 6, signal: abortController.current?.signal }
       )
