@@ -43,7 +43,6 @@ import { Modal } from '~/ui/lib/Modal'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { Progress } from '~/ui/lib/Progress'
 import { Spinner } from '~/ui/lib/Spinner'
-import { anySignal } from '~/util/abort'
 import { readBlobAsBase64 } from '~/util/file'
 import { invariant } from '~/util/invariant'
 import { docLinks, links } from '~/util/links'
@@ -419,14 +418,10 @@ export default function ImageCreate() {
               uploadChunk.mutateAsync({
                 path,
                 body: { offset, base64EncodedData },
-                // use both the abort signal for the whole upload and a per-request timeout
-                __signal: anySignal([
-                  AbortSignal.timeout(30000),
-                  abortController.current?.signal,
-                ]),
+                __signal: abortController.current?.signal,
               }),
             catch: () => new Error(`Chunk ${i} (offset ${offset}) failed`),
-          }).pipe(Effect.retry(Schedule.recurs(2)))
+          }).pipe(Effect.timeout('30 seconds'), Effect.retry(Schedule.recurs(2)))
         }
         chunksProcessed++
         setUploadProgress(Math.round((100 * chunksProcessed) / nChunks))
