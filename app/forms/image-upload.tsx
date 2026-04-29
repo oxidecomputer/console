@@ -7,13 +7,13 @@
  */
 import { skipToken, useQuery } from '@tanstack/react-query'
 import cn from 'classnames'
-import { Cause, Effect, Exit, Fiber, Layer, Schedule } from 'effect'
+import { Cause, Effect, Exit, Fiber, Layer, Option, Schedule } from 'effect'
 import { filesize } from 'filesize'
 import { useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import { api, q, queryClient, type ApiError, type BlockSize } from '@oxide/api'
+import { type ApiError, type BlockSize } from '@oxide/api'
 import {
   Error12Icon,
   OpenLink12Icon,
@@ -44,6 +44,7 @@ import { GiB, KiB } from '~/util/units'
 import {
   DiskApi,
   ImageApi,
+  ImageNameTaken,
   liveDiskApi,
   liveImageApi,
   liveProgressReporter,
@@ -382,20 +383,38 @@ export default function ImageCreate() {
     )
   }
 
+  /**
+   * Whole-submit Effect: precheck the image name, then (if free) open the
+   * progress modal and run the upload. One fiber covers both phases so
+   * cancellation, error handling, and finalizers go through one Exit.
+   */
+  function submitProgram(values: FormValues & { imageFile: File }) {
+    return Effect.gen(function* () {
+      const imageApi = yield* ImageApi
+      const taken = yield* imageApi.nameExists(values.imageName)
+      if (taken) yield* new ImageNameTaken()
+
+      // resetMainFlow + open modal as a side effect inside the program so a
+      // failed precheck never opens the modal. The reset has to happen here
+      // (not before runFork) because outstanding bulk writes from a canceled
+      // previous run can still arrive and bump uploadProgress.
+      yield* Effect.sync(() => {
+        resetMainFlow()
+        setModalOpen(true)
+      })
+
+      yield* uploadFlow(values)
+    })
+  }
+
   async function onSubmit(values: FormValues) {
     invariant(values.imageFile, 'imageFile must exist') // file is a required field
 
-    // this is done up here instead of next to the upload step because after
-    // upload is canceled, a few outstanding bulk writes will complete, setting
-    // uploadProgress to non-zero values. if we do this reset down there instead
-    // of up here, cancel and retry will bring up a modal briefly showing the
-    // previous run's progress, and it resets only when bulk upload starts
-    resetMainFlow()
-    setModalOpen(true)
+    setFormError(null)
     setRunning(true)
 
     const fiber = Effect.runFork(
-      uploadFlow({ ...values, imageFile: values.imageFile }).pipe(Effect.provide(layer))
+      submitProgram({ ...values, imageFile: values.imageFile }).pipe(Effect.provide(layer))
     )
     fiberRef.current = fiber
 
@@ -403,8 +422,17 @@ export default function ImageCreate() {
       const exit = await Effect.runPromise(Fiber.await(fiber))
       if (Exit.isSuccess(exit)) {
         setAllDone(true)
+        return
+      }
+      const failure = Cause.failureOption(exit.cause)
+      if (Option.isSome(failure) && failure.value instanceof ImageNameTaken) {
+        // TODO: set this error on the field instead of the whole form
+        setFormError({
+          errorCode: 'ObjectAlreadyExists',
+          message: 'Image name already exists',
+        })
       } else if (!Cause.isInterruptedOnly(exit.cause)) {
-        // not just an interrupt — actual failure (mid-flow or in a finalizer)
+        // mid-flow failure or finalizer defect — surface in the modal
         console.error(Cause.pretty(exit.cause))
         setModalError('Something went wrong. Please try again.')
       }
@@ -430,43 +458,7 @@ export default function ImageCreate() {
       resourceName="image"
       title="Upload image"
       onDismiss={backToImages}
-      onSubmit={async (values) => {
-        setFormError(null)
-
-        // check that image name isn't taken before starting the whole thing
-        const image = await queryClient
-          .fetchQuery(
-            q(
-              api.imageView,
-              { path: { image: values.imageName }, query: { project } },
-              {
-                errorsExpected: {
-                  explanation: 'the image name may not exist yet.',
-                  statusCode: 404,
-                },
-              }
-            )
-          )
-          .catch((e) => {
-            // eat a 404 since that's what we want. anything else should still blow up
-            if (e.statusCode === 404) return null
-            throw e
-          })
-        if (image) {
-          // TODO: set this error on the field instead of the whole form
-          // TODO: make setError available here somehow :(
-          setFormError({
-            errorCode: 'ObjectAlreadyExists',
-            message: 'Image name already exists',
-          })
-          return
-        }
-
-        // onSubmit owns its lifecycle: failures are surfaced via modalError,
-        // interrupts are silent, and acquireRelease finalizers handle cleanup.
-        // No try/catch needed at this layer.
-        await onSubmit(values)
-      }}
+      onSubmit={onSubmit}
       loading={running}
       submitError={formError}
       submitLabel={allDone ? 'Done' : 'Upload image'}

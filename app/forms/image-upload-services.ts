@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Context, Effect, Layer } from 'effect'
+import { Context, Data, Effect, Layer } from 'effect'
 import type { Dispatch, SetStateAction } from 'react'
 
 import {
@@ -57,8 +57,20 @@ export class ImageApi extends Context.Tag('ImageUpload/ImageApi')<
   ImageApi,
   {
     create: (body: ImageCreate) => Effect.Effect<Image, ApiError>
+    /**
+     * True if an image with this name already exists in the project, false
+     * if a 404 came back. Other API errors stay in the error channel.
+     */
+    nameExists: (name: string) => Effect.Effect<boolean, ApiError>
   }
 >() {}
+
+/**
+ * Workflow-level failure: the precheck found that the requested image name is
+ * already in use. Tagged so the component can dispatch it to the form-level
+ * error slot instead of the upload-modal error slot.
+ */
+export class ImageNameTaken extends Data.TaggedError('ImageNameTaken') {}
 
 export class SnapshotApi extends Context.Tag('ImageUpload/SnapshotApi')<
   SnapshotApi,
@@ -112,6 +124,32 @@ export const liveImageApi = ({ project }: LayerArgs) =>
       unwrap('imageCreate', (signal) =>
         api.imageCreate({ query: { project }, body }, { signal })
       ).pipe(Effect.tap(() => invalidate('imageList'))),
+    nameExists: (name) =>
+      // errorsExpected lives on q() and only suppresses the console warning
+      // for the expected 404; we still need to catch the 404 here to fold
+      // existence into a boolean.
+      Effect.tryPromise({
+        try: () =>
+          queryClient.fetchQuery(
+            q(
+              api.imageView,
+              { path: { image: name }, query: { project } },
+              {
+                errorsExpected: {
+                  explanation: 'the image name may not exist yet.',
+                  statusCode: 404,
+                },
+              }
+            )
+          ),
+        catch: (e) => e as ApiError,
+      }).pipe(
+        Effect.as(true),
+        Effect.catchIf(
+          (e) => e.statusCode === 404,
+          () => Effect.succeed(false)
+        )
+      ),
   })
 
 export const liveSnapshotApi = ({ project }: LayerArgs) =>
