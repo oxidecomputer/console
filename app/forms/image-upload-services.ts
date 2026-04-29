@@ -26,13 +26,13 @@ import { processServerError } from '~/api/errors'
 
 /**
  * Translate a generated API call's `Promise<ApiResult<T>>` into an
- * `Effect<T, ApiError>`. The runtime throws the processed error on failure
- * and the surrounding `Effect.tryPromise` catches it.
+ * `Effect<T, ApiError>`. The fiber's interrupt-driven `AbortSignal` is forwarded
+ * into the underlying fetch, so `Fiber.interrupt` aborts in-flight requests.
  */
-const unwrap = <T>(method: string, p: Promise<ApiResult<T>>) =>
+const unwrap = <T>(method: string, fn: (signal: AbortSignal) => Promise<ApiResult<T>>) =>
   Effect.tryPromise({
-    try: () =>
-      p.then((r) => {
+    try: (signal) =>
+      fn(signal).then((r) => {
         if (r.type === 'success') return r.data
         throw processServerError(method, r)
       }),
@@ -67,23 +67,16 @@ export class SnapshotApi extends Context.Tag('ImageUpload/SnapshotApi')<
   }
 >() {}
 
-type LayerArgs = {
-  project: string
-  // closure so layer methods read the current signal at call time, not at
-  // layer construction. each upload attempt swaps in a fresh AbortController
-  // without rebuilding the layer.
-  getSignal: () => AbortSignal | undefined
-}
+type LayerArgs = { project: string }
 
 const invalidate = (key: 'diskList' | 'imageList' | 'snapshotList') =>
   Effect.sync(() => queryClient.invalidateEndpoint(key))
 
-export const liveDiskApi = ({ project, getSignal }: LayerArgs) =>
+export const liveDiskApi = ({ project }: LayerArgs) =>
   Layer.succeed(DiskApi, {
     create: (body) =>
-      unwrap(
-        'diskCreate',
-        api.diskCreate({ query: { project }, body }, { signal: getSignal() })
+      unwrap('diskCreate', (signal) =>
+        api.diskCreate({ query: { project }, body }, { signal })
       ),
     view: (disk) =>
       Effect.tryPromise({
@@ -91,42 +84,36 @@ export const liveDiskApi = ({ project, getSignal }: LayerArgs) =>
         catch: (e) => e as ApiError,
       }),
     delete: (disk) =>
-      unwrap(
-        'diskDelete',
-        api.diskDelete({ path: { disk } }, { signal: getSignal() })
-      ).pipe(Effect.tap(() => invalidate('diskList'))),
+      unwrap('diskDelete', (signal) => api.diskDelete({ path: { disk } }, { signal })).pipe(
+        Effect.tap(() => invalidate('diskList'))
+      ),
     bulkWriteStart: (disk) =>
-      unwrap(
-        'diskBulkWriteImportStart',
-        api.diskBulkWriteImportStart({ path: { disk } }, { signal: getSignal() })
+      unwrap('diskBulkWriteImportStart', (signal) =>
+        api.diskBulkWriteImportStart({ path: { disk } }, { signal })
       ),
     bulkWriteStop: (disk) =>
-      unwrap(
-        'diskBulkWriteImportStop',
-        api.diskBulkWriteImportStop({ path: { disk } }, { signal: getSignal() })
+      unwrap('diskBulkWriteImportStop', (signal) =>
+        api.diskBulkWriteImportStop({ path: { disk } }, { signal })
       ),
     bulkWrite: (disk, body) =>
-      unwrap(
-        'diskBulkWriteImport',
-        api.diskBulkWriteImport({ path: { disk }, body }, { signal: getSignal() })
+      unwrap('diskBulkWriteImport', (signal) =>
+        api.diskBulkWriteImport({ path: { disk }, body }, { signal })
       ),
     finalize: (disk, body) =>
-      unwrap(
-        'diskFinalizeImport',
-        api.diskFinalizeImport({ path: { disk }, body }, { signal: getSignal() })
+      unwrap('diskFinalizeImport', (signal) =>
+        api.diskFinalizeImport({ path: { disk }, body }, { signal })
       ),
   })
 
-export const liveImageApi = ({ project, getSignal }: LayerArgs) =>
+export const liveImageApi = ({ project }: LayerArgs) =>
   Layer.succeed(ImageApi, {
     create: (body) =>
-      unwrap(
-        'imageCreate',
-        api.imageCreate({ query: { project }, body }, { signal: getSignal() })
+      unwrap('imageCreate', (signal) =>
+        api.imageCreate({ query: { project }, body }, { signal })
       ).pipe(Effect.tap(() => invalidate('imageList'))),
   })
 
-export const liveSnapshotApi = ({ project, getSignal }: LayerArgs) =>
+export const liveSnapshotApi = ({ project }: LayerArgs) =>
   Layer.succeed(SnapshotApi, {
     view: (snapshot) =>
       Effect.tryPromise({
@@ -137,8 +124,7 @@ export const liveSnapshotApi = ({ project, getSignal }: LayerArgs) =>
         catch: (e) => e as ApiError,
       }),
     delete: (snapshot) =>
-      unwrap(
-        'snapshotDelete',
-        api.snapshotDelete({ path: { snapshot } }, { signal: getSignal() })
+      unwrap('snapshotDelete', (signal) =>
+        api.snapshotDelete({ path: { snapshot } }, { signal })
       ).pipe(Effect.tap(() => invalidate('snapshotList'))),
   })

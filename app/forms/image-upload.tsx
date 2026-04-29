@@ -7,21 +7,13 @@
  */
 import { skipToken, useQuery } from '@tanstack/react-query'
 import cn from 'classnames'
-import { Effect, Layer, Schedule } from 'effect'
+import { Cause, Effect, Exit, Fiber, Layer, Schedule } from 'effect'
 import { filesize } from 'filesize'
 import { useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
-import {
-  api,
-  q,
-  queryClient,
-  type ApiError,
-  type BlockSize,
-  type Disk,
-  type Snapshot,
-} from '@oxide/api'
+import { api, q, queryClient, type ApiError, type BlockSize } from '@oxide/api'
 import {
   Error12Icon,
   OpenLink12Icon,
@@ -148,10 +140,6 @@ function getTmpDiskName(imageName: string) {
   return `tmp-for-image-${randInt()}`
 }
 
-// TODO: do we need to distinguish between abort due to manual cancel and abort
-// due to error?
-const ABORT_ERROR = new Error('Upload canceled')
-
 /**
  * Crucible currently enforces a limit of 512 KiB. See [crucible
  * source](https://github.com/oxidecomputer/crucible/blob/c574ff1232/pantry/src/pantry.rs#L239-L253).
@@ -182,9 +170,6 @@ const CHUNK_SIZE_BYTES = 512 * KiB
 // Part of the problem is that I'm relying on RQ for the state of the upload
 // steps, but there's slippage with what I actually want that to represent
 
-// TODO: make sure cleanup, cancelEverything, and resetMainFlow are called in
-// the right places
-
 export const handle = titleCrumb('Upload image')
 
 /**
@@ -214,27 +199,24 @@ export default function ImageCreate() {
 
   const backToImages = () => navigate(pb.projectImages({ project }))
 
-  // done as ref (global var) to avoid init in onSubmit and passing it around
-  const abortController = useRef<AbortController | null>(null)
-
   // done with everything, ready to close the modal
   const [allDone, setAllDone] = useState(false)
 
-  // the created snapshot and disk. presence used in cleanup to decide whether we need to
-  // attempt to delete them
-  const snapshot = useRef<Snapshot | null>(null)
-  const disk = useRef<Disk | null>(null)
+  // Handle to the running upload fiber so the cancel button can interrupt it.
+  // Fiber.interrupt walks the tree, aborts in-flight fetches via the signal
+  // forwarded by tryPromise, and runs every acquireRelease finalizer in reverse
+  // acquisition order — no AbortController plumbing on this side.
+  const fiberRef = useRef<Fiber.RuntimeFiber<void, ApiError> | null>(null)
 
-  // Live layers close over project + a getter for the current AbortSignal. The
-  // ref is stable across renders; getSignal reads .current at call time so each
-  // submit picks up the fresh controller without the layer needing to rebuild.
-  const layer = useMemo(() => {
-    const args = {
-      project,
-      getSignal: () => abortController.current?.signal,
-    }
-    return Layer.mergeAll(liveDiskApi(args), liveImageApi(args), liveSnapshotApi(args))
-  }, [project])
+  const layer = useMemo(
+    () =>
+      Layer.mergeAll(
+        liveDiskApi({ project }),
+        liveImageApi({ project }),
+        liveSnapshotApi({ project })
+      ),
+    [project]
+  )
 
   function closeModal() {
     if (allDone) {
@@ -245,63 +227,21 @@ export default function ImageCreate() {
     // if we're still going, need to confirm cancellation. if we have an error,
     // everything is already stopped
     if (modalError || confirm('Are you sure? Closing the modal will cancel the upload.')) {
-      // Note we don't run cleanup() here -- cancelEverything triggers an
-      // abort, which gets caught by the try/catch in the onSubmit on the upload
-      // form, which does the cleanup. We used to call cleanup here and used
-      // error-prone state logic to avoid it running twice.
-      //
-      // Because we are working with a closed-over copy of allDone, there is
-      // a possibility that the upload finishes while the user is looking at
-      // the confirm modal, in which case cancelEverything simply won't do
-      // anything. The finally{} in onSubmit clears out the abortController so
-      // cancelEverything() is a noop.
-      cancelEverything()
+      cancelUpload()
       resetMainFlow()
       setModalOpen(false)
     }
   }
 
-  // Aborting works for steps other than file upload despite the
-  // signal not being used directly in the former because we call
-  // `abortController.throwIfAborted()` after each step. We could technically
-  // plumb through the signal to the requests themselves, but they complete so
-  // quickly it's probably not necessary.
-  function cancelEverything() {
-    abortController.current?.abort(ABORT_ERROR)
+  function cancelUpload() {
+    const fiber = fiberRef.current
+    if (fiber) Effect.runFork(Fiber.interrupt(fiber))
   }
 
   function resetMainFlow() {
     setModalError(null)
     setUploadProgress(0)
   }
-
-  /** If a snapshot or disk was created, clean it up. */
-  const cleanupEff = Effect.gen(function* () {
-    const snapshotApi = yield* SnapshotApi
-    const diskApi = yield* DiskApi
-
-    if (snapshot.current) {
-      yield* snapshotApi.delete(snapshot.current.id)
-      snapshot.current = null
-    }
-
-    if (disk.current) {
-      // we won't be able to delete the disk unless it's out of import mode
-      const id = disk.current.id
-      const freshDisk = yield* diskApi.view(id)
-      const diskState = freshDisk.state.state
-      if (diskState === 'importing_from_bulk_writes') {
-        yield* diskApi.bulkWriteStop(id)
-        yield* diskApi.finalize(id, {})
-      }
-      if (diskState === 'import_ready') {
-        // TODO: if this fails, there's no way to delete the disk. tell user?
-        yield* diskApi.finalize(id, {})
-      }
-      yield* diskApi.delete(id)
-      disk.current = null
-    }
-  })
 
   function uploadFlow({
     imageName,
@@ -311,93 +251,109 @@ export default function ImageCreate() {
     os,
     version,
   }: FormValues & { imageFile: File }) {
-    return Effect.gen(function* () {
-      const diskApi = yield* DiskApi
-      const imageApi = yield* ImageApi
-      const snapshotApi = yield* SnapshotApi
+    return Effect.scoped(
+      Effect.gen(function* () {
+        const diskApi = yield* DiskApi
+        const imageApi = yield* ImageApi
+        const snapshotApi = yield* SnapshotApi
 
-      // Create a disk in state import-ready
-      const diskName = getTmpDiskName(imageName)
-      const created = yield* diskApi.create({
-        name: diskName,
-        description: `temporary disk for importing image ${imageName}`,
-        diskBackend: {
-          type: 'distributed',
-          diskSource: { type: 'importing_blocks', blockSize },
-        },
-        size: Math.ceil(imageFile.size / GiB) * GiB,
-      })
-      disk.current = created
+        // Acquire the temp disk under a scoped finalizer. The release runs on
+        // success, failure, and interrupt — replacing the imperative cleanup()
+        // and the snapshot/disk refs that tracked which were live. State-aware
+        // shutdown lives next to the acquire, where it belongs.
+        const created = yield* Effect.acquireRelease(
+          diskApi.create({
+            name: getTmpDiskName(imageName),
+            description: `temporary disk for importing image ${imageName}`,
+            diskBackend: {
+              type: 'distributed',
+              diskSource: { type: 'importing_blocks', blockSize },
+            },
+            size: Math.ceil(imageFile.size / GiB) * GiB,
+          }),
+          (d) =>
+            Effect.gen(function* () {
+              const fresh = yield* diskApi.view(d.id)
+              const state = fresh.state.state
+              if (state === 'importing_from_bulk_writes') {
+                yield* diskApi.bulkWriteStop(d.id)
+                yield* diskApi.finalize(d.id, {})
+              } else if (state === 'import_ready') {
+                yield* diskApi.finalize(d.id, {})
+              }
+              yield* diskApi.delete(d.id)
+            }).pipe(Effect.orDie)
+        )
 
-      // set disk to state importing-via-bulk-write
-      yield* diskApi.bulkWriteStart(created.id)
+        // set disk to state importing-via-bulk-write
+        yield* diskApi.bulkWriteStart(created.id)
 
-      // Post file to the API in chunks of size `maxChunkSize`. Browsers cap
-      // concurrent fetches at 6 per host, so Effect.forEach with concurrency 6
-      // keeps us from reading more into memory than we can POST.
+        // Post file to the API in chunks of size `maxChunkSize`. Browsers cap
+        // concurrent fetches at 6 per host, so Effect.forEach with concurrency 6
+        // keeps us from reading more into memory than we can POST.
 
-      const nChunks = Math.ceil(imageFile.size / CHUNK_SIZE_BYTES)
+        const nChunks = Math.ceil(imageFile.size / CHUNK_SIZE_BYTES)
 
-      // TODO: try to warn user if they try to close the tab while this is going
+        // TODO: try to warn user if they try to close the tab while this is going
 
-      let chunksProcessed = 0
+        let chunksProcessed = 0
 
-      const postChunk = (i: number) =>
-        Effect.gen(function* () {
-          const offset = i * CHUNK_SIZE_BYTES
-          const end = Math.min(offset + CHUNK_SIZE_BYTES, imageFile.size)
-          const base64EncodedData = yield* Effect.promise(() =>
-            readBlobAsBase64(imageFile.slice(offset, end))
-          )
+        const postChunk = (i: number) =>
+          Effect.gen(function* () {
+            const offset = i * CHUNK_SIZE_BYTES
+            const end = Math.min(offset + CHUNK_SIZE_BYTES, imageFile.size)
+            const base64EncodedData = yield* Effect.promise(() =>
+              readBlobAsBase64(imageFile.slice(offset, end))
+            )
 
-          // Disk space is all zeros by default, so we can skip any chunks that are
-          // all zeros. It turns out this happens a lot.
-          if (!isAllZeros(base64EncodedData)) {
-            yield* diskApi
-              .bulkWrite(created.id, { offset, base64EncodedData })
-              .pipe(Effect.timeout('30 seconds'), Effect.retry(Schedule.recurs(2)))
-          }
-          chunksProcessed++
-          setUploadProgress(Math.round((100 * chunksProcessed) / nChunks))
+            // Disk space is all zeros by default, so we can skip any chunks that are
+            // all zeros. It turns out this happens a lot.
+            if (!isAllZeros(base64EncodedData)) {
+              yield* diskApi
+                .bulkWrite(created.id, { offset, base64EncodedData })
+                .pipe(Effect.timeout('30 seconds'), Effect.retry(Schedule.recurs(2)))
+            }
+            chunksProcessed++
+            setUploadProgress(Math.round((100 * chunksProcessed) / nChunks))
+          })
+
+        // avoid pointless array of size 4000 for a 2gb image
+        function* genChunks() {
+          for (let i = 0; i < nChunks; i++) yield i
+        }
+
+        yield* Effect.forEach(genChunks(), postChunk, { concurrency: 6 })
+
+        yield* diskApi.bulkWriteStop(created.id)
+
+        const snapshotName = `tmp-snapshot-${randInt()}`
+        yield* diskApi.finalize(created.id, { snapshotName })
+
+        // diskFinalizeImport does not return the snapshot, but create image
+        // requires an ID. Acquire it under a finalizer too so the temp snapshot
+        // is cleaned up regardless of how this scope exits.
+        const createdSnapshot = yield* Effect.acquireRelease(
+          snapshotApi.view(snapshotName),
+          (s) => snapshotApi.delete(s.id).pipe(Effect.orDie)
+        )
+
+        // TODO: we checked at the beginning that the image name was free, but it
+        // could be taken during upload. If this fails with object already exists,
+        // don't delete the snapshot (could still delete the disk). Instead, link
+        // user to snapshot detail and tell them to go there and create the image
+        // from it.
+        yield* imageApi.create({
+          name: imageName,
+          description: imageDescription,
+          os,
+          version,
+          source: { type: 'snapshot', id: createdSnapshot.id },
         })
 
-      // avoid pointless array of size 4000 for a 2gb image
-      function* genChunks() {
-        for (let i = 0; i < nChunks; i++) yield i
-      }
-
-      yield* Effect.forEach(genChunks(), postChunk, { concurrency: 6 })
-
-      yield* diskApi.bulkWriteStop(created.id)
-
-      const snapshotName = `tmp-snapshot-${randInt()}`
-      yield* diskApi.finalize(created.id, { snapshotName })
-
-      // diskFinalizeImport does not return the snapshot, but create image
-      // requires an ID
-      const createdSnapshot = yield* snapshotApi.view(snapshotName)
-      snapshot.current = createdSnapshot
-
-      // TODO: we checked at the beginning that the image name was free, but it
-      // could be taken during upload. If this fails with object already exists,
-      // don't delete the snapshot (could still delete the disk). Instead, link
-      // user to snapshot detail and tell them to go there and create the image
-      // from it.
-      yield* imageApi.create({
-        name: imageName,
-        description: imageDescription,
-        os,
-        version,
-        source: { type: 'snapshot', id: createdSnapshot.id },
+        // Scope closes here. Finalizers run in reverse acquisition order:
+        // snapshot delete, then state-aware disk cleanup + delete.
       })
-
-      // Now delete the temp snapshot and disk on the happy path. cleanupEff
-      // remains for the cancel/error path.
-      yield* snapshotApi.delete(createdSnapshot.id)
-      yield* diskApi.delete(created.id)
-      snapshot.current = null
-      disk.current = null
-    })
+    )
   }
 
   async function onSubmit(values: FormValues) {
@@ -412,18 +368,22 @@ export default function ImageCreate() {
     setModalOpen(true)
     setRunning(true)
 
+    const fiber = Effect.runFork(
+      uploadFlow({ ...values, imageFile: values.imageFile }).pipe(Effect.provide(layer))
+    )
+    fiberRef.current = fiber
+
     try {
-      await Effect.runPromise(
-        uploadFlow({ ...values, imageFile: values.imageFile }).pipe(Effect.provide(layer)),
-        { signal: abortController.current?.signal }
-      )
-      setAllDone(true)
-    } catch (e) {
-      // signal-driven interrupt rejects with a fiber failure; translate to
-      // ABORT_ERROR so the outer handler treats it as cancellation.
-      if (abortController.current?.signal.aborted) throw ABORT_ERROR
-      throw e
+      const exit = await Effect.runPromise(Fiber.await(fiber))
+      if (Exit.isSuccess(exit)) {
+        setAllDone(true)
+      } else if (!Cause.isInterruptedOnly(exit.cause)) {
+        // not just an interrupt — actual failure (mid-flow or in a finalizer)
+        console.error(Cause.pretty(exit.cause))
+        setModalError('Something went wrong. Please try again.')
+      }
     } finally {
+      fiberRef.current = null
       setRunning(false)
     }
   }
@@ -476,33 +436,10 @@ export default function ImageCreate() {
           return
         }
 
-        // every submit needs its own AbortController because they can't be
-        // reset
-        abortController.current = new AbortController()
-
-        try {
-          await onSubmit(values)
-        } catch (e) {
-          if (e !== ABORT_ERROR) {
-            console.error(e)
-            setModalError('Something went wrong. Please try again.')
-            // abort anything in flight in case
-            cancelEverything()
-          }
-          // user canceled or workflow errored: clean up any leftover resources.
-          // Drop the (possibly-aborted) controller first so layer api calls
-          // don't get auto-aborted via getSignal().
-          abortController.current = null
-          await Effect.runPromise(cleanupEff.pipe(Effect.provide(layer)))
-          // TODO: if we get here, show failure state in the upload modal
-        } finally {
-          // Clear the abort controller. This is aimed at the case where the
-          // user clicks cancel and then stares at the confirm modal without
-          // clicking for so long that the upload manages to finish, which means
-          // there's no longer anything to cancel. If abortController is gone,
-          // cancelEverything is a noop.
-          abortController.current = null
-        }
+        // onSubmit owns its lifecycle: failures are surfaced via modalError,
+        // interrupts are silent, and acquireRelease finalizers handle cleanup.
+        // No try/catch needed at this layer.
+        await onSubmit(values)
       }}
       loading={running}
       submitError={formError}
