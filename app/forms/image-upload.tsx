@@ -9,7 +9,6 @@ import { skipToken, useQuery } from '@tanstack/react-query'
 import cn from 'classnames'
 import { Effect, Schedule } from 'effect'
 import { filesize } from 'filesize'
-import pMap from 'p-map'
 import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
@@ -402,18 +401,20 @@ export default function ImageCreate() {
 
     let chunksProcessed = 0
 
-    const postChunk = async (i: number) => {
-      const offset = i * CHUNK_SIZE_BYTES
-      const end = Math.min(offset + CHUNK_SIZE_BYTES, imageFile.size)
-      const base64EncodedData = await readBlobAsBase64(imageFile.slice(offset, end))
+    // Step 3: postChunk is an Effect; Effect.forEach drives concurrency and
+    // structured cancellation via runPromise's `signal` option.
+    const postChunkEff = (i: number) =>
+      Effect.gen(function* () {
+        const offset = i * CHUNK_SIZE_BYTES
+        const end = Math.min(offset + CHUNK_SIZE_BYTES, imageFile.size)
+        const base64EncodedData = yield* Effect.promise(() =>
+          readBlobAsBase64(imageFile.slice(offset, end))
+        )
 
-      // Disk space is all zeros by default, so we can skip any chunks that are
-      // all zeros. It turns out this happens a lot.
-      if (!isAllZeros(base64EncodedData)) {
-        // Step 2: retry lives inside the Effect via Schedule.recurs(2).
-        // p-map still drives concurrency outside.
-        await Effect.runPromise(
-          Effect.tryPromise({
+        // Disk space is all zeros by default, so we can skip any chunks that are
+        // all zeros. It turns out this happens a lot.
+        if (!isAllZeros(base64EncodedData)) {
+          yield* Effect.tryPromise({
             try: () =>
               uploadChunk.mutateAsync({
                 path,
@@ -426,11 +427,10 @@ export default function ImageCreate() {
               }),
             catch: () => new Error(`Chunk ${i} (offset ${offset}) failed`),
           }).pipe(Effect.retry(Schedule.recurs(2)))
-        )
-      }
-      chunksProcessed++
-      setUploadProgress(Math.round((100 * chunksProcessed) / nChunks))
-    }
+        }
+        chunksProcessed++
+        setUploadProgress(Math.round((100 * chunksProcessed) / nChunks))
+      })
 
     // avoid pointless array of size 4000 for a 2gb image
     function* genChunks() {
@@ -439,17 +439,17 @@ export default function ImageCreate() {
 
     // will throw if aborted or if requests error out
     try {
-      await pMap(
-        genChunks(),
-        (i) => postChunk(i),
+      await Effect.runPromise(
         // browser can only do 6 fetches at once, so we only read 6 chunks at once
-        { concurrency: 6, signal: abortController.current?.signal }
+        Effect.forEach(genChunks(), (i) => postChunkEff(i), { concurrency: 6 }),
+        { signal: abortController.current?.signal }
       )
     } catch (e) {
-      if (e !== ABORT_ERROR) {
-        setSyntheticUploadState({ isPending: false, isSuccess: false, isError: true })
-      }
-      throw e // rethrow to get the usual the error handling in the wrapper function
+      // signal-driven interrupt rejects with a fiber failure; translate to
+      // ABORT_ERROR so the outer handler treats it as cancellation.
+      if (abortController.current?.signal.aborted) throw ABORT_ERROR
+      setSyntheticUploadState({ isPending: false, isSuccess: false, isError: true })
+      throw e
     }
 
     setSyntheticUploadState({ isPending: false, isSuccess: true, isError: false })
