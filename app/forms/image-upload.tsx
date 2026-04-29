@@ -7,6 +7,7 @@
  */
 import { skipToken, useQuery } from '@tanstack/react-query'
 import cn from 'classnames'
+import { Effect } from 'effect'
 import { filesize } from 'filesize'
 import pMap from 'p-map'
 import pRetry from 'p-retry'
@@ -410,20 +411,24 @@ export default function ImageCreate() {
       // Disk space is all zeros by default, so we can skip any chunks that are
       // all zeros. It turns out this happens a lot.
       if (!isAllZeros(base64EncodedData)) {
-        await uploadChunk
-          .mutateAsync({
-            path,
-            body: { offset, base64EncodedData },
-            // use both the abort signal for the whole upload and a per-request timeout
-            __signal: anySignal([
-              AbortSignal.timeout(30000),
-              abortController.current?.signal,
-            ]),
+        // Step 1: leaf wrapped as Effect, run back to a Promise. p-retry/p-map
+        // still drive retry/concurrency outside.
+        await Effect.runPromise(
+          Effect.tryPromise({
+            try: () =>
+              uploadChunk.mutateAsync({
+                path,
+                body: { offset, base64EncodedData },
+                // use both the abort signal for the whole upload and a per-request timeout
+                __signal: anySignal([
+                  AbortSignal.timeout(30000),
+                  abortController.current?.signal,
+                ]),
+              }),
+            // pRetry expects a regular Error
+            catch: () => new Error(`Chunk ${i} (offset ${offset}) failed`),
           })
-          .catch(() => {
-            // this needs to throw a regular Error or pRetry gets mad
-            throw Error(`Chunk ${i} (offset ${offset}) failed`)
-          })
+        )
       }
       chunksProcessed++
       setUploadProgress(Math.round((100 * chunksProcessed) / nChunks))
