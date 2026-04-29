@@ -46,8 +46,15 @@ import {
   ImageApi,
   liveDiskApi,
   liveImageApi,
+  liveProgressReporter,
   liveSnapshotApi,
+  liveStepStatus,
+  ProgressReporter,
   SnapshotApi,
+  StepStatus,
+  withStatus,
+  type StepState,
+  type StepStateMap,
 } from './image-upload-services'
 
 /** Format file size with two decimal points */
@@ -71,22 +78,9 @@ const defaultValues: FormValues = {
   imageFile: null,
 }
 
-// subset of the mutation state we care about
-type MutationState = {
-  isPending: boolean
-  isSuccess: boolean
-  isError: boolean
-}
-
-const initSyntheticState: MutationState = {
-  isPending: false,
-  isSuccess: false,
-  isError: false,
-}
-
 type StepProps = {
   children?: React.ReactNode
-  state: MutationState
+  state: StepState | undefined
   label: string
   duration?: number
   className?: string
@@ -94,13 +88,14 @@ type StepProps = {
 
 function Step({ children, state, label, className }: StepProps) {
   /* eslint-disable react/jsx-key */
-  const [status, icon] = state.isSuccess
-    ? ['complete', <Success12Icon className="text-accent" />]
-    : state.isPending
-      ? ['running', <Spinner />]
-      : state.isError
-        ? ['error', <Error12Icon className="text-error" />]
-        : ['ready', <Unauthorized12Icon className="text-disabled" />]
+  const [status, icon] =
+    state === 'success'
+      ? ['complete', <Success12Icon className="text-accent" />]
+      : state === 'running'
+        ? ['running', <Spinner />]
+        : state === 'error'
+          ? ['error', <Error12Icon className="text-error" />]
+          : ['ready', <Unauthorized12Icon className="text-disabled" />]
   /* eslint-enable react/jsx-key */
   return (
     // data-status used only for e2e testing
@@ -111,7 +106,9 @@ function Step({ children, state, label, className }: StepProps) {
     >
       {/* padding on icon to align it with text since everything is aligned to top */}
       <div className="pt-px">{icon}</div>
-      <div className={cn('w-full space-y-2', state.isError ? 'text-error' : 'text-raise')}>
+      <div
+        className={cn('w-full space-y-2', state === 'error' ? 'text-error' : 'text-raise')}
+      >
         <div>{label}</div>
         {children}
       </div>
@@ -184,8 +181,10 @@ export default function ImageCreate() {
   // aborted. We have the usual form state, plus an additional validation step
   // where we check the API to make sure the name is not taken.
   //
-  // The upload itself runs as a single Effect program; per-step mutation state
-  // is gone. Step icons are stubbed until the StepStatus service ships in step 7.
+  // The upload runs as a single Effect program. Per-step status and the
+  // chunk-upload progress bar are pushed back into React state through the
+  // StepStatus and ProgressReporter services, supplied as callback-shaped
+  // layers so the workflow itself stays pure.
 
   const [formError, setFormError] = useState<ApiError | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
@@ -193,6 +192,9 @@ export default function ImageCreate() {
 
   // progress bar, 0-100
   const [uploadProgress, setUploadProgress] = useState(0)
+
+  // per-step status driven by the StepStatus service
+  const [stepStates, setStepStates] = useState<StepStateMap>({})
 
   // true while the upload Effect is in flight; gates the submit button
   const [running, setRunning] = useState(false)
@@ -208,12 +210,16 @@ export default function ImageCreate() {
   // acquisition order — no AbortController plumbing on this side.
   const fiberRef = useRef<Fiber.RuntimeFiber<void, ApiError> | null>(null)
 
+  // setStepStates and setUploadProgress are stable across renders, so the
+  // layer only needs to rebuild when project changes.
   const layer = useMemo(
     () =>
       Layer.mergeAll(
         liveDiskApi({ project }),
         liveImageApi({ project }),
-        liveSnapshotApi({ project })
+        liveSnapshotApi({ project }),
+        liveStepStatus(setStepStates),
+        liveProgressReporter(setUploadProgress)
       ),
     [project]
   )
@@ -241,6 +247,7 @@ export default function ImageCreate() {
   function resetMainFlow() {
     setModalError(null)
     setUploadProgress(0)
+    setStepStates({})
   }
 
   function uploadFlow({
@@ -256,23 +263,31 @@ export default function ImageCreate() {
         const diskApi = yield* DiskApi
         const imageApi = yield* ImageApi
         const snapshotApi = yield* SnapshotApi
+        const steps = yield* StepStatus
+        const progress = yield* ProgressReporter
 
         // Acquire the temp disk under a scoped finalizer. The release runs on
         // success, failure, and interrupt — replacing the imperative cleanup()
         // and the snapshot/disk refs that tracked which were live. State-aware
-        // shutdown lives next to the acquire, where it belongs.
+        // shutdown lives next to the acquire, where it belongs. The release
+        // also drives the "Delete disk and snapshot" UI step; the snapshot
+        // release runs first but is silent.
         const created = yield* Effect.acquireRelease(
-          diskApi.create({
-            name: getTmpDiskName(imageName),
-            description: `temporary disk for importing image ${imageName}`,
-            diskBackend: {
-              type: 'distributed',
-              diskSource: { type: 'importing_blocks', blockSize },
-            },
-            size: Math.ceil(imageFile.size / GiB) * GiB,
-          }),
+          withStatus(
+            'createDisk',
+            diskApi.create({
+              name: getTmpDiskName(imageName),
+              description: `temporary disk for importing image ${imageName}`,
+              diskBackend: {
+                type: 'distributed',
+                diskSource: { type: 'importing_blocks', blockSize },
+              },
+              size: Math.ceil(imageFile.size / GiB) * GiB,
+            })
+          ),
           (d) =>
             Effect.gen(function* () {
+              yield* steps.set('cleanup', 'running')
               const fresh = yield* diskApi.view(d.id)
               const state = fresh.state.state
               if (state === 'importing_from_bulk_writes') {
@@ -282,11 +297,12 @@ export default function ImageCreate() {
                 yield* diskApi.finalize(d.id, {})
               }
               yield* diskApi.delete(d.id)
+              yield* steps.set('cleanup', 'success')
             }).pipe(Effect.orDie)
         )
 
         // set disk to state importing-via-bulk-write
-        yield* diskApi.bulkWriteStart(created.id)
+        yield* withStatus('importStart', diskApi.bulkWriteStart(created.id))
 
         // Post file to the API in chunks of size `maxChunkSize`. Browsers cap
         // concurrent fetches at 6 per host, so Effect.forEach with concurrency 6
@@ -314,7 +330,7 @@ export default function ImageCreate() {
                 .pipe(Effect.timeout('30 seconds'), Effect.retry(Schedule.recurs(2)))
             }
             chunksProcessed++
-            setUploadProgress(Math.round((100 * chunksProcessed) / nChunks))
+            yield* progress.set(Math.round((100 * chunksProcessed) / nChunks))
           })
 
         // avoid pointless array of size 4000 for a 2gb image
@@ -322,19 +338,26 @@ export default function ImageCreate() {
           for (let i = 0; i < nChunks; i++) yield i
         }
 
-        yield* Effect.forEach(genChunks(), postChunk, { concurrency: 6 })
+        yield* withStatus(
+          'upload',
+          Effect.forEach(genChunks(), postChunk, { concurrency: 6 })
+        )
 
-        yield* diskApi.bulkWriteStop(created.id)
+        yield* withStatus('importStop', diskApi.bulkWriteStop(created.id))
 
         const snapshotName = `tmp-snapshot-${randInt()}`
-        yield* diskApi.finalize(created.id, { snapshotName })
 
         // diskFinalizeImport does not return the snapshot, but create image
         // requires an ID. Acquire it under a finalizer too so the temp snapshot
         // is cleaned up regardless of how this scope exits.
-        const createdSnapshot = yield* Effect.acquireRelease(
-          snapshotApi.view(snapshotName),
-          (s) => snapshotApi.delete(s.id).pipe(Effect.orDie)
+        const createdSnapshot = yield* withStatus(
+          'finalize',
+          Effect.gen(function* () {
+            yield* diskApi.finalize(created.id, { snapshotName })
+            return yield* Effect.acquireRelease(snapshotApi.view(snapshotName), (s) =>
+              snapshotApi.delete(s.id).pipe(Effect.orDie)
+            )
+          })
         )
 
         // TODO: we checked at the beginning that the image name was free, but it
@@ -342,13 +365,16 @@ export default function ImageCreate() {
         // don't delete the snapshot (could still delete the disk). Instead, link
         // user to snapshot detail and tell them to go there and create the image
         // from it.
-        yield* imageApi.create({
-          name: imageName,
-          description: imageDescription,
-          os,
-          version,
-          source: { type: 'snapshot', id: createdSnapshot.id },
-        })
+        yield* withStatus(
+          'createImage',
+          imageApi.create({
+            name: imageName,
+            description: imageDescription,
+            os,
+            version,
+            source: { type: 'snapshot', id: createdSnapshot.id },
+          })
+        )
 
         // Scope closes here. Finalizers run in reverse acquisition order:
         // snapshot delete, then state-aware disk cleanup + delete.
@@ -494,9 +520,9 @@ export default function ImageCreate() {
                     className="rounded-none! shadow-none!"
                   />
                 )}
-                <Step state={initSyntheticState} label="Create temporary disk" />
-                <Step state={initSyntheticState} label="Put disk in import mode" />
-                <Step state={initSyntheticState} label="Upload image file">
+                <Step state={stepStates.createDisk} label="Create temporary disk" />
+                <Step state={stepStates.importStart} label="Put disk in import mode" />
+                <Step state={stepStates.upload} label="Upload image file">
                   <div className="bg-default border-default rounded-lg border">
                     <div className="border-b-secondary flex justify-between border-b p-3 pb-2">
                       <div className="text-sans-md text-raise">{file.name}</div>
@@ -518,19 +544,15 @@ export default function ImageCreate() {
                     </div>
                   </div>
                 </Step>
-                <Step state={initSyntheticState} label="Get disk out of import mode" />
+                <Step state={stepStates.importStop} label="Get disk out of import mode" />
                 <Step
-                  state={initSyntheticState}
+                  state={stepStates.finalize}
                   label="Finalize disk and create snapshot"
                 />
-                <Step state={initSyntheticState} label="Create image" duration={15} />
-                <Step state={initSyntheticState} label="Delete disk and snapshot" />
+                <Step state={stepStates.createImage} label="Create image" duration={15} />
+                <Step state={stepStates.cleanup} label="Delete disk and snapshot" />
                 <Step
-                  state={{
-                    isPending: false,
-                    isSuccess: allDone,
-                    isError: false,
-                  }}
+                  state={allDone ? 'success' : undefined}
                   label="Image uploaded successfully"
                   className={
                     allDone

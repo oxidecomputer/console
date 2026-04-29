@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { Context, Effect, Layer } from 'effect'
+import type { Dispatch, SetStateAction } from 'react'
 
 import {
   api,
@@ -127,4 +128,66 @@ export const liveSnapshotApi = ({ project }: LayerArgs) =>
       unwrap('snapshotDelete', (signal) =>
         api.snapshotDelete({ path: { snapshot } }, { signal })
       ).pipe(Effect.tap(() => invalidate('snapshotList'))),
+  })
+
+/**
+ * Each step shown in the upload progress modal.
+ */
+export type StepName =
+  | 'createDisk'
+  | 'importStart'
+  | 'upload'
+  | 'importStop'
+  | 'finalize'
+  | 'createImage'
+  | 'cleanup'
+
+export type StepState = 'running' | 'success' | 'error'
+
+export type StepStateMap = Partial<Record<StepName, StepState>>
+
+/**
+ * Reports per-step status to whoever provides the layer. Production wiring
+ * pushes into React state; tests can capture the sequence in an array.
+ */
+export class StepStatus extends Context.Tag('ImageUpload/StepStatus')<
+  StepStatus,
+  { set: (name: StepName, state: StepState) => Effect.Effect<void> }
+>() {}
+
+/**
+ * Reports upload progress (0–100) to whoever provides the layer.
+ */
+export class ProgressReporter extends Context.Tag('ImageUpload/ProgressReporter')<
+  ProgressReporter,
+  { set: (percent: number) => Effect.Effect<void> }
+>() {}
+
+/**
+ * Mark a step running before `eff`, success after, error on typed failure.
+ * Interrupts intentionally leave the status untouched — the caller resets the
+ * UI on the next attempt.
+ */
+export const withStatus = <A, E, R>(
+  name: StepName,
+  eff: Effect.Effect<A, E, R>
+): Effect.Effect<A, E, R | StepStatus> =>
+  Effect.gen(function* () {
+    const steps = yield* StepStatus
+    yield* steps.set(name, 'running')
+    return yield* eff.pipe(
+      Effect.tapError(() => steps.set(name, 'error')),
+      Effect.tap(() => steps.set(name, 'success'))
+    )
+  })
+
+export const liveStepStatus = (setStepStates: Dispatch<SetStateAction<StepStateMap>>) =>
+  Layer.succeed(StepStatus, {
+    set: (name, state) =>
+      Effect.sync(() => setStepStates((prev) => ({ ...prev, [name]: state }))),
+  })
+
+export const liveProgressReporter = (setProgress: (percent: number) => void) =>
+  Layer.succeed(ProgressReporter, {
+    set: (percent) => Effect.sync(() => setProgress(percent)),
   })
