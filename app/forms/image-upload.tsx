@@ -7,9 +7,9 @@
  */
 import { skipToken, useQuery } from '@tanstack/react-query'
 import cn from 'classnames'
-import { Effect, Schedule } from 'effect'
+import { Effect, Layer, Schedule } from 'effect'
 import { filesize } from 'filesize'
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
@@ -17,7 +17,6 @@ import {
   api,
   q,
   queryClient,
-  useApiMutation,
   type ApiError,
   type BlockSize,
   type Disk,
@@ -49,6 +48,15 @@ import { docLinks, links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import { isAllZeros } from '~/util/str'
 import { GiB, KiB } from '~/util/units'
+
+import {
+  DiskApi,
+  ImageApi,
+  liveDiskApi,
+  liveImageApi,
+  liveSnapshotApi,
+  SnapshotApi,
+} from './image-upload-services'
 
 /** Format file size with two decimal points */
 const fsize = (bytes: number) => filesize(bytes, { base: 2, pad: true })
@@ -189,9 +197,10 @@ export default function ImageCreate() {
   // The state in this component is very complex because we are doing a bunch of
   // requests in order, all of which can fail, plus the whole thing can be
   // aborted. We have the usual form state, plus an additional validation step
-  // where we check the API to make sure the name is not taken. Then, while we
-  // are submitting, we rely on the RQ mutations themselves, plus a synthetic
-  // mutation state representing the many calls of the bulk upload step.
+  // where we check the API to make sure the name is not taken.
+  //
+  // The upload itself runs as a single Effect program; per-step mutation state
+  // is gone. Step icons are stubbed until the StepStatus service ships in step 7.
 
   const [formError, setFormError] = useState<ApiError | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
@@ -199,6 +208,9 @@ export default function ImageCreate() {
 
   // progress bar, 0-100
   const [uploadProgress, setUploadProgress] = useState(0)
+
+  // true while the upload Effect is in flight; gates the submit button
+  const [running, setRunning] = useState(false)
 
   const backToImages = () => navigate(pb.projectImages({ project }))
 
@@ -208,74 +220,21 @@ export default function ImageCreate() {
   // done with everything, ready to close the modal
   const [allDone, setAllDone] = useState(false)
 
-  const createDisk = useApiMutation(api.diskCreate)
-  const startImport = useApiMutation(api.diskBulkWriteImportStart)
-
-  // gcTime: 0 prevents the mutation cache from holding onto all the chunks for
-  // 5 minutes. It can be a ton of memory. To be honest, I don't even understand
-  // why the mutation cache exists. It's not like the query cache, which dedupes
-  // identical queries made around the same time.
-  // https://tanstack.com/query/v5/docs/reference/MutationCache
-  const uploadChunk = useApiMutation(api.diskBulkWriteImport, { gcTime: 0 })
-
-  // synthetic state for upload step because it consists of multiple requests
-  const [syntheticUploadState, setSyntheticUploadState] =
-    useState<MutationState>(initSyntheticState)
-
-  const stopImport = useApiMutation(api.diskBulkWriteImportStop)
-  const finalizeDisk = useApiMutation(api.diskFinalizeImport)
-  const createImage = useApiMutation(api.imageCreate)
-  const deleteDisk = useApiMutation(api.diskDelete)
-  const deleteSnapshot = useApiMutation(api.snapshotDelete)
-
-  // TODO: Distinguish cleanup mutations being called after successful run vs.
-  // due to error. In the former case, they have their own steps to highlight as
-  // successful. In the latter, we do not want to highlight the steps.
-
-  const mainFlowMutations = [
-    createDisk,
-    startImport,
-    uploadChunk,
-    stopImport,
-    finalizeDisk,
-    createImage,
-    deleteDisk,
-    deleteSnapshot,
-  ]
-
-  // separate so we can distinguish between cleanup due to error vs. cleanup after success
-  const stopImportCleanup = useApiMutation(api.diskBulkWriteImportStop)
-  const finalizeDiskCleanup = useApiMutation(api.diskFinalizeImport)
-  // in production these invalidations are unlikely to matter, but they help a
-  // lot in the tests when we check the disk list after canceling to make sure
-  // the temp resources got deleted
-  const deleteDiskCleanup = useApiMutation(api.diskDelete, {
-    onSuccess() {
-      queryClient.invalidateEndpoint('diskList')
-    },
-  })
-  const deleteSnapshotCleanup = useApiMutation(api.snapshotDelete, {
-    onSuccess() {
-      queryClient.invalidateEndpoint('snapshotList')
-    },
-  })
-
-  const cleanupMutations = [
-    stopImportCleanup,
-    finalizeDiskCleanup,
-    deleteDiskCleanup,
-    deleteSnapshotCleanup,
-  ]
-
-  const allMutations = [...mainFlowMutations, syntheticUploadState, ...cleanupMutations]
-
-  // we don't want to be able to click submit while anything is running
-  const formLoading = allMutations.some((m) => m.isPending)
-
   // the created snapshot and disk. presence used in cleanup to decide whether we need to
   // attempt to delete them
   const snapshot = useRef<Snapshot | null>(null)
   const disk = useRef<Disk | null>(null)
+
+  // Live layers close over project + a getter for the current AbortSignal. The
+  // ref is stable across renders; getSignal reads .current at call time so each
+  // submit picks up the fresh controller without the layer needing to rebuild.
+  const layer = useMemo(() => {
+    const args = {
+      project,
+      getSignal: () => abortController.current?.signal,
+    }
+    return Layer.mergeAll(liveDiskApi(args), liveImageApi(args), liveSnapshotApi(args))
+  }, [project])
 
   function closeModal() {
     if (allDone) {
@@ -314,59 +273,52 @@ export default function ImageCreate() {
   function resetMainFlow() {
     setModalError(null)
     setUploadProgress(0)
-    mainFlowMutations.forEach((m) => m.reset())
-    setSyntheticUploadState(initSyntheticState)
   }
 
-  /** If a snapshot or disk was created, clean it up*/
-  async function cleanup() {
+  /** If a snapshot or disk was created, clean it up. */
+  const cleanupEff = Effect.gen(function* () {
+    const snapshotApi = yield* SnapshotApi
+    const diskApi = yield* DiskApi
+
     if (snapshot.current) {
-      await deleteSnapshotCleanup.mutateAsync({ path: { snapshot: snapshot.current.id } })
+      yield* snapshotApi.delete(snapshot.current.id)
       snapshot.current = null
     }
 
     if (disk.current) {
       // we won't be able to delete the disk unless it's out of import mode
-      const path = { disk: disk.current.id }
-      const freshDisk = await queryClient.fetchQuery(q(api.diskView, { path }))
+      const id = disk.current.id
+      const freshDisk = yield* diskApi.view(id)
       const diskState = freshDisk.state.state
       if (diskState === 'importing_from_bulk_writes') {
-        await stopImportCleanup.mutateAsync({ path })
-        await finalizeDiskCleanup.mutateAsync({ path, body: {} })
+        yield* diskApi.bulkWriteStop(id)
+        yield* diskApi.finalize(id, {})
       }
       if (diskState === 'import_ready') {
         // TODO: if this fails, there's no way to delete the disk. tell user?
-        await finalizeDiskCleanup.mutateAsync({ path, body: {} })
+        yield* diskApi.finalize(id, {})
       }
-      await deleteDiskCleanup.mutateAsync({ path: { disk: disk.current.id } })
+      yield* diskApi.delete(id)
       disk.current = null
     }
-  }
+  })
 
-  async function onSubmit({
+  function uploadFlow({
     imageName,
     imageDescription,
     imageFile,
     blockSize,
     os,
     version,
-  }: FormValues) {
-    invariant(imageFile, 'imageFile must exist') // shouldn't be possible to fail bc file is a required field
+  }: FormValues & { imageFile: File }) {
+    return Effect.gen(function* () {
+      const diskApi = yield* DiskApi
+      const imageApi = yield* ImageApi
+      const snapshotApi = yield* SnapshotApi
 
-    // this is done up here instead of next to the upload step because after
-    // upload is canceled, a few outstanding bulk writes will complete, setting
-    // uploadProgress to non-zero values. if we do this reset down there instead
-    // of up here, cancel and retry will bring up a modal briefly showing the
-    // previous run's progress, and it resets only when bulk upload starts
-    resetMainFlow()
-
-    setModalOpen(true)
-
-    // Create a disk in state import-ready
-    const diskName = getTmpDiskName(imageName)
-    disk.current = await createDisk.mutateAsync({
-      query: { project },
-      body: {
+      // Create a disk in state import-ready
+      const diskName = getTmpDiskName(imageName)
+      const created = yield* diskApi.create({
         name: diskName,
         description: `temporary disk for importing image ${imageName}`,
         diskBackend: {
@@ -374,123 +326,106 @@ export default function ImageCreate() {
           diskSource: { type: 'importing_blocks', blockSize },
         },
         size: Math.ceil(imageFile.size / GiB) * GiB,
-      },
-    })
-
-    // do these between each step to catch cancellations
-    abortController.current?.signal.throwIfAborted()
-
-    // set disk to state importing-via-bulk-write
-    const path = { disk: disk.current.id }
-    await startImport.mutateAsync({ path })
-
-    abortController.current?.signal.throwIfAborted()
-
-    // Post file to the API in chunks of size `maxChunkSize`. Browsers cap
-    // concurrent fetches at 6 per host. If we ran without a concurrency limit,
-    // we'd read way more chunks into memory than we're ready to POST, and we'd
-    // be sitting around waiting for the browser to let the fetches through.
-    // That sounds bad. So we use pMap to process at most 6 chunks at a time.
-
-    setSyntheticUploadState({ isPending: true, isSuccess: false, isError: false })
-
-    const nChunks = Math.ceil(imageFile.size / CHUNK_SIZE_BYTES)
-
-    // TODO: try to warn user if they try to close the tab while this is going
-
-    let chunksProcessed = 0
-
-    // Step 3: postChunk is an Effect; Effect.forEach drives concurrency and
-    // structured cancellation via runPromise's `signal` option.
-    const postChunkEff = (i: number) =>
-      Effect.gen(function* () {
-        const offset = i * CHUNK_SIZE_BYTES
-        const end = Math.min(offset + CHUNK_SIZE_BYTES, imageFile.size)
-        const base64EncodedData = yield* Effect.promise(() =>
-          readBlobAsBase64(imageFile.slice(offset, end))
-        )
-
-        // Disk space is all zeros by default, so we can skip any chunks that are
-        // all zeros. It turns out this happens a lot.
-        if (!isAllZeros(base64EncodedData)) {
-          yield* Effect.tryPromise({
-            try: () =>
-              uploadChunk.mutateAsync({
-                path,
-                body: { offset, base64EncodedData },
-                __signal: abortController.current?.signal,
-              }),
-            catch: () => new Error(`Chunk ${i} (offset ${offset}) failed`),
-          }).pipe(Effect.timeout('30 seconds'), Effect.retry(Schedule.recurs(2)))
-        }
-        chunksProcessed++
-        setUploadProgress(Math.round((100 * chunksProcessed) / nChunks))
       })
+      disk.current = created
 
-    // avoid pointless array of size 4000 for a 2gb image
-    function* genChunks() {
-      for (let i = 0; i < nChunks; i++) yield i
-    }
+      // set disk to state importing-via-bulk-write
+      yield* diskApi.bulkWriteStart(created.id)
 
-    // will throw if aborted or if requests error out
-    try {
-      await Effect.runPromise(
-        // browser can only do 6 fetches at once, so we only read 6 chunks at once
-        Effect.forEach(genChunks(), (i) => postChunkEff(i), { concurrency: 6 }),
-        { signal: abortController.current?.signal }
-      )
-    } catch (e) {
-      // signal-driven interrupt rejects with a fiber failure; translate to
-      // ABORT_ERROR so the outer handler treats it as cancellation.
-      if (abortController.current?.signal.aborted) throw ABORT_ERROR
-      setSyntheticUploadState({ isPending: false, isSuccess: false, isError: true })
-      throw e
-    }
+      // Post file to the API in chunks of size `maxChunkSize`. Browsers cap
+      // concurrent fetches at 6 per host, so Effect.forEach with concurrency 6
+      // keeps us from reading more into memory than we can POST.
 
-    setSyntheticUploadState({ isPending: false, isSuccess: true, isError: false })
+      const nChunks = Math.ceil(imageFile.size / CHUNK_SIZE_BYTES)
 
-    await stopImport.mutateAsync({ path })
-    abortController.current?.signal.throwIfAborted()
+      // TODO: try to warn user if they try to close the tab while this is going
 
-    const snapshotName = `tmp-snapshot-${randInt()}`
-    await finalizeDisk.mutateAsync({ path, body: { snapshotName } })
-    abortController.current?.signal.throwIfAborted()
+      let chunksProcessed = 0
 
-    // diskFinalizeImport does not return the snapshot, but create image
-    // requires an ID
-    snapshot.current = await queryClient.fetchQuery(
-      q(api.snapshotView, {
-        path: { snapshot: snapshotName },
-        query: { project },
-      })
-    )
-    abortController.current?.signal.throwIfAborted()
+      const postChunk = (i: number) =>
+        Effect.gen(function* () {
+          const offset = i * CHUNK_SIZE_BYTES
+          const end = Math.min(offset + CHUNK_SIZE_BYTES, imageFile.size)
+          const base64EncodedData = yield* Effect.promise(() =>
+            readBlobAsBase64(imageFile.slice(offset, end))
+          )
 
-    // TODO: we checked at the beginning that the image name was free, but it
-    // could be taken during upload. If this fails with object already exists,
-    // don't delete the snapshot (could still delete the disk). Instead, link
-    // user to snapshot detail and tell them to go there and create the image
-    // from it.
-    await createImage.mutateAsync({
-      query: { project },
-      body: {
+          // Disk space is all zeros by default, so we can skip any chunks that are
+          // all zeros. It turns out this happens a lot.
+          if (!isAllZeros(base64EncodedData)) {
+            yield* diskApi
+              .bulkWrite(created.id, { offset, base64EncodedData })
+              .pipe(Effect.timeout('30 seconds'), Effect.retry(Schedule.recurs(2)))
+          }
+          chunksProcessed++
+          setUploadProgress(Math.round((100 * chunksProcessed) / nChunks))
+        })
+
+      // avoid pointless array of size 4000 for a 2gb image
+      function* genChunks() {
+        for (let i = 0; i < nChunks; i++) yield i
+      }
+
+      yield* Effect.forEach(genChunks(), postChunk, { concurrency: 6 })
+
+      yield* diskApi.bulkWriteStop(created.id)
+
+      const snapshotName = `tmp-snapshot-${randInt()}`
+      yield* diskApi.finalize(created.id, { snapshotName })
+
+      // diskFinalizeImport does not return the snapshot, but create image
+      // requires an ID
+      const createdSnapshot = yield* snapshotApi.view(snapshotName)
+      snapshot.current = createdSnapshot
+
+      // TODO: we checked at the beginning that the image name was free, but it
+      // could be taken during upload. If this fails with object already exists,
+      // don't delete the snapshot (could still delete the disk). Instead, link
+      // user to snapshot detail and tell them to go there and create the image
+      // from it.
+      yield* imageApi.create({
         name: imageName,
         description: imageDescription,
         os,
         version,
-        source: { type: 'snapshot', id: snapshot.current.id },
-      },
+        source: { type: 'snapshot', id: createdSnapshot.id },
+      })
+
+      // Now delete the temp snapshot and disk on the happy path. cleanupEff
+      // remains for the cancel/error path.
+      yield* snapshotApi.delete(createdSnapshot.id)
+      yield* diskApi.delete(created.id)
+      snapshot.current = null
+      disk.current = null
     })
-    abortController.current?.signal.throwIfAborted()
+  }
 
-    queryClient.invalidateEndpoint('imageList')
+  async function onSubmit(values: FormValues) {
+    invariant(values.imageFile, 'imageFile must exist') // file is a required field
 
-    // now delete the snapshot and the disk. don't use cleanup() because that
-    // uses different mutations
-    await deleteSnapshot.mutateAsync({ path: { snapshot: snapshot.current.id } })
-    await deleteDisk.mutateAsync({ path: { disk: disk.current.id } })
+    // this is done up here instead of next to the upload step because after
+    // upload is canceled, a few outstanding bulk writes will complete, setting
+    // uploadProgress to non-zero values. if we do this reset down there instead
+    // of up here, cancel and retry will bring up a modal briefly showing the
+    // previous run's progress, and it resets only when bulk upload starts
+    resetMainFlow()
+    setModalOpen(true)
+    setRunning(true)
 
-    setAllDone(true)
+    try {
+      await Effect.runPromise(
+        uploadFlow({ ...values, imageFile: values.imageFile }).pipe(Effect.provide(layer)),
+        { signal: abortController.current?.signal }
+      )
+      setAllDone(true)
+    } catch (e) {
+      // signal-driven interrupt rejects with a fiber failure; translate to
+      // ABORT_ERROR so the outer handler treats it as cancellation.
+      if (abortController.current?.signal.aborted) throw ABORT_ERROR
+      throw e
+    } finally {
+      setRunning(false)
+    }
   }
 
   const form = useForm({ defaultValues })
@@ -554,8 +489,11 @@ export default function ImageCreate() {
             // abort anything in flight in case
             cancelEverything()
           }
-          // user canceled
-          await cleanup()
+          // user canceled or workflow errored: clean up any leftover resources.
+          // Drop the (possibly-aborted) controller first so layer api calls
+          // don't get auto-aborted via getSignal().
+          abortController.current = null
+          await Effect.runPromise(cleanupEff.pipe(Effect.provide(layer)))
           // TODO: if we get here, show failure state in the upload modal
         } finally {
           // Clear the abort controller. This is aimed at the case where the
@@ -566,7 +504,7 @@ export default function ImageCreate() {
           abortController.current = null
         }
       }}
-      loading={formLoading}
+      loading={running}
       submitError={formError}
       submitLabel={allDone ? 'Done' : 'Upload image'}
     >
@@ -619,9 +557,9 @@ export default function ImageCreate() {
                     className="rounded-none! shadow-none!"
                   />
                 )}
-                <Step state={createDisk} label="Create temporary disk" />
-                <Step state={startImport} label="Put disk in import mode" />
-                <Step state={syntheticUploadState} label="Upload image file">
+                <Step state={initSyntheticState} label="Create temporary disk" />
+                <Step state={initSyntheticState} label="Put disk in import mode" />
+                <Step state={initSyntheticState} label="Upload image file">
                   <div className="bg-default border-default rounded-lg border">
                     <div className="border-b-secondary flex justify-between border-b p-3 pb-2">
                       <div className="text-sans-md text-raise">{file.name}</div>
@@ -643,17 +581,13 @@ export default function ImageCreate() {
                     </div>
                   </div>
                 </Step>
-                <Step state={stopImport} label="Get disk out of import mode" />
-                <Step state={finalizeDisk} label="Finalize disk and create snapshot" />
-                <Step state={createImage} label="Create image" duration={15} />
+                <Step state={initSyntheticState} label="Get disk out of import mode" />
                 <Step
-                  state={{
-                    isPending: deleteDisk.isPending || deleteSnapshot.isPending,
-                    isSuccess: deleteDisk.isSuccess && deleteSnapshot.isSuccess,
-                    isError: deleteDisk.isError || deleteSnapshot.isError,
-                  }}
-                  label="Delete disk and snapshot"
+                  state={initSyntheticState}
+                  label="Finalize disk and create snapshot"
                 />
+                <Step state={initSyntheticState} label="Create image" duration={15} />
+                <Step state={initSyntheticState} label="Delete disk and snapshot" />
                 <Step
                   state={{
                     isPending: false,
