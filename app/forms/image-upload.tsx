@@ -7,7 +7,7 @@
  */
 import { skipToken, useQuery } from '@tanstack/react-query'
 import cn from 'classnames'
-import { Cause, Effect, Exit, Fiber, Layer, Option, Schedule } from 'effect'
+import { Cause, Effect, Exit, Fiber, Layer, Option } from 'effect'
 import { filesize } from 'filesize'
 import { useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -34,29 +34,21 @@ import { Modal } from '~/ui/lib/Modal'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { Progress } from '~/ui/lib/Progress'
 import { Spinner } from '~/ui/lib/Spinner'
-import { readBlobAsBase64 } from '~/util/file'
 import { invariant } from '~/util/invariant'
 import { docLinks, links } from '~/util/links'
 import { pb } from '~/util/path-builder'
-import { isAllZeros } from '~/util/str'
-import { GiB, KiB } from '~/util/units'
 
 import {
-  DiskApi,
-  ImageApi,
   ImageNameTaken,
   liveDiskApi,
   liveImageApi,
   liveProgressReporter,
   liveSnapshotApi,
   liveStepStatus,
-  ProgressReporter,
-  SnapshotApi,
-  StepStatus,
-  withStatus,
+  submitProgram,
   type StepState,
   type StepStateMap,
-} from './image-upload-services'
+} from './image-upload-workflow'
 
 /** Format file size with two decimal points */
 const fsize = (bytes: number) => filesize(bytes, { base: 2, pad: true })
@@ -116,33 +108,6 @@ function Step({ children, state, label, className }: StepProps) {
     </div>
   )
 }
-
-const randInt = () => Math.floor(Math.random() * 100000000)
-
-function getTmpDiskName(imageName: string) {
-  if (process.env.NODE_ENV === 'development') {
-    // this is only here for testing purposes. because we normally generate a
-    // random tmp disk name, we have to not do that if we want to pass special
-    // values to MSW to get it to do error things for us. If we pass special
-    // values as the image name, use the same value as the disk name and we'll
-    // do the right thing in
-    const specialNames = new Set([
-      'disk-create-500',
-      'import-start-500',
-      'import-stop-500',
-      'disk-finalize-500',
-    ])
-    if (specialNames.has(imageName)) return imageName
-  }
-
-  return `tmp-for-image-${randInt()}`
-}
-
-/**
- * Crucible currently enforces a limit of 512 KiB. See [crucible
- * source](https://github.com/oxidecomputer/crucible/blob/c574ff1232/pantry/src/pantry.rs#L239-L253).
- */
-const CHUNK_SIZE_BYTES = 512 * KiB
 
 // States
 //
@@ -209,7 +174,7 @@ export default function ImageCreate() {
   // Fiber.interrupt walks the tree, aborts in-flight fetches via the signal
   // forwarded by tryPromise, and runs every acquireRelease finalizer in reverse
   // acquisition order — no AbortController plumbing on this side.
-  const fiberRef = useRef<Fiber.RuntimeFiber<void, ApiError> | null>(null)
+  const fiberRef = useRef<Fiber.RuntimeFiber<void, ApiError | ImageNameTaken> | null>(null)
 
   // setStepStates and setUploadProgress are stable across renders, so the
   // layer only needs to rebuild when project changes.
@@ -251,162 +216,6 @@ export default function ImageCreate() {
     setStepStates({})
   }
 
-  function uploadFlow({
-    imageName,
-    imageDescription,
-    imageFile,
-    blockSize,
-    os,
-    version,
-  }: FormValues & { imageFile: File }) {
-    return Effect.scoped(
-      Effect.gen(function* () {
-        const diskApi = yield* DiskApi
-        const imageApi = yield* ImageApi
-        const snapshotApi = yield* SnapshotApi
-        const steps = yield* StepStatus
-        const progress = yield* ProgressReporter
-
-        // Acquire the temp disk under a scoped finalizer. The release runs on
-        // success, failure, and interrupt — replacing the imperative cleanup()
-        // and the snapshot/disk refs that tracked which were live. State-aware
-        // shutdown lives next to the acquire, where it belongs. The release
-        // also drives the "Delete disk and snapshot" UI step; the snapshot
-        // release runs first but is silent.
-        const created = yield* Effect.acquireRelease(
-          withStatus(
-            'createDisk',
-            diskApi.create({
-              name: getTmpDiskName(imageName),
-              description: `temporary disk for importing image ${imageName}`,
-              diskBackend: {
-                type: 'distributed',
-                diskSource: { type: 'importing_blocks', blockSize },
-              },
-              size: Math.ceil(imageFile.size / GiB) * GiB,
-            })
-          ),
-          (d) =>
-            Effect.gen(function* () {
-              yield* steps.set('cleanup', 'running')
-              const fresh = yield* diskApi.view(d.id)
-              const state = fresh.state.state
-              if (state === 'importing_from_bulk_writes') {
-                yield* diskApi.bulkWriteStop(d.id)
-                yield* diskApi.finalize(d.id, {})
-              } else if (state === 'import_ready') {
-                yield* diskApi.finalize(d.id, {})
-              }
-              yield* diskApi.delete(d.id)
-              yield* steps.set('cleanup', 'success')
-            }).pipe(Effect.orDie)
-        )
-
-        // set disk to state importing-via-bulk-write
-        yield* withStatus('importStart', diskApi.bulkWriteStart(created.id))
-
-        // Post file to the API in chunks of size `maxChunkSize`. Browsers cap
-        // concurrent fetches at 6 per host, so Effect.forEach with concurrency 6
-        // keeps us from reading more into memory than we can POST.
-
-        const nChunks = Math.ceil(imageFile.size / CHUNK_SIZE_BYTES)
-
-        // TODO: try to warn user if they try to close the tab while this is going
-
-        let chunksProcessed = 0
-
-        const postChunk = (i: number) =>
-          Effect.gen(function* () {
-            const offset = i * CHUNK_SIZE_BYTES
-            const end = Math.min(offset + CHUNK_SIZE_BYTES, imageFile.size)
-            const base64EncodedData = yield* Effect.promise(() =>
-              readBlobAsBase64(imageFile.slice(offset, end))
-            )
-
-            // Disk space is all zeros by default, so we can skip any chunks that are
-            // all zeros. It turns out this happens a lot.
-            if (!isAllZeros(base64EncodedData)) {
-              yield* diskApi
-                .bulkWrite(created.id, { offset, base64EncodedData })
-                .pipe(Effect.timeout('30 seconds'), Effect.retry(Schedule.recurs(2)))
-            }
-            chunksProcessed++
-            yield* progress.set(Math.round((100 * chunksProcessed) / nChunks))
-          })
-
-        // avoid pointless array of size 4000 for a 2gb image
-        function* genChunks() {
-          for (let i = 0; i < nChunks; i++) yield i
-        }
-
-        yield* withStatus(
-          'upload',
-          Effect.forEach(genChunks(), postChunk, { concurrency: 6 })
-        )
-
-        yield* withStatus('importStop', diskApi.bulkWriteStop(created.id))
-
-        const snapshotName = `tmp-snapshot-${randInt()}`
-
-        // diskFinalizeImport does not return the snapshot, but create image
-        // requires an ID. Acquire it under a finalizer too so the temp snapshot
-        // is cleaned up regardless of how this scope exits.
-        const createdSnapshot = yield* withStatus(
-          'finalize',
-          Effect.gen(function* () {
-            yield* diskApi.finalize(created.id, { snapshotName })
-            return yield* Effect.acquireRelease(snapshotApi.view(snapshotName), (s) =>
-              snapshotApi.delete(s.id).pipe(Effect.orDie)
-            )
-          })
-        )
-
-        // TODO: we checked at the beginning that the image name was free, but it
-        // could be taken during upload. If this fails with object already exists,
-        // don't delete the snapshot (could still delete the disk). Instead, link
-        // user to snapshot detail and tell them to go there and create the image
-        // from it.
-        yield* withStatus(
-          'createImage',
-          imageApi.create({
-            name: imageName,
-            description: imageDescription,
-            os,
-            version,
-            source: { type: 'snapshot', id: createdSnapshot.id },
-          })
-        )
-
-        // Scope closes here. Finalizers run in reverse acquisition order:
-        // snapshot delete, then state-aware disk cleanup + delete.
-      })
-    )
-  }
-
-  /**
-   * Whole-submit Effect: precheck the image name, then (if free) open the
-   * progress modal and run the upload. One fiber covers both phases so
-   * cancellation, error handling, and finalizers go through one Exit.
-   */
-  function submitProgram(values: FormValues & { imageFile: File }) {
-    return Effect.gen(function* () {
-      const imageApi = yield* ImageApi
-      const taken = yield* imageApi.nameExists(values.imageName)
-      if (taken) yield* new ImageNameTaken()
-
-      // resetMainFlow + open modal as a side effect inside the program so a
-      // failed precheck never opens the modal. The reset has to happen here
-      // (not before runFork) because outstanding bulk writes from a canceled
-      // previous run can still arrive and bump uploadProgress.
-      yield* Effect.sync(() => {
-        resetMainFlow()
-        setModalOpen(true)
-      })
-
-      yield* uploadFlow(values)
-    })
-  }
-
   async function onSubmit(values: FormValues) {
     invariant(values.imageFile, 'imageFile must exist') // file is a required field
 
@@ -414,7 +223,10 @@ export default function ImageCreate() {
     setRunning(true)
 
     const fiber = Effect.runFork(
-      submitProgram({ ...values, imageFile: values.imageFile }).pipe(Effect.provide(layer))
+      submitProgram({ ...values, imageFile: values.imageFile }, () => {
+        resetMainFlow()
+        setModalOpen(true)
+      }).pipe(Effect.provide(layer))
     )
     fiberRef.current = fiber
 
