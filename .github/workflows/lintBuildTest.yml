@@ -14,13 +14,13 @@ jobs:
     timeout-minutes: 60
     runs-on: macos-15-xlarge
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: 'npm'
       - name: Cache node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: cache-node-modules
         with:
           path: node_modules
@@ -33,13 +33,13 @@ jobs:
     runs-on: macos-15-xlarge
     needs: install
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: 'npm'
       - name: Get node_modules from cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: cache-node-modules
         with:
           path: node_modules
@@ -64,13 +64,13 @@ jobs:
       matrix:
         browser: ['chrome', 'firefox', 'safari']
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: 'npm'
       - name: Get node_modules from cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: node_modules
           key: modules-${{ hashFiles('package-lock.json', 'patches/**') }}
@@ -80,7 +80,7 @@ jobs:
           echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
       # Cache browser binaries, cache key is based on Playwright version and OS
       - name: Cache Playwright browser binaries
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: playwright-cache
         with:
           path: '~/.cache/ms-playwright'
@@ -97,7 +97,7 @@ jobs:
         run: npx playwright install-deps
       - name: Run Playwright browser tests
         run: npx playwright test --project=${{matrix.browser}}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: test-results-${{ matrix.browser }}
