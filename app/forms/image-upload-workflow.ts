@@ -10,7 +10,6 @@ import type { Dispatch, SetStateAction } from 'react'
 
 import {
   api,
-  q,
   queryClient,
   type ApiError,
   type ApiResult,
@@ -31,18 +30,21 @@ import { GiB, KiB } from '~/util/units'
 
 /**
  * Translate a generated API call's `Promise<ApiResult<T>>` into an
- * `Effect<T, ApiError>`. The fiber's interrupt-driven `AbortSignal` is forwarded
- * into the underlying fetch, so `Fiber.interrupt` aborts in-flight requests.
+ * `Effect<T, ApiError>`. The generated client's contract is that response
+ * failures live in the resolved value (`{ type: 'error', ... }`); the only
+ * thing that rejects the promise is a fetch-level failure (network, CORS, or
+ * an abort that escaped the signal-as-interrupt translation). Effect.promise
+ * forwards the fiber's interrupt signal into fetch and promotes any other
+ * rejection to a defect — so the `E` channel is exactly `ApiError`, no cast.
  */
 const unwrap = <T>(method: string, fn: (signal: AbortSignal) => Promise<ApiResult<T>>) =>
-  Effect.tryPromise({
-    try: (signal) =>
-      fn(signal).then((r) => {
-        if (r.type === 'success') return r.data
-        throw processServerError(method, r)
-      }),
-    catch: (e) => e as ApiError,
-  })
+  Effect.promise(fn).pipe(
+    Effect.flatMap((r) =>
+      r.type === 'success'
+        ? Effect.succeed(r.data)
+        : Effect.fail(processServerError(method, r))
+    )
+  )
 
 export class DiskApi extends Context.Tag('ImageUpload/DiskApi')<
   DiskApi,
@@ -96,10 +98,7 @@ export const liveDiskApi = ({ project }: LayerArgs) =>
         api.diskCreate({ query: { project }, body }, { signal })
       ),
     view: (disk) =>
-      Effect.tryPromise({
-        try: () => queryClient.fetchQuery(q(api.diskView, { path: { disk } })),
-        catch: (e) => e as ApiError,
-      }),
+      unwrap('diskView', (signal) => api.diskView({ path: { disk } }, { signal })),
     delete: (disk) =>
       unwrap('diskDelete', (signal) => api.diskDelete({ path: { disk } }, { signal })).pipe(
         Effect.tap(() => invalidate('diskList'))
@@ -129,43 +128,27 @@ export const liveImageApi = ({ project }: LayerArgs) =>
         api.imageCreate({ query: { project }, body }, { signal })
       ).pipe(Effect.tap(() => invalidate('imageList'))),
     nameExists: (name) =>
-      // errorsExpected lives on q() and only suppresses the console warning
-      // for the expected 404; we still need to catch the 404 here to fold
-      // existence into a boolean.
-      Effect.tryPromise({
-        try: () =>
-          queryClient.fetchQuery(
-            q(
-              api.imageView,
-              { path: { image: name }, query: { project } },
-              {
-                errorsExpected: {
-                  explanation: 'the image name may not exist yet.',
-                  statusCode: 404,
-                },
-              }
-            )
-          ),
-        catch: (e) => e as ApiError,
-      }).pipe(
-        Effect.as(true),
-        Effect.catchIf(
-          (e) => e.statusCode === 404,
-          () => Effect.succeed(false)
-        )
+      // Resolve directly off the ApiResult tag so the 404-as-boolean fold
+      // never goes through the failure channel (and never logs through
+      // processServerError). E channel ends up exactly `ApiError` for every
+      // other status.
+      Effect.promise((signal) =>
+        api.imageView({ path: { image: name }, query: { project } }, { signal })
+      ).pipe(
+        Effect.flatMap((r) => {
+          if (r.type === 'success') return Effect.succeed(true)
+          if (r.response.status === 404) return Effect.succeed(false)
+          return Effect.fail(processServerError('imageView', r))
+        })
       ),
   })
 
 export const liveSnapshotApi = ({ project }: LayerArgs) =>
   Layer.succeed(SnapshotApi, {
     view: (snapshot) =>
-      Effect.tryPromise({
-        try: () =>
-          queryClient.fetchQuery(
-            q(api.snapshotView, { path: { snapshot }, query: { project } })
-          ),
-        catch: (e) => e as ApiError,
-      }),
+      unwrap('snapshotView', (signal) =>
+        api.snapshotView({ path: { snapshot }, query: { project } }, { signal })
+      ),
     delete: (snapshot) =>
       unwrap('snapshotDelete', (signal) =>
         api.snapshotDelete({ path: { snapshot }, query: { project } }, { signal })

@@ -9,7 +9,6 @@ import { expect, test, type Page } from '@playwright/test'
 
 import {
   chooseFile,
-  expectConsoleMessage,
   expectNotVisible,
   expectRowVisible,
   expectVisible,
@@ -69,10 +68,6 @@ test.describe('Image upload', () => {
 
     // now the modal pops open and the thing starts going
     await expectUploadProcess(page)
-
-    // the image name check 404 should be logged as expected-info, with context
-    await expectConsoleMessage(page, 'This error is expected', 'info')
-    await expectConsoleMessage(page, 'the image name may not exist yet.', 'info')
 
     await expect(page).toHaveURL('/projects/mock-project/images')
     await expectRowVisible(page.locator('role=table'), {
