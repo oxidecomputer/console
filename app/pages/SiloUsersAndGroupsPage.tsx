@@ -9,11 +9,12 @@ import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
+import { makeCrumb } from '~/hooks/use-crumbs'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-export const handle = { crumb: 'Users & Groups' }
+export const handle = makeCrumb('Users & Groups', pb.siloUsersAndGroups())
 
 export default function SiloUsersAndGroupsPage() {
   return (

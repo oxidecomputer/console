@@ -42,15 +42,13 @@ import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 
 const policyView = q(api.policyView, {})
-const userListQ = q(api.userList, {})
-const groupList = q(api.groupList, {})
-const groupListAll = q(api.groupList, { query: { limit: ALL_ISH } })
+const userList = q(api.userList, { query: { limit: ALL_ISH } })
+const groupList = q(api.groupList, { query: { limit: ALL_ISH } })
 
 export async function clientLoader() {
   await Promise.all([
     queryClient.prefetchQuery(policyView),
-    queryClient.prefetchQuery(userListQ),
-    queryClient.prefetchQuery(groupListAll),
+    queryClient.prefetchQuery(userList),
     queryClient.prefetchQuery(groupList),
   ])
   return null
@@ -84,8 +82,8 @@ export default function SiloAccessPage() {
   const [editingRow, setEditingRow] = useState<AccessRow | null>(null)
 
   const { data: siloPolicy } = usePrefetchedQuery(policyView)
-  const { data: users } = usePrefetchedQuery(userListQ)
-  const { data: groups } = usePrefetchedQuery(groupListAll)
+  const { data: users } = usePrefetchedQuery(userList)
+  const { data: groups } = usePrefetchedQuery(groupList)
 
   const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
     onSuccess: () => {

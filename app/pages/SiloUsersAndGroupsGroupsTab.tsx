@@ -29,14 +29,21 @@ import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { roleColor } from '~/util/access'
+import { ALL_ISH } from '~/util/consts'
 
 const policyView = q(api.policyView, {})
 const groupList = getListQFn(api.groupList, {})
+const groupListAll = q(api.groupList, { query: { limit: ALL_ISH } })
 
 export async function clientLoader() {
+  // prefetch member lists so MemberCountCell renders without an on-mount fetch
+  const groups = await queryClient.fetchQuery(groupListAll)
   await Promise.all([
     queryClient.prefetchQuery(policyView),
     queryClient.prefetchQuery(groupList.optionsFn()),
+    ...groups.items.map((g) =>
+      queryClient.prefetchQuery(q(api.userList, { query: { group: g.id, limit: ALL_ISH } }))
+    ),
   ])
   return null
 }

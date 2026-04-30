@@ -51,17 +51,15 @@ import type * as PP from '~/util/path-params'
 const policyView = q(api.policyView, {})
 const projectPolicyView = ({ project }: PP.Project) =>
   q(api.projectPolicyView, { path: { project } })
-const userListQ = q(api.userList, {})
-const groupList = q(api.groupList, {})
-const groupListAll = q(api.groupList, { query: { limit: ALL_ISH } })
+const userList = q(api.userList, { query: { limit: ALL_ISH } })
+const groupList = q(api.groupList, { query: { limit: ALL_ISH } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const selector = getProjectSelector(params)
   await Promise.all([
     queryClient.prefetchQuery(policyView),
     queryClient.prefetchQuery(projectPolicyView(selector)),
-    queryClient.prefetchQuery(userListQ),
-    queryClient.prefetchQuery(groupListAll),
+    queryClient.prefetchQuery(userList),
     queryClient.prefetchQuery(groupList),
   ])
   return null
@@ -102,8 +100,8 @@ export default function ProjectAccessPage() {
 
   const { data: siloPolicy } = usePrefetchedQuery(policyView)
   const { data: projectPolicy } = usePrefetchedQuery(projectPolicyView(projectSelector))
-  const { data: users } = usePrefetchedQuery(userListQ)
-  const { data: groups } = usePrefetchedQuery(groupListAll)
+  const { data: users } = usePrefetchedQuery(userList)
+  const { data: groups } = usePrefetchedQuery(groupList)
 
   const { mutateAsync: updatePolicy } = useApiMutation(api.projectPolicyUpdate, {
     onSuccess: () => {

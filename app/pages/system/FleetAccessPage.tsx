@@ -62,8 +62,8 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
 )
 
 const systemPolicyView = q(api.systemPolicyView, {})
-const userList = q(api.userList, {})
-const groupList = q(api.groupList, {})
+const userList = q(api.userList, { query: { limit: ALL_ISH } })
+const groupList = q(api.groupList, { query: { limit: ALL_ISH } })
 const siloList = q(api.siloList, { query: { limit: ALL_ISH } })
 
 export async function clientLoader() {

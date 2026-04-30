@@ -98,7 +98,7 @@ test('path builder', () => {
         "siloQuotas": "/system/silos/s/quotas",
         "siloScim": "/system/silos/s/scim",
         "siloSubnetPools": "/system/silos/s/subnet-pools",
-        "siloUsersAndGroups": "/users-and-groups",
+        "siloUsersAndGroups": "/users-and-groups/users",
         "siloUsersAndGroupsGroups": "/users-and-groups/groups",
         "siloUsersAndGroupsUsers": "/users-and-groups/users",
         "siloUtilization": "/utilization",

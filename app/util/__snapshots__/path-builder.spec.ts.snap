@@ -733,22 +733,22 @@ exports[`breadcrumbs 2`] = `
       "path": "/system/silos/s/subnet-pools",
     },
   ],
-  "siloUsersAndGroups (/users-and-groups)": [
+  "siloUsersAndGroups (/users-and-groups/users)": [
     {
       "label": "Users & Groups",
-      "path": "/users-and-groups",
+      "path": "/users-and-groups/users",
     },
   ],
   "siloUsersAndGroupsGroups (/users-and-groups/groups)": [
     {
       "label": "Users & Groups",
-      "path": "/users-and-groups",
+      "path": "/users-and-groups/users",
     },
   ],
   "siloUsersAndGroupsUsers (/users-and-groups/users)": [
     {
       "label": "Users & Groups",
-      "path": "/users-and-groups",
+      "path": "/users-and-groups/users",
     },
   ],
   "siloUtilization (/utilization)": [

@@ -112,9 +112,10 @@ export const pb = {
 
   siloUtilization: () => '/utilization',
   siloAccess: () => '/access',
-  siloUsersAndGroups: () => '/users-and-groups',
   siloUsersAndGroupsUsers: () => '/users-and-groups/users',
   siloUsersAndGroupsGroups: () => '/users-and-groups/groups',
+  // points to the default tab to avoid bouncing through the parent's redirect
+  siloUsersAndGroups: () => pb.siloUsersAndGroupsUsers(),
   siloImages: () => '/images',
   siloImageEdit: (params: PP.SiloImage) => `${pb.siloImages()}/${params.image}/edit`,
 
