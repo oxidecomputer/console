@@ -193,7 +193,7 @@ test('IP pool delete from IP Pools list page', async ({ page }) => {
 
   await expectToast(
     page,
-    'Could not delete resourceIP pool cannot be deleted while it contains IP ranges'
+    'Could not delete IP poolIP pool cannot be deleted while it contains IP ranges'
   )
 
   await expect(page.getByRole('cell', { name: 'ip-pool-3' })).toBeVisible()

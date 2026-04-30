@@ -85,6 +85,7 @@ export default function ImagesPage() {
               query: { project },
             }),
           label: image.name,
+          resourceKind: 'image',
         }),
       },
     ],

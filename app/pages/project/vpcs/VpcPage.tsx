@@ -60,6 +60,7 @@ export default function VpcPage() {
               onSelect={confirmDelete({
                 doDelete: () => deleteVpc({ path: { vpc: vpcName }, query: { project } }),
                 label: vpcName,
+                resourceKind: 'VPC',
               })}
               className="destructive"
             />

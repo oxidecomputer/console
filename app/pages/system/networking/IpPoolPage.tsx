@@ -164,6 +164,7 @@ export default function IpPoolpage() {
               onSelect={confirmDelete({
                 doDelete: () => deletePool({ path: { pool: pool.name } }),
                 label: pool.name,
+                resourceKind: 'IP pool',
               })}
               disabled={
                 !!ranges.items.length &&

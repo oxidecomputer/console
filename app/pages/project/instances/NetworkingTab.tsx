@@ -445,6 +445,7 @@ export default function NetworkingTab() {
                 query: instanceSelector,
               }),
             label: nic.name,
+            resourceKind: 'network interface',
           }),
           disabled: deleteDisabledReason(),
         },

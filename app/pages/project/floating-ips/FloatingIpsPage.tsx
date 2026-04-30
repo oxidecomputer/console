@@ -196,6 +196,7 @@ export default function FloatingIpsPage() {
                 query: { project },
               }),
             label: floatingIp.name,
+            resourceKind: 'floating IP',
           }),
         },
       ]

@@ -149,6 +149,7 @@ export default function SiloAccessPage() {
                 the <HL>{row.siloRole}</HL> role for <HL>{row.name}</HL>
               </span>
             ),
+            resourceKind: 'role',
             extraContent:
               row.id === me.id ? 'This will remove your own silo access.' : undefined,
           }),

@@ -127,6 +127,7 @@ export default function SubnetPoolPage() {
               onSelect={confirmDelete({
                 doDelete: () => deletePool({ path: { pool: pool.name } }),
                 label: pool.name,
+                resourceKind: 'subnet pool',
               })}
               disabled={
                 !!members.items.length &&

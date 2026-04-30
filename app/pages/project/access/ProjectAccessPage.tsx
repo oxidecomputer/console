@@ -192,6 +192,7 @@ export default function ProjectAccessPage() {
                 the <HL>{row.projectRole}</HL> role for <HL>{row.name}</HL>
               </span>
             ),
+            resourceKind: 'role',
           }),
           disabled: !row.projectRole && "You don't have permission to delete this user",
         },

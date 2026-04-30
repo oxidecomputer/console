@@ -181,6 +181,7 @@ export default function ExternalSubnetsPage() {
                 query: { project },
               }),
             label: subnet.name,
+            resourceKind: 'external subnet',
           }),
         },
       ]

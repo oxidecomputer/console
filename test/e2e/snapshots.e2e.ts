@@ -90,7 +90,7 @@ test('Error on delete snapshot', async ({ page }) => {
   await expect(modal).toBeHidden()
   await expectVisible(page, [
     row,
-    page.getByText('Could not delete resource', { exact: true }),
+    page.getByText('Could not delete snapshot', { exact: true }),
   ])
 })
 
