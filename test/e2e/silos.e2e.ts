@@ -269,7 +269,7 @@ test('Silo IP pools', async ({ page }) => {
     name: 'ip-pool-6-multicast-v6default',
     Version: 'v6',
   })
-  await expect(table.getByRole('row')).toHaveCount(5) // header + 4
+  await expect(table.getByRole('row')).toHaveCount(6) // header + 4 + sentinel `attach-fail`
 
   // clicking on pool goes to pool detail
   await page.getByRole('link', { name: 'ip-pool-1' }).click()
@@ -315,7 +315,7 @@ test('Silo IP pools link pool', async ({ page }) => {
     name: 'ip-pool-6-multicast-v6default',
     Version: 'v6',
   })
-  await expect(table.getByRole('row')).toHaveCount(5) // header + 4
+  await expect(table.getByRole('row')).toHaveCount(6) // header + 4 + sentinel `attach-fail`
 
   const modal = page.getByRole('dialog', { name: 'Link pool' })
   await expect(modal).toBeHidden()

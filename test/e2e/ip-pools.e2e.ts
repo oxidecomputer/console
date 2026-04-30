@@ -19,7 +19,7 @@ test('IP pool list', async ({ page }) => {
 
   const table = page.getByRole('table')
 
-  await expect(table.getByRole('row')).toHaveCount(7) // header + 6 rows (includes multicast pools)
+  await expect(table.getByRole('row')).toHaveCount(8) // header + 7 rows (includes multicast pools and `attach-fail` sentinel)
 
   await expectRowVisible(table, {
     name: 'ip-pool-1',

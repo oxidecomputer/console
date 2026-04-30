@@ -110,6 +110,35 @@ test('Subnet pool add member', async ({ page }) => {
   await expectRowVisible(table, { Subnet: '172.16.0.0/12' })
 })
 
+test('Subnet pool add member updates prefix length validation across fields', async ({
+  page,
+}) => {
+  await page.goto('/system/networking/subnet-pools/default-v4-subnet-pool/members-add')
+
+  await page.getByRole('textbox', { name: 'Subnet' }).fill('172.16.0.0/12')
+  await fillNumberInput(page.getByRole('textbox', { name: 'Min prefix length' }), '28')
+  await fillNumberInput(page.getByRole('textbox', { name: 'Max prefix length' }), '20')
+
+  const dialog = page.getByRole('dialog', { name: 'Add member' })
+  await dialog.getByRole('button', { name: 'Add member' }).click()
+
+  await expect(dialog).toBeVisible()
+  await expect(
+    dialog.getByText('Min prefix length must be ≤ max prefix length')
+  ).toBeVisible()
+
+  await fillNumberInput(page.getByRole('textbox', { name: 'Max prefix length' }), '30')
+  await expect(
+    dialog.getByText('Min prefix length must be ≤ max prefix length')
+  ).toBeHidden()
+
+  await page.getByRole('textbox', { name: 'Subnet' }).fill('172.16.0.0/29')
+  await expect(dialog.getByText('Must be ≥ subnet prefix length (29)')).toBeVisible()
+
+  await fillNumberInput(page.getByRole('textbox', { name: 'Min prefix length' }), '29')
+  await expect(dialog.getByText('Must be ≥ subnet prefix length (29)')).toBeHidden()
+})
+
 test('Subnet pool remove member', async ({ page }) => {
   // Use secondary pool — default pool's member has external subnets allocated from it
   await page.goto('/system/networking/subnet-pools/secondary-v4-subnet-pool')
