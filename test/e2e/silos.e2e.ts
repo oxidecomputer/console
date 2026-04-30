@@ -100,8 +100,15 @@ test('Create silo', async ({ page }) => {
   await chooseFile(page.getByLabel('Cert', { exact: true }), 'small')
   await chooseFile(page.getByLabel('Key'), 'small')
   const certName = certDialog.getByRole('textbox', { name: 'Name' })
-  await certName.fill('test-cert')
 
+  // check name format validation
+  await certName.fill('Bad Name')
+  await certSubmit.click()
+  await expect(
+    certDialog.getByText('Can only contain lower-case letters, numbers, and dashes')
+  ).toBeVisible()
+
+  await certName.fill('test-cert')
   await certSubmit.click()
 
   // Check cert appears in the mini-table
