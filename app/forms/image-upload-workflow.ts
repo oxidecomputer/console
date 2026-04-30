@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Context, Data, Effect, Layer, Schedule } from 'effect'
+import { Context, Data, Effect, Layer, Schedule, type Duration } from 'effect'
 import type { Dispatch, SetStateAction } from 'react'
 
 import {
@@ -30,46 +30,22 @@ import { GiB, KiB } from '~/util/units'
 
 /**
  * Translate a generated API call's `Promise<ApiResult<T>>` into an
- * `Effect<T, ApiError>`. The generated client's contract is that response
- * failures live in the resolved value (`{ type: 'error', ... }`); the only
- * thing that rejects the promise is a fetch-level failure (network, CORS, or
- * an abort that escaped the signal-as-interrupt translation). Effect.promise
- * forwards the fiber's interrupt signal into fetch and promotes any other
- * rejection to a defect — so the `E` channel is exactly `ApiError`, no cast.
+ * `Effect<T, ApiError | ApiTransportError>`. The generated client's contract is
+ * that API failures live in the resolved value (`{ type: 'error', ... }`).
+ * Promise rejections are transport failures: fetch rejected before the API
+ * could answer, so keep them distinct from API errors in the typed channel.
  */
 const unwrap = <T>(method: string, fn: (signal: AbortSignal) => Promise<ApiResult<T>>) =>
-  Effect.promise(fn).pipe(
+  Effect.tryPromise({
+    try: fn,
+    catch: (error) => new ApiTransportError({ method, error }),
+  }).pipe(
     Effect.flatMap((r) =>
       r.type === 'success'
         ? Effect.succeed(r.data)
         : Effect.fail(processServerError(method, r))
     )
   )
-
-export class DiskApi extends Context.Tag('ImageUpload/DiskApi')<
-  DiskApi,
-  {
-    create: (body: DiskCreate) => Effect.Effect<Disk, ApiError>
-    view: (disk: string) => Effect.Effect<Disk, ApiError>
-    delete: (disk: string) => Effect.Effect<void, ApiError>
-    bulkWriteStart: (disk: string) => Effect.Effect<void, ApiError>
-    bulkWriteStop: (disk: string) => Effect.Effect<void, ApiError>
-    bulkWrite: (disk: string, body: ImportBlocksBulkWrite) => Effect.Effect<void, ApiError>
-    finalize: (disk: string, body: FinalizeDisk) => Effect.Effect<void, ApiError>
-  }
->() {}
-
-export class ImageApi extends Context.Tag('ImageUpload/ImageApi')<
-  ImageApi,
-  {
-    create: (body: ImageCreate) => Effect.Effect<Image, ApiError>
-    /**
-     * True if an image with this name already exists in the project, false
-     * if a 404 came back. Other API errors stay in the error channel.
-     */
-    nameExists: (name: string) => Effect.Effect<boolean, ApiError>
-  }
->() {}
 
 /**
  * Workflow-level failure: the precheck found that the requested image name is
@@ -78,11 +54,68 @@ export class ImageApi extends Context.Tag('ImageUpload/ImageApi')<
  */
 export class ImageNameTaken extends Data.TaggedError('ImageNameTaken') {}
 
+export class ApiTransportError extends Data.TaggedError('ApiTransportError')<{
+  readonly method: string
+  readonly error: unknown
+}> {}
+
+type ApiFailure = ApiError | ApiTransportError
+type ApiEffect<A> = Effect.Effect<A, ApiFailure>
+
+export class ChunkUploadTimedOut extends Data.TaggedError('ChunkUploadTimedOut')<{
+  readonly index: number
+  readonly offset: number
+}> {}
+
+type ChunkUploadFailure = ApiFailure | ChunkUploadTimedOut
+export type UploadFailure = ChunkUploadFailure | ImageNameTaken
+
+export class DiskApi extends Context.Tag('ImageUpload/DiskApi')<
+  DiskApi,
+  {
+    create: (body: DiskCreate) => ApiEffect<Disk>
+    view: (disk: string) => ApiEffect<Disk>
+    delete: (disk: string) => ApiEffect<void>
+    bulkWriteStart: (disk: string) => ApiEffect<void>
+    bulkWriteStop: (disk: string) => ApiEffect<void>
+    bulkWrite: (disk: string, body: ImportBlocksBulkWrite) => ApiEffect<void>
+    finalize: (disk: string, body: FinalizeDisk) => ApiEffect<void>
+  }
+>() {}
+
+export class ImageApi extends Context.Tag('ImageUpload/ImageApi')<
+  ImageApi,
+  {
+    create: (body: ImageCreate) => ApiEffect<Image>
+    /**
+     * True if an image with this name already exists in the project, false
+     * if a 404 came back. Other API errors stay in the error channel.
+     */
+    nameExists: (name: string) => ApiEffect<boolean>
+  }
+>() {}
+
 export class SnapshotApi extends Context.Tag('ImageUpload/SnapshotApi')<
   SnapshotApi,
   {
-    view: (snapshot: string) => Effect.Effect<Snapshot, ApiError>
-    delete: (snapshot: string) => Effect.Effect<void, ApiError>
+    view: (snapshot: string) => ApiEffect<Snapshot>
+    delete: (snapshot: string) => ApiEffect<void>
+  }
+>() {}
+
+export class UploadNames extends Context.Tag('ImageUpload/UploadNames')<
+  UploadNames,
+  {
+    temporaryDisk: (imageName: string) => Effect.Effect<string>
+    temporarySnapshot: Effect.Effect<string>
+  }
+>() {}
+
+export class UploadPolicy extends Context.Tag('ImageUpload/UploadPolicy')<
+  UploadPolicy,
+  {
+    chunkTimeout: Duration.DurationInput
+    chunkRetryPolicy: Schedule.Schedule<unknown, ChunkUploadFailure>
   }
 >() {}
 
@@ -132,9 +165,11 @@ export const liveImageApi = ({ project }: LayerArgs) =>
       // never goes through the failure channel (and never logs through
       // processServerError). E channel ends up exactly `ApiError` for every
       // other status.
-      Effect.promise((signal) =>
-        api.imageView({ path: { image: name }, query: { project } }, { signal })
-      ).pipe(
+      Effect.tryPromise({
+        try: (signal) =>
+          api.imageView({ path: { image: name }, query: { project } }, { signal }),
+        catch: (error) => new ApiTransportError({ method: 'imageView', error }),
+      }).pipe(
         Effect.flatMap((r) => {
           if (r.type === 'success') return Effect.succeed(true)
           if (r.response.status === 404) return Effect.succeed(false)
@@ -217,21 +252,13 @@ export const liveProgressReporter = (setProgress: (percent: number) => void) =>
     set: (percent) => Effect.sync(() => setProgress(percent)),
   })
 
-/**
- * Crucible currently enforces a limit of 512 KiB. See [crucible
- * source](https://github.com/oxidecomputer/crucible/blob/c574ff1232/pantry/src/pantry.rs#L239-L253).
- */
-const CHUNK_SIZE_BYTES = 512 * KiB
-
 const randInt = () => Math.floor(Math.random() * 100000000)
 
 function getTmpDiskName(imageName: string) {
   if (process.env.NODE_ENV === 'development') {
-    // this is only here for testing purposes. because we normally generate a
-    // random tmp disk name, we have to not do that if we want to pass special
-    // values to MSW to get it to do error things for us. If we pass special
-    // values as the image name, use the same value as the disk name and we'll
-    // do the right thing in
+    // MSW uses these names as user-controlled sentinels in e2e tests. Keeping
+    // the branch in the live layer keeps the workflow itself deterministic when
+    // tests provide a different UploadNames service.
     const specialNames = new Set([
       'disk-create-500',
       'import-start-500',
@@ -243,6 +270,22 @@ function getTmpDiskName(imageName: string) {
 
   return `tmp-for-image-${randInt()}`
 }
+
+export const liveUploadNames = Layer.succeed(UploadNames, {
+  temporaryDisk: (imageName) => Effect.sync(() => getTmpDiskName(imageName)),
+  temporarySnapshot: Effect.sync(() => `tmp-snapshot-${randInt()}`),
+})
+
+export const liveUploadPolicy = Layer.succeed(UploadPolicy, {
+  chunkTimeout: '30 seconds',
+  chunkRetryPolicy: Schedule.recurs(2),
+})
+
+/**
+ * Crucible currently enforces a limit of 512 KiB. See [crucible
+ * source](https://github.com/oxidecomputer/crucible/blob/c574ff1232/pantry/src/pantry.rs#L239-L253).
+ */
+const CHUNK_SIZE_BYTES = 512 * KiB
 
 export type UploadInput = {
   imageName: string
@@ -257,8 +300,8 @@ export type UploadInput = {
  * The upload Effect. Creates a temp disk under a scoped finalizer (so cleanup
  * runs on success, failure, and interrupt), uploads the file in chunks, then
  * finalizes into a snapshot and creates the image. Requires DiskApi, ImageApi,
- * SnapshotApi, StepStatus, and ProgressReporter — supplied as Layers so the
- * workflow itself stays pure.
+ * SnapshotApi, UploadNames, UploadPolicy, StepStatus, and ProgressReporter —
+ * supplied as Layers so the workflow itself stays pure.
  */
 export const uploadFlow = ({
   imageName,
@@ -273,8 +316,11 @@ export const uploadFlow = ({
       const diskApi = yield* DiskApi
       const imageApi = yield* ImageApi
       const snapshotApi = yield* SnapshotApi
+      const uploadNames = yield* UploadNames
+      const uploadPolicy = yield* UploadPolicy
       const steps = yield* StepStatus
       const progress = yield* ProgressReporter
+      const temporaryDiskName = yield* uploadNames.temporaryDisk(imageName)
 
       // Acquire the temp disk under a scoped finalizer. The release runs on
       // success, failure, and interrupt — replacing the imperative cleanup()
@@ -286,7 +332,7 @@ export const uploadFlow = ({
         withStatus(
           'createDisk',
           diskApi.create({
-            name: getTmpDiskName(imageName),
+            name: temporaryDiskName,
             description: `temporary disk for importing image ${imageName}`,
             diskBackend: {
               type: 'distributed',
@@ -334,9 +380,13 @@ export const uploadFlow = ({
           // Disk space is all zeros by default, so we can skip any chunks that are
           // all zeros. It turns out this happens a lot.
           if (!isAllZeros(base64EncodedData)) {
-            yield* diskApi
-              .bulkWrite(created.id, { offset, base64EncodedData })
-              .pipe(Effect.timeout('30 seconds'), Effect.retry(Schedule.recurs(2)))
+            yield* diskApi.bulkWrite(created.id, { offset, base64EncodedData }).pipe(
+              Effect.timeoutFail({
+                duration: uploadPolicy.chunkTimeout,
+                onTimeout: () => new ChunkUploadTimedOut({ index: i, offset }),
+              }),
+              Effect.retry(uploadPolicy.chunkRetryPolicy)
+            )
           }
           chunksProcessed++
           yield* progress.set(Math.round((100 * chunksProcessed) / nChunks))
@@ -356,7 +406,7 @@ export const uploadFlow = ({
         () => withStatus('importStop', diskApi.bulkWriteStop(created.id)).pipe(Effect.orDie)
       )
 
-      const snapshotName = `tmp-snapshot-${randInt()}`
+      const snapshotName = yield* uploadNames.temporarySnapshot
 
       // The snapshot is created by diskFinalizeImport. Bracketing finalize
       // (rather than the subsequent view) guarantees that as soon as the

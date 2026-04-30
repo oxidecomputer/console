@@ -13,31 +13,15 @@ testing orchestration with fake services.
 
 ## Findings
 
-1. `app/forms/image-upload-workflow.ts:40` — `unwrap` uses `Effect.promise`, so
-   rejected API promises become defects while generated API response errors stay
-   in the typed `ApiError` channel. That is coherent if transport failures are
-   considered defects, and it avoids the previous `catch: (e) => e as ApiError`
-   lie. The design choice should be intentional: if network/CORS failures are
-   user-recoverable upload failures, `Effect.tryPromise` plus a real
-   `NetworkError` / `ApiTransportError` tag would make the failure model more
-   honest.
-
-2. `app/forms/image-upload-workflow.ts:242` — `Math.random()` and the
-   `NODE_ENV === 'development'` sentinel path are direct-port residue. For an
-   idiomatic Effect version, randomness should be a service/capability,
-   especially in a pedagogical example that is otherwise teaching dependency
-   injection through `Context.Tag` and `Layer`.
-
-3. `app/forms/image-upload-workflow.ts:353` — `Effect.timeout('30 seconds')`
-   introduces `TimeoutException`, but the boundary treats it like any other
-   non-interrupt failure. That works, but it misses a teaching opportunity:
-   timeout could be mapped into a domain error or tagged upload error. Effect's
-   timeout is a typed failure, not just a thrown timeout.
-
-4. `app/forms/image-upload-workflow.ts:392` — the "image name taken after
+1. `app/forms/image-upload-workflow.ts:423` — the "image name taken after
    upload" TODO is still a real product limitation. The workflow currently
    deletes the snapshot even though the comment says preserving it could let the
    user recover without re-uploading.
+
+2. `app/forms/image-upload-workflow.ts:105` — `ApiError` is still a plain object
+   from the generated API layer rather than a tagged Effect error. The workflow
+   now tags transport errors and timeout errors, so this is the remaining place
+   where failure matching is less precise than an Effect-native design would be.
 
 ## Correctness
 
@@ -53,11 +37,14 @@ if the subsequent view fails.
 
 Interruption coverage is now consistent for generated API calls: disk view,
 snapshot view, and the image-name precheck all route through APIs that receive
-Effect's interrupt signal. The remaining correctness caveats are mostly about
-typed honesty and product behavior, not the happy path. The tests cover success,
-API failure with cleanup, interrupt during upload, and the precheck branches.
-They are useful tests, and they demonstrate the main benefit of extracting the
-workflow behind services.
+Effect's interrupt signal. Transport failures are now typed as
+`ApiTransportError`, chunk timeouts are mapped into `ChunkUploadTimedOut`, and
+the UI boundary gives both distinct user-facing messages. The remaining
+correctness caveats are mostly about generated API error shape and product
+behavior, not the happy path. The tests cover success, API failure with cleanup,
+interrupt during upload, chunk timeout, and the precheck branches. They are
+useful tests, and they demonstrate the main benefit of extracting the workflow
+behind services.
 
 ## Elegance
 
@@ -87,11 +74,17 @@ The bracketing is also idiomatic. The disk, import mode, and snapshot are exactl
 the kind of resources `acquireRelease` / `acquireUseRelease` are designed to
 model.
 
-The less idiomatic parts are the untagged `ApiError` shape, the direct
-`Math.random()` calls, and the implicit decision to treat rejected generated API
-promises as defects. A more fully Effect-shaped version would make transport
-errors, timeouts, name conflicts, and API errors explicit members of the failure
-model.
+The failure model is now much closer to idiomatic Effect: generated API response
+errors remain `ApiError`, transport rejections become `ApiTransportError`,
+timeouts become `ChunkUploadTimedOut`, and precheck conflicts become
+`ImageNameTaken`. Generated names and upload policy are also supplied as
+services, which makes the workflow more deterministic in tests and keeps
+environment-specific e2e sentinels out of the core program.
+
+The least Effect-native remaining piece is the untagged `ApiError` shape. A
+fully Effect-shaped generated client would expose tagged API errors so callers
+could use `catchTag` rather than matching optional `statusCode` / `errorCode`
+fields.
 
 ## Pedagogical Value
 
@@ -103,6 +96,9 @@ This is a good teaching example if read around the resource and fiber boundary:
 - `Exit` / `Cause` shows the difference between success, typed failure, defect,
   and interruption.
 - fake `Layer`s in Vitest show why the dependency parameter is useful.
+- `ApiTransportError`, `ChunkUploadTimedOut`, `UploadNames`, and `UploadPolicy`
+  show how domain errors and environment-specific capabilities can be pulled
+  into the typed program instead of being implicit side effects.
 
 As a final artifact, it introduces too many concepts at once. The clearest
 lesson is narrower: resources and cancellation are part of the executable

@@ -39,15 +39,20 @@ import { docLinks, links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 import {
+  ApiTransportError,
+  ChunkUploadTimedOut,
   ImageNameTaken,
   liveDiskApi,
   liveImageApi,
   liveProgressReporter,
   liveSnapshotApi,
   liveStepStatus,
+  liveUploadNames,
+  liveUploadPolicy,
   submitProgram,
   type StepState,
   type StepStateMap,
+  type UploadFailure,
 } from './image-upload-workflow'
 
 /** Format file size with two decimal points */
@@ -174,7 +179,7 @@ export default function ImageCreate() {
   // Fiber.interrupt walks the tree, aborts in-flight fetches via the signal
   // forwarded by tryPromise, and runs every acquireRelease finalizer in reverse
   // acquisition order — no AbortController plumbing on this side.
-  const fiberRef = useRef<Fiber.RuntimeFiber<void, ApiError | ImageNameTaken> | null>(null)
+  const fiberRef = useRef<Fiber.RuntimeFiber<void, UploadFailure> | null>(null)
 
   // setStepStates and setUploadProgress are stable across renders, so the
   // layer only needs to rebuild when project changes.
@@ -184,6 +189,8 @@ export default function ImageCreate() {
         liveDiskApi({ project }),
         liveImageApi({ project }),
         liveSnapshotApi({ project }),
+        liveUploadNames,
+        liveUploadPolicy,
         liveStepStatus(setStepStates),
         liveProgressReporter(setUploadProgress)
       ),
@@ -251,16 +258,14 @@ export default function ImageCreate() {
         })
       } else if (!Cause.isInterruptedOnly(exit.cause)) {
         console.error(Cause.pretty(exit.cause))
+        const typedFailure = Option.isSome(failure) ? failure.value : undefined
         if (prechecked) {
           // failure happened during the upload — modal is open
-          setModalError('Something went wrong. Please try again.')
+          setModalError(uploadErrorMessage(typedFailure))
         } else {
           // failure happened during the precheck — modal never opened, so a
           // modal-level error would be invisible
-          setFormError({
-            errorCode: 'InternalError',
-            message: 'Something went wrong checking the image name. Please try again.',
-          })
+          setFormError(precheckError(typedFailure))
         }
       }
     } finally {
@@ -394,6 +399,30 @@ export default function ImageCreate() {
       <SideModalFormDocs docs={[docLinks.images]} />
     </SideModalForm>
   )
+}
+
+function uploadErrorMessage(error: UploadFailure | undefined) {
+  if (error instanceof ChunkUploadTimedOut) {
+    return 'A chunk upload timed out. Please try again.'
+  }
+  if (error instanceof ApiTransportError) {
+    return 'The upload could not reach the API. Please check your connection and try again.'
+  }
+  return error?.message || 'Something went wrong. Please try again.'
+}
+
+function precheckError(error: UploadFailure | undefined): ApiError {
+  if (error instanceof ApiTransportError) {
+    return {
+      errorCode: 'NetworkError',
+      message: 'Could not reach the API while checking the image name. Please try again.',
+    }
+  }
+  return {
+    errorCode: 'InternalError',
+    message:
+      error?.message || 'Something went wrong checking the image name. Please try again.',
+  }
 }
 
 function BlockSizeNotice({

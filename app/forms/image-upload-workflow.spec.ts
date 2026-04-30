@@ -5,18 +5,21 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Cause, Deferred, Effect, Exit, Fiber, Layer, type Context } from 'effect'
+import { Cause, Deferred, Effect, Exit, Fiber, Layer, Schedule, type Context } from 'effect'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { ApiError, Disk, Image, Snapshot } from '@oxide/api'
 
 import {
+  ChunkUploadTimedOut,
   DiskApi,
   ImageApi,
   ImageNameTaken,
   ProgressReporter,
   SnapshotApi,
   StepStatus,
+  UploadNames,
+  UploadPolicy,
   submitProgram,
   uploadFlow,
   type StepName,
@@ -86,6 +89,21 @@ const okSnapshotApi = (overrides: Partial<SnapshotOps> = {}): SnapshotOps => ({
   ...overrides,
 })
 
+const namesLayer = Layer.succeed(UploadNames, {
+  temporaryDisk: () => Effect.succeed('tmp-disk-1'),
+  temporarySnapshot: Effect.succeed('tmp-snapshot-1'),
+})
+
+const policyLayer = Layer.succeed(UploadPolicy, {
+  chunkTimeout: '30 seconds',
+  chunkRetryPolicy: Schedule.recurs(2),
+})
+
+const fastTimeoutPolicyLayer = Layer.succeed(UploadPolicy, {
+  chunkTimeout: '10 millis',
+  chunkRetryPolicy: Schedule.recurs(2),
+})
+
 const baseInput = (overrides: Partial<UploadInput> = {}): UploadInput => ({
   imageName: 'my-image',
   imageDescription: 'desc',
@@ -106,6 +124,8 @@ describe('uploadFlow', () => {
       Layer.succeed(DiskApi, okDiskApi()),
       Layer.succeed(ImageApi, okImageApi()),
       Layer.succeed(SnapshotApi, okSnapshotApi()),
+      namesLayer,
+      policyLayer,
       stepStatusLayer(rec),
       progressLayer(rec)
     )
@@ -159,6 +179,8 @@ describe('uploadFlow', () => {
       ),
       Layer.succeed(ImageApi, okImageApi()),
       Layer.succeed(SnapshotApi, okSnapshotApi()),
+      namesLayer,
+      policyLayer,
       stepStatusLayer(rec),
       progressLayer(rec)
     )
@@ -204,6 +226,8 @@ describe('uploadFlow', () => {
       ),
       Layer.succeed(ImageApi, okImageApi()),
       Layer.succeed(SnapshotApi, okSnapshotApi()),
+      namesLayer,
+      policyLayer,
       stepStatusLayer(rec),
       progressLayer(rec)
     )
@@ -222,6 +246,43 @@ describe('uploadFlow', () => {
     expect(deleteSpy).toHaveBeenCalledTimes(1)
     expect(rec.steps).toContainEqual(['cleanup', 'success'])
   })
+
+  it('maps chunk timeouts into a domain failure and still cleans up', async () => {
+    const rec = recorder()
+    const deleteSpy = vi.fn(() => Effect.void)
+    const layer = Layer.mergeAll(
+      Layer.succeed(
+        DiskApi,
+        okDiskApi({
+          bulkWrite: () => Effect.never,
+          delete: deleteSpy,
+          view: () => Effect.succeed(stubDisk('disk-1', 'import_ready')),
+        })
+      ),
+      Layer.succeed(ImageApi, okImageApi()),
+      Layer.succeed(SnapshotApi, okSnapshotApi()),
+      namesLayer,
+      fastTimeoutPolicyLayer,
+      stepStatusLayer(rec),
+      progressLayer(rec)
+    )
+
+    const exit = await Effect.runPromiseExit(
+      uploadFlow(baseInput()).pipe(Effect.provide(layer))
+    )
+
+    expect(Exit.isFailure(exit)).toBe(true)
+    if (Exit.isFailure(exit)) {
+      const failure = Cause.failureOption(exit.cause)
+      expect(failure._tag).toBe('Some')
+      if (failure._tag === 'Some') {
+        expect(failure.value).toBeInstanceOf(ChunkUploadTimedOut)
+      }
+    }
+    expect(deleteSpy).toHaveBeenCalledTimes(1)
+    expect(rec.steps).toContainEqual(['upload', 'error'])
+    expect(rec.steps).toContainEqual(['cleanup', 'success'])
+  })
 })
 
 describe('submitProgram', () => {
@@ -232,6 +293,8 @@ describe('submitProgram', () => {
       Layer.succeed(DiskApi, okDiskApi()),
       Layer.succeed(ImageApi, okImageApi({ nameExists: () => Effect.succeed(true) })),
       Layer.succeed(SnapshotApi, okSnapshotApi()),
+      namesLayer,
+      policyLayer,
       stepStatusLayer(rec),
       progressLayer(rec)
     )
@@ -260,6 +323,8 @@ describe('submitProgram', () => {
       Layer.succeed(DiskApi, okDiskApi()),
       Layer.succeed(ImageApi, okImageApi()),
       Layer.succeed(SnapshotApi, okSnapshotApi()),
+      namesLayer,
+      policyLayer,
       stepStatusLayer(rec),
       progressLayer(rec)
     )
