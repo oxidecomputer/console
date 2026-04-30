@@ -222,8 +222,14 @@ export default function ImageCreate() {
     setFormError(null)
     setRunning(true)
 
+    // tracks whether onPrecheckPassed has fired, so we can route a failure to
+    // setFormError (precheck never passed, modal not open) vs setModalError
+    // (mid-upload, modal is open and visible)
+    let prechecked = false
+
     const fiber = Effect.runFork(
       submitProgram({ ...values, imageFile: values.imageFile }, () => {
+        prechecked = true
         resetMainFlow()
         setModalOpen(true)
       }).pipe(Effect.provide(layer))
@@ -244,9 +250,18 @@ export default function ImageCreate() {
           message: 'Image name already exists',
         })
       } else if (!Cause.isInterruptedOnly(exit.cause)) {
-        // mid-flow failure or finalizer defect — surface in the modal
         console.error(Cause.pretty(exit.cause))
-        setModalError('Something went wrong. Please try again.')
+        if (prechecked) {
+          // failure happened during the upload — modal is open
+          setModalError('Something went wrong. Please try again.')
+        } else {
+          // failure happened during the precheck — modal never opened, so a
+          // modal-level error would be invisible
+          setFormError({
+            errorCode: 'InternalError',
+            message: 'Something went wrong checking the image name. Please try again.',
+          })
+        }
       }
     } finally {
       fiberRef.current = null

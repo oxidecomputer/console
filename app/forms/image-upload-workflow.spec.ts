@@ -180,20 +180,25 @@ describe('uploadFlow', () => {
     expect(rec.steps).toContainEqual(['importStart', 'error'])
   })
 
-  it('runs the disk-cleanup finalizer on interrupt', async () => {
+  it('runs the import-mode bracket release and disk-cleanup finalizer on interrupt', async () => {
     const rec = recorder()
     const reached = await Effect.runPromise(Deferred.make<undefined>())
     const deleteSpy = vi.fn(() => Effect.void)
+    const stopSpy = vi.fn(() => Effect.void)
 
     const layer = Layer.mergeAll(
       Layer.succeed(
         DiskApi,
         okDiskApi({
-          bulkWriteStart: () =>
+          // park inside the upload (use) phase of acquireUseRelease so the
+          // bracket release will fire on interrupt
+          bulkWrite: () =>
             Deferred.succeed(reached, undefined).pipe(Effect.zipRight(Effect.never)),
           delete: deleteSpy,
-          view: () => Effect.succeed(stubDisk('disk-1', 'importing_from_bulk_writes')),
-          bulkWriteStop: () => Effect.void,
+          bulkWriteStop: stopSpy,
+          // after the bracket release runs bulkWriteStop, the disk is in
+          // import_ready; cleanup takes the finalize-then-delete branch
+          view: () => Effect.succeed(stubDisk('disk-1', 'import_ready')),
           finalize: () => Effect.void,
         })
       ),
@@ -204,7 +209,6 @@ describe('uploadFlow', () => {
     )
 
     const fiber = Effect.runFork(uploadFlow(baseInput()).pipe(Effect.provide(layer)))
-    // wait until the workflow is parked inside bulkWriteStart
     await Effect.runPromise(Deferred.await(reached))
     const exit = await Effect.runPromise(Fiber.interrupt(fiber))
 
@@ -212,10 +216,10 @@ describe('uploadFlow', () => {
     if (Exit.isFailure(exit)) {
       expect(Cause.isInterruptedOnly(exit.cause)).toBe(true)
     }
+    // bracket release fired bulkWriteStop, transitioning out of import mode
+    expect(stopSpy).toHaveBeenCalledTimes(1)
+    // disk cleanup ran delete after the bracket released
     expect(deleteSpy).toHaveBeenCalledTimes(1)
-    // disk was in importing_from_bulk_writes state, so cleanup also calls
-    // bulkWriteStop and finalize before delete — easiest signal is the cleanup
-    // step transitioning to success
     expect(rec.steps).toContainEqual(['cleanup', 'success'])
   })
 })

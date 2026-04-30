@@ -168,7 +168,7 @@ export const liveSnapshotApi = ({ project }: LayerArgs) =>
       }),
     delete: (snapshot) =>
       unwrap('snapshotDelete', (signal) =>
-        api.snapshotDelete({ path: { snapshot } }, { signal })
+        api.snapshotDelete({ path: { snapshot }, query: { project } }, { signal })
       ).pipe(Effect.tap(() => invalidate('snapshotList'))),
   })
 
@@ -328,13 +328,12 @@ export const uploadFlow = ({
           }).pipe(Effect.orDie)
       )
 
-      // set disk to state importing-via-bulk-write
-      yield* withStatus('importStart', diskApi.bulkWriteStart(created.id))
-
-      // Post file to the API in chunks of size `maxChunkSize`. Browsers cap
-      // concurrent fetches at 6 per host, so Effect.forEach with concurrency 6
-      // keeps us from reading more into memory than we can POST.
-
+      // Import mode is a scoped resource. acquireUseRelease guarantees
+      // bulkWriteStop runs after the upload regardless of how it exits —
+      // including interrupt — so the disk reaches `import_ready` without the
+      // disk-cleanup branch having to detect-and-recover from
+      // `importing_from_bulk_writes`. The status calls here drive the existing
+      // import-start / import-stop step icons.
       const nChunks = Math.ceil(imageFile.size / CHUNK_SIZE_BYTES)
 
       // TODO: try to warn user if they try to close the tab while this is going
@@ -365,25 +364,29 @@ export const uploadFlow = ({
         for (let i = 0; i < nChunks; i++) yield i
       }
 
-      yield* withStatus(
-        'upload',
-        Effect.forEach(genChunks(), postChunk, { concurrency: 6 })
+      // Browsers cap concurrent fetches at 6 per host, so concurrency 6 keeps
+      // us from reading more into memory than we can POST.
+      yield* Effect.acquireUseRelease(
+        withStatus('importStart', diskApi.bulkWriteStart(created.id)),
+        () =>
+          withStatus('upload', Effect.forEach(genChunks(), postChunk, { concurrency: 6 })),
+        () => withStatus('importStop', diskApi.bulkWriteStop(created.id)).pipe(Effect.orDie)
       )
-
-      yield* withStatus('importStop', diskApi.bulkWriteStop(created.id))
 
       const snapshotName = `tmp-snapshot-${randInt()}`
 
-      // diskFinalizeImport does not return the snapshot, but create image
-      // requires an ID. Acquire it under a finalizer too so the temp snapshot
-      // is cleaned up regardless of how this scope exits.
+      // The snapshot is created by diskFinalizeImport. Bracketing finalize
+      // (rather than the subsequent view) guarantees that as soon as the
+      // snapshot exists server-side, its delete finalizer is registered —
+      // even if the view fails. snapshotName is a NameOrId, so the delete
+      // works without resolving the ID first.
       const createdSnapshot = yield* withStatus(
         'finalize',
         Effect.gen(function* () {
-          yield* diskApi.finalize(created.id, { snapshotName })
-          return yield* Effect.acquireRelease(snapshotApi.view(snapshotName), (s) =>
-            snapshotApi.delete(s.id).pipe(Effect.orDie)
+          yield* Effect.acquireRelease(diskApi.finalize(created.id, { snapshotName }), () =>
+            snapshotApi.delete(snapshotName).pipe(Effect.orDie)
           )
+          return yield* snapshotApi.view(snapshotName)
         })
       )
 
