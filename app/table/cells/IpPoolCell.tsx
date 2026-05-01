@@ -10,6 +10,7 @@ import { useState } from 'react'
 
 import { api, qErrorsAllowed } from '~/api'
 import { IpPoolDetailSideModal } from '~/components/IpPoolDetailSideModal'
+import { useIsInSideModal } from '~/ui/lib/modal-context'
 
 import { EmptyCell, SkeletonCell } from './EmptyCell'
 import { ButtonCell } from './LinkCell'
@@ -26,13 +27,13 @@ const ipPoolQuery = (ipPoolId: string) =>
     }
   )
 
-type IpPoolCellProps = {
-  ipPoolId: string
-  /** Show the IP pool detail sidebar on click. Defaults to true. Pass false to render as plain text. */
-  showPoolInfo?: boolean
-}
-
-export const IpPoolCell = ({ ipPoolId, showPoolInfo = true }: IpPoolCellProps) => {
+/**
+ * Renders an IP pool name. In a table cell, clicking opens a side modal with
+ * pool details. Inside a side modal (detected via context) it falls back to
+ * plain text to avoid stacking a second side modal on top of the first.
+ */
+export const IpPoolCell = ({ ipPoolId }: { ipPoolId: string }) => {
+  const inSideModal = useIsInSideModal()
   const [showDetail, setShowDetail] = useState(false)
   const { data: result } = useQuery(ipPoolQuery(ipPoolId))
   if (!result) return <SkeletonCell />
@@ -40,7 +41,7 @@ export const IpPoolCell = ({ ipPoolId, showPoolInfo = true }: IpPoolCellProps) =
   // possible for a resource to reference a pool without that pool existing.
   if (result.type === 'error') return <EmptyCell />
   const pool = result.data
-  if (!showPoolInfo) return <>{pool.name}</>
+  if (inSideModal) return <>{pool.name}</>
   return (
     <>
       <ButtonCell onClick={() => setShowDetail(true)}>{pool.name}</ButtonCell>

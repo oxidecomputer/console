@@ -107,7 +107,7 @@ export default function EditFloatingIpSideModalForm() {
           <CopyableIp ip={floatingIp.ip} isLinked={false} />
         </PropertiesTable.Row>
         <PropertiesTable.Row label="IP Pool">
-          <IpPoolCell ipPoolId={floatingIp.ipPoolId} showPoolInfo={false} />
+          <IpPoolCell ipPoolId={floatingIp.ipPoolId} />
         </PropertiesTable.Row>
         <PropertiesTable.Row label="Instance">
           <InstanceLink instanceId={floatingIp.instanceId} tab="networking" />
