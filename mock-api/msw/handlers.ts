@@ -585,7 +585,7 @@ export const handlers = makeHandlers({
      */
     if (body.network_interfaces?.type === 'create') {
       if (body.network_interfaces.params.length > MAX_NICS_PER_INSTANCE) {
-        throw `Cannot create more than ${MAX_NICS_PER_INSTANCE} nics per instance`
+        throw `Cannot create more than ${MAX_NICS_PER_INSTANCE} network interfaces per instance`
       }
       body.network_interfaces.params.forEach(({ vpc_name, subnet_name }) => {
         lookup.vpc({ ...query, vpc: vpc_name })

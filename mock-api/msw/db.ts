@@ -188,7 +188,7 @@ export const lookup = {
     interface: id,
     ...instanceSelector
   }: Sel.NetworkInterface): Json<Api.InstanceNetworkInterface> {
-    if (!id) throw notFoundErr('no NIC specified')
+    if (!id) throw notFoundErr('no network interface specified')
 
     if (isUuid(id)) {
       ensureNoParentSelectors('network interface', instanceSelector)
@@ -200,7 +200,7 @@ export const lookup = {
     const nic = db.networkInterfaces.find(
       (n) => n.instance_id === instance.id && n.name === id
     )
-    if (!nic) throw notFoundErr(`NIC '${id}'`)
+    if (!nic) throw notFoundErr(`network interface '${id}'`)
 
     return nic
   },

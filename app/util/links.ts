@@ -174,7 +174,7 @@ export const docLinks = {
   },
   networkInterfaces: {
     href: 'https://docs.oxide.computer/guides/deploying-workloads#_virtual_nics',
-    linkText: 'Virtual NICs',
+    linkText: 'Virtual network interfaces',
   },
   vpcs: {
     href: 'https://docs.oxide.computer/guides/configuring-guest-networking',

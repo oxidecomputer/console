@@ -76,7 +76,7 @@ function NetworkMetrics({ nics }: { nics: InstanceNetworkInterface[] }) {
 
   const nicItems = useMemo(
     () => [
-      { label: 'All NICs', value: 'all' },
+      { label: 'All network interfaces', value: 'all' },
       ...nics.map((n) => ({ label: n.name, value: n.id })),
     ],
     [nics]
