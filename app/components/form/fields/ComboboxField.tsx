@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-import { useState } from 'react'
 import {
   useController,
   type Control,
@@ -69,9 +68,7 @@ export function ComboboxField<
     control,
     rules: { required, validate },
   })
-  const [selectedItemLabel, setSelectedItemLabel] = useState(
-    getSelectedLabelFromValue(items, field.value || '')
-  )
+  const selectedItemLabel = getSelectedLabelFromValue(items, field.value || '')
   return (
     <div className="max-w-lg">
       <Combobox
@@ -86,7 +83,6 @@ export function ComboboxField<
         onChange={(value) => {
           field.onChange(value)
           onChange?.(value)
-          setSelectedItemLabel(getSelectedLabelFromValue(items, value))
         }}
         allowArbitraryValues={allowArbitraryValues}
         inputRef={field.ref}

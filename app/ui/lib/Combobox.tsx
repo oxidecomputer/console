@@ -100,31 +100,41 @@ export const Combobox = ({
   transform,
   ...props
 }: ComboboxProps) => {
-  const [query, setQuery] = useState(selectedItemValue || '')
+  const [query, setQuery] = useState(
+    allowArbitraryValues ? selectedItemValue || '' : selectedItemLabel || ''
+  )
+  // When the input's text matches the current selection (e.g., the user just
+  // re-opened the dropdown without typing), show all items so they can pick a
+  // different one. Only filter once the user has typed something different.
+  // Arbitrary-values mode always filters by what's typed, since there's no
+  // "selection vs. typing" distinction there.
+  const userIsFiltering = allowArbitraryValues || query !== (selectedItemLabel || '')
   const q = query.toLowerCase().replace(/\s*/g, '')
-  const filteredItems = matchSorter(items, q, {
-    keys: ['selectedLabel', 'label'],
-    sorter: (items) => items, // preserve original order, don't sort by match
-  })
+  const filteredItems = userIsFiltering
+    ? matchSorter(items, q, {
+        keys: ['selectedLabel', 'label'],
+        sorter: (items) => items, // preserve original order, don't sort by match
+      })
+    : items.slice()
 
-  // In the arbitraryValues case, clear the query whenever the value is cleared.
-  // this is necessary, e.g., for the firewall rules form when you submit the
-  // targets subform and clear the field. Two possible changes we might want to make
-  // here if we run into issues:
+  // Keep the input's typing buffer (`query`) in sync with the selection coming
+  // from props.
   //
-  //   1. do it all the time, not just in the arbitraryValues case
-  //   2. do it on all value changes, not just on clear
-  //
-  // Currently, I don't think there are any arbitraryValues=false cases where we
-  // set the value from outside. There is an arbitraryvalues=true case where we
-  // setValue to something other than empty string, but we don't need the
-  // sync because that setValue is done in onInputChange and we already are
-  // doing setQuery in here along with it.
+  // - allowArbitraryValues=true: clear the buffer whenever the value clears
+  //   (e.g., firewall rules subform reset). Typing already updates the value
+  //   directly via onInputChange, so we don't need to mirror non-empty values
+  //   here.
+  // - allowArbitraryValues=false: snap the buffer to the selected label
+  //   whenever it changes. Typing is transient — it filters the dropdown but
+  //   doesn't change the selection — so the displayed text needs an outside
+  //   nudge to follow the selected value.
   useEffect(() => {
-    if (allowArbitraryValues && !selectedItemValue) {
-      setQuery('')
+    if (allowArbitraryValues) {
+      if (!selectedItemValue) setQuery('')
+    } else {
+      setQuery(selectedItemLabel || '')
     }
-  }, [allowArbitraryValues, selectedItemValue])
+  }, [allowArbitraryValues, selectedItemValue, selectedItemLabel])
 
   // If the user has typed in a value that isn't in the list,
   // add it as an option if `allowArbitraryValues` is true
@@ -164,7 +174,10 @@ export const Combobox = ({
       onChange={(val) => onChange(val || '')}
       onClose={() => {
         isOpenRef.current = false
-        if (!allowArbitraryValues) setQuery('')
+        // Revert any in-progress typing back to the selected label so the
+        // input reflects the committed selection on blur. (The arbitrary
+        // case keeps whatever the user typed, since typing IS the value.)
+        if (!allowArbitraryValues) setQuery(selectedItemLabel || '')
       }}
       disabled={disabled || isLoading}
       immediate
@@ -210,17 +223,15 @@ export const Combobox = ({
             >
               <ComboboxInput
                 id={`${id}-input`}
-                // If an option has been selected, display either the selected item's label or value.
-                // If no option has been selected yet, or the user has started editing the input, display the query.
-                // We are using value here, as opposed to Headless UI's displayValue, so we can normalize
-                // the value entered into the input (via the onChange event).
-                value={
-                  selectedItemValue
-                    ? allowArbitraryValues
-                      ? selectedItemValue
-                      : selectedItemLabel
-                    : query
-                }
+                // We use value here (instead of Headless UI's displayValue) so we
+                // can normalize input via the onChange event. For arbitrary
+                // values, the selected value IS what's displayed, so it takes
+                // precedence over the typing buffer. For non-arbitrary values,
+                // the typing buffer is authoritative — the useEffect above keeps
+                // it in sync with the selected label, and onClose snaps it back
+                // on blur — so typing/backspace visibly edits the field while
+                // the dropdown filters in lockstep.
+                value={allowArbitraryValues ? selectedItemValue || query : query}
                 onChange={(event) => {
                   const value = transform
                     ? transform(event.target.value)
