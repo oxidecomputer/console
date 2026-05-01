@@ -100,8 +100,15 @@ test('Create silo', async ({ page }) => {
   await chooseFile(page.getByLabel('Cert', { exact: true }), 'small')
   await chooseFile(page.getByLabel('Key'), 'small')
   const certName = certDialog.getByRole('textbox', { name: 'Name' })
-  await certName.fill('test-cert')
 
+  // check name format validation
+  await certName.fill('Bad Name')
+  await certSubmit.click()
+  await expect(
+    certDialog.getByText('Can only contain lower-case letters, numbers, and dashes')
+  ).toBeVisible()
+
+  await certName.fill('test-cert')
   await certSubmit.click()
 
   // Check cert appears in the mini-table
@@ -269,7 +276,7 @@ test('Silo IP pools', async ({ page }) => {
     name: 'ip-pool-6-multicast-v6default',
     Version: 'v6',
   })
-  await expect(table.getByRole('row')).toHaveCount(5) // header + 4
+  await expect(table.getByRole('row')).toHaveCount(6) // header + 4 + sentinel `attach-fail`
 
   // clicking on pool goes to pool detail
   await page.getByRole('link', { name: 'ip-pool-1' }).click()
@@ -315,7 +322,7 @@ test('Silo IP pools link pool', async ({ page }) => {
     name: 'ip-pool-6-multicast-v6default',
     Version: 'v6',
   })
-  await expect(table.getByRole('row')).toHaveCount(5) // header + 4
+  await expect(table.getByRole('row')).toHaveCount(6) // header + 4 + sentinel `attach-fail`
 
   const modal = page.getByRole('dialog', { name: 'Link pool' })
   await expect(modal).toBeHidden()

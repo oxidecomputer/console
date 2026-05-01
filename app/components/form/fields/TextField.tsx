@@ -12,6 +12,7 @@ import {
   type FieldPath,
   type FieldPathValue,
   type FieldValues,
+  type RegisterOptions,
   type Validate,
 } from 'react-hook-form'
 
@@ -45,6 +46,7 @@ export interface TextFieldProps<
   placeholder?: string
   units?: string
   validate?: Validate<FieldPathValue<TFieldValues, TName>, TFieldValues>
+  deps?: RegisterOptions<TFieldValues, TName>['deps']
   control: Control<TFieldValues>
   /** Alters the value of the input during the field's onChange event. */
   transform?: (value: string) => string
@@ -98,6 +100,7 @@ export const TextFieldInner = <
   type = 'text',
   label = capitalize(name),
   validate,
+  deps,
   control,
   required,
   id: idProp,
@@ -109,7 +112,7 @@ export const TextFieldInner = <
   const {
     field: { onChange, ...fieldRest },
     fieldState: { error },
-  } = useController({ name, control, rules: { required, validate } })
+  } = useController({ name, control, rules: { required, validate, deps } })
   return (
     <>
       <UITextField
