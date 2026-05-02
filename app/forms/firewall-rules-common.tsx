@@ -8,6 +8,7 @@
 
 import { useEffect, type ReactNode } from 'react'
 import { useController, useForm, type Control } from 'react-hook-form'
+import { match } from 'ts-pattern'
 
 import { Badge } from '@oxide/design-system/ui'
 
@@ -53,6 +54,7 @@ import { ALL_ISH } from '~/util/consts'
 import { validateIp, validateIpNet } from '~/util/ip'
 import { links } from '~/util/links'
 import {
+  getIcmpLabel,
   getProtocolDisplayName,
   getProtocolKey,
   ICMPV4_TYPES,
@@ -354,9 +356,7 @@ const isDuplicateProtocol = (
 
   if (newProtocol.type === 'icmp' || newProtocol.type === 'icmp6') {
     if (newProtocol.value === null) {
-      return existingProtocols.some(
-        (p) => p.type === newProtocol.type && p.value === null
-      )
+      return existingProtocols.some((p) => p.type === newProtocol.type && p.value === null)
     }
     return existingProtocols.some(
       (p) =>
@@ -483,14 +483,17 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
           {(selectedProtocolType === 'icmp' || selectedProtocolType === 'icmp6') && (
             <>
               <ComboboxField
-                label={`${selectedProtocolType === 'icmp' ? 'ICMPv4' : 'ICMPv6'} type`}
+                label={`${getIcmpLabel(selectedProtocolType)} type`}
                 name="icmpType"
                 control={protocolForm.control}
                 description="Leave blank to match any type"
                 placeholder=""
                 allowArbitraryValues
                 onInputChange={(value) => protocolForm.setValue('icmpType', value)}
-                items={selectedProtocolType === 'icmp' ? icmpV4TypeItems : icmpV6TypeItems}
+                items={match(selectedProtocolType)
+                  .with('icmp', () => icmpV4TypeItems)
+                  .with('icmp6', () => icmpV6TypeItems)
+                  .exhaustive()}
                 validate={(value) => {
                   const result = parseIcmpType(value)
                   if (!result.success) return result.message
@@ -499,7 +502,7 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
 
               {selectedIcmpType !== undefined && selectedIcmpType !== '' && (
                 <TextField
-                  label={`${selectedProtocolType === 'icmp' ? 'ICMPv4' : 'ICMPv6'} code`}
+                  label={`${getIcmpLabel(selectedProtocolType)} code`}
                   name="icmpCode"
                   control={protocolForm.control}
                   description={

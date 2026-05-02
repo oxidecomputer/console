@@ -6,6 +6,8 @@
  * Copyright Oxide Computer Company
  */
 
+import { match } from 'ts-pattern'
+
 import { Badge } from '@oxide/design-system/ui'
 
 import type { VpcFirewallRuleProtocol } from '~/api'
@@ -13,11 +15,13 @@ import { Tooltip } from '~/ui/lib/Tooltip'
 
 import { EmptyCell } from './EmptyCell'
 
-const protocolLabel = (protocol: VpcFirewallRuleProtocol) => {
-  if (protocol.type === 'icmp') return 'ICMPv4'
-  if (protocol.type === 'icmp6') return 'ICMPv6'
-  return protocol.type.toUpperCase()
-}
+const protocolLabel = (protocol: VpcFirewallRuleProtocol) =>
+  match(protocol.type)
+    .with('tcp', () => 'TCP')
+    .with('udp', () => 'UDP')
+    .with('icmp', () => 'ICMPv4')
+    .with('icmp6', () => 'ICMPv6')
+    .exhaustive()
 
 const isIcmp = (
   protocol: VpcFirewallRuleProtocol

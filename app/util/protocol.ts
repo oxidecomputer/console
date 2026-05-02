@@ -6,6 +6,8 @@
  * Copyright Oxide Computer Company
  */
 
+import { match } from 'ts-pattern'
+
 import type { VpcFirewallRuleProtocol } from '~/api'
 
 export const ICMPV4_TYPES: Record<number, string> = {
@@ -39,17 +41,22 @@ export const ICMPV6_TYPES: Record<number, string> = {
 export type IcmpVariant = 'icmp' | 'icmp6'
 
 const typesFor = (variant: IcmpVariant) =>
-  variant === 'icmp' ? ICMPV4_TYPES : ICMPV6_TYPES
+  match(variant)
+    .with('icmp', () => ICMPV4_TYPES)
+    .with('icmp6', () => ICMPV6_TYPES)
+    .exhaustive()
 
-const labelFor = (variant: IcmpVariant) => (variant === 'icmp' ? 'ICMPv4' : 'ICMPv6')
+export const getIcmpLabel = (variant: IcmpVariant) =>
+  match(variant)
+    .with('icmp', () => 'ICMPv4' as const)
+    .with('icmp6', () => 'ICMPv6' as const)
+    .exhaustive()
 
 /**
  * Get the human-readable name for an ICMP type
  */
-export const getIcmpTypeName = (
-  variant: IcmpVariant,
-  type: number
-): string | undefined => typesFor(variant)[type]
+export const getIcmpTypeName = (variant: IcmpVariant, type: number): string | undefined =>
+  typesFor(variant)[type]
 
 /**
  * Get a display name for a protocol, including ICMP types and codes
@@ -58,7 +65,7 @@ export const getProtocolDisplayName = (protocol: VpcFirewallRuleProtocol): strin
   if (protocol.type === 'tcp' || protocol.type === 'udp') {
     return protocol.type.toUpperCase()
   }
-  const label = labelFor(protocol.type)
+  const label = getIcmpLabel(protocol.type)
   if (protocol.value === null) {
     return `${label} (All types)`
   }

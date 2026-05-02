@@ -9,6 +9,7 @@
 import { Badge } from '@oxide/design-system/ui'
 
 import type { VpcFirewallRuleProtocol } from '~/api'
+import { getIcmpLabel } from '~/util/protocol'
 
 type ProtocolBadgeProps = {
   protocol: VpcFirewallRuleProtocol
@@ -19,7 +20,7 @@ export const ProtocolBadge = ({ protocol }: ProtocolBadgeProps) => {
     return <Badge>{protocol.type.toUpperCase()}</Badge>
   }
 
-  const label = protocol.type === 'icmp' ? 'ICMPv4' : 'ICMPv6'
+  const label = getIcmpLabel(protocol.type)
 
   if (protocol.value === null) {
     return <Badge>{label}</Badge>
