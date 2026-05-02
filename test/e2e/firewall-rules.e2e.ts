@@ -141,15 +141,15 @@ test('firewall rule targets and filters overflow', async ({ page }) => {
   ).toBeVisible()
 
   await expect(
-    page.getByRole('cell', { name: 'instance hello-friend +6', exact: true })
+    page.getByRole('cell', { name: 'instance hello-friend +7', exact: true })
   ).toBeVisible()
 
   // scroll table sideways past the filters cell
   await page.getByText('Enabled').first().scrollIntoViewIfNeeded()
 
-  await page.getByText('+6').hover()
+  await page.getByText('+7').hover()
   const tooltip = page.getByRole('tooltip', {
-    name: 'Other filters subnet my-subnet ip 148.38.89.5 TCP ICMP type 5 code 1-3 Port 3389 Port 45-89',
+    name: 'Other filters subnet my-subnet ip 148.38.89.5 TCP ICMPv4 type 5 code 1-3 ICMPv6 type 128 Port 3389 Port 45-89',
     exact: true,
   })
   await expect(tooltip).toBeVisible()
@@ -434,16 +434,16 @@ test('can update firewall rule', async ({ page }) => {
 
   // protocol is populated in the table
   const protocolTable = page.getByRole('table', { name: 'Protocol filters' })
-  await expect(protocolTable.getByText('ICMP')).toBeVisible()
+  await expect(protocolTable.getByText('ICMPv4')).toBeVisible()
 
   // remove the existing ICMP protocol filter
   await protocolTable.getByRole('button', { name: 'remove' }).click()
 
   // add a new ICMP protocol filter with type 3 and code 0
-  await selectOption(page, 'Protocol filters', 'ICMP')
-  const icmpTypeField = page.getByRole('combobox', { name: 'ICMP Type' })
+  await selectOption(page, 'Protocol filters', 'ICMPv4')
+  const icmpTypeField = page.getByRole('combobox', { name: 'ICMPv4 type' })
   await fillAndSelect(icmpTypeField, page, '3', '3 - Destination Unreachable')
-  await page.getByRole('textbox', { name: 'ICMP Code' }).fill('0')
+  await page.getByRole('textbox', { name: 'ICMPv4 code' }).fill('0')
   await page.getByRole('button', { name: 'Add protocol' }).click()
 
   // update name
@@ -477,7 +477,7 @@ test('can update firewall rule', async ({ page }) => {
   await expect(rows).toHaveCount(3)
 
   // new host filter shows up in filters cell, along with the new ICMP protocol
-  await expect(page.locator('text=subnetedit-filter-subnetICMP')).toBeVisible()
+  await expect(page.locator('text=subnetedit-filter-subnetICMPv4')).toBeVisible()
 
   // scroll table sideways past the filters cell to see the full content
   await page.getByText('Enabled').first().scrollIntoViewIfNeeded()
@@ -509,7 +509,7 @@ test('create from existing rule', async ({ page }) => {
 
   // protocol is populated in the table
   const protocolTable = modal.getByRole('table', { name: 'Protocol filters' })
-  await expect(protocolTable.getByText('ICMP')).toBeVisible()
+  await expect(protocolTable.getByText('ICMPv4')).toBeVisible()
   await expect(protocolTable.getByText('TCP')).toBeHidden()
   await expect(protocolTable.getByText('UDP')).toBeHidden()
 
@@ -537,7 +537,7 @@ test('create from existing rule', async ({ page }) => {
   // protocol is populated in the table
   await expect(protocolTable.getByText('TCP')).toBeVisible()
   await expect(protocolTable.getByText('UDP')).toBeHidden()
-  await expect(protocolTable.getByText('ICMP')).toBeHidden()
+  await expect(protocolTable.getByText('ICMPv4')).toBeHidden()
 
   await expect(targets.getByRole('row', { name: 'vpc default' })).toBeVisible()
 })
@@ -670,14 +670,55 @@ test('arbitrary values combobox', async ({ page }) => {
   // triggering a validation error for bad input. without onInputChange binding
   // the input value to the form value, this does not trigger an error because
   // the form thinks the input is empyt.
-  await selectOption(page, 'Protocol filters', 'ICMP')
-  await page.getByRole('combobox', { name: 'ICMP type' }).pressSequentially('abc')
+  await selectOption(page, 'Protocol filters', 'ICMPv4')
+  await page.getByRole('combobox', { name: 'ICMPv4 type' }).pressSequentially('abc')
   const error = page
     .getByRole('dialog')
     .getByText('ICMP type must be a number between 0 and 255')
   await expect(error).toBeHidden()
   await page.getByRole('button', { name: 'Add protocol filter' }).click()
   await expect(error).toBeVisible()
+})
+
+test('can add ICMPv4 and ICMPv6 protocol filters', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules-new')
+
+  const protocolTable = page.getByRole('table', { name: 'Protocol filters' })
+  await expect(protocolTable).toBeHidden()
+
+  // add an ICMPv4 filter with a specific type
+  const protocolListbox = page.getByRole('button', { name: 'Protocol filters' })
+  await protocolListbox.click()
+  await page.getByRole('option', { name: 'ICMPv4', exact: true }).click()
+  await fillAndSelect(
+    page.getByRole('combobox', { name: 'ICMPv4 type' }),
+    page,
+    '8',
+    '8 - Echo Request'
+  )
+  await page.getByRole('button', { name: 'Add protocol filter' }).click()
+  await expectRowVisible(protocolTable, { Protocol: 'ICMPv4', Type: '8' })
+
+  // add an ICMPv6 filter with a different type number; v4 type 8 is Echo
+  // Request, v6 type 128 is Echo Request — different numbers, same intent
+  await protocolListbox.click()
+  await page.getByRole('option', { name: 'ICMPv6', exact: true }).click()
+  await fillAndSelect(
+    page.getByRole('combobox', { name: 'ICMPv6 type' }),
+    page,
+    '128',
+    '128 - Echo Request'
+  )
+  await page.getByRole('button', { name: 'Add protocol filter' }).click()
+  await expectRowVisible(protocolTable, { Protocol: 'ICMPv6', Type: '128' })
+
+  // both rows are present
+  await expect(protocolTable.getByRole('row')).toHaveCount(3) // header + 2
+
+  // switching protocol type clears the previously selected ICMP type
+  await protocolListbox.click()
+  await page.getByRole('option', { name: 'ICMPv4', exact: true }).click()
+  await expect(page.getByRole('combobox', { name: 'ICMPv4 type' })).toHaveValue('')
 })
 
 // Regression test: when typing a partial match in an arbitrary-values combobox,

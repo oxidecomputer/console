@@ -19,14 +19,15 @@ export const ProtocolBadge = ({ protocol }: ProtocolBadgeProps) => {
     return <Badge>{protocol.type.toUpperCase()}</Badge>
   }
 
+  const label = protocol.type === 'icmp' ? 'ICMPv4' : 'ICMPv6'
+
   if (protocol.value === null) {
-    // All ICMP types
-    return <Badge>ICMP</Badge>
+    return <Badge>{label}</Badge>
   }
 
   return (
     <div className="space-x-0.5">
-      <Badge>ICMP</Badge>
+      <Badge>{label}</Badge>
       <Badge variant="solid">
         <span className="flex items-center gap-1.5">
           <span>type {protocol.value.icmpType}</span>

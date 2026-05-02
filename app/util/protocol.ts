@@ -8,7 +8,7 @@
 
 import type { VpcFirewallRuleProtocol } from '~/api'
 
-export const ICMP_TYPES: Record<number, string> = {
+export const ICMPV4_TYPES: Record<number, string> = {
   0: 'Echo Reply',
   3: 'Destination Unreachable',
   5: 'Redirect Message',
@@ -21,26 +21,51 @@ export const ICMP_TYPES: Record<number, string> = {
   14: 'Timestamp Reply',
 }
 
+// ICMPv6 type assignments per RFC 4443 and related RFCs.
+export const ICMPV6_TYPES: Record<number, string> = {
+  1: 'Destination Unreachable',
+  2: 'Packet Too Big',
+  3: 'Time Exceeded',
+  4: 'Parameter Problem',
+  128: 'Echo Request',
+  129: 'Echo Reply',
+  133: 'Router Solicitation',
+  134: 'Router Advertisement',
+  135: 'Neighbor Solicitation',
+  136: 'Neighbor Advertisement',
+  137: 'Redirect Message',
+}
+
+export type IcmpVariant = 'icmp' | 'icmp6'
+
+const typesFor = (variant: IcmpVariant) =>
+  variant === 'icmp' ? ICMPV4_TYPES : ICMPV6_TYPES
+
+const labelFor = (variant: IcmpVariant) => (variant === 'icmp' ? 'ICMPv4' : 'ICMPv6')
+
 /**
  * Get the human-readable name for an ICMP type
  */
-export const getIcmpTypeName = (type: number): string | undefined => ICMP_TYPES[type]
+export const getIcmpTypeName = (
+  variant: IcmpVariant,
+  type: number
+): string | undefined => typesFor(variant)[type]
 
 /**
  * Get a display name for a protocol, including ICMP types and codes
  */
 export const getProtocolDisplayName = (protocol: VpcFirewallRuleProtocol): string => {
-  if (protocol.type === 'icmp') {
-    if (protocol.value === null) {
-      return 'ICMP (All types)'
-    } else {
-      const typeName =
-        ICMP_TYPES[protocol.value.icmpType] || `Type ${protocol.value.icmpType}`
-      const codePart = protocol.value.code ? ` | Code ${protocol.value.code}` : ''
-      return `ICMP ${protocol.value.icmpType} - ${typeName}${codePart}`
-    }
+  if (protocol.type === 'tcp' || protocol.type === 'udp') {
+    return protocol.type.toUpperCase()
   }
-  return protocol.type.toUpperCase()
+  const label = labelFor(protocol.type)
+  if (protocol.value === null) {
+    return `${label} (All types)`
+  }
+  const typeName =
+    typesFor(protocol.type)[protocol.value.icmpType] || `Type ${protocol.value.icmpType}`
+  const codePart = protocol.value.code ? ` | Code ${protocol.value.code}` : ''
+  return `${label} ${protocol.value.icmpType} - ${typeName}${codePart}`
 }
 
 /**
@@ -52,6 +77,6 @@ export const getProtocolKey = (protocol: VpcFirewallRuleProtocol): string => {
     return protocol.type
   }
   return protocol.value === null
-    ? 'icmp|all'
-    : `icmp|${protocol.value.icmpType}|${protocol.value.code || 'all'}`
+    ? `${protocol.type}|all`
+    : `${protocol.type}|${protocol.value.icmpType}|${protocol.value.code || 'all'}`
 }
