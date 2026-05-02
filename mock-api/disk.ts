@@ -9,7 +9,7 @@ import type { Disk, DiskState } from '@oxide/api'
 
 import { GiB } from '~/util/units'
 
-import { instance } from './instance'
+import { instance, stoppedInstance } from './instance'
 import type { Json } from './json-type'
 import { Rando } from './msw/rando'
 import { project, project2 } from './project'
@@ -83,9 +83,41 @@ export const disk2: Json<Disk> = {
   read_only: false,
 }
 
+export const stoppedBootDisk: Json<Disk> = {
+  id: 'f5bc2085-d18e-4698-86ab-69c62a74e541',
+  name: 'disk-stopped-boot',
+  description: 'boot disk for db-stopped',
+  project_id: project.id,
+  time_created: new Date().toISOString(),
+  time_modified: new Date().toISOString(),
+  state: { state: 'attached', instance: stoppedInstance.id },
+  device_path: '/abc',
+  size: 2 * GiB,
+  block_size: 2048,
+  disk_type: 'distributed',
+  read_only: false,
+}
+
+export const stoppedDataDisk: Json<Disk> = {
+  id: '8f25d709-a76b-4399-a105-f2cfd8e52604',
+  name: 'disk-stopped-data',
+  description: 'data disk for db-stopped',
+  project_id: project.id,
+  time_created: new Date().toISOString(),
+  time_modified: new Date().toISOString(),
+  state: { state: 'attached', instance: stoppedInstance.id },
+  device_path: '/def',
+  size: 4 * GiB,
+  block_size: 2048,
+  disk_type: 'distributed',
+  read_only: false,
+}
+
 export const disks: Json<Disk>[] = [
   disk1,
   disk2,
+  stoppedBootDisk,
+  stoppedDataDisk,
   {
     id: '3b768903-1d0b-4d78-9308-c12d3889bdfb',
     name: 'disk-3',

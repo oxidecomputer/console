@@ -7,13 +7,11 @@
  */
 import { expect, test } from '@playwright/test'
 
-import { expectObscured, stopInstance } from './utils'
+import { expectObscured } from './utils'
 
 test('Dropdown content in SidebarModal shows on screen', async ({ page }) => {
-  // go to an instance’s Network Interfaces page
-  await page.goto('/projects/mock-project/instances/db1/networking')
-
-  await stopInstance(page)
+  // go to a stopped instance's Network Interfaces page
+  await page.goto('/projects/mock-project/instances/db-stopped/networking')
 
   // open the add network interface side modal
   await page.getByRole('button', { name: 'Add network interface' }).click()
