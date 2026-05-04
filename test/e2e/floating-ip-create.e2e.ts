@@ -63,7 +63,7 @@ test('can view IP pool details from floating IP table', async ({ page }) => {
   await expect(dialog.getByText('v4')).toBeVisible()
   await expect(dialog.getByText('unicast')).toBeVisible()
 
-  await page.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click()
+  await dialog.locator('footer').getByRole('button', { name: 'Close' }).click()
   await expect(dialog).toBeHidden()
 })
 
