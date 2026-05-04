@@ -10,6 +10,8 @@ import { match } from 'ts-pattern'
 
 import type { VpcFirewallRuleProtocol } from '~/api'
 
+// IANA ICMP Type Numbers registry:
+// https://www.iana.org/assignments/icmp-parameters/icmp-parameters.xhtml#icmp-parameters-types
 export const ICMPV4_TYPES: Record<number, string> = {
   0: 'Echo Reply',
   3: 'Destination Unreachable',
@@ -23,7 +25,8 @@ export const ICMPV4_TYPES: Record<number, string> = {
   14: 'Timestamp Reply',
 }
 
-// ICMPv6 type assignments per RFC 4443 and related RFCs.
+// IANA ICMPv6 Type Numbers registry:
+// https://www.iana.org/assignments/icmpv6-parameters/icmpv6-parameters.xhtml#icmpv6-parameters-2
 export const ICMPV6_TYPES: Record<number, string> = {
   1: 'Destination Unreachable',
   2: 'Packet Too Big',
@@ -31,6 +34,9 @@ export const ICMPV6_TYPES: Record<number, string> = {
   4: 'Parameter Problem',
   128: 'Echo Request',
   129: 'Echo Reply',
+  130: 'Multicast Listener Query',
+  131: 'Multicast Listener Report',
+  132: 'Multicast Listener Done',
   133: 'Router Solicitation',
   134: 'Router Advertisement',
   135: 'Neighbor Solicitation',
