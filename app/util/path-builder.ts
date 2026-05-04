@@ -111,11 +111,10 @@ export const pb = {
     `${pb.antiAffinityGroup(params)}/edit`,
 
   siloUtilization: () => '/utilization',
-  siloAccess: () => '/access',
-  siloUsersAndGroupsUsers: () => '/users-and-groups/users',
-  siloUsersAndGroupsGroups: () => '/users-and-groups/groups',
+  siloAccessUsers: () => '/access/users',
+  siloAccessGroups: () => '/access/groups',
   // points to the default tab to avoid bouncing through the parent's redirect
-  siloUsersAndGroups: () => pb.siloUsersAndGroupsUsers(),
+  siloAccess: () => pb.siloAccessUsers(),
   siloImages: () => '/images',
   siloImageEdit: (params: PP.SiloImage) => `${pb.siloImages()}/${params.image}/edit`,
 

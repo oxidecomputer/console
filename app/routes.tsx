@@ -308,19 +308,15 @@ export const routes = createRoutesFromElements(
           />
         </Route>
 
-        <Route path="access" lazy={() => import('./pages/SiloAccessPage').then(convert)} />
-        <Route
-          path="users-and-groups"
-          lazy={() => import('./pages/SiloUsersAndGroupsPage').then(convert)}
-        >
+        <Route path="access" lazy={() => import('./pages/SiloAccessPage').then(convert)}>
           <Route index element={<Navigate to="users" replace />} />
           <Route
             path="users"
-            lazy={() => import('./pages/SiloUsersAndGroupsUsersTab').then(convert)}
+            lazy={() => import('./pages/SiloAccessUsersTab').then(convert)}
           />
           <Route
             path="groups"
-            lazy={() => import('./pages/SiloUsersAndGroupsGroupsTab').then(convert)}
+            lazy={() => import('./pages/SiloAccessGroupsTab').then(convert)}
           />
         </Route>
       </Route>

@@ -7,76 +7,15 @@
  */
 import { useForm } from 'react-hook-form'
 
-import {
-  api,
-  queryClient,
-  updateRole,
-  useActorsNotInPolicy,
-  useApiMutation,
-} from '@oxide/api'
+import { api, queryClient, updateRole, useApiMutation } from '@oxide/api'
 import { Access16Icon } from '@oxide/design-system/icons/react'
 
-import { ListboxField } from '~/components/form/fields/ListboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { ResourceLabel } from '~/ui/lib/SideModal'
 import { docLinks } from '~/util/links'
 
-import {
-  actorToItem,
-  defaultValues,
-  RoleRadioField,
-  type AddRoleModalProps,
-  type EditRoleModalProps,
-} from './access-util'
-
-export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
-  const actors = useActorsNotInPolicy(policy)
-
-  const updatePolicy = useApiMutation(api.policyUpdate, {
-    onSuccess: () => {
-      queryClient.invalidateEndpoint('policyView')
-      onDismiss()
-    },
-  })
-
-  const form = useForm({ defaultValues })
-
-  return (
-    <SideModalForm
-      form={form}
-      formType="create"
-      resourceName="role"
-      title="Add user or group"
-      submitLabel="Assign role"
-      onDismiss={() => {
-        updatePolicy.reset() // clear API error state so it doesn't persist on next open
-        onDismiss()
-      }}
-      onSubmit={({ identityId, roleName }) => {
-        // TODO: DRY logic
-        // actor is guaranteed to be in the list because it came from there
-        const identityType = actors.find((a) => a.id === identityId)!.identityType
-
-        updatePolicy.mutate({
-          body: updateRole({ identityId, identityType, roleName }, policy),
-        })
-      }}
-      loading={updatePolicy.isPending}
-      submitError={updatePolicy.error}
-    >
-      <ListboxField
-        name="identityId"
-        items={actors.map(actorToItem)}
-        label="User or group"
-        required
-        control={form.control}
-      />
-      <RoleRadioField name="roleName" control={form.control} scope="Silo" />
-      <SideModalFormDocs docs={[docLinks.access]} />
-    </SideModalForm>
-  )
-}
+import { RoleRadioField, type EditRoleModalProps } from './access-util'
 
 export function SiloAccessEditUserSideModal({
   onDismiss,
@@ -86,6 +25,7 @@ export function SiloAccessEditUserSideModal({
   policy,
   defaultValues,
 }: EditRoleModalProps) {
+  const isAssigning = !defaultValues.roleName
   const updatePolicy = useApiMutation(api.policyUpdate, {
     onSuccess: () => {
       queryClient.invalidateEndpoint('policyView')
@@ -97,9 +37,9 @@ export function SiloAccessEditUserSideModal({
   return (
     <SideModalForm
       form={form}
-      formType="edit"
+      formType={isAssigning ? 'create' : 'edit'}
       resourceName="role"
-      title="Edit role"
+      title={isAssigning ? 'Assign role' : 'Edit role'}
       subtitle={
         <ResourceLabel>
           <Access16Icon /> {name}

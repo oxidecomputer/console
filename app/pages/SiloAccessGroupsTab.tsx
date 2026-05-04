@@ -6,47 +6,41 @@
  * Copyright Oxide Computer Company
  */
 import { createColumnHelper } from '@tanstack/react-table'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import {
   api,
+  deleteRole,
   getListQFn,
   q,
   queryClient,
   rolesByIdFromPolicy,
+  useApiMutation,
   usePrefetchedQuery,
   type Group,
+  type SiloRole,
 } from '@oxide/api'
 import { PersonGroup24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
 import { GroupMembersSideModal } from '~/components/access/GroupMembersSideModal'
+import { HL } from '~/components/HL'
+import { SiloAccessEditUserSideModal } from '~/forms/silo-access'
 import { titleCrumb } from '~/hooks/use-crumbs'
+import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { ButtonCell } from '~/table/cells/LinkCell'
 import { MemberCountCell } from '~/table/cells/MemberCountCell'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { roleColor } from '~/util/access'
-import { ALL_ISH } from '~/util/consts'
 
+// data fetching for both tabs lives in the parent SiloAccessPage loader
 const policyView = q(api.policyView, {})
 const groupList = getListQFn(api.groupList, {})
-const groupListAll = q(api.groupList, { query: { limit: ALL_ISH } })
-
-export async function clientLoader() {
-  // prefetch member lists so MemberCountCell renders without an on-mount fetch
-  const groups = await queryClient.fetchQuery(groupListAll)
-  await Promise.all([
-    queryClient.prefetchQuery(policyView),
-    queryClient.prefetchQuery(groupList.optionsFn()),
-    ...groups.items.map((g) =>
-      queryClient.prefetchQuery(q(api.userList, { query: { group: g.id, limit: ALL_ISH } }))
-    ),
-  ])
-  return null
-}
 
 export const handle = titleCrumb('Groups')
 
@@ -60,12 +54,22 @@ const GroupEmptyState = () => (
   />
 )
 
-export default function SiloUsersAndGroupsGroupsTab() {
+type EditingState = { group: Group; defaultRole: SiloRole | undefined }
+
+export default function SiloAccessGroupsTab() {
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null)
+  const [editingGroup, setEditingGroup] = useState<EditingState | null>(null)
 
   const { data: siloPolicy } = usePrefetchedQuery(policyView)
 
   const siloRoleById = useMemo(() => rolesByIdFromPolicy(siloPolicy), [siloPolicy])
+
+  const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
+    onSuccess: () => {
+      queryClient.invalidateEndpoint('policyView')
+      addToast({ content: 'Role removed' })
+    },
+  })
 
   const siloRoleCol = useMemo(
     () =>
@@ -101,7 +105,39 @@ export default function SiloUsersAndGroupsGroupsTab() {
     [siloRoleCol]
   )
 
-  const columns = staticColumns
+  const makeActions = useCallback(
+    (group: Group): MenuAction[] => {
+      const directRole = siloRoleById.get(group.id)
+      if (!directRole) {
+        return [
+          {
+            label: 'Assign role',
+            onActivate: () => setEditingGroup({ group, defaultRole: undefined }),
+          },
+        ]
+      }
+      return [
+        {
+          label: 'Change role',
+          onActivate: () => setEditingGroup({ group, defaultRole: directRole }),
+        },
+        {
+          label: 'Remove role',
+          onActivate: confirmDelete({
+            doDelete: () => updatePolicy({ body: deleteRole(group.id, siloPolicy) }),
+            label: (
+              <span>
+                the <HL>{directRole}</HL> role for <HL>{group.displayName}</HL>
+              </span>
+            ),
+          }),
+        },
+      ]
+    },
+    [siloRoleById, siloPolicy, updatePolicy]
+  )
+
+  const columns = useColsWithActions(staticColumns, makeActions)
 
   const { table } = useQueryTable({
     query: groupList,
@@ -112,6 +148,16 @@ export default function SiloUsersAndGroupsGroupsTab() {
   return (
     <>
       {table}
+      {editingGroup && (
+        <SiloAccessEditUserSideModal
+          onDismiss={() => setEditingGroup(null)}
+          policy={siloPolicy}
+          name={editingGroup.group.displayName}
+          identityId={editingGroup.group.id}
+          identityType="silo_group"
+          defaultValues={{ roleName: editingGroup.defaultRole }}
+        />
+      )}
       {selectedGroup && (
         <GroupMembersSideModal
           group={selectedGroup}

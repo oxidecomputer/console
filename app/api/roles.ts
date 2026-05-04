@@ -151,11 +151,11 @@ export function useActorsNotInPolicy<Role extends RoleKey = RoleKey>(
   }, [users, groups, policy])
 }
 
-export function userRoleFromPolicies(
+export function userRoleFromPolicies<Role extends RoleKey>(
   user: { id: string },
   groups: { id: string }[],
-  policy: Policy
-): RoleKey | null {
+  policy: Policy<Role>
+): Role | null {
   const myIds = new Set([user.id, ...groups.map((g) => g.id)])
   const myRoles = policy.roleAssignments
     .filter((ra) => myIds.has(ra.identityId))

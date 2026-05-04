@@ -6,28 +6,36 @@
  * Copyright Oxide Computer Company
  */
 import { createColumnHelper } from '@tanstack/react-table'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import {
   api,
+  deleteRole,
   getListQFn,
   q,
   queryClient,
   roleOrder,
   rolesByIdFromPolicy,
+  useApiMutation,
   useGroupsByUserId,
   usePrefetchedQuery,
   userRoleFromPolicies,
+  type SiloRole,
   type User,
 } from '@oxide/api'
 import { Person24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
 import { UserDetailsSideModal } from '~/components/access/UserDetailsSideModal'
+import { HL } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
+import { SiloAccessEditUserSideModal } from '~/forms/silo-access'
 import { titleCrumb } from '~/hooks/use-crumbs'
+import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { ButtonCell } from '~/table/cells/LinkCell'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -35,21 +43,10 @@ import { TipIcon } from '~/ui/lib/TipIcon'
 import { roleColor } from '~/util/access'
 import { ALL_ISH } from '~/util/consts'
 
+// data fetching for both tabs lives in the parent SiloAccessPage loader
 const policyView = q(api.policyView, {})
 const userList = getListQFn(api.userList, {})
 const groupListAll = q(api.groupList, { query: { limit: ALL_ISH } })
-
-export async function clientLoader() {
-  const groups = await queryClient.fetchQuery(groupListAll)
-  await Promise.all([
-    queryClient.prefetchQuery(policyView),
-    queryClient.prefetchQuery(userList.optionsFn()),
-    ...groups.items.map((g) =>
-      queryClient.prefetchQuery(q(api.userList, { query: { group: g.id, limit: ALL_ISH } }))
-    ),
-  ])
-  return null
-}
 
 export const handle = titleCrumb('Users')
 
@@ -65,8 +62,11 @@ const EmptyState = () => (
   />
 )
 
-export default function SiloUsersAndGroupsUsersTab() {
+type EditingState = { user: User; defaultRole: SiloRole | undefined }
+
+export default function SiloAccessUsersTab() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [editingUser, setEditingUser] = useState<EditingState | null>(null)
 
   const { data: siloPolicy } = usePrefetchedQuery(policyView)
   const { data: groups } = usePrefetchedQuery(groupListAll)
@@ -74,6 +74,13 @@ export default function SiloUsersAndGroupsUsersTab() {
   const siloRoleById = useMemo(() => rolesByIdFromPolicy(siloPolicy), [siloPolicy])
 
   const groupsByUserId = useGroupsByUserId(groups.items)
+
+  const { mutateAsync: updatePolicy } = useApiMutation(api.policyUpdate, {
+    onSuccess: () => {
+      queryClient.invalidateEndpoint('policyView')
+      addToast({ content: 'Role removed' })
+    },
+  })
 
   const siloRoleCol = useMemo(
     () =>
@@ -134,7 +141,7 @@ export default function SiloUsersAndGroupsUsersTab() {
     [groupsByUserId]
   )
 
-  const columns = useMemo(
+  const staticColumns = useMemo(
     () => [
       colHelper.accessor('displayName', {
         header: 'Name',
@@ -151,11 +158,66 @@ export default function SiloUsersAndGroupsUsersTab() {
     [siloRoleCol, groupsCol]
   )
 
+  const makeActions = useCallback(
+    (user: User): MenuAction[] => {
+      const directRole = siloRoleById.get(user.id)
+      const userGroups = groupsByUserId.get(user.id) ?? []
+      const effectiveRole = userRoleFromPolicies(user, userGroups, siloPolicy)
+      // Only show "Assign role" when there's no role at all — direct or inherited.
+      // If there's any role in the badge, we show Change/Remove (Remove is
+      // disabled for inherited-only since there's no direct assignment to delete).
+      if (!effectiveRole) {
+        return [
+          {
+            label: 'Assign role',
+            onActivate: () => setEditingUser({ user, defaultRole: undefined }),
+          },
+        ]
+      }
+      return [
+        {
+          label: 'Change role',
+          // pre-fill with the inherited role when there's no direct assignment,
+          // so the modal opens in 'edit' mode rather than 'assign' mode and the
+          // user can see what role is currently in effect
+          onActivate: () =>
+            setEditingUser({ user, defaultRole: directRole ?? effectiveRole }),
+        },
+        {
+          label: 'Remove role',
+          onActivate: confirmDelete({
+            doDelete: () => updatePolicy({ body: deleteRole(user.id, siloPolicy) }),
+            label: (
+              <span>
+                the <HL>{directRole}</HL> role for <HL>{user.displayName}</HL>
+              </span>
+            ),
+          }),
+          disabled:
+            !directRole && 'Role is inherited from a group; modify the group to revoke',
+        },
+      ]
+    },
+    [siloRoleById, siloPolicy, updatePolicy, groupsByUserId]
+  )
+
+  const columns = useColsWithActions(staticColumns, makeActions)
+
   const { table } = useQueryTable({ query: userList, columns, emptyState: <EmptyState /> })
 
   return (
     <>
       {table}
+      {editingUser && (
+        <SiloAccessEditUserSideModal
+          onDismiss={() => setEditingUser(null)}
+          policy={siloPolicy}
+          name={editingUser.user.displayName}
+          identityId={editingUser.user.id}
+          identityType="silo_user"
+          defaultValues={{ roleName: editingUser.defaultRole }}
+        />
+      )}
       {selectedUser && (
         <UserDetailsSideModal
           user={selectedUser}

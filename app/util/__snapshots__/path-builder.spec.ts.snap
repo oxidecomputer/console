@@ -617,10 +617,22 @@ exports[`breadcrumbs 2`] = `
       "path": "/system/silos/s/idps",
     },
   ],
-  "siloAccess (/access)": [
+  "siloAccess (/access/users)": [
     {
       "label": "Silo Access",
-      "path": "/access",
+      "path": "/access/users",
+    },
+  ],
+  "siloAccessGroups (/access/groups)": [
+    {
+      "label": "Silo Access",
+      "path": "/access/users",
+    },
+  ],
+  "siloAccessUsers (/access/users)": [
+    {
+      "label": "Silo Access",
+      "path": "/access/users",
     },
   ],
   "siloFleetRoles (/system/silos/s/fleet-roles)": [
@@ -731,24 +743,6 @@ exports[`breadcrumbs 2`] = `
     {
       "label": "Subnet Pools",
       "path": "/system/silos/s/subnet-pools",
-    },
-  ],
-  "siloUsersAndGroups (/users-and-groups/users)": [
-    {
-      "label": "Users & Groups",
-      "path": "/users-and-groups/users",
-    },
-  ],
-  "siloUsersAndGroupsGroups (/users-and-groups/groups)": [
-    {
-      "label": "Users & Groups",
-      "path": "/users-and-groups/users",
-    },
-  ],
-  "siloUsersAndGroupsUsers (/users-and-groups/users)": [
-    {
-      "label": "Users & Groups",
-      "path": "/users-and-groups/users",
     },
   ],
   "siloUtilization (/utilization)": [
