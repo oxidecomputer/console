@@ -153,7 +153,7 @@ export default function FloatingIpsPage() {
                     path: { floatingIp: floatingIp.name },
                     query: { project },
                   }),
-                modalTitle: 'Detach Floating IP',
+                modalTitle: 'Detach floating IP',
                 // instanceName! non-null because we only see this if there is an instance
                 modalContent: (
                   <p>

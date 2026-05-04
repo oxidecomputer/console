@@ -512,7 +512,7 @@ export default function NetworkingTab() {
                 path: { externalSubnet: subnet.name },
                 query: { project },
               }),
-            modalTitle: 'Detach External Subnet',
+            modalTitle: 'Detach external subnet',
             modalContent: (
               <p>
                 Are you sure you want to detach external subnet <HL>{subnet.name}</HL> from{' '}
