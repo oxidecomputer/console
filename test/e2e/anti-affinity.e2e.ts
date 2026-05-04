@@ -207,7 +207,7 @@ test('add and remove instance from group on instance settings', async ({ page })
 
   // Stop the instance
   await page.getByRole('button', { name: 'Stop' }).click()
-  const confirmStopModal = page.getByRole('dialog', { name: 'Confirm stop' })
+  const confirmStopModal = page.getByRole('dialog', { name: 'Stop instance' })
   await expect(confirmStopModal).toBeVisible()
   await confirmStopModal.getByRole('button', { name: 'Confirm' }).click()
   await expect(confirmStopModal).toBeHidden()

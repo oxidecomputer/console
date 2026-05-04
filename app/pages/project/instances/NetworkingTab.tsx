@@ -587,7 +587,7 @@ export default function NetworkingTab() {
             confirmAction({
               actionType: 'danger',
               doAction: doDetach,
-              modalTitle: `Confirm detach ${externalIp.kind} IP`,
+              modalTitle: `Detach ${externalIp.kind} IP`,
               modalContent: (
                 <p>
                   Are you sure you want to detach {label} from <HL>{instanceName}</HL>? The

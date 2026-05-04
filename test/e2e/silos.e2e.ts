@@ -287,7 +287,7 @@ test('Silo IP pools', async ({ page }) => {
   await clickRowAction(page, 'ip-pool-1', 'Unlink')
   await expect(
     page
-      .getByRole('dialog', { name: 'Confirm unlink pool' })
+      .getByRole('dialog', { name: 'Unlink pool' })
       .getByText('Are you sure you want to unlink ip-pool-1?')
   ).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
@@ -299,7 +299,7 @@ test('Silo IP pools', async ({ page }) => {
   await clickRowAction(page, 'ip-pool-2', 'Clear default')
   await expect(
     page
-      .getByRole('dialog', { name: 'Confirm clear default' })
+      .getByRole('dialog', { name: 'Clear default' })
       .getByText('Are you sure you want ip-pool-2 to stop being the default')
   ).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()

@@ -87,7 +87,7 @@ test('IP pool silo list', async ({ page }) => {
 
   // unlink silo and the row is gone
   await clickRowAction(page, 'maze-war', 'Unlink')
-  await expect(page.getByRole('dialog', { name: 'Confirm unlink' })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'Unlink silo' })).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(siloLink).toBeHidden()
 })
@@ -133,7 +133,7 @@ test('IP pool silo make default (no existing default)', async ({ page }) => {
 
   await clickRowAction(page, 'pelerines', 'Make default')
 
-  const dialog = page.getByRole('dialog', { name: 'Confirm make default' })
+  const dialog = page.getByRole('dialog', { name: 'Make default' })
   await expect(
     dialog.getByText(
       'Are you sure you want to make ip-pool-1 the default IPv4 unicast pool for silo pelerines?'
@@ -153,7 +153,7 @@ test('IP pool silo make default (with existing default)', async ({ page }) => {
 
   await clickRowAction(page, 'myriad', 'Make default')
 
-  const dialog = page.getByRole('dialog', { name: 'Confirm change default' })
+  const dialog = page.getByRole('dialog', { name: 'Change default' })
   await expect(
     dialog.getByText(
       'Are you sure you want to change the default IPv4 unicast pool for silo myriad from ip-pool-1 to ip-pool-3?'
@@ -172,7 +172,7 @@ test('IP pool silo clear default', async ({ page }) => {
 
   await clickRowAction(page, 'maze-war', 'Clear default')
 
-  const dialog = page.getByRole('dialog', { name: 'Confirm clear default' })
+  const dialog = page.getByRole('dialog', { name: 'Clear default' })
   await expect(
     dialog.getByText(
       'Are you sure you want ip-pool-1 to stop being the default IPv4 unicast pool for silo maze-war?'
@@ -375,7 +375,7 @@ test('remove range', async ({ page }) => {
 
   await clickRowAction(page, '10.0.0.20', 'Remove')
 
-  const confirmModal = page.getByRole('dialog', { name: 'Confirm remove range' })
+  const confirmModal = page.getByRole('dialog', { name: 'Remove range' })
   await expect(confirmModal.getByText('range 10.0.0.20–10.0.0.22')).toBeVisible()
 
   await page.getByRole('button', { name: 'Cancel' }).click()

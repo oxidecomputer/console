@@ -152,7 +152,7 @@ export default function RouterPage() {
           confirmAction({
             doAction: () => deleteRouterRoute({ path: { route: routerRoute.id } }),
             errorTitle: 'Could not remove route',
-            modalTitle: 'Confirm remove route',
+            modalTitle: 'Remove route',
             modalContent: (
               <p>
                 Are you sure you want to delete route <HL>{routerRoute.name}</HL>?

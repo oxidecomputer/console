@@ -57,6 +57,7 @@ import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
+import { capitalize } from '~/util/str'
 
 const ipPoolView = ({ pool }: PP.IpPool) => q(api.systemIpPoolView, { path: { pool } })
 const ipPoolUtilizationView = ({ pool }: PP.IpPool) =>
@@ -257,7 +258,7 @@ function IpRangesTable() {
                 body: range,
               }),
             errorTitle: 'Could not remove range',
-            modalTitle: 'Confirm remove range',
+            modalTitle: 'Remove range',
             modalContent: (
               <p>
                 Are you sure you want to remove range{' '}
@@ -327,7 +328,7 @@ function LinkedSilosTable() {
                   path: { silo: link.siloId, pool: link.ipPoolId },
                   body: { isDefault: false },
                 }),
-              modalTitle: 'Confirm clear default',
+              modalTitle: 'Clear default',
               modalContent: (
                 <p>
                   Are you sure you want <HL>{pool.name}</HL> to stop being the default{' '}
@@ -377,7 +378,7 @@ function LinkedSilosTable() {
                       path: { silo: link.siloId, pool: link.ipPoolId },
                       body: { isDefault: true },
                     }),
-                  modalTitle: `Confirm ${verb} default`,
+                  modalTitle: `${capitalize(verb)} default`,
                   modalContent,
                   errorTitle: `Could not ${verb} default`,
                   actionType: 'primary',
@@ -396,7 +397,7 @@ function LinkedSilosTable() {
           confirmAction({
             doAction: () =>
               unlinkSilo({ path: { silo: link.siloId, pool: link.ipPoolId } }),
-            modalTitle: 'Confirm unlink silo',
+            modalTitle: 'Unlink silo',
             modalContent: (
               <p>
                 Are you sure you want to unlink {siloLabel} from <HL>{pool.name}</HL>? Users

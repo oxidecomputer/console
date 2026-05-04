@@ -154,7 +154,7 @@ test('Instance networking tab — Detach / Attach Ephemeral IPs', async ({ page 
   // an explicit ipVersion selector), then reattach it.
   await clickRowAction(page, 'fd00::1', 'Detach')
   const confirmDetachDialog = page.getByRole('dialog', {
-    name: 'Confirm detach ephemeral IP',
+    name: 'Detach ephemeral IP',
   })
   await expect(confirmDetachDialog).toBeVisible()
   await confirmDetachDialog.getByRole('button', { name: 'Confirm' }).click()
