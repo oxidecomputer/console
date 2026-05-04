@@ -289,7 +289,7 @@ test('Subnet pool delete', async ({ page }) => {
   // Use client-side navigation to preserve MSW db state
   await page.getByLabel('Breadcrumbs').getByRole('link', { name: 'Subnet Pools' }).click()
   await clickRowAction(page, 'secondary-v4-subnet-pool', 'Delete')
-  const deleteDialog = page.getByRole('dialog', { name: 'Confirm delete' })
+  const deleteDialog = page.getByRole('dialog', { name: 'Delete subnet pool' })
   await expect(deleteDialog).toBeVisible()
   await deleteDialog.getByRole('button', { name: 'Confirm' }).click()
   await expect(page.getByRole('cell', { name: 'secondary-v4-subnet-pool' })).toBeHidden()

@@ -188,7 +188,7 @@ test('IP pool delete from IP Pools list page', async ({ page }) => {
 
   // can't delete a pool containing ranges
   await clickRowAction(page, 'ip-pool-1', 'Delete')
-  await expect(page.getByRole('dialog', { name: 'Confirm delete' })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'Delete IP pool' })).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
 
   await expectToast(
@@ -200,7 +200,7 @@ test('IP pool delete from IP Pools list page', async ({ page }) => {
 
   // can delete a pool with no ranges
   await clickRowAction(page, 'ip-pool-3', 'Delete')
-  await expect(page.getByRole('dialog', { name: 'Confirm delete' })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'Delete IP pool' })).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
 
   await expect(page.getByRole('cell', { name: 'ip-pool-3' })).toBeHidden()
@@ -216,7 +216,7 @@ test('IP pool delete from IP Pool view page', async ({ page }) => {
   await page.goto('/system/networking/ip-pools/ip-pool-3')
   await page.getByRole('button', { name: 'IP pool actions' }).click()
   await page.getByRole('menuitem', { name: 'Delete' }).click()
-  await expect(page.getByRole('dialog', { name: 'Confirm delete' })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'Delete IP pool' })).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
 
   // get redirected back to the list after successful delete

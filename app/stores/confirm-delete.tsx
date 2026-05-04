@@ -23,7 +23,7 @@ type DeleteConfig = {
    * directly.
    */
   label: React.ReactNode
-  /** Lowercase resource type, used in the modal title ("Confirm delete X") and
+  /** Lowercase resource type, used in the modal title ("Delete X") and
    * the error toast title ("Could not delete X"). */
   resourceKind: string
   extraContent?: React.ReactNode
@@ -43,7 +43,7 @@ export const confirmDelete =
           </div>
         ),
         errorTitle: `Could not delete ${resourceKind}`,
-        modalTitle: `Confirm delete ${resourceKind}`,
+        modalTitle: `Delete ${resourceKind}`,
         actionType: 'danger',
       },
     })

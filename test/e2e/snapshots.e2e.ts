@@ -53,7 +53,7 @@ test('Confirm delete snapshot', async ({ page }) => {
 
   await clickDelete()
 
-  const modal = page.getByRole('dialog', { name: 'Confirm delete' })
+  const modal = page.getByRole('dialog', { name: 'Delete snapshot' })
   await expect(modal).toBeVisible()
 
   // cancel works
@@ -77,7 +77,7 @@ test('Error on delete snapshot', async ({ page }) => {
   await row.getByRole('button', { name: 'Row actions' }).click()
   await page.getByRole('menuitem', { name: 'Delete' }).click()
 
-  const modal = page.getByRole('dialog', { name: 'Confirm delete' })
+  const modal = page.getByRole('dialog', { name: 'Delete snapshot' })
   await expect(modal).toBeVisible()
 
   const spinner = page.getByRole('dialog').getByLabel('Spinner')

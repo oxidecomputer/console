@@ -170,7 +170,7 @@ test('can delete an anti-affinity group', async ({ page }) => {
 test('can delete anti-affinity group from detail page', async ({ page }) => {
   await page.goto('/projects/mock-project/affinity/romulus-remus')
 
-  const modal = page.getByRole('dialog', { name: 'Confirm delete' })
+  const modal = page.getByRole('dialog', { name: 'Delete anti-affinity group' })
   await expect(modal).toBeHidden()
 
   await page.getByLabel('Anti-affinity group actions').click()
