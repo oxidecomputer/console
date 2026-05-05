@@ -99,7 +99,8 @@ test('Create image from snapshot', async ({ page }) => {
 
   await clickRowAction(page, 'disk-1-snapshot-8', 'Create image')
 
-  await expectVisible(page, ['role=dialog[name="Create image from snapshot"]'])
+  const modal = page.getByRole('dialog', { name: 'Create image from snapshot' })
+  await expect(modal).toBeVisible()
 
   await page.fill('role=textbox[name="Name"]', 'image-from-snapshot-8')
   await page.fill('role=textbox[name="Description"]', 'image description')
@@ -109,8 +110,10 @@ test('Create image from snapshot', async ({ page }) => {
   await page.click('role=button[name="Create image"]')
 
   await expect(page).toHaveURL('/projects/mock-project/snapshots')
+  await expect(modal).toBeHidden()
 
-  await page.click('role=link[name*="Images"]')
+  await page.getByRole('link', { name: 'Images', exact: true }).click()
+  await expect(page).toHaveURL('/projects/mock-project/images')
   await expectRowVisible(page.getByRole('table'), {
     name: 'image-from-snapshot-8',
     description: 'image description',
