@@ -11,7 +11,7 @@ import {
   roleOrder,
   userScopedRoleEntries,
   type Group,
-  type Policy,
+  type ScopedPolicy,
   type User,
 } from '@oxide/api'
 import { Person16Icon } from '@oxide/design-system/icons/react'
@@ -28,12 +28,17 @@ type Props = {
   user: User
   onDismiss: () => void
   userGroups: Group[]
-  policy: Policy
+  scopedPolicies: ScopedPolicy[]
 }
 
-export function UserDetailsSideModal({ user, onDismiss, userGroups, policy }: Props) {
+export function UserDetailsSideModal({
+  user,
+  onDismiss,
+  userGroups,
+  scopedPolicies,
+}: Props) {
   const roleEntries = R.sortBy(
-    userScopedRoleEntries(user.id, userGroups, policy),
+    userScopedRoleEntries(user.id, userGroups, scopedPolicies),
     (e) => roleOrder[e.roleName]
   )
 
@@ -68,10 +73,12 @@ export function UserDetailsSideModal({ user, onDismiss, userGroups, policy }: Pr
                 </Table.Cell>
               </Table.Row>
             ) : (
-              roleEntries.map(({ roleName, source }, i) => (
+              roleEntries.map(({ roleName, scope, source }, i) => (
                 <Table.Row key={i}>
                   <Table.Cell>
-                    <Badge color={roleColor[roleName]}>silo.{roleName}</Badge>
+                    <Badge color={roleColor[roleName]}>
+                      {scope}.{roleName}
+                    </Badge>
                   </Table.Cell>
                   <Table.Cell>
                     {source.type === 'direct' && 'Assigned'}

@@ -163,29 +163,58 @@ export function userRoleFromPolicies<Role extends RoleKey>(
   return getEffectiveRole(myRoles) || null
 }
 
+export type AccessScope = 'silo' | 'project'
+export type ScopedPolicy = { scope: AccessScope; policy: Policy }
+
 export type ScopedRoleEntry = {
   roleName: RoleKey
+  scope: AccessScope
   source: { type: 'direct' } | { type: 'group'; group: { id: string; displayName: string } }
 }
 
 /**
  * Enumerate all role assignments relevant to a user — one entry per direct
- * assignment and one per group assignment — from the silo policy.
+ * assignment and one per group assignment — across the given policies. Each
+ * entry is tagged with the scope of the policy it came from.
  * Callers are responsible for sorting and any display-layer merging.
  */
 export function userScopedRoleEntries(
   userId: string,
   userGroups: { id: string; displayName: string }[],
-  policy: Policy
+  scopedPolicies: ScopedPolicy[]
 ): ScopedRoleEntry[] {
   const entries: ScopedRoleEntry[] = []
-  const direct = policy.roleAssignments.find((ra) => ra.identityId === userId)
-  if (direct) entries.push({ roleName: direct.roleName, source: { type: 'direct' } })
-  for (const group of userGroups) {
-    const via = policy.roleAssignments.find((ra) => ra.identityId === group.id)
-    if (via) entries.push({ roleName: via.roleName, source: { type: 'group', group } })
+  for (const { scope, policy } of scopedPolicies) {
+    const direct = policy.roleAssignments.find((ra) => ra.identityId === userId)
+    if (direct) {
+      entries.push({ roleName: direct.roleName, scope, source: { type: 'direct' } })
+    }
+    for (const group of userGroups) {
+      const via = policy.roleAssignments.find((ra) => ra.identityId === group.id)
+      if (via) {
+        entries.push({ roleName: via.roleName, scope, source: { type: 'group', group } })
+      }
+    }
   }
   return entries
+}
+
+/**
+ * Pick the strongest role across entries. Ties go to silo scope, since silo
+ * roles cascade into projects.
+ */
+export function effectiveScopedRole(
+  entries: ScopedRoleEntry[]
+): { role: RoleKey; scope: AccessScope } | null {
+  if (entries.length === 0) return null
+  // strongest role overall
+  const strongest = R.firstBy(entries, (e) => roleOrder[e.roleName])!
+  const role = strongest.roleName
+  // prefer silo scope when silo has a role at least as strong
+  const siloDominates = entries.some(
+    (e) => e.scope === 'silo' && roleOrder[e.roleName] <= roleOrder[role]
+  )
+  return { role, scope: siloDominates ? 'silo' : 'project' }
 }
 
 /**

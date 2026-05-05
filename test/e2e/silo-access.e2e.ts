@@ -7,13 +7,16 @@
  */
 import { expect, expectRowVisible, expectVisible, test } from './utils'
 
-test('Access page lands on Users tab and shows direct + via-group silo roles', async ({
+test('Access page lands on Groups tab; Users tab shows direct + via-group silo roles', async ({
   page,
 }) => {
   await page.goto('/')
   await page.click('role=link[name*="Access"]')
 
   await expectVisible(page, ['role=heading[name*="Access"]'])
+  await expect(page).toHaveURL(/\/access\/groups$/)
+
+  await page.getByRole('tab', { name: 'Users' }).click()
   await expect(page).toHaveURL(/\/access\/users$/)
 
   const table = page.getByRole('table')
@@ -22,19 +25,19 @@ test('Access page lands on Users tab and shows direct + via-group silo roles', a
   // group (kernel-devs) and "+1" for web-devs
   await expectRowVisible(table, {
     Name: 'Hannah Arendt',
-    'Silo Role': 'silo.admin',
+    Role: 'silo.admin',
     Groups: 'kernel-devs+1',
   })
 
   // Hans Jonas has no direct role but inherits silo.collaborator from real-estate-devs
   await expectRowVisible(table, {
     Name: 'Hans Jonas',
-    'Silo Role': 'silo.collaborator',
+    Role: 'silo.collaborator',
     Groups: 'real-estate-devs',
   })
 
   // Jacob Klein has no silo role and no groups
-  await expectRowVisible(table, { Name: 'Jacob Klein', 'Silo Role': '—', Groups: '—' })
+  await expectRowVisible(table, { Name: 'Jacob Klein', Role: '—', Groups: '—' })
 })
 
 test('User details side modal shows assigned + via-group roles and group list', async ({
@@ -81,7 +84,7 @@ test('Change and remove a user role from the Users tab', async ({ page }) => {
   await expect(page.getByRole('radio', { name: /^Admin / })).toBeChecked()
   await page.getByRole('radio', { name: /^Viewer / }).click()
   await page.getByRole('button', { name: 'Update role' }).click()
-  await expectRowVisible(table, { Name: 'Hannah Arendt', 'Silo Role': 'silo.viewer' })
+  await expectRowVisible(table, { Name: 'Hannah Arendt', Role: 'silo.viewer' })
 
   // Remove Hannah's direct role; she still inherits via groups so the row stays
   await table
@@ -93,7 +96,7 @@ test('Change and remove a user role from the Users tab', async ({ page }) => {
   // After removal, Hannah no longer has a direct silo role, so her displayed role
   // reflects whatever she inherits via her groups (kernel-devs, web-devs have no
   // silo role assignments by default in mock data).
-  await expectRowVisible(table, { Name: 'Hannah Arendt', 'Silo Role': '—' })
+  await expectRowVisible(table, { Name: 'Hannah Arendt', Role: '—' })
 })
 
 test('Assign role to a user with no direct role from the row action', async ({ page }) => {
@@ -120,7 +123,7 @@ test('Assign role to a user with no direct role from the row action', async ({ p
 
   await expectRowVisible(table, {
     Name: 'Jacob Klein',
-    'Silo Role': 'silo.collaborator',
+    Role: 'silo.collaborator',
   })
 })
 
@@ -154,11 +157,11 @@ test('Groups tab shows roles and member counts; modal lists members', async ({ p
 
   await expectRowVisible(table, {
     Name: 'real-estate-devs',
-    'Silo Role': 'silo.collaborator',
+    Role: 'silo.collaborator',
     Users: '2',
   })
-  await expectRowVisible(table, { Name: 'kernel-devs', 'Silo Role': '—', Users: '1' })
-  await expectRowVisible(table, { Name: 'web-devs', 'Silo Role': '—', Users: '1' })
+  await expectRowVisible(table, { Name: 'kernel-devs', Role: '—', Users: '1' })
+  await expectRowVisible(table, { Name: 'web-devs', Role: '—', Users: '1' })
 
   // Open the real-estate-devs group modal
   await page.getByRole('button', { name: 'real-estate-devs' }).click()
@@ -185,7 +188,7 @@ test('Change and remove a group role from the Groups tab', async ({ page }) => {
   await page.getByRole('button', { name: 'Update role' }).click()
   await expectRowVisible(table, {
     Name: 'real-estate-devs',
-    'Silo Role': 'silo.viewer',
+    Role: 'silo.viewer',
   })
 
   // Remove the role
@@ -195,7 +198,7 @@ test('Change and remove a group role from the Groups tab', async ({ page }) => {
     .click()
   await page.getByRole('menuitem', { name: 'Remove role' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
-  await expectRowVisible(table, { Name: 'real-estate-devs', 'Silo Role': '—' })
+  await expectRowVisible(table, { Name: 'real-estate-devs', Role: '—' })
 })
 
 test('Assign a role to a group with no direct role from the row action', async ({
@@ -216,5 +219,5 @@ test('Assign a role to a group with no direct role from the row action', async (
   await page.getByRole('radio', { name: /^Viewer / }).click()
   await page.getByRole('button', { name: 'Assign role' }).click()
 
-  await expectRowVisible(table, { Name: 'kernel-devs', 'Silo Role': 'silo.viewer' })
+  await expectRowVisible(table, { Name: 'kernel-devs', Role: 'silo.viewer' })
 })

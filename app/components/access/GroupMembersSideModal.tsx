@@ -7,7 +7,7 @@
  */
 import { useQuery } from '@tanstack/react-query'
 
-import { api, q, type Group, type Policy, type User } from '@oxide/api'
+import { api, q, type Group, type ScopedPolicy, type User } from '@oxide/api'
 import { PersonGroup16Icon, PersonGroup24Icon } from '@oxide/design-system/icons/react'
 import { Badge } from '@oxide/design-system/ui'
 
@@ -23,14 +23,18 @@ import { ALL_ISH } from '~/util/consts'
 type Props = {
   group: Group
   onDismiss: () => void
-  policy: Policy
+  scopedPolicies: ScopedPolicy[]
 }
 
-export function GroupMembersSideModal({ group, onDismiss, policy }: Props) {
+export function GroupMembersSideModal({ group, onDismiss, scopedPolicies }: Props) {
   const { data } = useQuery(q(api.userList, { query: { group: group.id, limit: ALL_ISH } }))
   const members = data?.items ?? []
 
-  const assignment = policy.roleAssignments.find((ra) => ra.identityId === group.id)
+  // role assignments for this group across all relevant policies
+  const assignments = scopedPolicies.flatMap(({ scope, policy }) => {
+    const ra = policy.roleAssignments.find((ra) => ra.identityId === group.id)
+    return ra ? [{ scope, roleName: ra.roleName }] : []
+  })
 
   return (
     <ReadOnlySideModalForm
@@ -56,21 +60,23 @@ export function GroupMembersSideModal({ group, onDismiss, policy }: Props) {
             </Table.HeaderRow>
           </Table.Header>
           <Table.Body>
-            {!assignment ? (
+            {assignments.length === 0 ? (
               <Table.Row>
                 <Table.Cell colSpan={2} className="text-secondary">
                   No roles assigned
                 </Table.Cell>
               </Table.Row>
             ) : (
-              <Table.Row>
-                <Table.Cell>
-                  <Badge color={roleColor[assignment.roleName]}>
-                    silo.{assignment.roleName}
-                  </Badge>
-                </Table.Cell>
-                <Table.Cell>Assigned</Table.Cell>
-              </Table.Row>
+              assignments.map(({ scope, roleName }) => (
+                <Table.Row key={scope}>
+                  <Table.Cell>
+                    <Badge color={roleColor[roleName]}>
+                      {scope}.{roleName}
+                    </Badge>
+                  </Table.Cell>
+                  <Table.Cell>Assigned</Table.Cell>
+                </Table.Row>
+              ))
             )}
           </Table.Body>
         </table>
