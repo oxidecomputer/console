@@ -10,7 +10,8 @@ import { match } from 'ts-pattern'
 
 import type { VpcFirewallRuleProtocol } from '~/api'
 
-// IANA ICMP Type Numbers registry:
+// Common suggestions from the IANA ICMP Type Numbers registry. Users may enter
+// any valid type number, including types not listed here.
 // https://www.iana.org/assignments/icmp-parameters/icmp-parameters.xhtml#icmp-parameters-types
 export const ICMPV4_TYPES: Record<number, string> = {
   0: 'Echo Reply',
@@ -25,7 +26,8 @@ export const ICMPV4_TYPES: Record<number, string> = {
   14: 'Timestamp Reply',
 }
 
-// IANA ICMPv6 Type Numbers registry:
+// Common suggestions from the IANA ICMPv6 Type Numbers registry. Users may enter
+// any valid type number, including types not listed here.
 // https://www.iana.org/assignments/icmpv6-parameters/icmpv6-parameters.xhtml#icmpv6-parameters-2
 export const ICMPV6_TYPES: Record<number, string> = {
   1: 'Destination Unreachable',

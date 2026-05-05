@@ -373,8 +373,11 @@ type ParseResult<T> = { success: true; data: T } | { success: false; message: st
 
 const parseIcmpType = (value: string | undefined): ParseResult<number | undefined> => {
   if (value === undefined || value === '') return { success: true, data: undefined }
+  if (!/^\d+$/.test(value)) {
+    return { success: false, message: `ICMP type must be a number between 0 and 255` }
+  }
   const parsed = parseInt(value, 10)
-  if (isNaN(parsed) || parsed < 0 || parsed > 255) {
+  if (parsed < 0 || parsed > 255) {
     return { success: false, message: `ICMP type must be a number between 0 and 255` }
   }
   return { success: true, data: parsed }

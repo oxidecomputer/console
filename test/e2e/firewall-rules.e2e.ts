@@ -717,6 +717,14 @@ test('can add ICMPv4 and ICMPv6 protocol filters', async ({ page }) => {
 
   // switching protocol type clears the previously selected ICMP type
   await protocolListbox.click()
+  await page.getByRole('option', { name: 'ICMPv6', exact: true }).click()
+  await fillAndSelect(
+    page.getByRole('combobox', { name: 'ICMPv6 type' }),
+    page,
+    '128',
+    '128 - Echo Request'
+  )
+  await protocolListbox.click()
   await page.getByRole('option', { name: 'ICMPv4', exact: true }).click()
   await expect(page.getByRole('combobox', { name: 'ICMPv4 type' })).toHaveValue('')
 })
