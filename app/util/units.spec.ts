@@ -17,12 +17,12 @@ it.each([
   // fractional inputs are rounded to whole bytes
   [2.5, '3', 'B', '3 B'],
   [0.5, '1', 'B', '1 B'],
-  // KiB and larger: always padded
-  [1023.5, '1.00', 'KiB', '1.00 KiB'],
-  [KiB, '1.00', 'KiB', '1.00 KiB'],
+  // KiB and larger: scaled but not padded
+  [1023.5, '1', 'KiB', '1 KiB'],
+  [KiB, '1', 'KiB', '1 KiB'],
   [1500, '1.46', 'KiB', '1.46 KiB'],
-  [MiB, '1.00', 'MiB', '1.00 MiB'],
-  [GiB, '1.00', 'GiB', '1.00 GiB'],
+  [MiB, '1', 'MiB', '1 MiB'],
+  [GiB, '1', 'GiB', '1 GiB'],
 ])('formatBytes(%d)', (bytes, value, unit, label) => {
   expect(formatBytes(bytes)).toEqual({ value, unit, label })
 })

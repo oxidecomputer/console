@@ -18,22 +18,22 @@ export const bytesToGiB = (b: number, digits = 2) => round(b / GiB, digits)
 export const bytesToTiB = (b: number, digits = 2) => round(b / TiB, digits)
 
 export type FormattedBytes = {
-  /** Numeric portion of the formatted byte count, e.g. `1.50`. */
+  /** Numeric portion of the formatted byte count, e.g. `1.5`. */
   value: string
   /** Binary unit label, e.g. `KiB`. */
   unit: string
-  /** Full display string combining `value` and `unit`, e.g. `1.50 KiB`. */
+  /** Full display string combining `value` and `unit`, e.g. `1.5 KiB`. */
   label: string
 }
 
 /**
- * Format a byte count for display, e.g. `1.50 KiB`. Always uses base 2 (binary
- * units like KiB, MiB), pads scaled units to two decimal places, and leaves
- * bytes unpadded because fractional bytes don't make sense.
+ * Format a byte count for display, e.g. `1.5 KiB`. Always uses base 2 (binary
+ * units like KiB, MiB) and leaves bytes unpadded because fractional bytes don't
+ * make sense.
  */
 export function formatBytes(bytes: number): FormattedBytes {
   const { value, unit } = filesize(bytes, { base: 2, output: 'object' })
-  const formattedValue = unit === 'B' ? String(value) : Number(value).toFixed(2)
+  const formattedValue = String(value)
 
   return {
     value: formattedValue,
