@@ -8,7 +8,6 @@
 
 import { useEffect, type ReactNode } from 'react'
 import { useController, useForm, type Control } from 'react-hook-form'
-import { match } from 'ts-pattern'
 
 import { Badge } from '@oxide/design-system/ui'
 
@@ -54,11 +53,10 @@ import { ALL_ISH } from '~/util/consts'
 import { validateIp, validateIpNet } from '~/util/ip'
 import { links } from '~/util/links'
 import {
-  getIcmpLabel,
   getProtocolDisplayName,
   getProtocolKey,
-  ICMPV4_TYPES,
-  ICMPV6_TYPES,
+  ICMP_TYPES,
+  PROTOCOL_LABELS,
 } from '~/util/protocol'
 import { capitalize, normalizeDashes } from '~/util/str'
 
@@ -296,13 +294,12 @@ const directionItems: Array<{ value: VpcFirewallRuleDirection; label: string }> 
   { value: 'outbound', label: 'Outbound' },
 ]
 
-const protocolTypeItems: Array<{ value: VpcFirewallRuleProtocol['type']; label: string }> =
-  [
-    { value: 'tcp', label: 'TCP' },
-    { value: 'udp', label: 'UDP' },
-    { value: 'icmp', label: 'ICMPv4' },
-    { value: 'icmp6', label: 'ICMPv6' },
-  ]
+const protocolTypeItems = [
+  { value: 'tcp', label: 'TCP' },
+  { value: 'udp', label: 'UDP' },
+  { value: 'icmp', label: 'ICMPv4' },
+  { value: 'icmp6', label: 'ICMPv6' },
+] satisfies Array<{ value: VpcFirewallRuleProtocol['type']; label: string }>
 
 const buildIcmpTypeItems = (types: Record<number, string>) => [
   { value: '', label: 'All types', selectedLabel: 'All types' },
@@ -313,8 +310,10 @@ const buildIcmpTypeItems = (types: Record<number, string>) => [
   })),
 ]
 
-const icmpV4TypeItems = buildIcmpTypeItems(ICMPV4_TYPES)
-const icmpV6TypeItems = buildIcmpTypeItems(ICMPV6_TYPES)
+const icmpTypeItems = {
+  icmp: buildIcmpTypeItems(ICMP_TYPES.icmp),
+  icmp6: buildIcmpTypeItems(ICMP_TYPES.icmp6),
+}
 
 const targetAndHostTableColumns = [
   {
@@ -486,17 +485,14 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
           {(selectedProtocolType === 'icmp' || selectedProtocolType === 'icmp6') && (
             <>
               <ComboboxField
-                label={`${getIcmpLabel(selectedProtocolType)} type`}
+                label={`${PROTOCOL_LABELS[selectedProtocolType]} type`}
                 name="icmpType"
                 control={protocolForm.control}
                 description="Leave blank to match any type"
                 placeholder=""
                 allowArbitraryValues
                 onInputChange={(value) => protocolForm.setValue('icmpType', value)}
-                items={match(selectedProtocolType)
-                  .with('icmp', () => icmpV4TypeItems)
-                  .with('icmp6', () => icmpV6TypeItems)
-                  .exhaustive()}
+                items={icmpTypeItems[selectedProtocolType]}
                 validate={(value) => {
                   const result = parseIcmpType(value)
                   if (!result.success) return result.message
@@ -505,7 +501,7 @@ const ProtocolFilters = ({ control }: { control: Control<FirewallRuleValues> }) 
 
               {selectedIcmpType !== undefined && selectedIcmpType !== '' && (
                 <TextField
-                  label={`${getIcmpLabel(selectedProtocolType)} code`}
+                  label={`${PROTOCOL_LABELS[selectedProtocolType]} code`}
                   name="icmpCode"
                   control={protocolForm.control}
                   description={

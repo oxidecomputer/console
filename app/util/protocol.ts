@@ -6,14 +6,12 @@
  * Copyright Oxide Computer Company
  */
 
-import { match } from 'ts-pattern'
-
 import type { VpcFirewallRuleProtocol } from '~/api'
 
 // Common suggestions from the IANA ICMP Type Numbers registry. Users may enter
 // any valid type number, including types not listed here.
 // https://www.iana.org/assignments/icmp-parameters/icmp-parameters.xhtml#icmp-parameters-types
-export const ICMPV4_TYPES: Record<number, string> = {
+const ICMPV4_TYPES: Record<number, string> = {
   0: 'Echo Reply',
   3: 'Destination Unreachable',
   5: 'Redirect Message',
@@ -29,7 +27,7 @@ export const ICMPV4_TYPES: Record<number, string> = {
 // Common suggestions from the IANA ICMPv6 Type Numbers registry. Users may enter
 // any valid type number, including types not listed here.
 // https://www.iana.org/assignments/icmpv6-parameters/icmpv6-parameters.xhtml#icmpv6-parameters-2
-export const ICMPV6_TYPES: Record<number, string> = {
+const ICMPV6_TYPES: Record<number, string> = {
   1: 'Destination Unreachable',
   2: 'Packet Too Big',
   3: 'Time Exceeded',
@@ -46,39 +44,25 @@ export const ICMPV6_TYPES: Record<number, string> = {
   137: 'Redirect Message',
 }
 
-export type IcmpVariant = 'icmp' | 'icmp6'
+export const ICMP_TYPES: Record<'icmp' | 'icmp6', Record<number, string>> = {
+  icmp: ICMPV4_TYPES,
+  icmp6: ICMPV6_TYPES,
+}
 
-const typesFor = (variant: IcmpVariant) =>
-  match(variant)
-    .with('icmp', () => ICMPV4_TYPES)
-    .with('icmp6', () => ICMPV6_TYPES)
-    .exhaustive()
+export const PROTOCOL_LABELS = {
+  tcp: 'TCP',
+  udp: 'UDP',
+  icmp: 'ICMPv4',
+  icmp6: 'ICMPv6',
+} as const satisfies Record<VpcFirewallRuleProtocol['type'], string>
 
-export const getIcmpLabel = (variant: IcmpVariant) =>
-  match(variant)
-    .with('icmp', () => 'ICMPv4' as const)
-    .with('icmp6', () => 'ICMPv6' as const)
-    .exhaustive()
-
-/**
- * Get the human-readable name for an ICMP type
- */
-export const getIcmpTypeName = (variant: IcmpVariant, type: number): string | undefined =>
-  typesFor(variant)[type]
-
-/**
- * Get a display name for a protocol, including ICMP types and codes
- */
+/** Get a display name for a protocol, including ICMP types and codes */
 export const getProtocolDisplayName = (protocol: VpcFirewallRuleProtocol): string => {
-  if (protocol.type === 'tcp' || protocol.type === 'udp') {
-    return protocol.type.toUpperCase()
-  }
-  const label = getIcmpLabel(protocol.type)
-  if (protocol.value === null) {
-    return `${label} (All types)`
-  }
+  const label = PROTOCOL_LABELS[protocol.type]
+  if (protocol.type === 'tcp' || protocol.type === 'udp') return label
+  if (protocol.value === null) return `${label} (All types)`
   const typeName =
-    typesFor(protocol.type)[protocol.value.icmpType] || `Type ${protocol.value.icmpType}`
+    ICMP_TYPES[protocol.type][protocol.value.icmpType] || `Type ${protocol.value.icmpType}`
   const codePart = protocol.value.code ? ` | Code ${protocol.value.code}` : ''
   return `${label} ${protocol.value.icmpType} - ${typeName}${codePart}`
 }

@@ -6,42 +6,26 @@
  * Copyright Oxide Computer Company
  */
 
-import { match } from 'ts-pattern'
-
 import { Badge } from '@oxide/design-system/ui'
 
 import type { VpcFirewallRuleProtocol } from '~/api'
 import { Tooltip } from '~/ui/lib/Tooltip'
+import { PROTOCOL_LABELS } from '~/util/protocol'
 
 import { EmptyCell } from './EmptyCell'
 
-const protocolLabel = (protocol: VpcFirewallRuleProtocol) =>
-  match(protocol.type)
-    .with('tcp', () => 'TCP')
-    .with('udp', () => 'UDP')
-    .with('icmp', () => 'ICMPv4')
-    .with('icmp6', () => 'ICMPv6')
-    .exhaustive()
-
-const isIcmp = (
-  protocol: VpcFirewallRuleProtocol
-): protocol is Extract<VpcFirewallRuleProtocol, { type: 'icmp' | 'icmp6' }> =>
-  protocol.type === 'icmp' || protocol.type === 'icmp6'
-
 export const ProtocolCell = ({ protocol }: { protocol: VpcFirewallRuleProtocol }) => (
-  <Badge>{protocolLabel(protocol)}</Badge>
+  <Badge>{PROTOCOL_LABELS[protocol.type]}</Badge>
 )
 
 /** Generate tooltip content for empty protocol cells in the mini table */
 const protocolEmptyCellTooltipContent = (protocol: VpcFirewallRuleProtocol): string => {
-  if (protocol.type === 'tcp') return 'This firewall rule will match all TCP traffic'
-  if (protocol.type === 'udp') return 'This firewall rule will match all UDP traffic'
-  const label = protocolLabel(protocol)
-  // in this case, the user could be looking at the type column or the code column, but both get the same tooltip
-  if (protocol.value === null) {
+  const label = PROTOCOL_LABELS[protocol.type]
+  if (protocol.type === 'tcp' || protocol.type === 'udp' || protocol.value === null) {
     return `This firewall rule will match all ${label} traffic`
   }
-  // in this case, there's an icmpType but no code, which means the user is looking at the code column
+  // type column shows nothing only when value is null (handled above), so
+  // reaching here means we're in the code column and there is a type but no code
   return `This firewall rule will match all ${label} traffic of type ${protocol.value.icmpType}`
 }
 
@@ -55,7 +39,8 @@ export const ProtocolEmptyCell = ({ protocol }: { protocol: VpcFirewallRuleProto
 
 export const ProtocolTypeCell = ({ protocol }: { protocol: VpcFirewallRuleProtocol }) =>
   // icmpType could be zero, so we check for `not undefined`
-  isIcmp(protocol) && protocol.value?.icmpType !== undefined ? (
+  (protocol.type === 'icmp' || protocol.type === 'icmp6') &&
+  protocol.value?.icmpType !== undefined ? (
     protocol.value.icmpType
   ) : (
     <ProtocolEmptyCell protocol={protocol} />
@@ -63,7 +48,8 @@ export const ProtocolTypeCell = ({ protocol }: { protocol: VpcFirewallRuleProtoc
 
 export const ProtocolCodeCell = ({ protocol }: { protocol: VpcFirewallRuleProtocol }) =>
   // code could be zero, so we check for `not undefined`
-  isIcmp(protocol) && protocol.value?.code !== undefined ? (
+  (protocol.type === 'icmp' || protocol.type === 'icmp6') &&
+  protocol.value?.code !== undefined ? (
     protocol.value.code
   ) : (
     <ProtocolEmptyCell protocol={protocol} />
