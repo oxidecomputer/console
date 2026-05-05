@@ -243,6 +243,7 @@ export default function FleetAccessPage() {
                     the <HL>{row.fleetRole}</HL> role for <HL>{row.name}</HL>
                   </span>
                 ),
+                resourceKind: 'role assignment',
                 extraContent:
                   row.id === me.id ? 'This will remove your own fleet access.' : undefined,
               }),

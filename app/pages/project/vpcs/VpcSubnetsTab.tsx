@@ -60,6 +60,7 @@ export default function VpcSubnetsTab() {
         onActivate: confirmDelete({
           doDelete: () => deleteSubnet({ path: { subnet: subnet.id } }),
           label: subnet.name,
+          resourceKind: 'VPC subnet',
         }),
       },
     ],

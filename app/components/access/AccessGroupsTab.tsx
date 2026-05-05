@@ -147,6 +147,7 @@ export function AccessGroupsTab({
               the <HL>{directManagedRole}</HL> role for <HL>{group.displayName}</HL>
             </span>
           ),
+          resourceKind: 'role assignment',
         }),
         disabled:
           !directManagedRole &&

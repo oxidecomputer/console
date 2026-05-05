@@ -1945,6 +1945,7 @@ export const handlers = makeHandlers({
         'slo_url',
         'sp_client_id',
         'technical_contact_email',
+        'group_attribute_name',
       ]),
       public_cert,
       ...getTimestamps(),

@@ -87,6 +87,7 @@ export default function SiloImagesPage() {
         onActivate: confirmDelete({
           doDelete: () => deleteImage({ path: { image: image.name } }),
           label: image.name,
+          resourceKind: 'image',
         }),
       },
     ],

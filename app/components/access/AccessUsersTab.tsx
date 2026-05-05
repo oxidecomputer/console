@@ -201,6 +201,7 @@ export function AccessUsersTab({
               the <HL>{directManagedRole}</HL> role for <HL>{user.displayName}</HL>
             </span>
           ),
+          resourceKind: 'role assignment',
         }),
         // a direct role on the managed policy is required to remove anything
         disabled:

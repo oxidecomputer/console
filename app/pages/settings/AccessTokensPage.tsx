@@ -58,6 +58,7 @@ export default function AccessTokensPage() {
         onActivate: confirmDelete({
           doDelete: () => deleteToken({ path: { tokenId: token.id } }),
           label: token.id,
+          resourceKind: 'access token',
           extraContent:
             'This cannot be undone. Any application or instance of the Oxide CLI that depends on this token will need a new one.',
         }),

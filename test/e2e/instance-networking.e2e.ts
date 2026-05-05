@@ -154,7 +154,7 @@ test('Instance networking tab — Detach / Attach Ephemeral IPs', async ({ page 
   // an explicit ipVersion selector), then reattach it.
   await clickRowAction(page, 'fd00::1', 'Detach')
   const confirmDetachDialog = page.getByRole('dialog', {
-    name: 'Confirm detach ephemeral IP',
+    name: 'Detach ephemeral IP',
   })
   await expect(confirmDetachDialog).toBeVisible()
   await confirmDetachDialog.getByRole('button', { name: 'Confirm' }).click()
@@ -316,10 +316,8 @@ test('Instance networking tab — SNAT IPs', async ({ page }) => {
 })
 
 test('Edit network interface - Transit IPs', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances/db1/networking')
-
-  // Stop the instance to enable editing
-  await stopInstance(page)
+  // use a stopped instance so editing is enabled
+  await page.goto('/projects/mock-project/instances/db-stopped/networking')
 
   await clickRowAction(page, 'my-nic', 'Edit')
 
