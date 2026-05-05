@@ -445,6 +445,7 @@ export default function NetworkingTab() {
                 query: instanceSelector,
               }),
             label: nic.name,
+            resourceKind: 'network interface',
           }),
           disabled: deleteDisabledReason(),
         },
@@ -511,7 +512,7 @@ export default function NetworkingTab() {
                 path: { externalSubnet: subnet.name },
                 query: { project },
               }),
-            modalTitle: 'Detach External Subnet',
+            modalTitle: 'Detach external subnet',
             modalContent: (
               <p>
                 Are you sure you want to detach external subnet <HL>{subnet.name}</HL> from{' '}
@@ -586,7 +587,7 @@ export default function NetworkingTab() {
             confirmAction({
               actionType: 'danger',
               doAction: doDetach,
-              modalTitle: `Confirm detach ${externalIp.kind} IP`,
+              modalTitle: `Detach ${externalIp.kind} IP`,
               modalContent: (
                 <p>
                   Are you sure you want to detach {label} from <HL>{instanceName}</HL>? The
