@@ -26,14 +26,22 @@ export type FormattedBytes = {
   label: string
 }
 
+type FormatBytesOptions = {
+  /** Pad scaled units to two decimal places, e.g. `1.00 KiB`. Bytes are never padded. */
+  pad?: boolean
+}
+
 /**
  * Format a byte count for display, e.g. `1.5 KiB`. Always uses base 2 (binary
- * units like KiB, MiB) and leaves bytes unpadded because fractional bytes don't
- * make sense.
+ * units like KiB, MiB). Bytes are never padded because fractional bytes don't
+ * make sense, even when `pad` is true.
  */
-export function formatBytes(bytes: number): FormattedBytes {
+export function formatBytes(
+  bytes: number,
+  { pad = false }: FormatBytesOptions = {}
+): FormattedBytes {
   const { value, unit } = filesize(bytes, { base: 2, output: 'object' })
-  const formattedValue = String(value)
+  const formattedValue = pad && unit !== 'B' ? Number(value).toFixed(2) : String(value)
 
   return {
     value: formattedValue,
