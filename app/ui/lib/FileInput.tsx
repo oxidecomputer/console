@@ -99,9 +99,7 @@ export function FileInput({
           {file && !dragOver ? (
             <div className="text-raise flex items-center">
               <Truncate text={file.name} maxLength={32} position="middle" />
-              <span className="text-tertiary ml-1">
-                ({formatBytes(file.size, { pad: true })})
-              </span>
+              <span className="text-tertiary ml-1">({formatBytes(file.size).label})</span>
               <button
                 type="button"
                 onClick={handleResetInput}

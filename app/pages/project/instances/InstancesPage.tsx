@@ -7,7 +7,6 @@
  */
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
 import { createColumnHelper } from '@tanstack/react-table'
-import { filesize } from 'filesize'
 import { useMemo, useRef, useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router'
 
@@ -42,6 +41,7 @@ import { ALL_ISH } from '~/util/consts'
 import { toLocaleTimeString } from '~/util/date'
 import { pb } from '~/util/path-builder'
 import { pluralize } from '~/util/str'
+import { formatBytes } from '~/util/units'
 
 import { useMakeInstanceActions } from './actions'
 import { ResizeInstanceModal } from './InstancePage'
@@ -113,7 +113,7 @@ export default function InstancesPage() {
       colHelper.accessor('memory', {
         header: 'Memory',
         cell: (info) => {
-          const memory = filesize(info.getValue(), { output: 'object', base: 2 })
+          const memory = formatBytes(info.getValue())
           return (
             <>
               {memory.value} <span className="text-tertiary ml-1">{memory.unit}</span>

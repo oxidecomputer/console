@@ -17,13 +17,27 @@ export const TiB = 1024 * GiB
 export const bytesToGiB = (b: number, digits = 2) => round(b / GiB, digits)
 export const bytesToTiB = (b: number, digits = 2) => round(b / TiB, digits)
 
+export type FormattedBytes = {
+  /** Numeric portion of the formatted byte count, e.g. `1.50`. */
+  value: string
+  /** Binary unit label, e.g. `KiB`. */
+  unit: string
+  /** Full display string combining `value` and `unit`, e.g. `1.50 KiB`. */
+  label: string
+}
+
 /**
  * Format a byte count for display, e.g. `1.50 KiB`. Always uses base 2 (binary
- * units like KiB, MiB). When `pad` is true, scaled units get trailing zeros
- * (e.g. `1.00 KiB`), but bytes never do — fractional bytes don't make sense.
+ * units like KiB, MiB), pads scaled units to two decimal places, and leaves
+ * bytes unpadded because fractional bytes don't make sense.
  */
-export function formatBytes(bytes: number, { pad = false }: { pad?: boolean } = {}) {
-  // peek at the unit so we can suppress padding for raw bytes
-  const { unit } = filesize(bytes, { base: 2, output: 'object' })
-  return filesize(bytes, { base: 2, pad: pad && unit !== 'B' })
+export function formatBytes(bytes: number): FormattedBytes {
+  const { value, unit } = filesize(bytes, { base: 2, output: 'object' })
+  const formattedValue = unit === 'B' ? String(value) : Number(value).toFixed(2)
+
+  return {
+    value: formattedValue,
+    unit,
+    label: `${formattedValue} ${unit}`,
+  }
 }

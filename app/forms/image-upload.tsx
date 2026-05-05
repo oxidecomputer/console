@@ -51,7 +51,7 @@ import { pb } from '~/util/path-builder'
 import { isAllZeros } from '~/util/str'
 import { formatBytes, GiB, KiB } from '~/util/units'
 
-const fsize = (bytes: number) => formatBytes(bytes, { pad: true })
+const fsize = (bytes: number) => formatBytes(bytes).label
 
 type FormValues = {
   imageName: string
