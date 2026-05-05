@@ -5,6 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
+// formatBytes wraps filesize so the rest of the app gets a consistent API
+// eslint-disable-next-line no-restricted-imports
 import { filesize } from 'filesize'
 
 import { round } from './math'
