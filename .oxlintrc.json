@@ -54,8 +54,16 @@
     "no-restricted-imports": [
       "error",
       {
-        // prevent confusion due to auto-imports and barrel files
-        "paths": ["."],
+        "paths": [
+          {
+            "name": ".",
+            "message": "Import from the file directly to avoid confusion due to auto-imports and barrel files."
+          },
+          {
+            "name": "filesize",
+            "message": "Import formatBytes from ~/util/units instead."
+          }
+        ],
         "patterns": [
           // import all CSS except index.css at top level through CSS @import statements
           // to avoid bad ordering situations. See https://github.com/oxidecomputer/console/pull/2035
