@@ -31,6 +31,7 @@ import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { DiskDetailSideModal } from '~/pages/project/disks/DiskDetailSideModal'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
+import { DiskSourceName, sourceImageQ, sourceSnapshotQ } from '~/table/cells/DiskSourceCell'
 import { ButtonCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -39,6 +40,7 @@ import { Button } from '~/ui/lib/Button'
 import { CardBlock } from '~/ui/lib/CardBlock'
 import { EMBody, EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
+import { ALL_ISH } from '~/util/consts'
 import { links } from '~/util/links'
 import { capitalize } from '~/util/str'
 
@@ -55,6 +57,39 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
     queryClient.prefetchQuery(q(api.instanceView, selector)),
+
+    // Prime per-id image and snapshot lookups used by the Source column.
+    // Sources may be project images, silo images, or project snapshots.
+    queryClient
+      .fetchQuery(q(api.imageList, { query: { project, limit: ALL_ISH } }))
+      .then((images) => {
+        for (const image of images.items) {
+          queryClient.setQueryData(sourceImageQ(image.id).queryKey, {
+            type: 'success',
+            data: image,
+          })
+        }
+      }),
+    queryClient
+      .fetchQuery(q(api.imageList, { query: { limit: ALL_ISH } }))
+      .then((images) => {
+        for (const image of images.items) {
+          queryClient.setQueryData(sourceImageQ(image.id).queryKey, {
+            type: 'success',
+            data: image,
+          })
+        }
+      }),
+    queryClient
+      .fetchQuery(q(api.snapshotList, { query: { project, limit: ALL_ISH } }))
+      .then((snapshots) => {
+        for (const snapshot of snapshots.items) {
+          queryClient.setQueryData(sourceSnapshotQ(snapshot.id).queryKey, {
+            type: 'success',
+            data: snapshot,
+          })
+        }
+      }),
   ])
   return null
 }
@@ -99,6 +134,11 @@ export default function StorageTab() {
         cell: (info) => <DiskTypeBadge diskType={info.getValue()} />,
       }),
       colHelper.accessor('size', Columns.size),
+      colHelper.accessor((row) => ({ imageId: row.imageId, snapshotId: row.snapshotId }), {
+        id: 'source',
+        header: 'Source',
+        cell: (info) => <DiskSourceName {...info.getValue()} />,
+      }),
       colHelper.accessor((row) => row.state.state, {
         header: 'state',
         cell: (info) => <DiskStateBadge state={info.getValue()} />,

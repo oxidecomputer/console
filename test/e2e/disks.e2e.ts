@@ -29,6 +29,41 @@ test('Disk detail side modal', async ({ page }) => {
   await expect(propertiesTableValue(modal, 'Read only')).toHaveText('False')
 })
 
+test('Source links open detail side modals from disk list', async ({ page }) => {
+  await page.goto('/projects/mock-project/disks')
+
+  const table = page.getByRole('table')
+
+  // Snapshot source: clicking snapshot-1 opens the snapshot side modal
+  const disk3 = table.getByRole('row', { name: /disk-3/ })
+  await disk3.getByRole('button', { name: 'snapshot-1' }).click()
+  const snapshotModal = page.getByRole('dialog', { name: 'Snapshot details' })
+  await expect(snapshotModal).toBeVisible()
+  await expect(propertiesTableValue(snapshotModal, 'Source disk')).toHaveText('disk-1')
+  await snapshotModal.getByRole('button', { name: 'Close' }).first().click()
+  await expect(snapshotModal).toBeHidden()
+
+  // Image source: clicking ubuntu-22-04 opens the image side modal as silo image
+  const disk2 = table.getByRole('row', { name: /disk-2/ })
+  await disk2.getByRole('button', { name: 'ubuntu-22-04' }).click()
+  const imageModal = page.getByRole('dialog', { name: 'Image details' })
+  await expect(imageModal).toBeVisible()
+  await expect(propertiesTableValue(imageModal, 'Visibility')).toHaveText('Silo')
+  await expect(propertiesTableValue(imageModal, 'OS')).toHaveText('ubuntu')
+})
+
+test('Source name in disk side modal is plain text, not a link', async ({ page }) => {
+  await page.goto('/projects/mock-project/disks')
+
+  // Open disk-3, which has a snapshot source. Inside the side modal the source
+  // name should not be a clickable button (no nested modal stacking).
+  await page.getByRole('link', { name: 'disk-3', exact: true }).click()
+  const modal = page.getByRole('dialog', { name: 'Disk details' })
+  await expect(modal).toBeVisible()
+  await expect(propertiesTableValue(modal, 'Source')).toHaveText('snapshot-1')
+  await expect(modal.getByRole('button', { name: 'snapshot-1' })).toBeHidden()
+})
+
 test('Read-only disk shows badge in table and detail', async ({ page }) => {
   await page.goto('/projects/mock-project/disks')
 
@@ -60,13 +95,19 @@ test('List disks and snapshot', async ({ page }) => {
     name: 'disk-1',
     size: '2 GiB',
     state: 'attached',
+    Source: '—',
   })
   await expectRowVisible(table, {
     Instance: '—',
     name: 'disk-3',
     size: '6 GiB',
     state: 'detached',
+    Source: 'snapshot-1',
   })
+  // disk-2 is sourced from the ubuntu-22-04 silo image
+  await expectRowVisible(table, { name: 'disk-2', Source: 'ubuntu-22-04' })
+  // disk-9 references an image that does not exist, so we render "Deleted"
+  await expectRowVisible(table, { name: 'disk-9', Source: 'Deleted' })
 
   await clickRowAction(page, 'disk-1 db1', 'Snapshot')
   await expectToast(page, 'Creating snapshot of disk disk-1')
@@ -252,11 +293,10 @@ test('Create disk from snapshot with read-only', async ({ page }) => {
   const row = page.getByRole('row', { name: /a-new-disk/ })
   await expect(row.getByText('Read only', { exact: true })).toBeVisible()
 
-  // Verify snapshot ID in detail modal (now truncated)
+  // Verify the resolved source name appears in the detail modal
   await page.getByRole('link', { name: 'a-new-disk' }).click()
   const modal = page.getByRole('dialog', { name: 'Disk details' })
-  // The ID is truncated to 32 chars, but full ID is in aria-label
-  await expect(modal.getByLabel('e6c58826-62fb-4205-820e-620407cd04e7')).toBeVisible()
+  await expect(propertiesTableValue(modal, 'Source')).toHaveText('delete-500')
 })
 
 test('Create disk from image with read-only', async ({ page }) => {
@@ -273,9 +313,8 @@ test('Create disk from image with read-only', async ({ page }) => {
   const row = page.getByRole('row', { name: /a-new-disk/ })
   await expect(row.getByText('Read only', { exact: true })).toBeVisible()
 
-  // Verify image ID in detail modal (now truncated)
+  // Verify the resolved source name appears in the detail modal
   await page.getByRole('link', { name: 'a-new-disk' }).click()
   const modal = page.getByRole('dialog', { name: 'Disk details' })
-  // The ID is truncated to 32 chars, but full ID is in aria-label
-  await expect(modal.getByLabel('4700ecf1-8f48-4ecf-b78e-816ddb76aaca')).toBeVisible()
+  await expect(propertiesTableValue(modal, 'Source')).toHaveText('image-3')
 })

@@ -15,6 +15,7 @@ import { ReadOnlySideModalForm } from '~/components/form/ReadOnlySideModalForm'
 import { DiskStateBadge, DiskTypeBadge } from '~/components/StateBadge'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { getDiskSelector, useDiskSelector } from '~/hooks/use-params'
+import { DiskSourceName } from '~/table/cells/DiskSourceCell'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
@@ -83,8 +84,9 @@ export function DiskDetailSideModal({
           <DiskTypeBadge diskType={disk.diskType} />
         </PropertiesTable.Row>
         {/* TODO: show attached instance by name like the table does? */}
-        <PropertiesTable.IdRow id={disk.imageId} label="Image ID" />
-        <PropertiesTable.IdRow id={disk.snapshotId} label="Snapshot ID" />
+        <PropertiesTable.Row label="Source">
+          <DiskSourceName imageId={disk.imageId} snapshotId={disk.snapshotId} />
+        </PropertiesTable.Row>
         <PropertiesTable.Row label="Read only">
           <Badge color="neutral">{disk.readOnly ? 'True' : 'False'}</Badge>
         </PropertiesTable.Row>
