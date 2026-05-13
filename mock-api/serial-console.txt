@@ -2,7 +2,8 @@ Terminal theme test:
 [31mred[0m [32mgreen[0m [33myellow[0m [34mblue[0m [35mmagenta[0m [36mcyan[0m [37mwhite[0m
 [91mbright-red[0m [92mbright-green[0m [93mbright-yellow[0m [94mbright-blue[0m [95mbright-magenta[0m [96mbright-cyan[0m [97mbright-white[0m [90mbright-black[0m
 
-[1mBold text[0m
+[1mBold A Bold A[0m
+Bold A Bold A
 
 Booting `Debian GNU/Linux'
 

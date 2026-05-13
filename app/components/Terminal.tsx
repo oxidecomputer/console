@@ -58,7 +58,9 @@ function getOptions(): ITerminalOptions {
     fontFamily: '"GT America Mono", monospace',
     fontSize: 13,
     lineHeight: 1,
-    fontWeightBold: 'normal',
+    fontWeightBold: 400,
+    drawBoldTextInBrightColors: true,
+    letterSpacing: 0,
     windowOptions: {
       fullscreenWin: true,
       refreshWin: true,
