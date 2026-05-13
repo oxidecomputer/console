@@ -60,7 +60,7 @@ test('Source name in disk side modal is plain text, not a link', async ({ page }
   await page.getByRole('link', { name: 'disk-3', exact: true }).click()
   const modal = page.getByRole('dialog', { name: 'Disk details' })
   await expect(modal).toBeVisible()
-  await expect(propertiesTableValue(modal, 'Source')).toHaveText('snapshot-1')
+  await expect(propertiesTableValue(modal, 'Source')).toHaveText('Snapshotsnapshot-1')
   await expect(modal.getByRole('button', { name: 'snapshot-1' })).toBeHidden()
 })
 
@@ -296,7 +296,7 @@ test('Create disk from snapshot with read-only', async ({ page }) => {
   // Verify the resolved source name appears in the detail modal
   await page.getByRole('link', { name: 'a-new-disk' }).click()
   const modal = page.getByRole('dialog', { name: 'Disk details' })
-  await expect(propertiesTableValue(modal, 'Source')).toHaveText('delete-500')
+  await expect(propertiesTableValue(modal, 'Source')).toHaveText('Snapshotdelete-500')
 })
 
 test('Create disk from image with read-only', async ({ page }) => {
@@ -316,5 +316,5 @@ test('Create disk from image with read-only', async ({ page }) => {
   // Verify the resolved source name appears in the detail modal
   await page.getByRole('link', { name: 'a-new-disk' }).click()
   const modal = page.getByRole('dialog', { name: 'Disk details' })
-  await expect(propertiesTableValue(modal, 'Source')).toHaveText('image-3')
+  await expect(propertiesTableValue(modal, 'Source')).toHaveText('Imageimage-3')
 })

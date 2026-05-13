@@ -23,7 +23,7 @@ import { ButtonCell } from './LinkCell'
 // rather than an error that blows up the page. Tables and the disk detail
 // modal both render a "Deleted" badge in that case.
 
-export const sourceImageQ = (image: string) =>
+const sourceImageQ = (image: string) =>
   qErrorsAllowed(
     api.imageView,
     { path: { image } },
@@ -35,7 +35,7 @@ export const sourceImageQ = (image: string) =>
     }
   )
 
-export const sourceSnapshotQ = (snapshot: string) =>
+const sourceSnapshotQ = (snapshot: string) =>
   qErrorsAllowed(
     api.snapshotView,
     { path: { snapshot } },
@@ -66,13 +66,22 @@ export const DiskSourceName = ({ imageId, snapshotId }: Props) => {
 
   if (!imageId && !snapshotId) return <EmptyCell />
 
-  // imageId wins if somehow both are set
+  // Nexus populates exactly one of imageId/snapshotId per disk, so a disk won't have both,
+  // though the Disk type in the API just lists both as optional
+  // https://github.com/oxidecomputer/omicron/blob/254a0c5/nexus/db-model/src/disk_type_crucible.rs#L49-L78
   const result = imageId ? image.data : snapshot.data
   if (!result) return <SkeletonCell />
   if (result.type === 'error') return <Badge color="neutral">Deleted</Badge>
 
   const name = result.data.name
-  if (inSideModal) return <>{name}</>
+  if (inSideModal) {
+    return (
+      <span className="flex items-center gap-1">
+        <Badge color="neutral">{imageId ? 'Image' : 'Snapshot'}</Badge>
+        {name}
+      </span>
+    )
+  }
   return (
     <>
       <ButtonCell onClick={() => setShowDetail(true)}>{name}</ButtonCell>

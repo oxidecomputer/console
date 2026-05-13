@@ -30,7 +30,7 @@ import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import { DiskSourceName, sourceImageQ, sourceSnapshotQ } from '~/table/cells/DiskSourceCell'
+import { DiskSourceName } from '~/table/cells/DiskSourceCell'
 import { InstanceLink } from '~/table/cells/InstanceLinkCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -79,41 +79,6 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
         queryClient.setQueryData(queryKey, instance)
       }
     }),
-
-    // Prime per-id image and snapshot lookups used by the Source column.
-    // Disks may be sourced from a project image, a silo image, or a
-    // project-scoped snapshot, so we fetch all three lists. Deleted sources
-    // simply miss the cache and fall back to the qErrorsAllowed 404 path.
-    queryClient
-      .fetchQuery(q(api.imageList, { query: { project, limit: ALL_ISH } }))
-      .then((images) => {
-        for (const image of images.items) {
-          queryClient.setQueryData(sourceImageQ(image.id).queryKey, {
-            type: 'success',
-            data: image,
-          })
-        }
-      }),
-    queryClient
-      .fetchQuery(q(api.imageList, { query: { limit: ALL_ISH } }))
-      .then((images) => {
-        for (const image of images.items) {
-          queryClient.setQueryData(sourceImageQ(image.id).queryKey, {
-            type: 'success',
-            data: image,
-          })
-        }
-      }),
-    queryClient
-      .fetchQuery(q(api.snapshotList, { query: { project, limit: ALL_ISH } }))
-      .then((snapshots) => {
-        for (const snapshot of snapshots.items) {
-          queryClient.setQueryData(sourceSnapshotQ(snapshot.id).queryKey, {
-            type: 'success',
-            data: snapshot,
-          })
-        }
-      }),
   ])
   return null
 }
