@@ -7,7 +7,14 @@
  */
 import { crossSiloGroupId, crossSiloUserId, user3 } from '@oxide/api-mocks'
 
-import { expect, expectRowVisible, expectToast, getPageAsUser, test } from './utils'
+import {
+  expect,
+  expectOptions,
+  expectRowVisible,
+  expectToast,
+  getPageAsUser,
+  test,
+} from './utils'
 
 test('Click through fleet access page', async ({ page }) => {
   await page.goto('/system/access')
@@ -58,10 +65,11 @@ test('Click through fleet access page', async ({ page }) => {
 
   await page.getByRole('button', { name: /User or group/ }).click()
   // users already assigned should not be in the list
-  await expect(page.getByRole('option', { name: 'Hannah Arendt' })).toBeHidden()
-  await expect(page.getByRole('option', { name: 'Jacob Klein' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'Hans Jonas' })).toBeVisible()
-  await expect(page.getByRole('option', { name: 'Simone de Beauvoir' })).toBeVisible()
+  await expectOptions(
+    page,
+    ['Jacob Klein', 'Hans Jonas', 'Simone de Beauvoir'],
+    ['Hannah Arendt']
+  )
 
   await page.getByRole('option', { name: 'Jacob Klein' }).click()
   await page.getByRole('radio', { name: /^Collaborator / }).click()
