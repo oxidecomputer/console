@@ -11,6 +11,7 @@ import {
   closeToast,
   expect,
   expectNotVisible,
+  expectOptions,
   expectRowVisible,
   expectVisible,
   fillNumberInput,
@@ -35,16 +36,6 @@ const selectAnExistingDisk = async (page: Page, name: string) => {
   await page.getByRole('tab', { name: 'Existing disks' }).click()
   await page.getByRole('combobox', { name: 'Disk' }).click()
   await page.getByRole('option', { name }).click()
-}
-
-/** Ensure that certain combobox options are present, others are hidden */
-const expectOptions = async (page: Page, present: string[], hidden: string[]) => {
-  for (const option of present) {
-    await expect(page.getByRole('option', { name: option })).toBeVisible()
-  }
-  for (const option of hidden) {
-    await expect(page.getByRole('option', { name: option })).toBeHidden()
-  }
 }
 
 test('can create an instance', async ({ page }) => {
@@ -1301,7 +1292,7 @@ test('floating IPs are filtered by NIC IP version', async ({ page }) => {
   // Verify only IPv4 floating IP is available (rootbeer-float with IP 123.4.56.4)
   await expect(page.getByRole('option', { name: 'rootbeer-float' })).toBeVisible()
   // IPv6 floating IP should not be in the list
-  await expect(page.getByRole('option', { name: 'ipv6-float' })).not.toBeVisible()
+  await expect(page.getByRole('option', { name: 'ipv6-float' })).toBeHidden()
 
   // Close the listbox dropdown first by pressing Escape
   await page.keyboard.press('Escape')
@@ -1326,7 +1317,7 @@ test('floating IPs are filtered by NIC IP version', async ({ page }) => {
   // Verify only IPv6 floating IP is available (ipv6-float)
   await expect(page.getByRole('option', { name: 'ipv6-float' })).toBeVisible()
   // IPv4 floating IP should not be in the list
-  await expect(page.getByRole('option', { name: 'rootbeer-float' })).not.toBeVisible()
+  await expect(page.getByRole('option', { name: 'rootbeer-float' })).toBeHidden()
 
   // Close the listbox dropdown first by pressing Escape
   await page.keyboard.press('Escape')
