@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { type LoaderFunctionArgs } from 'react-router'
+import { Link, type LoaderFunctionArgs } from 'react-router'
 import { match } from 'ts-pattern'
 
 import {
@@ -59,6 +59,7 @@ import { Button } from '~/ui/lib/Button'
 import { CardBlock } from '~/ui/lib/CardBlock'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { Message } from '~/ui/lib/Message'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { Tooltip } from '~/ui/lib/Tooltip'
@@ -385,6 +386,20 @@ export default function NetworkingTab() {
     q(api.instanceView, { path: { instance: instanceName }, query: { project } })
   )
 
+  // If every NIC sits in the same VPC, link straight to its firewall rules;
+  // otherwise send users to the VPCs list to pick. Primary NIC's VPC is
+  // prefetched by InstancePage's loader, so this hits the cache.
+  const primaryNic = nics.find((n) => n.primary)
+  const { data: primaryVpc } = useQuery({
+    ...q(api.vpcView, { path: { vpc: primaryNic?.vpcId ?? '' } }),
+    enabled: !!primaryNic,
+  })
+  const singleVpc = new Set(nics.map((n) => n.vpcId)).size === 1
+  const firewallLink =
+    singleVpc && primaryVpc
+      ? pb.vpcFirewallRules({ project, vpc: primaryVpc.name })
+      : pb.vpcs({ project })
+
   const multipleNics = nics.length > 1
 
   const makeActions = useCallback(
@@ -633,6 +648,17 @@ export default function NetworkingTab() {
 
   return (
     <div className="space-y-5">
+      {nics.length > 0 && (
+        <Message
+          variant="info"
+          content={
+            <>
+              Edit firewall rules on{' '}
+              <Link to={firewallLink}>{singleVpc ? 'the VPC' : 'the relevant VPC'}</Link>
+            </>
+          }
+        />
+      )}
       <CardBlock>
         <CardBlock.Header title="External IPs" titleId="attached-ips-label">
           <div className="flex gap-3">
