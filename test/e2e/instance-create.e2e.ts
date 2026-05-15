@@ -719,9 +719,6 @@ test('clears silo image selection when typing arbitrary text and blurring', asyn
   page,
 }) => {
   const instanceName = 'test-instance'
-  const validImage = 'ubuntu-22-04'
-  const alternateImage1 = 'ubuntu-20-04'
-  const alternateImage2 = 'arch-2022-06-01'
 
   await page.goto('/projects/mock-project/instances-new')
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
@@ -732,21 +729,21 @@ test('clears silo image selection when typing arbitrary text and blurring', asyn
   // Ensure the combobox is visible and has the expected options
   await expect(imageSelectCombobox).toHaveValue('')
   await imageSelectCombobox.click()
-  await expect(page.getByRole('option', { name: validImage })).toBeVisible()
-  await expect(page.getByRole('option', { name: alternateImage1 })).toBeVisible()
-  await expect(page.getByRole('option', { name: alternateImage2 })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'ubuntu-22-04' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'ubuntu-20-04' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'arch-2022-06-01' })).toBeVisible()
 
   // Filter the combobox for a particular silo image pattern
   await imageSelectCombobox.fill('ubuntu')
 
   // Ensure that only show the options that match the filter are visible
-  await expect(page.getByRole('option', { name: validImage })).toBeVisible()
-  await expect(page.getByRole('option', { name: alternateImage1 })).toBeVisible()
-  await expect(page.getByRole('option', { name: alternateImage2 })).toBeHidden()
+  await expect(page.getByRole('option', { name: 'ubuntu-22-04' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'ubuntu-20-04' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'arch-2022-06-01' })).toBeHidden()
 
   // Select an image
-  await page.getByRole('option', { name: validImage }).click()
-  await expect(imageSelectCombobox).toHaveValue(validImage)
+  await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
+  await expect(imageSelectCombobox).toHaveValue('ubuntu-22-04')
 
   // Delete four characters from the end to reveal more options
   await page.keyboard.press('Backspace')
@@ -757,9 +754,9 @@ test('clears silo image selection when typing arbitrary text and blurring', asyn
   // There should now be an invalid value in the combobox, but we should be able to see both the ubuntu options: `ubuntu-22-04` and `ubuntu-20-04`
   // and we should NOT be able to see the `arch-2022-06-01` option
   await expect(imageSelectCombobox).toHaveValue('ubuntu-2')
-  await expect(page.getByRole('option', { name: validImage })).toBeVisible()
-  await expect(page.getByRole('option', { name: alternateImage1 })).toBeVisible()
-  await expect(page.getByRole('option', { name: alternateImage2 })).toBeHidden()
+  await expect(page.getByRole('option', { name: 'ubuntu-22-04' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'ubuntu-20-04' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'arch-2022-06-01' })).toBeHidden()
 
   // Blur the field by clicking elsewhere; because the value is not a valid silo image, the selection should be cleared
   await page.getByRole('textbox', { name: 'Name', exact: true }).click()
@@ -769,8 +766,8 @@ test('clears silo image selection when typing arbitrary text and blurring', asyn
 
   // Re-focus and select the original option again
   await imageSelectCombobox.click()
-  await page.getByRole('option', { name: validImage }).click()
-  await expect(imageSelectCombobox).toHaveValue(validImage)
+  await page.getByRole('option', { name: 'ubuntu-22-04' }).click()
+  await expect(imageSelectCombobox).toHaveValue('ubuntu-22-04')
 
   // Should be able to continue with instance creation
   await page.getByRole('button', { name: 'Create instance' }).click()
