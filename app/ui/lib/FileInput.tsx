@@ -36,7 +36,6 @@ export function FileInput({
   onChange,
   error,
   ref,
-  id,
   ...inputProps
 }: FileInputProps) {
   const inputRef = useRef<HTMLInputElement>(null)
@@ -64,9 +63,8 @@ export function FileInput({
   }
 
   return (
-    <label htmlFor={id} className={cn(className, 'group relative block')}>
+    <label className={cn(className, 'group relative block')}>
       <input
-        id={id}
         ref={mergeRefs([inputRef, ref])}
         type="file"
         name="file"
