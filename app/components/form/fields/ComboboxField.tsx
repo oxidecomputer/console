@@ -91,7 +91,7 @@ export function ComboboxField<
         }}
         onInputChange={(value) => {
           // if arbitrary values are allowed, set the field's value; otherwise, clear the selected value
-          field.onChange(allowArbitraryValues ? value : undefined)
+          field.onChange(allowArbitraryValues ? value : '')
           onInputChange?.(value)
         }}
         allowArbitraryValues={allowArbitraryValues}
