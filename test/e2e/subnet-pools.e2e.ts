@@ -10,7 +10,6 @@ import { expect, test } from '@playwright/test'
 
 import {
   clickRowAction,
-  expectOptions,
   expectRowVisible,
   expectToast,
   fillNumberInput,
@@ -319,15 +318,15 @@ test('Subnet pool picker only shows silo-linked pools', async ({ browser }) => {
   const page = await getPageAsUser(browser, 'Aryeh Kosman')
   await page.goto('/projects/kosman-project/external-subnets-new')
 
-  // myriad silo has default-v4-subnet-pool and myriad-v4-subnet-pool linked;
-  // pools not linked to myriad should not appear
+  // myriad silo has default-v4-subnet-pool and myriad-v4-subnet-pool linked
   const poolButton = page.getByRole('button', { name: 'Subnet pool' })
   await poolButton.click()
-  await expectOptions(
-    page,
-    ['default-v4-subnet-pool', 'myriad-v4-subnet-pool'],
-    ['secondary-v4-subnet-pool', 'ipv6-subnet-pool']
-  )
+  await expect(page.getByRole('option', { name: 'default-v4-subnet-pool' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'myriad-v4-subnet-pool' })).toBeVisible()
+
+  // pools not linked to myriad should not appear
+  await expect(page.getByRole('option', { name: 'secondary-v4-subnet-pool' })).toBeHidden()
+  await expect(page.getByRole('option', { name: 'ipv6-subnet-pool' })).toBeHidden()
 })
 
 test('External subnet create with myriad silo pool', async ({ browser }) => {

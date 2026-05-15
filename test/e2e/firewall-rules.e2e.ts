@@ -8,7 +8,7 @@
 
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
-import { clickRowAction, expectOptions, expectRowVisible, selectOption } from './utils'
+import { clickRowAction, expectRowVisible, selectOption } from './utils'
 
 /**
  * Fill a combobox and click a dropdown option. Scrolls the combobox toward the
@@ -602,6 +602,14 @@ test('name conflict error on edit', async ({ page }) => {
   await expectRowVisible(page.getByRole('table'), { Name: 'allow-icmp2', Priority: '37' })
 })
 
+async function expectOptions(page: Page, options: string[]) {
+  const selector = page.getByRole('option')
+  await expect(selector).toHaveCount(options.length)
+  for (const option of options) {
+    await expect(page.getByRole('option', { name: option })).toBeVisible()
+  }
+}
+
 test('arbitrary values combobox', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules-new')
 
@@ -611,14 +619,14 @@ test('arbitrary values combobox', async ({ page }) => {
   await expectOptions(page, ['mock-vpc'])
 
   await vpcInput.fill('d')
-  await expectOptions(page, ['Custom: d'], ['mock-vpc'])
+  await expectOptions(page, ['Custom: d'])
 
   await vpcInput.blur()
   await page.getByRole('button', { name: 'Add target' }).click()
   await expect(vpcInput).toHaveValue('')
 
   await vpcInput.focus()
-  await expectOptions(page, ['mock-vpc'], ['Custom: d']) // bug cause failure here
+  await expectOptions(page, ['mock-vpc']) // bug cause failure here
 
   // test keeping query around on blur
   await selectOption(page, 'Target type', 'Instance')
@@ -635,11 +643,13 @@ test('arbitrary values combobox', async ({ page }) => {
   ])
 
   await input.fill('d')
-  await expectOptions(
-    page,
-    ['db1', 'instance-update-error', 'db2', 'db-stopped', 'Custom: d'],
-    ['you-fail', 'not-there-yet']
-  )
+  await expectOptions(page, [
+    'db1',
+    'instance-update-error',
+    'db2',
+    'db-stopped',
+    'Custom: d',
+  ])
 
   await input.blur()
   await expect(page.getByRole('option')).toBeHidden()
@@ -648,11 +658,13 @@ test('arbitrary values combobox', async ({ page }) => {
   await input.focus()
 
   // same options show up after blur (there was a bug around this)
-  await expectOptions(
-    page,
-    ['db1', 'instance-update-error', 'db2', 'db-stopped', 'Custom: d'],
-    ['you-fail', 'not-there-yet']
-  )
+  await expectOptions(page, [
+    'db1',
+    'instance-update-error',
+    'db2',
+    'db-stopped',
+    'Custom: d',
+  ])
 
   // make sure typing in ICMP filter input actually updates the underlying value,
   // triggering a validation error for bad input. without onInputChange binding

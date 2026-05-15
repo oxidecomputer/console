@@ -11,7 +11,6 @@ import {
   closeToast,
   expect,
   expectNotVisible,
-  expectOptions,
   expectRowVisible,
   expectVisible,
   fillNumberInput,
@@ -568,16 +567,18 @@ test('attaching additional disks allows for combobox filtering', async ({ page }
   await attachExistingDiskButton.click()
   await selectADisk.click()
   // several disks should be shown
-  await expectOptions(page, ['disk-0005', 'disk-0007', 'disk-0988'], [])
+  await expect(page.getByRole('option', { name: 'disk-0005' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'disk-0007' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'disk-0988' })).toBeVisible()
 
   // type in a string to use as a filter
   await selectADisk.fill('disk-02')
   // only disks with that substring should be shown
-  await expectOptions(
-    page,
-    ['disk-0023', 'disk-0125', 'disk-0211'],
-    ['disk-0220', 'disk-1000']
-  )
+  await expect(page.getByRole('option', { name: 'disk-0023' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'disk-0125' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'disk-0211' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'disk-0220' })).toBeHidden()
+  await expect(page.getByRole('option', { name: 'disk-1000' })).toBeHidden()
 
   // select one
   await page.getByRole('option', { name: 'disk-0211' }).click()
@@ -731,13 +732,17 @@ test('clears silo image selection when typing arbitrary text and blurring', asyn
   // Ensure the combobox is visible and has the expected options
   await expect(imageSelectCombobox).toHaveValue('')
   await imageSelectCombobox.click()
-  await expectOptions(page, [validImage, alternateImage1, alternateImage2], [])
+  await expect(page.getByRole('option', { name: validImage })).toBeVisible()
+  await expect(page.getByRole('option', { name: alternateImage1 })).toBeVisible()
+  await expect(page.getByRole('option', { name: alternateImage2 })).toBeVisible()
 
   // Filter the combobox for a particular silo image pattern
   await imageSelectCombobox.fill('ubuntu')
 
   // Ensure that only show the options that match the filter are visible
-  await expectOptions(page, [validImage, alternateImage1], [alternateImage2])
+  await expect(page.getByRole('option', { name: validImage })).toBeVisible()
+  await expect(page.getByRole('option', { name: alternateImage1 })).toBeVisible()
+  await expect(page.getByRole('option', { name: alternateImage2 })).toBeHidden()
 
   // Select an image
   await page.getByRole('option', { name: validImage }).click()
@@ -752,7 +757,9 @@ test('clears silo image selection when typing arbitrary text and blurring', asyn
   // There should now be an invalid value in the combobox, but we should be able to see both the ubuntu options: `ubuntu-22-04` and `ubuntu-20-04`
   // and we should NOT be able to see the `arch-2022-06-01` option
   await expect(imageSelectCombobox).toHaveValue('ubuntu-2')
-  await expectOptions(page, [validImage, alternateImage1], [alternateImage2])
+  await expect(page.getByRole('option', { name: validImage })).toBeVisible()
+  await expect(page.getByRole('option', { name: alternateImage1 })).toBeVisible()
+  await expect(page.getByRole('option', { name: alternateImage2 })).toBeHidden()
 
   // Blur the field by clicking elsewhere; because the value is not a valid silo image, the selection should be cleared
   await page.getByRole('textbox', { name: 'Name', exact: true }).click()

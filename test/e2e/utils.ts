@@ -51,16 +51,6 @@ export async function expectNotVisible(page: Page, selectors: Selector[]) {
   }
 }
 
-/** Ensure that certain combobox options are present, others are hidden */
-export async function expectOptions(page: Page, present: string[], hidden: string[] = []) {
-  for (const option of present) {
-    await expect(page.getByRole('option', { name: option })).toBeVisible()
-  }
-  for (const option of hidden) {
-    await expect(page.getByRole('option', { name: option })).toBeHidden()
-  }
-}
-
 /**
  * Locate the value cell next to a label in a PropertiesTable. The component
  * renders label/value as adjacent sibling elements in a CSS grid, so we use

@@ -20,7 +20,6 @@ import {
   clickRowAction,
   closeToast,
   expect,
-  expectOptions,
   expectRowVisible,
   getPageAsUser,
   test,
@@ -151,7 +150,10 @@ test.describe('IP pool configuration: myriad silo (v4-only default)', () => {
 
     // Verify v6 pools are not available
     await page.getByLabel('Pool').click()
-    await expectOptions(page, ['ip-pool-1', 'ip-pool-3'], ['ip-pool-2', 'ip-pool-4'])
+    await expect(page.getByRole('option', { name: 'ip-pool-1' })).toBeVisible()
+    await expect(page.getByRole('option', { name: 'ip-pool-3' })).toBeVisible()
+    await expect(page.getByRole('option', { name: 'ip-pool-2' })).toBeHidden()
+    await expect(page.getByRole('option', { name: 'ip-pool-4' })).toBeHidden()
 
     // Select ip-pool-1 (close dropdown first) and attach
     await page.getByRole('option', { name: 'ip-pool-1' }).click()
