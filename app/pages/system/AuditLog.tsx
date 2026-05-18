@@ -43,7 +43,6 @@ import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { Divider } from '~/ui/lib/Divider'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
-import { Spinner } from '~/ui/lib/Spinner'
 import { Truncate } from '~/ui/lib/Truncate'
 import { classed } from '~/util/classed'
 import { toLocaleDateString, toSyslogDateString, toSyslogTimeString } from '~/util/date'
@@ -565,12 +564,10 @@ export default function SiloAuditLogsPage() {
             variant="ghost"
             onClick={() => fetchNextPage()}
             disabled={isFetchingNextPage}
-            className="text-mono-sm text-quaternary"
             type="button"
+            loading={isFetchingNextPage}
           >
-            <div className="flex items-center gap-2">
-              {isFetchingNextPage && <Spinner variant="neutral" />} Load More
-            </div>
+            Load More
           </Button>
         )}
       </div>
