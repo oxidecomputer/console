@@ -63,6 +63,7 @@ export default function SSHKeysPage() {
         onActivate: confirmDelete({
           doDelete: () => deleteSshKey({ path: { sshKey: sshKey.name } }),
           label: sshKey.name,
+          resourceKind: 'SSH key',
         }),
       },
     ],

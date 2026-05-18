@@ -72,6 +72,18 @@ export const ipPool6Multicast: Json<IpPool> = {
   pool_type: 'multicast',
 }
 
+// Sentinel pool: selecting this pool in an ephemeral-IP attach request causes
+// the mock handler to return a 500 so tests can exercise the failure path.
+export const ipPoolEphemeralAttachFail: Json<IpPool> = {
+  id: 'a82e20a3-1fb3-4d72-910a-2883298304a2',
+  name: 'attach-fail',
+  description: 'Sentinel: ephemeral IP attach returns 500',
+  time_created: new Date().toISOString(),
+  time_modified: new Date().toISOString(),
+  ip_version: 'v6',
+  pool_type: 'unicast',
+}
+
 export const ipPools: Json<IpPool>[] = [
   ipPool1,
   ipPool2,
@@ -79,6 +91,7 @@ export const ipPools: Json<IpPool>[] = [
   ipPool4,
   ipPool5Multicast,
   ipPool6Multicast,
+  ipPoolEphemeralAttachFail,
 ]
 
 export const ipPoolSilos: Json<IpPoolSiloLink>[] = [
@@ -103,6 +116,12 @@ export const ipPoolSilos: Json<IpPoolSiloLink>[] = [
     ip_pool_id: ipPool6Multicast.id,
     silo_id: defaultSilo.id,
     is_default: true,
+  },
+
+  {
+    ip_pool_id: ipPoolEphemeralAttachFail.id,
+    silo_id: defaultSilo.id,
+    is_default: false,
   },
 
   // myriad silo: v4-only default

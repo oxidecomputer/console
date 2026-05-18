@@ -133,6 +133,7 @@ export default function DisksPage() {
         onActivate: confirmDelete({
           doDelete: () => deleteDisk({ path: { disk: disk.name }, query: { project } }),
           label: disk.name,
+          resourceKind: 'disk',
         }),
         disabled:
           !diskCan.delete(disk) &&

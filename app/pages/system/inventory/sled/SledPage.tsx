@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { filesize } from 'filesize'
 import type { LoaderFunctionArgs } from 'react-router'
 
 import { api, q, queryClient, usePrefetchedQuery } from '@oxide/api'
@@ -19,6 +18,7 @@ import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { truncate } from '~/ui/lib/Truncate'
 import { pb } from '~/util/path-builder'
 import type * as PP from '~/util/path-params'
+import { formatBytes } from '~/util/units'
 
 import { ProvisionPolicyBadge, SledKindBadge, SledStateBadge } from './SledBadges'
 
@@ -38,7 +38,7 @@ export default function SledPage() {
   const { sledId } = useSledParams()
   const { data: sled } = usePrefetchedQuery(sledView({ sledId }))
 
-  const ram = filesize(sled.usablePhysicalRam, { output: 'object', base: 2 })
+  const ram = formatBytes(sled.usablePhysicalRam)
 
   return (
     <>

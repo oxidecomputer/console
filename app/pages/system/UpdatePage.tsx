@@ -245,7 +245,7 @@ export default function UpdatePage() {
                               setTargetRelease({
                                 body: { systemVersion: repo.systemVersion },
                               }),
-                            modalTitle: 'Confirm set target release',
+                            modalTitle: 'Set target release',
                             modalContent: (
                               <p>
                                 Are you sure you want to set <HL>{repo.systemVersion}</HL>{' '}

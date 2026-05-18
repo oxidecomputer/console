@@ -627,7 +627,7 @@ const initDb = {
   ipPools: [...mock.ipPools],
   ipPoolSilos: [...mock.ipPoolSilos],
   ipPoolRanges: [...mock.ipPoolRanges],
-  networkInterfaces: [mock.networkInterface],
+  networkInterfaces: [mock.networkInterface, mock.stoppedInstanceNic],
   physicalDisks: [...mock.physicalDisks],
   projects: [...projects],
   racks: [...mock.racks],

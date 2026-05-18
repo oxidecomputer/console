@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useRef } from 'react'
 import { Outlet } from 'react-router'
 
 import { PageActionsTarget } from '~/components/PageActions'
@@ -14,18 +13,18 @@ import { useScrollRestoration } from '~/hooks/use-scroll-restoration'
 import { SkipLinkTarget } from '~/ui/lib/SkipLink'
 import { classed } from '~/util/classed'
 
-export const PageContainer = classed.div`grid h-screen grid-cols-[14.25rem_1fr] grid-rows-[var(--top-bar-height)_1fr]`
+export const PageContainer = classed.div`min-h-full pt-(--top-bar-height)`
+
+// shared with PageSkeleton so the skeleton doesn't drift from the real layout
+export const topBarWrapperClass =
+  'bg-default border-secondary fixed top-0 right-0 left-0 z-(--z-top-bar) grid h-(--top-bar-height) grid-cols-[var(--sidebar-width)_1fr] border-b'
+export const sidebarWrapperClass =
+  'border-secondary fixed top-(--top-bar-height) bottom-0 left-0 w-(--sidebar-width) border-r'
 
 export function ContentPane() {
-  const ref = useRef<HTMLDivElement>(null)
-  useScrollRestoration(ref)
+  useScrollRestoration()
   return (
-    <div
-      ref={ref}
-      className="light:bg-raise flex flex-col overflow-auto"
-      id="scroll-container"
-      data-testid="scroll-container"
-    >
+    <div className="light:bg-raise ml-(--sidebar-width) flex min-h-[calc(100vh-var(--top-bar-height))] flex-col">
       <div className="flex grow flex-col pb-8">
         <SkipLinkTarget />
         <main className="*:gutter h-full">
@@ -47,12 +46,10 @@ export function ContentPane() {
  * `<div>` because we don't need it.
  */
 export const SerialConsoleContentPane = () => (
-  <div className="flex flex-col overflow-auto">
-    <div className="flex grow flex-col">
-      <SkipLinkTarget />
-      <main className="*:gutter h-full">
-        <Outlet />
-      </main>
-    </div>
+  <div className="ml-(--sidebar-width) flex h-[calc(100vh-var(--top-bar-height))] flex-col overflow-hidden">
+    <SkipLinkTarget />
+    <main className="*:gutter h-full">
+      <Outlet />
+    </main>
   </div>
 )
