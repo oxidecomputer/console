@@ -8,12 +8,52 @@
 
 /* Tab list container styles */
 .ox-tabs-list {
-  @apply mb-8 flex bg-transparent;
+  @apply relative mb-8 flex bg-transparent;
 }
 
 .ox-tabs-list:after {
   @apply border-secondary block w-full border-b;
   content: '';
+}
+
+/* Animated hover/focus pill — follows the active tab via CSS anchor positioning.
+   Falls back to a per-tab static bg in browsers without anchor support. */
+.ox-tab-pill {
+  position: absolute;
+  position-anchor: --hover-tab;
+  left: anchor(left);
+  top: anchor(top);
+  width: anchor-size(width);
+  height: anchor-size(height);
+  @apply bg-hover rounded-md;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    /* On-screen morph between tabs → ease-in-out */
+    left 200ms cubic-bezier(0.645, 0.045, 0.355, 1),
+    top 200ms cubic-bezier(0.645, 0.045, 0.355, 1),
+    width 200ms cubic-bezier(0.645, 0.045, 0.355, 1),
+    height 200ms cubic-bezier(0.645, 0.045, 0.355, 1),
+    /* Color swap when sliding onto/off the active tab */ background-color 150ms ease,
+    /* Enter/exit fade → ease-out */ opacity 120ms cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ox-tab-pill {
+    transition: none;
+  }
+}
+
+.ox-tabs-list:has(.ox-tab:is(:hover, :focus-visible)) .ox-tab-pill {
+  opacity: 1;
+}
+
+.ox-tabs-list:has(.ox-tab[data-active]:is(:hover, :focus-visible)) .ox-tab-pill {
+  @apply bg-accent-hover;
+}
+
+.ox-tabs-list .ox-tab:is(:hover, :focus-visible) > * {
+  anchor-name: --hover-tab;
 }
 
 /* Panel styles */
@@ -28,11 +68,7 @@
 
 .ox-tabs-list .ox-tab > * {
   @apply rounded-md bg-transparent px-1.5 py-1;
-}
-
-/* Hover states */
-.ox-tabs-list .ox-tab:hover > * {
-  @apply bg-hover;
+  position: relative; /* sit above the pill */
 }
 
 /* Active states */

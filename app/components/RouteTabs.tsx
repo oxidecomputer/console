@@ -16,26 +16,26 @@ const selectTab = (e: React.KeyboardEvent<HTMLDivElement>) => {
   // Don't intercept modified arrow keys (Cmd for browser back/forward, etc.)
   if (hasModifier(e)) return
 
-  const target = e.target as HTMLDivElement
-  if (e.key === KEYS.left) {
-    e.stopPropagation()
-    e.preventDefault()
+  const target = e.target as HTMLElement
+  const isArrow = e.key === KEYS.left || e.key === KEYS.right
+  if (!isArrow) return
 
-    const sibling = (target.previousSibling ??
-      target.parentElement!.lastChild!) as HTMLDivElement
+  // Walk only role=tab siblings so non-tab children (e.g. the hover pill) are skipped
+  const tabs = Array.from(
+    target.parentElement!.querySelectorAll<HTMLElement>('[role="tab"]')
+  )
+  const i = tabs.indexOf(target)
+  if (i === -1) return
 
-    sibling.focus()
-    sibling.click()
-  } else if (e.key === KEYS.right) {
-    e.stopPropagation()
-    e.preventDefault()
+  e.stopPropagation()
+  e.preventDefault()
 
-    const sibling = (target.nextSibling ??
-      target.parentElement!.firstChild!) as HTMLDivElement
-
-    sibling.focus()
-    sibling.click()
-  }
+  const next =
+    e.key === KEYS.left
+      ? tabs[(i - 1 + tabs.length) % tabs.length]
+      : tabs[(i + 1) % tabs.length]
+  next.focus()
+  next.click()
 }
 
 export interface RouteTabsProps {
@@ -66,6 +66,7 @@ export function RouteTabs({
         className={cn(sideTabs ? 'ox-side-tabs-list' : 'ox-tabs-list', tabListClassName)}
         onKeyDown={selectTab}
       >
+        {!sideTabs && <span className="ox-tab-pill" aria-hidden="true" />}
         {children}
       </div>
 

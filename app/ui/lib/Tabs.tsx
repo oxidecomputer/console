@@ -22,8 +22,11 @@ export const Tabs = {
       <div>{children}</div>
     </BaseTabs.Tab>
   ),
-  List: ({ className, ...props }: BaseTabs.List.Props) => (
-    <BaseTabs.List {...props} className={cn('ox-tabs-list', className)} />
+  List: ({ className, children, ...props }: BaseTabs.List.Props) => (
+    <BaseTabs.List {...props} className={cn('ox-tabs-list', className)}>
+      <span className="ox-tab-pill" aria-hidden="true" />
+      {children}
+    </BaseTabs.List>
   ),
   Content: ({ className, ...props }: BaseTabs.Panel.Props) => (
     <BaseTabs.Panel {...props} className={cn('ox-tabs-panel', className)} />
