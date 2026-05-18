@@ -7,10 +7,18 @@
  */
 import { getLocalTimeZone, now } from '@internationalized/date'
 import { useInfiniteQuery, useIsFetching } from '@tanstack/react-query'
-import { useVirtualizer } from '@tanstack/react-virtual'
+import { useWindowVirtualizer } from '@tanstack/react-virtual'
 import cn from 'classnames'
 import { differenceInMilliseconds } from 'date-fns'
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { match, P } from 'ts-pattern'
 import { type JsonValue } from 'type-fest'
 
@@ -320,12 +328,15 @@ export default function SiloAuditLogsPage() {
   }, [data])
 
   const parentRef = useRef<HTMLDivElement>(null)
+  // virtual rows are positioned by their offset from the top of the document, so
+  // the virtualizer needs to know how far down the page the list starts
+  const [scrollMargin, setScrollMargin] = useState(0)
 
-  const rowVirtualizer = useVirtualizer({
+  const rowVirtualizer = useWindowVirtualizer({
     count: allItems.length,
-    getScrollElement: () => document.querySelector('#scroll-container'),
     estimateSize: () => 36,
     overscan: 40,
+    scrollMargin,
   })
 
   const handleToggle = useCallback(
@@ -341,6 +352,7 @@ export default function SiloAuditLogsPage() {
   const logTable = (
     <>
       <div
+        ref={parentRef}
         className="relative w-full"
         style={{
           height: `${rowVirtualizer.getTotalSize()}px`,
@@ -364,7 +376,7 @@ export default function SiloAuditLogsPage() {
               className="absolute top-0 right-0 left-0 w-full"
               style={{
                 height: `${virtualRow.size}px`,
-                transform: `translateY(${virtualRow.start}px)`,
+                transform: `translateY(${virtualRow.start - rowVirtualizer.options.scrollMargin}px)`,
               }}
             >
               <div
@@ -471,6 +483,16 @@ export default function SiloAuditLogsPage() {
   const errorMessage = error?.message ?? 'An error occurred while loading audit logs'
   const showError = error && !dismissedError
 
+  // measure the list's distance from the top of the document so the window
+  // virtualizer can position items correctly. re-measure when the error banner
+  // or loading state toggles, since those shift the list's position
+  useLayoutEffect(() => {
+    if (parentRef.current) {
+      const rect = parentRef.current.getBoundingClientRect()
+      setScrollMargin(rect.top + window.scrollY)
+    }
+  }, [showError, isLoading])
+
   return (
     <>
       <div className="!mx-0 !w-full">
@@ -484,15 +506,15 @@ export default function SiloAuditLogsPage() {
           />
         </PageHeader>
 
-        <div className="border-secondary mt-8 mb-3 flex flex-wrap justify-between gap-3 border-b px-[var(--content-gutter)] pb-4">
+        <div className="border-secondary mt-8 flex flex-wrap justify-between gap-3 border-b px-[var(--content-gutter)] pb-4">
           {intervalPicker}
           <div className="flex items-center gap-2">{dateTimeRangePicker}</div>
         </div>
       </div>
 
-      <div className="relative !mx-0 !w-full flex-grow overflow-x-clip">
-        <div className="w-full flex-1" ref={parentRef}>
-          <div className="bg-default sticky top-0 z-10 px-[var(--content-gutter)] pt-4 pb-2">
+      <div className="bg-default relative !mx-0 !w-full flex-grow overflow-x-clip pt-3">
+        <div className="w-full flex-1">
+          <div className="bg-default border-secondary sticky top-(--top-bar-height) z-10 -mb-px border-b px-(--content-gutter) pt-4 pb-2">
             <div style={colWidths} className="grid items-center gap-8">
               <HeaderCell>Time Completed</HeaderCell>
               <HeaderCell>Status</HeaderCell>
