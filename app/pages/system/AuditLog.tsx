@@ -349,6 +349,56 @@ export default function SiloAuditLogsPage() {
     [rowVirtualizer]
   )
 
+  const navigateToIndex = useCallback(
+    (newIndex: number) => {
+      if (newIndex < 0 || newIndex >= allItems.length) return
+      handleToggle(newIndex.toString())
+    },
+    [allItems.length, handleToggle]
+  )
+
+  const focusRow = useCallback((index: number) => {
+    parentRef.current
+      ?.querySelector<HTMLElement>(`[data-row-index="${index}"]`)
+      ?.focus({ preventScroll: true })
+  }, [])
+
+  // arrow keys move selection (and focus) between rows; escape closes the
+  // modal. adjacent rows are within the virtualizer's overscan, so they're
+  // already in the DOM when we look them up.
+  useEffect(() => {
+    if (expandedItem === null) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null
+      // don't hijack typing in inputs (e.g. the date pickers above the list)
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return
+
+      const currentIdx = parseInt(expandedItem, 10)
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        const next = currentIdx + 1
+        if (next < allItems.length) {
+          navigateToIndex(next)
+          focusRow(next)
+        }
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        const prev = currentIdx - 1
+        if (prev >= 0) {
+          navigateToIndex(prev)
+          focusRow(prev)
+        }
+      } else if (e.key === 'Escape') {
+        e.preventDefault()
+        handleToggle(null)
+        // restore focus to the row in case focus was inside the modal
+        focusRow(currentIdx)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [expandedItem, allItems.length, handleToggle, navigateToIndex, focusRow])
+
   const logTable = (
     <>
       <div
@@ -397,6 +447,7 @@ export default function SiloAuditLogsPage() {
                 }}
                 role="button" // oxlint-disable-line prefer-tag-over-role
                 tabIndex={0}
+                data-row-index={virtualRow.index}
               >
                 {/* TODO: might be especially useful here to get the original UTC timestamp in a tooltip */}
                 <div className="text-mono-sm overflow-hidden whitespace-nowrap">
@@ -492,6 +543,31 @@ export default function SiloAuditLogsPage() {
       setScrollMargin(rect.top + window.scrollY)
     }
   }, [showError, isLoading])
+
+  // scroll just enough to bring the selected row into the band between the
+  // sticky header bottom and the viewport midpoint. no-op when it's already
+  // there. when we do scroll, always go at least to scrollMargin so the
+  // sticky header is fully stuck and the expanded-item panel reaches its full
+  // height.
+  useEffect(() => {
+    if (expandedItem === null) return
+    const index = parseInt(expandedItem, 10)
+    // top-bar (54px) + sticky table header (~40px)
+    const stickyBottom = 54 + 40
+    const itemTop = scrollMargin + index * 36
+    const viewportTop = itemTop - window.scrollY
+    // scroll just enough to fully stick the header (so the expanded-item panel
+    // reaches its full height). this is the floor for any scroll we do.
+    const minScroll = scrollMargin - stickyBottom
+    let target = window.scrollY
+    if (viewportTop < stickyBottom) {
+      target = itemTop - stickyBottom
+    } else if (viewportTop > window.innerHeight / 2) {
+      target = itemTop - window.innerHeight / 2
+    }
+    target = Math.max(target, minScroll)
+    if (target !== window.scrollY) window.scrollTo({ top: target })
+  }, [expandedItem, scrollMargin])
 
   return (
     <>
