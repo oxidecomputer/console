@@ -271,6 +271,108 @@ const colWidths = {
 
 const HeaderCell = classed.div`text-mono-sm text-tertiary`
 
+type RowProps = {
+  log: AuditLogEntry
+  index: number
+  isExpanded: boolean
+  size: number
+  start: number
+  scrollMargin: number
+  onToggle: (index: number) => void
+}
+
+// memoized so a parent re-render (scroll, keydown, selection change) doesn't
+// re-run the per-row Tooltip / CopyToClipboard / Badge / ts-pattern work for
+// every virtualized row. Props are referentially stable per row, so only rows
+// whose `isExpanded`, `start`, or `scrollMargin` actually change re-render.
+const Row = memo(function Row({
+  log,
+  index,
+  isExpanded,
+  size,
+  start,
+  scrollMargin,
+  onToggle,
+}: RowProps) {
+  const [userId, siloId] = match(log.actor)
+    .with({ kind: 'silo_user' }, (actor) => [actor.siloUserId, actor.siloId])
+    .with({ kind: 'user_builtin' }, (actor) => [actor.userBuiltinId, undefined])
+    .with({ kind: 'scim' }, (actor) => [undefined, actor.siloId])
+    .with({ kind: 'unauthenticated' }, () => [undefined, undefined])
+    .exhaustive()
+
+  return (
+    <div
+      className="absolute top-0 right-0 left-0 w-full"
+      style={{
+        height: `${size}px`,
+        transform: `translateY(${start - scrollMargin}px)`,
+      }}
+    >
+      <div
+        className={cn(
+          'grid h-9 w-full cursor-pointer items-center gap-8 border-t px-[var(--content-gutter)] text-left text-sans-md bg-default border-secondary',
+          isExpanded ? 'bg-raise' : 'hover:bg-raise'
+        )}
+        style={colWidths}
+        onClick={() => onToggle(index)}
+        // TODO: some of the focusing behaviour and repetitive code needs work
+        // a11y thing: make it focusable and let the user press enter on it to toggle
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            onToggle(index)
+          }
+        }}
+        role="button" // oxlint-disable-line prefer-tag-over-role
+        tabIndex={0}
+        data-row-index={index}
+      >
+        {/* TODO: might be especially useful here to get the original UTC timestamp in a tooltip */}
+        <div className="text-mono-sm overflow-hidden whitespace-nowrap">
+          <span className="text-tertiary">{toSyslogDateString(log.timeCompleted)}</span>{' '}
+          {toSyslogTimeString(log.timeCompleted)}
+        </div>
+        <div className="flex gap-1 overflow-hidden whitespace-nowrap">
+          {match(log.result)
+            .with(P.union({ kind: 'success' }, { kind: 'error' }), (result) => (
+              <StatusCodeCell code={result.httpStatusCode} />
+            ))
+            .with({ kind: 'unknown' }, () => <EmptyCell />)
+            .exhaustive()}
+        </div>
+        <div>
+          <Badge color="neutral">{log.operationId.split('_').join(' ')}</Badge>
+        </div>
+        <div className="text-secondary">
+          {userId ? (
+            <Truncate maxLength={12} text={userId} position="middle" hasCopyButton />
+          ) : (
+            <EmptyCell />
+          )}
+        </div>
+        <div>
+          {log.authMethod ? (
+            <Badge color="neutral">{log.authMethod.split('_').join(' ')}</Badge>
+          ) : (
+            <EmptyCell />
+          )}
+        </div>
+        <div className="text-secondary">
+          {siloId ? (
+            <Truncate maxLength={12} text={siloId} position="middle" hasCopyButton />
+          ) : (
+            <EmptyCell />
+          )}
+        </div>
+        <div className="text-secondary">
+          {differenceInMilliseconds(new Date(log.timeCompleted), log.timeStarted)}
+          ms
+        </div>
+      </div>
+    </div>
+  )
+})
+
 export default function SiloAuditLogsPage() {
   const [expandedItem, setExpandedItem] = useState<string | null>(null)
   const [dismissedError, setDismissedError] = useState(false)
@@ -339,15 +441,16 @@ export default function SiloAuditLogsPage() {
     scrollMargin,
   })
 
-  const handleToggle = useCallback(
-    (index: string | null) => {
-      setExpandedItem(index)
-      setTimeout(() => {
-        rowVirtualizer.measure()
-      }, 0)
-    },
-    [rowVirtualizer]
-  )
+  const handleToggle = useCallback((index: string | null) => {
+    setExpandedItem(index)
+  }, [])
+
+  // Row receives a stable callback that takes a number — keeps the memoized
+  // Row from re-rendering when its only changing prop would be the onClick
+  // closure
+  const selectRow = useCallback((index: number) => {
+    setExpandedItem(index.toString())
+  }, [])
 
   const navigateToIndex = useCallback(
     (newIndex: number) => {
@@ -408,104 +511,18 @@ export default function SiloAuditLogsPage() {
           height: `${rowVirtualizer.getTotalSize()}px`,
         }}
       >
-        {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-          const log = allItems[virtualRow.index]
-          const indexStr = virtualRow.index.toString()
-          const isExpanded = expandedItem === indexStr
-
-          const [userId, siloId] = match(log.actor)
-            .with({ kind: 'silo_user' }, (actor) => [actor.siloUserId, actor.siloId])
-            .with({ kind: 'user_builtin' }, (actor) => [actor.userBuiltinId, undefined])
-            .with({ kind: 'scim' }, (actor) => [undefined, actor.siloId])
-            .with({ kind: 'unauthenticated' }, () => [undefined, undefined])
-            .exhaustive()
-
-          return (
-            <div
-              key={virtualRow.index}
-              className="absolute top-0 right-0 left-0 w-full"
-              style={{
-                height: `${virtualRow.size}px`,
-                transform: `translateY(${virtualRow.start - rowVirtualizer.options.scrollMargin}px)`,
-              }}
-            >
-              <div
-                className={cn(
-                  'grid h-9 w-full cursor-pointer items-center gap-8 border-t px-[var(--content-gutter)] text-left text-sans-md bg-default border-secondary',
-                  isExpanded ? 'bg-raise' : 'hover:bg-raise'
-                )}
-                style={colWidths}
-                onClick={() => {
-                  handleToggle(indexStr)
-                }}
-                // TODO: some of the focusing behaviour and repetitive code needs work
-                // a11y thing: make it focusable and let the user press enter on it to toggle
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    handleToggle(indexStr)
-                  }
-                }}
-                role="button" // oxlint-disable-line prefer-tag-over-role
-                tabIndex={0}
-                data-row-index={virtualRow.index}
-              >
-                {/* TODO: might be especially useful here to get the original UTC timestamp in a tooltip */}
-                <div className="text-mono-sm overflow-hidden whitespace-nowrap">
-                  <span className="text-tertiary">
-                    {toSyslogDateString(log.timeCompleted)}
-                  </span>{' '}
-                  {toSyslogTimeString(log.timeCompleted)}
-                </div>
-                <div className="flex gap-1 overflow-hidden whitespace-nowrap">
-                  {match(log.result)
-                    .with(P.union({ kind: 'success' }, { kind: 'error' }), (result) => (
-                      <StatusCodeCell code={result.httpStatusCode} />
-                    ))
-                    .with({ kind: 'unknown' }, () => <EmptyCell />)
-                    .exhaustive()}
-                </div>
-                <div>
-                  <Badge color="neutral">{log.operationId.split('_').join(' ')}</Badge>
-                </div>
-                <div className="text-secondary">
-                  {userId ? (
-                    <Truncate
-                      maxLength={12}
-                      text={userId}
-                      position="middle"
-                      hasCopyButton
-                    />
-                  ) : (
-                    <EmptyCell />
-                  )}
-                </div>
-                <div>
-                  {log.authMethod ? (
-                    <Badge color="neutral">{log.authMethod.split('_').join(' ')}</Badge>
-                  ) : (
-                    <EmptyCell />
-                  )}
-                </div>
-                <div className="text-secondary">
-                  {siloId ? (
-                    <Truncate
-                      maxLength={12}
-                      text={siloId}
-                      position="middle"
-                      hasCopyButton
-                    />
-                  ) : (
-                    <EmptyCell />
-                  )}
-                </div>
-                <div className="text-secondary">
-                  {differenceInMilliseconds(new Date(log.timeCompleted), log.timeStarted)}
-                  ms
-                </div>
-              </div>
-            </div>
-          )
-        })}
+        {rowVirtualizer.getVirtualItems().map((virtualRow) => (
+          <Row
+            key={virtualRow.index}
+            log={allItems[virtualRow.index]}
+            index={virtualRow.index}
+            isExpanded={expandedItem === virtualRow.index.toString()}
+            size={virtualRow.size}
+            start={virtualRow.start}
+            scrollMargin={rowVirtualizer.options.scrollMargin}
+            onToggle={selectRow}
+          />
+        ))}
       </div>
       <div className="border-secondary flex justify-center border-t px-[var(--content-gutter)] py-4">
         {!hasNextPage && !isFetching && !isPending && allItems.length > 0 ? (
@@ -657,8 +674,11 @@ const ExpandedItem = ({
   onClose: () => void
   hasError: boolean
 }) => {
-  const snakeJson = camelToSnakeJson(item)
-  const json = JSON.stringify(snakeJson, null, 2)
+  // recomputing these on every parent re-render (e.g. on scroll) would be
+  // wasted work — and would also defeat HighlightJSON's memo by passing a new
+  // object identity each time
+  const snakeJson = useMemo(() => camelToSnakeJson(item), [item])
+  const json = useMemo(() => JSON.stringify(snakeJson, null, 2), [snakeJson])
 
   return (
     <div
