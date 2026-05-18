@@ -36,6 +36,7 @@ import { Badge } from '@oxide/design-system/ui'
 import { DocsPopover } from '~/components/DocsPopover'
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
 import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
+import { useWindowSize } from '~/hooks/use-window-size'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { Button } from '~/ui/lib/Button'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
@@ -188,7 +189,7 @@ const ErrorState = ({ error, onDismiss }: { error: string; onDismiss: () => void
 
 const LoadingState = () => {
   return (
-    <div className="border-secondary h-full w-full overflow-hidden border-t">
+    <div className="border-secondary h-full w-full overflow-hidden">
       {/* Generate skeleton rows */}
       <div className="w-full">
         {[...Array(50)].map((_, i) => (
@@ -265,9 +266,26 @@ function StatusCodeCell({ code }: { code: number }) {
   return <Badge color={color}>{code}</Badge>
 }
 
-const colWidths = {
-  gridTemplateColumns: '7.75rem 3rem 160px 130px 120px 130px 1fr',
-}
+const COLUMNS = [
+  { key: 'timeCompleted', title: 'Time Completed', width: '7.75rem', hideBelow: 0 },
+  { key: 'status', title: 'Status', width: '3rem', hideBelow: 0 },
+  { key: 'operation', title: 'Operation', width: '160px', hideBelow: 0 },
+  { key: 'actorId', title: 'Actor ID', width: '130px', hideBelow: 1150 },
+  {
+    key: 'authMethod',
+    title: 'Auth Method',
+    width: '120px',
+    hideBelow: 875,
+  },
+  { key: 'siloId', title: 'Silo ID', width: '130px', hideBelow: 1250 },
+  { key: 'duration', title: 'Duration', width: '1fr', hideBelow: 950 },
+] as const
+
+const getResponsiveColWidths = () => ({
+  gridTemplateColumns: COLUMNS.map((col) => col.width).join(' '),
+})
+
+const colWidths = getResponsiveColWidths()
 
 const HeaderCell = classed.div`text-mono-sm text-tertiary`
 
@@ -278,13 +296,15 @@ type RowProps = {
   size: number
   start: number
   scrollMargin: number
+  screenWidth: number
   onToggle: (index: number) => void
 }
 
 // memoized so a parent re-render (scroll, keydown, selection change) doesn't
 // re-run the per-row Tooltip / CopyToClipboard / Badge / ts-pattern work for
 // every virtualized row. Props are referentially stable per row, so only rows
-// whose `isExpanded`, `start`, or `scrollMargin` actually change re-render.
+// whose `isExpanded`, `start`, `scrollMargin`, or `screenWidth` actually
+// change re-render.
 const Row = memo(function Row({
   log,
   index,
@@ -292,6 +312,7 @@ const Row = memo(function Row({
   size,
   start,
   scrollMargin,
+  screenWidth,
   onToggle,
 }: RowProps) {
   const [userId, siloId] = match(log.actor)
@@ -301,9 +322,15 @@ const Row = memo(function Row({
     .with({ kind: 'unauthenticated' }, () => [undefined, undefined])
     .exhaustive()
 
+  // breakpoints come from COLUMNS[].hideBelow
+  const hideActorId = screenWidth < 1150
+  const hideAuthMethod = screenWidth < 875
+  const hideSiloId = screenWidth < 1250
+  const hideDuration = screenWidth < 950
+
   return (
     <div
-      className="absolute top-0 right-0 left-0 w-full"
+      className="absolute top-0 right-0 left-0 w-full focus-within:z-10"
       style={{
         height: `${size}px`,
         transform: `translateY(${start - scrollMargin}px)`,
@@ -311,8 +338,9 @@ const Row = memo(function Row({
     >
       <div
         className={cn(
-          'grid h-9 w-full cursor-pointer items-center gap-8 border-t px-[var(--content-gutter)] text-left text-sans-md bg-default border-secondary',
-          isExpanded ? 'bg-raise' : 'hover:bg-raise'
+          'focus-visible:outline-2 focus-visible:transition-none focus-visible:rounded-md focus-visible:-outline-offset-2 grid h-9 w-full cursor-pointer items-center gap-8 px-[var(--content-gutter)] text-left text-sans-md bg-default border-secondary',
+          index !== 0 && 'border-t',
+          isExpanded ? 'bg-hover' : 'hover:bg-raise'
         )}
         style={colWidths}
         onClick={() => onToggle(index)}
@@ -343,28 +371,28 @@ const Row = memo(function Row({
         <div>
           <Badge color="neutral">{log.operationId.split('_').join(' ')}</Badge>
         </div>
-        <div className="text-secondary">
+        <div className={cn('text-secondary', hideActorId && 'hidden')}>
           {userId ? (
             <Truncate maxLength={12} text={userId} position="middle" hasCopyButton />
           ) : (
             <EmptyCell />
           )}
         </div>
-        <div>
+        <div className={cn(hideAuthMethod && 'hidden')}>
           {log.authMethod ? (
             <Badge color="neutral">{log.authMethod.split('_').join(' ')}</Badge>
           ) : (
             <EmptyCell />
           )}
         </div>
-        <div className="text-secondary">
+        <div className={cn('text-secondary', hideSiloId && 'hidden')}>
           {siloId ? (
             <Truncate maxLength={12} text={siloId} position="middle" hasCopyButton />
           ) : (
             <EmptyCell />
           )}
         </div>
-        <div className="text-secondary">
+        <div className={cn('text-secondary', hideDuration && 'hidden')}>
           {differenceInMilliseconds(new Date(log.timeCompleted), log.timeStarted)}
           ms
         </div>
@@ -502,6 +530,8 @@ export default function SiloAuditLogsPage() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [expandedItem, allItems.length, handleToggle, navigateToIndex, focusRow])
 
+  const screenSize = useWindowSize()
+
   const logTable = (
     <>
       <div
@@ -520,11 +550,12 @@ export default function SiloAuditLogsPage() {
             size={virtualRow.size}
             start={virtualRow.start}
             scrollMargin={rowVirtualizer.options.scrollMargin}
+            screenWidth={screenSize.width}
             onToggle={selectRow}
           />
         ))}
       </div>
-      <div className="border-secondary flex justify-center border-t px-[var(--content-gutter)] py-4">
+      <div className="border-secondary flex justify-center px-[var(--content-gutter)] py-4">
         {!hasNextPage && !isFetching && !isPending && allItems.length > 0 ? (
           <div className="text-mono-sm text-quaternary">
             No more logs to show within selected timeline
@@ -575,10 +606,10 @@ export default function SiloAuditLogsPage() {
     const viewportTop = itemTop - window.scrollY
     // scroll just enough to fully stick the header (so the expanded-item panel
     // reaches its full height). this is the floor for any scroll we do.
-    const minScroll = scrollMargin - stickyBottom
+    const minScroll = scrollMargin - stickyBottom - 10
     let target = window.scrollY
     if (viewportTop < stickyBottom) {
-      target = itemTop - stickyBottom
+      target = itemTop - stickyBottom - 1
     } else if (viewportTop > window.innerHeight / 2) {
       target = itemTop - window.innerHeight / 2
     }
@@ -607,15 +638,16 @@ export default function SiloAuditLogsPage() {
 
       <div className="bg-default relative !mx-0 !w-full flex-grow overflow-x-clip pt-3">
         <div className="w-full flex-1">
-          <div className="bg-default border-secondary sticky top-(--top-bar-height) z-10 -mb-px border-b px-(--content-gutter) pt-4 pb-2">
+          <div className="bg-default border-secondary sticky top-(--top-bar-height) z-20 border-b px-(--content-gutter) pt-4 pb-2">
             <div style={colWidths} className="grid items-center gap-8">
-              <HeaderCell>Time Completed</HeaderCell>
-              <HeaderCell>Status</HeaderCell>
-              <HeaderCell>Operation</HeaderCell>
-              <HeaderCell>Actor ID</HeaderCell>
-              <HeaderCell>Auth Method</HeaderCell>
-              <HeaderCell>Silo ID</HeaderCell>
-              <HeaderCell>Duration</HeaderCell>
+              {COLUMNS.map((column) => (
+                <HeaderCell
+                  key={column.key}
+                  className={cn(screenSize.width < column.hideBelow && 'hidden')}
+                >
+                  {column.title}
+                </HeaderCell>
+              ))}
             </div>
             {selectedItem &&
               (() => {
@@ -683,7 +715,7 @@ const ExpandedItem = ({
   return (
     <div
       className={cn(
-        'absolute right-0 top-[40px] flex w-[30rem] flex-col gap-6 overflow-y-auto border-l border-t bg-default border-secondary',
+        'absolute right-0 top-[40px] flex w-[30rem] flex-col gap-6 overflow-y-auto z-10 border-l border-t bg-default border-secondary',
         hasError
           ? 'mt-10 h-[calc(100dvh-var(--top-bar-height)-80px)]'
           : 'h-[calc(100dvh-var(--top-bar-height)-40px)]'
