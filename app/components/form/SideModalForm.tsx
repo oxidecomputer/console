@@ -9,9 +9,9 @@
 import { useEffect, useId, useState, type ReactNode } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
 
+import { ConfirmModal } from '~/components/ConfirmModal'
 import { useShouldAnimateModal } from '~/hooks/use-should-animate-modal'
 import { Button } from '~/ui/lib/Button'
-import { Modal } from '~/ui/lib/Modal'
 import { SideModal } from '~/ui/lib/SideModal'
 
 type CreateFormProps = {
@@ -128,28 +128,16 @@ export function SideModalForm<TFieldValues extends FieldValues>({
         </SideModal.Footer>
       )}
 
-      {showNavGuard && (
-        <Modal
-          isOpen
-          onDismiss={() => setShowNavGuard(false)}
-          title="Confirm navigation"
-          width="narrow"
-          overlay={false}
-        >
-          <Modal.Section>
-            Are you sure you want to leave this form?
-            <br />
-            All progress will be lost.
-          </Modal.Section>
-          <Modal.Footer
-            onAction={onDismiss}
-            onDismiss={() => setShowNavGuard(false)}
-            cancelText="Keep editing"
-            actionText="Leave form"
-            actionType="danger"
-          />
-        </Modal>
-      )}
+      <ConfirmModal
+        isOpen={showNavGuard}
+        onDismiss={() => setShowNavGuard(false)}
+        onConfirm={onDismiss}
+        title="Leave form?"
+        confirmText="Leave form"
+        dismissText="Keep editing"
+      >
+        Any unsaved changes will be lost.
+      </ConfirmModal>
     </SideModal>
   )
 }

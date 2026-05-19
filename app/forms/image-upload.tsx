@@ -7,9 +7,10 @@
  */
 import { skipToken, useQuery } from '@tanstack/react-query'
 import cn from 'classnames'
+import * as m from 'motion/react-m'
 import pMap from 'p-map'
 import pRetry from 'p-retry'
-import { useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
@@ -29,26 +30,33 @@ import {
   Unauthorized12Icon,
 } from '@oxide/design-system/icons/react'
 
+import { ConfirmModal } from '~/components/ConfirmModal'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { FileField } from '~/components/form/fields/FileField'
 import { NameField } from '~/components/form/fields/NameField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField } from '~/components/form/fields/TextField'
-import { SideModalForm } from '~/components/form/SideModalForm'
+import { HL } from '~/components/HL'
 import { titleCrumb } from '~/hooks/use-crumbs'
 import { useProjectSelector } from '~/hooks/use-params'
+import { useShouldAnimateModal } from '~/hooks/use-should-animate-modal'
+import { addToast } from '~/stores/toast'
+import { EmptyCell } from '~/table/cells/EmptyCell'
+import { Button } from '~/ui/lib/Button'
 import { Message } from '~/ui/lib/Message'
-import { Modal } from '~/ui/lib/Modal'
 import { SideModalFormDocs } from '~/ui/lib/ModalLinks'
 import { Progress } from '~/ui/lib/Progress'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { SideModal } from '~/ui/lib/SideModal'
 import { Spinner } from '~/ui/lib/Spinner'
+import { Truncate } from '~/ui/lib/Truncate'
 import { anySignal } from '~/util/abort'
 import { readBlobAsBase64 } from '~/util/file'
 import { invariant } from '~/util/invariant'
 import { docLinks, links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import { isAllZeros } from '~/util/str'
-import { formatBytes, GiB, KiB } from '~/util/units'
+import { bytesToGiB, formatBytes, GiB, KiB } from '~/util/units'
 
 // Padded because otherwise the numbers jump around a bit, e.g., when it goes
 // from 10.55 to 14.7 to 19.23
@@ -109,9 +117,12 @@ type StepProps = {
   label: string
   duration?: number
   className?: string
+  /** When true, sets aria-current="step" and accepts a ref for focus management */
+  active?: boolean
+  stepRef?: React.Ref<HTMLDivElement>
 }
 
-function Step({ children, state, label, className }: StepProps) {
+function Step({ children, state, label, className, active, stepRef }: StepProps) {
   /* eslint-disable react/jsx-key */
   const [status, icon] = state.isSuccess
     ? ['complete', <Success12Icon className="text-accent" />]
@@ -122,15 +133,26 @@ function Step({ children, state, label, className }: StepProps) {
         : ['ready', <Unauthorized12Icon className="text-disabled" />]
   /* eslint-enable react/jsx-key */
   return (
-    // data-status used only for e2e testing
     <div
-      className={cn('upload-step flex gap-2 px-4 py-3', className)}
+      ref={stepRef}
+      tabIndex={-1}
+      className={cn(
+        'upload-step flex items-baseline gap-2 px-8 py-3 outline-none',
+        state.isPending && 'text-raise',
+        className
+      )}
       data-testid={`upload-step: ${label}`}
       data-status={status}
+      aria-current={active ? 'step' : undefined}
     >
       {/* padding on icon to align it with text since everything is aligned to top */}
-      <div className="pt-px">{icon}</div>
-      <div className={cn('w-full space-y-2', state.isError ? 'text-error' : 'text-raise')}>
+      <div className="">{icon}</div>
+      <div
+        className={cn(
+          'w-full space-y-2 text-sans-md',
+          state.isError ? 'text-error' : 'text-raise'
+        )}
+      >
         <div>{label}</div>
         {children}
       </div>
@@ -170,51 +192,54 @@ const ABORT_ERROR = new Error('Upload canceled')
  */
 const CHUNK_SIZE_BYTES = 512 * KiB
 
-// States
-//
-// - Form
-//   - Clean or filled
-//   - Error
-//   - Checking that image name isn't taken (back to form if taken)
-// - Upload in progress
-//   - Happy path
-//     - Create disk
-//     - Import start
-//     - Uploading
-//     - Import stop
-//     - Finalize disk + create snapshot
-//     - Create image from snapshot
-//     - Cleanup
-//   - Error
-//     - Show error, click here to try again
-//       - If we failed after upload complete, maybe try again from there?
-//       - Otherwise, restart everything
-//     - If image name got taken in the meantime, give chance to rename?
-//
-// Part of the problem is that I'm relying on RQ for the state of the upload
-// steps, but there's slippage with what I actually want that to represent
-
-// TODO: make sure cleanup, cancelEverything, and resetMainFlow are called in
-// the right places
-
 export const handle = titleCrumb('Upload image')
 
+type Phase = 'form' | 'progress'
+
+function SummaryHeader({ values }: { values: FormValues }) {
+  const file = values.imageFile
+  return (
+    <PropertiesTable className="mb-4 basis-[initial]">
+      <PropertiesTable.Row label="Name">{values.imageName}</PropertiesTable.Row>
+      <PropertiesTable.Row label="OS">
+        {values.os ? values.os : <EmptyCell />}
+      </PropertiesTable.Row>
+      <PropertiesTable.Row label="Version">
+        {values.version ? values.version : <EmptyCell />}
+      </PropertiesTable.Row>
+      <PropertiesTable.Row label="Block size">
+        {values.blockSize} <span className="text-tertiary ml-1 inline-block">B</span>
+      </PropertiesTable.Row>
+      {file && (
+        <PropertiesTable.Row label="File name">
+          <Truncate maxLength={120} text={file.name} />
+        </PropertiesTable.Row>
+      )}
+      {file && (
+        <PropertiesTable.Row label="File size">
+          <span>{bytesToGiB(file.size)}</span>
+          <span className="text-tertiary ml-1 inline-block">GiB</span>
+        </PropertiesTable.Row>
+      )}
+    </PropertiesTable>
+  )
+}
+
 /**
- * Upload an image. Opens a second modal to show upload progress.
+ * Upload an image. Swaps between a form phase and a progress phase inside a
+ * single side modal — no second modal is mounted.
  */
 export default function ImageCreate() {
   const navigate = useNavigate()
   const { project } = useProjectSelector()
+  const formId = useId()
+  const animate = useShouldAnimateModal()
 
-  // The state in this component is very complex because we are doing a bunch of
-  // requests in order, all of which can fail, plus the whole thing can be
-  // aborted. We have the usual form state, plus an additional validation step
-  // where we check the API to make sure the name is not taken. Then, while we
-  // are submitting, we rely on the RQ mutations themselves, plus a synthetic
-  // mutation state representing the many calls of the bulk upload step.
+  const [phase, setPhase] = useState<Phase>('form')
+  const [showCancelGuard, setShowCancelGuard] = useState(false)
+  const [showNavGuard, setShowNavGuard] = useState(false)
 
   const [formError, setFormError] = useState<{ message: string } | null>(null)
-  const [modalOpen, setModalOpen] = useState(false)
   const [modalError, setModalError] = useState<string | null>(null)
 
   // progress bar, 0-100
@@ -228,14 +253,20 @@ export default function ImageCreate() {
   // done with everything, ready to close the modal
   const [allDone, setAllDone] = useState(false)
 
+  // true while cleanup() is awaiting after a cancel/error, so the form footer
+  // can explain why the resubmit button is in a loading state
+  const [isCleaningUp, setIsCleaningUp] = useState(false)
+
+  // for restoring focus when returning from progress to form
+  const previousFocusRef = useRef<HTMLElement | null>(null)
+  // first step row, focused on phase change to progress
+  const firstStepRef = useRef<HTMLDivElement | null>(null)
+
   const createDisk = useApiMutation(api.diskCreate)
   const startImport = useApiMutation(api.diskBulkWriteImportStart)
 
   // gcTime: 0 prevents the mutation cache from holding onto all the chunks for
-  // 5 minutes. It can be a ton of memory. To be honest, I don't even understand
-  // why the mutation cache exists. It's not like the query cache, which dedupes
-  // identical queries made around the same time.
-  // https://tanstack.com/query/v5/docs/reference/MutationCache
+  // 5 minutes. It can be a ton of memory.
   const uploadChunk = useApiMutation(api.diskBulkWriteImport, { gcTime: 0 })
 
   // synthetic state for upload step because it consists of multiple requests
@@ -247,10 +278,6 @@ export default function ImageCreate() {
   const createImage = useApiMutation(api.imageCreate)
   const deleteDisk = useApiMutation(api.diskDelete)
   const deleteSnapshot = useApiMutation(api.snapshotDelete)
-
-  // TODO: Distinguish cleanup mutations being called after successful run vs.
-  // due to error. In the former case, they have their own steps to highlight as
-  // successful. In the latter, we do not want to highlight the steps.
 
   const mainFlowMutations = [
     createDisk,
@@ -280,53 +307,14 @@ export default function ImageCreate() {
     },
   })
 
-  const cleanupMutations = [
-    stopImportCleanup,
-    finalizeDiskCleanup,
-    deleteDiskCleanup,
-    deleteSnapshotCleanup,
-  ]
-
-  const allMutations = [...mainFlowMutations, syntheticUploadState, ...cleanupMutations]
-
-  // we don't want to be able to click submit while anything is running
-  const formLoading = allMutations.some((m) => m.isPending)
-
   // the created snapshot and disk. presence used in cleanup to decide whether we need to
   // attempt to delete them
   const snapshot = useRef<Snapshot | null>(null)
   const disk = useRef<Disk | null>(null)
 
-  function closeModal() {
-    if (allDone) {
-      backToImages()
-      return
-    }
-
-    // if we're still going, need to confirm cancellation. if we have an error,
-    // everything is already stopped
-    if (modalError || confirm('Are you sure? Closing the modal will cancel the upload.')) {
-      // Note we don't run cleanup() here -- cancelEverything triggers an
-      // abort, which gets caught by the try/catch in the onSubmit on the upload
-      // form, which does the cleanup. We used to call cleanup here and used
-      // error-prone state logic to avoid it running twice.
-      //
-      // Because we are working with a closed-over copy of allDone, there is
-      // a possibility that the upload finishes while the user is looking at
-      // the confirm modal, in which case cancelEverything simply won't do
-      // anything. The finally{} in onSubmit clears out the abortController so
-      // cancelEverything() is a noop.
-      cancelEverything()
-      resetMainFlow()
-      setModalOpen(false)
-    }
-  }
-
   // Aborting works for steps other than file upload despite the
   // signal not being used directly in the former because we call
-  // `abortController.throwIfAborted()` after each step. We could technically
-  // plumb through the signal to the requests themselves, but they complete so
-  // quickly it's probably not necessary.
+  // `abortController.throwIfAborted()` after each step.
   function cancelEverything() {
     abortController.current?.abort(ABORT_ERROR)
   }
@@ -334,6 +322,7 @@ export default function ImageCreate() {
   function resetMainFlow() {
     setModalError(null)
     setUploadProgress(0)
+    setAllDone(false)
     mainFlowMutations.forEach((m) => m.reset())
     setSyntheticUploadState(initSyntheticState)
   }
@@ -363,7 +352,7 @@ export default function ImageCreate() {
     }
   }
 
-  async function onSubmit({
+  async function runUpload({
     imageName,
     imageDescription,
     imageFile,
@@ -372,15 +361,6 @@ export default function ImageCreate() {
     version,
   }: FormValues) {
     invariant(imageFile, 'imageFile must exist') // shouldn't be possible to fail bc file is a required field
-
-    // this is done up here instead of next to the upload step because after
-    // upload is canceled, a few outstanding bulk writes will complete, setting
-    // uploadProgress to non-zero values. if we do this reset down there instead
-    // of up here, cancel and retry will bring up a modal briefly showing the
-    // previous run's progress, and it resets only when bulk upload starts
-    resetMainFlow()
-
-    setModalOpen(true)
 
     // Create a disk in state import-ready
     const diskName = getTmpDiskName(imageName)
@@ -407,17 +387,11 @@ export default function ImageCreate() {
     abortController.current?.signal.throwIfAborted()
 
     // Post file to the API in chunks of size `maxChunkSize`. Browsers cap
-    // concurrent fetches at 6 per host. If we ran without a concurrency limit,
-    // we'd read way more chunks into memory than we're ready to POST, and we'd
-    // be sitting around waiting for the browser to let the fetches through.
-    // That sounds bad. So we use pMap to process at most 6 chunks at a time.
-
+    // concurrent fetches at 6 per host. So we use pMap to process at most 6
+    // chunks at a time.
     setSyntheticUploadState({ isPending: true, isSuccess: false, isError: false })
 
     const nChunks = Math.ceil(imageFile.size / CHUNK_SIZE_BYTES)
-
-    // TODO: try to warn user if they try to close the tab while this is going
-
     let chunksProcessed = 0
 
     const postChunk = async (i: number) => {
@@ -488,9 +462,7 @@ export default function ImageCreate() {
 
     // TODO: we checked at the beginning that the image name was free, but it
     // could be taken during upload. If this fails with object already exists,
-    // don't delete the snapshot (could still delete the disk). Instead, link
-    // user to snapshot detail and tell them to go there and create the image
-    // from it.
+    // don't delete the snapshot (could still delete the disk).
     await createImage.mutateAsync({
       query: { project },
       body: {
@@ -513,6 +485,30 @@ export default function ImageCreate() {
     setAllDone(true)
   }
 
+  /** Wraps runUpload with abort/cleanup/error handling. */
+  async function runUploadGuarded(values: FormValues) {
+    abortController.current = new AbortController()
+    try {
+      await runUpload(values)
+    } catch (e) {
+      if (e !== ABORT_ERROR) {
+        console.error(e)
+        setModalError(getUploadErrorMessage(e))
+        // abort anything in flight in case
+        cancelEverything()
+      }
+      // user canceled or error: clean up any partial state
+      setIsCleaningUp(true)
+      try {
+        await cleanup()
+      } finally {
+        setIsCleaningUp(false)
+      }
+    } finally {
+      abortController.current = null
+    }
+  }
+
   const form = useForm({ defaultValues })
   const file = form.watch('imageFile')
   const blockSize = form.watch('blockSize')
@@ -522,182 +518,348 @@ export default function ImageCreate() {
     queryFn: file ? () => validateImage(file) : skipToken,
   })
 
-  return (
-    <SideModalForm
-      form={form}
-      formType="create"
-      resourceName="image"
-      title="Upload image"
-      onDismiss={backToImages}
-      onSubmit={async (values) => {
-        setFormError(null)
+  async function onSubmit(values: FormValues) {
+    setFormError(null)
 
-        // check that image name isn't taken before starting the whole thing
-        const image = await queryClient
-          .fetchQuery(
-            q(
-              api.imageView,
-              { path: { image: values.imageName }, query: { project } },
-              {
-                errorsExpected: {
-                  explanation: 'the image name may not exist yet.',
-                  statusCode: 404,
-                },
-              }
-            )
-          )
-          .catch((e) => {
-            // eat a 404 since that's what we want. anything else should still blow up
-            if (e.statusCode === 404) return null
-            throw e
-          })
-        if (image) {
-          // TODO: set this error on the field instead of the whole form
-          // TODO: make setError available here somehow :(
-          setFormError({ message: 'Image name already exists' })
-          return
-        }
-
-        // every submit needs its own AbortController because they can't be
-        // reset
-        abortController.current = new AbortController()
-
-        try {
-          await onSubmit(values)
-        } catch (e) {
-          if (e !== ABORT_ERROR) {
-            console.error(e)
-            setModalError(getUploadErrorMessage(e))
-            // abort anything in flight in case
-            cancelEverything()
+    // check that image name isn't taken before starting the whole thing
+    const image = await queryClient
+      .fetchQuery(
+        q(
+          api.imageView,
+          { path: { image: values.imageName }, query: { project } },
+          {
+            errorsExpected: {
+              explanation: 'the image name may not exist yet.',
+              statusCode: 404,
+            },
           }
-          // user canceled
-          await cleanup()
-          // TODO: if we get here, show failure state in the upload modal
-        } finally {
-          // Clear the abort controller. This is aimed at the case where the
-          // user clicks cancel and then stares at the confirm modal without
-          // clicking for so long that the upload manages to finish, which means
-          // there's no longer anything to cancel. If abortController is gone,
-          // cancelEverything is a noop.
-          abortController.current = null
-        }
-      }}
-      loading={formLoading}
-      submitError={formError}
-      submitLabel={allDone ? 'Done' : 'Upload image'}
+        )
+      )
+      .catch((e) => {
+        // eat a 404 since that's what we want. anything else should still blow up
+        if (e.statusCode === 404) return null
+        throw e
+      })
+    if (image) {
+      setFormError({ message: 'Image name already exists' })
+      return
+    }
+
+    // stash currently focused element so we can restore it on cancel
+    previousFocusRef.current = document.activeElement as HTMLElement | null
+
+    setPhase('progress')
+    await runUploadGuarded(values)
+  }
+
+  function backToForm() {
+    // controller is still live → there's an in-flight upload to tear down.
+    // show "Cleaning up…" right away rather than waiting for the catch in
+    // runUploadGuarded, which only fires once the in-flight step throws.
+    if (abortController.current) setIsCleaningUp(true)
+    cancelEverything()
+    resetMainFlow()
+    setPhase('form')
+    setShowCancelGuard(false)
+    // defer focus restore until after re-render so the field is visible again
+    setTimeout(() => previousFocusRef.current?.focus(), 0)
+  }
+
+  async function handleRetry() {
+    resetMainFlow()
+    await runUploadGuarded(form.getValues())
+  }
+
+  function handleDismiss() {
+    if (phase === 'form') {
+      if (form.formState.isDirty) {
+        setShowNavGuard(true)
+      } else {
+        backToImages()
+      }
+      return
+    }
+    // progress phase: error path means upload is already aborted; allow exit
+    if (modalError) {
+      backToImages()
+      return
+    }
+    // success: nothing to cancel; treat as Done (toast + close)
+    if (allDone) {
+      handleDone()
+      return
+    }
+    // running: confirm before aborting
+    setShowCancelGuard(true)
+  }
+
+  // move focus to the first step on phase change to progress
+  useEffect(() => {
+    if (phase === 'progress') {
+      firstStepRef.current?.focus()
+    }
+  }, [phase])
+
+  // If the run reaches a terminal state (success or error) while the cancel
+  // guard is open, dismiss the guard so the outer modal can run its normal
+  // success/error path. The user no longer has anything to cancel.
+  useEffect(() => {
+    if (allDone || modalError) setShowCancelGuard(false)
+  }, [allDone, modalError])
+
+  function handleDone() {
+    const imageName = form.getValues('imageName')
+    addToast({
+      // prettier-ignore
+      content: <>Image <HL>{imageName}</HL> uploaded</>,
+      cta: {
+        text: `View ${imageName}`,
+        link: pb.projectImageEdit({ project, image: imageName }),
+      },
+    })
+    backToImages()
+  }
+
+  // determine which step is the active one for aria-current
+  const activeStepIndex = (() => {
+    if (createDisk.isPending) return 0
+    if (startImport.isPending) return 1
+    if (syntheticUploadState.isPending) return 2
+    if (stopImport.isPending) return 3
+    if (finalizeDisk.isPending) return 4
+    if (createImage.isPending) return 5
+    if (deleteDisk.isPending || deleteSnapshot.isPending) return 6
+    return -1
+  })()
+
+  // once createImage starts there's no abort checkpoint left and the snapshot/disk
+  // deletes don't honor the signal, so cancellation would leave the image in place
+  // while the UI pretends nothing happened
+  const cancelDisabledReason =
+    createImage.isPending || createImage.isSuccess
+      ? 'Image has been created and can no longer be canceled'
+      : undefined
+
+  return (
+    <SideModal
+      title="Upload image"
+      isOpen
+      onDismiss={handleDismiss}
+      animate={animate}
+      errors={phase === 'form' && formError ? [formError.message] : undefined}
     >
-      <NameField name="imageName" label="Name" control={form.control} />
-      <DescriptionField
-        name="imageDescription"
-        label="Description"
-        control={form.control}
-      />
-      {/* TODO: are OS and Version supposed to be non-empty? I doubt the API cares,
-       * but it will be pretty for end users if they're empty
-       */}
-      <TextField name="os" label="OS" control={form.control} required />
-      <TextField name="version" control={form.control} required />
-      <div className="flex w-full flex-col flex-wrap space-y-4">
-        <RadioField
-          name="blockSize"
-          label="Block size"
-          units="Bytes"
-          control={form.control}
-          parseValue={(val) => parseInt(val, 10) as BlockSize}
-          items={[
-            { label: '512', value: 512 },
-            { label: '2048', value: 2048 },
-            { label: '4096', value: 4096 },
-          ]}
-        />
-        {imageValidation && <BlockSizeNotice {...imageValidation} blockSize={blockSize} />}
-      </div>
-      <div className="flex w-full flex-col flex-wrap space-y-4">
-        <FileField
-          id="image-file-input"
-          name="imageFile"
-          label="Image file"
-          required
-          control={form.control}
-        />
-        {imageValidation && <BootableNotice {...imageValidation} />}
-      </div>
-      {file && modalOpen && (
-        <Modal isOpen onDismiss={closeModal} title="Image upload progress">
-          <Modal.Body className="p-0!">
-            <Modal.Section className="p-0!">
-              <div className="*:border-b-secondary *:border-b last:*:border-b-0">
-                {modalError && (
-                  <Message
-                    variant="error"
-                    title="Error"
-                    content={modalError}
-                    className="rounded-none! shadow-none!"
-                  />
-                )}
-                <Step state={createDisk} label="Create temporary disk" />
-                <Step state={startImport} label="Put disk in import mode" />
-                <Step state={syntheticUploadState} label="Upload image file">
-                  <div className="bg-default border-default rounded-lg border">
-                    <div className="border-b-secondary flex justify-between border-b p-3 pb-2">
-                      <div className="text-sans-md text-raise">{file.name}</div>
-                      {/* cancel and/or pause buttons could go here */}
-                    </div>
-                    <div className="p-3 pt-2">
-                      <div className="text-mono-sm flex justify-between">
-                        <div className="text-default normal-case!">
-                          {fsize((uploadProgress / 100) * file.size)}{' '}
-                          <span className="text-quaternary">/</span> {fsize(file.size)}
-                        </div>
-                        <div className="text-accent">{uploadProgress}%</div>
-                      </div>
-                      <Progress
-                        className="mt-1.5"
-                        aria-label="Upload progress"
-                        value={uploadProgress}
-                      />
-                    </div>
+      {phase === 'progress' && <SummaryHeader values={form.getValues()} />}
+      <SideModal.Body>
+        <div hidden={phase === 'progress'}>
+          <form
+            id={formId}
+            className="ox-form"
+            autoComplete="off"
+            onSubmit={(e) => {
+              e.stopPropagation()
+              form.handleSubmit(onSubmit)(e)
+            }}
+          >
+            <NameField name="imageName" label="Name" control={form.control} />
+            <DescriptionField
+              name="imageDescription"
+              label="Description"
+              control={form.control}
+            />
+            <TextField name="os" label="OS" control={form.control} required />
+            <TextField name="version" control={form.control} required />
+            <div className="flex w-full flex-col flex-wrap space-y-4">
+              <RadioField
+                name="blockSize"
+                label="Block size"
+                units="Bytes"
+                control={form.control}
+                parseValue={(val) => parseInt(val, 10) as BlockSize}
+                items={[
+                  { label: '512', value: 512 },
+                  { label: '2048', value: 2048 },
+                  { label: '4096', value: 4096 },
+                ]}
+              />
+              {imageValidation && (
+                <BlockSizeNotice {...imageValidation} blockSize={blockSize} />
+              )}
+            </div>
+            <div className="flex w-full flex-col flex-wrap space-y-4">
+              <FileField
+                id="image-file-input"
+                name="imageFile"
+                label="Image file"
+                required
+                control={form.control}
+              />
+              {imageValidation && <BootableNotice {...imageValidation} />}
+            </div>
+            <SideModalFormDocs docs={[docLinks.images]} />
+          </form>
+        </div>
+        {phase === 'progress' && (
+          <div
+            aria-label="Upload progress"
+            aria-live="polite"
+            className="*:border-b-secondary mx-0! -mt-8 *:border-b *:last:border-b-0"
+          >
+            {modalError && (
+              <Message
+                variant="error"
+                title="Error"
+                content={modalError}
+                className="rounded-none! shadow-none!"
+              />
+            )}
+            <Step
+              state={createDisk}
+              label="Create temporary disk"
+              active={activeStepIndex === 0}
+              stepRef={firstStepRef}
+            />
+            <Step
+              state={startImport}
+              label="Put disk in import mode"
+              active={activeStepIndex === 1}
+            />
+            <Step
+              state={syntheticUploadState}
+              label="Upload image file"
+              active={activeStepIndex === 2}
+            >
+              {file && (
+                <div className="bg-default border-default rounded-lg border">
+                  <div className="border-b-secondary flex justify-between border-b p-3 pb-2">
+                    <div className="text-sans-md text-raise">{file.name}</div>
                   </div>
-                </Step>
-                <Step state={stopImport} label="Get disk out of import mode" />
-                <Step state={finalizeDisk} label="Finalize disk and create snapshot" />
-                <Step state={createImage} label="Create image" duration={15} />
-                <Step
-                  state={{
-                    isPending: deleteDisk.isPending || deleteSnapshot.isPending,
-                    isSuccess: deleteDisk.isSuccess && deleteSnapshot.isSuccess,
-                    isError: deleteDisk.isError || deleteSnapshot.isError,
-                  }}
-                  label="Delete disk and snapshot"
-                />
-                <Step
-                  state={{
-                    isPending: false,
-                    isSuccess: allDone,
-                    isError: false,
-                  }}
-                  label="Image uploaded successfully"
-                  className={
-                    allDone
-                      ? 'bg-accent *:text-accent transition-colors'
-                      : 'transition-colors'
-                  }
-                />
-              </div>
-            </Modal.Section>
-          </Modal.Body>
-          <Modal.Footer
-            onDismiss={closeModal}
-            onAction={backToImages}
-            actionText="Done"
-            cancelText={modalError || allDone ? 'Back' : 'Cancel'}
-            disabled={!allDone}
-          />
-        </Modal>
-      )}
-      <SideModalFormDocs docs={[docLinks.images]} />
-    </SideModalForm>
+                  <div className="p-3 pt-2">
+                    <div className="text-mono-sm flex justify-between">
+                      <div className="text-default normal-case!">
+                        {fsize((uploadProgress / 100) * file.size)}{' '}
+                        <span className="text-quaternary">/</span> {fsize(file.size)}
+                      </div>
+                      <div className="text-accent">{uploadProgress}%</div>
+                    </div>
+                    <Progress
+                      className="mt-1.5"
+                      aria-label="Upload progress"
+                      value={uploadProgress}
+                    />
+                  </div>
+                </div>
+              )}
+            </Step>
+            <Step
+              state={stopImport}
+              label="Get disk out of import mode"
+              active={activeStepIndex === 3}
+            />
+            <Step
+              state={finalizeDisk}
+              label="Finalize disk and create snapshot"
+              active={activeStepIndex === 4}
+            />
+            <Step
+              state={createImage}
+              label="Create image"
+              duration={15}
+              active={activeStepIndex === 5}
+            />
+            <Step
+              state={{
+                isPending: deleteDisk.isPending || deleteSnapshot.isPending,
+                isSuccess: deleteDisk.isSuccess && deleteSnapshot.isSuccess,
+                isError: deleteDisk.isError || deleteSnapshot.isError,
+              }}
+              label="Delete disk and snapshot"
+              active={activeStepIndex === 6}
+            />
+            <Step
+              state={{ isPending: false, isSuccess: allDone, isError: false }}
+              label="Image uploaded"
+              className={
+                allDone ? 'bg-accent *:text-accent transition-colors' : 'transition-colors'
+              }
+            />
+          </div>
+        )}
+      </SideModal.Body>
+      <SideModal.Footer error={phase === 'form' && !!formError}>
+        {phase === 'form' ? (
+          <>
+            {isCleaningUp && (
+              <m.div
+                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: 8 }}
+                transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
+                className="text-sans-md flex grow items-center gap-1.5"
+              >
+                <Spinner />
+                <span className="text-tertiary">Cleaning up…</span>
+              </m.div>
+            )}
+            <Button variant="ghost" size="sm" onClick={handleDismiss}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              size="sm"
+              form={formId}
+              disabled={form.formState.isSubmitting}
+            >
+              Upload image
+            </Button>
+          </>
+        ) : modalError ? (
+          <>
+            <Button variant="ghost" size="sm" onClick={backToForm}>
+              Back to form
+            </Button>
+            <Button variant="primary" size="sm" onClick={handleRetry}>
+              Retry from here
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowCancelGuard(true)}
+              disabled={!!cancelDisabledReason}
+              disabledReason={cancelDisabledReason}
+            >
+              Cancel upload
+            </Button>
+            <Button variant="primary" size="sm" disabled={!allDone} onClick={handleDone}>
+              Done
+            </Button>
+          </>
+        )}
+      </SideModal.Footer>
+
+      <ConfirmModal
+        isOpen={showCancelGuard}
+        onDismiss={() => setShowCancelGuard(false)}
+        onConfirm={backToForm}
+        title="Cancel upload?"
+        confirmText="Cancel upload"
+        dismissText="Keep uploading"
+      >
+        All progress will be lost. Your form values are kept.
+      </ConfirmModal>
+
+      <ConfirmModal
+        isOpen={showNavGuard}
+        onDismiss={() => setShowNavGuard(false)}
+        onConfirm={backToImages}
+        title="Leave form?"
+        confirmText="Leave form"
+        dismissText="Keep editing"
+      >
+        Any unsaved changes will be lost.
+      </ConfirmModal>
+    </SideModal>
   )
 }
 
