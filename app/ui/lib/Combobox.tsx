@@ -15,15 +15,7 @@ import {
 } from '@headlessui/react'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
-import {
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-  type Ref,
-} from 'react'
+import { useEffect, useId, useRef, useState, type ReactNode, type Ref } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
@@ -60,11 +52,6 @@ export const toComboboxItems = (items?: Array<{ name: string }>): Array<Combobox
     selectedLabel: name,
   })) || []
 
-export const getSelectedLabelFromValue = (
-  items: Array<ComboboxItem>,
-  selectedValue: string
-): string => items.find((item) => item.value === selectedValue)?.selectedLabel || ''
-
 /** Simple non-generic props shared with ComboboxField */
 export type ComboboxBaseProps = {
   description?: React.ReactNode
@@ -96,7 +83,6 @@ export type ComboboxBaseProps = {
 
 type ComboboxProps = {
   selectedItemValue: string
-  selectedItemLabel: string
   hasError?: boolean
   /** Fires when the user *selects* an item from the list */
   onChange: (value: string) => void
@@ -109,7 +95,6 @@ export const Combobox = ({
   items = [],
   label,
   selectedItemValue,
-  selectedItemLabel,
   placeholder,
   required,
   hasError,
@@ -122,10 +107,9 @@ export const Combobox = ({
   hideOptionalTag,
   inputRef,
   transform,
-  ...props
 }: ComboboxProps) => {
   const [query, setQuery] = useState(selectedItemValue || '')
-  const q = query.toLowerCase().replace(/\s*/g, '')
+  const q = query.toLowerCase().replace(/\s+/g, '')
   const filteredItems = matchSorter(items, q, {
     keys: ['selectedLabel', 'label'],
     sorter: (items) => items, // preserve original order, don't sort by match
@@ -159,7 +143,7 @@ export const Combobox = ({
     filteredItems.length === 0 && !allowArbitraryValues ? [NO_MATCH_ITEM] : filteredItems
 
   // Arbitrary values may not be in `items`, so synthesize a stand-in.
-  const selectedItem: ComboboxItem | null = useMemo(() => {
+  const selectedItem: ComboboxItem | null = (() => {
     if (!selectedItemValue) return null
     const found = items.find((i) => i.value === selectedItemValue)
     if (found) return found
@@ -171,7 +155,7 @@ export const Combobox = ({
       }
     }
     return null
-  }, [items, selectedItemValue, allowArbitraryValues])
+  })()
 
   const zIndex = usePopoverZIndex()
   const id = useId()
@@ -202,7 +186,6 @@ export const Combobox = ({
         // HUI types this with the same union as `value`, so item may be null
         disabled: (item) => item?.value === NO_MATCH_VALUE,
       }}
-      {...props}
     >
       {({ open }) => {
         if (open) isOpenRef.current = true
@@ -247,7 +230,7 @@ export const Combobox = ({
                   selectedItemValue
                     ? allowArbitraryValues
                       ? selectedItemValue
-                      : selectedItemLabel
+                      : (selectedItem?.selectedLabel ?? '')
                     : query
                 }
                 onChange={(event) => {
