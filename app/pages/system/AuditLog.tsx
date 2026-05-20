@@ -481,12 +481,38 @@ export default function SiloAuditLogsPage() {
     setExpandedItem(index.toString())
   }, [])
 
+  // scroll just enough to bring the row at `index` into the band between the
+  // sticky header bottom and the viewport midpoint. only used for keyboard /
+  // prev-next navigation — clicks intentionally leave scroll alone so the
+  // clicked row stays under the cursor.
+  const scrollToRow = useCallback(
+    (index: number) => {
+      // top-bar (54px) + sticky table header (~40px)
+      const stickyBottom = 54 + 40
+      const itemTop = scrollMargin + index * 36
+      const viewportTop = itemTop - window.scrollY
+      // floor: scroll at least enough to fully stick the header so the
+      // expanded-item panel reaches its full height
+      const minScroll = scrollMargin - stickyBottom - 10
+      let target = window.scrollY
+      if (viewportTop < stickyBottom) {
+        target = itemTop - stickyBottom - 1
+      } else if (viewportTop > window.innerHeight / 2) {
+        target = itemTop - window.innerHeight / 2
+      }
+      target = Math.max(target, minScroll)
+      if (target !== window.scrollY) window.scrollTo({ top: target })
+    },
+    [scrollMargin]
+  )
+
   const navigateToIndex = useCallback(
     (newIndex: number) => {
       if (newIndex < 0 || newIndex >= allItems.length) return
       handleToggle(newIndex.toString())
+      scrollToRow(newIndex)
     },
-    [allItems.length, handleToggle]
+    [allItems.length, handleToggle, scrollToRow]
   )
 
   const focusRow = useCallback((index: number) => {
@@ -591,31 +617,6 @@ export default function SiloAuditLogsPage() {
     }
   }, [showError, isLoading])
 
-  // scroll just enough to bring the selected row into the band between the
-  // sticky header bottom and the viewport midpoint. no-op when it's already
-  // there. when we do scroll, always go at least to scrollMargin so the
-  // sticky header is fully stuck and the expanded-item panel reaches its full
-  // height.
-  useEffect(() => {
-    if (expandedItem === null) return
-    const index = parseInt(expandedItem, 10)
-    // top-bar (54px) + sticky table header (~40px)
-    const stickyBottom = 54 + 40
-    const itemTop = scrollMargin + index * 36
-    const viewportTop = itemTop - window.scrollY
-    // scroll just enough to fully stick the header (so the expanded-item panel
-    // reaches its full height). this is the floor for any scroll we do.
-    const minScroll = scrollMargin - stickyBottom - 10
-    let target = window.scrollY
-    if (viewportTop < stickyBottom) {
-      target = itemTop - stickyBottom - 1
-    } else if (viewportTop > window.innerHeight / 2) {
-      target = itemTop - window.innerHeight / 2
-    }
-    target = Math.max(target, minScroll)
-    if (target !== window.scrollY) window.scrollTo({ top: target })
-  }, [expandedItem, scrollMargin])
-
   return (
     <>
       <div className="!mx-0 !w-full">
@@ -670,7 +671,7 @@ export default function SiloAuditLogsPage() {
                     siloId={siloId}
                     currentIndex={currentIndex}
                     totalCount={allItems.length}
-                    onNavigate={(index) => handleToggle(index.toString())}
+                    onNavigate={navigateToIndex}
                     onClose={() => handleToggle(null)}
                   />
                 )
