@@ -255,7 +255,7 @@ const LoadingState = () => {
       <div
         className="pointer-events-none fixed bottom-0 h-32 w-full"
         style={{
-          background: 'linear-gradient(180deg, rgba(8, 15, 17, 0) 0%, #080F11 100%)',
+          background: 'linear-gradient(180deg,transparent 0%, var(--surface-default) 100%)',
         }}
       />
     </div>
