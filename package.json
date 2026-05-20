@@ -102,6 +102,7 @@
     "identity-obj-proxy": "^3.0.0",
     "ip-num": "^1.5.1",
     "jsdom": "^25.0.1",
+    "magic-string": "^0.30.21",
     "msw": "^2.7.5",
     "oxfmt": "^0.41.0",
     "oxlint": "^1.56.0",

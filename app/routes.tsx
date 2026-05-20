@@ -23,13 +23,24 @@ import { pb } from './util/path-builder'
 // hack because RR doesn't export the redirect type
 type Redirect = ReturnType<typeof redirect>
 
-type RouteModule = {
+/**
+ * The default-exported route component, with route metadata attached as
+ * properties. The Vite plugin `routeExportsPlugin` rewrites `export const
+ * handle = ...`, `export const shouldRevalidate = ...`, and `export
+ * (async )?function clientLoader(...)` to attach those values to the default
+ * component so React Refresh treats the module as component-only. See the
+ * plugin in `vite.config.ts` for the why.
+ */
+type RouteDefault = (() => ReactElement | null) & {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   clientLoader?: (a: LoaderFunctionArgs<any>) => Promise<Redirect | null>
-  default: () => ReactElement | null
-  shouldRevalidate?: () => boolean
-  ErrorBoundary?: () => ReactElement
   handle?: Crumb
+  shouldRevalidate?: () => boolean
+}
+
+type RouteModule = {
+  default: RouteDefault
+  ErrorBoundary?: () => ReactElement
   hydrateFallbackElement?: ReactElement
   // trick to get a nice type error when we forget to convert loader to
   // clientLoader in the module
@@ -38,8 +49,19 @@ type RouteModule = {
 }
 
 function convert(m: RouteModule) {
-  const { clientLoader, default: Component, ...rest } = m
-  return { ...rest, loader: clientLoader, Component }
+  const { default: Component, ErrorBoundary, hydrateFallbackElement } = m
+  // Only include `handle` / `shouldRevalidate` if defined — otherwise we'd
+  // override an explicit `handle={...}` prop on <Route> with undefined.
+  return {
+    Component,
+    ErrorBoundary,
+    hydrateFallbackElement,
+    loader: Component.clientLoader,
+    ...(Component.handle !== undefined && { handle: Component.handle }),
+    ...(Component.shouldRevalidate !== undefined && {
+      shouldRevalidate: Component.shouldRevalidate,
+    }),
+  }
 }
 
 /**
@@ -48,7 +70,7 @@ function convert(m: RouteModule) {
  * Unfortunately, the loader can't do redirect() with a replace.
  */
 const redirectWithLoader = (to: string) => (mod: RouteModule) => ({
-  loader: mod.clientLoader,
+  loader: mod.default.clientLoader,
   Component: () => <Navigate to={to} replace />,
 })
 

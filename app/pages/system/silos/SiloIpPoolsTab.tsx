@@ -84,8 +84,7 @@ const allPoolsQuery = getListQFn(api.systemIpPoolList, { query: { limit: ALL_ISH
 const allSiloPoolsQuery = (silo: string) =>
   getListQFn(api.siloIpPoolList, { path: { silo }, query: { limit: ALL_ISH } })
 
-// exported to call in silo page loader
-export const siloIpPoolsQuery = (silo: string) =>
+const siloIpPoolsQuery = (silo: string) =>
   getListQFn(api.siloIpPoolList, { path: { silo } })
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {

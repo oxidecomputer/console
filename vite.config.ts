@@ -12,7 +12,8 @@ import { resolve } from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import MagicString from 'magic-string'
+import { defineConfig, type Plugin } from 'vite'
 import { z } from 'zod/v4'
 
 import vercelConfig from './vercel.json'
@@ -43,6 +44,62 @@ if (apiMode === 'remote' && !process.env.EXT_HOST) {
 }
 
 const EXT_HOST = process.env.EXT_HOST
+
+/**
+ * React Refresh disables HMR for any module that exports non-component values
+ * (lowercase identifiers, plain objects). Our route modules export
+ * `clientLoader`, `handle`, and (rarely) `shouldRevalidate` alongside the
+ * default component, which trips this check. This plugin strips those exports
+ * and re-attaches them as properties of the default component, so the only
+ * surviving named export is `ErrorBoundary` (PascalCase, refresh-compatible).
+ * Routes consume them via `m.default.clientLoader` etc. — see `convert()` in
+ * `app/routes.tsx`.
+ *
+ * Must run before @vitejs/plugin-react (which is where the react-refresh
+ * transform happens), so this plugin uses `enforce: 'pre'`.
+ */
+function routeExportsPlugin(): Plugin {
+  const ATTACHABLE = ['clientLoader', 'handle', 'shouldRevalidate'] as const
+  return {
+    name: 'route-exports',
+    enforce: 'pre',
+    transform(code, id) {
+      if (!/\/app\/(pages|layouts|forms)\//.test(id)) return
+      if (!/\.tsx?$/.test(id)) return
+
+      const defaultMatch = code.match(/^export default function (\w+)\s*\(/m)
+      if (!defaultMatch) return
+      const componentName = defaultMatch[1]
+
+      const s = new MagicString(code)
+      const attached: string[] = []
+
+      // Match both `export (async )?function NAME(...)` and
+      // `export const NAME = ...` forms. SerialConsoleLayout/ProjectLayout
+      // re-export their clientLoader from ProjectLayoutBase via the const form.
+      const patterns: Record<(typeof ATTACHABLE)[number], RegExp> = {
+        clientLoader: /^export\s+(?:(?:async\s+)?function\s+|const\s+)clientLoader\b/m,
+        handle: /^export\s+const\s+handle\b/m,
+        shouldRevalidate: /^export\s+const\s+shouldRevalidate\b/m,
+      }
+
+      for (const name of ATTACHABLE) {
+        const m = patterns[name].exec(code)
+        if (m && m.index !== undefined) {
+          s.remove(m.index, m.index + 'export '.length)
+          attached.push(name)
+        }
+      }
+
+      if (attached.length === 0) return
+
+      const assigns = attached.map((n) => `${componentName}.${n} = ${n}`).join('\n')
+      s.append(`\n\n${assigns}\n`)
+
+      return { code: s.toString(), map: s.generateMap({ hires: true }) }
+    },
+  }
+}
 
 const previewTags = [
   {
@@ -138,6 +195,7 @@ export default defineConfig(({ mode }) => ({
         ]
       },
     },
+    routeExportsPlugin(),
     react(),
     apiMode === 'remote' && basicSsl(),
   ],
