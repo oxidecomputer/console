@@ -90,20 +90,22 @@ function camelToSnakeJson(o: Record<string, unknown>): Record<string, unknown> {
 }
 
 const Indent = ({ depth }: { depth: number }) => (
-  <span className="inline-block" style={{ width: `${depth * 4 + 1}ch` }} />
+  <span className="inline-block" style={{ width: `${depth * 2}ch` }} />
 )
 
-const Primitive = ({ value }: { value: null | boolean | number | string | Date }) => (
-  <span className="text-[var(--base-blue-600)]">
-    {value === null
-      ? 'null'
-      : typeof value === 'string'
-        ? `"${value}"`
-        : value instanceof Date
-          ? `"${value.toISOString()}"`
-          : String(value)}
-  </span>
-)
+const greenText = 'text-(--color-green-1000) light:text-(--color-green-600)'
+const yellowText = 'text-(--color-yellow-1000) light:text-(--color-yellow-600)'
+
+const Primitive = ({ value }: { value: JsonValue | Date }) => {
+  if (value === null) return <span className={yellowText}>null</span>
+  if (typeof value === 'string') return <span className={greenText}>{`"${value}"`}</span>
+  if (value instanceof Date) return <span className={greenText}>{value.toISOString()}</span>
+  if (typeof value === 'boolean' || typeof value === 'number') {
+    return <span className={yellowText}>{String(value)}</span>
+  }
+  // objects/arrays are handled by HighlightJSON, never reach here
+  return null
+}
 
 // memo is important to avoid re-renders if the value hasn't changed. value
 // passed in must be referentially stable, which should generally be the case
