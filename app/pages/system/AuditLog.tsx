@@ -633,7 +633,7 @@ export default function SiloAuditLogsPage() {
         </div>
       </div>
 
-      <div className="bg-default relative !mx-0 !w-full flex-grow overflow-x-clip pt-3">
+      <div className="bg-default relative !mx-0 !w-full flex-grow overflow-x-clip">
         <div className="w-full flex-1">
           <div className="bg-default border-secondary sticky top-(--top-bar-height) z-20 border-b px-(--content-gutter) pt-4 pb-2">
             <div style={colWidths} className="grid items-center gap-8">
@@ -712,13 +712,13 @@ const ExpandedItem = ({
   return (
     <div
       className={cn(
-        'absolute right-0 top-[40px] flex w-[30rem] flex-col gap-6 overflow-y-auto z-10 border-l border-t bg-default border-secondary',
+        'absolute right-0 top-0 flex w-120 flex-col gap-6 overflow-y-auto z-10 border-l bg-default border-secondary',
         hasError
-          ? 'mt-10 h-[calc(100dvh-var(--top-bar-height)-80px)]'
-          : 'h-[calc(100dvh-var(--top-bar-height)-40px)]'
+          ? 'mt-10 h-[calc(100dvh-var(--top-bar-height)-40px)]'
+          : 'h-[calc(100dvh-var(--top-bar-height))]'
       )}
     >
-      <div className="bg-raise border-secondary flex items-center justify-between border-b px-2 py-2">
+      <div className="bg-raise border-secondary flex h-10 items-center justify-between border-b px-2">
         <div className="flex items-center">
           <button
             type="button"
