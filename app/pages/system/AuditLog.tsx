@@ -715,7 +715,7 @@ const ExpandedItem = ({
   return (
     <div
       className={cn(
-        'absolute right-0 top-0 flex w-120 flex-col gap-6 overflow-y-auto z-10 border-l bg-default border-secondary',
+        'absolute right-0 top-0 flex w-120 flex-col pt-px gap-6 overflow-y-auto z-10 border-l bg-default border-secondary',
         hasError
           ? 'mt-10 h-[calc(100dvh-var(--top-bar-height)-40px)]'
           : 'h-[calc(100dvh-var(--top-bar-height))]'
