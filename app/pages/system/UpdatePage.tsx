@@ -38,6 +38,7 @@ import { CardBlock } from '~/ui/lib/CardBlock'
 import { DateTime } from '~/ui/lib/DateTime'
 import { Divider } from '~/ui/lib/Divider'
 import * as DropdownMenu from '~/ui/lib/DropdownMenu'
+import { Message } from '~/ui/lib/Message'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { TipIcon } from '~/ui/lib/TipIcon'
@@ -191,21 +192,26 @@ export default function UpdatePage() {
         >
           {status.suspended ? 'Yes' : 'No'}
         </PropertiesTable.Row>
-        <PropertiesTable.Row
-          label={
+      </PropertiesTable>
+
+      {status.contactSupport && (
+        <Message
+          className="mt-4"
+          variant="notice"
+          title="Contact Oxide support"
+          content={
             <>
-              Contact support?{' '}
-              <TipIcon className="ml-1.5">
-                If yes, the system has detected one or more known conditions that require
-                Oxide support to resolve. Contact support before starting any update, and
-                immediately if an update has recently completed.
+              The system has detected one or more known conditions that require Oxide
+              support to resolve.{' '}
+              <TipIcon className="ml-0.5 [&>svg]:text-[var(--content-accent-secondary)]">
+                Contact support before starting any update, and immediately if an update has
+                recently completed. The checks underlying this state are not exhaustive, so
+                the absence of this message does not mean the system is completely healthy.
               </TipIcon>
             </>
           }
-        >
-          {status.contactSupport ? 'Yes' : 'No'}
-        </PropertiesTable.Row>
-      </PropertiesTable>
+        />
+      )}
 
       <Divider className="my-8" />
 
