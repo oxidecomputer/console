@@ -314,7 +314,9 @@ test("polling doesn't close row actions: instances", async ({ page }) => {
   await closeToast(page)
 
   const menu = page.getByRole('menu')
-  const stopped = page.getByText('stopped')
+  // scope to db1's row — db-stopped is also in the table with state 'stopped'
+  const db1Row = page.getByRole('row', { name: 'db1', exact: false })
+  const stopped = db1Row.getByText('stopped')
 
   await expect(menu).toBeHidden()
   await expect(stopped).toBeHidden()

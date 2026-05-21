@@ -7,7 +7,6 @@
  */
 import { skipToken, useQuery } from '@tanstack/react-query'
 import cn from 'classnames'
-import { filesize } from 'filesize'
 import pMap from 'p-map'
 import pRetry from 'p-retry'
 import { useRef, useState } from 'react'
@@ -50,10 +49,11 @@ import { invariant } from '~/util/invariant'
 import { docLinks, links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import { isAllZeros } from '~/util/str'
-import { GiB, KiB } from '~/util/units'
+import { formatBytes, GiB, KiB } from '~/util/units'
 
-/** Format file size with two decimal points */
-const fsize = (bytes: number) => filesize(bytes, { base: 2, pad: true })
+// Padded because otherwise the numbers jump around a bit, e.g., when it goes
+// from 10.55 to 14.7 to 19.23
+const fsize = (bytes: number) => formatBytes(bytes, { pad: true }).label
 
 type FormValues = {
   imageName: string

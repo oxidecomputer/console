@@ -144,7 +144,7 @@ test('Subnet pool remove member', async ({ page }) => {
   await page.goto('/system/networking/subnet-pools/secondary-v4-subnet-pool')
 
   await clickRowAction(page, '172.20.0.0/16', 'Remove')
-  await expect(page.getByRole('dialog', { name: 'Confirm remove' })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'Remove member' })).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
 
   // The row should be gone
@@ -168,7 +168,7 @@ test('Subnet pool linked silos', async ({ page }) => {
 
   // Unlink fails when silo still has external subnets allocated from the pool
   await clickRowAction(page, 'maze-war', 'Unlink')
-  await expect(page.getByRole('dialog', { name: 'Confirm unlink' })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'Unlink silo' })).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expectToast(page, 'Could not unlink silo')
   // Row should still be there
@@ -183,7 +183,7 @@ test('Subnet pool unlink silo succeeds when no subnets allocated', async ({ page
   await expectRowVisible(table, { Silo: 'maze-war' })
 
   await clickRowAction(page, 'maze-war', 'Unlink')
-  await expect(page.getByRole('dialog', { name: 'Confirm unlink' })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: 'Unlink silo' })).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(page.getByRole('link', { name: 'maze-war' })).toBeHidden()
 })
@@ -212,7 +212,7 @@ test('Subnet pool silo make default (no existing default)', async ({ page }) => 
 
   await clickRowAction(page, 'maze-war', 'Make default')
 
-  const dialog = page.getByRole('dialog', { name: 'Confirm make default' })
+  const dialog = page.getByRole('dialog', { name: 'Make default' })
   await expect(
     dialog.getByText(
       'Are you sure you want to make ipv6-subnet-pool the default IPv6 subnet pool for silo maze-war?'
@@ -233,7 +233,7 @@ test('Subnet pool silo make default (with existing default)', async ({ page }) =
 
   await clickRowAction(page, 'maze-war', 'Make default')
 
-  const dialog = page.getByRole('dialog', { name: 'Confirm change default' })
+  const dialog = page.getByRole('dialog', { name: 'Change default' })
   await expect(
     dialog.getByText(
       'Are you sure you want to change the default IPv4 subnet pool for silo maze-war from default-v4-subnet-pool to secondary-v4-subnet-pool?'
@@ -252,7 +252,7 @@ test('Subnet pool silo clear default', async ({ page }) => {
 
   await clickRowAction(page, 'maze-war', 'Clear default')
 
-  const dialog = page.getByRole('dialog', { name: 'Confirm clear default' })
+  const dialog = page.getByRole('dialog', { name: 'Clear default' })
   await expect(
     dialog.getByText(
       'Are you sure you want default-v4-subnet-pool to stop being the default IPv4 subnet pool for silo maze-war?'
@@ -281,7 +281,7 @@ test('Subnet pool delete', async ({ page }) => {
   // First remove the member so the pool can be deleted
   await page.goto('/system/networking/subnet-pools/secondary-v4-subnet-pool')
   await clickRowAction(page, '172.20.0.0/16', 'Remove')
-  const removeDialog = page.getByRole('dialog', { name: 'Confirm remove' })
+  const removeDialog = page.getByRole('dialog', { name: 'Remove member' })
   await expect(removeDialog).toBeVisible()
   await removeDialog.getByRole('button', { name: 'Confirm' }).click()
   await expect(page.getByRole('cell', { name: '172.20.0.0/16' })).toBeHidden()
@@ -289,7 +289,7 @@ test('Subnet pool delete', async ({ page }) => {
   // Use client-side navigation to preserve MSW db state
   await page.getByLabel('Breadcrumbs').getByRole('link', { name: 'Subnet Pools' }).click()
   await clickRowAction(page, 'secondary-v4-subnet-pool', 'Delete')
-  const deleteDialog = page.getByRole('dialog', { name: 'Confirm delete' })
+  const deleteDialog = page.getByRole('dialog', { name: 'Delete subnet pool' })
   await expect(deleteDialog).toBeVisible()
   await deleteDialog.getByRole('button', { name: 'Confirm' }).click()
   await expect(page.getByRole('cell', { name: 'secondary-v4-subnet-pool' })).toBeHidden()

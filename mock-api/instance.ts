@@ -130,6 +130,19 @@ export const instanceDb2: Json<Instance> = {
   boot_disk_id: '48f94570-60d8-401c-857f-5bf912d2d3fc', // disk-2: needs to be written out here to reduce circular dependencies
 }
 
+// Pre-stopped instance used by tests that only stop an instance to bypass a
+// "must be stopped" precondition. Lets those tests skip the stop dance.
+export const stoppedInstance: Json<Instance> = {
+  ...base,
+  id: '43ad3fc4-cf13-49ae-8171-35dbf0dd30f0',
+  name: 'db-stopped',
+  description: 'a stopped instance',
+  hostname: 'oxide.com',
+  project_id: project.id,
+  run_state: 'stopped',
+  boot_disk_id: 'f5bc2085-d18e-4698-86ab-69c62a74e541', // disk-stopped-boot
+}
+
 export const instances: Json<Instance>[] = [
   instance,
   failedInstance,
@@ -139,4 +152,5 @@ export const instances: Json<Instance>[] = [
   failedCooledRestartNever,
   instanceUpdateError,
   instanceDb2,
+  stoppedInstance,
 ]

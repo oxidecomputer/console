@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import { useQuery } from '@tanstack/react-query'
-import { filesize } from 'filesize'
 import { useMemo } from 'react'
 import { useController, useForm, type Control } from 'react-hook-form'
 import { match } from 'ts-pattern'
@@ -43,7 +42,7 @@ import { TipIcon } from '~/ui/lib/TipIcon'
 import { toLocaleDateString } from '~/util/date'
 import { docLinks } from '~/util/links'
 import { diskSizeNearest10 } from '~/util/math'
-import { bytesToGiB, GiB } from '~/util/units'
+import { bytesToGiB, formatBytes, GiB } from '~/util/units'
 
 /**
  * Same as DiskSource but with image and snapshot ID optional, reflecting The
@@ -416,7 +415,7 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreateForm> }) 
       label="Source snapshot"
       placeholder="Select a snapshot"
       items={snapshots.map((i) => {
-        const formattedSize = filesize(i.size, { base: 2, output: 'object' })
+        const formattedSize = formatBytes(i.size)
         return {
           value: i.id,
           selectedLabel: i.name,

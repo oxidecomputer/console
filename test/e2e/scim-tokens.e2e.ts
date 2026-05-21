@@ -91,7 +91,7 @@ test('Delete SCIM token', async ({ page }) => {
   await clickRowAction(page, 'a1b2c3d4', 'Delete')
 
   // Confirm deletion modal should appear
-  const confirmModal = page.getByRole('dialog', { name: 'Confirm delete' })
+  const confirmModal = page.getByRole('dialog', { name: 'Delete SCIM token' })
   await expect(confirmModal).toBeVisible()
   await expect(confirmModal.getByText('Are you sure you want to delete')).toBeVisible()
 
