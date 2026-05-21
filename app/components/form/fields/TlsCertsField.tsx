@@ -186,27 +186,30 @@ export async function parseCertificate(certPem: string) {
 }
 
 export function matchesDomain(pattern: string, domain: string): boolean {
-  const patternParts = pattern.split('.')
-  const domainParts = domain.split('.')
+  // RFC 6125 §6.4: DNS comparisons are case-insensitive. RFC 4592 allows
+  // a trailing dot in FQDNs, so normalize both sides up front.
+  const normPattern = pattern.replace(/\.$/, '').toLowerCase()
+  const normDomain = domain.replace(/\.$/, '').toLowerCase()
+
+  const patternParts = normPattern.split('.')
+  const domainParts = normDomain.split('.')
 
   // RFC 6125 disallows a bare '*' wildcard
-  if (pattern === '*') {
-    return false
-  }
+  if (normPattern === '*') return false
 
   if (patternParts[0] === '*') {
-    // the domain parts and pattern parts should have the same number of items
-    // (prevents *.domain.com from matching test.test.domain.com)
+    // same number of labels (prevents *.domain.com matching a.b.domain.com)
     if (domainParts.length !== patternParts.length) return false
-    // the rest should be an exact match
     const patternSuffix = patternParts.slice(1).join('.')
-    return domain.endsWith(patternSuffix)
+    // reject pathological '*.' (would match any 2-label domain)
+    if (patternSuffix === '') return false
+    return normDomain.endsWith(patternSuffix)
   }
 
   // parts must match exactly for non-wildcard patterns
   return (
     patternParts.length === domainParts.length &&
-    patternParts.every((part, i) => part.toLowerCase() === domainParts[i].toLowerCase())
+    patternParts.every((part, i) => part === domainParts[i])
   )
 }
 

@@ -29,6 +29,21 @@ describe('matchesDomain', () => {
   it('matches with case insensitivity', () => {
     expect(matchesDomain('EXAMPLE.COM', 'example.com')).toBe(true)
     expect(matchesDomain('example.com', 'EXAMPLE.COM')).toBe(true)
+    // wildcard branch must also be case-insensitive (RFC 6125 §6.4)
+    expect(matchesDomain('*.SYS.EXAMPLE.COM', 'foo.sys.example.com')).toBe(true)
+    expect(matchesDomain('*.sys.example.com', 'FOO.SYS.EXAMPLE.COM')).toBe(true)
+  })
+
+  it('tolerates a trailing dot in either argument', () => {
+    expect(matchesDomain('example.com.', 'example.com')).toBe(true)
+    expect(matchesDomain('example.com', 'example.com.')).toBe(true)
+    expect(matchesDomain('*.example.com.', 'foo.example.com')).toBe(true)
+  })
+
+  it('rejects pathological "*." patterns', () => {
+    // empty suffix after the wildcard would otherwise match any 2-label domain
+    expect(matchesDomain('*.', 'a.b')).toBe(false)
+    expect(matchesDomain('*.', 'foo.bar')).toBe(false)
   })
 
   it('does not match wildcards in non-leading positions', () => {
