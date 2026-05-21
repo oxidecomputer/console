@@ -13,6 +13,7 @@ import type { Merge } from 'type-fest'
 import type { CertificateCreate } from '@oxide/api'
 import { OpenLink12Icon } from '@oxide/design-system/icons/react'
 
+import { getDelegatedDomain } from '~/forms/idp/util'
 import type { SiloCreateFormValues } from '~/forms/silo-create'
 import { Button } from '~/ui/lib/Button'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
@@ -148,7 +149,7 @@ const AddCertModal = ({ onDismiss, onSubmit, allNames, siloName }: AddCertModalP
             <CertDomainNotice
               {...certValidation}
               siloName={siloName}
-              domain="r2.oxide-preview.com"
+              domain={getDelegatedDomain(window.location)}
             />
             <FileField id="key-input" name="key" label="Key" required control={control} />
           </Modal.Section>
