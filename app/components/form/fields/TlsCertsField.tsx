@@ -172,8 +172,8 @@ export async function parseCertificate(certPem: string) {
     const cert = new X509Certificate(certPem)
     const nameItems = cert.getExtension(SubjectAlternativeNameExtension)?.names.items || []
     return {
-      commonNames: cert.subjectName.getField('CN') || [],
-      subjectAltNames: nameItems.map((item) => item.value) || [],
+      commonNames: cert.subjectName.getField('CN'),
+      subjectAltNames: nameItems.map((item) => item.value),
       isValid: true,
     }
   } catch {
@@ -189,7 +189,7 @@ export function matchesDomain(pattern: string, domain: string): boolean {
   const patternParts = pattern.split('.')
   const domainParts = domain.split('.')
 
-  // unsure if this would be an issue but we reject it anyway
+  // RFC 6125 disallows a bare '*' wildcard
   if (pattern === '*') {
     return false
   }
