@@ -85,8 +85,10 @@ describe('parseCertificate', () => {
         'localhost',
         '127.0.0.1',
       ],
+      notAfter: expect.any(Date),
       isValid: true,
     })
+    expect(result.notAfter?.toISOString()).toBe('2025-11-27T14:18:18.000Z')
   })
 
   it('returns invalid for invalid certificate', async () => {
@@ -94,6 +96,7 @@ describe('parseCertificate', () => {
     expect(result).toEqual({
       commonNames: [],
       subjectAltNames: [],
+      notAfter: null,
       isValid: false,
     })
   })
@@ -102,6 +105,7 @@ describe('parseCertificate', () => {
     expect(await parseCertificate('')).toEqual({
       commonNames: [],
       subjectAltNames: [],
+      notAfter: null,
       isValid: false,
     })
   })
@@ -112,6 +116,7 @@ describe('parseCertificate', () => {
     expect(await parseCertificate(garbage)).toEqual({
       commonNames: [],
       subjectAltNames: [],
+      notAfter: null,
       isValid: false,
     })
   })

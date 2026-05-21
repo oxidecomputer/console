@@ -181,12 +181,14 @@ export async function parseCertificate(certPem: string) {
     return {
       commonNames: cert.subjectName.getField('CN'),
       subjectAltNames: nameItems.map((item) => item.value),
+      notAfter: cert.notAfter,
       isValid: true,
     }
   } catch {
     return {
       commonNames: [],
       subjectAltNames: [],
+      notAfter: null,
       isValid: false,
     }
   }
@@ -220,16 +222,33 @@ export function matchesDomain(pattern: string, domain: string): boolean {
   )
 }
 
+const SiloCertsDocsLink = () => (
+  <div>
+    Learn more about{' '}
+    <a
+      target="_blank"
+      rel="noreferrer"
+      href={links.siloTlsCertsDocs}
+      className="inline-flex items-center underline"
+    >
+      silo certs
+      <OpenLink12Icon className="ml-1" />
+    </a>
+  </div>
+)
+
 function CertDomainNotice({
   commonNames = [],
   subjectAltNames = [],
   isValid = true,
+  notAfter = null,
   siloName,
   domain,
 }: {
   commonNames?: string[]
   subjectAltNames?: string[]
   isValid?: boolean
+  notAfter?: Date | null
   siloName: string
   domain: string
 }) {
@@ -241,67 +260,59 @@ function CertDomainNotice({
         content={
           <div className="flex flex-col space-y-2">
             <div>Expected an X.509 certificate in PEM format.</div>
-            <div>
-              Learn more about{' '}
-              <a
-                target="_blank"
-                rel="noreferrer"
-                href={links.siloTlsCertsDocs}
-                className="inline-flex items-center underline"
-              >
-                silo certs
-                <OpenLink12Icon className="ml-1" />
-              </a>
-            </div>
+            <SiloCertsDocsLink />
           </div>
         }
       />
     )
   }
 
-  // Domain matching needs a silo name to compare against
-  if (!siloName) return null
+  const expired = notAfter != null && notAfter < new Date()
 
-  if (commonNames.length === 0 && subjectAltNames.length === 0) {
-    return null
-  }
-
-  const expectedDomain = `${siloName}.sys.${domain}`
+  const hasNames = commonNames.length > 0 || subjectAltNames.length > 0
+  const expectedDomain = siloName ? `${siloName}.sys.${domain}` : null
   const domains = [...commonNames, ...subjectAltNames]
+  const mismatched =
+    expectedDomain !== null &&
+    hasNames &&
+    !domains.some((d) => matchesDomain(d, expectedDomain))
 
-  const matches = domains.some((d) => matchesDomain(d, expectedDomain))
-
-  if (matches) return null
+  if (!expired && !mismatched) return null
 
   return (
-    <Message
-      variant="info"
-      title="Certificate domain mismatch"
-      content={
-        <div className="flex flex-col space-y-2">
-          Expected to match {expectedDomain} <br />
-          <div>
-            Found:
-            <ul className="ml-4 list-disc">
-              {domains.map((domain, index) => (
-                <li key={index}>{domain}</li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            Learn more about{' '}
-            <a
-              target="_blank"
-              rel="noreferrer"
-              href={links.siloTlsCertsDocs}
-              className="inline-flex items-center underline"
-            >
-              silo certs
-              <OpenLink12Icon className="ml-1" />
-            </a>
-          </div>
-        </div>
-      }
-    />
+    <div className="flex flex-col space-y-2">
+      {expired && notAfter && (
+        <Message
+          variant="notice"
+          title="Certificate expired"
+          content={
+            <div className="flex flex-col space-y-2">
+              <div>Expired on {notAfter.toLocaleDateString()}.</div>
+              <SiloCertsDocsLink />
+            </div>
+          }
+        />
+      )}
+      {mismatched && expectedDomain && (
+        <Message
+          variant="info"
+          title="Certificate domain mismatch"
+          content={
+            <div className="flex flex-col space-y-2">
+              Expected to match {expectedDomain} <br />
+              <div>
+                Found:
+                <ul className="ml-4 list-disc">
+                  {domains.map((d, i) => (
+                    <li key={i}>{d}</li>
+                  ))}
+                </ul>
+              </div>
+              <SiloCertsDocsLink />
+            </div>
+          }
+        />
+      )}
+    </div>
   )
 }
