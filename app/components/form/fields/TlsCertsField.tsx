@@ -164,12 +164,19 @@ const AddCertModal = ({ onDismiss, onSubmit, allNames, siloName }: AddCertModalP
   )
 }
 
+const PEM_BLOCK_RE = /-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/
+
 export async function parseCertificate(certPem: string) {
   // dynamic import to keep 50k gzipped out of the main bundle
   const { SubjectAlternativeNameExtension, X509Certificate } =
     await import('@peculiar/x509')
   try {
-    const cert = new X509Certificate(certPem)
+    // Users often paste a chain (leaf + intermediates). Take the first PEM
+    // block — by convention that's the leaf cert, which is what should
+    // match the silo URL. Also tolerates leading whitespace / BOM.
+    const firstPem = certPem.match(PEM_BLOCK_RE)?.[0]
+    if (!firstPem) throw new Error('no PEM block')
+    const cert = new X509Certificate(firstPem)
     const nameItems = cert.getExtension(SubjectAlternativeNameExtension)?.names.items || []
     return {
       commonNames: cert.subjectName.getField('CN'),

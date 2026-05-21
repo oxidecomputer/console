@@ -115,4 +115,19 @@ describe('parseCertificate', () => {
       isValid: false,
     })
   })
+
+  it('parses the leaf when given a chain (multi-PEM bundle)', async () => {
+    // leaf + a second cert appended; we should parse the leaf only
+    const chain = `${validCert}\n${validCert}`
+    const result = await parseCertificate(chain)
+    expect(result.isValid).toBe(true)
+    expect(result.commonNames).toEqual(['test.example.com'])
+  })
+
+  it('tolerates leading whitespace and BOM', async () => {
+    const wrapped = `﻿  \n\t${validCert}\n\n`
+    const result = await parseCertificate(wrapped)
+    expect(result.isValid).toBe(true)
+    expect(result.commonNames).toEqual(['test.example.com'])
+  })
 })
