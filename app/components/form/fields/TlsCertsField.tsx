@@ -120,7 +120,7 @@ const AddCertModal = ({ onDismiss, onSubmit, allNames, siloName }: AddCertModalP
   const file = watch('cert')
 
   const { data: certValidation } = useQuery({
-    queryKey: ['validateImage', ...(file ? [file.name, file.size, file.lastModified] : [])],
+    queryKey: ['validateCert', ...(file ? [file.name, file.size, file.lastModified] : [])],
     queryFn: file ? () => file.text().then(parseCertificate) : skipToken,
   })
 
@@ -147,7 +147,7 @@ const AddCertModal = ({ onDismiss, onSubmit, allNames, siloName }: AddCertModalP
               control={control}
             />
             <CertDomainNotice
-              {...certValidation}
+              {...(certValidation ?? {})}
               siloName={siloName}
               domain={getDelegatedDomain(window.location)}
             />
@@ -172,13 +172,13 @@ export async function parseCertificate(certPem: string) {
     const cert = new X509Certificate(certPem)
     const nameItems = cert.getExtension(SubjectAlternativeNameExtension)?.names.items || []
     return {
-      commonName: cert.subjectName.getField('CN') || [],
+      commonNames: cert.subjectName.getField('CN') || [],
       subjectAltNames: nameItems.map((item) => item.value) || [],
       isValid: true,
     }
   } catch {
     return {
-      commonName: [],
+      commonNames: [],
       subjectAltNames: [],
       isValid: false,
     }
@@ -211,13 +211,13 @@ export function matchesDomain(pattern: string, domain: string): boolean {
 }
 
 function CertDomainNotice({
-  commonName = [],
+  commonNames = [],
   subjectAltNames = [],
   isValid = true,
   siloName,
   domain,
 }: {
-  commonName?: string[]
+  commonNames?: string[]
   subjectAltNames?: string[]
   isValid?: boolean
   siloName: string
@@ -227,7 +227,7 @@ function CertDomainNotice({
     return (
       <Message
         variant="info"
-        title="Could not be parsed"
+        title="Couldn't parse certificate"
         content={
           <div className="flex flex-col space-y-2">
             <div>Expected an X.509 certificate in PEM format.</div>
@@ -252,16 +252,14 @@ function CertDomainNotice({
   // Domain matching needs a silo name to compare against
   if (!siloName) return null
 
-  if (commonName.length === 0 && subjectAltNames.length === 0) {
+  if (commonNames.length === 0 && subjectAltNames.length === 0) {
     return null
   }
 
   const expectedDomain = `${siloName}.sys.${domain}`
-  const domains = [...commonName, ...subjectAltNames]
+  const domains = [...commonNames, ...subjectAltNames]
 
-  const matches = domains.some(
-    (d) => matchesDomain(d, expectedDomain) || matchesDomain(d, `*.sys.${domain}`)
-  )
+  const matches = domains.some((d) => matchesDomain(d, expectedDomain))
 
   if (matches) return null
 

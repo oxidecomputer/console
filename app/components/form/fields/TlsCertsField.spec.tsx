@@ -62,7 +62,7 @@ describe('parseCertificate', () => {
   it('parses valid certificate', async () => {
     const result = await parseCertificate(validCert)
     expect(result).toEqual({
-      commonName: ['test.example.com'],
+      commonNames: ['test.example.com'],
       subjectAltNames: [
         'test.example.com',
         '*.test.example.com',
@@ -77,7 +77,7 @@ describe('parseCertificate', () => {
   it('returns invalid for invalid certificate', async () => {
     const result = await parseCertificate(invalidCert)
     expect(result).toEqual({
-      commonName: [],
+      commonNames: [],
       subjectAltNames: [],
       isValid: false,
     })
@@ -85,7 +85,7 @@ describe('parseCertificate', () => {
 
   it('returns invalid for empty input', async () => {
     expect(await parseCertificate('')).toEqual({
-      commonName: [],
+      commonNames: [],
       subjectAltNames: [],
       isValid: false,
     })
@@ -95,7 +95,7 @@ describe('parseCertificate', () => {
     // simulates a non-PEM file (e.g. PNG) read as text
     const garbage = '\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR'
     expect(await parseCertificate(garbage)).toEqual({
-      commonName: [],
+      commonNames: [],
       subjectAltNames: [],
       isValid: false,
     })
