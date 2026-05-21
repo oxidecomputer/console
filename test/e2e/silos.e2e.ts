@@ -17,6 +17,30 @@ import {
   expectVisible,
 } from './utils'
 
+// Self-signed cert with CN=test.example.com and SANs that won't match
+// other-silo.sys.*; notAfter is 2025-11-27, i.e. already expired.
+const expiredCertPem = `-----BEGIN CERTIFICATE-----
+MIIDbjCCAlagAwIBAgIUVF36cv2UevtKOGWP3GNV1h+TpScwDQYJKoZIhvcNAQEL
+BQAwGzEZMBcGA1UEAwwQdGVzdC5leGFtcGxlLmNvbTAeFw0yNDExMjcxNDE4MTha
+Fw0yNTExMjcxNDE4MThaMBsxGTAXBgNVBAMMEHRlc3QuZXhhbXBsZS5jb20wggEi
+MA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC0cBavU9cnrTY7CaOsHdfzr7e4
+mT7eRCGJa1jmuGeADGIs1IcMr/7jgiKS/1P69SehfqpFWXKAYn5OH+ickZfs55AB
+uyfh+KogmTkX6I40CnP9GohfgAaDVr119a2kdJNvinsCjNGfulMBYiw+sJBp4l/c
+zQRYMXaMk1ARKBgUuVZHZXnkWQKjp/GAQjVsUjl/dnBVeUuS4/0OVTLL8U6mGzdy
+f5s03bpBLOOJ9Owg1We5urYA6glCvvMh1VhBPsCnHFj6aYLnnWpJkVuJEKA+znEU
+U2n6T0bQorzVnn5ROtAn3ao4sGIVMbMeIaEvUt3zyVk+gtUvqSTPChFde6/LAgMB
+AAGjgakwgaYwHQYDVR0OBBYEFFzp73YRPxxu4bTQvmJy5rqHNXh7MB8GA1UdIwQY
+MBaAFFzp73YRPxxu4bTQvmJy5rqHNXh7MA8GA1UdEwEB/wQFMAMBAf8wUwYDVR0R
+BEwwSoIQdGVzdC5leGFtcGxlLmNvbYISKi50ZXN0LmV4YW1wbGUuY29tghEqLmRl
+di5leGFtcGxlLmNvbYIJbG9jYWxob3N0hwR/AAABMA0GCSqGSIb3DQEBCwUAA4IB
+AQCstbMiTwHuSlwuUslV9SxewdxTtKAjNgUnCn1Jv7hs44wNTBqvMzDq2HB26wRR
+Onbt6gReOj9GdSRmJPNcgouaAGJWCXuaZPs34LgRJir6Z0FVcK7/O3SqfTOg3tJg
+gzg4xmtzXc7Im4VgvaLS5iXCOvUaKf/rXeYDa3r37EF+vyzcETt5bXwtU8BBFvVT
+JfPDla5lYv0h9Z+XsYEAqtbChdy+fVuHnF+EygZCT9KVFBPWQrsaF1Qc/CvP/+LM
+CrdLoB+2pkWbX075tv8LIbL2dW5Gzyw+lU6lzPL9Vikm3QXGRklKHA4SVuZ3F9tr
+wPRLWb4aPmo1COkgvg3Moqdw
+-----END CERTIFICATE-----`
+
 test('Create silo', async ({ page }) => {
   await page.goto('/system/silos')
 
@@ -98,6 +122,8 @@ test('Create silo', async ({ page }) => {
   await expectVisible(page, [certRequired, keyRequired, nameRequired])
 
   await chooseFile(page.getByLabel('Cert', { exact: true }), 'small')
+  // garbage content should surface the soft "couldn't parse" notice
+  await expect(certDialog.getByText("Couldn't parse certificate")).toBeVisible()
   await chooseFile(page.getByLabel('Key'), 'small')
   const certName = certDialog.getByRole('textbox', { name: 'Name' })
 
@@ -125,7 +151,17 @@ test('Create silo', async ({ page }) => {
 
   // Change the name so it's unique
   await certName.fill('test-cert-2')
-  await chooseFile(page.getByLabel('Cert', { exact: true }), 'small')
+  // upload a real (expired) PEM whose SANs don't match other-silo.sys.* —
+  // exercises the mismatch + expiry notices end to end
+  await page.getByLabel('Cert', { exact: true }).setInputFiles({
+    name: 'cert.pem',
+    mimeType: 'application/x-pem-file',
+    buffer: Buffer.from(expiredCertPem),
+  })
+  await expect(certDialog.getByText('Certificate expired')).toBeVisible()
+  await expect(certDialog.getByText('Certificate domain mismatch')).toBeVisible()
+  await expect(certDialog.getByText('other-silo.sys.placeholder')).toBeVisible()
+  await expect(certDialog.getByText("Couldn't parse certificate")).toBeHidden()
   await chooseFile(page.getByLabel('Key'), 'small')
   await certSubmit.click()
   await expect(page.getByRole('cell', { name: 'test-cert-2', exact: true })).toBeVisible()
