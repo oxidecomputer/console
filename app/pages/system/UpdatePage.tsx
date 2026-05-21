@@ -191,6 +191,20 @@ export default function UpdatePage() {
         >
           {status.suspended ? 'Yes' : 'No'}
         </PropertiesTable.Row>
+        <PropertiesTable.Row
+          label={
+            <>
+              Contact support?{' '}
+              <TipIcon className="ml-1.5">
+                If yes, the system has detected one or more known conditions that require
+                Oxide support to resolve. Contact support before starting any update, and
+                immediately if an update has recently completed.
+              </TipIcon>
+            </>
+          }
+        >
+          {status.contactSupport ? 'Yes' : 'No'}
+        </PropertiesTable.Row>
       </PropertiesTable>
 
       <Divider className="my-8" />
