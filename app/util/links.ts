@@ -40,6 +40,10 @@ export const docLinks = {
     href: 'https://docs.oxide.computer/guides/deploying-workloads#_affinity_and_anti_affinity',
     linkText: 'Anti-Affinity Groups',
   },
+  auditLog: {
+    href: 'https://docs.oxide.computer/guides/audit-logs',
+    linkText: 'Audit Logs',
+  },
   deviceTokens: {
     href: 'https://docs.oxide.computer/guides/working-with-api-and-sdk#_device_token_setup',
     linkText: 'Access Tokens',
