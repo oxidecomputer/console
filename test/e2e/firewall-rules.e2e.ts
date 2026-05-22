@@ -713,7 +713,7 @@ test("esc in combobox doesn't close form", async ({ page }) => {
   await page.getByRole('textbox', { name: 'Name' }).fill('a')
 
   // make sure the confirm modal does pop up on esc when we're not in a combobox
-  const confirmModal = page.getByRole('dialog', { name: 'Confirm navigation' })
+  const confirmModal = page.getByRole('dialog', { name: 'Leave form?' })
   await expect(confirmModal).toBeHidden()
   await page.keyboard.press('Escape')
   await expect(confirmModal).toBeVisible()

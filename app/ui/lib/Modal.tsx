@@ -8,6 +8,7 @@
 import { Dialog as BaseDialog } from '@base-ui/react/dialog'
 import cn from 'classnames'
 import * as m from 'motion/react-m'
+import type { RefObject } from 'react'
 import type { MergeExclusive } from 'type-fest'
 
 import { Close12Icon } from '@oxide/design-system/icons/react'
@@ -106,6 +107,8 @@ type FooterProps = {
   actionType?: 'primary' | 'danger'
   actionText: React.ReactNode
   actionLoading?: boolean
+  /** Forwarded to the action button so callers can focus it programmatically. */
+  actionRef?: RefObject<HTMLButtonElement | null>
   cancelText?: string
   disabled?: boolean
   disabledReason?: React.ReactNode
@@ -119,6 +122,7 @@ Modal.Footer = ({
   actionType = 'primary',
   actionText,
   actionLoading,
+  actionRef,
   cancelText,
   disabled,
   disabledReason,
@@ -134,6 +138,7 @@ Modal.Footer = ({
         </Button>
       )}
       <Button
+        ref={actionRef}
         type={formId ? 'submit' : 'button'}
         form={formId}
         size="sm"
