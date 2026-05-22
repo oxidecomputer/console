@@ -262,14 +262,39 @@ test.describe('Image upload', () => {
     await expectUploadProcess(page)
   })
 
+  // generic 500s (errorCode "Internal") have no useful API message, so we fall
+  // back to a generic one; specific error codes like InsufficientCapacity carry
+  // a real user-facing message that we surface verbatim.
+  const genericMessage = 'Something went wrong. Please try again.'
   const failureCases = [
-    { imageName: 'disk-create-500', stepText: 'Create temporary disk' },
-    { imageName: 'import-start-500', stepText: 'Put disk in import mode' },
-    { imageName: 'import-stop-500', stepText: 'Get disk out of import mode' },
-    { imageName: 'disk-finalize-500', stepText: 'Finalize disk and create snapshot' },
+    {
+      imageName: 'disk-create-500',
+      stepText: 'Create temporary disk',
+      message: genericMessage,
+    },
+    {
+      imageName: 'disk-create-quota',
+      stepText: 'Create temporary disk',
+      message: 'Storage Limit Exceeded',
+    },
+    {
+      imageName: 'import-start-500',
+      stepText: 'Put disk in import mode',
+      message: genericMessage,
+    },
+    {
+      imageName: 'import-stop-500',
+      stepText: 'Get disk out of import mode',
+      message: genericMessage,
+    },
+    {
+      imageName: 'disk-finalize-500',
+      stepText: 'Finalize disk and create snapshot',
+      message: genericMessage,
+    },
   ]
 
-  for (const { imageName, stepText } of failureCases) {
+  for (const { imageName, stepText, message } of failureCases) {
     test(`failure ${imageName}`, async ({ page, browserName }) => {
       // eslint-disable-next-line playwright/no-skipped-test
       test.skip(browserName === 'webkit', 'safari. stop this')
@@ -280,10 +305,13 @@ test.describe('Image upload', () => {
 
       const step = page.getByTestId(`upload-step: ${stepText}`)
       await expect(step).toHaveAttribute('data-status', 'error', { timeout: 15000 })
-      await expectVisible(page, [
-        'text="Something went wrong. Please try again."',
-        'role=button[name="Back"]',
-      ])
+
+      await expect(page.getByText(message)).toBeVisible()
+      // confirm we don't show both the generic and a specific API message
+      if (message !== genericMessage) {
+        await expect(page.getByText(genericMessage)).toBeHidden()
+      }
+      await expect(page.getByRole('button', { name: 'Back' })).toBeVisible()
     })
   }
 })
