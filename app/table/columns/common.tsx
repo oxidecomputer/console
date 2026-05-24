@@ -41,7 +41,7 @@ function instanceStateCell(info: Info<InstanceState>) {
 export function sizeCellInner(value: number) {
   const size = formatBytes(value)
   return (
-    <span className="text-default">
+    <span className="text-default text-nowrap">
       {size.value} <span className="text-tertiary">{size.unit}</span>
     </span>
   )
